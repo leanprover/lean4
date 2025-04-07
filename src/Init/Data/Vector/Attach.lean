@@ -432,13 +432,13 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {xs : Vector α n}
   simp
 
 @[simp]
-theorem count_attach [DecidableEq α] {xs : Vector α n} {a : {x // x ∈ xs}} :
+theorem count_attach [BEq α] {xs : Vector α n} {a : {x // x ∈ xs}} :
     xs.attach.count a = xs.count ↑a := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} {xs : Vector α n} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
+theorem count_attachWith [BEq α] {p : α → Prop} {xs : Vector α n} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
     (xs.attachWith p H).count a = xs.count ↑a := by
   cases xs
   simp

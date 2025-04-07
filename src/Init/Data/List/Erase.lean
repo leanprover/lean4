@@ -417,6 +417,11 @@ theorem erase_append [LawfulBEq α] {a : α} {l₁ l₂ : List α} :
     (l₁ ++ l₂).erase a = if a ∈ l₁ then l₁.erase a ++ l₂ else l₁ ++ l₂.erase a := by
   simp [erase_eq_eraseP, eraseP_append]
 
+theorem erase_replicate' {n : Nat} {a b : α} :
+    (replicate n a).erase b = if a == b then replicate (n - 1) a else replicate n a := by
+  rw [erase_eq_eraseP']
+  simp [eraseP_replicate]
+
 theorem erase_replicate [LawfulBEq α] {n : Nat} {a b : α} :
     (replicate n a).erase b = if b == a then replicate (n - 1) a else replicate n a := by
   rw [erase_eq_eraseP]

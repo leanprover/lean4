@@ -839,10 +839,10 @@ theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
 instance [DecidableEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff elem_iff
 
-theorem elem_eq_mem [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
+theorem elem_eq_mem [BEq α] [LawfulBEq α] [DecidableEq α] {a : α} {xs : Array α} :
     elem a xs = decide (a ∈ xs) := by rw [Bool.eq_iff_iff, elem_iff, decide_eq_true_iff]
 
-@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
+@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] [DecidableEq α] {a : α} {xs : Array α} :
     xs.contains a = decide (a ∈ xs) := by rw [← elem_eq_contains, elem_eq_mem]
 
 /-- Variant of `any_push` with a side condition on `stop`. -/

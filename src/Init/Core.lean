@@ -1298,6 +1298,15 @@ theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
   exact rfl
 
+instance {α : Type u} {p : α → Prop} [BEq α] : BEq {x : α // p x} :=
+  ⟨fun x y => x.1 == y.1⟩
+
+instance {α : Type u} {p : α → Prop} [BEq α] [ReflBEq α] : ReflBEq {x : α // p x} where
+  rfl {x} := BEq.refl x.1
+
+instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x : α // p x} where
+  eq_of_beq h := Subtype.eq (eq_of_beq h)
+
 instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)

@@ -3106,7 +3106,7 @@ variable [BEq α]
     simp only [replace_cons]
     split <;> simp_all
 
-theorem getElem?_replace [LawfulBEq α] {l : List α} {i : Nat} :
+theorem getElem?_replace [LawfulBEq α] [DecidableEq α] {l : List α} {i : Nat} :
     (l.replace a b)[i]? = if l[i]? == some a then if a ∈ l.take i then some a else some b else l[i]? := by
   induction l generalizing i with
   | nil => cases i <;> simp
@@ -3119,7 +3119,7 @@ theorem getElem?_replace_of_ne [LawfulBEq α] {l : List α} {i : Nat} (h : l[i]?
     (l.replace a b)[i]? = l[i]? := by
   simp_all [getElem?_replace]
 
-theorem getElem_replace [LawfulBEq α] {l : List α} {i : Nat} (h : i < l.length) :
+theorem getElem_replace [LawfulBEq α] [DecidableEq α] {l : List α} {i : Nat} (h : i < l.length) :
     (l.replace a b)[i]'(by simpa) = if l[i] == a then if a ∈ l.take i then a else b else l[i] := by
   apply Option.some.inj
   rw [← getElem?_eq_getElem, getElem?_replace]

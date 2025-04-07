@@ -605,7 +605,7 @@ The verification API for `idxOf` is still incomplete.
 The lemmas below should be made consistent with those for `findIdx` (and proved using them).
 -/
 
-theorem idxOf_append [BEq α] [LawfulBEq α] {xs ys : Array α} {a : α} :
+theorem idxOf_append [BEq α] [LawfulBEq α] [DecidableEq α] {xs ys : Array α} {a : α} :
     (xs ++ ys).idxOf a = if a ∈ xs then xs.idxOf a else ys.idxOf a + xs.size := by
   rw [idxOf, findIdx_append]
   split <;> rename_i h

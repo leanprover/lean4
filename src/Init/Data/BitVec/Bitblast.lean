@@ -595,21 +595,6 @@ def mulRec (x y : BitVec w) (s : Nat) : BitVec w :=
   | 0 => cur
   | s + 1 => mulRec x y s + cur
 
-def uppcRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
-  match s with
-  | 0 => x.msb
-  | i + 1 =>  x[w - (i + 1) - 1] && uppcRec x y i (by omega)
-
-def aandRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
-  match s with
-  | 0 => true
-  | i + 1 => y[i + 1] && uppcRec x y i (by omega)
-
-def resRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
-  match s with
-  | 0 => false
-  | i + 1 => uppcRec x y i (by omega) && aandRec x y (i + 1) (by omega)
-
 theorem mulRec_zero_eq (x y : BitVec w) :
     mulRec x y 0 = if y.getLsbD 0 then x else 0 := by
   simp [mulRec]
@@ -2176,6 +2161,156 @@ theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
   have : 2^i ≤ x.toNat := two_pow_le_toNat_of_getElem_eq_true hi hxi
   have : i < 2^i := by exact Nat.lt_two_pow_self
   omega
+
+
+/- ### fast circuit for unsigned overflow detection -/
+
+/-
+  suppose x = 3#3, y = 2#3, w = 3
+
+  imperative def:
+
+    uppc = x.msb
+    for i = 1; i < 4; ++i
+      aand = y[i] && uppc
+      if i = 1
+        res = aand
+      else
+        res = res || aand
+      uppc = uppc || x[4 - i - 1]
+
+    uppc_0 = x.msb
+    --- i = 1
+        aand_1 = y[1] && uppc_0
+        res_1 = aand
+              = y[1] && uppc_0
+        uppc_1 = uppc_0 || x[2]
+    --- i = 2
+        aand_2 = y[2] && uppc_1
+               = y[2] && (uppc_0 || x[2])
+        res_2 = res_1 || aand_2
+              = (y[1] && uppc_0) || (y[2] && (uppc_0 || x[2]))
+        uppc_2 = uppc_1 || x[1]
+               = (uppc_0 || x[2]) || x[1]
+    --- i = 3
+        aand_3 = y[3] && uppc_2
+               = y[3] && ((uppc_0 || x[2]) || x[1])
+        res_3 = res_2 || aand_3
+              = ((y[1] && uppc_0) || (y[2] && (uppc_0 || x[2]))) || (y[3] && ((uppc_0 || x[2]) || x[1]))
+        uppc_3 = uppc_2 || x[0]
+               = ((uppc_0 || x[2]) || x[1]) || x[0]
+
+    ---
+
+    aand_i = y[i] && uppc_(i-1)
+    res_i = res_(i-1) || aand_i
+    uppc_i = uppc_(i-1) || x[w-i-1]
+
+    with uppc_0 = x.msb
+         res_0 = false
+         aand_0 = true
+
+    -- the other way around :
+
+        res_3 = res_2 || aand_3
+              = (res_1 || aand_2) || (y[3] && uppc_2)
+              = ((res_0 || aand_1) || (y[2] && uppc_1)) || (y[3] && (uppc_1 || x[w-2-1]))
+              = ((res_0 ||(y[1] && uppc_0))) || (y[2] && (uppc_0 || x[2]))) || (y[3] || (uppc_0 || x[2]) || x[1])
+
+consider x = 3#3 = 011, y = 2#3 = 010, w = 3
+    res_2 = res_1 || aand_2
+          = (res_0 || aand_1) || (y[2] && uppc_1)
+          = (res_0 || (y[1] && uppc_0)) || (y[2] && (uppc_0 || x[1]))
+          = (false || (y[1] && x[2])) || (y[2] && (x[2] || x[1]))
+          = false || false || false
+
+consider x = 3#3 = 011, y = 3#3 = 011, w = 3
+    res_2 = res_1 || aand_2
+          = (res_0 || aand_1) || (y[2] && uppc_1)
+          = (res_0 || (y[1] && uppc_0)) || (y[2] && (uppc_0 || x[1]))
+          = (false || (y[1] && x[2])) || (y[2] && (x[2] || x[1]))
+          = false || false || false
+
+imperative: consider x = 3#3 = 011, y = 3#3 = 011
+
+    uppc = false
+    for i = 1; i < 3; ++i
+      aand = y[i] && uppc
+      if i = 1
+        res = aand
+      else
+        res = res || aand
+      uppc = uppc || x[3 - i - 1]
+
+    uppc_0 = x.msb
+    --- i = 1
+        aand_1 = y[1] && false= false
+        res_1 = aand_1 = false
+        uppc_1 = false || x[2] = false
+    --- i = 2
+        aand_2 = y[2] && uppc_1 = false && false = false
+        res_2 = res_1 || aand_2 = false || false = false
+        uppc_2 = uppc_1 || x[1] = false || true = true
+
+imperative: consider x = 6#3 = 110, y = 5#3 = 101
+
+    uppc_0 = true
+    --- i = 1
+        aand_1 = false
+        res_1 = false
+        uppc_1 = true || true = true
+    --- i = 2
+        aand_2 = y[2] && uppc_1 = true
+        res_2 = res_1 || aand_2 = true
+        uppc_2 = uppc_1 || x[1] = true
+
+functional: consider x = 6#3 = 110, y = 5#3 = 101
+
+    res_2 = res_1 || aand_2
+          = (res_0 || aand_1) || (y[2] && uppc_1)
+          = (res_0 || (y[1] && uppc_0)) || (y[2] && (uppc_0 || x[1]))
+          = (false || false) || (true && (true || true))
+          = false || true
+
+    aand_i = y[i] && uppc_(i-1)
+    res_i = res_(i-1) || aand_i
+    uppc_i = uppc_(i-1) || x[w-i-1]
+
+    with uppc_0 = x.msb
+         res_0 = false
+         aand_0 = true
+
+-/
+
+/--
+  unsigned parallel prefix for fast umulOverflow circuit
+-/
+def uppcRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+  match s with
+  | 0 => x.msb
+  | i + 1 =>  x[w - (i + 1) - 1] && uppcRec x y i (by omega)
+
+/--
+  conjunction for fast umulOverflow circuit
+-/
+def aandRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+  match s with
+  | 0 => true
+  | i + 1 => y[i + 1] && uppcRec x y i (by omega)
+
+/--
+  preliminary overflow flag for fast umulOverflow circuit
+-/
+def resRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+  match s with
+  | 0 => false
+  | i + 1 => uppcRec x y i (by omega) && aandRec x y (i + 1) (by omega)
+
+-- testing these definitions:
+-- #eval resRec (3#3) (3#3) 2 (by omega) false
+-- #eval resRec (2#3) (3#3) 2 (by omega) false
+-- #eval resRec (6#3) (5#3) 2 (by omega) true
+
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
 and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/

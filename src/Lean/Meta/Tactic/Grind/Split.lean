@@ -15,7 +15,7 @@ inductive CaseSplitStatus where
   | resolved
   | notReady
   | ready (numCases : Nat) (isRec := false)
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 /-- Given `c`, the condition of an `if-then-else`, check whether we need to case-split on the `if-then-else` or not -/
 private def checkIteCondStatus (c : Expr) : GoalM CaseSplitStatus := do
@@ -108,6 +108,10 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
     if (← isResolvedCaseSplit e) then
       trace_goal[grind.debug.split] "split resolved: {e}"
       return .resolved
+    if e.isForall then
+      let s ← checkForallStatus e
+      trace_goal[grind.debug.split] "{e}, status: {repr s}"
+      return s
     if (← isCongrToPrevSplit e) then
       return .resolved
     if let some info := isMatcherAppCore? (← getEnv) e then
@@ -123,8 +127,6 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
       let .const declName _ := type.getAppFn | report; return .resolved
       let .inductInfo info ← getConstInfo declName | report; return .resolved
       return .ready info.ctors.length info.isRec
-    if e.isForall then
-      return (← checkForallStatus e)
     return .notReady
 
 private inductive SplitCandidate where
@@ -150,6 +152,7 @@ where
         modify fun s => { s with split.num := numSplits, ematch.num := 0 }
       return c?
     | c::cs =>
+    trace_goal[grind.debug.split] "checking: {c}"
     match (← checkCaseSplitStatus c) with
     | .notReady => go cs c? (c::cs')
     | .resolved => go cs c? cs'

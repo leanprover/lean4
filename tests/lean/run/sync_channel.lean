@@ -38,7 +38,7 @@ def sendLots (ch : Channel Nat) : IO Unit := do
   let sendTask ← sendIt ch messages
   let recvTask ← recvIt ch []
   assertBEq (← IO.wait sendTask) (some ())
-  ch.close
+  discard <| ch.close
   assertBEq (← IO.wait recvTask) messages
 
 def sendItSync (ch : Channel.Sync Nat) (messages : List Nat) : IO (Option Unit) := do
@@ -58,7 +58,7 @@ def sendLotsSync (ch : Channel.Sync Nat) : IO Unit := do
   let sendTask ← IO.asTask (prio := .dedicated) (sendItSync ch messages)
   let recvTask ← IO.asTask (prio := .dedicated) (recvItSync ch)
   assertBEq (← IO.ofExcept (← IO.wait sendTask)) (some ())
-  ch.close
+  discard <| ch.close
   assertBEq (← IO.ofExcept (← IO.wait recvTask)) messages
 
 partial def sendLotsMulti (ch : Channel Nat) : IO Unit := do
@@ -69,7 +69,7 @@ partial def sendLotsMulti (ch : Channel Nat) : IO Unit := do
   let recvTask2 ← recvIt ch []
   assertBEq (← IO.wait sendTask1) (some ())
   assertBEq (← IO.wait sendTask2) (some ())
-  ch.close
+  discard <| ch.close
   let msg1 ← IO.wait recvTask1
   let msg2 ← IO.wait recvTask2
   assertBEq (msg1.sum + msg2.sum) (2 * messages.sum)
@@ -82,7 +82,7 @@ partial def sendLotsMultiSync (ch : Channel.Sync Nat) : IO Unit := do
   let recvTask2 ← IO.asTask (prio := .dedicated) (recvItSync ch)
   assertBEq (← IO.ofExcept (← IO.wait sendTask1)) (some ())
   assertBEq (← IO.ofExcept (← IO.wait sendTask2)) (some ())
-  ch.close
+  discard <| ch.close
   let msg1 ← IO.ofExcept (← IO.wait recvTask1)
   let msg2 ← IO.ofExcept (← IO.wait recvTask2)
   assertBEq (msg1.sum + msg2.sum) (2 * messages.sum)

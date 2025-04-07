@@ -71,6 +71,9 @@ theorem beq_eq_decide_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α)
 theorem bne_eq_decide_not_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a != b) = (decide (¬ a = b)) := by
   by_cases a = b <;> simp [*]
 
+theorem xor_eq (a b : Bool) : (a ^^ b) = (a != b) := by
+  rfl
+
 theorem natCast_div (a b : Nat) : (↑(a / b) : Int) = ↑a / ↑b := by
   rfl
 
@@ -122,6 +125,8 @@ init_grind_norm
   Bool.and_false Bool.and_true Bool.false_and Bool.true_and Bool.and_eq_true Bool.and_assoc
   -- Bool not
   Bool.not_not
+  -- Bool xor
+  xor_eq
   -- beq
   beq_iff_eq beq_eq_decide_eq beq_self_eq_true
   -- bne

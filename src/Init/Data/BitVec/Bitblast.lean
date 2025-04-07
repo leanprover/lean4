@@ -1953,9 +1953,10 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
   rcases w with _|_|w
   · simp [hw]; omega
   · simp [hw]; omega
-  · simp only [umulOverflow, ge_iff_le, truncate_eq_setWidth]
-    simp only [bool_to_prop]
-    simp [resRec, uppcRec, aandRec]
+  · simp [umulOverflow, ge_iff_le, truncate_eq_setWidth, resRec, uppcRec, aandRec]
+    let k' := x.uppcRec y w (by omega)
+    rw [show x.uppcRec y w (by omega) = k' by rfl]
+
     sorry
 
 end BitVec

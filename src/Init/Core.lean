@@ -735,6 +735,20 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
+/-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
+class ReflBEq (α) [BEq α] : Prop where
+  /-- `==` is reflexive, that is, `(a == a) = true`. -/
+  protected rfl {a : α} : a == a
+
+@[simp] theorem BEq.rfl [BEq α] [ReflBEq α] {a : α} : a == a := ReflBEq.rfl
+theorem BEq.refl [BEq α] [ReflBEq α] {a : α} : a == a := BEq.rfl
+
+theorem beq_of_eq [BEq α] [ReflBEq α] {a b : α} : a = b → a == b
+  | rfl => BEq.refl
+
+theorem not_eq_of_beq_eq_false [BEq α] [ReflBEq α] {a b : α} (h : (a == b) = false) : ¬a = b := by
+  intro h'; subst h'; have : true = false := BEq.rfl.symm.trans h; contradiction
+
 /--
 A Boolean equality test coincides with propositional equality.
 
@@ -742,11 +756,9 @@ In other words:
  * `a == b` implies `a = b`.
  * `a == a` is true.
 -/
-class LawfulBEq (α : Type u) [BEq α] : Prop where
+class LawfulBEq (α : Type u) [BEq α] : Prop extends ReflBEq α where
   /-- If `a == b` evaluates to `true`, then `a` and `b` are equal in the logic. -/
   eq_of_beq : {a b : α} → a == b → a = b
-  /-- `==` is reflexive, that is, `(a == a) = true`. -/
-  protected rfl : {a : α} → a == a
 
 export LawfulBEq (eq_of_beq)
 
@@ -757,6 +769,11 @@ instance : LawfulBEq Bool where
 instance [DecidableEq α] : LawfulBEq α where
   eq_of_beq := of_decide_eq_true
   rfl := of_decide_eq_self_eq_true _
+
+instance (priority := low) [BEq α] [LawfulBEq α] : DecidableEq α := fun x y =>
+  match h : x == y with
+  | false => .isFalse (not_eq_of_beq_eq_false h)
+  | true => .isTrue (eq_of_beq h)
 
 instance : LawfulBEq Char := inferInstance
 
@@ -852,8 +869,8 @@ theorem Bool.of_not_eq_false : {b : Bool} → ¬ (b = false) → b = true
   | true,  _ => rfl
   | false, h => absurd rfl h
 
-theorem ne_of_beq_false [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = false) : a ≠ b := by
-  intro h'; subst h'; have : true = false := Eq.trans LawfulBEq.rfl.symm h; contradiction
+theorem ne_of_beq_false [BEq α] [ReflBEq α] {a b : α} (h : (a == b) = false) : a ≠ b :=
+  not_eq_of_beq_eq_false h
 
 theorem beq_false_of_ne [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a == b) = false :=
   have : ¬ (a == b) = true := by
@@ -1549,7 +1566,7 @@ theorem Nat.succ.injEq (u v : Nat) : (u.succ = v.succ) = (u = v) :=
   Eq.propIntro Nat.succ.inj (congrArg Nat.succ)
 
 @[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] {a b : α} : a == b ↔ a = b :=
-  ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
+  ⟨eq_of_beq, beq_of_eq⟩
 
 /-! # Prop lemmas -/
 

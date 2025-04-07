@@ -8,8 +8,7 @@ example {as : List α} {i : Nat} (h : i < as.length) :
     as.set i as[i] = as := by
   apply ext_getElem
   · sorry
-  · intro n h₁ h₂
-    -- works:
+  · -- works:
     grind [getElem_set]
 
 attribute [grind] List.getElem_set
@@ -19,8 +18,7 @@ example {as : List α} {i : Nat} (h : i < as.length) :
     as.set i as[i] = as := by
   apply ext_getElem
   · sorry
-  · intro n h₁ h₂
-    -- fails:
+  · -- fails:
     grind
 
 ---

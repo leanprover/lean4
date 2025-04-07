@@ -84,9 +84,12 @@ private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
 
 private def checkForallStatus (e : Expr) : GoalM CaseSplitStatus := do
   if (← isEqTrue e) then
-    let .forallE _ p _ _ := e | return .resolved
+    let .forallE _ p q _ := e | return .resolved
     if (← isEqTrue p <||> isEqFalse p) then
       return .resolved
+    unless q.hasLooseBVars do
+      if (← isEqTrue q <||> isEqFalse q) then
+        return .resolved
     return .ready 2
   else if (← isEqFalse e) then
     return .resolved

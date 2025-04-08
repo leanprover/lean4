@@ -6,8 +6,8 @@ open Int.Linear
 -- set_option trace.grind.cutsat.internalize true
 
 /--
-info: [grind.cutsat.eq] -1*「b + f a + 1」 + b + 「f a」 + 1 = 0
-[grind.cutsat.eq] b + 「f a」 + 1 = 0
+info: [grind.cutsat.eq] -1*「b + f a + 1」 + b + f a + 1 = 0
+[grind.cutsat.eq] b + f a + 1 = 0
 -/
 #guard_msgs (info) in
 set_option trace.grind.cutsat.eq true in

@@ -14,7 +14,7 @@ import Init.TacticsExtra
 
 namespace Lean.Grind
 
-class CommRing (α : Type u) extends Add α, Zero α, Mul α, One α, Neg α, IntCast α where
+class CommRing (α : Type u) [∀ n, OfNat α n] extends Add α, Mul α, Neg α, Sub α, HPow α Nat α where
   add_assoc : ∀ a b c : α, a + b + c = a + (b + c)
   add_comm : ∀ a b : α, a + b = b + a
   add_zero : ∀ a : α, a + 0 = a
@@ -24,14 +24,15 @@ class CommRing (α : Type u) extends Add α, Zero α, Mul α, One α, Neg α, In
   mul_one : ∀ a : α, a * 1 = a
   left_distrib : ∀ a b c : α, a * (b + c) = a * b + a * c
   zero_mul : ∀ a : α, 0 * a = 0
-  cast_zero : ((0 : Int) : α) = (0 : α) := by rfl
-  cast_one : ((1 : Int) : α) = (1 : α) := by rfl
-  cast_add : ∀ a b : Int, ((a + b : Int) : α) = (a : α) + (b : α) := by intros; rfl
-  cast_mul : ∀ a b : Int, ((a * b : Int) : α) = (a : α) * (b : α) := by intros; rfl
-  cast_neg : ∀ a : Int, ((-a : Int) : α) = -(a : α) := by intros; rfl
+  sub_eq_add_neg : ∀ a b : α, a - b = a + -b
+  pow_zero : ∀ a : α, a ^ 0 = 1
+  pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
+  ofNat_add : ∀ a b : Nat, OfNat.ofNat (α := α) (a + b) = OfNat.ofNat a + OfNat.ofNat b := by intros; rfl
+  ofNat_mul : ∀ a b : Nat, OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a * OfNat.ofNat b := by intros; rfl
+
 namespace CommRing
 
-variable {α : Type u} [CommRing α]
+variable {α : Type u} [∀ n, OfNat α n] [CommRing α]
 
 theorem zero_add (a : α) : 0 + a = a := by
   rw [add_comm, add_zero]
@@ -48,42 +49,39 @@ theorem right_distrib (a b c : α) : (a + b) * c = a * c + b * c := by
 theorem mul_zero (a : α) : a * 0 = 0 := by
   rw [mul_comm, zero_mul]
 
-theorem cast_sub (a b : Int) : ((a - b : Int) : α) = (a : α) + -(b : α) := by
-  rw [Int.sub_eq_add_neg, cast_add, cast_neg]
-
 end CommRing
 
 open CommRing
 
-class IsCharP (α : Type u) [CommRing α] (p : outParam Nat) where
-  char (p) : ∀ {x : Int}, (x : α) = 0 ↔ x % p = 0
+class IsCharP (α : Type u) [∀ n, OfNat α n] [CommRing α] (p : outParam Nat) where
+  char (p) : ∀ {x : Nat}, OfNat.ofNat (α := α) x = 0 ↔ x % p = 0
 
 namespace IsCharP
 
-variable {α : Type u} [CommRing α] [IsCharP α p]
+variable {α : Type u} [∀ n, OfNat α n] [CommRing α] [IsCharP α p]
 
-theorem ext_iff {x y : Int} : (x : α) = (y : α) ↔ x % p = y % p := by
-  constructor
-  · intro h
-    replace h : ((x - y : Int) : α) = 0 := by rw [cast_sub, h, add_neg_cancel]
-    exact Int.emod_eq_emod_iff_emod_sub_eq_zero.mpr ((IsCharP.char p).mp h)
-  · intro h
-    have : ((x - y : Int) : α) = 0 :=
-      (IsCharP.char p).mpr (by rw [Int.sub_emod, h, Int.sub_self, Int.zero_emod])
-    replace this := congrArg (· + (y : α)) this
-    simpa [cast_sub, zero_add, add_assoc, neg_add_cancel, add_zero] using this
+-- theorem ext_iff {x y : Nat} : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p := by
+--   constructor
+--   · intro h
+--     replace h : ((x - y : Int) : α) = 0 := by rw [cast_sub, h, add_neg_cancel]
+--     exact Int.emod_eq_emod_iff_emod_sub_eq_zero.mpr ((IsCharP.char p).mp h)
+--   · intro h
+--     have : ((x - y : Int) : α) = 0 :=
+--       (IsCharP.char p).mpr (by rw [Int.sub_emod, h, Int.sub_self, Int.zero_emod])
+--     replace this := congrArg (· + (y : α)) this
+--     simpa [cast_sub, zero_add, add_assoc, neg_add_cancel, add_zero] using this
 
-theorem ext {x y : Int} (h : x % p = y % p) : (x : α) = (y : α) := ext_iff.mpr h
+-- theorem ext {x y : Int} (h : x % p = y % p) : (x : α) = (y : α) := ext_iff.mpr h
 
-theorem cast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
-  rw [ext_iff, Int.emod_emod]
+-- theorem cast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
+--   rw [ext_iff, Int.emod_emod]
 
-theorem eq_zero_iff_of_lt {x : Int} (h₁ : 0 ≤ x) (h₂ : x < p) : (x : α) = 0 ↔ x = 0 := by
-  rw [IsCharP.char, Int.emod_eq_of_lt h₁ h₂]
+-- theorem eq_zero_iff_of_lt {x : Int} (h₁ : 0 ≤ x) (h₂ : x < p) : (x : α) = 0 ↔ x = 0 := by
+--   rw [IsCharP.char, Int.emod_eq_of_lt h₁ h₂]
 
-theorem eq_iff_of_lt {x y : Int} (h₁ : 0 ≤ x) (h₂ : x < p) (h₃ : 0 ≤ y) (h₄ : y < p) :
-    (x : α) = (y : α) ↔ x = y := by
-  rw [ext_iff, Int.emod_eq_of_lt h₁ h₂, Int.emod_eq_of_lt h₃ h₄]
+-- theorem eq_iff_of_lt {x y : Int} (h₁ : 0 ≤ x) (h₂ : x < p) (h₃ : 0 ≤ y) (h₄ : y < p) :
+--     (x : α) = (y : α) ↔ x = y := by
+--   rw [ext_iff, Int.emod_eq_of_lt h₁ h₂, Int.emod_eq_of_lt h₃ h₄]
 
 end IsCharP
 

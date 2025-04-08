@@ -49,6 +49,18 @@ theorem ofInt_neg_one : ofInt (-1) = -1 := rfl
 theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
   rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt8.neg_eq_neg_one_mul]
 
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def pow (x : UInt8) (n : Nat) : UInt8 :=
+  match n with
+  | 0 => 1
+  | n + 1 => pow x n * x
+
+instance : HPow UInt8 Nat UInt8 where
+  hPow x n := pow x n
+
+theorem pow_zero (x : UInt8) : x ^ 0 = 1 := rfl
+theorem pow_succ (x : UInt8) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+
 end UInt8
 
 namespace UInt16
@@ -83,6 +95,18 @@ theorem ofInt_neg_one : ofInt (-1) = -1 := rfl
 
 theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
   rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt16.neg_eq_neg_one_mul]
+
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def pow (x : UInt16) (n : Nat) : UInt16 :=
+  match n with
+  | 0 => 1
+  | n + 1 => pow x n * x
+
+instance : HPow UInt16 Nat UInt16 where
+  hPow x n := pow x n
+
+theorem pow_zero (x : UInt16) : x ^ 0 = 1 := rfl
+theorem pow_succ (x : UInt16) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
 
 end UInt16
 
@@ -119,6 +143,18 @@ theorem ofInt_neg_one : ofInt (-1) = -1 := rfl
 theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
   rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt32.neg_eq_neg_one_mul]
 
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def pow (x : UInt32) (n : Nat) : UInt32 :=
+  match n with
+  | 0 => 1
+  | n + 1 => pow x n * x
+
+instance : HPow UInt32 Nat UInt32 where
+  hPow x n := pow x n
+
+theorem pow_zero (x : UInt32) : x ^ 0 = 1 := rfl
+theorem pow_succ (x : UInt32) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+
 end UInt32
 
 namespace UInt64
@@ -153,6 +189,18 @@ theorem ofInt_neg_one : ofInt (-1) = -1 := rfl
 
 theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
   rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt64.neg_eq_neg_one_mul]
+
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def pow (x : UInt64) (n : Nat) : UInt64 :=
+  match n with
+  | 0 => 1
+  | n + 1 => pow x n * x
+
+instance : HPow UInt64 Nat UInt64 where
+  hPow x n := pow x n
+
+theorem pow_zero (x : UInt64) : x ^ 0 = 1 := rfl
+theorem pow_succ (x : UInt64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
 
 end UInt64
 
@@ -217,6 +265,18 @@ theorem ofInt_neg_one : ofInt (-1) = -1 := by
 theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
   rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← USize.neg_eq_neg_one_mul]
 
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def pow (x : USize) (n : Nat) : USize :=
+  match n with
+  | 0 => 1
+  | n + 1 => pow x n * x
+
+instance : HPow USize Nat USize where
+  hPow x n := pow x n
+
+theorem pow_zero (x : USize) : x ^ 0 = 1 := rfl
+theorem pow_succ (x : USize) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+
 end USize
 
 namespace Lean.Grind
@@ -234,17 +294,16 @@ instance : CommRing UInt8 where
   mul_one := UInt8.mul_one
   left_distrib _ _ _ := UInt8.mul_add
   zero_mul _ := UInt8.zero_mul
-  cast_add := UInt8.ofInt_add
-  cast_mul := UInt8.ofInt_mul
-  cast_neg := UInt8.ofInt_neg
+  sub_eq_add_neg := UInt8.sub_eq_add_neg
+  pow_zero := UInt8.pow_zero
+  pow_succ := UInt8.pow_succ
+  ofNat_add := UInt8.ofNat_add
+  ofNat_mul := UInt8.ofNat_mul
 
 instance : IsCharP UInt8 (2 ^ 8) where
   char {x} := by
-    simp only [Int.cast, IntCast.intCast, Nat.reducePow, Int.cast_ofNat_Int]
-    rw [UInt8.ofInt, UInt8.ofNat_eq_iff_mod_eq_toNat]
-    have : 2 ^ 8 = (2 ^ 8 : Int).toNat := rfl
-    rw [this, ← Int.toNat_emod, Int.emod_emod, UInt8.toNat_zero, Int.toNat_eq_zero]
-    all_goals omega
+    have : OfNat.ofNat x = UInt8.ofNat x := rfl
+    simp [this, UInt8.ofNat_eq_iff_mod_eq_toNat]
 
 instance : IntCast UInt16 where
   intCast x := UInt16.ofInt x
@@ -259,17 +318,16 @@ instance : CommRing UInt16 where
   mul_one := UInt16.mul_one
   left_distrib _ _ _ := UInt16.mul_add
   zero_mul _ := UInt16.zero_mul
-  cast_add := UInt16.ofInt_add
-  cast_mul := UInt16.ofInt_mul
-  cast_neg := UInt16.ofInt_neg
+  sub_eq_add_neg := UInt16.sub_eq_add_neg
+  pow_zero := UInt16.pow_zero
+  pow_succ := UInt16.pow_succ
+  ofNat_add := UInt16.ofNat_add
+  ofNat_mul := UInt16.ofNat_mul
 
 instance : IsCharP UInt16 (2 ^ 16) where
   char {x} := by
-    simp only [Int.cast, IntCast.intCast, Nat.reducePow, Int.cast_ofNat_Int]
-    rw [UInt16.ofInt, UInt16.ofNat_eq_iff_mod_eq_toNat]
-    have : 2 ^ 16 = (2 ^ 16 : Int).toNat := rfl
-    rw [this, ← Int.toNat_emod, Int.emod_emod, UInt16.toNat_zero, Int.toNat_eq_zero]
-    all_goals omega
+    have : OfNat.ofNat x = UInt16.ofNat x := rfl
+    simp [this, UInt16.ofNat_eq_iff_mod_eq_toNat]
 
 instance : IntCast UInt32 where
   intCast x := UInt32.ofInt x
@@ -284,17 +342,16 @@ instance : CommRing UInt32 where
   mul_one := UInt32.mul_one
   left_distrib _ _ _ := UInt32.mul_add
   zero_mul _ := UInt32.zero_mul
-  cast_add := UInt32.ofInt_add
-  cast_mul := UInt32.ofInt_mul
-  cast_neg := UInt32.ofInt_neg
+  sub_eq_add_neg := UInt32.sub_eq_add_neg
+  pow_zero := UInt32.pow_zero
+  pow_succ := UInt32.pow_succ
+  ofNat_add := UInt32.ofNat_add
+  ofNat_mul := UInt32.ofNat_mul
 
 instance : IsCharP UInt32 (2 ^ 32) where
   char {x} := by
-    simp only [Int.cast, IntCast.intCast, Nat.reducePow, Int.cast_ofNat_Int]
-    rw [UInt32.ofInt, UInt32.ofNat_eq_iff_mod_eq_toNat]
-    have : 2 ^ 32 = (2 ^ 32 : Int).toNat := rfl
-    rw [this, ← Int.toNat_emod, Int.emod_emod, UInt32.toNat_zero, Int.toNat_eq_zero]
-    all_goals omega
+    have : OfNat.ofNat x = UInt32.ofNat x := rfl
+    simp [this, UInt32.ofNat_eq_iff_mod_eq_toNat]
 
 instance : IntCast UInt64 where
   intCast x := UInt64.ofInt x
@@ -309,17 +366,16 @@ instance : CommRing UInt64 where
   mul_one := UInt64.mul_one
   left_distrib _ _ _ := UInt64.mul_add
   zero_mul _ := UInt64.zero_mul
-  cast_add := UInt64.ofInt_add
-  cast_mul := UInt64.ofInt_mul
-  cast_neg := UInt64.ofInt_neg
+  sub_eq_add_neg := UInt64.sub_eq_add_neg
+  pow_zero := UInt64.pow_zero
+  pow_succ := UInt64.pow_succ
+  ofNat_add := UInt64.ofNat_add
+  ofNat_mul := UInt64.ofNat_mul
 
 instance : IsCharP UInt64 (2 ^ 64) where
   char {x} := by
-    simp only [Int.cast, IntCast.intCast, Nat.reducePow, Int.cast_ofNat_Int]
-    rw [UInt64.ofInt, UInt64.ofNat_eq_iff_mod_eq_toNat]
-    have : 2 ^ 64 = (2 ^ 64 : Int).toNat := rfl
-    rw [this, ← Int.toNat_emod, Int.emod_emod, UInt64.toNat_zero, Int.toNat_eq_zero]
-    all_goals omega
+    have : OfNat.ofNat x = UInt64.ofNat x := rfl
+    simp [this, UInt64.ofNat_eq_iff_mod_eq_toNat]
 
 instance : IntCast USize where
   intCast x := USize.ofInt x
@@ -334,27 +390,17 @@ instance : CommRing USize where
   mul_one := USize.mul_one
   left_distrib _ _ _ := USize.mul_add
   zero_mul _ := USize.zero_mul
-  cast_one := USize.ofInt_one
-  cast_add := USize.ofInt_add
-  cast_mul := USize.ofInt_mul
-  cast_neg := USize.ofInt_neg
+  sub_eq_add_neg := USize.sub_eq_add_neg
+  pow_zero := USize.pow_zero
+  pow_succ := USize.pow_succ
+  ofNat_add := USize.ofNat_add
+  ofNat_mul := USize.ofNat_mul
 
 open System.Platform
 
 instance : IsCharP USize (2 ^ numBits) where
   char {x} := by
-    simp only [Int.cast, IntCast.intCast, Nat.reducePow, Int.cast_ofNat_Int]
-    rw [USize.ofInt, USize.ofNat_eq_iff_mod_eq_toNat]
-    have : 2 ^ numBits = (2 ^ numBits : Int).toNat := by
-      rcases System.Platform.numBits_eq with h | h <;>
-      · rw [h]
-        decide
-    rw [this, ← Int.toNat_emod, Int.emod_emod, USize.toNat_zero, Int.toNat_eq_zero]
-    · rcases System.Platform.numBits_eq with h | h <;>
-      · rw [h]
-        simp
-        omega
-    · omega
-    · exact two_pow_numBits_nonneg
+    have : OfNat.ofNat x = USize.ofNat x := rfl
+    simp [this, USize.ofNat_eq_iff_mod_eq_toNat]
 
 end Lean.Grind

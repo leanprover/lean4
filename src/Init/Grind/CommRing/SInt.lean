@@ -12,6 +12,18 @@ namespace Lean.Grind
 instance : IntCast Int8 where
   intCast x := Int8.ofInt x
 
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def Int8.pow (x : Int8) (n : Nat) : Int8 :=
+  match n with
+  | 0 => 1
+  | n + 1 => Int8.pow x n * x
+
+instance : HPow Int8 Nat Int8 where
+  hPow x n := Int8.pow x n
+
+theorem Int8.pow_zero (x : Int8) : x ^ 0 = 1 := rfl
+theorem Int8.pow_succ (x : Int8) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+
 instance : CommRing Int8 where
   add_assoc := Int8.add_assoc
   add_comm := Int8.add_comm
@@ -22,17 +34,33 @@ instance : CommRing Int8 where
   mul_one := Int8.mul_one
   left_distrib _ _ _ := Int8.mul_add
   zero_mul _ := Int8.zero_mul
-  cast_add := Int8.ofInt_add
-  cast_mul := Int8.ofInt_mul
-  cast_neg := Int8.ofInt_neg
+  sub_eq_add_neg := Int8.sub_eq_add_neg
+  pow_zero := Int8.pow_zero
+  pow_succ := Int8.pow_succ
+  ofNat_add := Int8.ofNat_add
+  ofNat_mul := Int8.ofNat_mul
 
 instance : IsCharP Int8 (2 ^ 8) where
   char {x} := by
-    simp [Int.cast, IntCast.intCast, Int8.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_emod_eq_zero, ← Int.dvd_iff_bmod_eq_zero]
+    have : OfNat.ofNat x = Int8.ofInt x := rfl
+    rw [this]
+    simp [Int8.ofInt_eq_iff_bmod_eq_toInt,
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
 instance : IntCast Int16 where
   intCast x := Int16.ofInt x
+
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def Int16.pow (x : Int16) (n : Nat) : Int16 :=
+  match n with
+  | 0 => 1
+  | n + 1 => Int16.pow x n * x
+
+instance : HPow Int16 Nat Int16 where
+  hPow x n := Int16.pow x n
+
+theorem Int16.pow_zero (x : Int16) : x ^ 0 = 1 := rfl
+theorem Int16.pow_succ (x : Int16) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
 
 instance : CommRing Int16 where
   add_assoc := Int16.add_assoc
@@ -44,17 +72,33 @@ instance : CommRing Int16 where
   mul_one := Int16.mul_one
   left_distrib _ _ _ := Int16.mul_add
   zero_mul _ := Int16.zero_mul
-  cast_add := Int16.ofInt_add
-  cast_mul := Int16.ofInt_mul
-  cast_neg := Int16.ofInt_neg
+  sub_eq_add_neg := Int16.sub_eq_add_neg
+  pow_zero := Int16.pow_zero
+  pow_succ := Int16.pow_succ
+  ofNat_add := Int16.ofNat_add
+  ofNat_mul := Int16.ofNat_mul
 
 instance : IsCharP Int16 (2 ^ 16) where
   char {x} := by
-    simp [Int.cast, IntCast.intCast, Int16.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_emod_eq_zero, ← Int.dvd_iff_bmod_eq_zero]
+    have : OfNat.ofNat x = Int16.ofInt x := rfl
+    rw [this]
+    simp [Int16.ofInt_eq_iff_bmod_eq_toInt,
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
 instance : IntCast Int32 where
   intCast x := Int32.ofInt x
+
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def Int32.pow (x : Int32) (n : Nat) : Int32 :=
+  match n with
+  | 0 => 1
+  | n + 1 => Int32.pow x n * x
+
+instance : HPow Int32 Nat Int32 where
+  hPow x n := Int32.pow x n
+
+theorem Int32.pow_zero (x : Int32) : x ^ 0 = 1 := rfl
+theorem Int32.pow_succ (x : Int32) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
 
 instance : CommRing Int32 where
   add_assoc := Int32.add_assoc
@@ -66,17 +110,33 @@ instance : CommRing Int32 where
   mul_one := Int32.mul_one
   left_distrib _ _ _ := Int32.mul_add
   zero_mul _ := Int32.zero_mul
-  cast_add := Int32.ofInt_add
-  cast_mul := Int32.ofInt_mul
-  cast_neg := Int32.ofInt_neg
+  sub_eq_add_neg := Int32.sub_eq_add_neg
+  pow_zero := Int32.pow_zero
+  pow_succ := Int32.pow_succ
+  ofNat_add := Int32.ofNat_add
+  ofNat_mul := Int32.ofNat_mul
 
 instance : IsCharP Int32 (2 ^ 32) where
   char {x} := by
-    simp [Int.cast, IntCast.intCast, Int32.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_emod_eq_zero, ← Int.dvd_iff_bmod_eq_zero]
+    have : OfNat.ofNat x = Int32.ofInt x := rfl
+    rw [this]
+    simp [Int32.ofInt_eq_iff_bmod_eq_toInt,
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
 instance : IntCast Int64 where
   intCast x := Int64.ofInt x
+
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def Int64.pow (x : Int64) (n : Nat) : Int64 :=
+  match n with
+  | 0 => 1
+  | n + 1 => Int64.pow x n * x
+
+instance : HPow Int64 Nat Int64 where
+  hPow x n := Int64.pow x n
+
+theorem Int64.pow_zero (x : Int64) : x ^ 0 = 1 := rfl
+theorem Int64.pow_succ (x : Int64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
 
 instance : CommRing Int64 where
   add_assoc := Int64.add_assoc
@@ -88,17 +148,33 @@ instance : CommRing Int64 where
   mul_one := Int64.mul_one
   left_distrib _ _ _ := Int64.mul_add
   zero_mul _ := Int64.zero_mul
-  cast_add := Int64.ofInt_add
-  cast_mul := Int64.ofInt_mul
-  cast_neg := Int64.ofInt_neg
+  sub_eq_add_neg := Int64.sub_eq_add_neg
+  pow_zero := Int64.pow_zero
+  pow_succ := Int64.pow_succ
+  ofNat_add := Int64.ofNat_add
+  ofNat_mul := Int64.ofNat_mul
 
 instance : IsCharP Int64 (2 ^ 64) where
   char {x} := by
-    simp [Int.cast, IntCast.intCast, Int64.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_emod_eq_zero, ← Int.dvd_iff_bmod_eq_zero]
+    have : OfNat.ofNat x = Int64.ofInt x := rfl
+    rw [this]
+    simp [Int64.ofInt_eq_iff_bmod_eq_toInt,
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
 instance : IntCast ISize where
   intCast x := ISize.ofInt x
+
+-- TODO: this should be replaced via an `@[extern]` with a native implementation
+def ISize.pow (x : ISize) (n : Nat) : ISize :=
+  match n with
+  | 0 => 1
+  | n + 1 => ISize.pow x n * x
+
+instance : HPow ISize Nat ISize where
+  hPow x n := ISize.pow x n
+
+theorem ISize.pow_zero (x : ISize) : x ^ 0 = 1 := rfl
+theorem ISize.pow_succ (x : ISize) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
 
 instance : CommRing ISize where
   add_assoc := ISize.add_assoc
@@ -110,15 +186,19 @@ instance : CommRing ISize where
   mul_one := ISize.mul_one
   left_distrib _ _ _ := ISize.mul_add
   zero_mul _ := ISize.zero_mul
-  cast_add := ISize.ofInt_add
-  cast_mul := ISize.ofInt_mul
-  cast_neg := ISize.ofInt_neg
+  sub_eq_add_neg := ISize.sub_eq_add_neg
+  pow_zero := ISize.pow_zero
+  pow_succ := ISize.pow_succ
+  ofNat_add := ISize.ofNat_add
+  ofNat_mul := ISize.ofNat_mul
 
 open System.Platform (numBits)
 
 instance : IsCharP ISize (2 ^ numBits) where
   char {x} := by
-    simp [Int.cast, IntCast.intCast, ISize.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_emod_eq_zero, ← Int.dvd_iff_bmod_eq_zero]
+    have : OfNat.ofNat x = ISize.ofInt x := rfl
+    rw [this]
+    simp [ISize.ofInt_eq_iff_bmod_eq_toInt,
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
 end Lean.Grind

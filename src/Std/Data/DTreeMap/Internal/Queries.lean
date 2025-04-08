@@ -244,7 +244,7 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
 
 /-- Returns an `Array` of the keys in order. -/
 @[inline] def keysArray (t : Impl α β) : Array α :=
-  t.foldl (init := #[]) fun l k _ => l.push k
+  t.foldl (init := .emptyWithCapacity t.size) fun l k _ => l.push k
 
 /-- Returns a `List` of the values in order. -/
 @[inline] def values {β : Type v} (t : Impl α β) : List β :=
@@ -252,7 +252,7 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
 
 /-- Returns an `Array` of the values in order. -/
 @[inline] def valuesArray {β : Type v} (t : Impl α β) : Array β :=
-  t.foldl (init := #[]) fun l _ v => l.push v
+  t.foldl (init := .emptyWithCapacity t.size) fun l _ v => l.push v
 
 /-- Returns a `List` of the key/value pairs in order. -/
 @[inline] def toList (t : Impl α β) : List ((a : α) × β a) :=
@@ -260,7 +260,7 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
 
 /-- Returns an `Array` of the key/value pairs in order. -/
 @[inline] def toArray (t : Impl α β) : Array ((a : α) × β a) :=
-  t.foldl (init := #[]) fun l k v => l.push ⟨k, v⟩
+  t.foldl (init := .emptyWithCapacity t.size) fun l k v => l.push ⟨k, v⟩
 
 namespace Const
 
@@ -272,7 +272,7 @@ variable {β : Type v}
 
 /-- Returns a `List` of the key/value pairs in order. -/
 @[inline] def toArray (t : Impl α β) : Array (α × β) :=
-  t.foldl (init := #[]) fun l k v => l.push (k, v)
+  t.foldl (init := .emptyWithCapacity t.size) fun l k v => l.push (k, v)
 
 end Const
 

@@ -6,4 +6,8 @@ example (hi : i < n) (hj : j < i) (hk : k < j) (as : Vector α n) (p : α → Pr
     p (as.swap i j)[k] := by
   grind
 
-example (p : Nat → Prop) (h : p j) (h' : ∀ i, i < j → p i) : ∀ i, i < j + 1 → p i := by grind
+example (p : Nat → Prop) (h : p j) (h' : ∀ i, i < j → p i) : ∀ i, i < j + 1 → p i := by
+  grind
+
+example (p : Nat → Prop) (h : p j) (h' : ∀ i, i < j → p i) : ∀ i, i < j + 1 → p i := by
+  grind (splits := 0)

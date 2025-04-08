@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-exit 0  # TODO: flaky test disabled
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
@@ -13,36 +9,6 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # https://github.com/leanprover/lean4/issues/2415
 # https://github.com/leanprover/lean4/issues/3351
 # https://github.com/leanprover/lean4/issues/3809
-
-test_run() {
-  echo "[Command]"
-  echo "$> lake" "$@"
-  if $LAKE "$@" >produced.out 2>&1; then
-    rc=$?
-  else
-    rc=$?
-  fi
-  echo "Lake exited with code $rc"
-  echo "[Output]"
-  cat produced.out
-  return $rc
-}
-
-test_err() {
-  expected=$1; shift
-  if test_run "$@"; then rc=$?; else rc=$?; fi
-  echo "[Match \"$expected\"]"
-  if grep --color -F "$expected" produced.out; then
-    if [ $rc != 1 ]; then
-      echo "[Outcome]"
-      echo "Lake unexpectedly succeeded."
-      return 1
-    fi
-  else
-    echo "No match found."
-    return 1
-  fi
-}
 
 # Test a module with a bad import does not kill the whole build
 test_err "Building Etc" build Lib.U Etc

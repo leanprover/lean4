@@ -723,11 +723,17 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.s
 
 /-! ### BEq -/
 
-@[simp] theorem beq_nil_iff [BEq α] {l : List α} : (l == []) = l.isEmpty := by
+@[simp] theorem beq_nil_eq [BEq α] {l : List α} : (l == []) = l.isEmpty := by
   cases l <;> rfl
 
-@[simp] theorem nil_beq_iff [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
+@[simp] theorem nil_beq_eq [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
   cases l <;> rfl
+
+@[deprecated beq_nil_eq (since := "2025-04-04")]
+abbrev beq_nil_iff := @beq_nil_eq
+
+@[deprecated nil_beq_eq (since := "2025-04-04")]
+abbrev nil_beq_iff := @nil_beq_eq
 
 @[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
     (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
@@ -744,8 +750,8 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.s
 theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
   match l₁, l₂ with
   | [], [] => rfl
-  | [], _ :: _ => by simp [beq_nil_iff] at h
-  | _ :: _, [] => by simp [nil_beq_iff] at h
+  | [], _ :: _ => by simp at h
+  | _ :: _, [] => by simp at h
   | a :: l₁, b :: l₂ => by
     simp at h
     simpa [Nat.add_one_inj] using length_eq_of_beq h.2
@@ -963,6 +969,12 @@ theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
 
 theorem head?_concat_concat : (l ++ [a, b]).head? = (l ++ [a]).head? := by
   cases l <;> simp
+
+theorem head_of_mem_head? {l : List α} {x} (hx : x ∈ l.head?) :
+    l.head (ne_nil_of_mem (mem_of_mem_head? hx)) = x := by
+  cases l
+  · contradiction
+  · simpa using hx
 
 /-! ### headD -/
 
@@ -1263,7 +1275,7 @@ theorem length_filter_eq_length_iff {l} : (filter p l).length = l.length ↔ ∀
     · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filter_le p l))
       simp_all
 
-@[deprecated length_filter_eq_length_iff (since := "2024-09-05")]
+@[deprecated length_filter_eq_length_iff (since := "2025-04-04")]
 abbrev filter_length_eq_length := @length_filter_eq_length_iff
 
 @[simp] theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
@@ -2447,6 +2459,14 @@ theorem mem_of_mem_getLast? {l : List α} {a : α} (h : a ∈ getLast? l) : a �
   rw [getLast?_eq_head?_reverse] at h
   rw [← mem_reverse]
   exact mem_of_mem_head? h
+
+theorem getLast_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
+    l.getLast (ne_nil_of_mem (mem_of_mem_getLast? hx)) = x := by
+  rw [Option.mem_def] at hx
+  cases l
+  · contradiction
+  · rw [← Option.some_inj, ← hx]
+    rfl
 
 @[simp] theorem map_reverse {f : α → β} {l : List α} : l.reverse.map f = (l.map f).reverse := by
   induction l <;> simp [*]

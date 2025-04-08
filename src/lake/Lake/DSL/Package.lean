@@ -31,7 +31,7 @@ The defined package configuration will be available for reference as `_package`.
 scoped syntax (name := packageCommand)
 (docComment)? (Term.attributes)? "package " (identOrStr)? optConfig : command
 
-@[command_elab packageCommand]
+@[builtin_command_elab packageCommand]
 def elabPackageCommand : CommandElab := fun stx => do
   let `(packageCommand|$(doc?)? $(attrs?)? package%$kw $[$nameStx?]? $cfg) := stx
     | throwErrorAt stx "ill-formed package declaration"
@@ -80,7 +80,7 @@ optional(docComment) optional(Term.attributes)
 "post_update " (ppSpace simpleBinder)? (declValSimple <|> declValDo)
 : command
 
-@[macro postUpdateDecl]
+@[builtin_macro postUpdateDecl]
 def expandPostUpdateDecl : Macro := fun stx => do
   match stx with
   | `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? do $seq $[$wds?:whereDecls]?) =>

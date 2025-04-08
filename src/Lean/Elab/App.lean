@@ -1287,13 +1287,20 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
       e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e, suppressDeps := true }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
     return e
 
-private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
-  if baseName == `Function then
-    return (← whnfR type).isForall
-  else if type.cleanupAnnotations.isAppOf baseName then
-    return true
-  else
-    return (← whnfR type).isAppOf baseName
+private partial def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool :=
+  withReducibleAndInstances do
+    if baseName == `Function then
+      return (← whnf type).isForall
+    else if type.cleanupAnnotations.isAppOf baseName then
+      return true
+    else
+      let type ← whnfCore type
+      if type.isAppOf baseName then
+        return true
+      else
+        match ← unfoldDefinition? type with
+        | some type' => typeMatchesBaseName type' baseName
+        | none => return false
 
 /--
 Auxiliary method for field notation. Tries to add `e` as a new argument to `args` or `namedArgs`.
@@ -1406,7 +1413,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFn explicit
         elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
+        let (args, namedArgs) ← addLValArg baseStructName constName f #[] #[] projFn (explicit := false)
+        let f ← elabAppArgs projFn namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
     | LValResolution.localRec baseName fullName fvar =>
       let fvar ← addProjTermInfo lval.getRef fvar
@@ -1414,7 +1422,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvar explicit
         elabAppArgs fvar namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs fvar #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
+        let (args, namedArgs) ← addLValArg baseName fullName f #[] #[] fvar (explicit := false)
+        let f ← elabAppArgs fvar namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
   loop f lvals
 

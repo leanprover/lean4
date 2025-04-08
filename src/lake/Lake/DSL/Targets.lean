@@ -46,7 +46,7 @@ The `mod` parameter (and its type specifier) is optional.
 scoped syntax (name := moduleFacetDecl)
 (docComment)? (Term.attributes)? "module_facet " buildDeclSig : command
 
-@[macro moduleFacetDecl]
+@[builtin_macro moduleFacetDecl]
 def expandModuleFacetDecl : Macro := fun stx => do
   let `(moduleFacetDecl|$(doc?)? $(attrs?)? module_facet%$kw $sig) := stx
     | Macro.throwErrorAt stx "ill-formed module facet declaration"
@@ -85,7 +85,7 @@ The `pkg` parameter (and its type specifier) is optional.
 scoped syntax (name := packageFacetDecl)
 (docComment)? (Term.attributes)? "package_facet " buildDeclSig : command
 
-@[macro packageFacetDecl]
+@[builtin_macro packageFacetDecl]
 def expandPackageFacetDecl : Macro := fun stx => do
   let `(packageFacetDecl|$(doc?)? $(attrs?)? package_facet%$kw $sig) := stx
     | Macro.throwErrorAt stx "ill-formed package facet declaration"
@@ -124,7 +124,7 @@ The `lib` parameter (and its type specifier) is optional.
 scoped syntax (name := libraryFacetDecl)
 (docComment)? (Term.attributes)? "library_facet " buildDeclSig : command
 
-@[macro libraryFacetDecl]
+@[builtin_macro libraryFacetDecl]
 def expandLibraryFacetDecl : Macro := fun stx => do
   let `(libraryFacetDecl|$(doc?)? $(attrs?)? library_facet%$kw $sig) := stx
     | Macro.throwErrorAt stx "ill-formed library facet declaration"
@@ -172,7 +172,7 @@ provided is the package in which the target is defined.
 scoped syntax (name := targetCommand)
 (docComment)? (Term.attributes)? "target " buildDeclSig : command
 
-@[macro targetCommand]
+@[builtin_macro targetCommand]
 def expandTargetCommand : Macro := fun stx => do
   let `(targetCommand|$(doc?)? $(attrs?)? target%$kw $sig) := stx
     | Macro.throwErrorAt stx "ill-formed target declaration"
@@ -240,7 +240,7 @@ lean_lib «target-name» where /- config opts -/
 scoped syntax (name := leanLibCommand)
 (docComment)? (Term.attributes)? "lean_lib " (identOrStr)? optConfig : command
 
-@[command_elab leanLibCommand]
+@[builtin_command_elab leanLibCommand]
 def elabLeanLibCommand : CommandElab := fun stx => do
   let `(leanLibCommand|$(doc?)? $(attrs?)? lean_lib%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_lib declaration"
@@ -267,7 +267,7 @@ lean_exe «target-name» where /- config opts -/
 scoped syntax (name := leanExeCommand)
 (docComment)? (Term.attributes)? "lean_exe " (identOrStr)? optConfig : command
 
-@[command_elab leanExeCommand]
+@[builtin_command_elab leanExeCommand]
 def elabLeanExeCommand : CommandElab := fun stx => do
   let `(leanExeCommand|$(doc?)? $(attrs?)? lean_exe%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_exe declaration"
@@ -287,7 +287,7 @@ Can optionally be provided with a configuration of type `InputFileConfig`.
 scoped syntax (name := inputFileCommand)
 (docComment)? (Term.attributes)? "input_file " (identOrStr)? optConfig : command
 
-@[command_elab inputFileCommand]
+@[builtin_command_elab inputFileCommand]
 def elabInputfileCommand : CommandElab := fun stx => do
   let `(inputFileCommand|$(doc?)? $(attrs?)? input_file%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed input_file declaration"
@@ -307,7 +307,7 @@ Can optionally be provided with a configuration of type `InputDirConfig`.
 scoped syntax (name := inputDirCommand)
 (docComment)? (Term.attributes)? "input_dir " (identOrStr)? optConfig : command
 
-@[command_elab inputDirCommand]
+@[builtin_command_elab inputDirCommand]
 def elabInputDirCommand : CommandElab := fun stx => do
   let `(inputDirCommand|$(doc?)? $(attrs?)? input_dir%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed input_dir declaration"
@@ -351,7 +351,7 @@ The term should build the external library's **static** library.
 scoped syntax (name := externLibCommand)
 (docComment)? (Term.attributes)? "extern_lib " externLibDeclSpec : command
 
-@[macro externLibCommand]
+@[builtin_macro externLibCommand]
 def expandExternLibCommand : Macro := fun stx => do
   let `(externLibCommand|$(doc?)? $(attrs?)? extern_lib%$kw $spec) := stx
     | Macro.throwErrorAt stx "ill-formed external library declaration"

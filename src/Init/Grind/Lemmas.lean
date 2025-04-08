@@ -49,6 +49,8 @@ theorem eq_false_of_or_eq_false_right {a b : Prop} (h : (a ∨ b) = False) : b =
 theorem imp_eq_of_eq_false_left {a b : Prop} (h : a = False) : (a → b) = True := by simp [h]
 theorem imp_eq_of_eq_true_right {a b : Prop} (h : b = True) : (a → b) = True := by simp [h]
 theorem imp_eq_of_eq_true_left {a b : Prop} (h : a = True) : (a → b) = b := by simp [h]
+theorem eq_false_of_imp_eq_true {a b : Prop} (h₁ : (a → b) = True) (h₂ : b = False) : a = False := by
+  simp at *; intro h; exact h₂ (h₁ h)
 
 theorem eq_true_of_imp_eq_false {a b : Prop} (h : (a → b) = False) : a = True := by simp_all
 theorem eq_false_of_imp_eq_false {a b : Prop} (h : (a → b) = False) : b = False := by simp_all

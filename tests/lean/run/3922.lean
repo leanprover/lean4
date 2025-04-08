@@ -21,7 +21,9 @@ axiom r.trans {a b c : Nat} : r a b → r b c → r a c
 info: Try this: refine r.symm ?_
 ---
 info: found a partial proof, but the corresponding tactic failed:
-  refine r.trans ?_ ?_
+  (expose_names; refine r.trans ?_ ?_)
+
+It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
 ---
 warning: declaration uses 'sorry'
 -/

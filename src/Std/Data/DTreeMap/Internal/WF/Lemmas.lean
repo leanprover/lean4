@@ -331,7 +331,7 @@ theorem toListModel_eq_append [Ord α] [TransOrd α] (k : α → Ordering) [IsSt
       simp
   · simp
 
-theorem ordered_updateAtKey [Ord α] [TransOrd α] {k : α}
+theorem ordered_updateCell [Ord α] [TransOrd α] {k : α}
     {f : Cell α β (compare k) → Cell α β (compare k)}
     {l : Impl α β} (hlb : l.Balanced) (hlo : l.Ordered) : (l.updateCell k f hlb).impl.Ordered := by
   rw [Ordered, toListModel_updateCell _ hlo]
@@ -361,7 +361,7 @@ theorem ordered_updateAtKey [Ord α] [TransOrd α] {k : α}
 
 open Std.Internal.List
 
-theorem exists_cell_of_updateAtKey [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd α] (l : Impl α β) (hlb : l.Balanced)
+theorem exists_cell_of_updateCell [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd α] (l : Impl α β) (hlb : l.Balanced)
     (hlo : l.Ordered) (k : α)
     (f : Cell α β (compare k) → Cell α β (compare k)) : ∃ (l' : List ((a : α) × β a)),
     l.toListModel.Perm ((l.toListModel.find? (compare k ·.1 == .eq)).toList ++ l') ∧
@@ -386,7 +386,7 @@ theorem Ordered.distinctKeys [BEq α] [Ord α] [LawfulBEqOrd α] {l : Impl α β
     simp [← LawfulBEqOrd.not_compare_eq_iff_beq_eq_false, h])⟩
 
 /-- This is the general theorem to show that modification operations are correct. -/
-theorem toListModel_updateAtKey_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem toListModel_updateCell_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : Impl α β} (hlb : l.Balanced) (hlo : l.Ordered) {k : α}
     {f : Cell α β (compare k) → Cell α β (compare k)}
     {g : List ((a : α) × β a) → List ((a : α) × β a)}
@@ -394,7 +394,7 @@ theorem toListModel_updateAtKey_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqO
     (hg₁ : ∀ {l l'}, DistinctKeys l → List.Perm l l' → List.Perm (g l) (g l'))
     (hg₂ : ∀ {l l'}, containsKey k l' = false → g (l ++ l') = g l ++ l') :
     List.Perm (l.updateCell k f hlb).impl.toListModel (g l.toListModel) := by
-  obtain ⟨l, h₁, h₂, h₃⟩ := exists_cell_of_updateAtKey l hlb hlo k f
+  obtain ⟨l, h₁, h₂, h₃⟩ := exists_cell_of_updateCell l hlb hlo k f
   refine h₂.trans (List.Perm.trans ?_ (hg₁ hlo.distinctKeys h₁).symm)
   rwa [hfg, hg₂, List.findCell_inner]
 
@@ -814,12 +814,12 @@ theorem ordered_empty [Ord α] : (.empty : Impl α β).Ordered := by
 
 theorem ordered_insertₘ [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β} (hlb : l.Balanced)
     (hlo : l.Ordered) : (l.insertₘ k v hlb).Ordered :=
-  ordered_updateAtKey _ hlo
+  ordered_updateCell _ hlo
 
 theorem toListModel_insertₘ [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
     {l : Impl α β} (hlb : l.Balanced) (hlo : l.Ordered) :
     (l.insertₘ k v hlb).toListModel.Perm (insertEntry k v l.toListModel) := by
-  refine toListModel_updateAtKey_perm _ hlo ?_ insertEntry_of_perm
+  refine toListModel_updateCell_perm _ hlo ?_ insertEntry_of_perm
     insertEntry_append_of_not_contains_right
   rintro ⟨(_|l), hl⟩
   · simp
@@ -861,12 +861,12 @@ theorem toListModel_insert! [instBEq : BEq α] [Ord α] [LawfulBEqOrd α] [Trans
 
 theorem ordered_eraseₘ [Ord α] [TransOrd α] {k : α} {t : Impl α β} (htb : t.Balanced)
     (hto : t.Ordered) : (t.eraseₘ k htb).Ordered :=
-  ordered_updateAtKey _ hto
+  ordered_updateCell _ hto
 
 theorem toListModel_eraseₘ [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.eraseₘ k htb).toListModel.Perm (eraseKey k t.toListModel) := by
-  refine toListModel_updateAtKey_perm _ hto ?_ eraseKey_of_perm
+  refine toListModel_updateCell_perm _ hto ?_ eraseKey_of_perm
     eraseKey_append_of_containsKey_right_eq_false
   rintro ⟨(_|t), hl⟩
   · simp
@@ -1059,7 +1059,7 @@ theorem ordered_filter [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → 
 theorem toListModel_alterₘ [Ord α] [TransOrd α] [LawfulEqOrd α] [BEq α] [LawfulBEqOrd α]
     {t : Impl α β} {a f} (htb : t.Balanced) (hto : t.Ordered) :
     List.Perm ((t.alterₘ a f htb).toListModel) (alterKey a f t.toListModel) := by
-  refine toListModel_updateAtKey_perm _ hto ?_ alterKey_of_perm
+  refine toListModel_updateCell_perm _ hto ?_ alterKey_of_perm
     alterKey_append_of_containsKey_right_eq_false
   rintro ⟨(_|l), hl⟩
   · simp [Cell.alter, Cell.ofOption]
@@ -1102,7 +1102,7 @@ theorem toListModel_alter [Ord α] [TransOrd α] [LawfulEqOrd α] [BEq α] [Lawf
 theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (t.alter a f htb).impl.Ordered := by
   rw [alter_eq_alterₘ htb hto, alterₘ]
-  exact ordered_updateAtKey htb hto
+  exact ordered_updateCell htb hto
 
 /-!
 ### alter!
@@ -1313,7 +1313,7 @@ theorem WF.getThenInsertIfNew?! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α}
 theorem toListModel_alterₘ [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) :
     List.Perm ((alterₘ a f t htb).toListModel) (Const.alterKey a f t.toListModel) := by
-  refine toListModel_updateAtKey_perm _ hto ?_ Const.alterKey_of_perm
+  refine toListModel_updateCell_perm _ hto ?_ Const.alterKey_of_perm
     Const.alterKey_append_of_containsKey_right_eq_false
   rintro ⟨(_|l), hl⟩
   · simp [Cell.Const.alter, Cell.ofOption]
@@ -1356,7 +1356,7 @@ theorem toListModel_alter [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {t :
 theorem ordered_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (alter a f t htb).impl.Ordered := by
   rw [alter_eq_alterₘ htb hto, alterₘ]
-  exact ordered_updateAtKey htb hto
+  exact ordered_updateCell htb hto
 
 /-!
 ### alter!

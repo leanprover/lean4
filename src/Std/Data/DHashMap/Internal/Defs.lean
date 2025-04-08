@@ -78,7 +78,7 @@ The framework works very hard to make adding and verifying new operations very e
 maintainable. To this end, we provide theorems `apply_bucket`, `apply_bucket_with_proof`,
 `toListModel_updateBucket` and `toListModel_updateAllBuckets`, which do all of the heavy lifting in
 a general way. The verification for each actual operation in `Internal.WF` is then extremely
-straightward, requiring only to plug in some results about lists. See for example the functions
+straightforward, requiring only to plug in some results about lists. See for example the functions
 `containsₘ_eq_containsKey` and the section on `eraseₘ` for prototypical examples of this technique.
 
 Here is a summary of the steps required to add and verify a new operation:

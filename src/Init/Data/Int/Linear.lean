@@ -1173,7 +1173,7 @@ private theorem cooper_dvd_left_core
   have ⟨k, h₁, h₂, h₃, h₄, h₅⟩ := Int.cooper_resolution_dvd_left a_pos' b_pos d_pos |>.mp ⟨x, h₁', h₂', h₃⟩
   rw [Int.neg_mul] at h₂
   simp only [Int.neg_mul, neg_gcd, lcm_neg_left, Int.mul_neg, Int.neg_neg, Int.neg_dvd] at *
-  rw [Int.neg_ediv_of_dvd Int.gcd_dvd_left] at h₂
+  rw [Int.neg_ediv_of_dvd (Int.gcd_dvd_left ..)] at h₂
   simp only [lcm_neg_right] at h₂
   have : c * k + c * p + -(a * s) = c * p + -(a * s) + c * k := by ac_rfl
   rw [this] at h₅; clear this
@@ -1818,6 +1818,14 @@ theorem not_le_of_le (ctx : Context) (p q : Poly) (k : Nat)
   simp [Int.neg_add, Int.neg_sub]
   rw [← Int.add_assoc, ← Int.add_assoc, Int.add_neg_cancel_right, Lean.Omega.Int.add_le_zero_iff_le_neg']
   simp; exact Int.le_trans h (Int.ofNat_zero_le _)
+
+def eq_def_cert (x : Var) (xPoly : Poly) (p : Poly) : Bool :=
+  p == .add (-1) x xPoly
+
+theorem eq_def (ctx : Context) (x : Var) (xPoly : Poly) (p : Poly)
+    : eq_def_cert x xPoly p → x.denote ctx = xPoly.denote' ctx → p.denote' ctx = 0 := by
+  simp [eq_def_cert]; intro _ h; subst p; simp [h]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
 
 end Int.Linear
 

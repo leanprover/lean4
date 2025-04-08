@@ -27,3 +27,13 @@ example (a b c : Nat) : a + b < c → c ≥ 0 := by
 
 example (a b : Int) : a + b = Int.ofNat 2 → a - 2 = -b := by
   grind
+
+/--
+info: [grind.debug.cutsat.eq] c = 0
+[grind.cutsat.assert] 「↑c」 = 0
+-/
+#guard_msgs (info) in
+set_option trace.grind.debug.cutsat.eq true in
+set_option trace.grind.cutsat.assert true in
+example (a b c : Nat) : c > a * b → c >= 1 := by
+  grind

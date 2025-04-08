@@ -36,11 +36,13 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
   simp [h]
   rfl
 
-@[wf_preprocess] theorem forIn_eq_forin' [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m]
+@[wf_preprocess] theorem forIn_eq_forIn' [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m]
     (x : ρ) (b : β) (f : (a : α) → β → m (ForInStep β)) :
     forIn x b f = forIn' x b (fun x h => binderNameHint x f <| binderNameHint h () <| f x) := by
-  simp [binderNameHint]
-  rfl -- very strange why `simp` did not close it
+  rfl
+
+@[deprecated forIn_eq_forIn' (since := "2025-04-04")]
+abbrev forIn_eq_forin' := @forIn_eq_forIn'
 
 /--
 Extracts the value from a `ForInStep`, ignoring whether it is `ForInStep.done` or `ForInStep.yield`.
@@ -174,7 +176,7 @@ recommended_spelling "andM" for "<&&>" in [andM, «term_<&&>_»]
 /--
 Runs a monadic action and returns the negation of its result.
 -/
-@[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
+@[macro_inline] def notM {m : Type → Type v} [Functor m] (x : m Bool) : m Bool :=
   not <$> x
 
 /-!

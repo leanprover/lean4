@@ -290,8 +290,8 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
     -- of `lCoeff_{old}` are zero iff `lExpr` contains only neutral elements,
     -- we default to `lNew` being some canonical neutral element if both
     -- `commonExpr?` and `lNew?` are `none`.
-    let lNew := Option.merge (mkApp2 op.toExpr) commonExpr? lNew? |>.getD op.neutralElement
-    let rNew := Option.merge (mkApp2 op.toExpr) commonExpr? rNew? |>.getD op.neutralElement
+    let lNew := Option.zipWith (mkApp2 op.toExpr) commonExpr? lNew? |>.getD op.neutralElement
+    let rNew := Option.zipWith (mkApp2 op.toExpr) commonExpr? rNew? |>.getD op.neutralElement
 
     let oldExpr := mkApp2 P lhs rhs
     let expr := mkApp2 P lNew rNew

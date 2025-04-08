@@ -59,6 +59,11 @@ structure Config where
   If `splitIndPred` is `true`, `grind` performs case-splitting on inductive predicates.
   Otherwise, it performs case-splitting only on types marked with `[grind cases]` attribute. -/
   splitIndPred : Bool := false
+  /--
+  If `splitImp` is `true`, then given an implication `p → q` or `(h : p) → q h`, `grind` splits on `p`
+  it the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
+  -/
+  splitImp : Bool := false
   /-- By default, `grind` halts as soon as it encounters a sub-goal where no further progress can be made. -/
   failures : Nat := 1
   /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/

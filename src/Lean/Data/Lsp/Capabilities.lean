@@ -71,7 +71,7 @@ structure ClientCapabilities where
   textDocument? : Option TextDocumentClientCapabilities := none
   window?       : Option WindowClientCapabilities       := none
   workspace?    : Option WorkspaceClientCapabilities    := none
-  /-- Capabilties for Lean language server extensions. -/
+  /-- Capabilities for Lean language server extensions. -/
   lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
 

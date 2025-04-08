@@ -433,6 +433,7 @@ def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
         name := name
         dir := cfg.pkgDir
         relDir := cfg.relPkgDir
+        configFile := cfg.configFile
         relConfigFile := cfg.relConfigFile
         scope := cfg.scope
         remoteUrl := cfg.remoteUrl

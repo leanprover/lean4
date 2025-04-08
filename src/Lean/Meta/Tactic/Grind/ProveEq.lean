@@ -71,7 +71,7 @@ def proveEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
     unless (← hasSameType lhs rhs) do return none
     mkEqProof lhs rhs
 
-/-- Similiar to `proveEq?`, but for heterogeneous equality. -/
+/-- Similar to `proveEq?`, but for heterogeneous equality. -/
 def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
   if (← alreadyInternalized lhs <&&> alreadyInternalized rhs) then
     if (← isEqv lhs rhs) then

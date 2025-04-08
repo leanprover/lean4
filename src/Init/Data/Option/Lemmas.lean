@@ -12,6 +12,7 @@ import Init.Ext
 
 namespace Option
 
+@[deprecated mem_def (since := "2025-04-07")]
 theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
 
 theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp
@@ -112,16 +113,23 @@ theorem ne_none_iff_exists : o ≠ none ↔ ∃ x, some x = o := by cases o <;> 
 theorem ne_none_iff_exists' : o ≠ none ↔ ∃ x, o = some x :=
   ne_none_iff_exists.trans <| exists_congr fun _ => eq_comm
 
-theorem bex_ne_none {p : Option α → Prop} : (∃ x, ∃ (_ : x ≠ none), p x) ↔ ∃ x, p (some x) :=
+theorem exists_ne_none {p : Option α → Prop} : (∃ x, x ≠ none ∧ p x) ↔ ∃ x, p (some x) :=
   ⟨fun ⟨x, hx, hp⟩ => ⟨x.get <| ne_none_iff_isSome.1 hx, by rwa [some_get]⟩,
     fun ⟨x, hx⟩ => ⟨some x, some_ne_none x, hx⟩⟩
 
-theorem ball_ne_none {p : Option α → Prop} : (∀ x (_ : x ≠ none), p x) ↔ ∀ x, p (some x) :=
+@[deprecated exists_ne_none (since := "2025-04-04")]
+theorem bex_ne_none {p : Option α → Prop} : (∃ x, ∃ (_ : x ≠ none), p x) ↔ ∃ x, p (some x) := by
+  simp only [exists_prop, exists_ne_none]
+
+theorem forall_ne_none {p : Option α → Prop} : (∀ x (_ : x ≠ none), p x) ↔ ∀ x, p (some x) :=
   ⟨fun h x => h (some x) (some_ne_none x),
     fun h x hx => by
       have := h <| x.get <| ne_none_iff_isSome.1 hx
       simp [some_get] at this ⊢
       exact this⟩
+
+@[deprecated forall_ne_none (since := "2025-04-04")]
+abbrev ball_ne_none := @forall_ne_none
 
 @[simp] theorem pure_def : pure = @some α := rfl
 
@@ -422,21 +430,38 @@ theorem guard_eq_map (p : α → Prop) [DecidablePred p] :
 theorem guard_def (p : α → Prop) {_ : DecidablePred p} :
     Option.guard p = fun x => if p x then some x else none := rfl
 
-theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
-    ∀ o₁ o₂, liftOrGet f o₁ o₂ = o₁ ∨ liftOrGet f o₁ o₂ = o₂
+theorem zipWith_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
+    ∀ o₁ o₂, zipWith f o₁ o₂ = o₁ ∨ zipWith f o₁ o₂ = o₂
   | none, none => .inl rfl
   | some _, none => .inl rfl
   | none, some _ => .inr rfl
-  | some a, some b => by have := h a b; simp [liftOrGet] at this ⊢; exact this
+  | some a, some b => by have := h a b; simp [zipWith] at this ⊢; exact this
 
-@[simp] theorem liftOrGet_none_left {f} {b : Option α} : liftOrGet f none b = b := by
+@[simp] theorem zipWith_none_left {f} {b : Option α} : zipWith f none b = b := by
   cases b <;> rfl
 
-@[simp] theorem liftOrGet_none_right {f} {a : Option α} : liftOrGet f a none = a := by
+@[simp] theorem zipWith_none_right {f} {a : Option α} : zipWith f a none = a := by
   cases a <;> rfl
 
-@[simp] theorem liftOrGet_some_some {f} {a b : α} :
-  liftOrGet f (some a) (some b) = f a b := rfl
+@[simp] theorem zipWith_some_some {f} {a b : α} :
+  zipWith f (some a) (some b) = f a b := rfl
+
+@[deprecated zipWith_eq_or_eq (since := "2025-04-04")]
+theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
+    ∀ o₁ o₂, zipWith f o₁ o₂ = o₁ ∨ zipWith f o₁ o₂ = o₂ :=
+  zipWith_eq_or_eq h
+
+@[deprecated zipWith_none_left (since := "2025-04-04")]
+theorem liftOrGet_none_left {f} {b : Option α} : zipWith f none b = b :=
+  zipWith_none_left
+
+@[deprecated zipWith_none_right (since := "2025-04-04")]
+theorem liftOrGet_none_right {f} {a : Option α} : zipWith f a none = a :=
+  zipWith_none_right
+
+@[deprecated zipWith_some_some (since := "2025-04-04")]
+theorem liftOrGet_some_some {f} {a b : α} : zipWith f (some a) (some b) = f a b :=
+  zipWith_some_some
 
 @[simp] theorem elim_none (x : β) (f : α → β) : none.elim x f = x := rfl
 

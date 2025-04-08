@@ -16,18 +16,25 @@ deriving instance Hashable for Int.OfNat.Expr
 structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}
   polyMap     : Std.HashMap Poly Expr := {}
-  natCtxMap   : Std.HashMap (Array Expr) Expr := {}
   exprMap     : Std.HashMap Int.Linear.Expr Expr := {}
   natExprMap  : Std.HashMap Int.OfNat.Expr Expr := {}
 
+structure ProofM.Context where
+  ctx : Expr
+  foreignCtxs : Std.HashMap ForeignType Expr
+
 /-- Auxiliary monad for constructing cutsat proofs. -/
-abbrev ProofM := ReaderT Expr (StateRefT ProofM.State GoalM)
+abbrev ProofM := ReaderT ProofM.Context (StateRefT ProofM.State GoalM)
 
 /-- Returns a Lean expression representing the variable context used to construct cutsat proofs. -/
-abbrev getContext : ProofM Expr := do
-  read
+private abbrev getContext : ProofM Expr := do
+  return (← read).ctx
 
-abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
+private abbrev getForeignContext (type : ForeignType) : ProofM Expr := do
+  let some ctx := (← read).foreignCtxs[type]? | throwError "`grind` internal error, unexpected type while constructing cutsat proof"
+  return ctx
+
+private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
   let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
   if let some h := (← get).cache[addr]? then
     return h
@@ -41,13 +48,6 @@ def mkPolyDecl (p : Poly) : ProofM Expr := do
     return x
   let x := mkFVar (← mkFreshFVarId)
   modify fun s => { s with polyMap := s.polyMap.insert p x }
-  return x
-
-def mkNatCtxDecl (ctx : Array Expr) : ProofM Expr := do
-  if let some x := (← get).natCtxMap[ctx]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with natCtxMap := s.natCtxMap.insert ctx x }
   return x
 
 def mkExprDecl (e : Int.Linear.Expr) : ProofM Expr := do
@@ -82,18 +82,44 @@ private def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) 
       i := i - 1
     return e
 
-abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
-  withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do
-    go ctx |>.run' {}
+private def toContextExprCore (vars : PArray Expr) (type : Expr) : Expr :=
+  if h : 0 < vars.size then
+    RArray.toExpr type id (RArray.ofFn (vars[·]) h)
+  else
+    RArray.toExpr type id (RArray.leaf (mkIntLit 0))
+
+private def toContextExpr : GoalM Expr := do
+  return toContextExprCore (← getVars) (mkConst ``Int)
+
+private def withForeignContexts (k : Std.HashMap ForeignType Expr → GoalM α) : GoalM α := do
+  go 1 (← get').foreignVars.toList {}
+where
+  go (i : Nat) (ctxs : List (ForeignType × PArray Expr)) (r : Std.HashMap ForeignType Expr) : GoalM α := do
+    match ctxs with
+    | [] => k r
+    | (type, ctx) :: ctxs =>
+      let typeExpr := type.denoteType
+      let ctxExpr := toContextExprCore ctx typeExpr
+      withLetDecl ((`ctx).appendIndexAfter i) (mkApp (mkConst ``RArray) typeExpr) ctxExpr fun ctx => do
+        go (i+1) ctxs (r.insert type ctx)
+
+private def getLetCtxVars : ProofM (Array Expr) := do
+  let mut r := #[(← getContext)]
+  for (_, ctx) in (← read).foreignCtxs do
+    r := r.push ctx
+  return r
+
+private abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
+  withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx =>
+  withForeignContexts fun foreignCtxs =>
+    go { ctx, foreignCtxs } |>.run' {}
 where
   go : ProofM Expr := do
     let h ← x
     let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Int.Linear.Poly) toExpr
     let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Int.Linear.Expr) toExpr
     let h ← mkLetOfMap (← get).natExprMap h `a (mkConst ``Int.OfNat.Expr) toExpr
-    let h ← mkLetOfMap (← get).natCtxMap h `nctx (mkApp (mkConst ``Lean.RArray) (mkConst ``Nat)) Simp.Arith.Nat.toContextExpr
-    let ctx ← read
-    mkLetFVars #[ctx] h
+    mkLetFVars (← getLetCtxVars) h
 
 private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
   let d := c.d
@@ -109,10 +135,13 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   | .core a b p₁ p₂ =>
     let h ← mkEqProof a b
     return mkApp6 (mkConst ``Int.Linear.eq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) reflBoolTrue h
-  | .coreNat a b ctx lhs rhs lhs' rhs' =>
-    let ctx ← mkNatCtxDecl ctx
+  | .coreNat a b lhs rhs lhs' rhs' =>
+    let ctx ← getForeignContext .nat
     let h := mkApp4 (mkConst ``Int.OfNat.of_eq) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (← mkEqProof a b)
     return mkApp6 (mkConst ``Int.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs') (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
+  | .defn e p =>
+    let some x := (← get').varMap.find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
+    return mkApp6 (mkConst ``Int.Linear.eq_def) (← getContext) (toExpr x) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl e)
   | .norm c =>
     return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>
@@ -132,8 +161,8 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core e =>
     mkOfEqTrue (← mkEqTrueProof e)
-  | .coreNat e ctx d b b' =>
-    let ctx ← mkNatCtxDecl ctx
+  | .coreNat e d b b' =>
+    let ctx ← getForeignContext .nat
     let h := mkApp4 (mkConst ``Int.OfNat.of_dvd) ctx (toExpr d) (← mkNatExprDecl b) (mkOfEqTrueCore e (← mkEqTrueProof e))
     return mkApp6 (mkConst ``Int.Linear.dvd_norm_expr) (← getContext) (toExpr (Int.ofNat d)) (← mkExprDecl b') (← mkPolyDecl c'.p) reflBoolTrue h
   | .norm c =>
@@ -196,12 +225,16 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   | .coreNeg e p =>
     let h ← mkOfEqFalse (← mkEqFalseProof e)
     return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue h
-  | .coreNat e ctx lhs rhs lhs' rhs' =>
-    let ctx ← mkNatCtxDecl ctx
+  | .coreNat e lhs rhs lhs' rhs' =>
+    let ctx ← getForeignContext .nat
     let h := mkApp4 (mkConst ``Int.OfNat.of_le) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (mkOfEqTrueCore e (← mkEqTrueProof e))
     return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs') (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
-  | .coreNatNeg e ctx lhs rhs lhs' rhs' =>
-    let ctx ← mkNatCtxDecl ctx
+  | .denoteAsIntNonneg rhs rhs' =>
+    let ctx ← getForeignContext .nat
+    let h := mkApp2 (mkConst ``Int.OfNat.Expr.denoteAsInt_nonneg) ctx (toExpr rhs)
+    return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (← mkExprDecl (.num 0)) (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
+  | .coreNatNeg e lhs rhs lhs' rhs' =>
+    let ctx ← getForeignContext .nat
     let h := mkApp4 (mkConst ``Int.OfNat.of_not_le) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (mkOfEqFalseCore e (← mkEqFalseProof e))
     return mkApp6 (mkConst ``Int.Linear.not_le_norm_expr) (← getContext) (← mkExprDecl lhs') (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
   | .dec h =>
@@ -272,8 +305,8 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
   | .core a b p₁ p₂ =>
     let h ← mkDiseqProof a b
     return mkApp6 (mkConst ``Int.Linear.diseq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) reflBoolTrue h
-  | .coreNat a b ctx lhs rhs lhs' rhs' =>
-    let ctx ← mkNatCtxDecl ctx
+  | .coreNat a b lhs rhs lhs' rhs' =>
+    let ctx ← getForeignContext .nat
     let h := mkApp4 (mkConst ``Int.OfNat.of_not_eq) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (← mkDiseqProof a b)
     return mkApp6 (mkConst ``Int.Linear.not_eq_norm_expr) (← getContext) (← mkExprDecl lhs') (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
   | .norm c =>
@@ -386,7 +419,7 @@ private def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
 mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core0 .. | .core .. | .coreNat .. => return () -- Equalities coming from the core never contain cutsat decision variables
+  | .core0 .. | .core .. | .coreNat .. | .defn .. => return () -- Equalities coming from the core never contain cutsat decision variables
   | .norm c | .divCoeffs c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
@@ -408,7 +441,7 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreNeg .. | .coreNat .. | .coreNatNeg .. => return ()
+  | .core .. | .coreNeg .. | .coreNat .. | .coreNatNeg .. | .denoteAsIntNonneg .. => return ()
   | .dec h => markAsFound h
   | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
   | .dvdTight c₁ c₂ | .negDvdTight c₁ c₂

@@ -78,7 +78,7 @@ def mkPProdSndM (e : Expr) : MetaM Expr := do
 namespace PProdN
 
 /--
-Essentially a form of `foldrM1`. Underlies `pack` and `mk`, and is useful to constuct proofs
+Essentially a form of `foldrM1`. Underlies `pack` and `mk`, and is useful to construct proofs
 that should follow the structure of `pack` and `mk` (e.g. admissibility proofs)
 -/
 def genMk {α : Type _} [Inhabited α] (mk : α → α → MetaM α) (xs : Array α) : MetaM α :=

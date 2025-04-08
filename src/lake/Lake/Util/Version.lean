@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lean.Elab.Eval
+import Lean.Data.Json
 import Lake.Util.Date
 
 /-! # Version
@@ -52,11 +52,6 @@ protected def SemVerCore.toString (ver : SemVerCore) : String :=
 instance : ToString SemVerCore := ⟨SemVerCore.toString⟩
 instance : ToJson SemVerCore := ⟨(·.toString)⟩
 instance : FromJson SemVerCore := ⟨(do SemVerCore.parse <| ← fromJson? ·)⟩
-
-instance : ToExpr SemVerCore where
-  toExpr ver := mkAppN (mkConst ``SemVerCore.mk)
-    #[toExpr ver.major, toExpr ver.minor, toExpr ver.patch]
-  toTypeExpr := mkConst ``SemVerCore
 
 /--
 A Lean-style semantic version.
@@ -113,11 +108,6 @@ protected def StdVer.toString (ver : StdVer) : String :=
 instance : ToString StdVer := ⟨StdVer.toString⟩
 instance : ToJson StdVer := ⟨(·.toString)⟩
 instance : FromJson StdVer := ⟨(do StdVer.parse <| ← fromJson? ·)⟩
-
-instance : ToExpr StdVer where
-  toExpr ver := mkAppN (mkConst ``StdVer.mk)
-    #[toExpr ver.toSemVerCore, toExpr ver.specialDescr]
-  toTypeExpr := mkConst ``StdVer
 
 /-- A Lean toolchain version. -/
 inductive ToolchainVer
@@ -225,15 +215,6 @@ instance ToolchainVer.decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=
   | .other _, .release _ | .other _, .nightly _ | .other _, .pr _ =>
     .isFalse (by simp [LE.le, ToolchainVer.le])
 
-/-! ## Version Literals
-
-Defines the `v!"<ver>"` syntax for version literals.
-The elaborator attempts to synthesize an instance of `ToVersion` for the
-expected type and then applies it to the string literal.
--/
-
-open Elab Term Meta
-
 /-- Parses a version from a string. -/
 class DecodeVersion (α : Type u) where
   decodeVersion : String → Except String α
@@ -243,23 +224,3 @@ export DecodeVersion (decodeVersion)
 instance : DecodeVersion SemVerCore := ⟨SemVerCore.parse⟩
 @[default_instance] instance : DecodeVersion StdVer := ⟨StdVer.parse⟩
 instance : DecodeVersion ToolchainVer := ⟨(pure <| ToolchainVer.ofString ·)⟩
-
-private def toResultExpr [ToExpr α] (x : Except String α) : Except String Expr :=
-  Functor.map toExpr x
-
-/-- A Lake version literal. -/
-scoped syntax:max (name := verLit) "v!" noWs interpolatedStr(term) : term
-
-@[term_elab verLit]
-def elabVerLit : TermElab := fun stx expectedType? => do
-  let `(v!$v) := stx | throwUnsupportedSyntax
-  tryPostponeIfNoneOrMVar expectedType?
-  let some expectedType := expectedType?
-    | throwError "expected type is not known"
-  let ofVerT? ← mkAppM ``Except #[mkConst ``String, expectedType]
-  let ofVerE ← elabTermEnsuringType (← ``(decodeVersion s!$v)) ofVerT?
-  let resT ← mkAppM ``Except #[mkConst ``String, mkConst ``Expr]
-  let resE ← mkAppM ``toResultExpr #[ofVerE]
-  match (← unsafe evalExpr (Except String Expr) resT resE) with
-  | .ok ver => return ver
-  | .error e => throwError e

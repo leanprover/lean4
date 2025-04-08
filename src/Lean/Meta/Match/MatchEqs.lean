@@ -680,7 +680,7 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   let baseName := mkPrivateName (← getEnv) matchDeclName
   let splitterName := baseName ++ `splitter
   -- NOTE: `go` will generate both splitter and equations but we use the splitter as the "key" for
-  -- `realizeConst` as well as for looking up the resultant environment extension sate via
+  -- `realizeConst` as well as for looking up the resultant environment extension state via
   -- `findStateAsync`.
   realizeConst matchDeclName splitterName (go baseName splitterName)
   return matchEqnsExt.findStateAsync (← getEnv) splitterName |>.map.find! matchDeclName

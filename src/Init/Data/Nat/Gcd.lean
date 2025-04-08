@@ -89,7 +89,7 @@ theorem gcd_dvd_right (m n : Nat) : gcd m n ∣ n := (gcd_dvd m n).right
 
 theorem gcd_le_left (n) (h : 0 < m) : gcd m n ≤ m := le_of_dvd h <| gcd_dvd_left m n
 
-theorem gcd_le_right (n) (h : 0 < n) : gcd m n ≤ n := le_of_dvd h <| gcd_dvd_right m n
+theorem gcd_le_right (m) (h : 0 < n) : gcd m n ≤ n := le_of_dvd h <| gcd_dvd_right m n
 
 theorem dvd_gcd : k ∣ m → k ∣ n → k ∣ gcd m n := by
   induction m, n using gcd.induction with intro km kn
@@ -123,6 +123,7 @@ theorem gcd_assoc (m n k : Nat) : gcd (gcd m n) k = gcd m (gcd n k) :=
       (dvd_gcd (gcd_dvd_left m (gcd n k))
         (Nat.dvd_trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_left n k)))
       (Nat.dvd_trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_right n k)))
+instance : Std.Associative gcd := ⟨gcd_assoc⟩
 
 @[simp] theorem gcd_one_right (n : Nat) : gcd n 1 = 1 := (gcd_comm n 1).trans (gcd_one_left n)
 
@@ -353,6 +354,9 @@ theorem gcd_add_mul_self (m n k : Nat) : gcd m (n + k * m) = gcd m n :=
 @[simp] theorem gcd_eq_zero_iff {i j : Nat} : gcd i j = 0 ↔ i = 0 ∧ j = 0 :=
   ⟨fun h => ⟨eq_zero_of_gcd_eq_zero_left h, eq_zero_of_gcd_eq_zero_right h⟩,
    fun h => by simp [h]⟩
+
+@[simp] theorem gcd_pos_iff {m n : Nat} : 0 < gcd m n ↔ 0 < m ∨ 0 < n := by
+  simp only [Nat.pos_iff_ne_zero, ne_eq, gcd_eq_zero_iff, Decidable.not_and_iff_or_not]
 
 /-- Characterization of the value of `Nat.gcd`. -/
 theorem gcd_eq_iff {a b : Nat} :

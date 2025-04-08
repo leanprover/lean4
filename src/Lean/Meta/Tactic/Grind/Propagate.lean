@@ -163,7 +163,7 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     let thms ← getExtTheorems α
     if !thms.isEmpty then
       /-
-      Heuristic for lists: If `lhs` or `rhs` are contructors we do not apply extensionality theorems.
+      Heuristic for lists: If `lhs` or `rhs` are constructors we do not apply extensionality theorems.
       For example, we don't want to apply the extensionality theorem to things like `xs ≠ []`.
       TODO: polish this hackish heuristic later.
       -/

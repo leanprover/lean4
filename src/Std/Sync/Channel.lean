@@ -442,7 +442,7 @@ end ClosableChannel
 
 /--
 A multi-producer multi-consumer FIFO channel that offers both bounded and unbounded buffering
-and an asynchronous API, to switch into synchronous mode use `ClosableChannel.Sync`.
+and an asynchronous API, to switch into synchronous mode use `ClosableChannel.sync`.
 
 Additionally `Std.ClosableChannel` can be closed if necessary, unlike `Std.Channel`.
 This introduces a need for error handling in some cases, thus it is usually easier to use
@@ -615,7 +615,7 @@ end ClosableChannel
 
 /--
 A multi-producer multi-consumer FIFO channel that offers both bounded and unbounded buffering
-and an asynchronous API, to switch into synchronous mode use `Channel.Sync`.
+and an asynchronous API, to switch into synchronous mode use `Channel.sync`.
 
 If a channel needs to be closed to indicate some sort of completion event use `Std.ClosableChannel`
 instead. Note that `Std.ClosableChannel` introduces a need for error handling in some cases, thus

@@ -16,7 +16,7 @@ open IO
   assert! promise.result?.get = none
 
 #eval show IO _ from do
-  let ch ← Std.Channel.new
+  let ch ← Std.ClosableChannel.new
 
   let out ← IO.mkRef #[]
   ch.sync.send 0

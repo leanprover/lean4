@@ -19,6 +19,28 @@ namespace Std
 namespace Channel
 
 /--
+Errors that may be thrown while interacting with the `Channel` API.
+-/
+inductive Error where
+  /--
+  Tried to send to a close channel.
+  -/
+  | closed
+  /--
+  Tried to close an already closed channel.
+  -/
+  | alreadyClosed
+deriving Repr, DecidableEq, Hashable
+
+instance : ToString Error where
+  toString
+    | .closed => "trying to send on an already closed channel"
+    | .alreadyClosed => "trying to close an already closed channel"
+
+instance : MonadLift (EIO Error) IO where
+  monadLift x := EIO.toIO (.userError <| toString ·) x
+
+/--
 The central state structure for an unbounded channel, maintains the following invariants:
 1. `values = ∅ ∨ consumers = ∅`
 2. `closed = true → consumers = ∅`
@@ -67,19 +89,19 @@ private def trySend (ch : Unbounded α) (v : α) : BaseIO Bool := do
       set { st with values := st.values.enqueue v }
       return true
 
-private def send (ch : Unbounded α) (v : α) : BaseIO (Task (Option Unit)) := do
+private def send (ch : Unbounded α) (v : α) : BaseIO (Task (Except Error Unit)) := do
   if ← Unbounded.trySend ch v then
-    return .pure <| some ()
+    return .pure <| .ok ()
   else
-    return .pure <| none
+    return .pure <| .error .closed
 
-private def close (ch : Unbounded α) : BaseIO (Option Unit) := do
+private def close (ch : Unbounded α) : EIO Error Unit := do
   ch.state.atomically do
     let st ← get
-    if st.closed then return none
+    if st.closed then throw .alreadyClosed
     for consumer in st.consumers.toArray do consumer.resolve none
     set { st with consumers := ∅, closed := true }
-    return some ()
+    return ()
 
 private def isClosed (ch : Unbounded α) : BaseIO Bool :=
   ch.state.atomically do
@@ -164,27 +186,27 @@ private def trySend (ch : Zero α) (v : α) : BaseIO Bool := do
     else
       trySend' v
 
-private def send (ch : Zero α) (v : α) : BaseIO (Task (Option Unit)) := do
+private def send (ch : Zero α) (v : α) : BaseIO (Task (Except Error Unit)) := do
   ch.state.atomically do
     if (← get).closed then
-      return .pure none
+      return .pure <| .error .closed
     else if ← trySend' v then
-      return .pure <| some ()
+      return .pure <| .ok ()
     else
       let promise ← IO.Promise.new
       modify fun st => { st with producers := st.producers.enqueue (v, promise) }
       return promise.result?.map (sync := true)
         fun
-          | none | some false => none
-          | some true => some ()
+          | none | some false => .error .closed
+          | some true => .ok ()
 
-private def close (ch : Zero α) : BaseIO (Option Unit) := do
+private def close (ch : Zero α) : EIO Error Unit := do
   ch.state.atomically do
     let st ← get
-    if st.closed then return none
+    if st.closed then throw .alreadyClosed
     for consumer in st.consumers.toArray do consumer.resolve none
     set { st with consumers := ∅, closed := true }
-    return some ()
+    return ()
 
 private def isClosed (ch : Zero α) : BaseIO Bool :=
   ch.state.atomically do
@@ -337,12 +359,12 @@ private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
     else
       trySend' v
 
-private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)) := do
+private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Error Unit)) := do
   ch.state.atomically do
     if (← get).closed then
-      return .pure none
+      return .pure <| .error .closed
     else if ← trySend' v then
-      return .pure <| some ()
+      return .pure <| .ok ()
     else
       let promise ← IO.Promise.new
       modify fun st => { st with producers := st.producers.enqueue promise }
@@ -350,15 +372,15 @@ private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)
         if res.getD false then
           Bounded.send ch v
         else
-          return .pure none
+          return .pure <| .error .closed
 
-private def close (ch : Bounded α) : BaseIO (Option Unit) := do
+private def close (ch : Bounded α) : EIO Error Unit := do
   ch.state.atomically do
     let st ← get
-    if st.closed then return none
+    if st.closed then throw .alreadyClosed
     for consumer in st.consumers.toArray do consumer.resolve false
     set { st with consumers := ∅, closed := true }
-    return some ()
+    return ()
 
 private def isClosed (ch : Bounded α) : BaseIO Bool :=
   ch.state.atomically do
@@ -457,17 +479,26 @@ def trySend (ch : Channel α) (v : α) : BaseIO Bool :=
 
 /--
 Send a value through the channel, returning a task that will resolve once the transmission could be
-completed. Note that the task may resolve to `none` if the channel was closed before it could be
-completed.
+completed. Note that the task may resolve to `Except.error` if the channel was closed before it
+could be completed.
 -/
-def send (ch : Channel α) (v : α) : BaseIO (Task (Option Unit)) :=
+def send (ch : Channel α) (v : α) : BaseIO (Task (Except Error Unit)) :=
   match ch with
   | .unbounded ch => Channel.Unbounded.send ch v
   | .zero ch => Channel.Zero.send ch v
   | .bounded ch => Channel.Bounded.send ch v
 
 /--
-Closes the channel, returns `some ()` when called the first time, otherwise `none`.
+A variant of `send` that panics when sending to a closed channel.
+-/
+def send! (ch : Channel α) (v : α) : BaseIO (Task Unit) := do
+  BaseIO.bindTask (sync := true) (← ch.send v)
+    fun
+      | .ok () => return .pure ()
+      | .error e => panic! toString e
+
+/--
+Closes the channel, returns `Except.ok` when called the first time, otherwise `Except.error`.
 When a channel is closed:
 - no new values can be sent successfully anymore
 - all blocked consumers are resolved to `none` (as no new messages can be sent they will never
@@ -475,11 +506,19 @@ When a channel is closed:
 - if there are already values waiting to be received they can still be received by subsequent `recv`
   calls
 -/
-def close (ch : Channel α) : BaseIO (Option Unit) :=
+def close (ch : Channel α) : EIO Error Unit :=
   match ch with
   | .unbounded ch => Channel.Unbounded.close ch
   | .zero ch => Channel.Zero.close ch
   | .bounded ch => Channel.Bounded.close ch
+
+/--
+A variant of `close` that panics when closing an already closed channel.
+-/
+def close! (ch : Channel α) : BaseIO Unit := do
+  match ← EIO.toBaseIO (ch.close) with
+  | .ok () => return ()
+  | .error e => panic! toString e
 
 /--
 Return `true` if the channel is closed.
@@ -536,14 +575,28 @@ def new (capacity : Option Nat := none) : BaseIO (Sync α) := Channel.new capaci
 def trySend (ch : Sync α) (v : α) : BaseIO Bool := Channel.trySend ch v
 
 /--
-Send a value through the channel, blocking until the transmission could be completed. Note that the
-task may resolve to `none` if the channel was closed before it could be completed.
+Send a value through the channel, blocking until the transmission could be completed. Note that this
+function may throw an error when trying to send to an already closed channel.
 -/
-def send (ch : Sync α) (v : α) : BaseIO (Option Unit) := do
-  IO.wait (← Channel.send ch v)
+def send (ch : Sync α) (v : α) : EIO Error Unit := do
+  EIO.ofExcept (← IO.wait (← Channel.send ch v))
+
+/--
+A variant of `send` that panics when sending to a closed channel.
+-/
+def send! (ch : Sync α) (v : α) : BaseIO Unit := do
+  IO.wait (← Channel.send! ch v)
 
 @[inherit_doc Channel.close]
-def close (ch : Sync α) : BaseIO (Option Unit) := Channel.close ch
+def close (ch : Sync α) : EIO Error Unit := Channel.close ch
+
+/--
+A variant of `close` that panics when closing an already closed channel.
+-/
+def close! (ch : Channel α) : BaseIO Unit := do
+  match ← EIO.toBaseIO (ch.close) with
+  | .ok () => return ()
+  | .error e => panic! toString e
 
 @[inherit_doc Channel.isClosed]
 def isClosed (ch : Sync α) : BaseIO Bool := Channel.isClosed ch
@@ -553,7 +606,7 @@ def tryRecv (ch : Sync α) : BaseIO (Option α) := Channel.tryRecv ch
 
 /--
 Receive a value from the channel, blocking unitl the transmission could be completed. Note that the
-task may resolve to `none` if the channel was closed before it could be completed.
+return value may be `none` if the channel was closed before it could be completed.
 -/
 def recv (ch : Sync α) : BaseIO (Option α) := do
   IO.wait (← Channel.recv ch)

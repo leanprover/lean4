@@ -49,6 +49,17 @@ def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
     insts := insts.push inst₂
   return insts
 
+def desugarOrder (predType : Expr) (body : Expr ) : MetaM (Expr) := do
+  if (!body.isAppOfArity ``PartialOrder.rel 4) then
+    throwError "{body} is not an application of partial order"
+  let lhsTypes ← forallTelescope predType (fun ts _ =>  ts.mapM inferType)
+  let names ← lhsTypes.mapM (fun _ => mkFreshUserName `x)
+  let bodyArgs := body.getAppArgs
+  withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
+    let mut applied := (bodyArgs[2]!, bodyArgs[3]!)
+    for e in exprs do
+      applied := (mkApp applied.1 e, mkApp applied.2 e)
+    mkForallFVars exprs (←mkArrow applied.1 applied.2)
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard libray?
@@ -102,27 +113,18 @@ def deriveInduction (name : Name) : MetaM Unit :=
         else
           throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
         )
-
+        -- Now change the type, so it desugars the definition of the order on predicates
         let newTyp := forallTelescope (←newTyp) (fun args conclusion => do
           let predicate := args[0]!
           let predicateType ← inferType predicate
-          let premise ← inferType args[1]!
-          let lhsTypes ← forallTelescope predicateType (fun ts _ =>  ts.mapM inferType)
-          let names ← lhsTypes.mapM (fun _ => mkFreshUserName `x)
-          let input := names.zip lhsTypes
-          let res ← withLocalDeclsDND input fun expr => do
-            let conclusionArgs := conclusion.getAppArgs
-            let (lhs, rhs) := (conclusionArgs[2]!, conclusionArgs[3]!)
-            let mut applied := (lhs, rhs)
-            for e in expr do
-              applied := (mkApp applied.1 e, mkApp applied.2 e)
-            mkForallFVars expr (←mkArrow applied.1 applied.2)
-          mkForallFVars args res)
+          --let premise ← inferType args[1]!
 
-
+          let newConclusion ← desugarOrder predicateType conclusion
+          mkForallFVars args newConclusion)
 
         let e' ← mkExpectedTypeHint e' (←newTyp)
         let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
+
         let e' ← instantiateMVars e'
 
         trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
@@ -137,7 +139,6 @@ def deriveInduction (name : Name) : MetaM Unit :=
       let params := (collectLevelParams {} eTyp).params
       -- Prune unused level parameters, preserving the original order
       let us := infos[0]!.levelParams.filter (params.contains ·)
-
       addDecl <| Declaration.thmDecl
         { name := inductName, levelParams := us, type := eTyp, value := e' }
     else

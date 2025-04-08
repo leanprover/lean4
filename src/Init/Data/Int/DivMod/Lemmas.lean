@@ -2140,6 +2140,11 @@ theorem bmod_pos (x : Int) (m : Nat) (p : x % m < (m + 1) / 2) : bmod x m = x % 
 theorem bmod_neg (x : Int) (m : Nat) (p : x % m ≥ (m + 1) / 2) : bmod x m = (x % m) - m := by
   simp [bmod_def, Int.not_lt.mpr p]
 
+theorem bmod_eq_emod (x : Int) (m : Nat) : bmod x m = x % m - if x % m ≥ (m + 1) / 2 then m else 0 := by
+  split
+  · rwa [bmod_neg]
+  · rw [bmod_pos] <;> simp_all
+
 @[simp]
 theorem bmod_one_is_zero (x : Int) : Int.bmod x 1 = 0 := by
   simp [Int.bmod]
@@ -2367,6 +2372,18 @@ abbrev bmod_natAbs_plus_one := @bmod_natAbs_add_one
 theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
   apply (bmod_add_cancel_right x).mp
   rw [Int.add_left_neg, ← add_bmod_bmod, Int.add_left_neg]
+
+theorem dvd_iff_bmod_eq_zero {a : Nat} {b : Int} : (a : Int) ∣ b ↔ b.bmod a = 0 := by
+  rw [dvd_iff_emod_eq_zero, bmod]
+  split <;> rename_i h
+  · rfl
+  · simp only [Int.not_lt] at h
+    match a with
+    | 0 => omega
+    | a + 1 =>
+      have : b % (a+1) < a + 1 := emod_lt b (by omega)
+      simp_all
+      omega
 
 /-! Helper theorems for `dvd` simproc -/
 

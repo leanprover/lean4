@@ -19,5 +19,8 @@ instance : CommRing (BitVec w) where
   mul_one := BitVec.mul_one
   left_distrib _ _ _ := BitVec.mul_add
   zero_mul _ := BitVec.zero_mul
+  cast_add := BitVec.ofInt_add
+  cast_mul := BitVec.ofInt_mul
+  cast_neg _ := BitVec.ofInt_neg
 
 end Lean.Grind

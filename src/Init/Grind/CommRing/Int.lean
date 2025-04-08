@@ -20,4 +20,7 @@ instance : CommRing Int where
   left_distrib := Int.mul_add
   zero_mul := Int.zero_mul
 
+instance : IsCharP Int 0 where
+  char := by simp
+
 end Lean.Grind

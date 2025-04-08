@@ -11,17 +11,6 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-private def assertNatCast (e : Expr) : GoalM Unit := do
-  let_expr NatCast.natCast _ inst a := e | return ()
-  let_expr instNatCastInt := inst | return ()
-  trace[grind.debug.cutsat.natCast] "{a}"
-  pushNewFact <| mkApp (mkConst ``Int.Linear.natCast_nonneg) a
-  discard <| mkForeignVar a .nat
-
-private def assertHelpers (e : Expr) : GoalM Unit := do
-  assertNatCast e
-  assertDenoteAsIntNonneg e
-
 @[export lean_grind_cutsat_mk_var]
 def mkVarImpl (expr : Expr) : GoalM Var := do
   if let some var := (← get').varMap.find? { expr } then
@@ -40,7 +29,8 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
   }
   trace[grind.debug.cutsat.markTerm] "mkVar: {expr}"
   markAsCutsatTerm expr
-  assertHelpers expr
+  assertNatCast expr var
+  assertDenoteAsIntNonneg expr
   return var
 
 def isInt (e : Expr) : GoalM Bool := do

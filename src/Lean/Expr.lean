@@ -1639,6 +1639,10 @@ def isOptParam (e : Expr) : Bool :=
 def isAutoParam (e : Expr) : Bool :=
   e.isAppOfArity ``autoParam 2
 
+/-- Return `true` if `e` is of th eform `dotParam _` -/
+def isDotParam (e : Expr) : Bool :=
+  e.isAppOfArity ``dotParam 1
+
 /--
 Remove `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
 Note that it does not remove nested annotations.
@@ -1650,7 +1654,7 @@ Examples:
 partial def consumeTypeAnnotations (e : Expr) : Expr :=
   if e.isOptParam || e.isAutoParam then
     consumeTypeAnnotations e.appFn!.appArg!
-  else if e.isOutParam || e.isSemiOutParam then
+  else if e.isOutParam || e.isSemiOutParam || e.isDotParam then
     consumeTypeAnnotations e.appArg!
   else
     e

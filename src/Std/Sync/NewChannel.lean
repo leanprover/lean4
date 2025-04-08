@@ -174,7 +174,10 @@ private def send (ch : Zero α) (v : α) : BaseIO (Task (Option Unit)) := do
     else
       let promise ← IO.Promise.new
       modify fun st => { st with producers := st.producers.enqueue (v, promise) }
-      return promise.result?.map (sync := true) discard
+      return promise.result?.map (sync := true)
+        fun
+          | none | some false => none
+          | some true => some ()
 
 private def close (ch : Zero α) : BaseIO (Option Unit) := do
   ch.state.atomically do
@@ -195,7 +198,7 @@ private def tryRecv' : AtomicT (Zero.State α) BaseIO (Option α) := do
     promise.resolve true
     return some val
   else
-      return none
+    return none
 
 private def tryRecv (ch : Zero α) : BaseIO (Option α) := do
   ch.state.atomically do
@@ -248,8 +251,11 @@ private structure Bounded.State (α : Type) where
   /--
   The buffer space for the channel, slots with `some v` contain a value that is waiting for
   consumption, the slots with `none` are free for enqueueing.
+
+  Note that this is a `Vector` of `IO.Ref (Option α)` as the `buf` itself is shared across threads
+  and would thus keep getting copied if it was a `Vector (Option α)` instead.
   -/
-  buf : Vector (Option α) capacity
+  buf : Vector (IO.Ref (Option α)) capacity
   /--
   How many slots in `buf` are currently used, this is used to disambiguate between an empty and a
   full buffer without sacrificing a slot for indicating that.
@@ -281,7 +287,7 @@ private def new (capacity : Nat) (hcap : 0 < capacity) : BaseIO (Bounded α) := 
       producers := ∅
       consumers := ∅
       capacity := capacity
-      buf := Vector.replicate capacity none
+      buf := ← Vector.range capacity |>.mapM (fun _ => IO.mkRef none)
       bufCount := 0
       sendIdx := 0
       hsend := hcap
@@ -306,27 +312,24 @@ private theorem incMod_lt {idx cap : Nat} (h : idx < cap) : incMod idx cap < cap
 Precondition: The channel must not be closed.
 -/
 private def trySend' (v : α) : AtomicT (Bounded.State α) BaseIO Bool := do
-  let success ← modifyGet fun st =>
-    if st.bufCount == st.capacity then
-      (false, st)
-    else
-      let st := { st with
-        buf := st.buf.set st.sendIdx (some v) st.hsend
-        bufCount := st.bufCount + 1
-        sendIdx := incMod st.sendIdx st.capacity
-        hsend := incMod_lt st.hsend
-      }
-      (true, st)
-      let st ← get
+  let mut st ← get
+  if st.bufCount == st.capacity then
+    return false
+  else
+    st.buf[st.sendIdx]'st.hsend |>.set (some v)
+    st := { st with
+      bufCount := st.bufCount + 1
+      sendIdx := incMod st.sendIdx st.capacity
+      hsend := incMod_lt st.hsend
+    }
 
-  if success then
     if let some (consumer, consumers) := st.consumers.dequeue? then
       consumer.resolve true
-      set { st with consumers }
+      st := { st with consumers }
+
+    set st
 
     return true
-  else
-    return false
 
 private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
   ch.state.atomically do
@@ -355,27 +358,26 @@ private def close (ch : Bounded α) : BaseIO (Option Unit) := do
     let st ← get
     if st.closed then return none
     for consumer in st.consumers.toArray do consumer.resolve false
-    set { st with consumers := ∅, closed := true : State α }
+    set { st with consumers := ∅, closed := true }
     return some ()
 
 private def isClosed (ch : Bounded α) : BaseIO Bool :=
   ch.state.atomically do
     return (← get).closed
 
-private def tryRecv' : AtomicT (Bounded.State α) BaseIO (Option α) :=
-  modifyGet fun st =>
-    if st.bufCount == 0 then
-      (none, st)
-    else
-      let val := st.buf[st.recvIdx]'st.hrecv
-      let nextRecvIdx := incMod st.recvIdx st.capacity
-      let st := { st with
-        buf := st.buf.set st.recvIdx none st.hrecv,
-        bufCount := st.bufCount - 1
-        recvIdx := nextRecvIdx,
-        hrecv := incMod_lt st.hrecv
-      }
-      (val, st)
+private def tryRecv' : AtomicT (Bounded.State α) BaseIO (Option α) := do
+  let st ← get
+  if st.bufCount == 0 then
+    return none
+  else
+    let val ← st.buf[st.recvIdx]'st.hrecv |>.swap none
+    let nextRecvIdx := incMod st.recvIdx st.capacity
+    set { st with
+      bufCount := st.bufCount - 1
+      recvIdx := nextRecvIdx,
+      hrecv := incMod_lt st.hrecv
+    }
+    return val
 
 private def tryRecv (ch : Bounded α) : BaseIO (Option α) :=
   ch.state.atomically do
@@ -384,7 +386,6 @@ private def tryRecv (ch : Bounded α) : BaseIO (Option α) :=
 private partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
   ch.state.atomically do
     if let some val ← tryRecv' then
-      -- Receive succeeded, see if we need to unblock a producer.
       let st ← get
       if let some (producer, producers) := (← get).producers.dequeue? then
         producer.resolve true
@@ -393,7 +394,6 @@ private partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
     else if (← get).closed then
       return .pure none
     else
-      -- The channel is empty.
       let promise ← IO.Promise.new
       modify fun st => { st with consumers := st.consumers.enqueue promise }
       BaseIO.bindTask promise.result? fun res => do

@@ -1,27 +1,5 @@
 reset_grind_attrs%
 
-attribute [grind] List.length_set
-attribute [grind →] List.eq_nil_of_length_eq_zero
-
-open List in
-example {as : List α} {i : Nat} (h : i < as.length) :
-    as.set i as[i] = as := by
-  apply ext_getElem
-  · sorry
-  · -- works:
-    grind [getElem_set]
-
-attribute [grind] List.getElem_set
-
-open List in
-example {as : List α} {i : Nat} (h : i < as.length) :
-    as.set i as[i] = as := by
-  apply ext_getElem
-  · sorry
-  · -- fails:
-    grind
-
----
 reset_grind_attrs%
 
 theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.length, l[i] = a := by

@@ -13,6 +13,10 @@ namespace Lean.Meta.Grind.Arith
 def isNatType (e : Expr) : Bool :=
   e.isConstOf ``Nat
 
+/-- Returns `true` if `e` is of the form `Int` -/
+def isIntType (e : Expr) : Bool :=
+  e.isConstOf ``Int
+
 /-- Returns `true` if `e` is of the form `@instHAdd Nat instAddNat` -/
 def isInstAddNat (e : Expr) : Bool :=
   let_expr instHAdd a b := e | false
@@ -49,5 +53,15 @@ def isNatNum? (e : Expr) : Option Nat := Id.run do
   let .lit (.natVal k) := k | none
   some k
 
+def isSupportedType (e : Expr) : Bool :=
+  isNatType e || isIntType e
+
+partial def isRelevantPred (e : Expr) : Bool :=
+  match_expr e with
+  | Not p => isRelevantPred p
+  | LE.le α _ _ _ => isSupportedType α
+  | Eq α _ _ => isSupportedType α
+  | Dvd.dvd α _ _ _ => isSupportedType α
+  | _ => false
 
 end Lean.Meta.Grind.Arith

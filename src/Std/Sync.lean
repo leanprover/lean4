@@ -10,4 +10,3 @@ import Std.Sync.Mutex
 import Std.Sync.RecursiveMutex
 import Std.Sync.Barrier
 import Std.Sync.SharedMutex
-import Std.Sync.NewChannel

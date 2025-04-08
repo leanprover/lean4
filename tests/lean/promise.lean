@@ -19,11 +19,11 @@ open IO
   let ch ← Std.Channel.new
 
   let out ← IO.mkRef #[]
-  ch.send 0
+  discard <| ch.sync.send 0
   let drainFinished ← ch.forAsync fun x => out.modify (·.push x)
-  ch.send 1
-  ch.close
-  ch.send 2
+  discard <| ch.sync.send 1
+  discard <| ch.close
+  discard <| ch.sync.send 2
 
   IO.wait drainFinished
   assert! (← out.get) = #[0, 1]

@@ -1,6 +1,6 @@
-import Std.Sync.NewChannel
+import Std.Sync
 
-open Std.Experimental
+open Std
 
 def assertBEq [BEq α] [ToString α] (is should : α) : IO Unit := do
   if is != should then
@@ -116,16 +116,20 @@ partial def sendLotsMultiSync (ch : Channel.Sync Nat) : IO Unit := do
   assertBEq (msg1.sum + msg2.sum) (2 * messages.sum)
 
 def testIt (capacity : Option Nat) : IO Unit := do
+  paired (← Channel.new capacity)
+  syncPaired (← Channel.new capacity).sync
+
+  /-
+  TODO more test ideas:
+  - send/recv against closed channel
+  -/
   closeClose (← Channel.new capacity)
   trySend (← Channel.new capacity) capacity
   tryRecv (← Channel.new capacity)
 
-  paired (← Channel.new capacity)
   sendLots (← Channel.new capacity)
-  sendLotsMulti (← Channel.new capacity)
-
-  syncPaired (← Channel.new capacity).sync
   sendLotsSync (← Channel.new capacity).sync
+  sendLotsMulti (← Channel.new capacity)
   sendLotsMultiSync (← Channel.new capacity).sync
 
 def suite : IO Unit := do

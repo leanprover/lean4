@@ -32,13 +32,11 @@ def trySend (ch : Channel Nat) (capacity : Option Nat) : IO Unit := do
   assertBEq (← IO.wait recvTask) (some 37)
 
   -- the unbounded channel cannot go out of space so it is pointless to fill it up
-  match capacity with
-  | none => return ()
-  | some capacity =>
-    for i in [:capacity] do
-      assertBEq (← ch.trySend i) true
+  let some capacity := capacity | return ()
+  for i in [:capacity] do
+    assertBEq (← ch.trySend i) true
 
-    assertBEq (← ch.trySend (capacity + 1)) false
+  assertBEq (← ch.trySend (capacity + 1)) false
 
 def tryRecv (ch : Channel Nat) : IO Unit := do
   assertBEq (← ch.tryRecv) none
@@ -60,6 +58,21 @@ partial def recvIt (ch : Channel Nat) (messages : List Nat) : BaseIO (Task (List
   BaseIO.bindTask (← ch.recv) fun
     | none => return .pure messages.reverse
     | some msg => recvIt ch (msg :: messages)
+
+def sendRecvClose (ch : Channel Nat) : IO Unit := do
+  let sendTask ← ch.send 37
+  assertBEq (← ch.close) (some ())
+  let recvTask ← ch.recv
+  assertBEq (← IO.wait sendTask) (some ())
+  assertBEq (← IO.wait recvTask) (some 37)
+
+  let sendTask ← ch.send 37
+  assertBEq (← IO.wait sendTask) none
+  let recvTask ← ch.recv
+  assertBEq (← IO.wait recvTask) none
+  assertBEq (← ch.trySend 37) false
+  assertBEq (← ch.tryRecv) none
+
 
 def sendLots (ch : Channel Nat) : IO Unit := do
   let messages := List.range 1000
@@ -119,13 +132,10 @@ def testIt (capacity : Option Nat) : IO Unit := do
   paired (← Channel.new capacity)
   syncPaired (← Channel.new capacity).sync
 
-  /-
-  TODO more test ideas:
-  - send/recv against closed channel
-  -/
   closeClose (← Channel.new capacity)
   trySend (← Channel.new capacity) capacity
   tryRecv (← Channel.new capacity)
+  sendRecvClose (← Channel.new capacity)
 
   sendLots (← Channel.new capacity)
   sendLotsSync (← Channel.new capacity).sync

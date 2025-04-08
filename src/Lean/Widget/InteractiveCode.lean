@@ -73,8 +73,7 @@ where
         }
         TaggedText.tag t (go subTt)
 
-open PrettyPrinter Delaborator
-
+open PrettyPrinter Delaborator in
 /--
 Pretty prints the expression `e` using delaborator `delab`, returning an object that represents
 the pretty printed syntax paired with information needed to support hovers.

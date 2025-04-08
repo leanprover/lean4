@@ -442,38 +442,38 @@ theorem guard_eq_map (p : α → Prop) [DecidablePred p] :
 theorem guard_def (p : α → Prop) {_ : DecidablePred p} :
     Option.guard p = fun x => if p x then some x else none := rfl
 
-theorem zipWith_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
-    ∀ o₁ o₂, zipWith f o₁ o₂ = o₁ ∨ zipWith f o₁ o₂ = o₂
+theorem merge_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
+    ∀ o₁ o₂, merge f o₁ o₂ = o₁ ∨ merge f o₁ o₂ = o₂
   | none, none => .inl rfl
   | some _, none => .inl rfl
   | none, some _ => .inr rfl
-  | some a, some b => by have := h a b; simp [zipWith] at this ⊢; exact this
+  | some a, some b => by have := h a b; simp [merge] at this ⊢; exact this
 
-@[simp] theorem zipWith_none_left {f} {b : Option α} : zipWith f none b = b := by
+@[simp] theorem merge_none_left {f} {b : Option α} : merge f none b = b := by
   cases b <;> rfl
 
-@[simp] theorem zipWith_none_right {f} {a : Option α} : zipWith f a none = a := by
+@[simp] theorem merge_none_right {f} {a : Option α} : merge f a none = a := by
   cases a <;> rfl
 
-@[simp] theorem zipWith_some_some {f} {a b : α} :
-  zipWith f (some a) (some b) = f a b := rfl
+@[simp] theorem merge_some_some {f} {a b : α} :
+  merge f (some a) (some b) = f a b := rfl
 
-@[deprecated zipWith_eq_or_eq (since := "2025-04-04")]
+@[deprecated merge_eq_or_eq (since := "2025-04-04")]
 theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
-    ∀ o₁ o₂, zipWith f o₁ o₂ = o₁ ∨ zipWith f o₁ o₂ = o₂ :=
-  zipWith_eq_or_eq h
+    ∀ o₁ o₂, merge f o₁ o₂ = o₁ ∨ merge f o₁ o₂ = o₂ :=
+  merge_eq_or_eq h
 
-@[deprecated zipWith_none_left (since := "2025-04-04")]
-theorem liftOrGet_none_left {f} {b : Option α} : zipWith f none b = b :=
-  zipWith_none_left
+@[deprecated merge_none_left (since := "2025-04-04")]
+theorem liftOrGet_none_left {f} {b : Option α} : merge f none b = b :=
+  merge_none_left
 
-@[deprecated zipWith_none_right (since := "2025-04-04")]
-theorem liftOrGet_none_right {f} {a : Option α} : zipWith f a none = a :=
-  zipWith_none_right
+@[deprecated merge_none_right (since := "2025-04-04")]
+theorem liftOrGet_none_right {f} {a : Option α} : merge f a none = a :=
+  merge_none_right
 
-@[deprecated zipWith_some_some (since := "2025-04-04")]
-theorem liftOrGet_some_some {f} {a b : α} : zipWith f (some a) (some b) = f a b :=
-  zipWith_some_some
+@[deprecated merge_some_some (since := "2025-04-04")]
+theorem liftOrGet_some_some {f} {a b : α} : merge f (some a) (some b) = f a b :=
+  merge_some_some
 
 @[simp] theorem elim_none (x : β) (f : α → β) : none.elim x f = x := rfl
 

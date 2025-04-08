@@ -335,7 +335,6 @@ theorem gfp_coinduction_monotone (f : α → α) {hm : monotone f} (x : α):
   unfold gfp_monotone
   apply gfp_coinduction
 
-#check @gfp_coinduction_monotone
 
 theorem lfp_induction {f : α → α} :
   f x ⊑ x → lfp f ⊑ x := fun hx => inf_le hx
@@ -578,7 +577,6 @@ theorem monotone_dite
     split
     · apply monotone_apply _ _ hmono₁
     · apply monotone_apply _ _ hmono₂
-
 end monotone_lemmas
 
 section pprod_order
@@ -859,6 +857,18 @@ instance inst_coind_po: PartialOrder Prop where
   rel_refl := fun x => x
   rel_trans h₁ h₂ := fun x => h₂ (h₁  x)
   rel_antisymm h₁ h₂ := propext ⟨h₁, h₂⟩
+
+@[partial_fixpoint_monotone] theorem monotone_exists
+    {α} [PartialOrder α] {β} (f : α → β → Prop)
+    (h : monotone f) :
+    monotone (fun x => Exists (f x)) :=
+  fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
+
+@[partial_fixpoint_monotone] theorem monotone_and
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : monotone f₁) (h₂ : monotone f₂) :
+    monotone (fun x => f₁ x ∧ f₂ x) :=
+  fun x y hxy ⟨hfx₁, hfx₂⟩ => ⟨h₁ x y hxy hfx₁, h₂ x y hxy hfx₂⟩
 
 end coinductive_predicates
 

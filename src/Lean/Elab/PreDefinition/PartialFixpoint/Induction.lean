@@ -86,9 +86,9 @@ def deriveInduction (name : Name) : MetaM Unit :=
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-    let e' ← if eqnInfo.lattice? then
+    let e' ← if eqnInfo.greatest? then
       if (eqnInfo.declNames.size != 1) then
-        throwError "Mutual lattice (co)induction is not supported yet"
+        throwError "Mutual coinduction is not supported yet"
       eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
         -- Now look at the body of an arbitrary of the functions (they are essentially the same
         -- up to the final projections)
@@ -107,7 +107,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
         let fInst ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda fEtaExpanded xs
         let fInst := fInst.eta
 
-        -- and change it so it doesn't mention gfp
+        -- Change the conclusion so it doesn't mention the greatest fixpoint
         let newTyp ← forallTelescope eTyp (fun args econc =>
           if (econc.isAppOfArity ``PartialOrder.rel 4) then
           let oldArgs := econc.getAppArgs.pop
@@ -118,7 +118,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
           throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
         )
 
-        -- Desugar partial order on predicates
+        -- Desugar partial order on predicates in premises and conclusion
         let newTyp ← forallTelescope newTyp (fun args conclusion => do
           let predicate := args[0]!
           let predicateType ← inferType predicate
@@ -140,7 +140,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
 
         let e' ← instantiateMVars e'
 
-        trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
+        trace[Elab.definition.partialFixpoint.induction] "Complete body of (lattice theoretic) fixpoint induction principle:{indentExpr e'}"
 
         pure e'
 

@@ -55,7 +55,6 @@ LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Elab_Ta
 size_t lean_usize_of_nat(lean_object*);
 lean_object* lean_byte_array_set(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_mapping___spec__1(lean_object*);
-static lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__3;
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_mapping___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_mapStep___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
@@ -73,6 +72,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis___box
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis_go___spec__1(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim(lean_object*);
+LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_mapping___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findInitialId(lean_object*, lean_object*);
@@ -116,7 +116,6 @@ size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_markUsed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_getEmptyId(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_isUsed___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__4;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -126,6 +125,7 @@ lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_mapStep(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction(lean_object*, lean_object*);
@@ -198,11 +198,52 @@ lean_dec(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_eq(x_2, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_nat_sub(x_2, x_6);
+lean_dec(x_2);
+x_8 = lean_array_fget(x_1, x_7);
+if (lean_obj_tag(x_8) == 0)
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_7);
+x_9 = lean_ctor_get(x_8, 0);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
+}
+else
+{
+lean_dec(x_8);
+x_2 = x_7;
+x_3 = lean_box(0);
+goto _start;
+}
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_2);
+x_12 = lean_box(0);
+return x_12;
+}
+}
+}
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("The LRAT proof contains no steps.", 33, 33);
+x_1 = lean_mk_string_unchecked("LRAT proof doesn't contain the empty clause.", 44, 44);
 return x_1;
 }
 }
@@ -216,64 +257,46 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Last proof step is not the empty clause", 39, 39);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__3;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = lean_array_get_size(x_1);
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_nat_dec_lt(x_3, x_2);
-if (x_4 == 0)
+x_3 = l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___spec__1(x_1, x_2, lean_box(0));
+if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_5; 
-lean_dec(x_2);
-x_5 = l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__2;
-return x_5;
+lean_object* x_4; 
+x_4 = l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__2;
+return x_4;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_nat_sub(x_2, x_6);
-lean_dec(x_2);
-x_8 = lean_array_fget(x_1, x_7);
-lean_dec(x_7);
-if (lean_obj_tag(x_8) == 0)
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_3);
+if (x_5 == 0)
 {
-lean_object* x_9; lean_object* x_10; 
-x_9 = lean_ctor_get(x_8, 0);
-lean_inc(x_9);
-lean_dec(x_8);
-x_10 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-return x_10;
+return x_3;
 }
 else
 {
-lean_object* x_11; 
-lean_dec(x_8);
-x_11 = l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__4;
-return x_11;
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
+lean_dec(x_3);
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___spec__1(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___boxed(lean_object* x_1) {
@@ -2959,10 +2982,6 @@ l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__1 = _init_l_Lean_E
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__1);
 l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__2 = _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__2();
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__2);
-l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__3 = _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__3);
-l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__4 = _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__4();
-lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId___closed__4);
 l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___rarg___closed__1 = _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___rarg___closed__1);
 l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___rarg___closed__2 = _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___rarg___closed__2();

@@ -3875,7 +3875,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_expandStructI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Expands fields.\n* Abbrevations. Example: `{ x }` expands to `{ x := x }`.\n* Equations. Example: `{ f | 0 => 0 | n + 1 => n }` expands to `{ f := fun x => match x with | 0 => 0 | n + 1 => n }`.\n* Binders and types. Example: `{ f n : Nat := n + 1 }` expands to `{ f := fun n => (n + 1 : Nat) }`.\n", 294, 294);
+x_1 = lean_mk_string_unchecked("Expands fields.\n* Abbreviations. Example: `{ x }` expands to `{ x := x }`.\n* Equations. Example: `{ f | 0 => 0 | n + 1 => n }` expands to `{ f := fun x => match x with | 0 => 0 | n + 1 => n }`.\n* Binders and types. Example: `{ f n : Nat := n + 1 }` expands to `{ f := fun n => (n + 1 : Nat) }`.\n", 295, 295);
 return x_1;
 }
 }

@@ -2660,6 +2660,63 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
   simp [show i < w by omega]
 
+theorem toInt_append {x : BitVec n} {y : BitVec m} :
+    (x ++ y).toInt = if n == 0 then y.toInt else (2 ^ m) * x.toInt + y.toNat := by
+  by_cases n0 : n = 0
+  · subst n0
+    simp [BitVec.eq_nil x, BitVec.toInt]
+  · by_cases m0 : m = 0
+    · subst m0
+      simp [BitVec.eq_nil y, n0]
+    · simp only [beq_iff_eq, n0, ↓reduceIte]
+      by_cases x.msb
+      case pos h =>
+        rw [toInt_eq_msb_cond]
+        simp only [show ((x ++ y).msb = true) by simp [msb_append, n0, h], ↓reduceIte, toNat_append,
+          Nat.pow_add, ← Nat.shiftLeft_eq, toInt_eq_msb_cond, h]
+        rw_mod_cast [← Nat.shiftLeft_add_eq_or_of_lt (by omega), Nat.shiftLeft_eq, Nat.shiftLeft_eq,
+          Nat.mul_comm, Int.mul_sub]
+        norm_cast
+        rw [Int.natCast_add, Nat.mul_comm (n := 2 ^ n)]
+        omega
+      case neg h =>
+        rw [Bool.not_eq_true] at h
+        rw [toInt_eq_toNat_of_msb h, toInt_eq_toNat_of_msb (by simp [msb_append, n0, h])]
+        rw_mod_cast [toNat_append, ← Nat.shiftLeft_add_eq_or_of_lt (by omega), Nat.shiftLeft_eq,
+          Nat.mul_comm]
+
+@[simp] theorem toInt_append_zero {n m : Nat} {x : BitVec n} :
+    (x ++ 0#m).toInt = (2 ^ m) * x.toInt := by
+  simp only [toInt_append, beq_iff_eq, toInt_zero, toNat_ofNat, Nat.zero_mod, Int.cast_ofNat_Int, Int.add_zero,
+    ite_eq_right_iff]
+  intros h
+  subst h
+  simp [BitVec.eq_nil x]
+
+@[simp] theorem toInt_zero_append {n m : Nat} {x : BitVec n} :
+    (0#m ++ x).toInt = if m = 0 then x.toInt else x.toNat := by
+  simp [toInt_append]
+
+/--
+Show that `(x.toNat <<< n) ||| y.toNat` is within bounds of `BitVec (m + n)`.
+-/
+theorem toNat_shiftLeft_or_toNat_lt_two_pow_add {m n : Nat} (x : BitVec m) (y : BitVec n) :
+    x.toNat <<< n ||| y.toNat < 2 ^ (m + n) := by
+  have hnLe : 2^n ≤ 2 ^(m + n) := by
+    rw [Nat.pow_add]
+    exact Nat.le_mul_of_pos_left (2 ^ n) (Nat.two_pow_pos m)
+  apply Nat.or_lt_two_pow
+  · have := Nat.two_pow_pos n
+    rw [Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right]
+    <;> omega
+  · omega
+
+@[simp] theorem toFin_append {x : BitVec m} {y : BitVec n} :
+    (x ++ y).toFin =
+      @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) (toNat_shiftLeft_or_toNat_lt_two_pow_add x y) := by
+  ext
+  simp
+
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = y.cast (by omega) := by
   ext i ih
   simp [getElem_append, show i < v by omega]

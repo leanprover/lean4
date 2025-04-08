@@ -45,6 +45,7 @@ def setupFile
       paths := {
         oleanPath := loadConfig.lakeEnv.leanPath
         srcPath := loadConfig.lakeEnv.leanSrcPath
+        pluginPaths := #[loadConfig.lakeEnv.lake.sharedLib]
       }
       setupOptions := ⟨∅⟩
       : FileSetupInfo

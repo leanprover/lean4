@@ -42,6 +42,7 @@ adds entry `f ↦ e` to `appMap`. Recall that `appMap` is a multi-map.
 -/
 private def updateAppMap (e : Expr) : GoalM Unit := do
   let key := e.toHeadIndex
+  trace_goal[grind.debug.appMap] "{e} => {repr key}"
   modify fun s => { s with
     appMap := if let some es := s.appMap.find? key then
       s.appMap.insert key (e :: es)
@@ -92,6 +93,9 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   | .fvar .. =>
     let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
     if (← get).split.casesTypes.isSplit declName then
+      addSplitCandidate e
+  | .forallE _ d _ _ =>
+    if Arith.isRelevantPred d || (← getConfig).splitImp then
       addSplitCandidate e
   | _ => pure ()
 
@@ -168,13 +172,16 @@ private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Un
     modify fun s => { s with ematch.thmMap := thmMap }
     let appMap := (← get).appMap
     for thm in thms do
+      trace[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
       unless (← get).ematch.thmMap.isErased thm.origin do
         let symbols := thm.symbols.filter fun sym => !appMap.contains sym
         let thm := { thm with symbols }
         match symbols with
-        | [] => activateTheorem thm generation
+        | [] =>
+          trace_goal[grind.debug.ematch.activate] "`{thm.origin.key}`"
+          activateTheorem thm generation
         | _ =>
-          trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
+          trace_goal[grind.debug.ematch.activate] "reinsert `{thm.origin.key}`"
           modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm }
 
 /--
@@ -233,6 +240,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
         internalizeImpl b generation e
         registerParent e b
       propagateUp e
+      checkAndAddSplitCandidate e
   | .lit .. =>
     mkENode e generation
   | .const declName _ =>
@@ -256,6 +264,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
       internalizeMatchCond e generation
     else e.withApp fun f args => do
       mkENode e generation
+      updateAppMap e
       checkAndAddSplitCandidate e
       pushCastHEqs e
       addMatchEqns f generation
@@ -280,7 +289,6 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
           internalize arg generation e
           registerParent e arg
       addCongrTable e
-      updateAppMap e
       Arith.internalize e parent?
       propagateUp e
       propagateBetaForNewApp e

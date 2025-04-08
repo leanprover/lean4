@@ -260,10 +260,6 @@ end FileWorker
 
 section ServerM
   abbrev FileWorkerMap := Std.TreeMap DocumentUri FileWorker
-
-  def FileWorkerMap.getMod? (m : FileWorkerMap) (uri : DocumentUri) : Option Name :=
-    m.get? uri |>.map (·.doc.mod)
-
   abbrev ImportMap := RBMap DocumentUri (RBTree DocumentUri compare) compare
 
   /-- Global import data for all open files managed by this watchdog. -/
@@ -372,7 +368,7 @@ section ServerM
     let s ← read
     s.importData.modify (·.eraseImportsOf uri)
     let mod? ← s.fileWorkersRef.modifyGet fun fileWorkers =>
-      let mod? := fileWorkers.getMod? uri
+      let mod? := fileWorkers.get? uri |>.map (·.doc.mod)
       (mod?, fileWorkers.erase uri)
     let some mod := mod?
       | return

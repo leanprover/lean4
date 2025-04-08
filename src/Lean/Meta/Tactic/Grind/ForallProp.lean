@@ -46,7 +46,7 @@ where
     else if (← isEqTrue b) then
       -- b = True → (a → b) = True
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_right) a b (← mkEqTrueProof b)
-    else if (← isEqFalse b <&&> isEqTrue e) then
+    else if (← isEqFalse b <&&> isEqTrue e <&&> isProp a) then
       -- (a → b) = True → b = False → a = False
       pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
 
@@ -108,7 +108,9 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
     else
       if b.hasLooseBVars then
         addLocalEMatchTheorems e
-      else if (← isEqFalse b) then
+      else
+        unless (← alreadyInternalized b) do return ()
+        if (← isEqFalse b <&&> isProp a) then
         -- (a → b) = True → b = False → a = False
         pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
 

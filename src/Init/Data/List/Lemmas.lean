@@ -1301,7 +1301,7 @@ abbrev filter_length_eq_length := @length_filter_eq_length_iff
 
 @[simp] theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with
-  | nil => simp [filter]
+  | nil => simp
   | cons a as ih =>
     by_cases h : p a
     · simp_all [or_and_left]

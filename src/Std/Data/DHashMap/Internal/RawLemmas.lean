@@ -2316,22 +2316,22 @@ variable (m₁ m₂ : Raw₀ α β)
 def union : Raw₀ α β := ⟨m₁.val.union m₂.val, sorry⟩
 
 @[simp]
-theorem union_singleton {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] (h : m.val.WF) :
-    m.val.union {⟨k, v⟩} = m.insert k v := by
+theorem union_singleton {p} [EquivBEq α] [LawfulHashable α] (h : m.val.WF) :
+    m.val.union {p} = m.insert p.fst p.snd  := by
   sorry
 
 @[simp]
-theorem union_contains [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k = (m₁.contains k || m₂.contains k) := by
   sorry
 
 @[simp]
-theorem mem_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k ↔ m₁.contains k ∨ m₂.contains k := by
   sorry
 
 variable {m₁ m₂} in
-theorem mem_of_mem_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+theorem contains_of_contains_union_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} : (m₁.union m₂).contains k → m₂.contains k = false → m₁.contains k := by
   sorry
 
@@ -2342,7 +2342,7 @@ theorem get?_union_of_contains_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h�
 
 theorem get_union_of_contains_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
-    (m₁.union m₂).get k h' = m₁.get k (mem_of_mem_union h₁ h₂ h' contains_eq_false) := by
+    (m₁.union m₂).get k h' = m₁.get k (contains_of_contains_union_of_contains_eq_false h₁ h₂ h' contains_eq_false) := by
   sorry
 
 end Union

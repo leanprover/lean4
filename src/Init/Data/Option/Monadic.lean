@@ -92,4 +92,7 @@ theorem forIn_eq_elim [Monad m] [LawfulMonad m]
     forIn (o.map g) init f = forIn o init fun a y => f (g a) y := by
   cases o <;> simp
 
+@[simp] theorem getM_some [Alternative m] {a : α} : Option.getM (m := m) (some a) = pure a := rfl
+@[simp] theorem getM_none [Alternative m] : Option.getM (m := m) (none : Option α) = failure := rfl
+
 end Option

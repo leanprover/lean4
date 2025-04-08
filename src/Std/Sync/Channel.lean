@@ -337,8 +337,7 @@ private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
     else
       trySend' v
 
-private partial def send (ch : Bounded α) (v : α) (sync : Bool) :
-    BaseIO (Task (Option Unit)) := do
+private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)) := do
   ch.state.atomically do
     if (← get).closed then
       return .pure none
@@ -347,9 +346,9 @@ private partial def send (ch : Bounded α) (v : α) (sync : Bool) :
     else
       let promise ← IO.Promise.new
       modify fun st => { st with producers := st.producers.enqueue promise }
-      BaseIO.bindTask (sync := sync) promise.result? fun res => do
+      BaseIO.bindTask promise.result? fun res => do
         if res.getD false then
-          Bounded.send ch v sync
+          Bounded.send ch v
         else
           return .pure none
 
@@ -383,7 +382,7 @@ private def tryRecv (ch : Bounded α) : BaseIO (Option α) :=
   ch.state.atomically do
     tryRecv'
 
-private partial def recv (ch : Bounded α) (sync : Bool) : BaseIO (Task (Option α)) := do
+private partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
   ch.state.atomically do
     if let some val ← tryRecv' then
       let st ← get
@@ -396,9 +395,9 @@ private partial def recv (ch : Bounded α) (sync : Bool) : BaseIO (Task (Option 
     else
       let promise ← IO.Promise.new
       modify fun st => { st with consumers := st.consumers.enqueue promise }
-      BaseIO.bindTask (sync := sync) promise.result? fun res => do
+      BaseIO.bindTask promise.result? fun res => do
         if res.getD false then
-          Bounded.recv ch sync
+          Bounded.recv ch
         else
           return .pure none
 
@@ -432,11 +431,9 @@ instance : Nonempty (Channel.Sync α) := inferInstanceAs (Nonempty (Channel α))
 
 namespace Channel
 
--- TODO: Think about whether keeping none just for backwards compat is right.
-
 /--
 Create a new `Channel`, if:
-- `capacity` is `none` it will be unbounded.
+- `capacity` is `none` it will be unbounded (the default).
 - `capacity` is `some 0` it will always force a rendezvous between sender and receiver.
 - `capacity` is `some n` with `n > 0` it will use a buffer of size `n` and begin blocking once it
   is filled.
@@ -466,7 +463,7 @@ def send (ch : Channel α) (v : α) : BaseIO (Task (Option Unit)) :=
   match ch with
   | .unbounded ch => Channel.Unbounded.send ch v
   | .zero ch => Channel.Zero.send ch v
-  | .bounded ch => Channel.Bounded.send ch v false
+  | .bounded ch => Channel.Bounded.send ch v
 
 /--
 Closes the channel, returns `some ()` when called the first time, otherwise `none`.
@@ -511,7 +508,7 @@ def recv (ch : Channel α) : BaseIO (Task (Option α)) :=
   match ch with
   | .unbounded ch => Channel.Unbounded.recv ch
   | .zero ch => Channel.Zero.recv ch
-  | .bounded ch => Channel.Bounded.recv ch false
+  | .bounded ch => Channel.Bounded.recv ch
 
 /--
 `ch.forAsync f` calls `f` for every messages received on `ch`.

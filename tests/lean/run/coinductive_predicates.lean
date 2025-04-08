@@ -20,3 +20,36 @@ def stream_bisimilarity (Q : Type) (transition_function : stream Q) (q₁ q₂ :
 greatest_fixpoint
 
 #check stream_bisimilarity.fixpoint_induct
+
+def infseq {α} (R : α → α → Prop) : α → Prop :=
+  λ x : α => ∃ y, R x y ∧ infseq R y
+  greatest_fixpoint
+
+#check infseq.fixpoint_induct
+
+theorem infseq.coind {α} (h : α → Prop) (R : α → α → Prop)
+  (prem : ∀ (x : α), h x → ∃ y, R x y ∧ h y) : ∀ x, h x → infseq R x := by
+  apply infseq.fixpoint_induct
+  exact prem
+
+
+#check infseq.fixpoint_induct
+
+theorem cycle_infseq {R : α → α → Prop} (x : α) : R x x → infseq R x := by
+  apply @infseq.fixpoint_induct α R (λ m => R m m)
+  intro x _
+  apply Exists.intro x
+  trivial
+
+inductive star (R : α → α → Prop) : α → α → Prop where
+  | star_refl : ∀ x : α, star R x x
+  | star_step : ∀ x y z, R x y → star R y z → star R x z
+
+def all_seq_inf (R : α → α → Prop) (x : α) : Prop :=
+  ∀ y : α, star R x y → ∃ z, R y z
+
+def infseq_if_all_seq_inf (R : α → α → Prop) : ∀ x,  all_seq_inf R x → infseq R x := by
+  apply infseq.fixpoint_induct
+  intro x all_inf
+  apply Exists.intro x
+  sorry

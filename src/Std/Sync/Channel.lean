@@ -19,9 +19,9 @@ namespace Std
 namespace Channel
 
 /--
-The central state structure for unbounded channels, maintains the following invariants:
-1. `values = ∅ ∨ consumers = ∅`.
-2. `closed = true → consumers = ∅`.
+The central state structure for an unbounded channel, maintains the following invariants:
+1. `values = ∅ ∨ consumers = ∅`
+2. `closed = true → consumers = ∅`
 -/
 private structure Unbounded.State (α : Type) where
   /--
@@ -111,9 +111,9 @@ private def recv (ch : Unbounded α) : BaseIO (Task (Option α)) := do
 end Unbounded
 
 /--
-The central state structure for zero buffer channels, maintains the following invariants:
-1. `producers = ∅ ∨ consumers = ∅`.
-2. `closed = true → producers = ∅ ∧ consumers = ∅`.
+The central state structure for a zero buffer channel, maintains the following invariants:
+1. `producers = ∅ ∨ consumers = ∅`
+2. `closed = true → producers = ∅ ∧ consumers = ∅`
 -/
 private structure Zero.State (α : Type) where
   /--
@@ -218,7 +218,7 @@ private def recv (ch : Zero α) : BaseIO (Task (Option α)) := do
 end Zero
 
 /--
-The central state structure for unbounded channels, maintains the following invariants:
+The central state structure for a bounded channel, maintains the following invariants:
 1. `0 < capacity`
 2. `0 < bufCount → consumers = ∅`
 3. `bufCount < capacity → producers = ∅`
@@ -232,13 +232,13 @@ as well as its [implementation](https://go.dev/src/runtime/chan.go).
 -/
 private structure Bounded.State (α : Type) where
   /--
-  Producers that are blocked on a consumer taking their value as there wasn't any buffer space
+  Producers that are blocked on a consumer taking their value as there was no buffer space
   available when they tried to enqueue. The `IO.Promise` will be resolved to `false` if the channel
   closes.
   -/
   producers : Std.Queue (IO.Promise Bool)
   /--
-  Consumers that are blocked on a producer providing them a value, as there wasn't any value
+  Consumers that are blocked on a producer providing them a value, as there was no value
   enqueued when they tried to dequeue. The `IO.Promise` will be resolved to `false` if the channel
   closes.
   -/
@@ -422,7 +422,8 @@ def Channel (α : Type) : Type := Channel.Flavors α
 
 /--
 A multi-producer multi-consumer FIFO channel that offers both bounded and unbounded buffering
-and a synchronous API, can be obtained from a `Channel` through `Channel.sync`
+and a synchronous API. This type acts as a convenient layer to use `Channel` in a blocking fashion
+and is not actually different from `Channel`.
 -/
 def Channel.Sync (α : Type) : Type := Channel α
 
@@ -433,10 +434,10 @@ namespace Channel
 
 /--
 Create a new `Channel`, if:
-- `capacity` is `none` it will be unbounded (the default).
-- `capacity` is `some 0` it will always force a rendezvous between sender and receiver.
+- `capacity` is `none` it will be unbounded (the default)
+- `capacity` is `some 0` it will always force a rendezvous between sender and receiver
 - `capacity` is `some n` with `n > 0` it will use a buffer of size `n` and begin blocking once it
-  is filled.
+  is filled
 -/
 def new (capacity : Option Nat := none) : BaseIO (Channel α) := do
   match capacity with
@@ -471,7 +472,7 @@ When a channel is closed:
 - no new values can be sent successfully anymore
 - all blocked consumers are resolved to `none` (as no new messages can be sent they will never
   resolve)
-- if there is still values waiting to be received they can still be received by subsequent `recv`
+- if there are already values waiting to be received they can still be received by subsequent `recv`
   calls
 -/
 def close (ch : Channel α) : BaseIO (Option Unit) :=
@@ -511,7 +512,7 @@ def recv (ch : Channel α) : BaseIO (Task (Option α)) :=
   | .bounded ch => Channel.Bounded.recv ch
 
 /--
-`ch.forAsync f` calls `f` for every messages received on `ch`.
+`ch.forAsync f` calls `f` for every message received on `ch`.
 
 Note that if this function is called twice, each message will only arrive at exactly one invocation.
 -/

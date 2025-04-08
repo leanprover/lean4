@@ -23,4 +23,9 @@ instance : CommRing (BitVec w) where
   cast_mul := BitVec.ofInt_mul
   cast_neg _ := BitVec.ofInt_neg
 
+instance : IsCharP (BitVec w) (2 ^ w) where
+  char {x} := by
+    simp [Int.cast, IntCast.intCast, BitVec.ofInt, BitVec.toNat_eq]
+    omega
+
 end Lean.Grind

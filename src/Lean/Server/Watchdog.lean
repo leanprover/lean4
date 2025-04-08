@@ -335,19 +335,20 @@ section ServerM
     (translation?, data)
 
   structure ServerContext where
-    hIn               : FS.Stream
-    hOut              : FS.Stream
-    hLog              : FS.Stream
+    hIn                  : FS.Stream
+    hOut                 : FS.Stream
+    hLog                 : FS.Stream
     /-- Command line arguments. -/
-    args              : List String
-    fileWorkersRef    : IO.Ref FileWorkerMap
+    args                 : List String
+    fileWorkersRef       : IO.Ref FileWorkerMap
     /-- We store these to pass them to workers. -/
-    initParams        : InitializeParams
-    workerPath        : System.FilePath
-    references        : IO.Ref References
-    serverRequestData : IO.Ref ServerRequestData
-    importData        : IO.Ref ImportData
-    requestData       : RequestDataMutex
+    initParams           : InitializeParams
+    workerPath           : System.FilePath
+    referenceLoadingTask : ServerTask Unit
+    references           : IO.Ref References
+    serverRequestData    : IO.Ref ServerRequestData
+    importData           : IO.Ref ImportData
+    requestData          : RequestDataMutex
 
   structure ReferenceRequestContext where
     fileWorkerMods : Std.TreeMap DocumentUri Name
@@ -1179,6 +1180,9 @@ section MessageHandling
       handle PrepareRenameParams (Option Range) handlePrepareRename
     | "textDocument/rename" =>
       handle RenameParams WorkspaceEdit handleRename
+    | "$/lean/waitForILeans" =>
+      IO.wait (← read).referenceLoadingTask.task
+      (← read).hOut.writeLspResponse { id, result := ⟨⟩ : Response WaitForILeans }
     | _ =>
       forwardRequestToWorker id method params
 
@@ -1408,10 +1412,10 @@ This ensures that server startup is not blocked by loading the .ileans.
 In return, while the .ileans are being loaded, users will only get incomplete
 results in requests that need references.
 -/
-def startLoadingReferences (references : IO.Ref References) : IO Unit := do
+def startLoadingReferences (references : IO.Ref References) : IO (ServerTask Unit) := do
   -- Discard the task; there isn't much we can do about this failing,
   -- but we should try to continue server operations regardless
-  let _ ← ServerTask.IO.asTask do
+  let task ← ServerTask.IO.asTask do
     let oleanSearchPath ← Lean.searchPathRef.get
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try
@@ -1423,11 +1427,12 @@ def startLoadingReferences (references : IO.Ref References) : IO Unit := do
         -- ilean load errors should not be fatal, but we *should* log them
         -- when we add logging to the server
         pure ()
+  return task.mapCheap fun _ => ()
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath
   let references ← IO.mkRef .empty
-  startLoadingReferences references
+  let referenceLoadingTask ← startLoadingReferences references
   let fileWorkersRef ← IO.mkRef (Std.TreeMap.empty : FileWorkerMap)
   let serverRequestData ← IO.mkRef {
     pendingServerRequests := RBMap.empty
@@ -1457,6 +1462,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     args           := args
     fileWorkersRef := fileWorkersRef
     initParams     := initRequest.param
+    referenceLoadingTask
     workerPath
     references
     serverRequestData

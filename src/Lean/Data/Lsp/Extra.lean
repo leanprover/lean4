@@ -52,6 +52,18 @@ instance : FromJson WaitForDiagnostics :=
 instance : ToJson WaitForDiagnostics :=
   ⟨fun _ => mkObj []⟩
 
+/--
+Internal `$/lean/waitForILeans` client->server request.
+
+Yields a response once the watchdog process has loaded all .ilean files.
+Used for test stability in tests that use the .ileans.
+-/
+structure WaitForILeansParams where
+  deriving FromJson, ToJson
+
+structure WaitForILeans where
+  deriving FromJson, ToJson
+
 inductive LeanFileProgressKind
   | processing | fatalError
   deriving Inhabited, BEq

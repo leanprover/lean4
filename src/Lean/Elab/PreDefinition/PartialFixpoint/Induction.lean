@@ -118,9 +118,23 @@ def deriveInduction (name : Name) : MetaM Unit :=
           let predicate := args[0]!
           let predicateType ← inferType predicate
           --let premise ← inferType args[1]!
-
           let newConclusion ← desugarOrder predicateType conclusion
           mkForallFVars args newConclusion)
+
+        let newTyp := forallBoundedTelescope (←newTyp) (.some 2) (fun args body => do
+          let predicate := args[0]!
+          let predicateType ← inferType predicate
+          let premise := args[1]!
+          let premiseType ← inferType premise
+          let premiseType ←desugarOrder predicateType premiseType
+          withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
+            let t ← mkExpectedTypeHint newPremise premiseType
+            let newArgs := args.set! 1 t
+            let test ← instantiateForall (←newTyp) newArgs
+            let args := args.set! 1 newPremise
+            let test2 ← mkForallFVars args test
+            return test2
+          )
 
         let e' ← mkExpectedTypeHint e' (←newTyp)
         let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'

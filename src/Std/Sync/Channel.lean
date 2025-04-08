@@ -337,7 +337,8 @@ private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
     else
       trySend' v
 
-private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)) := do
+private partial def send (ch : Bounded α) (v : α) (sync : Bool) :
+    BaseIO (Task (Option Unit)) := do
   ch.state.atomically do
     if (← get).closed then
       return .pure none
@@ -346,9 +347,9 @@ private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)
     else
       let promise ← IO.Promise.new
       modify fun st => { st with producers := st.producers.enqueue promise }
-      BaseIO.bindTask promise.result? fun res => do
+      BaseIO.bindTask (sync := sync) promise.result? fun res => do
         if res.getD false then
-          Bounded.send ch v
+          Bounded.send ch v sync
         else
           return .pure none
 
@@ -382,7 +383,7 @@ private def tryRecv (ch : Bounded α) : BaseIO (Option α) :=
   ch.state.atomically do
     tryRecv'
 
-private partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
+private partial def recv (ch : Bounded α) (sync : Bool) : BaseIO (Task (Option α)) := do
   ch.state.atomically do
     if let some val ← tryRecv' then
       let st ← get
@@ -395,9 +396,9 @@ private partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
     else
       let promise ← IO.Promise.new
       modify fun st => { st with consumers := st.consumers.enqueue promise }
-      BaseIO.bindTask promise.result? fun res => do
+      BaseIO.bindTask (sync := sync) promise.result? fun res => do
         if res.getD false then
-          Bounded.recv ch
+          Bounded.recv ch sync
         else
           return .pure none
 
@@ -465,7 +466,7 @@ def send (ch : Channel α) (v : α) : BaseIO (Task (Option Unit)) :=
   match ch with
   | .unbounded ch => Channel.Unbounded.send ch v
   | .zero ch => Channel.Zero.send ch v
-  | .bounded ch => Channel.Bounded.send ch v
+  | .bounded ch => Channel.Bounded.send ch v false
 
 /--
 Closes the channel, returns `some ()` when called the first time, otherwise `none`.
@@ -510,7 +511,7 @@ def recv (ch : Channel α) : BaseIO (Task (Option α)) :=
   match ch with
   | .unbounded ch => Channel.Unbounded.recv ch
   | .zero ch => Channel.Zero.recv ch
-  | .bounded ch => Channel.Bounded.recv ch
+  | .bounded ch => Channel.Bounded.recv ch false
 
 /--
 `ch.forAsync f` calls `f` for every messages received on `ch`.

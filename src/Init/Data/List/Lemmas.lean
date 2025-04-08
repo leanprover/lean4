@@ -1367,12 +1367,9 @@ theorem filter_eq_cons_iff {l} {a} {as} :
       split at h <;> rename_i w
       · simp only [cons.injEq] at h
         obtain ⟨rfl, rfl⟩ := h
-        refine ⟨[], l, ?_⟩
-        simp [w]
-      · specialize ih h
-        obtain ⟨l₁, l₂, rfl, w₁, w₂, w₃⟩ := ih
-        refine ⟨x :: l₁, l₂, ?_⟩
-        simp_all
+        exact ⟨[], l, by simp [w]⟩
+      · obtain ⟨l₁, l₂, rfl, w₁, w₂, w₃⟩ := ih h
+        exact ⟨x :: l₁, l₂, by simp_all⟩
   · rintro ⟨l₁, l₂, rfl, h₁, h, h₂⟩
     simp [h₂, filter_cons, filter_eq_nil_iff.mpr h₁, h]
 

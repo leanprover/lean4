@@ -51,18 +51,19 @@ def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
 
 
 def desugarOrder (predType : Expr) (body : Expr) (reduceRhs : Bool := false) : MetaM (Expr) := do
-  if (!body.isAppOfArity ``PartialOrder.rel 4) then
+  if body.isAppOfArity ``PartialOrder.rel 4 then
+    let lhsTypes ← forallTelescope predType (fun ts _ =>  ts.mapM inferType)
+    let names ← lhsTypes.mapM (fun _ => mkFreshUserName `x)
+    let bodyArgs := body.getAppArgs
+    withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
+      let mut applied := (bodyArgs[2]!, bodyArgs[3]!)
+      for e in exprs do
+        applied := (mkApp applied.1 e, mkApp applied.2 e)
+      if reduceRhs then
+        applied := (applied.1, ←whnf applied.2)
+      mkForallFVars exprs (←mkArrow applied.1 applied.2)
+  else
     throwError "{body} is not an application of partial order"
-  let lhsTypes ← forallTelescope predType (fun ts _ =>  ts.mapM inferType)
-  let names ← lhsTypes.mapM (fun _ => mkFreshUserName `x)
-  let bodyArgs := body.getAppArgs
-  withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
-    let mut applied := (bodyArgs[2]!, bodyArgs[3]!)
-    for e in exprs do
-      applied := (mkApp applied.1 e, mkApp applied.2 e)
-    if reduceRhs then
-      applied := (applied.1, ←whnf applied.2)
-    mkForallFVars exprs (←mkArrow applied.1 applied.2)
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard libray?
@@ -84,12 +85,11 @@ def deriveInduction (name : Name) : MetaM Unit :=
   mapError (f := (m!"Cannot derive fixpoint induction principle (please report this issue)\n{indentD ·}")) do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
-
-    if eqnInfo.lattice? then
+    let infos ← eqnInfo.declNames.mapM getConstInfoDefn
+    let e' ← if eqnInfo.lattice? then
       if (eqnInfo.declNames.size != 1) then
         throwError "Mutual lattice (co)induction is not supported yet"
-      let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-      let e' ← eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
+      eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
         -- Now look at the body of an arbitrary of the functions (they are essentially the same
         -- up to the final projections)
         let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
@@ -118,6 +118,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
           throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
         )
 
+        -- Desugar partial order on predicates
         let newTyp ← forallTelescope newTyp (fun args conclusion => do
           let predicate := args[0]!
           let predicateType ← inferType predicate
@@ -142,21 +143,9 @@ def deriveInduction (name : Name) : MetaM Unit :=
         trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
 
         pure e'
-      -- get function
 
-      let eTyp ← inferType e'
-      let eTyp ← elimOptParam eTyp
-
-      -- logInfo m!"eTyp: {eTyp}"
-      let params := (collectLevelParams {} eTyp).params
-      -- Prune unused level parameters, preserving the original order
-      let us := infos[0]!.levelParams.filter (params.contains ·)
-      addDecl <| Declaration.thmDecl
-        { name := inductName, levelParams := us, type := eTyp, value := e' }
     else
-      let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-      -- First open up the fixed parameters everywhere
-      let e' ← eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
+      eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
         -- Now look at the body of an arbitrary of the functions (they are essentially the same
         -- up to the final projections)
         let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
@@ -235,15 +224,15 @@ def deriveInduction (name : Name) : MetaM Unit :=
               trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
               pure e'
 
-      let eTyp ← inferType e'
-      let eTyp ← elimOptParam eTyp
-      -- logInfo m!"eTyp: {eTyp}"
-      let params := (collectLevelParams {} eTyp).params
-      -- Prune unused level parameters, preserving the original order
-      let us := infos[0]!.levelParams.filter (params.contains ·)
+    let eTyp ← inferType e'
+    let eTyp ← elimOptParam eTyp
+    -- logInfo m!"eTyp: {eTyp}"
+    let params := (collectLevelParams {} eTyp).params
+    -- Prune unused level parameters, preserving the original order
+    let us := infos[0]!.levelParams.filter (params.contains ·)
 
-      addDecl <| Declaration.thmDecl
-        { name := inductName, levelParams := us, type := eTyp, value := e' }
+    addDecl <| Declaration.thmDecl
+      { name := inductName, levelParams := us, type := eTyp, value := e' }
 
 def isInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false

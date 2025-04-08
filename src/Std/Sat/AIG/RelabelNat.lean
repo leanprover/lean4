@@ -10,7 +10,7 @@ import Std.Sat.AIG.Relabel
 namespace Std
 namespace Sat
 
-variable {α : Type} [DecidableEq α] [Hashable α]
+variable {α : Type} [BEq α] [Hashable α]
 
 namespace AIG
 namespace RelabelNat

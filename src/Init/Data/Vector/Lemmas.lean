@@ -1369,7 +1369,7 @@ abbrev mkVector_beq_mkVector := @replicate_beq_replicate
 
 /-! ### isEqv -/
 
-@[simp] theorem isEqv_eq [DecidableEq α] {xs ys : Vector α n} : xs.isEqv ys (· == ·) = (xs = ys) := by
+@[simp] theorem isEqv_eq [BEq α] [LawfulBEq α] {xs ys : Vector α n} : xs.isEqv ys (· == ·) = (xs = ys) := by
   cases xs
   cases ys
   simp

@@ -1101,7 +1101,7 @@ private theorem beq_of_beq_singleton [BEq α] {a b : α} : #[a] == #[b] → a ==
 
 /-! ### isEqv -/
 
-@[simp] theorem isEqv_eq [DecidableEq α] {xs ys : Array α} : xs.isEqv ys (· == ·) = (xs = ys) := by
+@[simp] theorem isEqv_eq [BEq α] [LawfulBEq α] {xs ys : Array α} : xs.isEqv ys (· == ·) = (xs = ys) := by
   cases xs
   cases ys
   simp

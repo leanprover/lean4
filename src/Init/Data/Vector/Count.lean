@@ -229,7 +229,7 @@ theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b ==
 @[deprecated count_replicate (since := "2025-03-18")]
 abbrev count_mkVector := @count_replicate
 
-theorem count_le_count_map [DecidableEq β] {xs : Vector α n} {f : α → β} {x : α} :
+theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Vector α n} {f : α → β} {x : α} :
     count x xs ≤ count (f x) (map f xs) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.count_le_count_map]

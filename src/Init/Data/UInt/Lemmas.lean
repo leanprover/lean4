@@ -286,6 +286,17 @@ declare_uint_theorems USize System.Platform.numBits
 theorem USize.toNat_ofNat_of_lt_32 {n : Nat} (h : n < 4294967296) : toNat (ofNat n) = n :=
   toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h USize.le_size)
 
+theorem UInt8.ofNat_mod_size : ofNat (x % 2 ^ 8) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+theorem UInt16.ofNat_mod_size : ofNat (x % 2 ^ 16) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+theorem UInt32.ofNat_mod_size : ofNat (x % 2 ^ 32) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+theorem UInt64.ofNat_mod_size : ofNat (x % 2 ^ 64) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+theorem USize.ofNat_mod_size : ofNat (x % 2 ^ System.Platform.numBits) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+
 theorem UInt8.lt_ofNat_iff {n : UInt8} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
   rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
 theorem UInt8.ofNat_lt_iff {n : UInt8} {m : Nat} (h : m < size) : ofNat m < n ↔ m < n.toNat := by
@@ -2091,6 +2102,31 @@ theorem USize.ofNat_eq_iff_mod_eq_toNat (a : Nat) (b : USize) : USize.ofNat a = 
   simp [UInt64.ofNat_eq_iff_mod_eq_toNat]
 @[simp] theorem USize.ofNat_add (a b : Nat) : USize.ofNat (a + b) = USize.ofNat a + USize.ofNat b := by
   simp [USize.ofNat_eq_iff_mod_eq_toNat]
+
+theorem UInt8.ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
+  dsimp only [UInt8.ofInt]
+  rw [Int.add_emod]
+  have h₁ : 0 ≤ x % 2 ^ 8 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 8 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ x % 2 ^ 8 + y % 2 ^ 8 := Int.add_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_add h₁ h₂]
+  have : (2 ^ 8 : Int).toNat = 2 ^ 8 := rfl
+  rw [this, UInt8.ofNat_mod_size, UInt8.ofNat_add]
+
+theorem UInt8.ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
+  dsimp only [UInt8.ofInt]
+  rw [Int.mul_emod]
+  have h₁ : 0 ≤ x % 2 ^ 8 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 8 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ (x % 2 ^ 8) * (y % 2 ^ 8) := Int.mul_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_mul h₁ h₂]
+  have : (2 ^ 8 : Int).toNat = 2 ^ 8 := rfl
+  rw [this, UInt8.ofNat_mod_size, UInt8.ofNat_mul]
+
+theorem UInt8.ofInt_neg_one : ofInt (-1) = -1 := rfl
+
+theorem UInt8.ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
+  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt8.neg_eq_neg_one_mul]
 
 @[simp] theorem UInt8.ofNatLT_add {a b : Nat} (hab : a + b < 2 ^ 8) :
     UInt8.ofNatLT (a + b) hab = UInt8.ofNatLT a (Nat.lt_of_add_right_lt hab) + UInt8.ofNatLT b (Nat.lt_of_add_left_lt hab) := by

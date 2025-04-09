@@ -20,6 +20,9 @@ def UInt8.mk (bitVec : BitVec 8) : UInt8 :=
 def UInt8.ofNatCore (n : Nat) (h : n < UInt8.size) : UInt8 :=
   UInt8.ofNatLT n h
 
+/-- Converts an `Int` to a `UInt8` by taking the (non-negative remainder of the division by `2 ^ 8`. -/
+def UInt8.ofInt (x : Int) : UInt8 := ofNat (x % 2 ^ 8).toNat
+
 /--
 Adds two 8-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
 operator.
@@ -216,6 +219,9 @@ def UInt16.mk (bitVec : BitVec 16) : UInt16 :=
 @[inline, deprecated UInt16.ofNatLT (since := "2025-02-13"), inherit_doc UInt16.ofNatLT]
 def UInt16.ofNatCore (n : Nat) (h : n < UInt16.size) : UInt16 :=
   UInt16.ofNatLT n h
+
+/-- Converts an `Int` to a `UInt16` by taking the (non-negative remainder of the division by `2 ^ 16`. -/
+def UInt16.ofInt (x : Int) : UInt16 := ofNat (x % 2 ^ 16).toNat
 
 /--
 Adds two 16-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
@@ -416,6 +422,9 @@ def UInt32.mk (bitVec : BitVec 32) : UInt32 :=
 def UInt32.ofNatCore (n : Nat) (h : n < UInt32.size) : UInt32 :=
   UInt32.ofNatLT n h
 
+/-- Converts an `Int` to a `UInt32` by taking the (non-negative remainder of the division by `2 ^ 32`. -/
+def UInt32.ofInt (x : Int) : UInt32 := ofNat (x % 2 ^ 32).toNat
+
 /--
 Adds two 32-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
 operator.
@@ -576,6 +585,9 @@ def UInt64.mk (bitVec : BitVec 64) : UInt64 :=
 @[inline, deprecated UInt64.ofNatLT (since := "2025-02-13"), inherit_doc UInt64.ofNatLT]
 def UInt64.ofNatCore (n : Nat) (h : n < UInt64.size) : UInt64 :=
   UInt64.ofNatLT n h
+
+/-- Converts an `Int` to a `UInt64` by taking the (non-negative remainder of the division by `2 ^ 64`. -/
+def UInt64.ofInt (x : Int) : UInt64 := ofNat (x % 2 ^ 64).toNat
 
 /--
 Adds two 64-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
@@ -773,6 +785,9 @@ def USize.mk (bitVec : BitVec System.Platform.numBits) : USize :=
 @[inline, deprecated USize.ofNatLT (since := "2025-02-13"), inherit_doc USize.ofNatLT]
 def USize.ofNatCore (n : Nat) (h : n < USize.size) : USize :=
   USize.ofNatLT n h
+
+/-- Converts an `Int` to a `USize` by taking the (non-negative remainder of the division by `2 ^ numBits`. -/
+def USize.ofInt (x : Int) : USize := ofNat (x % 2 ^ System.Platform.numBits).toNat
 
 @[simp] theorem USize.le_size : 2 ^ 32 ≤ USize.size := by cases USize.size_eq <;> simp_all
 @[simp] theorem USize.size_le : USize.size ≤ 2 ^ 64 := by cases USize.size_eq <;> simp_all

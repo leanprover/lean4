@@ -48,12 +48,23 @@ protected def UInt8.mul (a b : UInt8) : UInt8 := ⟨a.toBitVec * b.toBitVec⟩
 Unsigned division for 8-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called “floor division.” Division by zero is defined to be zero.
+This operation is sometimes called "floor division." Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint8_div"]
 protected def UInt8.div (a b : UInt8) : UInt8 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
+/--
+The power operation, raising an 8-bit unsigned integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution.
+-/
+protected def UInt8.pow (x : UInt8) (n : Nat) : UInt8 :=
+  match n with
+  | 0 => 1
+  | n + 1 => UInt8.mul (UInt8.pow x n) x
 /--
 The modulo operator for 8-bit unsigned integers, which computes the remainder when dividing one
 integer by another. Usually accessed via the `%` operator.
@@ -130,6 +141,7 @@ instance : Add UInt8       := ⟨UInt8.add⟩
 instance : Sub UInt8       := ⟨UInt8.sub⟩
 instance : Mul UInt8       := ⟨UInt8.mul⟩
 instance : Mod UInt8       := ⟨UInt8.mod⟩
+instance : Pow UInt8 Nat   := ⟨UInt8.pow⟩
 
 set_option linter.deprecated false in
 instance : HMod UInt8 Nat UInt8 := ⟨UInt8.modn⟩
@@ -245,12 +257,23 @@ protected def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.toBitVec * b.toBitVec�
 Unsigned division for 16-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called “floor division.” Division by zero is defined to be zero.
+This operation is sometimes called "floor division." Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint16_div"]
 protected def UInt16.div (a b : UInt16) : UInt16 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
+/--
+The power operation, raising a 16-bit unsigned integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution.
+-/
+protected def UInt16.pow (x : UInt16) (n : Nat) : UInt16 :=
+  match n with
+  | 0 => 1
+  | n + 1 => UInt16.mul (UInt16.pow x n) x
 /--
 The modulo operator for 16-bit unsigned integers, which computes the remainder when dividing one
 integer by another. Usually accessed via the `%` operator.
@@ -289,7 +312,7 @@ This function is overridden at runtime with an efficient implementation.
 @[extern "lean_uint16_lor"]
 protected def UInt16.lor (a b : UInt16) : UInt16 := ⟨a.toBitVec ||| b.toBitVec⟩
 /--
-Bitwise exclusive or for 8-bit unsigned integers. Usually accessed via the `^^^` operator.
+Bitwise exclusive or for 16-bit unsigned integers. Usually accessed via the `^^^` operator.
 
 Each bit of the resulting integer is set if exactly one of the corresponding bits of both input
 integers are set.
@@ -327,6 +350,7 @@ instance : Add UInt16       := ⟨UInt16.add⟩
 instance : Sub UInt16       := ⟨UInt16.sub⟩
 instance : Mul UInt16       := ⟨UInt16.mul⟩
 instance : Mod UInt16       := ⟨UInt16.mod⟩
+instance : Pow UInt16 Nat   := ⟨UInt16.pow⟩
 
 set_option linter.deprecated false in
 instance : HMod UInt16 Nat UInt16 := ⟨UInt16.modn⟩
@@ -444,12 +468,23 @@ protected def UInt32.mul (a b : UInt32) : UInt32 := ⟨a.toBitVec * b.toBitVec�
 Unsigned division for 32-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called “floor division.” Division by zero is defined to be zero.
+This operation is sometimes called "floor division." Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint32_div"]
 protected def UInt32.div (a b : UInt32) : UInt32 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
+/--
+The power operation, raising a 32-bit unsigned integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution.
+-/
+protected def UInt32.pow (x : UInt32) (n : Nat) : UInt32 :=
+  match n with
+  | 0 => 1
+  | n + 1 => UInt32.mul (UInt32.pow x n) x
 /--
 The modulo operator for 32-bit unsigned integers, which computes the remainder when dividing one
 integer by another. Usually accessed via the `%` operator.
@@ -526,6 +561,7 @@ instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
 instance : Mul UInt32       := ⟨UInt32.mul⟩
 instance : Mod UInt32       := ⟨UInt32.mod⟩
+instance : Pow UInt32 Nat   := ⟨UInt32.pow⟩
 
 set_option linter.deprecated false in
 instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
@@ -605,12 +641,23 @@ protected def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.toBitVec * b.toBitVec�
 Unsigned division for 64-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called “floor division.” Division by zero is defined to be zero.
+This operation is sometimes called "floor division." Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint64_div"]
 protected def UInt64.div (a b : UInt64) : UInt64 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
+/--
+The power operation, raising a 64-bit unsigned integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution.
+-/
+protected def UInt64.pow (x : UInt64) (n : Nat) : UInt64 :=
+  match n with
+  | 0 => 1
+  | n + 1 => UInt64.mul (UInt64.pow x n) x
 /--
 The modulo operator for 64-bit unsigned integers, which computes the remainder when dividing one
 integer by another. Usually accessed via the `%` operator.
@@ -687,6 +734,7 @@ instance : Add UInt64       := ⟨UInt64.add⟩
 instance : Sub UInt64       := ⟨UInt64.sub⟩
 instance : Mul UInt64       := ⟨UInt64.mul⟩
 instance : Mod UInt64       := ⟨UInt64.mod⟩
+instance : Pow UInt64 Nat   := ⟨UInt64.pow⟩
 
 set_option linter.deprecated false in
 instance : HMod UInt64 Nat UInt64 := ⟨UInt64.modn⟩
@@ -706,7 +754,7 @@ This function is overridden at runtime with an efficient implementation.
 @[extern "lean_uint64_complement"]
 protected def UInt64.complement (a : UInt64) : UInt64 := ⟨~~~a.toBitVec⟩
 /--
-Negation of 32-bit unsigned integers, computed modulo `UInt64.size`.
+Negation of 64-bit unsigned integers, computed modulo `UInt64.size`.
 
 `UInt64.neg a` is equivalent to `18_446_744_073_709_551_615 - a + 1`.
 
@@ -797,12 +845,23 @@ protected def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
 Unsigned division for word-sized unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called “floor division.” Division by zero is defined to be zero.
+This operation is sometimes called "floor division." Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_usize_div"]
 protected def USize.div (a b : USize) : USize := ⟨a.toBitVec / b.toBitVec⟩
+/--
+The power operation, raising a word-sized unsigned integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution.
+-/
+protected def USize.pow (x : USize) (n : Nat) : USize :=
+  match n with
+  | 0 => 1
+  | n + 1 => USize.mul (USize.pow x n) x
 /--
 The modulo operator for word-sized unsigned integers, which computes the remainder when dividing one
 integer by another. Usually accessed via the `%` operator.
@@ -938,6 +997,7 @@ def USize.toUInt64 (a : USize) : UInt64 :=
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩
+instance : Pow USize Nat   := ⟨USize.pow⟩
 
 set_option linter.deprecated false in
 instance : HMod USize Nat USize := ⟨USize.modn⟩

@@ -2614,6 +2614,17 @@ instance : Std.LawfulCommIdentity (α := USize) (· * ·) 1 where
 @[simp] theorem UInt64.zero_mul {a : UInt64} : 0 * a = 0 := UInt64.toBitVec_inj.1 BitVec.zero_mul
 @[simp] theorem USize.zero_mul {a : USize} : 0 * a = 0 := USize.toBitVec_inj.1 BitVec.zero_mul
 
+@[simp] protected theorem UInt8.pow_zero (x : UInt8) : x ^ 0 = 1 := rfl
+protected theorem UInt8.pow_succ (x : UInt8) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem UInt16.pow_zero (x : UInt16) : x ^ 0 = 1 := rfl
+protected theorem UInt16.pow_succ (x : UInt16) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem UInt32.pow_zero (x : UInt32) : x ^ 0 = 1 := rfl
+protected theorem UInt32.pow_succ (x : UInt32) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem UInt64.pow_zero (x : UInt64) : x ^ 0 = 1 := rfl
+protected theorem UInt64.pow_succ (x : UInt64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem USize.pow_zero (x : USize) : x ^ 0 = 1 := rfl
+protected theorem USize.pow_succ (x : USize) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+
 protected theorem UInt8.mul_add {a b c : UInt8} : a * (b + c) = a * b + a * c :=
     UInt8.toBitVec_inj.1 BitVec.mul_add
 protected theorem UInt16.mul_add {a b c : UInt16} : a * (b + c) = a * b + a * c :=

@@ -15,8 +15,8 @@ def pow (x : BitVec w) (n : Nat) : BitVec w :=
   | 0 => 1
   | n + 1 => pow x n * x
 
-instance : HPow (BitVec w) Nat (BitVec w) where
-  hPow x n := pow x n
+instance : Pow (BitVec w) Nat where
+  pow x n := pow x n
 
 theorem pow_zero (x : BitVec w) : x ^ 0 = 1 := rfl
 theorem pow_succ (x : BitVec w) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl

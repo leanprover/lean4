@@ -18,8 +18,8 @@ def Int8.pow (x : Int8) (n : Nat) : Int8 :=
   | 0 => 1
   | n + 1 => Int8.pow x n * x
 
-instance : HPow Int8 Nat Int8 where
-  hPow x n := Int8.pow x n
+instance : Pow Int8 Nat where
+  pow x n := Int8.pow x n
 
 theorem Int8.pow_zero (x : Int8) : x ^ 0 = 1 := rfl
 theorem Int8.pow_succ (x : Int8) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
@@ -56,8 +56,8 @@ def Int16.pow (x : Int16) (n : Nat) : Int16 :=
   | 0 => 1
   | n + 1 => Int16.pow x n * x
 
-instance : HPow Int16 Nat Int16 where
-  hPow x n := Int16.pow x n
+instance : Pow Int16 Nat where
+  pow x n := Int16.pow x n
 
 theorem Int16.pow_zero (x : Int16) : x ^ 0 = 1 := rfl
 theorem Int16.pow_succ (x : Int16) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
@@ -94,8 +94,8 @@ def Int32.pow (x : Int32) (n : Nat) : Int32 :=
   | 0 => 1
   | n + 1 => Int32.pow x n * x
 
-instance : HPow Int32 Nat Int32 where
-  hPow x n := Int32.pow x n
+instance : Pow Int32 Nat where
+  pow x n := Int32.pow x n
 
 theorem Int32.pow_zero (x : Int32) : x ^ 0 = 1 := rfl
 theorem Int32.pow_succ (x : Int32) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
@@ -132,8 +132,8 @@ def Int64.pow (x : Int64) (n : Nat) : Int64 :=
   | 0 => 1
   | n + 1 => Int64.pow x n * x
 
-instance : HPow Int64 Nat Int64 where
-  hPow x n := Int64.pow x n
+instance : Pow Int64 Nat where
+  pow x n := Int64.pow x n
 
 theorem Int64.pow_zero (x : Int64) : x ^ 0 = 1 := rfl
 theorem Int64.pow_succ (x : Int64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
@@ -170,8 +170,8 @@ def ISize.pow (x : ISize) (n : Nat) : ISize :=
   | 0 => 1
   | n + 1 => ISize.pow x n * x
 
-instance : HPow ISize Nat ISize where
-  hPow x n := ISize.pow x n
+instance : Pow ISize Nat where
+  pow x n := ISize.pow x n
 
 theorem ISize.pow_zero (x : ISize) : x ^ 0 = 1 := rfl
 theorem ISize.pow_succ (x : ISize) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl

@@ -55,8 +55,8 @@ def pow (x : UInt8) (n : Nat) : UInt8 :=
   | 0 => 1
   | n + 1 => pow x n * x
 
-instance : HPow UInt8 Nat UInt8 where
-  hPow x n := pow x n
+instance : Pow UInt8 Nat where
+  pow x n := pow x n
 
 theorem pow_zero (x : UInt8) : x ^ 0 = 1 := rfl
 theorem pow_succ (x : UInt8) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
@@ -102,8 +102,8 @@ def pow (x : UInt16) (n : Nat) : UInt16 :=
   | 0 => 1
   | n + 1 => pow x n * x
 
-instance : HPow UInt16 Nat UInt16 where
-  hPow x n := pow x n
+instance : Pow UInt16 Nat where
+  pow x n := pow x n
 
 theorem pow_zero (x : UInt16) : x ^ 0 = 1 := rfl
 theorem pow_succ (x : UInt16) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
@@ -149,8 +149,8 @@ def pow (x : UInt32) (n : Nat) : UInt32 :=
   | 0 => 1
   | n + 1 => pow x n * x
 
-instance : HPow UInt32 Nat UInt32 where
-  hPow x n := pow x n
+instance : Pow UInt32 Nat where
+  pow x n := pow x n
 
 theorem pow_zero (x : UInt32) : x ^ 0 = 1 := rfl
 theorem pow_succ (x : UInt32) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
@@ -196,8 +196,8 @@ def pow (x : UInt64) (n : Nat) : UInt64 :=
   | 0 => 1
   | n + 1 => pow x n * x
 
-instance : HPow UInt64 Nat UInt64 where
-  hPow x n := pow x n
+instance : Pow UInt64 Nat where
+  pow x n := pow x n
 
 theorem pow_zero (x : UInt64) : x ^ 0 = 1 := rfl
 theorem pow_succ (x : UInt64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
@@ -271,8 +271,8 @@ def pow (x : USize) (n : Nat) : USize :=
   | 0 => 1
   | n + 1 => pow x n * x
 
-instance : HPow USize Nat USize where
-  hPow x n := pow x n
+instance : Pow USize Nat where
+  pow x n := pow x n
 
 theorem pow_zero (x : USize) : x ^ 0 = 1 := rfl
 theorem pow_succ (x : USize) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl

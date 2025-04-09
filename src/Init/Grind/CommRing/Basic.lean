@@ -11,7 +11,7 @@ import Init.TacticsExtra
 /-!
 # A monolithic commutative ring typeclass for internal use in `grind`.
 
-The `CommRing` class will be used to convert expressions into the internal representation via polynomials,
+The `Lean.Grind.CommRing` class will be used to convert expressions into the internal representation via polynomials,
 with coefficients expressed via `OfNat` and `Neg`.
 
 The `IsCharP α p` typeclass expresses that the ring has characteristic `p`,

@@ -464,11 +464,13 @@ section ServerM
     let some module ← getFileWorkerMod? uri
       | return
     s.referenceData.atomically do
-      modify fun rd =>
-        rd.modifyReferences (·.finalizeWorkerRefs module params.version params.references)
-          |>.modifyFinalizedWorkerILeanVersions (·.insert uri params.version)
-      let rd ← get
-      for pendingWaitForILeanRequest in rd.pendingWaitForILeanRequests do
+      let pendingWaitForILeanRequests ← modifyGet fun rd =>
+        let rd := rd.modifyReferences (·.finalizeWorkerRefs module params.version params.references)
+        let (pending, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
+        let rd := { rd with pendingWaitForILeanRequests := rest }
+        let rd := rd.modifyFinalizedWorkerILeanVersions (·.insert uri params.version)
+        (pending, rd)
+      for pendingWaitForILeanRequest in pendingWaitForILeanRequests do
         if pendingWaitForILeanRequest.uri == uri
             && pendingWaitForILeanRequest.version <= params.version then
           s.hOut.writeLspResponse {

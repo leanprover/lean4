@@ -46,7 +46,7 @@ def printImports (input : String) (fileName : Option String) : IO Unit := do
 
 @[export lean_print_import_srcs]
 def printImportSrcs (input : String) (fileName : Option String) : IO Unit := do
-  let sp ← initSrcSearchPath
+  let sp ← getSrcSearchPath
   let (deps, _, _) ← parseImports input fileName
   for dep in deps do
     let fname ← findLean sp dep.module

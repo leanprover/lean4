@@ -1,5 +1,5 @@
 import Lean.Elab
-
+--^ waitForILeans
 structure Bar where
 
 structure Foo where

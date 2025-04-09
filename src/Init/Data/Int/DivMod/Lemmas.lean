@@ -24,6 +24,11 @@ namespace Int
 protected theorem exists_add_of_le {a b : Int} (h : a ≤ b) : ∃ (c : Nat), b = a + c :=
   ⟨(b - a).toNat, by omega⟩
 
+theorem toNat_emod {x y : Int} (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    (x % y).toNat = x.toNat % y.toNat :=
+  match x, y, eq_ofNat_of_zero_le hx, eq_ofNat_of_zero_le hy with
+  | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => rfl
+
 /-! ### dvd  -/
 
 theorem dvd_antisymm {a b : Int} (H1 : 0 ≤ a) (H2 : 0 ≤ b) : a ∣ b → b ∣ a → a = b := by

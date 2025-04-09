@@ -148,6 +148,7 @@ asserts that it is nonnegative.
 def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()
+  if (← get').foreignDef.contains { expr := a } then return ()
   trace[grind.debug.cutsat.natCast] "{a}"
   let n ← mkForeignVar a .nat
   let p := .add (-1) x (.num 0)

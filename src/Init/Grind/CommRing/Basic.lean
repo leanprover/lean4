@@ -183,7 +183,7 @@ end CommRing
 
 open CommRing
 
-class IsCharP (α : Type u) [∀ n, OfNat α n] [CommRing α] (p : outParam Nat) where
+class IsCharP (α : Type u) [∀ n, OfNat α n] [CommRing α] (p : Nat) where
   ofNat_eq_zero_iff (p) : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0
 
 namespace IsCharP
@@ -242,7 +242,7 @@ theorem natCast_ext_iff {x y : Nat} : (x : α) = (y : α) ↔ x % p = y % p :=
   ofNat_ext_iff p
 
 theorem intCast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
-  rw [intCast_ext_iff, Int.emod_emod]
+  rw [intCast_ext_iff p, Int.emod_emod]
 
 theorem natCast_emod (x : Nat) : ((x % p : Nat) : α) = (x : α) := by
   simp only [← intCast_ofNat]
@@ -252,14 +252,14 @@ theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x :=
   natCast_emod _ _
 
 theorem ofNat_eq_zero_iff_of_lt {x : Nat} (h : x < p) : OfNat.ofNat (α := α) x = 0 ↔ x = 0 := by
-  rw [ofNat_eq_zero_iff, Nat.mod_eq_of_lt h]
+  rw [ofNat_eq_zero_iff p, Nat.mod_eq_of_lt h]
 
 theorem ofNat_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
     OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x = y := by
   rw [ofNat_ext_iff p, Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt h₂]
 
 theorem natCast_eq_zero_iff_of_lt {x : Nat} (h : x < p) : (x : α) = 0 ↔ x = 0 := by
-  rw [natCast_eq_zero_iff, Nat.mod_eq_of_lt h]
+  rw [natCast_eq_zero_iff p, Nat.mod_eq_of_lt h]
 
 theorem natCast_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
     (x : α) = (y : α) ↔ x = y := by

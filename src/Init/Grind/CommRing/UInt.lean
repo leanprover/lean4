@@ -7,14 +7,6 @@ prelude
 import Init.Grind.CommRing.Basic
 import Init.Data.UInt.Lemmas
 
-namespace Int
-
-theorem toNat_emod {x y : Int} (hx : 0 ≤ x) (hy : 0 ≤ y) :
-    (x % y).toNat = x.toNat % y.toNat :=
-  match x, y, eq_ofNat_of_zero_le hx, eq_ofNat_of_zero_le hy with
-  | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => rfl
-
-end Int
 
 namespace UInt8
 
@@ -22,8 +14,6 @@ theorem ofNat_mod_size : ofNat (x % 2 ^ 8) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat']
 /-- Variant of `UInt8.ofNat_mod_size` replacing `2 ^ 8` with `256`.-/
 theorem ofNat_mod_size' : ofNat (x % 256) = ofNat x := ofNat_mod_size
-
-def ofInt (x : Int) : UInt8 := ofNat (x % 2 ^ 8).toNat
 
 theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [UInt8.ofInt]
@@ -71,8 +61,6 @@ theorem ofNat_mod_size : ofNat (x % 2 ^ 16) = ofNat x := by
 /-- Variant of `UInt16.ofNat_mod_size` replacing `2 ^ 16` with `65536`.-/
 theorem ofNat_mod_size' : ofNat (x % 65536) = ofNat x := ofNat_mod_size
 
-def ofInt (x : Int) : UInt16 := ofNat (x % 2 ^ 16).toNat
-
 theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [UInt16.ofInt]
   rw [Int.add_emod]
@@ -118,8 +106,6 @@ theorem ofNat_mod_size : ofNat (x % 2 ^ 32) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat']
 /-- Variant of `UInt32.ofNat_mod_size` replacing `2 ^ 32` with `4294967296`.-/
 theorem ofNat_mod_size' : ofNat (x % 4294967296) = ofNat x := ofNat_mod_size
-
-def ofInt (x : Int) : UInt32 := ofNat (x % 2 ^ 32).toNat
 
 theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [UInt32.ofInt]
@@ -167,8 +153,6 @@ theorem ofNat_mod_size : ofNat (x % 2 ^ 64) = ofNat x := by
 /-- Variant of `UInt64.ofNat_mod_size` replacing `2 ^ 64` with `18446744073709551616`.-/
 theorem ofNat_mod_size' : ofNat (x % 18446744073709551616) = ofNat x := ofNat_mod_size
 
-def ofInt (x : Int) : UInt64 := ofNat (x % 2 ^ 64).toNat
-
 theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [UInt64.ofInt]
   rw [Int.add_emod]
@@ -189,6 +173,7 @@ theorem ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
   have : (2 ^ 64 : Int).toNat = 2 ^ 64 := rfl
   rw [this, UInt64.ofNat_mod_size, UInt64.ofNat_mul]
 
+theorem ofInt_one : ofInt 1 = 1 := rfl
 theorem ofInt_neg_one : ofInt (-1) = -1 := rfl
 
 theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
@@ -227,8 +212,6 @@ open System.Platform (numBits two_pow_numBits_nonneg two_pow_numBits_ne_zero)
 
 theorem ofNat_mod_size : ofNat (x % 2 ^ numBits) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat']
-
-def ofInt (x : Int) : USize := ofNat (x % 2 ^ numBits).toNat
 
 theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [USize.ofInt]

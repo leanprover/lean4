@@ -286,6 +286,17 @@ declare_uint_theorems USize System.Platform.numBits
 theorem USize.toNat_ofNat_of_lt_32 {n : Nat} (h : n < 4294967296) : toNat (ofNat n) = n :=
   toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h USize.le_size)
 
+theorem UInt8.ofNat_mod_size : ofNat (x % 2 ^ 8) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+theorem UInt16.ofNat_mod_size : ofNat (x % 2 ^ 16) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+theorem UInt32.ofNat_mod_size : ofNat (x % 2 ^ 32) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+theorem UInt64.ofNat_mod_size : ofNat (x % 2 ^ 64) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+theorem USize.ofNat_mod_size : ofNat (x % 2 ^ System.Platform.numBits) = ofNat x := by
+  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+
 theorem UInt8.lt_ofNat_iff {n : UInt8} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
   rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
 theorem UInt8.ofNat_lt_iff {n : UInt8} {m : Nat} (h : m < size) : ofNat m < n ↔ m < n.toNat := by

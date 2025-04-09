@@ -604,7 +604,7 @@ theorem toNat_mul {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : (a * b).toNat = a.
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => rfl
 
 /--
-Variant of `Int.toNat_sub` take non-negativity hypotheses,
+Variant of `Int.toNat_sub` taking non-negativity hypotheses,
 rather than expecting the arguments to be casts of natural numbers.
 -/
 theorem toNat_sub'' {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : (a - b).toNat = a.toNat - b.toNat :=

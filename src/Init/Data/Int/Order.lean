@@ -599,6 +599,10 @@ theorem toNat_add {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : (a + b).toNat = a.
   match a, b, eq_ofNat_of_zero_le ha, eq_ofNat_of_zero_le hb with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => rfl
 
+theorem toNat_mul {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : (a * b).toNat = a.toNat * b.toNat :=
+  match a, b, eq_ofNat_of_zero_le ha, eq_ofNat_of_zero_le hb with
+  | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => rfl
+
 theorem toNat_add_nat {a : Int} (ha : 0 ≤ a) (n : Nat) : (a + n).toNat = a.toNat + n :=
   match a, eq_ofNat_of_zero_le ha with | _, ⟨_, rfl⟩ => rfl
 

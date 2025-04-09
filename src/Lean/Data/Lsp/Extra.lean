@@ -55,7 +55,8 @@ instance : ToJson WaitForDiagnostics :=
 /--
 Internal `$/lean/waitForILeans` client->server request.
 
-Yields a response once the watchdog process has loaded all .ilean files.
+Yields a response once the watchdog process has loaded all .ilean files and has received
+an ILean finalization notification for the worker and the document version designated in the request.
 Used for test stability in tests that use the .ileans.
 -/
 structure WaitForILeansParams where

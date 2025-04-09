@@ -408,7 +408,7 @@ private def internalizeNat (e : Expr) : GoalM Unit := do
   trace[grind.cutsat.internalize] "{aquote natCast_e}:= {← p.pp}"
   let x ← mkVar natCast_e
   modify' fun s => { s with foreignDef := s.foreignDef.insert { expr := e } x }
-  let c := { p := .add (-1) x p, h := .defn e p : EqCnstr }
+  let c := { p := .add (-1) x p, h := .defnNat e' x e'' : EqCnstr }
   c.assert
 
 /--

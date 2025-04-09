@@ -4116,6 +4116,103 @@ theorem sdiv_self {x : BitVec w} :
       rcases x.msb with msb | msb <;> simp
     · rcases x.msb with msb | msb <;> simp [h]
 
+-- unsigned division never overflows
+theorem toNat_udiv_lt {w : Nat} {x y : BitVec w} :
+    x.toNat / y.toNat < 2 ^ w := by
+  have hy : y.toNat = 0 ∨ y.toNat = 1 ∨ 1 < y.toNat := by omega
+  rcases hy with hy|hy|hy
+  · simp [hy]; omega
+  · simp [hy]; omega
+  · rw [Nat.div_lt_iff_lt_mul (k := y.toNat) (x := x.toNat) (y := 2 ^ w) (by omega), show x.toNat = x.toNat * 1 by omega]
+    apply Nat.mul_lt_mul_of_le_of_lt (by omega) (by omega) (by omega)
+
+-- non-overflowing signed division bounds when numerator is nonneg, denumerator is nonneg
+theorem sdiv_lt_of_nonneg_of_nonneg {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : 0 ≤ y.toInt) :
+    x.toInt / y.toInt < 2 ^ (w - 1) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · -- if y.toInt = 1 and 0 < x.toInt, then x.toInt / 1 = x.toInt < 2 ^ w
+    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    by_cases hy' : y.toInt = 1
+    · simp [hy', Int.ediv_one]; omega
+    · by_cases hx' : x.toInt = 0
+      · simp [hx']
+        norm_cast
+        exact Nat.two_pow_pos (w := w)
+      · have := Int.ediv_lt_self_of_pos_of_one_ne_one (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+        simp; omega
+
+-- non-overflowing signed division bounds when numerator is negative, denumerator is positive
+theorem sdiv_nonpos_of_nonpos_of_nonneg {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : 0 ≤ y.toInt) :
+    x.toInt / y.toInt ≤ 0 := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · by_cases hx' : x.toInt = 0
+    · simp [hx']
+    · by_cases hy' : y.toInt = 0
+      · simp [hy']
+      · have := Int.ediv_neg_of_neg_of_pos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+        simp; omega
+
+-- non-overflowing signed division bounds when numerator is positive, denumerator is negative
+theorem sdiv_nonpos_of_nonneg_of_nonpos {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : y.toInt ≤ 0) :
+   x.toInt / y.toInt ≤ 0 := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · by_cases hy' : y.toInt = -1
+    · simp [hy']; omega
+    · have := Int.ediv_nonpos_of_nonneg_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+      simp; omega
+
+theorem toInt_allOnes_sdiv_toInt_of_ne_zero {w : Nat} {y : BitVec w} (hw : 1 < w) :
+    (allOnes w).toInt / y.toInt = if y.toInt = 0 then 0 else if 0 < y.toInt then -1 else 1 := by
+  rcases w with _|_|w
+  · simp [hw]; omega
+  · simp [hw]; omega
+  · by_cases 0 < y.toInt
+    · simp [Int.sign_eq_one_of_pos (a := y.toInt) (by omega), Int.neg_one_ediv]
+      omega
+    · by_cases hy : y.toInt = 0
+      · simp [hy]
+      · simp [Int.sign_eq_neg_one_of_neg (a := y.toInt) (by omega), Int.neg_one_ediv]
+        omega
+
+
+
+-- non-overflowing signed division bounds when numerator is non positive, denumerator is less than one
+theorem sdiv_lt_of_lt_allOnes {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : y.toInt < - 1)  :
+    x.toInt / y.toInt < 2 ^ (w - 1) := by
+  rcases w with _|_|w
+  · simp [of_length_zero]
+  · have hy := eq_zero_or_eq_one (a := y)
+    simp [← toInt_inj, toInt_zero, toInt_one] at hy
+    omega
+  · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    have hx' : x.toInt = 0 ∨ x.toInt = - 1 ∨ x.toInt < - 1 := by omega
+    rcases hx' with hx'|hx'|hx'
+    · simp [hx']; omega
+    · have := BitVec.toInt_allOnes_sdiv_toInt_of_ne_zero (y := y) (by omega)
+      simp only [toInt_allOnes, Nat.lt_add_left_iff_pos, Nat.zero_lt_succ, ↓reduceIte,
+        Int.reduceNeg] at this
+      simp [hx', this]
+      omega
+    · have := Int.ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one (x := x.toInt) (y := y.toInt) (by omega) hy
+      simp; omega
+
+-- signed division of (x y : BitVec w) is always -2 ^ w ≤ x.toInt / y.toInt
+theorem neg_two_pow_le_sdiv {x y : BitVec w} :
+    - 2 ^ (w - 1) ≤ x.toInt / y.toInt := by
+  have xlt := @toInt_lt w x; have lex := @le_toInt w x
+  by_cases hx : 0 ≤ x.toInt <;> by_cases hy : 0 ≤ y.toInt
+  · have := Int.ediv_nonneg_of_pos_of_nonneg (x := x.toInt) (y := y.toInt) hx hy
+    omega
+  · have := Int.neg_self_le_ediv_of_pos_of_neg (x := x.toInt) (y := y.toInt) hx (by omega)
+    omega
+  · have := Int.self_le_ediv_of_neg_of_pos (x := x.toInt) (y := y.toInt) (by omega) hy
+    omega
+  · have := Int.ediv_nonneg_of_nonpos_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+    omega
+
 /-! ### smtSDiv -/
 
 theorem smtSDiv_eq (x y : BitVec w) : smtSDiv x y =
@@ -5113,6 +5210,19 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
   rw [BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega),
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
   omega
+
+theorem sdivOverflow_eq_negOverflow_of_allOnes {w : Nat} {x y : BitVec w} (hy : y = allOnes w) :
+    sdivOverflow x y = negOverflow x := by
+  simp only [sdivOverflow, hy, toInt_allOnes, Int.reduceNeg, ge_iff_le, negOverflow]
+  rcases w with _|w
+  · simp [of_length_zero]
+  · simp only [Nat.add_one_sub_one, Nat.zero_lt_succ, ↓reduceIte, Int.reduceNeg, Int.ediv_neg,
+      Int.ediv_one, Int.neg_lt_neg_iff]
+    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    simp only [bool_to_prop]
+    by_cases hx : x.toInt = - 2 ^ w
+    · simp [hx]
+    · simp [show ¬x.toInt == -2 ^ w by simp only [beq_iff_eq, hx, not_false_eq_true]]; omega
 
 theorem two_pow_le_toInt_mul_toInt_iff {x y : BitVec w} :
     2 ^ (w - 1) ≤ x.toInt * y.toInt ↔

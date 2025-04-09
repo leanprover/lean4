@@ -119,7 +119,7 @@ builtin_initialize
       let .app _ _ := ti.expr | return #[]
       let some nm := ti.expr.getAppFn.constName? | return #[]
       i.ctx.runMetaM ti.lctx <|
-        locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
+        locationLinksFromDecl rc.doc.meta.uri nm none
 
 def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
     RequestM (RequestTask (Array (TaggedText MsgEmbed))) :=

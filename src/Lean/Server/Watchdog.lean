@@ -411,8 +411,8 @@ section ServerM
     s.referenceData.atomically do
       let pendingWaitForILeanRequests ← modifyGet fun rd =>
         let rd := rd.modifyReferences (·.removeWorkerRefs mod)
-        let pending := rd.pendingWaitForILeanRequests
-        let rd := { rd with pendingWaitForILeanRequests := pending.filter (·.uri != uri) }
+        let (pending, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
+        let rd := { rd with pendingWaitForILeanRequests := rest }
         let rd := rd.modifyFinalizedWorkerILeanVersions (·.erase uri)
         (pending, rd)
       for pendingWaitForILeanRequest in pendingWaitForILeanRequests do

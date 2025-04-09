@@ -2109,8 +2109,6 @@ theorem USize.ofNat_eq_iff_mod_eq_toNat (a : Nat) (b : USize) : USize.ofNat a = 
 @[simp] theorem USize.ofNat_add (a b : Nat) : USize.ofNat (a + b) = USize.ofNat a + USize.ofNat b := by
   simp [USize.ofNat_eq_iff_mod_eq_toNat]
 
-<<<<<<< Updated upstream
-=======
 @[simp] theorem UInt8.ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [UInt8.ofInt]
   rw [Int.add_emod]
@@ -2175,7 +2173,6 @@ open System.Platform in
       decide
   rw [this, USize.ofNat_mod_size, USize.ofNat_add]
 
->>>>>>> Stashed changes
 @[simp] theorem UInt8.ofNatLT_add {a b : Nat} (hab : a + b < 2 ^ 8) :
     UInt8.ofNatLT (a + b) hab = UInt8.ofNatLT a (Nat.lt_of_add_right_lt hab) + UInt8.ofNatLT b (Nat.lt_of_add_left_lt hab) := by
   simp [UInt8.ofNatLT_eq_ofNat]

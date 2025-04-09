@@ -2081,6 +2081,23 @@ theorem USize.ofNat_eq_iff_mod_eq_toNat (a : Nat) (b : USize) : USize.ofNat a = 
     USize.ofNatLT (a % b) (Nat.mod_lt_of_lt ha) = USize.ofNatLT a ha % USize.ofNatLT b hb := by
   simp [USize.ofNatLT_eq_ofNat, USize.ofNat_mod ha hb]
 
+@[simp] theorem UInt8.ofInt_one : ofInt 1 = 1 := rfl
+@[simp] theorem UInt8.ofInt_neg_one : ofInt (-1) = -1 := rfl
+@[simp] theorem UInt16.ofInt_one : ofInt 1 = 1 := rfl
+@[simp] theorem UInt16.ofInt_neg_one : ofInt (-1) = -1 := rfl
+@[simp] theorem UInt32.ofInt_one : ofInt 1 = 1 := rfl
+@[simp] theorem UInt32.ofInt_neg_one : ofInt (-1) = -1 := rfl
+@[simp] theorem UInt64.ofInt_one : ofInt 1 = 1 := rfl
+@[simp] theorem UInt64.ofInt_neg_one : ofInt (-1) = -1 := rfl
+@[simp] theorem USize.ofInt_one : ofInt 1 = 1 := by
+  rcases System.Platform.numBits_eq with h | h <;>
+  · apply USize.toNat_inj.mp
+    simp_all [USize.ofInt, USize.ofNat, size, toNat]
+@[simp] theorem USize.ofInt_neg_one : ofInt (-1) = -1 := by
+  rcases System.Platform.numBits_eq with h | h <;>
+  · apply USize.toNat_inj.mp
+    simp_all [USize.ofInt, USize.ofNat, size, toNat]
+
 @[simp] theorem UInt8.ofNat_add (a b : Nat) : UInt8.ofNat (a + b) = UInt8.ofNat a + UInt8.ofNat b := by
   simp [UInt8.ofNat_eq_iff_mod_eq_toNat]
 @[simp] theorem UInt16.ofNat_add (a b : Nat) : UInt16.ofNat (a + b) = UInt16.ofNat a + UInt16.ofNat b := by
@@ -2092,6 +2109,73 @@ theorem USize.ofNat_eq_iff_mod_eq_toNat (a : Nat) (b : USize) : USize.ofNat a = 
 @[simp] theorem USize.ofNat_add (a b : Nat) : USize.ofNat (a + b) = USize.ofNat a + USize.ofNat b := by
   simp [USize.ofNat_eq_iff_mod_eq_toNat]
 
+<<<<<<< Updated upstream
+=======
+@[simp] theorem UInt8.ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
+  dsimp only [UInt8.ofInt]
+  rw [Int.add_emod]
+  have h₁ : 0 ≤ x % 2 ^ 8 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 8 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ x % 2 ^ 8 + y % 2 ^ 8 := Int.add_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_add h₁ h₂]
+  have : (2 ^ 8 : Int).toNat = 2 ^ 8 := rfl
+  rw [this, UInt8.ofNat_mod_size, UInt8.ofNat_add]
+@[simp] theorem UInt16.ofInt_add (x y : Int) : UInt16.ofInt (x + y) = UInt16.ofInt x + UInt16.ofInt y := by
+  dsimp only [UInt16.ofInt]
+  rw [Int.add_emod]
+  have h₁ : 0 ≤ x % 2 ^ 16 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 16 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ x % 2 ^ 16 + y % 2 ^ 16 := Int.add_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_add h₁ h₂]
+  have : (2 ^ 16 : Int).toNat = 2 ^ 16 := rfl
+  rw [this, UInt16.ofNat_mod_size, UInt16.ofNat_add]
+@[simp] theorem UInt32.ofInt_add (x y : Int) : UInt32.ofInt (x + y) = UInt32.ofInt x + UInt32.ofInt y := by
+  dsimp only [UInt32.ofInt]
+  rw [Int.add_emod]
+  have h₁ : 0 ≤ x % 2 ^ 32 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 32 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ x % 2 ^ 32 + y % 2 ^ 32 := Int.add_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_add h₁ h₂]
+  have : (2 ^ 32 : Int).toNat = 2 ^ 32 := rfl
+  rw [this, UInt32.ofNat_mod_size, UInt32.ofNat_add]
+@[simp] theorem UInt64.ofInt_add (x y : Int) : UInt64.ofInt (x + y) = UInt64.ofInt x + UInt64.ofInt y := by
+  dsimp only [UInt64.ofInt]
+  rw [Int.add_emod]
+  have h₁ : 0 ≤ x % 2 ^ 64 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 64 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ x % 2 ^ 64 + y % 2 ^ 64 := Int.add_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_add h₁ h₂]
+  have : (2 ^ 64 : Int).toNat = 2 ^ 64 := rfl
+  rw [this, UInt64.ofNat_mod_size, UInt64.ofNat_add]
+
+namespace System.Platform
+
+theorem two_pow_numBits_nonneg : 0 ≤ (2 ^ System.Platform.numBits : Int) := by
+  rcases System.Platform.numBits_eq with h | h <;>
+  · rw [h]
+    decide
+theorem two_pow_numBits_ne_zero : (2 ^ System.Platform.numBits : Int) ≠ 0 := by
+  rcases System.Platform.numBits_eq with h | h <;>
+  · rw [h]
+    decide
+
+end System.Platform
+
+open System.Platform in
+@[simp] theorem USize.ofInt_add (x y : Int) : USize.ofInt (x + y) = USize.ofInt x + USize.ofInt y := by
+  dsimp only [USize.ofInt]
+  rw [Int.add_emod]
+  have h₁ : 0 ≤ x % 2 ^ numBits := Int.emod_nonneg _ two_pow_numBits_ne_zero
+  have h₂ : 0 ≤ y % 2 ^ numBits := Int.emod_nonneg _ two_pow_numBits_ne_zero
+  have h₃ : 0 ≤ x % 2 ^ numBits + y % 2 ^ numBits := Int.add_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ two_pow_numBits_nonneg, Int.toNat_add h₁ h₂]
+  have : (2 ^ numBits : Int).toNat = 2 ^ numBits := by
+    rcases System.Platform.numBits_eq with h | h <;>
+    · rw [h]
+      decide
+  rw [this, USize.ofNat_mod_size, USize.ofNat_add]
+
+>>>>>>> Stashed changes
 @[simp] theorem UInt8.ofNatLT_add {a b : Nat} (hab : a + b < 2 ^ 8) :
     UInt8.ofNatLT (a + b) hab = UInt8.ofNatLT a (Nat.lt_of_add_right_lt hab) + UInt8.ofNatLT b (Nat.lt_of_add_left_lt hab) := by
   simp [UInt8.ofNatLT_eq_ofNat]
@@ -2175,6 +2259,56 @@ theorem USize.ofNatLT_sub {a b : Nat} (ha : a < 2 ^ System.Platform.numBits) (ha
   simp [UInt64.ofNat_eq_iff_mod_eq_toNat]
 @[simp] theorem USize.ofNat_mul (a b : Nat) : USize.ofNat (a * b) = USize.ofNat a * USize.ofNat b := by
   simp [USize.ofNat_eq_iff_mod_eq_toNat]
+
+@[simp] theorem UInt8.ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
+  dsimp only [UInt8.ofInt]
+  rw [Int.mul_emod]
+  have h₁ : 0 ≤ x % 2 ^ 8 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 8 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ (x % 2 ^ 8) * (y % 2 ^ 8) := Int.mul_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_mul h₁ h₂]
+  have : (2 ^ 8 : Int).toNat = 2 ^ 8 := rfl
+  rw [this, UInt8.ofNat_mod_size, UInt8.ofNat_mul]
+@[simp] theorem UInt16.ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
+  dsimp only [UInt16.ofInt]
+  rw [Int.mul_emod]
+  have h₁ : 0 ≤ x % 2 ^ 16 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 16 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ (x % 2 ^ 16) * (y % 2 ^ 16) := Int.mul_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_mul h₁ h₂]
+  have : (2 ^ 16 : Int).toNat = 2 ^ 16 := rfl
+  rw [this, UInt16.ofNat_mod_size, UInt16.ofNat_mul]
+@[simp] theorem UInt32.ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
+  dsimp only [UInt32.ofInt]
+  rw [Int.mul_emod]
+  have h₁ : 0 ≤ x % 2 ^ 32 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 32 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ (x % 2 ^ 32) * (y % 2 ^ 32) := Int.mul_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_mul h₁ h₂]
+  have : (2 ^ 32 : Int).toNat = 2 ^ 32 := rfl
+  rw [this, UInt32.ofNat_mod_size, UInt32.ofNat_mul]
+@[simp] theorem UInt64.ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
+  dsimp only [UInt64.ofInt]
+  rw [Int.mul_emod]
+  have h₁ : 0 ≤ x % 2 ^ 64 := Int.emod_nonneg _ (by decide)
+  have h₂ : 0 ≤ y % 2 ^ 64 := Int.emod_nonneg _ (by decide)
+  have h₃ : 0 ≤ (x % 2 ^ 64) * (y % 2 ^ 64) := Int.mul_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ (by decide), Int.toNat_mul h₁ h₂]
+  have : (2 ^ 64 : Int).toNat = 2 ^ 64 := rfl
+  rw [this, UInt64.ofNat_mod_size, UInt64.ofNat_mul]
+open System.Platform in
+@[simp] theorem USize.ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
+  dsimp only [USize.ofInt]
+  rw [Int.mul_emod]
+  have h₁ : 0 ≤ x % 2 ^ numBits := Int.emod_nonneg _ two_pow_numBits_ne_zero
+  have h₂ : 0 ≤ y % 2 ^ numBits := Int.emod_nonneg _ two_pow_numBits_ne_zero
+  have h₃ : 0 ≤ (x % 2 ^ numBits) * (y % 2 ^ numBits) := Int.mul_nonneg h₁ h₂
+  rw [Int.toNat_emod h₃ two_pow_numBits_nonneg, Int.toNat_mul h₁ h₂]
+  have : (2 ^ numBits : Int).toNat = 2 ^ numBits := by
+    rcases System.Platform.numBits_eq with h | h <;>
+    · rw [h]
+      decide
+  rw [this, USize.ofNat_mod_size, USize.ofNat_mul]
 
 @[simp] theorem UInt8.ofNatLT_mul {a b : Nat} (ha : a < 2 ^ 8) (hb : b < 2 ^ 8) (hab : a * b < 2 ^ 8) :
     UInt8.ofNatLT (a * b) hab = UInt8.ofNatLT a ha * UInt8.ofNatLT b hb := by
@@ -2466,6 +2600,17 @@ protected theorem USize.neg_add {a b : USize} : - (a + b) = -a - b := USize.toBi
   rw [UInt64.sub_eq_add_neg, UInt64.neg_add, UInt64.sub_neg, UInt64.add_comm, ← UInt64.sub_eq_add_neg]
 @[simp] protected theorem USize.neg_sub {a b : USize} : -(a - b) = b - a := by
   rw [USize.sub_eq_add_neg, USize.neg_add, USize.sub_neg, USize.add_comm, ← USize.sub_eq_add_neg]
+
+@[simp] protected theorem UInt8.ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
+  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt8.neg_eq_neg_one_mul]
+@[simp] protected theorem UInt16.ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
+  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt16.neg_eq_neg_one_mul]
+@[simp] protected theorem UInt32.ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
+  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt32.neg_eq_neg_one_mul]
+@[simp] protected theorem UInt64.ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
+  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt64.neg_eq_neg_one_mul]
+@[simp] protected theorem USize.ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
+  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← USize.neg_eq_neg_one_mul]
 
 @[simp] protected theorem UInt8.add_left_inj {a b : UInt8} (c : UInt8) : (a + c = b + c) ↔ a = b := by
   simp [← UInt8.toBitVec_inj]

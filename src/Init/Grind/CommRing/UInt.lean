@@ -20,9 +20,10 @@ namespace UInt8
 
 theorem ofNat_mod_size : ofNat (x % 2 ^ 8) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat']
+/-- Variant of `UInt8.ofNat_mod_size` replacing `2 ^ 8` with `256`.-/
 theorem ofNat_mod_size' : ofNat (x % 256) = ofNat x := ofNat_mod_size
 
-def ofInt (x : Int) : UInt8 := ofNat (x % 2^8).toNat
+def ofInt (x : Int) : UInt8 := ofNat (x % 2 ^ 8).toNat
 
 theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [UInt8.ofInt]
@@ -67,9 +68,10 @@ namespace UInt16
 
 theorem ofNat_mod_size : ofNat (x % 2 ^ 16) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat']
+/-- Variant of `UInt16.ofNat_mod_size` replacing `2 ^ 16` with `65536`.-/
 theorem ofNat_mod_size' : ofNat (x % 65536) = ofNat x := ofNat_mod_size
 
-def ofInt (x : Int) : UInt16 := ofNat (x % 2^16).toNat
+def ofInt (x : Int) : UInt16 := ofNat (x % 2 ^ 16).toNat
 
 theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [UInt16.ofInt]
@@ -114,9 +116,10 @@ namespace UInt32
 
 theorem ofNat_mod_size : ofNat (x % 2 ^ 32) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat']
+/-- Variant of `UInt32.ofNat_mod_size` replacing `2 ^ 32` with `4294967296`.-/
 theorem ofNat_mod_size' : ofNat (x % 4294967296) = ofNat x := ofNat_mod_size
 
-def ofInt (x : Int) : UInt32 := ofNat (x % 2^32).toNat
+def ofInt (x : Int) : UInt32 := ofNat (x % 2 ^ 32).toNat
 
 theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [UInt32.ofInt]
@@ -161,9 +164,10 @@ namespace UInt64
 
 theorem ofNat_mod_size : ofNat (x % 2 ^ 64) = ofNat x := by
   simp [ofNat, BitVec.ofNat, Fin.ofNat']
+/-- Variant of `UInt64.ofNat_mod_size` replacing `2 ^ 64` with `18446744073709551616`.-/
 theorem ofNat_mod_size' : ofNat (x % 18446744073709551616) = ofNat x := ofNat_mod_size
 
-def ofInt (x : Int) : UInt64 := ofNat (x % 2^64).toNat
+def ofInt (x : Int) : UInt64 := ofNat (x % 2 ^ 64).toNat
 
 theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
   dsimp only [UInt64.ofInt]

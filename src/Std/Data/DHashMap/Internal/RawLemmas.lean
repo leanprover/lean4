@@ -3091,7 +3091,7 @@ section filterMap
 
 section raw
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {m : Raw₀ α β}
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} (m : Raw₀ α β)
 
 theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} :
     (m.filterMap f).1.toList.Perm
@@ -3286,11 +3286,6 @@ theorem getKey?_filterMap [EquivBEq α] [LawfulHashable α]
     (m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (contains_of_getKey?_eq_some m h h'))).isSome) := by
   simp_to_model [filterMap, Const.get, getKey?] using List.Const.getKey?_filterMap
-
-theorem getKey_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ} {k : α} (h : m.1.WF) {h'}:
-    (m.filterMap f).getKey k h' = m.getKey k (contains_of_contains_filterMap m h h') := by
-  simp_to_model [filterMap, getKey] using List.getKey_filterMap
 
 theorem getKey!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : α → β → Option γ} {k : α} (h : m.1.WF) :

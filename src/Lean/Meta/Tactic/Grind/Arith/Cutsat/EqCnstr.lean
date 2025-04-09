@@ -390,6 +390,27 @@ private def propagateToNat (e : Expr) : GoalM Unit := do
   let_expr Int.toNat a := e | return ()
   pushNewFact <| mkApp (mkConst ``Int.OfNat.ofNat_toNat) a
 
+private def internalizeNat (e : Expr) : GoalM Unit := do
+  let e' : Int.OfNat.Expr ← Int.OfNat.toOfNatExpr e
+  let gen ← getGeneration e
+  let ctx ← getForeignVars .nat
+  let e'' : Expr ← e'.denoteAsIntExpr ctx
+  -- If `e''` is of the form `NatCast.natCast e`, then it is wasteful to
+  -- assert an equality
+  match_expr e'' with
+  | NatCast.natCast _ _ a => if e == a then return ()
+  | _ => pure ()
+  let e'' : Int.Linear.Expr ← toLinearExpr e'' gen
+  let p := e''.norm
+  let natCast_e ← shareCommon (mkIntNatCast e)
+  trace[grind.cutsat.internalize] "natCast: {natCast_e}"
+  internalize natCast_e gen
+  trace[grind.cutsat.internalize] "{aquote natCast_e}:= {← p.pp}"
+  let x ← mkVar natCast_e
+  modify' fun s => { s with foreignDef := s.foreignDef.insert { expr := e } x }
+  let c := { p := .add (-1) x p, h := .defn e p : EqCnstr }
+  c.assert
+
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
@@ -410,11 +431,13 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | .num => pure ()
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
+    if (← hasForeignVar e) then return ()
     discard <| mkForeignVar e .nat
     match k with
     | .sub => propagateNatSub e
     | .natAbs => propagateNatAbs e
     | .toNat => propagateToNat e
-    | _ => pure ()
+    | .num => pure ()
+    | _ => internalizeNat e
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -94,13 +94,20 @@ Runs a monadic function `f` on an optional value, returning the result. If the o
 From the perspective of `Option` as a container with at most one element, this is analogous to
 `List.mapM`, returning the result of running the monadic function on all elements of the container.
 
-`Option.mapA` is the corresponding operation for applicative functors.
+This function only requires `m` to be an applicative functor. An alias `Option.mapA` is provided.
 -/
-@[inline] protected def mapM [Monad m] (f : α → m β) (o : Option α) : m (Option β) := do
-  if let some a := o then
-    return some (← f a)
-  else
-    return none
+@[inline] protected def mapM [Applicative m] (f : α → m β) : Option α → m (Option β)
+  | none => pure none
+  | some x => some <$> f x
+
+/--
+Applies a function in some applicative functor to an optional value, returning `none` with no
+effects if the value is missing.
+
+This is an alias for `Option.mapM`, which already works for applicative functors.
+-/
+@[inline] protected def mapA [Applicative m] (f : α → m β) : Option α → m (Option β) :=
+  Option.mapM f
 
 theorem map_id : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some _ => rfl)
@@ -210,32 +217,11 @@ equivalent to `Option.orElse`: if only one input is `some x`, then the value is 
 both are `none`, then the value is `none`.
 
 Examples:
- * `Option.zipWith (· + ·) none (some 3) = some 3`
- * `Option.zipWith (· + ·) (some 2) (some 3) = some 5`
- * `Option.zipWith (· + ·) (some 2) none = some 2`
- * `Option.zipWith (· + ·) none none = none`
--/
-def zipWith (fn : α → α → α) : Option α → Option α → Option α
-  | none  , none   => none
-  | some x, none   => some x
-  | none  , some y => some y
-  | some x, some y => some <| fn x y
-
-/--
-Applies a function to a two optional values if both are present. Otherwise, if one value is present,
-it is returned and the function is not used.
-
-The value is `some (fn a b)` if the inputs are `some a` and `some b`. Otherwise, the behavior is
-equivalent to `Option.orElse`: if only one input is `some x`, then the value is `some x`, and if
-both are `none`, then the value is `none`.
-
-Examples:
  * `Option.merge (· + ·) none (some 3) = some 3`
  * `Option.merge (· + ·) (some 2) (some 3) = some 5`
  * `Option.merge (· + ·) (some 2) none = some 2`
  * `Option.merge (· + ·) none none = none`
 -/
-@[deprecated zipWith (since := "2025-04-04")]
 def merge (fn : α → α → α) : Option α → Option α → Option α
   | none  , none   => none
   | some x, none   => some x
@@ -328,7 +314,7 @@ Examples:
  * `Option.liftOrGet (· + ·) (some 2) none = some 2`
  * `Option.liftOrGet (· + ·) none none = none`
 -/
-@[deprecated zipWith (since := "2025-04-04")]
+@[deprecated merge (since := "2025-04-04")]
 def liftOrGet (f : α → α → α) : Option α → Option α → Option α
   | none, none => none
   | some a, none => some a
@@ -356,17 +342,9 @@ Examples:
 @[simp, inline] def join (x : Option (Option α)) : Option α := x.bind id
 
 /--
-Applies a function in some applicative functor to an optional value, returning `none` with no
-effects if the value is missing.
-
-This is analogous to `Option.mapM` for monads.
--/
-@[inline] protected def mapA [Applicative m] {α β} (f : α → m β) : Option α → m (Option β)
-  | none => pure none
-  | some x => some <$> f x
-
-/--
 Converts an optional monadic computation into a monadic computation of an optional value.
+
+This function only requires `m` to be an applicative functor.
 
 Example:
 ```lean example
@@ -382,10 +360,9 @@ hello
 some "world"
 ```
 -/
-@[inline] def sequence [Monad m] {α : Type u} : Option (m α) → m (Option α)
+@[inline] def sequence [Applicative m] {α : Type u} : Option (m α) → m (Option α)
   | none => pure none
   | some fn => some <$> fn
-
 
 /--
 A monadic case analysis function for `Option`.
@@ -405,8 +382,7 @@ Gets the value in an option, monadically computing a default value on `none`.
 
 This is the monadic analogue of `Option.getD`.
 -/
-
-@[inline] def getDM [Monad m] (x : Option α) (y : m α) : m α :=
+@[inline] def getDM [Pure m] (x : Option α) (y : m α) : m α :=
   match x with
   | some a => pure a
   | none => y

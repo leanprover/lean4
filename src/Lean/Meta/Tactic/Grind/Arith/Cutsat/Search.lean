@@ -59,7 +59,7 @@ private def checkIsNextVar (x : Var) : GoalM Unit := do
     throwError "`grind` internal error, assigning variable out of order"
 
 private def traceAssignment (x : Var) (v : Rat) : GoalM Unit := do
-  trace[grind.cutsat.assign] "{quoteIfNotAtom (← getVar x)} := {v}"
+  trace[grind.cutsat.assign] "{quoteIfArithTerm (← getVar x)} := {v}"
 
 private def setAssignment (x : Var) (v : Rat) : GoalM Unit := do
   checkIsNextVar x
@@ -419,15 +419,15 @@ def processVar (x : Var) : SearchM Unit := do
   | some (lower, _), none =>
     let lower := lower.ceil
     let v := dvdSol.geAvoiding lower diseqVals
-    trace[grind.debug.cutsat.search] "{lower} ≤ {quoteIfNotAtom (← getVar x)} := {v}"
+    trace[grind.debug.cutsat.search] "{lower} ≤ {quoteIfArithTerm (← getVar x)} := {v}"
     setAssignment x v
   | none, some (upper, _) =>
     let upper := upper.floor
     let v := dvdSol.leAvoiding upper diseqVals
-    trace[grind.debug.cutsat.search] "{quoteIfNotAtom (← getVar x)} := {v} ≤ {upper}"
+    trace[grind.debug.cutsat.search] "{quoteIfArithTerm (← getVar x)} := {v} ≤ {upper}"
     setAssignment x v
   | some (lower, c₁), some (upper, c₂) =>
-    trace[grind.debug.cutsat.search] "{lower} ≤ {lower.ceil} ≤ {quoteIfNotAtom (← getVar x)} ≤ {upper.floor} ≤ {upper}"
+    trace[grind.debug.cutsat.search] "{lower} ≤ {lower.ceil} ≤ {quoteIfArithTerm (← getVar x)} ≤ {upper.floor} ≤ {upper}"
     trace[grind.debug.cutsat.getBestLower] "lower: {lower}, c₁: {← c₁.pp}"
     if lower > upper then
       let .true ← resolveRealLowerUpperConflict c₁ c₂

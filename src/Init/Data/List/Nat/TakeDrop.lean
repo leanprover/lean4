@@ -239,7 +239,7 @@ dropping the first `i` elements. Version designed to rewrite from the small list
 @[simp]
 theorem getElem?_drop {xs : List α} {i j : Nat} : (xs.drop i)[j]? = xs[i + j]? := by
   ext
-  simp only [getElem?_eq_some_iff, getElem_drop, Option.mem_def]
+  simp only [getElem?_eq_some_iff, getElem_drop]
   constructor <;> intro ⟨h, ha⟩
   · exact ⟨_, ha⟩
   · refine ⟨?_, ha⟩

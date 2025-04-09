@@ -41,7 +41,7 @@ instance : CommRing Int8 where
   ofNat_mul := Int8.ofNat_mul
 
 instance : IsCharP Int8 (2 ^ 8) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = Int8.ofInt x := rfl
     rw [this]
     simp [Int8.ofInt_eq_iff_bmod_eq_toInt,
@@ -79,7 +79,7 @@ instance : CommRing Int16 where
   ofNat_mul := Int16.ofNat_mul
 
 instance : IsCharP Int16 (2 ^ 16) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = Int16.ofInt x := rfl
     rw [this]
     simp [Int16.ofInt_eq_iff_bmod_eq_toInt,
@@ -117,7 +117,7 @@ instance : CommRing Int32 where
   ofNat_mul := Int32.ofNat_mul
 
 instance : IsCharP Int32 (2 ^ 32) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = Int32.ofInt x := rfl
     rw [this]
     simp [Int32.ofInt_eq_iff_bmod_eq_toInt,
@@ -155,7 +155,7 @@ instance : CommRing Int64 where
   ofNat_mul := Int64.ofNat_mul
 
 instance : IsCharP Int64 (2 ^ 64) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = Int64.ofInt x := rfl
     rw [this]
     simp [Int64.ofInt_eq_iff_bmod_eq_toInt,
@@ -195,7 +195,7 @@ instance : CommRing ISize where
 open System.Platform (numBits)
 
 instance : IsCharP ISize (2 ^ numBits) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = ISize.ofInt x := rfl
     rw [this]
     simp [ISize.ofInt_eq_iff_bmod_eq_toInt,

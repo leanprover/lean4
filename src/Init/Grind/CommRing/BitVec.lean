@@ -42,7 +42,6 @@ instance : CommRing (BitVec w) where
   ofNat_mul := BitVec.ofNat_mul
 
 instance : IsCharP (BitVec w) (2 ^ w) where
-  char {x} := by
-    simp [BitVec.ofInt, BitVec.toNat_eq]
+  ofNat_eq_zero_iff {x} := by simp [BitVec.ofInt, BitVec.toNat_eq]
 
 end Lean.Grind

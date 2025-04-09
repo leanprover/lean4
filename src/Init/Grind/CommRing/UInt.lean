@@ -301,7 +301,7 @@ instance : CommRing UInt8 where
   ofNat_mul := UInt8.ofNat_mul
 
 instance : IsCharP UInt8 (2 ^ 8) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt8.ofNat x := rfl
     simp [this, UInt8.ofNat_eq_iff_mod_eq_toNat]
 
@@ -325,7 +325,7 @@ instance : CommRing UInt16 where
   ofNat_mul := UInt16.ofNat_mul
 
 instance : IsCharP UInt16 (2 ^ 16) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt16.ofNat x := rfl
     simp [this, UInt16.ofNat_eq_iff_mod_eq_toNat]
 
@@ -349,7 +349,7 @@ instance : CommRing UInt32 where
   ofNat_mul := UInt32.ofNat_mul
 
 instance : IsCharP UInt32 (2 ^ 32) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt32.ofNat x := rfl
     simp [this, UInt32.ofNat_eq_iff_mod_eq_toNat]
 
@@ -373,7 +373,7 @@ instance : CommRing UInt64 where
   ofNat_mul := UInt64.ofNat_mul
 
 instance : IsCharP UInt64 (2 ^ 64) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt64.ofNat x := rfl
     simp [this, UInt64.ofNat_eq_iff_mod_eq_toNat]
 
@@ -399,7 +399,7 @@ instance : CommRing USize where
 open System.Platform
 
 instance : IsCharP USize (2 ^ numBits) where
-  char {x} := by
+  ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = USize.ofNat x := rfl
     simp [this, USize.ofNat_eq_iff_mod_eq_toNat]
 

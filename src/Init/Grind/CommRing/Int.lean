@@ -26,6 +26,6 @@ instance : CommRing Int where
   sub_eq_add_neg _ _ := Int.sub_eq_add_neg
 
 instance : IsCharP Int 0 where
-  char {x} := by erw [Int.ofNat_eq_zero]; simp
+  ofNat_eq_zero_iff {x} := by erw [Int.ofNat_eq_zero]; simp
 
 end Lean.Grind

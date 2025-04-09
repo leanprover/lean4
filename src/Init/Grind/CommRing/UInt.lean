@@ -10,35 +10,8 @@ import Init.Data.UInt.Lemmas
 
 namespace UInt8
 
-theorem ofNat_mod_size : ofNat (x % 2 ^ 8) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
 /-- Variant of `UInt8.ofNat_mod_size` replacing `2 ^ 8` with `256`.-/
 theorem ofNat_mod_size' : ofNat (x % 256) = ofNat x := ofNat_mod_size
-
-theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
-  dsimp only [UInt8.ofInt]
-  rw [Int.add_emod]
-  have h₁ : 0 ≤ x % 2 ^ 8 := Int.emod_nonneg _ (by decide)
-  have h₂ : 0 ≤ y % 2 ^ 8 := Int.emod_nonneg _ (by decide)
-  have h₃ : 0 ≤ x % 2 ^ 8 + y % 2 ^ 8 := Int.add_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ (by decide), Int.toNat_add h₁ h₂]
-  have : (2 ^ 8 : Int).toNat = 2 ^ 8 := rfl
-  rw [this, UInt8.ofNat_mod_size, UInt8.ofNat_add]
-
-theorem ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
-  dsimp only [UInt8.ofInt]
-  rw [Int.mul_emod]
-  have h₁ : 0 ≤ x % 2 ^ 8 := Int.emod_nonneg _ (by decide)
-  have h₂ : 0 ≤ y % 2 ^ 8 := Int.emod_nonneg _ (by decide)
-  have h₃ : 0 ≤ (x % 2 ^ 8) * (y % 2 ^ 8) := Int.mul_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ (by decide), Int.toNat_mul h₁ h₂]
-  have : (2 ^ 8 : Int).toNat = 2 ^ 8 := rfl
-  rw [this, UInt8.ofNat_mod_size, UInt8.ofNat_mul]
-
-theorem ofInt_neg_one : ofInt (-1) = -1 := rfl
-
-theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
-  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt8.neg_eq_neg_one_mul]
 
 -- TODO: this should be replaced via an `@[extern]` with a native implementation
 def pow (x : UInt8) (n : Nat) : UInt8 :=
@@ -56,35 +29,8 @@ end UInt8
 
 namespace UInt16
 
-theorem ofNat_mod_size : ofNat (x % 2 ^ 16) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
 /-- Variant of `UInt16.ofNat_mod_size` replacing `2 ^ 16` with `65536`.-/
 theorem ofNat_mod_size' : ofNat (x % 65536) = ofNat x := ofNat_mod_size
-
-theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
-  dsimp only [UInt16.ofInt]
-  rw [Int.add_emod]
-  have h₁ : 0 ≤ x % 2 ^ 16 := Int.emod_nonneg _ (by decide)
-  have h₂ : 0 ≤ y % 2 ^ 16 := Int.emod_nonneg _ (by decide)
-  have h₃ : 0 ≤ x % 2 ^ 16 + y % 2 ^ 16 := Int.add_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ (by decide), Int.toNat_add h₁ h₂]
-  have : (2 ^ 16 : Int).toNat = 2 ^ 16 := rfl
-  rw [this, UInt16.ofNat_mod_size, UInt16.ofNat_add]
-
-theorem ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
-  dsimp only [UInt16.ofInt]
-  rw [Int.mul_emod]
-  have h₁ : 0 ≤ x % 2 ^ 16 := Int.emod_nonneg _ (by decide)
-  have h₂ : 0 ≤ y % 2 ^ 16 := Int.emod_nonneg _ (by decide)
-  have h₃ : 0 ≤ (x % 2 ^ 16) * (y % 2 ^ 16) := Int.mul_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ (by decide), Int.toNat_mul h₁ h₂]
-  have : (2 ^ 16 : Int).toNat = 2 ^ 16 := rfl
-  rw [this, UInt16.ofNat_mod_size, UInt16.ofNat_mul]
-
-theorem ofInt_neg_one : ofInt (-1) = -1 := rfl
-
-theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
-  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt16.neg_eq_neg_one_mul]
 
 -- TODO: this should be replaced via an `@[extern]` with a native implementation
 def pow (x : UInt16) (n : Nat) : UInt16 :=
@@ -102,35 +48,8 @@ end UInt16
 
 namespace UInt32
 
-theorem ofNat_mod_size : ofNat (x % 2 ^ 32) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
 /-- Variant of `UInt32.ofNat_mod_size` replacing `2 ^ 32` with `4294967296`.-/
 theorem ofNat_mod_size' : ofNat (x % 4294967296) = ofNat x := ofNat_mod_size
-
-theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
-  dsimp only [UInt32.ofInt]
-  rw [Int.add_emod]
-  have h₁ : 0 ≤ x % 2 ^ 32 := Int.emod_nonneg _ (by decide)
-  have h₂ : 0 ≤ y % 2 ^ 32 := Int.emod_nonneg _ (by decide)
-  have h₃ : 0 ≤ x % 2 ^ 32 + y % 2 ^ 32 := Int.add_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ (by decide), Int.toNat_add h₁ h₂]
-  have : (2 ^ 32 : Int).toNat = 2 ^ 32 := rfl
-  rw [this, UInt32.ofNat_mod_size, UInt32.ofNat_add]
-
-theorem ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
-  dsimp only [UInt32.ofInt]
-  rw [Int.mul_emod]
-  have h₁ : 0 ≤ x % 2 ^ 32 := Int.emod_nonneg _ (by decide)
-  have h₂ : 0 ≤ y % 2 ^ 32 := Int.emod_nonneg _ (by decide)
-  have h₃ : 0 ≤ (x % 2 ^ 32) * (y % 2 ^ 32) := Int.mul_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ (by decide), Int.toNat_mul h₁ h₂]
-  have : (2 ^ 32 : Int).toNat = 2 ^ 32 := rfl
-  rw [this, UInt32.ofNat_mod_size, UInt32.ofNat_mul]
-
-theorem ofInt_neg_one : ofInt (-1) = -1 := rfl
-
-theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
-  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt32.neg_eq_neg_one_mul]
 
 -- TODO: this should be replaced via an `@[extern]` with a native implementation
 def pow (x : UInt32) (n : Nat) : UInt32 :=
@@ -148,36 +67,8 @@ end UInt32
 
 namespace UInt64
 
-theorem ofNat_mod_size : ofNat (x % 2 ^ 64) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
 /-- Variant of `UInt64.ofNat_mod_size` replacing `2 ^ 64` with `18446744073709551616`.-/
 theorem ofNat_mod_size' : ofNat (x % 18446744073709551616) = ofNat x := ofNat_mod_size
-
-theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
-  dsimp only [UInt64.ofInt]
-  rw [Int.add_emod]
-  have h₁ : 0 ≤ x % 2 ^ 64 := Int.emod_nonneg _ (by decide)
-  have h₂ : 0 ≤ y % 2 ^ 64 := Int.emod_nonneg _ (by decide)
-  have h₃ : 0 ≤ x % 2 ^ 64 + y % 2 ^ 64 := Int.add_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ (by decide), Int.toNat_add h₁ h₂]
-  have : (2 ^ 64 : Int).toNat = 2 ^ 64 := rfl
-  rw [this, UInt64.ofNat_mod_size, UInt64.ofNat_add]
-
-theorem ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
-  dsimp only [UInt64.ofInt]
-  rw [Int.mul_emod]
-  have h₁ : 0 ≤ x % 2 ^ 64 := Int.emod_nonneg _ (by decide)
-  have h₂ : 0 ≤ y % 2 ^ 64 := Int.emod_nonneg _ (by decide)
-  have h₃ : 0 ≤ (x % 2 ^ 64) * (y % 2 ^ 64) := Int.mul_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ (by decide), Int.toNat_mul h₁ h₂]
-  have : (2 ^ 64 : Int).toNat = 2 ^ 64 := rfl
-  rw [this, UInt64.ofNat_mod_size, UInt64.ofNat_mul]
-
-theorem ofInt_one : ofInt 1 = 1 := rfl
-theorem ofInt_neg_one : ofInt (-1) = -1 := rfl
-
-theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
-  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← UInt64.neg_eq_neg_one_mul]
 
 -- TODO: this should be replaced via an `@[extern]` with a native implementation
 def pow (x : UInt64) (n : Nat) : UInt64 :=
@@ -193,64 +84,8 @@ theorem pow_succ (x : UInt64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
 
 end UInt64
 
-namespace System.Platform
-
-theorem two_pow_numBits_nonneg : 0 ≤ (2 ^ System.Platform.numBits : Int) := by
-  rcases System.Platform.numBits_eq with h | h <;>
-  · rw [h]
-    decide
-theorem two_pow_numBits_ne_zero : (2 ^ System.Platform.numBits : Int) ≠ 0 := by
-  rcases System.Platform.numBits_eq with h | h <;>
-  · rw [h]
-    decide
-
-end System.Platform
 
 namespace USize
-
-open System.Platform (numBits two_pow_numBits_nonneg two_pow_numBits_ne_zero)
-
-theorem ofNat_mod_size : ofNat (x % 2 ^ numBits) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
-
-theorem ofInt_add (x y : Int) : ofInt (x + y) = ofInt x + ofInt y := by
-  dsimp only [USize.ofInt]
-  rw [Int.add_emod]
-  have h₁ : 0 ≤ x % 2 ^ numBits := Int.emod_nonneg _ two_pow_numBits_ne_zero
-  have h₂ : 0 ≤ y % 2 ^ numBits := Int.emod_nonneg _ two_pow_numBits_ne_zero
-  have h₃ : 0 ≤ x % 2 ^ numBits + y % 2 ^ numBits := Int.add_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ two_pow_numBits_nonneg, Int.toNat_add h₁ h₂]
-  have : (2 ^ numBits : Int).toNat = 2 ^ numBits := by
-    rcases System.Platform.numBits_eq with h | h <;>
-    · rw [h]
-      decide
-  rw [this, USize.ofNat_mod_size, USize.ofNat_add]
-
-theorem ofInt_mul (x y : Int) : ofInt (x * y) = ofInt x * ofInt y := by
-  dsimp only [USize.ofInt]
-  rw [Int.mul_emod]
-  have h₁ : 0 ≤ x % 2 ^ numBits := Int.emod_nonneg _ two_pow_numBits_ne_zero
-  have h₂ : 0 ≤ y % 2 ^ numBits := Int.emod_nonneg _ two_pow_numBits_ne_zero
-  have h₃ : 0 ≤ (x % 2 ^ numBits) * (y % 2 ^ numBits) := Int.mul_nonneg h₁ h₂
-  rw [Int.toNat_emod h₃ two_pow_numBits_nonneg, Int.toNat_mul h₁ h₂]
-  have : (2 ^ numBits : Int).toNat = 2 ^ numBits := by
-    rcases System.Platform.numBits_eq with h | h <;>
-    · rw [h]
-      decide
-  rw [this, USize.ofNat_mod_size, USize.ofNat_mul]
-
-theorem ofInt_one : ofInt 1 = 1 := by
-  rcases System.Platform.numBits_eq with h | h <;>
-  · apply USize.toNat_inj.mp
-    simp_all [USize.ofInt, USize.ofNat, size, toNat]
-
-theorem ofInt_neg_one : ofInt (-1) = -1 := by
-  rcases System.Platform.numBits_eq with h | h <;>
-  · apply USize.toNat_inj.mp
-    simp_all [USize.ofInt, USize.ofNat, size, toNat]
-
-theorem ofInt_neg (x : Int) : ofInt (-x) = -ofInt x := by
-  rw [Int.neg_eq_neg_one_mul, ofInt_mul, ofInt_neg_one, ← USize.neg_eq_neg_one_mul]
 
 -- TODO: this should be replaced via an `@[extern]` with a native implementation
 def pow (x : USize) (n : Nat) : USize :=

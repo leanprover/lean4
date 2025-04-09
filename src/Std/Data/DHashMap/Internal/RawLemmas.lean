@@ -2337,14 +2337,15 @@ theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
   sorry
 
 @[simp]
-theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k ↔ m₁.contains k ∨ m₂.contains k := by
   sorry
 
 variable {m₁ m₂} in
 theorem contains_of_contains_union_of_contains_right_eq_false [EquivBEq α]
-    [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
-    {k : α} : (m₁.union m₂).contains k → m₂.contains k = false → m₁.contains k := by
+    [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k → m₂.contains k = false → m₁.contains k := by
   sorry
 
 theorem get?_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
@@ -2363,16 +2364,14 @@ theorem union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} (h
 
 theorem getKey?_union_of_contains_right [EquivBEq α] [LawfulHashable α]
     {p : (a : α) × β a} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
-    {k k' : α} (k_beq : k == k')
-    (mem : m₂.contains k) :
+    {k k' : α} (k_beq : k == k') (mem : m₂.contains k) :
     (m₁.union m₂).getKey? k' = some k := by
   sorry
 
 theorem getKey_union_of_contains_right
     [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k k' : α} (k_beq : k == k')
-    (mem : m₂.contains k)
-    {h'} :
+    (mem : m₂.contains k) {h'} :
     (m₁.union m₂).getKey k' (contains_union_of_right h₁ h₂ mem) = k := by
   sorry
 

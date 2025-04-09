@@ -175,7 +175,7 @@ partial def main (args : List String) : IO Unit := do
             synced := true
             requestNo := requestNo + 1
           | "waitForILeans" =>
-            let _ ← Ipc.waitForILeans requestNo
+            let _ ← Ipc.waitForILeans requestNo uri (versionNo - 1)
             requestNo := requestNo + 1
           | "sync" =>  -- wait for processing but do not print diagnostics
             let _ ← Ipc.collectDiagnostics requestNo uri (versionNo - 1)

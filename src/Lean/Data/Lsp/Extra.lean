@@ -59,6 +59,8 @@ Yields a response once the watchdog process has loaded all .ilean files.
 Used for test stability in tests that use the .ileans.
 -/
 structure WaitForILeansParams where
+  uri     : DocumentUri
+  version : Nat
   deriving FromJson, ToJson
 
 structure WaitForILeans where

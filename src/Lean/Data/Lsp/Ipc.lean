@@ -113,8 +113,8 @@ where
       | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
 
-partial def waitForILeans (waitForILeansId : RequestID := 0) : IpcM Unit := do
-  writeRequest ⟨waitForILeansId, "$/lean/waitForILeans", WaitForILeansParams.mk⟩
+partial def waitForILeans (waitForILeansId : RequestID := 0) (target : DocumentUri) (version : Nat) : IpcM Unit := do
+  writeRequest ⟨waitForILeansId, "$/lean/waitForILeans", WaitForILeansParams.mk target version⟩
   while true do
     match (← readMessage) with
     | .response id _ =>

@@ -1926,26 +1926,6 @@ theorem Const.keys_filter [BEq α] [EquivBEq α] {β : Type v}
     · simp only [keys_cons, ih, List.unattach, List.map_cons, List.map_map, Function.comp_def]
     · simp only [ih, List.unattach, List.map_map, Function.comp_def]
 
-theorem Const.keys_filter_key [BEq α] [EquivBEq α] {β : Type v}
-    {l : List ((_ : α) × β)} {f : α → Bool} (hl : DistinctKeys l) :
-    (keys (l.filter (fun x => f x.1))) =
-      (List.filter (fun x => f x) (keys l)) := by
-  induction l using assoc_induction with
-  | nil => simp
-  | cons k v tl ih =>
-    rw [List.filter_cons]
-    specialize ih hl.tail
-    replace hl := hl.containsKey_eq_false
-    simp only [keys_cons, List.attach_cons, getValue_cons, ↓reduceDIte, cast_eq,
-      List.filter_cons, BEq.refl, List.filter_map, Function.comp_def]
-    have (x : { x // x ∈ keys tl }) : (k == x.val) = False := eq_false <| by
-      intro h
-      rw [containsKey_congr h, containsKey_of_mem_keys x.2] at hl
-      contradiction
-    split
-    · simp only [keys_cons, ih, List.unattach, List.map_cons, List.map_map, Function.comp_def]
-    · simp only [ih, List.unattach, List.map_map, Function.comp_def]
-
 @[simp]
 theorem keys_map {l : List ((a : α) × β a)} {f : (a : α) → β a → γ a} :
     keys (l.map fun p => ⟨p.1, f p.1 p.2⟩) = keys l := by
@@ -4849,14 +4829,6 @@ theorem Const.containsKey_filter_iff {β : Type v} [BEq α] [EquivBEq α]
   simp only [containsKey_eq_isSome_getEntry?, getEntry?_filter hl,
     Option.isSome_filter, Option.any_eq_true, Option.exists_eq_some_and_iff,
     getKey, getValue, getKey?_eq_getEntry?, getValue?_eq_getEntry?, Option.get_map]
-
-theorem Const.containsKey_filter_key_iff {β : Type v} [BEq α] [EquivBEq α]
-    {f : α → Bool}
-    {l : List ((_ : α) × β)} {k : α} (hl : DistinctKeys l) :
-    containsKey k (l.filter fun p => f p.1) ↔
-      ∃ h : containsKey k l, f (getKey k l h) := by
-  simp only [containsKey_eq_isSome_getEntry?, getEntry?_filter hl, Option.isSome_filter,
-    Option.any_eq_true, Option.exists_eq_some_and_iff, getKey, getKey?_eq_getEntry?, Option.get_map]
 
 theorem getKey?_filterMap [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Option (γ a)}

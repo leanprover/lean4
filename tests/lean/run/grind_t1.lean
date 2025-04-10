@@ -318,20 +318,20 @@ example {α β} (f : α → β) (a : α) : ∃ a', f a' = f a := by
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind +splitIndPred only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind +splitIndPred only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind only [cases Exists, Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind only [cases Exists, Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
   -- Should fail since extensionality is disabled
-  fail_if_success grind -ext only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  fail_if_success grind -ext only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
   sorry
 
 @[ext] structure S where

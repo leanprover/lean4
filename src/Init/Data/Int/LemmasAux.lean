@@ -19,9 +19,6 @@ namespace Int
 
 @[simp] theorem natCast_le_zero : {n : Nat} → (n : Int) ≤ 0 ↔ n = 0 := by omega
 
-protected theorem sub_eq_iff_eq_add {b a c : Int} : a - b = c ↔ a = c + b := by omega
-protected theorem sub_eq_iff_eq_add' {b a c : Int} : a - b = c ↔ a = b + c := by omega
-
 @[simp] protected theorem neg_nonpos_iff (i : Int) : -i ≤ 0 ↔ 0 ≤ i := by omega
 
 @[simp] theorem zero_le_ofNat (n : Nat) : 0 ≤ ((no_index (OfNat.ofNat n)) : Int) :=
@@ -81,15 +78,6 @@ theorem eq_ofNat_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := by omega
 theorem toNat_le_toNat {n m : Int} (h : n ≤ m) : n.toNat ≤ m.toNat := by omega
 theorem toNat_lt_toNat {n m : Int} (hn : 0 < m) : n.toNat < m.toNat ↔ n < m := by omega
 
-/-! ### natAbs -/
-
-theorem eq_zero_of_dvd_of_natAbs_lt_natAbs {d n : Int} (h : d ∣ n) (h₁ : n.natAbs < d.natAbs) :
-    n = 0 := by
-  obtain ⟨a, rfl⟩ := h
-  rw [natAbs_mul] at h₁
-  suffices ¬ 0 < a.natAbs by simp [Int.natAbs_eq_zero.1 (Nat.eq_zero_of_not_pos this)]
-  exact fun h => Nat.lt_irrefl _ (Nat.lt_of_le_of_lt (Nat.le_mul_of_pos_right d.natAbs h) h₁)
-
 /-! ### min and max -/
 
 @[simp] protected theorem min_assoc : ∀ (a b c : Int), min (min a b) c = min a (min b c) := by omega
@@ -127,33 +115,6 @@ protected theorem sub_max_sub_right (a b c : Int) : max (a - c) (b - c) = max a 
 protected theorem sub_min_sub_left (a b c : Int) : min (a - b) (a - c) = a - max b c := by omega
 
 protected theorem sub_max_sub_left (a b c : Int) : max (a - b) (a - c) = a - min b c := by omega
-
-/-! ### bmod -/
-
-theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
-    (x.bmod m) < 0 ↔ (-(m / 2) ≤ x ∧ x < 0) ∨ ((m + 1) / 2 ≤ x) := by
-  simp only [Int.bmod_def]
-  by_cases xpos : 0 ≤ x
-  · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
-  · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
-
-theorem bmod_eq_self_of_le {n : Int} {m : Nat} (hn' : -(m / 2) ≤ n) (hn : n < (m + 1) / 2) :
-    n.bmod m = n := by
-  rw [← Int.sub_eq_zero]
-  have := le_bmod (x := n) (m := m) (by omega)
-  have := bmod_lt (x := n) (m := m) (by omega)
-  apply eq_zero_of_dvd_of_natAbs_lt_natAbs Int.dvd_bmod_sub_self
-  omega
-
-theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
-    (a.bmod m).bmod n = a.bmod n := by
-  rw [← Int.sub_eq_iff_eq_add.2 (bmod_add_bdiv a m).symm]
-  obtain ⟨k, rfl⟩ := hnm
-  simp [Int.mul_assoc]
-
-theorem bmod_eq_self_of_le_mul_two {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x * 2 < y) :
-    x.bmod y = x := by
-  apply bmod_eq_self_of_le (by omega) (by omega)
 
 theorem mul_le_mul_of_natAbs_le {x y : Int} {s t : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ t) :
     x * y ≤ s * t := by

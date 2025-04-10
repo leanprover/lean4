@@ -562,6 +562,16 @@ theorem natAbs_sub_of_nonneg_of_le {a b : Int} (h₁ : 0 ≤ b) (h₂ : b ≤ a)
   · rwa [← Int.ofNat_le, natAbs_of_nonneg h₁, natAbs_of_nonneg (Int.le_trans h₁ h₂)]
   · exact Int.sub_nonneg_of_le h₂
 
+theorem eq_zero_of_dvd_of_natAbs_lt_natAbs {d n : Int} (h : d ∣ n) (h₁ : n.natAbs < d.natAbs) :
+    n = 0 := by
+  let ⟨a, ha⟩ := h
+  subst ha
+  rw [natAbs_mul] at h₁
+  suffices ¬ 0 < a.natAbs by simp [Int.natAbs_eq_zero.1 (Nat.eq_zero_of_not_pos this)]
+  refine fun h => Nat.lt_irrefl _ (Nat.lt_of_le_of_lt ?_ h₁)
+  rw (occs := [1]) [← Nat.mul_one d.natAbs]
+  exact Nat.mul_le_mul (Nat.le_refl _) h
+
 /-! ### toNat -/
 
 theorem toNat_eq_max : ∀ a : Int, (toNat a : Int) = max a 0

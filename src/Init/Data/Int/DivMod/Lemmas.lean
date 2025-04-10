@@ -2151,11 +2151,30 @@ theorem bmod_eq_emod (x : Int) (m : Nat) : bmod x m = x % m - if x % m ≥ (m + 
   · rw [bmod_pos] <;> simp_all
 
 @[simp]
-theorem bmod_one_is_zero (x : Int) : Int.bmod x 1 = 0 := by
+theorem bmod_one (x : Int) : Int.bmod x 1 = 0 := by
   simp [Int.bmod]
 
+@[deprecated bmod_one (since := "2025-04-10")]
+abbrev bmod_one_is_zero := @bmod_one
+
+#check Int.add_emod_self
+#check Int.add_emod_self_left
+#check Int.add_mul_emod_self
+#check Int.add_mul_emod_self_left
+
+@[simp] theorem add_bmod_self {a : Int} {b : Nat} : (a + b).bmod b = a.bmod b := by
+  simp [bmod_def]
+
+@[simp] theorem add_bmod_self_left {a : Nat} {b : Int} : (a + b).bmod a = b.bmod a := by
+  simp [bmod_def]
+
+@[simp] theorem add_mul_bmod_self {a b : Int} {c : Nat} : (a + b * c).bmod c = a.bmod c := by
+  simp [bmod_def]
+
+@[simp] theorem add_mul_bmod_self_left {}
+
 @[simp]
-theorem bmod_add_cancel (x : Int) (n : Nat) : Int.bmod (x + n) n = Int.bmod x n := by
+theorem bmod_add_cancel {x : Int} {n : Nat} : Int.bmod (x + n) n = Int.bmod x n := by
   simp [bmod_def]
 
 @[simp]

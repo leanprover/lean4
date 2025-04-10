@@ -1031,7 +1031,7 @@ theorem ordered_filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β a �
   simp only [Ordered, toListModel_filterMap]
   apply ho.filterMap
   intro e f hef e' he' f' hf'
-  simp only [Option.map_eq_some'] at he' hf'
+  simp only [Option.map_eq_some_iff] at he' hf'
   obtain ⟨_, _, rfl⟩ := he'
   obtain ⟨_, _, rfl⟩ := hf'
   exact hef

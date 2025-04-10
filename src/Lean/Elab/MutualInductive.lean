@@ -303,10 +303,10 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
             unless (← whnfD type).isSort do
               throwErrorAt typeStx "invalid resulting type, expecting 'Type _' or 'Prop'"
           return (type, indices.size)
-        let params ← Term.addAutoBoundImplicits params (view.declId.getTailPos? (canonicalOnly := true))
-        trace[Elab.inductive] "header params: {params}, type: {type}"
-        let levelNames ← Term.getLevelNames
-        return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), levelNames, params, type, view }
+        Term.addAutoBoundImplicits' params type (inlayHintPos? := view.declId.getTailPos? (canonicalOnly := true)) fun params type => do
+          trace[Elab.inductive] "header params: {params}, type: {type}"
+          let levelNames ← Term.getLevelNames
+          return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), levelNames, params, type, view }
       elabHeadersAux views (i+1) acc
     else
       return acc

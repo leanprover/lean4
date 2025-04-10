@@ -1878,13 +1878,14 @@ where
       go todo (autos.push auto)
 
 /--
-  Similar to `autoBoundImplicits`, but immediately if the resulting array of expressions contains metavariables,
-  it immediately uses `mkForallFVars` + `forallBoundedTelescope` to convert them into free variables.
+  Similar to `addAutoBoundImplicits`, but converts all metavariables into free variables.
+
+  It uses `mkForallFVars` + `forallBoundedTelescope` to convert metavariables into free variables.
   The type `type` is modified during the process if type depends on `xs`.
   We use this method to simplify the conversion of code using `autoBoundImplicitsOld` to `autoBoundImplicits`.
 -/
-def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
-  let xs ← addAutoBoundImplicits xs none
+def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) (inlayHintPos? : Option String.Pos := none) : TermElabM α := do
+  let xs ← addAutoBoundImplicits xs inlayHintPos?
   if xs.all (·.isFVar) then
     k xs type
   else

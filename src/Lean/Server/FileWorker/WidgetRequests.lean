@@ -86,6 +86,7 @@ where
       else
         withOptionAtCurrPos pp.proofs.name true do
         withOptionAtCurrPos pp.sorrySource.name true do
+        withOptionAtCurrPos pp.coercions.name false do
           delab
 
 builtin_initialize

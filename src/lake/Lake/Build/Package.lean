@@ -102,9 +102,9 @@ Also, if the package is a dependency, maybe fetch its build cache.
 -/
 def Package.recBuildExtraDepTargets (self : Package) : FetchM (Job Unit) :=
   withRegisterJob s!"{self.name}:extraDep" do
-  let mut job := Job.nil
+  let mut job := Job.nil s!"@{self.name}:extraDep"
   -- Fetch build cache if this package is a dependency
-  if self.name ≠ (← getWorkspace).root.name then
+  if self.name ≠ (← getRootPackage).name then
     job := job.add (← self.maybeFetchBuildCacheWithWarning)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do

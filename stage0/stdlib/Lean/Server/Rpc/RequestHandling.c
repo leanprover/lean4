@@ -83,7 +83,6 @@ static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_
 LEAN_EXPORT lean_object* l_Lean_Server_registerBuiltinRpcProcedure___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Server_registerBuiltinRpcProcedure___spec__2___closed__1;
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_409____spec__1___lambda__3___closed__2;
-lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_2014_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at_Lean_Server_registerBuiltinRpcProcedure___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_409____spec__1___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initializing(lean_object*);
@@ -126,6 +125,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_wrapRpcProcedure___elambda__1___boxed(lea
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_33_(lean_object*);
 lean_object* l_Lean_quoteNameMk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_409_(lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_2250_(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_1450____closed__11;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -1102,7 +1102,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = lean_ctor_get(x_14, 2);
+x_15 = lean_ctor_get(x_14, 3);
 lean_inc(x_15);
 lean_dec(x_14);
 x_16 = lean_ctor_get(x_1, 0);
@@ -1262,7 +1262,7 @@ _start:
 {
 lean_object* x_2; 
 lean_inc(x_1);
-x_2 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_2014_(x_1);
+x_2 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_2250_(x_1);
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_3; 

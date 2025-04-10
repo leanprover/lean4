@@ -455,7 +455,7 @@ lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___rarg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_Std_HashMap_instRepr___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_modify(lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_HashMap_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_repr___at_Std_HashMap_instRepr___spec__19___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6467,7 +6467,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = l_Array_emptyWithCapacity(lean_box(0), x_2);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_array_get_size(x_4);
 x_6 = lean_unsigned_to_nat(0u);
@@ -6612,7 +6612,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = l_Array_emptyWithCapacity(lean_box(0), x_2);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_array_get_size(x_4);
 x_6 = lean_unsigned_to_nat(0u);
@@ -6955,7 +6955,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = l_Array_emptyWithCapacity(lean_box(0), x_2);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_array_get_size(x_4);
 x_6 = lean_unsigned_to_nat(0u);

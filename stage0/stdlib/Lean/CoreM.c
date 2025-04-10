@@ -929,7 +929,7 @@ static lean_object* l_Lean_throwInterruptException___at_Lean_Core_checkInterrupt
 static lean_object* l_Lean_Core_throwMaxHeartbeat___closed__5;
 LEAN_EXPORT lean_object* l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2(lean_object*);
 static lean_object* l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__27;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Core_withIncRecDepth___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_getAndEmptySnapshotTasks(lean_object*);
@@ -12001,7 +12001,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -16208,7 +16208,7 @@ lean_inc(x_12);
 lean_dec(x_10);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
-x_14 = l_Array_emptyWithCapacity(lean_box(0), x_13);
+x_14 = lean_mk_empty_array_with_capacity(x_13);
 lean_dec(x_13);
 x_15 = lean_ctor_get(x_11, 1);
 lean_inc(x_15);

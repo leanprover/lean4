@@ -824,7 +824,7 @@ LEAN_EXPORT lean_object* l_Lean_Firefox_instFromJsonSamplesTable;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonThread____x40_Lean_Util_Profiler___hyg_4084____spec__6___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonStackTable____x40_Lean_Util_Profiler___hyg_1303____closed__13;
 LEAN_EXPORT lean_object* l_Lean_Firefox_instToJsonThread;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonProfile____x40_Lean_Util_Profiler___hyg_4702____closed__15;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonSampleUnits____x40_Lean_Util_Profiler___hyg_472____closed__17;
 static lean_object* l_Lean_Firefox_categories___closed__14;
@@ -9361,7 +9361,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -49012,7 +49012,7 @@ x_14 = l_Lean_Firefox_Profile_export___closed__2;
 x_15 = lean_float_div(x_13, x_14);
 x_16 = lean_ctor_get(x_7, 0);
 lean_inc(x_16);
-x_17 = l_Array_emptyWithCapacity(lean_box(0), x_16);
+x_17 = lean_mk_empty_array_with_capacity(x_16);
 lean_dec(x_16);
 x_18 = lean_ctor_get(x_7, 1);
 lean_inc(x_18);

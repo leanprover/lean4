@@ -540,7 +540,7 @@ static lean_object* l_Lake_DSL_elabConfig___at_Lake_DSL_elabLeanLibCommand___spe
 LEAN_EXPORT lean_object* l_Lake_DSL_mkExternLibDecl___lambda__1(lean_object*);
 static lean_object* l_Lake_DSL_expandExternLibCommand___lambda__1___closed__20;
 static lean_object* l_Lake_DSL_leanLibCommand___closed__5;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_DSL_expandTargetCommand___lambda__1___closed__28;
 lean_object* l_Lake_Name_quoteFrom(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lake_DSL_targetCommand___closed__5;
@@ -1137,7 +1137,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

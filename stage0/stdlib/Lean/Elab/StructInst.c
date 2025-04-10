@@ -1340,7 +1340,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_StructInst_0
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getFieldDefaultValue_x3f___spec__6___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_reduceFieldProjs___spec__15___boxed(lean_object**);
 static lean_object* l___private_Lean_Structure_0__Lean_setStructureResolutionOrder___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_initializeState___spec__25___closed__2;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___lambda__2___closed__18;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_reduceFieldProjs___spec__12___boxed(lean_object**);
@@ -1379,7 +1379,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

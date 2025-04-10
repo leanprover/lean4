@@ -133,7 +133,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_filterDuplicateCompletionInfos_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions___spec__10___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions___spec__1___closed__13;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Array_qsort_sort___at___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions___spec__10___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions___spec__11___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -2231,7 +2231,7 @@ x_2 = l___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_
 x_3 = l_Array_groupByKey___at___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions___spec__1(x_2, x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
-x_5 = l_Array_emptyWithCapacity(lean_box(0), x_4);
+x_5 = lean_mk_empty_array_with_capacity(x_4);
 lean_dec(x_4);
 x_6 = lean_ctor_get(x_3, 1);
 lean_inc(x_6);

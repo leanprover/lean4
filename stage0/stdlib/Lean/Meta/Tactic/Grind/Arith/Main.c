@@ -1297,7 +1297,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_check___lambda__3(lean_object* 
 _start:
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*15);
+x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*16);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 

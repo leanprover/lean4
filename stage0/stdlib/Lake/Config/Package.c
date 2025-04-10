@@ -704,7 +704,7 @@ LEAN_EXPORT lean_object* l_Lake_PackageConfig_toLeanConfig___proj___elambda__1(l
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_toLeanConfig___proj___elambda__2(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_defaultLeanLibDir;
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_manifestFile___proj___elambda__1(lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_nativeLibDir___proj___elambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_precompileModules___proj___elambda__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_homepage_instConfigField(lean_object*);
@@ -794,7 +794,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

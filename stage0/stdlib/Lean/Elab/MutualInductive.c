@@ -1181,7 +1181,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp
 lean_object* l_List_mapTR_loop___at_Lean_Meta_Match_mkMatcher___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_collectFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Command_withCtorRef___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_mkIndFVar2Const___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedInductiveType;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_bootstrap_inductiveCheckResultingUniverse;
@@ -1548,7 +1548,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -7855,7 +7855,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_array_get_size(x_2);
-x_12 = l_Array_emptyWithCapacity(lean_box(0), x_11);
+x_12 = lean_mk_empty_array_with_capacity(x_11);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Array_mapFinIdxM_map___at___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_updateElabHeaderTypes___spec__1(x_1, x_2, x_3, x_2, x_11, x_13, lean_box(0), x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_14;

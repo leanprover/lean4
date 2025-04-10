@@ -696,7 +696,7 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hy
 static lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__6___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_insertObjImpl___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_86____closed__3;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_640____lambda__2___closed__3;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1307____lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Linter_UnusedVariables_collectReferences_go___spec__3(lean_object*);
@@ -4652,7 +4652,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -17555,7 +17555,7 @@ lean_dec(x_29);
 x_32 = lean_box(0);
 x_33 = lean_ctor_get(x_30, 0);
 lean_inc(x_33);
-x_34 = l_Array_emptyWithCapacity(lean_box(0), x_33);
+x_34 = lean_mk_empty_array_with_capacity(x_33);
 lean_dec(x_33);
 x_35 = lean_ctor_get(x_30, 1);
 lean_inc(x_35);
@@ -17868,7 +17868,7 @@ lean_dec(x_122);
 x_125 = lean_box(0);
 x_126 = lean_ctor_get(x_123, 0);
 lean_inc(x_126);
-x_127 = l_Array_emptyWithCapacity(lean_box(0), x_126);
+x_127 = lean_mk_empty_array_with_capacity(x_126);
 lean_dec(x_126);
 x_128 = lean_ctor_get(x_123, 1);
 lean_inc(x_128);
@@ -19927,7 +19927,7 @@ x_29 = lean_ctor_get(x_1, 1);
 lean_inc(x_29);
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
-x_31 = l_Array_emptyWithCapacity(lean_box(0), x_30);
+x_31 = lean_mk_empty_array_with_capacity(x_30);
 lean_dec(x_30);
 x_32 = lean_ctor_get(x_29, 1);
 lean_inc(x_32);
@@ -20094,7 +20094,7 @@ x_71 = lean_ctor_get(x_1, 1);
 lean_inc(x_71);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);
-x_73 = l_Array_emptyWithCapacity(lean_box(0), x_72);
+x_73 = lean_mk_empty_array_with_capacity(x_72);
 lean_dec(x_72);
 x_74 = lean_ctor_get(x_71, 1);
 lean_inc(x_74);

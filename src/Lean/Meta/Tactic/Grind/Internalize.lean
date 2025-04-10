@@ -207,16 +207,31 @@ private def propagateUnitLike (a : Expr) (generation : Nat) : GoalM Unit := do
         internalize unit generation
         pushEq a unit <| (← mkEqRefl unit)
 
-/-- Returns `true` if we can ignore `funext` for functions occurring as arguments of a `declName`-application. -/
-private def funextParentsToIgnore (declName : Name) : Bool :=
+/-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
+private def extParentsToIgnore (declName : Name) : Bool :=
   declName == ``Eq || declName == ``HEq || declName == ``dite || declName == ``ite
 
-private def addSplitCandidatesForFunext (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
-  unless (← getConfig).funext do return ()
+/--
+Given a term `e` that occurs as the argument at position `i` of an `f`-application `parent?`,
+we consider `e` as a candidate for case-splitting. For every other argument `e'` that also appears
+at position `i` in an `f`-application and has the same type as `e`, we add the case-split candidate `e = e'`.
+
+When performing the case split, we consider the following two cases:
+- `e = e'`, which may introduce a new congruence between the corresponding `f`-applications.
+- `¬(e = e')`, which may trigger extensionality theorems for the type of `e`.
+
+This feature enables `grind` to solve examples such as:
+```lean
+example (f : (Nat → Nat) → Nat) : a = b → f (fun x => a + x) = f (fun x => b + x) := by
+  grind
+```
+-/
+private def addSplitCandidatesForExt (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
   let some parent := parent? | return ()
+  unless parent.isApp do return ()
   let f := parent.getAppFn
   if let .const declName _ := f then
-    if funextParentsToIgnore declName then return ()
+    if extParentsToIgnore declName then return ()
   let type ← inferType e
   -- Remark: we currently do not perform function extensionality on functions that produce a type that is not a proposition.
   -- We may add an option to enable that in the future.
@@ -233,7 +248,7 @@ private def addSplitCandidatesForFunext (e : Expr) (generation : Nat) (parent? :
     it := it.appFn!
 where
   found (f : Expr) (i : Nat) (type : Expr) : GoalM Unit := do
-    let others := (← get).funsAt.find? (f, i) |>.getD []
+    let others := (← get).termsAt.find? (f, i) |>.getD []
     for (e', type') in others do
       if (← withDefault <| isDefEq type type') then
         let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type e e'
@@ -241,8 +256,13 @@ where
         internalize eq generation
         trace_goal[grind.funext.candidate] "{eq}"
         addSplitCandidate eq
-    modify fun s => { s with funsAt := s.funsAt.insert (f, i) ((e, type) :: others) }
+    modify fun s => { s with termsAt := s.termsAt.insert (f, i) ((e, type) :: others) }
     return ()
+
+/-- Applies `addSplitCandidatesForExt` if `funext` is enabled. -/
+private def addSplitCandidatesForFunext (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
+  unless (← getConfig).funext do return ()
+  addSplitCandidatesForExt e generation parent?
 
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do

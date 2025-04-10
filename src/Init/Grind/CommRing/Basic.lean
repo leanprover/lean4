@@ -43,8 +43,8 @@ class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
 
--- This is only a local instance, to avoid conflicts with existing `OfNat` instances.
-attribute [local instance] CommRing.ofNat
+-- This is a low-priority instance, to avoid conflicts with existing `OfNat` instances.
+attribute [instance 100] CommRing.ofNat
 
 namespace CommRing
 

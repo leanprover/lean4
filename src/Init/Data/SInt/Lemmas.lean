@@ -2625,6 +2625,17 @@ instance : Std.LawfulCommIdentity (α := ISize) (· * ·) 1 where
 @[simp] theorem Int64.zero_mul {a : Int64} : 0 * a = 0 := Int64.toBitVec_inj.1 BitVec.zero_mul
 @[simp] theorem ISize.zero_mul {a : ISize} : 0 * a = 0 := ISize.toBitVec_inj.1 BitVec.zero_mul
 
+@[simp] protected theorem Int8.pow_zero (x : Int8) : x ^ 0 = 1 := rfl
+protected theorem Int8.pow_succ (x : Int8) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem Int16.pow_zero (x : Int16) : x ^ 0 = 1 := rfl
+protected theorem Int16.pow_succ (x : Int16) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem Int32.pow_zero (x : Int32) : x ^ 0 = 1 := rfl
+protected theorem Int32.pow_succ (x : Int32) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem Int64.pow_zero (x : Int64) : x ^ 0 = 1 := rfl
+protected theorem Int64.pow_succ (x : Int64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem ISize.pow_zero (x : ISize) : x ^ 0 = 1 := rfl
+protected theorem ISize.pow_succ (x : ISize) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+
 protected theorem Int8.mul_add {a b c : Int8} : a * (b + c) = a * b + a * c :=
     Int8.toBitVec_inj.1 BitVec.mul_add
 protected theorem Int16.mul_add {a b c : Int16} : a * (b + c) = a * b + a * c :=

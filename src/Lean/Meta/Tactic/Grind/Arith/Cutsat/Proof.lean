@@ -142,6 +142,9 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   | .defn e p =>
     let some x := (← get').varMap.find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
     return mkApp6 (mkConst ``Int.Linear.eq_def) (← getContext) (toExpr x) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl e)
+  | .defnNat e x e' =>
+    let h := mkApp2 (mkConst ``Int.OfNat.Expr.eq_denoteAsInt) (← getForeignContext .nat) (← mkNatExprDecl e)
+    return mkApp6 (mkConst ``Int.Linear.eq_def') (← getContext) (toExpr x) (← mkExprDecl e') (← mkPolyDecl c'.p) reflBoolTrue h
   | .norm c =>
     return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>
@@ -419,7 +422,7 @@ private def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
 mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core0 .. | .core .. | .coreNat .. | .defn .. => return () -- Equalities coming from the core never contain cutsat decision variables
+  | .core0 .. | .core .. | .coreNat .. | .defn .. | .defnNat .. => return () -- Equalities coming from the core never contain cutsat decision variables
   | .norm c | .divCoeffs c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 

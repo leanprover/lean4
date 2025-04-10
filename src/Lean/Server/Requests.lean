@@ -162,15 +162,11 @@ abbrev ServerRequestEmitter := (method : String) → (param : Json)
 
 structure RequestContext where
   rpcSessions          : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
-  srcSearchPathTask    : ServerTask SearchPath
   doc                  : FileWorker.EditableDocument
   hLog                 : IO.FS.Stream
   initParams           : Lsp.InitializeParams
   cancelTk             : RequestCancellationToken
   serverRequestEmitter : ServerRequestEmitter
-
-def RequestContext.srcSearchPath (rc : RequestContext) : SearchPath :=
-  rc.srcSearchPathTask.get
 
 abbrev RequestTask α := ServerTask (Except RequestError α)
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m

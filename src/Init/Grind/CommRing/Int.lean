@@ -19,5 +19,12 @@ instance : CommRing Int where
   mul_one := Int.mul_one
   left_distrib := Int.mul_add
   zero_mul := Int.zero_mul
+  pow_zero _ := rfl
+  pow_succ _ _ := rfl
+  ofNat_succ _ := rfl
+  sub_eq_add_neg _ _ := Int.sub_eq_add_neg
+
+instance : IsCharP Int 0 where
+  ofNat_eq_zero_iff {x} := by erw [Int.ofNat_eq_zero]; simp
 
 end Lean.Grind

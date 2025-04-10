@@ -1179,21 +1179,21 @@ theorem all_bne' [BEq α] [PartialEquivBEq α] {xs : Vector α n} :
 theorem mem_of_contains_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
     as.contains a = true → a ∈ as := by
   rcases as with ⟨as, rfl⟩
-  simp [Array.mem_of_contains_eq_true]
+  simp
 
 theorem contains_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} (h : a ∈ as) :
     as.contains a = true := by
   rcases as with ⟨as, rfl⟩
   simp only [mem_mk] at h
-  simp [Array.contains_eq_true_of_mem, h]
-
-instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ as) :=
-  decidable_of_decidable_of_iff (Iff.intro mem_of_contains_eq_true contains_eq_true_of_mem)
+  simp [h]
 
 theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
     as.contains a = true ↔ a ∈ as := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
 
-@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
+instance [DecidableEq α] (a : α) (as : Vector α n) : Decidable (a ∈ as) :=
+  decidable_of_decidable_of_iff contains_iff
+
+@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] [DecidableEq α] {a : α} {as : Vector α n} :
     as.contains a = decide (a ∈ as) := by
   rw [Bool.eq_iff_iff, contains_iff, decide_eq_true_iff]
 
@@ -2669,7 +2669,7 @@ variable [LawfulBEq α]
   rcases xs with ⟨xs, rfl⟩
   simp_all
 
-theorem getElem?_replace {xs : Vector α n} {i : Nat} :
+theorem getElem?_replace [DecidableEq α] {xs : Vector α n} {i : Nat} :
     (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem?_replace]
@@ -2678,7 +2678,7 @@ theorem getElem?_replace_of_ne {xs : Vector α n} {i : Nat} (h : xs[i]? ≠ some
     (xs.replace a b)[i]? = xs[i]? := by
   simp_all [getElem?_replace]
 
-theorem getElem_replace {xs : Vector α n} {i : Nat} (h : i < n) :
+theorem getElem_replace [DecidableEq α] {xs : Vector α n} {i : Nat} (h : i < n) :
     (xs.replace a b)[i] = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
   apply Option.some.inj
   rw [← getElem?_eq_getElem, getElem?_replace]
@@ -2689,7 +2689,7 @@ theorem getElem_replace_of_ne {xs : Vector α n} {i : Nat} {h : i < n} (h' : xs[
   rw [getElem_replace h]
   simp [h']
 
-theorem replace_append {xs : Vector α n} {ys : Vector α m} :
+theorem replace_append [DecidableEq α] {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩

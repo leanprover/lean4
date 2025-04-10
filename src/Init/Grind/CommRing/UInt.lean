@@ -13,17 +13,8 @@ namespace UInt8
 /-- Variant of `UInt8.ofNat_mod_size` replacing `2 ^ 8` with `256`.-/
 theorem ofNat_mod_size' : ofNat (x % 256) = ofNat x := ofNat_mod_size
 
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def pow (x : UInt8) (n : Nat) : UInt8 :=
-  match n with
-  | 0 => 1
-  | n + 1 => pow x n * x
-
-instance : Pow UInt8 Nat where
-  pow x n := pow x n
-
-theorem pow_zero (x : UInt8) : x ^ 0 = 1 := rfl
-theorem pow_succ (x : UInt8) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+instance : IntCast UInt8 where
+  intCast x := UInt8.ofInt x
 
 end UInt8
 
@@ -32,17 +23,8 @@ namespace UInt16
 /-- Variant of `UInt16.ofNat_mod_size` replacing `2 ^ 16` with `65536`.-/
 theorem ofNat_mod_size' : ofNat (x % 65536) = ofNat x := ofNat_mod_size
 
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def pow (x : UInt16) (n : Nat) : UInt16 :=
-  match n with
-  | 0 => 1
-  | n + 1 => pow x n * x
-
-instance : Pow UInt16 Nat where
-  pow x n := pow x n
-
-theorem pow_zero (x : UInt16) : x ^ 0 = 1 := rfl
-theorem pow_succ (x : UInt16) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+instance : IntCast UInt16 where
+  intCast x := UInt16.ofInt x
 
 end UInt16
 
@@ -51,17 +33,8 @@ namespace UInt32
 /-- Variant of `UInt32.ofNat_mod_size` replacing `2 ^ 32` with `4294967296`.-/
 theorem ofNat_mod_size' : ofNat (x % 4294967296) = ofNat x := ofNat_mod_size
 
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def pow (x : UInt32) (n : Nat) : UInt32 :=
-  match n with
-  | 0 => 1
-  | n + 1 => pow x n * x
-
-instance : Pow UInt32 Nat where
-  pow x n := pow x n
-
-theorem pow_zero (x : UInt32) : x ^ 0 = 1 := rfl
-theorem pow_succ (x : UInt32) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+instance : IntCast UInt32 where
+  intCast x := UInt32.ofInt x
 
 end UInt32
 
@@ -70,41 +43,18 @@ namespace UInt64
 /-- Variant of `UInt64.ofNat_mod_size` replacing `2 ^ 64` with `18446744073709551616`.-/
 theorem ofNat_mod_size' : ofNat (x % 18446744073709551616) = ofNat x := ofNat_mod_size
 
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def pow (x : UInt64) (n : Nat) : UInt64 :=
-  match n with
-  | 0 => 1
-  | n + 1 => pow x n * x
-
-instance : Pow UInt64 Nat where
-  pow x n := pow x n
-
-theorem pow_zero (x : UInt64) : x ^ 0 = 1 := rfl
-theorem pow_succ (x : UInt64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+instance : IntCast UInt64 where
+  intCast x := UInt64.ofInt x
 
 end UInt64
 
-
 namespace USize
 
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def pow (x : USize) (n : Nat) : USize :=
-  match n with
-  | 0 => 1
-  | n + 1 => pow x n * x
-
-instance : Pow USize Nat where
-  pow x n := pow x n
-
-theorem pow_zero (x : USize) : x ^ 0 = 1 := rfl
-theorem pow_succ (x : USize) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+instance : IntCast USize where
+  intCast x := USize.ofInt x
 
 end USize
-
 namespace Lean.Grind
-
-instance : IntCast UInt8 where
-  intCast x := UInt8.ofInt x
 
 instance : CommRing UInt8 where
   add_assoc := UInt8.add_assoc
@@ -127,9 +77,6 @@ instance : IsCharP UInt8 (2 ^ 8) where
     have : OfNat.ofNat x = UInt8.ofNat x := rfl
     simp [this, UInt8.ofNat_eq_iff_mod_eq_toNat]
 
-instance : IntCast UInt16 where
-  intCast x := UInt16.ofInt x
-
 instance : CommRing UInt16 where
   add_assoc := UInt16.add_assoc
   add_comm := UInt16.add_comm
@@ -150,9 +97,6 @@ instance : IsCharP UInt16 (2 ^ 16) where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt16.ofNat x := rfl
     simp [this, UInt16.ofNat_eq_iff_mod_eq_toNat]
-
-instance : IntCast UInt32 where
-  intCast x := UInt32.ofInt x
 
 instance : CommRing UInt32 where
   add_assoc := UInt32.add_assoc
@@ -175,9 +119,6 @@ instance : IsCharP UInt32 (2 ^ 32) where
     have : OfNat.ofNat x = UInt32.ofNat x := rfl
     simp [this, UInt32.ofNat_eq_iff_mod_eq_toNat]
 
-instance : IntCast UInt64 where
-  intCast x := UInt64.ofInt x
-
 instance : CommRing UInt64 where
   add_assoc := UInt64.add_assoc
   add_comm := UInt64.add_comm
@@ -198,9 +139,6 @@ instance : IsCharP UInt64 (2 ^ 64) where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt64.ofNat x := rfl
     simp [this, UInt64.ofNat_eq_iff_mod_eq_toNat]
-
-instance : IntCast USize where
-  intCast x := USize.ofInt x
 
 instance : CommRing USize where
   add_assoc := USize.add_assoc

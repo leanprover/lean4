@@ -12,18 +12,6 @@ namespace Lean.Grind
 instance : IntCast Int8 where
   intCast x := Int8.ofInt x
 
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def Int8.pow (x : Int8) (n : Nat) : Int8 :=
-  match n with
-  | 0 => 1
-  | n + 1 => Int8.pow x n * x
-
-instance : Pow Int8 Nat where
-  pow x n := Int8.pow x n
-
-theorem Int8.pow_zero (x : Int8) : x ^ 0 = 1 := rfl
-theorem Int8.pow_succ (x : Int8) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
-
 instance : CommRing Int8 where
   add_assoc := Int8.add_assoc
   add_comm := Int8.add_comm
@@ -49,18 +37,6 @@ instance : IsCharP Int8 (2 ^ 8) where
 
 instance : IntCast Int16 where
   intCast x := Int16.ofInt x
-
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def Int16.pow (x : Int16) (n : Nat) : Int16 :=
-  match n with
-  | 0 => 1
-  | n + 1 => Int16.pow x n * x
-
-instance : Pow Int16 Nat where
-  pow x n := Int16.pow x n
-
-theorem Int16.pow_zero (x : Int16) : x ^ 0 = 1 := rfl
-theorem Int16.pow_succ (x : Int16) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
 
 instance : CommRing Int16 where
   add_assoc := Int16.add_assoc
@@ -88,18 +64,6 @@ instance : IsCharP Int16 (2 ^ 16) where
 instance : IntCast Int32 where
   intCast x := Int32.ofInt x
 
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def Int32.pow (x : Int32) (n : Nat) : Int32 :=
-  match n with
-  | 0 => 1
-  | n + 1 => Int32.pow x n * x
-
-instance : Pow Int32 Nat where
-  pow x n := Int32.pow x n
-
-theorem Int32.pow_zero (x : Int32) : x ^ 0 = 1 := rfl
-theorem Int32.pow_succ (x : Int32) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
-
 instance : CommRing Int32 where
   add_assoc := Int32.add_assoc
   add_comm := Int32.add_comm
@@ -126,18 +90,6 @@ instance : IsCharP Int32 (2 ^ 32) where
 instance : IntCast Int64 where
   intCast x := Int64.ofInt x
 
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def Int64.pow (x : Int64) (n : Nat) : Int64 :=
-  match n with
-  | 0 => 1
-  | n + 1 => Int64.pow x n * x
-
-instance : Pow Int64 Nat where
-  pow x n := Int64.pow x n
-
-theorem Int64.pow_zero (x : Int64) : x ^ 0 = 1 := rfl
-theorem Int64.pow_succ (x : Int64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
-
 instance : CommRing Int64 where
   add_assoc := Int64.add_assoc
   add_comm := Int64.add_comm
@@ -163,18 +115,6 @@ instance : IsCharP Int64 (2 ^ 64) where
 
 instance : IntCast ISize where
   intCast x := ISize.ofInt x
-
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def ISize.pow (x : ISize) (n : Nat) : ISize :=
-  match n with
-  | 0 => 1
-  | n + 1 => ISize.pow x n * x
-
-instance : Pow ISize Nat where
-  pow x n := ISize.pow x n
-
-theorem ISize.pow_zero (x : ISize) : x ^ 0 = 1 := rfl
-theorem ISize.pow_succ (x : ISize) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
 
 instance : CommRing ISize where
   add_assoc := ISize.add_assoc

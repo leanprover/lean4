@@ -30,16 +30,6 @@ def withTypeAscription (d : Delab) (cond : Bool := true) : Delab := do
     return stx
 
 /--
-If `pp.tagAppFns` is set, then `d` is evaluated with the delaborated head constant as the ref.
--/
-def withFnRefWhenTagAppFns (d : Delab) : Delab := do
-  if (← getExpr).getAppFn.isConst && (← getPPOption getPPTagAppFns) then
-    let head ← withNaryFn delab
-    withRef head <| d
-  else
-    d
-
-/--
 Wraps the identifier (or identifier with explicit universe levels) with `@` if `pp.analysis.blockImplicit` is set to true.
 -/
 def maybeAddBlockImplicit (identLike : Syntax) : DelabM Syntax := do
@@ -133,6 +123,18 @@ def delabConst : Delab := do
     annotateTermInfo stx
   else
     return stx
+
+/--
+If `pp.tagAppFns` is set, and if the current expression is a constant application,
+then `d` is evaluated with the head constant delaborated with `delabConst` as the ref.
+-/
+def withFnRefWhenTagAppFns (d : Delab) : Delab := do
+  if (← getExpr).getAppFn.isConst && (← getPPOption getPPTagAppFns) then
+    -- delabConst in `pp.tagAppFns` mode annotates the term.
+    let head ← withNaryFn delabConst
+    withRef head <| d
+  else
+    d
 
 def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
   match ← getExpr with

@@ -112,6 +112,8 @@ structure PreElabHeaderResult where
   levelNames : List Name
   numParams  : Nat
   type       : Expr
+  /-- The parameters in the header's initial local context. Used for adding fvar alias terminfo. -/
+  origParams : Array Expr
   deriving Inhabited
 
 /-- The elaborated header with the `indFVar` registered for this inductive type. -/
@@ -301,7 +303,7 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
         trace[Elab.inductive] "header params: {params}, type: {type}"
         let levelNames ← Term.getLevelNames
         let type ← mkForallFVars params type
-        return acc.push { levelNames, numParams := params.size, type, view }
+        return acc.push { levelNames, numParams := params.size, type, view, origParams := params }
       elabHeadersAux views (i+1) acc
     else
       return acc
@@ -326,14 +328,16 @@ Note that this method is executed after we executed `checkHeaders` and establish
 parameters are compatible.
 -/
 private def withInductiveLocalDecls (rs : Array PreElabHeaderResult) (x : Array Expr → Array Expr → TermElabM α) : TermElabM α := do
-  let namesAndTypes ← rs.mapM fun r => do
-    pure (r.view.declName, r.view.shortDeclName, r.type)
   let r0 := rs[0]!
   forallBoundedTelescope r0.type r0.numParams fun params _ => withRef r0.view.ref do
     let rec loop (i : Nat) (indFVars : Array Expr) := do
-      if h : i < namesAndTypes.size then
-        let (declName, shortDeclName, type) := namesAndTypes[i]
-        withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
+      if h : i < rs.size then
+        let r := rs[i]
+        for param in params, origParam in r.origParams do
+          if let .fvar origFVar := origParam then
+            Elab.pushInfoLeaf <| .ofFVarAliasInfo { id := param.fvarId!, baseId := origFVar, userName := ← param.fvarId!.getUserName }
+        withAuxDecl r.view.shortDeclName r.type r.view.declName fun indFVar =>
+          loop (i+1) (indFVars.push indFVar)
       else
         x params indFVars
     loop 0 #[]

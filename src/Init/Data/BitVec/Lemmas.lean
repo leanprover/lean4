@@ -3746,6 +3746,22 @@ theorem setWidth_mul (x y : BitVec w) (h : i ≤ w) :
   have dvd : 2^i ∣ 2^w := Nat.pow_dvd_pow _ h
   simp [bitvec_to_nat, h, Nat.mod_mod_of_dvd _ dvd]
 
+/-! ### pow -/
+
+@[simp]
+protected theorem pow_zero {x : BitVec w} : x ^ 0 = 1#w := rfl
+
+protected theorem pow_succ {x : BitVec w} : x ^ (n + 1) = x ^ n * x := rfl
+
+@[simp]
+protected theorem pow_one {x : BitVec w} : x ^ 1 = x := by simp [BitVec.pow_succ]
+
+protected theorem pow_add {x : BitVec w} {n m : Nat}: x ^ (n + m) = (x ^ n) * (x ^ m):= by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+    rw [← Nat.add_assoc, BitVec.pow_succ, ih, BitVec.mul_assoc, BitVec.pow_succ]
+
 /-! ### le and lt -/
 
 @[bitvec_to_nat] theorem le_def {x y : BitVec n} :

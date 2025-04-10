@@ -243,7 +243,7 @@ The power operation, raising an 8-bit signed integer to a natural number power,
 wrapping around on overflow. Usually accessed via the `^` operator.
 
 This function is currently *not* overridden at runtime with an efficient implementation,
-and should be used with caution.
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
 protected def Int8.pow (x : Int8) (n : Nat) : Int8 :=
   match n with
@@ -614,7 +614,7 @@ The power operation, raising a 16-bit signed integer to a natural number power,
 wrapping around on overflow. Usually accessed via the `^` operator.
 
 This function is currently *not* overridden at runtime with an efficient implementation,
-and should be used with caution.
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
 protected def Int16.pow (x : Int16) (n : Nat) : Int16 :=
   match n with
@@ -1001,7 +1001,7 @@ The power operation, raising a 32-bit signed integer to a natural number power,
 wrapping around on overflow. Usually accessed via the `^` operator.
 
 This function is currently *not* overridden at runtime with an efficient implementation,
-and should be used with caution.
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
 protected def Int32.pow (x : Int32) (n : Nat) : Int32 :=
   match n with
@@ -1408,7 +1408,7 @@ The power operation, raising a 64-bit signed integer to a natural number power,
 wrapping around on overflow. Usually accessed via the `^` operator.
 
 This function is currently *not* overridden at runtime with an efficient implementation,
-and should be used with caution.
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
 protected def Int64.pow (x : Int64) (n : Nat) : Int64 :=
   match n with
@@ -1798,7 +1798,7 @@ The power operation, raising a word-sized signed integer to a natural number pow
 wrapping around on overflow. Usually accessed via the `^` operator.
 
 This function is currently *not* overridden at runtime with an efficient implementation,
-and should be used with caution.
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
 protected def ISize.pow (x : ISize) (n : Nat) : ISize :=
   match n with

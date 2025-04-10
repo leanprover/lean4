@@ -377,8 +377,8 @@ instance : Inhabited Int8 where
 instance : Add Int8         := ⟨Int8.add⟩
 instance : Sub Int8         := ⟨Int8.sub⟩
 instance : Mul Int8         := ⟨Int8.mul⟩
-instance : Mod Int8         := ⟨Int8.mod⟩
 instance : Pow Int8 Nat     := ⟨Int8.pow⟩
+instance : Mod Int8         := ⟨Int8.mod⟩
 instance : Div Int8         := ⟨Int8.div⟩
 instance : LT Int8          := ⟨Int8.lt⟩
 instance : LE Int8          := ⟨Int8.le⟩
@@ -748,8 +748,8 @@ instance : Inhabited Int16 where
 instance : Add Int16         := ⟨Int16.add⟩
 instance : Sub Int16         := ⟨Int16.sub⟩
 instance : Mul Int16         := ⟨Int16.mul⟩
-instance : Mod Int16         := ⟨Int16.mod⟩
 instance : Pow Int16 Nat     := ⟨Int16.pow⟩
+instance : Mod Int16         := ⟨Int16.mod⟩
 instance : Div Int16         := ⟨Int16.div⟩
 instance : LT Int16          := ⟨Int16.lt⟩
 instance : LE Int16          := ⟨Int16.le⟩
@@ -1135,8 +1135,8 @@ instance : Inhabited Int32 where
 instance : Add Int32         := ⟨Int32.add⟩
 instance : Sub Int32         := ⟨Int32.sub⟩
 instance : Mul Int32         := ⟨Int32.mul⟩
-instance : Mod Int32         := ⟨Int32.mod⟩
 instance : Pow Int32 Nat     := ⟨Int32.pow⟩
+instance : Mod Int32         := ⟨Int32.mod⟩
 instance : Div Int32         := ⟨Int32.div⟩
 instance : LT Int32          := ⟨Int32.lt⟩
 instance : LE Int32          := ⟨Int32.le⟩

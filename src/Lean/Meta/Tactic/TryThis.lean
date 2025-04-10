@@ -44,9 +44,10 @@ where `<replacement*>` is a link which will perform the replacement.
 @[builtin_widget_module] def tryThisWidget : Widget.Module where
   javascript := "
 import * as React from 'react';
-import { EditorContext } from '@leanprover/infoview';
+import { EditorContext, EnvPosContext } from '@leanprover/infoview';
 const e = React.createElement;
-export default function ({ pos, suggestions, range, header, isInline, style }) {
+export default function ({ suggestions, range, header, isInline, style }) {
+  const pos = React.useContext(EnvPosContext)
   const editorConnection = React.useContext(EditorContext)
   const defStyle = style || {
     className: 'link pointer dim',

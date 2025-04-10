@@ -70,6 +70,11 @@ structure Config where
   canonHeartbeats : Nat := 1000
   /-- If `ext` is `true`, `grind` uses extensionality theorems available in the environment. -/
   ext : Bool := true
+  /--
+  If `funext` is `true`, `grind` creates new opportunities for applying function extensionality by case-splitting
+  on equalities between lambda expressions.
+  -/
+  funext : Bool := true
   /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
   verbose : Bool := true
   /-- If `clean` is `true`, `grind` uses `expose_names` and only generates accessible names. -/

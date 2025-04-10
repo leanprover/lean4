@@ -76,8 +76,6 @@ info: [grind.assert] foo (c + 1) = a
 [grind.assert] ¬a = g (foo b)
 [grind.ematch.instance] foo.eq_3: foo b.succ.succ = g (foo b)
 [grind.assert] foo (b + 2) = g (foo b)
-[grind.assert] -1 * ↑b ≤ 0
-[grind.assert] -1 * ↑c ≤ 0
 -/
 #guard_msgs (info) in
 example : foo (c + 1) = a → c = b + 1 → a = g (foo b) := by

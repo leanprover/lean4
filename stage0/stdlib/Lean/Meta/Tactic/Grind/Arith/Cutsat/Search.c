@@ -35060,7 +35060,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Lean_Meta_Grind_Arith_Cutsat_searchAssigment___lambda__4___closed__1;
-x_16 = lean_ctor_get_uint8(x_13, sizeof(void*)*6 + 8);
+x_16 = lean_ctor_get_uint8(x_13, sizeof(void*)*6 + 9);
 lean_dec(x_13);
 if (x_16 == 0)
 {

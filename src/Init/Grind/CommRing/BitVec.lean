@@ -19,5 +19,12 @@ instance : CommRing (BitVec w) where
   mul_one := BitVec.mul_one
   left_distrib _ _ _ := BitVec.mul_add
   zero_mul _ := BitVec.zero_mul
+  sub_eq_add_neg := BitVec.sub_eq_add_neg
+  pow_zero _ := BitVec.pow_zero
+  pow_succ _ _ := BitVec.pow_succ
+  ofNat_succ x := BitVec.ofNat_add x 1
+
+instance : IsCharP (BitVec w) (2 ^ w) where
+  ofNat_eq_zero_iff {x} := by simp [BitVec.ofInt, BitVec.toNat_eq]
 
 end Lean.Grind

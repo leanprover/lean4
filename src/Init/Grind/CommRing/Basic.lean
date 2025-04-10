@@ -27,7 +27,8 @@ theorem ofNat_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
 
 namespace Lean.Grind
 
-class CommRing (α : Type u) [∀ n, OfNat α n] extends Add α, Mul α, Neg α, Sub α, HPow α Nat α where
+class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat α where
+  [ofNat : ∀ n, OfNat α n]
   add_assoc : ∀ a b c : α, a + b + c = a + (b + c)
   add_comm : ∀ a b : α, a + b = b + a
   add_zero : ∀ a : α, a + 0 = a
@@ -42,17 +43,18 @@ class CommRing (α : Type u) [∀ n, OfNat α n] extends Add α, Mul α, Neg α,
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
 
+-- This is only a local instance, to avoid conflicts with existing `OfNat` instances.
+attribute [local instance] CommRing.ofNat
+
 namespace CommRing
 
-variable {α : Type u} [∀ n, OfNat α n]
+variable {α : Type u} [CommRing α]
 
 instance : NatCast α where
   natCast n := OfNat.ofNat n
 
 theorem natCast_zero : ((0 : Nat) : α) = 0 := rfl
 theorem ofNat_eq_natCast (n : Nat) : OfNat.ofNat n = (n : α) := rfl
-
-variable [CommRing α]
 
 theorem ofNat_add (a b : Nat) : OfNat.ofNat (α := α) (a + b) = OfNat.ofNat a + OfNat.ofNat b := by
   induction b with
@@ -192,12 +194,12 @@ end CommRing
 
 open CommRing
 
-class IsCharP (α : Type u) [∀ n, OfNat α n] [CommRing α] (p : Nat) where
+class IsCharP (α : Type u) [CommRing α] (p : Nat) where
   ofNat_eq_zero_iff (p) : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0
 
 namespace IsCharP
 
-variable (p)  {α : Type u} [∀ n, OfNat α n] [CommRing α] [IsCharP α p]
+variable (p)  {α : Type u} [CommRing α] [IsCharP α p]
 
 theorem natCast_eq_zero_iff (x : Nat) : (x : α) = 0 ↔ x % p = 0 :=
   ofNat_eq_zero_iff p x

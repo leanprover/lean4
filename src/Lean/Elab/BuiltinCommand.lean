@@ -13,6 +13,7 @@ import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
 import Init.System.Platform
+import Lean.Meta.Hint
 
 namespace Lean.Elab.Command
 
@@ -64,7 +65,7 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   for _ in [0:numScopes] do
     popScope
 
-private def checkAnonymousScope : List Scope → Option Name
+private def rectifyAnonymousEndScope? : List Scope → Option Name
   | { header := "", .. } :: _ => none
   | { header := h, .. }  :: _ => some <| .mkSimple h
   | _                         => some .anonymous -- should not happen
@@ -97,28 +98,82 @@ private def checkEndHeader : Name → List Scope → Option Name
       addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
+/--
+Produces a `Name` composed of the names of at most the first `n` scopes in `ss`, truncating if an
+empty scope is reached (so that we do not suggest names like `Foo.«».Bar`).
+
+If `n` is not specified, will use all scopes in `ss`.
+-/
+private def nameOfScopes : (ss : List Scope) → (n : Nat := ss.length) → Name
+  | _, 0 => .anonymous
+  | [], _ => .anonymous
+  | s :: ss, n + 1 =>
+    if s.header == "" then
+      .anonymous
+    else
+    .str (nameOfScopes ss n) s.header
+
+private def throwNoScope : CommandElabM Unit :=
+  throwError "invalid `end`: there is no current scope to end{.note "scopes are introduced using `namespace` and `section`"}"
+
+private def throwMissingName (stx : Syntax) (name : Name) : CommandElabM Unit := do
+  let suggestion : Meta.Hint.Suggestions := {
+    ref := stx
+    suggestions := #[← `(end $(mkIdent name))]
+    codeActionPrefix? := "add scope name: "
+  }
+  let hint ← liftCoreM <| MessageData.hint m!"insert the name '{name}'" suggestion
+  throwError "missing name at `end`: the current scope is named '{name}', but a name was not provided{hint}"
+
+private def throwTooManyScopeComponents (header : Name) (scopes : List Scope) : CommandElabM Unit := do
+  let scopesName := nameOfScopes scopes
+  let addendum := if scopes.length > 1 then "\nor some final part of that name" else ""
+  throwError "invalid name at `end`: the provided name{indentD header}\ncontains too many components; expected{indentD scopesName}{addendum}"
+
+private def throwScopeNameMismatch (stx : Syntax) (header scopesName : Name) : CommandElabM Unit := do
+  let suggestion : Meta.Hint.Suggestions := {
+    ref := stx.getArg 1
+    suggestions := #[mkIdent scopesName]
+    codeActionPrefix? := "replace with current section/namespace: "
+  }
+  let hint ← liftCoreM <| MessageData.hint m!"replace '{header}' with '{scopesName}'" suggestion
+  let addendum := if scopesName.getNumParts > 1 then "or some final part thereof, " else ""
+  throwError "name mismatch at `end`: expected{indentD scopesName}\n{addendum}but found{indentD header}{hint}"
+
+private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandElabM Unit := do
+  let suggestion : Meta.Hint.Suggestions := {
+    ref := stx
+    suggestions := #[(← `(end))]
+    codeActionPrefix? := "delete name: "
+  }
+  let hint ← liftCoreM <| MessageData.hint m!"delete name '{header}'" suggestion
+  throwError "unexpected name after `end`: the current section is unnamed, but found the name{indentD header}{hint}"
+
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
-  let header? := (stx.getArg 1).getOptionalIdent?;
-  let endSize := match header? with
+  let header? := (stx.getArg 1).getOptionalIdent?
+  let endSize : Nat := match header? with
     | none   => 1
     | some n => n.getNumParts
   let scopes ← getScopes
-  if endSize < scopes.length then
-    modify fun s => { s with scopes := s.scopes.drop endSize }
-    popScopes endSize
-  else -- we keep "root" scope
-    let n := (← get).scopes.length - 1
-    modify fun s => { s with scopes := s.scopes.drop n }
-    popScopes n
-    throwError "invalid 'end', insufficient scopes"
+  let numScopes := scopes.length
+  if numScopes == 1 then
+    throwNoScope
   match header? with
   | none        =>
-    if let some name := checkAnonymousScope scopes then
-      throwError "invalid 'end', name is missing (expected {name})"
+    if let some name := rectifyAnonymousEndScope? scopes then
+      throwMissingName stx name
   | some header =>
-    if let some name := checkEndHeader header scopes then
-      addCompletionInfo <| CompletionInfo.endSection stx (scopes.map fun scope => scope.header)
-      throwError "invalid 'end', name mismatch (expected {if name == `«» then `nothing else name})"
+    if endSize >= numScopes then
+      throwTooManyScopeComponents header scopes
+    else
+      let scopesName := nameOfScopes scopes endSize
+      if scopesName != header then
+        if scopesName == .anonymous then
+          throwUnnecessaryScopeName stx header
+        else
+          throwScopeNameMismatch stx header scopesName
+  modify fun s => {s with scopes := s.scopes.drop endSize }
+  popScopes endSize
 
 private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
   if h : i < cmds.size then

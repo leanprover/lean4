@@ -297,6 +297,7 @@ theorem lex_eq_decide_lex [BEq α] [LawfulBEq α] [DecidableEq α] (lt : α → 
 /-- Variant of `lex_eq_true_iff` using an arbitrary comparator. -/
 @[simp] theorem lex_eq_true_iff_lex [BEq α] [LawfulBEq α] (lt : α → α → Bool) :
     lex l₁ l₂ lt = true ↔ Lex (fun x y => lt x y) l₁ l₂ := by
+  have : DecidableEq α := instDecidableEqOfLawfulBEq
   simp [lex_eq_decide_lex]
 
 /-- Variant of `lex_eq_false_iff` using an arbitrary comparator. -/

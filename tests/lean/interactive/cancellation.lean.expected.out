@@ -2,6 +2,26 @@ blocked!
 cancelled!
 rerun!
 {"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}
+blocked!
+unblocking!
+{"version": 2,
+ "uri": "file:///cancellation.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 18}},
+   "message": "blocked",
+   "fullRange":
+   {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 18}},
+   "message": "blocked",
+   "fullRange":
+   {"start": {"line": 7, "character": 2},
+    "end": {"line": 7, "character": 18}}}]}
 unblocking!
 {"version": 2,
  "uri": "file:///cancellation.lean",
@@ -27,6 +47,29 @@ unblocking!
    {"start": {"line": 7, "character": 2},
     "end": {"line": 7, "character": 24}}}]}
 blocked!
+unblocking!
+{"version": 2,
+ "uri": "file:///cancellation.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 18}},
+   "message": "blocked",
+   "fullRange":
+   {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 18}},
+   "message": "blocked",
+   "fullRange":
+   {"start": {"line": 7, "character": 2},
+    "end": {"line": 7, "character": 18}}}]}
+blocked!
+cancelled!
+{"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}
+blocked!
 cancelled!
 {"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}
 unblocking!
@@ -41,6 +84,12 @@ unblocking!
    "fullRange":
    {"start": {"line": 6, "character": 17},
     "end": {"line": 6, "character": 39}}}]}
+blocked!
+cancelled!
+{"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}
+blocked!
+cancelled!
+{"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}
 blocked!
 cancelled!
 {"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}

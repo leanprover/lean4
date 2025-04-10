@@ -48,7 +48,7 @@ protected def UInt8.mul (a b : UInt8) : UInt8 := ⟨a.toBitVec * b.toBitVec⟩
 Unsigned division for 8-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called "floor division." Division by zero is defined to be zero.
+This operation is sometimes called “floor division.” Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/
@@ -257,7 +257,7 @@ protected def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.toBitVec * b.toBitVec�
 Unsigned division for 16-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called "floor division." Division by zero is defined to be zero.
+This operation is sometimes called “floor division.” Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/
@@ -468,7 +468,7 @@ protected def UInt32.mul (a b : UInt32) : UInt32 := ⟨a.toBitVec * b.toBitVec�
 Unsigned division for 32-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called "floor division." Division by zero is defined to be zero.
+This operation is sometimes called “floor division.” Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/
@@ -641,7 +641,7 @@ protected def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.toBitVec * b.toBitVec�
 Unsigned division for 64-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called "floor division." Division by zero is defined to be zero.
+This operation is sometimes called “floor division.” Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/
@@ -845,7 +845,7 @@ protected def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
 Unsigned division for word-sized unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
 
-This operation is sometimes called "floor division." Division by zero is defined to be zero.
+This operation is sometimes called “floor division.” Division by zero is defined to be zero.
 
 This function is overridden at runtime with an efficient implementation.
 -/

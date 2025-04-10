@@ -95,10 +95,10 @@ theorem findSome?_eq_some_iff {f : α → Option β} {l : List α} {b : β} :
   | cons x xs ih =>
     simp [guard, findSome?, find?]
     split <;> rename_i h
-    · simp only [Option.guard_eq_some] at h
+    · simp only [Option.guard_eq_some_iff] at h
       obtain ⟨rfl, h⟩ := h
       simp [h]
-    · simp only [Option.guard_eq_none] at h
+    · simp only [Option.guard_eq_none_iff] at h
       simp [ih, h]
 
 theorem find?_eq_findSome?_guard {l : List α} : find? p l = findSome? (Option.guard fun x => p x) l :=
@@ -768,7 +768,7 @@ theorem findIdx?_eq_some_iff_getElem {xs : List α} {p : α → Bool} {i : Nat} 
           not_and, Classical.not_forall, Bool.not_eq_false]
         intros
         refine ⟨0, zero_lt_succ i, ‹_›⟩
-    · simp only [Option.map_eq_some', ih, Bool.not_eq_true, length_cons]
+    · simp only [Option.map_eq_some_iff, ih, Bool.not_eq_true, length_cons]
       constructor
       · rintro ⟨a, ⟨⟨h, h₁, h₂⟩, rfl⟩⟩
         refine ⟨Nat.succ_lt_succ_iff.mpr h, by simpa, fun j hj => ?_⟩
@@ -824,7 +824,7 @@ abbrev findIdx?_of_eq_none := @of_findIdx?_eq_none
     (xs ++ ys : List α).findIdx? p =
       (xs.findIdx? p).or ((ys.findIdx? p).map fun i => i + xs.length) := by
   induction xs with simp
-  | cons _ _ _ => split <;> simp_all [Option.map_or', Option.map_map]; rfl
+  | cons _ _ _ => split <;> simp_all [Option.map_or, Option.map_map]; rfl
 
 theorem findIdx?_flatten {l : List (List α)} {p : α → Bool} :
     l.flatten.findIdx? p =

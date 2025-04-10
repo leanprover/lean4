@@ -477,7 +477,7 @@ theorem attach_filterMap {l : List α} {f : α → Option β} :
       · simp only [h]
         rfl
       rw [ih]
-      simp only [map_filterMap, Option.map_pbind, Option.map_some']
+      simp only [map_filterMap, Option.map_pbind, Option.map_some]
       rfl
     · simp only [Option.pbind_eq_some_iff] at h
       obtain ⟨a, h, w⟩ := h

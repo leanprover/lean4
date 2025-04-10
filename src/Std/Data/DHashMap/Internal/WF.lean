@@ -964,7 +964,7 @@ theorem isHashSelf_filterMapₘ [BEq α] [Hashable α] [ReflBEq α] [LawfulHasha
     IsHashSelf (m.filterMapₘ f).1.buckets := by
   refine h.buckets_hash_self.updateAllBuckets (fun l p hp => ?_)
   have hp := AssocList.toList_filterMap.mem_iff.1 hp
-  simp only [mem_filterMap, Option.map_eq_some'] at hp
+  simp only [mem_filterMap, Option.map_eq_some_iff] at hp
   obtain ⟨p, ⟨hkv, ⟨d, ⟨-, rfl⟩⟩⟩⟩ := hp
   exact containsKey_of_mem hkv
 

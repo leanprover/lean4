@@ -74,11 +74,11 @@ theorem bne_eq_decide_not_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b :
 theorem xor_eq (a b : Bool) : (a ^^ b) = (a != b) := by
   rfl
 
-theorem natCast_div (a b : Nat) : (↑(a / b) : Int) = ↑a / ↑b := by
-  rfl
-
-theorem natCast_mod (a b : Nat) : (↑(a % b) : Int) = ↑a % ↑b := by
-  rfl
+theorem natCast_eq [NatCast α] (a : Nat) : (Nat.cast a : α) = (NatCast.natCast a : α) := rfl
+theorem natCast_div (a b : Nat) : (NatCast.natCast (a / b) : Int) = (NatCast.natCast a) / (NatCast.natCast b) := rfl
+theorem natCast_mod (a b : Nat) : (NatCast.natCast (a % b) : Int) = (NatCast.natCast a) % (NatCast.natCast b) := rfl
+theorem natCast_add (a b : Nat) : (NatCast.natCast (a + b : Nat) : Int) = (NatCast.natCast a : Int) + (NatCast.natCast b : Int) := rfl
+theorem natCast_mul (a b : Nat) : (NatCast.natCast (a * b : Nat) : Int) = (NatCast.natCast a : Int) * (NatCast.natCast b : Int) := rfl
 
 theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
   simp
@@ -153,8 +153,10 @@ init_grind_norm
   Int.emod_neg Int.ediv_neg
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
-  Int.natCast_add Int.natCast_mul Int.natCast_pow
-  Int.natCast_zero natCast_div natCast_mod
+
+  natCast_eq natCast_div natCast_mod
+  natCast_add natCast_mul
+
   Int.pow_zero Int.pow_one
   -- GT GE
   ge_eq gt_eq

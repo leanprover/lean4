@@ -71,6 +71,7 @@ def isArithTerm (e : Expr) : Bool :=
   | HMul.hMul _ _ _ _ _ _ => true
   | HDiv.hDiv _ _ _ _ _ _ => true
   | HMod.hMod _ _ _ _ _ _ => true
+  | HPow.hPow _ _ _ _ _ _ => true
   | Neg.neg _ _ _ => true
   | OfNat.ofNat _ _ _ => true
   | _ => false

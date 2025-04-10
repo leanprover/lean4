@@ -41,7 +41,6 @@ class CommRing (α : Type u) [∀ n, OfNat α n] extends Add α, Mul α, Neg α,
   pow_zero : ∀ a : α, a ^ 0 = 1
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
   ofNat_add : ∀ a b : Nat, OfNat.ofNat (α := α) (a + b) = OfNat.ofNat a + OfNat.ofNat b := by intros; rfl
-  ofNat_mul : ∀ a b : Nat, OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a * OfNat.ofNat b := by intros; rfl
 
 namespace CommRing
 
@@ -71,6 +70,11 @@ theorem right_distrib (a b c : α) : (a + b) * c = a * c + b * c := by
 
 theorem mul_zero (a : α) : a * 0 = 0 := by
   rw [mul_comm, zero_mul]
+
+theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a * OfNat.ofNat b := by
+  induction b with
+  | zero => simp [Nat.mul_zero, mul_zero]
+  | succ a ih => rw [Nat.mul_succ, ofNat_add, ih, ofNat_add, left_distrib, mul_one]
 
 theorem add_left_inj {a b : α} (c : α) : a + c = b + c ↔ a = b :=
   ⟨fun h => by simpa [add_assoc, add_neg_cancel, add_zero] using (congrArg (· + -c) h),

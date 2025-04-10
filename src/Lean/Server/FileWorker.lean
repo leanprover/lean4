@@ -422,6 +422,8 @@ def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Ch
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
 
+  let opts := Elab.inServer.set opts true
+
   return .ok {
     mainModuleName
     opts

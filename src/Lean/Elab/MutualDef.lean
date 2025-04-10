@@ -1158,7 +1158,7 @@ is error-free and contains no syntactical `sorry`s.
 -/
 private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
-  if Lean.internal.cmdlineSnapshots.get (← getOptions) then
+  if Lean.Elab.inServer.get (← getOptions) then
     -- Skip 'goals accomplished' task if we are on the command line.
     -- These messages are only used in the language server.
     return

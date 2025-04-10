@@ -7,22 +7,6 @@ prelude
 import Init.Grind.CommRing.Basic
 import Init.Data.BitVec.Lemmas
 
-namespace BitVec
-
--- TODO: this should be replaced via an `@[extern]` with a native implementation
-def pow (x : BitVec w) (n : Nat) : BitVec w :=
-  match n with
-  | 0 => 1
-  | n + 1 => pow x n * x
-
-instance : Pow (BitVec w) Nat where
-  pow x n := pow x n
-
-theorem pow_zero (x : BitVec w) : x ^ 0 = 1 := rfl
-theorem pow_succ (x : BitVec w) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
-
-end BitVec
-
 namespace Lean.Grind
 
 instance : CommRing (BitVec w) where

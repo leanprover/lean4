@@ -20,8 +20,8 @@ instance : CommRing (BitVec w) where
   left_distrib _ _ _ := BitVec.mul_add
   zero_mul _ := BitVec.zero_mul
   sub_eq_add_neg := BitVec.sub_eq_add_neg
-  pow_zero := BitVec.pow_zero
-  pow_succ := BitVec.pow_succ
+  pow_zero _ := BitVec.pow_zero
+  pow_succ _ _ := BitVec.pow_succ
   ofNat_add := BitVec.ofNat_add
   ofNat_mul := BitVec.ofNat_mul
 

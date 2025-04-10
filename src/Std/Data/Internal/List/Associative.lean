@@ -4327,7 +4327,7 @@ theorem minEntry?_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
   case nil => simp_all only [List.nil_perm]
   case cons e es =>
     ext
-    simp only [Option.mem_def, minEntry?_eq_some_iff _ hl, hp.mem_iff, containsKey_of_perm hp]
+    simp only [minEntry?_eq_some_iff _ hl, hp.mem_iff, containsKey_of_perm hp]
     exact minEntry?_eq_some_iff _ (hl.perm hp.symm) |>.symm
 
 theorem minKey?_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l' : List ((a : α) × β a)}

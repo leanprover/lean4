@@ -1827,6 +1827,14 @@ theorem eq_def (ctx : Context) (x : Var) (xPoly : Poly) (p : Poly)
   simp [eq_def_cert]; intro _ h; subst p; simp [h]
   rw [← Int.sub_eq_add_neg, Int.sub_self]
 
+def eq_def'_cert (x : Var) (e : Expr) (p : Poly) : Bool :=
+  p == .add (-1) x e.norm
+
+theorem eq_def' (ctx : Context) (x : Var) (e : Expr) (p : Poly)
+    : eq_def'_cert x e p → x.denote ctx = e.denote ctx → p.denote' ctx = 0 := by
+  simp [eq_def'_cert]; intro _ h; subst p; simp [h]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

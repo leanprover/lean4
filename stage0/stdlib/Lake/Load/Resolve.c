@@ -297,7 +297,6 @@ lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at_Lake_Workspace_updateAndMaterializeCore___spec__27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__46___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_stdMismatchError___closed__5;
-uint8_t l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1814_(lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_Lake_restartCode;
 static lean_object* l_Lake_stdMismatchError___closed__2;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_validateManifest___spec__1___closed__1;
@@ -316,6 +315,7 @@ LEAN_EXPORT lean_object* l_Lake_depCycleError___at_Lake_Workspace_updateAndMater
 LEAN_EXPORT lean_object* l_Lake_Workspace_materializeDeps___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_runPostUpdateHooks(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1749_(lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_updateToolchain___closed__8;
 lean_object* l_StateT_instMonad___rarg(lean_object*);
 static lean_object* l___private_Lake_Load_Resolve_0__Lake_validateDep___closed__1;
@@ -10369,7 +10369,7 @@ lean_dec(x_19);
 x_34 = lean_ctor_get(x_13, 0);
 lean_inc(x_34);
 lean_dec(x_13);
-x_35 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1814_(x_34, x_33);
+x_35 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1749_(x_34, x_33);
 lean_dec(x_34);
 if (x_35 == 0)
 {
@@ -10731,7 +10731,7 @@ lean_dec(x_116);
 x_131 = lean_ctor_get(x_110, 0);
 lean_inc(x_131);
 lean_dec(x_110);
-x_132 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1814_(x_131, x_130);
+x_132 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1749_(x_131, x_130);
 lean_dec(x_131);
 if (x_132 == 0)
 {

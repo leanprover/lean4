@@ -73,8 +73,8 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) (_ : b ≥ 11): Fals
   sorry
 
 /--
-info: [grind.cutsat.assign] 「f 0」 := 11
-[grind.cutsat.assign] 「f 1」 := 2
+info: [grind.cutsat.assign] f 0 := 11
+[grind.cutsat.assign] f 1 := 2
 -/
 #guard_msgs (info) in
 set_option trace.grind.cutsat.assign true in

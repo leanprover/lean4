@@ -61418,7 +61418,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_addTraceAsMessages___at_Lean_Meta_realizeConst_realizeAndReport___spec__2___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; size_t x_20; lean_object* x_21; lean_object* x_30; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; size_t x_22; lean_object* x_23; lean_object* x_32; 
 x_8 = lean_box(0);
 x_9 = l_Lean_addTraceAsMessages___at_Lean_Meta_realizeConst_realizeAndReport___spec__2___lambda__1___closed__3;
 x_10 = l_Lean_addTraceAsMessages___at_Lean_Meta_realizeConst_realizeAndReport___spec__2___lambda__1___closed__5;
@@ -61429,113 +61429,112 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = lean_ctor_get(x_13, 1);
+x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
+x_16 = l_Array_emptyWithCapacity(lean_box(0), x_15);
+lean_dec(x_15);
+x_17 = lean_ctor_get(x_13, 1);
+lean_inc(x_17);
 lean_dec(x_13);
-x_16 = lean_array_get_size(x_15);
-x_17 = lean_unsigned_to_nat(0u);
-x_18 = lean_nat_dec_lt(x_17, x_16);
-x_19 = lean_box(0);
-x_20 = 0;
-if (x_18 == 0)
+x_18 = lean_array_get_size(x_17);
+x_19 = lean_unsigned_to_nat(0u);
+x_20 = lean_nat_dec_lt(x_19, x_18);
+x_21 = lean_box(0);
+x_22 = 0;
+if (x_20 == 0)
+{
+lean_dec(x_18);
+lean_dec(x_17);
+x_32 = x_16;
+goto block_40;
+}
+else
+{
+uint8_t x_41; 
+x_41 = lean_nat_dec_le(x_18, x_18);
+if (x_41 == 0)
+{
+lean_dec(x_18);
+lean_dec(x_17);
+x_32 = x_16;
+goto block_40;
+}
+else
+{
+size_t x_42; lean_object* x_43; 
+x_42 = lean_usize_of_nat(x_18);
+lean_dec(x_18);
+x_43 = l_Array_foldlMUnsafe_fold___at_Lean_addTraceAsMessages___spec__16(x_17, x_22, x_42, x_16);
+lean_dec(x_17);
+x_32 = x_43;
+goto block_40;
+}
+}
+block_31:
+{
+size_t x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
+x_24 = lean_array_size(x_23);
+x_25 = lean_box(0);
+x_26 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_realizeConst_realizeAndReport___spec__8(x_21, x_23, x_23, x_24, x_22, x_25, x_3, x_4, x_5, x_6, x_14);
+lean_dec(x_23);
+x_27 = !lean_is_exclusive(x_26);
+if (x_27 == 0)
+{
+lean_object* x_28; 
+x_28 = lean_ctor_get(x_26, 0);
+lean_dec(x_28);
+lean_ctor_set(x_26, 0, x_25);
+return x_26;
+}
+else
+{
+lean_object* x_29; lean_object* x_30; 
+x_29 = lean_ctor_get(x_26, 1);
+lean_inc(x_29);
+lean_dec(x_26);
+x_30 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_30, 0, x_25);
+lean_ctor_set(x_30, 1, x_29);
+return x_30;
+}
+}
+block_40:
+{
+lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; 
+x_33 = lean_array_get_size(x_32);
+x_34 = lean_unsigned_to_nat(1u);
+x_35 = lean_nat_sub(x_33, x_34);
+x_36 = lean_nat_dec_eq(x_33, x_19);
+if (x_36 == 0)
+{
+uint8_t x_37; 
+x_37 = lean_nat_dec_le(x_19, x_35);
+if (x_37 == 0)
+{
+lean_object* x_38; 
+lean_inc(x_35);
+x_38 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_33, x_32, x_35, x_35, lean_box(0), lean_box(0));
+lean_dec(x_35);
+lean_dec(x_33);
+x_23 = x_38;
+goto block_31;
+}
+else
 {
 lean_object* x_39; 
-lean_dec(x_16);
-lean_dec(x_15);
-x_39 = l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg___closed__1;
-x_30 = x_39;
-goto block_38;
-}
-else
-{
-uint8_t x_40; 
-x_40 = lean_nat_dec_le(x_16, x_16);
-if (x_40 == 0)
-{
-lean_object* x_41; 
-lean_dec(x_16);
-lean_dec(x_15);
-x_41 = l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg___closed__1;
-x_30 = x_41;
-goto block_38;
-}
-else
-{
-size_t x_42; lean_object* x_43; lean_object* x_44; 
-x_42 = lean_usize_of_nat(x_16);
-lean_dec(x_16);
-x_43 = l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg___closed__1;
-x_44 = l_Array_foldlMUnsafe_fold___at_Lean_addTraceAsMessages___spec__16(x_15, x_20, x_42, x_43);
-lean_dec(x_15);
-x_30 = x_44;
-goto block_38;
-}
-}
-block_29:
-{
-size_t x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
-x_22 = lean_array_size(x_21);
-x_23 = lean_box(0);
-x_24 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_realizeConst_realizeAndReport___spec__8(x_19, x_21, x_21, x_22, x_20, x_23, x_3, x_4, x_5, x_6, x_14);
-lean_dec(x_21);
-x_25 = !lean_is_exclusive(x_24);
-if (x_25 == 0)
-{
-lean_object* x_26; 
-x_26 = lean_ctor_get(x_24, 0);
-lean_dec(x_26);
-lean_ctor_set(x_24, 0, x_23);
-return x_24;
-}
-else
-{
-lean_object* x_27; lean_object* x_28; 
-x_27 = lean_ctor_get(x_24, 1);
-lean_inc(x_27);
-lean_dec(x_24);
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_23);
-lean_ctor_set(x_28, 1, x_27);
-return x_28;
-}
-}
-block_38:
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; 
-x_31 = lean_array_get_size(x_30);
-x_32 = lean_unsigned_to_nat(1u);
-x_33 = lean_nat_sub(x_31, x_32);
-x_34 = lean_nat_dec_eq(x_31, x_17);
-if (x_34 == 0)
-{
-uint8_t x_35; 
-x_35 = lean_nat_dec_le(x_17, x_33);
-if (x_35 == 0)
-{
-lean_object* x_36; 
-lean_inc(x_33);
-x_36 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_31, x_30, x_33, x_33, lean_box(0), lean_box(0));
+x_39 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_33, x_32, x_19, x_35, lean_box(0), lean_box(0));
+lean_dec(x_35);
 lean_dec(x_33);
-lean_dec(x_31);
-x_21 = x_36;
-goto block_29;
-}
-else
-{
-lean_object* x_37; 
-x_37 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_31, x_30, x_17, x_33, lean_box(0), lean_box(0));
-lean_dec(x_33);
-lean_dec(x_31);
-x_21 = x_37;
-goto block_29;
+x_23 = x_39;
+goto block_31;
 }
 }
 else
 {
+lean_dec(x_35);
 lean_dec(x_33);
-lean_dec(x_31);
-x_21 = x_30;
-goto block_29;
+x_23 = x_32;
+goto block_31;
 }
 }
 }

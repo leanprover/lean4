@@ -584,7 +584,7 @@ theorem findFinIdx?_eq_some_iff {xs : Array α} {p : α → Bool} {i : Fin xs.si
     xs.findFinIdx? p = some i ↔
       p xs[i] ∧ ∀ j (hji : j < i), ¬p (xs[j]'(Nat.lt_trans hji i.2)) := by
   simp only [findFinIdx?_eq_pmap_findIdx?, Option.pmap_eq_some_iff, findIdx?_eq_some_iff_getElem,
-    Bool.not_eq_true, Option.mem_def, exists_and_left, and_exists_self, Fin.getElem_fin]
+    Bool.not_eq_true, exists_and_left, and_exists_self, Fin.getElem_fin]
   constructor
   · rintro ⟨a, ⟨h, w₁, w₂⟩, rfl⟩
     exact ⟨w₁, fun j hji => by simpa using w₂ j hji⟩

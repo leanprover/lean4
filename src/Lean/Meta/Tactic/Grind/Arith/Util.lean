@@ -64,4 +64,22 @@ partial def isRelevantPred (e : Expr) : Bool :=
   | Dvd.dvd α _ _ _ => isSupportedType α
   | _ => false
 
+def isArithTerm (e : Expr) : Bool :=
+  match_expr e with
+  | HAdd.hAdd _ _ _ _ _ _ => true
+  | HSub.hSub _ _ _ _ _ _ => true
+  | HMul.hMul _ _ _ _ _ _ => true
+  | HDiv.hDiv _ _ _ _ _ _ => true
+  | HMod.hMod _ _ _ _ _ _ => true
+  | Neg.neg _ _ _ => true
+  | OfNat.ofNat _ _ _ => true
+  | _ => false
+
+/-- Quote `e` using `「` and `」` if `e` is an arithmetic term that is being treated as a variable. -/
+def quoteIfArithTerm (e : Expr) : MessageData :=
+  if isArithTerm e then
+    aquote e
+  else
+    e
+
 end Lean.Meta.Grind.Arith

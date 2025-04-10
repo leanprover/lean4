@@ -122,7 +122,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   r := r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
   if (← isTracingEnabledFor `grind.cutsat.model) then
     for (x, v) in r do
-      trace[grind.cutsat.model] "{quoteIfNotAtom x} := {v}"
+      trace[grind.cutsat.model] "{quoteIfArithTerm x} := {v}"
   return r
 
 end Lean.Meta.Grind.Arith.Cutsat

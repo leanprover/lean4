@@ -141,4 +141,18 @@ def assertDenoteAsIntNonneg (e : Expr) : GoalM Unit := withIncRecDepth do
   trace[grind.cutsat.assert.le] "{← c.pp}"
   c.assert
 
+/--
+Given `x` whose denotation is `e`, if `e` is of the form `NatCast.natCast a`,
+asserts that it is nonnegative.
+-/
+def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
+  let_expr NatCast.natCast _ inst a := e | return ()
+  let_expr instNatCastInt := inst | return ()
+  if (← get').foreignDef.contains { expr := a } then return ()
+  trace[grind.debug.cutsat.natCast] "{a}"
+  let n ← mkForeignVar a .nat
+  let p := .add (-1) x (.num 0)
+  let c := { p, h := .denoteAsIntNonneg (.var n) (.var x) : LeCnstr}
+  c.assert
+
 end Lean.Meta.Grind.Arith.Cutsat

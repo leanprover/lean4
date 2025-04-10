@@ -510,6 +510,7 @@ where go := do
                 let oldCmds? := oldSnap?.map fun old =>
                   if old.newStx.isOfKind nullKind then old.newStx.getArgs else #[old.newStx]
                 let cmdPromises ← cmds.mapM fun _ => IO.Promise.new
+                let cancelTk? := (← read).cancelTk?
                 snap.new.resolve <| .ofTyped {
                   diagnostics := .empty
                   macroDecl := decl
@@ -517,7 +518,7 @@ where go := do
                   newNextMacroScope := nextMacroScope
                   hasTraces
                   next := Array.zipWith (fun cmdPromise cmd =>
-                    { stx? := some cmd, task := cmdPromise.resultD default }) cmdPromises cmds
+                    { stx? := some cmd, task := cmdPromise.resultD default, cancelTk? }) cmdPromises cmds
                   : MacroExpandedSnapshot
                 }
                 -- After the first command whose syntax tree changed, we must disable

@@ -569,8 +569,6 @@ instance lawfulIdentity_merge (f : α → α → α) : Std.LawfulIdentity (merge
 
 @[simp] theorem elim_some (x : β) (f : α → β) (a : α) : (some a).elim x f = f a := rfl
 
-
-
 @[simp] theorem getD_map (f : α → β) (x : α) (o : Option α) :
   (o.map f).getD (f x) = f (getD o x) := by cases o <;> rfl
 

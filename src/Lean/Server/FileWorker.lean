@@ -413,6 +413,8 @@ def setupImports
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
 
+  let opts := Elab.inServer.set opts true
+
   return .ok {
     mainModuleName := meta.mod
     opts

@@ -245,7 +245,7 @@ private def addSplitCandidatesForExt (e : Expr) (generation : Nat) (parent? : Op
 where
   found (f : Expr) (i : Nat) (type : Expr) : GoalM Unit := do
     trace[grind.debug.ext] "{f}, {i}, {e}"
-    let others := (← get).termsAt.find? (f, i) |>.getD []
+    let others := (← get).split.termsAt.find? (f, i) |>.getD []
     for (e', type') in others do
       if (← withDefault <| isDefEq type type') then
         let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type e e'
@@ -253,7 +253,7 @@ where
         internalize eq generation
         trace_goal[grind.ext.candidate] "{eq}"
         addSplitCandidate eq
-    modify fun s => { s with termsAt := s.termsAt.insert (f, i) ((e, type) :: others) }
+    modify fun s => { s with split.termsAt := s.split.termsAt.insert (f, i) ((e, type) :: others) }
     return ()
 
 /-- Applies `addSplitCandidatesForExt` if `funext` is enabled. -/

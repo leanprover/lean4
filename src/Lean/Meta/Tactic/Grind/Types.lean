@@ -490,6 +490,13 @@ structure Split.State where
   applications that generated only 1 subgoal.
   -/
   trace      : List CaseTrace := []
+  /--
+  Mapping from pairs `(f, i)` to a list of `(e, type)`.
+  The meaning is: `e : type` is lambda expression that occurs at argument `i` of an `f`-application.
+  We use this information to add case-splits for triggering extensionality theorems.
+  See `addSplitCandidatesForExt`.
+  -/
+  termsAt    : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   deriving Inhabited
 
 /-- Clean name generator. -/
@@ -531,13 +538,6 @@ structure Goal where
   arith      : Arith.State := {}
   /-- State of the clean name generator. -/
   clean      : Clean.State := {}
-  /--
-  Mapping from pairs `(f, i)` to a list of `(e, type)`.
-  The meaning is: `e : type` is lambda expression that occurs at argument `i` of an `f`-application.
-  We use this information to add case-splits for triggering extensionality theorems.
-  See `addSplitCandidatesForExt`.
-  -/
-  termsAt    : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

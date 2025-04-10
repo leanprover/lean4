@@ -14,6 +14,8 @@ The fix was to be sure to abstract the parameters to create the type constructor
 (which incidentally simplified the handling of mutual inductives).
 -/
 
+set_option pp.mvars false
+
 namespace Ex1
 
 def const (a : A) (_ : B) := a
@@ -58,3 +60,18 @@ structure S (a : const Unit A) where
 #guard_msgs in #check S.x._default
 
 end Ex2
+
+namespace Ex3
+/-!
+Example from issue #7788. Used to panic.
+-/
+
+/--
+error: function expected at
+  A
+term has type
+  ?_
+-/
+#guard_msgs in inductive X (h : A 1) where
+
+end Ex3

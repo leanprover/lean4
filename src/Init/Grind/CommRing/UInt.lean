@@ -69,8 +69,7 @@ instance : CommRing UInt8 where
   sub_eq_add_neg := UInt8.sub_eq_add_neg
   pow_zero := UInt8.pow_zero
   pow_succ := UInt8.pow_succ
-  ofNat_add := UInt8.ofNat_add
-  ofNat_mul := UInt8.ofNat_mul
+  ofNat_succ x := UInt8.ofNat_add x 1
 
 instance : IsCharP UInt8 (2 ^ 8) where
   ofNat_eq_zero_iff {x} := by
@@ -90,8 +89,7 @@ instance : CommRing UInt16 where
   sub_eq_add_neg := UInt16.sub_eq_add_neg
   pow_zero := UInt16.pow_zero
   pow_succ := UInt16.pow_succ
-  ofNat_add := UInt16.ofNat_add
-  ofNat_mul := UInt16.ofNat_mul
+  ofNat_succ x := UInt16.ofNat_add x 1
 
 instance : IsCharP UInt16 (2 ^ 16) where
   ofNat_eq_zero_iff {x} := by
@@ -111,8 +109,7 @@ instance : CommRing UInt32 where
   sub_eq_add_neg := UInt32.sub_eq_add_neg
   pow_zero := UInt32.pow_zero
   pow_succ := UInt32.pow_succ
-  ofNat_add := UInt32.ofNat_add
-  ofNat_mul := UInt32.ofNat_mul
+  ofNat_succ x := UInt32.ofNat_add x 1
 
 instance : IsCharP UInt32 (2 ^ 32) where
   ofNat_eq_zero_iff {x} := by
@@ -132,8 +129,7 @@ instance : CommRing UInt64 where
   sub_eq_add_neg := UInt64.sub_eq_add_neg
   pow_zero := UInt64.pow_zero
   pow_succ := UInt64.pow_succ
-  ofNat_add := UInt64.ofNat_add
-  ofNat_mul := UInt64.ofNat_mul
+  ofNat_succ x := UInt64.ofNat_add x 1
 
 instance : IsCharP UInt64 (2 ^ 64) where
   ofNat_eq_zero_iff {x} := by
@@ -153,8 +149,7 @@ instance : CommRing USize where
   sub_eq_add_neg := USize.sub_eq_add_neg
   pow_zero := USize.pow_zero
   pow_succ := USize.pow_succ
-  ofNat_add := USize.ofNat_add
-  ofNat_mul := USize.ofNat_mul
+  ofNat_succ x := USize.ofNat_add x 1
 
 open System.Platform
 

@@ -25,8 +25,7 @@ instance : CommRing Int8 where
   sub_eq_add_neg := Int8.sub_eq_add_neg
   pow_zero := Int8.pow_zero
   pow_succ := Int8.pow_succ
-  ofNat_add := Int8.ofNat_add
-  ofNat_mul := Int8.ofNat_mul
+  ofNat_succ x := Int8.ofNat_add x 1
 
 instance : IsCharP Int8 (2 ^ 8) where
   ofNat_eq_zero_iff {x} := by
@@ -51,8 +50,7 @@ instance : CommRing Int16 where
   sub_eq_add_neg := Int16.sub_eq_add_neg
   pow_zero := Int16.pow_zero
   pow_succ := Int16.pow_succ
-  ofNat_add := Int16.ofNat_add
-  ofNat_mul := Int16.ofNat_mul
+  ofNat_succ x := Int16.ofNat_add x 1
 
 instance : IsCharP Int16 (2 ^ 16) where
   ofNat_eq_zero_iff {x} := by
@@ -77,8 +75,7 @@ instance : CommRing Int32 where
   sub_eq_add_neg := Int32.sub_eq_add_neg
   pow_zero := Int32.pow_zero
   pow_succ := Int32.pow_succ
-  ofNat_add := Int32.ofNat_add
-  ofNat_mul := Int32.ofNat_mul
+  ofNat_succ x := Int32.ofNat_add x 1
 
 instance : IsCharP Int32 (2 ^ 32) where
   ofNat_eq_zero_iff {x} := by
@@ -103,8 +100,7 @@ instance : CommRing Int64 where
   sub_eq_add_neg := Int64.sub_eq_add_neg
   pow_zero := Int64.pow_zero
   pow_succ := Int64.pow_succ
-  ofNat_add := Int64.ofNat_add
-  ofNat_mul := Int64.ofNat_mul
+  ofNat_succ x := Int64.ofNat_add x 1
 
 instance : IsCharP Int64 (2 ^ 64) where
   ofNat_eq_zero_iff {x} := by
@@ -129,8 +125,7 @@ instance : CommRing ISize where
   sub_eq_add_neg := ISize.sub_eq_add_neg
   pow_zero := ISize.pow_zero
   pow_succ := ISize.pow_succ
-  ofNat_add := ISize.ofNat_add
-  ofNat_mul := ISize.ofNat_mul
+  ofNat_succ x := ISize.ofNat_add x 1
 
 open System.Platform (numBits)
 

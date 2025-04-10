@@ -21,8 +21,7 @@ instance : CommRing Int where
   zero_mul := Int.zero_mul
   pow_zero _ := rfl
   pow_succ _ _ := rfl
-  ofNat_add _ _ := rfl
-  ofNat_mul _ _ := rfl
+  ofNat_succ _ := rfl
   sub_eq_add_neg _ _ := Int.sub_eq_add_neg
 
 instance : IsCharP Int 0 where

@@ -836,13 +836,13 @@ theorem elem_iff [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
 theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
     xs.contains a = true ↔ a ∈ xs := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
 
-instance [DecidableEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
+instance [BEq α] [LawfulBEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff elem_iff
 
-theorem elem_eq_mem [BEq α] [LawfulBEq α] [DecidableEq α] {a : α} {xs : Array α} :
+theorem elem_eq_mem [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
     elem a xs = decide (a ∈ xs) := by rw [Bool.eq_iff_iff, elem_iff, decide_eq_true_iff]
 
-@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] [DecidableEq α] {a : α} {xs : Array α} :
+@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
     xs.contains a = decide (a ∈ xs) := by rw [← elem_eq_contains, elem_eq_mem]
 
 /-- Variant of `any_push` with a side condition on `stop`. -/
@@ -3764,7 +3764,7 @@ variable [LawfulBEq α]
   cases xs
   simp_all
 
-theorem getElem?_replace [DecidableEq α] {xs : Array α} {i : Nat} :
+theorem getElem?_replace {xs : Array α} {i : Nat} :
     (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
   rcases xs with ⟨xs⟩
   simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, beq_iff_eq,
@@ -3775,7 +3775,7 @@ theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a)
     (xs.replace a b)[i]? = xs[i]? := by
   simp_all [getElem?_replace]
 
-theorem getElem_replace [DecidableEq α] {xs : Array α} {i : Nat} (h : i < xs.size) :
+theorem getElem_replace {xs : Array α} {i : Nat} (h : i < xs.size) :
     (xs.replace a b)[i]'(by simpa) = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
   apply Option.some.inj
   rw [← getElem?_eq_getElem, getElem?_replace]
@@ -3786,7 +3786,7 @@ theorem getElem_replace_of_ne {xs : Array α} {i : Nat} {h : i < xs.size} (h' : 
   rw [getElem_replace h]
   simp [h']
 
-theorem replace_append [DecidableEq α] {xs ys : Array α} :
+theorem replace_append {xs ys : Array α} :
     (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩

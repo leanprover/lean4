@@ -514,7 +514,7 @@ theorem forall_getElem {l : List α} {p : α → Prop} :
     elem a l = l.contains a := by
   simp [contains]
 
-@[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] [DecidableEq α] {l : List α} :
+@[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
   cases h : y == a <;> simp_all
 
@@ -524,10 +524,10 @@ theorem elem_iff [BEq α] [LawfulBEq α] {a : α} {as : List α} :
 theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : List α} :
     as.contains a = true ↔ a ∈ as := ⟨mem_of_elem_eq_true, elem_eq_true_of_mem⟩
 
-theorem elem_eq_mem [BEq α] [LawfulBEq α] [DecidableEq α] (a : α) (as : List α) :
+theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
     elem a as = decide (a ∈ as) := by rw [Bool.eq_iff_iff, elem_iff, decide_eq_true_iff]
 
-@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] [DecidableEq α] (a : α) (as : List α) :
+@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
     as.contains a = decide (a ∈ as) := by rw [Bool.eq_iff_iff, elem_iff, decide_eq_true_iff]
 
 @[simp] theorem contains_cons [BEq α] {a : α} {b : α} {l : List α} :
@@ -3126,7 +3126,7 @@ variable [BEq α]
     simp only [replace_cons]
     split <;> simp_all
 
-theorem getElem?_replace [LawfulBEq α] [DecidableEq α] {l : List α} {i : Nat} :
+theorem getElem?_replace [LawfulBEq α] {l : List α} {i : Nat} :
     (l.replace a b)[i]? = if l[i]? == some a then if a ∈ l.take i then some a else some b else l[i]? := by
   induction l generalizing i with
   | nil => cases i <;> simp
@@ -3139,7 +3139,7 @@ theorem getElem?_replace_of_ne [LawfulBEq α] {l : List α} {i : Nat} (h : l[i]?
     (l.replace a b)[i]? = l[i]? := by
   simp_all [getElem?_replace]
 
-theorem getElem_replace [LawfulBEq α] [DecidableEq α] {l : List α} {i : Nat} (h : i < l.length) :
+theorem getElem_replace [LawfulBEq α] {l : List α} {i : Nat} (h : i < l.length) :
     (l.replace a b)[i]'(by simpa) = if l[i] == a then if a ∈ l.take i then a else b else l[i] := by
   apply Option.some.inj
   rw [← getElem?_eq_getElem, getElem?_replace]
@@ -3169,7 +3169,7 @@ theorem head_replace {l : List α} {a b : α} (w) :
   apply Option.some.inj
   rw [← head?_eq_head, head?_replace, head?_eq_head]
 
-theorem replace_append [LawfulBEq α] [DecidableEq α] {l₁ l₂ : List α} :
+theorem replace_append [LawfulBEq α] {l₁ l₂ : List α} :
     (l₁ ++ l₂).replace a b = if a ∈ l₁ then l₁.replace a b ++ l₂ else l₁ ++ l₂.replace a b := by
   induction l₁ with
   | nil => simp
@@ -3260,26 +3260,26 @@ theorem length_insert_pos {l : List α} {a : α} : 0 < (l.insert a).length := by
   · rw [length_insert_of_not_mem h]
     exact Nat.zero_lt_succ _
 
-theorem insert_eq [DecidableEq α] {l : List α} {a : α} : l.insert a = if a ∈ l then l else a :: l := by
+theorem insert_eq {l : List α} {a : α} : l.insert a = if a ∈ l then l else a :: l := by
   simp [List.insert]
 
-theorem getElem?_insert_zero [DecidableEq α] {l : List α} {a : α} :
+theorem getElem?_insert_zero {l : List α} {a : α} :
     (l.insert a)[0]? = if a ∈ l then l[0]? else some a := by
   simp only [insert_eq]
   split <;> simp
 
-theorem getElem?_insert_succ [DecidableEq α] {l : List α} {a : α} {i : Nat} :
+theorem getElem?_insert_succ {l : List α} {a : α} {i : Nat} :
     (l.insert a)[i+1]? = if a ∈ l then l[i+1]? else l[i]? := by
   simp only [insert_eq]
   split <;> simp
 
-theorem getElem?_insert [DecidableEq α] {l : List α} {a : α} {i : Nat} :
+theorem getElem?_insert {l : List α} {a : α} {i : Nat} :
     (l.insert a)[i]? = if a ∈ l then l[i]? else if i = 0 then some a else l[i-1]? := by
   cases i
   · simp [getElem?_insert_zero]
   · simp [getElem?_insert_succ]
 
-theorem getElem_insert [DecidableEq α] {l : List α} {a : α} {i : Nat} (h : i < l.length) :
+theorem getElem_insert {l : List α} {a : α} {i : Nat} (h : i < l.length) :
     (l.insert a)[i]'(Nat.lt_of_lt_of_le h length_le_length_insert) =
       if a ∈ l then l[i] else if i = 0 then a else l[i-1]'(Nat.lt_of_le_of_lt (Nat.pred_le _) h) := by
   apply Option.some.inj
@@ -3291,19 +3291,19 @@ theorem getElem_insert [DecidableEq α] {l : List α} {a : α} {i : Nat} (h : i 
     · have h' : i - 1 < l.length := Nat.lt_of_le_of_lt (Nat.pred_le _) h
       simp [getElem?_eq_getElem, h']
 
-theorem head?_insert [DecidableEq α] {l : List α} {a : α} :
+theorem head?_insert {l : List α} {a : α} :
     (l.insert a).head? = some (if h : a ∈ l then l.head (ne_nil_of_mem h) else a) := by
   simp only [insert_eq]
   split <;> rename_i h
   · simp [head?_eq_head (ne_nil_of_mem h)]
   · rfl
 
-theorem head_insert [DecidableEq α] {l : List α} {a : α} (w) :
+theorem head_insert {l : List α} {a : α} (w) :
     (l.insert a).head w = if h : a ∈ l then l.head (ne_nil_of_mem h) else a := by
   apply Option.some.inj
   rw [← head?_eq_head, head?_insert]
 
-theorem insert_append [DecidableEq α] {l₁ l₂ : List α} {a : α} :
+theorem insert_append {l₁ l₂ : List α} {a : α} :
     (l₁ ++ l₂).insert a = if a ∈ l₂ then l₁ ++ l₂ else l₁.insert a ++ l₂ := by
   simp only [insert_eq, mem_append]
   (repeat split) <;> simp_all

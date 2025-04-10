@@ -1015,7 +1015,7 @@ abbrev indexOf_cons := @idxOf_cons
 @[deprecated idxOf_cons_self (since := "2025-01-29")]
 abbrev indexOf_cons_self := @idxOf_cons_self
 
-theorem idxOf_append [BEq α] [LawfulBEq α] [DecidableEq α] {l₁ l₂ : List α} {a : α} :
+theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
     (l₁ ++ l₂).idxOf a = if a ∈ l₁ then l₁.idxOf a else l₂.idxOf a + l₁.length := by
   rw [idxOf, findIdx_append]
   split <;> rename_i h

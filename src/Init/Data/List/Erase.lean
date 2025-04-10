@@ -353,7 +353,7 @@ theorem exists_erase_eq [LawfulBEq α] {a : α} {l : List α} (h : a ∈ l) :
     length (l.erase a) = length l - 1 := by
   rw [erase_eq_eraseP]; exact length_eraseP_of_mem h (beq_self_eq_true a)
 
-theorem length_erase [LawfulBEq α] [DecidableEq α] {a : α} {l : List α} :
+theorem length_erase [LawfulBEq α] {a : α} {l : List α} :
     length (l.erase a) = if a ∈ l then length l - 1 else length l := by
   rw [erase_eq_eraseP, length_eraseP]
   split <;> split <;> simp_all
@@ -413,14 +413,9 @@ theorem erase_append_right [LawfulBEq α] {a : α} {l₁ : List α} (l₂ : List
   rw [erase_eq_eraseP, erase_eq_eraseP, eraseP_append_right]
   intros b h' h''; rw [eq_of_beq h''] at h; exact h h'
 
-theorem erase_append [LawfulBEq α] [DecidableEq α] {a : α} {l₁ l₂ : List α} :
+theorem erase_append [LawfulBEq α] {a : α} {l₁ l₂ : List α} :
     (l₁ ++ l₂).erase a = if a ∈ l₁ then l₁.erase a ++ l₂ else l₁ ++ l₂.erase a := by
   simp [erase_eq_eraseP, eraseP_append]
-
-theorem erase_replicate' {n : Nat} {a b : α} :
-    (replicate n a).erase b = if a == b then replicate (n - 1) a else replicate n a := by
-  rw [erase_eq_eraseP']
-  simp [eraseP_replicate]
 
 theorem erase_replicate [LawfulBEq α] {n : Nat} {a b : α} :
     (replicate n a).erase b = if b == a then replicate (n - 1) a else replicate n a := by

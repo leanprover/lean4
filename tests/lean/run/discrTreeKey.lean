@@ -73,8 +73,8 @@ open Nat List
 #check Nat.instIdempotentOpGcd
 #discr_tree_key Nat.instIdempotentOpGcd
 
-#check List.instDecidableMemOfDecidableEq
-#discr_tree_key List.instDecidableMemOfDecidableEq
+#check List.instDecidableMemOfLawfulBEq
+#discr_tree_key List.instDecidableMemOfLawfulBEq
 
 #check List.instForIn'InferInstanceMembership
 #discr_tree_key List.instForIn'InferInstanceMembership

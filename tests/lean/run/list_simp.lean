@@ -153,7 +153,7 @@ variable [BEq α] in
 #check_simp (replicate 7 x).contains y ~> y == x
 
 variable [BEq α] [LawfulBEq α] in
-#check_simp (replicate 7 x).contains y ~> decide (y = x)
+#check_simp (replicate 7 x).contains y ~> y == x
 
 -- `getElem` and `getElem?`
 

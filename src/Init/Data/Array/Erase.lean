@@ -205,7 +205,7 @@ theorem exists_erase_eq [LawfulBEq α] {a : α} {xs : Array α} (h : a ∈ xs) :
     (xs.erase a).size = xs.size - 1 := by
   rw [erase_eq_eraseP]; exact size_eraseP_of_mem h (beq_self_eq_true a)
 
-theorem size_erase [LawfulBEq α] [DecidableEq α] {a : α} {xs : Array α} :
+theorem size_erase [LawfulBEq α] {a : α} {xs : Array α} :
     (xs.erase a).size = if a ∈ xs then xs.size - 1 else xs.size := by
   rw [erase_eq_eraseP, size_eraseP]
   congr
@@ -248,7 +248,7 @@ theorem erase_append_right [LawfulBEq α] {a : α} {xs : Array α} (ys : Array �
   rcases ys with ⟨ys⟩
   simpa using List.erase_append_right ys (by simpa using h)
 
-theorem erase_append [LawfulBEq α] [DecidableEq α] {a : α} {xs ys : Array α} :
+theorem erase_append [LawfulBEq α] {a : α} {xs ys : Array α} :
     (xs ++ ys).erase a = if a ∈ xs then xs.erase a ++ ys else xs ++ ys.erase a := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩

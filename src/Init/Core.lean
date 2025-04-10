@@ -773,11 +773,11 @@ instance [DecidableEq α] : LawfulBEq α where
   eq_of_beq := of_decide_eq_true
   rfl := of_decide_eq_self_eq_true _
 
--- `Classical.propDecidable` should be preferred over
--- `instDecidableEqOfLawfulBEq (instLawfulBEq Classical.propDecidable)`
--- (although the instance synthesizer could perhaps improve for this)
--- `classical` produces `Classical.propDecidable` with priority `10`, so we need to be lower
-instance (priority := 5) [BEq α] [LawfulBEq α] : DecidableEq α := fun x y =>
+/--
+Non-instance for `DecidableEq` from `LawfulBEq`.
+To use this, add `attribute [local instance 5] instDecidableEqOfLawfulBEq` at the top of a file.
+-/
+def instDecidableEqOfLawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α := fun x y =>
   match h : x == y with
   | false => .isFalse (not_eq_of_beq_eq_false h)
   | true => .isTrue (eq_of_beq h)

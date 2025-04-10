@@ -40,7 +40,7 @@ class CommRing (α : Type u) [∀ n, OfNat α n] extends Add α, Mul α, Neg α,
   sub_eq_add_neg : ∀ a b : α, a - b = a + -b
   pow_zero : ∀ a : α, a ^ 0 = 1
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
-  ofNat_add : ∀ a b : Nat, OfNat.ofNat (α := α) (a + b) = OfNat.ofNat a + OfNat.ofNat b := by intros; rfl
+  ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
 
 namespace CommRing
 
@@ -53,6 +53,11 @@ theorem natCast_zero : ((0 : Nat) : α) = 0 := rfl
 theorem ofNat_eq_natCast (n : Nat) : OfNat.ofNat n = (n : α) := rfl
 
 variable [CommRing α]
+
+theorem ofNat_add (a b : Nat) : OfNat.ofNat (α := α) (a + b) = OfNat.ofNat a + OfNat.ofNat b := by
+  induction b with
+  | zero => simp [Nat.add_zero, add_zero]
+  | succ b ih => rw [Nat.add_succ, ofNat_succ, ih, ofNat_succ b, add_assoc]
 
 theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : α) = ((n : α) + 1) := ofNat_add _ _
 

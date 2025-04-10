@@ -210,7 +210,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
       let result ← globalInstances.getUnify type
       -- Using insertion sort because it is stable and the array `result` should be mostly sorted.
       -- Most instances have default priority.
-      let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
+      let result := result.reverse.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
       let erasedInstances ← getErasedInstances
       let mut result ← result.filterMapM fun e => match e.val with
         | .const constName us =>

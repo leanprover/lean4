@@ -67,7 +67,6 @@ elab_rules : tactic
 | `(tactic| wait_for_unblock) => do
   let ctx ← readThe Core.Context
   let some cancelTk := ctx.cancelTk? | unreachable!
-  dbg_trace "waiting {unsafe ptrAddrUnsafe cancelTk}"
 
   dbg_trace "blocked!"
   log "blocked"

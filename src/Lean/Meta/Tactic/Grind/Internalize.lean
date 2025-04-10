@@ -210,6 +210,7 @@ private def propagateUnitLike (a : Expr) (generation : Nat) : GoalM Unit := do
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
 private def extParentsToIgnore (declName : Name) : Bool :=
   declName == ``Eq || declName == ``HEq || declName == ``dite || declName == ``ite
+  || declName == ``Exists || declName == ``Subtype
 
 /--
 Given a term `e` that occurs as the argument at position `i` of an `f`-application `parent?`,
@@ -248,13 +249,14 @@ private def addSplitCandidatesForExt (e : Expr) (generation : Nat) (parent? : Op
     it := it.appFn!
 where
   found (f : Expr) (i : Nat) (type : Expr) : GoalM Unit := do
+    trace[grind.debug.ext] "{f}, {i}, {e}"
     let others := (← get).termsAt.find? (f, i) |>.getD []
     for (e', type') in others do
       if (← withDefault <| isDefEq type type') then
         let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type e e'
         let eq ← shareCommon eq
         internalize eq generation
-        trace_goal[grind.funext.candidate] "{eq}"
+        trace_goal[grind.ext.candidate] "{eq}"
         addSplitCandidate eq
     modify fun s => { s with termsAt := s.termsAt.insert (f, i) ((e, type) :: others) }
     return ()

@@ -529,6 +529,14 @@ structure Goal where
   arith      : Arith.State := {}
   /-- State of the clean name generator. -/
   clean      : Clean.State := {}
+  /--
+  Mapping from pairs `(f, i)` to a list of `(lam, type)`.
+  The meaning is: `lam : type` is lambda expression that occurs at argument `i` of an `f`-application.
+  We use this information to add case-splits for function extensionality.
+  Remark: we could make `grind` more precise by storing not just lambda expressions, but any expression whose
+  type is an arrow.
+  -/
+  funsAt     : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

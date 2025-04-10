@@ -53,6 +53,7 @@ builtin_initialize registerTraceClass `grind.split.resolved
 builtin_initialize registerTraceClass `grind.beta
 builtin_initialize registerTraceClass `grind.mbtc
 builtin_initialize registerTraceClass `grind.ext
+builtin_initialize registerTraceClass `grind.funext.candidate
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug

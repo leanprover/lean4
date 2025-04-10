@@ -140,8 +140,8 @@ protected def UInt8.le (a b : UInt8) : Prop := a.toBitVec ≤ b.toBitVec
 instance : Add UInt8       := ⟨UInt8.add⟩
 instance : Sub UInt8       := ⟨UInt8.sub⟩
 instance : Mul UInt8       := ⟨UInt8.mul⟩
-instance : Mod UInt8       := ⟨UInt8.mod⟩
 instance : Pow UInt8 Nat   := ⟨UInt8.pow⟩
+instance : Mod UInt8       := ⟨UInt8.mod⟩
 
 set_option linter.deprecated false in
 instance : HMod UInt8 Nat UInt8 := ⟨UInt8.modn⟩
@@ -349,8 +349,8 @@ protected def UInt16.le (a b : UInt16) : Prop := a.toBitVec ≤ b.toBitVec
 instance : Add UInt16       := ⟨UInt16.add⟩
 instance : Sub UInt16       := ⟨UInt16.sub⟩
 instance : Mul UInt16       := ⟨UInt16.mul⟩
-instance : Mod UInt16       := ⟨UInt16.mod⟩
 instance : Pow UInt16 Nat   := ⟨UInt16.pow⟩
+instance : Mod UInt16       := ⟨UInt16.mod⟩
 
 set_option linter.deprecated false in
 instance : HMod UInt16 Nat UInt16 := ⟨UInt16.modn⟩
@@ -560,8 +560,8 @@ protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
 instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
 instance : Mul UInt32       := ⟨UInt32.mul⟩
-instance : Mod UInt32       := ⟨UInt32.mod⟩
 instance : Pow UInt32 Nat   := ⟨UInt32.pow⟩
+instance : Mod UInt32       := ⟨UInt32.mod⟩
 
 set_option linter.deprecated false in
 instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
@@ -733,8 +733,8 @@ protected def UInt64.le (a b : UInt64) : Prop := a.toBitVec ≤ b.toBitVec
 instance : Add UInt64       := ⟨UInt64.add⟩
 instance : Sub UInt64       := ⟨UInt64.sub⟩
 instance : Mul UInt64       := ⟨UInt64.mul⟩
-instance : Mod UInt64       := ⟨UInt64.mod⟩
 instance : Pow UInt64 Nat   := ⟨UInt64.pow⟩
+instance : Mod UInt64       := ⟨UInt64.mod⟩
 
 set_option linter.deprecated false in
 instance : HMod UInt64 Nat UInt64 := ⟨UInt64.modn⟩
@@ -996,8 +996,8 @@ def USize.toUInt64 (a : USize) : UInt64 :=
   UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt USize.size_le)
 
 instance : Mul USize       := ⟨USize.mul⟩
-instance : Mod USize       := ⟨USize.mod⟩
 instance : Pow USize Nat   := ⟨USize.pow⟩
+instance : Mod USize       := ⟨USize.mod⟩
 
 set_option linter.deprecated false in
 instance : HMod USize Nat USize := ⟨USize.modn⟩

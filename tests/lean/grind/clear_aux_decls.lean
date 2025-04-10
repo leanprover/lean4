@@ -258,11 +258,8 @@ def normalize (l : AList (fun _ : Nat => Bool)) :
           simp only [apply_ite, eval_ite_var]
           cases hfv : f v
           · simp_all
-            congr
             ◾
-          · simp [h, ht₁]
-            congr
-            ◾
+          · ◾
         · -- normalized
           split
           · ◾

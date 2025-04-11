@@ -26,6 +26,7 @@ inductive CliError
 | unknownConfigLang (spec : String)
 /- Build CLI Errors -/
 | unknownModule (mod : Name)
+| unknownModulePath (path : System.FilePath)
 | unknownPackage (spec : String)
 | unknownFacet (type : String) (facet : Name)
 | unknownTarget (target : Name)
@@ -67,6 +68,7 @@ protected def toString : CliError → String
 | unknownTemplate spec    => s!"unknown package template `{spec}`"
 | unknownConfigLang spec  => s!"unknown configuration language `{spec}`"
 | unknownModule mod       => s!"unknown module `{mod.toString false}`"
+| unknownModulePath p     => s!"unknown module source path `{p}`"
 | unknownPackage spec     => s!"unknown package `{spec}`"
 | unknownFacet ty f       => s!"unknown {ty} facet `{f.toString false}`"
 | unknownTarget t         => s!"unknown target `{t.toString false}`"

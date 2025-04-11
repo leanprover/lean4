@@ -9,28 +9,28 @@ import Lean.Server.Requests
 
 namespace Lean.Elab
 
-def InlayHintLinkLocation.toLspLocation (srcSearchPath : SearchPath) (text : FileMap)
+def InlayHintLinkLocation.toLspLocation (text : FileMap)
     (l : InlayHintLinkLocation) : IO (Option Lsp.Location) := do
-  let some uri ← Server.documentUriFromModule srcSearchPath l.module
+  let some uri ← Server.documentUriFromModule? l.module
     | return none
   return some {
     uri
     range := text.utf8RangeToLspRange l.range
   }
 
-def InlayHintLabelPart.toLspInlayHintLabelPart (srcSearchPath : SearchPath) (text : FileMap)
+def InlayHintLabelPart.toLspInlayHintLabelPart (text : FileMap)
     (p : InlayHintLabelPart) : IO Lsp.InlayHintLabelPart := do
-    let location? ← p.location?.bindM fun loc => loc.toLspLocation srcSearchPath text
-    let tooltip? := do return .markdown { kind := .markdown, value := ← p.tooltip? }
-    return {
-      value := p.value
-      location?,
-      tooltip?
-    }
+  let location? ← p.location?.bindM fun loc => loc.toLspLocation text
+  let tooltip? := do return .markdown { kind := .markdown, value := ← p.tooltip? }
+  return {
+    value := p.value
+    location?,
+    tooltip?
+  }
 
-def InlayHintLabel.toLspInlayHintLabel (srcSearchPath : SearchPath) (text : FileMap) : InlayHintLabel → IO Lsp.InlayHintLabel
+def InlayHintLabel.toLspInlayHintLabel (text : FileMap) : InlayHintLabel → IO Lsp.InlayHintLabel
   | .name n => do return .name n
-  | .parts p => do return .parts <| ← p.mapM (·.toLspInlayHintLabelPart srcSearchPath text)
+  | .parts p => do return .parts <| ← p.mapM (·.toLspInlayHintLabelPart text)
 
 def InlayHintKind.toLspInlayHintKind : InlayHintKind → Lsp.InlayHintKind
   | .type => .type
@@ -41,10 +41,10 @@ def InlayHintTextEdit.toLspTextEdit (text : FileMap) (e : InlayHintTextEdit) : L
   newText := e.newText
 }
 
-def InlayHintInfo.toLspInlayHint (srcSearchPath : SearchPath) (text : FileMap) (i : InlayHintInfo) : IO Lsp.InlayHint := do
+def InlayHintInfo.toLspInlayHint (text : FileMap) (i : InlayHintInfo) : IO Lsp.InlayHint := do
   return {
     position := text.utf8PosToLspPos i.position
-    label := ← i.label.toLspInlayHintLabel srcSearchPath text
+    label := ← i.label.toLspInlayHintLabel text
     kind? := i.kind?.map (·.toLspInlayHintKind)
     textEdits? := some <| i.textEdits.map (·.toLspTextEdit text)
     tooltip? := do return .markdown { kind := .markdown, value := ← i.tooltip? }
@@ -116,7 +116,6 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
   let ctx ← read
   let text := ctx.doc.meta.text
   let range := text.lspRangeToUtf8Range p.range
-  let srcSearchPath := ctx.srcSearchPath
   if s.isFirstRequestAfterEdit then
     -- We immediately respond to the first inlay hint request after an edit with the old inlay hints,
     -- without waiting for the edit delay.
@@ -127,7 +126,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     -- To reduce the size of the window for this race condition, we attempt to minimize the delay
     -- after an edit, providing VS Code with a set of old inlay hints that we have already updated
     -- correctly for VS Code ASAP.
-    let lspInlayHints ← s.oldInlayHints.mapM (·.toLspInlayHint srcSearchPath text)
+    let lspInlayHints ← s.oldInlayHints.mapM (·.toLspInlayHint text)
     let r := { response := lspInlayHints, isComplete := false }
     let s := { s with isFirstRequestAfterEdit := false }
     return (r, s)
@@ -149,7 +148,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     -- In the latter case, we respond with the old inlay hints, since we can't respond with an error.
     -- This is to prevent cancellation from making us serve updated inlay hints before the
     -- edit delay has passed.
-    let lspInlayHints ← s.oldInlayHints.mapM (·.toLspInlayHint srcSearchPath text)
+    let lspInlayHints ← s.oldInlayHints.mapM (·.toLspInlayHint text)
     let r := { response := lspInlayHints, isComplete := false }
     return (r, s)
   let snaps := snaps.toArray
@@ -179,7 +178,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
         modify (·.push ih.toInlayHintInfo))
   let allInlayHints := newInlayHints ++ oldInlayHints
   let inlayHintsInRange := allInlayHints.filter (range.contains (includeStop := true) ·.position)
-  let lspInlayHints ← inlayHintsInRange.mapM (·.toLspInlayHint srcSearchPath text)
+  let lspInlayHints ← inlayHintsInRange.mapM (·.toLspInlayHint text)
   let r := { response := lspInlayHints, isComplete }
   let s := { s with
     oldInlayHints := allInlayHints
@@ -204,22 +203,6 @@ where
   updateOldInlayHints (oldInlayHints : Array Elab.InlayHintInfo) : RequestM (Array Elab.InlayHintInfo) := do
     let meta := (← read).doc.meta
     let text := meta.text
-    let srcSearchPath := (← read).srcSearchPath
-    let modName? ← EIO.toBaseIO <| do
-      let some path := System.Uri.fileUriToPath? meta.uri
-        | return none
-      let some mod ← searchModuleNameOfFileName path srcSearchPath
-        | return some <| ← moduleNameOfFileName path none
-      return some mod
-    let modName ← match modName? with
-      | .ok (some modName) => pure modName
-      -- `.anonymous` occurs in untitled files (`.ok none` case).
-      -- There is an intentional bug here where the `.error _` case spits out `.anonymous`.
-      -- This means that we don't correctly update inlay hint locations when the file for this
-      -- file worker has been deleted. As of writing this, there are no inlay hints that use this
-      -- field anyways.
-      -- In the future, we should resolve this by caching the module name in `DocumentMeta`.
-      | _ => pure .anonymous
     let mut updatedOldInlayHints := #[]
     for ihi in oldInlayHints do
       let mut ihi := ihi
@@ -228,7 +211,7 @@ where
         let .rangeChange changeRange newText := c
           | return #[] -- `fullChange` => all old inlay hints invalidated
         let changeRange := text.lspRangeToUtf8Range changeRange
-        let some ihi' := applyEditToHint? modName ihi changeRange newText
+        let some ihi' := applyEditToHint? meta.mod ihi changeRange newText
           | -- Change in some position of inlay hint => inlay hint invalidated
             inlayHintInvalidated := true
             break

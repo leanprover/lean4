@@ -348,7 +348,6 @@ structure WorkerState where
   doc                : EditableDocument
   /-- Token flagged for aborting `doc.reporter` when a new document version comes in. -/
   reporterCancelTk   : CancelToken
-  srcSearchPathTask  : ServerTask SearchPath
   importCachingTask? : Option (ServerTask (Except Error AvailableImportsCache))
   pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
@@ -365,9 +364,12 @@ open Language Lean in
 Callback from Lean language processor after parsing imports that requests necessary information from
 Lake for processing imports.
 -/
-def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Channel JsonRpc.Message)
-    (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
-    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
+def setupImports
+    (meta        : DocumentMeta)
+    (cmdlineOpts : Options)
+    (chanOut     : Std.Channel JsonRpc.Message)
+    (stx         : Syntax)
+    : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
     -- As we never unload imports in the server, we should not run the code below twice in the
@@ -405,25 +407,16 @@ def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Ch
     }
   | _ => pure ()
 
-  srcSearchPathPromise.resolve fileSetupResult.srcSearchPath
-
-  let mainModuleName ← if let some path := System.Uri.fileUriToPath? meta.uri then
-    EIO.catchExceptions (h := fun _ => pure Name.anonymous) do
-      if let some mod ← searchModuleNameOfFileName path fileSetupResult.srcSearchPath then
-        pure mod
-      else
-        moduleNameOfFileName path none
-  else
-    pure Name.anonymous
-
   -- override cmdline options with file options
   let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
 
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
 
+  let opts := Elab.inServer.set opts true
+
   return .ok {
-    mainModuleName
+    mainModuleName := meta.mod
     opts
     plugins := fileSetupResult.plugins
   }
@@ -438,7 +431,6 @@ section Initialization
     let stickyDiagnosticsRef ← IO.mkRef ∅
     let pendingServerRequestsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
-    let srcSearchPathPromise ← IO.Promise.new
     let timestamp ← IO.monoMsNow
     let partialHandlersRef ← IO.mkRef <| RBMap.fromArray (cmp := compare) <|
       (← partialLspRequestHandlerMethods).map fun (method, refreshMethod, _) =>
@@ -448,12 +440,12 @@ section Initialization
           -- Emit a refresh request after a file worker restart.
           pendingRefreshInfo? := some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
         })
-    let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
+    let processor := Language.Lean.process (setupImports meta opts chanOut)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
-    let _ ← ServerTask.IO.mapTaskCostly (t := srcSearchPathPromise.result!) fun srcSearchPath => do
+    let _ ← ServerTask.IO.asTask do
       let importClosure := getImportClosure? initSnap
-      let importClosure ← importClosure.filterMapM (documentUriFromModule srcSearchPath ·)
+      let importClosure ← importClosure.filterMapM (documentUriFromModule? ·)
       chanOut.send <| mkImportClosureNotification importClosure
     let ctx := {
       chanOut
@@ -477,7 +469,6 @@ section Initialization
     return (ctx, {
       doc := { doc with reporter }
       reporterCancelTk
-      srcSearchPathTask  := srcSearchPathPromise.result!
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none
@@ -579,7 +570,6 @@ section NotificationHandling
     let newVersion := docId.version?.getD 0
     let rc : RequestContext := {
       rpcSessions := st.rpcSessions
-      srcSearchPathTask := st.srcSearchPathTask
       doc := oldDoc
       cancelTk
       hLog := ctx.hLog
@@ -589,7 +579,10 @@ section NotificationHandling
     RequestM.runInIO (handleOnDidChange p) rc
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
-      updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
+      updateDocument { oldDoc.meta with
+        version := newVersion
+        text := newDocText
+      }
       for (_, r) in st.pendingRequests do
         r.cancelTk.cancelByEdit
 
@@ -872,7 +865,6 @@ section MessageHandling
     -- TODO: move into language-specific request handling
     let rc : RequestContext := {
       rpcSessions := st.rpcSessions
-      srcSearchPathTask := st.srcSearchPathTask
       doc := st.doc
       cancelTk
       hLog := ctx.hLog
@@ -1017,9 +1009,16 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
-  -- LSP always refers to characters by (line, column),
-  -- so converting CRLF to LF preserves line and column numbers.
-  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.crlfToLf.toFileMap, param.dependencyBuildMode?.getD .always⟩
+
+  let meta : DocumentMeta := {
+    uri := doc.uri
+    mod := ← moduleFromDocumentUri doc.uri
+    version := doc.version
+    -- LSP always refers to characters by (line, column),
+    -- so converting CRLF to LF preserves line and column numbers.
+    text := doc.text.crlfToLf.toFileMap
+    dependencyBuildMode := param.dependencyBuildMode?.getD .always
+  }
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   let (ctx, st) ← try

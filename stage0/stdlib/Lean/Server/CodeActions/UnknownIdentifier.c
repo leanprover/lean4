@@ -1835,7 +1835,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_ctor_get(x_4, 0);
 lean_inc(x_7);
 lean_dec(x_4);
-x_8 = lean_ctor_get(x_7, 2);
+x_8 = lean_ctor_get(x_7, 3);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = lean_ctor_get(x_5, 0);
@@ -1878,7 +1878,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24;
 x_21 = lean_ctor_get(x_4, 0);
 lean_inc(x_21);
 lean_dec(x_4);
-x_22 = lean_ctor_get(x_21, 2);
+x_22 = lean_ctor_get(x_21, 3);
 lean_inc(x_22);
 lean_dec(x_21);
 x_23 = lean_ctor_get(x_5, 0);
@@ -2516,7 +2516,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get(x_6, 2);
+x_7 = lean_ctor_get(x_6, 3);
 lean_inc(x_7);
 lean_dec(x_6);
 x_8 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_computeFallbackQuery_x3f___lambda__1___boxed), 2, 1);
@@ -2730,7 +2730,7 @@ lean_dec(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = lean_ctor_get(x_10, 2);
+x_11 = lean_ctor_get(x_10, 3);
 lean_inc(x_11);
 lean_dec(x_10);
 x_12 = lean_alloc_ctor(0, 2, 0);
@@ -3057,7 +3057,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get(x_6, 2);
+x_7 = lean_ctor_get(x_6, 3);
 lean_inc(x_7);
 lean_dec(x_6);
 x_8 = lean_ctor_get(x_3, 0);
@@ -3590,7 +3590,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get(x_6, 2);
+x_7 = lean_ctor_get(x_6, 3);
 lean_inc(x_7);
 lean_dec(x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);
@@ -3892,7 +3892,7 @@ lean_inc(x_6);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = lean_ctor_get(x_7, 2);
+x_8 = lean_ctor_get(x_7, 3);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = lean_ctor_get(x_3, 1);
@@ -5008,7 +5008,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_RequestM_sendServerRequest___at_Lean_Serv
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_5 = lean_ctor_get(x_3, 6);
+x_5 = lean_ctor_get(x_3, 5);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanQueryModuleParams____x40_Lean_Data_Lsp_Internal___hyg_3119_(x_2);
@@ -5939,7 +5939,7 @@ x_20 = l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___lambda__4___
 x_21 = l_Task_Priority_default;
 x_22 = 1;
 x_23 = lean_task_map(x_20, x_18, x_21, x_22);
-x_24 = lean_ctor_get(x_3, 5);
+x_24 = lean_ctor_get(x_3, 4);
 x_25 = l_Lean_Server_RequestCancellationToken_requestCancellationTask(x_24);
 x_26 = l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___lambda__4___closed__3;
 x_27 = lean_task_map(x_26, x_25, x_21, x_22);
@@ -6287,7 +6287,7 @@ x_134 = l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___lambda__4__
 x_135 = l_Task_Priority_default;
 x_136 = 1;
 x_137 = lean_task_map(x_134, x_132, x_135, x_136);
-x_138 = lean_ctor_get(x_3, 5);
+x_138 = lean_ctor_get(x_3, 4);
 x_139 = l_Lean_Server_RequestCancellationToken_requestCancellationTask(x_138);
 x_140 = l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___lambda__4___closed__3;
 x_141 = lean_task_map(x_140, x_139, x_135, x_136);
@@ -6540,13 +6540,13 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAct
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_7 = lean_ctor_get(x_5, 2);
+x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
-x_10 = lean_ctor_get(x_9, 2);
+x_10 = lean_ctor_get(x_9, 3);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = lean_array_get_size(x_4);
@@ -8285,13 +8285,13 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleResolveImportAllUnknownI
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_6 = lean_ctor_get(x_4, 2);
+x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
-x_9 = lean_ctor_get(x_8, 2);
+x_9 = lean_ctor_get(x_8, 3);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_array_get_size(x_3);

@@ -71,6 +71,7 @@ LEAN_EXPORT lean_object* l_Int_Linear_cooper__dvd__right__split__dvd2__cert___bo
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_isValidEq___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Int_Linear_eq__of__le__ge__cert(lean_object*, lean_object*);
 static lean_object* l_Int_Linear_Expr_toPoly_x27___closed__1;
+LEAN_EXPORT lean_object* l_Int_Linear_eq__def_x27__cert___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_Linear_cooper__left__split__dvd__cert(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_coeff___boxed(lean_object*, lean_object*);
@@ -183,6 +184,7 @@ LEAN_EXPORT lean_object* l_Int_Linear_norm__eq__coeff__cert___boxed(lean_object*
 LEAN_EXPORT uint8_t l_Int_Linear_eq__le__subst__nonpos__cert(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_norm(lean_object*);
 LEAN_EXPORT uint8_t l_Int_Linear_Poly_isUnsatDvd(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_eq__def_x27__cert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_Linear_cooper__right__split__ineq__cert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_le__coeff__cert___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_norm__eq__var__cert___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5917,6 +5919,32 @@ _start:
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Int_Linear_eq__def__cert(x_1, x_2, x_3);
 lean_dec(x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT uint8_t l_Int_Linear_eq__def_x27__cert(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = l_Int_Linear_Expr_norm(x_2);
+x_5 = l_Int_Linear_norm__eq__var__cert___closed__1;
+x_6 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_1);
+lean_ctor_set(x_6, 2, x_4);
+x_7 = l___private_Init_Data_Int_Linear_0__Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_596_(x_3, x_6);
+lean_dec(x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Int_Linear_eq__def_x27__cert___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Int_Linear_eq__def_x27__cert(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
 x_5 = lean_box(x_4);
 return x_5;
 }

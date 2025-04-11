@@ -234,7 +234,7 @@ theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l 
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some', ih]
+  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
 
 namespace Const
 
@@ -254,7 +254,7 @@ theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : Ass
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some', ih]
+  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
 
 end Const
 

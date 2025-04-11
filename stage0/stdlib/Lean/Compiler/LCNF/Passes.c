@@ -1759,15 +1759,16 @@ x_7 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_446____
 x_8 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_446____closed__9;
 x_9 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_446____closed__10;
 x_10 = 2;
-x_11 = lean_alloc_ctor(0, 7, 1);
+x_11 = lean_alloc_ctor(0, 8, 1);
 lean_ctor_set(x_11, 0, x_5);
 lean_ctor_set(x_11, 1, x_6);
 lean_ctor_set(x_11, 2, x_3);
 lean_ctor_set(x_11, 3, x_7);
 lean_ctor_set(x_11, 4, x_8);
-lean_ctor_set(x_11, 5, x_9);
-lean_ctor_set(x_11, 6, x_4);
-lean_ctor_set_uint8(x_11, sizeof(void*)*7, x_10);
+lean_ctor_set(x_11, 5, x_8);
+lean_ctor_set(x_11, 6, x_9);
+lean_ctor_set(x_11, 7, x_4);
+lean_ctor_set_uint8(x_11, sizeof(void*)*8, x_10);
 x_12 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg(x_11, x_1);
 return x_12;
 }

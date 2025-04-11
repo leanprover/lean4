@@ -286,14 +286,15 @@ where
         -- them, eventually put each of them back in `Context.tacSnap?` in `applyAltStx`
         let finished ← IO.Promise.new
         let altPromises ← altStxs.mapM fun _ => IO.Promise.new
+        let cancelTk? := (← readThe Core.Context).cancelTk?
         tacSnap.new.resolve {
           -- save all relevant syntax here for comparison with next document version
           stx := mkNullNode altStxs
           diagnostics := .empty
           inner? := none
-          finished := { stx? := mkNullNode altStxs, reportingRange? := none, task := finished.resultD default }
+          finished := { stx? := mkNullNode altStxs, reportingRange? := none, task := finished.resultD default, cancelTk? }
           next := Array.zipWith
-            (fun stx prom => { stx? := some stx, task := prom.resultD default })
+            (fun stx prom => { stx? := some stx, task := prom.resultD default, cancelTk? })
             altStxs altPromises
         }
         goWithIncremental <| altPromises.mapIdx fun i prom => {

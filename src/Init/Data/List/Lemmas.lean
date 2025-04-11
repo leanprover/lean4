@@ -848,7 +848,9 @@ theorem getLast!_cons_eq_getLastD [Inhabited α] : @getLast! α _ (a::l) = getLa
   | _::a::l, _ => .tail _ <| getLast_mem (cons_ne_nil a l)
 
 theorem getLast_mem_getLast? : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ getLast? l
-  | [], h => by contradiction
+  | _ :: _, _ => rfl
+
+theorem getLast?_eq_some_getLast : ∀ {l : List α} (h : l ≠ []), getLast? l = some (getLast l h)
   | _ :: _, _ => rfl
 
 theorem getLastD_mem_cons : ∀ {l : List α} {a : α}, getLastD l a ∈ a::l
@@ -964,17 +966,16 @@ abbrev head?_isSome := @isSome_head?
   | [], h => absurd rfl h
   | _::_, _ => .head ..
 
-theorem mem_of_mem_head? : ∀ {l : List α} {a : α}, a ∈ l.head? → a ∈ l := by
-  intro l a h
-  cases l with
-  | nil => simp at h
-  | cons b l =>
-    simp at h
-    cases h
-    exact mem_cons_self
+theorem mem_of_head? : {l : List α} → {a : α} → l.head? = some a → a ∈ l
+  | _::_, _, h => Option.some.inj h ▸ mem_cons_self
+
+theorem mem_of_mem_head? : ∀ {l : List α} {a : α}, a ∈ l.head? → a ∈ l :=
+  mem_of_head?
 
 theorem head_mem_head? : ∀ {l : List α} (h : l ≠ []), head l h ∈ head? l
-  | [], h => by contradiction
+  | _ :: _, _ => rfl
+
+theorem head?_eq_some_head : ∀ {l : List α} (h : l ≠ []), head? l = some (head l h)
   | _ :: _, _ => rfl
 
 theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
@@ -983,11 +984,13 @@ theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
 theorem head?_concat_concat : (l ++ [a, b]).head? = (l ++ [a]).head? := by
   cases l <;> simp
 
+theorem head_of_head?_eq_some {l : List α} {x} (hx : l.head? = some x) :
+    l.head (ne_nil_of_mem (mem_of_head? hx)) = x := by
+  rw [← Option.some_inj, ← head?_eq_some_head, hx]
+
 theorem head_of_mem_head? {l : List α} {x} (hx : x ∈ l.head?) :
-    l.head (ne_nil_of_mem (mem_of_mem_head? hx)) = x := by
-  cases l
-  · contradiction
-  · simpa using hx
+    l.head (ne_nil_of_mem (mem_of_mem_head? hx)) = x :=
+  head_of_head?_eq_some hx
 
 /-! ### headD -/
 
@@ -2469,18 +2472,19 @@ theorem getLast?_eq_head?_reverse {xs : List α} : xs.getLast? = xs.reverse.head
 theorem head?_eq_getLast?_reverse {xs : List α} : xs.head? = xs.reverse.getLast? := by
   simp
 
-theorem mem_of_mem_getLast? {l : List α} {a : α} (h : a ∈ getLast? l) : a ∈ l := by
-  rw [getLast?_eq_head?_reverse] at h
-  rw [← mem_reverse]
-  exact mem_of_mem_head? h
+theorem mem_of_getLast? {l : List α} {a : α} (h : getLast? l = some a) : a ∈ l :=
+  mem_reverse.1 (mem_of_head? (getLast?_eq_head?_reverse ▸ h))
+
+theorem mem_of_mem_getLast? {l : List α} {a : α} (h : a ∈ getLast? l) : a ∈ l :=
+  mem_of_getLast? h
+
+theorem getLast_of_getLast?_eq_some {l : List α} (hx : l.getLast? = some x) :
+    l.getLast (ne_nil_of_mem (mem_of_getLast? hx)) = x := by
+  rw [← Option.some_inj, ← getLast?_eq_some_getLast, hx]
 
 theorem getLast_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
-    l.getLast (ne_nil_of_mem (mem_of_mem_getLast? hx)) = x := by
-  rw [Option.mem_def] at hx
-  cases l
-  · contradiction
-  · rw [← Option.some_inj, ← hx]
-    rfl
+    l.getLast (ne_nil_of_mem (mem_of_mem_getLast? hx)) = x :=
+  getLast_of_getLast?_eq_some hx
 
 @[simp] theorem map_reverse {f : α → β} {l : List α} : l.reverse.map f = (l.map f).reverse := by
   induction l <;> simp [*]
@@ -2859,10 +2863,6 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
 @[simp] theorem getLast?_isSome : l.getLast?.isSome ↔ l ≠ [] := by
   rw [getLast?_eq_head?_reverse, isSome_head?]
   simp
-
-theorem mem_of_getLast? {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
-  obtain ⟨ys, rfl⟩ := getLast?_eq_some_iff.1 h
-  exact mem_concat_self
 
 @[deprecated mem_of_getLast? (since := "2024-10-21")] abbrev mem_of_getLast?_eq_some := @mem_of_getLast?
 

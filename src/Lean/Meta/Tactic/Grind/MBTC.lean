@@ -60,8 +60,9 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
             unless others.any (isSameExpr arg ·) do
               for other in others do
                 if (← ctx.eqAssignment arg other) then
-                  let k := mkCandidateKey arg other
-                  candidates := candidates.insert k
+                  if (← hasSameType arg other) then
+                    let k := mkCandidateKey arg other
+                    candidates := candidates.insert k
               map := map.insert (f, i) (arg :: others)
           else
             map := map.insert (f, i) [arg]

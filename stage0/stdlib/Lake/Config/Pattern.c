@@ -212,7 +212,7 @@ lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instIsPatternStrPatDescrString;
 LEAN_EXPORT uint8_t l_Lake_PatternDescr_matches___at_Lake_StrPat_mem___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lake_term___x3d_x7e_____closed__1;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* _init_l_Lake_term___x3d_x7e_____closed__1() {
 _start:
 {
@@ -1364,7 +1364,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

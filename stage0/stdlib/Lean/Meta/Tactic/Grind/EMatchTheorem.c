@@ -945,7 +945,7 @@ lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_ppPattern___spec__1___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_dontCare___closed__1;
 static lean_object* l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__2;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_EMatchTheoremKind_toAttribute(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_hasChildWithSameNewBVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1688,7 +1688,7 @@ x_3 = lean_unsigned_to_nat(5u);
 x_4 = lean_unsigned_to_nat(1000u);
 x_5 = 1;
 x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_alloc_ctor(0, 6, 12);
+x_7 = lean_alloc_ctor(0, 6, 14);
 lean_ctor_set(x_7, 0, x_2);
 lean_ctor_set(x_7, 1, x_3);
 lean_ctor_set(x_7, 2, x_3);
@@ -1700,13 +1700,15 @@ lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 1, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 2, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 3, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 4, x_1);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 5, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 5, x_1);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 6, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 7, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 8, x_1);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 8, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 9, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 10, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 10, x_1);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 11, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 12, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 13, x_5);
 return x_7;
 }
 }
@@ -4210,7 +4212,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -13098,7 +13100,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_array_get_size(x_2);
-x_10 = l_Array_emptyWithCapacity(lean_box(0), x_9);
+x_10 = lean_mk_empty_array_with_capacity(x_9);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = l_Array_mapFinIdxM_map___at_Lean_Meta_Grind_NormalizePattern_getPatternSupportMask___spec__1(x_1, x_2, x_2, x_9, x_11, lean_box(0), x_10, x_4, x_5, x_6, x_7, x_8);
 return x_12;

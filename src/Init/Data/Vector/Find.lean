@@ -294,6 +294,18 @@ theorem find?_eq_some_iff_getElem {xs : Vector α n} {p : α → Bool} {b : α} 
   subst w
   simp
 
+@[simp]
+theorem isSome_findFinIdx? {xs : Vector α n} {p : α → Bool} :
+    (xs.findFinIdx? p).isSome = xs.any p := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp]
+theorem isNone_findFinIdx? {xs : Vector α n} {p : α → Bool} :
+    (xs.findFinIdx? p).isNone = xs.all (fun x => ¬ p x) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
 @[simp] theorem findFinIdx?_subtype {p : α → Prop} {xs : Vector { x // p x } n}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     xs.findFinIdx? f = xs.unattach.findFinIdx? g := by

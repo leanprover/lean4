@@ -39,31 +39,37 @@ This is not an instance because it is not definitionally equal to the standard i
 
 Try to use the Boolean comparisons `Option.isNone` or `Option.isSome` instead.
 -/
-@[inline] def decidable_eq_none {o : Option α} : Decidable (o = none) :=
+@[inline] def decidableEqNone {o : Option α} : Decidable (o = none) :=
   decidable_of_decidable_of_iff isNone_iff_eq_none
 
-instance {p : α → Prop} [DecidablePred p] : ∀ o : Option α, Decidable (∀ a, a ∈ o → p a)
-| none => isTrue nofun
-| some a =>
-  if h : p a then isTrue fun _ e => some_inj.1 e ▸ h
-  else isFalse <| mt (· _ rfl) h
+@[deprecated decidableEqNone (since := "2025-04-10"), inline]
+def decidable_eq_none {o : Option α} : Decidable (o = none) :=
+  decidableEqNone
 
-instance {p : α → Prop} [DecidablePred p] : ∀ o : Option α, Decidable (Exists fun a => a ∈ o ∧ p a)
-| none => isFalse nofun
-| some a => if h : p a then isTrue ⟨_, rfl, h⟩ else isFalse fun ⟨_, ⟨rfl, hn⟩⟩ => h hn
+instance decidableForallMem {p : α → Prop} [DecidablePred p] :
+    ∀ o : Option α, Decidable (∀ a, a ∈ o → p a)
+  | none => isTrue nofun
+  | some a =>
+    if h : p a then isTrue fun _ e => some_inj.1 e ▸ h
+    else isFalse <| mt (· _ rfl) h
+
+instance decidableExistsMem {p : α → Prop} [DecidablePred p] :
+    ∀ o : Option α, Decidable (Exists fun a => a ∈ o ∧ p a)
+  | none => isFalse nofun
+  | some a => if h : p a then isTrue ⟨_, rfl, h⟩ else isFalse fun ⟨_, ⟨rfl, hn⟩⟩ => h hn
 
 /--
 Given an optional value and a function that can be applied when the value is `some`, returns the
 result of applying the function if this is possible.
 
-The function `f` is _partial_ because it is only defined for the values `a : α` such `a ∈ o`, which
-is equivalent to `o = some a`. This restriction allows the function to use the fact that it can only
-be called when `o` is not `none`: it can relate its argument to the optional value `o`. Its runtime
-behavior is equivalent to that of `Option.bind`.
+The function `f` is _partial_ because it is only defined for the values `a : α` such that
+`o = some a`. This restriction allows the function to use the fact that it can only be called when
+`o` is not `none`: it can relate its argument to the optional value `o`. Its runtime behavior is
+equivalent to that of `Option.bind`.
 
 Examples:
 ```lean example
-def attach (v : Option α) : Option { y : α // y ∈ v } :=
+def attach (v : Option α) : Option { y : α // v = some y } :=
   v.pbind fun x h => some ⟨x, h⟩
 ```
 ```lean example
@@ -80,7 +86,7 @@ none
 ```
 -/
 @[inline]
-def pbind : (o : Option α) → (f : (a : α) → a ∈ o → Option β) → Option β
+def pbind : (o : Option α) → (f : (a : α) → o = some a → Option β) → Option β
   | none, _ => none
   | some a, f => f a rfl
 
@@ -90,7 +96,7 @@ satisfies `p` if it's present, applies the function to the value.
 
 Examples:
 ```lean example
-def attach (v : Option α) : Option { y : α // y ∈ v } :=
+def attach (v : Option α) : Option { y : α // v = some y } :=
   v.pmap (fun a (h : a ∈ v) => ⟨_, h⟩) (fun _ h => h)
 ```
 ```lean example
@@ -108,7 +114,7 @@ none
 -/
 @[inline] def pmap {p : α → Prop}
     (f : ∀ a : α, p a → β) :
-    (o : Option α) → (∀ a, a ∈ o → p a) → Option β
+    (o : Option α) → (∀ a, o = some a → p a) → Option β
   | none, _ => none
   | some a, H => f a (H a rfl)
 
@@ -116,14 +122,14 @@ none
 Given an optional value and a function that can be applied when the value is `some`, returns the
 result of applying the function if this is possible, or a fallback value otherwise.
 
-The function `f` is _partial_ because it is only defined for the values `a : α` such `a ∈ o`, which
-is equivalent to `o = some a`. This restriction allows the function to use the fact that it can only
-be called when `o` is not `none`: it can relate its argument to the optional value `o`. Its runtime
-behavior is equivalent to that of `Option.elim`.
+The function `f` is _partial_ because it is only defined for the values `a : α` such that
+`o = some a`. This restriction allows the function to use the fact that it can only be called when
+`o` is not `none`: it can relate its argument to the optional value `o`. Its runtime behavior is
+equivalent to that of `Option.elim`.
 
 Examples:
 ```lean example
-def attach (v : Option α) : Option { y : α // y ∈ v } :=
+def attach (v : Option α) : Option { y : α // v = some y } :=
   v.pelim none fun x h => some ⟨x, h⟩
 ```
 ```lean example
@@ -139,7 +145,7 @@ some ⟨3, ⋯⟩
 none
 ```
 -/
-@[inline] def pelim (o : Option α) (b : β) (f : (a : α) → a ∈ o → β) : β :=
+@[inline] def pelim (o : Option α) (b : β) (f : (a : α) → o = some a → β) : β :=
   match o with
   | none => b
   | some a => f a rfl

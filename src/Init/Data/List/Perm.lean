@@ -539,4 +539,16 @@ theorem perm_insertIdx {α} (x : α) (l : List α) {i} (h : i ≤ l.length) :
       simp only [insertIdx, modifyTailIdx]
       refine .trans (.cons _ (ih (Nat.le_of_succ_le_succ h))) (.swap ..)
 
+namespace Perm
+
+theorem take {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.drop n = l₂.drop n) :
+    (l₁.take n) ~ (l₂.take n) := by
+  rwa [← List.take_append_drop n l₁, ← List.take_append_drop n l₂, w, perm_append_right_iff] at h
+
+theorem drop {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₂.take n = l₁.take n) :
+    (l₁.drop n) ~ (l₂.drop n) := by
+  rwa [← List.take_append_drop n l₁, ← List.take_append_drop n l₂, w, perm_append_left_iff] at h
+
+end Perm
+
 end List

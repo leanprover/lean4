@@ -18,7 +18,7 @@ theorem getElem!_of_getElem?' [Inhabited α] :
     ∀ {l : List α} {i : Nat}, l[i]? = some b → l[i]! = b := by
   grind
 
-attribute [local grind =] Option.map_some' Option.map_none' in
+attribute [local grind =] Option.map_some Option.map_none in
 attribute [local grind =] getElem?_map in
 attribute [local grind =] getElem?_replicate in
 theorem map_replicate' : (replicate n a).map f = replicate n (f a) := by

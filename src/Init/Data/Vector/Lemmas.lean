@@ -1511,7 +1511,7 @@ theorem map_eq_iff {f : α → β} {as : Vector α n} {bs : Vector β n} :
     if h : i < as.size then
       simpa [h, h'] using w i h
     else
-      rw [getElem?_neg, getElem?_neg, Option.map_none'] <;> omega
+      rw [getElem?_neg, getElem?_neg, Option.map_none] <;> omega
 
 @[simp] theorem map_set {f : α → β} {xs : Vector α n} {i : Nat} {h : i < n} {a : α} :
     (xs.set i a).map f = (xs.map f).set i (f a) (by simpa using h) := by

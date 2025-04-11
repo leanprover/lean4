@@ -624,7 +624,7 @@ static lean_object* l_Lean_expandTraceMacro___lambda__1___closed__30;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_printTraces___spec__5___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_trace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MonadTrace_getInheritedTraceOptions___autoParam___closed__16;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addRawTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_trace___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2979____closed__3;
@@ -694,7 +694,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -10637,95 +10637,92 @@ return x_13;
 LEAN_EXPORT lean_object* l_Lean_addTraceAsMessages___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; size_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_18; 
-x_5 = lean_ctor_get(x_4, 1);
-x_6 = lean_array_get_size(x_5);
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_nat_dec_lt(x_7, x_6);
-x_9 = lean_box(0);
-x_10 = 0;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; size_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_20; 
+x_5 = lean_ctor_get(x_4, 0);
+x_6 = lean_mk_empty_array_with_capacity(x_5);
+x_7 = lean_ctor_get(x_4, 1);
+x_8 = lean_array_get_size(x_7);
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = lean_nat_dec_lt(x_9, x_8);
+x_11 = lean_box(0);
+x_12 = 0;
 lean_inc(x_1);
-x_11 = lean_alloc_closure((void*)(l_Lean_printTraces___rarg___lambda__1___boxed), 2, 1);
-lean_closure_set(x_11, 0, x_1);
-if (x_8 == 0)
+x_13 = lean_alloc_closure((void*)(l_Lean_printTraces___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_13, 0, x_1);
+if (x_10 == 0)
+{
+lean_dec(x_8);
+x_20 = x_6;
+goto block_28;
+}
+else
+{
+uint8_t x_29; 
+x_29 = lean_nat_dec_le(x_8, x_8);
+if (x_29 == 0)
+{
+lean_dec(x_8);
+x_20 = x_6;
+goto block_28;
+}
+else
+{
+size_t x_30; lean_object* x_31; 
+x_30 = lean_usize_of_nat(x_8);
+lean_dec(x_8);
+x_31 = l_Array_foldlMUnsafe_fold___at_Lean_addTraceAsMessages___spec__16(x_7, x_12, x_30, x_6);
+x_20 = x_31;
+goto block_28;
+}
+}
+block_19:
+{
+size_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = lean_array_size(x_14);
+x_16 = lean_box(0);
+lean_inc(x_14);
+lean_inc(x_3);
+x_17 = l_Array_forIn_x27Unsafe_loop___at_Lean_addTraceAsMessages___spec__14___rarg(x_1, x_2, x_3, x_11, x_14, x_14, x_15, x_12, x_16);
+x_18 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_17, x_13);
+return x_18;
+}
+block_28:
+{
+lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
+x_21 = lean_array_get_size(x_20);
+x_22 = lean_unsigned_to_nat(1u);
+x_23 = lean_nat_sub(x_21, x_22);
+x_24 = lean_nat_dec_eq(x_21, x_9);
+if (x_24 == 0)
+{
+uint8_t x_25; 
+x_25 = lean_nat_dec_le(x_9, x_23);
+if (x_25 == 0)
+{
+lean_object* x_26; 
+lean_inc(x_23);
+x_26 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_21, x_20, x_23, x_23, lean_box(0), lean_box(0));
+lean_dec(x_23);
+lean_dec(x_21);
+x_14 = x_26;
+goto block_19;
+}
+else
 {
 lean_object* x_27; 
-lean_dec(x_6);
-x_27 = l_Lean_addTrace___rarg___lambda__1___closed__3;
-x_18 = x_27;
-goto block_26;
-}
-else
-{
-uint8_t x_28; 
-x_28 = lean_nat_dec_le(x_6, x_6);
-if (x_28 == 0)
-{
-lean_object* x_29; 
-lean_dec(x_6);
-x_29 = l_Lean_addTrace___rarg___lambda__1___closed__3;
-x_18 = x_29;
-goto block_26;
-}
-else
-{
-size_t x_30; lean_object* x_31; lean_object* x_32; 
-x_30 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
-x_31 = l_Lean_addTrace___rarg___lambda__1___closed__3;
-x_32 = l_Array_foldlMUnsafe_fold___at_Lean_addTraceAsMessages___spec__16(x_5, x_10, x_30, x_31);
-x_18 = x_32;
-goto block_26;
-}
-}
-block_17:
-{
-size_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_13 = lean_array_size(x_12);
-x_14 = lean_box(0);
-lean_inc(x_12);
-lean_inc(x_3);
-x_15 = l_Array_forIn_x27Unsafe_loop___at_Lean_addTraceAsMessages___spec__14___rarg(x_1, x_2, x_3, x_9, x_12, x_12, x_13, x_10, x_14);
-x_16 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_15, x_11);
-return x_16;
-}
-block_26:
-{
-lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
-x_19 = lean_array_get_size(x_18);
-x_20 = lean_unsigned_to_nat(1u);
-x_21 = lean_nat_sub(x_19, x_20);
-x_22 = lean_nat_dec_eq(x_19, x_7);
-if (x_22 == 0)
-{
-uint8_t x_23; 
-x_23 = lean_nat_dec_le(x_7, x_21);
-if (x_23 == 0)
-{
-lean_object* x_24; 
-lean_inc(x_21);
-x_24 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_19, x_18, x_21, x_21, lean_box(0), lean_box(0));
+x_27 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_21, x_20, x_9, x_23, lean_box(0), lean_box(0));
+lean_dec(x_23);
 lean_dec(x_21);
-lean_dec(x_19);
-x_12 = x_24;
-goto block_17;
-}
-else
-{
-lean_object* x_25; 
-x_25 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_19, x_18, x_7, x_21, lean_box(0), lean_box(0));
-lean_dec(x_21);
-lean_dec(x_19);
-x_12 = x_25;
-goto block_17;
+x_14 = x_27;
+goto block_19;
 }
 }
 else
 {
+lean_dec(x_23);
 lean_dec(x_21);
-lean_dec(x_19);
-x_12 = x_18;
-goto block_17;
+x_14 = x_20;
+goto block_19;
 }
 }
 }

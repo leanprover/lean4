@@ -8,7 +8,7 @@ import Init.Data.List.Lemmas
 
 namespace Option
 
-@[simp] theorem mem_toList {a : α} {o : Option α} : a ∈ o.toList ↔ a ∈ o := by
+@[simp] theorem mem_toList {a : α} {o : Option α} : a ∈ o.toList ↔ o = some a := by
   cases o <;> simp [eq_comm]
 
 @[simp] theorem forIn'_none [Monad m] (b : β) (f : (a : α) → a ∈ none → β → m (ForInStep β)) :

@@ -76,7 +76,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   r := r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
   if (← isTracingEnabledFor `grind.offset.model) then
     for (x, v) in r do
-      trace[grind.offset.model] "{quoteIfNotAtom x} := {v}"
+      trace[grind.offset.model] "{quoteIfArithTerm x} := {v}"
   return r
 
 end Lean.Meta.Grind.Arith.Offset

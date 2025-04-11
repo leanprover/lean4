@@ -1451,10 +1451,10 @@ l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__15 = _init_l_Lake_in
 lean_mark_persistent(l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__15);
 l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__16 = _init_l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__16();
 lean_mark_persistent(l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__16);
-res = l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4_(lean_io_mk_world());
+if (builtin) {res = l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

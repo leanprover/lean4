@@ -85,7 +85,7 @@ expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned
 }
 
 class replace_fn {
-    std::unordered_map<lean_object *, expr> m_cache;
+    lean::unordered_map<lean_object *, expr> m_cache;
     lean_object * m_f;
 
     expr save_result(expr const & e, expr const & r, bool shared) {

@@ -449,7 +449,7 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 @[simp] theorem sub_add_bmod_cancel {x y : BitVec w} :
     ((((2 ^ w : Nat) - y.toNat) : Int) + x.toNat).bmod (2 ^ w) =
       ((x.toNat : Int) - y.toNat).bmod (2 ^ w) := by
-  rw [Int.sub_eq_add_neg, Int.add_assoc, Int.add_comm, Int.bmod_add_cancel, Int.add_comm,
+  rw [Int.sub_eq_add_neg, Int.add_assoc, Int.add_comm, Int.add_bmod_right, Int.add_comm,
     Int.sub_eq_add_neg]
 
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
@@ -3356,7 +3356,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
     simp only [Nat.add_one_sub_one]
     constructor
     · intros h
-      rw_mod_cast [← Int.bmod_add_cancel, Int.bmod_eq_self_of_le]
+      rw_mod_cast [← Int.add_bmod_right, Int.bmod_eq_self_of_le]
       <;> omega
     · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
       push_cast at this
@@ -3373,7 +3373,7 @@ theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
     constructor
     · intros h
       simp only [show 0 ≤ x.toInt by omega, show y.toInt < 0 by omega, _root_.true_and]
-      rw_mod_cast [← Int.bmod_sub_cancel, Int.bmod_eq_self_of_le (by omega) (by omega)]
+      rw_mod_cast [← Int.sub_bmod_right, Int.bmod_eq_self_of_le (by omega) (by omega)]
       omega
     · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
       push_cast at this

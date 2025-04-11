@@ -9,7 +9,7 @@ options get_default_options() {
     opts = opts.update({"debug", "proofAsSorry"}, false);
     // switch to `true` for ABI-breaking changes affecting meta code;
     // see also next option!
-    opts = opts.update({"interpreter", "prefer_native"}, false);
+    opts = opts.update({"interpreter", "prefer_native"}, true);
     // switch to `false` when enabling `prefer_native` should also affect use
     // of built-in parsers in quotations; this is usually the case, but setting
     // both to `true` may be necessary for handling non-builtin parsers with

@@ -120,6 +120,7 @@ private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
      ⟨`Const.modify, ``Const.toListModel_modify⟩,
      ⟨`filter, ``toListModel_filter⟩,
      ⟨`map, ``toListModel_map⟩,
+     ⟨`pmapEntries, ``toListModel_map⟩,
      ⟨`filterMap, ``toListModel_filterMap⟩]
 
 private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=

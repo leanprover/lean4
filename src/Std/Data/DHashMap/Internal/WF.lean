@@ -21,9 +21,11 @@ open Std.Internal
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
 
-variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
+
+universe u u' v v' w
+
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'} {γ : Type w} {δ : α → Type w}
 
 open List
 
@@ -1008,6 +1010,18 @@ theorem wfImp_mapₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
   size_eq := by rw [toListModel_mapₘ.length_eq, List.length_map, ← h.size_eq, mapₘ]
   distinct := h.distinct.map.perm toListModel_mapₘ
 
+/-! # `pmapEntriesₘ` -/
+
+theorem wfImp_pmapEntriesₘ [BEq α] [BEq α'] [Hashable α] [Hashable α'] {m : Raw₀ α β} {P : (a : α) → β a → Prop}
+    {f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a')}
+    (h₁ : ∀ a b h, hash (f a b h).1 = hash a)
+    (h₂ : ∀ a₁ b₁ a₂ b₂ h₁ h₂, (f a₁ b₁ h₁).1 == (f a₂ b₂ h₂).1 → a₁ == a₂)
+    {H : ∀ a b, ⟨a, b⟩ ∈ toListModel m.val.buckets → P a b}
+    (h : Raw.WFImp m.1) : Raw.WFImp (m.pmapEntriesₘ f H).1 where
+  buckets_hash_self := sorry
+  size_eq := sorry
+  distinct := sorry
+
 /-! # `map` -/
 
 theorem toListModel_map {m : Raw₀ α β} {f : (a : α) → β a → δ a} :
@@ -1020,6 +1034,25 @@ theorem wfImp_map [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : 
     {f : (a : α) → β a → δ a} (h : Raw.WFImp m.1) : Raw.WFImp (m.map f).1 := by
   rw [map_eq_mapₘ]
   exact wfImp_mapₘ h
+
+/-! # `pmapEntries` -/
+
+theorem toListModel_pmapEntries {m : Raw₀ α β} {P : (a : α) → β a → Prop}
+    {f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a')}
+    {H : ∀ a b, ⟨a, b⟩ ∈ toListModel m.val.buckets → P a b} :
+    (toListModel (m.pmapEntries f H).1.buckets) =
+      (toListModel m.1.buckets).pmap (P := fun ⟨a, b⟩ => P a b) (λ ⟨a, b⟩ h ↦ f a b h) (λ ⟨a, b⟩ h ↦ H a b h) := by
+  simp only [pmapEntries]
+  sorry
+
+theorem wfImp_pmapEntries [BEq α] [BEq α'] [Hashable α] [Hashable α'] {m : Raw₀ α β} {P : (a : α) → β a → Prop}
+    {f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a')}
+    (h₁ : ∀ a b h, hash (f a b h).1 = hash a)
+    (h₂ : ∀ a₁ b₁ a₂ b₂ h₁ h₂, (f a₁ b₁ h₁).1 == (f a₂ b₂ h₂).1 → a₁ == a₂)
+    {H : ∀ a b, ⟨a, b⟩ ∈ toListModel m.val.buckets → P a b}
+    (h : Raw.WFImp m.1) : Raw.WFImp (m.pmapEntries f H).1 := by
+  rw [pmapEntries_eq_pmapEntriesₘ]
+  exact wfImp_pmapEntriesₘ h₁ h₂ h
 
 /-! # `filterₘ` -/
 

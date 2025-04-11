@@ -54,4 +54,21 @@ theorem set_set_perm {as : List α} {i j : Nat} (h₁ : i < as.length) (h₂ : j
       subst t
       apply set_set_perm' _ _ (by omega)
 
+namespace Perm
+
+theorem take' {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : ∀ i, n ≤ i → l₁[i]? = l₂[i]?) :
+    (l₁.take n) ~ (l₂.take n) := by
+  apply h.take
+  ext1 i
+  simpa using w (n + i) (by omega)
+
+theorem drop' {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : ∀ i, i < n → l₁[i]? = l₂[i]?) :
+    (l₁.drop n) ~ (l₂.drop n) := by
+  apply h.drop
+  ext1 i
+  simp only [getElem?_take]
+  split <;> simp_all
+
+end Perm
+
 end List

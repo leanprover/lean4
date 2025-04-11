@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <functional>
 #include <vector>
-#include <unordered_map>
 #include "runtime/object.h"
+#include "util/alloc.h"
 
 namespace lean {
 typedef lean_object * object_offset;
@@ -17,7 +17,7 @@ class LEAN_EXPORT object_compactor {
     struct max_sharing_table;
     friend struct max_sharing_hash;
     friend struct max_sharing_eq;
-    std::unordered_map<object*, object_offset, std::hash<object*>, std::equal_to<object*>> m_obj_table;
+    lean::unordered_map<object*, object_offset, std::hash<object*>, std::equal_to<object*>> m_obj_table;
     std::unique_ptr<max_sharing_table> m_max_sharing_table;
     std::vector<object*> m_todo;
     std::vector<object_offset> m_tmp;

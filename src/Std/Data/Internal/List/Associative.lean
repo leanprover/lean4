@@ -4594,7 +4594,7 @@ theorem isSome_apply_of_containsKey_filterMap [BEq α] [LawfulBEq α]
     (h : containsKey k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩))) :
     (f k (getValueCast k l (containsKey_of_containsKey_filterMap hl h))).isSome := by
   simp only [containsKey_eq_isSome_getEntry?, getEntry?_filterMap hl] at h
-  simp only [Option.isSome_bind, Option.isSome_map', Option.any_eq_true] at h
+  simp only [Option.isSome_bind, Option.isSome_map, Option.any_eq_true] at h
   obtain ⟨y, (hy : _ = _), hy'⟩ := h
   cases eq_of_beq (beq_of_getEntry?_eq_some hy)
   simpa only [snd_eq_getValueCast_of_getEntry?_eq_some hy] using hy'
@@ -4606,7 +4606,7 @@ theorem Const.isSome_apply_of_containsKey_filterMap [BEq α] [EquivBEq α] {β :
     haveI h' := containsKey_of_containsKey_filterMap hl h
     (f (getKey k l h') (getValue k l h')).isSome := by
   simp only [containsKey_eq_isSome_getEntry?, getEntry?_filterMap hl] at h
-  simp only [Option.isSome_bind, Option.isSome_map', Option.any_eq_true] at h
+  simp only [Option.isSome_bind, Option.isSome_map, Option.any_eq_true] at h
   obtain ⟨y, (hy : _ = _), hy'⟩ := h
   simpa only [eq_getKey_getValue_of_getEntry?_eq_some hy] using hy'
 
@@ -4664,7 +4664,7 @@ theorem apply_eq_true_of_containsKey_filter [BEq α] [LawfulBEq α]
     (h : containsKey k (l.filter fun p => f p.1 p.2)) :
     f k (getValueCast k l (containsKey_of_containsKey_filter hl h)) := by
   simp only [containsKey_eq_isSome_getEntry?, getEntry?_filter hl] at h
-  simp only [Option.isSome_filter, Option.isSome_map', Option.any_eq_true] at h
+  simp only [Option.isSome_filter, Option.isSome_map, Option.any_eq_true] at h
   obtain ⟨y, (hy : _ = _), hy'⟩ := h
   cases eq_of_beq (beq_of_getEntry?_eq_some hy)
   simp only [snd_eq_getValueCast_of_getEntry?_eq_some hy] at hy'
@@ -4817,7 +4817,7 @@ theorem Const.containsKey_filterMap_iff {β : Type v} {γ : Type w}
     containsKey k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩ : γ → (_ : α) × γ)) ↔
       ∃ h : containsKey k l, (f (getKey k l h) (getValue k l h)).isSome := by
   simp only [containsKey_eq_isSome_getEntry?, getEntry?_filterMap hl,
-    Option.isSome_bind, Option.any_eq_true, Option.isSome_map',
+    Option.isSome_bind, Option.any_eq_true, Option.isSome_map,
     Option.exists_eq_some_and_iff, getKey, getValue, getKey?_eq_getEntry?,
     getValue?_eq_getEntry?, Option.get_map]
 
@@ -4988,11 +4988,11 @@ theorem length_filterMap_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) →
   constructor
   · intro h a ha
     specialize h ⟨a, getValueCast a l ha⟩
-    simp only [Option.isSome_map'] at h
+    simp only [Option.isSome_map] at h
     apply h
     apply getValueCast_mem
   · intro h x hx
-    simp only [Option.isSome_map']
+    simp only [Option.isSome_map]
     specialize h x.1 (containsKey_of_mem hx)
     rw [getValueCast_of_mem hx distinct] at h
     exact h
@@ -5049,7 +5049,7 @@ theorem isEmpty_filterMap_eq_true [BEq α] [LawfulBEq α] {f : (a : α) → β a
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l) :
     (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (a : α) × γ a))).isEmpty = true ↔
       ∀ (k : α) (h : containsKey k l = true), f k (getValueCast k l h) = none := by
-  simp only [List.isEmpty_iff, List.filterMap_eq_nil_iff, Option.map_eq_none',
+  simp only [List.isEmpty_iff, List.filterMap_eq_nil_iff, Option.map_eq_none,
     forall_mem_iff_forall_contains_getValueCast (p:= fun a b => f a b = none) distinct]
 
 theorem isEmpty_filterMap_eq_false [BEq α] [LawfulBEq α] {f : (a : α) → β a → Option (γ a)}
@@ -5133,7 +5133,7 @@ theorem getValue?_filterMap_of_getKey?_eq_some {β : Type v} {γ : Type w} [BEq 
   getKey? k l = some k' →
     getValue? k (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))) =
       (getValue? k l).bind (fun x => f k' x) := by
-  simp only [getKey?_eq_getEntry?, Option.map_eq_some', getValue?_eq_getEntry?,
+  simp only [getKey?_eq_getEntry?, Option.map_eq_some, getValue?_eq_getEntry?,
     getEntry?_filterMap distinct, Option.map_bind, forall_exists_index, and_imp]
   intro x hx hk
   simp only [hx, Option.some_bind, Function.comp_apply, hk, Option.map_map, Option.map_some']
@@ -5189,7 +5189,7 @@ theorem getValue?_filter_of_getKey?_eq_some {β : Type v} [BEq α] [EquivBEq α]
   getKey? k l = some k' →
     getValue? k (l.filter fun p => (f p.1 p.2)) =
       (getValue? k l).filter (fun x => f k' x) := by
-  simp only [getKey?_eq_getEntry?, Option.map_eq_some', getValue?_eq_getEntry?,
+  simp only [getKey?_eq_getEntry?, Option.map_eq_some, getValue?_eq_getEntry?,
     getEntry?_filter distinct, forall_exists_index, and_imp]
   intro x hx hk
   simp only [hx, Option.map_some', Option.filter_some, ← hk]
@@ -5319,11 +5319,11 @@ theorem length_filterMap_eq_length_iff {β : Type v} {γ : Type w} [BEq α] [Equ
   constructor
   · intro h a ha
     specialize h ⟨getKey a l ha, getValue a l ha⟩
-    simp only [Option.isSome_map'] at h
+    simp only [Option.isSome_map] at h
     apply h
     apply getKey_getValue_mem
   · intro h x hx
-    simp only [Option.isSome_map']
+    simp only [Option.isSome_map]
     specialize h x.1 (containsKey_of_mem hx)
     simp [getValue_of_mem hx distinct, getKey_of_mem hx distinct] at h
     exact h
@@ -5346,7 +5346,7 @@ theorem isEmpty_filterMap_eq_true [BEq α] [EquivBEq α] {β : Type v} {γ : Typ
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
     (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))).isEmpty = true ↔
       ∀ (k : α) (h : containsKey k l = true), f (getKey k l h) (getValue k l h) = none := by
-  simp only [List.isEmpty_iff, List.filterMap_eq_nil_iff, Option.map_eq_none',
+  simp only [List.isEmpty_iff, List.filterMap_eq_nil_iff, Option.map_eq_none,
     forall_mem_iff_forall_contains_getKey_getValue (p := fun a b => f a b = none) distinct]
 
 theorem isEmpty_filterMap_eq_false [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}

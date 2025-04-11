@@ -209,7 +209,7 @@ def resolveTargetBaseSpec
     if let some mod := ws.findModuleBySrc? path then
       Array.singleton <$> resolveModuleTarget ws mod facet
     else
-      throw <| CliError.unknownModulePath path
+      resolveTargetLikeSpec ws spec facet
   else
     resolveTargetLikeSpec ws spec facet
 

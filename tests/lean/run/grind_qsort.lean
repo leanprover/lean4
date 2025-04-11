@@ -9,6 +9,60 @@ Authors: Leonardo de Moura
 
 set_option grind.warning false
 
+namespace List
+
+namespace Perm
+
+theorem take {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.drop n = l₂.drop n) :
+    (l₁.take n) ~ (l₂.take n) := by
+  rwa [← List.take_append_drop n l₁, ← List.take_append_drop n l₂, w, perm_append_right_iff] at h
+
+theorem drop {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₂.take n = l₁.take n) :
+    (l₁.drop n) ~ (l₂.drop n) := by
+  rwa [← List.take_append_drop n l₁, ← List.take_append_drop n l₂, w, perm_append_left_iff] at h
+
+theorem take' {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : ∀ i, n ≤ i → l₁[i]? = l₂[i]?) :
+    (l₁.take n) ~ (l₂.take n) := by
+  apply h.take
+  ext1 i
+  simpa using w (n + i) (by omega)
+
+theorem drop' {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : ∀ i, i < n → l₁[i]? = l₂[i]?) :
+    (l₁.drop n) ~ (l₂.drop n) := by
+  apply h.drop
+  ext1 i
+  simp only [getElem?_take]
+  split <;> simp_all
+
+def idx [BEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) (i : Nat) : Nat :=
+  match h : l₁[i]? with
+  | none => i
+  | some x => (l₂.idxOf? x).get (by simp)
+
+
+end Perm
+
+theorem getElem_of_perm {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : i < l₁.length) :
+    ∃ (j : Nat) (h : j < l₂.length), l₁[i] = l₂[j] := by
+  sorry
+
+end List
+
+namespace Array
+
+theorem extract_perm {a b : Array α} (h : a ~ b) (lo hi : Nat)
+    (wlo : ∀ i, i < lo → a[i]? = b[i]?) (whi : ∀ i, hi ≤ i → a[i]? = b[i]?) :
+    (a.extract lo (hi + 1)) ~ (b.extract lo (hi + 1)) := by
+  rcases a with ⟨a⟩
+  rcases b with ⟨b⟩
+  simp_all only [perm_toArray, List.getElem?_toArray, List.extract_toArray,
+    List.extract_eq_drop_take]
+  apply List.take_perm' (w := fun i h => by simpa using whi (lo + i) (by omega))
+  apply List.drop_perm' (w := wlo)
+  exact h
+
+end Array
+
 namespace Array
 
 open List Vector
@@ -67,6 +121,56 @@ theorem qsort_perm (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
   · grind
 
 attribute [grind] Vector.getElem_swap_of_ne
+
+theorem getElem_qpartition_loop_snd_of_lt_lo {n} (lt : α → α → Bool) (lo hi : Nat)
+    (hhi : hi < n) (pivot) (as : Vector α n) (i j) (ilo) (jh) (w : i ≤ j) (w' : lo ≤ hi)
+    (k : Nat) (h : k < lo) : (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2[k] = as[k] := by
+  unfold qpartition.loop
+  split
+  · split
+    · have : hi - (j + 1) < hi - j := by omega
+      rw [getElem_qpartition_loop_snd_of_lt_lo (hi := hi) (j := j + 1) (h := h),
+        Vector.getElem_swap_of_ne]
+      all_goals grind
+    · have : hi - (j + 1) < hi - j := by omega
+      rw [getElem_qpartition_loop_snd_of_lt_lo (hi := hi) (j := j + 1) (h := h)]
+      grind
+  · grind
+termination_by hi - j
+
+theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
+    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+    (k : Nat) (h : k < lo) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := by
+  unfold qpartition
+  rw [getElem_qpartition_loop_snd_of_lt_lo (h := h)]
+  · (repeat' split) <;>
+    { repeat rw [Vector.getElem_swap_of_ne]
+      all_goals grind }
+
+theorem getElem_qsort_sort_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
+    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+    (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
+  unfold qsort.sort
+  split
+  · simp only []
+    split <;> rename_i w₁
+    · rw [getElem_qpartition_snd_of_lt_lo] <;> omega
+    · change ¬ (?q : { m // lo ≤ m ∧ m < n } × Vector α n).fst.1 ≥ hi at w₁
+      have := ?q.1.2.1
+      rw [getElem_qsort_sort_of_lt_lo, getElem_qsort_sort_of_lt_lo, getElem_qpartition_snd_of_lt_lo]
+      any_goals grind
+  · rfl
+termination_by hi - lo
+decreasing_by all_goals grind
+
+theorem getElem_qsort_sort_of_hi_lt {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
+    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+    (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
+  sorry
+
+theorem extract_qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) {hlo} {hhi} :
+    ((qsort.sort lt as lo hi hlo hhi).extract lo (hi + 1)).toArray ~ (as.extract lo (hi + 1)).toArray := by
+  sorry
 
 theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
@@ -221,46 +325,7 @@ private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (
     exact lt_asymm h₂ h₁
   · exact h₁
 
-theorem getElem_qpartition_loop_snd_of_lt_lo {n} (lt : α → α → Bool) (lo hi : Nat)
-    (hhi : hi < n) (pivot) (as : Vector α n) (i j) (ilo) (jh) (w : i ≤ j) (w' : lo ≤ hi)
-    (k : Nat) (h : k < lo) : (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2[k] = as[k] := by
-  unfold qpartition.loop
-  split
-  · split
-    · have : hi - (j + 1) < hi - j := by omega
-      rw [getElem_qpartition_loop_snd_of_lt_lo (hi := hi) (j := j + 1) (h := h),
-        Vector.getElem_swap_of_ne]
-      all_goals grind
-    · have : hi - (j + 1) < hi - j := by omega
-      rw [getElem_qpartition_loop_snd_of_lt_lo (hi := hi) (j := j + 1) (h := h)]
-      grind
-  · grind
-termination_by hi - j
 
-theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
-    (k : Nat) (h : k < lo) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := by
-  unfold qpartition
-  rw [getElem_qpartition_loop_snd_of_lt_lo (h := h)]
-  · (repeat' split) <;>
-    { repeat rw [Vector.getElem_swap_of_ne]
-      all_goals grind }
-
-theorem getElem_qsort_sort_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
-    (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
-  unfold qsort.sort
-  split
-  · simp only []
-    split <;> rename_i w₁
-    · rw [getElem_qpartition_snd_of_lt_lo] <;> omega
-    · change ¬ (?q : { m // lo ≤ m ∧ m < n } × Vector α n).fst.1 ≥ hi at w₁
-      have := ?q.1.2.1
-      rw [getElem_qsort_sort_of_lt_lo, getElem_qsort_sort_of_lt_lo, getElem_qpartition_snd_of_lt_lo]
-      any_goals grind
-  · rfl
-termination_by hi - lo
-decreasing_by all_goals grind
 
 -- meh, this isn't right. Perhaps don't use an existental?
 theorem getElem_qsort_sort(lt : α → α → Bool)
@@ -271,6 +336,66 @@ theorem getElem_qsort_sort(lt : α → α → Bool)
   sorry
 
 -- def qsort_sort_reindex
+
+
+
+theorem qsort_sort_spec₁ {n}
+    (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
+    (le_total : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a)
+    (as : Vector α n) (lo hi : Nat)
+    (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
+    (as' : Vector α n) (w_as : as' = qsort.sort lt as lo hi hlo hhi) :
+    ∀ i, (h₁ : lo ≤ i) → (h₂ : i < hi) → ¬ lt as'[i + 1] as'[i] := by
+  unfold qsort.sort at w_as
+  split at w_as <;> rename_i w₁
+  · intro i h₁ h₂
+    split at w_as <;> rename_i mid hmid as' w₂
+    split at w_as <;> rename_i w₃
+    · simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
+      obtain ⟨rfl, rfl⟩ := w₂
+      obtain h := hi_le_lo_of_hi_le_qpartition_fst lt lt_asymm _ _ _ _ _ w₃
+      grind
+    · subst w_as
+      if p₁ : i < mid then
+        rw [getElem_qsort_sort_of_lt_lo (i := i) (w := by omega) (h := by omega)]
+        rw [getElem_qsort_sort_of_lt_lo (i := i + 1) (w := by omega) (h := by omega)]
+        apply qsort_sort_spec₁ lt lt_asymm le_total as' lo mid (w_as := rfl)
+        all_goals omega
+      else
+        replace p₁ : mid ≤ i := by omega
+        if p₃ : mid = i then
+          subst i
+          rw [getElem_qsort_sort_of_lt_lo (i := mid) (w := by omega) (h := by omega)]
+          sorry
+        else
+          replace p₃ : mid < i := by omega
+          apply qsort_sort_spec₁ lt lt_asymm le_total _ _ _ (w_as := rfl)
+          all_goals omega
+  · grind
+
+/-- The slice of `as.qsort lt lo hi` from `lo` to `hi` (inclusive) is sorted. -/
+theorem qsort_sorted' (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
+    (le_total : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a)
+    (as : Array α) (lo hi : Nat) :
+    ∀ i j, (h₁ : lo ≤ i) → (h₂ : i < j) → (h₃ : j ≤ hi) → (h₄ : j < as.size) →
+      ¬ lt ((as.qsort lt lo hi)[j]'(by simp; omega)) ((as.qsort lt lo hi)[i]'(by simp; omega)) := by
+  unfold qsort
+  intros i j h₁ h₂ h₃ h₄
+  split <;> rename_i w
+  · grind
+  · apply qsort_sort_spec₁ lt lt_asymm le_total as.toVector _ _ (w_as := rfl)
+    · omega -- reported in #7810
+    · grind
+    · omega -- reported in #7810
+
+theorem qsort_sorted (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
+    (le_total : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a) (as : Array α) :
+    ∀ i j, (h₁ : i < j) → (h₂ : i < (qsort as lt).size) → (h₃ : j < (qsort as lt).size) →
+      ¬ lt (as.qsort lt)[j] (as.qsort lt)[i] := by
+  have := qsort_sorted' lt lt_asymm le_total
+  grind
+
+
 
 theorem qsort_sort_spec {n}
     (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)

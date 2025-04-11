@@ -85,7 +85,6 @@ where
       modify' fun s => { s with assignment := s.assignment.set x 0 }
       let some v ← c.p.eval? | c.throwUnexpected
       let v := (-v) / a
-      trace[grind.debug.cutsat.search.assign] "{← getVar x}, {← c.pp}, {v}"
       traceAssignment x v
       modify' fun s => { s with assignment := s.assignment.set x v }
       go xs

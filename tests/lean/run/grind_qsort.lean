@@ -146,6 +146,7 @@ private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (
   rw [← Nat.not_lt] at w
   apply w; clear w
   -- We really want `lift_lets` here.
+
   sorry
 
 theorem getElem_qpartition_loop_snd_of_lt_lo {n} (lt : α → α → Bool) (lo hi : Nat)
@@ -205,11 +206,6 @@ theorem qsort_sort_spec {n} (lt : α → α → Bool) (as : Vector α n) (lo hi 
     · sorry
   · grind
 
-example (as : Array α) (lo hi i j : Nat) (h₁ : lo ≤ i) (_ : i < j) (_ : j ≤ hi) (_ : j < as.size)
-    (_ : ¬as.size = 0) : min lo (as.size - 1) ≤ i := by
-  -- grind -- fails
-  omega
-
 /-- The slice of `as.qsort lt lo hi` from `lo` to `hi` (inclusive) is sorted. -/
 theorem qsort_sorted' (lt : α → α → Bool) (as : Array α) (lo hi : Nat) :
     ∀ i j, (h₁ : lo ≤ i) → (h₂ : i < j) → (h₃ : j ≤ hi) → (h₄ : j < as.size) →
@@ -219,9 +215,9 @@ theorem qsort_sorted' (lt : α → α → Bool) (as : Array α) (lo hi : Nat) :
   split <;> rename_i w
   · grind
   · apply qsort_sort_spec lt as.toVector _ _ (w_as := rfl)
-    · omega
+    · omega -- reported in #7810
     · grind
-    · omega
+    · omega -- reported in #7810
 
 theorem qsort_sorted (lt : α → α → Bool) (as : Array α) :
     ∀ i j, (h₁ : i < j) → (h₂ : i < (qsort as lt).size) → (h₃ : j < (qsort as lt).size) →

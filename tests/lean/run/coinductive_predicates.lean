@@ -50,6 +50,24 @@ def all_seq_inf (R : α → α → Prop) (x : α) : Prop :=
 
 def infseq_if_all_seq_inf (R : α → α → Prop) : ∀ x,  all_seq_inf R x → infseq R x := by
   apply infseq.fixpoint_induct
-  intro x all_inf
-  apply Exists.intro x
-  sorry
+  intro x H
+  unfold all_seq_inf at H
+  have H' := H x (by simp [star.star_refl])
+  apply Exists.elim H'
+  intro y Rxy
+  apply Exists.intro y
+  apply And.intro
+  exact Rxy
+  unfold all_seq_inf
+  intro y'
+  intro Ryy'
+  apply H y'
+  apply star.star_step
+  exact Rxy
+  trivial
+
+
+--   apply infseq.fixpoint_induct
+--   intro x all_inf
+--   apply Exists.intro x
+--   sorry

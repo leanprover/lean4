@@ -16,13 +16,11 @@ info: [grind.cutsat.assert] -1*「a + -2 * b + -2 * c」 + a + -2*b + -2*c = 0
 [grind.cutsat.assert] 「a + -2 * b + -2 * c」 = 0
 [grind.cutsat.assert] -1*「a + -2 * b + -2 * d」 + a + -2*b + -2*d = 0
 [grind.cutsat.assert] 「a + -2 * b + -2 * d」 ≠ 0
-[grind.cutsat.diseq] d + -1*c ≠ 0
 [grind.cutsat.assert] -1*d + c = 0
 [grind.cutsat.assert] 0 ≠ 0
 -/
 #guard_msgs (info) in
 set_option trace.grind.cutsat.assert true in
-set_option trace.grind.cutsat.diseq true in
 theorem ex₄ (a b c d : Int) : a = 2*b + 2*c → a - 2*b - 2*d ≠ 0 → c ≠ d := by
   grind
 

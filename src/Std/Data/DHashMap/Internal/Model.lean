@@ -595,7 +595,7 @@ theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
     m.filter f = m.filterₘ f := rfl
 
-theorem insertMany_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
+theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
   simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),

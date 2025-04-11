@@ -900,10 +900,10 @@ theorem mem_of_elem_eq_true [BEq α] [LawfulBEq α] {a : α} {as : List α} : el
     next h => intros; simp [BEq.beq] at h; subst h; apply Mem.head
     next _ => intro h; exact Mem.tail _ (mem_of_elem_eq_true h)
 
-theorem elem_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
+theorem elem_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
   induction h with
   | head _ => simp [elem]
-  | tail _ _ ih => simp [elem]; split; rfl; assumption
+  | tail _ _ ih => simp only [elem]; split; rfl; assumption
 
 instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)

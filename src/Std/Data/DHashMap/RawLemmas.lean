@@ -3252,6 +3252,13 @@ set_option linter.missingDocs false in
 @[deprecated equiv_empty_iff_isEmpty (since := "2025-03-12")]
 abbrev equiv_emptyc_iff_isEmpty := @equiv_empty_iff_isEmpty
 
+theorem emptyWithCapacity_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} (h : m.WF) :
+    emptyWithCapacity c ~m m ↔ m.isEmpty :=
+  Equiv.comm.trans (equiv_emptyWithCapacity_iff_isEmpty h)
+
+theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) : ∅ ~m m ↔ m.isEmpty :=
+  emptyWithCapacity_equiv_iff_isEmpty h
+
 theorem equiv_iff_toList_perm {m₁ m₂ : DHashMap.Raw α β} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩

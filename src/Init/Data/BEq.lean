@@ -19,20 +19,8 @@ class PartialEquivBEq (α) [BEq α] : Prop where
   /-- Transitivity for `BEq`. If `a == b` and `b == c` then `a == c`. -/
   trans : (a : α) == b → b == c → a == c
 
-/-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
-class ReflBEq (α) [BEq α] : Prop where
-  /-- Reflexivity for `BEq`. -/
-  refl : (a : α) == a
-
 /-- `EquivBEq` says that the `BEq` implementation is an equivalence relation. -/
 class EquivBEq (α) [BEq α] : Prop extends PartialEquivBEq α, ReflBEq α
-
-@[simp]
-theorem BEq.refl [BEq α] [ReflBEq α] {a : α} : a == a :=
-  ReflBEq.refl
-
-theorem beq_of_eq [BEq α] [ReflBEq α] {a b : α} : a = b → a == b
-  | rfl => BEq.refl
 
 theorem BEq.symm [BEq α] [PartialEquivBEq α] {a b : α} : a == b → b == a :=
   PartialEquivBEq.symm

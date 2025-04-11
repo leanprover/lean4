@@ -447,3 +447,12 @@
   run_config:
     <<: *time
     cmd: lean omega_stress.lean
+- attributes:
+    description: channel.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./channel.lean.out
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh channel.lean

@@ -275,7 +275,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17;
 x_14 = lean_ctor_get(x_12, 0);
 x_15 = lean_ctor_get(x_12, 1);
 x_16 = l___private_Lean_Meta_Tactic_Grind_Ctor_0__Lean_Meta_Grind_propagateInjEqs___lambda__5___closed__1;
-x_17 = lean_ctor_get_uint8(x_14, sizeof(void*)*6 + 6);
+x_17 = lean_ctor_get_uint8(x_14, sizeof(void*)*6 + 8);
 lean_dec(x_14);
 if (x_17 == 0)
 {
@@ -317,7 +317,7 @@ lean_inc(x_29);
 lean_inc(x_28);
 lean_dec(x_12);
 x_30 = l___private_Lean_Meta_Tactic_Grind_Ctor_0__Lean_Meta_Grind_propagateInjEqs___lambda__5___closed__1;
-x_31 = lean_ctor_get_uint8(x_28, sizeof(void*)*6 + 6);
+x_31 = lean_ctor_get_uint8(x_28, sizeof(void*)*6 + 8);
 lean_dec(x_28);
 if (x_31 == 0)
 {

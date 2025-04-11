@@ -20,11 +20,6 @@
    "end": {"line": 10, "character": 30}}}]
 {"textDocument": {"uri": "file:///goTo2.lean"},
  "position": {"line": 10, "character": 11}}
-[{"targetUri": "file:///goTo2.lean",
-  "targetSelectionRange":
-  {"start": {"line": 14, "character": 4}, "end": {"line": 14, "character": 5}},
-  "targetRange":
-  {"start": {"line": 14, "character": 4}, "end": {"line": 14, "character": 5}},
-  "originSelectionRange":
-  {"start": {"line": 10, "character": 11},
-   "end": {"line": 10, "character": 12}}}]
+[{"uri": "file:///goTo2.lean",
+  "range":
+  {"start": {"line": 14, "character": 4}, "end": {"line": 14, "character": 5}}}]

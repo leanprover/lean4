@@ -905,7 +905,8 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
     }
     exts? := guard reportExts *> some (constPromise.result?.map (sync := true) fun
       | some (_, exts, _) => exts
-      | none              => env.toKernelEnv.extensions)
+      -- any value should work here, `base` does not block
+      | none              => env.base.extensions)
     consts := constPromise.result?.map (sync := true) fun
       | some (_, _, consts) => .mk consts
       | none                => .mk (α := AsyncConsts) default
@@ -1044,11 +1045,11 @@ def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
 end ConstantInfo
 
 /--
-Async access mode for environment extensions used in `EnvironmentExtension.get/set/modifyState`.
-Depending on their specific uses, extensions may opt out of the strict `sync` access mode in order
-to avoid blocking parallel elaboration and/or to optimize accesses. The access mode is set at
-environment extension registration time but can be overriden at `EnvironmentExtension.getState` in
-order to weaken it for specific accesses.
+Async access mode for environment extensions used in `EnvExtension.get/set/modifyState`.
+When modified in concurrent contexts, extensions may need to switch to a different mode than the
+default `mainOnly`, which will panic in such cases. The access mode is set at environment extension
+registration time but can be overriden when calling the mentioned functions in order to weaken it
+for specific accesses.
 
 In all modes, the state stored into the `.olean` file for persistent environment extensions is the
 result of `getState` called on the main environment branch at the end of the file, i.e. it
@@ -1056,15 +1057,15 @@ encompasses all modifications for all modes but `local`.
 -/
 inductive EnvExtension.AsyncMode where
   /--
-  Default access mode, writing and reading the extension state to/from the full `checked`
+  Safest access mode, writes and reads the extension state to/from the full `checked`
   environment. This mode ensures the observed state is identical independently of whether or how
   parallel elaboration is used but `getState` will block on all prior environment branches by
   waiting for `checked`. `setState` and `modifyState` do not block.
 
-  While a safe default, any extension that reasonably could be used in parallel elaboration contexts
-  should opt for a weaker mode to avoid blocking unless there is no way to access the correct state
-  without waiting for all prior environment branches, in which case its data management should be
-  restructured if at all possible.
+  While a safe fallback for when `mainOnly` is not sufficient, any extension that reasonably could
+  be used in parallel elaboration contexts should opt for a weaker mode to avoid blocking unless
+  there is no way to access the correct state without waiting for all prior environment branches, in
+  which case its data management should be restructured if at all possible.
   -/
   | sync
   /--
@@ -1077,9 +1078,10 @@ inductive EnvExtension.AsyncMode where
   -/
   | local
   /--
-  Like `local` but panics when trying to modify the state on anything but the main environment
-  branch. For extensions that fulfill this requirement, all modes functionally coincide but this
-  is the safest and most efficient choice in that case, preventing accidental misuse.
+  Default access mode. Like `local` but panics when trying to modify the state on anything but the
+  main environment branch. For extensions that fulfill this requirement, all modes functionally
+  coincide with `local` but this is the safest and most efficient choice in that case, preventing
+  accidental misuse.
 
   This mode is suitable for extensions that are modified only at the command elaboration level
   before any environment forks in the command, and in particular for extensions that are modified
@@ -1464,160 +1466,30 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
 @[implemented_by registerPersistentEnvExtensionUnsafe]
 opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
-/-- Simple `PersistentEnvExtension` that implements `exportEntriesFn` using a list of entries. -/
-def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × σ)
-
-@[specialize] def mkStateFromImportedEntries {α σ : Type} (addEntryFn : σ → α → σ) (initState : σ) (as : Array (Array α)) : σ :=
-  as.foldl (fun r es => es.foldl (fun r e => addEntryFn r e) r) initState
-
-structure SimplePersistentEnvExtensionDescr (α σ : Type) where
-  name          : Name := by exact decl_name%
-  addEntryFn    : σ → α → σ
-  addImportedFn : Array (Array α) → σ
-  toArrayFn     : List α → Array α := fun es => es.toArray
-  asyncMode     : EnvExtension.AsyncMode := .mainOnly
-  replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
+/--
+Stores each given module data in the respective file name. Objects shared with prior parts are not
+duplicated. Thus the data cannot be loaded with individual `readModuleData` calls but must loaded by
+passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to determine an
+arbitrary but deterministic base address for `mmap`.
+-/
+@[extern "lean_save_module_data_parts"]
+opaque saveModuleDataParts (mod : @& Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit
 
 /--
-Returns a function suitable for `SimplePersistentEnvExtensionDescr.replay?` that replays all new
-entries onto the state using `addEntryFn`. `p` should filter out entries that have already been
-added to the state by a prior replay of the same realizable constant.
+Loads the module data from the given file names. The files must be (a prefix of) the result of a
+`saveModuleDataParts` call.
 -/
-def SimplePersistentEnvExtension.replayOfFilter (p : σ → α → Bool)
-    (addEntryFn : σ → α → σ) : List α → σ → σ → List α × σ :=
-  fun newEntries _ s =>
-    let newEntries := newEntries.filter (p s)
-    (newEntries, newEntries.foldl (init := s) addEntryFn)
+@[extern "lean_read_module_data_parts"]
+opaque readModuleDataParts (fnames : @& Array System.FilePath) : IO (Array (ModuleData × CompactedRegion))
 
-def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
-  registerPersistentEnvExtension {
-    name            := descr.name,
-    mkInitial       := pure ([], descr.addImportedFn #[]),
-    addImportedFn   := fun as => pure ([], descr.addImportedFn as),
-    addEntryFn      := fun s e => match s with
-      | (entries, s) => (e::entries, descr.addEntryFn s e),
-    exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
-    statsFn := fun s => format "number of local entries: " ++ format s.1.length
-    asyncMode := descr.asyncMode
-    replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>
-      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
-      let (newEntries, s) := replay newEntries newState.2 s
-      (newEntries ++ entries, s)
-  }
+def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit :=
+  saveModuleDataParts mod #[(fname, data)]
 
-namespace SimplePersistentEnvExtension
-
-instance {α σ : Type} [Inhabited σ] : Inhabited (SimplePersistentEnvExtension α σ) :=
-  inferInstanceAs (Inhabited (PersistentEnvExtension α α (List α × σ)))
-
-/-- Get the list of values used to update the state of the given
-`SimplePersistentEnvExtension` in the current file. -/
-def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : List α :=
-  (PersistentEnvExtension.getState ext env).1
-
-/-- Get the current state of the given `SimplePersistentEnvExtension`. -/
-def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment)
-    (asyncMode := ext.toEnvExtension.asyncMode) : σ :=
-  (PersistentEnvExtension.getState (asyncMode := asyncMode) ext env).2
-
-/-- Set the current state of the given `SimplePersistentEnvExtension`. This change is *not* persisted across files. -/
-def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=
-  PersistentEnvExtension.modifyState ext env (fun ⟨entries, _⟩ => (entries, s))
-
-/-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
-def modifyState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
-  PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f s))
-
-@[inherit_doc PersistentEnvExtension.findStateAsync]
-def findStateAsync {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ)
-    (env : Environment) (declPrefix : Name) : σ :=
-  PersistentEnvExtension.findStateAsync ext env declPrefix |>.2
-
-end SimplePersistentEnvExtension
-
-/-- Environment extension for tagging declarations.
-    Declarations must only be tagged in the module where they were declared. -/
-def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
-
-def mkTagDeclarationExtension (name : Name := by exact decl_name%)
-  (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagDeclarationExtension :=
-  registerSimplePersistentEnvExtension {
-    name          := name,
-    addImportedFn := fun _ => {},
-    addEntryFn    := fun s n => s.insert n,
-    toArrayFn     := fun es => es.toArray.qsort Name.quickLt
-    asyncMode
-  }
-
-namespace TagDeclarationExtension
-
-instance : Inhabited TagDeclarationExtension :=
-  inferInstanceAs (Inhabited (SimplePersistentEnvExtension Name NameSet))
-
-def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Environment :=
-  have : Inhabited Environment := ⟨env⟩
-  assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
-  assert! env.asyncMayContain declName
-  ext.addEntry env declName
-
-def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
-  | none        => if ext.toEnvExtension.asyncMode matches .async then
-      (ext.findStateAsync env declName).contains declName
-    else
-      (ext.getState env).contains declName
-
-end TagDeclarationExtension
-
-/-- Environment extension for mapping declarations to values.
-    Declarations must only be inserted into the mapping in the module where they were declared. -/
-
-structure MapDeclarationExtension (α : Type) extends PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
-deriving Inhabited
-
-def mkMapDeclarationExtension (name : Name := by exact decl_name%) : IO (MapDeclarationExtension α) :=
-  .mk <$> registerPersistentEnvExtension {
-    name            := name,
-    mkInitial       := pure {}
-    addImportedFn   := fun _ => pure {}
-    addEntryFn      := fun s (n, v) => s.insert n v
-    exportEntriesFn := fun s => s.toArray
-    asyncMode       := .async
-    replay?         := some fun _ newState newConsts s =>
-      newConsts.foldl (init := s) fun s c =>
-        if let some a := newState.find? c then
-          s.insert c a
-        else s
-  }
-
-namespace MapDeclarationExtension
-
-def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
-  have : Inhabited Environment := ⟨env⟩
-  assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
-  assert! env.asyncMayContain declName
-  ext.addEntry env (declName, val)
-
-def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx =>
-    match (ext.getModuleEntries env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
-    | some e => some e.2
-    | none   => none
-  | none => (ext.findStateAsync env declName).find? declName
-
-def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, default) (fun a b => Name.quickLt a.1 b.1)
-  | none        => (ext.findStateAsync env declName).contains declName
-
-end MapDeclarationExtension
-
-@[extern "lean_save_module_data"]
-opaque saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
-@[extern "lean_read_module_data"]
-opaque readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
+def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) := do
+  let parts ← readModuleDataParts #[fname]
+  assert! parts.size == 1
+  let some part := parts[0]? | unreachable!
+  return part
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
@@ -1800,16 +1672,12 @@ private def equivInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool := Id.run do
     && tval₁.all == tval₂.all
 
 /--
-  Construct environment from `importModulesCore` results.
+Constructs environment from `importModulesCore` results.
 
-  If `leakEnv` is true, we mark the environment as persistent, which means it
-  will not be freed. We set this when the object would survive until the end of
-  the process anyway. In exchange, RC updates are avoided, which is especially
-  important when they would be atomic because the environment is shared across
-  threads (potentially, storing it in an `IO.Ref` is sufficient for marking it
-  as such). -/
+See also `importModules` for parameter documentation.
+-/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv := false) : IO Environment := do
+    (leakEnv loadExts : Bool) : IO Environment := do
   let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
     numConsts + mod.constants.size + mod.extraConstNames.size
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numConsts)
@@ -1859,14 +1727,15 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
        Safety: There are no concurrent accesses to `env` at this point. -/
     env ← unsafe Runtime.markPersistent env
-  env ← finalizePersistentExtensions env s.moduleData opts
-  if leakEnv then
-    /- Ensure the final environment including environment extension states is
-       marked persistent as documented.
+  if loadExts then
+    env ← finalizePersistentExtensions env s.moduleData opts
+    if leakEnv then
+      /- Ensure the final environment including environment extension states is
+        marked persistent as documented.
 
-       Safety: There are no concurrent accesses to `env` at this point, assuming
-       extensions' `addImportFn`s did not spawn any unbound tasks. -/
-    env ← unsafe Runtime.markPersistent env
+        Safety: There are no concurrent accesses to `env` at this point, assuming
+        extensions' `addImportFn`s did not spawn any unbound tasks. -/
+      env ← unsafe Runtime.markPersistent env
   return { env with realizedImportedConsts? := some {
     -- safety: `RealizationContext` is private
     env := unsafe unsafeCast env
@@ -1874,9 +1743,22 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     constsRef := (← IO.mkRef {})
   } }
 
-@[export lean_import_modules]
+/--
+Creates environment object from given imports.
+
+If `leakEnv` is true, we mark the environment as persistent, which means it will not be freed. We
+set this when the object would survive until the end of the process anyway. In exchange, RC updates
+are avoided, which is especially important when they would be atomic because the environment is
+shared across threads (potentially, storing it in an `IO.Ref` is sufficient for marking it as such).
+
+If `loadExts` is true, we initialize the environment extensions using the imported data. Doing so
+may use the interpreter and thus is only safe to do after calling `enableInitializersExecution`; see
+also caveats there. If not set, every extension will have its initial value as its state. While the
+environment's constant map can be accessed without `loadExts`, many functions that take
+`Environment` or are in a monad carrying it such as `CoreM` may not function properly without it.
+-/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
     : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
@@ -1884,13 +1766,17 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
   withImporting do
     plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore imports |>.run
-    finalizeImport (leakEnv := leakEnv) s imports opts trustLevel
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) s imports opts trustLevel
 
 /--
-  Create environment object from imports and free compacted regions after calling `act`. No live references to the
-  environment object or imported objects may exist after `act` finishes. -/
-unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) (act : Environment → IO α) : IO α := do
-  let env ← importModules imports opts trustLevel
+Creates environment object from imports and frees compacted regions after calling `act`. No live
+references to the environment object or imported objects may exist after `act` finishes. As this
+cannot be ruled out after loading environment extensions, `importModules`'s `loadExts` is always
+unset using this function.
+-/
+unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options)
+    (act : Environment → IO α) (trustLevel : UInt32 := 0) : IO α := do
+  let env ← importModules (loadExts := false) imports opts trustLevel
   try act env finally env.freeRegions
 
 @[inherit_doc Kernel.Environment.enableDiag]

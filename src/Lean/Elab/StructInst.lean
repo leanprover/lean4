@@ -112,7 +112,7 @@ private def expandStructInstField (stx : Syntax) : MacroM (Option Syntax) := wit
 
 /--
 Expands fields.
-* Abbrevations. Example: `{ x }` expands to `{ x := x }`.
+* Abbreviations. Example: `{ x }` expands to `{ x := x }`.
 * Equations. Example: `{ f | 0 => 0 | n + 1 => n }` expands to `{ f := fun x => match x with | 0 => 0 | n + 1 => n }`.
 * Binders and types. Example: `{ f n : Nat := n + 1 }` expands to `{ f := fun n => (n + 1 : Nat) }`.
 -/
@@ -399,7 +399,7 @@ The `structureType?` is the expected type of the structure instance.
 -/
 private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Expr) : TermElabM CtorHeaderResult := do
   let flatCtorName := mkFlatCtorOfStructCtorName ctorVal.name
-  let cinfo ← try getConstInfo flatCtorName catch _ => getConstInfo (ctorVal.induct ++ `_flat_ctor) -- TODO(kmill): remove catch
+  let cinfo ← getConstInfo flatCtorName
   let us ← mkFreshLevelMVars ctorVal.levelParams.length
   let mut type ← instantiateTypeLevelParams cinfo.toConstantVal us
   let mut params : Array Expr := #[]
@@ -702,10 +702,12 @@ private def addStructFieldAux (fieldName : Name) (e : Expr) : StructInstM Unit :
 private def addStructField (fieldView : ExpandedField) (e : Expr) : StructInstM Unit := do
   let fieldName := fieldView.name
   addStructFieldAux fieldName e
-  let projName := (← read).structName ++ fieldName
-  pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
-    projName, fieldName, lctx := (← getLCtx), val := e, stx := fieldView.ref
-  }
+  let env ← getEnv
+  if let some structName := findField? env (← read).structName fieldName then
+    if let some fieldInfo := getFieldInfo? env structName fieldName then
+      pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
+        projName := fieldInfo.projFn, fieldName, lctx := (← getLCtx), val := e, stx := fieldView.ref
+      }
 
 private def elabStructField (_fieldName : Name) (stx : Term) (fieldType : Expr) : StructInstM Expr := do
   let fieldType ← normalizeExpr fieldType
@@ -724,36 +726,13 @@ After default values are resolved, then the one that is added to the environment
 as an `_inherited_default` auxiliary function is normalized; we don't do those normalizations here.
 -/
 private partial def getFieldDefaultValue? (fieldName : Name) : StructInstM (NameSet × Option Expr) := do
-  match getEffectiveDefaultFnForField? (← getEnv) (← read).structName fieldName with
-  | none => return ({}, none)
-  | some defaultFn =>
-    trace[Elab.struct] "default fn for '{fieldName}' is '{.ofConstName defaultFn}'"
-    let cinfo ← getConstInfo defaultFn
-    let us := (← read).levels
-    go? {} <| (← instantiateValueLevelParams cinfo us).beta (← read).params
-where
-  logFailure : StructInstM (NameSet × Option Expr) := do
-    logError m!"default value for field '{fieldName}' of structure '{.ofConstName (← read).structName}' could not be instantiated, ignoring"
-    return ({}, none)
-  go? (usedFields : NameSet) (e : Expr) : StructInstM (NameSet × Option Expr) := do
-    match e with
-    | Expr.lam n d b c =>
-      if c.isExplicit then
-        let some val := (← get).fieldMap.find? n
-          | trace[Elab.struct] "default value error: no value for field '{n}'"
-            logFailure
-        let valType ← inferType val
-        if (← isDefEq valType d) then
-          go? (usedFields.insert n) (b.instantiate1 val)
-        else
-          trace[Elab.struct] "default value error: {← mkHasTypeButIsExpectedMsg valType d}"
-          logFailure
-      else
-        trace[Elab.struct] "default value error: unexpected implicit argument{indentExpr e}"
-        logFailure
-    | e =>
-      let_expr id _ a := e | return (usedFields, some e)
-      return (usedFields, some a)
+  let some defFn := getEffectiveDefaultFnForField? (← getEnv) (← read).structName fieldName
+    | return ({}, none)
+  let fieldMap := (← get).fieldMap
+  let some (fields, val) ← instantiateStructDefaultValueFn? defFn (← read).levels (← read).params (pure ∘ fieldMap.find?)
+    | logError m!"default value for field '{fieldName}' of structure '{.ofConstName (← read).structName}' could not be instantiated, ignoring"
+      return ({}, none)
+  return (fields, val)
 
 /--
 Auxiliary type for `synthDefaultFields`
@@ -933,11 +912,14 @@ where
     let ctor := getStructureCtor (← getEnv) parentName
     unless params.size == ctor.numParams do return .done e
     let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
-    let cinfo ← try getConstInfo flatCtorName catch _ => getConstInfo (ctor.induct ++ `_flat_ctor) -- TODO(kmill): remove catch
+    let cinfo ← getConstInfo flatCtorName
     let ctorVal ← instantiateValueLevelParams cinfo us
     let fieldArgs := parentFields.map fieldMap.find!
+    -- Normalize the expressions since there might be some projections.
+    let params ← params.mapM normalizeExpr
     let e' := (ctorVal.beta params).beta fieldArgs
-    return .done e'
+    -- Continue, since we need to reduce the parameters.
+    return .continue e'
 
 private def getParentStructType? (parentStructName : Name) : StructInstM (Option (Expr × Option Name)) := do
   let env ← getEnv
@@ -951,6 +933,7 @@ private def getParentStructType? (parentStructName : Name) : StructInstM (Option
       let params := ty.getAppArgs
       pure <| mkApp (mkAppN (.const projFn us) params) e
     let projTy ← whnf <| ← inferType proj
+    let projTy ← normalizeExpr projTy
     let projTy ← reduceSelfProjs self projTy
     let projTy ← normalizeExpr projTy
     if projTy.containsFVar self.fvarId! then

@@ -6,4 +6,4 @@ add_library(compiler OBJECT init_module.cpp ## New
   export_attribute.cpp extern_attribute.cpp
   borrowed_annotation.cpp init_attribute.cpp eager_lambda_lifting.cpp
   struct_cases_on.cpp find_jp.cpp ir.cpp implemented_by_attribute.cpp
-  ir_interpreter.cpp llvm.cpp)
+  ir_interpreter.cpp llvm.cpp noncomputable_attribute.cpp)

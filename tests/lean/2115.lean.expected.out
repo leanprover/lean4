@@ -1,8 +1,8 @@
-def foo : {α : Type} → [inst : D α] → A α :=
+def foo : {α : Type} → [D α] → A α :=
 fun {α : Type} [inst : D α] => @inferInstance.{1} (A α) (@B.toA α (@D.toB α inst))
-def bla : {α : Type} → [inst : D α] → A α :=
+def bla : {α : Type} → [D α] → A α :=
 fun {α : Type} [inst : D α] => @inferInstance.{1} (A α) (@C.toA α (@D.toC α inst))
-def boo : {α : Type} → [inst : D α] → A α :=
+def boo : {α : Type} → [D α] → A α :=
 fun {α : Type} [inst : D α] => @inferInstance.{1} (A α) (@B.toA α (@D.toB α inst))
-def boo2 : {α : Type} → [inst : D α] → A α :=
+def boo2 : {α : Type} → [D α] → A α :=
 fun {α : Type} [inst : D α] => @inferInstance.{1} (A α) (@C.toA α (@D.toC α inst))

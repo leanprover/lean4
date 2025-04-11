@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lake_InputDir_initFacetConfig
 LEAN_EXPORT lean_object* l_IO_withStdin___at___private_Lake_Build_InputFile_0__Lake_InputFile_recFetch___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_InputFile_0__Lake_InputDir_recFetch___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_InputFile_keyword;
-lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at___private_Lake_Build_InputFile_0__Lake_InputFile_recFetch___spec__3___closed__2;
 lean_object* lean_get_set_stdout(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_InputDir_defaultFacetConfig___spec__3(size_t, size_t, lean_object*);
@@ -123,6 +122,7 @@ extern lean_object* l_Lake_InputDir_keyword;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_IO_FS_withIsolatedStreams___at___private_Lake_Build_InputFile_0__Lake_InputFile_recFetch___spec__3___closed__5;
+lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at___private_Lake_Build_InputFile_0__Lake_InputFile_recFetch___spec__3___closed__4;
 static lean_object* l_Lake_InputFile_defaultFacetConfig___closed__2;
@@ -2905,7 +2905,7 @@ lean_inc(x_17);
 lean_dec(x_1);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-x_19 = l_System_FilePath_join(x_16, x_18);
+x_19 = l_Lake_joinRelative(x_16, x_18);
 lean_dec(x_18);
 x_20 = lean_ctor_get_uint8(x_17, sizeof(void*)*1);
 lean_dec(x_17);
@@ -3008,17 +3008,19 @@ return x_1;
 static lean_object* _init_l_Lake_InputFile_defaultFacetConfig___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_InputFile_keyword;
 x_2 = l_Lake_InputFile_defaultFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_InputFile_defaultFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_InputFile_defaultFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_InputFile_defaultFacetConfig() {
@@ -8051,7 +8053,7 @@ x_17 = lean_ctor_get(x_1, 2);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-x_19 = l_System_FilePath_join(x_16, x_18);
+x_19 = l_Lake_joinRelative(x_16, x_18);
 lean_dec(x_18);
 x_20 = lean_ctor_get_uint8(x_17, sizeof(void*)*2);
 lean_dec(x_17);
@@ -8317,17 +8319,19 @@ return x_1;
 static lean_object* _init_l_Lake_InputDir_defaultFacetConfig___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_InputDir_keyword;
 x_2 = l_Lake_InputDir_defaultFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_InputDir_defaultFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = lean_box(0);
+x_4 = 1;
+x_5 = l_Lake_InputDir_defaultFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_InputDir_defaultFacetConfig() {

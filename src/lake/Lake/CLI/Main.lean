@@ -75,11 +75,13 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
     opts.noCache |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
-def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
+def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := do
+  let some wsDir ← resolvePath? opts.rootDir
+    | throw <| .missingRootDir opts.rootDir
   return {
     lakeArgs? := opts.args.toArray
     lakeEnv := ← opts.computeEnv
-    wsDir := opts.rootDir
+    wsDir
     relConfigFile := opts.configFile
     packageOverrides := opts.packageOverrides
     lakeOpts := opts.configOpts
@@ -381,6 +383,26 @@ protected def query : CliM PUnit := do
   let results ← ws.runBuild (querySpecs specs fmt) buildConfig
   results.forM (IO.println ·)
 
+protected def queryKind : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  let targetSpecs ← takeArgs
+  let keys ← targetSpecs.toArray.mapM fun spec =>
+    IO.ofExcept <| PartialBuildKey.parse spec
+  let buildConfig := mkBuildConfig opts
+  let r ← ws.runFetchM (cfg := buildConfig) <| keys.mapM fun key => do
+    let ⟨_, job⟩ ← key.fetchInCore ws.root
+    let kind := job.kind
+    let job ← maybeRegisterJob key.toString job.toOpaque
+    return (kind.name, job)
+  r.forM (IO.println ·.1)
+  r.forM fun (_, job) => do
+    match (← job.wait?) with
+    | some _ => pure ()
+    | none => error "build failed"
+
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -622,6 +644,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "build"               => lake.build
 | "check-build"         => lake.checkBuild
 | "query"               => lake.query
+| "query-kind"          => lake.queryKind
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "pack"                => lake.pack

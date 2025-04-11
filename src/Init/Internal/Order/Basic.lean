@@ -140,7 +140,7 @@ variable {α : Sort u} [CCPO α]
 open PartialOrder CCPO
 
 /--
-A predicate is admissable if it can be transferred from the elements of a chain to the chains least
+A predicate is admissible if it can be transferred from the elements of a chain to the chains least
 upper bound. Such predicates can be used in fixpoint induction.
 
 This definition implies `P ⊥`. Sometimes (e.g. in Isabelle) the empty chain is excluded
@@ -488,7 +488,6 @@ instance instCCPOPProd [CCPO α] [CCPO β] : CCPO (α ×' β) where
   csup c := ⟨CCPO.csup (PProd.chain.fst c), CCPO.csup (PProd.chain.snd c)⟩
   csup_spec := by
     intro ⟨a, b⟩ c hchain
-    try dsimp -- TODO(kmill) remove
     constructor
     next =>
       intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab

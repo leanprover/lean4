@@ -22,7 +22,8 @@ def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
     (plugins : Array System.FilePath := #[]) (leakEnv := false)
     : IO (Environment × MessageLog) := do
   try
-    let env ← importModules (leakEnv := leakEnv) (headerToImports header) opts trustLevel plugins
+    let env ←
+      importModules (leakEnv := leakEnv) (loadExts := true) (headerToImports header) opts trustLevel plugins
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment
@@ -45,7 +46,7 @@ def printImports (input : String) (fileName : Option String) : IO Unit := do
 
 @[export lean_print_import_srcs]
 def printImportSrcs (input : String) (fileName : Option String) : IO Unit := do
-  let sp ← initSrcSearchPath
+  let sp ← getSrcSearchPath
   let (deps, _, _) ← parseImports input fileName
   for dep in deps do
     let fname ← findLean sp dep.module

@@ -1,4 +1,5 @@
 set_option grind.warning false
+
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -317,20 +318,20 @@ example {α β} (f : α → β) (a : α) : ∃ a', f a' = f a := by
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind +splitIndPred only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind +splitIndPred only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind only [cases Exists, Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind only [cases Exists, Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
   -- Should fail since extensionality is disabled
-  fail_if_success grind -ext only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  fail_if_success grind -ext only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
   sorry
 
 @[ext] structure S where
@@ -396,3 +397,33 @@ example [Decidable p] : false = a → ¬p → decide p = a := by
 
 example (a : Nat) (p q r : Prop) (h₁ : if _ : a < 1 then p else q) (h₂ : r) : (if a < 1 then p else q) ↔ r := by
   grind (splits := 0)
+
+example [BEq α] [LawfulBEq α] (a b : α) : a == b → a = b := by
+  grind
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace]
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace_cons]
+
+def foo [BEq α] (a b : α) :=
+  match a == b with
+  | true => 1
+  | false => 0
+
+example [BEq α] [LawfulBEq α] (a b : α) : a = b → foo a b = 1 := by
+  grind (splits := 0) [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind (splits := 0) [foo]
+
+@[simp] theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
+    (l ++ [a])[i]'w = a := by
+  subst h; grind [List.getElem_append_left, List.getElem_append_right]
+
+example (p q : Prop) : (p → q) → (¬ p → q) → (p → ¬ q) → (¬p → ¬q) → False := by
+  grind (splitImp := true)

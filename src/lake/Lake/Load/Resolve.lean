@@ -43,9 +43,13 @@ def loadDepPackage
   (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
   let name := dep.name.toString (escape := false)
+  let pkgDir := ws.dir / dep.relPkgDir
+  let some pkgDir ← resolvePath? pkgDir
+    | error s!"{name}: package directory not found: {pkgDir}"
   let (pkg, env?) ← loadPackageCore name {
     lakeEnv := ws.lakeEnv
     wsDir := ws.dir
+    pkgDir
     relPkgDir := dep.relPkgDir
     relConfigFile := dep.configFile
     lakeOpts, leanOpts, reconfigure
@@ -77,7 +81,7 @@ abbrev DepStackT m := CallStackT Name m
 
 /-- Log dependency cycle and error. -/
 @[specialize] def depCycleError [MonadError m] (cycle : Cycle Name) : m α :=
-  error s!"dependency cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
+  error s!"dependency cycle detected:\n{formatCycle cycle}"
 
 instance [Monad m] [MonadError m] : MonadCycleOf Name (DepStackT m) where
   throwCycle := depCycleError

@@ -52,6 +52,8 @@ builtin_initialize registerTraceClass `grind.split.candidate
 builtin_initialize registerTraceClass `grind.split.resolved
 builtin_initialize registerTraceClass `grind.beta
 builtin_initialize registerTraceClass `grind.mbtc
+builtin_initialize registerTraceClass `grind.ext
+builtin_initialize registerTraceClass `grind.ext.candidate
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug
@@ -72,5 +74,10 @@ builtin_initialize registerTraceClass `grind.debug.matchCond.lambda
 builtin_initialize registerTraceClass `grind.debug.matchCond.proveFalse
 builtin_initialize registerTraceClass `grind.debug.mbtc
 builtin_initialize registerTraceClass `grind.debug.ematch
+builtin_initialize registerTraceClass `grind.debug.proveEq
+builtin_initialize registerTraceClass `grind.debug.pushNewFact
+builtin_initialize registerTraceClass `grind.debug.ematch.activate
+builtin_initialize registerTraceClass `grind.debug.appMap
+builtin_initialize registerTraceClass `grind.debug.ext
 
 end Lean

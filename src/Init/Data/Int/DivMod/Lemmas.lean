@@ -24,6 +24,11 @@ namespace Int
 protected theorem exists_add_of_le {a b : Int} (h : a ≤ b) : ∃ (c : Nat), b = a + c :=
   ⟨(b - a).toNat, by omega⟩
 
+theorem toNat_emod {x y : Int} (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    (x % y).toNat = x.toNat % y.toNat :=
+  match x, y, eq_ofNat_of_zero_le hx, eq_ofNat_of_zero_le hy with
+  | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => rfl
+
 /-! ### dvd  -/
 
 theorem dvd_antisymm {a b : Int} (H1 : 0 ≤ a) (H2 : 0 ≤ b) : a ∣ b → b ∣ a → a = b := by
@@ -115,6 +120,9 @@ protected theorem mul_dvd_mul_iff_left {a b c : Int} (h : a ≠ 0) : (a * b) ∣
 protected theorem mul_dvd_mul_iff_right {a b c : Int} (h : a ≠ 0) : (b * a) ∣ (c * a) ↔ b ∣ c := by
   rw [Int.mul_comm b a, Int.mul_comm c a]
   exact Int.mul_dvd_mul_iff_left h
+
+protected theorem mul_dvd_mul {a b c d : Int} : a ∣ b → c ∣ d → a * c ∣ b * d := by
+  simpa [← Int.natAbs_dvd_natAbs, natAbs_mul] using Nat.mul_dvd_mul
 
 /-! ### *div zero  -/
 
@@ -755,10 +763,12 @@ theorem neg_emod {a b : Int} : (-a) % b = if b ∣ a then 0 else b.natAbs - (a %
   · simp
     omega
 
-theorem natAbs_ediv (a : Int) {b : Int} (hb : b ≠ 0) : natAbs (a / b) = natAbs a / natAbs b + if 0 ≤ a ∨ b ∣ a then 0 else 1 := by
+theorem natAbs_ediv (a : Int) (b : Int) : natAbs (a / b) = natAbs a / natAbs b + if 0 ≤ a ∨ b = 0 ∨ b ∣ a then 0 else 1 := by
+  by_cases hb : b = 0 <;> try (simp_all; done)
+  simp only [hb, false_or]
   induction b using wlog_sign
-  case inv => simp
-  case w b =>
+  case neg.inv => simp
+  case neg.w b =>
     match a with
     | 0 => simp
     | (a + 1 : Nat) => norm_cast
@@ -776,6 +786,12 @@ theorem natAbs_ediv (a : Int) {b : Int} (hb : b ≠ 0) : natAbs (a / b) = natAbs
       · simp
       · rw [Nat.succ_div, if_neg h, sign_eq_one_of_pos (by omega), Int.sub_eq_add_neg, ← Int.neg_add, natAbs_neg]
         norm_cast
+
+theorem natAbs_ediv_of_nonneg {a b : Int} (ha : 0 ≤ a) : (a / b).natAbs = a.natAbs / b.natAbs := by
+  rw [natAbs_ediv, if_pos (Or.inl ha), Nat.add_zero]
+
+theorem natAbs_ediv_of_dvd {a b : Int} (hab : b ∣ a) : (a / b).natAbs = a.natAbs / b.natAbs := by
+  rw [natAbs_ediv, if_pos (Or.inr (Or.inr hab)), Nat.add_zero]
 
 theorem natAbs_emod_of_nonneg {a : Int} (h : 0 ≤ a) (b : Int) :
     natAbs (a % b) = natAbs a % natAbs b := by
@@ -2129,6 +2145,11 @@ theorem bmod_pos (x : Int) (m : Nat) (p : x % m < (m + 1) / 2) : bmod x m = x % 
 theorem bmod_neg (x : Int) (m : Nat) (p : x % m ≥ (m + 1) / 2) : bmod x m = (x % m) - m := by
   simp [bmod_def, Int.not_lt.mpr p]
 
+theorem bmod_eq_emod (x : Int) (m : Nat) : bmod x m = x % m - if x % m ≥ (m + 1) / 2 then m else 0 := by
+  split
+  · rwa [bmod_neg]
+  · rw [bmod_pos] <;> simp_all
+
 @[simp]
 theorem bmod_one_is_zero (x : Int) : Int.bmod x 1 = 0 := by
   simp [Int.bmod]
@@ -2307,7 +2328,7 @@ theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
       · trivial
 
 -- This could be strengthed by changing to `w : x ≠ -1` if needed.
-theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1) = - x.sign := by
+theorem bmod_natAbs_add_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1) = - x.sign := by
   have t₁ : ∀ (x : Nat), x % (x + 2) = x :=
     fun x => Nat.mod_eq_of_lt (Nat.lt_succ_of_lt (Nat.lt.base x))
   have t₂ : ∀ (x : Int), 0 ≤ x → x % (x + 2) = x := fun x h => by
@@ -2349,10 +2370,50 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
     · exact ofNat_nonneg x
     · exact succ_ofNat_pos (x + 1)
 
+@[deprecated bmod_natAbs_add_one (since := "2025-04-04")]
+abbrev bmod_natAbs_plus_one := @bmod_natAbs_add_one
+
 @[simp]
 theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
   apply (bmod_add_cancel_right x).mp
   rw [Int.add_left_neg, ← add_bmod_bmod, Int.add_left_neg]
+
+theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
+    (x.bmod m) < 0 ↔ (-(m / 2) ≤ x ∧ x < 0) ∨ ((m + 1) / 2 ≤ x) := by
+  simp only [Int.bmod_def]
+  by_cases xpos : 0 ≤ x
+  · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
+  · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
+
+theorem bmod_eq_self_of_le {n : Int} {m : Nat} (hn' : -(m / 2) ≤ n) (hn : n < (m + 1) / 2) :
+    n.bmod m = n := by
+  rw [← Int.sub_eq_zero]
+  have := le_bmod (x := n) (m := m) (by omega)
+  have := bmod_lt (x := n) (m := m) (by omega)
+  apply eq_zero_of_dvd_of_natAbs_lt_natAbs Int.dvd_bmod_sub_self
+  omega
+
+theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
+    (a.bmod m).bmod n = a.bmod n := by
+  rw [← Int.sub_eq_iff_eq_add.2 (bmod_add_bdiv a m).symm]
+  obtain ⟨k, rfl⟩ := hnm
+  simp [Int.mul_assoc]
+
+theorem bmod_eq_self_of_le_mul_two {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x * 2 < y) :
+    x.bmod y = x := by
+  apply bmod_eq_self_of_le (by omega) (by omega)
+
+theorem dvd_iff_bmod_eq_zero {a : Nat} {b : Int} : (a : Int) ∣ b ↔ b.bmod a = 0 := by
+  rw [dvd_iff_emod_eq_zero, bmod]
+  split <;> rename_i h
+  · rfl
+  · simp only [Int.not_lt] at h
+    match a with
+    | 0 => omega
+    | a + 1 =>
+      have : b % (a+1) < a + 1 := emod_lt b (by omega)
+      simp_all
+      omega
 
 /-! Helper theorems for `dvd` simproc -/
 

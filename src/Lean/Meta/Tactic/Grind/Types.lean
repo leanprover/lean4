@@ -195,11 +195,11 @@ def getMaxGeneration : GrindM Nat := do
   return (← getConfig).gen
 
 /--
-Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
+Abstracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr := do
   let nextIdx := (← get).nextThmIdx
-  let (e, s') ← AbstractNestedProofs.visit e |>.run { baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
+  let (e, s') ← AbstractNestedProofs.visit e |>.run { cache := true, baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
   modify fun s => { s with nextThmIdx := s'.nextIdx }
   return e
 
@@ -229,10 +229,10 @@ def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindM CongrTheorem := do
   if let some result := (← get).congrThms.find? key then
     return result
   if let .const declName us := f then
-    if let some result ← mkHCongrWithArityForConst? declName us numArgs then
+    if let some result ← withDefault <| Meta.mkHCongrWithArityForConst? declName us numArgs then
       modify fun s => { s with congrThms := s.congrThms.insert key result }
       return result
-  let result ← Meta.mkHCongrWithArity f numArgs
+  let result ← withDefault <| Meta.mkHCongrWithArity f numArgs
   modify fun s => { s with congrThms := s.congrThms.insert key result }
   return result
 
@@ -529,6 +529,13 @@ structure Goal where
   arith      : Arith.State := {}
   /-- State of the clean name generator. -/
   clean      : Clean.State := {}
+  /--
+  Mapping from pairs `(f, i)` to a list of `(e, type)`.
+  The meaning is: `e : type` is lambda expression that occurs at argument `i` of an `f`-application.
+  We use this information to add case-splits for triggering extensionality theorems.
+  See `addSplitCandidatesForExt`.
+  -/
+  termsAt    : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

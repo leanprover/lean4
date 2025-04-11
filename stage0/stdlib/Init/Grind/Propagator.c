@@ -134,7 +134,7 @@ static lean_object* l_Lean_Parser_command__Grind__propagator_______x28___x29_x3a
 static lean_object* l_Lean_Parser_command__Builtin__grind__propagator_________x3a_x3d_____closed__3;
 static lean_object* l_Lean_Parser___aux__Init__Grind__Propagator______macroRules__Lean__Parser__command__Builtin__grind__propagator_________x3a_x3d____1___lambda__1___closed__35;
 static lean_object* l_Lean_Parser_command__Grind__propagator_______x28___x29_x3a_x3d_____closed__14;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Parser___aux__Init__Grind__Propagator______macroRules__Lean__Parser__command__Builtin__grind__propagator_________x3a_x3d____1___lambda__1___closed__4;
 static lean_object* _init_l_Lean_Parser_command__Grind__propagator_______x28___x29_x3a_x3d_____closed__1() {
 _start:
@@ -882,7 +882,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

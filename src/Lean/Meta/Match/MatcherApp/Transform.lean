@@ -48,7 +48,7 @@ We only abstract discriminants that are fvars.  We used to use `kabstract` to ab
 discriminants from `B[discrs]`, but that changes the type of the arg in ways that make it no
 longer compatible with the original recursive function (issue #7322).
 
-If this is still not great, then we could try to use `kabstract`, but only on the last paramter
+If this is still not great, then we could try to use `kabstract`, but only on the last parameter
 of the `arg` (the termination proof obligation).
 
 This method assumes

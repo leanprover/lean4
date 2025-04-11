@@ -515,7 +515,7 @@ theorem toList_append {xs : Vector α m} {ys : Vector α n} :
     (xs.drop i).toList = xs.toList.drop i := by
   simp [List.take_of_length_le]
 
-theorem toList_empty : (#v[] : Vector α 0).toArray = #[] := by simp
+theorem toList_empty : (#v[] : Vector α 0).toList = [] := rfl
 
 theorem toList_emptyWithCapacity {cap} :
     (Vector.emptyWithCapacity (α := α) cap).toList = [] := rfl
@@ -660,10 +660,13 @@ theorem toList_inj {xs ys : Vector α n} : xs.toList = ys.toList ↔ xs = ys := 
   cases ys
   simp [Array.toList_inj]
 
-@[simp] theorem toList_eq_empty_iff {xs : Vector α n} : xs.toList = [] ↔ n = 0 := by
+@[simp] theorem toList_eq_nil_iff {xs : Vector α n} : xs.toList = [] ↔ n = 0 := by
   rcases xs with ⟨xs, h⟩
   simp only [Array.toList_eq_nil_iff]
   exact ⟨by rintro rfl; simp_all, by rintro rfl; simpa using h⟩
+
+@[deprecated toList_eq_nil_iff (since := "2025-04-04")]
+abbrev toList_eq_empty_iff {α n} (xs) := @toList_eq_nil_iff α n xs
 
 @[simp] theorem mem_toList_iff {a : α} {xs : Vector α n} : a ∈ xs.toList ↔ a ∈ xs := by
   simp
@@ -1508,7 +1511,7 @@ theorem map_eq_iff {f : α → β} {as : Vector α n} {bs : Vector β n} :
     if h : i < as.size then
       simpa [h, h'] using w i h
     else
-      rw [getElem?_neg, getElem?_neg, Option.map_none'] <;> omega
+      rw [getElem?_neg, getElem?_neg, Option.map_none] <;> omega
 
 @[simp] theorem map_set {f : α → β} {xs : Vector α n} {i : Nat} {h : i < n} {a : α} :
     (xs.set i a).map f = (xs.map f).set i (f a) (by simpa using h) := by
@@ -2783,7 +2786,7 @@ theorem any_eq_not_all_not {xs : Vector α n} {p : α → Bool} : xs.any p = !xs
   simp
 
 @[simp] theorem all_filter {xs : Vector α n} {p q : α → Bool} :
-    (xs.filter p).all q = xs.all fun a => p a → q a := by
+    (xs.filter p).all q = xs.all fun a => !(p a) || q a := by
   rcases xs with ⟨xs, rfl⟩
   simp
 

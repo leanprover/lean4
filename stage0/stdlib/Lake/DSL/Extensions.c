@@ -63,17 +63,17 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1 = _init_l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1();
 lean_mark_persistent(l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1);
-res = l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4_(lean_io_mk_world());
+if (builtin) {res = l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lake_dirExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lake_dirExt);
 lean_dec_ref(res);
-res = l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_35_(lean_io_mk_world());
+}if (builtin) {res = l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_35_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lake_optsExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lake_optsExt);
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

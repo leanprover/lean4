@@ -1633,7 +1633,7 @@ def withLocalDeclNoLocalInstanceUpdate (name : Name) (bi : BinderInfo) (type : E
 - a type constructor for the variable, where the array consists of all of the free variables
   defined prior to this one. This is needed because the type of the variable may depend on prior variables.
 
-See `withLocalDeclsD` and `withLocalDeclsDND` for simplier variants.
+See `withLocalDeclsD` and `withLocalDeclsDND` for simpler variants.
 -/
 partial def withLocalDecls
     [Inhabited α]
@@ -2279,6 +2279,7 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
       initHeartbeats := (← IO.getNumHeartbeats)
     }
     let (env, exTask, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+    -- Realizations cannot be cancelled as their result is shared across elaboration runs
     let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
       | none => return
       | some ex => do
@@ -2286,6 +2287,7 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     Core.logSnapshotTask {
       stx? := none
       task := (← BaseIO.mapTask (t := exTask) exAct)
+      cancelTk? := none
     }
     if let some res := dyn.get? RealizeConstantResult then
       let mut snap := res.snap

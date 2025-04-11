@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind.Arith.Offset
 /-!
-Helper functions for constructing proof terms in the offset contraint procedure.
+Helper functions for constructing proof terms in the offset constraint procedure.
 -/
 
 /-- Returns a proof for `true = true` -/

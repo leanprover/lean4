@@ -15,27 +15,33 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly(lean_object*);
+static lean_object* l_Lean_Grind_natCastUnexpander___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Grind_matchCondUnexpander(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_eqMatchUnexpander___closed__1;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_nestedProofUnexpander(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__8;
+static lean_object* l_Lean_Grind_natCastUnexpander___closed__2;
+static lean_object* l_Lean_Grind_natCastUnexpander___closed__3;
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___rarg(lean_object*);
 static lean_object* l_Lean_Grind_offsetUnexpander___closed__2;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_offset(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_natCastUnexpander(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_offsetUnexpander___closed__1;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_eqMatchUnexpander___closed__2;
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__1;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_offsetUnexpander___closed__3;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_offsetUnexpander___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Grind_offset___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_natCastUnexpander___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_eqMatchUnexpander___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Grind_offsetUnexpander(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__2;
@@ -489,6 +495,99 @@ lean_dec(x_2);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_Grind_natCastUnexpander___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("coeNotation", 11, 11);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_natCastUnexpander___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Grind_natCastUnexpander___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Grind_natCastUnexpander___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("↑", 3, 1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_natCastUnexpander(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_Lean_Grind_nestedProofUnexpander___closed__5;
+lean_inc(x_1);
+x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_1);
+x_6 = lean_box(0);
+x_7 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_3);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = l_Lean_Syntax_getArg(x_1, x_8);
+lean_dec(x_1);
+lean_inc(x_9);
+x_10 = l_Lean_Syntax_matchesNull(x_9, x_8);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; 
+lean_dec(x_9);
+x_11 = lean_box(0);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_3);
+return x_12;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = l_Lean_Syntax_getArg(x_9, x_13);
+lean_dec(x_9);
+x_15 = 0;
+x_16 = l_Lean_SourceInfo_fromRef(x_2, x_15);
+x_17 = l_Lean_Grind_natCastUnexpander___closed__3;
+lean_inc(x_16);
+x_18 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_18, 0, x_16);
+lean_ctor_set(x_18, 1, x_17);
+x_19 = l_Lean_Grind_natCastUnexpander___closed__2;
+x_20 = l_Lean_Syntax_node2(x_16, x_19, x_18, x_14);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_3);
+return x_21;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_natCastUnexpander___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Grind_natCastUnexpander(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -532,6 +631,12 @@ l_Lean_Grind_offsetUnexpander___closed__2 = _init_l_Lean_Grind_offsetUnexpander_
 lean_mark_persistent(l_Lean_Grind_offsetUnexpander___closed__2);
 l_Lean_Grind_offsetUnexpander___closed__3 = _init_l_Lean_Grind_offsetUnexpander___closed__3();
 lean_mark_persistent(l_Lean_Grind_offsetUnexpander___closed__3);
+l_Lean_Grind_natCastUnexpander___closed__1 = _init_l_Lean_Grind_natCastUnexpander___closed__1();
+lean_mark_persistent(l_Lean_Grind_natCastUnexpander___closed__1);
+l_Lean_Grind_natCastUnexpander___closed__2 = _init_l_Lean_Grind_natCastUnexpander___closed__2();
+lean_mark_persistent(l_Lean_Grind_natCastUnexpander___closed__2);
+l_Lean_Grind_natCastUnexpander___closed__3 = _init_l_Lean_Grind_natCastUnexpander___closed__3();
+lean_mark_persistent(l_Lean_Grind_natCastUnexpander___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

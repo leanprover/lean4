@@ -126,8 +126,8 @@ private def ppOffset : M Unit := do
   if model.isEmpty then return ()
   let mut ms := #[]
   for (e, val) in model do
-    ms := ms.push <| .trace { cls := `assign } m!"{quoteIfNotAtom e} := {val}" #[]
-  pushMsg <| .trace { cls := `offset } "Assignment satisfying offset contraints" ms
+    ms := ms.push <| .trace { cls := `assign } m!"{Arith.quoteIfArithTerm e} := {val}" #[]
+  pushMsg <| .trace { cls := `offset } "Assignment satisfying offset constraints" ms
 
 private def ppCutsat : M Unit := do
   let goal ← read
@@ -138,8 +138,8 @@ private def ppCutsat : M Unit := do
   if model.isEmpty then return ()
   let mut ms := #[]
   for (e, val) in model do
-    ms := ms.push <| .trace { cls := `assign } m!"{quoteIfNotAtom e} := {val}" #[]
-  pushMsg <| .trace { cls := `cutsat } "Assignment satisfying linear contraints" ms
+    ms := ms.push <| .trace { cls := `assign } m!"{Arith.quoteIfArithTerm e} := {val}" #[]
+  pushMsg <| .trace { cls := `cutsat } "Assignment satisfying linear constraints" ms
 
 private def ppThresholds (c : Grind.Config) : M Unit := do
   let goal ← read

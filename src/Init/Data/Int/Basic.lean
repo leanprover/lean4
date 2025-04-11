@@ -420,6 +420,8 @@ instance : IntCast Int where intCast n := n
 protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
   IntCast.intCast
 
+@[simp] theorem Int.cast_eq (x : Int) : Int.cast x = x := rfl
+
 -- see the notes about coercions into arbitrary types in the module doc-string
 instance [IntCast R] : CoeTail Int R where coe := Int.cast
 

@@ -96,7 +96,7 @@ static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__te
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__7;
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_term_x5b___x5d___closed__10;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* _init_l_term_x5b___x5d___closed__1() {
 _start:
 {
@@ -700,7 +700,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

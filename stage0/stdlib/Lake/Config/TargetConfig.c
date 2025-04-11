@@ -62,7 +62,7 @@ LEAN_EXPORT lean_object* l_Lake_NConfigDecl_targetConfig___rarg___boxed(lean_obj
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__1___closed__2;
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_NConfigDecl_targetConfig_x3f___rarg___boxed(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___closed__1;
 static lean_object* _init_l_Lake_instInhabitedTargetConfig___lambda__1___closed__1() {
@@ -70,7 +70,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -529,7 +529,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 10);
+x_3 = lean_ctor_get(x_2, 11);
 x_4 = l_Lake_RBNode_dFind___at_Lake_Package_findTargetConfig_x3f___spec__1(x_2, x_3, x_1);
 if (lean_obj_tag(x_4) == 0)
 {

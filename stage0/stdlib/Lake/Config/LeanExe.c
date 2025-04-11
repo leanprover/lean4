@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lake_Package_findTargetModule_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExe_toLeanLib___closed__1;
-lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExe_linkArgs___closed__2;
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___elambda__1___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_root(lean_object*);
@@ -81,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanLibConfig(lean_object*, lean
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_toLeanLib(lean_object*);
+lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
 extern lean_object* l_Lake_LeanExe_keyword;
 extern uint8_t l_System_Platform_isWindows;
 static lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___closed__4;
@@ -147,7 +147,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_leanExes(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_2 = lean_ctor_get(x_1, 9);
+x_2 = lean_ctor_get(x_1, 10);
 lean_inc(x_2);
 x_3 = lean_array_get_size(x_2);
 x_4 = lean_unsigned_to_nat(0u);
@@ -685,12 +685,12 @@ lean_inc(x_4);
 lean_dec(x_2);
 x_5 = lean_ctor_get(x_4, 6);
 lean_inc(x_5);
-x_6 = l_System_FilePath_join(x_3, x_5);
+x_6 = l_Lake_joinRelative(x_3, x_5);
 lean_dec(x_5);
 x_7 = lean_ctor_get(x_4, 9);
 lean_inc(x_7);
 lean_dec(x_4);
-x_8 = l_System_FilePath_join(x_6, x_7);
+x_8 = l_Lake_joinRelative(x_6, x_7);
 lean_dec(x_7);
 x_9 = lean_ctor_get(x_1, 2);
 lean_inc(x_9);
@@ -700,7 +700,7 @@ lean_inc(x_10);
 lean_dec(x_9);
 x_11 = l_System_FilePath_exeExtension;
 x_12 = l_System_FilePath_addExtension(x_10, x_11);
-x_13 = l_System_FilePath_join(x_8, x_12);
+x_13 = l_Lake_joinRelative(x_8, x_12);
 lean_dec(x_12);
 return x_13;
 }
@@ -1062,7 +1062,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetModule_x3f(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = lean_ctor_get(x_2, 9);
+x_3 = lean_ctor_get(x_2, 10);
 lean_inc(x_3);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_unsigned_to_nat(0u);

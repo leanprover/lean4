@@ -148,9 +148,12 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   let mut msgs ← result.failures.mapM (goalToMessageData · result.config)
   if result.config.verbose then
     let mut issues := result.issues
+    -- We did not find the following very useful in practice.
+    /-
     unless result.skipped.isEmpty do
       let m := m!"#{result.skipped.length} other goal(s) were not fully processed due to previous failures, threshold: `(failures := {result.config.failures})`"
       issues := .trace { cls := `issue } m #[] :: issues
+    -/
     unless issues.isEmpty do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
     if let some msg ← mkGlobalDiag result.counters result.simp then

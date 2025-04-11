@@ -242,7 +242,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instToStringExprDiffTag;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_insertAfterChange___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Widget_ExprDiff_insertBeforeChange___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__4;
 lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
@@ -4715,7 +4715,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_11 = l_Array_zip___rarg(x_1, x_2);
 x_12 = lean_array_get_size(x_11);
-x_13 = l_Array_emptyWithCapacity(lean_box(0), x_12);
+x_13 = lean_mk_empty_array_with_capacity(x_12);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Array_mapFinIdxM_map___at_Lean_Widget_exprDiffCore___spec__2(x_3, x_4, x_1, x_11, x_11, x_12, x_14, lean_box(0), x_13, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_11);

@@ -31,6 +31,7 @@ def isNonTrivialProof (e : Expr) : MetaM Bool := do
       pure $ !f.isAtomic || args.any fun arg => !arg.isAtomic
 
 structure Context where
+  cache    : Bool
   baseName : Name
 
 structure State where
@@ -74,21 +75,19 @@ where
     let type ← zetaReduce type
     /- Ensure proofs nested in type are also abstracted -/
     let type ← visit type
-    let lemmaName ← mkAuxName (ctx.baseName ++ `proof) (← get).nextIdx
-    modify fun s => { s with nextIdx := s.nextIdx + 1 }
     /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
       identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
       It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
-    mkAuxTheorem lemmaName type e (zetaDelta := true)
+    mkAuxTheorem (prefix? := ctx.baseName) (cache := ctx.cache) type e (zetaDelta := true)
 
 end AbstractNestedProofs
 
 /-- Replace proofs nested in `e` with new lemmas. The new lemmas have names of the form `mainDeclName.proof_<idx>` -/
-def abstractNestedProofs (mainDeclName : Name) (e : Expr) : MetaM Expr := do
+def abstractNestedProofs (mainDeclName : Name) (e : Expr) (cache := true) : MetaM Expr := do
   if (← isProof e) then
     -- `e` is a proof itself. So, we don't abstract nested proofs
     return e
   else
-    AbstractNestedProofs.visit e |>.run { baseName := mainDeclName } |>.run |>.run' { nextIdx := 1 }
+    AbstractNestedProofs.visit e |>.run { cache, baseName := mainDeclName } |>.run |>.run' { nextIdx := 1 }
 
 end Lean.Meta

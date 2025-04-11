@@ -1415,6 +1415,11 @@ class Zero (α : Type u) where
   /-- The zero element of the type. -/
   zero : α
 
+/-- A type with a "one" element. -/
+class One (α : Type u) where
+  /-- The "one" element of the type. -/
+  one : α
+
 /-- The homogeneous version of `HAdd`: `a + b : α` where `a b : α`. -/
 class Add (α : Type u) where
   /-- `a + b` computes the sum of `a` and `b`. See `HAdd`. -/
@@ -2030,7 +2035,9 @@ structure BitVec (w : Nat) where
   toFin : Fin (hPow 2 w)
 
 /--
-Bitvectors have decidable equality. This should be used via the instance `DecidableEq (BitVec n)`.
+Bitvectors have decidable equality.
+
+This should be used via the instance `DecidableEq (BitVec n)`.
 -/
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
@@ -2049,8 +2056,11 @@ instance : DecidableEq (BitVec n) := BitVec.decEq
 protected def BitVec.ofNatLT {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
   toFin := ⟨i, p⟩
 
-/-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
-(zero-cost) wrapper around a `Nat`. -/
+/--
+Return the underlying `Nat` that represents a bitvector.
+
+This is O(1) because `BitVec` is a (zero-cost) wrapper around a `Nat`.
+-/
 protected def BitVec.toNat (x : BitVec n) : Nat := x.toFin.val
 
 instance : LT (BitVec n) where lt := (LT.lt ·.toNat ·.toNat)
@@ -2922,11 +2932,10 @@ This will be deprecated in favor of `Array.emptyWithCapacity` in the future.
 def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 
-
-set_option linter.unusedVariables false in
 /--
 Constructs a new empty array with initial capacity `c`.
 -/
+@[extern "lean_mk_empty_array_with_capacity"]
 def Array.emptyWithCapacity {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 

@@ -33,6 +33,8 @@ moreLinkArgs = [${LINK_OPTS_TOML}]
 name = "Init"
 libName = "${LAKE_LIB_PREFIX}Init"
 defaultFacets = ["static", "static.export"]
+# TODO: make compatible with Lake
+leanOptions = {experimental.module = true}
 
 [[lean_lib]]
 name = "Std"

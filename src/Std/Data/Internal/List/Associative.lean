@@ -2476,7 +2476,7 @@ theorem mem_map_toProd_iff_mem {β : Type v} {k : α} {v : β} {l : List ((_ : �
 theorem mem_iff_getValue?_eq_some [BEq α] [LawfulBEq α] {β : Type v} {k : α} {v : β}
     {l : List ((_ : α) × β)} (h : DistinctKeys l) :
     ⟨k, v⟩ ∈ l ↔ getValue? k l = some v := by
-  simp only [mem_iff_getEntry?_eq_some h, getValue?_eq_getEntry?, Option.map_eq_some_iff]
+  simp only [mem_iff_getEntry?_eq_some h, getValue?_eq_getEntry?, Option.map_eq_some_iff_iff]
   constructor
   · intro h
     exists ⟨k, v⟩
@@ -2499,7 +2499,7 @@ theorem find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some [BEq 
   | nil => simp
   | cons hd tl ih =>
     simp only [List.map_cons, List.find?_cons_eq_some, Prod.mk.injEq, Bool.not_eq_eq_eq_not,
-      Bool.not_true, Option.map_eq_some_iff, getKey?, cond_eq_if, getValue?]
+      Bool.not_true, Option.map_eq_some_iff_iff, getKey?, cond_eq_if, getValue?]
     by_cases hdfst_k: hd.fst == k
     · simp only [hdfst_k, true_and, Bool.true_eq_false, false_and, or_false, ↓reduceIte,
       Option.some.injEq]
@@ -2514,7 +2514,7 @@ theorem mem_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
 theorem getValue?_eq_some_iff_exists_beq_and_mem_toList {β : Type v} [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {k: α} {v : β} (h : DistinctKeys l) :
     getValue? k l = some v ↔ ∃ k', (k == k') = true ∧ (k', v) ∈ l.map (fun x => (x.fst, x.snd)) := by
-  simp only [getValue?_eq_getEntry?, Option.map_eq_some_iff, ← mem_map_toProd_iff_mem,
+  simp only [getValue?_eq_getEntry?, Option.map_eq_some_iff_iff, ← mem_map_toProd_iff_mem,
     mem_iff_getEntry?_eq_some h]
   constructor
   · intro h'
@@ -3324,7 +3324,7 @@ theorem getKey?_insertListIfNewUnit_of_contains_eq_false_of_mem [BEq α] [EquivB
     (mem' : containsKey k l = false)
     (distinct : toInsert.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ toInsert) :
     getKey? k' (insertListIfNewUnit l toInsert) = some k := by
-  simp only [getKey?_eq_getEntry?, getEntry?_insertListIfNewUnit, Option.map_eq_some_iff,
+  simp only [getKey?_eq_getEntry?, getEntry?_insertListIfNewUnit, Option.map_eq_some_iff_iff,
     Option.or_eq_some_iff, getEntry?_eq_none]
   exists ⟨k, ()⟩
   simp only [and_true]
@@ -5126,17 +5126,17 @@ theorem getValue?_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
     Option.map_map, Option.map_id']
   simp only [getKey, getKey?_eq_getEntry?, ← Option.pbind_eq_bind]
   congr; funext a h
-  simp only [Option.mem_def.mp h, Option.map_some', Option.get_some]
+  simp only [Option.mem_def.mp h, Option.map_some, Option.get_some]
 
 theorem getValue?_filterMap_of_getKey?_eq_some {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k k' : α} :
   getKey? k l = some k' →
     getValue? k (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))) =
       (getValue? k l).bind (fun x => f k' x) := by
-  simp only [getKey?_eq_getEntry?, Option.map_eq_some, getValue?_eq_getEntry?,
+  simp only [getKey?_eq_getEntry?, Option.map_eq_some_iff, getValue?_eq_getEntry?,
     getEntry?_filterMap distinct, Option.map_bind, forall_exists_index, and_imp]
   intro x hx hk
-  simp only [hx, Option.some_bind, Function.comp_apply, hk, Option.map_map, Option.map_some']
+  simp only [hx, Option.some_bind, Function.comp_apply, hk, Option.map_map, Option.map_some]
   cases f k' x.2 <;> simp
 
 theorem getValue!_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] [Inhabited γ]
@@ -5179,20 +5179,20 @@ theorem getValue?_filter {β : Type v} [BEq α] [EquivBEq α]
   simp only [getValue?_eq_getEntry?, distinct, getEntry?_filter, getKey?_eq_getEntry?,
     Option.pfilter_eq_pbind_ite, Option.filter_eq_bind, Option.guard_def,
     Option.pbind_map, Option.map_bind, Function.comp_def, apply_ite,
-    Option.map_some', Option.map_none']
+    Option.map_some, Option.map_none']
   simp only [getKey, getKey?_eq_getEntry?, ← Option.pbind_eq_bind]
   congr; funext a h
-  simp only [Option.mem_def.mp h, Option.map_some', Option.get_some]
+  simp only [Option.mem_def.mp h, Option.map_some, Option.get_some]
 
 theorem getValue?_filter_of_getKey?_eq_some {β : Type v} [BEq α] [EquivBEq α]
     {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k k' : α} :
   getKey? k l = some k' →
     getValue? k (l.filter fun p => (f p.1 p.2)) =
       (getValue? k l).filter (fun x => f k' x) := by
-  simp only [getKey?_eq_getEntry?, Option.map_eq_some, getValue?_eq_getEntry?,
+  simp only [getKey?_eq_getEntry?, Option.map_eq_some_iff, getValue?_eq_getEntry?,
     getEntry?_filter distinct, forall_exists_index, and_imp]
   intro x hx hk
-  simp only [hx, Option.map_some', Option.filter_some, ← hk]
+  simp only [hx, Option.map_some, Option.filter_some, ← hk]
   split <;> simp
 
 theorem getValue!_filter {β : Type v} [BEq α] [EquivBEq α] [Inhabited β]
@@ -5261,7 +5261,7 @@ theorem getKey?_filterMap [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
   rw [← Option.pbind_eq_bind]
   congr; funext a h
   simp only [getEntry?_congr (beq_of_getEntry?_eq_some h)]
-  simp only [show _ = _ from h, Option.map_some', Option.get_some]
+  simp only [show _ = _ from h, Option.map_some, Option.get_some]
   cases f a.1 a.2 <;> rfl
 
 theorem getKey!_filterMap [BEq α] [EquivBEq α] [Inhabited α] {β : Type v} {γ : Type w}
@@ -5512,8 +5512,8 @@ theorem minEntry?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
 theorem minKey?_eq_some_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     minKey? l = some k ↔ getKey? k l = some k ∧ ∀ k' : α, containsKey k' l → (compare k k').isLE := by
-  simp only [minKey?, Option.map_eq_some_iff, minEntry?_eq_some_iff _ hd]
-  simp only [getKey?_eq_getEntry?, Option.map_eq_some_iff, getEntry?_eq_some_iff hd]
+  simp only [minKey?, Option.map_eq_some_iff_iff, minEntry?_eq_some_iff _ hd]
+  simp only [getKey?_eq_getEntry?, Option.map_eq_some_iff_iff, getEntry?_eq_some_iff hd]
   apply Iff.intro
   · rintro ⟨_, ⟨hm, hcmp⟩, rfl⟩
     exact ⟨⟨_, ⟨BEq.refl, hm⟩, rfl⟩, hcmp⟩
@@ -5523,7 +5523,7 @@ theorem minKey?_eq_some_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [B
 theorem minKey?_eq_some_iff_mem_and_forall [Ord α] [LawfulEqOrd α] [TransOrd α] [BEq α]
     [LawfulBEqOrd α] {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     minKey? l = some k ↔ containsKey k l ∧ ∀ k' : α, containsKey k' l → (compare k k').isLE := by
-  simp only [minKey?, Option.map_eq_some_iff, minEntry?_eq_some_iff _ hd]
+  simp only [minKey?, Option.map_eq_some_iff_iff, minEntry?_eq_some_iff _ hd]
   apply Iff.intro
   · rintro ⟨_, ⟨hm, hcmp⟩, rfl⟩
     exact ⟨containsKey_of_mem hm, hcmp⟩
@@ -5653,7 +5653,7 @@ theorem minEntry?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
   cases h : containsKey k l
   · simp only [cond_false, minEntry?_cons, Option.some.injEq]
     rfl
-  · rw [cond_true, minEntry?_replaceEntry hl, Option.map_eq_some_iff]
+  · rw [cond_true, minEntry?_replaceEntry hl, Option.map_eq_some_iff_iff]
     have := isSome_minEntry?_of_contains ‹_›
     simp only [Option.isSome_iff_exists] at this
     obtain ⟨a, ha⟩ := this
@@ -5749,7 +5749,7 @@ theorem minKey?_bind_getKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
 theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l : List ((a : α) × β a)}
     (hd : DistinctKeys l) {km} (hkm : minKey? l = some km) :
     containsKey km l := by
-  simp only [minKey?, Option.map_eq_some_iff, minEntry?_eq_some_iff _ hd] at hkm
+  simp only [minKey?, Option.map_eq_some_iff_iff, minEntry?_eq_some_iff _ hd] at hkm
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
 

@@ -7,6 +7,7 @@ Authors: Leonardo de Moura
 -- import Init.Data.Array.QSort.Basic
 -- import Init.Data.Array.Perm
 
+set_option grind.warning false
 
 namespace Array
 
@@ -56,12 +57,16 @@ theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi 
 
 grind_pattern qsort_sort_perm => (qsort.sort lt as lo hi hlo hhi).toArray
 
+-- grind_pattern List.Perm.refl => l ~ l -- not working?
+
 theorem qsort_perm (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
     qsort as lt lo hi ~ as := by
   unfold qsort
   split
-  · rfl
+  · rfl -- grind won't use `Perm.refl`?
   · grind
+
+attribute [grind] Vector.getElem_swap_of_ne
 
 theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
@@ -79,24 +84,11 @@ theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     split at w_mid <;> rename_i h₂
     · rw [if_pos h₂] at w_as
       apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as)
-      · rw [Vector.getElem_swap_of_ne (by omega) (by omega)]
-      intro k hk₁ hk₂
-      if hk₂' : k < i then
-        specialize q k hk₁ hk₂'
-        rwa [Vector.getElem_swap_of_ne (by omega) (by omega),
-          Vector.getElem_swap_of_ne (by omega) (by omega)]
-      else
-        obtain rfl := show k = i by omega
-        rwa [Vector.getElem_swap_left,
-          Vector.getElem_swap_of_ne (by omega) (by omega)]
+      · grind
+      grind
     · rw [if_neg h₂] at w_as
       apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as) (hpivot := rfl) (q := q)
-  · rw [dif_neg h₁] at w_as
-    subst w_as
-    simp [w_mid]
-    intro i' hi₁ hi₂
-    rw [Vector.getElem_swap_of_ne]
-    all_goals grind
+  · grind
 
 theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
@@ -114,31 +106,12 @@ theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     split at w_mid <;> rename_i h₂
     · rw [if_pos h₂] at w_as
       apply qpartition_loop_spec₂ (w_mid := w_mid) (w_as := w_as)
-      · rw [Vector.getElem_swap_of_ne (by omega) (by omega)]
-      intro k hk₁ hk₂
-      if hk₂' : k < j then
-        specialize q k (by omega) hk₂'
-        rwa [Vector.getElem_swap_of_ne (by omega) (by omega),
-          Vector.getElem_swap_of_ne (by omega) (by omega)]
-      else
-        obtain rfl := show k = j by omega
-        rw [Vector.getElem_swap_right,
-          Vector.getElem_swap_of_ne (by omega) (by omega)]
-        grind
+      · grind
+      grind
     · rw [if_neg h₂] at w_as
       apply qpartition_loop_spec₂ (w_mid := w_mid) (w_as := w_as) (hpivot := rfl)
-      intro k hk₁ hk₂
-      by_cases k < j <;> grind
-  · rw [dif_neg h₁] at w_as
-    subst w_as
-    simp [w_mid]
-    intro i' hi₁ hi₂
-    if hi₂' : i' < hi then
-      rw [Vector.getElem_swap_of_ne (by omega) (by omega)]
       grind
-    else
-      obtain rfl := show i' = hi by grind
-      grind
+  · grind
 
 theorem qpartition_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
@@ -147,9 +120,7 @@ theorem qpartition_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi hlo hhi).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
-  unfold qpartition at w_mid w_as
-  apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as) (hpivot := rfl)
-  grind
+  grind [qpartition, qpartition_loop_spec₁]
 
 theorem qpartition_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
@@ -158,9 +129,7 @@ theorem qpartition_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi hlo hhi).2) :
     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → !lt as'[i] as'[mid] := by
-  unfold qpartition at w_mid w_as
-  apply qpartition_loop_spec₂ (w_mid := w_mid) (w_as := w_as) (hpivot := rfl)
-  grind
+  grind [qpartition, qpartition_loop_spec₂]
 
 /--
 This is an annoying corner case:
@@ -192,8 +161,7 @@ theorem getElem_qpartition_loop_snd_of_lt_lo {n} (lt : α → α → Bool) (lo h
     · have : hi - (j + 1) < hi - j := by omega
       rw [getElem_qpartition_loop_snd_of_lt_lo (hi := hi) (j := j + 1) (h := h)]
       grind
-  · rw [Vector.getElem_swap_of_ne]
-    all_goals grind
+  · grind
 termination_by hi - j
 
 theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
@@ -233,9 +201,14 @@ theorem qsort_sort_spec {n} (lt : α → α → Bool) (as : Vector α n) (lo hi 
     · simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
       obtain ⟨rfl, rfl⟩ := w₂
       obtain h := hi_le_lo_of_hi_le_qpartition_fst _ _ _ _ _ _ w₃
-      omega
+      grind
     · sorry
   · grind
+
+example (as : Array α) (lo hi i j : Nat) (h₁ : lo ≤ i) (_ : i < j) (_ : j ≤ hi) (_ : j < as.size)
+    (_ : ¬as.size = 0) : min lo (as.size - 1) ≤ i := by
+  -- grind -- fails
+  omega
 
 /-- The slice of `as.qsort lt lo hi` from `lo` to `hi` (inclusive) is sorted. -/
 theorem qsort_sorted' (lt : α → α → Bool) (as : Array α) (lo hi : Nat) :
@@ -253,7 +226,6 @@ theorem qsort_sorted' (lt : α → α → Bool) (as : Array α) (lo hi : Nat) :
 theorem qsort_sorted (lt : α → α → Bool) (as : Array α) :
     ∀ i j, (h₁ : i < j) → (h₂ : i < (qsort as lt).size) → (h₃ : j < (qsort as lt).size) →
       lt (as.qsort lt)[i] (as.qsort lt)[j] := by
-  intros i j h₁ h₂ h₃
-  apply qsort_sorted' <;> all_goals grind
+  grind [qsort_sorted']
 
 end Array

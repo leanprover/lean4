@@ -28,7 +28,7 @@ namespace LeanLib
 
 /-- The package's `srcDir` joined with the library's `srcDir`. -/
 @[inline] def srcDir (self : LeanLib) : FilePath :=
-  self.pkg.srcDir / self.config.srcDir
+  self.pkg.srcDir / self.config.srcDir.normalize
 
 /-- The library's root directory for `lean` (i.e., `srcDir`). -/
 @[inline] def rootDir (self : LeanLib) : FilePath :=

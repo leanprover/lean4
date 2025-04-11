@@ -12,7 +12,8 @@ theorem nil_eq {α} {xs : List α} : [] = xs ↔ xs = [] := by grind
 
 /-! ### length -/
 
-attribute [grind →] List.eq_nil_of_length_eq_zero
+set_option trace.grind.ematch.pattern true
+attribute [grind →] List.eq_nil_of_length_eq_zero  -- FIXME bad, adds the implication which we then case split on
 attribute [grind] List.length_nil
 
 theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := by grind
@@ -177,7 +178,7 @@ attribute [grind] getElem_append_left getElem_append_right
 
 -- theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
 --     (l ++ [a])[i]'w = a := by
---   subst h; grind -- reported
+--   subst h; grind -- doesn't work without `subst` first?
 
 attribute [grind] getElem?_append_left getElem?_append_right
 attribute [grind] getElem?_singleton
@@ -322,7 +323,7 @@ attribute [grind] List.getElem_mem
 
 theorem mem_of_getElem {l : List α} {i : Nat} {h} {a : α} (e : l[i] = a) : a ∈ l := by grind
 
-attribute [grind →] getElem_of_getElem?
+attribute [grind →] getElem_of_getElem? -- FIXME bad!
 
 theorem mem_of_getElem? {l : List α} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l := by grind
 
@@ -353,12 +354,8 @@ example [DecidableEq α] {l : List α} :
     (y ∈ a :: l) = (y = a) ∨ y ∈ l := by
   grind only [List.mem_cons_self, eq_head_or_mem_tail_of_mem_cons, List.mem_cons_of_mem, cases Or]
 
--- FIXME
--- Reported.
--- theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
---     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
---   grind
---   by_cases y = a <;> grind
+theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
+    decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by grind
 
 theorem elem_iff [BEq α] [LawfulBEq α] {a : α} {as : List α} :
     elem a as = true ↔ a ∈ as := ⟨mem_of_elem_eq_true, elem_eq_true_of_mem⟩
@@ -382,7 +379,7 @@ theorem contains_cons [BEq α] {a : α} {b : α} {l : List α} :
 theorem nil_of_isEmpty {l : List α} (h : l.isEmpty) : l = [] :=  isEmpty_iff.mp h
 
 attribute [grind →] nil_of_isEmpty -- ideally we could just annotate isEmpty_iff without needing nil_of_isEmpty
-attribute [grind] isEmpty_nil
+attribute [grind] isEmpty_nil isEmpty_cons
 
 theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by grind
 
@@ -471,6 +468,8 @@ attribute [grind] Option.of_mem_some
 -- Skeptical:
 attribute [grind] List.getElem?_eq_some_getElem_iff
 
+set_option trace.grind.ematch.instance true in
+set_option trace.grind.ematch.instance.assignment true in
 theorem getElem?_set_self' {l : List α} {i : Nat} {a : α} :
     (set l i a)[i]? = Function.const _ a <$> l[i]? := by
   -- Why doesn't this work before the `by_cases`?
@@ -505,12 +504,7 @@ theorem getElem?_set' {l : List α} {i j : Nat} {a : α} :
   · grind
 
 theorem set_getElem_self {as : List α} {i : Nat} (h : i < as.length) :
-    as.set i as[i] = as := by
-  apply ext_getElem
-  · grind only [length_set, → List.eq_nil_of_length_eq_zero]
-  · intro n h₁ h₂
-    -- But just `attribute [grind] List.getElem_set` doesn't work! Reported.
-    grind [getElem_set]
+    as.set i as[i] = as := by grind
 
 theorem set_eq_of_length_le {l : List α} {i : Nat} (h : l.length ≤ i) {a : α} :
     l.set i a = l := by
@@ -566,32 +560,21 @@ attribute [grind] List.cons_append
 theorem _root_.List.eq_nil_of_append_eq_nil {l₁ l₂ : List α} (h : l₁ ++ l₂ = []) : l₁ = [] ∧ l₂ = [] := by
   grind [List.append_eq_nil_iff]
 
-attribute [grind →] List.eq_nil_of_append_eq_nil
+attribute [grind →] List.eq_nil_of_append_eq_nil -- FIXME bad!
 
 theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
     (l₁ ++ [a] == l₂ ++ [b]) = (l₁ == l₂ && a == b) := by
-  induction l₁ generalizing l₂ with
-  | nil => cases l₂ <;> grind
-  | cons x l₁ ih =>
-    cases l₂ with
-    | nil => grind
-    -- FIXME? grind not working here
-    | cons y l₂ => simp [ih, Bool.and_assoc]
+  induction l₁ generalizing l₂ <;> cases l₂ <;> grind
 
-attribute [grind →] List.length_eq_of_beq
+attribute [grind →] List.length_eq_of_beq -- FIXME bad!
 
 theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length := by grind
 
-attribute [grind] List.replicate_zero
+attribute [grind] List.replicate_zero List.replicate_succ
 
 theorem replicate_beq_replicate [BEq α] {a b : α} {n : Nat} :
     (replicate n a == replicate n b) = (n == 0 || a == b) := by
-  cases n with
-  | zero => grind
-  | succ n =>
-    rw [replicate_succ, replicate_succ, cons_beq_cons, replicate_beq_replicate]
-    rw [Bool.eq_iff_iff] -- FIXME, why do we need this? reported in #7850
-    grind
+  induction n <;> grind
 
 theorem reflBEq_iff [BEq α] : ReflBEq (List α) ↔ ReflBEq α := by
   constructor
@@ -645,7 +628,7 @@ theorem isEqv_eq [DecidableEq α] {l₁ l₂ : List α} : l₁.isEqv l₂ (· ==
 theorem _root_.List.length_pos_of_ne_nil {l : List α} (h : l ≠ []) : 0 < l.length := by
   cases l <;> simp_all
 
-attribute [grind] List.length_pos_of_ne_nil
+attribute [grind] List.length_pos_of_ne_nil  -- FIXME bad!
 
 attribute [grind] List.getLast_singleton
 
@@ -1301,18 +1284,12 @@ theorem forall_none_of_filterMap_eq_nil (h : filterMap f xs = []) : ∀ x ∈ xs
       | tail _ hmem => exact ih h hmem -- FIXME hmem's type is broken
     · grind
 
+attribute [grind →] List.forall_none_of_filterMap_eq_nil
+
 theorem filterMap_eq_nil_iff {l} : filterMap f l = [] ↔ ∀ a ∈ l, f a = none := by
   constructor
-  · exact forall_none_of_filterMap_eq_nil
-  · intro h
-    induction l with
-    | nil => grind
-    | cons a l ih =>
-      simp only [filterMap_cons]
-      split
-      · apply ih -- FIXME
-        grind
-      · grind
+  · grind
+  · induction l <;> grind
 
 theorem filterMap_eq_cons_iff {l} {b} {bs} :
     filterMap f l = b :: bs ↔
@@ -1376,7 +1353,7 @@ theorem getElem?_append_right : ∀ {l₁ l₂ : List α} {i : Nat}, l₁.length
 | [], _, _, _ => by grind
 | a :: l, _, i+1, h₁ => by
   rw [cons_append]
-  grind -- Internal grind error!
+  -- grind -- time out
   simp [Nat.succ_sub_succ_eq_sub, getElem?_append_right (Nat.lt_succ.1 h₁)]
 
 theorem getElem?_append {l₁ l₂ : List α} {i : Nat} :
@@ -1388,11 +1365,12 @@ theorem getElem_append_left' {l₁ : List α} {i : Nat} (hi : i < l₁.length) (
 
 theorem getElem_append_right' (l₁ : List α) {l₂ : List α} {i : Nat} (hi : i < l₂.length) :
     l₂[i] = (l₁ ++ l₂)[i + l₁.length]'(by grind) := by
-  grind
+  -- grind -- FIXME timeout
+  sorry
 
 theorem getElem_of_append {l : List α} (eq : l = l₁ ++ a :: l₂) (h : l₁.length = i) :
     l[i]'(by grind) = a := Option.some.inj <| by
-  -- FIXME
+  -- FIXME: if we leave the `h` out the rewrite, `grind` takes forever
   rw [← getElem?_eq_getElem, eq, getElem?_append_right (h ▸ Nat.le_refl _), h]
   grind
 
@@ -1527,6 +1505,7 @@ theorem tail_append_of_ne_nil {xs ys : List α} (h : xs ≠ []) :
     (xs ++ ys).tail = xs.tail ++ ys := by
   grind
 
+-- set_option maxHeartbeats 1000000000 in
 theorem set_append {s t : List α} :
     (s ++ t).set i x = if i < s.length then s.set i x ++ t else s ++ t.set (i - s.length) x := by
   induction s generalizing i with

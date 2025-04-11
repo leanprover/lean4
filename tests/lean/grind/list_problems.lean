@@ -1,16 +1,13 @@
+set_option grind.warning false
 reset_grind_attrs%
 
-reset_grind_attrs%
+attribute [grind]
+  List.length_cons List.length_nil
+  List.getElem_cons
+  List.getElem?_cons List.getElem?_nil
 
 theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.length, l[i] = a := by
-  induction l
-  · sorry
-  · cases i
-    · -- Better support for implication and dependent implication.
-      -- We need inequality propagation (or case-splits)
-      grind
-    · -- Similarly
-      grind
+  induction l generalizing i <;> grind
 
 ---
 reset_grind_attrs%

@@ -287,8 +287,8 @@ theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by
 @[simp] theorem cond_true (a b : α) : cond true a b = a := rfl
 @[simp] theorem cond_false (a b : α) : cond false a b = b := rfl
 
-@[simp] theorem beq_self_eq_true [BEq α] [LawfulBEq α] (a : α) : (a == a) = true := LawfulBEq.rfl
-theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := by simp
+theorem beq_self_eq_true [BEq α] [ReflBEq α] (a : α) : (a == a) = true := BEq.rfl
+theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := BEq.rfl
 
 @[simp] theorem bne_self_eq_false [BEq α] [LawfulBEq α] (a : α) : (a != a) = false := by simp [bne]
 theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by simp

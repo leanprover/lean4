@@ -386,11 +386,13 @@ This is the monadic analogue of `Option.getD`.
   | some a => pure a
   | none => y
 
-instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
+instance (α) [BEq α] [ReflBEq α] : ReflBEq (Option α) where
   rfl {x} :=
     match x with
-    | some _ => LawfulBEq.rfl (α := α)
+    | some _ => BEq.rfl (α := α)
     | none => rfl
+
+instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
   eq_of_beq {x y h} := by
     match x, y with
     | some x, some y => rw [LawfulBEq.eq_of_beq (α := α) h]

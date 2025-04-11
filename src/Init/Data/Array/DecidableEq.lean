@@ -114,8 +114,10 @@ end List
 
 namespace Array
 
-instance [BEq α] [LawfulBEq α] : LawfulBEq (Array α) where
+instance [BEq α] [ReflBEq α] : ReflBEq (Array α) where
   rfl := by simp [BEq.beq, isEqv_self_beq]
+
+instance [BEq α] [LawfulBEq α] : LawfulBEq (Array α) where
   eq_of_beq := by
     rintro ⟨_⟩ ⟨_⟩ h
     simpa using h

@@ -146,7 +146,7 @@ instance : LawfulBEq PolyCnstr where
   rfl {a} := by
     cases a; rename_i eq lhs rhs
     show (eq == eq && (lhs == lhs && rhs == rhs)) = true
-    simp [LawfulBEq.rfl]
+    simp
 
 structure ExprCnstr where
   eq  : Bool

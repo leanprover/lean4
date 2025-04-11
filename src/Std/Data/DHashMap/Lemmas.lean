@@ -2367,10 +2367,9 @@ theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β 
         if (f (m.get? k)).isSome then k else default
       else
         m.getKey! k' := by
-  simp [getKey!_eq_get!_getKey?, getKey?_alter]
+  simp only [getKey!_eq_get!_getKey?, getKey?_alter, beq_iff_eq]
   split
   · next heq =>
-    cases eq_of_beq heq
     split <;> rfl
   · next heq =>
     rfl

@@ -525,7 +525,7 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {xs : Array α} {H
   simp
 
 @[simp]
-theorem count_attach [DecidableEq α] {xs : Array α} {a : {x // x ∈ xs}} :
+theorem count_attach [BEq α] {xs : Array α} {a : {x // x ∈ xs}} :
     xs.attach.count a = xs.count ↑a := by
   rcases xs with ⟨xs⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.count_toArray]
@@ -534,7 +534,7 @@ theorem count_attach [DecidableEq α] {xs : Array α} {a : {x // x ∈ xs}} :
   rw [List.countP_pmap, List.countP_attach (p := (fun x => x == a.1)), List.count]
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} {xs : Array α} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
+theorem count_attachWith [BEq α] {p : α → Prop} {xs : Array α} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
     (xs.attachWith p H).count a = xs.count ↑a := by
   cases xs
   simp

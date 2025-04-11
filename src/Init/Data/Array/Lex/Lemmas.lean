@@ -150,13 +150,13 @@ instance [DecidableEq α] [LT α] [DecidableLT α]
     Std.Total (· ≤ · : Array α → Array α → Prop) where
   total := Array.le_total
 
-@[simp] theorem lex_eq_true_iff_lt [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_true_iff_lt [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {xs ys : Array α} : lex xs ys = true ↔ xs < ys := by
   cases xs
   cases ys
   simp
 
-@[simp] theorem lex_eq_false_iff_ge [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_false_iff_ge [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {xs ys : Array α} : lex xs ys = false ↔ ys ≤ xs := by
   cases xs
   cases ys

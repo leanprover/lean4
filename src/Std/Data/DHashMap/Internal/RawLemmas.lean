@@ -3272,7 +3272,7 @@ theorem getD_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
   simp_to_model [filterMap, getKey?, Const.get?, Const.getD]
     using List.Const.getValueD_filterMap_of_getKey?_eq_some
 
-theorem toList_filterMap {α : Type u} {m : Raw₀ α fun _ => β}
+theorem toList_filterMap {α : Type u} (m : Raw₀ α fun _ => β)
     {f : α → β → Option γ} :
     (Raw.Const.toList (m.filterMap f).1).Perm
       ((Raw.Const.toList m.1).filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩))) := by
@@ -3309,7 +3309,7 @@ section filter
 
 section raw
 
-variable {α : Type u} {β : α → Type v} {m : Raw₀ α β}
+variable {α : Type u} {β : α → Type v} (m : Raw₀ α β)
 
 theorem filterMap_equiv_filter {f : (a : α) → β a → Bool} :
     (m.filterMap (fun k => Option.guard (fun v => f k v))).1.Equiv (m.filter f).1 := by
@@ -3604,14 +3604,14 @@ theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabi
   simp_to_model [filter, Const.get?, getKey?, Const.getD]
     using List.Const.getValueD_filter_of_getKey?_eq_some
 
-theorem toList_filter {α : Type u} {m : Raw₀ α fun _ => β} {f : α → β → Bool} :
+theorem toList_filter {α : Type u} (m : Raw₀ α fun _ => β) {f : α → β → Bool} :
     (Raw.Const.toList (m.filter f).1).Perm
       ((Raw.Const.toList m.1).filter (fun p => f p.1 p.2)) := by
   simp_to_model [filter, Const.toList]
   simp only [List.filter_map, Function.comp_def]
   rfl
 
-theorem toList_filter_key {α : Type u} {m : Raw₀ α fun _ => β} {f : α → Bool} :
+theorem toList_filter_key {α : Type u} (m : Raw₀ α fun _ => β) {f : α → Bool} :
     (Raw.Const.toList (m.filter fun a _ => f a).1).Perm
       ((Raw.Const.toList m.1).filter (fun p => f p.1)) := by
   simp [toList_filter]
@@ -3672,7 +3672,7 @@ section map
 
 section raw
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : α → Type w'} {m : Raw₀ α β}
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : α → Type w'} (m : Raw₀ α β)
 
 theorem map_id_equiv : (m.map fun _ v => v).1.Equiv m.1 := by
   simp_to_model [map, Equiv] using List.Perm.of_eq (List.map_id _)
@@ -3791,7 +3791,7 @@ theorem getD_map [EquivBEq α] [LawfulHashable α]
         (fun _ h' => (contains_eq_isSome_get? m h).trans (Option.isSome_of_mem h'))).getD fallback := by
   simp_to_model [map, getKey, Const.getD, Const.get?, contains] using List.Const.getValueD_map
 
-theorem toList_map {α : Type u} {m : Raw₀ α fun _ => β}
+theorem toList_map {α : Type u} (m : Raw₀ α fun _ => β)
     {f : α → β → γ} :
     (Raw.Const.toList (m.map f).1).Perm
       ((Raw.Const.toList m.1).map (fun p => (p.1, f p.1 p.2))) := by

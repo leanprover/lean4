@@ -187,9 +187,6 @@ def IfNormalization : Type := { Z : IfExpr → IfExpr // ∀ e, (Z e).normalized
 See `Statement.lean` for background.
 -/
 
-macro "◾" : tactic => `(tactic| grind)
-macro "◾" : term => `(term| by grind)
-
 set_option grind.warning false
 
 namespace IfExpr
@@ -228,6 +225,9 @@ We don't want a `simp` lemma for `(ite i t e).eval` in general, only once we kno
   | var _ => 1
   | .ite i t e => 2 * normSize i + max (normSize t) (normSize e) + 1
 
+notation "g⟨" a "⟩" => ⟨a, by grind⟩
+macro "c⟨" a:term "⟩" : term => `(have aux := $a; ⟨aux.1, by grind⟩)
+
 /-- Normalizes the expression at the same time as assigning all variables in
 `e` to the literal booleans given by `l` -/
 def normalize (l : AList (fun _ : Nat => Bool)) :
@@ -235,40 +235,33 @@ def normalize (l : AList (fun _ : Nat => Bool)) :
         (∀ f, e'.eval f = e.eval (fun w => (l.lookup w).elim (f w) id))
         ∧ e'.normalized
         ∧ ∀ (v : Nat), v ∈ vars e' → l.lookup v = none }
-  | lit b => ⟨lit b, ◾⟩
+  | lit b => g⟨lit b⟩
   | var v =>
     match h : l.lookup v with
-    | none => ⟨var v, ◾⟩
-    | some b => ⟨lit b, ◾⟩
-  | .ite (lit true)   t e =>
-    -- Fails with `tactic 'grind.clear_aux_decls' failed`:
-    ⟨(normalize l t).1, ◾⟩
-    -- Workaround:
-    -- have t' := normalize l t; ⟨t'.1, ◾⟩
-  | .ite (lit false)  t e => have e' := normalize l e; ⟨e'.1, ◾⟩
-  | .ite (.ite a b c) t e => have i' := normalize l (.ite a (.ite b t e) (.ite c t e)); ⟨i'.1, ◾⟩
+    | none => g⟨var v⟩
+    | some b => g⟨lit b⟩
+  | .ite (lit true)   t e => c⟨normalize l t⟩
+  | .ite (lit false)  t e => c⟨normalize l e⟩
+  | .ite (.ite a b c) t e => c⟨normalize l (.ite a (.ite b t e) (.ite c t e))⟩
   | .ite (var v)      t e =>
     match h : l.lookup v with
     | none =>
       have ⟨t', _⟩ := normalize (l.insert v true) t
       have ⟨e', _⟩ := normalize (l.insert v false) e
       ⟨if t' = e' then t' else .ite (var v) t' e', by
+        -- TODO: automate this proof
         refine ⟨fun f => ?_, ?_, fun w b => ?_⟩
         · -- eval = eval
           simp only [apply_ite, eval_ite_var]
           cases hfv : f v
-          · simp_all
-            ◾
-          · ◾
+          · simp_all; grind
+          · grind
         · -- normalized
           split
-          · ◾
-          · simp only [normalized, disjoint]
-            ◾
-        · -- lookup = none
-          ◾⟩
-    | some b =>
-      have i' := normalize l (.ite (lit b) t e); ⟨i'.1, ◾⟩
+          · grind
+          · simp only [normalized, disjoint]; grind
+        · grind⟩
+    | some b => c⟨normalize l (.ite (lit b) t e)⟩
   termination_by e => e.normSize
 
 /-

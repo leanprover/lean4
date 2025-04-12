@@ -165,4 +165,8 @@ theorem of_decide_eq_false {p : Prop} {_ : Decidable p} : decide p = false → p
 theorem decide_eq_true {p : Prop} {_ : Decidable p} : p = True → decide p = true := by simp
 theorem decide_eq_false {p : Prop} {_ : Decidable p} : p = False → decide p = false := by simp
 
+/-! -/
+
+-- theorem aux (p : Prop) (h : (¬ p) = True )
+
 end Lean.Grind

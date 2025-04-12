@@ -63,6 +63,8 @@ def trySplit : Goal → M Bool := applyTac splitNext
 
 def tryArith : Goal → M Bool := applyTac Arith.check
 
+def tryLookahead : Goal → M Bool := applyTac lookahead
+
 def tryMBTC : Goal → M Bool := applyTac Arith.Cutsat.mbtcTac
 
 def maxNumFailuresReached : M Bool := do
@@ -81,6 +83,8 @@ partial def main (fallback : Fallback) : M Unit := do
     if (← tryArith goal) then
       continue
     if (← tryEmatch goal) then
+      continue
+    if (← tryLookahead goal) then
       continue
     if (← trySplit goal) then
       continue

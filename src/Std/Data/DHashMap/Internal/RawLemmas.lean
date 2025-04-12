@@ -20,7 +20,7 @@ set_option Elab.async false
 open Std.Internal.List
 open Std.Internal
 
-universe u v w
+universe u v w w'
 
 variable {α : Type u} {β : α → Type v}
 
@@ -3383,6 +3383,16 @@ theorem size_filter_eq_size_iff [LawfulBEq α]
     (m.filter f).1.size = m.1.size ↔ ∀ (a : α) (h : m.contains a), (f a (m.get a h)) = true := by
   simp_to_model [filter, size, contains, get] using Internal.List.length_filter_eq_length_iff
 
+theorem equiv_filter_iff [LawfulBEq α]
+    {f : (a : α) → β a → Bool} (h : m.1.WF) :
+    (m.filter f).1.Equiv m.1 ↔ ∀ (a : α) (h : m.contains a), (f a (m.get a h)) = true := by
+  simp_to_model [filter, Equiv, contains, get] using List.perm_filter_self_iff
+
+theorem equiv_filter_key_iff [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → Bool} (h : m.1.WF) :
+    (m.filter fun k _ => f k).1.Equiv m.1 ↔ ∀ (a : α) (h : m.contains a), f (m.getKey a h) = true := by
+  simp_to_model [filter, Equiv, contains, getKey] using List.perm_filter_key_self_iff
+
 theorem size_filter_key_eq_size_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} (h : m.1.WF) :
     (m.filter fun k _ => f k).1.size = m.1.size ↔ ∀ (k : α) (h : m.contains k), f (m.getKey k h) := by
@@ -3537,6 +3547,18 @@ theorem size_filter_key_eq_size_iff [EquivBEq α] [LawfulHashable α]
       f (m.getKey a h) := by
   simp [size_filter_eq_size_iff, h]
 
+theorem equiv_filter_iff [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Bool} (h : m.1.WF) :
+    (m.filter f).1.Equiv m.1 ↔ ∀ (a : α) (h : m.contains a),
+      f (m.getKey a h) (Const.get m a h) := by
+  simp_to_model [filter, Equiv, contains, getKey, Const.get] using List.Const.perm_filter_self_iff
+
+theorem equiv_filter_key_iff [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} (h : m.1.WF) :
+    (m.filter fun a _ => f a).1.Equiv m.1 ↔ ∀ (a : α) (h : m.contains a),
+      f (m.getKey a h) := by
+  simp [equiv_filter_iff, h]
+
 theorem get?_filter [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k : α} (h : m.1.WF) :
     Const.get? (m.filter f) k = (Const.get? m k).pfilter (fun x h' =>
@@ -3649,8 +3671,6 @@ end filter
 section map
 
 section raw
-
-universe w'
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : α → Type w'} {m : Raw₀ α β}
 

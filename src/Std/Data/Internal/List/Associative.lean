@@ -5045,6 +5045,128 @@ theorem length_filter_key_eq_length_iff [BEq α] [EquivBEq α] {f : α → Bool}
     simp only [getKey, getKey?_eq_getEntry?, this] at h
     exact h
 
+theorem perm_filter_self_iff [BEq α] [LawfulBEq α] {f : (a : α) → β a → Bool}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
+    List.Perm (l.filter fun p => f p.1 p.2) l ↔ ∀ (a : α) (h : containsKey a l),
+      (f a (getValueCast a l h)) = true := by
+  induction l using assoc_induction with
+  | nil => simp
+  | cons k v tl ih =>
+    rw [distinctKeys_cons_iff] at hl
+    simp only [List.filter, containsKey_cons, Bool.or_eq_true, beq_iff_eq, getValueCast_cons]
+    split
+    · rename_i hf
+      simp [ih (And.left hl)]
+      constructor
+      · intro h' a h
+        cases h with
+        | inl h =>
+          simp only [h, BEq.refl, ↓reduceDIte]
+          let b := f a (cast (by congr) v)
+          have hb : b = f a (cast (by congr) v) := by simp [b]
+          rw [← hb, ← hf, hb]
+          congr
+          · exact Eq.symm h
+          · simp
+        | inr h =>
+          split
+          · rename_i hk
+            simp [containsKey_congr hk, h] at hl
+          · apply h'
+      · intro h' a h
+        specialize h' a (Or.inr h)
+        split at h'
+        · rename_i hk
+          simp [containsKey_congr hk, h] at hl
+        · exact h'
+    · rename_i hf
+      constructor
+      · intro h
+        have length := List.Perm.length_eq h
+        simp only [List.length_cons] at length
+        have length_filter : (List.filter (fun p => f p.fst p.snd) tl).length ≤ tl.length := by
+          apply List.length_filter_le
+        simp [length, ← Nat.succ_eq_add_one, Nat.succ_le] at length_filter
+      · intro h
+        specialize h k
+        simp [hf] at h
+
+theorem perm_filter_key_self_iff [BEq α] [EquivBEq α] {f : α → Bool}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
+    List.Perm (l.filter fun p => f p.1) l ↔ ∀ (a : α) (h : containsKey a l),
+      f (getKey a l h) = true := by
+  induction l using assoc_induction with
+  | nil => simp
+  | cons k v tl ih =>
+    rw [distinctKeys_cons_iff] at hl
+    simp [getKey_cons, List.filter]
+    split
+    · rename_i hf
+      simp [ih (And.left hl)]
+      constructor
+      · intro h' a h
+        cases h with
+        | inl h =>
+          simp [h, hf]
+        | inr h =>
+          split
+          · rename_i hk
+            simp [containsKey_congr hk, h] at hl
+          · apply h'
+      · intro h' a h
+        specialize h' a (Or.inr h)
+        split at h'
+        · rename_i hk
+          simp [containsKey_congr hk, h] at hl
+        · apply h'
+    · rename_i hf
+      constructor
+      · intro h
+        have length := List.Perm.length_eq h
+        simp only [List.length_cons] at length
+        have length_filter : (List.filter (fun p => f p.fst) tl).length ≤ tl.length := by
+          apply List.length_filter_le
+        simp [length, ← Nat.succ_eq_add_one, Nat.succ_le] at length_filter
+      · intro h
+        specialize h k
+        simp [hf] at h
+
+theorem Const.perm_filter_self_iff [BEq α] [EquivBEq α] {β : Type v} {f : α → β → Bool}
+    {l : List ((_ : α) × β)} (hl : DistinctKeys l) :
+    List.Perm (l.filter fun p => f p.1 p.2) l ↔ ∀ (a : α) (h : containsKey a l),
+      (f (getKey a l h) (getValue a l h)) = true := by
+  induction l using assoc_induction with
+  | nil => simp
+  | cons k v tl ih =>
+    rw [distinctKeys_cons_iff] at hl
+    simp only [List.filter, containsKey_cons, Bool.or_eq_true, getValue_cons, getKey_cons]
+    split
+    · rename_i hf
+      simp [ih (And.left hl)]
+      constructor
+      · intro h' a h
+        by_cases ka : k == a
+        · simp [ka, hf]
+        · simp [ka]
+          apply h'
+      · intro h' a h
+        specialize h' a (Or.inr h)
+        split at h'
+        · rename_i hk
+          simp [containsKey_congr hk, h] at hl
+        · exact h'
+    · rename_i hf
+      constructor
+      · intro h
+        have length := List.Perm.length_eq h
+        simp only [List.length_cons] at length
+        have length_filter : (List.filter (fun p => f p.fst p.snd) tl).length ≤ tl.length := by
+          apply List.length_filter_le
+        simp [length, ← Nat.succ_eq_add_one, Nat.succ_le] at length_filter
+      · intro h
+        specialize h k
+        simp [hf] at h
+
 theorem isEmpty_filterMap_eq_true [BEq α] [LawfulBEq α] {f : (a : α) → β a → Option (γ a)}
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l) :
     (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (a : α) × γ a))).isEmpty = true ↔

@@ -69,7 +69,7 @@ theorem lookup_empty (a) : lookup a (∅ : AList β) = none :=
 def insert (a : α) (b : β a) (s : AList β) : AList β :=
   ⟨kinsert a b s.entries, sorry⟩
 
-theorem lookup_insert {a a' : α} {β} {b : β a} (s : AList β) :
+@[grind] theorem lookup_insert {a a' : α} {β} {b : β a} (s : AList β) :
     (s.insert a b).lookup a' = if h : a' = a then some (h ▸ b) else s.lookup a' := by
   sorry
 
@@ -191,32 +191,25 @@ set_option grind.warning false
 
 namespace IfExpr
 
-attribute [grind] Subtype
-grind_pattern Subtype.property => self.val
-
 attribute [grind] List.mem_cons List.not_mem_nil List.mem_append Option.elim_none Option.elim_some
   id
 
 attribute [grind] List.disjoint
-
-attribute [grind] AList.lookup_insert
-attribute [grind] List.cons_append List.nil_append
 
 attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars
 
 variable {b : Bool} {f : Nat → Bool} {i : Nat} {t e : IfExpr}
 
 /-!
-Simp lemmas for `eval`.
-We don't want a `simp` lemma for `(ite i t e).eval` in general, only once we know the shape of `i`.
+Lemmas for `eval`.
 -/
-@[simp, grind] theorem eval_lit : (lit b).eval f = b := rfl
-@[simp, grind] theorem eval_var : (var i).eval f = f i := rfl
-@[simp, grind] theorem eval_ite_lit :
+@[grind] theorem eval_lit : (lit b).eval f = b := rfl
+@[grind] theorem eval_var : (var i).eval f = f i := rfl
+@[grind] theorem eval_ite_lit :
     (ite (.lit b) t e).eval f = bif b then t.eval f else e.eval f := rfl
-@[simp, grind] theorem eval_ite_var :
+@[grind] theorem eval_ite_var :
     (ite (.var i) t e).eval f = bif f i then t.eval f else e.eval f := rfl
-@[simp, grind] theorem eval_ite_ite {a b c d e : IfExpr} :
+@[grind] theorem eval_ite_ite {a b c d e : IfExpr} :
     (ite (ite a b c) d e).eval f = (ite a (ite b d e) (ite c d e)).eval f := by grind [eval]
 
 /-- Custom size function for if-expressions, used for proving termination. -/
@@ -225,7 +218,12 @@ We don't want a `simp` lemma for `(ite i t e).eval` in general, only once we kno
   | var _ => 1
   | .ite i t e => 2 * normSize i + max (normSize t) (normSize e) + 1
 
-notation "g⟨" a "⟩" => ⟨a, by grind⟩
+/-- Construct a term of a subtype, using `grind` to discharge the condition. -/
+macro "g⟨" a:term "⟩" : term => `(⟨$a, by grind (gen := 9) (splits := 9)⟩)
+/--
+Replace a term of a subtype with a term of a different subtype, using the same data,
+and using `grind` to discharge the new condition (with access to the old condition).
+-/
 macro "c⟨" a:term "⟩" : term => `(have aux := $a; ⟨aux.1, by grind⟩)
 
 /-- Normalizes the expression at the same time as assigning all variables in
@@ -248,19 +246,7 @@ def normalize (l : AList (fun _ : Nat => Bool)) :
     | none =>
       have ⟨t', _⟩ := normalize (l.insert v true) t
       have ⟨e', _⟩ := normalize (l.insert v false) e
-      ⟨if t' = e' then t' else .ite (var v) t' e', by
-        -- TODO: automate this proof
-        refine ⟨fun f => ?_, ?_, fun w b => ?_⟩
-        · -- eval = eval
-          simp only [apply_ite, eval_ite_var]
-          cases hfv : f v
-          · simp_all; grind
-          · grind
-        · -- normalized
-          split
-          · grind
-          · simp only [normalized, disjoint]; grind
-        · grind⟩
+      g⟨if t' = e' then t' else .ite (var v) t' e'⟩
     | some b => c⟨normalize l (.ite (lit b) t e)⟩
   termination_by e => e.normSize
 

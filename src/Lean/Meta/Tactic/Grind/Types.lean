@@ -500,8 +500,14 @@ inductive LookaheadInfo where
     Given applications `a` and `b`, use lookahead to check whether the corresponding
     `i`-th arguments are equal or not. The lookahead is only performed if all other
     arguments are already known to be equal or are also tagged as lookahead.
+    `eq` is the equality between the two arguments
     -/
-    arg (a b : Expr) (i : Nat)
+    arg (a b : Expr) (i : Nat) (eq : Expr)
+
+/-- Returns expression to perform a lookahead case-split. -/
+def LookaheadInfo.getExpr : LookaheadInfo → Expr
+  | .imp e => e.bindingDomain!
+  | .arg _ _ _ eq => eq
 
 /-- Argument `arg : type` of an application `app` -/
 structure Arg where

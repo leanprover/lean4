@@ -50,6 +50,14 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
       s.appMap.insert key [e]
   }
 
+/-- Add a new lookahead candidate. -/
+def addLookaheadCandidate (info : LookaheadInfo) : GoalM Unit := do
+  trace[grind.lookahead.add] "{info.getExpr}"
+  modify fun s => { s with
+    split.lookaheads := info :: s.split.lookaheads
+    split.lookaheadSet := s.split.lookaheadSet.insert { expr := info.getExpr }
+  }
+
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
 /-- Returns `true` if `e` is of the form `@Eq Prop a b` -/
@@ -90,8 +98,13 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
     if (← get).split.casesTypes.isSplit declName then
       addSplitCandidate e
   | .forallE _ d _ _ =>
-    if Arith.isRelevantPred d || (← getConfig).splitImp then
+    if (← getConfig).splitImp then
       addSplitCandidate e
+    else if Arith.isRelevantPred d then
+      if (← getConfig).lookahead then
+        addLookaheadCandidate (.imp e)
+      else
+        addSplitCandidate e
   | _ => pure ()
 
 /--
@@ -252,8 +265,10 @@ where
         let eq ← shareCommon eq
         internalize eq generation
         trace_goal[grind.ext.candidate] "{eq}"
-        -- TODO: Add support for lookahead
-        addSplitCandidate eq
+        if (← getConfig).lookahead then
+          addLookaheadCandidate (.arg other.app parent i eq)
+        else
+          addSplitCandidate eq
     modify fun s => { s with split.argsAt := s.split.argsAt.insert (f, i) ({ arg, type, app := parent } :: others) }
     return ()
 

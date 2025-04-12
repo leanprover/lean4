@@ -208,13 +208,13 @@ private def extParentsToIgnore (declName : Name) : Bool :=
   || declName == ``Exists || declName == ``Subtype
 
 /--
-Given a term `e` that occurs as the argument at position `i` of an `f`-application `parent?`,
-we consider `e` as a candidate for case-splitting. For every other argument `e'` that also appears
-at position `i` in an `f`-application and has the same type as `e`, we add the case-split candidate `e = e'`.
+Given a term `arg` that occurs as the argument at position `i` of an `f`-application `parent?`,
+we consider `arg` as a candidate for case-splitting. For every other argument `arg'` that also appears
+at position `i` in an `f`-application and has the same type as `e`, we add the case-split candidate `arg = arg'`.
 
 When performing the case split, we consider the following two cases:
-- `e = e'`, which may introduce a new congruence between the corresponding `f`-applications.
-- `¬(e = e')`, which may trigger extensionality theorems for the type of `e`.
+- `arg = arg'`, which may introduce a new congruence between the corresponding `f`-applications.
+- `¬(arg = arg')`, which may trigger extensionality theorems for the type of `arg`.
 
 This feature enables `grind` to solve examples such as:
 ```lean
@@ -222,13 +222,13 @@ example (f : (Nat → Nat) → Nat) : a = b → f (fun x => a + x) = f (fun x =>
   grind
 ```
 -/
-private def addSplitCandidatesForExt (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
+private def addSplitCandidatesForExt (arg : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
   let some parent := parent? | return ()
   unless parent.isApp do return ()
   let f := parent.getAppFn
   if let .const declName _ := f then
     if extParentsToIgnore declName then return ()
-  let type ← inferType e
+  let type ← inferType arg
   -- Remark: we currently do not perform function extensionality on functions that produce a type that is not a proposition.
   -- We may add an option to enable that in the future.
   let u? ← typeFormerTypeLevel type
@@ -239,27 +239,28 @@ private def addSplitCandidatesForExt (e : Expr) (generation : Nat) (parent? : Op
     if !it.isApp then return ()
     i := i - 1
     let arg := it.appArg!
-    if isSameExpr arg e then
-      found f i type
+    if isSameExpr arg arg then
+      found f i type parent
     it := it.appFn!
 where
-  found (f : Expr) (i : Nat) (type : Expr) : GoalM Unit := do
-    trace[grind.debug.ext] "{f}, {i}, {e}"
-    let others := (← get).split.termsAt.find? (f, i) |>.getD []
-    for (e', type') in others do
-      if (← withDefault <| isDefEq type type') then
-        let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type e e'
+  found (f : Expr) (i : Nat) (type : Expr) (parent : Expr) : GoalM Unit := do
+    trace[grind.debug.ext] "{f}, {i}, {arg}"
+    let others := (← get).split.argsAt.find? (f, i) |>.getD []
+    for other in others do
+      if (← withDefault <| isDefEq type other.type) then
+        let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type arg other.arg
         let eq ← shareCommon eq
         internalize eq generation
         trace_goal[grind.ext.candidate] "{eq}"
+        -- TODO: Add support for lookahead
         addSplitCandidate eq
-    modify fun s => { s with split.termsAt := s.split.termsAt.insert (f, i) ((e, type) :: others) }
+    modify fun s => { s with split.argsAt := s.split.argsAt.insert (f, i) ({ arg, type, app := parent } :: others) }
     return ()
 
 /-- Applies `addSplitCandidatesForExt` if `funext` is enabled. -/
-private def addSplitCandidatesForFunext (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
+private def addSplitCandidatesForFunext (arg : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
   unless (← getConfig).funext do return ()
-  addSplitCandidatesForExt e generation parent?
+  addSplitCandidatesForExt arg generation parent?
 
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do

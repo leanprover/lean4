@@ -483,31 +483,61 @@ structure EMatch.State where
   matchEqNames : PHashSet Name := {}
   deriving Inhabited
 
+/--
+Lookahead case-split information. They are cheaper than regular case-splits.
+They are created when `Grind.Config.lookahead` is `true`.
+The idea is the following: `grind` asserts `¬ p`, if a contradiction is detected
+it asserts `p`.
+-/
+inductive LookaheadInfo where
+  | /--
+    Given an implication `e`, use lookahead to check whether the antecedent is
+    implied to be `True`. The lookahead is marked as resolved if the consequent is already
+    known to be `True`.
+    -/
+    imp (e : Expr)
+  | /--
+    Given applications `a` and `b`, use lookahead to check whether the corresponding
+    `i`-th arguments are equal or not. The lookahead is only performed if all other
+    arguments are already known to be equal or are also tagged as lookahead.
+    -/
+    arg (a b : Expr) (i : Nat)
+
+/-- Argument `arg : type` of an application `app` -/
+structure Arg where
+  arg  : Expr
+  type : Expr
+  app  : Expr
+
 /-- Case splitting related fields for the `grind` goal. -/
 structure Split.State where
   /-- Inductive datatypes marked for case-splitting -/
-  casesTypes : CasesTypes := {}
+  casesTypes   : CasesTypes := {}
   /-- Case-split candidates. -/
-  candidates : List Expr := []
+  candidates   : List Expr := []
   /-- Number of splits performed to get to this goal. -/
-  num        : Nat := 0
+  num          : Nat := 0
   /-- Case-splits that have been inserted at `candidates` at some point. -/
-  added      : PHashSet ENodeKey := {}
+  added        : PHashSet ENodeKey := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
-  resolved   : PHashSet ENodeKey := {}
+  resolved     : PHashSet ENodeKey := {}
   /--
   Sequence of cases steps that generated this goal. We only use this information for diagnostics.
   Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
   applications that generated only 1 subgoal.
   -/
-  trace      : List CaseTrace := []
+  trace        : List CaseTrace := []
+  /-- Lookahead "case-splits". -/
+  lookaheads   : List LookaheadInfo := []
+  lookaheadSet : PHashSet ENodeKey := {}
   /--
-  Mapping from pairs `(f, i)` to a list of `(e, type)`.
-  The meaning is: `e : type` is lambda expression that occurs at argument `i` of an `f`-application.
-  We use this information to add case-splits for triggering extensionality theorems.
+  Mapping from pairs `(f, i)` to a list of arguments.
+  Each argument occurs as the `i`-th of an `f`-application.
+  We use this information to add case-splits for
+  triggering extensionality theorems and model-based theory combination.
   See `addSplitCandidatesForExt`.
   -/
-  termsAt    : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
+  argsAt       : PHashMap (Expr × Nat) (List Arg) := {}
   deriving Inhabited
 
 /-- Clean name generator. -/

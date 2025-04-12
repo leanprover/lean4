@@ -22,17 +22,20 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_M
 static lean_object* l_Lean_Meta_Grind_propagateForallPropDown___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_mkEMatchTheoremWithKind_x3f(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_isEqTrueHyp_x3f___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_addLocalEMatchTheorems___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropDown(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
 lean_object* l_Lean_Meta_Grind_reportIssue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__5;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_isEqTrueHyp_x3f___closed__1;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___closed__3;
+lean_object* l_Lean_Expr_bvar___override(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_addLocalEMatchTheorems___lambda__1___closed__1;
 lean_object* l_Lean_Meta_Grind_pushEqCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_addLocalEMatchTheorems___closed__2;
@@ -45,11 +48,14 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__1___b
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_mkEMatchTheoremWithKind_x27_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__6;
+static lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__1___closed__2;
 lean_object* l_Lean_Meta_Grind_activateTheorem(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropDown___closed__3;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___closed__1;
+static lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__2;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__2___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_mkEMatchTheoremWithKind_x27_x3f(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_addLocalEMatchTheorems___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,11 +74,13 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropDown___lambda__2__
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_isEqTrueHyp_x3f___closed__3;
+lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFnCleanup(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__11;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__9;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropDown___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropDown___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,9 +90,11 @@ static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__3___closed
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_getGeneration(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_alreadyInternalized(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Meta_Grind_propagateExistsDown_declare__1____x40_Lean_Meta_Tactic_Grind_ForallProp___hyg_2828_(lean_object*);
 lean_object* l_Lean_mkNot(lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__3;
 lean_object* l_Lean_Meta_Grind_updateLastTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__8;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__1___closed__3;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__7;
@@ -94,10 +104,14 @@ static lean_object* l_Lean_Meta_Grind_propagateForallPropDown___closed__8;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__10;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropDown___closed__5;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkOfEqFalseCore(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__8;
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_Grind_updateLastTag___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_addLocalEMatchTheorems___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__2___closed__3;
+lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_addLocalEMatchTheorems___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -117,12 +131,15 @@ static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__2___closed
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__14;
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__13;
+lean_object* l___private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_registerBuiltinPropagatorCore(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_mkEqTrueProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkOfEqTrueCore(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_addLocalEMatchTheorems___lambda__1___closed__2;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropDown___closed__9;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___closed__2;
+static lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__7;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropDown___closed__14;
+static lean_object* l___regBuiltin_Lean_Meta_Grind_propagateExistsDown_declare__1____x40_Lean_Meta_Tactic_Grind_ForallProp___hyg_2828____closed__1;
 lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_pushEqFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,20 +148,25 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_G
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__2___closed__2;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__1___closed__1;
+static lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateForallPropUp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_headBeta(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_isEqTrueHyp_x3f___lambda__2___boxed(lean_object*);
 lean_object* l_Lean_Meta_Grind_preprocess(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp_propagateImpliesUp___lambda__1___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_addLocalEMatchTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_propagateExistsDown___closed__1;
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
+static lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__6;
 lean_object* l_Lean_mkApp5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__3___closed__2;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropUp___lambda__2___closed__5;
+static lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__5;
 static lean_object* l_Lean_Meta_Grind_propagateForallPropDown___closed__11;
 lean_object* l_Lean_Meta_Grind_getConfig___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -4878,6 +4900,377 @@ lean_dec(x_4);
 return x_14;
 }
 }
+static lean_object* _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Not", 3, 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__2;
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_Expr_bvar___override(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("x", 1, 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("forall_not_of_not_exists", 24, 24);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
+_start:
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; 
+x_14 = l_Lean_Expr_constLevels_x21(x_2);
+x_15 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__4;
+lean_inc(x_4);
+x_16 = l_Lean_Expr_app___override(x_4, x_15);
+x_17 = l_Lean_Expr_headBeta(x_16);
+x_18 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__3;
+x_19 = l_Lean_Expr_app___override(x_18, x_17);
+x_20 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__6;
+x_21 = 0;
+lean_inc(x_3);
+x_22 = l_Lean_Expr_forallE___override(x_20, x_3, x_19, x_21);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_1);
+x_23 = l_Lean_Meta_Grind_mkEqFalseProof(x_1, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+if (lean_obj_tag(x_23) == 0)
+{
+lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_24 = lean_ctor_get(x_23, 0);
+lean_inc(x_24);
+x_25 = lean_ctor_get(x_23, 1);
+lean_inc(x_25);
+lean_dec(x_23);
+x_26 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__8;
+x_27 = l_Lean_Expr_const___override(x_26, x_14);
+lean_inc(x_1);
+x_28 = l_Lean_Meta_mkOfEqFalseCore(x_1, x_24);
+x_29 = l_Lean_mkApp3(x_27, x_3, x_4, x_28);
+x_30 = l_Lean_Meta_Grind_getGeneration(x_1, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_25);
+lean_dec(x_1);
+x_31 = lean_ctor_get(x_30, 0);
+lean_inc(x_31);
+x_32 = lean_ctor_get(x_30, 1);
+lean_inc(x_32);
+lean_dec(x_30);
+x_33 = l_Lean_Meta_Grind_addNewRawFact(x_29, x_22, x_31, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_32);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+return x_33;
+}
+else
+{
+uint8_t x_34; 
+lean_dec(x_22);
+lean_dec(x_14);
+lean_dec(x_12);
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_1);
+x_34 = !lean_is_exclusive(x_23);
+if (x_34 == 0)
+{
+return x_23;
+}
+else
+{
+lean_object* x_35; lean_object* x_36; lean_object* x_37; 
+x_35 = lean_ctor_get(x_23, 0);
+x_36 = lean_ctor_get(x_23, 1);
+lean_inc(x_36);
+lean_inc(x_35);
+lean_dec(x_23);
+x_37 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_37, 0, x_35);
+lean_ctor_set(x_37, 1, x_36);
+return x_37;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_box(0);
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_10);
+return x_12;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_propagateExistsDown___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_propagateExistsDown___lambda__2___boxed), 10, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+lean_inc(x_1);
+x_11 = l_Lean_Meta_Grind_isEqFalse(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; uint8_t x_13; 
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+x_13 = lean_unbox(x_12);
+lean_dec(x_12);
+if (x_13 == 0)
+{
+uint8_t x_14; 
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_14 = !lean_is_exclusive(x_11);
+if (x_14 == 0)
+{
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_ctor_get(x_11, 0);
+lean_dec(x_15);
+x_16 = lean_box(0);
+lean_ctor_set(x_11, 0, x_16);
+return x_11;
+}
+else
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_17 = lean_ctor_get(x_11, 1);
+lean_inc(x_17);
+lean_dec(x_11);
+x_18 = lean_box(0);
+x_19 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_19, 0, x_18);
+lean_ctor_set(x_19, 1, x_17);
+return x_19;
+}
+}
+else
+{
+lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
+x_20 = lean_ctor_get(x_11, 1);
+lean_inc(x_20);
+lean_dec(x_11);
+x_21 = l_Lean_Meta_Grind_propagateExistsDown___closed__1;
+lean_inc(x_1);
+x_22 = l_Lean_Expr_cleanupAnnotations(x_1);
+x_23 = l_Lean_Expr_isApp(x_22);
+if (x_23 == 0)
+{
+lean_object* x_24; lean_object* x_25; 
+lean_dec(x_22);
+lean_dec(x_1);
+x_24 = lean_box(0);
+x_25 = lean_apply_10(x_21, x_24, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_20);
+return x_25;
+}
+else
+{
+lean_object* x_26; lean_object* x_27; uint8_t x_28; 
+x_26 = l_Lean_Expr_appArg(x_22, lean_box(0));
+x_27 = l_Lean_Expr_appFnCleanup(x_22, lean_box(0));
+x_28 = l_Lean_Expr_isApp(x_27);
+if (x_28 == 0)
+{
+lean_object* x_29; lean_object* x_30; 
+lean_dec(x_27);
+lean_dec(x_26);
+lean_dec(x_1);
+x_29 = lean_box(0);
+x_30 = lean_apply_10(x_21, x_29, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_20);
+return x_30;
+}
+else
+{
+lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; 
+x_31 = l_Lean_Expr_appArg(x_27, lean_box(0));
+x_32 = l_Lean_Expr_appFnCleanup(x_27, lean_box(0));
+x_33 = l_Lean_Meta_Grind_propagateForallPropDown___closed__12;
+x_34 = l_Lean_Expr_isConstOf(x_32, x_33);
+if (x_34 == 0)
+{
+lean_object* x_35; lean_object* x_36; 
+lean_dec(x_32);
+lean_dec(x_31);
+lean_dec(x_26);
+lean_dec(x_1);
+x_35 = lean_box(0);
+x_36 = lean_apply_10(x_21, x_35, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_20);
+return x_36;
+}
+else
+{
+lean_object* x_37; 
+x_37 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1(x_1, x_32, x_31, x_26, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_20);
+lean_dec(x_32);
+return x_37;
+}
+}
+}
+}
+}
+else
+{
+uint8_t x_38; 
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_38 = !lean_is_exclusive(x_11);
+if (x_38 == 0)
+{
+return x_11;
+}
+else
+{
+lean_object* x_39; lean_object* x_40; lean_object* x_41; 
+x_39 = lean_ctor_get(x_11, 0);
+x_40 = lean_ctor_get(x_11, 1);
+lean_inc(x_40);
+lean_inc(x_39);
+lean_dec(x_11);
+x_41 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_41, 0, x_39);
+lean_ctor_set(x_41, 1, x_40);
+return x_41;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
+_start:
+{
+lean_object* x_14; 
+x_14 = l_Lean_Meta_Grind_propagateExistsDown___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+lean_dec(x_2);
+return x_14;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateExistsDown___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l_Lean_Meta_Grind_propagateExistsDown___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_11;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Meta_Grind_propagateExistsDown_declare__1____x40_Lean_Meta_Tactic_Grind_ForallProp___hyg_2828____closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_propagateExistsDown), 10, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Meta_Grind_propagateExistsDown_declare__1____x40_Lean_Meta_Tactic_Grind_ForallProp___hyg_2828_(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = l_Lean_Meta_Grind_propagateForallPropDown___closed__12;
+x_3 = 0;
+x_4 = l___regBuiltin_Lean_Meta_Grind_propagateExistsDown_declare__1____x40_Lean_Meta_Tactic_Grind_ForallProp___hyg_2828____closed__1;
+x_5 = l___private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_registerBuiltinPropagatorCore(x_2, x_3, x_4, x_1);
+return x_5;
+}
+}
 lean_object* initialize_Init_Grind_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Internalize(uint8_t builtin, lean_object*);
@@ -5009,7 +5402,30 @@ l_Lean_Meta_Grind_propagateForallPropDown___closed__13 = _init_l_Lean_Meta_Grind
 lean_mark_persistent(l_Lean_Meta_Grind_propagateForallPropDown___closed__13);
 l_Lean_Meta_Grind_propagateForallPropDown___closed__14 = _init_l_Lean_Meta_Grind_propagateForallPropDown___closed__14();
 lean_mark_persistent(l_Lean_Meta_Grind_propagateForallPropDown___closed__14);
-return lean_io_result_mk_ok(lean_box(0));
+l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__1 = _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__1);
+l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__2 = _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__2();
+lean_mark_persistent(l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__2);
+l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__3 = _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__3();
+lean_mark_persistent(l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__3);
+l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__4 = _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__4();
+lean_mark_persistent(l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__4);
+l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__5 = _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__5();
+lean_mark_persistent(l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__5);
+l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__6 = _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__6();
+lean_mark_persistent(l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__6);
+l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__7 = _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__7();
+lean_mark_persistent(l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__7);
+l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__8 = _init_l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__8();
+lean_mark_persistent(l_Lean_Meta_Grind_propagateExistsDown___lambda__1___closed__8);
+l_Lean_Meta_Grind_propagateExistsDown___closed__1 = _init_l_Lean_Meta_Grind_propagateExistsDown___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_propagateExistsDown___closed__1);
+l___regBuiltin_Lean_Meta_Grind_propagateExistsDown_declare__1____x40_Lean_Meta_Tactic_Grind_ForallProp___hyg_2828____closed__1 = _init_l___regBuiltin_Lean_Meta_Grind_propagateExistsDown_declare__1____x40_Lean_Meta_Tactic_Grind_ForallProp___hyg_2828____closed__1();
+lean_mark_persistent(l___regBuiltin_Lean_Meta_Grind_propagateExistsDown_declare__1____x40_Lean_Meta_Tactic_Grind_ForallProp___hyg_2828____closed__1);
+if (builtin) {res = l___regBuiltin_Lean_Meta_Grind_propagateExistsDown_declare__1____x40_Lean_Meta_Tactic_Grind_ForallProp___hyg_2828_(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

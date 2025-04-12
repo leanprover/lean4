@@ -178,6 +178,12 @@ private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run d
   let .const declName _ := type.getAppFn | return false
   return goal.split.casesTypes.isEagerSplit declName
 
+/-- Returns `true` if `type` is an inductive type with at most one constructor. -/
+private def isCheapInductive (type : Expr) : CoreM Bool := do
+  let .const declName _ := type.getAppFn | return false
+  let .inductInfo info ← getConstInfo declName | return false
+  return info.numCtors <= 1
+
 private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List Goal)) := goal.mvarId.withContext do
   /-
   Remark: we used to use `whnfD`. This was a mistake, we don't want to unfold user-defined abstractions.
@@ -185,6 +191,9 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List G
   -/
   let type ← whnf (← fvarId.getType)
   if isEagerCasesCandidate goal type then
+    if (← cheapEagerCasesOnly) then
+      unless (← isCheapInductive type) do
+        return none
     if let .const declName _ := type.getAppFn then
       saveCases declName true
     let mvarIds ← cases goal.mvarId (mkFVar fvarId)

@@ -7,4 +7,4 @@ attribute [grind] List.eq_nil_of_length_eq_zero List.getElem_append_right
 
 example {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
     (l ++ [a])[i]'w = a := by
-  grind  -- Similar to issue above.
+  grind

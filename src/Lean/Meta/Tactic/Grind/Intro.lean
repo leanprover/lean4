@@ -214,7 +214,7 @@ private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withConte
     return { goal with mvarId := (← goal.mvarId.exfalso) }
 
 /-- Introduce new hypotheses (and apply `by_contra`) until goal is of the form `... ⊢ False` -/
-partial def intros  (generation : Nat) : GrindTactic' := fun goal => do
+partial def intros (generation : Nat) : GrindTactic' := fun goal => do
   let rec go (goal : Goal) : StateRefT (Array Goal) GrindM Unit := do
     if goal.inconsistent then
       return ()

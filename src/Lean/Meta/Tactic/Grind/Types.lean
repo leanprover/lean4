@@ -1261,4 +1261,24 @@ def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
   let .some val ← trySynthInstance type | return false
   isDefEq x val
 
+/-- Add a new lookahead candidate. -/
+def addLookaheadCandidate (info : LookaheadInfo) : GoalM Unit := do
+  trace[grind.lookahead.add] "{info.getExpr}"
+  modify fun s => { s with
+    split.lookaheads := info :: s.split.lookaheads
+    split.lookaheadSet := s.split.lookaheadSet.insert { expr := info.getExpr }
+  }
+
+/--
+Helper function for executing `x` with a fresh `newFacts` and without modifying
+the goal state.
+-/
+def withoutModifyingState (x : GoalM α) : GoalM α := do
+  let saved ← get
+  modify fun goal => { goal with newFacts := {} }
+  try
+    x
+  finally
+    set saved
+
 end Lean.Meta.Grind

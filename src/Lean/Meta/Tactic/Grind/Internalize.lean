@@ -50,14 +50,6 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
       s.appMap.insert key [e]
   }
 
-/-- Add a new lookahead candidate. -/
-def addLookaheadCandidate (info : LookaheadInfo) : GoalM Unit := do
-  trace[grind.lookahead.add] "{info.getExpr}"
-  modify fun s => { s with
-    split.lookaheads := info :: s.split.lookaheads
-    split.lookaheadSet := s.split.lookaheadSet.insert { expr := info.getExpr }
-  }
-
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
 /-- Returns `true` if `e` is of the form `@Eq Prop a b` -/

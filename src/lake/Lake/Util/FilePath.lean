@@ -37,3 +37,45 @@ scoped instance : Div FilePath where
 
 scoped instance : HDiv FilePath String FilePath where
   hDiv p sub := joinRelative p ⟨sub⟩
+
+/--
+Creates a module `Name` from a file path.
+The components of the path become string components of the `Name`.
+Before conversion, normalizes the path, removes any extensions, and
+strips a trailing path separator.
+
+Examples:
+* ``modOfFilePath "Foo/Bar" = `Foo.Bar``
+* ``modOfFilePath "Foo/Bar/" = `Foo.Bar``
+* ``modOfFilePath "Foo/Bar.lean" = `Foo.Bar``
+* ``modOfFilePath "Foo/Bar.tar.gz" = `Foo.Bar``
+* ``modOfFilePath "Foo/Bar.lean/" = `Foo.«Bar.lean»``
+-/
+def modOfFilePath (path : FilePath) : Name :=
+  let path := removeExts path.normalize.toString
+  let path := path.stripSuffix FilePath.pathSeparator.toString
+  FilePath.components path |>.foldl .str .anonymous
+where
+  removeExts (s : String) (i := s.endPos) (e := s.endPos) :=
+    if h : i = 0 then
+      s.extract 0 e
+    else
+      have := String.prev_lt_of_pos s i h
+      let i' := s.prev i
+      let c  := s.get i'
+      if c == FilePath.pathSeparator then
+        s.extract 0 e
+      else if c == '.' then
+        removeExts s i' i'
+      else
+        removeExts s i' e
+  termination_by i.1
+
+-- sanity check
+example :
+  modOfFilePath "Foo/Bar" = `Foo.Bar
+  ∧ modOfFilePath "Foo/Bar/" = `Foo.Bar
+  ∧ modOfFilePath "Foo/Bar.lean" = `Foo.Bar
+  ∧ modOfFilePath "Foo/Bar.tar.gz" = `Foo.Bar
+  ∧ modOfFilePath "Foo/Bar.lean/" = `Foo.«Bar.lean»
+:= by native_decide

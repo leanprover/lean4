@@ -243,8 +243,7 @@ private def addSplitCandidatesForExt (arg : Expr) (generation : Nat) (parent? : 
   repeat
     if !it.isApp then return ()
     i := i - 1
-    let arg := it.appArg!
-    if isSameExpr arg arg then
+    if isSameExpr arg it.appArg! then
       found f i type parent
     it := it.appFn!
 where

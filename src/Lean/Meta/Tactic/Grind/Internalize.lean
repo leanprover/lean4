@@ -172,7 +172,7 @@ private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Un
     modify fun s => { s with ematch.thmMap := thmMap }
     let appMap := (← get).appMap
     for thm in thms do
-      trace[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
+      trace_goal[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
       unless (← get).ematch.thmMap.isErased thm.origin do
         let symbols := thm.symbols.filter fun sym => !appMap.contains sym
         let thm := { thm with symbols }
@@ -249,7 +249,7 @@ private def addSplitCandidatesForExt (arg : Expr) (generation : Nat) (parent? : 
     it := it.appFn!
 where
   found (f : Expr) (i : Nat) (type : Expr) (parent : Expr) : GoalM Unit := do
-    trace[grind.debug.ext] "{f}, {i}, {arg}"
+    trace_goal[grind.debug.ext] "{f}, {i}, {arg}"
     let others := (← get).split.argsAt.find? (f, i) |>.getD []
     for other in others do
       if (← withDefault <| isDefEq type other.type) then

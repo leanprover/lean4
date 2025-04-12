@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Arith
+import Lean.Meta.Tactic.Grind.Lookahead
 
 namespace Lean.Meta.Grind
 

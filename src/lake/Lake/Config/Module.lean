@@ -44,14 +44,44 @@ Locate the named, buildable module in the library
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
   if self.isBuildableModule mod then some {lib := self, name := mod} else none
 
+/--
+Creates a module `Name` from a file path.
+The components of the path become string components of the `Name`.
+Before conversion, normalizes the path, removes any extensions, and
+strips a trailing path separator.
+
+Examples:
+* ``modOfFilePath "Foo/Bar" = `Foo.Bar``
+* ``modOfFilePath "Foo/Bar/" = `Foo.Bar``
+* ``modOfFilePath "Foo/Bar.lean" = `Foo.Bar``
+* ``modOfFilePath "Foo/Bar.tar.gz" = `Foo.Bar``
+* ``modOfFilePath "Foo/Bar.lean/" = `Foo.«Bar.lean»``
+-/
 def modOfFilePath (path : FilePath) : Name :=
-  let path := FilePath.mk <| path.normalize.toString.stripSuffix FilePath.pathSeparator.toString
-  path.withExtension "" |>.components.foldl Name.str Name.anonymous
+  let path := removeExts path.normalize.toString
+  let path := path.stripSuffix FilePath.pathSeparator.toString
+  FilePath.components path |>.foldl Name.str Name.anonymous
+where
+  removeExts (s : String) (i := s.endPos) (e := s.endPos) :=
+    if h : i = 0 then
+      s.extract 0 e
+    else
+      have := String.prev_lt_of_pos s i h
+      let i' := s.prev i
+      let c  := s.get i'
+      if c == FilePath.pathSeparator then
+        s.extract 0 e
+      else if c == '.' then
+        removeExts s i' i'
+      else
+        removeExts s i' e
+  termination_by i.1
 
 /-- Returns the buildable module in the library whose source file is `path`.  -/
 def LeanLib.findModuleBySrc? (path : FilePath) (self : LeanLib) : Option Module := do
   let modPath ← path.toString.dropPrefix? self.srcDir.toString
-  self.findModule? (modOfFilePath modPath.toString)
+  let modPath := (modPath.drop 1).toString -- remove leading `/`
+  self.findModule? (modOfFilePath modPath)
 
 /-- Locate the named, buildable, importable, local module in the package.  -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=

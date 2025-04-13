@@ -94,14 +94,13 @@ def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM 
 -/
 partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : MetaM (Array Expr) := do
   let (implicitMVars, targets) ← collect elimInfo.elimType 0 0 #[] #[]
-  for (mvar,bi) in implicitMVars do
-    unless ← mvar.isAssigned do
-      if bi.isInstImplicit then
-        mvar.withContext do
-          let mvarType := (← mvar.getDecl).type
-          let synthVal ← synthInstance mvarType
-          unless (← isDefEq (Expr.mvar mvar) synthVal) do
-            throwError "failed to synthesise instance for target{indentD ("[" ++ MessageData.ofExpr mvarType ++ "]")}"
+  for (mvar,binderInfo) in implicitMVars do
+    unless !binderInfo.isInstImplicit || (← mvar.isAssigned) do
+      mvar.withContext do
+        let mvarType := (← mvar.getDecl).type
+        let synthVal ← synthInstance mvarType
+        unless (← isDefEq (Expr.mvar mvar) synthVal) do
+          throwError "failed to synthesise instance for target{indentD ("[" ++ MessageData.ofExpr mvarType ++ "]")}"
     unless ← mvar.isAssigned do
       let name := (←mvar.getDecl).userName
       if name.isAnonymous || name.hasMacroScopes then

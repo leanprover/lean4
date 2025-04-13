@@ -288,6 +288,17 @@ theorem count_flatMap {α} [BEq β] {xs : Array α} {f : α → Array β} {x : �
   rcases xs with ⟨xs⟩
   simp [List.count_flatMap, countP_flatMap, Function.comp_def]
 
+theorem countP_replace {a b : α} {xs : Array α} {p : α → Bool} :
+    (xs.replace a b).countP p =
+      if xs.contains a then xs.countP p + (if p b then 1 else 0) - (if p a then 1 else 0) else xs.countP p := by
+  rcases xs with ⟨xs⟩
+  simp [List.countP_replace]
+
+theorem count_replace {a b c : α} {xs : Array α} :
+    (xs.replace a b).count c =
+      if xs.contains a then xs.count c + (if b == c then 1 else 0) - (if a == c then 1 else 0) else xs.count c := by
+  simp [count_eq_countP, countP_replace]
+
 -- FIXME these theorems can be restored once `List.erase` and `Array.erase` have been related.
 
 -- theorem count_erase (a b : α) (l : Array α) : count a (l.erase b) = count a l - if b == a then 1 else 0 := by

@@ -456,7 +456,7 @@ static lean_object* l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goAnalyze___spec__12(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_Compiler_LCNF_JoinPointContextExtender_extendByIfNecessary___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_Arg_updateFVarImp(lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_panic___at___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_removeCandidatesInArg___spec__3___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_Expr_forFVarM___at___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_removeCandidatesInArg___spec__2___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_addDependency(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11274,7 +11274,7 @@ x_47 = l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_Compiler_LCNF_JoinPoi
 lean_dec(x_45);
 x_48 = lean_ctor_get(x_47, 0);
 lean_inc(x_48);
-x_49 = l_Array_emptyWithCapacity(lean_box(0), x_48);
+x_49 = lean_mk_empty_array_with_capacity(x_48);
 lean_dec(x_48);
 x_50 = lean_ctor_get(x_47, 1);
 lean_inc(x_50);
@@ -14286,7 +14286,7 @@ lean_dec(x_44);
 lean_dec(x_14);
 x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
-x_48 = l_Array_emptyWithCapacity(lean_box(0), x_47);
+x_48 = lean_mk_empty_array_with_capacity(x_47);
 lean_dec(x_47);
 x_49 = lean_ctor_get(x_46, 1);
 lean_inc(x_49);
@@ -14804,7 +14804,7 @@ x_118 = l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_Compiler_LCNF_JoinPo
 lean_dec(x_116);
 x_119 = lean_ctor_get(x_118, 0);
 lean_inc(x_119);
-x_120 = l_Array_emptyWithCapacity(lean_box(0), x_119);
+x_120 = lean_mk_empty_array_with_capacity(x_119);
 lean_dec(x_119);
 x_121 = lean_ctor_get(x_118, 1);
 lean_inc(x_121);
@@ -23112,7 +23112,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

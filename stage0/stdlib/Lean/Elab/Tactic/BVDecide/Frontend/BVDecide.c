@@ -818,7 +818,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_tra
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_transformEquation___lambda__7___closed__7;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__6;
 lean_object* lean_nat_lor(lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Std_Tactic_BVDecide_Gate_toString(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__1___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__3___boxed(lean_object*, lean_object*);
@@ -4806,7 +4806,7 @@ x_12 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_reco
 lean_dec(x_8);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
-x_14 = l_Array_emptyWithCapacity(lean_box(0), x_13);
+x_14 = lean_mk_empty_array_with_capacity(x_13);
 lean_dec(x_13);
 x_15 = lean_ctor_get(x_12, 1);
 lean_inc(x_15);
@@ -4860,7 +4860,7 @@ block_42:
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 x_33 = lean_ctor_get(x_32, 0);
 lean_inc(x_33);
-x_34 = l_Array_emptyWithCapacity(lean_box(0), x_33);
+x_34 = lean_mk_empty_array_with_capacity(x_33);
 lean_dec(x_33);
 x_35 = lean_ctor_get(x_32, 1);
 lean_inc(x_35);

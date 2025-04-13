@@ -16,7 +16,7 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
   if let some var := (← get').varMap.find? { expr } then
     return var
   let var : Var := (← get').vars.size
-  trace[grind.cutsat.internalize.term] "{expr} ↦ #{var}"
+  trace[grind.debug.cutsat.internalize] "{expr} ↦ #{var}"
   modify' fun s => { s with
     vars      := s.vars.push expr
     varMap    := s.varMap.insert { expr } var
@@ -27,7 +27,6 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
     occurs    := s.occurs.push {}
     elimEqs   := s.elimEqs.push none
   }
-  trace[grind.debug.cutsat.markTerm] "mkVar: {expr}"
   markAsCutsatTerm expr
   assertNatCast expr var
   assertDenoteAsIntNonneg expr

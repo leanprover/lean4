@@ -348,7 +348,7 @@ LEAN_EXPORT lean_object* l_Lean_SMap_insert___at_Lean_ScopedEnvExtension_ScopedE
 static lean_object* l_Lean_ScopedEnvExtension_ScopedEntries_insert___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_registerScopedEnvExtensionUnsafe(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_getState(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__10(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_ScopedEnvExtension_addEntryFn___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__11___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -499,7 +499,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -5218,13 +5218,14 @@ x_3 = l_Lean_instInhabitedScopedEnvExtension___rarg___closed__2;
 x_4 = l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___closed__3;
 x_5 = l_Lean_instInhabitedScopedEnvExtension___rarg___closed__3;
 x_6 = l_Lean_instInhabitedScopedEnvExtension___rarg___closed__4;
-x_7 = lean_alloc_ctor(0, 6, 0);
+x_7 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
 lean_ctor_set(x_7, 2, x_3);
 lean_ctor_set(x_7, 3, x_4);
 lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
+lean_ctor_set(x_7, 5, x_5);
+lean_ctor_set(x_7, 6, x_6);
 return x_7;
 }
 }
@@ -5393,15 +5394,16 @@ x_7 = lean_box(0);
 x_8 = l_Lean_registerScopedEnvExtensionUnsafe___rarg___closed__1;
 x_9 = l_Lean_registerScopedEnvExtensionUnsafe___rarg___closed__2;
 x_10 = 2;
-x_11 = lean_alloc_ctor(0, 7, 1);
+x_11 = lean_alloc_ctor(0, 8, 1);
 lean_ctor_set(x_11, 0, x_3);
 lean_ctor_set(x_11, 1, x_4);
 lean_ctor_set(x_11, 2, x_5);
 lean_ctor_set(x_11, 3, x_6);
 lean_ctor_set(x_11, 4, x_8);
-lean_ctor_set(x_11, 5, x_9);
-lean_ctor_set(x_11, 6, x_7);
-lean_ctor_set_uint8(x_11, sizeof(void*)*7, x_10);
+lean_ctor_set(x_11, 5, x_8);
+lean_ctor_set(x_11, 6, x_9);
+lean_ctor_set(x_11, 7, x_7);
+lean_ctor_set_uint8(x_11, sizeof(void*)*8, x_10);
 x_12 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg(x_11, x_2);
 if (lean_obj_tag(x_12) == 0)
 {

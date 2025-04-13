@@ -44,6 +44,13 @@ register_builtin_option Elab.async : Bool := {
       `Lean.Command.State.snapshotTasks`."
 }
 
+register_builtin_option Elab.inServer : Bool := {
+  defValue := false
+  descr := "true if elaboration is being run inside the Lean language server\
+    \n\
+    \nThis option is set by the file worker and should not be modified otherwise."
+}
+
 /-- Performance option used by cmdline driver. -/
 register_builtin_option internal.cmdlineSnapshots : Bool := {
   defValue := false

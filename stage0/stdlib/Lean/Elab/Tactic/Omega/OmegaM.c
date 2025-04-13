@@ -332,7 +332,7 @@ static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__66;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__43;
 lean_object* l_Nat_pow___boxed(lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_groundInt_x3f___closed__3;
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__64;
 size_t lean_usize_land(size_t, size_t);
@@ -904,7 +904,7 @@ if (lean_is_exclusive(x_10)) {
 }
 x_14 = lean_ctor_get(x_11, 0);
 lean_inc(x_14);
-x_15 = l_Array_emptyWithCapacity(lean_box(0), x_14);
+x_15 = lean_mk_empty_array_with_capacity(x_14);
 lean_dec(x_14);
 x_16 = lean_ctor_get(x_11, 1);
 lean_inc(x_16);

@@ -8,7 +8,7 @@ attribute [grind =] List.getElem?_eq_none
 attribute [grind =] List.getElem?_eq_some_iff
 attribute [grind =] getElem!_pos
 
-attribute [grind =] Option.map_some' Option.map_none'
+attribute [grind =] Option.map_some Option.map_none
 attribute [grind =] List.getElem?_map
 attribute [grind =] List.getElem?_replicate
 
@@ -33,8 +33,8 @@ example : 0 < (x :: t).length := by
   grind?
 
 /--
-info: Try this: grind only [= List.getElem?_replicate, = List.getElem?_eq_some_iff, = List.getElem?_map, =
-  List.getElem_replicate, = List.getElem?_eq_none, = Option.map_some', = Option.map_none', = List.length_replicate, →
+info: Try this: grind only [= Option.map_some, = Option.map_none, = List.getElem?_replicate, = List.getElem?_eq_some_iff, =
+  List.getElem?_map, = List.getElem_replicate, = List.getElem?_eq_none, = List.length_replicate, →
   List.getElem?_eq_getElem, cases Or]
 -/
 #guard_msgs (info) in

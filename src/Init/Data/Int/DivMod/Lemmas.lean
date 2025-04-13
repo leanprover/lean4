@@ -2378,6 +2378,31 @@ theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
   apply (bmod_add_cancel_right x).mp
   rw [Int.add_left_neg, ← add_bmod_bmod, Int.add_left_neg]
 
+theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
+    (x.bmod m) < 0 ↔ (-(m / 2) ≤ x ∧ x < 0) ∨ ((m + 1) / 2 ≤ x) := by
+  simp only [Int.bmod_def]
+  by_cases xpos : 0 ≤ x
+  · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
+  · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
+
+theorem bmod_eq_self_of_le {n : Int} {m : Nat} (hn' : -(m / 2) ≤ n) (hn : n < (m + 1) / 2) :
+    n.bmod m = n := by
+  rw [← Int.sub_eq_zero]
+  have := le_bmod (x := n) (m := m) (by omega)
+  have := bmod_lt (x := n) (m := m) (by omega)
+  apply eq_zero_of_dvd_of_natAbs_lt_natAbs Int.dvd_bmod_sub_self
+  omega
+
+theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
+    (a.bmod m).bmod n = a.bmod n := by
+  rw [← Int.sub_eq_iff_eq_add.2 (bmod_add_bdiv a m).symm]
+  obtain ⟨k, rfl⟩ := hnm
+  simp [Int.mul_assoc]
+
+theorem bmod_eq_self_of_le_mul_two {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x * 2 < y) :
+    x.bmod y = x := by
+  apply bmod_eq_self_of_le (by omega) (by omega)
+
 theorem dvd_iff_bmod_eq_zero {a : Nat} {b : Int} : (a : Int) ∣ b ↔ b.bmod a = 0 := by
   rw [dvd_iff_emod_eq_zero, bmod]
   split <;> rename_i h

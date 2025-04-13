@@ -31,7 +31,6 @@ class LEAN_EXPORT object_compactor {
     size_t capacity() const { return static_cast<char*>(m_capacity) - static_cast<char*>(m_begin); }
     void save(object * o, object * new_o);
     void save_max_sharing(object * o, object * new_o, size_t new_o_sz);
-    void * alloc(size_t sz);
     object_offset to_offset(object * o);
     void insert_terminator(object * o);
     object * copy_object(object * o);
@@ -54,6 +53,7 @@ public:
     void operator()(object * o);
     size_t size() const { return static_cast<char*>(m_end) - static_cast<char*>(m_begin); }
     void const * data() const { return m_begin; }
+    void * alloc(size_t sz);
 };
 
 class LEAN_EXPORT compacted_region {

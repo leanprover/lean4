@@ -426,7 +426,7 @@ lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__10___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___spec__19(lean_object*, lean_object*, size_t, size_t);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___spec__28___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2036,7 +2036,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -3327,7 +3327,7 @@ _start:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_17 = lean_array_get_size(x_1);
-x_18 = l_Array_emptyWithCapacity(lean_box(0), x_17);
+x_18 = lean_mk_empty_array_with_capacity(x_17);
 x_19 = lean_unsigned_to_nat(0u);
 lean_inc(x_15);
 lean_inc(x_14);
@@ -3345,7 +3345,7 @@ lean_dec(x_20);
 x_23 = l_Array_zip___rarg(x_5, x_21);
 lean_dec(x_21);
 x_24 = lean_array_get_size(x_23);
-x_25 = l_Array_emptyWithCapacity(lean_box(0), x_24);
+x_25 = lean_mk_empty_array_with_capacity(x_24);
 x_26 = l_Array_mapFinIdxM_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__11(x_6, x_7, x_23, x_23, x_24, x_19, lean_box(0), x_25, x_11, x_12, x_13, x_14, x_15, x_22);
 lean_dec(x_23);
 if (lean_obj_tag(x_26) == 0)
@@ -4604,7 +4604,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_array_get_size(x_1);
-x_12 = l_Array_emptyWithCapacity(lean_box(0), x_11);
+x_12 = lean_mk_empty_array_with_capacity(x_11);
 x_13 = lean_unsigned_to_nat(0u);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -9454,7 +9454,7 @@ x_22 = lean_ctor_get(x_18, 0);
 x_23 = lean_ctor_get(x_20, 0);
 x_24 = lean_ctor_get(x_20, 1);
 x_25 = lean_array_get_size(x_3);
-x_26 = l_Array_emptyWithCapacity(lean_box(0), x_25);
+x_26 = lean_mk_empty_array_with_capacity(x_25);
 x_27 = lean_unsigned_to_nat(0u);
 x_28 = l_Array_mapFinIdxM_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___spec__6(x_6, x_3, x_22, x_3, x_25, x_27, lean_box(0), x_26);
 lean_dec(x_3);
@@ -9639,7 +9639,7 @@ lean_inc(x_94);
 lean_inc(x_93);
 lean_dec(x_20);
 x_95 = lean_array_get_size(x_3);
-x_96 = l_Array_emptyWithCapacity(lean_box(0), x_95);
+x_96 = lean_mk_empty_array_with_capacity(x_95);
 x_97 = lean_unsigned_to_nat(0u);
 x_98 = l_Array_mapFinIdxM_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___spec__6(x_6, x_3, x_92, x_3, x_95, x_97, lean_box(0), x_96);
 lean_dec(x_3);
@@ -9788,7 +9788,7 @@ if (lean_is_exclusive(x_138)) {
  x_142 = lean_box(0);
 }
 x_143 = lean_array_get_size(x_3);
-x_144 = l_Array_emptyWithCapacity(lean_box(0), x_143);
+x_144 = lean_mk_empty_array_with_capacity(x_143);
 x_145 = lean_unsigned_to_nat(0u);
 x_146 = l_Array_mapFinIdxM_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___spec__6(x_6, x_3, x_139, x_3, x_143, x_145, lean_box(0), x_144);
 lean_dec(x_3);
@@ -10032,7 +10032,7 @@ _start:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_15 = lean_array_get_size(x_1);
-x_16 = l_Array_emptyWithCapacity(lean_box(0), x_15);
+x_16 = lean_mk_empty_array_with_capacity(x_15);
 x_17 = lean_unsigned_to_nat(0u);
 lean_inc(x_13);
 lean_inc(x_12);

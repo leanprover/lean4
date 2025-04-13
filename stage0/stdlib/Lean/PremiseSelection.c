@@ -152,7 +152,7 @@ static lean_object* l_Lean_PremiseSelection_evalSuggestPremises___rarg___lambda_
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PremiseSelection_elabSetPremiseSelector___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1___closed__1;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_PremiseSelection_evalSuggestPremises___rarg___lambda__2___closed__6;
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector___lambda__1___closed__3;
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1___closed__2;
@@ -374,7 +374,7 @@ lean_inc(x_15);
 x_17 = l_Lean_Environment_const2ModIdx(x_15);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-x_19 = l_Array_emptyWithCapacity(lean_box(0), x_18);
+x_19 = lean_mk_empty_array_with_capacity(x_18);
 lean_dec(x_18);
 x_20 = lean_ctor_get(x_17, 1);
 lean_inc(x_20);

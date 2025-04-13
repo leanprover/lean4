@@ -480,6 +480,8 @@ structure Split.State where
   candidates : List Expr := []
   /-- Number of splits performed to get to this goal. -/
   num        : Nat := 0
+  /-- Case-splits that have been inserted at `candidates` at some point. -/
+  added      : PHashSet ENodeKey := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
   resolved   : PHashSet ENodeKey := {}
   /--
@@ -1160,6 +1162,14 @@ partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
 def getEqcs : GoalM (List (List Expr)) :=
   return (← get).getEqcs
 
+/--
+Returns `true` if `e` has been already added to the case-split list at one point.
+Remark: this function returns `true` even if the split has already been resolved
+and is not in the list anymore.
+-/
+def isKnownCaseSplit (e : Expr) : GoalM Bool :=
+  return (← get).split.added.contains { expr := e }
+
 /-- Returns `true` if `e` is a case-split that does not need to be performed anymore. -/
 def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
   return (← get).split.resolved.contains { expr := e }
@@ -1173,6 +1183,15 @@ def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
   unless (← isResolvedCaseSplit e) do
     trace_goal[grind.split.resolved] "{e}"
     modify fun s => { s with split.resolved := s.split.resolved.insert { expr := e } }
+
+/-- Inserts `e` into the list of case-split candidates if it was not inserted before. -/
+def addSplitCandidate (e : Expr) : GoalM Unit := do
+  unless (← isKnownCaseSplit e) do
+    trace_goal[grind.split.candidate] "{e}"
+    modify fun s => { s with
+      split.added := s.split.added.insert { expr := e }
+      split.candidates := e :: s.split.candidates
+    }
 
 /--
 Returns extensionality theorems for the given type if available.

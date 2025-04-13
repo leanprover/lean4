@@ -1062,7 +1062,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_trailingLoop___lambda__2(lean_object*, le
 static lean_object* l___regBuiltin_Lean_Parser_checkColGt_docString__1___closed__2;
 static lean_object* l_Lean_Parser_hygieneInfoFn___lambda__1___closed__2;
 static lean_object* l___regBuiltin_Lean_Parser_withForbidden_docString__1___closed__1;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Parser_Basic_0__Lean_Parser_beqRecoveryContext____x40_Lean_Parser_Basic___hyg_1219_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_orelseFnCore___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_withAntiquotSuffixSpliceFn___lambda__1___closed__1;
@@ -26489,7 +26489,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

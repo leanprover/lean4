@@ -44,6 +44,8 @@ private def mkCandidateKey (a b : Expr) : Expr × Expr :=
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   unless (← getConfig).mbtc do return false
+  -- It is pointless to run `mbtc` if maximum number of splits has been reached.
+  if (← checkMaxCaseSplit) then return false
   let mut map : Map := {}
   let mut candidates : Candidates := {}
   for ({ expr := e }, _) in (← get).enodes do
@@ -60,8 +62,9 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
             unless others.any (isSameExpr arg ·) do
               for other in others do
                 if (← ctx.eqAssignment arg other) then
-                  let k := mkCandidateKey arg other
-                  candidates := candidates.insert k
+                  if (← hasSameType arg other) then
+                    let k := mkCandidateKey arg other
+                    candidates := candidates.insert k
               map := map.insert (f, i) (arg :: others)
           else
             map := map.insert (f, i) [arg]
@@ -76,13 +79,19 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
       b₁.lt b₂
     else
       a₁.lt a₂
-  let eqs ← result.mapM fun (a, b) => do
+  let eqs ← result.filterMapM fun (a, b) => do
     let eq ← mkEq a b
     trace[grind.mbtc] "{eq}"
     let eq ← shareCommon (← canon eq)
-    internalize eq (Nat.max (← getGeneration a) (← getGeneration b))
-    return eq
-  modify fun s => { s with split.candidates := s.split.candidates ++ eqs.toList }
+    if (← isKnownCaseSplit eq) then
+      return none
+    else
+      internalize eq (Nat.max (← getGeneration a) (← getGeneration b))
+      return some eq
+  if eqs.isEmpty then
+    return false
+  for eq in eqs do
+    addSplitCandidate eq
   return true
 
 def mbtcTac (ctx : MBTC.Context) : GrindTactic := fun goal => do

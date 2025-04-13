@@ -939,7 +939,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spe
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_GuessLex_0__Lean_Elab_WF_GuessLex_reprGuessLexRel____x40_Lean_Elab_PreDefinition_WF_GuessLex___hyg_4418____closed__2;
 static lean_object* l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__2;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_WF_GuessLex_simpleMeasures___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_WF_GuessLex_toTerminationMeasures___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Elab_WF_GuessLex_withRecApps_loop___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_WF_GuessLex_withRecApps_loop___spec__25___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3485,7 +3485,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -3634,7 +3634,7 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_objec
 x_9 = lean_array_get_size(x_1);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_dec_lt(x_10, x_9);
-x_12 = l_Array_emptyWithCapacity(lean_box(0), x_9);
+x_12 = lean_mk_empty_array_with_capacity(x_9);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Array_mapFinIdxM_map___at_Lean_Elab_WF_GuessLex_simpleMeasures___spec__2(x_1, x_2, x_3, x_11, x_1, x_9, x_13, lean_box(0), x_12, x_4, x_5, x_6, x_7, x_8);
 return x_14;
@@ -18409,7 +18409,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = lean_array_get_size(x_1);
-x_11 = l_Array_emptyWithCapacity(lean_box(0), x_10);
+x_11 = lean_mk_empty_array_with_capacity(x_10);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l_Array_mapFinIdxM_map___at_Lean_Elab_WF_GuessLex_complexMeasures___spec__11(x_1, x_2, x_3, x_4, x_1, x_10, x_12, lean_box(0), x_11, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -28739,7 +28739,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_array_get_size(x_1);
-x_12 = l_Array_emptyWithCapacity(lean_box(0), x_11);
+x_12 = lean_mk_empty_array_with_capacity(x_11);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Array_mapFinIdxM_map___at_Lean_Elab_WF_GuessLex_toTerminationMeasures___spec__2(x_1, x_2, x_3, x_4, x_5, x_1, x_11, x_13, lean_box(0), x_12, x_6, x_7, x_8, x_9, x_10);
 return x_14;

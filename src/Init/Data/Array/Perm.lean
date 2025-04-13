@@ -65,4 +65,20 @@ theorem swap_perm {xs : Array α} {i j : Nat} (h₁ : i < xs.size) (h₂ : j < x
   simp only [swap, perm_iff_toList_perm, toList_set]
   apply set_set_perm
 
+namespace Perm
+
+set_option linter.indexVariables false in
+theorem extract {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
+    (wlo : ∀ i, i < lo → xs[i]? = ys[i]?) (whi : ∀ i, hi ≤ i → xs[i]? = ys[i]?) :
+    (xs.extract lo (hi + 1)) ~ (ys.extract lo (hi + 1)) := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp_all only [perm_toArray, List.getElem?_toArray, List.extract_toArray,
+    List.extract_eq_drop_take]
+  apply List.Perm.take_of_getElem? (w := fun i h => by simpa using whi (lo + i) (by omega))
+  apply List.Perm.drop_of_getElem? (w := wlo)
+  exact h
+
+end Perm
+
 end Array

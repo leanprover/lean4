@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Arith
+import Lean.Meta.Tactic.Grind.Split
 
 namespace Lean.Meta.Grind
 
@@ -44,25 +45,23 @@ private def checkLookaheadStatus (info : LookaheadInfo) : GoalM LookaheadStatus 
     return .ready
 
 private partial def solve (generation : Nat) (goal : Goal) : GrindM Bool := do
-  let goals ← intros generation goal
-  match goals with
-  | [] => return true
-  | [goal] => loop goal
-  | _ => throwError "`grind` lookahead internal error, unexpected number of goals at `intros`"
+  cont (← intros generation goal)
 where
+  cont (goals : List Goal) : GrindM Bool := do
+    match goals with
+    | [] => return true
+    | [goal] => loop goal
+    | _ => throwError "`grind` lookahead internal error, unexpected number of goals"
+
   loop (goal : Goal) : GrindM Bool := withIncRecDepth do
     if goal.inconsistent then
       return true
     else if let some goals ← assertNext goal then
-      match goals with
-      | [] => return true
-      | [goal] => loop goal
-      | _ => throwError "`grind` lookahead internal error, unexpected number of goals at `assertNext`"
+      cont goals
     else if let some goals ← Arith.check goal then
-      match goals with
-      | [] => return true
-      | [goal] => loop goal
-      | _ => throwError "`grind` lookahead internal error, unexpected number of goals at `Arith.check`"
+      cont goals
+    else if let some goals ← splitNext goal then
+      cont goals
     else
       return false
 
@@ -90,7 +89,7 @@ private def tryLookahead (e : Expr) : GoalM Bool := do
 
 private def withLookaheadConfig (x : GrindM α) : GrindM α := do
   withTheReader Grind.Context
-    (fun ctx => { ctx with config.qlia := true, cheapEagerCases := true })
+    (fun ctx => { ctx with config.qlia := true, cheapCases := true })
     x
 
 def lookahead : GrindTactic := fun goal => do

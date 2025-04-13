@@ -539,14 +539,14 @@ theorem perm_insertIdx {α} (x : α) (l : List α) {i} (h : i ≤ l.length) :
 namespace Perm
 
 theorem take {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.drop n ~ l₂.drop n) :
-    (l₁.take n) ~ (l₂.take n) := by
+    l₁.take n ~ l₂.take n := by
   classical
   rw [perm_iff_count] at h w ⊢
   rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h
   simpa only [count_append, w, Nat.add_right_cancel_iff] using h
 
 theorem drop {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.take n ~ l₂.take n) :
-    (l₁.drop n) ~ (l₂.drop n) := by
+    l₁.drop n ~ l₂.drop n := by
   classical
   rw [perm_iff_count] at h w ⊢
   rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h

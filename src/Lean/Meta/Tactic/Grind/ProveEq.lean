@@ -10,18 +10,6 @@ import Lean.Meta.Tactic.Grind.Simp
 namespace Lean.Meta.Grind
 
 /--
-Helper function for executing `x` with a fresh `newFacts` and without modifying
-the goal state.
- -/
-private def withoutModifyingState (x : GoalM α) : GoalM α := do
-  let saved ← get
-  modify fun goal => { goal with newFacts := {} }
-  try
-    x
-  finally
-    set saved
-
-/--
 If `e` has not been internalized yet, instantiate metavariables, unfold reducible, canonicalize,
 and internalize the result.
 

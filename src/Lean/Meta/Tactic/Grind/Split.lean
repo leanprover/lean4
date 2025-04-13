@@ -161,7 +161,9 @@ where
     | .notReady => go cs c? (c::cs')
     | .resolved => go cs c? cs'
     | .ready numCases isRec =>
-    match c? with
+    if (← cheapCasesOnly) && numCases > 1 then
+      go cs c? (c::cs')
+    else match c? with
     | .none => go cs (.some c numCases isRec) cs'
     | .some c' numCases' _ =>
      let isBetter : GoalM Bool := do

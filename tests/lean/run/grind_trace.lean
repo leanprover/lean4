@@ -35,7 +35,7 @@ example : 0 < (x :: t).length := by
 /--
 info: Try this: grind only [= Option.map_some, = Option.map_none, = List.getElem?_replicate, = List.getElem?_eq_some_iff, =
   List.getElem?_map, = List.getElem_replicate, = List.getElem?_eq_none, = List.length_replicate, →
-  List.getElem?_eq_getElem, cases Or]
+  List.getElem?_eq_getElem]
 -/
 #guard_msgs (info) in
 theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := by

@@ -304,7 +304,7 @@ theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a :
     m.contains a = false → get? m a = none :=
   Raw₀.Const.get?_eq_none ⟨m.1, _⟩ m.2
 
-theorem get?_eq_none [EquivBEq α] [LawfulHashable α] {a : α } : ¬a ∈ m → get? m a = none := by
+theorem get?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → get? m a = none := by
   simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false
 
 theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
@@ -379,7 +379,7 @@ theorem get_eq_get_get? [EquivBEq α] [LawfulHashable α] {a : α} {h} :
     get m a h = (get? m a).get (mem_iff_isSome_get?.mp h) := by
   simp only [get?_eq_some_get h, Option.get_some]
 
-theorem get_get? [LawfulBEq α] {a : α} {h} :
+theorem get_get? [EquivBEq α] [LawfulHashable α] {a : α} {h} :
     (get? m a).get h = get m a (mem_iff_isSome_get?.mpr h) :=
   get_eq_get_get?.symm
 
@@ -754,10 +754,17 @@ theorem getKey_erase [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
     (m.erase k).getKey a h' = m.getKey a (mem_of_mem_erase h') :=
   Raw₀.getKey_erase ⟨m.1, _⟩ m.2
 
-theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] {a : α}
-    {h} :
+theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] {a : α} (h) :
     m.getKey? a = some (m.getKey a h) :=
   Raw₀.getKey?_eq_some_getKey ⟨m.1, _⟩ m.2
+
+theorem getKey_eq_get_getKey? [EquivBEq α] [LawfulHashable α] {a : α} {h} :
+    m.getKey a h = (m.getKey? a).get (mem_iff_isSome_getKey?.mp h) := by
+  simp only [getKey?_eq_some_getKey h, Option.get_some]
+
+theorem get_getKey? [EquivBEq α] [LawfulHashable α] {a : α} {h} :
+    (m.getKey? a).get h = m.getKey a (mem_iff_isSome_getKey?.mpr h) :=
+  getKey_eq_get_getKey?.symm
 
 theorem getKey_beq [EquivBEq α] [LawfulHashable α] {k : α} (h : k ∈ m) : m.getKey k h == k :=
   Raw₀.getKey_beq ⟨m.1, _⟩ m.2 h
@@ -1081,7 +1088,7 @@ theorem length_keys [EquivBEq α] [LawfulHashable α] :
 
 @[simp]
 theorem isEmpty_keys [EquivBEq α] [LawfulHashable α]:
-    m.keys.isEmpty = m.isEmpty  :=
+    m.keys.isEmpty = m.isEmpty :=
   Raw₀.isEmpty_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 @[simp]
@@ -1095,10 +1102,6 @@ theorem mem_keys [LawfulBEq α] {k : α} :
   rw [mem_iff_contains]
   exact Raw₀.mem_keys ⟨m.1, _⟩ m.2
 
-theorem contains_of_mem_keys [EquivBEq α] [LawfulHashable α] {k : α}
-    (h : k ∈ m.keys) : m.contains k :=
-  Raw₀.contains_of_mem_keys ⟨m.1, _⟩ m.2 h
-
 theorem mem_of_mem_keys [EquivBEq α] [LawfulHashable α] {k : α}
     (h : k ∈ m.keys) : k ∈ m :=
   Raw₀.contains_of_mem_keys ⟨m.1, _⟩ m.2 h
@@ -1109,12 +1112,12 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
 
 @[simp]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
-    m.toList.map Sigma.fst = m.keys  :=
+    m.toList.map Sigma.fst = m.keys :=
   Raw₀.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
 
 @[deprecated map_fst_toList_eq_keys (since := "2025-02-28")]
 theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
-    m.toList.map Sigma.fst = m.keys  :=
+    m.toList.map Sigma.fst = m.keys :=
   Raw₀.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp]
@@ -1369,7 +1372,7 @@ theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α]
   simp [mem_iff_contains]
 
 theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α]
-    {l : List ((a : α) × β a)} {k : α}  (mem : k ∈ m.insertMany l)
+    {l : List ((a : α) × β a)} {k : α} (mem : k ∈ m.insertMany l)
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     k ∈ m :=
   Raw₀.contains_of_contains_insertMany_list ⟨m.1, _⟩ m.2 mem contains_eq_false
@@ -3141,96 +3144,100 @@ theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} :
   Raw₀.toList_filterMap ⟨m.1, m.2.size_buckets_pos⟩
 
 theorem isEmpty_filterMap_iff [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)}  :
+    {f : (a : α) → β a → Option (γ a)} :
     (m.filterMap f).isEmpty = true ↔
       ∀ (k : α) (h : k ∈ m), f k (m.get k h) = none :=
   Raw₀.isEmpty_filterMap_iff ⟨m.1, _⟩ m.2
 
 theorem isEmpty_filterMap_eq_false_iff [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)}  :
+    {f : (a : α) → β a → Option (γ a)} :
     (m.filterMap f).isEmpty = false ↔
       ∃ (k : α) (h : k ∈ m), (f k (m.get k h)).isSome :=
   Raw₀.isEmpty_filterMap_eq_false_iff ⟨m.1, _⟩ m.2
 
 theorem contains_filterMap [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  :
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
     (m.filterMap f).contains k = (m.get? k).any (f k · |>.isSome) :=
   Raw₀.contains_filterMap ⟨m.1, _⟩ m.2
 
 theorem mem_filterMap [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  :
-    k ∈ (m.filterMap f) ↔ (m.get? k).any (f k · |>.isSome) := by
-  rw [mem_iff_contains, contains_filterMap]
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    k ∈ m.filterMap f ↔ ∃ h, (f k (m.get k h)).isSome := by
+  simp only [mem_iff_contains, contains_filterMap, Option.any_eq_true_iff_get,
+    ← contains_eq_isSome_get?, get_get?]
 
 theorem contains_of_contains_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  :
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
     (m.filterMap f).contains k = true → m.contains k = true :=
   Raw₀.contains_of_contains_filterMap ⟨m.1, _⟩ m.2
 
 theorem mem_of_mem_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  :
-    k ∈ (m.filterMap f) → k ∈ m :=
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    k ∈ m.filterMap f → k ∈ m :=
   Raw₀.contains_of_contains_filterMap ⟨m.1, _⟩ m.2
 
 theorem size_filterMap_le_size [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Option (γ a)}  :
+    {f : (a : α) → β a → Option (γ a)} :
     (m.filterMap f).size ≤ m.size :=
   Raw₀.size_filterMap_le_size ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 theorem size_filterMap_eq_size_iff [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)}  :
+    {f : (a : α) → β a → Option (γ a)} :
     (m.filterMap f).size = m.size ↔ ∀ (a : α) (h : a ∈ m), (f a (m.get a h)).isSome :=
   Raw₀.size_filterMap_eq_size_iff ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem get?_filterMap [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  :
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
     (m.filterMap f).get? k = (m.get? k).bind (f k) :=
   Raw₀.get?_filterMap ⟨m.1, _⟩ m.2
 
 theorem isSome_apply_of_mem_filterMap [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  :
-    ∀ (h' : k ∈ (m.filterMap f)),
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    ∀ (h' : k ∈ m.filterMap f),
       (f k (m.get k (mem_of_mem_filterMap h'))).isSome :=
   Raw₀.isSome_apply_of_contains_filterMap ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem get_filterMap [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  {h'} :
+    {f : (a : α) → β a → Option (γ a)} {k : α} {h'} :
     (m.filterMap f).get k h' =
       (f k (m.get k (mem_of_mem_filterMap h'))).get
         (isSome_apply_of_mem_filterMap h') :=
   Raw₀.get_filterMap ⟨m.1, _⟩ m.2
 
 theorem get!_filterMap [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)} {k : α} [Inhabited (γ k)]  :
+    {f : (a : α) → β a → Option (γ a)} {k : α} [Inhabited (γ k)] :
     (m.filterMap f).get! k = ((m.get? k).bind (f k)).get! :=
   Raw₀.get!_filterMap ⟨m.1, _⟩ m.2
 
 theorem getD_filterMap [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)} {k : α} {fallback : γ k}  :
+    {f : (a : α) → β a → Option (γ a)} {k : α} {fallback : γ k} :
     (m.filterMap f).getD k fallback = ((m.get? k).bind (f k)).getD fallback :=
   Raw₀.getD_filterMap ⟨m.1, _⟩ m.2
 
 theorem getKey?_filterMap [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  :
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
     (m.filterMap f).getKey? k =
     (m.getKey? k).pfilter (fun x h' =>
       (f x (m.get x (mem_of_getKey?_eq_some h'))).isSome) :=
   Raw₀.getKey?_filterMap ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem getKey_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  {h'}:
+    {f : (a : α) → β a → Option (γ a)} {k : α} {h'} :
     (m.filterMap f).getKey k h' = m.getKey k (mem_of_mem_filterMap h') :=
   Raw₀.getKey_filterMap ⟨m.1, _⟩ m.2
 
 theorem getKey!_filterMap [LawfulBEq α] [Inhabited α]
-    {f : (a : α) → β a → Option (γ a)} {k : α}  :
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
     (m.filterMap f).getKey! k =
     ((m.getKey? k).pfilter (fun x h' =>
       (f x (m.get x (mem_of_getKey?_eq_some h'))).isSome)).get! :=
   Raw₀.getKey!_filterMap ⟨m.1, _⟩ m.2
 
 theorem getKeyD_filterMap [LawfulBEq α]
-    {f : (a : α) → β a → Option (γ a)} {k fallback : α}  :
+    {f : (a : α) → β a → Option (γ a)} {k fallback : α} :
     (m.filterMap f).getKeyD k fallback =
     ((m.getKey? k).pfilter (fun x h' =>
       (f x (m.get x (mem_of_getKey?_eq_some h'))).isSome)).getD fallback :=
@@ -3241,98 +3248,91 @@ namespace Const
 variable {β : Type v} {γ : Type w} {m : DHashMap α (fun _ => β)}
 
 theorem isEmpty_filterMap_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ}  :
-    (m.filterMap f).isEmpty = true ↔
-      ∀ (k : α) (h : m.contains k = true), f (m.getKey k h) (Const.get m k h) = none :=
+    {f : α → β → Option γ} :
+    (m.filterMap f).isEmpty ↔ ∀ k h, f (m.getKey k h) (get m k h) = none :=
   Raw₀.Const.isEmpty_filterMap_iff ⟨m.1, _⟩ m.2
 
 theorem isEmpty_filterMap_eq_false_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ}  :
-    (m.filterMap f).isEmpty = false ↔
-      ∃ (k : α) (h : m.contains k = true), (f (m.getKey k h) (Const.get m k h)).isSome :=
+    {f : α → β → Option γ} :
+    (m.filterMap f).isEmpty = false ↔ ∃ k h, (f (m.getKey k h) (get m k h)).isSome :=
   Raw₀.Const.isEmpty_filterMap_eq_false_iff ⟨m.1, _⟩ m.2
 
-theorem contains_filterMap_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ} {k : α}  :
-    (m.filterMap f).contains k = true ↔ ∃ (h' : m.contains k = true),
-      (f (m.getKey k h') (Const.get m k h')).isSome :=
+theorem mem_filterMap [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Option γ} {k : α} :
+    k ∈ m.filterMap f ↔ ∃ h, (f (m.getKey k h) (Const.get m k h)).isSome :=
   Raw₀.Const.contains_filterMap_iff ⟨m.1, _⟩ m.2
 
 theorem size_filterMap_eq_size_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ}  :
-    (m.filterMap f).size = m.size ↔ ∀ (a : α) (h : m.contains a),
-      (f (m.getKey a h) (Const.get m a h)).isSome :=
+    {f : α → β → Option γ} :
+    (m.filterMap f).size = m.size ↔ ∀ k h, (f (m.getKey k h) (Const.get m k h)).isSome :=
   Raw₀.Const.size_filterMap_eq_size_iff ⟨m.1, _⟩ m.2
 
 theorem get?_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ} {k : α}  :
+    {f : α → β → Option γ} {k : α} :
     Const.get? (m.filterMap f) k = (Const.get? m k).pbind (fun x h' =>
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x) :=
   Raw₀.Const.get?_filterMap ⟨m.1, _⟩ m.2
 
 theorem get?_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ} {k k' : α}  :
-    m.getKey? k = some k' → Const.get? (m.filterMap f) k = (Const.get? m k).bind
-      fun x => f k' x :=
-  Raw₀.Const.get?_filterMap_of_getKey?_eq_some ⟨m.1, _⟩ m.2
+    {f : α → β → Option γ} {k k' : α} (h : m.getKey? k = some k') :
+    Const.get? (m.filterMap f) k = (Const.get? m k).bind (f k') :=
+  Raw₀.Const.get?_filterMap_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
 
-theorem isSome_apply_of_contains_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ} {k : α}  :
-    ∀ (h' : (m.filterMap f).contains k = true),
-      (f (m.getKey k (contains_of_contains_filterMap h'))
-        (Const.get m k (contains_of_contains_filterMap h'))).isSome :=
+theorem isSome_apply_of_mem_filterMap [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Option γ} {k : α} :
+    ∀ (h : k ∈ m.filterMap f),
+      (f (m.getKey k (mem_of_mem_filterMap h))
+        (Const.get m k (mem_of_mem_filterMap h))).isSome :=
   Raw₀.Const.isSome_apply_of_contains_filterMap ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem get_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ} {k : α}  {h'} :
-    Const.get (m.filterMap f) k h' =
-      (f (m.getKey k (contains_of_contains_filterMap h'))
-        (Const.get m k (contains_of_contains_filterMap h'))).get
-          (isSome_apply_of_contains_filterMap h') :=
+    {f : α → β → Option γ} {k : α} {h} :
+    Const.get (m.filterMap f) k h =
+      (f (m.getKey k (mem_of_mem_filterMap h))
+        (Const.get m k (mem_of_mem_filterMap h))).get
+          (isSome_apply_of_mem_filterMap h) :=
   Raw₀.Const.get_filterMap ⟨m.1, _⟩ m.2
 
 theorem get!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
-    {f : α → β → Option γ} {k : α}  :
+    {f : α → β → Option γ} {k : α} :
     Const.get! (m.filterMap f) k =
       ((Const.get? m k).pbind (fun x h' =>
-        f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h')))
-          x)).get! :=
+        f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).get! :=
   Raw₀.Const.get!_filterMap ⟨m.1, _⟩ m.2
 
 theorem get!_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
-    {f : α → β → Option γ} {k k' : α}  :
-    m.getKey? k = some k' → Const.get! (m.filterMap f) k = ((Const.get? m k).bind
-      fun x => f k' x).get! :=
-  Raw₀.Const.get!_filterMap_of_getKey?_eq_some ⟨m.1, _⟩ m.2
+    {f : α → β → Option γ} {k k' : α} (h : m.getKey? k = some k') :
+    Const.get! (m.filterMap f) k = ((Const.get? m k).bind (f k')).get! :=
+  Raw₀.Const.get!_filterMap_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
 
 theorem getD_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ} {k : α} {fallback : γ}  :
+    {f : α → β → Option γ} {k : α} {fallback : γ} :
     Const.getD (m.filterMap f) k fallback =
       ((Const.get? m k).pbind (fun x h' =>
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
   Raw₀.Const.getD_filterMap ⟨m.1, _⟩ m.2
 
 theorem getD_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ} {k k' : α} {fallback : γ}  :
-    m.getKey? k = some k' → Const.getD (m.filterMap f) k fallback = ((Const.get? m k).bind
-      fun x => f k' x).getD fallback :=
-  Raw₀.Const.getD_filterMap_of_getKey?_eq_some ⟨m.1, _⟩ m.2
+    {f : α → β → Option γ} {k k' : α} {fallback : γ} (h : m.getKey? k = some k') :
+    Const.getD (m.filterMap f) k fallback = ((Const.get? m k).bind (f k')).getD fallback :=
+  Raw₀.Const.getD_filterMap_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
 
 theorem toList_filterMap
     {f : α → β → Option γ} :
     (Const.toList (m.filterMap fun k v => f k v)).Perm
-      ((Const.toList m).filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩))) :=
+      ((Const.toList m).filterMap (fun p => (f p.1 p.2).map (fun x => (p.1, x)))) :=
   Raw₀.Const.toList_filterMap ⟨m.1, m.2.size_buckets_pos⟩
 
 theorem getKey?_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Option γ} {k : α}  :
+    {f : α → β → Option γ} {k : α} :
     (m.filterMap f).getKey? k =
     (m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (mem_of_getKey?_eq_some h'))).isSome) :=
   Raw₀.Const.getKey?_filterMap ⟨m.1, _⟩ m.2
 
 theorem getKey!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited α]
-    {f : α → β → Option γ} {k : α}  :
+    {f : α → β → Option γ} {k : α} :
     (m.filterMap f).getKey! k =
     ((m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (mem_of_getKey?_eq_some h'))).isSome)).get! :=
@@ -3355,186 +3355,157 @@ theorem filterMap_equiv_filter {f : (a : α) → β a → Bool} :
     (m.filterMap (fun k => Option.guard (fun v => f k v))) ~m (m.filter f) :=
   ⟨Raw₀.filterMap_equiv_filter ⟨m.1, m.2.size_buckets_pos⟩⟩
 
-theorem toList_filter
-    {f : (a : α) → β a → Bool} :
+theorem toList_filter {f : (a : α) → β a → Bool} :
     (m.filter f).toList.Perm (m.toList.filter (fun p => f p.1 p.2)) :=
   Raw₀.toList_filter ⟨m.1, m.2.size_buckets_pos⟩
-
-theorem toList_filter_key
-    {f : α → Bool} :
-    (m.filter fun a _ => f a).toList.Perm (m.toList.filter (fun p => f p.1)) :=
-  Raw₀.toList_filter_key ⟨m.1, m.2.size_buckets_pos⟩
 
 theorem keys_filter_key {f : α → Bool} :
     (m.filter fun k _ => f k).keys.Perm (m.keys.filter f) :=
   Raw₀.keys_filter_key ⟨m.1, m.2.size_buckets_pos⟩
 
 theorem isEmpty_filter_iff [LawfulBEq α]
-    {f : (a : α) → β a → Bool}  :
+    {f : (a : α) → β a → Bool} :
     (m.filter f).isEmpty = true ↔
       ∀ (k : α) (h : k ∈ m), f k (m.get k h) = false :=
   Raw₀.isEmpty_filter_iff ⟨m.1, _⟩ m.2
 
 theorem isEmpty_filter_eq_false_iff [LawfulBEq α]
-    {f : (a : α) → β a → Bool}  :
+    {f : (a : α) → β a → Bool} :
     (m.filter f).isEmpty = false ↔
       ∃ (k : α) (h : k ∈ m), f k (m.get k h) = true :=
   Raw₀.isEmpty_filter_eq_false_iff ⟨m.1, _⟩ m.2
 
 theorem isEmpty_filter_key_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool}  :
+    {f : α → Bool} :
     (m.filter (fun a _ => f a)).isEmpty ↔
       ∀ (k : α) (h : k ∈ m), f (m.getKey k h) = false :=
   Raw₀.isEmpty_filter_key_iff ⟨m.1, _⟩ m.2
 
 theorem isEmpty_filter_key_eq_false_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool}  :
+    {f : α → Bool} :
     (m.filter (fun a _ => f a)).isEmpty = false ↔
       ∃ (k : α) (h : k ∈ m), f (m.getKey k h) :=
   Raw₀.isEmpty_filter_key_eq_false_iff ⟨m.1, _⟩ m.2
 
 theorem contains_filter [LawfulBEq α]
-    {f : (a : α) → β a → Bool} {k : α}  :
+    {f : (a : α) → β a → Bool} {k : α} :
     (m.filter f).contains k = (m.get? k).any (f k) :=
   Raw₀.contains_filter ⟨m.1, _⟩ m.2
 
-theorem contains_filter_key_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool} {k : α}  :
-    (m.filter (fun a _ => f a)).contains k ↔ ∃ h : m.contains k, f (m.getKey k h) :=
+theorem mem_filter [LawfulBEq α]
+    {f : (a : α) → β a → Bool} {k : α} :
+    k ∈ m.filter f ↔ ∃ h, f k (m.get k h) := by
+  simp only [mem_iff_contains, contains_filter, Option.any_eq_true_iff_get,
+    ← contains_eq_isSome_get?, get_get?]
+
+theorem mem_filter_key [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} {k : α} :
+    k ∈ m.filter (fun a _ => f a) ↔ ∃ h, f (m.getKey k h) :=
   Raw₀.contains_filter_key_iff ⟨m.1, _⟩ m.2
 
 theorem contains_of_contains_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Bool} {k : α}  :
+    {f : (a : α) → β a → Bool} {k : α} :
     (m.filter f).contains k = true → m.contains k = true :=
   Raw₀.contains_of_contains_filter ⟨m.1, _⟩ m.2
 
-theorem mem_filter [LawfulBEq α]
-    {f : (a : α) → β a → Bool} {k : α}  :
-    k ∈ (m.filter f) ↔ (m.get? k).any (f k) := by
-  rw [mem_iff_contains, contains_filter]
-
-theorem mem_filter_key_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool} {k : α}  :
-    k ∈ (m.filter (fun a _ => f a)) ↔ ∃ h : k ∈ m, f (m.getKey k h) :=
-  Raw₀.contains_filter_key_iff ⟨m.1, _⟩ m.2
-
 theorem mem_of_mem_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Bool} {k : α}  :
+    {f : (a : α) → β a → Bool} {k : α} :
     k ∈ (m.filter f) → k ∈ m :=
   Raw₀.contains_of_contains_filter ⟨m.1, _⟩ m.2
 
 theorem size_filter_le_size [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Bool}  :
+    {f : (a : α) → β a → Bool} :
     (m.filter f).size ≤ m.size :=
   Raw₀.size_filter_le_size ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 theorem size_filter_eq_size_iff [LawfulBEq α]
-    {f : (a : α) → β a → Bool}  :
-    (m.filter f).size = m.size ↔ ∀ (a : α) (h : a ∈ m), (f a (m.get a h)) = true :=
+    {f : (a : α) → β a → Bool} :
+    (m.filter f).size = m.size ↔ ∀ k h, f k (m.get k h) :=
   Raw₀.size_filter_eq_size_iff ⟨m.1, _⟩ m.2
 
-theorem equiv_filter_iff [LawfulBEq α]
-    {f : (a : α) → β a → Bool}  :
-    (m.filter f) ~m m ↔ ∀ (a : α) (h : a ∈ m), (f a (m.get a h)) = true :=
-  ⟨fun h => (Raw₀.equiv_filter_iff ⟨m.1, _⟩ m.2).mp h.1,
-    fun h => ⟨(Raw₀.equiv_filter_iff ⟨m.1, _⟩ m.2).mpr h⟩⟩
+theorem filter_equiv_self_iff [LawfulBEq α]
+    {f : (a : α) → β a → Bool} :
+    m.filter f ~m m ↔ ∀ k h, f k (m.get k h) :=
+  ⟨fun h => (Raw₀.filter_equiv_self_iff ⟨m.1, _⟩ m.2).mp h.1,
+    fun h => ⟨(Raw₀.filter_equiv_self_iff ⟨m.1, _⟩ m.2).mpr h⟩⟩
 
-theorem equiv_filter_key_iff [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → Bool}  :
-    (m.filter fun k _ => f k) ~m m ↔ ∀ (a : α) (h : a ∈ m), f (m.getKey a h) = true :=
-  ⟨fun h => (Raw₀.equiv_filter_key_iff ⟨m.1, _⟩ m.2).mp h.1,
-    fun h => ⟨(Raw₀.equiv_filter_key_iff ⟨m.1, _⟩ m.2).mpr h⟩⟩
+theorem filter_key_equiv_self_iff [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → Bool} :
+    m.filter (fun k _ => f k) ~m m ↔ ∀ k h, f (m.getKey k h) :=
+  ⟨fun h => (Raw₀.filter_key_equiv_self_iff ⟨m.1, _⟩ m.2).mp h.1,
+    fun h => ⟨(Raw₀.filter_key_equiv_self_iff ⟨m.1, _⟩ m.2).mpr h⟩⟩
 
 theorem size_filter_key_eq_size_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool}  :
+    {f : α → Bool} :
     (m.filter fun k _ => f k).size = m.size ↔ ∀ (k : α) (h : k ∈ m), f (m.getKey k h) :=
   Raw₀.size_filter_key_eq_size_iff ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem get?_filter [LawfulBEq α]
-    {f : (a : α) → β a → Bool} {k : α}  :
+    {f : (a : α) → β a → Bool} {k : α} :
     (m.filter f).get? k = (m.get? k).filter (f k) :=
   Raw₀.get?_filter ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem get_filter [LawfulBEq α]
-    {f : (a : α) → β a → Bool} {k : α}  {h'} :
-    (m.filter f).get k h' =
-      m.get k (mem_of_mem_filter h') :=
+    {f : (a : α) → β a → Bool} {k : α} {h'} :
+    (m.filter f).get k h' = m.get k (mem_of_mem_filter h') :=
   Raw₀.get_filter ⟨m.1, _⟩ m.2
 
 theorem get!_filter [LawfulBEq α]
-    {f : (a : α) → β a → Bool} {k : α} [Inhabited (β k)]  :
+    {f : (a : α) → β a → Bool} {k : α} [Inhabited (β k)] :
     (m.filter f).get! k = ((m.get? k).filter (f k)).get! :=
   Raw₀.get!_filter ⟨m.1, _⟩ m.2
 
 theorem getD_filter [LawfulBEq α]
-    {f : (a : α) → β a → Bool} {k : α} {fallback : β k}  :
+    {f : (a : α) → β a → Bool} {k : α} {fallback : β k} :
     (m.filter f).getD k fallback = ((m.get? k).filter (f k)).getD fallback :=
   Raw₀.getD_filter ⟨m.1, _⟩ m.2
 
-theorem get?_filter_key [LawfulBEq α]
-    {f : α → Bool} {k : α}  :
-    (m.filter fun a _ => f a).get? k = (m.get? k).filter (fun _ => f k) :=
-  Raw₀.get?_filter_key ⟨m.1, _⟩ m.2
-
-theorem get_filter_key [LawfulBEq α]
-    {f : α → Bool} {k : α}  {h'} :
-    (m.filter fun a _ => f a).get k h' =
-      m.get k (mem_of_mem_filter h') :=
-  Raw₀.get_filter_key ⟨m.1, _⟩ m.2
-
-theorem get!_filter_key [LawfulBEq α]
-    {f : α → Bool} {k : α} [Inhabited (β k)]  :
-    (m.filter fun a _ => f a).get! k = ((m.get? k).filter (fun _ => f k)).get! :=
-  Raw₀.get!_filter_key ⟨m.1, _⟩ m.2
-
-theorem getD_filter_key [LawfulBEq α]
-    {f : α → Bool} {k : α} {fallback : β k}  :
-    (m.filter fun a _ => f a).getD k fallback = ((m.get? k).filter (fun _ =>f k)).getD fallback :=
-  Raw₀.getD_filter_key ⟨m.1, _⟩ m.2
-
-theorem keys_filter [LawfulBEq α] {f : (a : α) → β a → Bool}  :
+theorem keys_filter [LawfulBEq α] {f : (a : α) → β a → Bool} :
     (m.filter f).keys.Perm
       (m.keys.attach.filter (fun ⟨x, h'⟩ => f x (m.get x (mem_of_mem_keys h')))).unattach :=
   Raw₀.keys_filter ⟨m.1, _⟩ m.2
 
 theorem getKey?_filter [LawfulBEq α]
-    {f : (a : α) → β a → Bool} {k : α}  :
+    {f : (a : α) → β a → Bool} {k : α} :
     (m.filter f).getKey? k =
     (m.getKey? k).pfilter (fun x h' =>
       f x (m.get x (mem_of_getKey?_eq_some h'))) :=
   Raw₀.getKey?_filter ⟨m.1, _⟩ m.2
 
 theorem getKey?_filter_key [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool} {k : α}  :
+    {f : α → Bool} {k : α} :
     (m.filter fun k _ => f k).getKey? k = (m.getKey? k).filter f :=
   Raw₀.getKey?_filter_key ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem getKey_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Bool} {k : α}  {h'}:
+    {f : (a : α) → β a → Bool} {k : α} {h'} :
     (m.filter f).getKey k h' = m.getKey k (mem_of_mem_filter h') :=
   Raw₀.getKey_filter ⟨m.1, _⟩ m.2
 
 theorem getKey!_filter [LawfulBEq α] [Inhabited α]
-    {f : (a : α) → β a → Bool} {k : α}  :
+    {f : (a : α) → β a → Bool} {k : α} :
     (m.filter f).getKey! k =
     ((m.getKey? k).pfilter (fun x h' =>
       f x (m.get x (mem_of_getKey?_eq_some h')))).get! :=
   Raw₀.getKey!_filter ⟨m.1, _⟩ m.2
 
 theorem getKey!_filter_key [EquivBEq α] [LawfulHashable α] [Inhabited α]
-    {f : α → Bool} {k : α}  :
+    {f : α → Bool} {k : α} :
     (m.filter fun k _ => f k).getKey! k = ((m.getKey? k).filter f).get! :=
   Raw₀.getKey!_filter_key ⟨m.1, _⟩ m.2
 
 theorem getKeyD_filter [LawfulBEq α]
-    {f : (a : α) → β a → Bool} {k fallback : α}  :
+    {f : (a : α) → β a → Bool} {k fallback : α} :
     (m.filter f).getKeyD k fallback =
     ((m.getKey? k).pfilter (fun x h' =>
       f x (m.get x (mem_of_getKey?_eq_some h')))).getD fallback :=
   Raw₀.getKeyD_filter ⟨m.1, _⟩ m.2
 
 theorem getKeyD_filter_key [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool} {k fallback : α}  :
+    {f : α → Bool} {k fallback : α} :
     (m.filter fun k _ => f k).getKeyD k fallback = ((m.getKey? k).filter f).getD fallback :=
   Raw₀.getKeyD_filter_key ⟨m.1, _⟩ m.2
 
@@ -3543,122 +3514,79 @@ namespace Const
 variable {β : Type v} {γ : Type w} {m : DHashMap α (fun _ => β)}
 
 theorem isEmpty_filter_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool}  :
+    {f : α → β → Bool} :
     (m.filter f).isEmpty = true ↔
       ∀ (k : α) (h : k ∈ m), f (m.getKey k h) (Const.get m k h) = false :=
   Raw₀.Const.isEmpty_filter_iff ⟨m.1, _⟩ m.2
 
 theorem isEmpty_filter_eq_false_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool}  :
+    {f : α → β → Bool} :
     (m.filter f).isEmpty = false ↔
       ∃ (k : α) (h : k ∈ m), (f (m.getKey k h) (Const.get m k h)) = true :=
   Raw₀.Const.isEmpty_filter_eq_false_iff ⟨m.1, _⟩ m.2
 
-theorem isEmpty_filter_key_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool}  :
-    (m.filter fun a _ => f a).isEmpty = true ↔
-      ∀ (k : α) (h : k ∈ m), f (m.getKey k h) = false :=
-  Raw₀.Const.isEmpty_filter_key_iff ⟨m.1, _⟩ m.2
-
-theorem isEmpty_filter_key_eq_false_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool}  :
-    (m.filter fun a _ => f a).isEmpty = false ↔
-      ∃ (k : α) (h : k ∈ m), f (m.getKey k h) = true :=
-  Raw₀.Const.isEmpty_filter_key_eq_false_iff ⟨m.1, _⟩ m.2
-
-theorem contains_filter_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool} {k : α}  :
-    (m.filter f).contains k = true ↔ ∃ (h' : m.contains k = true),
+theorem mem_filter [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Bool} {k : α} :
+    k ∈ m.filter f ↔ ∃ (h' : k ∈ m),
       f (m.getKey k h') (Const.get m k h') :=
   Raw₀.Const.contains_filter_iff ⟨m.1, _⟩ m.2
-
-theorem contains_filter_key_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool} {k : α}  :
-    (m.filter fun a _ => f a).contains k = true ↔ ∃ (h' : m.contains k = true),
-      f (m.getKey k h') :=
-  Raw₀.Const.contains_filter_key_iff ⟨m.1, _⟩ m.2
-
-theorem mem_filter_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool} {k : α}  :
-    k ∈ (m.filter f) ↔ ∃ (h' : k ∈ m),
-      f (m.getKey k h') (Const.get m k h') :=
-  Raw₀.Const.contains_filter_iff ⟨m.1, _⟩ m.2
-
-theorem mem_filter_key_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool} {k : α}  :
-    k ∈ (m.filter fun a _ => f a) ↔ ∃ (h' : k ∈ m),
-      f (m.getKey k h') :=
-  Raw₀.Const.contains_filter_key_iff ⟨m.1, _⟩ m.2
 
 theorem size_filter_le_size [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool}  :
-    (m.filter f).size ≤  m.size :=
+    {f : α → β → Bool} :
+    (m.filter f).size ≤ m.size :=
   Raw₀.Const.size_filter_le_size ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 theorem size_filter_eq_size_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool}  :
+    {f : α → β → Bool} :
     (m.filter f).size = m.size ↔ ∀ (a : α) (h : a ∈ m),
       f (m.getKey a h) (Const.get m a h) :=
   Raw₀.Const.size_filter_eq_size_iff ⟨m.1, _⟩ m.2
 
-theorem size_filter_key_eq_size_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool}  :
-    (m.filter fun a _ => f a).size = m.size ↔ ∀ (a : α) (h : a ∈ m),
-      f (m.getKey a h) :=
-  Raw₀.Const.size_filter_key_eq_size_iff ⟨m.1, _⟩ m.2
-
-theorem equiv_filter_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool}  :
-    (m.filter f) ~m m ↔ ∀ (a : α) (h : a ∈ m),
-      f (m.getKey a h) (Const.get m a h) :=
-  ⟨fun h => (Raw₀.Const.equiv_filter_iff ⟨m.1, _⟩ m.2).mp h.1,
-    fun h => ⟨(Raw₀.Const.equiv_filter_iff ⟨m.1, _⟩ m.2).mpr h⟩ ⟩
-
-theorem equiv_filter_key_iff [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool}  :
-    (m.filter fun a _ => f a) ~m m ↔ ∀ (a : α) (h : m.contains a),
-      f (m.getKey a h) :=
-  ⟨fun h => (Raw₀.Const.equiv_filter_iff ⟨m.1, _⟩ m.2).mp h.1,
-    fun h => ⟨(Raw₀.Const.equiv_filter_iff ⟨m.1, _⟩ m.2).mpr h⟩ ⟩
+theorem filter_equiv_self_iff [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Bool} :
+    m.filter f ~m m ↔ ∀ k h, f (m.getKey k h) (Const.get m k h) :=
+  ⟨fun h => (Raw₀.Const.filter_equiv_self_iff ⟨m.1, _⟩ m.2).mp h.1,
+    fun h => ⟨(Raw₀.Const.filter_equiv_self_iff ⟨m.1, _⟩ m.2).mpr h⟩ ⟩
 
 theorem get?_filter [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool} {k : α}  :
+    {f : α → β → Bool} {k : α} :
     Const.get? (m.filter f) k = (Const.get? m k).pfilter (fun x h' =>
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x) :=
   Raw₀.Const.get?_filter ⟨m.1, _⟩ m.2
 
 theorem get?_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool} {k k' : α}  :
+    {f : α → β → Bool} {k k' : α} :
     m.getKey? k = some k' →
       Const.get? (m.filter f) k = (Const.get? m k).filter (fun x => f k' x) :=
   Raw₀.Const.get?_filter_of_getKey?_eq_some ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem get_filter [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool} {k : α}  {h'} :
-    Const.get (m.filter f) k h' = Const.get m k (contains_of_contains_filter h') :=
+    {f : α → β → Bool} {k : α} {h'} :
+    Const.get (m.filter f) k h' = Const.get m k (mem_of_mem_filter h') :=
   Raw₀.Const.get_filter ⟨m.1, _⟩ m.2
 
 theorem get!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
-    {f : α → β → Bool} {k : α}  :
+    {f : α → β → Bool} {k : α} :
     Const.get! (m.filter f) k =
       ((Const.get? m k).pfilter (fun x h' =>
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).get! :=
   Raw₀.Const.get!_filter ⟨m.1, _⟩ m.2
 
 theorem get!_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited β]
-    {f : α → β → Bool} {k k' : α}  :
+    {f : α → β → Bool} {k k' : α} :
     m.getKey? k = some k' →
       Const.get! (m.filter f) k = ((Const.get? m k).filter (fun x => f k' x)).get! :=
   Raw₀.Const.get!_filter_of_getKey?_eq_some ⟨m.1, _⟩ m.2
 
 theorem getD_filter [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool} {k : α} {fallback : β}  :
+    {f : α → β → Bool} {k : α} {fallback : β} :
     Const.getD (m.filter f) k fallback = ((Const.get? m k).pfilter (fun x h' =>
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
   Raw₀.Const.getD_filter ⟨m.1, _⟩ m.2
 
 theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited β]
-    {f : α → β → Bool} {k k' : α} {fallback : β}  :
+    {f : α → β → Bool} {k k' : α} {fallback : β} :
     m.getKey? k = some k' →
       Const.getD (m.filter f) k fallback =
         ((Const.get? m k).filter (fun x => f k' x)).getD fallback :=
@@ -3669,54 +3597,31 @@ theorem toList_filter {f : α → β → Bool} :
       ((toList m).filter (fun p => f p.1 p.2)) :=
   Raw₀.Const.toList_filter ⟨m.1, m.2.size_buckets_pos⟩
 
-theorem toList_filter_key {f : α → Bool} :
-    (toList (m.filter fun a _ => f a)).Perm
-      ((toList m).filter (fun p => f p.1)) :=
-  Raw₀.Const.toList_filter_key ⟨m.1, m.2.size_buckets_pos⟩
-
 theorem keys_filter [EquivBEq α] [LawfulHashable α] {f : α → β → Bool} :
     (m.filter f).keys.Perm
       (m.keys.attach.filter (fun ⟨x, h'⟩ => f x (get m x (mem_of_mem_keys h')))).unattach :=
   Raw₀.Const.keys_filter ⟨m.1, _⟩ m.2
 
 theorem getKey?_filter [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool} {k : α}  :
+    {f : α → β → Bool} {k : α} :
     (m.filter f).getKey? k =
     (m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (mem_of_getKey?_eq_some h')))) :=
   Raw₀.Const.getKey?_filter ⟨m.1, _⟩ m.2
 
 theorem getKey!_filter [EquivBEq α] [LawfulHashable α] [Inhabited α]
-    {f : α → β → Bool} {k : α}  :
+    {f : α → β → Bool} {k : α} :
     (m.filter f).getKey! k =
     ((m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (mem_of_getKey?_eq_some h'))))).get! :=
   Raw₀.Const.getKey!_filter ⟨m.1, _⟩ m.2
 
 theorem getKeyD_filter [EquivBEq α] [LawfulHashable α]
-    {f : α → β → Bool} {k fallback : α}  :
+    {f : α → β → Bool} {k fallback : α} :
     (m.filter f).getKeyD k fallback =
     ((m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (mem_of_getKey?_eq_some h'))))).getD fallback :=
   Raw₀.Const.getKeyD_filter ⟨m.1, _⟩ m.2
-
-theorem getKey?_filter_key [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool} {k : α}  :
-    (m.filter fun a _ => f a).getKey? k =
-    (m.getKey? k).filter f :=
-  Raw₀.Const.getKey?_filter_key ⟨m.1, _⟩ m.2
-
-theorem getKey!_filter_key [EquivBEq α] [LawfulHashable α] [Inhabited α]
-    {f : α → Bool} {k : α}  :
-    (m.filter fun a _ => f a).getKey! k =
-    ((m.getKey? k).filter f).get! :=
-  Raw₀.Const.getKey!_filter_key ⟨m.1, _⟩ m.2
-
-theorem getKeyD_filter_key [EquivBEq α] [LawfulHashable α]
-    {f : α → Bool} {k fallback : α} :
-    (m.filter fun a _ => f a).getKeyD k fallback =
-    ((m.getKey? k).filter f).getD fallback :=
-  Raw₀.Const.getKeyD_filter_key ⟨m.1, _⟩ m.2
 
 end Const
 
@@ -3726,11 +3631,11 @@ section map
 
 variable {γ : α → Type w} {δ : α → Type w'}
 
-theorem map_id_equiv : (m.map fun _ v => v) ~m m :=
+theorem map_id_equiv : m.map (fun _ v => v) ~m m :=
   ⟨Raw₀.map_id_equiv ⟨m.1, m.2.size_buckets_pos⟩⟩
 
 theorem map_map_equiv {f : (a : α) → β a → γ a} {g : (a : α) → γ a → δ a} :
-    ((m.map f).map g) ~m (m.map fun k v => g k (f k v)) :=
+    (m.map f).map g ~m m.map fun k v => g k (f k v) :=
   ⟨Raw₀.map_map_equiv ⟨m.1, m.2.size_buckets_pos⟩⟩
 
 theorem toList_map {f : (a : α) → β a → γ a} :
@@ -3741,84 +3646,86 @@ theorem keys_map {f : (a : α) → β a → γ a} : (m.map f).keys.Perm m.keys :
   Raw₀.keys_map ⟨m.1, m.2.size_buckets_pos⟩
 
 theorem filterMap_equiv_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → γ a}  :
-    (m.filterMap (fun k v => Option.some (f k v))) ~m (m.map f) :=
+    {f : (a : α) → β a → γ a} :
+    (m.filterMap (fun k v => some (f k v))) ~m m.map f :=
   ⟨Raw₀.filterMap_equiv_map ⟨m.1, m.2.size_buckets_pos⟩ m.2⟩
 
+@[simp]
 theorem isEmpty_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → γ a}  :
+    {f : (a : α) → β a → γ a} :
     (m.map f).isEmpty = m.isEmpty :=
   Raw₀.isEmpty_map ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 theorem contains_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → γ a} {k : α}  :
+    {f : (a : α) → β a → γ a} {k : α} :
     (m.map f).contains k = m.contains k :=
   Raw₀.contains_map ⟨m.1, _⟩ m.2
 
 theorem contains_of_contains_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → γ a} {k : α}  :
+    {f : (a : α) → β a → γ a} {k : α} :
     (m.map f).contains k = true → m.contains k = true :=
   Raw₀.contains_of_contains_map ⟨m.1, _⟩ m.2
 
 @[simp]
 theorem mem_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → γ a} {k : α}  :
-    k ∈ (m.map f) ↔ k ∈ m := by
-  simp [mem_iff_contains, contains_map]
+    {f : (a : α) → β a → γ a} {k : α} :
+    k ∈ m.map f ↔ k ∈ m := by
+  simp only [mem_iff_contains, contains_map]
 
 theorem mem_of_mem_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → γ a} {k : α}  :
-    k ∈ (m.map f) → k ∈ m :=
+    {f : (a : α) → β a → γ a} {k : α} :
+    k ∈ m.map f → k ∈ m :=
   Raw₀.contains_of_contains_map ⟨m.1, _⟩ m.2
 
 @[simp]
 theorem size_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → γ a}  :
+    {f : (a : α) → β a → γ a} :
     (m.map f).size = m.size :=
   Raw₀.size_map ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
+@[simp]
 theorem get?_map [LawfulBEq α]
-    {f : (a : α) → β a → γ a} {k : α}  :
+    {f : (a : α) → β a → γ a} {k : α} :
     (m.map f).get? k = (m.get? k).map (f k) :=
   Raw₀.get?_map ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem get_map [LawfulBEq α]
-    {f : (a : α) → β a → γ a} {k : α}  {h'} :
-    (m.map f).get k h' =
-      f k (m.get k (contains_of_contains_map h')) :=
+    {f : (a : α) → β a → γ a} {k : α} {h'} :
+    (m.map f).get k h' = f k (m.get k (mem_of_mem_map h')) :=
   Raw₀.get_map ⟨m.1, _⟩ m.2
 
 theorem get!_map [LawfulBEq α]
-    {f : (a : α) → β a → γ a} {k : α} [Inhabited (γ k)]  :
+    {f : (a : α) → β a → γ a} {k : α} [Inhabited (γ k)] :
     (m.map f).get! k = ((m.get? k).map (f k)).get! :=
   Raw₀.get!_map ⟨m.1, _⟩ m.2
 
 theorem getD_map [LawfulBEq α]
-    {f : (a : α) → β a → γ a} {k : α} {fallback : γ k}  :
+    {f : (a : α) → β a → γ a} {k : α} {fallback : γ k} :
     (m.map f).getD k fallback = ((m.get? k).map (f k)).getD fallback :=
   Raw₀.getD_map ⟨m.1, _⟩ m.2
 
 @[simp]
 theorem getKey?_map [LawfulBEq α]
-    {f : (a : α) → β a → γ a} {k : α}  :
+    {f : (a : α) → β a → γ a} {k : α} :
     (m.map f).getKey? k = m.getKey? k :=
   Raw₀.getKey?_map ⟨m.1, _⟩ m.2
 
 @[simp]
 theorem getKey_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → γ a} {k : α}  {h'}:
-    (m.map f).getKey k h' = m.getKey k (contains_of_contains_map h') :=
+    {f : (a : α) → β a → γ a} {k : α} {h'} :
+    (m.map f).getKey k h' = m.getKey k (mem_of_mem_map h') :=
   Raw₀.getKey_map ⟨m.1, _⟩ m.2
 
 @[simp]
 theorem getKey!_map [LawfulBEq α] [Inhabited α]
-    {f : (a : α) → β a → γ a} {k : α}  :
+    {f : (a : α) → β a → γ a} {k : α} :
     (m.map f).getKey! k = m.getKey! k :=
   Raw₀.getKey!_map ⟨m.1, _⟩ m.2
 
 @[simp]
 theorem getKeyD_map [LawfulBEq α]
-    {f : (a : α) → β a → γ a} {k fallback : α}  :
+    {f : (a : α) → β a → γ a} {k fallback : α} :
     (m.map f).getKeyD k fallback = m.getKeyD k fallback :=
   Raw₀.getKeyD_map ⟨m.1, _⟩ m.2
 
@@ -3827,31 +3734,46 @@ namespace Const
 variable {β : Type v} {γ : Type w} {m : DHashMap α fun _ => β}
 
 theorem get?_map [EquivBEq α] [LawfulHashable α]
-    {f : α → β → γ} {k : α}  :
+    {f : α → β → γ} {k : α} :
     Const.get? (m.map f) k = (Const.get? m k).pmap (fun v h' => f (m.getKey k h') v)
       (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h')) :=
   Raw₀.Const.get?_map ⟨m.1, _⟩ m.2
 
+theorem get?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k k' : α} (h : m.getKey? k = some k') :
+    Const.get? (m.map f) k = (Const.get? m k).map (f k') :=
+  Raw₀.Const.get?_map_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
+
+@[simp]
 theorem get_map [EquivBEq α] [LawfulHashable α]
-    {f : α → β → γ} {k : α}  {h'} :
+    {f : α → β → γ} {k : α} {h'} :
     Const.get (m.map f) k h' =
-      (f (m.getKey k (contains_of_contains_map h'))
-        (Const.get m k (contains_of_contains_map h'))) :=
+      f (m.getKey k (mem_of_mem_map h')) (Const.get m k (mem_of_mem_map h')) :=
   Raw₀.Const.get_map ⟨m.1, _⟩ m.2
 
 theorem get!_map [EquivBEq α] [LawfulHashable α] [Inhabited γ]
-    {f : α → β → γ} {k : α}  :
+    {f : α → β → γ} {k : α} :
     Const.get! (m.map f) k =
       ((get? m k).pmap (fun v h => f (m.getKey k h) v)
-        (fun _ h' => (contains_eq_isSome_get?).trans (Option.isSome_of_mem h'))).get! :=
+        (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_mem h'))).get! :=
   Raw₀.Const.get!_map ⟨m.1, _⟩ m.2
 
+theorem get!_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
+    {f : α → β → γ} {k k' : α} (h : m.getKey? k = some k') :
+    Const.get! (m.map f) k = ((Const.get? m k).map (f k')).get! :=
+  Raw₀.Const.get!_map_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
+
 theorem getD_map [EquivBEq α] [LawfulHashable α]
-    {f : α → β → γ} {k : α} {fallback : γ}  :
+    {f : α → β → γ} {k : α} {fallback : γ} :
     Const.getD (m.map f) k fallback =
       ((get? m k).pmap (fun v h => f (m.getKey k h) v)
         (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))).getD fallback :=
   Raw₀.Const.getD_map ⟨m.1, _⟩ m.2
+
+theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
+    {f : α → β → γ} {k k' : α} {fallback : γ} (h : m.getKey? k = some k') :
+    Const.getD (m.map f) k fallback = ((Const.get? m k).map (f k')).getD fallback :=
+  Raw₀.Const.getD_map_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
 
 theorem toList_map {α : Type u} {m : Raw₀ α fun _ => β}
     {f : α → β → γ} :

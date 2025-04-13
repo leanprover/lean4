@@ -71,6 +71,7 @@ where
 private def tryLookahead (e : Expr) : GoalM Bool := do
   -- TODO: if `e` is an arithmetic expression, we can avoid creating an auxiliary goal.
   -- We can assert it directly to the arithmetic module.
+  -- Remark: We can simplify this code because the lookahead only really worked for arithmetic.
   trace_goal[grind.lookahead.try] "{e}"
   let proof? ← withoutModifyingState do
     let goal ← get

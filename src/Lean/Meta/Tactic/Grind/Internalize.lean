@@ -256,10 +256,11 @@ where
         let eq ← shareCommon eq
         internalize eq generation
         trace_goal[grind.ext.candidate] "{eq}"
-        if (← getConfig).lookahead then
-          addLookaheadCandidate (.arg other.app parent i eq)
-        else
-          addSplitCandidate eq
+        -- We do not use lookahead here because it is too incomplete.
+        -- if (← getConfig).lookahead then
+        --   addLookaheadCandidate (.arg other.app parent i eq)
+        -- else
+        addSplitCandidate eq
     modify fun s => { s with split.argsAt := s.split.argsAt.insert (f, i) ({ arg, type, app := parent } :: others) }
     return ()
 

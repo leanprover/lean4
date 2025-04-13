@@ -1974,7 +1974,7 @@ set_option linter.missingDocs false in
 @[deprecated get?_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
 abbrev get?_insertMany_empty_list_of_mem := @get?_insertMany_emptyWithCapacity_list_of_mem
 
-theorem get_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
+theorem get_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l)
@@ -1986,7 +1986,7 @@ set_option linter.missingDocs false in
 @[deprecated get_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
 abbrev get_insertMany_empty_list_of_mem := @get_insertMany_emptyWithCapacity_list_of_mem
 
-theorem get!_insertMany_emptyWithCapacity_list_of_contains_eq_false [LawfulBEq α]
+theorem get!_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} [Inhabited β]
     (h : (l.map Prod.fst).contains k = false) :
     get! (insertMany emptyWithCapacity l) k = (default : β) := by
@@ -1997,7 +1997,7 @@ set_option linter.missingDocs false in
 @[deprecated get!_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
 abbrev get!_insertMany_empty_list_of_contains_eq_false := @get!_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
-theorem get!_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
+theorem get!_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} [Inhabited β]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
@@ -2008,7 +2008,7 @@ set_option linter.missingDocs false in
 @[deprecated get!_insertMany_emptyWithCapacity_list_of_mem (since := "2025-03-12")]
 abbrev get!_insertMany_empty_list_of_mem := @get!_insertMany_emptyWithCapacity_list_of_mem
 
-theorem getD_insertMany_emptyWithCapacity_list_of_contains_eq_false [LawfulBEq α]
+theorem getD_insertMany_emptyWithCapacity_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} {fallback : β}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     getD (insertMany emptyWithCapacity l) k fallback = fallback := by
@@ -2019,7 +2019,7 @@ set_option linter.missingDocs false in
 @[deprecated getD_insertMany_emptyWithCapacity_list_of_contains_eq_false (since := "2025-03-12")]
 abbrev getD_insertMany_empty_list_of_contains_eq_false := @getD_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
-theorem getD_insertMany_emptyWithCapacity_list_of_mem [LawfulBEq α]
+theorem getD_insertMany_emptyWithCapacity_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} {fallback : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
@@ -2528,13 +2528,13 @@ theorem size_alter_eq_self_of_mem (h : m.1.WF) {k : α} {f : Option β → Optio
     (Const.alter m k f).1.size = m.1.size := by
   simp [size_alter, h, h₁, Option.isSome_iff_ne_none.mp h₂]
 
-theorem size_alter_le_size [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option β → Option β} :
+theorem size_alter_le_size (h : m.1.WF) {k : α} {f : Option β → Option β} :
     (Const.alter m k f).1.size ≤ m.1.size + 1 := by
   simp [size_alter, h]
   split <;> try split
   all_goals omega
 
-theorem size_le_size_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option β → Option β} :
+theorem size_le_size_alter (h : m.1.WF) {k : α} {f : Option β → Option β} :
     m.1.size - 1 ≤ (Const.alter m k f).1.size := by
   simp [size_alter, h]
   split <;> try split
@@ -3660,7 +3660,7 @@ theorem getD_map [LawfulBEq α]
     (m.map f).getD k fallback = ((m.get? k).map (f k)).getD fallback := by
   simp_to_model [map, getD, get?] using List.getValueCastD_map
 
-theorem getKey?_map [LawfulBEq α]
+theorem getKey?_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :
     (m.map f).getKey? k = m.getKey? k := by
   simp_to_model [map, getKey?] using List.getKey?_map
@@ -3670,12 +3670,12 @@ theorem getKey_map [EquivBEq α] [LawfulHashable α]
     (m.map f).getKey k h' = m.getKey k (contains_of_contains_map m h h') := by
   simp_to_model [map, getKey] using List.getKey_map
 
-theorem getKey!_map [LawfulBEq α] [Inhabited α]
+theorem getKey!_map [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :
     (m.map f).getKey! k = m.getKey! k := by
   simp_to_model [map, getKey!] using List.getKey!_map
 
-theorem getKeyD_map [LawfulBEq α]
+theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k fallback : α} (h : m.1.WF) :
     (m.map f).getKeyD k fallback = m.getKeyD k fallback := by
   simp_to_model [map, getKeyD] using List.getKeyD_map

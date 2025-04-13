@@ -33,7 +33,7 @@ structure Params where
   -- TODO: inductives to split
 
 def mkParams (config : Grind.Config) : MetaM Params := do
-  let norm ← Grind.getSimpContext
+  let norm ← Grind.getSimpContext config
   let normProcs ← Grind.getSimprocs
   return { config, norm, normProcs }
 
@@ -94,7 +94,6 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
       activateTheorem thm 0
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) := do
-  mvarId.ensureProp
   -- TODO: abstract metavars
   mvarId.ensureNoMVar
   let mvarId ← mvarId.clearAuxDecls
@@ -149,9 +148,12 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   let mut msgs ← result.failures.mapM (goalToMessageData · result.config)
   if result.config.verbose then
     let mut issues := result.issues
+    -- We did not find the following very useful in practice.
+    /-
     unless result.skipped.isEmpty do
       let m := m!"#{result.skipped.length} other goal(s) were not fully processed due to previous failures, threshold: `(failures := {result.config.failures})`"
       issues := .trace { cls := `issue } m #[] :: issues
+    -/
     unless issues.isEmpty do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
     if let some msg ← mkGlobalDiag result.counters result.simp then

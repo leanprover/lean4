@@ -18,12 +18,6 @@ class CommSemigroup (α : Type u) extends Semigroup α where
 instance [CommSemigroup α] : MulComm α where
   mul_comm := CommSemigroup.mul_comm
 
-class One (α : Type u) where
-  one : α
-
-instance [One α] : OfNat α (nat_lit 1) where
-  ofNat := One.one
-
 class Monoid (α : Type u) extends Semigroup α, One α where
   one_mul (a : α) : 1 * a = a
   mul_one (a : α) : a * 1 = a
@@ -53,12 +47,12 @@ theorem left_comm [CommMonoid α] (a b c : α) : a * (b * c) = b * (a * c) := by
 open Lean Meta Elab Tactic Grind in
 def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``HMul.hMul
-  trace[Meta.debug] "{nodes.toList.map (·.self)}"
+  trace[Meta.debug] "{nodes.map (·.self) |>.qsort Expr.lt}"
   (← get).mvarId.admit
 
 set_option trace.Meta.debug true
 
-/-- info: [Meta.debug] [b * c, a * (b * c), d * (b * c)] -/
+/-- info: [Meta.debug] [a * (b * c), b * c, d * (b * c)] -/
 #guard_msgs (info) in
 example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
   rw [left_comm] -- Introduces a new (non-canonical) instance for `Mul Nat`
@@ -68,7 +62,11 @@ example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
 set_option pp.notation false in
 set_option pp.explicit true in
 /--
-info: [Meta.debug] [@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a,
+info: [Meta.debug] [@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
+       (@NatCast.natCast Int instNatCastInt a),
+     @HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
+       (@NatCast.natCast Int instNatCastInt d),
+     @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a,
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b d]
 -/
 #guard_msgs (info) in

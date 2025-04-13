@@ -1288,7 +1288,7 @@ lean_ctor_set_uint8(x_24, sizeof(void*)*2 + 14, x_21);
 lean_ctor_set_uint8(x_24, sizeof(void*)*2 + 15, x_21);
 lean_ctor_set_uint8(x_24, sizeof(void*)*2 + 16, x_21);
 lean_ctor_set_uint8(x_24, sizeof(void*)*2 + 17, x_22);
-lean_ctor_set_uint8(x_24, sizeof(void*)*2 + 18, x_22);
+lean_ctor_set_uint8(x_24, sizeof(void*)*2 + 18, x_21);
 lean_ctor_set_uint8(x_24, sizeof(void*)*2 + 19, x_22);
 x_25 = l_Lean_Meta_Simp_mkContext(x_24, x_3, x_17, x_8, x_9, x_10, x_11, x_18);
 x_26 = lean_ctor_get(x_25, 0);

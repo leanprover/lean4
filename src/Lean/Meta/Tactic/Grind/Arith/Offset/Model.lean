@@ -10,18 +10,18 @@ import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind.Arith.Offset
 
-/-- Construct a model that statisfies all offset constraints -/
+/-- Construct a model that satisfies all offset constraints -/
 def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   let s := goal.arith.offset
   let dbg := grind.debug.get (← getOptions)
   let nodes := s.nodes
   let isInterpreted (u : Nat) : Bool := isNatNum s.nodes[u]!
-  let mut pre : Array (Option Int) := mkArray nodes.size none
+  let mut pre : Array (Option Int) := .replicate nodes.size none
   /-
   `needAdjust[u]` is true if `u` assignment is not connected to an interpreted value in the graph.
   That is, its assignment may be negative.
   -/
-  let mut needAdjust : Array Bool := mkArray nodes.size true
+  let mut needAdjust : Array Bool := .replicate nodes.size true
   -- Initialize `needAdjust`
   for u in [: nodes.size] do
     if isInterpreted u then
@@ -76,7 +76,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   r := r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
   if (← isTracingEnabledFor `grind.offset.model) then
     for (x, v) in r do
-      trace[grind.offset.model] "{quoteIfNotAtom x} := {v}"
+      trace[grind.offset.model] "{quoteIfArithTerm x} := {v}"
   return r
 
 end Lean.Meta.Grind.Arith.Offset

@@ -61,11 +61,14 @@ set so that it can hold the given number of elements without reallocating. It is
 use the empty collection notations `∅` and `{}` to create an empty hash set with the default
 capacity.
 -/
-@[inline] def empty [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
-  ⟨HashMap.empty capacity⟩
+@[inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
+  ⟨HashMap.emptyWithCapacity capacity⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance [BEq α] [Hashable α] : Inhabited (HashSet α) where
   default := ∅
@@ -90,7 +93,7 @@ differently: it will overwrite an existing mapping.
 @[inline] def insert (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
 
-instance : Singleton α (HashSet α) := ⟨fun a => HashSet.empty.insert a⟩
+instance : Singleton α (HashSet α) := ⟨fun a => (∅ : HashSet α).insert a⟩
 
 instance : Insert α (HashSet α) := ⟨fun a s => s.insert a⟩
 

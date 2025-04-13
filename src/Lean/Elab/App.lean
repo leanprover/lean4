@@ -1222,8 +1222,8 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
-    throwLValError e eType
-      m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
+    let msg := mkUnknownIdentifierMessage m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
+    throwLValError e eType msg
   | none, LVal.fieldName _ _ (some suffix) _ =>
     if e.isConst then
       throwUnknownConstant (e.constName! ++ suffix)
@@ -1287,13 +1287,20 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
       e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e, suppressDeps := true }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
     return e
 
-private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
-  if baseName == `Function then
-    return (← whnfR type).isForall
-  else if type.cleanupAnnotations.isAppOf baseName then
-    return true
-  else
-    return (← whnfR type).isAppOf baseName
+private partial def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool :=
+  withReducibleAndInstances do
+    if baseName == `Function then
+      return (← whnf type).isForall
+    else if type.cleanupAnnotations.isAppOf baseName then
+      return true
+    else
+      let type ← whnfCore type
+      if type.isAppOf baseName then
+        return true
+      else
+        match ← unfoldDefinition? type with
+        | some type' => typeMatchesBaseName type' baseName
+        | none => return false
 
 /--
 Auxiliary method for field notation. Tries to add `e` as a new argument to `args` or `namedArgs`.
@@ -1406,7 +1413,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFn explicit
         elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
+        let (args, namedArgs) ← addLValArg baseStructName constName f #[] #[] projFn (explicit := false)
+        let f ← elabAppArgs projFn namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
     | LValResolution.localRec baseName fullName fvar =>
       let fvar ← addProjTermInfo lval.getRef fvar
@@ -1414,7 +1422,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvar explicit
         elabAppArgs fvar namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs fvar #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
+        let (args, namedArgs) ← addLValArg baseName fullName f #[] #[] fvar (explicit := false)
+        let f ← elabAppArgs fvar namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
   loop f lvals
 
@@ -1502,7 +1511,7 @@ where
       else if let some (fvar, []) ← resolveLocalName idNew then
         return fvar
       else
-        throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+        throwUnknownIdentifier m!"invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with
@@ -1550,7 +1559,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
     | `(.$id:ident) =>
-        addCompletionInfo <| CompletionInfo.dotId f id.getId (← getLCtx) expectedType?
+        addCompletionInfo <| CompletionInfo.dotId id id.getId (← getLCtx) expectedType?
         let fConst ← resolveDotName id expectedType?
         let s ← observing do
           -- Use (force := true) because we want to record the result of .ident resolution even in patterns

@@ -58,11 +58,6 @@ def translate (c : Constraint) (t : Int) : Constraint := c.map (· + t)
 
 theorem translate_sat : {c : Constraint} → {v : Int} → sat c v → sat (c.translate t) (v + t) := by
   rintro ⟨_ | l, _ | u⟩ v w <;> simp_all [sat, translate, map]
-  · exact Int.add_le_add_right w t
-  · exact Int.add_le_add_right w t
-  · rcases w with ⟨w₁, w₂⟩; constructor
-    · exact Int.add_le_add_right w₁ t
-    · exact Int.add_le_add_right w₂ t
 
 /--
 Flip a constraint.
@@ -79,11 +74,6 @@ def neg (c : Constraint) : Constraint := c.flip.map (- ·)
 
 theorem neg_sat : {c : Constraint} → {v : Int} → sat c v → sat (c.neg) (-v) := by
   rintro ⟨_ | l, _ | u⟩ v w <;> simp_all [sat, neg, flip, map]
-  · exact Int.neg_le_neg w
-  · exact Int.neg_le_neg w
-  · rcases w with ⟨w₁, w₂⟩; constructor
-    · exact Int.neg_le_neg w₂
-    · exact Int.neg_le_neg w₁
 
 /-- The trivial constraint, satisfied everywhere. -/
 def trivial : Constraint := ⟨none, none⟩

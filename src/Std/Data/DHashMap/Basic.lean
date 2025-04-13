@@ -62,11 +62,14 @@ def DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] := { m : 
 
 namespace DHashMap
 
-@[inline, inherit_doc Raw.empty] def empty [BEq α] [Hashable α] (capacity := 8) : DHashMap α β :=
-  ⟨Raw.empty capacity, .empty₀⟩
+@[inline, inherit_doc Raw.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : DHashMap α β :=
+  ⟨Raw.emptyWithCapacity capacity, .emptyWithCapacity₀⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance [BEq α] [Hashable α] : EmptyCollection (DHashMap α β) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance [BEq α] [Hashable α] : Inhabited (DHashMap α β) where
   default := ∅
@@ -82,7 +85,7 @@ structure Equiv (m₁ m₂ : DHashMap α β) where
     (b : β a) : DHashMap α β :=
   ⟨Raw₀.insert ⟨m.1, m.2.size_buckets_pos⟩ a b, .insert₀ m.2⟩
 
-instance : Singleton ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ => DHashMap.empty.insert a b⟩
+instance : Singleton ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ => (∅ : DHashMap α β).insert a b⟩
 
 instance : Insert ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 

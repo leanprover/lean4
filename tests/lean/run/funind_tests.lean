@@ -545,7 +545,7 @@ termination_by xs => xs
 
 /--
 info: LetFun.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
-  (case2 : ∀ (_y : α) (ys : List α), Nat → motive ys → motive (_y :: ys)) (a✝ : List α) : motive a✝
+  (case2 : ∀ (_y : α) (ys : List α) (this : Nat), motive ys → motive (_y :: ys)) (a✝ : List α) : motive a✝
 -/
 #guard_msgs in
 #check bar.induct

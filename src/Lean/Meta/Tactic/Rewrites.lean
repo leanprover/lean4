@@ -269,14 +269,18 @@ def rewriteCandidates (hyps : Array (Expr × Bool × Nat))
   pure <| hyps ++ lemmas
 
 def RewriteResult.newGoal (r : RewriteResult) : Option Expr :=
-  if r.rfl? = true then
-    some (Expr.lit (.strVal "no goals"))
+  if r.rfl? then
+    none
   else
     some r.result.eNew
 
-def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult) : Elab.TermElabM Unit := do
+open Elab Tactic in
+def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult)
+    (checkState? : Option Tactic.SavedState := .none) : TacticM Unit := do
   withMCtx r.mctx do
-    Tactic.TryThis.addRewriteSuggestion ref [(r.expr, r.symm)] (type? := r.newGoal) (origSpan? := ← getRef)
+    Tactic.TryThis.addRewriteSuggestion ref [(r.expr, r.symm)]
+      (type? := r.newGoal.toLOption) (origSpan? := ← getRef)
+      (checkState? := checkState?.getD (← saveState))
 
 structure RewriteResultConfig where
   stopAtRfl : Bool

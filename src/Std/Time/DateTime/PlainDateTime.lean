@@ -18,6 +18,7 @@ set_option linter.all true
 /--
 Represents a date and time with components for Year, Month, Day, Hour, Minute, Second, and Nanosecond.
 -/
+@[ext]
 structure PlainDateTime where
 
   /--
@@ -29,7 +30,22 @@ structure PlainDateTime where
   The `Time` component of a `PlainTime`
   -/
   time : PlainTime
-  deriving Inhabited, BEq, Repr
+deriving Inhabited, DecidableEq, Repr
+
+instance : Ord PlainDateTime where
+  compare := compareLex (compareOn (·.date)) (compareOn (·.time))
+
+theorem PlainDateTime.compare_def :
+    compare (α := PlainDateTime) = compareLex (compareOn (·.date)) (compareOn (·.time)) := rfl
+
+instance : TransOrd PlainDateTime := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd PlainDateTime where
+  eq_of_compare {a b} h := by
+    simp only [PlainDateTime.compare_def, compareLex_eq_eq] at h
+    apply PlainDateTime.ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2
 
 namespace PlainDateTime
 

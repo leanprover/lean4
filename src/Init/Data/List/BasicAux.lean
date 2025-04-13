@@ -79,10 +79,16 @@ theorem get!_cons_zero [Inhabited α] (l : List α) (a : α) : (a::l).get! 0 = a
 /-! ### getD -/
 
 /--
-Returns the `i`-th element in the list (zero-based).
+Returns the element at the provided index, counting from `0`. Returns `fallback` if the index is out
+of bounds.
 
-If the index is out of bounds (`i ≥ as.length`), this function returns `fallback`.
-See also `get?` and `get!`.
+To return an `Option` depending on whether the index is in bounds, use `as[i]?`. To panic if the
+index is out of bounds, use `as[i]!`.
+
+Examples:
+ * `["spring", "summer", "fall", "winter"].getD 2 "never" = "fall"`
+ * `["spring", "summer", "fall", "winter"].getD 0 "never" = "spring"`
+ * `["spring", "summer", "fall", "winter"].getD 4 "never" = "never"`
 -/
 def getD (as : List α) (i : Nat) (fallback : α) : α :=
   as[i]?.getD fallback
@@ -92,10 +98,16 @@ def getD (as : List α) (i : Nat) (fallback : α) : α :=
 /-! ### getLast! -/
 
 /--
-Returns the last element in the list.
+Returns the last element in the list. Panics and returns `default` if the list is empty.
 
-If the list is empty, this function panics when executed, and returns `default`.
-See `getLast` and `getLastD` for safer alternatives.
+Safer alternatives include:
+ * `getLast?`, which returns an `Option`,
+ * `getLastD`, which takes a fallback value for empty lists, and
+ * `getLast`, which requires a proof that the list is non-empty.
+
+Examples:
+ * `["circle", "rectangle"].getLast! = "rectangle"`
+ * `["circle"].getLast! = "circle"`
 -/
 def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
@@ -106,10 +118,12 @@ def getLast! [Inhabited α] : List α → α
 /-! ### head! -/
 
 /--
-Returns the first element in the list.
+Returns the first element in the list. If the list is empty, panics and returns `default`.
 
-If the list is empty, this function panics when executed, and returns `default`.
-See `head` and `headD` for safer alternatives.
+Safer alternatives include:
+  * `List.head`, which requires a proof that the list is non-empty,
+  * `List.head?`, which returns an `Option`, and
+  * `List.headD`, which returns an explicitly-provided fallback value on empty lists.
 -/
 def head! [Inhabited α] : List α → α
   | []   => panic! "empty list"
@@ -118,10 +132,17 @@ def head! [Inhabited α] : List α → α
 /-! ### tail! -/
 
 /--
-Drops the first element of the list.
+Drops the first element of a nonempty list, returning the tail. If the list is empty, this function
+panics when executed and returns the empty list.
 
-If the list is empty, this function panics when executed, and returns the empty list.
-See `tail` and `tailD` for safer alternatives.
+Safer alternatives include
+ * `tail`, which returns the empty list without panicking,
+ * `tail?`, which returns an `Option`, and
+ * `tailD`, which returns a fallback value when passed the empty list.
+
+Examples:
+ * `["apple", "banana", "grape"].tail! = ["banana", "grape"]`
+ * `["banana", "grape"].tail! = ["grape"]`
 -/
 def tail! : List α → List α
   | []    => panic! "empty list"
@@ -132,17 +153,30 @@ def tail! : List α → List α
 /-! ### partitionM -/
 
 /--
-Monadic generalization of `List.partition`.
+Returns a pair of lists that together contain all the elements of `as`. The first list contains
+those elements for which the monadic predicate `p` returns `true`, and the second contains those for
+which `p` returns `false`. The list's elements are examined in order, from left to right.
 
-This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic` or `Init.Data.List.Control`.
-```
+This is a monadic version of `List.partition`.
+
+Example:
+```lean example
 def posOrNeg (x : Int) : Except String Bool :=
   if x > 0 then pure true
   else if x < 0 then pure false
   else throw "Zero is not positive or negative"
-
-partitionM posOrNeg [-1, 2, 3] = Except.ok ([2, 3], [-1])
-partitionM posOrNeg [0, 2, 3] = Except.error "Zero is not positive or negative"
+```
+```lean example
+#eval [-1, 2, 3].partitionM posOrNeg
+```
+```output
+Except.ok ([2, 3], [-1])
+```
+```lean example
+#eval [0, 2, 3].partitionM posOrNeg
+```
+```output
+Except.error "Zero is not positive or negative"
 ```
 -/
 @[inline] def partitionM [Monad m] (p : α → m Bool) (l : List α) : m (List α × List α) :=
@@ -162,12 +196,12 @@ where
 /-! ### partitionMap -/
 
 /--
-Given a function `f : α → β ⊕ γ`, `partitionMap f l` maps the list by `f`
-whilst partitioning the result into a pair of lists, `List β × List γ`,
-partitioning the `.inl _` into the left list, and the `.inr _` into the right List.
-```
-partitionMap (id : Nat ⊕ Nat → Nat ⊕ Nat) [inl 0, inr 1, inl 2] = ([0, 2], [1])
-```
+Applies a function that returns a disjoint union to each element of a list, collecting the `Sum.inl`
+and `Sum.inr` results into separate lists.
+
+Examples:
+ * `[0, 1, 2, 3].partitionMap (fun x => if x % 2 = 0 then .inl x else .inr x) = ([0, 2], [1, 3])`
+ * `[0, 1, 2, 3].partitionMap (fun x => if x = 0 then .inl x else .inr x) = ([0], [1, 2, 3])`
 -/
 @[inline] def partitionMap (f : α → β ⊕ γ) (l : List α) : List β × List γ := go l #[] #[] where
   /-- Auxiliary for `partitionMap`:
@@ -199,14 +233,24 @@ For verification purposes, `List.mapMono = List.map`.
       return b' :: bs'
 
 /--
-Monomorphic `List.mapM`. The internal implementation uses pointer equality, and does not allocate a new list
-if the result of each `f a` is a pointer equal value `a`.
+Applies a monadic function to each element of a list, returning the list of results. The function is
+monomorphic: it is required to return a value of the same type. The internal implementation uses
+pointer equality, and does not allocate a new list if the result of each function call is
+pointer-equal to its argument.
 -/
 @[implemented_by mapMonoMImp] def mapMonoM [Monad m] (as : List α) (f : α → m α) : m (List α) :=
   match as with
   | [] => return []
   | a :: as => return (← f a) :: (← mapMonoM as f)
 
+/--
+Applies a function to each element of a list, returning the list of results. The function is
+monomorphic: it is required to return a value of the same type. The internal implementation uses
+pointer equality, and does not allocate a new list if the result of each function call is
+pointer-equal to its argument.
+
+For verification purposes, `List.mapMono = List.map`.
+-/
 def mapMono (as : List α) (f : α → α) : List α :=
   Id.run <| as.mapMonoM f
 

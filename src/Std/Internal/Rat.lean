@@ -14,7 +14,7 @@ namespace Internal
 
 /-!
   Rational numbers for implementing decision procedures.
-  We should not confuse them with the Mathlib rational numbers.
+  We should not confuse them with the Batteries rational numbers, also used by Mathlib.
 -/
 
 structure Rat where

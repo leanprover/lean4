@@ -45,7 +45,6 @@ def setupFile
       paths := {
         oleanPath := loadConfig.lakeEnv.leanPath
         srcPath := loadConfig.lakeEnv.leanSrcPath
-        loadDynlibPaths := #[]
         pluginPaths := #[loadConfig.lakeEnv.lake.sharedLib]
       }
       setupOptions := ⟨∅⟩
@@ -59,20 +58,16 @@ def setupFile
     let outLv := buildConfig.verbosity.minLogLv
     let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do
       loadWorkspace loadConfig
-    -- Imperfect heuristic for determine when the Lake plugin is needed.
-    let usesLake := imports.any (·.startsWith "Lake")
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
     let {dynlibs, plugins} ←
       MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
         ws.runBuild (buildImportsAndDeps path imports) buildConfig
-    let plugins :=
-      if usesLake then plugins.push ws.lakeEnv.lake.sharedLib else plugins
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
-      loadDynlibPaths := dynlibs
-      pluginPaths := plugins
+      loadDynlibPaths := dynlibs.map (·.path)
+      pluginPaths := plugins.map (·.path)
     }
     let setupOptions : LeanOptions ← do
       let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath

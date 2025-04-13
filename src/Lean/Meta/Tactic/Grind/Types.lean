@@ -195,11 +195,11 @@ def getMaxGeneration : GrindM Nat := do
   return (← getConfig).gen
 
 /--
-Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
+Abstracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr := do
   let nextIdx := (← get).nextThmIdx
-  let (e, s') ← AbstractNestedProofs.visit e |>.run { baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
+  let (e, s') ← AbstractNestedProofs.visit e |>.run { cache := true, baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
   modify fun s => { s with nextThmIdx := s'.nextIdx }
   return e
 
@@ -229,10 +229,10 @@ def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindM CongrTheorem := do
   if let some result := (← get).congrThms.find? key then
     return result
   if let .const declName us := f then
-    if let some result ← mkHCongrWithArityForConst? declName us numArgs then
+    if let some result ← withDefault <| Meta.mkHCongrWithArityForConst? declName us numArgs then
       modify fun s => { s with congrThms := s.congrThms.insert key result }
       return result
-  let result ← Meta.mkHCongrWithArity f numArgs
+  let result ← withDefault <| Meta.mkHCongrWithArity f numArgs
   modify fun s => { s with congrThms := s.congrThms.insert key result }
   return result
 
@@ -480,6 +480,8 @@ structure Split.State where
   candidates : List Expr := []
   /-- Number of splits performed to get to this goal. -/
   num        : Nat := 0
+  /-- Case-splits that have been inserted at `candidates` at some point. -/
+  added      : PHashSet ENodeKey := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
   resolved   : PHashSet ENodeKey := {}
   /--
@@ -529,6 +531,13 @@ structure Goal where
   arith      : Arith.State := {}
   /-- State of the clean name generator. -/
   clean      : Clean.State := {}
+  /--
+  Mapping from pairs `(f, i)` to a list of `(e, type)`.
+  The meaning is: `e : type` is lambda expression that occurs at argument `i` of an `f`-application.
+  We use this information to add case-splits for triggering extensionality theorems.
+  See `addSplitCandidatesForExt`.
+  -/
+  termsAt    : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -761,21 +770,6 @@ def pushEqBoolFalse (a proof : Expr) : GoalM Unit := do
   pushEq a (← getBoolFalseExpr) proof
 
 /--
-Push a new fact into the todo list. This function assumes the fact is in `grind` normal
-form. For facts that need to be preprocessed, use `addNewRawFact` instead.
--/
-def pushNewFact (fact : Expr) (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
-  modify fun s => { s with newFacts := s.newFacts.push <| .fact fact proof generation }
-
-/--
-Infer the type of the proof, and invokes `pushNewFact`. It assumes the type/proposition
-is in `grind` normal form. Only `shareCommon` is used.
--/
-def pushNewProof (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
-  let fact ← shareCommon (← inferType proof)
-  modify fun s => { s with newFacts := s.newFacts.push <| .fact fact proof generation }
-
-/--
 Records that `parent` is a parent of `child`. This function actually stores the
 information in the root (aka canonical representative) of `child`.
 -/
@@ -936,12 +930,12 @@ def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
   let some lhs ← get? lhs | return ()
   let some rhs ← get? rhs | return ()
   -- Recall that core can take care of disequalities of the form `1≠2`.
-  unless isIntNum lhs && isIntNum rhs do
+  unless isNum lhs && isNum rhs do
     Arith.Cutsat.processNewDiseq lhs rhs
 where
   get? (a : Expr) : GoalM (Option Expr) := do
     let root ← getRootENode a
-    if isIntNum root.self then
+    if isNum root.self then
       return some root.self
     return root.cutsat?
 
@@ -961,7 +955,7 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.cutsat? then
     Arith.Cutsat.processNewEq e e'
-  else if isIntNum root.self && !isSameExpr e root.self then
+  else if isNum root.self && !isSameExpr e root.self then
     Arith.Cutsat.processNewEqLit e root.self
   else
     setENode root.self { root with cutsat? := some e }
@@ -1168,6 +1162,14 @@ partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
 def getEqcs : GoalM (List (List Expr)) :=
   return (← get).getEqcs
 
+/--
+Returns `true` if `e` has been already added to the case-split list at one point.
+Remark: this function returns `true` even if the split has already been resolved
+and is not in the list anymore.
+-/
+def isKnownCaseSplit (e : Expr) : GoalM Bool :=
+  return (← get).split.added.contains { expr := e }
+
 /-- Returns `true` if `e` is a case-split that does not need to be performed anymore. -/
 def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
   return (← get).split.resolved.contains { expr := e }
@@ -1181,6 +1183,15 @@ def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
   unless (← isResolvedCaseSplit e) do
     trace_goal[grind.split.resolved] "{e}"
     modify fun s => { s with split.resolved := s.split.resolved.insert { expr := e } }
+
+/-- Inserts `e` into the list of case-split candidates if it was not inserted before. -/
+def addSplitCandidate (e : Expr) : GoalM Unit := do
+  unless (← isKnownCaseSplit e) do
+    trace_goal[grind.split.candidate] "{e}"
+    modify fun s => { s with
+      split.added := s.split.added.insert { expr := e }
+      split.candidates := e :: s.split.candidates
+    }
 
 /--
 Returns extensionality theorems for the given type if available.

@@ -29,7 +29,9 @@ deriving Repr, DecidableEq
 
 attribute [simp] Vector.size_toArray
 
-/-- Convert `xs : Array α` to `Vector α xs.size`. -/
+/--
+Converts an array to a vector. The resulting vector's size is the array's size.
+-/
 abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
 
 namespace Vector
@@ -59,19 +61,25 @@ def elimAsList {motive : Vector α n → Sort u}
   | ⟨⟨xs⟩, ha⟩ => mk xs ha
 
 /-- Make an empty vector with pre-allocated capacity. -/
-@[inline] def mkEmpty (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
+@[inline] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev mkEmpty := @emptyWithCapacity
 
 /-- Makes a vector of size `n` with all cells containing `v`. -/
-@[inline] def mkVector (n) (v : α) : Vector α n := ⟨mkArray n v, by simp⟩
+@[inline] def replicate (n) (v : α) : Vector α n := ⟨Array.replicate n v, by simp⟩
+
+@[deprecated replicate (since := "2025-03-18")]
+abbrev mkVector := @replicate
 
 instance : Nonempty (Vector α 0) := ⟨#v[]⟩
-instance [Nonempty α] : Nonempty (Vector α n) := ⟨mkVector _ Classical.ofNonempty⟩
+instance [Nonempty α] : Nonempty (Vector α n) := ⟨replicate _ Classical.ofNonempty⟩
 
 /-- Returns a vector of size `1` with element `v`. -/
 @[inline] def singleton (v : α) : Vector α 1 := ⟨#[v], rfl⟩
 
 instance [Inhabited α] : Inhabited (Vector α n) where
-  default := mkVector n default
+  default := replicate n default
 
 /-- Get an element of a vector using a `Fin` index. -/
 @[inline] def get (xs : Vector α n) (i : Fin n) : α :=
@@ -397,7 +405,7 @@ no element of the index matches the given value. -/
   (xs.toArray.findFinIdx? p).map (Fin.cast xs.size_toArray)
 
 /--
-Note that the universe level is contrained to `Type` here,
+Note that the universe level is constrained to `Type` here,
 to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 -/
 @[inline] def findM? {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α) :=
@@ -407,7 +415,7 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
   as.toArray.findSomeM? f
 
 /--
-Note that the universe level is contrained to `Type` here,
+Note that the universe level is constrained to `Type` here,
 to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 -/
 @[inline] def findRevM? {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α) :=
@@ -466,7 +474,7 @@ Note that we immediately simplify this to an `++` operation,
 and do not provide separate verification theorems.
 -/
 @[inline, simp] def leftpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
-  (mkVector (n - m) a ++ xs).cast (by omega)
+  (replicate (n - m) a ++ xs).cast (by omega)
 
 /--
 Pad a vector on the right with a given element.
@@ -475,7 +483,7 @@ Note that we immediately simplify this to an `++` operation,
 and do not provide separate verification theorems.
 -/
 @[inline, simp] def rightpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
-  (xs ++ mkVector (n - m) a).cast (by omega)
+  (xs ++ replicate (n - m) a).cast (by omega)
 
 /-! ### ForIn instance -/
 

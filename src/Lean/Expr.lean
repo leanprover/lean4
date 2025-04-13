@@ -1136,7 +1136,7 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
-  getAppArgsAux e (mkArray nargs dummy) (nargs-1)
+  getAppArgsAux e (.replicate nargs dummy) (nargs-1)
 
 private def getBoundedAppArgsAux : Expr → Array Expr → Nat → Array Expr
   | app f a, as, i + 1 => getBoundedAppArgsAux f (as.set! i a) i
@@ -1151,7 +1151,7 @@ where `k` is minimal such that the size of this array is at most `maxArgs`.
 @[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
   let dummy := mkSort levelZero
   let nargs := min maxArgs e.getAppNumArgs
-  getBoundedAppArgsAux e (mkArray nargs dummy) nargs
+  getBoundedAppArgsAux e (.replicate nargs dummy) nargs
 
 private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   | app f a, as => getAppRevArgsAux f (as.push a)
@@ -1169,7 +1169,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 @[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
-  withAppAux k e (mkArray nargs dummy) (nargs-1)
+  withAppAux k e (.replicate nargs dummy) (nargs-1)
 
 /-- Return the function (name) and arguments of an application. -/
 def getAppFnArgs (e : Expr) : Name × Array Expr :=
@@ -1182,7 +1182,7 @@ The resulting array has size `n` even if `f.getAppNumArgs < n`.
 -/
 @[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
   let dummy := mkSort levelZero
-  loop n e (mkArray n dummy)
+  loop n e (.replicate n dummy)
 where
   loop : Nat → Expr → Array Expr → Array Expr
     | 0,   _,        as => as
@@ -1318,6 +1318,17 @@ def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
     let b       := inferImplicit b i considerRange
     let newInfo := if bi.isExplicit && hasLooseBVarInExplicitDomain b 0 considerRange then BinderInfo.implicit else bi
     mkForall n newInfo d b
+  | e, _ => e
+
+/--
+Uses `newBinderInfos` to update the binder infos of the first `numParams` foralls.
+-/
+def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo)) : Expr :=
+  match e, binderInfos? with
+  | Expr.forallE n d b bi, newBi? :: binderInfos? =>
+    let b  := updateForallBinderInfos b binderInfos?
+    let bi := newBi?.getD bi
+    Expr.forallE n d b bi
   | e, _ => e
 
 /--
@@ -2245,10 +2256,10 @@ private def intMulFn : Expr :=
   mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
 
 private def intDivFn : Expr :=
-  mkApp4 (mkConst ``HDiv.hDiv [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
+  mkApp4 (mkConst ``HDiv.hDiv [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHDiv
 
 private def intModFn : Expr :=
-  mkApp4 (mkConst ``HMod.hMod [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
+  mkApp4 (mkConst ``HMod.hMod [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMod
 
 private def intNatCastFn : Expr :=
   mkApp2 (mkConst ``NatCast.natCast [0]) Int.mkType Int.mkInstNatCast

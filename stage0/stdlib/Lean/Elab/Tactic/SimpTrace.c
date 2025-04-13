@@ -194,6 +194,7 @@ lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean
 static lean_object* l_Lean_Elab_Tactic_evalDSimpTrace___lambda__2___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimpAllTrace_declRange__1___closed__5;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimpAllTrace_declRange__1(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSimpTrace___lambda__3___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSimpTrace___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSimpAllTrace___lambda__3___closed__5;

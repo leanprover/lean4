@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -33,7 +34,7 @@ def DvdCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : DvdC
   let q := c₂.p
   let d := Int.ofNat (a * c₂.d).natAbs
   let p := (q.mul a |>.combine (p.mul (-b)))
-  trace[grind.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
+  trace[grind.debug.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
   return { d, p, h := .subst x c₁ c₂ }
 
 partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDepth do
@@ -45,21 +46,20 @@ partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDe
 /-- Asserts divisibility constraint. -/
 partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← inconsistent) then return ()
-  trace[grind.cutsat.dvd] "{← c.pp}"
+  trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm.applySubsts
   if c.isUnsat then
-    trace[grind.cutsat.dvd.unsat] "{← c.pp}"
+    trace[grind.cutsat.assert.unsat] "{← c.pp}"
     setInconsistent (.dvd c)
     return ()
   if c.isTrivial then
-    trace[grind.cutsat.dvd.trivial] "{← c.pp}"
+    trace[grind.cutsat.assert.trivial] "{← c.pp}"
     return ()
   let d₁ := c.d
   let .add a₁ x p₁ := c.p | c.throwUnexpected
   if (← c.satisfied) == .false then
     resetAssignmentFrom x
   if let some c' := (← get').dvds[x]! then
-    trace[grind.cutsat.dvd.solve] "{← c.pp}, {← c'.pp}"
     let d₂ := c'.d
     let .add a₂ _ p₂ := c'.p | c'.throwUnexpected
     let (d, α, β) := gcdExt (a₁*d₂) (a₂*d₁)
@@ -74,20 +74,18 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     let α_d₂_p₁ := p₁.mul (α*d₂)
     let β_d₁_p₂ := p₂.mul (β*d₁)
     let combine := { d := d₁*d₂, p := .add d x (α_d₂_p₁.combine β_d₁_p₂), h := .solveCombine c c' : DvdCnstr }
-    trace[grind.cutsat.dvd.solve.combine] "{← combine.pp}"
     modify' fun s => { s with dvds := s.dvds.set x none}
     combine.assert
     let a₂_p₁ := p₁.mul a₂
     let a₁_p₂ := p₂.mul (-a₁)
     let elim := { d, p := a₂_p₁.combine a₁_p₂, h := .solveElim c c' : DvdCnstr }
-    trace[grind.cutsat.dvd.solve.elim] "{← elim.pp}"
     elim.assert
   else
-    trace[grind.cutsat.dvd.update] "{← c.pp}"
+    trace[grind.cutsat.assert.store] "{← c.pp}"
     c.p.updateOccs
     modify' fun s => { s with dvds := s.dvds.set x (some c) }
 
-builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
+def propagateIntDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst a b ← e | return ()
   unless (← isInstDvdInt inst) do return ()
   let some d ← getIntValue? a
@@ -95,14 +93,29 @@ builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
       return ()
   if (← isEqTrue e) then
     let p ← toPoly b
-    let c := { d, p, h := .expr (← mkOfEqTrue (← mkEqTrueProof e)) : DvdCnstr }
-    trace[grind.cutsat.assert.dvd] "{← c.pp}"
+    let c := { d, p, h := .core e : DvdCnstr }
     c.assert
   else if (← isEqFalse e) then
-    /-
-    TODO: we have `¬ a ∣ b`, we should assert
-    `∃ x z, b = a*x + z ∧ 1 ≤ z < a`
-    -/
-    return ()
+    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+
+def propagateNatDvd (e : Expr) : GoalM Unit := do
+  let some (d, b) ← Int.OfNat.toIntDvd? e | return ()
+  let gen ← getGeneration e
+  let ctx ← getForeignVars .nat
+  let b' ← toLinearExpr (← b.denoteAsIntExpr ctx) gen
+  let p := b'.norm
+  if (← isEqTrue e) then
+    let c := { d, p, h := .coreNat e d b b' : DvdCnstr }
+    c.assert
+  else
+    let_expr Dvd.dvd _ _ a b ← e | return ()
+    pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) a b (mkOfEqFalseCore e (← mkEqFalseProof e))
+
+builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
+  let_expr Dvd.dvd α _ _ _ ← e | return ()
+  if α.isConstOf ``Nat then
+    propagateNatDvd e
+  else
+    propagateIntDvd e
 
 end Lean.Meta.Grind.Arith.Cutsat

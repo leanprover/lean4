@@ -27,7 +27,23 @@ inductive HourMarker
   Post meridiem.
   -/
   | pm
-  deriving Repr, BEq
+deriving Repr, DecidableEq
+
+instance : Ord HourMarker where
+  compare
+    | .am, .am => .eq
+    | .am, .pm => .lt
+    | .pm, .am => .gt
+    | .pm, .pm => .eq
+
+instance : OrientedOrd HourMarker where
+  eq_swap {a b} := by cases a <;> cases b <;> rfl
+
+instance : TransOrd HourMarker where
+  isLE_trans {a b c} hab hbc := by cases a <;> cases b <;> cases c <;> simp_all
+
+instance : LawfulEqOrd HourMarker where
+  eq_of_compare {a b} h := by cases a <;> cases b <;> simp_all
 
 namespace HourMarker
 

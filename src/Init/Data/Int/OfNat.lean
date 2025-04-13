@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Int.Lemmas
 import Init.Data.Int.DivMod
+import Init.Data.Int.Linear
 import Init.Data.RArray
 
 namespace Int.OfNat
@@ -26,6 +27,7 @@ inductive Expr where
   | mul  (a b : Expr)
   | div  (a b : Expr)
   | mod  (a b : Expr)
+  deriving BEq
 
 def Expr.denote (ctx : Context) : Expr → Nat
   | .num k    => k
@@ -43,11 +45,11 @@ def Expr.denoteAsInt (ctx : Context) : Expr → Int
   | .div a b  => Int.ediv (denoteAsInt ctx a) (denoteAsInt ctx b)
   | .mod a b  => Int.emod (denoteAsInt ctx a) (denoteAsInt ctx b)
 
-@[local simp] private theorem fold_div (a b : Nat) : a.div b = a / b := rfl
-@[local simp] private theorem fold_mod (a b : Nat) : a.mod b = a % b := rfl
-
 theorem Expr.denoteAsInt_eq (ctx : Context) (e : Expr) : e.denoteAsInt ctx = e.denote ctx := by
   induction e <;> simp [denote, denoteAsInt, Int.ofNat_ediv, *] <;> rfl
+
+theorem Expr.eq_denoteAsInt (ctx : Context) (e : Expr) : e.denote ctx = e.denoteAsInt ctx := by
+  apply Eq.symm; apply denoteAsInt_eq
 
 theorem Expr.eq (ctx : Context) (lhs rhs : Expr)
     : (lhs.denote ctx = rhs.denote ctx) = (lhs.denoteAsInt ctx = rhs.denoteAsInt ctx) := by
@@ -57,8 +59,36 @@ theorem Expr.le (ctx : Context) (lhs rhs : Expr)
     : (lhs.denote ctx ≤ rhs.denote ctx) = (lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx) := by
   simp [denoteAsInt_eq, Int.ofNat_le]
 
-theorem Expr.dvd (ctx : Context) (lhs rhs : Expr)
-    : (lhs.denote ctx ∣ rhs.denote ctx) = (lhs.denoteAsInt ctx ∣ rhs.denoteAsInt ctx) := by
-  simp [denoteAsInt_eq, Int.ofNat_dvd]
+theorem of_le (ctx : Context) (lhs rhs : Expr)
+    : lhs.denote ctx ≤ rhs.denote ctx → lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx := by
+  rw [Expr.le ctx lhs rhs]; simp
+
+theorem of_not_le (ctx : Context) (lhs rhs : Expr)
+    : ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx := by
+  rw [Expr.le ctx lhs rhs]; simp
+
+theorem of_dvd (ctx : Context) (d : Nat) (e : Expr)
+    : d ∣ e.denote ctx → Int.ofNat d ∣ e.denoteAsInt ctx := by
+  simp [Expr.denoteAsInt_eq, Int.ofNat_dvd]
+
+theorem of_eq (ctx : Context) (lhs rhs : Expr)
+    : lhs.denote ctx = rhs.denote ctx → lhs.denoteAsInt ctx = rhs.denoteAsInt ctx := by
+  rw [Expr.eq ctx lhs rhs]; simp
+
+theorem of_not_eq (ctx : Context) (lhs rhs : Expr)
+    : ¬ lhs.denote ctx = rhs.denote ctx → ¬ lhs.denoteAsInt ctx = rhs.denoteAsInt ctx := by
+  rw [Expr.eq ctx lhs rhs]; simp
+
+theorem ofNat_toNat (a : Int) : (NatCast.natCast a.toNat : Int) = if a ≤ 0 then 0 else a := by
+  split
+  next h =>
+    rw [Int.toNat_of_nonpos h]; rfl
+  next h =>
+    simp at h
+    have := Int.toNat_of_nonneg (Int.le_of_lt h)
+    assumption
+
+theorem Expr.denoteAsInt_nonneg (ctx : Context) (e : Expr) : 0 ≤ e.denoteAsInt ctx := by
+  simp [Expr.denoteAsInt_eq]
 
 end Int.OfNat

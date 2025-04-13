@@ -14,6 +14,31 @@ import Init.Data.Nat.Simproc
 
 namespace Nat
 
+theorem mod_add_mod_lt (a b : Nat) {c : Nat} (h : 0 < c) : a % c + b % c < 2 * c - 1 := by
+  have := mod_lt a h
+  have := mod_lt b h
+  omega
+
+theorem mod_add_mod_eq {a b c : Nat} : a % c + b % c = (a + b) % c + if a % c + b % c < c then 0 else c := by
+  if h : 0 < c then
+    rw [add_mod]
+    split <;> rename_i h'
+    · simp [mod_eq_of_lt h']
+    · have : (a % c + b % c) % c = a % c + b % c - c := by
+        rw [mod_eq_iff]
+        right
+        have := mod_lt a h
+        have := mod_lt b h
+        exact ⟨by omega, ⟨1, by simp; omega⟩⟩
+      omega
+  else
+    replace h : c = 0 := by omega
+    simp [h]
+
+theorem add_mod_eq_sub : (a + b) % c = a % c + b % c - if a % c + b % c < c then 0 else c := by
+  conv => rhs; congr; rw [mod_add_mod_eq]
+  omega
+
 theorem lt_div_iff_mul_lt (h : 0 < k) : x < y / k ↔ x * k < y - (k - 1) := by
   have t := le_div_iff_mul_le h (x := x + 1) (y := y)
   rw [succ_le, add_one_mul] at t
@@ -127,5 +152,56 @@ protected theorem add_div {a b c : Nat} (h : 0 < c) :
   · have := mod_lt a h
     have := mod_lt b h
     split <;> · simp; omega
+
+/-- If `(a + b) % c = c - 1`, then `a % c + b % c < c`, because `a % c + b % c` can not reach `2*c - 1`. -/
+theorem mod_add_mod_lt_of_add_mod_eq_sub_one (w : 0 < c) (h : (a + b) % c = c - 1) : a % c + b % c < c := by
+  have := mod_add_mod_lt a b w
+  rw [mod_add_mod_eq, h] at this
+  split at this
+  · assumption
+  · omega
+
+theorem add_div_of_dvd_add_add_one (h : c ∣ a + b + 1) : (a + b) / c = a / c + b / c := by
+  have w : c ≠ 0 := by rintro rfl; simp at h
+  replace w : 0 < c := by omega
+  rw [Nat.add_div w, if_neg, Nat.add_zero]
+  have := mod_add_mod_lt_of_add_mod_eq_sub_one w ((mod_eq_sub_iff Nat.zero_lt_one w).mpr h)
+  omega
+
+theorem div_lt_of_lt {a b c : Nat} (ha : a < c) : a / b < c := by
+  obtain (rfl|hb) := Nat.eq_zero_or_pos b
+  · simp
+    omega
+  · rw [Nat.div_lt_iff_lt_mul hb, ← Nat.mul_one a]
+    apply Nat.mul_lt_mul_of_lt_of_le ha (by omega) (by omega)
+
+theorem div_mod_eq_div {a b c : Nat} (ha : a < c) : (a / b) % c = a / b :=
+  Nat.mod_eq_of_lt (Nat.div_lt_of_lt ha)
+
+theorem div_mod_eq_mod_div_mod {a b c : Nat} (ha : a < c) (hb : b < c) :
+    (a / b) % c = a % c / (b % c) := by
+  rw [Nat.mod_eq_of_lt (Nat.div_lt_of_lt ha), Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb]
+
+theorem mod_mod_eq_mod_of_lt_right {a b c : Nat} (ha : a < c) : (a % b) % c = a % b :=
+  Nat.mod_eq_of_lt (Nat.lt_of_le_of_lt (Nat.mod_le _ _) ha)
+
+theorem mod_mod_eq_mod_mod_mod {a b c : Nat} (ha : a < c) (hb : b < c) :
+    (a % b) % c = (a % c) % (b % c) := by
+  rw [Nat.mod_mod_eq_mod_of_lt_right ha, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb]
+
+theorem mod_mod_eq_mod_mod_of_dvd {a b c : Nat} (h : b ∣ c) : a % b % c = a % c % b := by
+  refine Or.elim (Nat.eq_zero_or_pos b) (by rintro rfl; simp) (fun hb => ?_)
+  refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
+  rw [Nat.mod_mod_of_dvd _ h, Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le (Nat.mod_lt a hb) (Nat.le_of_dvd hc h))]
+
+theorem mod_mod_of_dvd' {a b c : Nat} (h : b ∣ c) : a % b % c = a % b := by
+  rw [Nat.mod_mod_eq_mod_mod_of_dvd h, Nat.mod_mod_of_dvd _ h]
+
+theorem mod_mod_eq_mod_mod_mod_of_dvd {a b c : Nat} (hb : b ∣ c) :
+    (a % b) % c = (a % c) % (b % c) := by
+  refine (Decidable.em (b = c)).elim (by rintro rfl; simp) (fun hb' => ?_)
+  refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
+  have : b < c := Nat.lt_of_le_of_ne (Nat.le_of_dvd hc hb) hb'
+  rw [Nat.mod_mod_of_dvd' hb, Nat.mod_eq_of_lt this, Nat.mod_mod_of_dvd _ hb]
 
 end Nat

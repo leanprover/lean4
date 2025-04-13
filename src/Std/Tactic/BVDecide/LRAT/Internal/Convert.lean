@@ -57,40 +57,13 @@ def CNF.convertLRAT' (clauses : CNF (PosFin n)) : List (Option (DefaultClause n)
 
 theorem CNF.Clause.mem_lrat_of_mem (clause : CNF.Clause (PosFin n)) (h1 : l ∈ clause)
     (h2 : DefaultClause.ofArray clause.toArray = some lratClause) : l ∈ lratClause.clause := by
-  induction clause generalizing lratClause with
-  | nil => cases h1
-  | cons hd tl ih =>
-    unfold DefaultClause.ofArray at h2
-    rw [← Array.foldr_toList, Array.toArray_toList] at h2
-    dsimp only [List.foldr] at h2
-    split at h2
-    · cases h2
-    · rw [DefaultClause.insert] at h2
-      split at h2
-      · cases h2
-      · split at h2
-        · rename_i h
-          rw [← Option.some.inj h2] at *
-          cases h1
-          · exact List.mem_of_elem_eq_true h
-          · apply ih
-            · assumption
-            · next heq _ _ =>
-              unfold DefaultClause.ofArray
-              rw [← Array.foldr_toList, Array.toArray_toList]
-              exact heq
-        · cases h1
-          · simp only [← Option.some.inj h2]
-            constructor
-          · simp only at h2
-            simp only [← Option.some.inj h2]
-            rename_i heq _ _ _
-            apply List.Mem.tail
-            apply ih
-            assumption
-            unfold DefaultClause.ofArray
-            rw [← Array.foldr_toList, Array.toArray_toList]
-            exact heq
+  unfold DefaultClause.ofArray at h2
+  simp at h2
+  split at h2
+  · contradiction
+  · simp only [Option.some.injEq] at h2
+    rw [← h2]
+    apply DefaultClause.ofArray.folder_foldl_mem_of_mem <;> assumption
 
 theorem CNF.Clause.convertLRAT_sat_of_sat (clause : CNF.Clause (PosFin n))
     (h : Clause.convertLRAT' clause = some lratClause) :

@@ -12,7 +12,7 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace List
 
-theorem getElem?_eraseIdx (l : List α) (i : Nat) (j : Nat) :
+theorem getElem?_eraseIdx {l : List α} {i : Nat} {j : Nat} :
     (l.eraseIdx i)[j]? = if j < i then l[j]? else l[j + 1]? := by
   rw [eraseIdx_eq_take_drop_succ, getElem?_append]
   split <;> rename_i h
@@ -35,19 +35,19 @@ theorem getElem?_eraseIdx (l : List α) (i : Nat) (j : Nat) :
         omega
       · rw [getElem?_eq_none, getElem?_eq_none] <;> omega
 
-theorem getElem?_eraseIdx_of_lt (l : List α) (i : Nat) (j : Nat) (h : j < i) :
+theorem getElem?_eraseIdx_of_lt {l : List α} {i : Nat} {j : Nat} (h : j < i) :
     (l.eraseIdx i)[j]? = l[j]? := by
   rw [getElem?_eraseIdx]
   simp [h]
 
-theorem getElem?_eraseIdx_of_ge (l : List α) (i : Nat) (j : Nat) (h : i ≤ j) :
+theorem getElem?_eraseIdx_of_ge {l : List α} {i : Nat} {j : Nat} (h : i ≤ j) :
     (l.eraseIdx i)[j]? = l[j + 1]? := by
   rw [getElem?_eraseIdx]
   simp only [dite_eq_ite, ite_eq_right_iff]
   intro h'
   omega
 
-theorem getElem_eraseIdx (l : List α) (i : Nat) (j : Nat) (h : j < (l.eraseIdx i).length) :
+theorem getElem_eraseIdx {l : List α} {i : Nat} {j : Nat} (h : j < (l.eraseIdx i).length) :
     (l.eraseIdx i)[j] = if h' : j < i then
         l[j]'(by have := length_eraseIdx_le l i; omega)
       else
@@ -56,19 +56,19 @@ theorem getElem_eraseIdx (l : List α) (i : Nat) (j : Nat) (h : j < (l.eraseIdx 
   rw [← getElem?_eq_getElem, getElem?_eraseIdx]
   split <;> simp
 
-theorem getElem_eraseIdx_of_lt (l : List α) (i : Nat) (j : Nat) (h : j < (l.eraseIdx i).length) (h' : j < i) :
+theorem getElem_eraseIdx_of_lt {l : List α} {i : Nat} {j : Nat} (h : j < (l.eraseIdx i).length) (h' : j < i) :
     (l.eraseIdx i)[j] = l[j]'(by have := length_eraseIdx_le l i; omega) := by
   rw [getElem_eraseIdx]
   simp only [dite_eq_left_iff, Nat.not_lt]
   intro h'
   omega
 
-theorem getElem_eraseIdx_of_ge (l : List α) (i : Nat) (j : Nat) (h : j < (l.eraseIdx i).length) (h' : i ≤ j) :
+theorem getElem_eraseIdx_of_ge {l : List α} {i : Nat} {j : Nat} (h : j < (l.eraseIdx i).length) (h' : i ≤ j) :
     (l.eraseIdx i)[j] = l[j + 1]'(by rw [length_eraseIdx] at h; split at h <;> omega) := by
   rw [getElem_eraseIdx, dif_neg]
   omega
 
-theorem eraseIdx_eq_dropLast (l : List α) (i : Nat) (h : i + 1 = l.length) :
+theorem eraseIdx_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     l.eraseIdx i = l.dropLast := by
   simp [eraseIdx_eq_take_drop_succ, h]
   rw [take_eq_dropLast h]
@@ -141,7 +141,7 @@ theorem eraseIdx_set_gt {l : List α} {i : Nat} {j : Nat} {a : α} (h : i < j) :
       · have t : ¬ n < i := by omega
         simp [t]
 
-@[simp] theorem eraseIdx_length_sub_one (l : List α) :
+@[simp] theorem eraseIdx_length_sub_one {l : List α} :
     (l.eraseIdx (l.length - 1)) = l.dropLast := by
   apply ext_getElem
   · simp [length_eraseIdx]

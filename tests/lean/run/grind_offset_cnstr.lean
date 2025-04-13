@@ -260,7 +260,7 @@ theorem ex1 (p : Prop) (a1 a2 a3 : Nat) : (p ↔ a2 ≤ a1) → ¬p → a2 + 3 �
   grind
 
 /--
-info: theorem ex1 : ∀ {a4 : Nat} (p : Prop) (a1 a2 a3 : Nat),
+info: theorem ex1._proof_1 : ∀ {a4 : Nat} (p : Prop) (a1 a2 a3 : Nat),
   (p ↔ a2 ≤ a1) → ¬p → a2 + 3 ≤ a3 → (p ↔ a4 ≤ a3 + 2) → a1 ≤ a4 :=
 fun {a4} p a1 a2 a3 =>
   intro_with_eq (p ↔ a2 ≤ a1) (p = (a2 ≤ a1)) (¬p → a2 + 3 ≤ a3 → (p ↔ a4 ≤ a3 + 2) → a1 ≤ a4) (iff_eq p (a2 ≤ a1))
@@ -277,7 +277,7 @@ fun {a4} p a1 a2 a3 =>
 -/
 #guard_msgs (info) in
 open Lean Grind in
-#print ex1
+#print ex1._proof_1
 
 /-! Propagate `cnstr = False` tests -/
 

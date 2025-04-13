@@ -61,9 +61,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
               m!" Try rewriting with '{Name.str declName unfoldThmSuffix}'."
             let rec go : List Name →  TacticM Unit
               | [] => throwError "failed to rewrite using equation theorems for '{declName}'.{hint}"
-              -- Remark: we prefix `eqThm` with `_root_` to ensure it is resolved correctly.
-              -- See test: `rwPrioritizesLCtxOverEnv.lean`
-              | eqThm::eqThms => (x symm (mkIdentFrom id (`_root_ ++ eqThm))) <|> go eqThms
+              | eqThm::eqThms => (x symm (mkCIdentFrom id eqThm)) <|> go eqThms
             go eqThms.toList
             discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
         match term with

@@ -18,7 +18,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_obj
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__1___closed__15;
 lean_object* l_Lean_Macro_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__1___closed__21;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__1___closed__23;
 static lean_object* l_Lake_DSL_scriptDeclSpec___closed__13;
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__2___closed__1;
@@ -161,6 +160,7 @@ static lean_object* l_Lake_DSL_scriptDeclSpec___closed__22;
 static lean_object* l_Lake_DSL_scriptDecl___closed__17;
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__1___closed__36;
 static lean_object* l_Lake_DSL_scriptDeclSpec___closed__17;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_DSL_scriptDecl___closed__16;
 static lean_object* _init_l_Lake_DSL_scriptDeclSpec___closed__1() {
 _start:

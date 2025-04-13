@@ -381,6 +381,9 @@ end Lean
 
 open Lean (PersistentArray)
 
+/--
+Converts a list to a persistent array.
+-/
 def List.toPArray' {α : Type u} (xs : List α) : PersistentArray α :=
   let rec loop : List α → PersistentArray α → PersistentArray α
   | [],    t => t

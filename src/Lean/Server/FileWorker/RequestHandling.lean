@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
 prelude
+import Lean.Server.FileWorker.ExampleHover
 import Lean.Server.FileWorker.InlayHints
 import Lean.Server.FileWorker.SemanticHighlighting
 import Lean.Server.Completion
@@ -69,13 +70,15 @@ def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let mkHover (s : String) (r : String.Range) : Hover := {
-    contents := {
-      kind := MarkupKind.markdown
-      value := s
+  let mkHover (s : String) (r : String.Range) : Hover :=
+    let s := Hover.rewriteExamples s
+    {
+      contents := {
+        kind := MarkupKind.markdown
+        value := s
+      }
+      range? := r.toLspRange text
     }
-    range? := r.toLspRange text
-  }
 
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
@@ -110,7 +113,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
   let text := doc.meta.text
 
   let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
-    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange text) <$> i.range?
+    locationLinksFromDecl doc.meta.uri n <| (·.toLspRange text) <$> i.range?
 
   let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
     if let some i' := infoTree? >>= InfoTree.findInfo? fun
@@ -129,7 +132,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
 
   let locationLinksFromImport (i : Elab.Info) := do
     let name := i.stx[2].getId
-    if let some modUri ← documentUriFromModule rc.srcSearchPath name then
+    if let some modUri ← documentUriFromModule? name then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
         originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (canonicalOnly := true)
@@ -207,7 +210,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return ← locationLinksFromTermInfo ti
   | .ofDelabTermInfo { toTermInfo := ti, location?, .. } =>
     if let some location := location? then
-      if let some targetUri ← documentUriFromModule rc.srcSearchPath location.module then
+      if let some targetUri ← documentUriFromModule? location.module then
         let range := location.range.toLspRange
         let result : LocationLink := {
           targetUri, targetRange := range, targetSelectionRange := range,

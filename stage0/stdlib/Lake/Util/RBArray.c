@@ -106,6 +106,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_RBArray_forM___spec
 static lean_object* l_Lake_RBArray_empty___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldl___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldr(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_RBArray_all___spec__1(lean_object*);
 static lean_object* _init_l_Lake_RBArray_empty___rarg___closed__1() {
 _start:

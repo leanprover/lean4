@@ -14,7 +14,7 @@ namespace List
 
 open Nat
 
-theorem countP_set (p : α → Bool) (l : List α) (i : Nat) (a : α) (h : i < l.length) :
+theorem countP_set {p : α → Bool} {l : List α} {i : Nat} {a : α} (h : i < l.length) :
     (l.set i a).countP p = l.countP p - (if p l[i] then 1 else 0) + (if p a then 1 else 0) := by
   induction l generalizing i with
   | nil => simp at h
@@ -23,11 +23,11 @@ theorem countP_set (p : α → Bool) (l : List α) (i : Nat) (a : α) (h : i < l
     | zero => simp [countP_cons]
     | succ i =>
       simp [add_one_lt_add_one_iff] at h
-      simp [countP_cons, ih _ h]
-      have : (if p l[i] = true then 1 else 0) ≤ l.countP p := boole_getElem_le_countP p l i h
+      simp [countP_cons, ih h]
+      have : (if p l[i] = true then 1 else 0) ≤ l.countP p := boole_getElem_le_countP (p := p) h
       omega
 
-theorem count_set [BEq α] (a b : α) (l : List α) (i : Nat) (h : i < l.length) :
+theorem count_set [BEq α] {a b : α} {l : List α} {i : Nat} (h : i < l.length) :
     (l.set i a).count b = l.count b - (if l[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   simp [count_eq_countP, countP_set, h]
 
@@ -64,7 +64,7 @@ theorem IsInfix.le_countP (s : l₁ <:+: l₂) : countP p l₂ - (l₂.length - 
 The number of elements satisfying a predicate in the tail of a list is
 at least one less than the number of elements satisfying the predicate in the list.
 -/
-theorem le_countP_tail (l) : countP p l - 1 ≤ countP p l.tail := by
+theorem le_countP_tail {l} : countP p l - 1 ≤ countP p l.tail := by
   have := (tail_sublist l).le_countP p
   simp only [length_tail] at this
   omega
@@ -83,7 +83,7 @@ theorem IsSuffix.le_count (s : l₁ <:+ l₂) (a : α) : count a l₂ - (l₂.le
 theorem IsInfix.le_count (s : l₁ <:+: l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
   s.sublist.le_count _
 
-theorem le_count_tail (a : α) (l) : count a l - 1 ≤ count a l.tail :=
-  le_countP_tail _
+theorem le_count_tail {a : α} {l : List α} : count a l - 1 ≤ count a l.tail :=
+  le_countP_tail
 
 end List

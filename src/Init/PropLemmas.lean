@@ -185,11 +185,6 @@ theorem if_true_right [h : Decidable p] :
 @[simp] theorem ite_else_not_self {p : Prop} [Decidable p] {q : Prop} : (if p then q else ¬p) ↔ p → q := by
   split <;> simp_all
 
-@[deprecated ite_then_self (since := "2024-08-28")]
-theorem ite_true_same {p q : Prop} [Decidable p] : (if p then p else q) ↔ (¬p → q) := ite_then_self
-@[deprecated ite_else_self (since := "2024-08-28")]
-theorem ite_false_same {p q : Prop} [Decidable p] : (if p then q else p) ↔ (p ∧ q) := ite_else_self
-
 /-- If two if-then-else statements only differ by the `Decidable` instances, they are equal. -/
 -- This is useful for ensuring confluence, but rarely otherwise.
 @[simp] theorem ite_eq_ite (p : Prop) {h h' : Decidable p} (x y : α) :
@@ -338,6 +333,13 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 @[simp] theorem exists_eq_left' : (∃ a, a' = a ∧ p a) ↔ p a' := by simp [@eq_comm _ a']
 
 @[simp] theorem exists_eq_right' : (∃ a, p a ∧ a' = a) ↔ p a' := by simp [@eq_comm _ a']
+
+@[simp] theorem exists_prop_eq {p : (a : α) → a = a' → Prop} :
+    (∃ (a : α) (h : a = a'), p a h) ↔ p a' rfl :=
+  ⟨fun ⟨_, e, h⟩ => e ▸ h, fun h => ⟨_, rfl, h⟩⟩
+
+@[simp] theorem exists_prop_eq' {p : (a : α) → a' = a → Prop} :
+    (∃ (a : α) (h : a' = a), p a h) ↔ p a' rfl := by simp [@eq_comm _ a']
 
 @[simp] theorem forall_eq_or_imp : (∀ a, a = a' ∨ q a → p a) ↔ p a' ∧ ∀ a, q a → p a := by
   simp only [or_imp, forall_and, forall_eq]
@@ -531,17 +533,33 @@ theorem Decidable.iff_iff_not_or_and_or_not [Decidable a] [Decidable b] :
 theorem Decidable.not_and_not_right [Decidable b] : ¬(a ∧ ¬b) ↔ (a → b) :=
   ⟨fun h ha => not_imp_symm (And.intro ha) h, fun h ⟨ha, hb⟩ => hb <| h ha⟩
 
-theorem Decidable.not_and_iff_or_not_not [Decidable a] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
+theorem Decidable.not_and_iff_not_or_not [Decidable a] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if ha : a then .inr (h ⟨ha, ·⟩) else .inl ha, not_and_of_not_or_not⟩
 
-theorem Decidable.not_and_iff_or_not_not' [Decidable b] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
+set_option linter.missingDocs false in
+@[deprecated Decidable.not_and_iff_not_or_not (since := "2025-03-18")]
+abbrev Decidable.not_and_iff_or_not_not := @Decidable.not_and_iff_not_or_not
+
+theorem Decidable.not_and_iff_not_or_not' [Decidable b] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if hb : b then .inl (h ⟨·, hb⟩) else .inr hb, not_and_of_not_or_not⟩
 
-theorem Decidable.or_iff_not_and_not [Decidable a] [Decidable b] : a ∨ b ↔ ¬(¬a ∧ ¬b) := by
+set_option linter.missingDocs false in
+@[deprecated Decidable.not_and_iff_not_or_not' (since := "2025-03-18")]
+abbrev Decidable.not_and_iff_or_not_not' := @Decidable.not_and_iff_not_or_not'
+
+theorem Decidable.or_iff_not_not_and_not [Decidable a] [Decidable b] : a ∨ b ↔ ¬(¬a ∧ ¬b) := by
   rw [← not_or, not_not]
 
-theorem Decidable.and_iff_not_or_not [Decidable a] [Decidable b] : a ∧ b ↔ ¬(¬a ∨ ¬b) := by
-  rw [← not_and_iff_or_not_not, not_not]
+set_option linter.missingDocs false in
+@[deprecated Decidable.or_iff_not_not_and_not (since := "2025-03-18")]
+abbrev Decidable.or_iff_not_and_not := @Decidable.or_iff_not_not_and_not
+
+theorem Decidable.and_iff_not_not_or_not [Decidable a] [Decidable b] : a ∧ b ↔ ¬(¬a ∨ ¬b) := by
+  rw [← not_and_iff_not_or_not, not_not]
+
+set_option linter.missingDocs false in
+@[deprecated Decidable.and_iff_not_not_or_not (since := "2025-03-18")]
+abbrev Decidable.and_iff_not_or_not := @Decidable.and_iff_not_not_or_not
 
 theorem Decidable.imp_iff_right_iff [Decidable a] : (a → b ↔ b) ↔ a ∨ b :=
   Iff.intro
@@ -655,14 +673,6 @@ theorem decide_ite (u : Prop) [du : Decidable u] (p q : Prop)
 @[simp] theorem ite_else_decide_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
     (@ite _ p h q (decide p)) = (decide p && q) := by
   split <;> simp_all
-
-@[deprecated ite_then_decide_self (since := "2024-08-29")]
-theorem ite_true_decide_same (p : Prop) [Decidable p] (b : Bool) :
-  (if p then decide p else b) = (decide p || b) := ite_then_decide_self p b
-
-@[deprecated ite_false_decide_same (since := "2024-08-29")]
-theorem ite_false_decide_same (p : Prop) [Decidable p] (b : Bool) :
-  (if p then b else decide p) = (decide p && b) := ite_else_decide_self p b
 
 @[simp] theorem ite_then_decide_not_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
     (@ite _ p h (!decide p) q) = (!decide p && q) := by

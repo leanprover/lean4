@@ -71,7 +71,7 @@ theorem isEqv_eq_decide (xs ys : Array α) (r) :
 
 theorem eq_of_isEqv [DecidableEq α] (xs ys : Array α) (h : Array.isEqv xs ys (fun x y => x = y)) : xs = ys := by
   have ⟨h, h'⟩ := rel_of_isEqv h
-  exact ext _ _ h (fun i lt _ => by simpa using h' i lt)
+  exact ext h (fun i lt _ => by simpa using h' i lt)
 
 private theorem isEqvAux_self (r : α → α → Bool) (hr : ∀ a, r a a) (xs : Array α) (i : Nat) (h : i ≤ xs.size) :
     Array.isEqvAux xs xs rfl r i h = true := by

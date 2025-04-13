@@ -9,7 +9,7 @@ import Init.Data.RArray
 import Lean.ToExpr
 
 /-!
-Auxillary definitions related to `Lean.RArray` that are typically only used in meta-code, in
+Auxiliary definitions related to `Lean.RArray` that are typically only used in meta-code, in
 particular the `ToExpr` instance.
 -/
 

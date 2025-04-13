@@ -960,6 +960,19 @@ public:
     bool shutting_down() const {
         return m_shutting_down;
     }
+
+    uint8_t get_task_state(lean_task_object * t) {
+        unique_lock<mutex> lock(m_mutex);
+        if (o->m_imp) {
+            if (o->m_imp->m_closure) {
+                return 0; // waiting (waiting/queued)
+            } else {
+                return 1; // running (running/promised)
+            }
+        } else {
+            return 2; // finished
+        }
+    }
 };
 
 static task_manager * g_task_manager = nullptr;
@@ -1155,16 +1168,9 @@ extern "C" LEAN_EXPORT void lean_io_cancel_core(b_obj_arg t) {
 }
 
 extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
-    lean_task_object * o = lean_to_task(t);
-    if (o->m_imp) {
-        if (o->m_imp->m_closure) {
-            return 0; // waiting (waiting/queued)
-        } else {
-            return 1; // running (running/promised)
-        }
-    } else {
+    if (!o->m_imp)
         return 2; // finished
-    }
+    return g_task_manager->get_task_state(lean_to_task(t));
 }
 
 extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {

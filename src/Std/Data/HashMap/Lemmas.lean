@@ -854,10 +854,14 @@ theorem mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [Lawfu
     (k, v) ∈ m.toList ↔ m.getKey? k = some k ∧ m[k]? = some v :=
   DHashMap.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some
 
-theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α]
+theorem getElem?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α]
     {k : α} {v : β} :
     m[k]? = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ m.toList :=
   DHashMap.Const.get?_eq_some_iff_exists_beq_and_mem_toList
+
+set_option linter.missingDocs false in
+@[deprecated getElem?_eq_some_iff_exists_beq_and_mem_toList (since := "2025-04-13")]
+abbrev get?_eq_some_iff_exists_beq_and_mem_toList := @getElem?_eq_some_iff_exists_beq_and_mem_toList
 
 theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some
     [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} :

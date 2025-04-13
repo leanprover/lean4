@@ -2132,20 +2132,20 @@ theorem mem_ofList [EquivBEq α] [LawfulHashable α]
     k ∈ (ofList l) ↔ (l.map Prod.fst).contains k := by
   simp [mem_iff_contains]
 
-theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
+theorem get?_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     get? (ofList l) k = none := by
   simp_to_raw using Raw₀.Const.get?_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
-theorem get?_ofList_of_mem [LawfulBEq α]
+theorem get?_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     get? (ofList l) k' = some v := by
   simp_to_raw using Raw₀.Const.get?_insertMany_emptyWithCapacity_list_of_mem
 
-theorem get_ofList_of_mem [LawfulBEq α]
+theorem get_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l)
@@ -2153,26 +2153,26 @@ theorem get_ofList_of_mem [LawfulBEq α]
     get (ofList l) k' h = v := by
   simp_to_raw using Raw₀.Const.get_insertMany_emptyWithCapacity_list_of_mem
 
-theorem get!_ofList_of_contains_eq_false [LawfulBEq α]
+theorem get!_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} [Inhabited β]
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     get! (ofList l) k = default := by
   simp_to_raw using Raw₀.Const.get!_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
-theorem get!_ofList_of_mem [LawfulBEq α]
+theorem get!_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} [Inhabited β]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     get! (ofList l) k' = v := by
   simp_to_raw using Raw₀.Const.get!_insertMany_emptyWithCapacity_list_of_mem
 
-theorem getD_ofList_of_contains_eq_false [LawfulBEq α]
+theorem getD_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} {fallback : β}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     getD (ofList l) k fallback = fallback := by
   simp_to_raw using Raw₀.Const.getD_insertMany_emptyWithCapacity_list_of_contains_eq_false
 
-theorem getD_ofList_of_mem [LawfulBEq α]
+theorem getD_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} {fallback : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
@@ -3458,7 +3458,7 @@ theorem isEmpty_filterMap_eq_false_iff [EquivBEq α] [LawfulHashable α]
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.isEmpty_filterMap_eq_false_iff
 
-theorem mem_filterMap_iff [EquivBEq α] [LawfulHashable α]
+theorem mem_filterMap [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} (h : m.WF) :
     k ∈ m.filterMap f ↔ ∃ h, (f (m.getKey k h) (Const.get m k h)).isSome := by
   simp only [mem_iff_contains]

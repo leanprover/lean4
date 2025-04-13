@@ -649,6 +649,12 @@ theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     (ofList l).contains k = l.contains k :=
   HashMap.contains_unitOfList
 
+@[simp]
+theorem mem_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α} :
+    k ∈ ofList l ↔ l.contains k :=
+  HashMap.mem_unitOfList
+
 theorem get?_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
     get? (ofList l) k = none :=

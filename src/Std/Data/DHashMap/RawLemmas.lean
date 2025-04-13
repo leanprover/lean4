@@ -3458,7 +3458,7 @@ theorem isEmpty_filterMap_eq_false_iff [EquivBEq α] [LawfulHashable α]
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.isEmpty_filterMap_eq_false_iff
 
-theorem mem_filterMap [EquivBEq α] [LawfulHashable α]
+theorem mem_filterMap_iff [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} (h : m.WF) :
     k ∈ m.filterMap f ↔ ∃ h, (f (m.getKey k h) (Const.get m k h)).isSome := by
   simp only [mem_iff_contains]
@@ -3525,11 +3525,11 @@ theorem getD_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
       fun x => f k' x).getD fallback := by
   simp_to_raw using Raw₀.Const.getD_filterMap_of_getKey?_eq_some
 
-theorem toList_filterMap {α : Type u} {m : Raw₀ α fun _ => β}
-    {f : α → β → Option γ} :
+theorem toList_filterMap
+    {f : α → β → Option γ} (h : m.WF) :
     (Const.toList (m.filterMap f)).Perm
       ((Const.toList m).filterMap (fun p => (f p.1 p.2).map (fun x => (p.1, x)))) := by
-  simp_to_raw using Raw₀.Const.toList_filterMap m
+  simp_to_raw using Raw₀.Const.toList_filterMap
 
 theorem getKey?_filterMap [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} (h : m.WF) :
@@ -3537,6 +3537,12 @@ theorem getKey?_filterMap [EquivBEq α] [LawfulHashable α]
     (m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (mem_of_getKey?_eq_some h h'))).isSome) := by
   simp_to_raw using Raw₀.Const.getKey?_filterMap
+
+@[simp]
+theorem getKey_filterMap [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Option γ} {k : α} {h'} (h : m.WF) :
+    (m.filterMap f).getKey k h' = m.getKey k (mem_of_mem_filterMap h h') := by
+  simp_to_raw using Raw₀.getKey_filterMap
 
 theorem getKey!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : α → β → Option γ} {k : α} (h : m.WF) :

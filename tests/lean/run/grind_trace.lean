@@ -32,6 +32,7 @@ info: Try this: grind only [= List.length_cons]
 example : 0 < (x :: t).length := by
   grind?
 
+attribute [grind ext] List.ext_getElem?
 /--
 info: Try this: grind only [= Option.map_some, = Option.map_none, = List.getElem?_replicate, = List.getElem?_eq_some_iff, =
   List.getElem?_map, = List.getElem_replicate, = List.getElem?_eq_none, = List.length_replicate, →

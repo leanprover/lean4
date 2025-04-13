@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Ext
 import Lean.Meta.Tactic.Grind.ENodeKey
 import Lean.Meta.Tactic.Grind.Attr
+import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Arith.Types
 import Lean.Meta.Tactic.Grind.EMatchTheorem
@@ -1265,6 +1266,7 @@ def getExtTheorems (type : Expr) : GoalM (Array Ext.ExtTheorem) := do
     return thms
   else
     let thms ← Ext.getExtTheorems type
+    let thms ← thms.filterM fun thm => isExtTheorem thm.declName
     modify fun s => { s with extThms := s.extThms.insert { expr := type } thms }
     return thms
 

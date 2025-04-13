@@ -57,16 +57,16 @@ theorem set_set_perm {as : List α} {i j : Nat} (h₁ : i < as.length) (h₂ : j
 namespace Perm
 
 /-- Variant of `List.Perm.take` specifying the the permutation is constant after `i` elementwise. -/
-theorem take' {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : ∀ j, i ≤ j → l₁[j]? = l₂[j]?) :
+theorem take_of_getElem? {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : ∀ j, i ≤ j → l₁[j]? = l₂[j]?) :
     (l₁.take i) ~ (l₂.take i) := by
-  apply h.take
+  refine h.take (Perm.of_eq ?_)
   ext1 j
   simpa using w (i + j) (by omega)
 
 /-- Variant of `List.Perm.drop` specifying the the permutation is constant before `i` elementwise. -/
-theorem drop' {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : ∀ j, j < i → l₁[j]? = l₂[j]?) :
+theorem drop_of_getElem? {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : ∀ j, j < i → l₁[j]? = l₂[j]?) :
     (l₁.drop i) ~ (l₂.drop i) := by
-  apply h.drop
+  refine h.drop (Perm.of_eq ?_)
   ext1
   simp only [getElem?_take]
   split <;> simp_all

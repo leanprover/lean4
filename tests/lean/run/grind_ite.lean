@@ -9,7 +9,11 @@ to compare proof assistants.
 
 Their first suggestion was "if-normalization".
 
-Here we state the problem in the Lean, and then construct a clean solution where all verification work is done by `grind`.
+Here we state the problem in the Lean,
+and then construct a clean solution where all verification work is done by `grind`.
+
+(This solution builds upon an earlier solution by Chris Hughes, which had less automation
+but made use of the powerful termination checker.)
 -/
 
 /-- An if-expression is either boolean literal, a numbered variable,

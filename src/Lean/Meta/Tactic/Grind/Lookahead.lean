@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Arith
 import Lean.Meta.Tactic.Grind.Split
+import Lean.Meta.Tactic.Grind.EMatch
 
 namespace Lean.Meta.Grind
 
@@ -61,6 +62,8 @@ where
     else if let some goals ← Arith.check goal then
       cont goals
     else if let some goals ← splitNext goal then
+      cont goals
+    else if let some goals ← ematchAndAssert goal then
       cont goals
     else
       return false

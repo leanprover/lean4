@@ -3740,7 +3740,7 @@ theorem getD_map [LawfulBEq α]
     (m.map f).getD k fallback = ((m.get? k).map (f k)).getD fallback := by
   simp_to_model [map, getD, get?] using List.getValueCastD_map
 
-theorem getKey?_map [LawfulBEq α]
+theorem getKey?_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :
     (m.map f).getKey? k = m.getKey? k := by
   simp_to_model [map, getKey?] using List.getKey?_map
@@ -3750,12 +3750,12 @@ theorem getKey_map [EquivBEq α] [LawfulHashable α]
     (m.map f).getKey k h' = m.getKey k (contains_of_contains_map m h h') := by
   simp_to_model [map, getKey] using List.getKey_map
 
-theorem getKey!_map [LawfulBEq α] [Inhabited α]
+theorem getKey!_map [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :
     (m.map f).getKey! k = m.getKey! k := by
   simp_to_model [map, getKey!] using List.getKey!_map
 
-theorem getKeyD_map [LawfulBEq α]
+theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k fallback : α} (h : m.1.WF) :
     (m.map f).getKeyD k fallback = m.getKeyD k fallback := by
   simp_to_model [map, getKeyD] using List.getKeyD_map

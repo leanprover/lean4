@@ -3419,7 +3419,7 @@ theorem getKeyD_filterMap [LawfulBEq α]
 
 namespace Const
 
-variable {β : Type v} {γ : Type w} (m : Raw α (fun _ => β))
+variable {β : Type v} {γ : Type w} {m : Raw α (fun _ => β)}
 
 theorem isEmpty_filterMap_iff [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} (h : m.WF) :
@@ -3488,7 +3488,7 @@ theorem get_filterMap [EquivBEq α] [LawfulHashable α]
     Const.get (m.filterMap f) k h' =
       (f (m.getKey k (mem_of_mem_filterMap h h'))
         (Const.get m k (mem_of_mem_filterMap h h'))).get
-          (isSome_apply_of_contains_filterMap m h h') := by
+          (isSome_apply_of_contains_filterMap h h') := by
   simp_to_raw using Raw₀.Const.get_filterMap
 
 theorem get!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
@@ -3518,11 +3518,11 @@ theorem getD_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
       fun x => f k' x).getD fallback := by
   simp_to_raw using Raw₀.Const.getD_filterMap_of_getKey?_eq_some
 
-theorem toList_filterMap {α : Type u} (m : Raw₀ α fun _ => β)
-    {f : α → β → Option γ} :
+theorem toList_filterMap
+    {f : α → β → Option γ} (h : m.WF) :
     (Const.toList (m.filterMap f)).Perm
       ((Const.toList m).filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩))) := by
-  simp_to_raw using Raw₀.Const.toList_filterMap   m
+  simp_to_raw using Raw₀.Const.toList_filterMap
 
 theorem getKey?_filterMap [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} (h : m.WF) :
@@ -4020,7 +4020,7 @@ theorem getD_map [LawfulBEq α]
   simp_to_raw using Raw₀.getD_map
 
 @[simp]
-theorem getKey?_map [LawfulBEq α]
+theorem getKey?_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.WF) :
     (m.map f).getKey? k = m.getKey? k := by
   simp_to_raw using Raw₀.getKey?_map
@@ -4032,13 +4032,13 @@ theorem getKey_map [EquivBEq α] [LawfulHashable α]
   simp_to_raw using Raw₀.getKey_map
 
 @[simp]
-theorem getKey!_map [LawfulBEq α] [Inhabited α]
+theorem getKey!_map [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.WF) :
     (m.map f).getKey! k = m.getKey! k := by
   simp_to_raw using Raw₀.getKey!_map
 
 @[simp]
-theorem getKeyD_map [LawfulBEq α]
+theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k fallback : α} (h : m.WF) :
     (m.map f).getKeyD k fallback = m.getKeyD k fallback := by
   simp_to_raw using Raw₀.getKeyD_map

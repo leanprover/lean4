@@ -62,6 +62,8 @@ where
      : toListTR.go t acc = t.toList ++ acc := by
     induction t generalizing acc <;> grind [toListTR.go, toList]
 
+attribute [grind ext] funext -- TODO: remove after update-stage0
+
 @[csimp] theorem Tree.toList_eq_toListTR_csimp
                  : @Tree.toList = @Tree.toListTR := by
   grind [toList_eq_toListTR]

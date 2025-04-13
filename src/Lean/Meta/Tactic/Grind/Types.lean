@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Ext
 import Lean.Meta.Tactic.Grind.ENodeKey
 import Lean.Meta.Tactic.Grind.Attr
+import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Arith.Types
 import Lean.Meta.Tactic.Grind.EMatchTheorem
@@ -572,7 +573,7 @@ structure Goal where
   -/
   appMap       : PHashMap HeadIndex (List Expr) := {}
   /-- Equations and propositions to be processed. -/
-  newFacts       : Array NewFact := #[]
+  newFacts     : Array NewFact := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
   /-- Next unique index for creating ENodes -/
@@ -580,17 +581,17 @@ structure Goal where
   /-- new facts to be preprocessed and then asserted. -/
   newRawFacts  : Std.Queue NewRawFact := ∅
   /-- Asserted facts -/
-  facts      : PArray Expr := {}
+  facts        : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
-  extThms    : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
+  extThms      : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
   /-- State of the E-matching module. -/
-  ematch     : EMatch.State
+  ematch       : EMatch.State
   /-- State of the case-splitting module. -/
-  split      : Split.State := {}
+  split        : Split.State := {}
   /-- State of arithmetic procedures. -/
-  arith      : Arith.State := {}
+  arith        : Arith.State := {}
   /-- State of the clean name generator. -/
-  clean      : Clean.State := {}
+  clean        : Clean.State := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -1260,11 +1261,15 @@ Returns extensionality theorems for the given type if available.
 If `Config.ext` is `false`, the result is `#[]`.
 -/
 def getExtTheorems (type : Expr) : GoalM (Array Ext.ExtTheorem) := do
-  unless (← getConfig).ext do return #[]
+  unless (← getConfig).ext || (← getConfig).extAll do return #[]
   if let some thms := (← get).extThms.find? { expr := type } then
     return thms
   else
     let thms ← Ext.getExtTheorems type
+    let thms ← if (← getConfig).extAll then
+      pure thms
+    else
+      thms.filterM fun thm => isExtTheorem thm.declName
     modify fun s => { s with extThms := s.extThms.insert { expr := type } thms }
     return thms
 

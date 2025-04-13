@@ -58,6 +58,7 @@ builtin_initialize registerTraceClass `grind.ext.candidate
 builtin_initialize registerTraceClass `grind.lookahead
 builtin_initialize registerTraceClass `grind.lookahead.add (inherited := true)
 builtin_initialize registerTraceClass `grind.lookahead.try (inherited := true)
+builtin_initialize registerTraceClass `grind.lookahead.assert (inherited := true)
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug

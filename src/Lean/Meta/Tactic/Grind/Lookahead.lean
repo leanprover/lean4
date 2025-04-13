@@ -43,9 +43,49 @@ private def checkLookaheadStatus (info : LookaheadInfo) : GoalM LookaheadStatus 
       it_b := it_b.appFn!
     return .ready
 
+private partial def solve (generation : Nat) (goal : Goal) : GrindM Bool := do
+  let goals ← intros generation goal
+  match goals with
+  | [] => return true
+  | [goal] => loop goal
+  | _ => throwError "`grind` lookahead internal error, unexpected number of goals at `intros`"
+where
+  loop (goal : Goal) : GrindM Bool := withIncRecDepth do
+    if goal.inconsistent then
+      return true
+    else if let some goals ← assertNext goal then
+      match goals with
+      | [] => return true
+      | [goal] => loop goal
+      | _ => throwError "`grind` lookahead internal error, unexpected number of goals at `assertNext`"
+    else if let some goals ← Arith.check goal then
+      match goals with
+      | [] => return true
+      | [goal] => loop goal
+      | _ => throwError "`grind` lookahead internal error, unexpected number of goals at `Arith.check`"
+    else
+      return false
+
 private def tryLookahead (e : Expr) : GoalM Bool := do
-  trace[grind.lookahead.try] "{e}"
-  withoutModifyingState do
+  -- TODO: if `e` is an arithmetic expression, we can avoid creating an auxiliary goal.
+  -- We can assert it directly to the arithmetic module.
+  trace_goal[grind.lookahead.try] "{e}"
+  let proof? ← withoutModifyingState do
+    let goal ← get
+    let tag ← goal.mvarId.getTag
+    let target ← mkArrow (mkNot e) (← getFalseExpr)
+    let mvar ← mkFreshExprMVar target .syntheticOpaque tag
+    let gen ← getGeneration e
+    if (← solve gen { goal with mvarId := mvar.mvarId! }) then
+      return some (← instantiateMVars mvar)
+    else
+      return none
+  if let some proof := proof? then
+    trace[grind.lookahead.assert] "{e}"
+    pushEqTrue e <| mkApp2 (mkConst ``Grind.of_lookahead) e proof
+    processNewFacts
+    return true
+  else
     return false
 
 private def withLookaheadConfig (x : GrindM α) : GrindM α := do
@@ -65,6 +105,8 @@ def lookahead : GrindTactic := fun goal => do
     let infos := (← get).split.lookaheads
     modify fun s => { s with split.lookaheads := [] }
     for info in infos do
+      if (← isInconsistent) then
+        return true
       match (← checkLookaheadStatus info) with
       | .resolved => progress := true
       | .notReady => postponed := info :: postponed

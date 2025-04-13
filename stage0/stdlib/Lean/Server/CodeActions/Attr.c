@@ -759,15 +759,16 @@ x_8 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____c
 x_9 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__7;
 x_10 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__8;
 x_11 = 2;
-x_12 = lean_alloc_ctor(0, 7, 1);
+x_12 = lean_alloc_ctor(0, 8, 1);
 lean_ctor_set(x_12, 0, x_6);
 lean_ctor_set(x_12, 1, x_7);
 lean_ctor_set(x_12, 2, x_4);
 lean_ctor_set(x_12, 3, x_8);
 lean_ctor_set(x_12, 4, x_9);
-lean_ctor_set(x_12, 5, x_10);
-lean_ctor_set(x_12, 6, x_5);
-lean_ctor_set_uint8(x_12, sizeof(void*)*7, x_11);
+lean_ctor_set(x_12, 5, x_9);
+lean_ctor_set(x_12, 6, x_10);
+lean_ctor_set(x_12, 7, x_5);
+lean_ctor_set_uint8(x_12, sizeof(void*)*8, x_11);
 x_13 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg(x_12, x_1);
 return x_13;
 }
@@ -2723,15 +2724,16 @@ x_5 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_799____
 x_6 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__7;
 x_7 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__8;
 x_8 = 2;
-x_9 = lean_alloc_ctor(0, 7, 1);
+x_9 = lean_alloc_ctor(0, 8, 1);
 lean_ctor_set(x_9, 0, x_2);
 lean_ctor_set(x_9, 1, x_3);
 lean_ctor_set(x_9, 2, x_4);
 lean_ctor_set(x_9, 3, x_5);
 lean_ctor_set(x_9, 4, x_6);
-lean_ctor_set(x_9, 5, x_7);
-lean_ctor_set(x_9, 6, x_1);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7, x_8);
+lean_ctor_set(x_9, 5, x_6);
+lean_ctor_set(x_9, 6, x_7);
+lean_ctor_set(x_9, 7, x_1);
+lean_ctor_set_uint8(x_9, sizeof(void*)*8, x_8);
 return x_9;
 }
 }

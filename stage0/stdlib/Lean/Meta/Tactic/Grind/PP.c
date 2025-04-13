@@ -7449,7 +7449,7 @@ _start:
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_ctor_get(x_1, 12);
 lean_inc(x_8);
-x_9 = lean_ctor_get(x_8, 4);
+x_9 = lean_ctor_get(x_8, 5);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = l_List_isEmpty___rarg(x_9);

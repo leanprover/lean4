@@ -484,73 +484,66 @@ structure EMatch.State where
   matchEqNames : PHashSet Name := {}
   deriving Inhabited
 
-/--
-Lookahead case-split information. They are cheaper than regular case-splits.
-They are created when `Grind.Config.lookahead` is `true`.
-The idea is the following: `grind` asserts `¬ p`, if a contradiction is detected
-it asserts `p`.
--/
-inductive LookaheadInfo where
+/-- Case-split information. -/
+inductive SplitInfo where
   | /--
-    Given an implication `e`, use lookahead to check whether the antecedent is
-    implied to be `True`. The lookahead is marked as resolved if the consequent is already
-    known to be `True`.
+    Term `e` may be an inductive predicate, `match`-expression, `if`-expression, implication, etc.
     -/
-    imp (e : Expr)
+    simple (e : Expr)
   | /--
-    Given applications `a` and `b`, use lookahead to check whether the corresponding
-    `i`-th arguments are equal or not. The lookahead is only performed if all other
-    arguments are already known to be equal or are also tagged as lookahead.
-    `eq` is the equality between the two arguments
+    Given applications `a` and `b`, case-split on whether the corresponding
+    `i`-th arguments are equal or not. The split is only performed if all other
+    arguments are already known to be equal or are also tagged as split candidates.
     -/
     arg (a b : Expr) (i : Nat) (eq : Expr)
+  deriving BEq, Hashable, Inhabited
 
-/-- Returns expression to perform a lookahead case-split. -/
-def LookaheadInfo.getExpr : LookaheadInfo → Expr
-  | .imp e => e.bindingDomain!
+def SplitInfo.getExpr : SplitInfo → Expr
+  | .simple (.forallE _ d _ _) => d
+  | .simple e => e
   | .arg _ _ _ eq => eq
 
-/-- Argument `arg : type` of an application `app` -/
-structure Arg where
+/-- Argument `arg : type` of an application `app` in `SplitInfo`. -/
+structure SplitArg where
   arg  : Expr
   type : Expr
   app  : Expr
 
 /-- Case splitting related fields for the `grind` goal. -/
 structure Split.State where
-  /-- Inductive datatypes marked for case-splitting -/
-  casesTypes      : CasesTypes := {}
-  /-- Case-split candidates. -/
-  candidates      : List Expr := []
   /-- Number of splits performed to get to this goal. -/
-  num             : Nat := 0
+  num          : Nat := 0
+  /-- Inductive datatypes marked for case-splitting -/
+  casesTypes   : CasesTypes := {}
+  /-- Case-split candidates. -/
+  candidates   : List SplitInfo := []
   /-- Case-splits that have been inserted at `candidates` at some point. -/
-  added           : PHashSet ENodeKey := {}
+  added        : Std.HashSet SplitInfo := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
-  resolved        : PHashSet ENodeKey := {}
+  resolved     : PHashSet ENodeKey := {}
   /--
   Sequence of cases steps that generated this goal. We only use this information for diagnostics.
   Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
   applications that generated only 1 subgoal.
   -/
-  trace           : List CaseTrace := []
+  trace        : List CaseTrace := []
   /-- Lookahead "case-splits". -/
-  lookaheads      : List LookaheadInfo := []
+  lookaheads   : List SplitInfo := []
   /--
-  A mapping `(a, b) ↦ is` s.t. for each `LookaheadInfo.arg a b i eq`
-  in `lookaheads` we have `i ∈ is`.
-  We use this information to decide whether the lookahead is "ready"
+  A mapping `(a, b) ↦ is` s.t. for each `SplitInfo.arg a b i eq`
+  in `candidates` or `lookaheads` we have `i ∈ is`.
+  We use this information to decide whether the split/lookahead is "ready"
   to be tried or not.
   -/
-  lookaheadArgPos : Std.HashMap (Expr × Expr) (List Nat) := {}
+  argPosMap    : Std.HashMap (Expr × Expr) (List Nat) := {}
   /--
   Mapping from pairs `(f, i)` to a list of arguments.
   Each argument occurs as the `i`-th of an `f`-application.
-  We use this information to add case-splits for
+  We use this information to add splits/lookaheads for
   triggering extensionality theorems and model-based theory combination.
   See `addSplitCandidatesForExt`.
   -/
-  argsAt          : PHashMap (Expr × Nat) (List Arg) := {}
+  argsAt       : PHashMap (Expr × Nat) (List SplitArg) := {}
   deriving Inhabited
 
 /-- Clean name generator. -/
@@ -1217,12 +1210,12 @@ def getEqcs : GoalM (List (List Expr)) :=
   return (← get).getEqcs
 
 /--
-Returns `true` if `e` has been already added to the case-split list at one point.
+Returns `true` if `s` has been already added to the case-split list at one point.
 Remark: this function returns `true` even if the split has already been resolved
 and is not in the list anymore.
 -/
-def isKnownCaseSplit (e : Expr) : GoalM Bool :=
-  return (← get).split.added.contains { expr := e }
+def isKnownCaseSplit (s : SplitInfo) : GoalM Bool :=
+  return (← get).split.added.contains s
 
 /-- Returns `true` if `e` is a case-split that does not need to be performed anymore. -/
 def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
@@ -1238,14 +1231,23 @@ def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
     trace_goal[grind.split.resolved] "{e}"
     modify fun s => { s with split.resolved := s.split.resolved.insert { expr := e } }
 
+private def updateSplitArgPosMap (sinfo : SplitInfo) : GoalM Unit := do
+  let .arg a b i _ := sinfo | return ()
+  let key := (a, b)
+  let is := (← get).split.argPosMap[key]? |>.getD []
+  modify fun s => { s with
+    split.argPosMap := s.split.argPosMap.insert key (i :: is)
+  }
+
 /-- Inserts `e` into the list of case-split candidates if it was not inserted before. -/
-def addSplitCandidate (e : Expr) : GoalM Unit := do
-  unless (← isKnownCaseSplit e) do
-    trace_goal[grind.split.candidate] "{e}"
+def addSplitCandidate (sinfo : SplitInfo) : GoalM Unit := do
+  unless (← isKnownCaseSplit sinfo) do
+    trace_goal[grind.split.candidate] "{sinfo.getExpr}"
     modify fun s => { s with
-      split.added := s.split.added.insert { expr := e }
-      split.candidates := e :: s.split.candidates
+      split.added := s.split.added.insert sinfo
+      split.candidates := sinfo :: s.split.candidates
     }
+    updateSplitArgPosMap sinfo
 
 /--
 Returns extensionality theorems for the given type if available.
@@ -1269,18 +1271,10 @@ def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
   isDefEq x val
 
 /-- Add a new lookahead candidate. -/
-def addLookaheadCandidate (info : LookaheadInfo) : GoalM Unit := do
-  trace_goal[grind.lookahead.add] "{info.getExpr}"
-  match info with
-  | .imp .. =>
-    modify fun s => { s with split.lookaheads := info :: s.split.lookaheads }
-  | .arg a b i _ =>
-    let key := (a, b)
-    let is := (← get).split.lookaheadArgPos[key]? |>.getD []
-    modify fun s => { s with
-      split.lookaheads := info :: s.split.lookaheads
-      split.lookaheadArgPos := s.split.lookaheadArgPos.insert key (i :: is)
-    }
+def addLookaheadCandidate (sinfo : SplitInfo) : GoalM Unit := do
+  trace_goal[grind.lookahead.add] "{sinfo.getExpr}"
+  modify fun s => { s with split.lookaheads := sinfo :: s.split.lookaheads }
+  updateSplitArgPosMap sinfo
 
 /--
 Helper function for executing `x` with a fresh `newFacts` and without modifying

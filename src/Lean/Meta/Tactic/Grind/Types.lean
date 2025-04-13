@@ -572,7 +572,7 @@ structure Goal where
   -/
   appMap       : PHashMap HeadIndex (List Expr) := {}
   /-- Equations and propositions to be processed. -/
-  newFacts       : Array NewFact := #[]
+  newFacts     : Array NewFact := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
   /-- Next unique index for creating ENodes -/
@@ -580,17 +580,17 @@ structure Goal where
   /-- new facts to be preprocessed and then asserted. -/
   newRawFacts  : Std.Queue NewRawFact := ∅
   /-- Asserted facts -/
-  facts      : PArray Expr := {}
+  facts        : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
-  extThms    : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
+  extThms      : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
   /-- State of the E-matching module. -/
-  ematch     : EMatch.State
+  ematch       : EMatch.State
   /-- State of the case-splitting module. -/
-  split      : Split.State := {}
+  split        : Split.State := {}
   /-- State of arithmetic procedures. -/
-  arith      : Arith.State := {}
+  arith        : Arith.State := {}
   /-- State of the clean name generator. -/
-  clean      : Clean.State := {}
+  clean        : Clean.State := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

@@ -66,6 +66,11 @@ def ExtTheorems.eraseCore (d : ExtTheorems) (declName : Name) : ExtTheorems :=
 def ExtTheorems.contains (d : ExtTheorems) (declName : Name) : Bool :=
   d.tree.containsValueP (·.declName == declName) && !d.erased.contains declName
 
+/-- Returns `true` if `declName` is tagged with `[ext]` attribute. -/
+def isExtTheorem (declName : Name) : CoreM Bool := do
+  let extTheorems := extExtension.getState (← getEnv)
+  return extTheorems.contains declName
+
 /--
 Erases a name marked as a `ext` attribute.
 Check that it does in fact have the `ext` attribute by making sure it names a `ExtTheorem`

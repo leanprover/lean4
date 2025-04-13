@@ -24,8 +24,7 @@ def classical [Monad m] [MonadEnv m] [MonadFinally m] [MonadLiftT MetaM m] (t : 
   finally
     modifyEnv Meta.instanceExtension.popScope
 
-@[builtin_tactic Lean.Parser.Tactic.classical, builtin_incremental]
-def evalClassical : Tactic := fun stx =>
-  classical <| Term.withNarrowedArgTacticReuse (argIdx := 1) Elab.Tactic.evalTactic stx
+macro_rules
+| `(tactic| classical $tacs) => `(tactic| open scoped Classical in $tacs)
 
 end Lean.Elab.Tactic

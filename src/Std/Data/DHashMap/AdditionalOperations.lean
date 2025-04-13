@@ -10,8 +10,8 @@ import Std.Data.DHashMap.Internal.WF
 /-!
 # Additional dependent hash map operations
 
-This file defines the operations `map` and `filterMap` on `Std.Data.DHashMap`.
-We currently do not provide lemmas for these functions.
+This file defines the operations `map` and `filterMap` on `Std.DHashMap`.
+Lemmas about these operations are found in `Std.Data.DHashMap.Lemmas`.
 -/
 
 open Std.DHashMap.Internal

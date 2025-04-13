@@ -75,6 +75,8 @@ structure Config where
   on equalities between lambda expressions.
   -/
   funext : Bool := true
+  /-- TODO -/
+  lookahead : Bool := true
   /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
   verbose : Bool := true
   /-- If `clean` is `true`, `grind` uses `expose_names` and only generates accessible names. -/

@@ -489,7 +489,7 @@ inductive SplitInfo where
   | /--
     Term `e` may be an inductive predicate, `match`-expression, `if`-expression, implication, etc.
     -/
-    simple (e : Expr)
+    default (e : Expr)
   | /--
     Given applications `a` and `b`, case-split on whether the corresponding
     `i`-th arguments are equal or not. The split is only performed if all other
@@ -499,15 +499,15 @@ inductive SplitInfo where
   deriving BEq, Hashable, Inhabited
 
 def SplitInfo.getExpr : SplitInfo → Expr
-  | .simple (.forallE _ d _ _) => d
-  | .simple e => e
+  | .default (.forallE _ d _ _) => d
+  | .default e => e
   | .arg _ _ _ eq => eq
 
 def SplitInfo.lt : SplitInfo → SplitInfo → Bool
-  | .simple e₁, .simple e₂       => e₁.lt e₂
+  | .default e₁, .default e₂       => e₁.lt e₂
   | .arg _ _ _ e₁, .arg _ _ _ e₂ => e₁.lt e₂
-  | .simple _, .arg ..           => true
-  | .arg .., .simple _           => false
+  | .default _, .arg ..           => true
+  | .arg .., .default _           => false
 
 /-- Argument `arg : type` of an application `app` in `SplitInfo`. -/
 structure SplitArg where

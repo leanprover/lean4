@@ -3962,6 +3962,7 @@ theorem filterMap_equiv_map [EquivBEq α] [LawfulHashable α]
     (m.filterMap (fun k v => Option.some (f k v))) ~m (m.map f) := by
   simp_to_raw using Raw₀.filterMap_equiv_map
 
+@[simp]
 theorem isEmpty_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} (h : m.WF) :
     (m.map f).isEmpty = m.isEmpty := by
@@ -3977,6 +3978,7 @@ theorem contains_of_contains_map [EquivBEq α] [LawfulHashable α]
     (m.map f).contains k = true → m.contains k = true := by
   simp_to_raw using Raw₀.contains_of_contains_map
 
+@[simp]
 theorem mem_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.WF) :
     k ∈ (m.map f) ↔ k ∈ m := by
@@ -3989,6 +3991,7 @@ theorem mem_of_mem_map [EquivBEq α] [LawfulHashable α]
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.contains_of_contains_map
 
+@[simp]
 theorem size_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} (h : m.WF) :
     (m.map f).size = m.size := by
@@ -3999,6 +4002,7 @@ theorem get?_map [LawfulBEq α]
     (m.map f).get? k = (m.get? k).map (f k) := by
   simp_to_raw using Raw₀.get?_map
 
+@[simp]
 theorem get_map [LawfulBEq α]
     {f : (a : α) → β a → γ a} {k : α}  {h'} (h : m.WF) :
     (m.map f).get k h' =
@@ -4015,21 +4019,25 @@ theorem getD_map [LawfulBEq α]
     (m.map f).getD k fallback = ((m.get? k).map (f k)).getD fallback := by
   simp_to_raw using Raw₀.getD_map
 
+@[simp]
 theorem getKey?_map [LawfulBEq α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.WF) :
     (m.map f).getKey? k = m.getKey? k := by
   simp_to_raw using Raw₀.getKey?_map
 
+@[simp]
 theorem getKey_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k : α} {h'} (h : m.WF) :
     (m.map f).getKey k h' = m.getKey k (mem_of_mem_map h h') := by
   simp_to_raw using Raw₀.getKey_map
 
+@[simp]
 theorem getKey!_map [LawfulBEq α] [Inhabited α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.WF) :
     (m.map f).getKey! k = m.getKey! k := by
   simp_to_raw using Raw₀.getKey!_map
 
+@[simp]
 theorem getKeyD_map [LawfulBEq α]
     {f : (a : α) → β a → γ a} {k fallback : α} (h : m.WF) :
     (m.map f).getKeyD k fallback = m.getKeyD k fallback := by

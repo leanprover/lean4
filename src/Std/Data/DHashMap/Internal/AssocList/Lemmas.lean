@@ -16,7 +16,6 @@ File contents: Connecting operations on `AssocList` to operations defined in `Li
 
 set_option linter.missingDocs true
 set_option autoImplicit false
-set_option Elab.async false
 
 open Std.DHashMap.Internal
 open List (Perm perm_middle)

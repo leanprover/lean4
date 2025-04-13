@@ -3760,6 +3760,7 @@ theorem contains_of_contains_map [EquivBEq α] [LawfulHashable α]
     (m.map f).contains k = true → m.contains k = true :=
   Raw₀.contains_of_contains_map ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem mem_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k : α}  :
     k ∈ (m.map f) ↔ k ∈ m := by
@@ -3770,6 +3771,7 @@ theorem mem_of_mem_map [EquivBEq α] [LawfulHashable α]
     k ∈ (m.map f) → k ∈ m :=
   Raw₀.contains_of_contains_map ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem size_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a}  :
     (m.map f).size = m.size :=
@@ -3796,21 +3798,25 @@ theorem getD_map [LawfulBEq α]
     (m.map f).getD k fallback = ((m.get? k).map (f k)).getD fallback :=
   Raw₀.getD_map ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem getKey?_map [LawfulBEq α]
     {f : (a : α) → β a → γ a} {k : α}  :
     (m.map f).getKey? k = m.getKey? k :=
   Raw₀.getKey?_map ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem getKey_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} {k : α}  {h'}:
     (m.map f).getKey k h' = m.getKey k (contains_of_contains_map h') :=
   Raw₀.getKey_map ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem getKey!_map [LawfulBEq α] [Inhabited α]
     {f : (a : α) → β a → γ a} {k : α}  :
     (m.map f).getKey! k = m.getKey! k :=
   Raw₀.getKey!_map ⟨m.1, _⟩ m.2
 
+@[simp]
 theorem getKeyD_map [LawfulBEq α]
     {f : (a : α) → β a → γ a} {k fallback : α}  :
     (m.map f).getKeyD k fallback = m.getKeyD k fallback :=

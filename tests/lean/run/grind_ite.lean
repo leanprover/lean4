@@ -176,16 +176,16 @@ def normalize (assign : Std.HashMap Nat Bool) :
     match h : assign[v]? with
     | none => g⟨var v⟩
     | some b => g⟨lit b⟩
-  | .ite (lit true)   t e => c⟨normalize assign t⟩
-  | .ite (lit false)  t e => c⟨normalize assign e⟩
-  | .ite (.ite a b c) t e => c⟨normalize assign (.ite a (.ite b t e) (.ite c t e))⟩
-  | .ite (var v)      t e =>
+  | ite (lit true)  t e => c⟨normalize assign t⟩
+  | ite (lit false) t e => c⟨normalize assign e⟩
+  | ite (ite a b c) t e => c⟨normalize assign (ite a (ite b t e) (ite c t e))⟩
+  | ite (var v)     t e =>
     match h : assign[v]? with
     | none =>
       have ⟨t', _⟩ := normalize (assign.insert v true) t
       have ⟨e', _⟩ := normalize (assign.insert v false) e
-      g⟨if t' = e' then t' else .ite (var v) t' e'⟩
-    | some b => c⟨normalize assign (.ite (lit b) t e)⟩
+      g⟨if t' = e' then t' else ite (var v) t' e'⟩
+    | some b => c⟨normalize assign (ite (lit b) t e)⟩
   termination_by e => e.normSize
 
 /-

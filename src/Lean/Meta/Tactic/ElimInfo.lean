@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Basic
 import Lean.Meta.Check
+import Lean.Meta.SynthInstance
 import Lean.ScopedEnvExtension
 
 namespace Lean.Meta
@@ -88,11 +89,19 @@ def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM 
 /--
   Eliminators/recursors may have implicit targets. For builtin recursors, all indices are implicit targets.
   Given an eliminator and the sequence of explicit targets, this methods returns a new sequence containing
-  implicit and explicit targets.
+  implicit and explicit targets, synthesizing instances for the instance implicit
+  arguments which aren't solved by unification of explicit targets.
 -/
 partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : MetaM (Array Expr) := do
   let (implicitMVars, targets) ← collect elimInfo.elimType 0 0 #[] #[]
-  for mvar in implicitMVars do
+  for (mvar,bi) in implicitMVars do
+    unless ← mvar.isAssigned do
+      if bi.isInstImplicit then
+        mvar.withContext do
+          let mvarType := (← mvar.getDecl).type
+          let synthVal ← synthInstance mvarType
+          unless (← isDefEq (Expr.mvar mvar) synthVal) do
+            throwError "failed to synthesise instance for target{indentD ("[" ++ MessageData.ofExpr mvarType ++ "]")}"
     unless ← mvar.isAssigned do
       let name := (←mvar.getDecl).userName
       if name.isAnonymous || name.hasMacroScopes then
@@ -101,8 +110,8 @@ partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : Me
         throwError "failed to infer implicit target {(←mvar.getDecl).userName}"
   targets.mapM instantiateMVars
 where
-  collect (type : Expr) (argIdx targetIdx : Nat) (implicits : Array MVarId) (targets' : Array Expr) :
-      MetaM (Array MVarId × Array Expr) := do
+  collect (type : Expr) (argIdx targetIdx : Nat) (implicits : Array (MVarId × BinderInfo)) (targets' : Array Expr) :
+      MetaM (Array (MVarId × BinderInfo) × Array Expr) := do
     match (← whnfD type) with
     | Expr.forallE n d b bi =>
       if elimInfo.targetsPos.contains argIdx then
@@ -116,7 +125,7 @@ where
           collect (b.instantiate1 target) (argIdx+1) (targetIdx+1) implicits (targets'.push target)
         else
           let implicitTarget ← mkFreshExprMVar (type? := d) (userName := n)
-          collect (b.instantiate1 implicitTarget) (argIdx+1) targetIdx (implicits.push implicitTarget.mvarId!) (targets'.push implicitTarget)
+          collect (b.instantiate1 implicitTarget) (argIdx+1) targetIdx (implicits.push (implicitTarget.mvarId!, bi)) (targets'.push implicitTarget)
       else
         collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx implicits targets'
     | _ =>

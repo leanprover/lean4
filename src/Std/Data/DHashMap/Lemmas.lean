@@ -3225,7 +3225,7 @@ theorem getKey?_filterMap [LawfulBEq α]
 
 @[simp]
 theorem getKey_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Option (γ a)} {k : α} {h'}:
+    {f : (a : α) → β a → Option (γ a)} {k : α} {h'} :
     (m.filterMap f).getKey k h' = m.getKey k (mem_of_mem_filterMap h') :=
   Raw₀.getKey_filterMap ⟨m.1, _⟩ m.2
 
@@ -3481,7 +3481,7 @@ theorem getKey?_filter_key [EquivBEq α] [LawfulHashable α]
 
 @[simp]
 theorem getKey_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Bool} {k : α} {h'}:
+    {f : (a : α) → β a → Bool} {k : α} {h'} :
     (m.filter f).getKey k h' = m.getKey k (mem_of_mem_filter h') :=
   Raw₀.getKey_filter ⟨m.1, _⟩ m.2
 
@@ -3713,7 +3713,7 @@ theorem getKey?_map [LawfulBEq α]
 
 @[simp]
 theorem getKey_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → γ a} {k : α} {h'}:
+    {f : (a : α) → β a → γ a} {k : α} {h'} :
     (m.map f).getKey k h' = m.getKey k (mem_of_mem_map h') :=
   Raw₀.getKey_map ⟨m.1, _⟩ m.2
 

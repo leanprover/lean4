@@ -230,6 +230,7 @@ We prove two preliminary lemmas about `qpartition.loop`.
 private theorem qpartition_loop_lt_hi₁
     (h : lo < hi) (ilo : lo ≤ i) (jh : j < n) (w : i < j) (z : j ≤ hi) :
     (qpartition.loop lt lo hi hhi pivot as i j ilo jh (by omega)).1.val < hi := by
+  -- fun_induction qpartition.loop -- "could not find suitable call of 'qpartition.loop' in the goal"
   unfold qpartition.loop
   split <;> rename_i h₁
   · split <;> rename_i h₂
@@ -246,15 +247,20 @@ and so we're sure to return something less than `hi`.
 private theorem qpartition_loop_lt_hi₂
     {as : Vector α n} (h : lo < hi) (ilo : lo ≤ i) (jh : j < n) (w : i ≤ j) (z : j ≤ hi) (q : ∃ (j' : Nat) (hj' : j' < n), j' ≥ j ∧ j' < hi ∧ ¬ lt as[j'] pivot) :
     (qpartition.loop lt lo hi hhi pivot as i j ilo jh (by omega)).1.val < hi := by
-  unfold qpartition.loop
-  split <;> rename_i h₁
-  · split <;> rename_i h₂
-    · obtain ⟨j', hj'₁, hj'₂, hj'₃, hj'₄⟩ := q
-      apply qpartition_loop_lt_hi₂ h (w := by grind) (z := by grind) (q := by grind)
-    · apply qpartition_loop_lt_hi₁ h (w := by grind) (z := by grind)
-  · simp
-    omega
-termination_by n - i
+  fun_induction qpartition.loop with
+  | case1 as i j iloi jh w h' h ih =>
+    unfold qpartition.loop
+    simp [h, h']
+    -- Why can't `grind` do this?
+    apply ih
+    · grind
+    · grind
+  | case2 as i j ilo jh w h' h ih  =>
+    unfold qpartition.loop
+    grind [qpartition_loop_lt_hi₁]
+  | case3 =>
+    unfold qpartition.loop
+    grind
 
 /-- The only way `qpartition` returns a pivot position `≥ hi` is if `hi ≤ lo`. -/
 private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
@@ -268,11 +274,7 @@ private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (
   rw [← Nat.not_lt] at w
   apply w; clear w
   lift_lets
-  intro mid
-  intro as₁
-  intro as₂
-  intro as₃
-  intro pivot
+  intros mid
   apply qpartition_loop_lt_hi₂ h (z := by omega)
   exact ⟨mid, by grind⟩
 
@@ -297,7 +299,7 @@ theorem qsort_sort_spec₁ {n}
         rw [getElem_qsort_sort_of_lt_lo (i := i) (w := by omega) (h := by omega)]
         rw [getElem_qsort_sort_of_lt_lo (i := i + 1) (w := by omega) (h := by omega)]
         apply qsort_sort_spec₁ lt lt_asymm le_total as' lo mid (w_as := rfl)
-        all_goals omega
+        all_goals grind
       else
         replace p₁ : mid ≤ i := by omega
         if p₃ : mid = i then
@@ -327,90 +329,47 @@ theorem qsort_sort_spec₁ {n}
           all_goals omega
   · grind
 
-/-- The slice of `as.qsort lt lo hi` from `lo` to `hi` (inclusive) is sorted. -/
-theorem qsort_sorted' (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
+/--
+The slice of `as.qsort lt lo hi` from `lo` to `hi` (inclusive) is sorted.
+
+This variant states that adjacent elements are non-decreasing.
+-/
+theorem qsort_sorted₁' (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (le_total : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a)
-    (as : Array α) (lo hi : Nat) :
-    ∀ i j, (h₁ : lo ≤ i) → (h₂ : i < j) → (h₃ : j ≤ hi) → (h₄ : j < as.size) →
-      ¬ lt ((as.qsort lt lo hi)[j]'(by simp; omega)) ((as.qsort lt lo hi)[i]'(by simp; omega)) := by
+    (as : Array α) (lo hi : Nat) (i) (h₁ : lo ≤ i) (h₂ : i < hi) (h₃ : i + 1 < as.size) :
+      ¬ lt ((as.qsort lt lo hi)[i + 1]'(by grind)) ((as.qsort lt lo hi)[i]'(by grind)) := by
   unfold qsort
-  intros i j h₁ h₂ h₃ h₄
   split <;> rename_i w
   · grind
   · apply qsort_sort_spec₁ lt lt_asymm le_total as.toVector _ _ (w_as := rfl)
-    · omega -- reported in #7810
     · grind
-    · omega -- reported in #7810
+    · grind
 
-theorem qsort_sorted (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
-    (le_total : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a) (as : Array α) :
-    ∀ i j, (h₁ : i < j) → (h₂ : i < (qsort as lt).size) → (h₃ : j < (qsort as lt).size) →
-      ¬ lt (as.qsort lt)[j] (as.qsort lt)[i] := by
-  have := qsort_sorted' lt lt_asymm le_total
+/--
+`Array.qsort` returns a sorted array, where adjacent elements are non-decreasing.
+-/
+theorem qsort_sorted₁ (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
+    (le_total : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a) (as : Array α)
+    (i) (h : i + 1 < (qsort as lt).size) :
+    ¬ lt (as.qsort lt)[i + 1] (as.qsort lt)[i] := by
+  have := qsort_sorted₁' lt lt_asymm le_total
   grind
-
-
-
-theorem qsort_sort_spec {n}
-    (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
-    (le_total : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a)
-    (as : Vector α n) (lo hi : Nat)
-    (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
-    (as' : Vector α n) (w_as : as' = qsort.sort lt as lo hi hlo hhi) :
-    ∀ i j, (h₁ : lo ≤ i) → (h₂ : i < j) → (h₃ : j ≤ hi) → ¬ lt as'[j] as'[i] := by
-  unfold qsort.sort at w_as
-  split at w_as <;> rename_i w₁
-  · intro i j h₁ h₂ h₃
-    split at w_as <;> rename_i mid hmid as' w₂
-    split at w_as <;> rename_i w₃
-    · simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
-      obtain ⟨rfl, rfl⟩ := w₂
-      obtain h := hi_le_lo_of_hi_le_qpartition_fst lt lt_asymm _ _ _ _ _ w₃
-      grind
-    · subst w_as
-      if p₁ : j ≤ mid then
-        rw [getElem_qsort_sort_of_lt_lo (i := i) (w := by omega) (h := by omega)]
-        rw [getElem_qsort_sort_of_lt_lo (i := j) (w := by omega) (h := by omega)]
-        apply qsort_sort_spec lt lt_asymm le_total as' lo mid (w_as := rfl)
-        all_goals omega
-      else
-        replace p₁ : mid < j := by omega
-        if p₂ : mid < i then
-          apply qsort_sort_spec lt lt_asymm le_total _ (mid + 1) hi (w_as := rfl)
-          all_goals omega
-        else
-          replace p₂ : i ≤ mid := by omega
-          -- apply le_total (b := as'[mid])
-          if p₃ : i = mid then
-            subst i
-            rw [getElem_qsort_sort_of_lt_lo (i := mid) (w := by omega) (h := by omega)]
-            -- obtain ⟨j', hj'₁ , hj'₂ , hj'₃, w⟩ := getElem_qsort_sort lt (qsort.sort lt as' lo mid ?_ ?_) (mid + 1) hi ?_ ?_ j ?_
-            -- rw [w]
-            -- We want to use `qpartition_spec₂` here, but ...
-            -- we need to know which index to use (there's a permutation above `mid`)
-            -- and we need to know `(qsort.sort lt as' lo mid hlo ⋯)[mid]` is just `as'[mid]`
-            sorry
-          else
-            replace p₃ : i < mid := by omega
-            apply lt_asymm
-            rw [getElem_qsort_sort_of_lt_lo (i := i) (w := by omega) (h := by omega)]
-            sorry
-  · grind
 
 /-- The slice of `as.qsort lt lo hi` from `lo` to `hi` (inclusive) is sorted. -/
 theorem qsort_sorted' (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (le_total : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a)
-    (as : Array α) (lo hi : Nat) :
-    ∀ i j, (h₁ : lo ≤ i) → (h₂ : i < j) → (h₃ : j ≤ hi) → (h₄ : j < as.size) →
-      ¬ lt ((as.qsort lt lo hi)[j]'(by simp; omega)) ((as.qsort lt lo hi)[i]'(by simp; omega)) := by
-  unfold qsort
-  intros i j h₁ h₂ h₃ h₄
-  split <;> rename_i w
-  · grind
-  · apply qsort_sort_spec lt lt_asymm le_total as.toVector _ _ (w_as := rfl)
-    · omega -- reported in #7810
-    · grind
-    · omega -- reported in #7810
+    (as : Array α) (lo hi : Nat) (i j) (h₁ : lo ≤ i) (h₂ : i < j) (h₃ : j ≤ hi) (h₄ : j < as.size) :
+      ¬ lt ((as.qsort lt lo hi)[j]'(by grind)) ((as.qsort lt lo hi)[i]'(by grind)) := by
+  induction j with
+  | zero => grind
+  | succ j ih =>
+    if p : i = j then
+      subst p
+      apply qsort_sorted₁' lt lt_asymm le_total <;> grind
+    else
+      apply le_total (b := (as.qsort lt lo hi)[j]'(by grind))
+      · grind
+      · apply qsort_sorted₁' lt lt_asymm le_total <;> grind
 
 theorem qsort_sorted (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (le_total : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a) (as : Array α) :

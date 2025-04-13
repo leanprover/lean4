@@ -58,6 +58,15 @@ structure Context where
   simprocs     : Array Simp.Simprocs
   mainDeclName : Name
   config       : Grind.Config
+  /--
+  If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
+  at most one minor premise.
+  Recall that `grind` applies `cases` when introducing types tagged with `[grind cases eager]`,
+  and at `Split.lean`
+  Remark: We add this option to implement the `lookahead` feature, we don't want to create several subgoals
+  when performing lookahead.
+  -/
+  cheapCases : Bool := false
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -163,6 +172,9 @@ def getNatZeroExpr : GrindM Expr := do
 
 def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
+
+def cheapCasesOnly : GrindM Bool :=
+  return (← readThe Context).cheapCases
 
 def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
@@ -472,24 +484,73 @@ structure EMatch.State where
   matchEqNames : PHashSet Name := {}
   deriving Inhabited
 
+/--
+Lookahead case-split information. They are cheaper than regular case-splits.
+They are created when `Grind.Config.lookahead` is `true`.
+The idea is the following: `grind` asserts `¬ p`, if a contradiction is detected
+it asserts `p`.
+-/
+inductive LookaheadInfo where
+  | /--
+    Given an implication `e`, use lookahead to check whether the antecedent is
+    implied to be `True`. The lookahead is marked as resolved if the consequent is already
+    known to be `True`.
+    -/
+    imp (e : Expr)
+  | /--
+    Given applications `a` and `b`, use lookahead to check whether the corresponding
+    `i`-th arguments are equal or not. The lookahead is only performed if all other
+    arguments are already known to be equal or are also tagged as lookahead.
+    `eq` is the equality between the two arguments
+    -/
+    arg (a b : Expr) (i : Nat) (eq : Expr)
+
+/-- Returns expression to perform a lookahead case-split. -/
+def LookaheadInfo.getExpr : LookaheadInfo → Expr
+  | .imp e => e.bindingDomain!
+  | .arg _ _ _ eq => eq
+
+/-- Argument `arg : type` of an application `app` -/
+structure Arg where
+  arg  : Expr
+  type : Expr
+  app  : Expr
+
 /-- Case splitting related fields for the `grind` goal. -/
 structure Split.State where
   /-- Inductive datatypes marked for case-splitting -/
-  casesTypes : CasesTypes := {}
+  casesTypes      : CasesTypes := {}
   /-- Case-split candidates. -/
-  candidates : List Expr := []
+  candidates      : List Expr := []
   /-- Number of splits performed to get to this goal. -/
-  num        : Nat := 0
+  num             : Nat := 0
   /-- Case-splits that have been inserted at `candidates` at some point. -/
-  added      : PHashSet ENodeKey := {}
+  added           : PHashSet ENodeKey := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
-  resolved   : PHashSet ENodeKey := {}
+  resolved        : PHashSet ENodeKey := {}
   /--
   Sequence of cases steps that generated this goal. We only use this information for diagnostics.
   Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
   applications that generated only 1 subgoal.
   -/
-  trace      : List CaseTrace := []
+  trace           : List CaseTrace := []
+  /-- Lookahead "case-splits". -/
+  lookaheads      : List LookaheadInfo := []
+  /--
+  A mapping `(a, b) ↦ is` s.t. for each `LookaheadInfo.arg a b i eq`
+  in `lookaheads` we have `i ∈ is`.
+  We use this information to decide whether the lookahead is "ready"
+  to be tried or not.
+  -/
+  lookaheadArgPos : Std.HashMap (Expr × Expr) (List Nat) := {}
+  /--
+  Mapping from pairs `(f, i)` to a list of arguments.
+  Each argument occurs as the `i`-th of an `f`-application.
+  We use this information to add case-splits for
+  triggering extensionality theorems and model-based theory combination.
+  See `addSplitCandidatesForExt`.
+  -/
+  argsAt          : PHashMap (Expr × Nat) (List Arg) := {}
   deriving Inhabited
 
 /-- Clean name generator. -/
@@ -531,13 +592,6 @@ structure Goal where
   arith      : Arith.State := {}
   /-- State of the clean name generator. -/
   clean      : Clean.State := {}
-  /--
-  Mapping from pairs `(f, i)` to a list of `(e, type)`.
-  The meaning is: `e : type` is lambda expression that occurs at argument `i` of an `f`-application.
-  We use this information to add case-splits for triggering extensionality theorems.
-  See `addSplitCandidatesForExt`.
-  -/
-  termsAt    : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -1213,5 +1267,31 @@ then using the result to perform `isDefEq x val`.
 def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
   let .some val ← trySynthInstance type | return false
   isDefEq x val
+
+/-- Add a new lookahead candidate. -/
+def addLookaheadCandidate (info : LookaheadInfo) : GoalM Unit := do
+  trace_goal[grind.lookahead.add] "{info.getExpr}"
+  match info with
+  | .imp .. =>
+    modify fun s => { s with split.lookaheads := info :: s.split.lookaheads }
+  | .arg a b i _ =>
+    let key := (a, b)
+    let is := (← get).split.lookaheadArgPos[key]? |>.getD []
+    modify fun s => { s with
+      split.lookaheads := info :: s.split.lookaheads
+      split.lookaheadArgPos := s.split.lookaheadArgPos.insert key (i :: is)
+    }
+
+/--
+Helper function for executing `x` with a fresh `newFacts` and without modifying
+the goal state.
+-/
+def withoutModifyingState (x : GoalM α) : GoalM α := do
+  let saved ← get
+  modify fun goal => { goal with newFacts := {} }
+  try
+    x
+  finally
+    set saved
 
 end Lean.Meta.Grind

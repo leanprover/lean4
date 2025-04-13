@@ -172,6 +172,7 @@ private theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : N
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
+  -- TODO it would be great to use `fun_induction` here, but the goals explode.
   unfold qpartition.loop at w_mid w_as
   subst hpivot
   split at w_mid <;> rename_i h₁
@@ -192,6 +193,7 @@ private theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : N
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → lt as'[i] as'[mid] = false := by
+  -- TODO it would be great to use `fun_induction` here, but the goals explode.
   unfold qpartition.loop at w_mid w_as
   subst hpivot
   split at w_mid <;> rename_i h₁
@@ -260,7 +262,7 @@ private theorem qpartition_loop_lt_hi₂
   | case1 as i j iloi jh w h' h ih =>
     unfold qpartition.loop
     simp [h, h']
-    -- Why can't `grind` do this?
+    -- FIXME Why can't `grind` do this?
     apply ih
     · grind
     · grind

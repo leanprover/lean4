@@ -288,15 +288,14 @@ theorem count_flatMap {α} [BEq β] {xs : Array α} {f : α → Array β} {x : �
   rcases xs with ⟨xs⟩
   simp [List.count_flatMap, countP_flatMap, Function.comp_def]
 
--- FIXME these theorems can be restored once `List.erase` and `Array.erase` have been related.
+theorem count_erase (a b : α) (xs : Array α) : count a (xs.erase b) = count a xs - if b == a then 1 else 0 := by
+  rcases xs with ⟨l⟩
+  simp [List.count_erase]
 
--- theorem count_erase (a b : α) (l : Array α) : count a (l.erase b) = count a l - if b == a then 1 else 0 := by
---   sorry
+@[simp] theorem count_erase_self (a : α) (xs : Array α) :
+    count a (xs.erase a) = count a xs - 1 := by rw [count_erase, if_pos (by simp)]
 
--- @[simp] theorem count_erase_self (a : α) (l : Array α) :
---     count a (l.erase a) = count a l - 1 := by rw [count_erase, if_pos (by simp)]
-
--- @[simp] theorem count_erase_of_ne (ab : a ≠ b) (l : Array α) : count a (l.erase b) = count a l := by
---   rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
+@[simp] theorem count_erase_of_ne (ab : a ≠ b) (xs : Array α) : count a (xs.erase b) = count a xs := by
+  rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
 
 end count

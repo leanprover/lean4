@@ -50,11 +50,6 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
       s.appMap.insert key [e]
   }
 
-/-- Inserts `e` into the list of case-split candidates. -/
-private def addSplitCandidate (e : Expr) : GoalM Unit := do
-  trace_goal[grind.split.candidate] "{e}"
-  modify fun s => { s with split.candidates := e :: s.split.candidates }
-
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
 /-- Returns `true` if `e` is of the form `@Eq Prop a b` -/

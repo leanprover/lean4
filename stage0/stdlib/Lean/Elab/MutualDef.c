@@ -1339,6 +1339,7 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_elabMutualDe
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_FixPoint_fixpoint___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Command_elabMutualDef___spec__10___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_inServer;
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_FixPoint_updateUsedVarsOf___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_logGoalsAccomplishedSnapshotTask___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkLetRecClosureFor___spec__5___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkLetRecClosureFor___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1415,7 +1416,6 @@ static lean_object* l_Lean_Elab_elabTerminationHints___at___private_Lean_Elab_Mu
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabMutualDef___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkBodyInfo(lean_object*, lean_object*);
 static lean_object* l_Lean_withTraceNode___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabHeaders___spec__10___lambda__4___closed__2;
-extern lean_object* l_Lean_internal_cmdlineSnapshots;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkLetRecClosures___spec__8___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkLetRecClosures___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_MutualDef___hyg_17944____closed__7;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_logGoalsAccomplishedSnapshotTask___spec__8(lean_object*, size_t, size_t);
@@ -50054,7 +50054,7 @@ lean_dec(x_66);
 x_69 = lean_ctor_get(x_67, 0);
 lean_inc(x_69);
 lean_dec(x_67);
-x_70 = lean_ctor_get(x_69, 1);
+x_70 = lean_ctor_get(x_69, 2);
 lean_inc(x_70);
 lean_dec(x_69);
 x_71 = l_Task_Priority_default;
@@ -50186,7 +50186,7 @@ lean_dec(x_112);
 x_115 = lean_ctor_get(x_113, 0);
 lean_inc(x_115);
 lean_dec(x_113);
-x_116 = lean_ctor_get(x_115, 1);
+x_116 = lean_ctor_get(x_115, 2);
 lean_inc(x_116);
 lean_dec(x_115);
 x_117 = l_Task_Priority_default;
@@ -50338,7 +50338,7 @@ lean_dec(x_163);
 x_166 = lean_ctor_get(x_164, 0);
 lean_inc(x_166);
 lean_dec(x_164);
-x_167 = lean_ctor_get(x_166, 1);
+x_167 = lean_ctor_get(x_166, 2);
 lean_inc(x_167);
 lean_dec(x_166);
 x_168 = l_Task_Priority_default;
@@ -50513,7 +50513,7 @@ lean_dec(x_219);
 x_222 = lean_ctor_get(x_220, 0);
 lean_inc(x_222);
 lean_dec(x_220);
-x_223 = lean_ctor_get(x_222, 1);
+x_223 = lean_ctor_get(x_222, 2);
 lean_inc(x_223);
 lean_dec(x_222);
 x_224 = l_Task_Priority_default;
@@ -50755,7 +50755,7 @@ lean_dec(x_287);
 x_290 = lean_ctor_get(x_288, 0);
 lean_inc(x_290);
 lean_dec(x_288);
-x_291 = lean_ctor_get(x_290, 1);
+x_291 = lean_ctor_get(x_290, 2);
 lean_inc(x_291);
 lean_dec(x_290);
 x_292 = l_Task_Priority_default;
@@ -51364,7 +51364,7 @@ lean_dec(x_432);
 x_435 = lean_ctor_get(x_433, 0);
 lean_inc(x_435);
 lean_dec(x_433);
-x_436 = lean_ctor_get(x_435, 1);
+x_436 = lean_ctor_get(x_435, 2);
 lean_inc(x_436);
 lean_dec(x_435);
 x_437 = l_Task_Priority_default;
@@ -59945,7 +59945,7 @@ static lean_object* _init_l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_logG
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_internal_cmdlineSnapshots;
+x_1 = l_Lean_Elab_inServer;
 return x_1;
 }
 }

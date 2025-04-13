@@ -544,6 +544,20 @@ theorem perm_insertIdx {α} (x : α) (l : List α) {i} (h : i ≤ l.length) :
 
 namespace Perm
 
+theorem take {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.drop n ~ l₂.drop n) :
+    l₁.take n ~ l₂.take n := by
+  classical
+  rw [perm_iff_count] at h w ⊢
+  rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h
+  simpa only [count_append, w, Nat.add_right_cancel_iff] using h
+
+theorem drop {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.take n ~ l₂.take n) :
+    l₁.drop n ~ l₂.drop n := by
+  classical
+  rw [perm_iff_count] at h w ⊢
+  rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h
+  simpa only [count_append, w, Nat.add_left_cancel_iff] using h
+
 def idxAux [BEq α] (l₁ : List (Bool × α)) (l₂ : List α) (i : Nat) : Option Nat :=
   match i, l₂ with
   | 0, [] => some 0
@@ -551,16 +565,27 @@ def idxAux [BEq α] (l₁ : List (Bool × α)) (l₂ : List α) (i : Nat) : Opti
   | i + 1, [] => some (i + 1)
   | i + 1, x :: l₂ => idxAux (l₁ := l₁.replace (true, x) (false, x)) (l₂ := l₂) i
 
-theorem isSome_idxAux [BEq α] {l₁ : List (Bool × α)} {l₂ : List α} {i : Nat} (h : ∀ x, l₁.count (true, x) = l₂.count x) :
+theorem isSome_idxAux [BEq α] [LawfulBEq α] {l₁ : List (Bool × α)} {l₂ : List α} {i : Nat} (h : ∀ x, l₁.count (true, x) = l₂.count x) :
     (idxAux l₁ l₂ i).isSome := by
   fun_induction idxAux
   case case1 => simp [idxAux]
-  case case2 =>
+  case case2 l₁ x l₂ =>
     simp [idxAux]
     sorry
 
-  case case3 => sorry
-  case case4 => sorry
+  case case3 => simp [idxAux]
+  case case4 l₁ i x l₂ ih =>
+    unfold idxAux
+    apply ih
+    intro y
+    specialize h y
+    simp [count_cons] at h
+    split at h <;> rename_i h'
+    · simp at h'
+      subst h'
+      rw [count_replace]
+      sorry
+    · sorry
 
 @[simp] theorem _root_.Prod.beq_def [BEq α] [BEq β] {a₁ a₂ : α} {b₁ b₂ : β} :
     ((a₁, b₁) == (a₂, b₂)) = (a₁ == a₂ && b₁ == b₂) := rfl
@@ -575,34 +600,21 @@ def idx [BEq α] [LawfulBEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) (i : Nat
 
 theorem getElem?_idx [BEq α] [LawfulBEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) (i : Nat) :
     l₁[h.idx i]? = l₂[i]? := by
-  induction i generalizing l₁ l₂ with
-  | zero =>
-    match l₂ with
-    | [] =>
-      simp at h
-      simp_all
-    | x :: l₂ =>
-      dsimp [idx]
-      simp
-      sorry
-  | succ i ih =>
-    match l₂ with
-    | [] =>
-      dsimp [idx]
-      simp at h
-      simp_all
-    | x :: l₂ =>
-      dsimp [idx]
-      specialize ih (h.erase x)
-      sorry
-  -- split <;> rename_i h
-  -- · split
-  --   · sorry
-  --   · simp
-  --     sorry
-  -- · split
-  --   · simp_all
-  --   · sorry
+  unfold idx idxAux
+  split
+  case h_1 =>
+    simp at h
+    simp_all
+  case h_2 =>
+    rename_i x l₂
+    simp [idxOf?, Function.comp_def, getElem?_eq_some_iff]
+    sorry
+  case h_3 =>
+    simp at h
+    simp_all
+  case h_4 =>
+    simp
+    apply getElem?_idx
 
 end Perm
 

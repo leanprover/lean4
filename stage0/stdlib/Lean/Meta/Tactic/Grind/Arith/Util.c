@@ -28,6 +28,7 @@ uint8_t l_Lean_Expr_isApp(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isSupportedType(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___lambda__3(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isRelevantPred(lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___lambda__1(lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__9;
@@ -63,6 +64,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isIntType___boxed(lean_object*)
 static lean_object* l_Lean_Meta_Grind_Arith_isInstAddNat___closed__2;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isNatType___closed__2;
+static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isInstLENat___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isArithTerm(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__6;
@@ -90,6 +92,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_isInstAddNat___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___lambda__3___closed__5;
 static lean_object* l_Lean_Meta_Grind_Arith_isInstLENat___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___boxed(lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__18;
 static lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___closed__2;
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isIntType(lean_object*);
 static lean_object* _init_l_Lean_Meta_Grind_Arith_isNatType___closed__1() {
@@ -1113,7 +1116,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("HMod", 4, 4);
+x_1 = lean_mk_string_unchecked("HPow", 4, 4);
 return x_1;
 }
 }
@@ -1121,7 +1124,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("hMod", 4, 4);
+x_1 = lean_mk_string_unchecked("hPow", 4, 4);
 return x_1;
 }
 }
@@ -1139,7 +1142,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("HDiv", 4, 4);
+x_1 = lean_mk_string_unchecked("HMod", 4, 4);
 return x_1;
 }
 }
@@ -1147,7 +1150,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("hDiv", 4, 4);
+x_1 = lean_mk_string_unchecked("hMod", 4, 4);
 return x_1;
 }
 }
@@ -1165,7 +1168,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("HMul", 4, 4);
+x_1 = lean_mk_string_unchecked("HDiv", 4, 4);
 return x_1;
 }
 }
@@ -1173,7 +1176,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("hMul", 4, 4);
+x_1 = lean_mk_string_unchecked("hDiv", 4, 4);
 return x_1;
 }
 }
@@ -1191,7 +1194,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("HSub", 4, 4);
+x_1 = lean_mk_string_unchecked("HMul", 4, 4);
 return x_1;
 }
 }
@@ -1199,7 +1202,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("hSub", 4, 4);
+x_1 = lean_mk_string_unchecked("hMul", 4, 4);
 return x_1;
 }
 }
@@ -1209,6 +1212,32 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Grind_Arith_isArithTerm___closed__13;
 x_2 = l_Lean_Meta_Grind_Arith_isArithTerm___closed__14;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__16() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("HSub", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__17() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("hSub", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__18() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_Grind_Arith_isArithTerm___closed__16;
+x_2 = l_Lean_Meta_Grind_Arith_isArithTerm___closed__17;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
@@ -1320,26 +1349,15 @@ x_32 = l_Lean_Expr_isConstOf(x_24, x_31);
 if (x_32 == 0)
 {
 lean_object* x_33; uint8_t x_34; 
-x_33 = l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__3;
+x_33 = l_Lean_Meta_Grind_Arith_isArithTerm___closed__18;
 x_34 = l_Lean_Expr_isConstOf(x_24, x_33);
-lean_dec(x_24);
-return x_34;
-}
-else
+if (x_34 == 0)
 {
-uint8_t x_35; 
+lean_object* x_35; uint8_t x_36; 
+x_35 = l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__3;
+x_36 = l_Lean_Expr_isConstOf(x_24, x_35);
 lean_dec(x_24);
-x_35 = 1;
-return x_35;
-}
-}
-else
-{
-uint8_t x_36; 
-lean_dec(x_24);
-x_36 = 1;
 return x_36;
-}
 }
 else
 {
@@ -1357,13 +1375,10 @@ x_38 = 1;
 return x_38;
 }
 }
-}
-}
-}
 else
 {
 uint8_t x_39; 
-lean_dec(x_11);
+lean_dec(x_24);
 x_39 = 1;
 return x_39;
 }
@@ -1371,9 +1386,36 @@ return x_39;
 else
 {
 uint8_t x_40; 
-lean_dec(x_11);
+lean_dec(x_24);
 x_40 = 1;
 return x_40;
+}
+}
+else
+{
+uint8_t x_41; 
+lean_dec(x_24);
+x_41 = 1;
+return x_41;
+}
+}
+}
+}
+}
+else
+{
+uint8_t x_42; 
+lean_dec(x_11);
+x_42 = 1;
+return x_42;
+}
+}
+else
+{
+uint8_t x_43; 
+lean_dec(x_11);
+x_43 = 1;
+return x_43;
 }
 }
 }
@@ -1517,6 +1559,12 @@ l_Lean_Meta_Grind_Arith_isArithTerm___closed__14 = _init_l_Lean_Meta_Grind_Arith
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_isArithTerm___closed__14);
 l_Lean_Meta_Grind_Arith_isArithTerm___closed__15 = _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__15();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_isArithTerm___closed__15);
+l_Lean_Meta_Grind_Arith_isArithTerm___closed__16 = _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__16();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_isArithTerm___closed__16);
+l_Lean_Meta_Grind_Arith_isArithTerm___closed__17 = _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__17();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_isArithTerm___closed__17);
+l_Lean_Meta_Grind_Arith_isArithTerm___closed__18 = _init_l_Lean_Meta_Grind_Arith_isArithTerm___closed__18();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_isArithTerm___closed__18);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

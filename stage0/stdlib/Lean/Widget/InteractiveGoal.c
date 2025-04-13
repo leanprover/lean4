@@ -28,7 +28,7 @@ static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJ
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoalCore_pretty_addLine(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_2301____closed__13;
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_2301____closed__12;
-lean_object* l_Lean_Widget_ppExprTagged(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Widget_ppExprTagged(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_176____lambda__1___boxed(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_3365____closed__7;
 extern lean_object* l_Lean_Meta_pp_auxDecls;
@@ -191,6 +191,7 @@ static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJ
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_176____closed__49;
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_176____closed__1;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Delaborator_delab(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_1277____closed__11;
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_176____closed__41;
 LEAN_EXPORT lean_object* l_Lean_Widget_instAppendInteractiveGoals;
@@ -275,6 +276,7 @@ static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJ
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_1277____closed__34;
 static lean_object* l_Lean_Widget_InteractiveGoalCore_pretty___closed__2;
 static lean_object* l_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_5____closed__2;
+static lean_object* l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Widget_goalToInteractive___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_2301____closed__19;
@@ -12478,6 +12480,14 @@ goto _start;
 static lean_object* _init_l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_delab), 7, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2() {
+_start:
+{
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 1;
 x_2 = lean_box(x_1);
@@ -12489,13 +12499,13 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
-size_t x_11; size_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
+size_t x_11; size_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_11 = lean_array_size(x_1);
 x_12 = 0;
 lean_inc(x_1);
 x_13 = l_Array_mapMUnsafe_map___at_Lean_Widget_addInteractiveHypothesisBundle___spec__1(x_11, x_12, x_1);
 x_14 = l_Array_mapMUnsafe_map___at_Lean_Widget_addInteractiveHypothesisBundle___spec__2(x_11, x_12, x_1);
-x_15 = 0;
+x_15 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1;
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -12688,7 +12698,7 @@ return x_24;
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_31 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1;
+x_31 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2;
 x_32 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_32, 0, x_14);
 lean_ctor_set(x_32, 1, x_13);
@@ -12709,7 +12719,7 @@ lean_dec(x_22);
 if (x_27 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_34 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1;
+x_34 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2;
 x_35 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_35, 0, x_14);
 lean_ctor_set(x_35, 1, x_13);
@@ -12726,7 +12736,7 @@ return x_24;
 else
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_37 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1;
+x_37 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2;
 x_38 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_38, 0, x_14);
 lean_ctor_set(x_38, 1, x_13);
@@ -12776,7 +12786,7 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
-x_47 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1;
+x_47 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2;
 x_48 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_48, 0, x_14);
 lean_ctor_set(x_48, 1, x_13);
@@ -12799,7 +12809,7 @@ lean_dec(x_22);
 if (x_42 == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
-x_51 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1;
+x_51 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2;
 x_52 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_52, 0, x_14);
 lean_ctor_set(x_52, 1, x_13);
@@ -12818,7 +12828,7 @@ return x_54;
 else
 {
 lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
-x_55 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1;
+x_55 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2;
 x_56 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_56, 0, x_14);
 lean_ctor_set(x_56, 1, x_13);
@@ -17032,10 +17042,10 @@ x_29 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isCla
 x_30 = !lean_is_exclusive(x_29);
 if (x_30 == 0)
 {
-lean_object* x_31; lean_object* x_32; uint8_t x_33; lean_object* x_34; 
+lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_31 = lean_ctor_get(x_29, 0);
 x_32 = lean_ctor_get(x_29, 1);
-x_33 = 0;
+x_33 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1;
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -17212,13 +17222,13 @@ return x_74;
 }
 else
 {
-lean_object* x_75; lean_object* x_76; uint8_t x_77; lean_object* x_78; 
+lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; 
 x_75 = lean_ctor_get(x_29, 0);
 x_76 = lean_ctor_get(x_29, 1);
 lean_inc(x_76);
 lean_inc(x_75);
 lean_dec(x_29);
-x_77 = 0;
+x_77 = l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1;
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -18099,6 +18109,8 @@ l_Lean_Widget_instEmptyCollectionInteractiveGoals = _init_l_Lean_Widget_instEmpt
 lean_mark_persistent(l_Lean_Widget_instEmptyCollectionInteractiveGoals);
 l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1 = _init_l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__1);
+l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2 = _init_l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2();
+lean_mark_persistent(l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___closed__2);
 l_Lean_Widget_addInteractiveHypothesisBundle___closed__1 = _init_l_Lean_Widget_addInteractiveHypothesisBundle___closed__1();
 lean_mark_persistent(l_Lean_Widget_addInteractiveHypothesisBundle___closed__1);
 l_Lean_Widget_addInteractiveHypothesisBundle___closed__2 = _init_l_Lean_Widget_addInteractiveHypothesisBundle___closed__2();

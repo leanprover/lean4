@@ -28026,15 +28026,16 @@ x_8 = l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_Lean_Compiler_LCNF_Si
 x_9 = l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_Lean_Compiler_LCNF_Simp_ConstantFold___hyg_4835____closed__6;
 x_10 = l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_Lean_Compiler_LCNF_Simp_ConstantFold___hyg_4835____closed__7;
 x_11 = 0;
-x_12 = lean_alloc_ctor(0, 7, 1);
+x_12 = lean_alloc_ctor(0, 8, 1);
 lean_ctor_set(x_12, 0, x_6);
 lean_ctor_set(x_12, 1, x_7);
 lean_ctor_set(x_12, 2, x_3);
 lean_ctor_set(x_12, 3, x_8);
 lean_ctor_set(x_12, 4, x_9);
-lean_ctor_set(x_12, 5, x_10);
-lean_ctor_set(x_12, 6, x_5);
-lean_ctor_set_uint8(x_12, sizeof(void*)*7, x_11);
+lean_ctor_set(x_12, 5, x_9);
+lean_ctor_set(x_12, 6, x_10);
+lean_ctor_set(x_12, 7, x_5);
+lean_ctor_set_uint8(x_12, sizeof(void*)*8, x_11);
 x_13 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg(x_12, x_1);
 return x_13;
 }

@@ -122,13 +122,15 @@ end TagDeclarationExtension
 structure MapDeclarationExtension (α : Type) extends PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
 deriving Inhabited
 
-def mkMapDeclarationExtension (name : Name := by exact decl_name%) : IO (MapDeclarationExtension α) :=
+def mkMapDeclarationExtension (name : Name := by exact decl_name%)
+    (exportEntriesFn : NameMap α → Array (Name × α) := (·.toArray)) : IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
-    exportEntriesFn := fun s => s.toArray
+    saveEntriesFn   := fun s => s.toArray
+    exportEntriesFn
     asyncMode       := .async
     replay?         := some fun _ newState newConsts s =>
       newConsts.foldl (init := s) fun s c =>
@@ -145,10 +147,11 @@ def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Na
   assert! env.asyncMayContain declName
   ext.addEntry env (declName, val)
 
-def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
+def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
+    (includeServer := false) : Option α :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    match (ext.getModuleEntries env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
+    match (ext.getModuleEntries (includeServer := includeServer) env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
   | none => (ext.findStateAsync env declName).find? declName

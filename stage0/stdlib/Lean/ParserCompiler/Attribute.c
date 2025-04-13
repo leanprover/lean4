@@ -379,13 +379,14 @@ x_3 = l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__8;
 x_4 = l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__9;
 x_5 = l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__10;
 x_6 = l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__11;
-x_7 = lean_alloc_ctor(0, 6, 0);
+x_7 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
 lean_ctor_set(x_7, 2, x_3);
 lean_ctor_set(x_7, 3, x_4);
 lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
+lean_ctor_set(x_7, 5, x_5);
+lean_ctor_set(x_7, 6, x_6);
 return x_7;
 }
 }

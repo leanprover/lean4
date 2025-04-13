@@ -278,6 +278,7 @@ private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (
     (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
     (as : Vector α n) (w : hi ≤ (qpartition as lt lo hi hlo hhi).fst.1) : hi ≤ lo := by
+  -- FIXME clean up this proof
   unfold qpartition at w
   apply Decidable.byContradiction
   intro h
@@ -289,13 +290,14 @@ private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (
   apply qpartition_loop_lt_hi₂ h (z := by omega)
   exact ⟨mid, by grind⟩
 
-private theorem qsort_sort_spec₁ {n}
+private theorem qsort_sort_spec {n}
     (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (le_trans : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a)
     (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as' : Vector α n) (w_as : as' = qsort.sort lt as lo hi hlo hhi) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < hi) → ¬ lt as'[i + 1] as'[i] := by
+  -- TODO attempt `fun_induction`?
   unfold qsort.sort at w_as
   split at w_as <;> rename_i w₁
   · intro i h₁ h₂
@@ -309,7 +311,7 @@ private theorem qsort_sort_spec₁ {n}
       if p₁ : i < mid then
         rw [getElem_qsort_sort_of_lt_lo (i := i)]
         rw [getElem_qsort_sort_of_lt_lo (i := i + 1)]
-        apply qsort_sort_spec₁ lt lt_asymm le_trans as' lo mid
+        apply qsort_sort_spec lt lt_asymm le_trans as' lo mid
         all_goals grind
       else
         replace p₁ : mid ≤ i := by omega
@@ -334,7 +336,7 @@ private theorem qsort_sort_spec₁ {n}
               · grind [qpartition_spec₂]
           all_goals omega
         else
-          apply qsort_sort_spec₁ lt lt_asymm le_trans _ _ _ (w_as := rfl) <;> omega
+          apply qsort_sort_spec lt lt_asymm le_trans _ _ _ (w_as := rfl) <;> omega
   · grind
 
 /--
@@ -350,9 +352,7 @@ theorem qsort_sorted₁' (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b
   unfold qsort
   split <;> rename_i w
   · grind
-  · apply qsort_sort_spec₁ lt lt_asymm le_trans as.toVector _ _ (w_as := rfl)
-    · grind
-    · grind
+  · apply qsort_sort_spec lt lt_asymm le_trans as.toVector _ _ (w_as := rfl) <;> grind
 
 /--
 `Array.qsort` returns a sorted array, i.e. adjacent elements are non-decreasing.

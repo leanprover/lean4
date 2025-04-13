@@ -69,8 +69,10 @@ structure Config where
   failures : Nat := 1
   /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/
   canonHeartbeats : Nat := 1000
-  /-- If `ext` is `true`, `grind` uses extensionality theorems available in the environment. -/
+  /-- If `ext` is `true`, `grind` uses extensionality theorems that have been marked with `[grind ext]`. -/
   ext : Bool := true
+  /-- If `extAll` is `true`, `grind` uses any extensionality theorems available in the environment. -/
+  extAll : Bool := false
   /--
   If `funext` is `true`, `grind` creates new opportunities for applying function extensionality by case-splitting
   on equalities between lambda expressions.

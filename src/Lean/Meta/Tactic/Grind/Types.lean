@@ -1261,12 +1261,15 @@ Returns extensionality theorems for the given type if available.
 If `Config.ext` is `false`, the result is `#[]`.
 -/
 def getExtTheorems (type : Expr) : GoalM (Array Ext.ExtTheorem) := do
-  unless (← getConfig).ext do return #[]
+  unless (← getConfig).ext || (← getConfig).extAll do return #[]
   if let some thms := (← get).extThms.find? { expr := type } then
     return thms
   else
     let thms ← Ext.getExtTheorems type
-    let thms ← thms.filterM fun thm => isExtTheorem thm.declName
+    let thms ← if (← getConfig).extAll then
+      pure thms
+    else
+      thms.filterM fun thm => isExtTheorem thm.declName
     modify fun s => { s with extThms := s.extThms.insert { expr := type } thms }
     return thms
 

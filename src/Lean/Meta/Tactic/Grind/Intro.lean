@@ -191,7 +191,7 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List G
   -/
   let type ← whnf (← fvarId.getType)
   if isEagerCasesCandidate goal type then
-    if (← cheapEagerCasesOnly) then
+    if (← cheapCasesOnly) then
       unless (← isCheapInductive type) do
         return none
     if let .const declName _ := type.getAppFn then

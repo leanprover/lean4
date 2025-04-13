@@ -59,13 +59,14 @@ structure Context where
   mainDeclName : Name
   config       : Grind.Config
   /--
-  If `cheapEagerCases` is `true`, `grind` only applies `cases` during introduction to types that contain
+  If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
   at most one minor premise.
-  Recall that `grind` eagerly applies `cases` when introducing types tagged with `[grind cases eager]`.
+  Recall that `grind` applies `cases` when introducing types tagged with `[grind cases eager]`,
+  and at `Split.lean`
   Remark: We add this option to implement the `lookahead` feature, we don't want to create several subgoals
   when performing lookahead.
   -/
-  cheapEagerCases : Bool := false
+  cheapCases : Bool := false
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -172,8 +173,8 @@ def getNatZeroExpr : GrindM Expr := do
 def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
 
-def cheapEagerCasesOnly : GrindM Bool :=
-  return (← readThe Context).cheapEagerCases
+def cheapCasesOnly : GrindM Bool :=
+  return (← readThe Context).cheapCases
 
 def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then

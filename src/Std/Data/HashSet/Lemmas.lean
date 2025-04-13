@@ -235,6 +235,10 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.get? a).isSome :=
   HashMap.contains_eq_isSome_getKey?
 
+theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
+    a ∈ m ↔ (m.get? a).isSome :=
+  HashMap.mem_iff_isSome_getKey?
+
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → m.get? a = none :=
   HashMap.getKey?_eq_none_of_contains_eq_false
@@ -273,9 +277,17 @@ theorem get_erase [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
     (m.erase k).get a h' = m.get a (mem_of_mem_erase h') :=
   HashMap.getKey_erase (h' := h')
 
-theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] {a : α} {h' : a ∈ m} :
+theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] {a : α} (h' : a ∈ m) :
     m.get? a = some (m.get a h') :=
-  @HashMap.getKey?_eq_some_getKey _ _ _ _ _ _ _ _ h'
+  HashMap.getKey?_eq_some_getKey h'
+
+theorem get_eq_get_get? [EquivBEq α] [LawfulHashable α] {k : α} {h} :
+    m.get k h = (m.get? k).get (mem_iff_isSome_get?.mp h) :=
+  HashMap.getKey_eq_get_getKey?
+
+theorem get_get? [EquivBEq α] [LawfulHashable α] {k : α} {h} :
+    (m.get? k).get h = m.get k (mem_iff_isSome_get?.mpr h) :=
+  HashMap.get_getKey?
 
 theorem get_beq [EquivBEq α] [LawfulHashable α] {k : α} (h : k ∈ m) : m.get k h == k :=
   HashMap.getKey_beq h

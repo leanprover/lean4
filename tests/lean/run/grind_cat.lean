@@ -68,7 +68,6 @@ structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Fu
   naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by grind
 
 attribute [grind ext] NatTrans.ext -- TODO: remove after builtin extensionality for structures
-attribute [grind ext] funext -- TODO: remove after update-stage0
 
 attribute [simp, grind =] NatTrans.naturality
 

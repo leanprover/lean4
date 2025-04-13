@@ -218,6 +218,7 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
     else
       -- model-based theory combination split
       return mkGrindEM c
+  | Not e => return mkGrindEM e
   | _ =>
     if let .forallE _ p _ _ := c then
       return mkGrindEM p

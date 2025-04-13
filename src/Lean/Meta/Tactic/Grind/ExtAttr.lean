@@ -20,7 +20,7 @@ builtin_initialize extTheoremsExt : SimpleScopedEnvExtension Name ExtTheorems ‚Ü
 
 def validateExtAttr (declName : Name) : CoreM Unit := do
   unless (‚Üê Ext.isExtTheorem declName) do
-    throwError "invalid `[grind ext]`, `{declName}` is tagged with `[ext]`"
+    throwError "invalid `[grind ext]`, `{declName}` is not tagged with `[ext]`"
 
 def addExtAttr (declName : Name) (attrKind : AttributeKind) : CoreM Unit := do
   validateExtAttr declName

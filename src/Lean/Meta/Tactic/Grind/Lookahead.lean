@@ -12,39 +12,6 @@ import Lean.Meta.Tactic.Grind.EMatch
 
 namespace Lean.Meta.Grind
 
-inductive LookaheadStatus where
-  | resolved
-  | notReady
-  | ready
-  deriving Inhabited, BEq, Repr
-
-private def checkLookaheadStatus (info : LookaheadInfo) : GoalM LookaheadStatus := do
-  match info with
-  | .imp e =>
-    unless (← isEqTrue e) do return .notReady
-    let .forallE _ d b _ := e | unreachable!
-    if (← isEqTrue d <||> isEqFalse d) then return .resolved
-    unless b.hasLooseBVars do
-      if (← isEqTrue b <||> isEqFalse b) then return .resolved
-    return .ready
-  | .arg a b _ eq =>
-    if (← isEqTrue eq <||> isEqFalse eq) then return .resolved
-    let is := (← get).split.lookaheadArgPos[(a, b)]? |>.getD []
-    let mut j := a.getAppNumArgs
-    let mut it_a := a
-    let mut it_b := b
-    repeat
-      unless it_a.isApp && it_b.isApp do return .ready
-      j := j - 1
-      if j ∉ is then
-        let arg_a := it_a.appArg!
-        let arg_b := it_b.appArg!
-        unless (← isEqv arg_a arg_b) do
-          return .notReady
-      it_a := it_a.appFn!
-      it_b := it_b.appFn!
-    return .ready
-
 private partial def solve (generation : Nat) (goal : Goal) : GrindM Bool := do
   cont (← intros generation goal)
 where
@@ -110,10 +77,11 @@ def lookahead : GrindTactic := fun goal => do
     for info in infos do
       if (← isInconsistent) then
         return true
-      match (← checkLookaheadStatus info) with
+      match (← checkSplitStatus info) with
       | .resolved => progress := true
+      | .ready _ _ true
       | .notReady => postponed := info :: postponed
-      | .ready =>
+      | .ready _ _ false =>
         if (← tryLookahead info.getExpr) then
           progress := true
         else

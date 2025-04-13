@@ -79,8 +79,9 @@ def lookahead : GrindTactic := fun goal => do
         return true
       match (← checkSplitStatus info) with
       | .resolved => progress := true
+      | .ready _ _ true
       | .notReady => postponed := info :: postponed
-      | .ready _ _ =>
+      | .ready _ _ false =>
         if (← tryLookahead info.getExpr) then
           progress := true
         else

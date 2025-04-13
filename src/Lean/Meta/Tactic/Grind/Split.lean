@@ -14,7 +14,7 @@ namespace Lean.Meta.Grind
 inductive SplitStatus where
   | resolved
   | notReady
-  | ready (numCases : Nat) (isRec := false)
+  | ready (numCases : Nat) (isRec := false) (tryPostpone := false)
   deriving Inhabited, BEq, Repr
 
 /-- Given `c`, the condition of an `if-then-else`, check whether we need to case-split on the `if-then-else` or not -/
@@ -146,7 +146,12 @@ def checkSplitInfoArgStatus (a b : Expr) (eq : Expr) : GoalM SplitStatus := do
       let arg_a := it_a.appArg!
       let arg_b := it_b.appArg!
       unless (← isEqv arg_a arg_b) do
-        return .notReady
+        trace_goal[grind.split] "may be irrelevant\na: {a}\nb: {b}\neq: {eq}\narg_a: {arg_a}\narg_b: {arg_b}, gen: {← getGeneration eq}"
+        /-
+        We tried to return `.notReady` because we would not be able to derive a congruence, but
+        `grind_ite.lean` breaks when this heuristic is used. TODO: understand better why.
+        -/
+        return .ready 2 (tryPostpone := true)
     it_a := it_a.appFn!
     it_b := it_b.appFn!
   return .ready 2
@@ -158,7 +163,7 @@ def checkSplitStatus (s : SplitInfo) : GoalM SplitStatus := do
 
 private inductive SplitCandidate where
   | none
-  | some (c : SplitInfo) (numCases : Nat) (isRec : Bool)
+  | some (c : SplitInfo) (numCases : Nat) (isRec : Bool) (tryPostpone : Bool)
 
 /-- Returns the next case-split to be performed. It uses a very simple heuristic. -/
 private def selectNextSplit? : GoalM SplitCandidate := do
@@ -170,7 +175,7 @@ where
     match cs with
     | [] =>
       modify fun s => { s with split.candidates := cs'.reverse }
-      if let .some _ numCases isRec := c? then
+      if let .some _ numCases isRec _ := c? then
         let numSplits := (← get).split.num
         -- We only increase the number of splits if there is more than one case or it is recursive.
         let numSplits := if numCases > 1 || isRec then numSplits + 1 else numSplits
@@ -183,20 +188,24 @@ where
     match (← checkSplitStatus c) with
     | .notReady => go cs c? (c::cs')
     | .resolved => go cs c? cs'
-    | .ready numCases isRec =>
+    | .ready numCases isRec tryPostpone =>
     if (← cheapCasesOnly) && numCases > 1 then
       go cs c? (c::cs')
     else match c? with
-    | .none => go cs (.some c numCases isRec) cs'
-    | .some c' numCases' _ =>
+    | .none => go cs (.some c numCases isRec tryPostpone) cs'
+    | .some c' numCases' _ tryPostpone' =>
      let isBetter : GoalM Bool := do
-       if numCases == 1 && !isRec && numCases' > 1 then
+       if tryPostpone' && !tryPostpone then
+         return true
+       else if tryPostpone && !tryPostpone' then
+         return false
+       else if numCases == 1 && !isRec && numCases' > 1 then
          return true
        if (← getGeneration c.getExpr) < (← getGeneration c'.getExpr) then
          return true
        return numCases < numCases'
      if (← isBetter) then
-        go cs (.some c numCases isRec) (c'::cs')
+        go cs (.some c numCases isRec tryPostpone) (c'::cs')
       else
         go cs c? (c::cs')
 
@@ -239,7 +248,7 @@ and returns a new list of goals if successful.
 -/
 def splitNext : GrindTactic := fun goal => do
   let (goals?, _) ← GoalM.run goal do
-    let .some c numCases isRec ← selectNextSplit?
+    let .some c numCases isRec _ ← selectNextSplit?
       | return none
     let c := c.getExpr
     let gen ← getGeneration c

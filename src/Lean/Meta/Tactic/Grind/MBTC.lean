@@ -33,13 +33,20 @@ structure MBTC.Context where
   -/
   eqAssignment : Expr → Expr → GoalM Bool
 
-private abbrev Map := Std.HashMap (Expr × Nat) (List Expr)
-private abbrev Candidates := Std.HashSet (Expr × Expr)
-private def mkCandidateKey (a b : Expr) : Expr × Expr :=
-  if a.lt b then
-    (a, b)
+private structure ArgInfo where
+  arg : Expr
+  app : Expr
+
+private abbrev Map := Std.HashMap (Expr × Nat) (List ArgInfo)
+private abbrev Candidates := Std.HashSet SplitInfo
+private def mkCandidate (a b : ArgInfo) (i : Nat) : GoalM SplitInfo := do
+  let (lhs, rhs) := if a.arg.lt b.arg then
+    (a.arg, b.arg)
   else
-    (b, a)
+    (b.arg, a.arg)
+  let eq ← mkEq lhs rhs
+  let eq ← shareCommon (← canon eq)
+  return .arg a.app b.app i eq
 
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do
@@ -58,40 +65,33 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
         let some arg ← getRoot? arg | pure ()
         if (← ctx.hasTheoryVar arg) then
           trace[grind.debug.mbtc] "{arg} @ {f}:{i}"
-          if let some others := map[(f, i)]? then
-            unless others.any (isSameExpr arg ·) do
-              for other in others do
-                if (← ctx.eqAssignment arg other) then
-                  if (← hasSameType arg other) then
-                    let k := mkCandidateKey arg other
-                    candidates := candidates.insert k
-              map := map.insert (f, i) (arg :: others)
+          let argInfo : ArgInfo := { arg, app := e }
+          if let some otherInfos := map[(f, i)]? then
+            unless otherInfos.any fun info => isSameExpr arg info.arg do
+              for otherInfo in otherInfos do
+                if (← ctx.eqAssignment arg otherInfo.arg) then
+                  if (← hasSameType arg otherInfo.arg) then
+                    candidates := candidates.insert (← mkCandidate argInfo otherInfo i)
+              map := map.insert (f, i) (argInfo :: otherInfos)
           else
-            map := map.insert (f, i) [arg]
+            map := map.insert (f, i) [argInfo]
         i := i + 1
   if candidates.isEmpty then
     return false
   if (← get).split.num > (← getConfig).splits then
     reportIssue "skipping `mbtc`, maximum number of splits has been reached `(splits := {(← getConfig).splits})`"
     return false
-  let result := candidates.toArray.qsort fun (a₁, b₁) (a₂, b₂) =>
-    if isSameExpr a₁ a₂ then
-      b₁.lt b₂
-    else
-      a₁.lt a₂
-  let eqs ← result.filterMapM fun (a, b) => do
-    let eq ← mkEq a b
-    trace[grind.mbtc] "{eq}"
-    let eq ← shareCommon (← canon eq)
-    if (← isKnownCaseSplit eq) then
+  let result := candidates.toArray.qsort fun c₁ c₂ => c₁.lt c₂
+  let result ← result.filterMapM fun info => do
+    if (← isKnownCaseSplit info) then
       return none
-    else
-      internalize eq (Nat.max (← getGeneration a) (← getGeneration b))
-      return some eq
-  if eqs.isEmpty then
+    let .arg a b _ eq := info | return none
+    internalize eq (Nat.max (← getGeneration a) (← getGeneration b))
+    return some info
+  if result.isEmpty then
     return false
-  for eq in eqs do
-    addSplitCandidate eq
+  for info in result do
+    addSplitCandidate info
   return true
 
 def mbtcTac (ctx : MBTC.Context) : GrindTactic := fun goal => do

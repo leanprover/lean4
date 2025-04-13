@@ -503,6 +503,12 @@ def SplitInfo.getExpr : SplitInfo → Expr
   | .simple e => e
   | .arg _ _ _ eq => eq
 
+def SplitInfo.lt : SplitInfo → SplitInfo → Bool
+  | .simple e₁, .simple e₂       => e₁.lt e₂
+  | .arg _ _ _ e₁, .arg _ _ _ e₂ => e₁.lt e₂
+  | .simple _, .arg ..           => true
+  | .arg .., .simple _           => false
+
 /-- Argument `arg : type` of an application `app` in `SplitInfo`. -/
 structure SplitArg where
   arg  : Expr

@@ -72,27 +72,12 @@ attribute [grind] Vector.getElem_swap_of_ne
 theorem getElem_qpartition_loop_snd_of_lt_lo {n} (lt : α → α → Bool) (lo hi : Nat)
     (hhi : hi < n) (pivot) (as : Vector α n) (i j) (ilo) (jh) (w : i ≤ j) (w' : lo ≤ hi)
     (k : Nat) (h : k < lo) : (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2[k] = as[k] := by
-  unfold qpartition.loop
-  split
-  · split
-    · have : hi - (j + 1) < hi - j := by omega
-      rw [getElem_qpartition_loop_snd_of_lt_lo (hi := hi) (j := j + 1) (h := h),
-        Vector.getElem_swap_of_ne]
-      all_goals grind
-    · have : hi - (j + 1) < hi - j := by omega
-      rw [getElem_qpartition_loop_snd_of_lt_lo (hi := hi) (j := j + 1) (h := h)]
-      grind
-  · grind
-termination_by hi - j
+  fun_induction qpartition.loop <;> (unfold qpartition.loop; grind)
 
 theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : k < lo) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := by
-  unfold qpartition
-  rw [getElem_qpartition_loop_snd_of_lt_lo (h := h)]
-  · (repeat' split) <;>
-    { repeat rw [Vector.getElem_swap_of_ne]
-      all_goals grind }
+  grind [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
 
 @[grind] theorem getElem_qsort_sort_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
@@ -110,10 +95,31 @@ theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (as : Vect
 termination_by hi - lo
 decreasing_by all_goals grind
 
+theorem getElem_qpartition_loop_snd_of_hi_lt {n} (lt : α → α → Bool) (lo hi : Nat)
+    (hhi : hi < n) (pivot) (as : Vector α n) (i j) (ilo) (jh) (w : i ≤ j) (w' : lo ≤ hi) (z : i ≤ hi)
+    (k : Nat) (h : hi < k) (h' : k < n) : (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2[k] = as[k] := by
+  fun_induction qpartition.loop <;> (unfold qpartition.loop; grind)
+
+theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
+    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+    (k : Nat) (h : hi < k) (h' : k < n) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := by
+  grind [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
+
 @[grind] theorem getElem_qsort_sort_of_hi_lt {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
-  sorry
+  unfold qsort.sort
+  split
+  · simp only []
+    split <;> rename_i w₁
+    · rw [getElem_qpartition_snd_of_hi_lt] <;> omega
+    · change ¬ (?q : { m // lo ≤ m ∧ m < n } × Vector α n).fst.1 ≥ hi at w₁
+      have := ?q.1.2.1
+      rw [getElem_qsort_sort_of_hi_lt, getElem_qsort_sort_of_hi_lt, getElem_qpartition_snd_of_hi_lt]
+      any_goals grind
+  · rfl
+termination_by hi - lo
+decreasing_by all_goals grind
 
 attribute [grind] Vector.getElem?_eq_none Vector.getElem?_eq_getElem
 
@@ -188,20 +194,6 @@ theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
       grind
   · grind
 
---  theorem qpartition_loop_spec₂' {n} (lt : α → α → Bool) (lo hi : Nat)
---     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
---     {ilo : lo ≤ i} {jh : j < n} {w : i ≤ j} (jhi : j ≤ hi := by omega)
---     (as : Vector α n) (hpivot : pivot = as[hi])
---     (q : ∀ k, (hk₁ : i ≤ k) → (hk₂ : k < j) → !lt as[k] as[hi]) (mid as')
---     (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).fst.1)
---     (hmid : mid < n)
---     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
---     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → !lt as'[i] as'[mid] := by
---   fun_induction qpartition.loop with
---   | case1 => sorry
---   | case2 => sorry
---   | case3 => sorry
-
 /--
 All elements in the active range before the pivot, are less than the pivot.
 -/
@@ -258,14 +250,8 @@ private theorem qpartition_loop_lt_hi₂
   split <;> rename_i h₁
   · split <;> rename_i h₂
     · obtain ⟨j', hj'₁, hj'₂, hj'₃, hj'₄⟩ := q
-      have : j ≠ j' := fun h => by simp_all
-      apply qpartition_loop_lt_hi₂ h (w := by omega) (z := by omega)
-        (q := ⟨j', by omega, by omega, by omega, by
-          rw [Vector.getElem_swap_of_ne]
-          · exact hj'₄
-          · omega
-          · omega⟩)
-    · apply qpartition_loop_lt_hi₁ h (w := by omega) (z := by omega)
+      apply qpartition_loop_lt_hi₂ h (w := by grind) (z := by grind) (q := by grind)
+    · apply qpartition_loop_lt_hi₁ h (w := by grind) (z := by grind)
   · simp
     omega
 termination_by n - i
@@ -288,16 +274,7 @@ private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (
   intro as₃
   intro pivot
   apply qpartition_loop_lt_hi₂ h (z := by omega)
-  refine ⟨mid, by omega, by omega, by omega, ?_⟩
-  dsimp [pivot, as₃]
-  split <;> rename_i h₁
-  · rw [Vector.getElem_swap_left, Vector.getElem_swap_right]
-    intro h₂
-    exact lt_asymm h₂ h₁
-  · exact h₁
-
-
-
+  exact ⟨mid, by grind⟩
 
 theorem qsort_sort_spec₁ {n}
     (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)

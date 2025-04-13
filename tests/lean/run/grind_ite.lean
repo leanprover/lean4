@@ -1,82 +1,4 @@
-section Mathlib.Data.List.Sigma
-
-universe u v
-
-namespace List
-
-variable {α : Type u} {β : α → Type v} {l : List (Sigma β)}
-
-/-- List of keys from a list of key-value pairs -/
-def keys : List (Sigma β) → List α :=
-  map Sigma.fst
-
-/-- Determines whether the store uses a key several times. -/
-def NodupKeys (l : List (Sigma β)) : Prop :=
-  l.keys.Nodup
-
-variable [DecidableEq α]
-
-/-! ### `dlookup` -/
-
-/-- `dlookup a l` is the first value in `l` corresponding to the key `a`,
-  or `none` if no such element exists. -/
-def dlookup (a : α) : List (Sigma β) → Option (β a)
-  | [] => none
-  | ⟨a', b⟩ :: l => if h : a' = a then some (Eq.recOn h b) else dlookup a l
-
-/-- Remove the first pair with the key `a`. -/
-def kerase (a : α) : List (Sigma β) → List (Sigma β) :=
-  eraseP fun s => a = s.1
-
-/-- Insert the pair `⟨a, b⟩` and erase the first pair with the key `a`. -/
-def kinsert (a : α) (b : β a) (l : List (Sigma β)) : List (Sigma β) :=
-  ⟨a, b⟩ :: kerase a l
-
-end List
-
-end Mathlib.Data.List.Sigma
-
-section Mathlib.Data.List.AList
-
-universe u v
-
-open List
-
-variable {α : Type u} {β : α → Type v}
-
-structure AList (β : α → Type v) : Type max u v where
-  entries : List (Sigma β)
-  nodupKeys : entries.NodupKeys
-
-namespace AList
-
-/-- The empty association list. -/
-instance : EmptyCollection (AList β) :=
-  ⟨⟨[], sorry⟩⟩
-
-variable [DecidableEq α]
-
-/-- Look up the value associated to a key in an association list. -/
-def lookup (a : α) (s : AList β) : Option (β a) :=
-  s.entries.dlookup a
-
-@[simp]
-theorem lookup_empty (a) : lookup a (∅ : AList β) = none :=
-  rfl
-
-/-- Insert a key-value pair into an association list and erase any existing pair
-  with the same key. -/
-def insert (a : α) (b : β a) (s : AList β) : AList β :=
-  ⟨kinsert a b s.entries, sorry⟩
-
-@[grind] theorem lookup_insert {a a' : α} {β} {b : β a} (s : AList β) :
-    (s.insert a b).lookup a' = if h : a' = a then some (h ▸ b) else s.lookup a' := by
-  sorry
-
-end AList
-
-end Mathlib.Data.List.AList
-
+import Std.Data.HashMap.Lemmas
 
 /-!
 # If normalization
@@ -87,7 +9,7 @@ to compare proof assistants.
 
 Their first suggestion was "if-normalization".
 
-This file contains a Lean formulation of the problem. See `Result.lean` for a Lean solution.
+Here we state the problem in the Lean, and then construct a clean solution where all verification work is done by `grind`.
 -/
 
 /-- An if-expression is either boolean literal, a numbered variable,
@@ -122,7 +44,7 @@ def hasConstantIf : IfExpr → Bool
 
 /--
 An if-expression has a "redundant if" if it contains
-an if-then-else where the then and else clauses are identical.
+an if-then-else where the "then" and "else" clauses are identical.
 -/
 def hasRedundantIf : IfExpr → Bool
   | lit _ => false
@@ -140,14 +62,14 @@ def vars : IfExpr → List Nat
 /--
 A helper function to specify that two lists are disjoint.
 -/
-def _root_.List.disjoint {α} [DecidableEq α] : List α → List α → Bool
+@[grind] def _root_.List.disjoint {α} [DecidableEq α] : List α → List α → Bool
   | [], _ => true
   | x::xs, ys => x ∉ ys && xs.disjoint ys
 
 /--
 An if expression evaluates each variable at most once if for each if-then-else
-the variables in the if clause are disjoint from the variables in the then clause, and
-the variables in the if clause are disjoint from the variables in the else clause.
+the variables in the "if" clause are disjoint from the variables in the "then" clause, and
+the variables in the "if" clause are disjoint from the variables in the "else" clause.
 -/
 def disjoint : IfExpr → Bool
   | lit _ => true
@@ -156,7 +78,7 @@ def disjoint : IfExpr → Bool
       i.vars.disjoint t.vars && i.vars.disjoint e.vars && i.disjoint && t.disjoint && e.disjoint
 
 /--
-An if expression is "normalized" if it has not nested, constant, or redundant ifs,
+An if expression is "normalized" if it has no nested, constant, or redundant ifs,
 and it evaluates each variable at most once.
 -/
 def normalized (e : IfExpr) : Bool :=
@@ -175,30 +97,40 @@ end IfExpr
 /--
 This is the statement of the if normalization problem.
 
-We require a function from that transforms if expressions to normalized if expressions,
+We require a function that transforms if expressions to normalized if expressions,
 preserving all evaluations.
 -/
 def IfNormalization : Type := { Z : IfExpr → IfExpr // ∀ e, (Z e).normalized ∧ (Z e).eval = e.eval }
 
 
 /-!
-# A solution to the if normalization challenge in Lean.
-
-See `Statement.lean` for background.
+# A solution to the if normalization challenge in Lean, using `grind`.
 -/
 
+-- `grind` is currently experimental, but for now we can suppress the warnings about this.
 set_option grind.warning false
+
+-- We first set up some convenient macros for dealing with subtypes using `grind`.
+
+/-- Construct a term of a subtype, using `grind` to discharge the condition. -/
+macro "g⟨" a:term "⟩" : term => `(⟨$a, by grind (gen := 9) (splits := 9)⟩)
+/--
+Replace a term of a subtype with a term of a different subtype, using the same data,
+and using `grind` to discharge the new condition (with access to the old condition).
+-/
+macro "c⟨" a:term "⟩" : term => `(have aux := $a; ⟨aux.1, by grind⟩)
+
+
 
 namespace IfExpr
 
-attribute [grind] List.mem_cons List.not_mem_nil List.mem_append Option.elim_none Option.elim_some
-  id
-
-attribute [grind] List.disjoint
+attribute [grind] List.mem_cons List.not_mem_nil List.mem_append
+  Option.getD_some Option.getD_none
 
 attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars
 
-variable {b : Bool} {f : Nat → Bool} {i : Nat} {t e : IfExpr}
+-- I'd prefer to use `TreeMap` here, but its `getElem?_insert` lemma is not useful.
+attribute [grind] Std.HashMap.getElem?_insert
 
 /-!
 Lemmas for `eval`.
@@ -212,42 +144,44 @@ Lemmas for `eval`.
 @[grind] theorem eval_ite_ite {a b c d e : IfExpr} :
     (ite (ite a b c) d e).eval f = (ite a (ite b d e) (ite c d e)).eval f := by grind [eval]
 
-/-- Custom size function for if-expressions, used for proving termination. -/
+/--
+Custom size function for if-expressions, used for proving termination.
+It is designed so that if we decrease the size of the "if" condition by one,
+we are allowed to increase the size of the branches by one, and still be smaller.
+-/
+-- We add the `simp` attribute so the termination checker can unfold the function.
 @[simp] def normSize : IfExpr → Nat
   | lit _ => 0
   | var _ => 1
   | .ite i t e => 2 * normSize i + max (normSize t) (normSize e) + 1
 
-/-- Construct a term of a subtype, using `grind` to discharge the condition. -/
-macro "g⟨" a:term "⟩" : term => `(⟨$a, by grind (gen := 9) (splits := 9)⟩)
 /--
-Replace a term of a subtype with a term of a different subtype, using the same data,
-and using `grind` to discharge the new condition (with access to the old condition).
+Normalizes the expression at the same time as
+making the variable assignments to literal booleans given by `assign`.
 -/
-macro "c⟨" a:term "⟩" : term => `(have aux := $a; ⟨aux.1, by grind⟩)
-
-/-- Normalizes the expression at the same time as assigning all variables in
-`e` to the literal booleans given by `l` -/
-def normalize (l : AList (fun _ : Nat => Bool)) :
+def normalize (assign : Std.HashMap Nat Bool) :
     (e : IfExpr) → { e' : IfExpr //
-        (∀ f, e'.eval f = e.eval (fun w => (l.lookup w).elim (f w) id))
-        ∧ e'.normalized
-        ∧ ∀ (v : Nat), v ∈ vars e' → l.lookup v = none }
+        -- The result is normalized
+        e'.normalized
+        -- Evaluating the result is the same as evaluating the original expression, overriding the values with `assign`
+        ∧ (∀ f, e'.eval f = e.eval fun w => assign[w]?.getD (f w))
+        -- There are no remaining variables from `assign` in the result
+        ∧ ∀ (v : Nat), v ∈ vars e' → assign[v]? = none } -- TODO: replace the conclusion with `v ∉ assign`
   | lit b => g⟨lit b⟩
   | var v =>
-    match h : l.lookup v with
+    match h : assign[v]? with
     | none => g⟨var v⟩
     | some b => g⟨lit b⟩
-  | .ite (lit true)   t e => c⟨normalize l t⟩
-  | .ite (lit false)  t e => c⟨normalize l e⟩
-  | .ite (.ite a b c) t e => c⟨normalize l (.ite a (.ite b t e) (.ite c t e))⟩
+  | .ite (lit true)   t e => c⟨normalize assign t⟩
+  | .ite (lit false)  t e => c⟨normalize assign e⟩
+  | .ite (.ite a b c) t e => c⟨normalize assign (.ite a (.ite b t e) (.ite c t e))⟩
   | .ite (var v)      t e =>
-    match h : l.lookup v with
+    match h : assign[v]? with
     | none =>
-      have ⟨t', _⟩ := normalize (l.insert v true) t
-      have ⟨e', _⟩ := normalize (l.insert v false) e
+      have ⟨t', _⟩ := normalize (assign.insert v true) t
+      have ⟨e', _⟩ := normalize (assign.insert v false) e
       g⟨if t' = e' then t' else .ite (var v) t' e'⟩
-    | some b => c⟨normalize l (.ite (lit b) t e)⟩
+    | some b => c⟨normalize assign (.ite (lit b) t e)⟩
   termination_by e => e.normSize
 
 /-
@@ -257,6 +191,6 @@ We want a function from if-expressions to if-expressions,
 that outputs normalized if-expressions and preserves meaning.
 -/
 example : IfNormalization :=
-  ⟨_, fun e => ⟨(IfExpr.normalize ∅ e).2.2.1, by simp [(IfExpr.normalize ∅ e).2.1]⟩⟩
+  ⟨_, fun e => ⟨(IfExpr.normalize ∅ e).2.1, by simp [(IfExpr.normalize ∅ e).2.2.1]⟩⟩
 
 end IfExpr

@@ -1876,6 +1876,37 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
     exact Nat.mul_lt_mul_of_pos_right x.isLt (Nat.two_pow_pos _)
   · omega
 
+theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
+    (shiftLeftZeroExtend x n).toNat = if 0 < n then x.toNat <<< n else x.toNat := by
+  simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
+  by_cases hn : 0 < n
+  · simp only [hn, ↓reduceIte]
+    have :=  Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + n) (by omega) (by omega)
+    have : x.toNat < 2 ^ (w + n) := by omega
+    have : x.toNat <<< n < 2 ^ (w + n) := by
+      rw [Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right (by apply Nat.two_pow_pos (w := n))]; omega
+    rw [Nat.mod_eq_of_lt (by rw [Nat.mod_eq_of_lt (by omega)]; omega), Nat.mod_eq_of_lt (by omega)]
+  · simp [show n = 0 by omega]
+
+theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
+    (shiftLeftZeroExtend x n).toInt = ((x.toNat <<< n) : Int).bmod (2 ^ w * 2 ^ n)  := by
+  simp only [shiftLeftZeroExtend_eq, toInt_shiftLeft, toNat_setWidth]
+  by_cases hn : 0 < n
+  · have := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := n + w) (by omega) (by omega)
+    rw [Nat.add_comm] at this
+    rw [Nat.mod_eq_of_lt (by omega), Nat.pow_add]
+  · simp [show n = 0 by omega]
+
+theorem toFin_shiftLeftZeroExtend {x : BitVec w} :
+    (shiftLeftZeroExtend x n).toFin = if n = 0 then Fin.ofNat' (2 ^ (w + n)) x.toNat else Fin.ofNat' (2 ^ (w + n)) (x.toNat <<< n) := by
+  simp only [shiftLeftZeroExtend_eq, toFin_shiftLeft, toNat_setWidth]
+  by_cases hn : 0 < n
+  · simp only [show ¬n = 0 by omega, ↓reduceIte]
+    have := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := n + w) (by omega) (by omega)
+    rw [Nat.add_comm] at this
+    rw [Nat.mod_eq_of_lt (by omega)]
+  · simp [show n = 0 by omega]
+
 @[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < m + n) :
     (shiftLeftZeroExtend x n)[i] = if h' : i < n then false else x[i - n] := by
   rw [shiftLeftZeroExtend_eq]

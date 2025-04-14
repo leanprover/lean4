@@ -232,3 +232,17 @@ instance [Monad m] : MonadFinally (EStateT ε σ m) where
     | .error e₁ s => match (← h none s) with
       | .ok _ s => return .error e₁ s
       | .error e₂ s => return .error e₂ s
+
+/-- `EStateM` is analogous to `Lake.EStateT` with `m := Id`. -/
+def ofEStateM {ε σ α} (f : EStateM ε σ α) : Lake.EStateT ε σ Id α :=
+  fun s => do
+    match f s with
+    | .ok a s => return .ok a s
+    | .error e s => return .error e s
+
+/-- `Lake.EStateT` with `m := Id` and all the types in the same universe is analogous to `EStateM`. -/
+def toEStateM {ε σ α} (f : Lake.EStateT ε σ Id α) : EStateM ε σ α :=
+  fun s =>
+    match (f s).run with
+    | .ok a s => .ok a s
+    | .error e s => .error e s

@@ -3,10 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
--- prelude
--- import Init.Data.Array.QSort.Basic
--- import Init.Data.Array.Perm
 
+-- FIXME: when `grind` is ready for production use, move this file to `src/Init/Data/Array/QSort/Lemmas.lean`.
 set_option grind.warning false
 
 /-!
@@ -23,13 +21,14 @@ And when `lt` is antisymmetric and `¬ lt a b` is transitive, we have:
 * `qsort_sorted' : lo ≤ i < j ≤ hi → ¬ lt (as.qsort lt lo hi)[j] (as.qsort lt lo hi)[i]`
 * `qsort_sorted : i < j → ¬ lt (as.qsort lt)[j] (as.qsort lt)[i]`
 
-(There is not currently a public theorem that `(qsort as lt lo hi)[i] = as[i]` when `i < lo` or `hi < i`)
+(There is not currently a public theorem that `(qsort as lt lo hi)[i] = as[i]` when `i < lo` or `hi < i`.)
 
 -/
 namespace Array
 
 open List Vector
 
+-- These attributes should be moved to the standard library.
 attribute [grind] Vector.size_toArray
 attribute [grind] Vector.getElem_swap_left Vector.getElem_swap_right
 attribute [grind] Vector.getElem_swap_of_ne
@@ -172,7 +171,7 @@ private theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : N
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
-  -- TODO it would be great to use `fun_induction` here, but the goals explode.
+  -- FIXME it would be great to use `fun_induction` here, but the goals explode.
   unfold qpartition.loop at w_mid w_as
   subst hpivot
   split at w_mid <;> rename_i h₁
@@ -193,7 +192,7 @@ private theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : N
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → lt as'[i] as'[mid] = false := by
-  -- TODO it would be great to use `fun_induction` here, but the goals explode.
+  -- FIXME it would be great to use `fun_induction` here, but the goals explode.
   unfold qpartition.loop at w_mid w_as
   subst hpivot
   split at w_mid <;> rename_i h₁
@@ -241,14 +240,10 @@ We prove two preliminary lemmas about `qpartition.loop`.
 private theorem qpartition_loop_lt_hi₁
     (h : lo < hi) (ilo : lo ≤ i) (jh : j < n) (w : i < j) (z : j ≤ hi) :
     (qpartition.loop lt lo hi hhi pivot as i j ilo jh (by omega)).1.val < hi := by
-  -- fun_induction qpartition.loop -- "could not find suitable call of 'qpartition.loop' in the goal"
-  unfold qpartition.loop
-  split <;> rename_i h₁
-  · split <;> rename_i h₂
-    · apply qpartition_loop_lt_hi₁ h (w := by omega) (z := by omega)
-    · apply qpartition_loop_lt_hi₁ h (w := by omega) (z := by omega)
-  · simp
-    omega
+  -- TODO(@nomeata): Can this behaviour of `fun_induction` be improved?
+  -- If we specify fewer arguments (in particular, none), `fun_induction` fails with:
+  -- "could not find suitable call of 'qpartition.loop' in the goal"
+  fun_induction qpartition.loop lt lo hi hhi pivot as i j <;> (unfold qpartition.loop; grind)
 
 /--
 Otherwise, if there is some position `j' ≥ j` which is greater than or equal to the pivot,
@@ -263,9 +258,7 @@ private theorem qpartition_loop_lt_hi₂
     unfold qpartition.loop
     simp [h, h']
     -- FIXME Why can't `grind` do this?
-    apply ih
-    · grind
-    · grind
+    apply ih <;> grind
   | case2 as i j ilo jh w h' h ih  =>
     unfold qpartition.loop
     grind [qpartition_loop_lt_hi₁]
@@ -297,7 +290,7 @@ private theorem qsort_sort_spec {n}
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as' : Vector α n) (w_as : as' = qsort.sort lt as lo hi hlo hhi) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < hi) → ¬ lt as'[i + 1] as'[i] := by
-  -- TODO attempt `fun_induction`?
+  -- FIXME attempt `fun_induction`?
   unfold qsort.sort at w_as
   split at w_as <;> rename_i w₁
   · intro i h₁ h₂

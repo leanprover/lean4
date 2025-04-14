@@ -5,4 +5,3 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Array.QSort.Basic
-import Init.Data.Array.QSort.Lemmas

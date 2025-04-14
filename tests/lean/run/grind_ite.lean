@@ -159,7 +159,6 @@ we are allowed to increase the size of the branches by one, and still be smaller
   | var _ => 1
   | .ite i t e => 2 * normSize i + max (normSize t) (normSize e) + 1
 
-attribute [grind ext] funext -- TODO remove
 set_option profiler true
 /--
 Normalizes the expression at the same time as

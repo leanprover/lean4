@@ -12,7 +12,7 @@ namespace Lake
 `EResult ε σ α` is equivalent to `Except ε α × σ`, but using a single
 combined inductive yields a more efficient data representation.
 
-This is a universe-polymorphic version of `EStateM`.
+This is a universe-polymorphic version of `EStateM.Result`.
 -/
 inductive EResult (ε : Type u) (σ : Type v) (α : Type w) : Type max u v w
 /-- A success value of type `α`, and a new state `σ`. -/

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Erase
+import Init.Data.List.Find
 
 /-!
 # List Permutations
@@ -178,7 +179,7 @@ theorem Perm.singleton_eq (h : [a] ~ l) : [a] = l := singleton_perm.mp h
 
 theorem singleton_perm_singleton {a b : α} : [a] ~ [b] ↔ a = b := by simp
 
-theorem perm_cons_erase [DecidableEq α] {a : α} {l : List α} (h : a ∈ l) : l ~ a :: l.erase a :=
+theorem perm_cons_erase [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : a ∈ l) : l ~ a :: l.erase a :=
   let ⟨_, _, _, e₁, e₂⟩ := exists_erase_eq h
   e₂ ▸ e₁ ▸ perm_middle
 
@@ -268,7 +269,7 @@ theorem countP_eq_countP_filter_add (l : List α) (p q : α → Bool) :
     l.countP p = (l.filter q).countP p + (l.filter fun a => !q a).countP p :=
   countP_append .. ▸ Perm.countP_eq _ (filter_append_perm _ _).symm
 
-theorem Perm.count_eq [DecidableEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
+theorem Perm.count_eq [BEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
     count a l₁ = count a l₂ := p.countP_eq _
 
 /-
@@ -369,9 +370,9 @@ theorem perm_append_right_iff {l₁ l₂ : List α} (l) : l₁ ++ l ~ l₂ ++ l 
   refine ⟨fun p => ?_, .append_right _⟩
   exact (perm_append_left_iff _).1 <| perm_append_comm.trans <| p.trans perm_append_comm
 
-section DecidableEq
+section LawfulBEq
 
-variable [DecidableEq α]
+variable [BEq α] [LawfulBEq α]
 
 theorem Perm.erase (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : l₁.erase a ~ l₂.erase a :=
   if h₁ : a ∈ l₁ then
@@ -386,6 +387,11 @@ theorem cons_perm_iff_perm_erase {a : α} {l₁ l₂ : List α} :
   refine ⟨fun h => ?_, fun ⟨m, h⟩ => (h.cons a).trans (perm_cons_erase m).symm⟩
   have : a ∈ l₂ := h.subset mem_cons_self
   exact ⟨this, (h.trans <| perm_cons_erase this).cons_inv⟩
+
+end LawfulBEq
+section DecidableEq
+
+variable [DecidableEq α]
 
 theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l₁ = count a l₂ := by
   refine ⟨Perm.count_eq, fun H => ?_⟩
@@ -551,6 +557,64 @@ theorem drop {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.take n 
   rw [perm_iff_count] at h w ⊢
   rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h
   simpa only [count_append, w, Nat.add_left_cancel_iff] using h
+
+-- def idxAux [BEq α] (l₁ : List (Bool × α)) (l₂ : List α) (i : Nat) : Option Nat :=
+--   match i, l₂ with
+--   | 0, [] => some 0
+--   | 0, x :: _ => l₁.idxOf? (true, x)
+--   | i + 1, [] => some (i + 1)
+--   | i + 1, x :: l₂ => idxAux (l₁ := l₁.replace (true, x) (false, x)) (l₂ := l₂) i
+
+-- theorem isSome_idxAux [BEq α] [LawfulBEq α] {l₁ : List (Bool × α)} {l₂ : List α} {i : Nat} (h : ∀ x, l₁.count (true, x) = l₂.count x) :
+--     (idxAux l₁ l₂ i).isSome := by
+--   fun_induction idxAux
+--   case case1 => simp [idxAux]
+--   case case2 l₁ x l₂ =>
+--     simp [idxAux]
+--     sorry
+
+--   case case3 => simp [idxAux]
+--   case case4 l₁ i x l₂ ih =>
+--     unfold idxAux
+--     apply ih
+--     intro y
+--     specialize h y
+--     simp [count_cons] at h
+--     split at h <;> rename_i h'
+--     · simp at h'
+--       subst h'
+--       rw [count_replace]
+--       sorry
+--     · sorry
+
+-- @[simp] theorem _root_.Prod.beq_def [BEq α] [BEq β] {a₁ a₂ : α} {b₁ b₂ : β} :
+--     ((a₁, b₁) == (a₂, b₂)) = (a₁ == a₂ && b₁ == b₂) := rfl
+
+-- def idx [BEq α] [LawfulBEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) (i : Nat) : Nat :=
+--   (idxAux (l₁.map ((true, ·))) l₂ i).get (isSome_idxAux fun x => by
+--     simp only [count_eq_countP, countP_map, Function.comp_def, Prod.beq_def, beq_self_eq_true,
+--       Bool.true_and]
+--     simpa [← count_eq_countP] using h.count_eq _)
+
+-- #eval! idx (l₁ := [1,2,3,4,5,6,7]) (l₂ := [5,4,3,2,1,6,7]) (by decide) 1
+
+-- theorem getElem?_idx [BEq α] [LawfulBEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) (i : Nat) :
+--     l₁[h.idx i]? = l₂[i]? := by
+--   unfold idx idxAux
+--   split
+--   case h_1 =>
+--     simp at h
+--     simp_all
+--   case h_2 =>
+--     rename_i x l₂
+--     simp [idxOf?, Function.comp_def, getElem?_eq_some_iff]
+--     sorry
+--   case h_3 =>
+--     simp at h
+--     simp_all
+--   case h_4 =>
+--     simp
+--     apply getElem?_idx
 
 end Perm
 

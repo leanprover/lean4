@@ -304,7 +304,7 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
         | _ =>
           let x := xs[i]
           let xType ← inferType x
-          if (← withTransparency .all (isDefEq d xType)) then
+          if (← withAtLeastTransparency .default (isDefEq d xType)) then
             loop b (i+1) j (args.push x) instMVars
           else
             throwAppTypeMismatch (mkAppN f args) x

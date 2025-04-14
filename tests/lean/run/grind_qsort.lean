@@ -270,18 +270,11 @@ private theorem qpartition_loop_lt_hi₂
 private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
-    (as : Vector α n) (w : hi ≤ (qpartition as lt lo hi hlo hhi).fst.1) : hi ≤ lo := by
-  -- FIXME clean up this proof
-  unfold qpartition at w
-  apply Decidable.byContradiction
-  intro h
-  rw [Nat.not_le] at h
-  rw [← Nat.not_lt] at w
-  apply w; clear w
-  lift_lets
-  intros mid
-  apply qpartition_loop_lt_hi₂ h (z := by omega)
-  exact ⟨mid, by grind⟩
+    (as : Vector α n) (w : lo < hi) : (qpartition as lt lo hi hlo hhi).fst.1 < hi := by
+  unfold qpartition
+  apply qpartition_loop_lt_hi₂ w
+  · grind
+  · exact ⟨(lo + hi)/2, by grind⟩
 
 private theorem qsort_sort_spec {n}
     (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
@@ -298,7 +291,7 @@ private theorem qsort_sort_spec {n}
     split at w_as <;> rename_i w₃
     · simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
       obtain ⟨rfl, rfl⟩ := w₂
-      have := hi_le_lo_of_hi_le_qpartition_fst lt lt_asymm _ _ _ _ _ w₃
+      have := hi_le_lo_of_hi_le_qpartition_fst lt lt_asymm lo hi hlo hhi as w₁
       grind
     · subst w_as
       if p₁ : i < mid then

@@ -563,15 +563,16 @@ attribute [grind] List.cons_append
 theorem _root_.List.eq_nil_of_append_eq_nil {l₁ l₂ : List α} (h : l₁ ++ l₂ = []) : l₁ = [] ∧ l₂ = [] := by
   grind [List.append_eq_nil_iff]
 
--- attribute [grind →] List.eq_nil_of_append_eq_nil -- FIXME bad!
+attribute [grind →] List.eq_nil_of_append_eq_nil -- looks scary, but Leo says it's okay!
 
 theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
     (l₁ ++ [a] == l₂ ++ [b]) = (l₁ == l₂ && a == b) := by
   induction l₁ generalizing l₂ <;> cases l₂ <;> grind
 
-attribute [grind →] List.length_eq_of_beq -- FIXME bad!
+-- attribute [grind →] List.length_eq_of_beq -- FIXME very bad!
 
-theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length := by grind
+theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length := by
+  induction l₁ generalizing l₂ <;> cases l₂ <;> grind
 
 attribute [grind] List.replicate_zero List.replicate_succ
 

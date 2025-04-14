@@ -68,26 +68,23 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : Tactic
   else
     let rhs := getAltRHS alt
     withCaseRef (getAltDArrow alt) rhs do
-      if isHoleRHS rhs then
-        addInfo
-        let goals ← getGoals
+      let goals ← getGoals
+      setGoals []
+      try
         setGoals [mvarId]
-        mvarId.withContext <| withTacticInfoContext (mkNullNode #[getAltLhses alt, rhs]) do
-          let mvarDecl ← mvarId.getDecl
-          let val ← elabTermEnsuringType rhs mvarDecl.type
-          mvarId.assign val
-          let gs' ← getMVarsNoDelayed val
-          tagUntaggedGoals mvarDecl.userName `induction gs'.toList
-          setGoals <| goals ++ gs'.toList
-      else
-        let goals ← getGoals
-        try
-          setGoals [mvarId]
-          closeUsingOrAdmit <|
-            withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) <|
-              (addInfo *> evalTactic rhs)
-        finally
-          setGoals goals
+        withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) do
+          addInfo
+          if isHoleRHS rhs then
+            mvarId.withContext do
+              let mvarDecl ← mvarId.getDecl
+              -- Elaborate ensuring that `_` is interpreted as `?_`.
+              let (val, gs') ← elabTermWithHoles rhs mvarDecl.type `induction (parentTag? := mvarDecl.userName) (allowNaturalHoles := true)
+              mvarId.assign val
+              setGoals gs'
+          else
+            closeUsingOrAdmit <| evalTactic rhs
+      finally
+        pushGoals goals
 
 /-!
   Helper method for creating an user-defined eliminator/recursor application.
@@ -554,12 +551,12 @@ If there is no RHS, it is filled in with a hole.
 -/
 private def expandAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
   if shouldExpandAlt alt then
-    let alt :=
+    some <| alt[0].getArgs.map fun lhs =>
+      let alt := alt.setArg 0 (mkNullNode #[lhs])
       if 1 < alt.getNumArgs && alt[1].getNumArgs == 0 then
-        alt.setArg 1 <| mkNullNode #[mkAtomFrom alt "=>", mkHole alt]
+        alt.setArg 1 <| mkNullNode #[mkAtomFrom lhs "=>", mkHole lhs]
       else
         alt
-    some <| alt[0].getArgs.map fun lhs => alt.setArg 0 (mkNullNode #[lhs])
   else
     none
 

@@ -74,16 +74,14 @@ private theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool)
       apply qpartition_perm
   · simp [qpartition]
 
-grind_pattern qsort_sort_perm => (qsort.sort lt as lo hi hlo hhi).toArray
+-- FIXME: moving this higher in the file causes `grind` to fail in `getElem_qsort_sort_mem`??
+grind_pattern Array.Perm.refl => xs ~ xs
 
--- grind_pattern List.Perm.refl => l ~ l -- not working?
+grind_pattern qsort_sort_perm => (qsort.sort lt as lo hi hlo hhi).toArray
 
 theorem qsort_perm (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
     qsort as lt lo hi ~ as := by
-  unfold qsort
-  split
-  · rfl -- grind won't use `Perm.refl`?
-  · grind
+  grind [qsort]
 
 private theorem getElem_qpartition_loop_snd_of_lt_lo {n} (lt : α → α → Bool) (lo hi : Nat)
     (hhi : hi < n) (pivot) (as : Vector α n) (i j) (ilo) (jh) (w : i ≤ j) (w' : lo ≤ hi)
@@ -99,6 +97,7 @@ private theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (a
     {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
+  -- FIXME: can we do this via `fun_induction`?
   unfold qsort.sort
   split
   · simp only []
@@ -126,6 +125,7 @@ private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (a
     {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
+  -- FIXME: can we do this via `fun_induction`?
   unfold qsort.sort
   split
   · simp only []
@@ -141,6 +141,8 @@ decreasing_by all_goals grind
 
 private theorem extract_qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (hlo) (hhi) (w : lo ≤ hi) :
     ((qsort.sort lt as lo hi hlo hhi).extract lo (hi + 1)).toArray ~ (as.extract lo (hi + 1)).toArray := by
+  -- FIXME: why does this not work with
+  -- grind [Array.Perm.extract, qsort_sort_perm]
   apply Array.Perm.extract
   · grind [qsort_sort_perm]
   · grind
@@ -151,15 +153,17 @@ private theorem getElem_qsort_sort_mem (lt : α → α → Bool)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
     (i : Nat) (h : i < n) (_ : lo ≤ i) (_ : i ≤ hi) :
     (qsort.sort lt as lo hi hlo hhi)[i] ∈ as.extract lo (hi + 1) := by
-  -- This is horrible!
-  have := extract_qsort_sort_perm as lt lo hi hlo hhi (by omega)
+  -- FIXME: This is horrible!
+  have := extract_qsort_sort_perm as lt lo hi hlo hhi (by grind)
   have := Array.Perm.mem_iff this (a := (qsort.sort lt as lo hi hlo hhi)[i])
   rw [← Vector.mem_toArray_iff]
   apply this.mp
-  simp
+  rw [toArray_extract]
   rw [mem_extract_iff_getElem]
-  simp
+  simp only [Vector.getElem_toArray, Vector.size_toArray]
   refine ⟨i - lo, ?_⟩
+  -- FIXME: there appears to be a non-deterministic error appearing here.
+  -- If this `grind` fails, try restarting the server?
   grind
 
 private theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)

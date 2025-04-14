@@ -69,6 +69,14 @@ protected def EResult.map (f : α → β) : EResult ε σ α → EResult ε σ �
 instance : Functor (EResult ε σ) where
   map := EResult.map
 
+def EResult.toEStateMResult : EResult ε σ α → EStateM.Result ε σ α
+| .ok a s => .ok a s
+| .error e s => .error e s
+
+def EResult.ofEStateMResult : EStateM.Result ε σ α → EResult ε σ α
+| .ok a s => .ok a s
+| .error e s => .error e s
+
 /--
 `EStateT ε σ m` is a combined error and state monad transformer,
 equivalent to `ExceptT ε (StateT σ m)` but more efficient.
@@ -235,14 +243,8 @@ instance [Monad m] : MonadFinally (EStateT ε σ m) where
 
 /-- `EStateM` is analogous to `Lake.EStateT` with `m := Id`. -/
 def ofEStateM {ε σ α} (f : EStateM ε σ α) : Lake.EStateT ε σ Id α :=
-  fun s => do
-    match f s with
-    | .ok a s => return .ok a s
-    | .error e s => return .error e s
+  fun s => return .ofEStateMResult <| f s
 
 /-- `Lake.EStateT` with `m := Id` and all the types in the same universe is analogous to `EStateM`. -/
 def toEStateM {ε σ α} (f : Lake.EStateT ε σ Id α) : EStateM ε σ α :=
-  fun s =>
-    match (f s).run with
-    | .ok a s => .ok a s
-    | .error e s => .error e s
+  fun s => (f s).run.toEStateMResult

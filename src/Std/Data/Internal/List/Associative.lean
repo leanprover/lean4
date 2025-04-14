@@ -517,6 +517,23 @@ theorem getEntry_mem [BEq α] {l : List ((a : α) × β a)} {k : α} {h} :
     · simp only [List.mem_cons]
       exact .inr (ih _)
 
+theorem getEntry_of_mem [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {x : (a : α) × β a}
+    (h : x ∈ l) (hl : DistinctKeys l) :
+    getEntry x.fst l (containsKey_of_mem h) = x := by
+  induction h with
+  | head => simp [getEntry, getEntry?]
+  | @tail y l hm ih =>
+    rw [distinctKeys_cons_iff] at hl
+    have : (x.fst == y.fst) = false := by
+      false_or_by_contra
+      rename_i h
+      simp only [Bool.not_eq_false] at h
+      have := containsKey_of_mem hm
+      rw [containsKey_congr h] at this
+      simp [this] at hl
+    rw [getEntry_cons_of_false (BEq.symm_false this)]
+    apply ih (And.left hl)
+
 section
 
 variable {β : Type v}
@@ -560,35 +577,19 @@ theorem getValue_congr [BEq α] [PartialEquivBEq α] {l : List ((_ : α) × β)}
 theorem getValue_of_mem [BEq α] [EquivBEq α] {l : List ((_ : α) × β)} {x : (_ : α) × β}
     (h : x ∈ l) {h'} (distinct : DistinctKeys l) :
     getValue x.1 l h' = x.2 := by
-  have h' := containsKey_of_mem h
-  induction l with
-  | nil => simp at h
-  | cons hd tl ih =>
-    rw [containsKey_cons] at h'
-    by_cases hd_x : hd.1 == x.1
-    · have : x = hd := by
-        simp only [List.mem_cons] at h
-        cases h with
-        | inl h => exact h
-        | inr h =>
-          rw [distinctKeys_cons_iff] at distinct
-          rw [containsKey_eq_false_iff] at distinct
-          have := And.right distinct
-          specialize this x h
-          simp [this] at hd_x
-      simp only [← this]
-      rw [getValue_cons]
-      simp
-    · rw [getValue_cons]
-      rw [distinctKeys_cons_iff] at distinct
-      simp only [hd_x, Bool.false_eq_true, ↓reduceDIte]
-      simp only [Bool.not_eq_true] at hd_x
-      have hd_x' : ¬ x = hd := by
-        false_or_by_contra
-        rename_i h'
-        simp [h'] at hd_x
-      simp only [List.mem_cons, hd_x', false_or] at h
-      exact ih h (And.left distinct) (containsKey_of_mem h)
+  induction h with
+  | head => rw [getValue_cons_of_beq]; simp
+  | @tail y l hmem ih =>
+    obtain (h|h) := containsKey_cons_eq_true.1 h'
+    · have := containsKey_of_mem hmem ▸ containsKey_congr h ▸ distinct.containsKey_eq_false
+      simp at this
+    · rw [getValue_cons_of_false, ih distinct.tail]
+      refine Bool.not_eq_true _ ▸ (fun hb => ?_)
+      simp [← containsKey_congr hb, distinct.containsKey_eq_false] at h
+
+theorem getValue_eq_getEntry_snd [BEq α] [EquivBEq α] {l : List ((_ : α) × β)} {k : α} {h'} :
+    getValue k l h' = (getEntry k l h').snd := by
+  simp [getValue, getValue?_eq_getEntry?, getEntry, Option.get_map]
 
 end
 
@@ -632,35 +633,19 @@ theorem getValueCast_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {
 theorem getValueCast_of_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {x : (a : α) × β a}
     (h : x ∈ l) (distinct : DistinctKeys l) :
     getValueCast x.1 l (containsKey_of_mem h) = x.2 := by
-  have h' := containsKey_of_mem h
-  induction l with
-  | nil => simp at h
-  | cons hd tl ih =>
-    rw [containsKey_cons] at h'
-    by_cases hd_x : hd.1 == x.1
-    · have : x = hd := by
-        simp only [List.mem_cons] at h
-        cases h with
-        | inl h => exact h
-        | inr h =>
-          rw [distinctKeys_cons_iff] at distinct
-          rw [containsKey_eq_false_iff] at distinct
-          have := And.right distinct
-          specialize this x h
-          simp [this] at hd_x
-      simp only [← this]
-      rw [getValueCast_cons]
-      simp
+  induction h with
+  | head => simp [getValueCast, getValueCast?]
+  | @tail y l hmem ih =>
+    obtain (h|h) := containsKey_cons_eq_true.1
+      (@containsKey_of_mem α β _ _ (y :: l) x (List.mem_of_mem_tail hmem))
+    · have := containsKey_of_mem hmem ▸ containsKey_congr h ▸ distinct.containsKey_eq_false
+      simp at this
     · rw [getValueCast_cons]
-      rw [distinctKeys_cons_iff] at distinct
-      simp only [hd_x, Bool.false_eq_true, ↓reduceDIte]
-      simp only [beq_iff_eq] at hd_x
-      have hd_x' : ¬ x = hd := by
-        false_or_by_contra
-        rename_i h'
-        simp [h'] at hd_x
-      simp only [List.mem_cons, hd_x', false_or] at h
-      exact ih h (And.left distinct) (containsKey_of_mem h)
+      split
+      · rename_i hxy
+        rw [distinctKeys_cons_iff] at distinct
+        simp [containsKey_congr hxy, h] at distinct
+      · simp [ih distinct.tail]
 
 theorem getValue_eq_getValueCast {β : Type v} [BEq α] [LawfulBEq α] {l : List ((_ : α) × β)} {a : α}
     {h} : getValue a l h = getValueCast a l h := by
@@ -947,7 +932,7 @@ theorem getKey_of_mem [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {x : 
       simp only [List.mem_cons, hd_x', false_or] at h
       apply ih h (And.left distinct)
 
-theorem getKey_eq_getEntry_fst [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α}
+theorem getKey_eq_getEntry_fst [BEq α] {l : List ((a : α) × β a)} {a : α}
     {h : containsKey a l} : getKey a l h = (getEntry a l h).fst := by
   simp [getKey, getKey?_eq_getEntry?, Option.get_map, getEntry]
 
@@ -5045,127 +5030,49 @@ theorem length_filter_key_eq_length_iff [BEq α] [EquivBEq α] {f : α → Bool}
     simp only [getKey, getKey?_eq_getEntry?, this] at h
     exact h
 
-theorem perm_filter_self_iff [BEq α] [LawfulBEq α] {f : (a : α) → β a → Bool}
+theorem perm_filter_self_iff {f : α → Bool} {l : List α} :
+    (l.filter f).Perm l ↔ ∀ a ∈ l, f a = true := by
+  rw (occs := [1]) [← (List.filter_append_perm f _).congr_right,
+    ← List.append_nil (List.filter _ _), List.perm_append_left_iff]
+  simp
+
+theorem perm_filter_self_iff_forall_containsKey  [BEq α] [LawfulBEq α] {f : (a : α) → β a → Bool}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
     List.Perm (l.filter fun p => f p.1 p.2) l ↔ ∀ (a : α) (h : containsKey a l),
       (f a (getValueCast a l h)) = true := by
-  induction l using assoc_induction with
-  | nil => simp
-  | cons k v tl ih =>
-    rw [distinctKeys_cons_iff] at hl
-    simp only [List.filter, containsKey_cons, Bool.or_eq_true, beq_iff_eq, getValueCast_cons]
-    split
-    · rename_i hf
-      simp [ih (And.left hl)]
-      constructor
-      · intro h' a h
-        cases h with
-        | inl h =>
-          simp only [h, BEq.refl, ↓reduceDIte]
-          let b := f a (cast (by congr) v)
-          have hb : b = f a (cast (by congr) v) := by simp [b]
-          rw [← hb, ← hf, hb]
-          congr
-          · exact Eq.symm h
-          · simp
-        | inr h =>
-          split
-          · rename_i hk
-            simp [containsKey_congr hk, h] at hl
-          · apply h'
-      · intro h' a h
-        specialize h' a (Or.inr h)
-        split at h'
-        · rename_i hk
-          simp [containsKey_congr hk, h] at hl
-        · exact h'
-    · rename_i hf
-      constructor
-      · intro h
-        have length := List.Perm.length_eq h
-        simp only [List.length_cons] at length
-        have length_filter : (List.filter (fun p => f p.fst p.snd) tl).length ≤ tl.length := by
-          apply List.length_filter_le
-        simp [length, ← Nat.succ_eq_add_one, Nat.succ_le] at length_filter
-      · intro h
-        specialize h k
-        simp [hf] at h
+  rw [perm_filter_self_iff]
+  constructor
+  · intro h a ha
+    exact  h _ (getValueCast_mem ha)
+  · intro h a ha
+    exact getValueCast_of_mem ha hl ▸ h _ (containsKey_of_mem ha)
 
-theorem perm_filter_key_self_iff [BEq α] [EquivBEq α] {f : α → Bool}
+theorem perm_filter_key_self_iff_forall_containsKey [BEq α] [EquivBEq α] {f : α → Bool}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
     List.Perm (l.filter fun p => f p.1) l ↔ ∀ (a : α) (h : containsKey a l),
       f (getKey a l h) = true := by
-  induction l using assoc_induction with
-  | nil => simp
-  | cons k v tl ih =>
-    rw [distinctKeys_cons_iff] at hl
-    simp [getKey_cons, List.filter]
-    split
-    · rename_i hf
-      simp [ih (And.left hl)]
-      constructor
-      · intro h' a h
-        cases h with
-        | inl h =>
-          simp [h, hf]
-        | inr h =>
-          split
-          · rename_i hk
-            simp [containsKey_congr hk, h] at hl
-          · apply h'
-      · intro h' a h
-        specialize h' a (Or.inr h)
-        split at h'
-        · rename_i hk
-          simp [containsKey_congr hk, h] at hl
-        · apply h'
-    · rename_i hf
-      constructor
-      · intro h
-        have length := List.Perm.length_eq h
-        simp only [List.length_cons] at length
-        have length_filter : (List.filter (fun p => f p.fst) tl).length ≤ tl.length := by
-          apply List.length_filter_le
-        simp [length, ← Nat.succ_eq_add_one, Nat.succ_le] at length_filter
-      · intro h
-        specialize h k
-        simp [hf] at h
+  rw [perm_filter_self_iff]
+  constructor
+  · intro h a ha
+    rw [getKey_eq_getEntry_fst]
+    exact h _ getEntry_mem
+  · intro h a ha
+    simp only [getKey_eq_getEntry_fst] at h
+    exact getEntry_of_mem ha hl ▸ h _ (containsKey_of_mem ha)
 
-theorem Const.perm_filter_self_iff [BEq α] [EquivBEq α] {β : Type v} {f : α → β → Bool}
+theorem Const.perm_filter_self_iff_forall_containsKey [BEq α] [EquivBEq α] {β : Type v} {f : α → β → Bool}
     {l : List ((_ : α) × β)} (hl : DistinctKeys l) :
     List.Perm (l.filter fun p => f p.1 p.2) l ↔ ∀ (a : α) (h : containsKey a l),
       (f (getKey a l h) (getValue a l h)) = true := by
-  induction l using assoc_induction with
-  | nil => simp
-  | cons k v tl ih =>
-    rw [distinctKeys_cons_iff] at hl
-    simp only [List.filter, containsKey_cons, Bool.or_eq_true, getValue_cons, getKey_cons]
-    split
-    · rename_i hf
-      simp [ih (And.left hl)]
-      constructor
-      · intro h' a h
-        by_cases ka : k == a
-        · simp [ka, hf]
-        · simp [ka]
-          apply h'
-      · intro h' a h
-        specialize h' a (Or.inr h)
-        split at h'
-        · rename_i hk
-          simp [containsKey_congr hk, h] at hl
-        · exact h'
-    · rename_i hf
-      constructor
-      · intro h
-        have length := List.Perm.length_eq h
-        simp only [List.length_cons] at length
-        have length_filter : (List.filter (fun p => f p.fst p.snd) tl).length ≤ tl.length := by
-          apply List.length_filter_le
-        simp [length, ← Nat.succ_eq_add_one, Nat.succ_le] at length_filter
-      · intro h
-        specialize h k
-        simp [hf] at h
+  rw [perm_filter_self_iff]
+  constructor
+  · intro h a ha
+    simp only [getKey_eq_getEntry_fst, getValue_eq_getEntry_snd]
+    exact  h _ getEntry_mem
+  · intro h a ha
+    specialize h a.fst (containsKey_of_mem ha)
+    simp only [ha, hl, getKey_of_mem, getValue_of_mem] at h
+    exact h
 
 theorem isEmpty_filterMap_eq_true [BEq α] [LawfulBEq α] {f : (a : α) → β a → Option (γ a)}
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l) :

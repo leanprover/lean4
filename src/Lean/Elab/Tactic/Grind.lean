@@ -8,6 +8,7 @@ import Init.Grind.Tactics
 import Lean.Meta.Tactic.Grind
 import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Command
+import Lean.Elab.MutualDef
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.Config
 
@@ -27,7 +28,7 @@ def elabGrindPattern : CommandElab := fun stx => do
       let info ← getConstInfo declName
       forallTelescope info.type fun xs _ => do
         let patterns ← terms.getElems.mapM fun term => do
-          let pattern ← elabTerm term none
+          let pattern ← Term.elabTerm term none
           synthesizeSyntheticMVarsUsingDefault
           let pattern ← instantiateMVars pattern
           let pattern ← Grind.preprocessPattern pattern
@@ -88,12 +89,14 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
             params ← withRef p <| addEMatchTheorem params ctor .default
         else
           throwError "invalid use of `intro` modifier, `{declName}` is not an inductive predicate"
+      | .ext =>
+        throwError "`[grind ext]` cannot be set using parameters"
       | .infer =>
         if let some declName ← Grind.isCasesAttrCandidate? declName false then
           params := { params with casesTypes := params.casesTypes.insert declName false }
           if let some info ← isInductivePredicate? declName then
             -- If it is an inductive predicate,
-            -- we also add the contructors (intro rules) as E-matching rules
+            -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
               params ← withRef p <| addEMatchTheorem params ctor .default
         else
@@ -116,7 +119,7 @@ where
       if kind != .eqLhs && kind != .default then
         throwError "invalid `grind` parameter, `{declName}` is a definition, the only acceptable (and redundant) modifier is '='"
       let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
-        | throwError "failed to genereate equation theorems for `{declName}`"
+        | throwError "failed to generate equation theorems for `{declName}`"
       return { params with extra := params.extra ++ thms.toPArray' }
     | _ =>
       throwError "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
@@ -132,12 +135,22 @@ def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
-    (mainDeclName : Name) (fallback : Grind.Fallback) : MetaM Grind.Trace := do
-  let params ← mkGrindParams config only ps
-  let result ← Grind.main mvarId params mainDeclName fallback
-  if result.hasFailures then
-    throwError "`grind` failed\n{← result.toMessageData}"
-  return result.trace
+    (mainDeclName : Name) (fallback : Grind.Fallback) : TacticM Grind.Trace := do
+  mvarId.withContext do
+    let params ← mkGrindParams config only ps
+    let type ← mvarId.getType
+    let mvar' ← mkFreshExprSyntheticOpaqueMVar type
+    let result ← Grind.main mvar'.mvarId! params mainDeclName fallback
+    if result.hasFailures then
+      throwError "`grind` failed\n{← result.toMessageData}"
+    -- `grind` proofs are often big
+    let e ← if (← isProp type) then
+      mkAuxTheorem (prefix? := mainDeclName) type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+    else
+      let auxName ← Term.mkAuxName `grind
+      mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+    mvarId.assign e
+    return result.trace
 
 private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit) := do
   let some fallback := fallback? | return (pure ())
@@ -167,7 +180,7 @@ def evalGrindCore
   let only := only.isSome
   let params := if let some params := params then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
-    logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects"
+    logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects."
   let declName := (← Term.getDeclName?).getD `_grind
   withMainContext do
     let result ← grind (← getMainGoal) config only params declName fallback

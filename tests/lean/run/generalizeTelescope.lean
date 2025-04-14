@@ -18,7 +18,7 @@ let n1    := mkApp succ n
 let vecN1 := mkApp2 (mkConst `Vec) nat n1
 withLocalDeclD `xs vecN1 fun xs => do
 generalizeTelescope #[n1, xs] fun ys => do
-let t ← mkLambdaFVars ys ys.back
+let t ← mkLambdaFVars ys ys.back!
 trace[Meta.debug] t
 pure ()
 
@@ -35,7 +35,7 @@ let vecN1 := mkApp2 (mkConst `Vec) nat n1
 withLocalDeclD `xs vecN1 $ fun xs => do
 let e ← mkEqRefl xs
 generalizeTelescope #[n1, xs, e] fun ys => do
-let t ← mkLambdaFVars ys ys.back
+let t ← mkLambdaFVars ys ys.back!
 trace[Meta.debug] t
 pure ()
 
@@ -56,7 +56,7 @@ withLocalDeclD `xs vecN1 $ fun xs => do
 let e ← mkEqRefl xs
 failIfSuccess do
   generalizeTelescope #[n1, e] fun ys => do
-  let t ← mkLambdaFVars ys ys.back
+  let t ← mkLambdaFVars ys ys.back!
   trace[Meta.debug] t
   pure ()
 trace[Meta.debug] "failed as expected"

@@ -35,10 +35,32 @@ def preprocess (e : Expr) : GoalM Simp.Result := do
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
   let e' ← normalizeLevels e'
-  let e' ← eraseSimpMatchDiscrsOnly e'
+  let r' ← eraseSimpMatchDiscrsOnly e'
+  let r ← r.mkEqTrans r'
+  let e' := r'.expr
+  let r' ← replacePreMatchCond e'
+  let r ← r.mkEqTrans r'
+  let e' := r'.expr
   let e' ← canon e'
   let e' ← shareCommon e'
   trace_goal[grind.simp] "{e}\n===>\n{e'}"
   return { r with expr := e' }
+
+def pushNewFact' (prop : Expr) (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
+  let r ← preprocess prop
+  let prop' := r.expr
+  let proof := if let some h := r.proof? then
+    mkApp4 (mkConst ``Eq.mp [levelZero]) prop prop' h proof
+  else
+    proof
+  trace[grind.debug.pushNewFact] "{prop} ==> {prop'}"
+  modify fun s => { s with newFacts := s.newFacts.push <| .fact prop' proof generation }
+
+
+/-- Infers the type of the proof, preprocess it, and adds it to todo list. -/
+def pushNewFact (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
+  let prop ← inferType proof
+  trace[grind.debug.pushNewFact] "{prop}"
+  pushNewFact' prop proof generation
 
 end Lean.Meta.Grind

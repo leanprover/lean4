@@ -226,13 +226,16 @@ def structureTk          := leading_parser
   "structure "
 def classTk              := leading_parser
   "class "
+def structParent        := leading_parser
+  optional (atomic (ident >> " : ")) >> termParser
 def «extends»            := leading_parser
-  " extends " >> sepBy1 termParser ", "
+  -- The optType is to catch code that uses the old order for optType and extends.
+  " extends " >> sepBy1 structParent ", " >> Term.optType
 def «structure»          := leading_parser
     (structureTk <|> classTk) >>
     -- Note: no error recovery here due to clashing with the `class abbrev` syntax
     declId >>
-    ppIndent (many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType) >>
+    ppIndent (many (ppSpace >> Term.bracketedBinder) >> Term.optType >> optional «extends») >>
     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser
@@ -780,7 +783,7 @@ attach the recommended spelling to both `And` and `«term_∧_»`.
 
 The `syntax`, `macro`, `elab` and `notation` commands accept a `(name := parserName)` option to
 assign a name to the created parser so that you do not have to guess the automatically generated
-name. The `synax`, `macro` and `elab` commands can be hovered to see the name of the parser.
+name. The `syntax`, `macro` and `elab` commands can be hovered to see the name of the parser.
 
 For complex notations which enclose identifiers, the convention is to use example identifiers rather
 than other placeholders. This is an example following the convention:

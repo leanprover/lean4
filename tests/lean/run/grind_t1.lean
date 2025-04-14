@@ -1,3 +1,5 @@
+set_option grind.warning false
+
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -116,18 +118,25 @@ end dite_propagator_test
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
 -/
 #guard_msgs (info) in
 set_option trace.grind.eqc true in
 example (a : Nat) : let x := a + a; y = x → y = a + a := by
-  grind
+  grind -zetaDelta
 
 /--
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
+-/
+#guard_msgs (info) in
+set_option trace.grind.eqc true in
+example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
+  grind -zetaDelta
+
+/--
+info: [grind.eqc] y = 2 * a
+[grind.eqc] (y = 2 * a) = False
 -/
 #guard_msgs (info) in
 set_option trace.grind.eqc true in
@@ -181,6 +190,7 @@ info: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.assert] w ∈ b
 [grind.assert] ¬p w
 [grind.ematch.instance] h₁: w ∈ b → p w
+[grind.ematch.instance] List.length_pos_of_mem: w ∈ b → 0 < b.length
 [grind.assert] w ∈ b → p w
 -/
 #guard_msgs (info) in
@@ -245,7 +255,7 @@ p q : Prop
 h : p = q
 h_1 : p
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = q
     [prop] p
@@ -279,7 +289,7 @@ p q : Prop
 h : p = ¬q
 h_1 : p
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = ¬q
     [prop] p
@@ -307,27 +317,31 @@ example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (
 example {α β} (f : α → β) (a : α) : ∃ a', f a' = f a := by
   grind
 
-open List in
-example : (replicate n a).map f = replicate n (f a) := by
-  grind +splitIndPred only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+attribute [grind ext] List.ext_getElem?
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind +splitIndPred only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind only [cases Exists, Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
+
+open List in
+example : (replicate n a).map f = replicate n (f a) := by
+  grind only [cases Exists, Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
   -- Should fail since extensionality is disabled
-  fail_if_success grind -ext only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  fail_if_success grind -ext only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
   sorry
 
 @[ext] structure S where
   a : Nat
   b : Bool
+
+attribute [grind ext] S.ext
 
 example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
   grind
@@ -350,7 +364,7 @@ b : Bool
 h : (if b = true then 10 else 20) = a
 h_1 : b = true
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] (if b = true then 10 else 20) = a
     [prop] b = true
@@ -385,3 +399,36 @@ example [Decidable p] : a = true → p → decide p = a := by
 
 example [Decidable p] : false = a → ¬p → decide p = a := by
   grind
+
+example (a : Nat) (p q r : Prop) (h₁ : if _ : a < 1 then p else q) (h₂ : r) : (if a < 1 then p else q) ↔ r := by
+  grind (splits := 0)
+
+example [BEq α] [LawfulBEq α] (a b : α) : a == b → a = b := by
+  grind
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace]
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace_cons]
+
+def foo [BEq α] (a b : α) :=
+  match a == b with
+  | true => 1
+  | false => 0
+
+example [BEq α] [LawfulBEq α] (a b : α) : a = b → foo a b = 1 := by
+  grind (splits := 0) [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind (splits := 0) [foo]
+
+@[simp] theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
+    (l ++ [a])[i]'w = a := by
+  subst h; grind [List.getElem_append_left, List.getElem_append_right]
+
+example (p q : Prop) : (p → q) → (¬ p → q) → (p → ¬ q) → (¬p → ¬q) → False := by
+  grind (splitImp := true)

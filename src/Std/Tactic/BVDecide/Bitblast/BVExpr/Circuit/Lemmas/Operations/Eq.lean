@@ -31,7 +31,7 @@ theorem mkEq_denote_eq (aig : AIG α) (pair : AIG.BinaryRefVec aig w) (assign : 
   constructor
   · intro h
     ext i h'
-    rw [← hleft, ← hright]
+    rw [← BitVec.getLsbD_eq_getElem, ← BitVec.getLsbD_eq_getElem, ← hleft, ← hright]
     · simp [h, h']
     · omega
     · omega

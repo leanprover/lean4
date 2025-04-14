@@ -249,6 +249,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
     toArrayFn := fun s => s.toArray.qsort decLt
     asyncMode := .sync  -- compilation is non-parallel anyway
+    replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
 
 /--
@@ -514,7 +515,9 @@ def inferStep : InterpM Bool := do
     let currentVal ← getFunVal idx
     withReader (fun ctx => { ctx with currFnIdx := idx }) do
       decl.params.forM fun p => updateVarAssignment p.fvarId .top
-      decl.value.forCodeM interpCode
+      match decl.value with
+      | .code code .. => interpCode code
+      | .extern .. => updateCurrFnSummary .top
     let newVal ← getFunVal idx
     if currentVal != newVal then
       return true

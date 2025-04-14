@@ -486,7 +486,7 @@ private partial def evalLazyEntries
 
 private def evalNode (c : TrieIndex) :
     MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
-  let .node vs star cs pending := (←get).get! c
+  let .node vs star cs pending := (←get)[c]!
   if pending.size = 0 then
     return (vs, star, cs)
   else

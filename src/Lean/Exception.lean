@@ -69,9 +69,31 @@ protected def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := 
   let (ref, msg) ← AddErrorMessageContext.add ref msg
   throw <| Exception.error ref msg
 
+/--
+Tag used for `unknown identifier` messages.
+This tag is used by the 'import unknown identifier' code action to detect messages that should
+prompt the code action.
+-/
+def unknownIdentifierMessageTag : Name := `unknownIdentifier
+
+/--
+Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.
+This tag is used by the 'import unknown identifier' code action to detect messages that should
+prompt the code action.
+-/
+def mkUnknownIdentifierMessage (msg : MessageData) : MessageData :=
+  MessageData.tagged unknownIdentifierMessageTag msg
+
+/--
+Throw an unknown identifier error message that is tagged with `unknownIdentifierMessageTag`.
+See also `mkUnknownIdentifierMessage`.
+-/
+def throwUnknownIdentifier [Monad m] [MonadError m] (msg : MessageData) : m α :=
+  Lean.throwError <| mkUnknownIdentifierMessage msg
+
 /-- Throw an unknown constant error message. -/
 def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
-  Lean.throwError m!"unknown constant '{.ofConstName constName}'"
+  throwUnknownIdentifier m!"unknown constant '{.ofConstName constName}'"
 
 /-- Throw an error exception using the given message data and reference syntax. -/
 protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do

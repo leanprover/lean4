@@ -20,8 +20,8 @@ info: [grind.internalize] p → q
 [grind.internalize] q
 [grind.eqc] (p → q) = True
 [grind.eqc] q = False
+[grind.eqc] p = False
 [grind.eqc] p = True
-[grind.eqc] (p → q) = q
 -/
 #guard_msgs (info) in
 example (p q : Prop) : (p → q) → ¬q → ¬p := by
@@ -73,8 +73,8 @@ info: [grind.internalize] (p → q) = r
 [grind.eqc] (p → q) = r
 [grind.eqc] q = False
 [grind.eqc] r = True
+[grind.eqc] p = False
 [grind.eqc] p = True
-[grind.eqc] (p → q) = q
 -/
 #guard_msgs (info) in
 example (p q : Prop) : (p → q) = r → ¬q → r → ¬p := by

@@ -228,6 +228,7 @@ inductive SimpLetCase where
   | dep -- `let x := v; b` is not equivalent to `(fun x => b) v`
   | nondepDepVar -- `let x := v; b` is equivalent to `(fun x => b) v`, but result type depends on `x`
   | nondep -- `let x := v; b` is equivalent to `(fun x => b) v`, and result type does not depend on `x`
+deriving Repr
 
 def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
   withLocalDeclD n t fun x => do
@@ -387,7 +388,9 @@ def simpLet (e : Expr) : SimpM Result := do
   if (← getConfig).zeta then
     return { expr := b.instantiate1 v }
   else
-    match (← getSimpLetCase n t b) with
+    let simpLetCase ← getSimpLetCase n t b
+    trace[Debug.Meta.Tactic.simp] "getSimpLetCase is {repr simpLetCase}:{indentExpr e}"
+    match simpLetCase with
     | SimpLetCase.dep => return { expr := (← dsimp e) }
     | SimpLetCase.nondep =>
       let rv ← simp v
@@ -483,8 +486,8 @@ def congrDefault (e : Expr) : SimpM Result := do
       congrArgs (← simp f) args
 
 /-- Process the given congruence theorem hypothesis. Return true if it made "progress". -/
-def processCongrHypothesis (h : Expr) : SimpM Bool := do
-  forallTelescopeReducing (← inferType h) fun xs hType => withNewLemmas xs do
+def processCongrHypothesis (h : Expr) (hType : Expr) : SimpM Bool := do
+  forallTelescopeReducing hType fun xs hType => withNewLemmas xs do
     let lhs ← instantiateMVars hType.appFn!.appArg!
     let r ← simp lhs
     let rhs := hType.appArg!
@@ -517,11 +520,13 @@ def processCongrHypothesis (h : Expr) : SimpM Bool := do
       return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
 
 /-- Try to rewrite `e` children using the given congruence theorem -/
-def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do
+def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do withParent e do
   recordCongrTheorem c.theoremName
   trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
   let thm ← mkConstWithFreshMVarLevels c.theoremName
-  let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
+  let thmType ← inferType thm
+  let thmHasBinderNameHint := thmType.hasBinderNameHint
+  let (xs, bis, type) ← forallMetaTelescopeReducing thmType
   if c.hypothesesPos.any (· ≥ xs.size) then
     return none
   let isIff := type.isAppOf ``Iff
@@ -537,12 +542,14 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
   if (← withSimpMetaConfig <| isDefEq lhs e) then
     let mut modified := false
     for i in c.hypothesesPos do
-      let x := xs[i]!
+      let h := xs[i]!
+      let hType ← instantiateMVars (← inferType h)
+      let hType ← if thmHasBinderNameHint then hType.resolveBinderNameHint else pure hType
       try
-        if (← processCongrHypothesis x) then
+        if (← processCongrHypothesis h hType) then
           modified := true
       catch _ =>
-        trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
+        trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {hType}"
         -- Remark: we don't need to check ex.isMaxRecDepth anymore since `try .. catch ..`
         -- does not catch runtime exceptions by default.
         return none
@@ -603,7 +610,7 @@ private structure SimpLetFunResult where
   expr     : Expr
   /--
   The proof that the simplified expression is equal to the input one.
-  It may containt loose bound variables. See `expr` field.
+  It may contain loose bound variables. See `expr` field.
   -/
   proof    : Expr
   /--
@@ -858,28 +865,34 @@ def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray 
     simpTargetCore mvarId ctx simprocs discharge? mayCloseGoal stats
 
 /--
-  Apply the result `r` for `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
-  otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
+Applies the result `r` for `type` (which is inhabited by `val`). Returns `none` if the goal was closed. Returns `some (val', type')`
+otherwise, where `val' : type'` and `type'` is the simplified `type`.
 
-  This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
+This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
+def applySimpResult (mvarId : MVarId) (val : Expr) (type : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
   if mayCloseGoal && r.expr.isFalse then
     match r.proof? with
-    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (← mkEqMP eqProof proof))
-    | none => mvarId.assign (← mkFalseElim (← mvarId.getType) proof)
+    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp4 (mkConst ``Eq.mp [levelZero]) type r.expr eqProof val))
+    | none => mvarId.assign (← mkFalseElim (← mvarId.getType) val)
     return none
   else
     match r.proof? with
-    | some eqProof => return some ((← mkEqMP eqProof proof), r.expr)
+    | some eqProof =>
+      let u ← getLevel type
+      return some (mkApp4 (mkConst ``Eq.mp [u]) type r.expr eqProof val, r.expr)
     | none =>
-      if r.expr != prop then
-        return some ((← mkExpectedTypeHint proof r.expr), r.expr)
+      if r.expr != type then
+        return some ((← mkExpectedTypeHint val r.expr), r.expr)
       else
-        return some (proof, r.expr)
+        return some (val, r.expr)
+
+@[deprecated applySimpResult (since := "2025-03-26")]
+def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) :=
+  applySimpResult mvarId proof prop r mayCloseGoal
 
 def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (Expr × Expr)) := do
   let localDecl ← fvarId.getDecl
-  applySimpResultToProp mvarId (mkFVar fvarId) localDecl.type r mayCloseGoal
+  applySimpResult mvarId (mkFVar fvarId) localDecl.type r mayCloseGoal
 
 /--
   Simplify `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
@@ -889,7 +902,7 @@ def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result
 def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
     (mayCloseGoal := true) (stats : Stats := {}) : MetaM (Option (Expr × Expr) × Stats) := do
   let (r, stats) ← simp prop ctx simprocs discharge? stats
-  return (← applySimpResultToProp mvarId proof prop r (mayCloseGoal := mayCloseGoal), stats)
+  return (← applySimpResult mvarId proof prop r (mayCloseGoal := mayCloseGoal), stats)
 
 def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Option (Expr × Expr)) : MetaM (Option (FVarId × MVarId)) := do
   match r with
@@ -943,7 +956,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :=
       let (r, stats') ← simp type ctx simprocs discharge? stats
       stats := stats'
       match r.proof? with
-      | some _ => match (← applySimpResultToProp mvarIdNew (mkFVar fvarId) type r) with
+      | some _ => match (← applySimpResult mvarIdNew (mkFVar fvarId) type r) with
         | none => return (none, stats)
         | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
       | none =>

@@ -38,3 +38,6 @@ import Lean.LabelAttribute
 import Lean.AddDecl
 import Lean.Replay
 import Lean.PrivateName
+import Lean.PremiseSelection
+import Lean.Namespace
+import Lean.EnvExtension

@@ -35,7 +35,19 @@ structure Context where
   -/
   recover    : Bool := true
 
+/--
+The tactic monad, which extends the term elaboration monad `TermElabM` with state that contains the
+current goals (`Lean.Elab.Tactic.State`, accessible via `MonadStateOf`) and local information about
+the current tactic's name and whether error recovery is enabled (`Lean.Elab.Tactic.Context`,
+accessible via `MonadReaderOf`).
+-/
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
+/--
+A tactic is a function from syntax to an action in the tactic monad.
+
+A given tactic syntax kind may have multiple `Tactic`s associated with it, all of which will be
+attempted until one succeeds.
+-/
 abbrev Tactic  := Syntax → TacticM Unit
 
 /-
@@ -153,6 +165,7 @@ structure EvalTacticFailure where
   state : SavedState
 
 partial def evalTactic (stx : Syntax) : TacticM Unit := do
+  checkSystem "tactic execution"
   profileitM Exception "tactic execution" (decl := stx.getKind) (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
     | .node _ k _    =>
@@ -177,7 +190,7 @@ where
     throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
      if h : 0 < failures.size  then
        -- For macros we want to report the error from the first registered / last tried rule (#3770)
-       let fail := failures[failures.size-1]
+       let fail := failures[failures.size - 1]
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else
@@ -224,24 +237,28 @@ where
                     guard <| state.term.meta.core.traceState.traces.size == 0
                     guard <| traceState.traces.size == 0
                     return old.val.get
+                  if snap.old?.isSome && old?.isNone then
+                    snap.old?.forM (·.val.cancelRec)
                   let promise ← IO.Promise.new
                   -- Store new unfolding in the snapshot tree
+                  let cancelTk? := (← readThe Core.Context).cancelTk?
                   snap.new.resolve {
                     stx := stx'
                     diagnostics := .empty
                     inner? := none
-                    finished := .pure {
+                    finished := .finished stx' {
                       diagnostics := .empty
                       state? := (← Tactic.saveState)
+                      moreSnaps := #[]
                     }
-                    next := #[{ range? := stx'.getRange?, task := promise.resultD default }]
+                    next := #[{ stx? := stx', task := promise.resultD default, cancelTk? }]
                   }
                   -- Update `tacSnap?` to old unfolding
                   withTheReader Term.Context ({ · with tacSnap? := some {
                     new := promise
                     old? := do
                       let old ← old?
-                      return ⟨old.stx, (← old.next.get? 0)⟩
+                      return ⟨old.stx, (← old.next[0]?)⟩
                   } }) do
                     evalTactic stx'
                   return
@@ -269,6 +286,10 @@ def done : TacticM Unit := do
     Term.reportUnsolvedGoals gs
     throwAbortTactic
 
+/--
+Runs `x` with only the first unsolved goal as the goal.
+Fails if there are no goal to be solved.
+-/
 def focus (x : TacticM α) : TacticM α := do
   let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
   setGoals [mvarId]
@@ -277,6 +298,10 @@ def focus (x : TacticM α) : TacticM α := do
   setGoals (mvarIds' ++ mvarIds)
   pure a
 
+/--
+Runs `tactic` with only the first unsolved goal as the goal, and expects it leave no goals.
+Fails if there are no goal to be solved.
+-/
 def focusAndDone (tactic : TacticM α) : TacticM α :=
   focus do
     let a ← tactic

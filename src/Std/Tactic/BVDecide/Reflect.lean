@@ -36,17 +36,9 @@ theorem xor_congr (w : Nat) (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2
 theorem not_congr (w : Nat) (x x' : BitVec w) (h : x = x') : ~~~x' = ~~~x := by
   simp[*]
 
-theorem shiftLeftNat_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
-    x' <<< n = x <<< n := by
-  simp[*]
-
 theorem shiftLeft_congr (m n : Nat) (lhs : BitVec m) (rhs : BitVec n) (lhs' : BitVec m)
     (rhs' : BitVec n) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
     lhs <<< rhs = lhs' <<< rhs' := by
-  simp[*]
-
-theorem shiftRightNat_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
-    x' >>> n = x >>> n := by
   simp[*]
 
 theorem shiftRight_congr (m n : Nat) (lhs : BitVec m) (rhs : BitVec n) (lhs' : BitVec m)
@@ -65,14 +57,6 @@ theorem arithShiftRight_congr (m n : Nat) (lhs : BitVec m) (rhs : BitVec n) (lhs
 
 theorem add_congr (w : Nat) (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
     lhs' + rhs' = lhs + rhs := by
-  simp[*]
-
-theorem zeroExtend_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h1 : x = x') :
-    BitVec.zeroExtend n x' = BitVec.zeroExtend n x := by
-  simp[*]
-
-theorem signExtend_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h1 : x = x') :
-    BitVec.signExtend n x' = BitVec.signExtend n x := by
   simp[*]
 
 theorem append_congr (lw rw : Nat) (lhs lhs' : BitVec lw) (rhs rhs' : BitVec rw) (h1 : lhs' = lhs)

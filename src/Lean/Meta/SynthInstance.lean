@@ -547,7 +547,7 @@ def generate : SynthM Unit := do
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
-    let inst := gNode.instances.get! idx
+    let inst := gNode.instances[idx]!
     let mctx := gNode.mctx
     let mvar := gNode.mvar
     /- See comment at `typeHasMVars` -/

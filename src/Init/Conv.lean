@@ -97,7 +97,7 @@ syntax (name := arg) "arg " argArg : conv
 
 /-- `ext x` traverses into a binder (a `fun x => e` or `∀ x, e` expression)
 to target `e`, introducing name `x` in the process. -/
-syntax (name := ext) "ext" (ppSpace colGt ident)* : conv
+syntax (name := ext) "ext" (ppSpace colGt binderIdent)* : conv
 
 /-- `change t'` replaces the target `t` with `t'`,
 assuming `t` and `t'` are definitionally equal. -/
@@ -281,9 +281,9 @@ macro "left" : conv => `(conv| lhs)
 /-- `right` traverses into the right argument. Synonym for `rhs`. -/
 macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
-macro "intro" xs:(ppSpace colGt ident)* : conv => `(conv| ext $xs*)
+macro "intro" xs:(ppSpace colGt binderIdent)* : conv => `(conv| ext $xs*)
 
-syntax enterArg := ident <|> argArg
+syntax enterArg := binderIdent <|> argArg
 
 /-- `enter [arg, ...]` is a compact way to describe a path to a subterm.
 It is a shorthand for other conv tactics as follows:
@@ -306,6 +306,10 @@ syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " convSe
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
 macro "try " t:convSeq : conv => `(conv| first | $t | skip)
 
+/--
+`tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal, concatenating all goals
+produced by `tac'`.
+-/
 macro:1 x:conv tk:" <;> " y:conv:0 : conv =>
   `(conv| tactic' => (conv' => $x:conv) <;>%$tk (conv' => $y:conv))
 

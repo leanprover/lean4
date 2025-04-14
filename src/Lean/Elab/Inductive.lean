@@ -35,7 +35,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     if let some leadingDocComment := ctor[0].getOptional? then
       if ctorModifiers.docString?.isSome then
         logErrorAt leadingDocComment "duplicate doc string"
-      ctorModifiers := { ctorModifiers with docString? := TSyntax.getDocString ⟨leadingDocComment⟩ }
+      ctorModifiers := { ctorModifiers with docString? := some ⟨leadingDocComment⟩ }
     if ctorModifiers.isPrivate && modifiers.isPrivate then
       throwError "invalid 'private' constructor in a 'private' inductive datatype"
     if ctorModifiers.isProtected && modifiers.isPrivate then

@@ -7,15 +7,18 @@ prelude
 import Init.Data.List.Lemmas
 import Init.Data.List.Nat.TakeDrop
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-! ### Lexicographic ordering -/
 
-@[simp] theorem lex_lt [LT α] (l₁ l₂ : List α) : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
-@[simp] theorem not_lex_lt [LT α] (l₁ l₂ : List α) : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+@[simp] theorem lex_lt [LT α] {l₁ l₂ : List α} : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
+@[simp] theorem not_lex_lt [LT α] {l₁ l₂ : List α} : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
 
-protected theorem not_lt_iff_ge [LT α] (l₁ l₂ : List α) : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+protected theorem not_lt_iff_ge [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : List α} :
     ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
   Decidable.not_not
 
@@ -46,7 +49,7 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
   · rintro rfl
     exact not_lex_nil
 
-@[simp] theorem le_nil [LT α] (l : List α) : l ≤ [] ↔ l = [] := not_nil_lex_iff
+@[simp] theorem le_nil [LT α] {l : List α} : l ≤ [] ↔ l = [] := not_nil_lex_iff
 
 -- This is named with a prime to avoid conflict with `lex [] (b :: bs) lt = true`.
 -- Better naming for the `Lex` vs `lex` distinction would be welcome.
@@ -167,7 +170,7 @@ protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
   induction h₂ generalizing l₁ with
   | nil => simp_all
   | rel hab =>
-    rename_i a b
+    rename_i a xs
     cases l₁ with
     | nil => simp_all
     | cons c l₁ =>
@@ -378,7 +381,7 @@ This formulation requires that `==` and `lt` are compatible in the following sen
 - `==` is symmetric
   (we unnecessarily further assume it is transitive, to make use of the existing typeclasses)
 - `lt` is irreflexive with respect to `==` (i.e. if `x == y` then `lt x y = false`
-- `lt` is asymmmetric  (i.e. `lt x y = true → lt y x = false`)
+- `lt` is asymmetric  (i.e. `lt x y = true → lt y x = false`)
 - `lt` is antisymmetric with respect to `==` (i.e. `lt x y = false → lt y x = false → x == y`)
 -/
 theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)

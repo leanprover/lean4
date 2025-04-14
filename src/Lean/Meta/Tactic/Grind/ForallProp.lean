@@ -46,6 +46,9 @@ where
     else if (← isEqTrue b) then
       -- b = True → (a → b) = True
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_right) a b (← mkEqTrueProof b)
+    else if (← isEqFalse b <&&> isEqTrue e <&&> isProp a) then
+      -- (a → b) = True → b = False → a = False
+      pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
 
 private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
   let_expr eq_true _ p := proof | return none
@@ -91,7 +94,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       let u ← getLevel α
       let prop := mkApp2 (mkConst ``Exists [u]) α (mkLambda n bi α (mkNot p))
       let proof := mkApp3 (mkConst ``Grind.of_forall_eq_false [u]) α (mkLambda n bi α p) (← mkEqFalseProof e)
-      addNewFact proof prop (← getGeneration e)
+      addNewRawFact proof prop (← getGeneration e)
     else
       let h ← mkEqFalseProof e
       pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
@@ -101,9 +104,23 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       trace_goal[grind.eqResolution] "{e}, {e'}"
       let h := mkOfEqTrueCore e (← mkEqTrueProof e)
       let h' := mkApp h' h
-      addNewFact h' e' (← getGeneration e)
+      addNewRawFact h' e' (← getGeneration e)
     else
       if b.hasLooseBVars then
         addLocalEMatchTheorems e
+      else
+        unless (← alreadyInternalized b) do return ()
+        if (← isEqFalse b <&&> isProp a) then
+        -- (a → b) = True → b = False → a = False
+        pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
+
+builtin_grind_propagator propagateExistsDown ↓Exists := fun e => do
+  if (← isEqFalse e) then
+    let_expr f@Exists α p := e | return ()
+    let u := f.constLevels!
+    let notP := mkApp (mkConst ``Not) (mkApp p (.bvar 0) |>.headBeta)
+    let prop := mkForall `x .default α notP
+    let proof := mkApp3 (mkConst ``forall_not_of_not_exists u) α p (mkOfEqFalseCore e (← mkEqFalseProof e))
+    addNewRawFact proof prop (← getGeneration e)
 
 end Lean.Meta.Grind

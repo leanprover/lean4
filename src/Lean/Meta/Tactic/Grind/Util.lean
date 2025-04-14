@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Simproc
+import Init.Grind.Tactics
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
+import Lean.Meta.Tactic.Simp.Simproc
 
 namespace Lean.Meta.Grind
 /--
@@ -17,14 +20,6 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
   let type ← instantiateMVars (← mvarId.getType)
   if type.hasExprMVar then
     throwTacticEx `grind mvarId "goal contains metavariables"
-
-/--
-Throws an exception if target is not a proposition.
--/
-def _root_.Lean.MVarId.ensureProp (mvarId : MVarId) : MetaM Unit := do
-  let type ← mvarId.getType
-  unless (← isProp type) do
-    throwTacticEx `grind mvarId "goal is not a proposition"
 
 def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `grind
@@ -36,12 +31,20 @@ def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Exp
   return mvarNew.mvarId!
 
 /--
+Returns `true` if `declName` is the name of a grind helper declaration that
+should not be unfolded by `unfoldReducible`.
+-/
+def isGrindGadget (declName : Name) : Bool :=
+  declName == ``Grind.EqMatch
+
+/--
 Unfolds all `reducible` declarations occurring in `e`.
 -/
 def unfoldReducible (e : Expr) : MetaM Expr :=
   let pre (e : Expr) : MetaM TransformStep := do
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue
+    if isGrindGadget declName then return .continue
     let some v ← unfoldDefinition? e | return .continue
     return .visit v
   Core.transform e (pre := pre)
@@ -94,7 +97,8 @@ def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.
     try
       mvarId ← mvarId.clear fvarId
     catch _ =>
-      throwTacticEx `grind.clear_aux_decls mvarId "failed to clear local auxiliary declaration"
+      let userName := (← fvarId.getDecl).userName
+      throwTacticEx `grind mvarId m!"the goal mentions the declaration `{userName}`, which is being defined. To avoid circular reasoning, try rewriting the goal to eliminate `{userName}` before using `grind`."
   return mvarId
 
 /--
@@ -123,7 +127,18 @@ def foldProjs (e : Expr) : MetaM Expr := do
       return .done e
     if h : idx < info.fieldNames.size then
       let fieldName := info.fieldNames[idx]
-      return .done (← mkProjection s fieldName)
+      /-
+      In the test `grind_cat.lean`, the following operation fails if we are not using default
+      transparency. We get the following error.
+      ```
+      error: AppBuilder for 'mkProjection', structure expected
+        T
+      has type
+        F ⟶ G
+      ```
+      We should make `mkProjection` more robust.
+      -/
+      return .done (← withDefault <| mkProjection s fieldName)
     else
       trace[grind.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
       return .done e
@@ -145,6 +160,53 @@ Normalizes the given expression using the `grind` simplification theorems and si
 This function is used for normalzing E-matching patterns. Note that it does not return a proof.
 -/
 @[extern "lean_grind_normalize"] -- forward definition
-opaque normalize (e : Expr) : MetaM Expr
+opaque normalize (e : Expr) (config : Grind.Config) : MetaM Expr
+
+/--
+Returns `Grind.MatchCond e`.
+We have special support for propagating is truth value.
+See comment at `MatchCond.lean`.
+-/
+def markAsMatchCond (e : Expr) : Expr :=
+  mkApp (mkConst ``Grind.MatchCond) e
+
+def isMatchCond (e : Expr) : Bool :=
+  e.isAppOfArity ``Grind.MatchCond 1
+
+/--
+Returns `Grind.PreMatchCond e`.
+Recall that `Grind.PreMatchCond` is an identity function,
+but the simproc `reducePreMatchCond` is used to prevent the term `e` from being simplified.
+`Grind.PreMatchCond` is later converted into `Grind.MatchCond`.
+See comment at `MatchCond.lean`.
+-/
+def markAsPreMatchCond(e : Expr) : Expr :=
+  mkApp (mkConst ``Grind.PreMatchCond) e
+
+def isPreMatchCond (e : Expr) : Bool :=
+  e.isAppOfArity ``Grind.PreMatchCond 1
+
+builtin_dsimproc_decl reducePreMatchCond (Grind.PreMatchCond _) := fun e => do
+  let_expr Grind.PreMatchCond _ ← e | return .continue
+  return .done e
+
+/-- Adds `reducePreMatchCond` to `s` -/
+def addPreMatchCondSimproc (s : Simprocs) : CoreM Simprocs := do
+  s.add ``reducePreMatchCond (post := false)
+
+/--
+Converts `Grind.PreMatchCond` into `Grind.MatchCond`.
+Recall that `Grind.PreMatchCond` uses default reducibility setting, but
+`Grind.MatchCond` does not.
+-/
+def replacePreMatchCond (e : Expr) : MetaM Simp.Result := do
+  if e.find? isPreMatchCond |>.isNone then
+    return { expr := e }
+  else
+    let pre (e : Expr) := do
+      let_expr Grind.PreMatchCond p := e | return .continue e
+      return .continue (markAsMatchCond p)
+    let e' ← Core.transform e (pre := pre)
+    return { expr := e', proof? := (← mkExpectedTypeHint (← mkEqRefl e') (← mkEq e e')) }
 
 end Lean.Meta.Grind

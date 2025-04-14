@@ -29,7 +29,7 @@ instance : Hashable Module where hash m := hash m.keyName
 instance : BEq Module where beq m n := m.keyName == n.keyName
 
 abbrev ModuleSet := Std.HashSet Module
-@[inline] def ModuleSet.empty : ModuleSet := Std.HashSet.empty
+@[inline] def ModuleSet.empty : ModuleSet := ∅
 
 abbrev OrdModuleSet := OrdHashSet Module
 @[inline] def OrdModuleSet.empty : OrdModuleSet := OrdHashSet.empty
@@ -113,11 +113,16 @@ def bcFile? (self : Module) : Option FilePath :=
 def dynlibSuffix := "-1"
 
 @[inline] def dynlibName (self : Module) : String :=
-  -- NOTE: file name MUST be unique on Windows
-  self.name.toStringWithSep "-" (escape := true) ++ dynlibSuffix
+  /-
+  * File name MUST be unique on Windows
+  * Uses the mangled module name so the library name matches the
+    name used for the module's initialization function, thus enabling it
+    to be loaded as a plugin.
+  -/
+  self.name.mangle ""
 
 @[inline] def dynlibFile (self : Module) : FilePath :=
-  self.pkg.nativeLibDir / nameToSharedLib self.dynlibName
+  self.pkg.leanLibDir / s!"{self.dynlibName}.{sharedLibExt}"
 
 @[inline] def serverOptions (self : Module) : Array LeanOption :=
   self.lib.serverOptions
@@ -127,6 +132,12 @@ def dynlibSuffix := "-1"
 
 @[inline] def backend (self : Module) : Backend :=
   self.lib.backend
+
+@[inline] def dynlibs (self : Module) : TargetArray Dynlib :=
+  self.lib.dynlibs
+
+@[inline] def plugins (self : Module) : TargetArray Dynlib :=
+  self.lib.plugins
 
 @[inline] def leanArgs (self : Module) : Array String :=
   self.lib.leanArgs

@@ -7,7 +7,6 @@ prelude
 import Init.Grind
 import Init.Simproc
 import Lean.Meta.Tactic.Contradiction
-import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 
@@ -65,8 +64,11 @@ In the two equational theorems above, we have the following conditions.
 - `(∀ (b_1 c : S), b = S.mk2 1 (b_1.mk4 c) → False)`
 - `(∀ (a_1 : Bool) (b_1 c : S), a = S.mk3 a_1 → b = b_1.mk4 c → False)`
 ```
-When instantiating the equations (and `match`-splitter), we wrap the conditions with the gadget `Grind.MatchCond`.
-This gadget is used for implementing truth-value propagation. See the propagator `propagateMatchCond` below.
+When instantiating the equations (and `match`-splitter), we wrap the conditions with the gadget `Grind.PreMatchCond`.
+`Grind.PreMatchCond` uses the default reducibility setting and cannot be accidentally reduced by `simp`.
+After `simp` is applied, it is replaced with `Grind.MatchCond` which is reducible.
+This `Grind.MatchCond` is used for implementing truth-value propagation.
+See the propagator `propagateMatchCond` below.
 For example, given a condition `C` of the form `Grind.MatchCond (∀ (a : Nat),  t = S.mk1 a → False)`,
 if `t` is merged with an equivalence class containing `S.mk2 n s`, then `C` is asseted to `true` by `propagateMatchCond`.
 
@@ -79,26 +81,6 @@ and does not perform substitutions like `simp`.  While modifying how `match`-exp
 would require major refactoring and affect many modules, this issue is important to acknowledge.
 A different representation could simplify `grind`, but it could add extra complexity to other modules.
 -/
-
-/--
-Returns `Grind.MatchCond e`.
-Recall that `Grind.MatchCond` is an identity function,
-but the following simproc is used to prevent the term `e` from being simplified,
-and we have special support for propagating is truth value.
--/
-def markAsMatchCond (e : Expr) : Expr :=
-  mkApp (mkConst ``Grind.MatchCond) e
-
-def isMatchCond (e : Expr) : Bool :=
-  e.isAppOfArity ``Grind.MatchCond 1
-
-builtin_dsimproc_decl reduceMatchCond (Grind.MatchCond _) := fun e => do
-  let_expr Grind.MatchCond _ ← e | return .continue
-  return .done e
-
-/-- Adds `reduceMatchCond` to `s` -/
-def addMatchCond (s : Simprocs) : CoreM Simprocs := do
-  s.add ``reduceMatchCond (post := false)
 
 /--
 Returns `some (α?, lhs, rhs)` if `e` is of the form
@@ -305,7 +287,7 @@ where
         return none
     let isHEq := α?.isSome
     let h ← if isHEq then
-      mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h)
+      mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h) (check := false)
     else
       mkEqTrans (← mkEqProof root.self lhs) h
     if root.ctor then

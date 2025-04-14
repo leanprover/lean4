@@ -315,6 +315,8 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 static void *mpz_alloc(size_t size) {
 #ifdef LEAN_SMALL_ALLOCATOR
     return alloc(size);
+#elif defined(LEAN_MIMALLOC)
+    return mi_malloc(size);
 #else
     return malloc(size);
 #endif
@@ -323,8 +325,10 @@ static void *mpz_alloc(size_t size) {
 static void mpz_dealloc(void *ptr, size_t size) {
 #ifdef LEAN_SMALL_ALLOCATOR
         dealloc(ptr, size);
+#elif defined(LEAN_MIMALLOC)
+        mi_free_size(ptr, size);
 #else
-        free(ptr);
+        free_sized(ptr, size);
 #endif
 }
 

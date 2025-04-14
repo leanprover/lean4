@@ -18,10 +18,13 @@ attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
 @[extern "lean_mk_empty_byte_array"]
-def mkEmpty (c : @& Nat) : ByteArray :=
+def emptyWithCapacity (c : @& Nat) : ByteArray :=
   { data := #[] }
 
-def empty : ByteArray := mkEmpty 0
+@[deprecated emptyWithCapacity (since := "2025-03-12")]
+abbrev mkEmpty := emptyWithCapacity
+
+def empty : ByteArray := emptyWithCapacity 0
 
 instance : Inhabited ByteArray where
   default := empty
@@ -47,7 +50,7 @@ def uget : (a : @& ByteArray) → (i : USize) → (h : i.toNat < a.size := by ge
 
 @[extern "lean_byte_array_get"]
 def get! : (@& ByteArray) → (@& Nat) → UInt8
-  | ⟨bs⟩, i => bs.get! i
+  | ⟨bs⟩, i => bs[i]!
 
 @[extern "lean_byte_array_fget"]
 def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem_tactic) → UInt8
@@ -56,7 +59,7 @@ def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem
 instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get i
 
-instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
+instance : GetElem ByteArray USize UInt8 fun xs i => i.toFin < xs.size where
   getElem xs i h := xs.uget i h
 
 @[extern "lean_byte_array_set"]
@@ -334,6 +337,9 @@ def prevn : Iterator → Nat → Iterator
 end Iterator
 end ByteArray
 
+/--
+Converts a list of bytes into a `ByteArray`.
+-/
 def List.toByteArray (bs : List UInt8) : ByteArray :=
   let rec loop
     | [],    r => r

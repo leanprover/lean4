@@ -111,6 +111,9 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
     addEntryFn    := SpecState.addEntry,
     addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
     asyncMode     := .sync  -- compilation is non-parallel anyway
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (fun
+      | s, .info n _ => !s.specInfo.contains n
+      | s, .cache key _ => !s.cache.contains key) SpecState.addEntry
   }
 
 @[export lean_add_specialization_info]

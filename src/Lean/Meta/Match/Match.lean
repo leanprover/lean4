@@ -599,8 +599,8 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
   let sizes := collectArraySizes p
   let subgoals ← caseArraySizes p.mvarId x.fvarId! sizes
   subgoals.mapIdxM fun i subgoal => do
-    if i < sizes.size then
-      let size     := sizes.get! i
+    if h : i < sizes.size then
+      let size     := sizes[i]
       let subst    := subgoal.subst
       let elems    := subgoal.elems.toList
       let newVars  := elems.map mkFVar ++ xs
@@ -762,7 +762,8 @@ register_builtin_option bootstrap.genMatcherCode : Bool := {
   descr := "disable code generation for auxiliary matcher function"
 }
 
-builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ← registerEnvExtension (pure {})
+builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ←
+  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
 
 /-- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
    It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/
@@ -784,6 +785,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
       modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
       addMatcherInfo name mi
       setInlineAttribute name
+      enableRealizationsForConst name
       if compile then
         compileDecl decl
     return (mkMatcherConst name, some addMatcher)

@@ -1,3 +1,4 @@
+set_option grind.warning false
 variable (d : Nat) in
 inductive X : Nat → Prop
   | f {s : Nat} : X s
@@ -12,7 +13,7 @@ s : Nat
 h : 0 = s
 h_1 : HEq ⋯ ⋯
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] X c 0
     [prop] 0 = s
@@ -24,9 +25,11 @@ h_1 : HEq ⋯ ⋯
     [eqc] {s, 0}
   [cases] Case analyses
     [cases] [1/2]: X c 0
-[grind] Issues
-  [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/
 #guard_msgs (error) in
 example {c : Nat} (q : X c 0) : False := by
-  grind [cases X]
+  grind -mbtc [cases X]
+
+example {c : Nat} (q : X c 0) : False := by
+  fail_if_success grind [cases X]
+  sorry

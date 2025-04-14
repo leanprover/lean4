@@ -45,6 +45,21 @@
     max_runs: 1
     runner: output
 - attributes:
+    description: Init size
+    tags: [deterministic, fast]
+  run_config:
+    cwd: ../../
+    cmd: |
+      set -euxo pipefail
+      echo -n 'bytes .olean: '
+      find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      #echo -n 'bytes .olean.server: '
+      #find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      #echo -n 'bytes .olean.private: '
+      #find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+    max_runs: 1
+    runner: output
+- attributes:
     description: libleanshared.so
     tags: [deterministic, fast]
   run_config:
@@ -59,13 +74,43 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../../src/Init/Prelude.lean -DElab.async=true
+    cmd: lean ../../src/Init/Prelude.lean
 - attributes:
     description: Init.Data.List.Sublist async
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../../src/Init/Data/List/Sublist.lean -DElab.async=true
+    cmd: lean ../../src/Init/Data/List/Sublist.lean
+- attributes:
+    description: Std.Data.Internal.List.Associative
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../../src/Std/Data/Internal/List/Associative.lean
+- attributes:
+    description: Std.Data.DHashMap.Internal.RawLemmas
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../../src/Std/Data/DHashMap/Internal/RawLemmas.lean
+- attributes:
+    description: Init.Data.BitVec.Lemmas
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../../src/Init/Data/BitVec/Lemmas.lean
+- attributes:
+    description: Init.Data.List.Sublist re-elab -j4
+  run_config:
+    <<: *time
+    cmd: lean --run ../../script/benchReelabRss.lean lean ../../src/Init/Data/List/Sublist.lean 10 -j4
+    max_runs: 2
+- attributes:
+    description: Init.Data.BitVec.Lemmas re-elab
+  run_config:
+    <<: *time
+    cmd: lean --run ../../script/benchReelabRss.lean lean ../../src/Init/Data/BitVec/Lemmas.lean 2 -j4
+    max_runs: 2
 - attributes:
     description: import Lean
     tags: [fast]
@@ -388,6 +433,12 @@
     <<: *time
     cmd: lean bv_decide_inequality.lean
 - attributes:
+    description: bv_decide_large_aig.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_large_aig.lean
+- attributes:
     description: big_do
     tags: [fast]
   run_config:
@@ -405,3 +456,18 @@
   run_config:
     <<: *time
     cmd: lean big_omega.lean -Dinternal.cmdlineSnapshots=false
+- attributes:
+    description: omega_stress.lean async
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean omega_stress.lean
+- attributes:
+    description: channel.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./channel.lean.out
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh channel.lean

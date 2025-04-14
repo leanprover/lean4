@@ -28,6 +28,9 @@ import Lean.Meta.Tactic.Grind.Arith
 import Lean.Meta.Tactic.Grind.Ext
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
+import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.MBTC
+import Lean.Meta.Tactic.Grind.Lookahead
 
 namespace Lean
 
@@ -48,15 +51,14 @@ builtin_initialize registerTraceClass `grind.simp
 builtin_initialize registerTraceClass `grind.split
 builtin_initialize registerTraceClass `grind.split.candidate
 builtin_initialize registerTraceClass `grind.split.resolved
-builtin_initialize registerTraceClass `grind.offset
-builtin_initialize registerTraceClass `grind.offset.dist
-builtin_initialize registerTraceClass `grind.offset.internalize
-builtin_initialize registerTraceClass `grind.offset.internalize.term (inherited := true)
-builtin_initialize registerTraceClass `grind.offset.propagate
-builtin_initialize registerTraceClass `grind.offset.eq
-builtin_initialize registerTraceClass `grind.offset.eq.to (inherited := true)
-builtin_initialize registerTraceClass `grind.offset.eq.from (inherited := true)
 builtin_initialize registerTraceClass `grind.beta
+builtin_initialize registerTraceClass `grind.mbtc
+builtin_initialize registerTraceClass `grind.ext
+builtin_initialize registerTraceClass `grind.ext.candidate
+builtin_initialize registerTraceClass `grind.lookahead
+builtin_initialize registerTraceClass `grind.lookahead.add (inherited := true)
+builtin_initialize registerTraceClass `grind.lookahead.try (inherited := true)
+builtin_initialize registerTraceClass `grind.lookahead.assert (inherited := true)
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug
@@ -69,13 +71,18 @@ builtin_initialize registerTraceClass `grind.debug.final
 builtin_initialize registerTraceClass `grind.debug.forallPropagator
 builtin_initialize registerTraceClass `grind.debug.split
 builtin_initialize registerTraceClass `grind.debug.canon
-builtin_initialize registerTraceClass `grind.debug.offset
-builtin_initialize registerTraceClass `grind.debug.offset.proof
 builtin_initialize registerTraceClass `grind.debug.ematch.pattern
 builtin_initialize registerTraceClass `grind.debug.beta
 builtin_initialize registerTraceClass `grind.debug.internalize
 builtin_initialize registerTraceClass `grind.debug.matchCond
 builtin_initialize registerTraceClass `grind.debug.matchCond.lambda
 builtin_initialize registerTraceClass `grind.debug.matchCond.proveFalse
+builtin_initialize registerTraceClass `grind.debug.mbtc
+builtin_initialize registerTraceClass `grind.debug.ematch
+builtin_initialize registerTraceClass `grind.debug.proveEq
+builtin_initialize registerTraceClass `grind.debug.pushNewFact
+builtin_initialize registerTraceClass `grind.debug.ematch.activate
+builtin_initialize registerTraceClass `grind.debug.appMap
+builtin_initialize registerTraceClass `grind.debug.ext
 
 end Lean

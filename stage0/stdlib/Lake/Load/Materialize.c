@@ -20,7 +20,6 @@ lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____at_Lake_PackageEntry_materialize___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_updateGitPkg___closed__7;
 static lean_object* l_Lake_updateGitRepo___closed__1;
-lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 static lean_object* l_Lake_pkgNotIndexed___closed__4;
 static lean_object* l_Lake_PackageEntry_materialize___closed__1;
 lean_object* l_String_quote(lean_object*);
@@ -131,6 +130,7 @@ lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean
 LEAN_EXPORT lean_object* l_Lake_Dependency_materialize___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedMaterializedDep___closed__3;
 static lean_object* l_Lake_PackageEntry_materialize___closed__9;
+lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Dependency_materialize___lambda__1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lake_updateGitPkg___closed__14;
@@ -2270,7 +2270,7 @@ LEAN_EXPORT lean_object* l_Lake_Dependency_materialize_materializeGit(lean_objec
 _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_92; lean_object* x_93; lean_object* x_94; 
-x_13 = l_System_FilePath_join(x_4, x_6);
+x_13 = l_Lake_joinRelative(x_4, x_6);
 x_92 = lean_ctor_get(x_3, 5);
 x_93 = lean_ctor_get(x_1, 0);
 x_94 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_92, x_93);
@@ -2359,7 +2359,7 @@ lean_object* x_32; lean_object* x_33; lean_object* x_34;
 x_32 = lean_ctor_get(x_10, 0);
 lean_inc(x_32);
 lean_dec(x_10);
-x_33 = l_System_FilePath_join(x_6, x_32);
+x_33 = l_Lake_joinRelative(x_6, x_32);
 lean_dec(x_32);
 x_34 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_34, 0, x_33);
@@ -2415,7 +2415,7 @@ lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48;
 x_45 = lean_ctor_get(x_10, 0);
 lean_inc(x_45);
 lean_dec(x_10);
-x_46 = l_System_FilePath_join(x_6, x_45);
+x_46 = l_Lake_joinRelative(x_6, x_45);
 lean_dec(x_45);
 x_47 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_47, 0, x_46);
@@ -2491,7 +2491,7 @@ lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean
 x_62 = lean_ctor_get(x_10, 0);
 lean_inc(x_62);
 lean_dec(x_10);
-x_63 = l_System_FilePath_join(x_6, x_62);
+x_63 = l_Lake_joinRelative(x_6, x_62);
 lean_dec(x_62);
 x_64 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_64, 0, x_63);
@@ -2680,7 +2680,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_7, 0);
-x_11 = l_System_FilePath_join(x_1, x_10);
+x_11 = l_Lake_joinRelative(x_1, x_10);
 x_12 = l_Lake_RegistryPkg_gitSrc_x3f(x_7);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -3412,7 +3412,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_35 = lean_ctor_get(x_31, 0);
-x_36 = l_System_FilePath_join(x_6, x_35);
+x_36 = l_Lake_joinRelative(x_6, x_35);
 lean_dec(x_35);
 lean_inc(x_36);
 lean_ctor_set(x_31, 0, x_36);
@@ -3444,7 +3444,7 @@ lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean
 x_44 = lean_ctor_get(x_31, 0);
 lean_inc(x_44);
 lean_dec(x_31);
-x_45 = l_System_FilePath_join(x_6, x_44);
+x_45 = l_Lake_joinRelative(x_6, x_44);
 lean_dec(x_44);
 lean_inc(x_45);
 x_46 = lean_alloc_ctor(0, 1, 0);
@@ -3490,7 +3490,7 @@ x_59 = l_Lake_Dependency_materialize___lambda__3___closed__1;
 x_60 = l_Lean_Name_toString(x_54, x_58, x_59);
 lean_inc(x_55);
 x_61 = l_Lake_Git_filterUrl_x3f(x_55);
-x_62 = l_System_FilePath_join(x_5, x_60);
+x_62 = l_Lake_joinRelative(x_5, x_60);
 if (lean_obj_tag(x_61) == 0)
 {
 lean_object* x_63; lean_object* x_64; 
@@ -3655,7 +3655,7 @@ else
 {
 lean_object* x_17; lean_object* x_18; 
 x_17 = lean_ctor_get(x_2, 0);
-x_18 = l_System_FilePath_join(x_3, x_17);
+x_18 = l_Lake_joinRelative(x_3, x_17);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -3825,8 +3825,8 @@ x_17 = 0;
 x_18 = l_Lake_Dependency_materialize___lambda__3___closed__1;
 lean_inc(x_16);
 x_19 = l_Lean_Name_toString(x_16, x_17, x_18);
-x_20 = l_System_FilePath_join(x_4, x_19);
-x_21 = l_System_FilePath_join(x_3, x_20);
+x_20 = l_Lake_joinRelative(x_4, x_19);
+x_21 = l_Lake_joinRelative(x_3, x_20);
 x_22 = l_System_FilePath_isDir(x_21, x_6);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);

@@ -29,6 +29,7 @@ import Lean.Server.FileWorker.SetupFile
 import Lean.Server.Rpc.Basic
 import Lean.Widget.InteractiveDiagnostic
 import Lean.Server.Completion.ImportCompletion
+import Lean.Server.CodeActions.UnknownIdentifier
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -74,27 +75,28 @@ open Widget in
 structure WorkerContext where
   /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
     discarded on read. -/
-  chanOut               : Std.Channel JsonRpc.Message
+  chanOut                  : Std.Channel JsonRpc.Message
   /--
   Latest document version received by the client, used for filtering out notifications from
   previous versions.
   -/
-  maxDocVersionRef      : IO.Ref Int
-  freshRequestIdRef     : IO.Ref Int
+  maxDocVersionRef         : IO.Ref Int
+  freshRequestIdRef        : IO.Ref Int
   /--
   Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
   -/
-  stickyDiagnosticsRef : IO.Ref (Array InteractiveDiagnostic)
-  partialHandlersRef   : IO.Ref (RBMap String PartialHandlerInfo compare)
-  hLog                 : FS.Stream
-  initParams           : InitializeParams
-  processor            : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
-  clientHasWidgets     : Bool
+  stickyDiagnosticsRef     : IO.Ref (Array InteractiveDiagnostic)
+  partialHandlersRef       : IO.Ref (RBMap String PartialHandlerInfo compare)
+  pendingServerRequestsRef : IO.Ref (Std.TreeMap RequestID (IO.Promise (ServerRequestResponse Json)))
+  hLog                     : FS.Stream
+  initParams               : InitializeParams
+  processor                : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
+  clientHasWidgets         : Bool
   /--
   Options defined on the worker cmdline (i.e. not including options from `setup-file`), used for
   context-free tasks such as editing delay.
   -/
-  cmdlineOpts          : Options
+  cmdlineOpts              : Options
 
 def WorkerContext.modifyGetPartialHandler (ctx : WorkerContext) (method : String)
     (f : PartialHandlerInfo → α × PartialHandlerInfo) : BaseIO α :=
@@ -112,6 +114,31 @@ def WorkerContext.modifyPartialHandler (ctx : WorkerContext) (method : String)
 
 def WorkerContext.updateRequestsInFlight (ctx : WorkerContext) (method : String) (f : Nat → Nat) : BaseIO Unit :=
     ctx.modifyPartialHandler method fun h => { h with requestsInFlight := f h.requestsInFlight }
+
+def WorkerContext.initPendingServerRequest
+    responseType [FromJson responseType] [Inhabited responseType]
+    (ctx : WorkerContext) (id : RequestID) :
+    BaseIO (ServerTask (ServerRequestResponse responseType)) := do
+  let responsePromise ← IO.Promise.new
+  ctx.pendingServerRequestsRef.modify (·.insert id responsePromise)
+  let responseTask := responsePromise.result!.asServerTask
+  let responseTask := responseTask.mapCheap fun
+    | .success response =>
+      match fromJson? response with
+      | .ok response   => .success response
+      | .error message => .failure .invalidParams message
+    | .failure code message => .failure code message
+  return responseTask
+
+def WorkerContext.resolveServerRequestResponse (ctx : WorkerContext) (id : RequestID)
+    (response : ServerRequestResponse Json) : BaseIO Unit := do
+  let responsePromise? ← ctx.pendingServerRequestsRef.modifyGet fun pendingServerRequests =>
+    let responsePromise? := pendingServerRequests.get? id
+    let pendingServerRequests := pendingServerRequests.erase id
+    (responsePromise?, pendingServerRequests)
+  let some responsePromise := responsePromise?
+    | return
+  responsePromise.resolve response
 
 /-! # Asynchronous snapshot elaboration -/
 
@@ -180,7 +207,7 @@ This option can only be set on the command line, not in the lakefile or via `set
       stickyInteractiveDiagnostics ++ docInteractiveDiagnostics
       |>.map (·.toDiagnostic)
     let notification := mkPublishDiagnosticsNotification doc.meta diagnostics
-    ctx.chanOut.send notification
+    ctx.chanOut.sync.send notification
 
   open Language in
   /--
@@ -197,14 +224,12 @@ This option can only be set on the command line, not in the lakefile or via `set
     4. at the very end, if we never blocked (e.g. emptying a file should make
        sure to empty diagnostics as well eventually) -/
   private partial def reportSnapshots (ctx : WorkerContext) (doc : EditableDocumentCore)
-      (cancelTk : CancelToken) : BaseIO (Task Unit) := do
-    let t ← BaseIO.asTask do
-      IO.sleep (server.reportDelayMs.get ctx.cmdlineOpts).toUInt32  -- "Debouncing 1."
-    BaseIO.bindTask t fun _ => do
-      let (_, st) ← handleTasks #[.pure <| toSnapshotTree doc.initSnap] |>.run {}
+      (cancelTk : CancelToken) : BaseIO (ServerTask Unit) :=
+    ServerTask.BaseIO.asTask do
+      IO.sleep (server.reportDelayMs.get ctx.cmdlineOpts).toUInt32 -- "Debouncing 1."
+      let (_, st) ← handleTasks #[.finished none <| toSnapshotTree doc.initSnap] |>.run {}
       if (← cancelTk.isSet) then
-        return .pure ()
-
+        return ()
       -- callback at the end of reporting
       if st.hasFatal then
         ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
@@ -214,18 +239,20 @@ This option can only be set on the command line, not in the lakefile or via `set
         publishDiagnostics ctx doc
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
-      ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
-      return .pure ()
+      ctx.chanOut.sync.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
+      return ()
   where
     /--
     Given an array of possibly-unfinished tasks, handles them, possibly after waiting for one of
     them to finish.
     -/
     handleTasks (ts : Array (SnapshotTask SnapshotTree)) : StateT ReportSnapshotsState BaseIO Unit := do
+      if (← cancelTk.isSet) then
+        return ()
       let ts ← ts.flatMapM handleFinished
       -- all `ts` are now (likely) in-progress, report them
       sendFileProgress ts
-      -- check again whether this has changed before commiting to waiting
+      -- check again whether this has changed before committing to waiting
       if (← ts.anyM (IO.hasFinished ·.task)) then
         handleTasks ts
       else if h : ts.size > 0 then
@@ -246,8 +273,8 @@ This option can only be set on the command line, not in the lakefile or via `set
         handleNode t.task.get
         -- limit children's reported range to that of the parent, if any, to avoid strange
         -- non-monotonic progress updates; replace missing children's ranges with parent's
-        let ts := t.task.get.children.map (fun t' => { t' with range? :=
-          match t.range?, t'.range? with
+        let ts := t.task.get.children.map (fun t' => { t' with reportingRange? :=
+          match t.reportingRange?, t'.reportingRange? with
           | some r, some r' =>
             let start := max r.start r'.start
             let stop := min r.stop r'.stop
@@ -268,7 +295,10 @@ This option can only be set on the command line, not in the lakefile or via `set
               return (← ref.get).bind (·.get? MemorizedInteractiveDiagnostics) then
             pure memorized.diags
           else
-            let diags ← node.element.diagnostics.msgLog.toArray.mapM
+            let mut msgs := node.element.diagnostics.msgLog.toArray
+            if ! ctx.initParams.capabilities.silentDiagnosticSupport then
+              msgs := msgs.filter (! ·.isSilent)
+            let diags ← msgs.mapM
               (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
             if let some cacheRef := node.element.diagnostics.interactiveDiagsRef? then
               cacheRef.set <| some <| .mk { diags : MemorizedInteractiveDiagnostics }
@@ -282,13 +312,13 @@ This option can only be set on the command line, not in the lakefile or via `set
       if let some itree := node.element.infoTree? then
         let mut newInfoTrees := (← get).newInfoTrees.push itree
         if (← get).hasBlocked then
-          ctx.chanOut.send (← mkIleanInfoUpdateNotification doc.meta newInfoTrees)
+          ctx.chanOut.sync.send (← mkIleanInfoUpdateNotification doc.meta newInfoTrees)
           newInfoTrees := #[]
         modify fun st => { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
 
     /-- Reports given tasks' ranges, merging overlapping ones. -/
     sendFileProgress (tasks : Array (SnapshotTask SnapshotTree)) : StateT ReportSnapshotsState BaseIO Unit := do
-      let ranges := tasks.filterMap (·.range?)
+      let ranges := tasks.filterMap (·.reportingRange?)
       let ranges := ranges.qsort (·.start < ·.start)
       let ranges := ranges.foldl (init := #[]) fun rs r => match rs[rs.size - 1]? with
         | some last =>
@@ -299,12 +329,12 @@ This option can only be set on the command line, not in the lakefile or via `set
         | none => rs.push r
       let ranges := ranges.map (·.toLspRange doc.meta.text)
       let notifs := ranges.map ({ range := ·, kind := .processing })
-      ctx.chanOut.send <| mkFileProgressNotification doc.meta notifs
+      ctx.chanOut.sync.send <| mkFileProgressNotification doc.meta notifs
 
 end Elab
 
 structure PendingRequest where
-  requestTask : Task (Except IO.Error Unit)
+  requestTask : ServerTask (Except IO.Error Unit)
   cancelTk    : RequestCancellationToken
 
 -- Pending requests are tracked so they can be canceled
@@ -318,8 +348,7 @@ structure WorkerState where
   doc                : EditableDocument
   /-- Token flagged for aborting `doc.reporter` when a new document version comes in. -/
   reporterCancelTk   : CancelToken
-  srcSearchPathTask  : Task SearchPath
-  importCachingTask? : Option (Task (Except Error AvailableImportsCache))
+  importCachingTask? : Option (ServerTask (Except Error AvailableImportsCache))
   pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
@@ -335,9 +364,12 @@ open Language Lean in
 Callback from Lean language processor after parsing imports that requests necessary information from
 Lake for processing imports.
 -/
-def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Channel JsonRpc.Message)
-    (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
-    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
+def setupImports
+    (meta        : DocumentMeta)
+    (cmdlineOpts : Options)
+    (chanOut     : Std.Channel JsonRpc.Message)
+    (stx         : Syntax)
+    : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
     -- As we never unload imports in the server, we should not run the code below twice in the
@@ -357,9 +389,9 @@ def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Ch
       severity?  := DiagnosticSeverity.information
       message    := stderrLine
     }
-    chanOut.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
+    chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
   -- clear progress notifications in the end
-  chanOut.send <| mkPublishDiagnosticsNotification meta #[]
+  chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[]
   match fileSetupResult.kind with
   | .importsOutOfDate =>
     return .error {
@@ -375,25 +407,16 @@ def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Ch
     }
   | _ => pure ()
 
-  srcSearchPathPromise.resolve fileSetupResult.srcSearchPath
-
-  let mainModuleName ← if let some path := System.Uri.fileUriToPath? meta.uri then
-    EIO.catchExceptions (h := fun _ => pure Name.anonymous) do
-      if let some mod ← searchModuleNameOfFileName path fileSetupResult.srcSearchPath then
-        pure mod
-      else
-        moduleNameOfFileName path none
-  else
-    pure Name.anonymous
-
   -- override cmdline options with file options
   let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
 
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
 
+  let opts := Elab.inServer.set opts true
+
   return .ok {
-    mainModuleName
+    mainModuleName := meta.mod
     opts
     plugins := fileSetupResult.plugins
   }
@@ -406,8 +429,8 @@ section Initialization
     let maxDocVersionRef ← IO.mkRef 0
     let freshRequestIdRef ← IO.mkRef (0 : Int)
     let stickyDiagnosticsRef ← IO.mkRef ∅
+    let pendingServerRequestsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
-    let srcSearchPathPromise ← IO.Promise.new
     let timestamp ← IO.monoMsNow
     let partialHandlersRef ← IO.mkRef <| RBMap.fromArray (cmp := compare) <|
       (← partialLspRequestHandlerMethods).map fun (method, refreshMethod, _) =>
@@ -417,12 +440,12 @@ section Initialization
           -- Emit a refresh request after a file worker restart.
           pendingRefreshInfo? := some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
         })
-    let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
+    let processor := Language.Lean.process (setupImports meta opts chanOut)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
-    let _ ← IO.mapTask (t := srcSearchPathPromise.result!) fun srcSearchPath => do
+    let _ ← ServerTask.IO.asTask do
       let importClosure := getImportClosure? initSnap
-      let importClosure ← importClosure.filterMapM (documentUriFromModule srcSearchPath ·)
+      let importClosure ← importClosure.filterMapM (documentUriFromModule? ·)
       chanOut.send <| mkImportClosureNotification importClosure
     let ctx := {
       chanOut
@@ -431,6 +454,7 @@ section Initialization
       processor
       clientHasWidgets
       partialHandlersRef
+      pendingServerRequestsRef
       maxDocVersionRef
       freshRequestIdRef
       cmdlineOpts := opts
@@ -445,7 +469,6 @@ section Initialization
     return (ctx, {
       doc := { doc with reporter }
       reporterCancelTk
-      srcSearchPathTask  := srcSearchPathPromise.result!
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none
@@ -467,6 +490,10 @@ section Initialization
           | .notification "$/lean/fileProgress" (some params) =>
             let params : LeanFileProgressParams ← fromJson? (toJson params) |>.toOption
             params.textDocument.version?
+          | .notification "$/lean/ileanInfoUpdate" (some params)
+          | .notification "$/lean/ileanInfoFinal" (some params) =>
+            let params : LeanIleanInfoParams ← fromJson? (toJson params) |>.toOption
+            some params.version
           | _ => none
         if let some version := version? then
           if version < (← maxDocVersion.get) then
@@ -488,15 +515,26 @@ section Initialization
 end Initialization
 
 section ServerRequests
-  def sendServerRequest [ToJson α]
+  def sendServerRequest
+      paramType [ToJson paramType] responseType [FromJson responseType] [Inhabited responseType]
       (ctx    : WorkerContext)
       (method : String)
-      (param  : α)
-      : BaseIO Unit := do
+      (param  : paramType)
+      : BaseIO (ServerTask (ServerRequestResponse responseType)) := do
     let freshRequestId ← ctx.freshRequestIdRef.modifyGet fun freshRequestId =>
       (freshRequestId, freshRequestId + 1)
-    let r : JsonRpc.Request α := ⟨freshRequestId, method, param⟩
-    ctx.chanOut.send r
+    let responseTask ← ctx.initPendingServerRequest responseType freshRequestId
+    let r : JsonRpc.Request paramType := ⟨freshRequestId, method, param⟩
+    ctx.chanOut.sync.send r
+    return responseTask
+
+  def sendUntypedServerRequest
+      (ctx    : WorkerContext)
+      (method : String)
+      (param  : Json)
+      : BaseIO (ServerTask (ServerRequestResponse Json)) := do
+    sendServerRequest Json Json ctx method param
+
 end ServerRequests
 
 section Updates
@@ -530,27 +568,29 @@ section NotificationHandling
     let oldDoc := (←get).doc
     let cancelTk ← RequestCancellationToken.new
     let newVersion := docId.version?.getD 0
-    let _ ← IO.mapTask (t := st.srcSearchPathTask) fun srcSearchPath =>
-      let rc : RequestContext :=
-        { rpcSessions := st.rpcSessions
-          srcSearchPath
-          doc := oldDoc
-          cancelTk
-          hLog := ctx.hLog
-          initParams := ctx.initParams }
-      RequestM.runInIO (handleOnDidChange p) rc
+    let rc : RequestContext := {
+      rpcSessions := st.rpcSessions
+      doc := oldDoc
+      cancelTk
+      hLog := ctx.hLog
+      initParams := ctx.initParams
+      serverRequestEmitter := sendUntypedServerRequest ctx
+    }
+    RequestM.runInIO (handleOnDidChange p) rc
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
-      updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
+      updateDocument { oldDoc.meta with
+        version := newVersion
+        text := newDocText
+      }
       for (_, r) in st.pendingRequests do
-        r.cancelTk.cancel .edit
-
+        r.cancelTk.cancelByEdit
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     let st ← get
     let some r := st.pendingRequests.find? p.id
       | return
-    r.cancelTk.cancel .cancelRequest
+    r.cancelTk.cancelByCancelRequest
     set <| { st with pendingRequests := st.pendingRequests.erase p.id }
 
   /--
@@ -628,16 +668,66 @@ section MessageHandling
       : WorkerM Unit := do
     updatePendingRequests (·.insert id r)
 
-  open Widget RequestM Language in
-  def handleGetInteractiveDiagnosticsRequest (params : GetInteractiveDiagnosticsParams) :
-      WorkerM (Array InteractiveDiagnostic) := do
+  def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
+      : WorkerM (ServerTask (Except Error AvailableImportsCache)) := do
     let ctx ← read
     let st ← get
+    let text := st.doc.meta.text
+
+    match st.importCachingTask? with
+    | none => ServerTask.IO.asTask do
+      let availableImports ← ImportCompletion.collectAvailableImports
+      let lastRequestTimestampMs ← IO.monoMsNow
+      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
+      ctx.chanOut.sync.send <| .response id (toJson completions)
+      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
+
+    | some task => ServerTask.IO.mapTaskCostly (t := task) fun (result : Except Error AvailableImportsCache) => do
+      let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
+      let timestampNowMs ← IO.monoMsNow
+      if timestampNowMs - lastRequestTimestampMs >= 10000 then
+        availableImports ← ImportCompletion.collectAvailableImports
+      lastRequestTimestampMs := timestampNowMs
+      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
+      ctx.chanOut.sync.send <| .response id (toJson completions)
+      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
+
+  def handleStatefulPreRequestSpecialCases (id : RequestID) (method : String) (params : Json) : WorkerM Bool := do
+    let ctx ← read
+    let st ← get
+    try
+      match method with
+      -- needs access to `WorkerState.rpcSessions`
+      | "$/lean/rpc/connect" =>
+        let ps ← parseParams RpcConnectParams params
+        let resp ← handleRpcConnect ps
+        ctx.chanOut.sync.send <| .response id (toJson resp)
+        return true
+      | "textDocument/completion" =>
+        let params ← parseParams CompletionParams params
+        -- Must not wait on import processing snapshot
+        if ! ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params then
+          return false
+        let importCachingTask ← handleImportCompletionRequest id params
+        set { st with importCachingTask? := some importCachingTask }
+        return true
+      | _ =>
+        return false
+    catch e =>
+      ctx.chanOut.sync.send <| .responseError id .internalError (toString e) none
+      return true
+
+  open Widget RequestM Language in
+  def handleGetInteractiveDiagnosticsRequest
+      (ctx : WorkerContext)
+      (params : GetInteractiveDiagnosticsParams)
+      : RequestM (Array InteractiveDiagnostic) := do
+    let doc ← readDoc
     -- NOTE: always uses latest document (which is the only one we can retrieve diagnostics for);
     -- any race should be temporary as the client should re-request interactive diagnostics when
     -- they receive the non-interactive diagnostics for the new document
     let stickyDiags ← ctx.stickyDiagnosticsRef.get
-    let diags ← st.doc.diagnosticsRef.get
+    let diags ← doc.diagnosticsRef.get
     -- NOTE: does not wait for `lineRange?` to be fully elaborated, which would be problematic with
     -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
     -- request when the non-interactive diagnostics of this range have changed
@@ -654,29 +744,108 @@ section MessageHandling
         s ≤ diagStartLine ∧ diagStartLine < e ∨
         diagStartLine ≤ s ∧ s < diagEndLine
 
-  def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
-      : WorkerM (Task (Except Error AvailableImportsCache)) := do
+  def handlePreRequestSpecialCases? (ctx : WorkerContext) (st : WorkerState)
+      (id : RequestID) (method : String) (params : Json)
+      : RequestM (Option (RequestTask (LspResponse Json))) := do
+    match method with
+    | "$/lean/rpc/call" =>
+      let params ← RequestM.parseRequestParams Lsp.RpcCallParams params
+      if params.method != `Lean.Widget.getInteractiveDiagnostics then
+        return none
+      let some seshRef := st.rpcSessions.find? params.sessionId
+        | throw RequestError.rpcNeedsReconnect
+      let params ← RequestM.parseRequestParams Widget.GetInteractiveDiagnosticsParams params.params
+      let resp ← handleGetInteractiveDiagnosticsRequest ctx params
+      let resp ← seshRef.modifyGet fun st =>
+        rpcEncode resp st.objects |>.map (·) ({st with objects := ·})
+      return some <| .pure { response := resp, isComplete := true }
+    | "codeAction/resolve" =>
+      let params ← RequestM.parseRequestParams CodeAction params
+      let some data := params.data?
+        | throw (RequestError.invalidParams "Expected a data field on CodeAction.")
+      let data ← RequestM.parseRequestParams CodeActionResolveData data
+      if data.providerName != importAllUnknownIdentifiersProvider then
+        return none
+      return some <| ← RequestM.asTask do
+        let fileRange := ⟨0, st.doc.meta.text.source.endPos⟩
+        let unknownIdentifierRanges ← waitUnknownIdentifierRanges st.doc fileRange
+        if unknownIdentifierRanges.isEmpty then
+          return { response := toJson params, isComplete := true }
+        let action? ← handleResolveImportAllUnknownIdentifiersCodeAction? id params unknownIdentifierRanges
+        let action := action?.getD params
+        return { response := toJson action, isComplete := true }
+    | _ =>
+      return none
+
+  def handlePostRequestSpecialCases (id : RequestID) (method : String) (params : Json)
+      (task : RequestTask (LspResponse Json)) : RequestM (RequestTask (LspResponse Json)) := do
+    let doc ← RequestM.readDoc
+    match method with
+    | "textDocument/codeAction" =>
+      let .ok (params : CodeActionParams) := fromJson? params
+        | return task
+      RequestM.mapRequestTaskCostly task fun r => do
+        let isSourceAction := params.context.only?.any fun only =>
+            only.contains "source" || only.contains "source.organizeImports"
+        if isSourceAction then
+          let unknownIdentifierRanges ← waitUnknownIdentifierRanges doc ⟨0, doc.meta.text.source.endPos⟩
+          if unknownIdentifierRanges.isEmpty then
+            return r
+          let .ok (codeActions : Array CodeAction) := fromJson? r.response
+            | return r
+          return { r with response := toJson <| codeActions.push <| importAllUnknownIdentifiersCodeAction params "source.organizeImports" }
+        else
+          let requestedRange := doc.meta.text.lspRangeToUtf8Range params.range
+          let unknownIdentifierRanges ← waitUnknownIdentifierRanges doc requestedRange
+          if unknownIdentifierRanges.isEmpty then
+            return r
+          let .ok (codeActions : Array CodeAction) := fromJson? r.response
+            | return r
+          RequestM.checkCancelled
+          -- Since computing the unknown identifier code actions is *really* expensive,
+          -- we only do it when the user has stopped typing for a second.
+          IO.sleep 1000
+          RequestM.checkCancelled
+          let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange unknownIdentifierRanges
+          return { r with response := toJson <| codeActions ++ unknownIdentifierCodeActions }
+    | _ =>
+      return task
+
+  def emitRequestResponse
+      (requestTask? : Except RequestError (RequestTask (LspResponse Json)))
+      (cancelTk : RequestCancellationToken)
+      (id : RequestID)
+      (method : String)
+      : WorkerM (ServerTask (Except Error Unit)) := do
     let ctx ← read
-    let st ← get
-    let text := st.doc.meta.text
-
-    match st.importCachingTask? with
-    | none => IO.asTask (prio := Task.Priority.dedicated) do
-      let availableImports ← ImportCompletion.collectAvailableImports
-      let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
-      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
-
-    | some task => IO.mapTask (t := task) fun result => do
-      let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
-      let timestampNowMs ← IO.monoMsNow
-      if timestampNowMs - lastRequestTimestampMs >= 10000 then
-        availableImports ← ImportCompletion.collectAvailableImports
-      lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
-      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
+    match requestTask? with
+    | Except.error e =>
+      emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+      return ServerTask.pure <| .ok ()
+    | Except.ok requestTask =>
+      ServerTask.IO.mapTaskCheap (t := requestTask) fun
+        | Except.ok r => do
+          if ← cancelTk.wasCancelledByCancelRequest then
+            -- Try not to emit a partial response if this request was cancelled.
+            -- Clients usually discard responses for requests that they cancelled anyways,
+            -- but it's still good to send less over the wire in this case.
+            emitResponse ctx (isComplete := false) <| RequestError.requestCancelled.toLspResponseError id
+            return
+          emitResponse ctx (isComplete := r.isComplete) <| .response id (toJson r.response)
+        | Except.error e =>
+          emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+  where
+    emitResponse (ctx : WorkerContext) (m : JsonRpc.Message) (isComplete : Bool) : IO Unit := do
+      ctx.chanOut.sync.send m
+      let timestamp ← IO.monoMsNow
+      ctx.modifyPartialHandler method fun h => { h with
+        requestsInFlight := h.requestsInFlight - 1
+        pendingRefreshInfo? :=
+          if isComplete then
+            none
+          else
+            some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
+      }
 
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do
@@ -688,80 +857,36 @@ section MessageHandling
       requestsInFlight := h.requestsInFlight + 1
     }
 
-    -- special cases
-    try
-      match method with
-      -- needs access to `WorkerState.rpcSessions`
-      | "$/lean/rpc/connect" =>
-        let ps ← parseParams RpcConnectParams params
-        let resp ← handleRpcConnect ps
-        ctx.chanOut.send <| .response id (toJson resp)
-        return
-      | "$/lean/rpc/call" =>
-        let params ← parseParams Lsp.RpcCallParams params
-        -- needs access to `EditableDocumentCore.diagnosticsRef`
-        if params.method == `Lean.Widget.getInteractiveDiagnostics then
-          let some seshRef := st.rpcSessions.find? params.sessionId
-            | ctx.chanOut.send <| .responseError id .rpcNeedsReconnect "Outdated RPC session" none
-          let params ← IO.ofExcept (fromJson? params.params)
-          let resp ← handleGetInteractiveDiagnosticsRequest params
-
-          let resp ← seshRef.modifyGet fun st =>
-            rpcEncode resp st.objects |>.map (·) ({st with objects := ·})
-          ctx.chanOut.send <| .response id resp
-          return
-      | "textDocument/completion" =>
-        let params ← parseParams CompletionParams params
-        -- must not wait on import processing snapshot
-        if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params
-        then
-          let importCachingTask ← handleImportCompletionRequest id params
-          set { st with importCachingTask? := some importCachingTask }
-          return
-      | _ => pure ()
-    catch e =>
-      ctx.chanOut.send <| .responseError id .internalError (toString e) none
+    let hasHandledSpecialCase ← handleStatefulPreRequestSpecialCases id method params
+    if hasHandledSpecialCase then
       return
 
     let cancelTk ← RequestCancellationToken.new
-    -- we assume that any other request requires at least the search path
     -- TODO: move into language-specific request handling
-    let requestTask ← IO.bindTask st.srcSearchPathTask fun srcSearchPath => do
-      let rc : RequestContext :=
-        { rpcSessions := st.rpcSessions
-          srcSearchPath
-          doc := st.doc
-          cancelTk
-          hLog := ctx.hLog
-          initParams := ctx.initParams }
-      let t? ← EIO.toIO' <| handleLspRequest method params rc
-      let t₁ ← match t? with
-        | Except.error e =>
-            emitResponse ctx (isComplete := false) <| e.toLspResponseError id
-            pure <| Task.pure <| .ok ()
-        | Except.ok t => (IO.mapTask · t) fun
-          | Except.ok r => do
-            emitResponse ctx (isComplete := r.isComplete) <| .response id (toJson r.response)
-          | Except.error e =>
-            emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+    let rc : RequestContext := {
+      rpcSessions := st.rpcSessions
+      doc := st.doc
+      cancelTk
+      hLog := ctx.hLog
+      initParams := ctx.initParams
+      serverRequestEmitter := sendUntypedServerRequest ctx
+    }
+    let requestTask? ← EIO.toIO' <| RequestM.run (rc := rc) do
+      if let some response ← handlePreRequestSpecialCases? ctx st id method params then
+        return response
+      let task ← handleLspRequest method params
+      let task ← handlePostRequestSpecialCases id method params task
+      return task
+    let requestTask ← emitRequestResponse requestTask? cancelTk id method
     queueRequest id { cancelTk, requestTask }
 
-  where
+  def handleResponse (id : RequestID) (response : Json) : WorkerM Unit := do
+    let ctx ← read
+    ctx.resolveServerRequestResponse id (.success response)
 
-    emitResponse (ctx : WorkerContext) (m : JsonRpc.Message) (isComplete : Bool) : IO Unit := do
-      ctx.chanOut.send m
-      let timestamp ← IO.monoMsNow
-      ctx.modifyPartialHandler method fun h => { h with
-        requestsInFlight := h.requestsInFlight - 1
-        pendingRefreshInfo? :=
-          if isComplete then
-            none
-          else
-            some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
-      }
-
-  def handleResponse (_ : RequestID) (_ : Json) : WorkerM Unit :=
-    return -- The only response that we currently expect here is always empty
+  def handleResponseError (id : RequestID) (code : ErrorCode) (message : String) : WorkerM Unit := do
+    let ctx ← read
+    ctx.resolveServerRequestResponse id (.failure code message)
 
 end MessageHandling
 
@@ -770,9 +895,9 @@ section MainLoop
   partial def mainLoop : WorkerM Unit := do
     let mut st ← get
     let msg ← hIn.readLspMessage
-    let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
+    let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : ServerTask (Except IO.Error Unit))
         : IO PendingRequestMap := do
-      if (← hasFinished task) then
+      if ← task.hasFinished then
         -- Handler tasks are constructed so that the only possible errors here
         -- are failures of writing a response into the stream.
         if let Except.error e := task.get then
@@ -801,14 +926,13 @@ section MainLoop
     | Message.response id result =>
       handleResponse id result
       mainLoop
-    | Message.responseError .. =>
-      -- Ignore all errors as we currently only handle a single request with an optional response
-      -- where failure is not an issue.
+    | Message.responseError id code message _ =>
+      handleResponseError id code message
       mainLoop
     | _ => throwServerError "Got invalid JSON-RPC message"
 end MainLoop
 
-def runRefreshTasks : WorkerM (Array (Task Unit)) := do
+def runRefreshTasks : WorkerM (Array (ServerTask Unit)) := do
   -- We limit the amount of successive refresh attempts in case the user has switched files,
   -- in which case VS Code won't respond to any refresh request for the given file.
   -- Since we don't want to spam the client with refresh requests for every single file that they
@@ -817,7 +941,7 @@ def runRefreshTasks : WorkerM (Array (Task Unit)) := do
   let ctx ← read
   let mut tasks := #[]
   for (method, refreshMethod, refreshIntervalMs) in ← partialLspRequestHandlerMethods do
-    tasks := tasks.push <| ← BaseIO.asTask (prio := .dedicated) do
+    tasks := tasks.push <| ← ServerTask.BaseIO.asTask do
       while true do
         let lastRefreshTimestamp? ← ctx.modifyGetPartialHandler method fun h => Id.run do
           let some info := h.pendingRefreshInfo?
@@ -861,7 +985,7 @@ def runRefreshTasks : WorkerM (Array (Task Unit)) := do
           if cancelled then
             return
           continue
-        sendServerRequest ctx refreshMethod (none : Option Nat)
+        let _ ← sendServerRequest (Option Nat) (Option Nat) ctx refreshMethod none
   return tasks
 
 where
@@ -885,9 +1009,16 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
-  -- LSP always refers to characters by (line, column),
-  -- so converting CRLF to LF preserves line and column numbers.
-  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.crlfToLf.toFileMap, param.dependencyBuildMode?.getD .always⟩
+
+  let meta : DocumentMeta := {
+    uri := doc.uri
+    mod := ← moduleFromDocumentUri doc.uri
+    version := doc.version
+    -- LSP always refers to characters by (line, column),
+    -- so converting CRLF to LF preserves line and column numbers.
+    text := doc.text.crlfToLf.toFileMap
+    dependencyBuildMode := param.dependencyBuildMode?.getD .always
+  }
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   let (ctx, st) ← try
@@ -899,8 +1030,8 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
     try
       let refreshTasks ← runRefreshTasks
       mainLoop i
-      for refreshTasks in refreshTasks do
-        IO.cancel refreshTasks
+      for refreshTask in refreshTasks do
+        refreshTask.cancel
     catch err =>
       let st ← get
       writeErrorDiag st.doc.meta err

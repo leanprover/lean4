@@ -11,13 +11,19 @@ import Init.Data.List.OfFn
 import Init.Data.Fin.Lemmas
 import Init.Data.Option.Attach
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-! ## Operations using indexes -/
 
 /--
-Given a list `as = [a₀, a₁, ...]` and a function `f : (i : Nat) → α → (h : i < as.length) → β`, returns the list
-`[f 0 a₀ ⋯, f 1 a₁ ⋯, ...]`.
+Applies a function to each element of the list along with the index at which that element is found,
+returning the list of results. In addition to the index, the function is also provided with a proof
+that the index is valid.
+
+`List.mapIdx` is a variant that does not provide the function with evidence that the index is valid.
 -/
 @[inline] def mapFinIdx (as : List α) (f : (i : Nat) → α → (h : i < as.length) → β) : List β :=
   go as #[] (by simp)
@@ -30,8 +36,11 @@ where
     go as (acc.push (f acc.size a (by simp at h; omega))) (by simp at h ⊢; omega)
 
 /--
-Given a function `f : Nat → α → β` and `as : List α`, `as = [a₀, a₁, ...]`, returns the list
-`[f 0 a₀, f 1 a₁, ...]`.
+Applies a function to each element of the list along with the index at which that element is found,
+returning the list of results.
+
+`List.mapFinIdx` is a variant that additionally provides the function with a proof that the index
+is valid.
 -/
 @[inline] def mapIdx (f : Nat → α → β) (as : List α) : List β := go as #[] where
   /-- Auxiliary for `mapIdx`:
@@ -41,8 +50,12 @@ Given a function `f : Nat → α → β` and `as : List α`, `as = [a₀, a₁, 
   | a :: as, acc => go as (acc.push (f acc.size a))
 
 /--
-Given a list `as = [a₀, a₁, ...]` and a monadic function `f : (i : Nat) → α → (h : i < as.length) → m β`,
-returns the list `[f 0 a₀ ⋯, f 1 a₁ ⋯, ...]`.
+Applies a monadic function to each element of the list along with the index at which that element is
+found, returning the list of results. In addition to the index, the function is also provided with a
+proof that the index is valid.
+
+`List.mapIdxM` is a variant that does not provide the function with evidence that the index is
+valid.
 -/
 @[inline] def mapFinIdxM [Monad m] (as : List α) (f : (i : Nat) → α → (h : i < as.length) → m β) : m (List β) :=
   go as #[] (by simp)
@@ -55,8 +68,11 @@ where
     go as (acc.push (← f acc.size a (by simp at h; omega))) (by simp at h ⊢; omega)
 
 /--
-Given a monadic function `f : Nat → α → m β` and `as : List α`, `as = [a₀, a₁, ...]`,
-returns the list `[f 0 a₀, f 1 a₁, ...]`.
+Applies a monadic function to each element of the list along with the index at which that element is
+found, returning the list of results.
+
+`List.mapFinIdxM` is a variant that additionally provides the function with a proof that the index
+is valid.
 -/
 @[inline] def mapIdxM [Monad m] (f : Nat → α → m β) (as : List α) : m (List β) := go as #[] where
   /-- Auxiliary for `mapIdxM`:
@@ -131,10 +147,10 @@ theorem mapFinIdx_cons {l : List α} {a : α} {f : (i : Nat) → α → (h : i <
   · simp
   · rintro (_|i) h₁ h₂ <;> simp
 
-theorem mapFinIdx_append {K L : List α} {f : (i : Nat) → α → (h : i < (K ++ L).length) → β} :
-    (K ++ L).mapFinIdx f =
-      K.mapFinIdx (fun i a h => f i a (by simp; omega)) ++
-        L.mapFinIdx (fun i a h => f (i + K.length) a (by simp; omega)) := by
+theorem mapFinIdx_append {xs ys : List α} {f : (i : Nat) → α → (h : i < (xs ++ ys).length) → β} :
+    (xs ++ ys).mapFinIdx f =
+      xs.mapFinIdx (fun i a h => f i a (by simp; omega)) ++
+        ys.mapFinIdx (fun i a h => f (i + xs.length) a (by simp; omega)) := by
   apply ext_getElem
   · simp
   · intro i h₁ h₂
@@ -299,15 +315,15 @@ theorem mapFinIdx_eq_replicate_iff {l : List α} {f : (i : Nat) → α → (h : 
 theorem mapIdx_nil {f : Nat → α → β} : mapIdx f [] = [] :=
   rfl
 
-theorem mapIdx_go_length {arr : Array β} :
-    length (mapIdx.go f l arr) = length l + arr.size := by
-  induction l generalizing arr with
+theorem mapIdx_go_length {acc : Array β} :
+    length (mapIdx.go f l acc) = length l + acc.size := by
+  induction l generalizing acc with
   | nil => simp only [mapIdx.go, length_nil, Nat.zero_add]
   | cons _ _ ih =>
     simp only [mapIdx.go, ih, Array.size_push, Nat.add_succ, length_cons, Nat.add_comm]
 
-theorem length_mapIdx_go : ∀ {l : List α} {arr : Array β},
-    (mapIdx.go f l arr).length = l.length + arr.size
+theorem length_mapIdx_go : ∀ {l : List α} {acc : Array β},
+    (mapIdx.go f l acc).length = l.length + acc.size
   | [], _ => by simp [mapIdx.go]
   | a :: l, _ => by
     simp only [mapIdx.go, length_cons]
@@ -318,13 +334,13 @@ theorem length_mapIdx_go : ∀ {l : List α} {arr : Array β},
 @[simp] theorem length_mapIdx {l : List α} : (l.mapIdx f).length = l.length := by
   simp [mapIdx, length_mapIdx_go]
 
-theorem getElem?_mapIdx_go : ∀ {l : List α} {arr : Array β} {i : Nat},
-    (mapIdx.go f l arr)[i]? =
-      if h : i < arr.size then some arr[i] else Option.map (f i) l[i - arr.size]?
-  | [], arr, i => by
+theorem getElem?_mapIdx_go : ∀ {l : List α} {acc : Array β} {i : Nat},
+    (mapIdx.go f l acc)[i]? =
+      if h : i < acc.size then some acc[i] else Option.map (f i) l[i - acc.size]?
+  | [], acc, i => by
     simp only [mapIdx.go, Array.toListImpl_eq, getElem?_def, Array.length_toList,
-      ← Array.getElem_toList, length_nil, Nat.not_lt_zero, ↓reduceDIte, Option.map_none']
-  | a :: l, arr, i => by
+      ← Array.getElem_toList, length_nil, Nat.not_lt_zero, ↓reduceDIte, Option.map_none]
+  | a :: l, acc, i => by
     rw [mapIdx.go, getElem?_mapIdx_go]
     simp only [Array.size_push]
     split <;> split
@@ -332,10 +348,10 @@ theorem getElem?_mapIdx_go : ∀ {l : List α} {arr : Array β} {i : Nat},
       rw [← Array.getElem_toList]
       simp only [Array.push_toList]
       rw [getElem_append_left, ← Array.getElem_toList]
-    · have : i = arr.size := by omega
+    · have : i = acc.size := by omega
       simp_all
     · omega
-    · have : i - arr.size = i - (arr.size + 1) + 1 := by omega
+    · have : i - acc.size = i - (acc.size + 1) + 1 := by omega
       simp_all
 
 @[simp] theorem getElem?_mapIdx {l : List α} {i : Nat} :
@@ -371,9 +387,9 @@ theorem mapIdx_cons {l : List α} {a : α} :
     mapIdx f (a :: l) = f 0 a :: mapIdx (fun i => f (i + 1)) l := by
   simp [mapIdx_eq_zipIdx_map, List.zipIdx_succ]
 
-theorem mapIdx_append {K L : List α} :
-    (K ++ L).mapIdx f = K.mapIdx f ++ L.mapIdx fun i => f (i + K.length) := by
-  induction K generalizing f with
+theorem mapIdx_append {xs ys : List α} :
+    (xs ++ ys).mapIdx f = xs.mapIdx f ++ ys.mapIdx fun i => f (i + xs.length) := by
+  induction xs generalizing f with
   | nil => rfl
   | cons _ _ ih => simp [ih (f := fun i => f (i + 1)), Nat.add_assoc]
 
@@ -474,9 +490,9 @@ theorem mapIdx_eq_mapIdx_iff {l : List α} :
   cases l with
   | nil => simp at h
   | cons _ _ =>
-    simp only [← getElem_cons_length _ _ _ rfl]
+    simp only [← getElem_cons_length rfl]
     simp only [mapIdx_cons]
-    simp only [← getElem_cons_length _ _ _ rfl]
+    simp only [← getElem_cons_length rfl]
     simp only [← mapIdx_cons, getElem_mapIdx]
     simp
 

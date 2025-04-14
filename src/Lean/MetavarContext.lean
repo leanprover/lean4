@@ -588,8 +588,15 @@ def instantiateMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
     return r
 
 def instantiateLCtxMVars [Monad m] [MonadMCtx m] (lctx : LocalContext) : m LocalContext :=
+  let auxDeclToFullName := lctx.auxDeclToFullName
   lctx.foldlM (init := {}) fun lctx ldecl => do
      match ldecl with
+     | .cdecl _ fvarId userName type _ .auxDecl =>
+        let type ← instantiateMVars type
+        let .some fullName := auxDeclToFullName.find? fvarId
+          | panic! s!"Invalid auxiliary declaration found in local context: \
+                      {userName} does not have an associated full name."
+        return lctx.mkAuxDecl fvarId userName type fullName
      | .cdecl _ fvarId userName type bi k =>
        let type ← instantiateMVars type
        return lctx.mkLocalDecl fvarId userName type bi k

@@ -18,10 +18,10 @@ $LAKE env printenv LEAN_GITHASH
 $LAKE env printenv LEAN_SYSROOT
 $LAKE env printenv LEAN_AR | grep --color ar
 $LAKE env printenv LEAN_PATH
-$LAKE -d ../../examples/hello env printenv LEAN_PATH | grep --color examples/hello
+$LAKE -d ../../examples/hello env printenv LEAN_PATH | grep --color hello
 $LAKE env printenv LEAN_SRC_PATH | grep --color lake
-$LAKE -d ../../examples/hello env printenv LEAN_SRC_PATH | grep --color examples/hello
-$LAKE -d ../../examples/hello env printenv PATH | grep --color examples/hello
+$LAKE -d ../../examples/hello env printenv LEAN_SRC_PATH | grep --color hello
+$LAKE -d ../../examples/hello env printenv PATH | grep --color hello
 
 # Test that `env` preserves the input environment for certain variables
 test "`$LAKE env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN`" = foo

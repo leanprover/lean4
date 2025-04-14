@@ -149,8 +149,10 @@ def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
   match decl.value with
   | .code code =>
     let used ← collectUsedParams decl
-    if used.size == decl.params.size then
-      return #[decl] -- Declarations uses all parameters
+    if used.size == decl.params.size || used.size == 0 then
+      -- Do nothing if all params were used, or if no params were used. In the latter case,
+      -- this would promote the decl to a constant, which could execute unreachable code.
+      return #[decl]
     else
       trace[Compiler.reduceArity] "{decl.name}, used params: {used.toList.map mkFVar}"
       let mask   := decl.params.map fun param => used.contains param.fvarId

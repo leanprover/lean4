@@ -11,7 +11,7 @@ import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.LinearArith.Simp
+import Lean.Meta.Tactic.Simp.Arith
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Simp.Attr
 import Lean.Meta.BinderNameHint
@@ -280,28 +280,38 @@ where
   catch _ =>
     return .continue
 
+private def isNatExpr (e : Expr) : MetaM Bool := do
+  let type ← inferType e
+  let_expr Nat ← type | return false
+  return true
+
 def simpArith (e : Expr) : SimpM Step := do
   unless (← getConfig).arith do
     return .continue
-  if Linear.isLinearCnstr e then
-    if let some (e', h) ← Linear.Nat.simpCnstr? e then
+  if Arith.isLinearCnstr e then
+    if let some (e', h) ← Arith.Nat.simpCnstr? e then
       return .visit { expr := e', proof? := h }
-    else if let some (e', h) ← Linear.Int.simpCnstr? e then
+    if let some (e', h) ← Arith.Int.simpRel? e then
       return .visit { expr := e', proof? := h }
-    else
-      return .continue
-  else if Linear.isLinearTerm e then
-    if Linear.parentIsTarget (← getContext).parent? then
+    if let some (e', h) ← Arith.Int.simpEq? e then
+      return .visit { expr := e', proof? := h }
+    return .continue
+  let isNat ← isNatExpr e
+  if Arith.isLinearTerm e isNat then
+    if Arith.parentIsTarget (← getContext).parent? isNat then
       -- We mark `cache := false` to ensure we do not miss simplifications.
       return .continue (some { expr := e, cache := false })
-    else if let some (e', h) ← Linear.Nat.simpExpr? e then
-      return .visit { expr := e', proof? := h }
-    else if let some (e', h) ← Linear.Int.simpExpr? e then
+    if isNat then
+      let some (e', h) ← Arith.Nat.simpExpr? e | pure ()
       return .visit { expr := e', proof? := h }
     else
-      return .continue
-  else
+      let some (e', h) ← Arith.Int.simpExpr? e | pure ()
+      return .visit { expr := e', proof? := h }
     return .continue
+  if Arith.isDvdCnstr e then
+    let some (e', h) ← Arith.Int.simpDvd? e | pure ()
+    return .visit { expr := e', proof? := h }
+  return .continue
 
 /--
 Given a match-application `e` with `MatcherInfo` `info`, return `some result`
@@ -615,7 +625,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
     if let some r ← dischargeEqnThmHypothesis? e then return some r
   let r ← simp e
   if let some p ← dischargeRfl r.expr then
-    return some (← mkEqMPR (← r.getProof) p)
+    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
   else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))
   else

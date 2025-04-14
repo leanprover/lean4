@@ -9,6 +9,9 @@ import Init.Data.BEq
 import Init.Data.List.Nat.BEq
 import Init.ByCases
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace Array
 
 private theorem rel_of_isEqvAux
@@ -68,7 +71,7 @@ theorem isEqv_eq_decide (xs ys : Array α) (r) :
 
 theorem eq_of_isEqv [DecidableEq α] (xs ys : Array α) (h : Array.isEqv xs ys (fun x y => x = y)) : xs = ys := by
   have ⟨h, h'⟩ := rel_of_isEqv h
-  exact ext _ _ h (fun i lt _ => by simpa using h' i lt)
+  exact ext h (fun i lt _ => by simpa using h' i lt)
 
 private theorem isEqvAux_self (r : α → α → Bool) (hr : ∀ a, r a a) (xs : Array α) (i : Nat) (h : i ≤ xs.size) :
     Array.isEqvAux xs xs rfl r i h = true := by
@@ -84,9 +87,9 @@ theorem isEqv_self [DecidableEq α] (xs : Array α) : Array.isEqv xs xs (· = ·
   simp [isEqv, isEqvAux_self]
 
 instance [DecidableEq α] : DecidableEq (Array α) :=
-  fun a b =>
-    match h:isEqv a b (fun a b => a = b) with
-    | true  => isTrue (eq_of_isEqv a b h)
+  fun xs ys =>
+    match h:isEqv xs ys (fun a b => a = b) with
+    | true  => isTrue (eq_of_isEqv xs ys h)
     | false => isFalse fun h' => by subst h'; rw [isEqv_self] at h; contradiction
 
 theorem beq_eq_decide [BEq α] (xs ys : Array α) :

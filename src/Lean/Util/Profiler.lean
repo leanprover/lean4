@@ -67,7 +67,7 @@ structure SamplesTable where
   time : Array Milliseconds
   weight : Array Milliseconds
   weightType : String := "tracing-ms"
-  threadCPUDelta : Array Float
+  threadCPUDelta : Array Microseconds
   length : Nat
 deriving FromJson, ToJson
 
@@ -170,7 +170,8 @@ def categories : Array Category := #[
   { name := `Elab.async, color := "gray" },
   { name := `Elab.block, color := "brown" },
   { name := `Elab, color := "red" },
-  { name := `Meta, color := "yellow" }
+  { name := `Meta, color := "yellow" },
+  { name := `Kernel, color := "green" }
 ]
 
 /-- Returns first `startTime` in the trace tree, if any. -/
@@ -285,7 +286,7 @@ def Profile.export (name : String) (startTime : Float) (traceStates : Array Trac
     let traces := traceStates.map (·.traces.toArray)
     -- sort traces of thread by start time
     let traces := traces.qsort (fun tr1 tr2 =>
-      let f tr := tr.get? 0 |>.bind (getFirstStart? ·.msg) |>.getD 0
+      let f tr := tr[0]? |>.bind (getFirstStart? ·.msg) |>.getD 0
       f tr1 < f tr2)
     let mut traces := traces.flatMap id |>.map (·.msg)
     if tid = 0 then
@@ -344,7 +345,7 @@ where
               stack := stack.push stackIdx
               time := time.push time.size.toFloat
               weight := weight.push add.samples.weight[oldSampleIdx]!
-              threadCPUDelta := threadCPUDelta.push 1
+              threadCPUDelta := threadCPUDelta.push 1.0
               length := length + 1
             }
           let sampleMap := sampleMap.insert stackIdx sampleMap.size

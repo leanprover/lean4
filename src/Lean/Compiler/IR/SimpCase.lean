@@ -18,7 +18,7 @@ def ensureHasDefault (alts : Array Alt) : Array Alt :=
     alts.push (Alt.default last.body)
 
 private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
-  let aBody := (alts.get! i).body
+  let aBody := alts[i]!.body
   let mut n := 1
   for h : j in [i+1:alts.size] do
     if alts[j].body == aBody then
@@ -52,8 +52,8 @@ private def mkSimpCase (tid : Name) (x : VarId) (xType : IRType) (alts : Array A
   let alts := addDefault alts;
   if alts.size == 0 then
     FnBody.unreachable
-  else if alts.size == 1 then
-    (alts.get! 0).body
+  else if _ : alts.size = 1 then
+    alts[0].body
   else
     FnBody.case tid x xType alts
 

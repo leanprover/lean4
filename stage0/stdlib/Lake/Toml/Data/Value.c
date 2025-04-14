@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Toml_ppTable___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l___private_Lake_Toml_Data_DateTime_0__Lake_Toml_decEqDateTime____x40_Lake_Toml_Data_DateTime___hyg_1029_(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_instInhabitedValue___closed__2;
@@ -32,10 +31,10 @@ LEAN_EXPORT lean_object* l_Lake_Toml_ppSimpleKey___boxed(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lake_Toml_RBDict_empty___rarg(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_ppTable___closed__7;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Toml_ppTable___spec__2___closed__3;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_empty;
+lean_object* l___private_Lake_Toml_Data_DateTime_0__Lake_Toml_decEqDateTime____x40_Lake_Toml_Data_DateTime___hyg_1023_(lean_object*, lean_object*);
 lean_object* l_Lake_lpad(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___private_Lake_Toml_Data_Value_0__Lake_Toml_beqValue____x40_Lake_Toml_Data_Value___hyg_142____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Toml_ppInlineTable___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -90,6 +89,7 @@ static lean_object* l_Lake_Toml_Value_toString___closed__1;
 static lean_object* l_String_foldlAux___at_Lake_Toml_ppString___spec__1___closed__5;
 static lean_object* l_Lake_Toml_instInhabitedValue___closed__1;
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_Lake_Toml_ppTable_appendKeyval___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_toString(lean_object*);
@@ -529,7 +529,7 @@ return x_56;
 else
 {
 lean_object* x_57; 
-x_57 = l___private_Lake_Toml_Data_DateTime_0__Lake_Toml_decEqDateTime____x40_Lake_Toml_Data_DateTime___hyg_1029_(x_51, x_53);
+x_57 = l___private_Lake_Toml_Data_DateTime_0__Lake_Toml_decEqDateTime____x40_Lake_Toml_Data_DateTime___hyg_1023_(x_51, x_53);
 return x_57;
 }
 }

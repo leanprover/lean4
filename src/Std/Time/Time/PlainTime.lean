@@ -15,6 +15,7 @@ set_option linter.all true
 /--
 Represents a specific point in a day, including hours, minutes, seconds, and nanoseconds.
 -/
+@[ext]
 structure PlainTime where
 
   /--
@@ -36,14 +37,30 @@ structure PlainTime where
   `Nanoseconds` component of the `PlainTime`
   -/
   nanosecond : Nanosecond.Ordinal
-  deriving Repr
+deriving Repr, DecidableEq
 
 instance : Inhabited PlainTime where
   default := ⟨0, 0, 0, 0, by decide⟩
 
-instance : BEq PlainTime where
-  beq x y := x.hour.val == y.hour.val && x.minute == y.minute
-          && x.second.val == y.second.val && x.nanosecond == y.nanosecond
+instance : Ord PlainTime where
+  compare := compareLex (compareOn (·.hour)) <| compareLex (compareOn (·.minute)) <|
+      compareLex (compareOn (·.second)) (compareOn (·.nanosecond))
+
+theorem PlainTime.compare_def :
+    compare (α := PlainTime) =
+      (compareLex (compareOn (·.hour)) <| compareLex (compareOn (·.minute)) <|
+          compareLex (compareOn (·.second)) (compareOn (·.nanosecond))) := rfl
+
+instance : TransOrd PlainTime := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd PlainTime where
+  eq_of_compare {a b} h := by
+    simp only [PlainTime.compare_def, compareLex_eq_eq] at h
+    ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2.1
+    · exact LawfulEqOrd.eq_of_compare h.2.2.1
+    · exact LawfulEqOrd.eq_of_compare h.2.2.2
 
 namespace PlainTime
 

@@ -50,4 +50,3 @@ import Lean.Elab.Tactic.AsAuxLemma
 import Lean.Elab.Tactic.TreeTacAttr
 import Lean.Elab.Tactic.ExposeNames
 import Lean.Elab.Tactic.SimpArith
-import Lean.Elab.Tactic.Lets

@@ -153,7 +153,7 @@ private theorem getElem_qsort_sort_mem (lt : α → α → Bool)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
     (i : Nat) (h : i < n) (_ : lo ≤ i) (_ : i ≤ hi) :
     (qsort.sort lt as lo hi hlo hhi)[i] ∈ as.extract lo (hi + 1) := by
-  -- FIXME: This is horrible!
+  -- FIXME: This proof is horrible, with too much pain navigating the Array/Vector boundary.
   have := extract_qsort_sort_perm as lt lo hi hlo hhi (by grind)
   have := Array.Perm.mem_iff this (a := (qsort.sort lt as lo hi hlo hhi)[i])
   rw [← Vector.mem_toArray_iff]

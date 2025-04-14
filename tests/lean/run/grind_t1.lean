@@ -190,6 +190,7 @@ info: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.assert] w ∈ b
 [grind.assert] ¬p w
 [grind.ematch.instance] h₁: w ∈ b → p w
+[grind.ematch.instance] List.length_pos_of_mem: w ∈ b → 0 < b.length
 [grind.assert] w ∈ b → p w
 -/
 #guard_msgs (info) in
@@ -316,6 +317,8 @@ example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (
 example {α β} (f : α → β) (a : α) : ∃ a', f a' = f a := by
   grind
 
+attribute [grind ext] List.ext_getElem?
+
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
   grind +splitIndPred only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
@@ -337,6 +340,8 @@ example : (replicate n a).map f = replicate n (f a) := by
 @[ext] structure S where
   a : Nat
   b : Bool
+
+attribute [grind ext] S.ext
 
 example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
   grind

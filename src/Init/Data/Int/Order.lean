@@ -329,9 +329,9 @@ protected theorem le_iff_lt_add_one {a b : Int} : a ≤ b ↔ a < b + 1 := by
 
 /- ### min and max -/
 
-protected theorem min_def (n m : Int) : min n m = if n ≤ m then n else m := rfl
+@[grind =] protected theorem min_def (n m : Int) : min n m = if n ≤ m then n else m := rfl
 
-protected theorem max_def (n m : Int) : max n m = if n ≤ m then m else n := rfl
+@[grind =] protected theorem max_def (n m : Int) : max n m = if n ≤ m then m else n := rfl
 
 @[simp] protected theorem neg_min_neg (a b : Int) : min (-a) (-b) = -max a b := by
   rw [Int.min_def, Int.max_def]

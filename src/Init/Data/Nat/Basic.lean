@@ -6,6 +6,7 @@ Authors: Floris van Doorn, Leonardo de Moura
 prelude
 import Init.SimpLemmas
 import Init.Data.NeZero
+import Init.Grind.Tactics
 
 set_option linter.missingDocs true -- keep it documented
 universe u
@@ -867,7 +868,7 @@ Examples:
 -/
 protected abbrev min (n m : Nat) := min n m
 
-protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
+@[grind =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
 
 instance : Max Nat := maxOfLe
 
@@ -884,7 +885,7 @@ Examples:
 -/
 protected abbrev max (n m : Nat) := max n m
 
-protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
+@[grind =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
 
 
 /-! # Auxiliary theorems for well-founded recursion -/

@@ -17,6 +17,7 @@ lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes_
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__16;
 static lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__9___closed__1;
+LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_contains(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__5;
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_instReprExtTheorem;
@@ -24,13 +25,15 @@ uint8_t l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(
 static lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Ext_instInhabitedExtTheorems___spec__1___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__21;
 size_t lean_usize_shift_right(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Ext_getExtTheorems___closed__1;
 static lean_object* l_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____closed__4;
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_isExtTheorem___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__6___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__24;
 static lean_object* l_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_contains___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
@@ -39,25 +42,24 @@ size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_extExtension;
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____closed__9;
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_isExtTheorem(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase(lean_object*);
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__5(lean_object*, lean_object*, size_t, size_t, uint8_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_insert___at_Lean_NameSSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_beqExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_123____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__4(lean_object*, lean_object*, size_t, size_t, uint8_t);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__5(lean_object*, lean_object*, size_t, size_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__9___closed__2;
+LEAN_EXPORT uint8_t l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__1(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_hashExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_213____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_instInhabitedExtTheorem;
 static lean_object* l_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__3___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__14;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -65,7 +67,6 @@ LEAN_EXPORT lean_object* l_Array_binInsertM___at_Lean_Meta_Ext_initFn____x40_Lea
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__20;
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__3___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__3(lean_object*, lean_object*, size_t, size_t, uint8_t);
 static lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__4;
@@ -76,10 +77,9 @@ static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtThe
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_getExtTheorems___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_PersistentHashMap_isUnaryNode___rarg(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__1(lean_object*, uint8_t, lean_object*);
 lean_object* l_Array_reverse___rarg(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_hashExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_213_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_contains___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimpleScopedEnvExtension___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__11;
@@ -88,15 +88,13 @@ static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtThe
 static lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Ext_instInhabitedExtTheorems___spec__1;
 static lean_object* l_Lean_Meta_Ext_getExtTheorems___closed__2;
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_getExtTheorems___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_instInhabitedExtTheorems;
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__6(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__6(lean_object*, lean_object*, uint8_t);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Ext_instHashableExtTheorem___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_getExtTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
@@ -113,6 +111,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprE
 LEAN_EXPORT lean_object* l_repr___at___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____spec__2(lean_object*, lean_object*);
 uint8_t l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_102_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Ext_instInhabitedExtTheorem___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__19;
@@ -145,21 +144,23 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_eraseCore(lean_object*, lea
 extern lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
 static lean_object* l_Lean_Meta_Ext_instInhabitedExtTheorem___closed__2;
 static lean_object* l_Lean_Meta_Ext_instBEqExtTheorem___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____closed__6;
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_beqExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_123____spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_contains___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__2(lean_object*, lean_object*, size_t, size_t, uint8_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__2(lean_object*, uint8_t, lean_object*);
 lean_object* l_id___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__3(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__13(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_contains___lambda__1(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_356_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_idxOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
@@ -172,12 +173,14 @@ static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtThe
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__14(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_instBEqExtTheorem;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__13___closed__1;
 static lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__1___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_contains___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__14___boxed(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
@@ -186,18 +189,17 @@ LEAN_EXPORT lean_object* l_Array_binInsertM___at_Lean_Meta_Ext_initFn____x40_Lea
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__1___closed__3;
 lean_object* lean_array_uget(lean_object*, size_t);
-LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__30;
 static lean_object* l_Lean_Meta_Ext_instReprExtTheorem___closed__1;
 LEAN_EXPORT lean_object* l_Array_insertionSort_swapLoop___at_Lean_Meta_Ext_getExtTheorems___spec__2(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__3(lean_object*, lean_object*, size_t, size_t, uint8_t);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__26;
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____closed__8;
 static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____closed__8;
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -205,6 +207,7 @@ lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_instHashableExtTheorem;
 lean_object* l_Lean_Meta_DiscrTree_getMatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtTheorem____x40_Lean_Meta_Tactic_Ext___hyg_45____spec__3(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__4(lean_object*, lean_object*, size_t, size_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__7(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -215,6 +218,7 @@ uint64_t l_Lean_Meta_DiscrTree_Key_hash(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_insertIdx_loop___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__2(lean_object*, lean_object*, size_t, size_t, uint8_t);
 static lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg___closed__4;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 static lean_object* _init_l_Lean_Meta_Ext_instInhabitedExtTheorem___closed__1() {
@@ -3312,7 +3316,7 @@ return x_11;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__2(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, uint8_t x_5) {
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__2(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, uint8_t x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -3327,7 +3331,7 @@ x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
 lean_dec(x_7);
 lean_inc(x_1);
-x_11 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__1(x_1, x_5, x_10);
+x_11 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__1(x_1, x_5, x_10);
 lean_dec(x_10);
 x_3 = x_9;
 x_5 = x_11;
@@ -3340,7 +3344,7 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__3(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, uint8_t x_5) {
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__3(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, uint8_t x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -3355,7 +3359,7 @@ x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
 lean_dec(x_7);
 lean_inc(x_1);
-x_11 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__1(x_1, x_5, x_10);
+x_11 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__1(x_1, x_5, x_10);
 lean_dec(x_10);
 x_3 = x_9;
 x_5 = x_11;
@@ -3368,7 +3372,7 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__4(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, uint8_t x_5) {
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__4(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, uint8_t x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -3395,7 +3399,7 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__5(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, uint8_t x_5) {
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__5(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, uint8_t x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -3410,7 +3414,7 @@ x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
 lean_dec(x_7);
 lean_inc(x_1);
-x_11 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__1(x_1, x_5, x_10);
+x_11 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__1(x_1, x_5, x_10);
 lean_dec(x_10);
 x_3 = x_9;
 x_5 = x_11;
@@ -3423,7 +3427,7 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__1(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__1(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
@@ -3460,7 +3464,7 @@ size_t x_12; size_t x_13; uint8_t x_14;
 x_12 = 0;
 x_13 = lean_usize_of_nat(x_9);
 lean_dec(x_9);
-x_14 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__2(x_1, x_5, x_12, x_13, x_2);
+x_14 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__2(x_1, x_5, x_12, x_13, x_2);
 return x_14;
 }
 }
@@ -3497,7 +3501,7 @@ size_t x_19; size_t x_20; uint8_t x_21;
 x_19 = 0;
 x_20 = lean_usize_of_nat(x_16);
 lean_dec(x_16);
-x_21 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__3(x_1, x_5, x_19, x_20, x_2);
+x_21 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__3(x_1, x_5, x_19, x_20, x_2);
 return x_21;
 }
 }
@@ -3509,7 +3513,7 @@ x_22 = 0;
 x_23 = lean_usize_of_nat(x_6);
 lean_dec(x_6);
 lean_inc(x_1);
-x_24 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__4(x_1, x_4, x_22, x_23, x_2);
+x_24 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__4(x_1, x_4, x_22, x_23, x_2);
 x_25 = lean_array_get_size(x_5);
 x_26 = lean_nat_dec_lt(x_7, x_25);
 if (x_26 == 0)
@@ -3533,7 +3537,7 @@ else
 size_t x_28; uint8_t x_29; 
 x_28 = lean_usize_of_nat(x_25);
 lean_dec(x_25);
-x_29 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__5(x_1, x_5, x_22, x_28, x_24);
+x_29 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__5(x_1, x_5, x_22, x_28, x_24);
 return x_29;
 }
 }
@@ -3541,7 +3545,7 @@ return x_29;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__6(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__6(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -3550,22 +3554,7 @@ x_5 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignm
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_ctor_get(x_5, 1);
-lean_inc(x_6);
-lean_dec(x_5);
-x_7 = l_Lean_Meta_Ext_ExtTheorems_eraseCore(x_2, x_3);
-x_8 = lean_apply_2(x_6, lean_box(0), x_7);
-return x_8;
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__2(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_contains___lambda__1(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
 if (x_2 == 0)
@@ -3583,12 +3572,267 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__3(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_contains___lambda__2(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
-x_5 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__1(x_1, x_2, x_4);
+x_5 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__1(x_1, x_2, x_4);
 return x_5;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Meta_Ext_ExtTheorems_contains(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_inc(x_2);
+x_4 = lean_alloc_closure((void*)(l_Lean_Meta_Ext_ExtTheorems_contains___lambda__1___boxed), 3, 1);
+lean_closure_set(x_4, 0, x_2);
+x_5 = lean_alloc_closure((void*)(l_Lean_Meta_Ext_ExtTheorems_contains___lambda__2___boxed), 4, 1);
+lean_closure_set(x_5, 0, x_4);
+x_6 = 0;
+x_7 = lean_box(x_6);
+x_8 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(x_5, x_3, x_7);
+lean_dec(x_3);
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_10 = 0;
+return x_10;
+}
+else
+{
+lean_object* x_11; uint8_t x_12; 
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_dec(x_1);
+x_12 = l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(x_11, x_2);
+lean_dec(x_2);
+if (x_12 == 0)
+{
+uint8_t x_13; 
+x_13 = 1;
+return x_13;
+}
+else
+{
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+size_t x_6; size_t x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = lean_unbox_usize(x_4);
+lean_dec(x_4);
+x_8 = lean_unbox(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__2(x_1, x_2, x_6, x_7, x_8);
+lean_dec(x_2);
+x_10 = lean_box(x_9);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+size_t x_6; size_t x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = lean_unbox_usize(x_4);
+lean_dec(x_4);
+x_8 = lean_unbox(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__3(x_1, x_2, x_6, x_7, x_8);
+lean_dec(x_2);
+x_10 = lean_box(x_9);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+size_t x_6; size_t x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = lean_unbox_usize(x_4);
+lean_dec(x_4);
+x_8 = lean_unbox(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__4(x_1, x_2, x_6, x_7, x_8);
+lean_dec(x_2);
+x_10 = lean_box(x_9);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+size_t x_6; size_t x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = lean_unbox_usize(x_4);
+lean_dec(x_4);
+x_8 = lean_unbox(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_contains___spec__5(x_1, x_2, x_6, x_7, x_8);
+lean_dec(x_2);
+x_10 = lean_box(x_9);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; uint8_t x_5; lean_object* x_6; 
+x_4 = lean_unbox(x_2);
+lean_dec(x_2);
+x_5 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__1(x_1, x_4, x_3);
+lean_dec(x_3);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+lean_dec(x_3);
+x_5 = l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_contains___spec__6(x_1, x_2, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_contains___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; uint8_t x_5; lean_object* x_6; 
+x_4 = lean_unbox(x_2);
+lean_dec(x_2);
+x_5 = l_Lean_Meta_Ext_ExtTheorems_contains___lambda__1(x_1, x_4, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_contains___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; uint8_t x_6; lean_object* x_7; 
+x_5 = lean_unbox(x_2);
+lean_dec(x_2);
+x_6 = l_Lean_Meta_Ext_ExtTheorems_contains___lambda__2(x_1, x_5, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_7 = lean_box(x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_contains___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_Meta_Ext_ExtTheorems_contains(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_isExtTheorem(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = lean_st_ref_get(x_3, x_4);
+x_6 = !lean_is_exclusive(x_5);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; 
+x_7 = lean_ctor_get(x_5, 0);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+lean_dec(x_7);
+x_9 = l_Lean_Meta_Ext_extExtension;
+x_10 = lean_ctor_get(x_9, 1);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_10, 0);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*3);
+lean_dec(x_11);
+x_13 = l_Lean_Meta_Ext_instInhabitedExtTheorems;
+x_14 = l_Lean_Meta_Ext_getExtTheorems___closed__1;
+x_15 = l_Lean_ScopedEnvExtension_getState___rarg(x_13, x_14, x_8, x_12);
+x_16 = l_Lean_Meta_Ext_ExtTheorems_contains(x_15, x_1);
+x_17 = lean_box(x_16);
+lean_ctor_set(x_5, 0, x_17);
+return x_5;
+}
+else
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; 
+x_18 = lean_ctor_get(x_5, 0);
+x_19 = lean_ctor_get(x_5, 1);
+lean_inc(x_19);
+lean_inc(x_18);
+lean_dec(x_5);
+x_20 = lean_ctor_get(x_18, 0);
+lean_inc(x_20);
+lean_dec(x_18);
+x_21 = l_Lean_Meta_Ext_extExtension;
+x_22 = lean_ctor_get(x_21, 1);
+lean_inc(x_22);
+x_23 = lean_ctor_get(x_22, 0);
+lean_inc(x_23);
+lean_dec(x_22);
+x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*3);
+lean_dec(x_23);
+x_25 = l_Lean_Meta_Ext_instInhabitedExtTheorems;
+x_26 = l_Lean_Meta_Ext_getExtTheorems___closed__1;
+x_27 = l_Lean_ScopedEnvExtension_getState___rarg(x_25, x_26, x_20, x_24);
+x_28 = l_Lean_Meta_Ext_ExtTheorems_contains(x_27, x_1);
+x_29 = lean_box(x_28);
+x_30 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_30, 0, x_29);
+lean_ctor_set(x_30, 1, x_19);
+return x_30;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_isExtTheorem___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Meta_Ext_isExtTheorem(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = l_Lean_Meta_Ext_ExtTheorems_eraseCore(x_2, x_3);
+x_8 = lean_apply_2(x_6, lean_box(0), x_7);
+return x_8;
 }
 }
 static lean_object* _init_l_Lean_Meta_Ext_ExtTheorems_erase___rarg___closed__1() {
@@ -3628,7 +3872,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_object* x_5; uint8_t x_6; 
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_1);
@@ -3636,81 +3880,43 @@ x_5 = lean_alloc_closure((void*)(l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lamb
 lean_closure_set(x_5, 0, x_1);
 lean_closure_set(x_5, 1, x_3);
 lean_closure_set(x_5, 2, x_4);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
 lean_inc(x_4);
-x_7 = lean_alloc_closure((void*)(l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__2___boxed), 3, 1);
-lean_closure_set(x_7, 0, x_4);
-x_8 = lean_alloc_closure((void*)(l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__3___boxed), 4, 1);
-lean_closure_set(x_8, 0, x_7);
-x_9 = 0;
-x_10 = lean_box(x_9);
-x_11 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(x_8, x_6, x_10);
-lean_dec(x_6);
-x_12 = lean_unbox(x_11);
-lean_dec(x_11);
-if (x_12 == 0)
+x_6 = l_Lean_Meta_Ext_ExtTheorems_contains(x_3, x_4);
+if (x_6 == 0)
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-lean_dec(x_3);
-x_13 = lean_ctor_get(x_1, 1);
-lean_inc(x_13);
-x_14 = l_Lean_MessageData_ofName(x_4);
-x_15 = l_Lean_Meta_Ext_ExtTheorems_erase___rarg___closed__2;
-x_16 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_14);
-x_17 = l_Lean_Meta_Ext_ExtTheorems_erase___rarg___closed__4;
-x_18 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_18, 0, x_16);
-lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_throwError___rarg(x_1, x_2, x_18);
-x_20 = lean_apply_4(x_13, lean_box(0), lean_box(0), x_19, x_5);
-return x_20;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+x_8 = l_Lean_MessageData_ofName(x_4);
+x_9 = l_Lean_Meta_Ext_ExtTheorems_erase___rarg___closed__2;
+x_10 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set(x_10, 1, x_8);
+x_11 = l_Lean_Meta_Ext_ExtTheorems_erase___rarg___closed__4;
+x_12 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+x_13 = l_Lean_throwError___rarg(x_1, x_2, x_12);
+x_14 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_13, x_5);
+return x_14;
 }
 else
 {
-lean_object* x_21; uint8_t x_22; 
-x_21 = lean_ctor_get(x_3, 1);
-lean_inc(x_21);
-lean_dec(x_3);
-x_22 = l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(x_21, x_4);
-if (x_22 == 0)
-{
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_4);
 lean_dec(x_2);
-x_23 = lean_ctor_get(x_1, 1);
-lean_inc(x_23);
-x_24 = lean_ctor_get(x_1, 0);
-lean_inc(x_24);
+x_15 = lean_ctor_get(x_1, 1);
+lean_inc(x_15);
+x_16 = lean_ctor_get(x_1, 0);
+lean_inc(x_16);
 lean_dec(x_1);
-x_25 = lean_ctor_get(x_24, 1);
-lean_inc(x_25);
-lean_dec(x_24);
-x_26 = lean_box(0);
-x_27 = lean_apply_2(x_25, lean_box(0), x_26);
-x_28 = lean_apply_4(x_23, lean_box(0), lean_box(0), x_27, x_5);
-return x_28;
-}
-else
-{
-lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_29 = lean_ctor_get(x_1, 1);
-lean_inc(x_29);
-x_30 = l_Lean_MessageData_ofName(x_4);
-x_31 = l_Lean_Meta_Ext_ExtTheorems_erase___rarg___closed__2;
-x_32 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_32, 0, x_31);
-lean_ctor_set(x_32, 1, x_30);
-x_33 = l_Lean_Meta_Ext_ExtTheorems_erase___rarg___closed__4;
-x_34 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_34, 0, x_32);
-lean_ctor_set(x_34, 1, x_33);
-x_35 = l_Lean_throwError___rarg(x_1, x_2, x_34);
-x_36 = lean_apply_4(x_29, lean_box(0), lean_box(0), x_35, x_5);
-return x_36;
-}
+x_17 = lean_ctor_get(x_16, 1);
+lean_inc(x_17);
+lean_dec(x_16);
+x_18 = lean_box(0);
+x_19 = lean_apply_2(x_17, lean_box(0), x_18);
+x_20 = lean_apply_4(x_15, lean_box(0), lean_box(0), x_19, x_5);
+return x_20;
 }
 }
 }
@@ -3722,93 +3928,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Ext_ExtTheorems_erase___rarg), 4, 0
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-size_t x_6; size_t x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
-x_6 = lean_unbox_usize(x_3);
-lean_dec(x_3);
-x_7 = lean_unbox_usize(x_4);
-lean_dec(x_4);
-x_8 = lean_unbox(x_5);
-lean_dec(x_5);
-x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__2(x_1, x_2, x_6, x_7, x_8);
-lean_dec(x_2);
-x_10 = lean_box(x_9);
-return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-size_t x_6; size_t x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
-x_6 = lean_unbox_usize(x_3);
-lean_dec(x_3);
-x_7 = lean_unbox_usize(x_4);
-lean_dec(x_4);
-x_8 = lean_unbox(x_5);
-lean_dec(x_5);
-x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__3(x_1, x_2, x_6, x_7, x_8);
-lean_dec(x_2);
-x_10 = lean_box(x_9);
-return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-size_t x_6; size_t x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
-x_6 = lean_unbox_usize(x_3);
-lean_dec(x_3);
-x_7 = lean_unbox_usize(x_4);
-lean_dec(x_4);
-x_8 = lean_unbox(x_5);
-lean_dec(x_5);
-x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__4(x_1, x_2, x_6, x_7, x_8);
-lean_dec(x_2);
-x_10 = lean_box(x_9);
-return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-size_t x_6; size_t x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
-x_6 = lean_unbox_usize(x_3);
-lean_dec(x_3);
-x_7 = lean_unbox_usize(x_4);
-lean_dec(x_4);
-x_8 = lean_unbox(x_5);
-lean_dec(x_5);
-x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_Ext_ExtTheorems_erase___spec__5(x_1, x_2, x_6, x_7, x_8);
-lean_dec(x_2);
-x_10 = lean_box(x_9);
-return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__1(x_1, x_4, x_3);
-lean_dec(x_3);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_3);
-lean_dec(x_3);
-x_5 = l_Lean_PersistentHashMap_foldlM___at_Lean_Meta_Ext_ExtTheorems_erase___spec__6(x_1, x_2, x_4);
-lean_dec(x_1);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -3816,32 +3935,6 @@ lean_object* x_5;
 x_5 = l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__2(x_1, x_4, x_3);
-lean_dec(x_3);
-lean_dec(x_1);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-lean_dec(x_2);
-x_6 = l_Lean_Meta_Ext_ExtTheorems_erase___rarg___lambda__3(x_1, x_5, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_7 = lean_box(x_6);
-return x_7;
 }
 }
 lean_object* initialize_Init_Data_Array_InsertionSort(uint8_t builtin, lean_object*);

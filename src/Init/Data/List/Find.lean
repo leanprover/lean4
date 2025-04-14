@@ -700,6 +700,7 @@ theorem findIdx?_eq_none_iff {xs : List α} {p : α → Bool} :
     simp only [findIdx?_cons]
     split <;> simp_all [cond_eq_if]
 
+@[simp]
 theorem findIdx?_isSome {xs : List α} {p : α → Bool} :
     (xs.findIdx? p).isSome = xs.any p := by
   induction xs with
@@ -708,6 +709,7 @@ theorem findIdx?_isSome {xs : List α} {p : α → Bool} :
     simp only [findIdx?_cons]
     split <;> simp_all
 
+@[simp]
 theorem findIdx?_isNone {xs : List α} {p : α → Bool} :
     (xs.findIdx? p).isNone = xs.all (¬p ·) := by
   induction xs with
@@ -984,6 +986,24 @@ theorem findFinIdx?_eq_some_iff {xs : List α} {p : α → Bool} {i : Fin xs.len
   · rintro ⟨h, w⟩
     exact ⟨i, ⟨i.2, h, fun j hji => w ⟨j, by omega⟩ hji⟩, rfl⟩
 
+@[simp]
+theorem isSome_findFinIdx? {l : List α} {p : α → Bool} :
+    (l.findFinIdx? p).isSome = l.any p := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [findFinIdx?_cons]
+    split <;> simp_all
+
+@[simp]
+theorem isNone_findFinIdx? {l : List α} {p : α → Bool} :
+    (l.findFinIdx? p).isNone = l.all (fun x => ¬ p x) := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [findFinIdx?_cons]
+    split <;> simp_all
+
 @[simp] theorem findFinIdx?_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.findFinIdx? f = (l.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by
@@ -1084,6 +1104,24 @@ theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : List α} {a : α} :
     l.finIdxOf? a = some i ↔ l[i] = a ∧ ∀ j (_ : j < i), ¬l[j] = a := by
   simp only [finIdxOf?, findFinIdx?_eq_some_iff, beq_iff_eq]
 
+@[simp]
+theorem isSome_finIdxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+    (l.finIdxOf? a).isSome ↔ a ∈ l := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [finIdxOf?_cons]
+    split <;> simp_all [@eq_comm _ x a]
+
+@[simp]
+theorem isNone_finIdxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+    (l.finIdxOf? a).isNone = ¬ a ∈ l := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [finIdxOf?_cons]
+    split <;> simp_all [@eq_comm _ x a]
+
 /-! ### idxOf?
 
 The verification API for `idxOf?` is still incomplete.
@@ -1108,6 +1146,25 @@ theorem idxOf?_cons [BEq α] {a : α} {xs : List α} {b : α} :
 
 @[deprecated idxOf?_eq_none_iff (since := "2025-01-29")]
 abbrev indexOf?_eq_none_iff := @idxOf?_eq_none_iff
+
+@[simp]
+theorem isSome_idxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+    (l.idxOf? a).isSome ↔ a ∈ l := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [idxOf?_cons]
+    split <;> simp_all [@eq_comm _ x a]
+
+@[simp]
+theorem isNone_idxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+    (l.idxOf? a).isNone = ¬ a ∈ l := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [idxOf?_cons]
+    split <;> simp_all [@eq_comm _ x a]
+
 
 /-! ### lookup -/
 

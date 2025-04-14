@@ -62,6 +62,8 @@ where
      : toListTR.go t acc = t.toList ++ acc := by
     induction t generalizing acc <;> grind [toListTR.go, toList]
 
+attribute [grind ext] funext -- TODO: remove after update-stage0
+
 @[csimp] theorem Tree.toList_eq_toListTR_csimp
                  : @Tree.toList = @Tree.toListTR := by
   grind [toList_eq_toListTR]
@@ -92,8 +94,7 @@ theorem Tree.forall_insert_of_forall
 theorem Tree.bst_insert_of_bst
         {t : Tree β} (h : BST t) (key : Nat) (value : β)
         : BST (t.insert key value) := by
-  -- TODO: improve `grind` `funext` support, and minimize the number of splits
-  induction h <;> grind (splits := 12) [BST.node, BST.leaf, ForallTree.leaf, forall_insert_of_forall]
+  induction h <;> grind [BST.node, BST.leaf, ForallTree.leaf, forall_insert_of_forall]
 
 def BinTree (β : Type u) := { t : Tree β // BST t }
 

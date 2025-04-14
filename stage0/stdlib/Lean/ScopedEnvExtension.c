@@ -5218,13 +5218,14 @@ x_3 = l_Lean_instInhabitedScopedEnvExtension___rarg___closed__2;
 x_4 = l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___closed__3;
 x_5 = l_Lean_instInhabitedScopedEnvExtension___rarg___closed__3;
 x_6 = l_Lean_instInhabitedScopedEnvExtension___rarg___closed__4;
-x_7 = lean_alloc_ctor(0, 6, 0);
+x_7 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
 lean_ctor_set(x_7, 2, x_3);
 lean_ctor_set(x_7, 3, x_4);
 lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
+lean_ctor_set(x_7, 5, x_5);
+lean_ctor_set(x_7, 6, x_6);
 return x_7;
 }
 }
@@ -5393,15 +5394,16 @@ x_7 = lean_box(0);
 x_8 = l_Lean_registerScopedEnvExtensionUnsafe___rarg___closed__1;
 x_9 = l_Lean_registerScopedEnvExtensionUnsafe___rarg___closed__2;
 x_10 = 2;
-x_11 = lean_alloc_ctor(0, 7, 1);
+x_11 = lean_alloc_ctor(0, 8, 1);
 lean_ctor_set(x_11, 0, x_3);
 lean_ctor_set(x_11, 1, x_4);
 lean_ctor_set(x_11, 2, x_5);
 lean_ctor_set(x_11, 3, x_6);
 lean_ctor_set(x_11, 4, x_8);
-lean_ctor_set(x_11, 5, x_9);
-lean_ctor_set(x_11, 6, x_7);
-lean_ctor_set_uint8(x_11, sizeof(void*)*7, x_10);
+lean_ctor_set(x_11, 5, x_8);
+lean_ctor_set(x_11, 6, x_9);
+lean_ctor_set(x_11, 7, x_7);
+lean_ctor_set_uint8(x_11, sizeof(void*)*8, x_10);
 x_12 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg(x_11, x_2);
 if (lean_obj_tag(x_12) == 0)
 {

@@ -908,8 +908,11 @@ def levelMVarToParam (e : Expr) (except : LMVarId → Bool := fun _ => false) : 
   return r.expr
 
 /--
-  Auxiliary method for creating fresh binder names.
-  Do not confuse with the method for creating fresh free/meta variable ids. -/
+Creates a fresh inaccessible binder name based on `x`.
+Equivalent to ``Lean.Core.mkFreshUserName `x``.
+
+Do not confuse with `Lean.mkFreshId`, for creating fresh free variable and metavariable ids.
+-/
 def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
   withFreshMacroScope <| MonadQuotation.addMacroScope `x
 

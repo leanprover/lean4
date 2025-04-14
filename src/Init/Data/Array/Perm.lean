@@ -53,6 +53,12 @@ instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
 
 theorem perm_comm {xs ys : Array α} : xs ~ ys ↔ ys ~ xs := ⟨Perm.symm, Perm.symm⟩
 
+theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a ∈ ys := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp at p
+  simpa using p.mem_iff
+
 theorem Perm.push (x y : α) {xs ys : Array α} (p : xs ~ ys) :
     (xs.push x).push y ~ (ys.push y).push x := by
   cases xs; cases ys
@@ -70,7 +76,7 @@ namespace Perm
 set_option linter.indexVariables false in
 theorem extract {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
     (wlo : ∀ i, i < lo → xs[i]? = ys[i]?) (whi : ∀ i, hi ≤ i → xs[i]? = ys[i]?) :
-    (xs.extract lo (hi + 1)) ~ (ys.extract lo (hi + 1)) := by
+    (xs.extract lo hi) ~ (ys.extract lo hi) := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp_all only [perm_toArray, List.getElem?_toArray, List.extract_toArray,

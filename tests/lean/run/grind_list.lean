@@ -1,4 +1,5 @@
 reset_grind_attrs%
+set_option grind.warning false
 
 namespace List
 
@@ -17,6 +18,8 @@ attribute [local grind =] getElem!_pos in
 theorem getElem!_of_getElem?' [Inhabited α] :
     ∀ {l : List α} {i : Nat}, l[i]? = some b → l[i]! = b := by
   grind
+
+attribute [grind ext] List.ext_getElem?
 
 attribute [local grind =] Option.map_some Option.map_none in
 attribute [local grind =] getElem?_map in

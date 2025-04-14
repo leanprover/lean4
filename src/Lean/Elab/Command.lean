@@ -9,6 +9,7 @@ import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.SetOption
 import Lean.Language.Basic
+import Lean.Meta.ForEachExpr
 
 namespace Lean.Elab.Command
 
@@ -718,9 +719,16 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
           -- So, we use `Core.resetMessageLog`.
           Core.resetMessageLog
-          let someType := mkSort levelZero
-          Term.addAutoBoundImplicits' xs someType fun xs _ =>
+          let xs ← Term.addAutoBoundImplicits xs none
+          if xs.all (·.isFVar) then
             Term.withoutAutoBoundImplicit <| elabFn xs
+          else
+            -- Abstract any mvars that appear in `xs` using `mkForallFVars` (the type `mkSort levelZero` is an arbitrary placeholder)
+            -- and then rebuild the local context from scratch.
+            -- Resetting prevents the local context from including the original fvars from `xs`.
+            let ctxType ← Meta.mkForallFVars' xs (mkSort levelZero)
+            Meta.withLCtx {} {} <| Meta.forallBoundedTelescope ctxType xs.size fun xs _ =>
+              Term.withoutAutoBoundImplicit <| elabFn xs
 
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
   liftCoreM x

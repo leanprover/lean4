@@ -374,7 +374,7 @@ theorem qsort_sorted' (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b �
 
 theorem qsort_sorted (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (le_trans : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a) (as : Array α) :
-    ∀ i j, (h₁ : i < j) → (h₂ : i < (qsort as lt).size) → (h₃ : j < (qsort as lt).size) →
+    ∀ i j, (h₁ : i < j) → (h₂ : j < (qsort as lt).size) →
       ¬ lt (as.qsort lt)[j] (as.qsort lt)[i] := by
   have := qsort_sorted' lt lt_asymm le_trans
   grind

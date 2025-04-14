@@ -2051,7 +2051,7 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
   | _, [] => by simp_all
   | [], _ :: _ => by simp_all
   | _ :: _, _ :: _ => by
-    simp
+    simp only [cons.injEq, flatten_cons, map_cons]
     rw [eq_iff_flatten_eq]
     constructor
     · rintro ⟨rfl, h₁, h₂⟩

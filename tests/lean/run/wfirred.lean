@@ -58,28 +58,8 @@ section Unsealed
 
 unseal foo
 
--- unsealing works, but does not have the desired effect
-
-/--
-error: type mismatch
-  rfl
-has type
-  ?_ = ?_ : Prop
-but is expected to have type
-  foo 0 = 0 : Prop
--/
-#guard_msgs in
 example : foo 0 = 0 := rfl
 
-/--
-error: type mismatch
-  rfl
-has type
-  ?_ = ?_ : Prop
-but is expected to have type
-  foo (n + 1) = foo n : Prop
--/
-#guard_msgs in
 example : foo (n+1) = foo n := rfl
 
 end Unsealed

@@ -26,6 +26,7 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
   let isRec (declName' : Name) : Bool :=
     isBRecOnRecursor env declName' ||
     declName' == ``WellFounded.fix ||
+    declName' == ``WellFounded.Nat.fix ||
     declName' == declName ++ `_unary -- Auxiliary declaration created by `WF` module
   if Option.isSome <| info.value.find? fun e => e.isConst && isRec e.constName! then
     -- It contains a `brecOn` or `WellFounded.fix` application. So, it should be recursvie

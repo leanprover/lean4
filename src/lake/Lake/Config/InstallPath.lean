@@ -234,7 +234,7 @@ where
     let ccLinkFlags := getInternalLinkerFlags sysroot
     {i with
       cc, customCc := false
-      cFlags := i.cFlags ++ getInternalCFlags sysroot
+      ccFlags := i.cFlags ++ getInternalCFlags sysroot
       ccLinkStaticFlags := ccLinkFlags ++ i.linkStaticFlags
       ccLinkSharedFlags := ccLinkFlags ++ i.linkSharedFlags
     }

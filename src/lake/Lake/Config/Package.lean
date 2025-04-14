@@ -31,6 +31,9 @@ namespace Lake
 set_option linter.unusedVariables false in
 /-- A `Package`'s declarative configuration. -/
 configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
+  /-- **For internal use.** Whether this package is Lean itself. -/
+  bootstrap : Bool := false
+
   /--
   **This field is deprecated.**
 
@@ -392,6 +395,10 @@ structure PostUpdateHookDecl where
   deriving TypeName
 
 namespace Package
+
+/-- **For internal use.** Whether this package is Lean itself.  -/
+@[inline] def bootstrap (self : Package) : Bool  :=
+  self.config.bootstrap
 
 /-- The package version. -/
 @[inline] def version (self : Package) : LeanVer  :=

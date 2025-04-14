@@ -358,12 +358,13 @@ which will be computed in the resulting `Job` before building.
     return oFile
 
 /--
-Build an object file from a source fie job (i.e, a `lean -c` output)=
+Build an object file from a source fie job (i.e, a `lean -c` output)
 using the Lean toolchain's C compiler.
 -/
 def buildLeanO
   (oFile : FilePath) (srcJob : Job FilePath)
   (weakArgs traceArgs : Array String := #[])
+  (leanIncludeDir? : Option FilePath := none)
 : SpawnM (Job FilePath) :=
   srcJob.mapM fun srcFile => do
     addLeanTrace
@@ -371,7 +372,9 @@ def buildLeanO
     addPlatformTrace -- object files are platform-dependent artifacts
     buildFileUnlessUpToDate' oFile do
       let lean ← getLeanInstall
-      compileO oFile srcFile (lean.ccFlags ++ weakArgs ++ traceArgs) lean.cc
+      let includeDir := leanIncludeDir?.getD lean.includeDir
+      let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
+      compileO oFile srcFile args lean.cc
     return oFile
 
 /-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
@@ -458,8 +461,8 @@ def buildLeanSharedLib
     buildFileUnlessUpToDate' libFile do
       let lean ← getLeanInstall
       let libs ← if linkDeps then mkLinkOrder libs else pure #[]
-      let args := mkLinkObjArgs objs libs ++
-        weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
+      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
+        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkSharedFlags
       compileSharedLib libFile args lean.cc
     return {name := libName, path := libFile, deps := libs, plugin}
 
@@ -480,7 +483,7 @@ def buildLeanExe
     buildFileUnlessUpToDate' exeFile do
       let lean ← getLeanInstall
       let libs ← mkLinkOrder libs
-      let args := mkLinkObjArgs objs libs ++
-        weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
+      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
+        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkFlags sharedLean
       compileExe exeFile args lean.cc
     return exeFile

@@ -6,6 +6,7 @@
 # them, please consult the instructions in doc/dev/index.md.
 
 name = "lean4"
+bootstrap = true
 
 defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain"]
 

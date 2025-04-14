@@ -35,13 +35,13 @@ def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLeve
   return env
 
 /-- Like `Lean.Elab.processHeader`, but using `importEnvCache`. -/
-def processHeader (header : Syntax) (opts : Options)
+def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options)
 (inputCtx : Parser.InputContext) : StateT MessageLog IO Environment := do
   try
     let imports := Elab.headerToImports header
     importModulesUsingCache imports opts 1024
   catch e =>
-    let pos := inputCtx.fileMap.toPosition <| header.getPos?.getD 0
+    let pos := inputCtx.fileMap.toPosition <| header.raw.getPos?.getD 0
     modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
     mkEmptyEnvironment
 

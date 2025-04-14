@@ -132,6 +132,11 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
   pure (s.commandState.env, s.commandState.messages)
 
+register_builtin_option experimental.module : Bool := {
+  defValue := false
+  descr := "Allow use of module system (experimental)"
+}
+
 @[export lean_run_frontend]
 def runFrontend
     (input : String)
@@ -151,7 +156,10 @@ def runFrontend
   let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
   let processor := Language.Lean.process
-  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
+  let snap ← processor (fun header => do
+    if !header.raw[0].isNone && !experimental.module.get opts then
+      throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
+    pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
   let snaps := Language.toSnapshotTree snap
   let severityOverrides := errorOnKinds.foldl (·.insert · .error) {}
   let hasErrors ← snaps.runAndReport opts jsonOutput severityOverrides

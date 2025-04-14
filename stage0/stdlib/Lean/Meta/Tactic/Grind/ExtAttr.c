@@ -190,7 +190,7 @@ static lean_object* _init_l_Lean_Meta_Grind_validateExtAttr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("` is tagged with `[ext]`", 24, 24);
+x_1 = lean_mk_string_unchecked("` is not tagged with `[ext]`", 28, 28);
 return x_1;
 }
 }

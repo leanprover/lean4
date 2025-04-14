@@ -117,7 +117,7 @@ set_option grind.warning false
 -- We first set up some convenient macros for dealing with subtypes using `grind`.
 
 /-- Construct a term of a subtype, using `grind` to discharge the condition. -/
-macro "g⟨" a:term "⟩" : term => `(⟨$a, by grind (gen := 9) (splits := 9)⟩)
+macro "g⟨" a:term "⟩" : term => `(⟨$a, by grind (gen := 8) (splits := 9)⟩)
 /--
 Replace a term of a subtype with a term of a different subtype, using the same data,
 and using `grind` to discharge the new condition (with access to the old condition).
@@ -159,6 +159,7 @@ we are allowed to increase the size of the branches by one, and still be smaller
   | var _ => 1
   | .ite i t e => 2 * normSize i + max (normSize t) (normSize e) + 1
 
+set_option profiler true
 /--
 Normalizes the expression at the same time as
 making the variable assignments to literal booleans given by `assign`.

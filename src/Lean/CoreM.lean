@@ -303,6 +303,17 @@ private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
   return addMacroScope (← getEnv).mainModule n fresh
 
+/--
+Creates a name from `n` that is guaranteed to be unique.
+This is intended to be used for creating inaccessible user names for free variables and constants.
+
+It works by adding a fresh macro scope to `n`.
+Applying `Lean.Name.eraseMacroScopes` to the resulting name yields `n`.
+
+See also `Lean.LocalContext.getUnusedName` (for creating a new accessible user name that is
+unused in the local context) and `Lean.Meta.mkFreshBinderNameForTactic` (for creating names
+that are conditionally inaccessible, depending on the current value of the `tactic.hygiene` option).
+-/
 def mkFreshUserName (n : Name) : CoreM Name :=
   mkFreshNameImp n
 

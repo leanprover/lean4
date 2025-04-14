@@ -1,4 +1,5 @@
 reset_grind_attrs%
+set_option grind.warning false
 
 namespace List
 
@@ -18,13 +19,22 @@ theorem getElem!_of_getElem?' [Inhabited α] :
     ∀ {l : List α} {i : Nat}, l[i]? = some b → l[i]! = b := by
   grind
 
+
 attribute [local grind =] Option.map_some Option.map_none in
 attribute [local grind =] getElem?_map in
 attribute [local grind =] getElem?_replicate in
 theorem map_replicate' : (replicate n a).map f = replicate n (f a) := by
+  grind +extAll
+
+attribute [grind ext] List.ext_getElem?
+
+attribute [local grind =] Option.map_some Option.map_none in
+attribute [local grind =] getElem?_map in
+attribute [local grind =] getElem?_replicate in
+theorem map_replicate'' : (replicate n a).map f = replicate n (f a) := by
   grind?
 
-#print map_replicate'
+#print map_replicate''
 
 attribute [local grind =] getLast?_eq_some_iff in
 attribute [local grind] mem_concat_self in

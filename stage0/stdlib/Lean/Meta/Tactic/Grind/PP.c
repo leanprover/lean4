@@ -6873,7 +6873,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17;
 x_14 = lean_ctor_get(x_1, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_4, 12);
-x_16 = lean_ctor_get(x_15, 2);
+x_16 = lean_ctor_get(x_15, 0);
 x_17 = lean_nat_dec_le(x_14, x_16);
 if (x_17 == 0)
 {
@@ -7968,7 +7968,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData(lean_object* x_1, l
 _start:
 {
 uint8_t x_8; 
-x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*6 + 8);
+x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*6 + 10);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 

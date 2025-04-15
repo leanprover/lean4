@@ -84,6 +84,11 @@ theorem ofNat_succ_pos (n : Nat) : 0 < (succ n : Int) := ofNat_lt.2 <| Nat.succ_
 @[simp] protected theorem le_refl (a : Int) : a ≤ a :=
   le.intro _ (Int.add_zero a)
 
+protected theorem le_rfl {a : Int} : a ≤ a := a.le_refl
+
+protected theorem le_of_eq {a b : Int} (hab : a = b) : a ≤ b := by rw [hab]; exact Int.le_rfl
+protected theorem ge_of_eq {a b : Int} (hab : a = b) : b ≤ a := Int.le_of_eq hab.symm
+
 protected theorem le_trans {a b c : Int} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
   let ⟨n, hn⟩ := le.dest h₁; let ⟨m, hm⟩ := le.dest h₂
   le.intro (n + m) <| by rw [← hm, ← hn, Int.add_assoc, ofNat_add]
@@ -93,6 +98,9 @@ protected theorem le_antisymm {a b : Int} (h₁ : a ≤ b) (h₂ : b ≤ a) : a 
   have := hn; rw [← hm, Int.add_assoc, ← ofNat_add] at this
   have := Int.ofNat.inj <| Int.add_left_cancel <| this.trans (Int.add_zero _).symm
   rw [← hn, Nat.eq_zero_of_add_eq_zero_left this, ofNat_zero, Int.add_zero a]
+
+protected theorem le_antisymm_iff {a b : Int} : a = b ↔ a ≤ b ∧ b ≤ a :=
+  ⟨fun h ↦ ⟨Int.le_of_eq h, Int.ge_of_eq h⟩, fun h ↦ Int.le_antisymm h.1 h.2⟩
 
 @[simp] protected theorem lt_irrefl (a : Int) : ¬a < a := fun H =>
   let ⟨n, hn⟩ := lt.dest H
@@ -119,6 +127,12 @@ protected theorem lt_succ (a : Int) : a < a + 1 := Int.le_refl _
 
 protected theorem zero_lt_one : (0 : Int) < 1 := ⟨_⟩
 
+protected theorem one_pos : 0 < (1 : Int) := Int.zero_lt_one
+
+protected theorem one_ne_zero : (1 : Int) ≠ 0 := by decide
+
+protected theorem one_nonneg : 0 ≤ (1 : Int) := Int.le_of_lt Int.zero_lt_one
+
 protected theorem lt_iff_le_not_le {a b : Int} : a < b ↔ a ≤ b ∧ ¬b ≤ a := by
   rw [Int.lt_iff_le_and_ne]
   constructor <;> refine fun ⟨h, h'⟩ => ⟨h, h'.imp fun h' => ?_⟩
@@ -136,6 +150,10 @@ protected theorem not_le_of_gt {a b : Int} (h : b < a) : ¬a ≤ b :=
 
 @[simp] protected theorem not_lt {a b : Int} : ¬a < b ↔ b ≤ a :=
   by rw [← Int.not_le, Decidable.not_not]
+
+protected theorem lt_asymm {a b : Int} : a < b → ¬ b < a := by rw [Int.not_lt]; exact Int.le_of_lt
+
+protected theorem lt_or_le (a b : Int) : a < b ∨ b ≤ a := by rw [← Int.not_lt]; exact Decidable.em _
 
 protected theorem le_of_not_gt {a b : Int} (h : ¬ a > b) : a ≤ b :=
   Int.not_lt.mp h
@@ -161,11 +179,22 @@ protected theorem ne_iff_lt_or_gt {a b : Int} : a ≠ b ↔ a < b ∨ b < a := b
 
 protected theorem lt_or_gt_of_ne {a b : Int} : a ≠ b →  a < b ∨ b < a:= Int.ne_iff_lt_or_gt.mp
 
+protected theorem lt_or_lt_of_ne {a b : Int} : a ≠ b → a < b ∨ b < a := Int.lt_or_gt_of_ne
+
 protected theorem eq_iff_le_and_ge {x y : Int} : x = y ↔ x ≤ y ∧ y ≤ x := by
   constructor
   · simp_all
   · intro ⟨h₁, h₂⟩
     exact Int.le_antisymm h₁ h₂
+
+protected theorem le_iff_eq_or_lt {a b : Int} : a ≤ b ↔ a = b ∨ a < b :=
+  match Int.lt_trichotomy a b with
+  | Or.inl h => by simp [h, Int.le_of_lt]
+  | Or.inr (Or.inl h) => by simp [h]
+  | Or.inr (Or.inr h) => by simp [h, Int.not_le_of_gt, Int.ne_of_gt, Int.le_of_lt]
+
+protected theorem le_iff_lt_or_eq {a b : Int} : a ≤ b ↔ a < b ∨ a = b := by
+  rw [Int.le_iff_eq_or_lt, or_comm]
 
 protected theorem lt_of_le_of_lt {a b c : Int} (h₁ : a ≤ b) (h₂ : b < c) : a < c :=
   Int.not_le.1 fun h => Int.not_le.2 h₂ (Int.le_trans h h₁)
@@ -518,7 +547,8 @@ protected theorem mul_le_mul_of_nonpos_left {a b c : Int}
     | -[_+1]  => absurd H (succ_ne_zero _),
   fun e => e ▸ rfl⟩
 
-theorem natAbs_pos : 0 < natAbs a ↔ a ≠ 0 := by rw [Nat.pos_iff_ne_zero, Ne, natAbs_eq_zero]
+@[simp] theorem natAbs_pos : 0 < natAbs a ↔ a ≠ 0 := by
+  rw [Nat.pos_iff_ne_zero, Ne, natAbs_eq_zero]
 
 @[simp] theorem natAbs_neg : ∀ (a : Int), natAbs (-a) = natAbs a
   | 0      => rfl

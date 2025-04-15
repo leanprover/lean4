@@ -908,7 +908,7 @@ protected theorem eq_mul_of_div_eq_left {a b c : Nat} (H1 : b ∣ a) (H2 : a / b
 protected theorem mul_div_cancel_left' {a b : Nat} (Hd : a ∣ b) : a * (b / a) = b := by
   rw [Nat.mul_comm, Nat.div_mul_cancel Hd]
 
-theorem lt_div_mul_add (hb : 0 < b) : a < a / b * b + b := by
+theorem lt_div_mul_add {a b : Nat} (hb : 0 < b) : a < a / b * b + b := by
   rw [← Nat.succ_mul, ← Nat.div_lt_iff_lt_mul hb]; exact Nat.lt_succ_self _
 
 @[simp]

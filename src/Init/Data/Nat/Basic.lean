@@ -656,7 +656,7 @@ theorem succ_lt_succ_iff : succ a < succ b ↔ a < b := ⟨lt_of_succ_lt_succ, s
 
 theorem succ_ne_succ_iff : succ a ≠ succ b ↔ a ≠ b := by simp [Nat.succ.injEq]
 
-theorem succ_succ_ne_one : succ (succ a) ≠ 1 := nofun
+theorem succ_succ_ne_one (a : Nat) : succ (succ a) ≠ 1 := nofun
 
 theorem add_one_inj : a + 1 = b + 1 ↔ a = b := succ_inj
 

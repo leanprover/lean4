@@ -49,20 +49,20 @@ error: tactic 'fail' failed
 case case1
 P : Nat → Prop
 m✝ : Nat
-⊢ P (ackermann (0, m✝))
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n✝ : Nat
 ih1✝ : P (ackermann (n✝, 1))
-⊢ P (ackermann (n✝.succ, 0))
+⊢ P (ackermann (n✝, 1))
 
 case case3
 P : Nat → Prop
 n✝ m✝ : Nat
 ih2✝ : P (ackermann (n✝ + 1, m✝))
 ih1✝ : P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
-⊢ P (ackermann (n✝.succ, m✝.succ))
+⊢ P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 -/
 #guard_msgs in
 example : P (ackermann p) := by
@@ -113,20 +113,20 @@ error: unsolved goals
 case case1
 P : Nat → Prop
 m✝ : Nat
-⊢ P (ackermann 0 m✝)
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n✝ : Nat
 ih1✝ : P (ackermann n✝ 1)
-⊢ P (ackermann n✝.succ 0)
+⊢ P (ackermann n✝ 1)
 
 case case3
 P : Nat → Prop
 n✝ m✝ : Nat
 ih2✝ : P (ackermann (n✝ + 1) m✝)
 ih1✝ : P (ackermann n✝ (ackermann (n✝ + 1) m✝))
-⊢ P (ackermann n✝.succ m✝.succ)
+⊢ P (ackermann n✝ (ackermann (n✝ + 1) m✝))
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
@@ -150,7 +150,7 @@ case case1
 α : Type u_1
 P : List α → Prop
 inc ms✝ : List α
-⊢ P (ackermann inc [] ms✝)
+⊢ P (ms✝ ++ inc)
 
 case case2
 α : Type u_1
@@ -159,7 +159,7 @@ inc : List α
 head✝ : α
 ns✝ : List α
 ih1✝ : P (ackermann inc ns✝ inc)
-⊢ P (ackermann inc (head✝ :: ns✝) [])
+⊢ P (ackermann inc ns✝ inc)
 
 case case3
 α : Type u_1
@@ -171,7 +171,7 @@ head✝ : α
 ms✝ : List α
 ih2✝ : P (ackermann inc (n✝ :: ns✝) ms✝)
 ih1✝ : P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
-⊢ P (ackermann inc (n✝ :: ns✝) (head✝ :: ms✝))
+⊢ P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
@@ -193,18 +193,18 @@ termination_by structural x => x
 error: tactic 'fail' failed
 case case1
 P : Nat → Prop
-⊢ P (fib 0)
+⊢ P 0
 
 case case2
 P : Nat → Prop
-⊢ P (fib 1)
+⊢ P 1
 
 case case3
 P : Nat → Prop
 n✝ : Nat
 ih2✝ : P (fib n✝)
 ih1✝ : P (fib (n✝ + 1))
-⊢ P (fib n✝.succ.succ)
+⊢ P (fib n✝ + fib (n✝ + 1))
 -/
 #guard_msgs in
 example : P (fib n) := by
@@ -241,19 +241,19 @@ error: tactic 'fail' failed
 case case1
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 0)
+⊢ P 0
 
 case case2
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 1)
+⊢ P 2
 
 case case3
 P : Nat → Prop
 inc n✝ : Nat
 ih2✝ : P (fib 2 n✝)
 ih1✝ : P (fib 2 (n✝ + 1))
-⊢ P (fib 2 n✝.succ.succ)
+⊢ P (fib 2 n✝ + fib 2 (n✝ + 1))
 -/
 #guard_msgs in
 example : P (fib 2 n) := by

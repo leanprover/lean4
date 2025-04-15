@@ -895,8 +895,16 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (Name × ElimI
     return (fnName, elimInfo, targets)
 
 
-def mapElimAppAlts (f : MVarId → MetaM MVarId) : Array ElimApp.Alt → MetaM (Array ElimApp.Alt) :=
-  Array.mapM (fun alt => do return { alt with mvarId := (← f alt.mvarId)})
+def mapElimAppAlts (cases : Bool) (f : MVarId → MetaM MVarId) : Array ElimApp.Alt → MetaM (Array ElimApp.Alt) :=
+  Array.mapM fun alt => do
+    withTraceNode (if cases then `Elab.cases else `Elab.induction) (return m!"{exceptEmoji ·} rewriting in {alt.name}") <| do
+      return { alt with mvarId := (← f alt.mvarId)}
+
+
+private def getSimpUnfoldContext : MetaM Simp.Context := do
+   Simp.mkContext
+      (congrTheorems := (← getSimpCongrTheorems))
+      (config        := { Simp.neutralConfig with contextual := true })
 
 def rewriteWithFineEqns (fnName : Name) (mvarId : MVarId) (cases : Bool) : MetaM MVarId := do
   let mut mvarId := mvarId
@@ -904,9 +912,16 @@ def rewriteWithFineEqns (fnName : Name) (mvarId : MVarId) (cases : Bool) : MetaM
     for eqn in eqns do
       try
         mvarId ← withTraceNode (if cases then `Elab.cases else `Elab.induction) (return m!"{exceptEmoji ·} rewriting with {.ofConstName eqn}") <| do
-          let r ← mvarId.rewrite (← mvarId.getType) (← mkConstWithFreshMVarLevels eqn)
-          r.mvarIds.forM fun m => m.assumption
-          mvarId.replaceTargetEq r.eNew r.eqProof
+
+          let target ← instantiateMVars (← mvarId.getType)
+          let r ← (·.1) <$> Simp.main target (← getSimpUnfoldContext)
+            (methods := { pre := pre eqn, discharge? := discharge })
+          if r.expr == target then throwError "failed to apply {.ofConstName eqn} at{indentExpr target}"
+          applySimpResultToTarget mvarId target r
+
+          -- let r ← mvarId.rewrite (← mvarId.getType) (← mkConstWithFreshMVarLevels eqn)
+          -- r.mvarIds.forM fun m => m.assumption
+          -- mvarId.replaceTargetEq r.eNew r.eqProof
       catch e =>
         if cases then
           trace[Elab.cases] "could not apply {eqn}: {e.toMessageData}"
@@ -918,6 +933,19 @@ def rewriteWithFineEqns (fnName : Name) (mvarId : MVarId) (cases : Bool) : MetaM
     else
       trace[Elab.induction] "did not find fine equations for {fnName}"
   return mvarId
+where
+  pre (eq : Name) (e : Expr) : SimpM Simp.Step := do
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl eq, proof := mkConst eq, rfl := (← isRflTheorem eq) }) with
+    | none   => pure ()
+    | some r => return .done r
+    return .continue
+
+  discharge (e : Expr) : SimpM (Option Expr) := do
+    let e := e.cleanupAnnotations
+    if let some r ← Simp.dischargeUsingAssumption? e then return some r
+    if Simp.isEqnThmHypothesis e then
+      if let some r ← Simp.dischargeEqnThmHypothesis? e then return some r
+    return none
 
 @[builtin_tactic Lean.Parser.Tactic.funInduction, builtin_incremental]
 def evalFunInduction : Tactic := fun stx =>
@@ -927,7 +955,7 @@ def evalFunInduction : Tactic := fun stx =>
     let (fnName, elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
     let targets ← generalizeTargets targets
     evalInductionCore stx elimInfo targets
-      (preProcessAlts := mapElimAppAlts (rewriteWithFineEqns (cases := false) fnName))
+      (preProcessAlts := mapElimAppAlts (cases := false) (rewriteWithFineEqns (cases := false) fnName))
 
 /--
 The code path shared between `cases` and `fun_cases`; when we already have an `elimInfo`
@@ -972,8 +1000,6 @@ def evalCases : Tactic := fun stx =>
     let targets ← withMainContext <| addImplicitTargets elimInfo targets
     evalCasesCore stx elimInfo targets (toTag := toTag)
 
-
-
 @[builtin_tactic Lean.Parser.Tactic.funCases, builtin_incremental]
 def evalFunCases : Tactic := fun stx =>
   match expandInduction? stx with
@@ -982,7 +1008,7 @@ def evalFunCases : Tactic := fun stx =>
     let (fnName, elimInfo, targets) ← elabFunTarget (cases := true) stx[1]
     let targets ← generalizeTargets targets
     evalCasesCore stx elimInfo targets
-      (preProcessAlts := mapElimAppAlts (rewriteWithFineEqns (cases := true) fnName))
+      (preProcessAlts := mapElimAppAlts (cases := true) (rewriteWithFineEqns (cases := true) fnName))
 
 builtin_initialize
   registerTraceClass `Elab.cases

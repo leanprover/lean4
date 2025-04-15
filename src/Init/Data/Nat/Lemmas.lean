@@ -911,6 +911,10 @@ protected theorem div_left_inj {a b d : Nat} (hda : d ∣ a) (hdb : d ∣ b) : a
   refine ⟨fun h ↦ ?_, congrArg fun b ↦ b / d⟩
   rw [← Nat.mul_div_cancel' hda, ← Nat.mul_div_cancel' hdb, h]
 
+theorem div_le_iff_le_mul_add_pred (hb : 0 < b) : a / b ≤ c ↔ a ≤ b * c + (b - 1) := by
+  rw [← Nat.lt_succ_iff, div_lt_iff_lt_mul hb, succ_mul, Nat.mul_comm]
+  cases hb <;> exact Nat.lt_succ_iff
+
 theorem one_le_div_iff (hb : 0 < b) : 1 ≤ a / b ↔ b ≤ a := by rw [le_div_iff_mul_le hb, Nat.one_mul]
 
 theorem div_lt_one_iff (hb : 0 < b) : a / b < 1 ↔ a < b := by
@@ -1049,6 +1053,16 @@ protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a)
 
 theorem lt_div_iff_mul_lt_of_dvd (hc : c ≠ 0) (hcb : c ∣ b) : a < b / c ↔ a * c < b := by
   simp [← Nat.div_lt_div_right _ _ hcb, hc, Nat.pos_iff_ne_zero, Nat.dvd_mul_left]
+
+protected theorem div_mul_div_le (a b c d : Nat) :
+    (a / b) * (c / d) ≤ (a * c) / (b * d) := by
+  if hb : b = 0 then simp [hb] else
+  if hd : d = 0 then simp [hd] else
+  have hbd : b * d ≠ 0 := Nat.mul_ne_zero hb hd
+  rw [le_div_iff_mul_le (Nat.pos_of_ne_zero hbd)]
+  refine Nat.le_trans (m := ((a / b) * b) * ((c / d) * d)) ?_ ?_
+  · apply Nat.le_of_eq; simp only [Nat.mul_assoc, Nat.mul_left_comm]
+  · apply Nat.mul_le_mul <;> apply div_mul_le_self
 
 /-! ### pow -/
 
@@ -1275,6 +1289,21 @@ theorem pow_self_mul_pow_self_le : m ^ m * n ^ n ≤ (m + n) ^ (m + n) := by
   rw [Nat.pow_add]
   exact Nat.mul_le_mul (Nat.pow_le_pow_left (le_add_right ..) _)
     (Nat.pow_le_pow_left (le_add_left ..) _)
+
+protected theorem pow_right_inj (ha : 1 < a) : a ^ m = a ^ n ↔ m = n := by
+  simp [Nat.le_antisymm_iff, Nat.pow_le_pow_iff_right ha]
+
+@[simp] protected theorem pow_eq_one : a ^ n = 1 ↔ a = 1 ∨ n = 0 := by
+  obtain rfl | hn := Decidable.em (n = 0)
+  · simp
+  · simpa [hn] using Nat.pow_left_inj hn (b := 1)
+
+/-- For `a > 1`, `a ^ b = a` iff `b = 1`. -/
+theorem pow_eq_self_iff {a b : Nat} (ha : 1 < a) : a ^ b = a ↔ b = 1 := by
+  rw [← Nat.pow_right_inj (m := b) ha, Nat.pow_one]
+
+@[simp] protected theorem pow_le_one_iff (hn : n ≠ 0) : a ^ n ≤ 1 ↔ a ≤ 1 := by
+  rw [← Nat.not_lt, one_lt_pow_iff hn, Nat.not_lt]
 
 /-! ### log2 -/
 

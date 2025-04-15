@@ -6,9 +6,10 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Log
 import Lean.Elab.InfoTree
+import Lean.Linter.Deprecated
 namespace Lean.Elab
 
-variable [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
+variable [Monad m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadError m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
 
 def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   let ref ← getRef
@@ -16,6 +17,7 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   -- We include the first argument (the keyword) for position information in case `id` is `missing`.
   addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[0:3]))
   let optionName := id.getId.eraseMacroScopes
+  withRef id <| Linter.checkDeprecated optionName
   let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error ref ex.toString) (getOptionDecl optionName)
   pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
   let rec setOption (val : DataValue) : m Options := do

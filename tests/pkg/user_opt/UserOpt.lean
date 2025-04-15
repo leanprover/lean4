@@ -18,3 +18,7 @@ def tst2 : MetaM Unit := do
   pure ()
 
 #eval tst2
+
+/-- warning: `myDeprecatedOption` has been deprecated: This option is deprecated -/
+#guard_msgs in
+set_option myDeprecatedOption 20

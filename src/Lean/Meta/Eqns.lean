@@ -296,3 +296,8 @@ builtin_initialize
     return false
 
 end Lean.Meta
+
+-- set at the end of this file, we don't want warnings from reading the options above
+
+attribute [deprecated "this backwards-compatibility option will be removed" (since := "2025-04-15")] Lean.Meta.backward.eqns.nonrecursive
+attribute [deprecated "this backwards-compatibility option will be removed" (since := "2025-04-15")] Lean.Meta.backward.eqns.deepRecursiveSplit

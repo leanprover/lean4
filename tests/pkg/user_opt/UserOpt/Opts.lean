@@ -9,3 +9,10 @@ register_option myNatOpt : Nat := {
   defValue := 100
   descr    := "my Nat option"
 }
+
+register_option myDeprecatedOption : Nat := {
+  defValue := 100
+  descr    := "my Deprecated option"
+}
+
+attribute [deprecated  "This option is deprecated" (since := "2022-07-24")] myDeprecatedOption

@@ -110,6 +110,8 @@ theorem one_add (n) : 1 + n = succ n := Nat.add_comm ..
 theorem succ_ne_succ : succ m ≠ succ n ↔ m ≠ n :=
   ⟨mt (congrArg Nat.succ ·), mt succ.inj⟩
 
+theorem one_lt_succ_succ (n : Nat) : 1 < n.succ.succ := succ_lt_succ <| succ_pos _
+
 theorem not_succ_lt_self : ¬ succ n < n := Nat.not_lt_of_ge n.le_succ
 
 theorem succ_le_iff : succ m ≤ n ↔ m < n := ⟨lt_of_succ_le, succ_le_of_lt⟩

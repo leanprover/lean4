@@ -163,6 +163,9 @@ def dynlibSuffix := "-1"
 @[inline] def weakLinkArgs (self : Module) : Array String :=
   self.lib.weakLinkArgs
 
+@[inline] def leanIncludeDir? (self : Module) : Option FilePath :=
+  if self.pkg.bootstrap then some <| self.pkg.buildDir / "include" else none
+
 @[inline] def platformIndependent (self : Module) : Option Bool :=
   self.lib.platformIndependent
 

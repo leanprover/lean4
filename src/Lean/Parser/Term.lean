@@ -756,7 +756,16 @@ the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manuall
               checkColGt "indented monotonicity proof" >> termParser))
 
 /--
-  Todo: add comment
+Defines a coinductive predicate using lattice theory, based on the Knaster-Tarski fixpoint theorem.
+
+This feature constructs coinductive predicates by leveraging the lattice structure on `Prop`
+(as provided by `Lean.Order.complete_lattice`) and ensures correctness through monotonicity
+(as defined in `Lean.Order.monotone`).
+
+The coinductive predicate is defined as the greatest fixed point of a monotone function on `Prop`.
+
+By default, monotonicity is verified automatically. However, users can provide custom proofs
+of monotonicity if needed.
 -/
 def greatestFixpoint := leading_parser
   withPosition (
@@ -764,6 +773,23 @@ def greatestFixpoint := leading_parser
     optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
               checkColGt "indented monotonicity proof" >> termParser))
 
+/--
+Defines an inductive predicate using lattice theory, based on the Knaster-Tarski fixpoint theorem.
+
+This feature constructs inductive predicates by leveraging the lattice structure on `Prop`
+(as provided by `Lean.Order.complete_lattice`) and ensures correctness through monotonicity
+(as defined in `Lean.Order.monotone`).
+
+The inductive predicate is defined as the least fixed point of a monotone function on `Prop`.
+
+By default, monotonicity is verified automatically. However, users can provide custom proofs
+of monotonicity if needed.
+-/
+def leastFixpoint := leading_parser
+  withPosition (
+    "least_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
 
 /--
 Manually prove that the termination measure (as specified with `termination_by` or inferred)

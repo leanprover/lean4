@@ -79,10 +79,10 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
   -- We check if any fixpoints were defined lattice-theoretically
-  let isGreatest := hints.any (·.greatest?)
+  let isLattice := hints.any (fun x => isLatticeTheoreticPartialFixpointType x.fixpointType)
   -- If yes, then we expect all of them to be defined using lattice theory
-  if isGreatest then
-    assert! preDefs.size = (hints.filter (·.greatest?)).size
+  if isLattice then
+    assert! preDefs.size = (hints.filter (fun x => isLatticeTheoreticPartialFixpointType x.fixpointType)).size
 
   -- We check if the
   -- For every function of type `∀ x y, r x y`, an CCPO instance
@@ -91,13 +91,18 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     lambdaTelescope preDef.value fun xs _body => do
       let type ← instantiateForall preDef.type xs
       let inst ←
-        if isGreatest then
+        match hints[i]!.fixpointType with
+        | .greatestFixpoint =>
           if !type.isProp then
-            throwError "`greatest_fixpoint` can be only used to define predicates"
+              throwError "`greatest_fixpoint` can be only used to define predicates"
           else
             mkAppOptM ``inst_coind_complete_lattice #[]
-        else
-          try
+        | .leastFixpoint =>
+          if !type.isProp then
+            throwError "`least_fixpoint` can be only used to define predicates"
+          else
+            mkAppOptM ``inst_coind_complete_lattice #[]
+        | .partialFixpoint => try
             synthInstance (← mkAppM ``CCPO #[type])
           catch _ =>
             trace[Elab.definition.partialFixpoint] "No CCPO instance found for {preDef.declName}, trying inhabitation"
@@ -118,20 +123,21 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     -- (∀ x y, r₁ x y) ×' (∀ x y, r₂ x y)
     let packedType ← PProdN.pack 0 types
 
-    -- CCPO (∀ x y, rᵢ x y)
+    -- Either: CCPO (∀ x y, rᵢ x y)
+    -- Or:     complete_lattice (∀ x y, rᵢ x y)
     let ccpoInsts' ← ccpoInsts.mapM fun inst =>
       lambdaTelescope inst fun xs inst => do
         let mut inst := inst
         for x in xs.reverse do
-           inst ← if isGreatest then mkAppOptM ``complete_latticei #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
+           inst ← if isLattice then mkAppOptM ``complete_latticei #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
             else
             mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
-
         pure inst
-    -- CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
-    let packedCCPOInst ← if isGreatest then PProdN.genMk mkInstcomplete_latticePProd ccpoInsts' else PProdN.genMk mkInstCCPOPProd ccpoInsts'
+    -- Either: CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
+    -- Or:     complete_lattice ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
+    let packedCCPOInst ← if isLattice then PProdN.genMk mkInstcomplete_latticePProd ccpoInsts' else PProdN.genMk mkInstCCPOPProd ccpoInsts'
     -- Order ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
-    let packedPartialOrderInst ← if isGreatest then mkAppOptM ``complete_lattice.toPartialOrder #[none, packedCCPOInst] else mkAppOptM ``CCPO.toPartialOrder #[none, packedCCPOInst]
+    let packedPartialOrderInst ← if isLattice then mkAppOptM ``complete_lattice.toPartialOrder #[none, packedCCPOInst] else mkAppOptM ``CCPO.toPartialOrder #[none, packedCCPOInst]
 
     -- Error reporting hook, presenting monotonicity errors in terms of recursive functions
     let failK {α} f (monoThms : Array Name) : MetaM α := do
@@ -164,7 +170,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     let hmonos ← preDefs.mapIdxM fun i preDef => do
       let type := types[i]!
       let F := Fs[i]!
-      let inst ← if isGreatest then mkAppOptM ``complete_lattice.toPartialOrder #[type, ccpoInsts'[i]!] else mkAppOptM ``CCPO.toPartialOrder #[type, ccpoInsts'[i]!]
+      let inst ← if isLattice then mkAppOptM ``complete_lattice.toPartialOrder #[type, ccpoInsts'[i]!] else mkAppOptM ``CCPO.toPartialOrder #[type, ccpoInsts'[i]!]
       let goal ← mkAppOptM ``monotone #[packedType, packedPartialOrderInst, type, inst, F]
       if let some term := hints[i]!.term? then
         let hmono ← Term.withSynthesize <| Term.elabTermEnsuringType term goal
@@ -183,7 +189,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         instantiateMVars hmono
     let hmono ← PProdN.genMk mkMonoPProd hmonos
 
-    let packedValue ← if isGreatest then mkAppOptM ``gfp_monotone #[packedType, packedCCPOInst, none, hmono] else mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]
+    let packedValue ← if isLattice then mkAppOptM ``gfp_monotone #[packedType, packedCCPOInst, none, hmono] else mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]
 
     trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 
@@ -213,7 +219,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
     let preDefs ← Mutual.cleanPreDefs preDefs
-    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms isGreatest
+    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms isLattice
     Mutual.addPreDefAttributes preDefs
 
 end Lean.Elab

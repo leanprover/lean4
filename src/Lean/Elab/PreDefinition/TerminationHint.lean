@@ -33,11 +33,17 @@ structure DecreasingBy where
   tactic    : TSyntax ``Lean.Parser.Tactic.tacticSeq
   deriving Inhabited
 
+inductive PartialFixpointType where
+  | partialFixpoint
+  | greatestFixpoint
+  | leastFixpoint
+  deriving Inhabited
+
 /-- A single `partial_fixpoint` or `greatest_fixpoint` clause -/
 structure PartialFixpoint where
-  ref       : Syntax
-  term?     : Option Term
-  greatest? : Bool := false
+  ref               : Syntax
+  term?             : Option Term
+  fixpointType      : PartialFixpointType := .partialFixpoint
   deriving Inhabited
 
 /--
@@ -62,6 +68,11 @@ structure TerminationHints where
   -/
   extraParams : Nat
   deriving Inhabited
+
+def isLatticeTheoreticPartialFixpointType : PartialFixpointType → Bool
+  | .partialFixpoint => false
+  | .greatestFixpoint => true
+  | .leastFixpoint => true
 
 def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, .none, 0⟩
 
@@ -139,11 +150,13 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | `(terminationBy?|termination_by?) => pure none
       | `(partialFixpoint|partial_fixpoint $[monotonicity $_]?) => pure none
       | `(greatestFixpoint|greatest_fixpoint $[monotonicity $_]?) => pure none
+      | `(leastFixpoint|least_fixpoint $[monotonicity $_]?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
       else pure none
     let partialFixpoint? : Option PartialFixpoint ← if let some t := t? then match t with
-      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, greatest? := false})
-      | `(greatestFixpoint|greatest_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, greatest? := true})
+      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .partialFixpoint})
+      | `(greatestFixpoint|greatest_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .greatestFixpoint})
+      | `(leastFixpoint|least_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .leastFixpoint})
       | _ => pure none
       else pure none
     let decreasingBy? ← d?.mapM fun d => match d with

@@ -86,7 +86,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-    let e' ← if eqnInfo.greatest? then
+    let e' ← if eqnInfo.lattice? then
       if (eqnInfo.declNames.size != 1) then
         throwError "Mutual coinduction is not supported yet"
       eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do

@@ -1371,9 +1371,9 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
   We can then reason about the signs of the operands. All these cases rely on respective
   theorems specifying the bounds of signed division once the special cases are excluded:
   · BitVec.toInt_ediv_of_nonneg_of_nonneg when 0 < y.toInt and 0 < x.toInt
-  · BitVec.sdiv_nonpos_of_nonpos_of_nonneg when 0 < y.toInt and x.toInt < 0
-  · BitVec.sdiv_nonpos_of_nonneg_of_nonpos when y.toInt < 0 and 0 < x.toInt
-  · BitVec.sdiv_lt_of_ne_allOnes when y.toInt < -1 and x.toInt < 0
+  · BitVec.toInt_ediv_nonpos_of_nonpos_of_nonneg when 0 < y.toInt and x.toInt < 0
+  · BitVec.toInt_ediv_nonpos_of_nonneg_of_nonpos when y.toInt < 0 and 0 < x.toInt
+  · BitVec.toInt_ediv_lt_of_lt_allOnes when y.toInt < -1 and x.toInt < 0
 
   These BitVec theorems themselves rely on numerous Int.udiv_* theorems, that carefully
   set the bounds of signed division for integers.

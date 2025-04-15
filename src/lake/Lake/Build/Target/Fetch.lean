@@ -135,5 +135,6 @@ protected def Target.fetchIn
     error s!"type mismtach in target '{self.key}': expected '{kind}', got {actual}"
 
 protected def TargetArray.fetchIn
-  [DataKind α] (defaultPkg : Package) (self : TargetArray α) : FetchM (Job (Array α))
-:= Job.collectArray <$> self.mapM (·.fetchIn defaultPkg)
+  [DataKind α] (defaultPkg : Package) (self : TargetArray α) (traceCaption := "<targets>")
+: FetchM (Job (Array α)) :=
+  Job.collectArray (traceCaption := traceCaption) <$> self.mapM (·.fetchIn defaultPkg)

@@ -54,6 +54,12 @@ socket is not supported. Instead, we recommend binding multiple sockets to the s
 @[extern "lean_uv_tcp_recv"]
 opaque recv? (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (Option ByteArray)))
 
+@[extern "lean_uv_tcp_wait_readable"]
+opaque waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Bool))
+
+@[extern "lean_uv_tcp_cancel_recv"]
+opaque cancelRecv (socket : @& Socket) : IO Unit
+
 /--
 Binds a TCP socket to a specific address.
 -/

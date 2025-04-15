@@ -95,7 +95,7 @@ def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM 
 partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : MetaM (Array Expr) := do
   let (implicitMVars, targets) ← collect elimInfo.elimType 0 0 #[] #[]
   for (mvar,binderInfo) in implicitMVars do
-    unless !binderInfo.isInstImplicit || (← mvar.isAssigned) do
+    unless !binderInfo.isInstImplicit || (←mvar.isAssigned) do
       mvar.withContext do
         let mvarType := (← mvar.getDecl).type
         let synthVal ← synthInstance mvarType

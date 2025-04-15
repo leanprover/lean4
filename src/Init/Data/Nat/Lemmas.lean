@@ -912,7 +912,8 @@ theorem lt_div_mul_add {a b : Nat} (hb : 0 < b) : a < a / b * b + b := by
   rw [← Nat.succ_mul, ← Nat.div_lt_iff_lt_mul hb]; exact Nat.lt_succ_self _
 
 @[simp]
-protected theorem div_left_inj {a b d : Nat} (hda : d ∣ a) (hdb : d ∣ b) : a / d = b / d ↔ a = b := by
+protected theorem div_left_inj {a b d : Nat} (hda : d ∣ a) (hdb : d ∣ b) :
+    a / d = b / d ↔ a = b := by
   refine ⟨fun h ↦ ?_, congrArg fun b ↦ b / d⟩
   rw [← Nat.mul_div_cancel' hda, ← Nat.mul_div_cancel' hdb, h]
 
@@ -920,7 +921,8 @@ theorem div_le_iff_le_mul_add_pred (hb : 0 < b) : a / b ≤ c ↔ a ≤ b * c + 
   rw [← Nat.lt_succ_iff, div_lt_iff_lt_mul hb, succ_mul, Nat.mul_comm]
   cases hb <;> exact Nat.lt_succ_iff
 
-theorem one_le_div_iff (hb : 0 < b) : 1 ≤ a / b ↔ b ≤ a := by rw [le_div_iff_mul_le hb, Nat.one_mul]
+theorem one_le_div_iff {a b : Nat} (hb : 0 < b) : 1 ≤ a / b ↔ b ≤ a := by
+  rw [le_div_iff_mul_le hb, Nat.one_mul]
 
 theorem div_lt_one_iff (hb : 0 < b) : a / b < 1 ↔ a < b := by
   simp only [← Nat.not_le, one_le_div_iff hb]

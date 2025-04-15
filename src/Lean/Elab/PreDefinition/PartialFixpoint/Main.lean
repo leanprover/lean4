@@ -84,6 +84,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   if isLattice then
     assert! preDefs.size = (hints.filter (fun x => isLatticeTheoreticPartialFixpointType x.fixpointType)).size
 
+
   -- We check if the
   -- For every function of type `∀ x y, r x y`, an CCPO instance
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
@@ -219,7 +220,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
     let preDefs ← Mutual.cleanPreDefs preDefs
-    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms isLattice
+    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms (hints.map (·.fixpointType))
     Mutual.addPreDefAttributes preDefs
 
 end Lean.Elab

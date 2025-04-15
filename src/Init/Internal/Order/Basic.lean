@@ -922,6 +922,15 @@ instance inst_ind_po: PartialOrder Prop where
     monotone (fun x => f₁ x ∧ f₂ x) :=
   fun x y hxy ⟨hfx₁, hfx₂⟩ => ⟨h₁ x y hxy hfx₁, h₂ x y hxy hfx₂⟩
 
+@[partial_fixpoint_monotone] theorem ind_monotone_or
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : monotone f₁) (h₂ : monotone f₂) :
+    monotone (fun x => f₁ x ∨ f₂ x) :=
+  fun x y hxy h =>
+    match h with
+    | Or.inl hfx₁ => Or.inl (h₁ x y hxy hfx₁)
+    | Or.inr hfx₂ => Or.inr (h₂ x y hxy hfx₂)
+
 end inductive_predicates
 
 instance inst_ind_complete_lattice : complete_lattice Prop where

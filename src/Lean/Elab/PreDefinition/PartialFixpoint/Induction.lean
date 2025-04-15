@@ -50,13 +50,13 @@ def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
   return insts
 
 
-def desugarOrder (predType : Expr) (body : Expr) (reduceRhs : Bool := false) : MetaM (Expr) := do
+def desugarOrder (predType : Expr) (body : Expr) (reduceRhs : Bool := false) (isLeast : Bool) : MetaM (Expr) := do
   if body.isAppOfArity ``PartialOrder.rel 4 then
     let lhsTypes ← forallTelescope predType (fun ts _ =>  ts.mapM inferType)
     let names ← lhsTypes.mapM (fun _ => mkFreshUserName `x)
     let bodyArgs := body.getAppArgs
     withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
-      let mut applied := (bodyArgs[3]!, bodyArgs[2]!)
+      let mut applied := if isLeast then (bodyArgs[2]!, bodyArgs[3]!) else (bodyArgs[3]!, bodyArgs[2]!)
       for e in exprs do
         applied := (mkApp applied.1 e, mkApp applied.2 e)
       if reduceRhs then
@@ -86,7 +86,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-    let e' ← if eqnInfo.lattice? then
+    let e' ← if eqnInfo.fixpointType.all isLatticeTheoreticPartialFixpointType then
       if (eqnInfo.declNames.size != 1) then
         throwError "Mutual coinduction is not supported yet"
       eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
@@ -94,7 +94,9 @@ def deriveInduction (name : Name) : MetaM Unit :=
         -- up to the final projections)
         let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
         -- We do not strip projections
-        let some fixApp ← whnfUntil body ``lfp_monotone
+        let body' := PProdN.stripProjs body.eta
+
+        let some fixApp ← whnfUntil body' ``lfp_monotone
           | throwError "Unexpected function body {body}, could not whnfUntil lfp_monotone"
         let_expr lfp_monotone α instcomplete_lattice F hmono := fixApp
           | throwError "Unexpected function body {body}, not an application of lfp_induction"
@@ -107,7 +109,12 @@ def deriveInduction (name : Name) : MetaM Unit :=
         let fInst ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda fEtaExpanded xs
         let fInst := fInst.eta
 
-        --Change the conclusion so it doesn't mention the greatest fixpoint
+        let isLeast := match eqnInfo.fixpointType[0]! with
+          | .leastFixpoint => true
+          | .greatestFixpoint => false
+          | _ => panic! "Trying to apply lattice induction to a non-lattice theoretic fixpoint"
+
+        -- Change the conclusion so it doesn't mention the greatest fixpoint
         let newTyp ← forallTelescope eTyp (fun args econc =>
           if (econc.isAppOfArity ``PartialOrder.rel 4) then
           let oldArgs := econc.getAppArgs
@@ -127,8 +134,8 @@ def deriveInduction (name : Name) : MetaM Unit :=
           let predicateType ← inferType predicate
           let premise := args[1]!
           let premiseType ← inferType premise
-          let premiseType ← desugarOrder predicateType premiseType true
-          let newConclusion ← desugarOrder predicateType conclusion
+          let premiseType ← desugarOrder predicateType premiseType (reduceRhs := true) (isLeast := isLeast)
+          let newConclusion ← desugarOrder predicateType conclusion (isLeast := isLeast)
           let abstracedNewConclusion ← mkForallFVars args newConclusion
           withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
             let typeHint ← mkExpectedTypeHint newPremise premiseType

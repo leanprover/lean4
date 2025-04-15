@@ -6,20 +6,10 @@ def infinite_chain_fixpoint {α} (step : α → Option α) (x : α) :
   infinite_chain step x = ∃ y, step x = some y ∧ infinite_chain step y := by
     rw [infinite_chain]
 
-#check infinite_chain.fixpoint_induct
-
 theorem infinite_chain.coind {α} (P : α → Prop) (step : α → Option α)
   (h : ∀ (x : α), P x → ∃ y, step x = some y ∧ P y) :
   ∀ x, P x → infinite_chain step x := infinite_chain.fixpoint_induct _ _ h
 
-def stream (Q : Type) : Type := Q → Nat × Q
-
-def stream_bisimilarity (Q : Type) (transition_function : stream Q) (q₁ q₂ : Q) : Prop :=
-    (transition_function q₁).fst  = (transition_function q₂).fst
-  ∧ stream_bisimilarity Q transition_function (transition_function q₁).snd (transition_function q₂).snd
-greatest_fixpoint
-
-#check stream_bisimilarity.fixpoint_induct
 
 def infseq {α} (R : α → α → Prop) : α → Prop :=
   λ x : α => ∃ y, R x y ∧ infseq R y
@@ -44,6 +34,27 @@ theorem cycle_infseq {R : α → α → Prop} (x : α) : R x x → infseq R x :=
 inductive star (R : α → α → Prop) : α → α → Prop where
   | star_refl : ∀ x : α, star R x x
   | star_step : ∀ x y z, R x y → star R y z → star R x z
+
+def star_ind (tr : α → α → Prop) (q₁ q₂ : α) : Prop :=
+ ∃ (z : α), q₁ = q₂ ∨ (tr q₁ z ∧ star_ind tr z q₂)
+least_fixpoint
+
+theorem star_implies_star (R : α → α → Prop) : ∀ a b : α, star R a b → star_ind R a b := by
+  intro a b s
+  induction s
+  case star_refl x =>
+    unfold star_ind
+    apply Exists.intro x
+    left
+    trivial
+  case star_step x y z rel s2 ih =>
+    unfold star_ind
+    apply Exists.intro y
+    right
+    trivial
+
+
+
 
 theorem star_one (R : α → α → Prop)  : ∀ a b : α, R a b → star R a b := by
   intros a b Rab

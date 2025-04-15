@@ -22,13 +22,13 @@ structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
   fixedParamPerms : FixedParamPerms
-  lattice?       : Bool := false
+  fixpointType    :  Array PartialFixpointType
   deriving Inhabited
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
-    (fixedParamPerms : FixedParamPerms) (lattice? : Bool): MetaM Unit := do
+    (fixedParamPerms : FixedParamPerms) (fixpointType : Array PartialFixpointType): MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   unless preDefs.all fun p => p.kind.isTheorem do
     unless (← preDefs.allM fun p => isProp p.type) do
@@ -36,7 +36,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedParamPerms, lattice? }
+            declNames, declNameNonRec, fixedParamPerms, fixpointType }
 
 private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'

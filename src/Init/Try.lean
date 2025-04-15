@@ -25,8 +25,11 @@ structure Config where
   only := true
   /-- If `harder` is `true`, more expensive tactics and operations are tried. -/
   harder := false
-  /--
-  If `merge` is `true`, it tries to compress suggestions such as
+  /-- If `exact` is `true`, it tries to use `exact?` to find a library theorem that matches the goal. -/
+  exact := true
+  /-- If `funInd` is `true`, it tries to use functional induction. -/
+  funInd := true
+  /-- If `merge` is `true`, it tries to compress suggestions such as
   ```
   induction a
   · grind only [= f]

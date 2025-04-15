@@ -2319,33 +2319,21 @@ theorem foldr_map {f : α₁ → α₂} {g : α₂ → β → β} {l : List α�
 
 theorem foldl_filterMap {f : α → Option β} {g : γ → β → γ} {l : List α} {init : γ} :
     (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
-  induction l generalizing init with
-  | nil => rfl
-  | cons a l ih =>
-    simp only [filterMap_cons, foldl_cons]
-    cases f a <;> simp [ih]
+  induction l generalizing init <;> grind
 
 theorem foldr_filterMap {f : α → Option β} {g : β → γ → γ} {l : List α} {init : γ} :
     (l.filterMap f).foldr g init = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
-  induction l generalizing init with
-  | nil => rfl
-  | cons a l ih =>
-    simp only [filterMap_cons, foldr_cons]
-    cases f a <;> simp [ih]
+  induction l generalizing init <;> grind
 
 theorem foldl_map_hom {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {l : List α}
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldl f' (g a) = g (l.foldl f a) := by
-  induction l generalizing a
-  · simp
-  · simp [*, h]
+  induction l generalizing a <;> grind
 
 theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {l : List α}
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldr f' (g a) = g (l.foldr f a) := by
-  induction l generalizing a
-  · simp
-  · simp [*, h]
+  induction l generalizing a <;> grind
 
 theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b : β} {l l' : List α} :
     (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by
@@ -2357,13 +2345,15 @@ theorem foldl_append {β : Type _} {f : β → α → β} {b : β} {l l' : List 
 theorem foldr_append {f : α → β → β} {b : β} {l l' : List α} :
     (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
 
+attribute [grind _=_] List.foldr_append List.foldl_append
+
 theorem foldl_flatten {f : β → α → β} {b : β} {L : List (List α)} :
     (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
-  induction L generalizing b <;> simp_all
+  induction L generalizing b <;> grind
 
 theorem foldr_flatten {f : α → β → β} {b : β} {L : List (List α)} :
     (flatten L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
-  induction L <;> simp_all
+  induction L <;> grind
 
 theorem foldl_reverse {l : List α} {f : β → α → β} {b : β} :
     l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
@@ -2372,35 +2362,31 @@ theorem foldr_reverse {l : List α} {f : α → β → β} {b : β} :
     l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
   (foldl_reverse ..).symm.trans <| by simp
 
+attribute [grind =] List.foldl_flatten List.foldr_flatten List.foldl_reverse List.foldr_reverse
+
 theorem foldl_eq_foldr_reverse {l : List α} {f : β → α → β} {b : β} :
-    l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by simp
+    l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by simp -- FIXME reported
 
 theorem foldr_eq_foldl_reverse {l : List α} {f : α → β → β} {b : β} :
     l.foldr f b = l.reverse.foldl (fun x y => f y x) b := by simp
 
-theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] :
-    ∀ {l : List α} {a₁ a₂}, l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂)
-  | [], a₁, a₂ => rfl
-  | a :: l, a₁, a₂ => by
-    simp only [foldl_cons, ha.assoc]
-    rw [foldl_assoc]
+theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op]
+    {l : List α} {a₁ a₂} : l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂) := by
+  induction l generalizing a₁ a₂ <;> simp [*, ha.assoc] -- FIXME how to get grind to do something useful? needs directly support for associativity?
 
-theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
-    ∀ {l : List α} {a₁ a₂}, l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂
-  | [], a₁, a₂ => rfl
-  | a :: l, a₁, a₂ => by
-    simp only [foldr_cons, ha.assoc]
-    rw [foldr_assoc]
+theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op]
+    {l : List α} {a₁ a₂} : l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂ := by
+  induction l generalizing a₁ a₂ <;> simp [*, ha.assoc]
 
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
-  induction l generalizing init <;> simp [*, H]
+  induction l generalizing init <;> grind
 
 -- The argument `f : β₁ → β₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldr_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : α → β₂ → β₂} {l : List α} {init : β₁}
     (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
-  induction l <;> simp [*, H]
+  induction l <;> grind
 
 /--
 A reasoning principle for proving propositions about the result of `List.foldl` by establishing an
@@ -2422,8 +2408,8 @@ def foldlRecOn {motive : β → Sort _} : ∀ (l : List α) (op : β → α → 
     (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op b a)), motive (List.foldl op b l)
   | [], _, _, hb, _ => hb
   | hd :: tl, op, b, hb, hl =>
-    foldlRecOn tl op (hl b hb hd mem_cons_self)
-      fun y hy x hx => hl y hy x (mem_cons_of_mem hd hx)
+    foldlRecOn tl op (hl b hb hd (by grind))
+      fun y hy x hx => hl y hy x (by grind)
 
 theorem foldlRecOn_nil {motive : β → Sort _} {op : β → α → β} (hb : motive b)
     (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ []), motive (op b a)) :
@@ -2432,8 +2418,8 @@ theorem foldlRecOn_nil {motive : β → Sort _} {op : β → α → β} (hb : mo
 theorem foldlRecOn_cons {motive : β → Sort _} {op : β → α → β} (hb : motive b)
     (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op b a)) :
     foldlRecOn (x :: l) op hb hl =
-      foldlRecOn l op (hl b hb x mem_cons_self)
-        (fun b c a m => hl b c a (mem_cons_of_mem x m)) :=
+      foldlRecOn l op (hl b hb x (by grind))
+        (fun b c a m => hl b c a (by grind)) :=
   rfl
 
 /--
@@ -2457,7 +2443,7 @@ def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → 
   | nil, _, _, hb, _ => hb
   | x :: l, op, b, hb, hl =>
     hl (foldr op b l)
-      (foldrRecOn l op hb fun b c a m => hl b c a (mem_cons_of_mem x m)) x mem_cons_self
+      (foldrRecOn l op hb fun b c a m => hl b c a (by grind)) x (by grind)
 
 theorem foldrRecOn_nil {motive : β → Sort _} {op : α → β → β} (hb : motive b)
     (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ []), motive (op a b)) :
@@ -2466,8 +2452,8 @@ theorem foldrRecOn_nil {motive : β → Sort _} {op : α → β → β} (hb : mo
 theorem foldrRecOn_cons {motive : β → Sort _} {op : α → β → β} (hb : motive b)
     (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op a b)) :
     foldrRecOn (x :: l) op hb hl =
-      hl _ (foldrRecOn l op hb fun b c a m => hl b c a (mem_cons_of_mem x m))
-        x mem_cons_self :=
+      hl _ (foldrRecOn l op hb fun b c a m => hl b c a (by grind))
+        x (by grind) :=
   rfl
 
 /--
@@ -2478,13 +2464,7 @@ preserves the relation.
 theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
     r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
-  induction l generalizing a b with
-  | nil => simp_all
-  | cons a l ih =>
-    simp only [foldl_cons]
-    apply ih
-    · simp_all
-    · exact fun a m c c' h => h' _ (by simp_all) _ _ h
+  induction l generalizing a b <;> grind (ematch := 6)
 
 /--
 We can prove that two folds over the same list are related (by some arbitrary relation)
@@ -2494,19 +2474,14 @@ preserves the relation.
 theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
     r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
-  induction l generalizing a b with
-  | nil => simp_all
-  | cons a l ih =>
-    simp only [foldr_cons]
-    apply h'
-    · simp
-    · exact ih h fun a m c c' h => h' _ (by simp_all) _ _ h
+  induction l generalizing a b <;> grind (ematch := 6)
 
 theorem foldl_add_const {l : List α} {a b : Nat} :
     l.foldl (fun x _ => x + a) b = b + a * l.length := by
   induction l generalizing b with
   | nil => simp
   | cons y l ih =>
+    -- needs more arithmetic support in grind!
     simp only [foldl_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc,
       Nat.add_comm a]
 
@@ -2515,6 +2490,7 @@ theorem foldr_add_const {l : List α} {a b : Nat} :
   induction l generalizing b with
   | nil => simp
   | cons y l ih =>
+    -- needs more arithmetic support in grind!
     simp only [foldr_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc]
 
 
@@ -2572,63 +2548,64 @@ theorem getLast_append_of_ne_nil {l : List α} (h₁) (h₂ : l' ≠ []) :
 theorem getLast_append {l : List α} (h : l ++ l' ≠ []) :
     (l ++ l').getLast h =
       if h' : l'.isEmpty then
-        l.getLast (by simp_all [isEmpty_iff])
+        l.getLast (by grind)
       else
-        l'.getLast (by simp_all [isEmpty_iff]) := by
-  split <;> rename_i h'
-  · simp only [isEmpty_iff] at h'
-    subst h'
-    simp
-  · simp [isEmpty_iff] at h'
-    simp [h']
+        l'.getLast (by grind) := by grind
+
+attribute [grind] List.getLast_append
 
 theorem getLast_append_right {l : List α} (h : l' ≠ []) :
-    (l ++ l').getLast (fun h => by simp_all) = l'.getLast h := by
-  rw [getLast_append, dif_neg (by simp_all)]
+    (l ++ l').getLast (fun h => by grind) = l'.getLast h := by grind
 
 theorem getLast_append_left {l : List α} (w : l ++ l' ≠ []) (h : l' = []) :
-    (l ++ l').getLast w = l.getLast (by simp_all) := by
-  rw [getLast_append, dif_pos (by simp_all)]
+    (l ++ l').getLast w = l.getLast (by grind) := by grind
 
 theorem getLast?_append {l l' : List α} : (l ++ l').getLast? = l'.getLast?.or l.getLast? := by
-  sorry -- simp [← head?_reverse]
+  simp [← head?_reverse, -List.head?_reverse]
+
+attribute [grind] List.getLast?_append
+
+attribute [grind] List.head_filter_of_pos
+attribute [grind] List.head_reverse List.getLast_reverse
+attribute [grind] List.getLast_eq_head_reverse List.head_eq_getLast_reverse
+attribute [grind _=_] List.filter_reverse List.filterMap_reverse
+attribute [grind] List.flatMap_reverse List.reverse_flatMap
 
 theorem getLast_filter_of_pos {p : α → Bool} {l : List α} (w : l ≠ []) (h : p (getLast l w) = true) :
-    getLast (filter p l) (ne_nil_of_mem (mem_filter.2 ⟨getLast_mem w, h⟩)) = getLast l w := by
-  simp only [getLast_eq_head_reverse, ← filter_reverse]
-  rw [head_filter_of_pos]
-  simp_all
+    getLast (filter p l) (ne_nil_of_mem (mem_filter.2 ⟨getLast_mem w, by grind⟩)) = getLast l w := by grind
+
+attribute [grind] List.head_filterMap_of_eq_some
 
 theorem getLast_filterMap_of_eq_some {f : α → Option β} {l : List α} (w : l ≠ []) {b : β} (h : f (l.getLast w) = some b) :
-    (filterMap f l).getLast (ne_nil_of_mem (mem_filterMap.2 ⟨_, getLast_mem w, h⟩)) = b := by
-  simp only [getLast_eq_head_reverse, ← filterMap_reverse]
-  rw [head_filterMap_of_eq_some (by simp_all)]
-  simp_all
+    (filterMap f l).getLast (ne_nil_of_mem (mem_filterMap.2 ⟨_, getLast_mem w, h⟩)) = b := by grind
+
+attribute [grind] List.head?_flatMap
+
+attribute [grind] List.head?_reverse List.getLast?_reverse
+attribute [grind] List.getLast?_eq_head?_reverse List.head?_eq_getLast?_reverse
 
 theorem getLast?_flatMap {l : List α} {f : α → List β} :
     (l.flatMap f).getLast? = l.reverse.findSome? fun a => (f a).getLast? := by
-  simp only [← head?_reverse, reverse_flatMap]
-  rw [head?_flatMap]
-  rfl
+  grind
+
+attribute [grind] List.getLast?_flatten
 
 theorem getLast?_flatten {L : List (List α)} :
     (flatten L).getLast? = L.reverse.findSome? fun l => l.getLast? := by
-  sorry -- simp [← flatMap_id, getLast?_flatMap]
+  grind
 
-theorem getLast?_replicate {a : α} {n : Nat} : (replicate n a).getLast? = if n = 0 then none else some a := by
-  simp only [← head?_reverse, reverse_replicate, head?_replicate]
+attribute [grind] List.reverse_replicate
+attribute [grind] List.head?_replicate
 
-theorem getLast_replicate (w : replicate n a ≠ []) : (replicate n a).getLast w = a := by
-  simp [getLast_eq_head_reverse]
+theorem getLast?_replicate {a : α} {n : Nat} :
+    (replicate n a).getLast? = if n = 0 then none else some a := by grind
+
+
+theorem getLast_replicate (w : replicate n a ≠ []) : (replicate n a).getLast w = a := by grind
 
 /-! ## Additional operations -/
 
 /-! ### leftpad -/
-
--- We unfold `leftpad` and `rightpad` for verification purposes.
-attribute [simp] leftpad rightpad
-
--- `length_leftpad` and `length_rightpad` are in `Init.Data.List.Nat.Basic`.
 
 theorem leftpad_prefix {n : Nat} {a : α} {l : List α} :
     replicate (n - length l) a <+: leftpad n a l := by
@@ -2645,8 +2622,12 @@ theorem leftpad_suffix {n : Nat} {a : α} {l : List α} : l <:+ (leftpad n a l) 
 
 theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by simp
 
+attribute [grind] List.contains_cons List.elem_nil
+
 theorem contains_eq_any_beq [BEq α] {l : List α} {a : α} : l.contains a = l.any (a == ·) := by
-  induction l with simp | cons b l => cases b == a <;> simp [*]
+  induction l with grind
+
+attribute [grind] List.contains_eq_mem
 
 theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
     l.contains a ↔ ∃ a' ∈ l, a == a' := by
@@ -2654,7 +2635,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
 
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     l.contains a ↔ a ∈ l := by
-  simp
+  grind
 
 /-! ## Sublists -/
 
@@ -2667,13 +2648,17 @@ we do not separately develop much theory about it.
 theorem partition_eq_filter_filter {p : α → Bool} {l : List α} :
     partition p l = (filter p l, filter (not ∘ p) l) := by simp [partition, aux]
   where
-    aux : ∀ l {as bs}, partition.loop p l (as, bs) =
-        (as.reverse ++ filter p l, bs.reverse ++ filter (not ∘ p) l)
-      | [] => by simp [partition.loop, filter]
-      | a :: l => by cases pa : p a <;> simp [partition.loop, pa, aux, filter, append_assoc]
+    aux l {as bs} : partition.loop p l (as, bs) =
+        (as.reverse ++ filter p l, bs.reverse ++ filter (not ∘ p) l) := by
+      induction l generalizing as bs with
+      | nil => grind [partition.loop]
+      | cons a l ih => cases pa : p a <;> simp? [partition.loop, pa, ih, append_assoc]
+
+attribute [grind] List.mem_filter
+attribute [grind] List.partition_eq_filter_filter
 
 theorem mem_partition : a ∈ l ↔ a ∈ (partition p l).1 ∨ a ∈ (partition p l).2 := by
-  by_cases p a <;> simp_all
+  grind
 
 /-! ### dropLast
 

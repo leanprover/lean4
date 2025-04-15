@@ -2714,12 +2714,12 @@ theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
-  induction l generalizing init <;> simp [*, H]
+  induction l generalizing init <;> simp [*]
 
 -- The argument `f : β₁ → β₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldr_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : α → β₂ → β₂} {l : List α} {init : β₁}
     (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
-  induction l <;> simp [*, H]
+  induction l <;> simp [*]
 
 /--
 A reasoning principle for proving propositions about the result of `List.foldl` by establishing an

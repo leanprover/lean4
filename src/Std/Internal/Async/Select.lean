@@ -46,11 +46,17 @@ partial def Selectable.one (selectables : Array (Selectable α)) : IO (AsyncTask
   go selectables
 where
   go (selectables : Array (Selectable α)) : IO (AsyncTask α) := do
-    for selectable in selectables do
+    for h : i in [:selectables.size] do
+      have := Membership.get_elem_helper h rfl
+      let selectable := selectables[i]'this
       if let some val ← selectable.selector.tryFn then
-        for selectable in selectables do
-          selectable.selector.unregisterFn
-        return  (← selectable.cont val)
+        for h : j in [:selectables.size] do
+          if j ≠ i then
+            have := Membership.get_elem_helper h rfl
+            let selectable := selectables[j]'this
+            selectable.selector.unregisterFn
+
+        return (← selectable.cont val)
 
     let promise ← IO.Promise.new
 
@@ -73,7 +79,7 @@ def Sleep.selector (s : Sleep) : IO (Selector Unit) := do
     unregisterFn := pure ()
   }
 
-def TCP.Socket.Client.readSelector (s : TCP.Socket.Client) (size : UInt64) :
+def TCP.Socket.Client.recvSelector (s : TCP.Socket.Client) (size : UInt64) :
     IO (Selector (Option ByteArray)) := do
   let waiter ← s.native.waitReadable
   return {

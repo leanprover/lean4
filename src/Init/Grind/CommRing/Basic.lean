@@ -69,6 +69,9 @@ theorem zero_add (a : α) : 0 + a = a := by
 theorem add_neg_cancel (a : α) : a + -a = 0 := by
   rw [add_comm, neg_add_cancel]
 
+theorem add_left_comm (a b c : α) : a + (b + c) = b + (a + c) := by
+  rw [← add_assoc, ← add_assoc, add_comm a]
+
 theorem one_mul (a : α) : 1 * a = a := by
   rw [mul_comm, mul_one]
 
@@ -77,6 +80,9 @@ theorem right_distrib (a b c : α) : (a + b) * c = a * c + b * c := by
 
 theorem mul_zero (a : α) : a * 0 = 0 := by
   rw [mul_comm, zero_mul]
+
+theorem mul_left_comm (a b c : α) : a * (b * c) = b * (a * c) := by
+  rw [← mul_assoc, ← mul_assoc, mul_comm a]
 
 theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a * OfNat.ofNat b := by
   induction b with

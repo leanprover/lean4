@@ -221,9 +221,6 @@ def add (self : Job α) (other : Job β) : Job α :=
 def mix (self : Job α) (other : Job β) : Job Unit :=
   self.zipWith (fun _ _ => ()) other
 
-private def root (a : α) (traceCaption := "<root>")  : Job α :=
-  .ofTask <| .pure <| .ok a {trace := .nil traceCaption}
-
 /-- Merge a `List` of jobs into one, discarding their outputs. -/
 def mixList (jobs : List (Job α)) (traceCaption := "<collection>")  : Job Unit :=
   jobs.foldr (·.mix ·) (traceRoot () traceCaption)

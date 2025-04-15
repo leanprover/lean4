@@ -84,9 +84,6 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   if isGreatest then
     assert! preDefs.size = (hints.filter (·.greatest?)).size
 
-
-
-
   -- We check if the
   -- For every function of type `∀ x y, r x y`, an CCPO instance
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`

@@ -1811,7 +1811,7 @@ static lean_object* l_Lean_Parser_Tactic_location___closed__9;
 static lean_object* l_Lean_Parser_Tactic_first___closed__19;
 static lean_object* l_Lean_Parser_Tactic_change___closed__6;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSuffices____1___closed__2;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_dsimpArgs___closed__6;
 static lean_object* l_Lean_Parser_Tactic_induction___closed__2;
 static lean_object* l_Lean_Parser_Tactic_tacticDsimp_x3f_x21_____closed__2;
@@ -4399,7 +4399,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

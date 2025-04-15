@@ -2365,15 +2365,16 @@ x_5 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370_
 x_6 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____closed__8;
 x_7 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____closed__9;
 x_8 = 2;
-x_9 = lean_alloc_ctor(0, 7, 1);
+x_9 = lean_alloc_ctor(0, 8, 1);
 lean_ctor_set(x_9, 0, x_2);
 lean_ctor_set(x_9, 1, x_3);
 lean_ctor_set(x_9, 2, x_4);
 lean_ctor_set(x_9, 3, x_5);
 lean_ctor_set(x_9, 4, x_6);
-lean_ctor_set(x_9, 5, x_7);
-lean_ctor_set(x_9, 6, x_1);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7, x_8);
+lean_ctor_set(x_9, 5, x_6);
+lean_ctor_set(x_9, 6, x_7);
+lean_ctor_set(x_9, 7, x_1);
+lean_ctor_set_uint8(x_9, sizeof(void*)*8, x_8);
 return x_9;
 }
 }

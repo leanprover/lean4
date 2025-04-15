@@ -1260,12 +1260,8 @@ private def addDefaults (levelParams : List Name) (params : Array Expr) (replace
   let fieldInfos := (← get).fields
   let lctx ← instantiateLCtxMVars (← getLCtx)
   /- The parameters `params` for the auxiliary "default value" definitions must be marked as implicit, and all others as explicit. -/
-  let lctx :=
-    params.foldl (init := lctx) fun (lctx : LocalContext) (p : Expr) =>
-      if p.isFVar then
-        lctx.setBinderInfo p.fvarId! BinderInfo.implicit
-      else
-        lctx
+  let lctx := params.foldl (init := lctx) fun (lctx : LocalContext) (p : Expr) =>
+    lctx.setBinderInfo p.fvarId! BinderInfo.implicit
   let parentFVarIds := fieldInfos |>.filter (·.kind.isParent) |>.map (·.fvar.fvarId!)
   let fields := fieldInfos |>.filter (!·.kind.isParent)
   withLCtx lctx (← getLocalInstances) do

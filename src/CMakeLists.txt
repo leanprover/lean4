@@ -780,12 +780,11 @@ add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
-  PATTERN temp
-  PATTERN "*.export"
-  PATTERN "*.hash"
-  PATTERN "*.trace"
-  PATTERN "*.rsp"
-  EXCLUDE)
+  PATTERN temp EXCLUDE
+  PATTERN "*.export" EXCLUDE
+  PATTERN "*.hash" EXCLUDE
+  PATTERN "*.trace" EXCLUDE
+  PATTERN "*.rsp" EXCLUDE)
 
 # symlink source into expected installation location for go-to-definition, if file system allows it
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)

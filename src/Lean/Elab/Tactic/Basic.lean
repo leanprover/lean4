@@ -165,6 +165,7 @@ structure EvalTacticFailure where
   state : SavedState
 
 partial def evalTactic (stx : Syntax) : TacticM Unit := do
+  checkSystem "tactic execution"
   profileitM Exception "tactic execution" (decl := stx.getKind) (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
     | .node _ k _    =>
@@ -240,6 +241,7 @@ where
                     snap.old?.forM (·.val.cancelRec)
                   let promise ← IO.Promise.new
                   -- Store new unfolding in the snapshot tree
+                  let cancelTk? := (← readThe Core.Context).cancelTk?
                   snap.new.resolve {
                     stx := stx'
                     diagnostics := .empty
@@ -249,7 +251,7 @@ where
                       state? := (← Tactic.saveState)
                       moreSnaps := #[]
                     }
-                    next := #[{ stx? := stx', task := promise.resultD default }]
+                    next := #[{ stx? := stx', task := promise.resultD default, cancelTk? }]
                   }
                   -- Update `tacSnap?` to old unfolding
                   withTheReader Term.Context ({ · with tacSnap? := some {

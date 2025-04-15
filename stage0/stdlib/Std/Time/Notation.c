@@ -706,7 +706,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxNat(lea
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__162;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__17;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__38;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__5;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__60;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__61;
@@ -9644,7 +9644,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

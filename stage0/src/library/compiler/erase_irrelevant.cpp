@@ -11,7 +11,9 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/inductive.h"
 #include "library/compiler/util.h"
+#include "library/compiler/extern_attribute.h"
 #include "library/compiler/implemented_by_attribute.h"
+#include "library/compiler/noncomputable_attribute.h"
 
 namespace lean {
 class erase_irrelevant_fn {
@@ -405,6 +407,8 @@ class erase_irrelevant_fn {
                 /* Decidable.decide is the "identify" function since Decidable and Bool have
                    the same runtime representation. */
                 return args[1];
+            } else if (has_noncomputable_attribute(env(), fn) && !is_extern_or_init_constant(env(), fn)) {
+                throw exception(sstream() << "failed to compile definition, consider marking it as 'noncomputable' because it depends on '" << fn << "', which is 'noncomputable'");
             } else {
                 break;
             }

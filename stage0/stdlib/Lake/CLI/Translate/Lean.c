@@ -770,7 +770,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkDeclFi
 lean_object* l_Lean_Name_eraseSuffix_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkIdentFromRef___at___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___spec__1(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkDeclFields___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
-uint8_t l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1045_(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_PackageConfig_mkDeclFields___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_mkTargetCommands___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -810,6 +809,7 @@ static lean_object* l_Lake_PattternDescr_toLean_x3f___rarg___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanConfig_mkDeclFields___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PartialBuildKey_toLean_go___closed__8;
 static lean_object* l_Lake_PackageConfig_mkCommand___closed__4;
+uint8_t l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1011_(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_mkCommand___closed__10;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_LeanExeConfig_mkDeclFields___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkLeanConfig___closed__19;
@@ -1020,7 +1020,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_quoteArray_x3f___spec_
 static lean_object* l_Lake_LeanLibConfig_mkCommand___closed__15;
 static lean_object* l_Lake_PattternDescr_toLean_x3f___rarg___closed__4;
 extern lean_object* l_Lake_defaultLeanLibDir;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_LeanVer_toLean___closed__2;
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_toLean_x3f(lean_object*);
 static lean_object* l_Lake_Package_mkLeanConfig___closed__6;
@@ -1232,7 +1232,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -24880,7 +24880,7 @@ lean_dec(x_56);
 x_58 = lean_ctor_get(x_2, 17);
 lean_inc(x_58);
 x_59 = l_Lake_PackageConfig_version___proj___elambda__1(x_1, x_2);
-x_60 = l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1045_(x_58, x_59);
+x_60 = l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1011_(x_58, x_59);
 lean_dec(x_59);
 x_61 = lean_ctor_get(x_2, 18);
 lean_inc(x_61);

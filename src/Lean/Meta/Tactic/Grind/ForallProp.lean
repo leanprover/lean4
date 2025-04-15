@@ -46,6 +46,9 @@ where
     else if (← isEqTrue b) then
       -- b = True → (a → b) = True
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_right) a b (← mkEqTrueProof b)
+    else if (← isEqFalse b <&&> isEqTrue e <&&> isProp a) then
+      -- (a → b) = True → b = False → a = False
+      pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
 
 private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
   let_expr eq_true _ p := proof | return none
@@ -105,5 +108,19 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
     else
       if b.hasLooseBVars then
         addLocalEMatchTheorems e
+      else
+        unless (← alreadyInternalized b) do return ()
+        if (← isEqFalse b <&&> isProp a) then
+        -- (a → b) = True → b = False → a = False
+        pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
+
+builtin_grind_propagator propagateExistsDown ↓Exists := fun e => do
+  if (← isEqFalse e) then
+    let_expr f@Exists α p := e | return ()
+    let u := f.constLevels!
+    let notP := mkApp (mkConst ``Not) (mkApp p (.bvar 0) |>.headBeta)
+    let prop := mkForall `x .default α notP
+    let proof := mkApp3 (mkConst ``forall_not_of_not_exists u) α p (mkOfEqFalseCore e (← mkEqFalseProof e))
+    addNewRawFact proof prop (← getGeneration e)
 
 end Lean.Meta.Grind

@@ -22,50 +22,17 @@ namespace Lean
 
 builtin_initialize registerTraceClass `grind.cutsat
 builtin_initialize registerTraceClass `grind.cutsat.model
-builtin_initialize registerTraceClass `grind.cutsat.subst
-builtin_initialize registerTraceClass `grind.cutsat.eq
-builtin_initialize registerTraceClass `grind.cutsat.eq.unsat (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.eq.trivial (inherited := true)
 builtin_initialize registerTraceClass `grind.cutsat.assert
-builtin_initialize registerTraceClass `grind.cutsat.assert.dvd
-builtin_initialize registerTraceClass `grind.cutsat.dvd
-builtin_initialize registerTraceClass `grind.cutsat.dvd.update (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.dvd.unsat (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.dvd.trivial (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.dvd.solve (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.dvd.solve.combine (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.dvd.solve.elim (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.internalize
-builtin_initialize registerTraceClass `grind.cutsat.internalize.term (inherited := true)
+builtin_initialize registerTraceClass `grind.cutsat.assert.trivial
+builtin_initialize registerTraceClass `grind.cutsat.assert.unsat
+builtin_initialize registerTraceClass `grind.cutsat.assert.store
 
-builtin_initialize registerTraceClass `grind.cutsat.assert.le
-builtin_initialize registerTraceClass `grind.cutsat.le
-builtin_initialize registerTraceClass `grind.cutsat.le.unsat (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.le.trivial (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.le.lower (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.le.upper (inherited := true)
-builtin_initialize registerTraceClass `grind.cutsat.assign
-builtin_initialize registerTraceClass `grind.cutsat.conflict
-
-builtin_initialize registerTraceClass `grind.cutsat.diseq
-builtin_initialize registerTraceClass `grind.cutsat.diseq.trivial (inherited := true)
-
-builtin_initialize registerTraceClass `grind.debug.cutsat.eq
-builtin_initialize registerTraceClass `grind.debug.cutsat.dvd.le
-builtin_initialize registerTraceClass `grind.debug.cutsat.diseq
-builtin_initialize registerTraceClass `grind.debug.cutsat.diseq.split
-builtin_initialize registerTraceClass `grind.debug.cutsat.backtrack
-builtin_initialize registerTraceClass `grind.debug.cutsat.search
-builtin_initialize registerTraceClass `grind.debug.cutsat.cooper
-builtin_initialize registerTraceClass `grind.debug.cutsat.cooper.diseq
-builtin_initialize registerTraceClass `grind.debug.cutsat.conflict
-builtin_initialize registerTraceClass `grind.debug.cutsat.assign
 builtin_initialize registerTraceClass `grind.debug.cutsat.subst
-builtin_initialize registerTraceClass `grind.debug.cutsat.getBestLower
-builtin_initialize registerTraceClass `grind.debug.cutsat.nat
-builtin_initialize registerTraceClass `grind.debug.cutsat.proof
+builtin_initialize registerTraceClass `grind.debug.cutsat.search
+builtin_initialize registerTraceClass `grind.debug.cutsat.search.split (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.cutsat.search.assign (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.cutsat.search.conflict (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.cutsat.search.backtrack (inherited := true)
 builtin_initialize registerTraceClass `grind.debug.cutsat.internalize
-builtin_initialize registerTraceClass `grind.debug.cutsat.markTerm
-builtin_initialize registerTraceClass `grind.debug.cutsat.natCast
 
 end Lean

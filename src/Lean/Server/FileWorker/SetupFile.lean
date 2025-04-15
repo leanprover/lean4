@@ -67,38 +67,32 @@ inductive FileSetupResultKind where
 /-- Result of running `lake setup-file`. -/
 structure FileSetupResult where
   /-- Kind of outcome. -/
-  kind          : FileSetupResultKind
-  /-- Search path from successful setup, or else empty. -/
-  srcSearchPath : SearchPath
+  kind        : FileSetupResultKind
   /-- Additional options from successful setup, or else empty. -/
-  fileOptions   : Options
+  fileOptions : Options
   /-- Lean plugins from successful setup, or else empty. -/
-  plugins       : Array System.FilePath
+  plugins     : Array System.FilePath
 
-def FileSetupResult.ofSuccess (pkgSearchPath : SearchPath) (fileOptions : Options)
+def FileSetupResult.ofSuccess (fileOptions : Options)
     (plugins : Array System.FilePath) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.success
-  srcSearchPath := ← initSrcSearchPath pkgSearchPath,
   fileOptions, plugins
 }
 
 def FileSetupResult.ofNoLakefile : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.noLakefile
-  srcSearchPath := ← initSrcSearchPath
   fileOptions   := Options.empty
   plugins       := #[]
 }
 
 def FileSetupResult.ofImportsOutOfDate : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.importsOutOfDate
-  srcSearchPath := ← initSrcSearchPath
   fileOptions   := Options.empty
   plugins       := #[]
 }
 
 def FileSetupResult.ofError (msg : String) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.error msg
-  srcSearchPath := ← initSrcSearchPath
   fileOptions   := Options.empty
   plugins       := #[]
 }
@@ -124,9 +118,8 @@ partial def setupFile (m : DocumentMeta) (imports : Array Import) (handleStderr 
       | return ← FileSetupResult.ofError s!"Invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
     initSearchPath (← getBuildDir) info.paths.oleanPath
     info.paths.loadDynlibPaths.forM loadDynlib
-    let pkgSearchPath ← info.paths.srcPath.mapM realPathNormalized
     let pluginPaths ← info.paths.pluginPaths.mapM realPathNormalized
-    FileSetupResult.ofSuccess pkgSearchPath info.setupOptions.toOptions pluginPaths
+    FileSetupResult.ofSuccess info.setupOptions.toOptions pluginPaths
   | 2 => -- exit code for lake reporting that there is no lakefile
     FileSetupResult.ofNoLakefile
   | 3 => -- exit code for `--no-build`

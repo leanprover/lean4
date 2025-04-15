@@ -19,13 +19,15 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ForeignType_noConfusion_
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instHashablePoly__lean___closed__1;
-LEAN_EXPORT uint64_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1208_(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCooperSplit___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedLeCnstr___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedLeCnstr___closed__6;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___spec__1;
+LEAN_EXPORT uint64_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1233_(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instHashableForeignType___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1215____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instBEqForeignType;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1233____boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedLeCnstr___closed__1;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashPoly____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_6____boxed(lean_object*);
@@ -47,7 +49,6 @@ LEAN_EXPORT uint64_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Le
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedDvdCnstr___closed__2;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___spec__1___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1208____boxed(lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ForeignType_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ForeignType_noConfusion___rarg___boxed(lean_object*);
@@ -55,18 +56,17 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1190_(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedDvdCnstr___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1190____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_ForeignType_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedLeCnstr;
+LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1215_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedLeCnstr___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___spec__1___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCooperSplit___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashPoly____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_6____closed__1;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCooperSplitPred;
 static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashPoly____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_6____closed__1() {
 _start:
@@ -396,7 +396,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1190_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1215_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -404,11 +404,11 @@ x_3 = 1;
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1190____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1215____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1190_(x_1, x_2);
+x_3 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1215_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -419,7 +419,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_instBEqForeignType___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1190____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_beqForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1215____boxed), 2, 0);
 return x_1;
 }
 }
@@ -431,7 +431,7 @@ x_1 = l_Lean_Meta_Grind_Arith_Cutsat_instBEqForeignType___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint64_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1208_(lean_object* x_1) {
+LEAN_EXPORT uint64_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1233_(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; 
@@ -439,11 +439,11 @@ x_2 = 0;
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1208____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1233____boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1208_(x_1);
+x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1233_(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
@@ -453,7 +453,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_instHashableForeignType
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1208____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types_0__Lean_Meta_Grind_Arith_Cutsat_hashForeignType____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_1233____boxed), 1, 0);
 return x_1;
 }
 }
@@ -496,7 +496,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -547,24 +547,25 @@ x_4 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_Arith_Cutsat_instInhab
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = 0;
 x_7 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___spec__1;
-x_8 = lean_alloc_ctor(0, 16, 1);
+x_8 = lean_alloc_ctor(0, 17, 1);
 lean_ctor_set(x_8, 0, x_3);
 lean_ctor_set(x_8, 1, x_4);
 lean_ctor_set(x_8, 2, x_4);
 lean_ctor_set(x_8, 3, x_4);
-lean_ctor_set(x_8, 4, x_3);
+lean_ctor_set(x_8, 4, x_4);
 lean_ctor_set(x_8, 5, x_3);
 lean_ctor_set(x_8, 6, x_3);
 lean_ctor_set(x_8, 7, x_3);
 lean_ctor_set(x_8, 8, x_3);
-lean_ctor_set(x_8, 9, x_1);
-lean_ctor_set(x_8, 10, x_3);
+lean_ctor_set(x_8, 9, x_3);
+lean_ctor_set(x_8, 10, x_1);
 lean_ctor_set(x_8, 11, x_3);
-lean_ctor_set(x_8, 12, x_5);
-lean_ctor_set(x_8, 13, x_2);
-lean_ctor_set(x_8, 14, x_4);
-lean_ctor_set(x_8, 15, x_7);
-lean_ctor_set_uint8(x_8, sizeof(void*)*16, x_6);
+lean_ctor_set(x_8, 12, x_3);
+lean_ctor_set(x_8, 13, x_5);
+lean_ctor_set(x_8, 14, x_2);
+lean_ctor_set(x_8, 15, x_4);
+lean_ctor_set(x_8, 16, x_7);
+lean_ctor_set_uint8(x_8, sizeof(void*)*17, x_6);
 return x_8;
 }
 }

@@ -165,6 +165,8 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
           -- no syntax guard to store, we already did the necessary checks
           oldBodySnap? := guard reuseBody *> pure ⟨.missing, old.bodySnap⟩
           if oldBodySnap?.isNone then
+            -- NOTE: this will eagerly cancel async tasks not associated with an inner snapshot, most
+            -- importantly kernel checking and compilation of the top-level declaration
             old.bodySnap.cancelRec
           oldTacSnap? := do
               guard reuseTac
@@ -217,6 +219,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             return newHeader
       if let some snap := view.headerSnap? then
         let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
+        let cancelTk? := (← readThe Core.Context).cancelTk?
         let bodySnap := {
           stx? := view.value
           reportingRange? :=
@@ -227,6 +230,8 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             else
               getBodyTerm? view.value |>.getD view.value |>.getRange?
           task := bodyPromise.resultD default
+          -- We should not cancel the entire body early if we have tactics
+          cancelTk? := guard newTacTask?.isNone *> cancelTk?
         }
         snap.new.resolve <| some {
           diagnostics :=
@@ -269,7 +274,8 @@ where
    := do
     if let some e := getBodyTerm? body then
       if let `(by $tacs*) := e then
-        return (e, some { stx? := mkNullNode tacs, task := tacPromise.resultD default })
+        let cancelTk? := (← readThe Core.Context).cancelTk?
+        return (e, some { stx? := mkNullNode tacs, task := tacPromise.resultD default, cancelTk? })
     tacPromise.resolve default
     return (none, none)
 
@@ -432,8 +438,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           snap.new.resolve <| some old
           reusableResult? := some (old.value, old.state)
         else
-          -- NOTE: this will eagerly cancel async tasks not associated with an inner snapshot, most
-          -- importantly kernel checking and compilation of the top-level declaration
+          -- make sure to cancel any async tasks that may still be running (e.g. kernel and codegen)
           old.val.cancelRec
 
     let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
@@ -1158,7 +1163,7 @@ is error-free and contains no syntactical `sorry`s.
 -/
 private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
-  if Lean.internal.cmdlineSnapshots.get (← getOptions) then
+  if Lean.Elab.inServer.get (← getOptions) then
     -- Skip 'goals accomplished' task if we are on the command line.
     -- These messages are only used in the language server.
     return
@@ -1197,6 +1202,7 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     -- Use first line of the mutual block to avoid covering the progress of the whole mutual block
     reportingRange? := (← getRef).getPos?.map fun pos => ⟨pos, pos⟩
     task := logGoalsAccomplishedTask
+    cancelTk? := none
   }
 
 end Term
@@ -1235,9 +1241,10 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       } }
       if snap.old?.isSome && (view.headerSnap?.bind (·.old?)).isNone then
         snap.old?.forM (·.val.cancelRec)
+      let cancelTk? := (← read).cancelTk?
       defs := defs.push {
         fullHeaderRef
-        headerProcessedSnap := { stx? := d, task := headerPromise.resultD default }
+        headerProcessedSnap := { stx? := d, task := headerPromise.resultD default, cancelTk? }
       }
       reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
     views := views.push view

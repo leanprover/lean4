@@ -80,22 +80,22 @@ where
   go (a : PArray Rat) : PArray Rat :=
     if a.size < sz then go (a.push 0) else a
 
-/-- Resets the assingment of any variable bigger or equal to `x`. -/
+/-- Resets the assignment of any variable bigger or equal to `x`. -/
 def resetAssignmentFrom (x : Var) : GoalM Unit := do
   modify' fun s => { s with assignment := shrink s.assignment x }
 
 def _root_.Int.Linear.Poly.pp (p : Poly) : GoalM MessageData := do
   match p with
   | .num k => return m!"{k}"
-  | .add 1 x p => go (quoteIfNotAtom (← getVar x)) p
-  | .add k x p => go m!"{k}*{quoteIfNotAtom (← getVar x)}" p
+  | .add 1 x p => go (quoteIfArithTerm (← getVar x)) p
+  | .add k x p => go m!"{k}*{quoteIfArithTerm (← getVar x)}" p
 where
   go (r : MessageData)  (p : Int.Linear.Poly) : GoalM MessageData := do
     match p with
     | .num 0 => return r
     | .num k => return m!"{r} + {k}"
-    | .add 1 x p => go m!"{r} + {quoteIfNotAtom (← getVar x)}" p
-    | .add k x p => go m!"{r} + {k}*{quoteIfNotAtom (← getVar x)}" p
+    | .add 1 x p => go m!"{r} + {quoteIfArithTerm (← getVar x)}" p
+    | .add k x p => go m!"{r} + {k}*{quoteIfArithTerm (← getVar x)}" p
 
 def _root_.Int.Linear.Poly.denoteExpr' (p : Poly) : GoalM Expr := do
   let vars ← getVars

@@ -6,9 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <vector>
-#include <unordered_map>
-#include <unordered_set>
 #include "runtime/object_ref.h"
+#include "util/alloc.h"
 
 namespace lean {
 extern "C" LEAN_EXPORT uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2);
@@ -32,9 +31,9 @@ protected:
     We use `m_cache` to ensure we do **not** traverse a DAG as a tree.
     We use pointer equality for this collection.
     */
-    std::unordered_map<lean_object *, lean_object *> m_cache;
+    lean::unordered_map<lean_object *, lean_object *> m_cache;
     /* Set of maximally shared terms. AKA hash-consing table. */
-    std::unordered_set<lean_object *, set_hash, set_eq> m_set;
+    lean::unordered_set<lean_object *, set_hash, set_eq> m_set;
     /*
     If `true`, `check_cache` will also check `m_set`.
     This is useful when the input term may contain terms that have already

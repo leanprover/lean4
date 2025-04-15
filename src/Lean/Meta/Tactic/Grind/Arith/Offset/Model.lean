@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind.Arith.Offset
 
-/-- Construct a model that statisfies all offset constraints -/
+/-- Construct a model that satisfies all offset constraints -/
 def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   let s := goal.arith.offset
   let dbg := grind.debug.get (← getOptions)
@@ -76,7 +76,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   r := r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
   if (← isTracingEnabledFor `grind.offset.model) then
     for (x, v) in r do
-      trace[grind.offset.model] "{quoteIfNotAtom x} := {v}"
+      trace[grind.offset.model] "{quoteIfArithTerm x} := {v}"
   return r
 
 end Lean.Meta.Grind.Arith.Offset

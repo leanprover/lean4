@@ -2,7 +2,7 @@ import Lean
 
 /-!
 Tests that simp applies the equational lemmas in order. In particular,
-a catch-all at the end is tried afte the others
+a catch-all at the end is tried after the others
 -/
 
 def foo : Bool → Nat → Nat

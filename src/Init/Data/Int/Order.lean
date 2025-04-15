@@ -329,9 +329,9 @@ protected theorem le_iff_lt_add_one {a b : Int} : a ≤ b ↔ a < b + 1 := by
 
 /- ### min and max -/
 
-protected theorem min_def (n m : Int) : min n m = if n ≤ m then n else m := rfl
+@[grind =] protected theorem min_def (n m : Int) : min n m = if n ≤ m then n else m := rfl
 
-protected theorem max_def (n m : Int) : max n m = if n ≤ m then m else n := rfl
+@[grind =] protected theorem max_def (n m : Int) : max n m = if n ≤ m then m else n := rfl
 
 @[simp] protected theorem neg_min_neg (a b : Int) : min (-a) (-b) = -max a b := by
   rw [Int.min_def, Int.max_def]
@@ -562,6 +562,16 @@ theorem natAbs_sub_of_nonneg_of_le {a b : Int} (h₁ : 0 ≤ b) (h₂ : b ≤ a)
   · rwa [← Int.ofNat_le, natAbs_of_nonneg h₁, natAbs_of_nonneg (Int.le_trans h₁ h₂)]
   · exact Int.sub_nonneg_of_le h₂
 
+theorem eq_zero_of_dvd_of_natAbs_lt_natAbs {d n : Int} (h : d ∣ n) (h₁ : n.natAbs < d.natAbs) :
+    n = 0 := by
+  let ⟨a, ha⟩ := h
+  subst ha
+  rw [natAbs_mul] at h₁
+  suffices ¬ 0 < a.natAbs by simp [Int.natAbs_eq_zero.1 (Nat.eq_zero_of_not_pos this)]
+  refine fun h => Nat.lt_irrefl _ (Nat.lt_of_le_of_lt ?_ h₁)
+  rw (occs := [1]) [← Nat.mul_one d.natAbs]
+  exact Nat.mul_le_mul (Nat.le_refl _) h
+
 /-! ### toNat -/
 
 theorem toNat_eq_max : ∀ a : Int, (toNat a : Int) = max a 0
@@ -598,6 +608,18 @@ theorem self_le_toNat (a : Int) : a ≤ toNat a := by rw [toNat_eq_max]; apply I
 theorem toNat_add {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : (a + b).toNat = a.toNat + b.toNat :=
   match a, b, eq_ofNat_of_zero_le ha, eq_ofNat_of_zero_le hb with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => rfl
+
+theorem toNat_mul {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : (a * b).toNat = a.toNat * b.toNat :=
+  match a, b, eq_ofNat_of_zero_le ha, eq_ofNat_of_zero_le hb with
+  | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => rfl
+
+/--
+Variant of `Int.toNat_sub` taking non-negativity hypotheses,
+rather than expecting the arguments to be casts of natural numbers.
+-/
+theorem toNat_sub'' {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : (a - b).toNat = a.toNat - b.toNat :=
+  match a, b, eq_ofNat_of_zero_le ha, eq_ofNat_of_zero_le hb with
+  | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => toNat_sub _ _
 
 theorem toNat_add_nat {a : Int} (ha : 0 ≤ a) (n : Nat) : (a + n).toNat = a.toNat + n :=
   match a, eq_ofNat_of_zero_le ha with | _, ⟨_, rfl⟩ => rfl

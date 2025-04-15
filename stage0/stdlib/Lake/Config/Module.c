@@ -170,7 +170,7 @@ static lean_object* l_Lake_Module_ileanFile___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Module_linkArgs(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Module_buildType(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_dynlibName(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_serverOptions(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_shouldPrecompile___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instToTextModule___lambda__1(lean_object* x_1) {
@@ -312,7 +312,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

@@ -67,6 +67,8 @@ structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Fu
   /-- The naturality square for a given morphism. -/
   naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by grind
 
+attribute [grind ext] NatTrans.ext -- TODO: remove after builtin extensionality for structures
+
 attribute [simp, grind =] NatTrans.naturality
 
 namespace NatTrans
@@ -102,6 +104,8 @@ namespace NatTrans
 
 @[ext]
 theorem ext' {α β : F ⟶ G} (w : α.app = β.app) : α = β := NatTrans.ext w
+
+attribute [grind ext] ext'
 
 @[simp, grind =]
 theorem id_app (F : Functor C D) (X : C) : (𝟙 F : F ⟶ F).app X = 𝟙 (F.obj X) := rfl
@@ -168,7 +172,7 @@ variable {C : Type u} [Category.{v} C] {X Y Z : C}
 
 namespace Iso
 
-@[ext]
+@[ext, grind ext]
 theorem ext ⦃α β : X ≅ Y⦄ (w : α.hom = β.hom) : α = β :=
   suffices α.inv = β.inv by grind [Iso]
   calc

@@ -2021,7 +2021,7 @@ static lean_object* l___regBuiltin_Int16_reduceLT_declare__1____x40_Lean_Meta_Ta
 static lean_object* l_ISize_reduceToNatClampNeg___lambda__1___closed__3;
 static lean_object* l___regBuiltin_Int64_reduceOfInt_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt___hyg_18032____closed__2;
 LEAN_EXPORT lean_object* l_Int8_reduceBNe____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt___hyg_9811_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Int64_reduceOfInt_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt___hyg_18032_(lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Int8_reduceBEq_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt___hyg_9811__11255_(lean_object*);
 LEAN_EXPORT lean_object* l_Int16_reduceDiv___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2413,7 +2413,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

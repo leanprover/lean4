@@ -906,7 +906,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_numLitNoAntiquot_formatter(lean_obje
 static lean_object* l_Lean_Parser___aux__Lean__Parser__Extra______macroRules__Lean__Parser__termRegister__parser__alias_x28Kind_x3a_x3d___x29______________1___lambda__1___closed__72;
 static lean_object* l_Lean_Parser_antiquotExpr_formatter___closed__2;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_ppRealFill_docString__1(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Parser___aux__Lean__Parser__Extra______macroRules__Lean__Parser__termRegister__parser__alias_x28Kind_x3a_x3d___x29______________1___lambda__1___closed__58;
 static lean_object* l_Lean_Parser___aux__Lean__Parser__Extra______macroRules__Lean__Parser__termRegister__parser__alias_x28Kind_x3a_x3d___x29______________1___lambda__1___closed__7;
 static lean_object* l_Lean_Parser_antiquotExpr_formatter___closed__1;
@@ -5575,7 +5575,7 @@ lean_dec(x_9);
 x_12 = l_Lean_Syntax_getArgs(x_10);
 lean_dec(x_10);
 x_13 = lean_array_get_size(x_12);
-x_14 = l_Array_emptyWithCapacity(lean_box(0), x_13);
+x_14 = lean_mk_empty_array_with_capacity(x_13);
 x_15 = lean_unsigned_to_nat(0u);
 lean_inc(x_13);
 x_16 = l_Array_mapFinIdxM_map___at_Lean_Parser_sepByIndent_formatter___spec__1(x_12, x_12, x_13, x_15, lean_box(0), x_14);
@@ -8337,7 +8337,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

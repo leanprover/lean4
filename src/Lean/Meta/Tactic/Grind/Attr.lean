@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.Meta.Tactic.Grind.Cases
+import Lean.Meta.Tactic.Grind.ExtAttr
 
 namespace Lean.Meta.Grind
 
@@ -14,6 +15,7 @@ inductive AttrKind where
   | cases (eager : Bool)
   | intro
   | infer
+  | ext
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
@@ -34,6 +36,7 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod| cases) => return .cases false
   | `(Parser.Attr.grindMod| cases eager) => return .cases true
   | `(Parser.Attr.grindMod| intro) => return .intro
+  | `(Parser.Attr.grindMod| ext) => return .ext
   | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
 
 /-- Return theorem kind for `stx` of the form `(Attr.grindMod)?` -/
@@ -78,12 +81,13 @@ builtin_initialize
             addEMatchAttr ctor attrKind .default
         else
           throwError "invalid `[grind intro]`, `{declName}` is not an inductive predicate"
+      | .ext => addExtAttr declName attrKind
       | .infer =>
         if let some declName ← isCasesAttrCandidate? declName false then
           addCasesAttr declName false attrKind
           if let some info ← isInductivePredicate? declName then
             -- If it is an inductive predicate,
-            -- we also add the contructors (intro rules) as E-matching rules
+            -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
               addEMatchAttr ctor attrKind .default
         else
@@ -91,6 +95,8 @@ builtin_initialize
     erase := fun declName => MetaM.run' do
       if (← isCasesAttrCandidate declName false) then
         eraseCasesAttr declName
+      else if (← isExtTheorem declName) then
+        eraseExtAttr declName
       else
         eraseEMatchAttr declName
   }

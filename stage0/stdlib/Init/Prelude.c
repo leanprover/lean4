@@ -74,7 +74,6 @@ LEAN_EXPORT lean_object* l_instHOrOfOrOp(lean_object*);
 LEAN_EXPORT lean_object* l_USize_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadReaderOfOfMonadLift___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_throwUnsupported___boxed(lean_object*, lean_object*);
-static lean_object* l_Array_emptyWithCapacity___closed__1;
 LEAN_EXPORT lean_object* l_instHAddPosString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_defaultMaxRecDepth;
 LEAN_EXPORT lean_object* l_Lean_SourceInfo_getPos_x3f___boxed(lean_object*, lean_object*);
@@ -913,7 +912,7 @@ LEAN_EXPORT lean_object* l_instHAdd___rarg(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Nat_pow___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHAddPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedList(lean_object*);
 LEAN_EXPORT uint8_t l_Fin_decLe___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_choiceKind___closed__1;
@@ -4566,28 +4565,11 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Array_emptyWithCapacity___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_array_mk(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Array_emptyWithCapacity(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Array_emptyWithCapacity___closed__1;
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Array_emptyWithCapacity___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Array_emptyWithCapacity(x_1, x_2);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -4597,7 +4579,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -4698,7 +4680,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -4724,7 +4706,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -4751,7 +4733,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -4779,7 +4761,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(4u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -4808,7 +4790,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(5u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -4838,7 +4820,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(6u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -4869,7 +4851,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(7u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -4901,7 +4883,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -5085,7 +5067,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_nat_sub(x_4, x_2);
 lean_dec(x_4);
-x_7 = l_Array_emptyWithCapacity(lean_box(0), x_6);
+x_7 = lean_mk_empty_array_with_capacity(x_6);
 x_8 = l_Array_extract_loop___rarg(x_1, x_6, x_2, x_7);
 return x_8;
 }
@@ -5094,7 +5076,7 @@ else
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_dec(x_4);
 x_9 = lean_nat_sub(x_3, x_2);
-x_10 = l_Array_emptyWithCapacity(lean_box(0), x_9);
+x_10 = lean_mk_empty_array_with_capacity(x_9);
 x_11 = l_Array_extract_loop___rarg(x_1, x_9, x_2, x_10);
 return x_11;
 }
@@ -12104,8 +12086,6 @@ l_instLEPos = _init_l_instLEPos();
 lean_mark_persistent(l_instLEPos);
 l_instLTPos = _init_l_instLTPos();
 lean_mark_persistent(l_instLTPos);
-l_Array_emptyWithCapacity___closed__1 = _init_l_Array_emptyWithCapacity___closed__1();
-lean_mark_persistent(l_Array_emptyWithCapacity___closed__1);
 l_Array_empty___closed__1 = _init_l_Array_empty___closed__1();
 lean_mark_persistent(l_Array_empty___closed__1);
 l_Array_mkArray1___rarg___closed__1 = _init_l_Array_mkArray1___rarg___closed__1();

@@ -193,8 +193,6 @@ example {a₁ a₂ p₁ p₂ : Nat}
 example {i : Nat} (h1 : i < 330) (_h2 : 7 ∣ (660 + i) * (1319 - i)) : 1319 - i < 1979 := by
   grind
 
-attribute [grind =] Int.min_def Int.max_def Nat.max_def Nat.min_def
-
 example {a : Int} (_ : a < min a b) : False := by grind
 example {a : Int} (_ : max a b < b) : False := by grind
 example {a : Nat} (_ : a < min a b) : False := by grind

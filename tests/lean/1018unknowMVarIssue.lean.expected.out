@@ -60,8 +60,8 @@ a : α
         • Fam2.any : Fam2 α α @ ⟨9, 4⟩†-⟨9, 12⟩†
           • α : Type @ ⟨9, 4⟩†-⟨9, 12⟩†
         • a (isBinder := true) : α @ ⟨8, 2⟩†-⟨10, 19⟩†
-        • FVarAlias a: _uniq.596 -> _uniq.323
-        • FVarAlias α: _uniq.595 -> _uniq.321
+        • FVarAlias a: _uniq.608 -> _uniq.325
+        • FVarAlias α: _uniq.607 -> _uniq.323
         • ?m x α a : α @ ⟨9, 18⟩-⟨9, 19⟩ @ Lean.Elab.Term.elabHole
         • [.] Fam2.nat : none @ ⟨10, 4⟩-⟨10, 12⟩
         • Fam2.nat : Nat → Fam2 Nat Nat @ ⟨10, 4⟩-⟨10, 12⟩
@@ -75,8 +75,8 @@ a : α
         • Fam2.nat n : Fam2 Nat Nat @ ⟨10, 4⟩†-⟨10, 14⟩
           • n (isBinder := true) : Nat @ ⟨10, 13⟩-⟨10, 14⟩
         • a (isBinder := true) : Nat @ ⟨8, 2⟩†-⟨10, 19⟩†
-        • FVarAlias a: _uniq.627 -> _uniq.323
-        • FVarAlias n: _uniq.626 -> _uniq.321
+        • FVarAlias a: _uniq.639 -> _uniq.325
+        • FVarAlias n: _uniq.638 -> _uniq.323
         • n : Nat @ ⟨10, 18⟩-⟨10, 19⟩ @ Lean.Elab.Term.elabIdent
           • [.] n : some Nat @ ⟨10, 18⟩-⟨10, 19⟩
           • n : Nat @ ⟨10, 18⟩-⟨10, 19⟩

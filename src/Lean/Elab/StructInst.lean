@@ -112,7 +112,7 @@ private def expandStructInstField (stx : Syntax) : MacroM (Option Syntax) := wit
 
 /--
 Expands fields.
-* Abbrevations. Example: `{ x }` expands to `{ x := x }`.
+* Abbreviations. Example: `{ x }` expands to `{ x := x }`.
 * Equations. Example: `{ f | 0 => 0 | n + 1 => n }` expands to `{ f := fun x => match x with | 0 => 0 | n + 1 => n }`.
 * Binders and types. Example: `{ f n : Nat := n + 1 }` expands to `{ f := fun n => (n + 1 : Nat) }`.
 -/

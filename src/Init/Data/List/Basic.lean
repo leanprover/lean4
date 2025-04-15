@@ -2048,10 +2048,10 @@ def sum {α} [Add α] [Zero α] : List α → α :=
 protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
 
 set_option linter.deprecated false in
-@[simp, deprecated sum_nil (since := "2024-10-17")]
+@[deprecated sum_nil (since := "2024-10-17")]
 theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
 set_option linter.deprecated false in
-@[simp, deprecated sum_cons (since := "2024-10-17")]
+@[deprecated sum_cons (since := "2024-10-17")]
 theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
     Nat.sum (a::l) = a + Nat.sum l := rfl
 

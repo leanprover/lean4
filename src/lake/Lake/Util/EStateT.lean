@@ -11,6 +11,8 @@ namespace Lake
 /--
 `EResult ε σ α` is equivalent to `Except ε α × σ`, but using a single
 combined inductive yields a more efficient data representation.
+
+This is a universe-polymorphic version of `EStateM.Result`.
 -/
 inductive EResult (ε : Type u) (σ : Type v) (α : Type w) : Type max u v w
 /-- A success value of type `α`, and a new state `σ`. -/
@@ -68,6 +70,14 @@ protected def EResult.map (f : α → β) : EResult ε σ α → EResult ε σ �
 
 instance : Functor (EResult ε σ) where
   map := EResult.map
+
+def EResult.toEStateMResult : EResult ε σ α → EStateM.Result ε σ α
+| .ok a s => .ok a s
+| .error e s => .error e s
+
+def EResult.ofEStateMResult : EStateM.Result ε σ α → EResult ε σ α
+| .ok a s => .ok a s
+| .error e s => .error e s
 
 /--
 `EStateT ε σ m` is a combined error and state monad transformer,
@@ -232,3 +242,11 @@ instance [Monad m] : MonadFinally (EStateT ε σ m) where
     | .error e₁ s => match (← h none s) with
       | .ok _ s => return .error e₁ s
       | .error e₂ s => return .error e₂ s
+
+/-- `EStateM` is analogous to `Lake.EStateT` with `m := Id`. -/
+def ofEStateM {ε σ α} (f : EStateM ε σ α) : Lake.EStateT ε σ Id α :=
+  fun s => return .ofEStateMResult <| f s
+
+/-- `Lake.EStateT` with `m := Id` and all the types in the same universe is analogous to `EStateM`. -/
+def toEStateM {ε σ α} (f : Lake.EStateT ε σ Id α) : EStateM ε σ α :=
+  fun s => (f s).run.toEStateMResult

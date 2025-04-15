@@ -182,7 +182,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_mutualName(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_varyingVarNames___lambda__2___closed__1;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_packCalls___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_varyingVarNames___lambda__2___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_withAppN___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -730,7 +730,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -1636,7 +1636,7 @@ _start:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_14 = lean_array_get_size(x_1);
-x_15 = l_Array_emptyWithCapacity(lean_box(0), x_14);
+x_15 = lean_mk_empty_array_with_capacity(x_14);
 x_16 = lean_unsigned_to_nat(0u);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -3764,7 +3764,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = lean_array_get_size(x_2);
-x_14 = l_Array_emptyWithCapacity(lean_box(0), x_13);
+x_14 = lean_mk_empty_array_with_capacity(x_13);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = l_Array_mapFinIdxM_map___at_Lean_Elab_WF_preDefsFromUnaryNonRec___spec__1(x_3, x_4, x_2, x_1, x_5, x_2, x_13, x_15, lean_box(0), x_14, x_6, x_7, x_8, x_9, x_12);
 return x_16;

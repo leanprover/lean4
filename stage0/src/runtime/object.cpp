@@ -910,6 +910,9 @@ public:
             return;
         // see `Task.get`
         bool in_pool = g_current_task_object && g_current_task_object->m_imp->m_prio <= LEAN_MAX_PRIO;
+        if (g_current_task_object && g_current_task_object->m_imp->m_prio == LEAN_SYNC_PRIO) {
+            lean_panic("`Task.get` called from a `(sync := true)` task");
+        }
         if (in_pool) {
             m_max_std_workers++;
             if (m_idle_std_workers == 0)

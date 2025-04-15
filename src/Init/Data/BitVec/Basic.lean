@@ -228,6 +228,20 @@ protected def mul (x y : BitVec n) : BitVec n := BitVec.ofNat n (x.toNat * y.toN
 instance : Mul (BitVec n) := ⟨.mul⟩
 
 /--
+Raises a bitvector to a natural number power. Usually accessed via the `^` operator.
+
+Note that this is currently an inefficient implementation,
+and should be replaced via an `@[extern]` with a native implementation.
+See https://github.com/leanprover/lean4/issues/7887.
+-/
+protected def pow (x : BitVec n) (y : Nat) : BitVec n :=
+  match y with
+  | 0 => 1
+  | y + 1 => x.pow y * x
+instance : Pow (BitVec n) Nat where
+  pow x y := x.pow y
+
+/--
 Unsigned division of bitvectors using the Lean convention where division by zero returns zero.
 Usually accessed via the `/` operator.
 -/

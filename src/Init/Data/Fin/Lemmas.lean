@@ -976,6 +976,16 @@ theorem coe_sub_iff_lt {a b : Fin n} : (↑(a - b) : Nat) = n + a - b ↔ a < b 
 
 /-! ### mul -/
 
+theorem ofNat'_mul [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat' n x * y = Fin.ofNat' n (x * y.val) := by
+  apply Fin.eq_of_val_eq
+  simp [Fin.ofNat', Fin.mul_def]
+
+theorem mul_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
+    x * Fin.ofNat' n y = Fin.ofNat' n (x.val * y) := by
+  apply Fin.eq_of_val_eq
+  simp [Fin.ofNat', Fin.mul_def]
+
 theorem val_mul {n : Nat} : ∀ a b : Fin n, (a * b).val = a.val * b.val % n
   | ⟨_, _⟩, ⟨_, _⟩ => rfl
 

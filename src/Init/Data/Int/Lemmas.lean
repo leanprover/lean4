@@ -377,6 +377,11 @@ theorem toNat_of_nonpos : ∀ {z : Int}, z ≤ 0 → z.toNat = 0
 @[simp] theorem negSucc_add_one_eq_neg_ofNat_iff {a b : Nat} : -[a+1] + 1 = - (b : Int) ↔ a = b := by
   rw [eq_comm, neg_ofNat_eq_negSucc_add_one_iff, eq_comm]
 
+protected theorem sub_eq_iff_eq_add {b a c : Int} : a - b = c ↔ a = c + b := by
+  refine ⟨fun h => ?_, fun h => ?_⟩ <;> subst h <;> simp
+protected theorem sub_eq_iff_eq_add' {b a c : Int} : a - b = c ↔ a = b + c := by
+  rw [Int.sub_eq_iff_eq_add, Int.add_comm]
+
 /- ## add/sub injectivity -/
 
 @[simp] protected theorem add_left_inj {i j : Int} (k : Int) : (i + k = j + k) ↔ i = j := by

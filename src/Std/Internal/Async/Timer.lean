@@ -101,9 +101,9 @@ If:
 - `i` is already running and:
   - the tick from the last call of `i` has not yet finished return the same `AsyncTask` as the last
     call
-  - the tick frrom the last call of `i` has finished return a new `AsyncTask` that waits for the
+  - the tick from the last call of `i` has finished return a new `AsyncTask` that waits for the
     closest next tick from the time of calling this function.
-- `i` is not running aymore this is a no-op.
+- `i` is not running anymore this is a no-op.
 -/
 @[inline]
 def tick (i : Interval) : IO (AsyncTask Unit) := do
@@ -122,7 +122,7 @@ def reset (i : Interval) : IO Unit :=
 
 /--
 If:
-- `i` is still running this stops `i` without resolving any remaing `AsyncTask` that were created
+- `i` is still running this stops `i` without resolving any remaining `AsyncTask` that were created
   through `tick`. Note that if another `AsyncTask` is binding on any of these it is going hang
   forever without further intervention.
 - `i` is not yet or not anymore running this is a no-op.

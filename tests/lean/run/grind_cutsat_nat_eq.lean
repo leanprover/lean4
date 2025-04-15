@@ -113,3 +113,13 @@ example (x y : Int) : x ^ 0 - y = 0 → y = 1 := by
 
 example (x y : Nat) : x ^ 0 + y = 0 → False := by
   grind
+
+/--
+info: [grind.cutsat.model] x := 4
+[grind.cutsat.model] y := 1
+-/
+#guard_msgs (info) in
+set_option trace.grind.cutsat.model true in
+example (x y : Nat) : x = y + 3 → y > 0 → False := by
+  fail_if_success grind
+  sorry

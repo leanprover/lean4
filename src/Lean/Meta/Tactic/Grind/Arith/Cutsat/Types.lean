@@ -85,12 +85,13 @@ inductive EqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreNat (a b : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | /-- `e` is `p` -/
+    defn (e : Expr) (p : Poly)
+  | defnNat (e : Int.OfNat.Expr) (x : Var) (e' : Int.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
-  | /-- `e` is `p` -/
-    defn (e : Expr) (p : Poly)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -236,6 +237,12 @@ structure State where
   -/
   foreignVarMap : PHashMap ENodeKey (Var × ForeignType) := {}
   foreignVars : PHashMap ForeignType (PArray Expr) := {}
+  /--
+  Some foreign variables encode nested terms such as `b+1`.
+  This is a mapping from this kind of variable to the integer variable
+  representing `natCast (b+1)`.
+  -/
+  foreignDef : PHashMap ENodeKey Var := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/

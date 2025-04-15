@@ -446,11 +446,13 @@ theorem findIdx?_eq_none_iff {xs : Array α} {p : α → Bool} :
   rcases xs with ⟨xs⟩
   simp
 
+@[simp]
 theorem findIdx?_isSome {xs : Array α} {p : α → Bool} :
     (xs.findIdx? p).isSome = xs.any p := by
   rcases xs with ⟨xs⟩
   simp [List.findIdx?_isSome]
 
+@[simp]
 theorem findIdx?_isNone {xs : Array α} {p : α → Bool} :
     (xs.findIdx? p).isNone = xs.all (¬p ·) := by
   rcases xs with ⟨xs⟩
@@ -584,12 +586,24 @@ theorem findFinIdx?_eq_some_iff {xs : Array α} {p : α → Bool} {i : Fin xs.si
     xs.findFinIdx? p = some i ↔
       p xs[i] ∧ ∀ j (hji : j < i), ¬p (xs[j]'(Nat.lt_trans hji i.2)) := by
   simp only [findFinIdx?_eq_pmap_findIdx?, Option.pmap_eq_some_iff, findIdx?_eq_some_iff_getElem,
-    Bool.not_eq_true, Option.mem_def, exists_and_left, and_exists_self, Fin.getElem_fin]
+    Bool.not_eq_true, exists_and_left, and_exists_self, Fin.getElem_fin]
   constructor
   · rintro ⟨a, ⟨h, w₁, w₂⟩, rfl⟩
     exact ⟨w₁, fun j hji => by simpa using w₂ j hji⟩
   · rintro ⟨h, w⟩
     exact ⟨i, ⟨i.2, h, fun j hji => w ⟨j, by omega⟩ hji⟩, rfl⟩
+
+@[simp]
+theorem isSome_findFinIdx? {xs : Array α} {p : α → Bool} :
+    (xs.findFinIdx? p).isSome = xs.any p := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp]
+theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
+    (xs.findFinIdx? p).isNone = xs.all (fun x => ¬ p x) := by
+  rcases xs with ⟨xs⟩
+  simp
 
 @[simp] theorem findFinIdx?_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
@@ -636,6 +650,20 @@ The lemmas below should be made consistent with those for `findIdx?` (and proved
   rcases xs with ⟨xs⟩
   simp [List.idxOf?_eq_none_iff]
 
+@[simp]
+theorem isSome_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+    (xs.idxOf? a).isSome ↔ a ∈ xs := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp]
+theorem isNone_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+    (xs.idxOf? a).isNone = ¬ a ∈ xs := by
+  rcases xs with ⟨xs⟩
+  simp
+
+
+
 /-! ### finIdxOf?
 
 The verification API for `finIdxOf?` is still incomplete.
@@ -657,5 +685,17 @@ theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
     xs.finIdxOf? a = some i ↔ xs[i] = a ∧ ∀ j (_ : j < i), ¬xs[j] = a := by
   rcases xs with ⟨xs⟩
   simp [List.finIdxOf?_eq_some_iff]
+
+@[simp]
+theorem isSome_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+    (xs.finIdxOf? a).isSome ↔ a ∈ xs := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp]
+theorem isNone_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+    (xs.finIdxOf? a).isNone = ¬ a ∈ xs := by
+  rcases xs with ⟨xs⟩
+  simp
 
 end Array

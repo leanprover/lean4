@@ -148,7 +148,7 @@ static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepea
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__15;
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_doElemWhile__Do_____closed__4;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_doElemRepeat____Until_____closed__14;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn(lean_object*, lean_object*);
@@ -520,7 +520,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

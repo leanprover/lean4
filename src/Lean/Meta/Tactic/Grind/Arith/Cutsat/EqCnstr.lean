@@ -38,12 +38,12 @@ def DiseqCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : Di
   let p := c₁.p
   let q := c₂.p
   let p := p.mul b |>.combine (q.mul (-a))
-  trace[grind.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
+  trace[grind.debug.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
   return { p, h := .subst x c₁ c₂ }
 
 partial def DiseqCnstr.applySubsts (c : DiseqCnstr) : GoalM DiseqCnstr := withIncRecDepth do
   let some (x, c₁, p) ← c.p.substVar | return c
-  trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
+  trace[grind.debug.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
   applySubsts { p, h := .subst x c₁ c }
 
 /--
@@ -68,10 +68,11 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm.applySubsts
   if c.p.isUnsatDiseq then
+    trace[grind.cutsat.assert.unsat] "{← c.pp}"
     setInconsistent (.diseq c)
     return ()
   if c.isTrivial then
-    trace[grind.cutsat.diseq.trivial] "{← c.pp}"
+    trace[grind.cutsat.assert.trivial] "{← c.pp}"
     return ()
   let k := c.p.gcdCoeffs c.p.getConst
   let c := if k == 1 then
@@ -82,7 +83,7 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
     return ()
   let .add _ x _ := c.p | c.throwUnexpected
   c.p.updateOccs
-  trace[grind.cutsat.diseq] "{← c.pp}"
+  trace[grind.cutsat.assert.store] "{← c.pp}"
   modify' fun s => { s with diseqs := s.diseqs.modify x (·.push c) }
   if (← c.satisfied) == .false then
     resetAssignmentFrom x
@@ -108,7 +109,7 @@ where
 
 partial def EqCnstr.applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth do
   let some (x, c₁, p) ← c.p.substVar | return c
-  trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
+  trace[grind.debug.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
   applySubsts { p, h := .subst x c₁ c : EqCnstr }
 
 private def updateDvdCnstr (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
@@ -197,10 +198,11 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm.applySubsts
   if c.p.isUnsatEq then
+    trace[grind.cutsat.assert.unsat] "{← c.pp}"
     setInconsistent (.eq c)
     return ()
   if c.isTrivial then
-    trace[grind.cutsat.eq.trivial] "{← c.pp}"
+    trace[grind.cutsat.assert.trivial] "{← c.pp}"
     return ()
   let k := c.p.gcdCoeffs'
   if c.p.getConst % k > 0 then
@@ -210,9 +212,9 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
     c
   else
     { p := c.p.div k, h := .divCoeffs c }
-  trace[grind.cutsat.eq] "{← c.pp}"
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
   trace[grind.debug.cutsat.subst] ">> {← getVar x}, {← c.pp}"
+  trace[grind.cutsat.assert.store] "{← c.pp}"
   modify' fun s => { s with
     elimEqs := s.elimEqs.set x (some c)
     elimStack := x :: s.elimStack
@@ -252,7 +254,6 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.eq] "{a} = {b}"
   match (← foreignTerm? a), (← foreignTerm? b) with
   | none, none => processNewIntEq a b
   | some .nat, some .nat => processNewNatEq a b
@@ -271,7 +272,6 @@ private def processNewIntLitEq (a ke : Expr) : GoalM Unit := do
 
 @[export lean_process_cutsat_eq_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.eq] "{a} = {ke}"
   match (← foreignTerm? a) with
   | none => processNewIntLitEq a ke
   | some .nat => processNewNatEq a ke
@@ -294,12 +294,10 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
   let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
   let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : DiseqCnstr }
-  trace[grind.debug.cutsat.nat] "{← c.pp}"
   c.assert
 
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
   match (← foreignTerm? a), (← foreignTermOrLit? b) with
   | none, none => processNewIntDiseq a b
   | some .nat, some .nat => processNewNatDiseq a b
@@ -342,7 +340,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
 private def internalizeInt (e : Expr) : GoalM Unit := do
   if (← hasVar e) then return ()
   let p ← toPoly e
-  trace[grind.cutsat.internalize] "{aquote e}:= {← p.pp}"
+  trace[grind.debug.cutsat.internalize] "{aquote e}:= {← p.pp}"
   let x ← mkVar e
   if p == .add 1 x (.num 0) then
     -- It is pointless to assert `x = x`
@@ -390,6 +388,26 @@ private def propagateToNat (e : Expr) : GoalM Unit := do
   let_expr Int.toNat a := e | return ()
   pushNewFact <| mkApp (mkConst ``Int.OfNat.ofNat_toNat) a
 
+private def internalizeNat (e : Expr) : GoalM Unit := do
+  let e' : Int.OfNat.Expr ← Int.OfNat.toOfNatExpr e
+  let gen ← getGeneration e
+  let ctx ← getForeignVars .nat
+  let e'' : Expr ← e'.denoteAsIntExpr ctx
+  -- If `e''` is of the form `NatCast.natCast e`, then it is wasteful to
+  -- assert an equality
+  match_expr e'' with
+  | NatCast.natCast _ _ a => if e == a then return ()
+  | _ => pure ()
+  let e'' : Int.Linear.Expr ← toLinearExpr e'' gen
+  let p := e''.norm
+  let natCast_e ← shareCommon (mkIntNatCast e)
+  internalize natCast_e gen
+  trace[grind.debug.cutsat.internalize] "{aquote natCast_e}:= {← p.pp}"
+  let x ← mkVar natCast_e
+  modify' fun s => { s with foreignDef := s.foreignDef.insert { expr := e } x }
+  let c := { p := .add (-1) x p, h := .defnNat e' x e'' : EqCnstr }
+  c.assert
+
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
@@ -410,11 +428,13 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | .num => pure ()
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
+    if (← hasForeignVar e) then return ()
     discard <| mkForeignVar e .nat
     match k with
     | .sub => propagateNatSub e
     | .natAbs => propagateNatAbs e
     | .toNat => propagateToNat e
-    | _ => pure ()
+    | .num => pure ()
+    | _ => internalizeNat e
 
 end Lean.Meta.Grind.Arith.Cutsat

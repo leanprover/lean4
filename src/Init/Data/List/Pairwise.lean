@@ -118,9 +118,8 @@ theorem Pairwise.map {S : β → β → Prop} (f : α → β) (H : ∀ a b : α,
   pairwise_map.2 <| p.imp (H _ _)
 
 theorem pairwise_filterMap {f : β → Option α} {l : List β} :
-    Pairwise R (filterMap f l) ↔ Pairwise (fun a a' : β => ∀ b ∈ f a, ∀ b' ∈ f a', R b b') l := by
-  let _S (a a' : β) := ∀ b ∈ f a, ∀ b' ∈ f a', R b b'
-  simp only [Option.mem_def]
+    Pairwise R (filterMap f l) ↔ Pairwise (fun a a' : β => ∀ b, f a = some b → ∀ b', f a' = some b' → R b b') l := by
+  let _S (a a' : β) := ∀ b, f a = some b → ∀ b', f a' = some b' → R b b'
   induction l with
   | nil => simp only [filterMap, Pairwise.nil]
   | cons a l IH => ?_
@@ -134,7 +133,7 @@ theorem pairwise_filterMap {f : β → Option α} {l : List β} :
       ⟨fun h a ha b hab => h _ _ ha hab, fun h a b ha hab => h _ ha _ hab⟩
 
 theorem Pairwise.filterMap {S : β → β → Prop} (f : α → Option β)
-    (H : ∀ a a' : α, R a a' → ∀ b ∈ f a, ∀ b' ∈ f a', S b b') {l : List α} (p : Pairwise R l) :
+    (H : ∀ a a' : α, R a a' → ∀ b, f a = some b → ∀ b', f a' = some b' → S b b') {l : List α} (p : Pairwise R l) :
     Pairwise S (filterMap f l) :=
   pairwise_filterMap.2 <| p.imp (H _ _)
 

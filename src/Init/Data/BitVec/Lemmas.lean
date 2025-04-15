@@ -449,7 +449,7 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 @[simp] theorem sub_add_bmod_cancel {x y : BitVec w} :
     ((((2 ^ w : Nat) - y.toNat) : Int) + x.toNat).bmod (2 ^ w) =
       ((x.toNat : Int) - y.toNat).bmod (2 ^ w) := by
-  rw [Int.sub_eq_add_neg, Int.add_assoc, Int.add_comm, Int.bmod_add_cancel, Int.add_comm,
+  rw [Int.sub_eq_add_neg, Int.add_assoc, Int.add_comm, Int.add_bmod_right, Int.add_comm,
     Int.sub_eq_add_neg]
 
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
@@ -668,7 +668,7 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
 theorem toInt_ofInt_eq_self {w : Nat} (hw : 0 < w) {n : Int}
     (h : -2 ^ (w - 1) ≤ n) (h' : n < 2 ^ (w - 1)) : (BitVec.ofInt w n).toInt = n := by
   have hw : w = (w - 1) + 1 := by omega
-  rw [toInt_ofInt, Int.bmod_eq_self_of_le] <;> (rw [hw]; simp [Int.natCast_pow]; omega)
+  rw [toInt_ofInt, Int.bmod_eq_of_le] <;> (rw [hw]; simp [Int.natCast_pow]; omega)
 
 @[simp] theorem ofInt_natCast (w n : Nat) :
   BitVec.ofInt w (n : Int) = BitVec.ofNat w n := rfl
@@ -2334,7 +2334,7 @@ theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
     have := @toInt_shiftRight_lt w x n
     have := @le_toInt_shiftRight w x n
     norm_cast at *
-    exact Int.bmod_eq_self_of_le (by omega) (by omega)
+    exact Int.bmod_eq_of_le (by omega) (by omega)
 
 /-! ### sshiftRight reductions from BitVec to Nat -/
 
@@ -2659,6 +2659,63 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   ext i ih
   rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
   simp [show i < w by omega]
+
+theorem toInt_append {x : BitVec n} {y : BitVec m} :
+    (x ++ y).toInt = if n == 0 then y.toInt else (2 ^ m) * x.toInt + y.toNat := by
+  by_cases n0 : n = 0
+  · subst n0
+    simp [BitVec.eq_nil x, BitVec.toInt]
+  · by_cases m0 : m = 0
+    · subst m0
+      simp [BitVec.eq_nil y, n0]
+    · simp only [beq_iff_eq, n0, ↓reduceIte]
+      by_cases x.msb
+      case pos h =>
+        rw [toInt_eq_msb_cond]
+        simp only [show ((x ++ y).msb = true) by simp [msb_append, n0, h], ↓reduceIte, toNat_append,
+          Nat.pow_add, ← Nat.shiftLeft_eq, toInt_eq_msb_cond, h]
+        rw_mod_cast [← Nat.shiftLeft_add_eq_or_of_lt (by omega), Nat.shiftLeft_eq, Nat.shiftLeft_eq,
+          Nat.mul_comm, Int.mul_sub]
+        norm_cast
+        rw [Int.natCast_add, Nat.mul_comm (n := 2 ^ n)]
+        omega
+      case neg h =>
+        rw [Bool.not_eq_true] at h
+        rw [toInt_eq_toNat_of_msb h, toInt_eq_toNat_of_msb (by simp [msb_append, n0, h])]
+        rw_mod_cast [toNat_append, ← Nat.shiftLeft_add_eq_or_of_lt (by omega), Nat.shiftLeft_eq,
+          Nat.mul_comm]
+
+@[simp] theorem toInt_append_zero {n m : Nat} {x : BitVec n} :
+    (x ++ 0#m).toInt = (2 ^ m) * x.toInt := by
+  simp only [toInt_append, beq_iff_eq, toInt_zero, toNat_ofNat, Nat.zero_mod, Int.cast_ofNat_Int, Int.add_zero,
+    ite_eq_right_iff]
+  intros h
+  subst h
+  simp [BitVec.eq_nil x]
+
+@[simp] theorem toInt_zero_append {n m : Nat} {x : BitVec n} :
+    (0#m ++ x).toInt = if m = 0 then x.toInt else x.toNat := by
+  simp [toInt_append]
+
+/--
+Show that `(x.toNat <<< n) ||| y.toNat` is within bounds of `BitVec (m + n)`.
+-/
+theorem toNat_shiftLeft_or_toNat_lt_two_pow_add {m n : Nat} (x : BitVec m) (y : BitVec n) :
+    x.toNat <<< n ||| y.toNat < 2 ^ (m + n) := by
+  have hnLe : 2^n ≤ 2 ^(m + n) := by
+    rw [Nat.pow_add]
+    exact Nat.le_mul_of_pos_left (2 ^ n) (Nat.two_pow_pos m)
+  apply Nat.or_lt_two_pow
+  · have := Nat.two_pow_pos n
+    rw [Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right]
+    <;> omega
+  · omega
+
+@[simp] theorem toFin_append {x : BitVec m} {y : BitVec n} :
+    (x ++ y).toFin =
+      @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) (toNat_shiftLeft_or_toNat_lt_two_pow_add x y) := by
+  ext
+  simp
 
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = y.cast (by omega) := by
   ext i ih
@@ -3299,7 +3356,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
     simp only [Nat.add_one_sub_one]
     constructor
     · intros h
-      rw_mod_cast [← Int.bmod_add_cancel, Int.bmod_eq_self_of_le]
+      rw_mod_cast [← Int.add_bmod_right, Int.bmod_eq_of_le]
       <;> omega
     · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
       push_cast at this
@@ -3316,7 +3373,7 @@ theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
     constructor
     · intros h
       simp only [show 0 ≤ x.toInt by omega, show y.toInt < 0 by omega, _root_.true_and]
-      rw_mod_cast [← Int.bmod_sub_cancel, Int.bmod_eq_self_of_le (by omega) (by omega)]
+      rw_mod_cast [← Int.sub_bmod_right, Int.bmod_eq_of_le (by omega) (by omega)]
       omega
     · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
       push_cast at this
@@ -3596,6 +3653,13 @@ theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := b
 @[simp, bitvec_to_nat] theorem toNat_mul (x y : BitVec n) : (x * y).toNat = (x.toNat * y.toNat) % 2 ^ n := rfl
 @[simp] theorem toFin_mul (x y : BitVec n) : (x * y).toFin = (x.toFin * y.toFin) := rfl
 
+theorem ofNat_mul {n} (x y : Nat) : BitVec.ofNat n (x * y) = BitVec.ofNat n x * BitVec.ofNat n y := by
+  apply eq_of_toNat_eq
+  simp [BitVec.ofNat, Fin.ofNat'_mul]
+
+theorem ofNat_mul_ofNat {n} (x y : Nat) : BitVec.ofNat n x * BitVec.ofNat n y = BitVec.ofNat n (x * y) :=
+  (ofNat_mul x y).symm
+
 protected theorem mul_comm (x y : BitVec w) : x * y = y * x := by
   apply eq_of_toFin_eq; simpa using Fin.mul_comm ..
 instance : Std.Commutative (fun (x y : BitVec w) => x * y) := ⟨BitVec.mul_comm⟩
@@ -3688,6 +3752,22 @@ theorem setWidth_mul (x y : BitVec w) (h : i ≤ w) :
     (x * y).setWidth i = x.setWidth i * y.setWidth i := by
   have dvd : 2^i ∣ 2^w := Nat.pow_dvd_pow _ h
   simp [bitvec_to_nat, h, Nat.mod_mod_of_dvd _ dvd]
+
+/-! ### pow -/
+
+@[simp]
+protected theorem pow_zero {x : BitVec w} : x ^ 0 = 1#w := rfl
+
+protected theorem pow_succ {x : BitVec w} : x ^ (n + 1) = x ^ n * x := rfl
+
+@[simp]
+protected theorem pow_one {x : BitVec w} : x ^ 1 = x := by simp [BitVec.pow_succ]
+
+protected theorem pow_add {x : BitVec w} {n m : Nat}: x ^ (n + m) = (x ^ n) * (x ^ m):= by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+    rw [← Nat.add_assoc, BitVec.pow_succ, ih, BitVec.mul_assoc, BitVec.pow_succ]
 
 /-! ### le and lt -/
 
@@ -5072,7 +5152,7 @@ theorem two_pow_le_toInt_mul_toInt_iff {x y : BitVec w} :
       toInt_intMax, Nat.add_one_sub_one]
     push_cast
     rw [← Nat.two_pow_pred_add_two_pow_pred (by omega),
-      Int.bmod_eq_self_of_le_mul_two (by rw [← Nat.mul_two]; push_cast; omega)
+      Int.bmod_eq_of_le_mul_two (by rw [← Nat.mul_two]; push_cast; omega)
                               (by rw [← Nat.mul_two]; push_cast; omega)]
     omega
 
@@ -5089,7 +5169,7 @@ theorem toInt_mul_toInt_lt_neg_two_pow_iff {x y : BitVec w} :
     simp only [toInt_twoPow, show ¬w + 1 ≤ w by omega, ↓reduceIte]
     push_cast
     rw [← Nat.two_pow_pred_add_two_pow_pred (by omega),
-      Int.bmod_eq_self_of_le_mul_two (by rw [← Nat.mul_two]; push_cast; omega)
+      Int.bmod_eq_of_le_mul_two (by rw [← Nat.mul_two]; push_cast; omega)
                               (by rw [← Nat.mul_two]; push_cast; omega)]
 
 /-! ### neg -/

@@ -290,7 +290,7 @@ syntax (name := allGoals) "all_goals " tacticSeq : tactic
 
 /--
 `any_goals tac` applies the tactic `tac` to every goal,
-concating the resulting goals for successful tactic applications.
+concatenating the resulting goals for successful tactic applications.
 If the tactic fails on all of the goals, the entire `any_goals` tactic fails.
 
 This tactic is like `all_goals try tac` except that it fails if none of the applications of `tac` succeeds.
@@ -1621,7 +1621,8 @@ syntax (name := rewrites?) "rw?" (ppSpace location)? (rewrites_forbidden)? : tac
 
 /--
 `show_term tac` runs `tac`, then prints the generated term in the form
-"exact X Y Z" or "refine X ?_ Z" if there are remaining subgoals.
+"exact X Y Z" or "refine X ?_ Z" (prefixed by `expose_names` if necessary)
+if there are remaining subgoals.
 
 (For some tactics, the printed term will not be human readable.)
 -/

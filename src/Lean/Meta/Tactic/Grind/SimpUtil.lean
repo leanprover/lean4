@@ -23,6 +23,30 @@ def registerNormTheorems (preDeclNames : Array Name) (postDeclNames : Array Name
   for declName in postDeclNames do
     addSimpTheorem normExt declName (post := true) (inv := false) .global (eval_prio default)
 
+-- TODO: should we make this extensible?
+private def isBoolEqTarget (declName : Name) : Bool :=
+  declName == ``Bool.and ||
+  declName == ``Bool.or  ||
+  declName == ``Bool.not ||
+  declName == ``BEq.beq  ||
+  declName == ``decide
+
+builtin_simproc_decl simpBoolEq (@Eq Bool _ _) := fun e => do
+  let_expr f@Eq bool lhs rhs ← e | return .continue
+  let .const rhsName _ := rhs.getAppFn | return .continue
+  if rhsName == ``true || rhsName == ``false then return .continue
+  let .const lhsName _ := lhs.getAppFn | return .continue
+  if lhsName == ``true || lhsName == ``false then
+    -- Just apply comm
+    let e' := mkApp3 f bool rhs lhs
+    return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.flip_bool_eq) lhs rhs }
+  if isBoolEqTarget lhsName || isBoolEqTarget rhsName then
+    -- Convert into `(lhs = true) = (rhs = true)`
+    let tr := mkConst ``true
+    let e' ← mkEq (mkApp3 f bool lhs tr) (mkApp3 f bool rhs tr)
+    return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.bool_eq_to_prop) lhs rhs }
+  return .continue
+
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← Simp.getSEvalSimprocs
@@ -42,6 +66,7 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s := s.erase ``List.reduceReplicate
   let s ← addSimpMatchDiscrsOnly s
   let s ← addPreMatchCondSimproc s
+  let s ← s.add ``simpBoolEq (post := false)
   return #[s]
 
 /-- Returns the simplification context used by `grind`. -/

@@ -313,7 +313,7 @@ static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__44;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__23;
 LEAN_EXPORT lean_object* l_term_____x5b___x5d;
 static lean_object* l_term_____x5b___x5d___x3f___closed__8;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x21__def___autoParam___closed__24;
 LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_LawfulGetElem_getElem_x21__def___autoParam___closed__4;
@@ -1735,7 +1735,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

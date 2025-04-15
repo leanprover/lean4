@@ -92,4 +92,6 @@ theorem forIn_eq_elim [Monad m] [LawfulMonad m]
     forIn (o.map g) init f = forIn o init fun a y => f (g a) y := by
   cases o <;> simp
 
+@[simp] theorem mapA_eq_mapM : @Option.mapA = @Option.mapM := rfl
+
 end Option

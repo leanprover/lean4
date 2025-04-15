@@ -52,16 +52,7 @@ def fallback : Fallback := do
 
 set_option trace.Meta.debug true
 
-/--
-info: [Meta.debug] [↑a * (↑b * ↑c),
-     ↑b * ↑c,
-     ↑d * (↑b * ↑c),
-     -1 * (↑a * (↑b * ↑c)),
-     -1 * (↑d * (↑b * ↑c)),
-     a * (b * c),
-     b * c,
-     d * (b * c)]
--/
+/-- info: [Meta.debug] [a * (b * c), b * c, d * (b * c)] -/
 #guard_msgs (info) in
 example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
   rw [left_comm] -- Introduces a new (non-canonical) instance for `Mul Nat`

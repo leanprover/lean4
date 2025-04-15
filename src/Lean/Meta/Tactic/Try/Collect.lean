@@ -37,9 +37,9 @@ def OrdSet.isEmpty {_ : Hashable α} {_ : BEq α} (s : OrdSet α) : Bool :=
 structure Result where
   /-- All constant symbols occurring in the gal. -/
   allConsts : OrdSet Name  := {}
-  /-- Unfolding candiates. -/
+  /-- Unfolding candidates. -/
   unfoldCandidates : OrdSet Name  := {}
-  /-- Equation function candiates. -/
+  /-- Equation function candidates. -/
   eqnCandidates : OrdSet Name  := {}
   /-- Function induction candidates -/
   funIndCandidates : FunInd.SeenCalls := {}

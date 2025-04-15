@@ -148,6 +148,16 @@ theorem OrientedCmp.gt_of_not_isGE [OrientedCmp cmp] {a b : α} :
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   cases cmp b a <;> simp
 
+theorem OrientedCmp.isLE_antisymm [OrientedCmp cmp] {a b : α} (h₁ : cmp a b |>.isLE) (h₂ : cmp b a |>.isLE) :
+    cmp a b = .eq := by
+  rw [OrientedCmp.eq_swap (cmp := cmp)] at h₂
+  cases h : cmp a b <;> rw [h] at h₁ h₂ <;> simp at h₁ h₂
+
+theorem OrientedCmp.isGE_antisymm [OrientedCmp cmp] {a b : α} (h₁ : cmp a b |>.isGE) (h₂ : cmp b a |>.isGE) :
+    cmp a b = .eq := by
+  rw [OrientedCmp.eq_swap (cmp := cmp)] at h₂
+  cases h : cmp a b <;> rw [h] at h₁ h₂ <;> simp at h₁ h₂
+
 end Oriented
 
 section Trans
@@ -249,16 +259,6 @@ theorem TransCmp.gt_of_isGE_of_gt [TransCmp cmp] {a b c : α} (hab : (cmp a b).i
     (hbc : cmp b c = .gt) : cmp a c = .gt := by
   rw [OrientedCmp.gt_iff_lt, OrientedCmp.isGE_iff_isLE] at *
   exact TransCmp.lt_of_lt_of_isLE hbc hab
-
-theorem TransCmp.isLE_antisymm [TransCmp cmp] {a b : α} (h₁ : cmp a b |>.isLE) (h₂ : cmp b a |>.isLE) :
-    cmp a b = .eq := by
-  rw [OrientedCmp.eq_swap (cmp := cmp)] at h₂
-  cases h : cmp a b <;> rw [h] at h₁ h₂ <;> simp at h₁ h₂
-
-theorem TransCmp.isGE_antisymm [TransCmp cmp] {a b : α} (h₁ : cmp a b |>.isGE) (h₂ : cmp b a |>.isGE) :
-    cmp a b = .eq := by
-  rw [OrientedCmp.eq_swap (cmp := cmp)] at h₂
-  cases h : cmp a b <;> rw [h] at h₁ h₂ <;> simp at h₁ h₂
 
 theorem TransCmp.eq_trans [TransCmp cmp] {a b c : α} (hab : cmp a b = .eq)
     (hbc : cmp b c = .eq) : cmp a c = .eq := by
@@ -420,7 +420,7 @@ namespace Internal
 variable {α : Type u}
 
 /--
-Internal funcion to derive a `BEq` instance from an `Ord` instance in order to connect the
+Internal function to derive a `BEq` instance from an `Ord` instance in order to connect the
 verification machinery for tree maps to the verification machinery for hash maps.
 -/
 @[local instance]

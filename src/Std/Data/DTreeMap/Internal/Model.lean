@@ -96,13 +96,13 @@ Internal implementation detail of the tree map
 -/
 inductive ExplorationStep [Ord α] (k : α → Ordering) where
   /-- Needle was less than key at this node: return key-value pair and unexplored right subtree,
-      recusion will continue in left subtree. -/
+      recursion will continue in left subtree. -/
   | lt : (a : α) → k a = .lt → β a → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was equal to key at this node: return key-value pair and both unexplored subtrees,
       recursion will terminate. -/
   | eq : List ((a : α) × β a) → Cell α β k → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was larger than key at this node: return key-value pair and unexplored left subtree,
-      recusion will containue in right subtree. -/
+      recursion will containue in right subtree. -/
   | gt : List ((a : α) × β a) → (a : α) → k a = .gt → β a → ExplorationStep k
 
 /-- General tree-traversal function. Internal implementation detail of the tree map -/

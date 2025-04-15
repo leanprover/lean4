@@ -45,7 +45,7 @@ protected def bind (x : AsyncTask α) (f : α → AsyncTask β) : AsyncTask β :
 /--
 Create a new `AsyncTask` that will run after `x` has finished.
 If `x`:
-- errors, return an `AsyncTask` that reolves to the error.
+- errors, return an `AsyncTask` that resolves to the error.
 - succeeds, return an `AsyncTask` that resolves to `f x`.
 -/
 @[inline]

@@ -30,6 +30,7 @@ import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.MBTC
+import Lean.Meta.Tactic.Grind.Lookahead
 
 namespace Lean
 
@@ -52,6 +53,12 @@ builtin_initialize registerTraceClass `grind.split.candidate
 builtin_initialize registerTraceClass `grind.split.resolved
 builtin_initialize registerTraceClass `grind.beta
 builtin_initialize registerTraceClass `grind.mbtc
+builtin_initialize registerTraceClass `grind.ext
+builtin_initialize registerTraceClass `grind.ext.candidate
+builtin_initialize registerTraceClass `grind.lookahead
+builtin_initialize registerTraceClass `grind.lookahead.add (inherited := true)
+builtin_initialize registerTraceClass `grind.lookahead.try (inherited := true)
+builtin_initialize registerTraceClass `grind.lookahead.assert (inherited := true)
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug
@@ -74,5 +81,8 @@ builtin_initialize registerTraceClass `grind.debug.mbtc
 builtin_initialize registerTraceClass `grind.debug.ematch
 builtin_initialize registerTraceClass `grind.debug.proveEq
 builtin_initialize registerTraceClass `grind.debug.pushNewFact
+builtin_initialize registerTraceClass `grind.debug.ematch.activate
+builtin_initialize registerTraceClass `grind.debug.appMap
+builtin_initialize registerTraceClass `grind.debug.ext
 
 end Lean

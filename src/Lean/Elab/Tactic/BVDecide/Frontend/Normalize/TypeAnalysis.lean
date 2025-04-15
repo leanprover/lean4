@@ -45,24 +45,32 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
     let retTypeOk ← a.withApp fun fn arg =>
       return fn == motive && arg.size == 1 && arg[0]! == discr
     if !retTypeOk then return none
-
     let numCtors := inductiveInfo.numCtors
+
+    /-
+    At this point the control flow splits and tries to establish that the match is one of the kinds
+    that we support.
+    -/
     if xs.size == numCtors + 2 then
-      -- Probably a full match
+      /-
+      This situation is most likely a full match but it could also be a match like:
+      ```
+      inductive Foo where
+      | a
+      | b
 
-      -- Check that all parameters are `h_n EnumInductive.ctor`
-      let mut handledCtors := Array.mkEmpty numCtors
-      for i in [0:numCtors] do
-        let argType ← inferType xs[i + 2]!
-        let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
-        if m != motive then return none
-        let .ctorInfo ctorInfo ← getConstInfo c | return none
-        handledCtors := handledCtors.push ctorInfo
+      def isA (f : Foo) : Bool :=
+        match f with
+        | .a => true
+        | _ => false
+      ```
+      Where we have as many arms as constructors but the last arm is a default.
+      -/
 
-      if !(← verifySimpleEnum defnInfo inductiveInfo handledCtors) then return none
+      if let some kind ← trySimpleEnum defnInfo inductiveInfo xs numCtors motive then
+        return kind
 
-      return some <| .simpleEnum inductiveInfo handledCtors
-    else if xs.size > 2 then
+    if xs.size > 2 then
       -- Probably a match with default case
 
       -- Check that all parameters except the last are `h_n EnumInductive.ctor`
@@ -90,6 +98,21 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
     else
       return none
 where
+  trySimpleEnum (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal) (xs : Array Expr)
+      (numCtors : Nat) (motive : Expr) : MetaM (Option MatchKind) := do
+    -- Check that all parameters are `h_n EnumInductive.ctor`
+    let mut handledCtors := Array.mkEmpty numCtors
+    for i in [0:numCtors] do
+      let argType ← inferType xs[i + 2]!
+      let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
+      if m != motive then return none
+      let .ctorInfo ctorInfo ← getConstInfo c | return none
+      handledCtors := handledCtors.push ctorInfo
+
+    if !(← verifySimpleEnum defnInfo inductiveInfo handledCtors) then return none
+
+    return some <| .simpleEnum inductiveInfo handledCtors
+
   verifySimpleCasesOnApp (inductiveInfo : InductiveVal) (fn : Expr) (args : Array Expr)
       (params : Array Expr) : MetaM Bool := do
     -- Body is an application of `EnumInductive.casesOn`

@@ -447,7 +447,7 @@ private def evalSuggestTacticSeq (s : TSyntax ``Parser.Tactic.tacticSeq) : TryTa
   let tacs ← match s with
     | `(tacticSeq| { $t;* }) => pure t.getElems
     | `(tacticSeq| $t;*) => pure t.getElems
-    | _ => throwError "unexpeted sequence"
+    | _ => throwError "unexpected sequence"
   evalSuggestSeq tacs
 
 /-- `evalSuggest` for `first` tactic. -/
@@ -590,7 +590,7 @@ def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config :=
 
 /-! Helper functions -/
 
-/-- Converts a declaraion name into an identifier. -/
+/-- Converts a declaration name into an identifier. -/
 private def toIdent (declName : Name) : MetaM Ident := do
   return mkIdent (← unresolveNameGlobalAvoidingLocals declName)
 
@@ -639,7 +639,7 @@ private def mkFunIndStx (uniques : NameSet) (expr : Expr) (cont : TSyntax `tacti
     MetaM (TSyntax `tactic) := do
   let fn := expr.getAppFn.constName!
   if uniques.contains fn then
-      -- If it is unambigous, use `fun_induction foo` without arguments
+      -- If it is unambiguous, use `fun_induction foo` without arguments
       `(tactic| fun_induction $(← toIdent fn):term <;> $cont)
   else
     let isAccessible ← isExprAccessible expr

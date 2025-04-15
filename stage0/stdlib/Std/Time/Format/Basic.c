@@ -1082,7 +1082,7 @@ static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier_
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__1;
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_reprModifier____x40_Std_Time_Format_Basic___hyg_1886____closed__24;
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber___closed__2;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_Time_Text_classify___closed__3;
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_reprOffsetX____x40_Std_Time_Format_Basic___hyg_1042____closed__8;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatMarkerNarrow(uint8_t);
@@ -44637,7 +44637,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

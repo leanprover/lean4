@@ -159,7 +159,7 @@ with builtins; let
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
       if [ -d $src ]; then cp -r $src/. .; else cp $src $leanPath; fi
-      lean -o $out/$oleanPath -i $ilean/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
+      lean -o $out/$oleanPath -i $out/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
     '';
   }) // {
     inherit deps;

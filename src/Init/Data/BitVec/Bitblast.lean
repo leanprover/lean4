@@ -674,7 +674,7 @@ abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow :=
 /--
 Recurrence lemma: multiplying `x` with the first `s` bits of `y` is the
 same as truncating `y` to `s` bits, then zero extending to the original length,
-and performing the multplication. -/
+and performing the multiplication. -/
 theorem mulRec_eq_mul_signExtend_setWidth (x y : BitVec w) (s : Nat) :
     mulRec x y s = x * ((y.setWidth (s + 1)).setWidth w) := by
   induction s

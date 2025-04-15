@@ -506,6 +506,12 @@ structure Environment where
   -/
   base : Kernel.Environment
   /--
+  Additional imported environment extension state for use in the language server. This field is
+  identical to `base.extensions` in other contexts. Access via
+  `getModuleEntries (includeServer := true)`.
+  -/
+  private serverBaseExts : Array EnvExtensionState := base.extensions
+  /--
   Kernel environment task that is fulfilled when all asynchronously elaborated declarations are
   finished, containing the resulting environment. Also collects the environment extension state of
   all environment branches that contributed contained declarations.
@@ -536,6 +542,12 @@ structure Environment where
   `findAsyncCore?`/`findStateAsync`; see there.
   -/
   private allRealizations : Task (NameMap AsyncConst) := .pure {}
+  /--
+  Indicates whether the environment is being used in an exported context, i.e. whether it should
+  provide access to only the data to be imported by other modules participating in the module
+  system.
+  -/
+  isExporting : Bool := false
 deriving Nonempty
 
 namespace Environment
@@ -548,6 +560,10 @@ def ofKernelEnv (env : Kernel.Environment) : Environment :=
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
   env.checked.get
+
+/-- Updates `Environment.isExporting`. -/
+def setExporting (env : Environment) (isExporting : Bool) : Environment :=
+  { env with isExporting }
 
 /-- Consistently updates synchronous and asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -905,7 +921,8 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
     }
     exts? := guard reportExts *> some (constPromise.result?.map (sync := true) fun
       | some (_, exts, _) => exts
-      | none              => env.toKernelEnv.extensions)
+      -- any value should work here, `base` does not block
+      | none              => env.base.extensions)
     consts := constPromise.result?.map (sync := true) fun
       | some (_, _, consts) => .mk consts
       | none                => .mk (α := AsyncConsts) default
@@ -1378,7 +1395,15 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   name            : Name
   addImportedFn   : Array (Array α) → ImportM σ
   addEntryFn      : σ → β → σ
+  /-- Function to transform state into data that should always be imported into other modules. -/
   exportEntriesFn : σ → Array α
+  /--
+  Function to transform state into data that should be imported into other modules when the module
+  system is disabled. When it is enabled, the data is loaded only in the language server and
+  accessible via `getModuleEntries (includeServer := true)`. Conventionally, this is a superset of
+  the data returned by `exportEntriesFn`.
+  -/
+  saveEntriesFn   : σ → Array α
   statsFn         : σ → Format
 
 instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
@@ -1391,14 +1416,21 @@ instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ)
      addImportedFn := fun _ => default,
      addEntryFn := fun s _ => s,
      exportEntriesFn := fun _ => #[],
+     saveEntriesFn := fun _ => #[],
      statsFn := fun _ => Format.nil
   }
 
 namespace PersistentEnvExtension
 
-def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Array α :=
-  -- `importedEntries` is identical on all environment branches, so `local` is always sufficient
-  (ext.toEnvExtension.getState (asyncMode := .local) env).importedEntries[m]!
+/--
+Returns the data saved by `ext.exportEntriesFn/saveEntriesFn` when `m` was elaborated. See docs on
+the functions for details.
+-/
+def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
+    (env : Environment) (m : ModuleIdx) (includeServer := false) : Array α :=
+  let exts := if includeServer then env.serverBaseExts else env.base.extensions
+  -- safety: as in `getStateUnsafe`
+  unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
 
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.toEnvExtension.modifyState env fun s =>
@@ -1435,9 +1467,13 @@ structure PersistentEnvExtensionDescr (α β σ : Type) where
   addImportedFn   : Array (Array α) → ImportM σ
   addEntryFn      : σ → β → σ
   exportEntriesFn : σ → Array α
+  saveEntriesFn   : σ → Array α := exportEntriesFn
   statsFn         : σ → Format := fun _ => Format.nil
   asyncMode       : EnvExtension.AsyncMode := .mainOnly
   replay?         : Option (ReplayFn σ) := none
+
+attribute [inherit_doc PersistentEnvExtension.exportEntriesFn] PersistentEnvExtensionDescr.exportEntriesFn
+attribute [inherit_doc PersistentEnvExtension.saveEntriesFn] PersistentEnvExtensionDescr.saveEntriesFn
 
 unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) := do
   let pExts ← persistentEnvExtensionsRef.get
@@ -1457,6 +1493,7 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
     addImportedFn   := descr.addImportedFn,
     addEntryFn      := descr.addEntryFn,
     exportEntriesFn := descr.exportEntriesFn,
+    saveEntriesFn := descr.saveEntriesFn,
     statsFn         := descr.statsFn
   }
   persistentEnvExtensionsRef.modify fun pExts => pExts.push (unsafeCast pExt)
@@ -1465,10 +1502,30 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
 @[implemented_by registerPersistentEnvExtensionUnsafe]
 opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
-@[extern "lean_save_module_data"]
-opaque saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
-@[extern "lean_read_module_data"]
-opaque readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
+/--
+Stores each given module data in the respective file name. Objects shared with prior parts are not
+duplicated. Thus the data cannot be loaded with individual `readModuleData` calls but must loaded by
+passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to determine an
+arbitrary but deterministic base address for `mmap`.
+-/
+@[extern "lean_save_module_data_parts"]
+opaque saveModuleDataParts (mod : @& Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit
+
+/--
+Loads the module data from the given file names. The files must be (a prefix of) the result of a
+`saveModuleDataParts` call.
+-/
+@[extern "lean_read_module_data_parts"]
+opaque readModuleDataParts (fnames : @& Array System.FilePath) : IO (Array (ModuleData × CompactedRegion))
+
+def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit :=
+  saveModuleDataParts mod #[(fname, data)]
+
+def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) := do
+  let parts ← readModuleDataParts #[fname]
+  assert! parts.size == 1
+  let some part := parts[0]? | unreachable!
+  return part
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
@@ -1492,7 +1549,22 @@ unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
     TODO: statically check for this. -/
   env.header.regions.forM CompactedRegion.free
 
-def mkModuleData (env : Environment) : IO ModuleData := do
+/-- The level of information to save/load. Each level includes all previous ones. -/
+inductive OLeanLevel where
+  /-- Information from exported contexts. -/
+  | exported
+  /-- Environment extension state for the language server. -/
+  | server
+  /-- Private module data. -/
+  | «private»
+deriving DecidableEq
+
+def OLeanLevel.adjustFileName (base : System.FilePath) : OLeanLevel → System.FilePath
+  | .exported => base
+  | .server   => base.addExtension "server"
+  | .private  => base.addExtension "private"
+
+def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt => Id.run do
     -- get state from `checked` at the end if `async`; it would otherwise panic
@@ -1500,19 +1572,37 @@ def mkModuleData (env : Environment) : IO ModuleData := do
     if asyncMode matches .async then
       asyncMode := .sync
     let state := pExt.getState (asyncMode := asyncMode) env
-    (pExt.name, pExt.exportEntriesFn state)
+    (pExt.name, if level = .exported then pExt.exportEntriesFn state else pExt.saveEntriesFn state)
   let kenv := env.toKernelEnv
-  let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
-  let constants  := kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
+  let env := env.setExporting (level != .private)
+  let constants := kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
+  --let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
+  -- not all kernel constants may be exported
+  -- TODO: does not include cstage* constants from the old codegen
+  --let constants := constNames.filterMap env.find?
+  let constNames := constants.map (·.name)
   return {
     imports         := env.header.imports
     extraConstNames := env.checked.get.extraConstNames.toArray
     constNames, constants, entries
   }
 
+register_builtin_option experimental.module : Bool := {
+  defValue := false
+  descr := "Enable module system (experimental)"
+}
+
 @[export lean_write_module]
-def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
-  saveModuleData fname env.mainModule (← mkModuleData env)
+def writeModule (env : Environment) (fname : System.FilePath) (split := false) : IO Unit := do
+  if split then
+    let mkPart (level : OLeanLevel) :=
+      return (level.adjustFileName fname, (← mkModuleData env level))
+    saveModuleDataParts env.mainModule #[
+      (← mkPart .exported),
+      (← mkPart .server),
+      (← mkPart .private)]
+  else
+    saveModuleData fname env.mainModule (← mkModuleData env)
 
 /--
 Construct a mapping from persistent extension name to extension index at the array of persistent extensions.
@@ -1526,10 +1616,9 @@ def mkExtNameMap (startingAt : Nat) : IO (Std.HashMap Name Nat) := do
     result := result.insert descr.name i
   return result
 
-private def setImportedEntries (env : Environment) (mods : Array ModuleData) (startingAt : Nat := 0) : IO Environment := do
-  -- We work directly on the states array instead of `env` as `Environment.modifyState` introduces
-  -- significant overhead on such frequent calls
-  let mut states := env.base.extensions
+private def setImportedEntries (states : Array EnvExtensionState) (mods : Array ModuleData)
+    (startingAt : Nat := 0) : IO (Array EnvExtensionState) := do
+  let mut states := states
   let extDescrs ← persistentEnvExtensionsRef.get
   /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
   for extDescr in extDescrs[startingAt:] do
@@ -1545,7 +1634,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
         -- safety: as in `modifyState`
         states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
           { s with importedEntries := s.importedEntries.set! modIdx entries }
-  return env.setCheckedSync { env.base with extensions := states }
+  return states
 
 /--
   "Forward declaration" needed for updating the attribute table with user-defined attributes.
@@ -1584,7 +1673,7 @@ where
         -- This branch is executed when `pExtDescrs[i]` is the extension associated with the `init` attribute, and
         -- a user-defined persistent extension is imported.
         -- Thus, we invoke `setImportedEntries` to update the array `importedEntries` with the entries for the new extensions.
-        env ← setImportedEntries env mods prevSize
+        env := env.setCheckedSync { env.base with extensions := (← setImportedEntries env.base.extensions mods prevSize) }
         -- See comment at `updateEnvAttributesRef`
         env ← updateEnvAttributes env
       loop (i + 1) env
@@ -1595,7 +1684,7 @@ structure ImportState where
   moduleNameSet : NameHashSet := {}
   moduleNames   : Array Name := #[]
   moduleData    : Array ModuleData := #[]
-  regions       : Array CompactedRegion := #[]
+  parts         : Array (Array (ModuleData × CompactedRegion)) := #[]
 
 def throwAlreadyImported (s : ImportState) (const2ModIdx : Std.HashMap Name ModuleIdx) (modIdx : Nat) (cname : Name) : IO α := do
   let modName := s.moduleNames[modIdx]!
@@ -1607,7 +1696,8 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
   x.run s
 
-partial def importModulesCore (imports : Array Import) : ImportStateM Unit := do
+partial def importModulesCore (imports : Array Import) (level := OLeanLevel.private) :
+    ImportStateM Unit := do
   for i in imports do
     if i.runtimeOnly || (← get).moduleNameSet.contains i.module then
       continue
@@ -1615,12 +1705,22 @@ partial def importModulesCore (imports : Array Import) : ImportStateM Unit := do
     let mFile ← findOLean i.module
     unless (← mFile.pathExists) do
       throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
-    let (mod, region) ← readModuleData mFile
-    importModulesCore mod.imports
+    let mut fnames := #[mFile]
+    if level != OLeanLevel.exported then
+      let sFile := OLeanLevel.server.adjustFileName mFile
+      if (← sFile.pathExists) then
+        fnames := fnames.push sFile
+        if level == OLeanLevel.private then
+          let pFile := OLeanLevel.private.adjustFileName mFile
+          if (← pFile.pathExists) then
+            fnames := fnames.push pFile
+    let parts ← readModuleDataParts fnames
+    let some (mod, _) := parts[if level = .exported then 0 else parts.size - 1]? | unreachable!
+    importModulesCore (level := level) mod.imports
     modify fun s => { s with
       moduleData  := s.moduleData.push mod
-      regions     := s.regions.push region
       moduleNames := s.moduleNames.push i.module
+      parts       := s.parts.push parts
     }
 
 /--
@@ -1684,14 +1784,16 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       extensions      := exts
       header     := {
         trustLevel, imports
-        regions      := s.regions
+        regions      := s.parts.flatMap (·.map (·.2))
         moduleNames  := s.moduleNames
         moduleData   := s.moduleData
       }
     }
     realizedImportedConsts? := none
   }
-  env ← setImportedEntries env s.moduleData
+  env := env.setCheckedSync { env.base with extensions := (← setImportedEntries env.base.extensions s.moduleData) }
+  let serverData := s.parts.filterMap fun parts => (parts[1]? <|> parts[0]?).map Prod.fst
+  env := { env with serverBaseExts := (← setImportedEntries env.base.extensions serverData) }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistenExtensions`, which
        avoids costly MT markings when e.g. an interpreter closure (which
@@ -1738,13 +1840,13 @@ environment's constant map can be accessed without `loadExts`, many functions th
 -/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
-    : IO Environment := profileitIO "import" opts do
+    (level := OLeanLevel.private) : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore imports |>.run
+    let (_, s) ← importModulesCore (level := level) imports |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) s imports opts trustLevel
 
 /--

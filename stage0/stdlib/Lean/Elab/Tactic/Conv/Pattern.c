@@ -203,7 +203,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__6___boxed
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_Conv_evalPattern___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__9___closed__17;
@@ -215,7 +215,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -4673,7 +4673,7 @@ lean_dec(x_47);
 x_60 = l_Lean_Syntax_getArgs(x_59);
 lean_dec(x_59);
 x_61 = lean_array_get_size(x_60);
-x_62 = l_Array_emptyWithCapacity(lean_box(0), x_61);
+x_62 = lean_mk_empty_array_with_capacity(x_61);
 lean_inc(x_10);
 x_63 = l_Array_mapFinIdxM_map___at_Lean_Elab_Tactic_Conv_evalPattern___spec__8(x_60, x_60, x_61, x_58, lean_box(0), x_62, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_46);
 lean_dec(x_60);

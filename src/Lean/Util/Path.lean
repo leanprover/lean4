@@ -125,6 +125,14 @@ partial def findLean (sp : SearchPath) (mod : Name) : IO FilePath := do
       No directory '{pkg}' or file '{pkg}.lean' in the search path entries:\n\
       {"\n".intercalate <| sp.map (·.toString)}"
 
+def getSrcSearchPath : IO SearchPath := do
+  let srcSearchPath := (← IO.getEnv "LEAN_SRC_PATH")
+    |>.map System.SearchPath.parse
+    |>.getD []
+  let srcPath := (← IO.appDir) / ".." / "src" / "lean"
+  -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
+  return srcSearchPath ++ [srcPath / "lake", srcPath]
+
 /-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]
 def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Name := do

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.OfNat
-// Imports: Init.Data.Int.Lemmas Init.Data.Int.DivMod Init.Data.RArray
+// Imports: Init.Data.Int.Lemmas Init.Data.Int.DivMod Init.Data.Int.Linear Init.Data.RArray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -526,6 +526,7 @@ return x_2;
 }
 lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin, lean_object* w) {
@@ -536,6 +537,9 @@ res = initialize_Init_Data_Int_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Linear(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_RArray(builtin, lean_io_mk_world());

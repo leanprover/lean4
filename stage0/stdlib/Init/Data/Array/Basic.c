@@ -810,7 +810,7 @@ LEAN_EXPORT lean_object* l_term_x23_x5b___x2c_x5d;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_flatMapM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_reduceOption(lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Array_reduceOption___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_flatMapM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forRevM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_insertIdx_loop___rarg(lean_object*, lean_object*, lean_object*);
@@ -1226,7 +1226,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -1958,7 +1958,7 @@ LEAN_EXPORT lean_object* l_Array_ofFn___rarg(lean_object* x_1, lean_object* x_2)
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_3 = lean_mk_empty_array_with_capacity(x_1);
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_Array_ofFn_go___rarg(x_1, x_2, x_4, x_3);
 return x_5;
@@ -3635,7 +3635,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_array_get_size(x_2);
-x_5 = l_Array_emptyWithCapacity(lean_box(0), x_4);
+x_5 = lean_mk_empty_array_with_capacity(x_4);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Array_mapFinIdxM_map___rarg(x_1, x_2, x_3, x_4, x_6, lean_box(0), x_5);
 lean_dec(x_4);
@@ -3720,7 +3720,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_array_get_size(x_3);
-x_5 = l_Array_emptyWithCapacity(lean_box(0), x_4);
+x_5 = lean_mk_empty_array_with_capacity(x_4);
 x_6 = lean_unsigned_to_nat(0u);
 lean_inc(x_3);
 x_7 = l_Array_mapFinIdxM_map___at_Array_mapIdxM___spec__1___rarg(x_1, x_2, x_3, x_3, x_4, x_6, lean_box(0), x_5);
@@ -7208,7 +7208,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_array_get_size(x_1);
-x_4 = l_Array_emptyWithCapacity(lean_box(0), x_3);
+x_4 = lean_mk_empty_array_with_capacity(x_3);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_Array_mapFinIdxM_map___at_Array_mapFinIdx___spec__1___rarg(x_1, x_2, x_1, x_3, x_5, lean_box(0), x_4);
 return x_6;
@@ -7288,7 +7288,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_array_get_size(x_2);
-x_4 = l_Array_emptyWithCapacity(lean_box(0), x_3);
+x_4 = lean_mk_empty_array_with_capacity(x_3);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_Array_mapFinIdxM_map___at_Array_mapIdx___spec__1___rarg(x_1, x_2, x_2, x_3, x_5, lean_box(0), x_4);
 return x_6;
@@ -7368,7 +7368,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_array_get_size(x_1);
-x_4 = l_Array_emptyWithCapacity(lean_box(0), x_3);
+x_4 = lean_mk_empty_array_with_capacity(x_3);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_Array_mapFinIdxM_map___at_Array_zipIdx___spec__1___rarg(x_1, x_2, x_1, x_3, x_5, lean_box(0), x_4);
 return x_6;

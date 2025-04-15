@@ -191,9 +191,9 @@ theorem cmod_nonpos (a : Int) {b : Int} (h : b ≠ 0) : cmod a b ≤ 0 := by
 
 theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := by
   unfold cmod
-  have := @Int.emod_eq_emod_iff_emod_sub_eq_zero  b b a
-  simp at this
-  simp [Int.neg_emod_eq_sub_emod, ← this, Eq.comm]
+  have := @Int.emod_eq_emod_iff_emod_sub_eq_zero b b a
+  simp only [emod_self, sub_emod_left] at this
+  rw [Int.neg_eq_zero, ← this, Eq.comm]
 
 private abbrev div_mul_cancel_of_mod_zero :=
   @Int.ediv_mul_cancel_of_emod_eq_zero
@@ -1825,6 +1825,14 @@ def eq_def_cert (x : Var) (xPoly : Poly) (p : Poly) : Bool :=
 theorem eq_def (ctx : Context) (x : Var) (xPoly : Poly) (p : Poly)
     : eq_def_cert x xPoly p → x.denote ctx = xPoly.denote' ctx → p.denote' ctx = 0 := by
   simp [eq_def_cert]; intro _ h; subst p; simp [h]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
+def eq_def'_cert (x : Var) (e : Expr) (p : Poly) : Bool :=
+  p == .add (-1) x e.norm
+
+theorem eq_def' (ctx : Context) (x : Var) (e : Expr) (p : Poly)
+    : eq_def'_cert x e p → x.denote ctx = e.denote ctx → p.denote' ctx = 0 := by
+  simp [eq_def'_cert]; intro _ h; subst p; simp [h]
   rw [← Int.sub_eq_add_neg, Int.sub_self]
 
 end Int.Linear

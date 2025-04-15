@@ -90,9 +90,9 @@ private def mkFreshBinderNameForTacticCore (lctx : LocalContext) (binderName : N
     return lctx.getUnusedName binderName
 
 /--
-Similar to `mkFreshUserName`, but takes into account `tactic.hygienic` option value.
-If `tactic.hygienic = true`, then the current macro scopes are applied to `binderName`.
-If not, then an unused (accessible) name (based on `binderName`) in the local context is used.
+Similar to `Lean.Core.mkFreshUserName`, but takes into account the `tactic.hygienic` option value.
+If `tactic.hygienic = true`, then fresh macro scopes are applied to `binderName`.
+If not, then returns an (accessible) name based on `binderName` that is unused in the local context.
 -/
 def mkFreshBinderNameForTactic (binderName : Name) : MetaM Name := do
   mkFreshBinderNameForTacticCore (← getLCtx) binderName (tactic.hygienic.get (← getOptions))

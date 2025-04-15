@@ -2932,11 +2932,10 @@ This will be deprecated in favor of `Array.emptyWithCapacity` in the future.
 def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 
-
-set_option linter.unusedVariables false in
 /--
 Constructs a new empty array with initial capacity `c`.
 -/
+@[extern "lean_mk_empty_array_with_capacity"]
 def Array.emptyWithCapacity {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 

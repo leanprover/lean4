@@ -597,7 +597,10 @@ structure Task (α : Type u) : Type u where
   many tasks have finished.
 
   `Task.map` and `Task.bind` should be preferred over `Task.get` for setting up task dependencies
-  where possible as they do not require temporarily growing the threadpool in this way.
+  where possible as they do not require temporarily growing the threadpool in this way. In
+  particular, calling `Task.get` in a task continuation with `(sync := true)` will panic as the
+  continuation is decidedly not "cheap" in this case and deadlocks may otherwise occur. The
+  waited-upon task should instead be returned and unwrapped using `Task.bind/IO.bindTask`.
   -/
   get : α
   deriving Inhabited, Nonempty

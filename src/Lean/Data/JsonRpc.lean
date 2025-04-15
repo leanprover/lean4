@@ -111,6 +111,7 @@ inductive Message where
   | response (id : RequestID) (result : Json)
   /-- A non-successful response. -/
   | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
+  deriving Inhabited
 
 def Batch := Array Message
 

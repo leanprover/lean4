@@ -166,13 +166,13 @@ theorem combo_sat (a) (w₁ : c₁.sat x₁) (b) (w₂ : c₂.sat x₂) :
 
 /-- The conjunction of two constraints. -/
 def combine (x y : Constraint) : Constraint where
-  lowerBound := Option.zipWith max x.lowerBound y.lowerBound
-  upperBound := Option.zipWith min x.upperBound y.upperBound
+  lowerBound := Option.merge max x.lowerBound y.lowerBound
+  upperBound := Option.merge min x.upperBound y.upperBound
 
 theorem combine_sat : (c : Constraint) → (c' : Constraint) → (t : Int) →
     (c.combine c').sat t = (c.sat t ∧ c'.sat t) := by
   rintro ⟨_ | l₁, _ | u₁⟩ <;> rintro ⟨_ | l₂, _ | u₂⟩ t
-    <;> simp [sat, LowerBound.sat, UpperBound.sat, combine, Int.le_min, Int.max_le, Option.zipWith] at *
+    <;> simp [sat, LowerBound.sat, UpperBound.sat, combine, Int.le_min, Int.max_le, Option.merge] at *
   · rw [And.comm]
   · rw [← and_assoc, And.comm (a := l₂ ≤ t), and_assoc]
   · rw [and_assoc]

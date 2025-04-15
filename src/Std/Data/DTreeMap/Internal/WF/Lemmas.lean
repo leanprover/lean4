@@ -341,14 +341,14 @@ theorem ordered_updateCell [Ord α] [TransOrd α] {k : α}
   · intro a ha b hb
     have := hlo.2.2 a (List.mem_append_left _ ha)
     clear hlo
-    simp only [List.mem_filter, beq_iff_eq, Option.mem_toList, Option.mem_def] at ha hb
+    simp only [List.mem_filter, beq_iff_eq, Option.mem_toList] at ha hb
     have : compare k b.fst = .eq := (f (List.findCell l.toListModel (compare k))).property _ hb
     exact TransCmp.lt_of_lt_of_eq (OrientedCmp.lt_of_gt ha.2) this
   · intro a ha b hb
     rw [List.mem_append] at ha
     obtain ha|ha := ha
     · exact hlo.2.2 a (List.mem_append_left _ ha) _ hb
-    · simp only [Option.mem_toList, Option.mem_def] at ha
+    · simp only [Option.mem_toList] at ha
       have h₀ : compare k a.fst = .eq := (f (List.findCell l.toListModel (compare k))).property _ ha
       have h₁ : compare k b.fst = .lt := by
         simp only [List.mem_filter, beq_iff_eq] at hb
@@ -1031,7 +1031,7 @@ theorem ordered_filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β a �
   simp only [Ordered, toListModel_filterMap]
   apply ho.filterMap
   intro e f hef e' he' f' hf'
-  simp only [Option.mem_def, Option.map_eq_some'] at he' hf'
+  simp only [Option.map_eq_some_iff] at he' hf'
   obtain ⟨_, _, rfl⟩ := he'
   obtain ⟨_, _, rfl⟩ := hf'
   exact hef

@@ -283,7 +283,8 @@
 {"range":
  {"start": {"line": 158, "character": 0}, "end": {"line": 158, "character": 8}},
  "contents":
- {"value": "```lean\nBar.instToStringNat : ToString ℕ\n```",
+ {"value":
+  "```lean\nBar.«instToStringNat_external:file:///hover.lean» : ToString ℕ\n```",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 160, "character": 9}}
@@ -318,16 +319,10 @@
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 176, "character": 4}}
-[{"targetUri": "file:///hover.lean",
-  "targetSelectionRange":
+[{"uri": "file:///hover.lean",
+  "range":
   {"start": {"line": 173, "character": 6},
-   "end": {"line": 173, "character": 7}},
-  "targetRange":
-  {"start": {"line": 173, "character": 6},
-   "end": {"line": 173, "character": 7}},
-  "originSelectionRange":
-  {"start": {"line": 176, "character": 4},
-   "end": {"line": 176, "character": 5}}}]
+   "end": {"line": 173, "character": 7}}}]
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 176, "character": 4}}
 {"range":
@@ -348,16 +343,10 @@
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 186, "character": 8}}
-[{"targetUri": "file:///hover.lean",
-  "targetSelectionRange":
+[{"uri": "file:///hover.lean",
+  "range":
   {"start": {"line": 183, "character": 8},
-   "end": {"line": 183, "character": 9}},
-  "targetRange":
-  {"start": {"line": 183, "character": 8},
-   "end": {"line": 183, "character": 9}},
-  "originSelectionRange":
-  {"start": {"line": 186, "character": 8},
-   "end": {"line": 186, "character": 9}}}]
+   "end": {"line": 183, "character": 9}}}]
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 186, "character": 8}}
 {"range":

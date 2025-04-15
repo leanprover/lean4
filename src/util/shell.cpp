@@ -452,6 +452,14 @@ static void report_task_get_blocked_time(std::chrono::nanoseconds d) {
     }
 }
 
+/*
+@[export lean.write_module_core]
+def writeModule (env : Environment) (fname : String) (splitExporting : Bool) : IO Unit := */
+extern "C" object * lean_write_module(object * env, object * fname, bool split_exporting, object *);
+static void write_module(elab_environment const & env, std::string const & olean_fn, bool split_exporting) {
+    consume_io_result(lean_write_module(env.to_obj_arg(), mk_string(olean_fn), split_exporting, io_mk_world()));
+}
+
 extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #ifdef LEAN_EMSCRIPTEN
     // When running in command-line mode under Node.js, we make system directories available in the virtual filesystem.
@@ -767,7 +775,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         }
         if (olean_fn && ok) {
             time_task t(".olean serialization", opts);
-            write_module(env, *olean_fn);
+            write_module(env, *olean_fn, opts.get_bool({"experimental", "module"}));
         }
 
         if (c_output && ok) {

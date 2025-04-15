@@ -9,43 +9,43 @@ import Lake.Util.OrderedTagAttribute
 open Lean
 namespace Lake
 
-initialize packageAttr : OrderedTagAttribute ←
+builtin_initialize packageAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `package "mark a definition as a Lake package configuration"
 
-initialize packageDepAttr : OrderedTagAttribute ←
+builtin_initialize packageDepAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `package_dep "mark a definition as a Lake package dependency"
 
-initialize postUpdateAttr : OrderedTagAttribute ←
+builtin_initialize postUpdateAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `post_update "mark a definition as a Lake package post-update hook"
 
-initialize scriptAttr : OrderedTagAttribute ←
+builtin_initialize scriptAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `script "mark a definition as a Lake script"
 
-initialize defaultScriptAttr : OrderedTagAttribute ←
+builtin_initialize defaultScriptAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `default_script "mark a Lake script as the package's default"
     fun name => do
       unless (← getEnv <&> (scriptAttr.hasTag · name)) do
         throwError "attribute `default_script` can only be used on a `script`"
 
-initialize leanLibAttr : OrderedTagAttribute ←
+builtin_initialize leanLibAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `lean_lib "mark a definition as a Lake Lean library target configuration"
 
-initialize leanExeAttr : OrderedTagAttribute ←
+builtin_initialize leanExeAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `lean_exe "mark a definition as a Lake Lean executable target configuration"
 
-initialize externLibAttr : OrderedTagAttribute ←
+builtin_initialize externLibAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `extern_lib "mark a definition as a Lake external library target"
 
-initialize inputFileAttr : OrderedTagAttribute ←
+builtin_initialize inputFileAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `input_file "mark a definition as a Lake input file target"
 
-initialize inputDirAttr : OrderedTagAttribute ←
+builtin_initialize inputDirAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `input_dir "mark a definition as a Lake input directory target"
 
-initialize targetAttr : OrderedTagAttribute ←
+builtin_initialize targetAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `target "mark a definition as a Lake target"
 
-initialize defaultTargetAttr : OrderedTagAttribute ←
+builtin_initialize defaultTargetAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `default_target "mark a Lake target as the package's default"
     fun name => do
       let valid ← getEnv <&> fun env =>
@@ -53,7 +53,7 @@ initialize defaultTargetAttr : OrderedTagAttribute ←
       unless valid do
         throwError "attribute `default_target` can only be used on a target (e.g., `lean_lib`, `lean_exe`)"
 
-initialize testDriverAttr : OrderedTagAttribute ←
+builtin_initialize testDriverAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `test_driver "mark a Lake script, executable, or library as package's test driver"
     fun name => do
       let valid ← getEnv <&> fun env =>
@@ -63,7 +63,7 @@ initialize testDriverAttr : OrderedTagAttribute ←
       unless valid do
         throwError "attribute `test_driver` can only be used on a `script`, `lean_exe`, or `lean_lib`"
 
-initialize lintDriverAttr : OrderedTagAttribute ←
+builtin_initialize lintDriverAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `lint_driver "mark a Lake script or executable as package's linter"
     fun name => do
       let valid ← getEnv <&> fun env =>
@@ -72,11 +72,11 @@ initialize lintDriverAttr : OrderedTagAttribute ←
       unless valid do
         throwError "attribute `lint_driver` can only be used on a `script` or `lean_exe`"
 
-initialize moduleFacetAttr : OrderedTagAttribute ←
+builtin_initialize moduleFacetAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `module_facet "mark a definition as a Lake module facet"
 
-initialize packageFacetAttr : OrderedTagAttribute ←
+builtin_initialize packageFacetAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `package_facet "mark a definition as a Lake package facet"
 
-initialize libraryFacetAttr : OrderedTagAttribute ←
+builtin_initialize libraryFacetAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `library_facet "mark a definition as a Lake library facet"

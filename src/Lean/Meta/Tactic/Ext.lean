@@ -62,6 +62,15 @@ This is triggered by `attribute [-ext] name`.
 def ExtTheorems.eraseCore (d : ExtTheorems) (declName : Name) : ExtTheorems :=
  { d with erased := d.erased.insert declName }
 
+/-- Returns `true` if `d` contains theorem with name `declName`. -/
+def ExtTheorems.contains (d : ExtTheorems) (declName : Name) : Bool :=
+  d.tree.containsValueP (·.declName == declName) && !d.erased.contains declName
+
+/-- Returns `true` if `declName` is tagged with `[ext]` attribute. -/
+def isExtTheorem (declName : Name) : CoreM Bool := do
+  let extTheorems := extExtension.getState (← getEnv)
+  return extTheorems.contains declName
+
 /--
 Erases a name marked as a `ext` attribute.
 Check that it does in fact have the `ext` attribute by making sure it names a `ExtTheorem`
@@ -69,7 +78,7 @@ found somewhere in the state's tree, and is not erased.
 -/
 def ExtTheorems.erase [Monad m] [MonadError m] (d : ExtTheorems) (declName : Name) :
     m ExtTheorems := do
-  unless d.tree.containsValueP (·.declName == declName) && !d.erased.contains declName do
+  unless d.contains declName do
     throwError "'{declName}' does not have [ext] attribute"
   return d.eraseCore declName
 

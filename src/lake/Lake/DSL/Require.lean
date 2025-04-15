@@ -143,7 +143,7 @@ options to the dependency on the command line.
 scoped syntax (name := requireDecl)
 (docComment)? "require " depSpec : command
 
-@[macro requireDecl]
+@[builtin_macro requireDecl]
 def expandRequireDecl : Macro := fun stx => do
   let `(requireDecl|$(doc?)? require%$kw $spec) := stx
     | Macro.throwErrorAt stx "ill-formed require declaration"

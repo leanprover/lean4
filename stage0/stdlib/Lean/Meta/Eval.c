@@ -621,7 +621,7 @@ lean_dec(x_24);
 x_27 = lean_ctor_get(x_25, 0);
 lean_inc(x_27);
 lean_dec(x_25);
-x_28 = lean_ctor_get(x_27, 1);
+x_28 = lean_ctor_get(x_27, 2);
 lean_inc(x_28);
 lean_dec(x_27);
 x_29 = l_Lean_Meta_evalExprCore___rarg___lambda__2___closed__1;

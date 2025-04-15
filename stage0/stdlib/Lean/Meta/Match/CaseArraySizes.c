@@ -105,7 +105,7 @@ static lean_object* l_Lean_Meta_caseArraySizes___closed__2;
 static lean_object* l_Lean_Meta_caseArraySizes___closed__1;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_mkArrayLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Meta_instInhabitedCaseArraySizesSubgoal___closed__1() {
@@ -113,7 +113,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -1907,7 +1907,7 @@ x_40 = lean_ctor_get(x_38, 1);
 lean_inc(x_40);
 lean_dec(x_38);
 x_41 = lean_array_get_size(x_39);
-x_42 = l_Array_emptyWithCapacity(lean_box(0), x_41);
+x_42 = lean_mk_empty_array_with_capacity(x_41);
 x_43 = lean_unsigned_to_nat(0u);
 x_44 = l_Array_mapFinIdxM_map___at_Lean_Meta_caseArraySizes___spec__3(x_5, x_7, x_8, x_28, x_33, x_36, x_39, x_39, x_41, x_43, lean_box(0), x_42, x_9, x_10, x_11, x_12, x_40);
 lean_dec(x_39);

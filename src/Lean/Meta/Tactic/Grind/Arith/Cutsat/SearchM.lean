@@ -74,7 +74,6 @@ def mkCase (kind : CaseKind) : SearchM FVarId := do
     decVars := s.decVars.insert fvarId
   }
   modify' fun s => { s with caseSplits := true }
-  trace[grind.debug.cutsat.backtrack] "mkCase fvarId: {fvarId.name}"
   return fvarId
 
 end Lean.Meta.Grind.Arith.Cutsat

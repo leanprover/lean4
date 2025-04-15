@@ -45,6 +45,21 @@
     max_runs: 1
     runner: output
 - attributes:
+    description: Init size
+    tags: [deterministic, fast]
+  run_config:
+    cwd: ../../
+    cmd: |
+      set -euxo pipefail
+      echo -n 'bytes .olean: '
+      find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      #echo -n 'bytes .olean.server: '
+      #find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      #echo -n 'bytes .olean.private: '
+      #find ${BUILD:-build/release}/stage2/lib/lean/Init -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+    max_runs: 1
+    runner: output
+- attributes:
     description: libleanshared.so
     tags: [deterministic, fast]
   run_config:
@@ -447,3 +462,12 @@
   run_config:
     <<: *time
     cmd: lean omega_stress.lean
+- attributes:
+    description: channel.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./channel.lean.out
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh channel.lean

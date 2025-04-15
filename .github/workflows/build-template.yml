@@ -46,7 +46,7 @@ jobs:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_COMPRESS: true
       # current cache limit
-      CCACHE_MAXSIZE: 600M
+      CCACHE_MAXSIZE: 400M
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
       LSAN_OPTIONS: max_leaks=10

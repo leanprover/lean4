@@ -14,8 +14,6 @@ set_option trace.grind.assert true
 
 /--
 info: [grind.assert] ¬f (f (f a)) = f a
-[grind.assert] f (f (f (f a))) = f (f (f a))
-[grind.assert] f (f (f a)) = f (f a)
 [grind.assert] f (f a) = f a
 -/
 #guard_msgs (info) in

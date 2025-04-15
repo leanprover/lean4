@@ -93,18 +93,17 @@ structure SnapshotTask (α : Type) where
   Cancellation token that can be set by the server to cancel the task when it detects the results
   are not needed anymore.
   -/
-  cancelTk? : Option IO.CancelToken := none
+  cancelTk? : Option IO.CancelToken
   /-- Underlying task producing the snapshot. -/
   task : Task α
 deriving Nonempty, Inhabited
 
 /-- Creates a snapshot task from the syntax processed by the task and a `BaseIO` action. -/
-def SnapshotTask.ofIO (stx? : Option Syntax)
+def SnapshotTask.ofIO (stx? : Option Syntax) (cancelTk? : Option IO.CancelToken)
     (reportingRange? : Option String.Range := defaultReportingRange? stx?) (act : BaseIO α) :
     BaseIO (SnapshotTask α) := do
   return {
-    stx?
-    reportingRange?
+    stx?, reportingRange?, cancelTk?
     task := (← BaseIO.asTask act)
   }
 
@@ -114,6 +113,7 @@ def SnapshotTask.finished (stx? : Option Syntax) (a : α) : SnapshotTask α wher
   -- irrelevant when already finished
   reportingRange? := none
   task := .pure a
+  cancelTk? := none
 
 /-- Transforms a task's output without changing the processed syntax. -/
 def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax := t.stx?)

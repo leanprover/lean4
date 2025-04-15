@@ -132,7 +132,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_InputFileConfig_ins
 static uint8_t l_Lake_InputDirConfig_instConfigMeta___closed__4;
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_filter___proj___elambda__4___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionInputDirConfig(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_path___proj___elambda__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_InputFileConfig___fields___closed__7;
 LEAN_EXPORT uint8_t l_Lake_InputFileConfig_path___proj___elambda__1___lambda__1(lean_object* x_1) {
@@ -480,7 +480,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

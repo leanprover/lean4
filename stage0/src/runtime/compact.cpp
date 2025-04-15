@@ -339,7 +339,10 @@ tag_counter_manager g_tag_counter_manager;
 void object_compactor::operator()(object * o) {
     lean_assert(m_todo.empty());
     // allocate for root address, see end of function
-    alloc(sizeof(object_offset));
+    // NOTE: we must store an offset instead of the pointer itself as `m_begin` may have been
+    //  reallocated in the meantime
+    size_t root_offset =
+      static_cast<char *>(alloc(sizeof(object_offset))) - static_cast<char *>(m_begin);
     if (!lean_is_scalar(o)) {
         m_todo.push_back(o);
         while (!m_todo.empty()) {
@@ -371,7 +374,8 @@ void object_compactor::operator()(object * o) {
         }
         m_tmp.clear();
     }
-    *static_cast<object_offset *>(m_begin) = to_offset(o);
+    object_offset * root = reinterpret_cast<object_offset *>(static_cast<char *>(m_begin) + root_offset);
+    *root = to_offset(o);
 }
 
 compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data):

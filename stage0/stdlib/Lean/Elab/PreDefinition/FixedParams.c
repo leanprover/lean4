@@ -628,7 +628,7 @@ static lean_object* l_Lean_Elab_FixedParamPerm_instantiateLambda_go___lambda__1_
 static lean_object* l_Lean_Elab_FixedParamPerm_pickFixed___rarg___closed__3;
 static lean_object* l_List_mapTR_loop___at_Lean_Elab_FixedParams_Info_format___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_FixedParamPerm_buildArgs_go___spec__2___rarg(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Elab_getFixedParamsInfo___spec__16___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_initFn____x40_Lean_Elab_PreDefinition_FixedParams___hyg_7244____closed__1;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_reprFixedParamPerms____x40_Lean_Elab_PreDefinition_FixedParams___hyg_3084____spec__9(lean_object*, lean_object*);
@@ -792,7 +792,7 @@ x_10 = lean_nat_sub(x_3, x_9);
 lean_dec(x_3);
 x_11 = lean_array_fget(x_2, x_4);
 x_12 = lean_array_get_size(x_11);
-x_13 = l_Array_emptyWithCapacity(lean_box(0), x_12);
+x_13 = lean_mk_empty_array_with_capacity(x_12);
 x_14 = l_Array_mapFinIdxM_map___at_Lean_Elab_FixedParams_Info_addSelfCalls___spec__1(x_4, x_11, x_11, x_12, x_7, lean_box(0), x_13);
 lean_dec(x_11);
 x_15 = lean_nat_add(x_4, x_9);
@@ -822,7 +822,7 @@ if (x_2 == 0)
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_array_get_size(x_3);
-x_5 = l_Array_emptyWithCapacity(lean_box(0), x_4);
+x_5 = lean_mk_empty_array_with_capacity(x_4);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Array_mapFinIdxM_map___at_Lean_Elab_FixedParams_Info_addSelfCalls___spec__2(x_3, x_3, x_4, x_6, lean_box(0), x_5);
 lean_dec(x_3);
@@ -838,7 +838,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_dec(x_1);
 x_10 = lean_array_get_size(x_8);
-x_11 = l_Array_emptyWithCapacity(lean_box(0), x_10);
+x_11 = lean_mk_empty_array_with_capacity(x_10);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l_Array_mapFinIdxM_map___at_Lean_Elab_FixedParams_Info_addSelfCalls___spec__2(x_8, x_8, x_10, x_12, lean_box(0), x_11);
 lean_dec(x_8);
@@ -875,7 +875,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

@@ -1,5 +1,6 @@
 inductive Foo where
   | foo
+--^ waitForILeans
 example : Foo :=
   let c := Foo.foo
   c

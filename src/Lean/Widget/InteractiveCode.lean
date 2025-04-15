@@ -73,24 +73,15 @@ where
         }
         TaggedText.tag t (go subTt)
 
-def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
+open PrettyPrinter Delaborator in
+/--
+Pretty prints the expression `e` using delaborator `delab`, returning an object that represents
+the pretty printed syntax paired with information needed to support hovers.
+-/
+def ppExprTagged (e : Expr) (delab : Delab := Delaborator.delab) : MetaM CodeWithInfos := do
   if pp.raw.get (← getOptions) then
-    return .text (toString (← instantiateMVars e))
-  let delab := open PrettyPrinter.Delaborator in
-    if explicit then
-      withOptionAtCurrPos pp.tagAppFns.name true do
-      withOptionAtCurrPos pp.explicit.name true do
-      withOptionAtCurrPos pp.mvars.anonymous.name true do
-        delabApp
-    else
-      withOptionAtCurrPos pp.proofs.name true do
-      withOptionAtCurrPos pp.sorrySource.name true do
-        delab
-  let mut e := e
-  -- When hovering over a metavariable, we want to see its value, even if `pp.instantiateMVars` is false.
-  if explicit && e.isMVar then
-    if let some e' ← getExprMVarAssignment? e.mvarId! then
-      e := e'
+    let e ← if getPPInstantiateMVars (← getOptions) then instantiateMVars e else pure e
+    return .text (toString e)
   let ⟨fmt, infos⟩ ← PrettyPrinter.ppExprWithInfos e (delab := delab)
   let tt := TaggedText.prettyTagged fmt
   let ctx := {

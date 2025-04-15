@@ -43,6 +43,12 @@ class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
 
+-- We reduce the priority of these parent instances,
+-- so that in downstream libraries with their own `CommRing` class,
+-- the path `CommRing -> Add` is found before `CommRing -> Lean.Grind.CommRing -> Add`.
+-- (And similarly for the other parents.)
+attribute [instance 100] CommRing.toAdd CommRing.toMul CommRing.toNeg CommRing.toSub CommRing.toHPow
+
 -- This is a low-priority instance, to avoid conflicts with existing `OfNat` instances.
 attribute [instance 100] CommRing.ofNat
 

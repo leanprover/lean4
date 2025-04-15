@@ -1717,12 +1717,12 @@ theorem append_eq_append_iff {ws : Vector α n} {xs : Vector α m} {ys : Vector 
   constructor
   · rintro (⟨as, rfl, rfl⟩ | ⟨cs, rfl, rfl⟩)
     · rw [dif_pos (by simp)]
-      exact ⟨as.toVector.cast (by simp; omega), by simp⟩
+      exact ⟨as.toVector.cast (by simp), by simp⟩
     · split <;> rename_i h
       · have hc : cs.size = 0 := by simp at h; omega
         simp at hc
-        exact ⟨#v[].cast (by simp; omega), by simp_all⟩
-      · exact ⟨cs.toVector.cast (by simp; omega), by simp⟩
+        exact ⟨#v[].cast (by simp), by simp_all⟩
+      · exact ⟨cs.toVector.cast (by simp), by simp⟩
   · split <;> rename_i h
     · rintro ⟨as, hc, rfl⟩
       left

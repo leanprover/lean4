@@ -54,7 +54,7 @@ theorem RArray.size_ofFn {n : Nat} (f : Fin n → α) (h : 0 < n) :
 where
   go lb ub h1 h2 : (ofFn.go f lb ub h1 h2).size = ub - lb := by
     induction lb, ub, h1, h2 using RArray.ofFn.go.induct (n := n)
-    case case1 => simp [ofFn.go, size]; omega
+    case case1 => simp [ofFn.go, size]
     case case2 ih1 ih2 hiu => rw [ofFn.go]; simp +zetaDelta [size, *]; omega
 
 section Meta

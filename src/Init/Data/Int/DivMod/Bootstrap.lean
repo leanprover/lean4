@@ -156,7 +156,7 @@ theorem add_mul_ediv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c) / c
       show ediv (↑(n * succ k) + -((m : Int) + 1)) (succ k) = n + -(↑(m / succ k) + 1 : Int)
       rw [H h, H ((Nat.le_div_iff_mul_le k.succ_pos).2 h)]
       apply congrArg negSucc
-      rw [Nat.mul_comm, Nat.sub_mul_div]; rwa [Nat.mul_comm]
+      rw [Nat.mul_comm, Nat.sub_mul_div_of_le]; rwa [Nat.mul_comm]
 
 theorem add_mul_ediv_left (a : Int) {b : Int}
     (c : Int) (H : b ≠ 0) : (a + b * c) / b = a / b + c :=

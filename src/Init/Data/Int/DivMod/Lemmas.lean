@@ -481,7 +481,7 @@ theorem ediv_eq_neg_one_of_neg_of_le {a b : Int} (H1 : a < 0) (H2 : -a ≤ b) : 
   | negSucc a', ofNat (b' + 1), H1, H2 =>
     rw [Int.div_def, ediv, Int.negSucc_eq, Int.neg_inj]
     norm_cast
-    rw [Nat.add_left_eq_self, Nat.div_eq_zero_iff_lt (by omega)]
+    rw [Nat.add_eq_right, Nat.div_eq_zero_iff_lt (by omega)]
     simp [Int.negSucc_eq] at H2
     omega
 
@@ -491,7 +491,7 @@ theorem ediv_eq_one_of_neg_of_le {a b : Int} (H1 : a < 0) (H2 : b ≤ a) : a / b
   | negSucc a', negSucc b', H1, H2 =>
     rw [Int.div_def, ediv, ofNat_eq_coe]
     norm_cast
-    rw [Nat.succ_eq_add_one, Nat.add_left_eq_self, Nat.div_eq_zero_iff_lt (by omega)]
+    rw [Nat.succ_eq_add_one, Nat.add_eq_right, Nat.div_eq_zero_iff_lt (by omega)]
     simp [Int.negSucc_eq] at H2
     omega
 

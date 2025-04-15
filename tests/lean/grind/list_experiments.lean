@@ -2666,14 +2666,18 @@ theorem mem_partition : a ∈ l ↔ a ∈ (partition p l).1 ∨ a ∈ (partition
 are often used for theorems about `Array.pop`.
 -/
 
-theorem length_dropLast : ∀ {xs : List α}, xs.dropLast.length = xs.length - 1
-  | [] => rfl
-  | x::xs => by simp
+theorem length_dropLast {xs : List α} : xs.dropLast.length = xs.length - 1 := by
+  induction xs with simp
 
+attribute [grind] List.length_dropLast
+
+-- FIXME
 theorem getElem_dropLast : ∀ {xs : List α} {i : Nat} (h : i < xs.dropLast.length),
-    xs.dropLast[i] = xs[i]'(Nat.lt_of_lt_of_le h (length_dropLast .. ▸ Nat.pred_le _))
+    xs.dropLast[i] = xs[i]'(by grind)
   | _ :: _ :: _, 0, _ => rfl
   | _ :: _ :: _, _ + 1, h => getElem_dropLast (Nat.add_one_lt_add_one_iff.mp h)
+
+attribute [grind] List.getElem_dropLast
 
 theorem getElem?_dropLast {xs : List α} {i : Nat} :
     xs.dropLast[i]? = if i < xs.length - 1 then xs[i]? else none := by

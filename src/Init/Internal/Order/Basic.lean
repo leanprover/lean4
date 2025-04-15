@@ -268,6 +268,9 @@ def gfp (f : α → α) : α :=
 def gfp_monotone (f : α → α) (hm : monotone f) : α :=
   gfp f
 
+def lfp_monotone (f : α → α) (hm : monotone f) : α :=
+  lfp f
+
 theorem gfp_postfixed {f : α → α} {hm : monotone f} :
     (gfp f) ⊑ f (gfp f) := by
     apply sup_le
@@ -327,6 +330,12 @@ theorem lfp_fix {f : α → α} {hm : monotone f} :
   apply lfp_prefixed
   trivial
 
+theorem lfp_fix_monotone {f : α → α} (hm : monotone f) :
+  lfp_monotone f hm = f (lfp_monotone f hm) := by
+    unfold lfp_monotone
+    apply lfp_fix
+    trivial
+
 theorem gfp_coinduction {f : α → α} :
   x ⊑ f x → x ⊑ gfp f := fun hx => le_sup hx
 
@@ -335,9 +344,13 @@ theorem gfp_coinduction_monotone (f : α → α) {hm : monotone f} (x : α):
   unfold gfp_monotone
   apply gfp_coinduction
 
-
 theorem lfp_induction {f : α → α} :
   f x ⊑ x → lfp f ⊑ x := fun hx => inf_le hx
+
+theorem lfp_induction_monotone (f : α → α) {hm : monotone f} (x : α):
+  f x ⊑ x → lfp_monotone f hm ⊑ x := by
+  unfold lfp_monotone
+  apply lfp_induction
 
 end lattice_fix
 
@@ -852,19 +865,36 @@ instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind
 end mono_bind
 
 section coinductive_predicates
-instance inst_coind_po: PartialOrder Prop where
-  rel x y := x → y
-  rel_refl := fun x => x
-  rel_trans h₁ h₂ := fun x => h₂ (h₁  x)
-  rel_antisymm h₁ h₂ := propext ⟨h₁, h₂⟩
 
-@[partial_fixpoint_monotone] theorem monotone_exists
+instance inst_coind_po : PartialOrder Prop where
+  rel x y := y → x
+  rel_refl := fun x => x
+  rel_trans := fun h₁ h₂ => fun x => h₁ (h₂ x)
+  rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
+
+instance inst_coind_complete_lattice : complete_lattice Prop where
+  sup c := ∀ p, c p → p
+  sup_spec := by
+    intro x c
+    constructor
+    case mp =>
+      intro h y cy l
+      apply h
+      exact l
+      exact cy
+    case mpr =>
+      intros h y cy ccy
+      apply h
+      exact ccy
+      exact y
+
+@[partial_fixpoint_monotone] theorem coind_monotone_exists
     {α} [PartialOrder α] {β} (f : α → β → Prop)
     (h : monotone f) :
     monotone (fun x => Exists (f x)) :=
   fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
 
-@[partial_fixpoint_monotone] theorem monotone_and
+@[partial_fixpoint_monotone] theorem coind_monotone_and
     {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
     (h₁ : monotone f₁) (h₂ : monotone f₂) :
     monotone (fun x => f₁ x ∧ f₂ x) :=
@@ -872,7 +902,29 @@ instance inst_coind_po: PartialOrder Prop where
 
 end coinductive_predicates
 
-instance inst_coind_complete_lattice : complete_lattice Prop where
+section inductive_predicates
+
+instance inst_ind_po: PartialOrder Prop where
+  rel x y := x → y
+  rel_refl := fun x => x
+  rel_trans h₁ h₂ := fun x => h₂ (h₁  x)
+  rel_antisymm h₁ h₂ := propext ⟨h₁, h₂⟩
+
+@[partial_fixpoint_monotone] theorem ind_monotone_exists
+    {α} [PartialOrder α] {β} (f : α → β → Prop)
+    (h : monotone f) :
+    monotone (fun x => Exists (f x)) :=
+  fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
+
+@[partial_fixpoint_monotone] theorem ind_monotone_and
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : monotone f₁) (h₂ : monotone f₂) :
+    monotone (fun x => f₁ x ∧ f₂ x) :=
+  fun x y hxy ⟨hfx₁, hfx₂⟩ => ⟨h₁ x y hxy hfx₁, h₂ x y hxy hfx₂⟩
+
+end inductive_predicates
+
+instance inst_ind_complete_lattice : complete_lattice Prop where
   sup c := ∃ p, c p ∧ p
   sup_spec := by
     intro x c

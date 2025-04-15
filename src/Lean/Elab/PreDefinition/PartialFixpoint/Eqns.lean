@@ -47,8 +47,8 @@ private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) 
 partial def rwFixUnder (lhs : Expr) : MetaM Expr := do
   if lhs.isAppOfArity ``Order.fix 4 then
     return mkAppN (mkConst ``Order.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
-  else if lhs.isAppOfArity ``Order.gfp_monotone 4 then
-    return mkAppN (mkConst ``Order.gfp_fix_monotone lhs.getAppFn.constLevels!) lhs.getAppArgs
+  else if lhs.isAppOfArity ``Order.lfp_monotone 4 then
+    return mkAppN (mkConst ``Order.lfp_fix_monotone lhs.getAppFn.constLevels!) lhs.getAppArgs
   else if lhs.isApp then
     let h ← rwFixUnder lhs.appFn!
     mkAppM ``congrFun #[h, lhs.appArg!]

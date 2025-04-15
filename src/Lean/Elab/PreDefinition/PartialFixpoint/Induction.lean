@@ -56,7 +56,7 @@ def desugarOrder (predType : Expr) (body : Expr) (reduceRhs : Bool := false) : M
     let names ← lhsTypes.mapM (fun _ => mkFreshUserName `x)
     let bodyArgs := body.getAppArgs
     withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
-      let mut applied := (bodyArgs[2]!, bodyArgs[3]!)
+      let mut applied := (bodyArgs[3]!, bodyArgs[2]!)
       for e in exprs do
         applied := (mkApp applied.1 e, mkApp applied.2 e)
       if reduceRhs then
@@ -94,11 +94,11 @@ def deriveInduction (name : Name) : MetaM Unit :=
         -- up to the final projections)
         let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
         -- We do not strip projections
-        let some fixApp ← whnfUntil body ``gfp_monotone
-          | throwError "Unexpected function body {body}, could not whnfUntil gfp_monotone"
-        let_expr gfp_monotone α instcomplete_lattice F hmono := fixApp
-          | throwError "Unexpected function body {body}, not an application of gfp_coinduction"
-        let e' ← mkAppOptM ``gfp_coinduction_monotone #[α, instcomplete_lattice, F, hmono]
+        let some fixApp ← whnfUntil body ``lfp_monotone
+          | throwError "Unexpected function body {body}, could not whnfUntil lfp_monotone"
+        let_expr lfp_monotone α instcomplete_lattice F hmono := fixApp
+          | throwError "Unexpected function body {body}, not an application of lfp_induction"
+        let e' ← mkAppOptM ``lfp_induction_monotone #[α, instcomplete_lattice, F, hmono]
         --get the type
         let eTyp ← inferType e'
         let f ← mkConstWithLevelParams infos[0]!.name
@@ -107,18 +107,21 @@ def deriveInduction (name : Name) : MetaM Unit :=
         let fInst ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda fEtaExpanded xs
         let fInst := fInst.eta
 
-        -- Change the conclusion so it doesn't mention the greatest fixpoint
+        --Change the conclusion so it doesn't mention the greatest fixpoint
         let newTyp ← forallTelescope eTyp (fun args econc =>
           if (econc.isAppOfArity ``PartialOrder.rel 4) then
-          let oldArgs := econc.getAppArgs.pop
-          let newArgs := oldArgs.append #[fInst]
+          let oldArgs := econc.getAppArgs
+          --if true then throwError "isCoinductive: {oldArgs}" else
+          let newArgs := oldArgs.set! 2 fInst
           let newBody := mkAppN econc.getAppFn newArgs
+
           mkForallFVars args newBody
-        else
-          throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
+
+          else
+            throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
         )
 
-        -- Desugar partial order on predicates in premises and conclusion
+        --Desugar partial order on predicates in premises and conclusion
         let newTyp ← forallTelescope newTyp (fun args conclusion => do
           let predicate := args[0]!
           let predicateType ← inferType predicate

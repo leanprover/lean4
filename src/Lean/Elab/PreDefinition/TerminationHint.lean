@@ -39,7 +39,7 @@ inductive PartialFixpointType where
   | leastFixpoint
   deriving Inhabited
 
-/-- A single `partial_fixpoint` or `greatest_fixpoint` clause -/
+/-- A single `partial_fixpoint`, `greatest_fixpoint` or `least_fixpoint` clause -/
 structure PartialFixpoint where
   ref               : Syntax
   term?             : Option Term

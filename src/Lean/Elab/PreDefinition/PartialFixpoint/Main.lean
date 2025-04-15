@@ -101,7 +101,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           if !type.isProp then
             throwError "`least_fixpoint` can be only used to define predicates"
           else
-            mkAppOptM ``inst_coind_complete_lattice #[]
+            mkAppOptM ``inst_ind_complete_lattice #[]
         | .partialFixpoint => try
             synthInstance (← mkAppM ``CCPO #[type])
           catch _ =>
@@ -189,7 +189,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         instantiateMVars hmono
     let hmono ← PProdN.genMk mkMonoPProd hmonos
 
-    let packedValue ← if isLattice then mkAppOptM ``gfp_monotone #[packedType, packedCCPOInst, none, hmono] else mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]
+    let packedValue ← if isLattice then mkAppOptM ``lfp_monotone #[packedType, packedCCPOInst, none, hmono] else mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]
 
     trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 

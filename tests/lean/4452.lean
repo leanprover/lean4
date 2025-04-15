@@ -1,6 +1,6 @@
 def a := 1
 
-@[deprecated]
+@[deprecated "Don't use `hi`." (since := "1970-01-01")]
 theorem hi : a = 1 := rfl
 
 attribute [simp] hi
@@ -19,7 +19,7 @@ example (h : 1 = b) : a = b := by
   guard_target =ₛ 1 = b
   exact h
 
-@[deprecated]
+@[deprecated "Don't use `hi'`, either." (since := "1970-01-01")]
 theorem hi' : True := .intro
 
 example : True := by

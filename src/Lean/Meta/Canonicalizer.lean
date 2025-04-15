@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Data.HashMap
 import Lean.Util.ShareCommon
 import Lean.Meta.Basic
 import Lean.Meta.FunInfo
@@ -49,7 +48,7 @@ State for the `CanonM` monad.
 structure State where
   /-- Mapping from `Expr` to hash. -/
   -- We use `HashMap.Raw` to ensure we don't have to tag `State` as `unsafe`.
-  cache      : Std.HashMap.Raw ExprVisited UInt64 := Std.HashMap.Raw.empty
+  cache      : Std.HashMap.Raw ExprVisited UInt64 := ∅
   /--
   Given a hashcode `k` and `keyToExprs.find? h = some es`, we have that all `es` have hashcode `k`, and
   are not definitionally equal modulo the transparency setting used. -/
@@ -91,7 +90,15 @@ private partial def mkKey (e : Expr) : CanonM UInt64 := do
           let eNew ← instantiateMVars e
           unless eNew == e do
             return (← mkKey eNew)
-        let info ← getFunInfo f
+        let info ← if f.hasLooseBVars then
+          -- If `f` has loose bound variables, `getFunInfo` will fail.
+          -- This can only happen if `f` contains local variables.
+          -- Instead we use an empty `FunInfo`, which results in the
+          -- `i < info.paramInfo.size` check below failing for all indices,
+          -- and hence mixing in the hash for all arguments.
+          pure {}
+        else
+          getFunInfo f
         let mut k ← mkKey f
         for i in [:e.getAppNumArgs] do
           if h : i < info.paramInfo.size then
@@ -101,10 +108,13 @@ private partial def mkKey (e : Expr) : CanonM UInt64 := do
           else
               k := mixHash k (← mkKey (e.getArg! i))
         return k
-      | .lam _ t b _
-      | .forallE _ t b _ =>
+      | .lam n t b bi
+      | .forallE n t b bi =>
+        -- Note that we do not use `withLocalDecl` here, for performance reasons.
+        -- Instead we have a guard for loose bound variables in the `.app` case above.
         return mixHash (← mkKey t) (← mkKey b)
-      | .letE _ _ v b _ =>
+      | .letE n t v b _ =>
+        -- Similarly, we do not use `withLetDecl` here.
         return mixHash (← mkKey v) (← mkKey b)
       | .proj _ i s =>
         return mixHash i.toUInt64 (← mkKey s)
@@ -124,11 +134,11 @@ def canon (e : Expr) : CanonM Expr := do
         if (← isDefEq e e') then
           return e'
       -- `e` is not definitionally equal to any expression in `es'`. We claim this should be rare.
-      unsafe modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k (e :: es') }
+      modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k (e :: es') }
       return e
   else
     -- `e` is the first expression we found with key `k`.
-    unsafe modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k [e] }
+    modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k [e] }
     return e
 
 end Canonicalizer

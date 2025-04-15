@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include <algorithm>
+#include "runtime/flet.h"
 #include "util/lbool.h"
 #include "util/name_set.h"
 #include "util/name_generator.h"
@@ -104,6 +105,7 @@ private:
     optional<expr> reduce_pow(expr const & e);
     optional<expr> reduce_nat(expr const & e);
 public:
+    // The following two constructor are used only by the old compiler and should be deleted with it
     type_checker(state & st, local_ctx const & lctx, definition_safety ds = definition_safety::safe);
     type_checker(state & st, definition_safety ds = definition_safety::safe):type_checker(st, local_ctx(), ds) {}
     type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe);

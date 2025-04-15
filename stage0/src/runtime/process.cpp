@@ -27,6 +27,10 @@ Author: Jared Roesch
 #include <limits.h> // NOLINT
 #endif
 
+#ifdef __linux
+#include <sys/syscall.h>
+#endif
+
 #include "runtime/object.h"
 #include "runtime/io.h"
 #include "runtime/array_ref.h"
@@ -80,6 +84,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     return lean_io_result_mk_ok(box_uint32(GetCurrentProcessId()));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
+    return lean_io_result_mk_ok(box_uint64(GetCurrentThreadId()));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
@@ -114,6 +122,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
         return io_result_mk_error((sstream() << GetLastError()).str());
     }
     return lean_io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
+    HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
+    return GetProcessId(h);
 }
 
 static FILE * from_win_handle(HANDLE handle, char const * mode) {
@@ -316,6 +329,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     return lean_io_result_mk_ok(box_uint32(getpid()));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
+    uint64_t tid;
+#ifdef __APPLE__
+    lean_always_assert(pthread_threadid_np(NULL, &tid) == 0);
+#elif defined(LEAN_EMSCRIPTEN)
+    tid = 0;
+#else
+    // since Linux 2.4.11, our glibc 2.27 requires at least 3.2
+    // glibc 2.30 would provide a wrapper
+    tid = (pid_t)syscall(SYS_gettid);
+#endif
+    return lean_io_result_mk_ok(box_uint64(tid));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
@@ -362,6 +389,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
         return io_result_mk_error(decode_io_error(errno, nullptr));
     }
     return lean_io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
+    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
+    pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
+    return pid;
 }
 
 struct pipe { int m_read_fd; int m_write_fd; };

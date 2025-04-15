@@ -15,7 +15,7 @@ namespace Lean.Elab
 /-- A single `termination_by` clause -/
 structure TerminationBy where
   ref          : Syntax
-  structural : Bool
+  structural   : Bool
   vars         : TSyntaxArray [`ident, ``Lean.Parser.Term.hole]
   body         : Term
   /--
@@ -33,6 +33,12 @@ structure DecreasingBy where
   tactic    : TSyntax ``Lean.Parser.Tactic.tacticSeq
   deriving Inhabited
 
+/-- A single `partial_fixpoint` clause -/
+structure PartialFixpoint where
+  ref       : Syntax
+  term?     : Option Term
+  deriving Inhabited
+
 /--
 The termination annotations for a single function.
 For `decreasing_by`, we store the whole `decreasing_by tacticSeq` expression, as this
@@ -42,12 +48,13 @@ structure TerminationHints where
   ref : Syntax
   terminationBy?? : Option Syntax
   terminationBy? : Option TerminationBy
+  partialFixpoint? : Option PartialFixpoint
   decreasingBy?  : Option DecreasingBy
   /--
   Here we record the number of parameters past the `:`. It is set by
   `TerminationHints.rememberExtraParams` and used as follows:
 
-  * When we guess the termination argument in `GuessLex` and want to print it in surface-syntax
+  * When we guess the termination measure in `GuessLex` and want to print it in surface-syntax
     compatible form.
   * If there are fewer variables in the `termination_by` annotation than there are extra
     parameters, we know which parameters they should apply to (`TerminationBy.checkVars`).
@@ -55,26 +62,29 @@ structure TerminationHints where
   extraParams : Nat
   deriving Inhabited
 
-def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, 0⟩
+def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, .none, 0⟩
 
 /-- Logs warnings when the `TerminationHints` are unexpectedly present.  -/
 def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : CoreM Unit := do
-  match hints.terminationBy??, hints.terminationBy?, hints.decreasingBy? with
-  | .none, .none, .none => pure ()
-  | .none, .none, .some dec_by =>
+  match hints.terminationBy??, hints.terminationBy?, hints.decreasingBy?, hints.partialFixpoint? with
+  | .none, .none, .none, .none => pure ()
+  | .none, .none, .some dec_by, .none =>
     logWarningAt dec_by.ref m!"unused `decreasing_by`, function is {reason}"
-  | .some term_by?, .none, .none =>
+  | .some term_by?, .none, .none, .none =>
     logWarningAt term_by? m!"unused `termination_by?`, function is {reason}"
-  | .none, .some term_by, .none =>
+  | .none, .some term_by, .none, .none =>
     logWarningAt term_by.ref m!"unused `termination_by`, function is {reason}"
-  | _, _, _ =>
+  | .none, .none, .none, .some partialFixpoint =>
+    logWarningAt partialFixpoint.ref m!"unused `partial_fixpoint`, function is {reason}"
+  | _, _, _, _=>
     logWarningAt hints.ref m!"unused termination hints, function is {reason}"
 
 /-- True if any form of termination hint is present. -/
 def TerminationHints.isNotNone (hints : TerminationHints) : Bool :=
   hints.terminationBy??.isSome ||
   hints.terminationBy?.isSome ||
-  hints.decreasingBy?.isSome
+  hints.decreasingBy?.isSome ||
+  hints.partialFixpoint?.isSome
 
 /--
 Remembers `extraParams` for later use. Needs to happen early enough where we still know
@@ -90,10 +100,10 @@ lambda of `value`, and throws appropriate errors.
 -/
 def TerminationBy.checkVars (funName : Name) (extraParams : Nat) (tb : TerminationBy) : MetaM Unit := do
   unless tb.synthetic do
-    if tb.vars.size > extraParams then
+    if h : tb.vars.size > extraParams then
       let mut msg := m!"{parameters tb.vars.size} bound in `termination_by`, but the body of " ++
         m!"{funName} only binds {parameters extraParams}."
-      if let `($ident:ident) := tb.vars[0]! then
+      if let `($ident:ident) := tb.vars[0] then
         if ident.getId.isSuffixOf funName then
             msg := msg ++ m!" (Since Lean v4.6.0, the `termination_by` clause no longer " ++
               "expects the function name here.)"
@@ -117,6 +127,8 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | _ => pure none
       else pure none
     let terminationBy? : Option TerminationBy ← if let some t := t? then match t with
+      | `(terminationBy|termination_by partialFixpointursion) =>
+        pure (some {ref := t, structural := false, vars := #[], body := ⟨.missing⟩ : TerminationBy})
       | `(terminationBy|termination_by $[structural%$s]? => $_body) =>
         throwErrorAt t "no extra parameters bounds, please omit the `=>`"
       | `(terminationBy|termination_by $[structural%$s]? $vars* => $body) =>
@@ -124,12 +136,17 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | `(terminationBy|termination_by $[structural%$s]? $body:term) =>
         pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none
+      | `(partialFixpoint|partial_fixpoint $[monotonicity $_]?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
+      else pure none
+    let partialFixpoint? : Option PartialFixpoint ← if let some t := t? then match t with
+      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?})
+      | _ => pure none
       else pure none
     let decreasingBy? ← d?.mapM fun d => match d with
       | `(decreasingBy|decreasing_by $tactic) => pure {ref := d, tactic}
       | _ => throwErrorAt d "unexpected `decreasing_by` syntax"
-    return { ref := stx, terminationBy??, terminationBy?, decreasingBy?, extraParams := 0 }
+    return { ref := stx, terminationBy??, terminationBy?, partialFixpoint?, decreasingBy?, extraParams := 0 }
   | _ => throwErrorAt stx s!"Unexpected Termination.suffix syntax: {stx} of kind {stx.raw.getKind}"
 
 end Lean.Elab

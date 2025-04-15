@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Config.Package
 import Lake.DSL.Attributes
 import Lake.DSL.DeclUtil
@@ -35,7 +36,7 @@ script «script-name» (args) do
 scoped syntax (name := scriptDecl)
 (docComment)?  optional(Term.attributes) "script " scriptDeclSpec : command
 
-@[macro scriptDecl]
+@[builtin_macro scriptDecl]
 def expandScriptDecl : Macro
 | `($[$doc?]? $[$attrs?]? script%$kw $name $[$args?]? do $seq $[$wds?:whereDecls]?) => do
   `($[$doc?]? $[$attrs?]? script%$kw $name $[$args?]? := do $seq $[$wds?:whereDecls]?)

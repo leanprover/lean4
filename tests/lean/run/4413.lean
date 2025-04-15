@@ -1,3 +1,5 @@
+set_option pp.mvars false
+
 structure Note where
   pitch : UInt64
   start : Nat
@@ -16,13 +18,13 @@ theorem Note.self_containsNote_lowerSemitone_self (n : Note) :
 error: type mismatch
   rfl
 has type
-  n = n : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   n = n - 1 : Prop
 -/
 #guard_msgs in
 set_option maxRecDepth 100 in
-set_option maxHeartbeats 100 in
+set_option maxHeartbeats 200 in
 example (n : UInt64) : n = n - 1 :=
   rfl
 

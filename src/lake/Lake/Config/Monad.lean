@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Config.Context
 import Lake.Config.Workspace
 
@@ -27,6 +28,7 @@ abbrev LakeEnvT := ReaderT Lake.Env
 
 /-- A monad equipped with a (read-only) Lake `Workspace`. -/
 class MonadWorkspace (m : Type → Type u) where
+  /-- Gets the current Lake workspace. -/
   getWorkspace : m Workspace
 
 export MonadWorkspace (getWorkspace)
@@ -127,6 +129,9 @@ variable [MonadLakeEnv m]
 
 /-! ## Environment Helpers -/
 
+/--
+Gets the current Lake environment.
+-/
 @[inline] def getLakeEnv : m Lake.Env :=
   read
 
@@ -225,6 +230,10 @@ variable [Functor m]
 /-- Get the optional `LEAN_CC` compiler override of the detected Lean installation. -/
 @[inline] def getLeanCc? : m (Option String) :=
   (·.leanCc?) <$> getLeanInstall
+
+/-- Get the flags required to link shared libraries using the detected Lean installation. -/
+@[inline] def getLeanLinkSharedFlags : m (Array String) :=
+  (·.ccLinkSharedFlags) <$> getLeanInstall
 
 /-! ### Lake Install Helpers -/
 

@@ -77,7 +77,7 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   if newHeader.modifiers.isPartial && newHeader.modifiers.isUnsafe then
     throwError "'unsafe' subsumes 'partial'"
   if h : 0 < prevHeaders.size then
-    let firstHeader := prevHeaders.get ⟨0, h⟩
+    let firstHeader := prevHeaders[0]
     try
       unless newHeader.levelNames == firstHeader.levelNames do
         throwError "universe parameters mismatch"
@@ -135,12 +135,10 @@ private def cleanupOfNat (type : Expr) : MetaM Expr := do
 Elaborates only the declaration view headers. We have to elaborate the headers first because we
 support mutually recursive declarations in Lean 4.
 -/
-private def elabHeaders (views : Array DefView)
+private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandDeclIdResult)
     (bodyPromises : Array (IO.Promise (Option BodyProcessedSnapshot)))
     (tacPromises : Array (IO.Promise Tactic.TacticParsedSnapshot)) :
     TermElabM (Array DefViewElabHeader) := do
-  let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
-    Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
   withAutoBoundImplicitForbiddenPred (fun n => expandedDeclIds.any (·.shortName == n)) do
     let mut headers := #[]
     -- Can we reuse the result for a body? For starters, all headers (even those below the body)
@@ -166,6 +164,10 @@ private def elabHeaders (views : Array DefView)
             view.value.eqWithInfoAndTraceReuse (← getOptions) old.bodyStx
           -- no syntax guard to store, we already did the necessary checks
           oldBodySnap? := guard reuseBody *> pure ⟨.missing, old.bodySnap⟩
+          if oldBodySnap?.isNone then
+            -- NOTE: this will eagerly cancel async tasks not associated with an inner snapshot, most
+            -- importantly kernel checking and compilation of the top-level declaration
+            old.bodySnap.cancelRec
           oldTacSnap? := do
               guard reuseTac
               some ⟨(← old.tacStx?), (← old.tacSnap?)⟩
@@ -175,7 +177,9 @@ private def elabHeaders (views : Array DefView)
         else
           reuseBody := false
 
-      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? none do
+      let mut (newHeader, newState) ←
+        withTraceNode `Elab.definition.header (fun _ => pure declName) do
+        withRestoreOrSaveFull reusableResult? none do
         withReuseContext view.headerRef do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
@@ -197,7 +201,7 @@ private def elabHeaders (views : Array DefView)
               type ← cleanupOfNat type
             let (binderIds, xs) := xs.unzip
             -- TODO: add forbidden predicate using `shortDeclName` from `views`
-            let xs ← addAutoBoundImplicits xs
+            let xs ← addAutoBoundImplicits xs (view.declId.getTailPos? (canonicalOnly := true))
             type ← mkForallFVars' xs type
             type ← instantiateMVarsProfiling type
             let levelNames ← getLevelNames
@@ -215,15 +219,30 @@ private def elabHeaders (views : Array DefView)
             return newHeader
       if let some snap := view.headerSnap? then
         let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
+        let cancelTk? := (← readThe Core.Context).cancelTk?
+        let bodySnap := {
+          stx? := view.value
+          reportingRange? :=
+            if newTacTask?.isSome then
+              -- Only use first line of body as range when we have incremental tactics as otherwise we
+              -- would cover their progress
+              view.ref.getPos?.map fun pos => ⟨pos, pos⟩
+            else
+              getBodyTerm? view.value |>.getD view.value |>.getRange?
+          task := bodyPromise.resultD default
+          -- We should not cancel the entire body early if we have tactics
+          cancelTk? := guard newTacTask?.isNone *> cancelTk?
+        }
         snap.new.resolve <| some {
           diagnostics :=
             (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+          moreSnaps := (← Core.getAndEmptySnapshotTasks)
           view := newHeader.toDefViewElabHeaderData
           state := newState
           tacStx?
           tacSnap? := newTacTask?
           bodyStx := view.value
-          bodySnap := mkBodyTask view.value bodyPromise
+          bodySnap
         }
         newHeader := { newHeader with
           -- We should only forward the promise if we are actually waiting on the
@@ -245,12 +264,6 @@ where
     guard whereDeclsOpt.isNone
     return body
 
-  /-- Creates snapshot task with appropriate range from body syntax and promise. -/
-  mkBodyTask (body : Syntax) (new : IO.Promise (Option BodyProcessedSnapshot)) :
-      Language.SnapshotTask (Option BodyProcessedSnapshot) :=
-    let rangeStx := getBodyTerm? body |>.getD body
-    { range? := rangeStx.getRange?, task := new.result }
-
   /--
   If `body` allows for incremental tactic reporting and reuse, creates a snapshot task out of the
   passed promise with appropriate range, otherwise immediately resolves the promise to a dummy
@@ -261,7 +274,8 @@ where
    := do
     if let some e := getBodyTerm? body then
       if let `(by $tacs*) := e then
-        return (e, some { range? := mkNullNode tacs |>.getRange?, task := tacPromise.result })
+        let cancelTk? := (← readThe Core.Context).cancelTk?
+        return (e, some { stx? := mkNullNode tacs, task := tacPromise.resultD default, cancelTk? })
     tacPromise.resolve default
     return (none, none)
 
@@ -273,7 +287,7 @@ where
 private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) := do
     if h : i < headers.size then
-      let header := headers.get ⟨i, h⟩
+      let header := headers[i]
       if header.modifiers.isNonrec then
         loop (i+1) fvars
       else
@@ -282,29 +296,36 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
       k fvars
   loop 0 #[]
 
-private def expandWhereStructInst : Macro
-  | `(Parser.Command.whereStructInst|where $[$decls:letDecl];* $[$whereDecls?:whereDecls]?) => do
-    let letIdDecls ← decls.mapM fun stx => match stx with
-      | `(letDecl|$_decl:letPatDecl) => Macro.throwErrorAt stx "patterns are not allowed here"
-      | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl (useExplicit := false)
-      | `(letDecl|$decl:letIdDecl)   => pure decl
-      | _                            => Macro.throwUnsupported
-    let structInstFields ← letIdDecls.mapM fun
-      | stx@`(letIdDecl|$id:ident $binders* $[: $ty?]? := $val) => withRef stx do
-        let mut val := val
-        if let some ty := ty? then
-          val ← `(($val : $ty))
-        -- HACK: this produces invalid syntax, but the fun elaborator supports letIdBinders as well
-        have : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) := ⟨(⟨·⟩)⟩
-        val ← if binders.size > 0 then `(fun $binders* => $val) else pure val
-        `(structInstField|$id:ident := $val)
-      | stx@`(letIdDecl|_ $_* $[: $_]? := $_) => Macro.throwErrorAt stx "'_' is not allowed here"
-      | _ => Macro.throwUnsupported
-    let body ← `(structInst| { $structInstFields,* })
-    match whereDecls? with
-    | some whereDecls => expandWhereDecls whereDecls body
-    | none => return body
-  | _ => Macro.throwUnsupported
+private def expandWhereStructInst : Macro := fun whereStx => do
+  let `(Parser.Command.whereStructInst| where%$whereTk $[$structInstFields];* $[$whereDecls?:whereDecls]?) := whereStx
+    | Macro.throwUnsupported
+
+  let startOfStructureTkInfo : SourceInfo :=
+    match whereTk.getPos? with
+    | some pos => .synthetic pos ⟨pos.byteIdx + 1⟩ true
+    | none => .none
+  -- Position the closing `}` at the end of the trailing whitespace of `where $[$_:letDecl];*`.
+  -- We need an accurate range of the generated structure instance in the generated `TermInfo`
+  -- so that we can determine the expected type in structure field completion.
+  let structureStxTailInfo :=
+    whereStx[1].getTailInfo?
+    <|> whereStx[0].getTailInfo?
+  let endOfStructureTkInfo : SourceInfo :=
+    match structureStxTailInfo with
+    | some (SourceInfo.original _ _ trailing _) =>
+      let tokenPos := trailing.str.prev trailing.stopPos
+      let tokenEndPos := trailing.stopPos
+      .synthetic tokenPos tokenEndPos true
+    | _ => .none
+
+  let body ← `(structInst| { $structInstFields,* })
+  let body := body.raw.setInfo <|
+    match startOfStructureTkInfo.getPos?, endOfStructureTkInfo.getTailPos? with
+    | some startPos, some endPos => .synthetic startPos endPos true
+    | _, _ => .none
+  match whereDecls? with
+  | some whereDecls => expandWhereDecls whereDecls body
+  | none => return body
 
 /-
 Recall that
@@ -392,6 +413,20 @@ register_builtin_option linter.unusedSectionVars : Bool := {
   descr := "enable the 'unused section variables in theorem body' linter"
 }
 
+register_builtin_option debug.proofAsSorry : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "replace the bodies (proofs) of theorems with `sorry`"
+}
+
+/-- Returns true if `k` is a theorem, option `debug.proofAsSorry` is set to true, and the environment contains the axiom `sorryAx`. -/
+private def useProofAsSorry (k : DefKind) : CoreM Bool := do
+  if k.isTheorem then
+    if debug.proofAsSorry.get (← getOptions) then
+      if (← getEnv).contains ``sorryAx then
+        return true
+  return false
+
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
@@ -402,9 +437,13 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         if let some old := old.val.get then
           snap.new.resolve <| some old
           reusableResult? := some (old.value, old.state)
+        else
+          -- make sure to cancel any async tasks that may still be running (e.g. kernel and codegen)
+          old.val.cancelRec
 
     let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withReuseContext header.value do
+      withTraceNode `Elab.definition.value (fun _ => pure header.declName) do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
@@ -413,16 +452,21 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         for h : i in [0:header.binderIds.size] do
           -- skip auto-bound prefix in `xs`
           addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]!
-        let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
+        let val ← if (← useProofAsSorry header.kind) then
+          mkSorry type false
+        else withReader ({ · with tacSnap? := header.tacSnap? }) do
           -- Store instantiated body in info tree for the benefit of the unused variables linter
           -- and other metaprograms that may want to inspect it without paying for the instantiation
           -- again
-          withInfoContext' valStx (mkInfo := mkTermInfo `MutualDef.body valStx) do
-            -- synthesize mvars here to force the top-level tactic block (if any) to run
-            let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
-            -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
-            -- leads to more section variables being included than necessary
-            instantiateMVarsProfiling val
+          withInfoContext' valStx
+            (mkInfo := (pure <| .inl <| mkBodyInfo valStx ·))
+            (mkInfoOnError := (pure <| mkBodyInfo valStx none))
+            do
+              -- synthesize mvars here to force the top-level tactic block (if any) to run
+              let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
+              -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
+              -- leads to more section variables being included than necessary
+              instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
         if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
           let unusedVars ← vars.filterMapM fun var => do
@@ -448,6 +492,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       snap.new.resolve <| some {
         diagnostics :=
           (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+        moreSnaps := (← Core.getAndEmptySnapshotTasks)
         state
         value := val
       }
@@ -575,16 +620,26 @@ private def mkInitialUsedFVarsMap [Monad m] [MonadMCtx m] (sectionVars : Array E
   for mainFVarId in mainFVarIds do
     usedFVarMap := usedFVarMap.insert mainFVarId sectionVarSet
   for toLift in letRecsToLift do
-    let state := Lean.collectFVars {} toLift.val
-    let state := Lean.collectFVars state toLift.type
-    let mut set := state.fvarSet
+    let mut state := Lean.collectFVars {} toLift.val
+    state := Lean.collectFVars state toLift.type
+    let mut set := {}
     /- toLift.val may contain metavariables that are placeholders for nested let-recs. We should collect the fvarId
        for the associated let-rec because we need this information to compute the fixpoint later. -/
     let mvarIds := (toLift.val.collectMVars {}).result
     for mvarId in mvarIds do
-      match (← letRecsToLift.findSomeM? fun (toLift : LetRecToLift) => return if toLift.mvarId == (← getDelayedMVarRoot mvarId) then some toLift.fvarId else none) with
+      let root ← getDelayedMVarRoot mvarId
+      match letRecsToLift.findSome? fun (toLift : LetRecToLift) => if toLift.mvarId == root then some toLift.fvarId else none with
       | some fvarId => set := set.insert fvarId
-      | none        => pure ()
+      | none        =>
+        /- If the metavariable is not a nested let-rec, it may contribute additional free-variable
+           dependencies not caught in the fixed-point routine. In particular, delayed assignments
+           due to `match` expressions or tactic blocks induce fvar dependencies that we need to
+           account for (see #6927) but cannot ascertain through instantiation if those expressions
+           contain still-unassigned metavariable placeholders for other let-recs. See Note
+           [Delayed-Assigned Metavariables in Free Variable Collection] for more information. -/
+        let some rootAssignment ← getExprMVarAssignment? root | continue
+        state := Lean.collectFVars state rootAssignment
+    set := state.fvarSet.union set
     usedFVarMap := usedFVarMap.insert toLift.fvarId set
   return usedFVarMap
 
@@ -814,8 +869,8 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
 abbrev Replacement := FVarIdMap Expr
 
 def insertReplacementForMainFns (r : Replacement) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr) : Replacement :=
-  mainFVars.size.fold (init := r) fun i r =>
-    r.insert mainFVars[i]!.fvarId! (mkAppN (Lean.mkConst mainHeaders[i]!.declName) sectionVars)
+  mainFVars.size.fold (init := r) fun i _ r =>
+    r.insert mainFVars[i].fvarId! (mkAppN (Lean.mkConst mainHeaders[i]!.declName) sectionVars)
 
 
 def insertReplacementForLetRecs (r : Replacement) (letRecClosures : List LetRecClosure) : Replacement :=
@@ -845,8 +900,8 @@ def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
 
 def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
     : TermElabM (Array PreDefinition) :=
-  mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
-    let header := mainHeaders[i]!
+  mainHeaders.size.foldM (init := preDefs) fun i _ preDefs => do
+    let header := mainHeaders[i]
     let termination ← declValToTerminationHint header.value
     let termination := termination.rememberExtraParams header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!
@@ -936,7 +991,7 @@ end MutualClosure
 private def getAllUserLevelNames (headers : Array DefViewElabHeader) : List Name :=
   if h : 0 < headers.size then
     -- Recall that all top-level functions must have the same levels. See `check` method above
-    (headers.get ⟨0, h⟩).levelNames
+    headers[0].levelNames
   else
     []
 
@@ -955,6 +1010,24 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let newHeaders ← (process).run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVarsProfiling header.type) }
 
+/--
+Ensures that all declarations given by `preDefs` have distinct names.
+Remark: we wait to perform this check until the pre-definition phase because we must account for
+auxiliary declarations introduced by `where` and `let rec`.
+-/
+private def checkAllDeclNamesDistinct (preDefs : Array PreDefinition) : TermElabM Unit := do
+  let mut names : Std.HashMap Name Syntax := {}
+  for preDef in preDefs do
+    let userName := privateToUserName preDef.declName
+    if let some dupStx := names[userName]? then
+      let errorMsg := m!"'mutual' block contains two declarations of the same name '{userName}'"
+      Lean.logErrorAt dupStx errorMsg
+      throwErrorAt preDef.ref errorMsg
+    names := names.insert userName preDef.ref
+
+structure AsyncBodyInfo where
+deriving TypeName
+
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
@@ -964,46 +1037,116 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
   else
     go
 where
-  go :=
-    withAlwaysResolvedPromises views.size fun bodyPromises =>
-    withAlwaysResolvedPromises views.size fun tacPromises => do
+  go := do
+    let bodyPromises ← views.mapM fun _ => IO.Promise.new
+    let tacPromises ← views.mapM fun _ => IO.Promise.new
+    let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
+      Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+    let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
+    let headers ← levelMVarToParamHeaders views headers
+    -- elaborate body in parallel when all stars align
+    if let (#[view], #[declId]) := (views, expandedDeclIds) then
+      if Elab.async.get (← getOptions) && view.kind.isTheorem &&
+          !deprecated.oldSectionVars.get (← getOptions) &&
+          -- holes in theorem types is not a fatal error, but it does make parallelism impossible
+          !headers[0]!.type.hasMVar then
+        elabAsync headers[0]! view declId
+      else elabSync headers
+    else elabSync headers
+    for view in views, declId in expandedDeclIds do
+      -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
+      -- that depends only on a part of the ref
+      addDeclarationRangesForBuiltin declId.declName view.modifiers.stx view.ref
+  elabSync headers := do
+    finishElab headers
+    processDeriving headers
+  elabAsync header view declId := do
+    let env ← getEnv
+    let async ← env.addConstAsync declId.declName .thm
+    setEnv async.mainEnv
+
+    -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
+    -- makes `@[simp]` etc harder?
+
+    -- commit signature; take level params from type only
+    withHeaderSecVars vars sc #[header] fun vars => do
+      let type ← mkForallFVars vars header.type
+      let allUserLevelNames := getAllUserLevelNames #[header]
+      let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
+      -- NOTE: instantiation must happen after `levelMVarToParam`, otherwise there can be
+      -- normalization differences to the corresponding code in `finishElab`
+      let type ← instantiateMVars type
+
+      -- in the case of theorems, the decl level params are those of the header
+      let mut s : CollectLevelParams.State := {}
+      s := collectLevelParams s type
       let scopeLevelNames ← getLevelNames
-      let headers ← elabHeaders views bodyPromises tacPromises
-      let headers ← levelMVarToParamHeaders views headers
+      let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
+      async.commitSignature { name := header.declName, levelParams, type }
+
+    -- attributes should be applied on the main thread; see below
+    let header := { header with modifiers.attrs := #[] }
+
+    -- insert a hole for the proof info trees in the main info tree
+    let infoHole ← mkFreshMVarId
+    let infoPromise ← IO.Promise.new
+    modifyInfoState fun s => { s with
+      trees := s.trees.push <| .hole infoHole
+      lazyAssignment := s.lazyAssignment.insert infoHole <| infoPromise.resultD default
+    }
+
+    -- now start new thread for body elaboration, then nested thread for kernel checking
+    let cancelTk ← IO.CancelToken.new
+    let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
+        (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
+      setEnv async.asyncEnv
+      try
+        finishElab #[header]
+      finally
+        reportDiag
+        -- must introduce node to fill `infoHole` with multiple info trees
+        let info := .ofCustomInfo { stx := header.value, value := .mk (α := AsyncBodyInfo) {} }
+        let ctx ← CommandContextInfo.save
+        infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
+      async.commitConst (← getEnv)
+      let cancelTk ← IO.CancelToken.new
+      let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}")
+          (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
+        processDeriving #[header]
+        async.commitCheckEnv (← getEnv)
+      let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) checkAct
+      Core.logSnapshotTask { stx? := none, task := checkTask, cancelTk? := cancelTk }
+    Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
+    applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
+    applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
+  finishElab headers := withFunLocalDecls headers fun funFVars => do
+    for view in views, funFVar in funFVars do
+      addLocalVarInfo view.declId funFVar
+    let values ← try
+      let values ← elabFunValues headers vars sc
+      Term.synthesizeSyntheticMVarsNoPostponing
+      values.mapM (instantiateMVarsProfiling ·)
+    catch ex =>
+      logException ex
+      headers.mapM fun header => withRef header.declId <| mkLabeledSorry header.type (synthetic := true) (unique := true)
+    let headers ← headers.mapM instantiateMVarsAtHeader
+    let letRecsToLift ← getLetRecsToLift
+    let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
+    checkLetRecsToLiftTypes funFVars letRecsToLift
+    (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
+      let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+      checkAllDeclNamesDistinct preDefs
+      for preDef in preDefs do
+        trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
       let allUserLevelNames := getAllUserLevelNames headers
-      withFunLocalDecls headers fun funFVars => do
-        for view in views, funFVar in funFVars do
-          addLocalVarInfo view.declId funFVar
-        let values ←
-          try
-            let values ← elabFunValues headers vars sc
-            Term.synthesizeSyntheticMVarsNoPostponing
-            values.mapM (instantiateMVarsProfiling ·)
-          catch ex =>
-            logException ex
-            headers.mapM fun header => mkSorry header.type (synthetic := true)
-        let headers ← headers.mapM instantiateMVarsAtHeader
-        let letRecsToLift ← getLetRecsToLift
-        let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
-        checkLetRecsToLiftTypes funFVars letRecsToLift
-        (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
-          let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
-          for preDef in preDefs do
-            trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
-          let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamTypesPreDecls preDefs
-          let preDefs ← instantiateMVarsAtPreDecls preDefs
-          let preDefs ← shareCommonPreDefs preDefs
-          let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-          for preDef in preDefs do
-            trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
-          addPreDefinitions preDefs
-          processDeriving headers
-      for view in views, header in headers do
-        -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
-        -- that depends only on a part of the ref
-        addDeclarationRangesForBuiltin header.declName view.modifiers.stx view.ref
-
-
+      let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamTypesPreDecls preDefs
+      let preDefs ← instantiateMVarsAtPreDecls preDefs
+      let preDefs ← shareCommonPreDefs preDefs
+      let scopeLevelNames ← getLevelNames
+      let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+      for preDef in preDefs do
+        trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
+      addPreDefinitions preDefs
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do
       if let some classNamesStx := view.deriving? then
@@ -1013,54 +1156,141 @@ where
             unless (← processDefDeriving className header.declName) do
               throwError "failed to synthesize instance '{className}' for '{header.declName}'"
 
+/--
+Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a
+`goalsAccomplished` silent message for theorems and `Prop`-typed examples if the entire mutual block
+is error-free and contains no syntactical `sorry`s.
+-/
+private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
+    (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
+  if Lean.Elab.inServer.get (← getOptions) then
+    -- Skip 'goals accomplished' task if we are on the command line.
+    -- These messages are only used in the language server.
+    return
+  -- make sure we don't accidentally keep any nested promises alive that would otherwise
+  -- auto-resolve to `none`
+  let views := views.map fun view => (view.ref, view.kind)
+  let currentLog ← Core.getMessageLog
+  let snaps := #[SnapshotTask.finished none (toSnapshotTree defsParsedSnap)] ++
+    (← getThe Core.State).snapshotTasks
+  let tree := SnapshotTree.mk { diagnostics := .empty } snaps
+  let logGoalsAccomplishedAct ← Term.wrapAsyncAsSnapshot (cancelTk? := none) fun () => do
+    -- NOTE: `waitAll` below ensures `getAll` will not block here
+    let logs := tree.getAll.map (·.diagnostics.msgLog) |>.push currentLog
+    let hasErrorOrSorry := logs.any fun log =>
+      log.reportedPlusUnreported.any fun msg =>
+        msg.severity matches .error || msg.data.hasTag (· == `hasSorry)
+    if hasErrorOrSorry then
+      return
+    for d in defsParsedSnap.defs, (ref, kind) in views do
+      let logGoalsAccomplished :=
+        let msgData := .tagged `goalsAccomplished m!"Goals accomplished!"
+        logAt ref msgData (severity := .information) (isSilent := true)
+      match kind with
+      | .theorem =>
+        logGoalsAccomplished
+      | .example =>
+        let some processedSnap := d.headerProcessedSnap.get
+          | continue
+        if ! (← isProp processedSnap.view.type) then
+          continue
+        logGoalsAccomplished
+      | _ => continue
+  let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) logGoalsAccomplishedAct
+  Core.logSnapshotTask {
+    stx? := none
+    -- Use first line of the mutual block to avoid covering the progress of the whole mutual block
+    reportingRange? := (← getRef).getPos?.map fun pos => ⟨pos, pos⟩
+    task := logGoalsAccomplishedTask
+    cancelTk? := none
+  }
+
 end Term
 namespace Command
 
 def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let opts ← getOptions
-  withAlwaysResolvedPromises ds.size fun headerPromises => do
-    let snap? := (← read).snap?
-    let mut views := #[]
-    let mut defs := #[]
-    let mut reusedAllHeaders := true
-    for h : i in [0:ds.size], headerPromise in headerPromises do
-      let d := ds[i]
-      let modifiers ← elabModifiers ⟨d[0]⟩
-      if ds.size > 1 && modifiers.isNonrec then
-        throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
-      let mut view ← mkDefView modifiers d[1]
-      let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
-      if let some snap := snap? then
-        view := { view with headerSnap? := some {
-          old? := do
-            -- transitioning from `Context.snap?` to `DefView.headerSnap?` invariant: if the
-            -- elaboration context and state are unchanged, and the syntax of this as well as all
-            -- previous headers is unchanged, then the elaboration result for this header (which
-            -- includes state from elaboration of previous headers!) should be unchanged.
-            guard reusedAllHeaders
-            let old ← snap.old?
-            -- blocking wait, `HeadersParsedSnapshot` (and hopefully others) should be quick
-            let old ← old.val.get.toTyped? DefsParsedSnapshot
-            let oldParsed ← old.defs[i]?
-            guard <| fullHeaderRef.eqWithInfoAndTraceReuse opts oldParsed.fullHeaderRef
-            -- no syntax guard to store, we already did the necessary checks
-            return ⟨.missing, oldParsed.headerProcessedSnap⟩
-          new := headerPromise
-        } }
-        defs := defs.push {
-          fullHeaderRef
-          headerProcessedSnap := { range? := d.getRange?, task := headerPromise.result }
-        }
-        reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
-      views := views.push view
+  let headerPromises ← ds.mapM fun _ => IO.Promise.new
+  let snap? := (← read).snap?
+  let mut views := #[]
+  let mut defs := #[]
+  let mut reusedAllHeaders := true
+  for h : i in [0:ds.size], headerPromise in headerPromises do
+    let d := ds[i]
+    let modifiers ← elabModifiers ⟨d[0]⟩
+    if ds.size > 1 && modifiers.isNonrec then
+      throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
+    let mut view ← mkDefView modifiers d[1]
+    let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
     if let some snap := snap? then
-      -- no non-fatal diagnostics at this point
-      snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
-    let sc ← getScope
-    runTermElabM fun vars => Term.elabMutualDef vars sc views
+      view := { view with headerSnap? := some {
+        old? := do
+          -- transitioning from `Context.snap?` to `DefView.headerSnap?` invariant: if the
+          -- elaboration context and state are unchanged, and the syntax of this as well as all
+          -- previous headers is unchanged, then the elaboration result for this header (which
+          -- includes state from elaboration of previous headers!) should be unchanged.
+          guard reusedAllHeaders
+          let old ← snap.old?
+          -- blocking wait, `HeadersParsedSnapshot` (and hopefully others) should be quick
+          let old ← old.val.get.toTyped? DefsParsedSnapshot
+          let oldParsed ← old.defs[i]?
+          guard <| fullHeaderRef.eqWithInfoAndTraceReuse opts oldParsed.fullHeaderRef
+          -- no syntax guard to store, we already did the necessary checks
+          return ⟨.missing, oldParsed.headerProcessedSnap⟩
+        new := headerPromise
+      } }
+      if snap.old?.isSome && (view.headerSnap?.bind (·.old?)).isNone then
+        snap.old?.forM (·.val.cancelRec)
+      let cancelTk? := (← read).cancelTk?
+      defs := defs.push {
+        fullHeaderRef
+        headerProcessedSnap := { stx? := d, task := headerPromise.resultD default, cancelTk? }
+      }
+      reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
+    views := views.push view
+  let defsParsedSnap := { defs, diagnostics := .empty : DefsParsedSnapshot }
+  if let some snap := snap? then
+    -- no non-fatal diagnostics at this point
+    snap.new.resolve <| .ofTyped defsParsedSnap
+  let sc ← getScope
+  runTermElabM fun vars => do
+    Term.elabMutualDef vars sc views
+    Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure
+  registerTraceClass `Elab.definition.header
+  registerTraceClass `Elab.definition.value
 
 end Command
 end Lean.Elab
+
+/-!
+# Note [Delayed-Assigned Metavariables in Free Variable Collection]
+
+Nested declarations using `let rec` should compile correctly even when nested within expressions
+that are elaborated using delayed metavariable assignments, such as `match` expressions and tactic
+blocks. Previously, declaring a `let rec` within such an expression in the following fashion
+```lean
+def f x :=
+  let rec g :=
+    match ... with
+    | pat =>
+      let rec h := ... g ...
+      ... x ...
+```
+where `g` depends on some free variable bound by `f` (like `x` above) would cause `MutualClosure` to
+fail to detect that transitive fvar dependency of `h` (which must pass it as an argument to `g`),
+leading to an unbound fvar in the body of `h` that was ultimately fed to the kernel. This occurred
+because `MutualClosure` processes let-recs from most to least nested. Initially, the body of `g` is
+an application of the delayed-assigned metavariable generated by `match` elaboration; the root
+metavariable of that delayed assignment is, in turn, assigned to an expression that refers to the
+mvar that will eventually be assigned to `g` once we process that declaration. Therefore, when we
+initially process the most-nested declaration `h` (before `g`), we cannot instantiate the
+`match`-expression mvar's delayed assignment (since the metavariable that will eventually be
+assigned to the yet-unprocessed `g` remains unassigned). Thus, we do not detect any of the fvar
+dependencies of `g` in the `match` body -- namely, that corresponding to `x`, which `h` should
+therefore also take as a parameter. This also caused a knock-on effect in certain situations,
+wherein `h` would compile as an `axiom` rather than as `opaque`, rendering `f` erroneously
+noncomputable.
+-/

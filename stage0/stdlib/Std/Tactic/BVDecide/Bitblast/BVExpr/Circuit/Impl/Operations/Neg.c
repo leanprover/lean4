@@ -34,8 +34,6 @@ lean_inc(x_8);
 lean_dec(x_6);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = l_BitVec_ofNat(x_3, x_9);
-lean_inc(x_2);
-lean_inc(x_1);
 x_11 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___rarg(x_1, x_2, x_3, x_7, x_10);
 lean_dec(x_10);
 x_12 = !lean_is_exclusive(x_11);
@@ -45,7 +43,6 @@ lean_object* x_13; lean_object* x_14;
 x_13 = lean_ctor_get(x_11, 0);
 lean_ctor_set(x_11, 0, x_8);
 x_14 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___rarg(x_1, x_2, x_3, x_13, x_11);
-lean_dec(x_11);
 return x_14;
 }
 else
@@ -60,7 +57,6 @@ x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_8);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___rarg(x_1, x_2, x_3, x_15, x_17);
-lean_dec(x_17);
 return x_18;
 }
 }

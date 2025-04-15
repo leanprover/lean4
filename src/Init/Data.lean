@@ -21,6 +21,7 @@ import Init.Data.Fin
 import Init.Data.UInt
 import Init.Data.SInt
 import Init.Data.Float
+import Init.Data.Float32
 import Init.Data.Option
 import Init.Data.Ord
 import Init.Data.Random
@@ -33,7 +34,6 @@ import Init.Data.Stream
 import Init.Data.Prod
 import Init.Data.AC
 import Init.Data.Queue
-import Init.Data.Channel
 import Init.Data.Sum
 import Init.Data.BEq
 import Init.Data.Subtype
@@ -42,3 +42,5 @@ import Init.Data.PLift
 import Init.Data.Zero
 import Init.Data.NeZero
 import Init.Data.Function
+import Init.Data.RArray
+import Init.Data.Vector

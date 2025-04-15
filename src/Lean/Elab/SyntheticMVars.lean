@@ -149,8 +149,8 @@ where
         -- Succeeded. Collect new TC problems
         trace[Elab.defaultInstance] "isDefEq worked {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
         let mut pending := []
-        for i in [:bis.size] do
-          if bis[i]! == BinderInfo.instImplicit then
+        for h : i in [:bis.size] do
+          if bis[i] == BinderInfo.instImplicit then
             pending := mvars[i]!.mvarId! :: pending
         synthesizePending pending
       else
@@ -282,7 +282,7 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
   of getting a mysterious type mismatch constraint, we get a list of
   universe constraints the system is stuck at.
 -/
-private def processPostponedUniverseContraints : TermElabM Unit := do
+private def processPostponedUniverseConstraints : TermElabM Unit := do
   unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
     throwStuckAtUniverseCnstr
 
@@ -485,7 +485,7 @@ mutual
               reportStuckSyntheticMVars ignoreStuckTC
     loop ()
     if postpone == .no then
-     processPostponedUniverseContraints
+     processPostponedUniverseConstraints
 end
 
 def synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := false) : TermElabM Unit :=

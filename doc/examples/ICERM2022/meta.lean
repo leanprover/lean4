@@ -29,7 +29,7 @@ def ex3 (declName : Name) : MetaM Unit := do
     for x in xs do
       trace[Meta.debug] "{x} : {← inferType x}"
 
-def myMin [LT α] [DecidableRel (α := α) (·<·)] (a b : α) : α :=
+def myMin [LT α] [DecidableLT α] (a b : α) : α :=
   if a < b then
     a
   else

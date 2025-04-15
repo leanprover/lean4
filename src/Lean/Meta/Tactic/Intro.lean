@@ -17,7 +17,7 @@ namespace Lean.Meta
     match i, type with
     | 0, type =>
       let type := type.instantiateRevRange j fvars.size fvars
-      withReader (fun ctx => { ctx with lctx := lctx }) do
+      withLCtx' lctx do
         withNewLocalInstances fvars j do
           let tag     ← mvarId.getTag
           let type := type.headBeta
@@ -57,7 +57,7 @@ namespace Lean.Meta
         loop i lctx fvars j s body
       else
         let type := type.instantiateRevRange j fvars.size fvars
-        withReader (fun ctx => { ctx with lctx := lctx }) do
+        withLCtx' lctx do
           withNewLocalInstances fvars j do
             /- We used to use just `whnf`, but it produces counterintuitive behavior if
               - `type` is a metavariable `?m` such that `?m := let x := v; b`, or
@@ -90,9 +90,9 @@ private def mkFreshBinderNameForTacticCore (lctx : LocalContext) (binderName : N
     return lctx.getUnusedName binderName
 
 /--
-Similar to `mkFreshUserName`, but takes into account `tactic.hygienic` option value.
-If `tactic.hygienic = true`, then the current macro scopes are applied to `binderName`.
-If not, then an unused (accessible) name (based on `binderName`) in the local context is used.
+Similar to `Lean.Core.mkFreshUserName`, but takes into account the `tactic.hygienic` option value.
+If `tactic.hygienic = true`, then fresh macro scopes are applied to `binderName`.
+If not, then returns an (accessible) name based on `binderName` that is unused in the local context.
 -/
 def mkFreshBinderNameForTactic (binderName : Name) : MetaM Name := do
   mkFreshBinderNameForTacticCore (← getLCtx) binderName (tactic.hygienic.get (← getOptions))

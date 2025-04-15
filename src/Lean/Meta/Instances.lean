@@ -72,9 +72,6 @@ structure Instances where
   erased        : PHashSet Name := {}
   deriving Inhabited
 
-/-- Configuration for the discrimination tree module -/
-def tcDtConfig : WhnfCoreConfig := {}
-
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
   | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
@@ -98,7 +95,7 @@ private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e
   withNewMCtxDepth do
     let (_, _, type) ← forallMetaTelescopeReducing type
-    DiscrTree.mkPath type tcDtConfig
+    DiscrTree.mkPath type
 
 /--
 Compute the order the arguments of `inst` should be synthesized.

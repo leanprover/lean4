@@ -19,7 +19,7 @@ Implementation
 The interpreter mainly consists of a homogeneous stack of `value`s, which are either unboxed values or pointers to boxed
 objects. The IR type system tells us which union member is active at any time. IR variables are mapped to stack
 slots by adding the current base pointer to the variable index. Further stacks are used for storing join points and call
-stack metadata. The interpreted IR is taken directly from the environment. Whenever possible, we try to switch to native
+stack metadata. The interpreted IR is taken directly from the elab_environment. Whenever possible, we try to switch to native
 code by checking for the mangled symbol via dlsym/GetProcAddress, which is also how we can call external functions
 (which only works if the file declaring them has already been compiled). We always call the "boxed" versions of native
 functions, which have a (relatively) homogeneous ABI that we can use without runtime code generation; see also
@@ -28,6 +28,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 */
 #include <string>
 #include <vector>
+#include <shared_mutex>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
 #include <psapi.h>
@@ -182,11 +183,12 @@ type decl_type(decl const & b) { return cnstr_get_type(b, 2); }
 fn_body const & decl_fun_body(decl const & b) { lean_assert(decl_tag(b) == decl_kind::Fun); return cnstr_get_ref_t<fn_body>(b, 3); }
 
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
-option_ref<decl> find_ir_decl(environment const & env, name const & n) {
+option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
 extern "C" double lean_float_of_nat(lean_obj_arg a);
+extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
 static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_suffix = nullptr;
@@ -212,12 +214,12 @@ static bool type_is_scalar(type t) {
 }
 
 extern "C" object* lean_get_regular_init_fn_name_for(object* env, object* fn);
-optional<name> get_regular_init_fn_name_for(environment const & env, name const & n) {
+optional<name> get_regular_init_fn_name_for(elab_environment const & env, name const & n) {
     return to_optional<name>(lean_get_regular_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 
 extern "C" object* lean_get_builtin_init_fn_name_for(object* env, object* fn);
-optional<name> get_builtin_init_fn_name_for(environment const & env, name const & n) {
+optional<name> get_builtin_init_fn_name_for(elab_environment const & env, name const & n) {
     return to_optional<name>(lean_get_builtin_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 
@@ -227,6 +229,7 @@ union value {
     uint64   m_num; // big enough for any unboxed integral type
     static_assert(sizeof(size_t) <= sizeof(uint64), "uint64 should be the largest unboxed type"); // NOLINT
     double   m_float;
+    float    m_float32;
     object * m_obj;
 
     value() {}
@@ -240,36 +243,50 @@ union value {
         v.m_float = f;
         return v;
     }
+
+    static value from_float32(float f) {
+        value v;
+        v.m_float32 = f;
+        return v;
+    }
 };
 
 object * box_t(value v, type t) {
     switch (t) {
-        case type::Float: return box_float(v.m_float);
-        case type::UInt8: return box(v.m_num);
-        case type::UInt16: return box(v.m_num);
-        case type::UInt32: return box_uint32(v.m_num);
-        case type::UInt64: return box_uint64(v.m_num);
-        case type::USize: return box_size_t(v.m_num);
-        case type::Object:
-        case type::TObject:
-        case type::Irrelevant:
-            return v.m_obj;
+    case type::Float:   return box_float(v.m_float);
+    case type::Float32: return box_float32(v.m_float32);
+    case type::UInt8:   return box(v.m_num);
+    case type::UInt16:  return box(v.m_num);
+    case type::UInt32:  return box_uint32(v.m_num);
+    case type::UInt64:  return box_uint64(v.m_num);
+    case type::USize:   return box_size_t(v.m_num);
+    case type::Object:
+    case type::TObject:
+    case type::Irrelevant:
+        return v.m_obj;
+    case type::Struct:
+    case type::Union:
+        throw exception("not implemented yet");
     }
     lean_unreachable();
 }
 
 value unbox_t(object * o, type t) {
     switch (t) {
-        case type::Float: return value::from_float(unbox_float(o));
-        case type::UInt8: return unbox(o);
-        case type::UInt16: return unbox(o);
-        case type::UInt32: return unbox_uint32(o);
-        case type::UInt64: return unbox_uint64(o);
-        case type::USize: return unbox_size_t(o);
-        case type::Irrelevant:
-        case type::Object:
-        case type::TObject:
-            break;
+    case type::Float:   return value::from_float(unbox_float(o));
+    case type::Float32: return value::from_float32(unbox_float32(o));
+    case type::UInt8:   return unbox(o);
+    case type::UInt16:  return unbox(o);
+    case type::UInt32:  return unbox_uint32(o);
+    case type::UInt64:  return unbox_uint64(o);
+    case type::USize:   return unbox_size_t(o);
+    case type::Irrelevant:
+    case type::Object:
+    case type::TObject:
+        break;
+    case type::Struct:
+    case type::Union:
+        throw exception("not implemented yet");
     }
     lean_unreachable();
 }
@@ -278,6 +295,8 @@ value unbox_t(object * o, type t) {
 void print_value(tout & ios, value const & v, type t) {
     if (t == type::Float) {
         ios << v.m_float;
+    } else if (t == type::Float32) {
+        ios << v.m_float32;
     } else if (type_is_scalar(t)) {
         ios << v.m_num;
     } else {
@@ -323,6 +342,19 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 class interpreter;
 LEAN_THREAD_PTR(interpreter, g_interpreter);
 
+struct native_symbol_cache_entry {
+    // symbol address; `nullptr` if function does not have native code
+    void * m_addr;
+    // true iff we chose the boxed version of a function where the IR uses the unboxed version
+    bool m_boxed;
+};
+
+// Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
+// unloaded after the interpreter is first invoked, so this can be a global cache.
+name_map<native_symbol_cache_entry> * g_native_symbol_cache;
+// could be `shared_mutex` with C++17
+std::shared_timed_mutex * g_native_symbol_cache_mutex;
+
 class interpreter {
     // stack of IR variable slots
     std::vector<value> m_arg_stack;
@@ -337,7 +369,7 @@ class interpreter {
         frame(name const & mFn, size_t mArgBp, size_t mJpBp) : m_fn(mFn), m_arg_bp(mArgBp), m_jp_bp(mJpBp) {}
     };
     std::vector<frame> m_call_stack;
-    environment const & m_env;
+    elab_environment const & m_env;
     options const & m_opts;
     // if `false`, use IR code where possible
     bool m_prefer_native;
@@ -348,11 +380,10 @@ class interpreter {
     // caches values of nullary functions ("constants")
     name_map<constant_cache_entry> m_constant_cache;
     struct symbol_cache_entry {
+        // looking up IR from .oleans is slow enough to warrant its own cache; but as local IR can
+        // be backtracked, this cache needs to be local as well.
         decl m_decl;
-        // symbol address; `nullptr` if function does not have native code
-        void * m_addr;
-        // true iff we chose the boxed version of a function where the IR uses the unboxed version
-        bool m_boxed;
+        native_symbol_cache_entry m_native;
     };
     // caches symbol lookup successes _and_ failures
     name_map<symbol_cache_entry> m_symbol_cache;
@@ -375,7 +406,7 @@ class interpreter {
 
 public:
     template<class T>
-    static inline T with_interpreter(environment const & env, options const & opts, name const & fn, std::function<T(interpreter &)> const & f) {
+    static inline T with_interpreter(elab_environment const & env, options const & opts, name const & fn, std::function<T(interpreter &)> const & f) {
         if (g_interpreter && is_eqp(g_interpreter->m_env, env) && is_eqp(g_interpreter->m_opts, opts)) {
             return f(*g_interpreter);
         } else {
@@ -472,6 +503,7 @@ private:
                 object * o = var(expr_sproj_obj(e)).m_obj;
                 switch (t) {
                     case type::Float: return value::from_float(cnstr_get_float(o, offset));
+                    case type::Float32: return value::from_float32(cnstr_get_float32(o, offset));
                     case type::UInt8: return cnstr_get_uint8(o, offset);
                     case type::UInt16: return cnstr_get_uint16(o, offset);
                     case type::UInt32: return cnstr_get_uint32(o, offset);
@@ -480,6 +512,8 @@ private:
                     case type::Irrelevant:
                     case type::Object:
                     case type::TObject:
+                    case type::Struct:
+                    case type::Union:
                         break;
                 }
                 throw exception("invalid instruction");
@@ -494,9 +528,9 @@ private:
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
                 symbol_cache_entry sym = lookup_symbol(expr_pap_fun(e));
-                if (sym.m_addr) {
+                if (sym.m_native.m_addr) {
                     // point closure directly at native symbol
-                    object * cls = alloc_closure(sym.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
+                    object * cls = alloc_closure(sym.m_native.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
                     for (unsigned i = 0; i < expr_pap_args(e).size(); i++) {
                         closure_set(cls, i, eval_arg(expr_pap_args(e)[i]).m_obj);
                     }
@@ -530,6 +564,9 @@ private:
                             case type::Float:
                                 lean_inc(n.raw());
                                 return value::from_float(lean_float_of_nat(n.raw()));
+                            case type::Float32:
+                                lean_inc(n.raw());
+                                return value::from_float32(lean_float32_of_nat(n.raw()));
                             case type::UInt8:
                             case type::UInt16:
                             case type::UInt32:
@@ -542,6 +579,9 @@ private:
                             case type::TObject:
                                 return n.to_obj_arg();
                             case type::Irrelevant:
+                                break;
+                            case type::Union:
+                            case type::Struct:
                                 break;
                         }
                         throw exception("invalid instruction");
@@ -654,6 +694,7 @@ private:
                     lean_assert(is_exclusive(o));
                     switch (fn_body_sset_type(b)) {
                         case type::Float: cnstr_set_float(o, offset, v.m_float); break;
+                        case type::Float32: cnstr_set_float32(o, offset, v.m_float32); break;
                         case type::UInt8: cnstr_set_uint8(o, offset, v.m_num); break;
                         case type::UInt16: cnstr_set_uint16(o, offset, v.m_num); break;
                         case type::UInt32: cnstr_set_uint32(o, offset, v.m_num); break;
@@ -662,6 +703,8 @@ private:
                         case type::Irrelevant:
                         case type::Object:
                         case type::TObject:
+                        case type::Struct:
+                        case type::Union:
                             throw exception(sstream() << "invalid instruction");
                     }
                     b = fn_body_sset_cont(b);
@@ -759,30 +802,43 @@ private:
     symbol_cache_entry lookup_symbol(name const & fn) {
         if (symbol_cache_entry const * e = m_symbol_cache.find(fn)) {
             return *e;
-        } else {
-            symbol_cache_entry e_new { get_decl(fn), nullptr, false };
-            if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
-                string_ref mangled = name_mangle(fn, *g_mangle_prefix);
-                string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
-                // check for boxed version first
-                if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
-                    e_new.m_addr = p_boxed;
-                    e_new.m_boxed = true;
-                } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
-                    // if there is no boxed version, there are no unboxed parameters, so use default version
-                    e_new.m_addr = p;
-                }
-            }
+        }
+        std::shared_lock<std::shared_timed_mutex> lock(*g_native_symbol_cache_mutex);
+        if (native_symbol_cache_entry const * ne = g_native_symbol_cache->find(fn)) {
+            symbol_cache_entry e_new { get_decl(fn), *ne };
             m_symbol_cache.insert(fn, e_new);
             return e_new;
         }
+        lock.unlock();
+        std::unique_lock<std::shared_timed_mutex> unique_lock(*g_native_symbol_cache_mutex);
+        if (native_symbol_cache_entry const * ne = g_native_symbol_cache->find(fn)) {
+            symbol_cache_entry e_new { get_decl(fn), *ne };
+            m_symbol_cache.insert(fn, e_new);
+            return e_new;
+        }
+        symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
+        if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
+            string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+            string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+            // check for boxed version first
+            if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
+                e_new.m_native.m_addr = p_boxed;
+                e_new.m_native.m_boxed = true;
+            } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
+                // if there is no boxed version, there are no unboxed parameters, so use default version
+                e_new.m_native.m_addr = p;
+            }
+        }
+        g_native_symbol_cache->insert(fn, e_new.m_native);
+        m_symbol_cache.insert(fn, e_new);
+        return e_new;
     }
 
-    /** \brief Retrieve Lean declaration from environment. */
+    /** \brief Retrieve Lean declaration from elab_environment. */
     decl get_decl(name const & fn) {
         option_ref<decl> d = find_ir_decl(m_env, fn);
         if (!d) {
-            throw exception(sstream() << "unknown declaration '" << fn << "'");
+            throw exception(sstream() << "(interpreter) unknown declaration '" << fn << "'");
         }
         return d.get().value();
     }
@@ -801,21 +857,25 @@ private:
         }
 
         symbol_cache_entry e = lookup_symbol(fn);
-        if (e.m_addr) {
+        if (e.m_native.m_addr) {
             // we can assume that all native code has been initialized (see e.g. `evalConst`)
 
             // constants do not have boxed wrappers, but we'll survive
             switch (t) {
-                case type::Float: return value::from_float(*static_cast<double *>(e.m_addr));
-                case type::UInt8: return *static_cast<uint8 *>(e.m_addr);
-                case type::UInt16: return *static_cast<uint16 *>(e.m_addr);
-                case type::UInt32: return *static_cast<uint32 *>(e.m_addr);
-                case type::UInt64: return *static_cast<uint64 *>(e.m_addr);
-                case type::USize: return *static_cast<size_t *>(e.m_addr);
+                case type::Float: return value::from_float(*static_cast<double *>(e.m_native.m_addr));
+                case type::Float32: return value::from_float32(*static_cast<float *>(e.m_native.m_addr));
+                case type::UInt8: return *static_cast<uint8 *>(e.m_native.m_addr);
+                case type::UInt16: return *static_cast<uint16 *>(e.m_native.m_addr);
+                case type::UInt32: return *static_cast<uint32 *>(e.m_native.m_addr);
+                case type::UInt64: return *static_cast<uint64 *>(e.m_native.m_addr);
+                case type::USize: return *static_cast<size_t *>(e.m_native.m_addr);
                 case type::Object:
                 case type::TObject:
                 case type::Irrelevant:
-                    return *static_cast<object **>(e.m_addr);
+                    return *static_cast<object **>(e.m_native.m_addr);
+                case type::Struct:
+                case type::Union:
+                    throw exception("not implemented yet");
             }
         }
 
@@ -838,12 +898,12 @@ private:
         size_t old_size = m_arg_stack.size();
         value r;
         symbol_cache_entry e = lookup_symbol(fn);
-        if (e.m_addr) {
+        if (e.m_native.m_addr) {
             object ** args2 = static_cast<object **>(LEAN_ALLOCA(args.size() * sizeof(object *))); // NOLINT
             for (size_t i = 0; i < args.size(); i++) {
                 type t = param_type(decl_params(e.m_decl)[i]);
                 args2[i] = box_t(eval_arg(args[i]), t);
-                if (e.m_boxed && param_borrow(decl_params(e.m_decl)[i])) {
+                if (e.m_native.m_boxed && param_borrow(decl_params(e.m_decl)[i])) {
                     // NOTE: If we chose the boxed version where the IR chose the unboxed one, we need to manually increment
                     // originally borrowed parameters because the wrapper will decrement these after the call.
                     // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
@@ -852,10 +912,10 @@ private:
                 }
             }
             push_frame(e.m_decl, old_size);
-            object * o = curry(e.m_addr, args.size(), args2);
+            object * o = curry(e.m_native.m_addr, args.size(), args2);
             type t = decl_type(e.m_decl);
             if (type_is_scalar(t)) {
-                lean_assert(e.m_boxed);
+                lean_assert(e.m_native.m_boxed);
                 // NOTE: this unboxing does not exist in the IR, so we should manually consume `o`
                 r = unbox_t(o, t);
                 lean_dec(o);
@@ -897,7 +957,7 @@ private:
 
     // static closure stub
     static object * stub_m_aux(object ** args) {
-        environment env(args[0]);
+        elab_environment env(args[0]);
         options opts(args[1]);
         return with_interpreter<object *>(env, opts, decl_fun_id(TO_REF(decl, args[2])), [&](interpreter & interp) {
             return interp.stub_m(args);
@@ -945,7 +1005,7 @@ private:
         }
     }
 public:
-    explicit interpreter(environment const & env, options const & opts) : m_env(env), m_opts(opts) {
+    explicit interpreter(elab_environment const & env, options const & opts) : m_env(env), m_opts(opts) {
         m_prefer_native = opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
     }
 
@@ -972,9 +1032,9 @@ public:
         } else {
             // First allocate a closure with zero fixed parameters. This is slightly wasteful in the under-application
             // case, but simpler to handle.
-            if (e.m_addr) {
+            if (e.m_native.m_addr) {
                 // `lookup_symbol` always prefers the boxed version for compiled functions, so nothing to do here
-                r = alloc_closure(e.m_addr, arity, 0);
+                r = alloc_closure(e.m_native.m_addr, arity, 0);
             } else {
                 // `lookup_symbol` does not prefer the boxed version for interpreted functions, so check manually.
                 decl d = e.m_decl;
@@ -1039,8 +1099,8 @@ public:
                 mark_persistent(o);
                 dec_ref(r);
                 symbol_cache_entry e = lookup_symbol(decl);
-                if (e.m_addr) {
-                    *((object **)e.m_addr) = o;
+                if (e.m_native.m_addr) {
+                    *((object **)e.m_native.m_addr) = o;
                 } else {
                     g_init_globals->insert(decl, o);
                 }
@@ -1056,24 +1116,34 @@ public:
 
 extern "C" object * lean_decl_get_sorry_dep(object * env, object * n);
 
-optional<name> get_sorry_dep(environment const & env, name const & n) {
+optional<name> get_sorry_dep(elab_environment const & env, name const & n) {
     return option_ref<name>(lean_decl_get_sorry_dep(env.to_obj_arg(), n.to_obj_arg())).get();
 }
 
-object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
+object * run_boxed(elab_environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
     if (optional<name> decl_with_sorry = get_sorry_dep(env, fn)) {
         throw exception(sstream() << "cannot evaluate code because '" << *decl_with_sorry
             << "' uses 'sorry' and/or contains errors");
     }
     return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
-uint32 run_main(environment const & env, options const & opts, int argv, char * argc[]) {
+
+extern "C" obj_res lean_elab_environment_of_kernel_env(obj_arg);
+elab_environment elab_environment_of_kernel_env(environment const & env) {
+    return elab_environment(lean_elab_environment_of_kernel_env(env.to_obj_arg()));
+}
+
+object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
+    return run_boxed(elab_environment_of_kernel_env(env), opts, fn, n, args);
+}
+
+uint32 run_main(elab_environment const & env, options const & opts, int argv, char * argc[]) {
     return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(argv, argc); });
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {
     try {
-        return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, c), 0, 0)).steal();
+        return mk_cnstr(1, run_boxed(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
         return mk_cnstr(0, string_ref(ex.what())).steal();
     }
@@ -1100,7 +1170,7 @@ extern "C" LEAN_EXPORT object * lean_run_mod_init(object * mod, object *) {
 }
 
 extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
-    return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, decl), [&](interpreter & interp) {
+    return interpreter::with_interpreter<object *>(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(name, decl), [&](interpreter & interp) {
         return interp.run_init(TO_REF(name, decl), TO_REF(name, init_decl));
     });
 }
@@ -1121,9 +1191,13 @@ void initialize_ir_interpreter() {
         register_trace_class({"interpreter", "call"});
         register_trace_class({"interpreter", "step"});
     });
+    ir::g_native_symbol_cache = new name_map<ir::native_symbol_cache_entry>();
+    ir::g_native_symbol_cache_mutex = new std::shared_timed_mutex();
 }
 
 void finalize_ir_interpreter() {
+    delete ir::g_native_symbol_cache_mutex;
+    delete ir::g_native_symbol_cache;
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
     delete ir::g_boxed_mangled_suffix;

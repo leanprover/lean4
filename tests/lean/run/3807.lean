@@ -54,8 +54,6 @@ macro_rules
             spreads := spreads.push arg
           else
             newFields := newFields.push field
-        | `(structInstFieldAbbrev| $_:ident) =>
-          newFields := newFields.push field
         | _ =>
           throwUnsupported
 
@@ -88,18 +86,6 @@ class PartialOrder (α : Type u) extends Preorder α where
   le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b
 
 end Mathlib.Init.Order.Defs
-
-section Mathlib.Init.ZeroOne
-
-set_option autoImplicit true
-
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Init.ZeroOne
 
 section Mathlib.Init.Function
 
@@ -524,9 +510,11 @@ namespace Pi
 variable {ι : Type _} {α' : ι → Type _}
 
 instance instOrderTop [∀ i, LE (α' i)] [∀ i, OrderTop (α' i)] : OrderTop (∀ i, α' i) where
+  top := fun _ => ⊤
   le_top _ := fun _ => le_top
 
 instance instOrderBot [∀ i, LE (α' i)] [∀ i, OrderBot (α' i)] : OrderBot (∀ i, α' i) where
+  bot := fun _ => ⊥
   bot_le _ := fun _ => bot_le
 
 end Pi
@@ -956,8 +944,8 @@ structure AddMonoidHom (M : Type _) (N : Type _) [AddZeroClass M] [AddZeroClass 
 
 infixr:25 " →+ " => AddMonoidHom
 
-class AddMonoidHomClass (F M N : Type _) [AddZeroClass M] [AddZeroClass N] [FunLike F M N]
-  extends AddHomClass F M N, ZeroHomClass F M N : Prop
+class AddMonoidHomClass (F M N : Type _) [AddZeroClass M] [AddZeroClass N] [FunLike F M N] : Prop
+  extends AddHomClass F M N, ZeroHomClass F M N
 
 section One
 
@@ -1055,8 +1043,8 @@ structure MonoidHom (M : Type _) (N : Type _) [MulOneClass M] [MulOneClass N] ex
 infixr:25 " →* " => MonoidHom
 
 class MonoidHomClass (F : Type _) (M N : outParam (Type _)) [MulOneClass M] [MulOneClass N]
-  [FunLike F M N]
-  extends MulHomClass F M N, OneHomClass F M N : Prop
+  [FunLike F M N] : Prop
+  extends MulHomClass F M N, OneHomClass F M N
 
 instance MonoidHom.instFunLike : FunLike (M →* N) M N where
   coe f := f.toFun
@@ -1122,7 +1110,7 @@ variable {F α β γ δ : Type _} [MulZeroOneClass α] [MulZeroOneClass β] [Mul
   [MulZeroOneClass δ]
 
 class MonoidWithZeroHomClass (F : Type _) (α β : outParam (Type _)) [MulZeroOneClass α]
-  [MulZeroOneClass β] [FunLike F α β] extends MonoidHomClass F α β, ZeroHomClass F α β : Prop
+  [MulZeroOneClass β] [FunLike F α β] : Prop extends MonoidHomClass F α β, ZeroHomClass F α β
 
 structure MonoidWithZeroHom (α β : Type _) [MulZeroOneClass α] [MulZeroOneClass β]
   extends ZeroHom α β, MonoidHom α β
@@ -1213,8 +1201,8 @@ infixr:25 " →+* " => RingHom
 section RingHomClass
 
 class RingHomClass (F : Type _) (α β : outParam (Type _))
-    [NonAssocSemiring α] [NonAssocSemiring β] [FunLike F α β]
-  extends MonoidHomClass F α β, AddMonoidHomClass F α β, MonoidWithZeroHomClass F α β : Prop
+    [NonAssocSemiring α] [NonAssocSemiring β] [FunLike F α β] : Prop
+  extends MonoidHomClass F α β, AddMonoidHomClass F α β, MonoidWithZeroHomClass F α β
 
 variable [FunLike F α β]
 
@@ -1872,7 +1860,7 @@ universe u v w
 section AddSubmonoidWithOneClass
 
 class AddSubmonoidWithOneClass (S R : Type _) [AddMonoidWithOne R]
-  [SetLike S R] extends AddSubmonoidClass S R : Prop
+  [SetLike S R] : Prop extends AddSubmonoidClass S R
 
 variable {S R : Type _} [AddMonoidWithOne R] [SetLike S R] (s : S)
 
@@ -1891,7 +1879,7 @@ variable {R : Type u} {S : Type v} [NonAssocSemiring R]
 section SubsemiringClass
 
 class SubsemiringClass (S : Type _) (R : Type u) [NonAssocSemiring R]
-  [SetLike S R] extends SubmonoidClass S R, AddSubmonoidClass S R : Prop
+  [SetLike S R] : Prop extends SubmonoidClass S R, AddSubmonoidClass S R
 
 instance (priority := 100) SubsemiringClass.addSubmonoidWithOneClass (S : Type _)
     (R : Type u) [NonAssocSemiring R] [SetLike S R] [h : SubsemiringClass S R] :
@@ -1965,8 +1953,8 @@ variable {R : Type u} {S : Type v} {T : Type w} [Ring R]
 
 section SubringClass
 
-class SubringClass (S : Type _) (R : Type u) [Ring R] [SetLike S R] extends
-  SubsemiringClass S R : Prop
+class SubringClass (S : Type _) (R : Type u) [Ring R] [SetLike S R] : Prop
+  extends SubsemiringClass S R
 
 instance (priority := 100) SubringClass.addSubmonoidClass (S : Type _) (R : Type u)
     [SetLike S R] [Ring R] [h : SubringClass S R] : AddSubmonoidClass S R :=
@@ -2072,7 +2060,7 @@ notation:25 A " →ₐ[" R "] " B => AlgHom R A B
 from `A` to `B`.  -/
 class AlgHomClass (F : Type _) (R A B : outParam (Type _))
   [Semiring R] [Semiring A] [Semiring B] [Algebra R A] [Algebra R B]
-  [FunLike F A B] extends RingHomClass F A B : Prop where
+  [FunLike F A B] : Prop extends RingHomClass F A B where
   commutes : ∀ (f : F) (r : R), f (algebraMap R A r) = algebraMap R B r
 
 namespace AlgHom
@@ -2181,8 +2169,8 @@ section Mathlib.Algebra.Algebra.Subalgebra.Basic
 universe u u' v w
 
 /-- A subalgebra is a sub(semi)ring that includes the range of `algebraMap`. -/
-structure Subalgebra (R : Type u) (A : Type v) [Semiring R] [Semiring A] [Algebra R A] extends
-    Subsemiring A : Type v where
+structure Subalgebra (R : Type u) (A : Type v) [Semiring R] [Semiring A] [Algebra R A] : Type v
+  extends Subsemiring A  where
 
 namespace Subalgebra
 
@@ -2348,7 +2336,7 @@ variable {K : Type u} {L : Type v}
 variable [DivisionRing K] [DivisionRing L]
 
 /-- `SubfieldClass S K` states `S` is a type of subsets `s ⊆ K` closed under field operations. -/
-class SubfieldClass (S K : Type _) [DivisionRing K] [SetLike S K] extends SubringClass S K : Prop
+class SubfieldClass (S K : Type _) [DivisionRing K] [SetLike S K] : Prop extends SubringClass S K
 
 namespace SubfieldClass
 
@@ -2521,7 +2509,7 @@ variable {L : Type _} [Field L] [Algebra F L] [Algebra L E] [IsScalarTower F L E
   (f : L →ₐ[F] K)
 
 -- This only required 16,000 heartbeats prior to #3807, and now takes ~210,000.
-set_option maxHeartbeats 20000
+set_option maxHeartbeats 16000
 theorem exists_algHom_adjoin_of_splits''' :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
   let L' := (IsScalarTower.toAlgHom F L E).fieldRange
@@ -2533,7 +2521,12 @@ theorem exists_algHom_adjoin_of_splits''' :
     · simp only [← SetLike.coe_subset_coe, coe_restrictScalars, adjoin_subset_adjoin_iff]
       exact ⟨subset_adjoin_of_subset_left S (F := L'.toSubfield) le_rfl, subset_adjoin _ _⟩
     · ext x
-      exact (congrFun (congrArg (fun g : L' →ₐ[F] K => (g : L' → K)) hφ) _).trans (congrArg f <| AlgEquiv.symm_apply_apply _ _)
+      exact
+        Eq.trans
+          (congrFun (congrArg (fun g : L' →ₐ[F] K => (g : L' → K)) hφ)
+            (DFunLike.coe (AlgEquiv.ofInjectiveField _) x))
+          (congrArg f
+            (AlgEquiv.symm_apply_apply (AlgEquiv.ofInjectiveField (IsScalarTower.toAlgHom F L E)) x))
 
 end IntermediateField
 

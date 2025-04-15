@@ -114,6 +114,13 @@ private def elabConfig (recover : Bool) (structName : Name) (items : Array Confi
     let e ← Term.withSynthesize <| Term.elabTermEnsuringType stx (mkConst structName)
     instantiateMVars e
 
+section
+-- We automatically disable the following option for `macro`s but the subsequent `def` both contains
+-- a quotation and is called only by `macro`s, so we disable the option for it manually. Note that
+-- we can't use `in` as it is parsed as a single command and so the option would not influence the
+-- parser.
+set_option internal.parseQuotWithCurrentStage false
+
 private def mkConfigElaborator
     (doc? : Option (TSyntax ``Parser.Command.docComment)) (elabName type monadName : Ident)
     (adapt recover : Term) : MacroM (TSyntax `command) := do
@@ -147,6 +154,8 @@ private def mkConfigElaborator
           else
             throwError msg
       go)
+
+end
 
 /-!
 `declare_config_elab elabName TypeName` declares a function `elabName : Syntax → TacticM TypeName`

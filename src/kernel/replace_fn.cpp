@@ -9,25 +9,9 @@ Author: Leonardo de Moura
 #include <utility>
 #include <unordered_map>
 #include "kernel/replace_fn.h"
+#include "util/alloc.h"
 
 namespace lean {
-
-/* Like `is_exclusive`, but also consider unique MT references as unshared, which ensures we get
- * similar performance on the cmdline and server (more precisely, for either option value of
- * `internal.cmdlineSnapshots`). Note that as `e` is merely *borrowed* (e.g. from the mctx in
- * the case of `instantiate_mvars` where the performance issue resolved here manifested, #5614),
- * it is in fact possible that another thread could simultaneously add a new direct reference to
- * `e`, so it is not definitely unshared in all cases if the below check is true.
- *
- * However, as we use this predicate merely as a conservative heuristic for detecting
- * expressions that are unshared *within the expression tree* at hand, the approximation is
- * still correct in this case. Furthermore, as we only use it for deciding when to cache
- * results, it ultimately does not affect the correctness of the overall procedure in any case.
- * This should however be kept in mind if we start using `is_likely_unshared` in other contexts.
- */
-static bool is_likely_unshared(expr const & e) {
-    return e.raw()->m_rc == 1 || e.raw()->m_rc == -1;
-}
 
 class replace_rec_fn {
     struct key_hasher {
@@ -35,7 +19,7 @@ class replace_rec_fn {
             return hash((size_t)p.first >> 3, p.second);
         }
     };
-    std::unordered_map<std::pair<lean_object *, unsigned>, expr, key_hasher> m_cache;
+    lean::unordered_map<std::pair<lean_object *, unsigned>, expr, key_hasher> m_cache;
     std::function<optional<expr>(expr const &, unsigned)> m_f;
     bool                                                  m_use_cache;
 
@@ -101,7 +85,7 @@ expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned
 }
 
 class replace_fn {
-    std::unordered_map<lean_object *, expr> m_cache;
+    lean::unordered_map<lean_object *, expr> m_cache;
     lean_object * m_f;
 
     expr save_result(expr const & e, expr const & r, bool shared) {

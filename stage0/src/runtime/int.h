@@ -29,5 +29,9 @@ static_assert(sizeof(int64) == 8,  "unexpected int64 size");  // NOLINT
 static_assert(sizeof(uint64) == 8, "unexpected uint64 size"); // NOLINT
                                                               //
 typedef size_t usize;
+typedef ptrdiff_t isize;
+static_assert(sizeof(usize) == sizeof(isize), "unexpected size difference usize/isize");   // NOLINT
+static_assert(sizeof(usize) == 4 || sizeof(usize) == 8, "usize is neither 32 nor 64 bit"); // NOLINT
+                                                                                           //
 
 }

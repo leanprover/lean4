@@ -124,3 +124,91 @@ theorem ex1 (n m o : Nat) : n = m + 0 → m = o → m = o := by
   intro (h₁ : n = m) h₂
   rw [← h₁, ← h₂]
   assumption
+
+/-!
+Test of named generalization, of an expression that does not appear in the goal.
+-/
+/--
+info: case succ
+α : Type
+ys zs : List α
+n : Nat
+ih : ∀ (xs : List α), (xs ++ ys ++ zs).length = n → xs ++ ys ++ zs = xs ++ (ys ++ zs)
+xs : List α
+h : (xs ++ ys ++ zs).length = n + 1
+⊢ xs ++ ys ++ zs = xs ++ (ys ++ zs)
+-/
+#guard_msgs in
+example {α : Type} (xs ys zs : List α) : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by
+  induction h : ((xs ++ ys) ++ zs).length generalizing xs with
+  | zero =>
+    simp only [List.length_append, Nat.add_eq_zero_iff, List.length_eq_zero] at h
+    obtain ⟨⟨rfl, rfl⟩, rfl⟩ := h
+    rfl
+  | succ n ih =>
+    trace_state
+    cases xs with
+    | nil => rfl
+    | cons x xs' =>
+      simp only [List.cons_append, List.length_cons, Nat.add_right_cancel_iff] at h
+      simp only [List.cons_append, ih _ h]
+
+/-!
+Test of named generalization, of an expression that appears in the goal.
+-/
+/--
+info: case cons
+α : Type
+zs : List α
+w : α
+ws : List α
+ih : ∀ (xs ys : List α), xs ++ ys ++ zs = ws → ws = xs ++ (ys ++ zs)
+xs ys : List α
+h : xs ++ ys ++ zs = w :: ws
+⊢ w :: ws = xs ++ (ys ++ zs)
+-/
+#guard_msgs in
+example {α : Type} (xs ys zs : List α) : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by
+  induction h : (xs ++ ys) ++ zs generalizing xs ys with
+  | nil =>
+    cases xs <;> cases ys <;> cases zs <;> cases h
+    rfl
+  | cons w ws ih =>
+    trace_state
+    cases xs with
+    | nil =>
+      cases ys with
+      | nil =>
+        cases h
+        rfl
+      | cons _ ys' =>
+        cases h
+        rw [ih [] ys' rfl]
+        rfl
+    | cons _ xs' =>
+      cases h
+      rw [ih xs' ys rfl]
+      rfl
+
+/-!
+Test of hole for named generalization.
+Yields a fresh hygienic name.
+-/
+/--
+info: case zero
+n : Nat
+h✝ : n + 1 = 0
+⊢ 0 = 1 + n
+
+case succ
+n n✝ : Nat
+a✝ : n + 1 = n✝ → n✝ = 1 + n
+h✝ : n + 1 = n✝ + 1
+⊢ n✝ + 1 = 1 + n
+-/
+#guard_msgs in
+example (n : Nat) : n + 1 = 1 + n := by
+  induction _ : n + 1
+  trace_state
+  omega
+  omega

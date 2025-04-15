@@ -6,6 +6,7 @@ Authors: Floris van Doorn, Leonardo de Moura
 prelude
 import Init.SimpLemmas
 import Init.Data.NeZero
+import Init.Grind.Tactics
 
 set_option linter.missingDocs true -- keep it documented
 universe u
@@ -23,81 +24,69 @@ private theorem rec_eq_recCompiled : @Nat.rec = @Nat.recCompiled :=
   funext fun _ => funext fun _ => funext fun succ => funext fun t =>
     Nat.recOn t rfl (fun n ih => congrArg (succ n) ih)
 
-/-- Recursor identical to `Nat.rec` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`.
-Used as the default `Nat` eliminator by the `induction` tactic. -/
+/--
+A recursor for `Nat` that uses the notations `0` for `Nat.zero` and `n + 1` for `Nat.succ`.
+
+It is otherwise identical to the default recursor `Nat.rec`. It is used by the `induction` tactic
+by default for `Nat`.
+-/
 @[elab_as_elim, induction_eliminator]
 protected abbrev recAux {motive : Nat → Sort u} (zero : motive 0) (succ : (n : Nat) → motive n → motive (n + 1)) (t : Nat) : motive t :=
   Nat.rec zero succ t
 
-/-- Recursor identical to `Nat.casesOn` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`.
-Used as the default `Nat` eliminator by the `cases` tactic. -/
+/--
+A case analysis principle for `Nat` that uses the notations `0` for `Nat.zero` and `n + 1` for
+`Nat.succ`.
+
+It is otherwise identical to the default recursor `Nat.casesOn`. It is used as the default `Nat`
+case analysis principle for `Nat` by the `cases` tactic.
+-/
 @[elab_as_elim, cases_eliminator]
 protected abbrev casesAuxOn {motive : Nat → Sort u} (t : Nat) (zero : motive 0) (succ : (n : Nat) → motive (n + 1)) : motive t :=
   Nat.casesOn t zero succ
 
-/--
-`Nat.fold` evaluates `f` on the numbers up to `n` exclusive, in increasing order:
-* `Nat.fold f 3 init = init |> f 0 |> f 1 |> f 2`
--/
-@[specialize] def fold {α : Type u} (f : Nat → α → α) : (n : Nat) → (init : α) → α
-  | 0,      a => a
-  | succ n, a => f n (fold f n a)
-
-/-- Tail-recursive version of `Nat.fold`. -/
-@[inline] def foldTR {α : Type u} (f : Nat → α → α) (n : Nat) (init : α) : α :=
-  let rec @[specialize] loop
-    | 0,      a => a
-    | succ m, a => loop m (f (n - succ m) a)
-  loop n init
 
 /--
-`Nat.foldRev` evaluates `f` on the numbers up to `n` exclusive, in decreasing order:
-* `Nat.foldRev f 3 init = f 0 <| f 1 <| f 2 <| init`
--/
-@[specialize] def foldRev {α : Type u} (f : Nat → α → α) : (n : Nat) → (init : α) → α
-  | 0,      a => a
-  | succ n, a => foldRev f n (f n a)
+Applies a function to a starting value the specified number of times.
 
-/-- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
-@[specialize] def any (f : Nat → Bool) : Nat → Bool
-  | 0      => false
-  | succ n => any f n || f n
+In other words, `f` is iterated `n` times on `a`.
 
-/-- Tail-recursive version of `Nat.any`. -/
-@[inline] def anyTR (f : Nat → Bool) (n : Nat) : Bool :=
-  let rec @[specialize] loop : Nat → Bool
-    | 0      => false
-    | succ m => f (n - succ m) || loop m
-  loop n
-
-/-- `all f n = true` iff every `i in [0, n-1]` satisfies `f i = true` -/
-@[specialize] def all (f : Nat → Bool) : Nat → Bool
-  | 0      => true
-  | succ n => all f n && f n
-
-/-- Tail-recursive version of `Nat.all`. -/
-@[inline] def allTR (f : Nat → Bool) (n : Nat) : Bool :=
-  let rec @[specialize] loop : Nat → Bool
-    | 0      => true
-    | succ m => f (n - succ m) && loop m
-  loop n
-
-/--
-`Nat.repeat f n a` is `f^(n) a`; that is, it iterates `f` `n` times on `a`.
+Examples:
 * `Nat.repeat f 3 a = f <| f <| f <| a`
+* `Nat.repeat (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
 @[specialize] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
   | succ n, a => f (repeat f n a)
 
-/-- Tail-recursive version of `Nat.repeat`. -/
+/--
+Applies a function to a starting value the specified number of times.
+
+In other words, `f` is iterated `n` times on `a`.
+
+This is a tail-recursive version of `Nat.repeat` that's used at runtime.
+
+Examples:
+* `Nat.repeatTR f 3 a = f <| f <| f <| a`
+* `Nat.repeatTR (· ++ "!") 4 "Hello" = "Hello!!!!"`
+-/
 @[inline] def repeatTR {α : Type u} (f : α → α) (n : Nat) (a : α) : α :=
   let rec @[specialize] loop
     | 0,      a => a
     | succ n, a => loop n (f a)
   loop n a
 
-/-- Boolean less-than of natural numbers. -/
+/--
+The Boolean less-than comparison on natural numbers.
+
+This function is overridden in both the kernel and the compiler to efficiently evaluate using the
+arbitrary-precision arithmetic library. The definition provided here is the logical model.
+
+Examples:
+ * `Nat.blt 2 5 = true`
+ * `Nat.blt 5 2 = false`
+ * `Nat.blt 5 5 = false`
+-/
 def blt (a b : Nat) : Bool :=
   ble a.succ b
 
@@ -298,6 +287,9 @@ theorem sub_one_lt : ∀ {n : Nat}, n ≠ 0 → n - 1 < n := pred_lt
   | zero      => exact Nat.le_refl (n - 0)
   | succ m ih => apply Nat.le_trans (pred_le (n - m)) ih
 
+theorem sub_lt_of_lt {a b c : Nat} (h : a < c) : a - b < c :=
+  Nat.lt_of_le_of_lt (Nat.sub_le _ _) h
+
 theorem sub_lt : ∀ {n m : Nat}, 0 < n → 0 < m → n - m < n
   | 0,   _,   h1, _  => absurd h1 (Nat.lt_irrefl 0)
   | _+1, 0,   _, h2  => absurd h2 (Nat.lt_irrefl 0)
@@ -425,6 +417,9 @@ protected theorem lt_add_right (c : Nat) (h : a < b) : a < b + c :=
 theorem lt_of_add_right_lt {n m k : Nat} (h : n + k < m) : n < m :=
   Nat.lt_of_le_of_lt (Nat.le_add_right ..) h
 
+theorem lt_of_add_left_lt {n m k : Nat} (h : k + n < m) : n < m :=
+  lt_of_add_right_lt (Nat.add_comm _ _ ▸ h)
+
 theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (fun k => n + k = m)
   | zero,   zero,   _ => ⟨0, rfl⟩
   | zero,   succ n, _ => ⟨succ n, Nat.add_comm 0 (succ n) ▸ rfl⟩
@@ -491,10 +486,10 @@ protected theorem le_antisymm_iff {a b : Nat} : a = b ↔ a ≤ b ∧ b ≤ a :=
 protected theorem eq_iff_le_and_ge : ∀{a b : Nat}, a = b ↔ a ≤ b ∧ b ≤ a := @Nat.le_antisymm_iff
 
 instance : Std.Antisymm ( . ≤ . : Nat → Nat → Prop) where
-  antisymm h₁ h₂ := Nat.le_antisymm h₁ h₂
+  antisymm _ _ h₁ h₂ := Nat.le_antisymm h₁ h₂
 
 instance : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
-  antisymm h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
+  antisymm _ _ h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
 
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with
@@ -545,6 +540,9 @@ protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a �
 
 @[simp] protected theorem add_le_add_iff_right {n : Nat} : m + n ≤ k + n ↔ m ≤ k :=
   ⟨Nat.le_of_add_le_add_right, fun h => Nat.add_le_add_right h _⟩
+
+@[simp] protected theorem add_le_add_iff_left {n : Nat} : n + m ≤ n + k ↔ m ≤ k :=
+  ⟨Nat.le_of_add_le_add_left, fun h => Nat.add_le_add_left h _⟩
 
 /-! ### le/lt -/
 
@@ -755,6 +753,16 @@ protected theorem le_of_mul_le_mul_left {a b c : Nat} (h : c * a ≤ c * b) (hc 
     have h' : c * b < c * a := Nat.mul_lt_mul_of_pos_left hlt hc
     absurd h (Nat.not_le_of_gt h')
 
+protected theorem le_of_mul_le_mul_right {a b c : Nat} (h : a * c ≤ b * c) (hc : 0 < c) : a ≤ b := by
+  rw [Nat.mul_comm a c, Nat.mul_comm b c] at h
+  exact Nat.le_of_mul_le_mul_left h hc
+
+protected theorem mul_le_mul_left_iff {n m k : Nat} (w : 0 < k) : k * n ≤ k * m ↔ n ≤ m :=
+  ⟨fun h => Nat.le_of_mul_le_mul_left h w, fun h => mul_le_mul_left _ h⟩
+
+protected theorem mul_le_mul_right_iff {n m k : Nat} (w : 0 < k) : n * k ≤ m * k ↔ n ≤ m :=
+  ⟨fun h => Nat.le_of_mul_le_mul_right h w, fun h => mul_le_mul_right _ h⟩
+
 protected theorem eq_of_mul_eq_mul_left {m k n : Nat} (hn : 0 < n) (h : n * m = n * k) : m = k :=
   Nat.le_antisymm (Nat.le_of_mul_le_mul_left (Nat.le_of_eq h) hn)
                   (Nat.le_of_mul_le_mul_left (Nat.le_of_eq h.symm) hn)
@@ -770,75 +778,131 @@ protected theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=
 protected theorem pow_add_one (n m : Nat) : n^(m + 1) = n^m * n :=
   rfl
 
-protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
+@[simp] protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
 
-theorem pow_le_pow_of_le_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
+@[simp] protected theorem pow_one (a : Nat) : a ^ 1 = a := by
+  simp [Nat.pow_succ]
+
+protected theorem pow_le_pow_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
   | 0      => Nat.le_refl _
-  | succ i => Nat.mul_le_mul (pow_le_pow_of_le_left h i) h
+  | succ i => Nat.mul_le_mul (Nat.pow_le_pow_left h i) h
 
-theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
+protected theorem pow_le_pow_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
   | 0,      h =>
     have : i = 0 := eq_zero_of_le_zero h
     this.symm ▸ Nat.le_refl _
   | succ j, h =>
     match le_or_eq_of_le_succ h with
     | Or.inl h => show n^i ≤ n^j * n from
-      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (pow_le_pow_of_le_right hx h) hx
+      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (Nat.pow_le_pow_right hx h) hx
       Nat.mul_one (n^i) ▸ this
     | Or.inr h =>
       h.symm ▸ Nat.le_refl _
 
-theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
-  pow_le_pow_of_le_right h (Nat.zero_le _)
+set_option linter.missingDocs false in
+@[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
+abbrev pow_le_pow_of_le_left := @Nat.pow_le_pow_left
+
+set_option linter.missingDocs false in
+@[deprecated Nat.pow_le_pow_right (since := "2025-02-17")]
+abbrev pow_le_pow_of_le_right := @Nat.pow_le_pow_right
+
+protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
+  match n with
+  | 0 => Nat.zero_lt_one
+  | _ + 1 => Nat.mul_pos (Nat.pow_pos h) h
+
+set_option linter.missingDocs false in
+@[deprecated Nat.pow_pos (since := "2025-02-17")]
+abbrev pos_pow_of_pos := @Nat.pow_pos
 
 @[simp] theorem zero_pow_of_pos (n : Nat) (h : 0 < n) : 0 ^ n = 0 := by
   cases n with
   | zero => cases h
   | succ n => simp [Nat.pow_succ]
 
-protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pos_pow_of_pos _ (by decide)
+protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pow_pos (by decide)
 
 instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
-  ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pos_pow_of_pos m (pos_of_neZero _))⟩
+  ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pow_pos (pos_of_neZero _))⟩
+
+protected theorem mul_pow (a b n : Nat) : (a * b) ^ n = a ^ n * b ^ n := by
+  induction n with
+  | zero => simp [Nat.pow_zero]
+  | succ n ih =>
+    rw [Nat.pow_succ, ih, Nat.pow_succ, Nat.pow_succ, ← Nat.mul_assoc, ← Nat.mul_assoc]
+    congr 1
+    rw [Nat.mul_assoc, Nat.mul_assoc, Nat.mul_comm _ a]
+
+protected theorem pow_lt_pow_left {a b n : Nat} (hab : a < b) (h : n ≠ 0) : a ^ n < b ^ n := by
+  cases n with
+  | zero => simp at h
+  | succ n =>
+    clear h
+    induction n with
+    | zero => simpa
+    | succ n ih =>
+      rw [Nat.pow_succ a, Nat.pow_succ b]
+      exact Nat.lt_of_le_of_lt (Nat.mul_le_mul_left _ (Nat.le_of_lt hab))
+        (Nat.mul_lt_mul_of_pos_right ih (Nat.lt_of_le_of_lt (Nat.zero_le _) hab))
+
+protected theorem pow_left_inj {a b n : Nat} (hn : n ≠ 0) : a ^ n = b ^ n ↔ a = b := by
+  refine ⟨fun h => ?_, (· ▸ rfl)⟩
+  match Nat.lt_trichotomy a b with
+  | Or.inl hab => exact False.elim (absurd h (ne_of_lt (Nat.pow_lt_pow_left hab hn)))
+  | Or.inr (Or.inl hab) => exact hab
+  | Or.inr (Or.inr hab) => exact False.elim (absurd h (Nat.ne_of_lt' (Nat.pow_lt_pow_left hab hn)))
 
 /-! # min/max -/
 
 /--
-`Nat.min a b` is the minimum of `a` and `b`:
-* if `a ≤ b` then `Nat.min a b = a`
-* if `b ≤ a` then `Nat.min a b = b`
+Returns the lesser of two natural numbers. Usually accessed via `Min.min`.
+
+Returns `n` if `n ≤ m`, or `m` if `m ≤ n`.
+
+Examples:
+* `min 0 5 = 0`
+* `min 4 5 = 4`
+* `min 4 3 = 3`
+* `min 8 8 = 8`
 -/
 protected abbrev min (n m : Nat) := min n m
 
-protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
+@[grind =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
 
 instance : Max Nat := maxOfLe
 
 /--
-`Nat.max a b` is the maximum of `a` and `b`:
-* if `a ≤ b` then `Nat.max a b = b`
-* if `b ≤ a` then `Nat.max a b = a`
+Returns the greater of two natural numbers. Usually accessed via `Max.max`.
+
+Returns `m` if `n ≤ m`, or `n` if `m ≤ n`.
+
+Examples:
+* `max 0 5 = 5`
+* `max 4 5 = 5`
+* `max 4 3 = 4`
+* `max 8 8 = 8`
 -/
 protected abbrev max (n m : Nat) := max n m
 
-protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
+@[grind =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
 
 
 /-! # Auxiliary theorems for well-founded recursion -/
 
-theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
+protected theorem ne_zero_of_lt (h : b < a) : a ≠ 0 := by
   cases a
   exact absurd h (Nat.not_lt_zero _)
   apply Nat.noConfusion
 
-theorem pred_lt_of_lt {n m : Nat} (h : m < n) : pred n < n :=
-  pred_lt (not_eq_zero_of_lt h)
+@[deprecated Nat.ne_zero_of_lt (since := "2025-02-06")]
+theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := Nat.ne_zero_of_lt h
 
-set_option linter.missingDocs false in
-@[deprecated (since := "2024-06-01")] abbrev pred_lt' := @pred_lt_of_lt
+theorem pred_lt_of_lt {n m : Nat} (h : m < n) : pred n < n :=
+  pred_lt (Nat.ne_zero_of_lt h)
 
 theorem sub_one_lt_of_lt {n m : Nat} (h : m < n) : n - 1 < n :=
-  sub_one_lt (not_eq_zero_of_lt h)
+  sub_one_lt (Nat.ne_zero_of_lt h)
 
 /-! # pred theorems -/
 
@@ -903,7 +967,7 @@ theorem zero_lt_sub_of_lt (h : i < a) : 0 < a - i := by
 theorem sub_succ_lt_self (a i : Nat) (h : i < a) : a - (i + 1) < a - i := by
   rw [Nat.add_succ, Nat.sub_succ]
   apply Nat.pred_lt
-  apply Nat.not_eq_zero_of_lt
+  apply Nat.ne_zero_of_lt
   apply Nat.zero_lt_sub_of_lt
   assumption
 
@@ -1120,9 +1184,6 @@ theorem pred_mul (n m : Nat) : pred n * m = n * m - m := by
   | zero   => simp
   | succ n => rw [Nat.pred_succ, succ_mul, Nat.add_sub_cancel]
 
-set_option linter.missingDocs false in
-@[deprecated (since := "2024-06-01")] abbrev mul_pred_left := @pred_mul
-
 protected theorem sub_one_mul  (n m : Nat) : (n - 1) * m = n * m - m := by
   cases n with
   | zero   => simp
@@ -1132,9 +1193,6 @@ protected theorem sub_one_mul  (n m : Nat) : (n - 1) * m = n * m - m := by
 theorem mul_pred (n m : Nat) : n * pred m = n * m - n := by
   rw [Nat.mul_comm, pred_mul, Nat.mul_comm]
 
-set_option linter.missingDocs false in
-@[deprecated (since := "2024-06-01")] abbrev mul_pred_right := @mul_pred
-
 theorem mul_sub_one (n m : Nat) : n * (m - 1) = n * m - n := by
   rw [Nat.mul_comm, Nat.sub_one_mul , Nat.mul_comm]
 
@@ -1143,8 +1201,14 @@ protected theorem mul_sub_right_distrib (n m k : Nat) : (n - m) * k = n * k - m 
   | zero => simp
   | succ m ih => rw [Nat.sub_succ, Nat.pred_mul, ih, succ_mul, Nat.sub_sub]; done
 
+protected theorem sub_mul (n m k : Nat) : (n - m) * k = n * k - m * k :=
+  Nat.mul_sub_right_distrib n m k
+
 protected theorem mul_sub_left_distrib (n m k : Nat) : n * (m - k) = n * m - n * k := by
   rw [Nat.mul_comm, Nat.mul_sub_right_distrib, Nat.mul_comm m n, Nat.mul_comm n k]
+
+protected theorem mul_sub (n m k : Nat) : n * (m - k) = n * m - n * k :=
+  Nat.mul_sub_left_distrib n m k
 
 /-! # Helper normalization theorems -/
 
@@ -1158,33 +1222,6 @@ theorem not_lt_eq (a b : Nat) : (¬ (a < b)) = (b ≤ a) :=
 theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   not_lt_eq b a
 
-/-! # csimp theorems -/
-
-@[csimp] theorem fold_eq_foldTR : @fold = @foldTR :=
-  funext fun α => funext fun f => funext fun n => funext fun init =>
-  let rec go : ∀ m n, foldTR.loop f (m + n) m (fold f n init) = fold f (m + n) init
-    | 0,      n => by simp [foldTR.loop]
-    | succ m, n => by rw [foldTR.loop, add_sub_self_left, succ_add]; exact go m (succ n)
-  (go n 0).symm
-
-@[csimp] theorem any_eq_anyTR : @any = @anyTR :=
-  funext fun f => funext fun n =>
-  let rec go : ∀ m n,  (any f n || anyTR.loop f (m + n) m) = any f (m + n)
-    | 0,      n => by simp [anyTR.loop]
-    | succ m, n => by
-      rw [anyTR.loop, add_sub_self_left, ← Bool.or_assoc, succ_add]
-      exact go m (succ n)
-  (go n 0).symm
-
-@[csimp] theorem all_eq_allTR : @all = @allTR :=
-  funext fun f => funext fun n =>
-  let rec go : ∀ m n,  (all f n && allTR.loop f (m + n) m) = all f (m + n)
-    | 0,      n => by simp [allTR.loop]
-    | succ m, n => by
-      rw [allTR.loop, add_sub_self_left, ← Bool.and_assoc, succ_add]
-      exact go m (succ n)
-  (go n 0).symm
-
 @[csimp] theorem repeat_eq_repeatTR : @repeat = @repeatTR :=
   funext fun α => funext fun f => funext fun n => funext fun init =>
   let rec go : ∀ m n, repeatTR.loop f m (repeat f n init) = repeat f (m + n) init
@@ -1193,31 +1230,3 @@ theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   (go n 0).symm
 
 end Nat
-
-namespace Prod
-
-/--
-`(start, stop).foldI f a` evaluates `f` on all the numbers
-from `start` (inclusive) to `stop` (exclusive) in increasing order:
-* `(5, 8).foldI f init = init |> f 5 |> f 6 |> f 7`
--/
-@[inline] def foldI {α : Type u} (f : Nat → α → α) (i : Nat × Nat) (a : α) : α :=
-  Nat.foldTR.loop f i.2 (i.2 - i.1) a
-
-/--
-`(start, stop).anyI f a` returns true if `f` is true for some natural number
-from `start` (inclusive) to `stop` (exclusive):
-* `(5, 8).anyI f = f 5 || f 6 || f 7`
--/
-@[inline] def anyI (f : Nat → Bool) (i : Nat × Nat) : Bool :=
-  Nat.anyTR.loop f i.2 (i.2 - i.1)
-
-/--
-`(start, stop).allI f a` returns true if `f` is true for all natural numbers
-from `start` (inclusive) to `stop` (exclusive):
-* `(5, 8).anyI f = f 5 && f 6 && f 7`
--/
-@[inline] def allI (f : Nat → Bool) (i : Nat × Nat) : Bool :=
-  Nat.allTR.loop f i.2 (i.2 - i.1)
-
-end Prod

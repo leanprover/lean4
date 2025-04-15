@@ -103,10 +103,21 @@ your PR using rebase merge, bypassing the merge queue.
 As written above, changes in meta code in the current stage usually will only
 affect later stages. This is an issue in two specific cases.
 
+* For the special case of *quotations*, it is desirable to have changes in builtin parsers affect them immediately: when the changes in the parser become active in the next stage, builtin macros implemented via quotations should generate syntax trees compatible with the new parser, and quotation patterns in builtin macros and elaborators should be able to match syntax created by the new parser and macros.
+  Since quotations capture the syntax tree structure during execution of the current stage and turn it into code for the next stage, we need to run the current stage's builtin parsers in quotations via the interpreter for this to work.
+  Caveats:
+  * We activate this behavior by default when building stage 1 by setting `-Dinternal.parseQuotWithCurrentStage=true`.
+    We force-disable it inside `macro/macro_rules/elab/elab_rules` via `suppressInsideQuot` as they are guaranteed not to run in the next stage and may need to be run in the current one, so the stage 0 parser is the correct one to use for them.
+    It may be necessary to extend this disabling to functions that contain quotations and are (exclusively) used by one of the mentioned commands. A function using quotations should never be used by both builtin and non-builtin macros/elaborators. Example: https://github.com/leanprover/lean4/blob/f70b7e5722da6101572869d87832494e2f8534b7/src/Lean/Elab/Tactic/Config.lean#L118-L122
+  * The parser needs to be reachable via an `import` statement, otherwise the version of the previous stage will silently be used.
+  * Only the parser code (`Parser.fn`) is affected; all metadata such as leading tokens is taken from the previous stage.
+
+  For an example, see https://github.com/leanprover/lean4/commit/f9dcbbddc48ccab22c7674ba20c5f409823b4cc1#diff-371387aed38bb02bf7761084fd9460e4168ae16d1ffe5de041b47d3ad2d22422R13
+
 * For *non-builtin* meta code such as `notation`s or `macro`s in
   `Notation.lean`, we expect changes to affect the current file and all later
   files of the same stage immediately, just like outside the stdlib. To ensure
-  this, we need to build the stage using `-Dinterpreter.prefer_native=false` -
+  this, we build stage 1 using `-Dinterpreter.prefer_native=false` -
   otherwise, when executing a macro, the interpreter would notice that there is
   already a native symbol available for this function and run it instead of the
   new IR, but the symbol is from the previous stage!
@@ -124,26 +135,11 @@ affect later stages. This is an issue in two specific cases.
   further stages (e.g. after an `update-stage0`) will then need to be compiled
   with the flag set to `false` again since they will expect the new signature.
 
-  For an example, see https://github.com/leanprover/lean4/commit/da4c46370d85add64ef7ca5e7cc4638b62823fbb.
+  When enabling `prefer_native`, we usually want to *disable* `parseQuotWithCurrentStage` as it would otherwise make quotations use the interpreter after all.
+  However, there is a specific case where we want to set both options to `true`: when we make changes to a non-builtin parser like `simp` that has a builtin elaborator, we cannot have the new parser be active outside of quotations in stage 1 as the builtin elaborator from stage 0 would not understand them; on the other hand, we need quotations in e.g. the builtin `simp` elaborator to produce the new syntax in the next stage.
+  As this issue usually affects only tactics, enabling `debug.byAsSorry` instead of `prefer_native` can be a simpler solution.
 
-* For the special case of *quotations*, it is desirable to have changes in
-  built-in parsers affect them immediately: when the changes in the parser
-  become active in the next stage, macros implemented via quotations should
-  generate syntax trees compatible with the new parser, and quotation patterns
-  in macro and elaborators should be able to match syntax created by the new
-  parser and macros. Since quotations capture the syntax tree structure during
-  execution of the current stage and turn it into code for the next stage, we
-  need to run the current stage's built-in parsers in quotation via the
-  interpreter for this to work. Caveats:
-  * Since interpreting full parsers is not nearly as cheap and we rarely change
-    built-in syntax, this needs to be opted in using `-Dinternal.parseQuotWithCurrentStage=true`.
-  * The parser needs to be reachable via an `import` statement, otherwise the
-    version of the previous stage will silently be used.
-  * Only the parser code (`Parser.fn`) is affected; all metadata such as leading
-    tokens is taken from the previous stage.
-
-  For an example, see https://github.com/leanprover/lean4/commit/f9dcbbddc48ccab22c7674ba20c5f409823b4cc1#diff-371387aed38bb02bf7761084fd9460e4168ae16d1ffe5de041b47d3ad2d22422
-  (from before the flag defaulted to `false`).
+  For a `prefer_native` example, see https://github.com/leanprover/lean4/commit/da4c46370d85add64ef7ca5e7cc4638b62823fbb.
 
 To modify either of these flags both for building and editing the stdlib, adjust
 the code in `stage0/src/stdlib_flags.h`. The flags will automatically be reset

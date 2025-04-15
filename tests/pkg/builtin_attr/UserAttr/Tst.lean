@@ -5,11 +5,12 @@ import UserAttr.BlaAttr
 
 attribute [local irreducible] myFun
 
+set_option pp.mvars false
 /--
 error: type mismatch
   rfl
 has type
-  myFun x = myFun x : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   myFun x = x + 1 : Prop
 -/

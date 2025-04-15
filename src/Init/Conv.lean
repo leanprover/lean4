@@ -97,7 +97,7 @@ syntax (name := arg) "arg " argArg : conv
 
 /-- `ext x` traverses into a binder (a `fun x => e` or `∀ x, e` expression)
 to target `e`, introducing name `x` in the process. -/
-syntax (name := ext) "ext" (ppSpace colGt ident)* : conv
+syntax (name := ext) "ext" (ppSpace colGt binderIdent)* : conv
 
 /-- `change t'` replaces the target `t` with `t'`,
 assuming `t` and `t'` are definitionally equal. -/
@@ -150,6 +150,10 @@ See the `simp` tactic for more information. -/
 syntax (name := simp) "simp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? : conv
 
+/-- `simp?` takes the same arguments as `simp`, but reports an equivalent call to `simp only`
+that would be sufficient to close the goal. See the `simp?` tactic for more information. -/
+syntax (name := simpTrace) "simp?" optConfig (discharger)? (&" only")? (simpArgs)? : conv
+
 /--
 `dsimp` is the definitional simplifier in `conv`-mode. It differs from `simp` in that it only
 applies theorems that hold by reflexivity.
@@ -166,6 +170,9 @@ example (a : Nat): (0 + 0) = a - a := by
 -/
 syntax (name := dsimp) "dsimp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? : conv
+
+@[inherit_doc simpTrace]
+syntax (name := dsimpTrace) "dsimp?" optConfig (&" only")? (dsimpArgs)? : conv
 
 /-- `simp_match` simplifies match expressions. For example,
 ```
@@ -274,9 +281,9 @@ macro "left" : conv => `(conv| lhs)
 /-- `right` traverses into the right argument. Synonym for `rhs`. -/
 macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
-macro "intro" xs:(ppSpace colGt ident)* : conv => `(conv| ext $xs*)
+macro "intro" xs:(ppSpace colGt binderIdent)* : conv => `(conv| ext $xs*)
 
-syntax enterArg := ident <|> argArg
+syntax enterArg := binderIdent <|> argArg
 
 /-- `enter [arg, ...]` is a compact way to describe a path to a subterm.
 It is a shorthand for other conv tactics as follows:
@@ -299,6 +306,10 @@ syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " convSe
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
 macro "try " t:convSeq : conv => `(conv| first | $t | skip)
 
+/--
+`tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal, concatenating all goals
+produced by `tac'`.
+-/
 macro:1 x:conv tk:" <;> " y:conv:0 : conv =>
   `(conv| tactic' => (conv' => $x:conv) <;>%$tk (conv' => $y:conv))
 

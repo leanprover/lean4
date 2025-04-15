@@ -29,7 +29,7 @@ where
     let s ← getThe CollectFVars.State
     let i ← get
     if h : i < s.fvarIds.size then
-      let r := s.fvarIds.get ⟨i, h⟩
+      let r := s.fvarIds[i]
       modify (· + 1)
       return some r
     else

@@ -35,6 +35,7 @@ open Lean Elab Command in
 elab "wrap" num c:command : command => do
   elabCommand c
 
+   --v sync
    --v change: "1" "2"
 wrap 1 def wrapped := by
   dbg_trace "w"
@@ -94,3 +95,15 @@ def f := 1  -- used to raise "unexpected identifier" after edit below because we
 def g := 2
    --^ insert: "g"
    --^ collectDiagnostics
+
+/-!
+Example showing that we need to reparse at least two commands preceding a change; see note
+[Incremental Parsing].
+-/
+-- RESET
+structure Signature where
+  /-- a docstring -/
+  Sort : Type
+    --^ sync
+    --^ insert: "s"
+    --^ collectDiagnostics

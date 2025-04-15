@@ -23,9 +23,8 @@ lean_lib Log
 Test logging in job
 -/
 
-def top (level : LogLevel) : FetchM (BuildJob Unit) := Job.async do
+def top (level : LogLevel) : FetchM (Job Unit) := Job.async do
   logEntry {level, message := "foo"}
-  return ((), .nil)
 
 target topTrace : Unit := top .trace
 target topInfo : Unit := top .info
@@ -36,9 +35,9 @@ target topError : Unit := top .error
 Test logging in build helper
 -/
 
-def art (pkg : Package) (level : LogLevel) : FetchM (BuildJob Unit) := Job.async do
+def art (pkg : Package) (level : LogLevel) : FetchM (Job Unit) := Job.async do
   let artFile := pkg.buildDir / s!"art{level.toString.capitalize}"
-  (((), ·)) <$> buildFileUnlessUpToDate artFile .nil do
+  buildFileUnlessUpToDate' artFile do
     logEntry {level, message := "foo"}
     createParentDirs artFile
     IO.FS.writeFile artFile ""

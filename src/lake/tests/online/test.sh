@@ -8,7 +8,12 @@ export ELAN_TOOLCHAIN=test
 ./clean.sh
 # Tests requiring a package not in the index
 ($LAKE -f bogus-dep.toml update 2>&1 && exit 1 || true) |
-  grep --color "error: bogus/bogus: could not materialize package: dependency has no explicit source and was not found on Reservoir"
+  grep --color "package not found on Reservoir"
+# Tests a request error
+(RESERVOIR_API_URL=example.com $LAKE -f bogus-dep.toml update 2>&1 && exit 1 || true) |
+  grep --color "server returned invalid JSON"
+(RESERVOIR_API_URL=example.com $LAKE -f bogus-dep.toml update -v 2>&1 && exit 1 || true) |
+  grep --color "Reservoir responded with"
 
 ./clean.sh
 $LAKE -f git.toml update --keep-toolchain

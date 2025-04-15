@@ -3,6 +3,9 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+prelude
+import Init.Dynamic
+import Init.System.FilePath
 import Lean.Data.NameMap
 
 /- # Package Dependency Configuration
@@ -60,7 +63,7 @@ structure Dependency where
   Arguments to pass to the dependency's package configuration.
   -/
   opts : NameMap String
-  deriving Inhabited
+  deriving Inhabited, TypeName
 
 /-- The full name of a dependency (i.e., `<scope>/<name>`)-/
 def Dependency.fullName (dep : Dependency) : String :=

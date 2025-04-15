@@ -407,8 +407,10 @@ private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType 
   let pf := mkApp3 (mkConst ``of_decide_eq_true) expectedType s <|
     mkApp3 (mkConst ``Lean.ofReduceBool) (mkConst auxDeclName levelParams) (toExpr true) rflPrf
   try
-    let lemmaName ← mkAuxLemma levels expectedType pf
-    return .const lemmaName levelParams
+    -- disable async TC so we can catch its exceptions
+    withOptions (Elab.async.set · false) do
+      let lemmaName ← mkAuxLemma levels expectedType pf
+      return .const lemmaName levelParams
   catch ex =>
     -- Diagnose error
     throwError MessageData.ofLazyM (es := #[expectedType]) do
@@ -473,7 +475,8 @@ where
     -- Level variables occurring in `expectedType`, in ambient order
     let lemmaLevels := (← Term.getLevelNames).reverse.filter levelsInType.contains
     try
-      let lemmaName ← mkAuxLemma lemmaLevels expectedType pf
+      let lemmaName ← withOptions (Elab.async.set · false) do
+        mkAuxLemma lemmaLevels expectedType pf
       return mkConst lemmaName (lemmaLevels.map .param)
     catch _ =>
       diagnose expectedType s none
@@ -541,11 +544,6 @@ declare_config_elab elabDecideConfig Parser.Tactic.DecideConfig
 @[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun stx => do
   let cfg ← elabDecideConfig stx[1]
   evalDecideCore `decide cfg
-
-@[builtin_tactic Lean.Parser.Tactic.decideBang] def evalDecideBang : Tactic := fun stx => do
-  let cfg ← elabDecideConfig stx[1]
-  let cfg := { cfg with kernel := true }
-  evalDecideCore `decide! cfg
 
 @[builtin_tactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun stx => do
   let cfg ← elabDecideConfig stx[1]

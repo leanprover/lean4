@@ -1,0 +1,7 @@
+name = "qsort"
+version = "0.1.0"
+defaultTargets = ["qsort"]
+
+[[lean_exe]]
+name = "qsort"
+root = "Main"

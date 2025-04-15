@@ -20,7 +20,6 @@ static lean_object* l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_getActuals___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_MatchExpr_getActuals___lambda__2___closed__1;
 lean_object* l_Lean_Macro_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_MatchExpr_getParams___spec__2___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_getParams(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_MatchExpr_generate_loop___lambda__2___closed__30;
@@ -266,6 +265,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_expandLetExpr_declRange__1___c
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_getActuals(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandMatchExpr(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_MatchExpr_getParams___lambda__2___closed__2;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Term_MatchExpr_toAlt_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_generate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_MatchExpr_toAlt_x3f___lambda__1___closed__1;

@@ -25,6 +25,6 @@ p ∧ ¬q : Prop
 ¬p = q : Prop
 ¬p = q : Prop
 id ¬p : Prop
-Nat → ∀ (a : Nat), a = a : Prop
+∀ (a a : Nat), a = a : Prop
 id.{u} {α : Sort u} (a : α) : α
 precissues.lean:41:10-41:14: error: unexpected token 'foo!'; expected command

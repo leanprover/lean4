@@ -26,14 +26,14 @@ mutual
     else main e { s with visitedExpr := s.visitedExpr.insert e }
 
   partial def main : Expr → Visitor
-    | Expr.proj _ _ e      => visit e
-    | Expr.forallE _ d b _ => visit b ∘ visit d
-    | Expr.lam _ d b _     => visit b ∘ visit d
-    | Expr.letE _ t v b _  => visit b ∘ visit v ∘ visit t
-    | Expr.app f a         => visit a ∘ visit f
-    | Expr.mdata _ b       => visit b
-    | Expr.fvar fvarId     => fun s => s.add fvarId
-    | _                    => id
+    | .proj _ _ e      => visit e
+    | .forallE _ d b _ => visit b ∘ visit d
+    | .lam _ d b _     => visit b ∘ visit d
+    | .letE _ t v b _  => visit b ∘ visit v ∘ visit t
+    | .app f a         => visit a ∘ visit f
+    | .mdata _ b       => visit b
+    | .fvar fvarId     => fun s => s.add fvarId
+    | _                => id
 end
 
 end CollectFVars

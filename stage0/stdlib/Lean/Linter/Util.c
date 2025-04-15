@@ -525,7 +525,7 @@ return x_24;
 }
 else
 {
-if (lean_obj_tag(x_4) == 3)
+if (lean_obj_tag(x_4) == 4)
 {
 uint8_t x_25; 
 x_25 = !lean_is_exclusive(x_4);
@@ -629,7 +629,7 @@ x_51 = lean_apply_2(x_49, lean_box(0), x_50);
 return x_51;
 }
 }
-case 3:
+case 4:
 {
 uint8_t x_52; 
 x_52 = !lean_is_exclusive(x_10);

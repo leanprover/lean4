@@ -1,0 +1,12 @@
+#! /bin/env bash
+# Open a Mathlib4 PR for benchmarking a given Lean 4 PR
+
+set -euo pipefail
+
+[ $# -eq 1 ] || (echo "usage: $0 <lean4 PR #>"; exit 1)
+
+LEAN_PR=$1
+PR_RESPONSE=$(gh api repos/leanprover-community/mathlib4/pulls -X POST -f head=lean-pr-testing-$LEAN_PR -f base=nightly-testing -f title="leanprover/lean4#$LEAN_PR benchmarking" -f draft=true -f body="ignore me")
+PR_NUMBER=$(echo "$PR_RESPONSE" | jq '.number')
+echo "opened https://github.com/leanprover-community/mathlib4/pull/$PR_NUMBER"
+gh api repos/leanprover-community/mathlib4/issues/$PR_NUMBER/comments -X POST -f body="!bench" > /dev/null

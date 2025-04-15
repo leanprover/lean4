@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Elab.ElabRules
 import Lake.DSL.Extensions
 
@@ -27,7 +28,7 @@ during the Lakefile's elaboration.
 -/
 scoped syntax (name := dirConst) "__dir__" : term
 
-@[term_elab dirConst]
+@[builtin_term_elab dirConst]
 def elabDirConst : TermElab := fun stx expectedType? => do
   let exp :=
     if let some dir := dirExt.getState (← getEnv) then
@@ -47,7 +48,7 @@ or via the `with` clause in a `require` statement.
 -/
 scoped syntax (name := getConfig) "get_config? " ident :term
 
-@[term_elab getConfig]
+@[builtin_term_elab getConfig]
 def elabGetConfig : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   match stx with

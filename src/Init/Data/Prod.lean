@@ -43,7 +43,13 @@ theorem map_map (f : α → β) (f' : γ → δ) (g : β → ε) (g' : δ → ζ
     Prod.map g g' (Prod.map f f' x) = Prod.map (g ∘ f) (g' ∘ f') x :=
   rfl
 
-/-- Swap the factors of a product. `swap (a, b) = (b, a)` -/
+/--
+Swaps the elements in a pair.
+
+Examples:
+ * `(1, 2).swap = (2, 1)`
+ * `("orange", -87).swap = (-87, "orange")`
+-/
 def swap : α × β → β × α := fun p => (p.2, p.1)
 
 @[simp]

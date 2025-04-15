@@ -76,15 +76,15 @@ def delete{α : Type}{n: Nat}(k : Nat) (kw : k < (n + 1)) (seq : FinSeq (n + 1) 
 
 end FinSeq
 
-inductive Vector (α : Type) : Nat → Type where
-  | nil : Vector α zero
-  | cons{n: Nat}(head: α) (tail: Vector  α n) : Vector α  (n + 1)
+inductive Vector' (α : Type) : Nat → Type where
+  | nil : Vector' α zero
+  | cons{n: Nat}(head: α) (tail: Vector'  α n) : Vector' α  (n + 1)
 
-infixr:66 "+:" => Vector.cons
+infixr:66 "+:" => Vector'.cons
 
-open Vector
+open Vector'
 
-def Vector.coords {α : Type}{n : Nat}(v: Vector α n) : FinSeq n α :=
+def Vector'.coords {α : Type}{n : Nat}(v: Vector' α n) : FinSeq n α :=
   fun j jw =>
   match n, v, j, jw with
   | .(zero), nil, k, lt => nomatch lt
@@ -92,8 +92,8 @@ def Vector.coords {α : Type}{n : Nat}(v: Vector α n) : FinSeq n α :=
   | m + 1, cons head tail, j + 1, w =>  tail.coords j (Nat.le_of_succ_le_succ w)
 
 def seqVecAux {α: Type}{n m l: Nat}: (s : n + m = l) →
-    (seq1 : FinSeq n α) → (accum : Vector α m) →
-       Vector α l:=
+    (seq1 : FinSeq n α) → (accum : Vector' α m) →
+       Vector' α l:=
     match n with
     | zero => fun s => fun _ => fun seq2 =>
       by
@@ -101,7 +101,7 @@ def seqVecAux {α: Type}{n m l: Nat}: (s : n + m = l) →
           rw [← s]
           apply Nat.zero_add
           done
-        have sf : Vector α l = Vector α m := by
+        have sf : Vector' α l = Vector' α m := by
           rw [ss]
         exact Eq.mpr sf seq2
         done
@@ -114,24 +114,24 @@ def seqVecAux {α: Type}{n m l: Nat}: (s : n + m = l) →
           done
       seqVecAux ss (seq1.init) ((seq1.last) +: seq2)
 
-def FinSeq.vec {α : Type}{n: Nat} : FinSeq n α  →  Vector α n :=
-    fun seq => seqVecAux (Nat.add_zero n) seq Vector.nil
+def FinSeq.vec {α : Type}{n: Nat} : FinSeq n α  →  Vector' α n :=
+    fun seq => seqVecAux (Nat.add_zero n) seq Vector'.nil
 
-def Clause(n : Nat) : Type := Vector (Option Bool) n
+def Clause(n : Nat) : Type := Vector' (Option Bool) n
 
-def Valuation(n: Nat) : Type := Vector Bool n
+def Valuation(n: Nat) : Type := Vector' Bool n
 
-inductive SatAnswer{dom n: Nat}(clauses : Vector (Clause n) dom) where
+inductive SatAnswer{dom n: Nat}(clauses : Vector' (Clause n) dom) where
   | unsat : SatAnswer clauses
   | sat :  SatAnswer clauses
 
 structure SimpleRestrictionClauses{dom n: Nat}
-    (clauses: Vector (Clause (n + 1)) dom) where
+    (clauses: Vector' (Clause (n + 1)) dom) where
   codom : Nat
-  restClauses : Vector  (Clause n) codom
+  restClauses : Vector'  (Clause n) codom
 
 def prependRes{dom n: Nat}(branch: Bool)(focus: Nat)(focusLt : focus < n + 1)
-    (clauses: Vector (Clause (n + 1)) dom):
+    (clauses: Vector' (Clause (n + 1)) dom):
         (rd : SimpleRestrictionClauses clauses) →
            (head : Clause (n + 1)) →
         SimpleRestrictionClauses (head +: clauses) :=
@@ -142,15 +142,15 @@ def prependRes{dom n: Nat}(branch: Bool)(focus: Nat)(focusLt : focus < n + 1)
             ⟨rd.codom + 1, (FinSeq.vec (FinSeq.delete focus focusLt head.coords)) +: rd.restClauses⟩
 
 def restClauses{dom n: Nat}(branch: Bool)(focus: Nat)(focusLt : focus < n + 1)
-        (clauses: Vector (Clause (n + 1)) dom) :
+        (clauses: Vector' (Clause (n + 1)) dom) :
          SimpleRestrictionClauses clauses :=
             match dom, clauses with
-            | 0, _ =>  ⟨0, Vector.nil⟩
-            | m + 1, Vector.cons head clauses =>
+            | 0, _ =>  ⟨0, Vector'.nil⟩
+            | m + 1, Vector'.cons head clauses =>
                 prependRes branch focus focusLt clauses
                             (restClauses branch focus focusLt clauses) head
 
-def answerSAT{n dom : Nat}: (clauses : Vector (Clause n) dom) →  SatAnswer clauses :=
+def answerSAT{n dom : Nat}: (clauses : Vector' (Clause n) dom) →  SatAnswer clauses :=
       match n with
       | zero =>
            match dom with
@@ -193,11 +193,11 @@ syntax (name:= nrmlform)"whnf!" term : term
 
 
 def cls1 : Clause 2 := -- ¬P
-  (some false) +: (none) +: Vector.nil
+  (some false) +: (none) +: Vector'.nil
 
-def cls2 : Clause 2 := (some true) +: none +: Vector.nil  -- P
+def cls2 : Clause 2 := (some true) +: none +: Vector'.nil  -- P
 
-def egStatement := cls1 +: cls2 +: Vector.nil
+def egStatement := cls1 +: cls2 +: Vector'.nil
 
 def egAnswer : SatAnswer egStatement := answerSAT egStatement
 

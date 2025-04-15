@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Toml.Elab.Value
 
 /-!
@@ -205,7 +206,7 @@ where
       if let some v := v? then
         match v with
         | .array ref vs =>
-          .array ref <| vs.modify (vs.size-1) fun
+          .array ref <| vs.modify (vs.size - 1) fun
           | .table ref t' => .table ref <| insert t' kRef k' ks newV
           | _ => .table kRef {}
         | .table ref t' => .table ref <| insert t' kRef k' ks newV

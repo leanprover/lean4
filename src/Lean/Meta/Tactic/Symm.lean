@@ -18,9 +18,6 @@ open Lean Meta
 
 namespace Lean.Meta.Symm
 
-/-- Discrimation tree settings for the `symm` extension. -/
-def symmExt.config : WhnfCoreConfig := {}
-
 /-- Environment extensions for symm lemmas -/
 builtin_initialize symmExt :
     SimpleScopedEnvExtension (Name × Array DiscrTree.Key) (DiscrTree Name) ←
@@ -40,7 +37,7 @@ builtin_initialize registerBuiltinAttribute {
     let some _ := xs.back? | fail
     let targetTy ← reduce targetTy
     let .app (.app rel _) _ := targetTy | fail
-    let key ← withReducible <| DiscrTree.mkPath rel symmExt.config
+    let key ← withReducible <| DiscrTree.mkPath rel
     symmExt.add (decl, key) kind
 }
 
@@ -54,7 +51,7 @@ namespace Lean.Expr
 def getSymmLems (tgt : Expr) : MetaM (Array Name) := do
   let .app (.app rel _) _ := tgt
     | throwError "symmetry lemmas only apply to binary relations, not{indentExpr tgt}"
-  (symmExt.getState (← getEnv)).getMatch rel symmExt.config
+  (symmExt.getState (← getEnv)).getMatch rel
 
 /-- Given a term `e : a ~ b`, construct a term in `b ~ a` using `@[symm]` lemmas. -/
 def applySymm (e : Expr) : MetaM Expr := do

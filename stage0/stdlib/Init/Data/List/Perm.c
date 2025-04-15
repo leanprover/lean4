@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Perm
-// Imports: Init.Data.List.Pairwise Init.Data.List.Erase
+// Imports: Init.Data.List.Pairwise Init.Data.List.Erase Init.Data.List.Find
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT uint8_t l_List_decidablePerm___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_decidablePerm(lean_object*);
+LEAN_EXPORT lean_object* l_List_instTransPerm(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Perm_0__List_reverseAux_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_decidablePerm___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Perm_0__List_getLast_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -31,6 +32,12 @@ LEAN_EXPORT lean_object* l_List_erase___at_List_decidablePerm___spec__3___rarg(l
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Perm_0__List_getLast_x3f_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_isSetoid(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Perm_0__List_reverseAux_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_instTransPerm(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
+}
+}
 LEAN_EXPORT lean_object* l_List_isSetoid(lean_object* x_1) {
 _start:
 {
@@ -341,6 +348,7 @@ return x_5;
 }
 lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Erase(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Find(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Perm(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -350,6 +358,9 @@ res = initialize_Init_Data_List_Pairwise(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Erase(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Find(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

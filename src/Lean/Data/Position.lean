@@ -80,7 +80,7 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
         if e == b + 1 then { line := fmap.getLine b, column := toColumn posB 0 }
         else
           let m := (b + e) / 2;
-          let posM := ps.get! m;
+          let posM := ps[m]!
           if pos == posM then { line := fmap.getLine m, column := 0 }
           else if pos > posM then loop m e
           else loop b m
@@ -97,7 +97,7 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
 def ofPosition (text : FileMap) (pos : Position) : String.Pos :=
   let colPos :=
     if h : pos.line - 1 < text.positions.size then
-      text.positions.get ⟨pos.line - 1, h⟩
+      text.positions[pos.line - 1]
     else if text.positions.isEmpty then
       0
     else
@@ -110,7 +110,7 @@ This gives the same result as `map.ofPosition ⟨line, 0⟩`, but is more effici
 -/
 def lineStart (map : FileMap) (line : Nat) : String.Pos :=
   if h : line - 1 < map.positions.size then
-    map.positions.get ⟨line - 1, h⟩
+    map.positions[line - 1]
   else map.positions.back?.getD 0
 
 end FileMap

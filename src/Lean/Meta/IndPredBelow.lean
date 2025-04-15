@@ -83,7 +83,7 @@ where
       forallTelescopeReducing t fun xs s => do
         let motiveType ← instantiateForall motive xs[:numParams]
         withLocalDecl motiveName BinderInfo.implicit motiveType fun motive => do
-          mkForallFVars (xs.insertAt! numParams motive) s)
+          mkForallFVars (xs.insertIdxIfInBounds numParams motive) s)
 
   motiveType (indVal : InductiveVal) : MetaM Expr :=
     forallTelescopeReducing indVal.type fun xs _ => do
@@ -152,7 +152,7 @@ where
     let run (x : StateRefT Nat MetaM Expr) : MetaM (Expr × Nat) := StateRefT'.run x 0
     let (_, cnt) ← run <| transform domain fun e => do
       if let some name := e.constName? then
-        if let some _ := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
+        if ctx.typeInfos.any fun indVal => indVal.name == name then
           modify (· + 1)
       return .continue
 
@@ -296,7 +296,7 @@ where
     m.apply recursor
 
   applyCtors (ms : List MVarId) : MetaM $ List MVarId := do
-    let mss ← ms.toArray.mapIdxM fun _ m => do
+    let mss ← ms.toArray.mapM fun m => do
       let m ← introNPRec m
       (← m.getType).withApp fun below args =>
       m.withContext do
@@ -441,7 +441,7 @@ partial def mkBelowMatcher
   withExistingLocalDecls (lhss.foldl (init := []) fun s v => s ++ v.fvarDecls) do
     for lhs in lhss do
       trace[Meta.IndPredBelow.match] "{lhs.patterns.map (·.toMessageData)}"
-  let res ← Match.mkMatcher (exceptionIfContainsSorry := true) { matcherName, matchType, discrInfos := mkArray (mkMatcherInput.numDiscrs + 1) {}, lhss }
+  let res ← Match.mkMatcher (exceptionIfContainsSorry := true) { matcherName, matchType, discrInfos := .replicate (mkMatcherInput.numDiscrs + 1) {}, lhss }
   res.addMatcher
   -- if a wrong index is picked, the resulting matcher can be type-incorrect.
   -- we check here, so that errors can propagate higher up the call stack.
@@ -491,7 +491,7 @@ where
       -- `belowCtor` carries a `below`, a non-`below` and a `motive` version of each
       -- field that occurs in a recursive application of the inductive predicate.
       -- `belowIndices` is a mapping from non-`below` to the `below` version of each field.
-      let mut belowFieldOpts := mkArray belowCtor.numFields none
+      let mut belowFieldOpts := .replicate belowCtor.numFields none
       let fields := fields.toArray
       for fieldIdx in [:fields.size] do
         belowFieldOpts := belowFieldOpts.set! belowIndices[fieldIdx]! (some fields[fieldIdx]!)
@@ -562,16 +562,16 @@ where
 def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat) := do
   xs.findSomeM? fun x => do
   (← whnf (← inferType x)).withApp fun f _ =>
-  match f.constName?, xs.indexOf? x with
+  match f.constName?, xs.idxOf? x with
   | some name, some idx => do
-    if (← isInductivePredicate name) then
+    if (← getEnv).contains (name ++ `below) && (← isInductivePredicate name) then
       let (_, belowTy) ← belowType motive xs idx
       let below ← mkFreshExprSyntheticOpaqueMVar belowTy
       try
         trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
         if (← below.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []).isEmpty then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
-          if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx.val)
+          if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx)
         else
           trace[Meta.IndPredBelow.match] "could not find below term in the local context"
           pure none
@@ -594,7 +594,9 @@ def mkBelow (declName : Name) : MetaM Unit := do
       for i in [:ctx.typeInfos.size] do
         try
           let decl ← IndPredBelow.mkBrecOnDecl ctx i
-          addDecl decl
+          -- disable async TC so we can catch its exceptions
+          withOptions (Elab.async.set · false) do
+            addDecl decl
         catch e => trace[Meta.IndPredBelow] "failed to prove brecOn for {ctx.belowNames[i]!}\n{e.toMessageData}"
     else trace[Meta.IndPredBelow] "Nested or not recursive"
   else trace[Meta.IndPredBelow] "Not inductive predicate"

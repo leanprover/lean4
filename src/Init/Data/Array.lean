@@ -17,3 +17,14 @@ import Init.Data.Array.TakeDrop
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.GetLit
 import Init.Data.Array.MapIdx
+import Init.Data.Array.Set
+import Init.Data.Array.Monadic
+import Init.Data.Array.FinRange
+import Init.Data.Array.Perm
+import Init.Data.Array.Find
+import Init.Data.Array.Lex
+import Init.Data.Array.Range
+import Init.Data.Array.Erase
+import Init.Data.Array.Zip
+import Init.Data.Array.InsertIdx
+import Init.Data.Array.Extract

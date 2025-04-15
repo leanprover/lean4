@@ -134,7 +134,7 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
   let enumType := mkConst declName
   let ctors := indVal.ctors.toArray
   withLocalDeclD `n (mkConst ``Nat) fun n => do
-    let cond := mkConst ``cond [levelZero]
+    let cond := mkConst ``cond [1]
     let rec mkDecTree (low high : Nat) : Expr :=
       if low + 1 == high then
         mkConst ctors[low]!

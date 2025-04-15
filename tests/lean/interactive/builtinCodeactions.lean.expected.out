@@ -1,0 +1,13 @@
+{"title":
+ "Try this: simp only [AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,\n    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] at h",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///builtinCodeactions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 5, "character": 2},
+       "end": {"line": 5, "character": 97}},
+      "newText":
+      "simp only [AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,\n    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] at h"}]}]}}

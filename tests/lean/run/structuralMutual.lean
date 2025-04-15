@@ -250,8 +250,8 @@ theorem eq_false_of_not_eq_true {b : Bool} : (! b) = true → b = false := by si
 
 /--
 info: n : Nat
-h : EvenOdd.isOdd (n + 1) = false
-⊢ EvenOdd.isEven n = true
+h : isOdd (n + 1) = false
+⊢ isEven n = true
 -/
 #guard_msgs in
 theorem ex1 (n : Nat) (h : isEven (n+2) = true) : isEven n = true := by
@@ -414,17 +414,6 @@ inductive  B (n : Nat) : Type
   | a : A n → B n
 end
 
-/--
-error: cannot use specified parameter for structural recursion:
-  its type is an inductive datatype
-    A n
-  and the datatype parameter
-    n
-  depends on the function parameter
-    n
-  which does not come before the varying parameters and before the indices of the recursion parameter.
--/
-#guard_msgs in
 set_option linter.constructorNameAsVariable false in
 mutual
 def A.size (n : Nat) (m : Nat) : A n → Nat
@@ -439,7 +428,7 @@ end
 end Mutual3
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type FixedIndex.T is an inductive family and indices are not variables
     T 37
 -/
@@ -460,14 +449,11 @@ inductive T (n : Nat) : Nat → Type where
   | n : T n n → T n n
 
 /--
-error: cannot use specified parameter for structural recursion:
-  its type is an inductive datatype
-    T n n
-  and the datatype parameter
+error: failed to infer structural recursion:
+Cannot use parameter #2:
+  its type is an inductive datatype and the datatype parameter
     n
-  depends on the function parameter
-    n
-  which does not come before the varying parameters and before the indices of the recursion parameter.
+  which cannot be fixed as it is an index or depends on an index, and indices cannot be fixed parameters when using structural recursion.
 -/
 #guard_msgs in
 def T.a {n : Nat} : T n n → Nat
@@ -523,20 +509,20 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 
 
 Could not find a decreasing measure.
-The arguments relate at each recursive call as follows:
+The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 557:15-29:
+Call from ManyCombinations.f to ManyCombinations.g at 543:15-29:
    #1 #2 #3 #4
 #5  ?  ?  ?  ?
-#6  ?  =  ?  ?
-#7  ?  ?  =  ?
-#8  ?  ?  ?  =
-Call from ManyCombinations.g to ManyCombinations.f at 560:15-29:
+#6  ?  ?  =  ?
+#7  ?  ?  ?  =
+#8  ?  =  ?  ?
+Call from ManyCombinations.g to ManyCombinations.f at 546:15-29:
    #5 #6 #7 #8
 #1  _  _  _  _
-#2  _  =  _  _
-#3  _  _  =  _
-#4  _  _  _  =
+#2  _  _  _  ?
+#3  _  ?  _  _
+#4  _  _  ?  _
 
 
 #1: sizeOf a
@@ -554,7 +540,7 @@ Please use `termination_by` to specify a decreasing measure.
 mutual
 def f (a b c d : Nattish) : Nat := match a with
   | .zero => 0
-  | .cons n => g (n 23) b c d
+  | .cons n => g (n 23) c d b
 def g (a b c d : Nattish) : Nat := match a with
   | .zero => 0
   | .cons n => f (n 42) b c d
@@ -682,7 +668,7 @@ info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1
 #check EvenOdd.isEven.induct
 
 /--
-info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithTuple.Tree α → Prop)
+info: WithTuple.Tree.map.induct {α : Type} (motive_1 : WithTuple.Tree α → Prop)
   (motive_2 : WithTuple.Tree α × WithTuple.Tree α → Prop)
   (case1 :
     ∀ (x : α) (arrs : WithTuple.Tree α × WithTuple.Tree α), motive_2 arrs → motive_1 (WithTuple.Tree.node x arrs))
@@ -693,8 +679,8 @@ info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithT
 #check WithTuple.Tree.map.induct
 
 /--
-info: WithArray.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithArray.Tree α → Prop)
-  (motive_2 : Array (WithArray.Tree α) → Prop) (motive_3 : List (WithArray.Tree α) → Prop)
+info: WithArray.Tree.map.induct {α : Type} (motive_1 : WithArray.Tree α → Prop) (motive_2 : Array (WithArray.Tree α) → Prop)
+  (motive_3 : List (WithArray.Tree α) → Prop)
   (case1 : ∀ (x : α) (arr₁ : Array (WithArray.Tree α)), motive_2 arr₁ → motive_1 (WithArray.Tree.node x arr₁))
   (case2 : ∀ (arr₁ : List (WithArray.Tree α)), motive_3 arr₁ → motive_2 { toList := arr₁ }) (case3 : motive_3 [])
   (case4 : ∀ (h₁ : WithArray.Tree α) (t₁ : List (WithArray.Tree α)), motive_1 h₁ → motive_3 t₁ → motive_3 (h₁ :: t₁))

@@ -31,7 +31,6 @@ class LEAN_EXPORT object_compactor {
     size_t capacity() const { return static_cast<char*>(m_capacity) - static_cast<char*>(m_begin); }
     void save(object * o, object * new_o);
     void save_max_sharing(object * o, object * new_o, size_t new_o_sz);
-    void * alloc(size_t sz);
     object_offset to_offset(object * o);
     void insert_terminator(object * o);
     object * copy_object(object * o);
@@ -41,6 +40,7 @@ class LEAN_EXPORT object_compactor {
     void insert_string(object * o);
     bool insert_thunk(object * o);
     bool insert_task(object * o);
+    bool insert_promise(object * o);
     bool insert_ref(object * o);
     void insert_mpz(object * o);
 public:
@@ -53,6 +53,7 @@ public:
     void operator()(object * o);
     size_t size() const { return static_cast<char*>(m_end) - static_cast<char*>(m_begin); }
     void const * data() const { return m_begin; }
+    void * alloc(size_t sz);
 };
 
 class LEAN_EXPORT compacted_region {
@@ -71,6 +72,7 @@ class LEAN_EXPORT compacted_region {
     void fix_thunk(object * o);
     void fix_ref(object * o);
     void fix_task(object * o);
+    void fix_promise(object * o);
     void fix_mpz(object * o);
 public:
     /* Creates a compacted object region using the given region in memory.

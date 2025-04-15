@@ -3,6 +3,10 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
+import Init.Control.Except
+import Init.Data.List.Basic
+import Init.Data.ToString
 
 namespace Lake
 
@@ -11,6 +15,9 @@ abbrev CallStack κ := List κ
 
 /-- A `CallStack` ending in a cycle. -/
 abbrev Cycle κ := CallStack κ
+
+def formatCycle [ToString κ] (cycle : Cycle κ) : String :=
+  "\n".intercalate <| cycle.map (s!"  {·}")
 
 /-- A monad equipped with a call stack. -/
 class MonadCallStackOf (κ :  semiOutParam (Type u)) (m : Type u → Type v) where

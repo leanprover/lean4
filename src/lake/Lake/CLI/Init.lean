@@ -3,6 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+prelude
 import Lake.Util.Git
 import Lake.Util.Sugar
 import Lake.Util.Version
@@ -24,12 +25,14 @@ s!"/{defaultLakeDir}
 "
 
 def basicFileContents :=
-  s!"def hello := \"world\""
+s!"def hello := \"world\"
+"
 
 def libRootFileContents (libName : String) (libRoot : Name) :=
 s!"-- This module serves as the root of the `{libName}` library.
 -- Import modules here that should be built as part of the library.
-import {libRoot}.Basic"
+import {libRoot}.Basic
+"
 
 def mainFileName : FilePath :=
   s!"{defaultExeRoot}.lean"

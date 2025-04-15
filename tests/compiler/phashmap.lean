@@ -8,16 +8,16 @@ abbrev Map := PersistentHashMap Nat Nat
 partial def formatMap : Node Nat Nat → Format
 | Node.collision keys vals _   => Format.sbracket $
   keys.size.fold
-    (fun i fmt =>
-      let k := keys.get! i;
+    (fun i _ fmt =>
+      let k := keys[i];
       let v := vals.get! i;
       let p := if i > 0 then fmt ++ format "," ++ Format.line else fmt;
       p ++ "c@" ++ Format.paren (format k ++ " => " ++ format v))
     Format.nil
 | Node.entries entries        => Format.sbracket $
   entries.size.fold
-    (fun i fmt =>
-      let entry := entries.get! i;
+    (fun i _ fmt =>
+      let entry := entries[i];
       let p := if i > 0 then fmt ++ format "," ++ Format.line else fmt;
       p ++
       match entry with
@@ -27,19 +27,19 @@ partial def formatMap : Node Nat Nat → Format
     Format.nil
 
 def mkMap (n : Nat) : Map :=
-n.fold (fun i m => m.insert i (i*10)) PersistentHashMap.empty
+n.fold (fun i _ m => m.insert i (i*10)) PersistentHashMap.empty
 
 def check (n : Nat) (m : Map) : IO Unit :=
-n.forM $ fun i => do
+n.forM $ fun i _ => do
   match m.find? i with
   | none   => IO.println s!"failed to find {i}"
   | some v => unless v == i*10 do IO.println s!"unexpected value {i} => {v}"
 
 def delOdd (n : Nat) (m : Map) : Map :=
-n.fold (fun i m => if i % 2 == 0 then m else m.erase i) m
+n.fold (fun i _ m => if i % 2 == 0 then m else m.erase i) m
 
 def check2 (n : Nat) (bot : Nat) (m : Map) : IO Unit :=
-n.forM $ fun i => do
+n.forM $ fun i _ => do
   if i % 2 == 0 && i >= bot then
     match m.find? i with
     | none   => IO.println s!"failed to find {i}"
@@ -48,7 +48,7 @@ n.forM $ fun i => do
     unless m.find? i == none do IO.println s!"mapping still contains {i}"
 
 def delLess (n : Nat) (m : Map) : Map :=
-n.fold (fun i m => m.erase i) m
+n.fold (fun i _ m => m.erase i) m
 
 def main (xs : List String) : IO Unit :=
 do

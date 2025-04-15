@@ -25,10 +25,10 @@ $LAKE exe Y | grep --color root
 
 cp lake-manifest.json lake-manifest-1.json
 $LAKE update foo
-diff --strip-trailing-cr lake-manifest-1.json lake-manifest.json
+diff -u --strip-trailing-cr lake-manifest-1.json lake-manifest.json
 
 # Tests that order does not change in the presence of dep manifests
 $LAKE -d foo update
 $LAKE -d bar update
 $LAKE update
-diff --strip-trailing-cr lake-manifest-1.json lake-manifest.json
+diff -u --strip-trailing-cr lake-manifest-1.json lake-manifest.json

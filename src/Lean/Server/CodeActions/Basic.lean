@@ -125,6 +125,7 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         let caps ← names.mapM evalCodeActionProvider
         return (← builtinCodeActionProviders.get).toList.toArray ++ Array.zip names caps
       caps.flatMapM fun (providerName, cap) => do
+        RequestM.checkCancelled
         let cas ← cap params snap
         cas.mapIdxM fun i lca => do
           if lca.lazy?.isNone then return lca.eager
@@ -146,7 +147,7 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
   let doc ← readDoc
   let some data := param.data?
     | throw (RequestError.invalidParams "Expected a data field on CodeAction.")
-  let data : CodeActionResolveData ← liftExcept <| Except.mapError RequestError.invalidParams <| fromJson? data
+  let data ← RequestM.parseRequestParams CodeActionResolveData data
   let pos := doc.meta.text.lspPosToUtf8Pos data.params.range.end
   withWaitFindSnap doc (fun s => s.endPos ≥ pos)
     (notFoundX := throw <| RequestError.internalError "snapshot not found")

@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Exit
 import Lake.Config.Context
 
@@ -20,6 +21,8 @@ Similar to the `main` function's signature, except that its monad is
 also equipped with information about the Lake configuration.
 -/
 abbrev ScriptFn := (args : List String) → ScriptM ExitCode
+
+deriving instance TypeName for ScriptFn
 
 /--
 A package `Script` is a `ScriptFn` definition that is

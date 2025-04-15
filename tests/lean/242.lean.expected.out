@@ -2,3 +2,7 @@
 242.lean:2:7-2:12: error: invalid atom
 242.lean:3:7-3:11: error: invalid atom
 242.lean:4:7-4:12: error: invalid atom
+242.lean:5:7-5:11: error: invalid atom
+242.lean:6:7-6:13: error: invalid atom
+242.lean:7:7-7:12: error: invalid atom
+242.lean:8:7-8:13: error: invalid atom

@@ -150,10 +150,21 @@ Responds to recovery mode. In these, `ctac` continues even though configuration 
 error: structure 'C' does not have a field named 'x'
 ---
 info: config is { b := { toA := { x := true } } }
+---
+info: ⊢ True
 -/
 #guard_msgs in
 example : True := by
   ctac -x
+  trace_state
+  trivial
+
+-- Check that when recovery mode is false, no error is reported.
+/-- info: ⊢ True -/
+#guard_msgs in
+example : True := by
+  fail_if_success ctac -x
+  trace_state
   trivial
 
 /--
@@ -235,3 +246,19 @@ but is expected to have type
 info: config is { x := 0, y := false }
 -/
 #guard_msgs in my_command (x := true)
+
+
+/-!
+Pretty printing of configuration, checking whitespace is present.
+-/
+elab "#pp_tac " t:tactic : command => Elab.Command.liftTermElabM do
+  logInfo (← PrettyPrinter.ppTactic t)
+
+/-- info: simp +contextual -/
+#guard_msgs in #pp_tac simp +contextual
+/-- info: simp +contextual -/
+#guard_msgs in #pp_tac simp+contextual
+/-- info: simp (contextual := true) +zeta -/
+#guard_msgs in #pp_tac simp   (contextual := true)   +zeta
+/-- info: simp (contextual := true) +zeta -/
+#guard_msgs in #pp_tac simp(contextual := true)+zeta

@@ -5,7 +5,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Parser.Module
-import Lean.Data.Json
+import Lean.Util.Paths
+import Lean.CoreM
 
 namespace Lean.Elab
 
@@ -18,10 +19,19 @@ def headerToImports (header : Syntax) : Array Import :=
     { module := id, runtimeOnly := runtime }
 
 def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
-    (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0) (leakEnv := false)
+    (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
+    (plugins : Array System.FilePath := #[]) (leakEnv := false)
     : IO (Environment × MessageLog) := do
+  let level := if experimental.module.get opts then
+    if Elab.inServer.get opts then
+      .server
+    else
+      .exported
+  else
+    .private
   try
-    let env ← importModules (leakEnv := leakEnv) (headerToImports header) opts trustLevel
+    let env ←
+      importModules (leakEnv := leakEnv) (loadExts := true) (level := level) (headerToImports header) opts trustLevel plugins
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment
@@ -40,6 +50,14 @@ def printImports (input : String) (fileName : Option String) : IO Unit := do
   let (deps, _, _) ← parseImports input fileName
   for dep in deps do
     let fname ← findOLean dep.module
+    IO.println fname
+
+@[export lean_print_import_srcs]
+def printImportSrcs (input : String) (fileName : Option String) : IO Unit := do
+  let sp ← getSrcSearchPath
+  let (deps, _, _) ← parseImports input fileName
+  for dep in deps do
+    let fname ← findLean sp dep.module
     IO.println fname
 
 end Lean.Elab

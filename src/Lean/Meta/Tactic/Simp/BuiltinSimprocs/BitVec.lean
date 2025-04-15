@@ -143,7 +143,7 @@ builtin_dsimproc [simp, seval] reduceMod ((_ % _ : BitVec _)) := reduceBin ``HMo
 builtin_dsimproc [simp, seval] reduceUMod ((umod _ _ : BitVec _)) := reduceBin ``umod 3 umod
 /-- Simplification procedure for unsigned division of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceUDiv ((udiv _ _ : BitVec _)) := reduceBin ``udiv 3 udiv
-/-- Simplification procedure for division of `BitVec`s using the SMT-Lib conventions. -/
+/-- Simplification procedure for division of `BitVec`s using the SMT-LIB conventions. -/
 builtin_dsimproc [simp, seval] reduceSMTUDiv ((smtUDiv _ _ : BitVec _)) := reduceBin ``smtUDiv 3 smtUDiv
 /-- Simplification procedure for the signed modulo operation on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSMod ((smod _ _ : BitVec _)) := reduceBin ``smod 3 smod
@@ -151,12 +151,20 @@ builtin_dsimproc [simp, seval] reduceSMod ((smod _ _ : BitVec _)) := reduceBin `
 builtin_dsimproc [simp, seval] reduceSRem ((srem _ _ : BitVec _)) := reduceBin ``srem 3 srem
 /-- Simplification procedure for signed t-division of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSDiv ((sdiv _ _ : BitVec _)) := reduceBin ``sdiv 3 sdiv
-/-- Simplification procedure for signed division of `BitVec`s using the SMT-Lib conventions. -/
+/-- Simplification procedure for signed division of `BitVec`s using the SMT-LIB conventions. -/
 builtin_dsimproc [simp, seval] reduceSMTSDiv ((smtSDiv _ _ : BitVec _)) := reduceBin ``smtSDiv 3 smtSDiv
 /-- Simplification procedure for `getLsb` (lowest significant bit) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetLsb (getLsbD _ _) := reduceGetBit ``getLsbD getLsbD
 /-- Simplification procedure for `getMsb` (most significant bit) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getMsbD getMsbD
+
+/-- Simplification procedure for `getElem`  on `BitVec`. -/
+builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do
+  let_expr getElem _coll _idx _elem _valid _inst v i _h  := e | return .continue
+  let some v ← fromExpr? v | return .continue
+  let some i ← Nat.fromExpr? i | return .continue
+  let b := v.value.getLsbD i
+  return .done <| toExpr b
 
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceShiftLeft (BitVec.shiftLeft _ _) :=

@@ -1,10 +1,10 @@
-mutwftypemismatch.lean:11:0-11:25: error: The termination arguments of mutually recursive functions must have the same return type, but the termination argument of Ex1.foo has type
+mutwftypemismatch.lean:11:0-11:25: error: The termination measures of mutually recursive functions must have the same return type, but the termination measure of Ex1.foo has type
   Nat
-while the termination argument of Ex1.bar has type
+while the termination measure of Ex1.bar has type
   Prop
 Try using `sizeOf` explicitly
-mutwftypemismatch.lean:26:0-26:44: error: The termination arguments of mutually recursive functions must have the same return type, but the termination argument of Ex2.foo has type
+mutwftypemismatch.lean:26:0-26:44: error: The termination measures of mutually recursive functions must have the same return type, but the termination measure of Ex2.foo has type
   Nat
-while the termination argument of Ex2.bar has type
+while the termination measure of Ex2.bar has type
   Fin fixed
 Try using `sizeOf` explicitly

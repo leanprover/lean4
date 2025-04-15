@@ -10,7 +10,7 @@ Author: Sebastian Ullrich
 
 namespace lean {
 LEAN_EXPORT extern "C" object * lean_get_leanc_extra_flags(object *) {
-    return lean_mk_string("@LEANC_EXTRA_FLAGS@");
+    return lean_mk_string("@LEANC_EXTRA_CC_FLAGS@");
 }
 
 LEAN_EXPORT extern "C" object * lean_get_leanc_internal_flags(object *) {

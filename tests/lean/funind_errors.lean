@@ -8,7 +8,7 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
 where
   foo (i : Nat) (r : Array α) : Array α :=
     if h : i < as.size then
-      let a := as.get ⟨i, h⟩
+      let a := as.get i h
       if p a then
         foo (i+1) (r.push a)
       else

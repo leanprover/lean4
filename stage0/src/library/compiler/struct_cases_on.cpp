@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class struct_cases_on_fn {
+    elab_environment    m_env;
     type_checker::state m_st;
     local_ctx           m_lctx;
     name_set            m_scrutinies; /* Set of variables `x` such that there is `casesOn x ...` in the context */
@@ -23,7 +24,7 @@ class struct_cases_on_fn {
     name                m_fld{"_d"};
     unsigned            m_next_idx{1};
 
-    environment const & env() { return m_st.env(); }
+    elab_environment const & env() { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -203,8 +204,8 @@ class struct_cases_on_fn {
     }
 
 public:
-    struct_cases_on_fn(environment const & env):
-        m_st(env) {
+    struct_cases_on_fn(elab_environment const & env):
+        m_env(env), m_st(env) {
     }
 
     expr operator()(expr const & e) {
@@ -212,7 +213,7 @@ public:
     }
 };
 
-expr struct_cases_on(environment const & env, expr const & e) {
+expr struct_cases_on(elab_environment const & env, expr const & e) {
     return struct_cases_on_fn(env)(e);
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Defaults
-// Imports: Init
+// Imports: Init.System.FilePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Lake_defaultBuildDir;
 static lean_object* l_Lake_defaultConfigFile___closed__1;
 LEAN_EXPORT lean_object* l_Lake_defaultPackagesDir;
 static lean_object* l_Lake_defaultIrDir___closed__1;
+static lean_object* l_Lake_defaultLeanLibDir___closed__2;
 LEAN_EXPORT lean_object* l_Lake_defaultLeanConfigFile;
 static lean_object* l_Lake_defaultTomlConfigFile___closed__2;
 static lean_object* l_Lake_defaultPackagesDir___closed__1;
@@ -200,11 +201,21 @@ x_1 = lean_mk_string_unchecked("lib", 3, 3);
 return x_1;
 }
 }
+static lean_object* _init_l_Lake_defaultLeanLibDir___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lake_defaultLeanLibDir___closed__1;
+x_2 = l_Lake_defaultLeanConfigFile___closed__1;
+x_3 = l_System_FilePath_join(x_1, x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lake_defaultLeanLibDir() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_defaultLeanLibDir___closed__1;
+x_1 = l_Lake_defaultLeanLibDir___closed__2;
 return x_1;
 }
 }
@@ -248,13 +259,13 @@ x_1 = l_Lake_defaultIrDir___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_FilePath(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_Defaults(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_System_FilePath(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_defaultLakeDir___closed__1 = _init_l_Lake_defaultLakeDir___closed__1();
@@ -295,6 +306,8 @@ l_Lake_defaultBuildDir = _init_l_Lake_defaultBuildDir();
 lean_mark_persistent(l_Lake_defaultBuildDir);
 l_Lake_defaultLeanLibDir___closed__1 = _init_l_Lake_defaultLeanLibDir___closed__1();
 lean_mark_persistent(l_Lake_defaultLeanLibDir___closed__1);
+l_Lake_defaultLeanLibDir___closed__2 = _init_l_Lake_defaultLeanLibDir___closed__2();
+lean_mark_persistent(l_Lake_defaultLeanLibDir___closed__2);
 l_Lake_defaultLeanLibDir = _init_l_Lake_defaultLeanLibDir();
 lean_mark_persistent(l_Lake_defaultLeanLibDir);
 l_Lake_defaultNativeLibDir = _init_l_Lake_defaultNativeLibDir();

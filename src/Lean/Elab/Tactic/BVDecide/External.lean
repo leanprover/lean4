@@ -132,7 +132,7 @@ where
     if let some tk := (← read).cancelTk? then
       if ← tk.isSet then
         cleanup
-        throw <| .internal Core.interruptExceptionId
+        throwInterruptException
     x
 
 /--

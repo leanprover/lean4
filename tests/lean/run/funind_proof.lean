@@ -31,7 +31,7 @@ end
 
 
 /--
-info: Term.replaceConst.induct (a b : String) (motive1 : Term → Prop) (motive2 : List Term → Prop)
+info: Term.replaceConst.induct (a : String) (motive1 : Term → Prop) (motive2 : List Term → Prop)
   (case1 : ∀ (a_1 : String), (a == a_1) = true → motive1 (const a_1))
   (case2 : ∀ (a_1 : String), ¬(a == a_1) = true → motive1 (const a_1))
   (case3 : ∀ (a : String) (cs : List Term), motive2 cs → motive1 (app a cs)) (case4 : motive2 [])
@@ -64,7 +64,7 @@ theorem numConsts_replaceConst' (a b : String) (e : Term) : numConsts (replaceCo
   <;> intros <;> simp [replaceConst, numConsts, replaceConstLst, numConstsLst, *]
 
 theorem numConsts_replaceConst'' (a b : String) (e : Term) : numConsts (replaceConst a b e) = numConsts e := by
-  induction e using replaceConst.induct (a := a) (b := b)
+  induction e using replaceConst.induct (a := a)
     (motive2 := fun es =>  numConstsLst (replaceConstLst a b es) = numConstsLst es) <;>
     simp [replaceConst, numConsts, replaceConstLst, numConstsLst, *]
 

@@ -1,8 +1,8 @@
-inductive Vector (α : Type u) : Nat → Type u
-  | nil : Vector α 0
-  | cons : α → Vector α n → Vector α (n+1)
+inductive Vector' (α : Type u) : Nat → Type u
+  | nil : Vector' α 0
+  | cons : α → Vector' α n → Vector' α (n+1)
 
-infix:67 " :: " => Vector.cons
+infix:67 " :: " => Vector'.cons
 
 inductive Ty where
   | int
@@ -14,13 +14,13 @@ abbrev Ty.interp : Ty → Type
   | bool   => Bool
   | fn a r => a.interp → r.interp
 
-inductive HasType : Fin n → Vector Ty n → Ty → Type where
+inductive HasType : Fin n → Vector' Ty n → Ty → Type where
   | stop : HasType 0 (ty :: ctx) ty
   | pop  : HasType k ctx ty → HasType k.succ (u :: ctx) ty
 
 open HasType (stop pop)
 
-inductive Expr : Vector Ty n → Ty → Type where
+inductive Expr : Vector' Ty n → Ty → Type where
   | var   : HasType i ctx ty → Expr ctx ty
   | val   : Int → Expr ctx Ty.int
   | lam   : Expr (a :: ctx) ty → Expr ctx (Ty.fn a ty)
@@ -29,8 +29,8 @@ inductive Expr : Vector Ty n → Ty → Type where
   | ife   : Expr ctx Ty.bool → Expr ctx a → Expr ctx a → Expr ctx a
   | delay : (Unit → Expr ctx a) → Expr ctx a
 
-inductive Env : Vector Ty n → Type where
-  | nil  : Env Vector.nil
+inductive Env : Vector' Ty n → Type where
+  | nil  : Env Vector'.nil
   | cons : Ty.interp a → Env ctx → Env (a :: ctx)
 
 infix:67 " :: " => Env.cons

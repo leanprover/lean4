@@ -81,6 +81,7 @@ then one of the following must hold in each (execution) branch.
 inductive IRType where
   | float | uint8 | uint16 | uint32 | uint64 | usize
   | irrelevant | object | tobject
+  | float32
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
   | union (leanTypeName : Name) (types : Array IRType) : IRType
   deriving Inhabited, Repr
@@ -89,6 +90,7 @@ namespace IRType
 
 partial def beq : IRType → IRType → Bool
   | float,          float          => true
+  | float32,        float32        => true
   | uint8,          uint8          => true
   | uint16,         uint16         => true
   | uint32,         uint32         => true
@@ -104,13 +106,14 @@ partial def beq : IRType → IRType → Bool
 instance : BEq IRType := ⟨beq⟩
 
 def isScalar : IRType → Bool
-  | float  => true
-  | uint8  => true
-  | uint16 => true
-  | uint32 => true
-  | uint64 => true
-  | usize  => true
-  | _      => false
+  | float    => true
+  | float32  => true
+  | uint8    => true
+  | uint16   => true
+  | uint32   => true
+  | uint64   => true
+  | usize    => true
+  | _        => false
 
 def isObj : IRType → Bool
   | object  => true
@@ -177,7 +180,7 @@ structure CtorInfo where
   size : Nat
   usize : Nat
   ssize : Nat
-  deriving Repr
+  deriving Inhabited, Repr
 
 def CtorInfo.beq : CtorInfo → CtorInfo → Bool
   | ⟨n₁, cidx₁, size₁, usize₁, ssize₁⟩, ⟨n₂, cidx₂, size₂, usize₂, ssize₂⟩ =>
@@ -220,6 +223,7 @@ inductive Expr where
   | lit (v : LitVal)
   /-- Return `1 : uint8` Iff `RC(x) > 1` -/
   | isShared (x : VarId)
+  deriving Inhabited
 
 @[export lean_ir_mk_ctor_expr]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr :=
   Expr.ctor ⟨n, cidx, size, usize, ssize⟩ ys
@@ -611,10 +615,11 @@ def mkIf (x : VarId) (t e : FnBody) : FnBody :=
 
 def getUnboxOpName (t : IRType) : String :=
   match t with
-  | IRType.usize  => "lean_unbox_usize"
-  | IRType.uint32 => "lean_unbox_uint32"
-  | IRType.uint64 => "lean_unbox_uint64"
-  | IRType.float  => "lean_unbox_float"
-  | _             => "lean_unbox"
+  | IRType.usize    => "lean_unbox_usize"
+  | IRType.uint32   => "lean_unbox_uint32"
+  | IRType.uint64   => "lean_unbox_uint64"
+  | IRType.float    => "lean_unbox_float"
+  | IRType.float32  => "lean_unbox_float32"
+  | _               => "lean_unbox"
 
 end Lean.IR

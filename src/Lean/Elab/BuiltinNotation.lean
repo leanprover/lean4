@@ -201,20 +201,35 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
 
 @[builtin_macro Lean.Parser.Term.assert]  def expandAssert : Macro
   | `(assert! $cond; $body) =>
-    -- TODO: support for disabling runtime assertions
     match cond.raw.reprint with
     | some code => `(if $cond then $body else panic! ("assertion violation: " ++ $(quote code)))
     | none => `(if $cond then $body else panic! ("assertion violation"))
   | _ => Macro.throwUnsupported
+
+register_builtin_option debugAssertions : Bool := {
+  defValue := false
+  descr := "enable `debug_assert!` statements\
+    \n\
+    \nDefaults to `false` unless the Lake `buildType` is `debug`."
+}
+
+@[builtin_term_elab Lean.Parser.Term.debugAssert]  def elabDebugAssert : TermElab :=
+  adaptExpander fun
+    | `(Parser.Term.debugAssert| debug_assert! $cond; $body) => do
+      if debugAssertions.get (← getOptions) then
+        `(assert! $cond; $body)
+      else
+        return body
+    | _ => throwUnsupportedSyntax
 
 @[builtin_macro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro
   | `(dbg_trace $arg:interpolatedStr; $body) => `(dbgTrace (s! $arg) fun _ => $body)
   | `(dbg_trace $arg:term; $body)            => `(dbgTrace (toString $arg) fun _ => $body)
   | _                                        => Macro.throwUnsupported
 
-@[builtin_term_elab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
-  let stxNew ← `(@sorryAx _ false) -- Remark: we use `@` to ensure `sorryAx` will not consume auto params
-  withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
+@[builtin_term_elab «sorry»] def elabSorry : TermElab := fun _ expectedType? => do
+  let type ← expectedType?.getDM mkFreshTypeMVar
+  mkLabeledSorry type (synthetic := false) (unique := true)
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
 partial def mkPairs (elems : Array Term) : MacroM Term :=
@@ -322,7 +337,7 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   let stx ← liftMacroM <| expandMacros stx
   match stx with
   | `(fun $binders* => $f $args*) =>
-    if binders == args then
+    if binders.raw.toList.isPerm args.raw.toList then
       try Term.resolveId? f catch _ => return none
     else
       return none
@@ -332,7 +347,7 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   | `(fun $binders* => rightact% $f $a $b)
   | `(fun $binders* => binrel% $f $a $b)
   | `(fun $binders* => binrel_no_prop% $f $a $b) =>
-    if binders == #[a, b] then
+    if binders == #[a, b] || binders == #[b, a] then
       try Term.resolveId? f catch _ => return none
     else
       return none

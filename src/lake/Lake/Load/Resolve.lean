@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
+prelude
 import Lake.Config.Monad
 import Lake.Util.StoreInsts
 import Lake.Build.Topological
@@ -30,7 +31,6 @@ in their Lake configuration file with
 
   require {newName} from
     git \"https://github.com/leanprover-community/{newName}\"{rev}
-
 "
 
 /--
@@ -43,9 +43,13 @@ def loadDepPackage
   (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
   let name := dep.name.toString (escape := false)
+  let pkgDir := ws.dir / dep.relPkgDir
+  let some pkgDir ← resolvePath? pkgDir
+    | error s!"{name}: package directory not found: {pkgDir}"
   let (pkg, env?) ← loadPackageCore name {
     lakeEnv := ws.lakeEnv
     wsDir := ws.dir
+    pkgDir
     relPkgDir := dep.relPkgDir
     relConfigFile := dep.configFile
     lakeOpts, leanOpts, reconfigure
@@ -77,7 +81,7 @@ abbrev DepStackT m := CallStackT Name m
 
 /-- Log dependency cycle and error. -/
 @[specialize] def depCycleError [MonadError m] (cycle : Cycle Name) : m α :=
-  error s!"dependency cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
+  error s!"dependency cycle detected:\n{formatCycle cycle}"
 
 instance [Monad m] [MonadError m] : MonadCycleOf Name (DepStackT m) where
   throwCycle := depCycleError
@@ -146,7 +150,7 @@ Also, move the packages directory if its location has changed.
 -/
 private def reuseManifest
   (ws : Workspace) (toUpdate : NameSet)
-: UpdateT LogIO PUnit := do
+: UpdateT LoggerIO PUnit := do
   let rootName := ws.root.name.toString (escape := false)
   match (← Manifest.load ws.manifestFile |>.toBaseIO) with
   | .ok manifest =>
@@ -174,7 +178,7 @@ private def reuseManifest
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
 
 /-- Add a package dependency's manifest entries to the update state. -/
-private def addDependencyEntries (pkg : Package) : UpdateT LogIO PUnit := do
+private def addDependencyEntries (pkg : Package) : UpdateT LoggerIO PUnit := do
   match (← Manifest.load pkg.manifestFile |>.toBaseIO) with
   | .ok manifest =>
     manifest.packages.forM fun entry => do
@@ -189,7 +193,7 @@ private def addDependencyEntries (pkg : Package) : UpdateT LogIO PUnit := do
 /-- Materialize a single dependency, updating it if desired. -/
 private def updateAndMaterializeDep
   (ws : Workspace) (pkg : Package) (dep : Dependency)
-: UpdateT LogIO MaterializedDep := do
+: UpdateT LoggerIO MaterializedDep := do
   if let some entry ← fetch? dep.name then
     entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
   else
@@ -210,7 +214,7 @@ private def updateAndMaterializeDep
 /-- Verify that a dependency was loaded with the correct name. -/
 private def validateDep
   (pkg : Package) (dep : Dependency) (matDep : MaterializedDep) (depPkg : Package)
-: LogIO PUnit := do
+: LoggerIO PUnit := do
   if depPkg.name ≠ dep.name then
     if dep.name = .mkSimple "std" then
       let rev :=
@@ -352,7 +356,7 @@ where
   @[inline] updateAndLoadDep pkg dep := do
     let matDep ← updateAndMaterializeDep (← getWorkspace) pkg dep
     loadUpdatedDep pkg dep matDep
-  @[inline] loadUpdatedDep pkg dep matDep : StateT Workspace (UpdateT LogIO) Package  := do
+  @[inline] loadUpdatedDep pkg dep matDep : StateT Workspace (UpdateT LoggerIO) Package  := do
     let depPkg ← loadDepPackage matDep dep.opts leanOpts true
     validateDep pkg dep matDep depPkg
     addDependencyEntries depPkg
@@ -361,7 +365,7 @@ where
 /-- Write package entries to the workspace manifest. -/
 def Workspace.writeManifest
   (ws : Workspace) (entries : NameMap PackageEntry)
-: LogIO PUnit := do
+: IO PUnit := do
   let manifestEntries := ws.packages.foldl (init := #[]) fun arr pkg =>
     match entries.find? pkg.name with
     | some entry => arr.push <|
@@ -373,10 +377,10 @@ def Workspace.writeManifest
     packagesDir? := ws.relPkgsDir
     packages := manifestEntries
   }
-  manifest.saveToFile ws.manifestFile
+  manifest.save ws.manifestFile
 
 /-- Run a package's `post_update` hooks. -/
-def Package.runPostUpdateHooks (pkg : Package) : LakeT LogIO PUnit := do
+def Package.runPostUpdateHooks (pkg : Package) : LakeT LoggerIO PUnit := do
   unless pkg.postUpdateHooks.isEmpty do
   logInfo s!"{pkg.name}: running post-update hooks"
   pkg.postUpdateHooks.forM fun hook => hook.get.fn pkg
@@ -399,15 +403,12 @@ def Workspace.updateAndMaterialize
   return ws
 
 /--
-Check whether the manifest exists and
-whether entries in the manifest are up-to-date,
+Check whether entries in the manifest are up-to-date,
 reporting warnings and/or errors as appropriate.
 -/
 def validateManifest
   (pkgEntries : NameMap PackageEntry) (deps : Array Dependency)
-: LogIO PUnit := do
-  if pkgEntries.isEmpty && !deps.isEmpty then
-    error "missing manifest; use `lake update` to generate one"
+: LoggerIO PUnit := do
   deps.forM fun dep => do
     let warnOutOfDate (what : String) :=
       logWarning <|
@@ -429,16 +430,27 @@ downloading and/or updating them as necessary.
 def Workspace.materializeDeps
   (ws : Workspace) (manifest : Manifest)
   (leanOpts : Options := {}) (reconfigure := false)
-: LogIO Workspace := do
+  (overrides : Array PackageEntry := #[])
+: LoggerIO Workspace := do
+  -- Load locked dependencies
   if !manifest.packages.isEmpty && manifest.packagesDir? != some (mkRelPathString ws.relPkgsDir) then
     logWarning <|
       "manifest out of date: packages directory changed; \
       use `lake update` to rebuild the manifest \
       (warning: this will update ALL workspace dependencies)"
   let relPkgsDir := manifest.packagesDir?.getD ws.relPkgsDir
-  let pkgEntries : NameMap PackageEntry := manifest.packages.foldl (init := {})
-    fun map entry => map.insert entry.name entry
+  let mut pkgEntries := mkNameMap PackageEntry
+  pkgEntries := manifest.packages.foldl (init := pkgEntries) fun map entry =>
+    map.insert entry.name entry
   validateManifest pkgEntries ws.root.depConfigs
+  let wsOverrides ← Manifest.tryLoadEntries ws.packageOverridesFile
+  pkgEntries := wsOverrides.foldl (init := pkgEntries) fun map entry =>
+    map.insert entry.name entry
+  pkgEntries := overrides.foldl (init := pkgEntries) fun map entry =>
+    map.insert entry.name entry
+  if pkgEntries.isEmpty && !ws.root.depConfigs.isEmpty then
+    error "missing manifest; use `lake update` to generate one"
+  -- Materialize all dependencies
   let ws := ws.addPackage ws.root
   ws.resolveDepsCore fun pkg dep => do
     let ws ← getWorkspace

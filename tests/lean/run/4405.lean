@@ -4,13 +4,13 @@ set_option pp.mvars false
 
 /--
 error: application type mismatch
-  ⟨Nat.lt_irrefl ↑(?_ n), Fin.is_lt (?_ n)⟩
+  ⟨Nat.lt_irrefl (?_ n), Fin.is_lt ?_⟩
 argument
-  Fin.is_lt (?_ n)
+  Fin.is_lt ?_
 has type
-  ↑(?_ n) < ?_ n : Prop
+  ↑?_ < ?_ : Prop
 but is expected to have type
-  ↑(?_ n) < ↑(?_ n) : Prop
+  ?_ n < ?_ n : Prop
 -/
 #guard_msgs in
 def foo := fun n => (not_and_self_iff _).mp ⟨Nat.lt_irrefl _, Fin.is_lt _⟩

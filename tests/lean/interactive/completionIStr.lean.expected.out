@@ -1,28 +1,28 @@
 {"textDocument": {"uri": "file:///completionIStr.lean"},
  "position": {"line": 5, "character": 34}}
 {"items":
- [{"sortText": "0",
-   "label": "b1",
+ [{"label": "f2",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionIStr.lean"},
      "position": {"line": 5, "character": 34}},
-    "id": {"const": {"declName": "C.b1"}}}},
-  {"sortText": "1",
-   "label": "f1",
+    "id": {"const": {"declName": "C.f2"}},
+    "cPos": 1}},
+  {"label": "b1",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionIStr.lean"},
      "position": {"line": 5, "character": 34}},
-    "id": {"const": {"declName": "C.f1"}}}},
-  {"sortText": "2",
-   "label": "f2",
+    "id": {"const": {"declName": "C.b1"}},
+    "cPos": 1}},
+  {"label": "f1",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionIStr.lean"},
      "position": {"line": 5, "character": 34}},
-    "id": {"const": {"declName": "C.f2"}}}}],
- "isIncomplete": true}
+    "id": {"const": {"declName": "C.f1"}},
+    "cPos": 1}}],
+ "isIncomplete": false}

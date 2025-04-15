@@ -3,9 +3,12 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Config.Monad
-import Lake.Build.Actions
 import Lake.Util.JsonObject
+import Lake.Build.Target.Fetch
+import Lake.Build.Actions
+import Lake.Build.Job
 
 /-! # Common Build Tools
 This file defines general utilities that abstract common
@@ -18,12 +21,31 @@ namespace Lake
 
 /-! ## General Utilities -/
 
+/-- Exit code to return if `--no-build` is set and a build is required. -/
+def noBuildCode : ExitCode := 3
+
 /--
 Build trace for the host platform.
-If an artifact includes this in its trace, it is platform-dependent
+If an artifact includes this trace, it is platform-dependent
 and will be rebuilt on different host platforms.
 -/
 def platformTrace := pureHash System.Platform.target
+
+/--
+Mixes the platform into the current job's trace.
+If an artifact includes this trace, it is platform-dependent
+and will be rebuilt on different host platforms.
+-/
+@[inline] def addPlatformTrace : JobM PUnit :=
+  addTrace platformTrace
+
+/-- Mixes Lean's trace into the current job's trace. -/
+@[inline] def addLeanTrace : JobM PUnit := do
+  addTrace (← getLeanTrace)
+
+/-- Mixes the trace of a pure value into the current job's trace. -/
+@[inline] def addPureTrace [ComputeHash α Id] (a : α) : JobM PUnit := do
+  addTrace (pureHash a)
 
 /--
 The build trace file format,
@@ -186,26 +208,34 @@ def fetchFileTrace (file : FilePath) (text := false) : JobM BuildTrace := do
   return .mk (← fetchFileHash file text) (← getMTime file)
 
 /--
-Builds `file` using `build` unless it already exists and `depTrace` matches
-the trace stored in the `.trace` file. If built, save the new `depTrace` and
-cache `file`'s hash in a `.hash` file. Otherwise, try to fetch the hash from
-the `.hash` file using `fetchFileTrace`. Build logs (if any) are saved to
-a `.log.json` file and replayed from there if the build is skipped.
+Builds `file` using `build` unless it already exists and the current job's
+trace matches the trace stored in the `.trace` file. If built, saves the new
+trace and caches `file`'s hash in a `.hash` file. Otherwise, tries to fetch the
+hash from the `.hash` file using `fetchFileTrace`. Build logs (if any) are
+saved to the trace file and replayed from there if the build is skipped.
 
-For example, given `file := "foo.c"`, compares `depTrace` with that in
-`foo.c.trace` with the hash cached in `foo.c.hash` and the log cached in
-`foo.c.trace`.
+For example, given `file := "foo.c"`, compares `getTrace` with that in
+`foo.c.trace`. If built, the hash is cached in `foo.c.hash` and the new
+trace is saved to `foo.c.trace` (including the build log).
 
 If `text := true`, `file` is hashed as a text file rather than a binary file.
 -/
-def buildFileUnlessUpToDate
-  (file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit) (text := false)
-: JobM BuildTrace := do
+def buildFileUnlessUpToDate'
+  (file : FilePath) (build : JobM PUnit) (text := false)
+: JobM Unit := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
-  buildUnlessUpToDate file depTrace traceFile do
+  buildUnlessUpToDate file (← getTrace) traceFile do
     build
     clearFileHash file
-  fetchFileTrace file text
+  setTrace (← fetchFileTrace file text)
+
+@[deprecated buildFileUnlessUpToDate' (since := "2024-12-06")]
+abbrev buildFileUnlessUpToDate
+  (file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit) (text := false)
+: JobM BuildTrace := do
+  setTrace depTrace
+  buildFileUnlessUpToDate' file build text
+  getTrace
 
 /--
 Build `file` using `build` after `dep` completes if the dependency's
@@ -214,23 +244,24 @@ trace (and/or `extraDepTrace`) has changed.
 If `text := true`, `file` is handled as a text file rather than a binary file.
 -/
 @[inline] def buildFileAfterDep
-  (file : FilePath) (dep : BuildJob α) (build : α → JobM PUnit)
+  (file : FilePath) (dep : Job α) (build : α → JobM PUnit)
   (extraDepTrace : JobM _ := pure BuildTrace.nil) (text := false)
-: SpawnM (BuildJob FilePath) :=
-  dep.bindSync fun depInfo depTrace => do
-    let depTrace := depTrace.mix (← extraDepTrace)
-    let trace ← buildFileUnlessUpToDate file depTrace (build depInfo) text
-    return (file, trace)
+: SpawnM (Job FilePath) :=
+  dep.mapM fun depInfo => do
+    addTrace (← extraDepTrace)
+    buildFileUnlessUpToDate' file (build depInfo) text
+    return file
 
 /--
 Build `file` using `build` after `deps` have built if any of their traces change.
 
 If `text := true`, `file` is handled as a text file rather than a binary file.
 -/
-@[inline] def buildFileAfterDepList
-  (file : FilePath) (deps : List (BuildJob α)) (build : List α → JobM PUnit)
+@[inline, deprecated buildFileAfterDep (since := "2024-12-06")]
+abbrev buildFileAfterDepList
+  (file : FilePath) (deps : List (Job α)) (build : List α → JobM PUnit)
   (extraDepTrace : JobM _ := pure BuildTrace.nil) (text := false)
-: SpawnM (BuildJob FilePath) := do
+: SpawnM (Job FilePath) := do
   buildFileAfterDep file (.collectList deps) build extraDepTrace text
 
 /--
@@ -238,10 +269,11 @@ Build `file` using `build` after `deps` have built if any of their traces change
 
 If `text := true`, `file` is handled as a text file rather than a binary file.
 -/
-@[inline] def buildFileAfterDepArray
-  (file : FilePath) (deps : Array (BuildJob α)) (build : Array α → JobM PUnit)
+@[inline, deprecated buildFileAfterDep (since := "2024-12-06")]
+def buildFileAfterDepArray
+  (file : FilePath) (deps : Array (Job α)) (build : Array α → JobM PUnit)
   (extraDepTrace : JobM _ := pure BuildTrace.nil) (text := false)
-: SpawnM (BuildJob FilePath) := do
+: SpawnM (Job FilePath) := do
   buildFileAfterDep file (.collectArray deps) build extraDepTrace text
 
 /-! ## Common Builds -/
@@ -251,16 +283,18 @@ A build job for binary file that is expected to already exist (e.g., a data blob
 
 Any byte difference in a binary file will trigger a rebuild of its dependents.
 -/
-def inputBinFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
-  Job.async <| (path, ·) <$> computeTrace path
+def inputBinFile (path : FilePath) : SpawnM (Job FilePath) := Job.async do
+  setTrace (← computeTrace path)
+  return path
 
 /--
 A build job for text file that is expected to already exist (e.g., a source file).
 
 Text file traces have normalized line endings to avoid unnecessary rebuilds across platforms.
 -/
-def inputTextFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
-  Job.async <| (path, ·) <$> computeTrace (TextFilePath.mk path)
+def inputTextFile (path : FilePath) : SpawnM (Job FilePath) := Job.async do
+  setTrace (← computeTrace (TextFilePath.mk path))
+  return path
 
 /--
 A build job for file that is expected to already exist  (e.g., a data blob or source file).
@@ -270,8 +304,30 @@ Any byte difference in a binary file will trigger a rebuild of its dependents.
 In contrast, text file traces have normalized line endings to avoid unnecessary
 rebuilds across platforms.
 -/
-@[inline] def inputFile (path : FilePath) (text : Bool) : SpawnM (BuildJob FilePath) :=
+@[inline] def inputFile (path : FilePath) (text : Bool) : SpawnM (Job FilePath) :=
   if text then inputTextFile path else inputBinFile path
+
+/--
+A build job for a directory of files that are expected to already exist.
+Returns an array of the files in the directory that match the filter.
+
+If `text := true`, the files are handled as text files rather than a binary files.
+Any byte difference in a binary file will trigger a rebuild of its dependents.
+In contrast, text file traces have normalized line endings to avoid unnecessary
+rebuilds across platforms.
+-/
+def inputDir
+  (path : FilePath) (text : Bool) (filter : FilePath → Bool)
+: SpawnM (Job (Array FilePath)) := do
+  let job ← Job.async do
+    let fs ← path.readDir
+    let ps := fs.filterMap fun f =>
+      if filter f.path then some f.path else none
+    -- Makes the order of files consistent across platforms
+    let ps := ps.qsort (toString · < toString ·)
+    return ps
+  job.bindM fun ps =>
+    Job.collectArray <$> ps.mapM (inputFile · text)
 
 /--
 Build an object file from a source file job using `compiler`. The invocation is:
@@ -286,83 +342,145 @@ be `weakArgs` to avoid build artifact incompatibility between systems
 (i.e., a change in the file path should not cause a rebuild).
 
 You can add more components to the trace via `extraDepTrace`,
-which will be computed in the resulting `BuildJob` before building.
+which will be computed in the resulting `Job` before building.
 -/
 @[inline] def buildO
-  (oFile : FilePath) (srcJob : BuildJob FilePath)
+  (oFile : FilePath) (srcJob : Job FilePath)
   (weakArgs traceArgs : Array String := #[]) (compiler : FilePath := "cc")
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
-: SpawnM (BuildJob FilePath) :=
-  let extraDepTrace :=
-    return (← extraDepTrace).mix <| (pureHash traceArgs).mix platformTrace
-  buildFileAfterDep oFile srcJob (extraDepTrace := extraDepTrace) fun srcFile => do
-    compileO oFile srcFile (weakArgs ++ traceArgs) compiler
+: SpawnM (Job FilePath) :=
+  srcJob.mapM fun srcFile => do
+    addPlatformTrace -- object files are platform-dependent artifacts
+    addPureTrace traceArgs
+    addTrace (← extraDepTrace)
+    buildFileUnlessUpToDate' oFile do
+      compileO oFile srcFile (weakArgs ++ traceArgs) compiler
+    return oFile
 
-/-- Build an object file from a source fie job (i.e, a `lean -c` output) using `leanc`. -/
-@[inline] def buildLeanO
-  (oFile : FilePath) (srcJob : BuildJob FilePath)
+/--
+Build an object file from a source fie job (i.e, a `lean -c` output)=
+using the Lean toolchain's C compiler.
+-/
+def buildLeanO
+  (oFile : FilePath) (srcJob : Job FilePath)
   (weakArgs traceArgs : Array String := #[])
-: SpawnM (BuildJob FilePath) :=
-  let extraDepTrace :=
-    return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
-  buildFileAfterDep oFile srcJob (extraDepTrace := extraDepTrace) fun srcFile => do
-     compileO oFile srcFile (weakArgs ++ traceArgs) (← getLeanc)
+: SpawnM (Job FilePath) :=
+  srcJob.mapM fun srcFile => do
+    addLeanTrace
+    addPureTrace traceArgs
+    addPlatformTrace -- object files are platform-dependent artifacts
+    buildFileUnlessUpToDate' oFile do
+      let lean ← getLeanInstall
+      compileO oFile srcFile (lean.ccFlags ++ weakArgs ++ traceArgs) lean.cc
+    return oFile
 
-/-- Build a static library from object file jobs using the `ar` packaged with Lean. -/
+/-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
 def buildStaticLib
-  (libFile : FilePath) (oFileJobs : Array (BuildJob FilePath))
-: SpawnM (BuildJob FilePath) :=
-  buildFileAfterDepArray libFile oFileJobs fun oFiles => do
-    compileStaticLib libFile oFiles (← getLeanAr)
+  (libFile : FilePath) (oFileJobs : Array (Job FilePath)) (thin :=  false)
+: SpawnM (Job FilePath) :=
+  (Job.collectArray oFileJobs).mapM fun oFiles => do
+    buildFileUnlessUpToDate' libFile do
+      compileStaticLib libFile oFiles (← getLeanAr) thin
+    return libFile
 
-/-- Build a shared library by linking the results of `linkJobs` using `leanc`. -/
+private def mkLinkObjArgs
+  (objs : Array FilePath) (libs : Array Dynlib) : Array String
+:= Id.run do
+  let mut args := #[]
+  for obj in objs do
+    args := args.push obj.toString
+  for lib in libs do
+    if let some dir := lib.dir? then
+      args := args.push s!"-L{dir}"
+    args := args.push s!"-l{lib.name}"
+  return args
+
+/--
+Topologically sorts the library dependency tree by name.
+Libraries come *before* their dependencies.
+-/
+private partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
+  let r := libs.foldlM (m := Except (Cycle String)) (init := ({}, #[])) fun (v, o) lib =>
+    go lib [] v o
+  match r with
+  | .ok (_, order) => pure order
+  | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
+where
+  go lib (ps : List String) (v : RBMap String Unit compare) (o : Array Dynlib) := do
+    let o := o.push lib
+    if v.contains lib.name then
+      return (v, o)
+    if ps.contains lib.name then
+      throw (lib.name :: ps)
+    let ps := lib.name :: ps
+    let v := v.insert lib.name ()
+    let (v, o) ← lib.deps.foldlM (init := (v, o)) fun (v, o) lib =>
+      go lib ps v o
+    return (v, o)
+
+/--
+Build a shared library by linking the results of `linkJobs`
+using the Lean toolchain's C compiler.
+-/
+def buildSharedLib
+  (libName : String) (libFile : FilePath)
+  (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
+  (weakArgs traceArgs : Array String := #[]) (linker := "c++")
+  (extraDepTrace : JobM _ := pure BuildTrace.nil)
+  (plugin := false) (linkDeps := Platform.isWindows)
+: SpawnM (Job Dynlib) :=
+  (Job.collectArray linkObjs).bindM fun objs => do
+  (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
+    addPureTrace traceArgs
+    addPlatformTrace -- shared libraries are platform-dependent artifacts
+    addTrace (← extraDepTrace)
+    buildFileUnlessUpToDate' libFile do
+      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
+      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
+      compileSharedLib libFile args linker
+    return {name := libName, path := libFile, deps := libs, plugin}
+
+/--
+Build a shared library by linking the results of `linkJobs`
+using `linker`.
+-/
 def buildLeanSharedLib
-  (libFile : FilePath) (linkJobs : Array (BuildJob FilePath))
-  (weakArgs traceArgs : Array String := #[])
-: SpawnM (BuildJob FilePath) :=
-  let extraDepTrace :=
-    return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
-  buildFileAfterDepArray libFile linkJobs (extraDepTrace := extraDepTrace) fun links => do
-    compileSharedLib libFile (links.map toString ++ weakArgs ++ traceArgs) (← getLeanc)
+  (libName : String) (libFile : FilePath)
+  (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
+  (weakArgs traceArgs : Array String := #[]) (plugin := false)
+  (linkDeps := Platform.isWindows)
+: SpawnM (Job Dynlib) :=
+  (Job.collectArray linkObjs).bindM fun objs => do
+  (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
+    addLeanTrace
+    addPureTrace traceArgs
+    addPlatformTrace -- shared libraries are platform-dependent artifacts
+    buildFileUnlessUpToDate' libFile do
+      let lean ← getLeanInstall
+      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
+      let args := mkLinkObjArgs objs libs ++
+        weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
+      compileSharedLib libFile args lean.cc
+    return {name := libName, path := libFile, deps := libs, plugin}
 
-/-- Build an executable by linking the results of `linkJobs` using `leanc`. -/
+/--
+Build an executable by linking the results of `linkJobs`
+using the Lean toolchain's linker.
+-/
 def buildLeanExe
-  (exeFile : FilePath) (linkJobs : Array (BuildJob FilePath))
-  (weakArgs traceArgs : Array String := #[])
-: SpawnM (BuildJob FilePath) :=
-  let extraDepTrace :=
-    return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
-  buildFileAfterDepArray exeFile linkJobs (extraDepTrace := extraDepTrace) fun links => do
-    compileExe exeFile links (weakArgs ++ traceArgs) (← getLeanc)
-
-/-- Build a shared library from a static library using `leanc`. -/
-def buildLeanSharedLibOfStatic
-  (staticLibJob : BuildJob FilePath)
-  (weakArgs traceArgs : Array String := #[])
-: SpawnM (BuildJob FilePath) :=
-  staticLibJob.bindSync fun staticLib staticTrace => do
-    let dynlib := staticLib.withExtension sharedLibExt
-    let baseArgs :=
-      if System.Platform.isOSX then
-        #[s!"-Wl,-force_load,{staticLib}"]
-      else
-        #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
-    let depTrace := staticTrace.mix <|
-      (← getLeanTrace).mix <| (pureHash traceArgs).mix <| platformTrace
-    let args := baseArgs ++ weakArgs ++ traceArgs
-    let trace ← buildFileUnlessUpToDate dynlib depTrace do
-      compileSharedLib dynlib args (← getLeanc)
-    return (dynlib, trace)
-
-/-- Construct a `Dynlib` object for a shared library target. -/
-def computeDynlibOfShared (sharedLibTarget : BuildJob FilePath) : SpawnM (BuildJob Dynlib) :=
-  sharedLibTarget.bindSync fun sharedLib trace => do
-    if let some stem := sharedLib.fileStem then
-      if Platform.isWindows then
-        return ({path := sharedLib, name := stem}, trace)
-      else if stem.startsWith "lib" then
-        return ({path := sharedLib, name := stem.drop 3}, trace)
-      else
-        error s!"shared library `{sharedLib}` does not start with `lib`; this is not supported on Unix"
-    else
-      error s!"shared library `{sharedLib}` has no file name"
+  (exeFile : FilePath)
+  (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
+  (weakArgs traceArgs : Array String := #[]) (sharedLean : Bool := false)
+: SpawnM (Job FilePath) :=
+  (Job.collectArray linkObjs).bindM fun objs => do
+  (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
+    addLeanTrace
+    addPureTrace traceArgs
+    addPlatformTrace -- executables are platform-dependent artifacts
+    buildFileUnlessUpToDate' exeFile do
+      let lean ← getLeanInstall
+      let libs ← mkLinkOrder libs
+      let args := mkLinkObjArgs objs libs ++
+        weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
+      compileExe exeFile args lean.cc
+    return exeFile

@@ -38,15 +38,18 @@ where
         levelParams := info.levelParams
       }
 
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
+def getEqnsFor? (declName : Name) (fine : Bool) : MetaM (Option (Array Name)) := do
   if (← isRecursiveDefinition declName) then
     return none
   if (← getEnv).contains declName then
     if backward.eqns.nonrecursive.get (← getOptions) then
-      mkEqns declName #[]
+      mkEqns declName (fine := fine) #[]
     else
-      let o ← mkSimpleEqThm declName
-      return o.map (#[·])
+      if fine then
+        return none
+      else
+        let o ← mkSimpleEqThm declName
+        return o.map (#[·])
   else
     return none
 

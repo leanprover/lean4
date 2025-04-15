@@ -194,8 +194,8 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax
 
-private def printEqnsOf (constName : Name) : CommandElabM Unit := do
-  let some eqns ← liftTermElabM <| Meta.getEqnsFor? constName |
+private def printEqnsOf (fine : Bool) (constName : Name) : CommandElabM Unit := do
+  let some eqns ← liftTermElabM <| Meta.getEqnsFor? (fine := fine) constName |
     logInfo m!"'{constName}' does not have equations"
   let mut m := m!"equations:"
   for eq in eqns do
@@ -206,6 +206,11 @@ private def printEqnsOf (constName : Name) : CommandElabM Unit := do
 @[builtin_command_elab «printEqns»] def elabPrintEqns : CommandElab := fun stx => do
   let id := stx[2]
   let cs ← liftCoreM <| realizeGlobalConstWithInfos id
-  cs.forM printEqnsOf
+  cs.forM (printEqnsOf (fine := false))
+
+@[builtin_command_elab «printFineEqns»] def elabPrintFineEqns : CommandElab := fun stx => do
+  let id := stx[3]
+  let cs ← liftCoreM <| realizeGlobalConstWithInfos id
+  cs.forM (printEqnsOf (fine := true))
 
 end Lean.Elab.Command

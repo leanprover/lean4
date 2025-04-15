@@ -61,19 +61,20 @@ where
         else
           throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
-def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
+def mkEqns (info : EqnInfo) (fine : Bool) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
-    mkEqnTypes info.declNames goal.mvarId!
+    mkEqnTypes (fine := fine) info.declNames goal.mvarId!
   let baseName := info.declName
   let mut thmNames := #[]
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
-    let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
+    let suffixBase := if fine then fineEqnThmSuffixBase else eqnThmSuffixBase
+    let name := (Name.str baseName suffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added
@@ -96,9 +97,9 @@ def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPo
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName
     { preDef with recArgPos, declNames, fixedParamPerms }
 
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
+def getEqnsFor? (declName : Name) (fine : Bool) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns info
+    mkEqns (fine := fine) info
   else
     return none
 

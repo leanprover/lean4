@@ -14,6 +14,8 @@ import Lean.Meta.Tactic.FunIndInfo
 import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.FunIndCollect
+import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.Assumption
 import Lean.Meta.GeneralizeVars
 import Lean.Elab.App
 import Lean.Elab.Tactic.ElabTerm
@@ -789,10 +791,12 @@ def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
     foundFVars := foundFVars.insert target.fvarId!
 
 /--
-The code path shared between `induction` and `fun_induct`; when we already have an `elimInfo`
-and the `targets` contains the implicit targets
+The code path shared between `induction` and `fun_induction`; when we already have an `elimInfo`
+and the `targets` contains the implicit targets.
+The `preProcessAlts` is a hook for fun_induction for rewriting the application call.
 -/
 private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
+    (preProcessAlts : Array ElimApp.Alt → MetaM (Array ElimApp.Alt) := fun alts => pure alts)
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let mvarId ← getMainGoal
   -- save initial info before main goal is reassigned
@@ -807,14 +811,15 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
         ElimApp.mkElimApp elimInfo targets tag
       trace[Elab.induction] "elimApp: {result.elimApp}"
       ElimApp.setMotiveArg mvarId result.motive targetFVarIds
+      let alts' ← preProcessAlts result.alts
       -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
       -- unchanged
       -- everything up to the alternatives must be unchanged for reuse
       Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
-      withAltsOfOptInductionAlts optInductionAlts fun alts? => do
+      withAltsOfOptInductionAlts optInductionAlts fun altStxs? => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo
+        ElimApp.evalAlts elimInfo alts' optPreTac altStxs? initInfo
           (numGeneralized := n) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
@@ -826,7 +831,7 @@ def evalInduction : Tactic := fun stx =>
     let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
     let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
     let targets ← withMainContext <| addImplicitTargets elimInfo targets
-    evalInductionCore stx elimInfo targets toTag
+    evalInductionCore stx elimInfo targets (toTag := toTag)
 
 
 /--
@@ -852,7 +857,7 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
 /--
 Elaborates the `foo args` of `fun_induction` or `fun_cases`, returning the `ElabInfo` and targets.
 -/
-private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × Array Expr) := do
+private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (Name × ElimInfo × Array Expr) := do
   withRef stx <| withMainContext do
     let funCall ← elabFunTargetCall cases stx
     funCall.withApp fun fn funArgs => do
@@ -887,22 +892,49 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
       throwError "{tacName} got confused trying to use \
         {.ofConstName funIndInfo.funIndName}. Does it take {targets.size} or \
         {elimInfo.targetsPos.size} targets?"
-    return (elimInfo, targets)
+    return (fnName, elimInfo, targets)
+
+
+def mapElimAppAlts (f : MVarId → MetaM MVarId) : Array ElimApp.Alt → MetaM (Array ElimApp.Alt) :=
+  Array.mapM (fun alt => do return { alt with mvarId := (← f alt.mvarId)})
+
+def rewriteWithFineEqns (fnName : Name) (mvarId : MVarId) (cases : Bool) : MetaM MVarId := do
+  let mut mvarId := mvarId
+  if let some eqns ← getEqnsFor? (fine := true) fnName then
+    for eqn in eqns do
+      try
+        mvarId ← withTraceNode (if cases then `Elab.cases else `Elab.induction) (return m!"{exceptEmoji ·} rewriting with {.ofConstName eqn}") <| do
+          let r ← mvarId.rewrite (← mvarId.getType) (← mkConstWithFreshMVarLevels eqn)
+          r.mvarIds.forM fun m => m.assumption
+          mvarId.replaceTargetEq r.eNew r.eqProof
+      catch e =>
+        if cases then
+          trace[Elab.cases] "could not apply {eqn}: {e.toMessageData}"
+        else
+          trace[Elab.induction] "could not apply {eqn}: {e.toMessageData}"
+  else
+    if cases then
+      trace[Elab.cases] "did not find fine equations for {fnName}"
+    else
+      trace[Elab.induction] "did not find fine equations for {fnName}"
+  return mvarId
 
 @[builtin_tactic Lean.Parser.Tactic.funInduction, builtin_incremental]
 def evalFunInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    let (elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
+    let (fnName, elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
     let targets ← generalizeTargets targets
     evalInductionCore stx elimInfo targets
+      (preProcessAlts := mapElimAppAlts (rewriteWithFineEqns (cases := false) fnName))
 
 /--
 The code path shared between `cases` and `fun_cases`; when we already have an `elimInfo`
 and the `targets` contains the implicit targets
 -/
 def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
+    (preProcessAlts : Array ElimApp.Alt → MetaM (Array ElimApp.Alt) := fun alts => pure alts)
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let targetRef := stx[1]
   let mvarId ← getMainGoal
@@ -919,13 +951,14 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
     mvarId.withContext do
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew
       mvarId.assign result.elimApp
+      let alts' ← preProcessAlts result.alts
       -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
       -- unchanged
       -- everything up to the alternatives must be unchanged for reuse
       Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
-      withAltsOfOptInductionAlts optInductionAlts fun alts => do
+      withAltsOfOptInductionAlts optInductionAlts fun altStxs? => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo
+        ElimApp.evalAlts elimInfo alts' optPreTac altStxs? initInfo
           (numEqs := targets.size) (toClear := targetsNew) (toTag := toTag)
 
 @[builtin_tactic Lean.Parser.Tactic.cases, builtin_incremental]
@@ -937,16 +970,19 @@ def evalCases : Tactic := fun stx =>
     let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
     let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
     let targets ← withMainContext <| addImplicitTargets elimInfo targets
-    evalCasesCore stx elimInfo targets toTag
+    evalCasesCore stx elimInfo targets (toTag := toTag)
+
+
 
 @[builtin_tactic Lean.Parser.Tactic.funCases, builtin_incremental]
 def evalFunCases : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    let (elimInfo, targets) ← elabFunTarget (cases := true) stx[1]
+    let (fnName, elimInfo, targets) ← elabFunTarget (cases := true) stx[1]
     let targets ← generalizeTargets targets
     evalCasesCore stx elimInfo targets
+      (preProcessAlts := mapElimAppAlts (rewriteWithFineEqns (cases := true) fnName))
 
 builtin_initialize
   registerTraceClass `Elab.cases

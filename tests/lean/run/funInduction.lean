@@ -243,11 +243,11 @@ termination_by structural x => x
 error: tactic 'fail' failed
 case case1
 P : Nat → Prop
-⊢ P (fib 0)
+⊢ P 0
 
 case case2
 P : Nat → Prop
-⊢ P (fib 1)
+⊢ P 1
 
 case case3
 P : Nat → Prop
@@ -298,12 +298,12 @@ error: tactic 'fail' failed
 case case1
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 0)
+⊢ P 0
 
 case case2
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 1)
+⊢ P 2
 
 case case3
 P : Nat → Prop
@@ -322,12 +322,12 @@ error: tactic 'fail' failed
 case case1
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 0)
+⊢ P 0
 
 case case2
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 1)
+⊢ P 2
 
 case case3
 P : Nat → Prop

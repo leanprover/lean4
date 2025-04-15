@@ -225,7 +225,7 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
             throwThe Unit ()
   return (← (find e).run) matches .error _
 
-partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
+partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) (fine : Bool) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run #[]
   return eqnTypes
 where
@@ -233,14 +233,23 @@ where
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
 
     if let some mvarId ← expandRHS? mvarId then
-      return (← go mvarId)
+      go mvarId
+      return
 
     if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
-        return (← go mvarId)
+        go mvarId
+        return
 
     if let some mvarIds ← splitMatch? mvarId declNames then
-      return (← mvarIds.forM go)
+      mvarIds.forM go
+      return
+
+    if fine then
+      if let some (goal1, goal2) ← splitIfTarget? mvarId then
+        go goal1.mvarId
+        go goal2.mvarId
+        return
 
     saveEqn mvarId
 
@@ -400,7 +409,7 @@ proves them using `mkEqnProof`.
 This is currently used for non-recursive functions, well-founded recursion and partial_fixpoint,
 but not for structural recursion.
 -/
-def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
+def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true) (fine : Bool) : MetaM (Array Name) := do
   let info ← getConstInfoDefn declName
   let us := info.levelParams.map mkLevelParam
   withOptions (tactic.hygienic.set · false) do
@@ -409,12 +418,13 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (
     forallTelescope (cleanupAnnotations := true) target fun xs target => do
       let goal ← mkFreshExprSyntheticOpaqueMVar target
       withReducible do
-        mkEqnTypes declNames goal.mvarId!
+        mkEqnTypes (fine := fine) declNames goal.mvarId!
   let mut thmNames := #[]
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
-    let name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
+    let suffixBase := if fine then fineEqnThmSuffixBase else eqnThmSuffixBase
+    let name := (Name.str declName suffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added

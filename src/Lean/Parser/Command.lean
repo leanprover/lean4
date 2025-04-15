@@ -501,6 +501,8 @@ See also: `#reduce e` for evaluation by term reduction.
   "#print " >> nonReservedSymbol "axioms " >> ident
 @[builtin_command_parser] def printEqns      := leading_parser
   "#print " >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> ident
+@[builtin_command_parser] def printFineEqns  := leading_parser
+  "#print " >> (nonReservedSymbol "fine") >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> ident
 /--
 Displays all available tactic tags, with documentation.
 -/

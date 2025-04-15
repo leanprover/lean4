@@ -45,9 +45,9 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
           eqnInfoExt.insert env preDef.declName { preDef with
             declNames, declNameNonRec, fixedPrefixSize, argsPacker, fixedParamPerms }
 
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
+def getEqnsFor? (declName : Name) (fine : Bool) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames (tryRefl := false)
+    mkEqns declName info.declNames (tryRefl := false) (fine := fine)
   else
     return none
 

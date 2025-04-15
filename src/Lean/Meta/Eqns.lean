@@ -65,6 +65,17 @@ example : eqn1ThmSuffix = "eq_1" := rfl
 /-- Returns `true` if `s` is of the form `eq_<idx>` -/
 def isEqnReservedNameSuffix (s : String) : Bool :=
   eqnThmSuffixBasePrefix.isPrefixOf s && (s.drop 3).isNat
+example : isEqnReservedNameSuffix eqn1ThmSuffix = true := by native_decide
+
+def fineEqnThmSuffixBase := "feq"
+def fineEqnThmSuffixBasePrefix := fineEqnThmSuffixBase ++ "_"
+def fineEqn1ThmSuffix := fineEqnThmSuffixBasePrefix ++ "1"
+example : fineEqn1ThmSuffix = "feq_1" := rfl
+
+/-- Returns `true` if `s` is of the form `feq_<idx>` -/
+def isFineEqnReservedNameSuffix (s : String) : Bool :=
+  fineEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop 4).isNat
+example : isFineEqnReservedNameSuffix fineEqn1ThmSuffix = true := by native_decide
 
 def unfoldThmSuffix := "eq_def"
 def eqUnfoldThmSuffix := "eq_unfold"
@@ -78,6 +89,7 @@ def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
   ensureReservedNameAvailable declName eqn1ThmSuffix
   -- TODO: `declName` may need to reserve multiple `eq_<idx>` names, but we check only the first one.
   -- Possible improvement: try to efficiently compute the number of equation theorems at declaration time, and check all of them.
+  ensureReservedNameAvailable declName fineEqn1ThmSuffix
 
 /--
 Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
@@ -85,13 +97,13 @@ Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` i
 builtin_initialize registerReservedNamePredicate fun env n =>
   match n with
   | .str p s =>
-    (isEqnReservedNameSuffix s || s == unfoldThmSuffix || s == eqUnfoldThmSuffix)
+    (isEqnReservedNameSuffix s || isFineEqnReservedNameSuffix s || s == unfoldThmSuffix || s == eqUnfoldThmSuffix)
     && env.isSafeDefinition p
     -- Remark: `f.match_<idx>.eq_<idx>` are handled separately in `Lean.Meta.Match.MatchEqs`.
     && !isMatcherCore env p
   | _ => false
 
-def GetEqnsFn := Name → MetaM (Option (Array Name))
+def GetEqnsFn := Name → (fine : Bool) → MetaM (Option (Array Name))
 
 private builtin_initialize getEqnsFnsRef : IO.Ref (List GetEqnsFn) ← IO.mkRef []
 
@@ -123,7 +135,7 @@ and
 def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register equation getter, this kind of extension can only be registered during initialization")
-  getEqnsFnsRef.modify (f :: ·)
+  getEqnsFnsRef.modify (@f :: ·)
 
 /-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
@@ -139,6 +151,8 @@ structure EqnsExtState where
 
 /- We generate the equations on demand. -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
+  registerEnvExtension (pure {}) (asyncMode := .local)
+builtin_initialize fineEqnsExt : EnvExtension EqnsExtState ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
 /--
@@ -161,23 +175,26 @@ where doRealize name info := do
       levelParams := info.levelParams
     }
 
+def eqnsExtFor (fine : Bool) : EnvExtension EqnsExtState :=
+  if fine then fineEqnsExt else eqnsExt
+
 /--
 Returns `some declName` if `thmName` is an equational theorem for `declName`.
 -/
-def isEqnThm? (thmName : Name) : CoreM (Option Name) := do
-  return eqnsExt.getState (← getEnv) |>.mapInv.find? thmName
+def isEqnThm? (thmName : Name) (fine : Bool := false) : CoreM (Option Name) := do
+  return (eqnsExtFor fine).getState (← getEnv) |>.mapInv.find? thmName
 
 /--
 Returns `true` if `thmName` is an equational theorem.
 -/
-def isEqnThm (thmName : Name) : CoreM Bool := do
-  return eqnsExt.getState (← getEnv) |>.mapInv.contains thmName
+def isEqnThm (thmName : Name) (fine : Bool := false) : CoreM Bool := do
+  return (eqnsExtFor fine).getState (← getEnv) |>.mapInv.contains thmName
 
 /--
 Stores in the `eqnsExt` environment extension that `eqThms` are the equational theorems for `declName`
 -/
-private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit := do
-  modifyEnv fun env => eqnsExt.modifyState env fun s => { s with
+private def registerEqnThms (declName : Name) (eqThms : Array Name) (fine : Bool) : CoreM Unit := do
+  modifyEnv fun env => (eqnsExtFor fine).modifyState env fun s => { s with
     map := s.map.insert declName eqThms
     mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm => mapInv.insert eqThm declName
   }
@@ -185,43 +202,44 @@ private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit
 /--
 Equation theorems are generated on demand, check whether they were generated in an imported file.
 -/
-private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
+private partial def alreadyGenerated? (declName : Name) (fine : Bool) : MetaM (Option (Array Name)) := do
   let env ← getEnv
-  let eq1 := Name.str declName eqn1ThmSuffix
+  let suffixBase := if fine then fineEqnThmSuffixBase else eqnThmSuffixBase
+  let eq1 := (Name.str declName suffixBase).appendIndexAfter 1
   if env.contains eq1 then
     let rec loop (idx : Nat) (eqs : Array Name) : MetaM (Array Name) := do
-      let nextEq := declName ++ (`eq).appendIndexAfter idx
+      let nextEq := (Name.str declName suffixBase).appendIndexAfter idx
       if env.contains nextEq then
         loop (idx+1) (eqs.push nextEq)
       else
         return eqs
     let eqs ← loop 2 #[eq1]
-    registerEqnThms declName eqs
+    registerEqnThms (fine := fine) declName eqs
     return some eqs
   else
     return none
 
-private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
-  if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
+private def getEqnsFor?Core (declName : Name) (fine : Bool) : MetaM (Option (Array Name)) := withLCtx {} {} do
+  if let some eqs := (eqnsExtFor fine).getState (← getEnv) |>.map.find? declName then
     return some eqs
   if !(← shouldGenerateEqnThms declName) then
     return none
-  if let some eqs ← alreadyGenerated? declName then
+  if let some eqs ← alreadyGenerated? (fine := fine) declName then
     return some eqs
   for f in (← getEqnsFnsRef.get) do
-    if let some r ← f declName then
-      registerEqnThms declName r
+    if let some r ← f (fine := fine) declName then
+      registerEqnThms (fine := fine) declName r
       return some r
   return none
 
 /--
 Returns equation theorems for the given declaration.
 -/
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
+def getEqnsFor? (declName : Name) (fine : Bool := false) : MetaM (Option (Array Name)) := withLCtx {} {} do
   -- This is the entry point for lazy equaion generation. Ignore the current value
   -- of the options, and revert to the default.
   withOptions (eqnAffectingOptions.foldl fun os o => o.set os o.defValue) do
-    getEqnsFor?Core declName
+    getEqnsFor?Core (fine := fine) declName
 
 /--
 If any equation theorem affecting option is not the default value, create the equations now.
@@ -229,7 +247,8 @@ If any equation theorem affecting option is not the default value, create the eq
 def generateEagerEqns (declName : Name) : MetaM Unit := do
   let opts ← getOptions
   if eqnAffectingOptions.any fun o => o.get opts != o.defValue then
-    let _ ← getEqnsFor?Core declName
+    let _ ← getEqnsFor?Core (fine := false) declName
+    let _ ← getEqnsFor?Core (fine := true) declName
 
 def GetUnfoldEqnFn := Name → MetaM (Option Name)
 
@@ -290,7 +309,9 @@ builtin_initialize
     let .str p s := name | return false
     unless (← getEnv).isSafeDefinition p && !isMatcherCore (← getEnv) p do return false
     if isEqnReservedNameSuffix s then
-      return (← MetaM.run' <| getEqnsFor? p).isSome
+      return (← MetaM.run' <| getEqnsFor? (fine := false) p).isSome
+    if isFineEqnReservedNameSuffix s then
+      return (← MetaM.run' <| getEqnsFor? (fine := true) p).isSome
     if s == unfoldThmSuffix then
       return (← MetaM.run' <| getUnfoldEqnFor? p (nonRec := true)).isSome
     return false

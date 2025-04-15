@@ -6,6 +6,7 @@ Authors: Kim Morrison
 prelude
 import Init.Grind.CommRing.Basic
 import Init.Data.BitVec.Lemmas
+
 namespace Lean.Grind
 
 instance : CommRing (BitVec w) where

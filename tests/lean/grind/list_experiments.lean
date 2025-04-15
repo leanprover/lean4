@@ -2188,43 +2188,51 @@ theorem filterMap_reverse {f : α → Option β} {l : List α} : (l.reverse.filt
 theorem reverse_append {as bs : List α} : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
   induction as <;> simp_all
 
+attribute [grind] List.nil_append List.append_nil
+attribute [grind _=_] List.reverse_append
+
 theorem reverse_eq_append_iff {xs ys zs : List α} :
-    xs.reverse = ys ++ zs ↔ xs = zs.reverse ++ ys.reverse := by
-  rw [reverse_eq_iff, reverse_append]
+    xs.reverse = ys ++ zs ↔ xs = zs.reverse ++ ys.reverse := by grind
 
 theorem reverse_concat {l : List α} {a : α} : (l ++ [a]).reverse = a :: l.reverse := by
-  rw [reverse_append]; rfl
+  grind (ematch := 6)
+
+attribute [grind _=_] List.reverse_concat
 
 theorem reverse_eq_concat {xs ys : List α} {a : α} :
-    xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by
-  rw [reverse_eq_iff, reverse_concat]
+    xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by grind
 
 /-- Reversing a flatten is the same as reversing the order of parts and reversing all parts. -/
 theorem reverse_flatten {L : List (List α)} :
     L.flatten.reverse = (L.map reverse).reverse.flatten := by
-  induction L <;> simp_all
+  induction L <;> grind
 
 /-- Flattening a reverse is the same as reversing all parts and reversing the flattened result. -/
 theorem flatten_reverse {L : List (List α)} :
     L.reverse.flatten = (L.map reverse).flatten.reverse := by
-  induction L <;> simp_all
+  induction L <;> grind
+
+attribute [grind _=_] List.flatMap_append
 
 theorem reverse_flatMap {β} {l : List α} {f : α → List β} : (l.flatMap f).reverse = l.reverse.flatMap (reverse ∘ f) := by
-  induction l <;> simp_all
+  induction l <;> grind
 
 theorem flatMap_reverse {β} {l : List α} {f : α → List β} : (l.reverse.flatMap f) = (l.flatMap (reverse ∘ f)).reverse := by
-  induction l <;> simp_all
+  induction l <;> grind
 
 theorem reverseAux_eq {as bs : List α} : reverseAux as bs = reverse as ++ bs :=
   reverseAux_eq_append ..
 
 theorem reverse_replicate {n : Nat} {a : α} : reverse (replicate n a) = replicate n a :=
-  eq_replicate_iff.2
-    ⟨by rw [length_reverse, length_replicate],
-     fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
+  eq_replicate_iff.2 (by grind)
 
 
 /-! ### foldlM and foldrM -/
+
+attribute [grind] List.foldlM_nil List.foldlM_cons List.foldrM_nil List.foldrM_cons
+
+attribute [grind] pure_bind
+-- attribute [grind] LawfulMonad.bind_assoc -- time out?
 
 theorem foldlM_append [Monad m] [LawfulMonad m] {f : β → α → m β} {b : β} {l l' : List α} :
     (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
@@ -2268,42 +2276,46 @@ theorem foldrM_reverse [Monad m] {l : List α} {f : α → β → m β} {b : β}
 
 theorem foldr_cons_eq_append {l : List α} {f : α → β} {l' : List β} :
     l.foldr (fun x ys => f x :: ys) l' = l.map f ++ l' := by
-  induction l <;> simp [*]
+  induction l <;> grind
 
 /-- Variant of `foldr_cons_eq_append` specalized to `f = id`. -/
 theorem foldr_cons_eq_append' {l l' : List β} :
     l.foldr cons l' = l ++ l' := by
-  induction l <;> simp [*]
+  induction l <;> grind
+
+attribute [grind] foldr_cons_eq_append foldr_cons_eq_append'
+
+attribute [grind _=_] List.append_assoc
 
 theorem foldl_flip_cons_eq_append {l : List α} {f : α → β} {l' : List β} :
     l.foldl (fun xs y => f y :: xs) l' = (l.map f).reverse ++ l' := by
-  induction l generalizing l' <;> simp [*]
+  induction l generalizing l' <;> grind
 
 theorem foldr_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
     l.foldr (f · ++ ·) l' = (l.map f).flatten ++ l' := by
-  induction l <;> simp [*]
+  induction l <;> grind
 
 theorem foldl_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
     l.foldl (· ++ f ·) l' = l' ++ (l.map f).flatten := by
-  induction l generalizing l'<;> simp [*]
+  induction l generalizing l'<;> grind
 
 theorem foldr_flip_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
     l.foldr (fun x ys => ys ++ f x) l' = l' ++ (l.map f).reverse.flatten := by
-  induction l generalizing l' <;> simp [*]
+  induction l generalizing l' <;> grind
 
 theorem foldl_flip_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
     l.foldl (fun xs y => f y ++ xs) l' = (l.map f).reverse.flatten ++ l' := by
-  induction l generalizing l' <;> simp [*]
+  induction l generalizing l' <;> grind
 
-theorem foldr_cons_nil {l : List α} : l.foldr cons [] = l := by simp
+theorem foldr_cons_nil {l : List α} : l.foldr cons [] = l := by grind
 
 theorem foldl_map {f : β₁ → β₂} {g : α → β₂ → α} {l : List β₁} {init : α} :
     (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
-  induction l generalizing init <;> simp [*]
+  induction l generalizing init <;> grind
 
 theorem foldr_map {f : α₁ → α₂} {g : α₂ → β → β} {l : List α₁} {init : β} :
     (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
-  induction l generalizing init <;> simp [*]
+  induction l generalizing init <;> grind
 
 theorem foldl_filterMap {f : α → Option β} {g : γ → β → γ} {l : List α} {init : γ} :
     (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by

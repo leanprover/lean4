@@ -1173,7 +1173,6 @@ protected theorem nonpos_of_mul_nonpos_right {a b : Int}
     (h : a * b ≤ 0) (ha : 0 < a) : b ≤ 0 :=
   Int.le_of_not_gt fun hb : b > 0 => Int.not_le_of_gt (Int.mul_pos ha hb) h
 
-
 /- ## sign -/
 
 @[simp] theorem sign_zero : sign 0 = 0 := rfl

@@ -50,7 +50,7 @@ def Expr.denote [CommRing α] (ctx : Context α) : Expr → α
 structure Power where
   x : Var
   k : Nat
-  deriving BEq
+  deriving BEq, Repr
 
 def Power.varLt (p₁ p₂ : Power) : Bool :=
   p₁.x.blt p₂.x
@@ -65,7 +65,7 @@ def Power.denote [CommRing α] (ctx : Context α) : Power → α
 inductive Mon where
   | leaf (p : Power)
   | cons (p : Power) (m : Mon)
-  deriving BEq
+  deriving BEq, Repr
 
 def Mon.denote [CommRing α] (ctx : Context α) : Mon → α
   | .leaf p => p.denote ctx
@@ -101,8 +101,14 @@ def Mon.mulPow (p : Power) (m : Mon) : Mon :=
     else
       .cons { x := p.x, k := p.k + p'.k } m
 
-abbrev hugeFuel := 100000
+def Mon.length : Mon → Nat
+  | .leaf _ => 1
+  | .cons _ m => 1 + length m
+
+def hugeFuel := 1000000
+
 def Mon.mul (m₁ m₂ : Mon) : Mon :=
+  -- We could use `m₁.length + m₂.length` to avoid hugeFuel
   go hugeFuel m₁ m₂
 where
   go (fuel : Nat) (m₁ m₂ : Mon) : Mon :=
@@ -124,21 +130,17 @@ def Mon.degree : Mon → Nat
   | .leaf p => p.k
   | .cons p m => p.k + degree m
 
-def Mon.length : Mon → Nat
-  | .leaf _ => 1
-  | .cons _ m => 1 + length m
-
 def Var.revlex (x y : Var) : Ordering :=
   bif x.blt y then .gt
   else bif y.blt x then .lt
   else .eq
 
 def powerRevlex (k₁ k₂ : Nat) : Ordering :=
-  bif k₁.blt k₂ then .lt
-  else bif k₂.blt k₁ then .gt
+  bif k₁.blt k₂ then .gt
+  else bif k₂.blt k₁ then .lt
   else .eq
 
-def Power.revLex (p₁ p₂ : Power) : Ordering :=
+def Power.revlex (p₁ p₂ : Power) : Ordering :=
   p₁.x.revlex p₂.x |>.then (powerRevlex p₁.k p₂.k)
 
 def Mon.revlex' (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
@@ -146,7 +148,7 @@ def Mon.revlex' (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
   | 0 => .lt
   | fuel + 1 =>
     match m₁, m₂ with
-    | .leaf p₁, .leaf p₂ => p₁.revLex p₂
+    | .leaf p₁, .leaf p₂ => p₁.revlex p₂
     | .leaf p₁, .cons p₂ m₂ =>
       bif p₁.x.ble p₂.x  then
         .gt
@@ -166,7 +168,8 @@ def Mon.revlex' (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
         revlex' fuel (.cons p₁ m₁) m₂ |>.then .lt
 
 def Mon.revlex (m₁ m₂ : Mon) : Ordering :=
-  revlex' (m₁.length + m₂.length) m₁ m₂
+  -- We could use `m₁.length + m₂.length` to avoid hugeFuel
+  revlex' hugeFuel m₁ m₂
 
 def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
   compare m₁.degree m₂.degree |>.then (revlex m₁ m₂)

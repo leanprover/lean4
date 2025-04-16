@@ -74,7 +74,6 @@ private theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool)
       apply qpartition_perm
   · simp [qpartition]
 
--- FIXME: moving this higher in the file causes `grind` to fail in `getElem_qsort_sort_mem`??
 grind_pattern Array.Perm.refl => xs ~ xs
 
 grind_pattern qsort_sort_perm => (qsort.sort lt as lo hi hlo hhi).toArray
@@ -97,19 +96,25 @@ private theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (a
     {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
-  -- FIXME: can we do this via `fun_induction`?
-  unfold qsort.sort
-  split
-  · simp only []
-    split <;> rename_i w₁
-    · rw [getElem_qpartition_snd_of_lt_lo] <;> omega
-    · change ¬ (?q : { m // lo ≤ m ∧ m < n } × Vector α n).fst.1 ≥ hi at w₁
-      have := ?q.1.2.1
-      rw [getElem_qsort_sort_of_lt_lo, getElem_qsort_sort_of_lt_lo, getElem_qpartition_snd_of_lt_lo]
-      any_goals grind
-  · rfl
-termination_by hi - lo
-decreasing_by all_goals grind
+  fun_induction qsort.sort
+  case case1 a b =>
+    unfold qsort.sort
+    simp only [dif_pos, *] -- why isn't this handled by grind?
+    have := congrArg (·.2) a -- grind should be able to do this?
+    grind [getElem_qpartition_snd_of_lt_lo]
+  case case2 a b ih1 ih2 ih3 =>
+    unfold qsort.sort
+    simp only [↓reduceDIte, *]
+    have := congrArg (·.2) a
+    -- This should work from here, but we get "failed to create E-match local theorem" issues
+    -- grind [getElem_qpartition_snd_of_lt_lo]
+    dsimp at this
+    subst this
+    rw [ih3, ih2, getElem_qpartition_snd_of_lt_lo]
+    all_goals grind
+  case case3 =>
+    unfold qsort.sort
+    grind
 
 private theorem getElem_qpartition_loop_snd_of_hi_lt {n} (lt : α → α → Bool) (lo hi : Nat)
     (hhi : hi < n) (pivot) (as : Vector α n) (i j) (ilo) (jh) (w : i ≤ j) (w' : lo ≤ hi) (z : i ≤ hi)
@@ -125,19 +130,25 @@ private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (a
     {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
-  -- FIXME: can we do this via `fun_induction`?
-  unfold qsort.sort
-  split
-  · simp only []
-    split <;> rename_i w₁
-    · rw [getElem_qpartition_snd_of_hi_lt] <;> omega
-    · change ¬ (?q : { m // lo ≤ m ∧ m < n } × Vector α n).fst.1 ≥ hi at w₁
-      have := ?q.1.2.1
-      rw [getElem_qsort_sort_of_hi_lt, getElem_qsort_sort_of_hi_lt, getElem_qpartition_snd_of_hi_lt]
-      any_goals grind
-  · rfl
-termination_by hi - lo
-decreasing_by all_goals grind
+  fun_induction qsort.sort
+  case case1 a b =>
+    unfold qsort.sort
+    simp only [dif_pos, *] -- why isn't this handled by grind?
+    have := congrArg (·.2) a -- grind should be able to do this?
+    grind [getElem_qpartition_snd_of_hi_lt]
+  case case2 a b ih1 ih2 ih3 =>
+    unfold qsort.sort
+    simp only [↓reduceDIte, *]
+    have := congrArg (·.2) a
+    -- This should work from here, but we get "failed to create E-match local theorem" issues
+    -- grind [getElem_qpartition_snd_of_hi_lt]
+    dsimp at this
+    subst this
+    rw [ih3, ih2, getElem_qpartition_snd_of_hi_lt]
+    all_goals grind
+  case case3 =>
+    unfold qsort.sort
+    grind
 
 private theorem extract_qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (hlo) (hhi) (w : lo ≤ hi) :
     ((qsort.sort lt as lo hi hlo hhi).extract lo (hi + 1)).toArray ~ (as.extract lo (hi + 1)).toArray := by
@@ -175,17 +186,10 @@ private theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : N
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
-  -- FIXME it would be great to use `fun_induction` here, but the goals explode.
-  unfold qpartition.loop at w_mid w_as
-  subst hpivot
-  split at w_mid <;> rename_i h₁
-  · rw [dif_pos h₁] at w_as
-    split at w_mid <;> rename_i h₂
-    · rw [if_pos h₂] at w_as
-      apply qpartition_loop_spec₁ (w_mid := w_mid) <;> grind
-    · rw [if_neg h₂] at w_as
-      apply qpartition_loop_spec₁ (w_mid := w_mid) <;> grind
-  · grind
+  fun_induction qpartition.loop with unfold qpartition.loop at w_mid w_as
+  | case1
+  | case2 => apply_assumption <;> grind
+  | case3 => grind
 
 private theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
@@ -196,17 +200,10 @@ private theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : N
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → lt as'[i] as'[mid] = false := by
-  -- FIXME it would be great to use `fun_induction` here, but the goals explode.
-  unfold qpartition.loop at w_mid w_as
-  subst hpivot
-  split at w_mid <;> rename_i h₁
-  · rw [dif_pos h₁] at w_as
-    split at w_mid <;> rename_i h₂
-    · rw [if_pos h₂] at w_as
-      apply qpartition_loop_spec₂ (w_mid := w_mid) <;> grind
-    · rw [if_neg h₂] at w_as
-      apply qpartition_loop_spec₂ (w_mid := w_mid) <;> grind
-  · grind
+  fun_induction qpartition.loop with unfold qpartition.loop at w_mid w_as
+  | case1
+  | case2 => apply_assumption <;> grind
+  | case3 => grind
 
 /--
 All elements in the active range before the pivot, are less than the pivot.
@@ -242,12 +239,9 @@ We prove two preliminary lemmas about `qpartition.loop`.
 
 /-- If we already have `i < j`, then we're sure to return something less than `hi`. -/
 private theorem qpartition_loop_lt_hi₁
-    (h : lo < hi) (ilo : lo ≤ i) (jh : j < n) (w : i < j) (z : j ≤ hi) :
-    (qpartition.loop lt lo hi hhi pivot as i j ilo jh (by omega)).1.val < hi := by
-  -- TODO(@nomeata): Can this behaviour of `fun_induction` be improved?
-  -- If we specify fewer arguments (in particular, none), `fun_induction` fails with:
-  -- "could not find suitable call of 'qpartition.loop' in the goal"
-  fun_induction qpartition.loop lt lo hi hhi pivot as i j <;> (unfold qpartition.loop; grind)
+    (h : lo < hi) (ilo : lo ≤ i) (jh : j < n) (w : i < j) (z : j ≤ hi) (h : i ≤ j):
+    (qpartition.loop lt lo hi hhi pivot as i j ilo jh h).1.val < hi := by
+  fun_induction qpartition.loop <;> (unfold qpartition.loop; grind)
 
 /--
 Otherwise, if there is some position `j' ≥ j` which is greater than or equal to the pivot,

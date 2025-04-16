@@ -1144,7 +1144,7 @@ theorem add_ediv {a b c : Int} (h : c ≠ 0) :
   rename_i c
   norm_cast at h
   have : 0 < (c : Int) := by omega
-  simp [sign_natCast_of_nonzero h, add_ediv_of_pos this]
+  simp [sign_natCast_of_ne_zero h, add_ediv_of_pos this]
 
 protected theorem ediv_le_ediv {a b c : Int} (H : 0 < c) (H' : a ≤ b) : a / c ≤ b / c :=
   Int.le_ediv_of_mul_le H (Int.le_trans (Int.ediv_mul_le _ (Int.ne_of_gt H)) H')

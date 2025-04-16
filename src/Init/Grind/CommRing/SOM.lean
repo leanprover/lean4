@@ -143,9 +143,33 @@ def powerRevlex (k₁ k₂ : Nat) : Ordering :=
 def Power.revlex (p₁ p₂ : Power) : Ordering :=
   p₁.x.revlex p₂.x |>.then (powerRevlex p₁.k p₂.k)
 
-def Mon.revlex' (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
+def Mon.revlexWF (m₁ m₂ : Mon) : Ordering :=
+  match m₁, m₂ with
+  | .leaf p₁, .leaf p₂ => p₁.revlex p₂
+  | .leaf p₁, .cons p₂ m₂ =>
+    bif p₁.x.ble p₂.x  then
+      .gt
+    else
+      revlexWF (.leaf p₁) m₂ |>.then .gt
+  | .cons p₁ m₁, .leaf p₂ =>
+    bif p₂.x.ble p₁.x then
+      .lt
+    else
+      revlexWF m₁ (.leaf p₂) |>.then .lt
+  | .cons p₁ m₁, .cons p₂ m₂ =>
+    bif p₁.x == p₂.x then
+      revlexWF m₁ m₂ |>.then (powerRevlex p₁.k p₂.k)
+    else bif p₁.x.blt p₂.x then
+      revlexWF m₁ (.cons p₂ m₂) |>.then .gt
+    else
+      revlexWF (.cons p₁ m₁) m₂ |>.then .lt
+
+def Mon.revlexFuel (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
   match fuel with
-  | 0 => .lt
+  | 0 =>
+    -- This branch is not reachable in practice, but we add it here
+    -- to ensure we can prove helper theorems
+    revlexWF m₁ m₂
   | fuel + 1 =>
     match m₁, m₂ with
     | .leaf p₁, .leaf p₂ => p₁.revlex p₂
@@ -153,23 +177,22 @@ def Mon.revlex' (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
       bif p₁.x.ble p₂.x  then
         .gt
       else
-        revlex' fuel (.leaf p₁) m₂ |>.then .gt
+        revlexFuel fuel (.leaf p₁) m₂ |>.then .gt
     | .cons p₁ m₁, .leaf p₂ =>
       bif p₂.x.ble p₁.x then
         .lt
       else
-        revlex' fuel m₁ (.leaf p₂) |>.then .lt
+        revlexFuel fuel m₁ (.leaf p₂) |>.then .lt
     | .cons p₁ m₁, .cons p₂ m₂ =>
       bif p₁.x == p₂.x then
-        revlex' fuel m₁ m₂ |>.then (powerRevlex p₁.k p₂.k)
+        revlexFuel fuel m₁ m₂ |>.then (powerRevlex p₁.k p₂.k)
       else bif p₁.x.blt p₂.x then
-        revlex' fuel m₁ (.cons p₂ m₂) |>.then .gt
+        revlexFuel fuel m₁ (.cons p₂ m₂) |>.then .gt
       else
-        revlex' fuel (.cons p₁ m₁) m₂ |>.then .lt
+        revlexFuel fuel (.cons p₁ m₁) m₂ |>.then .lt
 
 def Mon.revlex (m₁ m₂ : Mon) : Ordering :=
-  -- We could use `m₁.length + m₂.length` to avoid hugeFuel
-  revlex' hugeFuel m₁ m₂
+  revlexFuel hugeFuel m₁ m₂
 
 def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
   compare m₁.degree m₂.degree |>.then (revlex m₁ m₂)
@@ -188,6 +211,74 @@ def Poly.addConst (p : Poly) (k : Int) : Poly :=
   match p with
   | .num k' => .num (k' + k)
   | .add k' m p => .add k' m (addConst p k)
+
+def Poly.insert (k : Int) (m : Mon) (p : Poly) : Poly :=
+  match p with
+  | .num k' => .add k m (.num k')
+  | .add k' m' p =>
+    match m.grevlex m' with
+    | .eq =>
+      let k'' := k + k'
+      bif k'' == 0 then
+        p
+      else
+        .add k'' m p
+    | .lt => .add k m (.add k' m' p)
+    | .gt => .add k' m' (insert k m p)
+
+def Poly.concat (p₁ p₂ : Poly) : Poly :=
+  match p₁ with
+  | .num k₁ => p₂.addConst k₁
+  | .add k m p₁ => .add k m (concat p₁ p₂)
+
+def Poly.mulConst (k : Int) (p : Poly) : Poly :=
+  bif k == 0 then
+    .num 0
+  else
+    go p
+where
+  go : Poly → Poly
+   | .num k' => .num (k*k')
+   | .add k' m p => .add (k*k') m (go p)
+
+def Poly.mulMon (k : Int) (m : Mon) (p : Poly) : Poly :=
+  bif k == 0 then
+    .num 0
+  else
+    go p
+where
+  go : Poly → Poly
+   | .num k' => .add (k*k') m (.num 0)
+   | .add k' m' p => .add (k*k') (m.mul m') (go p)
+
+def Poly.combine (p₁ p₂ : Poly) : Poly :=
+  go hugeFuel p₁ p₂
+where
+  go (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
+    match fuel with
+    | 0 => p₁.concat p₂
+    | fuel + 1 => match p₁, p₂ with
+      | .num k₁, .num k₂ => .num (k₁ + k₂)
+      | .num k₁, .add k₂ m₂ p₂ => addConst (.add k₂ m₂ p₂) k₁
+      | .add k₁ m₁ p₁, .num k₂ => addConst (.add k₁ m₁ p₁) k₂
+      | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
+        match m₁.grevlex m₂ with
+        | .eq =>
+          let k := k₁ + k₂
+          bif k == 0 then
+            go fuel p₁ p₂
+          else
+            .add k m₁ (go fuel p₁ p₂)
+        | .lt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
+        | .gt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
+
+def Poly.mul (p₁ : Poly) (p₂ : Poly) : Poly :=
+  go p₁ (.num 0)
+where
+  go (p₁ : Poly) (acc : Poly) : Poly :=
+    match p₁ with
+    | .num k => acc.combine (p₂.mulConst k)
+    | .add k m p₁ => go p₁ (acc.combine (p₂.mulMon k m))
 
 theorem Power.denote_eq [CommRing α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
@@ -245,6 +336,112 @@ theorem Mon.denote_mul [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
   next h₁ h₂ _ =>
     have := eq_of_blt_false h₁ h₂
     simp [Power.denote_eq, pow_add, mul_assoc, mul_left_comm, mul_comm, this]
+
+theorem Var.eq_of_revlex {x₁ x₂ : Var} : x₁.revlex x₂ = .eq → x₁ = x₂ := by
+  simp [revlex, cond_eq_if] <;> split <;> simp
+  next h₁ => intro h₂; exact Nat.le_antisymm h₂ (Nat.ge_of_not_lt h₁)
+
+theorem eq_of_powerRevlex {k₁ k₂ : Nat} : powerRevlex k₁ k₂ = .eq → k₁ = k₂ := by
+  simp [powerRevlex, cond_eq_if] <;> split <;> simp
+  next h₁ => intro h₂; exact Nat.le_antisymm h₂ (Nat.ge_of_not_lt h₁)
+
+theorem Power.eq_of_revlex (p₁ p₂ : Power) : p₁.revlex p₂ = .eq → p₁ = p₂ := by
+  cases p₁; cases p₂; simp [revlex, Ordering.then]; split
+  next h₁ => intro h₂; simp [Var.eq_of_revlex h₁, eq_of_powerRevlex h₂]
+  next h₁ => intro h₂; simp [h₂] at h₁
+
+private theorem then_gt (o : Ordering) : ¬ o.then .gt = .eq := by
+  cases o <;> simp [Ordering.then]
+
+private theorem then_lt (o : Ordering) : ¬ o.then .lt = .eq := by
+  cases o <;> simp [Ordering.then]
+
+private theorem then_eq (o₁ o₂ : Ordering) : o₁.then o₂ = .eq ↔ o₁ = .eq ∧ o₂ = .eq := by
+  cases o₁ <;> cases o₂ <;> simp [Ordering.then]
+
+theorem Mon.eq_of_revlexWF {m₁ m₂ : Mon} : m₁.revlexWF m₂ = .eq → m₁ = m₂ := by
+  fun_induction revlexWF <;> simp [revlexWF, *, then_gt, then_lt, then_eq]
+  next => apply Power.eq_of_revlex
+  next p₁ m₁ p₂ m₂ h ih =>
+    cases p₁; cases p₂; intro h₁ h₂; simp [ih h₁, h]
+    simp at h h₂
+    simp [h, eq_of_powerRevlex h₂]
+
+theorem Mon.eq_of_revlexFuel {fuel : Nat} {m₁ m₂ : Mon} : revlexFuel fuel m₁ m₂ = .eq → m₁ = m₂ := by
+  fun_induction revlexFuel <;> simp [revlexFuel, *, then_gt, then_lt, then_eq]
+  next => apply eq_of_revlexWF
+  next => apply Power.eq_of_revlex
+  next p₁ m₁ p₂ m₂ h ih =>
+    cases p₁; cases p₂; intro h₁ h₂; simp [ih h₁, h]
+    simp at h h₂
+    simp [h, eq_of_powerRevlex h₂]
+
+theorem Mon.eq_of_revlex {m₁ m₂ : Mon} : revlex m₁ m₂ = .eq → m₁ = m₂ := by
+  apply eq_of_revlexFuel
+
+theorem Mon.eq_of_grevlex {m₁ m₂ : Mon} : grevlex m₁ m₂ = .eq → m₁ = m₂ := by
+  simp [grevlex, then_eq]; intro; apply eq_of_revlex
+
+theorem Poly.denote_addConst [CommRing α] (ctx : Context α) (p : Poly) (k : Int) : (addConst p k).denote ctx = p.denote ctx + k := by
+  fun_induction addConst <;> simp [addConst, denote, *]
+  next => rw [intCast_add]
+  next => simp [add_comm, add_left_comm, add_assoc]
+
+theorem Poly.denote_insert [CommRing α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
+    : (insert k m p).denote ctx = k * m.denote ctx + p.denote ctx := by
+  fun_induction insert <;> simp_all +zetaDelta [insert, denote, cond_eq_if]
+  next h₁ _ h₂ =>
+    rw [← add_assoc, Mon.eq_of_grevlex h₁, ← right_distrib, ← intCast_add, h₂, intCast_zero, zero_mul, zero_add]
+  next h₁ _ _ =>
+    rw [intCast_add, right_distrib, add_assoc, Mon.eq_of_grevlex h₁]
+  next =>
+    rw [add_left_comm]
+
+theorem Poly.denote_concat [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
+    : (concat p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  fun_induction concat <;> simp [concat, *, denote_addConst, denote]
+  next => rw [add_comm]
+  next => rw [add_assoc]
+
+theorem Poly.denote_mulConst [CommRing α] (ctx : Context α) (k : Int) (p : Poly)
+    : (mulConst k p).denote ctx = k * p.denote ctx := by
+  simp [mulConst, cond_eq_if] <;> split
+  next => simp [denote, *, intCast_zero, zero_mul]
+  next =>
+    fun_induction mulConst.go <;> simp [mulConst.go, denote, *]
+    next => rw [intCast_mul]
+    next => rw [intCast_mul, left_distrib, mul_assoc]
+
+theorem Poly.denote_mulMon [CommRing α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
+    : (mulMon k m p).denote ctx = k * m.denote ctx * p.denote ctx := by
+  simp [mulMon, cond_eq_if] <;> split
+  next => simp [denote, *, intCast_zero, zero_mul]
+  next =>
+    fun_induction mulMon.go <;> simp [mulMon.go, denote, *]
+    next => simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
+    next => simp [Mon.denote_mul, intCast_mul, left_distrib, mul_comm, mul_left_comm, mul_assoc]
+
+theorem Poly.denote_combine [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
+    : (combine p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  unfold combine; generalize hugeFuel = fuel
+  fun_induction combine.go
+    <;> simp [combine.go, *, denote_concat, denote_addConst, denote, intCast_add, cond_eq_if, add_comm, add_left_comm, add_assoc]
+  next hg _ h _ =>
+    simp +zetaDelta at h; simp [*]
+    rw [← add_assoc, Mon.eq_of_grevlex hg, ← right_distrib, ← intCast_add, h, intCast_zero, zero_mul, zero_add]
+  next hg _ h _ =>
+    simp +zetaDelta at h; simp [*, denote, intCast_add]
+    rw [right_distrib, Mon.eq_of_grevlex hg, add_assoc]
+
+theorem Poly.denote_mul_go [CommRing α] (ctx : Context α) (p₁ p₂ acc : Poly)
+    : (mul.go p₂ p₁ acc).denote ctx = acc.denote ctx + p₁.denote ctx * p₂.denote ctx := by
+  fun_induction mul.go
+    <;> simp [mul.go, denote_combine, denote_mulConst, denote, *, right_distrib, denote_mulMon, add_assoc]
+
+theorem Poly.denote_mul [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
+    : (mul p₁ p₂).denote ctx = p₁.denote ctx * p₂.denote ctx := by
+  simp [mul, denote_mul_go, denote, intCast_zero, zero_add]
+
 
 end CommRing
 end Lean.Grind

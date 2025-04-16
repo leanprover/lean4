@@ -259,6 +259,8 @@ theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.le
     · match i, h with
       | i + 1, h => simp [getElem?_eq_some_iff, Nat.succ_lt_succ_iff]
 
+theorem getElem_of_getElem? {l : List α} : l[i]? = some a → ∃ h : i < l.length, l[i] = a := getElem?_eq_some_iff.mp
+
 theorem some_eq_getElem?_iff {l : List α} : some a = l[i]? ↔ ∃ h : i < l.length, l[i] = a := by
   rw [eq_comm, getElem?_eq_some_iff]
 
@@ -711,8 +713,8 @@ theorem set_set (a : α) {b : α} : ∀ {l : List α} {i : Nat}, (l.set i a).set
 
 theorem mem_set {l : List α} {i : Nat} (h : i < l.length) (a : α) :
     a ∈ l.set i a := by
-  simp [mem_iff_getElem]
-  exact ⟨i, (by simpa using h), by simp⟩
+  simp only [mem_iff_getElem]
+  exact ⟨i, by simpa using h, by simp⟩
 
 theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.set i b → a ∈ l ∨ a = b
   | _ :: _, 0, _, _, h => ((mem_cons ..).1 h).symm.imp_left (.tail _)
@@ -827,9 +829,15 @@ theorem getElem_length_sub_one_eq_getLast {l : List α} (h : l.length - 1 < l.le
     l[l.length - 1] = getLast l (by cases l; simp at h; simp) := by
   rw [← getLast_eq_getElem]
 
+@[simp] theorem getLast_cons_cons {a : α} {l : List α} :
+    getLast (a :: b :: l) (by simp) = getLast (b :: l) (by simp) := by
+  rfl
+
 theorem getLast_cons {a : α} {l : List α} : ∀ (h : l ≠ nil),
     getLast (a :: l) (cons_ne_nil a l) = getLast l h := by
-  induction l <;> intros; {contradiction}; rfl
+  induction l <;> intros
+  · contradiction
+  · rfl
 
 theorem getLast_eq_getLastD {a l} (h) : @getLast α (a::l) h = getLastD l a := by
   cases l <;> rfl
@@ -1296,7 +1304,7 @@ abbrev filter_length_eq_length := @length_filter_eq_length_iff
 
 @[simp] theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with
-  | nil => simp [filter]
+  | nil => simp
   | cons a as ih =>
     by_cases h : p a
     · simp_all [or_and_left]
@@ -1362,12 +1370,9 @@ theorem filter_eq_cons_iff {l} {a} {as} :
       split at h <;> rename_i w
       · simp only [cons.injEq] at h
         obtain ⟨rfl, rfl⟩ := h
-        refine ⟨[], l, ?_⟩
-        simp [w]
-      · specialize ih h
-        obtain ⟨l₁, l₂, rfl, w₁, w₂, w₃⟩ := ih
-        refine ⟨x :: l₁, l₂, ?_⟩
-        simp_all
+        exact ⟨[], l, by simp [w]⟩
+      · obtain ⟨l₁, l₂, rfl, w₁, w₂, w₃⟩ := ih h
+        exact ⟨x :: l₁, l₂, by simp_all⟩
   · rintro ⟨l₁, l₂, rfl, h₁, h, h₂⟩
     simp [h₂, filter_cons, filter_eq_nil_iff.mpr h₁, h]
 
@@ -2046,7 +2051,7 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
   | _, [] => by simp_all
   | [], _ :: _ => by simp_all
   | _ :: _, _ :: _ => by
-    simp
+    simp only [cons.injEq, flatten_cons, map_cons]
     rw [eq_iff_flatten_eq]
     constructor
     · rintro ⟨rfl, h₁, h₂⟩
@@ -2709,12 +2714,12 @@ theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
-  induction l generalizing init <;> simp [*, H]
+  induction l generalizing init <;> simp [*]
 
 -- The argument `f : β₁ → β₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldr_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : α → β₂ → β₂} {l : List α} {init : β₁}
     (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
-  induction l <;> simp [*, H]
+  induction l <;> simp [*]
 
 /--
 A reasoning principle for proving propositions about the result of `List.foldl` by establishing an
@@ -3259,6 +3264,10 @@ theorem eq_or_mem_of_mem_insert {l : List α} (h : a ∈ l.insert b) : a = b ∨
 
 @[simp] theorem length_insert_of_not_mem {l : List α} (h : a ∉ l) :
     length (l.insert a) = length l + 1 := by rw [insert_of_not_mem h]; rfl
+
+theorem length_insert {l : List α} :
+    (l.insert a).length = l.length + if a ∈ l then 0 else 1 := by
+  split <;> simp_all
 
 theorem length_le_length_insert {l : List α} {a : α} : l.length ≤ (l.insert a).length := by
   by_cases h : a ∈ l

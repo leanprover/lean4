@@ -135,6 +135,9 @@ theorem getElem?_eq_none {xs : Array α} (h : xs.size ≤ i) : xs[i]? = none := 
 theorem getElem?_eq_some_iff {xs : Array α} : xs[i]? = some b ↔ ∃ h : i < xs.size, xs[i] = b := by
   simp [getElem?_def]
 
+theorem getElem_of_getElem? {xs : Array α} : xs[i]? = some a → ∃ h : i < xs.size, xs[i] = a :=
+  getElem?_eq_some_iff.mp
+
 theorem some_eq_getElem?_iff {xs : Array α} : some b = xs[i]? ↔ ∃ h : i < xs.size, xs[i] = b := by
   rw [eq_comm, getElem?_eq_some_iff]
 

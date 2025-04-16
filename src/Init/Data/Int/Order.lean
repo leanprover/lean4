@@ -1185,16 +1185,20 @@ theorem sign_neg_one : sign (-1) = -1 := rfl
 theorem natAbs_sign (z : Int) : z.sign.natAbs = if z = 0 then 0 else 1 :=
   match z with | 0 | succ _ | -[_+1] => rfl
 
-theorem natAbs_sign_of_nonzero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 := by
+theorem natAbs_sign_of_ne_zero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 := by
   rw [Int.natAbs_sign, if_neg hz]
 
-theorem sign_natCast_of_nonzero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
+@[deprecated natAbs_sign_of_nonzero (since := "2025-04-16")]
+theorem natAbs_sign_of_nonzero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 :=
+  natAbs_sign_of_ne_zero hz
+
+theorem sign_natCast_of_ne_zero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
   match n, Nat.exists_eq_succ_of_ne_zero hn with
   | _, ⟨n, rfl⟩ => Int.sign_of_add_one n
 
-@[deprecated sign_natCast_of_nonzero (since := "2025-04-16")]
+@[deprecated sign_natCast_of_ne_zero (since := "2025-04-16")]
 theorem sign_ofNat_of_nonzero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
-  sign_natCast_of_nonzero hn
+  sign_natCast_of_ne_zero hn
 
 @[simp] theorem sign_neg (z : Int) : Int.sign (-z) = -Int.sign z := by
   match z with | 0 | succ _ | -[_+1] => rfl

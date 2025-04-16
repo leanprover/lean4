@@ -6,7 +6,7 @@ example {l : List α} {f : β → α → β} {b : β} :
   grind [List.foldr_reverse]
 
 /-
-The following example does work yet. `grind` doesn't have a mechanism
+The following example doesn't work yet. `grind` doesn't have a mechanism
 for inferring that `fun x y => g y x` is equal to `f` given
 the equality `g = (f x y => f y x)`
 -/

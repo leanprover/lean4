@@ -50,6 +50,14 @@ instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
 @[inline] def setTrace (trace : BuildTrace) : JobM PUnit :=
   modify fun s => {s with trace := trace}
 
+/-- Set the caption of the job's build trace. -/
+@[inline] def setTraceCaption (caption : String) : JobM PUnit :=
+  modify fun s => {s with trace.caption := caption}
+
+/-- Replace the job's build trace with a new empty trace. -/
+@[inline] def newTrace (caption := "<nil>") : JobM PUnit :=
+  modify fun s => {s with trace := .nil caption}
+
 /-- Mix a trace into the current job's build trace. -/
 @[inline] def addTrace (trace : BuildTrace) : JobM PUnit :=
   modify fun s => {s with trace := s.trace.mix trace}
@@ -65,6 +73,9 @@ abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO
   return .ok (← x fn stack store ctx s.trace) s
 
 instance : MonadLift SpawnM JobM := ⟨JobM.runSpawnM⟩
+
+/-- Ensures that `SpawnM` lifts into `JobM`. -/
+example : MonadLiftT SpawnM JobM := inferInstance
 
 /--
 Run a `JobM` action in `FetchM`.
@@ -95,9 +106,6 @@ instance : MonadLift FetchM JobM := ⟨JobM.runFetchM⟩
 
 /-- Ensures that `FetchM` lifts into `JobM`. -/
 example : MonadLiftT FetchM JobM := inferInstance
-
-/-- Ensures that `FetchM` lifts into `SpawnM`. -/
-example : MonadLiftT SpawnM FetchM := inferInstance
 
 namespace Job
 
@@ -214,20 +222,20 @@ def mix (self : Job α) (other : Job β) : Job Unit :=
   self.zipWith (fun _ _ => ()) other
 
 /-- Merge a `List` of jobs into one, discarding their outputs. -/
-def mixList (jobs : List (Job α)) : Job Unit :=
-  jobs.foldr (·.mix ·) nil
+def mixList (jobs : List (Job α)) (traceCaption := "<collection>")  : Job Unit :=
+  jobs.foldr (·.mix ·) (traceRoot () traceCaption)
 
 /-- Merge an `Array` of jobs into one, discarding their outputs. -/
-def mixArray (jobs : Array (Job α)) : Job Unit :=
-  jobs.foldl (·.mix ·) nil
+def mixArray (jobs : Array (Job α)) (traceCaption := "<collection>")  : Job Unit :=
+  jobs.foldl (·.mix ·) (traceRoot () traceCaption)
 
 /-- Merge a `List` of jobs into one, collecting their outputs into a `List`. -/
-def collectList (jobs : List (Job α)) : Job (List α) :=
-  jobs.foldr (zipWith List.cons) (.pure [])
+def collectList (jobs : List (Job α)) (traceCaption := "<collection>") : Job (List α) :=
+  jobs.foldr (zipWith List.cons) (traceRoot [] traceCaption)
 
 /-- Merge an `Array` of jobs into one, collecting their outputs into an `Array`. -/
-def collectArray (jobs : Array (Job α)) : Job (Array α) :=
-  jobs.foldl (zipWith Array.push) (.pure (Array.mkEmpty jobs.size))
+def collectArray (jobs : Array (Job α)) (traceCaption := "<collection>") : Job (Array α) :=
+  jobs.foldl (zipWith Array.push) (traceRoot (Array.mkEmpty jobs.size) traceCaption)
 
 end Job
 

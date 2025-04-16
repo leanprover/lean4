@@ -34,6 +34,8 @@ attribute [grind] Vector.getElem_swap_left Vector.getElem_swap_right
 attribute [grind] Vector.getElem_swap_of_ne
 attribute [grind] Vector.getElem?_eq_none Vector.getElem?_eq_getElem
 attribute [grind] Vector.getElem?_toArray
+grind_pattern Array.Perm.refl => xs ~ xs
+
 
 @[simp, grind] theorem size_qsort (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
     (qsort as lt lo hi).size = as.size := by
@@ -73,8 +75,6 @@ private theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool)
       refine Perm.trans (qsort_sort_perm ..) ?_
       apply qpartition_perm
   · simp [qpartition]
-
-grind_pattern Array.Perm.refl => xs ~ xs
 
 grind_pattern qsort_sort_perm => (qsort.sort lt as lo hi hlo hhi).toArray
 
@@ -185,7 +185,7 @@ private theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : N
     (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).fst.1)
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
-    ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
+    ∀ k, (h₁ : lo ≤ k) → (h₂ : k < mid) → lt as'[k] as'[mid] := by
   fun_induction qpartition.loop with unfold qpartition.loop at w_mid w_as
   | case1
   | case2 => apply_assumption <;> grind
@@ -199,7 +199,7 @@ private theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : N
     (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).fst.1)
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
-    ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → lt as'[i] as'[mid] = false := by
+    ∀ k, (h₁ : mid < k) → (h₂ : k ≤ hi) → lt as'[k] as'[mid] = false := by
   fun_induction qpartition.loop with unfold qpartition.loop at w_mid w_as
   | case1
   | case2 => apply_assumption <;> grind
@@ -255,8 +255,7 @@ private theorem qpartition_loop_lt_hi₂
   | case1 as i j iloi jh w h' h ih =>
     unfold qpartition.loop
     simp [h, h']
-    -- FIXME Why can't `grind` do this?
-    apply ih <;> grind
+    apply ih <;> grind -- It would be nice if a more aggressive mode in `grind` would do this.
   | case2 as i j ilo jh w h' h ih  =>
     unfold qpartition.loop
     grind [qpartition_loop_lt_hi₁]
@@ -265,11 +264,10 @@ private theorem qpartition_loop_lt_hi₂
     grind
 
 /-- The only way `qpartition` returns a pivot position `≥ hi` is if `hi ≤ lo`. -/
-private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
+private theorem qpartition_fst_lt_hi {n} (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
     (as : Vector α n) (w : lo < hi) : (qpartition as lt lo hi hlo hhi).fst.1 < hi := by
-  unfold qpartition
   apply qpartition_loop_lt_hi₂ w
   · grind
   · exact ⟨(lo + hi)/2, by grind⟩
@@ -281,47 +279,73 @@ private theorem qsort_sort_spec {n}
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as' : Vector α n) (w_as : as' = qsort.sort lt as lo hi hlo hhi) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < hi) → ¬ lt as'[i + 1] as'[i] := by
-  -- FIXME attempt `fun_induction`?
   unfold qsort.sort at w_as
   split at w_as <;> rename_i w₁
-  · intro i h₁ h₂
+  · -- The interesting case, where `lo < hi`.
+    intro i h₁ h₂
+    -- Decompose `qpartition as lt lo hi hlo hhi` into `mid` (the pivot) and `as'` (the partitioned array).
     split at w_as <;> rename_i mid hmid as' w₂
     split at w_as <;> rename_i w₃
-    · simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
+    · -- If the pivot was at least `hi`, then we get a contradiction from `lo < hi`.
+      simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
       obtain ⟨rfl, rfl⟩ := w₂
-      have := hi_le_lo_of_hi_le_qpartition_fst lt lt_asymm lo hi hlo hhi as w₁
+      have := qpartition_fst_lt_hi lt lt_asymm lo hi hlo hhi as w₁
       grind
-    · subst w_as
+    · -- Now we know `lo ≤ mid < hi`.
+      subst w_as
       if p₁ : i < mid then
+        -- If `i < mid`, then the second stage of sorting is only
+        -- moving elements above where we're looking.
         rw [getElem_qsort_sort_of_lt_lo (i := i)]
         rw [getElem_qsort_sort_of_lt_lo (i := i + 1)]
+        -- And so we can appply the theorem recursively replacing `hi` with `mid`.
         apply qsort_sort_spec lt lt_asymm le_trans as' lo mid
         all_goals grind
       else
         replace p₁ : mid ≤ i := by omega
+        -- If `mid ≤ i`, we need to consider two cases.
         if p₃ : mid = i then
+          -- The tricky case, where `mid = i`.
           subst i
+          -- On the right hand side, the index is below the range where the second stage of sorting is happening,
+          -- so we can drop that sort.
           rw [getElem_qsort_sort_of_lt_lo (i := mid)]
+          -- The `mid` element of `qsort.sort lt as' lo mid hlo ⋯`
+          -- is *some* element `lo + k` of `as'` in the range `lo ≤ lo + k ≤ mid`.
           have z := getElem_qsort_sort_mem lt as' lo mid ?_ ?_ mid ?_ ?_ ?_
           rw [Vector.mem_extract_iff_getElem] at z
           obtain ⟨k, hk, z⟩ := z
           rw [← z]
           clear z
+          -- Similarly, the `mid + 1` element on the left hand side
+          -- is some element `mid + 1 + k'` of `qsort.sort lt as' lo mid hlo ⋯`
+          -- in the range `mid + 1 ≤ mid + 1 + k' ≤ hi`
           have z := getElem_qsort_sort_mem lt (qsort.sort lt as' lo mid ?_ ?_) (mid + 1) hi ?_ ?_ (mid + 1) ?_ ?_ ?_
           rw [Vector.mem_extract_iff_getElem] at z
           obtain ⟨k', hk', z⟩ := z
           rw [← z]
           clear z
+          -- And then the first stage sort on the left hand side can't have any effect,
+          -- as it only moves elements between `lo` and `mid` inclusive.
           rw [getElem_qsort_sort_of_hi_lt]
           · by_cases p : lo + k = mid
-            · grind [qpartition_spec₂]
-            · apply le_trans (b := as'[mid])
+            · -- Now if `lo + k = mid`,
+              -- the element `as'[mid + 1 + k']` is in the top part of the partitioned array,
+              -- and `as[lo + k]` is the pivot, so we get the inequality from the specification of `qpartition`.
+              grind [qpartition_spec₂]
+            · -- Otherwise, we use transitivity:
+              -- `as[lo + k']` is in the bottom part, so is strictly less than the pivot,
+              -- while `as'[mid + 1 + k']` is in the top, so greater than or equal to the pivot.
+              apply le_trans (b := as'[mid])
               · grind [qpartition_spec₁]
               · grind [qpartition_spec₂]
           all_goals omega
         else
+          -- If `i < mid`, we can apply the theorem recursively replacing
+          -- `as` with `qsort.sort lt as' lo mid hlo ⋯` and `lo` with `mid + 1`.
           apply qsort_sort_spec lt lt_asymm le_trans _ _ _ (w_as := rfl) <;> omega
-  · grind
+  · -- Just an arithmetical contradiction.
+    grind
 
 /--
 The slice of `as.qsort lt lo hi` from `lo` to `hi` (inclusive) is sorted.

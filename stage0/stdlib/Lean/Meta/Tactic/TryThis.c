@@ -580,7 +580,7 @@ static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Tactic_TryThis_try
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lambda__2___closed__81;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Tactic_TryThis_tryThisProvider___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__1;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lambda__2___closed__25;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__15;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addExactSuggestions___closed__1;
@@ -606,7 +606,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_tryThisWidget___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nimport * as React from 'react';\nimport { EditorContext } from '@leanprover/infoview';\nconst e = React.createElement;\nexport default function ({ pos, suggestions, range, header, isInline, style }) {\n  const editorConnection = React.useContext(EditorContext)\n  const defStyle = style || {\n    className: 'link pointer dim',\n    style: { color: 'var(--vscode-textLink-foreground)' }\n  }\n\n  // Construct the children of the HTML element for a given suggestion.\n  function makeSuggestion({ suggestion, preInfo, postInfo, style }) {\n    function onClick() {\n      editorConnection.api.applyEdit({\n        changes: { [pos.uri]: [{ range, newText: suggestion }] }\n      })\n    }\n    return [\n      preInfo,\n      e('span', { onClick, title: 'Apply suggestion', ...style || defStyle }, suggestion),\n      postInfo\n    ]\n  }\n\n  // Choose between an inline 'Try this'-like display and a list-based 'Try these'-like display.\n  let inner = null\n  if (isInline) {\n    inner = e('div', { className: 'ml1' },\n      e('pre', { className: 'font-code pre-wrap' }, header, makeSuggestion(suggestions[0])))\n  } else {\n    inner = e('div', { className: 'ml1' },\n      e('pre', { className: 'font-code pre-wrap' }, header),\n      e('ul', { style: { paddingInlineStart: '20px' } }, suggestions.map(s =>\n        e('li', { className: 'font-code pre-wrap' }, makeSuggestion(s)))))\n  }\n  return e('details', { open: true },\n    e('summary', { className: 'mv2 pointer' }, 'Suggestions'),\n    inner)\n}", 1472, 1472);
+x_1 = lean_mk_string_unchecked("\nimport * as React from 'react';\nimport { EditorContext, EnvPosContext } from '@leanprover/infoview';\nconst e = React.createElement;\nexport default function ({ suggestions, range, header, isInline, style }) {\n  const pos = React.useContext(EnvPosContext)\n  const editorConnection = React.useContext(EditorContext)\n  const defStyle = style || {\n    className: 'link pointer dim',\n    style: { color: 'var(--vscode-textLink-foreground)' }\n  }\n\n  // Construct the children of the HTML element for a given suggestion.\n  function makeSuggestion({ suggestion, preInfo, postInfo, style }) {\n    function onClick() {\n      editorConnection.api.applyEdit({\n        changes: { [pos.uri]: [{ range, newText: suggestion }] }\n      })\n    }\n    return [\n      preInfo,\n      e('span', { onClick, title: 'Apply suggestion', ...style || defStyle }, suggestion),\n      postInfo\n    ]\n  }\n\n  // Choose between an inline 'Try this'-like display and a list-based 'Try these'-like display.\n  let inner = null\n  if (isInline) {\n    inner = e('div', { className: 'ml1' },\n      e('pre', { className: 'font-code pre-wrap' }, header, makeSuggestion(suggestions[0])))\n  } else {\n    inner = e('div', { className: 'ml1' },\n      e('pre', { className: 'font-code pre-wrap' }, header),\n      e('ul', { style: { paddingInlineStart: '20px' } }, suggestions.map(s =>\n        e('li', { className: 'font-code pre-wrap' }, makeSuggestion(s)))))\n  }\n  return e('details', { open: true },\n    e('summary', { className: 'mv2 pointer' }, 'Suggestions'),\n    inner)\n}", 1528, 1528);
 return x_1;
 }
 }
@@ -1332,7 +1332,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 lean_dec(x_18);
-x_20 = lean_ctor_get(x_19, 2);
+x_20 = lean_ctor_get(x_19, 3);
 lean_inc(x_20);
 lean_dec(x_19);
 x_21 = l_Lean_FileMap_utf8RangeToLspRange(x_20, x_17);
@@ -12240,7 +12240,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

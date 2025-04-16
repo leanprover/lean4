@@ -794,7 +794,7 @@ static uint8_t l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___at_Lake__
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_InputDirConfig_toToml___spec__4(lean_object*, size_t, size_t, lean_object*);
 extern lean_object* l_Lake_defaultLeanLibDir;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_PattternDescr_toToml_x3f___spec__4___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Toml______macroRules__Lake__commandGen__toml__encoders_x25__1___closed__9;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake___aux__Lake__CLI__Translate__Toml______macroRules__Lake__commandGen__toml__encoders_x25__1___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_PackageConfig_toToml___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3944,7 +3944,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

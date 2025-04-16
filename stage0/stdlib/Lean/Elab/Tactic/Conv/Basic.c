@@ -427,7 +427,7 @@ static lean_object* l_Lean_Elab_Tactic_Conv_evalConvSeqBracketed___lambda__2___c
 static lean_object* l_Lean_Elab_Tactic_Conv_evalConv___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalNestedTactic___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_inferInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalFirst__1___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalConvSeqBracketed__1___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalNestedConv_declRange__1___closed__6;
@@ -8430,7 +8430,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

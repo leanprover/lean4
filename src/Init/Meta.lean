@@ -275,6 +275,14 @@ class MonadNameGenerator (m : Type → Type) where
 
 export MonadNameGenerator (getNGen setNGen)
 
+/--
+Creates a globally unique `Name`, without any semantic interpretation.
+The names are not intended to be user-visible.
+With the default name generator, names use `_uniq` as a base and have a numeric suffix.
+
+This is used for example by `Lean.mkFreshFVarId`, `Lean.mkFreshMVarId`, and `Lean.mkFreshLMVarId`.
+To create fresh user-visible identifiers, use functions such as `Lean.Core.mkFreshUserName` instead.
+-/
 def mkFreshId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m Name := do
   let ngen ← getNGen
   let r := ngen.curr

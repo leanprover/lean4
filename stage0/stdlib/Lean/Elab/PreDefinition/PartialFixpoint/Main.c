@@ -360,7 +360,7 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_2935____closed__2;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__11___boxed(lean_object**);
 static lean_object* l_Lean_Elab_partialFixpoint___closed__5;
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
@@ -417,7 +417,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -1261,7 +1261,7 @@ return x_52;
 block_42:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_14 = lean_mk_empty_array_with_capacity(x_1);
 x_15 = lean_unsigned_to_nat(0u);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -7186,7 +7186,7 @@ _start:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_22 = lean_array_get_size(x_1);
-x_23 = l_Array_emptyWithCapacity(lean_box(0), x_22);
+x_23 = lean_mk_empty_array_with_capacity(x_22);
 x_24 = lean_unsigned_to_nat(0u);
 lean_inc(x_20);
 lean_inc(x_19);
@@ -7991,7 +7991,7 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = l_Array_emptyWithCapacity(lean_box(0), x_9);
+x_16 = lean_mk_empty_array_with_capacity(x_9);
 lean_inc(x_7);
 lean_inc(x_5);
 lean_inc(x_4);

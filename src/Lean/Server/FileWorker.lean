@@ -207,7 +207,7 @@ This option can only be set on the command line, not in the lakefile or via `set
       stickyInteractiveDiagnostics ++ docInteractiveDiagnostics
       |>.map (·.toDiagnostic)
     let notification := mkPublishDiagnosticsNotification doc.meta diagnostics
-    ctx.chanOut.send notification
+    ctx.chanOut.sync.send notification
 
   open Language in
   /--
@@ -239,7 +239,7 @@ This option can only be set on the command line, not in the lakefile or via `set
         publishDiagnostics ctx doc
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
-      ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
+      ctx.chanOut.sync.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
       return ()
   where
     /--
@@ -312,7 +312,7 @@ This option can only be set on the command line, not in the lakefile or via `set
       if let some itree := node.element.infoTree? then
         let mut newInfoTrees := (← get).newInfoTrees.push itree
         if (← get).hasBlocked then
-          ctx.chanOut.send (← mkIleanInfoUpdateNotification doc.meta newInfoTrees)
+          ctx.chanOut.sync.send (← mkIleanInfoUpdateNotification doc.meta newInfoTrees)
           newInfoTrees := #[]
         modify fun st => { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
 
@@ -329,7 +329,7 @@ This option can only be set on the command line, not in the lakefile or via `set
         | none => rs.push r
       let ranges := ranges.map (·.toLspRange doc.meta.text)
       let notifs := ranges.map ({ range := ·, kind := .processing })
-      ctx.chanOut.send <| mkFileProgressNotification doc.meta notifs
+      ctx.chanOut.sync.send <| mkFileProgressNotification doc.meta notifs
 
 end Elab
 
@@ -389,9 +389,9 @@ def setupImports
       severity?  := DiagnosticSeverity.information
       message    := stderrLine
     }
-    chanOut.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
+    chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
   -- clear progress notifications in the end
-  chanOut.send <| mkPublishDiagnosticsNotification meta #[]
+  chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[]
   match fileSetupResult.kind with
   | .importsOutOfDate =>
     return .error {
@@ -412,6 +412,8 @@ def setupImports
 
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
+
+  let opts := Elab.inServer.set opts true
 
   return .ok {
     mainModuleName := meta.mod
@@ -523,7 +525,7 @@ section ServerRequests
       (freshRequestId, freshRequestId + 1)
     let responseTask ← ctx.initPendingServerRequest responseType freshRequestId
     let r : JsonRpc.Request paramType := ⟨freshRequestId, method, param⟩
-    ctx.chanOut.send r
+    ctx.chanOut.sync.send r
     return responseTask
 
   def sendUntypedServerRequest
@@ -677,7 +679,7 @@ section MessageHandling
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
       let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
+      ctx.chanOut.sync.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
     | some task => ServerTask.IO.mapTaskCostly (t := task) fun (result : Except Error AvailableImportsCache) => do
@@ -687,7 +689,7 @@ section MessageHandling
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
       let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
+      ctx.chanOut.sync.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
   def handleStatefulPreRequestSpecialCases (id : RequestID) (method : String) (params : Json) : WorkerM Bool := do
@@ -699,7 +701,7 @@ section MessageHandling
       | "$/lean/rpc/connect" =>
         let ps ← parseParams RpcConnectParams params
         let resp ← handleRpcConnect ps
-        ctx.chanOut.send <| .response id (toJson resp)
+        ctx.chanOut.sync.send <| .response id (toJson resp)
         return true
       | "textDocument/completion" =>
         let params ← parseParams CompletionParams params
@@ -712,7 +714,7 @@ section MessageHandling
       | _ =>
         return false
     catch e =>
-      ctx.chanOut.send <| .responseError id .internalError (toString e) none
+      ctx.chanOut.sync.send <| .responseError id .internalError (toString e) none
       return true
 
   open Widget RequestM Language in
@@ -834,7 +836,7 @@ section MessageHandling
           emitResponse ctx (isComplete := false) <| e.toLspResponseError id
   where
     emitResponse (ctx : WorkerContext) (m : JsonRpc.Message) (isComplete : Bool) : IO Unit := do
-      ctx.chanOut.send m
+      ctx.chanOut.sync.send m
       let timestamp ← IO.monoMsNow
       ctx.modifyPartialHandler method fun h => { h with
         requestsInFlight := h.requestsInFlight - 1

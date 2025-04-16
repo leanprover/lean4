@@ -68,6 +68,8 @@ structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Fu
   /-- The naturality square for a given morphism. -/
   naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by grind
 
+attribute [grind ext] NatTrans.ext
+
 attribute [simp, grind =] NatTrans.naturality
 
 namespace NatTrans

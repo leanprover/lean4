@@ -665,7 +665,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_elabSetOption_declRange__1_
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_elabInitQuot__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_filterFieldList___at_Lean_Elab_Command_elabExport___spec__11___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabCheck_declRange__1___closed__6;
-lean_object* l_Lean_MapDeclarationExtension_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MapDeclarationExtension_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_Command_elabWhere_describeOpenDecls___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_replaceBinderAnnotation___lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_elabAddDeclDoc_declRange__1(lean_object*);
@@ -1205,7 +1205,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_elabNonComputableSection_de
 uint8_t l_Lean_Expr_isSyntheticSorry(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Command_elabVariable___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabOpen___lambda__1(lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_OpenDecl_elabOpenDecl___at_Lean_Elab_Command_elabOpen___spec__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at_Lean_Elab_Command_elabOpen___spec__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Elab_Command_elabOmit___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12468,7 +12468,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -29078,35 +29078,37 @@ x_5 = lean_st_ref_get(x_3, x_4);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
 x_7 = lean_ctor_get(x_5, 0);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = l_Lean_instInhabitedDeclarationRanges;
 x_10 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_Elab_Command_elabAddDeclDoc___spec__1___closed__1;
-x_11 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_9, x_10, x_8, x_1);
-lean_ctor_set(x_5, 0, x_11);
+x_11 = 0;
+x_12 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_9, x_10, x_8, x_1, x_11);
+lean_ctor_set(x_5, 0, x_12);
 return x_5;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_12 = lean_ctor_get(x_5, 0);
-x_13 = lean_ctor_get(x_5, 1);
-lean_inc(x_13);
-lean_inc(x_12);
-lean_dec(x_5);
-x_14 = lean_ctor_get(x_12, 0);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; 
+x_13 = lean_ctor_get(x_5, 0);
+x_14 = lean_ctor_get(x_5, 1);
 lean_inc(x_14);
-lean_dec(x_12);
-x_15 = l_Lean_instInhabitedDeclarationRanges;
-x_16 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_Elab_Command_elabAddDeclDoc___spec__1___closed__1;
-x_17 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_15, x_16, x_14, x_1);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_13);
-return x_18;
+lean_inc(x_13);
+lean_dec(x_5);
+x_15 = lean_ctor_get(x_13, 0);
+lean_inc(x_15);
+lean_dec(x_13);
+x_16 = l_Lean_instInhabitedDeclarationRanges;
+x_17 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_Elab_Command_elabAddDeclDoc___spec__1___closed__1;
+x_18 = 0;
+x_19 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_16, x_17, x_15, x_1, x_18);
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_19);
+lean_ctor_set(x_20, 1, x_14);
+return x_20;
 }
 }
 }

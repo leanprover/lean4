@@ -59,6 +59,9 @@ instance : Monad (OptionT m) where
   pure := OptionT.pure
   bind := OptionT.bind
 
+instance {m : Type u → Type v} [Pure m] : Inhabited (OptionT m α) where
+  default := pure (f:=m) default
+
 /--
 Recovers from failures. Typically used via the `<|>` operator.
 -/

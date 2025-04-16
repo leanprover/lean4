@@ -983,7 +983,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_getEntryLE_x3f_go___at_Std
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_getKeyLE_x3f_go___at_Std_DTreeMap_getKeyLE_x21___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_forM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_get_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_getKeyGT_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_getKeyGE_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_getKey(lean_object*, lean_object*);
@@ -1058,7 +1058,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -50438,7 +50438,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Array_emptyWithCapacity(lean_box(0), x_2);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
 lean_dec(x_2);
 x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_DTreeMap_keysArray___spec__1___rarg(x_3, x_1);
 return x_4;
@@ -50619,7 +50619,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Array_emptyWithCapacity(lean_box(0), x_2);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
 lean_dec(x_2);
 x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_DTreeMap_valuesArray___spec__1___rarg(x_3, x_1);
 return x_4;
@@ -57204,7 +57204,7 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = l_Array_emptyWithCapacity(lean_box(0), x_2);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
 x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_DTreeMap_toArray___spec__1___rarg(x_3, x_1);
 return x_4;
 }

@@ -97,7 +97,8 @@ def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.
     try
       mvarId ← mvarId.clear fvarId
     catch _ =>
-      throwTacticEx `grind.clear_aux_decls mvarId "failed to clear local auxiliary declaration"
+      let userName := (← fvarId.getDecl).userName
+      throwTacticEx `grind mvarId m!"the goal mentions the declaration `{userName}`, which is being defined. To avoid circular reasoning, try rewriting the goal to eliminate `{userName}` before using `grind`."
   return mvarId
 
 /--

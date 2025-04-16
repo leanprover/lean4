@@ -355,7 +355,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBVExpr_go___c
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_evalsAtAtoms(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBVExpr_go___closed__54;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Elab_Tactic_BVDecide_Frontend_M_lookup___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBVExpr_go___closed__42;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Elab_Tactic_BVDecide_Frontend_M_atoms___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5821,7 +5821,7 @@ lean_inc(x_11);
 lean_dec(x_8);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = l_Array_emptyWithCapacity(lean_box(0), x_12);
+x_13 = lean_mk_empty_array_with_capacity(x_12);
 lean_dec(x_12);
 x_14 = lean_ctor_get(x_11, 1);
 lean_inc(x_14);

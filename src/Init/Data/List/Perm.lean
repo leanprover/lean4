@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Erase
+import Init.Data.List.Find
 
 /-!
 # List Permutations
@@ -268,7 +269,7 @@ theorem countP_eq_countP_filter_add (l : List α) (p q : α → Bool) :
     l.countP p = (l.filter q).countP p + (l.filter fun a => !q a).countP p :=
   countP_append .. ▸ Perm.countP_eq _ (filter_append_perm _ _).symm
 
-theorem Perm.count_eq [BEq α] [LawfulBEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
+theorem Perm.count_eq [BEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
     count a l₁ = count a l₂ := p.countP_eq _
 
 /-
@@ -369,9 +370,15 @@ theorem perm_append_right_iff {l₁ l₂ : List α} (l) : l₁ ++ l ~ l₂ ++ l 
   refine ⟨fun p => ?_, .append_right _⟩
   exact (perm_append_left_iff _).1 <| perm_append_comm.trans <| p.trans perm_append_comm
 
-section DecidableEq
+section LawfulBEq
 
+<<<<<<< HEAD
 theorem Perm.erase [BEq α] [LawfulBEq α] (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : l₁.erase a ~ l₂.erase a :=
+=======
+variable [BEq α] [LawfulBEq α]
+
+theorem Perm.erase (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : l₁.erase a ~ l₂.erase a :=
+>>>>>>> upstream/nightly-with-mathlib
   if h₁ : a ∈ l₁ then
     have h₂ : a ∈ l₂ := p.subset h₁
     .cons_inv <| (perm_cons_erase h₁).symm.trans <| p.trans (perm_cons_erase h₂)
@@ -385,7 +392,16 @@ theorem cons_perm_iff_perm_erase [BEq α] [LawfulBEq α] {a : α} {l₁ l₂ : L
   have : a ∈ l₂ := h.subset mem_cons_self
   exact ⟨this, (h.trans <| perm_cons_erase this).cons_inv⟩
 
+<<<<<<< HEAD
 theorem perm_iff_count [BEq α] [LawfulBEq α] {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l₁ = count a l₂ := by
+=======
+end LawfulBEq
+section DecidableEq
+
+variable [DecidableEq α]
+
+theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l₁ = count a l₂ := by
+>>>>>>> upstream/nightly-with-mathlib
   refine ⟨Perm.count_eq, fun H => ?_⟩
   induction l₁ generalizing l₂ with
   | nil =>
@@ -533,5 +549,23 @@ theorem perm_insertIdx {α} (x : α) (l : List α) {i} (h : i ≤ l.length) :
     | succ =>
       simp only [insertIdx, modifyTailIdx]
       refine .trans (.cons _ (ih (Nat.le_of_succ_le_succ h))) (.swap ..)
+
+namespace Perm
+
+theorem take {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.drop n ~ l₂.drop n) :
+    l₁.take n ~ l₂.take n := by
+  classical
+  rw [perm_iff_count] at h w ⊢
+  rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h
+  simpa only [count_append, w, Nat.add_right_cancel_iff] using h
+
+theorem drop {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.take n ~ l₂.take n) :
+    l₁.drop n ~ l₂.drop n := by
+  classical
+  rw [perm_iff_count] at h w ⊢
+  rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h
+  simpa only [count_append, w, Nat.add_left_cancel_iff] using h
+
+end Perm
 
 end List

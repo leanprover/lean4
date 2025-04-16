@@ -747,7 +747,7 @@ LEAN_EXPORT lean_object* l_IO_Process_Child_tryWait___boxed(lean_object*, lean_o
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__14;
 static lean_object* l_termPrintln_x21_______closed__7;
 static uint32_t l_IO_AccessRight_flags___closed__9;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* lean_io_eprint(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Mode_noConfusion(lean_object*);
@@ -3225,7 +3225,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

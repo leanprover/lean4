@@ -301,7 +301,6 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) reflBoolTrue
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
-  trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .core0 a zero =>
     mkDiseqProof a zero
@@ -352,7 +351,6 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
     -- `pred` is an expressions of the form `cooper_*_split ...` with type `Nat → Prop`
     let mut k := n
     let mut result := base -- `OrOver k (cooper_*_splti)
-    trace[grind.debug.cutsat.proof] "orOver_cases {n}"
     result := mkApp3 (mkConst ``Int.Linear.orOver_cases) (toExpr (n-1)) pred result
     for (fvarId, c) in hs do
       let type := mkApp pred (toExpr (k-1))
@@ -365,7 +363,6 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
     return result
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
-  trace[grind.debug.cutsat.proof] "{← h.pp}"
   match h with
   | .le c =>
     return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (← mkPolyDecl c.p) reflBoolTrue (← c.toExprProof)
@@ -392,7 +389,6 @@ def UnsatProof.toExprProof (h : UnsatProof) : GoalM Expr := do
   withProofContext do h.toExprProofCore
 
 def setInconsistent (h : UnsatProof) : GoalM Unit := do
-  trace[grind.debug.cutsat.conflict] "setInconsistent [{← inconsistent}]: {← h.pp}"
   if (← get').caseSplits then
     -- Let the search procedure in `SearchM` resolve the conflict.
     modify' fun s => { s with conflict? := some h }

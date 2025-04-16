@@ -68,6 +68,9 @@ theorem getElem?_eq_some_iff {l : BitVec w} : l[n]? = some a ↔ ∃ h : n < w, 
   · simp_all
   · simp; omega
 
+theorem getElem_of_getElem? {l : BitVec w} : l[n]? = some a → ∃ h : n < w, l[n] = a :=
+  getElem?_eq_some_iff.mp
+
 set_option linter.missingDocs false in
 @[deprecated getElem?_eq_some_iff (since := "2025-02-17")]
 abbrev getElem?_eq_some := @getElem?_eq_some_iff

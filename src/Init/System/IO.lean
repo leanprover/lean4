@@ -1355,6 +1355,8 @@ structure SpawnArgs extends StdioConfig where
   and `some` sets the variable to the new value, adding it if necessary. Variables are processed from left to right.
   -/
   env : Array (String × Option String) := #[]
+  /-- Inherit environment variables from the spawning process. -/
+  inheritEnv : Bool := true
   /--
   Starts the child process in a new session and process group using `setsid`. Currently a no-op on
   non-POSIX platforms.

@@ -232,7 +232,16 @@ def eraseNamedArg (binderName : Name) : M Unit :=
   Add a new argument to the result. That is, `f := f arg`, update `fType`.
   This method assumes `fType` is a function type. -/
 private def addNewArg (argName : Name) (arg : Expr) : M Unit := do
-  modify fun s => { s with f := mkApp s.f arg, fType := s.fType.bindingBody!.instantiate1 arg }
+  modify fun s => { s with
+    f := mkApp s.f arg,
+    fType :=
+      -- If this is a higher-order argument, then apply beta reduction when instantiating,
+      -- which is useful for eliminator-like applications.
+      -- This mirrors `inferType` (see `Lean.Meta.inferAppType`).
+      if arg.isLambda then
+        s.fType.bindingBody!.instantiateBetaRevRange 0 1 #[arg]
+      else
+        s.fType.bindingBody!.instantiate1 arg }
   if arg.isMVar then
     registerMVarArgName arg.mvarId! argName
 

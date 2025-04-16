@@ -1839,7 +1839,7 @@ theorem add_one_tdiv {a b : Int} :
     rename_i c
     norm_cast at hb
     have : 0 < (c : Int) := by omega
-    simp [sign_natCast_of_nonzero hb, add_one_tdiv_of_pos this]
+    simp [sign_natCast_of_ne_zero hb, add_one_tdiv_of_pos this]
 
 -- One could prove a general `add_tdiv` theorem giving `(a + b).tdiv c = a.tdiv c + b.tdiv c + ...`
 -- but the error term would be very complicated.

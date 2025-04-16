@@ -776,7 +776,7 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
 @[simp] theorem ofInt_toInt {x : BitVec w} : BitVec.ofInt w x.toInt = x := by
   apply eq_of_toInt_eq
   simp
-  rw [Int.bmod_eq_self_of_le_mul_two]
+  rw [Int.bmod_eq_of_le_mul_two]
   · simpa [Int.mul_comm _ 2] using le_two_mul_toInt
   · simpa [Int.mul_comm _ 2] using two_mul_toInt_lt
 

@@ -241,6 +241,36 @@ where
    | .num k' => .num (k*k')
    | .add k' m p => .add (k*k') m (go p)
 
+def Poly.mulMon (k : Int) (m : Mon) (p : Poly) : Poly :=
+  bif k == 0 then
+    .num 0
+  else
+    go p
+where
+  go : Poly → Poly
+   | .num k' => .add (k*k') m (.num 0)
+   | .add k' m' p => .add (k*k') (m.mul m') (go p)
+
+def Poly.combine (p₁ p₂ : Poly) : Poly :=
+  go hugeFuel p₁ p₂
+where
+  go (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
+    match fuel with
+    | 0 => p₁.concat p₂
+    | fuel + 1 => match p₁, p₂ with
+      | .num k₁, .num k₂ => .num (k₁ + k₂)
+      | .num k₁, .add k₂ m₂ p₂ => addConst (.add k₂ m₂ p₂) k₁
+      | .add k₁ m₁ p₁, .num k₂ => addConst (.add k₁ m₁ p₁) k₂
+      | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
+        match m₁.grevlex m₂ with
+        | .eq =>
+          let k := k₁ + k₂
+          bif k == 0 then
+            go fuel p₁ p₂
+          else
+            .add k m₁ (go fuel p₁ p₂)
+        | .lt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
+        | .gt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
 
 theorem Power.denote_eq [CommRing α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
@@ -373,6 +403,27 @@ theorem Poly.denote_mulConst [CommRing α] (ctx : Context α) (k : Int) (p : Pol
     fun_induction mulConst.go <;> simp [mulConst.go, denote, *]
     next => rw [intCast_mul]
     next => rw [intCast_mul, left_distrib, mul_assoc]
+
+theorem Poly.denote_mulMon [CommRing α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
+    : (mulMon k m p).denote ctx = k * m.denote ctx * p.denote ctx := by
+  simp [mulMon, cond_eq_if] <;> split
+  next => simp [denote, *, intCast_zero, zero_mul]
+  next =>
+    fun_induction mulMon.go <;> simp [mulMon.go, denote, *]
+    next => simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
+    next => simp [Mon.denote_mul, intCast_mul, left_distrib, mul_comm, mul_left_comm, mul_assoc]
+
+theorem Poly.denote_combine [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
+    : (combine p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  unfold combine; generalize hugeFuel = fuel
+  fun_induction combine.go
+    <;> simp [combine.go, *, denote_concat, denote_addConst, denote, intCast_add, cond_eq_if, add_comm, add_left_comm, add_assoc]
+  next hg _ h _ =>
+    simp +zetaDelta at h; simp [*]
+    rw [← add_assoc, Mon.eq_of_grevlex hg, ← right_distrib, ← intCast_add, h, intCast_zero, zero_mul, zero_add]
+  next hg _ h _ =>
+    simp +zetaDelta at h; simp [*, denote, intCast_add]
+    rw [right_distrib, Mon.eq_of_grevlex hg, add_assoc]
 
 end CommRing
 end Lean.Grind

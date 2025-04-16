@@ -258,7 +258,7 @@ def byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded.LE (- (i - 1)) (i - 1) := b
       apply (Int.le_trans · h)
       apply Int.le_of_neg_le_neg
       simp_all
-      exact (Int.le_sub_one_of_lt hi)
+      exact hi
     next m n =>
       apply Int.neg_le_neg
       have h := Int.tmod_lt_of_pos (m + 1) hi

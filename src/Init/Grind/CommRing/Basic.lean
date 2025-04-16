@@ -233,7 +233,7 @@ theorem intCast_eq_zero_iff (x : Int) : (x : α) = 0 ↔ x % p = 0 :=
     rw [ofNat_eq_natCast] at this
     rw [this]
     simp only [Int.ofNat_dvd]
-    simp only [← Nat.dvd_iff_mod_eq_zero, Int.natAbs_ofNat, Int.natCast_add,
+    simp only [← Nat.dvd_iff_mod_eq_zero, Int.natAbs_natCast, Int.natCast_add,
       Int.cast_ofNat_Int, ite_eq_left_iff]
     by_cases h : p ∣ x + 1
     · simp [h]

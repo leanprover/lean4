@@ -135,7 +135,7 @@ theorem natAbs_div_gcd_pos_of_ne_zero_right (a : Int) (h : b ≠ 0) : 0 < b.natA
   Nat.div_gcd_pos_of_pos_right _ (natAbs_pos.2 h)
 
 theorem ediv_gcd_ne_zero_of_ne_zero_left (b : Int) (h : a ≠ 0) : a / gcd a b ≠ 0 := by
-  rw [← natAbs_pos, natAbs_ediv_of_dvd (gcd_dvd_left _ _), natAbs_ofNat]
+  rw [← natAbs_pos, natAbs_ediv_of_dvd (gcd_dvd_left _ _), natAbs_natCast]
   exact natAbs_div_gcd_pos_of_ne_zero_left _ h
 
 theorem ediv_gcd_ne_zero_if_ne_zero_right (a : Int) (h : b ≠ 0) : b / gcd a b ≠ 0 := by
@@ -393,12 +393,12 @@ theorem pow_gcd_pow_of_gcd_eq_one {n m : Int} {k l : Nat} (h : gcd n m = 1) : gc
 
 theorem gcd_ediv_gcd_ediv_gcd_of_ne_zero_left {n m : Int} (h : n ≠ 0) :
     gcd (n / gcd n m) (m / gcd n m) = 1 := by
-  rw [gcd_ediv (gcd_dvd_left _ _) (gcd_dvd_right _ _), natAbs_ofNat,
+  rw [gcd_ediv (gcd_dvd_left _ _) (gcd_dvd_right _ _), natAbs_natCast,
     Nat.div_self (gcd_pos_of_ne_zero_left _ h)]
 
 theorem gcd_ediv_gcd_ediv_gcd_of_ne_zero_right {n m : Int} (h : m ≠ 0) :
     gcd (n / gcd n m) (m / gcd n m) = 1 := by
-  rw [gcd_ediv (gcd_dvd_left _ _) (gcd_dvd_right _ _), natAbs_ofNat,
+  rw [gcd_ediv (gcd_dvd_left _ _) (gcd_dvd_right _ _), natAbs_natCast,
     Nat.div_self (gcd_pos_of_ne_zero_right _ h)]
 
 theorem gcd_ediv_gcd_ediv_gcd {i j : Int} (h : 0 < gcd i j) : gcd (i / gcd i j) (j / gcd i j) = 1 :=

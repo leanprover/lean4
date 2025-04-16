@@ -21,11 +21,11 @@ File contents: Operations on associative lists
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe w v u
+universe w  v v' u u'
 
 namespace Std.DHashMap.Internal
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'} {γ : α → Type w} {δ : Type w} {m : Type w → Type w} [Monad m]
 
 /--
 `AssocList α β` is "the same as" `List (α × β)`, but flattening the structure
@@ -248,6 +248,16 @@ where
   @[specialize] go (acc : AssocList α γ) : AssocList α β → AssocList α γ
   | nil => acc
   | cons k v t => go (cons k (f k v) acc) t
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def pmapEntries {P : (a : α) → (b : β a) → Prop }
+    (f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a')) :
+    ∀ (l : AssocList α β), (H : ∀ a b, ⟨a, b⟩ ∈ l.toList → P a b) → AssocList α' β'
+  | .nil, _ => .nil
+  | .cons k v t, H =>
+    let ⟨k', v'⟩ := f k v (H k v (.head t.toList))
+    let t' := pmapEntries f t (fun a b hin => H a b (.tail (Sigma.mk k v) hin))
+    .cons k' v' t'
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def filter (f : (a : α) → β a → Bool) : AssocList α β → AssocList α β :=

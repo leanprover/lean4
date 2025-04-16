@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
 prelude
+import Init.Data.Array.Attach
 import Init.Data.Array.Lemmas
 import Std.Data.DHashMap.RawDef
 import Std.Data.Internal.List.Defs
@@ -142,9 +143,9 @@ and clean.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u u' v v' w
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'} {δ : Type w} {m : Type w → Type w} [Monad m]
 
 namespace Std
 
@@ -404,6 +405,15 @@ where
 @[inline] def map {γ : α → Type w} (f : (a : α) → β a → γ a) (m : Raw₀ α β) : Raw₀ α γ :=
   let ⟨⟨size, buckets⟩, hb⟩ := m
   let newBuckets := buckets.map (AssocList.map f)
+  ⟨⟨size, newBuckets⟩, by simpa [newBuckets] using hb⟩
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def pmapEntries {P : (a : α) → (b : β a) → Prop}
+    (f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a'))
+    (m : Raw₀ α β) (H : ∀ a b, ⟨a, b⟩ ∈ toListModel m.val.buckets → P a b) : Raw₀ α' β' :=
+  let ⟨⟨size, buckets⟩, hb⟩ := m
+  let newBuckets := buckets.attach.map λ ⟨bucket, hb⟩ ↦
+     AssocList.pmapEntries f bucket (fun a b h => H a b (List.mem_flatMap.mpr ⟨bucket, hb.val, h⟩))
   ⟨⟨size, newBuckets⟩, by simpa [newBuckets] using hb⟩
 
 /-- Internal implementation detail of the hash map -/

@@ -16,8 +16,22 @@ namespace Internal
 namespace IO
 namespace Async
 
+structure Waiter where
+  private mk ::
+    private finished : IO.Ref Bool
+    private signal : IO.Promise Unit
+
+def Waiter.new : BaseIO Waiter := do
+  return { finished := ← IO.mkRef false, signal := ← IO.Promise.new }
+
+def Waiter.resolve (w : Waiter) : BaseIO Bool := do
+  let first ← w.finished.modifyGet fun s => (s == false, true)
+  if first then
+    w.signal.resolve ()
+  return first
+
 structure Selector (α : Type) where
-  registerFn : IO.Promise Unit → IO Unit
+  registerFn : Waiter → IO Unit
   tryFn : IO (Option α)
   unregisterFn : IO Unit
 
@@ -58,21 +72,21 @@ where
 
         return (← selectable.cont val)
 
-    let promise ← IO.Promise.new
+    let waiter ← Waiter.new
 
     for selectable in selectables do
-      selectable.selector.registerFn promise
+      selectable.selector.registerFn waiter
 
-    -- We know for sure that `promise` will be resolved eventually
-    IO.bindTask promise.result! (fun _ => go selectables)
+    -- We know for sure that `signal` will be resolved eventually
+    IO.bindTask waiter.signal.result! (fun _ => go selectables)
 
 def Sleep.selector (s : Sleep) : IO (Selector Unit) := do
-  let waiter ← s.wait
+  let sleepWaiter ← s.wait
   return {
-    registerFn := fun promise => do
-      discard <| AsyncTask.mapIO (x := waiter) fun _ => promise.resolve ()
+    registerFn := fun waiter => do
+      discard <| AsyncTask.mapIO (x := sleepWaiter) fun _ => waiter.resolve
     tryFn := do
-      if (← IO.getTaskState waiter) == .finished then
+      if (← IO.getTaskState sleepWaiter) == .finished then
         return some ()
       else
         return none
@@ -81,18 +95,18 @@ def Sleep.selector (s : Sleep) : IO (Selector Unit) := do
 
 def TCP.Socket.Client.recvSelector (s : TCP.Socket.Client) (size : UInt64) :
     IO (Selector (Option ByteArray)) := do
-  let waiter ← s.native.waitReadable
+  let readWaiter ← s.native.waitReadable
   return {
-    registerFn := fun promise => do
-      discard <| IO.mapTask (t := waiter.result?) fun res => do
+    registerFn := fun waiter => do
+      discard <| IO.mapTask (t := readWaiter.result?) fun res => do
         match res with
         | none => return ()
         | some res =>
           -- TODO: error handling interesting here
           discard <| IO.ofExcept res
-          promise.resolve ()
+          discard <| waiter.resolve
     tryFn := do
-      if (← IO.getTaskState waiter.result?) == .finished then
+      if (← IO.getTaskState readWaiter.result?) == .finished then
         -- We know that this read should not block
         let res ← (← s.recv? size).block
         return some res
@@ -131,28 +145,6 @@ def test2 : IO (AsyncTask Nat) := do
   IO.println (← IO.ofExcept (← test2).get)
   IO.println (← IO.ofExcept (← test2).get)
   IO.println (← IO.ofExcept (← test2).get)
-
-
-def test3 : IO (AsyncTask String) := do
-  let client ← TCP.Socket.Client.mk
-  let addr := Net.SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
-  IO.println "connecting"
-  let task ← client.connect addr
-  task.block
-  IO.println "connected"
-
-  let timeout ← Sleep.mk 5000
-  Selectable.one #[
-    .case (← timeout.selector) fun _ => return AsyncTask.pure "No no",
-    .case (← client.readSelector 4096) fun data? => do
-      if let some data := data? then
-        return AsyncTask.pure <| String.fromUTF8! data
-      else
-        return AsyncTask.pure "Connection closed"
-  ]
-
-#eval show IO _ from do
-  IO.println (← IO.ofExcept (← test3).get)
 
 end Async
 end IO

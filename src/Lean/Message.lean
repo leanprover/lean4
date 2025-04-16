@@ -329,8 +329,21 @@ def andList (xs : List MessageData) : MessageData :=
   | [x] => x
   | _ => joinSep xs.dropLast ", " ++ " and " ++ xs.getLast!
 
+/--
+Produces a labeled note that can be appended to an error message.
+-/
 def note (note : MessageData) : MessageData :=
-  .tagged `note <| "\n\nnote: " ++ note
+  -- Note: the built-in string coercion in some cases prevents proper line breaks
+  .tagged `note <| .compose (.ofFormat .line) <| .compose (.ofFormat .line) <|
+    .compose "Note: " note
+
+/--
+Non-monadic variant of `MessageData.hint` that produces a labeled hint without an associated code
+action.
+-/
+def hint' (hint : MessageData) : MessageData :=
+  .tagged `hint <| .compose (.ofFormat .line) <| .compose (.ofFormat .line) <|
+    .compose "Hint: " hint
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩
@@ -506,6 +519,26 @@ def indentD (msg : MessageData) : MessageData :=
 
 def indentExpr (e : Expr) : MessageData :=
   indentD e
+
+/--
+Renders an expression `e` inline in a message if it will not exceed `maxInlineLength` characters;
+otherwise, renders the expression indented on a new line.
+
+Note that the output of this function is formatted with preceding and trailing space included. Thus,
+in `m₁ ++ inlineExpr e ++ m₂`, `m₁` should not end with a space or new line, nor should `m₂` begin
+with one.
+-/
+def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
+  .ofLazy
+    (fun ctx? => do
+      let msg := MessageData.ofExpr e
+      let some { env, mctx, lctx, opts, ..} := ctx? | return Dynamic.mk (" " ++ msg ++ " ")
+      let fmt ← msg.format (some { env, mctx, lctx, opts })
+      if fmt.pretty.length > maxInlineLength then
+        return Dynamic.mk (indentD msg ++ "\n")
+      else
+        return Dynamic.mk (" " ++ msg ++ " "))
+    (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
 
 /-- Atom quotes -/
 def aquote (msg : MessageData) : MessageData :=

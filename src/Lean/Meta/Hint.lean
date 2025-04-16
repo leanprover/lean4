@@ -19,7 +19,7 @@ namespace Lean.Meta.Hint
 open Elab Tactic PrettyPrinter TryThis
 
 /--
-A widget for rendering code-action suggestions in error messages. Generally, this widget should not
+A widget for rendering code action suggestions in error messages. Generally, this widget should not
 be used directly; instead, use `MessageData.hint`. Note that this widget is intended only for use
 within message data; it may not display line breaks properly if rendered as a panel widget.
 
@@ -87,6 +87,13 @@ def mkDiffString (ds : Array (Diff.Action × Char)) : String :=
     | (.skip  , s) => String.mk [s]
   rangeStrs.foldl (· ++ ·) ""
 
+/--
+A code action suggestion associated with a hint in a message.
+
+Refer to `TryThis.Suggestion`; this extends that structure with a `span?` field, allowing a single
+hint to suggest modifications at different locations. If `span?` is not specified, then the `ref`
+for the containing `Suggestions` value is used.
+-/
 structure Suggestion extends TryThis.Suggestion where
   span? : Option Syntax := none
 
@@ -98,6 +105,16 @@ instance : Coe SuggestionText Suggestion where
 instance : ToMessageData Suggestion where
   toMessageData s := toMessageData s.toSuggestion
 
+/--
+A collection of code action suggestions to be included in a hint in a diagnostic message.
+
+Contains the following fields:
+* `ref`: the syntax location for the code action suggestions. Will be overridden by the `span?`
+  field on any suggestions that specify it.
+* `suggestions`: the suggestions to display.
+* `codeActionPrefix?`: if specified, text to display in place of "Try this: " in the code action
+  label
+-/
 structure Suggestions where
   ref : Syntax
   suggestions : Array Suggestion
@@ -110,33 +127,32 @@ leaf.
 def Suggestions.toHintMessage (suggestions : Suggestions) : CoreM MessageData := do
   let { ref, codeActionPrefix?, suggestions } := suggestions
   let mut msg := m!""
-  if suggestions.size > 0 then
-    for suggestion in suggestions do
-      if let some range := (suggestion.span?.getD ref).getRange? then
-        let { info, suggestions := suggestionArr, range := lspRange } ← processSuggestions ref range
-          #[suggestion.toSuggestion] codeActionPrefix?
-        pushInfoLeaf info
-        let suggestionText := suggestionArr[0]!.2.1
-        let map ← getFileMap
-        let rangeContents := Substring.mk map.source range.start range.stop |>.toString
-        let split (s : String) := s.toList.toArray
-        let edits := Diff.diff (split rangeContents) (split suggestionText)
-        let diff := mkDiffJson edits
-        let json := json% {
-          diff: $diff,
-          suggestion: $suggestionText,
-          range: $lspRange
-        }
-        let preInfo := suggestion.preInfo?.getD ""
-        let postInfo := suggestion.postInfo?.getD ""
-        let widget := MessageData.ofWidget {
-            id := ``tryThisDiffWidget
-            javascriptHash := tryThisDiffWidget.javascriptHash
-            props := return json
-          } (suggestion.messageData?.getD (mkDiffString edits))
-        let widgetMsg := m!"{preInfo}{widget}{postInfo}"
-        let suggestionMsg := if suggestions.size == 1 then m!"\n{widgetMsg}" else m!"\n• {widgetMsg}"
-        msg := msg ++ MessageData.nestD suggestionMsg
+  for suggestion in suggestions do
+    if let some range := (suggestion.span?.getD ref).getRange? then
+      let { info, suggestions := suggestionArr, range := lspRange } ← processSuggestions ref range
+        #[suggestion.toSuggestion] codeActionPrefix?
+      pushInfoLeaf info
+      let suggestionText := suggestionArr[0]!.2.1
+      let map ← getFileMap
+      let rangeContents := Substring.mk map.source range.start range.stop |>.toString
+      let split (s : String) := s.toList.toArray
+      let edits := Diff.diff (split rangeContents) (split suggestionText)
+      let diff := mkDiffJson edits
+      let json := json% {
+        diff: $diff,
+        suggestion: $suggestionText,
+        range: $lspRange
+      }
+      let preInfo := suggestion.preInfo?.getD ""
+      let postInfo := suggestion.postInfo?.getD ""
+      let widget := MessageData.ofWidget {
+          id := ``tryThisDiffWidget
+          javascriptHash := tryThisDiffWidget.javascriptHash
+          props := return json
+        } (suggestion.messageData?.getD (mkDiffString edits))
+      let widgetMsg := m!"{preInfo}{widget}{postInfo}"
+      let suggestionMsg := if suggestions.size == 1 then m!"\n{widgetMsg}" else m!"\n• {widgetMsg}"
+      msg := msg ++ MessageData.nestD suggestionMsg
   return msg
 
 /--
@@ -145,7 +161,7 @@ suggestion widget.
 -/
 def _root_.Lean.MessageData.hint (hint : MessageData) (suggestions? : Option Suggestions := none)
     : CoreM MessageData := do
-  let mut hintMsg := m!"\n\nhint: {hint}"
+  let mut hintMsg := m!"\n\nHint: {hint}"
   if let some suggestions := suggestions? then
     hintMsg := hintMsg ++ (← suggestions.toHintMessage)
   return .tagged `hint hintMsg

@@ -272,6 +272,14 @@ where
         | .lt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
         | .gt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
 
+def Poly.mul (p₁ : Poly) (p₂ : Poly) : Poly :=
+  go p₁ (.num 0)
+where
+  go (p₁ : Poly) (acc : Poly) : Poly :=
+    match p₁ with
+    | .num k => acc.combine (p₂.mulConst k)
+    | .add k m p₁ => go p₁ (acc.combine (p₂.mulMon k m))
+
 theorem Power.denote_eq [CommRing α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
   cases p <;> simp [Power.denote] <;> split <;> simp [pow_zero, pow_succ, one_mul]
@@ -424,6 +432,16 @@ theorem Poly.denote_combine [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
   next hg _ h _ =>
     simp +zetaDelta at h; simp [*, denote, intCast_add]
     rw [right_distrib, Mon.eq_of_grevlex hg, add_assoc]
+
+theorem Poly.denote_mul_go [CommRing α] (ctx : Context α) (p₁ p₂ acc : Poly)
+    : (mul.go p₂ p₁ acc).denote ctx = acc.denote ctx + p₁.denote ctx * p₂.denote ctx := by
+  fun_induction mul.go
+    <;> simp [mul.go, denote_combine, denote_mulConst, denote, *, right_distrib, denote_mulMon, add_assoc]
+
+theorem Poly.denote_mul [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
+    : (mul p₁ p₂).denote ctx = p₁.denote ctx * p₂.denote ctx := by
+  simp [mul, denote_mul_go, denote, intCast_zero, zero_add]
+
 
 end CommRing
 end Lean.Grind

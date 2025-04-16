@@ -3265,6 +3265,10 @@ theorem eq_or_mem_of_mem_insert {l : List α} (h : a ∈ l.insert b) : a = b ∨
 @[simp] theorem length_insert_of_not_mem {l : List α} (h : a ∉ l) :
     length (l.insert a) = length l + 1 := by rw [insert_of_not_mem h]; rfl
 
+theorem length_insert {l : List α} :
+    (l.insert a).length = l.length + if a ∈ l then 0 else 1 := by
+  split <;> simp_all
+
 theorem length_le_length_insert {l : List α} {a : α} : l.length ≤ (l.insert a).length := by
   by_cases h : a ∈ l
   · rw [length_insert_of_mem h]

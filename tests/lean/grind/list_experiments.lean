@@ -2795,57 +2795,62 @@ theorem splitAt_go {i : Nat} {l acc : List α} :
 section replace
 variable [BEq α]
 
-attribute [grind] List.replace_cons
+attribute [grind] List.replace_nil List.replace_cons
 
 theorem replace_cons_self [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by grind
 
 theorem replace_of_not_mem [LawfulBEq α] {l : List α} (h : a ∉ l) : l.replace a b = l := by
-  induction l with
-  | nil => rfl
-  | cons x xs ih =>
-    simp only [replace_cons]
-    split <;> simp_all
+  induction l with grind
 
 theorem length_replace {l : List α} : (l.replace a b).length = l.length := by
-  induction l with
-  | nil => simp
-  | cons x l ih =>
-    simp only [replace_cons]
-    split <;> simp_all
+  induction l with grind
+
+attribute [grind] List.length_replace
+
+attribute [grind] Option.none_beq_none -- FIXME why does this get such a weak pattern?
+attribute [grind] Option.none_beq_some
+attribute [grind] Option.some_beq_none -- FIXME why does this get such a weak pattern?
+attribute [grind] Option.some_beq_some
+
+attribute [grind] List.take_succ_cons List.take_zero
 
 theorem getElem?_replace [LawfulBEq α] {l : List α} {i : Nat} :
     (l.replace a b)[i]? = if l[i]? == some a then if a ∈ l.take i then some a else some b else l[i]? := by
   induction l generalizing i with
-  | nil => cases i <;> simp
+  | nil => cases i <;> grind
   | cons x xs ih =>
     cases i <;>
     · simp only [replace_cons]
-      split <;> split <;> simp_all
+      split <;> split <;> grind -- FIXME, sadly grind doesn't do the case split here
+
+attribute [grind] getElem?_replace
 
 theorem getElem?_replace_of_ne [LawfulBEq α] {l : List α} {i : Nat} (h : l[i]? ≠ some a) :
     (l.replace a b)[i]? = l[i]? := by
-  simp_all [getElem?_replace]
+  grind
 
 theorem getElem_replace [LawfulBEq α] {l : List α} {i : Nat} (h : i < l.length) :
-    (l.replace a b)[i]'(by simpa) = if l[i] == a then if a ∈ l.take i then a else b else l[i] := by
+    (l.replace a b)[i]'(by grind) = if l[i] == a then if a ∈ l.take i then a else b else l[i] := by
   apply Option.some.inj
   rw [← getElem?_eq_getElem, getElem?_replace]
-  split <;> split <;> simp_all
+  split <;> split <;> grind [getElem?_eq_getElem] -- FIXME, sadly grind doesn't do the case split here
+
+attribute [grind] List.getElem_replace
 
 theorem getElem_replace_of_ne [LawfulBEq α] {l : List α} {i : Nat} {h : i < l.length} (h' : l[i] ≠ a) :
-    (l.replace a b)[i]'(by simpa) = l[i]'(h) := by
-  rw [getElem_replace h]
-  simp [h']
+    (l.replace a b)[i]'(by simpa) = l[i]'(h) := by grind
+
+attribute [grind] List.head?_cons
 
 theorem head?_replace {l : List α} {a b : α} :
     (l.replace a b).head? = match l.head? with
       | none => none
       | some x => some (if a == x then b else x) := by
   cases l with
-  | nil => rfl
+  | nil => grind
   | cons x xs =>
-    simp [replace_cons]
-    split <;> simp_all
+    simp? [replace_cons]
+    grind
 
 theorem head_replace {l : List α} {a b : α} (w) :
     (l.replace a b).head w =
@@ -2858,39 +2863,37 @@ theorem head_replace {l : List α} {a b : α} (w) :
 
 theorem replace_append [LawfulBEq α] {l₁ l₂ : List α} :
     (l₁ ++ l₂).replace a b = if a ∈ l₁ then l₁.replace a b ++ l₂ else l₁ ++ l₂.replace a b := by
-  induction l₁ with
-  | nil => simp
-  | cons x xs ih =>
-    simp only [cons_append, replace_cons]
-    split <;> split <;> simp_all
+  induction l₁ with grind
+
+attribute [grind] List.replace_append
 
 theorem replace_append_left [LawfulBEq α] {l₁ l₂ : List α} (h : a ∈ l₁) :
-    (l₁ ++ l₂).replace a b = l₁.replace a b ++ l₂ := by
-  simp [replace_append, h]
+    (l₁ ++ l₂).replace a b = l₁.replace a b ++ l₂ := by grind
 
 theorem replace_append_right [LawfulBEq α] {l₁ l₂ : List α} (h : ¬ a ∈ l₁) :
-    (l₁ ++ l₂).replace a b = l₁ ++ l₂.replace a b := by
-  simp [replace_append, h]
+    (l₁ ++ l₂).replace a b = l₁ ++ l₂.replace a b := by grind
+
+attribute [grind] List.take_nil
 
 theorem replace_take {l : List α} {i : Nat} :
     (l.take i).replace a b = (l.replace a b).take i := by
   induction l generalizing i with
-  | nil => simp
+  | nil => grind
   | cons x xs ih =>
     cases i with
-    | zero => simp [ih]
+    | zero => grind
     | succ i =>
       simp only [replace_cons, take_succ_cons]
-      split <;> simp_all
+      split <;> grind -- FIXME grind won't do the split?
 
 theorem replace_replicate_self [LawfulBEq α] {a : α} (h : 0 < n) :
     (replicate n a).replace a b = b :: replicate (n - 1) a := by
-  cases n <;> simp_all [replicate_succ, replace_cons]
+  cases n with grind
 
 theorem replace_replicate_ne [LawfulBEq α] {a b c : α} (h : !b == a) :
     (replicate n a).replace b c = replicate n a := by
   rw [replace_of_not_mem]
-  simp_all
+  grind
 
 end replace
 
@@ -2899,72 +2902,63 @@ end replace
 section insert
 variable [BEq α]
 
-theorem insert_nil (a : α) : [].insert a = [a] := rfl
+theorem insert_nil (a : α) : [].insert a = [a] := by grind [List.insert]
+
+attribute [grind] List.insert_nil
 
 variable [LawfulBEq α]
 
 theorem insert_of_mem {l : List α} (h : a ∈ l) : l.insert a = l := by
-  simp [List.insert, h]
+  grind [List.insert]
 
 theorem insert_of_not_mem {l : List α} (h : a ∉ l) : l.insert a = a :: l := by
-  simp [List.insert, h]
+  grind [List.insert]
 
 theorem mem_insert_iff {l : List α} : a ∈ l.insert b ↔ a = b ∨ a ∈ l := by
-  if h : b ∈ l then
-    rw [insert_of_mem h]
-    constructor; {apply Or.inr}
-    intro
-    | Or.inl h' => rw [h']; exact h
-    | Or.inr h' => exact h'
-  else rw [insert_of_not_mem h, mem_cons]
+  if h : b ∈ l then grind [insert_of_mem]
+  else grind [insert_of_not_mem]
 
-theorem mem_insert_self {a : α} {l : List α} : a ∈ l.insert a :=
-  mem_insert_iff.2 (Or.inl rfl)
+attribute [grind] List.mem_insert_iff
 
-theorem mem_insert_of_mem {l : List α} (h : a ∈ l) : a ∈ l.insert b :=
-  mem_insert_iff.2 (Or.inr h)
+theorem mem_insert_self {a : α} {l : List α} : a ∈ l.insert a := by grind
 
-theorem eq_or_mem_of_mem_insert {l : List α} (h : a ∈ l.insert b) : a = b ∨ a ∈ l :=
-  mem_insert_iff.1 h
+theorem mem_insert_of_mem {l : List α} (h : a ∈ l) : a ∈ l.insert b := by grind
+
+theorem eq_or_mem_of_mem_insert {l : List α} (h : a ∈ l.insert b) : a = b ∨ a ∈ l := by grind
 
 theorem length_insert_of_mem {l : List α} (h : a ∈ l) :
-    length (l.insert a) = length l := by rw [insert_of_mem h]
+    length (l.insert a) = length l := by grind [List.insert]
 
 theorem length_insert_of_not_mem {l : List α} (h : a ∉ l) :
-    length (l.insert a) = length l + 1 := by rw [insert_of_not_mem h]; rfl
+    length (l.insert a) = length l + 1 := by grind [List.insert]
+
+theorem length_insert {l : List α} :
+    (l.insert a).length = l.length + if a ∈ l then 0 else 1 := by
+  grind [List.insert]
+
+attribute [grind] length_insert
 
 theorem length_le_length_insert {l : List α} {a : α} : l.length ≤ (l.insert a).length := by
-  by_cases h : a ∈ l
-  · rw [length_insert_of_mem h]
-    exact Nat.le_refl _
-  · rw [length_insert_of_not_mem h]
-    exact Nat.le_succ _
+  grind
 
 theorem length_insert_pos {l : List α} {a : α} : 0 < (l.insert a).length := by
-  by_cases h : a ∈ l
-  · rw [length_insert_of_mem h]
-    exact length_pos_of_mem h
-  · rw [length_insert_of_not_mem h]
-    exact Nat.zero_lt_succ _
+  grind
 
 theorem insert_eq {l : List α} {a : α} : l.insert a = if a ∈ l then l else a :: l := by
-  simp [List.insert]
+  grind [List.insert]
 
 theorem getElem?_insert_zero {l : List α} {a : α} :
     (l.insert a)[0]? = if a ∈ l then l[0]? else some a := by
-  simp only [insert_eq]
-  split <;> simp
+  grind [List.insert]
 
 theorem getElem?_insert_succ {l : List α} {a : α} {i : Nat} :
     (l.insert a)[i+1]? = if a ∈ l then l[i+1]? else l[i]? := by
-  simp only [insert_eq]
-  split <;> simp
+  grind [List.insert]
 
 theorem getElem?_insert {l : List α} {a : α} {i : Nat} :
     (l.insert a)[i]? = if a ∈ l then l[i]? else if i = 0 then some a else l[i-1]? := by
-  cases i
-  · simp [getElem?_insert_zero]
-  · simp [getElem?_insert_succ]
+  -- I'm surprised grind won't do this case split?
+  cases i <;> grind [List.insert]
 
 theorem getElem_insert {l : List α} {a : α} {i : Nat} (h : i < l.length) :
     (l.insert a)[i]'(Nat.lt_of_lt_of_le h length_le_length_insert) =
@@ -2972,9 +2966,9 @@ theorem getElem_insert {l : List α} {a : α} {i : Nat} (h : i < l.length) :
   apply Option.some.inj
   rw [← getElem?_eq_getElem, getElem?_insert]
   split
-  · simp [getElem?_eq_getElem, h]
+  · grind [getElem?_eq_getElem]
   · split
-    · rfl
+    · grind
     · have h' : i - 1 < l.length := Nat.lt_of_le_of_lt (Nat.pred_le _) h
       simp [getElem?_eq_getElem, h']
 
@@ -2983,7 +2977,7 @@ theorem head?_insert {l : List α} {a : α} :
   simp only [insert_eq]
   split <;> rename_i h
   · simp [head?_eq_head (ne_nil_of_mem h)]
-  · rfl
+  · grind
 
 theorem head_insert {l : List α} {a : α} (w) :
     (l.insert a).head w = if h : a ∈ l then l.head (ne_nil_of_mem h) else a := by
@@ -2992,24 +2986,24 @@ theorem head_insert {l : List α} {a : α} (w) :
 
 theorem insert_append {l₁ l₂ : List α} {a : α} :
     (l₁ ++ l₂).insert a = if a ∈ l₂ then l₁ ++ l₂ else l₁.insert a ++ l₂ := by
-  simp only [insert_eq, mem_append]
-  (repeat split) <;> simp_all
+  grind [List.insert]
+
+attribute [grind] insert_append
 
 theorem insert_append_of_mem_left {l₁ l₂ : List α} (h : a ∈ l₂) :
     (l₁ ++ l₂).insert a = l₁ ++ l₂ := by
-  simp [insert_append, h]
+  grind
 
 theorem insert_append_of_not_mem_left {l₁ l₂ : List α} (h : ¬ a ∈ l₂) :
     (l₁ ++ l₂).insert a = l₁.insert a ++ l₂ := by
-  simp [insert_append, h]
+  grind
 
 theorem insert_replicate_self {a : α} (h : 0 < n) : (replicate n a).insert a = replicate n a := by
-  cases n <;> simp_all
+  grind [List.insert]
 
 theorem insert_replicate_ne {a b : α} (h : !b == a) :
     (replicate n a).insert b = b :: replicate n a := by
-  rw [insert_of_not_mem]
-  simp_all
+  grind [List.insert]
 
 end insert
 

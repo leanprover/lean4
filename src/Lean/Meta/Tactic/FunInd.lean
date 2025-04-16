@@ -1289,5 +1289,5 @@ builtin_initialize
 
 end Lean.Tactic.FunInd
 
- builtin_initialize
+builtin_initialize
    Lean.registerTraceClass `Meta.FunInd

@@ -321,7 +321,7 @@ def tryContradiction (mvarId : MVarId) : MetaM Bool := do
 Returns the type of the unfold theorem, as the starting point for calculating the equational
 types.
 -/
-private def unfoldThmType (declName : Name) : MetaM Expr := do
+def unfoldThmType (declName : Name) : MetaM Expr := do
   if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := false) then
     let info ← getConstInfo unfoldThm
     pure info.type

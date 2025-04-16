@@ -1666,7 +1666,7 @@ theorem USize.toUInt32_eq (a b : USize) : a.toUInt32 = b.toUInt32 ↔ a % 429496
   simp [← UInt32.toNat_inj, ← USize.toNat_inj, USize.toNat_ofNat]
   have := Nat.mod_eq_of_lt a.toNat_lt_two_pow_numBits
   have := Nat.mod_eq_of_lt b.toNat_lt_two_pow_numBits
-  cases System.Platform.numBits_eq <;> simp_all
+  cases System.Platform.numBits_eq <;> simp_all [Nat.mod_eq_of_lt]
 
 theorem UInt8.toUInt16_eq_mod_256_iff (a : UInt8) (b : UInt16) : a.toUInt16 = b % 256 ↔ a = b.toUInt8 := by
   simp [← UInt8.toNat_inj, ← UInt16.toNat_inj]
@@ -1689,7 +1689,7 @@ theorem UInt32.toUInt64_eq_mod_4294967296_iff (a : UInt32) (b : UInt64) : a.toUI
 theorem UInt32.toUSize_eq_mod_4294967296_iff (a : UInt32) (b : USize) : a.toUSize = b % 4294967296 ↔ a = b.toUInt32 := by
   simp [← UInt32.toNat_inj, ← USize.toNat_inj, USize.toNat_ofNat]
   have := Nat.mod_eq_of_lt b.toNat_lt_two_pow_numBits
-  cases System.Platform.numBits_eq <;> simp_all
+  cases System.Platform.numBits_eq <;> simp_all [Nat.mod_eq_of_lt]
 
 theorem USize.toUInt64_eq_mod_usizeSize_iff (a : USize) (b : UInt64) : a.toUInt64 = b % UInt64.ofNat USize.size ↔ a = b.toUSize := by
   simp [← USize.toNat_inj, ← UInt64.toNat_inj, USize.size_eq_two_pow]

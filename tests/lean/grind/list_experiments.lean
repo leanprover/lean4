@@ -186,6 +186,8 @@ attribute [grind] getElem?_singleton
 theorem getElem?_concat_length {l : List α} {a : α} : (l ++ [a])[l.length]? = some a := by
   grind
 
+-- attribute [grind] List.getElem?_eq_getElem -- This is way too slow, it adds about 30% time to this file.
+
 /-! ### getD
 
 We simplify away `getD`, replacing `getD l n a` with `(l[n]?).getD a`.
@@ -2678,50 +2680,45 @@ theorem getElem_dropLast : ∀ {xs : List α} {i : Nat} (h : i < xs.dropLast.len
   | _ :: _ :: _, _ + 1, h => getElem_dropLast (Nat.add_one_lt_add_one_iff.mp h)
 
 attribute [grind] List.getElem_dropLast
+attribute [grind] List.getElem?_eq_none
+
+-- attribute [grind] List.getElem?_eq_getElem -- too slow
 
 theorem getElem?_dropLast {xs : List α} {i : Nat} :
     xs.dropLast[i]? = if i < xs.length - 1 then xs[i]? else none := by
-  split
-  · rw [getElem?_eq_getElem, getElem?_eq_getElem, getElem_dropLast]
-    simpa
-  · simp_all
+  grind [getElem?_eq_getElem]
+
+attribute [grind] List.dropLast_cons₂
 
 theorem head_dropLast {xs : List α} (h) :
     xs.dropLast.head h = xs.head (by rintro rfl; simp at h) := by
   cases xs with
-  | nil => rfl
-  | cons x xs =>
-    cases xs with
-    | nil => simp at h
-    | cons y ys => rfl
+  | nil => grind
+  | cons x xs => cases xs with grind
+
+attribute [grind] List.dropLast_single List.dropLast_nil
 
 theorem head?_dropLast {xs : List α} : xs.dropLast.head? = if 1 < xs.length then xs.head? else none := by
   cases xs with
-  | nil => rfl
+  | nil => grind
   | cons x xs =>
-    cases xs with
-    | nil => rfl
-    | cons y ys => simp [Nat.succ_lt_succ_iff]
+    cases xs with grind
 
 theorem getLast_dropLast {xs : List α} (h) :
    xs.dropLast.getLast h =
      xs[xs.length - 2]'(match xs, h with | (_ :: _ :: _), _ => Nat.lt_trans (Nat.lt_add_one _) (Nat.lt_add_one _)) := by
-  rw [getLast_eq_getElem, getElem_dropLast]
-  congr 1
-  simp; rfl
+  grind
+
+attribute [grind] getLast?_eq_getElem? getElem?_dropLast
 
 theorem getLast?_dropLast {xs : List α} :
     xs.dropLast.getLast? = if xs.length ≤ 1 then none else xs[xs.length - 2]? := by
-  split <;> rename_i h
-  · match xs, h with
-    | [], _
-    | [_], _ => simp
-  · rw [getLast?_eq_getElem?, getElem?_dropLast, if_pos]
-    · congr 1
-      simp [← Nat.sub_add_eq]
-    · simp only [Nat.not_le] at h
-      match xs, h with
-      | (_ :: _ :: _), _ => simp
+  -- FIXME another non-deterministic grind? Sometimes fails?
+  grind only [usr List.getElem?_eq_none, List.getElem?_reverse, getLast?_eq_getElem?,
+    List.head?_eq_getLast?_reverse, getElem?_dropLast, List.getLast?_reverse, List.length_dropLast,
+    List.length_reverse, length_nil, List.reverse_reverse, head?_nil, List.getElem?_eq_none,
+    length_pos_of_ne_nil, getLast?_nil, List.head?_reverse, List.getLast?_eq_head?_reverse, →
+    List.eq_nil_of_length_eq_zero, = List.getElem?_nil, reverse_nil, cases Or]
 
 theorem dropLast_cons_of_ne_nil {α : Type u} {x : α}
     {l : List α} (h : l ≠ []) : (x :: l).dropLast = x :: l.dropLast := by

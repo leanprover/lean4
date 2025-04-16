@@ -1099,7 +1099,11 @@ def dropLast {α} : List α → List α
   | a::as => a :: dropLast as
 
 @[simp] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
-@[simp] theorem dropLast_single : [x].dropLast = [] := rfl
+@[simp] theorem dropLast_singleton : [x].dropLast = [] := rfl
+
+@[deprecated dropLast_singleton (since := "2025-04-16")]
+theorem dropLast_single : [x].dropLast = [] := dropLast_singleton
+
 @[simp] theorem dropLast_cons₂ :
     (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
 

@@ -183,18 +183,18 @@ theorem ISize.neg_ofNat {n : Nat} : -ofNat n = ofInt (-n) := by
   rw [← neg_ofInt, ofInt_eq_ofNat]
 
 theorem Int8.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 7) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem Int16.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 15) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem Int32.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 31) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem Int64.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 63) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem ISize.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 31) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem ISize.toNatClampNeg_ofNat_of_lt_two_pow_numBits {n : Nat} (h : n < 2 ^ (System.Platform.numBits - 1)) :
     toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_two_pow_numBits_le, Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_two_pow_numBits_le, Int.toNat_natCast]
   · cases System.Platform.numBits_eq <;> simp_all <;> omega
   · cases System.Platform.numBits_eq <;> simp_all <;> omega
 
@@ -3076,15 +3076,15 @@ protected theorem Int64.lt_or_eq_of_le {a b : Int64} : a ≤ b → a < b ∨ a =
 protected theorem ISize.lt_or_eq_of_le {a b : ISize} : a ≤ b → a < b ∨ a = b := ISize.le_iff_lt_or_eq.mp
 
 theorem Int8.toInt_eq_toNatClampNeg {a : Int8} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
 theorem Int16.toInt_eq_toNatClampNeg {a : Int16} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
 theorem Int32.toInt_eq_toNatClampNeg {a : Int32} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
 theorem Int64.toInt_eq_toNatClampNeg {a : Int64} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
 theorem ISize.toInt_eq_toNatClampNeg {a : ISize} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le, toInt_zero] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le, toInt_zero] using ha
 
 @[simp] theorem UInt8.toInt8_add (a b : UInt8) : (a + b).toInt8 = a.toInt8 + b.toInt8 := rfl
 @[simp] theorem UInt16.toInt16_add (a b : UInt16) : (a + b).toInt16 = a.toInt16 + b.toInt16 := rfl

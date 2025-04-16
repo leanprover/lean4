@@ -566,7 +566,11 @@ theorem eq_one_of_mul_eq_self_left {a b : Int} (Hpos : a ≠ 0) (H : b * a = a) 
 theorem eq_one_of_mul_eq_self_right {a b : Int} (Hpos : b ≠ 0) (H : b * a = b) : a = 1 :=
   Int.eq_of_mul_eq_mul_left Hpos <| by rw [Int.mul_one, H]
 
-/-! NatCast lemmas -/
+protected theorem two_mul (n : Int) : 2 * n = n + n := calc
+  2 * n = (1 + 1) * n := rfl
+  _     = n + n := by simp only [Int.add_mul, Int.one_mul]
+
+/-! ## NatCast lemmas -/
 
 /-!
 The following lemmas are later subsumed by e.g. `Nat.cast_add` and `Nat.cast_mul` in Mathlib
@@ -577,10 +581,8 @@ protected theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
 protected theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
 
-@[simp] protected theorem natCast_add (a b : Nat) : ((a + b : Nat) : Int) = (a : Int) + (b : Int) := by
-  -- Note this only works because of local simp attributes in this file,
-  -- so it still makes sense to tag the lemmas with `@[simp]`.
-  simp
+@[simp, norm_cast] protected theorem natCast_add (a b : Nat) : ((a + b : Nat) : Int) = (a : Int) + (b : Int) := by
+  rfl
 
 protected theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : Int) = (n : Int) + 1 := rfl
 

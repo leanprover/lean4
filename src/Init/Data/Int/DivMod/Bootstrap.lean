@@ -45,9 +45,9 @@ protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
   Iff.intro (fun ⟨k, e⟩ => by rw [e, Int.zero_mul])
             (fun h => h.symm ▸ Int.dvd_refl _)
 
-protected theorem dvd_mul_right (a b : Int) : a ∣ a * b := ⟨_, rfl⟩
+@[simp] protected theorem dvd_mul_right (a b : Int) : a ∣ a * b := ⟨_, rfl⟩
 
-protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm ..⟩
+@[simp] protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm ..⟩
 
 @[simp] protected theorem neg_dvd {a b : Int} : -a ∣ b ↔ a ∣ b := by
   constructor <;> exact fun ⟨k, e⟩ =>
@@ -59,13 +59,13 @@ protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm .
 
 @[simp] theorem natAbs_dvd_natAbs {a b : Int} : natAbs a ∣ natAbs b ↔ a ∣ b := by
   refine ⟨fun ⟨k, hk⟩ => ?_, fun ⟨k, hk⟩ => ⟨natAbs k, hk.symm ▸ natAbs_mul a k⟩⟩
-  rw [← natAbs_ofNat k, ← natAbs_mul, natAbs_eq_natAbs_iff] at hk
+  rw [← natAbs_natCast k, ← natAbs_mul, natAbs_eq_natAbs_iff] at hk
   cases hk <;> subst b
   · apply Int.dvd_mul_right
   · rw [← Int.mul_neg]; apply Int.dvd_mul_right
 
 theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natAbs := by
-  rw [← natAbs_dvd_natAbs, natAbs_ofNat]
+  rw [← natAbs_dvd_natAbs, natAbs_natCast]
 
 /-! ### ediv zero  -/
 

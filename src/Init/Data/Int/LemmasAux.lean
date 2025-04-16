@@ -5,6 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Int.Order
+import Init.Data.Int.Pow
 import Init.Data.Int.DivMod.Lemmas
 import Init.Omega
 
@@ -39,6 +40,39 @@ namespace Int
 theorem neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
   omega
 
+protected theorem ofNat_add_out (m n : Nat) : ↑m + ↑n = (↑(m + n) : Int) := rfl
+
+protected theorem ofNat_mul_out (m n : Nat) : ↑m * ↑n = (↑(m * n) : Int) := rfl
+
+protected theorem ofNat_add_one_out (n : Nat) : ↑n + (1 : Int) = ↑(Nat.succ n) := rfl
+
+@[simp] theorem ofNat_eq_natCast (n : Nat) : Int.ofNat n = n := rfl
+
+@[norm_cast] theorem natCast_inj {m n : Nat} : (m : Int) = (n : Int) ↔ m = n := ofNat_inj
+
+@[simp, norm_cast] theorem natAbs_cast (n : Nat) : natAbs ↑n = n := rfl
+
+@[norm_cast]
+protected theorem natCast_sub {n m : Nat} : n ≤ m → (↑(m - n) : Int) = ↑m - ↑n := ofNat_sub
+
+@[simp high] theorem natCast_eq_zero {n : Nat} : (n : Int) = 0 ↔ n = 0 := by omega
+
+theorem natCast_ne_zero {n : Nat} : (n : Int) ≠ 0 ↔ n ≠ 0 := by omega
+
+theorem natCast_ne_zero_iff_pos {n : Nat} : (n : Int) ≠ 0 ↔ 0 < n := by omega
+
+@[simp high] theorem natCast_pos {n : Nat} : (0 : Int) < n ↔ 0 < n := by omega
+
+theorem natCast_succ_pos (n : Nat) : 0 < (n.succ : Int) := natCast_pos.2 n.succ_pos
+
+@[simp high] theorem natCast_nonpos_iff {n : Nat} : (n : Int) ≤ 0 ↔ n = 0 := by omega
+
+theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ofNat_le.2 (Nat.zero_le _)
+
+@[simp] theorem sign_natCast_add_one (n : Nat) : sign (n + 1) = 1 := rfl
+
+@[simp, norm_cast] theorem cast_id {n : Int} : Int.cast n = n := rfl
+
 /-! ### toNat -/
 
 @[simp] theorem toNat_sub' (a : Int) (b : Nat) : (a - b).toNat = a.toNat - b := by
@@ -69,12 +103,24 @@ theorem neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
 
 @[simp] theorem toNat_le {m : Int} {n : Nat} : m.toNat ≤ n ↔ m ≤ n := by omega
 @[simp] theorem toNat_lt' {m : Int} {n : Nat} (hn : 0 < n) : m.toNat < n ↔ m < n := by omega
+@[simp] theorem lt_toNat {m : Int} {n : Nat} : m < toNat n ↔ m < n := by omega
+theorem lt_of_toNat_lt {a b : Int} (h : toNat a < toNat b) : a < b := by omega
+
+theorem toNat_sub_of_le {a b : Int} (h : b ≤ a) : (toNat (a - b) : Int) = a - b := by omega
 
 theorem pos_iff_toNat_pos {n : Int} : 0 < n ↔ 0 < n.toNat := by
   omega
 
-theorem ofNat_toNat_eq_self {a : Int} : a.toNat = a ↔ 0 ≤ a := by omega
-theorem eq_ofNat_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := by omega
+theorem natCast_toNat_eq_self {a : Int} : a.toNat = a ↔ 0 ≤ a := by omega
+
+@[deprecated natCast_toNat_eq_self (since := "2025-04-16")]
+theorem ofNat_toNat_eq_self {a : Int} : a.toNat = a ↔ 0 ≤ a := natCast_toNat_eq_self
+
+theorem eq_natCast_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := by omega
+
+@[deprecated eq_natCast_toNat (since := "2025-04-16")]
+theorem eq_ofNat_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := eq_natCast_toNat
+
 theorem toNat_le_toNat {n m : Int} (h : n ≤ m) : n.toNat ≤ m.toNat := by omega
 theorem toNat_lt_toNat {n m : Int} (hn : 0 < m) : n.toNat < m.toNat ↔ n < m := by omega
 
@@ -115,6 +161,8 @@ protected theorem sub_max_sub_right (a b c : Int) : max (a - c) (b - c) = max a 
 protected theorem sub_min_sub_left (a b c : Int) : min (a - b) (a - c) = a - max b c := by omega
 
 protected theorem sub_max_sub_left (a b c : Int) : max (a - b) (a - c) = a - min b c := by omega
+
+/-! ## mul -/
 
 theorem mul_le_mul_of_natAbs_le {x y : Int} {s t : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ t) :
     x * y ≤ s * t := by
@@ -166,5 +214,10 @@ theorem neg_mul_le_mul {x y : Int} {s t : Nat} (lbx : -s ≤ x) (ubx : x < s) (l
   · have : 0 < x * y := by apply Int.mul_pos_of_neg_of_neg <;> omega
     norm_cast
     omega
+
+/-! ## pow -/
+
+theorem natAbs_pow_two (a : Int) : (natAbs a : Int) ^ 2 = a ^ 2 := by
+  simp [Int.pow_succ]
 
 end Int

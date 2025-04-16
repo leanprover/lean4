@@ -155,6 +155,17 @@ public def satQuery (solverPath : System.FilePath) (problemPath : System.FilePat
     s!"--binary={binaryProofs}",
     "--quiet",
     /-
+    This sets the magic parameters of cadical to optimize for UNSAT search.
+    Given the fact that we are mostly interested in proving things and expect user goals to be
+    provable this is a fine value to set
+    -/
+    "--unsat",
+    /-
+    Ensure we don't produce proofs with BVA as our LRAT checker doesn't understand them yet.
+    See: https://github.com/arminbiere/cadical/issues/134
+    -/
+    "--no-factor",
+    /-
     Bitwuzla sets this option and it does improve performance practically:
     https://github.com/bitwuzla/bitwuzla/blob/0e81e616af4d4421729884f01928b194c3536c76/src/sat/cadical.cpp#L34
     -/

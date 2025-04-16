@@ -763,9 +763,6 @@ class LawfulBEq (α : Type u) [BEq α] : Prop extends ReflBEq α where
   /-- If `a == b` evaluates to `true`, then `a` and `b` are equal in the logic. -/
   eq_of_beq : {a b : α} → a == b → a = b
 
-instance [BEq α] [LawfulBEq α] : ReflBEq α where
-  refl := LawfulBEq.rfl
-
 export LawfulBEq (eq_of_beq)
 
 instance : LawfulBEq Bool where

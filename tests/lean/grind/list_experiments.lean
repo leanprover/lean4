@@ -1003,8 +1003,10 @@ theorem map_eq_map_iff : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
 theorem map_eq_iff : map f l = l' ↔ ∀ i : Nat, l'[i]? = l[i]?.map f := by
   grind
 
+attribute [grind] List.foldr_nil List.foldr_cons
+
 theorem map_eq_foldr {f : α → β} {l : List α} : map f l = foldr (fun a bs => f a :: bs) [] l := by
-  induction l <;> sorry -- simp [*]
+  induction l <;> grind
 
 theorem map_set {f : α → β} {l : List α} {i : Nat} {a : α} :
     (l.set i a).map f = (l.map f).set i (f a) := by

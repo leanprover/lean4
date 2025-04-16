@@ -89,6 +89,8 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
             params ← withRef p <| addEMatchTheorem params ctor .default
         else
           throwError "invalid use of `intro` modifier, `{declName}` is not an inductive predicate"
+      | .ext =>
+        throwError "`[grind ext]` cannot be set using parameters"
       | .infer =>
         if let some declName ← Grind.isCasesAttrCandidate? declName false then
           params := { params with casesTypes := params.casesTypes.insert declName false }

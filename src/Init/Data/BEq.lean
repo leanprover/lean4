@@ -54,6 +54,5 @@ theorem BEq.neq_of_beq_of_neq [BEq α] [PartialEquivBEq α] {a b c : α} :
   fun h₁ h₂ => Bool.eq_false_iff.2 fun h₃ => Bool.eq_false_iff.1 h₂ (BEq.trans (BEq.symm h₁) h₃)
 
 instance (priority := low) [BEq α] [LawfulBEq α] : EquivBEq α where
-  refl := LawfulBEq.rfl
   symm h := beq_iff_eq.2 <| Eq.symm <| beq_iff_eq.1 h
   trans hab hbc := beq_iff_eq.2 <| (beq_iff_eq.1 hab).trans <| beq_iff_eq.1 hbc

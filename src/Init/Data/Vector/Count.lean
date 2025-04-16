@@ -229,7 +229,7 @@ theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b ==
 @[deprecated count_replicate (since := "2025-03-18")]
 abbrev count_mkVector := @count_replicate
 
-theorem count_le_count_map [DecidableEq β] {xs : Vector α n} {f : α → β} {x : α} :
+theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Vector α n} {f : α → β} {x : α} :
     count x xs ≤ count (f x) (map f xs) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.count_le_count_map]
@@ -238,5 +238,16 @@ theorem count_flatMap {α} [BEq β] {xs : Vector α n} {f : α → Vector β m} 
     count x (xs.flatMap f) = (map (count x ∘ f) xs).sum := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.count_flatMap, Function.comp_def]
+
+theorem countP_replace {a b : α} {xs : Vector α n} {p : α → Bool} :
+    (xs.replace a b).countP p =
+      if xs.contains a then xs.countP p + (if p b then 1 else 0) - (if p a then 1 else 0) else xs.countP p := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.countP_replace]
+
+theorem count_replace {a b c : α} {xs : Vector α n} :
+    (xs.replace a b).count c =
+      if xs.contains a then xs.count c + (if b == c then 1 else 0) - (if a == c then 1 else 0) else xs.count c := by
+  simp [count_eq_countP, countP_replace]
 
 end count

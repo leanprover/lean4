@@ -9,11 +9,13 @@ import Init.NotationExtra
 
 namespace Prod
 
+instance [BEq α] [BEq β] [ReflBEq α] [ReflBEq β] : ReflBEq (α × β) where
+  rfl {a} := by cases a; simp [BEq.beq]
+
 instance [BEq α] [BEq β] [LawfulBEq α] [LawfulBEq β] : LawfulBEq (α × β) where
   eq_of_beq {a b} (h : a.1 == b.1 && a.2 == b.2) := by
     cases a; cases b
     refine congr (congrArg _ (eq_of_beq ?_)) (eq_of_beq ?_) <;> simp_all
-  rfl {a} := by cases a; simp [BEq.beq, LawfulBEq.rfl]
 
 @[simp]
 protected theorem «forall» {p : α × β → Prop} : (∀ x, p x) ↔ ∀ a b, p (a, b) :=

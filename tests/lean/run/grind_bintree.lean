@@ -92,8 +92,7 @@ theorem Tree.forall_insert_of_forall
 theorem Tree.bst_insert_of_bst
         {t : Tree β} (h : BST t) (key : Nat) (value : β)
         : BST (t.insert key value) := by
-  -- TODO: improve `grind` `funext` support, and minimize the number of splits
-  induction h <;> grind (splits := 12) [BST.node, BST.leaf, ForallTree.leaf, forall_insert_of_forall]
+  induction h <;> grind [BST.node, BST.leaf, ForallTree.leaf, forall_insert_of_forall]
 
 def BinTree (β : Type u) := { t : Tree β // BST t }
 

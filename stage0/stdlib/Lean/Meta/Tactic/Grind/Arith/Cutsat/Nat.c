@@ -2538,7 +2538,7 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22;
 x_19 = lean_ctor_get(x_17, 0);
 x_20 = lean_ctor_get(x_17, 1);
 x_21 = l_Int_OfNat_toIntLe_x3f___closed__2;
-x_22 = lean_ctor_get_uint8(x_19, sizeof(void*)*6 + 8);
+x_22 = lean_ctor_get_uint8(x_19, sizeof(void*)*6 + 10);
 lean_dec(x_19);
 if (x_22 == 0)
 {
@@ -2580,7 +2580,7 @@ lean_inc(x_34);
 lean_inc(x_33);
 lean_dec(x_17);
 x_35 = l_Int_OfNat_toIntLe_x3f___closed__2;
-x_36 = lean_ctor_get_uint8(x_33, sizeof(void*)*6 + 8);
+x_36 = lean_ctor_get_uint8(x_33, sizeof(void*)*6 + 10);
 lean_dec(x_33);
 if (x_36 == 0)
 {

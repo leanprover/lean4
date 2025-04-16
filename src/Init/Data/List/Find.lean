@@ -792,7 +792,7 @@ theorem of_findIdx?_eq_some {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
   | nil => simp_all
   | cons x xs ih =>
     simp_all only [findIdx?_cons, Nat.zero_add]
-    split at w <;> cases i <;> simp_all [succ_inj']
+    split at w <;> cases i <;> simp_all [succ_inj]
 
 @[deprecated of_findIdx?_eq_some (since := "2025-02-02")]
 abbrev findIdx?_of_eq_some := @of_findIdx?_eq_some

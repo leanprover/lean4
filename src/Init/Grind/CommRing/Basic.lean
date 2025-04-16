@@ -43,6 +43,12 @@ class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
 
+-- We reduce the priority of these parent instances,
+-- so that in downstream libraries with their own `CommRing` class,
+-- the path `CommRing -> Add` is found before `CommRing -> Lean.Grind.CommRing -> Add`.
+-- (And similarly for the other parents.)
+attribute [instance 100] CommRing.toAdd CommRing.toMul CommRing.toNeg CommRing.toSub CommRing.toHPow
+
 -- This is a low-priority instance, to avoid conflicts with existing `OfNat` instances.
 attribute [instance 100] CommRing.ofNat
 
@@ -69,6 +75,9 @@ theorem zero_add (a : α) : 0 + a = a := by
 theorem add_neg_cancel (a : α) : a + -a = 0 := by
   rw [add_comm, neg_add_cancel]
 
+theorem add_left_comm (a b c : α) : a + (b + c) = b + (a + c) := by
+  rw [← add_assoc, ← add_assoc, add_comm a]
+
 theorem one_mul (a : α) : 1 * a = a := by
   rw [mul_comm, mul_one]
 
@@ -77,6 +86,9 @@ theorem right_distrib (a b c : α) : (a + b) * c = a * c + b * c := by
 
 theorem mul_zero (a : α) : a * 0 = 0 := by
   rw [mul_comm, zero_mul]
+
+theorem mul_left_comm (a b c : α) : a * (b * c) = b * (a * c) := by
+  rw [← mul_assoc, ← mul_assoc, mul_comm a]
 
 theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a * OfNat.ofNat b := by
   induction b with
@@ -189,6 +201,11 @@ theorem intCast_mul (x y : Int) : ((x * y : Int) : α) = ((x : α) * (y : α)) :
   | (-(x + 1 : Nat)), (-(y + 1 : Nat)) => by
     rw [Int.neg_mul_neg, intCast_neg, intCast_neg, neg_mul, mul_neg, neg_neg, intCast_nat_mul,
       intCast_ofNat, intCast_ofNat]
+
+theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂ := by
+  induction k₂
+  next => simp [pow_zero, mul_one]
+  next k₂ ih => rw [Nat.add_succ, pow_succ, pow_succ, ih, mul_assoc]
 
 end CommRing
 

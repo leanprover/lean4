@@ -105,7 +105,7 @@ abbrev length_eq_zero := @length_eq_zero_iff
 theorem eq_nil_iff_length_eq_zero : l = [] ↔ length l = 0 :=
   length_eq_zero_iff.symm
 
-@[grind] theorem length_pos_of_mem {a : α} : ∀ {l : List α}, a ∈ l → 0 < length l
+@[grind →] theorem length_pos_of_mem {a : α} : ∀ {l : List α}, a ∈ l → 0 < length l
   | _::_, _ => Nat.zero_lt_succ _
 
 theorem exists_mem_of_length_pos : ∀ {l : List α}, 0 < length l → ∃ a, a ∈ l
@@ -185,7 +185,7 @@ theorem singleton_inj {α : Type _} {a b : α} : [a] = [b] ↔ a = b := by
 We simplify `l.get i` to `l[i.1]'i.2` and `l.get? i` to `l[i]?`.
 -/
 
-@[simp, grind]
+@[simp, grind =]
 theorem get_eq_getElem {l : List α} {i : Fin l.length} : l.get i = l[i.1]'i.2 := rfl
 
 set_option linter.deprecated false in
@@ -225,7 +225,7 @@ theorem get?_eq_getElem? {l : List α} {i : Nat} : l.get? i = l[i]? := by
 We simplify `l[i]!` to `(l[i]?).getD default`.
 -/
 
-@[simp, grind]
+@[simp, grind =]
 theorem getElem!_eq_getElem?_getD [Inhabited α] {l : List α} {i : Nat} :
     l[i]! = (l[i]?).getD (default : α) := by
   simp only [getElem!_def]
@@ -235,16 +235,16 @@ theorem getElem!_eq_getElem?_getD [Inhabited α] {l : List α} {i : Nat} :
 
 /-! ### getElem? and getElem -/
 
-@[simp, grind] theorem getElem?_nil {i : Nat} : ([] : List α)[i]? = none := rfl
+@[simp, grind =] theorem getElem?_nil {i : Nat} : ([] : List α)[i]? = none := rfl
 
 theorem getElem_cons {l : List α} (w : i < (a :: l).length) :
     (a :: l)[i] =
       if h : i = 0 then a else l[i-1]'(match i, h with | i+1, _ => succ_lt_succ_iff.mp w) := by
   cases i <;> simp
 
-@[grind] theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := rfl
+@[grind =] theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := rfl
 
-@[simp, grind] theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl
+@[simp, grind =] theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl
 
 theorem getElem?_cons : (a :: l)[i]? = if i = 0 then some a else l[i-1]? := by
   cases i <;> simp [getElem?_cons_zero]
@@ -258,6 +258,9 @@ theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.le
     · simp_all
     · match i, h with
       | i + 1, h => simp [getElem?_eq_some_iff, Nat.succ_lt_succ_iff]
+
+theorem getElem_of_getElem? {l : List α} : l[i]? = some a → ∃ h : i < l.length, l[i] = a :=
+  getElem?_eq_some_iff.mp
 
 theorem some_eq_getElem?_iff {l : List α} : some a = l[i]? ↔ ∃ h : i < l.length, l[i] = a := by
   rw [eq_comm, getElem?_eq_some_iff]
@@ -337,7 +340,7 @@ We simplify away `getD`, replacing `getD l n a` with `(l[n]?).getD a`.
 Because of this, there is only minimal API for `getD`.
 -/
 
-@[simp, grind]
+@[simp, grind =]
 theorem getD_eq_getElem?_getD {l : List α} {i : Nat} {a : α} : getD l i a = (l[i]?).getD a := by
   simp [getD]
 
@@ -701,7 +704,7 @@ theorem set_comm (a b : α) : ∀ {i j : Nat} {l : List α}, i ≠ j →
   | _+1, 0, _ :: _, _ => by simp [set]
   | 0, _+1, _ :: _, _ => by simp [set]
   | _+1, _+1, _ :: t, h =>
-    congrArg _ <| set_comm a b fun h' => h <| Nat.succ_inj'.mpr h'
+    congrArg _ <| set_comm a b fun h' => h <| Nat.succ_inj.mpr h'
 
 @[simp]
 theorem set_set (a : α) {b : α} : ∀ {l : List α} {i : Nat}, (l.set i a).set i b = l.set i b
@@ -711,8 +714,8 @@ theorem set_set (a : α) {b : α} : ∀ {l : List α} {i : Nat}, (l.set i a).set
 
 theorem mem_set {l : List α} {i : Nat} (h : i < l.length) (a : α) :
     a ∈ l.set i a := by
-  simp [mem_iff_getElem]
-  exact ⟨i, (by simpa using h), by simp⟩
+  simp only [mem_iff_getElem]
+  exact ⟨i, by simpa using h, by simp⟩
 
 theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.set i b → a ∈ l ∨ a = b
   | _ :: _, 0, _, _, h => ((mem_cons ..).1 h).symm.imp_left (.tail _)
@@ -774,37 +777,24 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
       simpa only [List.instBEq, List.beq, Bool.and_true]
     simp
   · intro h
-    constructor
-    intro l
-    induction l with
-    | nil => simp only [List.instBEq, List.beq]
-    | cons _ _ ih =>
-      simp [List.instBEq, List.beq]
-      exact ih
+    infer_instance
 
 @[simp] theorem lawfulBEq_iff [BEq α] : LawfulBEq (List α) ↔ LawfulBEq α := by
   constructor
   · intro h
+    have : ReflBEq α := reflBEq_iff.mp inferInstance
     constructor
-    · intro a b h
-      apply singleton_inj.1
-      apply eq_of_beq
-      simp only [List.instBEq, List.beq]
-      simpa
-    · intro a
-      suffices ([a] == [a]) = true by
-        simpa only [List.instBEq, List.beq, Bool.and_true]
-      simp
+    intro a b h
+    apply singleton_inj.1
+    apply eq_of_beq
+    simp only [List.instBEq, List.beq]
+    simpa
   · intro h
-    constructor
-    · intro _ _ h
-      simpa using h
-    · intro _
-      simp
+    infer_instance
 
 /-! ### isEqv -/
 
-@[simp] theorem isEqv_eq [DecidableEq α] {l₁ l₂ : List α} : l₁.isEqv l₂ (· == ·) = (l₁ = l₂) := by
+@[simp] theorem isEqv_eq [BEq α] [LawfulBEq α] {l₁ l₂ : List α} : l₁.isEqv l₂ (· == ·) = (l₁ = l₂) := by
   induction l₁ generalizing l₂ with
   | nil => cases l₂ <;> simp
   | cons a l₁ ih =>
@@ -827,9 +817,15 @@ theorem getElem_length_sub_one_eq_getLast {l : List α} (h : l.length - 1 < l.le
     l[l.length - 1] = getLast l (by cases l; simp at h; simp) := by
   rw [← getLast_eq_getElem]
 
+@[simp] theorem getLast_cons_cons {a : α} {l : List α} :
+    getLast (a :: b :: l) (by simp) = getLast (b :: l) (by simp) := by
+  rfl
+
 theorem getLast_cons {a : α} {l : List α} : ∀ (h : l ≠ nil),
     getLast (a :: l) (cons_ne_nil a l) = getLast l h := by
-  induction l <;> intros; {contradiction}; rfl
+  induction l <;> intros
+  · contradiction
+  · rfl
 
 theorem getLast_eq_getLastD {a l} (h) : @getLast α (a::l) h = getLastD l a := by
   cases l <;> rfl
@@ -1296,7 +1292,7 @@ abbrev filter_length_eq_length := @length_filter_eq_length_iff
 
 @[simp] theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with
-  | nil => simp [filter]
+  | nil => simp
   | cons a as ih =>
     by_cases h : p a
     · simp_all [or_and_left]
@@ -1362,12 +1358,9 @@ theorem filter_eq_cons_iff {l} {a} {as} :
       split at h <;> rename_i w
       · simp only [cons.injEq] at h
         obtain ⟨rfl, rfl⟩ := h
-        refine ⟨[], l, ?_⟩
-        simp [w]
-      · specialize ih h
-        obtain ⟨l₁, l₂, rfl, w₁, w₂, w₃⟩ := ih
-        refine ⟨x :: l₁, l₂, ?_⟩
-        simp_all
+        exact ⟨[], l, by simp [w]⟩
+      · obtain ⟨l₁, l₂, rfl, w₁, w₂, w₃⟩ := ih h
+        exact ⟨x :: l₁, l₂, by simp_all⟩
   · rintro ⟨l₁, l₂, rfl, h₁, h, h₂⟩
     simp [h₂, filter_cons, filter_eq_nil_iff.mpr h₁, h]
 
@@ -2046,7 +2039,7 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
   | _, [] => by simp_all
   | [], _ :: _ => by simp_all
   | _ :: _, _ :: _ => by
-    simp
+    simp only [cons.injEq, flatten_cons, map_cons]
     rw [eq_iff_flatten_eq]
     constructor
     · rintro ⟨rfl, h₁, h₂⟩
@@ -2154,7 +2147,7 @@ theorem replicate_succ' : replicate (n + 1) a = replicate n a ++ [a] := by
   | 0 => by simp
   | n+1 => by simp [replicate_succ, mem_replicate, Nat.succ_ne_zero]
 
-@[deprecated mem_replicate (since := "2024-09-05")]
+@[simp]
 theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
     (replicate n b).contains a = (a == b && !n == 0) := by
   induction n with
@@ -2165,9 +2158,9 @@ theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
 
 @[deprecated mem_replicate (since := "2024-09-05")]
 theorem decide_mem_replicate [BEq α] [LawfulBEq α] {a b : α} :
-    ∀ {n}, decide (b ∈ replicate n a) = ((¬ n == 0) && b == a)
-  | 0 => by simp
-  | n+1 => by simp [replicate_succ, decide_mem_replicate, Nat.succ_ne_zero]
+    ∀ {n}, decide (b ∈ replicate n a) = ((¬ n == 0) && b == a) := by
+  have : DecidableEq α := instDecidableEqOfLawfulBEq
+  simp [Bool.beq_eq_decide_eq]
 
 theorem eq_of_mem_replicate {a b : α} {n} (h : b ∈ replicate n a) : b = a := (mem_replicate.1 h).2
 
@@ -2709,12 +2702,12 @@ theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
-  induction l generalizing init <;> simp [*, H]
+  induction l generalizing init <;> simp [*]
 
 -- The argument `f : β₁ → β₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldr_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : α → β₂ → β₂} {l : List α} {init : β₁}
     (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
-  induction l <;> simp [*, H]
+  induction l <;> simp [*]
 
 /--
 A reasoning principle for proving propositions about the result of `List.foldl` by establishing an
@@ -3259,6 +3252,10 @@ theorem eq_or_mem_of_mem_insert {l : List α} (h : a ∈ l.insert b) : a = b ∨
 
 @[simp] theorem length_insert_of_not_mem {l : List α} (h : a ∉ l) :
     length (l.insert a) = length l + 1 := by rw [insert_of_not_mem h]; rfl
+
+theorem length_insert {l : List α} :
+    (l.insert a).length = l.length + if a ∈ l then 0 else 1 := by
+  split <;> simp_all
 
 theorem length_le_length_insert {l : List α} {a : α} : l.length ≤ (l.insert a).length := by
   by_cases h : a ∈ l

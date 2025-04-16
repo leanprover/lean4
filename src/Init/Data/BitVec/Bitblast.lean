@@ -1456,7 +1456,6 @@ theorem udiv_intMin_of_msb_false {x : BitVec w} (h : x.msb = false) :
   have wpos : 0 < w := by omega
   have := Nat.two_pow_pos (w-1)
   simp [toNat_eq, wpos]
-  rw [Nat.div_eq_zero_iff_lt (by omega)]
   exact toNat_lt_of_msb_false h
 
 theorem sdiv_intMin {x : BitVec w} :

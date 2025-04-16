@@ -1688,7 +1688,7 @@ x_3 = lean_unsigned_to_nat(5u);
 x_4 = lean_unsigned_to_nat(1000u);
 x_5 = 1;
 x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_alloc_ctor(0, 6, 14);
+x_7 = lean_alloc_ctor(0, 6, 16);
 lean_ctor_set(x_7, 0, x_2);
 lean_ctor_set(x_7, 1, x_3);
 lean_ctor_set(x_7, 2, x_3);
@@ -1702,13 +1702,15 @@ lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 3, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 4, x_1);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 5, x_1);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 6, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 7, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 7, x_1);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 8, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 9, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 10, x_1);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 10, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 11, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 12, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 12, x_1);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 13, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 14, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 15, x_5);
 return x_7;
 }
 }

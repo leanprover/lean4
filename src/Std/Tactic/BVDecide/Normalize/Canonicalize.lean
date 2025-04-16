@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.BitVec
+import Std.Tactic.BVDecide.Syntax
 
 /-!
 This contains theorems responsible for turning both `Bool` and `BitVec` goals into the
@@ -97,6 +98,9 @@ attribute [bv_normalize] BitVec.neg_eq
 attribute [bv_normalize] BitVec.mul_eq
 attribute [bv_normalize] BitVec.udiv_eq
 attribute [bv_normalize] BitVec.umod_eq
+attribute [bv_normalize ←] BitVec.shiftLeft_eq'
+attribute [bv_normalize ←] BitVec.sshiftRight_eq'
+attribute [bv_normalize ←] BitVec.ushiftRight_eq'
 
 end Normalize
 end Std.Tactic.BVDecide

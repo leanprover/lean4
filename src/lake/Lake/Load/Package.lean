@@ -31,7 +31,7 @@ def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
     leanFile.pathExists <||> tomlFile.pathExists
 
 /--
-Returns the absolute path of the configuration file (if it exists).
+Returns the normalized real path of the configuration file (if it exists).
 Otherwise, returns an empty string.
 -/
 def realConfigFile (cfgFile : FilePath) : BaseIO FilePath := do

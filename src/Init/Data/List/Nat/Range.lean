@@ -40,7 +40,6 @@ theorem getLast?_range' {n : Nat} : (range' s n).getLast? = if n = 0 then none e
       simp [h]
     · rw [if_neg h]
       simp
-      omega
 
 @[simp] theorem getLast_range' {n : Nat} (h) : (range' s n).getLast h = s + n - 1 := by
   cases n with
@@ -358,7 +357,7 @@ theorem zipIdx_singleton {x : α} {k : Nat} : zipIdx [x] k = [(x, k)] :=
 @[simp] theorem getLast?_zipIdx {l : List α} {k : Nat} :
     (zipIdx l k).getLast? = l.getLast?.map fun a => (a, k + l.length - 1) := by
   simp [getLast?_eq_getElem?]
-  cases l <;> simp; omega
+  cases l <;> simp
 
 theorem mk_add_mem_zipIdx_iff_getElem? {k i : Nat} {x : α} {l : List α} :
     (x, k + i) ∈ zipIdx l k ↔ l[i]? = some x := by
@@ -497,7 +496,7 @@ theorem head?_enumFrom (n : Nat) (l : List α) :
 theorem getLast?_enumFrom (n : Nat) (l : List α) :
     (enumFrom n l).getLast? = l.getLast?.map fun a => (n + l.length - 1, a) := by
   simp [getLast?_eq_getElem?]
-  cases l <;> simp; omega
+  cases l <;> simp
 
 @[deprecated mk_add_mem_zipIdx_iff_getElem? (since := "2025-01-21")]
 theorem mk_add_mem_enumFrom_iff_getElem? {n i : Nat} {x : α} {l : List α} :

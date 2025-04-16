@@ -257,8 +257,8 @@ theorem filter_beq {xs : Array α} (a : α) : xs.filter (· == a) = replicate (c
   rcases xs with ⟨xs⟩
   simp [List.filter_beq]
 
-theorem filter_eq {α} [DecidableEq α] {xs : Array α} (a : α) : xs.filter (· = a) = replicate (count a xs) a :=
-  filter_beq a
+theorem filter_eq {α} [BEq α] [LawfulBEq α] [DecidableEq α] {xs : Array α} (a : α) : xs.filter (· = a) = replicate (count a xs) a :=
+  funext (Bool.beq_eq_decide_eq · a) ▸ filter_beq a
 
 theorem replicate_count_eq_of_count_eq_size {xs : Array α} (h : count a xs = xs.size) :
     replicate (count a xs) a = xs := by
@@ -273,7 +273,7 @@ abbrev mkArray_count_eq_of_count_eq_size := @replicate_count_eq_of_count_eq_size
   rcases xs with ⟨xs⟩
   simp [List.count_filter, h]
 
-theorem count_le_count_map [DecidableEq β] {xs : Array α} {f : α → β} {x : α} :
+theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Array α} {f : α → β} {x : α} :
     count x xs ≤ count (f x) (map f xs) := by
   rcases xs with ⟨xs⟩
   simp [List.count_le_count_map, countP_map]
@@ -288,15 +288,25 @@ theorem count_flatMap {α} [BEq β] {xs : Array α} {f : α → Array β} {x : �
   rcases xs with ⟨xs⟩
   simp [List.count_flatMap, countP_flatMap, Function.comp_def]
 
--- FIXME these theorems can be restored once `List.erase` and `Array.erase` have been related.
+theorem countP_replace {a b : α} {xs : Array α} {p : α → Bool} :
+    (xs.replace a b).countP p =
+      if xs.contains a then xs.countP p + (if p b then 1 else 0) - (if p a then 1 else 0) else xs.countP p := by
+  rcases xs with ⟨xs⟩
+  simp [List.countP_replace]
 
--- theorem count_erase (a b : α) (l : Array α) : count a (l.erase b) = count a l - if b == a then 1 else 0 := by
---   sorry
+theorem count_replace {a b c : α} {xs : Array α} :
+    (xs.replace a b).count c =
+      if xs.contains a then xs.count c + (if b == c then 1 else 0) - (if a == c then 1 else 0) else xs.count c := by
+  simp [count_eq_countP, countP_replace]
 
--- @[simp] theorem count_erase_self (a : α) (l : Array α) :
---     count a (l.erase a) = count a l - 1 := by rw [count_erase, if_pos (by simp)]
+theorem count_erase (a b : α) (xs : Array α) : count a (xs.erase b) = count a xs - if b == a then 1 else 0 := by
+  rcases xs with ⟨l⟩
+  simp [List.count_erase]
 
--- @[simp] theorem count_erase_of_ne (ab : a ≠ b) (l : Array α) : count a (l.erase b) = count a l := by
---   rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
+@[simp] theorem count_erase_self (a : α) (xs : Array α) :
+    count a (xs.erase a) = count a xs - 1 := by rw [count_erase, if_pos (by simp)]
+
+@[simp] theorem count_erase_of_ne (ab : a ≠ b) (xs : Array α) : count a (xs.erase b) = count a xs := by
+  rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
 
 end count

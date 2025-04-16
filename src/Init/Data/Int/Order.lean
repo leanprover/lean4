@@ -1188,7 +1188,7 @@ theorem natAbs_sign (z : Int) : z.sign.natAbs = if z = 0 then 0 else 1 :=
 theorem natAbs_sign_of_ne_zero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 := by
   rw [Int.natAbs_sign, if_neg hz]
 
-@[deprecated natAbs_sign_of_nonzero (since := "2025-04-16")]
+@[deprecated natAbs_sign_of_ne_zero (since := "2025-04-16")]
 theorem natAbs_sign_of_nonzero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 :=
   natAbs_sign_of_ne_zero hz
 

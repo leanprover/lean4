@@ -302,7 +302,7 @@ are type formers. This can happen when we have a field whose type is, for exampl
 def applyToAny (type : Expr) : M Expr := do
   let toAny := (← get).toAny
   return type.replace fun
-    | .fvar fvarId => if toAny.contains fvarId then some erasedExpr else none
+    | .fvar fvarId => if toAny.contains fvarId then some anyExpr else none
     | _ => none
 
 def toLCNFType (type : Expr) : M Expr := do

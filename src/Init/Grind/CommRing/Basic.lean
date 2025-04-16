@@ -196,6 +196,11 @@ theorem intCast_mul (x y : Int) : ((x * y : Int) : α) = ((x : α) * (y : α)) :
     rw [Int.neg_mul_neg, intCast_neg, intCast_neg, neg_mul, mul_neg, neg_neg, intCast_nat_mul,
       intCast_ofNat, intCast_ofNat]
 
+theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂ := by
+  induction k₂
+  next => simp [pow_zero, mul_one]
+  next k₂ ih => rw [Nat.add_succ, pow_succ, pow_succ, ih, mul_assoc]
+
 end CommRing
 
 open CommRing

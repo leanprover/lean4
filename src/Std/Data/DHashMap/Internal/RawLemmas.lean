@@ -3380,12 +3380,12 @@ theorem size_filter_eq_size_iff [LawfulBEq α]
 theorem filter_equiv_self_iff [LawfulBEq α]
     {f : (a : α) → β a → Bool} (h : m.1.WF) :
     (m.filter f).1.Equiv m.1 ↔ ∀ (a : α) (h : m.contains a), (f a (m.get a h)) = true := by
-  simp_to_model [filter, Equiv, contains, get] using List.perm_filter_self_iff
+  simp_to_model [filter, Equiv, contains, get] using List.perm_filter_self_iff_forall_containsKey
 
 theorem filter_key_equiv_self_iff [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → Bool} (h : m.1.WF) :
     (m.filter fun k _ => f k).1.Equiv m.1 ↔ ∀ (a : α) (h : m.contains a), f (m.getKey a h) = true := by
-  simp_to_model [filter, Equiv, contains, getKey] using List.perm_filter_key_self_iff
+  simp_to_model [filter, Equiv, contains, getKey] using List.perm_filter_key_self_iff_forall_containsKey
 
 theorem size_filter_key_eq_size_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} (h : m.1.WF) :
@@ -3500,7 +3500,8 @@ theorem filter_equiv_self_iff [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} (h : m.1.WF) :
     (m.filter f).1.Equiv m.1 ↔ ∀ (a : α) (h : m.contains a),
       f (m.getKey a h) (Const.get m a h) := by
-  simp_to_model [filter, Equiv, contains, getKey, Const.get] using List.Const.perm_filter_self_iff
+  simp_to_model [filter, Equiv, contains, getKey, Const.get] using
+    List.Const.perm_filter_self_iff_forall_containsKey
 
 theorem get?_filter [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k : α} (h : m.1.WF) :
@@ -3539,7 +3540,7 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
       f (m.getKey k ((contains_eq_isSome_get? m h).trans (Option.isSome_of_eq_some h'))) x)).getD fallback := by
   simp_to_model [filter, Const.getD, getKey, Const.get?] using List.Const.getValueD_filter
 
-theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited β]
+theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k k' : α} {fallback : β} (h : m.1.WF) :
     m.getKey? k = some k' →
       Const.getD (m.filter f) k fallback =

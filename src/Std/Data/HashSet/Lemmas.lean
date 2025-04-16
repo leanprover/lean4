@@ -900,7 +900,7 @@ theorem get!_filter [EquivBEq α] [LawfulHashable α] [Inhabited α]
     (m.filter f).get! k = ((m.get? k).filter f).get! :=
   HashMap.getKey!_filter_key
 
-theorem getD_filter [EquivBEq α] [LawfulHashable α] [Inhabited α]
+theorem getD_filter [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} {k fallback : α} :
     (m.filter f).getD k fallback = ((m.get? k).filter f).getD fallback :=
   HashMap.getKeyD_filter_key

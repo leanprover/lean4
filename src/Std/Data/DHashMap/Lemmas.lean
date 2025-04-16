@@ -3584,7 +3584,7 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
   Raw₀.Const.getD_filter ⟨m.1, _⟩ m.2
 
-theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited β]
+theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k k' : α} {fallback : β} :
     m.getKey? k = some k' →
       Const.getD (m.filter f) k fallback =

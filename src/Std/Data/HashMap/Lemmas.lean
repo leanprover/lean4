@@ -2272,7 +2272,7 @@ theorem contains_of_contains_filter [EquivBEq α] [LawfulHashable α]
 
 theorem mem_of_mem_filter [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k : α} :
-    k ∈ (m.filter f) → k ∈ m :=
+    k ∈ m.filter f → k ∈ m :=
   DHashMap.mem_of_mem_filter
 
 theorem size_filter_le_size [EquivBEq α] [LawfulHashable α]
@@ -2328,7 +2328,7 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
       f (m.getKey k (mem_iff_isSome_getElem?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
   DHashMap.Const.getD_filter
 
-theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited β]
+theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k k' : α} {fallback : β} :
     m.getKey? k = some k' →
       (m.filter f).getD k fallback =

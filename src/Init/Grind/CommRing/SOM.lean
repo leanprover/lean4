@@ -143,9 +143,33 @@ def powerRevlex (k₁ k₂ : Nat) : Ordering :=
 def Power.revlex (p₁ p₂ : Power) : Ordering :=
   p₁.x.revlex p₂.x |>.then (powerRevlex p₁.k p₂.k)
 
-def Mon.revlex' (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
+def Mon.revlexWF (m₁ m₂ : Mon) : Ordering :=
+  match m₁, m₂ with
+  | .leaf p₁, .leaf p₂ => p₁.revlex p₂
+  | .leaf p₁, .cons p₂ m₂ =>
+    bif p₁.x.ble p₂.x  then
+      .gt
+    else
+      revlexWF (.leaf p₁) m₂ |>.then .gt
+  | .cons p₁ m₁, .leaf p₂ =>
+    bif p₂.x.ble p₁.x then
+      .lt
+    else
+      revlexWF m₁ (.leaf p₂) |>.then .lt
+  | .cons p₁ m₁, .cons p₂ m₂ =>
+    bif p₁.x == p₂.x then
+      revlexWF m₁ m₂ |>.then (powerRevlex p₁.k p₂.k)
+    else bif p₁.x.blt p₂.x then
+      revlexWF m₁ (.cons p₂ m₂) |>.then .gt
+    else
+      revlexWF (.cons p₁ m₁) m₂ |>.then .lt
+
+def Mon.revlexFuel (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
   match fuel with
-  | 0 => .lt
+  | 0 =>
+    -- This branch is not reachable in practice, but we add it here
+    -- to ensure we can prove helper theorems
+    revlexWF m₁ m₂
   | fuel + 1 =>
     match m₁, m₂ with
     | .leaf p₁, .leaf p₂ => p₁.revlex p₂
@@ -153,23 +177,22 @@ def Mon.revlex' (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
       bif p₁.x.ble p₂.x  then
         .gt
       else
-        revlex' fuel (.leaf p₁) m₂ |>.then .gt
+        revlexFuel fuel (.leaf p₁) m₂ |>.then .gt
     | .cons p₁ m₁, .leaf p₂ =>
       bif p₂.x.ble p₁.x then
         .lt
       else
-        revlex' fuel m₁ (.leaf p₂) |>.then .lt
+        revlexFuel fuel m₁ (.leaf p₂) |>.then .lt
     | .cons p₁ m₁, .cons p₂ m₂ =>
       bif p₁.x == p₂.x then
-        revlex' fuel m₁ m₂ |>.then (powerRevlex p₁.k p₂.k)
+        revlexFuel fuel m₁ m₂ |>.then (powerRevlex p₁.k p₂.k)
       else bif p₁.x.blt p₂.x then
-        revlex' fuel m₁ (.cons p₂ m₂) |>.then .gt
+        revlexFuel fuel m₁ (.cons p₂ m₂) |>.then .gt
       else
-        revlex' fuel (.cons p₁ m₁) m₂ |>.then .lt
+        revlexFuel fuel (.cons p₁ m₁) m₂ |>.then .lt
 
 def Mon.revlex (m₁ m₂ : Mon) : Ordering :=
-  -- We could use `m₁.length + m₂.length` to avoid hugeFuel
-  revlex' hugeFuel m₁ m₂
+  revlexFuel hugeFuel m₁ m₂
 
 def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
   compare m₁.degree m₂.degree |>.then (revlex m₁ m₂)
@@ -245,6 +268,51 @@ theorem Mon.denote_mul [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
   next h₁ h₂ _ =>
     have := eq_of_blt_false h₁ h₂
     simp [Power.denote_eq, pow_add, mul_assoc, mul_left_comm, mul_comm, this]
+
+theorem Var.eq_of_revlex {x₁ x₂ : Var} : x₁.revlex x₂ = .eq → x₁ = x₂ := by
+  simp [revlex, cond_eq_if] <;> split <;> simp
+  next h₁ => intro h₂; exact Nat.le_antisymm h₂ (Nat.ge_of_not_lt h₁)
+
+theorem eq_of_powerRevlex {k₁ k₂ : Nat} : powerRevlex k₁ k₂ = .eq → k₁ = k₂ := by
+  simp [powerRevlex, cond_eq_if] <;> split <;> simp
+  next h₁ => intro h₂; exact Nat.le_antisymm h₂ (Nat.ge_of_not_lt h₁)
+
+theorem Power.eq_of_revlex (p₁ p₂ : Power) : p₁.revlex p₂ = .eq → p₁ = p₂ := by
+  cases p₁; cases p₂; simp [revlex, Ordering.then]; split
+  next h₁ => intro h₂; simp [Var.eq_of_revlex h₁, eq_of_powerRevlex h₂]
+  next h₁ => intro h₂; simp [h₂] at h₁
+
+private theorem then_gt (o : Ordering) : ¬ o.then .gt = .eq := by
+  cases o <;> simp [Ordering.then]
+
+private theorem then_lt (o : Ordering) : ¬ o.then .lt = .eq := by
+  cases o <;> simp [Ordering.then]
+
+private theorem then_eq (o₁ o₂ : Ordering) : o₁.then o₂ = .eq ↔ o₁ = .eq ∧ o₂ = .eq := by
+  cases o₁ <;> cases o₂ <;> simp [Ordering.then]
+
+theorem Mon.eq_of_revlexWF {m₁ m₂ : Mon} : m₁.revlexWF m₂ = .eq → m₁ = m₂ := by
+  fun_induction revlexWF <;> simp [revlexWF, *, then_gt, then_lt, then_eq]
+  next => apply Power.eq_of_revlex
+  next p₁ m₁ p₂ m₂ h ih =>
+    cases p₁; cases p₂; intro h₁ h₂; simp [ih h₁, h]
+    simp at h h₂
+    simp [h, eq_of_powerRevlex h₂]
+
+theorem Mon.eq_of_revlexFuel {fuel : Nat} {m₁ m₂ : Mon} : revlexFuel fuel m₁ m₂ = .eq → m₁ = m₂ := by
+  fun_induction revlexFuel <;> simp [revlexFuel, *, then_gt, then_lt, then_eq]
+  next => apply eq_of_revlexWF
+  next => apply Power.eq_of_revlex
+  next p₁ m₁ p₂ m₂ h ih =>
+    cases p₁; cases p₂; intro h₁ h₂; simp [ih h₁, h]
+    simp at h h₂
+    simp [h, eq_of_powerRevlex h₂]
+
+theorem Mon.eq_of_revlex {m₁ m₂ : Mon} : revlex m₁ m₂ = .eq → m₁ = m₂ := by
+  apply eq_of_revlexFuel
+
+theorem Mon.eq_of_grevlex {m₁ m₂ : Mon} : grevlex m₁ m₂ = .eq → m₁ = m₂ := by
+  simp [grevlex, then_eq]; intro; apply eq_of_revlex
 
 end CommRing
 end Lean.Grind

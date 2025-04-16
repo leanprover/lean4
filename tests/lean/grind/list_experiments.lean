@@ -2945,14 +2945,10 @@ theorem length_le_length_insert {l : List α} {a : α} : l.length ≤ (l.insert 
   grind
 
 theorem length_insert_pos {l : List α} {a : α} : 0 < (l.insert a).length := by
-  by_cases h : a ∈ l
-  · rw [length_insert_of_mem h]
-    exact length_pos_of_mem h
-  · rw [length_insert_of_not_mem h]
-    exact Nat.zero_lt_succ _
+  grind
 
 theorem insert_eq {l : List α} {a : α} : l.insert a = if a ∈ l then l else a :: l := by
-  simp [List.insert]
+  grind [List.insert]
 
 theorem getElem?_insert_zero {l : List α} {a : α} :
     (l.insert a)[0]? = if a ∈ l then l[0]? else some a := by
@@ -2973,9 +2969,9 @@ theorem getElem_insert {l : List α} {a : α} {i : Nat} (h : i < l.length) :
   apply Option.some.inj
   rw [← getElem?_eq_getElem, getElem?_insert]
   split
-  · simp [getElem?_eq_getElem, h]
+  · grind [getElem?_eq_getElem]
   · split
-    · rfl
+    · grind
     · have h' : i - 1 < l.length := Nat.lt_of_le_of_lt (Nat.pred_le _) h
       simp [getElem?_eq_getElem, h']
 
@@ -2984,7 +2980,7 @@ theorem head?_insert {l : List α} {a : α} :
   simp only [insert_eq]
   split <;> rename_i h
   · simp [head?_eq_head (ne_nil_of_mem h)]
-  · rfl
+  · grind
 
 theorem head_insert {l : List α} {a : α} (w) :
     (l.insert a).head w = if h : a ∈ l then l.head (ne_nil_of_mem h) else a := by
@@ -2993,24 +2989,24 @@ theorem head_insert {l : List α} {a : α} (w) :
 
 theorem insert_append {l₁ l₂ : List α} {a : α} :
     (l₁ ++ l₂).insert a = if a ∈ l₂ then l₁ ++ l₂ else l₁.insert a ++ l₂ := by
-  simp only [insert_eq, mem_append]
-  (repeat split) <;> simp_all
+  grind [List.insert]
+
+attribute [grind] insert_append
 
 theorem insert_append_of_mem_left {l₁ l₂ : List α} (h : a ∈ l₂) :
     (l₁ ++ l₂).insert a = l₁ ++ l₂ := by
-  simp [insert_append, h]
+  grind
 
 theorem insert_append_of_not_mem_left {l₁ l₂ : List α} (h : ¬ a ∈ l₂) :
     (l₁ ++ l₂).insert a = l₁.insert a ++ l₂ := by
-  simp [insert_append, h]
+  grind
 
 theorem insert_replicate_self {a : α} (h : 0 < n) : (replicate n a).insert a = replicate n a := by
-  cases n <;> simp_all
+  grind [List.insert]
 
 theorem insert_replicate_ne {a b : α} (h : !b == a) :
     (replicate n a).insert b = b :: replicate n a := by
-  rw [insert_of_not_mem]
-  simp_all
+  grind [List.insert]
 
 end insert
 

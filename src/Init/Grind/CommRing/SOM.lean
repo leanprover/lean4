@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Lemmas
+import Init.Data.Ord
 import Init.Grind.CommRing.Basic
 
 namespace Lean.Grind
@@ -49,8 +50,9 @@ def Expr.denote [CommRing α] (ctx : Context α) : Expr → α
 structure Power where
   x : Var
   k : Nat
+  deriving BEq
 
-def Power.lt (p₁ p₂ : Power) : Bool :=
+def Power.varLt (p₁ p₂ : Power) : Bool :=
   p₁.x.blt p₂.x
 
 def Power.denote [CommRing α] (ctx : Context α) : Power → α
@@ -63,6 +65,7 @@ def Power.denote [CommRing α] (ctx : Context α) : Power → α
 inductive Mon where
   | leaf (p : Power)
   | cons (p : Power) (m : Mon)
+  deriving BEq
 
 def Mon.denote [CommRing α] (ctx : Context α) : Mon → α
   | .leaf p => p.denote ctx
@@ -84,16 +87,16 @@ def Mon.concat (m₁ m₂ : Mon) : Mon :=
 def Mon.mulPow (p : Power) (m : Mon) : Mon :=
   match m with
   | .leaf p' =>
-    bif p.lt p' then
+    bif p.varLt p' then
       .cons p m
-    else bif p'.lt p then
+    else bif p'.varLt p then
       .cons p' (.leaf p)
     else
       .leaf { x := p.x, k := p.k + p'.k }
   | .cons p' m =>
-    bif p.lt p' then
+    bif p.varLt p' then
       .cons p (.cons p' m)
-    else bif p'.lt p then
+    else bif p'.varLt p then
       .cons p' (mulPow p m)
     else
       .cons { x := p.x, k := p.k + p'.k } m
@@ -110,12 +113,78 @@ where
       | m₁, .leaf p => m₁.mulPow p
       | .leaf p, m₂ => m₂.mulPow p
       | .cons p₁ m₁, .cons p₂ m₂ =>
-        bif p₁.lt p₂ then
+        bif p₁.varLt p₂ then
           .cons p₁ (go fuel m₁ (.cons p₂ m₂))
-        else bif p₂.lt p₁ then
+        else bif p₂.varLt p₁ then
           .cons p₂ (go fuel (.cons p₁ m₁) m₂)
         else
           .cons { x := p₁.x, k := p₁.k + p₂.k } (go fuel m₁ m₂)
+
+def Mon.degree : Mon → Nat
+  | .leaf p => p.k
+  | .cons p m => p.k + degree m
+
+def Mon.length : Mon → Nat
+  | .leaf _ => 1
+  | .cons _ m => 1 + length m
+
+def Var.revlex (x y : Var) : Ordering :=
+  bif x.blt y then .gt
+  else bif y.blt x then .lt
+  else .eq
+
+def powerRevlex (k₁ k₂ : Nat) : Ordering :=
+  bif k₁.blt k₂ then .lt
+  else bif k₂.blt k₁ then .gt
+  else .eq
+
+def Power.revLex (p₁ p₂ : Power) : Ordering :=
+  p₁.x.revlex p₂.x |>.then (powerRevlex p₁.k p₂.k)
+
+def Mon.revlex' (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
+  match fuel with
+  | 0 => .lt
+  | fuel + 1 =>
+    match m₁, m₂ with
+    | .leaf p₁, .leaf p₂ => p₁.revLex p₂
+    | .leaf p₁, .cons p₂ m₂ =>
+      bif p₁.x.ble p₂.x  then
+        .gt
+      else
+        revlex' fuel (.leaf p₁) m₂ |>.then .gt
+    | .cons p₁ m₁, .leaf p₂ =>
+      bif p₂.x.ble p₁.x then
+        .lt
+      else
+        revlex' fuel m₁ (.leaf p₂) |>.then .lt
+    | .cons p₁ m₁, .cons p₂ m₂ =>
+      bif p₁.x == p₂.x then
+        revlex' fuel m₁ m₂ |>.then (powerRevlex p₁.k p₂.k)
+      else bif p₁.x.blt p₂.x then
+        revlex' fuel m₁ (.cons p₂ m₂) |>.then .gt
+      else
+        revlex' fuel (.cons p₁ m₁) m₂ |>.then .lt
+
+def Mon.revlex (m₁ m₂ : Mon) : Ordering :=
+  revlex' (m₁.length + m₂.length) m₁ m₂
+
+def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
+  compare m₁.degree m₂.degree |>.then (revlex m₁ m₂)
+
+inductive Poly where
+  | num (k : Int)
+  | add (k : Int) (v : Mon) (p : Poly)
+  deriving BEq
+
+def Poly.denote [CommRing α] (ctx : Context α) (p : Poly) : α :=
+  match p with
+  | .num k => Int.cast k
+  | .add k m p => Int.cast k * m.denote ctx + denote ctx p
+
+def Poly.addConst (p : Poly) (k : Int) : Poly :=
+  match p with
+  | .num k' => .num (k' + k)
+  | .add k' m p => .add k' m (addConst p k)
 
 theorem Power.denote_eq [CommRing α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by

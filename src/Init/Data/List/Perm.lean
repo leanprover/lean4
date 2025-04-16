@@ -372,13 +372,9 @@ theorem perm_append_right_iff {l₁ l₂ : List α} (l) : l₁ ++ l ~ l₂ ++ l 
 
 section LawfulBEq
 
-<<<<<<< HEAD
-theorem Perm.erase [BEq α] [LawfulBEq α] (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : l₁.erase a ~ l₂.erase a :=
-=======
 variable [BEq α] [LawfulBEq α]
 
 theorem Perm.erase (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : l₁.erase a ~ l₂.erase a :=
->>>>>>> upstream/nightly-with-mathlib
   if h₁ : a ∈ l₁ then
     have h₂ : a ∈ l₂ := p.subset h₁
     .cons_inv <| (perm_cons_erase h₁).symm.trans <| p.trans (perm_cons_erase h₂)
@@ -386,22 +382,13 @@ theorem Perm.erase (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : l₁.erase
     have h₂ : a ∉ l₂ := mt p.mem_iff.2 h₁
     rw [erase_of_not_mem h₁, erase_of_not_mem h₂]; exact p
 
-theorem cons_perm_iff_perm_erase [BEq α] [LawfulBEq α] {a : α} {l₁ l₂ : List α} :
+theorem cons_perm_iff_perm_erase {a : α} {l₁ l₂ : List α} :
     a :: l₁ ~ l₂ ↔ a ∈ l₂ ∧ l₁ ~ l₂.erase a := by
   refine ⟨fun h => ?_, fun ⟨m, h⟩ => (h.cons a).trans (perm_cons_erase m).symm⟩
   have : a ∈ l₂ := h.subset mem_cons_self
   exact ⟨this, (h.trans <| perm_cons_erase this).cons_inv⟩
 
-<<<<<<< HEAD
-theorem perm_iff_count [BEq α] [LawfulBEq α] {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l₁ = count a l₂ := by
-=======
-end LawfulBEq
-section DecidableEq
-
-variable [DecidableEq α]
-
 theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l₁ = count a l₂ := by
->>>>>>> upstream/nightly-with-mathlib
   refine ⟨Perm.count_eq, fun H => ?_⟩
   induction l₁ generalizing l₂ with
   | nil =>
@@ -417,14 +404,14 @@ theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l�
     rw [(perm_cons_erase this).count_eq] at H
     by_cases h : b = a <;> simpa [h, count_cons, Nat.succ_inj'] using H
 
-theorem isPerm_iff [BEq α] [LawfulBEq α] : ∀ {l₁ l₂ : List α}, l₁.isPerm l₂ ↔ l₁ ~ l₂
+theorem isPerm_iff : ∀ {l₁ l₂ : List α}, l₁.isPerm l₂ ↔ l₁ ~ l₂
   | [], [] => by simp [isPerm, isEmpty]
   | [], _ :: _ => by simp [isPerm, isEmpty, Perm.nil_eq]
   | a :: l₁, l₂ => by simp [isPerm, isPerm_iff, cons_perm_iff_perm_erase]
 
-instance decidablePerm [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
+instance decidablePerm {α} [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
 
-protected theorem Perm.insert [BEq α] [LawfulBEq α] (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) :
+protected theorem Perm.insert (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) :
     l₁.insert a ~ l₂.insert a := by
   if h : a ∈ l₁ then
     simp [h, p.subset h, p]
@@ -432,14 +419,14 @@ protected theorem Perm.insert [BEq α] [LawfulBEq α] (a : α) {l₁ l₂ : List
     have := p.cons a
     simpa [h, mt p.mem_iff.2 h] using this
 
-theorem perm_insert_swap [BEq α] [LawfulBEq α] (x y : α) (l : List α) :
+theorem perm_insert_swap (x y : α) (l : List α) :
     List.insert x (List.insert y l) ~ List.insert y (List.insert x l) := by
   by_cases xl : x ∈ l <;> by_cases yl : y ∈ l <;> simp [xl, yl]
   if xy : x = y then simp [xy] else
   simp [List.insert, xl, yl, xy, Ne.symm xy]
   constructor
 
-end DecidableEq
+end LawfulBEq
 
 theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) :
     ∀ {l₁ l₂ : List α} (_p : l₁ ~ l₂), Pairwise R l₁ ↔ Pairwise R l₂ :=

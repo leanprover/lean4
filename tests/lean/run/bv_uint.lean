@@ -6,8 +6,8 @@ example (a b c : UInt8) (h1 : a < b) (h2 : b < c) : a < c := by
 
 /--
 error: The prover found a counterexample, consider the following assignment:
-a = 255
-b = 255
+a = 0
+b = 0
 -/
 #guard_msgs in
 example (a b : UInt8) : a + b > a := by
@@ -21,8 +21,8 @@ example (a b c : UInt16) (h1 : a < b) (h2 : b < c) : a < c := by
 
 /--
 error: The prover found a counterexample, consider the following assignment:
-a = 65535
-b = 65535
+a = 0
+b = 0
 -/
 #guard_msgs in
 example (a b : UInt16) : a + b > a := by
@@ -36,8 +36,8 @@ example (a b c : UInt32) (h1 : a < b) (h2 : b < c) : a < c := by
 
 /--
 error: The prover found a counterexample, consider the following assignment:
-a = 4294967295
-b = 4294967295
+a = 0
+b = 0
 -/
 #guard_msgs in
 example (a b : UInt32) : a + b > a := by
@@ -51,8 +51,8 @@ example (a b c : UInt64) (h1 : a < b) (h2 : b < c) : a < c := by
 
 /--
 error: The prover found a counterexample, consider the following assignment:
-a = 18446744073709551615
-b = 18446744073709551615
+a = 0
+b = 0
 -/
 #guard_msgs in
 example (a b : UInt64) : a + b > a := by

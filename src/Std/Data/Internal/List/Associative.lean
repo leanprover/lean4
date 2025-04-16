@@ -324,7 +324,7 @@ theorem containsKey_eq_true_iff_exists_mem [BEq α] {l : List ((a : α) × β a)
 
 theorem containsKey_of_mem [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} {p : (a : α) × β a}
     (hp : p ∈ l) : containsKey p.1 l :=
-  containsKey_eq_true_iff_exists_mem.2 ⟨p, ⟨hp, BEq.refl⟩⟩
+  containsKey_eq_true_iff_exists_mem.2 ⟨p, ⟨hp, BEq.rfl⟩⟩
 
 theorem containsKey_eq_contains_map_fst [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
     {k : α} : containsKey k l = (l.map Sigma.fst).contains k := by
@@ -961,7 +961,7 @@ theorem forall_mem_keys_iff_forall_containsKey_getKey [BEq α] [EquivBEq α] {l 
     · intro h
       constructor
       · specialize h k'
-        simp only [BEq.refl, true_or, getKey_cons, ↓reduceDIte, forall_const] at h
+        simp only [BEq.rfl, true_or, getKey_cons, ↓reduceDIte, forall_const] at h
         exact h
       · rw [ih]
         intro k hk
@@ -1879,7 +1879,7 @@ theorem keys_filter [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {f : (
     specialize ih hl.tail
     replace hl := hl.containsKey_eq_false
     simp only [keys_cons, List.attach_cons, getValueCast_cons, ↓reduceDIte, cast_eq,
-      List.filter_cons, BEq.refl, List.filter_map, Function.comp_def]
+      List.filter_cons, BEq.rfl, List.filter_map, Function.comp_def]
     have (x : { x // x ∈ keys tl }) : (k == x.val) = False := eq_false <| by
       intro h
       rw [containsKey_congr h, mem_keys_iff_contains.mp x.2] at hl
@@ -1901,7 +1901,7 @@ theorem Const.keys_filter [BEq α] [EquivBEq α] {β : Type v}
     specialize ih hl.tail
     replace hl := hl.containsKey_eq_false
     simp only [keys_cons, List.attach_cons, getValue_cons, ↓reduceDIte, cast_eq,
-      List.filter_cons, BEq.refl, List.filter_map, Function.comp_def]
+      List.filter_cons, BEq.rfl, List.filter_map, Function.comp_def]
     have (x : { x // x ∈ keys tl }) : (k == x.val) = False := eq_false <| by
       intro h
       rw [containsKey_congr h, containsKey_of_mem_keys x.2] at hl
@@ -4513,7 +4513,7 @@ theorem getEntry?_filter [BEq α] [EquivBEq α]
   rw [← List.filterMap_eq_filter, getEntry?_filterMap' _ hl, Option.bind_guard]
   simp only [Bool.decide_eq_true]
   intro p
-  simp only [Option.all_guard, BEq.refl, Bool.or_true]
+  simp only [Option.all_guard, BEq.rfl, Bool.or_true]
 
 theorem getEntry?_filterMap [BEq α] [EquivBEq α]
     {f : (a : α) → β a → Option (γ a)}
@@ -4531,7 +4531,7 @@ theorem getEntry?_map [BEq α] [EquivBEq α]
       (getEntry? k l).map fun p => ⟨p.1, f p.1 p.2⟩ := by
   refine getEntry?_map' ?_ hl
   intro p
-  exact BEq.refl
+  exact BEq.rfl
 
 theorem containsKey_of_containsKey_filterMap' [BEq α] [EquivBEq α]
     {f : ((a : α) × β a) → Option ((a : α) × γ a)}
@@ -4600,7 +4600,7 @@ theorem containsKey_of_containsKey_filter [BEq α] [EquivBEq α]
   rw [← List.filterMap_eq_filter] at h
   rw [containsKey_of_containsKey_filterMap' _ hl h]
   intro p
-  simp only [Option.all_guard, BEq.refl, Bool.or_true]
+  simp only [Option.all_guard, BEq.rfl, Bool.or_true]
 
 theorem Const.containsKey_filterMap [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
     {f : (_ : α) → β → Option γ}
@@ -5022,7 +5022,7 @@ theorem length_filter_key_eq_length_iff [BEq α] [EquivBEq α] {f : α → Bool}
     simp only [getKey, getKey?_eq_getEntry?, Option.get_map]
     exact h
   · intro h ⟨k, v⟩ he
-    have := getEntry?_of_mem hl BEq.refl he
+    have := getEntry?_of_mem hl BEq.rfl he
     specialize h k (containsKey_eq_isSome_getEntry?.trans (Option.isSome_of_eq_some this))
     simp only [getKey, getKey?_eq_getEntry?, this] at h
     exact h
@@ -5111,7 +5111,7 @@ theorem isEmpty_filter_key_iff [BEq α] [EquivBEq α] {f : α → Bool}
     simp only [getKey, getKey?_eq_getEntry?, Option.get_map]
     exact h
   · intro h ⟨k, v⟩ he
-    have := getEntry?_of_mem hl BEq.refl he
+    have := getEntry?_of_mem hl BEq.rfl he
     specialize h k (containsKey_eq_isSome_getEntry?.trans (Option.isSome_of_eq_some this))
     simp only [getKey, getKey?_eq_getEntry?, this] at h
     exact h

@@ -103,7 +103,7 @@ theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ofNat_le.2 (Nat.zero_le _)
 
 @[simp] theorem toNat_le {m : Int} {n : Nat} : m.toNat ≤ n ↔ m ≤ n := by omega
 @[simp] theorem toNat_lt' {m : Int} {n : Nat} (hn : 0 < n) : m.toNat < n ↔ m < n := by omega
-@[simp] theorem lt_toNat {m : Int} {n : Nat} : m < toNat n ↔ m < n := by omega
+@[simp] theorem lt_toNat {m : Nat} {n : Int} : m < toNat n ↔ m < n := by omega
 theorem lt_of_toNat_lt {a b : Int} (h : toNat a < toNat b) : a < b := by omega
 
 theorem toNat_sub_of_le {a b : Int} (h : b ≤ a) : (toNat (a - b) : Int) = a - b := by omega

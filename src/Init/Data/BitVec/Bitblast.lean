@@ -2309,8 +2309,62 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
   · simp [umulOverflow, ge_iff_le, truncate_eq_setWidth, resRec, uppcRec, aandRec]
     let k' := x.uppcRec y w (by omega)
     rw [show x.uppcRec y w (by omega) = k' by rfl]
+    by_cases hpos : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1]
+    · simp [hpos]
+      have h0 := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
+      have h1 : x.toNat < 2 ^ (w + 1 + 1) := by omega
+      have h2 : y.toNat < 2 ^ (w + 1 + 1) := by omega
+      have h3 := toNat_mul_toNat_lt (x := x) (y := y)
+      have h4 : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).msb := by
+        simp [BitVec.msb, getMsbD_eq_getLsbD]
+      have h5 : (2 * (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1 + 1))
+                   ↔ (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1) := by
+          rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))]
+          refine Nat.mul_le_mul_left_iff ?_
+          omega
+      rw [h5] at h0
+      simp_all
+      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))] at h5
+      by_cases h6 : x.toNat * y.toNat < 2 * 2 ^ (w + 1 + 1)
+      · simp [Nat.mod_eq_of_lt (by omega)] at h5
+        omega
+      · simp_all
+        omega
+    · simp only [bool_to_prop]
+      simp_all
+      have h0 := msb_eq_false_iff_two_mul_lt (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
+      have h1 : x.toNat < 2 ^ (w + 1 + 1) := by omega
+      have h2 : y.toNat < 2 ^ (w + 1 + 1) := by omega
+      have h3 := toNat_mul_toNat_lt (x := x) (y := y)
+      have h4 : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).msb := by
+        simp [BitVec.msb, getMsbD_eq_getLsbD]
+      have h5 : (2 * (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1 + 1))
+                   ↔ (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1) := by
+          rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))]
+          refine Nat.mul_le_mul_left_iff ?_
+          omega
+      simp_all
+      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))] at h5
+      by_cases hk : k' = true
+      · simp [hk]
+        rw [← BitVec.getLsbD_eq_getElem, getLsbD_eq_getMsbD]
+        simp
+        by_cases hymsb : y.msb
+        · simp [BitVec.msb] at hymsb
+          simp [hymsb]
+          by_cases hyx : x.toNat * y.toNat < 2 * 2 ^ (w + 1)
+          · rw [Nat.mod_eq_of_lt (by omega)] at h5
+            sorry
+          · omega
+        sorry
+      · sorry
 
-    sorry
+
+
+
+
+
+
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
 and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/

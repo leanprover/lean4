@@ -3035,7 +3035,7 @@ theorem foldrM_start_stop {m} [Monad m] {xs : Array α} {f : α → β → m β}
     simp
   | succ i ih =>
     unfold foldrM.fold
-    simp only [beq_iff_eq, Nat.add_right_eq_self, Nat.add_one_ne_zero, ↓reduceIte, Nat.add_eq,
+    simp only [beq_iff_eq, Nat.add_eq_left, Nat.add_one_ne_zero, ↓reduceIte, Nat.add_eq,
       getElem_extract]
     congr
     funext b

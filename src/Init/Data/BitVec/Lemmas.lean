@@ -2032,7 +2032,6 @@ theorem toInt_ushiftRight_of_lt {x : BitVec w} {n : Nat} (hn : 0 < n) :
       have : 2^w ≤ 2^n := Nat.pow_le_pow_of_le (by decide) (by omega)
       omega
     simp [this] at h
-    omega
 
 /--
 Unsigned shift right by at least one bit makes the interpretations of the bitvector as an `Int` or `Nat` agree,
@@ -4914,7 +4913,6 @@ theorem intMin_eq_zero_iff {w : Nat} : intMin w = 0#w ↔ w = 0 := by
   · constructor
     · have := Nat.two_pow_pos (w - 1)
       simp [toNat_eq, show 0 < w by omega]
-      omega
     · simp [h]
 
 /--

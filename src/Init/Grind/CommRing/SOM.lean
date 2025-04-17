@@ -360,11 +360,32 @@ where
   go : Poly → Poly
    | .num k' => .num ((k*k') % c)
    | .add k' m p =>
-     let k'' := (k*k') % c
-     bif k'' == 0 then
+     let k := (k*k') % c
+     bif k == 0 then
       go p
     else
-      .add k'' m (go p)
+      .add k m (go p)
+
+def Poly.mulMonC (k : Int) (m : Mon) (p : Poly) (c : Nat) : Poly :=
+  let k := k % c
+  bif k == 0 then
+    .num 0
+  else
+    go p
+where
+  go : Poly → Poly
+   | .num k' =>
+     let k := (k*k') % c
+     bif k == 0 then
+       .num 0
+     else
+       .add k m (.num 0)
+   | .add k' m' p =>
+     let k := (k*k') % c
+     bif k == 0 then
+       go p
+     else
+       .add k (m.mul m') (go p)
 
 /-!
 Theorems for justifying the procedure for commutative rings in `grind`.
@@ -601,13 +622,38 @@ theorem Poly.denote_mulConstC {α c} [CommRing α] [IsCharP α c] (ctx : Context
       fun_induction mulConstC.go <;> simp [mulConstC.go, denote, IsCharP.intCast_emod, cond_eq_if, *]
       next => rw [intCast_mul]
       next h _ =>
-        simp +zetaDelta at h
-        simp [*]
+        simp +zetaDelta at h; simp [*]
         rw [left_distrib, ← mul_assoc, ← intCast_mul, ← IsCharP.intCast_emod (x := k * _) (p := c),
             h, intCast_zero, zero_mul, zero_add]
       next h _ =>
         simp +zetaDelta at h
         simp [*, denote, IsCharP.intCast_emod, intCast_mul, mul_assoc, left_distrib]
+
+theorem Poly.denote_mulMonC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
+    : (mulMonC k m p c).denote ctx = k * m.denote ctx * p.denote ctx := by
+  simp [mulMonC, cond_eq_if] <;> split
+  next =>
+    rw [← IsCharP.intCast_emod (p := c)]
+    simp [denote, *, intCast_zero, zero_mul]
+  next =>
+    fun_induction mulMonC.go <;> simp [mulMonC.go, denote, *, cond_eq_if]
+    next h =>
+      simp +zetaDelta at h; simp [*, denote]
+      rw [mul_assoc, mul_left_comm, ← intCast_mul, ← IsCharP.intCast_emod (x := k * _) (p := c), h]
+      simp [intCast_zero, mul_zero]
+    next h =>
+      simp +zetaDelta at h; simp [*, denote, IsCharP.intCast_emod]
+      simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
+    next h _ =>
+      simp +zetaDelta at h; simp [*, denote, left_distrib]
+      rw [mul_left_comm]
+      conv => rhs; rw [← mul_assoc, ← mul_assoc, ← intCast_mul, ← IsCharP.intCast_emod (p := c)]
+      rw [Int.mul_comm] at h
+      simp [h, intCast_zero, zero_mul, zero_add]
+    next h _ =>
+      simp +zetaDelta at h
+      simp [*, denote, IsCharP.intCast_emod, Mon.denote_mul, intCast_mul, left_distrib,
+        mul_comm, mul_left_comm, mul_assoc]
 
 end CommRing
 end Lean.Grind

@@ -34,7 +34,7 @@ theorem perm_iff_toList_perm {as bs : Array α} : as ~ bs ↔ as.toList ~ bs.toL
   cases xs
   simp
 
-protected theorem Perm.rfl {xs : List α} : xs ~ xs := .refl _
+protected theorem Perm.rfl {xs : Array α} : xs ~ xs := .refl _
 
 theorem Perm.of_eq {xs ys : Array α} (h : xs = ys) : xs ~ ys := h ▸ .rfl
 

@@ -59,7 +59,7 @@ theorem exists_or_eq_self_of_eraseP (p) (xs : Array α) :
 @[simp] theorem size_eraseP_of_mem {xs : Array α} (al : a ∈ xs) (pa : p a) :
     (xs.eraseP p).size = xs.size - 1 := by
   let ⟨_, ys, zs, _, _, e₁, e₂⟩ := exists_of_eraseP al pa
-  rw [e₂]; simp [size_append, e₁]; omega
+  rw [e₂]; simp [size_append, e₁]
 
 theorem size_eraseP {xs : Array α} : (xs.eraseP p).size = if xs.any p then xs.size - 1 else xs.size := by
   split <;> rename_i h

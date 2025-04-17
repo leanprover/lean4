@@ -108,6 +108,7 @@ ExternalProject_add(stage2
   INSTALL_COMMAND ""
   DEPENDS stage1
   EXCLUDE_FROM_ALL ON
+  STEP_TARGETS configure
 )
 ExternalProject_add(stage3
   SOURCE_DIR "${LEAN_SOURCE_DIR}"

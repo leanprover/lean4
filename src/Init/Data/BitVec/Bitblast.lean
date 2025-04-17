@@ -566,7 +566,7 @@ theorem ult_eq_msb_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
 theorem slt_eq_not_ult_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
     x.slt y = !x.ult y := by
   simp only [BitVec.slt, toInt_eq_msb_cond, Bool.eq_not_of_ne h, ult_eq_msb_of_msb_neq h]
-  cases y.msb <;> (simp; omega)
+  cases y.msb <;> (simp [-Int.natCast_pow]; omega)
 
 theorem slt_eq_ult {x y : BitVec w} :
     x.slt y = (x.msb != y.msb).xor (x.ult y) := by
@@ -1332,7 +1332,7 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
       decide_eq_decide]
     rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]
-    simp
+    simp only [Nat.add_one_sub_one, ge_iff_le]
     omega
 
 theorem usubOverflow_eq {w : Nat} (x y : BitVec w) :
@@ -1456,7 +1456,6 @@ theorem udiv_intMin_of_msb_false {x : BitVec w} (h : x.msb = false) :
   have wpos : 0 < w := by omega
   have := Nat.two_pow_pos (w-1)
   simp [toNat_eq, wpos]
-  rw [Nat.div_eq_zero_iff_lt (by omega)]
   exact toNat_lt_of_msb_false h
 
 theorem sdiv_intMin {x : BitVec w} :
@@ -1571,7 +1570,8 @@ theorem intMin_udiv_eq_intMin_iff (x : BitVec w) :
   · intro h
     rw [← toInt_inj, toInt_eq_msb_cond] at h
     have : (intMin w / x).msb = false := by simp [msb_udiv, msb_intMin,  wpos, hx]
-    simp [this, wpos, toInt_intMin] at h
+    simp only [this, false_eq_true, ↓reduceIte, toNat_udiv, toNat_intMin, wpos,
+      Nat.two_pow_pred_mod_two_pow, Int.natCast_ediv, toInt_intMin] at h
     omega
   · intro h
     subst h
@@ -1612,11 +1612,11 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
           Nat.two_pow_pred_mod_two_pow, Int.neg_tdiv, Int.neg_neg]
         rw [Int.tdiv_self (by omega)]
       · by_cases ha_nonneg : 0 ≤ a.toInt
-        · simp [Int.tdiv_eq_zero_of_lt ha_nonneg (by norm_cast at *), ha_intMin]
+        · simp [Int.tdiv_eq_zero_of_lt ha_nonneg (by norm_cast at *), ha_intMin, -Int.natCast_pow]
         · simp only [ne_eq, ← toInt_inj, toInt_intMin, wpos, Nat.two_pow_pred_mod_two_pow] at h
           rw [← Int.neg_tdiv, Int.tdiv_eq_zero_of_lt (by omega)]
           · simp [ha_intMin]
-          · simp [wpos, ← toInt_ne, toInt_intMin] at ha_intMin
+          · simp [wpos, ← toInt_ne, toInt_intMin, -Int.natCast_pow] at ha_intMin
             omega
 
   · by_cases ha : a.msb <;> by_cases hb : b.msb

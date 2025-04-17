@@ -28,7 +28,7 @@ theorem shiftRight_eq_div_pow (m : Int) (n : Nat) :
     m >>> n = m / ((2 ^ n) : Nat) := by
   simp only [shiftRight_eq, Int.shiftRight, Nat.shiftRight_eq_div_pow]
   split
-  · simp; norm_cast
+  · simp
   · rw [negSucc_ediv _ (by norm_cast; exact Nat.pow_pos (Nat.zero_lt_two))]
     rfl
 

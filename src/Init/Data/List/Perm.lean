@@ -407,14 +407,14 @@ theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l�
     refine ((IH fun b => ?_).cons a).trans (perm_cons_erase this).symm
     specialize H b
     rw [(perm_cons_erase this).count_eq] at H
-    by_cases h : b = a <;> simpa [h, count_cons, Nat.succ_inj'] using H
+    by_cases h : b = a <;> simpa [h, count_cons, Nat.succ_inj] using H
 
 theorem isPerm_iff : ∀ {l₁ l₂ : List α}, l₁.isPerm l₂ ↔ l₁ ~ l₂
   | [], [] => by simp [isPerm, isEmpty]
   | [], _ :: _ => by simp [isPerm, isEmpty, Perm.nil_eq]
   | a :: l₁, l₂ => by simp [isPerm, isPerm_iff, cons_perm_iff_perm_erase]
 
-instance decidablePerm (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
+instance decidablePerm {α} [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
 
 protected theorem Perm.insert (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) :
     l₁.insert a ~ l₂.insert a := by
@@ -431,7 +431,7 @@ theorem perm_insert_swap (x y : α) (l : List α) :
   simp [List.insert, xl, yl, xy, Ne.symm xy]
   constructor
 
-end DecidableEq
+end LawfulBEq
 
 theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) :
     ∀ {l₁ l₂ : List α} (_p : l₁ ~ l₂), Pairwise R l₁ ↔ Pairwise R l₂ :=

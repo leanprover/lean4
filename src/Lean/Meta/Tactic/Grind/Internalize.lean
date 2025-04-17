@@ -62,10 +62,10 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   match e with
   | .app .. =>
     if (← getConfig).splitIte && (e.isIte || e.isDIte) then
-      addSplitCandidate e
+      addSplitCandidate (.default e)
       return ()
     if isMorallyIff e then
-      addSplitCandidate e
+      addSplitCandidate (.default e)
       return ()
     if (← getConfig).splitMatch then
       if (← isMatcherApp e) then
@@ -74,7 +74,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
           -- and consequently don't need to be split.
           return ()
         else
-          addSplitCandidate e
+          addSplitCandidate (.default e)
           return ()
     let .const declName _  := e.getAppFn | return ()
       if forbiddenSplitTypes.contains declName then
@@ -82,21 +82,21 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       unless (← isInductivePredicate declName) do
         return ()
       if (← get).split.casesTypes.isSplit declName then
-        addSplitCandidate e
+        addSplitCandidate (.default e)
       else if (← getConfig).splitIndPred then
-        addSplitCandidate e
+        addSplitCandidate (.default e)
   | .fvar .. =>
     let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
     if (← get).split.casesTypes.isSplit declName then
-      addSplitCandidate e
+      addSplitCandidate (.default e)
   | .forallE _ d _ _ =>
     if (← getConfig).splitImp then
-      addSplitCandidate e
+      addSplitCandidate (.default e)
     else if Arith.isRelevantPred d then
       if (← getConfig).lookahead then
-        addLookaheadCandidate (.imp e)
+        addLookaheadCandidate (.default e)
       else
-        addSplitCandidate e
+        addSplitCandidate (.default e)
   | _ => pure ()
 
 /--
@@ -260,7 +260,7 @@ where
         -- if (← getConfig).lookahead then
         --   addLookaheadCandidate (.arg other.app parent i eq)
         -- else
-        addSplitCandidate eq
+        addSplitCandidate (.arg other.app parent i eq)
     modify fun s => { s with split.argsAt := s.split.argsAt.insert (f, i) ({ arg, type, app := parent } :: others) }
     return ()
 

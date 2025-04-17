@@ -851,12 +851,12 @@ The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
 to the constructor.
 -/
-syntax inductionAltLHS := "| " (("@"? ident) <|> hole) (ident <|> hole)*
+syntax inductionAltLHS := withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
 /--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
-syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
 /--
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.

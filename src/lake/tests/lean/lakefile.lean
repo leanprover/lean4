@@ -5,3 +5,4 @@ package test
 
 lean_lib Lib where
   precompileModules := true
+  leanOptions := #[⟨`weak.foo, "bar"⟩]

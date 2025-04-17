@@ -135,6 +135,9 @@ theorem getElem?_eq_none {xs : Array α} (h : xs.size ≤ i) : xs[i]? = none := 
 theorem getElem?_eq_some_iff {xs : Array α} : xs[i]? = some b ↔ ∃ h : i < xs.size, xs[i] = b := by
   simp [getElem?_def]
 
+theorem getElem_of_getElem? {xs : Array α} : xs[i]? = some a → ∃ h : i < xs.size, xs[i] = a :=
+  getElem?_eq_some_iff.mp
+
 theorem some_eq_getElem?_iff {xs : Array α} : some b = xs[i]? ↔ ∃ h : i < xs.size, xs[i] = b := by
   rw [eq_comm, getElem?_eq_some_iff]
 
@@ -826,9 +829,6 @@ theorem contains_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Array α}
 @[deprecated contains_eq_true_of_mem (since := "2024-12-12")]
 abbrev elem_eq_true_of_mem := @contains_eq_true_of_mem
 
-instance [BEq α] [LawfulBEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
-  decidable_of_decidable_of_iff (Iff.intro mem_of_contains_eq_true contains_eq_true_of_mem)
-
 @[simp] theorem elem_eq_contains [BEq α] {a : α} {xs : Array α} :
     elem a xs = xs.contains a := by
   simp [elem]
@@ -838,6 +838,9 @@ theorem elem_iff [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
 
 theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
     xs.contains a = true ↔ a ∈ xs := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
+
+instance [BEq α] [LawfulBEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
+  decidable_of_decidable_of_iff elem_iff
 
 theorem elem_eq_mem [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
     elem a xs = decide (a ∈ xs) := by rw [Bool.eq_iff_iff, elem_iff, decide_eq_true_iff]
@@ -1091,33 +1094,23 @@ private theorem beq_of_beq_singleton [BEq α] {a b : α} : #[a] == #[b] → a ==
     apply beq_of_beq_singleton
     simp
   · intro h
-    constructor
-    apply Array.isEqv_self_beq
+    infer_instance
 
 @[simp] theorem lawfulBEq_iff [BEq α] : LawfulBEq (Array α) ↔ LawfulBEq α := by
   constructor
   · intro h
+    have : ReflBEq α := reflBEq_iff.mp inferInstance
     constructor
-    · intro a b h
-      apply singleton_inj.1
-      apply eq_of_beq
-      simpa [instBEq, isEqv, isEqvAux]
-    · intro a
-      apply beq_of_beq_singleton
-      simp
+    intro a b h
+    apply singleton_inj.1
+    apply eq_of_beq
+    simpa [instBEq, isEqv, isEqvAux]
   · intro h
-    constructor
-    · intro xs ys h
-      obtain ⟨hs, hi⟩ := isEqv_iff_rel.mp h
-      ext i h₁ h₂
-      · exact hs
-      · simpa using hi _ h₁
-    · intro xs
-      apply Array.isEqv_self_beq
+    infer_instance
 
 /-! ### isEqv -/
 
-@[simp] theorem isEqv_eq [DecidableEq α] {xs ys : Array α} : xs.isEqv ys (· == ·) = (xs = ys) := by
+@[simp] theorem isEqv_eq [BEq α] [LawfulBEq α] {xs ys : Array α} : xs.isEqv ys (· == ·) = (xs = ys) := by
   cases xs
   cases ys
   simp
@@ -3035,7 +3028,7 @@ theorem foldrM_start_stop {m} [Monad m] {xs : Array α} {f : α → β → m β}
     simp
   | succ i ih =>
     unfold foldrM.fold
-    simp only [beq_iff_eq, Nat.add_right_eq_self, Nat.add_one_ne_zero, ↓reduceIte, Nat.add_eq,
+    simp only [beq_iff_eq, Nat.add_eq_left, Nat.add_one_ne_zero, ↓reduceIte, Nat.add_eq,
       getElem_extract]
     congr
     funext b
@@ -3777,14 +3770,8 @@ variable [LawfulBEq α]
 theorem getElem?_replace {xs : Array α} {i : Nat} :
     (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
   rcases xs with ⟨xs⟩
-  simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, beq_iff_eq,
-    take_eq_extract, List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero,
-    mem_toArray]
-  split <;> rename_i h
-  · rw (occs := [2]) [if_pos]
-    simpa using h
-  · rw [if_neg]
-    simpa using h
+  simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, take_eq_extract,
+    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, mem_toArray]
 
 theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a) :
     (xs.replace a b)[i]? = xs[i]? := by
@@ -4276,11 +4263,9 @@ theorem getElem?_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size]? = some
 
 /-! ### contains -/
 
-theorem contains_def [DecidableEq α] {a : α} {xs : Array α} : xs.contains a ↔ a ∈ xs := by
-  rw [mem_def, contains, ← any_toList, List.any_eq_true]; simp [and_comm]
-
-instance [DecidableEq α] (a : α) (xs : Array α) : Decidable (a ∈ xs) :=
-  decidable_of_iff _ contains_def
+@[deprecated contains_iff (since := "2025-04-07")]
+abbrev contains_def [DecidableEq α] {a : α} {xs : Array α} : xs.contains a ↔ a ∈ xs :=
+  contains_iff
 
 /-! ### isPrefixOf -/
 

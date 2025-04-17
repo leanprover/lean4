@@ -372,6 +372,9 @@ theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := 
   ⟨fun h => by cases h <;> simp [Membership.mem, *],
    fun | Or.inl rfl => by constructor | Or.inr h => by constructor; assumption⟩
 
+theorem eq_head_or_mem_tail_of_mem_cons {a b : α} {l : List α} :
+    a ∈ b :: l → a = b ∨ a ∈ l := List.mem_cons.mp
+
 theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
 
 theorem mem_concat_self {xs : List α} {a : α} : a ∈ xs ++ [a] :=
@@ -542,6 +545,8 @@ theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
 
 @[simp] theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
   cases l <;> simp
+
+theorem nil_of_isEmpty {l : List α} (h : l.isEmpty) : l = [] := List.isEmpty_iff.mp h
 
 @[deprecated isEmpty_iff (since := "2025-02-17")]
 abbrev isEmpty_eq_true := @isEmpty_iff
@@ -1678,6 +1683,9 @@ theorem getLast_concat {a : α} : ∀ {l : List α}, getLast (l ++ [a]) (by simp
 
 @[simp] theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
   rw [eq_comm, append_eq_nil_iff]
+
+theorem eq_nil_of_append_eq_nil {l₁ l₂ : List α} (h : l₁ ++ l₂ = []) : l₁ = [] ∧ l₂ = [] :=
+  append_eq_nil_iff.mp h
 
 theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
 theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
@@ -3636,5 +3644,249 @@ theorem isSome_getElem? {l : List α} {i : Nat} : l[i]?.isSome ↔ i < l.length 
 @[deprecated _root_.isNone_getElem? (since := "2024-12-09")]
 theorem isNone_getElem? {l : List α} {i : Nat} : l[i]?.isNone ↔ l.length ≤ i := by
   simp
+
+/-! Preliminary home for proposed `grind` attributes -/
+
+attribute [grind →] List.eq_nil_of_length_eq_zero
+attribute [grind] List.length_nil
+attribute [grind] List.getElem_append_left List.getElem_append_right
+attribute [grind] List.getElem?_append_left List.getElem?_append_right
+attribute [grind] List.getElem?_singleton
+
+
+
+attribute [grind] List.eq_head_or_mem_tail_of_mem_cons
+attribute [grind] List.mem_cons_self List.mem_cons_of_mem
+attribute [grind] List.mem_append_left List.mem_append_right
+attribute [grind] List.nil_append List.append_nil
+attribute [grind] List.length_cons
+attribute [grind] List.getElem_mem
+attribute [grind →] List.getElem_of_getElem? -- This is a little scary, but quite effective and seems okay in practice.
+
+attribute [grind →] List.nil_of_isEmpty
+attribute [grind] List.isEmpty_nil List.isEmpty_cons
+
+attribute [grind] List.any_nil List.any_cons List.all_nil List.all_cons
+
+attribute [grind] List.set_nil List.set_cons_zero List.set_cons_succ
+attribute [grind] List.getElem_set List.getElem?_set
+
+attribute [grind] List.length_set
+grind_pattern List.getElem?_eq_none => l.length ≤ i, l[i]?
+
+
+
+
+attribute [grind ext] List.ext_getElem?
+attribute [grind →] List.mem_or_eq_of_mem_set
+
+attribute [grind] List.isEmpty_cons List.beq_nil_eq List.nil_beq_eq
+
+attribute [grind] List.cons_beq_cons
+attribute [grind] List.cons_append
+
+attribute [grind →] List.eq_nil_of_append_eq_nil
+attribute [grind] List.replicate_zero List.replicate_succ
+
+attribute [grind] List.getLast_singleton
+attribute [grind] List.getLast_eq_getElem
+attribute [grind] List.getLast_cons_cons
+
+attribute [grind] List.getLastD_eq_getLast?
+attribute [grind] List.getLast?_nil
+
+attribute [grind] List.getLast?_cons
+
+
+attribute [grind] List.getLast?_concat
+
+
+
+attribute [grind] List.getLast!_nil
+attribute [grind] List.head?_nil List.head?_cons
+attribute [grind] List.head_cons
+
+attribute [grind] List.headD_eq_head?_getD
+
+attribute [grind] List.tailD_eq_tail?
+attribute [grind] List.length_tail
+
+attribute [grind] List.tail_nil List.tail_cons List.tail?_nil List.tail?_cons
+
+attribute [grind] List.getElem?_tail List.getElem_tail
+
+attribute [grind] List.head_eq_getElem
+
+attribute [grind] List.getLast_tail
+
+attribute [grind] List.map_nil List.map_cons
+
+
+
+attribute [grind] List.length_map
+
+
+attribute [grind] List.getElem?_map
+
+attribute [grind] id
+
+attribute [grind →] List.eq_nil_of_map_eq_nil
+attribute [grind] List.map_inj_left
+
+attribute [grind] List.foldr_nil List.foldr_cons
+
+attribute [grind _=_] List.getLast?_map
+
+
+
+attribute [grind] List.filter_nil List.filter_cons
+grind_pattern List.length_filter_le => (l.filter p).length
+
+attribute [grind] List.mem_filter
+
+attribute [grind] List.foldl_nil List.foldl_cons List.foldr_nil List.foldr_cons
+
+attribute [grind] List.filter_append
+
+attribute [grind] List.head_cons
+attribute [grind] List.filterMap_nil List.filterMap_cons
+
+attribute [grind] List.filterMap_some
+
+
+grind_pattern List.length_filterMap_le => (List.filterMap f l).length
+
+attribute [grind] List.filterMap_filterMap
+
+attribute [grind] List.map_filterMap
+attribute [grind] List.filterMap_map
+attribute [grind] List.mem_filterMap
+attribute [grind] List.filterMap_append
+attribute [grind →] List.forall_none_of_filterMap_eq_nil
+attribute [grind] List.mem_append
+
+
+attribute [grind] List.getElem_append
+attribute [grind] List.length_append
+
+attribute [grind] List.head_append_of_ne_nil
+attribute [grind] List.head_append
+
+attribute [grind] List.head?_nil List.head?_cons
+
+
+attribute [grind] List.head?_append
+
+attribute [grind] List.tail?_nil List.tail?_cons
+attribute [grind] List.tail_append
+
+attribute [grind] List.set_append
+attribute [grind] List.map_append
+attribute [grind] List.flatten_nil List.flatten_cons List.sum_nil List.sum_cons
+attribute [grind] List.flatten_singleton
+attribute [grind] List.findSome?_nil List.findSome?_cons
+attribute [grind] List.map_flatten
+attribute [grind] List.filterMap_flatten
+attribute [grind] List.filter_flatten
+attribute [grind] List.flatten_append
+attribute [grind] List.mem_flatMap
+
+attribute [grind] List.mem_replicate
+attribute [grind →] List.eq_of_mem_replicate
+attribute [grind] List.getElem_replicate
+attribute [grind] List.getElem?_replicate
+attribute [grind] List.tail_nil List.tail_cons
+attribute [grind] List.length_replicate
+attribute [grind] List.filter_replicate
+attribute [grind] List.reverse_nil List.reverse_cons
+attribute [grind] List.getElem?_reverse
+attribute [grind] List.length_reverse
+attribute [grind] List.reverse_reverse
+
+attribute [grind →] List.mem_of_mem_head?
+attribute [grind] List.mem_reverse
+attribute [grind] List.nil_append List.append_nil
+attribute [grind _=_] List.reverse_append
+attribute [grind _=_] List.reverse_concat
+attribute [grind _=_] List.flatMap_append
+attribute [grind] List.foldlM_nil List.foldlM_cons List.foldrM_nil List.foldrM_cons
+
+attribute [grind] pure_bind
+attribute [grind] List.foldr_cons_eq_append List.foldr_cons_eq_append'
+attribute [grind _=_] List.append_assoc
+attribute [grind _=_] List.foldr_append List.foldl_append
+attribute [grind =] List.foldl_flatten List.foldr_flatten List.foldl_reverse List.foldr_reverse
+attribute [grind] List.reverse_nil List.nil_append List.append_nil
+attribute [grind] List.head_cons
+attribute [grind] List.getLast_singleton
+attribute [grind] List.getLast_append
+attribute [grind] List.getLast?_append
+attribute [grind _=_] List.filter_reverse List.filterMap_reverse
+attribute [grind] List.flatMap_reverse List.reverse_flatMap
+
+attribute [grind] List.reverse_replicate
+attribute [grind] List.head?_replicate
+attribute [grind] List.contains_cons List.elem_nil
+attribute [grind] List.contains_eq_mem
+attribute [grind] List.mem_filter
+attribute [grind] List.partition_eq_filter_filter
+attribute [grind] List.length_dropLast
+attribute [grind] List.getElem_dropLast
+attribute [grind] List.getElem?_eq_none
+
+
+attribute [grind] List.dropLast_cons₂
+
+attribute [grind] List.dropLast_single List.dropLast_nil
+
+attribute [grind] List.getElem?_dropLast
+attribute [grind] List.getLast?_eq_getElem? List.getElem?_dropLast
+
+attribute [grind] List.getElem?_reverse
+
+attribute [grind] List.replace_nil List.replace_cons
+
+attribute [grind] List.length_replace
+
+
+
+attribute [grind] List.take_succ_cons List.take_zero
+attribute [grind] List.getElem?_replace
+attribute [grind] List.getElem_replace
+
+attribute [grind] List.head?_cons
+attribute [grind] List.replace_append
+attribute [grind] List.take_nil
+attribute [grind] List.insert_nil
+
+attribute [grind] List.mem_insert_iff
+attribute [grind] List.length_insert
+attribute [grind] List.length_insert_pos
+grind_pattern List.length_le_length_insert => (l.insert a).length
+attribute [grind] List.getElem?_insert
+attribute [grind] List.getElem_insert
+
+attribute [grind] List.insert_append
+attribute [grind] List.insert_replicate_self
+
+attribute [grind] List.map_nil List.map_cons
+attribute [grind] List.filter_nil List.filter_cons
+attribute [grind] List.any_nil List.any_cons
+attribute [grind] List.all_nil List.all_cons
+
+attribute [grind] List.any_append List.all_append
+attribute [grind] List.any_flatten List.all_flatten
+attribute [grind] List.any_flatMap List.all_flatMap
+
+attribute [grind] List.any_reverse List.all_reverse
+
+attribute [grind] List.tail?_append
+
+attribute [grind] List.flatMap_nil List.flatMap_cons
+
+attribute [grind] List.head_reverse List.getLast_reverse
+attribute [grind] List.head?_flatMap
+
+attribute [grind] List.head?_reverse List.getLast?_reverse
 
 end List

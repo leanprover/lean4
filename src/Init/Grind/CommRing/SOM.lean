@@ -408,6 +408,14 @@ where
         | .lt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
         | .gt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
 
+def Poly.mulC (p₁ : Poly) (p₂ : Poly) (c : Nat) : Poly :=
+  go p₁ (.num 0)
+where
+  go (p₁ : Poly) (acc : Poly) : Poly :=
+    match p₁ with
+    | .num k => acc.combineC (p₂.mulConstC k c) c
+    | .add k m p₁ => go p₁ (acc.combineC (p₂.mulMonC k m c) c)
+
 /-!
 Theorems for justifying the procedure for commutative rings in `grind`.
 -/
@@ -676,7 +684,7 @@ theorem Poly.denote_mulMonC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
       simp [*, denote, IsCharP.intCast_emod, Mon.denote_mul, intCast_mul, left_distrib,
         mul_comm, mul_left_comm, mul_assoc]
 
-theorem Poly.denote_combineC [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
+theorem Poly.denote_combineC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
     : (combineC p₁ p₂ c).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   unfold combineC; generalize hugeFuel = fuel
   fun_induction combineC.go
@@ -690,6 +698,15 @@ theorem Poly.denote_combineC [CommRing α] [IsCharP α c] (ctx : Context α) (p�
   next hg _ h _ =>
     simp +zetaDelta at h; simp [*, denote, intCast_add, IsCharP.intCast_emod]
     rw [right_distrib, Mon.eq_of_grevlex hg, add_assoc]
+
+theorem Poly.denote_mulC_go {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ p₂ acc : Poly)
+    : (mulC.go p₂ c p₁ acc).denote ctx = acc.denote ctx + p₁.denote ctx * p₂.denote ctx := by
+  fun_induction mulC.go
+    <;> simp [mulC.go, denote_combineC, denote_mulConstC, denote, *, right_distrib, denote_mulMonC, add_assoc]
+
+theorem Poly.denote_mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
+    : (mulC p₁ p₂ c).denote ctx = p₁.denote ctx * p₂.denote ctx := by
+  simp [mulC, denote_mulC_go, denote, intCast_zero, zero_add]
 
 end CommRing
 end Lean.Grind

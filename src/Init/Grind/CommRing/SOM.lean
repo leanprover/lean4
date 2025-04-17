@@ -421,6 +421,22 @@ def Poly.powC (p : Poly) (k : Nat) (c : Nat) : Poly :=
   | 1 => p
   | k+1 => p.mulC (powC p k c) c
 
+def Expr.toPolyC (e : Expr) (c : Nat) : Poly :=
+  go e
+where
+  go : Expr → Poly
+    | .num n   => .num (n % c)
+    | .var x   => Poly.ofVar x
+    | .add a b => (go a).combineC (go b) c
+    | .mul a b => (go a).mulC (go b) c
+    | .neg a   => (go a).mulConstC (-1) c
+    | .sub a b => (go a).combineC ((go b).mulConstC (-1) c) c
+    | .pow a k =>
+      match a with
+      | .num n => .num ((n^k) % c)
+      | .var x => Poly.ofMon (.leaf {x, k})
+      | _ => (go a).powC k c
+
 /-!
 Theorems for justifying the procedure for commutative rings in `grind`.
 -/
@@ -718,6 +734,18 @@ theorem Poly.denote_powC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) 
  fun_induction powC <;> simp [powC, denote, intCast_one, pow_zero]
  next => simp [pow_succ, pow_zero, one_mul]
  next => simp [denote_mulC, *, pow_succ, mul_comm]
+
+theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (e : Expr)
+   : (e.toPolyC c).denote ctx = e.denote ctx := by
+  unfold toPolyC
+  fun_induction toPolyC.go
+    <;> simp [toPolyC.go, denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combineC,
+          Poly.denote_mulC, Poly.denote_mulConstC, Poly.denote_powC, *]
+  next => rw [IsCharP.intCast_emod]
+  next => rw [intCast_neg, neg_mul, intCast_one, one_mul]
+  next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]
+  next => rw [IsCharP.intCast_emod, intCast_pow]
+  next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq]
 
 end CommRing
 end Lean.Grind

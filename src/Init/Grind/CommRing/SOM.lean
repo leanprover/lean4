@@ -316,6 +316,60 @@ def Expr.toPoly : Expr → Poly
     | .var x => Poly.ofMon (.leaf {x, k})
     | _ => a.toPoly.pow k
 
+/-!
+**Definitions for the `IsCharP` case**
+
+We considered using a single set of definitions parameterized by `Option c`, but decided against it to avoid
+unnecessary kernel‑reduction overhead. Once we can specialize definitions before they reach the kernel,
+we can merge the two versions. Until then, the `IsCharP` definitions will carry the `C` suffix.
+-/
+def Poly.addConstC (p : Poly) (k : Int) (c : Nat) : Poly :=
+  match p with
+  | .num k' => .num ((k' + k) % c)
+  | .add k' m p => .add k' m (addConstC p k c)
+
+def Poly.insertC (k : Int) (m : Mon) (p : Poly) (c : Nat) : Poly :=
+  let k := k % c
+  bif k == 0 then
+    p
+  else
+    go k p
+where
+  go (k : Int) : Poly → Poly
+    | .num k' => .add k m (.num k')
+    | .add k' m' p =>
+      match m.grevlex m' with
+      | .eq =>
+        let k'' := (k + k') % c
+        bif k'' == 0 then
+          p
+        else
+          .add k'' m p
+      | .lt => .add k m (.add k' m' p)
+      | .gt => .add k' m' (go k p)
+
+def Poly.mulConstC (k : Int) (p : Poly) (c : Nat) : Poly :=
+  let k := k % c
+  bif k == 0 then
+    .num 0
+  else bif k == 1 then
+    p
+  else
+    go p
+where
+  go : Poly → Poly
+   | .num k' => .num ((k*k') % c)
+   | .add k' m p =>
+     let k'' := (k*k') % c
+     bif k'' == 0 then
+      go p
+    else
+      .add k'' m (go p)
+
+/-!
+Theorems for justifying the procedure for commutative rings in `grind`.
+-/
+
 theorem Power.denote_eq [CommRing α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
   cases p <;> simp [Power.denote] <;> split <;> simp [pow_zero, pow_succ, one_mul]
@@ -509,6 +563,51 @@ theorem Expr.denote_toPoly [CommRing α] (ctx : Context α) (e : Expr)
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]
   next => rw [intCast_pow]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq]
+
+theorem Poly.denote_addConstC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int) : (addConstC p k c).denote ctx = p.denote ctx + k := by
+  fun_induction addConstC <;> simp [addConstC, denote, *]
+  next => rw [IsCharP.intCast_emod, intCast_add]
+  next => simp [add_comm, add_left_comm, add_assoc]
+
+theorem Poly.denote_insertC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
+    : (insertC k m p c).denote ctx = k * m.denote ctx + p.denote ctx := by
+  simp [insertC, cond_eq_if] <;> split
+  next =>
+    rw [← IsCharP.intCast_emod (p := c)]
+    simp +zetaDelta [*, intCast_zero, zero_mul, zero_add]
+  next =>
+    fun_induction insertC.go <;> simp_all +zetaDelta [insertC.go, denote, cond_eq_if]
+    next h₁ _ h₂ => rw [IsCharP.intCast_emod]
+    next h₁ _ h₂ =>
+      rw [← add_assoc, Mon.eq_of_grevlex h₁, ← right_distrib, ← intCast_add, ← IsCharP.intCast_emod (p := c), h₂,
+          intCast_zero, zero_mul, zero_add]
+    next h₁ _ _ =>
+      rw [IsCharP.intCast_emod, intCast_add, right_distrib, add_assoc, Mon.eq_of_grevlex h₁]
+    next => rw [IsCharP.intCast_emod]
+    next => rw [add_left_comm]
+
+theorem Poly.denote_mulConstC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : Int) (p : Poly)
+    : (mulConstC k p c).denote ctx = k * p.denote ctx := by
+  simp [mulConstC, cond_eq_if] <;> split
+  next =>
+    rw [← IsCharP.intCast_emod (p := c)]
+    simp [denote, *, intCast_zero, zero_mul]
+  next =>
+    split
+    next =>
+      rw [← IsCharP.intCast_emod (p := c)]
+      simp [*, intCast_one, one_mul]
+    next =>
+      fun_induction mulConstC.go <;> simp [mulConstC.go, denote, IsCharP.intCast_emod, cond_eq_if, *]
+      next => rw [intCast_mul]
+      next h _ =>
+        simp +zetaDelta at h
+        simp [*]
+        rw [left_distrib, ← mul_assoc, ← intCast_mul, ← IsCharP.intCast_emod (x := k * _) (p := c),
+            h, intCast_zero, zero_mul, zero_add]
+      next h _ =>
+        simp +zetaDelta at h
+        simp [*, denote, IsCharP.intCast_emod, intCast_mul, mul_assoc, left_distrib]
 
 end CommRing
 end Lean.Grind

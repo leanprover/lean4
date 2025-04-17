@@ -65,16 +65,25 @@ If:
 def stop (s : Sleep) : IO Unit :=
   s.native.stop
 
-def selector (s : Sleep) : IO (Selector Unit) := do
+def selector (s : Sleep) : IO (Selector Unit β) := do
   let sleepWaiter ← s.wait
   return {
-    registerFn := fun waiter => do
-      discard <| AsyncTask.mapIO (x := sleepWaiter) fun _ => waiter.resolve (.ok ())
     tryFn := do
       if (← IO.getTaskState sleepWaiter) == .finished then
         return some ()
       else
         return none
+    registerFn cont waiter := do
+      discard <| AsyncTask.mapIO (x := sleepWaiter) fun res => do
+        let loose := return ()
+        let win promise := do
+          try
+            let contTask ← cont res
+            discard <| contTask.mapIO (fun res => promise.resolve (.ok res))
+          catch e =>
+            promise.resolve (.error e)
+
+        waiter.race loose win
     unregisterFn := pure ()
   }
 
@@ -87,7 +96,7 @@ def sleep (duration : Std.Time.Millisecond.Offset) : IO (AsyncTask Unit) := do
   let sleeper ← Sleep.mk duration
   sleeper.wait
 
-def Selector.sleep (duration : Std.Time.Millisecond.Offset) : IO (Selector Unit) := do
+def Selector.sleep (duration : Std.Time.Millisecond.Offset) : IO (Selector Unit β) := do
   let sleeper ← Sleep.mk duration
   sleeper.selector
 

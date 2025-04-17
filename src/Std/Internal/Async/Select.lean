@@ -13,29 +13,32 @@ namespace Internal
 namespace IO
 namespace Async
 
-structure Waiter where
+structure Waiter (α : Type) where
   private mk ::
     private finished : IO.Ref Bool
-    private signal : IO.Promise (Except IO.Error Unit)
+    private signal : IO.Promise (Except IO.Error α)
 
-def Waiter.new : BaseIO Waiter := do
+def Waiter.new : BaseIO (Waiter α) := do
   return { finished := ← IO.mkRef false, signal := ← IO.Promise.new }
 
-def Waiter.resolve (w : Waiter) (res : Except IO.Error Unit) : BaseIO Bool := do
-  let first ← w.finished.modifyGet fun s => (s == false, true)
+def Waiter.race [Monad m] [MonadLiftT BaseIO m] (w : Waiter α)
+    (loose : m β) (win : IO.Promise (Except IO.Error α) → m β) : m β := do
+  let first ← liftM (m := BaseIO) <| w.finished.modifyGet fun s => (s == false, true)
   if first then
-    w.signal.resolve res
-  return first
+    win w.signal
+  else
+    loose
 
-structure Selector (α : Type) where
-  registerFn : Waiter → IO Unit
+-- TODO: Once and if we have universe polymorphic IO this can go into registerFn
+structure Selector (α : Type) (β : Type) where
   tryFn : IO (Option α)
+  registerFn : (α → IO (AsyncTask β)) → Waiter β → IO Unit
   unregisterFn : IO Unit
 
 structure Selectable (α : Type) where
   case ::
     {β : Type}
-    selector : Selector β
+    selector : Selector β α
     cont : β → IO (AsyncTask α)
 
 private def shuffleIt {α : Type u} (xs : Array α) (gen : StdGen) : Array α :=
@@ -53,36 +56,22 @@ partial def Selectable.one (selectables : Array (Selectable α)) : IO (AsyncTask
   let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
   let gen := mkStdGen seed
   let selectables := shuffleIt selectables gen
-  go selectables true
-where
-  go (selectables : Array (Selectable α)) (first : Bool) : IO (AsyncTask α) := do
-    for h : i in [:selectables.size] do
-      have := Membership.get_elem_helper h rfl
-      let selectable := selectables[i]'this
-      if let some val ← selectable.selector.tryFn then
-        for h : j in [:selectables.size] do
-          if j ≠ i then
-            have := Membership.get_elem_helper h rfl
-            let selectable := selectables[j]'this
-            selectable.selector.unregisterFn
+  for selectable in selectables do
+    if let some val ← selectable.selector.tryFn then
+      return ← selectable.cont val
 
-        return (← selectable.cont val)
+  let waiter ← Waiter.new
 
-    if !first then
-      selectables.forM (·.selector.unregisterFn)
+  for selectable in selectables do
+    selectable.selector.registerFn selectable.cont waiter
 
-    let waiter ← Waiter.new
-
+  -- We know the promise will be resolved
+  IO.mapTask (t := waiter.signal.result!) fun res => do
     for selectable in selectables do
-      selectable.selector.registerFn waiter
+      -- TODO: Think about error handling
+      selectable.selector.unregisterFn
 
-    -- We know for sure that `signal` will be resolved eventually
-    IO.bindTask waiter.signal.result! fun res => do
-      match res with
-      | .ok .. => go selectables false
-      | .error e =>
-        selectables.forM (·.selector.unregisterFn)
-        throw e
+    IO.ofExcept res
 
 end Async
 end IO

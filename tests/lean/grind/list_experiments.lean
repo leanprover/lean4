@@ -597,27 +597,20 @@ theorem reflBEq_iff [BEq α] : ReflBEq (List α) ↔ ReflBEq α := by
     | nil => simp only [List.instBEq, List.beq]
     | cons _ _ ih =>
       simp [List.instBEq, List.beq]
-      exact ih
+
 
 theorem lawfulBEq_iff [BEq α] : LawfulBEq (List α) ↔ LawfulBEq α := by
   constructor
   · intro h
+    have : ReflBEq α := reflBEq_iff.mp inferInstance
     constructor
-    · intro a b h
-      apply singleton_inj.1
-      apply eq_of_beq
-      simp only [List.instBEq, List.beq]
-      simpa
-    · intro a
-      suffices ([a] == [a]) = true by
-        simpa only [List.instBEq, List.beq, Bool.and_true]
-      simp
+    intro a b h
+    apply singleton_inj.1
+    apply eq_of_beq
+    simp only [List.instBEq, List.beq]
+    grind
   · intro h
-    constructor
-    · intro _ _ h
-      simpa using h
-    · intro _
-      simp
+    infer_instance
 
 /-! ### isEqv -/
 

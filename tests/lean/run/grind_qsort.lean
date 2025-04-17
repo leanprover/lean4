@@ -162,14 +162,7 @@ private theorem getElem_qsort_sort_mem (lt : α → α → Bool)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
     (i : Nat) (h : i < n) (_ : lo ≤ i) (_ : i ≤ hi) :
     (qsort.sort lt as lo hi hlo hhi)[i] ∈ as.extract lo (hi + 1) := by
-  -- FIXME: This proof is horrible, with too much pain navigating the Array/Vector boundary.
-  have := extract_qsort_sort_perm as lt lo hi hlo hhi (by grind)
-  have := Array.Perm.mem_iff this (a := (qsort.sort lt as lo hi hlo hhi)[i])
-  rw [← Vector.mem_toArray_iff]
-  apply this.mp
-  rw [toArray_extract]
-  rw [mem_extract_iff_getElem]
-  simp only [Vector.getElem_toArray, Vector.size_toArray]
+  rw [← (extract_qsort_sort_perm as lt lo hi hlo hhi (by grind)).mem_iff, Vector.mem_extract_iff_getElem]
   refine ⟨i - lo, ?_⟩
   -- FIXME: there appears to be a non-deterministic error appearing here.
   -- If this `grind` fails, try restarting the server?

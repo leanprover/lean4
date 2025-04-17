@@ -1937,12 +1937,15 @@ namespace Equiv
 
 variable {m m₁ m₂ m₃ : HashMap α β}
 
-theorem refl (m : HashMap α β) : m ~m m := ⟨.rfl⟩
+@[refl, simp] theorem refl (m : HashMap α β) : m ~m m := ⟨.rfl⟩
 theorem rfl : m ~m m := ⟨.rfl⟩
-theorem symm : m₁ ~m m₂ → m₂ ~m m₁
+@[symm] theorem symm : m₁ ~m m₂ → m₂ ~m m₁
   | ⟨h⟩ => ⟨h.symm⟩
 theorem trans : m₁ ~m m₂ → m₂ ~m m₃ → m₁ ~m m₃
   | ⟨h₁⟩, ⟨h₂⟩ => ⟨h₁.trans h₂⟩
+
+instance instTrans : Trans (α := HashMap α β) Equiv Equiv Equiv := ⟨trans⟩
+
 theorem comm : m₁ ~m m₂ ↔ m₂ ~m m₁ := ⟨symm, symm⟩
 theorem congr_left (h : m₁ ~m m₂) : m₁ ~m m₃ ↔ m₂ ~m m₃ := ⟨h.symm.trans, h.trans⟩
 theorem congr_right (h : m₁ ~m m₂) : m₃ ~m m₁ ↔ m₃ ~m m₂ :=
@@ -2070,6 +2073,14 @@ end Equiv
 section Equiv
 
 variable {m m₁ m₂ : HashMap α β}
+
+instance isSetoid (α β) [BEq α] [Hashable α] : Setoid (HashMap α β) where
+  r := Equiv
+  iseqv := {
+    refl := .refl
+    symm := .symm
+    trans := .trans
+  }
 
 @[simp]
 theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :

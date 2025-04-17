@@ -744,12 +744,15 @@ section Raw
 
 variable {α : Type u} {β : Type v} {m m₁ m₂ m₃ : Raw α}
 
-theorem refl (m : Raw α) : m ~m m := ⟨.rfl⟩
+@[refl, simp] theorem refl (m : Raw α) : m ~m m := ⟨.rfl⟩
 theorem rfl : m ~m m := ⟨.rfl⟩
-theorem symm : m₁ ~m m₂ → m₂ ~m m₁
+@[symm] theorem symm : m₁ ~m m₂ → m₂ ~m m₁
   | ⟨h⟩ => ⟨h.symm⟩
 theorem trans : m₁ ~m m₂ → m₂ ~m m₃ → m₁ ~m m₃
   | ⟨h₁⟩, ⟨h₂⟩ => ⟨h₁.trans h₂⟩
+
+instance instTrans : Trans (α := Raw α) Equiv Equiv Equiv := ⟨trans⟩
+
 theorem comm : m₁ ~m m₂ ↔ m₂ ~m m₁ := ⟨symm, symm⟩
 theorem congr_left (h : m₁ ~m m₂) : m₁ ~m m₃ ↔ m₂ ~m m₃ := ⟨h.symm.trans, h.trans⟩
 theorem congr_right (h : m₁ ~m m₂) : m₃ ~m m₁ ↔ m₃ ~m m₂ :=
@@ -826,6 +829,14 @@ theorem of_forall_mem_iff [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
   ⟨.of_forall_mem_unit_iff h₁.1 h₂.1 h⟩
 
 end Equiv
+
+instance isSetoid (α) : Setoid (Raw α) where
+  r := Equiv
+  iseqv := {
+    refl := .refl
+    symm := .symm
+    trans := .trans
+  }
 
 theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} (h : m.WF) :
     m ~m emptyWithCapacity c ↔ m.isEmpty :=

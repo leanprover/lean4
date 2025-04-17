@@ -11,7 +11,7 @@ import Std.Data.DHashMap.AdditionalOperations
 /-!
 # Dependent hash map lemmas
 
-This file contains lemmas about `Std.Data.DHashMap`. Most of the lemmas require
+This file contains lemmas about `Std.DHashMap`. Most of the lemmas require
 `EquivBEq α` and `LawfulHashable α` for the key type `α`. The easiest way to obtain these instances
 is to provide an instance of `LawfulBEq α`.
 -/
@@ -2916,12 +2916,15 @@ namespace Equiv
 
 variable {m₁ m₂ m₃ : Std.DHashMap α β}
 
-theorem refl (m : Std.DHashMap α β) : m ~m m := ⟨⟨.rfl⟩⟩
+@[refl, simp] theorem refl (m : Std.DHashMap α β) : m ~m m := ⟨⟨.rfl⟩⟩
 theorem rfl : m ~m m := ⟨⟨.rfl⟩⟩
-theorem symm : m₁ ~m m₂ → m₂ ~m m₁
+@[symm] theorem symm : m₁ ~m m₂ → m₂ ~m m₁
   | ⟨⟨h⟩⟩ => ⟨⟨h.symm⟩⟩
 theorem trans : m₁ ~m m₂ → m₂ ~m m₃ → m₁ ~m m₃
   | ⟨⟨h₁⟩⟩, ⟨⟨h₂⟩⟩ => ⟨⟨h₁.trans h₂⟩⟩
+
+instance instTrans : Trans (α := Std.DHashMap α β) Equiv Equiv Equiv := ⟨trans⟩
+
 theorem comm : m₁ ~m m₂ ↔ m₂ ~m m₁ := ⟨symm, symm⟩
 theorem congr_left (h : m₁ ~m m₂) : m₁ ~m m₃ ↔ m₂ ~m m₃ := ⟨h.symm.trans, h.trans⟩
 theorem congr_right (h : m₁ ~m m₂) : m₃ ~m m₁ ↔ m₃ ~m m₂ :=
@@ -3086,6 +3089,14 @@ theorem of_forall_mem_unit_iff [LawfulBEq α]
 end Const
 
 end Equiv
+
+instance isSetoid (α β) [BEq α] [Hashable α] : Setoid (DHashMap α β) where
+  r := Equiv
+  iseqv := {
+    refl := .refl
+    symm := .symm
+    trans := .trans
+  }
 
 @[simp]
 theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :

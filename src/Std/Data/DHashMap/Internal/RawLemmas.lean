@@ -1178,8 +1178,6 @@ theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
     {f : δ → α → β → m' δ} {init : δ} :
     Raw.Internal.foldRevM f init m.1 =
       (Raw.Const.toList m.1).foldrM (fun a b => f b a.1 a.2) init := by
-  have :=Raw.foldRevM_eq_foldrM_toListModel (m := m') (b := m.1) (init := init) (f := f)
-
   simp_to_model [foldRevM, Const.toList] using List.foldrM_eq_foldrM_toProd'
 
 theorem foldRev_eq_foldr_toList {f : δ → α → β → δ} {init : δ} :
@@ -1198,6 +1196,18 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
 end Const
 
 end monadic
+
+section insertMany
+
+set_option Elab.async false
+
+variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+
+@[elab_as_elim]
+theorem insertMany_ind {motive : Raw₀ α β → Prop} (m : Raw₀ α β) (l : ρ)
+    (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :
+    motive (m.insertMany l).1 :=
+  (m.insertMany l).2 motive (insert _ _ _) init
 
 @[simp]
 theorem insertMany_nil :
@@ -1226,6 +1236,14 @@ theorem contains_of_contains_insertMany_list [EquivBEq α] [LawfulHashable α] (
     {l : List ((a : α) × β a)} {k : α} :
     (m.insertMany l).1.contains k → (l.map Sigma.fst).contains k = false → m.contains k := by
   simp_to_model [insertMany, contains] using List.containsKey_of_containsKey_insertList
+
+theorem contains_insertMany_of_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {l : ρ} {k : α} (h' : m.contains k) : (m.insertMany l).1.contains k := by
+  refine (?_ : _ ∧ (m.insertMany l).1.1.WF).1
+  refine insertMany_ind m l ⟨h', h⟩ ?_
+  intro m a b ⟨h', h⟩
+  simp only [h, contains_insert, h', Bool.or_true, true_and]
+  exact h.insert₀
 
 theorem get?_insertMany_list_of_contains_eq_false [LawfulBEq α] (h : m.1.WF)
     {l : List ((a : α) × β a)} {k : α}
@@ -1352,6 +1370,15 @@ theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.
     m.1.size ≤ (m.insertMany l).1.1.size := by
   simp_to_model [insertMany, size] using List.length_le_length_insertList
 
+theorem size_le_size_insertMany [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {l : ρ} : m.1.size ≤ (m.insertMany l).1.1.size := by
+  refine (?_ : _ ∧ (m.insertMany l).1.1.WF).1
+  refine insertMany_ind m l ⟨Nat.le_refl _, h⟩ ?_
+  intro m' a b ⟨h', h⟩
+  constructor
+  · exact Nat.le_trans h' (size_le_size_insert m' h)
+  · exact h.insert₀
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List ((a : α) × β a)} :
     (m.insertMany l).1.1.size ≤ m.1.size + l.length := by
@@ -1363,9 +1390,26 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     (m.insertMany l).1.1.isEmpty = (m.1.isEmpty && l.isEmpty) := by
   simp_to_model [insertMany, isEmpty] using List.isEmpty_insertList
 
+theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {l : ρ} : (m.insertMany l).1.1.isEmpty → m.1.isEmpty := by
+  refine (?_ : _ ∧ (m.insertMany l).1.1.WF).1
+  refine insertMany_ind m l ⟨id, h⟩ ?_
+  intro m' a b ⟨h', h⟩
+  constructor
+  · intro h''
+    simp only [isEmpty_insert, h, Bool.false_eq_true] at h''
+  · exact h.insert₀
+
 namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
+variable {ρ : Type w} [ForIn Id ρ (α × β)]
+
+@[elab_as_elim]
+theorem insertMany_ind {motive : Raw₀ α (fun _ => β) → Prop} (m : Raw₀ α fun _ => β) (l : ρ)
+    (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :
+    motive (insertMany m l).1 :=
+  (insertMany m l).2 motive (insert _ _ _) init
 
 @[simp]
 theorem insertMany_nil :
@@ -1394,6 +1438,14 @@ theorem contains_of_contains_insertMany_list [EquivBEq α] [LawfulHashable α] (
     {l : List ( α × β )} {k : α} :
     (insertMany m l).1.contains k → (l.map Prod.fst).contains k = false → m.contains k := by
   simp_to_model [Const.insertMany, contains] using List.containsKey_of_containsKey_insertListConst
+
+theorem contains_insertMany_of_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {l : ρ} {k : α} (h' : m.contains k) : (insertMany m l).1.contains k := by
+  refine (?_ : _ ∧ (insertMany m l).1.1.WF).1
+  refine insertMany_ind m l ⟨h', h⟩ ?_
+  intro m a b ⟨h', h⟩
+  simp only [h, contains_insert, h', Bool.or_true, true_and]
+  exact h.insert₀
 
 theorem getKey?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)} {k : α}
@@ -1466,6 +1518,15 @@ theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.
     m.1.size ≤ (insertMany m l).1.1.size := by
   simp_to_model [Const.insertMany, size] using List.length_le_length_insertListConst
 
+theorem size_le_size_insertMany [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {l : ρ} : m.1.size ≤ (insertMany m l).1.1.size := by
+  refine (?_ : _ ∧ (insertMany m l).1.1.WF).1
+  refine insertMany_ind m l ⟨Nat.le_refl _, h⟩ ?_
+  intro m' a b ⟨h', h⟩
+  constructor
+  · exact Nat.le_trans h' (size_le_size_insert m' h)
+  · exact h.insert₀
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)} :
     (insertMany m l).1.1.size ≤ m.1.size + l.length := by
@@ -1476,6 +1537,16 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)} :
     (insertMany m l).1.1.isEmpty = (m.1.isEmpty && l.isEmpty) := by
   simp_to_model [Const.insertMany, isEmpty] using List.isEmpty_insertListConst
+
+theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {l : ρ} : (insertMany m l).1.1.isEmpty → m.1.isEmpty := by
+  refine (?_ : _ ∧ (insertMany m l).1.1.WF).1
+  refine insertMany_ind m l ⟨id, h⟩ ?_
+  intro m' a b ⟨h', h⟩
+  constructor
+  · intro h''
+    simp only [isEmpty_insert, h, Bool.false_eq_true] at h''
+  · exact h.insert₀
 
 theorem get?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)} {k : α}
@@ -1532,6 +1603,15 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.1.W
 
 variable (m : Raw₀ α (fun _ => Unit))
 
+variable {ρ : Type w} [ForIn Id ρ α]
+
+@[elab_as_elim]
+theorem insertManyIfNewUnit_ind {motive : Raw₀ α (fun _ => Unit) → Prop}
+    (m : Raw₀ α fun _ => Unit) (l : ρ)
+    (init : motive m) (insert : ∀ m a, motive m → motive (m.insertIfNew a ())) :
+    motive (insertManyIfNewUnit m l).1 :=
+  (insertManyIfNewUnit m l).2 motive (insert _ _) init
+
 @[simp]
 theorem insertManyIfNewUnit_nil :
     insertManyIfNewUnit m [] = m := by
@@ -1560,6 +1640,14 @@ theorem contains_of_contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHasha
     (insertManyIfNewUnit m l).1.contains k → m.contains k := by
   simp_to_model [Const.insertManyIfNewUnit, contains]
     using List.containsKey_of_containsKey_insertListIfNewUnit
+
+theorem contains_insertManyIfNewUnit_of_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {l : ρ} {k : α} (h' : m.contains k) : (insertManyIfNewUnit m l).1.contains k := by
+  refine (?_ : _ ∧ (insertManyIfNewUnit m l).1.1.WF).1
+  refine insertManyIfNewUnit_ind m l ⟨h', h⟩ ?_
+  intro m a ⟨h', h⟩
+  simp only [h, contains_insertIfNew, h', Bool.or_true, true_and]
+  exact h.insertIfNew₀
 
 theorem getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α]
@@ -1652,6 +1740,15 @@ theorem size_le_size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] 
     m.1.size ≤ (insertManyIfNewUnit m l).1.1.size := by
   simp_to_model [Const.insertManyIfNewUnit, size] using List.length_le_length_insertListIfNewUnit
 
+theorem size_le_size_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {l : ρ} : m.1.size ≤ (insertManyIfNewUnit m l).1.1.size := by
+  refine (?_ : _ ∧ (insertManyIfNewUnit m l).1.1.WF).1
+  refine insertManyIfNewUnit_ind m l ⟨Nat.le_refl _, h⟩ ?_
+  intro m' a ⟨h', h⟩
+  constructor
+  · exact Nat.le_trans h' (size_le_size_insertIfNew m' h)
+  · exact h.insertIfNew₀
+
 theorem size_insertManyIfNewUnit_list_le [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List α} :
     (insertManyIfNewUnit m l).1.1.size ≤ m.1.size + l.length := by
@@ -1662,6 +1759,16 @@ theorem isEmpty_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : 
     {l : List α} :
     (insertManyIfNewUnit m l).1.1.isEmpty = (m.1.isEmpty && l.isEmpty) := by
   simp_to_model [Const.insertManyIfNewUnit, isEmpty] using List.isEmpty_insertListIfNewUnit
+
+theorem isEmpty_of_isEmpty_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {l : ρ} : (insertManyIfNewUnit m l).1.1.isEmpty → m.1.isEmpty := by
+  refine (?_ : _ ∧ (insertManyIfNewUnit m l).1.1.WF).1
+  refine insertManyIfNewUnit_ind m l ⟨id, h⟩ ?_
+  intro m' a ⟨h', h⟩
+  constructor
+  · intro h''
+    simp only [isEmpty_insertIfNew, h, Bool.false_eq_true] at h''
+  · exact h.insertIfNew₀
 
 theorem get?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List α} {k : α} :
@@ -2328,6 +2435,8 @@ set_option linter.missingDocs false in
 abbrev getD_insertManyIfNewUnit_empty_list := @getD_insertManyIfNewUnit_emptyWithCapacity_list
 
 end Const
+
+end insertMany
 
 section Alter
 

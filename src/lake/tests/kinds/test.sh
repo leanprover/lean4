@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
-
+source ../common.sh
 ./clean.sh
 
 # setup directory structure
+echo "# SETUP"
+set -x
 mkdir -p files
 touch files/Lib.lean
 echo "def main : IO Unit := pure ()" > files/exe.lean
 touch files/test.txt
+set +x
 
 # Test that targets have their expected data kinds
-$LAKE query-kind exe | diff -u --strip-trailing-cr <(echo filepath) -
-$LAKE query-kind Lib:static | diff -u --strip-trailing-cr <(echo filepath) -
-$LAKE query-kind Lib:shared | diff -u --strip-trailing-cr <(echo dynlib) -
-$LAKE query-kind inFile | diff -u --strip-trailing-cr <(echo filepath) -
-$LAKE query-kind inDir | diff -u --strip-trailing-cr <(echo [anonymous]) -
-$LAKE query-kind pathTarget | diff -u --strip-trailing-cr <(echo filepath) -
-$LAKE query-kind dynlibTarget | diff -u --strip-trailing-cr <(echo dynlib) -
+echo "# TEST: Target query kinds"
+test_eq "filepath" query-kind exe
+test_eq "filepath" query-kind Lib:static
+test_eq "dynlib" query-kind Lib:shared
+test_eq "filepath" query-kind inFile
+test_eq "[anonymous]" query-kind inDir
+test_eq "filepath" query-kind pathTarget
+test_eq "dynlib" query-kind dynlibTarget

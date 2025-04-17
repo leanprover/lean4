@@ -1,11 +1,22 @@
 set -euo pipefail
 
+# Lake configuration
+
 LAKE=${LAKE:-lake}
+echo "LAKE=$LAKE"
+
+# Platform-specific configuration
+
+OS="${OS:-}"
+echo "OS=$OS"
+
+UNAME="`uname`"
+echo "UNAME=$UNAME"
 
 if [ "${OS:-}" = Windows_NT ]; then
 LIB_PREFIX=
 SHARED_LIB_EXT=dll
-elif [ "`uname`" = Darwin ]; then
+elif [ "$UNAME" = Darwin ]; then
 LIB_PREFIX=lib
 SHARED_LIB_EXT=dylib
 else
@@ -13,63 +24,140 @@ LIB_PREFIX=lib
 SHARED_LIB_EXT=so
 fi
 
-test_run() {
-  echo "[COMMAND]"
-  echo "$>" "$LAKE" "$@"
-  if "$LAKE" "$@" >produced.out 2>&1; then
-    rc=$?
-  else
-    rc=$?
-  fi
-  echo "Lake exited with code $rc"
-  echo "[OUTPUT]"
-  cat produced.out
-  return $rc
-}
+if [ "$UNAME" = Darwin ] || [ "$UNAME" = FreeBSD ]; then
+  sed_i() { sed -i '' "$@"; }
+  TAIL=gtail
+else
+  sed_i() { sed -i "$@"; }
+  TAIL=tail
+fi
 
-match_out() {
-  expected=$1; shift
-  echo "[MATCH \"$expected\"]"
-  if grep --color -F -- "$expected" produced.out; then
+# Test functions
+
+test_cmd() {
+  echo '$' "$@"
+  if "$@" 2>&1; then
     return 0
   else
-    echo "No match found."
+    rc=$?
+    echo "Program exited with code $rc"
+    return $rc
+  fi
+}
+
+test_exp() {
+  echo '$' test "$@"
+  test "$@"
+}
+
+test_run() {
+  echo '$' lake "$@"
+  if "$LAKE" "$@" 2>&1; then
+    return 0
+  else
+    rc=$?
+    echo "Lake exited with code $rc"
+    return $rc
+  fi
+}
+
+test_cmd_fails() {
+  if test_cmd "$@"; then
+    echo "FAILURE: Program unexpectedly succeeded"
     return 1
+  else
+    return 0
+  fi
+}
+
+test_fails() {
+  if test_run "$@"; then
+    echo "FAILURE: Lake unexpectedly succeeded"
+    return 1
+  else
+    return 0
+  fi
+}
+
+test_status() {
+  expected=$1; shift
+  if test_run "$@"; then rc=$?; else rc=$?; fi
+  if [ $rc = $expected ]; then
+    return 0
+  else
+    echo "FAILURE: Expected Lake to exit with code $expected."
+    return 1
+  fi
+}
+
+lake_out() {
+  echo '$' lake "$@"
+  if "$LAKE" "$@" >produced.out 2>&1; then
+    cat produced.out
+    return 0
+  else
+    rc=$?
+    cat produced.out
+    echo "Lake exited with code $rc"
+    return $rc
+  fi
+}
+
+match_text() {
+  echo "? grep -F \"$1\""
+  if grep --color -F -- "$1" $2; then
+    return 0
+  else
+    echo "No match found"
+    return 1
+  fi
+}
+
+no_match_text() {
+  echo "! grep -F \"$1\""
+  if grep --color -F -- "$1" $2; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+no_match_pat() {
+  echo "! grep -E \"$1\""
+  if grep --color -E -- "$1" $2; then
+    return 1
+  else
+    return 0
   fi
 }
 
 test_out() {
   expected=$1; shift
-  if test_run "$@"; then rc=$?; else rc=$?; fi
-  match_out "$expected"
+  if lake_out "$@"; then rc=$?; else rc=$?; fi
+  match_text "$expected" produced.out
   return $rc
-}
-
-no_match_out() {
-  expected=$1; shift
-  echo "[NO MATCH \"$expected\"]"
-  if grep --color -F -- "$expected" produced.out; then
-    return 1
-  else
-    echo "No match found."
-    return 0
-  fi
 }
 
 test_not_out() {
   expected=$1; shift
-  if test_run "$@"; then rc=$?; else rc=$?; fi
-  no_match_out "$expected"
+  if lake_out "$@"; then rc=$?; else rc=$?; fi
+  no_match_text "$expected" produced.out
+  return $rc
+}
+
+test_not_pat() {
+  expected=$1; shift
+  if lake_out "$@"; then rc=$?; else rc=$?; fi
+  no_match_pat "$expected" produced.out
   return $rc
 }
 
 test_err() {
   expected=$1; shift
-  if test_run "$@"; then rc=$?; else rc=$?; fi
-  if match_out "$expected"; then
+  if lake_out "$@"; then rc=$?; else rc=$?; fi
+  if match_text "$expected" produced.out; then
     if [ $rc != 1 ]; then
-      echo "[OUTCOME]"
-      echo "Lake unexpectedly succeeded."
+      echo "FAILURE: Lake unexpectedly succeeded"
       return 1
     fi
   else
@@ -79,7 +167,105 @@ test_err() {
 
 test_maybe_err() {
   expected=$1; shift
-  test_run "$@" || true
-  match_out "$expected"
+  lake_out "$@" || true
+  match_text "$expected" produced.out
 }
 
+check_diff() {
+  expected=$1; actual=$2
+  if diff -u --strip-trailing-cr "$expected" "$actual"; then
+    cat "$actual"
+    echo "Output matched expectations"
+    return 9
+  else
+    return 1
+  fi
+}
+
+test_out_diff() {
+  expected=$1; shift
+  echo '$' lake "$@"
+  if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
+  if check_diff "$expected" produced.out; then
+    if [ $rc != 0 ]; then
+      echo "FAILURE: Program exited with code $rc"
+      return 1
+    fi
+  else
+    if [ $rc != 0 ]; then
+      echo "Program exited with code $rc"
+    fi
+  fi
+}
+
+test_err_diff() {
+  expected=$1; shift
+  echo '$' lake "$@"
+  if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
+  if check_diff "$expected" produced.out; then
+    if [ $rc != 1 ]; then
+      echo "FAILURE: Lake unexpectedly succeeded"
+      return 1
+    fi
+  else
+    if [ $rc != 1 ]; then
+      echo "Lake exited with code $rc."
+    fi
+    return 1
+  fi
+}
+
+
+test_no_out() {
+  if lake_out "$@"; then rc=$?; else rc=$?; fi
+  diff produced.out /dev/null
+  return $rc
+}
+
+test_no_warn() {
+  echo '$' lake "$@"
+  if "$LAKE" "$@" 2>produced.out; then
+    diff produced.out /dev/null
+  else
+    rc=$?
+    cat produced.out
+    echo "FAILURE: Lake exited with code $rc"
+    return 1
+  fi
+}
+
+test_cmd_eq() {
+  expected=$1; shift
+  echo '$' "$@"
+  if "$@" >produced.out; then
+    echo "? output \"`cat produced.out`\" = \"$expected\""
+    if test "`cat produced.out`" = "$expected"; then
+      return 0
+    else
+      return 1
+    fi
+  else
+    rc=$?
+    cat produced.out
+    echo "FAILURE: Program exited with code $rc"
+    return 1
+  fi
+}
+
+test_eq() {
+  expected=$1; shift
+  echo '$' lake "$@"
+  if "$LAKE" "$@" >produced.out; then
+    echo "? output \"`cat produced.out`\" = \"$expected\""
+    if test "`cat produced.out`" = "$expected"; then
+      return 0
+    else
+      return 1
+    fi
+  else
+    rc=$?
+    cat produced.out
+    echo "FAILURE: Lake exited with code $rc"
+    return 1
+  fi
+}

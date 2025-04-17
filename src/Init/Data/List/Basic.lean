@@ -94,8 +94,8 @@ namespace List
 /-! ### foldl -/
 
 -- As `List.foldl` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
-@[simp] theorem foldl_nil : [].foldl f b = b := rfl
-@[simp] theorem foldl_cons {l : List α} {f : β → α → β} {b : β} : (a :: l).foldl f b = l.foldl f (f b a) := rfl
+@[simp, grind] theorem foldl_nil : [].foldl f b = b := rfl
+@[simp, grind] theorem foldl_cons {l : List α} {f : β → α → β} {b : β} : (a :: l).foldl f b = l.foldl f (f b a) := rfl
 
 /-! ### concat -/
 
@@ -326,7 +326,7 @@ def getLast? : List α → Option α
   | []    => none
   | a::as => some (getLast (a::as) (fun h => List.noConfusion h))
 
-@[simp] theorem getLast?_nil : @getLast? α [] = none := rfl
+@[simp, grind] theorem getLast?_nil : @getLast? α [] = none := rfl
 
 /-! ### getLastD -/
 
@@ -359,7 +359,7 @@ Returns the first element of a non-empty list.
 def head : (as : List α) → as ≠ [] → α
   | a::_, _ => a
 
-@[simp] theorem head_cons {a : α} {l : List α} {h} : head (a::l) h = a := rfl
+@[simp, grind] theorem head_cons {a : α} {l : List α} {h} : head (a::l) h = a := rfl
 
 /-! ### head? -/
 
@@ -377,8 +377,8 @@ def head? : List α → Option α
   | []   => none
   | a::_ => some a
 
-@[simp] theorem head?_nil : head? ([] : List α) = none := rfl
-@[simp] theorem head?_cons {a : α} {l : List α} : head? (a::l) = some a := rfl
+@[simp, grind] theorem head?_nil : head? ([] : List α) = none := rfl
+@[simp, grind] theorem head?_cons {a : α} {l : List α} : head? (a::l) = some a := rfl
 
 /-! ### headD -/
 
@@ -414,8 +414,8 @@ def tail : List α → List α
   | []    => []
   | _::as => as
 
-@[simp] theorem tail_nil : tail ([] : List α) = [] := rfl
-@[simp] theorem tail_cons {a : α} {as : List α} : tail (a::as) = as := rfl
+@[simp, grind] theorem tail_nil : tail ([] : List α) = [] := rfl
+@[simp, grind] theorem tail_cons {a : α} {as : List α} : tail (a::as) = as := rfl
 
 /-! ### tail? -/
 
@@ -435,8 +435,8 @@ def tail? : List α → Option (List α)
   | []    => none
   | _::as => some as
 
-@[simp] theorem tail?_nil : tail? ([] : List α) = none := rfl
-@[simp] theorem tail?_cons {a : α} {l : List α} : tail? (a::l) = some l := rfl
+@[simp, grind] theorem tail?_nil : tail? ([] : List α) = none := rfl
+@[simp, grind] theorem tail?_cons {a : α} {l : List α} : tail? (a::l) = some l := rfl
 
 /-! ### tailD -/
 
@@ -484,8 +484,8 @@ Examples:
   | []    => []
   | a::as => f a :: map f as
 
-@[simp] theorem map_nil {f : α → β} : map f [] = [] := rfl
-@[simp] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := rfl
+@[simp, grind] theorem map_nil {f : α → β} : map f [] = [] := rfl
+@[simp, grind] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := rfl
 
 /-! ### filter -/
 
@@ -505,7 +505,7 @@ def filter (p : α → Bool) : (l : List α) → List α
     | true => a :: filter p as
     | false => filter p as
 
-@[simp] theorem filter_nil {p : α → Bool} : filter p [] = [] := rfl
+@[simp, grind] theorem filter_nil {p : α → Bool} : filter p [] = [] := rfl
 
 /-! ### filterMap -/
 
@@ -531,8 +531,8 @@ Example:
     | none   => filterMap f as
     | some b => b :: filterMap f as
 
-@[simp] theorem filterMap_nil {f : α → Option β} : filterMap f [] = [] := rfl
-theorem filterMap_cons {f : α → Option β} {a : α} {l : List α} :
+@[simp, grind] theorem filterMap_nil {f : α → Option β} : filterMap f [] = [] := rfl
+@[grind] theorem filterMap_cons {f : α → Option β} {a : α} {l : List α} :
     filterMap f (a :: l) =
       match f a with
       | none => filterMap f l
@@ -555,8 +555,8 @@ Examples:
   | []     => init
   | a :: l => f a (foldr f init l)
 
-@[simp] theorem foldr_nil : [].foldr f b = b := rfl
-@[simp] theorem foldr_cons {a} {l : List α} {f : α → β → β} {b} :
+@[simp, grind] theorem foldr_nil : [].foldr f b = b := rfl
+@[simp, grind] theorem foldr_cons {a} {l : List α} {f : α → β → β} {b} :
     (a :: l).foldr f b = f a (l.foldr f b) := rfl
 
 /-! ### reverse -/

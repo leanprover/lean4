@@ -1396,9 +1396,14 @@ abbrev mkVector_beq_mkVector := @replicate_beq_replicate
 
 /-! ### back -/
 
+@[grind] theorem back_singleton {a : α} : #v[a].back = a := by simp
+
+@[grind]
 theorem back_eq_getElem [NeZero n] {xs : Vector α n} : xs.back = xs[n - 1]'(by have := NeZero.ne n; omega) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.back_eq_getElem]
+
+@[grind] theorem back?_empty : (#v[] : Vector α 0).back? = none := by simp
 
 theorem back?_eq_getElem? {xs : Vector α n} : xs.back? = xs[n - 1]? := by
   rcases xs with ⟨xs, rfl⟩
@@ -1411,23 +1416,23 @@ theorem back?_eq_getElem? {xs : Vector α n} : xs.back? = xs[n - 1]? := by
 /-! ### map -/
 
 -- The argument `f : α → β` is explicit, to facilitate rewriting from right to left.
-@[simp] theorem getElem_map (f : α → β) {xs : Vector α n} (hi : i < n) :
+@[simp, grind] theorem getElem_map (f : α → β) {xs : Vector α n} (hi : i < n) :
     (xs.map f)[i] = f xs[i] := by
   cases xs
   simp
 
-@[simp] theorem getElem?_map {f : α → β} {xs : Vector α n} {i : Nat}:
+@[simp, grind] theorem getElem?_map {f : α → β} {xs : Vector α n} {i : Nat}:
     (xs.map f)[i]? = xs[i]?.map f := by
   cases xs
   simp
 
 /-- The empty vector maps to the empty vector. -/
-@[simp]
+@[simp, grind]
 theorem map_empty {f : α → β} : map f #v[] = #v[] := by
   rw [map, mk.injEq]
   exact Array.map_empty
 
-@[simp] theorem map_push {f : α → β} {as : Vector α n} {x : α} :
+@[simp, grind] theorem map_push {f : α → β} {as : Vector α n} {x : α} :
     (as.push x).map f = (as.map f).push (f x) := by
   cases as
   simp
@@ -1539,7 +1544,7 @@ theorem map_eq_iff {f : α → β} {as : Vector α n} {bs : Vector β n} :
   cases xs
   simp
 
-@[simp] theorem back?_map {f : α → β} {xs : Vector α n} : (xs.map f).back? = xs.back?.map f := by
+@[simp, grind _=_] theorem back?_map {f : α → β} {xs : Vector α n} : (xs.map f).back? = xs.back?.map f := by
   cases xs
   simp
 
@@ -2364,6 +2369,10 @@ theorem foldr_eq_foldrM {f : α → β → β} {b} {xs : Vector α n} :
 
 /-! ### foldl / foldr -/
 
+@[grind] theorem foldl_empty {f : β → α → β} {init : β} : (#v[].foldl f init) = init := rfl
+
+@[grind] theorem foldr_empty {f : α → β → β} {init : β} : (#v[].foldr f init) = init := rfl
+
 @[congr]
 theorem foldl_congr {xs ys : Vector α n} (h₀ : xs = ys) {f g : β → α → β} (h₁ : f = g)
      {a b : β} (h₂ : a = b) :
@@ -2376,7 +2385,12 @@ theorem foldr_congr {xs ys : Vector α n} (h₀ : xs = ys) {f g : α → β → 
     xs.foldr f a = ys.foldr g b := by
   congr
 
-@[simp] theorem foldr_push {f : α → β → β} {init : β} {xs : Vector α n} {a : α} :
+@[simp, grind] theorem foldl_push {f : β → α → β} {init : β} {xs : Vector α n} {a : α} :
+    (xs.push a).foldl f init = f (xs.foldl f init) a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.foldl_push]
+
+@[simp, grind] theorem foldr_push {f : α → β → β} {init : β} {xs : Vector α n} {a : α} :
     (xs.push a).foldr f init = xs.foldr f (f a init) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.foldr_push]

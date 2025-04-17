@@ -1135,9 +1135,14 @@ private theorem beq_of_beq_singleton [BEq α] {a b : α} : #[a] == #[b] → a ==
 
 /-! ### back -/
 
+@[grind] theorem back_singleton {a : α} : #[a].back = a := by simp
+
+@[grind]
 theorem back_eq_getElem {xs : Array α} (h : 0 < xs.size) : xs.back = xs[xs.size - 1] := by
   cases xs
   simp [List.getLast_eq_getElem]
+
+@[grind] theorem back?_empty : (#[] : Array α).back? = none := by simp
 
 theorem back?_eq_getElem? {xs : Array α} : xs.back? = xs[xs.size - 1]? := by
   cases xs
@@ -1176,17 +1181,17 @@ where
   apply ext'
   simp
 
-@[simp] theorem size_map {f : α → β} {xs : Array α} : (xs.map f).size = xs.size := by
+@[simp, grind] theorem size_map {f : α → β} {xs : Array α} : (xs.map f).size = xs.size := by
   simp only [← length_toList]
   simp
 
 -- The argument `f : α → β` is explicit, to facilitate rewriting from right to left.
-@[simp] theorem getElem_map (f : α → β) {xs : Array α} {i : Nat} (hi : i < (xs.map f).size) :
+@[simp, grind] theorem getElem_map (f : α → β) {xs : Array α} {i : Nat} (hi : i < (xs.map f).size) :
     (xs.map f)[i] = f (xs[i]'(by simpa using hi)) := by
   cases xs
   simp
 
-@[simp] theorem getElem?_map {f : α → β} {xs : Array α} {i : Nat} :
+@[simp, grind] theorem getElem?_map {f : α → β} {xs : Array α} {i : Nat} :
     (xs.map f)[i]? = xs[i]?.map f := by
   simp [getElem?_def]
 
@@ -1194,9 +1199,9 @@ where
 @[simp] theorem mapM_empty [Monad m] (f : α → m β) : mapM f #[] = pure #[] := by
   rw [mapM, mapM.map]; rfl
 
-@[simp] theorem map_empty {f : α → β} : map f #[] = #[] := mapM_empty f
+@[simp, grind] theorem map_empty {f : α → β} : map f #[] = #[] := mapM_empty f
 
-@[simp] theorem map_push {f : α → β} {as : Array α} {x : α} :
+@[simp, grind] theorem map_push {f : α → β} {as : Array α} {x : α} :
     (as.push x).map f = (as.map f).push (f x) := by
   ext
   · simp
@@ -1244,6 +1249,7 @@ theorem forall_mem_map {f : α → β} {xs : Array α} {P : β → Prop} :
   cases xs
   simp
 
+@[grind →]
 theorem eq_empty_of_map_eq_empty {f : α → β} {xs : Array α} (h : map f xs = #[]) : xs = #[] :=
   map_eq_empty_iff.mp h
 
@@ -1309,7 +1315,7 @@ theorem map_eq_foldl {f : α → β} {xs : Array α} :
   cases xs
   simp
 
-@[simp] theorem back?_map {f : α → β} {xs : Array α} : (xs.map f).back? = xs.back?.map f := by
+@[simp, grind _=_] theorem back?_map {f : α → β} {xs : Array α} : (xs.map f).back? = xs.back?.map f := by
   cases xs
   simp
 
@@ -1372,6 +1378,8 @@ theorem array₃_induction (P : Array (Array (Array α)) → Prop)
 
 /-! ### filter -/
 
+@[grind] theorem filter_empty {p : α → Bool} : #[].filter p = #[] := rfl
+
 @[congr]
 theorem filter_congr {xs ys : Array α} (h : xs = ys)
     {f : α → Bool} {g : α → Bool} (h' : f = g) {start stop start' stop' : Nat}
@@ -1418,7 +1426,7 @@ theorem _root_.List.filter_toArray {p : α → Bool} {l : List α} :
   rcases xs with ⟨xs⟩
   simp [h]
 
-theorem filter_push {p : α → Bool} {a : α} {xs : Array α} :
+@[grind] theorem filter_push {p : α → Bool} {a : α} {xs : Array α} :
     (xs.push a).filter p = if p a then (xs.filter p).push a else xs.filter p := by
   split <;> simp [*]
 
@@ -1426,6 +1434,8 @@ theorem size_filter_le {p : α → Bool} {xs : Array α} :
     (xs.filter p).size ≤ xs.size := by
   rcases xs with ⟨xs⟩
   simpa using List.length_filter_le p xs
+
+grind_pattern Array.size_filter_le => (xs.filter p).size
 
 @[simp] theorem filter_eq_self {p : α → Bool} {xs : Array α} :
     filter p xs = xs ↔ ∀ a ∈ xs, p a := by
@@ -1437,7 +1447,7 @@ theorem size_filter_le {p : α → Bool} {xs : Array α} :
   rcases xs with ⟨xs⟩
   simp
 
-@[simp] theorem mem_filter {p : α → Bool} {xs : Array α} {a : α} :
+@[simp, grind] theorem mem_filter {p : α → Bool} {xs : Array α} {a : α} :
     a ∈ xs.filter p ↔ a ∈ xs ∧ p a := by
   rcases xs with ⟨xs⟩
   simp
@@ -1486,7 +1496,7 @@ theorem map_filter_eq_foldl {f : α → β} {p : α → Bool} {xs : Array α} :
     simp only [List.filter_cons, List.foldr_cons]
     split <;> simp_all
 
-@[simp] theorem filter_append {p : α → Bool} {xs ys : Array α} {stop : Nat} (w : stop = xs.size + ys.size) :
+@[simp, grind] theorem filter_append {p : α → Bool} {xs ys : Array α} {stop : Nat} (w : stop = xs.size + ys.size) :
     filter p (xs ++ ys) 0 stop = filter p xs ++ filter p ys := by
   subst w
   rcases xs with ⟨xs⟩
@@ -1540,6 +1550,8 @@ theorem size_filter_lt_size_iff_exists {xs : Array α} {p : α → Bool} :
 
 /-! ### filterMap -/
 
+@[simp, grind] theorem filterMap_empty {f : α → Option β} : filterMap f #[] = #[] := rfl
+
 @[congr]
 theorem filterMap_congr {as bs : Array α} (h : as = bs)
     {f : α → Option β} {g : α → Option β} (h' : f = g) {start stop start' stop' : Nat}
@@ -1588,6 +1600,14 @@ theorem _root_.List.filterMap_toArray {f : α → Option β} {l : List α} :
   subst w
   rcases xs with ⟨xs⟩
   simp [h]
+
+@[grind] theorem filterMap_push{f : α → Option β} {a : α} {xs : Array α}
+    (w : stop = xs.size + 1) :
+    filterMap f (xs.push a) 0 stop =
+      match f a with
+      | none => filterMap f xs
+      | some b => (filterMap f xs).push b := by
+  split <;> simp_all
 
 @[simp] theorem filterMap_eq_map {f : α → β} (w : stop = as.size) :
     filterMap (some ∘ f) as 0 stop = map f as := by
@@ -3197,6 +3217,10 @@ rather than `(arr.push a).size` as the argument.
 
 /-! ### foldl / foldr -/
 
+@[grind] theorem foldl_empty {f : β → α → β} {init : β} : (#[].foldl f init) = init := rfl
+
+@[grind] theorem foldr_empty {f : α → β → β} {init : β} : (#[].foldr f init) = init := rfl
+
 theorem foldl_induction
     {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive 0 init) {f : β → α → β}
     (hf : ∀ i : Fin as.size, ∀ b, motive i.1 b → motive (i.1 + 1) (f b as[i])) :
@@ -3238,6 +3262,17 @@ theorem foldr_congr {as bs : Array α} (h₀ : as = bs) {f g : α → β → β}
     as.foldr f a start stop = bs.foldr g b start' stop' := by
   congr
 
+theorem foldl_push {f : β → α → β} {init : β} {xs : Array α} {a : α} :
+    (xs.push a).foldl f init = f (xs.foldl f init) a :=
+  foldlM_push ..
+
+/-- Variant of `foldl_push` with a side condition for the `stop` argument. -/
+@[simp, grind] theorem foldl_push' {f : β → α → β} {init : β} {xs : Array α} {a : α} {stop : Nat}
+    (h : stop = xs.size + 1) :
+    (xs.push a).foldl f init 0 stop = f (xs.foldl f init) a := by
+  subst h
+  simp [← foldl_push]
+
 theorem foldr_push {f : α → β → β} {init : β} {xs : Array α} {a : α} :
     (xs.push a).foldr f init = xs.foldr f (f a init) := foldrM_push ..
 
@@ -3245,7 +3280,7 @@ theorem foldr_push {f : α → β → β} {init : β} {xs : Array α} {a : α} :
 Variant of `foldr_push` with the `h : start = arr.size + 1`
 rather than `(arr.push a).size` as the argument.
 -/
-@[simp] theorem foldr_push' {f : α → β → β} {init : β} {xs : Array α} {a : α} {start : Nat}
+@[simp, grind] theorem foldr_push' {f : α → β → β} {init : β} {xs : Array α} {a : α} {start : Nat}
     (h : start = xs.size + 1) : (xs.push a).foldr f init start = xs.foldr f (f a init) :=
   foldrM_push' h
 
@@ -4255,7 +4290,7 @@ theorem getElem_mem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] �
 theorem back!_eq_back? [Inhabited α] {xs : Array α} : xs.back! = xs.back?.getD default := by
   simp [back!, back?, getElem!_def, Option.getD]; rfl
 
-@[simp] theorem back?_push {xs : Array α} {x : α} : (xs.push x).back? = some x := by
+@[simp, grind] theorem back?_push {xs : Array α} {x : α} : (xs.push x).back? = some x := by
   simp [back?, ← getElem?_toList]
 
 @[simp] theorem back!_push [Inhabited α] {xs : Array α} {x : α} : (xs.push x).back! = x := by

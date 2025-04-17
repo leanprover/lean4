@@ -13,8 +13,11 @@ namespace Lean.Tactic.FunInd
 
 open Lean Elab Meta
 
+def getFunCasesEqnName (fnName : Name) (i : Nat) : Name :=
+  (getFunCasesName fnName ++ `eq).appendIndexAfter (i + 1)
+
 -- Iota reduction and reducing if-then-else
-def simpEqnType (e : Expr) : MetaM Expr := withReducible do
+def simpEqnType (e : Expr) : MetaM Simp.Result := withReducible do
   forallTelescope e fun xs e => do
     let mut s : SimpTheorems := {}
     s ← s.addConst ``if_pos (post := false)
@@ -38,7 +41,7 @@ def simpEqnType (e : Expr) : MetaM Expr := withReducible do
         ctxt := ctxt.setSimpTheorems simpTheorems
     let (r, _stats) ← simp e ctxt (simprocs := #[simprocs])
       (discharge? := discharge? xs)
-    mkForallFVars xs r.expr
+    r.addForalls xs
  where
   -- For the benefit of `if_pos` etc.
   discharge? (xs : Array Expr) : Simp.Discharge := fun prop => do
@@ -47,7 +50,7 @@ def simpEqnType (e : Expr) : MetaM Expr := withReducible do
         return some x
     return none
 
-def mkEqnTypes (fnName : Name) : MetaM (Array Expr) := do
+def mkEqnVals (fnName : Name) : MetaM Unit := do
   withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} mkEqnTypes {fnName}") do
 
   let fnVal ← getConstVal fnName
@@ -78,26 +81,44 @@ def mkEqnTypes (fnName : Name) : MetaM (Array Expr) := do
       let elimType ← inferType elimExpr
       let numAlts := elimType.getNumHeadForalls - targets.size -- Reliable enough? Better source?
       let altTypes ← arrowDomainsN numAlts elimType
-      altTypes.mapIdxM fun i altType => do
+      let _ ← altTypes.mapIdxM fun i altType => do
         forallTelescope altType fun altParams altBodyType => do
           assert! altBodyType.getAppFn.isFVarOf motive.fvarId!
           assert! altBodyType.getAppNumArgs == xs.size
 
           let eqnExpr := mkAppN (.const unfoldEqName fnUs) altBodyType.getAppArgs
+          let eqnExpr ← mkLambdaFVars altParams eqnExpr
           let eqnType ← inferType eqnExpr
-          let eqnType ← mkForallFVars altParams eqnType
-          let eqnType' ← simpEqnType eqnType
+          let r ← simpEqnType eqnType
+
+          let eqnType' := r.expr
           trace[Meta.FunInd] "Equation {i+1} before simp:{indentExpr eqnType}\nafter simp:{indentExpr eqnType'}"
-          mkForallFVars (usedOnly := true) xs eqnType'
+          let eqnExpr' ← mkExpectedTypeHint (← mkEqMP (← r.getProof) eqnExpr) eqnType'
+          let eqnExpr' ← mkLambdaFVars (usedOnly := true) xs eqnExpr'
+
+          addDecl <| Declaration.thmDecl {
+            name := getFunCasesEqnName fnName i,
+            type := (← inferType eqnExpr'),
+            value := eqnExpr'
+            levelParams := fnVal.levelParams
+          }
+
+def realizeEqns (fnName : Name) : MetaM Unit := do
+  let _ ← getFunInduct? (cases := true) fnName
+  assert! (← getEnv).contains (getFunCasesName fnName)
+  let info ← getConstInfo (getFunCasesName fnName)
+  logInfo m!"fun_cases type: {info.type}"
+  realizeConst (getFunCasesName fnName) (getFunCasesEqnName fnName 0) do
+    mkEqnVals fnName
+
+def getEqnsFor (fnName : Name) : MetaM (Array Name) := do
+  realizeEqns fnName
+  -- let some funIndInfo ← getFunIndInfo? (cases := true) fnName
+    -- | throwError "no functional cases theorem for '{.ofConstName fnName}'"
+  let numAlts := 3 -- TODO
+  return Array.ofFn (n := numAlts) fun i => getFunCasesEqnName fnName i
 
 /-
-def deriveFunIndEqns (fnName : Name) : MetaM Unit := do
-  let funCaseName := getFunCasesName fnName
-  let firstEqnName := funCaseName ++ `eq_1
-  realizeConst funCaseName firstEqnName do
-    _
-
-
 
 def isFunIndEqnName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
@@ -115,6 +136,7 @@ builtin_initialize
 
 -/
 
+end Lean.Tactic.FunInd
 
 def filter (p : α → Bool) (xs : List α) : List α :=
   match xs with
@@ -130,6 +152,9 @@ def filter (p : α → Bool) (xs : List α) : List α :=
 -- set_option trace.Meta.Tactic.simp true
 -- set_option trace.Debug.Meta.Tactic.simp true
 
-run_meta
-  let eqns ← mkEqnTypes ``filter
-  eqns.mapM (logInfo m!"{·}")
+run_meta Lean.Tactic.FunInd.getEqnsFor ``filter
+-- run_meta  mkEqnVals ``filter
+
+#check filter.fun_cases.eq_1
+#check filter.fun_cases.eq_2
+#check filter.fun_cases.eq_3

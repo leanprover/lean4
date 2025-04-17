@@ -1216,6 +1216,8 @@ def deriveCases (name : Name) : MetaM Unit := do
       params := .replicate motiveArity .target
     }
 
+    enableRealizationsForConst casesName -- for the equations, see FunIndEqns
+
 
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.

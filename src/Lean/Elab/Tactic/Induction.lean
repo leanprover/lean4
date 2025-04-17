@@ -421,6 +421,11 @@ where
       let mut (_, altMVarId) ← altMVarId.introN numFields
       let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
         | continue  -- alternative is not reachable
+      altMVarId.withContext do
+        for x in subst.domain do
+          if let .fvar y := subst.get x then
+            if let some decl ← x.findDecl? then
+              Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := decl.userName })
       altMVarId ← if info.provesMotive then
         let (generalized', altMVarId') ← altMVarId'.introNP generalized.size
         altMVarId'.withContext do
@@ -465,12 +470,17 @@ where
         throwError "Alternative '{altName}' is not needed"
     let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
       | unusedAlt
+    altMVarId.withContext do
+      for x in subst.domain do
+        if let .fvar y := subst.get x then
+          if let some decl ← x.findDecl? then
+            Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := decl.userName })
     altMVarId ← if info.provesMotive then
       let (generalized', altMVarId') ← altMVarId'.introNP generalized.size
       altMVarId'.withContext do
         for x in generalized, y in generalized' do
           Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := ← y.getUserName })
-      pure altMVarId
+      pure altMVarId'
     else
       pure altMVarId'
     for fvarId in toClear do

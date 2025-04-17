@@ -907,6 +907,10 @@ theorem getThenInsertIfNew?_snd {k : α} {v : β} :
 
 end Const
 
+section insertMany
+
+variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+
 @[simp]
 theorem insertMany_nil : m.insertMany [] = m := rfl
 
@@ -933,6 +937,13 @@ private theorem insertMany_list_mk {m : DHashMap α β} {l : List ((a : α) × �
     simp only [insertMany_cons, DHashMap.insertMany_cons, insert,
       Quotient.mk', Quotient.mk, Quotient.lift, ih]
 
+@[elab_as_elim]
+theorem insertMany_ind {motive : EDHashMap α β → Prop} (m : EDHashMap α β) (l : ρ)
+    (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :
+    motive (m.insertMany l) := by
+  change motive (Subtype.val ?my_mvar)
+  exact Subtype.property ?my_mvar motive init (insert _ _ _)
+
 @[simp]
 theorem contains_insertMany_list
     {l : List ((a : α) × β a)} {k : α} :
@@ -956,6 +967,9 @@ theorem mem_of_mem_insertMany_list
   refine m.inductionOn (fun _ mem contains_eq_false => ?_) mem contains_eq_false
   simp only [insertMany_list_mk] at mem
   exact DHashMap.mem_of_mem_insertMany_list mem contains_eq_false
+
+theorem mem_insertMany_of_mem {l : ρ} {k : α} (h' : k ∈ m) : k ∈ m.insertMany l :=
+  insertMany_ind m l h' fun _ _ _ h => mem_insert.mpr (.inr h)
 
 theorem get?_insertMany_list_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α}
@@ -1118,6 +1132,9 @@ theorem size_le_size_insertMany_list
   simp only [insertMany_list_mk]
   exact DHashMap.size_le_size_insertMany_list
 
+theorem size_le_size_insertMany {l : ρ} : m.size ≤ (m.insertMany l).size :=
+  insertMany_ind m l (Nat.le_refl _) fun _ _ _ h => Nat.le_trans h size_le_size_insert
+
 theorem size_insertMany_list_le
     {l : List ((a : α) × β a)} :
     (m.insertMany l).size ≤ m.size + l.length := by
@@ -1133,9 +1150,14 @@ theorem insertMany_list_eq_empty_iff {l : List ((a : α) × β a)} :
     Bool.coe_iff_coe, ← Bool.and_eq_true]
   exact DHashMap.isEmpty_insertMany_list
 
+theorem eq_empty_of_insertMany_eq_empty {l : ρ} :
+    m.insertMany l = ∅ → m = ∅ :=
+  insertMany_ind m l id fun _ _ _ _ h => absurd h not_insert_eq_empty
+
 namespace Const
 
 variable {β : Type v} {m : EDHashMap α (fun _ => β)}
+variable {ρ : Type w} [ForIn Id ρ (α × β)]
 
 @[simp]
 theorem insertMany_nil : insertMany m [] = m :=
@@ -1165,6 +1187,14 @@ private theorem insertMany_list_mk {m : DHashMap α fun _ => β} {l : List (α �
     simp only [insertMany_cons, DHashMap.Const.insertMany_cons, insert,
       Quotient.mk', Quotient.mk, Quotient.lift, ih]
 
+@[elab_as_elim]
+theorem insertMany_ind {motive : EDHashMap α (fun _ => β) → Prop}
+    (m : EDHashMap α fun _ => β) (l : ρ)
+    (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :
+    motive (insertMany m l) := by
+  change motive (Subtype.val ?my_mvar)
+  exact Subtype.property ?my_mvar motive init (insert _ _ _)
+
 @[simp]
 theorem contains_insertMany_list
     {l : List (α × β)} {k : α} :
@@ -1188,6 +1218,9 @@ theorem mem_of_mem_insertMany_list
   refine m.inductionOn (fun _ mem contains_eq_false => ?_) mem contains_eq_false
   simp only [insertMany_list_mk] at mem
   exact DHashMap.Const.mem_of_mem_insertMany_list mem contains_eq_false
+
+theorem mem_insertMany_of_mem {l : ρ} {k : α} (h' : k ∈ m) : k ∈ insertMany m l :=
+  insertMany_ind m l h' fun _ _ _ h => mem_insert.mpr (.inr h)
 
 theorem getKey?_insertMany_list_of_contains_eq_false
     {l : List (α × β)} {k : α}
@@ -1280,6 +1313,9 @@ theorem size_le_size_insertMany_list
   simp only [insertMany_list_mk]
   exact DHashMap.Const.size_le_size_insertMany_list
 
+theorem size_le_size_insertMany {l : ρ} : m.size ≤ (insertMany m l).size :=
+  insertMany_ind m l (Nat.le_refl _) fun _ _ _ h => Nat.le_trans h size_le_size_insert
+
 theorem size_insertMany_list_le
     {l : List (α × β)} :
     (insertMany m l).size ≤ m.size + l.length := by
@@ -1294,6 +1330,9 @@ theorem insertMany_list_eq_empty_iff {l : List (α × β)} :
   simp only [insertMany_list_mk, ← isEmpty_iff, ← List.isEmpty_iff,
     Bool.coe_iff_coe, ← Bool.and_eq_true]
   exact DHashMap.Const.isEmpty_insertMany_list
+
+theorem eq_empty_of_insertMany_eq_empty {l : ρ} : insertMany m l = ∅ → m = ∅ :=
+  insertMany_ind m l id fun _ _ _ _ h => absurd h not_insert_eq_empty
 
 theorem get?_insertMany_list_of_contains_eq_false
     {l : List (α × β)} {k : α}
@@ -1361,6 +1400,7 @@ theorem getD_insertMany_list_of_mem
   exact DHashMap.Const.getD_insertMany_list_of_mem k_beq distinct mem
 
 variable {m : EDHashMap α (fun _ => Unit)}
+variable {ρ : Type w} [ForIn Id ρ α]
 
 @[simp]
 theorem insertManyIfNewUnit_nil :
@@ -1389,6 +1429,14 @@ private theorem insertManyIfNewUnit_list_mk {m : DHashMap α fun _ => Unit} {l :
     simp only [insertManyIfNewUnit_cons, DHashMap.Const.insertManyIfNewUnit_cons, insertIfNew,
       Quotient.mk', Quotient.mk, Quotient.lift, ih]
 
+@[elab_as_elim]
+theorem insertManyIfNewUnit_ind {motive : EDHashMap α (fun _ => Unit) → Prop}
+    (m : EDHashMap α fun _ => Unit) (l : ρ)
+    (init : motive m) (insert : ∀ m a, motive m → motive (m.insertIfNew a ())) :
+    motive (insertManyIfNewUnit m l) := by
+  change motive (Subtype.val ?my_mvar)
+  exact Subtype.property ?my_mvar motive init (insert _ _)
+
 @[simp]
 theorem contains_insertManyIfNewUnit_list
     {l : List α} {k : α} :
@@ -1411,6 +1459,10 @@ theorem mem_of_mem_insertManyIfNewUnit_list
   refine m.inductionOn (fun _ contains_eq_false => ?_) contains_eq_false
   simp only [insertManyIfNewUnit_list_mk]
   exact DHashMap.Const.mem_of_mem_insertManyIfNewUnit_list contains_eq_false
+
+theorem mem_insertManyIfNewUnit_of_mem {l : ρ} {k : α} (h : k ∈ m) :
+    k ∈ insertManyIfNewUnit m l :=
+  insertManyIfNewUnit_ind m l h fun _ _ h => mem_insertIfNew.mpr (.inr h)
 
 theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     {l : List α} {k : α}
@@ -1517,6 +1569,10 @@ theorem size_le_size_insertManyIfNewUnit_list
   simp only [insertManyIfNewUnit_list_mk]
   exact DHashMap.Const.size_le_size_insertManyIfNewUnit_list
 
+theorem size_le_size_insertManyIfNewUnit
+    {l : ρ} : m.size ≤ (insertManyIfNewUnit m l).size :=
+  insertManyIfNewUnit_ind m l (Nat.le_refl _) fun _ _ h => Nat.le_trans h size_le_size_insertIfNew
+
 theorem size_insertManyIfNewUnit_list_le
     {l : List α} :
     (insertManyIfNewUnit m l).size ≤ m.size + l.length := by
@@ -1531,6 +1587,10 @@ theorem insertManyIfNewUnit_list_eq_empty_iff {l : List α} :
   simp only [insertManyIfNewUnit_list_mk, ← isEmpty_iff, ← List.isEmpty_iff,
     Bool.coe_iff_coe, ← Bool.and_eq_true]
   exact DHashMap.Const.isEmpty_insertManyIfNewUnit_list
+
+theorem eq_empty_of_insertManyIfNewUnit_eq_empty {l : ρ} :
+    insertManyIfNewUnit m l = ∅ → m = ∅ :=
+  insertManyIfNewUnit_ind m l id fun _ _ _ h => absurd h not_insertIfNew_eq_empty
 
 theorem get?_insertManyIfNewUnit_list
     {l : List α} {k : α} :
@@ -1556,6 +1616,8 @@ theorem getD_insertManyIfNewUnit_list
   rfl
 
 end Const
+
+end insertMany
 
 end EDHashMap
 
@@ -3134,7 +3196,7 @@ theorem map_id_fun : m.map (fun _ v => v) = m :=
   m.inductionOn fun _ => Quotient.sound DHashMap.map_id_equiv
 
 @[simp]
-theorem map_map_equiv {f : (a : α) → β a → γ a} {g : (a : α) → γ a → δ a} :
+theorem map_map {f : (a : α) → β a → γ a} {g : (a : α) → γ a → δ a} :
     (m.map f).map g = m.map fun k v => g k (f k v) :=
   m.inductionOn fun _ => Quotient.sound DHashMap.map_map_equiv
 

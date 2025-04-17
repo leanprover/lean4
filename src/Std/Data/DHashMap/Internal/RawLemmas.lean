@@ -1199,8 +1199,6 @@ end monadic
 
 section insertMany
 
-set_option Elab.async false
-
 variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
 
 @[elab_as_elim]

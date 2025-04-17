@@ -1345,6 +1345,8 @@ end Const
 
 end monadic
 
+variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+
 @[simp]
 theorem insertMany_nil :
     m.insertMany [] = m :=
@@ -1358,6 +1360,14 @@ theorem insertMany_list_singleton {k : α} {v : β k} :
 theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     m.insertMany (⟨k, v⟩ :: l) = (m.insert k v).insertMany l :=
   Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
+
+@[elab_as_elim]
+theorem insertMany_ind {motive : DHashMap α β → Prop} (m : DHashMap α β) (l : ρ)
+    (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :
+    motive (m.insertMany l) :=
+  (Raw₀.insertMany_ind ⟨m.1, _⟩ l ⟨m.2, init⟩
+    (fun m a b ⟨h, h'⟩ => ⟨h.insert₀, insert ⟨m, h⟩ a b h'⟩) :
+    ∃ h, motive ⟨(Raw₀.insertMany _ l).1, h⟩).2
 
 @[simp]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α]
@@ -1376,6 +1386,10 @@ theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α]
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     k ∈ m :=
   Raw₀.contains_of_contains_insertMany_list ⟨m.1, _⟩ m.2 mem contains_eq_false
+
+theorem mem_insertMany_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : ρ} {k : α} (h : k ∈ m) : k ∈ (m.insertMany l) :=
+  Raw₀.contains_insertMany_of_contains ⟨m.1, _⟩ m.2 h
 
 theorem get?_insertMany_list_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α}
@@ -1502,6 +1516,10 @@ theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α]
     m.size ≤ (m.insertMany l).size :=
   Raw₀.size_le_size_insertMany_list ⟨m.1, _⟩ m.2
 
+theorem size_le_size_insertMany [EquivBEq α] [LawfulHashable α]
+    {l : ρ} : m.size ≤ (m.insertMany l).size :=
+  Raw₀.size_le_size_insertMany ⟨m.1, _⟩ m.2
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} :
     (m.insertMany l).size ≤ m.size + l.length :=
@@ -1513,9 +1531,14 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α]
     (m.insertMany l).isEmpty = (m.isEmpty && l.isEmpty) :=
   Raw₀.isEmpty_insertMany_list ⟨m.1, _⟩ m.2
 
+theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α]
+    {l : ρ} : (m.insertMany l).isEmpty → m.isEmpty :=
+  Raw₀.isEmpty_of_isEmpty_insertMany ⟨m.1, _⟩ m.2
+
 namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
+variable {ρ : Type w} [ForIn Id ρ (α × β)]
 
 @[simp]
 theorem insertMany_nil :
@@ -1531,6 +1554,14 @@ theorem insertMany_list_singleton {k : α} {v : β} :
 theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
+
+@[elab_as_elim]
+theorem insertMany_ind {motive : DHashMap α (fun _ => β) → Prop} (m : DHashMap α fun _ => β) (l : ρ)
+    (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :
+    motive (insertMany m l) :=
+  (Raw₀.Const.insertMany_ind ⟨m.1, _⟩ l ⟨m.2, init⟩
+    (fun m a b ⟨h, h'⟩ => ⟨h.insert₀, insert ⟨m, h⟩ a b h'⟩) :
+    ∃ h, motive ⟨(Raw₀.Const.insertMany _ l).1, h⟩).2
 
 @[simp]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α]
@@ -1549,6 +1580,10 @@ theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α]
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     k ∈ m :=
   Raw₀.Const.contains_of_contains_insertMany_list ⟨m.1, _⟩ m.2 mem contains_eq_false
+
+theorem mem_insertMany_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : ρ} {k : α} (h : k ∈ m) : k ∈ insertMany m l :=
+  Raw₀.Const.contains_insertMany_of_contains ⟨m.1, _⟩ m.2 h
 
 theorem getKey?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
@@ -1621,6 +1656,10 @@ theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α]
     m.size ≤ (insertMany m l).size :=
   Raw₀.Const.size_le_size_insertMany_list ⟨m.1, _⟩ m.2
 
+theorem size_le_size_insertMany [EquivBEq α] [LawfulHashable α]
+    {l : ρ} : m.size ≤ (insertMany m l).size :=
+  Raw₀.Const.size_le_size_insertMany ⟨m.1, _⟩ m.2
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     (insertMany m l).size ≤ m.size + l.length :=
@@ -1631,6 +1670,10 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     (insertMany m l).isEmpty = (m.isEmpty && l.isEmpty) :=
   Raw₀.Const.isEmpty_insertMany_list ⟨m.1, _⟩ m.2
+
+theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α]
+    {l : ρ} : (insertMany m l).isEmpty → m.isEmpty :=
+  Raw₀.Const.isEmpty_of_isEmpty_insertMany ⟨m.1, _⟩ m.2
 
 theorem get?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
@@ -1682,6 +1725,7 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
   Raw₀.Const.getD_insertMany_list_of_mem ⟨m.1, _⟩ m.2 k_beq distinct mem
 
 variable {m : DHashMap α (fun _ => Unit)}
+variable {ρ : Type w} [ForIn Id ρ α]
 
 @[simp]
 theorem insertManyIfNewUnit_nil :
@@ -1700,6 +1744,15 @@ theorem insertManyIfNewUnit_cons {l : List α} {k : α} :
   Subtype.eq (congrArg Subtype.val
     (Raw₀.Const.insertManyIfNewUnit_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
 
+@[elab_as_elim]
+theorem insertManyIfNewUnit_ind {motive : DHashMap α (fun _ => Unit) → Prop}
+    (m : DHashMap α fun _ => Unit) (l : ρ)
+    (init : motive m) (insert : ∀ m a, motive m → motive (m.insertIfNew a ())) :
+    motive (insertManyIfNewUnit m l) :=
+  (Raw₀.Const.insertManyIfNewUnit_ind ⟨m.1, _⟩ l ⟨m.2, init⟩
+    (fun m a ⟨h, h'⟩ => ⟨h.insertIfNew₀, insert ⟨m, h⟩ a h'⟩) :
+    ∃ h, motive ⟨(Raw₀.Const.insertManyIfNewUnit _ l).1, h⟩).2
+
 @[simp]
 theorem contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
@@ -1716,6 +1769,10 @@ theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
     k ∈ insertManyIfNewUnit m l → k ∈ m :=
   Raw₀.Const.contains_of_contains_insertManyIfNewUnit_list ⟨m.1, _⟩ m.2 contains_eq_false
+
+theorem mem_insertManyIfNewUnit_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : ρ} {k : α} (h : k ∈ m) : k ∈ insertManyIfNewUnit m l :=
+  Raw₀.Const.contains_insertManyIfNewUnit_of_contains ⟨m.1, _⟩ m.2 h
 
 theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] {l : List α} {k : α}
@@ -1810,6 +1867,10 @@ theorem size_le_size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     m.size ≤ (insertManyIfNewUnit m l).size :=
   Raw₀.Const.size_le_size_insertManyIfNewUnit_list ⟨m.1, _⟩ m.2
 
+theorem size_le_size_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α]
+    {l : ρ} : m.size ≤ (insertManyIfNewUnit m l).size :=
+  Raw₀.Const.size_le_size_insertManyIfNewUnit ⟨m.1, _⟩ m.2
+
 theorem size_insertManyIfNewUnit_list_le [EquivBEq α] [LawfulHashable α]
     {l : List α} :
     (insertManyIfNewUnit m l).size ≤ m.size + l.length :=
@@ -1820,6 +1881,10 @@ theorem isEmpty_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α} :
     (insertManyIfNewUnit m l).isEmpty = (m.isEmpty && l.isEmpty) :=
   Raw₀.Const.isEmpty_insertManyIfNewUnit_list ⟨m.1, _⟩ m.2
+
+theorem isEmpty_of_isEmpty_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α]
+    {l : ρ} : (insertManyIfNewUnit m l).isEmpty → m.isEmpty :=
+  Raw₀.Const.isEmpty_of_isEmpty_insertManyIfNewUnit ⟨m.1, _⟩ m.2
 
 theorem get?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :

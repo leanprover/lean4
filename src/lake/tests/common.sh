@@ -72,6 +72,8 @@ test_err() {
       echo "Lake unexpectedly succeeded."
       return 1
     fi
+  else
+    return 1
   fi
 }
 

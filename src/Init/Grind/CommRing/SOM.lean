@@ -296,7 +296,6 @@ where
     | .num k => acc.combine (p₂.mulConst k)
     | .add k m p₁ => go p₁ (acc.combine (p₂.mulMon k m))
 
--- TODO: optimize
 def Poly.pow (p : Poly) (k : Nat) : Poly :=
   match k with
   | 0 => .num 1
@@ -415,6 +414,12 @@ where
     match p₁ with
     | .num k => acc.combineC (p₂.mulConstC k c) c
     | .add k m p₁ => go p₁ (acc.combineC (p₂.mulMonC k m c) c)
+
+def Poly.powC (p : Poly) (k : Nat) (c : Nat) : Poly :=
+  match k with
+  | 0 => .num 1
+  | 1 => p
+  | k+1 => p.mulC (powC p k c) c
 
 /-!
 Theorems for justifying the procedure for commutative rings in `grind`.
@@ -707,6 +712,12 @@ theorem Poly.denote_mulC_go {α c} [CommRing α] [IsCharP α c] (ctx : Context �
 theorem Poly.denote_mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
     : (mulC p₁ p₂ c).denote ctx = p₁.denote ctx * p₂.denote ctx := by
   simp [mulC, denote_mulC_go, denote, intCast_zero, zero_add]
+
+theorem Poly.denote_powC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Nat)
+   : (powC p k c).denote ctx = p.denote ctx ^ k := by
+ fun_induction powC <;> simp [powC, denote, intCast_one, pow_zero]
+ next => simp [pow_succ, pow_zero, one_mul]
+ next => simp [denote_mulC, *, pow_succ, mul_comm]
 
 end CommRing
 end Lean.Grind

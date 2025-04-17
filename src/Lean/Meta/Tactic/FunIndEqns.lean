@@ -49,47 +49,46 @@ def simpEqnType (e : Expr) : MetaM Expr := withReducible do
 
 def mkEqnTypes (fnName : Name) : MetaM (Array Expr) := do
   withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} mkEqnTypes {fnName}") do
-  let unfoldEq ← Eqns.unfoldThmType fnName
-  forallTelescope (cleanupAnnotations := true) unfoldEq fun xs unfoldEq => do
-    let some (_, lhs, _rhs) := unfoldEq.eq? |
-      throwError "expected equation type, but got {unfoldEq}"
-    lhs.withApp fun fn funArgs => do
-      unless fn.isConstOf fnName do throwError "unexected LHS {lhs}"
-      let fnUs := fn.constLevels!
-      let some funIndInfo ← getFunIndInfo? (cases := true) fnName |
-        throwError "no functional cases theorem for '{.ofConstName fnName}'"
-      if funArgs.size != funIndInfo.params.size then
-        throwError "Expected fully applied application of '{.ofConstName fnName}' with \
-          {funIndInfo.params.size} arguments, but found {funArgs.size} arguments"
-      let mut params := #[]
-      let mut targets := #[]
-      let mut us := #[]
-      for u in fnUs, b in funIndInfo.levelMask do
-        if b then
-          us := us.push u
-      for a in funArgs, kind in funIndInfo.params do
-        match kind with
-        | .dropped => pure ()
-        | .param => params := params.push a
-        | .target => targets := targets.push a
-      trace[Meta.FunInd] "us: {us}\nparams: {params}\ntargets: {targets}"
 
-      let elimExpr := mkAppN (.const funIndInfo.funIndName us.toList) params
-      let elimInfo ← getElimExprInfo elimExpr
-      unless targets.size = elimInfo.targetsPos.size do
-        throwError "arity confusion trying to use \
-          {.ofConstName funIndInfo.funIndName}. Does it take {targets.size} or \
-          {elimInfo.targetsPos.size} targets?"
+  let fnVal ← getConstVal fnName
+  let fnUs := fnVal.levelParams.map mkLevelParam
+  let some unfoldEqName ← getUnfoldEqnFor? (nonRec := True) fnName
+    | throwError "no unfolding theorem theorem for '{.ofConstName fnName}'"
+  let some funIndInfo ← getFunIndInfo? (cases := true) fnName
+    | throwError "no functional cases theorem for '{.ofConstName fnName}'"
+  forallBoundedTelescope (cleanupAnnotations := true) fnVal.type funIndInfo.params.size fun xs _ => do
 
-      let motive ← mkLambdaFVars targets unfoldEq
-      let elimExpr := mkApp elimExpr motive
+    -- Figure out params and targets
+    let mut params := #[]
+    let mut targets := #[]
+    let mut us := #[]
+    for u in fnUs, b in funIndInfo.levelMask do
+      if b then
+        us := us.push u
+    for x in xs, kind in funIndInfo.params do
+      match kind with
+      | .dropped => pure ()
+      | .param => params := params.push x
+      | .target => targets := targets.push x
+    trace[Meta.FunInd] "us: {us}\nparams: {params}\ntargets: {targets}"
 
-      let numAlts := elimInfo.altsInfo.size
-      let eqnTypes ← inferArgumentTypesN numAlts elimExpr
-      eqnTypes.mapIdxM fun i eqnType => do
-        let eqnType' ← simpEqnType eqnType
-        trace[Meta.FunInd] "Equation {i+1} before simp:{indentExpr eqnType}\nafter simp:{indentExpr eqnType'}"
-        mkForallFVars (usedOnly := true) xs eqnType'
+    withLocalDeclD `motive (← mkForallFVars xs (.sort 0)) fun motive => do
+      let motiveArg ← mkLambdaFVars targets (mkAppN motive xs)
+      let elimExpr := mkAppN (.const funIndInfo.funIndName us.toList) (params.push motiveArg)
+      let elimType ← inferType elimExpr
+      let numAlts := elimType.getNumHeadForalls - targets.size -- Reliable enough? Better source?
+      let altTypes ← arrowDomainsN numAlts elimType
+      altTypes.mapIdxM fun i altType => do
+        forallTelescope altType fun altParams altBodyType => do
+          assert! altBodyType.getAppFn.isFVarOf motive.fvarId!
+          assert! altBodyType.getAppNumArgs == xs.size
+
+          let eqnExpr := mkAppN (.const unfoldEqName fnUs) altBodyType.getAppArgs
+          let eqnType ← inferType eqnExpr
+          let eqnType ← mkForallFVars altParams eqnType
+          let eqnType' ← simpEqnType eqnType
+          trace[Meta.FunInd] "Equation {i+1} before simp:{indentExpr eqnType}\nafter simp:{indentExpr eqnType'}"
+          mkForallFVars (usedOnly := true) xs eqnType'
 
 /-
 def deriveFunIndEqns (fnName : Name) : MetaM Unit := do
@@ -127,11 +126,9 @@ def filter (p : α → Bool) (xs : List α) : List α :=
       filter p xs
 
 
-/-
-set_option trace.Meta.FunInd true
-set_option trace.Meta.Tactic.simp true
-set_option trace.Debug.Meta.Tactic.simp true
--/
+-- set_option trace.Meta.FunInd true
+-- set_option trace.Meta.Tactic.simp true
+-- set_option trace.Debug.Meta.Tactic.simp true
 
 run_meta
   let eqns ← mkEqnTypes ``filter

@@ -8,7 +8,7 @@ prelude
 import Init.Data.String
 import Init.Data.Array.Basic
 import Init.Data.SInt.Basic
-import Init.Data.Vector
+import Init.Data.Vector.Basic
 
 /--
 The result of a comparison according to a total order.

@@ -152,12 +152,7 @@ private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (a
 
 private theorem extract_qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (hlo) (hhi) (w : lo ≤ hi) :
     ((qsort.sort lt as lo hi hlo hhi).extract lo (hi + 1)).toArray ~ (as.extract lo (hi + 1)).toArray := by
-  -- FIXME: why does this not work with
-  -- grind [Array.Perm.extract, qsort_sort_perm]
-  apply Array.Perm.extract
-  · grind [qsort_sort_perm]
-  · grind
-  · grind
+  apply Array.Perm.extract <;> grind [qsort_sort_perm]
 
 private theorem getElem_qsort_sort_mem (lt : α → α → Bool)
     (as : Vector α n) (lo hi : Nat)

@@ -32,6 +32,20 @@ theorem perm_iff_toArray_perm {as bs : Vector α n} : as ~ bs ↔ as.toArray ~ b
     mk as ha ~ mk bs hb ↔ as ~ bs := by
   simp [perm_iff_toArray_perm, ha, hb]
 
+theorem toArray_perm_iff (xs : Vector α n) (ys : Array α) : xs.toArray ~ ys ↔ ∃ h, xs ~ Vector.mk ys h := by
+  constructor
+  · intro h
+    refine ⟨by simp [← h.length_eq], h⟩
+  · intro ⟨h, p⟩
+    exact p
+
+theorem perm_toArray_iff (xs : Array α) (ys : Vector α n) : xs ~ ys.toArray ↔ ∃ h, Vector.mk xs h ~ ys := by
+  constructor
+  · intro h
+    refine ⟨by simp [h.length_eq], h⟩
+  · intro ⟨h, p⟩
+    exact p
+
 @[simp, refl] protected theorem Perm.refl (xs : Vector α n) : xs ~ xs := by
   cases xs
   simp

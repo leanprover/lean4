@@ -34,7 +34,7 @@ theorem perm_iff_toList_perm {as bs : Array α} : as ~ bs ↔ as.toList ~ bs.toL
   cases xs
   simp
 
-protected theorem Perm.rfl {xs : List α} : xs ~ xs := .refl _
+protected theorem Perm.rfl {xs : Array α} : xs ~ xs := .refl _
 
 theorem Perm.of_eq {xs ys : Array α} (h : xs = ys) : xs ~ ys := h ▸ .rfl
 
@@ -52,6 +52,11 @@ instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
   trans h₁ h₂ := Perm.trans h₁ h₂
 
 theorem perm_comm {xs ys : Array α} : xs ~ ys ↔ ys ~ xs := ⟨Perm.symm, Perm.symm⟩
+
+theorem Perm.length_eq {xs ys : Array α} (p : xs ~ ys) : xs.size = ys.size := by
+  cases xs; cases ys
+  simp only [perm_toArray] at p
+  simpa using p.length_eq
 
 theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a ∈ ys := by
   rcases xs with ⟨xs⟩

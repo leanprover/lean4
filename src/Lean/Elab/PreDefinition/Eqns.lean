@@ -225,7 +225,7 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
             throwThe Unit ()
   return (← (find e).run) matches .error _
 
-partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) (fine : Bool) : MetaM (Array Expr) := do
+partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run #[]
   return eqnTypes
 where
@@ -233,23 +233,14 @@ where
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
 
     if let some mvarId ← expandRHS? mvarId then
-      go mvarId
-      return
+      return (← go mvarId)
 
     if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
-        go mvarId
-        return
+        return (← go mvarId)
 
     if let some mvarIds ← splitMatch? mvarId declNames then
-      mvarIds.forM go
-      return
-
-    if fine then
-      if let some (goal1, goal2) ← splitIfTarget? mvarId then
-        go goal1.mvarId
-        go goal2.mvarId
-        return
+      return (← mvarIds.forM go)
 
     saveEqn mvarId
 
@@ -321,7 +312,7 @@ def tryContradiction (mvarId : MVarId) : MetaM Bool := do
 Returns the type of the unfold theorem, as the starting point for calculating the equational
 types.
 -/
-def unfoldThmType (declName : Name) : MetaM Expr := do
+private def unfoldThmType (declName : Name) : MetaM Expr := do
   if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := false) then
     let info ← getConstInfo unfoldThm
     pure info.type
@@ -409,7 +400,7 @@ proves them using `mkEqnProof`.
 This is currently used for non-recursive functions, well-founded recursion and partial_fixpoint,
 but not for structural recursion.
 -/
-def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true) (fine : Bool) : MetaM (Array Name) := do
+def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
   let info ← getConstInfoDefn declName
   let us := info.levelParams.map mkLevelParam
   withOptions (tactic.hygienic.set · false) do
@@ -418,13 +409,12 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true) (fine : 
     forallTelescope (cleanupAnnotations := true) target fun xs target => do
       let goal ← mkFreshExprSyntheticOpaqueMVar target
       withReducible do
-        mkEqnTypes (fine := fine) declNames goal.mvarId!
+        mkEqnTypes declNames goal.mvarId!
   let mut thmNames := #[]
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
-    let suffixBase := if fine then fineEqnThmSuffixBase else eqnThmSuffixBase
-    let name := (Name.str declName suffixBase).appendIndexAfter (i+1)
+    let name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added

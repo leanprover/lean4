@@ -558,64 +558,6 @@ theorem drop {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.take n 
   rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h
   simpa only [count_append, w, Nat.add_left_cancel_iff] using h
 
--- def idxAux [BEq α] (l₁ : List (Bool × α)) (l₂ : List α) (i : Nat) : Option Nat :=
---   match i, l₂ with
---   | 0, [] => some 0
---   | 0, x :: _ => l₁.idxOf? (true, x)
---   | i + 1, [] => some (i + 1)
---   | i + 1, x :: l₂ => idxAux (l₁ := l₁.replace (true, x) (false, x)) (l₂ := l₂) i
-
--- theorem isSome_idxAux [BEq α] [LawfulBEq α] {l₁ : List (Bool × α)} {l₂ : List α} {i : Nat} (h : ∀ x, l₁.count (true, x) = l₂.count x) :
---     (idxAux l₁ l₂ i).isSome := by
---   fun_induction idxAux
---   case case1 => simp [idxAux]
---   case case2 l₁ x l₂ =>
---     simp [idxAux]
---     sorry
-
---   case case3 => simp [idxAux]
---   case case4 l₁ i x l₂ ih =>
---     unfold idxAux
---     apply ih
---     intro y
---     specialize h y
---     simp [count_cons] at h
---     split at h <;> rename_i h'
---     · simp at h'
---       subst h'
---       rw [count_replace]
---       sorry
---     · sorry
-
--- @[simp] theorem _root_.Prod.beq_def [BEq α] [BEq β] {a₁ a₂ : α} {b₁ b₂ : β} :
---     ((a₁, b₁) == (a₂, b₂)) = (a₁ == a₂ && b₁ == b₂) := rfl
-
--- def idx [BEq α] [LawfulBEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) (i : Nat) : Nat :=
---   (idxAux (l₁.map ((true, ·))) l₂ i).get (isSome_idxAux fun x => by
---     simp only [count_eq_countP, countP_map, Function.comp_def, Prod.beq_def, beq_self_eq_true,
---       Bool.true_and]
---     simpa [← count_eq_countP] using h.count_eq _)
-
--- #eval! idx (l₁ := [1,2,3,4,5,6,7]) (l₂ := [5,4,3,2,1,6,7]) (by decide) 1
-
--- theorem getElem?_idx [BEq α] [LawfulBEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) (i : Nat) :
---     l₁[h.idx i]? = l₂[i]? := by
---   unfold idx idxAux
---   split
---   case h_1 =>
---     simp at h
---     simp_all
---   case h_2 =>
---     rename_i x l₂
---     simp [idxOf?, Function.comp_def, getElem?_eq_some_iff]
---     sorry
---   case h_3 =>
---     simp at h
---     simp_all
---   case h_4 =>
---     simp
---     apply getElem?_idx
-
 end Perm
 
 end List

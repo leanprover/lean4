@@ -53,6 +53,11 @@ instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
 
 theorem perm_comm {xs ys : Array α} : xs ~ ys ↔ ys ~ xs := ⟨Perm.symm, Perm.symm⟩
 
+theorem Perm.length_eq {xs ys : Array α} (p : xs ~ ys) : xs.size = ys.size := by
+  cases xs; cases ys
+  simp only [perm_toArray] at p
+  simpa using p.length_eq
+
 theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a ∈ ys := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩

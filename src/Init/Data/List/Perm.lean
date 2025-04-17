@@ -431,7 +431,7 @@ theorem perm_insert_swap (x y : α) (l : List α) :
   simp [List.insert, xl, yl, xy, Ne.symm xy]
   constructor
 
-end LawfulBEq
+end DecidableEq
 
 theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) :
     ∀ {l₁ l₂ : List α} (_p : l₁ ~ l₂), Pairwise R l₁ ↔ Pairwise R l₂ :=

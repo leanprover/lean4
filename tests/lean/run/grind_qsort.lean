@@ -34,6 +34,9 @@ attribute [grind] Vector.getElem_swap_left Vector.getElem_swap_right
 attribute [grind] Vector.getElem_swap_of_ne
 attribute [grind] Vector.getElem?_eq_none Vector.getElem?_eq_getElem
 attribute [grind] Vector.getElem?_toArray
+
+attribute [grind] Vector.toArray_perm_iff
+attribute [grind] Vector.perm_toArray_iff
 grind_pattern Array.Perm.refl => xs ~ xs
 
 
@@ -43,7 +46,7 @@ grind_pattern Array.Perm.refl => xs ~ xs
 
 private theorem qpartition_loop_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     {hhi} {ilo} {jh} :
-    (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2.toArray ~ as.toArray := by
+    (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2 ~ as := by
   unfold qpartition.loop
   split
   · split
@@ -53,7 +56,7 @@ private theorem qpartition_loop_perm {n} (as : Vector α n) (lt : α → α → 
 
 private theorem qpartition_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) :
-    (qpartition as lt lo hi hlo hhi).2.toArray ~ as.toArray := by
+    (qpartition as lt lo hi hlo hhi).2 ~ as := by
   unfold qpartition
   refine Perm.trans (qpartition_loop_perm ..) ?_
   repeat' first
@@ -63,7 +66,7 @@ private theorem qpartition_perm {n} (as : Vector α n) (lt : α → α → Bool)
   | refine Perm.trans (Array.swap_perm ..) ?_
 
 private theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) {hlo} {hhi} :
-    (qsort.sort lt as lo hi hlo hhi).toArray ~ as.toArray := by
+    qsort.sort lt as lo hi hlo hhi ~ as := by
   unfold qsort.sort
   split
   · split
@@ -76,7 +79,7 @@ private theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool)
       apply qpartition_perm
   · simp [qpartition]
 
-grind_pattern qsort_sort_perm => (qsort.sort lt as lo hi hlo hhi).toArray
+grind_pattern qsort_sort_perm => qsort.sort lt as lo hi hlo hhi
 
 theorem qsort_perm (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
     qsort as lt lo hi ~ as := by
@@ -151,8 +154,8 @@ private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (a
     grind
 
 private theorem extract_qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (hlo) (hhi) (w : lo ≤ hi) :
-    ((qsort.sort lt as lo hi hlo hhi).extract lo (hi + 1)).toArray ~ (as.extract lo (hi + 1)).toArray := by
-  apply Array.Perm.extract <;> grind [qsort_sort_perm]
+    ((qsort.sort lt as lo hi hlo hhi).extract lo (hi + 1)) ~ (as.extract lo (hi + 1)) := by
+  apply Vector.Perm.extract <;> grind [qsort_sort_perm]
 
 private theorem getElem_qsort_sort_mem (lt : α → α → Bool)
     (as : Vector α n) (lo hi : Nat)

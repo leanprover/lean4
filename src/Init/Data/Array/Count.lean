@@ -257,8 +257,8 @@ theorem filter_beq {xs : Array α} (a : α) : xs.filter (· == a) = replicate (c
   rcases xs with ⟨xs⟩
   simp [List.filter_beq]
 
-theorem filter_eq {α} [DecidableEq α] {xs : Array α} (a : α) : xs.filter (· = a) = replicate (count a xs) a :=
-  filter_beq a
+theorem filter_eq {α} [BEq α] [LawfulBEq α] [DecidableEq α] {xs : Array α} (a : α) : xs.filter (· = a) = replicate (count a xs) a :=
+  funext (Bool.beq_eq_decide_eq · a) ▸ filter_beq a
 
 theorem replicate_count_eq_of_count_eq_size {xs : Array α} (h : count a xs = xs.size) :
     replicate (count a xs) a = xs := by
@@ -273,7 +273,7 @@ abbrev mkArray_count_eq_of_count_eq_size := @replicate_count_eq_of_count_eq_size
   rcases xs with ⟨xs⟩
   simp [List.count_filter, h]
 
-theorem count_le_count_map [DecidableEq β] {xs : Array α} {f : α → β} {x : α} :
+theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Array α} {f : α → β} {x : α} :
     count x xs ≤ count (f x) (map f xs) := by
   rcases xs with ⟨xs⟩
   simp [List.count_le_count_map, countP_map]

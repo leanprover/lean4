@@ -259,7 +259,8 @@ theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.le
     · match i, h with
       | i + 1, h => simp [getElem?_eq_some_iff, Nat.succ_lt_succ_iff]
 
-theorem getElem_of_getElem? {l : List α} : l[i]? = some a → ∃ h : i < l.length, l[i] = a := getElem?_eq_some_iff.mp
+theorem getElem_of_getElem? {l : List α} : l[i]? = some a → ∃ h : i < l.length, l[i] = a :=
+  getElem?_eq_some_iff.mp
 
 theorem some_eq_getElem?_iff {l : List α} : some a = l[i]? ↔ ∃ h : i < l.length, l[i] = a := by
   rw [eq_comm, getElem?_eq_some_iff]
@@ -776,37 +777,24 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
       simpa only [List.instBEq, List.beq, Bool.and_true]
     simp
   · intro h
-    constructor
-    intro l
-    induction l with
-    | nil => simp only [List.instBEq, List.beq]
-    | cons _ _ ih =>
-      simp [List.instBEq, List.beq]
-      exact ih
+    infer_instance
 
 @[simp] theorem lawfulBEq_iff [BEq α] : LawfulBEq (List α) ↔ LawfulBEq α := by
   constructor
   · intro h
+    have : ReflBEq α := reflBEq_iff.mp inferInstance
     constructor
-    · intro a b h
-      apply singleton_inj.1
-      apply eq_of_beq
-      simp only [List.instBEq, List.beq]
-      simpa
-    · intro a
-      suffices ([a] == [a]) = true by
-        simpa only [List.instBEq, List.beq, Bool.and_true]
-      simp
+    intro a b h
+    apply singleton_inj.1
+    apply eq_of_beq
+    simp only [List.instBEq, List.beq]
+    simpa
   · intro h
-    constructor
-    · intro _ _ h
-      simpa using h
-    · intro _
-      simp
+    infer_instance
 
 /-! ### isEqv -/
 
-@[simp] theorem isEqv_eq [DecidableEq α] {l₁ l₂ : List α} : l₁.isEqv l₂ (· == ·) = (l₁ = l₂) := by
+@[simp] theorem isEqv_eq [BEq α] [LawfulBEq α] {l₁ l₂ : List α} : l₁.isEqv l₂ (· == ·) = (l₁ = l₂) := by
   induction l₁ generalizing l₂ with
   | nil => cases l₂ <;> simp
   | cons a l₁ ih =>
@@ -2159,7 +2147,7 @@ theorem replicate_succ' : replicate (n + 1) a = replicate n a ++ [a] := by
   | 0 => by simp
   | n+1 => by simp [replicate_succ, mem_replicate, Nat.succ_ne_zero]
 
-@[deprecated mem_replicate (since := "2024-09-05")]
+@[simp]
 theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
     (replicate n b).contains a = (a == b && !n == 0) := by
   induction n with
@@ -2170,9 +2158,9 @@ theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
 
 @[deprecated mem_replicate (since := "2024-09-05")]
 theorem decide_mem_replicate [BEq α] [LawfulBEq α] {a b : α} :
-    ∀ {n}, decide (b ∈ replicate n a) = ((¬ n == 0) && b == a)
-  | 0 => by simp
-  | n+1 => by simp [replicate_succ, decide_mem_replicate, Nat.succ_ne_zero]
+    ∀ {n}, decide (b ∈ replicate n a) = ((¬ n == 0) && b == a) := by
+  have : DecidableEq α := instDecidableEqOfLawfulBEq
+  simp [Bool.beq_eq_decide_eq]
 
 theorem eq_of_mem_replicate {a b : α} {n} (h : b ∈ replicate n a) : b = a := (mem_replicate.1 h).2
 

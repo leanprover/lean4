@@ -6,6 +6,7 @@ Authors: Kim Morrison
 prelude
 import Init.Data.Zero
 import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Pow
 import Init.TacticsExtra
 
 /-!
@@ -202,6 +203,11 @@ theorem intCast_mul (x y : Int) : ((x * y : Int) : α) = ((x : α) * (y : α)) :
     rw [Int.neg_mul_neg, intCast_neg, intCast_neg, neg_mul, mul_neg, neg_neg, intCast_nat_mul,
       intCast_ofNat, intCast_ofNat]
 
+theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k := by
+  induction k
+  next => simp [pow_zero, Int.pow_zero, intCast_one]
+  next k ih => simp [pow_succ, Int.pow_succ, intCast_mul, *]
+
 theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂ := by
   induction k₂
   next => simp [pow_zero, mul_one]
@@ -233,7 +239,7 @@ theorem intCast_eq_zero_iff (x : Int) : (x : α) = 0 ↔ x % p = 0 :=
     rw [ofNat_eq_natCast] at this
     rw [this]
     simp only [Int.ofNat_dvd]
-    simp only [← Nat.dvd_iff_mod_eq_zero, Int.natAbs_ofNat, Int.natCast_add,
+    simp only [← Nat.dvd_iff_mod_eq_zero, Int.natAbs_natCast, Int.natCast_add,
       Int.cast_ofNat_Int, ite_eq_left_iff]
     by_cases h : p ∣ x + 1
     · simp [h]

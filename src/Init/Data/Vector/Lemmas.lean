@@ -824,6 +824,9 @@ theorem getElem?_eq_none {xs : Vector α n} (h : n ≤ i) : xs[i]? = none := by
 theorem getElem?_eq_some_iff {xs : Vector α n} : xs[i]? = some b ↔ ∃ h : i < n, xs[i] = b := by
   simp [getElem?_def]
 
+theorem getElem_of_getElem? {xs : Vector α n} : xs[i]? = some a → ∃ h : i < n, xs[i] = a :=
+  getElem?_eq_some_iff.mp
+
 theorem some_eq_getElem?_iff {xs : Vector α n} : some b = xs[i]? ↔ ∃ h : i < n, xs[i] = b := by
   rw [eq_comm, getElem?_eq_some_iff]
 
@@ -1179,19 +1182,19 @@ theorem all_bne' [BEq α] [PartialEquivBEq α] {xs : Vector α n} :
 theorem mem_of_contains_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
     as.contains a = true → a ∈ as := by
   rcases as with ⟨as, rfl⟩
-  simp [Array.mem_of_contains_eq_true]
+  simp
 
 theorem contains_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} (h : a ∈ as) :
     as.contains a = true := by
   rcases as with ⟨as, rfl⟩
   simp only [mem_mk] at h
-  simp [Array.contains_eq_true_of_mem, h]
-
-instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ as) :=
-  decidable_of_decidable_of_iff (Iff.intro mem_of_contains_eq_true contains_eq_true_of_mem)
+  simp [h]
 
 theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
     as.contains a = true ↔ a ∈ as := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
+
+instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ as) :=
+  decidable_of_decidable_of_iff contains_iff
 
 @[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
     as.contains a = decide (a ∈ as) := by
@@ -1348,36 +1351,31 @@ abbrev mkVector_beq_mkVector := @replicate_beq_replicate
     · intro h
       constructor
       rintro ⟨xs, h⟩
-      simpa using Array.isEqv_self_beq ..
+      simp
 
 @[simp] theorem lawfulBEq_iff [BEq α] [NeZero n] : LawfulBEq (Vector α n) ↔ LawfulBEq α := by
   match n, NeZero.ne n with
   | n + 1, _ =>
     constructor
     · intro h
+      have : ReflBEq α := reflBEq_iff.mp h.toReflBEq
       constructor
-      · intro a b h
-        have := replicate_inj (n := n+1) (a := a) (b := b)
-        simp only [Nat.add_one_ne_zero, false_or] at this
-        rw [← this]
-        apply eq_of_beq
-        rw [replicate_beq_replicate]
-        simpa
-      · intro a
-        suffices (replicate (n + 1) a == replicate (n + 1) a) = true by
-          rw [replicate_beq_replicate] at this
-          simpa
-        simp
+      intro a b h
+      have := replicate_inj (n := n+1) (a := a) (b := b)
+      simp only [Nat.add_one_ne_zero, false_or] at this
+      rw [← this]
+      apply eq_of_beq
+      rw [replicate_beq_replicate]
+      simpa
     · intro h
+      have : ReflBEq (Vector α (n + 1)) := reflBEq_iff.mpr inferInstance
       constructor
-      · rintro ⟨as, ha⟩ ⟨bs, hb⟩ h
-        simp_all
-      · rintro ⟨as, ha⟩
-        simp
+      rintro ⟨as, ha⟩ ⟨bs, hb⟩ h
+      simp_all
 
 /-! ### isEqv -/
 
-@[simp] theorem isEqv_eq [DecidableEq α] {xs ys : Vector α n} : xs.isEqv ys (· == ·) = (xs = ys) := by
+@[simp] theorem isEqv_eq [BEq α] [LawfulBEq α] {xs ys : Vector α n} : xs.isEqv ys (· == ·) = (xs = ys) := by
   cases xs
   cases ys
   simp
@@ -2677,12 +2675,7 @@ variable [LawfulBEq α]
 theorem getElem?_replace {xs : Vector α n} {i : Nat} :
     (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem?_replace]
-  split <;> rename_i h
-  · rw (occs := [2]) [if_pos]
-    simpa using h
-  · rw [if_neg]
-    simpa using h
+  simp [Array.getElem?_replace, -beq_iff_eq]
 
 theorem getElem?_replace_of_ne {xs : Vector α n} {i : Nat} (h : xs[i]? ≠ some a) :
     (xs.replace a b)[i]? = xs[i]? := by

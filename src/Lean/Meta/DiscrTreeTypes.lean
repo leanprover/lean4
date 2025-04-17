@@ -58,16 +58,7 @@ end DiscrTree
 open DiscrTree
 
 /-!
-Notes regarding term reduction at the `DiscrTree` module.
-
-- In `simp`, we want to have `simp` theorem such as
-```
-@[simp] theorem liftOn_mk (a : α) (f : α → γ) (h : ∀ a₁ a₂, r a₁ a₂ → f a₁ = f a₂) :
-    Quot.liftOn (Quot.mk r a) f h = f a := rfl
-```
-If we enable `iota`, then the lhs is reduced to `f a`.
-Note that when retrieving terms, we may also disable `beta` and `zeta` reduction.
-See issue https://github.com/leanprover/lean4/issues/2669
+Note regarding term reduction at the `DiscrTree` module.
 
 - During type class resolution, we often want to reduce types using even `iota` and projection reduction.
 Example:

@@ -774,11 +774,12 @@ theorem singleton_inj : #v[a] = #v[b] ↔ a = b := by
 
 /-! ### replicate -/
 
-@[simp] theorem replicate_zero : replicate 0 a = #v[] := rfl
+@[simp, grind] theorem replicate_zero : replicate 0 a = #v[] := rfl
 
 @[deprecated replicate_zero (since := "2025-03-18")]
 abbrev replicate_mkVector := @replicate_zero
 
+@[grind]
 theorem replicate_succ : replicate (n + 1) a = (replicate n a).push a := by
   simp [replicate, Array.replicate_succ]
 
@@ -818,12 +819,17 @@ abbrev mkVector_eq_mk_mkArray := @replicate_eq_mk_replicate
 theorem getElem?_eq_none {xs : Vector α n} (h : n ≤ i) : xs[i]? = none := by
   simp [getElem?_eq_none_iff, h]
 
+-- This is a more aggressive pattern than for `List/Array.getElem?_eq_none`, because
+-- `length/size` won't appear.
+grind_pattern Vector.getElem?_eq_none => n ≤ i, xs[i]?
+
 @[simp] theorem getElem?_eq_getElem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i]? = some xs[i] :=
   getElem?_pos ..
 
 theorem getElem?_eq_some_iff {xs : Vector α n} : xs[i]? = some b ↔ ∃ h : i < n, xs[i] = b := by
   simp [getElem?_def]
 
+@[grind →]
 theorem getElem_of_getElem? {xs : Vector α n} : xs[i]? = some a → ∃ h : i < n, xs[i] = a :=
   getElem?_eq_some_iff.mp
 
@@ -883,12 +889,13 @@ set_option linter.indexVariables false in
   match i, h with
   | 0, _ => rfl
 
+@[grind]
 theorem getElem?_singleton {a : α} {i : Nat} : #v[a][i]? = if i = 0 then some a else none := by
   simp [List.getElem?_singleton]
 
 /-! ### mem -/
 
-@[simp] theorem getElem_mem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i] ∈ xs := by
+@[simp, grind] theorem getElem_mem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i] ∈ xs := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
@@ -898,7 +905,10 @@ theorem getElem?_singleton {a : α} {i : Nat} : #v[a][i]? = if i = 0 then some a
   rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem mem_push_self {xs : Vector α n} {x : α} : x ∈ xs.push x :=
+@[grind] theorem mem_or_eq_of_mem_push {a b : α} {xs : Vector α n} :
+    a ∈ xs.push b → a ∈ xs ∨ a = b := Vector.mem_push.mp
+
+@[grind] theorem mem_push_self {xs : Vector α n} {x : α} : x ∈ xs.push x :=
   mem_push.2 (Or.inr rfl)
 
 theorem eq_push_append_of_mem {xs : Vector α n} {x : α} (h : x ∈ xs) :
@@ -910,7 +920,7 @@ theorem eq_push_append_of_mem {xs : Vector α n} {x : α} (h : x ∈ xs) :
   obtain rfl := h
   exact ⟨_, _, as.toVector, bs.toVector, by simp, by simp, by simpa using w⟩
 
-theorem mem_push_of_mem {xs : Vector α n} {x : α} (y : α) (h : x ∈ xs) : x ∈ xs.push y :=
+@[grind] theorem mem_push_of_mem {xs : Vector α n} {x : α} (y : α) (h : x ∈ xs) : x ∈ xs.push y :=
   mem_push.2 (Or.inl h)
 
 theorem exists_mem_of_size_pos {xs : Vector α n} (h : 0 < n) : ∃ x, x ∈ xs := by
@@ -1217,7 +1227,7 @@ instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ 
 
 /-! ### set -/
 
-theorem getElem_set {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) {j : Nat} (hj : j < n) :
+@[grind] theorem getElem_set {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) {j : Nat} (hj : j < n) :
     (xs.set i x hi)[j] = if i = j then x else xs[j] := by
   cases xs
   split <;> simp_all [Array.getElem_set]
@@ -1231,7 +1241,7 @@ abbrev getElem_set_eq := @getElem_set_self
 @[simp] theorem getElem_set_ne {xs : Vector α n} {x : α} (hi : i < n) (hj : j < n) (h : i ≠ j) :
     (xs.set i x hi)[j] = xs[j] := by simp [getElem_set, h]
 
-theorem getElem?_set {xs : Vector α n} {x : α} (hi : i < n) :
+@[grind] theorem getElem?_set {xs : Vector α n} {x : α} (hi : i < n) :
     (xs.set i x hi)[j]? = if i = j then some x else xs[j]? := by
   cases xs
   split <;> simp_all [getElem?_eq_getElem, getElem_set]
@@ -1262,13 +1272,17 @@ theorem mem_set {xs : Vector α n} {i : Nat} {a : α} (hi : i < n) : a ∈ xs.se
   simp [mem_iff_getElem]
   exact ⟨i, (by simpa using hi), by simp⟩
 
+@[grind →]
 theorem mem_or_eq_of_mem_set {xs : Vector α n} {i : Nat} {a b : α} {hi : i < n} (h : a ∈ xs.set i b) : a ∈ xs ∨ a = b := by
   cases xs
   simpa using Array.mem_or_eq_of_mem_set (by simpa using h)
 
 /-! ### setIfInBounds -/
 
-theorem getElem_setIfInBounds {xs : Vector α n} {x : α} (hj : j < n) :
+@[simp, grind] theorem setIfInBounds_empty {i : Nat} {a : α} :
+    #v[].setIfInBounds i a = #v[] := rfl
+
+@[grind] theorem getElem_setIfInBounds {xs : Vector α n} {x : α} (hj : j < n) :
     (xs.setIfInBounds i x)[j] = if i = j then x else xs[j] := by
   cases xs
   split <;> simp_all [Array.getElem_setIfInBounds]
@@ -1282,7 +1296,7 @@ abbrev getElem_setIfInBounds_eq := @getElem_setIfInBounds_self
 @[simp] theorem getElem_setIfInBounds_ne {xs : Vector α n} {x : α} (hj : j < n) (h : i ≠ j) :
     (xs.setIfInBounds i x)[j] = xs[j] := by simp [getElem_setIfInBounds, h]
 
-theorem getElem?_setIfInBounds {xs : Vector α n} {x : α} :
+@[grind] theorem getElem?_setIfInBounds {xs : Vector α n} {x : α} :
     (xs.setIfInBounds i x)[j]? = if i = j then if i < n then some x else none else xs[j]? := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem?_setIfInBounds]
@@ -1319,7 +1333,7 @@ theorem mem_setIfInBounds {xs : Vector α n} {a : α} (hi : i < n) :
 
 /-! ### BEq -/
 
-@[simp] theorem push_beq_push [BEq α] {a b : α} {n : Nat} {xs : Vector α n} {ys : Vector α n} :
+@[simp, grind] theorem push_beq_push [BEq α] {a b : α} {n : Nat} {xs : Vector α n} {ys : Vector α n} :
     (xs.push a == ys.push b) = (xs == ys && a == b) := by
   cases xs
   cases ys
@@ -1574,7 +1588,13 @@ theorem vector₃_induction (P : Vector (Vector (Vector α n) m) k → Prop)
 
 /-! ### append -/
 
-@[simp] theorem append_push {as : Vector α n} {bs : Vector α m} {a : α} :
+@[simp, grind _=_] theorem push_append {as : Vector α n} {bs : Vector α m} {a : α} :
+    (as ++ bs).push a = as ++ bs.push a := by
+  cases as
+  cases bs
+  simp
+
+theorem append_push {as : Vector α n} {bs : Vector α m} {a : α} :
     as ++ bs.push a = (as ++ bs).push a := by
   cases as
   cases bs
@@ -1588,10 +1608,10 @@ theorem singleton_eq_toVector_singleton {a : α} : #v[a] = #[a].toVector := rfl
   cases ys
   simp
 
-theorem mem_append_left {a : α} {xs : Vector α n} (ys : Vector α m) (h : a ∈ xs) : a ∈ xs ++ ys :=
+@[grind] theorem mem_append_left {a : α} {xs : Vector α n} (ys : Vector α m) (h : a ∈ xs) : a ∈ xs ++ ys :=
   mem_append.2 (Or.inl h)
 
-theorem mem_append_right {a : α} (xs : Vector α n) {ys : Vector α m} (h : a ∈ ys) : a ∈ xs ++ ys :=
+@[grind] theorem mem_append_right {a : α} (xs : Vector α n) {ys : Vector α m} (h : a ∈ ys) : a ∈ xs ++ ys :=
   mem_append.2 (Or.inr h)
 
 theorem not_mem_append {a : α} {xs : Vector α n} {ys : Vector α m} (h₁ : a ∉ xs) (h₂ : a ∉ ys) :
@@ -1618,13 +1638,16 @@ theorem forall_mem_append {p : α → Prop} {xs : Vector α n} {ys : Vector α m
     (∀ (x) (_ : x ∈ xs ++ ys), p x) ↔ (∀ (x) (_ : x ∈ xs), p x) ∧ (∀ (x) (_ : x ∈ ys), p x) := by
   simp only [mem_append, or_imp, forall_and]
 
+@[grind]
 theorem empty_append {xs : Vector α n} : (#v[] : Vector α 0) ++ xs = xs.cast (by omega) := by
   rcases xs with ⟨as, rfl⟩
   simp
 
+@[grind]
 theorem append_empty {xs : Vector α n} : xs ++ (#v[] : Vector α 0) = xs := by
   rw [← toArray_inj, toArray_append, Array.append_empty]
 
+@[grind]
 theorem getElem_append {xs : Vector α n} {ys : Vector α m} (hi : i < n + m) :
     (xs ++ ys)[i] = if h : i < n then xs[i] else ys[i - n] := by
   rcases xs with ⟨xs, rfl⟩
@@ -1651,6 +1674,7 @@ theorem getElem?_append_right {xs : Vector α n} {ys : Vector α m} (h : n ≤ i
   rcases ys with ⟨ys, rfl⟩
   simp [Array.getElem?_append_right, h]
 
+@[grind]
 theorem getElem?_append {xs : Vector α n} {ys : Vector α m} {i : Nat} :
     (xs ++ ys)[i]? = if i < n then xs[i]? else ys[i - n]? := by
   split <;> rename_i h

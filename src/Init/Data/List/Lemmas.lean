@@ -90,7 +90,7 @@ open Nat
 
 /-! ### length -/
 
-theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
+@[grind →] theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
 
 theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := fun _ => nomatch l
 
@@ -259,6 +259,7 @@ theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.le
     · match i, h with
       | i + 1, h => simp [getElem?_eq_some_iff, Nat.succ_lt_succ_iff]
 
+@[grind →]
 theorem getElem_of_getElem? {l : List α} : l[i]? = some a → ∃ h : i < l.length, l[i] = a :=
   getElem?_eq_some_iff.mp
 
@@ -293,6 +294,7 @@ theorem getD_getElem? {l : List α} {i : Nat} {d : α} :
   match i, h with
   | 0, _ => rfl
 
+@[grind]
 theorem getElem?_singleton {a : α} {i : Nat} : [a][i]? = if i = 0 then some a else none := by
   simp [getElem?_cons]
 
@@ -372,10 +374,10 @@ theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := 
   ⟨fun h => by cases h <;> simp [Membership.mem, *],
    fun | Or.inl rfl => by constructor | Or.inr h => by constructor; assumption⟩
 
-theorem eq_head_or_mem_tail_of_mem_cons {a b : α} {l : List α} :
+@[grind] theorem eq_or_mem_of_mem_cons {a b : α} {l : List α} :
     a ∈ b :: l → a = b ∨ a ∈ l := List.mem_cons.mp
 
-theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
+@[grind] theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
 
 theorem mem_concat_self {xs : List α} {a : α} : a ∈ xs ++ [a] :=
   mem_append_right xs mem_cons_self
@@ -397,7 +399,7 @@ theorem eq_append_cons_of_mem {a : α} {xs : List α} (h : a ∈ xs) :
       · obtain ⟨as, bs, rfl, h⟩ := ih h
         exact ⟨x :: as, bs, rfl, by simp_all⟩
 
-theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
+@[grind] theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
 
 -- The argument `l : List α` is intentionally explicit,
 -- as a tactic may generate `h` without determining `l`.
@@ -546,6 +548,7 @@ theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
 @[simp] theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
   cases l <;> simp
 
+@[grind →]
 theorem nil_of_isEmpty {l : List α} (h : l.isEmpty) : l = [] := List.isEmpty_iff.mp h
 
 @[deprecated isEmpty_iff (since := "2025-02-17")]
@@ -609,10 +612,10 @@ theorem all_bne' [BEq α] [PartialEquivBEq α] {l : List α} :
 /-! ### set -/
 
 -- As `List.set` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
-@[simp] theorem set_nil {i : Nat} {a : α} : [].set i a = [] := rfl
-@[simp] theorem set_cons_zero {x : α} {xs : List α} {a : α} :
+@[simp, grind] theorem set_nil {i : Nat} {a : α} : [].set i a = [] := rfl
+@[simp, grind] theorem set_cons_zero {x : α} {xs : List α} {a : α} :
   (x :: xs).set 0 a = a :: xs := rfl
-@[simp] theorem set_cons_succ {x : α} {xs : List α} {i : Nat} {a : α} :
+@[simp, grind] theorem set_cons_succ {x : α} {xs : List α} {i : Nat} {a : α} :
   (x :: xs).set (i + 1) a = x :: xs.set i a := rfl
 
 @[simp] theorem getElem_set_self {l : List α} {i : Nat} {a : α} (h : i < (l.set i a).length) :
@@ -655,14 +658,14 @@ theorem getElem?_set_self' {l : List α} {i : Nat} {a : α} :
     simp_all
   · rw [getElem?_eq_none (by simp_all), getElem?_eq_none (by simp_all)]
 
-theorem getElem_set {l : List α} {i j} {a} (h) :
+@[grind] theorem getElem_set {l : List α} {i j} {a} (h) :
     (set l i a)[j]'h = if i = j then a else l[j]'(length_set .. ▸ h) := by
   if h : i = j then
     subst h; simp only [getElem_set_self, ↓reduceIte]
   else
     simp [h]
 
-theorem getElem?_set {l : List α} {i j : Nat} {a : α} :
+@[grind] theorem getElem?_set {l : List α} {i j : Nat} {a : α} :
     (l.set i a)[j]? = if i = j then if i < l.length then some a else none else l[j]? := by
   if h : i = j then
     subst h
@@ -722,6 +725,7 @@ theorem mem_set {l : List α} {i : Nat} (h : i < l.length) (a : α) :
   simp only [mem_iff_getElem]
   exact ⟨i, by simpa using h, by simp⟩
 
+@[grind →]
 theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.set i b → a ∈ l ∨ a = b
   | _ :: _, 0, _, _, h => ((mem_cons ..).1 h).symm.imp_left (.tail _)
   | _ :: _, _+1, _, _, .head .. => .inl (.head ..)
@@ -731,10 +735,10 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.s
 
 /-! ### BEq -/
 
-@[simp] theorem beq_nil_eq [BEq α] {l : List α} : (l == []) = l.isEmpty := by
+@[simp, grind] theorem beq_nil_eq [BEq α] {l : List α} : (l == []) = l.isEmpty := by
   cases l <;> rfl
 
-@[simp] theorem nil_beq_eq [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
+@[simp, grind] theorem nil_beq_eq [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
   cases l <;> rfl
 
 @[deprecated beq_nil_eq (since := "2025-04-04")]
@@ -743,7 +747,7 @@ abbrev beq_nil_iff := @beq_nil_eq
 @[deprecated nil_beq_eq (since := "2025-04-04")]
 abbrev nil_beq_iff := @nil_beq_eq
 
-@[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
+@[simp, grind] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
     (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
 
 @[simp] theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
@@ -1586,7 +1590,7 @@ theorem forall_mem_append {p : α → Prop} {l₁ l₂ : List α} :
     (∀ (x) (_ : x ∈ l₁ ++ l₂), p x) ↔ (∀ (x) (_ : x ∈ l₁), p x) ∧ (∀ (x) (_ : x ∈ l₂), p x) := by
   simp only [mem_append, or_imp, forall_and]
 
-theorem getElem_append {l₁ l₂ : List α} {i : Nat} (h : i < (l₁ ++ l₂).length) :
+@[grind] theorem getElem_append {l₁ l₂ : List α} {i : Nat} (h : i < (l₁ ++ l₂).length) :
     (l₁ ++ l₂)[i] = if h' : i < l₁.length then l₁[i] else l₂[i - l₁.length]'(by simp at h h'; exact Nat.sub_lt_left_of_lt_add h' h) := by
   split <;> rename_i h'
   · rw [getElem_append_left h']
@@ -1605,7 +1609,7 @@ theorem getElem?_append_right : ∀ {l₁ l₂ : List α} {i : Nat}, l₁.length
   rw [cons_append]
   simp [Nat.succ_sub_succ_eq_sub, getElem?_append_right (Nat.lt_succ.1 h₁)]
 
-theorem getElem?_append {l₁ l₂ : List α} {i : Nat} :
+@[grind] theorem getElem?_append {l₁ l₂ : List α} {i : Nat} :
     (l₁ ++ l₂)[i]? = if i < l₁.length then l₁[i]? else l₂[i - l₁.length]? := by
   split <;> rename_i h
   · exact getElem?_append_left h
@@ -1684,6 +1688,7 @@ theorem getLast_concat {a : α} : ∀ {l : List α}, getLast (l ++ [a]) (by simp
 @[simp] theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
   rw [eq_comm, append_eq_nil_iff]
 
+@[grind →]
 theorem eq_nil_of_append_eq_nil {l₁ l₂ : List α} (h : l₁ ++ l₂ = []) : l₁ = [] ∧ l₂ = [] :=
   append_eq_nil_iff.mp h
 
@@ -3647,46 +3652,14 @@ theorem isNone_getElem? {l : List α} {i : Nat} : l[i]?.isNone ↔ l.length ≤ 
 
 /-! Preliminary home for proposed `grind` attributes -/
 
-attribute [grind →] List.eq_nil_of_length_eq_zero
-attribute [grind] List.length_nil
-attribute [grind] List.getElem_append_left List.getElem_append_right
-attribute [grind] List.getElem?_append_left List.getElem?_append_right
-attribute [grind] List.getElem?_singleton
+-- attribute [grind] List.getElem_append_left List.getElem_append_right
+-- attribute [grind] List.getElem?_append_left List.getElem?_append_right
 
+-- Array.set_push appears to be missing!?
+-- Array.isEmpty_empty and Array.isEmpty_push are missing!?
 
-
-attribute [grind] List.eq_head_or_mem_tail_of_mem_cons
-attribute [grind] List.mem_cons_self List.mem_cons_of_mem
-attribute [grind] List.mem_append_left List.mem_append_right
-attribute [grind] List.nil_append List.append_nil
-attribute [grind] List.length_cons
-attribute [grind] List.getElem_mem
-attribute [grind →] List.getElem_of_getElem? -- This is a little scary, but quite effective and seems okay in practice.
-
-attribute [grind →] List.nil_of_isEmpty
-attribute [grind] List.isEmpty_nil List.isEmpty_cons
-
-attribute [grind] List.any_nil List.any_cons List.all_nil List.all_cons
-
-attribute [grind] List.set_nil List.set_cons_zero List.set_cons_succ
-attribute [grind] List.getElem_set List.getElem?_set
-
-attribute [grind] List.length_set
-grind_pattern List.getElem?_eq_none => l.length ≤ i, l[i]?
-
-
-
-
+-- Uh oh, Array and Vector use different ext lemmas... Better investigate carefully.
 attribute [grind ext] List.ext_getElem?
-attribute [grind →] List.mem_or_eq_of_mem_set
-
-attribute [grind] List.isEmpty_cons List.beq_nil_eq List.nil_beq_eq
-
-attribute [grind] List.cons_beq_cons
-attribute [grind] List.cons_append
-
-attribute [grind →] List.eq_nil_of_append_eq_nil
-attribute [grind] List.replicate_zero List.replicate_succ
 
 attribute [grind] List.getLast_singleton
 attribute [grind] List.getLast_eq_getElem

@@ -38,11 +38,11 @@ namespace Array
 
 /-! ### Preliminary theorems -/
 
-@[simp] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
+@[simp, grind] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
     (set xs i v h).size = xs.size :=
   List.length_set ..
 
-@[simp] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
+@[simp, grind] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
   List.length_concat ..
 
 theorem ext {xs ys : Array α}
@@ -108,7 +108,7 @@ theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
 @[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
   simp [mem_def]
 
-@[simp] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
+@[simp, grind] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
 

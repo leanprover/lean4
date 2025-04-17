@@ -110,13 +110,13 @@ abbrev pop_toList := @Array.toList_pop
 
 @[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
 
-@[simp] theorem append_empty {xs : Array α} : xs ++ #[] = xs := by
+@[simp, grind] theorem append_empty {xs : Array α} : xs ++ #[] = xs := by
   apply ext'; simp only [toList_append, toList_empty, List.append_nil]
 
 @[deprecated append_empty (since := "2025-01-13")]
 abbrev append_nil := @append_empty
 
-@[simp] theorem empty_append {xs : Array α} : #[] ++ xs = xs := by
+@[simp, grind] theorem empty_append {xs : Array α} : #[] ++ xs = xs := by
   apply ext'; simp only [toList_append, toList_empty, List.nil_append]
 
 @[deprecated empty_append (since := "2025-01-13")]

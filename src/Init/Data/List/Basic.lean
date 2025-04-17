@@ -73,17 +73,17 @@ namespace List
 
 /-! ### length -/
 
-@[simp] theorem length_nil : length ([] : List α) = 0 :=
+@[simp, grind] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 
 @[simp] theorem length_singleton {a : α} : length [a] = 1 := rfl
 
-@[simp] theorem length_cons {a : α} {as : List α} : (cons a as).length = as.length + 1 :=
+@[simp, grind] theorem length_cons {a : α} {as : List α} : (cons a as).length = as.length + 1 :=
   rfl
 
 /-! ### set -/
 
-@[simp] theorem length_set {as : List α} {i : Nat} {a : α} : (as.set i a).length = as.length := by
+@[simp, grind] theorem length_set {as : List α} {i : Nat} {a : α} : (as.set i a).length = as.length := by
   induction as generalizing i with
   | nil => rfl
   | cons x xs ih =>
@@ -639,10 +639,10 @@ instance : Append (List α) := ⟨List.append⟩
 
 @[simp] theorem append_eq {as bs : List α} : List.append as bs = as ++ bs := rfl
 
-@[simp] theorem nil_append (as : List α) : [] ++ as = as := rfl
-@[simp] theorem cons_append {a : α} {as bs : List α} : (a::as) ++ bs = a::(as ++ bs) := rfl
+@[simp, grind] theorem nil_append (as : List α) : [] ++ as = as := rfl
+@[simp, grind _=_] theorem cons_append {a : α} {as bs : List α} : (a::as) ++ bs = a::(as ++ bs) := rfl
 
-@[simp] theorem append_nil (as : List α) : as ++ [] = as := by
+@[simp, grind] theorem append_nil (as : List α) : as ++ [] = as := by
   induction as with
   | nil => rfl
   | cons a as ih =>
@@ -754,10 +754,10 @@ def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
 
-@[simp] theorem replicate_zero {a : α} : replicate 0 a = [] := rfl
-theorem replicate_succ {a : α} {n : Nat} : replicate (n+1) a = a :: replicate n a := rfl
+@[simp, grind] theorem replicate_zero {a : α} : replicate 0 a = [] := rfl
+@[grind] theorem replicate_succ {a : α} {n : Nat} : replicate (n+1) a = a :: replicate n a := rfl
 
-@[simp] theorem length_replicate {n : Nat} {a : α} : (replicate n a).length = n := by
+@[simp, grind] theorem length_replicate {n : Nat} {a : α} : (replicate n a).length = n := by
   induction n with
   | zero => simp
   | succ n ih => simp only [ih, replicate_succ, length_cons, Nat.succ_eq_add_one]
@@ -825,8 +825,8 @@ def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
 
-@[simp] theorem isEmpty_nil : ([] : List α).isEmpty = true := rfl
-@[simp] theorem isEmpty_cons : (x :: xs : List α).isEmpty = false := rfl
+@[simp, grind] theorem isEmpty_nil : ([] : List α).isEmpty = true := rfl
+@[simp, grind] theorem isEmpty_cons : (x :: xs : List α).isEmpty = false := rfl
 
 /-! ### elem -/
 
@@ -910,13 +910,13 @@ theorem elem_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : List α} (h : a
 instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
 
-theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
+@[grind] theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
   intro h
   induction h with
   | head => apply Mem.head
   | tail => apply Mem.tail; assumption
 
-theorem mem_append_right {b : α} (as : List α) {bs : List α} : b ∈ bs → b ∈ as ++ bs := by
+@[grind] theorem mem_append_right {b : α} (as : List α) {bs : List α} : b ∈ bs → b ∈ as ++ bs := by
   intro h
   induction as with
   | nil  => simp [h]
@@ -1886,8 +1886,8 @@ def any : (l : List α) → (p : α → Bool) → Bool
   | [], _ => false
   | h :: t, p => p h || any t p
 
-@[simp] theorem any_nil : [].any f = false := rfl
-@[simp] theorem any_cons : (a::l).any f = (f a || l.any f) := rfl
+@[simp, grind] theorem any_nil : [].any f = false := rfl
+@[simp, grind] theorem any_cons : (a::l).any f = (f a || l.any f) := rfl
 
 /-! ### all -/
 
@@ -1905,8 +1905,8 @@ def all : List α → (α → Bool) → Bool
   | [], _ => true
   | h :: t, p => p h && all t p
 
-@[simp] theorem all_nil : [].all f = true := rfl
-@[simp] theorem all_cons : (a::l).all f = (f a && l.all f) := rfl
+@[simp, grind] theorem all_nil : [].all f = true := rfl
+@[simp, grind] theorem all_cons : (a::l).all f = (f a && l.all f) := rfl
 
 /-! ### or -/
 

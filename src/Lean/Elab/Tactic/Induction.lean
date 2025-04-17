@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.FunIndInfo
 import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.FunIndCollect
+import Lean.Meta.Tactic.FunIndEqns
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.GeneralizeVars
@@ -908,30 +909,25 @@ private def getSimpUnfoldContext : MetaM Simp.Context := do
 
 def rewriteWithFineEqns (fnName : Name) (mvarId : MVarId) (cases : Bool) : MetaM MVarId := do
   let mut mvarId := mvarId
-  if let some eqns ← getEqnsFor? (fine := true) fnName then
-    for eqn in eqns do
-      try
-        mvarId ← withTraceNode (if cases then `Elab.cases else `Elab.induction) (return m!"{exceptEmoji ·} rewriting with {.ofConstName eqn}") <| do
+  let eqns ← Tactic.FunInd.getEqnsFor fnName
+  for eqn in eqns do
+    try
+      mvarId ← withTraceNode (if cases then `Elab.cases else `Elab.induction) (return m!"{exceptEmoji ·} rewriting with {.ofConstName eqn}") <| do
 
-          let target ← instantiateMVars (← mvarId.getType)
-          let r ← (·.1) <$> Simp.main target (← getSimpUnfoldContext)
-            (methods := { pre := pre eqn, discharge? := discharge })
-          if r.expr == target then throwError "failed to apply {.ofConstName eqn} at{indentExpr target}"
-          applySimpResultToTarget mvarId target r
+        let target ← instantiateMVars (← mvarId.getType)
+        let r ← (·.1) <$> Simp.main target (← getSimpUnfoldContext)
+          (methods := { pre := pre eqn, discharge? := discharge })
+        if r.expr == target then throwError "failed to apply {.ofConstName eqn} at{indentExpr target}"
+        applySimpResultToTarget mvarId target r
 
-          -- let r ← mvarId.rewrite (← mvarId.getType) (← mkConstWithFreshMVarLevels eqn)
-          -- r.mvarIds.forM fun m => m.assumption
-          -- mvarId.replaceTargetEq r.eNew r.eqProof
-      catch e =>
-        if cases then
-          trace[Elab.cases] "could not apply {eqn}: {e.toMessageData}"
-        else
-          trace[Elab.induction] "could not apply {eqn}: {e.toMessageData}"
-  else
-    if cases then
-      trace[Elab.cases] "did not find fine equations for {fnName}"
-    else
-      trace[Elab.induction] "did not find fine equations for {fnName}"
+        -- let r ← mvarId.rewrite (← mvarId.getType) (← mkConstWithFreshMVarLevels eqn)
+        -- r.mvarIds.forM fun m => m.assumption
+        -- mvarId.replaceTargetEq r.eNew r.eqProof
+    catch e =>
+      if cases then
+        trace[Elab.cases] "could not apply {eqn}: {e.toMessageData}"
+      else
+        trace[Elab.induction] "could not apply {eqn}: {e.toMessageData}"
   return mvarId
 where
   pre (eq : Name) (e : Expr) : SimpM Simp.Step := do

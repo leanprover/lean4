@@ -14,7 +14,7 @@ namespace Lean.Tactic.FunInd
 open Lean Elab Meta
 
 def getFunCasesEqnName (fnName : Name) (i : Nat) : Name :=
-  (getFunCasesName fnName ++ `eq).appendIndexAfter (i + 1)
+  (fnName ++ `fun_cases_eq).appendIndexAfter (i + 1)
 
 -- Iota reduction and reducing if-then-else
 def simpEqnType (e : Expr) : MetaM Simp.Result := withReducible do
@@ -104,11 +104,11 @@ def mkEqnVals (fnName : Name) : MetaM Unit := do
           }
 
 def realizeEqns (fnName : Name) : MetaM Unit := do
-  let _ ← getFunInduct? (cases := true) fnName
-  assert! (← getEnv).contains (getFunCasesName fnName)
-  let info ← getConstInfo (getFunCasesName fnName)
-  logInfo m!"fun_cases type: {info.type}"
-  realizeConst (getFunCasesName fnName) (getFunCasesEqnName fnName 0) do
+  -- let _ ← getFunInduct? (cases := true) fnName
+  -- assert! (← getEnv).contains (getFunCasesName fnName)
+  -- let info ← getConstInfo (getFunCasesName fnName)
+  -- logInfo m!"fun_cases type: {info.type}"
+  realizeConst fnName (getFunCasesEqnName fnName 0) do
     mkEqnVals fnName
 
 def getEqnsFor (fnName : Name) : MetaM (Array Name) := do
@@ -136,6 +136,7 @@ builtin_initialize
 
 -/
 
+/-
 end Lean.Tactic.FunInd
 
 def filter (p : α → Bool) (xs : List α) : List α :=
@@ -155,6 +156,8 @@ def filter (p : α → Bool) (xs : List α) : List α :=
 run_meta Lean.Tactic.FunInd.getEqnsFor ``filter
 -- run_meta  mkEqnVals ``filter
 
-#check filter.fun_cases.eq_1
-#check filter.fun_cases.eq_2
-#check filter.fun_cases.eq_3
+#check filter.fun_cases_eq_1
+#check filter.fun_cases_eq_2
+#check filter.fun_cases_eq_3
+
+-/

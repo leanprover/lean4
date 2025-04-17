@@ -1839,6 +1839,11 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
       else
         consts.add c
     checked := dest.checked.map fun kenv => replayKernel exts consts kenv |>.toOption.getD kenv
+    realizedLocalConsts := consts.foldl (init := dest.realizedLocalConsts) fun m c =>
+      if let some x := newEnv.realizedLocalConsts.find? c.constInfo.name then
+        m.insert c.constInfo.name x
+      else
+        m
   }
 where
   replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)

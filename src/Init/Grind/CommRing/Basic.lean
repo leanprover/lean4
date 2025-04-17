@@ -6,6 +6,7 @@ Authors: Kim Morrison
 prelude
 import Init.Data.Zero
 import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Pow
 import Init.TacticsExtra
 
 /-!
@@ -201,6 +202,11 @@ theorem intCast_mul (x y : Int) : ((x * y : Int) : α) = ((x : α) * (y : α)) :
   | (-(x + 1 : Nat)), (-(y + 1 : Nat)) => by
     rw [Int.neg_mul_neg, intCast_neg, intCast_neg, neg_mul, mul_neg, neg_neg, intCast_nat_mul,
       intCast_ofNat, intCast_ofNat]
+
+theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k := by
+  induction k
+  next => simp [pow_zero, Int.pow_zero, intCast_one]
+  next k ih => simp [pow_succ, Int.pow_succ, intCast_mul, *]
 
 theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂ := by
   induction k₂

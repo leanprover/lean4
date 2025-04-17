@@ -15,12 +15,14 @@ namespace Async
 
 structure Waiter (α : Type) where
   private mk ::
-    private finished : IO.Ref Bool
-    private signal : IO.Promise (Except IO.Error α)
+    finished : IO.Ref Bool
+    signal : IO.Promise (Except IO.Error α)
 
 def Waiter.new : BaseIO (Waiter α) := do
   return { finished := ← IO.mkRef false, signal := ← IO.Promise.new }
 
+-- TODO: think about resolving the promise with errors thrown? Should make stuff easier
+@[specialize]
 def Waiter.race [Monad m] [MonadLiftT BaseIO m] (w : Waiter α)
     (loose : m β) (win : IO.Promise (Except IO.Error α) → m β) : m β := do
   let first ← liftM (m := BaseIO) <| w.finished.modifyGet fun s => (s == false, true)

@@ -35,10 +35,10 @@ def RArray.get (a : RArray α) (n : Nat) : α :=
 
 abbrev Context (α : Type u) := RArray α
 
-def Var.denote (ctx : Context α) (v : Var) : α :=
+def Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
-def Expr.denote [CommRing α] (ctx : Context α) : Expr → α
+def Expr.denote {α} [CommRing α] (ctx : Context α) : Expr → α
   | .add a b  => denote ctx a + denote ctx b
   | .sub a b  => denote ctx a - denote ctx b
   | .mul a b  => denote ctx a * denote ctx b
@@ -55,7 +55,7 @@ structure Power where
 def Power.varLt (p₁ p₂ : Power) : Bool :=
   p₁.x.blt p₂.x
 
-def Power.denote [CommRing α] (ctx : Context α) : Power → α
+def Power.denote {α} [CommRing α] (ctx : Context α) : Power → α
   | {x, k} =>
     match k with
     | 0 => 1
@@ -67,11 +67,11 @@ inductive Mon where
   | cons (p : Power) (m : Mon)
   deriving BEq, Repr
 
-def Mon.denote [CommRing α] (ctx : Context α) : Mon → α
+def Mon.denote {α} [CommRing α] (ctx : Context α) : Mon → α
   | .leaf p => p.denote ctx
   | .cons p m => p.denote ctx * denote ctx m
 
-def Mon.denote' [CommRing α] (ctx : Context α) : Mon → α
+def Mon.denote' {α} [CommRing α] (ctx : Context α) : Mon → α
   | .leaf p => p.denote ctx
   | .cons p m => go (p.denote ctx) m
 where
@@ -441,27 +441,27 @@ where
 Theorems for justifying the procedure for commutative rings in `grind`.
 -/
 
-theorem Power.denote_eq [CommRing α] (ctx : Context α) (p : Power)
+theorem Power.denote_eq {α} [CommRing α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
   cases p <;> simp [Power.denote] <;> split <;> simp [pow_zero, pow_succ, one_mul]
 
-theorem Mon.denote'_go_eq_denote [CommRing α] (ctx : Context α) (a : α) (m : Mon)
+theorem Mon.denote'_go_eq_denote {α} [CommRing α] (ctx : Context α) (a : α) (m : Mon)
     : denote'.go ctx a m = a * denote ctx m := by
   induction m generalizing a <;> simp [Mon.denote, Mon.denote'.go]
   next p' m ih =>
     simp [Mon.denote] at ih
     rw [ih, mul_assoc]
 
-theorem Mon.denote'_eq_denote [CommRing α] (ctx : Context α) (m : Mon)
+theorem Mon.denote'_eq_denote {α} [CommRing α] (ctx : Context α) (m : Mon)
     : denote' ctx m = denote ctx m := by
   cases m <;> simp [Mon.denote, Mon.denote']
   next p m => apply denote'_go_eq_denote
 
-theorem Mon.denote_ofVar [CommRing α] (ctx : Context α) (x : Var)
+theorem Mon.denote_ofVar {α} [CommRing α] (ctx : Context α) (x : Var)
     : denote ctx (ofVar x) = x.denote ctx := by
   simp [denote, ofVar, Power.denote_eq, pow_succ, pow_zero, one_mul]
 
-theorem Mon.denote_concat [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
+theorem Mon.denote_concat {α} [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
     : denote ctx (concat m₁ m₂) = m₁.denote ctx * m₂.denote ctx := by
   induction m₁ <;> simp [concat, denote, *]
   next p₁ m₁ ih => rw [mul_assoc]
@@ -476,7 +476,7 @@ private theorem eq_of_blt_false {a b : Nat} : a.blt b = false → b.blt a = fals
   replace h₂ := le_of_blt_false h₂
   exact Nat.le_antisymm h₂ h₁
 
-theorem Mon.denote_mulPow [CommRing α] (ctx : Context α) (p : Power) (m : Mon)
+theorem Mon.denote_mulPow {α} [CommRing α] (ctx : Context α) (p : Power) (m : Mon)
     : denote ctx (mulPow p m) = p.denote ctx * m.denote ctx := by
   fun_induction mulPow <;> simp [mulPow, *]
   next => simp [denote]
@@ -490,7 +490,7 @@ theorem Mon.denote_mulPow [CommRing α] (ctx : Context α) (p : Power) (m : Mon)
     have := eq_of_blt_false h₁ h₂
     simp [denote, Power.denote_eq, pow_add, this, mul_assoc]
 
-theorem Mon.denote_mul [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
+theorem Mon.denote_mul {α} [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
     : denote ctx (mul m₁ m₂) = m₁.denote ctx * m₂.denote ctx := by
   unfold mul
   generalize hugeFuel = fuel
@@ -547,20 +547,20 @@ theorem Mon.eq_of_revlex {m₁ m₂ : Mon} : revlex m₁ m₂ = .eq → m₁ = m
 theorem Mon.eq_of_grevlex {m₁ m₂ : Mon} : grevlex m₁ m₂ = .eq → m₁ = m₂ := by
   simp [grevlex, then_eq]; intro; apply eq_of_revlex
 
-theorem Poly.denote_ofMon [CommRing α] (ctx : Context α) (m : Mon)
+theorem Poly.denote_ofMon {α} [CommRing α] (ctx : Context α) (m : Mon)
     : denote ctx (ofMon m) = m.denote ctx := by
   simp [ofMon, denote, intCast_one, intCast_zero, one_mul, add_zero]
 
-theorem Poly.denote_ofVar [CommRing α] (ctx : Context α) (x : Var)
+theorem Poly.denote_ofVar {α} [CommRing α] (ctx : Context α) (x : Var)
     : denote ctx (ofVar x) = x.denote ctx := by
   simp [ofVar, denote_ofMon, Mon.denote_ofVar]
 
-theorem Poly.denote_addConst [CommRing α] (ctx : Context α) (p : Poly) (k : Int) : (addConst p k).denote ctx = p.denote ctx + k := by
+theorem Poly.denote_addConst {α} [CommRing α] (ctx : Context α) (p : Poly) (k : Int) : (addConst p k).denote ctx = p.denote ctx + k := by
   fun_induction addConst <;> simp [addConst, denote, *]
   next => rw [intCast_add]
   next => simp [add_comm, add_left_comm, add_assoc]
 
-theorem Poly.denote_insert [CommRing α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
+theorem Poly.denote_insert {α} [CommRing α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : (insert k m p).denote ctx = k * m.denote ctx + p.denote ctx := by
   simp [insert, cond_eq_if] <;> split
   next => simp [*, intCast_zero, zero_mul, zero_add]
@@ -573,13 +573,13 @@ theorem Poly.denote_insert [CommRing α] (ctx : Context α) (k : Int) (m : Mon) 
     next =>
       rw [add_left_comm]
 
-theorem Poly.denote_concat [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
+theorem Poly.denote_concat {α} [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
     : (concat p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   fun_induction concat <;> simp [concat, *, denote_addConst, denote]
   next => rw [add_comm]
   next => rw [add_assoc]
 
-theorem Poly.denote_mulConst [CommRing α] (ctx : Context α) (k : Int) (p : Poly)
+theorem Poly.denote_mulConst {α} [CommRing α] (ctx : Context α) (k : Int) (p : Poly)
     : (mulConst k p).denote ctx = k * p.denote ctx := by
   simp [mulConst, cond_eq_if] <;> split
   next => simp [denote, *, intCast_zero, zero_mul]
@@ -589,7 +589,7 @@ theorem Poly.denote_mulConst [CommRing α] (ctx : Context α) (k : Int) (p : Pol
     next => rw [intCast_mul]
     next => rw [intCast_mul, left_distrib, mul_assoc]
 
-theorem Poly.denote_mulMon [CommRing α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
+theorem Poly.denote_mulMon {α} [CommRing α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : (mulMon k m p).denote ctx = k * m.denote ctx * p.denote ctx := by
   simp [mulMon, cond_eq_if] <;> split
   next => simp [denote, *, intCast_zero, zero_mul]
@@ -598,7 +598,7 @@ theorem Poly.denote_mulMon [CommRing α] (ctx : Context α) (k : Int) (m : Mon) 
     next => simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
     next => simp [Mon.denote_mul, intCast_mul, left_distrib, mul_comm, mul_left_comm, mul_assoc]
 
-theorem Poly.denote_combine [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
+theorem Poly.denote_combine {α} [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
     : (combine p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   unfold combine; generalize hugeFuel = fuel
   fun_induction combine.go
@@ -610,22 +610,22 @@ theorem Poly.denote_combine [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
     simp +zetaDelta at h; simp [*, denote, intCast_add]
     rw [right_distrib, Mon.eq_of_grevlex hg, add_assoc]
 
-theorem Poly.denote_mul_go [CommRing α] (ctx : Context α) (p₁ p₂ acc : Poly)
+theorem Poly.denote_mul_go {α} [CommRing α] (ctx : Context α) (p₁ p₂ acc : Poly)
     : (mul.go p₂ p₁ acc).denote ctx = acc.denote ctx + p₁.denote ctx * p₂.denote ctx := by
   fun_induction mul.go
     <;> simp [mul.go, denote_combine, denote_mulConst, denote, *, right_distrib, denote_mulMon, add_assoc]
 
-theorem Poly.denote_mul [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
+theorem Poly.denote_mul {α} [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
     : (mul p₁ p₂).denote ctx = p₁.denote ctx * p₂.denote ctx := by
   simp [mul, denote_mul_go, denote, intCast_zero, zero_add]
 
-theorem Poly.denote_pow [CommRing α] (ctx : Context α) (p : Poly) (k : Nat)
+theorem Poly.denote_pow {α} [CommRing α] (ctx : Context α) (p : Poly) (k : Nat)
    : (pow p k).denote ctx = p.denote ctx ^ k := by
  fun_induction pow <;> simp [pow, denote, intCast_one, pow_zero]
  next => simp [pow_succ, pow_zero, one_mul]
  next => simp [denote_mul, *, pow_succ, mul_comm]
 
-theorem Expr.denote_toPoly [CommRing α] (ctx : Context α) (e : Expr)
+theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
    : e.toPoly.denote ctx = e.denote ctx := by
   fun_induction toPoly
     <;> simp [toPoly, denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combine,

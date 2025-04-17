@@ -681,8 +681,15 @@ def getConfig : MetaM Config :=
 def getConfigWithKey : MetaM ConfigWithKey :=
   return (← getConfig).toConfigWithKey
 
-def resetZetaDeltaFVarIds : MetaM Unit :=
-  modify fun s => { s with zetaDeltaFVarIds := {} }
+@[inline] def withFreshZetaDeltaFVarIds (x : MetaM α) : MetaM α := do
+    let fvarIdsSaved ← modifyGet fun s => (s.zetaDeltaFVarIds, { s with zetaDeltaFVarIds := {} })
+    try
+      x
+    finally
+      if (← read).trackZetaDelta then
+        modify fun s => { s with zetaDeltaFVarIds := fvarIdsSaved.union s.zetaDeltaFVarIds }
+      else
+        modify fun s => { s with zetaDeltaFVarIds := fvarIdsSaved }
 
 def getZetaDeltaFVarIds : MetaM FVarIdSet :=
   return (← get).zetaDeltaFVarIds
@@ -1117,7 +1124,7 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 -/
 @[inline] def withTrackingZetaDelta : n α → n α :=
-  mapMetaM fun x =>
+  mapMetaM fun x => withFreshZetaDeltaFVarIds <|
     withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) x
 
 /--
@@ -1125,21 +1132,21 @@ Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 The cache is reset while executing `x` if `s` is not empty.
 -/
 def withZetaDeltaSet (s : FVarIdSet) : n α → n α :=
-  mapMetaM fun x =>
+  mapMetaM fun x => withFreshZetaDeltaFVarIds <|
     if s.isEmpty then
       x
     else
-      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s }) x
+      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := ctx.zetaDeltaSet.union s }) x
 
 /--
 Similar to `withZetaDeltaSet`, but also enables `withTrackingZetaDelta` if `s` is not empty.
 -/
 def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
-  mapMetaM fun x =>
+  mapMetaM fun x => withFreshZetaDeltaFVarIds <|
     if s.isEmpty then
       x
     else
-      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s, trackZetaDelta := true }) x
+      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := ctx.zetaDeltaSet.union s, trackZetaDelta := true }) x
 
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x

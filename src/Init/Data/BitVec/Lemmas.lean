@@ -4150,7 +4150,7 @@ theorem toNat_udiv_toNat_lt {w : Nat} {x y : BitVec w} :
     apply Nat.mul_lt_mul_of_le_of_lt (by omega) (by omega) (by omega)
 
 /-- Non-overflowing signed division bounds when numerator is nonneg, denumerator is nonneg. -/
-theorem toInt_ediv_toInt_of_nonneg_of_nonneg {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : 0 ≤ y.toInt) :
+theorem toInt_ediv_toInt_lt_of_nonneg_of_nonneg {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : 0 ≤ y.toInt) :
     x.toInt / y.toInt < 2 ^ (w - 1) := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -4166,7 +4166,7 @@ theorem toInt_ediv_toInt_of_nonneg_of_nonneg {w : Nat} {x y : BitVec w} (hx : 0 
         simp; omega
 
 /-- Nnon-overflowing signed division bounds when numerator is nonpos, denumerator is nonneg. -/
-theorem toInt_ediv_toInt_nonpos_of_nonpos_of_nonneg {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : 0 ≤ y.toInt) :
+theorem toInt_ediv_toInt_le_nonpos_of_nonpos_of_nonneg {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : 0 ≤ y.toInt) :
     x.toInt / y.toInt ≤ 0 := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -4178,7 +4178,7 @@ theorem toInt_ediv_toInt_nonpos_of_nonpos_of_nonneg {w : Nat} {x y : BitVec w} (
         simp; omega
 
 /-- Non-overflowing signed division bounds when numerator is positive, denumerator is negative. -/
-theorem toInt_ediv_toInt_nonpos_of_nonneg_of_nonpos {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : y.toInt ≤ 0) :
+theorem toInt_ediv_toInt_le_nonpos_of_nonneg_of_nonpos {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : y.toInt ≤ 0) :
    x.toInt / y.toInt ≤ 0 := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -4195,7 +4195,7 @@ theorem toInt_ediv_toInt_nonpos_of_nonneg_of_nonpos {w : Nat} {x y : BitVec w} (
   (-1)/y = -1 when 0 < y
   (-1)/(-5) = 1 when y < 0
 -/
-theorem toInt_ediv_toInt_of_allOnes {w : Nat} {y : BitVec w} (hw : 1 < w) :
+theorem toInt_ediv_toInt_eq_of_allOnes {w : Nat} {y : BitVec w} (hw : 1 < w) :
     (allOnes w).toInt / y.toInt = if y.toInt = 0 then 0 else if 0 < y.toInt then -1 else 1 := by
   rcases w with _|_|w
   · simp [hw]; omega
@@ -4220,7 +4220,7 @@ theorem toInt_ediv_toInt_lt_of_lt_allOnes {w : Nat} {x y : BitVec w} (hx : x.toI
     have hx' : x.toInt = 0 ∨ x.toInt = - 1 ∨ x.toInt < - 1 := by omega
     rcases hx' with hx'|hx'|hx'
     · simp [hx']; omega
-    · have := BitVec.toInt_ediv_toInt_of_allOnes (y := y) (by omega)
+    · have := BitVec.toInt_ediv_eq_toInt_of_allOnes (y := y) (by omega)
       simp only [toInt_allOnes, Nat.lt_add_left_iff_pos, Nat.zero_lt_succ, ↓reduceIte,
         Int.reduceNeg] at this
       simp [hx', this]

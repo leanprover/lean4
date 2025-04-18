@@ -10,7 +10,16 @@ def filter (p : α → Bool) (xs : List α) : List α :=
     else
       filter p xs
 
-set_option trace.Meta.FunInd true
+/--
+info: Structural.filter.fun_cases_eq_1.{u_1} {α : Type u_1} (p : α → Bool) : filter p [] = []
+---
+info: Structural.filter.fun_cases_eq_2.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) (h : p x = true) :
+  filter p (x :: xs) = x :: filter p xs
+---
+info: Structural.filter.fun_cases_eq_3.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) (h : ¬p x = true) :
+  filter p (x :: xs) = filter p xs
+-/
+#guard_msgs in
 run_meta
   let ns ← Lean.Tactic.FunInd.getEqnsFor ``filter
   ns.forM fun n => Lean.logInfo m!"{.signature n}"
@@ -27,6 +36,24 @@ def filter (p : α → Bool) (xs : List α) : List α :=
     | false => filter p xs
 termination_by xs
 
+/--
+info: WF.filter.fun_cases_eq_1.{u_1} {α : Type u_1} (p : α → Bool) : filter p [] = []
+---
+info: WF.filter.fun_cases_eq_2.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) :
+  p x = true →
+    filter p (x :: xs) =
+      match p x with
+      | true => x :: filter p xs
+      | false => filter p xs
+---
+info: WF.filter.fun_cases_eq_3.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) :
+  p x = false →
+    filter p (x :: xs) =
+      match p x with
+      | true => x :: filter p xs
+      | false => filter p xs
+-/
+#guard_msgs in
 run_meta
   let ns ← Lean.Tactic.FunInd.getEqnsFor ``filter
   ns.forM fun n => Lean.logInfo m!"{.signature n}"

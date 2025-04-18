@@ -22,19 +22,20 @@ but not reduce anything else.
 
 This is a heuristic approximation.
 -/
-def simpWithNotUnderLambda (hyps : Array Expr) (e : Expr) : MetaM Simp.Result := do
+def simpWithNotUnderLambda (hyps : Array Expr) (e : Expr) : MetaM (Option Simp.Result) := do
     let mut ctxt ← Simp.mkContext
         (simpTheorems  := #[])
         (congrTheorems := (← getSimpCongrTheorems))
         (config        := { Simp.neutralConfig with iota := true })
-    let simprocs : Simprocs := {}
-    let simprocs := simprocs.addCore #[.star] `noLambda (.inl noLambda) (post := false)
     for h in hyps do
       if (← inferType h).isEq then
         let simpTheorems ← ctxt.simpTheorems.addTheorem (.fvar h.fvarId!) h (config := ctxt.indexConfig)
         ctxt := ctxt.setSimpTheorems simpTheorems
-    let (r, _stats) ← simp e ctxt (simprocs := #[simprocs])
-    return r
+    let (step, _) ← Simp.simpMatch e (Simp.Methods.toMethodsRef {}) ctxt |>.run {}
+    match step with
+    | .continue r => return r
+    | .visit r => return (some r)
+    | .done r => return r
  where
   noLambda : Simp.Simproc := fun e => do
     return if e.isLambda then .done { expr := e } else .continue
@@ -77,11 +78,12 @@ where
 
     -- Rewrite match targets and reduce
     if (← isMatcherApp e) then
-      let r ← simpWithNotUnderLambda hyps e
-      let e' := r.expr
-      if e' != e then
-        let prf' ← mkEqTrans prf (← r.getProof)
-        return ← go hyps e' prf'
+      let r? ← simpWithNotUnderLambda hyps e
+      if let some r := r? then
+        let e' := r.expr
+        if e' != e then
+          let prf' ← mkEqTrans prf (← r.getProof)
+          return ← go hyps e' prf'
 
     return (e, prf)
 

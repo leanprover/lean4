@@ -482,13 +482,14 @@ no longer needed.
 -/
 def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Option IO.CancelToken)
     (desc : String := by exact decl_name%.toString) : CoreM (α → BaseIO SnapshotTree) := do
+  let traceState ← getTraceState
   let f ← wrapAsync (cancelTk? := cancelTk?) fun a => do
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace/info state and message log so as not to report them twice
       modify fun st => { st with
         messages := st.messages.markAllReported
-        traceState := { tid }
+        traceState := { traceState with tid, traces := {} }
         snapshotTasks := #[]
         infoState := {}
       }
@@ -496,8 +497,8 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Optio
         withTraceNode `Elab.async (fun _ => return desc) do
           act a
       catch e =>
-        unless e.isInterrupt do
-          logError e.toMessageData
+        unless e.isInternal?.any Elab.isAbortExceptionId || e.isInterrupt do
+          logErrorAt e.getRef e.toMessageData
       finally
         addTraceAsMessages
       get

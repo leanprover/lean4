@@ -1796,4 +1796,222 @@ theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
   have : i < 2^i := by exact Nat.lt_two_pow_self
   omega
 
+
+/- ### fast circuit for unsigned overflow detection -/
+
+/-
+  suppose x = 3#3, y = 2#3, w = 3
+
+  imperative def:
+
+    uppc = x.msb
+    for i = 1; i < 4; ++i
+      aand = y[i] && uppc
+      if i = 1
+        res = aand
+      else
+        res = res || aand
+      uppc = uppc || x[4 - i - 1]
+
+    uppc_0 = x.msb
+    --- i = 1
+        aand_1 = y[1] && uppc_0
+        res_1 = aand
+              = y[1] && uppc_0
+        uppc_1 = uppc_0 || x[2]
+    --- i = 2
+        aand_2 = y[2] && uppc_1
+               = y[2] && (uppc_0 || x[2])
+        res_2 = res_1 || aand_2
+              = (y[1] && uppc_0) || (y[2] && (uppc_0 || x[2]))
+        uppc_2 = uppc_1 || x[1]
+               = (uppc_0 || x[2]) || x[1]
+    --- i = 3
+        aand_3 = y[3] && uppc_2
+               = y[3] && ((uppc_0 || x[2]) || x[1])
+        res_3 = res_2 || aand_3
+              = ((y[1] && uppc_0) || (y[2] && (uppc_0 || x[2]))) || (y[3] && ((uppc_0 || x[2]) || x[1]))
+        uppc_3 = uppc_2 || x[0]
+               = ((uppc_0 || x[2]) || x[1]) || x[0]
+
+    ---
+
+    aand_i = y[i] && uppc_(i-1)
+    res_i = res_(i-1) || aand_i
+    uppc_i = uppc_(i-1) || x[w-i-1]
+
+    with uppc_0 = x.msb
+         res_0 = false
+         aand_0 = true
+
+    -- the other way around :
+
+        res_3 = res_2 || aand_3
+              = (res_1 || aand_2) || (y[3] && uppc_2)
+              = ((res_0 || aand_1) || (y[2] && uppc_1)) || (y[3] && (uppc_1 || x[w-2-1]))
+              = ((res_0 ||(y[1] && uppc_0))) || (y[2] && (uppc_0 || x[2]))) || (y[3] || (uppc_0 || x[2]) || x[1])
+
+consider x = 3#3 = 011, y = 2#3 = 010, w = 3
+    res_2 = res_1 || aand_2
+          = (res_0 || aand_1) || (y[2] && uppc_1)
+          = (res_0 || (y[1] && uppc_0)) || (y[2] && (uppc_0 || x[1]))
+          = (false || (y[1] && x[2])) || (y[2] && (x[2] || x[1]))
+          = false || false || false
+
+consider x = 3#3 = 011, y = 3#3 = 011, w = 3
+    res_2 = res_1 || aand_2
+          = (res_0 || aand_1) || (y[2] && uppc_1)
+          = (res_0 || (y[1] && uppc_0)) || (y[2] && (uppc_0 || x[1]))
+          = (false || (y[1] && x[2])) || (y[2] && (x[2] || x[1]))
+          = false || false || false
+
+imperative: consider x = 3#3 = 011, y = 3#3 = 011
+
+    uppc = false
+    for i = 1; i < 3; ++i
+      aand = y[i] && uppc
+      if i = 1
+        res = aand
+      else
+        res = res || aand
+      uppc = uppc || x[3 - i - 1]
+
+    uppc_0 = x.msb
+    --- i = 1
+        aand_1 = y[1] && false= false
+        res_1 = aand_1 = false
+        uppc_1 = false || x[2] = false
+    --- i = 2
+        aand_2 = y[2] && uppc_1 = false && false = false
+        res_2 = res_1 || aand_2 = false || false = false
+        uppc_2 = uppc_1 || x[1] = false || true = true
+
+imperative: consider x = 6#3 = 110, y = 5#3 = 101
+
+    uppc_0 = true
+    --- i = 1
+        aand_1 = false
+        res_1 = false
+        uppc_1 = true || true = true
+    --- i = 2
+        aand_2 = y[2] && uppc_1 = true
+        res_2 = res_1 || aand_2 = true
+        uppc_2 = uppc_1 || x[1] = true
+
+functional: consider x = 6#3 = 110, y = 5#3 = 101
+
+    res_2 = res_1 || aand_2
+          = (res_0 || aand_1) || (y[2] && uppc_1)
+          = (res_0 || (y[1] && uppc_0)) || (y[2] && (uppc_0 || x[1]))
+          = (false || false) || (true && (true || true))
+          = false || true
+
+    aand_i = y[i] && uppc_(i-1)
+    res_i = res_(i-1) || aand_i
+    uppc_i = uppc_(i-1) || x[w-i-1]
+
+    with uppc_0 = x.msb
+         res_0 = false
+         aand_0 = true
+
+-/
+
+/--
+  unsigned parallel prefix for fast umulOverflow circuit
+-/
+def uppcRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+  match s with
+  | 0 => x.msb
+  | i + 1 =>  x.getLsbD (w - (i + 1) - 1) && uppcRec x y i (by omega)
+
+/--
+  conjunction for fast umulOverflow circuit
+-/
+def aandRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+  match s with
+  | 0 => true
+  | i + 1 => y.getLsbD (i + 1) && uppcRec x y i (by omega)
+
+/--
+  preliminary overflow flag for fast umulOverflow circuit
+-/
+def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (_ : 1 < w): Bool :=
+  match s with
+  | 0 => false
+  | i + 1 => uppcRec x y i (by omega) && aandRec x y (i + 1) (by omega)
+
+-- testing these definitions:
+-- #eval resRec (3#3) (3#3) 2 (by omega) false
+-- #eval resRec (2#3) (3#3) 2 (by omega) false
+-- #eval resRec (6#3) (5#3) 2 (by omega) true
+
+
+/--
+  complete fast overflow detecnion circuit for unsigned multiplication
+-/
+theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
+    umulOverflow x y = (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y)).getLsbD w || resRec x y (w - 1) (by omega) hw) := by
+  rcases w with _|_|w
+  · simp [hw]; omega
+  · simp [hw]; omega
+  · simp [umulOverflow, ge_iff_le, truncate_eq_setWidth, resRec, uppcRec, aandRec]
+    let k' := x.uppcRec y w (by omega)
+    rw [show x.uppcRec y w (by omega) = k' by rfl]
+    by_cases hneg : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1]
+    · simp only [hneg, Bool.true_or, decide_eq_true_eq, ge_iff_le]
+      have h0 := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
+      have h4 : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).msb := by
+        simp [BitVec.msb, getMsbD_eq_getLsbD]
+      have h5 : (2 * (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1 + 1))
+                   ↔ (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1) := by
+          rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))]
+          refine Nat.mul_le_mul_left_iff ?_
+          omega
+      rw [h5] at h0
+      simp_all
+      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))] at h5
+      by_cases h6 : x.toNat * y.toNat < 2 * 2 ^ (w + 1 + 1)
+      · simp only [Nat.mod_eq_of_lt (by omega)] at h5
+        omega
+      · simp only [Nat.not_lt] at h6
+        omega
+    · simp only [bool_to_prop]
+      simp at hneg
+      have hlt0 : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat < 2 ^ (w + 1 + 1) := by
+        have := BitVec.toNat_lt_of_msb_false (x := (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y))
+        simp [BitVec.msb, getMsbD_eq_getLsbD, getLsbD_eq_getElem, show w + 1 + 1 = w + 2 by omega] at this
+        simp [hneg, this]
+      induction k'
+      case neg.false =>
+        simp only [false_eq_true, _root_.and_false, _root_.and_self, _root_.or_false]
+        constructor
+        · intro h
+          have htrue := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
+          have hfalse := msb_eq_false_iff_two_mul_lt (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
+          simp_all
+
+
+
+
+          sorry
+        · intro h
+          simp_all
+      case neg.true =>
+        simp only [_root_.and_true, _root_.true_and]
+        constructor
+        · intro h
+          have htrue := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1) x * setWidth (w + 1 + 1) y)
+          have hfalse := msb_eq_false_iff_two_mul_lt (x := setWidth (w + 1 + 1) x * setWidth (w + 1 + 1) y)
+          simp_all
+          sorry
+        · intro h
+          have htrue := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1) x * setWidth (w + 1 + 1) y)
+          have hfalse := msb_eq_false_iff_two_mul_lt (x := setWidth (w + 1 + 1) x * setWidth (w + 1 + 1) y)
+          simp_all
+          sorry
+
+
+
+
+
 end BitVec

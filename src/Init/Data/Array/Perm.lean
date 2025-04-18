@@ -20,14 +20,16 @@ open List
 This is a wrapper around `List.Perm`, and for now has much less API.
 For more complicated verification, use `perm_iff_toList_perm` and the `List` API.
 -/
-def Perm (as bs : Array α) : Prop :=
-  as.toList ~ bs.toList
+structure Perm (as bs : Array α) : Prop where
+  of_toList_perm ::
+  toList_perm : as.toList ~ bs.toList
 
 @[inherit_doc] scoped infixl:50 " ~ " => Perm
 
-theorem perm_iff_toList_perm {as bs : Array α} : as ~ bs ↔ as.toList ~ bs.toList := Iff.rfl
+theorem perm_iff_toList_perm {as bs : Array α} : as ~ bs ↔ as.toList ~ bs.toList :=
+  ⟨Perm.toList_perm, Perm.of_toList_perm⟩
 
-@[simp] theorem perm_toArray (as bs : List α) : as.toArray ~ bs.toArray ↔ as ~ bs := by
+@[simp] theorem _root_.List.perm_toArray (as bs : List α) : as.toArray ~ bs.toArray ↔ as ~ bs := by
   simp [perm_iff_toList_perm]
 
 @[simp, refl] protected theorem Perm.refl (xs : Array α) : xs ~ xs := by
@@ -38,6 +40,7 @@ protected theorem Perm.rfl {xs : Array α} : xs ~ xs := .refl _
 
 theorem Perm.of_eq {xs ys : Array α} (h : xs = ys) : xs ~ ys := h ▸ .rfl
 
+@[symm]
 protected theorem Perm.symm {xs ys : Array α} (h : xs ~ ys) : ys ~ xs := by
   cases xs; cases ys
   simp only [perm_toArray] at h
@@ -53,10 +56,13 @@ instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
 
 theorem perm_comm {xs ys : Array α} : xs ~ ys ↔ ys ~ xs := ⟨Perm.symm, Perm.symm⟩
 
-theorem Perm.length_eq {xs ys : Array α} (p : xs ~ ys) : xs.size = ys.size := by
+theorem Perm.size_eq {xs ys : Array α} (p : xs ~ ys) : xs.size = ys.size := by
   cases xs; cases ys
   simp only [perm_toArray] at p
   simpa using p.length_eq
+
+@[deprecated Perm.size_eq (since := "2025-04-17")]
+abbrev Perm.length_eq := @Perm.size_eq
 
 theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a ∈ ys := by
   rcases xs with ⟨xs⟩
@@ -64,12 +70,23 @@ theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a 
   simp at p
   simpa using p.mem_iff
 
-theorem Perm.push (x y : α) {xs ys : Array α} (p : xs ~ ys) :
+theorem Perm.append {xs ys as bs : Array α} (p₁ : xs ~ ys) (p₂ : as ~ bs) :
+    xs ++ as ~ ys ++ bs := by
+  cases xs; cases ys; cases as; cases bs
+  simp only [append_toArray, perm_toArray] at p₁ p₂ ⊢
+  exact p₁.append p₂
+
+theorem Perm.push (x : α) {xs ys : Array α} (p : xs ~ ys) :
+    xs.push x ~ ys.push x := by
+  rw [push_eq_append_singleton]
+  exact p.append .rfl
+
+theorem Perm.push_comm (x y : α) {xs ys : Array α} (p : xs ~ ys) :
     (xs.push x).push y ~ (ys.push y).push x := by
   cases xs; cases ys
   simp only [perm_toArray] at p
   simp only [push_toArray, List.append_assoc, singleton_append, perm_toArray]
-  exact p.append (Perm.swap' _ _ Perm.nil)
+  exact p.append (Perm.swap ..)
 
 theorem swap_perm {xs : Array α} {i j : Nat} (h₁ : i < xs.size) (h₂ : j < xs.size) :
     xs.swap i j ~ xs := by
@@ -81,7 +98,7 @@ namespace Perm
 set_option linter.indexVariables false in
 theorem extract {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
     (wlo : ∀ i, i < lo → xs[i]? = ys[i]?) (whi : ∀ i, hi ≤ i → xs[i]? = ys[i]?) :
-    (xs.extract lo hi) ~ (ys.extract lo hi) := by
+    xs.extract lo hi ~ ys.extract lo hi := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp_all only [perm_toArray, List.getElem?_toArray, List.extract_toArray,

@@ -781,6 +781,15 @@ def Result.addLambdas (r : Result) (xs : Array Expr) : MetaM Result := do
       mkFunExt (← mkLambdaFVars #[x] h)
     return { expr := eNew, proof? := p }
 
+def Result.addForalls (r : Result) (xs : Array Expr) : MetaM Result := do
+  let eNew ← mkForallFVars xs r.expr
+  match r.proof? with
+  | none   => return { expr := eNew }
+  | some h =>
+    let p ← xs.foldrM (init := h) fun x h => do
+      mkForallCongr (← mkLambdaFVars #[x] h)
+    return { expr := eNew, proof? := p }
+
 end Simp
 
 export Simp (SimpM Simprocs)

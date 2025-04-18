@@ -557,7 +557,7 @@ where
     | .forallE _ d b _ => (d.isEq || d.isHEq || b.hasLooseBVar 0) && go b
     | _ => e.isFalse
 
-private def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
+def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
   let lctxInitIndices := (← readThe Simp.Context).lctxInitIndices
   let contextual := (← getConfig).contextual
   (← getLCtx).findDeclRevM? fun localDecl => do

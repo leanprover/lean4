@@ -34,8 +34,6 @@ public:
         return e1.raw() == e2.raw();
     }
 
-    void display_stats() const;
-
     environment to_kernel_env() const;
 
     // TODO: delete together with old compiler

@@ -24,4 +24,4 @@ example (x y : UInt8) : (128 * x + y) * 2 = y + y :=
   let ctx := #R[x, y]
   let lhs : Expr := .mul (.add (.mul (.num 128) (.var 0)) (.var 1)) (.num 2)
   let rhs : Expr := .add (.var 1) (.var 1)
-  Expr.eq_of_toPolyC_eq (c := 256) ctx lhs rhs (Eq.refl true)
+  Expr.eq_of_toPolyC_eq ctx lhs rhs (Eq.refl true)

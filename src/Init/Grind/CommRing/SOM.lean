@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Nat.Lemmas
 import Init.Data.Ord
+import Init.Data.RArray
 import Init.Grind.CommRing.Basic
 
 namespace Lean.Grind
@@ -22,16 +23,6 @@ inductive Expr where
   | mul (a b : Expr)
   | pow (a : Expr) (k : Nat)
   deriving Inhabited, BEq
-
--- TODO: add support for universes to Lean.RArray
-inductive RArray (α : Type u) : Type u where
-  | leaf : α → RArray α
-  | branch : Nat → RArray α → RArray α → RArray α
-
-def RArray.get (a : RArray α) (n : Nat) : α :=
-  match a with
-  | .leaf x => x
-  | .branch p l r => if n < p then l.get n else r.get n
 
 abbrev Context (α : Type u) := RArray α
 

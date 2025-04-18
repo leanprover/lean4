@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.CommRing.Basic
-// Imports: Init.Data.Zero Init.Data.Int.DivMod.Lemmas Init.TacticsExtra
+// Imports: Init.Data.Zero Init.Data.Int.DivMod.Lemmas Init.Data.Int.Pow Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -500,6 +500,7 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Zero(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_CommRing_Basic(uint8_t builtin, lean_object* w) {
@@ -510,6 +511,9 @@ res = initialize_Init_Data_Zero(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Pow(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());

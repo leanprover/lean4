@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.DeclUtil
-// Imports: Lake.DSL.Config Lake.Util.Binder Lake.Util.Name Lake.Config.Meta Lean.Parser.Command Lean.Elab.Command
+// Imports: Lake.Util.Binder Lake.Util.Name Lake.Config.Meta Lean.Parser.Command Lean.Elab.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -77,6 +77,7 @@ static lean_object* l_Lake_DSL_declValDo___closed__12;
 static lean_object* l_Lake_DSL_expandAttrs___closed__1;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lake_DSL_structVal___closed__7;
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_declValStruct___closed__5;
 lean_object* l_Lean_Elab_Command_withMacroExpansion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_bracketedSimpleBinder___closed__9;
@@ -103,7 +104,6 @@ static lean_object* l_Lake_DSL_simpleDeclSig___closed__10;
 static lean_object* l_Lake_DSL_structVal___closed__6;
 static lean_object* l_Lake_DSL_structVal___closed__13;
 static lean_object* l_Lake_DSL_declValWhere___closed__4;
-lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_DSL_mkConfigFields___spec__3___closed__21;
@@ -137,6 +137,7 @@ static lean_object* l_Lake_DSL_simpleDeclSig___closed__3;
 static lean_object* l_Lake_DSL_elabConfig___lambda__1___closed__6;
 static lean_object* l_Lake_DSL_declValDo___closed__14;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_elabConfig___lambda__1___closed__15;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_simpleDeclSig___closed__11;
@@ -262,6 +263,7 @@ lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean
 static lean_object* l_Lake_DSL_bracketedSimpleBinder___closed__3;
 static lean_object* l_Lake_DSL_expandOptSimpleBinder___lambda__1___closed__3;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_DSL_mkConfigFields___spec__3___closed__22;
+lean_object* l_Lean_throwError___at_Lean_withSetOptionIn___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RBNode_foldM___at_Lake_DSL_mkConfigFields___spec__4___closed__4;
 static lean_object* l_Lake_DSL_declValWhere___closed__5;
 static lean_object* l_Lake_DSL_optConfig___closed__4;
@@ -3383,6 +3385,65 @@ lean_dec(x_1);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_6 = l_Lean_Elab_Command_getRef(x_3, x_4, x_5);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_6, 1);
+lean_inc(x_8);
+lean_dec(x_6);
+x_9 = l_Lean_replaceRef(x_1, x_7);
+lean_dec(x_7);
+x_10 = !lean_is_exclusive(x_3);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_ctor_get(x_3, 6);
+lean_dec(x_11);
+lean_ctor_set(x_3, 6, x_9);
+x_12 = l_Lean_throwError___at_Lean_withSetOptionIn___spec__7(x_2, x_3, x_4, x_8);
+return x_12;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; 
+x_13 = lean_ctor_get(x_3, 0);
+x_14 = lean_ctor_get(x_3, 1);
+x_15 = lean_ctor_get(x_3, 2);
+x_16 = lean_ctor_get(x_3, 3);
+x_17 = lean_ctor_get(x_3, 4);
+x_18 = lean_ctor_get(x_3, 5);
+x_19 = lean_ctor_get(x_3, 7);
+x_20 = lean_ctor_get(x_3, 8);
+x_21 = lean_ctor_get_uint8(x_3, sizeof(void*)*9);
+lean_inc(x_20);
+lean_inc(x_19);
+lean_inc(x_18);
+lean_inc(x_17);
+lean_inc(x_16);
+lean_inc(x_15);
+lean_inc(x_14);
+lean_inc(x_13);
+lean_dec(x_3);
+x_22 = lean_alloc_ctor(0, 9, 1);
+lean_ctor_set(x_22, 0, x_13);
+lean_ctor_set(x_22, 1, x_14);
+lean_ctor_set(x_22, 2, x_15);
+lean_ctor_set(x_22, 3, x_16);
+lean_ctor_set(x_22, 4, x_17);
+lean_ctor_set(x_22, 5, x_18);
+lean_ctor_set(x_22, 6, x_9);
+lean_ctor_set(x_22, 7, x_19);
+lean_ctor_set(x_22, 8, x_20);
+lean_ctor_set_uint8(x_22, sizeof(void*)*9, x_21);
+x_23 = l_Lean_throwError___at_Lean_withSetOptionIn___spec__7(x_2, x_22, x_4, x_8);
+return x_23;
+}
+}
+}
 static lean_object* _init_l_Lake_DSL_elabConfig___lambda__1___closed__1() {
 _start:
 {
@@ -4063,7 +4124,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_11 = l_Lake_DSL_elabConfig___closed__2;
-x_12 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_11, x_6, x_7, x_8);
+x_12 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_11, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_12;
@@ -4089,7 +4150,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_18 = l_Lake_DSL_elabConfig___closed__2;
-x_19 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_18, x_6, x_7, x_8);
+x_19 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_18, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_19;
@@ -4116,7 +4177,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_25 = l_Lake_DSL_elabConfig___closed__2;
-x_26 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_25, x_6, x_7, x_8);
+x_26 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_25, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_26;
@@ -4137,7 +4198,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_30 = l_Lake_DSL_elabConfig___closed__2;
-x_31 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_30, x_6, x_7, x_8);
+x_31 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_30, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_31;
@@ -4161,7 +4222,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_36 = l_Lake_DSL_elabConfig___closed__2;
-x_37 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_36, x_6, x_7, x_8);
+x_37 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_36, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_37;
@@ -4189,7 +4250,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_42 = l_Lake_DSL_elabConfig___closed__2;
-x_43 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_42, x_6, x_7, x_8);
+x_43 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_42, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_43;
@@ -4212,7 +4273,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_47 = l_Lake_DSL_elabConfig___closed__2;
-x_48 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_47, x_6, x_7, x_8);
+x_48 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_47, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_48;
@@ -4263,7 +4324,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_59 = l_Lake_DSL_elabConfig___closed__2;
-x_60 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_59, x_6, x_7, x_8);
+x_60 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_59, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_60;
@@ -4292,7 +4353,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_66 = l_Lake_DSL_elabConfig___closed__2;
-x_67 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_66, x_6, x_7, x_8);
+x_67 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_66, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_67;
@@ -4315,7 +4376,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_71 = l_Lake_DSL_elabConfig___closed__2;
-x_72 = l_Lean_throwErrorAt___at_Lean_Elab_Command_elabSyntax___spec__13(x_5, x_71, x_6, x_7, x_8);
+x_72 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_5, x_71, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 return x_72;
@@ -4714,6 +4775,16 @@ return x_218;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_throwErrorAt___at_Lake_DSL_elabConfig___spec__1(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_1);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_DSL_elabConfig___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
@@ -4735,7 +4806,6 @@ lean_dec(x_2);
 return x_9;
 }
 }
-lean_object* initialize_Lake_DSL_Config(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Binder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
@@ -4746,9 +4816,6 @@ LEAN_EXPORT lean_object* initialize_Lake_DSL_DeclUtil(uint8_t builtin, lean_obje
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_DSL_Config(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Util_Binder(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

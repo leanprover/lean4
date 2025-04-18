@@ -37,6 +37,7 @@ structure FunIndInfo where
   -/
   levelMask : Array Bool
   params : Array FunIndParamKind
+  numAlts : Nat
 deriving Inhabited, Repr
 
 builtin_initialize funIndInfoExt : MapDeclarationExtension FunIndInfo ← mkMapDeclarationExtension

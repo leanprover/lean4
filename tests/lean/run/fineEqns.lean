@@ -1,3 +1,5 @@
+import Lean
+
 namespace Structural
 def filter (p : α → Bool) (xs : List α) : List α :=
   match xs with
@@ -8,25 +10,10 @@ def filter (p : α → Bool) (xs : List α) : List α :=
     else
       filter p xs
 
-/--
-info: equations:
-theorem Structural.filter.eq_1.{u_1} : ∀ {α : Type u_1} (p : α → Bool), filter p [] = []
-theorem Structural.filter.eq_2.{u_1} : ∀ {α : Type u_1} (p : α → Bool) (x : α) (xs_2 : List α),
-  filter p (x :: xs_2) = if p x = true then x :: filter p xs_2 else filter p xs_2
--/
-#guard_msgs in
-#print equations filter
-
-/--
-info: equations:
-theorem Structural.filter.feq_1.{u_1} : ∀ {α : Type u_1} (p : α → Bool), filter p [] = []
-theorem Structural.filter.feq_2.{u_1} : ∀ {α : Type u_1} (p : α → Bool) (x : α) (xs_2 : List α),
-  p x = true → filter p (x :: xs_2) = x :: filter p xs_2
-theorem Structural.filter.feq_3.{u_1} : ∀ {α : Type u_1} (p : α → Bool) (x : α) (xs_2 : List α),
-  ¬p x = true → filter p (x :: xs_2) = filter p xs_2
--/
-#guard_msgs in
-#print fine equations filter
+set_option trace.Meta.FunInd true
+run_meta
+  let ns ← Lean.Tactic.FunInd.getEqnsFor ``filter
+  ns.forM fun n => Lean.logInfo m!"{.signature n}"
 
 end Structural
 
@@ -35,31 +22,28 @@ def filter (p : α → Bool) (xs : List α) : List α :=
   match xs with
   | [] => []
   | x::xs =>
-    if p x then
-      x :: filter p xs
-    else
-      filter p xs
+    match p x with
+    | true => x :: filter p xs
+    | false => filter p xs
 termination_by xs
 
-/--
-info: equations:
-theorem WF.filter.eq_1.{u_1} : ∀ {α : Type u_1} (p : α → Bool), filter p [] = []
-theorem WF.filter.eq_2.{u_1} : ∀ {α : Type u_1} (p : α → Bool) (x : α) (xs_2 : List α),
-  filter p (x :: xs_2) = if p x = true then x :: filter p xs_2 else filter p xs_2
--/
-#guard_msgs in
-#print equations filter
+run_meta
+  let ns ← Lean.Tactic.FunInd.getEqnsFor ``filter
+  ns.forM fun n => Lean.logInfo m!"{.signature n}"
 
 /--
-info: equations:
-theorem WF.filter.feq_1.{u_1} : ∀ {α : Type u_1} (p : α → Bool), filter p [] = []
-theorem WF.filter.feq_2.{u_1} : ∀ {α : Type u_1} (p : α → Bool) (x : α) (xs_2 : List α),
-  p x = true → filter p (x :: xs_2) = x :: filter p xs_2
-theorem WF.filter.feq_3.{u_1} : ∀ {α : Type u_1} (p : α → Bool) (x : α) (xs_2 : List α),
-  ¬p x = true → filter p (x :: xs_2) = filter p xs_2
+info: WF.filter.fun_cases_eq_1.{u_1} {α : Type u_1} (p : α → Bool) : filter p [] = []
+---
+info: WF.filter.fun_cases_eq_2.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) (h : p x = true) :
+  filter p (x :: xs) = x :: filter p xs
+---
+info: WF.filter.fun_cases_eq_3.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) (h : ¬p x = true) :
+  filter p (x :: xs) = filter p xs
 -/
 #guard_msgs in
-#print fine equations filter
+run_meta
+  let ns ← Lean.Tactic.FunInd.getEqnsFor ``filter
+  ns.forM fun n => Lean.logInfo m!"{.signature n}"
 
 end WF
 
@@ -92,54 +76,60 @@ def siftDown (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size) : Array I
 termination_by e - root
 decreasing_by sorry
 
+/--
+info: SiftDown.siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.size → Prop)
+  (case1 :
+    ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
+      leftChild root < e →
+        let child := leftChild root;
+        let child := if x : child + 1 < e then if h : a[child]! < a[child + 1]! then child + 1 else child else child;
+        a[root]! < a[child]! →
+          let a_1 := a.swapIfInBounds root child;
+          motive a_1 child ⋯ → motive a root h)
+  (case2 :
+    ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
+      leftChild root < e →
+        let child := leftChild root;
+        let child := if x : child + 1 < e then if h : a[child]! < a[child + 1]! then child + 1 else child else child;
+        ¬a[root]! < a[child]! → motive a root h)
+  (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h) (a : Array Int)
+  (root : Nat) (h : e ≤ a.size) : motive a root h
+-/
+#guard_msgs in #check siftDown.induct
 
 /--
-info: equations:
-theorem SiftDown.siftDown.feq_1 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size)
-  (h_1 : a[leftChild root]! < a[leftChild root + 1]!) (h_2 : leftChild root + 1 < e),
+info: SiftDown.siftDown.fun_cases_eq_1 (a : Array Int) (root e : Nat) (h : e ≤ a.size) :
   leftChild root < e →
-    leftChild root + 1 < e →
-      a[root]! < a[leftChild root + 1]! →
-        siftDown a root e h = siftDown (a.swapIfInBounds root (leftChild root + 1)) (leftChild root + 1) e ⋯
-theorem SiftDown.siftDown.feq_2 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size) (h_1 : leftChild root + 1 < e)
-  (h_2 : a[leftChild root]! < a[leftChild root + 1]!),
-  ¬leftChild root + 1 < e →
-    siftDown a root e h = siftDown (a.swapIfInBounds root (leftChild root + 1)) (leftChild root + 1) e ⋯
-theorem SiftDown.siftDown.feq_3 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size),
+    let child := leftChild root;
+    let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
+    a[root]! < a[child]! →
+      siftDown a root e h =
+        let child := leftChild root;
+        let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
+        if a[root]! < a[child]! then
+          let a_1 := a.swapIfInBounds root child;
+          siftDown a_1 child e ⋯
+        else a
+---
+info: SiftDown.siftDown.fun_cases_eq_2 (a : Array Int) (root e : Nat) (h : e ≤ a.size) :
   leftChild root < e →
-    leftChild root + 1 < e →
-      a[leftChild root]! < a[leftChild root + 1]! → ¬a[root]! < a[leftChild root + 1]! → siftDown a root e h = a
-theorem SiftDown.siftDown.feq_4 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size)
-  (h_1 : ¬a[leftChild root]! < a[leftChild root + 1]!) (h_2 : leftChild root + 1 < e),
-  leftChild root < e →
-    leftChild root + 1 < e →
-      a[root]! < a[leftChild root]! →
-        siftDown a root e h = siftDown (a.swapIfInBounds root (leftChild root)) (leftChild root) e ⋯
-theorem SiftDown.siftDown.feq_5 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size) (h_1 : leftChild root + 1 < e)
-  (h_2 : ¬a[leftChild root]! < a[leftChild root + 1]!),
-  ¬leftChild root + 1 < e → siftDown a root e h = siftDown (a.swapIfInBounds root (leftChild root)) (leftChild root) e ⋯
-theorem SiftDown.siftDown.feq_6 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size),
-  leftChild root < e →
-    leftChild root + 1 < e →
-      ¬a[leftChild root]! < a[leftChild root + 1]! → ¬a[root]! < a[leftChild root]! → siftDown a root e h = a
-theorem SiftDown.siftDown.feq_7 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size) (h_1 : leftChild root + 1 < e)
-  (h_2 : a[leftChild root]! < a[leftChild root + 1]!),
-  ¬leftChild root + 1 < e →
-    siftDown a root e h = siftDown (a.swapIfInBounds root (leftChild root + 1)) (leftChild root + 1) e ⋯
-theorem SiftDown.siftDown.feq_8 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size) (h_1 : leftChild root + 1 < e)
-  (h_2 : ¬a[leftChild root]! < a[leftChild root + 1]!),
-  ¬leftChild root + 1 < e → siftDown a root e h = siftDown (a.swapIfInBounds root (leftChild root)) (leftChild root) e ⋯
-theorem SiftDown.siftDown.feq_9 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size) (h_1 : ¬leftChild root + 1 < e),
-  leftChild root < e →
-    ¬leftChild root + 1 < e →
-      a[root]! < a[leftChild root]! →
-        siftDown a root e h = siftDown (a.swapIfInBounds root (leftChild root)) (leftChild root) e ⋯
-theorem SiftDown.siftDown.feq_10 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size),
-  leftChild root < e → ¬leftChild root + 1 < e → ¬a[root]! < a[leftChild root]! → siftDown a root e h = a
-theorem SiftDown.siftDown.feq_11 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size),
+    let child := leftChild root;
+    let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
+    ¬a[root]! < a[child]! →
+      siftDown a root e h =
+        let child := leftChild root;
+        let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
+        if a[root]! < a[child]! then
+          let a_1 := a.swapIfInBounds root child;
+          siftDown a_1 child e ⋯
+        else a
+---
+info: SiftDown.siftDown.fun_cases_eq_3 (a : Array Int) (root e : Nat) (h : e ≤ a.size) :
   ¬leftChild root < e → siftDown a root e h = a
 -/
 #guard_msgs in
-#print fine equations siftDown
+run_meta
+  let ns ← Lean.Tactic.FunInd.getEqnsFor ``siftDown
+  ns.forM fun n => Lean.logInfo m!"{.signature n}"
 
 end SiftDown

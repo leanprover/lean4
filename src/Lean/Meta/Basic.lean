@@ -1318,26 +1318,30 @@ mutual
     If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
   -/
   private partial def forallTelescopeReducingAuxAux
-      (reducing          : Bool) (maxFVars? : Option Nat)
+      (reducing          : Bool)
+      (consumeLet        : Bool)
+      (maxFVars? : Option Nat)
       (type              : Expr)
       (k                 : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
     let rec process (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (type : Expr) : MetaM α := do
-      match type with
-      | .forallE n d b bi =>
-        if fvarsSizeLtMaxFVars fvars maxFVars? then
-          let d     := d.instantiateRevRange j fvars.size fvars
-          let d     := if cleanupAnnotations then d.cleanupAnnotations else d
-          let fvarId ← mkFreshFVarId
-          let lctx  := lctx.mkLocalDecl fvarId n d bi
-          let fvar  := mkFVar fvarId
-          let fvars := fvars.push fvar
-          process lctx fvars j b
-        else
-          let type := type.instantiateRevRange j fvars.size fvars;
-          withReader (fun ctx => { ctx with lctx := lctx }) do
-            withNewLocalInstancesImp fvars j do
-              k fvars type
-      | _ =>
+      match fvarsSizeLtMaxFVars fvars maxFVars?, consumeLet, type with
+      | true, _, .forallE n d b bi =>
+        let d     := d.instantiateRevRange j fvars.size fvars
+        let d     := if cleanupAnnotations then d.cleanupAnnotations else d
+        let fvarId ← mkFreshFVarId
+        let lctx  := lctx.mkLocalDecl fvarId n d bi
+        let fvar  := mkFVar fvarId
+        let fvars := fvars.push fvar
+        process lctx fvars j b
+      | true, true, .letE n t v b _ => do
+        let t := t.instantiateRevRange j fvars.size fvars
+        let t := if cleanupAnnotations then t.cleanupAnnotations else t
+        let v := v.instantiateRevRange j fvars.size fvars
+        let fvarId ← mkFreshFVarId
+        let lctx := lctx.mkLetDecl fvarId n t v
+        let fvar := mkFVar fvarId
+        process lctx (fvars.push fvar) j b
+      | _, _, _ =>
         let type := type.instantiateRevRange j fvars.size fvars;
         withReader (fun ctx => { ctx with lctx := lctx }) do
           withNewLocalInstancesImp fvars j do
@@ -1357,7 +1361,7 @@ mutual
     | _ => do
       let newType ← whnf type
       if newType.isForall then
-        forallTelescopeReducingAuxAux true maxFVars? newType k cleanupAnnotations
+        forallTelescopeReducingAuxAux (reducing := true) (consumeLet := false) maxFVars? newType k cleanupAnnotations
       else
         k #[] type
 
@@ -1411,7 +1415,7 @@ partial def withNewLocalInstances (fvars : Array Expr) (j : Nat) : n α → n α
   mapMetaM <| withNewLocalInstancesImpAux fvars j
 
 @[inline] private def forallTelescopeImp (type : Expr) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
-  forallTelescopeReducingAuxAux (reducing := false) (maxFVars? := none) type k cleanupAnnotations
+  forallTelescopeReducingAuxAux (reducing := false) (consumeLet := false) (maxFVars? := none) type k cleanupAnnotations
 
 /--
   Given `type` of the form `forall xs, A`, execute `k xs A`.
@@ -1497,7 +1501,15 @@ Similar to `lambdaTelescope` but for lambda and let expressions.
 If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e true .none k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e (consumeLet := true) .none k (cleanupAnnotations := cleanupAnnotations)) k
+
+/--
+Similar to `forallTelescope` but for lambda and let expressions.
+
+If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+-/
+def forallLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+  map2MetaM (fun k => forallTelescopeReducingAuxAux e (reducing := false) (consumeLet := true) (maxFVars? := .none) k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs => A`, execute `k xs A`.

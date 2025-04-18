@@ -651,7 +651,7 @@ be used anymore.
 We are not using `mkLambdaFVars` on mvars directly, nor `abstractMVars`, as these at the moment
 do not handle delayed assignments correctly.
 -/
-def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : MetaM Expr := do
+def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : MetaM (Nat × Expr) := do
   trace[Meta.FunInd] "abstractIndependentMVars, to revert after {index}, original mvars: {mvars}"
   let mvars ← mvars.mapM fun mvar => do
     let mvar ← cleanupAfter mvar index
@@ -665,7 +665,8 @@ def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : M
   Meta.withLocalDeclsDND (names.zip types) fun xs => do
       for mvar in mvars, x in xs do
         mvar.assign x
-      mkLambdaFVars xs (← instantiateMVars e)
+      let e' ← mkLambdaFVars xs (← instantiateMVars e)
+      return (xs.size, e')
 
 /--
 Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
@@ -690,7 +691,7 @@ where doRealize (inductName : Name) := do
         mkLambdaFVars (params ++ xs) (mkAppN body xs)
     else
       pure e
-  let (e', paramMask) ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
+  let (e', paramMask, numAlts) ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
     match_expr funBody with
     | fix@WellFounded.fix α _motive rel wf body target =>
       unless params.back! == target do
@@ -725,7 +726,7 @@ where doRealize (inductName : Name) := do
               mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
         let e' := mkApp2 e' body' target
         let e' ← mkLambdaFVars #[target] e'
-        let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
+        let (numAlts, e') ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
         let e' ← mkLambdaFVars #[motive] e'
 
         -- We used to pass (usedOnly := false) below in the hope that the types of the
@@ -734,7 +735,7 @@ where doRealize (inductName : Name) := do
         -- useful (e.g. when the unused parameter mentions bound variables in the users' goal)
         let (paramMask, e') ← mkLambdaFVarsMasked fixedParamPerms e'
         let e' ← instantiateMVars e'
-        return (e', paramMask)
+        return (e', paramMask, numAlts)
     | _ =>
       if funBody.isAppOf ``WellFounded.fix then
         throwError "Function {name} defined via WellFounded.fix with unexpected arity {funBody.getAppNumArgs}:{indentExpr funBody}"
@@ -761,6 +762,7 @@ where doRealize (inductName : Name) := do
       funIndName := inductName
       levelMask := usMask
       params := paramMask.map (cond · .param .dropped) ++ #[.target]
+      numAlts
   }
 
 /--
@@ -944,7 +946,7 @@ where doRealize inductName := do
   let infos ← names.mapM getConstInfoDefn
   assert! infos.size > 0
   -- First open up the fixed parameters everywhere
-  let (e', paramMask, motiveArities) ← fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
+  let (e', paramMask, motiveArities, numAlts) ← fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
     -- Now look at the body of an arbitrary of the functions (they are essentially the same
     -- up to the final projections)
     let body ← fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
@@ -1104,7 +1106,7 @@ where doRealize inductName := do
                 pure e
               brecOnApps := brecOnApps.push e
             mkLetFVars minors' (← PProdN.mk 0 brecOnApps)
-          let e' ← abstractIndependentMVars mvars (← motives.back!.fvarId!.getDecl).index e'
+          let (numAlts, e') ← abstractIndependentMVars mvars (← motives.back!.fvarId!.getDecl).index e'
           let e' ← mkLambdaFVars motives e'
 
           -- We used to pass (usedOnly := false) below in the hope that the types of the
@@ -1114,7 +1116,7 @@ where doRealize inductName := do
           let (paramMask, e') ← mkLambdaFVarsMasked xs e'
           let e' ← instantiateMVars e'
           trace[Meta.FunInd] "complete body of mutual induction principle:{indentExpr e'}"
-          pure (e', paramMask, motiveArities)
+          pure (e', paramMask, motiveArities, numAlts)
 
   unless (← isTypeCorrect e') do
     logError m!"constructed induction principle is not type correct:{indentExpr e'}"
@@ -1144,7 +1146,7 @@ where doRealize inductName := do
         params := params.push .target
 
     setFunIndInfo {
-      funIndName := inductName, levelMask := usMask, params := params
+      funIndName := inductName, levelMask := usMask, params := params, numAlts
     }
 
 
@@ -1180,7 +1182,7 @@ def deriveCases (name : Name) : MetaM Unit := do
       mkForallFVars xs (.sort 0)
     let motiveArity ← lambdaTelescope value fun xs _body => do
       pure xs.size
-    let e' ← withLocalDeclD `motive motiveType fun motive => do
+    let (e', numAlts) ← withLocalDeclD `motive motiveType fun motive => do
       lambdaTelescope value fun xs body => do
         let (e',mvars) ← M2.run do
           let goal := mkAppN motive xs
@@ -1190,9 +1192,9 @@ def deriveCases (name : Name) : MetaM Unit := do
             let isRecCall := fun _ => none
             buildInductionBody #[fakeIH.fvarId!] #[] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
         let e' ← mkLambdaFVars xs e'
-        let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
+        let (numAlts, e') ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
         let e' ← mkLambdaFVars #[motive] e'
-        pure e'
+        pure (e', numAlts)
 
     unless (← isTypeCorrect e') do
       logError m!"constructed functional cases principle is not type correct:{indentExpr e'}"
@@ -1214,6 +1216,7 @@ def deriveCases (name : Name) : MetaM Unit := do
       funIndName := casesName
       levelMask := usMask
       params := .replicate motiveArity .target
+      numAlts
     }
 
 

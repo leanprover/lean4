@@ -16,9 +16,78 @@ open Lean Elab Meta
 def getFunCasesEqnName (fnName : Name) (i : Nat) : Name :=
   (fnName ++ `fun_cases_eq).appendIndexAfter (i + 1)
 
+/-
+When encountering a matcher, we want to rewrite its targets with the given hyps and see if we can iota-reduce,
+but not reduce anything else.
+
+This is a heuristic approximation.
+-/
+def simpWithNotUnderLambda (hyps : Array Expr) (e : Expr) : MetaM Simp.Result := do
+    let mut ctxt ← Simp.mkContext
+        (simpTheorems  := #[])
+        (congrTheorems := (← getSimpCongrTheorems))
+        (config        := { Simp.neutralConfig with iota := true })
+    let simprocs : Simprocs := {}
+    let simprocs := simprocs.addCore #[.star] `noLambda (.inl noLambda) (post := false)
+    for h in hyps do
+      if (← inferType h).isEq then
+        let simpTheorems ← ctxt.simpTheorems.addTheorem (.fvar h.fvarId!) h (config := ctxt.indexConfig)
+        ctxt := ctxt.setSimpTheorems simpTheorems
+    let (r, _stats) ← simp e ctxt (simprocs := #[simprocs])
+    return r
+ where
+  noLambda : Simp.Simproc := fun e => do
+    return if e.isLambda then .done { expr := e } else .continue
+
 -- Iota reduction and reducing if-then-else
-def simpEqnType (e : Expr) : MetaM Simp.Result := withReducible do
-  forallTelescope e fun xs e => do
+partial def simpEqnType (e prf : Expr) : MetaM (Expr × Expr) := withReducible do
+  forallTelescope e fun hyps e => do
+    assert! e.isEq
+    let rhs := e.appArg!
+    let (rhs', prf') ← go hyps rhs (prf.beta hyps)
+    let e' := e.appFn!.app rhs'
+    return (← mkForallFVars hyps e', ← mkLambdaFVars hyps prf')
+where
+  go hyps e prf : MetaM (Expr × Expr) := do
+    trace[Meta.FunInd] "simpEqnType step:{indentExpr e}"
+    -- Reduce if-then-else
+    match_expr e with
+    | ite@ite α c hdec «then» «else» =>
+      if let some h ← hyps.findM? (fun h => do isDefEq (← inferType h) c) then
+        let prf' ← mkEqTrans prf (mkApp6 (.const ``if_pos ite.constLevels!) c hdec h α «then» «else»)
+        return ← go hyps «then» prf'
+      if let some h ← hyps.findM? (fun h => do isDefEq (← inferType h) (mkNot c)) then
+        let prf' ← mkEqTrans prf (mkApp6 (.const ``if_neg ite.constLevels!) c hdec h α «then» «else»)
+        return ← go hyps «else» prf'
+    | ite@dite α c hdec «then» «else» =>
+      if let some h ← hyps.findM? (fun h => do isDefEq (← inferType h) c) then
+        let prf' ← mkEqTrans prf (mkApp6 (.const ``dif_pos ite.constLevels!) c hdec h α «then» «else»)
+        return ← go hyps (← instantiateForall «then» #[h]) prf'
+      if let some h ← hyps.findM? (fun h => do isDefEq (← inferType h) (mkNot c)) then
+        let prf' ← mkEqTrans prf (mkApp6 (.const ``if_neg ite.constLevels!) c hdec h α «then» «else»)
+        return ← go hyps (← instantiateForall «else» #[h]) prf'
+    | _ => pure ()
+
+    -- Reduce let
+    if e.isLet then
+      for h in hyps do
+        if (← withReducible (isDefEq h e.letValue!)) then
+          return ← go hyps (e.bindingBody!.instantiate1 h) prf
+      return (e, prf)
+
+    -- Rewrite match targets and reduce
+    if (← isMatcherApp e) then
+      let r ← simpWithNotUnderLambda hyps e
+      let e' := r.expr
+      if e' != e then
+        let prf' ← mkEqTrans prf (← r.getProof)
+        return ← go hyps e' prf'
+
+    return (e, prf)
+
+
+/-
+
     let mut s : SimpTheorems := {}
     s ← s.addConst ``if_pos (post := false)
     s ← s.addConst ``if_neg (post := false)
@@ -29,6 +98,7 @@ def simpEqnType (e : Expr) : MetaM Simp.Result := withReducible do
         (congrTheorems := (← getSimpCongrTheorems))
         (config        := { Simp.neutralConfig with iota := true })
     let simprocs : Simprocs := {}
+    let simprocs := simprocs.addCore #[.star] `deduplicateLet false (.inl (deduplicateLet xs))
     for h in xs do
       if (← inferType h).isEq then
         -- We add all equations provided by the induction principle.
@@ -49,6 +119,14 @@ def simpEqnType (e : Expr) : MetaM Simp.Result := withReducible do
       if (← isDefEq prop (← inferType x)) then
         return some x
     return none
+  deduplicateLet (xs : Array Expr) : Simp.Simproc := fun e => do
+    logInfo m!"deduplicateLet {e}"
+    if e.isLet then
+      for x in xs do
+        if (← withReducible (isDefEq x e.letValue!)) then
+          return .visit { expr := e.bindingBody!.instantiate1 x }
+    return .continue
+  -/
 
 def mkEqnVals (fnName : Name) : MetaM Unit := do
   withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} mkEqnTypes {fnName}") do
@@ -79,21 +157,20 @@ def mkEqnVals (fnName : Name) : MetaM Unit := do
       let motiveArg ← mkLambdaFVars targets (mkAppN motive xs)
       let elimExpr := mkAppN (.const funIndInfo.funIndName us.toList) (params.push motiveArg)
       let elimType ← inferType elimExpr
-      let numAlts := elimType.getNumHeadForalls - targets.size -- Reliable enough? Better source?
-      let altTypes ← arrowDomainsN numAlts elimType
+      let altTypes ← arrowDomainsN funIndInfo.numAlts elimType
       let _ ← altTypes.mapIdxM fun i altType => do
-        forallTelescope altType fun altParams altBodyType => do
-          assert! altBodyType.getAppFn.isFVarOf motive.fvarId!
+        forallLetTelescope altType fun altParams altBodyType => do
+          unless altBodyType.getAppFn.isFVarOf motive.fvarId! do
+            panic! s!"expected {altBodyType} to be an application of {motive}"
           assert! altBodyType.getAppNumArgs == xs.size
 
           let eqnExpr := mkAppN (.const unfoldEqName fnUs) altBodyType.getAppArgs
           let eqnExpr ← mkLambdaFVars altParams eqnExpr
           let eqnType ← inferType eqnExpr
-          let r ← simpEqnType eqnType
+          let (eqnType', eqnExpr') ← simpEqnType eqnType eqnExpr
 
-          let eqnType' := r.expr
           trace[Meta.FunInd] "Equation {i+1} before simp:{indentExpr eqnType}\nafter simp:{indentExpr eqnType'}"
-          let eqnExpr' ← mkExpectedTypeHint (← mkEqMP (← r.getProof) eqnExpr) eqnType'
+          let eqnExpr' ← mkExpectedTypeHint eqnExpr' eqnType'
           let eqnExpr' ← mkLambdaFVars (usedOnly := true) xs eqnExpr'
 
           addDecl <| Declaration.thmDecl {

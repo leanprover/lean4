@@ -59,22 +59,17 @@ where
     case case1 => simp [ofFn.go, size]
     case case2 ih1 ih2 hiu => rw [ofFn.go]; simp +zetaDelta [size, *]; omega
 
-open Meta
+open Meta in
 def RArray.toExpr (ty : Expr) (f : α → Expr) (a : RArray α) : MetaM Expr := do
-  let k (leaf branch : Expr) : MetaM Expr :=
-    let rec go (a : RArray α) : MetaM Expr := do
-      match a with
-      | .leaf x  =>
-        return mkApp2 leaf ty (f x)
-      | .branch p l r =>
-        return mkApp4 branch ty (mkRawNatLit p) (← go l) (← go r)
-    go a
-  let info ← getConstInfo ``RArray
-  -- TODO: remove after bootstrapping hell
-  if info.levelParams.isEmpty then
-    k (mkConst ``RArray.leaf) (mkConst ``RArray.branch)
-  else
-    let u ← getDecLevel ty
-    k (mkConst ``RArray.leaf [u]) (mkConst ``RArray.branch [u])
+  let u ← getDecLevel ty
+  let leaf := mkConst ``RArray.leaf [u]
+  let branch := mkConst ``RArray.branch [u]
+  let rec go (a : RArray α) : MetaM Expr := do
+    match a with
+    | .leaf x  =>
+      return mkApp2 leaf ty (f x)
+    | .branch p l r =>
+      return mkApp4 branch ty (mkRawNatLit p) (← go l) (← go r)
+  go a
 
 end Lean

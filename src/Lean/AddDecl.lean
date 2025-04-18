@@ -103,8 +103,11 @@ def addDecl (decl : Declaration) : CoreM Unit := do
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
         exportedKind? := some .axiom
       pure (thm.name, .thmInfo thm, .thm)
-    | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
-    | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
+    | .defnDecl defn | .mutualDefnDecl [defn] =>
+      if (← getEnv).header.isModule && !(← getEnv).isExporting then
+        exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
+        exportedKind? := some .axiom
+      pure (defn.name, .defnInfo defn, .defn)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← addSynchronously)
 

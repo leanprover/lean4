@@ -62,7 +62,7 @@ def getComputedFieldValue (computedField : Name) (ctorTerm : Expr) : MetaM Expr 
   let val ←
     if let some wfEqn := WF.eqnInfoExt.find? (← getEnv) computedField then
       pure <| mkAppN (wfEqn.value.instantiateLevelParams wfEqn.levelParams val.getAppFn.constLevels!) val.getAppArgs
-    else
+    else withoutExporting do
       unfoldDefinition val
   let val ← whnfHeadPred val (return ctorTerm.occurs ·)
   if !ctorTerm.occurs val then return val

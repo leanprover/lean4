@@ -6,8 +6,10 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 module
 
 prelude
+import all Init.Prelude  -- for unfolding some `EStateM` defs
 import Init.Control.Lawful.Basic
-import Init.Control.Except
+import all Init.Control.Except
+import all Init.Control.State
 import Init.Control.StateRef
 import Init.Ext
 
@@ -98,7 +100,7 @@ end ExceptT
 
 instance : LawfulMonad (Except ε) := LawfulMonad.mk'
   (id_map := fun x => by cases x <;> rfl)
-  (pure_bind := fun _ _ => rfl)
+  (pure_bind := fun _ _ => by rfl)
   (bind_assoc := fun a _ _ => by cases a <;> rfl)
 
 instance : LawfulApplicative (Except ε) := inferInstance
@@ -247,7 +249,7 @@ instance : LawfulMonad (EStateM ε σ) := .mk'
     match x s with
     | .ok _ _ => rfl
     | .error _ _ => rfl)
-  (pure_bind := fun _ _ => rfl)
+  (pure_bind := fun _ _ => by rfl)
   (bind_assoc := fun x _ _ => funext <| fun s => by
     dsimp only [EStateM.instMonad, EStateM.bind]
     match x s with

@@ -22,7 +22,7 @@ Adds a mutable state of type `σ` to a monad.
 Actions in the resulting monad are functions that take an initial state and return, in `m`, a tuple
 of a value and a state.
 -/
-def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+@[semireducible] def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   σ → m (α × σ)
 
 /--

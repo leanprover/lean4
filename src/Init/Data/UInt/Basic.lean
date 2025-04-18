@@ -584,8 +584,6 @@ set_option linter.deprecated false in
 instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 
 instance : Div UInt32       := ⟨UInt32.div⟩
-instance : LT UInt32        := ⟨UInt32.lt⟩
-instance : LE UInt32        := ⟨UInt32.le⟩
 
 /--
 Bitwise complement, also known as bitwise negation, for 32-bit unsigned integers. Usually accessed

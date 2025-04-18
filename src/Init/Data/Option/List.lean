@@ -7,6 +7,8 @@ module
 
 prelude
 import Init.Data.List.Lemmas
+import all Init.Data.List.Control
+import all Init.Data.Option.Instances
 
 namespace Option
 

@@ -6,6 +6,8 @@ Authors: Mario Carneiro
 module
 
 prelude
+import all Init.Prelude  -- for unfolding `List.tail`
+import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
 import Init.Data.List.Count
 import Init.Data.Subtype
 import Init.BinderNameHint
@@ -242,9 +244,8 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {l : List α} (h
   | nil => simp
   | cons hd tl hl =>
     rcases i with ⟨i⟩
-    · simp only [Option.pmap]
-      split <;> simp_all
-    · simp only [pmap, getElem?_cons_succ, hl, Option.pmap]
+    · simp
+    · simp only [pmap, getElem?_cons_succ, hl]
 
 set_option linter.deprecated false in
 @[deprecated List.getElem?_pmap (since := "2025-02-12")]

@@ -9,6 +9,7 @@ prelude
 import Init.Data.ToString.Macro
 import Init.TacticsExtra
 import Init.RCases
+import all Init.Core  -- for accessing `Thunk.get`
 
 namespace Lean
 namespace Parser.Attr

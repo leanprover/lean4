@@ -9,7 +9,7 @@ prelude
 import Init.Control.Basic
 import Init.Control.Id
 import Init.Control.Lawful
-import Init.Data.List.Basic
+import all Init.Data.List.Basic
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -341,9 +341,9 @@ def findM? {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : Lis
 theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (as : List α) :
     findM? (m := m) (pure <| p ·) as = pure (as.find? p) := by
   induction as with
-  | nil => rfl
+  | nil => simp [findM?, find?_nil]
   | cons a as ih =>
-    simp only [findM?, find?]
+    simp only [findM?, find?_cons]
     cases p a with
     | true  => simp
     | false => simp [ih]

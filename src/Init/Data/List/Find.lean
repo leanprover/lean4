@@ -11,6 +11,7 @@ import Init.Data.List.Lemmas
 import Init.Data.List.Sublist
 import Init.Data.List.Range
 import Init.Data.List.Impl
+import all Init.Data.List.Attach
 import Init.Data.Fin.Lemmas
 
 /-!
@@ -1002,9 +1003,8 @@ theorem isNone_findFinIdx? {l : List α} {p : α → Bool} :
 @[simp] theorem findFinIdx?_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.findFinIdx? f = (l.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by
-  unfold unattach
   induction l with
-  | nil => simp
+  | nil => simp [unattach]
   | cons a l ih =>
     simp [hf, findFinIdx?_cons]
     split <;> simp [ih, Function.comp_def]

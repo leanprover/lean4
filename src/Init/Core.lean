@@ -31,7 +31,7 @@ since it can sometimes be used to avoid introducing variables.
 For example, `(·<·)` is the less-than relation,
 and `flip (·<·)` is the greater-than relation.
 -/
-@[inline] def flip {α : Sort u} {β : Sort v} {φ : Sort w} (f : α → β → φ) : β → α → φ :=
+@[inline, semireducible] def flip {α : Sort u} {β : Sort v} {φ : Sort w} (f : α → β → φ) : β → α → φ :=
   fun b a => f a b
 
 @[simp] theorem Function.const_apply {y : β} {x : α} : const α y x = y := rfl
@@ -738,7 +738,7 @@ the `BEq` typeclass.
 Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead of
 `Prop` valued. It is mainly intended for programming applications.
 -/
-@[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
+@[inline, semireducible] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)
 
 @[inherit_doc] infix:50 " != " => bne
@@ -815,7 +815,7 @@ If `h : α = β` is a proof of type equality, then `h.mp : α → β` is the ind
 You can prove theorems about the resulting element by induction on `h`, since
 `rfl.mp` is definitionally the identity function.
 -/
-@[macro_inline] def Eq.mp {α β : Sort u} (h : α = β) (a : α) : β :=
+@[macro_inline, semireducible] def Eq.mp {α β : Sort u} (h : α = β) (a : α) : β :=
   h ▸ a
 
 /--
@@ -825,7 +825,7 @@ If `h : α = β` is a proof of type equality, then `h.mpr : β → α` is the in
 You can prove theorems about the resulting element by induction on `h`, since
 `rfl.mpr` is definitionally the identity function.
 -/
-@[macro_inline] def Eq.mpr {α β : Sort u} (h : α = β) (b : β) : α :=
+@[macro_inline, semireducible] def Eq.mpr {α β : Sort u} (h : α = β) (b : β) : α :=
   h ▸ b
 
 @[elab_as_elim]
@@ -1117,7 +1117,7 @@ end Decidable
 section
 variable {p q : Prop}
 /-- Transfer a decidability proof across an equivalence of propositions. -/
-@[inline] def decidable_of_decidable_of_iff [Decidable p] (h : p ↔ q) : Decidable q :=
+@[inline, semireducible] def decidable_of_decidable_of_iff [Decidable p] (h : p ↔ q) : Decidable q :=
   if hp : p then
     isTrue (Iff.mp h hp)
   else
@@ -1295,21 +1295,21 @@ structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop where
   trans : ∀ {x y z}, r x y → r y z → r x z
 
 /-- The empty relation is the relation on `α` which is always `False`. -/
-def emptyRelation {α : Sort u} (_ _ : α) : Prop :=
+@[semireducible] def emptyRelation {α : Sort u} (_ _ : α) : Prop :=
   False
 
 /--
 `Subrelation q r` means that `q ⊆ r` or `∀ x y, q x y → r x y`.
 It is the analogue of the subset relation on relations.
 -/
-def Subrelation {α : Sort u} (q r : α → α → Prop) :=
+@[semireducible] def Subrelation {α : Sort u} (q r : α → α → Prop) :=
   ∀ {x y}, q x y → r x y
 
 /--
 The inverse image of `r : β → β → Prop` by a function `α → β` is the relation
 `s : α → α → Prop` defined by `s a b = r (f a) (f b)`.
 -/
-def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
+@[semireducible] def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
   fun a₁ a₂ => r (f a₁) (f a₂)
 
 /--
@@ -1444,7 +1444,7 @@ Lexicographical order for products.
 Two pairs are lexicographically ordered if their first elements are ordered or if their first
 elements are equal and their second elements are ordered.
 -/
-def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
+@[semireducible] def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
   s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
 instance Prod.lexLtDec
@@ -1465,7 +1465,7 @@ Examples:
  * `(1, 2).map (· + 1) (· * 3) = (2, 6)`
  * `(1, 2).map toString (· * 3) = ("1", 6)`
 -/
-def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
+@[semireducible] def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
 
@@ -1929,7 +1929,7 @@ The key quotient operators are:
 that the relation is an equivalence relation. `Quotient` should be used instead of `Quot` for
 relations that actually are equivalence relations.
 -/
-def Quotient {α : Sort u} (s : Setoid α) :=
+@[semireducible] def Quotient {α : Sort u} (s : Setoid α) :=
   @Quot α Setoid.r
 
 namespace Quotient
@@ -1944,7 +1944,7 @@ Given `v : α`, `Quotient.mk s v : Quotient s` is like `v`, except all observati
 must respect `s.r`. `Quotient.lift` allows values in a quotient to be mapped to other types, so long
 as the mapping respects `s.r`.
 -/
-@[inline]
+@[inline, semireducible]
 protected def mk {α : Sort u} (s : Setoid α) (a : α) : Quotient s :=
   Quot.mk Setoid.r a
 
@@ -2306,12 +2306,12 @@ and its representation in compiled code is identical to that of `α`.
 Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
 `Nonempty.rec` can only do the same when `β` is a proposition.
 -/
-def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
+@[semireducible] def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
 
 /--
 Places a value into its squash type, in which it cannot be distinguished from any other.
 -/
-def Squash.mk {α : Sort u} (x : α) : Squash α := Quot.mk _ x
+@[semireducible] def Squash.mk {α : Sort u} (x : α) : Squash α := Quot.mk _ x
 
 /--
 A reasoning principle that allows proofs about squashed types to assume that all values are

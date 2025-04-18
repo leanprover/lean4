@@ -6,8 +6,9 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Init.Data.Option.BasicAux
-import Init.Data.Option.Instances
+import all Init.Data.Option.Basic
+import all Init.Data.Option.BasicAux
+import all Init.Data.Option.Instances
 import Init.Data.BEq
 import Init.Classical
 import Init.Ext
@@ -1047,8 +1048,8 @@ theorem pmap_eq_map (p : α → Prop) (f : α → β) (o : Option α) (H) :
 theorem pmap_or {p : α → Prop} {f : ∀ (a : α), p a → β} {o o' : Option α} {h} :
     (or o o').pmap f h =
       match o with
-      | none => o'.pmap f (fun a h' => h a h')
-      | some a => some (f a (h a rfl)) := by
+      | none => o'.pmap f (fun a h' => h a (by simp [h']))
+      | some a => some (f a (h a (by simp))) := by
   cases o <;> simp
 
 theorem pmap_pred_congr {α : Type u}

@@ -8,6 +8,8 @@ module
 prelude
 import Init.Control.Basic
 
+set_option experimental.module.semireducibleDef true
+
 namespace Option
 
 deriving instance DecidableEq for Option
@@ -28,7 +30,7 @@ def getM [Alternative m] : Option α → m α
 @[simp, grind] theorem getM_some [Alternative m] {a : α} : getM (some a) = (pure a : m α) := rfl
 
 /-- Returns `true` on `some x` and `false` on `none`. -/
-@[inline] def isSome : Option α → Bool
+@[inline, semireducible] def isSome : Option α → Bool
   | some _ => true
   | none   => false
 
@@ -44,7 +46,7 @@ Examples:
  * `(none : Option Nat).isNone = true`
  * `(some Nat.add).isNone = false`
 -/
-@[inline] def isNone : Option α → Bool
+@[inline, semireducible] def isNone : Option α → Bool
   | some _ => false
   | none   => true
 
@@ -80,7 +82,7 @@ Examples:
  * `(some 2).bind (Option.guard (· > 2)) = none`
  * `(some 4).bind (Option.guard (· > 2)) = some 4`
 -/
-@[inline] protected def bind : Option α → (α → Option β) → Option β
+@[inline, semireducible] protected def bind : Option α → (α → Option β) → Option β
   | none,   _ => none
   | some a, f => f a
 
@@ -163,7 +165,7 @@ Examples:
  * `none.filter (fun x : Nat => x % 2 == 0) = none`
  * `none.filter (fun x : Nat => true) = none`
 -/
-@[always_inline, inline] protected def filter (p : α → Bool) : Option α → Option α
+@[always_inline, inline, semireducible] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
   | none   => none
 
@@ -239,12 +241,12 @@ Examples:
  * `Option.lt (fun n k : Nat => n < k) (some 4) (some 5) = True`
  * `Option.lt (fun n k : Nat => n < k) (some 4) (some 4) = False`
 -/
-@[inline] protected def lt (r : α → β → Prop) : Option α → Option β → Prop
+@[inline, semireducible] protected def lt (r : α → β → Prop) : Option α → Option β → Prop
   | none,   some _ => True
   | some x, some y => r x y
   | _,      _      => False
 
-@[inline] protected def le (r : α → β → Prop) : Option α → Option β → Prop
+@[inline, semireducible] protected def le (r : α → β → Prop) : Option α → Option β → Prop
   | none,   some _ => True
   | none,   none   => True
   | some _, none   => False
@@ -296,7 +298,7 @@ Examples:
 /--
 Extracts the value from an option that can be proven to be `some`.
 -/
-@[inline] def get {α : Type u} : (o : Option α) → isSome o → α
+@[inline, semireducible] def get {α : Type u} : (o : Option α) → isSome o → α
   | some x, _ => x
 
 @[simp, grind] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
@@ -313,7 +315,7 @@ Examples:
  * `Option.guard (· > 2) 1 = none`
  * `Option.guard (· > 2) 5 = some 5`
 -/
-@[inline] def guard (p : α → Bool) (a : α) : Option α :=
+@[inline, semireducible] def guard (p : α → Bool) (a : α) : Option α :=
   if p a then some a else none
 
 /--
@@ -323,7 +325,7 @@ Examples:
  * `(some "value").toList = ["value"]`
  * `none.toList = []`
 -/
-@[inline] def toList : Option α → List α
+@[inline, semireducible] def toList : Option α → List α
   | none => .nil
   | some a => .cons a .nil
 

@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Int.Basic
 
+set_option experimental.module.semireducibleDef true  -- for omega
+
 open Nat
 
 namespace Int
@@ -94,7 +96,7 @@ Examples:
 * `(-12 : Int) % (7 : Int) = 2`
 * `(-12 : Int) % (-7 : Int) = 2`
 -/
-@[extern "lean_int_emod"]
+@[extern "lean_int_emod", semireducible]
 def emod : (@& Int) → (@& Int) → Int
   | ofNat m, n => ofNat (m % natAbs n)
   | -[m+1],  n => subNatNat (natAbs n) (succ (m % natAbs n))

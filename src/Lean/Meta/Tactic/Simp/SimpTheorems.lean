@@ -542,6 +542,8 @@ def SimpTheorems.unfoldEvenWithEqns (declName : Name) : CoreM Bool := do
   return false
 
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
+  unless (← getConstInfo declName).isDefinition do
+    throwError "invalid 'simp', definition with exposed body expected: {declName}"
   if (← ignoreEquations declName) then
     return d.addDeclToUnfoldCore declName
   else if let some eqns ← getEqnsFor? declName then

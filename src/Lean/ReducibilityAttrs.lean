@@ -116,7 +116,7 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
           unless statusOld matches .semireducible do
             throwError "failed to set `[irreducible]`, `{declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`\n{suffix}"
         | .semireducible =>
-          throwError "failed to set `[semireducible]` for `{declName}`, declarations are `[semireducible]` by default\n{suffix}"
+          pure ()  --throwError "failed to set `[semireducible]` for `{declName}`, declarations are `[semireducible]` by default\n{suffix}"
       | .local =>
         match status with
         | .reducible =>

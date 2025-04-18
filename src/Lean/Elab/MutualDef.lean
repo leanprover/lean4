@@ -1074,8 +1074,7 @@ where
         try
           isDefEq lhs rhs
         catch _ => pure false
-    withExporting (isExporting := rflPublic) do
-      finishElab headers
+    finishElab (isExporting := rflPublic) headers
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
@@ -1118,8 +1117,7 @@ where
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
-        withoutExporting do
-          finishElab #[header]
+        finishElab (isExporting := false) #[header]
       finally
         reportDiag
         -- must introduce node to fill `infoHole` with multiple info trees
@@ -1137,7 +1135,9 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers := withFunLocalDecls headers fun funFVars => do
+  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => withExporting (isExporting := isExporting || headers.all fun header =>
+    !header.modifiers.isPrivate &&
+    (header.kind matches .abbrev | .instance || header.modifiers.attrs.any (·.name matches `reducible | `semireducible | `match_pattern))) do
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try

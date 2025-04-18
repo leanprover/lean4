@@ -656,6 +656,11 @@ theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
   next => rw [intCast_pow]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq]
 
+theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
+  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+  simp [denote_toPoly] at h
+  assumption
+
 theorem Poly.denote_addConstC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int) : (addConstC p k c).denote ctx = p.denote ctx + k := by
   fun_induction addConstC <;> simp [addConstC, denote, *]
   next => rw [IsCharP.intCast_emod, intCast_add]
@@ -767,6 +772,12 @@ theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]
   next => rw [IsCharP.intCast_emod, intCast_pow]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq]
+
+theorem Expr.eq_of_toPolyC_eq {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (a b : Expr)
+    (h : a.toPolyC c == b.toPolyC c) : a.denote ctx = b.denote ctx := by
+  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+  simp [denote_toPolyC] at h
+  assumption
 
 end CommRing
 end Lean.Grind

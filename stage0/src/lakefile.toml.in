@@ -6,6 +6,7 @@
 # them, please consult the instructions in doc/dev/index.md.
 
 name = "lean4"
+bootstrap = true
 
 defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain"]
 
@@ -23,11 +24,6 @@ leanLibDir = "lib/lean"
 
 # Destination for static libraries
 nativeLibDir = "lib/lean"
-
-# Toolchain CLI options derived from the CMake configuration
-moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
-moreLeancArgs = [${LEANC_OPTS_TOML}]
-moreLinkArgs = [${LINK_OPTS_TOML}]
 
 [[lean_lib]]
 name = "Init"

@@ -91395,13 +91395,14 @@ lean_dec(x_29);
 x_31 = lean_box(0);
 x_32 = l_Lean_Server_Watchdog_eraseFileWorker___lambda__3___closed__1;
 x_33 = 1;
-x_34 = lean_alloc_ctor(0, 5, 1);
+x_34 = lean_alloc_ctor(0, 5, 2);
 lean_ctor_set(x_34, 0, x_15);
 lean_ctor_set(x_34, 1, x_16);
 lean_ctor_set(x_34, 2, x_30);
 lean_ctor_set(x_34, 3, x_31);
 lean_ctor_set(x_34, 4, x_32);
 lean_ctor_set_uint8(x_34, sizeof(void*)*5, x_33);
+lean_ctor_set_uint8(x_34, sizeof(void*)*5 + 1, x_33);
 x_35 = lean_io_process_spawn(x_34, x_14);
 if (lean_obj_tag(x_35) == 0)
 {

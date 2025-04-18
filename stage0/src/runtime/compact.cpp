@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <unordered_set>
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -12,6 +11,7 @@ Author: Leonardo de Moura
 #include <lean/lean.h>
 #include "runtime/hash.h"
 #include "runtime/compact.h"
+#include "util/alloc.h"
 
 #ifndef LEAN_WINDOWS
 #include <sys/mman.h>
@@ -50,7 +50,7 @@ struct max_sharing_eq {
 
 
 struct object_compactor::max_sharing_table {
-    std::unordered_set<max_sharing_key, max_sharing_hash, max_sharing_eq> m_table;
+    lean::unordered_set<max_sharing_key, max_sharing_hash, max_sharing_eq> m_table;
     max_sharing_table(object_compactor * manager):
         m_table(LEAN_MAX_SHARING_TABLE_INITIAL_SIZE, max_sharing_hash(manager), max_sharing_eq(manager)) {
     }

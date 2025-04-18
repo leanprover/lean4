@@ -15113,7 +15113,7 @@ lean_ctor_set(x_35, 0, x_34);
 lean_ctor_set(x_35, 1, x_5);
 x_36 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_36, 0, x_35);
-x_37 = lean_unsigned_to_nat(1u);
+x_37 = lean_unsigned_to_nat(2u);
 x_38 = l_Lean_Syntax_getArg(x_5, x_37);
 lean_dec(x_5);
 x_39 = l_Lean_Syntax_getArgs(x_38);
@@ -15566,7 +15566,7 @@ lean_ctor_set(x_189, 0, x_188);
 lean_ctor_set(x_189, 1, x_5);
 x_190 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_190, 0, x_189);
-x_191 = lean_unsigned_to_nat(1u);
+x_191 = lean_unsigned_to_nat(2u);
 x_192 = l_Lean_Syntax_getArg(x_5, x_191);
 lean_dec(x_5);
 x_193 = l_Lean_Syntax_getArgs(x_192);
@@ -15928,6 +15928,7 @@ x_20 = l_Lean_MessageLog_empty;
 x_21 = 1;
 lean_inc(x_2);
 lean_inc(x_17);
+lean_inc(x_1);
 x_22 = l_Lean_Elab_processHeader(x_1, x_17, x_20, x_2, x_18, x_19, x_21, x_11);
 if (lean_obj_tag(x_22) == 0)
 {

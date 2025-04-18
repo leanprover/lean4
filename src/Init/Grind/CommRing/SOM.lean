@@ -263,8 +263,8 @@ where
           p
         else
           .add k m p
-      | .lt => .add k m (.add k' m' p)
-      | .gt => .add k' m' (go p)
+      | .gt => .add k m (.add k' m' p)
+      | .lt => .add k' m' (go p)
 
 def Poly.concat (p₁ p₂ : Poly) : Poly :=
   match p₁ with
@@ -315,8 +315,8 @@ where
             go fuel p₁ p₂
           else
             .add k m₁ (go fuel p₁ p₂)
-        | .lt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
-        | .gt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
+        | .gt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
+        | .lt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
 
 def Poly.mul (p₁ : Poly) (p₂ : Poly) : Poly :=
   go p₁ (.num 0)
@@ -374,8 +374,8 @@ where
           p
         else
           .add k'' m p
-      | .lt => .add k m (.add k' m' p)
-      | .gt => .add k' m' (go k p)
+      | .gt => .add k m (.add k' m' p)
+      | .lt => .add k' m' (go k p)
 
 def Poly.mulConstC (k : Int) (p : Poly) (c : Nat) : Poly :=
   let k := k % c
@@ -434,8 +434,8 @@ where
             go fuel p₁ p₂
           else
             .add k m₁ (go fuel p₁ p₂)
-        | .lt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
-        | .gt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
+        | .gt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
+        | .lt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
 
 def Poly.mulC (p₁ : Poly) (p₂ : Poly) (c : Nat) : Poly :=
   go p₁ (.num 0)

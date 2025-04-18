@@ -353,9 +353,11 @@ def Expr.toPoly : Expr → Poly
 /-!
 **Definitions for the `IsCharP` case**
 
-We considered using a single set of definitions parameterized by `Option c`, but decided against it to avoid
-unnecessary kernel‑reduction overhead. Once we can specialize definitions before they reach the kernel,
+We considered using a single set of definitions parameterized by `Option c` or simply set `c = 0` since
+`n % 0 = n` in Lean, but decided against it to avoid unnecessary kernel‑reduction overhead.
+Once we can specialize definitions before they reach the kernel,
 we can merge the two versions. Until then, the `IsCharP` definitions will carry the `C` suffix.
+We use them whenever we can infer the characteristic using type class instance synthesis.
 -/
 def Poly.addConstC (p : Poly) (k : Int) (c : Nat) : Poly :=
   match p with

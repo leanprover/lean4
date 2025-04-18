@@ -237,6 +237,11 @@ def Poly.ofMon (m : Mon) : Poly :=
 def Poly.ofVar (x : Var) : Poly :=
   ofMon (Mon.ofVar x)
 
+def Poly.isSorted : Poly → Bool
+  | .num _ => true
+  | .add _ _ (.num _) => true
+  | .add _ m₁ (.add k m₂ p) => m₁.grevlex m₂ == .gt && (Poly.add k m₂ p).isSorted
+
 def Poly.addConst (p : Poly) (k : Int) : Poly :=
   bif k == 0 then
     p

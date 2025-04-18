@@ -30,8 +30,8 @@ example (f : Nat → Nat → Nat) : f 2 3 ≠ 5 → f = (fun x y : Nat => x + y)
 opaque bla : Nat → Nat → Nat → Nat
 
 /--
-info: [grind.beta] f 2 3 = bla 2 3 2, using fun x y => bla x y x
-[grind.beta] f 2 3 = 2 + 3, using fun x y => x + y
+info: [grind.beta] f 2 3 = 2 + 3, using fun x y => x + y
+[grind.beta] f 2 3 = bla 2 3 2, using fun x y => bla x y x
 -/
 #guard_msgs (info) in
 set_option trace.grind.beta true in

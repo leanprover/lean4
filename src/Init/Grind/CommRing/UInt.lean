@@ -71,7 +71,7 @@ instance : CommRing UInt8 where
   pow_succ := UInt8.pow_succ
   ofNat_succ x := UInt8.ofNat_add x 1
 
-instance : IsCharP UInt8 (2 ^ 8) where
+instance : IsCharP UInt8 256 where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt8.ofNat x := rfl
     simp [this, UInt8.ofNat_eq_iff_mod_eq_toNat]
@@ -91,7 +91,7 @@ instance : CommRing UInt16 where
   pow_succ := UInt16.pow_succ
   ofNat_succ x := UInt16.ofNat_add x 1
 
-instance : IsCharP UInt16 (2 ^ 16) where
+instance : IsCharP UInt16 65536 where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt16.ofNat x := rfl
     simp [this, UInt16.ofNat_eq_iff_mod_eq_toNat]
@@ -111,7 +111,7 @@ instance : CommRing UInt32 where
   pow_succ := UInt32.pow_succ
   ofNat_succ x := UInt32.ofNat_add x 1
 
-instance : IsCharP UInt32 (2 ^ 32) where
+instance : IsCharP UInt32 4294967296 where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt32.ofNat x := rfl
     simp [this, UInt32.ofNat_eq_iff_mod_eq_toNat]
@@ -131,7 +131,7 @@ instance : CommRing UInt64 where
   pow_succ := UInt64.pow_succ
   ofNat_succ x := UInt64.ofNat_add x 1
 
-instance : IsCharP UInt64 (2 ^ 64) where
+instance : IsCharP UInt64 18446744073709551616 where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = UInt64.ofNat x := rfl
     simp [this, UInt64.ofNat_eq_iff_mod_eq_toNat]

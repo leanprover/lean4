@@ -288,7 +288,7 @@ where
       let ras := Lean.RArray.ofArray as h
       let packedType := mkConst ``BVExpr.PackedBitVec
       let pack := fun (width, expr) => mkApp2 (mkConst ``BVExpr.PackedBitVec.mk) (toExpr width) expr
-      let newAtomsAssignment := ras.toExpr packedType pack
+      let newAtomsAssignment ← ras.toExpr packedType pack
       modify fun s => { s with atomsAssignmentCache := some newAtomsAssignment }
       return newAtomsAssignment
     else

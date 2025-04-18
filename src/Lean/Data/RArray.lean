@@ -6,6 +6,8 @@ Authors: Joachim Breitner
 
 prelude
 import Init.Data.RArray
+import Lean.Meta.InferType
+import Lean.Meta.DecLevel
 import Lean.ToExpr
 
 /-!
@@ -57,19 +59,22 @@ where
     case case1 => simp [ofFn.go, size]
     case case2 ih1 ih2 hiu => rw [ofFn.go]; simp +zetaDelta [size, *]; omega
 
-section Meta
-open Lean
-
-def RArray.toExpr (ty : Expr) (f : α → Expr) : RArray α → Expr
-  | .leaf x  =>
-    mkApp2 (mkConst ``RArray.leaf) ty (f x)
-  | .branch p l r =>
-    mkApp4 (mkConst ``RArray.branch) ty (mkRawNatLit p) (l.toExpr ty f) (r.toExpr ty f)
-
-instance [ToExpr α] : ToExpr (RArray α) where
-  toTypeExpr := mkApp (mkConst ``RArray) (toTypeExpr α)
-  toExpr a := a.toExpr (toTypeExpr α) toExpr
-
-end Meta
+open Meta
+def RArray.toExpr (ty : Expr) (f : α → Expr) (a : RArray α) : MetaM Expr := do
+  let k (leaf branch : Expr) : MetaM Expr :=
+    let rec go (a : RArray α) : MetaM Expr := do
+      match a with
+      | .leaf x  =>
+        return mkApp2 leaf ty (f x)
+      | .branch p l r =>
+        return mkApp4 branch ty (mkRawNatLit p) (← go l) (← go r)
+    go a
+  let info ← getConstInfo ``RArray
+  -- TODO: remove after bootstrapping hell
+  if info.levelParams.isEmpty then
+    k (mkConst ``RArray.leaf) (mkConst ``RArray.branch)
+  else
+    let u ← getDecLevel ty
+    k (mkConst ``RArray.leaf [u]) (mkConst ``RArray.branch [u])
 
 end Lean

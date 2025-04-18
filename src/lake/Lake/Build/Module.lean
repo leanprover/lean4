@@ -35,8 +35,8 @@ building an `Array` product of its direct local imports.
 -/
 def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := Job.async do
   let contents ← IO.FS.readFile mod.leanFile
-  let imports ← Lean.parseImports' contents mod.leanFile.toString
-  let mods ← imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
+  let res ← Lean.parseImports' contents mod.leanFile.toString
+  let mods ← res.imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
     findModule? imp.module <&> fun | some mod => set.insert mod | none => set
   return mods.toArray
 

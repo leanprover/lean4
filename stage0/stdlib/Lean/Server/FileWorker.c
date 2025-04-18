@@ -772,7 +772,6 @@ static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_ini
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleResponse___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonInitializeParams___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Server_maybeTee(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupImports___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Lsp_ClientCapabilities_silentDiagnosticSupport(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_initAndRunWorker_writeErrorDiag___closed__1;
 lean_object* l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_fromJsonCodeAction____x40_Lean_Data_Lsp_CodeActions___hyg_1205_(lean_object*);
@@ -21870,6 +21869,7 @@ return x_17;
 else
 {
 lean_object* x_18; uint32_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -21988,7 +21988,6 @@ _start:
 lean_object* x_8; 
 x_8 = l_Lean_Server_FileWorker_setupImports___lambda__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
-lean_dec(x_1);
 return x_8;
 }
 }
@@ -22000,15 +21999,6 @@ x_4 = l_Lean_Server_FileWorker_setupImports___lambda__6(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupImports___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lean_Server_FileWorker_setupImports(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_initializeWorker_mkLspOutputChannel___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -23574,7 +23564,7 @@ lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean
 lean_inc(x_25);
 lean_inc(x_5);
 lean_inc(x_1);
-x_29 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_setupImports___boxed), 6, 3);
+x_29 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_setupImports), 6, 3);
 lean_closure_set(x_29, 0, x_1);
 lean_closure_set(x_29, 1, x_5);
 lean_closure_set(x_29, 2, x_25);

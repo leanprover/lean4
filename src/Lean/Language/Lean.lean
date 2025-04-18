@@ -361,7 +361,7 @@ General notes:
   the `sync` parameter on `parseCmd` and spawn an elaboration task when we leave it.
 -/
 partial def process
-    (setupImports : Syntax → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
+    (setupImports : TSyntax ``Parser.Module.header → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
     (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
   parseHeader old? |>.run (old?.map (·.ictx))
 where
@@ -423,7 +423,7 @@ where
           result? := none
         }
 
-      let trimmedStx := stx.unsetTrailing
+      let trimmedStx := stx.raw.unsetTrailing
       -- semi-fast path: go to next snapshot if syntax tree is unchanged
       -- NOTE: We compare modulo `unsetTrailing` in order to ensure that changes in trailing
       -- whitespace do not invalidate the header. This is safe because we only pass the trimmed
@@ -443,11 +443,11 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         result? := some {
           parserState
-          processedSnap := (← processHeader trimmedStx parserState)
+          processedSnap := (← processHeader ⟨trimmedStx⟩ parserState)
         }
       }
 
-  processHeader (stx : Syntax) (parserState : Parser.ModuleParserState) :
+  processHeader (stx : TSyntax ``Parser.Module.header) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
     SnapshotTask.ofIO stx none (some ⟨0, ctx.input.endPos⟩) <|
@@ -489,7 +489,7 @@ where
             ngen    := { namePrefix := `_import }
           }) (Elab.InfoTree.node
               (Elab.Info.ofCommandInfo { elaborator := `header, stx })
-              (stx[1].getArgs.toList.map (fun importStx =>
+              (stx.raw[2].getArgs.toList.map (fun importStx =>
                 Elab.InfoTree.node (Elab.Info.ofCommandInfo {
                   elaborator := `import
                   stx := importStx

@@ -238,9 +238,14 @@ def Poly.ofVar (x : Var) : Poly :=
   ofMon (Mon.ofVar x)
 
 def Poly.addConst (p : Poly) (k : Int) : Poly :=
-  match p with
+  bif k == 0 then
+    p
+  else
+    go p
+where
+  go : Poly → Poly
   | .num k' => .num (k' + k)
-  | .add k' m p => .add k' m (addConst p k)
+  | .add k' m p => .add k' m (go p)
 
 def Poly.insert (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
@@ -577,9 +582,12 @@ theorem Poly.denote_ofVar {α} [CommRing α] (ctx : Context α) (x : Var)
   simp [ofVar, denote_ofMon, Mon.denote_ofVar]
 
 theorem Poly.denote_addConst {α} [CommRing α] (ctx : Context α) (p : Poly) (k : Int) : (addConst p k).denote ctx = p.denote ctx + k := by
-  fun_induction addConst <;> simp [addConst, denote, *]
-  next => rw [intCast_add]
-  next => simp [add_comm, add_left_comm, add_assoc]
+  simp [addConst, cond_eq_if]; split
+  next => simp [*, intCast_zero, add_zero]
+  next =>
+    fun_induction addConst.go <;> simp [addConst.go, denote, *]
+    next => rw [intCast_add]
+    next => simp [add_comm, add_left_comm, add_assoc]
 
 theorem Poly.denote_insert {α} [CommRing α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : (insert k m p).denote ctx = k * m.denote ctx + p.denote ctx := by

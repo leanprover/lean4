@@ -19,3 +19,9 @@ example (x y : Int) : (x + y) * (x + y + 1) = x * (1 + y + x) + (y + 1 + x) * y 
   let rhs : Expr := .add (.mul (.var 0) (.add (.add (.num 1) (.var 1)) (.var 0)))
                          (.mul (.add (.add (.var 1) (.num 1)) (.var 0)) (.var 1))
   Expr.eq_of_toPoly_eq ctx lhs rhs (Eq.refl true)
+
+example (x y : UInt8) : (128 * x + y) * 2 = y + y :=
+  let ctx := #R[x, y]
+  let lhs : Expr := .mul (.add (.mul (.num 128) (.var 0)) (.var 1)) (.num 2)
+  let rhs : Expr := .add (.var 1) (.var 1)
+  Expr.eq_of_toPolyC_eq (c := 256) ctx lhs rhs (Eq.refl true)

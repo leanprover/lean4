@@ -7,6 +7,7 @@ prelude
 import Init.System.Promise
 import Init.Data.Queue
 import Std.Sync.Mutex
+import Std.Internal.Async.Select
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
@@ -44,6 +45,25 @@ instance : ToString Error where
 instance : MonadLift (EIO Error) IO where
   monadLift x := EIO.toIO (.userError <| toString ·) x
 
+private inductive Consumer (α : Type) where
+  | normal (promise : IO.Promise (Option α))
+  -- We would love to store the continuation for the select here as well but IO's lack of universe
+  -- polymorphism is stopping us.
+  | select (finished : IO.Ref Bool) (promise : IO.Promise (Option α))
+
+private def Consumer.resolve (c : Consumer α) (x : Option α) : BaseIO Bool := do
+  match c with
+  | .normal promise =>
+    promise.resolve x
+    return true
+  | .select finished promise =>
+    let first ← finished.modifyGet fun s => (s == false, true)
+    if first then
+      promise.resolve x
+      return true
+    else
+      return false
+
 /--
 The central state structure for an unbounded channel, maintains the following invariants:
 1. `values = ∅ ∨ consumers = ∅`
@@ -58,7 +78,7 @@ private structure Unbounded.State (α : Type) where
   Consumers that are blocked on a producer providing them a value. The `IO.Promise` will be
   resolved to `none` if the channel closes.
   -/
-  consumers : Std.Queue (IO.Promise (Option α))
+  consumers : Std.Queue (Consumer α)
   /--
   Whether the channel is closed already.
   -/
@@ -85,12 +105,18 @@ private def trySend (ch : Unbounded α) (v : α) : BaseIO Bool := do
     let st ← get
     if st.closed then
       return false
-    else if let some (consumer, consumers) := st.consumers.dequeue? then
-      consumer.resolve (some v)
-      set { st with consumers }
-      return true
     else
-      set { st with values := st.values.enqueue v }
+      while true do
+        let st ← get
+        if let some (consumer, consumers) := st.consumers.dequeue? then
+          let success ← consumer.resolve (some v)
+          set { st with consumers }
+          if success then
+            break
+        else
+          set { st with values := st.values.enqueue v }
+          break
+
       return true
 
 private def send (ch : Unbounded α) (v : α) : BaseIO (Task (Except Error Unit)) := do
@@ -103,7 +129,8 @@ private def close (ch : Unbounded α) : EIO Error Unit := do
   ch.state.atomically do
     let st ← get
     if st.closed then throw .alreadyClosed
-    for consumer in st.consumers.toArray do consumer.resolve none
+    for consumer in st.consumers.toArray do
+      discard <| consumer.resolve none
     set { st with consumers := ∅, closed := true }
     return ()
 
@@ -131,8 +158,53 @@ private def recv (ch : Unbounded α) : BaseIO (Task (Option α)) := do
       return .pure none
     else
       let promise ← IO.Promise.new
-      modify fun st => { st with consumers := st.consumers.enqueue promise }
+      modify fun st => { st with consumers := st.consumers.enqueue (.normal promise) }
       return promise.result?.map (sync := true) (·.bind id)
+
+open Internal.IO.Async in
+private def recvSelector (ch : Unbounded α) : IO (Selector (Option α) β) :=
+  return {
+    tryFn := ch.tryRecv
+    registerFn cont waiter := do
+      ch.state.atomically do
+        let st ← get
+        -- We did drop the lock between `tryFn` and now so maybe ready?
+        if let some (a, values) := st.values.dequeue? then
+          let loose := return ()
+          let win promise := do
+            set { st with values }
+            try
+              let contTask ← cont (some a)
+              discard <| contTask.mapIO (fun res => promise.resolve (.ok res))
+            catch e =>
+              promise.resolve (.error e)
+          waiter.race loose win
+        else if st.closed then
+          let loose := return ()
+          let win promise := do
+            try
+              let contTask ← cont none
+              discard <| contTask.mapIO (fun res => promise.resolve (.ok res))
+            catch e =>
+              promise.resolve (.error e)
+          waiter.race loose win
+        else
+          let promise ← IO.Promise.new
+          let consumer := .select waiter.finished promise
+          modify fun st => { st with consumers := st.consumers.enqueue consumer }
+          -- We might be dropped if we get cancelled
+          discard <| IO.mapTask (t := promise.result?) fun res => do
+            match res with
+            | none => return ()
+            | some res =>
+              try
+                let contTask ← cont res
+                discard <| contTask.mapIO (fun res => waiter.signal.resolve (.ok res))
+              catch e =>
+                waiter.signal.resolve (.error e)
+    -- TODO: potentially gc?
+    unregisterFn := return ()
+  }
 
 end Unbounded
 

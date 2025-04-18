@@ -5,8 +5,8 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time
-import Std.Internal.UV
-import Std.Internal.Async.Basic
+import Std.Internal.UV.TCP
+import Std.Internal.Async.Select
 import Std.Net.Addr
 
 namespace Std
@@ -129,6 +129,40 @@ socket is not supported. Instead, we recommend binding multiple sockets to the s
 @[inline]
 def recv? (s : Client) (size : UInt64) : IO (AsyncTask (Option ByteArray)) :=
   AsyncTask.ofPromise <$> s.native.recv? size
+
+@[inline]
+def waitReadable (s : Client) : IO (AsyncTask Bool) :=
+  AsyncTask.ofPromise <$> s.native.waitReadable
+
+def recvSelector (s : TCP.Socket.Client) (size : UInt64) : IO (Selector (Option ByteArray) β) := do
+  let readableWaiter ← s.native.waitReadable
+  return {
+    tryFn := do
+      if (← IO.getTaskState readableWaiter.result?) == .finished then
+        -- We know that this read should not block
+        let res ← (← s.recv? size).block
+        return some res
+      else
+        return none
+    registerFn cont waiter := do
+      -- If we get cancelled the promise will be dropped so prepare for that
+      discard <| IO.mapTask (t := readableWaiter.result?) fun res => do
+        match res with
+        | none => return ()
+        | some res =>
+          let loose := return ()
+          let win promise := do
+            try
+              discard <| IO.ofExcept res
+              -- We know that this read should not block
+              let res ← (← s.recv? size).block
+              let contTask ← cont res
+              discard <| contTask.mapIO (fun res => promise.resolve (.ok res))
+            catch e =>
+              promise.resolve (.error e)
+          waiter.race loose win
+    unregisterFn := s.native.cancelRecv
+  }
 
 /--
 Shuts down the write side of the client socket.

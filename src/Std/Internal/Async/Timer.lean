@@ -5,8 +5,8 @@ Authors: Henrik Böving
 -/
 prelude
 import Std.Time
-import Std.Internal.UV
-import Std.Internal.Async.Basic
+import Std.Internal.UV.Timer
+import Std.Internal.Async.Select
 
 
 namespace Std
@@ -65,6 +65,28 @@ If:
 def stop (s : Sleep) : IO Unit :=
   s.native.stop
 
+def selector (s : Sleep) : IO (Selector Unit β) := do
+  let sleepWaiter ← s.wait
+  return {
+    tryFn := do
+      if (← IO.getTaskState sleepWaiter) == .finished then
+        return some ()
+      else
+        return none
+    registerFn cont waiter := do
+      discard <| AsyncTask.mapIO (x := sleepWaiter) fun res => do
+        let loose := return ()
+        let win promise := do
+          try
+            let contTask ← cont res
+            discard <| contTask.mapIO (fun res => promise.resolve (.ok res))
+          catch e =>
+            promise.resolve (.error e)
+
+        waiter.race loose win
+    unregisterFn := pure ()
+  }
+
 end Sleep
 
 /--
@@ -73,6 +95,10 @@ Return an `AsyncTask` that resolves after `duration`.
 def sleep (duration : Std.Time.Millisecond.Offset) : IO (AsyncTask Unit) := do
   let sleeper ← Sleep.mk duration
   sleeper.wait
+
+def Selector.sleep (duration : Std.Time.Millisecond.Offset) : IO (Selector Unit β) := do
+  let sleeper ← Sleep.mk duration
+  sleeper.selector
 
 /--
 `Interval` can be used to repeatedly wait for some duration like a clock.

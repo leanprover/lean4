@@ -92,7 +92,7 @@ def resolve_left' (a c d p x : Int) (h₁ : p ≤ a * x) : Nat := (add_of_le h�
 
 @[simp] theorem resolve_left_eq (a c d p x : Int) (h₁ : p ≤ a * x) :
     resolve_left a c d p x = resolve_left' a c d p x h₁ := by
-  simp only [resolve_left, resolve_left', add_of_le, ofNat_emod, ofNat_toNat]
+  simp only [resolve_left, resolve_left', add_of_le, natCast_emod, ofNat_toNat]
   rw [Int.max_eq_left]
   omega
 
@@ -127,14 +127,14 @@ theorem resolve_left_dvd₁ (a c d p x : Int) (h₁ : p ≤ a * x) :
     a ∣ resolve_left a c d p x + p := by
   simp only [h₁, resolve_left_eq, resolve_left']
   obtain ⟨k', w⟩ := add_of_le h₁
-  exact Int.ofNat_emod _ _ ▸ dvd_emod_add_of_dvd_add (x := k') ⟨x, by rw [w, Int.add_comm]⟩ (dvd_lcm_left ..)
+  exact Int.natCast_emod _ _ ▸ dvd_emod_add_of_dvd_add (x := k') ⟨x, by rw [w, Int.add_comm]⟩ (dvd_lcm_left ..)
 
 theorem resolve_left_dvd₂ (a c d p x : Int)
     (h₁ : p ≤ a * x) (h₃ : d ∣ c * x + s) :
     a * d ∣ c * resolve_left a c d p x + c * p + a * s := by
   simp only [h₁, resolve_left_eq, resolve_left']
   obtain ⟨k', w⟩ := add_of_le h₁
-  simp only [Int.add_assoc, ofNat_emod]
+  simp only [Int.add_assoc, natCast_emod]
   apply dvd_mul_emod_add_of_dvd_mul_add
   · obtain ⟨z, r⟩ := h₃
     refine ⟨z, ?_⟩

@@ -264,7 +264,7 @@ theorem intCast_ext_iff {x y : Int} : (x : α) = (y : α) ↔ x % p = y % p := b
 
 theorem ofNat_ext_iff {x y : Nat} : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p := by
   have := intCast_ext_iff (α := α) p (x := x) (y := y)
-  simp only [intCast_ofNat, ← Int.ofNat_emod] at this
+  simp only [intCast_ofNat, ← Int.natCast_emod] at this
   simp only [ofNat_eq_natCast]
   norm_cast at this
 
@@ -280,7 +280,7 @@ theorem intCast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
 
 theorem natCast_emod (x : Nat) : ((x % p : Nat) : α) = (x : α) := by
   simp only [← intCast_ofNat]
-  rw [Int.ofNat_emod, intCast_emod]
+  rw [Int.natCast_emod, intCast_emod]
 
 theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x :=
   natCast_emod _ _

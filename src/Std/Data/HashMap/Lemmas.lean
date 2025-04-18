@@ -1136,6 +1136,7 @@ theorem insertManyIfNewUnit_cons {l : List α} {k : α} :
     insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l :=
   ext DHashMap.Const.insertManyIfNewUnit_cons
 
+@[elab_as_elim]
 theorem insertManyIfNewUnit_ind {motive : HashMap α Unit → Prop} (m : HashMap α Unit) (l : ρ)
     (init : motive m) (insert : ∀ m a, motive m → motive (m.insertIfNew a ())) :
     motive (insertManyIfNewUnit m l) :=

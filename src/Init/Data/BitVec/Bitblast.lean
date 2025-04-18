@@ -1396,20 +1396,20 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
       by_cases hy' : 0 ≤ y.toInt
       · by_cases hx : 0 ≤ x.toInt
         · -- numerator and denumerator are positive
-          have := BitVec.toInt_ediv_of_nonneg_of_nonneg
+          have := BitVec.toInt_ediv_toInt_of_nonneg_of_nonneg
                 (x := x) (y := y) (by omega) (by omega)
           simp only [Nat.add_one_sub_one] at this; simp; omega
         · -- numerator is negative, denumerator is positive
-          have :=  BitVec.toInt_ediv_nonpos_of_nonpos_of_nonneg
+          have :=  BitVec.toInt_ediv_toInt_nonpos_of_nonpos_of_nonneg
                 (x := x) (y := y) (by omega) (by omega)
           simp only [Nat.add_one_sub_one] at this; simp; omega
       · by_cases hx : 0 < x.toInt
         · -- numerator is positive, denumerator is negative
-          have := BitVec.toInt_ediv_nonpos_of_nonneg_of_nonpos
+          have := BitVec.toInt_ediv_toInt_nonpos_of_nonneg_of_nonpos
                 (x := x) (y := y) (by omega) (by omega)
           simp only [Nat.add_one_sub_one] at this; simp; omega
         · -- numerator and denumerator are negative
-          have := BitVec.toInt_ediv_lt_of_lt_allOnes
+          have := BitVec.toInt_ediv_toInt_lt_of_lt_allOnes
                 (x := x) (y := y) (by omega) (by rw [← toInt_inj, toInt_allOnes] at hy; omega)
           simp only [Nat.add_one_sub_one] at this; simp; omega
 

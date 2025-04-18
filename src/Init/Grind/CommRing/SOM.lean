@@ -290,7 +290,11 @@ def Poly.mulMon (k : Int) (m : Mon) (p : Poly) : Poly :=
     go p
 where
   go : Poly → Poly
-   | .num k' => .add (k*k') m (.num 0)
+   | .num k' =>
+     bif k' == 0 then
+       .num 0
+     else
+       .add (k*k') m (.num 0)
    | .add k' m' p => .add (k*k') (m.mul m') (go p)
 
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
@@ -624,6 +628,7 @@ theorem Poly.denote_mulMon {α} [CommRing α] (ctx : Context α) (k : Int) (m : 
   next => simp [denote, *, intCast_zero, zero_mul]
   next =>
     fun_induction mulMon.go <;> simp [mulMon.go, denote, *]
+    next h => simp +zetaDelta at h; simp [*, intCast_zero, mul_zero]
     next => simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
     next => simp [Mon.denote_mul, intCast_mul, left_distrib, mul_comm, mul_left_comm, mul_assoc]
 

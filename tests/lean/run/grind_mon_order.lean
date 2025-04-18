@@ -1,4 +1,3 @@
-import Init.Grind.CommRing.SOM
 open Lean.Grind.CommRing
 
 def w : Var := 0

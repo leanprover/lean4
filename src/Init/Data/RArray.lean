@@ -22,9 +22,6 @@ tree implementing `Nat → α`.
 
 See `RArray.ofFn` and `RArray.ofArray` in module `Lean.Data.RArray` for functions that construct an
 `RArray`.
-
-It is not universe-polymorphic. ; smaller proof objects and no complication with the `ToExpr` type
-class.
 -/
 inductive RArray (α : Type u) : Type u where
   | leaf : α → RArray α

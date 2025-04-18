@@ -202,7 +202,7 @@ theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=
 namespace Nat
 
 -- less-than is well-founded
-def lt_wfRel : WellFoundedRelation Nat where
+@[semireducible] def lt_wfRel : WellFoundedRelation Nat where
   rel := (· < ·)
   wf  := by
     apply WellFounded.intro
@@ -453,7 +453,7 @@ The `wfParam` gadget is used internally during the construction of recursive fun
 wellfounded recursion, to keep track of the parameter for which the automatic introduction
 of `List.attach` (or similar) is plausible.
 -/
-def wfParam {α : Sort u} (a : α) : α := a
+@[semireducible] def wfParam {α : Sort u} (a : α) : α := a
 
 /--
 Reverse direction of `dite_eq_ite`. Used by the well-founded definition preprocessor to extend the

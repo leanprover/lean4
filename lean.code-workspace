@@ -30,7 +30,7 @@
 			{
 				"label": "build",
 				"type": "shell",
-				"command": "make -C build/release -j$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)",
+				"command": "make -C build/release stage1-configure && (cd src; lake build)",
 				"problemMatcher": [],
 				"group": {
 					"kind": "build",

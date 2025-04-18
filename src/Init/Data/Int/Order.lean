@@ -6,6 +6,7 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
+import all Init.Data.Int.Basic
 import Init.Data.Int.Lemmas
 import Init.ByCases
 

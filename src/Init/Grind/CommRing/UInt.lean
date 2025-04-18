@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Grind.CommRing.Basic
+import all Init.Data.UInt.Basic
 import Init.Data.UInt.Lemmas
 
 namespace UInt8

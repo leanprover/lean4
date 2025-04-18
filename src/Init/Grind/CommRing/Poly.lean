@@ -8,7 +8,7 @@ module
 prelude
 import Init.Data.Nat.Lemmas
 import Init.Data.Hashable
-import Init.Data.Ord
+import all Init.Data.Ord
 import Init.Data.RArray
 import Init.Grind.CommRing.Basic
 

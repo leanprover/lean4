@@ -24,7 +24,7 @@ If you want to guard shared state, use `Mutex α` instead.
 @[deprecated "Use Std.BaseMutex from Std.Sync.Mutex instead" (since := "2024-12-02")]
 def BaseMutex : Type := BaseMutexImpl.type
 
-instance : Nonempty BaseMutex := BaseMutexImpl.property
+instance : Nonempty BaseMutex := by exact BaseMutexImpl.property
 
 /-- Creates a new `BaseMutex`. -/
 @[extern "lean_io_basemutex_new", deprecated "Use Std.BaseMutex.new from Std.Sync.Mutex instead" (since := "2024-12-02")]
@@ -54,7 +54,7 @@ private opaque CondvarImpl : NonemptyType.{0}
 @[deprecated "Use Std.Condvar from Std.Sync.Mutex instead" (since := "2024-12-02")]
 def Condvar : Type := CondvarImpl.type
 
-instance : Nonempty Condvar := CondvarImpl.property
+instance : Nonempty Condvar := by exact CondvarImpl.property
 
 /-- Creates a new condition variable. -/
 @[extern "lean_io_condvar_new", deprecated "Use Std.Condvar.new from Std.Sync.Mutex instead" (since := "2024-12-02")]

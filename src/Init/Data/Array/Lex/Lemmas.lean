@@ -6,6 +6,7 @@ Author: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Lex.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Lex
 

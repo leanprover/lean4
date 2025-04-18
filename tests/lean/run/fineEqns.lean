@@ -61,11 +61,19 @@ run_meta
 /--
 info: WF.filter.fun_cases_eq_1.{u_1} {α : Type u_1} (p : α → Bool) : filter p [] = []
 ---
-info: WF.filter.fun_cases_eq_2.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) (h : p x = true) :
-  filter p (x :: xs) = x :: filter p xs
+info: WF.filter.fun_cases_eq_2.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) :
+  p x = true →
+    filter p (x :: xs) =
+      match p x with
+      | true => x :: filter p xs
+      | false => filter p xs
 ---
-info: WF.filter.fun_cases_eq_3.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) (h : ¬p x = true) :
-  filter p (x :: xs) = filter p xs
+info: WF.filter.fun_cases_eq_3.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) :
+  p x = false →
+    filter p (x :: xs) =
+      match p x with
+      | true => x :: filter p xs
+      | false => filter p xs
 -/
 #guard_msgs in
 run_meta
@@ -83,6 +91,7 @@ namespace SiftDown
 abbrev leftChild (i : Nat) := 2*i + 1
 abbrev parent (i : Nat) := (i - 1) / 2
 
+set_option trace.Meta.FunInd true
 def siftDown (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size) : Array Int :=
   if _ : leftChild root < e then
     let child := leftChild root
@@ -104,25 +113,23 @@ termination_by e - root
 decreasing_by sorry
 
 /--
-info: SiftDown.siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.size → Prop)
+info: SiftDown.siftDown.fun_cases (motive : (a : Array Int) → Nat → (e : Nat) → e ≤ a.size → Prop)
   (case1 :
-    ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
+    ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child]! < a[child + 1]! then child + 1 else child else child;
-        a[root]! < a[child]! →
-          let a_1 := a.swapIfInBounds root child;
-          motive a_1 child ⋯ → motive a root h)
+        let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
+        a[root]! < a[child]! → motive a root e h)
   (case2 :
-    ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
+    ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child]! < a[child + 1]! then child + 1 else child else child;
-        ¬a[root]! < a[child]! → motive a root h)
-  (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h) (a : Array Int)
-  (root : Nat) (h : e ≤ a.size) : motive a root h
+        let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
+        ¬a[root]! < a[child]! → motive a root e h)
+  (case3 : ∀ (a : Array Int) (root e : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root e h) (a : Array Int)
+  (root e : Nat) (h : e ≤ a.size) : motive a root e h
 -/
-#guard_msgs in #check siftDown.induct
+#guard_msgs in #check siftDown.fun_cases
 
 /--
 info: SiftDown.siftDown.fun_cases_eq_1 (a : Array Int) (root e : Nat) (h : e ≤ a.size) :
@@ -131,25 +138,14 @@ info: SiftDown.siftDown.fun_cases_eq_1 (a : Array Int) (root e : Nat) (h : e ≤
     let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
     a[root]! < a[child]! →
       siftDown a root e h =
-        let child := leftChild root;
-        let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
-        if a[root]! < a[child]! then
-          let a_1 := a.swapIfInBounds root child;
-          siftDown a_1 child e ⋯
-        else a
+        let a_1 := a.swapIfInBounds root child;
+        siftDown a_1 child e ⋯
 ---
 info: SiftDown.siftDown.fun_cases_eq_2 (a : Array Int) (root e : Nat) (h : e ≤ a.size) :
   leftChild root < e →
     let child := leftChild root;
     let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
-    ¬a[root]! < a[child]! →
-      siftDown a root e h =
-        let child := leftChild root;
-        let child := if x : child + 1 < e then if a[child]! < a[child + 1]! then child + 1 else child else child;
-        if a[root]! < a[child]! then
-          let a_1 := a.swapIfInBounds root child;
-          siftDown a_1 child e ⋯
-        else a
+    ¬a[root]! < a[child]! → siftDown a root e h = a
 ---
 info: SiftDown.siftDown.fun_cases_eq_3 (a : Array Int) (root e : Nat) (h : e ≤ a.size) :
   ¬leftChild root < e → siftDown a root e h = a

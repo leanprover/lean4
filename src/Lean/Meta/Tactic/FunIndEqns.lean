@@ -41,13 +41,13 @@ def simpWithNotUnderLambda (hyps : Array Expr) (e : Expr) : MetaM (Option Simp.R
     return if e.isLambda then .done { expr := e } else .continue
 
 -- Iota reduction and reducing if-then-else
-partial def simpEqnType (e prf : Expr) : MetaM (Expr × Expr) := withReducible do
-  forallTelescope e fun hyps e => do
-    assert! e.isEq
-    let rhs := e.appArg!
-    let (rhs', prf') ← go hyps rhs (prf.beta hyps)
-    let e' := e.appFn!.app rhs'
-    return (← mkForallFVars hyps e', ← mkLambdaFVars hyps prf')
+partial def simpEqnType (hyps : Array Expr) (e prf : Expr) : MetaM (Expr × Expr) := withReducible do
+  unless e.isEq do throwError s!"not an equation: {e}"
+  let rhs := e.appArg!
+  let (rhs', prf') ← go hyps rhs prf
+  trace[Meta.FunInd] "simpEqnType done:{indentExpr rhs}"
+  let e' := e.appFn!.app rhs'
+  return (← mkForallFVars hyps e', ← mkLambdaFVars hyps prf')
 where
   go hyps e prf : MetaM (Expr × Expr) := do
     trace[Meta.FunInd] "simpEqnType step:{indentExpr e}"
@@ -60,20 +60,22 @@ where
       if let some h ← hyps.findM? (fun h => do isDefEq (← inferType h) (mkNot c)) then
         let prf' ← mkEqTrans prf (mkApp6 (.const ``if_neg ite.constLevels!) c hdec h α «then» «else»)
         return ← go hyps «else» prf'
+      return (e, prf)
     | ite@dite α c hdec «then» «else» =>
       if let some h ← hyps.findM? (fun h => do isDefEq (← inferType h) c) then
         let prf' ← mkEqTrans prf (mkApp6 (.const ``dif_pos ite.constLevels!) c hdec h α «then» «else»)
-        return ← go hyps (← instantiateForall «then» #[h]) prf'
+        return ← go hyps («then».beta #[h]) prf'
       if let some h ← hyps.findM? (fun h => do isDefEq (← inferType h) (mkNot c)) then
-        let prf' ← mkEqTrans prf (mkApp6 (.const ``if_neg ite.constLevels!) c hdec h α «then» «else»)
-        return ← go hyps (← instantiateForall «else» #[h]) prf'
+        let prf' ← mkEqTrans prf (mkApp6 (.const ``dif_neg ite.constLevels!) c hdec h α «then» «else»)
+        return ← go hyps («else».beta #[h]) prf'
+      return (e, prf)
     | _ => pure ()
 
     -- Reduce let
     if e.isLet then
       for h in hyps do
         if (← withReducible (isDefEq h e.letValue!)) then
-          return ← go hyps (e.bindingBody!.instantiate1 h) prf
+          return ← go hyps (e.letBody!.instantiate1 h) prf
       return (e, prf)
 
     -- Rewrite match targets and reduce
@@ -167,9 +169,8 @@ def mkEqnVals (fnName : Name) : MetaM Unit := do
           assert! altBodyType.getAppNumArgs == xs.size
 
           let eqnExpr := mkAppN (.const unfoldEqName fnUs) altBodyType.getAppArgs
-          let eqnExpr ← mkLambdaFVars altParams eqnExpr
           let eqnType ← inferType eqnExpr
-          let (eqnType', eqnExpr') ← simpEqnType eqnType eqnExpr
+          let (eqnType', eqnExpr') ← simpEqnType altParams eqnType eqnExpr
 
           trace[Meta.FunInd] "Equation {i+1} before simp:{indentExpr eqnType}\nafter simp:{indentExpr eqnType'}"
           let eqnExpr' ← mkExpectedTypeHint eqnExpr' eqnType'

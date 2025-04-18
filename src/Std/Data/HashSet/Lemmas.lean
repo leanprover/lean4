@@ -496,6 +496,8 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
 
 end monadic
 
+variable {ρ : Type v} [ForIn Id ρ α]
+
 @[simp]
 theorem insertMany_nil :
     insertMany m [] = m :=
@@ -509,6 +511,13 @@ theorem insertMany_list_singleton {k : α} :
 theorem insertMany_cons {l : List α} {k : α} :
     insertMany m (k :: l) = insertMany (m.insert k) l :=
   ext HashMap.insertManyIfNewUnit_cons
+
+@[elab_as_elim]
+theorem insertMany_ind {motive : HashSet α → Prop} (m : HashSet α) {l : ρ}
+    (init : motive m) (insert : ∀ m a, motive m → motive (m.insert a)) :
+    motive (m.insertMany l) :=
+  show motive ⟨m.1.insertManyIfNewUnit l⟩ from
+    HashMap.insertManyIfNewUnit_ind m.inner l init fun m => insert ⟨m⟩
 
 @[simp]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α]
@@ -526,6 +535,10 @@ theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
     k ∈ insertMany m l → k ∈ m :=
   HashMap.mem_of_mem_insertManyIfNewUnit_list contains_eq_false
+
+theorem mem_insertMany_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : ρ} {k : α} : k ∈ m → k ∈ m.insertMany l :=
+  HashMap.mem_insertManyIfNewUnit_of_mem
 
 theorem get?_insertMany_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] {l : List α} {k : α}
@@ -613,6 +626,10 @@ theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α]
     m.size ≤ (insertMany m l).size :=
   HashMap.size_le_size_insertManyIfNewUnit_list
 
+theorem size_le_size_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α]
+    {l : ρ} : m.size ≤ (insertMany m l).size :=
+  HashMap.size_le_size_insertManyIfNewUnit
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α]
     {l : List α} :
     (insertMany m l).size ≤ m.size + l.length :=
@@ -623,6 +640,10 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α]
     {l : List α} :
     (insertMany m l).isEmpty = (m.isEmpty && l.isEmpty) :=
   HashMap.isEmpty_insertManyIfNewUnit_list
+
+theorem isEmpty_of_isEmpty_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α]
+    {l : ρ} : (insertMany m l).isEmpty → m.isEmpty :=
+  HashMap.isEmpty_of_isEmpty_insertManyIfNewUnit
 
 end
 

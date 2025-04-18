@@ -4220,7 +4220,7 @@ theorem toInt_ediv_toInt_lt_of_lt_allOnes {w : Nat} {x y : BitVec w} (hx : x.toI
     have hx' : x.toInt = 0 ∨ x.toInt = - 1 ∨ x.toInt < - 1 := by omega
     rcases hx' with hx'|hx'|hx'
     · simp [hx']; omega
-    · have := BitVec.toInt_ediv_eq_toInt_of_allOnes (y := y) (by omega)
+    · have := BitVec.toInt_ediv_toInt_eq_of_allOnes (y := y) (by omega)
       simp only [toInt_allOnes, Nat.lt_add_left_iff_pos, Nat.zero_lt_succ, ↓reduceIte,
         Int.reduceNeg] at this
       simp [hx', this]

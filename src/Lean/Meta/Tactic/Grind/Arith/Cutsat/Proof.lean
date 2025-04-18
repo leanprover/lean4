@@ -100,7 +100,7 @@ where
     | (type, ctx) :: ctxs =>
       let typeExpr := type.denoteType
       let ctxExpr ← toContextExprCore ctx typeExpr
-      withLetDecl ((`ctx).appendIndexAfter i) (mkApp (mkConst ``RArray) typeExpr) ctxExpr fun ctx => do
+      withLetDecl ((`ctx).appendIndexAfter i) (mkApp (mkConst ``RArray [levelZero]) typeExpr) ctxExpr fun ctx => do
         go (i+1) ctxs (r.insert type ctx)
 
 private def getLetCtxVars : ProofM (Array Expr) := do
@@ -110,7 +110,7 @@ private def getLetCtxVars : ProofM (Array Expr) := do
   return r
 
 private abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
-  withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx =>
+  withLetDecl `ctx (mkApp (mkConst ``RArray [levelZero]) (mkConst ``Int)) (← toContextExpr) fun ctx =>
   withForeignContexts fun foreignCtxs =>
     go { ctx, foreignCtxs } |>.run' {}
 where

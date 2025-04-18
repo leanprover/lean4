@@ -26,11 +26,11 @@ See `RArray.ofFn` and `RArray.ofArray` in module `Lean.Data.RArray` for function
 It is not universe-polymorphic. ; smaller proof objects and no complication with the `ToExpr` type
 class.
 -/
-inductive RArray (α : Type) : Type where
+inductive RArray (α : Type u) : Type u where
   | leaf : α → RArray α
   | branch : Nat → RArray α → RArray α → RArray α
 
-variable {α : Type}
+variable {α : Type u}
 
 /-- The crucial operation, written with very little abstractional overhead -/
 noncomputable def RArray.get (a : RArray α) (n : Nat) : α :=

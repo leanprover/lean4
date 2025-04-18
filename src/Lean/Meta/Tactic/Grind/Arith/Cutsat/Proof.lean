@@ -82,14 +82,14 @@ private def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) 
       i := i - 1
     return e
 
-private def toContextExprCore (vars : PArray Expr) (type : Expr) : Expr :=
+private def toContextExprCore (vars : PArray Expr) (type : Expr) : MetaM Expr :=
   if h : 0 < vars.size then
     RArray.toExpr type id (RArray.ofFn (vars[·]) h)
   else
     RArray.toExpr type id (RArray.leaf (mkIntLit 0))
 
 private def toContextExpr : GoalM Expr := do
-  return toContextExprCore (← getVars) (mkConst ``Int)
+  toContextExprCore (← getVars) (mkConst ``Int)
 
 private def withForeignContexts (k : Std.HashMap ForeignType Expr → GoalM α) : GoalM α := do
   go 1 (← get').foreignVars.toList {}
@@ -99,7 +99,7 @@ where
     | [] => k r
     | (type, ctx) :: ctxs =>
       let typeExpr := type.denoteType
-      let ctxExpr := toContextExprCore ctx typeExpr
+      let ctxExpr ← toContextExprCore ctx typeExpr
       withLetDecl ((`ctx).appendIndexAfter i) (mkApp (mkConst ``RArray) typeExpr) ctxExpr fun ctx => do
         go (i+1) ctxs (r.insert type ctx)
 

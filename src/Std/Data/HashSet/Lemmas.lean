@@ -626,7 +626,7 @@ theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α]
     m.size ≤ (insertMany m l).size :=
   HashMap.size_le_size_insertManyIfNewUnit_list
 
-theorem size_le_size_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α]
+theorem size_le_size_insertMany [EquivBEq α] [LawfulHashable α]
     {l : ρ} : m.size ≤ (insertMany m l).size :=
   HashMap.size_le_size_insertManyIfNewUnit
 
@@ -641,7 +641,7 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α]
     (insertMany m l).isEmpty = (m.isEmpty && l.isEmpty) :=
   HashMap.isEmpty_insertManyIfNewUnit_list
 
-theorem isEmpty_of_isEmpty_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α]
+theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α]
     {l : ρ} : (insertMany m l).isEmpty → m.isEmpty :=
   HashMap.isEmpty_of_isEmpty_insertManyIfNewUnit
 

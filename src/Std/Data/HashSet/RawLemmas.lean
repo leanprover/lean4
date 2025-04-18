@@ -561,7 +561,7 @@ theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     k ∈ insertMany m l → k ∈ m :=
   HashMap.Raw.mem_of_mem_insertManyIfNewUnit_list h.1 contains_eq_false
 
-theorem mem_insertManyIfNewUnit_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+theorem mem_insertMany_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : ρ} {k : α} : k ∈ m → k ∈ insertMany m l :=
   HashMap.Raw.mem_insertManyIfNewUnit_of_mem h.out
 
@@ -666,7 +666,7 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     (insertMany m l).isEmpty = (m.isEmpty && l.isEmpty) :=
   HashMap.Raw.isEmpty_insertManyIfNewUnit_list h.1
 
-theorem isEmpty_of_isEmpty_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] (h : m.WF)
+theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : ρ} : (insertMany m l).isEmpty → m.isEmpty :=
   HashMap.Raw.isEmpty_of_isEmpty_insertManyIfNewUnit h.out
 

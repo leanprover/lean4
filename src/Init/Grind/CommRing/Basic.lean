@@ -217,7 +217,7 @@ end CommRing
 
 open CommRing
 
-class IsCharP (α : Type u) [CommRing α] (p : Nat) where
+class IsCharP (α : Type u) [CommRing α] (p : outParam Nat) where
   ofNat_eq_zero_iff (p) : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0
 
 namespace IsCharP

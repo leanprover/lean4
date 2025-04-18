@@ -43,6 +43,10 @@ structure Power where
   k : Nat
   deriving BEq, Repr
 
+instance : LawfulBEq Power where
+  eq_of_beq {a} := by cases a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
+  rfl := by intro a; cases a <;> simp! [BEq.beq]
+
 def Power.varLt (p₁ p₂ : Power) : Bool :=
   p₁.x.blt p₂.x
 
@@ -57,6 +61,18 @@ inductive Mon where
   | leaf (p : Power)
   | cons (p : Power) (m : Mon)
   deriving BEq, Repr
+
+instance : LawfulBEq Mon where
+  eq_of_beq {a} := by
+    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
+    next p₁ p₂ => cases p₁ <;> cases p₂ <;> simp <;> intros <;> simp [*]
+    next p₁ m₁ p₂ m₂ ih =>
+      cases p₁ <;> cases p₂ <;> simp <;> intros <;> simp [*]
+      next h => exact ih h
+  rfl := by
+    intro a
+    induction a <;> simp! [BEq.beq]
+    assumption
 
 def Mon.denote {α} [CommRing α] (ctx : Context α) : Mon → α
   | .leaf p => p.denote ctx
@@ -195,6 +211,20 @@ inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Mon) (p : Poly)
   deriving BEq
+
+instance : LawfulBEq Poly where
+  eq_of_beq {a} := by
+    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
+    intro h₁ h₂ h₃
+    next m₁ p₁ _ m₂ p₂ ih =>
+    replace h₂ : m₁ == m₂ := h₂
+    simp [ih h₃, eq_of_beq h₂]
+  rfl := by
+    intro a
+    induction a <;> simp! [BEq.beq]
+    next k m p ih =>
+    show m == m ∧ p == p
+    simp [ih]
 
 def Poly.denote [CommRing α] (ctx : Context α) (p : Poly) : α :=
   match p with

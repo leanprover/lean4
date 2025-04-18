@@ -258,11 +258,11 @@ where
     | .add k' m' p =>
       match m.grevlex m' with
       | .eq =>
-        let k'' := k + k'
-        bif k'' == 0 then
+        let k := k + k'
+        bif k == 0 then
           p
         else
-          .add k'' m p
+          .add k m p
       | .lt => .add k m (.add k' m' p)
       | .gt => .add k' m' (go p)
 

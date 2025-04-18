@@ -6,7 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Prelude   -- for unfolding `Array.getInternal`
 import Init.Data.Array.MapIdx
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Attach
 import Init.Data.Vector.Lemmas
 
@@ -116,7 +119,7 @@ abbrev mem_zipWithIndex_iff_getElem? := @mem_zipIdx_iff_getElem?
 
 @[simp]
 theorem mapFinIdx_empty {f : (i : Nat) → α → (h : i < 0) → β} : mapFinIdx #v[] f = #v[] :=
-  rfl
+  by simp
 
 theorem mapFinIdx_eq_ofFn {as : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     as.mapFinIdx f = Vector.ofFn fun i : Fin n => f i as[i] i.2 := by
@@ -236,7 +239,7 @@ abbrev mapFinIdx_eq_mkVector_iff := @mapFinIdx_eq_replicate_iff
 
 @[simp]
 theorem mapIdx_empty {f : Nat → α → β} : mapIdx f #v[] = #v[] :=
-  rfl
+  by simp
 
 @[simp] theorem mapFinIdx_eq_mapIdx {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {g : Nat → α → β}
     (h : ∀ (i : Nat) (h : i < n), f i xs[i] h = g i xs[i]) :

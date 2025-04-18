@@ -11,6 +11,8 @@ prelude
 import Init.Data.Cast
 import Init.Data.Nat.Div.Basic
 
+set_option experimental.module.semireducibleDef true
+
 set_option linter.missingDocs true -- keep it documented
 open Nat
 
@@ -132,7 +134,7 @@ Examples:
  * `Int.subNatNat 2 5 = -3`
  * `Int.subNatNat 0 13 = -13`
 -/
-def subNatNat (m n : Nat) : Int :=
+@[semireducible] def subNatNat (m n : Nat) : Int :=
   match (n - m : Nat) with
   | 0        => ofNat (m - n)  -- m ≥ n
   | (succ k) => negSucc k
@@ -214,7 +216,7 @@ Non-strict inequality of integers, usually accessed via the `≤` operator.
 
 `a ≤ b` is defined as `b - a ≥ 0`, using `Int.NonNeg`.
 -/
-protected def le (a b : Int) : Prop := NonNeg (b - a)
+@[semireducible] protected def le (a b : Int) : Prop := NonNeg (b - a)
 
 instance instLEInt : LE Int where
   le := Int.le
@@ -224,7 +226,7 @@ Strict inequality of integers, usually accessed via the `<` operator.
 
 `a < b` when `a + 1 ≤ b`.
 -/
-protected def lt (a b : Int) : Prop := (a + 1) ≤ b
+@[semireducible] protected def lt (a b : Int) : Prop := (a + 1) ≤ b
 
 instance instLTInt : LT Int where
   lt := Int.lt
@@ -310,7 +312,7 @@ Examples:
  * `(0 : Int).natAbs = 0`
  * `((-11 : Int).natAbs = 11`
 -/
-@[extern "lean_nat_abs"]
+@[extern "lean_nat_abs", semireducible]
 def natAbs (m : @& Int) : Nat :=
   match m with
   | ofNat m => m

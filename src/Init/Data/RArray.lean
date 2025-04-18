@@ -9,6 +9,8 @@ module
 prelude
 import Init.PropLemmas
 
+set_option experimental.module.semireducibleDef true
+
 namespace Lean
 
 /--

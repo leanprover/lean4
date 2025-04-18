@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
+import all Init.Prelude  -- for unfolding `Array.getInternal`
 import Init.WFTactics
 import Init.Data.Nat.Basic
 import Init.Data.Fin.Basic
@@ -13,8 +14,9 @@ import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
-import Init.Data.List.ToArrayImpl
-import Init.Data.Array.Set
+import all Init.Data.List.Basic
+import all Init.Data.List.ToArrayImpl
+import all Init.Data.Array.Set
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

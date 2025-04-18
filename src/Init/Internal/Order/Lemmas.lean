@@ -8,8 +8,9 @@ module
 
 prelude
 
-import Init.Data.List.Control
-import Init.Data.Array.Basic
+import all Init.Data.List.Control
+import all Init.Data.Option.Basic
+import all Init.Data.Array.Basic
 import Init.Internal.Order.Basic
 
 /-!

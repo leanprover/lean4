@@ -6,6 +6,8 @@ Authors: Markus Himmel, Mac Malone
 module
 
 prelude
+import all Init.Data.BitVec.Basic
+import all Init.Data.UInt.Basic
 import Init.Data.UInt.Lemmas
 import Init.Data.Fin.Bitwise
 

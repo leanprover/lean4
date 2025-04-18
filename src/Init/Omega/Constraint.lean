@@ -14,6 +14,9 @@ A `Constraint` consists of an optional lower and upper bound (inclusive),
 constraining a value to a set of the form `∅`, `{x}`, `[x, y]`, `[x, ∞)`, `(-∞, y]`, or `(-∞, ∞)`.
 -/
 
+-- most defs used in proofs by reflection
+set_option experimental.module.semireducibleDef true
+
 namespace Lean.Omega
 
 /-- An optional lower bound on a integer. -/
@@ -92,7 +95,7 @@ def exact (r : Int) : Constraint := ⟨some r, some r⟩
   exact Int.eq_iff_le_and_ge.symm
 
 /-- Check if a constraint is unsatisfiable. -/
-def isImpossible : Constraint → Bool
+@[semireducible] def isImpossible : Constraint → Bool
   | ⟨some x, some y⟩ => y < x
   | _ => false
 
@@ -334,7 +337,7 @@ def tidy? : Constraint × Coeffs → Option (Constraint × Coeffs)
     | some (s', x') => some (normalize (s', x'))
 
 /-- `positivize` and `normalize` -/
-def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=
+@[semireducible] def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=
   tidy? p |>.getD p
 
 /-- Shorthand for the first component of `tidy`. -/

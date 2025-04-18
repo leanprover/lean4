@@ -148,7 +148,7 @@ theorem modifyTailIdx_modifyTailIdx_self {f g : List α → List α} (i : Nat) (
     (a :: l).modify 0 f = f a :: l := rfl
 
 @[simp] theorem modify_succ_cons (f : α → α) (a : α) (l : List α) (i) :
-    (a :: l).modify (i + 1) f = a :: l.modify i f := by rfl
+    (a :: l).modify (i + 1) f = a :: l.modify i f := rfl
 
 theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
     l.modifyHead f = l.modify 0 f := by cases l <;> simp

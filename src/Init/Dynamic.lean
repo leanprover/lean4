@@ -65,7 +65,7 @@ This is roughly equivalent to `(α : Type) × TypeName α × α`, but without th
 `Dynamic.mk` to inject a value into `Dynamic` from another type, and `Dynamic.get?` to extract a
 value from `Dynamic` if it has some expected type.
 -/
-def Dynamic : Type := DynamicPointed.type
+@[semireducible] def Dynamic : Type := DynamicPointed.type
 
 instance : Nonempty Dynamic := DynamicPointed.property
 

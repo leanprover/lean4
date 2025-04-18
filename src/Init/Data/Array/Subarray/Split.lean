@@ -8,7 +8,7 @@ module
 
 prelude
 import Init.Data.Array.Basic
-import Init.Data.Array.Subarray
+import all Init.Data.Array.Subarray
 import Init.Omega
 
 /-

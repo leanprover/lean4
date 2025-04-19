@@ -1,7 +1,6 @@
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 open Lean.Grind.CommRing
 
-
 def w : Expr := .var 0
 def x : Expr := .var 1
 def y : Expr := .var 2
@@ -31,3 +30,7 @@ example : check_spoly (x + 1) (z + 1) (z - x) := by native_decide
 example : check_spoly (w^2*x - y) (w*x^2 - z) (-y*x + z*w) := by native_decide
 example : check_spoly (2*z^3 - x*y) (3*z*y - 1) (2*z^2 - 3*x*y^2) := by native_decide
 example : check_spoly (2*x + 3) (3*z + 1) (9*z - 2*x) := by native_decide
+
+example : check_spoly (2*y^2 - x + 1) (2*x*y - 1 + y) (-x^2 + y + x - y^2) := by native_decide
+example : check_spoly (2*y^2 - x + 1) (4*x*y - 1 + y) (-2*x^2 + y + 2*x - y^2) := by native_decide
+example : check_spoly (6*y^2 - x + 1) (4*x*y - 1 + y) (-2*x^2 + 3*y + 2*x - 3*y^2) := by native_decide

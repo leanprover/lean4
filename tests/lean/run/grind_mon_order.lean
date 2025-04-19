@@ -6,9 +6,9 @@ def y : Var := 2
 def z : Var := 3
 
 macro:100 (priority:=high) a:ident "^" k:num : term => `(Power.mk $a $k)
-infixr:70 (priority:=high) "." => Mon.cons
+infixr:70 (priority:=high) "." => Mon.mult
 instance : Coe Power Mon where
-  coe p := Mon.leaf p
+  coe p := Mon.mult p .unit
 instance : Coe Var Power where
   coe x := x^1
 

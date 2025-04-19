@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Lemmas
+import Init.Data.Hashable
 import Init.Data.Ord
 import Init.Data.RArray
 import Init.Grind.CommRing.Basic
@@ -41,7 +42,7 @@ def Expr.denote {α} [CommRing α] (ctx : Context α) : Expr → α
 structure Power where
   x : Var
   k : Nat
-  deriving BEq, Repr
+  deriving BEq, Repr, Hashable
 
 instance : LawfulBEq Power where
   eq_of_beq {a} := by cases a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
@@ -58,14 +59,13 @@ def Power.denote {α} [CommRing α] (ctx : Context α) : Power → α
     | k => x.denote ctx ^ k
 
 inductive Mon where
-  | leaf (p : Power)
-  | cons (p : Power) (m : Mon)
+  | unit
+  | mult (p : Power) (m : Mon)
   deriving BEq, Repr
 
 instance : LawfulBEq Mon where
   eq_of_beq {a} := by
     induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    next p₁ p₂ => cases p₁ <;> cases p₂ <;> simp <;> intros <;> simp [*]
     next p₁ m₁ p₂ m₂ ih =>
       cases p₁ <;> cases p₂ <;> simp <;> intros <;> simp [*]
       next h => exact ih h
@@ -75,45 +75,32 @@ instance : LawfulBEq Mon where
     assumption
 
 def Mon.denote {α} [CommRing α] (ctx : Context α) : Mon → α
-  | .leaf p => p.denote ctx
-  | .cons p m => p.denote ctx * denote ctx m
-
-def Mon.denote' {α} [CommRing α] (ctx : Context α) : Mon → α
-  | .leaf p => p.denote ctx
-  | .cons p m => go (p.denote ctx) m
-where
-  go (acc : α) : Mon → α
-    | .leaf p => acc * p.denote ctx
-    | .cons p m => go (acc * p.denote ctx) m
+  | unit => 1
+  | .mult p m => p.denote ctx * denote ctx m
 
 def Mon.ofVar (x : Var) : Mon :=
-  .leaf { x, k := 1 }
+  .mult { x, k := 1 } .unit
 
 def Mon.concat (m₁ m₂ : Mon) : Mon :=
   match m₁ with
-  | .leaf p => .cons p m₂
-  | .cons p m₁ => .cons p (concat m₁ m₂)
+  | .unit => m₂
+  | .mult pw m₁ => .mult pw (concat m₁ m₂)
 
-def Mon.mulPow (p : Power) (m : Mon) : Mon :=
+def Mon.mulPow (pw : Power) (m : Mon) : Mon :=
   match m with
-  | .leaf p' =>
-    bif p.varLt p' then
-      .cons p m
-    else bif p'.varLt p then
-      .cons p' (.leaf p)
+  | .unit =>
+    .mult pw .unit
+  | .mult pw' m =>
+    bif pw.varLt pw' then
+      .mult pw (.mult pw' m)
+    else bif pw'.varLt pw then
+      .mult pw' (mulPow pw m)
     else
-      .leaf { x := p.x, k := p.k + p'.k }
-  | .cons p' m =>
-    bif p.varLt p' then
-      .cons p (.cons p' m)
-    else bif p'.varLt p then
-      .cons p' (mulPow p m)
-    else
-      .cons { x := p.x, k := p.k + p'.k } m
+      .mult { x := pw.x, k := pw.k + pw'.k } m
 
 def Mon.length : Mon → Nat
-  | .leaf _ => 1
-  | .cons _ m => 1 + length m
+  | .unit => 0
+  | .mult _ m => 1 + length m
 
 def hugeFuel := 1000000
 
@@ -126,19 +113,19 @@ where
     | 0 => concat m₁ m₂
     | fuel + 1 =>
       match m₁, m₂ with
-      | m₁, .leaf p => m₁.mulPow p
-      | .leaf p, m₂ => m₂.mulPow p
-      | .cons p₁ m₁, .cons p₂ m₂ =>
-        bif p₁.varLt p₂ then
-          .cons p₁ (go fuel m₁ (.cons p₂ m₂))
-        else bif p₂.varLt p₁ then
-          .cons p₂ (go fuel (.cons p₁ m₁) m₂)
+      | m₁, .unit => m₁
+      | .unit, m₂ => m₂
+      | .mult pw₁ m₁, .mult pw₂ m₂ =>
+        bif pw₁.varLt pw₂ then
+          .mult pw₁ (go fuel m₁ (.mult pw₂ m₂))
+        else bif pw₂.varLt pw₁ then
+          .mult pw₂ (go fuel (.mult pw₁ m₁) m₂)
         else
-          .cons { x := p₁.x, k := p₁.k + p₂.k } (go fuel m₁ m₂)
+          .mult { x := pw₁.x, k := pw₁.k + pw₂.k } (go fuel m₁ m₂)
 
 def Mon.degree : Mon → Nat
-  | .leaf p => p.k
-  | .cons p m => p.k + degree m
+  | .unit => 0
+  | .mult pw m => pw.k + degree m
 
 def Var.revlex (x y : Var) : Ordering :=
   bif x.blt y then .gt
@@ -155,24 +142,16 @@ def Power.revlex (p₁ p₂ : Power) : Ordering :=
 
 def Mon.revlexWF (m₁ m₂ : Mon) : Ordering :=
   match m₁, m₂ with
-  | .leaf p₁, .leaf p₂ => p₁.revlex p₂
-  | .leaf p₁, .cons p₂ m₂ =>
-    bif p₁.x.ble p₂.x  then
-      .gt
+  | .unit, .unit => .eq
+  | .unit, .mult .. => .gt
+  | .mult .., .unit => .lt
+  | .mult pw₁ m₁, .mult pw₂ m₂ =>
+    bif pw₁.x == pw₂.x then
+      revlexWF m₁ m₂ |>.then (powerRevlex pw₁.k pw₂.k)
+    else bif pw₁.x.blt pw₂.x then
+      revlexWF m₁ (.mult pw₂ m₂) |>.then .gt
     else
-      revlexWF (.leaf p₁) m₂ |>.then .gt
-  | .cons p₁ m₁, .leaf p₂ =>
-    bif p₂.x.ble p₁.x then
-      .lt
-    else
-      revlexWF m₁ (.leaf p₂) |>.then .lt
-  | .cons p₁ m₁, .cons p₂ m₂ =>
-    bif p₁.x == p₂.x then
-      revlexWF m₁ m₂ |>.then (powerRevlex p₁.k p₂.k)
-    else bif p₁.x.blt p₂.x then
-      revlexWF m₁ (.cons p₂ m₂) |>.then .gt
-    else
-      revlexWF (.cons p₁ m₁) m₂ |>.then .lt
+      revlexWF (.mult pw₁ m₁) m₂ |>.then .lt
 
 def Mon.revlexFuel (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
   match fuel with
@@ -182,24 +161,16 @@ def Mon.revlexFuel (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
     revlexWF m₁ m₂
   | fuel + 1 =>
     match m₁, m₂ with
-    | .leaf p₁, .leaf p₂ => p₁.revlex p₂
-    | .leaf p₁, .cons p₂ m₂ =>
-      bif p₁.x.ble p₂.x  then
-        .gt
+    | .unit, .unit => .eq
+    | .unit, .mult ..  => .gt
+    | .mult .., .unit => .lt
+    | .mult pw₁ m₁, .mult pw₂ m₂ =>
+      bif pw₁.x == pw₂.x then
+        revlexFuel fuel m₁ m₂ |>.then (powerRevlex pw₁.k pw₂.k)
+      else bif pw₁.x.blt pw₂.x then
+        revlexFuel fuel m₁ (.mult pw₂ m₂) |>.then .gt
       else
-        revlexFuel fuel (.leaf p₁) m₂ |>.then .gt
-    | .cons p₁ m₁, .leaf p₂ =>
-      bif p₂.x.ble p₁.x then
-        .lt
-      else
-        revlexFuel fuel m₁ (.leaf p₂) |>.then .lt
-    | .cons p₁ m₁, .cons p₂ m₂ =>
-      bif p₁.x == p₂.x then
-        revlexFuel fuel m₁ m₂ |>.then (powerRevlex p₁.k p₂.k)
-      else bif p₁.x.blt p₂.x then
-        revlexFuel fuel m₁ (.cons p₂ m₂) |>.then .gt
-      else
-        revlexFuel fuel (.cons p₁ m₁) m₂ |>.then .lt
+        revlexFuel fuel (.mult pw₁ m₁) m₂ |>.then .lt
 
 def Mon.revlex (m₁ m₂ : Mon) : Ordering :=
   revlexFuel hugeFuel m₁ m₂
@@ -347,7 +318,7 @@ def Expr.toPoly : Expr → Poly
   | .pow a k =>
     match a with
     | .num n => .num (n^k)
-    | .var x => Poly.ofMon (.leaf {x, k})
+    | .var x => Poly.ofMon (.mult {x, k} .unit)
     | _ => a.toPoly.pow k
 
 /-!
@@ -471,7 +442,7 @@ where
     | .pow a k =>
       match a with
       | .num n => .num ((n^k) % c)
-      | .var x => Poly.ofMon (.leaf {x, k})
+      | .var x => Poly.ofMon (.mult {x, k} .unit)
       | _ => (go a).powC k c
 
 /-!
@@ -482,25 +453,13 @@ theorem Power.denote_eq {α} [CommRing α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
   cases p <;> simp [Power.denote] <;> split <;> simp [pow_zero, pow_succ, one_mul]
 
-theorem Mon.denote'_go_eq_denote {α} [CommRing α] (ctx : Context α) (a : α) (m : Mon)
-    : denote'.go ctx a m = a * denote ctx m := by
-  induction m generalizing a <;> simp [Mon.denote, Mon.denote'.go]
-  next p' m ih =>
-    simp [Mon.denote] at ih
-    rw [ih, mul_assoc]
-
-theorem Mon.denote'_eq_denote {α} [CommRing α] (ctx : Context α) (m : Mon)
-    : denote' ctx m = denote ctx m := by
-  cases m <;> simp [Mon.denote, Mon.denote']
-  next p m => apply denote'_go_eq_denote
-
 theorem Mon.denote_ofVar {α} [CommRing α] (ctx : Context α) (x : Var)
     : denote ctx (ofVar x) = x.denote ctx := by
-  simp [denote, ofVar, Power.denote_eq, pow_succ, pow_zero, one_mul]
+  simp [denote, ofVar, Power.denote_eq, pow_succ, pow_zero, one_mul, mul_one]
 
 theorem Mon.denote_concat {α} [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
     : denote ctx (concat m₁ m₂) = m₁.denote ctx * m₂.denote ctx := by
-  induction m₁ <;> simp [concat, denote, *]
+  induction m₁ <;> simp [concat, denote, one_mul, *]
   next p₁ m₁ ih => rw [mul_assoc]
 
 private theorem le_of_blt_false {a b : Nat} : a.blt b = false → b ≤ a := by
@@ -515,14 +474,7 @@ private theorem eq_of_blt_false {a b : Nat} : a.blt b = false → b.blt a = fals
 
 theorem Mon.denote_mulPow {α} [CommRing α] (ctx : Context α) (p : Power) (m : Mon)
     : denote ctx (mulPow p m) = p.denote ctx * m.denote ctx := by
-  fun_induction mulPow <;> simp [mulPow, *]
-  next => simp [denote]
-  next => simp [denote]; rw [mul_comm]
-  next p' h₁ h₂ =>
-    have := eq_of_blt_false h₁ h₂
-    simp [denote, Power.denote_eq, this, pow_add]
-  next => simp [denote]
-  next => simp [denote, mul_assoc, mul_comm, mul_left_comm, *]
+  fun_induction mulPow <;> simp [mulPow, denote, mul_assoc, mul_comm, mul_left_comm, *]
   next h₁ h₂ =>
     have := eq_of_blt_false h₁ h₂
     simp [denote, Power.denote_eq, pow_add, this, mul_assoc]
@@ -531,10 +483,9 @@ theorem Mon.denote_mul {α} [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
     : denote ctx (mul m₁ m₂) = m₁.denote ctx * m₂.denote ctx := by
   unfold mul
   generalize hugeFuel = fuel
-  fun_induction mul.go <;> simp [mul.go, denote, denote_concat, denote_mulPow, *]
-  next => rw [mul_comm]
-  next => simp [mul_assoc]
-  next => simp [mul_assoc, mul_left_comm, mul_comm]
+  fun_induction mul.go
+    <;> simp [mul.go, denote, denote_concat, denote_mulPow, one_mul, mul_one,
+      mul_assoc, mul_left_comm, mul_comm, *]
   next h₁ h₂ _ =>
     have := eq_of_blt_false h₁ h₂
     simp [Power.denote_eq, pow_add, mul_assoc, mul_left_comm, mul_comm, this]
@@ -563,7 +514,6 @@ private theorem then_eq (o₁ o₂ : Ordering) : o₁.then o₂ = .eq ↔ o₁ =
 
 theorem Mon.eq_of_revlexWF {m₁ m₂ : Mon} : m₁.revlexWF m₂ = .eq → m₁ = m₂ := by
   fun_induction revlexWF <;> simp [revlexWF, *, then_gt, then_lt, then_eq]
-  next => apply Power.eq_of_revlex
   next p₁ m₁ p₂ m₂ h ih =>
     cases p₁; cases p₂; intro h₁ h₂; simp [ih h₁, h]
     simp at h h₂
@@ -572,7 +522,6 @@ theorem Mon.eq_of_revlexWF {m₁ m₂ : Mon} : m₁.revlexWF m₂ = .eq → m₁
 theorem Mon.eq_of_revlexFuel {fuel : Nat} {m₁ m₂ : Mon} : revlexFuel fuel m₁ m₂ = .eq → m₁ = m₂ := by
   fun_induction revlexFuel <;> simp [revlexFuel, *, then_gt, then_lt, then_eq]
   next => apply eq_of_revlexWF
-  next => apply Power.eq_of_revlex
   next p₁ m₁ p₂ m₂ h ih =>
     cases p₁; cases p₂; intro h₁ h₂; simp [ih h₁, h]
     simp at h h₂
@@ -670,11 +619,9 @@ theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
    : e.toPoly.denote ctx = e.denote ctx := by
   fun_induction toPoly
     <;> simp [toPoly, denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combine,
-          Poly.denote_mul, Poly.denote_mulConst, Poly.denote_pow, *]
-  next => rw [intCast_neg, neg_mul, intCast_one, one_mul]
-  next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]
-  next => rw [intCast_pow]
-  next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq]
+          Poly.denote_mul, Poly.denote_mulConst, Poly.denote_pow, intCast_pow, intCast_neg, intCast_one,
+          neg_mul, one_mul, sub_eq_add_neg, *]
+  next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
 theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
@@ -791,7 +738,7 @@ theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]
   next => rw [IsCharP.intCast_emod, intCast_pow]
-  next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq]
+  next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
 theorem Expr.eq_of_toPolyC_eq {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (a b : Expr)
     (h : a.toPolyC c == b.toPolyC c) : a.denote ctx = b.denote ctx := by

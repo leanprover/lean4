@@ -231,21 +231,32 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
             Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
+def isNatLtWF (wfRel : Expr) : MetaM (Option Expr) := do
+  match_expr wfRel with
+  | invImage _ β f wfRelβ =>
+    unless (← isDefEq β (mkConst ``Nat)) do return none
+    unless (← isDefEq wfRelβ (mkConst ``Nat.lt_wfRel)) do return none
+    return f
+  | _ => return none
+
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
     (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy))
     (opaqueProof : Bool) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
+    let varName ← x.fvarId!.getUserName -- See comment below.
     let α ← inferType x
     let u ← getLevel α
     let v ← getLevel type
     let motive ← mkLambdaFVars #[x] type
-    let rel := mkProj ``WellFoundedRelation 0 wfRel
-    let wf  := mkProj ``WellFoundedRelation 1 wfRel
-    let wf ← if opaqueProof then mkAppM `Lean.opaqueId #[wf] else pure wf
-    let varName ← x.fvarId!.getUserName -- See comment below.
-    return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
+    if let some measure ← isNatLtWF wfRel then
+      return (mkApp3 (mkConst `WellFounded.Nat.fix [u, v]) α motive measure, varName)
+    else
+      let rel := mkProj ``WellFoundedRelation 0 wfRel
+      let wf  := mkProj ``WellFoundedRelation 1 wfRel
+      let wf ← if opaqueProof then mkAppM `Lean.opaqueId #[wf] else pure wf
+      return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]!
     -- Remark: we rename `x` here to make sure we preserve the variable name in the

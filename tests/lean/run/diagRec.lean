@@ -9,13 +9,10 @@ termination_by n
 info: 89
 ---
 info: [diag] Diagnostics
-  [reduction] unfolded declarations (max: 407, num: 3):
-    [reduction] Nat.rec ↦ 407
-    [reduction] Or.rec ↦ 144
-    [reduction] Acc.rec ↦ 108
-  [reduction] unfolded reducible declarations (max: 352, num: 2):
-    [reduction] Nat.casesOn ↦ 352
-    [reduction] Or.casesOn ↦ 144
+  [reduction] unfolded declarations (max: 497, num: 1):
+    [reduction] Nat.rec ↦ 497
+  [reduction] unfolded reducible declarations (max: 320, num: 1):
+    [reduction] Nat.casesOn ↦ 320
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in

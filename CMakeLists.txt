@@ -53,7 +53,7 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     ExternalProject_add(cadical
       PREFIX cadical
       GIT_REPOSITORY https://github.com/arminbiere/cadical
-      GIT_TAG rel-2.1.2
+      GIT_TAG rel-2.2.0-rc2
       CONFIGURE_COMMAND ""
       # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
       BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CXX=${CADICAL_CXX} CXXFLAGS=${CADICAL_CXXFLAGS}

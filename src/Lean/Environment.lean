@@ -9,11 +9,13 @@ import Init.Data.Array.BinSearch
 import Init.Data.Stream
 import Init.System.Promise
 import Lean.ImportingFlag
+import Lean.Data.Json
 import Lean.Data.NameTrie
 import Lean.Data.SMap
 import Lean.Declaration
 import Lean.LocalContext
 import Lean.Util.Path
+import Lean.Util.LeanOptions
 import Lean.Util.FindExpr
 import Lean.Util.Profile
 import Lean.Util.InstantiateLevelParams
@@ -99,11 +101,46 @@ structure Import where
   importAll : Bool := false
   /-- Whether to activate this import when the current module itself is imported. -/
   isExported    : Bool := true
-  deriving Repr, Inhabited
+  deriving Repr, Inhabited, ToJson, FromJson
 
 instance : Coe Name Import := ⟨({module := ·})⟩
 
 instance : ToString Import := ⟨fun imp => toString imp.module⟩
+
+/-- Files containing data for a single module. -/
+structure ModuleArtifacts where
+  lean? : Option System.FilePath := none
+  olean? : Option System.FilePath := none
+  oleanServer? : Option System.FilePath := none
+  oleanPrivate? : Option System.FilePath := none
+  ilean? : Option System.FilePath := none
+  deriving Repr, Inhabited, ToJson, FromJson
+
+/--
+A module's import header as described by a JSON file.
+Used in place of the real header when the `--header` CLI option is used.
+-/
+structure HeaderDescr where
+  /-- Whether the module is participating in the module system. -/
+  isModule : Bool := false
+  /- The module's direct imports. -/
+  imports : Array Import := #[]
+  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
+  modules : NameMap ModuleArtifacts := {}
+  /-- Dynamic libraries to load with the module. -/
+  dynlibs : Array System.FilePath := #[]
+  /-- Plugins to initialize with the module. -/
+  plugins : Array System.FilePath := #[]
+  /-- Additional options for the module. -/
+  options : LeanOptions := {}
+  deriving Repr, Inhabited, ToJson, FromJson
+
+/-- Load a `HeaderDescr` from a JSON file. -/
+def HeaderDescr.load (path : System.FilePath) : IO HeaderDescr := do
+  let contents ← IO.FS.readFile path
+  match Json.parse contents >>= fromJson? with
+  | .ok info => pure info
+  | .error msg => throw <| IO.userError s!"failed to load header from {path}: {msg}"
 
 /--
   A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
@@ -1794,7 +1831,35 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
   x.run s
 
-partial def importModulesCore (imports : Array Import) (forceImportAll := true) :
+def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  -- Opportunistically load all available parts.
+  -- Producer (e.g., Lake) should limit parts to the proper import level.
+  if let some mFile := arts.olean? then
+    fnames := fnames.push mFile
+    if let some sFile := arts.oleanServer? then
+      fnames := fnames.push sFile
+      if let some pFile := arts.oleanPrivate? then
+        fnames := fnames.push pFile
+  return fnames
+
+private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
+  let mFile ← findOLean mod
+  unless (← mFile.pathExists) do
+    throw <| IO.userError s!"object file '{mFile}' of module {mod} does not exist"
+  let mut fnames := #[mFile]
+  -- Opportunistically load all available parts.
+  -- Necessary because the import level may be upgraded a later import.
+  let sFile := OLeanLevel.server.adjustFileName mFile
+  if (← sFile.pathExists) then
+    fnames := fnames.push sFile
+    let pFile := OLeanLevel.private.adjustFileName mFile
+    if (← pFile.pathExists) then
+      fnames := fnames.push pFile
+  return fnames
+
+partial def importModulesCore
+    (imports : Array Import) (forceImportAll := true) (arts : NameMap ModuleArtifacts := {}) :
     ImportStateM Unit := go
 where go := do
   for i in imports do
@@ -1811,19 +1876,14 @@ where go := do
           if let some mod := mod.mainModule? then
             importModulesCore (forceImportAll := true) mod.imports
       continue
-    let mFile ← findOLean i.module
-    unless (← mFile.pathExists) do
-      throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
-    let mut fnames := #[mFile]
-    -- opportunistically load all available parts in case `importPrivate` is upgraded by a later
-    -- import
-    -- TODO: use Lake data to retrieve ultimate import level immediately
-    let sFile := OLeanLevel.server.adjustFileName mFile
-    if (← sFile.pathExists) then
-      fnames := fnames.push sFile
-      let pFile := OLeanLevel.private.adjustFileName mFile
-      if (← pFile.pathExists) then
-        fnames := fnames.push pFile
+    let fnames ←
+      if let some arts := arts.find? i.module then
+        let fnames := arts.oleanParts
+        if fnames.isEmpty then
+          findOLeanParts i.module
+        else pure fnames
+      else
+        findOLeanParts i.module
     let parts ← readModuleDataParts fnames
     -- `imports` is identical for each part
     let some (baseMod, _) := parts[0]? | unreachable!
@@ -1995,13 +2055,14 @@ as if no `module` annotations were present in the imports.
 -/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
-    (level := OLeanLevel.private) : IO Environment := profileitIO "import" opts do
+    (level := OLeanLevel.private) (arts : NameMap ModuleArtifacts := {})
+    : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports |>.run
+    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports arts |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 

@@ -283,10 +283,16 @@ simple uses, these can be computed eagerly without looking at the imports.
 structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
+  /-- Whether the file is participating in the module system. -/
+  isModule : Bool := false
+  /-- Direct imports of the file being processed. -/
+  imports : Array Import
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
+  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
+  modules : NameMap ModuleArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
   plugins : Array System.FilePath := #[]
 
@@ -463,6 +469,7 @@ where
         | .ok setup => pure setup
         | .error snap => return snap
 
+      let spos := stx.raw.getPos?.getD 0
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
       -- HACK: no better way to enable in core with `USE_LAKE` off
@@ -471,9 +478,9 @@ where
       if !stx.raw[0].isNone && !experimental.module.get opts then
         throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
-      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true)
-        (mainModule := setup.mainModuleName) stx opts .empty ctx.toInputContext setup.trustLevel
-        setup.plugins
+      let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
+        spos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
+        setup.trustLevel setup.plugins setup.mainModuleName setup.modules
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then

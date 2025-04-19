@@ -60,8 +60,10 @@ def LeanOptionValue.asCliFlagValue : (v : LeanOptionValue) → String
 
 /-- Options that are used by Lean as if they were passed using `-D`. -/
 structure LeanOptions where
-  values : RBMap Name LeanOptionValue Name.cmp
+  values : NameMap LeanOptionValue
   deriving Inhabited, Repr
+
+instance : EmptyCollection LeanOptions := ⟨⟨∅⟩⟩
 
 def LeanOptions.toOptions (leanOptions : LeanOptions) : Options := Id.run do
   let mut options := KVMap.empty
@@ -77,17 +79,9 @@ def LeanOptions.fromOptions? (options : Options) : Option LeanOptions := do
   return ⟨values⟩
 
 instance : FromJson LeanOptions where
-  fromJson?
-    | Json.obj obj => do
-      let values ← obj.foldM (init := RBMap.empty) fun acc k v => do
-        let optionValue ← fromJson? v
-        return acc.insert k.toName optionValue
-      return ⟨values⟩
-    | _ => Except.error "invalid LeanOptions type"
+  fromJson? j := LeanOptions.mk <$> fromJson? j
 
 instance : ToJson LeanOptions where
-  toJson options :=
-    Json.obj <| options.values.fold (init := RBNode.leaf) fun acc k v =>
-      acc.insert (cmp := compare) k.toString (toJson v)
+  toJson options := toJson options.values
 
 end Lean

@@ -60,4 +60,14 @@ def Mon.coprime : Mon → Mon → Bool
     | .lt => coprime m₁ (.mult pw₂ m₂)
     | .gt => coprime (.mult pw₁ m₁) m₂
 
+/-- Returns the S-polynomial for `p₁` and `p₂`. -/
+def Poly.superpose (p₁ p₂ : Poly) : Poly :=
+  match p₁, p₂ with
+  | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
+    let m   := m₁.lcm m₂
+    let p₁  := p₁.mulMon k₂ (m.div m₁)
+    let p₂  := p₂.mulMon (-k₁) (m.div m₂)
+    p₁.combine p₂
+  | _, _ => .num 0
+
 end Lean.Grind.CommRing

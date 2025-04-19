@@ -9,3 +9,4 @@ import Lean.Meta.Tactic.Grind.Arith.Types
 import Lean.Meta.Tactic.Grind.Arith.Main
 import Lean.Meta.Tactic.Grind.Arith.Offset
 import Lean.Meta.Tactic.Grind.Arith.Cutsat
+import Lean.Meta.Tactic.Grind.Arith.CommRing

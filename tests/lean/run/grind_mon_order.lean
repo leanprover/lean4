@@ -1,3 +1,4 @@
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 open Lean.Grind.CommRing
 
 def w : Var := 0
@@ -53,3 +54,48 @@ example : check_revlex (z) (w^8) := rfl
 example : check_revlex (z) (x^100) := rfl
 example : check_revlex (z^100) (z) := rfl
 example : check_revlex (x^2 . y^2 . z^5) (x^2 . y^3 . z^4) := rfl
+
+example : Mon.div (w^2 . y^2 . z) (w^2 . y) = y . z := rfl
+example : Mon.div (w^2 . y^2 . z) y = w^2 . y . z := rfl
+example : Mon.div (w^2 . y^2 . z) (y^2) = w^2 . z := rfl
+example : Mon.div (w^2 . y^4) .unit = w^2 . y^4 := rfl
+example : Mon.div (w^2 . y^4) (w^2 . y^4) = .unit := rfl
+example : Mon.div (w^2 . y^4) (w^2 . y^5) = .unit := rfl
+example : Mon.div (w^5) w = w^4 := rfl
+example : Mon.div (w^5 . x^3 . y^2) (w^2 . x) = w^3 . x^2 . y^2 := rfl
+example : Mon.div (y^2 . z^3) (y . z) = y . z^2 := rfl
+example : Mon.div (x . y) (x . y) = .unit := rfl
+example : Mon.div (w . x^2 . y) (w . x . y) = x := rfl
+
+example : Mon.divides (x^2) (w^5) = false := rfl
+
+def check_divides (m₁ m₂ : Mon) :=
+  m₂.divides m₁ && (m₁ == m₂ || !m₁.divides m₂)
+
+example : check_divides (w^5) w := rfl
+example : check_divides (w^2 . y^2 . z) (w^2 . y) := rfl
+example : check_divides (w^2 . y^2 . z) y := rfl
+example : check_divides (w^2 . y^2 . z) (y^2) := rfl
+example : check_divides (w^2 . y^4) .unit  := rfl
+example : check_divides (w^2 . y^4) (w^2 . y^4) := rfl
+example : check_divides (w^5) w := rfl
+example : check_divides (w^5 . x^3 . y^2) (w^2 . x) := rfl
+example : check_divides (x . y) (x . y) := rfl
+
+#eval Mon.lcm Mon.unit (w^3 . y^2)
+
+def check_lcm (m₁ m₂ r : Mon) :=
+  m₁.lcm m₁ == m₁ &&
+  m₂.lcm m₂ == m₂ &&
+  m₁.lcm m₂ == r &&
+  m₂.lcm m₁ == r
+
+example : check_lcm (.unit) (w^3 . y^2) (w^3 . y^2) := by native_decide
+example : check_lcm (w^3 . y^2) Mon.unit (w^3 . y^2) := by native_decide
+example : check_lcm (w^2) (w^5) (w^5) := by native_decide
+example : check_lcm x y (x . y) := by native_decide
+example : check_lcm y z (y . z) := by native_decide
+example : check_lcm (w^2 . x^3) (w^5 . x . y^2) (w^5 . x^3 . y^2) := by native_decide
+example : check_lcm (w . x . y) z (w . x . y . z) := by native_decide
+example : check_lcm (x^2 . y^3) (x^2 . y^5) (x^2 . y^5) := by native_decide
+example : check_lcm (w^100 . x^2) (x^50 . y) (w^100 . x^50 . y) := by native_decide

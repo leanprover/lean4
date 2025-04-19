@@ -9,9 +9,9 @@ import Std.Data.HashMap.Basic
 /-!
 # Hash sets
 
-This module develops the type `Std.Data.HashSet` of dependent hash sets.
+This module develops the type `Std.HashSet` of hash sets.
 
-Lemmas about the operations on `Std.Data.HashSet` are available in the
+Lemmas about the operations on `Std.HashSet` are available in the
 module `Std.Data.HashSet.Lemmas`.
 
 See the module `Std.Data.HashSet.Raw` for a variant of this type which is safe to use in

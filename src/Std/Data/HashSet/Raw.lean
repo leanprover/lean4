@@ -6,17 +6,17 @@ Authors: Markus Himmel
 prelude
 import Std.Data.HashMap.Raw
 
-/-
+/-!
 # Hash sets with unbundled well-formedness invariant
 
-This module develops the type `Std.Data.HashSet.Raw` of dependent hash
-set with unbundled well-formedness invariant.
+This module develops the type `Std.HashSet.Raw` of hash sets with
+unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
-available as `Std.Data.HashSet.Raw.WF` and we prove in this file that all operations preserve
+available as `Std.HashSet.Raw.WF` and we prove in this file that all operations preserve
 well-formedness. When in doubt, prefer `HashSet` over `HashSet.Raw`.
 
-Lemmas about the operations on `Std.Data.HashSet.Raw` are available in the module
+Lemmas about the operations on `Std.HashSet.Raw` are available in the module
 `Std.Data.HashSet.RawLemmas`.
 -/
 

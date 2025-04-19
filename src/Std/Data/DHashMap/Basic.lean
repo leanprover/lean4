@@ -18,7 +18,7 @@ Lemmas about the operations on `Std.Data.DHashMap` are available in the
 module `Std.Data.DHashMap.Lemmas`.
 
 See the module `Std.Data.DHashMap.Raw` for a variant of this type which is safe to use in
-nested inductive types.
+nested inductive types and the module `Std.Data.EDHashMap` for a variant with extensionality.
 
 For implementation notes, see the docstring of the module `Std.Data.DHashMap.Internal.Defs`.
 -/
@@ -54,9 +54,12 @@ should be an equivalence relation and `a == b` should imply `hash a = hash b` (s
 instance is lawful, i.e., if `a == b` implies `a = b`.
 
 These hash maps contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.DHashMap.Raw` and
-`Std.Data.DHashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
+be used in nested inductive types. For these use cases, `Std.DHashMap.Raw` and
+`Std.DHashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
 `DHashMap` over `DHashMap.Raw`.
+
+For a variant that is more convenient for use in proofs because of extensionalities, see
+`Std.EDHashMap` which is defined in the module `Std.Data.EDHashMap`.
 -/
 def DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] := { m : DHashMap.Raw α β // m.WF }
 

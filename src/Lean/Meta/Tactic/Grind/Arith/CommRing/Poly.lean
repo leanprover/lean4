@@ -62,15 +62,49 @@ def Mon.coprime : Mon → Mon → Bool
     | .lt => coprime m₁ (.mult pw₂ m₂)
     | .gt => coprime (.mult pw₁ m₁) m₂
 
-/-- Returns the S-polynomial for `p₁` and `p₂`. -/
-def Poly.superpose (p₁ p₂ : Poly) : Poly :=
+/--
+Contains the S-polynomial resulting from superposing two polynomials `p₁` and `p₂`,
+along with coefficients and monomials used in their construction.
+-/
+structure SPolResult where
+  /-- The computed S-polynomial. -/
+  spol : Poly := .num 0
+  /-- Coefficient applied to polynomial `p₁`. -/
+  c₁   : Int  := 0
+  /-- Monomial factor applied to polynomial `p₁`. -/
+  m₁   : Mon  := .unit
+  /-- Coefficient applied to polynomial `p₂`. -/
+  c₂   : Int  := 0
+  /-- Monomial factor applied to polynomial `p₂`. -/
+  m₂   : Mon  := .unit
+
+/--
+Computes the extended S-polynomial of polynomials `p₁` and `p₂`.
+Given polynomials with leading terms `k₁*m₁` and `k₂*m₂`, the S-polynomial is defined as:
+```
+S(p₁, p₂) = (k₂/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₁) * p₁ - (k₁/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₂) * p₂
+```
+This function returns intermediate data used in constructing the S-polynomial.
+-/
+def Poly.spolExt (p₁ p₂ : Poly) : SPolResult  :=
   match p₁, p₂ with
   | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
-    let m   := m₁.lcm m₂
-    let g   := Nat.gcd k₁.natAbs k₂.natAbs
-    let p₁  := p₁.mulMon (k₂/g) (m.div m₁)
-    let p₂  := p₂.mulMon (-k₁/g) (m.div m₂)
-    p₁.combine p₂
-  | _, _ => .num 0
+    let m    := m₁.lcm m₂
+    let m₁   := m.div m₁
+    let m₂   := m.div m₂
+    let g    := Nat.gcd k₁.natAbs k₂.natAbs
+    let c₁   := k₂/g
+    let c₂   := -k₁/g
+    let p₁   := p₁.mulMon c₁ m₁
+    let p₂   := p₂.mulMon c₂ m₂
+    let spol := p₁.combine p₂
+    { spol, c₁, m₁, c₂, m₂ }
+  | _, _ => {}
+
+/--
+Returns the S-polynomial resulting from superposing polynomials `p₁` and `p₂`.
+-/
+def Poly.spol (p₁ p₂ : Poly) : Poly :=
+  p₁.spolExt p₂ |>.spol
 
 end Lean.Grind.CommRing

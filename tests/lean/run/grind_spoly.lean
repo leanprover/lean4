@@ -20,8 +20,14 @@ instance : OfNat Expr n where
   ofNat := .num n
 
 def check_spoly (e₁ e₂ r : Expr) : Bool :=
-  e₁.toPoly.superpose e₂.toPoly == r.toPoly &&
-  e₂.toPoly.superpose e₁.toPoly == (-r).toPoly
+  let p₁ := e₁.toPoly
+  let p₂ := e₂.toPoly
+  let r  := r.toPoly
+  let s  := p₁.spolExt p₂
+  p₁.spol p₂ == r &&
+  p₂.spol p₁ == r.mulConst (-1) &&
+  s.spol == r &&
+  r == (p₁.mulMon s.c₁ s.m₁).combine (p₂.mulMon s.c₂ s.m₂)
 
 example : check_spoly (y^2 - x + 1) (x*y - 1 + y) (-x^2 + y + x - y^2) := by native_decide
 example : check_spoly (y - z + 1) (x*y - 1) (-x*z + 1 + x) := by native_decide

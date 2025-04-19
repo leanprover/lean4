@@ -18,9 +18,11 @@ def headerToImports (header : Syntax) : Array Import :=
     let id      := stx[2].getId
     { module := id, runtimeOnly := runtime }
 
-def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
+def processHeaderCore
+    (startPos : String.Pos) (imports : Array Import) (opts : Options) (messages : MessageLog)
     (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
     (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (arts : NameMap ModuleArtifacts := {})
     : IO (Environment × MessageLog) := do
   let level := if experimental.module.get opts then
     if Elab.inServer.get opts then
@@ -31,13 +33,20 @@ def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
     .private
   try
     let env ←
-      importModules (leakEnv := leakEnv) (loadExts := true) (level := level) (headerToImports header) opts trustLevel plugins
+      importModules (leakEnv := leakEnv) (loadExts := true) (level := level)
+        imports opts trustLevel plugins arts
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment
-    let spos := header.getPos?.getD 0
-    let pos  := inputCtx.fileMap.toPosition spos
+    let pos := inputCtx.fileMap.toPosition startPos
     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
+
+@[inline] def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
+    (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
+    (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    : IO (Environment × MessageLog) := do
+  let spos := header.getPos?.getD 0
+  processHeaderCore spos (headerToImports header) opts messages inputCtx trustLevel plugins leakEnv
 
 def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) := do
   let fileName := fileName.getD "<input>"

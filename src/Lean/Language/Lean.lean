@@ -283,10 +283,14 @@ simple uses, these can be computed eagerly without looking at the imports.
 structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
+  /-- Direct imports of the file being processed. -/
+  imports : Array Import
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
+  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
+  modules : NameMap ModuleArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
   plugins : Array System.FilePath := #[]
 
@@ -457,10 +461,12 @@ where
         | .ok setup => pure setup
         | .error snap => return snap
 
+      let spos := stx.getPos?.getD 0
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
-      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx setup.opts .empty
-        ctx.toInputContext setup.trustLevel setup.plugins
+      let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
+        spos setup.imports setup.opts .empty ctx.toInputContext
+        setup.trustLevel setup.plugins setup.modules
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then

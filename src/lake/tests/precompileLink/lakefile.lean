@@ -12,3 +12,5 @@ lean_lib Foo where
 lean_lib FooDep
 lean_lib FooDepDep
 lean_exe orderTest
+
+lean_lib Downstream

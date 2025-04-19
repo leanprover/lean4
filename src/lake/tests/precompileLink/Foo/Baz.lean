@@ -1,3 +1,3 @@
 import FooDep
 
-initialize greetingRef : IO.Ref String ← IO.mkRef greeting
+builtin_initialize greetingRef : IO.Ref String ← IO.mkRef greeting

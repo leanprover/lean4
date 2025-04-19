@@ -101,7 +101,6 @@ def ctorSuggestion1 (pair : MyProd) : Nat :=
 error: invalid pattern, constructor or constant marked with '[match_pattern]' expected
 
 Suggestions:
-  'Lean.Grind.CommRing.Mon.cons',
   'List.Lex.below.cons',
   'List.Lex.cons',
   'List.Pairwise.below.cons',
@@ -130,7 +129,6 @@ inductive StringList : Type where
 error: invalid pattern, constructor or constant marked with '[match_pattern]' expected
 
 Suggestions:
-  'Lean.Grind.CommRing.Mon.cons',
   'List.Lex.below.cons',
   'List.Lex.cons',
   'List.Pairwise.below.cons',
@@ -140,7 +138,7 @@ Suggestions:
   'List.Sublist.below.cons',
   'List.Sublist.cons',
   'List.cons',
-   (or 1 others)
+  'StringList.cons'
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
 note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`

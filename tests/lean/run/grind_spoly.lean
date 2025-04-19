@@ -48,8 +48,9 @@ def simp? (p₁ p₂ : Poly) : Option Poly :=
   (·.p) <$> p₁.simp? p₂
 
 partial def simp' (p₁ p₂ : Poly) : Poly :=
-  if let some p₂ := simp? p₁ p₂ then
-    simp' p₁ p₂
+  if let some r := p₁.simp? p₂ then
+    assert! r.p == (p₁.mulMon r.c₁ r.m).combine (p₂.mulConst r.c₂)
+    simp' p₁ r.p
   else
     p₂
 
@@ -60,3 +61,4 @@ example : check_simp' (x*y - y) (x^2*y - 1) (y - 1) := by native_decide
 example : check_simp' (2*x + 1) (x^2 + x + 1) 3 := by native_decide
 example : check_simp' (2*x + 1) (3*x^2 + x + y + 1) (4*y + 5) := by native_decide
 example : check_simp' (2*x + y) (3*x^2 + x + y + 1) (3*y^2 + 2*y + 4) := by native_decide
+example : check_simp' (2*x + 1) (z^4 + w^3 + x^2 + x + 1) (4*z^4 + 4*w^3 + 3) := by native_decide

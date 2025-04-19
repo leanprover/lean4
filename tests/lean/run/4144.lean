@@ -1,5 +1,5 @@
 /--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
+error: invalid field notation, type is not of the form 'C ...' where C is a constant
   x✝
 has type
   ?m.9

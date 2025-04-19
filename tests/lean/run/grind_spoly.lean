@@ -19,13 +19,16 @@ instance : HPow Expr Nat Expr where
 instance : OfNat Expr n where
   ofNat := .num n
 
+def spol' (p₁ p₂ : Poly) : Poly :=
+  p₁.spol p₂ |>.spol
+
 def check_spoly (e₁ e₂ r : Expr) : Bool :=
   let p₁ := e₁.toPoly
   let p₂ := e₂.toPoly
   let r  := r.toPoly
-  let s  := p₁.spolExt p₂
-  p₁.spol p₂ == r &&
-  p₂.spol p₁ == r.mulConst (-1) &&
+  let s  := p₁.spol p₂
+  spol' p₁ p₂ == r &&
+  spol' p₂ p₁ == r.mulConst (-1) &&
   s.spol == r &&
   r == (p₁.mulMon s.c₁ s.m₁).combine (p₂.mulMon s.c₂ s.m₂)
 
@@ -40,3 +43,20 @@ example : check_spoly (2*x + 3) (3*z + 1) (9*z - 2*x) := by native_decide
 example : check_spoly (2*y^2 - x + 1) (2*x*y - 1 + y) (-x^2 + y + x - y^2) := by native_decide
 example : check_spoly (2*y^2 - x + 1) (4*x*y - 1 + y) (-2*x^2 + y + 2*x - y^2) := by native_decide
 example : check_spoly (6*y^2 - x + 1) (4*x*y - 1 + y) (-2*x^2 + 3*y + 2*x - 3*y^2) := by native_decide
+
+def simp? (p₁ p₂ : Poly) : Option Poly :=
+  (·.p) <$> p₁.simp? p₂
+
+partial def simp' (p₁ p₂ : Poly) : Poly :=
+  if let some p₂ := simp? p₁ p₂ then
+    simp' p₁ p₂
+  else
+    p₂
+
+def check_simp' (e₁ e₂ r : Expr) : Bool :=
+  r.toPoly == simp' e₁.toPoly e₂.toPoly
+
+example : check_simp' (x*y - y) (x^2*y - 1) (y - 1) := by native_decide
+example : check_simp' (2*x + 1) (x^2 + x + 1) 3 := by native_decide
+example : check_simp' (2*x + 1) (3*x^2 + x + y + 1) (4*y + 5) := by native_decide
+example : check_simp' (2*x + y) (3*x^2 + x + y + 1) (3*y^2 + 2*y + 4) := by native_decide

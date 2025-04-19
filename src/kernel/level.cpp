@@ -93,24 +93,24 @@ level mk_max(level const & l1, level const & l2)  {
     }
 }
 
-level mk_imax(level const & l1, level const & l2) {
-    if (is_not_zero(l2))
-        return mk_max(l1, l2);
-    else if (is_zero(l2))
-        return l2;  // imax u 0 = 0  for any u
-    else if (is_zero(l1))
-        return l2;  // imax 0 u = u  for any u
-    else if (l1 == l2)
-        return l1;  // imax u u = u
-    else
-        return mk_imax_core(l1, l2);
-}
-
 static level * g_level_zero = nullptr;
 static level * g_level_one  = nullptr;
 level const & mk_level_zero() { return *g_level_zero; }
 level const & mk_level_one() { return *g_level_one; }
 bool is_one(level const & l) { return l == mk_level_one(); }
+
+level mk_imax(level const & l1, level const & l2) {
+    if (is_not_zero(l2))
+        return mk_max(l1, l2);
+    else if (is_zero(l2))
+        return l2;  // imax u 0 = 0  for any u
+    else if (is_zero(l1) || is_one(l1))
+        return l2;  // imax 0 u = imax 1 u = u  for any u
+    else if (l1 == l2)
+        return l1;  // imax u u = u
+    else
+        return mk_imax_core(l1, l2);
+}
 
 bool operator==(level const & l1, level const & l2) {
     if (kind(l1) != kind(l2)) return false;

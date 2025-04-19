@@ -417,6 +417,7 @@ def setupImports
 
   return .ok {
     mainModuleName := meta.mod
+    imports
     opts
     plugins := fileSetupResult.plugins
   }

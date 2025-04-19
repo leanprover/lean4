@@ -9,11 +9,13 @@ import Init.Data.Array.BinSearch
 import Init.Data.Stream
 import Init.System.Promise
 import Lean.ImportingFlag
+import Lean.Data.Json
 import Lean.Data.NameTrie
 import Lean.Data.SMap
 import Lean.Declaration
 import Lean.LocalContext
 import Lean.Util.Path
+import Lean.Util.LeanOptions
 import Lean.Util.FindExpr
 import Lean.Util.Profile
 import Lean.Util.InstantiateLevelParams
@@ -96,11 +98,44 @@ abbrev ConstMap := SMap Name ConstantInfo
 structure Import where
   module      : Name
   runtimeOnly : Bool := false
-  deriving Repr, Inhabited
+  deriving Repr, Inhabited, ToJson, FromJson
 
 instance : Coe Name Import := ⟨({module := ·})⟩
 
 instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
+
+/-- Files containing data for a single module. -/
+structure ModuleArtifacts where
+  lean? : Option System.FilePath := none
+  olean? : Option System.FilePath := none
+  oleanServer? : Option System.FilePath := none
+  oleanPrivate? : Option System.FilePath := none
+  ilean? : Option System.FilePath := none
+  deriving Repr, Inhabited, ToJson, FromJson
+
+/--
+A module's import header as described by a JSON file.
+Used in place of the real header when the `--header` CLI option is used.
+-/
+structure HeaderDescr where
+  /- The module's direct imports. -/
+  imports : Array Import := #[]
+  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
+  modules : NameMap ModuleArtifacts := {}
+  /-- Dynamic libraries to load with the module. -/
+  dynlibs : Array System.FilePath := #[]
+  /-- Plugins to initialize with the module. -/
+  plugins : Array System.FilePath := #[]
+  /-- Additional options for the module. -/
+  options : LeanOptions := {}
+  deriving Repr, Inhabited, ToJson, FromJson
+
+/-- Load a `HeaderDescr` from a JSON file. -/
+def HeaderDescr.load (path : System.FilePath) : IO HeaderDescr := do
+  let contents ← IO.FS.readFile path
+  match Json.parse contents >>= fromJson? with
+  | .ok info => pure info
+  | .error msg => throw <| IO.userError s!"failed to load header from {path}: {msg}"
 
 /--
   A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
@@ -1696,24 +1731,44 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
   x.run s
 
-partial def importModulesCore (imports : Array Import) (level := OLeanLevel.private) :
-    ImportStateM Unit := do
+def ModuleArtifacts.oleanParts (level : OLeanLevel) (arts : ModuleArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  if let some mFile := arts.olean? then
+    fnames := fnames.push mFile
+    if level != OLeanLevel.exported then
+      if let some sFile := arts.oleanServer? then
+        fnames := fnames.push sFile
+        if level == OLeanLevel.private then
+          if let some pFile := arts.oleanPrivate? then
+            fnames := fnames.push pFile
+  return fnames
+
+private def findModuleOLeanParts (mod : Name) (level : OLeanLevel) : IO (Array System.FilePath) := do
+  let mFile ← findOLean mod
+  unless (← mFile.pathExists) do
+    throw <| IO.userError s!"object file '{mFile}' of module {mod} does not exist"
+  let mut fnames := #[mFile]
+  if level != OLeanLevel.exported then
+    let sFile := OLeanLevel.server.adjustFileName mFile
+    if (← sFile.pathExists) then
+      fnames := fnames.push sFile
+      if level == OLeanLevel.private then
+        let pFile := OLeanLevel.private.adjustFileName mFile
+        if (← pFile.pathExists) then
+          fnames := fnames.push pFile
+  return fnames
+
+partial def importModulesCore (imports : Array Import) (level := OLeanLevel.private)
+    (arts : NameMap ModuleArtifacts := {}) : ImportStateM Unit := do
   for i in imports do
     if i.runtimeOnly || (← get).moduleNameSet.contains i.module then
       continue
     modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
-    let mFile ← findOLean i.module
-    unless (← mFile.pathExists) do
-      throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
-    let mut fnames := #[mFile]
-    if level != OLeanLevel.exported then
-      let sFile := OLeanLevel.server.adjustFileName mFile
-      if (← sFile.pathExists) then
-        fnames := fnames.push sFile
-        if level == OLeanLevel.private then
-          let pFile := OLeanLevel.private.adjustFileName mFile
-          if (← pFile.pathExists) then
-            fnames := fnames.push pFile
+    let mut fnames := #[]
+    if let some arts := arts.find? i.module then
+      fnames := arts.oleanParts level
+    if fnames.isEmpty then
+      fnames ← findModuleOLeanParts i.module level
     let parts ← readModuleDataParts fnames
     let some (mod, _) := parts[if level = .exported then 0 else parts.size - 1]? | unreachable!
     importModulesCore (level := level) mod.imports
@@ -1840,13 +1895,14 @@ environment's constant map can be accessed without `loadExts`, many functions th
 -/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
-    (level := OLeanLevel.private) : IO Environment := profileitIO "import" opts do
+    (level := OLeanLevel.private) (arts : NameMap ModuleArtifacts := {})
+    : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (level := level) imports |>.run
+    let (_, s) ← importModulesCore (level := level) imports arts |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) s imports opts trustLevel
 
 /--

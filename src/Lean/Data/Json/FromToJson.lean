@@ -49,8 +49,9 @@ instance : ToJson System.FilePath := ⟨fun p => p.toString⟩
 
 instance [FromJson α] : FromJson (Array α) where
   fromJson?
-    | Json.arr a => a.mapM fromJson?
-    | j          => throw s!"expected JSON array, got '{j}'"
+    | .arr a => a.mapM fromJson?
+    | .null  => .ok #[]
+    | j      => throw s!"expected JSON array, got '{j}'"
 
 instance [ToJson α] : ToJson (Array α) :=
   ⟨fun a => Json.arr (a.map toJson)⟩
@@ -94,6 +95,23 @@ instance : FromJson Name where
 
 instance : ToJson Name where
   toJson n := toString n
+
+instance [FromJson α] : FromJson (NameMap α) where
+  fromJson?
+    | .obj obj => obj.foldM (init := {}) fun m k v => do
+      if k == "[anonymous]" then
+        return m.insert .anonymous (← fromJson? v)
+      else
+        let n := k.toName
+        if n.isAnonymous then
+          throw s!"expected a `Name`, got '{k}'"
+        else
+          return m.insert n (← fromJson? v)
+    | .null => .ok {}
+    | j => throw s!"expected a `NameMap`, got '{j}'"
+
+instance [ToJson α] : ToJson (NameMap α) where
+  toJson m := Json.obj <| m.fold (fun n k v => n.insert compare k.toString (toJson v)) .leaf
 
 /-- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
 cannot represent 64-bit numbers. -/

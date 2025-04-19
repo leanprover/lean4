@@ -143,6 +143,7 @@ def runFrontend
     (jsonOutput : Bool := false)
     (errorOnKinds : Array Name := #[])
     (plugins : Array System.FilePath := #[])
+    (headerFileName? : Option System.FilePath := none)
     : IO (Environment × Bool) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
@@ -150,8 +151,23 @@ def runFrontend
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
+  let setup stx := do
+    if let some file := headerFileName? then
+      let h ← HeaderDescr.load file
+      liftM <| h.dynlibs.forM Lean.loadDynlib
+      return .ok {
+        mainModuleName, trustLevel
+        -- override cmdline options with header options
+        opts := opts.mergeBy (fun _ _ hOpt => hOpt) h.options.toOptions
+        imports := h.imports
+        plugins := plugins ++ h.plugins
+        modules := h.modules
+      }
+    else
+      let imports := headerToImports stx
+      return .ok { mainModuleName, imports, opts, trustLevel, plugins }
   let processor := Language.Lean.process
-  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
+  let snap ← processor setup none ctx
   let snaps := Language.toSnapshotTree snap
   let severityOverrides := errorOnKinds.foldl (·.insert · .error) {}
   let hasErrors ← snaps.runAndReport opts jsonOutput severityOverrides

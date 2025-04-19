@@ -1,0 +1,13 @@
+{
+  "imports": [
+    {
+      "module": "Dep",
+      "runtimeOnly": false
+    }
+  ],
+  "modules": {
+    "Dep": {
+      "olean": "Dep.olean"
+    }
+  }
+}

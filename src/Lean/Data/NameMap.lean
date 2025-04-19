@@ -18,6 +18,8 @@ def NameMap (α : Type) := RBMap Name α Name.quickCmp
 namespace NameMap
 variable {α : Type}
 
+instance [Repr α] : Repr (NameMap α) := inferInstanceAs (Repr (RBMap Name α Name.quickCmp))
+
 instance (α : Type) : EmptyCollection (NameMap α) := ⟨mkNameMap α⟩
 
 instance (α : Type) : Inhabited (NameMap α) where

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 namespace Lean.Grind.CommRing
 
+/-- `lcm m₁ m₂` returns the least common multiple of the given monomials. -/
 def Mon.lcm : Mon → Mon → Mon
   | .unit, m₂ => m₂
   | m₁, .unit => m₁
@@ -45,5 +46,18 @@ def Mon.div : Mon → Mon → Mon
         .mult { x := pw₁.x, k } (div m₁ m₂)
     | .lt => .mult pw₁ (div m₁ (.mult pw₂ m₂))
     | .gt => .unit -- reachable only if pre-condition does not hold
+
+/--
+`coprime m₁ m₂` returns `true` if the given monomials
+do not have any variable in common.
+-/
+def Mon.coprime : Mon → Mon → Bool
+  | .unit, _ => true
+  | _, .unit => true
+  | .mult pw₁ m₁, .mult pw₂ m₂ =>
+    match compare pw₁.x pw₂.x with
+    | .eq => false
+    | .lt => coprime m₁ (.mult pw₂ m₂)
+    | .gt => coprime (.mult pw₁ m₁) m₂
 
 end Lean.Grind.CommRing

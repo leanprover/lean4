@@ -1,5 +1,4 @@
 import Lean
-import Init.Grind.CommRing.SOM
 
 open Lean.Grind
 open Lean.Grind.CommRing

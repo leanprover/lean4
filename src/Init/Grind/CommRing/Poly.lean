@@ -226,6 +226,8 @@ where
 def Poly.insert (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
     p
+  else bif m == .unit then
+    p.addConst k
   else
     go p
 where
@@ -262,6 +264,8 @@ where
 def Poly.mulMon (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
     .num 0
+  else bif m == .unit then
+    p.mulConst k
   else
     go p
 where
@@ -554,13 +558,17 @@ theorem Poly.denote_insert {α} [CommRing α] (ctx : Context α) (k : Int) (m : 
   simp [insert, cond_eq_if] <;> split
   next => simp [*, intCast_zero, zero_mul, zero_add]
   next =>
-    fun_induction insert.go <;> simp_all +zetaDelta [insert.go, denote, cond_eq_if]
-    next h₁ _ h₂ =>
-      rw [← add_assoc, Mon.eq_of_grevlex h₁, ← right_distrib, ← intCast_add, h₂, intCast_zero, zero_mul, zero_add]
-    next h₁ _ _ =>
-      rw [intCast_add, right_distrib, add_assoc, Mon.eq_of_grevlex h₁]
+    split
+    next h =>
+      simp at h <;> simp [*, Mon.denote, denote_addConst, mul_one, add_comm]
     next =>
-      rw [add_left_comm]
+      fun_induction insert.go <;> simp_all +zetaDelta [insert.go, denote, cond_eq_if]
+      next h₁ h₂ =>
+        rw [← add_assoc, Mon.eq_of_grevlex h₁, ← right_distrib, ← intCast_add, h₂, intCast_zero, zero_mul, zero_add]
+      next h₁ _ =>
+        rw [intCast_add, right_distrib, add_assoc, Mon.eq_of_grevlex h₁]
+      next =>
+        rw [add_left_comm]
 
 theorem Poly.denote_concat {α} [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
     : (concat p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
@@ -583,10 +591,14 @@ theorem Poly.denote_mulMon {α} [CommRing α] (ctx : Context α) (k : Int) (m : 
   simp [mulMon, cond_eq_if] <;> split
   next => simp [denote, *, intCast_zero, zero_mul]
   next =>
-    fun_induction mulMon.go <;> simp [mulMon.go, denote, *]
-    next h => simp +zetaDelta at h; simp [*, intCast_zero, mul_zero]
-    next => simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
-    next => simp [Mon.denote_mul, intCast_mul, left_distrib, mul_comm, mul_left_comm, mul_assoc]
+    split
+    next h =>
+      simp at h; simp [*, Mon.denote, mul_one, denote_mulConst]
+    next =>
+      fun_induction mulMon.go <;> simp [mulMon.go, denote, *]
+      next h => simp +zetaDelta at h; simp [*, intCast_zero, mul_zero]
+      next => simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
+      next => simp [Mon.denote_mul, intCast_mul, left_distrib, mul_comm, mul_left_comm, mul_assoc]
 
 theorem Poly.denote_combine {α} [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
     : (combine p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by

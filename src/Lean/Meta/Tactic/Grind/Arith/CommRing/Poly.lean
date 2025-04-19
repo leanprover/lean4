@@ -62,14 +62,85 @@ def Mon.coprime : Mon → Mon → Bool
     | .lt => coprime m₁ (.mult pw₂ m₂)
     | .gt => coprime (.mult pw₁ m₁) m₂
 
-/-- Returns the S-polynomial for `p₁` and `p₂`. -/
-def Poly.superpose (p₁ p₂ : Poly) : Poly :=
+/--
+Contains the S-polynomial resulting from superposing two polynomials `p₁` and `p₂`,
+along with coefficients and monomials used in their construction.
+-/
+structure SPolResult where
+  /-- The computed S-polynomial. -/
+  spol : Poly := .num 0
+  /-- Coefficient applied to polynomial `p₁`. -/
+  c₁   : Int  := 0
+  /-- Monomial factor applied to polynomial `p₁`. -/
+  m₁   : Mon  := .unit
+  /-- Coefficient applied to polynomial `p₂`. -/
+  c₂   : Int  := 0
+  /-- Monomial factor applied to polynomial `p₂`. -/
+  m₂   : Mon  := .unit
+
+/--
+Returns the S-polynomial of polynomials `p₁` and `p₂`, and coefficients&terms used to construct it.
+Given polynomials with leading terms `k₁*m₁` and `k₂*m₂`, the S-polynomial is defined as:
+```
+S(p₁, p₂) = (k₂/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₁) * p₁ - (k₁/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₂) * p₂
+```
+-/
+def Poly.spol (p₁ p₂ : Poly) : SPolResult  :=
   match p₁, p₂ with
   | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
-    let m   := m₁.lcm m₂
-    let p₁  := p₁.mulMon k₂ (m.div m₁)
-    let p₂  := p₂.mulMon (-k₁) (m.div m₂)
-    p₁.combine p₂
-  | _, _ => .num 0
+    let m    := m₁.lcm m₂
+    let m₁   := m.div m₁
+    let m₂   := m.div m₂
+    let g    := Nat.gcd k₁.natAbs k₂.natAbs
+    let c₁   := k₂/g
+    let c₂   := -k₁/g
+    let p₁   := p₁.mulMon c₁ m₁
+    let p₂   := p₂.mulMon c₂ m₂
+    let spol := p₁.combine p₂
+    { spol, c₁, m₁, c₂, m₂ }
+  | _, _ => {}
+
+/--
+Result of simplifying a polynomial `p₂` using a polynomial `p₁`.
+
+The simplification rewrites the first monomial of `p₂` that can be divided
+by the leading monomial of `p₁`.
+-/
+structure SimpResult where
+  /-- The resulting simplified polynomial after rewriting. -/
+  p  : Poly := .num 0
+  /-- The integer coefficient multiplied with polynomial `p₁` in the rewriting step. -/
+  c₁ : Int  := 0
+  /-- The integer coefficient multiplied with polynomial `p₂` during rewriting. -/
+  c₂ : Int  := 0
+  /-- The monomial factor applied to polynomial `p₁`. -/
+  m  : Mon  := .unit
+
+/--
+Simplifies polynomial `p₂` using polynomial `p₁` by rewriting.
+
+This function attempts to rewrite `p₂` by eliminating the first occurrence of
+the leading monomial of `p₁`.
+-/
+def Poly.simp? (p₁ p₂ : Poly) : Option SimpResult :=
+  match p₁ with
+  | .add k₁ m₁ p₁ =>
+    let rec go? (p₂ : Poly) : Option SimpResult :=
+      match p₂ with
+      | .add k₂ m₂ p₂ =>
+        if m₁.divides m₂ then
+          let m  := m₂.div m₁
+          let g  := Nat.gcd k₁.natAbs k₂.natAbs
+          let c₁ := -k₂/g
+          let c₂ := k₁/g
+          let p  := (p₁.mulMon c₁ m).combine (p₂.mulConst c₂)
+          some { p, c₁, c₂, m }
+        else if let some r := go? p₂ then
+          some { r with p := .add (k₂*r.c₂) m₂ r.p }
+        else
+          none
+      | .num _ => none
+    go? p₂
+  | _ => none
 
 end Lean.Grind.CommRing

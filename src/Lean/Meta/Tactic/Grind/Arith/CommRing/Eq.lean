@@ -4,10 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -37,12 +35,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   let some e₂ ← toRingExpr? b ringId | return ()
   let p ← toPoly (e₁.sub e₂) ringId
   if p == .num 0 then
-    trace[grind.ring.assert] "unsat diseq {a}, {b}"
-    let ring ← getRing ringId
-    let ctx ← toContextExpr ringId
-    let h := mkApp7 (mkConst ``Grind.CommRing.ne_unsat [ring.u]) ring.type ring.commRingInst ctx
-      (toExpr e₁) (toExpr e₂) reflBoolTrue (← mkDiseqProof a b)
-    closeGoal h
+    setNeUnsat ringId a b e₁ e₂
     return ()
   -- TODO: save disequalitys
 

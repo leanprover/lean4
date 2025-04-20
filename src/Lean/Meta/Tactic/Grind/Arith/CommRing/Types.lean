@@ -26,6 +26,7 @@ structure Ring where
   negFn        : Expr
   powFn        : Expr
   intCastFn    : Expr
+  natCastFn    : Expr
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.

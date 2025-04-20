@@ -66,6 +66,15 @@ private def getIntCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM
     throwError "instance for intCast{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
   internalizeFn <| mkApp2 (mkConst ``IntCast.intCast [u]) type inst
 
+private def getNatCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
+  let instType := mkApp (mkConst ``NatCast [u]) type
+  let .some inst ← trySynthInstance instType |
+    throwError "failed to find instance for ring natCast{indentExpr instType}"
+  let inst' := mkApp2 (mkConst ``Grind.CommRing.natCastInst [u]) type commRingInst
+  unless (← withDefault <| isDefEq inst inst') do
+    throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
+  internalizeFn <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
+
 /--
 Returns the ring id for the given type if there is a `CommRing` instance for it.
 
@@ -102,8 +111,9 @@ where
     let negFn ← getNegFn type u commRingInst
     let powFn ← getPowFn type u commRingInst
     let intCastFn ← getIntCastFn type u commRingInst
+    let natCastFn ← getNatCastFn type u commRingInst
     let id := (← get').rings.size
-    let ring : Ring := { commRingInst, charInst?, type, addFn, mulFn, subFn, negFn, powFn, intCastFn }
+    let ring : Ring := { commRingInst, charInst?, type, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 

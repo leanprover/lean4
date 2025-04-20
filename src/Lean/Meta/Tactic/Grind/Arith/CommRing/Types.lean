@@ -18,6 +18,8 @@ deriving instance Repr for Power, Mon, Poly
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where
   type         : Expr
+  /-- Cached `getDecLevel type` -/
+  u            : Level
   /-- `CommRing` instance for `type` -/
   commRingInst : Expr
   /-- `IsCharP` instance for `type` if available. -/

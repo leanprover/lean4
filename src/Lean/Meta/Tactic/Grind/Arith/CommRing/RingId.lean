@@ -113,7 +113,7 @@ where
     let intCastFn ← getIntCastFn type u commRingInst
     let natCastFn ← getNatCastFn type u commRingInst
     let id := (← get').rings.size
-    let ring : Ring := { commRingInst, charInst?, type, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
+    let ring : Ring := { type, u, commRingInst, charInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 

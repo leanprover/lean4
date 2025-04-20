@@ -125,7 +125,7 @@ theorem neg_sub (a b : α) : -(a - b) = b - a := by
 theorem sub_self (a : α) : a - a = 0 := by
   rw [sub_eq_add_neg, add_neg_cancel]
 
-theorem eq_of_sub_eq_zero (a b : α) : a - b = 0 → a = b := by
+theorem eq_of_sub_eq_zero {a b : α} : a - b = 0 → a = b := by
   intro h
   replace h := congrArg (. + b) h; simp only at h
   rw [sub_eq_add_neg, add_assoc, neg_add_cancel, add_zero, zero_add] at h

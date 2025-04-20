@@ -57,13 +57,16 @@ private def getPowFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Exp
     throwError "instance for power operator{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
   internalizeFn <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
 
-private def getIntCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
+private def getIntCastFn (type : Expr) (u : Level) (_commRingInst : Expr) : GoalM Expr := do
   let instType := mkApp (mkConst ``IntCast [u]) type
   let .some inst ← trySynthInstance instType |
     throwError "failed to find instance for ring intCast{indentExpr instType}"
+  -- TODO uncomment after we fix `CommRing` definition
+  /-
   let inst' := mkApp2 (mkConst ``Grind.CommRing.intCastInst [u]) type commRingInst
   unless (← withDefault <| isDefEq inst inst') do
     throwError "instance for intCast{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
+  -/
   internalizeFn <| mkApp2 (mkConst ``IntCast.intCast [u]) type inst
 
 private def getNatCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do

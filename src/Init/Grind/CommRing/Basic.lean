@@ -125,7 +125,7 @@ theorem neg_sub (a b : α) : -(a - b) = b - a := by
 theorem sub_self (a : α) : a - a = 0 := by
   rw [sub_eq_add_neg, add_neg_cancel]
 
-instance : IntCast α where
+instance intCastInst : IntCast α where
   intCast n := match n with
   | Int.ofNat n => OfNat.ofNat n
   | Int.negSucc n => -OfNat.ofNat (n + 1)

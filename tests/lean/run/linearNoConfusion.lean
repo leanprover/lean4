@@ -119,8 +119,8 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
           let e := mkAppN e alts
           mkLambdaFVars (xs ++ #[P, ctorIdx, k, k'] ++ ys ++ #[x]) e
 
-
   let declName := indName ++ `withCtor
+  -- not compiled to avoid old code generator bug #1774
   addDecl <| Declaration.defnDecl {
     name        := declName
     levelParams := v :: info.levelParams
@@ -131,15 +131,72 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   }
   setReducibleAttribute declName
 
+def mkNoConfusionType' (indName : Name) : MetaM Unit := do
+  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  let casesOnName := mkCasesOnName indName
+  let ConstantInfo.defnInfo casesOnInfo ← getConstInfo casesOnName | unreachable!
+  let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
+  let e := mkConst casesOnName (v.succ.succ::us)
+  let t ← inferType e
+  let e ← forallBoundedTelescope t info.numParams fun xs t => do
+    let e := mkAppN e xs
+    let PType := mkSort v.succ
+    withLocalDeclD `P PType fun P => do
+      let motive ← forallTelescope (← whnfD t).bindingDomain! fun ys _ =>
+        mkLambdaFVars ys PType
+      let t ← instantiateForall t #[motive]
+      let e := mkApp e motive
+      forallBoundedTelescope t info.numIndices fun ys t => do
+        let e := mkAppN e ys
+        let xType := mkAppN (mkConst indName us) (xs ++ ys)
+        withLocalDeclD `x1 xType fun x1 => do
+        withLocalDeclD `x2 xType fun x2 => do
+          let t ← instantiateForall t #[x1]
+          let e := mkApp e x1
+          forallBoundedTelescope t info.numCtors fun alts _ => do
+            let alts' ← alts.mapIdxM fun i alt => do
+              let altType ← inferType alt
+              forallTelescope altType fun zs1 _ => do
+                let alt := mkConst (indName ++ `withCtor) (v.succ :: us)
+                let alt := mkAppN alt xs
+                let alt := mkApp alt PType
+                let alt := mkApp alt (mkNatLit i)
+                let k ← forallTelescopeReducing (← inferType alt).bindingDomain! fun zs2 _ => do
+                  let eqs ← (Array.zip zs1 zs2[1:]).mapM (fun (z1,z2) => mkEqHEq z1 z2)
+                  let k ← mkArrowN eqs P
+                  let k ← mkArrow k P
+                  mkLambdaFVars zs2 k
+                let alt := mkApp alt k
+                let alt := mkApp alt P
+                let alt := mkAppN alt ys
+                let alt := mkApp alt x2
+                mkLambdaFVars zs1 alt
+            let e := mkAppN e alts'
+            let e ← mkLambdaFVars #[x1, x2] e
+            let e ← mkLambdaFVars #[P] e
+            let e ← mkLambdaFVars ys e
+            let e ← mkLambdaFVars xs e
+            pure e
+
+  let declName := indName ++ `noConfusionType'
+  addAndCompile <| Declaration.defnDecl {
+    name        := declName
+    levelParams := casesOnInfo.levelParams
+    type        := (← inferType e)
+    value       := e
+    safety      := DefinitionSafety.safe
+    hints       := ReducibilityHints.abbrev
+  }
+  setReducibleAttribute declName
 
 inductive Vec.{u} (α : Type) : Nat → Type u where
   | nil : Vec α 0
   | cons {n} : α → Vec α n → Vec α (n + 1)
 
-
 run_meta do mkToCtorIdx' `Vec
 run_meta do mkWithCtorType `Vec
 run_meta do mkWithCtor `Vec
+run_meta do mkNoConfusionType' `Vec
 
 /--
 info: @[reducible] def Vec.toCtorIdx'.{u} : {α : Type} → {a : Nat} → Vec α a → Nat :=
@@ -151,11 +208,9 @@ fun {α} {a} t => Vec.casesOn t 0 fun {n} a a => 1
 /--
 info: @[reducible] def Vec.withCtorType.{v, u} : Type → Type v → Nat → Type (max u v) :=
 fun α P ctorIdx =>
-  bif Nat.beq ctorIdx 0 then PUnit.{u + 1} → P
-  else bif Nat.beq ctorIdx 1 then PUnit.{u + 1} → {n : Nat} → α → Vec.{u} α n → P else PUnit.{u + 1} → P
+  bif ctorIdx.beq 0 then PUnit → P else bif ctorIdx.beq 1 then PUnit → {n : Nat} → α → Vec α n → P else PUnit → P
 -/
 #guard_msgs in
-set_option pp.universes true in
 #print Vec.withCtorType
 
 /--
@@ -167,6 +222,15 @@ fun α P ctorIdx k k' a x =>
 -/
 #guard_msgs in
 #print Vec.withCtor
+
+/--
+info: @[reducible] def Vec.noConfusionType'.{u_1, u} : {α : Type} → {a : Nat} → Type u_1 → Vec α a → Vec α a → Type u_1 :=
+fun {α} {a} P x1 x2 =>
+  Vec.casesOn x1 (Vec.withCtor α (Type u_1) 0 (fun x => P → P) P a x2) fun {n} a_1 a_2 =>
+    Vec.withCtor α (Type u_1) 1 (fun x {n_1} a a_3 => (n = n_1 → a_1 = a → HEq a_2 a_3 → P) → P) P a x2
+-/
+#guard_msgs in
+#print Vec.noConfusionType'
 
 abbrev Vec.CtorIdx := Nat
 
@@ -220,7 +284,7 @@ def Vec.withCons.{u,v} {α : Type} {P : Type u}
   Vec.withCtor _ _ 1 (fun _ => @k) k' _
 
 
-def Vec.noConfusionType'.{u,v} {α : Type} {n : Nat} (P : Sort u) (v1 v2 : Vec.{v} α n) : Sort u :=
+def Vec.noConfusionType''.{u,v} {α : Type} {n : Nat} (P : Sort u) (v1 v2 : Vec.{v} α n) : Sort u :=
   v1.casesOn
     (nil := v2.withNil (P → P) P)
     (cons := fun {n} x xs => v2.withCons (fun n' x' xs' => (n = n' → x = x' → HEq xs xs' → P) → P) P)
@@ -229,6 +293,27 @@ def Vec.noConfusionType'.{u,v} {α : Type} {n : Nat} (P : Sort u) (v1 v2 : Vec.{
 example : @Vec.noConfusionType = @Vec.noConfusionType' := by
   ext α n P v1 v2;  cases v1 <;> cases v2 <;> rfl
 
+run_meta
+  mkToCtorIdx' ``Acc
+  mkWithCtorType ``Acc
+  mkWithCtor ``Acc
+  mkNoConfusionType' ``Acc
+
+/-
+run_meta do
+  let mut i := 0
+  for (n, _c) in (← getEnv).constants do
+    if let .str indName "noConfusion" := n then
+      let ConstantInfo.inductInfo _ ← getConstInfo indName | continue
+      logInfo m!"Looking at {.ofConstName indName}"
+      mkToCtorIdx' indName
+      mkWithCtorType indName
+      mkWithCtor indName
+      mkNoConfusionType' indName
+      i := i + 1
+      if i > 10 then
+        return
+-/
 
 -- inductive Enum.{u} : Type u where | a | b
 -- set_option pp.universes true in

@@ -57,7 +57,7 @@ namespace CommRing
 
 variable {α : Type u} [CommRing α]
 
-instance : NatCast α where
+instance natCastInst : NatCast α where
   natCast n := OfNat.ofNat n
 
 theorem natCast_zero : ((0 : Nat) : α) = 0 := rfl

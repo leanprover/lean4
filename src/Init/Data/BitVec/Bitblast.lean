@@ -2342,6 +2342,8 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
           have htrue := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
           have hfalse := msb_eq_false_iff_two_mul_lt (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
           simp_all
+          by_cases hxy : x.toNat * y.toNat ≤  2 ^ (w + 1 + 1 + 1)
+          · sorry
 
 
 

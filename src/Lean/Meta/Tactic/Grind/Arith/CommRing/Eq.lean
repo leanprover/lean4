@@ -33,7 +33,7 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
   trace[grind.ring] "{← mkEq a b}"
   let some ra ← toRingExpr? ringId a | return ()
   let some rb ← toRingExpr? ringId b | return ()
-  let p ← toPoly ringId (ra.sub rb)
+  let p ← (ra.sub rb).toPolyM ringId
   if let .num k := p then
     if k != 0 && (← hasChar ringId) then
       setEqUnsat ringId k a b ra rb
@@ -46,7 +46,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   trace[grind.ring] "{mkNot (← mkEq a b)}"
   let some ra ← toRingExpr? ringId a | return ()
   let some rb ← toRingExpr? ringId b | return ()
-  let p ← toPoly ringId (ra.sub rb)
+  let p ← (ra.sub rb).toPolyM ringId
   if p == .num 0 then
     setNeUnsat ringId a b ra rb
     return ()

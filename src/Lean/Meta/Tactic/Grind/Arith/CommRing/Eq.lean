@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -30,26 +31,42 @@ private def inSameRing? (a b : Expr) : GoalM (Option Nat) := do
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
   let some ringId ← inSameRing? a b | return ()
-  trace[grind.ring] "{← mkEq a b}"
+  trace[grind.ring.assert] "{← mkEq a b}"
   let some ra ← toRingExpr? ringId a | return ()
   let some rb ← toRingExpr? ringId b | return ()
-  let p ← toPoly ringId (ra.sub rb)
+  let p ← (ra.sub rb).toPolyM ringId
   if let .num k := p then
-    if k != 0 && (← hasChar ringId) then
+    if k == 0 then
+      trace[grind.ring.assert.trivial] "{← p.denoteExpr ringId} = 0"
+    else if (← hasChar ringId) then
+      trace[grind.ring.assert.unsat] "{← p.denoteExpr ringId} = 0"
       setEqUnsat ringId k a b ra rb
-      return ()
+    else
+      -- Remark: we currently don't do anything if the characteristic is not known.
+      trace[grind.ring.assert.discard] "{← p.denoteExpr ringId} = 0"
+    return ()
+
+  trace[grind.ring.assert.store] "{← p.denoteExpr ringId} = 0"
   -- TODO: save equality
 
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   let some ringId ← inSameRing? a b | return ()
-  trace[grind.ring] "{mkNot (← mkEq a b)}"
+  trace[grind.ring.assert] "{mkNot (← mkEq a b)}"
   let some ra ← toRingExpr? ringId a | return ()
   let some rb ← toRingExpr? ringId b | return ()
-  let p ← toPoly ringId (ra.sub rb)
-  if p == .num 0 then
-    setNeUnsat ringId a b ra rb
+  let p ← (ra.sub rb).toPolyM ringId
+  if let .num k := p then
+    if k == 0 then
+      trace[grind.ring.assert.unsat] "{← p.denoteExpr ringId} ≠ 0"
+      setNeUnsat ringId a b ra rb
+    else
+      -- Remark: if the characteristic is known, it is trivial.
+      -- Otherwise, we don't do anything.
+      trace[grind.ring.assert.trivial] "{← p.denoteExpr ringId} ≠ 0"
     return ()
+
+  trace[grind.ring.assert.store] "{← p.denoteExpr ringId} ≠ 0"
   -- TODO: save disequalitys
 
 end Lean.Meta.Grind.Arith.CommRing

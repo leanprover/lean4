@@ -30,12 +30,10 @@ private def mkLemmaPrefix (ringId : Nat) (declName declNameC : Name) : GoalM Exp
     return mkApp3 (mkConst declName [ring.u]) ring.type ring.commRingInst ctx
 
 def setNeUnsat (ringId : Nat) (a b : Expr) (ra rb : RingExpr) : GoalM Unit := do
-  trace[grind.ring.assert] "unsat diseq {a}, {b}"
   let h ← mkLemmaPrefix ringId ``Grind.CommRing.ne_unsat ``Grind.CommRing.ne_unsatC
   closeGoal <| mkApp4 h (toExpr ra) (toExpr rb) reflBoolTrue (← mkDiseqProof a b)
 
 def setEqUnsat (ringId : Nat) (k : Int) (a b : Expr) (ra rb : RingExpr) : GoalM Unit := do
-  trace[grind.ring.assert] "unsat eq {a}, {b}"
   let mut h ← mkLemmaPrefix ringId ``Grind.CommRing.eq_unsat ``Grind.CommRing.eq_unsatC
   let (charInst, c) ← getCharInst ringId
   if c == 0 then

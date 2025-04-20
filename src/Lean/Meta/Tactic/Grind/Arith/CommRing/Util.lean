@@ -66,7 +66,7 @@ def getCharInst (ringId : Nat) : GoalM (Expr × Nat) := do
 Converts the given ring expression into a multivariate polynomial.
 If the ring has a nonzero characteristic, it is used during normalization.
 -/
-def toPoly (ringId : Nat) (e : RingExpr) : GoalM Poly := do
+def _root_.Lean.Grind.CommRing.Expr.toPolyM (ringId : Nat) (e : RingExpr) : GoalM Poly := do
   if let some c ← nonzeroChar? ringId then
     return e.toPolyC c
   else

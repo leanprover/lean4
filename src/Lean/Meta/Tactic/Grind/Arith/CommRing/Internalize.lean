@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -28,7 +29,9 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).ring do return ()
   let some type := getType? e | return ()
   let some ringId ← getRingId? type | return ()
+  let some re ← reify? e ringId | return ()
   trace[grind.ring.internalize] "{e}, {ringId}, {parent?}"
-  return ()
+  markAsCommRingTerm e
+  modifyRing ringId fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

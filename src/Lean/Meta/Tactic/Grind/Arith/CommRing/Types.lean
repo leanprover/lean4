@@ -34,6 +34,8 @@ structure Ring where
   vars         : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap       : PHashMap ENodeKey Var := {}
+  /-- Mapping from Lean expressions to their representations as `RingExpr` -/
+  denote       : PHashMap ENodeKey RingExpr := {}
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/

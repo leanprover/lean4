@@ -58,4 +58,4 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : List α} {p q : α → Boo
     rw [findIdx?_eq_some_iff_findIdx_eq] at h
     omega
   | none =>
-    refine ⟨l₁'.length, by simp, by simp_all⟩
+    refine ⟨l₁'.length, by simp, by simp_all [findIdx?_cons]⟩

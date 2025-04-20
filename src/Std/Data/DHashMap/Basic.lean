@@ -240,42 +240,9 @@ define the `ForM` and `ForIn` instances for `HashMap`.
 
 end Const
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
 @[inline, inherit_doc Raw.filter] def filter (f : (a : α) → β a → Bool)
     (m : DHashMap α β) : DHashMap α β :=
   ⟨Raw₀.filter f ⟨m.1, m.2.size_buckets_pos⟩, .filter₀ m.2⟩
-
-/-- Partition a hash map into two hash map based on a predicate. -/
-@[inline] def partition (f : (a : α) → β a → Bool)
-    (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
-  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
-    if f a b then
-      (l.insert a b, r)
-    else
-      (l, r.insert a b)
-
-@[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
-    Array ((a : α) × β a) :=
-  m.1.toArray
-
-@[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
-    (m : DHashMap α (fun _ => β)) : Array (α × β) :=
-  Raw.Const.toArray m.1
-
-@[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
-    Array α :=
-  m.1.keysArray
-
-@[inline, inherit_doc Raw.values] def values {β : Type v}
-    (m : DHashMap α (fun _ => β)) : List β :=
-  m.1.values
-
-@[inline, inherit_doc Raw.valuesArray] def valuesArray {β : Type v}
-    (m : DHashMap α (fun _ => β)) : Array β :=
-  m.1.valuesArray
 
 /--
 Modifies in place the value associated with a given key.
@@ -319,6 +286,39 @@ This function ensures that the value is used linearly.
     DHashMap α (fun _ => Unit) :=
   ⟨(Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insertIfNew₀ m.2⟩
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+/-- Partition a hash map into two hash map based on a predicate. -/
+@[inline] def partition (f : (a : α) → β a → Bool)
+    (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
+  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
+    if f a b then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
+
+@[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
+    Array ((a : α) × β a) :=
+  m.1.toArray
+
+@[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
+    (m : DHashMap α (fun _ => β)) : Array (α × β) :=
+  Raw.Const.toArray m.1
+
+@[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
+    Array α :=
+  m.1.keysArray
+
+@[inline, inherit_doc Raw.values] def values {β : Type v}
+    (m : DHashMap α (fun _ => β)) : List β :=
+  m.1.values
+
+@[inline, inherit_doc Raw.valuesArray] def valuesArray {β : Type v}
+    (m : DHashMap α (fun _ => β)) : Array β :=
+  m.1.valuesArray
 
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β :=

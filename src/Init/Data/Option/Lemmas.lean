@@ -900,6 +900,13 @@ theorem pmap_map (o : Option α) (f : α → β) {p : β → Prop} (g : ∀ b, p
       pmap (fun a h => g (f a) h) o (fun a m => H (f a) (map_eq_some_iff.2 ⟨_, m, rfl⟩)) := by
   cases o <;> simp
 
+theorem pmap_or {p : α → Prop} {f : ∀ (a : α), p a → β} {o o' : Option α} {h} :
+    (or o o').pmap f h =
+      match o with
+      | none => o'.pmap f (fun a h' => h a h')
+      | some a => f a (h a rfl) := by
+  cases o <;> simp
+
 theorem pmap_pred_congr {α : Type u}
     {p p' : α → Prop} (hp : ∀ x, p x ↔ p' x)
     {o o' : Option α} (ho : o = o')

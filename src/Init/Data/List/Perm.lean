@@ -202,6 +202,9 @@ theorem Perm.pmap {p : α → Prop} (f : ∀ a, p a → β) {l₁ l₂ : List α
   | swap x y => simp [swap]
   | trans _p₁ p₂ IH₁ IH₂ => exact IH₁.trans (IH₂ (H₁ := fun a m => H₂ a (p₂.subset m)))
 
+theorem Perm.unattach {α : Type u} {p : α → Prop} {l₁ l₂ : List { x // p x }} (h : l₁ ~ l₂) :
+    l₁.unattach.Perm l₂.unattach := h.map _
+
 theorem Perm.filter (p : α → Bool) {l₁ l₂ : List α} (s : l₁ ~ l₂) :
     filter p l₁ ~ filter p l₂ := by rw [← filterMap_eq_filter]; apply s.filterMap
 

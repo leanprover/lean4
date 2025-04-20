@@ -21,6 +21,13 @@ open Nat
 
 /-! ### findSome? -/
 
+@[simp] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
+@[simp] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
+  cases xs; simp [List.findSome?_append]
+
+theorem findSome?_singleton {a : α} {f : α → Option β} : #[a].findSome? f = f a := by
+  simp
+
 @[simp] theorem findSomeRev?_push_of_isSome {xs : Array α} (h : (f a).isSome) : (xs.push a).findSomeRev? f = f a := by
   cases xs; simp_all
 
@@ -129,6 +136,8 @@ abbrev findSome?_mkArray_of_isNone := @findSome?_replicate_of_isNone
 
 /-! ### find? -/
 
+@[simp] theorem find?_empty : find? p #[] = none := rfl
+
 @[simp] theorem find?_singleton {a : α} {p : α → Bool} :
     #[a].find? p = if p a then some a else none := by
   simp [singleton_eq_toArray_singleton]
@@ -156,6 +165,9 @@ theorem find?_eq_some_iff_append {xs : Array α} :
   · rintro ⟨as, ⟨⟨⟨l⟩, h'⟩, h⟩⟩
     exact ⟨as.toList, ⟨l, by simpa using congrArg Array.toList h'⟩,
       by simpa using h⟩
+
+theorem find?_push {xs : Array α} : (xs.push a).find? p = (xs.find? p).or (if p a then some a else none) := by
+  cases xs; simp
 
 @[simp]
 theorem find?_push_eq_some {xs : Array α} :
@@ -331,6 +343,11 @@ theorem find?_eq_some_iff_getElem {xs : Array α} {p : α → Bool} {b : α} :
 
 /-! ### findIdx -/
 
+@[simp] theorem findIdx_empty : findIdx p #[] = 0 := rfl
+theorem findIdx_singleton {a : α} {p : α → Bool} :
+    #[a].findIdx p = if p a then 0 else 1 := by
+  simp
+
 theorem findIdx_of_getElem?_eq_some {xs : Array α} (w : xs[xs.findIdx p]? = some y) : p y := by
   rcases xs with ⟨xs⟩
   exact List.findIdx_of_getElem?_eq_some (by simpa using w)
@@ -411,6 +428,13 @@ theorem findIdx_append {p : α → Bool} {xs ys : Array α} :
   rcases ys with ⟨ys⟩
   simp [List.findIdx_append]
 
+theorem findIdx_push {xs : Array α} {a : α} {p : α → Bool} :
+    (xs.push a).findIdx p = if xs.findIdx p < xs.size then xs.findIdx p else xs.size + if p a then 0 else 1 := by
+  simp only [push_eq_append, findIdx_append]
+  split <;> rename_i h
+  · rfl
+  · simp [findIdx_singleton, Nat.add_comm]
+
 theorem findIdx_le_findIdx {xs : Array α} {p q : α → Bool} (h : ∀ x ∈ xs, p x → q x) : xs.findIdx q ≤ xs.findIdx p := by
   rcases xs with ⟨xs⟩
   simp_all [List.findIdx_le_findIdx]
@@ -439,6 +463,9 @@ theorem false_of_mem_extract_findIdx {xs : Array α} {p : α → Bool} (h : x �
 /-! ### findIdx? -/
 
 @[simp] theorem findIdx?_empty : (#[] : Array α).findIdx? p = none := by simp
+theorem findIdx?_singleton {a : α} {p : α → Bool} :
+    #[a].findIdx? p = if p a then some 0 else none := by
+  simp
 
 @[simp]
 theorem findIdx?_eq_none_iff {xs : Array α} {p : α → Bool} :
@@ -506,6 +533,13 @@ theorem of_findIdx?_eq_none {xs : Array α} {p : α → Bool} (w : xs.findIdx? p
   rcases ys with ⟨ys⟩
   simp [List.findIdx?_append]
 
+theorem findIdx?_push {xs : Array α} {a : α} {p : α → Bool} :
+    (xs.push a).findIdx? p = (xs.findIdx? p).or (if p a then some xs.size else none) := by
+  simp only [push_eq_append, findIdx?_append]
+  split <;> rename_i h
+  · simp only [findIdx?_singleton, if_pos h, Option.map_some, Nat.zero_add]
+  · simp only [findIdx?_singleton, if_neg h, Option.map_none]
+
 theorem findIdx?_flatten {xss : Array (Array α)} {p : α → Bool} :
     xss.flatten.findIdx? p =
       (xss.findIdx? (·.any p)).map
@@ -563,6 +597,9 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : Array α} {p q : α → Bo
 /-! ### findFinIdx? -/
 
 @[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := by simp
+theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
+    #[a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
+  simp
 
 -- We can't mark this as a `@[congr]` lemma since the head of the RHS is not `findFinIdx?`.
 theorem findFinIdx?_congr {p : α → Bool} {xs ys : Array α} (w : xs = ys) :
@@ -592,6 +629,21 @@ theorem findFinIdx?_eq_some_iff {xs : Array α} {p : α → Bool} {i : Fin xs.si
     exact ⟨w₁, fun j hji => by simpa using w₂ j hji⟩
   · rintro ⟨h, w⟩
     exact ⟨i, ⟨i.2, h, fun j hji => w ⟨j, by omega⟩ hji⟩, rfl⟩
+
+theorem findFinIdx?_push {xs : Array α} {a : α} {p : α → Bool} :
+    (xs.push a).findFinIdx? p =
+      ((xs.findFinIdx? p).map (Fin.castLE (by simp))).or (if p a then some ⟨xs.size, by simp⟩ else none) := by
+  simp only [findFinIdx?_eq_pmap_findIdx?, findIdx?_push, Option.pmap_or]
+  split <;> rename_i h _ <;> split <;> simp [h]
+
+theorem findFinIdx?_append {xs ys : Array α} {p : α → Bool} :
+    (xs ++ ys).findFinIdx? p =
+      ((xs.findFinIdx? p).map (Fin.castLE (by simp))).or
+        ((ys.findFinIdx? p).map (Fin.natAdd xs.size) |>.map (Fin.cast (by simp))) := by
+  simp only [findFinIdx?_eq_pmap_findIdx?, findIdx?_append, Option.pmap_or]
+  split <;> rename_i h _
+  · simp [h, Option.pmap_map, Option.map_pmap, Nat.add_comm]
+  · simp [h]
 
 @[simp]
 theorem isSome_findFinIdx? {xs : Array α} {p : α → Bool} :

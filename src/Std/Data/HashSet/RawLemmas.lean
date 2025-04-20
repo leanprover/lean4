@@ -246,6 +246,10 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
     m.contains a = (m.get? a).isSome :=
   HashMap.Raw.contains_eq_isSome_getKey? h.out
 
+theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    a ∈ m ↔ (m.get? a).isSome :=
+  HashMap.Raw.mem_iff_isSome_getKey? h.out
+
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m.get? a = none :=
   HashMap.Raw.getKey?_eq_none_of_contains_eq_false h.out
@@ -284,9 +288,17 @@ theorem get_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h'} :
     (m.erase k).get a h' = m.get a (mem_of_mem_erase h h') :=
   HashMap.Raw.getKey_erase (h' := h') h.out
 
-theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {h' : a ∈ m} :
+theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} (h' : a ∈ m) :
     m.get? a = some (m.get a h') :=
-  @HashMap.Raw.getKey?_eq_some_getKey _ _ _ _ _ _ _ h.out _ h'
+  HashMap.Raw.getKey?_eq_some_getKey h.out h'
+
+theorem get_eq_get_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {h'} :
+    m.get k h' = (m.get? k).get ((mem_iff_isSome_get? h).mp h') :=
+  HashMap.Raw.getKey_eq_get_getKey? h.out
+
+theorem get_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {h'} :
+    (m.get? k).get h' = m.get k ((mem_iff_isSome_get? h).mpr h') :=
+  HashMap.Raw.get_getKey? h.out
 
 @[simp]
 theorem get?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
@@ -831,6 +843,75 @@ abbrev equiv_emptyc_iff_isEmpty := @equiv_empty_iff_isEmpty
 theorem equiv_iff_toList_perm {m₁ m₂ : Raw α} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
+
+section filter
+
+theorem toList_filter {f : α → Bool} (h : m.WF) :
+    (m.filter f).toList.Perm (m.toList.filter f) :=
+  HashMap.Raw.keys_filter_key h.1
+
+theorem isEmpty_filter_iff [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} (h : m.WF) :
+    (m.filter f).isEmpty ↔
+      ∀ (k : α) (h : k ∈ m), f (m.get k h) = false :=
+  HashMap.Raw.isEmpty_filter_iff h.out
+
+theorem isEmpty_filter_eq_false_iff [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} (h : m.WF) :
+    (m.filter f).isEmpty = false ↔
+      ∃ (k : α) (h : k ∈ m), f (m.get k h) :=
+  HashMap.Raw.isEmpty_filter_eq_false_iff h.out
+
+@[simp]
+theorem mem_filter [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} {k : α} (h : m.WF) :
+    (k ∈ m.filter f) ↔ ∃ (h' : k ∈ m), f (m.get k h') :=
+  HashMap.Raw.mem_filter h.out
+
+theorem mem_of_mem_filter [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} {k : α} (h : m.WF) :
+    k ∈ (m.filter f) → k ∈ m :=
+  HashMap.Raw.mem_of_mem_filter h.out
+
+theorem size_filter_le_size [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} (h : m.WF) :
+    (m.filter f).size ≤ m.size :=
+  HashMap.Raw.size_filter_le_size h.out
+
+theorem size_filter_eq_size_iff [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} (h : m.WF) :
+    (m.filter f).size = m.size ↔ ∀ (k : α) (h : k ∈ m), f (m.get k h) :=
+  HashMap.Raw.size_filter_eq_size_iff h.out
+
+theorem filter_equiv_self_iff [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → Bool} (h : m.WF) :
+    (m.filter f) ~m m ↔ ∀ (a : α) (h : a ∈ m), f (m.get a h) = true :=
+  ⟨fun h' => (HashMap.Raw.filter_equiv_self_iff h.out).mp h'.1,
+    fun h' => ⟨(HashMap.Raw.filter_equiv_self_iff h.out).mpr h'⟩⟩
+
+@[simp]
+theorem get?_filter [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} {k : α} (h : m.WF) :
+    (m.filter f).get? k = (m.get? k).filter f :=
+  HashMap.Raw.getKey?_filter_key h.out
+
+@[simp]
+theorem get_filter [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} {k : α} {h'} (h : m.WF) :
+    (m.filter f).get k h' = (m.get k (mem_of_mem_filter h h')) :=
+  HashMap.Raw.getKey_filter h.out
+
+theorem get!_filter [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {f : α → Bool} {k : α} (h : m.WF) :
+    (m.filter f).get! k = ((m.get? k).filter f).get! :=
+  HashMap.Raw.getKey!_filter_key h.out
+
+theorem getD_filter [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} {k fallback : α} (h : m.WF) :
+    (m.filter f).getD k fallback = ((m.get? k).filter f).getD fallback :=
+  HashMap.Raw.getKeyD_filter_key h.out
+
+end filter
 
 end Raw
 

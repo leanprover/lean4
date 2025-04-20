@@ -125,11 +125,14 @@ theorem neg_sub (a b : α) : -(a - b) = b - a := by
 theorem sub_self (a : α) : a - a = 0 := by
   rw [sub_eq_add_neg, add_neg_cancel]
 
-theorem eq_of_sub_eq_zero {a b : α} : a - b = 0 → a = b := by
-  intro h
-  replace h := congrArg (. + b) h; simp only at h
-  rw [sub_eq_add_neg, add_assoc, neg_add_cancel, add_zero, zero_add] at h
-  assumption
+theorem sub_eq_iff {a b c : α} : a - b = c ↔ a = c + b := by
+  rw [sub_eq_add_neg]
+  constructor
+  next => intro; subst c; rw [add_assoc, neg_add_cancel, add_zero]
+  next => intro; subst a; rw [add_assoc, add_comm b, neg_add_cancel, add_zero]
+
+theorem sub_eq_zero_iff {a b : α} : a - b = 0 ↔ a = b := by
+  simp [sub_eq_iff, zero_add]
 
 instance intCastInst : IntCast α where
   intCast n := match n with

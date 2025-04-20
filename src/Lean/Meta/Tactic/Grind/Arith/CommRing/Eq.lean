@@ -11,6 +11,7 @@ namespace Lean.Meta.Grind.Arith.CommRing
 
 @[export lean_process_ring_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
+  if isSameExpr a b then return ()
   trace[grind.ring] "{← mkEq a b}"
   -- TODO
 

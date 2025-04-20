@@ -25,12 +25,19 @@ private def getType? (e : Expr) : Option Expr :=
   | IntCast.intCast α _ _ => some α
   | _ => none
 
+private def isForbiddenParent (parent? : Option Expr) : Bool :=
+  if let some parent := parent? then
+    getType? parent |>.isSome
+  else
+    false
+
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).ring do return ()
   let some type := getType? e | return ()
+  if isForbiddenParent parent? then return ()
   let some ringId ← getRingId? type | return ()
   let some re ← reify? e ringId | return ()
-  trace[grind.ring.internalize] "{e}, {ringId}, {parent?}"
+  trace[grind.ring.internalize] "[{ringId}]: {e}"
   markAsCommRingTerm e
   modifyRing ringId fun s => { s with denote := s.denote.insert { expr := e } re }
 

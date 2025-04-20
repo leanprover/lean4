@@ -64,11 +64,6 @@ def mkNatExprDecl (e : Int.OfNat.Expr) : ProofM Expr := do
   modify fun s => { s with natExprMap := s.natExprMap.insert e x }
   return x
 
-private def mkDiseqProof (a b : Expr) : GoalM Expr := do
- let some h ← mkDiseqProof? a b
-   | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
-  return h
-
 private def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) (e : Expr)
     (varPrefix : Name) (varType : Expr) (toExpr : α → Expr) : GoalM Expr := do
   if m.isEmpty then

@@ -640,6 +640,22 @@ theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) 
   simp [denote_toPoly] at h
   assumption
 
+def ne_unsat_cert (a b : Expr) : Bool :=
+  (a.sub b).toPoly == .num 0
+
+theorem ne_unsat {α} [CommRing α] (ctx : Context α) (a b : Expr)
+    : ne_unsat_cert a b → a.denote ctx ≠ b.denote ctx → False := by
+  simp [ne_unsat_cert]
+  intro h
+  replace h := congrArg (Poly.denote ctx .) h
+  simp [Poly.denote, Expr.denote, Expr.denote_toPoly, intCast_zero] at h
+  replace h := eq_of_sub_eq_zero h
+  assumption
+
+/-!
+Theorems for justifying the procedure for commutative rings with a characteristic in `grind`.
+-/
+
 theorem Poly.denote_addConstC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int) : (addConstC p k c).denote ctx = p.denote ctx + k := by
   fun_induction addConstC <;> simp [addConstC, denote, *]
   next => rw [IsCharP.intCast_emod, intCast_add]
@@ -756,6 +772,18 @@ theorem Expr.eq_of_toPolyC_eq {α c} [CommRing α] [IsCharP α c] (ctx : Context
     (h : a.toPolyC c == b.toPolyC c) : a.denote ctx = b.denote ctx := by
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
   simp [denote_toPolyC] at h
+  assumption
+
+def ne_unsatC_cert (a b : Expr) (c : Nat) : Bool :=
+  (a.sub b).toPolyC c == .num 0
+
+theorem ne_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (a b : Expr)
+    : ne_unsatC_cert a b c → a.denote ctx ≠ b.denote ctx → False := by
+  simp [ne_unsatC_cert]
+  intro h
+  replace h := congrArg (Poly.denote ctx .) h
+  simp [Poly.denote, Expr.denote, Expr.denote_toPolyC, intCast_zero] at h
+  replace h := eq_of_sub_eq_zero h
   assumption
 
 end CommRing

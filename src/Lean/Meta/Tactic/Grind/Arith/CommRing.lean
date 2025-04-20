@@ -4,4 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Util.Trace
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
+import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Var
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Eq
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
+
+namespace Lean
+
+builtin_initialize registerTraceClass `grind.ring
+builtin_initialize registerTraceClass `grind.ring.internalize
+builtin_initialize registerTraceClass `grind.ring.assert
+
+end Lean

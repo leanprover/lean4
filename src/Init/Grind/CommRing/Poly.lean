@@ -648,8 +648,21 @@ theorem ne_unsat {α} [CommRing α] (ctx : Context α) (a b : Expr)
   simp [ne_unsat_cert]
   intro h
   replace h := congrArg (Poly.denote ctx .) h
-  simp [Poly.denote, Expr.denote, Expr.denote_toPoly, intCast_zero] at h
-  replace h := eq_of_sub_eq_zero h
+  simp [Poly.denote, Expr.denote, Expr.denote_toPoly, intCast_zero, sub_eq_zero_iff] at h
+  assumption
+
+def eq_unsat_cert (a b : Expr) (k : Int) : Bool :=
+  k != 0 && (a.sub b).toPoly == .num k
+
+theorem eq_unsat {α} [CommRing α] [IsCharP α 0] (ctx : Context α) (a b : Expr) (k : Int)
+    : eq_unsat_cert a b k → a.denote ctx = b.denote ctx → False := by
+  simp [eq_unsat_cert]
+  intro h₁ h₂
+  replace h₂ := congrArg (Poly.denote ctx .) h₂
+  simp [Poly.denote, Expr.denote, Expr.denote_toPoly, intCast_zero, sub_eq_iff] at h₂
+  have := IsCharP.intCast_eq_zero_iff (α := α) 0 k
+  simp [h₁] at this
+  rw [h₂, Eq.comm, ← sub_eq_iff, sub_self, Eq.comm]
   assumption
 
 /-!
@@ -782,8 +795,21 @@ theorem ne_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (a b : 
   simp [ne_unsatC_cert]
   intro h
   replace h := congrArg (Poly.denote ctx .) h
-  simp [Poly.denote, Expr.denote, Expr.denote_toPolyC, intCast_zero] at h
-  replace h := eq_of_sub_eq_zero h
+  simp [Poly.denote, Expr.denote, Expr.denote_toPolyC, intCast_zero, sub_eq_zero_iff] at h
+  assumption
+
+def eq_unsatC_cert (a b : Expr) (c : Nat) (k : Int) : Bool :=
+  k != 0 && k % c != 0 && (a.sub b).toPolyC c == .num k
+
+theorem eq_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (a b : Expr) (k : Int)
+    : eq_unsatC_cert a b c k → a.denote ctx = b.denote ctx → False := by
+  simp [eq_unsatC_cert]
+  intro h₁ h₂ h₃
+  replace h₃ := congrArg (Poly.denote ctx .) h₃
+  simp [Poly.denote, Expr.denote, Expr.denote_toPolyC, intCast_zero, sub_eq_iff] at h₃
+  have := IsCharP.intCast_eq_zero_iff (α := α) c k
+  simp [h₁, h₂] at this
+  rw [h₃, Eq.comm, ← sub_eq_iff, sub_self, Eq.comm]
   assumption
 
 end CommRing

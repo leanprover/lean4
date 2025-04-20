@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Var
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Eq
 

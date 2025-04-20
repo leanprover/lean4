@@ -1607,7 +1607,7 @@ theorem append_push {as : Vector α n} {bs : Vector α m} {a : α} :
 
 theorem singleton_eq_toVector_singleton {a : α} : #v[a] = #[a].toVector := rfl
 
-@[simp] theorem mem_append {a : α} {xs : Vector α n} {ys : Vector α m} :
+@[simp, grind] theorem mem_append {a : α} {xs : Vector α n} {ys : Vector α m} :
     a ∈ xs ++ ys ↔ a ∈ xs ∨ a ∈ ys := by
   cases xs
   cases ys
@@ -1758,7 +1758,7 @@ theorem append_eq_append_iff {ws : Vector α n} {xs : Vector α m} {ys : Vector 
       right
       refine ⟨cs.toArray, ha, rfl⟩
 
-theorem set_append {xs : Vector α n} {ys : Vector α m} {i : Nat} {x : α} (h : i < n + m) :
+@[grind] theorem set_append {xs : Vector α n} {ys : Vector α m} {i : Nat} {x : α} (h : i < n + m) :
     (xs ++ ys).set i x =
       if h' : i < n then
         xs.set i x ++ ys
@@ -1778,7 +1778,7 @@ theorem set_append {xs : Vector α n} {ys : Vector α m} {i : Nat} {x : α} (h :
     (xs ++ ys).set i x = xs ++ ys.set (i - n) x := by
   rw [set_append, dif_neg (by omega)]
 
-theorem setIfInBounds_append {xs : Vector α n} {ys : Vector α m} {i : Nat} {x : α} :
+@[grind] theorem setIfInBounds_append {xs : Vector α n} {ys : Vector α m} {i : Nat} {x : α} :
     (xs ++ ys).setIfInBounds i x =
       if i < n then
         xs.setIfInBounds i x ++ ys
@@ -1798,7 +1798,7 @@ theorem setIfInBounds_append {xs : Vector α n} {ys : Vector α m} {i : Nat} {x 
     (xs ++ ys).setIfInBounds i x = xs ++ ys.setIfInBounds (i - n) x := by
   rw [setIfInBounds_append, if_neg (by omega)]
 
-@[simp] theorem map_append {f : α → β} {xs : Vector α n} {ys : Vector α m} :
+@[simp, grind] theorem map_append {f : α → β} {xs : Vector α n} {ys : Vector α m} :
     map f (xs ++ ys) = map f xs ++ map f ys := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
@@ -1867,7 +1867,7 @@ theorem getElem?_flatten {xss : Vector (Vector β m) n} {i : Nat} :
         none := by
   simp [getElem?_def]
 
-@[simp] theorem flatten_singleton {xs : Vector α n} : #v[xs].flatten = xs.cast (by simp) := by
+@[simp, grind] theorem flatten_singleton {xs : Vector α n} : #v[xs].flatten = xs.cast (by simp) := by
   simp [flatten]
 
 set_option linter.listVariables false in
@@ -1900,7 +1900,7 @@ theorem forall_mem_flatten {p : α → Prop} {xss : Vector (Vector α n) m} :
   induction xss₂ using vector₂_induction
   simp
 
-theorem flatten_push {xss : Vector (Vector α n) m} {xs : Vector α n} :
+@[grind] theorem flatten_push {xss : Vector (Vector α n) m} {xs : Vector α n} :
     flatten (xss.push xs) = (flatten xss ++ xs).cast (by simp [Nat.add_mul]) := by
   induction xss using vector₂_induction
   rcases xs with ⟨xs⟩

@@ -652,7 +652,7 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
   left_id := nil_append
   right_id := append_nil
 
-@[simp] theorem length_append {as bs : List α} : (as ++ bs).length = as.length + bs.length := by
+@[simp, grind] theorem length_append {as bs : List α} : (as ++ bs).length = as.length + bs.length := by
   induction as with
   | nil => simp
   | cons _ as ih => simp [ih, Nat.succ_add]
@@ -698,8 +698,8 @@ def flatten : List (List α) → List α
   | []      => []
   | l :: L => l ++ flatten L
 
-@[simp] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
-@[simp] theorem flatten_cons : (l :: L).flatten = l ++ L.flatten := rfl
+@[simp, grind] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
+@[simp, grind] theorem flatten_cons : (l :: L).flatten = l ++ L.flatten := rfl
 
 @[deprecated flatten (since := "2024-10-14"), inherit_doc flatten] abbrev join := @flatten
 
@@ -1654,8 +1654,8 @@ def findSome? (f : α → Option β) : List α → Option β
     | some b => some b
     | none   => findSome? f as
 
-@[simp] theorem findSome?_nil : ([] : List α).findSome? f = none := rfl
-theorem findSome?_cons {f : α → Option β} :
+@[simp, grind] theorem findSome?_nil : ([] : List α).findSome? f = none := rfl
+@[grind] theorem findSome?_cons {f : α → Option β} :
     (a::as).findSome? f = match f a with | some b => some b | none => as.findSome? f :=
   rfl
 
@@ -2046,8 +2046,8 @@ Examples:
 def sum {α} [Add α] [Zero α] : List α → α :=
   foldr (· + ·) 0
 
-@[simp] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
-@[simp] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
+@[simp, grind] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
+@[simp, grind] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
 
 /-- Sum of a list of natural numbers. -/
 @[deprecated List.sum (since := "2024-10-17")]

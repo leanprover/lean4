@@ -21,6 +21,8 @@ which applies to all applications of the function).
 
 theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
+attribute [grind] id
+
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
 since it can sometimes be used to avoid introducing variables.

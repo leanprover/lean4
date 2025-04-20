@@ -1621,12 +1621,12 @@ theorem filterMap_eq_map' {f : α → β} (w : stop = as.size) :
     filterMap (fun x => some (f x)) as 0 stop = map f as :=
   filterMap_eq_map w
 
-theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
+@[simp] theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   funext xs
   cases xs
   simp
 
-@[simp] theorem filterMap_some {xs : Array α} : filterMap some xs = xs := by
+@[grind] theorem filterMap_some {xs : Array α} : filterMap some xs = xs := by
   cases xs
   simp
 
@@ -1640,6 +1640,8 @@ theorem size_filterMap_le {f : α → Option β} {xs : Array α} :
   cases xs
   simp [List.length_filterMap_le]
 
+grind_pattern Array.size_filterMap_le => (Array.filterMap f xs).size
+
 @[simp] theorem filterMap_size_eq_size {xs : Array α} :
     (xs.filterMap f).size = xs.size ↔ ∀ a, a ∈ xs → (f a).isSome := by
   cases xs
@@ -1652,17 +1654,19 @@ theorem filterMap_eq_filter {p : α → Bool} (w : stop = as.size) :
   cases as
   simp
 
+@[grind]
 theorem filterMap_filterMap {f : α → Option β} {g : β → Option γ} {xs : Array α} :
     filterMap g (filterMap f xs) = filterMap (fun x => (f x).bind g) xs := by
   cases xs
   simp [List.filterMap_filterMap]
 
+@[grind]
 theorem map_filterMap {f : α → Option β} {g : β → γ} {xs : Array α} :
     map g (filterMap f xs) = filterMap (fun x => (f x).map g) xs := by
   cases xs
   simp [List.map_filterMap]
 
-@[simp] theorem filterMap_map {f : α → β} {g : β → Option γ} {xs : Array α} :
+@[simp, grind] theorem filterMap_map {f : α → β} {g : β → Option γ} {xs : Array α} :
     filterMap g (map f xs) = filterMap (g ∘ f) xs := by
   cases xs
   simp [List.filterMap_map]
@@ -1677,7 +1681,7 @@ theorem filterMap_filter {p : α → Bool} {f : α → Option β} {xs : Array α
   cases xs
   simp [List.filterMap_filter]
 
-@[simp] theorem mem_filterMap {f : α → Option β} {xs : Array α} {b : β} :
+@[simp, grind] theorem mem_filterMap {f : α → Option β} {xs : Array α} {b : β} :
     b ∈ filterMap f xs ↔ ∃ a, a ∈ xs ∧ f a = some b := by
   simp only [mem_def, toList_filterMap, List.mem_filterMap]
 
@@ -1689,7 +1693,8 @@ theorem forall_mem_filterMap {f : α → Option β} {xs : Array α} {P : β → 
   intro a
   rw [forall_comm]
 
-@[simp] theorem filterMap_append {α β : Type _} {xs ys : Array α} {f : α → Option β} {stop : Nat} (w : stop = xs.size + ys.size) :
+@[simp, grind] theorem filterMap_append {α β : Type _} {xs ys : Array α} {f : α → Option β}
+    {stop : Nat} (w : stop = xs.size + ys.size) :
     filterMap f (xs ++ ys) 0 stop = filterMap f xs ++ filterMap f ys := by
   subst w
   cases xs
@@ -1700,6 +1705,7 @@ theorem map_filterMap_of_inv {f : α → Option β} {g : β → α} (H : ∀ x :
     map g (filterMap f xs) = xs := by
   simp only [map_filterMap, H, filterMap_some, id]
 
+@[grind →]
 theorem forall_none_of_filterMap_eq_empty (h : filterMap f xs = #[]) : ∀ x ∈ xs, f x = none := by
   cases xs
   simpa using h
@@ -1746,7 +1752,7 @@ theorem size_filterMap_lt_size_iff_exists {xs : Array α} {f : α → Option β}
 
 /-! ### append -/
 
-@[simp] theorem size_append {xs ys : Array α} : (xs ++ ys).size = xs.size + ys.size := by
+@[simp, grind] theorem size_append {xs ys : Array α} : (xs ++ ys).size = xs.size + ys.size := by
   simp only [size, toList_append, List.length_append]
 
 @[simp, grind _=_] theorem push_append {a : α} {xs ys : Array α} : (xs ++ ys).push a = xs ++ ys.push a := by
@@ -1782,7 +1788,7 @@ theorem singleton_eq_toArray_singleton {a : α} : #[a] = [a].toArray := rfl
   funext ⟨l⟩
   simp
 
-@[simp] theorem mem_append {a : α} {xs ys : Array α} : a ∈ xs ++ ys ↔ a ∈ xs ∨ a ∈ ys := by
+@[simp, grind] theorem mem_append {a : α} {xs ys : Array α} : a ∈ xs ++ ys ↔ a ∈ xs ∨ a ∈ ys := by
   simp only [mem_def, toList_append, List.mem_append]
 
 @[grind] theorem mem_append_left {a : α} {xs : Array α} (ys : Array α) (h : a ∈ xs) : a ∈ xs ++ ys :=
@@ -1987,7 +1993,7 @@ theorem append_eq_append_iff {ws xs ys zs : Array α} :
     · left; exact ⟨as.toList, by simp⟩
     · right; exact ⟨cs.toList, by simp⟩
 
-theorem set_append {xs ys : Array α} {i : Nat} {x : α} (h : i < (xs ++ ys).size) :
+@[grind] theorem set_append {xs ys : Array α} {i : Nat} {x : α} (h : i < (xs ++ ys).size) :
     (xs ++ ys).set i x =
       if h' : i < xs.size then
         xs.set i x ++ ys
@@ -2007,7 +2013,7 @@ theorem set_append {xs ys : Array α} {i : Nat} {x : α} (h : i < (xs ++ ys).siz
     (xs ++ ys).set i x = xs ++ ys.set (i - xs.size) x (by simp at h'; omega) := by
   rw [set_append, dif_neg (by omega)]
 
-theorem setIfInBounds_append {xs ys : Array α} {i : Nat} {x : α} :
+@[grind] theorem setIfInBounds_append {xs ys : Array α} {i : Nat} {x : α} :
     (xs ++ ys).setIfInBounds i x =
       if i < xs.size then
         xs.setIfInBounds i x ++ ys
@@ -2044,7 +2050,7 @@ theorem append_eq_filterMap_iff {f : α → Option β} :
       ∃ as bs, zs = as ++ bs ∧ filterMap f as = xs ∧ filterMap f bs = ys := by
   rw [eq_comm, filterMap_eq_append_iff]
 
-@[simp] theorem map_append {f : α → β} {xs ys : Array α} :
+@[simp, grind] theorem map_append {f : α → β} {xs ys : Array α} :
     map f (xs ++ ys) = map f xs ++ map f ys := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
@@ -2060,7 +2066,7 @@ theorem append_eq_map_iff {f : α → β} :
 
 /-! ### flatten -/
 
-@[simp] theorem flatten_empty : (#[] : Array (Array α)).flatten = #[] := by simp [flatten]; rfl
+@[simp, grind] theorem flatten_empty : (#[] : Array (Array α)).flatten = #[] := by simp [flatten]; rfl
 
 @[simp] theorem toList_flatten {xss : Array (Array α)} :
     xss.flatten.toList = (xss.toList.map toList).flatten := by
@@ -2093,7 +2099,7 @@ theorem append_eq_map_iff {f : α → β} :
   cases xss using array₂_induction
   simp [Function.comp_def]
 
-@[simp] theorem flatten_singleton {xs : Array α} : #[xs].flatten = xs := by simp [flatten]; rfl
+@[simp, grind] theorem flatten_singleton {xs : Array α} : #[xs].flatten = xs := by simp [flatten]; rfl
 
 theorem mem_flatten : ∀ {xss : Array (Array α)}, a ∈ xss.flatten ↔ ∃ xs, xs ∈ xss ∧ a ∈ xs := by
   simp only [mem_def, toList_flatten, List.mem_flatten, List.mem_map]
@@ -2168,7 +2174,7 @@ theorem flatten_filter_ne_empty [DecidablePred fun xs : Array α => xs ≠ #[]] 
   induction xss₂ using array₂_induction
   simp [← List.map_append]
 
-theorem flatten_push {xss : Array (Array α)} {xs : Array α} :
+@[grind] theorem flatten_push {xss : Array (Array α)} {xs : Array α} :
     flatten (xss.push xs) = flatten xss ++ xs := by
   induction xss using array₂_induction
   rcases xs with ⟨l⟩
@@ -4231,6 +4237,10 @@ theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then
 /-! Content below this point has not yet been aligned with `List`. -/
 
 /-! ### sum -/
+
+@[simp, grind] theorem sum_empty [Add α] [Zero α] : (#[] : Array α).sum = 0 := rfl
+
+-- Without further algebraic hypotheses, there's no useful `sum_push` lemma.
 
 theorem sum_eq_sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum := by
   cases as

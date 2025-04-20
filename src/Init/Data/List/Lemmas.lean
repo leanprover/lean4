@@ -1424,7 +1424,7 @@ theorem filterMap_eq_map' {f : α → β} : filterMap (fun x => some (f x)) = ma
   erw [filterMap_eq_map]
   simp
 
-theorem filterMap_some {l : List α} : filterMap some l = l := by
+@[grind] theorem filterMap_some {l : List α} : filterMap some l = l := by
   rw [filterMap_some_fun, id]
 
 theorem map_filterMap_some_eq_filter_map_isSome {f : α → Option β} {l : List α} :
@@ -1436,6 +1436,8 @@ theorem length_filterMap_le (f : α → Option β) (l : List α) :
     (filterMap f l).length ≤ l.length := by
   rw [← length_map some, map_filterMap_some_eq_filter_map_isSome, ← length_map f]
   apply length_filter_le
+
+grind_pattern List.length_filterMap_le => (List.filterMap f l).length
 
 @[simp]
 theorem filterMap_length_eq_length {l} :
@@ -1457,17 +1459,19 @@ theorem filterMap_eq_filter {p : α → Bool} :
   | nil => rfl
   | cons a l IH => by_cases pa : p a <;> simp [filterMap_cons, Option.guard, pa, ← IH]
 
+@[grind]
 theorem filterMap_filterMap {f : α → Option β} {g : β → Option γ} {l : List α} :
     filterMap g (filterMap f l) = filterMap (fun x => (f x).bind g) l := by
   induction l with
   | nil => rfl
   | cons a l IH => cases h : f a <;> simp [filterMap_cons, *]
 
+@[grind]
 theorem map_filterMap {f : α → Option β} {g : β → γ} {l : List α} :
     map g (filterMap f l) = filterMap (fun x => (f x).map g) l := by
   simp only [← filterMap_eq_map, filterMap_filterMap, Option.map_eq_bind]
 
-@[simp]
+@[simp, grind]
 theorem filterMap_map {f : α → β} {g : β → Option γ} {l : List α} :
     filterMap g (map f l) = filterMap (g ∘ f) l := by
   rw [← filterMap_eq_map, filterMap_filterMap]; rfl
@@ -1482,7 +1486,7 @@ theorem filterMap_filter {p : α → Bool} {f : α → Option β} {l : List α} 
   rw [← filterMap_eq_filter, filterMap_filterMap]
   congr; funext x; by_cases h : p x <;> simp [Option.guard, h]
 
-@[simp] theorem mem_filterMap {f : α → Option β} {l : List α} {b : β} :
+@[simp, grind] theorem mem_filterMap {f : α → Option β} {l : List α} {b : β} :
     b ∈ filterMap f l ↔ ∃ a, a ∈ l ∧ f a = some b := by
   induction l <;> simp [filterMap_cons]; split <;> simp [*, eq_comm]
 
@@ -1494,7 +1498,7 @@ theorem forall_mem_filterMap {f : α → Option β} {l : List α} {P : β → Pr
   intro a
   rw [forall_comm]
 
-@[simp] theorem filterMap_append {l l' : List α} {f : α → Option β} :
+@[simp, grind] theorem filterMap_append {l l' : List α} {f : α → Option β} :
     filterMap f (l ++ l') = filterMap f l ++ filterMap f l' := by
   induction l <;> simp [filterMap_cons]; split <;> simp [*]
 
@@ -1511,6 +1515,7 @@ theorem head_filterMap_of_eq_some {f : α → Option β} {l : List α} (w : l �
     simp only [head_cons] at h
     simp [filterMap_cons, h]
 
+@[grind →]
 theorem forall_none_of_filterMap_eq_nil (h : filterMap f xs = []) : ∀ x ∈ xs, f x = none := by
   intro x hx
   induction xs with
@@ -1569,7 +1574,7 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
 @[simp] theorem cons_append_fun {a : α} {as : List α} :
     (fun bs => ((a :: as) ++ bs)) = fun bs => a :: (as ++ bs) := rfl
 
-@[simp] theorem mem_append {a : α} {s t : List α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t := by
+@[simp, grind] theorem mem_append {a : α} {s t : List α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t := by
   induction s <;> simp_all [or_assoc]
 
 theorem not_mem_append {a : α} {s t : List α} (h₁ : a ∉ s) (h₂ : a ∉ t) : a ∉ s ++ t :=
@@ -1725,12 +1730,12 @@ theorem append_eq_append_iff {ws xs ys zs : List α} :
   | nil => simp_all
   | cons a as ih => cases ys <;> simp [eq_comm, and_assoc, ih, and_or_left]
 
-@[simp] theorem head_append_of_ne_nil {l : List α} {w₁} (w₂) :
+@[simp, grind] theorem head_append_of_ne_nil {l : List α} {w₁} (w₂) :
     head (l ++ l') w₁ = head l w₂ := by
   match l, w₂ with
   | a :: l, _ => rfl
 
-theorem head_append {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
+@[grind] theorem head_append {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
     head (l₁ ++ l₂) w =
       if h : l₁.isEmpty then
         head l₂ (by simp_all [isEmpty_iff])
@@ -1751,7 +1756,7 @@ theorem head_append_right {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) (h : l
     head (l₁ ++ l₂) w = head l₂ (by simp_all) := by
   rw [head_append, dif_pos (by simp_all)]
 
-@[simp] theorem head?_append {l : List α} : (l ++ l').head? = l.head?.or l'.head? := by
+@[simp, grind] theorem head?_append {l : List α} : (l ++ l').head? = l.head?.or l'.head? := by
   cases l <;> rfl
 
 -- Note:
@@ -1765,14 +1770,14 @@ theorem tail?_append_of_ne_nil {l l' : List α} (_ : l ≠ []) : (l ++ l').tail?
   match l with
   | _ :: _ => by simp
 
-theorem tail_append {l l' : List α} : (l ++ l').tail = if l.isEmpty then l'.tail else l.tail ++ l' := by
+@[grind] theorem tail_append {l l' : List α} : (l ++ l').tail = if l.isEmpty then l'.tail else l.tail ++ l' := by
   cases l <;> simp
 
 @[simp] theorem tail_append_of_ne_nil {xs ys : List α} (h : xs ≠ []) :
     (xs ++ ys).tail = xs.tail ++ ys := by
   simp_all [tail_append]
 
-theorem set_append {s t : List α} :
+@[grind] theorem set_append {s t : List α} :
     (s ++ t).set i x = if i < s.length then s.set i x ++ t else s ++ t.set (i - s.length) x := by
   induction s generalizing i with
   | nil => simp
@@ -1836,7 +1841,7 @@ theorem append_eq_filter_iff {p : α → Bool} :
 
 @[deprecated append_eq_filter_iff (since := "2024-09-05")] abbrev append_eq_filter := @append_eq_filter_iff
 
-@[simp] theorem map_append {f : α → β} : ∀ {l₁ l₂}, map f (l₁ ++ l₂) = map f l₁ ++ map f l₂ := by
+@[simp, grind] theorem map_append {f : α → β} : ∀ {l₁ l₂}, map f (l₁ ++ l₂) = map f l₁ ++ map f l₂ := by
   intro l₁; induction l₁ <;> intros <;> simp_all
 
 theorem map_eq_append_iff {f : α → β} :
@@ -1906,7 +1911,7 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ l' b, l = concat l' b
   | cons =>
     simp [flatten, length_append, *]
 
-theorem flatten_singleton {l : List α} : [l].flatten = l := by simp
+@[grind] theorem flatten_singleton {l : List α} : [l].flatten = l := by simp
 
 @[simp] theorem mem_flatten : ∀ {L : List (List α)}, a ∈ L.flatten ↔ ∃ l, l ∈ L ∧ a ∈ l
   | [] => by simp
@@ -3671,46 +3676,8 @@ attribute [grind ext] List.ext_getElem?
 -- attribute [grind] List.getLast!_nil -- shouldn't we jsut be replacing `getLast!`
 -- attribute [grind] List.map_inj_left -- dubious?
 
-attribute [grind] id
 
 
-
-
-
-
-attribute [grind] List.filterMap_some
-
-
-grind_pattern List.length_filterMap_le => (List.filterMap f l).length
-
-attribute [grind] List.filterMap_filterMap
-
-attribute [grind] List.map_filterMap
-attribute [grind] List.filterMap_map
-attribute [grind] List.mem_filterMap
-attribute [grind] List.filterMap_append
-attribute [grind →] List.forall_none_of_filterMap_eq_nil
-attribute [grind] List.mem_append
-
-
-attribute [grind] List.getElem_append
-attribute [grind] List.length_append
-
-attribute [grind] List.head_append_of_ne_nil
-attribute [grind] List.head_append
-
-attribute [grind] List.head?_nil List.head?_cons
-
-
-attribute [grind] List.head?_append
-
-attribute [grind] List.tail?_nil List.tail?_cons
-attribute [grind] List.tail_append
-
-attribute [grind] List.set_append
-attribute [grind] List.map_append
-attribute [grind] List.flatten_nil List.flatten_cons List.sum_nil List.sum_cons
-attribute [grind] List.flatten_singleton
 attribute [grind] List.findSome?_nil List.findSome?_cons
 attribute [grind] List.map_flatten
 attribute [grind] List.filterMap_flatten

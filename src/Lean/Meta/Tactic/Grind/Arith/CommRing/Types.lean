@@ -13,6 +13,8 @@ namespace Lean.Meta.Grind.Arith.CommRing
 export Lean.Grind.CommRing (Var Power Mon Poly)
 abbrev RingExpr := Grind.CommRing.Expr
 
+deriving instance Repr for Power, Mon, Poly
+
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where
   type         : Expr
@@ -46,9 +48,11 @@ structure State where
   -/
   rings : Array Ring := {}
   /--
-  Mapping from `Expr` to its "ring id". We cache failures using `none`.
-  `typeIdOf[e]` is `some id`, then `id < rings.size`. -/
+  Mapping from types to its "ring id". We cache failures using `none`.
+  `typeIdOf[type]` is `some id`, then `id < rings.size`. -/
   typeIdOf : PHashMap ENodeKey (Option Nat) := {}
+  /- Mapping from expressions/terms to their ring ids. -/
+  exprToRingId : PHashMap ENodeKey Nat := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.CommRing

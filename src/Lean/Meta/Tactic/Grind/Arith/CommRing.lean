@@ -18,5 +18,6 @@ namespace Lean
 
 builtin_initialize registerTraceClass `grind.ring
 builtin_initialize registerTraceClass `grind.ring.internalize
+builtin_initialize registerTraceClass `grind.ring.assert
 
 end Lean

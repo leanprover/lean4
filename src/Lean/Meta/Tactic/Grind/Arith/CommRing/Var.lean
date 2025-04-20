@@ -17,6 +17,7 @@ def mkVar (e : Expr) (ringId : Nat) : GoalM Var := do
     vars      := s.vars.push e
     varMap    := s.varMap.insert { expr := e } var
   }
+  setTermRingId e ringId
   markAsCommRingTerm e
   return var
 

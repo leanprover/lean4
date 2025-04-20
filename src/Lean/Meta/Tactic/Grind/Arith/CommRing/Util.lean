@@ -24,4 +24,21 @@ def getRing (ringId : Nat) : GoalM Ring := do
 @[inline] def modifyRing (ringId : Nat) (f : Ring → Ring) : GoalM Unit := do
   modify' fun s => { s with rings := s.rings.modify ringId f }
 
+def getTermRingId? (e : Expr) : GoalM (Option Nat) := do
+  return (← get').exprToRingId.find? { expr := e }
+
+def setTermRingId (e : Expr) (ringId : Nat) : GoalM Unit := do
+  if let some ringId' ← getTermRingId? e then
+    unless ringId' == ringId do
+      reportIssue! "expression in two different rings{indentExpr e}"
+    return ()
+  modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
+
+def toPoly (e : RingExpr) (ringId : Nat) : GoalM Poly := do
+  let ring ← getRing ringId
+  if let some (_, c) := ring.charInst? then
+    if c != 0 then
+      return e.toPolyC c
+  return e.toPoly
+
 end Lean.Meta.Grind.Arith.CommRing

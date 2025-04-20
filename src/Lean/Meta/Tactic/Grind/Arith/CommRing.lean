@@ -21,5 +21,9 @@ namespace Lean
 builtin_initialize registerTraceClass `grind.ring
 builtin_initialize registerTraceClass `grind.ring.internalize
 builtin_initialize registerTraceClass `grind.ring.assert
+builtin_initialize registerTraceClass `grind.ring.assert.unsat (inherited := true)
+builtin_initialize registerTraceClass `grind.ring.assert.trivial (inherited := true)
+builtin_initialize registerTraceClass `grind.ring.assert.store (inherited := true)
+builtin_initialize registerTraceClass `grind.ring.assert.discard (inherited := true)
 
 end Lean

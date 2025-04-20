@@ -50,11 +50,23 @@ def nonzeroCharInst? (ringId : Nat) : GoalM (Option (Expr × Nat)) := do
       return some (inst, c)
   return none
 
+/-- Returns `true` if the ring has a `IsCharP` instance. -/
+def hasChar (ringId : Nat) : GoalM Bool := do
+  return (← getRing ringId).charInst?.isSome
+
+/--
+Returns the pair `(charInst, c)`. If the ring does not have a `IsCharP` instance, then throws internal error.
+-/
+def getCharInst (ringId : Nat) : GoalM (Expr × Nat) := do
+  let some c := (← getRing ringId).charInst?
+    | throwError "`grind` internal error, ring does not have a characteristic"
+  return c
+
 /--
 Converts the given ring expression into a multivariate polynomial.
 If the ring has a nonzero characteristic, it is used during normalization.
 -/
-def toPoly (e : RingExpr) (ringId : Nat) : GoalM Poly := do
+def toPoly (ringId : Nat) (e : RingExpr) : GoalM Poly := do
   if let some c ← nonzeroChar? ringId then
     return e.toPolyC c
   else

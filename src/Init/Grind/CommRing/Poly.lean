@@ -654,7 +654,9 @@ theorem ne_unsat {α} [CommRing α] (ctx : Context α) (a b : Expr)
 def eq_unsat_cert (a b : Expr) (k : Int) : Bool :=
   k != 0 && (a.sub b).toPoly == .num k
 
-theorem eq_unsat {α} [CommRing α] [IsCharP α 0] (ctx : Context α) (a b : Expr) (k : Int)
+-- Remark: `[IsCharP α 0]` after `(ctx : Context α)` is not a mistake.
+-- The `grind` procedure assumes that support theorems start with `{α} [CommRing α] (ctx : Context α)`
+theorem eq_unsat {α} [CommRing α] (ctx : Context α) [IsCharP α 0] (a b : Expr) (k : Int)
     : eq_unsat_cert a b k → a.denote ctx = b.denote ctx → False := by
   simp [eq_unsat_cert]
   intro h₁ h₂

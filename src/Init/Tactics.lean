@@ -501,7 +501,7 @@ Extracts `let` and `let_fun` expressions from within the target or a local hypot
 introducing new local definitions.
 
 - `extract_lets` extracts all the lets from the target.
-- `extract_lets x y z` extracts all the lets from the target and names the first three `x`, `y`, and `z`.
+- `extract_lets x y z` extracts all the lets from the target and uses `x`, `y`, and `z` for the first names.
   Using `_` for a name leaves it unnamed.
 - `extract_lets x y z at h` operates on the local hypothesis `h` instead of the target.
 

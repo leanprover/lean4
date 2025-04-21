@@ -68,7 +68,7 @@ def nextNameForBinderName? (binderName : Name) : M (Option Name) := do
       if binderName.isAnonymous then
         -- Use a nicer binder name than `[anonymous]`, which can appear for example in `letFun x f` when `f` is not a lambda expression.
         mkFreshUserName `a
-      else if (← read).preserveBinderNames then
+      else if (← read).preserveBinderNames || n.hasMacroScopes then
         return n
       else
         mkFreshUserName binderName
@@ -200,7 +200,7 @@ Extracts lets from `e`.
   used to detect whether an expression is extractable. Extracted `let`s do not have their fvarids in this list.
   This is not part of the cache key since it's an optimization and in principle derivable.
 - `topLevel` is whether we are still looking at the top-level expression.
-  The body of an extracted top-level let is also top-level.
+  The body of an extracted top-level let is also considered to be top-level.
   This is part of the cache key since it affects what is extracted.
 
 Note: the return value may refer to fvars that are not in the current local context, but they are in the `decls` list.
@@ -252,10 +252,10 @@ where
       return mk t b
   extractLetLike (isLet : Bool) (n : Name) (t v b : Expr) (mk : Expr → Expr → Expr → M Expr) (topLevel : Bool) : M Expr := do
     let cfg ← read
-    if cfg.usedOnly && !b.hasLooseBVars then
-      return ← extractCore fvars b (topLevel := topLevel)
     let t ← extractCore fvars t
     let v ← extractCore fvars v
+    if cfg.usedOnly && !b.hasLooseBVars then
+      return ← extractCore fvars b (topLevel := topLevel)
     if cfg.merge then
       if let some fvarId := (← get).valueMap.get? v then
         if isLet && cfg.lift then ensureIsLet fvarId

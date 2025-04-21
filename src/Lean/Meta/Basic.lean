@@ -1938,7 +1938,7 @@ structure ExprParamInfo where
   /-- The type of the parameter. -/
   type : Expr
   /-- The binder annotation for the parameter. -/
-  binderInfo     : BinderInfo := BinderInfo.default
+  binderInfo : BinderInfo := BinderInfo.default
   deriving Inhabited
 
 /--

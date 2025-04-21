@@ -383,7 +383,7 @@ At multiple locations with `merge := true`.
 info: _z✝ : Nat := 3
 x✝ : Nat := 1
 h : x✝ + 2 = _z✝
-⊢ Nat → True
+⊢ ∀ (x : Nat), True
 -/
 #guard_msgs in
 example (h : let x := 1; let y := 3; x + 2 = y) : let _z := 3; ∀ (_ : Nat), True := by
@@ -400,7 +400,7 @@ info: _z✝ : Nat := 3
 x✝ : Nat := 1
 y✝ : Nat := 3
 h : x✝ + 2 = y✝
-⊢ Nat → True
+⊢ ∀ (x : Nat), True
 -/
 #guard_msgs in
 example (h : let x := 1; let y := 3; x + 2 = y) : let _z := 3; ∀ (_ : Nat), True := by

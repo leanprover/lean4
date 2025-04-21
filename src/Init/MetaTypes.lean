@@ -299,8 +299,8 @@ structure ExtractLetsConfig where
   /-- If true (default: false), extract lets from subterms that are implicit arguments. -/
   implicits : Bool := false
   /-- If false (default: true), extracts only top-level lets, otherwise allows descending into subterms.
-  In this mode, `proofs` and `types` are ignored, and lets appearing in the types or values of the
-  top-level lets are not themeselves extracted. -/
+  When false, `proofs` and `types` are ignored, and lets appearing in the types or values of the
+  top-level lets are not themselves extracted. -/
   descend : Bool := true
   /-- If true (default: true), descend into forall/lambda/let bodies when extracting. Only relevant when `descend` is true. -/
   underBinder : Bool := true
@@ -313,9 +313,10 @@ structure ExtractLetsConfig where
   useContext : Bool := true
   /-- If true (default: false), then once `givenNames` is exhausted, stop extracting lets. Otherwise continue extracting lets. -/
   onlyGivenNames : Bool := false
-  /-- If true (default: false), then when no name is provided for a 'let' expression, the name is used as-is without making it inaccessible. -/
+  /-- If true (default: false), then when no name is provided for a 'let' expression, the name is used as-is without making it be inaccessible.
+  The name still might be inaccessible if the binder name was. -/
   preserveBinderNames : Bool := false
-  /-- If true (default: false), lift `let`s as far out as possible. -/
+  /-- If true (default: false), lift non-extractable `let`s as far out as possible. -/
   lift : Bool := false
 
 /--

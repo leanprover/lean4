@@ -323,7 +323,7 @@ Extracts `let` and `let_fun` expressions from within the target expression.
 This is the conv mode version of the `extract_lets` tactic.
 
 - `extract_lets` extracts all the lets from the target.
-- `extract_lets x y z` extracts all the lets from the target and names the first three `x`, `y`, and `z`.
+- `extract_lets x y z` extracts all the lets from the target and uses `x`, `y`, and `z` for the first names.
   Using `_` for a name leaves it unnamed.
 
 Limitation: the extracted local declarations do not persist outside of the `conv` goal.

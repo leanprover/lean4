@@ -1,0 +1,204 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Joachim Breitner
+-/
+prelude
+import Lean.AddDecl
+import Lean.Meta.AppBuilder
+import Lean.Meta.CompletionName
+
+namespace Lean
+
+open Meta
+
+def mkToCtorIdx' (indName : Name) : MetaM Unit := do
+  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  let us := info.levelParams.map mkLevelParam
+  let e := mkConst (mkCasesOnName indName) (1::us)
+  let t ← inferType e
+  let e ← forallBoundedTelescope t info.numParams fun xs t => do
+    let e := mkAppN e xs
+    let motive ← forallTelescope (← whnfD t).bindingDomain! fun ys _ =>
+      mkLambdaFVars ys (mkConst ``Nat)
+    let t ← instantiateForall t #[motive]
+    let e := mkApp e motive
+    let e ← forallBoundedTelescope t (some (info.numIndices + 1)) fun ys t => do
+      let e := mkAppN e ys
+      let e ← forallBoundedTelescope t info.numCtors fun alts _ => do
+        let alts' ← alts.mapIdxM fun i alt => do
+          let altType ← inferType alt
+          forallTelescope altType fun zs _ =>
+            mkLambdaFVars zs (mkNatLit i)
+        return mkAppN e alts'
+      mkLambdaFVars ys e
+    mkLambdaFVars xs e
+
+  let declName := indName ++ `toCtorIdx'
+  addAndCompile <| Declaration.defnDecl {
+    name        := declName
+    levelParams := info.levelParams
+    type        := (← inferType e)
+    value       := e
+    safety      := DefinitionSafety.safe
+    hints       := ReducibilityHints.abbrev
+  }
+  setReducibleAttribute declName
+
+def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
+  let type ← inferType default
+  let u ← getLevel type
+  let mut acc := default
+  for i in (Array.range es.size).reverse do
+    let e := es[i]!
+    acc := mkApp4 (mkConst ``cond [u]) type (← mkAppM ``Nat.beq #[n, mkNatLit i]) e acc
+  return acc
+
+def mkWithCtorType (indName : Name) : MetaM Unit := do
+  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  let us := info.levelParams.map mkLevelParam
+  let v ← pure `v -- TODO: mkFreshUserName `v
+  let indTyCon := mkConst indName us
+  let indTyKind ← inferType indTyCon
+  let indLevel ← getDecLevel indTyKind
+  let e ← forallBoundedTelescope indTyKind info.numParams fun xs  _ => do
+    withLocalDeclD `P (mkSort (mkLevelParam v).succ) fun P => do
+    withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
+      let default ← mkArrow (mkConst ``PUnit [indLevel]) P
+      let es ← info.ctors.toArray.mapM fun ctorName => do
+        let ctor := mkAppN (mkConst ctorName us) xs
+        let ctorType ← inferType ctor
+        let argType ← forallTelescope ctorType fun ys _ =>
+          mkForallFVars ys P
+        mkArrow (mkConst ``PUnit [indLevel]) argType
+      let e ← mkNatLookupTable ctorIdx es default
+      mkLambdaFVars ((xs.push P).push ctorIdx) e
+
+  let declName := indName ++ `withCtorType
+  addAndCompile <| Declaration.defnDecl {
+    name        := declName
+    levelParams := v :: info.levelParams
+    type        := (← inferType e)
+    value       := e
+    safety      := DefinitionSafety.safe
+    hints       := ReducibilityHints.abbrev
+  }
+  setReducibleAttribute declName
+
+def mkWithCtor (indName : Name) : MetaM Unit := do
+  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  let withCtorTypeName := indName ++ `withCtorType
+  let us := info.levelParams.map mkLevelParam
+  let v ← pure `v -- TODO: mkFreshUserName `v
+  let indTyCon := mkConst indName us
+  let indTyKind ← inferType indTyCon
+  let indLevel ← getDecLevel indTyKind
+  let e ← forallBoundedTelescope indTyKind info.numParams fun xs t => do
+    withLocalDeclD `P (mkSort (mkLevelParam v).succ) fun P => do
+    withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
+      let withCtorTypeNameApp := mkAppN (mkConst withCtorTypeName (mkLevelParam v :: us)) (xs.push P)
+      let kType := mkApp withCtorTypeNameApp  ctorIdx
+      withLocalDeclD `k kType fun k =>
+      withLocalDeclD `k' P fun k' =>
+      forallBoundedTelescope t info.numIndices fun ys t' => do
+        assert! t'.isSort
+        withLocalDeclD `x (mkAppN indTyCon (xs ++ ys)) fun x => do
+          let e := mkConst (mkCasesOnName indName) (.succ (mkLevelParam v)::us)
+          let e := mkAppN e xs
+          let motive ← mkLambdaFVars (ys.push x) P
+          let e := mkApp e motive
+          let e := mkAppN e ys
+          let e := mkApp e x
+          let alts ← info.ctors.toArray.mapIdxM fun i ctorName => do
+            let ctor := mkAppN (mkConst ctorName us) xs
+            let ctorType ← inferType ctor
+            forallTelescope ctorType fun zs _ => do
+              let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) ctorIdx (mkNatLit i)
+              let «then» ← withLocalDeclD `h heq fun h => do
+                let e ← mkEqNDRec (motive := withCtorTypeNameApp) k h
+                let e := mkApp e (mkConst ``PUnit.unit [indLevel])
+                let e := mkAppN e zs
+                -- ``Eq.ndrec
+                mkLambdaFVars #[h] e
+              let «else» ← withLocalDeclD `h (mkNot heq) fun h =>
+                mkLambdaFVars #[h] k'
+              let alt := mkApp5 (mkConst ``dite [(mkLevelParam v).succ])
+                  P heq (mkApp2 (mkConst ``Nat.decEq) ctorIdx (mkNatLit i))
+                  «then» «else»
+              mkLambdaFVars zs alt
+          let e := mkAppN e alts
+          mkLambdaFVars (xs ++ #[P, ctorIdx, k, k'] ++ ys ++ #[x]) e
+
+  let declName := indName ++ `withCtor
+  -- not compiled to avoid old code generator bug #1774
+  addDecl <| Declaration.defnDecl {
+    name        := declName
+    levelParams := v :: info.levelParams
+    type        := (← inferType e)
+    value       := e
+    safety      := DefinitionSafety.safe
+    hints       := ReducibilityHints.abbrev
+  }
+  setReducibleAttribute declName
+
+def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
+  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
+  let casesOnName := mkCasesOnName indName
+  let ConstantInfo.defnInfo casesOnInfo ← getConstInfo casesOnName | unreachable!
+  let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
+  let e := mkConst casesOnName (v.succ::us)
+  let t ← inferType e
+  let e ← forallBoundedTelescope t info.numParams fun xs t => do
+    let e := mkAppN e xs
+    let PType := mkSort v
+    withLocalDeclD `P PType fun P => do
+      let motive ← forallTelescope (← whnfD t).bindingDomain! fun ys _ =>
+        mkLambdaFVars ys PType
+      let t ← instantiateForall t #[motive]
+      let e := mkApp e motive
+      forallBoundedTelescope t info.numIndices fun ys t => do
+        let e := mkAppN e ys
+        let xType := mkAppN (mkConst indName us) (xs ++ ys)
+        withLocalDeclD `x1 xType fun x1 => do
+        withLocalDeclD `x2 xType fun x2 => do
+          let t ← instantiateForall t #[x1]
+          let e := mkApp e x1
+          forallBoundedTelescope t info.numCtors fun alts _ => do
+            let alts' ← alts.mapIdxM fun i alt => do
+              let altType ← inferType alt
+              forallTelescope altType fun zs1 _ => do
+                let alt := mkConst (indName ++ `withCtor) (v :: us)
+                let alt := mkAppN alt xs
+                let alt := mkApp alt PType
+                let alt := mkApp alt (mkNatLit i)
+                let k ← forallTelescopeReducing (← inferType alt).bindingDomain! fun zs2 _ => do
+                  let eqs ← (Array.zip zs1 zs2[1:]).filterMapM fun (z1,z2) => do
+                    if (← isProof z1) then
+                      return none
+                    else
+                      return some (← mkEqHEq z1 z2)
+                  let k ← mkArrowN eqs P
+                  let k ← mkArrow k P
+                  mkLambdaFVars zs2 k
+                let alt := mkApp alt k
+                let alt := mkApp alt P
+                let alt := mkAppN alt ys
+                let alt := mkApp alt x2
+                mkLambdaFVars zs1 alt
+            let e := mkAppN e alts'
+            let e ← mkLambdaFVars #[x1, x2] e
+            let e ← mkLambdaFVars #[P] e
+            let e ← mkLambdaFVars ys e
+            let e ← mkLambdaFVars xs e
+            pure e
+
+  let declName := indName ++ `noConfusionType
+  addAndCompile <| Declaration.defnDecl {
+    name        := declName
+    levelParams := casesOnInfo.levelParams
+    type        := (← inferType e)
+    value       := e
+    safety      := DefinitionSafety.safe
+    hints       := ReducibilityHints.abbrev
+  }
+  setReducibleAttribute declName

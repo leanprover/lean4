@@ -19,8 +19,8 @@ open Std.Sat Std.Sat.AIG
 namespace BVLogicalExpr
 
 structure Cache (aig : AIG BVBit) where
-  map : Std.HashMap BVLogicalExpr (Nat × Bool)
-  hbound : ∀ k (h : k ∈ map), (map[k]'h).1 < aig.decls.size
+  map : Std.HashMap BVLogicalExpr Fanin
+  hbound : ∀ k (h : k ∈ map), (map[k]'h).gate < aig.decls.size
 
 @[inline]
 def Cache.empty : Cache aig :=
@@ -34,9 +34,9 @@ def Cache.insert (cache : Cache aig) (expr : BVLogicalExpr) (ref : AIG.Ref aig) 
     intro k hk
     rw [Std.HashMap.getElem_insert]
     split
-    · exact ref.hgate
+    · simp [ref.hgate]
     · apply hbound
-  ⟨map.insert expr ⟨ref.gate, ref.invert⟩, this⟩
+  ⟨map.insert expr (Fanin.mk ref.gate ref.invert), this⟩
 
 @[inline]
 def Cache.get? (cache : Cache aig) (expr : BVLogicalExpr) : Option (AIG.Ref aig) :=
@@ -51,7 +51,7 @@ def Cache.get? (cache : Cache aig) (expr : BVLogicalExpr) : Option (AIG.Ref aig)
     have := by
       rw [← this]
       apply cache.hbound
-    some ⟨ref.1, ref.2, this⟩
+    some ⟨ref.gate, ref.invert, this⟩
   | none =>
     none
 
@@ -84,7 +84,7 @@ where
     | none =>
       let ⟨result, bvCache, logCache⟩ := go aig expr bvCache logCache
       ⟨result, bvCache, logCache.insert expr result.val.ref⟩
-    termination_by (sizeOf expr, 1)
+  termination_by (sizeOf expr, 1)
 
   go (aig : AIG BVBit) (expr : BVLogicalExpr) (bvCache : BVExpr.Cache aig) (logCache : Cache aig) :
       Return aig :=
@@ -174,7 +174,7 @@ where
           dsimp only at lextend rextend
           omega
         ⟨⟨ret, this⟩, bvCache, logCache⟩
-    termination_by (sizeOf expr, 0)
+  termination_by (sizeOf expr, 0)
 
 namespace bitblast
 
@@ -205,7 +205,8 @@ theorem go_lt_size_of_lt_aig_size (aig : AIG BVBit) (expr : BVLogicalExpr)
 mutual
 
 theorem goCache_decl_eq (aig : AIG BVBit) (bvCache : BVExpr.Cache aig) (logCache : Cache aig) :
-    ∀ (idx : Nat) (h1) (h2), (goCache aig expr bvCache logCache).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat) (h1) (h2),
+        (goCache aig expr bvCache logCache).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
   generalize hres : goCache aig expr bvCache logCache = res
   intro idx h1 h2
   unfold goCache at hres
@@ -235,7 +236,6 @@ theorem go_decl_eq (aig : AIG BVBit) (bvCache : BVExpr.Cache aig) (logCache : Ca
     have hd := discrResult.result.property
     have hl := lhsResult.result.property
     have hr := (goCache lhsResult.1.1.aig rhs lhsResult.bvCache lhsResult.logCache).result.property
-
     rw [AIG.LawfulOperator.decl_eq]
     rw [goCache_decl_eq, goCache_decl_eq, goCache_decl_eq]
     · simp only [discrResult] at hd

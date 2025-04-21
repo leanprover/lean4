@@ -24,7 +24,7 @@ namespace Cache
 
 abbrev Inv (assign : BVExpr.Assignment) (aig : AIG BVBit) (cache : Cache aig) : Prop :=
   ∀ expr (h : expr ∈ cache.map),
-    ⟦aig, ⟨(cache.map[expr]'h).1, (cache.map[expr]'h).2, cache.hbound ..⟩, assign.toAIGAssignment⟧
+    ⟦aig, ⟨(cache.map[expr]'h).gate, (cache.map[expr]'h).invert, cache.hbound ..⟩, assign.toAIGAssignment⟧
       =
     expr.eval assign
 
@@ -49,13 +49,13 @@ theorem Inv_insert (cache : Cache aig) (expr : BVLogicalExpr) (ref : AIG.Ref aig
   intro k hk
   by_cases heq : expr = k
   · subst heq
-    have : ((cache.insert expr ref).map[expr]'hk) = (ref.gate, ref.invert) := by
+    have : ((cache.insert expr ref).map[expr]'hk) = Fanin.mk ref.gate ref.invert := by
       unfold Cache.insert
       apply Std.HashMap.getElem_insert_self
     rw [← href]
     congr 3
     all_goals
-      rw [this]
+      simp [this]
   · have hmem : k ∈ cache.map := by
       unfold Cache.insert at hk
       apply Std.HashMap.mem_of_mem_insert
@@ -71,21 +71,23 @@ theorem Inv_insert (cache : Cache aig) (expr : BVLogicalExpr) (ref : AIG.Ref aig
       rw [this]
 
 theorem get?_eq_some_iff (cache : Cache aig) (expr : BVLogicalExpr) :
-    cache.get? expr = some ref ↔ cache.map[expr]? = some (ref.gate, ref.invert) := by
+    cache.get? expr = some ref ↔ cache.map[expr]? = some (Fanin.mk ref.gate ref.invert) := by
   cases ref
   unfold Cache.get?
   split
-  · next ref heq => cases ref; simp [heq]
+  · next ref heq =>
+    simp [heq, Fanin.eq_iff ref (.mk _ _)]
   · next heq => simp [heq]
 
-theorem denote_eq_eval_of_get?_eq_some_of_Inv (cache : Cache aig) (expr : BVLogicalExpr)
-    (ref : AIG.Ref aig) (hsome : cache.get? expr = some ref) (hinv : Inv assign aig cache) :
+theorem denote_eq_eval_of_get?_eq_some_of_Inv (cache : Cache aig)
+    (expr : BVLogicalExpr) (ref : AIG.Ref aig) (hsome : cache.get? expr = some ref)
+    (hinv : Inv assign aig cache) :
     ⟦aig,  ref, assign.toAIGAssignment⟧ = expr.eval assign := by
   rw [get?_eq_some_iff] at hsome
   have hmem : expr ∈ cache.map := by
     rw [Std.HashMap.mem_iff_contains, Std.HashMap.contains_eq_isSome_getElem?]
     simp [hsome]
-  have href : cache.map[expr]'hmem = (ref.gate, ref.invert) := by
+  have href : cache.map[expr]'hmem = Fanin.mk ref.gate ref.invert := by
     rw [Std.HashMap.getElem?_eq_some_getElem (h' := hmem)] at hsome
     simp only [Option.some.injEq] at hsome
     rw [hsome]
@@ -94,7 +96,7 @@ theorem denote_eq_eval_of_get?_eq_some_of_Inv (cache : Cache aig) (expr : BVLogi
   cases ref
   congr 3
   all_goals
-    rw [href]
+    simp [href]
 
 end Cache
 
@@ -103,7 +105,8 @@ namespace bitblast
 mutual
 
 theorem goCache_BvInv_of_BvInv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv : BVExpr.Cache.Inv assign aig bvCache) :
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig)
+    (hinv : BVExpr.Cache.Inv assign aig bvCache) :
     BVExpr.Cache.Inv assign (goCache aig expr bvCache logCache).result.val.aig (goCache aig expr bvCache logCache).bvCache := by
   generalize hres : goCache aig expr bvCache logCache = res
   unfold goCache at hres
@@ -116,7 +119,8 @@ theorem goCache_BvInv_of_BvInv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign 
 termination_by (sizeOf expr, 1)
 
 theorem go_BvInv_of_BvInv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv : BVExpr.Cache.Inv assign aig bvCache) :
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig)
+    (hinv : BVExpr.Cache.Inv assign aig bvCache) :
     BVExpr.Cache.Inv assign (go aig expr bvCache logCache).result.val.aig (go aig expr bvCache logCache).bvCache := by
   generalize hres : go aig expr bvCache logCache = res
   unfold go at hres
@@ -158,8 +162,8 @@ end
 mutual
 
 theorem goCache_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache)
-    (hinv2 : Cache.Inv assign aig logCache) :
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig)
+    (hinv1 : BVExpr.Cache.Inv assign aig bvCache) (hinv2 : Cache.Inv assign aig logCache) :
     Cache.Inv assign (goCache aig expr bvCache logCache).result.val.aig (goCache aig expr bvCache logCache).logCache := by
   generalize hres : goCache aig expr bvCache logCache = res
   unfold goCache at hres
@@ -177,8 +181,8 @@ theorem goCache_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BV
 termination_by (sizeOf expr, 1, 0)
 
 theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache)
-    (hinv2 : Cache.Inv assign aig logCache) :
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig)
+    (hinv1 : BVExpr.Cache.Inv assign aig bvCache) (hinv2 : Cache.Inv assign aig logCache) :
     Cache.Inv assign (go aig expr bvCache logCache).result.val.aig (go aig expr bvCache logCache).logCache := by
   generalize hres : go aig expr bvCache logCache = res
   unfold go at hres
@@ -228,8 +232,8 @@ theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.
 termination_by (sizeOf expr, 0, 0)
 
 theorem goCache_denote_eq (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache)
-    (hinv2 : Cache.Inv assign aig logCache) :
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig)
+    (hinv1 : BVExpr.Cache.Inv assign aig bvCache) (hinv2 : Cache.Inv assign aig logCache) :
     ⟦(goCache aig expr bvCache logCache).result, assign.toAIGAssignment⟧ = expr.eval assign := by
   unfold goCache
   split
@@ -243,8 +247,8 @@ theorem goCache_denote_eq (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVE
 termination_by (sizeOf expr, 0, 1)
 
 theorem go_denote_eq (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache)
-    (hinv2 : Cache.Inv assign aig logCache) :
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig)
+    (hinv1 : BVExpr.Cache.Inv assign aig bvCache) (hinv2 : Cache.Inv assign aig logCache) :
     ⟦(go aig expr bvCache logCache).result, assign.toAIGAssignment⟧ = expr.eval assign := by
   unfold go
   split

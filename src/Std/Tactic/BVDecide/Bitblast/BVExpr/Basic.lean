@@ -643,7 +643,7 @@ def decEq : DecidableEq BVLogicalExpr := fun l r =>
           | _, _, .isFalse h1 => .isFalse (by simp [h1])
         | .const .. | .atom .. | .not .. | .gate .. => .isFalse (by simp)
 
-instance : DecidableEq BVLogicalExpr := BVLogicalExpr.decEq
+instance : DecidableEq BVLogicalExpr := decEq
 
 /--
 The semantics of boolean problems involving BitVec predicates as atoms.

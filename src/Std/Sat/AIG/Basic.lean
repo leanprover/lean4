@@ -80,6 +80,17 @@ private theorem invert_eq_testBit (f : Fanin) : f.invert = f.val.testBit 0 := by
 theorem invert_flip (f : Fanin) : (f.flip v).invert = f.invert ^^ v := by
   cases v <;> simp [flip, invert_eq_testBit, -Nat.mod_two_not_eq_one]
 
+theorem eq_iff (f1 f2 : Fanin) : f1 = f2 ↔ (f1.gate = f2.gate ∧ f1.invert = f2.invert) := by
+  rcases f1 with ⟨f1⟩
+  rcases f2 with ⟨f2⟩
+  constructor
+  · simp_all
+  · simp only [gate, invert, Nat.one_and_eq_mod_two, Nat.mod_two_bne_zero, of.injEq, and_imp]
+    intro h1 h2
+    have : f1 % 2 = f2 % 2 := by
+      cases Nat.mod_two_eq_zero_or_one f1 <;> simp_all
+    omega
+
 end Fanin
 
 /--

@@ -38,7 +38,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   let some ringId ← getRingId? type | return ()
   RingM.run ringId do
     let some re ← reify? e | return ()
-    trace[grind.ring.internalize] "[{ringId}]: {e}"
+    trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
     markAsCommRingTerm e
     modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }

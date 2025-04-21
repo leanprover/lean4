@@ -143,4 +143,8 @@ def Poly.simp? (p₁ p₂ : Poly) : Option SimpResult :=
     go? p₂
   | _ => none
 
+def Poly.degree : Poly → Nat
+  | .num _ => 0
+  | .add _ m _ => m.degree
+
 end Lean.Grind.CommRing

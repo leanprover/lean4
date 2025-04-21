@@ -14,8 +14,9 @@ def mkVar (e : Expr) (ringId : Nat) : GoalM Var := do
     return var
   let var : Var := s.vars.size
   modifyRing ringId fun s => { s with
-    vars      := s.vars.push e
-    varMap    := s.varMap.insert { expr := e } var
+    vars       := s.vars.push e
+    varMap     := s.varMap.insert { expr := e } var
+    varToBasis := s.varToBasis.push []
   }
   setTermRingId e ringId
   markAsCommRingTerm e

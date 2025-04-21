@@ -6,6 +6,7 @@ Authors: Kim Morrison
 prelude
 import Init.Data.Zero
 import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Pow
 import Init.TacticsExtra
 
 /-!
@@ -56,7 +57,7 @@ namespace CommRing
 
 variable {α : Type u} [CommRing α]
 
-instance : NatCast α where
+instance natCastInst : NatCast α where
   natCast n := OfNat.ofNat n
 
 theorem natCast_zero : ((0 : Nat) : α) = 0 := rfl
@@ -124,7 +125,16 @@ theorem neg_sub (a b : α) : -(a - b) = b - a := by
 theorem sub_self (a : α) : a - a = 0 := by
   rw [sub_eq_add_neg, add_neg_cancel]
 
-instance : IntCast α where
+theorem sub_eq_iff {a b c : α} : a - b = c ↔ a = c + b := by
+  rw [sub_eq_add_neg]
+  constructor
+  next => intro; subst c; rw [add_assoc, neg_add_cancel, add_zero]
+  next => intro; subst a; rw [add_assoc, add_comm b, neg_add_cancel, add_zero]
+
+theorem sub_eq_zero_iff {a b : α} : a - b = 0 ↔ a = b := by
+  simp [sub_eq_iff, zero_add]
+
+instance intCastInst : IntCast α where
   intCast n := match n with
   | Int.ofNat n => OfNat.ofNat n
   | Int.negSucc n => -OfNat.ofNat (n + 1)
@@ -202,6 +212,11 @@ theorem intCast_mul (x y : Int) : ((x * y : Int) : α) = ((x : α) * (y : α)) :
     rw [Int.neg_mul_neg, intCast_neg, intCast_neg, neg_mul, mul_neg, neg_neg, intCast_nat_mul,
       intCast_ofNat, intCast_ofNat]
 
+theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k := by
+  induction k
+  next => simp [pow_zero, Int.pow_zero, intCast_one]
+  next k ih => simp [pow_succ, Int.pow_succ, intCast_mul, *]
+
 theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂ := by
   induction k₂
   next => simp [pow_zero, mul_one]
@@ -211,7 +226,7 @@ end CommRing
 
 open CommRing
 
-class IsCharP (α : Type u) [CommRing α] (p : Nat) where
+class IsCharP (α : Type u) [CommRing α] (p : outParam Nat) where
   ofNat_eq_zero_iff (p) : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0
 
 namespace IsCharP
@@ -233,7 +248,7 @@ theorem intCast_eq_zero_iff (x : Int) : (x : α) = 0 ↔ x % p = 0 :=
     rw [ofNat_eq_natCast] at this
     rw [this]
     simp only [Int.ofNat_dvd]
-    simp only [← Nat.dvd_iff_mod_eq_zero, Int.natAbs_ofNat, Int.natCast_add,
+    simp only [← Nat.dvd_iff_mod_eq_zero, Int.natAbs_natCast, Int.natCast_add,
       Int.cast_ofNat_Int, ite_eq_left_iff]
     by_cases h : p ∣ x + 1
     · simp [h]

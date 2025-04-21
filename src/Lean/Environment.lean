@@ -518,9 +518,9 @@ structure Environment where
   -/
   checked             : Task Kernel.Environment := .pure base
   /--
-  Container of asynchronously elaborated declarations. For consistency, `updateBaseAfterKernelAdd`
-  makes sure this contains constants added even synchronously, i.e. `base ⨃ asyncConsts` is the set
-  of constants known on the current environment branch, which is a subset of `checked`.
+  Container of asynchronously elaborated declarations. For consistency, `Lean.addDecl` makes sure
+  this contains constants added even synchronously, i.e. `base ⨃ asyncConsts` is the set of
+  constants known on the current environment branch, which is a subset of `checked`.
   -/
   private asyncConsts : AsyncConsts := default
   /-- Information about this asynchronous branch of the environment, if any. -/
@@ -1878,13 +1878,18 @@ def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.E
 
 namespace Environment
 
+private def looksLikeOldCodegenName : Name → Bool
+  | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_"
+  | _        => false
+
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment :=
   { env with
     checked := .pure kenv
-    -- make constants available in `asyncConsts` as well; see its docstring
+    -- HACK: the old codegen adds some helper constants directly to the kernel environment, we need
+    -- to add them to the async consts as well in order to be able to replay them
     asyncConsts := decl.getNames.foldl (init := env.asyncConsts) fun asyncConsts n =>
-      if asyncConsts.find? n |>.isNone then
+      if looksLikeOldCodegenName n then
         asyncConsts.add {
           constInfo := .ofConstantInfo (kenv.find? n |>.get!)
           exts? := none

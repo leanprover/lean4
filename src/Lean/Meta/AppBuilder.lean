@@ -27,13 +27,17 @@ def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
 /--
 `mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.
 The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
-NB: `x` must not be a let-bound free variable.
 -/
 def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
-  let f ← mkLambdaFVars #[x] e
+  -- If `x` is an `ldecl`, then the result of `mkLambdaFVars` is a let expression.
+  let ensureLambda : Expr → Expr
+    | .letE n t _ b _ => .lam n t b .default
+    | e@(.lam ..)     => e
+    | _               => unreachable!
+  let f ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] e
   let ety ← inferType e
   let α ← inferType x
-  let β ← mkLambdaFVars #[x] ety
+  let β ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] ety
   let u1 ← getLevel α
   let u2 ← getLevel ety
   return mkAppN (.const ``letFun [u1, u2]) #[α, β, v, f]
@@ -304,7 +308,7 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
         | _ =>
           let x := xs[i]
           let xType ← inferType x
-          if (← isDefEq d xType) then
+          if (← withAtLeastTransparency .default (isDefEq d xType)) then
             loop b (i+1) j (args.push x) instMVars
           else
             throwAppTypeMismatch (mkAppN f args) x

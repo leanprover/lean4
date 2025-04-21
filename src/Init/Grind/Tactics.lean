@@ -112,6 +112,10 @@ structure Config where
   That is, `let x := v; e[x]` reduces to `e[v]`. See also `zetaDelta`.
   -/
   zeta := true
+  /--
+  When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
+  -/
+  ring := false
   deriving Inhabited, BEq
 
 end Lean.Grind

@@ -497,6 +497,38 @@ syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
 /--
+Extracts `let` and `let_fun` expressions from within the target or a local hypothesis,
+introducing new local definitions.
+
+- `extract_lets` extracts all the lets from the target.
+- `extract_lets x y z` extracts all the lets from the target and uses `x`, `y`, and `z` for the first names.
+  Using `_` for a name leaves it unnamed.
+- `extract_lets x y z at h` operates on the local hypothesis `h` instead of the target.
+
+For example, given a local hypotheses if the form `h : let x := v; b x`, then `extract_lets z at h`
+introduces a new local definition `z := v` and changes `h` to be `h : b z`.
+-/
+syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
+
+/--
+Lifts `let` and `let_fun` expressions within a term as far out as possible.
+It is like `extract_lets +lift`, but the top-level lets at the end of the procedure
+are not extracted as local hypotheses.
+
+- `lift_lets` lifts let expressions in the target.
+- `lift_lets at h` lifts let expressions at the given local hypothesis.
+
+For example,
+```lean
+example : (let x := 1; x) = 1 := by
+  lift_lets
+  -- ⊢ let x := 1; x = 1
+  ...
+```
+-/
+syntax (name := liftLets) "lift_lets " optConfig (location)? : tactic
+
+/--
 If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.
@@ -1752,7 +1784,7 @@ attribute @[simp ←] and_assoc
 ```
 
 When multiple simp theorems are applicable, the simplifier uses the one with highest priority.
-The equational theorems of function are applied at very low priority (100 and below).
+The equational theorems of functions are applied at very low priority (100 and below).
 If there are several with the same priority, it is uses the "most recent one". Example:
 ```lean
 @[simp high] theorem cond_true (a b : α) : cond true a b = a := rfl

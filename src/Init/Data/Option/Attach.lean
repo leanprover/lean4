@@ -262,7 +262,7 @@ and simplifies these to the function directly taking the value.
 
 @[simp] theorem bind_subtype {p : α → Prop} {o : Option { x // p x }}
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    (o.bind f) = o.unattach.bind g := by
+    o.bind f = o.unattach.bind g := by
   cases o <;> simp [hf]
 
 @[simp] theorem unattach_filter {p : α → Prop} {o : Option { x // p x }}

@@ -136,11 +136,11 @@ def mkNoConfusionType' (indName : Name) : MetaM Unit := do
   let casesOnName := mkCasesOnName indName
   let ConstantInfo.defnInfo casesOnInfo ← getConstInfo casesOnName | unreachable!
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
-  let e := mkConst casesOnName (v.succ.succ::us)
+  let e := mkConst casesOnName (v.succ::us)
   let t ← inferType e
   let e ← forallBoundedTelescope t info.numParams fun xs t => do
     let e := mkAppN e xs
-    let PType := mkSort v.succ
+    let PType := mkSort v
     withLocalDeclD `P PType fun P => do
       let motive ← forallTelescope (← whnfD t).bindingDomain! fun ys _ =>
         mkLambdaFVars ys PType
@@ -157,7 +157,7 @@ def mkNoConfusionType' (indName : Name) : MetaM Unit := do
             let alts' ← alts.mapIdxM fun i alt => do
               let altType ← inferType alt
               forallTelescope altType fun zs1 _ => do
-                let alt := mkConst (indName ++ `withCtor) (v.succ :: us)
+                let alt := mkConst (indName ++ `withCtor) (v :: us)
                 let alt := mkAppN alt xs
                 let alt := mkApp alt PType
                 let alt := mkApp alt (mkNatLit i)
@@ -228,10 +228,10 @@ fun α P ctorIdx k k' a x =>
 #print Vec.withCtor
 
 /--
-info: @[reducible] def Vec.noConfusionType'.{u_1, u} : {α : Type} → {a : Nat} → Type u_1 → Vec α a → Vec α a → Type u_1 :=
+info: @[reducible] def Vec.noConfusionType'.{u_1, u} : {α : Type} → {a : Nat} → Sort u_1 → Vec α a → Vec α a → Sort u_1 :=
 fun {α} {a} P x1 x2 =>
-  Vec.casesOn x1 (Vec.withCtor α (Type u_1) 0 (fun x => P → P) P a x2) fun {n} a_1 a_2 =>
-    Vec.withCtor α (Type u_1) 1 (fun x {n_1} a a_3 => (n = n_1 → a_1 = a → HEq a_2 a_3 → P) → P) P a x2
+  Vec.casesOn x1 (Vec.withCtor α (Sort u_1) 0 (fun x => P → P) P a x2) fun {n} a_1 a_2 =>
+    Vec.withCtor α (Sort u_1) 1 (fun x {n_1} a a_3 => (n = n_1 → a_1 = a → HEq a_2 a_3 → P) → P) P a x2
 -/
 #guard_msgs in
 #print Vec.noConfusionType'
@@ -292,6 +292,10 @@ def Vec.noConfusionType''.{u,v} {α : Type} {n : Nat} (P : Sort u) (v1 v2 : Vec.
   v1.casesOn
     (nil := v2.withNil (P → P) P)
     (cons := fun {n} x xs => v2.withCons (fun n' x' xs' => (n = n' → x = x' → HEq xs xs' → P) → P) P)
+
+#check Vec.noConfusionType
+#check Vec.noConfusionType'
+#check Vec.noConfusionType''
 
 -- Let’s check if our construction is equivalent to the existing one
 example : @Vec.noConfusionType = @Vec.noConfusionType' := by

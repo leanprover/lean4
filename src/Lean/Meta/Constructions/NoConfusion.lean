@@ -7,6 +7,13 @@ prelude
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
+import Lean.Meta.Constructions.NoConfusionLinear
+
+
+register_builtin_option linearNoConfusionType : Bool := {
+  defValue := false
+  descr    := "use experimental linear noConfusion type construction for inductive types"
+}
 
 namespace Lean
 
@@ -21,12 +28,18 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   let recInfo ← getConstInfo (mkRecName declName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
-  let name := Name.mkStr declName "noConfusionType"
-  let decl ← ofExceptKernelException (mkNoConfusionTypeCoreImp (← getEnv) declName)
-  addDecl decl
-  setReducibleAttribute name
-  modifyEnv fun env => addToCompletionBlackList env name
-  modifyEnv fun env => addProtected env name
+  if linearNoConfusionType.get (← getOptions) then
+    mkToCtorIdx' declName
+    mkWithCtorType declName
+    mkWithCtor declName
+    mkNoConfusionTypeLinear declName
+  else
+    let name := Name.mkStr declName "noConfusionType"
+    let decl ← ofExceptKernelException (mkNoConfusionTypeCoreImp (← getEnv) declName)
+    addDecl decl
+    setReducibleAttribute name
+    modifyEnv fun env => addToCompletionBlackList env name
+    modifyEnv fun env => addProtected env name
 
   let name := Name.mkStr declName "noConfusion"
   let decl ← ofExceptKernelException (mkNoConfusionCoreImp (← getEnv) declName)

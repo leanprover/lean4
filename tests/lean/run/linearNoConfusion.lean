@@ -38,11 +38,18 @@ def mkToCtorIdx' (indName : Name) : MetaM Unit := do
 def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let type ← inferType default
   let u ← getLevel type
-  let mut acc := default
-  for i in (Array.range es.size).reverse do
-    let e := es[i]!
-    acc := mkApp4 (mkConst ``cond [u]) type (← mkAppM ``Nat.beq #[n, mkNatLit i]) e acc
-  return acc
+  let rec go (start stop : Nat) (hstart : start < stop := by omega) (hstop : stop ≤ es.size := by omega) : MetaM Expr := do
+    if h : start + 1 = stop then
+      return es[start]
+    else
+      let mid := (start + stop) / 2
+      let low ← go start mid
+      let high ← go mid stop
+      return mkApp4 (mkConst ``cond [u]) type (mkApp2 (mkConst ``Nat.blt) n (mkNatLit mid)) low high
+  if h : es.size = 0 then
+    pure default
+  else
+    go 0 es.size
 
 def mkWithCtorType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
@@ -61,7 +68,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
         let argType ← forallTelescope ctorType fun ys _ =>
           mkForallFVars ys P
         mkArrow (mkConst ``PUnit [indLevel]) argType
-      let e ← mkNatLookupTable ctorIdx es default
+      let e ← _root_.mkNatLookupTable ctorIdx es default
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
   let declName := indName ++ `withCtorType
@@ -197,10 +204,10 @@ inductive Vec.{u} (α : Type) : Nat → Type u where
   | nil : Vec α 0
   | cons {n} : α → Vec α n → Vec α (n + 1)
 
-run_meta do mkToCtorIdx' `Vec
-run_meta do mkWithCtorType `Vec
-run_meta do mkWithCtor `Vec
-run_meta do mkNoConfusionType' `Vec
+run_meta do _root_.mkToCtorIdx' `Vec
+run_meta do _root_.mkWithCtorType `Vec
+run_meta do _root_.mkWithCtor `Vec
+run_meta do _root_.mkNoConfusionType' `Vec
 
 /--
 info: @[reducible] def Vec.toCtorIdx'.{u} : {α : Type} → {a : Nat} → Vec α a → Nat :=
@@ -211,8 +218,7 @@ fun {α} {a} t => Vec.casesOn t 0 fun {n} a a => 1
 
 /--
 info: @[reducible] def Vec.withCtorType.{v, u} : Type → Type v → Nat → Type (max u v) :=
-fun α P ctorIdx =>
-  bif ctorIdx.beq 0 then PUnit → P else bif ctorIdx.beq 1 then PUnit → {n : Nat} → α → Vec α n → P else PUnit → P
+fun α P ctorIdx => bif ctorIdx.blt 1 then PUnit → P else PUnit → {n : Nat} → α → Vec α n → P
 -/
 #guard_msgs in
 #print Vec.withCtorType
@@ -293,19 +299,15 @@ def Vec.noConfusionType''.{u,v} {α : Type} {n : Nat} (P : Sort u) (v1 v2 : Vec.
     (nil := v2.withNil (P → P) P)
     (cons := fun {n} x xs => v2.withCons (fun n' x' xs' => (n = n' → x = x' → HEq xs xs' → P) → P) P)
 
-#check Vec.noConfusionType
-#check Vec.noConfusionType'
-#check Vec.noConfusionType''
-
 -- Let’s check if our construction is equivalent to the existing one
 example : @Vec.noConfusionType = @Vec.noConfusionType' := by
   ext α n P v1 v2;  cases v1 <;> cases v2 <;> rfl
 
 run_meta
-  mkToCtorIdx' ``Acc
-  mkWithCtorType ``Acc
-  mkWithCtor ``Acc
-  mkNoConfusionType' ``Acc
+  _root_.mkToCtorIdx' ``Acc
+  _root_.mkWithCtorType ``Acc
+  _root_.mkWithCtor ``Acc
+  _root_.mkNoConfusionType' ``Acc
 
 /-
 run_meta do

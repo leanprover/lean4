@@ -15,11 +15,18 @@ open Meta
 def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let type ← inferType default
   let u ← getLevel type
-  let mut acc := default
-  for i in (Array.range es.size).reverse do
-    let e := es[i]!
-    acc := mkApp4 (mkConst ``cond [u]) type (← mkAppM ``Nat.beq #[n, mkNatLit i]) e acc
-  return acc
+  let rec go (start stop : Nat) (hstart : start < stop := by omega) (hstop : stop ≤ es.size := by omega) : MetaM Expr := do
+    if h : start + 1 = stop then
+      return es[start]
+    else
+      let mid := (start + stop) / 2
+      let low ← go start mid
+      let high ← go mid stop
+      return mkApp4 (mkConst ``cond [u]) type (mkApp2 (mkConst ``Nat.blt) n (mkNatLit mid)) low high
+  if h : es.size = 0 then
+    pure default
+  else
+    go 0 es.size
 
 def mkWithCtorType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!

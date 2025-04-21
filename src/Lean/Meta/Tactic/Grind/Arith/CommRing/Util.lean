@@ -14,14 +14,25 @@ def get' : GoalM State := do
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   modify fun s => { s with arith.ring := f s.arith.ring }
 
-def getRing (ringId : Nat) : GoalM Ring := do
+/-- We don't want to keep carrying the `RingId` around. -/
+abbrev RingM := ReaderT Nat GoalM
+
+abbrev RingM.run (ringId : Nat) (x : RingM α) : GoalM α :=
+  x ringId
+
+abbrev getRingId : RingM Nat :=
+  read
+
+def getRing : RingM Ring := do
   let s ← get'
+  let ringId ← getRingId
   if h : ringId < s.rings.size then
     return s.rings[ringId]
   else
     throwError "`grind` internal error, invalid ringId"
 
-@[inline] def modifyRing (ringId : Nat) (f : Ring → Ring) : GoalM Unit := do
+@[inline] def modifyRing (f : Ring → Ring) : RingM Unit := do
+  let ringId ← getRingId
   modify' fun s => { s with rings := s.rings.modify ringId f }
 
 def getTermRingId? (e : Expr) : GoalM (Option Nat) := do
@@ -34,31 +45,29 @@ def setTermRingId (e : Expr) (ringId : Nat) : GoalM Unit := do
     return ()
   modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
 
-/-- Returns `some c` if the given ring has a nonzero characteristic `c`. -/
-def nonzeroChar? (ringId : Nat) : GoalM (Option Nat) := do
-  let ring ← getRing ringId
-  if let some (_, c) := ring.charInst? then
+/-- Returns `some c` if the current ring has a nonzero characteristic `c`. -/
+def nonzeroChar? : RingM (Option Nat) := do
+  if let some (_, c) := (← getRing).charInst? then
     if c != 0 then
       return some c
   return none
 
-/-- Returns `some (charInst, c)` if the given ring has a nonzero characteristic `c`. -/
-def nonzeroCharInst? (ringId : Nat) : GoalM (Option (Expr × Nat)) := do
-  let ring ← getRing ringId
-  if let some (inst, c) := ring.charInst? then
+/-- Returns `some (charInst, c)` if the current ring has a nonzero characteristic `c`. -/
+def nonzeroCharInst? : RingM (Option (Expr × Nat)) := do
+  if let some (inst, c) := (← getRing).charInst? then
     if c != 0 then
       return some (inst, c)
   return none
 
-/-- Returns `true` if the ring has a `IsCharP` instance. -/
-def hasChar (ringId : Nat) : GoalM Bool := do
-  return (← getRing ringId).charInst?.isSome
+/-- Returns `true` if the current ring has a `IsCharP` instance. -/
+def hasChar  : RingM Bool := do
+  return (← getRing).charInst?.isSome
 
 /--
 Returns the pair `(charInst, c)`. If the ring does not have a `IsCharP` instance, then throws internal error.
 -/
-def getCharInst (ringId : Nat) : GoalM (Expr × Nat) := do
-  let some c := (← getRing ringId).charInst?
+def getCharInst : RingM (Expr × Nat) := do
+  let some c := (← getRing).charInst?
     | throwError "`grind` internal error, ring does not have a characteristic"
   return c
 
@@ -66,8 +75,8 @@ def getCharInst (ringId : Nat) : GoalM (Expr × Nat) := do
 Converts the given ring expression into a multivariate polynomial.
 If the ring has a nonzero characteristic, it is used during normalization.
 -/
-def _root_.Lean.Grind.CommRing.Expr.toPolyM (ringId : Nat) (e : RingExpr) : GoalM Poly := do
-  if let some c ← nonzeroChar? ringId then
+def _root_.Lean.Grind.CommRing.Expr.toPolyM (e : RingExpr) : RingM Poly := do
+  if let some c ← nonzeroChar? then
     return e.toPolyC c
   else
     return e.toPoly

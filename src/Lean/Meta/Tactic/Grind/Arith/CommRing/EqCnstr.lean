@@ -14,8 +14,8 @@ namespace Lean.Meta.Grind.Arith.CommRing
 Returns the ring expression denoting the given Lean expression.
 Recall that we compute the ring expressions during internalization.
 -/
-private def toRingExpr? (ringId : Nat) (e : Expr) : GoalM (Option RingExpr) := do
-  let ring ← getRing ringId
+private def toRingExpr? (e : Expr) : RingM (Option RingExpr) := do
+  let ring ← getRing
   if let some re := ring.denote.find? { expr := e } then
     return some re
   else if let some x := ring.varMap.find? { expr := e } then
@@ -31,22 +31,17 @@ private def inSameRing? (a b : Expr) : GoalM (Option Nat) := do
   unless ringId == ringId' do return none -- This can happen when we have heterogeneous equalities
   return ringId
 
-abbrev M := ReaderT Ring GoalM
-
-def getRingId : M Nat :=
-  return (← read).id
-
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides `m`.
 If `unitOnly` is true, only equations with a unit leading coefficient are considered.
 -/
-def _root_.Lean.Grind.CommRing.Mon.findSimp? (m : Mon) (unitOnly : Bool := false) : M (Option EqCnstr) :=
+def _root_.Lean.Grind.CommRing.Mon.findSimp? (m : Mon) (unitOnly : Bool := false) : RingM (Option EqCnstr) :=
   go m
 where
-  go : Mon → M (Option EqCnstr)
+  go : Mon → RingM (Option EqCnstr)
     | .unit => return none
     | .mult pw m' => do
-      for c in (← read).varToBasis[pw.x]! do
+      for c in (← getRing).varToBasis[pw.x]! do
         if !unitOnly || c.p.lc.natAbs == 1 then
         if c.p.divides m then
           return some c
@@ -57,7 +52,7 @@ Returns `some c`, where `c` is an equation from the basis whose leading monomial
 monomial in `p`.
 If `unitOnly` is true, only equations with a unit leading coefficient are considered.
 -/
-def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := false) : M (Option EqCnstr) := do
+def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := false) : RingM (Option EqCnstr) := do
   match p with
   | .num _ => return none
   | .add _ m p =>
@@ -66,7 +61,7 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := fal
     | none => p.findSimp? unitOnly
 
 /-- Simplify the given equation constraint using the current basis. -/
-def simplify (c : EqCnstr) : M EqCnstr := do
+def simplify (c : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
     checkSystem "ring"
@@ -76,48 +71,50 @@ def simplify (c : EqCnstr) : M EqCnstr := do
       p := r.p
       h := .simp c' c r.k₁ r.k₂ r.m
     }
-    trace[grind.ring.simp] "{← c.p.denoteExpr (← getRingId)}"
+    trace[grind.ring.simp] "{← c.p.denoteExpr}"
   return c
 
 @[export lean_process_ring_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
   let some ringId ← inSameRing? a b | return ()
-  trace[grind.ring.assert] "{← mkEq a b}"
-  let some ra ← toRingExpr? ringId a | return ()
-  let some rb ← toRingExpr? ringId b | return ()
-  let p ← (ra.sub rb).toPolyM ringId
-  if let .num k := p then
-    if k == 0 then
-      trace[grind.ring.assert.trivial] "{← p.denoteExpr ringId} = 0"
-    else if (← hasChar ringId) then
-      trace[grind.ring.assert.unsat] "{← p.denoteExpr ringId} = 0"
-      setEqUnsat ringId k a b ra rb
-    else
-      -- Remark: we currently don't do anything if the characteristic is not known.
-      trace[grind.ring.assert.discard] "{← p.denoteExpr ringId} = 0"
-    return ()
+  RingM.run ringId do
+    trace[grind.ring.assert] "{← mkEq a b}"
+    let some ra ← toRingExpr? a | return ()
+    let some rb ← toRingExpr? b | return ()
+    let p ← (ra.sub rb).toPolyM
+    if let .num k := p then
+      if k == 0 then
+        trace[grind.ring.assert.trivial] "{← p.denoteExpr} = 0"
+      else if (← hasChar) then
+        trace[grind.ring.assert.unsat] "{← p.denoteExpr} = 0"
+        setEqUnsat k a b ra rb
+      else
+        -- Remark: we currently don't do anything if the characteristic is not known.
+        trace[grind.ring.assert.discard] "{← p.denoteExpr} = 0"
+      return ()
 
-  trace[grind.ring.assert.store] "{← p.denoteExpr ringId} = 0"
+    trace[grind.ring.assert.store] "{← p.denoteExpr} = 0"
   -- TODO: save equality
 
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   let some ringId ← inSameRing? a b | return ()
-  trace[grind.ring.assert] "{mkNot (← mkEq a b)}"
-  let some ra ← toRingExpr? ringId a | return ()
-  let some rb ← toRingExpr? ringId b | return ()
-  let p ← (ra.sub rb).toPolyM ringId
-  if let .num k := p then
-    if k == 0 then
-      trace[grind.ring.assert.unsat] "{← p.denoteExpr ringId} ≠ 0"
-      setNeUnsat ringId a b ra rb
-    else
-      -- Remark: if the characteristic is known, it is trivial.
-      -- Otherwise, we don't do anything.
-      trace[grind.ring.assert.trivial] "{← p.denoteExpr ringId} ≠ 0"
-    return ()
-  trace[grind.ring.assert.store] "{← p.denoteExpr ringId} ≠ 0"
-  -- TODO: save disequalitys
+  RingM.run ringId do
+    trace[grind.ring.assert] "{mkNot (← mkEq a b)}"
+    let some ra ← toRingExpr? a | return ()
+    let some rb ← toRingExpr? b | return ()
+    let p ← (ra.sub rb).toPolyM
+    if let .num k := p then
+      if k == 0 then
+        trace[grind.ring.assert.unsat] "{← p.denoteExpr} ≠ 0"
+        setNeUnsat a b ra rb
+      else
+        -- Remark: if the characteristic is known, it is trivial.
+        -- Otherwise, we don't do anything.
+        trace[grind.ring.assert.trivial] "{← p.denoteExpr} ≠ 0"
+      return ()
+    trace[grind.ring.assert.store] "{← p.denoteExpr} ≠ 0"
+    -- TODO: save disequalitys
 
 end Lean.Meta.Grind.Arith.CommRing

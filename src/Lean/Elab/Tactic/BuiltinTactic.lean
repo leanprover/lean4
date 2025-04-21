@@ -261,7 +261,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   Term.withoutErrToSorry <| withoutRecover do
     let tactic := stx[1]
     if (← try evalTactic tactic; pure true catch _ => pure false) then
-      throwError "tactic succeeded"
+      throwError "The tactic provided to `fail_if_success` succeeded but was expected to fail"
 
 @[builtin_tactic traceState] def evalTraceState : Tactic := fun _ => do
   let gs ← getUnsolvedGoals
@@ -306,7 +306,9 @@ where
         let fvar := mkFVar fvarId
         let fvarType ← inferType fvar
         unless (← isDefEqGuarded type fvarType) do
-          throwError "type mismatch at `intro {fvar}`{← mkHasTypeButIsExpectedMsg fvarType type}"
+          withRef? ref? do
+          throwError m!"Type mismatch: Hypothesis `{fvar}` " ++
+            (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to this type annotation"))
         liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
     if let some ref := ref? then
       withMainContext do

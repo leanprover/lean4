@@ -791,12 +791,12 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
       if let some elimName ← getCustomEliminator? targets induction then
         return ← getElimInfo elimName (← getBaseName? elimName)
     unless targets.size == 1 do
-      throwError "Eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
+      throwMissingEliminator
     let indVal ← getInductiveValFromMajor induction targets[0]!
     if induction && indVal.all.length != 1 then
-      throwError "'induction' tactic does not support mutually inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
+      throwUnsupportedType indVal.name "mutually inductive"
     if induction && indVal.isNested then
-      throwError "'induction' tactic does not support nested inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
+      throwUnsupportedType indVal.name "a nested inductive type"
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
     getElimInfo elimName indVal.name
   else
@@ -806,6 +806,15 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
       let some elimName := elimExpr.getAppFn.constName? | pure none
       getBaseName? elimName
     withRef elimTerm <| getElimExprInfo elimExpr baseName?
+where
+  throwMissingEliminator :=
+    throwError m!"Missing eliminator: An eliminator must be provided when multiple induction \
+          targets are specified and no default eliminator has been registered"
+          ++ .hint' m!"Write `using <eliminator-name>` to specify an eliminator, or register a default \
+                        eliminator with the attribute `[eliminator]`"
+  throwUnsupportedType (name : Name) (kind : String) :=
+    throwError m!"The `induction` tactic does not support the type `{name}` because it is {kind}"
+        ++ .hint' "Consider using the `cases` tactic instead"
 
 private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
   if let .fvar fvarId .. := e then
@@ -924,7 +933,7 @@ The code path shared between `induction` and `fun_induct`; when we already have 
 and the `targets` contains the implicit targets
 -/
 private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
-    (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
+    (tacName : Name) (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let mvarId ← getMainGoal
   -- save initial info before main goal is reassigned
   let mkInitInfo ← mkInitialTacticInfoForInduction stx
@@ -934,6 +943,7 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
     let targetFVarIds := targets.map (·.fvarId!)
     let (generalized, mvarId) ← generalizeVars mvarId stx targets
     mvarId.withContext do
+    prependError m!"Tactic `{tacName}` failed: " do
       let result ← withRef stx[1] do -- use target position as reference
         ElimApp.mkElimApp elimInfo targets tag
       trace[Elab.induction] "elimApp: {result.elimApp}"
@@ -957,7 +967,7 @@ def evalInduction : Tactic := fun stx =>
     let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
     let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
     let targets ← withMainContext <| addImplicitTargets elimInfo targets
-    evalInductionCore stx elimInfo targets toTag
+    evalInductionCore stx elimInfo targets `induction toTag
 
 
 register_builtin_option tactic.fun_induction.unfolding : Bool := {
@@ -1039,7 +1049,7 @@ def evalFunInduction : Tactic := fun stx =>
   | _ => focus do
     let (elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
     let targets ← generalizeTargets targets
-    evalInductionCore stx elimInfo targets
+    evalInductionCore stx elimInfo targets `fun_induction
 
 /--
 The code path shared between `cases` and `fun_cases`; when we already have an `elimInfo`

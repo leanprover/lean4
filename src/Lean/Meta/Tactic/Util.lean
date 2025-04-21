@@ -58,7 +58,9 @@ def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := 
 /-- Throw a tactic exception with given tactic name if the given metavariable is assigned. -/
 def _root_.Lean.MVarId.checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
   if (← mvarId.isAssigned) then
-    throwTacticEx tacticName mvarId "metavariable has already been assigned"
+    let msg := m!"The metavariable below has already been assigned"
+      ++ .note "This likely indicates an internal error in this tactic or a prior one"
+    throwTacticEx tacticName mvarId msg
 
 /-- Get the type the given metavariable. -/
 def _root_.Lean.MVarId.getType (mvarId : MVarId) : MetaM Expr :=

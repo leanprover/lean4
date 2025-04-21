@@ -585,7 +585,7 @@ Examples:
 def reverse (as : List α) : List α :=
   reverseAux as []
 
-@[simp] theorem reverse_nil : reverse ([] : List α) = [] := rfl
+@[simp, grind] theorem reverse_nil : reverse ([] : List α) = [] := rfl
 
 theorem reverseAux_reverseAux {as bs cs : List α} :
     reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
@@ -657,7 +657,7 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
   | nil => simp
   | cons _ as ih => simp [ih, Nat.succ_add]
 
-@[simp] theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
+@[simp, grind _=_] theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
   induction as with
   | nil => rfl
   | cons a as ih => simp [ih]
@@ -679,7 +679,7 @@ theorem reverseAux_eq_append {as bs : List α} : reverseAux as bs = reverseAux a
     rw [ih (bs := a :: bs), ih (bs := [a]), append_assoc]
     rfl
 
-@[simp] theorem reverse_cons {a : α} {as : List α} : reverse (a :: as) = reverse as ++ [a] := by
+@[simp, grind] theorem reverse_cons {a : α} {as : List α} : reverse (a :: as) = reverse as ++ [a] := by
   simp [reverse, reverseAux]
   rw [← reverseAux_eq_append]
 
@@ -848,7 +848,7 @@ def elem [BEq α] (a : α) : (l : List α) → Bool
     | true  => true
     | false => elem a bs
 
-@[simp] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
+@[simp, grind] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
 theorem elem_cons [BEq α] {a : α} :
     (b::bs).elem a = match a == b with | true => true | false => bs.elem a := rfl
 
@@ -964,9 +964,9 @@ def take : (n : Nat) → (xs : List α) → List α
   | _+1, []    => []
   | n+1, a::as => a :: take n as
 
-@[simp] theorem take_nil {i : Nat} : ([] : List α).take i = [] := by cases i <;> rfl
-@[simp] theorem take_zero {l : List α} : l.take 0 = [] := rfl
-@[simp] theorem take_succ_cons {a : α} {as : List α} {i : Nat} : (a::as).take (i+1) = a :: as.take i := rfl
+@[simp, grind] theorem take_nil {i : Nat} : ([] : List α).take i = [] := by cases i <;> rfl
+@[simp, grind] theorem take_zero {l : List α} : l.take 0 = [] := rfl
+@[simp, grind] theorem take_succ_cons {a : α} {as : List α} {i : Nat} : (a::as).take (i+1) = a :: as.take i := rfl
 
 /-! ### drop -/
 
@@ -986,10 +986,10 @@ def drop : (n : Nat) → (xs : List α) → List α
   | _+1, []    => []
   | n+1, _::as => drop n as
 
-@[simp] theorem drop_nil : ([] : List α).drop i = [] := by
+@[simp, grind] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
-@[simp] theorem drop_zero {l : List α} : l.drop 0 = l := rfl
-@[simp] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := rfl
+@[simp, grind] theorem drop_zero {l : List α} : l.drop 0 = l := rfl
+@[simp, grind] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := rfl
 
 theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
   match as, i with
@@ -1100,13 +1100,13 @@ def dropLast {α} : List α → List α
   | [_]   => []
   | a::as => a :: dropLast as
 
-@[simp] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
-@[simp] theorem dropLast_singleton : [x].dropLast = [] := rfl
+@[simp, grind] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
+@[simp, grind] theorem dropLast_singleton : [x].dropLast = [] := rfl
 
 @[deprecated dropLast_singleton (since := "2025-04-16")]
 theorem dropLast_single : [x].dropLast = [] := dropLast_singleton
 
-@[simp] theorem dropLast_cons₂ :
+@[simp, grind] theorem dropLast_cons₂ :
     (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
 
 -- Later this can be proved by `simp` via `[List.length_dropLast, List.length_cons, Nat.add_sub_cancel]`,
@@ -1445,8 +1445,8 @@ def replace [BEq α] : (l : List α) → (a : α) → (b : α) → List α
     | true  => c::as
     | false => a :: replace as b c
 
-@[simp] theorem replace_nil [BEq α] : ([] : List α).replace a b = [] := rfl
-theorem replace_cons [BEq α] {a : α} :
+@[simp, grind] theorem replace_nil [BEq α] : ([] : List α).replace a b = [] := rfl
+@[grind] theorem replace_cons [BEq α] {a : α} :
     (a::as).replace b c = match b == a with | true => c::as | false => a :: replace as b c :=
   rfl
 

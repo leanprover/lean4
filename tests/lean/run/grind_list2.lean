@@ -425,9 +425,10 @@ theorem map_singleton {f : α → β} {a : α} : map f [a] = [f a] := by grind
 theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
   cases l with grind
 
+-- FIXME
+attribute [local grind] List.map_inj_left in
 theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l with grind
-
 
 theorem map_eq_cons_iff' {f : α → β} {l : List α} :
     map f l = b :: l₂ ↔ l.head?.map f = some b ∧ l.tail?.map (map f) = some l₂ := by
@@ -437,6 +438,8 @@ theorem map_eq_singleton_iff {f : α → β} {l : List α} {b : β} :
     map f l = [b] ↔ ∃ a, l = [a] ∧ f a = b := by
   grind [map_eq_cons_iff]
 
+-- FIXME
+attribute [local grind] List.map_inj_left in
 theorem map_eq_map_iff : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l with grind
 

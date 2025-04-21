@@ -162,7 +162,11 @@ def mkNoConfusionType' (indName : Name) : MetaM Unit := do
                 let alt := mkApp alt PType
                 let alt := mkApp alt (mkNatLit i)
                 let k ← forallTelescopeReducing (← inferType alt).bindingDomain! fun zs2 _ => do
-                  let eqs ← (Array.zip zs1 zs2[1:]).mapM (fun (z1,z2) => mkEqHEq z1 z2)
+                  let eqs ← (Array.zip zs1 zs2[1:]).filterMapM fun (z1,z2) => do
+                    if (← isProof z1) then
+                      return none
+                    else
+                      return some (← mkEqHEq z1 z2)
                   let k ← mkArrowN eqs P
                   let k ← mkArrow k P
                   mkLambdaFVars zs2 k

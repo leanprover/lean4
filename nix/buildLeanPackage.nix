@@ -194,7 +194,7 @@ with builtins; let
   modCandidates = mapAttrs (mod: header:
     let
       deps = if header.errors == []
-             then map (m: m.module) header.imports
+             then map (m: m.module) header.result.imports
              else abort "errors while parsing imports of ${mod}:\n${lib.concatStringsSep "\n" header.errors}";
     in mkMod mod (map (dep: if modDepsMap ? ${dep} then modCandidates.${dep} else externalModMap.${dep}) deps)) modDepsMap;
   expandGlob = g:

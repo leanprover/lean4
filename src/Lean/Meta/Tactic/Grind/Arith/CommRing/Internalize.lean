@@ -36,10 +36,11 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
   let some ringId ← getRingId? type | return ()
-  let some re ← reify? e ringId | return ()
-  trace[grind.ring.internalize] "[{ringId}]: {e}"
-  setTermRingId e ringId
-  markAsCommRingTerm e
-  modifyRing ringId fun s => { s with denote := s.denote.insert { expr := e } re }
+  RingM.run ringId do
+    let some re ← reify? e | return ()
+    trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
+    setTermRingId e
+    markAsCommRingTerm e
+    modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

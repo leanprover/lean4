@@ -49,7 +49,7 @@ def simp? (p₁ p₂ : Poly) : Option Poly :=
 
 partial def simp' (p₁ p₂ : Poly) : Poly :=
   if let some r := p₁.simp? p₂ then
-    assert! r.p == (p₁.mulMon r.c₁ r.m).combine (p₂.mulConst r.c₂)
+    assert! r.p == (p₁.mulMon r.k₁ r.m).combine (p₂.mulConst r.k₂)
     simp' p₁ r.p
   else
     p₂

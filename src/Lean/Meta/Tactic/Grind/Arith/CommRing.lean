@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Var
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Eq
+import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 
@@ -25,5 +25,7 @@ builtin_initialize registerTraceClass `grind.ring.assert.unsat (inherited := tru
 builtin_initialize registerTraceClass `grind.ring.assert.trivial (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.assert.store (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.assert.discard (inherited := true)
+builtin_initialize registerTraceClass `grind.ring.simp
+
 
 end Lean

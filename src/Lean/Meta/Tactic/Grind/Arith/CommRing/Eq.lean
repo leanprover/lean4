@@ -10,6 +10,10 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
+/--
+Returns the ring expression denoting the given Lean expression.
+Recall that we compute the ring expressions during internalization.
+-/
 private def toRingExpr? (ringId : Nat) (e : Expr) : GoalM (Option RingExpr) := do
   let ring ← getRing ringId
   if let some re := ring.denote.find? { expr := e } then
@@ -26,6 +30,11 @@ private def inSameRing? (a b : Expr) : GoalM (Option Nat) := do
   let some ringId' ← getTermRingId? b | return none
   unless ringId == ringId' do return none -- This can happen when we have heterogeneous equalities
   return ringId
+
+/-- Simplify the given equation constraint using the current basis. -/
+def simplify (c : EqCnstr) : GoalM EqCnstr := do
+  -- TODO
+  return c
 
 @[export lean_process_ring_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
@@ -65,7 +74,6 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
       -- Otherwise, we don't do anything.
       trace[grind.ring.assert.trivial] "{← p.denoteExpr ringId} ≠ 0"
     return ()
-
   trace[grind.ring.assert.store] "{← p.denoteExpr ringId} ≠ 0"
   -- TODO: save disequalitys
 

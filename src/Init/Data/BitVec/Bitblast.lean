@@ -1736,18 +1736,43 @@ theorem toInt_sdiv_eq_ite {x y : BitVec w} :
     apply toInt_sdiv_of_ne_or_ne
     simp [hx]
 
-@[simp]
-theorem toInt_abs_eq_natAbs_toInt {x : BitVec w} : x.abs.toInt = x.toInt.natAbs := by
-  sorry -- @mhuisi: just edit the `sorry` here into `rw[BitVec.abs]` and it just hangs.
-  -- rw [BitVec.abs]
-  -- by_cases hmsb : x.msb
+set_option Elab.async false
 
-theorem toInt_ne_zero_of_ne_zero_of_lt_zero {y : BitVec w} (hy : y ≠ 0#w) (hw : 0 < w) :
-    y.toInt ≠ 0 := by
+#check Int.natAbs
+
+theorem Int.natAbs_eq_neg_of_lt {x : Int} (hx : x < 0) : (x.natAbs : Int) = -x := by
+  obtain ⟨n, hn⟩ := Int.eq_negSucc_of_lt_zero hx
+  subst hn
+  simp
+  omega
+
+@[simp]
+theorem Int.natAbs_eq_of_le {x : Int} (hx : 0 ≤ x) : (x.natAbs : Int) = x := by
+  obtain ⟨n, hn⟩ := Int.eq_ofNat_of_zero_le hx
+  subst hn
+  simp
+
+/-- `x.abs.toInt` equals `x.toInt.natAbs` when `x ≠ intMin w`. -/
+@[simp]
+theorem toInt_abs_eq_natAbs_toInt_of_ne_intMin {x : BitVec w}
+  (hx : x ≠ intMin w) :x.abs.toInt = x.toInt.natAbs := by
+  rw [BitVec.abs]
+  by_cases hmsb : x.msb
+  · simp [hmsb, toInt_neg_eq_ite, hx]
+    have : x.toInt < 0 := by exact toInt_neg_of_msb_true hmsb
+    rw [Int.natAbs_eq_neg_of_lt this]
+  · simp at hmsb
+    have : 0 ≤ x.toInt := by exact toInt_nonneg_of_msb_false hmsb
+    simp [hmsb, this]
+
+/--  `y ≠ 0` if and only if `y.toInt ≠ 0`. -/
+theorem ne_zero_iff_toInt_ne_zero_of_zero_lt {y : BitVec w} :
+    (y ≠ 0#w) ↔ y.toInt ≠ 0 := by
   have : 0 = (0#w).toInt := by simp
-  rw [this]
-  apply BitVec.toInt_inj
-  exact hy
+  conv =>
+    rhs
+    rw [show 0 = (0#w).toInt by simp]
+  rw [@Decidable.not_iff_not, BitVec.toInt_inj]
 
 /--
 The result of division is zero if the numerator is less than the denominator.
@@ -1954,6 +1979,7 @@ theorem slt_trichotomy (x y : BitVec w) : (x.slt y = true) ∨ (x = y) ∨ (y.sl
   rw [this]
   omega
 
+
 /--
 The sign of a division is determined as follows:
 - if the denominator is zero, then the output is zero and the msb is false as it is non-negative.
@@ -1995,11 +2021,14 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
           (((x.toInt < 0) ∧ (0 < y.toInt)) ∨ ((0 < x.toInt) ∧ (y.toInt < 0))) := sorry
         rw [hmsb]
         apply Int.tdiv_neg_iff_neg_and_pos_or_pos_and_neg_of_ne_zero_of_natAbs_le_natAbs
-        · sorry
+        · apply ne_zero_iff_toInt_ne_zero_of_zero_lt (y := y) |>.mp
+          simp [hy0]
         · sorry
       · have : x.toInt.tdiv y.toInt = 0 := by
           apply Int.tdiv_eq_zero_iff_natAbs_lt_natAbs
-          sorry
+          simp at habs
+          rw [BitVec.natAbs_toInt_eq]
+          sorry -- need to know that ≠ intMin
           -- we need to know that .abs.toInt = .toInt.natAbs
         simp [this, habs]
 

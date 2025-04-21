@@ -8,16 +8,17 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
-def mkVar (e : Expr) (ringId : Nat) : GoalM Var := do
-  let s ← getRing ringId
+def mkVar (e : Expr) : RingM Var := do
+  let s ← getRing
   if let some var := s.varMap.find? { expr := e } then
     return var
   let var : Var := s.vars.size
-  modifyRing ringId fun s => { s with
-    vars      := s.vars.push e
-    varMap    := s.varMap.insert { expr := e } var
+  modifyRing fun s => { s with
+    vars       := s.vars.push e
+    varMap     := s.varMap.insert { expr := e } var
+    varToBasis := s.varToBasis.push []
   }
-  setTermRingId e ringId
+  setTermRingId e
   markAsCommRingTerm e
   return var
 

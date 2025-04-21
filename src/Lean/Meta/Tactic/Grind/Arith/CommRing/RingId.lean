@@ -98,15 +98,15 @@ where
     let u ← getDecLevel type
     let ring := mkApp (mkConst ``Grind.CommRing [u]) type
     let .some commRingInst ← trySynthInstance ring | return none
-    trace[grind.ring] "new ring: {type}"
+    trace_goal[grind.ring] "new ring: {type}"
     let charInst? ← withNewMCtxDepth do
       let n ← mkFreshExprMVar (mkConst ``Nat)
       let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type commRingInst n
       let .some charInst ← trySynthInstance charType | pure none
       let n ← instantiateMVars n
       let some n ← evalNat n |>.run
-        | trace[grind.ring] "found instance for{indentExpr charType}\nbut characteristic is not a natural number"; pure none
-      trace[grind.ring] "characteristic: {n}"
+        | trace_goal[grind.ring] "found instance for{indentExpr charType}\nbut characteristic is not a natural number"; pure none
+      trace_goal[grind.ring] "characteristic: {n}"
       pure <| some (charInst, n)
     let addFn ← getAddFn type u commRingInst
     let mulFn ← getMulFn type u commRingInst
@@ -116,7 +116,7 @@ where
     let intCastFn ← getIntCastFn type u commRingInst
     let natCastFn ← getNatCastFn type u commRingInst
     let id := (← get').rings.size
-    let ring : Ring := { type, u, commRingInst, charInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
+    let ring : Ring := { id, type, u, commRingInst, charInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 

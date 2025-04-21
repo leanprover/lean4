@@ -110,9 +110,9 @@ structure SimpResult where
   /-- The resulting simplified polynomial after rewriting. -/
   p  : Poly := .num 0
   /-- The integer coefficient multiplied with polynomial `p₁` in the rewriting step. -/
-  c₁ : Int  := 0
+  k₁ : Int  := 0
   /-- The integer coefficient multiplied with polynomial `p₂` during rewriting. -/
-  c₂ : Int  := 0
+  k₂ : Int  := 0
   /-- The monomial factor applied to polynomial `p₁`. -/
   m  : Mon  := .unit
 
@@ -124,23 +124,43 @@ the leading monomial of `p₁`.
 -/
 def Poly.simp? (p₁ p₂ : Poly) : Option SimpResult :=
   match p₁ with
-  | .add k₁ m₁ p₁ =>
+  | .add k₁' m₁ p₁ =>
     let rec go? (p₂ : Poly) : Option SimpResult :=
       match p₂ with
-      | .add k₂ m₂ p₂ =>
+      | .add k₂' m₂ p₂ =>
         if m₁.divides m₂ then
           let m  := m₂.div m₁
-          let g  := Nat.gcd k₁.natAbs k₂.natAbs
-          let c₁ := -k₂/g
-          let c₂ := k₁/g
-          let p  := (p₁.mulMon c₁ m).combine (p₂.mulConst c₂)
-          some { p, c₁, c₂, m }
+          let g  := Nat.gcd k₁'.natAbs k₂'.natAbs
+          let k₁ := -k₂'/g
+          let k₂ := k₁'/g
+          let p  := (p₁.mulMon k₁ m).combine (p₂.mulConst k₂)
+          some { p, k₁, k₂, m }
         else if let some r := go? p₂ then
-          some { r with p := .add (k₂*r.c₂) m₂ r.p }
+          some { r with p := .add (k₂'*r.k₂) m₂ r.p }
         else
           none
       | .num _ => none
     go? p₂
   | _ => none
+
+def Poly.degree : Poly → Nat
+  | .num _ => 0
+  | .add _ m _ => m.degree
+
+/-- Returns `true` if the leading monomial of `p` divides `m`. -/
+def Poly.divides (p : Poly) (m : Mon) : Bool :=
+  match p with
+  | .num _ => true -- should be unreachable
+  | .add _ m' _ => m'.divides m
+
+/-- Returns the leading coefficient of the given polynomial -/
+def Poly.lc : Poly → Int
+ | .num k => k
+ | .add k _ _ => k
+
+/-- Returns the leading monomial of the given polynomial. -/
+def Poly.lm : Poly → Mon
+ | .num _ => .unit
+ | .add _ m _ => m
 
 end Lean.Grind.CommRing

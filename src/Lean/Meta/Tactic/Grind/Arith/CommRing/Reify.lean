@@ -32,41 +32,40 @@ private def reportAppIssue (e : Expr) : GoalM Unit := do
 Converts a Lean expression `e` in the `CommRing` with id `ringId` into
 a `CommRing.Expr` object.
 -/
-partial def reify? (e : Expr) (ringId : Nat) : GoalM (Option RingExpr) := do
-  let ring ← getRing ringId
-  let toVar (e : Expr) : GoalM RingExpr := do
-    return .var (← mkVar e ringId)
-  let asVar (e : Expr) : GoalM RingExpr := do
+partial def reify? (e : Expr) : RingM (Option RingExpr) := do
+  let toVar (e : Expr) : RingM RingExpr := do
+    return .var (← mkVar e)
+  let asVar (e : Expr) : RingM RingExpr := do
     reportAppIssue e
-    return .var (← mkVar e ringId)
-  let rec go (e : Expr) : GoalM RingExpr := do
+    return .var (← mkVar e)
+  let rec go (e : Expr) : RingM RingExpr := do
     match_expr e with
     | HAdd.hAdd _ _ _ i a b =>
-      if isAddInst ring i then return .add (← go a) (← go b) else asVar e
+      if isAddInst (← getRing) i then return .add (← go a) (← go b) else asVar e
     | HMul.hMul _ _ _ i a b =>
-      if isMulInst ring i then return .mul (← go a) (← go b) else asVar e
+      if isMulInst (← getRing) i then return .mul (← go a) (← go b) else asVar e
     | HSub.hSub _ _ _ i a b =>
-      if isSubInst ring i then return .sub (← go a) (← go b) else asVar e
+      if isSubInst (← getRing) i then return .sub (← go a) (← go b) else asVar e
     | HPow.hPow _ _ _ i a b =>
       let some k ← getNatValue? b | toVar e
-      if isPowInst ring i then return .pow (← go a) k else asVar e
+      if isPowInst (← getRing) i then return .pow (← go a) k else asVar e
     | Neg.neg _ i a =>
-      if isNegInst ring i then return .neg (← go a) else asVar e
+      if isNegInst (← getRing) i then return .neg (← go a) else asVar e
     | IntCast.intCast _ i e =>
-      if isIntCastInst ring i then
+      if isIntCastInst (← getRing) i then
         let some k ← getIntValue? e | toVar e
         return .num k
       else
         asVar e
     | NatCast.natCast _ i e =>
-      if isNatCastInst ring i then
+      if isNatCastInst (← getRing) i then
         let some k ← getNatValue? e | toVar e
         return .num k
       else
         asVar e
     | OfNat.ofNat _ n _ =>
       let some k ← getNatValue? n | toVar e
-      if (← withDefault <| isDefEq e (mkApp ring.natCastFn n)) then
+      if (← withDefault <| isDefEq e (mkApp (← getRing).natCastFn n)) then
         return .num k
       else
         asVar e
@@ -76,31 +75,31 @@ partial def reify? (e : Expr) (ringId : Nat) : GoalM (Option RingExpr) := do
     return none
   match_expr e with
   | HAdd.hAdd _ _ _ i a b =>
-    if isAddInst ring i then return some (.add (← go a) (← go b)) else asNone e
+    if isAddInst (← getRing) i then return some (.add (← go a) (← go b)) else asNone e
   | HMul.hMul _ _ _ i a b =>
-    if isMulInst ring i then return some (.mul (← go a) (← go b)) else asNone e
+    if isMulInst (← getRing) i then return some (.mul (← go a) (← go b)) else asNone e
   | HSub.hSub _ _ _ i a b =>
-    if isSubInst ring i then return some (.sub (← go a) (← go b)) else asNone e
+    if isSubInst (← getRing) i then return some (.sub (← go a) (← go b)) else asNone e
   | HPow.hPow _ _ _ i a b =>
     let some k ← getNatValue? b | return none
-    if isPowInst ring i then return some (.pow (← go a) k) else asNone e
+    if isPowInst (← getRing) i then return some (.pow (← go a) k) else asNone e
   | Neg.neg _ i a =>
-    if isNegInst ring i then return some (.neg (← go a)) else asNone e
+    if isNegInst (← getRing) i then return some (.neg (← go a)) else asNone e
   | IntCast.intCast _ i e =>
-    if isIntCastInst ring i then
+    if isIntCastInst (← getRing) i then
       let some k ← getIntValue? e | return none
       return some (.num k)
     else
       asNone e
   | NatCast.natCast _ i e =>
-    if isNatCastInst ring i then
+    if isNatCastInst (← getRing) i then
       let some k ← getNatValue? e | return none
       return some (.num k)
     else
       asNone e
   | OfNat.ofNat _ n _ =>
     let some k ← getNatValue? n | return none
-    if (← withDefault <| isDefEq e (mkApp ring.natCastFn n)) then
+    if (← withDefault <| isDefEq e (mkApp (← getRing).natCastFn n)) then
       return some (.num k)
     else
       asNone e

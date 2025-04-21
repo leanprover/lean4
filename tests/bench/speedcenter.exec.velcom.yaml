@@ -472,8 +472,8 @@
   build_config:
     cmd: ./compile.sh channel.lean
 - attributes:
-    description: riskv-ast.lean
+    description: riscv-ast.lean
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean riskv-ast.lean
+    cmd: lean riscv-ast.lean

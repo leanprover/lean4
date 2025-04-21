@@ -16,6 +16,12 @@ private def inSameRing? (a b : Expr) : GoalM (Option Nat) := do
   unless ringId == ringId' do return none -- This can happen when we have heterogeneous equalities
   return ringId
 
+def mkEqCnstr (p : Poly) (h : EqCnstrProof) : RingM EqCnstr := do
+  let id := (← getRing).nextId
+  let sugar := p.degree
+  modifyRing fun s => { s with nextId := s.nextId + 1 }
+  return { sugar, p, h, id }
+
 /--
 Returns the ring expression denoting the given Lean expression.
 Recall that we compute the ring expressions during internalization.

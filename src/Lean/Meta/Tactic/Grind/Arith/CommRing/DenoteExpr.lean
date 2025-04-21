@@ -13,7 +13,14 @@ Helper functions for converting reified terms back into their denotations.
 -/
 
 private def denoteNum (k : Int) : RingM Expr := do
-  return mkApp (← getRing).intCastFn (toExpr k)
+  let ring ← getRing
+  let n := mkRawNatLit k.natAbs
+  let ofNatInst := mkApp3 (mkConst ``Grind.CommRing.ofNat [ring.u]) ring.type ring.commRingInst n
+  let n := mkApp3 (mkConst ``OfNat.ofNat [ring.u]) ring.type n ofNatInst
+  if k < 0 then
+    return mkApp ring.negFn n
+  else
+    return n
 
 def _root_.Lean.Grind.CommRing.Power.denoteExpr (pw : Power) : RingM Expr := do
   let x := (← getRing).vars[pw.x]!

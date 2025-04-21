@@ -197,75 +197,64 @@ theorem go_lt_size_of_lt_aig_size (aig : AIG BVBit) (expr : BVLogicalExpr)
 
 mutual
 
-theorem goCache_decl_eq (idx) (aig : AIG BVBit) (bvCache : BVExpr.Cache aig)
-    (logCache : Cache aig) (h : idx < aig.decls.size) (hbounds) :
-    (goCache aig expr bvCache logCache).result.val.aig.decls[idx]'hbounds = aig.decls[idx] := by
-  sorry
+theorem goCache_decl_eq (aig : AIG BVBit) (bvCache : BVExpr.Cache aig) (logCache : Cache aig) :
+    ∀ (idx : Nat) (h1) (h2), (goCache aig expr bvCache logCache).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+  generalize hres : goCache aig expr bvCache logCache = res
+  intro idx h1 h2
+  unfold goCache at hres
+  split at hres
+  · rw [getElem_congr_coll]
+    rw [← hres]
+  · symm at hres
+    subst hres
+    apply go_decl_eq
+termination_by (sizeOf expr, 1)
 
-theorem go_decl_eq (idx) (aig : AIG BVBit) (bvCache : BVExpr.Cache aig)
-    (logCache : Cache aig) (h : idx < aig.decls.size) (hbounds) :
-    (go aig expr bvCache logCache).result.val.aig.decls[idx]'hbounds = aig.decls[idx] := by
-  sorry
-  /-
-  induction expr generalizing aig with
-  | const =>
-    simp only [go]
-    rw [AIG.LawfulOperator.decl_eq (f := mkConstCached)]
-  | atom =>
-    simp only [go]
-    rw [BVPred.bitblast_decl_eq]
-  | not expr ih =>
-    simp only [go]
-    have := go_le_size aig expr cache
-    specialize ih aig cache (by omega) (by omega)
+theorem go_decl_eq (aig : AIG BVBit) (bvCache : BVExpr.Cache aig) (logCache : Cache aig) :
+    ∀ (idx : Nat) (h1) (h2), (go aig expr bvCache logCache).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+  intro idx h1 h2
+  unfold go
+  split
+  · rw [BVPred.bitblast_decl_eq]
+  · rw [AIG.LawfulOperator.decl_eq (f := mkConstCached)]
+  · next expr =>
     rw [AIG.LawfulOperator.decl_eq (f := mkNotCached)]
-    assumption
-  | ite discr lhs rhs dih lih rih =>
-    simp only [go]
-    rw [AIG.LawfulOperator.decl_eq (f := mkIfCached), rih, lih, dih]
-    · apply go_lt_size_of_lt_aig_size
-      assumption
-    · apply go_lt_size_of_lt_aig_size
-      apply go_lt_size_of_lt_aig_size
-      assumption
-    · apply go_lt_size_of_lt_aig_size
-      apply go_lt_size_of_lt_aig_size
-      apply go_lt_size_of_lt_aig_size
-      assumption
-  | gate g lhs rhs lih rih =>
-    cases g with
-    | and =>
-      simp only [go]
-      rw [AIG.LawfulOperator.decl_eq (f := mkAndCached), rih, lih]
-      · apply go_lt_size_of_lt_aig_size
-        assumption
-      · apply go_lt_size_of_lt_aig_size
-        apply go_lt_size_of_lt_aig_size
-        assumption
-    | xor =>
-      simp only [go]
-      rw [AIG.LawfulOperator.decl_eq (f := mkXorCached), rih, lih]
-      · apply go_lt_size_of_lt_aig_size
-        assumption
-      · apply go_lt_size_of_lt_aig_size
-        apply go_lt_size_of_lt_aig_size
-        assumption
-    | beq =>
-      simp only [go]
-      rw [AIG.LawfulOperator.decl_eq (f := mkBEqCached), rih, lih]
-      · apply go_lt_size_of_lt_aig_size
-        assumption
-      · apply go_lt_size_of_lt_aig_size
-        apply go_lt_size_of_lt_aig_size
-        assumption
-    | or =>
-      simp only [go]
-      rw [AIG.LawfulOperator.decl_eq (f := mkOrCached), rih, lih]
-      · apply go_lt_size_of_lt_aig_size
-        assumption
-      · apply go_lt_size_of_lt_aig_size
-        apply go_lt_size_of_lt_aig_size
-        assumption -/
+    rw [goCache_decl_eq]
+    have := (goCache aig expr bvCache logCache).result.property
+    omega
+  · next discr lhs rhs =>
+    let discrResult := (goCache aig discr bvCache logCache)
+    let lhsResult := (goCache discrResult.1.1.aig lhs discrResult.bvCache discrResult.logCache)
+    have hd := discrResult.result.property
+    have hl := lhsResult.result.property
+    have hr := (goCache lhsResult.1.1.aig rhs lhsResult.bvCache lhsResult.logCache).result.property
+
+    rw [AIG.LawfulOperator.decl_eq]
+    rw [goCache_decl_eq, goCache_decl_eq, goCache_decl_eq]
+    · simp only [discrResult] at hd
+      omega
+    · apply Nat.lt_of_lt_of_le
+      · exact h1
+      · apply Nat.le_trans <;> assumption
+    · apply Nat.lt_of_lt_of_le
+      · exact h1
+      · apply Nat.le_trans
+        · assumption
+        · apply Nat.le_trans <;> assumption
+  · next g lhs rhs =>
+    let lhsResult := (goCache aig lhs bvCache logCache)
+    have hl := lhsResult.result.property
+    have hr := (goCache lhsResult.1.1.aig rhs lhsResult.bvCache lhsResult.logCache).result.property
+    match g with
+    | .and | .xor | .beq | .or =>
+      rw [AIG.LawfulOperator.decl_eq]
+      rw [goCache_decl_eq, goCache_decl_eq]
+      · simp only [lhsResult] at hl hr
+        omega
+      · apply Nat.lt_of_lt_of_le
+        · exact h1
+        · apply Nat.le_trans <;> assumption
+termination_by (sizeOf expr, 0)
 
 end
 

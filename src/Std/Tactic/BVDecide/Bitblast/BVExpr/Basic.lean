@@ -601,44 +601,47 @@ instance : Hashable BVLogicalExpr where
 
 def decEq : DecidableEq BVLogicalExpr := fun l r =>
   withPtrEqDecEq l r fun _ =>
-    match l with
-    | .atom la =>
-      match r with
-      | .atom ra =>
-        if h : la = ra then .isTrue (by simp[h]) else .isFalse (by simp [h])
-      | .const .. | .not .. | .gate .. | .ite .. => .isFalse (by simp)
-    | .const lb =>
-      match r with
-      | .const rb =>
-        if h : lb = rb then .isTrue (by simp[h]) else .isFalse (by simp [h])
-      | .atom .. | .not .. | .gate .. | .ite .. => .isFalse (by simp)
-    | .not lexp =>
-      match r with
-      | .not rexp =>
-        match decEq lexp rexp with
-        | .isTrue h => .isTrue (by simp [h])
-        | .isFalse h => .isFalse (by simp [h])
-      | .const .. | .atom .. | .gate .. | .ite .. => .isFalse (by simp)
-    | .gate lg llhs lrhs =>
-      match r with
-      | .gate rg rlhs rrhs =>
-        if h1 : lg = rg then
-          match decEq llhs rlhs, decEq lrhs rrhs with
-          | .isTrue h2, .isTrue h3 => .isTrue (by simp [h1, h2, h3])
-          | .isFalse h2, _ => .isFalse (by simp [h2])
-          | _, .isFalse h2 => .isFalse (by simp [h2])
-        else
-          .isFalse (by simp [h1])
-      | .const .. | .atom .. | .not .. | .ite .. => .isFalse (by simp)
-    | .ite ldiscr llhs lrhs =>
-      match r with
-      | .ite rdiscr rlhs rrhs =>
-        match decEq ldiscr rdiscr, decEq llhs rlhs, decEq lrhs rrhs with
-        | .isTrue h1, .isTrue h2, .isTrue h3 => .isTrue (by simp [h1, h2, h3])
-        | .isFalse h1, _, _ => .isFalse (by simp [h1])
-        | _, .isFalse h1, _ => .isFalse (by simp [h1])
-        | _, _, .isFalse h1 => .isFalse (by simp [h1])
-      | .const .. | .atom .. | .not .. | .gate .. => .isFalse (by simp)
+    if h : hash l ≠ hash r then
+      .isFalse (ne_of_apply_ne hash h)
+    else
+      match l with
+      | .atom la =>
+        match r with
+        | .atom ra =>
+          if h : la = ra then .isTrue (by simp[h]) else .isFalse (by simp [h])
+        | .const .. | .not .. | .gate .. | .ite .. => .isFalse (by simp)
+      | .const lb =>
+        match r with
+        | .const rb =>
+          if h : lb = rb then .isTrue (by simp[h]) else .isFalse (by simp [h])
+        | .atom .. | .not .. | .gate .. | .ite .. => .isFalse (by simp)
+      | .not lexp =>
+        match r with
+        | .not rexp =>
+          match decEq lexp rexp with
+          | .isTrue h => .isTrue (by simp [h])
+          | .isFalse h => .isFalse (by simp [h])
+        | .const .. | .atom .. | .gate .. | .ite .. => .isFalse (by simp)
+      | .gate lg llhs lrhs =>
+        match r with
+        | .gate rg rlhs rrhs =>
+          if h1 : lg = rg then
+            match decEq llhs rlhs, decEq lrhs rrhs with
+            | .isTrue h2, .isTrue h3 => .isTrue (by simp [h1, h2, h3])
+            | .isFalse h2, _ => .isFalse (by simp [h2])
+            | _, .isFalse h2 => .isFalse (by simp [h2])
+          else
+            .isFalse (by simp [h1])
+        | .const .. | .atom .. | .not .. | .ite .. => .isFalse (by simp)
+      | .ite ldiscr llhs lrhs =>
+        match r with
+        | .ite rdiscr rlhs rrhs =>
+          match decEq ldiscr rdiscr, decEq llhs rlhs, decEq lrhs rrhs with
+          | .isTrue h1, .isTrue h2, .isTrue h3 => .isTrue (by simp [h1, h2, h3])
+          | .isFalse h1, _, _ => .isFalse (by simp [h1])
+          | _, .isFalse h1, _ => .isFalse (by simp [h1])
+          | _, _, .isFalse h1 => .isFalse (by simp [h1])
+        | .const .. | .atom .. | .not .. | .gate .. => .isFalse (by simp)
 
 instance : DecidableEq BVLogicalExpr := BVLogicalExpr.decEq
 

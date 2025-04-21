@@ -310,10 +310,10 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
   · rw [AIG.LawfulVecOperator.decl_eq (f := blastVar)]
   · rw [AIG.LawfulVecOperator.decl_eq (f := blastConst)]
   · next op lhsExpr rhsExpr =>
+    have hl := (goCache aig lhsExpr cache).result.property
+    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     match op with
     | .and | .or | .xor | .add | .mul | .udiv | .umod =>
-      have hl := (goCache aig lhsExpr cache).result.property
-      have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq, goCache_decl_eq]
       · omega
@@ -321,11 +321,11 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
         · exact h1
         · apply Nat.le_trans <;> assumption
   · next op expr =>
+    have := (goCache aig expr cache).result.property
     match op with
     | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq]
-      have := (goCache aig expr cache).result.property
       omega
   · next lhsExpr rhsExpr h =>
     have hl := (goCache aig lhsExpr cache).result.property

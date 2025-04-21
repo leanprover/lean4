@@ -12,39 +12,6 @@ namespace Lean
 
 open Meta
 
-def mkToCtorIdx' (indName : Name) : MetaM Unit := do
-  let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
-  let us := info.levelParams.map mkLevelParam
-  let e := mkConst (mkCasesOnName indName) (1::us)
-  let t ← inferType e
-  let e ← forallBoundedTelescope t info.numParams fun xs t => do
-    let e := mkAppN e xs
-    let motive ← forallTelescope (← whnfD t).bindingDomain! fun ys _ =>
-      mkLambdaFVars ys (mkConst ``Nat)
-    let t ← instantiateForall t #[motive]
-    let e := mkApp e motive
-    let e ← forallBoundedTelescope t (some (info.numIndices + 1)) fun ys t => do
-      let e := mkAppN e ys
-      let e ← forallBoundedTelescope t info.numCtors fun alts _ => do
-        let alts' ← alts.mapIdxM fun i alt => do
-          let altType ← inferType alt
-          forallTelescope altType fun zs _ =>
-            mkLambdaFVars zs (mkNatLit i)
-        return mkAppN e alts'
-      mkLambdaFVars ys e
-    mkLambdaFVars xs e
-
-  let declName := indName ++ `toCtorIdx'
-  addAndCompile <| Declaration.defnDecl {
-    name        := declName
-    levelParams := info.levelParams
-    type        := (← inferType e)
-    value       := e
-    safety      := DefinitionSafety.safe
-    hints       := ReducibilityHints.abbrev
-  }
-  setReducibleAttribute declName
-
 def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let type ← inferType default
   let u ← getLevel type

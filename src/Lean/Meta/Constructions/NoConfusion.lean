@@ -29,7 +29,6 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
   if linearNoConfusionType.get (← getOptions) then
-    mkToCtorIdx' declName
     mkWithCtorType declName
     mkWithCtor declName
     mkNoConfusionTypeLinear declName

@@ -31,9 +31,52 @@ private def inSameRing? (a b : Expr) : GoalM (Option Nat) := do
   unless ringId == ringId' do return none -- This can happen when we have heterogeneous equalities
   return ringId
 
+abbrev M := ReaderT Ring GoalM
+
+def getRingId : M Nat :=
+  return (← read).id
+
+/--
+Returns `some c`, where `c` is an equation from the basis whose leading monomial divides `m`.
+If `unitOnly` is true, only equations with a unit leading coefficient are considered.
+-/
+def _root_.Lean.Grind.CommRing.Mon.findSimp? (m : Mon) (unitOnly : Bool := false) : M (Option EqCnstr) :=
+  go m
+where
+  go : Mon → M (Option EqCnstr)
+    | .unit => return none
+    | .mult pw m' => do
+      for c in (← read).varToBasis[pw.x]! do
+        if !unitOnly || c.p.lc.natAbs == 1 then
+        if c.p.divides m then
+          return some c
+      go m'
+
+/--
+Returns `some c`, where `c` is an equation from the basis whose leading monomial divides some
+monomial in `p`.
+If `unitOnly` is true, only equations with a unit leading coefficient are considered.
+-/
+def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := false) : M (Option EqCnstr) := do
+  match p with
+  | .num _ => return none
+  | .add _ m p =>
+    match (← m.findSimp? unitOnly) with
+    | some c => return some c
+    | none => p.findSimp? unitOnly
+
 /-- Simplify the given equation constraint using the current basis. -/
-def simplify (c : EqCnstr) : GoalM EqCnstr := do
-  -- TODO
+def simplify (c : EqCnstr) : M EqCnstr := do
+  let mut c := c
+  repeat
+    checkSystem "ring"
+    let some c' ← c.p.findSimp? | return c
+    let some r := c'.p.simp? c.p | unreachable!
+    c := { c with
+      p := r.p
+      h := .simp c' c r.k₁ r.k₂ r.m
+    }
+    trace[grind.ring.simp] "{← c.p.denoteExpr (← getRingId)}"
   return c
 
 @[export lean_process_ring_eq]

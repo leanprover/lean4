@@ -48,6 +48,7 @@ abbrev Queue : Type := RBTree EqCnstr EqCnstr.compare
 
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where
+  id           : Nat
   type         : Expr
   /-- Cached `getDecLevel type` -/
   u            : Level

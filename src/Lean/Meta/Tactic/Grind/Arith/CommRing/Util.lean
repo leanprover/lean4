@@ -38,7 +38,8 @@ def getRing : RingM Ring := do
 def getTermRingId? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToRingId.find? { expr := e }
 
-def setTermRingId (e : Expr) (ringId : Nat) : GoalM Unit := do
+def setTermRingId (e : Expr) : RingM Unit := do
+  let ringId ← getRingId
   if let some ringId' ← getTermRingId? e then
     unless ringId' == ringId do
       reportIssue! "expression in two different rings{indentExpr e}"

@@ -9,6 +9,12 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 
 namespace Lean.Meta.Grind.Arith.CommRing
+/-- Returns `some ringId` if `a` and `b` are elements of the same ring. -/
+private def inSameRing? (a b : Expr) : GoalM (Option Nat) := do
+  let some ringId ← getTermRingId? a | return none
+  let some ringId' ← getTermRingId? b | return none
+  unless ringId == ringId' do return none -- This can happen when we have heterogeneous equalities
+  return ringId
 
 /--
 Returns the ring expression denoting the given Lean expression.
@@ -23,13 +29,6 @@ private def toRingExpr? (e : Expr) : RingM (Option RingExpr) := do
   else
     reportIssue! "failed to convert to ring expression{indentExpr e}"
     return none
-
-/-- Returns `some ringId` if `a` and `b` are elements of the same ring. -/
-private def inSameRing? (a b : Expr) : GoalM (Option Nat) := do
-  let some ringId ← getTermRingId? a | return none
-  let some ringId' ← getTermRingId? b | return none
-  unless ringId == ringId' do return none -- This can happen when we have heterogeneous equalities
-  return ringId
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides `m`.

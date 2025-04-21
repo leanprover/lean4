@@ -1,0 +1,36 @@
+{"textDocument": {"uri": "file:///ppShowLetValues.lean"},
+ "position": {"line": 14, "character": 2}}
+{"range":
+ {"start": {"line": 14, "character": 2}, "end": {"line": 14, "character": 3}},
+ "goal": "x : Nat\ny : Nat := ⋯\n⊢ Nat"}
+{"textDocument": {"uri": "file:///ppShowLetValues.lean"},
+ "position": {"line": 23, "character": 2}}
+{"range":
+ {"start": {"line": 23, "character": 2}, "end": {"line": 23, "character": 3}},
+ "goal": "x : Nat\ny : Nat := x + x\n⊢ Nat"}
+{"textDocument": {"uri": "file:///ppShowLetValues.lean"},
+ "position": {"line": 32, "character": 2}}
+{"range":
+ {"start": {"line": 32, "character": 2}, "end": {"line": 32, "character": 3}},
+ "goal": "x : Nat\ny : Nat := x + x\n⊢ Nat"}
+{"textDocument": {"uri": "file:///ppShowLetValues.lean"},
+ "position": {"line": 40, "character": 2}}
+{"rendered": "```lean\nx : Nat\ny : Nat := x + x\n⊢ Nat\n```",
+ "goals": ["x : Nat\ny : Nat := x + x\n⊢ Nat"]}
+{"textDocument": {"uri": "file:///ppShowLetValues.lean"},
+ "position": {"line": 49, "character": 2}}
+{"rendered": "```lean\nx : Nat\ny : Nat := ⋯\n⊢ Nat\n```",
+ "goals": ["x : Nat\ny : Nat := ⋯\n⊢ Nat"]}
+{"textDocument": {"uri": "file:///ppShowLetValues.lean"},
+ "position": {"line": 59, "character": 2}}
+{"rendered": "```lean\nx : Nat\ny : Nat := x + x\n⊢ Nat\n```",
+ "goals": ["x : Nat\ny : Nat := x + x\n⊢ Nat"]}
+{"textDocument": {"uri": "file:///ppShowLetValues.lean"},
+ "position": {"line": 69, "character": 2}}
+{"range":
+ {"start": {"line": 69, "character": 2}, "end": {"line": 69, "character": 3}},
+ "goal": "x : Nat\ny : Nat := x\n⊢ Nat"}
+{"textDocument": {"uri": "file:///ppShowLetValues.lean"},
+ "position": {"line": 79, "character": 2}}
+{"rendered": "```lean\nx : Nat\ny : Nat := x\n⊢ Nat\n```",
+ "goals": ["x : Nat\ny : Nat := x\n⊢ Nat"]}

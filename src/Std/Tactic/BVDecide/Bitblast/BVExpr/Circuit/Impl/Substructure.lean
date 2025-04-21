@@ -188,6 +188,13 @@ theorem go_le_size (aig : AIG BVBit) (expr : BVLogicalExpr) (bvCache : BVExpr.Ca
     aig.decls.size ≤ (go aig expr bvCache logCache).result.val.aig.decls.size :=
   (go aig expr bvCache logCache).result.property
 
+theorem goCache_lt_size_of_lt_aig_size (aig : AIG BVBit) (expr : BVLogicalExpr)
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (h : x < aig.decls.size) :
+    x < (goCache aig expr bvCache logCache).result.val.aig.decls.size := by
+  apply Nat.lt_of_lt_of_le
+  · exact h
+  · apply goCache_le_size
+
 theorem go_lt_size_of_lt_aig_size (aig : AIG BVBit) (expr : BVLogicalExpr)
     (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (h : x < aig.decls.size) :
     x < (go aig expr bvCache logCache).result.val.aig.decls.size := by
@@ -274,8 +281,8 @@ theorem go_isPrefix_aig {aig : AIG BVBit} (bvCache : BVExpr.Cache aig)
     apply go_decl_eq
   · apply go_le_size
 
-theorem go_denote_mem_prefix (aig : AIG BVBit) (bvCache : BVExpr.Cache aig) (logCache : Cache aig)
-    (hstart) :
+theorem go_denote_mem_prefix (aig : AIG BVBit) (bvCache : BVExpr.Cache aig)
+    (logCache : Cache aig) (hstart) :
     ⟦
       (go aig expr bvCache logCache).result.val.aig,
       ⟨start, inv, go_lt_size_of_lt_aig_size (h := hstart) ..⟩,
@@ -285,6 +292,18 @@ theorem go_denote_mem_prefix (aig : AIG BVBit) (bvCache : BVExpr.Cache aig) (log
     ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply go_isPrefix_aig
+
+theorem goCache_denote_mem_prefix (aig : AIG BVBit) (bvCache : BVExpr.Cache aig)
+    (logCache : Cache aig) (hstart) :
+    ⟦
+      (goCache aig expr bvCache logCache).result.val.aig,
+      ⟨start, inv, goCache_lt_size_of_lt_aig_size (h := hstart) ..⟩,
+      assign
+    ⟧
+      =
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
+  apply goCache_isPrefix_aig
 
 end bitblast
 end BVLogicalExpr

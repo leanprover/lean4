@@ -100,93 +100,207 @@ end Cache
 
 namespace bitblast
 
-theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache) :
+mutual
+
+theorem goCache_BvInv_of_BvInv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv : BVExpr.Cache.Inv assign aig bvCache) :
+    BVExpr.Cache.Inv assign (goCache aig expr bvCache logCache).result.val.aig (goCache aig expr bvCache logCache).bvCache := by
+  generalize hres : goCache aig expr bvCache logCache = res
+  unfold goCache at hres
+  split at hres
+  · rw [← hres]
+    exact hinv
+  · rw [← hres]
+    apply go_BvInv_of_BvInv
+    exact hinv
+termination_by (sizeOf expr, 1)
+
+theorem go_BvInv_of_BvInv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv : BVExpr.Cache.Inv assign aig bvCache) :
     BVExpr.Cache.Inv assign (go aig expr bvCache logCache).result.val.aig (go aig expr bvCache logCache).bvCache := by
-  sorry
-  /-
-  induction expr generalizing aig with
-  | const =>
-    simp only [go]
+  generalize hres : go aig expr bvCache logCache = res
+  unfold go at hres
+  split at hres
+  · rw [← hres]
+    apply BVPred.bitblast_Inv_of_Inv
+    exact hinv
+  · rw [← hres]
     apply BVExpr.Cache.Inv_cast
     apply LawfulOperator.isPrefix_aig (f := mkConstCached)
     exact hinv
-  | atom =>
-    simp only [go]
-    apply BVPred.bitblast_Inv_of_Inv
-    exact hinv
-  | not expr ih =>
-    simp only [go]
+  · next expr =>
+    rw [← hres]
     apply BVExpr.Cache.Inv_cast
     · apply LawfulOperator.isPrefix_aig (f := mkNotCached)
-    · apply ih
+    · apply goCache_BvInv_of_BvInv
       exact hinv
-  | gate g lhs rhs lih rih =>
-    cases g
-    all_goals
-      simp [go, Gate.eval]
+  · next discr lhs rhs =>
+    rw [← hres]
+    apply BVExpr.Cache.Inv_cast
+    · apply LawfulOperator.isPrefix_aig
+    · apply goCache_BvInv_of_BvInv
+      apply goCache_BvInv_of_BvInv
+      apply goCache_BvInv_of_BvInv
+      exact hinv
+  · next g lhs rhs =>
+    match g with
+    | .and | .xor | .beq | .or =>
+      rw [← hres]
       apply BVExpr.Cache.Inv_cast
       · apply LawfulOperator.isPrefix_aig
-      · apply rih
-        apply lih
+      · apply goCache_BvInv_of_BvInv
+        apply goCache_BvInv_of_BvInv
         exact hinv
-  | ite discr lhs rhs dih lih rih =>
-    simp only [go]
-    apply BVExpr.Cache.Inv_cast
-    · apply LawfulOperator.isPrefix_aig (f := mkIfCached)
-    · apply rih
-      apply lih
-      apply dih
-      exact hinv -/
+termination_by (sizeOf expr, 0)
+
+end
 
 mutual
 
-theorem go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (bvCache : BVExpr.Cache aig) (hinv : BVExpr.Cache.Inv assign aig bvCache)
-    (logCache : Cache aig) :
+theorem goCache_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache)
+    (hinv2 : Cache.Inv assign aig logCache) :
+    Cache.Inv assign (goCache aig expr bvCache logCache).result.val.aig (goCache aig expr bvCache logCache).logCache := by
+  generalize hres : goCache aig expr bvCache logCache = res
+  unfold goCache at hres
+  split at hres
+  · rw [← hres]
+    exact hinv2
+  · rw [← hres]
+    apply Cache.Inv_insert
+    · apply go_Inv_of_Inv
+      · exact hinv1
+      · exact hinv2
+    · rw [go_denote_eq]
+      · exact hinv1
+      · exact hinv2
+termination_by (sizeOf expr, 1, 0)
+
+theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache)
+    (hinv2 : Cache.Inv assign aig logCache) :
+    Cache.Inv assign (go aig expr bvCache logCache).result.val.aig (go aig expr bvCache logCache).logCache := by
+  generalize hres : go aig expr bvCache logCache = res
+  unfold go at hres
+  split at hres
+  · rw [← hres]
+    apply Cache.Inv_cast
+    · dsimp only
+      apply BVPred.bitblast_aig_IsPrefix
+    · exact hinv2
+  · rw [← hres]
+    apply Cache.Inv_cast
+    apply LawfulOperator.isPrefix_aig (f := mkConstCached)
+    exact hinv2
+  · next expr =>
+    rw [← hres]
+    apply Cache.Inv_cast
+    · apply LawfulOperator.isPrefix_aig (f := mkNotCached)
+    · apply goCache_Inv_of_Inv
+      · exact hinv1
+      · exact hinv2
+  · next discr lhs rhs =>
+    rw [← hres]
+    apply Cache.Inv_cast
+    · apply LawfulOperator.isPrefix_aig
+    · apply goCache_Inv_of_Inv
+      · apply goCache_BvInv_of_BvInv
+        apply goCache_BvInv_of_BvInv
+        exact hinv1
+      · apply goCache_Inv_of_Inv
+        · apply goCache_BvInv_of_BvInv
+          exact hinv1
+        · apply goCache_Inv_of_Inv
+          · exact hinv1
+          · exact hinv2
+  · next g lhs rhs =>
+    match g with
+    | .and | .xor | .beq | .or =>
+      rw [← hres]
+      apply Cache.Inv_cast
+      · apply LawfulOperator.isPrefix_aig
+      · apply goCache_Inv_of_Inv
+        · apply goCache_BvInv_of_BvInv
+          exact hinv1
+        · apply goCache_Inv_of_Inv
+          · exact hinv1
+          · exact hinv2
+termination_by (sizeOf expr, 0, 0)
+
+theorem goCache_denote_eq (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache)
+    (hinv2 : Cache.Inv assign aig logCache) :
+    ⟦(goCache aig expr bvCache logCache).result, assign.toAIGAssignment⟧ = expr.eval assign := by
+  unfold goCache
+  split
+  · next heq =>
+    apply Cache.denote_eq_eval_of_get?_eq_some_of_Inv
+    · exact heq
+    · exact hinv2
+  · rw [go_denote_eq]
+    · exact hinv1
+    · exact hinv2
+termination_by (sizeOf expr, 0, 1)
+
+theorem go_denote_eq (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache)
+    (hinv2 : Cache.Inv assign aig logCache) :
     ⟦(go aig expr bvCache logCache).result, assign.toAIGAssignment⟧ = expr.eval assign := by
-  sorry
-  /-
-  induction expr generalizing aig with
-  | const => simp [go]
-  | atom =>
-    simp only [go, eval_atom]
-    rw [BVPred.denote_bitblast]
-    exact hinv
-  | not expr ih =>
-    specialize ih _ _ hinv
-    simp [go, ih]
-  | gate g lhs rhs lih rih =>
-    cases g
-    all_goals
-      simp [go, Gate.eval]
-      congr 1
-      · rw [go_denote_mem_prefix]
-        apply lih
-        exact hinv
-      · apply rih
-        apply go_Inv_of_Inv
-        exact hinv
-  | ite discr lhs rhs dih lih rih =>
-    simp only [go, Ref.cast_eq, denote_mkIfCached, denote_projected_entry,
-      eval_ite, Bool.ite_eq_cond_iff]
+  unfold go
+  split
+  · rw [BVPred.denote_bitblast]
+    · simp
+    · exact hinv1
+  · simp
+  · simp only [denote_mkNotCached, denote_projected_entry, eval_not, Bool.not_eq_eq_eq_not,
+      Bool.not_not]
+    rw [goCache_denote_eq]
+    · exact hinv1
+    · exact hinv2
+  · next discr lhs rhs =>
+    simp only [Ref.cast_eq, denote_mkIfCached, denote_projected_entry, eval_ite,
+      Bool.ite_eq_cond_iff]
     apply ite_congr
-    · rw [go_denote_mem_prefix]
-      rw [go_denote_mem_prefix]
-      · specialize dih _ _ hinv
-        simp [dih]
-      · simp [Ref.hgate]
+    · rw [goCache_denote_mem_prefix]
+      rw [goCache_denote_mem_prefix]
+      rw [goCache_denote_eq]
+      · exact hinv1
+      · exact hinv2
     · intro h
-      rw [go_denote_mem_prefix]
-      apply lih
-      apply go_Inv_of_Inv
-      exact hinv
+      rw [goCache_denote_mem_prefix]
+      rw [goCache_denote_eq]
+      · apply goCache_BvInv_of_BvInv
+        exact hinv1
+      · apply goCache_Inv_of_Inv
+        · exact hinv1
+        · exact hinv2
     · intro h
-      apply rih
-      apply go_Inv_of_Inv
-      apply go_Inv_of_Inv
-      exact hinv
-    -/
+      rw [goCache_denote_eq]
+      · apply goCache_BvInv_of_BvInv
+        apply goCache_BvInv_of_BvInv
+        exact hinv1
+      · apply goCache_Inv_of_Inv
+        · apply goCache_BvInv_of_BvInv
+          exact hinv1
+        · apply goCache_Inv_of_Inv
+          · exact hinv1
+          · exact hinv2
+  · next g lhs rhs =>
+    match g with
+    | .and | .xor | .beq | .or =>
+      simp only [Ref.cast_eq, denote_mkAndCached, denote_mkXorCached, denote_mkBEqCached,
+        denote_mkOrCached, denote_projected_entry, eval_gate, Gate.eval]
+      rw [goCache_denote_eq]
+      · rw [goCache_denote_mem_prefix]
+        rw [goCache_denote_eq]
+        · exact hinv1
+        · exact hinv2
+      · apply goCache_BvInv_of_BvInv
+        exact hinv1
+      · apply goCache_Inv_of_Inv
+        · exact hinv1
+        · exact hinv2
+termination_by (sizeOf expr, 0, 0)
 
 end
 
@@ -195,9 +309,9 @@ end bitblast
 theorem denote_bitblast (expr : BVLogicalExpr) (assign : BVExpr.Assignment) :
     ⟦bitblast expr, assign.toAIGAssignment⟧ = expr.eval assign := by
   unfold bitblast
-  sorry
-  --rw [bitblast.go_eval_eq_eval]
-  --apply BVExpr.Cache.Inv_empty
+  rw [bitblast.goCache_denote_eq]
+  · apply BVExpr.Cache.Inv_empty
+  · apply Cache.Inv_empty
 
 theorem unsat_of_bitblast (expr : BVLogicalExpr) : expr.bitblast.Unsat → expr.Unsat :=  by
   intro h assign

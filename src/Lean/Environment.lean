@@ -1589,8 +1589,8 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     constNames, constants, entries
   }
 
-def writeModule (env : Environment) (fname : System.FilePath) (split := false) : IO Unit := do
-  if split then
+def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
+  if env.header.isModule then
     let mkPart (level : OLeanLevel) :=
       return (level.adjustFileName fname, (← mkModuleData env level))
     saveModuleDataParts env.mainModule #[

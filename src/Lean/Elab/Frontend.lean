@@ -182,7 +182,7 @@ def runFrontend
 
   if let some oleanFileName := oleanFileName? then
     profileitIO ".olean serialization" finalOpts do
-      writeModule (split := experimental.module.get finalOpts) env oleanFileName
+      writeModule env oleanFileName
 
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])

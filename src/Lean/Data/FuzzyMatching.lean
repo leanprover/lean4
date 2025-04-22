@@ -24,11 +24,11 @@ section Utils
     #[f (none, string.get 0, none)]
   else Id.run do
     let mut result := Array.mkEmpty string.length
-    result := result.push <| f (none, string.get 0, string.get ⟨1⟩)
+    result := result.push <| f (none, string.get 0, some (string.get ⟨1⟩))
     -- TODO: the following code is assuming all characters are ASCII
     for i in [2:string.length] do
-      result := result.push <| f (string.get ⟨i - 2⟩, string.get ⟨i - 1⟩, string.get ⟨i⟩)
-    result.push <| f (string.get ⟨string.length - 2⟩, string.get ⟨string.length - 1⟩, none)
+      result := result.push <| f (some (string.get ⟨i - 2⟩), string.get ⟨i - 1⟩, some (string.get ⟨i⟩))
+    result.push <| f (some (string.get ⟨string.length - 2⟩), string.get ⟨string.length - 1⟩, none)
 
 private def containsInOrderLower (a b : String) : Bool := Id.run do
   if a.isEmpty then

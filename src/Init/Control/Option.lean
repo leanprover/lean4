@@ -98,7 +98,7 @@ Handles failures by treating them as exceptions of type `Unit`.
 -/
 @[always_inline, inline] protected def tryCatch (x : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α := OptionT.mk do
   let some a ← x | handle ()
-  pure a
+  pure (some a)
 
 instance : MonadExceptOf Unit (OptionT m) where
   throw    := fun _ => OptionT.fail

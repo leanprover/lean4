@@ -132,7 +132,7 @@ def parent (p : FilePath) : Option FilePath :=
     if p.toString.length == lengthOfRootDirectory then
       -- `p` is a root directory
       none
-    else if posOfLastSep p == String.Pos.mk (lengthOfRootDirectory - 1) then
+    else if posOfLastSep p == some (String.Pos.mk (lengthOfRootDirectory - 1)) then
       -- `p` is a direct child of the root
       some ⟨p.toString.extract 0 ⟨lengthOfRootDirectory⟩⟩
     else
@@ -189,7 +189,7 @@ def extension (p : FilePath) : Option String :=
   p.fileName.bind fun fname =>
     match fname.revPosOf '.' with
     | some 0   => none
-    | some pos => fname.extract (pos + '.') fname.endPos
+    | some pos => some (fname.extract (pos + '.') fname.endPos)
     | none     => none
 
 /--

@@ -256,6 +256,7 @@ def otherErrorToString (gist : String) (code : UInt32) : Option String → Strin
   | some details => downCaseFirst gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")"
   | none => downCaseFirst gist ++ " (error code: " ++ toString code ++ ")"
 
+attribute [instance] optionCoe in
 /--
 Converts an `IO.Error` to a descriptive string.
 

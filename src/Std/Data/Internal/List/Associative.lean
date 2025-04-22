@@ -3125,7 +3125,7 @@ theorem getValue?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {k k' : α} (k_beq : k == k') {v : β}
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ toInsert) :
-    getValue? k' (insertListConst l toInsert) = v := by
+    getValue? k' (insertListConst l toInsert) = some v := by
   unfold insertListConst
   rw [getValue?_eq_getEntry?]
   have : getEntry? k' (insertList l (toInsert.map Prod.toSigma)) =
@@ -3513,7 +3513,7 @@ def alterKey (k : α) (f : Option (β k) → Option (β k))
 theorem length_alterKey {k : α} {f : Option (β k) → Option (β k)} {l : List ((a : α) × β a)} :
     (alterKey k f l).length =
       if h : containsKey k l then
-        if f (getValueCast k l h) |>.isSome then l.length else l.length - 1
+        if f (some (getValueCast k l h)) |>.isSome then l.length else l.length - 1
       else
         if f none |>.isSome then l.length + 1 else l.length := by
   rw [alterKey]

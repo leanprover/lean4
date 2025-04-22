@@ -26,7 +26,7 @@ open Nat
 
 -- We don't put `@[simp]` on `min?_cons'`,
 -- because the definition in terms of `foldl` is not useful for proofs.
-theorem min?_cons' [Min α] {xs : List α} : (x :: xs).min? = foldl min x xs := rfl
+theorem min?_cons' [Min α] {xs : List α} : (x :: xs).min? = some (foldl min x xs) := rfl
 
 @[simp] theorem min?_cons [Min α] [Std.Associative (min : α → α → α)] {xs : List α} :
     (x :: xs).min? = some (xs.min?.elim x (min x)) := by
@@ -127,7 +127,7 @@ theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Asso
 
 -- We don't put `@[simp]` on `max?_cons'`,
 -- because the definition in terms of `foldl` is not useful for proofs.
-theorem max?_cons' [Max α] {xs : List α} : (x :: xs).max? = foldl max x xs := rfl
+theorem max?_cons' [Max α] {xs : List α} : (x :: xs).max? = some (foldl max x xs) := rfl
 
 @[simp] theorem max?_cons [Max α] [Std.Associative (max : α → α → α)] {xs : List α} :
     (x :: xs).max? = some (xs.max?.elim x (max x)) := by

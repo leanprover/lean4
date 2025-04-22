@@ -307,7 +307,9 @@ instance boolToSort : CoeSort Bool Prop where
 instance decPropToBool (p : Prop) [Decidable p] : CoeDep Prop p Bool where
   coe := decide p
 
-instance optionCoe {α : Type u} : Coe α (Option α) where
+/-- A coercion from `α` to `Option α` given by `Option.some : α → Option α`. This coercion is not
+enabled by default, but users may enable it using `attribute [local instance] optionCoe`. -/
+def optionCoe {α : Type u} : Coe α (Option α) where
   coe := some
 
 instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeOut (Subtype p) α where

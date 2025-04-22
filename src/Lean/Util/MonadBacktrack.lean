@@ -71,7 +71,7 @@ def withoutModifyingState [Monad m] [MonadFinally m] [MonadBacktrack s m] (x : m
 def observing? [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x : m α) : m (Option α) := do
   let s ← saveState
   try
-    x
+    some <$> x
   catch _ =>
     restoreState s
     return none

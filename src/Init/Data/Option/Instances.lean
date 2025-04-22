@@ -116,7 +116,7 @@ none
     (f : ∀ a : α, p a → β) :
     (o : Option α) → (∀ a, o = some a → p a) → Option β
   | none, _ => none
-  | some a, H => f a (H a rfl)
+  | some a, H => some (f a (H a rfl))
 
 /--
 Given an optional value and a function that can be applied when the value is `some`, returns the

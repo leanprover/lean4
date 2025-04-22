@@ -43,8 +43,8 @@ private def push (a : α) : M α Unit :=
     stack     := a :: s.stack,
     nextIndex := s.nextIndex + 1,
     data      := s.data.insert a {
-      index?   := s.nextIndex,
-      lowlink? := s.nextIndex,
+      index?   := some s.nextIndex,
+      lowlink? := some s.nextIndex,
       onStack  := true
     }
   }
@@ -64,7 +64,7 @@ private def updateLowLinkOf (a : α) (v : Option Nat) : M α Unit :=
     lowlink? := match d.lowlink?, v with
       | i, none => i
       | none, i => i
-      | some i, some j => if i < j then i else j
+      | some i, some j => if i < j then some i else some j
   }
 
 private def addSCC (a : α) : M α Unit := do

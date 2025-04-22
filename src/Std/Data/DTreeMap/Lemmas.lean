@@ -1536,7 +1536,7 @@ theorem get?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [Lawfu
 theorem get?_insertMany_list_of_mem [TransCmp cmp]
     {l : List (α × β)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
-    get? (insertMany t l) k' = v :=
+    get? (insertMany t l) k' = some v :=
   Impl.Const.get?_insertMany_list_of_mem t.wf k_eq distinct mem
 
 theorem get_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -2924,7 +2924,7 @@ theorem minKey?_le_minKey?_erase [TransCmp cmp] {k km kme} :
 
 theorem minKey?_insertIfNew [TransCmp cmp] {k v} :
     (t.insertIfNew k v).minKey? =
-      t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k' :=
+      some (t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k') :=
   Impl.minKey?_insertIfNew t.wf
 
 theorem isSome_minKey?_insertIfNew [TransCmp cmp] {k v} :
@@ -3565,7 +3565,7 @@ theorem maxKey?_erase_le_maxKey? [TransCmp cmp] {k km kme} :
 
 theorem maxKey?_insertIfNew [TransCmp cmp] {k v} :
     (t.insertIfNew k v).maxKey? =
-      t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
+      some (t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k') :=
   Impl.maxKey?_insertIfNew t.wf
 
 theorem isSome_maxKey?_insertIfNew [TransCmp cmp] {k v} :

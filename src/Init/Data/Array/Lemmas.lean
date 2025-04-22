@@ -885,7 +885,7 @@ theorem all_push [BEq α] {xs : Array α} {a : α} {p : α → Bool} :
 abbrev getElem_set_eq := @getElem_set_self
 
 @[simp] theorem getElem?_set_self {xs : Array α} {i : Nat} (h : i < xs.size) {v : α} :
-    (xs.set i v)[i]? = v := by simp [getElem?_eq_getElem, h]
+    (xs.set i v)[i]? = some v := by simp [getElem?_eq_getElem, h]
 
 @[deprecated getElem?_set_self (since := "2024-12-11")]
 abbrev getElem?_set_eq := @getElem?_set_self
@@ -3576,7 +3576,7 @@ theorem back_filter_of_pos {p : α → Bool} {xs : Array α} (w : 0 < xs.size) (
   rw [List.getLast_filter_of_pos _ h]
 
 theorem back_filterMap_of_eq_some {f : α → Option β} {xs : Array α} {w : 0 < xs.size} {b : β} (h : f (xs.back w) = some b) :
-    (filterMap f xs).back (by simpa using ⟨_, by simp, b, h⟩) = some b := by
+    (filterMap f xs).back (by simpa using ⟨_, by simp, b, h⟩) = b := by
   rcases xs with ⟨xs⟩
   simp only [List.back_toArray] at h
   simp only [List.size_toArray, List.filterMap_toArray', List.back_toArray]

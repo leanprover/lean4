@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Util.Date
+import Init.Data.OptionArg
 
 /-!
 # TOML Date-Time
@@ -85,7 +86,7 @@ end Time
 
 /-- A TOML date-time. -/
 inductive DateTime
-| offsetDateTime (date : Date) (time : Time) (offset? : Option (Bool × Time) := none)
+| offsetDateTime (date : Date) (time : Time) (offset? : OptionArg (Bool × Time) := .none)
 | localDateTime (date : Date) (time : Time)
 | localDate (date : Date)
 | localTime (time : Time)
@@ -118,7 +119,7 @@ def ofString? (dt : String) : Option DateTime := do
 protected def toString (dt : DateTime) : String :=
   match dt with
   | .offsetDateTime d t o? =>
-    if let some (s,o) := o? then
+    if let .some (s,o) := o? then
       if s then
         s!"{d}T{t}-{zpad o.hour 2}:{zpad o.minute 2}"
       else

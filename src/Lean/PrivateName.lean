@@ -56,7 +56,7 @@ private def privateToUserNameAux (n : Name) : Name :=
 
 @[export lean_private_to_user_name]
 def privateToUserName? (n : Name) : Option Name :=
-  if isPrivateName n then privateToUserNameAux n
+  if isPrivateName n then some (privateToUserNameAux n)
   else none
 
 def privateToUserName (n : Name) : Name :=
@@ -69,7 +69,7 @@ private def privatePrefixAux : Name → Name
 
 @[export lean_private_prefix]
 def privatePrefix? (n : Name) : Option Name :=
-  if isPrivateName n then privatePrefixAux n
+  if isPrivateName n then some (privatePrefixAux n)
   else none
 
 end Lean

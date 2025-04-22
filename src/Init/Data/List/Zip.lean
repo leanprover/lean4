@@ -399,7 +399,7 @@ theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option �
     cases l' <;> simp_all
 
 @[simp] theorem zipWithAll_replicate {a : α} {b : β} {n : Nat} :
-    zipWithAll f (replicate n a) (replicate n b) = replicate n (f a b) := by
+    zipWithAll f (replicate n a) (replicate n b) = replicate n (f (some a) (some b)) := by
   induction n with
   | zero => rfl
   | succ n ih => simp [replicate_succ, ih]

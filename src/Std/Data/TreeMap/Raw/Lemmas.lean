@@ -1898,7 +1898,7 @@ theorem minKey?_le_minKey?_erase [TransCmp cmp] (h : t.WF) {k km kme} :
 
 theorem minKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :
     (t.insertIfNew k v).minKey? =
-      t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k' :=
+      some (t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k') :=
   DTreeMap.Raw.minKey?_insertIfNew h
 
 theorem isSome_minKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :
@@ -2329,7 +2329,7 @@ theorem maxKey?_erase_le_maxKey? [TransCmp cmp] (h : t.WF) {k km kme} :
 
 theorem maxKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :
     (t.insertIfNew k v).maxKey? =
-      t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
+      some (t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k') :=
   DTreeMap.Raw.maxKey?_insertIfNew h
 
 theorem isSome_maxKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :

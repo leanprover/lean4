@@ -7,6 +7,7 @@ prelude
 import Init.System.Promise
 import Init.Data.Queue
 import Std.Sync.Mutex
+import Std.Internal.Async.Select
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
@@ -44,6 +45,23 @@ instance : ToString Error where
 instance : MonadLift (EIO Error) IO where
   monadLift x := EIO.toIO (.userError <| toString ·) x
 
+open Internal.IO.Async in
+private inductive Consumer (α : Type) where
+  | normal (promise : IO.Promise (Option α))
+  | select (finished : Waiter (Option α))
+
+private def Consumer.resolve (c : Consumer α) (x : Option α) : BaseIO Bool := do
+  match c with
+  | .normal promise =>
+    promise.resolve x
+    return true
+  | .select waiter =>
+    let loose := return false
+    let win promise := do
+      promise.resolve (.ok x)
+      return true
+    waiter.race loose win
+
 /--
 The central state structure for an unbounded channel, maintains the following invariants:
 1. `values = ∅ ∨ consumers = ∅`
@@ -58,7 +76,7 @@ private structure Unbounded.State (α : Type) where
   Consumers that are blocked on a producer providing them a value. The `IO.Promise` will be
   resolved to `none` if the channel closes.
   -/
-  consumers : Std.Queue (IO.Promise (Option α))
+  consumers : Std.Queue (Consumer α)
   /--
   Whether the channel is closed already.
   -/
@@ -85,12 +103,18 @@ private def trySend (ch : Unbounded α) (v : α) : BaseIO Bool := do
     let st ← get
     if st.closed then
       return false
-    else if let some (consumer, consumers) := st.consumers.dequeue? then
-      consumer.resolve (some v)
-      set { st with consumers }
-      return true
     else
-      set { st with values := st.values.enqueue v }
+      while true do
+        let st ← get
+        if let some (consumer, consumers) := st.consumers.dequeue? then
+          let success ← consumer.resolve (some v)
+          set { st with consumers }
+          if success then
+            break
+        else
+          set { st with values := st.values.enqueue v }
+          break
+
       return true
 
 private def send (ch : Unbounded α) (v : α) : BaseIO (Task (Except Error Unit)) := do
@@ -103,7 +127,8 @@ private def close (ch : Unbounded α) : EIO Error Unit := do
   ch.state.atomically do
     let st ← get
     if st.closed then throw .alreadyClosed
-    for consumer in st.consumers.toArray do consumer.resolve none
+    for consumer in st.consumers.toArray do
+      discard <| consumer.resolve none
     set { st with consumers := ∅, closed := true }
     return ()
 
@@ -111,7 +136,8 @@ private def isClosed (ch : Unbounded α) : BaseIO Bool :=
   ch.state.atomically do
     return (← get).closed
 
-private def tryRecv' : AtomicT (Unbounded.State α) BaseIO (Option α) := do
+private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
+    AtomicT (Unbounded.State α) m (Option α) := do
   let st ← get
   if let some (a, values) := st.values.dequeue? then
     set { st with values }
@@ -131,8 +157,42 @@ private def recv (ch : Unbounded α) : BaseIO (Task (Option α)) := do
       return .pure none
     else
       let promise ← IO.Promise.new
-      modify fun st => { st with consumers := st.consumers.enqueue promise }
+      modify fun st => { st with consumers := st.consumers.enqueue (.normal promise) }
       return promise.result?.map (sync := true) (·.bind id)
+
+@[inline]
+private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
+    AtomicT (Unbounded.State α) m Bool := do
+  let st ← get
+  return !st.values.isEmpty || st.closed
+
+open Internal.IO.Async in
+private def recvSelector (ch : Unbounded α) : Selector (Option α) :=
+  {
+    tryFn := do
+      ch.state.atomically do
+        if ← recvReady' then
+          let val ← tryRecv'
+          return some val
+        else
+          return none
+
+    registerFn waiter := do
+      ch.state.atomically do
+        -- We did drop the lock between `tryFn` and now so maybe ready?
+        if ← recvReady' then
+          let loose := return ()
+          let win promise := do
+            -- We know we are ready so the value by this is fine
+            promise.resolve (.ok (← tryRecv'))
+
+          waiter.race loose win
+        else
+          modify fun st => { st with consumers := st.consumers.enqueue (.select waiter) }
+
+    -- TODO: gc
+    unregisterFn := return ()
+  }
 
 end Unbounded
 
@@ -150,7 +210,7 @@ private structure Zero.State (α : Type) where
   Consumers that are blocked on a producer providing them a value. The `IO.Promise` will be resolved
   to `none` if the channel closes.
   -/
-  consumers : Std.Queue (IO.Promise (Option α))
+  consumers : Std.Queue (Consumer α)
   /--
   Whether the channel is closed already.
   -/
@@ -174,13 +234,17 @@ private def new : BaseIO (Zero α) := do
 Precondition: The channel must not be closed.
 -/
 private def trySend' (v : α) : AtomicT (Zero.State α) BaseIO Bool := do
-  let st ← get
-  if let some (consumer, consumers) := st.consumers.dequeue? then
-    consumer.resolve (some v)
-    set { st with consumers }
-    return true
-  else
-    return false
+  while true do
+    let st ← get
+    if let some (consumer, consumers) := st.consumers.dequeue? then
+      let success ← consumer.resolve (some v)
+      set { st with consumers }
+      if success then
+        break
+    else
+      return false
+
+  return true
 
 private def trySend (ch : Zero α) (v : α) : BaseIO Bool := do
   ch.state.atomically do
@@ -207,7 +271,8 @@ private def close (ch : Zero α) : EIO Error Unit := do
   ch.state.atomically do
     let st ← get
     if st.closed then throw .alreadyClosed
-    for consumer in st.consumers.toArray do consumer.resolve none
+    for consumer in st.consumers.toArray do
+      discard <| consumer.resolve none
     set { st with consumers := ∅, closed := true }
     return ()
 
@@ -215,7 +280,8 @@ private def isClosed (ch : Zero α) : BaseIO Bool :=
   ch.state.atomically do
     return (← get).closed
 
-private def tryRecv' : AtomicT (Zero.State α) BaseIO (Option α) := do
+private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
+    AtomicT (Zero.State α) m (Option α) := do
   let st ← get
   if let some ((val, promise), producers) := st.producers.dequeue? then
     set { st with producers }
@@ -235,10 +301,44 @@ private def recv (ch : Zero α) : BaseIO (Task (Option α)) := do
       return .pure <| some val
     else if !st.closed then
       let promise ← IO.Promise.new
-      set { st with consumers := st.consumers.enqueue promise }
+      set { st with consumers := st.consumers.enqueue (.normal promise) }
       return promise.result?.map (sync := true) (·.bind id)
     else
       return .pure <| none
+
+@[inline]
+private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
+    AtomicT (Zero.State α) m Bool := do
+  let st ← get
+  return !st.producers.isEmpty || st.closed
+
+open Internal.IO.Async in
+private def recvSelector (ch : Zero α) : Selector (Option α) :=
+  {
+    tryFn := do
+      ch.state.atomically do
+        if ← recvReady' then
+          let val ← tryRecv'
+          return some val
+        else
+          return none
+
+    registerFn waiter := do
+      ch.state.atomically do
+        -- We did drop the lock between `tryFn` and now so maybe ready?
+        if ← recvReady' then
+          let loose := return ()
+          let win promise := do
+            -- We know we are ready so the value by this is fine
+            promise.resolve (.ok (← tryRecv'))
+
+          waiter.race loose win
+        else
+          modify fun st => { st with consumers := st.consumers.enqueue (.select waiter) }
+
+    -- TODO: gc
+    unregisterFn := return ()
+  }
 
 end Zero
 
@@ -390,7 +490,8 @@ private def isClosed (ch : Bounded α) : BaseIO Bool :=
   ch.state.atomically do
     return (← get).closed
 
-private def tryRecv' : AtomicT (Bounded.State α) BaseIO (Option α) := do
+private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
+    AtomicT (Bounded.State α) m (Option α) := do
   let mut st ← get
   if st.bufCount == 0 then
     return none
@@ -429,6 +530,61 @@ private partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
           Bounded.recv ch
         else
           return .pure none
+
+@[inline]
+private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
+    AtomicT (Bounded.State α) m Bool := do
+  let st ← get
+  return st.bufCount != 0 || st.closed
+
+open Internal.IO.Async in
+private partial def recvSelector (ch : Bounded α) : Selector (Option α) :=
+  {
+    tryFn := do
+      ch.state.atomically do
+        if ← recvReady' then
+          let val ← tryRecv'
+          return some val
+        else
+          return none
+
+    registerFn := registerAux ch
+
+    -- TODO: gc
+    unregisterFn := return ()
+  }
+where
+  registerAux (ch : Bounded α) (waiter : Waiter (Option α)) : IO Unit := do
+    ch.state.atomically do
+      -- We did drop the lock between `tryFn` and now so maybe ready?
+      if ← recvReady' then
+        let loose := return ()
+        let win promise := do
+          -- We know we are ready so the value by this is fine
+          promise.resolve (.ok (← tryRecv'))
+
+        waiter.race loose win
+      else
+        let promise ← IO.Promise.new
+        modify fun st => { st with consumers := st.consumers.enqueue promise }
+
+        IO.chainTask promise.result? fun res? => do
+          match res? with
+          | none => return ()
+          | some res =>
+            if res then
+              registerAux ch waiter
+            else
+              -- if we loose we must trigger the next promise (if available) to avoid deadlocking
+              let loose := do
+                ch.state.atomically do
+                  let st ← get
+                  if let some (consumer, consumers) := st.consumers.dequeue? then
+                    consumer.resolve true
+                    set { st with consumers }
+
+              let win promise := promise.resolve (.ok none)
+              waiter.race loose win
 
 end Bounded
 
@@ -550,6 +706,18 @@ def recv (ch : CloseableChannel α) : BaseIO (Task (Option α)) :=
   | .unbounded ch => CloseableChannel.Unbounded.recv ch
   | .zero ch => CloseableChannel.Zero.recv ch
   | .bounded ch => CloseableChannel.Bounded.recv ch
+
+open Internal.IO.Async in
+/--
+Create a `Selector` that resolves once `ch` has data available and provides that that data.
+In particular if `ch` is closed while waiting on this `Selector` and no data is available already
+this will resolve to `none`.
+-/
+def recvSelector (ch : CloseableChannel α) : Selector (Option α) :=
+  match ch with
+  | .unbounded ch => CloseableChannel.Unbounded.recvSelector ch
+  | .zero ch => CloseableChannel.Zero.recvSelector ch
+  | .bounded ch => CloseableChannel.Bounded.recvSelector ch
 
 /--
 `ch.forAsync f` calls `f` for every message received on `ch`.
@@ -673,6 +841,29 @@ def recv [Inhabited α] (ch : Channel α) : BaseIO (Task α) := do
     fun
       | some val => return .pure val
       | none => unreachable!
+
+open Internal.IO.Async in
+/--
+Create a `Selector` that resolves once `ch` has data available and provides that that data.
+-/
+def recvSelector [Inhabited α] (ch : Channel α) : Selector α :=
+  let sel := CloseableChannel.recvSelector ch.inner
+  {
+    tryFn := ch.tryRecv
+    registerFn waiter := do
+      let original := waiter.promise
+      let intermediate ← IO.Promise.new
+      let waiter := waiter.withPromise intermediate
+      sel.registerFn waiter
+      IO.chainTask (sync := true) intermediate.result?
+        fun
+          | none => return ()
+          | some res =>
+            -- `res` can only be `.err` or `.ok some` as we are in a non closeable channel.
+            original.resolve (res.map Option.get!)
+
+    unregisterFn := sel.unregisterFn
+  }
 
 @[inherit_doc CloseableChannel.forAsync]
 partial def forAsync [Inhabited α] (f : α → BaseIO Unit) (ch : Channel α)

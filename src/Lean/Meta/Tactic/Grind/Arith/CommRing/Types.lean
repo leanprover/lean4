@@ -25,7 +25,7 @@ structure EqCnstr where
   id    : Nat
 
 inductive EqCnstrProof where
-  | core (a b : Expr)
+  | core (a b : Expr) (ra rb : RingExpr)
   | superpose (c₁ c₂ : EqCnstr)
   | simp (c₁ c₂ : EqCnstr) (k₁ k₂ : Int) (m : Mon)
   | mul (k : Int) (e : EqCnstr)
@@ -34,7 +34,7 @@ inductive EqCnstrProof where
 end
 
 instance : Inhabited EqCnstrProof where
-  default := .core default default
+  default := .core default default default default
 
 instance : Inhabited EqCnstr where
   default := { p := default, h := default, sugar := 0, id := 0 }

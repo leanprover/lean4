@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
 
 namespace Lean.Meta.Grind.Arith.CommRing
@@ -39,5 +40,9 @@ def setEqUnsat (k : Int) (a b : Expr) (ra rb : RingExpr) : RingM Unit := do
   if c == 0 then
     h := mkApp h charInst
   closeGoal <| mkApp5 h (toExpr ra) (toExpr rb) (toExpr k) reflBoolTrue (← mkEqProof a b)
+
+def setInconsistent (c : EqCnstr) : RingM Unit := do
+  trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
+  -- TODO
 
 end Lean.Meta.Grind.Arith.CommRing

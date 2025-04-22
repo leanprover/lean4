@@ -26,8 +26,7 @@
       "name": "reldebug",
       "displayName": "Release with assertions enabled",
       "cacheVariables": {
-        "LEAN_EXTRA_CXX_FLAGS": "-UNDEBUG",
-        "LEANC_EXTRA_CC_FLAGS": "-UNDEBUG"
+        "CMAKE_BUILD_TYPE": "RelWithAssert"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/reldebug"

@@ -144,6 +144,15 @@ def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
   trace[grind.ring.superpose] "{← c.denoteExpr}"
   return ()
 
+/--
+Tries to convert the leading monomial into a monic one.
+
+It exploits the fact that given a polynomial with leading coefficient `k`,
+if the ring has a nonzero characteristic `p` and `gcd k p = 1`, then
+`k` has an inverse.
+
+It also handles the easy case where `k` is `-1`.
+-/
 def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
   let k := c.p.lc
   if k == 1 then return c

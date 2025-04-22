@@ -94,7 +94,9 @@ instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
 abbrev ConstMap := SMap Name ConstantInfo
 
 structure Import where
-  module      : Name
+  module        : Name
+  /-- `import private`; whether to import and expose all data saved by the module. -/
+  importPrivate : Bool := false
   deriving Repr, Inhabited
 
 instance : Coe Name Import := ⟨({module := ·})⟩

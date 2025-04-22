@@ -26,8 +26,10 @@ open Meta
   Given an `inductionAlt` of the form
   ```
   syntax inductionAltLHS := "| " (group("@"? ident) <|> hole) (ident <|> hole)*
-  syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
+  syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
   ```
+  We assume that the syntax has been expanded. There is exactly one `inductionAltLHS`,
+  and `" => " (hole <|> syntheticHole <|> tacticSeq)` is present
 -/
 private def getAltLhses (alt : Syntax) : Syntax :=
   alt[0]
@@ -50,23 +52,11 @@ private def getAltVars (alt : Syntax) : Array Syntax :=
   let lhs := getFirstAltLhs alt
   lhs[2].getArgs
 private def hasAltRHS (alt : Syntax) : Bool :=
-  if !alt[1].isOfKind nullKind then
-    -- TODO(kmill) Bootstrapping workaround. Delete case in #7830.
-    true
-  else
-    alt[1].getNumArgs > 0
+  alt[1].getNumArgs > 0
 private def getAltRHS (alt : Syntax) : Syntax :=
-  if !alt[1].isOfKind nullKind then
-    -- TODO(kmill) Bootstrapping workaround. Delete case in #7830.
-    alt[2]
-  else
-    alt[1][1]
+  alt[1][1]
 private def getAltDArrow (alt : Syntax) : Syntax :=
-  if !alt[1].isOfKind nullKind then
-    -- TODO(kmill) Bootstrapping workaround. Delete case in #7830.
-    alt[1]
-  else
-    alt[1][0]
+  alt[1][0]
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
 def isHoleRHS (rhs : Syntax) : Bool :=
@@ -78,26 +68,23 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : Tactic
   else
     let rhs := getAltRHS alt
     withCaseRef (getAltDArrow alt) rhs do
-      if isHoleRHS rhs then
-        addInfo
-        let goals ← getGoals
+      let goals ← getGoals
+      setGoals []
+      try
         setGoals [mvarId]
-        mvarId.withContext <| withTacticInfoContext (mkNullNode #[getAltLhses alt, rhs]) do
-          let mvarDecl ← mvarId.getDecl
-          let val ← elabTermEnsuringType rhs mvarDecl.type
-          mvarId.assign val
-          let gs' ← getMVarsNoDelayed val
-          tagUntaggedGoals mvarDecl.userName `induction gs'.toList
-          setGoals <| goals ++ gs'.toList
-      else
-        let goals ← getGoals
-        try
-          setGoals [mvarId]
-          closeUsingOrAdmit <|
-            withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) <|
-              (addInfo *> evalTactic rhs)
-        finally
-          setGoals goals
+        withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) do
+          addInfo
+          if isHoleRHS rhs then
+            mvarId.withContext do
+              let mvarDecl ← mvarId.getDecl
+              -- Elaborate ensuring that `_` is interpreted as `?_`.
+              let (val, gs') ← elabTermWithHoles rhs mvarDecl.type `induction (parentTag? := mvarDecl.userName) (allowNaturalHoles := true)
+              mvarId.assign val
+              setGoals gs'
+          else
+            closeUsingOrAdmit <| evalTactic rhs
+      finally
+        pushGoals goals
 
 /-!
   Helper method for creating an user-defined eliminator/recursor application.
@@ -451,7 +438,8 @@ where
     -- all previous alternatives have to be unchanged for reuse
     Term.withNarrowedArgTacticReuse (stx := mkNullNode altStxs) (argIdx := altStxIdx) fun altStx => do
     -- everything up to rhs has to be unchanged for reuse
-    Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
+    Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 1) fun rhs? => do
+    Term.withNarrowedArgTacticReuse (stx := rhs?) (argIdx := 1) fun _rhs => do
     -- disable reuse if rhs is run multiple times
     Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx) do
       for altMVarId' in altMVarIds do
@@ -555,8 +543,7 @@ Returns true if the `Lean.Parser.Tactic.inductionAlt` either has more than one a
 or has no RHS.
 -/
 private def shouldExpandAlt (alt : Syntax) : Bool :=
-  -- TODO(kmill) enable second case in #7830
-  alt[0].getNumArgs > 1 || (false && 1 < alt.getNumArgs && alt[1].getNumArgs == 0)
+  alt[0].getNumArgs > 1 || (1 < alt.getNumArgs && alt[1].getNumArgs == 0)
 
 /--
 Returns `some #[alt_1, ..., alt_n]` if `alt` has multiple LHSs or if `alt` has no RHS.
@@ -564,13 +551,12 @@ If there is no RHS, it is filled in with a hole.
 -/
 private def expandAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
   if shouldExpandAlt alt then
-    let alt :=
-      -- TODO(kmill) enable case in #7830
-      if false && 1 < alt.getNumArgs && alt[1].getNumArgs == 0 then
-        alt.setArg 1 <| mkNullNode #[mkAtomFrom alt "=>", mkHole alt]
+    some <| alt[0].getArgs.map fun lhs =>
+      let alt := alt.setArg 0 (mkNullNode #[lhs])
+      if 1 < alt.getNumArgs && alt[1].getNumArgs == 0 then
+        alt.setArg 1 <| mkNullNode #[mkAtomFrom lhs "=>", mkHole lhs]
       else
         alt
-    some <| alt[0].getArgs.map fun lhs => alt.setArg 0 (mkNullNode #[lhs])
   else
     none
 
@@ -579,8 +565,8 @@ Given `inductionAlts` of the form
 ```
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)*)
 ```
-Return `some inductionAlts'` if one of the alternatives have multiple LHSs, in the new `inductionAlts'`
-all alternatives have a single LHS.
+Return `some inductionAlts'` if one of the alternatives has multiple LHSs or no RHS.
+In the new `inductionAlts'` all alternatives have a single LHS.
 
 Remark: the `RHS` of alternatives with multi LHSs is copied.
 -/

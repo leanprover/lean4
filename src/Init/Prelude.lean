@@ -1003,7 +1003,7 @@ class BEq (α : Type u) where
 
 open BEq (beq)
 
-instance [DecidableEq α] : BEq α where
+instance (priority := 500) [DecidableEq α] : BEq α where
   beq a b := decide (Eq a b)
 
 
@@ -2037,23 +2037,23 @@ structure BitVec (w : Nat) where
 /--
 Bitvectors have decidable equality.
 
-This should be used via the instance `DecidableEq (BitVec n)`.
+This should be used via the instance `DecidableEq (BitVec w)`.
 -/
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
 -- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
-def BitVec.decEq (x y : BitVec n) : Decidable (Eq x y) :=
+def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) :=
   match x, y with
   | ⟨n⟩, ⟨m⟩ =>
     dite (Eq n m)
       (fun h => isTrue (h ▸ rfl))
       (fun h => isFalse (fun h' => BitVec.noConfusion h' (fun h' => absurd h' h)))
 
-instance : DecidableEq (BitVec n) := BitVec.decEq
+instance : DecidableEq (BitVec w) := BitVec.decEq
 
-/-- The `BitVec` with value `i`, given a proof that `i < 2^n`. -/
+/-- The `BitVec` with value `i`, given a proof that `i < 2^w`. -/
 @[match_pattern]
-protected def BitVec.ofNatLT {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
+protected def BitVec.ofNatLT {w : Nat} (i : Nat) (p : LT.lt i (hPow 2 w)) : BitVec w where
   toFin := ⟨i, p⟩
 
 /--
@@ -2061,14 +2061,14 @@ Return the underlying `Nat` that represents a bitvector.
 
 This is O(1) because `BitVec` is a (zero-cost) wrapper around a `Nat`.
 -/
-protected def BitVec.toNat (x : BitVec n) : Nat := x.toFin.val
+protected def BitVec.toNat (x : BitVec w) : Nat := x.toFin.val
 
-instance : LT (BitVec n) where lt := (LT.lt ·.toNat ·.toNat)
-instance (x y : BitVec n) : Decidable (LT.lt x y) :=
+instance : LT (BitVec w) where lt := (LT.lt ·.toNat ·.toNat)
+instance (x y : BitVec w) : Decidable (LT.lt x y) :=
   inferInstanceAs (Decidable (LT.lt x.toNat y.toNat))
 
-instance : LE (BitVec n) where le := (LE.le ·.toNat ·.toNat)
-instance (x y : BitVec n) : Decidable (LE.le x y) :=
+instance : LE (BitVec w) where le := (LE.le ·.toNat ·.toNat)
+instance (x y : BitVec w) : Decidable (LE.le x y) :=
   inferInstanceAs (Decidable (LE.le x.toNat y.toNat))
 
 /-- The number of distinct values representable by `UInt8`, that is, `2^8 = 256`. -/

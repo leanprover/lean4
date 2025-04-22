@@ -104,3 +104,15 @@ $LAKE exe b
 
 # Test repeat build works
 $LAKE build bark | grep Bark!
+
+# Test build by module path
+rm -f .lake/build/bin/a
+rm -f .lake/build/lib/lean/a.olean
+rm -f .lake/build/lib/lean/Foo/Baz.olean
+rm -f  .lake/build/ir/Bar.c.o.export
+$LAKE build -v src/Foo/Baz.lean src/Bar.lean:c.o.export
+test -f .lake/build/lib/lean/Foo/Baz.olean
+test -f .lake/build/ir/Bar.c.o.export
+$LAKE build -v src/a.lean
+test -f .lake/build/lib/lean/a.olean
+test ! -f .lake/build/bin/a

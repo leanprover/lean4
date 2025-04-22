@@ -281,7 +281,7 @@ protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
     · exact List.le_of_lt h
     · exact List.le_refl l₁
 
-theorem lex_eq_decide_lex [DecidableEq α] (lt : α → α → Bool) :
+theorem lex_eq_decide_lex [BEq α] [LawfulBEq α] [DecidableEq α] (lt : α → α → Bool) :
     lex l₁ l₂ lt = decide (Lex (fun x y => lt x y) l₁ l₂) := by
   induction l₁ generalizing l₂ with
   | nil =>
@@ -295,21 +295,22 @@ theorem lex_eq_decide_lex [DecidableEq α] (lt : α → α → Bool) :
       simp [lex, ih, cons_lex_cons_iff, Bool.beq_eq_decide_eq]
 
 /-- Variant of `lex_eq_true_iff` using an arbitrary comparator. -/
-@[simp] theorem lex_eq_true_iff_lex [DecidableEq α] (lt : α → α → Bool) :
+@[simp] theorem lex_eq_true_iff_lex [BEq α] [LawfulBEq α] (lt : α → α → Bool) :
     lex l₁ l₂ lt = true ↔ Lex (fun x y => lt x y) l₁ l₂ := by
+  have : DecidableEq α := instDecidableEqOfLawfulBEq
   simp [lex_eq_decide_lex]
 
 /-- Variant of `lex_eq_false_iff` using an arbitrary comparator. -/
-@[simp] theorem lex_eq_false_iff_not_lex [DecidableEq α] (lt : α → α → Bool) :
+@[simp] theorem lex_eq_false_iff_not_lex [BEq α] [LawfulBEq α] (lt : α → α → Bool) :
     lex l₁ l₂ lt = false ↔ ¬ Lex (fun x y => lt x y) l₁ l₂ := by
   simp [Bool.eq_false_iff, lex_eq_true_iff_lex]
 
-@[simp] theorem lex_eq_true_iff_lt [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_true_iff_lt [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {l₁ l₂ : List α} : lex l₁ l₂ = true ↔ l₁ < l₂ := by
   simp only [lex_eq_true_iff_lex, decide_eq_true_eq]
   exact Iff.rfl
 
-@[simp] theorem lex_eq_false_iff_ge [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_false_iff_ge [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {l₁ l₂ : List α} : lex l₁ l₂ = false ↔ l₂ ≤ l₁ := by
   simp only [lex_eq_false_iff_not_lex, decide_eq_true_eq]
   exact Iff.rfl

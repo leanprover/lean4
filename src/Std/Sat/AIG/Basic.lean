@@ -78,7 +78,7 @@ private theorem invert_eq_testBit (f : Fanin) : f.invert = f.val.testBit 0 := by
 
 @[simp]
 theorem invert_flip (f : Fanin) : (f.flip v).invert = f.invert ^^ v := by
-  cases v <;> simp [flip, invert_eq_testBit]
+  cases v <;> simp [flip, invert_eq_testBit, -Nat.mod_two_not_eq_one]
 
 end Fanin
 

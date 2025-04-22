@@ -694,27 +694,19 @@ variable [BEq α]
       simpa only [some_beq_some]
     simp
   · intro h
-    constructor
-    · rintro (_ | a) <;> simp
+    infer_instance
 
 @[simp] theorem lawfulBEq_iff : LawfulBEq (Option α) ↔ LawfulBEq α := by
   constructor
   · intro h
+    have : ReflBEq α := reflBEq_iff.mp inferInstance
     constructor
-    · intro a b h
-      apply Option.some.inj
-      apply eq_of_beq
-      simpa
-    · intro a
-      suffices (some a == some a) = true by
-        simpa only [some_beq_some]
-      simp
+    intro a b h
+    apply Option.some.inj
+    apply eq_of_beq
+    simpa
   · intro h
-    constructor
-    · intro a b h
-      simpa using h
-    · intro a
-      simp
+    infer_instance
 
 end beq
 
@@ -901,6 +893,13 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (o H)
 theorem pmap_map (o : Option α) (f : α → β) {p : β → Prop} (g : ∀ b, p b → γ) (H) :
     pmap g (o.map f) H =
       pmap (fun a h => g (f a) h) o (fun a m => H (f a) (map_eq_some_iff.2 ⟨_, m, rfl⟩)) := by
+  cases o <;> simp
+
+theorem pmap_or {p : α → Prop} {f : ∀ (a : α), p a → β} {o o' : Option α} {h} :
+    (or o o').pmap f h =
+      match o with
+      | none => o'.pmap f (fun a h' => h a h')
+      | some a => f a (h a rfl) := by
   cases o <;> simp
 
 theorem pmap_pred_congr {α : Type u}

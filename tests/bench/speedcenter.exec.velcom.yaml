@@ -471,3 +471,9 @@
     parse_output: true
   build_config:
     cmd: ./compile.sh channel.lean
+- attributes:
+    description: riscv-ast.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean riscv-ast.lean

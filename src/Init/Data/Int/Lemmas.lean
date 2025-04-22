@@ -377,6 +377,11 @@ theorem toNat_of_nonpos : ∀ {z : Int}, z ≤ 0 → z.toNat = 0
 @[simp] theorem negSucc_add_one_eq_neg_ofNat_iff {a b : Nat} : -[a+1] + 1 = - (b : Int) ↔ a = b := by
   rw [eq_comm, neg_ofNat_eq_negSucc_add_one_iff, eq_comm]
 
+protected theorem sub_eq_iff_eq_add {b a c : Int} : a - b = c ↔ a = c + b := by
+  refine ⟨fun h => ?_, fun h => ?_⟩ <;> subst h <;> simp
+protected theorem sub_eq_iff_eq_add' {b a c : Int} : a - b = c ↔ a = b + c := by
+  rw [Int.sub_eq_iff_eq_add, Int.add_comm]
+
 /- ## add/sub injectivity -/
 
 @[simp] protected theorem add_left_inj {i j : Int} (k : Int) : (i + k = j + k) ↔ i = j := by
@@ -561,7 +566,11 @@ theorem eq_one_of_mul_eq_self_left {a b : Int} (Hpos : a ≠ 0) (H : b * a = a) 
 theorem eq_one_of_mul_eq_self_right {a b : Int} (Hpos : b ≠ 0) (H : b * a = b) : a = 1 :=
   Int.eq_of_mul_eq_mul_left Hpos <| by rw [Int.mul_one, H]
 
-/-! NatCast lemmas -/
+protected theorem two_mul (n : Int) : 2 * n = n + n := calc
+  2 * n = (1 + 1) * n := rfl
+  _     = n + n := by simp only [Int.add_mul, Int.one_mul]
+
+/-! ## NatCast lemmas -/
 
 /-!
 The following lemmas are later subsumed by e.g. `Nat.cast_add` and `Nat.cast_mul` in Mathlib
@@ -572,10 +581,8 @@ protected theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
 protected theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
 
-@[simp] protected theorem natCast_add (a b : Nat) : ((a + b : Nat) : Int) = (a : Int) + (b : Int) := by
-  -- Note this only works because of local simp attributes in this file,
-  -- so it still makes sense to tag the lemmas with `@[simp]`.
-  simp
+@[simp, norm_cast] protected theorem natCast_add (a b : Nat) : ((a + b : Nat) : Int) = (a : Int) + (b : Int) := by
+  rfl
 
 protected theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : Int) = (n : Int) + 1 := rfl
 

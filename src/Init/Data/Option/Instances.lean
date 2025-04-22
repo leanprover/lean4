@@ -39,18 +39,24 @@ This is not an instance because it is not definitionally equal to the standard i
 
 Try to use the Boolean comparisons `Option.isNone` or `Option.isSome` instead.
 -/
-@[inline] def decidable_eq_none {o : Option α} : Decidable (o = none) :=
+@[inline] def decidableEqNone {o : Option α} : Decidable (o = none) :=
   decidable_of_decidable_of_iff isNone_iff_eq_none
 
-instance {p : α → Prop} [DecidablePred p] : ∀ o : Option α, Decidable (∀ a, a ∈ o → p a)
-| none => isTrue nofun
-| some a =>
-  if h : p a then isTrue fun _ e => some_inj.1 e ▸ h
-  else isFalse <| mt (· _ rfl) h
+@[deprecated decidableEqNone (since := "2025-04-10"), inline]
+def decidable_eq_none {o : Option α} : Decidable (o = none) :=
+  decidableEqNone
 
-instance {p : α → Prop} [DecidablePred p] : ∀ o : Option α, Decidable (Exists fun a => a ∈ o ∧ p a)
-| none => isFalse nofun
-| some a => if h : p a then isTrue ⟨_, rfl, h⟩ else isFalse fun ⟨_, ⟨rfl, hn⟩⟩ => h hn
+instance decidableForallMem {p : α → Prop} [DecidablePred p] :
+    ∀ o : Option α, Decidable (∀ a, a ∈ o → p a)
+  | none => isTrue nofun
+  | some a =>
+    if h : p a then isTrue fun _ e => some_inj.1 e ▸ h
+    else isFalse <| mt (· _ rfl) h
+
+instance decidableExistsMem {p : α → Prop} [DecidablePred p] :
+    ∀ o : Option α, Decidable (Exists fun a => a ∈ o ∧ p a)
+  | none => isFalse nofun
+  | some a => if h : p a then isTrue ⟨_, rfl, h⟩ else isFalse fun ⟨_, ⟨rfl, hn⟩⟩ => h hn
 
 /--
 Given an optional value and a function that can be applied when the value is `some`, returns the

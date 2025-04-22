@@ -473,7 +473,8 @@ Nat.le_antisymm
   (le_of_lt_succ ((Nat.div_lt_iff_lt_mul npos).2 hi))
   ((Nat.le_div_iff_mul_le npos).2 lo)
 
-theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p := by
+/-- See also `sub_mul_div` for a strictly more general version. -/
+theorem sub_mul_div_of_le (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p := by
   match eq_zero_or_pos n with
   | .inl h₀ => rw [h₀, Nat.div_zero, Nat.div_zero, Nat.zero_sub]
   | .inr h₀ => induction p with
@@ -551,7 +552,7 @@ protected theorem div_le_of_le_mul {m n : Nat} : ∀ {k}, m ≤ k * n → m / k 
 @[simp] theorem mul_div_left (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
   rw [Nat.mul_comm, mul_div_right _ H]
 
-protected theorem div_self (H : 0 < n) : n / n = 1 := by
+@[simp] protected theorem div_self (H : 0 < n) : n / n = 1 := by
   let t := add_div_right 0 H
   rwa [Nat.zero_add, Nat.zero_div] at t
 

@@ -71,6 +71,7 @@ def isArithTerm (e : Expr) : Bool :=
   | HMul.hMul _ _ _ _ _ _ => true
   | HDiv.hDiv _ _ _ _ _ _ => true
   | HMod.hMod _ _ _ _ _ _ => true
+  | HPow.hPow _ _ _ _ _ _ => true
   | Neg.neg _ _ _ => true
   | OfNat.ofNat _ _ _ => true
   | _ => false
@@ -81,5 +82,16 @@ def quoteIfArithTerm (e : Expr) : MessageData :=
     aquote e
   else
     e
+/--
+`gcdExt a b` returns the triple `(g, α, β)` such that
+- `g = gcd a b` (with `g ≥ 0`), and
+- `g = α * a + β * β`.
+-/
+partial def gcdExt (a b : Int) : Int × Int × Int :=
+  if b = 0 then
+    (a.natAbs, if a = 0 then 0 else a / a.natAbs, 0)
+  else
+    let (g, α, β) := gcdExt b (a % b)
+    (g, β, α - (a / b) * β)
 
 end Lean.Meta.Grind.Arith

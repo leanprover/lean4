@@ -76,7 +76,7 @@ lean_object* l_Lean_IR_Decl_normalizeIds(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_pushProj___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_IR_pushProjs___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
@@ -1507,7 +1507,7 @@ if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; size_t x_31; size_t x_32; lean_object* x_33; 
 x_27 = lean_array_get_size(x_2);
-x_28 = l_Array_emptyWithCapacity(lean_box(0), x_27);
+x_28 = lean_mk_empty_array_with_capacity(x_27);
 x_29 = lean_unsigned_to_nat(0u);
 lean_inc(x_8);
 x_30 = l_Array_mapFinIdxM_map___at_Lean_IR_pushProjs___spec__1___at_Lean_IR_pushProjs___spec__2(x_2, x_3, x_8, x_25, x_2, x_27, x_29, lean_box(0), x_28);
@@ -1546,7 +1546,7 @@ if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; size_t x_44; size_t x_45; lean_object* x_46; 
 x_40 = lean_array_get_size(x_2);
-x_41 = l_Array_emptyWithCapacity(lean_box(0), x_40);
+x_41 = lean_mk_empty_array_with_capacity(x_40);
 x_42 = lean_unsigned_to_nat(0u);
 lean_inc(x_8);
 x_43 = l_Array_mapFinIdxM_map___at_Lean_IR_pushProjs___spec__5___at_Lean_IR_pushProjs___spec__6(x_2, x_3, x_8, x_38, x_2, x_40, x_42, lean_box(0), x_41);
@@ -1585,7 +1585,7 @@ if (lean_obj_tag(x_52) == 0)
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; size_t x_57; size_t x_58; lean_object* x_59; 
 x_53 = lean_array_get_size(x_2);
-x_54 = l_Array_emptyWithCapacity(lean_box(0), x_53);
+x_54 = lean_mk_empty_array_with_capacity(x_53);
 x_55 = lean_unsigned_to_nat(0u);
 lean_inc(x_8);
 x_56 = l_Array_mapFinIdxM_map___at_Lean_IR_pushProjs___spec__9___at_Lean_IR_pushProjs___spec__10(x_2, x_3, x_8, x_51, x_2, x_53, x_55, lean_box(0), x_54);

@@ -34,7 +34,7 @@ theorem perm_iff_toList_perm {as bs : Array α} : as ~ bs ↔ as.toList ~ bs.toL
   cases xs
   simp
 
-protected theorem Perm.rfl {xs : List α} : xs ~ xs := .refl _
+protected theorem Perm.rfl {xs : Array α} : xs ~ xs := .refl _
 
 theorem Perm.of_eq {xs ys : Array α} (h : xs = ys) : xs ~ ys := h ▸ .rfl
 
@@ -53,6 +53,17 @@ instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
 
 theorem perm_comm {xs ys : Array α} : xs ~ ys ↔ ys ~ xs := ⟨Perm.symm, Perm.symm⟩
 
+theorem Perm.length_eq {xs ys : Array α} (p : xs ~ ys) : xs.size = ys.size := by
+  cases xs; cases ys
+  simp only [perm_toArray] at p
+  simpa using p.length_eq
+
+theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a ∈ ys := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp at p
+  simpa using p.mem_iff
+
 theorem Perm.push (x y : α) {xs ys : Array α} (p : xs ~ ys) :
     (xs.push x).push y ~ (ys.push y).push x := by
   cases xs; cases ys
@@ -64,5 +75,21 @@ theorem swap_perm {xs : Array α} {i j : Nat} (h₁ : i < xs.size) (h₂ : j < x
     xs.swap i j ~ xs := by
   simp only [swap, perm_iff_toList_perm, toList_set]
   apply set_set_perm
+
+namespace Perm
+
+set_option linter.indexVariables false in
+theorem extract {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
+    (wlo : ∀ i, i < lo → xs[i]? = ys[i]?) (whi : ∀ i, hi ≤ i → xs[i]? = ys[i]?) :
+    (xs.extract lo hi) ~ (ys.extract lo hi) := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp_all only [perm_toArray, List.getElem?_toArray, List.extract_toArray,
+    List.extract_eq_drop_take]
+  apply List.Perm.take_of_getElem? (w := fun i h => by simpa using whi (lo + i) (by omega))
+  apply List.Perm.drop_of_getElem? (w := wlo)
+  exact h
+
+end Perm
 
 end Array

@@ -231,12 +231,11 @@ def merge (fn : α → α → α) : Option α → Option α → Option α
 @[simp] theorem getD_none : getD none a = a := rfl
 @[simp] theorem getD_some : getD (some a) b = a := rfl
 
-@[simp] theorem map_none' (f : α → β) : none.map f = none := rfl
-@[simp] theorem map_some' (a) (f : α → β) : (some a).map f = some (f a) := rfl
+@[simp] theorem map_none (f : α → β) : none.map f = none := rfl
+@[simp] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
 
 @[simp] theorem none_bind (f : α → Option β) : none.bind f = none := rfl
 @[simp] theorem some_bind (a) (f : α → Option β) : (some a).bind f = f a := rfl
-
 
 /--
 A case analysis function for `Option`.
@@ -387,11 +386,13 @@ This is the monadic analogue of `Option.getD`.
   | some a => pure a
   | none => y
 
-instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
+instance (α) [BEq α] [ReflBEq α] : ReflBEq (Option α) where
   rfl {x} :=
     match x with
-    | some _ => LawfulBEq.rfl (α := α)
+    | some _ => BEq.rfl (α := α)
     | none => rfl
+
+instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
   eq_of_beq {x y h} := by
     match x, y with
     | some x, some y => rw [LawfulBEq.eq_of_beq (α := α) h]

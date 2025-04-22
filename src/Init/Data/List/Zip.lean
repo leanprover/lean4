@@ -220,7 +220,7 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {l₁ : List α} {l₂ : Li
           · simp_all
         · obtain (⟨rfl, rfl⟩ | ⟨_, rfl, rfl⟩) := h₃
           · simp_all
-          · simp_all [zipWith_append, Nat.succ_inj']
+          · simp_all [zipWith_append, Nat.succ_inj]
 
 /-- See also `List.zipWith_replicate` in `Init.Data.List.TakeDrop` for a generalization with different lengths. -/
 @[simp] theorem zipWith_replicate' {a : α} {b : β} {n : Nat} :

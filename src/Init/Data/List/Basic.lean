@@ -131,6 +131,12 @@ theorem beq_cons₂ [BEq α] {a b : α} {as bs : List α} : List.beq (a::as) (b:
 
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
+instance [BEq α] [ReflBEq α] : ReflBEq (List α) where
+  rfl {as} := by
+    induction as with
+    | nil => rfl
+    | cons a as ih => simp [BEq.beq, List.beq]; exact ih
+
 instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
   eq_of_beq {as bs} := by
     induction as generalizing bs with
@@ -142,10 +148,6 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
         simp [show (a::as == b::bs) = (a == b && as == bs) from rfl, -and_imp]
         intro ⟨h₁, h₂⟩
         exact ⟨h₁, ih h₂⟩
-  rfl {as} := by
-    induction as with
-    | nil => rfl
-    | cons a as ih => simp [BEq.beq, List.beq, LawfulBEq.rfl]; exact ih
 
 /--
 Returns `true` if `as` and `bs` have the same length and they are pairwise related by `eqv`.
@@ -900,10 +902,10 @@ theorem mem_of_elem_eq_true [BEq α] [LawfulBEq α] {a : α} {as : List α} : el
     next h => intros; simp [BEq.beq] at h; subst h; apply Mem.head
     next _ => intro h; exact Mem.tail _ (mem_of_elem_eq_true h)
 
-theorem elem_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
+theorem elem_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
   induction h with
   | head _ => simp [elem]
-  | tail _ _ ih => simp [elem]; split; rfl; assumption
+  | tail _ _ ih => simp only [elem]; split; rfl; assumption
 
 instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)

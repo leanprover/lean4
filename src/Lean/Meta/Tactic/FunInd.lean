@@ -189,6 +189,16 @@ def lambdaTelescope1 {n} [MonadControlT MetaM n] [MonadError n] [MonadNameGenera
       throwError "lambdaTelescope1: expected lambda, got {e}"
     k xs[0]!.fvarId! body
 
+/-- There are multiple variants of this function around in the code base, maybe unify at some point. -/
+private def elimTypeAnnotations (type : Expr) : CoreM Expr := do
+  Core.transform type fun e =>
+    if e.isOptParam || e.isAutoParam then
+      return .visit e.appFn!.appArg!
+    else if e.isOutParam || e.isSemiOutParam then
+      return .visit e.appArg!
+    else
+      return .continue
+
 /--
 A monad to help collecting inductive hypothesis.
 
@@ -747,7 +757,7 @@ where doRealize (inductName : Name) := do
     check e'
 
   let eTyp ← inferType e'
-  let eTyp ← elimOptParam eTyp
+  let eTyp ← elimTypeAnnotations eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -1123,7 +1133,7 @@ where doRealize inductName := do
     check e'
 
   let eTyp ← inferType e'
-  let eTyp ← elimOptParam eTyp
+  let eTyp ← elimTypeAnnotations eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -1201,7 +1211,7 @@ def deriveCases (name : Name) : MetaM Unit := do
       check e'
 
     let eTyp ← inferType e'
-    let eTyp ← elimOptParam eTyp
+    let eTyp ← elimTypeAnnotations eTyp
     -- logInfo m!"eTyp: {eTyp}"
     let levelParams := (collectLevelParams {} eTyp).params
     -- Prune unused level parameters, preserving the original order

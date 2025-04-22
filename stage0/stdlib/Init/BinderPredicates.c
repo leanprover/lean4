@@ -240,7 +240,7 @@ static lean_object* l_Lean_binderTerm_u2265_____closed__5;
 static lean_object* l_Lean_binderPred_quot___closed__16;
 static lean_object* l_Lean___aux__Init__BinderPredicates______macroRules__Lean__term_u2203_____x2c____1___closed__2;
 LEAN_EXPORT lean_object* l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______7(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_binderTerm_u2208__;
 static lean_object* l_Lean_term_u2203_____x2c_____closed__5;
 static lean_object* l_Lean_binderTerm_x3c_____closed__1;
@@ -999,7 +999,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

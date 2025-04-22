@@ -666,6 +666,7 @@ class task_manager {
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
+    condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
 
     lean_task_object * dequeue() {
@@ -762,6 +763,7 @@ class task_manager {
             unique_lock<mutex> lock(m_mutex);
             run_task(lock, t);
             m_num_dedicated_workers--;
+            m_dedicated_finished_cv.notify_all();
         });
         // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
@@ -863,6 +865,9 @@ public:
         // wait for all workers to finish
         for (auto & t : m_std_workers)
             t->join();
+
+        unique_lock<mutex> lock(m_mutex);
+        m_dedicated_finished_cv.wait(lock, [&]() { return m_num_dedicated_workers == 0; });
         // never seems to terminate under Emscripten
 #endif
     }
@@ -910,6 +915,9 @@ public:
             return;
         // see `Task.get`
         bool in_pool = g_current_task_object && g_current_task_object->m_imp->m_prio <= LEAN_MAX_PRIO;
+        if (g_current_task_object && g_current_task_object->m_imp->m_prio == LEAN_SYNC_PRIO) {
+            lean_panic("`Task.get` called from a `(sync := true)` task");
+        }
         if (in_pool) {
             m_max_std_workers++;
             if (m_idle_std_workers == 0)
@@ -956,6 +964,19 @@ public:
 
     bool shutting_down() const {
         return m_shutting_down;
+    }
+
+    uint8_t get_task_state(lean_task_object * t) {
+        unique_lock<mutex> lock(m_mutex);
+        if (t->m_imp) {
+            if (t->m_imp->m_closure) {
+                return 0; // waiting (waiting/queued)
+            } else {
+                return 1; // running (running/promised)
+            }
+        } else {
+            return 2; // finished
+        }
     }
 };
 
@@ -1153,15 +1174,9 @@ extern "C" LEAN_EXPORT void lean_io_cancel_core(b_obj_arg t) {
 
 extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
     lean_task_object * o = lean_to_task(t);
-    if (o->m_imp) {
-        if (o->m_imp->m_closure) {
-            return 0; // waiting (waiting/queued)
-        } else {
-            return 1; // running (running/promised)
-        }
-    } else {
+    if (!o->m_imp)
         return 2; // finished
-    }
+    return g_task_manager->get_task_state(o);
 }
 
 extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {

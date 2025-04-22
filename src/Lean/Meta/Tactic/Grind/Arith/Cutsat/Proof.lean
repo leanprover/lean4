@@ -64,11 +64,6 @@ def mkNatExprDecl (e : Int.OfNat.Expr) : ProofM Expr := do
   modify fun s => { s with natExprMap := s.natExprMap.insert e x }
   return x
 
-private def mkDiseqProof (a b : Expr) : GoalM Expr := do
- let some h ← mkDiseqProof? a b
-   | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
-  return h
-
 private def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) (e : Expr)
     (varPrefix : Name) (varType : Expr) (toExpr : α → Expr) : GoalM Expr := do
   if m.isEmpty then
@@ -82,14 +77,14 @@ private def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) 
       i := i - 1
     return e
 
-private def toContextExprCore (vars : PArray Expr) (type : Expr) : Expr :=
+private def toContextExprCore (vars : PArray Expr) (type : Expr) : MetaM Expr :=
   if h : 0 < vars.size then
     RArray.toExpr type id (RArray.ofFn (vars[·]) h)
   else
     RArray.toExpr type id (RArray.leaf (mkIntLit 0))
 
 private def toContextExpr : GoalM Expr := do
-  return toContextExprCore (← getVars) (mkConst ``Int)
+  toContextExprCore (← getVars) (mkConst ``Int)
 
 private def withForeignContexts (k : Std.HashMap ForeignType Expr → GoalM α) : GoalM α := do
   go 1 (← get').foreignVars.toList {}
@@ -99,8 +94,8 @@ where
     | [] => k r
     | (type, ctx) :: ctxs =>
       let typeExpr := type.denoteType
-      let ctxExpr := toContextExprCore ctx typeExpr
-      withLetDecl ((`ctx).appendIndexAfter i) (mkApp (mkConst ``RArray) typeExpr) ctxExpr fun ctx => do
+      let ctxExpr ← toContextExprCore ctx typeExpr
+      withLetDecl ((`ctx).appendIndexAfter i) (mkApp (mkConst ``RArray [levelZero]) typeExpr) ctxExpr fun ctx => do
         go (i+1) ctxs (r.insert type ctx)
 
 private def getLetCtxVars : ProofM (Array Expr) := do
@@ -110,7 +105,7 @@ private def getLetCtxVars : ProofM (Array Expr) := do
   return r
 
 private abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
-  withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx =>
+  withLetDecl `ctx (mkApp (mkConst ``RArray [levelZero]) (mkConst ``Int)) (← toContextExpr) fun ctx =>
   withForeignContexts fun foreignCtxs =>
     go { ctx, foreignCtxs } |>.run' {}
 where
@@ -301,7 +296,6 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) reflBoolTrue
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
-  trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .core0 a zero =>
     mkDiseqProof a zero
@@ -352,7 +346,6 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
     -- `pred` is an expressions of the form `cooper_*_split ...` with type `Nat → Prop`
     let mut k := n
     let mut result := base -- `OrOver k (cooper_*_splti)
-    trace[grind.debug.cutsat.proof] "orOver_cases {n}"
     result := mkApp3 (mkConst ``Int.Linear.orOver_cases) (toExpr (n-1)) pred result
     for (fvarId, c) in hs do
       let type := mkApp pred (toExpr (k-1))
@@ -365,7 +358,6 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
     return result
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
-  trace[grind.debug.cutsat.proof] "{← h.pp}"
   match h with
   | .le c =>
     return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (← mkPolyDecl c.p) reflBoolTrue (← c.toExprProof)
@@ -392,7 +384,6 @@ def UnsatProof.toExprProof (h : UnsatProof) : GoalM Expr := do
   withProofContext do h.toExprProofCore
 
 def setInconsistent (h : UnsatProof) : GoalM Unit := do
-  trace[grind.debug.cutsat.conflict] "setInconsistent [{← inconsistent}]: {← h.pp}"
   if (← get').caseSplits then
     -- Let the search procedure in `SearchM` resolve the conflict.
     modify' fun s => { s with conflict? := some h }

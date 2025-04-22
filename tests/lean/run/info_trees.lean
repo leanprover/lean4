@@ -61,7 +61,7 @@ info: • command @ ⟨82, 0⟩-⟨82, 40⟩ @ Lean.Elab.Command.elabDeclaration
                   ⊢ 0 ≤ n
                   after no goals
                   • Nat.zero_le n : 0 ≤ n @ ⟨1, 1⟩†-⟨1, 1⟩† @ Lean.Elab.Term.elabApp
-                    • [.] Nat.zero_le : some LE.le.{0} Nat instLENat (OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)) _uniq.37 @ ⟨1, 0⟩†-⟨1, 0⟩†
+                    • [.] Nat.zero_le : some LE.le.{0} Nat instLENat (OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)) _uniq.41 @ ⟨1, 0⟩†-⟨1, 0⟩†
                     • Nat.zero_le : ∀ (n : Nat), 0 ≤ n @ ⟨1, 0⟩†-⟨1, 0⟩†
                     • n : Nat @ ⟨1, 5⟩†-⟨1, 5⟩† @ Lean.Elab.Term.elabIdent
                       • [.] n : some Nat @ ⟨1, 5⟩†-⟨1, 5⟩†

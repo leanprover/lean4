@@ -136,9 +136,7 @@ def assertDenoteAsIntNonneg (e : Expr) : GoalM Unit := withIncRecDepth do
   let lhs' : Int.Linear.Expr := .num 0
   let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
-  trace[grind.debug.cutsat.nat] "{← p.pp}"
   let c := { p, h := .denoteAsIntNonneg rhs rhs' : LeCnstr }
-  trace[grind.cutsat.assert.le] "{← c.pp}"
   c.assert
 
 /--
@@ -149,7 +147,6 @@ def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()
   if (← get').foreignDef.contains { expr := a } then return ()
-  trace[grind.debug.cutsat.natCast] "{a}"
   let n ← mkForeignVar a .nat
   let p := .add (-1) x (.num 0)
   let c := { p, h := .denoteAsIntNonneg (.var n) (.var x) : LeCnstr}

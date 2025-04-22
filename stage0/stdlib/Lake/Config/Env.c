@@ -119,7 +119,7 @@ LEAN_EXPORT lean_object* l_Lake_Env_path(lean_object*);
 extern uint8_t l_System_Platform_isWindows;
 static lean_object* l_Lake_Env_noToolchainVars___closed__12;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___lambda__1___boxed(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___closed__1;
 static lean_object* _init_l_Lake_instInhabitedEnv___closed__1() {
 _start:
@@ -149,7 +149,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

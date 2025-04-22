@@ -203,16 +203,24 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   will not kill this job before the direct imports are built.
   -/
   let directImports ← (← mod.imports.fetch).await
-  let importJob := Job.mixArray <| ← directImports.mapM fun imp => do
+  let importJobs ← directImports.mapM fun imp => do
     if imp.name = mod.name then
       logError s!"{mod.leanFile}: module imports itself"
     imp.olean.fetch
-  let impLibsJob ← Job.collectArray <$>
-    mod.fetchImportLibs directImports mod.shouldPrecompile
-  let externLibsJob ← Job.collectArray <$>
+  let importJob := Job.mixArray importJobs "import oleans"
+  /-
+  Remark: It should be possible to avoid transitive imports here when the module
+  itself is precompiled, but they are currently kept to perserve the "bad import" errors.
+  -/
+  let precompileImports ← if mod.shouldPrecompile then
+    mod.transImports.fetch else mod.precompileImports.fetch
+  let precompileImports ← precompileImports.await
+  let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
+    mod.fetchImportLibs precompileImports mod.shouldPrecompile
+  let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
     mod.pkg.externLibs.mapM (·.dynlib.fetch)
-  let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg
-  let pluginsJob ← mod.plugins.fetchIn mod.pkg
+  let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
+  let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
   extraDepJob.bindM fun _ => do
   importJob.bindM (sync := true) fun _ => do
@@ -221,10 +229,14 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   externLibsJob.bindM (sync := true) fun externLibs => do
   dynlibsJob.bindM (sync := true) fun dynlibs => do
   pluginsJob.mapM (sync := true) fun plugins => do
+    let libTrace ← takeTrace
+    setTraceCaption s!"{mod.name.toString}:deps"
+    let depTrace := depTrace.withCaption "deps"
+    let libTrace := libTrace.withCaption "libs"
     match mod.platformIndependent with
-    | none => addTrace depTrace
-    | some false => addTrace depTrace; addPlatformTrace
-    | some true => setTrace depTrace
+    | none => addTrace depTrace; addTrace libTrace
+    | some false => addTrace depTrace; addTrace libTrace; addPlatformTrace
+    | some true => addTrace depTrace
     computeModuleDeps impLibs externLibs dynlibs plugins
 
 /-- The `ModuleFacetConfig` for the builtin `depsFacet`. -/
@@ -256,9 +268,10 @@ def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
   withRegisterJob mod.name.toString do
   (← mod.deps.fetch).mapM fun {dynlibs, plugins} => do
     addLeanTrace
-    addPureTrace mod.leanArgs
+    addPureTrace mod.leanArgs "Module.leanArgs"
     let srcTrace ← computeTrace (TextFilePath.mk mod.leanFile)
     addTrace srcTrace
+    setTraceCaption s!"{mod.name.toString}:leanArts"
     let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
       compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
         (← getLeanPath) mod.rootDir dynlibs plugins
@@ -275,6 +288,13 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
   mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).mapM fun _ => do
+      /-
+      Avoid recompiling unchanged Olean files.
+      Olean files incorporate not only their own content, but also their
+      transitive imports. However, they are independnt of their module sources.
+      -/
+      newTrace s!"{mod.name.toString}:olean"
+      addTrace (← mod.deps.fetch).getTrace.withoutInputs
       addTrace (← fetchFileTrace mod.oleanFile)
       return mod.oleanFile
 
@@ -282,6 +302,13 @@ def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
   mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).mapM fun _ => do
+      /-
+      Avoid recompiling unchanged Ilean files.
+      Ilean files are assumed to only incorporate their own content
+      and not transitively include their inputs (e.g., imports).
+      Lean also produces LF-only Ilean files, so no line ending normalization.
+      -/
+      newTrace s!"{mod.name.toString}:ilean"
       addTrace (← fetchFileTrace mod.ileanFile)
       return mod.ileanFile
 
@@ -290,13 +317,15 @@ def Module.cFacetConfig : ModuleFacetConfig cFacet :=
   mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).mapM fun _ => do
       /-
-      Avoid recompiling unchanged C files
-      C files are assumed to only depend on their content
-      and not transitively on their inputs (e.g., module sources).
+      Avoid recompiling unchanged C files.
+      C files are assumed to incorporate their own content
+      and not transitively include their inputs (e.g., imports).
+      They do, however, include `lean/lean.h`.
       Lean also produces LF-only C files, so no line ending normalization.
       -/
-      setTrace (← fetchFileTrace mod.cFile)
-      addLeanTrace -- Lean C files include `lean/lean.h`
+      newTrace s!"{mod.name.toString}:c"
+      addTrace (← fetchFileTrace mod.cFile)
+      addLeanTrace
       return mod.cFile
 
 /-- The `ModuleFacetConfig` for the builtin `bcFacet`. -/
@@ -304,11 +333,12 @@ def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
   mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).mapM fun _ => do
       /-
-      Avoid recompiling unchanged bitcode files
+      Avoid recompiling unchanged bitcode files.
       Bitcode files are assumed to only depend on their content
-      and not transitively on their inputs (e.g., module sources)
+      and not transitively on their inputs (e.g., imports).
       -/
-      setTrace (← fetchFileTrace mod.bcFile)
+      newTrace s!"{mod.name.toString}:bc"
+      addTrace (← fetchFileTrace mod.bcFile)
       return mod.bcFile
 
 /--
@@ -320,7 +350,7 @@ def Module.recBuildLeanCToOExport (self : Module) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:c.o{suffix}" do
   -- TODO: add option to pass a target triplet for cross compilation
   let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
-  buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs
+  buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs self.leanIncludeDir?
 
 /-- The `ModuleFacetConfig` for the builtin `coExportFacet`. -/
 def Module.coExportFacetConfig : ModuleFacetConfig coExportFacet :=
@@ -334,7 +364,7 @@ def Module.recBuildLeanCToONoExport (self : Module) : FetchM (Job FilePath) := d
   let suffix := if (← getIsVerbose) then " (without exports)" else ""
   withRegisterJob s!"{self.name}:c.o{suffix}" do
   -- TODO: add option to pass a target triplet for cross compilation
-  buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
+  buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs self.leanIncludeDir?
 
 /-- The `ModuleFacetConfig` for the builtin `coNoExportFacet`. -/
 def Module.coNoExportFacetConfig : ModuleFacetConfig coNoExportFacet :=

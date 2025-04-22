@@ -142,7 +142,7 @@ h : (xs ++ ys ++ zs).length = n + 1
 example {α : Type} (xs ys zs : List α) : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by
   induction h : ((xs ++ ys) ++ zs).length generalizing xs with
   | zero =>
-    simp only [List.length_append, Nat.add_eq_zero_iff, List.length_eq_zero] at h
+    simp only [List.length_append, Nat.add_eq_zero_iff, List.length_eq_zero_iff] at h
     obtain ⟨⟨rfl, rfl⟩, rfl⟩ := h
     rfl
   | succ n ih =>
@@ -211,4 +211,44 @@ example (n : Nat) : n + 1 = 1 + n := by
   induction _ : n + 1
   trace_state
   omega
+  omega
+
+/-!
+Having no `=>` clause is short for `=> ?_`.
+-/
+/--
+info: case mk
+p1 p2 : Nat
+⊢ (p1, p2).fst = (p1, p2).fst
+-/
+#guard_msgs in
+example (p : Nat × Nat) : p.1 = p.1 := by
+  cases p with | _ p1 p2
+  trace_state
+  rfl
+
+/-!
+Can have multiple trailing `=>`-free goals. This is short for
+```
+induction n with | zero | succ n ih => ?_
+```
+which is short for
+```
+induction n with | zero => ?_ | succ n ih => ?_
+```
+-/
+/--
+info: case zero
+⊢ 0 + 1 = 1 + 0
+
+case succ
+n : Nat
+ih : n + 1 = 1 + n
+⊢ n + 1 + 1 = 1 + (n + 1)
+-/
+#guard_msgs in
+example (n : Nat) : n + 1 = 1 + n := by
+  induction n with | zero | succ n ih
+  trace_state
+  rfl
   omega

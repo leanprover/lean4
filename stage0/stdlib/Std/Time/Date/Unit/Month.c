@@ -305,7 +305,7 @@ static lean_object* l_Std_Time_Month_Ordinal_june___closed__4;
 LEAN_EXPORT lean_object* l_Std_Time_Month_instOfNatOffset(lean_object*);
 static lean_object* l_Std_Time_Month_Ordinal_february___closed__1;
 static lean_object* l_Std_Time_Month_Ordinal_november___closed__1;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Month_instOfNatOrdinal(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Month_instOffsetDecidableEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_toNat(lean_object*);
@@ -1736,7 +1736,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

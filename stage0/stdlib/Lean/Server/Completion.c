@@ -146,7 +146,7 @@ uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__4;
 extern lean_object* l_Lean_Lsp_instHashableCompletionItemTag;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_instDecidableEqString___boxed(lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__14(lean_object*, size_t, size_t, lean_object*);
@@ -2175,7 +2175,7 @@ lean_dec(x_3);
 x_6 = lean_array_size(x_5);
 x_7 = 0;
 x_8 = l_Array_mapMUnsafe_map___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__11___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__12(x_6, x_7, x_5);
-x_9 = l_Array_emptyWithCapacity(lean_box(0), x_4);
+x_9 = lean_mk_empty_array_with_capacity(x_4);
 lean_dec(x_4);
 x_10 = lean_array_get_size(x_8);
 x_11 = lean_unsigned_to_nat(0u);

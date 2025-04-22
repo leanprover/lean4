@@ -315,7 +315,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPa
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_visit___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_detectSize___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize___spec__17(lean_object*, lean_object*, uint64_t, uint64_t, size_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass;
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
@@ -6441,7 +6441,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; 
 x_11 = lean_ctor_get(x_4, 1);
 x_12 = lean_ctor_get(x_11, 0);
-x_13 = l_Array_emptyWithCapacity(lean_box(0), x_12);
+x_13 = lean_mk_empty_array_with_capacity(x_12);
 x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_array_get_size(x_14);
 x_16 = lean_unsigned_to_nat(0u);
@@ -6489,7 +6489,7 @@ lean_inc(x_25);
 lean_dec(x_21);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
-x_27 = l_Array_emptyWithCapacity(lean_box(0), x_26);
+x_27 = lean_mk_empty_array_with_capacity(x_26);
 lean_dec(x_26);
 x_28 = lean_ctor_get(x_25, 1);
 lean_inc(x_28);

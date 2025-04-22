@@ -1375,7 +1375,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean
 LEAN_EXPORT lean_object* l_Lean_isIdFirst___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1___closed__10;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___closed__39;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Meta_instReprConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Syntax_toNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_dsimpAutoUnfold;
@@ -10602,7 +10602,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -14851,7 +14851,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_foldr___at_Substring_toName___spec__1___closed__1;
 x_2 = l_List_foldr___at_Substring_toName___spec__1___closed__2;
-x_3 = lean_unsigned_to_nat(1031u);
+x_3 = lean_unsigned_to_nat(1039u);
 x_4 = lean_unsigned_to_nat(10u);
 x_5 = l_List_foldr___at_Substring_toName___spec__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

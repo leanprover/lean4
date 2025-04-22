@@ -477,7 +477,7 @@ theorem attach_filterMap {l : List α} {f : α → Option β} :
       · simp only [h]
         rfl
       rw [ih]
-      simp only [map_filterMap, Option.map_pbind, Option.map_some']
+      simp only [map_filterMap, Option.map_pbind, Option.map_some]
       rfl
     · simp only [Option.pbind_eq_some_iff] at h
       obtain ⟨a, h, w⟩ := h
@@ -640,12 +640,12 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {l : List α} (H :
   simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attachWith_map_subtype_val]
 
 @[simp]
-theorem count_attach [DecidableEq α] {l : List α} {a : {x // x ∈ l}} :
+theorem count_attach [BEq α] {l : List α} {a : {x // x ∈ l}} :
     l.attach.count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attach
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) {a : {x // p x}} :
+theorem count_attachWith [BEq α] {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) {a : {x // p x}} :
     (l.attachWith p H).count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _
 

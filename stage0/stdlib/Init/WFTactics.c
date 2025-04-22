@@ -253,7 +253,7 @@ static lean_object* l___aux__Init__WFTactics______macroRules__tacticClean__wf__1
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__1___closed__9;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__64;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticClean__wf__1___closed__11;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__1___closed__11;
 LEAN_EXPORT lean_object* l_tacticSimp__wf;
 static lean_object* l_tacticDecreasing__tactic___closed__3;
@@ -574,7 +574,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

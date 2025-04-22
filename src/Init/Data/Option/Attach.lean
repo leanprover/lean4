@@ -141,11 +141,11 @@ theorem toList_attach (o : Option α) :
   cases o <;> simp
 
 theorem attach_map {o : Option α} (f : α → β) :
-    (o.map f).attach = o.attach.map (fun ⟨x, h⟩ => ⟨f x, map_eq_some.2 ⟨_, h, rfl⟩⟩) := by
+    (o.map f).attach = o.attach.map (fun ⟨x, h⟩ => ⟨f x, map_eq_some_iff.2 ⟨_, h, rfl⟩⟩) := by
   cases o <;> simp
 
 theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), o.map f = some b → P b} :
-    (o.map f).attachWith P H = (o.attachWith (P ∘ f) (fun _ h => H _ (map_eq_some.2 ⟨_, h, rfl⟩))).map
+    (o.map f).attachWith P H = (o.attachWith (P ∘ f) (fun _ h => H _ (map_eq_some_iff.2 ⟨_, h, rfl⟩))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases o <;> simp
 
@@ -174,7 +174,7 @@ theorem map_attach_eq_attachWith {o : Option α} {p : α → Prop} (f : ∀ a, o
 
 theorem attach_bind {o : Option α} {f : α → Option β} :
     (o.bind f).attach =
-      o.attach.bind fun ⟨x, h⟩ => (f x).attach.map fun ⟨y, h'⟩ => ⟨y, bind_eq_some.2 ⟨_, h, h'⟩⟩ := by
+      o.attach.bind fun ⟨x, h⟩ => (f x).attach.map fun ⟨y, h'⟩ => ⟨y, bind_eq_some_iff.2 ⟨_, h, h'⟩⟩ := by
   cases o <;> simp
 
 theorem bind_attach {o : Option α} {f : {x // o = some x} → Option β} :
@@ -262,7 +262,7 @@ and simplifies these to the function directly taking the value.
 
 @[simp] theorem bind_subtype {p : α → Prop} {o : Option { x // p x }}
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    (o.bind f) = o.unattach.bind g := by
+    o.bind f = o.unattach.bind g := by
   cases o <;> simp [hf]
 
 @[simp] theorem unattach_filter {p : α → Prop} {o : Option { x // p x }}

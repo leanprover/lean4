@@ -164,7 +164,7 @@ static lean_object* l_panic___at_Lean_Linter_constructorNameAsVariable___elambda
 lean_object* l_Lean_Elab_Info_stx(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__13___closed__6;
 size_t lean_usize_land(size_t, size_t);
@@ -3752,7 +3752,7 @@ lean_inc(x_29);
 lean_dec(x_27);
 x_30 = lean_ctor_get(x_28, 0);
 lean_inc(x_30);
-x_31 = l_Array_emptyWithCapacity(lean_box(0), x_30);
+x_31 = lean_mk_empty_array_with_capacity(x_30);
 lean_dec(x_30);
 x_32 = lean_ctor_get(x_28, 1);
 lean_inc(x_32);

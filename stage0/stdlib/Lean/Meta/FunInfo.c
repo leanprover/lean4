@@ -148,7 +148,7 @@ static lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Meta_FunInfo_
 static lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___closed__1;
 static size_t l_Lean_PersistentHashMap_findAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__2(lean_object*, size_t, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -2022,7 +2022,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_array_get_size(x_1);
-x_7 = l_Array_emptyWithCapacity(lean_box(0), x_6);
+x_7 = lean_mk_empty_array_with_capacity(x_6);
 x_8 = l_Array_mapFinIdxM_map___at___private_Lean_Meta_FunInfo_0__Lean_Meta_updateHasFwdDeps___spec__1(x_1, x_2, x_1, x_6, x_4, lean_box(0), x_7);
 return x_8;
 }

@@ -24,6 +24,7 @@ lean_object* l_Lean_mkNatLit(lean_object*);
 uint8_t l_Lean_PersistentHashMap_Node_isEmpty___rarg(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppCasesTrace___spec__1___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppOffset___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_Arith_quoteIfArithTerm(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_Goal_ppENodeDecl___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -144,7 +145,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppA
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppCutsat___lambda__1___closed__6;
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___closed__3;
-lean_object* l_Lean_quoteIfNotAtom(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppCutsat___lambda__1___closed__4;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -5558,7 +5558,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; size_t x_34; size_t x_35; 
 x_20 = lean_ctor_get(x_18, 0);
 x_21 = lean_ctor_get(x_18, 1);
-x_22 = l_Lean_quoteIfNotAtom(x_20);
+x_22 = l_Lean_Meta_Grind_Arith_quoteIfArithTerm(x_20);
 x_23 = l_Lean_Meta_Grind_Goal_ppENodeRef___closed__9;
 lean_ctor_set_tag(x_18, 7);
 lean_ctor_set(x_18, 1, x_22);
@@ -5598,7 +5598,7 @@ x_38 = lean_ctor_get(x_18, 1);
 lean_inc(x_38);
 lean_inc(x_37);
 lean_dec(x_18);
-x_39 = l_Lean_quoteIfNotAtom(x_37);
+x_39 = l_Lean_Meta_Grind_Arith_quoteIfArithTerm(x_37);
 x_40 = l_Lean_Meta_Grind_Goal_ppENodeRef___closed__9;
 x_41 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
@@ -6033,7 +6033,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_38; lean_object* x_39; uint8_t x_40; 
 x_20 = lean_ctor_get(x_18, 0);
 x_21 = lean_ctor_get(x_18, 1);
-x_22 = l_Lean_quoteIfNotAtom(x_20);
+x_22 = l_Lean_Meta_Grind_Arith_quoteIfArithTerm(x_20);
 x_23 = l_Lean_Meta_Grind_Goal_ppENodeRef___closed__9;
 lean_ctor_set_tag(x_18, 7);
 lean_ctor_set(x_18, 1, x_22);
@@ -6166,7 +6166,7 @@ x_77 = lean_ctor_get(x_18, 1);
 lean_inc(x_77);
 lean_inc(x_76);
 lean_dec(x_18);
-x_78 = l_Lean_quoteIfNotAtom(x_76);
+x_78 = l_Lean_Meta_Grind_Arith_quoteIfArithTerm(x_76);
 x_79 = l_Lean_Meta_Grind_Goal_ppENodeRef___closed__9;
 x_80 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_80, 0, x_79);
@@ -6873,7 +6873,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17;
 x_14 = lean_ctor_get(x_1, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_4, 12);
-x_16 = lean_ctor_get(x_15, 2);
+x_16 = lean_ctor_get(x_15, 0);
 x_17 = lean_nat_dec_le(x_14, x_16);
 if (x_17 == 0)
 {
@@ -7449,7 +7449,7 @@ _start:
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_ctor_get(x_1, 12);
 lean_inc(x_8);
-x_9 = lean_ctor_get(x_8, 4);
+x_9 = lean_ctor_get(x_8, 5);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = l_List_isEmpty___rarg(x_9);
@@ -7968,7 +7968,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData(lean_object* x_1, l
 _start:
 {
 uint8_t x_8; 
-x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*6 + 7);
+x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*6 + 10);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 

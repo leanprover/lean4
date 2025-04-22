@@ -1589,9 +1589,8 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     constNames, constants, entries
   }
 
-@[export lean_write_module]
-def writeModule (env : Environment) (fname : System.FilePath) (split := false) : IO Unit := do
-  if split then
+def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
+  if env.header.isModule then
     let mkPart (level : OLeanLevel) :=
       return (level.adjustFileName fname, (← mkModuleData env level))
     saveModuleDataParts env.mainModule #[
@@ -1895,7 +1894,6 @@ private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environm
         }
       else asyncConsts }
 
-@[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do
   let pExtDescrs ← persistentEnvExtensionsRef.get
   IO.println ("direct imports:                        " ++ toString env.header.imports);

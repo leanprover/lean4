@@ -67,7 +67,7 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := fal
 
 /-- Simplifies `c` using `c'`. -/
 def EqCnstr.simplify1 (c c' : EqCnstr) : RingM (Option EqCnstr) := do
-  let some r := c'.p.simp? c.p | return none
+  let some r := c'.p.simp? c.p (← nonzeroChar?) | return none
   let c := { c with
     p := r.p
     h := .simp c' c r.k₁ r.k₂ r.m
@@ -137,17 +137,35 @@ def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
   modifyRing fun s => { s with varToBasis := s.varToBasis.set x cs }
 
 def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
+  trace_goal[grind.ring.assert.queue] "{← c.denoteExpr}"
   modifyRing fun s => { s with queue := s.queue.insert c }
 
 def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
   trace[grind.ring.superpose] "{← c.denoteExpr}"
   return ()
 
+def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
+  let k := c.p.lc
+  if k == 1 then return c
+  let some p ← nonzeroChar? | return c
+  let (g, α, _β) := gcdExt k p
+  if g == 1 then
+    -- `α*k + β*p = 1`
+    -- `α*k = 1 (mod p)`
+    let α := if α < 0 then α % p else α
+    return { c with p := c.p.mulConstC α p, h := .mul α c }
+  else if k == -1 then
+    return { c with p := c.p.mulConst (-1), h := .mul (-1) c }
+  else
+    return c
+
 def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
+  let c ← c.toMonic
   c.simplifyBasis
   c.superposeWith
   let .add _ m _ := c.p | return ()
   let .mult pw _ := m | return ()
+  trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
   modifyRing fun s => { s with varToBasis := s.varToBasis.modify pw.x (c :: ·) }
 
 def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
@@ -155,7 +173,6 @@ def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
   c.addToBasisAfterSimp
 
 def addNewEq (c : EqCnstr) : RingM Unit := do
-  trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
   let some c ← c.simplifyAndCheck | return ()
   if c.p.degree == 1 then
     c.addToBasisAfterSimp

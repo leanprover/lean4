@@ -84,8 +84,9 @@ Given polynomials with leading terms `k₁*m₁` and `k₂*m₂`, the S-polynomi
 ```
 S(p₁, p₂) = (k₂/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₁) * p₁ - (k₁/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₂) * p₂
 ```
+Remark: if `char? = some c`, then `c` is the characteristic of the ring.
 -/
-def Poly.spol (p₁ p₂ : Poly) : SPolResult  :=
+def Poly.spol (p₁ p₂ : Poly) (char? : Option Nat := none) : SPolResult  :=
   match p₁, p₂ with
   | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
     let m    := m₁.lcm m₂
@@ -94,10 +95,16 @@ def Poly.spol (p₁ p₂ : Poly) : SPolResult  :=
     let g    := Nat.gcd k₁.natAbs k₂.natAbs
     let c₁   := k₂/g
     let c₂   := -k₁/g
-    let p₁   := p₁.mulMon c₁ m₁
-    let p₂   := p₂.mulMon c₂ m₂
-    let spol := p₁.combine p₂
-    { spol, c₁, m₁, c₂, m₂ }
+    if let some char := char? then
+      let p₁   := p₁.mulMonC c₁ m₁ char
+      let p₂   := p₂.mulMonC c₂ m₂ char
+      let spol := p₁.combineC p₂ char
+      { spol, c₁, m₁, c₂, m₂ }
+    else
+      let p₁   := p₁.mulMon c₁ m₁
+      let p₂   := p₂.mulMon c₂ m₂
+      let spol := p₁.combine p₂
+      { spol, c₁, m₁, c₂, m₂ }
   | _, _ => {}
 
 /--
@@ -121,8 +128,10 @@ Simplifies polynomial `p₂` using polynomial `p₁` by rewriting.
 
 This function attempts to rewrite `p₂` by eliminating the first occurrence of
 the leading monomial of `p₁`.
+
+Remark: if `char? = some c`, then `c` is the characteristic of the ring.
 -/
-def Poly.simp? (p₁ p₂ : Poly) : Option SimpResult :=
+def Poly.simp? (p₁ p₂ : Poly) (char? : Option Nat := none) : Option SimpResult :=
   match p₁ with
   | .add k₁' m₁ p₁ =>
     let rec go? (p₂ : Poly) : Option SimpResult :=
@@ -133,10 +142,20 @@ def Poly.simp? (p₁ p₂ : Poly) : Option SimpResult :=
           let g  := Nat.gcd k₁'.natAbs k₂'.natAbs
           let k₁ := -k₂'/g
           let k₂ := k₁'/g
-          let p  := (p₁.mulMon k₁ m).combine (p₂.mulConst k₂)
+          let p  := if let some char := char? then
+            (p₁.mulMonC k₁ m char).combineC (p₂.mulConstC k₂ char) char
+          else
+            (p₁.mulMon k₁ m).combine (p₂.mulConst k₂)
           some { p, k₁, k₂, m }
         else if let some r := go? p₂ then
-          some { r with p := .add (k₂'*r.k₂) m₂ r.p }
+          if let some char := char? then
+            let k := (k₂'*r.k₂) % char
+            if k == 0 then
+              some r
+            else
+              some { r with p := .add k m₂ r.p }
+          else
+            some { r with p := .add (k₂'*r.k₂) m₂ r.p }
         else
           none
       | .num _ => none

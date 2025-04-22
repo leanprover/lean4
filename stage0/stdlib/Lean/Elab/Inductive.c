@@ -357,6 +357,7 @@ LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Elab_Inductive_0__
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_elabInductiveCommand__2(lean_object*);
 static lean_object* l_Lean_Elab_elabAttr___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__5___lambda__1___closed__1;
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_checkParamOccs___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__6___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -367,7 +368,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Ind
 LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__16___lambda__3___closed__1;
 lean_object* l_Lean_getAttributeImpl(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_checkParamOccs___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__16___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7331,7 +7331,7 @@ x_29 = l_Lean_Linter_logLint___at___private_Lean_Elab_Inductive_0__Lean_Elab_Com
 x_30 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
-x_31 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_30, x_7, x_8, x_9, x_10, x_21);
+x_31 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_30, x_7, x_8, x_9, x_10, x_21);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -7567,7 +7567,7 @@ x_26 = l_Lean_Linter_logLint___at___private_Lean_Elab_Inductive_0__Lean_Elab_Com
 x_27 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
-x_28 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_27, x_4, x_5, x_6, x_7, x_8);
+x_28 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_27, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);

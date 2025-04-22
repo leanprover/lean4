@@ -231,6 +231,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabCalc_declRange__1___closed__3;
 static lean_object* l_Lean_Elab_Term_mkCalcTrans___closed__10;
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabCalc___closed__1;
 extern lean_object* l_Lean_useDiagnosticMsg;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -263,7 +264,6 @@ lean_object* l_Lean_Elab_Term_elabType(lean_object*, lean_object*, lean_object*,
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabCalcSteps___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortTerm___at_Lean_Elab_Term_throwCalcFailure___spec__2___rarg(lean_object*);
 lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Binders_0__Lean_Elab_Term_elabBinderViews_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabCalc__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_getCalcRelation_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
@@ -1117,7 +1117,7 @@ x_132 = l___private_Lean_Elab_Calc_0__Lean_Elab_Term_getRelUniv___lambda__1___cl
 lean_ctor_set_tag(x_120, 7);
 lean_ctor_set(x_120, 1, x_132);
 lean_ctor_set(x_120, 0, x_125);
-x_133 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_120, x_5, x_6, x_7, x_8, x_128);
+x_133 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_120, x_5, x_6, x_7, x_8, x_128);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -1156,7 +1156,7 @@ x_142 = l___private_Lean_Elab_Calc_0__Lean_Elab_Term_getRelUniv___lambda__1___cl
 lean_ctor_set_tag(x_120, 7);
 lean_ctor_set(x_120, 1, x_142);
 lean_ctor_set(x_120, 0, x_141);
-x_143 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_120, x_5, x_6, x_7, x_8, x_138);
+x_143 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_120, x_5, x_6, x_7, x_8, x_138);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -1240,7 +1240,7 @@ x_161 = l___private_Lean_Elab_Calc_0__Lean_Elab_Term_getRelUniv___lambda__1___cl
 x_162 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_162, 0, x_160);
 lean_ctor_set(x_162, 1, x_161);
-x_163 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_162, x_5, x_6, x_7, x_8, x_156);
+x_163 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_162, x_5, x_6, x_7, x_8, x_156);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -1575,7 +1575,7 @@ if (lean_is_scalar(x_225)) {
 }
 lean_ctor_set(x_235, 0, x_233);
 lean_ctor_set(x_235, 1, x_234);
-x_236 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_235, x_5, x_6, x_7, x_8, x_229);
+x_236 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_235, x_5, x_6, x_7, x_8, x_229);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -1937,7 +1937,7 @@ if (lean_is_scalar(x_305)) {
 }
 lean_ctor_set(x_315, 0, x_313);
 lean_ctor_set(x_315, 1, x_314);
-x_316 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_315, x_5, x_6, x_7, x_8, x_309);
+x_316 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_315, x_5, x_6, x_7, x_8, x_309);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -2318,7 +2318,7 @@ if (lean_is_scalar(x_390)) {
 }
 lean_ctor_set(x_400, 0, x_398);
 lean_ctor_set(x_400, 1, x_399);
-x_401 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_400, x_5, x_6, x_7, x_8, x_394);
+x_401 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_400, x_5, x_6, x_7, x_8, x_394);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -2721,7 +2721,7 @@ if (lean_is_scalar(x_481)) {
 }
 lean_ctor_set(x_491, 0, x_489);
 lean_ctor_set(x_491, 1, x_490);
-x_492 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_491, x_5, x_6, x_7, x_8, x_485);
+x_492 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_491, x_5, x_6, x_7, x_8, x_485);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -3617,7 +3617,7 @@ if (lean_is_scalar(x_632)) {
 }
 lean_ctor_set(x_642, 0, x_640);
 lean_ctor_set(x_642, 1, x_641);
-x_643 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_642, x_5, x_6, x_7, x_8, x_636);
+x_643 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_642, x_5, x_6, x_7, x_8, x_636);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -4536,7 +4536,7 @@ if (lean_is_scalar(x_786)) {
 }
 lean_ctor_set(x_796, 0, x_794);
 lean_ctor_set(x_796, 1, x_795);
-x_797 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_796, x_5, x_6, x_7, x_8, x_790);
+x_797 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_796, x_5, x_6, x_7, x_8, x_790);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -5470,7 +5470,7 @@ if (lean_is_scalar(x_943)) {
 }
 lean_ctor_set(x_953, 0, x_951);
 lean_ctor_set(x_953, 1, x_952);
-x_954 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_953, x_5, x_6, x_7, x_8, x_947);
+x_954 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_953, x_5, x_6, x_7, x_8, x_947);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -6422,7 +6422,7 @@ if (lean_is_scalar(x_1104)) {
 }
 lean_ctor_set(x_1114, 0, x_1112);
 lean_ctor_set(x_1114, 1, x_1113);
-x_1115 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_1114, x_5, x_6, x_7, x_8, x_1108);
+x_1115 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_1114, x_5, x_6, x_7, x_8, x_1108);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -7415,7 +7415,7 @@ if (lean_is_scalar(x_1274)) {
 }
 lean_ctor_set(x_1284, 0, x_1282);
 lean_ctor_set(x_1284, 1, x_1283);
-x_1285 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_1284, x_5, x_6, x_7, x_8, x_1278);
+x_1285 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_1284, x_5, x_6, x_7, x_8, x_1278);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -8427,7 +8427,7 @@ if (lean_is_scalar(x_1449)) {
 }
 lean_ctor_set(x_1459, 0, x_1457);
 lean_ctor_set(x_1459, 1, x_1458);
-x_1460 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_1459, x_5, x_6, x_7, x_8, x_1453);
+x_1460 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_1459, x_5, x_6, x_7, x_8, x_1453);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -9454,7 +9454,7 @@ if (lean_is_scalar(x_1627)) {
 }
 lean_ctor_set(x_1637, 0, x_1635);
 lean_ctor_set(x_1637, 1, x_1636);
-x_1638 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_1637, x_5, x_6, x_7, x_8, x_1631);
+x_1638 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_1637, x_5, x_6, x_7, x_8, x_1631);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -10496,7 +10496,7 @@ if (lean_is_scalar(x_1808)) {
 }
 lean_ctor_set(x_1818, 0, x_1816);
 lean_ctor_set(x_1818, 1, x_1817);
-x_1819 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_1818, x_5, x_6, x_7, x_8, x_1812);
+x_1819 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_1818, x_5, x_6, x_7, x_8, x_1812);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);

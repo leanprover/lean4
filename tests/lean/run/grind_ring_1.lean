@@ -43,3 +43,10 @@ example [CommRing α] [IsCharP α 0] (x : α) : (x + 1)*(x - 1) = x^2 → False 
 
 example [CommRing α] [IsCharP α 8] (x : α) : (x + 1)*(x - 1) = x^2 → False := by
   grind +ring
+
+/-- info: [grind.ring.assert.store] -7 * x ^ 2 + 16 * y ^ 2 + x = 0 -/
+#guard_msgs (info) in
+set_option trace.grind.ring.assert.store true in
+example (x y : Int) : x + 16*y^2 - 7*x^2 = 0 → False := by
+  fail_if_success grind +ring
+  sorry

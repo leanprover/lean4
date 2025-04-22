@@ -368,7 +368,7 @@ def setupImports
     (meta        : DocumentMeta)
     (cmdlineOpts : Options)
     (chanOut     : Std.Channel JsonRpc.Message)
-    (stx         : Syntax)
+    (stx         : TSyntax ``Parser.Module.header)
     : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then

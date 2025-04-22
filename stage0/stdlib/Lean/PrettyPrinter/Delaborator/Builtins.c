@@ -1701,6 +1701,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_coeDelaborator_delabHe
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_descend___at_Lean_PrettyPrinter_Delaborator_delabLetFun___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabNegIntCore___closed__6;
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPPLetVarTypes___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNamedPattern__1(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_parentProj_x3f(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1950,7 +1951,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedApp
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabStructureInstance___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody_x27___at___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_shouldGroupWithNext___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDIte___lambda__1___closed__4;
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabChar__1___closed__2;
 static lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_collectStructFields___lambda__1___closed__2;
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabCond__1___closed__5;
@@ -7943,7 +7943,7 @@ lean_object* x_43; lean_object* x_44; uint8_t x_45;
 lean_dec(x_5);
 lean_dec(x_4);
 x_43 = l_Std_Range_forIn_x27_loop___at_Lean_PrettyPrinter_Delaborator_getParamKinds___spec__1___lambda__1___closed__2;
-x_44 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_43, x_7, x_8, x_9, x_10, x_11);
+x_44 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_43, x_7, x_8, x_9, x_10, x_11);
 x_45 = !lean_is_exclusive(x_44);
 if (x_45 == 0)
 {

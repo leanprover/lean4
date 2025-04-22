@@ -55,6 +55,22 @@ socket is not supported. Instead, we recommend binding multiple sockets to the s
 opaque recv? (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (Option ByteArray)))
 
 /--
+Return an `IO.Promise` that resolves to `true` once `socket` has data available for reading or to
+`false` if `socket` is closed before that. Note that calling this function twice on the same
+`Socket` or in parallel with `recv?` is not supported.
+-/
+@[extern "lean_uv_tcp_wait_readable"]
+opaque waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Bool))
+
+/--
+Cancel a receive in the form of `recv?` or `waitReadable` if there is currently one pending.
+This is will resolve their returned `IO.Promise` to `none`. Note that his function is dangerous as
+improper use can cause data loss and is as such not exposed to the top level API.
+-/
+@[extern "lean_uv_tcp_cancel_recv"]
+opaque cancelRecv (socket : @& Socket) : IO Unit
+
+/--
 Binds a TCP socket to a specific address.
 -/
 @[extern "lean_uv_tcp_bind"]

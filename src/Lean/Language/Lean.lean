@@ -338,6 +338,12 @@ private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos := do
     stx := stx[1]
   stx.getPos?
 
+/-- Allow use of module system -/
+register_builtin_option experimental.module : Bool := {
+  defValue := false
+  descr := "Allow use of module system (experimental)"
+}
+
 /--
 Entry point of the Lean language processor.
 

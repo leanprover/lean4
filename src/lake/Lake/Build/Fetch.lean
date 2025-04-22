@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Util.Lift
-import Lake.Util.Error
+import Lake.Util.Log
 import Lake.Util.Cycle
 import Lake.Util.EquipT
 import Lake.Build.Info

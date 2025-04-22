@@ -333,7 +333,7 @@ private partial def eraseIndices (type : Expr) : MetaM Expr := do
     let params ← args[:info.numParams].toArray.mapM eraseIndices
     let result := mkAppN type'.getAppFn params
     let resultType ← inferType result
-    let (newIndices, _, _) ←  forallMetaTelescopeReducing resultType (.some (args.size - info.numParams))
+    let (newIndices, _, _) ←  forallMetaTelescopeReducing resultType (args.size - info.numParams)
     return mkAppN result newIndices
 
 private def withPatternElabConfig (x : TermElabM α) : TermElabM α :=

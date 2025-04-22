@@ -235,7 +235,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
     (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy))
     (opaqueProof : Bool) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
-  let (wfFix, varName) ← forallBoundedTelescope type (.some 1) fun x type => do
+  let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
     let α ← inferType x
     let u ← getLevel α
@@ -246,7 +246,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
     let wf ← if opaqueProof then mkAppM `Lean.opaqueId #[wf] else pure wf
     let varName ← x.fvarId!.getUserName -- See comment below.
     return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
-  forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (.some 2) fun xs _ => do
+  forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]!
     -- Remark: we rename `x` here to make sure we preserve the variable name in the
     -- decreasing goals when the function has only one non fixed argument.

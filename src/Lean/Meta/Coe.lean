@@ -161,7 +161,7 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
   let saved ← saveState
   if (← isDefEq m n) then
     let some monadInst ← isMonad? n | restoreState saved; return none
-    try some <$> expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, .none, monadInst, e]) catch _ => restoreState saved; return none
+    try some <$> expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => restoreState saved; return none
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`

@@ -39,7 +39,7 @@ def _root_.Lean.MVarId.existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId :
           throwTacticEx `exists mvarId "constructor must have at least two fields"
         let ctor := mkAppN (Lean.mkConst cval.name us) target.getAppArgs[:cval.numParams]
         let ctorType ← inferType ctor
-        let (mvars, _, _) ← forallMetaTelescopeReducing ctorType (.some (cval.numFields-2))
+        let (mvars, _, _) ← forallMetaTelescopeReducing ctorType (some (cval.numFields-2))
         let f := mkAppN ctor mvars
         checkApp f w
         let [mvarId] ← mvarId.apply <| mkApp f w

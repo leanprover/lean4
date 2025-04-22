@@ -169,7 +169,7 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
     -- A trick here is that `mkMAct?` makes use of `MonadEval` instances are currently available in this stage,
     -- and we do not need them to be available in the target environment.
     let mkMAct? (mc : Name) (m : Type → Type) [Monad m] [MonadEvalT m CommandElabM] (e : Expr) : TermElabM (Option EvalAction) := do
-      let some e ← observing? (mkAppOptM ``MonadEvalT.monadEval #[.none, mkConst mc, .none, .none, e])
+      let some e ← observing? (mkAppOptM ``MonadEvalT.monadEval #[none, mkConst mc, none, none, e])
         | return none
       let eType := e.appFn!.appArg!
       if ← isDefEq eType (mkConst ``Unit) then

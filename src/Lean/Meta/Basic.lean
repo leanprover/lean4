@@ -1466,7 +1466,7 @@ private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k 
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def forallBoundedTelescope (type : Expr) (maxFVars? : OptionArg Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars?.toOption k cleanupAnnotations) k
+  map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k cleanupAnnotations) k
 
 private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (maxFVars? : Option Nat)
     (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
@@ -1572,8 +1572,8 @@ def forallMetaTelescope (e : Expr) (kind := MetavarKind.natural) : MetaM (Array 
 
 /-- Similar to `forallMetaTelescope`, but if `e = forall ..xs, A`
 it will reduce `A` to construct further mvars.  -/
-def forallMetaTelescopeReducing (e : Expr) (maxMVars? : OptionArg Nat := .none) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-  forallMetaTelescopeReducingAux e (reducing := true) maxMVars?.toOption kind
+def forallMetaTelescopeReducing (e : Expr) (maxMVars? : OptionArg Nat := none) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+  forallMetaTelescopeReducingAux e (reducing := true) maxMVars? kind
 
 /-- Similar to `forallMetaTelescopeReducing`, stops
 constructing the telescope when it reaches size `maxMVars`. -/

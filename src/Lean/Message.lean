@@ -12,6 +12,7 @@ import Lean.MetavarContext
 import Lean.Environment
 import Lean.Util.PPExt
 import Lean.Util.Sorry
+import Init.Data.OptionArg
 
 namespace Lean
 
@@ -561,6 +562,7 @@ instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageDa
 instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
 instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
 instance [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
+instance [ToMessageData α] : ToMessageData (OptionArg α) := inferInstanceAs (ToMessageData (Option α))
 instance [ToMessageData α] [ToMessageData β] : ToMessageData (α × β) :=
   ⟨fun (a, b) => .paren <| toMessageData a ++ "," ++ Format.line ++ toMessageData b⟩
 instance : ToMessageData (Option Expr) := ⟨fun | none => "<not-available>" | some e => toMessageData e⟩

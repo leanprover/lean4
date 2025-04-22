@@ -23,8 +23,8 @@ def applyIteSimproc : Simp.Simproc := fun e => e.withApp fun fn args => do
     let fnApp := mkAppN fn params
     let newT := mkApp fnApp t
     let newE := mkApp fnApp e
-    let newIf ← mkAppOptM ``ite #[.none, c, instDec, newT, newE]
-    let proof ← mkAppOptM ``apply_ite #[α, .none, fnApp, c, instDec, t, e]
+    let newIf ← mkAppOptM ``ite #[none, c, instDec, newT, newE]
+    let proof ← mkAppOptM ``apply_ite #[α, none, fnApp, c, instDec, t, e]
     return .visit { expr := newIf, proof? := some proof }
   else
     return .continue
@@ -36,8 +36,8 @@ def applyCondSimproc : Simp.Simproc := fun e => e.withApp fun fn args => do
     let fnApp := mkAppN fn params
     let newT := mkApp fnApp t
     let newE := mkApp fnApp e
-    let newCond ← mkAppOptM ``cond #[.none, c, newT, newE]
-    let proof ← mkAppOptM ``Bool.apply_cond #[α, .none, fnApp, c, t, e]
+    let newCond ← mkAppOptM ``cond #[none, c, newT, newE]
+    let proof ← mkAppOptM ``Bool.apply_cond #[α, none, fnApp, c, t, e]
     return .visit { expr := newCond, proof? := some proof }
   else
     return .continue

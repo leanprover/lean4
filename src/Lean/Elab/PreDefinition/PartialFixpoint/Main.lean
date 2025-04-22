@@ -60,7 +60,7 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedParamPer
     k e
 
 def mkInstCCPOPProd (inst₁ inst₂ : Expr) : MetaM Expr := do
-  mkAppOptM ``instCCPOPProd #[.none, .none, inst₁, inst₂]
+  mkAppOptM ``instCCPOPProd #[none, none, inst₁, inst₂]
 
 def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
   -- mkAppM does not support the equivalent of (cfg := { synthAssignedInstances := false}),
@@ -69,7 +69,7 @@ def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
     | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₁}"
   let_expr monotone _ _ _ inst₂ _ := (← inferType hmono₂)
     | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₂}"
-  mkAppOptM ``PProd.monotone_mk #[.none, .none, .none, inst₁, inst₂, inst, .none, .none, hmono₁, hmono₂]
+  mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono₁, hmono₂]
 
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- We expect all functions in the clique to have `partial_fixpoint` syntax
@@ -88,8 +88,8 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           let msg := m!"failed to compile definition '{preDef.declName}' using `partial_fixpoint`"
           let w ← mkInhabitantFor msg #[] preDef.type
           let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN w xs]
-          let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[.none, instNonempty]
-          mkAppOptM ``FlatOrder.instCCPO #[.none, classicalWitness]
+          let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
+          mkAppOptM ``FlatOrder.instCCPO #[none, classicalWitness]
       mkLambdaFVars xs inst
 
   let declNames := preDefs.map (·.declName)

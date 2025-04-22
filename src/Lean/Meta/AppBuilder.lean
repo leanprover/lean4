@@ -409,14 +409,14 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (OptionArg Expr)) : Nat 
   fails because the only explicit argument `(a : α)` is not sufficient for inferring the remaining arguments,
   we would need the expected type. -/
 def mkAppOptM (constName : Name) (xs : Array (OptionArg Expr)) : MetaM Expr := do
-  withAppBuilderTrace constName (xs.map (·.toOption)) do withNewMCtxDepth do
+  withAppBuilderTrace constName xs do withNewMCtxDepth do
     let (f, fType) ← mkFun constName
     mkAppOptMAux f xs 0 #[] 0 #[] fType
 
 /-- Similar to `mkAppOptM`, but takes an `Expr` instead of a constant name. -/
 def mkAppOptM' (f : Expr) (xs : Array (OptionArg Expr)) : MetaM Expr := do
   let fType ← inferType f
-  withAppBuilderTrace f (xs.map (·.toOption)) do withNewMCtxDepth do
+  withAppBuilderTrace f xs do withNewMCtxDepth do
     mkAppOptMAux f xs 0 #[] 0 #[] fType
 
 def mkEqNDRec (motive h1 h2 : Expr) : MetaM Expr := do
@@ -469,7 +469,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=
-  mkAppOptM ``Pure.pure #[.some monad, .none, .none, .some e]
+  mkAppOptM ``Pure.pure #[some monad, none, none, some e]
 
 /--
 `mkProjection s fieldName` returns an expression for accessing field `fieldName` of the structure `s`.
@@ -530,7 +530,7 @@ def mkSome (type value : Expr) : MetaM Expr := do
 
 /-- Returns `Decidable.decide p` -/
 def mkDecide (p : Expr) : MetaM Expr :=
-  mkAppOptM ``Decidable.decide #[.some p, .none]
+  mkAppOptM ``Decidable.decide #[some p, none]
 
 /-- Returns a proof for `p : Prop` using `decide p` -/
 def mkDecideProof (p : Expr) : MetaM Expr := do
@@ -550,11 +550,11 @@ def mkLe (a b : Expr) : MetaM Expr :=
 
 /-- Returns `Inhabited.default α` -/
 def mkDefault (α : Expr) : MetaM Expr :=
-  mkAppOptM ``Inhabited.default #[.some α, .none]
+  mkAppOptM ``Inhabited.default #[some α, none]
 
 /-- Returns `@Classical.ofNonempty α _` -/
 def mkOfNonempty (α : Expr) : MetaM Expr := do
-  mkAppOptM ``Classical.ofNonempty #[.some α, .none]
+  mkAppOptM ``Classical.ofNonempty #[some α, none]
 
 /-- Returns `funext h` -/
 def mkFunExt (h : Expr) : MetaM Expr :=

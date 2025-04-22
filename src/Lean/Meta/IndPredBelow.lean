@@ -380,7 +380,7 @@ where
       let rest ← instantiateForall rest #[x]
       loop xs rest (belowIndices.push yIdx) (xIdx + 1) (yIdx + 1)
     else
-      forallBoundedTelescope rest (.some 1) fun _ rest =>
+      forallBoundedTelescope rest (some 1) fun _ rest =>
       loop xs rest belowIndices xIdx (yIdx + 1)
 
 private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Name × Expr := do

@@ -164,7 +164,7 @@ Returns a pair of the new expression and proof that they are equal.
 def numeralToCoe (e : Expr) : MetaM Simp.Result := do
   let some (α, n) := isNumeral? e | failure
   if (← whnf α).isConstOf ``Nat then failure
-  let newE ← mkAppOptM ``Nat.cast #[α, .none, toExpr n]
+  let newE ← mkAppOptM ``Nat.cast #[α, none, toExpr n]
   let some pr ← proveEqUsingDown e newE | failure
   return pr
 

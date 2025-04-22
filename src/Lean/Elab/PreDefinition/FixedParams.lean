@@ -314,7 +314,7 @@ where
   go i type xs := do
     match perm[i]? with
     | .some (Option.some fixedParamIdx) =>
-      forallBoundedTelescope type (.some 1) (cleanupAnnotations := true) fun xs' type => do
+      forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun xs' type => do
         assert! xs'.size = 1
         let x := xs'[0]!
         assert! !(← inferType x).hasLooseBVars
@@ -345,7 +345,7 @@ where
         assert! fixedParamIdx < xs.size
         go mask (← Meta.instantiateForall type #[xs[fixedParamIdx]!])
      | .none::mask, type =>
-        forallBoundedTelescope type (.some 1) fun ys type => do
+        forallBoundedTelescope type (some 1) fun ys type => do
           assert! ys.size = 1
           mkForallFVars ys (← go mask type)
 

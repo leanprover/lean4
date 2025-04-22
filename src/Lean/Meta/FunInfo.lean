@@ -56,7 +56,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
   checkFunInfoCache fn maxArgs? do
     let fnType ← inferType fn
     withAtLeastTransparency TransparencyMode.default do
-      forallBoundedTelescope fnType maxArgs?.toOptionArg fun fvars type => do
+      forallBoundedTelescope fnType maxArgs? fun fvars type => do
         let mut paramInfo := #[]
         let mut higherOrderOutParams : FVarIdSet := {}
         for h : i in [:fvars.size] do

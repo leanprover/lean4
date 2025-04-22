@@ -303,7 +303,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
             mkArrow eTypeAbst dummyGoal)
           (onAlt := fun altType alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
-              forallBoundedTelescope altType (.some 1) fun newIH' _goal' => do
+              forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
                 let altIHs ← M.exec <| foldAndCollect oldIH' newIH'.fvarId! isRecCall alt
                 let altIH ← PProdN.mk 0 altIHs
@@ -598,7 +598,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => M2.branch do
           lambdaTelescope1 alt fun oldIH' alt => do
-            forallBoundedTelescope expAltType (.some 1) fun newIH' goal' => do
+            forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
               let toErase' := toErase ++ #[oldIH', newIH'.fvarId!]
               let toClear' := toClear ++ matcherApp.discrs.filterMap (·.fvarId?)
@@ -694,7 +694,7 @@ where doRealize (inductName : Name) := do
   let e := info.value
   let e ← lambdaTelescope e fun params body => do
     if body.isAppOfArity ``WellFounded.fix 5 then
-      forallBoundedTelescope (← inferType body) (.some 1) fun xs _ => do
+      forallBoundedTelescope (← inferType body) (some 1) fun xs _ => do
         unless xs.size = 1 do
           throwError "functional induction: Failed to eta-expand{indentExpr e}"
         mkLambdaFVars (params ++ xs) (mkAppN body xs)

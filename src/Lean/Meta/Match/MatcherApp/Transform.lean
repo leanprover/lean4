@@ -22,7 +22,7 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
     | Expr.forallE _ d b _ =>
       let (alt, refined) ← forallBoundedTelescope d numParams fun xs d => do
         let alt ← try instantiateLambda alt xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
-        forallBoundedTelescope d (.some 1) fun x _ => do
+        forallBoundedTelescope d (some 1) fun x _ => do
           let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
           let refined ← if refined then
             pure refined

@@ -836,7 +836,7 @@ def registerLevelMVarErrorInfo (levelMVarErrorInfo : LevelMVarErrorInfo) : TermE
   modify fun s => { s with levelMVarErrorInfos := levelMVarErrorInfo :: s.levelMVarErrorInfos }
 
 def registerLevelMVarErrorExprInfo (expr : Expr) (ref : Syntax) (msgData? : OptionArg MessageData := .none) : TermElabM Unit := do
-  registerLevelMVarErrorInfo { lctx := (← getLCtx), expr, ref, msgData? := msgData?.toOption }
+  registerLevelMVarErrorInfo { lctx := (← getLCtx), expr, ref, msgData? := msgData? }
 
 def exposeLevelMVars (e : Expr) : MetaM Expr :=
   Core.transform e
@@ -1133,7 +1133,7 @@ def ensureHasType (expectedType? : Option Expr) (e : Expr)
   if (← isDefEq (← inferType e) expectedType) then
     return e
   else
-    mkCoe expectedType e f?.toOption errorMsgHeader?.toOption
+    mkCoe expectedType e f? errorMsgHeader?
 
 def ensureHasTypeWithErrorMsgs (expectedType? : Option Expr) (e : Expr)
     (mkImmedErrorMsg : (errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData)
@@ -1719,8 +1719,8 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expe
 def mkInstMVar (type : Expr) (extraErrorMsg? : OptionArg MessageData := .none) : TermElabM Expr := do
   let mvar ← mkFreshExprMVar (some type) MetavarKind.synthetic
   let mvarId := mvar.mvarId!
-  unless (← synthesizeInstMVarCore mvarId (extraErrorMsg? := extraErrorMsg?.toOption)) do
-    registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?.toOption)
+  unless (← synthesizeInstMVarCore mvarId (extraErrorMsg? := extraErrorMsg?)) do
+    registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?)
   return mvar
 
 /--

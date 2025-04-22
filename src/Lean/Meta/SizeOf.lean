@@ -195,9 +195,9 @@ def mkSizeOfSpecLemmaInstance (ctorApp : Expr) : MetaM Expr :=
     let lemmaName  := mkSizeOfSpecLemmaName ctorInfo.name
     let lemmaInfo  ← getConstInfo lemmaName
     let lemmaArity ← forallTelescopeReducing lemmaInfo.type fun xs _ => return xs.size
-    let lemmaArgMask := ctorParams.toArray.map OptionArg.some
-    let lemmaArgMask := lemmaArgMask ++ .replicate (lemmaArity - ctorInfo.numParams - ctorInfo.numFields) (.none (α := Expr))
-    let lemmaArgMask := lemmaArgMask ++ ctorFields.toArray.map .some
+    let lemmaArgMask := ctorParams.toArray.map some
+    let lemmaArgMask := lemmaArgMask ++ .replicate (lemmaArity - ctorInfo.numParams - ctorInfo.numFields) (none (α := Expr))
+    let lemmaArgMask := lemmaArgMask ++ ctorFields.toArray.map some
     mkAppOptM lemmaName lemmaArgMask
 
 /-! # SizeOf spec theorem for nested inductive types -/

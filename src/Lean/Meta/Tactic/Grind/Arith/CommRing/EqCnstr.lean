@@ -66,7 +66,7 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := fal
     | none => p.findSimp? unitOnly
 
 /-- Simplifies `c` using `c'`. -/
-def simplify1 (c c' : EqCnstr) : RingM (Option EqCnstr) := do
+def EqCnstr.simplify1 (c c' : EqCnstr) : RingM (Option EqCnstr) := do
   let some r := c'.p.simp? c.p | return none
   let c := { c with
     p := r.p
@@ -76,27 +76,27 @@ def simplify1 (c c' : EqCnstr) : RingM (Option EqCnstr) := do
   return some c
 
 /-- Keep simplifying `c` with `c'` until it is not applicable anymore. -/
-def simplifyWith (c c' : EqCnstr) : RingM EqCnstr := do
+def EqCnstr.simplifyWith (c c' : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
     checkSystem "ring"
-    let some r ← simplify1 c c' | return c
+    let some r ← c.simplify1 c' | return c
     trace_goal[grind.debug.ring.simp] "simplifying{indentD (← c.denoteExpr)}\nwith{indentD (← c'.denoteExpr)}"
     c := r
   return c
 
 /-- Simplify the given equation constraint using the current basis. -/
-def simplify (c : EqCnstr) : RingM EqCnstr := do
+def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
     let some c' ← c.p.findSimp? |
       trace_goal[grind.debug.ring.simp] "simplified{indentD (← c.denoteExpr)}"
       return c
-    c ← simplifyWith c c'
+    c ← c.simplifyWith c'
   return c
 
 /-- Returns `true` if `c.p` is the constant polynomial. -/
-def checkConstant (c : EqCnstr) : RingM Bool := do
+def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
   let .num k := c.p | return false
   if k == 0 then
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
@@ -112,14 +112,14 @@ Simplifies and checks whether the resulting constraint is trivial (i.e., `0 = 0`
 or inconsistent (i.e., `k = 0` where `k % c != 0` for a comm-ring with characteristic `c`),
 and returns `none`. Otherwise, returns the simplified constraint.
 -/
-def simplifyAndCheck (c : EqCnstr) : RingM (Option EqCnstr) := do
-  let c ← simplify c
-  if (← checkConstant c) then
+def EqCnstr.simplifyAndCheck (c : EqCnstr) : RingM (Option EqCnstr) := do
+  let c ← c.simplify
+  if (← c.checkConstant) then
     return none
   else
     return some c
 
-def simplifyBasisWith (c : EqCnstr) : RingM Unit := do
+def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
   let .add _ m _ := c.p | return ()
   let .mult pw _ := m | return ()
   let x := pw.x
@@ -127,8 +127,8 @@ def simplifyBasisWith (c : EqCnstr) : RingM Unit := do
   let cs ← cs.filterMapM fun c' => do
     let .add _ m' _ := c'.p | return none
     if m.divides m' then
-      let c' ← simplifyWith c' c
-      if (← checkConstant c') then
+      let c' ← c'.simplifyWith c'
+      if (← c'.checkConstant) then
         return none
       else
         return some c'
@@ -136,31 +136,31 @@ def simplifyBasisWith (c : EqCnstr) : RingM Unit := do
       return some c'
   modifyRing fun s => { s with varToBasis := s.varToBasis.set x cs }
 
-def addToQueue (c : EqCnstr) : RingM Unit := do
+def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
   modifyRing fun s => { s with queue := s.queue.insert c }
 
-def superposeWith (c : EqCnstr) : RingM Unit := do
+def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
   trace[grind.ring.superpose] "{← c.denoteExpr}"
   return ()
 
-def addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
-  simplifyBasisWith c
-  superposeWith c
+def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
+  c.simplifyBasis
+  c.superposeWith
   let .add _ m _ := c.p | return ()
   let .mult pw _ := m | return ()
   modifyRing fun s => { s with varToBasis := s.varToBasis.modify pw.x (c :: ·) }
 
-def addToBasis (c : EqCnstr) : RingM Unit := do
-  let some c ← simplifyAndCheck c | return ()
-  addToBasisAfterSimp c
+def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
+  let some c ← c.simplifyAndCheck | return ()
+  c.addToBasisAfterSimp
 
 def addNewEq (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
-  let some c ← simplifyAndCheck c | return ()
+  let some c ← c.simplifyAndCheck | return ()
   if c.p.degree == 1 then
-    addToBasisAfterSimp c
+    c.addToBasisAfterSimp
   else
-    addToQueue c
+    c.addToQueue
 
 @[export lean_process_ring_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do

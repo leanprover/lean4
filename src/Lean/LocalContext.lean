@@ -191,7 +191,7 @@ def mkLocalDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type 
   | { fvarIdToDecl := map, decls := decls, auxDeclToFullName } =>
     let idx  := decls.size
     let decl := LocalDecl.cdecl idx fvarId userName type bi kind
-    { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl, auxDeclToFullName }
+    { fvarIdToDecl := map.insert fvarId decl, decls := decls.push (some decl), auxDeclToFullName }
 
 -- `mkLocalDecl` without `kind`
 @[export lean_local_ctx_mk_local_decl]
@@ -204,7 +204,7 @@ def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : 
   | { fvarIdToDecl := map, decls := decls, auxDeclToFullName } =>
     let idx  := decls.size
     let decl := LocalDecl.ldecl idx fvarId userName type value nonDep kind
-    { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl, auxDeclToFullName }
+    { fvarIdToDecl := map.insert fvarId decl, decls := decls.push (some decl), auxDeclToFullName }
 
 @[export lean_local_ctx_mk_let_decl]
 private def mkLetDeclExported (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) : LocalContext :=
@@ -217,7 +217,7 @@ def mkAuxDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : 
     let idx  := decls.size
     let decl := LocalDecl.cdecl idx fvarId userName type .default .auxDecl
     let auxDeclToFullName := auxDeclToFullName.insert fvarId fullName
-    { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl, auxDeclToFullName }
+    { fvarIdToDecl := map.insert fvarId decl, decls := decls.push (some decl), auxDeclToFullName }
 
 /-- Low level API for adding a local declaration.
 Do not use directly. -/
@@ -227,7 +227,7 @@ def addDecl (lctx : LocalContext) (newDecl : LocalDecl) : LocalContext :=
     let idx     := decls.size
     let newDecl := newDecl.setIndex idx
     { fvarIdToDecl := map.insert newDecl.fvarId newDecl
-      decls        := decls.push newDecl
+      decls        := decls.push (some newDecl)
       auxDeclToFullName }
 
 @[export lean_local_ctx_find]
@@ -320,7 +320,7 @@ def setUserName (lctx : LocalContext) (fvarId : FVarId) (userName : Name) : Loca
   let decl := lctx.get! fvarId
   let decl := decl.setUserName userName
   { fvarIdToDecl      := lctx.fvarIdToDecl.insert decl.fvarId decl,
-    decls             := lctx.decls.set decl.index decl,
+    decls             := lctx.decls.set decl.index (some decl),
     auxDeclToFullName := lctx.auxDeclToFullName }
 
 def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
@@ -331,7 +331,7 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
     | some decl =>
       let decl := decl.setUserName toName;
       { fvarIdToDecl := map.insert decl.fvarId decl,
-        decls        := decls.set decl.index decl,
+        decls        := decls.set decl.index (some decl),
         auxDeclToFullName }
 
 /--
@@ -346,7 +346,7 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
     | some decl =>
       let decl := f decl
       { fvarIdToDecl := map.insert decl.fvarId decl
-        decls        := decls.set decl.index decl
+        decls        := decls.set decl.index (some decl)
         auxDeclToFullName }
 
 /--

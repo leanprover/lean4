@@ -26,7 +26,7 @@ builtin_initialize registerTraceClass `Tactic.rewrites.lemmas
 -- in `Lean.Meta.Tactic.Rewrite` and we want `heq`.
 def rewriteResultLemma (r : RewriteResult) : Option Expr :=
   if r.eqProof.isAppOfArity ``congrArg 6 then
-    r.eqProof.getArg! 5
+    some <| r.eqProof.getArg! 5
   else
     none
 
@@ -140,7 +140,7 @@ def dischargableWithRfl? (mctx : MetavarContext) (e : Expr) : MetaM Bool := do
   try
     withoutModifyingState <| withMCtx mctx do
       -- We use `withReducible` here to follow the behaviour of `rw`.
-      withReducible (← mkFreshExprMVar e).mvarId!.refl
+      withReducible (← mkFreshExprMVar (some e)).mvarId!.refl
       pure true
   catch _e =>
     pure false
@@ -279,8 +279,8 @@ def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult)
     (checkState? : Option Tactic.SavedState := .none) : TacticM Unit := do
   withMCtx r.mctx do
     Tactic.TryThis.addRewriteSuggestion ref [(r.expr, r.symm)]
-      (type? := r.newGoal.toLOption) (origSpan? := ← getRef)
-      (checkState? := checkState?.getD (← saveState))
+      (type? := r.newGoal.toLOption) (origSpan? := some (← getRef))
+      (checkState? := some <| checkState?.getD (← saveState))
 
 structure RewriteResultConfig where
   stopAtRfl : Bool

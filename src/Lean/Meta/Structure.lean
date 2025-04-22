@@ -132,9 +132,9 @@ def etaStruct? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
   let some x ← getProjectedExpr ctor fVal.induct params 0 args[fVal.numParams]! none | return none
   for i in [1 : fVal.numFields] do
     let arg := args[fVal.numParams + i]!
-    let some x' ← getProjectedExpr ctor fVal.induct params i arg x | return none
+    let some x' ← getProjectedExpr ctor fVal.induct params i arg (some x) | return none
     unless x' == x do return none
-  return x
+  return some x
 where
   sameParams (params1 params2 : Array Expr) : MetaM Bool := withNewMCtxDepth do
     if params1.size == params2.size then
@@ -156,7 +156,7 @@ where
         let ety ← whnf (← inferType e)
         let params' := ety.getAppArgs
         if ← sameParams params params' then
-          return x
+          return some x
       return none
     if let .const fn _ := e.getAppFn then
       if let some info ← getProjectionFnInfo? fn then
@@ -165,7 +165,7 @@ where
           if (x? |>.map (· == x) |>.getD true) then
             let params' := e.appFn!.getAppArgs
             if ← sameParams params params' then
-              return e.appArg!
+              return some e.appArg!
     return none
 
 /--

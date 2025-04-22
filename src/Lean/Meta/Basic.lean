@@ -12,6 +12,7 @@ import Lean.Util.ReplaceExpr
 import Lean.Util.MonadBacktrack
 import Lean.Compiler.InlineAttrs
 import Lean.Meta.TransparencyMode
+import Init.Data.OptionArg
 
 /-!
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
@@ -828,7 +829,7 @@ def mkFreshExprMVar (type? : Option Expr) (kind := MetavarKind.natural) (userNam
 
 def mkFreshTypeMVar (kind := MetavarKind.natural) (userName := Name.anonymous) : MetaM Expr := do
   let u ← mkFreshLevelMVar
-  mkFreshExprMVar (mkSort u) kind userName
+  mkFreshExprMVar (some (mkSort u)) kind userName
 
 /-- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
    the metavar using this method. -/
@@ -842,7 +843,7 @@ def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind 
   | some type => mkFreshExprMVarWithIdCore mvarId type kind userName
   | none      => do
     let u ← mkFreshLevelMVar
-    let type ← mkFreshExprMVar (mkSort u)
+    let type ← mkFreshExprMVar (some (mkSort u))
     mkFreshExprMVarWithIdCore mvarId type kind userName
 
 def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
@@ -1099,7 +1100,7 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
     { ctx with config, configKey }
 
 @[inline] def withCanUnfoldPred (p : Config → ConstantInfo → CoreM Bool) : n α → n α :=
-  mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := p })
+  mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := some p })
 
 @[inline] def withIncSynthPending : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })
@@ -1464,8 +1465,8 @@ private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k 
 
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
-def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k cleanupAnnotations) k
+def forallBoundedTelescope (type : Expr) (maxFVars? : OptionArg Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+  map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars?.toOption k cleanupAnnotations) k
 
 private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (maxFVars? : Option Nat)
     (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
@@ -1544,7 +1545,7 @@ where
       | .forallE n d b bi =>
         let d  := d.instantiateRevRange j mvars.size mvars
         let k  := if bi.isInstImplicit then  MetavarKind.synthetic else kind
-        let mvar ← mkFreshExprMVar d k n
+        let mvar ← mkFreshExprMVar (some d) k n
         let mvars := mvars.push mvar
         let bis   := bis.push bi
         process mvars bis j b
@@ -1571,8 +1572,8 @@ def forallMetaTelescope (e : Expr) (kind := MetavarKind.natural) : MetaM (Array 
 
 /-- Similar to `forallMetaTelescope`, but if `e = forall ..xs, A`
 it will reduce `A` to construct further mvars.  -/
-def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-  forallMetaTelescopeReducingAux e (reducing := true) maxMVars? kind
+def forallMetaTelescopeReducing (e : Expr) (maxMVars? : OptionArg Nat := .none) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+  forallMetaTelescopeReducingAux e (reducing := true) maxMVars?.toOption kind
 
 /-- Similar to `forallMetaTelescopeReducing`, stops
 constructing the telescope when it reaches size `maxMVars`. -/
@@ -1593,7 +1594,7 @@ where
       match type with
       | .lam _ d b bi =>
         let d     := d.instantiateRevRange j mvars.size mvars
-        let mvar ← mkFreshExprMVar d
+        let mvar ← mkFreshExprMVar (some d)
         let mvars := mvars.push mvar
         let bis   := bis.push bi
         process mvars bis j b
@@ -2295,7 +2296,7 @@ private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos 
     BaseIO Language.SnapshotTree := do
   let msgLog := snap.element.diagnostics.msgLog
   let msgLog := { msgLog with unreported := msgLog.unreported.map fun diag =>
-      { diag with pos, endPos } }
+      { diag with pos, endPos := some endPos } }
   return {
     element.diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgLog)
     children := (← snap.children.mapM fun task => return { task with

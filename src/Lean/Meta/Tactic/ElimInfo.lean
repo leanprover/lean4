@@ -115,10 +115,10 @@ where
             throwError "target{indentExpr target}\n{← mkHasTypeButIsExpectedMsg targetType d}"
           collect (b.instantiate1 target) (argIdx+1) (targetIdx+1) implicits (targets'.push target)
         else
-          let implicitTarget ← mkFreshExprMVar (type? := d) (userName := n)
+          let implicitTarget ← mkFreshExprMVar (type? := some d) (userName := n)
           collect (b.instantiate1 implicitTarget) (argIdx+1) targetIdx (implicits.push implicitTarget.mvarId!) (targets'.push implicitTarget)
       else
-        collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx implicits targets'
+        collect (b.instantiate1 (← mkFreshExprMVar (some d))) (argIdx+1) targetIdx implicits targets'
     | _ =>
       unless targetIdx = targets.size do
         throwError "extra targets for '{elimInfo.elimExpr}'"

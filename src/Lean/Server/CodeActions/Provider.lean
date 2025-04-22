@@ -125,7 +125,7 @@ where
             (if inner then some (.tactic ((stx[i], 0) :: stack)) else none)
           then
             if childRes.isSome then failure
-            childRes := merge mainRes child
+            childRes := some (merge mainRes child)
       return childRes <|> mainRes
     else
       let mut childRes := none
@@ -134,7 +134,7 @@ where
         if let some _ := visit stx[i] prev? then
           if let some child ← go ((stx, i) :: stack) stx[i] prev? then
             if childRes.isSome then failure
-            childRes := child
+            childRes := some child
         prev? := stx[i].getTailPos? true <|> prev?
       return childRes
 

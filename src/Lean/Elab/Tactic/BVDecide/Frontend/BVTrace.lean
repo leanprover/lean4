@@ -56,7 +56,7 @@ def evalBvTrace : Tactic := fun
     match trace.lratCert with
     | none =>
       let normalizeStx ← `(tactic| bv_normalize)
-      TryThis.addSuggestion tk normalizeStx (origSpan? := ← getRef)
+      TryThis.addSuggestion tk normalizeStx (origSpan? := some (← getRef))
     | some .. =>
       if ctx.config.trimProofs then
         let lratPath := (← BVCheck.getSrcDir) / lratFile
@@ -64,7 +64,7 @@ def evalBvTrace : Tactic := fun
         let trimmed ← IO.ofExcept <| trim proof
         dumpLRATProof lratPath trimmed cfg.binaryProofs
       let bvCheckStx ← `(tactic| bv_check $cfgStx:optConfig $(quote lratFile.toString))
-      TryThis.addSuggestion tk bvCheckStx (origSpan? := ← getRef)
+      TryThis.addSuggestion tk bvCheckStx (origSpan? := some (← getRef))
   | _ => throwUnsupportedSyntax
 
 end Frontend.BVTrace

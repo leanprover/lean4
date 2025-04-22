@@ -91,7 +91,7 @@ partial def main (args : List String) : IO Unit := do
       textDocument? := some {
         completion? := some {
           completionItem? := some {
-            insertReplaceSupport? := true
+            insertReplaceSupport? := some true
           }
         }
       }
@@ -155,7 +155,7 @@ partial def main (args : List String) : IO Unit := do
             let params : DidChangeTextDocumentParams := {
               textDocument := {
                 uri      := uri
-                version? := versionNo
+                version? := some versionNo
               }
               contentChanges := #[TextDocumentContentChangeEvent.rangeChange {
                 start := pos

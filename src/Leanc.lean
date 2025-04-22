@@ -30,7 +30,7 @@ Interesting options:
   -- In order to suppress these we set the MACOSX_DEPLOYMENT_TARGET variable into the far future.
   let env := match (← IO.getEnv "MACOSX_DEPLOYMENT_TARGET") with
     | some _ => #[]
-    | none   => #[("MACOSX_DEPLOYMENT_TARGET", "99.0")]
+    | none   => #[("MACOSX_DEPLOYMENT_TARGET", some "99.0")]
 
   -- let compileOnly := args.contains "-c"
   let linkStatic := !(args.contains "-shared" || args.contains "-leanshared")

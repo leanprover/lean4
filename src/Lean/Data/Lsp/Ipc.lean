@@ -109,7 +109,7 @@ where
       else loop
     | Message.notification "textDocument/publishDiagnostics" (some param) =>
       match fromJson? (toJson param) with
-      | Except.ok diagnosticParam => return (← loop).getD ⟨"textDocument/publishDiagnostics", diagnosticParam⟩
+      | Except.ok diagnosticParam => return some ((← loop).getD ⟨"textDocument/publishDiagnostics", diagnosticParam⟩)
       | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
 

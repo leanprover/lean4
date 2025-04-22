@@ -93,7 +93,7 @@ def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
       pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreGlobalServerArgs)
     else
       IO.eprintln "warning: package configuration has errors, falling back to plain `lean --server`"
-      pure (config.lakeEnv.baseVars.push (invalidConfigEnvVar, log.toString), #[])
+      pure (config.lakeEnv.baseVars.push (invalidConfigEnvVar, some log.toString), #[])
   (← IO.Process.spawn {
     cmd := config.lakeEnv.lean.lean.toString
     args := #["--server"] ++ moreServerArgs ++ args

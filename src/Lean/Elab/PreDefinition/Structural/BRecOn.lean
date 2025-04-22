@@ -223,7 +223,7 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
   lambdaTelescope value fun xs value => do
     let (indicesMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let FType ← instantiateForall FType indicesMajorArgs
-    forallBoundedTelescope FType (some 1) fun below _ => do
+    forallBoundedTelescope FType (.some 1) fun below _ => do
       -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
       -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
       let below := below[0]!
@@ -270,7 +270,7 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
   check brecOn
   let brecOnType ← inferType brecOn
   -- Skip the indices and major argument
-  let packedFTypes ← forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
+  let packedFTypes ← forallBoundedTelescope brecOnType (.some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
     -- And return the types of the next arguments
     arrowDomainsN numTypeFormers brecOnType
 

@@ -222,7 +222,7 @@ where
             }
             frameTable := thread.frameTable.push {
               func := thread.funcMap.size
-              category := category
+              category := some category
             }
             funcMap := thread.funcMap.insert strIdx thread.funcMap.size })
       let frameIdx := funcIdx

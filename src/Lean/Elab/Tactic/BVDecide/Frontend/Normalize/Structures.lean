@@ -63,7 +63,7 @@ partial def structuresPass : Pass where
   name := `structures
   run' goal := do
     let interesting := (← PreProcessM.getTypeAnalysis).interestingStructures
-    if interesting.isEmpty then return goal
+    if interesting.isEmpty then return some goal
     let goals ← goal.casesRec fun decl => do
       if decl.isLet || decl.isImplementationDetail then
         return false
@@ -96,7 +96,7 @@ where
           (simprocs := #[simprocs])
           (fvarIdsToSimp := ← getPropHyps)
       let some (_, newGoal) := result? | return none
-      return newGoal
+      return some newGoal
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

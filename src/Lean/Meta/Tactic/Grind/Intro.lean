@@ -197,7 +197,7 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List G
     if let .const declName _ := type.getAppFn then
       saveCases declName true
     let mvarIds ← cases goal.mvarId (mkFVar fvarId)
-    return mvarIds.map fun mvarId => { goal with mvarId }
+    return some <| mvarIds.map fun mvarId => { goal with mvarId }
   else
     return none
 
@@ -260,7 +260,7 @@ def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := f
 def assertNext : GrindTactic := fun goal => do
   let some (fact, newRawFacts) := goal.newRawFacts.dequeue?
     | return none
-  assertAt fact.proof fact.prop fact.generation { goal with newRawFacts }
+  some <$> assertAt fact.proof fact.prop fact.generation { goal with newRawFacts }
 
 /-- Asserts all facts in the `goal` fact queue. -/
 partial def assertAll : GrindTactic :=

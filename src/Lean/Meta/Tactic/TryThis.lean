@@ -121,9 +121,9 @@ apply the replacement.
       let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
       result := result.push {
         eager.title := title
-        eager.kind? := "quickfix"
+        eager.kind? := some "quickfix"
         -- Only make the first option preferred
-        eager.isPreferred? := if i = 0 then true else none
+        eager.isPreferred? := if i = 0 then some true else none
         eager.edit? := some <| .ofTextEdit doc.versionedIdentifier { range, newText }
       }
     result
@@ -322,7 +322,7 @@ instance : Coe SuggestionText Suggestion where
 
 /-- Delaborate `e` into a suggestion suitable for use by `refine`. -/
 def delabToRefinableSuggestion (e : Expr) : MetaM Suggestion :=
-  return { suggestion := ← delabToRefinableSyntax e, messageData? := e }
+  return { suggestion := ← delabToRefinableSyntax e, messageData? := some e }
 
 /-! # Widget hooks -/
 
@@ -516,8 +516,8 @@ private def addExactSuggestionCore (addSubgoalsMsg : Bool) (checkState? : Option
       -- TODO: use a MessageData.ofExpr instead of rendering to string
       let e ← withExposedNames <| PrettyPrinter.ppExpr (← instantiateMVars (← g.getType))
       str := str ++ Format.pretty ("\n⊢ " ++ e)
-    pure str
-  return .inl { suggestion := suggestion, postInfo?, messageData? := messageData }
+    pure (some str)
+  return .inl { suggestion := suggestion, postInfo?, messageData? := some messageData }
 
 /-- Add an `exact e` or `refine e` suggestion.
 
@@ -655,7 +655,7 @@ def addHaveSuggestion (ref : Syntax) (h? : Option Name) (t? : Option Expr) (e : 
         return
     tac := tac'
     msg := msg'
-  addSuggestion ref (s := { suggestion := tac, messageData? := msg }) origSpan?
+  addSuggestion ref (s := { suggestion := tac, messageData? := some msg }) origSpan?
 
 open Lean.Parser.Tactic
 open Lean.Syntax
@@ -718,5 +718,5 @@ def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
         return
     tac := tac'
     tacMsg := tacMsg'
-  addSuggestion ref (s := { suggestion := tac, postInfo? := extraStr, messageData? := tacMsg ++ extraMsg })
+  addSuggestion ref (s := { suggestion := tac, postInfo? := some extraStr, messageData? := some <| tacMsg ++ extraMsg })
     origSpan?

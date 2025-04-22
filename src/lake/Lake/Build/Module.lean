@@ -273,7 +273,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
     addTrace srcTrace
     setTraceCaption s!"{mod.name.toString}:leanArts"
     let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
-      compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
+      compileLeanModule mod.leanFile (some mod.oleanFile) (some mod.ileanFile) (some mod.cFile) mod.bcFile?
         (← getLeanPath) mod.rootDir dynlibs plugins
         (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
       mod.clearOutputHashes

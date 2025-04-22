@@ -255,11 +255,11 @@ def Workspace.updateToolchain
     let some tc := tc?
       | return (dep.name, depTc?, tcs)
     if depTc ≤ tc then
-      return (src, tc, tcs)
+      return (src, some tc, tcs)
     else if tc < depTc then
-      return (dep.name, depTc, tcs)
+      return (dep.name, some depTc, tcs)
     else
-      return (src, tc, tcs.push (dep.name, depTc))
+      return (src, some tc, tcs.push (dep.name, depTc))
   if 0 < tcs.size then
     let s := "toolchain not updated; multiple toolchain candidates:"
     let s := if let some tc := tc? then s!"{s}\n  {tc}\n    from {src}" else s
@@ -369,12 +369,12 @@ def Workspace.writeManifest
   let manifestEntries := ws.packages.foldl (init := #[]) fun arr pkg =>
     match entries.find? pkg.name with
     | some entry => arr.push <|
-      entry.setManifestFile pkg.relManifestFile |>.setConfigFile pkg.relConfigFile
+      entry.setManifestFile (some pkg.relManifestFile) |>.setConfigFile pkg.relConfigFile
     | none => arr -- should only be the case for the root
   let manifest : Manifest := {
     name := ws.root.name
     lakeDir := ws.relLakeDir
-    packagesDir? := ws.relPkgsDir
+    packagesDir? := some ws.relPkgsDir
     packages := manifestEntries
   }
   manifest.save ws.manifestFile

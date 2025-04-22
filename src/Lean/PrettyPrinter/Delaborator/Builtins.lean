@@ -235,7 +235,7 @@ def appFieldNotationCandidate? : DelabM (Option (Nat × Name)) := do
   -- We also exclude metavariable applications (these are delayed assignments for example)
   if obj.getAppFn.isMVar then
     return none
-  return (idx, field)
+  return some (idx, field)
 
 /--
 Consumes projections to parent structures, and runs `d` in the resulting context.
@@ -342,9 +342,9 @@ def AppImplicitArg.canUnexpand : AppImplicitArg → Bool
 /-- If the argument has associated syntax, returns it. -/
 def AppImplicitArg.syntax? : AppImplicitArg → Option Syntax
   | .skip => none
-  | .regular s => s
-  | .optional _ s => s
-  | .named s => s
+  | .regular s => some s
+  | .optional _ s => some s
+  | .named s => some s
 
 /--
 Delaborates a function application in the standard mode, where implicit arguments are generally not
@@ -593,7 +593,7 @@ private partial def collectStructFields
       unless ← getPPOption getPPStructureInstancesDefaults do
         if let some defFn := getEffectiveDefaultFnForField? (← getEnv) structName fieldName then
           -- Use `withNewMCtxDepth` to prevent delaborator from solving metavariables.
-          if let some (_, defValue) ← withNewMCtxDepth <| instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldValues.find?) then
+          if let some (_, defValue) ← withNewMCtxDepth <| instantiateStructDefaultValueFn? defFn (some levels) params (pure ∘ fieldValues.find?) then
             if ← withReducible <| withNewMCtxDepth <| isDefEq defValue (← getExpr) then
               -- Default value matches, skip the field.
               return (i + 1, fieldValues, fields)
@@ -661,7 +661,7 @@ def delabStructureInstance : Delab := do
     let params := args[0:s.numParams]
     let (_, fields) ← collectStructFields s.induct levels params #[] {} s
     let tyStx? : Option Term ← withType do
-      if ← getPPOption getPPStructureInstanceType then delab else pure none
+      if ← getPPOption getPPStructureInstanceType then some <$> delab else pure none
     withFnRefWhenTagAppFns `({ $fields,* $[: $tyStx?]? })
 
 
@@ -766,7 +766,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
           -- Though, by using the same position we can use the body annotations
           let piStx ← withTheReader SubExpr (fun cfg => { cfg with expr := piMotive }) delab
           let named ← getPPOption getPPAnalysisNamedArg
-          return { st with motive := (piStx, lamMotive), motiveNamed := named }
+          return { st with motive := some (piStx, lamMotive), motiveNamed := named }
         else if st.discrs.size < st.info.numDiscrs then
           return { st with discrs := st.discrs.push (← delab) }
         else if st.alts.size < st.info.numAlts then
@@ -829,7 +829,7 @@ where
       if let some name := hNames?[i]! then
         let n' ← getUnusedName name body
         withLocalDecl n' .default (.sort levelZero) (kind := .implDetail) fun _ =>
-          withDummyBinders hNames? body m (acc.push n')
+          withDummyBinders hNames? body m (acc.push (some n'))
       else
         withDummyBinders hNames? body m (acc.push none)
     else
@@ -1213,7 +1213,7 @@ def delabDIte : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNota
   guard $ (← getExpr).getAppNumArgs == 5
   let c ← withAppFn $ withAppFn $ withAppFn $ withAppArg delab
   let (t, h) ← withAppFn $ withAppArg $ delabBranch none
-  let (e, _) ← withAppArg $ delabBranch h
+  let (e, _) ← withAppArg $ delabBranch (some h)
   `(if $(mkIdent h):ident : $c then $t else $e)
 where
   delabBranch (h? : Option Name) : DelabM (Syntax × Name) := do
@@ -1387,8 +1387,8 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
             -- Set `explicit` to false so that the first hover sets `pp.sorrySource` to true in `Lean.Widget.ppExprTagged`
             pure (← `(sorry), false)
         let stx ← annotateCurPos stx
-        addDelabTermInfo (← getPos) stx (← getExpr) (explicit := explicit) (location? := loc)
-          (docString? := "This is a `sorry` term associated to a source position. Use 'Go to definition' to go there.")
+        addDelabTermInfo (← getPos) stx (← getExpr) (explicit := explicit) (location? := some loc)
+          (docString? := some "This is a `sorry` term associated to a source position. Use 'Go to definition' to go there.")
         return stx
       else
         `(sorry)

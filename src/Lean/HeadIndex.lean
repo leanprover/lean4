@@ -66,14 +66,14 @@ where
   ```
 -/
 private def toHeadIndexQuick? : Expr → Option HeadIndex
-  | mvar mvarId             => HeadIndex.mvar mvarId
-  | fvar fvarId             => HeadIndex.fvar fvarId
-  | const constName _       => HeadIndex.const constName
-  | proj structName idx _   => HeadIndex.proj structName idx
-  | sort _                  => HeadIndex.sort
-  | lam ..                  => HeadIndex.lam
-  | forallE ..              => HeadIndex.forallE
-  | lit v                   => HeadIndex.lit v
+  | mvar mvarId             => some (HeadIndex.mvar mvarId)
+  | fvar fvarId             => some (HeadIndex.fvar fvarId)
+  | const constName _       => some (HeadIndex.const constName)
+  | proj structName idx _   => some (HeadIndex.proj structName idx)
+  | sort _                  => some (HeadIndex.sort)
+  | lam ..                  => some HeadIndex.lam
+  | forallE ..              => some HeadIndex.forallE
+  | lit v                   => some (HeadIndex.lit v)
   | app f _                 => toHeadIndexQuick? f
   | letE _ _ _ b _          => toHeadIndexQuick? b
   | mdata _ e               => toHeadIndexQuick? e

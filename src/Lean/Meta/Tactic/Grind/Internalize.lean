@@ -299,10 +299,10 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
   | .forallE _ d b _ =>
     mkENode' e generation
     if (← isProp d <&&> isProp e) then
-      internalizeImpl d generation e
+      internalizeImpl d generation (some e)
       registerParent e d
       unless b.hasLooseBVars do
-        internalizeImpl b generation e
+        internalizeImpl b generation (some e)
         registerParent e b
       propagateUp e
       checkAndAddSplitCandidate e
@@ -337,21 +337,21 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
         -- We only internalize the proposition. We can skip the proof because of
         -- proof irrelevance
         let c := args[0]!
-        internalizeImpl c generation e
+        internalizeImpl c generation (some e)
         registerParent e c
       else if f.isConstOf ``ite && args.size == 5 then
         let c := args[1]!
-        internalizeImpl c generation e
+        internalizeImpl c generation (some e)
         registerParent e c
       else
         if let .const fName _ := f then
           activateTheoremPatterns fName generation
         else
-          internalizeImpl f generation e
+          internalizeImpl f generation (some e)
         registerParent e f
         for h : i in [: args.size] do
           let arg := args[i]
-          internalize arg generation e
+          internalize arg generation (some e)
           registerParent e arg
       addCongrTable e
       Arith.internalize e parent?

@@ -86,9 +86,9 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
     else p msg
   for elt in elts.reverse do
     match elt with
-    | `(guardMsgsSpecElt| $[drop%$drop?]? info)     => p? := pushP .information drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? warning)  => p? := pushP .warning drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? error)    => p? := pushP .error drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? info)     => p? := some <| pushP .information drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? warning)  => p? := some <| pushP .warning drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? error)    => p? := some <| pushP .error drop?.isSome p?
     | `(guardMsgsSpecElt| $[drop%$drop?]? all)      => p? := some fun _ => if drop?.isSome then .drop else .check
     | `(guardMsgsSpecElt| whitespace := exact)      => whitespace := .exact
     | `(guardMsgsSpecElt| whitespace := normalized) => whitespace := .normalized
@@ -188,8 +188,8 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
   let doc ← readDoc
   let eager := {
     title := "Update #guard_msgs with tactic output"
-    kind? := "quickfix"
-    isPreferred? := true
+    kind? := some "quickfix"
+    isPreferred? := some true
   }
   pure #[{
     eager

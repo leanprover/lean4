@@ -46,7 +46,7 @@ def embeddedConstraintPass : Pass where
       let goal ← goal.tryClearMany duplicates
 
       if relevantHyps.isEmpty then
-        return goal
+        return some goal
 
       let cfg ← PreProcessM.getConfig
       let targets ← goal.withContext getPropHyps
@@ -60,7 +60,7 @@ def embeddedConstraintPass : Pass where
         (congrTheorems := (← getSimpCongrTheorems))
       let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := targets)
       let some (_, newGoal) := result? | return none
-      return newGoal
+      return some newGoal
 
 
 end Frontend.Normalize

@@ -57,7 +57,7 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
         proof := mkApp3 proof arg arg (← mkEqRefl arg)
     | .subsingletonInst =>
       proof := mkApp proof arg
-      let rhs ← mkFreshExprMVar (← whnf (← inferType proof)).bindingDomain!
+      let rhs ← mkFreshExprMVar (some (← whnf (← inferType proof)).bindingDomain!)
       eNew := mkApp eNew rhs
       proof := mkApp proof rhs
       mvarIdsNewInsts := mvarIdsNewInsts.push (some rhs.mvarId!)
@@ -139,7 +139,7 @@ private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f 
       mvarIdNew? := some mvarNew.mvarId!
     | .subsingletonInst =>
       proof := mkApp proof arg
-      let rhs ← mkFreshExprMVar (← whnf (← inferType proof)).bindingDomain!
+      let rhs ← mkFreshExprMVar (some (← whnf (← inferType proof)).bindingDomain!)
       eNew := mkApp eNew rhs
       proof := mkApp proof rhs
       mvarIdsNewInsts := mvarIdsNewInsts.push rhs.mvarId!
@@ -263,7 +263,7 @@ def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) 
       let type ← inferType (mkApp f a)
       let β ← mkLambdaFVars #[a] type
       let u₂ ← getLevel type
-      let rhsBody ← mkFreshExprMVar type
+      let rhsBody ← mkFreshExprMVar (some type)
       let f' ← mkLambdaFVars #[a] rhsBody
       let rhs' := mkLet n t v f'.bindingBody!
       unless (← isDefEq rhs rhs') do

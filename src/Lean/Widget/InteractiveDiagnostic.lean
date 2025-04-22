@@ -138,7 +138,7 @@ where
   | ctx,       ofWidget wi d            => do
     let t ← pushEmbed <| EmbedFmt.widget wi (← go nCtx ctx d)
     return Format.tag t default
-  | _,        withContext ctx d        => go nCtx ctx d
+  | _,        withContext ctx d        => go nCtx (some ctx) d
   | ctx,      withNamingContext nCtx d => go nCtx ctx d
   | ctx,      tagged _ d               => go nCtx ctx d
   | ctx,      nest n d                 => Format.nest n <$> go nCtx ctx d

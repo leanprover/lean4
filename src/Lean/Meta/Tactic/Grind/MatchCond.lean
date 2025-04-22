@@ -175,7 +175,7 @@ def collectMatchCondLhssAndAbstract (matchCond : Expr) : GoalM (Array Expr × Ex
       if let some α := α? then
         withLocalDeclD ((`ty).appendIndexAfter i) (← inferType α) fun ty =>
         withLocalDeclD ((`x).appendIndexAfter i) ty fun x =>
-          go (i+1) (xs.push x) (tys.push ty) (tysxs.push ty |>.push x) (args.push α |>.push lhs)
+          go (i+1) (xs.push x) (tys.push (some ty)) (tysxs.push ty |>.push x) (args.push α |>.push lhs)
       else
         withLocalDeclD ((`x).appendIndexAfter i) (← inferType lhs) fun x =>
           go (i+1) (xs.push x) (tys.push none) (tysxs.push x) (args.push lhs)

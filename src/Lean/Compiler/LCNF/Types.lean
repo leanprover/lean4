@@ -269,7 +269,7 @@ partial def maybeTypeFormerType (type : Expr) : Bool :=
 def isClass? (type : Expr) : CoreM (Option Name) := do
   let .const declName _ := type.getAppFn | return none
   if isClass (← getEnv) declName then
-    return declName
+    return some declName
   else
     return none
 

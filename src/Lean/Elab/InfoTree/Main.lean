@@ -48,7 +48,7 @@ def PartialContextInfo.mergeIntoOuter?
   | .commandCtx innerInfo, some outer =>
     some { outer with toCommandContextInfo := innerInfo }
   | .parentDeclCtx innerParentDecl, some outer =>
-    some { outer with parentDecl? := innerParentDecl }
+    some { outer with parentDecl? := some innerParentDecl }
 
 def CompletionInfo.stx : CompletionInfo → Syntax
   | dot i ..          => i.stx

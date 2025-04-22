@@ -47,7 +47,7 @@ def matchFalse (e : Expr) : MetaM Bool := do
 def matchNot? (e : Expr) : MetaM (Option Expr) :=
   matchHelper? e fun e => do
     if let some e := e.not? then
-      return e
+      return some e
     else if let some (a, b) := e.arrow? then
       if (← matchFalse b) then return some a else return none
     else
@@ -56,7 +56,7 @@ def matchNot? (e : Expr) : MetaM (Option Expr) :=
 def matchNe? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
   matchHelper? e fun e => do
     if let some r := e.ne? then
-      return r
+      return some r
     else if let some e ← matchNot? e then
       matchEq? e
     else

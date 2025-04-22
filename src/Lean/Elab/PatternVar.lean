@@ -360,7 +360,7 @@ where
     match fInfo with
     | ConstantInfo.ctorInfo val =>
       processCtorAppContext
-        { funId := fId, explicit := explicit, ctorVal? := val, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
+        { funId := fId, explicit := explicit, ctorVal? := some val, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
     | _ =>
       if hasMatchPatternAttribute (← getEnv) fName then
         processCtorAppContext

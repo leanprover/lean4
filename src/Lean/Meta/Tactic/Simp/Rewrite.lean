@@ -172,7 +172,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
     if (← hasAssignableMVar r.expr) then
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
       return none
-    r.addExtraArgs extraArgs
+    some <$> r.addExtraArgs extraArgs
 
 def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) :=
   withNewMCtxDepth do
@@ -272,9 +272,9 @@ where
     let d ← mkDecide e
     let r ← withDefault <| whnf d
     if r.isConstOf ``true then
-      return .done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
+      return .done { expr := mkConst ``True, proof? := some <| mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
     else if r.isConstOf ``false then
-      return .done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
+      return .done { expr := mkConst ``False, proof? := some <| mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
     else
       return .continue
   catch _ =>
@@ -290,11 +290,11 @@ def simpArith (e : Expr) : SimpM Step := do
     return .continue
   if Arith.isLinearCnstr e then
     if let some (e', h) ← Arith.Nat.simpCnstr? e then
-      return .visit { expr := e', proof? := h }
+      return .visit { expr := e', proof? := some h }
     if let some (e', h) ← Arith.Int.simpRel? e then
-      return .visit { expr := e', proof? := h }
+      return .visit { expr := e', proof? := some h }
     if let some (e', h) ← Arith.Int.simpEq? e then
-      return .visit { expr := e', proof? := h }
+      return .visit { expr := e', proof? := some h }
     return .continue
   let isNat ← isNatExpr e
   if Arith.isLinearTerm e isNat then
@@ -303,14 +303,14 @@ def simpArith (e : Expr) : SimpM Step := do
       return .continue (some { expr := e, cache := false })
     if isNat then
       let some (e', h) ← Arith.Nat.simpExpr? e | pure ()
-      return .visit { expr := e', proof? := h }
+      return .visit { expr := e', proof? := some h }
     else
       let some (e', h) ← Arith.Int.simpExpr? e | pure ()
-      return .visit { expr := e', proof? := h }
+      return .visit { expr := e', proof? := some h }
     return .continue
   if Arith.isDvdCnstr e then
     let some (e', h) ← Arith.Int.simpDvd? e | pure ()
-    return .visit { expr := e', proof? := h }
+    return .visit { expr := e', proof? := some h }
   return .continue
 
 /--
@@ -581,7 +581,7 @@ partial def dischargeEqnThmHypothesis? (e : Expr) : MetaM (Option Expr) := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar e
   withCanUnfoldPred canUnfoldAtMatcher do
     if let .none ← go? mvar.mvarId! then
-      instantiateMVars mvar
+      some <$> instantiateMVars mvar
     else
       return none
 where

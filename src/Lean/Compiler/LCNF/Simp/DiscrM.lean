@@ -64,7 +64,7 @@ def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
 
 def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
   let some ctorInfo ← findCtor? fvarId | return none
-  return ctorInfo.getName
+  return some ctorInfo.getName
 
 /--
 If `type` is an inductive datatype, return its universe levels and parameters.

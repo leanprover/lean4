@@ -101,9 +101,9 @@ where
     else if let some (_, lhs, _, _) := type.heq? then
       mkHEqRefl lhs
     else
-      forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun a type =>
+      forallBoundedTelescope type (.some 1) (cleanupAnnotations := true) fun a type =>
       let a := a[0]!
-      forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun b motive =>
+      forallBoundedTelescope type (.some 1) (cleanupAnnotations := true) fun b motive =>
       let b := b[0]!
       let type := type.bindingBody!.instantiate1 a
       withLocalDeclD motive.bindingName! motive.bindingDomain! fun eqPr => do
@@ -162,7 +162,7 @@ private def hasCastLike (kinds : Array CongrArgKind) : Bool :=
   kinds.any fun kind => kind matches CongrArgKind.cast || kind matches CongrArgKind.subsingletonInst
 
 private def withNext (type : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
-  forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun xs type => k xs[0]! type
+  forallBoundedTelescope type (.some 1) (cleanupAnnotations := true) fun xs type => k xs[0]! type
 
 /--
   Test whether we should use `subsingletonInst` kind for instances which depend on `eq`.
@@ -298,7 +298,7 @@ where
               let localDecl ← lhss[i]!.fvarId!.getDecl
               withLocalDecl localDecl.userName localDecl.binderInfo localDecl.type fun rhs => do
               withLocalDeclD (localDecl.userName.appendBefore "e_") (← mkEq lhss[i]! rhs) fun eq => do
-                go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
+                go (i+1) (rhss.push rhs) (eqs.push (some eq)) (hyps.push rhs |>.push eq)
             | .fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
             | .cast =>
               let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss

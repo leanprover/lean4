@@ -33,7 +33,7 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   trace[Compiler.simp.stat] "{decl.name}, size: {code.size}, # visited: {s.visited}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
   if let some code ← simpJpCases? code then
     let decl := { decl with value := .code code }
-    decl.reduceJpArity
+    some <$> decl.reduceJpArity
   else if (← get).simplified then
     return some { decl with value := .code code }
   else

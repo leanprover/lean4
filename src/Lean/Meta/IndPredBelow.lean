@@ -380,7 +380,7 @@ where
       let rest ← instantiateForall rest #[x]
       loop xs rest (belowIndices.push yIdx) (xIdx + 1) (yIdx + 1)
     else
-      forallBoundedTelescope rest (some 1) fun _ rest =>
+      forallBoundedTelescope rest (.some 1) fun _ rest =>
       loop xs rest belowIndices xIdx (yIdx + 1)
 
 private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Name × Expr := do
@@ -528,10 +528,10 @@ where
         let patTy ← inferType belowFieldExpr
         patTy.withApp fun f _ => do
         let constName := f.constName?
-        if constName == indName then
+        if constName == some indName then
           let (fvars, transformedField) ← convertToBelow indName belowField
           withExistingLocalDecls fvars.toList do
-          let belowFieldOpts := belowFieldOpts.set! (belowFields.size + 1) transformedField
+          let belowFieldOpts := belowFieldOpts.set! (belowFields.size + 1) (some transformedField)
           let belowField :=
             match belowField with
             | Pattern.ctor .. => Pattern.inaccessible belowFieldExpr
@@ -571,7 +571,7 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
         trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
         if (← below.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []).isEmpty then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
-          if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx)
+          if (← xs.anyM (isDefEq below)) then pure none else pure (some (below, idx))
         else
           trace[Meta.IndPredBelow.match] "could not find below term in the local context"
           pure none

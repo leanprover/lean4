@@ -39,7 +39,7 @@ def boolAtom (origExpr : Expr) : M (Option ReifiedBVPred) := do
     -- a more clever encoding for boolean atoms
     let atomEval ← ReifiedBVExpr.mkEvalExpr atom.width atom.expr
     let atomProof := (← atom.evalsAtAtoms).getD (ReifiedBVExpr.mkBVRefl atom.width atomEval)
-    return mkApp3
+    return some <| mkApp3
       (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.ofBool_congr)
       origExpr
       atomEval
@@ -73,7 +73,7 @@ def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : BVBinPr
           (ReifiedBVExpr.mkBVRefl lhs.width)
           lhsEval lhsProof?
           rhsEval rhsProof? | return none
-      return mkApp7
+      return some <| mkApp7
         (mkConst congrThm)
         (toExpr lhs.width)
         lhsExpr rhsExpr lhsEval rhsEval
@@ -101,7 +101,7 @@ def mkGetLsbD (sub : ReifiedBVExpr) (subExpr : Expr) (idx : Nat) (origExpr : Exp
     -- This is safe as `getLsbD_congr` holds definitionally if the arguments are defeq.
     let some subProof ← sub.evalsAtAtoms | return none
     let subEval ← ReifiedBVExpr.mkEvalExpr sub.width sub.expr
-    return mkApp5
+    return some <| mkApp5
       (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.getLsbD_congr)
       idxExpr
       (toExpr sub.width)

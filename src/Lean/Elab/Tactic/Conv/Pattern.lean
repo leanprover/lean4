@@ -90,7 +90,7 @@ private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchStat
       let mut proof := newGoal
       for extraArg in extraArgs do
         proof ← mkCongrFun proof extraArg
-      return Simp.Step.done { expr := mkAppN rhs extraArgs, proof? := proof }
+      return Simp.Step.done { expr := mkAppN rhs extraArgs, proof? := some proof }
     else
       state.modify (·.skip)
       -- Note that because we return `visit` here and `done` in the other case,

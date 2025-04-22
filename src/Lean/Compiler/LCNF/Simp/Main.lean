@@ -65,7 +65,7 @@ partial def inlineJp? (fvarId : FVarId) (args : Array Arg) : SimpM (Option Code)
   let some decl ← findFunDecl? fvarId | return none
   unless (← shouldInlineLocal decl) do return none
   markSimplified
-  betaReduce decl.params decl.value args
+  some <$> betaReduce decl.params decl.value args
 
 /--
 When the configuration flag `etaPoly = true`, we eta-expand
@@ -100,7 +100,7 @@ def isReturnOf (c : Code) (fvarId : FVarId) : SimpM Bool := do
 
 def elimVar? (value : LetValue) : SimpM (Option FVarId) := do
   let .fvar fvarId #[] := value | return none
-  return fvarId
+  return some fvarId
 
 mutual
 /--
@@ -128,13 +128,13 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
     let funDecl ← specializePartialApp info
     addFVarSubst fvarId funDecl.fvarId
     markSimplified
-    simp (.fun funDecl k)
+    some <$> simp (.fun funDecl k)
   else
     let code ← betaReduce info.params info.value info.args[:info.arity]
     if k.isReturnOf fvarId && numArgs == info.arity then
       /- Easy case, the continuation `k` is just returning the result of the application. -/
       markSimplified
-      simp code
+      some <$> simp code
     else
       let code ← simp code
       let simpK (result : FVarId) : SimpM Code := do
@@ -149,7 +149,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       if oneExitPointQuick code then
         -- TODO: if `k` is small, we should also inline it here
         markSimplified
-        code.bind fun fvarId' => do
+        some <$> code.bind fun fvarId' => do
           markUsedFVar fvarId'
           simpK fvarId'
       -- else if info.ifReduce then
@@ -166,13 +166,13 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
           let auxFunDecl ← mkAuxFunDecl #[] code
           let auxFunDecl ← auxFunDecl.etaExpand
           let k ← simpK auxFunDecl.fvarId
-          attachCodeDecls #[.fun auxFunDecl] k
+          some <$> attachCodeDecls #[.fun auxFunDecl] k
         else
           let jpParam ← mkAuxParam expectedType
           let jpValue ← simpK jpParam.fvarId
           let jpDecl ← mkAuxJpDecl #[jpParam] jpValue
           let code ← code.bind fun fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
-          return Code.jp jpDecl code
+          return some (Code.jp jpDecl code)
 
 /--
 Simplify the given local function declaration.
@@ -188,14 +188,14 @@ Try to simplify `cases` of `constructor`
 -/
 partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
   match (← normFVar cases.discr) with
-  | .erased => mkReturnErased
+  | .erased => some <$> mkReturnErased
   | .fvar discr =>
     let some ctorInfo ← findCtor? discr | return none
     let (alt, cases) := cases.extractAlt! ctorInfo.getName
     eraseCode (.cases cases)
     markSimplified
     match alt with
-    | .default k => simp k
+    | .default k => some <$> simp k
     | .alt _ params k =>
       match ctorInfo with
       | .ctor ctorVal ctorArgs =>
@@ -204,8 +204,8 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
           addSubst param.fvarId field.toExpr
         let k ← simp k
         eraseParams params
-        return k
-      | .natVal 0 => simp k
+        return some k
+      | .natVal 0 => some <$> simp k
       | .natVal (n+1) =>
         let auxDecl ← mkAuxLetDecl (.value (.natVal n))
         addFVarSubst params[0]!.fvarId auxDecl.fvarId

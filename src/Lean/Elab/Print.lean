@@ -134,7 +134,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
               let stx : TSyntax ``Parser.Tactic.tacticSeq := ⟨stx⟩
               pure m!" := by{indentD stx}"
             else if let some defFn := getEffectiveDefaultFnForField? env id field then
-              if let some (_, val) ← instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldMap.find?) then
+              if let some (_, val) ← instantiateStructDefaultValueFn? defFn (some levels) params (pure ∘ fieldMap.find?) then
                 pure m!" :={indentExpr val}"
               else
                 pure m!" := <error>"
@@ -157,14 +157,14 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
 private def printIdCore (id : Name) : CommandElabM Unit := do
   let env ← getEnv
   match env.find? id with
-  | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
-  | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
-  | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
-  | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t u
-  | ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t
-  | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t u
-  | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
-  | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
+  | some <| ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
+  | some <| ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
+  | some <| ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
+  | some <| ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t u
+  | some <| ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t
+  | some <| ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t u
+  | some <| ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
+  | some <| ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     if isStructure env id then
       printStructure id us numParams t ctors[0]! u
     else

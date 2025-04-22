@@ -17,7 +17,7 @@ will return a hypothesis for it and return `False` as the resulting type.
 private def forallMetaTelescopeReducingAndUnfoldingNot (prop : Expr) : MetaM (Array Expr × Expr) := do
   let (ms, _, type) ← forallMetaTelescopeReducing prop
   if let some p ← matchNot? type then
-    let m ← mkFreshExprMVar p
+    let m ← mkFreshExprMVar (some p)
     return (ms.push m, mkConst ``False)
   return (ms, type)
 

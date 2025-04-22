@@ -294,11 +294,11 @@ def mkInheritedDefaultFnOfProjFn (projFn : Name) : Name :=
 private def getFnForFieldUsing? (mkName : Name → Name) (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   if let some projName := getProjFnForField? env structName fieldName then
     let defFn := mkName projName
-    if env.contains defFn then defFn else none
+    if env.contains defFn then (some defFn) else none
   else
     -- Check if we have a default function for a default values overridden by substructure.
     let defFn := mkName (structName ++ fieldName)
-    if env.contains defFn then defFn else none
+    if env.contains defFn then some defFn else none
 
 /--
 Returns the name of the auxiliary definition that defines a default value for the field, if any such definition exists.
@@ -367,7 +367,7 @@ def getStructureLikeCtor? (env : Environment) (constName : Name) : Option Constr
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [ctorName], numIndices := 0, .. }) =>
     match env.find? ctorName with
-    | some (ConstantInfo.ctorInfo val) => val
+    | some (ConstantInfo.ctorInfo val) => some val
     | _ => panic! "ill-formed environment"
   | _ => none
 

@@ -120,4 +120,4 @@ def formatStringToFormat (fmt : TSyntax `str) (config : Option (TSyntax `term)) 
 
 macro_rules
   | `(datespec( $fmt:str )) => formatStringToFormat fmt none
-  | `(datespec( $fmt:str, $config:term )) => formatStringToFormat fmt config
+  | `(datespec( $fmt:str, $config:term )) => formatStringToFormat fmt (some config)

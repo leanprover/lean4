@@ -937,7 +937,7 @@ def isRawNatLit : Expr → Bool
   | _                      => false
 
 def rawNatLit? : Expr → Option Nat
-  | lit (Literal.natVal v) => v
+  | lit (Literal.natVal v) => some v
   | _                      => none
 
 def isStringLit : Expr → Bool
@@ -1707,7 +1707,7 @@ and if so returns `n`.
 def nat? (e : Expr) : Option Nat := do
   let_expr OfNat.ofNat _ n _ := e | failure
   let lit (.natVal n) := n | failure
-  n
+  some n
 
 /--
 Checks if an expression is an "integer numeral in normal form",

@@ -35,7 +35,7 @@ def mkEqTransOptProofResult (h? : Option Expr) (cache : Bool) (r : Result) : Met
   | none, false => return { r with cache := false }
   | some p₁, cache => match r.proof? with
     | none    => return { r with proof? := some p₁, cache := cache && r.cache }
-    | some p₂ => return { r with proof? := (← Meta.mkEqTrans p₁ p₂), cache := cache && r.cache }
+    | some p₂ => return { r with proof? := some (← Meta.mkEqTrans p₁ p₂), cache := cache && r.cache }
 
 def Result.mkEqTrans (r₁ r₂ : Result) : MetaM Result :=
   mkEqTransOptProofResult r₁.proof? r₁.cache r₂
@@ -333,7 +333,7 @@ def mkEqTransResultStep (r : Result) (s : Step) : MetaM Step :=
   match s with
   | .done r'            => return .done (← mkEqTransOptProofResult r.proof? r.cache r')
   | .visit r'           => return .visit (← mkEqTransOptProofResult r.proof? r.cache r')
-  | .continue none      => return .continue r
+  | .continue none      => return .continue (some r)
   | .continue (some r') => return .continue (some (← mkEqTransOptProofResult r.proof? r.cache r'))
 
 /--
@@ -437,7 +437,7 @@ def getConfig : SimpM Config :=
   return (← getContext).config
 
 @[inline] def withParent (parent : Expr) (f : SimpM α) : SimpM α :=
-  withTheReader Context (fun ctx => { ctx with parent? := parent }) f
+  withTheReader Context (fun ctx => { ctx with parent? := some parent }) f
 
 def getSimpTheorems : SimpM SimpTheoremsArray :=
   return (← readThe Context).simpTheorems
@@ -537,21 +537,21 @@ def Result.mkCast (r : Simp.Result) (e : Expr) : MetaM Expr := do
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
   | none   => return { expr := mkApp r.expr a, proof? := none }
-  | some h => return { expr := mkApp r.expr a, proof? := (← Meta.mkCongrFun h a) }
+  | some h => return { expr := mkApp r.expr a, proof? := some (← Meta.mkCongrFun h a) }
 
 def mkCongr (r₁ r₂ : Result) : MetaM Result :=
   let e := mkApp r₁.expr r₂.expr
   match r₁.proof?, r₂.proof? with
   | none,     none   => return { expr := e, proof? := none }
-  | some h,  none    => return { expr := e, proof? := (← Meta.mkCongrFun h r₂.expr) }
-  | none,    some h  => return { expr := e, proof? := (← Meta.mkCongrArg r₁.expr h) }
-  | some h₁, some h₂ => return { expr := e, proof? := (← Meta.mkCongr h₁ h₂) }
+  | some h,  none    => return { expr := e, proof? := some (← Meta.mkCongrFun h r₂.expr) }
+  | none,    some h  => return { expr := e, proof? := some (← Meta.mkCongrArg r₁.expr h) }
+  | some h₁, some h₂ => return { expr := e, proof? := some (← Meta.mkCongr h₁ h₂) }
 
 def mkImpCongr (src : Expr) (r₁ r₂ : Result) : MetaM Result := do
   let e := src.updateForallE! r₁.expr r₂.expr
   match r₁.proof?, r₂.proof? with
   | none,     none   => return { expr := e, proof? := none }
-  | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bottleneck
+  | _,        _      => return { expr := e, proof? := some (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bottleneck
 
 /-- Given the application `e`, remove unnecessary casts of the form `Eq.rec a rfl` and `Eq.ndrec a rfl`. -/
 partial def removeUnnecessaryCasts (e : Expr) : MetaM Expr := do
@@ -744,7 +744,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let some (_, _, rhs) := type.instantiateRev subst |>.eq? | unreachable!
   let rhs ← if hasCast then removeUnnecessaryCasts rhs else pure rhs
   if hasProof then
-    return some { expr := rhs, proof? := proof }
+    return some { expr := rhs, proof? := some proof }
   else
     /- See comment above. This is reachable if `hasCast == true`. The `rhs` is not structurally equal to `mkAppN f argsNew` -/
     return some { expr := rhs }
@@ -763,14 +763,14 @@ def Step.addExtraArgs (s : Step) (extraArgs : Array Expr) : MetaM Step := do
   | .visit r => return .visit (← r.addExtraArgs extraArgs)
   | .done r => return .done (← r.addExtraArgs extraArgs)
   | .continue none => return .continue none
-  | .continue (some r) => return .continue (← r.addExtraArgs extraArgs)
+  | .continue (some r) => return .continue (some (← r.addExtraArgs extraArgs))
 
 def DStep.addExtraArgs (s : DStep) (extraArgs : Array Expr) : DStep :=
   match s with
   | .visit eNew => .visit (mkAppN eNew extraArgs)
   | .done eNew => .done (mkAppN eNew extraArgs)
   | .continue none => .continue none
-  | .continue (some eNew) => .continue (mkAppN eNew extraArgs)
+  | .continue (some eNew) => .continue (some (mkAppN eNew extraArgs))
 
 def Result.addLambdas (r : Result) (xs : Array Expr) : MetaM Result := do
   let eNew ← mkLambdaFVars xs r.expr
@@ -779,7 +779,7 @@ def Result.addLambdas (r : Result) (xs : Array Expr) : MetaM Result := do
   | some h =>
     let p ← xs.foldrM (init := h) fun x h => do
       mkFunExt (← mkLambdaFVars #[x] h)
-    return { expr := eNew, proof? := p }
+    return { expr := eNew, proof? := some p }
 
 end Simp
 

@@ -29,8 +29,8 @@ private partial def decAux? : Level → ReaderT DecLevelContext MetaM (Option Le
         let u ← mkFreshLevelMVar
         trace[Meta.isLevelDefEq.step] "decAux?, {mkLevelMVar mvarId} := {mkLevelSucc u}"
         assignLevelMVar mvarId (mkLevelSucc u)
-        return u
-  | Level.succ u  => return u
+        return some u
+  | Level.succ u  => return some u
   | u =>
     let processMax (u v : Level) : ReaderT DecLevelContext MetaM (Option Level) := do
       /- Remark: this code uses the fact that `max (u+1) (v+1) = (max u v)+1`.
@@ -44,7 +44,7 @@ private partial def decAux? : Level → ReaderT DecLevelContext MetaM (Option Le
         | some u => do
           match (← decAux? v) with
           | none   => return none
-          | some v => return mkLevelMax' u v
+          | some v => return some (mkLevelMax' u v)
     match u with
     | Level.max u v  => processMax u v
     /- Remark: If `decAux? v` returns `some ...`, then `imax u v` is equivalent to `max u v`. -/

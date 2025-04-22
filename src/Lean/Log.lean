@@ -70,7 +70,7 @@ def logAt (ref : Syntax) (msgData : MessageData)
     logMessage {
       fileName := (← getFileName)
       pos := fileMap.toPosition pos
-      endPos := fileMap.toPosition endPos
+      endPos := some (fileMap.toPosition endPos)
       data := msgData
       severity
       isSilent

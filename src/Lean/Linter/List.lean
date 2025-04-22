@@ -87,7 +87,7 @@ def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
       | _ => []
       match idxs with
       | [] => none
-      | _ => idxs.filterMap fun i =>
+      | _ => some <| idxs.filterMap fun i =>
         match i with
         | .fvar i =>
           match info.lctx.find? i with
@@ -118,7 +118,7 @@ def numericalWidths (t : InfoTree) : List (Syntax × Name) :=
       | _ => []
       match idxs with
       | [] => none
-      | _ => idxs.filterMap fun i =>
+      | _ => some <| idxs.filterMap fun i =>
         match i with
         | .fvar i =>
           match info.lctx.find? i with
@@ -140,7 +140,7 @@ def bitVecWidths (t : InfoTree) : List (Syntax × Name) :=
       | _ => []
       match idxs with
       | [] => none
-      | _ => idxs.filterMap fun i =>
+      | _ => some <| idxs.filterMap fun i =>
         match i with
         | .fvar i =>
           match info.lctx.find? i with

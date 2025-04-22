@@ -107,7 +107,8 @@ instance : ToSnapshotTree HeaderParsedSnapshot where
 /-- Shortcut accessor to the final header state, if successful. -/
 def HeaderParsedSnapshot.processedResult (snap : HeaderParsedSnapshot) :
     SnapshotTask (Option HeaderProcessedState) :=
-  snap.result?.bind (·.processedSnap.map (sync := true) (·.result?)) |>.getD (.finished none none)
+  snap.result?.bind (fun r => some (r.processedSnap.map (sync := true) (·.result?)))
+    |>.getD (.finished none none)
 
 /-- Initial snapshot of the Lean language processor: a "header parsed" snapshot. -/
 abbrev InitialSnapshot := HeaderParsedSnapshot

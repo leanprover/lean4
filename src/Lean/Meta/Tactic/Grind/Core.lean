@@ -103,7 +103,7 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
     else
       -- We have to retrieve the node because other fields have been updated
       let rhsRoot ← getENode rhsRoot.self
-      setENode rhsRoot.self { rhsRoot with offset? := lhsOffset }
+      setENode rhsRoot.self { rhsRoot with offset? := some lhsOffset }
   | none =>
     if isNatNum lhsRoot.self then
     if let some rhsOffset := rhsRoot.offset? then
@@ -126,7 +126,7 @@ private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM ParentSet := do
     else
       -- We have to retrieve the node because other fields have been updated
       let rhsRoot ← getENode rhsRoot.self
-      setENode rhsRoot.self { rhsRoot with cutsat? := lhsCutsat }
+      setENode rhsRoot.self { rhsRoot with cutsat? := some lhsCutsat }
       getParents rhsRoot.self
   | none =>
     if let some rhsCutsat := rhsRoot.cutsat? then
@@ -152,7 +152,7 @@ private def propagateCommRingEq (rhsRoot lhsRoot : ENode) : GoalM ParentSet := d
     else
       -- We have to retrieve the node because other fields have been updated
       let rhsRoot ← getENode rhsRoot.self
-      setENode rhsRoot.self { rhsRoot with ring? := lhsRing }
+      setENode rhsRoot.self { rhsRoot with ring? := some lhsRing }
       getParents rhsRoot.self
   | none =>
     if rhsRoot.ring?.isSome then
@@ -232,8 +232,8 @@ where
     -/
     invertTrans lhs
     setENode lhs { lhsNode with
-      target? := rhs
-      proof?  := proof
+      target? := some rhs
+      proof?  := some proof
       flipped
     }
     let lams₁ ← getEqcLambdas lhsRoot
@@ -311,8 +311,8 @@ private def storeFact (fact : Expr) : GoalM Unit := do
 def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
   let eq ← mkEq lhs rhs
   storeFact eq
-  internalize lhs generation eq
-  internalize rhs generation eq
+  internalize lhs generation (some eq)
+  internalize rhs generation (some eq)
   addEq lhs rhs proof
 
 private def addFactStep (fact : Expr) (proof : Expr) (generation : Nat) : GoalM Unit := do
@@ -346,8 +346,8 @@ where
       internalize p generation
       addEq p (← getFalseExpr) (← mkEqFalse proof)
     else
-      internalize lhs generation p
-      internalize rhs generation p
+      internalize lhs generation (some p)
+      internalize rhs generation (some p)
       addEqCore lhs rhs proof isHEq
 
 @[export lean_grind_process_new_facts]

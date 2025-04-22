@@ -76,9 +76,9 @@ partial def Pattern.toToml? [ToToml? β] (p : Pattern α β) : Option Value :=
   | `default =>
     none
   | `star =>
-    toToml "*"
+    some <| toToml "*"
   | n =>
-    toToml <| Table.empty.insert `preset n
+    some <| toToml <| Table.empty.insert `preset n
 
 partial def PattternDescr.toToml?
   [ToToml? β] (p : PatternDescr α β) : Option Value

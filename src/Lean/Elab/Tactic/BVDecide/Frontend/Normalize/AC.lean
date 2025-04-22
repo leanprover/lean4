@@ -222,7 +222,7 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Op) : VarStateM (Opti
     let expr := (← get).varToExpr[var]!
     for _ in [0:coeff] do
       acc := match acc with
-      | none => expr
+      | none => some expr
       | some acc => some <| mkApp2 op.toExpr acc expr
   return acc
 
@@ -236,7 +236,7 @@ construct and return a proof of `x = y`.
 Uses `ac_rfl` internally to contruct said proof. -/
 def proveEqualityByAC (x y : Expr) : MetaM Expr := do
   let expectedType ← mkEq x y
-  let proof ← mkFreshExprMVar expectedType
+  let proof ← mkFreshExprMVar (some expectedType)
   AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
   instantiateMVars proof
 
@@ -353,6 +353,6 @@ def bvAcNormalizePass : Pass where
         newGoal := nextGoal
     newGoal.withContext do
       (← getPropHyps).forM PreProcessM.acNfFinished
-    return newGoal
+    return some newGoal
 
 end Frontend.Normalize

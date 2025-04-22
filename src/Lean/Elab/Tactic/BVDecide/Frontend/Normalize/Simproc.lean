@@ -24,10 +24,10 @@ builtin_simproc ↓ [bv_normalize] reduceCond (cond _ _ _) := fun e => do
   let r ← Simp.simp c
   if r.expr.cleanupAnnotations.isConstOf ``Bool.true then
     let pr := mkApp (mkApp4 (mkConst ``Bool.cond_pos f.constLevels!) α c tb eb) (← r.getProof)
-    return .visit { expr := tb, proof? := pr }
+    return .visit { expr := tb, proof? := some pr }
   else if r.expr.cleanupAnnotations.isConstOf ``Bool.false then
     let pr := mkApp (mkApp4 (mkConst ``Bool.cond_neg f.constLevels!) α c tb eb) (← r.getProof)
-    return .visit { expr := eb, proof? := pr }
+    return .visit { expr := eb, proof? := some pr }
   else
     return .continue
 

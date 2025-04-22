@@ -11,7 +11,7 @@ namespace Lean.Meta
 
 private def getConstructorVal? (env : Environment) (ctorName : Name) : Option ConstructorVal :=
   match env.find? ctorName with
-  | some (.ctorInfo v) => v
+  | some (.ctorInfo v) => some v
   | _                  => none
 
 /--
@@ -47,7 +47,7 @@ def isConstructorApp'? (e : Expr) : MetaM (Option ConstructorVal) := do
       let .ctorInfo val ← getConstInfo ``Nat.succ | return none
       return some val
   else if let some r ← isConstructorApp? e then
-    return r
+    return some r
   else try
     /-
     We added the `try` block here because `whnf` fails at terms `n ^ m`

@@ -22,7 +22,7 @@ def Param.toMono (param : Param) : ToMonoM Param := do
 def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Option LetValue) := do
   let some (.ctorInfo ctorInfo) := (← getEnv).find? declName | return none
   let some info ← hasTrivialStructure? ctorInfo.induct | return none
-  return args[ctorInfo.numParams + info.fieldIdx]!.toLetValue
+  return some args[ctorInfo.numParams + info.fieldIdx]!.toLetValue
 
 def argToMono (arg : Arg) : ToMonoM Arg := do
   match arg with

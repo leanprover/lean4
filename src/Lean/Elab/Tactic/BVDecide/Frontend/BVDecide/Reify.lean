@@ -108,7 +108,7 @@ where
           M.simplifyBinaryProof'
             (ReifiedBVExpr.mkBVRefl lhs.width) lhsEval lhsProof?
             (ReifiedBVExpr.mkBVRefl rhs.width) rhsEval rhsProof? | return none
-        return mkApp8 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.append_congr)
+        return some <| mkApp8 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.append_congr)
           (toExpr lhs.width) (toExpr rhs.width)
           lhsExpr lhsEval
           rhsExpr rhsEval
@@ -130,7 +130,7 @@ where
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
         -- This is safe as `replicate_congr` holds definitionally if the arguments are defeq.
         let some innerProof ← inner.evalsAtAtoms | return none
-        return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.replicate_congr)
+        return some <| mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.replicate_congr)
           (toExpr n)
           (toExpr inner.width)
           innerExpr
@@ -151,7 +151,7 @@ where
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
         -- This is safe as `extract_congr` holds definitionally if the arguments are defeq.
         let some innerProof ← inner.evalsAtAtoms | return none
-        return mkApp6 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.extract_congr)
+        return some <| mkApp6 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.extract_congr)
           startExpr
           lenExpr
           (toExpr inner.width)
@@ -266,7 +266,7 @@ where
         (ReifiedBVExpr.mkBVRefl lhs.width)
         lhsEval lhsProof?
         rhsEval rhsProof? | return none
-    return mkApp6 congrThm lhsExpr rhsExpr lhsEval rhsEval lhsProof rhsProof
+    return some (mkApp6 congrThm lhsExpr rhsExpr lhsEval rhsEval lhsProof rhsProof)
 
   unaryReflection (innerExpr : Expr) (op : BVUnOp) (congrThm : Name) (origExpr : Expr) :
       LemmaM (Option ReifiedBVExpr) := do
@@ -279,11 +279,11 @@ where
   unaryCongrProof (inner : ReifiedBVExpr) (innerExpr : Expr) (congrProof : Expr) : M (Option Expr) := do
     let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
     let some innerProof ← inner.evalsAtAtoms | return none
-    return mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof
+    return some (mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof)
 
   goBvLit (x : Expr) : M (Option ReifiedBVExpr) := do
     let some ⟨_, bvVal⟩ ← getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x false
-    ReifiedBVExpr.mkBVConst bvVal
+    some <$> ReifiedBVExpr.mkBVConst bvVal
 
 /--
 Reify an `Expr` that is a predicate about `BitVec`.
@@ -329,8 +329,8 @@ where
   -/
   go (origExpr : Expr) : LemmaM (Option ReifiedBVLogical) := do
     match_expr origExpr with
-    | Bool.true => ReifiedBVLogical.mkBoolConst true
-    | Bool.false => ReifiedBVLogical.mkBoolConst false
+    | Bool.true => some <$> ReifiedBVLogical.mkBoolConst true
+    | Bool.false => some <$> ReifiedBVLogical.mkBoolConst false
     | Bool.not subExpr =>
       let some sub ← goOrAtom subExpr | return none
       return some (← ReifiedBVLogical.mkNot sub subExpr origExpr)
@@ -362,11 +362,11 @@ where
       LemmaM (Option ReifiedBVLogical) := do
     let some lhs ← goOrAtom lhsExpr | return none
     let some rhs ← goOrAtom rhsExpr | return none
-    ReifiedBVLogical.mkGate lhs rhs lhsExpr rhsExpr gate origExpr
+    some <$> ReifiedBVLogical.mkGate lhs rhs lhsExpr rhsExpr gate origExpr
 
   goPred (origExpr : Expr) : LemmaM (Option ReifiedBVLogical) := do
     let some pred ← ReifiedBVPred.of origExpr | return none
-    ReifiedBVLogical.ofPred pred
+    some <$> ReifiedBVLogical.ofPred pred
 
 end
 

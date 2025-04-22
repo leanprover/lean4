@@ -88,10 +88,10 @@ where
         unless info.isProp do
           if info.isExplicit then
             let some found ← visit arg | pure ()
-            return found
+            return some found
       else
         let some found ← visit arg | pure ()
-        return found
+        return some found
     visit f
 
 end FindSplitImpl
@@ -105,7 +105,7 @@ where
       if target.isIte || target.isDIte then
         let cond := target.getArg! 1 5
         -- Try to find a nested `if` in `cond`
-        return (← go cond).getD target
+        return some ((← go cond).getD target)
       else
         return some target
     else
@@ -122,7 +122,7 @@ private partial def findIfToSplit? (e : Expr) : MetaM (Option (Expr × Expr)) :=
   if let some iteApp ← findSplit? e .ite then
     let cond := iteApp.getArg! 1 5
     let dec := iteApp.getArg! 2 5
-    return (cond, dec)
+    return some (cond, dec)
   else
     return none
 
@@ -198,14 +198,14 @@ open SplitIf
 
 def simpIfTarget (mvarId : MVarId) (useDecide := false) : MetaM MVarId := do
   let mut ctx ← getSimpContext
-  if let (some mvarId', _) ← simpTarget mvarId ctx {} (← mvarId.withContext <| mkDischarge? useDecide) (mayCloseGoal := false) then
+  if let (some mvarId', _) ← simpTarget mvarId ctx {} (some (← mvarId.withContext <| mkDischarge? useDecide)) (mayCloseGoal := false) then
     return mvarId'
   else
     unreachable!
 
 def simpIfLocalDecl (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
   let mut ctx ← getSimpContext
-  if let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx {} (← mvarId.withContext <| mkDischarge?) (mayCloseGoal := false) then
+  if let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx {} (some (← mvarId.withContext <| mkDischarge?)) (mayCloseGoal := false) then
     return mvarId'
   else
     unreachable!

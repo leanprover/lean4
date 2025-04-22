@@ -77,7 +77,7 @@ def handleHover (p : HoverParams)
         kind := MarkupKind.markdown
         value := s
       }
-      range? := r.toLspRange text
+      range? := some (r.toLspRange text)
     }
 
   let hoverPos := text.lspPosToUtf8Pos p.position
@@ -98,10 +98,10 @@ def handleHover (p : HoverParams)
           -- prefer info tree if at least as specific as parser docstring
           if stxDoc?.all fun (_, stxRange) => stxRange.includes range then
             if let some hoverFmt ← ictx.info.fmtHover? ictx.ctx then
-              return mkHover (toString hoverFmt.fmt) range
+              return some (mkHover (toString hoverFmt.fmt) range)
 
       if let some (doc, range) := stxDoc? then
-        return mkHover doc range
+        return some (mkHover doc range)
 
       return none
 
@@ -245,7 +245,7 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := pure #[]) fun snap => do
       if let some infoWithCtx := snap.infoTree.hoverableInfoAt? (omitIdentApps := true) (includeStop := true /- #767 -/) hoverPos then
-        locationLinksOfInfo kind infoWithCtx snap.infoTree
+        locationLinksOfInfo kind infoWithCtx (some snap.infoTree)
       else return #[]
 
 open Language in
@@ -279,7 +279,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
           return (goals, .proceed (foldChildren := true))
       t.mapCheap fun
         | []    => none
-        | goals => goals
+        | goals => some goals
     | none =>
       .pure none
 where
@@ -343,7 +343,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     -- for binders, hide the last hypothesis (the binder itself)
     let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
     let goal ← ci.runMetaM lctx' do
-      Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
+      Widget.goalToInteractive (← Meta.mkFreshExprMVar (some ty)).mvarId!
     let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
     return some { goal with range, term := ⟨ti⟩ }
 
@@ -365,9 +365,9 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     | `(doElem|return%$i $e) => Id.run do
       if let some range := i.getRange? then
         if range.contains pos then
-          return some { range := doRange?.getD (range.toLspRange text), kind? := DocumentHighlightKind.text }
+          return some { range := doRange?.getD (range.toLspRange text), kind? := some DocumentHighlightKind.text }
       highlightReturn? doRange? e
-    | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRange text) elems
+    | `(do%$i $elems) => highlightReturn? (some (i.getRange?.get!.toLspRange text)) elems
     | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
   let highlightRefs? (snaps : Array Snapshot) : IO (Option (Array DocumentHighlight)) := do
@@ -381,7 +381,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
         ranges := ranges.append <| info.usages.map (·.range)
     if ranges.isEmpty then
       return none
-    return some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
+    return some <| ranges.map ({ range := ·, kind? := some DocumentHighlightKind.text })
 
   withWaitFindSnap doc (fun s => s.endPos >= pos)
     (notFoundX := pure #[]) fun snap => do
@@ -414,7 +414,7 @@ def NamespaceEntry.finish (text : FileMap) (syms : Array DocumentSymbol) (endStx
       kind := .namespace
       range := range.toLspRange text
       selectionRange := selection.getRange?.getD range |>.toLspRange text
-      children? := syms
+      children? := some syms
     }
 
 open Parser.Command in
@@ -446,13 +446,13 @@ where
           | [] => toDocumentSymbols text stxs syms []
           | entry :: stack =>
             if entry.name.length == n then
-              let syms := entry.finish text syms stx
+              let syms := entry.finish text syms (some stx)
               toDocumentSymbols text stxs syms stack
             else if entry.name.length > n then
-              let syms := { entry with name := entry.name.take n, prevSiblings := #[] }.finish text syms stx
+              let syms := { entry with name := entry.name.take n, prevSiblings := #[] }.finish text syms (some stx)
               toDocumentSymbols text stxs syms ({ entry with name := entry.name.drop n } :: stack)
             else
-              let syms := entry.finish text syms stx
+              let syms := entry.finish text syms (some stx)
               popStack (n - entry.name.length) syms stack
         popStack (id.map (·.getId.getNumParts) |>.getD 1) syms stack
       | _ => do
@@ -492,7 +492,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
     addRanges (text : FileMap) sections
     | [] => do
       if let (_, start)::rest := sections then
-        addRange text FoldingRangeKind.region start text.source.endPos
+        addRange text FoldingRangeKind.region start (some text.source.endPos)
         addRanges text rest []
     | stx::stxs => do
       RequestM.checkCancelled

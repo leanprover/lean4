@@ -96,16 +96,16 @@ private def expandStructInstField (stx : Syntax) : MacroM (Option Syntax) := wit
   | `(Parser.Term.structInstField| $lval:structInstLVal $[$binders]* $[: $ty?]? $decl:structInstFieldDecl) =>
     match decl with
     | `(Parser.Term.structInstFieldDef| := $val) =>
-      mkStructInstField lval binders ty? val
+      some <$> mkStructInstField lval binders ty? val
     | `(Parser.Term.structInstFieldEqns| $alts:matchAlts) =>
       let val ← expandMatchAltsIntoMatch stx alts (useExplicit := false)
-      mkStructInstField lval binders ty? val
+      some <$> mkStructInstField lval binders ty? val
     | _ => Macro.throwUnsupported
   | `(Parser.Term.structInstField| $lval:structInstLVal) =>
     -- Abbreviation
     match lval with
     | `(Parser.Term.structInstLVal| $id:ident) =>
-      mkStructInstField lval #[] none id
+      some <$> mkStructInstField lval #[] none id
     | _ =>
       Macro.throwErrorAt lval "unsupported structure instance field abbreviation, expecting identifier"
   | _ => Macro.throwUnsupported
@@ -174,7 +174,7 @@ private def getStructSources (structStx : Syntax) : TermElabM SourcesView :=
         tryPostponeIfMVar srcType
         let structName ← getStructureName srcType
         return { stx, fvar := src, structName }
-    let implicit := if implicitSource[0].isNone then none else implicitSource
+    let implicit := if implicitSource[0].isNone then none else some implicitSource
     return { explicit, implicit }
 
 /--
@@ -409,11 +409,11 @@ private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Exp
       | throwError "unexpected constructor type"
     let param ←
       if bi.isInstImplicit then
-        let mvar ← mkFreshExprMVar d .synthetic
+        let mvar ← mkFreshExprMVar (some d) .synthetic
         instMVars := instMVars.push mvar.mvarId!
         pure mvar
       else
-        mkFreshExprMVar d
+        mkFreshExprMVar (some d)
     params := params.push param
     type := b.instantiate1 param
   let structType := mkAppN (.const ctorVal.induct us) params
@@ -457,7 +457,7 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
       let newEntries := name.components.map (FieldLHS.fieldName ref ·)
       normalizeField structName { fieldView with lhs := newEntries ++ rest }
     else
-      addCompletionInfo <| CompletionInfo.fieldId ref name (← getLCtx) structName
+      addCompletionInfo <| CompletionInfo.fieldId ref (some name) (← getLCtx) structName
       if let some parentName := findParentProjStruct? env structName name then
         if rest.isEmpty then
           return { fieldView with lhs := [.parentFieldName ref parentName name] }
@@ -643,7 +643,7 @@ If the field has already been visited by `loop` but has not been solved for yet,
 private def isFieldNotSolved? (fieldName : Name) : StructInstM (Option MVarId) := do
   let some val := (← get).fieldMap.find? fieldName | return none
   let .mvar mvarId ← instantiateMVars val | return none
-  return mvarId
+  return some mvarId
 
 /--
 Reduce projections for all structures appearing in `structNameSet`.
@@ -653,7 +653,7 @@ private def reduceFieldProjs (e : Expr) : StructInstM Expr := do
   let postVisit (e : Expr) : StructInstM TransformStep := do
     if let Expr.const projName .. := e.getAppFn then
       if let some projInfo ← getProjectionFnInfo? projName then
-        let ConstantInfo.ctorInfo cval := (← getEnv).find? projInfo.ctorName | unreachable!
+        let some (ConstantInfo.ctorInfo cval) := (← getEnv).find? projInfo.ctorName | unreachable!
         if (← get).structNameSet.contains cval.induct then
           let args := e.getAppArgs
           if let some major := args[projInfo.numParams]? then
@@ -711,11 +711,11 @@ private def addStructField (fieldView : ExpandedField) (e : Expr) : StructInstM 
 
 private def elabStructField (_fieldName : Name) (stx : Term) (fieldType : Expr) : StructInstM Expr := do
   let fieldType ← normalizeExpr fieldType
-  elabTermEnsuringType stx fieldType
+  elabTermEnsuringType stx (some fieldType)
 
 private def addStructFieldMVar (fieldName : Name) (ty : Expr) (kind : MetavarKind := .natural) : StructInstM Expr := do
   let ty ← normalizeExpr ty
-  let e ← mkFreshExprMVar ty (kind := kind)
+  let e ← mkFreshExprMVar (some ty) (kind := kind)
   addStructFieldAux fieldName e
   return e
 
@@ -729,10 +729,10 @@ private partial def getFieldDefaultValue? (fieldName : Name) : StructInstM (Name
   let some defFn := getEffectiveDefaultFnForField? (← getEnv) (← read).structName fieldName
     | return ({}, none)
   let fieldMap := (← get).fieldMap
-  let some (fields, val) ← instantiateStructDefaultValueFn? defFn (← read).levels (← read).params (pure ∘ fieldMap.find?)
+  let some (fields, val) ← instantiateStructDefaultValueFn? defFn (some (← read).levels) (← read).params (pure ∘ fieldMap.find?)
     | logError m!"default value for field '{fieldName}' of structure '{.ofConstName (← read).structName}' could not be instantiated, ignoring"
       return ({}, none)
-  return (fields, val)
+  return (fields, some val)
 
 /--
 Auxiliary type for `synthDefaultFields`
@@ -893,12 +893,12 @@ where
     unless numArgs == cVal.numParams + 1 do return none
     unless (← get).structNameSet.contains cVal.induct do return none
     let some parentStruct := isSubobjectField? env cVal.induct (Name.mkSimple field) | return none
-    return (parentStruct, e.appArg!)
+    return some (parentStruct, e.appArg!)
   /-- Recursively applies `parentProjInfo?`. -/
   withoutParentProj? (e : Expr) : StructInstM (Option (Name × Expr)) := do
     let some (field, e') ← parentProjInfo? e | return none
-    let some (_, e'') ← withoutParentProj? e.appArg! | return (field, e')
-    return (field, e'')
+    let some (_, e'') ← withoutParentProj? e.appArg! | return some (field, e')
+    return some (field, e'')
   replaceParentProj (e : Expr) : StructInstM TransformStep := do
     let some (parentName, x) ← withoutParentProj? e | return .continue
     unless x == self do return .continue
@@ -919,7 +919,7 @@ where
     let params ← params.mapM normalizeExpr
     let e' := (ctorVal.beta params).beta fieldArgs
     -- Continue, since we need to reduce the parameters.
-    return .continue e'
+    return .continue (some e')
 
 private def getParentStructType? (parentStructName : Name) : StructInstM (Option (Expr × Option Name)) := do
   let env ← getEnv
@@ -940,7 +940,7 @@ private def getParentStructType? (parentStructName : Name) : StructInstM (Option
       -- unsupported dependent type, parent depends on fields that haven't been visited yet.
       trace[Elab.struct] "getParentStructType? '{parentStructName}', failed, computed type depends on {self}{indentExpr projTy}"
       return none
-    return (projTy, path.getLast?)
+    return some (projTy, path.getLast?)
 
 /--
 If there is a path to `parentStructName`, compute its type. Also returns the last projection to the parent.
@@ -984,7 +984,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
   | .source fvar =>
     trace[Elab.struct] "field.val is source {field.name} from {fvar}"
     let e ← mkProjection fvar field.name
-    let e ← ensureHasType fieldType e
+    let e ← ensureHasType (some fieldType) e
     addStructFieldAux field.name e
     loop
   | .proj fvarId val parentStructName parentFieldName =>
@@ -999,7 +999,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
         addStructFieldAux field.name e
       catch ex =>
         if (← readThe Term.Context).errToSorry then
-          let e ← exceptionToSorry ex fieldType
+          let e ← exceptionToSorry ex (some fieldType)
           addStructFieldAux field.name e
         else
           throw ex
@@ -1010,7 +1010,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
       processProjAux fvarId
     else
       let (parentTy, projName?) ← getParentStructType parentStructName
-      let parentVal ← elabTermEnsuringType val parentTy
+      let parentVal ← elabTermEnsuringType val (some parentTy)
       -- Add terminfo so that the `toParent` field has some hover information.
       if let some projName := projName? then
         pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
@@ -1276,7 +1276,7 @@ private def getStructName (expectedType? : Option Expr) (sourceView : SourcesVie
     | Expr.const constName _ =>
       unless isStructure (← getEnv) constName do
         throwError "invalid \{...} notation, structure type expected{indentExpr expectedType}"
-      return (constName, expectedType)
+      return (constName, some expectedType)
     | _ => useSource ()
 where
   useSource : Unit → TermElabM (Name × Option Expr) := fun _ => do

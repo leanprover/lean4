@@ -282,19 +282,19 @@ instance : Append WorkspaceEdit where
     changes?           :=
       match x.changes?, y.changes? with
       | v, none | none, v => v
-      | some x, some y => x.mergeBy (fun _ v₁ v₂ => v₁ ++ v₂) y
+      | some x, some y => some (x.mergeBy (fun _ v₁ v₂ => v₁ ++ v₂) y)
     documentChanges?   :=
       match x.documentChanges?, y.documentChanges? with
       | v, none | none, v => v
-      | some x, some y => x ++ y
+      | some x, some y => some (x ++ y)
     changeAnnotations? :=
       match x.changeAnnotations?, y.changeAnnotations? with
       | v, none | none, v => v
-      | some x, some y => x.mergeBy (fun _ _v₁ v₂ => v₂) y
+      | some x, some y => some (x.mergeBy (fun _ _v₁ v₂ => v₂) y)
   }
 
 def ofTextDocumentEdit (e : TextDocumentEdit) : WorkspaceEdit :=
-  { documentChanges? := #[DocumentChange.edit e]}
+  { documentChanges? := some #[DocumentChange.edit e]}
 
 def ofTextEdit (doc : VersionedTextDocumentIdentifier) (te : TextEdit) : WorkspaceEdit :=
   ofTextDocumentEdit { textDocument := doc, edits := #[te]}

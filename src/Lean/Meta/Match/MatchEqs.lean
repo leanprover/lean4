@@ -81,7 +81,7 @@ where
               return none
 
 def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
-  try casesOnStuckLHS mvarId catch _ => return none
+  try some <$> casesOnStuckLHS mvarId catch _ => return none
 
 namespace Match
 

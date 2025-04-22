@@ -904,7 +904,7 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
       return (mvarType, isEqMask)
     trace[Meta.Match.debug] "target: {mvarType}"
     withAlts motive discrs discrInfos lhss fun alts minors => do
-      let mvar ← mkFreshExprMVar mvarType
+      let mvar ← mkFreshExprMVar (some mvarType)
       trace[Meta.Match.debug] "goal\n{mvar.mvarId!}"
       let examples := discrs'.toList.map fun discr => Example.var discr.fvarId!
       let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs'.toList, alts := alts, examples := examples }).run {}
@@ -928,7 +928,7 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
     let mvarType  := mkAppN motive discrs
     trace[Meta.Match.debug] "target: {mvarType}"
     withAlts motive discrs discrInfos lhss fun alts minors => do
-      let mvar ← mkFreshExprMVar mvarType
+      let mvar ← mkFreshExprMVar (some mvarType)
       let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
       let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
       let args := #[motive] ++ discrs ++ minors.map Prod.fst
@@ -946,11 +946,11 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
       if let some idx := matcherInfo.uElimPos?
       then mkLevelParam matcherConst.levelParams.toArray[idx]!
       else levelZero
-    forallBoundedTelescope matcherType (some matcherInfo.numDiscrs) fun discrs _ => do
+    forallBoundedTelescope matcherType matcherInfo.numDiscrs fun discrs _ => do
     mkForallFVars discrs (mkConst ``PUnit [u])
 
   let matcherType ← instantiateForall matcherType matcherApp.discrs
-  let lhss ← forallBoundedTelescope matcherType (some matcherApp.alts.size) fun alts _ =>
+  let lhss ← forallBoundedTelescope matcherType matcherApp.alts.size fun alts _ =>
     alts.mapM fun alt => do
     let ty ← inferType alt
     forallTelescope ty fun xs body => do
@@ -970,7 +970,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
 def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
   let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"
   let matcherConst ← getConstInfo matcherName
-  forallBoundedTelescope matcherConst.type (some matcherInfo.arity) fun xs _ => do
+  forallBoundedTelescope matcherConst.type matcherInfo.arity fun xs _ => do
   let matcherApp ← mkConstWithLevelParams matcherConst.name
   let matcherApp := mkAppN matcherApp xs
   let some matcherApp ← matchMatcherApp? matcherApp | throwError "not a matcher app: {matcherApp}"

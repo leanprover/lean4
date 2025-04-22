@@ -200,15 +200,15 @@ def PackageEntry.materialize
     [104]: https://github.com/leanprover/lake/issues/104
     -/
     if (← repo.dirExists) then
-      if (← repo.getHeadRevision?) = rev then
+      if (← repo.getHeadRevision?) = some rev then
         if (← repo.hasDiff) then
           logWarning s!"{sname}: repository '{repo.dir}' has local changes"
       else
         let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
-        updateGitRepo sname repo url rev
+        updateGitRepo sname repo url (some rev)
     else
       let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
-      cloneGitPkg sname repo url rev
+      cloneGitPkg sname repo url (some rev)
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     return mkDep relPkgDir (Git.filterUrl? url |>.getD "")
 where

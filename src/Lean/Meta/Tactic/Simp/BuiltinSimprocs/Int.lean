@@ -114,9 +114,9 @@ builtin_simproc [simp, seval] reduceDvd ((_ : Int) ∣ _) := fun e => do
   let some va ← fromExpr? a | return .continue
   let some vb ← fromExpr? b | return .continue
   if vb % va == 0 then
-    return .done { expr := mkConst ``True, proof? := mkApp3 (mkConst ``Int.dvd_eq_true_of_mod_eq_zero) a b reflBoolTrue}
+    return .done { expr := mkConst ``True, proof? := some <| mkApp3 (mkConst ``Int.dvd_eq_true_of_mod_eq_zero) a b reflBoolTrue}
   else
-    return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Int.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
+    return .done { expr := mkConst ``False, proof? := some <| mkApp3 (mkConst ``Int.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
 
 private def reduceNatCastCore (inst : Expr) (a : Expr) : SimpM DStep := do
   let some a ← getNatValue? a | return .continue

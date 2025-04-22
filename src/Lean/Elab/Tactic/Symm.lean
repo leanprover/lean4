@@ -13,8 +13,8 @@ namespace Lean.Elab.Tactic
 def evalSymm : Tactic := fun stx =>
   match stx with
   | `(tactic| symm $(loc?)?) => do
-    let atHyp h := liftMetaTactic1 fun g => g.applySymmAt h
-    let atTarget := liftMetaTactic1 fun g => g.applySymm
+    let atHyp h := liftMetaTactic1 fun g => some <$> g.applySymmAt h
+    let atTarget := liftMetaTactic1 fun g => some <$> g.applySymm
     let loc := if let some loc := loc? then expandLocation loc else Location.targets #[] true
     withLocation loc atHyp atTarget fun _ => throwError "symm made no progress"
   | _ => throwUnsupportedSyntax
@@ -23,5 +23,5 @@ def evalSymm : Tactic := fun stx =>
 def evalSymmSaturate : Tactic := fun stx =>
   match stx with
   | `(tactic| symm_saturate) => do
-    liftMetaTactic1 fun g => g.symmSaturate
+    liftMetaTactic1 fun g => some <$> g.symmSaturate
   | _ => throwUnsupportedSyntax

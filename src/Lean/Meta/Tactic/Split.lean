@@ -290,7 +290,7 @@ partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (L
         return (← splitIfTarget? mvarId).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
       else
         try
-          splitMatch mvarId e
+          some <$> splitMatch mvarId e
         catch ex =>
           if isDiscrGenException ex then
             trace[split.failure] mkDiscrGenErrorMsg e

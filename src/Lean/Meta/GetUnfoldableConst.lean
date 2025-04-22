@@ -44,7 +44,7 @@ def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
       return some ainfo.toConstantInfo
     else
       return none
-  | .defn => if (← canUnfold ainfo.toConstantInfo) then return ainfo.toConstantInfo else return none
+  | .defn => if (← canUnfold ainfo.toConstantInfo) then return some ainfo.toConstantInfo else return none
   | _ => return none
 
 /--
@@ -53,7 +53,7 @@ As with `getUnfoldableConst?` but return `none` instead of failing if the consta
 def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
   match (← getEnv).find? constName with
   | some (info@(.thmInfo _))  => getTheoremInfo info
-  | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
+  | some (info@(.defnInfo _)) => if (← canUnfold info) then return some info else return none
   | _                         => return none
 
 end Meta

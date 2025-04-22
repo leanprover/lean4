@@ -120,12 +120,12 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
       -- local context and later, when we use the local context to build the recursive
       -- call, it uses this ih. But that ih doesn't exist in the actual brecOn call.
       -- That's why it must go.
-      let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => do
+      let FType ← forallBoundedTelescope brecOnType (.some 1) fun F _ => do
         let F := F[0]!
         let FType ← inferType F
         trace[Elab.definition.structural] "FType: {FType}"
         instantiateForall FType indexMajorArgs
-      forallBoundedTelescope FType (some 1) fun below _ => do
+      forallBoundedTelescope FType (.some 1) fun below _ => do
         let below := below[0]!
         let valueNew     ← replaceIndPredRecApps recArgInfo funType motive value
         let Farg         ← mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew

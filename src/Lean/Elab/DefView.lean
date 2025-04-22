@@ -170,7 +170,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
       pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx[1] id (canonical := true), mkNullNode]
   return {
     ref := stx, headerRef := mkNullNode stx.getArgs[:5], kind := DefKind.instance, modifiers := modifiers,
-    declId := declId, binders := binders, type? := type, value := stx[5]
+    declId := declId, binders := binders, type? := some type, value := stx[5]
   }
 
 def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do

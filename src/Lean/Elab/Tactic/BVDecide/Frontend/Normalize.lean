@@ -96,7 +96,7 @@ where
     if cfg.shortCircuit then
       shortCircuitPass |>.run g'
     else
-      return g'
+      return some g'
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun

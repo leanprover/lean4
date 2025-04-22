@@ -39,12 +39,12 @@ builtin_simproc_decl simpBoolEq (@Eq Bool _ _) := fun e => do
   if lhsName == ``true || lhsName == ``false then
     -- Just apply comm
     let e' := mkApp3 f bool rhs lhs
-    return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.flip_bool_eq) lhs rhs }
+    return .visit { expr := e', proof? := some <| mkApp2 (mkConst ``Grind.flip_bool_eq) lhs rhs }
   if isBoolEqTarget lhsName || isBoolEqTarget rhsName then
     -- Convert into `(lhs = true) = (rhs = true)`
     let tr := mkConst ``true
     let e' ← mkEq (mkApp3 f bool lhs tr) (mkApp3 f bool rhs tr)
-    return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.bool_eq_to_prop) lhs rhs }
+    return .visit { expr := e', proof? := some <| mkApp2 (mkConst ``Grind.bool_eq_to_prop) lhs rhs }
   return .continue
 
 /-- Returns the array of simprocs used by `grind`. -/

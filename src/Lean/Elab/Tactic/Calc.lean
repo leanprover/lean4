@@ -39,7 +39,7 @@ def evalCalc : Tactic
               pure ()
 
         -- Calc extension failed, so let's go back and mimic the `calc` expression
-        Term.ensureHasTypeWithErrorMsgs target val
+        Term.ensureHasTypeWithErrorMsgs (some target) val
           (mkImmedErrorMsg := fun _ => Term.throwCalcFailure steps)
           (mkErrorMsg := fun _ => Term.throwCalcFailure steps)
       pushGoals mvarIds

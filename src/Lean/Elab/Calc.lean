@@ -34,7 +34,7 @@ def mkCalcTrans (result resultType step stepType : Expr) : MetaM (Expr × Expr) 
   let (α, β, γ)       := (← inferType a, ← inferType b, ← inferType c)
   let (u_1, u_2, u_3) := (← getLevel α, ← getLevel β, ← getLevel γ)
   let w ← mkFreshLevelMVar
-  let t ← mkFreshExprMVar (← mkArrow α (← mkArrow γ (mkSort w)))
+  let t ← mkFreshExprMVar (some (← mkArrow α (← mkArrow γ (mkSort w))))
   let selfType := mkAppN (Lean.mkConst ``Trans [u, v, w, u_1, u_2, u_3]) #[α, β, γ, r, s, t]
   match (← trySynthInstance selfType) with
   | .some self =>
@@ -113,14 +113,14 @@ def elabCalcSteps (steps : Array CalcStepView) : TermElabM (Expr × Expr) := do
         throwErrorAt step.term "\
           invalid 'calc' step, left-hand side is{indentD m!"{lhs} : {← inferType lhs}"}\n\
           but previous right-hand side is{indentD m!"{prevRhs} : {← inferType prevRhs}"}"
-    let proof ← withFreshMacroScope do elabTermEnsuringType step.proof type
+    let proof ← withFreshMacroScope do elabTermEnsuringType step.proof (some type)
     result? := some <| ← do
       if let some (result, resultType) := result? then
         synthesizeSyntheticMVarsUsingDefault
         withRef step.term do mkCalcTrans result resultType proof type
       else
         pure (proof, type)
-    prevRhs? := rhs
+    prevRhs? := some rhs
   synthesizeSyntheticMVarsUsingDefault
   return result?.get!
 
@@ -146,7 +146,7 @@ def throwCalcFailure (steps : Array CalcStepView) (expectedType result : Expr) :
         failed := true
       if failed then
         throwAbortTerm
-  throwTypeMismatchError "'calc' expression" expectedType resultType result
+  throwTypeMismatchError (some "'calc' expression") expectedType resultType result
 
 /-!
 Warning! It is *very* tempting to try to improve `calc` so that it makes use of the expected type

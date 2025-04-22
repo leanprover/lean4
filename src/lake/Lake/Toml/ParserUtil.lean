@@ -147,7 +147,7 @@ def atom (p : ParserFn) (trailingFn := skipFn) : Parser where
   fn := atomFn p trailingFn
 
 def getInfoExprPos? : SourceInfo → Option String.Pos
-  | SourceInfo.synthetic (pos := pos) .. => pos
+  | SourceInfo.synthetic (pos := pos) .. => some pos
   | _ => none
 
 def getSyntaxExprPos? : Syntax → Option String.Pos

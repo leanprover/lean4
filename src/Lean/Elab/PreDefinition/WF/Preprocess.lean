@@ -77,7 +77,7 @@ private def getSimpContext : MetaM Simp.Context := do
 
 def isWfParam? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``wfParam 2 then
-    e.appArg!
+    some e.appArg!
   else
     none
 
@@ -108,7 +108,7 @@ builtin_dsimproc paramMatcher (_) := fun e => do
       let body' := body.replaceFVars xs xs'
       mkLambdaFVars xs body'
   let matcherApp' := { matcherApp with discrs := discrs', alts := alts' }
-  return .continue <| matcherApp'.toExpr
+  return .continue <| some <| matcherApp'.toExpr
 
 /-- `let x := (wfParam e); body[x] ==> let x := e; body[wfParam y] -/
 builtin_dsimproc paramLet (_) := fun e => do
@@ -117,7 +117,7 @@ builtin_dsimproc paramLet (_) := fun e => do
   let u ← getLevel e.letType!
   let body' := e.letBody!.instantiate1 <|
     mkApp2 (.const ``wfParam [u]) e.letType! (.bvar 0)
-  return .continue <| e.updateLet! e.letType! v body'
+  return .continue <| some <| e.updateLet! e.letType! v body'
 
 def preprocess (e : Expr) : MetaM Simp.Result := do
   unless wf.preprocess.get (← getOptions) do
@@ -139,7 +139,7 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
       e.withApp fun f as => do
         if f.isConstOf ``wfParam then
           if h : as.size ≥ 2 then
-            return .continue (mkAppN as[1] as[2:])
+            return .continue (some (mkAppN as[1] as[2:]))
         return .continue
     let result := { result with expr := e'' }
 

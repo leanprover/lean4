@@ -29,7 +29,7 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
 
   -- if lhs == e x and lhs' == fix .., then lhsNew := e x = F x (fun y _ => e y)
   let ftype := (← inferType (mkApp F x)).bindingDomain!
-  let f' ← forallBoundedTelescope ftype (some 2) fun ys _ => do
+  let f' ← forallBoundedTelescope ftype (.some 2) fun ys _ => do
     mkLambdaFVars ys (.app lhs.appFn! ys[0]!)
   let lhsNew := mkApp2 F x f'
   let targetNew ← mkEq lhsNew rhs

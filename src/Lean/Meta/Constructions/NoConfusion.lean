@@ -104,7 +104,7 @@ where
     withLocalDecl `y BinderInfo.implicit enumType fun y => do
     withLocalDeclD `h (← mkEq x y) fun h => do
       let declType  ← mkForallFVars #[P, x, y, h] (mkApp3 noConfusionType P x y)
-      let declValue ← mkLambdaFVars #[P, x, y, h] (← mkAppOptM ``noConfusionEnum #[none, none, none, toCtorIdx, P, x, y, h])
+      let declValue ← mkLambdaFVars #[P, x, y, h] (← mkAppOptM ``noConfusionEnum #[.none, .none, .none, toCtorIdx, P, x, y, h])
       let declName  := Name.mkStr enumName "noConfusion"
       addAndCompile <| Declaration.defnDecl {
         name        := declName

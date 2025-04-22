@@ -208,7 +208,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             if view.type?.isSome then
               let pendingMVarIds ← getMVars type
               discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
-                getPendingMVarErrorMessage views
+                some (getPendingMVarErrorMessage views)
             let newHeader : DefViewElabHeaderData := {
               declName, shortDeclName, type, levelNames, binderIds
               numParams := xs.size
@@ -221,7 +221,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
         let cancelTk? := (← readThe Core.Context).cancelTk?
         let bodySnap := {
-          stx? := view.value
+          stx? := some view.value
           reportingRange? :=
             if newTacTask?.isSome then
               -- Only use first line of body as range when we have incremental tactics as otherwise we
@@ -275,7 +275,7 @@ where
     if let some e := getBodyTerm? body then
       if let `(by $tacs*) := e then
         let cancelTk? := (← readThe Core.Context).cancelTk?
-        return (e, some { stx? := mkNullNode tacs, task := tacPromise.resultD default, cancelTk? })
+        return (some e, some { stx? := some <| mkNullNode tacs, task := tacPromise.resultD default, cancelTk? })
     tacPromise.resolve default
     return (none, none)
 
@@ -459,11 +459,11 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           -- and other metaprograms that may want to inspect it without paying for the instantiation
           -- again
           withInfoContext' valStx
-            (mkInfo := (pure <| .inl <| mkBodyInfo valStx ·))
+            (mkInfo := (pure <| .inl <| mkBodyInfo valStx <| some ·))
             (mkInfoOnError := (pure <| mkBodyInfo valStx none))
             do
               -- synthesize mvars here to force the top-level tactic block (if any) to run
-              let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
+              let val ← elabTermEnsuringType valStx (some type) <* synthesizeSyntheticMVarsNoPostponing
               -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
               -- leads to more section variables being included than necessary
               instantiateMVarsProfiling val
@@ -1098,7 +1098,7 @@ where
     -- now start new thread for body elaboration, then nested thread for kernel checking
     let cancelTk ← IO.CancelToken.new
     let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
-        (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
+        (cancelTk? := some cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
         finishElab #[header]
@@ -1111,12 +1111,12 @@ where
       async.commitConst (← getEnv)
       let cancelTk ← IO.CancelToken.new
       let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}")
-          (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
+          (cancelTk? := some cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
         processDeriving #[header]
         async.commitCheckEnv (← getEnv)
       let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) checkAct
-      Core.logSnapshotTask { stx? := none, task := checkTask, cancelTk? := cancelTk }
-    Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
+      Core.logSnapshotTask { stx? := none, task := checkTask, cancelTk? := some cancelTk }
+    Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := some cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers := withFunLocalDecls headers fun funFVars => do
@@ -1244,7 +1244,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       let cancelTk? := (← read).cancelTk?
       defs := defs.push {
         fullHeaderRef
-        headerProcessedSnap := { stx? := d, task := headerPromise.resultD default, cancelTk? }
+        headerProcessedSnap := { stx? := some d, task := headerPromise.resultD default, cancelTk? }
       }
       reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
     views := views.push view

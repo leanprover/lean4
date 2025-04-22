@@ -94,7 +94,7 @@ Selects the variable in the given linear polynomial whose coefficient has the sm
 def _root_.Int.Linear.Poly.pickVarToElim? (p : Poly) : Option (Int × Var) :=
   match p with
   | .num _ => none
-  | .add k x p => go k x p
+  | .add k x p => some <| go k x p
 where
   go (k : Int) (x : Var) (p : Poly) : Int × Var :=
     if k == 1 || k == -1 then

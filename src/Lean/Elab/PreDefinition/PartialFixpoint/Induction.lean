@@ -24,16 +24,16 @@ open Lean Elab Meta
 open Lean.Order
 
 def mkAdmAnd (α instα adm₁ adm₂ : Expr) : MetaM Expr :=
-  mkAppOptM ``admissible_and #[α, instα, none, none, adm₁, adm₂]
+  mkAppOptM ``admissible_and #[α, instα, .none, .none, adm₁, adm₂]
 
 partial def mkAdmProj (packedInst : Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if let some inst ← whnfUntil packedInst ``instCCPOPProd then
     let_expr instCCPOPProd α β instα instβ := inst | throwError "mkAdmProj: unexpected instance {inst}"
     if i == 0 then
-      mkAppOptM ``admissible_pprod_fst #[α, β, instα, instβ, none, e]
+      mkAppOptM ``admissible_pprod_fst #[α, β, instα, instβ, .none, e]
     else
       let e ← mkAdmProj instβ (i - 1) e
-      mkAppOptM ``admissible_pprod_snd #[α, β, instα, instβ, none, e]
+      mkAppOptM ``admissible_pprod_snd #[α, β, instα, instβ, .none, e]
   else
     assert! i == 0
     return e
@@ -98,7 +98,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
                 mkApp motive (PProdN.proj motives.size idx packedType x)
 
         let admTypes ← motives.mapIdxM fun i motive => do
-          mkAppOptM ``admissible #[types[i]!, instCCPOs[i]!, some motive]
+          mkAppOptM ``admissible #[types[i]!, instCCPOs[i]!, .some motive]
         let admNames := numberNames admTypes.size "adm"
         withLocalDeclsDND (admNames.zip admTypes) fun adms => do
           let adms' ← adms.mapIdxM fun i adm => mkAdmProj instCCPOα i adm
@@ -217,10 +217,10 @@ def mkOptionAdm (motive : Expr) : MetaM Expr := do
     let r := ysr.back!
     let mut inst ← mkAppM ``Option.admissible_eq_some #[P, r]
     inst ← mkLambdaFVars #[r] inst
-    inst ← mkAppOptM ``admissible_pi #[none, none, none, none, inst]
+    inst ← mkAppOptM ``admissible_pi #[.none, .none, .none, .none, inst]
     for y in ys.reverse do
       inst ← mkLambdaFVars #[y] inst
-      inst ← mkAppOptM ``admissible_pi_apply #[none, none, none, none, inst]
+      inst ← mkAppOptM ``admissible_pi_apply #[.none, .none, .none, .none, inst]
     pure inst
 
 def derivePartialCorrectness (name : Name) : MetaM Unit := do
@@ -264,7 +264,7 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
               let motive' ← mkForallFVars ysr motive'
               mkLambdaFVars #[f] motive'
 
-        let e' ← mkAppOptM fixpointInductThm <| (xs ++ motives').map some
+        let e' ← mkAppOptM fixpointInductThm <| (xs ++ motives').map .some
         let adms ← motives.mapM mkOptionAdm
         let e' := mkAppN e' adms
         let e' ← mkLambdaFVars motives e'

@@ -681,10 +681,10 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
     if elabBodyFirst then
       let type ← mkForallFVars fvars type
-      let val  ← mkFreshExprMVar type
+      let val  ← mkFreshExprMVar (some type)
       pure (type, val, binders)
     else
-      let val  ← elabTermEnsuringType valStx type
+      let val  ← elabTermEnsuringType valStx (some type)
       let type ← mkForallFVars fvars type
       /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
          in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
@@ -716,7 +716,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       -- the original `fvars` from above are gone, so add back info manually
       for b in binders, x in xs do
         addLocalVarInfo b x
-      let valResult ← elabTermEnsuringType valStx type
+      let valResult ← elabTermEnsuringType valStx (some type)
       let valResult ← mkLambdaFVars xs valResult (usedLetOnly := false)
       unless (← isDefEq val valResult) do
         throwError "unexpected error when elaborating 'let'"

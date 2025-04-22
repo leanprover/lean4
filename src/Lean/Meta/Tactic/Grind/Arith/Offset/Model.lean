@@ -35,19 +35,19 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   for h : u in [:nodes.size] do
     let e := nodes[u]
     if let some v ← getNatValue? e then
-      pre := pre.set! u (Int.ofNat v)
+      pre := pre.set! u (some (Int.ofNat v))
   -- Set remaining values
   for u in [:nodes.size] do
     let lower? := s.sources[u]!.foldl (init := none) fun val? v k => Id.run do
       let some va := pre[v]! | return val?
       let val' := va - k
-      let some val := val? | return val'
-      if val' > val then return val' else val?
+      let some val := val? | return some val'
+      if val' > val then return some val' else val?
     let upper? := s.targets[u]!.foldl (init := none) fun val? v k => Id.run do
       let some va := pre[v]! | return val?
       let val' := va + k
-      let some val := val? | return val'
-      if val' < val then return val' else val?
+      let some val := val? | return some val'
+      if val' < val then return some val' else val?
     if dbg then
       let some upper := upper? | pure ()
       let some lower := lower? | pure ()

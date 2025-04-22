@@ -28,7 +28,7 @@ def mkLHSGoal (e : Expr) : MetaM Expr :=
 where `?newGoal : lhs = ?rhs`. `tag` is the name of `newGoal`. -/
 def mkConvGoalFor (lhs : Expr) (tag : Name := .anonymous) : MetaM (Expr × Expr) := do
   let lhsType ← inferType lhs
-  let rhs ← mkFreshExprMVar lhsType
+  let rhs ← mkFreshExprMVar (some lhsType)
   let targetNew := mkLHSGoalRaw (← mkEq lhs rhs)
   let newGoal ← mkFreshExprSyntheticOpaqueMVar targetNew tag
   return (rhs, newGoal)
@@ -84,7 +84,7 @@ def updateLhs (lhs' : Expr) (h : Expr) : TacticM Unit := do
 def changeLhs (lhs' : Expr) : TacticM Unit := do
   let rhs ← getRhs
   liftMetaTactic1 fun mvarId => do
-    mvarId.replaceTargetDefEq (mkLHSGoalRaw (← mkEq lhs' rhs))
+    some <$> mvarId.replaceTargetDefEq (mkLHSGoalRaw (← mkEq lhs' rhs))
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun _ =>
    withMainContext do
@@ -153,7 +153,7 @@ def remarkAsConvGoal : TacticM Unit := do
   let target ← getMainTarget
   if let some _ := isLHSGoal? target then
     liftMetaTactic1 fun mvarId =>
-      mvarId.replaceTargetDefEq target.mdataExpr!
+      some <$> mvarId.replaceTargetDefEq target.mdataExpr!
   focus do evalTactic seq; remarkAsConvGoal
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.convTactic] def evalConvTactic : Tactic := fun stx =>
@@ -162,7 +162,7 @@ def remarkAsConvGoal : TacticM Unit := do
 private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
    let target ← getMainTarget
    let (targetNew, proof) ← convert target (withTacticInfoContext (← getRef) (evalTactic conv))
-   liftMetaTactic1 fun mvarId => mvarId.replaceTargetEq targetNew proof
+   liftMetaTactic1 fun mvarId => some <$> mvarId.replaceTargetEq targetNew proof
    evalTactic (← `(tactic| try with_reducible rfl))
 
 private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := withMainContext do

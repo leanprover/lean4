@@ -112,7 +112,7 @@ private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) :=
   let .const d lvls := type.getAppFn
     | return none
   let (some ctor) ← getFirstCtor d | pure none
-  return mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
+  return some (mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams))
 
 private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option RecursorRule :=
   match major.getAppFn with
@@ -334,7 +334,7 @@ mutual
           -- First check whether `e`s instance is stuck.
           if let some major := args[projInfo.numParams]? then
             if let some mvarId ← getStuckMVar? major then
-              return mvarId
+              return some mvarId
           /-
           Then, recurse on the explicit arguments
           We want to detect the stuck instance in terms such as
@@ -577,7 +577,7 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
         else
            let newVal := newVal.abstract fvars
            let result := newVal.instantiateRevRange 0 fvars.size args
-           return mkAppRange result fvars.size args.size args
+           return some (mkAppRange result fvars.size args.size args)
   else
     return none
 
@@ -739,7 +739,7 @@ mutual
         | some e =>
           match (← withReducibleAndInstances <| reduceProj? e.getAppFn) with
           | none   => return none
-          | some r => recordUnfold declName; return mkAppN r e.getAppArgs |>.headBeta
+          | some r => recordUnfold declName; return some (mkAppN r e.getAppArgs |>.headBeta)
       | _ => return none
     | _ => return none
 
@@ -863,7 +863,7 @@ def unfoldDefinition (e : Expr) : MetaM Expr := do
 def whnfUntil (e : Expr) (declName : Name) : MetaM (Option Expr) := do
   let e ← whnfHeadPred e (fun e => return !e.isAppOf declName)
   if e.isAppOf declName then
-    return e
+    return some e
   else
     return none
 
@@ -872,7 +872,7 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
   if !e.isApp then
     return none
   else match (← reduceMatcher? e) with
-    | .reduced e => return e
+    | .reduced e => return some e
     | _ =>
       let .const cname lvls := e.getAppFn | return none
       let some cinfo := (← getEnv).find? cname | return none
@@ -895,9 +895,9 @@ def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   match e with
   | Expr.app (Expr.const fName _) (Expr.const argName _) =>
     if fName == ``Lean.reduceBool then do
-      return toExpr (← reduceBoolNative argName)
+      return some (toExpr (← reduceBoolNative argName))
     else if fName == ``Lean.reduceNat then do
-      return toExpr (← reduceNatNative argName)
+      return some (toExpr (← reduceNatNative argName))
     else
       return none
   | _ =>
@@ -917,13 +917,13 @@ def reduceNative? (e : Expr) : MetaM (Option Expr) :=
 
 def reduceUnaryNatOp (f : Nat → Nat) (a : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
-  return mkRawNatLit <| f a
+  return some (mkRawNatLit <| f a)
 
 def reduceBinNatOp (f : Nat → Nat → Nat) (a b : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
   withNatValue b fun b => do
   trace[Meta.isDefEq.whnf.reduceBinOp] "{a} op {b}"
-  return mkRawNatLit <| f a b
+  return some (mkRawNatLit <| f a b)
 
 def reducePow (a b : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
@@ -935,7 +935,7 @@ def reducePow (a b : Expr) : MetaM (Option Expr) :=
 def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do
   withNatValue a fun a =>
   withNatValue b fun b =>
-  return toExpr <| f a b
+  return some (toExpr <| f a b)
 
 def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   match e with

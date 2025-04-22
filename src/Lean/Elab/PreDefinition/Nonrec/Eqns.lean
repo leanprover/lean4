@@ -43,7 +43,7 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
     return none
   if (← getEnv).contains declName then
     if backward.eqns.nonrecursive.get (← getOptions) then
-      mkEqns declName #[]
+      some <$> mkEqns declName #[]
     else
       let o ← mkSimpleEqThm declName
       return o.map (#[·])

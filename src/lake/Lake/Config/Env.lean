@@ -159,14 +159,14 @@ def baseVars (env : Env) : Array (String × Option String)  :=
   #[
     ("ELAN", env.elan?.map (·.elan.toString)),
     ("ELAN_HOME", env.elan?.map (·.home.toString)),
-    ("ELAN_TOOLCHAIN", if env.toolchain.isEmpty then none else env.toolchain),
-    ("LAKE", env.lake.lake.toString),
-    ("LAKE_HOME", env.lake.home.toString),
-    ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
-    ("LEAN", env.lean.lean.toString),
-    ("LEAN_GITHASH", env.leanGithash),
-    ("LEAN_SYSROOT", env.lean.sysroot.toString),
-    ("LEAN_AR", env.lean.ar.toString),
+    ("ELAN_TOOLCHAIN", if env.toolchain.isEmpty then none else some env.toolchain),
+    ("LAKE", some env.lake.lake.toString),
+    ("LAKE_HOME", some env.lake.home.toString),
+    ("LAKE_PKG_URL_MAP", some <| toJson env.pkgUrlMap |>.compress),
+    ("LEAN", some env.lean.lean.toString),
+    ("LEAN_GITHASH", some env.leanGithash),
+    ("LEAN_SYSROOT", some env.lean.sysroot.toString),
+    ("LEAN_AR", some env.lean.ar.toString),
     ("LEAN_CC", env.lean.leanCc?)
   ]
 

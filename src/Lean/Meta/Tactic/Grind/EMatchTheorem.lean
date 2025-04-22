@@ -24,14 +24,14 @@ private def detectOffsets (pat : Expr) : MetaM Expr := do
   let pre (e : Expr) := do
     if e == pat then
       -- We only consider nested offset patterns
-      return .continue e
+      return .continue (some e)
     else match e with
       | .letE .. | .lam .. | .forallE .. => return .done e
       | _ =>
         let some (e, k) ← isOffset? e
-          | return .continue e
-        if k == 0 then return .continue e
-        return .continue <| mkOffsetPattern e k
+          | return .continue (some e)
+        if k == 0 then return .continue (some e)
+        return .continue <| some (mkOffsetPattern e k)
   Core.transform pat (pre := pre)
 
 def isOffsetPattern? (pat : Expr) : Option (Expr × Nat) := Id.run do
@@ -766,7 +766,7 @@ private partial def collectGroundPattern? (proof : Expr) (xs : Array Expr) (sear
     for place in searchPlaces do
       let place ← preprocessPattern place
       if let some r ← visit? place then
-        return r
+        return some r
     return none
   let (some p, s) ← go? { proof, xs } |>.run' {} |>.run {}
     | return none
@@ -784,11 +784,11 @@ where
         for arg in args, flag in (← NormalizePattern.getPatternSupportMask f args.size) do
           unless flag do
             if let some r ← visit? arg then
-              return r
+              return some r
         return none
     | .forallE _ d b _ =>
       if (← pure e.isArrow <&&> isProp d <&&> isProp b) then
-        if let some d ← visit? d then return d
+        if let some d ← visit? d then return some d
         visit? b
       else
         return none
@@ -804,11 +804,11 @@ def mkEMatchTheoremWithKind?
       (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind)
       (groundPatterns := true) : MetaM (Option EMatchTheorem) := do
   if kind == .eqLhs then
-    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true))
+    return some (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true))
   else if kind == .eqRhs then
-    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := false))
+    return some (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := false))
   else if kind == .eqBwd then
-    return (← mkEMatchEqBwdTheoremCore origin levelParams proof)
+    return some (← mkEMatchEqBwdTheoremCore origin levelParams proof)
   let type ← inferType proof
   /-
   Remark: we should not use `forallTelescopeReducing` (with default reducibility) here
@@ -864,7 +864,7 @@ def mkEMatchTheoremForDecl (declName : Name) (thmKind : EMatchTheoremKind) : Met
 
 def mkEMatchEqTheoremsForDef? (declName : Name) : MetaM (Option (Array EMatchTheorem)) := do
   let some eqns ← getEqnsFor? declName | return none
-  eqns.mapM fun eqn => do
+  some <$> eqns.mapM fun eqn => do
     mkEMatchEqTheorem eqn (normalizePattern := true)
 
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (useLhs := true) : MetaM Unit := do

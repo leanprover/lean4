@@ -78,7 +78,7 @@ instance : Inhabited RCasesPatt := ⟨RCasesPatt.one Syntax.missing `_⟩
 partial def name? : RCasesPatt → Option Name
   | one _ `_    => none
   | one _ `rfl  => none
-  | one _ n     => n
+  | one _ n     => some n
   | paren _ p
   | typed _ p _
   | alts _ [p]  => p.name?
@@ -313,7 +313,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     let e := fs.apply e
     let etype ← inferType e
     unless ← isDefEq etype expected do
-      Term.throwTypeMismatchError "rcases: scrutinee" expected etype e
+      Term.throwTypeMismatchError (some "rcases: scrutinee") expected etype e
     let g ← if let .fvar e := e then g.replaceLocalDeclDefEq e expected else pure g
     rcasesCore g fs clears e a pat cont
   | .paren ref p

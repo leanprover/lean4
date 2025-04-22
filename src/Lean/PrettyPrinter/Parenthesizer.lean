@@ -189,7 +189,7 @@ instance : Syntax.MonadTraverser ParenthesizerM := ⟨{
 open Syntax.MonadTraverser
 
 def addPrecCheck (prec : Nat) : ParenthesizerM Unit :=
-  modify fun st => { st with contPrec := Nat.min (st.contPrec.getD prec) prec, minPrec := Nat.min (st.minPrec.getD prec) prec }
+  modify fun st => { st with contPrec := some (Nat.min (st.contPrec.getD prec) prec), minPrec := some (Nat.min (st.minPrec.getD prec) prec) }
 
 /-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
 def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
@@ -246,7 +246,7 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
       setCur stx'
       goLeft
       -- after parenthesization, there is no more trailing parser
-      modify (fun st => { st with contPrec := Parser.maxPrec, contCat := cat, trailPrec := none })
+      modify (fun st => { st with contPrec := some Parser.maxPrec, contCat := cat, trailPrec := none })
   let { trailPrec := trailPrec, .. } ← get
   -- If we already had a token at this level, keep the trailing parser. Otherwise, use the minimum of
   -- `prec` and `trailPrec`.
@@ -256,7 +256,7 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
     let trailPrec := match trailPrec with
     | some trailPrec => Nat.min trailPrec prec
     | _              => prec
-    modify fun stP => { stP with trailPrec := trailPrec, trailCat := cat }
+    modify fun stP => { stP with trailPrec := some trailPrec, trailCat := cat }
   modify fun stP => { stP with minPrec := st.minPrec }
 
 /-- Adjust state and advance. -/
@@ -434,7 +434,7 @@ def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesiz
   -- Limit `cont` precedence to `maxPrec-1`.
   -- This is because `maxPrec-1` is the precedence of function application, which is the only way to turn a leading parser
   -- into a trailing one.
-  modify fun st => { st with contPrec := Nat.min (Parser.maxPrec-1) prec }
+  modify fun st => { st with contPrec := some (Nat.min (Parser.maxPrec-1) prec) }
 
 @[combinator_parenthesizer trailingNode]
 def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Parenthesizer) : Parenthesizer := do

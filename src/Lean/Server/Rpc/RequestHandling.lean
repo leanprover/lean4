@@ -117,7 +117,7 @@ def registerRpcProcedure (method : Name) : CoreM Unit := do
   let procT := mkConst ``RpcProcedure
   let proc ← MetaM.run' <| TermElabM.run' <| withoutErrToSorry do
     let stx ← ``(wrapRpcProcedure $(quote method) _ _ $(mkIdent method))
-    let c ← Lean.Elab.Term.elabTerm stx procT
+    let c ← Lean.Elab.Term.elabTerm stx (some procT)
     instantiateMVars c
   addAndCompile <| Declaration.defnDecl {
         name        := wrappedName

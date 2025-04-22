@@ -111,7 +111,7 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
         let pf ← withSynthesize do
           let indVal ← getConstInfoInduct structName
           let params := Array.replicate indVal.numParams (← `(_))
-          Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
+          Elab.Term.elabTermEnsuringType (expectedType? := some type) (implicitLambda := false)
             -- introduce the params, do cases on 'x' and 'y', and then substitute each equation
             (← `(by intro $params* {..} {..}; intros; subst_eqs; rfl))
         let pf ← instantiateMVars pf
@@ -146,7 +146,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
       Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extIffName do
         let type ← mkExtIffType extName
         let pf ← withSynthesize do
-          Elab.Term.elabTermEnsuringType (expectedType? := type) <| ← `(by
+          Elab.Term.elabTermEnsuringType (expectedType? := some type) <| ← `(by
             intros
             refine ⟨?_, ?_⟩
             · intro h; cases h; and_intros <;> (intros; first | rfl | simp | fail "Failed to prove converse of ext theorem")

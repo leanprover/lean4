@@ -27,7 +27,7 @@ scoped syntax "wait_for_cancel_once" : tactic
 elab_rules : tactic
 | `(tactic| wait_for_cancel_once) => do
   let prom ← IO.Promise.new
-  if let some t := (← onceRef.modifyGet (fun old => (old, old.getD prom.result!))) then
+  if let some t := (← onceRef.modifyGet (fun old => (old, some (old.getD prom.result!)))) then
     IO.wait t
     return
 
@@ -93,7 +93,7 @@ was set before unblocking, i.e. if the tactic was invalidated after all.
 -/
 elab "wait_for_unblock_async" : tactic => do
   let cancelTk ← IO.CancelToken.new
-  let act ← Elab.Term.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+  let act ← Elab.Term.wrapAsyncAsSnapshot (cancelTk? := some cancelTk) fun _ => do
     let ctx ← readThe Core.Context
     let some cancelTk := ctx.cancelTk? | unreachable!
     while true do
@@ -104,7 +104,7 @@ elab "wait_for_unblock_async" : tactic => do
       IO.eprintln "cancelled!"
       log "cancelled (should never be visible)"
   let t ← BaseIO.asTask (act ())
-  Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk }
+  Core.logSnapshotTask { stx? := none, task := t, cancelTk? := some cancelTk }
 
   log "blocked"
 
@@ -122,12 +122,12 @@ scoped syntax "wait_for_cancel_once_async" : tactic
 elab_rules : tactic
 | `(tactic| wait_for_cancel_once_async) => do
   let prom ← IO.Promise.new
-  if let some t := (← onceRef.modifyGet (fun old => (old, old.getD prom.result!))) then
+  if let some t := (← onceRef.modifyGet (fun old => (old, some (old.getD prom.result!)))) then
     IO.wait t
     return
 
   let cancelTk ← IO.CancelToken.new
-  let act ← Elab.Term.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+  let act ← Elab.Term.wrapAsyncAsSnapshot (cancelTk? := some cancelTk) fun _ => do
     let ctx ← readThe Core.Context
     let some cancelTk := ctx.cancelTk? | unreachable!
     -- TODO: `CancelToken` should probably use `Promise`
@@ -140,7 +140,7 @@ elab_rules : tactic
     prom.resolve ()
     Core.checkInterrupted
   let t ← BaseIO.asTask (act ())
-  Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk }
+  Core.logSnapshotTask { stx? := none, task := t, cancelTk? := some cancelTk }
 
   dbg_trace "blocked!"
   log "blocked"
@@ -155,7 +155,7 @@ scoped syntax "wait_for_main_cancel_once_async" : tactic
 elab_rules : tactic
 | `(tactic| wait_for_main_cancel_once_async) => do
   let prom ← IO.Promise.new
-  if let some t := (← onceRef.modifyGet (fun old => (old, old.getD prom.result!))) then
+  if let some t := (← onceRef.modifyGet (fun old => (old, some (old.getD prom.result!)))) then
     IO.wait t
     return
 
@@ -172,7 +172,7 @@ elab_rules : tactic
     prom.resolve ()
     Core.checkInterrupted
   let t ← BaseIO.asTask (act ())
-  Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk }
+  Core.logSnapshotTask { stx? := none, task := t, cancelTk? := some cancelTk }
 
   dbg_trace "blocked!"
   log "blocked"

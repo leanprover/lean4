@@ -233,7 +233,7 @@ def getLevelOffset : Level → Level
 
 def toNat (lvl : Level) : Option Nat :=
   match lvl.getLevelOffset with
-  | zero   => lvl.getOffset
+  | zero   => some lvl.getOffset
   | _      => none
 
 @[extern "lean_level_eq"]
@@ -396,7 +396,7 @@ def dec : Level → Option Level
   | zero       => none
   | param _    => none
   | mvar _     => none
-  | succ l     => l
+  | succ l     => some l
   | max l₁ l₂  => return mkLevelMax (← dec l₁) (← dec l₂)
   /- Remark: `mkLevelMax` in the following line is not a typo.
      If `dec l₂` succeeds, then `imax l₁ l₂` is equivalent to `max l₁ l₂`. -/

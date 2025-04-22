@@ -31,7 +31,7 @@ private def addSuggestions (stx : Syntax) (tokenNew : String) (kindNew : SyntaxN
   let stx' := stx'.unsetTrailing
   let s₁ : TSyntax `tactic := ⟨← addArith stx'⟩
   let s₂ : TSyntax `tactic := ⟨← addArith (← addDecide stx')⟩
-  Meta.Tactic.TryThis.addSuggestions stx[0] #[s₁, s₂] (origSpan? := (← getRef))
+  Meta.Tactic.TryThis.addSuggestions stx[0] #[s₁, s₂] (origSpan? := some (← getRef))
 
 @[builtin_tactic Lean.Parser.Tactic.simpArith] def evalSimpArith : Tactic := fun stx => do
   addSuggestions stx "simp" ``Parser.Tactic.simp

@@ -36,7 +36,7 @@ private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hNa
     let elseTarget := Lean.mkForall hName BinderInfo.default xNeqValue target
     let thenMVar ← mkFreshExprSyntheticOpaqueMVar thenTarget tag
     let elseMVar ← mkFreshExprSyntheticOpaqueMVar elseTarget tag
-    let val ← mkAppOptM `dite #[none, xEqValue, none, thenMVar, elseMVar]
+    let val ← mkAppOptM `dite #[.none, xEqValue, .none, thenMVar, elseMVar]
     mvarId.assign val
     let (elseH, elseMVarId) ← elseMVar.mvarId!.intro1P
     let elseSubgoal := { mvarId := elseMVarId, newH := elseH, subst := subst : CaseValueSubgoal }

@@ -34,7 +34,7 @@ open Lean Meta Elab Tactic
 partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : MetaM (Option MVarId) := do
   let ty ← whnfR (← g.getType)
   match ty with
-  | .const ``False _ => return g
+  | .const ``False _ => return some g
   | .forallE ..
   | .app (.const ``Not _) _ =>
     -- We set the transparency back to default; otherwise this breaks when run by a `simp` discharger.

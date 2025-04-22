@@ -570,9 +570,9 @@ section ServerM
       | some m, none => some m
       | some m1, some m2 =>
         if m1.compare m2 == .lt then
-          m2
+          some m2
         else
-          m1
+          some m1
 
   def handleQueryModule (fw : FileWorker) (id : RequestID) (params : LeanQueryModuleParams)
       : ServerM (ServerTask Unit × CancelToken) := do
@@ -583,7 +583,7 @@ section ServerM
       for query in params.queries do
         let filterMapMod mod := pure <| some mod
         let filterMapIdent decl := pure <| matchAgainstQuery? query decl
-        let symbols ← refs.definitionsMatching filterMapMod filterMapIdent cancelTk
+        let symbols ← refs.definitionsMatching filterMapMod filterMapIdent (some cancelTk)
         let sorted := symbols.qsort fun { ident := m1, .. } { ident := m2, .. } =>
           m1.fastCompare m2 == .gt
         let result : LeanQueriedModule := sorted.extract 0 10 |>.map fun m => {
@@ -743,7 +743,7 @@ section ServerM
           version    := m.version
           text       := m.text.source
         }
-        dependencyBuildMode? := initialDependencyBuildMode
+        dependencyBuildMode? := some initialDependencyBuildMode
         : LeanDidOpenTextDocumentParams
       }
     }
@@ -879,7 +879,7 @@ private def callHierarchyItemOf?
       uri            := definitionLocation.uri
       range          := definitionLocation.range,
       selectionRange := definitionLocation.range
-      data?          := toJson {
+      data?          := some <| toJson {
         module := definitionModule.toName
         name   := definitionName
         : CallHierarchyItemData
@@ -899,7 +899,7 @@ private def callHierarchyItemOf?
       uri            := definitionLocation.uri
       range          := parentDeclRange,
       selectionRange := parentDeclSelectionRange
-      data?          := toJson {
+      data?          := some <| toJson {
         -- Assumption: The parent declaration of a reference lives in the same module
         -- as the reference.
         module := definitionModule
@@ -946,7 +946,7 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
         uri            := location.uri
         range          := parentDeclRange
         selectionRange := parentDeclSelectionRange
-        data?          := toJson {
+        data?          := some <| toJson {
           module := refModule
           name   := parentDeclName
           : CallHierarchyItemData
@@ -1114,8 +1114,8 @@ section NotificationHandling
 
   def handleDidChangeWatchedFiles (p : DidChangeWatchedFilesParams) : ServerM Unit := do
     let changes := p.changes.filterMap fun c => do return (c, ← fileUriToPath? c.uri)
-    let leanChanges := changes.filter fun (_, path) => path.extension == "lean"
-    let ileanChanges := changes.filter fun (_, path) => path.extension == "ilean"
+    let leanChanges := changes.filter fun (_, path) => path.extension == some "lean"
+    let ileanChanges := changes.filter fun (_, path) => path.extension == some "ilean"
     if ! leanChanges.isEmpty then
       let importData ← (← read).importData.get
       for (c, _) in leanChanges do
@@ -1425,11 +1425,11 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     range := true
   }
   codeActionProvider? := some {
-    resolveProvider? := true,
+    resolveProvider? := some true,
     codeActionKinds? := some #["quickfix", "refactor", "source.organizeImports"]
   }
   inlayHintProvider? := some {
-    resolveProvider? := false
+    resolveProvider? := some false
   }
 }
 
@@ -1537,7 +1537,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
       capabilities := mkLeanServerCapabilities
       serverInfo?  := some {
         name     := "Lean 4 Server"
-        version? := "0.3.0"
+        version? := some "0.3.0"
       }
       : InitializeResult
     }

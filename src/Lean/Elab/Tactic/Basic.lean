@@ -246,12 +246,12 @@ where
                     stx := stx'
                     diagnostics := .empty
                     inner? := none
-                    finished := .finished stx' {
+                    finished := .finished (some stx') {
                       diagnostics := .empty
-                      state? := (← Tactic.saveState)
+                      state? := some (← Tactic.saveState)
                       moreSnaps := #[]
                     }
-                    next := #[{ stx? := stx', task := promise.resultD default, cancelTk? }]
+                    next := #[{ stx? := some stx', task := promise.resultD default, cancelTk? }]
                   }
                   -- Update `tacSnap?` to old unfolding
                   withTheReader Term.Context ({ · with tacSnap? := some {

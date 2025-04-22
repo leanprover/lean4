@@ -14,7 +14,7 @@ private def inSameRing? (a b : Expr) : GoalM (Option Nat) := do
   let some ringId ← getTermRingId? a | return none
   let some ringId' ← getTermRingId? b | return none
   unless ringId == ringId' do return none -- This can happen when we have heterogeneous equalities
-  return ringId
+  return some ringId
 
 def mkEqCnstr (p : Poly) (h : EqCnstrProof) : RingM EqCnstr := do
   let id := (← getRing).nextId

@@ -53,7 +53,7 @@ def shortCircuitPass : Pass where
         (simprocs := #[])
         (fvarIdsToSimp := hyps)
       let some (_, newGoal) := result? | return none
-      return newGoal
+      return some newGoal
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

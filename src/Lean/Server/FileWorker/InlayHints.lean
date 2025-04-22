@@ -48,8 +48,8 @@ def InlayHintInfo.toLspInlayHint (text : FileMap) (i : InlayHintInfo) : IO Lsp.I
     kind? := i.kind?.map (·.toLspInlayHintKind)
     textEdits? := some <| i.textEdits.map (·.toLspTextEdit text)
     tooltip? := do return .markdown { kind := .markdown, value := ← i.tooltip? }
-    paddingLeft? := i.paddingLeft
-    paddingRight? := i.paddingRight
+    paddingLeft? := some i.paddingLeft
+    paddingRight? := some i.paddingRight
   }
 
 end Lean.Elab

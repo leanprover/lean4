@@ -62,7 +62,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
       let t := insertEmpty (i + 1)
       node1 none c t
     else
-      leaf (f .none)
+      leaf (some (f .none))
   let rec loop
     | i, leaf v =>
       if h : i < s.utf8ByteSize then
@@ -70,7 +70,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
         let t := insertEmpty (i + 1)
         node1 v c t
       else
-        leaf (f v)
+        leaf (some (f v))
     | i, node1 v c' t' =>
       if h : i < s.utf8ByteSize then
         let c := s.getUtf8Byte i h
@@ -80,7 +80,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
           let t := insertEmpty (i + 1)
           node v (.mk #[c, c']) #[t, t']
       else
-        node1 (f v) c' t'
+        node1 (some (f v)) c' t'
     | i, node v cs ts =>
       if h : i < s.utf8ByteSize then
         let c := s.getUtf8Byte i h
@@ -91,7 +91,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
           | some idx =>
             node v cs (ts.modify idx (loop (i + 1)))
       else
-        node (f v) cs ts
+        node (some (f v)) cs ts
   loop 0 t
 
 /-- Inserts a value at a the given key `s`, overriding an existing value if present. -/

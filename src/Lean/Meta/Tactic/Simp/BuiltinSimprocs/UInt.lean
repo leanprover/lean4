@@ -19,7 +19,7 @@ namespace $typeName
 
 def $fromExpr (e : Expr) : SimpM (Option $typeName) := do
   let some (n, _) ← getOfNatValue? e $(quote typeName.getId) | return none
-  return $(mkIdent ofNat) n
+  return some ($(mkIdent ofNat) n)
 
 @[inline] def reduceBin (declName : Name) (arity : Nat) (op : $typeName → $typeName → $typeName) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
@@ -93,7 +93,7 @@ namespace USize
 
 def fromExpr (e : Expr) : SimpM (Option USize) := do
   let some (n, _) ← getOfNatValue? e ``USize | return none
-  return USize.ofNat n
+  return some (USize.ofNat n)
 
 builtin_simproc [simp, seval] reduceToNat (USize.toNat _) := fun e => do
   let_expr USize.toNat e ← e | return .continue
@@ -102,4 +102,4 @@ builtin_simproc [simp, seval] reduceToNat (USize.toNat _) := fun e => do
   let e := toExpr n
   let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
   let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
-  return .done { expr := e, proof? := p }
+  return .done { expr := e, proof? := some p }

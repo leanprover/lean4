@@ -60,7 +60,7 @@ def packType (xs : Array Expr) : MetaM Expr := do
     return mkConst ``Unit
   let mut d ← inferType xs.back!
   for x in xs.pop.reverse do
-    d ← mkAppOptM ``PSigma #[some (← inferType x), some (← mkLambdaFVars #[x] d)]
+    d ← mkAppOptM ``PSigma #[.some (← inferType x), .some (← mkLambdaFVars #[x] d)]
   return d
 
 
@@ -170,7 +170,7 @@ def uncurry (varNames : Array Name) (e : Expr) : MetaM Expr := do
   else
     let type ← inferType e
     let resultType ← uncurryType varNames type
-    forallBoundedTelescope resultType (some 1) fun xs codomain => do
+    forallBoundedTelescope resultType (.some 1) fun xs codomain => do
       let #[x] := xs | unreachable!
       let u ← getLevel codomain
       let value ← casesOn varNames.toList x u codomain e
@@ -295,7 +295,7 @@ match x with | inl x₁ => R₁[x₁] | inr x₂ => R₂[x₂] | …
 This function assumes (and does not check) that `Rᵢ` all have the same level.
 -/
 def mkCodomain (types : Array Expr) (x : Expr) : MetaM Expr := do
-  let u ← forallBoundedTelescope types[0]! (some 1) fun _ body => getLevel body
+  let u ← forallBoundedTelescope types[0]! (.some 1) fun _ body => getLevel body
   let rec go (x : Expr) (i : Nat) : MetaM Expr := do
     if i < types.size - 1 then
       let xType ← whnfD (← inferType x)
@@ -394,7 +394,7 @@ and `(z : C) → R₂[z]`, returns an expression of type
 ```
 -/
 def uncurryWithType (resultType : Expr) (es : Array Expr) : MetaM Expr := do
-  forallBoundedTelescope resultType (some 1) fun xs codomain => do
+  forallBoundedTelescope resultType (.some 1) fun xs codomain => do
     let #[x] := xs | unreachable!
     let value ← casesOn x codomain es.toList
     mkLambdaFVars #[x] value
@@ -414,7 +414,7 @@ and `(z : C) → R`, returns an expression of type
 def uncurryND (es : Array Expr) : MetaM Expr := do
   let types ← es.mapM inferType
   let resultType ← uncurryTypeND types
-  forallBoundedTelescope resultType (some 1) fun xs codomain => do
+  forallBoundedTelescope resultType (.some 1) fun xs codomain => do
     let #[x] := xs | unreachable!
     let value ← casesOn x codomain es.toList
     mkLambdaFVars #[x] value

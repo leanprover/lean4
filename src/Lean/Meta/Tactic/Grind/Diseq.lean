@@ -74,9 +74,9 @@ def mkDiseqProof? (a b : Expr) : GoalM (Option Expr) := do
     pure <| mkApp6 (mkConst ``Grind.ne_of_ne_of_eq_left u) α a c d (← mkEqProof a c) h
   -- `h : a ≠ d
   if isSameExpr b d then
-    return h
+    return some h
   else
-    return mkApp6 (mkConst ``Grind.ne_of_ne_of_eq_right u) α b a d (← mkEqProof b d) h
+    return some <| mkApp6 (mkConst ``Grind.ne_of_ne_of_eq_right u) α b a d (← mkEqProof b d) h
 
 def mkDiseqProof (a b : Expr) : GoalM Expr := do
  let some h ← mkDiseqProof? a b

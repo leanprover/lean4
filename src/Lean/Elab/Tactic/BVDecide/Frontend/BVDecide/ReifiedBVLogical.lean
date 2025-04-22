@@ -42,7 +42,7 @@ Construct an uninterrpeted `Bool` atom from `t`.
 -/
 def boolAtom (t : Expr) : M (Option ReifiedBVLogical) := do
   let some pred ← ReifiedBVPred.boolAtom t | return none
-  ofPred pred
+  some <$> ofPred pred
 
 /--
 Build a reified version of the constant `val`.
@@ -80,7 +80,7 @@ def mkGate (lhs rhs : ReifiedBVLogical) (lhsExpr rhsExpr : Expr) (gate : Gate) (
         ReifiedBVLogical.mkRefl
         lhsEvalExpr lhsProof?
         rhsEvalExpr rhsProof? | return none
-    return mkApp6
+    return some <| mkApp6
       (mkConst congrThm)
       lhsExpr rhsExpr
       lhsEvalExpr rhsEvalExpr
@@ -105,7 +105,7 @@ def mkNot (sub : ReifiedBVLogical) (subExpr : Expr) (origExpr : Expr) : M Reifie
     -- This is safe as `not_congr` holds definitionally if the arguments are defeq.
     let some subProof ← sub.evalsAtAtoms | return none
     let subEvalExpr ← ReifiedBVLogical.mkEvalExpr sub.expr
-    return mkApp3 (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.not_congr) subExpr subEvalExpr subProof
+    return some (mkApp3 (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.not_congr) subExpr subEvalExpr subProof)
   return ⟨boolExpr, origExpr, proof, expr⟩
 
 /--
@@ -136,7 +136,7 @@ def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr : Expr) 
         discrEvalExpr discrProof?
         lhsEvalExpr lhsProof?
         rhsEvalExpr rhsProof? | return none
-    return mkApp9
+    return some <| mkApp9
       (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.cond_congr)
       discrExpr lhsExpr rhsExpr
       discrEvalExpr lhsEvalExpr rhsEvalExpr

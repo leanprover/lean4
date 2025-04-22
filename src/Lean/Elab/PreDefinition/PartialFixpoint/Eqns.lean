@@ -103,13 +103,13 @@ where
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   let name := Name.str declName unfoldThmSuffix
   let env ← getEnv
-  if env.contains name then return name
+  if env.contains name then return some name
   let some info := eqnInfoExt.find? env declName | return none
   return some (← mkUnfoldEq declName info)
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames
+    some <$> mkEqns declName info.declNames
   else
     return none
 

@@ -49,7 +49,7 @@ def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do
   | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
     if alts.any shouldExpandMatchAlt then
       let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ (← expandMatchAlt alt)
-      `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
+      some <$> `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
     else
       return none
   | _ => return none

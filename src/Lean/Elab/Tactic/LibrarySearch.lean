@@ -36,7 +36,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
     match (← librarySearch goal tactic allowFailure) with
     -- Found goal that closed problem
     | none =>
-      addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (checkState? := initialState)
+      addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (checkState? := some initialState)
     -- Found suggestions
     | some suggestions =>
       if requireClose then
@@ -46,7 +46,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
           addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta
-            (checkState? := initialState) (addSubgoalsMsg := true) (tacticErrorAsInfo := true)
+            (checkState? := some initialState) (addSubgoalsMsg := true) (tacticErrorAsInfo := true)
       if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
       admitGoal goal
 
@@ -67,7 +67,7 @@ def evalApply : Tactic := fun stx => do
 def elabExact?Term : TermElab := fun stx expectedType? => do
   let `(exact?%) := stx | throwUnsupportedSyntax
   withExpectedType expectedType? fun expectedType => do
-    let goal ← mkFreshExprMVar expectedType
+    let goal ← mkFreshExprMVar (some expectedType)
     let (_, introdGoal) ← goal.mvarId!.intros
     introdGoal.withContext do
       if let some suggestions ← librarySearch introdGoal then

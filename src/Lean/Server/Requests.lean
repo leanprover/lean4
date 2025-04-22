@@ -86,7 +86,7 @@ partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree
     return snap.task.asServerTask.mapCheap fun tree => Id.run do
       let some infoTree := tree.element.infoTree?
         | return (none, .proceed (foldChildren := true))
-      return (infoTree, .done)
+      return (some infoTree, .done)
 
 partial def SnapshotTree.collectMessagesInRange (tree : SnapshotTree)
     (requestedRange : String.Range) : ServerTask MessageLog :=

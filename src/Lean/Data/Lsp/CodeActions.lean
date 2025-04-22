@@ -146,19 +146,19 @@ structure CodeActionLiteralSupport where
 /-- [Reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeActionClientCapabilities) -/
 structure CodeActionClientCapabilities where
   /-- Whether we can [register capabilities dynamically](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#client_registerCapability). -/
-  dynamicRegistration?      : Option Bool := false
+  dynamicRegistration?      : Option Bool := some false
   /-- Whether the code action supports the `isPreferred` property. -/
-  isPreferredSupport?       : Option Bool := false
+  isPreferredSupport?       : Option Bool := some false
   /-- Whether the code action supports the `disabled` property. -/
-  disabledSupport?          : Option Bool := false
+  disabledSupport?          : Option Bool := some false
   /-- Weather code action supports the `data` property which is preserved between a `textDocument/codeAction` and a `codeAction/resolve` request. -/
-  dataSupport?              : Option Bool := false
+  dataSupport?              : Option Bool := some false
   /-- Whether the client honors the change annotations in
     text edits and resource operations returned via the
     `CodeAction#edit` property by for example presenting
     the workspace edit in the user interface and asking
     for confirmation. -/
-  honorsChangeAnnotations?  : Option Bool := false
+  honorsChangeAnnotations?  : Option Bool := some false
   /-- The client supports code action literals as a valid response of the `textDocument/codeAction` request. -/
   codeActionLiteralSupport? : Option CodeActionLiteralSupport := none
   /-- Whether the client supports resolving additional code action properties via a separate `codeAction/resolve` request. -/

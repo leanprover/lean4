@@ -42,7 +42,7 @@ Throws errors if the term is a proof or a type, but lifts props to `Bool` using 
 -/
 private def elabTermForEval (term : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let ty ← expectedType?.getDM mkFreshTypeMVar
-  let e ← Term.elabTermEnsuringType term ty
+  let e ← Term.elabTermEnsuringType term (some ty)
   synthesizeWithHinting ty
   let e ← instantiateMVars e
   if (← Term.logUnassignedUsingErrorInfos (← getMVars e)) then throwAbortTerm
@@ -110,8 +110,8 @@ private partial def mkDeltaInstProj (inst projFn : Name) (e : Expr) (ty? : Optio
         -- Reducing the type is a strategy `#eval` used before the refactor of #5627.
         -- The test lean/run/hlistOverload.lean depends on it, so we preserve the behavior.
         let ty ← reduce (skipTypes := false) ty
-        mkDeltaInstProj inst projFn e ty (tryReduce := false)
-    mkDeltaInstProj inst projFn e ty tryReduce
+        mkDeltaInstProj inst projFn e (some ty) (tryReduce := false)
+    mkDeltaInstProj inst projFn e (some ty) tryReduce
 
 /-- Try to make a `toString e` application, even if it takes unfolding the type of `e` to find a `ToString` instance. -/
 private def mkToString (e : Expr) (ty? : Option Expr := none) : MetaM Expr := do
@@ -169,7 +169,7 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
     -- A trick here is that `mkMAct?` makes use of `MonadEval` instances are currently available in this stage,
     -- and we do not need them to be available in the target environment.
     let mkMAct? (mc : Name) (m : Type → Type) [Monad m] [MonadEvalT m CommandElabM] (e : Expr) : TermElabM (Option EvalAction) := do
-      let some e ← observing? (mkAppOptM ``MonadEvalT.monadEval #[none, mkConst mc, none, none, e])
+      let some e ← observing? (mkAppOptM ``MonadEvalT.monadEval #[.none, mkConst mc, .none, .none, e])
         | return none
       let eType := e.appFn!.appArg!
       if ← isDefEq eType (mkConst ``Unit) then
@@ -254,7 +254,7 @@ def elabRunCmd : CommandElab
   | `(run_cmd%$tk $elems:doSeq) => do
     unless (← getEnv).contains ``CommandElabM do
       throwError "to use this command, include `import Lean.Elab.Command`"
-    elabEvalCore false tk (← `(discard do $elems)) (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
+    elabEvalCore false tk (← `(discard do $elems)) (some (mkApp (mkConst ``CommandElabM) (mkConst ``Unit)))
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab runElab]
@@ -262,7 +262,7 @@ def elabRunElab : CommandElab
   | `(run_elab%$tk $elems:doSeq) => do
     unless (← getEnv).contains ``TermElabM do
       throwError "to use this command, include `import Lean.Elab.Term`"
-    elabEvalCore false tk (← `(discard do $elems)) (mkApp (mkConst ``TermElabM) (mkConst ``Unit))
+    elabEvalCore false tk (← `(discard do $elems)) (some (mkApp (mkConst ``TermElabM) (mkConst ``Unit)))
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab runMeta]
@@ -271,7 +271,7 @@ def elabRunMeta : CommandElab := fun stx =>
   | `(run_meta%$tk $elems:doSeq) => do
     unless (← getEnv).contains ``MetaM do
       throwError "to use this command, include `import Lean.Meta.Basic`"
-    elabEvalCore false tk (← `(discard do $elems)) (mkApp (mkConst ``MetaM) (mkConst ``Unit))
+    elabEvalCore false tk (← `(discard do $elems)) (some (mkApp (mkConst ``MetaM) (mkConst ``Unit)))
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

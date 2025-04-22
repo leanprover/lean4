@@ -29,8 +29,8 @@ where
       else
         best
     if let some v := f ctx info cs then
-      if isBetter v bestChildValue then
-        v
+      if isBetter (some v) bestChildValue then
+        some v
       else
         bestChildValue
     else
@@ -53,7 +53,7 @@ private def findClosestInfoWithLocalContextAt?
     : Option (ContextInfo × Info) :=
   findBest? infoTree isBetter fun ctx info _ =>
     if info.occursInOrOnBoundary hoverPos then
-      (ctx, info)
+      some (ctx, info)
     else
       none
 where
@@ -240,7 +240,7 @@ private def findExpectedTypeAt (infoTree : InfoTree) (hoverPos : String.Pos) : O
         | return false
       return ti.expectedType?.isSome && pos <= hoverPos && hoverPos <= tailPos
     | none
-  (ctx, i.expectedType?.get!)
+  some (ctx, i.expectedType?.get!)
 
 private partial def foldWithLeadingToken [Inhabited α]
     (f    : α → Option Syntax → Syntax → α)
@@ -254,8 +254,8 @@ where
     let acc := f acc leadingToken? stx
     match stx with
     | .missing  => (none, acc)
-    | .atom ..  => (stx, acc)
-    | .ident .. => (stx, acc)
+    | .atom ..  => (some stx, acc)
+    | .ident .. => (some stx, acc)
     | .node _ _ args => Id.run do
       let mut acc := acc
       let mut lastToken? := none
@@ -271,7 +271,7 @@ private def findWithLeadingToken?
     : Option Syntax :=
   foldWithLeadingToken (stx := stx) (init := none) fun foundStx? leadingToken? stx =>
     match foundStx? with
-    | some foundStx => foundStx
+    | some foundStx => some foundStx
     | none =>
       if p leadingToken? stx then
         some stx

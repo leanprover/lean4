@@ -37,7 +37,7 @@ Find an inhabitant while doing delta unfolding.
 -/
 private partial def mkInhabitantForAux? (xs insts : Array Expr) (type : Expr) (useOfNonempty : Bool) : MetaM (Option Expr) := withIncRecDepth do
   if let some val ← mkInhabitant? type useOfNonempty then
-    mkLambdaFVars xs (← mkLetFVars (usedLetOnly := true) insts val)
+    some <$> mkLambdaFVars xs (← mkLetFVars (usedLetOnly := true) insts val)
   else
     let type ← whnfCore type
     if type.isForall then

@@ -129,7 +129,7 @@ def preDefsFromUnaryNonRec (fixedParamPerms : FixedParamPerms) (argsPacker : Arg
     addAsAxiom unaryPreDefNonRec
     preDefs.mapIdxM fun fidx preDef => do
       let arity := fixedParamPerms.perms[fidx]!.size
-      let value ← forallBoundedTelescope preDef.type (some arity) fun params _ => do
+      let value ← forallBoundedTelescope preDef.type arity fun params _ => do
         assert! arity = params.size
         let xs := fixedParamPerms.perms[fidx]!.pickFixed params
         let ys := fixedParamPerms.perms[fidx]!.pickVarying params

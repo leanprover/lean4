@@ -50,13 +50,13 @@ def cwd : GitRepo := ⟨"."⟩
   repo.dir.isDir
 
 @[inline] def captureGit? (args : Array String) (repo : GitRepo) : BaseIO (Option String) :=
-  captureProc? {cmd := "git", args, cwd := repo.dir}
+  captureProc? {cmd := "git", args, cwd := some repo.dir}
 
 @[inline] def execGit (args : Array String) (repo : GitRepo) : LogIO PUnit :=
-  proc {cmd := "git", args, cwd := repo.dir} (quiet := true)
+  proc {cmd := "git", args, cwd := some repo.dir} (quiet := true)
 
 @[inline] def testGit (args : Array String) (repo : GitRepo) : BaseIO Bool :=
-  testProc {cmd := "git", args, cwd := repo.dir}
+  testProc {cmd := "git", args, cwd := some repo.dir}
 
 @[inline] def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
   proc {cmd := "git", args := #["clone", url, repo.dir.toString]} (quiet := true)

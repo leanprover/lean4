@@ -89,7 +89,7 @@ def evalGuardExprConv : Tactic := evalGuardExpr
 def evalGuardTarget : Tactic :=
   let go eq r getTgt := withMainContext do
     let t ← getTgt >>= instantiateMVars
-    let r ← elabTerm r (← inferType t)
+    let r ← elabTerm r (some (← inferType t))
     let some mk := equal.toMatchKind eq | throwUnsupportedSyntax
     unless ← mk.isEq r t do
       throwError "target of main goal is{indentExpr t}\nnot{indentExpr r}"
@@ -122,7 +122,7 @@ def evalGuardHyp : Tactic := fun
     | some _, none        => throwError m!"{h} is a let binding"
     | some hval, some val =>
       let some mk := eq.bind colonEq.toMatchKind | throwUnsupportedSyntax
-      let e ← elabTerm val lDecl.type
+      let e ← elabTerm val (some lDecl.type)
       let hval ← instantiateMVars hval
       unless ← mk.isEq e hval do
         throwError m!"hypothesis {h} has value{indentExpr hval}\nnot{indentExpr e}"
@@ -145,7 +145,7 @@ def evalGuardExprCmd : Lean.Elab.Command.CommandElab
 @[builtin_command_elab guardCmd]
 def evalGuardCmd : Lean.Elab.Command.CommandElab
   | `(command| #guard $e:term) => Lean.Elab.Command.liftTermElabM do
-    let e ← Term.elabTermEnsuringType e (mkConst ``Bool)
+    let e ← Term.elabTermEnsuringType e (some (mkConst ``Bool))
     Term.synthesizeSyntheticMVarsNoPostponing
     let e ← instantiateMVars e
     let mvars ← getMVars e

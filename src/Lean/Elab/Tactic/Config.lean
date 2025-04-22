@@ -76,16 +76,16 @@ private def elabConfig (recover : Bool) (structName : Name) (items : Array Confi
         if option == `config then
           unless fields.isEmpty do
             -- Flush fields. Even though these values will not be used, we still want to elaborate them.
-            source? ← mkStructInst source? fields
+            source? := some (← mkStructInst source? fields)
             seenFields := {}
             fields := #[]
           let valSrc ← withRef item.value `(($item.value : $(mkCIdent structName)))
           if let some source := source? then
-            source? ← withRef item.value `({$valSrc, $source with : $(mkCIdent structName)})
+            source? := some (← withRef item.value `({$valSrc, $source with : $(mkCIdent structName)}))
           else
-            source? := valSrc
+            source? := some valSrc
         else
-          addCompletionInfo <| CompletionInfo.fieldId item.option option {} structName
+          addCompletionInfo <| CompletionInfo.fieldId item.option (some option) {} structName
           let (path, projFn) ← withRef item.option <| expandField structName option
           if item.bool then
             -- Verify that the type is `Bool`
@@ -99,7 +99,7 @@ private def elabConfig (recover : Bool) (structName : Name) (items : Array Confi
             | value => pure value
           if seenFields.contains path then
             -- Flush fields. There is a duplicate, but we still want to elaborate both.
-            source? ← mkStructInst source? fields
+            source? := some (← mkStructInst source? fields)
             seenFields := {}
             fields := #[]
           fields := fields.push <| ← `(Parser.Term.structInstField|
@@ -111,7 +111,7 @@ private def elabConfig (recover : Bool) (structName : Name) (items : Array Confi
         else
           throw ex
     let stx : Term ← mkStructInst source? fields
-    let e ← Term.withSynthesize <| Term.elabTermEnsuringType stx (mkConst structName)
+    let e ← Term.withSynthesize <| Term.elabTermEnsuringType stx (some (mkConst structName))
     instantiateMVars e
 
 section

@@ -42,7 +42,7 @@ private def getParentProjArg (e : Expr) : MetaM (Option Expr) := do
   unless e.getAppNumArgs == info.numParams + 1 do return none
   let some (.ctorInfo cVal) := env.find? info.ctorName | return none
   if isSubobjectField? env cVal.induct (Name.mkSimple field) |>.isNone then return none
-  return e.appArg!
+  return some e.appArg!
 
 /--
 Strips out universes and arguments we decide are unnecessary for naming.
@@ -219,7 +219,7 @@ def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM Name := do
   -- We can avoid adding the suffix if the instance refers to module-local names.
   let isModuleLocal := modules.any Option.isNone
   -- We can also avoid adding the full module suffix if the instance refers to "project"-local names.
-  let isProjectLocal := isModuleLocal || modules.any fun mod? => mod?.map (·.getRoot) == project
+  let isProjectLocal := isModuleLocal || modules.any fun mod? => mod?.map (·.getRoot) == some project
   let name := Name.mkSimple <|
     if !isProjectLocal then
       s!"{name}{moduleToSuffix project}"

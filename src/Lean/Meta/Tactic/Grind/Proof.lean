@@ -116,13 +116,13 @@ mutual
         let a₂ := rhs.appArg!
         if let some proof ← loop lhs.appFn! rhs.appFn! then
           if isSameExpr a₁ a₂ then
-            mkCongrFun proof a₁
+            some <$> mkCongrFun proof a₁
           else
-            mkCongr proof (← mkEqProofCore a₁ a₂ false)
+            some <$> mkCongr proof (← mkEqProofCore a₁ a₂ false)
         else if isSameExpr a₁ a₂ then
           return none -- refl case
         else
-          mkCongrArg lhs.appFn! (← mkEqProofCore a₁ a₂ false)
+          some <$> mkCongrArg lhs.appFn! (← mkEqProofCore a₁ a₂ false)
       else
         return none
     let r := (← loop lhs rhs).get!
@@ -218,7 +218,7 @@ mutual
     -- `h : target = rhs`
     let h' ← mkProofFrom target common lhsEqCommon? heq
     -- `h' : lhs = target`
-    mkTrans' h' h heq
+    some <$> mkTrans' h' h heq
 
   /--
   Returns a proof of `lhs = rhs` (`HEq lhs rhs`) if `heq = false` (`heq = true`).

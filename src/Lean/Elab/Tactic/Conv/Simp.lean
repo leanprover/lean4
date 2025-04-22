@@ -34,7 +34,7 @@ def applySimpResult (result : Simp.Result) : TacticM Unit := do
       simp lhs ctx (simprocs := simprocs) (discharge? := d?)
     applySimpResult result
     let stx ← mkSimpCallStx stx stats.usedTheorems
-    addSuggestion tk stx (origSpan? := ← getRef)
+    addSuggestion tk stx (origSpan? := some (← getRef))
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.simpMatch] def evalSimpMatch : Tactic := fun _ => withMainContext do
@@ -52,7 +52,7 @@ def applySimpResult (result : Simp.Result) : TacticM Unit := do
     let (result, stats) ← Lean.Meta.dsimp (← getLhs) ctx
     changeLhs result
     let stx ← mkSimpCallStx stx stats.usedTheorems
-    addSuggestion tk stx (origSpan? := ← getRef)
+    addSuggestion tk stx (origSpan? := some (← getRef))
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Conv

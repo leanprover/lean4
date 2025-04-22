@@ -54,8 +54,8 @@ def apply (s : FVarSubst) (e : Expr) : Expr :=
   else if !e.hasFVar then e
   else e.replace fun e => match e with
     | Expr.fvar fvarId => match s.map.find? fvarId with
-      | none   => e
-      | some v => v
+      | none   => some e
+      | some v => some v
     | _ => none
 
 def domain (s : FVarSubst) : List FVarId :=

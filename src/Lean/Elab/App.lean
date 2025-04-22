@@ -39,11 +39,11 @@ def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) : TermElabM �
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   try
-    ensureHasType expectedType arg none f
+    ensureHasType (some expectedType) arg .none f
   catch
     | ex@(.error ..) =>
       if (← read).errToSorry then
-        exceptionToSorry ex expectedType
+        exceptionToSorry ex (some expectedType)
       else
         throw ex
     | ex => throw ex
@@ -206,7 +206,7 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
         if f.isConst then
-          throwInvalidNamedArg namedArg f.constName!
+          throwInvalidNamedArg namedArg (some f.constName!)
         else
           throwInvalidNamedArg namedArg none
       throwError "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
@@ -247,7 +247,7 @@ private def elabAndAddNewArg (argName : Name) (arg : Arg) : M Unit := do
     let arg ← ensureArgType s.f val expectedType
     addNewArg argName arg
   | Arg.stx stx  =>
-    let val ← elabTerm stx expectedType
+    let val ← elabTerm stx (some expectedType)
     let arg ← withRef stx <| ensureArgType s.f val expectedType
     addNewArg argName arg
 
@@ -426,7 +426,7 @@ private def findNamedArgDependsOnCurrent? : M (Option NamedArg) := do
         if let some arg := s.namedArgs.find? fun arg => arg.name == xDecl.userName then
           /- Remark: a default value at `optParam` does not count as a dependency -/
           if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
-            return arg
+            return some arg
       return none
 
 
@@ -440,7 +440,7 @@ Returns the argument syntax if the next argument at `args` is of the form `_`.
 -/
 private def nextArgHole? : M (Option Syntax) := do
   match (← get).args with
-  | Arg.stx stx@(Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure stx
+  | Arg.stx stx@(Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure (some stx)
   | _ => pure none
 
 /--
@@ -532,7 +532,7 @@ mutual
   private partial def addImplicitArg (argName : Name) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
-      let arg ← mkFreshExprMVar argType
+      let arg ← mkFreshExprMVar (some argType)
       /- When the result type is an output parameter, we don't want to propagate the expected type.
          So, we just mark `propagateExpected := false` to disable it.
          At `finalize`, we check whether `arg` is still unassigned, if it is, we apply default instances,
@@ -540,7 +540,7 @@ mutual
       modify fun s => { s with resultTypeOutParam? := some arg.mvarId!, propagateExpected := false }
       pure arg
     else
-      mkFreshExprMVar argType
+      mkFreshExprMVar (some argType)
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
     addNewArg argName arg
     main
@@ -693,7 +693,7 @@ mutual
         -- This behavior can be suppressed with `(_)`.
         let ty ← getArgExpectedType
         let arg ← mkInstMVar ty
-        addTermInfo' stx arg ty
+        addTermInfo' stx arg (some ty)
         modify fun s => { s with args := s.args.tail! }
         main
       else
@@ -703,7 +703,7 @@ mutual
       main
   where
     mkInstMVar (ty : Expr) : M Expr := do
-      let arg ← mkFreshExprMVar ty MetavarKind.synthetic
+      let arg ← mkFreshExprMVar (some ty) MetavarKind.synthetic
       addInstMVar arg.mvarId!
       addNewArg argName arg
       return arg
@@ -940,7 +940,7 @@ def finalize : M Expr := do
     trace[Elab.app.elab_as_elim] "expectedType after processing:{indentD expectedType}"
     let result := mkAppN f xs
     trace[Elab.app.elab_as_elim] "result:{indentD result}"
-    unless fType.getAppFn == (← get).motive? do
+    unless some fType.getAppFn == (← get).motive? do
       throwError "Internal error, eliminator target type isn't an application of the motive"
     let discrs := fType.getAppArgs
     trace[Elab.app.elab_as_elim] "discrs: {discrs}"
@@ -976,14 +976,14 @@ def getNextArg? (binderName : Name) (binderInfo : BinderInfo) : M (LOption Arg) 
 
 /-- Set the `motive` field in the state. -/
 def setMotive (motive : Expr) : M Unit :=
-  modify fun s => { s with motive? := motive }
+  modify fun s => { s with motive? := some motive }
 
 /-- Elaborate the given argument with the given expected type. -/
 private def elabArg (arg : Arg) (argExpectedType : Expr) : M Expr := do
   match arg with
   | Arg.expr val => ensureArgType (← get).f val argExpectedType
   | Arg.stx stx  =>
-    let val ← elabTerm stx argExpectedType
+    let val ← elabTerm stx (some argExpectedType)
     withRef stx <| ensureArgType (← get).f val argExpectedType
 
 /-- Save information for producing error messages. -/
@@ -993,7 +993,7 @@ def saveArgInfo (arg : Expr) (binderName : Name) : M Unit := do
 
 /-- Create an implicit argument using the given `BinderInfo`. -/
 def mkImplicitArg (argExpectedType : Expr) (bi : BinderInfo) : M Expr := do
-  let arg ← mkFreshExprMVar argExpectedType (if bi.isInstImplicit then .synthetic else .natural)
+  let arg ← mkFreshExprMVar (some argExpectedType) (if bi.isInstImplicit then .synthetic else .natural)
   if bi.isInstImplicit then
     modify fun s => { s with instMVars := s.instMVars.push arg.mvarId! }
   return arg
@@ -1026,7 +1026,7 @@ partial def main : M Expr := do
     | .undef => finalize
     | .none => let discr ← mkImplicitArg binderType binderInfo; addArgAndContinue discr
   else match (← getNextArg? binderName binderInfo) with
-    | .some (.stx stx) => addArgAndContinue (← postponeElabTerm stx binderType)
+    | .some (.stx stx) => addArgAndContinue (← postponeElabTerm stx (some binderType))
     | .some (.expr val) => addArgAndContinue (← ensureArgType (← get).f val binderType)
     | .undef => finalize
     | .none => addArgAndContinue (← mkImplicitArg binderType binderInfo)
@@ -1174,7 +1174,7 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
     let resolutionOrder ← if isStructure env structName then getStructureResolutionOrder structName else pure #[structName]
     for ns in resolutionOrder[1:resolutionOrder.size] do
       if let some res ← find? ns then
-        return res
+        return some res
     return none
 
 private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
@@ -1238,7 +1238,7 @@ private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : 
   match eType with
   | .forallE _ d b bi =>
     if bi.isImplicit || (hasArgs && bi.isStrictImplicit) then
-      let mvar ← mkFreshExprMVar d
+      let mvar ← mkFreshExprMVar (some d)
       registerMVarErrorHoleInfo mvar.mvarId! stx
       consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar) hasArgs
     else if bi.isInstImplicit then
@@ -1479,7 +1479,7 @@ where
 
   toLVals : List Syntax → (first : Bool) → List LVal
     | [],            _     => []
-    | field::fields, true  => .fieldName field field.getId.getString! (toName (field::fields)) fIdent :: toLVals fields false
+    | field::fields, true  => .fieldName field field.getId.getString! (some (toName (field::fields))) fIdent :: toLVals fields false
     | field::fields, false => .fieldName field field.getId.getString! none fIdent :: toLVals fields false
 
 /-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/

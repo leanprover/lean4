@@ -106,6 +106,7 @@ def arrayLit? (e : Expr) : Option (Expr × List Expr) :=
 def prod? (e : Expr) : Option (Expr × Expr) :=
   e.app2? ``Prod
 
+attribute [local instance] optionCoe in
 /--
 Checks if an expression is a `Name` literal, and if so returns the name.
 -/

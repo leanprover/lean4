@@ -15,9 +15,9 @@ Instantiate level parameters
   e.replace replaceFn
 where
   @[specialize] replaceFn (e : Expr) : Option Expr :=
-    if !e.hasLevelParam then e else match e with
-    | const _ us => e.updateConst! (us.map fun u => u.substParams s)
-    | sort u => e.updateSort! (u.substParams s)
+    if !e.hasLevelParam then some e else match e with
+    | const _ us => some (e.updateConst! (us.map fun u => u.substParams s))
+    | sort u => some (e.updateSort! (u.substParams s))
     | _ => none
 
 private def getParamSubst : List Name → List Level → Name → Option Level

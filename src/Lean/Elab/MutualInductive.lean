@@ -269,7 +269,7 @@ Auxiliary function for checking whether the types in mutually inductive declarat
 private def checkHeaders (rs : Array PreElabHeaderResult) (numParams : Nat) (i : Nat) (firstType? : Option Expr) : TermElabM Unit := do
   if h : i < rs.size then
     let type ← checkHeader rs[i] numParams firstType?
-    checkHeaders rs numParams (i+1) type
+    checkHeaders rs numParams (i+1) (some type)
 where
   checkHeader (r : PreElabHeaderResult) (numParams : Nat) (firstType? : Option Expr) : TermElabM Expr := do
     let type := r.type
@@ -825,7 +825,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
             none
           else match indFVar2Const[e]? with
             | none   => none
-            | some c => mkAppN c (params.extract 0 numVars)
+            | some c => some <| mkAppN c (params.extract 0 numVars)
         instantiateMVars (← mkForallFVars params type)
       return { ctor with type }
     return { indType with ctors }
@@ -876,7 +876,7 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
         let indTypes ← updateParams vars indTypes
         let indTypes ←
           if let some univToInfer := univToInfer? then
-            updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
+            updateResultingUniverse views numParams (← levelMVarToParam indTypes (some univToInfer))
           else
             propagateUniversesToConstructors numParams indTypes
             levelMVarToParam indTypes none
@@ -903,7 +903,7 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
               let env ← getEnv
               let some const := env.toKernelEnv.find? auxRecName | break
               let res ← env.addConstAsync auxRecName .recursor
-              res.commitConst res.asyncEnv (info? := const)
+              res.commitConst res.asyncEnv (info? := some const)
               res.commitCheckEnv res.asyncEnv
               setEnv res.mainEnv
               i := i + 1
@@ -916,7 +916,7 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
               else
                 match indFVar2Const[e']? with
                 | none   => none
-                | some c => mkAppN c vars
+                | some c => some <| mkAppN c vars
           -- Now the indFVars are (mostly) unnecessary, so rename them to prevent shadowing in messages.
           -- Inductive elaborators might still have some indFVars around, but they should use `replaceIndFVars` as soon as possible during their `finalize` procedure.
           let lctx := rs.foldl (init := ← getLCtx) (fun lctx r => lctx.modifyLocalDecl r.indFVar.fvarId! fun decl => decl.setUserName (`_indFVar ++ decl.userName))

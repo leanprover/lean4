@@ -116,7 +116,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
      | some _ => throwError "invalid 'let_mvar%', metavariable '?{n.getId}' has already been used"
      | none =>
        let e ← elabTerm e none
-       let mvar ← mkFreshExprMVar (← inferType e) MetavarKind.syntheticOpaque n.getId
+       let mvar ← mkFreshExprMVar (some (← inferType e)) MetavarKind.syntheticOpaque n.getId
        mvar.mvarId!.assign e
        -- We use `mkSaveInfoAnnotation` to make sure the info trees for `e` are saved even if `b` is a metavariable.
        return mkSaveInfoAnnotation (← elabTerm b expectedType?)
@@ -280,7 +280,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     let refTerm ← elabTerm stx[1] none
     let refTermType ← inferType refTerm
     -- See comment at `mkSilentAnnotationIfHole`
-    mkSilentAnnotationIfHole (← elabTermEnsuringType stx[3] refTermType (errorMsgHeader? := msg))
+    mkSilentAnnotationIfHole (← elabTermEnsuringType stx[3] (some refTermType) (errorMsgHeader? := msg))
 
 @[builtin_term_elab ensureExpectedType] def elabEnsureExpectedType : TermElab := fun stx expectedType? =>
   match stx[1].isStrLit? with

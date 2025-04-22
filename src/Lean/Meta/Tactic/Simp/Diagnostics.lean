@@ -47,7 +47,7 @@ private def mkTheoremsWithBadKeySummary (thms : PArray SimpTheorem) : MetaM Diag
 
 def mkDiagMessages (diag : Simp.Diagnostics) : MetaM (Array MessageData) := do
   let used ← mkSimpDiagSummary diag.usedThmCounter
-  let tried ← mkSimpDiagSummary diag.triedThmCounter diag.usedThmCounter
+  let tried ← mkSimpDiagSummary diag.triedThmCounter (some diag.usedThmCounter)
   let congr ← mkDiagSummary `simp diag.congrThmCounter
   let thmsWithBadKeys ← mkTheoremsWithBadKeySummary diag.thmsWithBadKeys
   if used.isEmpty && tried.isEmpty && congr.isEmpty && thmsWithBadKeys.isEmpty then

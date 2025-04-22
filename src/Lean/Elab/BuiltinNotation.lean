@@ -291,8 +291,8 @@ partial def expandCDot? (stx : Term) : MacroM (Option Term) := do
         let x1 := binders[0]!
         let x := mkIdentFrom x1 (← MonadQuotation.addMacroScope `x) (canonical := true)
         binders := binders.set! 0 x
-        newStx ← newStx.replaceM fun s => pure (if s == x1 then x else none)
-      `(fun $binders* => $(⟨newStx⟩))
+        newStx ← newStx.replaceM fun s => pure (if s == x1 then some x else none)
+      some <$> `(fun $binders* => $(⟨newStx⟩))
   else
     pure none
 where
@@ -384,8 +384,8 @@ where
 @[builtin_term_elab typeAscription] def elabTypeAscription : TermElab
   | `(($e : $type)), _ => do
     let type ← withSynthesize (postpone := .yes) <| elabType type
-    let e ← elabTerm e type
-    ensureHasType type e
+    let e ← elabTerm e (some type)
+    ensureHasType (some type) e
   | `(($e :)), expectedType? => do
     let e ← withSynthesize (postpone := .no) <| elabTerm e none
     ensureHasType expectedType? e
@@ -438,9 +438,9 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
            (lhs, rhs) := (rhs, lhs)
          let hExpectedType := expectedAbst.instantiate1 lhs
          let (h, badMotive?) ← withRef hStx do
-           let h ← elabTerm hStx hExpectedType
+           let h ← elabTerm hStx (some hExpectedType)
            try
-             return (← ensureHasType hExpectedType h, none)
+             return (← ensureHasType (some hExpectedType) h, none)
            catch ex =>
              -- if `rhs` occurs in `hType`, we try to apply `heq` to `h` too
              let hType ← inferType h
@@ -465,11 +465,11 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
                  -- If `h` has metavariables, we try to elaborate `hStx` again after we substitute `heqStx`
                  -- Remark: re-elaborating `hStx` may be problematic if `hStx` contains the `lhs` of `heqStx` which will be eliminated by `subst`
                  let stxNew ← `(by subst $heqStx; exact $hStx)
-                 withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
+                 withMacroExpansion stx stxNew (elabTerm stxNew (some expectedType))
                else
                  withLocalIdentFor hStx h fun hStx => do
                    let stxNew ← `(by subst $heqStx; exact $hStx)
-                   withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
+                   withMacroExpansion stx stxNew (elabTerm stxNew (some expectedType))
            else
              throwError "invalid `▸` notation, failed to compute motive for the substitution"
          else
@@ -495,8 +495,8 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
   let mut mStx := stx[2]
   if mStx.getKind == ``Lean.Parser.Term.macroDollarArg then
     mStx := mStx[1]
-  let m ← elabTerm mStx (← mkArrow (mkSort levelOne) (mkSort levelOne))
-  let ω ← mkFreshExprMVar (mkSort levelOne)
+  let m ← elabTerm mStx (some (← mkArrow (mkSort levelOne) (mkSort levelOne)))
+  let ω ← mkFreshExprMVar (some (mkSort levelOne))
   let stWorld ← mkAppM ``STWorld #[ω, m]
   discard <| mkInstMVar stWorld
   mkAppM ``StateRefT' #[ω, σ, m]
@@ -550,10 +550,10 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     withExpectedType expectedType? fun expectedType => do
       let (ty, val) ← elabBinders bs fun bs => do
         let ty ← elabType ty
-        let val ← elabTermEnsuringType val ty
+        let val ← elabTermEnsuringType val (some ty)
         pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
       withLocalDeclD x.getId ty fun x => do
-        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
+        return (← (← elabTerm body (some expectedType)).abstractM #[x]).instantiate #[val]
   | _ => throwUnsupportedSyntax
 
 @[builtin_term_elab Lean.Parser.Term.letI] def elabLetI : TermElab := fun stx expectedType? => do
@@ -562,10 +562,10 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     withExpectedType expectedType? fun expectedType => do
       let (ty, val) ← elabBinders bs fun bs => do
         let ty ← elabType ty
-        let val ← elabTermEnsuringType val ty
+        let val ← elabTermEnsuringType val (some ty)
         pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
       withLetDecl x.getId ty val fun x => do
-        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
+        return (← (← elabTerm body (some expectedType)).abstractM #[x]).instantiate #[val]
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

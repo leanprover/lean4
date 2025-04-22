@@ -121,12 +121,12 @@ where
           -- Some special cases
           let fn? : Option Name :=
             match a.getAppFn, b.getAppFn with
-            | .const ca .., .const cb .. => if ca == cb then ca else none
+            | .const ca .., .const cb .. => if ca == cb then some ca else none
             | _, _ => none
-          if fn? == ``OfNat.ofNat && as.size ≥ 3 && firstImplicitDiff? == some 0 then
+          if fn? == some ``OfNat.ofNat && as.size ≥ 3 && firstImplicitDiff? == some 0 then
             -- Even if there is an explicit diff, it is better to see that the type is different.
             return (a.setPPNumericTypes true, b.setPPNumericTypes true)
-          if fn? == ``sorryAx then
+          if fn? == some ``sorryAx then
             -- If these are `sorry`s with differing source positions, make sure the delaborator shows the positions.
             if let some { module? := moda? } := isLabeledSorry? a then
               if let some { module? := modb? } := isLabeledSorry? b then

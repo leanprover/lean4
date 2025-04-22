@@ -79,7 +79,7 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := d
   let some wsDir ← resolvePath? opts.rootDir
     | throw <| .missingRootDir opts.rootDir
   return {
-    lakeArgs? := opts.args.toArray
+    lakeArgs? := some opts.args.toArray
     lakeEnv := ← opts.computeEnv
     wsDir
     relConfigFile := opts.configFile
@@ -193,14 +193,14 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
 | "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
-| "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
-| "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
+| "--no-cache"    => modifyThe LakeOptions ({· with noCache := some true})
+| "--try-cache"   => modifyThe LakeOptions ({· with noCache := some false})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--log-level"   => do
   let outLv ← takeOptArg' "--log-level" "log level" LogLevel.ofString?
-  modifyThe LakeOptions ({· with outLv? := outLv})
+  modifyThe LakeOptions ({· with outLv? := some outLv})
 | "--fail-level"  => do
   let failLv ← takeOptArg' "--fail-level" "log level" LogLevel.ofString?
   modifyThe LakeOptions ({· with failLv})

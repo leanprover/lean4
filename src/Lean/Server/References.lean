@@ -60,7 +60,7 @@ Otherwise, `ref` is added to `i.usages`.
 def addRef (i : RefInfo) (ref : Reference) : RefInfo :=
   match i, ref with
   | { definition := none, .. }, { isBinder := true, .. } =>
-    { i with definition := ref }
+    { i with definition := some ref }
   | { definition := some .., .. }, { isBinder := true, .. } =>
     i
   | { usages, .. }, { isBinder := false, .. } =>
@@ -209,7 +209,7 @@ end Ilean
 /-- Gets the name of the module that contains `declName`. -/
 def getModuleContainingDecl? (env : Environment) (declName : Name) : Option Name := do
   let some modIdx := env.getModuleIdxFor? declName
-    | env.header.mainModule
+    | return env.header.mainModule
   env.allImportedModuleNames[modIdx]?
 
 /--

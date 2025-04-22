@@ -142,7 +142,7 @@ def main : M (Option MVarId) := do
         toAssert := toAssert.push { userName := e.userName, type := e.type, value := e.proof }
         modified := true
     let (_, mvarId) ← mvarId.assertHypotheses toAssert
-    mvarId.tryClearMany toClear
+    some <$> mvarId.tryClearMany toClear
 
 end SimpAll
 

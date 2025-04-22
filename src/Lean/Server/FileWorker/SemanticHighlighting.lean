@@ -182,7 +182,7 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
   let endPos := text.lspPosToUtf8Pos p.range.end
   let t := doc.cmdSnaps.waitUntil (·.endPos >= endPos)
   mapTaskCostly t fun (snaps, _) =>
-    computeSemanticTokens doc beginPos endPos snaps
+    computeSemanticTokens doc beginPos (some endPos) snaps
 
 builtin_initialize
   registerLspRequestHandler

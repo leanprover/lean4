@@ -420,10 +420,10 @@ where the index is the position in the local context.
 -/
 private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : MetaM (Option Expr) := do
   if !(← hasLetDeclsInBetween) then
-    mkLambdaFVars xs v (etaReduce := true)
+    some <$> mkLambdaFVars xs v (etaReduce := true)
   else
     let ys ← addLetDeps
-    mkLambdaFVars ys v (etaReduce := true)
+    some <$> mkLambdaFVars ys v (etaReduce := true)
 
 where
   /-- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.

@@ -133,10 +133,10 @@ def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Ex
   for e in macroAttribute.getEntries env stx.getKind do
     try
       let stx' ← withFreshMacroScope (e.value stx)
-      return (e.declName, Except.ok stx')
+      return some (e.declName, Except.ok stx')
     catch
       | Macro.Exception.unsupportedSyntax => pure ()
-      | ex                                => return (e.declName, Except.error ex)
+      | ex                                => return some (e.declName, Except.error ex)
   return none
 
 class MonadMacroAdapter (m : Type → Type) where
@@ -159,7 +159,7 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
     -- TODO: record recursive expansions in info tree?
     expandMacro?     := fun stx => do
       match (← expandMacroImpl? env stx) with
-      | some (_, stx?) => liftExcept stx?
+      | some (_, stx?) => some <$> liftExcept stx?
       | none           => return none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace

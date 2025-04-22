@@ -70,11 +70,11 @@ def CompletionItem.resolve
         | none
       let docstringPrefix :=
         if let some text := param.text? then
-          text
+          some text
         else if let some newName := param.newName? then
-          s!"`{declName}` has been deprecated, use `{newName}` instead."
+          some s!"`{declName}` has been deprecated, use `{newName}` instead."
         else
-          s!"`{declName}` has been deprecated."
+          some s!"`{declName}` has been deprecated."
       some docstringPrefix
     let docString? ← do
       let .const declName := id
@@ -86,7 +86,7 @@ def CompletionItem.resolve
         | none,                 none           => none
         | some docStringPrefix, none           => docStringPrefix
         | none,                 docString      => docString
-        | some docStringPrefix, some docString => s!"{docStringPrefix}\n\n{docString}"
+        | some docStringPrefix, some docString => some s!"{docStringPrefix}\n\n{docString}"
       pure { value := docValue , kind := MarkupKind.markdown : MarkupContent }
     item := { item with documentation? := doc? }
 

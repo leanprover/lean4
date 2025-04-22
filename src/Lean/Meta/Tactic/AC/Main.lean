@@ -177,13 +177,13 @@ def post (e : Expr) : SimpM Simp.Step := do
     match ←preContext op₁ with
     | some pc =>
       let (proof, newTgt) ← buildNormProof pc l r
-      return Simp.Step.done { expr := newTgt, proof? := proof }
+      return Simp.Step.done { expr := newTgt, proof? := some proof }
     | none => return Simp.Step.done { expr := e }
   | bin op l r, _ =>
     match ←preContext op with
     | some pc =>
       let (proof, newTgt) ← buildNormProof pc l r
-      return Simp.Step.done { expr := newTgt, proof? := proof }
+      return Simp.Step.done { expr := newTgt, proof? := some proof }
     | none => return Simp.Step.done { expr := e }
   | e, _ => return Simp.Step.done { expr := e }
 
@@ -215,7 +215,7 @@ def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
 
 /-- Implementation of the `ac_nf` tactic when operating on the main goal. -/
 def acNfTargetTactic : TacticM Unit :=
-  liftMetaTactic1 fun goal => rewriteUnnormalized goal
+  liftMetaTactic1 fun goal => some <$> rewriteUnnormalized goal
 
 /-- Implementation of the `ac_nf` tactic when operating on a hypothesis. -/
 def acNfHypTactic (fvarId : FVarId) : TacticM Unit :=

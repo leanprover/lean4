@@ -206,7 +206,7 @@ def importAllUnknownIdentifiersProvider : Name := `unknownIdentifiers
 
 def importAllUnknownIdentifiersCodeAction (params : CodeActionParams) (kind : String) : CodeAction := {
   title := "Import all unambiguous unknown identifiers"
-  kind? := kind
+  kind? := some kind
   data? := some <| toJson {
     params,
     providerName := importAllUnknownIdentifiersProvider
@@ -261,8 +261,8 @@ def handleUnknownIdentifierCodeAction
       if ! isDeclInEnv then
         unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
           title := s!"Import {insertion.fullName} from {mod}"
-          kind? := "quickfix"
-          edit? := WorkspaceEdit.ofTextDocumentEdit {
+          kind? := some "quickfix"
+          edit? := some <| WorkspaceEdit.ofTextDocumentEdit {
             textDocument := doc.versionedIdentifier
             edits := #[
               {
@@ -278,8 +278,8 @@ def handleUnknownIdentifierCodeAction
       else
         unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
           title := s!"Change to {insertion.fullName}"
-          kind? := "quickfix"
-          edit? := WorkspaceEdit.ofTextDocumentEdit {
+          kind? := some "quickfix"
+          edit? := some <| WorkspaceEdit.ofTextDocumentEdit {
             textDocument := doc.versionedIdentifier
             edits := #[insertion.edit]
           }
@@ -334,7 +334,7 @@ def handleResolveImportAllUnknownIdentifiersCodeAction?
     edits := edits.push insertion.edit
     imports := imports.insert mod
   return some { action with
-    edit? := WorkspaceEdit.ofTextDocumentEdit {
+    edit? := some <| WorkspaceEdit.ofTextDocumentEdit {
       textDocument := doc.versionedIdentifier
       edits
     }

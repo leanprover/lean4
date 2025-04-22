@@ -114,7 +114,7 @@ def etaExpandCore (type : Expr) (params : Array Param) (value : Code) : Compiler
 
 def etaExpandCore? (type : Expr) (params : Array Param) (value : Code) : CompilerM (Option (Array Param × Code)) := do
   if isEtaExpandCandidateCore type params then
-    etaExpandCore type params value
+    some <$> etaExpandCore type params value
   else
     return none
 

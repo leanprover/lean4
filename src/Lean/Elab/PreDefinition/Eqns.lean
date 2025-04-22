@@ -94,7 +94,7 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
     if let some e := findMatchToSplit? (backward.eqns.deepRecursiveSplit.get (← getOptions)) (← getEnv)
                                        target declNames badCases then
       try
-        Meta.Split.splitMatch mvarId e
+        some <$> Meta.Split.splitMatch mvarId e
       catch _ =>
         go (badCases.insert e)
     else
@@ -286,7 +286,7 @@ def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mva
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   let some rhs ← delta? rhs.consumeMData (· == declName) | return none
-  mvarId.replaceTargetDefEq (← mkEq lhs rhs)
+  some <$> mvarId.replaceTargetDefEq (← mkEq lhs rhs)
 
 private partial def whnfAux (e : Expr) : MetaM Expr := do
   let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`

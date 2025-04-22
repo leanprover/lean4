@@ -201,7 +201,7 @@ def replaceLPsWithVars (e : Expr) : MetaM Expr := do
   let mut replaceMap : Std.HashMap Name Level := {}
   for lp in lps do replaceMap := replaceMap.insert lp (← mkFreshLevelMVar)
   return e.replaceLevel fun
-    | Level.param n .. => replaceMap[n]!
+    | Level.param n .. => some replaceMap[n]!
     | l => if !l.hasParam then some l else none
 
 def isDefEqAssigning (t s : Expr) : MetaM Bool := do

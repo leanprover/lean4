@@ -78,7 +78,7 @@ def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mv
   let tag ← mvarId.getTag
   let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
   mvarId.assign <| mkApp2 (mkConst ``Classical.byContradiction) target mvarNew
-  return mvarNew.mvarId!
+  return some mvarNew.mvarId!
 
 /--
 Clears auxiliary decls used to encode recursive declarations.
@@ -112,8 +112,8 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
   let pre (e : Expr) := do
     match e with
     | .letE .. | .lam .. => return .done e
-    | .mdata _ e => return .continue e
-    | _ => return .continue e
+    | .mdata _ e => return .continue (some e)
+    | _ => return .continue (some e)
   Core.transform e (pre := pre)
 
 /--
@@ -204,9 +204,9 @@ def replacePreMatchCond (e : Expr) : MetaM Simp.Result := do
     return { expr := e }
   else
     let pre (e : Expr) := do
-      let_expr Grind.PreMatchCond p := e | return .continue e
-      return .continue (markAsMatchCond p)
+      let_expr Grind.PreMatchCond p := e | return .continue (some e)
+      return .continue (some (markAsMatchCond p))
     let e' ← Core.transform e (pre := pre)
-    return { expr := e', proof? := (← mkExpectedTypeHint (← mkEqRefl e') (← mkEq e e')) }
+    return { expr := e', proof? := some (← mkExpectedTypeHint (← mkEqRefl e') (← mkEq e e')) }
 
 end Lean.Meta.Grind

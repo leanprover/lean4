@@ -145,7 +145,7 @@ def grind
       throwError "`grind` failed\n{← result.toMessageData}"
     -- `grind` proofs are often big
     let e ← if (← isProp type) then
-      mkAuxTheorem (prefix? := mainDeclName) type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxTheorem (prefix? := some mainDeclName) type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
     else
       let auxName ← Term.mkAuxName `grind
       mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
@@ -155,7 +155,7 @@ def grind
 private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit) := do
   let some fallback := fallback? | return (pure ())
   let type := mkApp (mkConst ``Grind.GoalM) (mkConst ``Unit)
-  let value ← withLCtx {} {} do Term.elabTermAndSynthesize fallback type
+  let value ← withLCtx {} {} do Term.elabTermAndSynthesize fallback (some type)
   let auxDeclName ← if let .const declName _ := value then
     pure declName
   else
@@ -266,7 +266,7 @@ def mkGrindOnly
     let config := { config with trace := true }
     let trace ← evalGrindCore stx config only params fallback?
     let stx ← mkGrindOnly configStx fallback? trace
-    Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
+    Tactic.TryThis.addSuggestion tk stx (origSpan? := some (← getRef))
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

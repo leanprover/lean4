@@ -31,13 +31,13 @@ where
 
 partial def GrindTactic.andThen (x y : GrindTactic) : GrindTactic := fun goal => do
   let some goals ← x goal | return none
-  applyToAll y goals
+  some <$> applyToAll y goals
 
 instance : AndThen GrindTactic where
   andThen a b := GrindTactic.andThen a (b ())
 
 partial def GrindTactic.iterate (x : GrindTactic) : GrindTactic := fun goal => do
-  go [goal] []
+  some <$> go [goal] []
 where
   go (todo : List Goal) (result : List Goal) : GrindM (List Goal) := do
     match todo with
@@ -50,7 +50,7 @@ where
 
 partial def GrindTactic.orElse (x y : GrindTactic) : GrindTactic := fun goal => do
   let some goals ← x goal | y goal
-  return goals
+  return some goals
 
 instance : OrElse GrindTactic where
   orElse a b := GrindTactic.andThen a (b ())

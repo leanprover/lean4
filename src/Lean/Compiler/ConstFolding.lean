@@ -159,20 +159,20 @@ def foldStrictAnd (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
   let v₁ := getBoolLit a₁
   let v₂ := getBoolLit a₂
   match v₁, v₂ with
-  | some true,  _ => a₂
-  | some false, _ => a₁
-  | _, some true  => a₁
-  | _, some false => a₂
+  | some true,  _ => some a₂
+  | some false, _ => some a₁
+  | _, some true  => some a₁
+  | _, some false => some a₂
   | _, _          => none
 
 def foldStrictOr (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
   let v₁ := getBoolLit a₁
   let v₂ := getBoolLit a₂
   match v₁, v₂ with
-  | some true,  _ => a₁
-  | some false, _ => a₂
-  | _, some true  => a₂
-  | _, some false => a₁
+  | some true,  _ => some a₁
+  | some false, _ => some a₂
+  | _, some true  => some a₂
+  | _, some false => some a₁
   | _, _          => none
 
 def boolFoldFns : List (Name × BinFoldFn) :=

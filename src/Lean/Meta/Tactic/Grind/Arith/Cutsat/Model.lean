@@ -20,7 +20,7 @@ private def getCutsatAssignment? (goal : Goal) (node : ENode) : Option Rat := Id
   let some e := node.cutsat? | return none
   let some x := goal.arith.cutsat.varMap.find? { expr := e } | return none
   if h : x < goal.arith.cutsat.assignment.size then
-    return goal.arith.cutsat.assignment[x]
+    return some goal.arith.cutsat.assignment[x]
   else
     return none
 

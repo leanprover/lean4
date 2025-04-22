@@ -502,7 +502,7 @@ where
           (lines, simple) ← flush lines simple
           lines := lines.push <| ← `(command| open $(mkIdent ns) hiding $[$(ex.toArray.map mkIdent)]*)
     (lines, _) ← flush lines simple
-    return if lines.isEmpty then none else MessageData.joinSep lines.toList "\n"
+    return if lines.isEmpty then none else some (MessageData.joinSep lines.toList "\n")
 
   describeOptions (opts : Options) : CommandElabM (Option MessageData) := do
     let mut lines : Array MessageData := #[]
@@ -527,6 +527,6 @@ where
           lines := lines.push m!"-- {cmd} -- unknown option"
         else
           lines := lines.push cmd
-    return if lines.isEmpty then none else MessageData.joinSep lines.toList "\n"
+    return if lines.isEmpty then none else some (MessageData.joinSep lines.toList "\n")
 
 end Lean.Elab.Command

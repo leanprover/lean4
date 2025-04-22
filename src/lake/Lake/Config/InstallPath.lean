@@ -16,8 +16,8 @@ namespace Lake
 
 /-- Convert the string value of an environment variable to a boolean. -/
 def envToBool? (o : String) : Option Bool :=
-  if ["y", "yes", "t", "true", "on", "1"].contains o.toLower then true
-  else if ["n", "no", "f", "false", "off", "0"].contains o.toLower then false
+  if ["y", "yes", "t", "true", "on", "1"].contains o.toLower then some true
+  else if ["n", "no", "f", "false", "off", "0"].contains o.toLower then some false
   else none
 
 /-! ## Data Structures -/
@@ -97,7 +97,7 @@ def LeanInstall.sharedLibPath (self : LeanInstall) : SearchPath :=
 
 /-- The `LEAN_CC` of the Lean installation. -/
 def LeanInstall.leanCc? (self : LeanInstall) : Option String :=
-  if self.customCc then self.cc.toString else none
+  if self.customCc then some self.cc.toString else none
 
 /-- The link-time flags for the C compiler of the Lean installation. -/
 def LeanInstall.ccLinkFlags (shared : Bool) (self : LeanInstall) : Array String :=
@@ -274,7 +274,7 @@ def getLakeInstall? (lake : FilePath) : BaseIO (Option LakeInstall) := do
   let some home := lakeBuildHome? lake | return none
   let lake : LakeInstall := {home, lake}
   if (← lake.libDir / "Lake.olean" |>.pathExists) then
-    return lake
+    return some lake
   return none
 
 /--
@@ -315,7 +315,7 @@ its source files located directly in `<lake-home>`.
 def findLakeInstall? : BaseIO (Option LakeInstall) := do
   if let Except.ok lake ← IO.appPath.toBaseIO then
     if let some lake ← getLakeInstall? lake then
-      return lake
+      return some lake
   if let some home ← IO.getEnv "LAKE_HOME" then
     return some {home}
   return none
@@ -341,10 +341,10 @@ def findInstall? : BaseIO (Option ElanInstall × Option LeanInstall × Option La
   if let some sysroot ← findLakeLeanJointHome? then
     if (← IO.getEnv "LAKE_OVERRIDE_LEAN").bind envToBool? |>.getD false then
       let lake := LakeInstall.ofLean {sysroot}
-      return (elan?, ← findLeanInstall?, lake)
+      return (elan?, ← findLeanInstall?, some lake)
     else
       let lean ← LeanInstall.get sysroot (collocated := true)
       let lake := LakeInstall.ofLean lean
-      return (elan?, lean, lake)
+      return (elan?, some lean, some lake)
   else
     return (elan?, ← findLeanInstall?, ← findLakeInstall?)

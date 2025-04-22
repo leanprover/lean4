@@ -10,6 +10,6 @@ import Lean.Elab.Tactic.Basic
 namespace Lean.Elab.Tactic
 
 @[builtin_tactic Lean.Parser.Tactic.exposeNames] def evalExposeNames : Tactic := fun _ =>
-  liftMetaTactic1 fun mvarId => mvarId.exposeNames
+  liftMetaTactic1 fun mvarId => some <$> mvarId.exposeNames
 
 end Lean.Elab.Tactic

@@ -175,7 +175,7 @@ private def mkOfDecideEqTrue (p : Expr) : MetaM Expr := do
 def applySimprocConst (expr : Expr) (nm : Name) (args : Array Expr) : SimpM Step := do
   unless (← getEnv).contains nm do return .continue
   let finProof := mkAppN (mkConst nm) args
-  return .visit { expr, proof? := finProof, cache := true }
+  return .visit { expr, proof? := some finProof, cache := true }
 
 inductive EqResult where
 | decide (b : Bool) : EqResult
@@ -322,7 +322,7 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
     -- Generate rfl proof  showing (p - q) = pn - qn
     let finExpr := toExpr (pn - qn)
     let finProof ← Meta.mkEqRefl finExpr
-    return .done  { expr := finExpr, proof? := finProof, cache := true }
+    return .done  { expr := finExpr, proof? := some finProof, cache := true }
   | .offset pb po pn, .const n => do
     if pn ≤ n then
       let finExpr := if pn = n then pb else mkSubNat pb (toExpr (n - pn))
@@ -351,8 +351,8 @@ builtin_simproc [simp, seval] reduceDvd ((_ : Nat) ∣ _) := fun e => do
   let some va ← fromExpr? a | return .continue
   let some vb ← fromExpr? b | return .continue
   if vb % va == 0 then
-    return .done { expr := mkConst ``True, proof? := mkApp3 (mkConst ``Nat.dvd_eq_true_of_mod_eq_zero) a b reflBoolTrue}
+    return .done { expr := mkConst ``True, proof? := some <| mkApp3 (mkConst ``Nat.dvd_eq_true_of_mod_eq_zero) a b reflBoolTrue}
   else
-    return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Nat.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
+    return .done { expr := mkConst ``False, proof? := some <| mkApp3 (mkConst ``Nat.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
 
 end Nat

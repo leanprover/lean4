@@ -214,7 +214,7 @@ partial def hasSyntheticSorry (msg : MessageData) : Bool :=
 where
   visit (mctx? : Option MetavarContext) : MessageData → Bool
   | ofLazy _ f              => f (mctx?.getD {})
-  | withContext ctx msg     => visit ctx.mctx msg
+  | withContext ctx msg     => visit (some ctx.mctx) msg
   | withNamingContext _ msg => visit mctx? msg
   | nest _ msg              => visit mctx? msg
   | group msg               => visit mctx? msg
@@ -237,7 +237,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | _,    none,      ofGoal mvarId            => return formatRawGoal mvarId
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, ctx,       ofWidget _ d             => formatAux nCtx ctx d
-  | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
+  | nCtx, _,         withContext ctx d        => formatAux nCtx (some ctx) d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
   | nCtx, ctx,       tagged _ d               => formatAux nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d

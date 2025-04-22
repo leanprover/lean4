@@ -468,7 +468,7 @@ private partial def AsyncConsts.findRec? (aconsts : AsyncConsts) (declName : Nam
 private partial def AsyncConsts.findRecTask (aconsts : AsyncConsts) (declName : Name) : Task (Option AsyncConst) := Id.run do
   let some c := aconsts.findPrefix? declName | .pure none
   if c.constInfo.name == declName then
-    return .pure c
+    return .pure (some c)
   c.consts.bind (sync := true) fun aconsts => Id.run do
     let some aconsts := aconsts.get? AsyncConsts | .pure none
     AsyncConsts.findRecTask aconsts declName
@@ -690,11 +690,11 @@ private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
   if let some c := env.asyncConsts.find? n then
     -- Constant for which an asynchronous elaboration task was spawned
     -- (this is an optimized special case of the next branch)
-    return .pure c.constInfo
+    return .pure (some c.constInfo)
   env.asyncConsts.findRecTask n |>.bind (sync := true) fun
   | some c =>
     -- Constant generated in a different environment branch
-    .pure c.constInfo
+    .pure (some c.constInfo)
   | _ => Id.run do
     if isReservedName env n && !skipRealize then
       return env.allRealizations.map (sync := true) fun allRealizations => do
@@ -1287,7 +1287,7 @@ where
     if c.constInfo.name == declName then
       return (← c.exts?.or (parent?.bind (·.exts?)))
     let aconsts ← c.consts.get.get? AsyncConsts
-    findRecExts? c aconsts declName
+    findRecExts? (some c) aconsts declName
 
 
 /--
@@ -2040,7 +2040,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       }
       -- ensure realized constants are nested below `forConst` and that environment extension
       -- modifications know they are in an async context
-      let realizeEnv := realizeEnv.enterAsync (realizing? := constName) forConst
+      let realizeEnv := realizeEnv.enterAsync (realizing? := some constName) forConst
       -- skip kernel in `realize`, we'll re-typecheck anyway
       let realizeOpts := debug.skipKernelTC.set ctx.opts true
       let (realizeEnv', dyn) ← realize realizeEnv realizeOpts

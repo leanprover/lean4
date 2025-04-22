@@ -78,7 +78,7 @@ where
     /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
       identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
       It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
-    mkAuxTheorem (prefix? := ctx.baseName) (cache := ctx.cache) type e (zetaDelta := true)
+    mkAuxTheorem (prefix? := some ctx.baseName) (cache := ctx.cache) type e (zetaDelta := true)
 
 end AbstractNestedProofs
 

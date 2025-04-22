@@ -97,7 +97,7 @@ where
       matchType ← whnf matchType
       match matchType with
       | Expr.forallE _ d b _ =>
-        let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
+        let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] (some d)
         trace[Elab.match] "discr #{i} {discr} : {d}"
         if b.hasLooseBVars then
           isDep := true
@@ -333,7 +333,7 @@ private partial def eraseIndices (type : Expr) : MetaM Expr := do
     let params ← args[:info.numParams].toArray.mapM eraseIndices
     let result := mkAppN type'.getAppFn params
     let resultType ← inferType result
-    let (newIndices, _, _) ←  forallMetaTelescopeReducing resultType (some (args.size - info.numParams))
+    let (newIndices, _, _) ←  forallMetaTelescopeReducing resultType (.some (args.size - info.numParams))
     return mkAppN result newIndices
 
 private def withPatternElabConfig (x : TermElabM α) : TermElabM α :=
@@ -351,10 +351,10 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
         let pattern ← do
           let s ← saveState
           try
-            liftM <| withSynthesize <| withPatternElabConfig <| elabTermEnsuringType patternStx d
+            liftM <| withSynthesize <| withPatternElabConfig <| elabTermEnsuringType patternStx (some d)
           catch ex : Exception =>
             restoreState s
-            match (← liftM <| commitIfNoErrors? <| withPatternElabConfig do elabTermAndSynthesize patternStx (← eraseIndices d)) with
+            match (← liftM <| commitIfNoErrors? <| withPatternElabConfig do elabTermAndSynthesize patternStx (some (← eraseIndices d))) with
             | some pattern =>
               match (← findDiscrRefinementPath pattern d |>.run) with
               | some path =>
@@ -805,7 +805,7 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
             -- This improves the effectiveness of the `isDefEq` default approximations
             let matchType' ← if matchType.getAppFn.isMVar then mkFreshTypeMVar else pure matchType
             withToClear toClear matchType' do
-              let rhs ← elabTermEnsuringType alt.rhs matchType'
+              let rhs ← elabTermEnsuringType alt.rhs (some matchType')
               -- We use all approximations to ensure the auxiliary type is defeq to the original one.
               unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
                 throwError "type mismatch, alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
@@ -931,10 +931,10 @@ where
         | some h =>
           -- If the discriminant that introduced this index is annotated with `h : discr`, then we should annotate the new discriminant too.
           let h ← mkFreshDiscrIdentFrom h
-          return { expr := i, h? := h : Discr }
+          return { expr := i, h? := some h : Discr }
       let discrs    := indDiscrs ++ discrs
       let indexFVarIds := indices.filterMap fun | .fvar fvarId .. => some fvarId | _  => none
-      loop discrs (toClear ++ indexFVarIds) matchType altViews first
+      loop discrs (toClear ++ indexFVarIds) matchType altViews (some first)
 
   throwEx {α} (p : SavedState × Exception) : TermElabM α := do
     p.1.restore (restoreInfo := true); throw p.2
@@ -1022,7 +1022,7 @@ private def isMatchUnit? (altLHSS : List Match.AltLHS) (rhss : Array Expr) : Met
   | [ { fvarDecls := [], patterns := [ Pattern.ctor `PUnit.unit .. ], .. } ] =>
     /- Recall that for alternatives of the form `| PUnit.unit => rhs`, `rhss[0]` is of the form `fun _ : Unit => b`. -/
     match rhss[0]! with
-    | Expr.lam _ _ b _ => return if b.hasLooseBVars then none else b
+    | Expr.lam _ _ b _ => return if b.hasLooseBVars then none else some b
     | _ => return none
   | _ => return none
 

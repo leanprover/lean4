@@ -78,7 +78,7 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : Tactic
             mvarId.withContext do
               let mvarDecl ← mvarId.getDecl
               -- Elaborate ensuring that `_` is interpreted as `?_`.
-              let (val, gs') ← elabTermWithHoles rhs mvarDecl.type `induction (parentTag? := mvarDecl.userName) (allowNaturalHoles := true)
+              let (val, gs') ← elabTermWithHoles rhs (some mvarDecl.type) `induction (parentTag? := some mvarDecl.userName) (allowNaturalHoles := true)
               mvarId.assign val
               setGoals gs'
           else
@@ -146,8 +146,8 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       let ctx ← read
       let argPos := (← get).argPos
       if ctx.elimInfo.motivePos == argPos then
-        let motive ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.syntheticOpaque
-        modify fun s => { s with motive := motive.mvarId! }
+        let motive ← mkFreshExprMVar (some (← getArgExpectedType)) MetavarKind.syntheticOpaque
+        modify fun s => { s with motive := some motive.mvarId! }
         addNewArg motive
       else if ctx.elimInfo.targetsPos.contains argPos then
         let s ← get
@@ -156,18 +156,18 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
           throwError "insufficient number of targets for '{elimInfo.elimExpr}'"
         let target := ctx.targets[s.targetPos]!
         let expectedType ← getArgExpectedType
-        let target ← withAssignableSyntheticOpaque <| Term.ensureHasType expectedType target
+        let target ← withAssignableSyntheticOpaque <| Term.ensureHasType (some expectedType) target
         modify fun s => { s with targetPos := s.targetPos + 1 }
         addNewArg target
       else match c with
         | .implicit =>
-          let arg ← mkFreshExprMVar (← getArgExpectedType)
+          let arg ← mkFreshExprMVar (some (← getArgExpectedType))
           addNewArg arg
         | .strictImplicit =>
-          let arg ← mkFreshExprMVar (← getArgExpectedType)
+          let arg ← mkFreshExprMVar (some (← getArgExpectedType))
           addNewArg arg
         | .instImplicit =>
-          let arg ← mkFreshExprMVar (← getArgExpectedType) (kind := MetavarKind.synthetic) (userName := appendTag tag binderName)
+          let arg ← mkFreshExprMVar (some (← getArgExpectedType)) (kind := MetavarKind.synthetic) (userName := appendTag tag binderName)
           modify fun s => { s with insts := s.insts.push arg.mvarId! }
           addNewArg arg
         | _ =>
@@ -298,7 +298,7 @@ where
           stx := mkNullNode altStxs
           diagnostics := .empty
           inner? := none
-          finished := { stx? := mkNullNode altStxs, reportingRange? := none, task := finished.resultD default, cancelTk? }
+          finished := { stx? := some (mkNullNode altStxs), reportingRange? := none, task := finished.resultD default, cancelTk? }
           next := Array.zipWith
             (fun stx prom => { stx? := some stx, task := prom.resultD default, cancelTk? })
             altStxs altPromises
@@ -316,7 +316,7 @@ where
         }
         finished.resolve {
           diagnostics := .empty
-          state? := (← saveState)
+          state? := some (← saveState)
           moreSnaps := (← Core.getAndEmptySnapshotTasks)
         }
         return
@@ -692,7 +692,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     if induction && indVal.isNested then
       throwError "'induction' tactic does not support nested inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
-    getElimInfo elimName indVal.name
+    getElimInfo elimName (some indVal.name)
   else
     let elimTerm := optElimId[1]
     let elimExpr ← withRef elimTerm do elabTermForElim elimTerm
@@ -752,7 +752,7 @@ def elabElimTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ide
       let expr ← elabTerm view.term none
       let arg? : Option GeneralizeArg :=
         if let some hIdent := view.hIdent? then
-          some { expr, hName? := hIdent.getId }
+          some { expr, hName? := some hIdent.getId }
         else if ← shouldGeneralizeTarget expr then
           some { expr }
         else

@@ -138,7 +138,7 @@ protected def fromJson? (json : Json) : Except String PackageEntry := do
         throw s!"unknown package entry type '{type}'"
     return {
       name, scope, inherited,
-      configFile, manifestFile? := manifestFile, src
+      configFile, manifestFile? := some manifestFile, src
       : PackageEntry
     }
   catch e =>
@@ -242,7 +242,7 @@ Errors if the manifest is ill-formatted or the read files for other reasons.
 -/
 def load? (file : FilePath) : IO (Option Manifest) := do
   match (← inline (load file) |>.toBaseIO) with
-  | .ok contents => return contents
+  | .ok contents => return some contents
   | .error (.noFileOrDirectory ..) => return none
   | .error e => throw e
 

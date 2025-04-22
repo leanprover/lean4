@@ -130,6 +130,6 @@ open Lean.Elab.Tactic in
   liftMetaTactic1 fun mvarId => do
     let suggestions ← select mvarId
     logInfo m!"Premise suggestions: {suggestions.map (·.name)}"
-    return mvarId
+    return some mvarId
 
 end Lean.PremiseSelection

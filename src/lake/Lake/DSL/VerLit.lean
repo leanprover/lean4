@@ -41,7 +41,7 @@ def elabVerLit : TermElab := fun stx expectedType? => do
   let some expectedType := expectedType?
     | throwError "expected type is not known"
   let ofVerT? ← mkAppM ``Except #[mkConst ``String, expectedType]
-  let ofVerE ← elabTermEnsuringType (← ``(decodeVersion s!$v)) ofVerT?
+  let ofVerE ← elabTermEnsuringType (← ``(decodeVersion s!$v)) (some ofVerT?)
   let resT ← mkAppM ``Except #[mkConst ``String, mkConst ``Expr]
   let resE ← mkAppM ``toResultExpr #[ofVerE]
   match (← unsafe evalExpr (Except String Expr) resT resE) with

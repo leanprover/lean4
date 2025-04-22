@@ -42,7 +42,7 @@ def rewriteRulesPass : Pass where
 
     let hyps ← getHyps goal
     if hyps.isEmpty then
-      return goal
+      return some goal
     else
       let ⟨result?, _⟩ ← simpGoal goal
         (ctx := simpCtx)
@@ -52,7 +52,7 @@ def rewriteRulesPass : Pass where
       let some (_, newGoal) := result? | return none
       newGoal.withContext do
         (← getPropHyps).forM PreProcessM.rewriteFinished
-      return newGoal
+      return some newGoal
 where
   getHyps (goal : MVarId) : PreProcessM (Array FVarId) := do
     goal.withContext do

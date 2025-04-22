@@ -159,7 +159,7 @@ def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFilePr
     JsonRpc.Notification Lsp.LeanFileProgressParams where
   method := "$/lean/fileProgress"
   param := {
-    textDocument := { uri := m.uri, version? := m.version }
+    textDocument := { uri := m.uri, version? := some m.version }
     processing
   }
 
@@ -193,7 +193,7 @@ Yields `none` if the file corresponding to `modName` has been deleted in the mea
 -/
 def documentUriFromModule? (modName : Name) : IO (Option DocumentUri) := do
   if let some uri := externalNameToUri? modName then
-    return uri
+    return some uri
   let some path ← (← getSrcSearchPath).findModuleWithExt "lean" modName
     | return none
   -- Resolve symlinks (such as `src` in the build dir) so that files are opened
@@ -205,7 +205,7 @@ def documentUriFromModule? (modName : Name) : IO (Option DocumentUri) := do
 def moduleFromDocumentUri (uri : DocumentUri) : IO Name := do
   let some path := System.Uri.fileUriToPath? uri
     | return externalUriToName uri
-  if path.extension != "lean" then
+  if path.extension != some "lean" then
     return externalUriToName uri
   let some modNameInPath ← searchModuleNameOfFileName path (← getSrcSearchPath)
     | return externalUriToName uri

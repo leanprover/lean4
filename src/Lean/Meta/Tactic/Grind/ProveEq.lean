@@ -57,7 +57,7 @@ def proveEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
     processNewFacts
     unless (← isEqv lhs rhs) do return none
     unless (← hasSameType lhs rhs) do return none
-    mkEqProof lhs rhs
+    some <$> mkEqProof lhs rhs
 
 /-- Similar to `proveEq?`, but for heterogeneous equality. -/
 def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
@@ -72,6 +72,6 @@ def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
     let rhs ← ensureInternalized rhs
     processNewFacts
     unless (← isEqv lhs rhs) do return none
-    mkHEqProof lhs rhs
+    some <$> mkHEqProof lhs rhs
 
 end Lean.Meta.Grind

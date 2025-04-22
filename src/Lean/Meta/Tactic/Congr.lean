@@ -47,7 +47,7 @@ def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     let lhs := lhs.cleanupAnnotations
     unless lhs.isApp do return none
     let some congrThm ← mkCongrSimp? lhs.getAppFn (subsingletonInstImplicitRhs := false) | return none
-    applyCongrThm? mvarId congrThm
+    some <$> applyCongrThm? mvarId congrThm
 
 /--
 Try to apply a `hcongr` congruence theorem, and then tries to close resulting goals
@@ -63,7 +63,7 @@ def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
       let lhs := lhs.cleanupAnnotations
       unless lhs.isApp do return none
       let congrThm ← mkHCongr lhs.getAppFn
-      applyCongrThm? mvarId congrThm
+      some <$> applyCongrThm? mvarId congrThm
 
 /--
 Try to apply `implies_congr`.
@@ -109,7 +109,7 @@ where
       modify (·.push mvarId)
 
   go (n : Nat) (mvarId : MVarId) : StateRefT (Array MVarId) MetaM Unit := do
-    if let some mvarId ← if closePre then withReducible mvarId.congrPre else pure mvarId then
+    if let some mvarId ← if closePre then withReducible mvarId.congrPre else pure (some mvarId) then
       match n with
       | 0 => post mvarId
       | n+1 =>

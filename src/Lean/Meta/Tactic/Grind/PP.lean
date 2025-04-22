@@ -90,11 +90,11 @@ private def ppEqcs : M Unit := do
      if Option.isSome <| eqc.find? (·.isTrue) then
        let eqc := eqc.filter fun e => !e.isTrue
        unless eqc.isEmpty do
-         trueEqc? := ppExprArray `eqc "True propositions" eqc.toArray `prop
+         trueEqc? := some <| ppExprArray `eqc "True propositions" eqc.toArray `prop
      else if Option.isSome <| eqc.find? (·.isFalse) then
        let eqc := eqc.filter fun e => !e.isFalse
        unless eqc.isEmpty do
-         falseEqc? := ppExprArray `eqc "False propositions" eqc.toArray `prop
+         falseEqc? :=some <| ppExprArray `eqc "False propositions" eqc.toArray `prop
      else if let e :: _ :: _ := eqc then
        -- We may want to add a flag to pretty print equivalence classes of nested proofs
        unless (← isProof e) do

@@ -596,7 +596,7 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
   let res ← env.promiseChecked
   setEnv res.mainEnv
   let cancelTk ← IO.CancelToken.new
-  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := some cancelTk) fun _ => do
     setEnv res.asyncEnv
     try
       doCompile
@@ -604,7 +604,7 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
       res.commitChecked (← getEnv)
   let t ← BaseIO.mapTask checkAct env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := some cancelTk }
 where doCompile := do
   -- don't compile if kernel errored; should be converted into a task dependency when compilation
   -- is made async as well
@@ -628,7 +628,7 @@ where doCompile := do
       throwKernelException ex
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
-  compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors
+  compileDecls (Compiler.getDeclNamesForCodeGen decl) (some decl) logErrors
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

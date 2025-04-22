@@ -102,7 +102,7 @@ class MkDeclFields (α : Type u) where
 export MkDeclFields (mkDeclFields)
 
 def mkDeclValWhere? (fields : Array DeclField) : Option (TSyntax ``declValWhere) :=
-  if fields.isEmpty then none else Unhygienic.run `(declValWhere|where $fields*)
+  if fields.isEmpty then none else Unhygienic.run (some <$> `(declValWhere|where $fields*))
 
 /-! ## Value Encoders -/
 
@@ -174,7 +174,7 @@ protected def Pattern.toLean? [ToLean? (PatternDescr α β)] (p : Pattern α β)
   | `default =>
     none
   | n =>
-    Unhygienic.run `(.$(mkIdent n))
+    Unhygienic.run (some <$> `(.$(mkIdent n)))
 
 instance [ToLean? (PatternDescr α β)] : ToLean? (Pattern α β) := ⟨Pattern.toLean?⟩
 

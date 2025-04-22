@@ -143,7 +143,7 @@ instance : FromJson RefInfo where
       let range ← toRange a 0
       if a.size == 13 then
         let parentDecl ← toParentDecl a 4
-        return ⟨range, parentDecl⟩
+        return ⟨range, some parentDecl⟩
       else
         return ⟨range, none⟩
 

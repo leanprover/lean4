@@ -541,8 +541,8 @@ def getAntiquotTerm (stx : Syntax) : Syntax :=
 
 /-- Return kind of parser expected at this antiquotation, and whether it is a "pseudo" kind (see `mkAntiquot`). -/
 def antiquotKind? : Syntax → Option (SyntaxNodeKind × Bool)
-  | .node _ (.str (.str k "pseudo") "antiquot") _ => (k, true)
-  | .node _ (.str k                 "antiquot") _ => (k, false)
+  | .node _ (.str (.str k "pseudo") "antiquot") _ => some (k, true)
+  | .node _ (.str k                 "antiquot") _ => some (k, false)
   | _                                             => none
 
 def antiquotKinds (stx : Syntax) : List (SyntaxNodeKind × Bool) :=
@@ -607,11 +607,11 @@ partial def findStack? (root : Syntax) (visit : Syntax → Bool) (accept : Synta
 where
   go (stack : Syntax.Stack) (stx : Syntax) : Option Syntax.Stack := Id.run do
     if accept stx then
-      return (stx, 0) :: stack  -- the first index is arbitrary as there is no preceding element
+      return some ((stx, 0) :: stack)  -- the first index is arbitrary as there is no preceding element
     for i in [0:stx.getNumArgs] do
       if visit stx[i] then
         if let some stack := go ((stx, i) :: stack) stx[i] then
-          return stack
+          return some stack
     return none
 
 /-- Compare the `SyntaxNodeKind`s in `pattern` to those of the `Syntax`

@@ -201,7 +201,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
           s.restore
           go (i+1)
       else
-        let (_, _, eType) ← forallMetaTelescopeReducing eType (some rangeNumArgs.start)
+        let (_, _, eType) ← forallMetaTelescopeReducing eType rangeNumArgs.start
         throwApplyError mvarId eType targetType
       termination_by rangeNumArgs.stop - i
     let (newMVars, binderInfos) ← go rangeNumArgs.start

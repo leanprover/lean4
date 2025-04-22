@@ -34,12 +34,12 @@ partial def andFlatteningPass : Pass where
   run' goal := do
     let (_, { hypsToDelete, hypsToAdd, .. }) ← processGoal goal |>.run {}
     if hypsToAdd.isEmpty then
-      return goal
+      return some goal
     else
       let (_, goal) ← goal.assertHypotheses hypsToAdd
       -- Given that we collected the hypotheses in the correct order above the invariant is given
       let goal ← goal.tryClearMany hypsToDelete
-      return goal
+      return some goal
 where
   processGoal (goal : MVarId) : StateRefT AndFlattenState MetaM Unit := do
     goal.withContext do

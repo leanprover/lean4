@@ -68,7 +68,7 @@ deriving instance Repr for UseImplicitLambdaResult
           setGoals [g']
           g'.withContext do
             let gType ← g'.getType
-            let h ← Term.elabTerm (mkIdent name) gType
+            let h ← Term.elabTerm (mkIdent name) (some gType)
             Term.synthesizeSyntheticMVarsNoPostponing
             let hType ← inferType h
             unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
@@ -103,7 +103,7 @@ deriving instance Repr for UseImplicitLambdaResult
             else
               `(tactic| simpa $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[using $usingArg]?)
           | _ => unreachable!
-        TryThis.addSuggestion tk stx (origSpan? := ← getRef)
+        TryThis.addSuggestion tk stx (origSpan? := some (← getRef))
       return stats.diag
     | _ => throwUnsupportedSyntax
 

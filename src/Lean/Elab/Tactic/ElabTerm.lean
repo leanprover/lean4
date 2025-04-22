@@ -96,7 +96,7 @@ def closeMainGoalUsing (tacName : Name) (x : Expr → Name → TacticM Expr) (ch
 
 @[builtin_tactic «exact»] def evalExact : Tactic := fun stx => do
   match stx with
-  | `(tactic| exact $e) => closeMainGoalUsing `exact fun type _ => elabTermEnsuringType e type
+  | `(tactic| exact $e) => closeMainGoalUsing `exact fun type _ => elabTermEnsuringType e (some type)
   | _ => throwUnsupportedSyntax
 
 def sortMVarIdArrayByIndex [MonadMCtx m] [Monad m] (mvarIds : Array MVarId) : m (Array MVarId) := do
@@ -195,7 +195,7 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
    "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
 def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : TacticM Unit := do
   withMainContext do
-    let (val, mvarIds') ← elabTermWithHoles stx (← getMainTarget) tagSuffix allowNaturalHoles
+    let (val, mvarIds') ← elabTermWithHoles stx (some (← getMainTarget)) tagSuffix allowNaturalHoles
     let mvarId ← getMainGoal
     let val ← instantiateMVars val
     if val == mkMVar mvarId then
@@ -342,7 +342,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       let fvarId ← withoutModifyingState <| withNewMCtxDepth <| withoutRecover do
         let type ← elabTerm typeStx none (mayPostpone := true)
         let fvarId? ← (← getLCtx).findDeclRevM? fun localDecl => do
-          if (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
+          if (← isDefEq type localDecl.type) then return some localDecl.fvarId else return none
         match fvarId? with
         | none => throwError "failed to find a hypothesis with type{indentExpr type}"
         | some fvarId => return fvarId
@@ -381,7 +381,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := wi
         let args := inst.getAppArgs
         for i in [0:info.numDiscrs] do
           let inst' := args[info.numParams + 1 + i]!
-          if (← Meta.isClass? (← inferType inst')) == ``Decidable then
+          if (← Meta.isClass? (← inferType inst')) == some ``Decidable then
             let inst'' ← whnf inst'
             if !(inst''.isAppOf ``isTrue || inst''.isAppOf ``isFalse) then
               return ← blameDecideReductionFailure inst''
@@ -438,7 +438,7 @@ def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : Tact
     liftMetaTactic1 fun g => do
       let g ← g.cleanup
       let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds
-      return g
+      return some g
   closeMainGoalUsing tacticName fun expectedType _ => do
     if cfg.kernel && cfg.native then
       throwError "tactic '{tacticName}' failed, cannot simultaneously set both '+kernel' and '+native'"
@@ -462,7 +462,7 @@ where
       -- efficient term. The kernel handles the unification `e =?= true` specially.
       return pf
     else
-      diagnose expectedType s r
+      diagnose expectedType s (some r)
   doKernel (expectedType : Expr) : TacticM Expr := do
     let pf ← mkDecideProof expectedType
     -- Get instance from `pf`
@@ -500,8 +500,8 @@ where
         let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
         let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
           let e ← mkConstWithLevelParams n
-          if (← Meta.isClass? (← inferType e)) == ``Decidable then
-            return m!"'{.ofConst e}'"
+          if (← Meta.isClass? (← inferType e)) == some ``Decidable then
+            return some m!"'{.ofConst e}'"
           else
             return none
         return (reason, unfoldedInsts)

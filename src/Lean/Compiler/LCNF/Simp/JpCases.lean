@@ -200,7 +200,7 @@ partial def simpJpCases? (code : Code) : CompilerM (Option Code) := do
     for (fvarId, info) in map.toList do
       msg := msg ++ indentD m!"{mkFVar fvarId} ↦ {info.ctorNames.toList}"
     return msg
-  visit code map |>.run' {} |>.run {}
+  some <$> visit code map |>.run' {} |>.run {}
 where
   visit (code : Code) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) Code := do
     match code with
@@ -269,7 +269,7 @@ where
     let value := LCNF.attachCodeDecls decls (.cases { cases with alts := altsNew })
     let decl ← decl.updateValue value
     let code := .jp decl (← visit k)
-    return LCNF.attachCodeDecls jpAltDecls code
+    return some (LCNF.attachCodeDecls jpAltDecls code)
 
   visitJmp? (fvarId : FVarId) (args : Array Arg) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
     let some ctorJpAltMap := (← get).find? fvarId | return none

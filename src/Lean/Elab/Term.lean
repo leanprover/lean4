@@ -611,7 +611,7 @@ instance : MonadParentDecl TermElabM where
 
 /-- Execute `withSaveParentDeclInfoContext x` with `declName? := name`. See `getDeclName?`. -/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with declName? := name }) <| withSaveParentDeclInfoContext x
+  withReader (fun ctx => { ctx with declName? := some name }) <| withSaveParentDeclInfoContext x
 
 /-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
@@ -697,7 +697,7 @@ def getInfoTreeWithContext? : TermElabM (Option InfoTree) := do
     env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := ctx.currNamespace,
     openDecls := ctx.openDecls, options := ctx.options, ngen := s.ngen
   }
-  return InfoTree.context ctx t
+  return some (InfoTree.context ctx t)
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
@@ -835,8 +835,8 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
 def registerLevelMVarErrorInfo (levelMVarErrorInfo : LevelMVarErrorInfo) : TermElabM Unit :=
   modify fun s => { s with levelMVarErrorInfos := levelMVarErrorInfo :: s.levelMVarErrorInfos }
 
-def registerLevelMVarErrorExprInfo (expr : Expr) (ref : Syntax) (msgData? : Option MessageData := none) : TermElabM Unit := do
-  registerLevelMVarErrorInfo { lctx := (← getLCtx), expr, ref, msgData? }
+def registerLevelMVarErrorExprInfo (expr : Expr) (ref : Syntax) (msgData? : OptionArg MessageData := .none) : TermElabM Unit := do
+  registerLevelMVarErrorInfo { lctx := (← getLCtx), expr, ref, msgData? := msgData?.toOption }
 
 def exposeLevelMVars (e : Expr) : MetaM Expr :=
   Core.transform e
@@ -961,7 +961,7 @@ private def applyAttributesCore
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : TermElabM Unit :=
-  applyAttributesCore declName attrs applicationTime
+  applyAttributesCore declName attrs (some applicationTime)
 
 def applyAttributes (declName : Name) (attrs : Array Attribute) : TermElabM Unit :=
   applyAttributesCore declName attrs none
@@ -973,7 +973,7 @@ def mkTypeMismatchError (header? : Option MessageData) (e : Expr) (eType : Expr)
   return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) (eType : Expr) (e : Expr)
-    (f? : Option Expr := none) (_extraMsg? : Option MessageData := none) : MetaM α := do
+    (f? : Option Expr := none) (_extraMsg? : OptionArg MessageData := .none) : MetaM α := do
   /-
     We ignore `extraMsg?` for now. In all our tests, it contained no useful information. It was
     always of the form:
@@ -1102,13 +1102,13 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
       | .some eNew => return eNew
       | .none => failure
       | .undef =>
-        let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
+        let mvarAux ← mkFreshExprMVar (some expectedType) MetavarKind.syntheticOpaque
         registerSyntheticMVarWithCurrRef mvarAux.mvarId! (.coe errorMsgHeader? expectedType e f? mkErrorMsg?)
         return mvarAux
   catch
     | .error _ msg =>
       if let some mkImmedErrorMsg := mkImmedErrorMsg? then
-        throwError (← mkImmedErrorMsg msg expectedType e)
+        throwError (← mkImmedErrorMsg (some msg) expectedType e)
       else
         throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f? msg
     | _            =>
@@ -1120,7 +1120,7 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
 def mkCoeWithErrorMsgs (expectedType : Expr) (e : Expr)
     (mkImmedErrorMsg : (errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData)
     (mkErrorMsg : MVarId → (expectedType e : Expr) → MetaM MessageData) : TermElabM Expr := do
-  mkCoe expectedType e (mkImmedErrorMsg? := mkImmedErrorMsg) (mkErrorMsg? := mkErrorMsg)
+  mkCoe expectedType e (mkImmedErrorMsg? := some mkImmedErrorMsg) (mkErrorMsg? := some mkErrorMsg)
 
 /--
 If `expectedType?` is `some t`, then ensures `t` and `eType` are definitionally equal by inserting a coercion if necessary.
@@ -1128,12 +1128,12 @@ If `expectedType?` is `some t`, then ensures `t` and `eType` are definitionally 
 Argument `f?` is used only for generating error messages when inserting coercions fails.
 -/
 def ensureHasType (expectedType? : Option Expr) (e : Expr)
-    (errorMsgHeader? : Option String := none) (f? : Option Expr := none) : TermElabM Expr := do
+    (errorMsgHeader? : OptionArg String := .none) (f? : OptionArg Expr := .none) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
   if (← isDefEq (← inferType e) expectedType) then
     return e
   else
-    mkCoe expectedType e f? errorMsgHeader?
+    mkCoe expectedType e f?.toOption errorMsgHeader?.toOption
 
 def ensureHasTypeWithErrorMsgs (expectedType? : Option Expr) (e : Expr)
     (mkImmedErrorMsg : (errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData)
@@ -1260,7 +1260,7 @@ def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind) : T
   if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
     withRef tacticCode <| mkLabeledSorry type false (unique := true)
   else
-    let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
+    let mvar ← mkFreshExprMVar (some type) MetavarKind.syntheticOpaque
     let mvarId := mvar.mvarId!
     let ref ← getRef
     registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext) kind
@@ -1306,8 +1306,8 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
   match e with
   | Expr.mvar mvarId =>
     match (← getSyntheticMVarDecl? mvarId) with
-    | some { kind := .tactic .., .. }    => return mvarId
-    | some { kind := .postponed .., .. } => return mvarId
+    | some { kind := .tactic .., .. }    => return some mvarId
+    | some { kind := .postponed .., .. } => return some mvarId
     | _                                  => return none
   | _ => pure none
 
@@ -1589,9 +1589,9 @@ private def decorateErrorMessageWithLambdaImplicitVars (ex : Exception) (impFVar
   | _ => return ex
 
 private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (impFVars : Array Expr) : TermElabM Expr := do
-  let body ← elabUsingElabFns stx expectedType catchExPostpone
+  let body ← elabUsingElabFns stx (some expectedType) catchExPostpone
   try
-    let body ← ensureHasType expectedType body
+    let body ← ensureHasType (some expectedType) body
     let r ← mkLambdaFVars impFVars body
     trace[Elab.implicitForall] r
     return r
@@ -1680,7 +1680,7 @@ by inserting coercions if necessary.
 If `errToSorry` is true, then if coercion insertion fails, this function returns `sorry` and logs the error.
 Otherwise, it throws the error.
 -/
-def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
+def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : OptionArg String := .none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
   try
     withRef stx <| ensureHasType expectedType? e errorMsgHeader?
@@ -1701,7 +1701,7 @@ def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
       return none
     else
       Core.setMessageLog (saved.meta.core.messages ++ (← Core.getMessageLog))
-      return a
+      return some a
   catch _ =>
     restoreState saved
     return none
@@ -1716,11 +1716,11 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expe
   If type class resolution cannot be executed (e.g., it is stuck because of metavariables in `type`),
   register metavariable as a pending one.
 -/
-def mkInstMVar (type : Expr) (extraErrorMsg? : Option MessageData := none) : TermElabM Expr := do
-  let mvar ← mkFreshExprMVar type MetavarKind.synthetic
+def mkInstMVar (type : Expr) (extraErrorMsg? : OptionArg MessageData := .none) : TermElabM Expr := do
+  let mvar ← mkFreshExprMVar (some type) MetavarKind.synthetic
   let mvarId := mvar.mvarId!
-  unless (← synthesizeInstMVarCore mvarId (extraErrorMsg? := extraErrorMsg?)) do
-    registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?)
+  unless (← synthesizeInstMVarCore mvarId (extraErrorMsg? := extraErrorMsg?.toOption)) do
+    registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?.toOption)
   return mvar
 
 /--
@@ -1744,7 +1744,7 @@ def ensureType (e : Expr) : TermElabM Expr := do
 /-- Elaborate `stx` and ensure result is a type. -/
 def elabType (stx : Syntax) : TermElabM Expr := do
   let u ← mkFreshLevelMVar
-  let type ← elabTerm stx (mkSort u)
+  let type ← elabTerm stx (some (mkSort u))
   withRef stx <| ensureType type
 
 /--
@@ -1834,7 +1834,7 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
       return s!"{name} : {type}"
     let codeBlockEnd := "```"
     let tooltip := "\n".intercalate <| description :: codeBlockStart :: typeInfos.toList ++ [codeBlockEnd]
-    return { ih with tooltip? := tooltip }
+    return { ih with tooltip? := some tooltip }
   pushInfoLeaf <| .ofCustomInfo {
       position := inlayHintPos
       label := .name formattedHint
@@ -1987,7 +1987,7 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? :
   | .ident _ _ n preresolved =>
     let r ← resolveName ident n preresolved explicitLevels expectedType?
     r.mapM fun (c, fields) => do
-      let ids := ident.identComponents (nFields? := fields.length)
+      let ids := ident.identComponents (nFields? := some fields.length)
       return (c, ids.head!, ids.tail!)
   | _ => throwError "identifier expected"
 
@@ -2046,7 +2046,7 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
 def exprToSyntax (e : Expr) : TermElabM Term := withFreshMacroScope do
   let result ← `(?m)
   let eType ← inferType e
-  let mvar ← elabTerm result eType
+  let mvar ← elabTerm result (some eType)
   mvar.mvarId!.assign e
   return result
 

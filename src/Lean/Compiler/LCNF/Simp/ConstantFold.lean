@@ -65,7 +65,7 @@ def mkAuxLit [Literal α] (x : α) (prefixName := `_x) : FolderM FVarId := do
 
 partial def getNatLit (fvarId : FVarId) : CompilerM (Option Nat) := do
   let some (.value (.natVal n)) ← findLetValue? fvarId | return none
-  return n
+  return some n
 
 def mkNatLit (n : Nat) : FolderM LetValue :=
   return .value (.natVal n)
@@ -76,7 +76,7 @@ instance : Literal Nat where
 
 def getStringLit (fvarId : FVarId) : CompilerM (Option String) := do
   let some (.value (.strVal s)) ← findLetValue? fvarId | return none
-  return s
+  return some s
 
 def mkStringLit (n : String) : FolderM LetValue :=
   return .value (.strVal n)
@@ -87,7 +87,7 @@ instance : Literal String where
 
 def getBoolLit (fvarId : FVarId) : CompilerM (Option Bool) := do
   let some (.const ctor [] #[]) ← findLetValue? fvarId | return none
-  return ctor == ``Bool.true
+  return some (ctor == ``Bool.true)
 
 def mkBoolLit (b : Bool) : FolderM LetValue :=
   let ctor := if b then ``Bool.true else ``Bool.false
@@ -101,7 +101,7 @@ private partial def getLitAux [Inhabited α] (fvarId : FVarId) (ofNat : Nat → 
   let some (.const declName _ #[.fvar fvarId]) ← findLetValue? fvarId | return none
   unless declName == ofNatName do return none
   let some natLit ← getLit fvarId | return none
-  return ofNat natLit
+  return some (ofNat natLit)
 
 def mkNatWrapperInstance [Inhabited α] (ofNat : Nat → α) (ofNatName : Name) (toNat : α → Nat) : Literal α where
   getLit := (getLitAux · ofNat ofNatName)
@@ -191,7 +191,7 @@ def Folder.mkUnary [Literal α] [Literal β] (folder : α → β) : Folder := fu
   let #[.fvar fvarId] := args | return none
   let some arg1 ← getLit fvarId | return none
   let res := folder arg1
-  mkLit res
+  some <$> mkLit res
 
 /--
 Turn a binary function such as `Nat.add` into a constant folder.
@@ -200,7 +200,7 @@ def Folder.mkBinary [Literal α] [Literal β] [Literal γ] (folder : α → β �
   let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
   let some arg₁ ← getLit fvarId₁ | return none
   let some arg₂ ← getLit fvarId₂ | return none
-  mkLit <| folder arg₁ arg₂
+  some <$> (mkLit <| folder arg₁ arg₂)
 
 def Folder.mkBinaryDecisionProcedure [Literal α] [Literal β] {r : α → β → Prop} (folder : (a : α) → (b : β) → Decidable (r a b)) : Folder := fun args => do
   if (← getPhase) < .mono then
@@ -209,7 +209,7 @@ def Folder.mkBinaryDecisionProcedure [Literal α] [Literal β] {r : α → β �
   let some arg₁ ← getLit fvarId₁ | return none
   let some arg₂ ← getLit fvarId₂ | return none
   let boolLit := folder arg₁ arg₂ |>.decide
-  mkLit boolLit
+  some <$> mkLit boolLit
 
 /--
 Provide a folder for an operation with a left neutral element.
@@ -236,7 +236,7 @@ def Folder.leftAnnihilator [Literal α] [BEq α] (annihilator : α) (zero : α) 
   let #[.fvar fvarId, _] := args | return none
   let some arg ← getLit fvarId | return none
   unless arg == annihilator do return none
-  mkLit zero
+  some <$> mkLit zero
 
 /--
 Provide a folder for an operation with a right annihilator.
@@ -245,7 +245,7 @@ def Folder.rightAnnihilator [Literal α] [BEq α] (annihilator : α) (zero : α)
   let #[_, .fvar fvarId] := args | return none
   let some arg ← getLit fvarId | return none
   unless arg == annihilator do return none
-  mkLit zero
+  some <$> mkLit zero
 
 def Folder.divShift [Literal α] [BEq α] (shiftRight : Name) (pow2 : α → α) (log2 : α → α) : Folder := fun args => do
   unless (← getEnv).contains shiftRight do return none
@@ -281,7 +281,7 @@ def Folder.first (folders : Array Folder) : Folder := fun exprs => do
   let backup ← get
   for folder in folders do
     if let some res ← folder exprs then
-      return res
+      return some res
     else
       set backup
   return none

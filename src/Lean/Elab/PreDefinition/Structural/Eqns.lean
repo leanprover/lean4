@@ -98,7 +98,7 @@ def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPo
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns info
+    some <$> mkEqns info
   else
     return none
 

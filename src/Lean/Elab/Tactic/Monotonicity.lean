@@ -76,7 +76,7 @@ partial def solveMonoCall (α inst_α : Expr) (e : Expr) : MetaM (Option Expr) :
     let_expr monotone _ _ _ inst _ := hmonoType | throwError "solveMonoCall {e}: unexpected type {hmonoType}"
     let some inst ← whnfUntil inst ``instOrderPi | throwError "solveMonoCall {e}: unexpected instance {inst}"
     let_expr instOrderPi γ δ inst ← inst | throwError "solveMonoCall {e}: whnfUntil failed?{indentExpr inst}"
-    return ← mkAppOptM ``monotone_apply #[γ, δ, α, inst_α, inst, e.appArg!, none, hmono]
+    return some (← mkAppOptM ``monotone_apply #[γ, δ, α, inst_α, inst, e.appArg!, .none, hmono])
 
   if e.isProj then
     let some hmono ← solveMonoCall α inst_α e.projExpr! | return none
@@ -85,7 +85,7 @@ partial def solveMonoCall (α inst_α : Expr) (e : Expr) : MetaM (Option Expr) :
     let some inst ← whnfUntil inst ``instPartialOrderPProd | throwError "solveMonoCall {e}: unexpected instance {inst}"
     let_expr instPartialOrderPProd β γ inst_β inst_γ ← inst | throwError "solveMonoCall {e}: whnfUntil failed?{indentExpr inst}"
     let n := if e.projIdx! == 0 then ``PProd.monotone_fst else ``PProd.monotone_snd
-    return ← mkAppOptM n #[β, γ, α, inst_β, inst_γ, inst_α, none, hmono]
+    return some (← mkAppOptM n #[β, γ, α, inst_β, inst_γ, inst_α, .none, hmono])
 
   if e == .bvar 0 then
     let hmono ← mkAppOptM ``monotone_id #[α, inst_α]

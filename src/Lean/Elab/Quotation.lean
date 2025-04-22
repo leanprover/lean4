@@ -170,11 +170,11 @@ private partial def quoteSyntax : Syntax → TermElabM Term
           let val := getAntiquotTerm (getCanonicalAntiquot antiquot)
           args := args.append (appendName := appendName) <| ←
             match antiquotSuffixSplice? arg with
-            | `optional => `(match Option.map (@TSyntax.raw $(quote ks)) $val:term with
+            | some `optional => `(match Option.map (@TSyntax.raw $(quote ks)) $val:term with
               | some x => Array.empty.push x
               | none   => Array.empty)
-            | `many     => `(@TSyntaxArray.raw $(quote ks) $val)
-            | `sepBy    =>
+            | some `many     => `(@TSyntaxArray.raw $(quote ks) $val)
+            | some `sepBy    =>
               let sep := quote <| getSepFromSplice arg
               `(@TSepArray.elemsAndSeps $(quote ks) $sep $val)
             | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
@@ -186,13 +186,13 @@ private partial def quoteSyntax : Syntax → TermElabM Term
           if ids.isEmpty then
             throwErrorAt stx "antiquotation splice must contain at least one antiquotation"
           let arr ← match k with
-            | `optional => `(match $[$ids:ident],* with
+            | some `optional => `(match $[$ids:ident],* with
                 | $[some $ids:ident],* => $(quote inner)
                 | $[_%$ids],*          => Array.empty)
             | _ =>
               let arr ← ids[:ids.size - 1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back!
               `(Array.map (fun $(← mkTuple ids) => $(inner[0]!)) $arr)
-          let arr ← if k == `sepBy then
+          let arr ← if k == some `sepBy then
             `(mkSepArray $arr $(getSepStxFromSplice arg))
           else
             pure arr
@@ -392,9 +392,9 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       unconditionally <| match getAntiquotTerm (getCanonicalAntiquot inner) with
         | `(_)         => pure
         | `($id:ident) => fun rhs => match antiquotSuffixSplice? quoted[0] with
-          | `optional => `(have $id := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? __discr); $rhs)
-          | `many     => `(have $id := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs __discr); $rhs)
-          | `sepBy    => `(have $id := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs __discr); $rhs)
+          | some `optional => `(have $id := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? __discr); $rhs)
+          | some `many     => `(have $id := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs __discr); $rhs)
+          | some `sepBy    => `(have $id := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs __discr); $rhs)
           | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
         | anti         => fun _   => throwErrorAt anti "unsupported antiquotation kind in pattern"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
@@ -410,7 +410,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         let yes ← yes []
         let no ← no
         match k with
-        | `optional =>
+        | some `optional =>
           let nones := .replicate ids.size (← `(none))
           `(let_delayed yes _ $ids* := $yes;
             if __discr.isNone then yes () $[ $nones]*
@@ -419,7 +419,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
               | _                         => $no)
         | _ =>
           let mut discrs ← `(Syntax.getArgs __discr)
-          if k == `sepBy then
+          if k == some `sepBy then
             discrs ← `(Array.getSepElems $discrs)
           let tuple ← mkTuple ids
           let mut yes := yes
@@ -487,7 +487,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             -- but matching on literals is quite rare.
             other quoted
           else
-            shape [kind] argPats.size,
+            shape [kind] (some argPats.size),
         onMatch := fun
           | other stx' =>
             if quoted.isIdent || lit then
@@ -498,7 +498,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             else
               undecided
           | shape ks sz =>
-            if ks == [kind] && sz == argPats.size then
+            if ks == [kind] && sz == some argPats.size then
               covered (fun (pats, rhs) => pure (argPats.toList ++ pats, rhs)) (exhaustive := true)
             else
               uncovered

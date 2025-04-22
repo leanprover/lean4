@@ -596,7 +596,7 @@ def emitInc (builder : LLVM.Builder llvmctx)
   if n != 1
   then do
      let nv ← constIntSizeT n
-     callLeanRefcountFn builder (kind := RefcountKind.inc) (checkRef? := checkRef?) (delta := nv) xv
+     callLeanRefcountFn builder (kind := RefcountKind.inc) (checkRef? := checkRef?) (delta := some nv) xv
   else callLeanRefcountFn builder (kind := RefcountKind.inc) (checkRef? := checkRef?) xv
 
 def emitDec (builder : LLVM.Builder llvmctx)

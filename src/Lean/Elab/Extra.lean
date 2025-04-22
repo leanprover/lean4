@@ -30,7 +30,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         let colE ← elabTerm col none
         let m ← getMonadForIn expectedType?
         let colType ← inferType colE
-        let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
+        let elemType ← mkFreshExprMVar (some (mkSort (mkLevelSucc (← mkFreshLevelMVar))))
         let forInInstance ← try
           mkAppM ``ForIn #[m, colType, elemType]
         catch _ =>
@@ -54,10 +54,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         let colE ← elabTerm col none
         let m ← getMonadForIn expectedType?
         let colType ← inferType colE
-        let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
+        let elemType ← mkFreshExprMVar (some (mkSort (mkLevelSucc (← mkFreshLevelMVar))))
         let forInInstance ←
           try
-            let memType ← mkFreshExprMVar (← mkAppM ``Membership #[elemType, colType])
+            let memType ← mkFreshExprMVar (some (← mkAppM ``Membership #[elemType, colType]))
             mkAppM ``ForIn' #[m, colType, elemType, memType]
           catch _ =>
             tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
@@ -272,7 +272,7 @@ where
            modify fun s => { s with hasUnknown := true }
          else
            match (← get).max? with
-           | none     => modify fun s => { s with max? := type }
+           | none     => modify fun s => { s with max? := some type }
            | some max =>
              /-
               Remark: Previously, we used `withNewMCtxDepth` to prevent metavariables in `max` and `type` from being assigned.
@@ -304,7 +304,7 @@ where
                if (← hasCoe type max) then
                  return ()
                else if (← hasCoe max type) then
-                 modify fun s => { s with max? := type }
+                 modify fun s => { s with max? := some type }
                else
                  trace[Elab.binop] "uncomparable types: {max}, {type}"
                  modify fun s => { s with hasUncomparable := true }
@@ -425,7 +425,7 @@ mutual
           Remark: We assume `binrel%` elaborator is only used with homogeneous predicates.
         -/
         if (← pure isPred <||> hasHomogeneousInstance f maxType) then
-          return .binop ref kind f (← go lhs f true false) (← go rhs f false false)
+          return .binop ref kind f (← go lhs (some f) true false) (← go rhs (some f) false false)
         else
           let r ← withRef ref do
             mkBinOp (kind == .lazy) f (← toExpr lhs none) (← toExpr rhs none)
@@ -536,7 +536,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let lhs ← withRef lhsStx <| toBoolIfNecessary lhs
       let rhs ← withRef rhsStx <| toBoolIfNecessary rhs
       let lhsType ← inferType lhs
-      let rhs ← withRef rhsStx <| ensureHasType lhsType rhs
+      let rhs ← withRef rhsStx <| ensureHasType (some lhsType) rhs
       elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
     else
       let mut maxType := r.max?.get!
@@ -554,7 +554,7 @@ where
     if noProp then
       -- We use `withNewMCtxDepth` to make sure metavariables are not assigned
       if (← withNewMCtxDepth <| isDefEq (← inferType e) (mkSort levelZero)) then
-        return (← ensureHasType (Lean.mkConst ``Bool) e)
+        return (← ensureHasType (some (Lean.mkConst ``Bool)) e)
     return e
 
 @[builtin_term_elab binrel] def elabBinRel : TermElab := elabBinRelCore false

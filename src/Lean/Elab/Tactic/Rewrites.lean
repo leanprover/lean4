@@ -47,7 +47,7 @@ def evalExact : Tactic := fun stx => do
       for r in results do withMCtx r.mctx do
         Tactic.TryThis.addRewriteSuggestion tk [(r.expr, r.symm)]
           (type? := .some r.result.eNew) (loc? := .some (.fvar f))
-          (origSpan? := ← getRef) (checkState? := (← saveState))
+          (origSpan? := some (← getRef)) (checkState? := some (← saveState))
       if let some r := results[0]? then
         setMCtx r.mctx
         let replaceResult ← goal.replaceLocalDecl f r.result.eNew r.result.eqProof
@@ -68,7 +68,7 @@ def evalExact : Tactic := fun stx => do
         replaceMainGoal
           ((← goal.replaceTargetEq r.result.eNew r.result.eqProof) :: r.result.mvarIds)
         evalTactic (← `(tactic| try rfl))
-      results.forM (·.addSuggestion tk (checkState? := state))
+      results.forM (·.addSuggestion tk (checkState? := some state))
     (fun _ => throwError "Failed to find a rewrite for some location")
 
 end Lean.Elab.Rewrites

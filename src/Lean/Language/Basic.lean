@@ -343,7 +343,7 @@ def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics :
   let msgLog := MessageLog.empty.add {
     fileName := "<input>"
     pos := ⟨1, 0⟩
-    endPos := (← read).fileMap.toPosition (← read).fileMap.source.endPos
+    endPos := some ((← read).fileMap.toPosition (← read).fileMap.source.endPos)
     data := msg
   }
   Snapshot.Diagnostics.ofMessageLog msgLog

@@ -82,9 +82,9 @@ def checkArgs (as : Array Arg) : M Unit :=
      msg := s!"{msg}, {suffix}"
    throw msg
 
-def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj "object expected"
+def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj (some "object expected")
 
-def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar "scalar expected"
+def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar (some "scalar expected")
 
 def getType (x : VarId) : M IRType := do
   let ctx ← read
@@ -96,10 +96,10 @@ def getType (x : VarId) : M IRType := do
   let ty ← getType x; checkType ty p suffix?
 
 def checkObjVar (x : VarId) : M Unit :=
-  checkVarType x IRType.isObj "object expected"
+  checkVarType x IRType.isObj (some "object expected")
 
 def checkScalarVar (x : VarId) : M Unit :=
-  checkVarType x IRType.isScalar "scalar expected"
+  checkVarType x IRType.isScalar (some "scalar expected")
 
 def checkFullApp (c : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl c

@@ -11,7 +11,7 @@ namespace Lean.Elab.Term
 open Meta
 
 unsafe def evalTerm (α) (type : Expr) (value : Syntax) (safety := DefinitionSafety.safe) : TermElabM α := withoutModifyingEnv do
-  let v ← elabTermEnsuringType value type
+  let v ← elabTermEnsuringType value (some type)
   synthesizeSyntheticMVarsNoPostponing
   let v ← instantiateMVars v
   if (← logUnassignedUsingErrorInfos (← getMVars v)) then throwAbortTerm

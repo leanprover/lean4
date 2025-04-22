@@ -285,16 +285,16 @@ ordering so the algorithm terminates in practice!
 -/
 def selectEquality (p : Problem) : Option (Coeffs × Nat) :=
   p.equalities.fold (init := none) fun
-  | none, c => (c, c.minNatAbs)
+  | none, c => some (c, c.minNatAbs)
   | some (r, m), c =>
     if 2 ≤ m then
       let m' := c.minNatAbs
       if (m' < m || m' = m && c.maxNatAbs < r.maxNatAbs) then
-        (c, m')
+        some (c, m')
       else
-        (r, m)
+        some (r, m)
     else
-      (r, m)
+      some (r, m)
 
 /--
 If we have already solved some equalities, apply those to some new `Fact`.

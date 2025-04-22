@@ -127,8 +127,8 @@ def addInteractiveHypothesisBundle (hyps : Array InteractiveHypothesisBundle)
     fvarIds
     type        := (← ppExprTagged type)
     val?        := (← value?.mapM ppExprTagged)
-    isInstance? := if (← isClass? type).isSome then true else none
-    isType?     := if (← instantiateMVars type).isSort then true else none
+    isInstance? := if (← isClass? type).isSome then some true else none
+    isType?     := if (← instantiateMVars type).isSort then some true else none
   }
 
 open Meta in

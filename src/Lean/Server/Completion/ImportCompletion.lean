@@ -102,7 +102,7 @@ def collectAvailableImportsFromLake : IO (Option AvailableImports) := do
   | 0 =>
     let Except.ok (availableImports : AvailableImports) := Json.parse stdout >>= fromJson?
       | throw <| IO.userError  s!"invalid output from `lake available-imports`:\n{stdout}"
-    return availableImports
+    return some availableImports
   | _ =>
     return none
 

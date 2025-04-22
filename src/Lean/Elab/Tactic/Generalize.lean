@@ -27,7 +27,7 @@ open Meta
         pure (some arg[0][0].getId)
       let expr ← elabTerm arg[1] none
       xIdents := xIdents.push arg[3]
-      args := args.push { hName?, expr, xName? := arg[3].getId : GeneralizeArg }
+      args := args.push { hName?, expr, xName? := some arg[3].getId : GeneralizeArg }
     let hyps ← match expandOptLocation stx[2] with
     | .targets hyps _ => getFVarIds hyps
     | .wildcard => pure ((← getLocalHyps).map (·.fvarId!))

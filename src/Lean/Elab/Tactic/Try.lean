@@ -573,9 +573,9 @@ private def throwEvalAndSuggestFailed (config : Try.Config) : TacticM α := do
 
 private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) : TacticM Unit := do
   if s.size == 1 then
-    Tactic.TryThis.addSuggestion tk s[0]! (origSpan? := (← getRef))
+    Tactic.TryThis.addSuggestion tk s[0]! (origSpan? := some (← getRef))
   else
-    Tactic.TryThis.addSuggestions tk (s.map fun stx => stx) (origSpan? := (← getRef))
+    Tactic.TryThis.addSuggestions tk (s.map fun stx => stx) (origSpan? := some (← getRef))
 
 def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config := {}) : TacticM Unit := do
   let tac' ← try

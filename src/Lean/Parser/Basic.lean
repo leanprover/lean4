@@ -1535,11 +1535,11 @@ after the `withPosition(..)` block the saved position will be restored to its or
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
 @[builtin_doc] def withPosition : Parser → Parser := withFn fun f c s =>
-    adaptCacheableContextFn ({ · with savedPos? := s.pos }) f c s
+    adaptCacheableContextFn ({ · with savedPos? := some s.pos }) f c s
 
 def withPositionAfterLinebreak : Parser → Parser := withFn fun f c s =>
   let prev := s.stxStack.back
-  adaptCacheableContextFn (fun c => if checkTailLinebreak prev then { c with savedPos? := s.pos } else c) f c s
+  adaptCacheableContextFn (fun c => if checkTailLinebreak prev then { c with savedPos? := some s.pos } else c) f c s
 
 /-- `withoutPosition(p)` runs `p` without the saved position, meaning that position-checking
 parsers like `colGt` will have no effect. This is usually used by bracketing constructs like
@@ -1557,7 +1557,7 @@ would be treated as an application.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
 @[builtin_doc] def withForbidden (tk : Token) (p : Parser) : Parser :=
-  adaptCacheableContext ({ · with forbiddenTk? := tk }) p
+  adaptCacheableContext ({ · with forbiddenTk? := some tk }) p
 
 /-- `withoutForbidden(p)` runs `p` disabling the "forbidden token" (see `withForbidden`), if any.
 This is usually used by bracketing constructs like `(...)` because there is no parsing ambiguity
@@ -1893,7 +1893,7 @@ def leadingParser (kind : Name) (tables : PrattParsingTables) (behavior : Leadin
   withAntiquotFn (isCatAntiquot := true) antiquotParser (leadingParserAux kind tables behavior)
 
 def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn := fun c s =>
-  longestMatchFn left (ps ++ tables.trailingParsers) c s
+  longestMatchFn (some left) (ps ++ tables.trailingParsers) c s
 
 partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : ParserState) : ParserState := Id.run do
   let iniSz  := s.stackSize
@@ -1951,7 +1951,7 @@ def fieldIdxFn : ParserFn := fun c s =>
     let s     := takeWhileFn (fun c => c.isDigit) c s
     mkNodeToken fieldIdxKind iniPos c s
   else
-    s.mkErrorAt "field index" iniPos initStackSz
+    s.mkErrorAt "field index" iniPos (some initStackSz)
 
 def fieldIdx : Parser :=
   withAntiquot (mkAntiquot "fieldIdx" `fieldIdx) {

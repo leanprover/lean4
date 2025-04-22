@@ -68,7 +68,7 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
       -/
 
       if let some kind ← trySimpleEnum defnInfo inductiveInfo xs numCtors motive then
-        return kind
+        return some kind
 
     if xs.size > 2 then
       -- Probably a match with default case
@@ -185,7 +185,7 @@ partial def typeAnalysisPass : Pass where
     trace[Meta.Tactic.bv] m!"Type analysis found structures: {analysis.interestingStructures.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found enums: {analysis.interestingEnums.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found matchers: {analysis.interestingMatchers.keys}"
-    return goal
+    return some goal
 where
   checkContext (goal : MVarId) : PreProcessM Unit := do
     goal.withContext do

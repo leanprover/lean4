@@ -84,12 +84,12 @@ def elabParserName? (stx : Syntax.Ident) : TermElabM (Option Parser.ParserResolu
   match ← Parser.resolveParserName stx with
   | [n@(.category cat)] =>
     addCategoryInfo stx cat
-    return n
+    return some n
   | [n@(.parser parser _)] =>
     addTermInfo' stx (Lean.mkConst parser)
-    return n
+    return some n
   | [n@(.alias _)] =>
-    return n
+    return some n
   | _::_::_ => throwErrorAt stx "ambiguous parser {stx}"
   | [] => return none
 
@@ -437,9 +437,9 @@ def expandNoKindMacroRulesAux (alts : Array (TSyntax ``matchAlt)) (cmdName : Str
     let altsK    ← alts.filterM fun alt => return checkRuleKind (← inferMacroRulesAltKind alt) k
     let altsNotK ← alts.filterM fun alt => return !checkRuleKind (← inferMacroRulesAltKind alt) k
     if altsNotK.isEmpty then
-      mkCmd k altsK
+      mkCmd (some k) altsK
     else
-      `($(← mkCmd k altsK):command $(← mkCmd none altsNotK))
+      `($(← mkCmd (some k) altsK):command $(← mkCmd none altsNotK))
 
 def strLitToPattern (stx: Syntax) : MacroM Syntax :=
   match stx.isStrLit? with

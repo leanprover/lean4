@@ -71,7 +71,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   async.commitConst async.asyncEnv (some info)
   setEnv async.mainEnv
   let cancelTk ← IO.CancelToken.new
-  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := some cancelTk) fun _ => do
     setEnv async.asyncEnv
     try
       doAdd
@@ -79,7 +79,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
       async.commitCheckEnv (← getEnv)
   let t ← BaseIO.mapTask checkAct env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := some cancelTk }
 where
   addSynchronously := do
     doAdd
@@ -91,7 +91,7 @@ where
       -- do *not* report extensions in synchronous case at this point as they are usually set only
       -- after adding the constant itself
       let res ← env.addConstAsync (reportExts := false) n (.ofConstantInfo info)
-      res.commitConst env (info? := info)
+      res.commitConst env (info? := some info)
       res.commitCheckEnv res.asyncEnv
       setEnv res.mainEnv
   doAdd := do

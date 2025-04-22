@@ -330,7 +330,7 @@ def OmissionReason.toString : OmissionReason → String
   | maxSteps => "Term omitted due to reaching the maximum number of steps allowed for pretty printing this expression (see option `pp.maxSteps`)."
 
 def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
-  addDelabTermInfo pos stx e (docString? := reason.toString) (explicit := false)
+  addDelabTermInfo pos stx e (docString? := some reason.toString) (explicit := false)
 
 /--
 Runs the delaborator `act` with increased depth.

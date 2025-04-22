@@ -386,7 +386,7 @@ def setupImports
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
       fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
-      severity?  := DiagnosticSeverity.information
+      severity?  := some DiagnosticSeverity.information
       message    := stderrLine
     }
     chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
@@ -606,7 +606,7 @@ section NotificationHandling
     let diagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.endPos⟩
-      severity?  := DiagnosticSeverity.information
+      severity?  := some DiagnosticSeverity.information
       message := importOutOfDataMessage
     }
     ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics =>
@@ -1041,7 +1041,7 @@ where
     o.writeLspMessage <| mkPublishDiagnosticsNotification meta #[{
       range := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩,
       fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
-      severity? := DiagnosticSeverity.error
+      severity? := some DiagnosticSeverity.error
       message := err.toString }]
 
 @[export lean_server_worker_main]

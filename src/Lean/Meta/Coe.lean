@@ -58,12 +58,12 @@ def coerceToFunction? (expr : Expr) : MetaM (Option Expr) := do
   let α ← inferType expr
   let u ← getLevel α
   let v ← mkFreshLevelMVar
-  let γ ← mkFreshExprMVar (← mkArrow α (mkSort v))
+  let γ ← mkFreshExprMVar (some (← mkArrow α (mkSort v)))
   let .some inst ← trySynthInstance (mkApp2 (.const ``CoeFun [u,v]) α γ) | return none
   let expanded ← expandCoe (mkApp4 (.const ``CoeFun.coe [u,v]) α γ inst expr)
   unless (← whnf (← inferType expanded)).isForall do
     throwError "failed to coerce{indentExpr expr}\nto a function, after applying `CoeFun.coe`, result is still not a function{indentExpr expanded}\nthis is often due to incorrect `CoeFun` instances, the synthesized instance was{indentExpr inst}"
-  return expanded
+  return some expanded
 
 /-- Coerces `expr` to a type. -/
 def coerceToSort? (expr : Expr) : MetaM (Option Expr) := do
@@ -71,12 +71,12 @@ def coerceToSort? (expr : Expr) : MetaM (Option Expr) := do
   let α ← inferType expr
   let u ← getLevel α
   let v ← mkFreshLevelMVar
-  let β ← mkFreshExprMVar (mkSort v)
+  let β ← mkFreshExprMVar (some (mkSort v))
   let .some inst ← trySynthInstance (mkApp2 (.const ``CoeSort [u,v]) α β) | return none
   let expanded ← expandCoe (mkApp4 (.const ``CoeSort.coe [u,v]) α β inst expr)
   unless (← whnf (← inferType expanded)).isSort do
     throwError "failed to coerce{indentExpr expr}\nto a type, after applying `CoeSort.coe`, result is still not a type{indentExpr expanded}\nthis is often due to incorrect `CoeSort` instances, the synthesized instance was{indentExpr inst}"
-  return expanded
+  return some expanded
 
 /-- Return `some (m, α)` if `type` can be reduced to an application of the form `m α` using `[reducible]` transparency. -/
 def isTypeApp? (type : Expr) : MetaM (Option (Expr × Expr)) := do
@@ -161,7 +161,7 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
   let saved ← saveState
   if (← isDefEq m n) then
     let some monadInst ← isMonad? n | restoreState saved; return none
-    try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => restoreState saved; return none
+    try some <$> expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, .none, monadInst, e]) catch _ => restoreState saved; return none
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`

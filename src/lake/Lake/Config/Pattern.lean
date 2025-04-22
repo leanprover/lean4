@@ -86,7 +86,7 @@ Matches a string that satisfies the declarative pattern.
 (optionally identified by a `Name`).
 -/
 @[inline] def Pattern.ofDescr [IsPattern β α] (descr : PatternDescr α β) (name := Name.anonymous) : Pattern α β :=
-  {filter := (descr =~ ·), descr? := descr, name}
+  {filter := (descr =~ ·), descr? := some descr, name}
 
 instance [IsPattern β α] : Coe (PatternDescr α β) (Pattern α β) := ⟨(.ofDescr ·)⟩
 

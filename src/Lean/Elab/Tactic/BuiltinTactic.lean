@@ -83,9 +83,9 @@ where
         desc := tac.getKind.toString
         diagnostics := .empty
         stx := tac
-        inner? := some { stx? := tac, task := inner.resultD default, cancelTk? }
-        finished := { stx? := tac, task := finished.resultD default, cancelTk? }
-        next := #[{ stx? := stxs, task := next.resultD default, cancelTk? }]
+        inner? := some { stx? := some tac, task := inner.resultD default, cancelTk? }
+        finished := { stx? := some tac, task := finished.resultD default, cancelTk? }
+        next := #[{ stx? := some stxs, task := next.resultD default, cancelTk? }]
       }
       -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
       -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
@@ -101,7 +101,7 @@ where
           diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
             (← Core.getAndEmptyMessageLog))
           infoTree? := (← Term.getInfoTreeWithContext?)
-          state? := state
+          state? := some state
           moreSnaps := (← Core.getAndEmptySnapshotTasks)
         }
       finally
@@ -282,10 +282,10 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtin_tactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with
   | `(tactic| intro)                   => introStep none `_
-  | `(tactic| intro $h:ident)          => introStep h h.getId
-  | `(tactic| intro _%$tk)             => introStep tk `_
+  | `(tactic| intro $h:ident)          => introStep (some h) h.getId
+  | `(tactic| intro _%$tk)             => introStep (some tk) `_
   /- Type ascription -/
-  | `(tactic| intro ($h:ident : $type:term)) => introStep h h.getId type
+  | `(tactic| intro ($h:ident : $type:term)) => introStep (some h) h.getId (some type)
   /- We use `@h` at the match-discriminant to disable the implicit lambda feature -/
   | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match @h with | $pat:term => ?_; try clear h))
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
@@ -368,10 +368,10 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
   If none, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
 private def findTag? (mvarIds : List MVarId) (tag : Name) : TacticM (Option MVarId) := do
   match (← mvarIds.findM? fun mvarId => return tag == (← mvarId.getDecl).userName) with
-  | some mvarId => return mvarId
+  | some mvarId => return some mvarId
   | none =>
   match (← mvarIds.findM? fun mvarId => return tag.isSuffixOf (← mvarId.getDecl).userName) with
-  | some mvarId => return mvarId
+  | some mvarId => return some mvarId
   | none => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← mvarId.getDecl).userName
 
 def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : TacticM MVarId := do
@@ -537,7 +537,7 @@ where
       for fv in vars do
         if let some ldecl := origLCtx.findFromUserName? fv.getId then
           toClear := toClear.push ldecl.fvarId
-      liftMetaTactic1 (·.tryClearMany toClear)
+      liftMetaTactic1 (fun id => some <$> id.tryClearMany toClear)
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic runTac] def evalRunTac : Tactic := fun stx => do

@@ -8,6 +8,7 @@ import Lean.Structure
 import Lean.Meta.SynthInstance
 import Lean.Meta.Check
 import Lean.Meta.DecLevel
+import Init.Data.OptionArg
 
 namespace Lean.Meta
 
@@ -135,9 +136,9 @@ Similar to `mkEqTrans`, but arguments can be `none`.
 def mkEqTrans? (h₁? h₂? : Option Expr) : MetaM (Option Expr) :=
   match h₁?, h₂? with
   | none, none       => return none
-  | none, some h     => return h
-  | some h, none     => return h
-  | some h₁, some h₂ => mkEqTrans h₁ h₂
+  | none, some h     => return some h
+  | some h, none     => return some h
+  | some h₁, some h₂ => some <$> mkEqTrans h₁ h₂
 
 /-- Given `h : HEq a b`, returns a proof of `HEq b a`.  -/
 def mkHEqSymm (h : Expr) : MetaM Expr := do
@@ -297,13 +298,13 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
         let d  := d.instantiateRevRange j args.size args
         match bi with
         | BinderInfo.implicit     =>
-          let mvar ← mkFreshExprMVar d MetavarKind.natural n
+          let mvar ← mkFreshExprMVar (some d) MetavarKind.natural n
           loop b i j (args.push mvar) instMVars
         | BinderInfo.strictImplicit     =>
-          let mvar ← mkFreshExprMVar d MetavarKind.natural n
+          let mvar ← mkFreshExprMVar (some d) MetavarKind.natural n
           loop b i j (args.push mvar) instMVars
         | BinderInfo.instImplicit =>
-          let mvar ← mkFreshExprMVar d MetavarKind.synthetic n
+          let mvar ← mkFreshExprMVar (some d) MetavarKind.synthetic n
           loop b i j (args.push mvar) (instMVars.push mvar.mvarId!)
         | _ =>
           let x := xs[i]
@@ -361,20 +362,20 @@ def mkAppM' (f : Expr) (xs : Array Expr) : MetaM Expr := do
   withAppBuilderTrace f xs do withNewMCtxDepth do
     mkAppMArgs f fType xs
 
-private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat → Array Expr → Nat → Array MVarId → Expr → MetaM Expr
+private partial def mkAppOptMAux (f : Expr) (xs : Array (OptionArg Expr)) : Nat → Array Expr → Nat → Array MVarId → Expr → MetaM Expr
   | i, args, j, instMVars, Expr.forallE n d b bi => do
     let d  := d.instantiateRevRange j args.size args
     if h : i < xs.size then
       match xs[i] with
-      | none =>
+      | .none =>
         match bi with
         | BinderInfo.instImplicit => do
-          let mvar ← mkFreshExprMVar d MetavarKind.synthetic n
+          let mvar ← mkFreshExprMVar (some d) MetavarKind.synthetic n
           mkAppOptMAux f xs (i+1) (args.push mvar) j (instMVars.push mvar.mvarId!) b
         | _                       => do
-          let mvar ← mkFreshExprMVar d MetavarKind.natural n
+          let mvar ← mkFreshExprMVar (some d) MetavarKind.natural n
           mkAppOptMAux f xs (i+1) (args.push mvar) j instMVars b
-      | some x =>
+      | .some x =>
         let xType ← inferType x
         if (← isDefEq d xType) then
           mkAppOptMAux f xs (i+1) (args.push x) j instMVars b
@@ -390,15 +391,15 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat →
     else if i == xs.size then
       mkAppMFinal `mkAppOptM f args instMVars
     else do
-      let xs : Array Expr := xs.foldl (fun r x? => match x? with | none => r | some x => r.push x) #[]
+      let xs : Array Expr := xs.foldl (fun r x? => match x? with | .none => r | .some x => r.push x) #[]
       throwAppBuilderException `mkAppOptM ("too many arguments provided to" ++ indentExpr f ++ Format.line ++ "arguments" ++ xs)
 
 /--
-  Similar to `mkAppM`, but it allows us to specify which arguments are provided explicitly using `Option` type.
+  Similar to `mkAppM`, but it allows us to specify which arguments are provided explicitly using `OptionArg` type.
   Example:
   Given `Pure.pure {m : Type u → Type v} [Pure m] {α : Type u} (a : α) : m α`,
   ```
-  mkAppOptM `Pure.pure #[m, none, none, a]
+  mkAppOptM `Pure.pure #[m, .none, .none, a]
   ```
   returns a `Pure.pure` application if the instance `Pure m` can be synthesized, and the universe match.
   Note that,
@@ -407,15 +408,15 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat →
   ```
   fails because the only explicit argument `(a : α)` is not sufficient for inferring the remaining arguments,
   we would need the expected type. -/
-def mkAppOptM (constName : Name) (xs : Array (Option Expr)) : MetaM Expr := do
-  withAppBuilderTrace constName xs do withNewMCtxDepth do
+def mkAppOptM (constName : Name) (xs : Array (OptionArg Expr)) : MetaM Expr := do
+  withAppBuilderTrace constName (xs.map (·.toOption)) do withNewMCtxDepth do
     let (f, fType) ← mkFun constName
     mkAppOptMAux f xs 0 #[] 0 #[] fType
 
 /-- Similar to `mkAppOptM`, but takes an `Expr` instead of a constant name. -/
-def mkAppOptM' (f : Expr) (xs : Array (Option Expr)) : MetaM Expr := do
+def mkAppOptM' (f : Expr) (xs : Array (OptionArg Expr)) : MetaM Expr := do
   let fType ← inferType f
-  withAppBuilderTrace f xs do withNewMCtxDepth do
+  withAppBuilderTrace f (xs.map (·.toOption)) do withNewMCtxDepth do
     mkAppOptMAux f xs 0 #[] 0 #[] fType
 
 def mkEqNDRec (motive h1 h2 : Expr) : MetaM Expr := do
@@ -468,7 +469,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=
-  mkAppOptM ``Pure.pure #[monad, none, none, e]
+  mkAppOptM ``Pure.pure #[.some monad, .none, .none, .some e]
 
 /--
 `mkProjection s fieldName` returns an expression for accessing field `fieldName` of the structure `s`.
@@ -529,7 +530,7 @@ def mkSome (type value : Expr) : MetaM Expr := do
 
 /-- Returns `Decidable.decide p` -/
 def mkDecide (p : Expr) : MetaM Expr :=
-  mkAppOptM ``Decidable.decide #[p, none]
+  mkAppOptM ``Decidable.decide #[.some p, .none]
 
 /-- Returns a proof for `p : Prop` using `decide p` -/
 def mkDecideProof (p : Expr) : MetaM Expr := do
@@ -549,11 +550,11 @@ def mkLe (a b : Expr) : MetaM Expr :=
 
 /-- Returns `Inhabited.default α` -/
 def mkDefault (α : Expr) : MetaM Expr :=
-  mkAppOptM ``Inhabited.default #[α, none]
+  mkAppOptM ``Inhabited.default #[.some α, .none]
 
 /-- Returns `@Classical.ofNonempty α _` -/
 def mkOfNonempty (α : Expr) : MetaM Expr := do
-  mkAppOptM ``Classical.ofNonempty #[α, none]
+  mkAppOptM ``Classical.ofNonempty #[.some α, .none]
 
 /-- Returns `funext h` -/
 def mkFunExt (h : Expr) : MetaM Expr :=
@@ -645,7 +646,7 @@ def isMonad? (m : Expr) : MetaM (Option Expr) :=
     let monadType ← mkAppM `Monad #[m]
     let result    ← trySynthInstance monadType
     match result with
-    | LOption.some inst => pure inst
+    | LOption.some inst => pure (some inst)
     | _                 => pure none
   catch _ =>
     pure none

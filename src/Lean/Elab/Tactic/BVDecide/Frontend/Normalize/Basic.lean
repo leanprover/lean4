@@ -169,7 +169,7 @@ partial def fixpointPipeline (passes : List Pass) (goal : MVarId) : PreProcessM 
     fixpointPipeline passes newGoal
   else
     trace[Meta.Tactic.bv] "Pipeline reached a fixpoint"
-    return newGoal
+    return some newGoal
 
 end Pass
 

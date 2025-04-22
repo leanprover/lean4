@@ -49,7 +49,7 @@ def compileLeanModule
     args
     cmd := lean.toString
     env := #[
-      ("LEAN_PATH", leanPath.toString)
+      ("LEAN_PATH", some leanPath.toString)
     ]
   }
   unless out.stdout.isEmpty do
@@ -176,5 +176,5 @@ def tar
     cmd := "tar"
     args := args ++ #["-f", file.toString, "-C", dir.toString, "."]
     -- don't pack `._` files on MacOS
-    env := if Platform.isOSX then #[("COPYFILE_DISABLE", "true")] else #[]
+    env := if Platform.isOSX then #[("COPYFILE_DISABLE", some "true")] else #[]
   }

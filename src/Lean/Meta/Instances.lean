@@ -230,7 +230,7 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   addGlobalInstance declName attrKind
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
-  instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
+  instanceExtension.add { keys, val := c, priority := prio, globalName? := some declName, attrKind, synthOrder } attrKind
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -259,11 +259,11 @@ def isInstance (declName : Name) : CoreM Bool :=
 
 def getInstancePriority? (declName : Name) : CoreM (Option Nat) := do
   let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
-  return entry.priority
+  return some entry.priority
 
 def getInstanceAttrKind? (declName : Name) : CoreM (Option AttributeKind) := do
   let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
-  return entry.attrKind
+  return some entry.attrKind
 
 /-! # Default instance support -/
 

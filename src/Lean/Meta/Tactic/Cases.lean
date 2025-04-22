@@ -145,7 +145,7 @@ The result contains the fields
 def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndicesSubgoal :=
   mvarId.withContext do
     let fvarDecl ← fvarId.getDecl
-    generalizeIndices' mvarId fvarDecl.toExpr fvarDecl.userName
+    generalizeIndices' mvarId fvarDecl.toExpr (some fvarDecl.userName)
 
 structure CasesSubgoal extends InductionSubgoal where
   ctorName : Name
@@ -171,7 +171,7 @@ private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := d
     majorType.withApp fun f args => matchConstInduct f (fun _ => pure none) fun ival _ =>
       if args.size != ival.numIndices + ival.numParams then pure none
       else match env.find? (Name.mkStr ival.name "casesOn") with
-        | ConstantInfo.defnInfo cval =>
+        | some (ConstantInfo.defnInfo cval) =>
           return some {
             inductiveVal  := ival,
             casesOnVal    := cval,
@@ -237,7 +237,7 @@ partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (case
 
 private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
   subgoals.foldlM (init := #[]) fun subgoals s => do
-    match (← unifyEqs? numEqs s.mvarId s.subst s.ctorName) with
+    match (← unifyEqs? numEqs s.mvarId s.subst (some s.ctorName)) with
     | none                 => pure subgoals
     | some (mvarId, subst) =>
       return subgoals.push { s with

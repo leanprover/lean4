@@ -212,9 +212,9 @@ def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : Inte
         return ← withTypeDiff t₀ h₁
       else
         if useAfter then
-          return {h₁ with isInserted? := true }
+          return {h₁ with isInserted? := some true }
         else
-          return {h₁ with isRemoved? := true }
+          return {h₁ with isRemoved? := some true }
   -- all fvids are present on original so we can assume no change.
   return h₁
 where
@@ -246,7 +246,7 @@ def diffInteractiveGoal (useAfter : Bool) (g₀ : MVarId) (i₁ : InteractiveGoa
   let t₁ ← instantiateMVars md₁.type
   let tδ ← exprDiff t₀ t₁ useAfter
   let c₁ ← addDiffTags useAfter tδ i₁.type
-  let i₁ := {i₁ with type := c₁, isInserted? := false}
+  let i₁ := {i₁ with type := c₁, isInserted? := some false}
   return i₁
 
 /-- Modifies `goalsAfter` with additional information about how it is different to `goalsBefore`.
@@ -271,7 +271,7 @@ def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : In
         if goals₀.any (fun g₀ => g₀ == g₁) then
           return {ig₁ with isInserted? := none}
         let some g₀ := goals₀.find? (fun g₀ => if useAfter then isParent g₀ g₁ else isParent g₁ g₀)
-          | return if useAfter then {ig₁ with isInserted? := true } else {ig₁ with isRemoved? := true}
+          | return if useAfter then {ig₁ with isInserted? := some true } else {ig₁ with isRemoved? := some true}
         let ig₁ ← diffInteractiveGoal useAfter g₀ ig₁
         return ig₁
       )

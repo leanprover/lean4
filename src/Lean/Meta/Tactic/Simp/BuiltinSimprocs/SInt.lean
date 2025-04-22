@@ -126,7 +126,7 @@ builtin_simproc [simp, seval] reduceToNatClampNeg (ISize.toNatClampNeg _) := fun
     let e := toExpr n
     let p ← mkDecideProof (← mkLT e (mkNatLit (2 ^ 31)))
     let p := mkApp2 (mkConst ``ISize.toNatClampNeg_ofNat_of_lt) e p
-    return .done { expr := e, proof? := p }
+    return .done { expr := e, proof? := some p }
 
   let_expr Neg.neg _ _ a ← e | return .continue
   let some (n, _) ← getOfNatValue? a ``ISize | return .continue
@@ -134,7 +134,7 @@ builtin_simproc [simp, seval] reduceToNatClampNeg (ISize.toNatClampNeg _) := fun
   let e := toExpr n
   let p ← mkDecideProof (← mkLE e (mkNatLit (2 ^ 31)))
   let p := mkApp2 (mkConst ``ISize.toNatClampNeg_neg_ofNat_of_le) e p
-  return .done { expr := toExpr 0, proof? := p }
+  return .done { expr := toExpr 0, proof? := some p }
 
 builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
   let_expr ISize.toInt e ← e | return .continue
@@ -143,7 +143,7 @@ builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
     let e := toExpr n
     let p ← mkDecideProof (← mkLT e (mkNatLit (2 ^ 31)))
     let p := mkApp2 (mkConst ``ISize.toInt_ofNat_of_lt) e p
-    return .done { expr := toExpr (n : Int), proof? := p }
+    return .done { expr := toExpr (n : Int), proof? := some p }
 
   let_expr Neg.neg _ _ a ← e | return .continue
   let some (n, _) ← getOfNatValue? a ``ISize | return .continue
@@ -151,4 +151,4 @@ builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
   let e := toExpr n
   let p ← mkDecideProof (← mkLE e (mkNatLit (2 ^ 31)))
   let p := mkApp2 (mkConst ``ISize.toInt_neg_ofNat_of_le) e p
-  return .done { expr := toExpr (-n : Int), proof? := p }
+  return .done { expr := toExpr (-n : Int), proof? := some p }

@@ -27,4 +27,4 @@ def resolvePath (path : System.FilePath) : BaseIO System.FilePath := do
 /-- Returns the normalized real path of a file if and only if it exists. -/
 @[inline] def resolvePath? (path : System.FilePath) : BaseIO (Option System.FilePath) := do
   let path ← resolvePath path
-  return if path.toString.isEmpty then none else path
+  return if path.toString.isEmpty then none else some path

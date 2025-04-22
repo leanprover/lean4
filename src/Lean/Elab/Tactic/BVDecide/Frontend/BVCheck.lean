@@ -62,7 +62,7 @@ def evalBvCheck : Tactic := fun
       | none =>
         let bvNormalizeStx ← `(tactic| bv_normalize $cfgStx)
         logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
-        TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
+        TryThis.addSuggestion tk bvNormalizeStx (origSpan? := some (← getRef))
   | _ => throwUnsupportedSyntax
 
 end Frontend.BVCheck

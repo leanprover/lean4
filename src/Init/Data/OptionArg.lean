@@ -76,3 +76,18 @@ theorem getD_eq {α : Type u} {o : OptionArg α} {fallback : α} :
   cases o <;> simp [getD]
 
 end OptionArg
+
+namespace Option
+
+/-- Convert an `Option α` to `OptionArg α` by mapping `none` to `none` and `some a` to `some a`. -/
+def toOptionArg {α : Type u} : Option α → OptionArg α
+  | .none => .none
+  | .some a => .some a
+
+@[simp]
+theorem toOptionArg_some {α : Type u} {a : α} : (some a).toOptionArg = OptionArg.some a := rfl
+
+@[simp]
+theorem toOptionArg_none {α : Type u} : (none : Option α).toOptionArg = OptionArg.none := rfl
+
+end Option

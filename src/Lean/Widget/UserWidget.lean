@@ -245,7 +245,7 @@ def savePanelWidgetInfo (hash : UInt64) (props : StateM Server.RpcObjectStore Js
 syntax widgetInstanceSpec := ident ("with " term)?
 
 def elabWidgetInstanceSpecAux (mod : Ident) (props : Term) : TermElabM Expr := do
-  Term.elabTerm (expectedType? := mkConst ``WidgetInstance) <| ← `(
+  Term.elabTerm (expectedType? := some <| mkConst ``WidgetInstance) <| ← `(
     { id := $(quote mod.getId)
       javascriptHash := (ToModule.toModule $mod).javascriptHash
       props := Server.RpcEncodable.rpcEncode $props })
@@ -290,7 +290,7 @@ open Command in
       match w with
       | `(showWidgetSpec| - $mod:ident) =>
         let mod : Term ← ``(ToModule.toModule $mod)
-        let mod : Expr ← Term.elabTerm (expectedType? := mkConst ``Module) mod
+        let mod : Expr ← Term.elabTerm (expectedType? := some <| mkConst ``Module) mod
         let mod : Module ← evalModule mod
         erasePanelWidget mod.javascriptHash
       | `(showWidgetSpec| $attr:attrKind $spec:widgetInstanceSpec) =>

@@ -60,8 +60,8 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
   let env := env.setMainModule configModuleName
 
   -- Configure extensions
-  let env := dirExt.setState env pkgDir
-  let env := optsExt.setState env lakeOpts
+  let env := dirExt.setState env (some pkgDir)
+  let env := optsExt.setState env (some lakeOpts)
 
   -- Elaborate File
   let commandState := Elab.Command.mkState env messages leanOpts

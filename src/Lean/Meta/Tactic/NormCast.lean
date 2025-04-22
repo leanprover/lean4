@@ -154,9 +154,9 @@ builtin_initialize registerBuiltinAttribute {
     let `(attr| norm_cast $[$label:normCastLabel]? $[$prio]?) := stx | unreachable!
     let prio := (prio.bind (·.1.isNatLit?)).getD (eval_prio default)
     match label.bind (·.1.isStrLit?) with
-    | "elim" => addElim decl kind prio
-    | "move" => addMove decl kind prio
-    | "squash" => addSquash decl kind prio
+    | some "elim" => addElim decl kind prio
+    | some "move" => addMove decl kind prio
+    | some "squash" => addSquash decl kind prio
     | none => addInfer decl kind prio
     | _ => unreachable!
 }

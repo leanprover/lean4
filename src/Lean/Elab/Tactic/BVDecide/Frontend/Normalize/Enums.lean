@@ -409,7 +409,7 @@ partial def enumsPass : Pass where
       let analysis ← PreProcessM.getTypeAnalysis
       let interestingEnums := analysis.interestingEnums
       -- invariant: if there is no interesting enums there also can't be interesting matchers
-      if interestingEnums.isEmpty then return goal
+      if interestingEnums.isEmpty then return some goal
 
       let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
@@ -459,7 +459,7 @@ partial def enumsPass : Pass where
           (simprocs := #[simprocs])
           (fvarIdsToSimp := ← getPropHyps)
       let some (_, newGoal) := result? | return none
-      postprocess newGoal |>.run' {}
+      some <$> postprocess newGoal |>.run' {}
 where
   postprocess (goal : MVarId) : StateRefT PostProcessState MetaM MVarId :=
     goal.withContext do

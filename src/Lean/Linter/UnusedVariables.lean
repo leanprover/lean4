@@ -187,15 +187,15 @@ builtin_initialize
 
 /-- `variable (unused : Nat)` -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-    stack.matches [`null, none, `null, ``Lean.Parser.Command.variable])
+    stack.matches [some `null, none, some `null, some ``Lean.Parser.Command.variable])
 
 /-- `structure Foo where unused : Nat` -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, none, `null, ``Lean.Parser.Command.structure])
+  stack.matches [some `null, none, some `null, some ``Lean.Parser.Command.structure])
 
 /-- `inductive Foo where | unused : Foo` -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, none, `null, none, ``Lean.Parser.Command.inductive] &&
+  stack.matches [some `null, none, some `null, none, some ``Lean.Parser.Command.inductive] &&
   (stack[3]? |>.any fun (stx, pos) =>
     pos == 0 &&
     [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
@@ -205,7 +205,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
 * `inductive Foo where | mk (unused : Nat) : Foo`
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
+  stack.matches [some `null, none, some `null, some ``Lean.Parser.Command.optDeclSig, none] &&
   (stack[4]? |>.any fun (stx, _) =>
     [``Lean.Parser.Command.ctor, ``Lean.Parser.Command.structSimpleBinder].any (stx.isOfKind ·)))
 
@@ -214,7 +214,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
 * `axiom foo (unused : Nat) : Nat`
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, none, `null, ``Lean.Parser.Command.declSig, none] &&
+  stack.matches [some `null, none, some `null, some ``Lean.Parser.Command.declSig, none] &&
   (stack[4]? |>.any fun (stx, _) =>
     [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·)))
 
@@ -224,7 +224,7 @@ Definition with foreign definition
 * `@[implemented_by bla] def foo (unused : Nat) : Nat := ...`
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, none, `null, none, none, ``Lean.Parser.Command.declaration] &&
+  stack.matches [some `null, none, some `null, none, none, some ``Lean.Parser.Command.declaration] &&
   (stack[3]? |>.any fun (stx, _) =>
     stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
     stx.isOfKind ``Lean.Parser.Command.declSig) &&
@@ -238,7 +238,7 @@ Dependent arrow
 * `def foo : (unused : Nat) → Nat := id`
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, ``Lean.Parser.Term.explicitBinder, ``Lean.Parser.Term.depArrow])
+  stack.matches [some `null, some ``Lean.Parser.Term.explicitBinder, some ``Lean.Parser.Term.depArrow])
 
 /--
 Function argument in let declaration (when `linter.unusedVariables.funArgs` is false)
@@ -246,7 +246,7 @@ Function argument in let declaration (when `linter.unusedVariables.funArgs` is f
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
-  stack.matches [`null, none, `null, ``Lean.Parser.Term.letIdDecl, none] &&
+  stack.matches [some `null, none, some `null, some ``Lean.Parser.Term.letIdDecl, none] &&
   (stack[3]? |>.any fun (_, pos) => pos == 1) &&
   (stack[5]? |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Term.structInstField))
 
@@ -256,7 +256,7 @@ Function argument in declaration signature (when `linter.unusedVariables.funArgs
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
-  stack.matches [`null, none, `null, none] &&
+  stack.matches [some `null, none, some `null, none] &&
   (stack[3]? |>.any fun (stx, pos) =>
     pos == 0 &&
     [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
@@ -267,8 +267,8 @@ Function argument in function definition (when `linter.unusedVariables.funArgs` 
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
-  (stack.matches [`null, ``Lean.Parser.Term.basicFun] ||
-  stack.matches [``Lean.Parser.Term.typeAscription, `null, ``Lean.Parser.Term.basicFun]))
+  (stack.matches [some `null, some ``Lean.Parser.Term.basicFun] ||
+  stack.matches [some ``Lean.Parser.Term.typeAscription, some `null, some ``Lean.Parser.Term.basicFun]))
 
 /--
 In pattern (when `linter.unusedVariables.patternVars` is false)
@@ -402,7 +402,7 @@ where
                   assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ e) }
                 let tacticsPresent := children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome)
                 withReader (· || tacticsPresent) do
-                  go children.toArray ci
+                  go children.toArray (some ci)
                 return false
         | .ofTermInfo ti =>
           if ignored then return true

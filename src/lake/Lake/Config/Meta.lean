@@ -155,7 +155,7 @@ private def mkFieldView (stx : TSyntax ``configField) : MacroM FieldView := with
     | Macro.throwError "expected a default value"
   let defVal ← `(fun $(bvs.map (·.id))* => $val)
   let decl ← `(structSimpleBinder|$mods:declModifiers $id : $type := $defVal)
-  return {ref := stx, mods, id, ids, type, defVal, decl? := decl}
+  return {ref := stx, mods, id, ids, type, defVal, decl? := some decl}
 
 private def mkParentFieldView (stx : TSyntax ``structParent) : MacroM FieldView := withRef stx do
   let `(structParent|$[$id? :]? $type) := stx

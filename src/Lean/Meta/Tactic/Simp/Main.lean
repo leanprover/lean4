@@ -328,9 +328,9 @@ def simpArrow (e : Expr) : SimpM Result := do
           problem.
           -/
         if rq.expr.containsFVar h.fvarId! then
-          return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
+          return { expr := (← mkForallFVars #[h] rq.expr), proof? := some (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
         else
-          return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
+          return { expr := e.updateForallE! rp.expr rq.expr, proof? := some (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
   else
     mkImpCongr e rp (← simp q)
 
@@ -370,7 +370,7 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
           let q₂ ← mkLambdaFVars #[a] rb.expr
           let result ← mkForallFVars #[a] rb.expr
           let proof := mkApp6 (mkConst ``forall_prop_domain_congr) p₁ p₂ q₁ q₂ h₁ h₂
-          return { expr := result, proof? := proof }
+          return { expr := result, proof? := some proof }
         return result
     let domain ← dsimp domain
     withLocalDecl e.bindingName! e.bindingInfo! domain fun x => withNewLemmas #[x] do
@@ -379,7 +379,7 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
       let eNew ← mkForallFVars #[x] rb.expr
       match rb.proof? with
       | none   => return { expr := eNew }
-      | some h => return { expr := eNew, proof? := (← mkForallCongr (← mkLambdaFVars #[x] h)) }
+      | some h => return { expr := eNew, proof? := some (← mkForallCongr (← mkLambdaFVars #[x] h)) }
   else
     return { expr := (← dsimp e) }
 
@@ -427,14 +427,14 @@ private def dsimpReduce : DSimproc := fun e => do
 private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fun e => do
   if pred e then
     if (← readThe Simp.Context).isDeclToUnfold declName then
-      return .continue e
+      return .continue (some e)
     else
       -- Users may have added a `[simp]` rfl theorem for the literal
       match (← (← getMethods).dpost e) with
       | .continue none => return .done e
       | r => return r
   else
-    return .continue e
+    return .continue (some e)
 
 /--
 Auxiliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
@@ -476,7 +476,7 @@ def visitFn (e : Expr) : SimpM Result := do
     let mut proof ← fNew.getProof
     for arg in args do
       proof ← Meta.mkCongrFun proof arg
-    return { expr := eNew, proof? := proof }
+    return { expr := eNew, proof? := some proof }
 
 def congrDefault (e : Expr) : SimpM Result := do
   if let some result ← tryAutoCongrTheorem? e then
@@ -567,7 +567,7 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
     if (← hasAssignableMVar proof <||> hasAssignableMVar eNew) then
       trace[Meta.Tactic.simp.congr] "{c.theoremName} has unassigned metavariables"
       return none
-    congrArgs { expr := eNew, proof? := proof } extraArgs
+    some <$> congrArgs { expr := eNew, proof? := some proof } extraArgs
   else
     return none
 
@@ -700,7 +700,7 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
   if !modified then
     return { expr := e }
   else
-    return { expr, proof? := proof }
+    return { expr, proof? := some proof }
 
 def simpApp (e : Expr) : SimpM Result := do
   if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
@@ -853,7 +853,7 @@ def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsAr
     | none => mvarId.assign (mkConst ``True.intro)
     return (none, stats)
   else
-    return (← applySimpResultToTarget mvarId target r, stats)
+    return (some (← applySimpResultToTarget mvarId target r), stats)
 
 /--
   Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,

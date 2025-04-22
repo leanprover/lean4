@@ -189,9 +189,9 @@ def reduceProjs (e : Expr) : CoreM Expr := do
     if e.isProj then
       if e.projExpr!.isAppOfArity ``PProd.mk 4 || e.projExpr!.isAppOfArity ``And.intro 2 then
         if e.projIdx! == 0 then
-          return .continue e.projExpr!.appFn!.appArg!
+          return .continue (some e.projExpr!.appFn!.appArg!)
         else
-          return .continue e.projExpr!.appArg!
+          return .continue (some e.projExpr!.appArg!)
     return .continue
   )
 

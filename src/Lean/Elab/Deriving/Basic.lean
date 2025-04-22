@@ -29,7 +29,7 @@ private partial def mkInst? (className : Name) (type : Expr) : MetaM (Option MkI
       return none
     let d := instTypeType.bindingDomain!
     if d.isOutParam then
-      let mvar ← mkFreshExprMVar d
+      let mvar ← mkFreshExprMVar (some d)
       go? (mkApp instType mvar) (instTypeType.bindingBody!.instantiate1 mvar) (outParams.push mvar)
     else
       unless (← isDefEqGuarded (← inferType type) d) do

@@ -22,7 +22,7 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
     let mut result := args.back!
     for arg in args.reverse[1:] do
       result := mkApp2 (mkConst ``And) arg result
-    return result
+    return some result
 
 def elimOptParam (type : Expr) : CoreM Expr := do
   Core.transform type fun e =>
@@ -79,7 +79,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
           mkEq eq andEqs
         else
           mkArrow eq andEqs
-        mkForallFVars params (← mkForallFVars args1 (← mkForallFVars args2New result))
+        some <$> mkForallFVars params (← mkForallFVars args1 (← mkForallFVars args2New result))
       else
         return none
     let rec mkArgs2 (i : Nat) (type : Expr) (args2 args2New : Array Expr) : MetaM (Option Expr) := do

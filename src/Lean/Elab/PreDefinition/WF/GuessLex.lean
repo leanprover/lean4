@@ -504,7 +504,7 @@ def RecCallCache.eval (rc: RecCallCache) (callerMeasureIdx calleeMeasureIdx : Na
     return res
   else
     let res ← evalRecCall  rc.callerName rc.decrTactic? rc.callerMeasures rc.calleeMeasures rc.rcc callerMeasureIdx calleeMeasureIdx
-    rc.cache.modify (·.modify callerMeasureIdx (·.set! calleeMeasureIdx res))
+    rc.cache.modify (·.modify callerMeasureIdx (·.set! calleeMeasureIdx (some res)))
     return res
 
 /-- Print a single cache entry as a string, without forcing it -/
@@ -546,7 +546,7 @@ try first, when the mutually recursive functions have similar argument structure
 -/
 partial def generateCombinations? (numMeasures : Array Nat) (threshold : Nat := 32) :
     Option (Array (Array Nat)) :=
-  (do goUniform 0; go 0 #[]) |>.run #[] |>.2
+  some ((do goUniform 0; go 0 #[]) |>.run #[] |>.2)
 where
   -- Enumerate all permissible uniform combinations
   goUniform (idx : Nat) : OptionT (StateM (Array (Array Nat))) Unit  := do

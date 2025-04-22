@@ -60,7 +60,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
           let (binderIds, xs) := xs.unzip
           let type ← mkForallFVars xs type
           pure (type, binderIds)
-      let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
+      let mvar ← mkFreshExprMVar (some type) MetavarKind.syntheticOpaque
       let valStx ← if decl.isOfKind `Lean.Parser.Term.letIdDecl then
         pure decl[4]
       else
@@ -91,10 +91,10 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
         addLocalVarInfo view.binderIds[i] xs[i]!
       withDeclName view.declName do
         withInfoContext' view.valStx
-          (mkInfo := (pure <| .inl <| mkBodyInfo view.valStx ·))
+          (mkInfo := (pure <| .inl <| mkBodyInfo view.valStx <| some ·))
           (mkInfoOnError := (pure <| mkBodyInfo view.valStx none))
           do
-             let value ← elabTermEnsuringType view.valStx type
+             let value ← elabTermEnsuringType view.valStx (some type)
              mkLambdaFVars xs value
 
 private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array Expr) (values : Array Expr) : TermElabM Unit := do

@@ -390,7 +390,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
        We use `openAbstractMVarsResult` to construct the universe metavariables
        at the correct depth. -/
     if answer.result.numMVars == 0 then
-      modify fun s => { s with result? := answer.result }
+      modify fun s => { s with result? := some answer.result }
     else
       let (_, _, answerExpr) ← openAbstractMVarsResult answer.result
       trace[Meta.synthInstance] "skip answer containing metavariables {answerExpr}"
@@ -516,7 +516,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
          match (← findEntry? key') with
          | none =>
            let (mctx', mvar') ← withMCtx cNode.mctx do
-             let mvar' ← mkFreshExprMVar mvarType'
+             let mvar' ← mkFreshExprMVar (some mvarType')
              return (← getMCtx, mvar')
            newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
          | some entry' =>
@@ -621,13 +621,13 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
   if (← step) then
     match (← getResult) with
     | none        => synth
-    | some result => return result
+    | some result => return some result
   else
     return none
 
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
-     let mvar ← mkFreshExprMVar type
+     let mvar ← mkFreshExprMVar (some type)
      let key  ← mkTableKey type
      let action : SynthM (Option AbstractMVarsResult) := do
        newSubgoal (← getMCtx) key mvar Waiter.root
@@ -670,7 +670,7 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (
       We should not simply check `d.isOutParam`. See `checkOutParam` and issue #1852.
       If an instance implicit argument depends on an `outParam`, it is treated as an `outParam` too.
       -/
-      let arg ← if outParamsPos.contains i then mkFreshExprMVar d else pure arg
+      let arg ← if outParamsPos.contains i then mkFreshExprMVar (some d) else pure arg
       let args := args.set i arg
       preprocessArgs (b.instantiate1 arg) (i+1) args outParamsPos
     | _ =>

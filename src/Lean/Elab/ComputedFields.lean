@@ -39,7 +39,7 @@ builtin_initialize computedFieldAttr : TagAttribute ←
       throwError "The @[computed_field] attribute can only be used in the with-block of an inductive"
 
 def mkUnsafeCastTo (expectedType : Expr) (e : Expr) : MetaM Expr :=
-  mkAppOptM ``unsafeCast #[none, expectedType, e]
+  mkAppOptM ``unsafeCast #[.none, expectedType, e]
 
 def isScalarField (ctor : Name) : CoreM Bool :=
   return (← getConstInfoCtor ctor).numFields == 0 -- TODO
@@ -58,7 +58,7 @@ abbrev M := ReaderT Context MetaM
 def getComputedFieldValue (computedField : Name) (ctorTerm : Expr) : MetaM Expr := do
   let ctorName := ctorTerm.getAppFn.constName!
   let ind ← getConstInfoInduct (← getConstInfoCtor ctorName).induct
-  let val ← mkAppOptM computedField (.replicate (ind.numParams+ind.numIndices) none ++ #[some ctorTerm])
+  let val ← mkAppOptM computedField (.replicate (ind.numParams+ind.numIndices) .none ++ #[.some ctorTerm])
   let val ←
     if let some wfEqn := WF.eqnInfoExt.find? (← getEnv) computedField then
       pure <| mkAppN (wfEqn.value.instantiateLevelParams wfEqn.levelParams val.getAppFn.constLevels!) val.getAppArgs
@@ -160,7 +160,7 @@ def overrideComputedFields : M Unit := do
       value := ← mkLambdaFVars (params ++ indices ++ #[val]) <|
         ← mkAppOptM (mkCasesOnName (name ++ `_impl))
           ((params ++ #[← mkLambdaFVars (indices.push xImpl) (← inferType cf)] ++ indices ++
-            #[← mkUnsafeCastTo (← inferType xImpl) val] ++ cases).map some)
+            #[← mkUnsafeCastTo (← inferType xImpl) val] ++ cases).map .some)
       safety := .unsafe
       hints := .opaque
     }

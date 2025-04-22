@@ -20,7 +20,7 @@ Unlike `(show p from ?m : e)`, this can assign synthetic opaque metavariables ap
 -/
 def elabChange (e : Expr) (p : Term) : TacticM Expr := do
   let p ← runTermElab do
-    let p ← Term.elabTermEnsuringType p (← inferType e)
+    let p ← Term.elabTermEnsuringType p (some (← inferType e))
     unless ← isDefEq p e do
       /-
       Sometimes isDefEq can fail due to postponed elaboration problems.

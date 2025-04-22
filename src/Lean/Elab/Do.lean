@@ -98,8 +98,8 @@ structure ExtractMonadResult where
 private def mkUnknownMonadResult : MetaM ExtractMonadResult := do
   let u ← mkFreshLevelMVar
   let v ← mkFreshLevelMVar
-  let m ← mkFreshExprMVar (← mkArrow (mkSort (mkLevelSucc u)) (mkSort (mkLevelSucc v)))
-  let returnType ← mkFreshExprMVar (mkSort (mkLevelSucc u))
+  let m ← mkFreshExprMVar (some (← mkArrow (mkSort (mkLevelSucc u)) (mkSort (mkLevelSucc v))))
+  let returnType ← mkFreshExprMVar (some (mkSort (mkLevelSucc u)))
   return { m, returnType, expectedType := mkApp m returnType }
 
 private partial def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
@@ -114,14 +114,14 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
       return none
   let rec extract? (type : Expr) : MetaM (Option ExtractMonadResult) := do
     match (← extractStep? type) with
-    | some r => return r
+    | some r => return some r
     | none =>
       let typeNew ← whnfCore type
       if typeNew != type then
         extract? typeNew
       else
         if typeNew.getAppFn.isMVar then
-          mkUnknownMonadResult
+          some <$> mkUnknownMonadResult
         else match (← unfoldDefinition? typeNew) with
           | some typeNew => extract? typeNew
           | none => return none
@@ -226,18 +226,18 @@ inductive Code where
   deriving Inhabited
 
 def Code.getRef? : Code → Option Syntax
-  | .decl _ doElem _     => doElem
-  | .reassign _ doElem _ => doElem
+  | .decl _ doElem _     => some doElem
+  | .reassign _ doElem _ => some doElem
   | .joinpoint ..        => none
-  | .seq a _             => a
-  | .action a            => a
-  | .break ref           => ref
-  | .continue ref        => ref
-  | .return ref _        => ref
-  | .ite ref ..          => ref
-  | .match ref ..        => ref
-  | .matchExpr ref ..    => ref
-  | .jmp ref ..          => ref
+  | .seq a _             => some a
+  | .action a            => some a
+  | .break ref           => some ref
+  | .continue ref        => some ref
+  | .return ref _        => some ref
+  | .ite ref ..          => some ref
+  | .match ref ..        => some ref
+  | .matchExpr ref ..    => some ref
+  | .jmp ref ..          => some ref
 
 abbrev VarSet := RBMap Name Syntax Name.cmp
 
@@ -1423,7 +1423,7 @@ mutual
         let c ← doSeqToCode [doElem]
         match doElems with
         | []       => pure c
-        | kRef::_  => concat c kRef y k
+        | kRef::_  => concat c kRef (some y) k
     else if decl.getKind == ``Parser.Term.doPatDecl then
       let pattern := decl[0]
       let doElem  := decl[2]
@@ -1796,7 +1796,7 @@ end ToCodeBlock
   let codeBlock ← ToCodeBlock.run stx m returnType
   let stxNew ← liftMacroM <| ToTerm.run codeBlock.code m returnType
   trace[Elab.do] stxNew
-  withMacroExpansion stx stxNew <| elabTermEnsuringType stxNew bindInfo.expectedType
+  withMacroExpansion stx stxNew <| elabTermEnsuringType stxNew (some bindInfo.expectedType)
 
 end Do
 

@@ -14,10 +14,10 @@ builtin_simproc ↓ [simp, seval] reduceIte (ite _ _ _) := fun e => do
   let r ← simp c
   if r.expr.isTrue then
     let pr    := mkApp (mkApp5 (mkConst ``ite_cond_eq_true f.constLevels!) α c i tb eb) (← r.getProof)
-    return .visit { expr := tb, proof? := pr }
+    return .visit { expr := tb, proof? := some pr }
   if r.expr.isFalse then
     let pr    := mkApp (mkApp5 (mkConst ``ite_cond_eq_false f.constLevels!) α c i tb eb) (← r.getProof)
-    return .visit { expr := eb, proof? := pr }
+    return .visit { expr := eb, proof? := some pr }
   return .continue
 
 builtin_simproc ↓ [simp, seval] reduceDIte (dite _ _ _) := fun e => do
@@ -28,13 +28,13 @@ builtin_simproc ↓ [simp, seval] reduceDIte (dite _ _ _) := fun e => do
     let h     := mkApp2 (mkConst ``of_eq_true) c pr
     let eNew  := mkApp tb h |>.headBeta
     let prNew := mkApp (mkApp5 (mkConst ``dite_cond_eq_true f.constLevels!) α c i tb eb) pr
-    return .visit { expr := eNew, proof? := prNew }
+    return .visit { expr := eNew, proof? := some prNew }
   if r.expr.isFalse then
     let pr    ← r.getProof
     let h     := mkApp2 (mkConst ``of_eq_false) c pr
     let eNew  := mkApp eb h |>.headBeta
     let prNew := mkApp (mkApp5 (mkConst ``dite_cond_eq_false f.constLevels!) α c i tb eb) pr
-    return .visit { expr := eNew, proof? := prNew }
+    return .visit { expr := eNew, proof? := some prNew }
   return .continue
 
 builtin_dsimproc ↓ [simp, seval] dreduceIte (ite _ _ _) := fun e => do
@@ -82,7 +82,7 @@ builtin_simproc [simp, seval] reduceCtorEq (_ = _) := fun e => withReducibleAndI
   | some (c₁, _), some (c₂, _) =>
     if c₁.name != c₂.name then
       withLocalDeclD `h e fun h =>
-        return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
+        return .done { expr := mkConst ``False, proof? := some (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
     else
       return .continue
   | _, _ => return .continue

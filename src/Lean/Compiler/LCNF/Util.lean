@@ -72,7 +72,7 @@ def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
 
 def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
   let .ctorInfo val ← getConstInfo declName | return none
-  return val.numParams + val.numFields
+  return some (val.numParams + val.numFields)
 
 /--
 List of types that have builtin runtime support

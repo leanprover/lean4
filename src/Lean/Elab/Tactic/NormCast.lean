@@ -26,7 +26,7 @@ def proveEqUsing (s : SimpTheorems) (a b : Expr) : MetaM (Option Simp.Result) :=
     let a' ← Simp.simp a
     let b' ← Simp.simp b
     unless ← isDefEq a'.expr b'.expr do return none
-    a'.mkEqTrans (← b'.mkEqSymm b)
+    some <$> a'.mkEqTrans (← b'.mkEqSymm b)
   withReducible do
     let ctx ← Simp.mkContext
         (simpTheorems := #[s])
@@ -51,7 +51,7 @@ def isCoeOf? (e : Expr) : MetaM (Option Expr) := do
   if let Expr.const fn .. := e.getAppFn then
     if let some info ← getCoeFnInfo? fn then
       if e.getAppNumArgs == info.numArgs then
-        return e.getArg! info.coercee
+        return some <| e.getArg! info.coercee
   return none
 
 /--
@@ -61,7 +61,7 @@ and if so returns that type and the natural number.
 def isNumeral? (e : Expr) : Option (Expr × Nat) :=
   -- TODO: cleanup, and possibly remove duplicate
   if e.isConstOf ``Nat.zero then
-    (mkConst ``Nat, 0)
+    some (mkConst ``Nat, 0)
   else if let Expr.app (Expr.app (Expr.app (Expr.const ``OfNat.ofNat ..) α ..)
       (Expr.lit (Literal.natVal n) ..) ..) .. := e.consumeMData then
     some (α, n)
@@ -164,7 +164,7 @@ Returns a pair of the new expression and proof that they are equal.
 def numeralToCoe (e : Expr) : MetaM Simp.Result := do
   let some (α, n) := isNumeral? e | failure
   if (← whnf α).isConstOf ``Nat then failure
-  let newE ← mkAppOptM ``Nat.cast #[α, none, toExpr n]
+  let newE ← mkAppOptM ``Nat.cast #[α, .none, toExpr n]
   let some pr ← proveEqUsingDown e newE | failure
   return pr
 
@@ -218,13 +218,13 @@ open Term
     withExpectedType expectedType? fun expectedType => do
     if (← instantiateMVars expectedType).hasExprMVar then tryPostpone
     let expectedType' ← derive expectedType
-    let e ← Term.elabTerm e expectedType'.expr
+    let e ← Term.elabTerm e (some expectedType'.expr)
     synthesizeSyntheticMVars
     let eTy ← instantiateMVars (← inferType e)
     if eTy.hasExprMVar then tryPostpone
     let eTy' ← derive eTy
     unless ← isDefEq eTy'.expr expectedType'.expr do
-      throwTypeMismatchError "mod_cast" expectedType'.expr eTy'.expr e
+      throwTypeMismatchError (some "mod_cast") expectedType'.expr eTy'.expr e
     let eTy_eq_expectedType ← eTy'.mkEqTrans (← expectedType'.mkEqSymm expectedType )
     eTy_eq_expectedType.mkCast e
   | _ => throwUnsupportedSyntax
@@ -234,7 +234,7 @@ def normCastTarget (cfg : NormCastConfig) : TacticM Unit :=
   liftMetaTactic1 fun goal => do
     let tgt ← instantiateMVars (← goal.getType)
     let prf ← derive tgt cfg
-    applySimpResultToTarget goal tgt prf
+    some <$> applySimpResultToTarget goal tgt prf
 
 /-- Implementation of the `norm_cast` tactic when operating on a hypothesis. -/
 def normCastHyp (cfg : NormCastConfig) (fvarId : FVarId) : TacticM Unit :=

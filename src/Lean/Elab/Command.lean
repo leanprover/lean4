@@ -366,13 +366,13 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   -- We only start one task for all linters for now as most linters are fast and we simply want
   -- to unblock elaboration of the next command
   let cancelTk ← IO.CancelToken.new
-  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun infoSt => do
+  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := some cancelTk) fun infoSt => do
     modifyInfoState fun _ => infoSt
     runLinters stx
 
   -- linters should have access to the complete info tree
   let task ← BaseIO.mapTask (t := (← getInfoState).substituteLazy) lintAct
-  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+  logSnapshotTask { stx? := none, task, cancelTk? := some cancelTk }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule

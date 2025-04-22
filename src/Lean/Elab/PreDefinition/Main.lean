@@ -63,7 +63,7 @@ private def setLevelMVarsAtPreDef (preDef : PreDefinition) : PreDefinition :=
     let value' :=
       preDef.value.replaceLevel fun l =>
         match l with
-        | .mvar _ => levelZero
+        | .mvar _ => some levelZero
         | _       => none
     { preDef with value := value' }
   else

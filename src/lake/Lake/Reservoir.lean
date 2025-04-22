@@ -217,7 +217,7 @@ def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Optio
     | .ok (resp : ReservoirResp RegistryPkg) =>
       match resp with
       | .data pkg =>
-        return pkg
+        return some pkg
       | .error status msg =>
         if status == 404 then
           return none

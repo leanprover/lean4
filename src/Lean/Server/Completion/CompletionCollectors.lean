@@ -47,7 +47,7 @@ section Infrastructure
       id?
       : ResolvableCompletionItemData
     }
-    let item := { item with data? := toJson data }
+    let item := { item with data? := some (toJson data) }
     modify fun s => { s with items := s.items.push item }
 
   /--
@@ -65,8 +65,8 @@ section Infrastructure
         | none
       guard <| Linter.isDeprecated env declName
       some #[CompletionItemTag.deprecated]
-    let item := { label := label.toString, kind? := kind, tags? }
-    addItem item id
+    let item := { label := label.toString, kind? := some kind, tags? }
+    addItem item (some id)
 
   private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionItemKind := do
     let env ← getEnv
@@ -96,11 +96,11 @@ section Infrastructure
       addUnresolvedCompletionItem label (.const declName) (← getCompletionKindForDecl c)
 
   private def addKeywordCompletionItem (keyword : String) : M Unit := do
-    let item := { label := keyword, detail? := "keyword", documentation? := none, kind? := CompletionItemKind.keyword }
+    let item := { label := keyword, detail? := some "keyword", documentation? := none, kind? := some CompletionItemKind.keyword }
     addItem item
 
   private def addNamespaceCompletionItem (ns : Name) : M Unit := do
-    let item := { label := ns.toString, detail? := "namespace", documentation? := none, kind? := CompletionItemKind.module }
+    let item := { label := ns.toString, detail? := some "namespace", documentation? := none, kind? := some CompletionItemKind.module }
     addItem item
 
   private def runM
@@ -141,10 +141,10 @@ section Utils
 
   private def normPrivateName? (declName : Name) : MetaM (Option Name) := do
     match privateToUserName? declName with
-    | none => return declName
+    | none => return some declName
     | some userName =>
       if mkPrivateName (← getEnv) userName == declName then
-        return userName
+        return some userName
       else
         return none
 
@@ -545,7 +545,7 @@ def fieldIdCompletion
       let .str _ fieldName := fieldName | continue
       if ! containsSuccessiveCharacters idStr fieldName then
         continue
-      let item := { label := fieldName, detail? := "field", documentation? := none, kind? := CompletionItemKind.field }
+      let item := { label := fieldName, detail? := some "field", documentation? := none, kind? := some CompletionItemKind.field }
       addItem item
 
 def optionCompletion
@@ -583,11 +583,11 @@ def optionCompletion
             none
         items := items.push {
             label := name.toString
-            detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
+            detail? := some s!"({opts.get name decl.defValue}), {decl.descr}"
             documentation? := none,
-            kind? := CompletionItemKind.property -- TODO: investigate whether this is the best kind for options.
+            kind? := some CompletionItemKind.property -- TODO: investigate whether this is the best kind for options.
             textEdit? := textEdit
-            data? := toJson {
+            data? := some <| toJson {
               params,
               cPos := completionInfoPos,
               id? := none : ResolvableCompletionItemData
@@ -606,8 +606,8 @@ def tacticCompletion
       detail?        := none
       documentation? := tacticDoc.docString.map fun docString =>
         { value := docString, kind := MarkupKind.markdown : MarkupContent }
-      kind?          := CompletionItemKind.keyword
-      data?          := toJson { params, cPos := completionInfoPos, id? := none : ResolvableCompletionItemData }
+      kind?          := some CompletionItemKind.keyword
+      data?          := some <| toJson { params, cPos := completionInfoPos, id? := none : ResolvableCompletionItemData }
     }
   return items
 

@@ -29,7 +29,7 @@ def replaceParserTy {α} (ctx : Context α) (e : Expr) : Expr :=
   e.replace fun e =>
     -- strip `optParam`
     let e := if e.isOptParam then e.appFn!.appArg! else e
-    if e.isConstOf `Lean.Parser.Parser then mkConst ctx.tyName else none
+    if e.isConstOf `Lean.Parser.Parser then some (mkConst ctx.tyName) else none
 
 open Meta Parser in
 /-- Takes an expression of type `Parser`, and determines the syntax kind of the root node it produces. -/

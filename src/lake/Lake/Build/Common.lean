@@ -113,7 +113,7 @@ as the point of comparison instead.
   (info : ι) (depTrace : BuildTrace) (depHash : Option Hash)
   (oldTrace := depTrace.mtime)
 : JobM Bool := do
-  if depTrace.hash == depHash then
+  if some depTrace.hash == depHash then
     checkExists info
   else if (← getIsOldMode) then
     oldTrace.checkUpToDate info
@@ -142,7 +142,7 @@ then `depTrace` / `oldTrace`. No log will be replayed.
 : JobM Bool := do
   if (← traceFile.pathExists) then
     if let some data ← readTraceFile? traceFile then
-      if (← checkHashUpToDate info depTrace data.depHash oldTrace) then
+      if (← checkHashUpToDate info depTrace (some data.depHash) oldTrace) then
         updateAction .replay
         data.log.replay
         return true

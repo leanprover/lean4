@@ -55,10 +55,10 @@ where go
   | some ctx, node i cs => do
     let visitChildren ← preNode ctx i cs
     if !visitChildren then
-      postNode ctx i cs []
+      some <$> postNode ctx i cs []
     else
-      let as ← cs.toList.mapM (go <| i.updateContext? ctx)
-      postNode ctx i cs as
+      let as ← cs.toList.mapM (go <| i.updateContext? (some ctx))
+      some <$> postNode ctx i cs as
   | none, node .. => panic! "unexpected context-free info tree node"
   | _, hole .. => pure none
 
@@ -274,7 +274,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     let _ := @leOfOrd.{0}
     let _ := @maxOfLe
     results.map (·.1) |>.max?
-  let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
+  let res? := results.find? (some ·.1 == maxPrio?) |>.map (·.2)
   if let some i := res? then
     if let .ofTermInfo ti := i.info then
       if ti.expr.isSyntheticSorry then
@@ -283,15 +283,15 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
 
 def Info.type? (i : Info) : MetaM (Option Expr) :=
   match i with
-  | Info.ofTermInfo ti      => Meta.inferType ti.expr
-  | Info.ofFieldInfo fi     => Meta.inferType fi.val
-  | Info.ofDelabTermInfo ti => Meta.inferType ti.expr
+  | Info.ofTermInfo ti      => some <$> Meta.inferType ti.expr
+  | Info.ofFieldInfo fi     => some <$> Meta.inferType fi.val
+  | Info.ofDelabTermInfo ti => some <$> Meta.inferType ti.expr
   | _ => return none
 
 def Info.docString? (i : Info) : MetaM (Option String) := do
   let env ← getEnv
   match i with
-  | .ofDelabTermInfo { docString? := some s, .. } => return s
+  | .ofDelabTermInfo { docString? := some s, .. } => return some s
   | .ofTermInfo ti
   | .ofDelabTermInfo ti =>
     if let some n := ti.expr.constName? then
@@ -299,9 +299,9 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
   | .ofFieldInfo fi => return ← findDocString? env fi.projName
   | .ofOptionInfo oi =>
     if let some doc ← findDocString? env oi.declName then
-      return doc
+      return some doc
     if let some decl := (← getOptionDecls).find? oi.optionName then
-      return decl.descr
+      return some decl.descr
     return none
   | _ => pure ()
   if let some ei := i.toElabInfo? then

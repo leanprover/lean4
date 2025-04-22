@@ -120,7 +120,7 @@ def mainGoalProc (cfg : SolveByElimConfig := {}) (proc : MVarId → MetaM (List 
     proc := fun orig goals => match goals with
     | [] => cfg.proc orig []
     | g :: gs => try
-        return (← proc g) ++ gs
+        return some ((← proc g) ++ gs)
       catch _ => cfg.proc orig goals }
 
 /-- Create or modify a `Config` which calls `intro` on each goal before applying lemmas. -/
@@ -148,11 +148,11 @@ def withDischarge (cfg : SolveByElimConfig := {}) (discharge : MVarId → MetaM 
 
 /-- Create or modify a `SolveByElimConfig` which calls `intro` on any goal for which no lemma applies. -/
 def introsAfter (cfg : SolveByElimConfig := {}) : SolveByElimConfig :=
-  cfg.withDischarge fun g => do pure [(← g.intro1P).2]
+  cfg.withDischarge fun g => do pure (some [(← g.intro1P).2])
 
 /-- Call `constructor` when no lemmas apply. -/
 def constructorAfter (cfg : SolveByElimConfig := {}) : SolveByElimConfig :=
-  cfg.withDischarge fun g => g.constructor {newGoals := .all}
+  cfg.withDischarge fun g => some <$> g.constructor {newGoals := .all}
 
 /-- Create or modify a `Config` which
 calls `synthInstance` on any goal for which no lemma applies. -/

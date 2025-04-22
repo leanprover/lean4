@@ -35,7 +35,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       simpLocation ctx (simprocs := simprocs) discharge? <|
         (loc.map expandLocation).getD (.targets #[] true)
     let stx ← mkSimpCallStx stx stats.usedTheorems
-    addSuggestion tk stx (origSpan? := ← getRef)
+    addSuggestion tk stx (origSpan? := some (← getRef))
     return stats.diag
   | _ => throwUnsupportedSyntax
 
@@ -53,7 +53,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
     let stx ← mkSimpCallStx stx stats.usedTheorems
-    addSuggestion tk stx (origSpan? := ← getRef)
+    addSuggestion tk stx (origSpan? := some (← getRef))
     return stats.diag
   | _ => throwUnsupportedSyntax
 
@@ -90,6 +90,6 @@ where
       withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
     let stats ← dsimpLocation' ctx simprocs <| (loc.map expandLocation).getD (.targets #[] true)
     let stx ← mkSimpCallStx stx stats.usedTheorems
-    addSuggestion tk stx (origSpan? := ← getRef)
+    addSuggestion tk stx (origSpan? := some (← getRef))
     return stats.diag
   | _ => throwUnsupportedSyntax

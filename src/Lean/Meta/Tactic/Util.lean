@@ -32,12 +32,12 @@ def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
   mvarId.setTag (appendTag tag suffix)
 
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) : MetaM Expr :=
-  mkFreshExprMVar type MetavarKind.syntheticOpaque tag
+  mkFreshExprMVar (some type) MetavarKind.syntheticOpaque tag
 
-def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : Option MessageData := none) : MetaM α :=
+def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : OptionArg MessageData := .none) : MetaM α :=
   match msg? with
-  | none => throwError "tactic '{tacticName}' failed\n{mvarId}"
-  | some msg => throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
+  | .none => throwError "tactic '{tacticName}' failed\n{mvarId}"
+  | .some msg => throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
 
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
   throwError "tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"

@@ -251,7 +251,7 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
       if (← rootFile.pathExists) then
         return (root, none)
       else
-        return (root, rootFile)
+        return (root, some rootFile)
 
   -- write template configuration file
   IO.FS.writeFile configFile <| tmp.configFileContents lang name root

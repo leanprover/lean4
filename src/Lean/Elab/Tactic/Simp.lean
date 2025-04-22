@@ -70,7 +70,7 @@ def Simp.DischargeWrapper.with (w : Simp.DischargeWrapper) (x : Option Simp.Disc
   | custom ref d =>
     ref.set (← getThe Term.State)
     try
-      x d
+      x (some d)
     finally
       set (← ref.get)
 

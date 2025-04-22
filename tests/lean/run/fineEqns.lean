@@ -62,18 +62,10 @@ run_meta
 info: WF.filter.fun_cases_eq_1.{u_1} {α : Type u_1} (p : α → Bool) : filter p [] = []
 ---
 info: WF.filter.fun_cases_eq_2.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) :
-  p x = true →
-    filter p (x :: xs) =
-      match p x with
-      | true => x :: filter p xs
-      | false => filter p xs
+  p x = true → filter p (x :: xs) = x :: filter p xs
 ---
 info: WF.filter.fun_cases_eq_3.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) :
-  p x = false →
-    filter p (x :: xs) =
-      match p x with
-      | true => x :: filter p xs
-      | false => filter p xs
+  p x = false → filter p (x :: xs) = filter p xs
 -/
 #guard_msgs in
 run_meta
@@ -156,3 +148,62 @@ run_meta
   ns.forM fun n => Lean.logInfo m!"{.signature n}"
 
 end SiftDown
+
+
+
+namespace NestedIf
+
+-- This function has nested `if` where we want to check that the condidion from the inner one
+-- does not interfere with the outer one
+
+def foo (xs : List Nat) : Nat :=
+  match id xs with
+  | [] => 0
+  | y::ys =>
+    if ys.isEmpty then
+      1
+    else
+      if ys = [y] then
+        3
+      else
+        3
+
+/--
+info: NestedIf.foo.fun_cases_eq_1 (xs : List Nat) : id xs = [] → foo xs = 0
+---
+info: NestedIf.foo.fun_cases_eq_2 (xs : List Nat) (y : Nat) (ys : List Nat) :
+  id xs = y :: ys → ∀ (h : ys.isEmpty = true), foo xs = 1
+---
+info: NestedIf.foo.fun_cases_eq_3 (xs : List Nat) (y : Nat) :
+  id xs = [y, y] → ∀ (h : ¬[y].isEmpty = true), foo xs = if [y] = [y] then 3 else 3
+-/
+#guard_msgs in
+run_meta
+  let ns ← Lean.Tactic.FunInd.getEqnsFor ``foo
+  ns.forM fun n => Lean.logInfo m!"{.signature n}"
+
+
+end NestedIf
+
+namespace Fib
+
+def fib : Nat → Nat
+  | 0 => 0
+  | 1 => 1
+  | n+2 => fib n + fib (n+1)
+termination_by structural x => x
+
+
+/--
+info: Fib.fib.fun_cases_eq_1 : fib 0 = 0
+---
+info: Fib.fib.fun_cases_eq_2 : fib 1 = 1
+---
+info: Fib.fib.fun_cases_eq_3 (n : Nat) : fib n.succ.succ = fib n + fib (n + 1)
+-/
+#guard_msgs in
+run_meta
+  let ns ← Lean.Tactic.FunInd.getEqnsFor ``fib
+  ns.forM fun n => Lean.logInfo m!"{.signature n}"
+
+end Fib

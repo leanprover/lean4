@@ -22,22 +22,35 @@ but not reduce anything else.
 
 This is a heuristic approximation.
 -/
-def simpWithNotUnderLambda (hyps : Array Expr) (e : Expr) : MetaM (Option Simp.Result) := do
+partial def simpWithNotUnderLambda (hyps : Array Expr) (e : Expr) : MetaM (Option Simp.Result) := do
     let mut ctxt ← Simp.mkContext
         (simpTheorems  := #[])
         (congrTheorems := (← getSimpCongrTheorems))
-        (config        := { Simp.neutralConfig with iota := true })
+        (config        := { Simp.neutralConfig with beta := true, iota := true, proj := true })
     for h in hyps do
       if (← inferType h).isEq then
         let simpTheorems ← ctxt.simpTheorems.addTheorem (.fvar h.fvarId!) h (config := ctxt.indexConfig)
         ctxt := ctxt.setSimpTheorems simpTheorems
-    let (step, _) ← Simp.simpMatch e (Simp.Methods.toMethodsRef {}) ctxt |>.run {}
-    match step with
-    | .continue r => return r
-    | .visit r => return (some r)
-    | .done r => return r
+    let methods := {
+      pre := Simp.rewritePre
+      post := Simp.rewritePost
+    }
+    let rec go e : MetaM (Option Simp.Result) := do
+      trace[Meta.FunInd] "simpWithNotUnderLambda step:{indentExpr e}"
+      let (step, _) ← Simp.simpMatch e (Simp.Methods.toMethodsRef methods) ctxt |>.run {}
+      match step with
+      | .continue r =>
+        return r
+      | .visit r =>
+        if let some r' ← go r.expr then
+          some <$> r.mkEqTrans r'
+        else
+          return some r
+      | .done r =>
+        return r
+    go e
  where
-  noLambda : Simp.Simproc := fun e => do
+  noLambda : Simp.Simproc := fun e => do -- TODO: use this
     return if e.isLambda then .done { expr := e } else .continue
 
 -- Iota reduction and reducing if-then-else

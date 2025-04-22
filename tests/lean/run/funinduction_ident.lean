@@ -1,3 +1,5 @@
+import Lean
+
 -- We re-define these here to avoid stage0 complications
 def map (f : α → β) : List α → List β
   | []    => []
@@ -182,6 +184,8 @@ end Ex3
 namespace Structural
 
 variable (P : Nat → Prop)
+
+set_option trace.Meta.FunInd true
 
 def fib : Nat → Nat
   | 0 => 0

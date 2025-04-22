@@ -59,7 +59,12 @@ Remark: while editing this comment, `siftDown` above was being recompiled by Lea
 
 example : (siftDown a root e h).size = a.size := by
    -- faster than the following theorem since unfolds siftDown only in the target
-   fun_induction siftDown <;> unfold siftDown <;> grind
+   fun_induction siftDown -- <;> unfold siftDown <;> grind
+   · rw [(@siftDown.fun_cases_eq_1)]; rotate_left; assumption; assumption
+     -- unfold siftDown; rw [dif_pos (by assumption)]; rw [if_pos (by assumption)]
+     grind
+   · unfold siftDown <;> grind
+   · grind
 
 @[grind] theorem siftDown_size : (siftDown a root e h).size = a.size := by
    fun_induction siftDown <;> grind [siftDown]

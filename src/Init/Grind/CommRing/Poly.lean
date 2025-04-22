@@ -30,12 +30,18 @@ abbrev Context (α : Type u) := RArray α
 def Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
+def denoteInt {α} [CommRing α] (k : Int) : α :=
+  bif k < 0 then
+    - OfNat.ofNat (α := α) k.natAbs
+  else
+    OfNat.ofNat (α := α) k.natAbs
+
 def Expr.denote {α} [CommRing α] (ctx : Context α) : Expr → α
   | .add a b  => denote ctx a + denote ctx b
   | .sub a b  => denote ctx a - denote ctx b
   | .mul a b  => denote ctx a * denote ctx b
   | .neg a    => -denote ctx a
-  | .num k    => k
+  | .num k    => denoteInt k
   | .var v    => v.denote ctx
   | .pow a k  => denote ctx a ^ k
 
@@ -498,6 +504,11 @@ def NullCert.toPolyC (nc : NullCert) (c : Nat) : Poly :=
 Theorems for justifying the procedure for commutative rings in `grind`.
 -/
 
+theorem denoteInt_eq {α} [CommRing α] (k : Int) : denoteInt (α := α) k = k := by
+  simp [denoteInt, cond_eq_if] <;> split
+  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← intCast_neg, ← Int.eq_neg_natAbs_of_nonpos (Int.le_of_lt h)]
+  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Int.eq_natAbs_of_nonneg (Int.le_of_not_gt h)]
+
 theorem Power.denote_eq {α} [CommRing α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
   cases p <;> simp [Power.denote] <;> split <;> simp [pow_zero, pow_succ, one_mul]
@@ -677,7 +688,7 @@ theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
   fun_induction toPoly
     <;> simp [toPoly, denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combine,
           Poly.denote_mul, Poly.denote_mulConst, Poly.denote_pow, intCast_pow, intCast_neg, intCast_one,
-          neg_mul, one_mul, sub_eq_add_neg, *]
+          neg_mul, one_mul, sub_eq_add_neg, denoteInt_eq, *]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
 theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
@@ -845,7 +856,7 @@ theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
   unfold toPolyC
   fun_induction toPolyC.go
     <;> simp [toPolyC.go, denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combineC,
-          Poly.denote_mulC, Poly.denote_mulConstC, Poly.denote_powC, *]
+          Poly.denote_mulC, Poly.denote_mulConstC, Poly.denote_powC, denoteInt_eq, *]
   next => rw [IsCharP.intCast_emod]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]

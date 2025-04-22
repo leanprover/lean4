@@ -40,18 +40,10 @@ termination_by xs
 info: WF.filter.fun_cases_eq_1.{u_1} {α : Type u_1} (p : α → Bool) : filter p [] = []
 ---
 info: WF.filter.fun_cases_eq_2.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) :
-  p x = true →
-    filter p (x :: xs) =
-      match p x with
-      | true => x :: filter p xs
-      | false => filter p xs
+  p x = true → filter p (x :: xs) = x :: filter p xs
 ---
 info: WF.filter.fun_cases_eq_3.{u_1} {α : Type u_1} (p : α → Bool) (x : α) (xs : List α) :
-  p x = false →
-    filter p (x :: xs) =
-      match p x with
-      | true => x :: filter p xs
-      | false => filter p xs
+  p x = false → filter p (x :: xs) = filter p xs
 -/
 #guard_msgs in
 run_meta
@@ -83,7 +75,20 @@ namespace SiftDown
 abbrev leftChild (i : Nat) := 2*i + 1
 abbrev parent (i : Nat) := (i - 1) / 2
 
-set_option trace.Meta.FunInd true
+/--
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+-/
+#guard_msgs(warning) in
 def siftDown (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size) : Array Int :=
   if _ : leftChild root < e then
     let child := leftChild root
@@ -192,7 +197,6 @@ def fib : Nat → Nat
   | 1 => 1
   | n+2 => fib n + fib (n+1)
 termination_by structural x => x
-
 
 /--
 info: Fib.fib.fun_cases_eq_1 : fib 0 = 0

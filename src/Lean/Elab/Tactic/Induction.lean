@@ -922,10 +922,10 @@ def mapElimAppAlts (cases : Bool) (f : MVarId → MetaM MVarId) : Array ElimApp.
       return { alt with mvarId := (← f alt.mvarId)}
 
 
-private def getSimpUnfoldContext : MetaM Simp.Context := do
+private def getFineEqnContext : MetaM Simp.Context := do
    Simp.mkContext
       (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with contextual := true })
+      (config        := { Simp.neutralConfig with beta := true, contextual := true, zetaDelta := true})
 
 def rewriteWithFineEqns (fnName : Name) (mvarId : MVarId) (cases : Bool) : MetaM MVarId := do
   let mut mvarId := mvarId
@@ -935,7 +935,7 @@ def rewriteWithFineEqns (fnName : Name) (mvarId : MVarId) (cases : Bool) : MetaM
       mvarId ← withTraceNode (if cases then `Elab.cases else `Elab.induction) (return m!"{exceptEmoji ·} rewriting with {.ofConstName eqn}") <| do
 
         let target ← instantiateMVars (← mvarId.getType)
-        let r ← (·.1) <$> Simp.main target (← getSimpUnfoldContext)
+        let r ← (·.1) <$> Simp.main target (← getFineEqnContext)
           (methods := { pre := pre eqn, discharge? := discharge })
         if r.expr == target then throwError "failed to apply {.ofConstName eqn} at{indentExpr target}"
         applySimpResultToTarget mvarId target r

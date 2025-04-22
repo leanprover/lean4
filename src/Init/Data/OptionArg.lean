@@ -29,5 +29,8 @@ def OptionArg (α : Type u) := Option α
 instance optionArgCoe {α : Type u} : Coe α (OptionArg α) where
   coe := some
 
-instance {α : Type u} : Inhabited (OptionArg α) where
-  default := none
+instance {α : Type u} : Inhabited (OptionArg α) :=
+  inferInstanceAs <| Inhabited (Option α)
+
+instance {α : Type u} [DecidableEq α] : DecidableEq (OptionArg α) :=
+  inferInstanceAs <| DecidableEq (Option α)

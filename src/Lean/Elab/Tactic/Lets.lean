@@ -61,8 +61,8 @@ declare_config_elab elabLiftLetsConfig LiftLetsConfig
   | `(tactic| lift_lets $cfg:optConfig $[$loc?:location]?) => do
     let mut config ← elabLiftLetsConfig cfg
     withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
-      (atLocal := fun h => liftMetaTactic1 fun mvarId => mvarId.liftLetsLocalDecl h config)
-      (atTarget := liftMetaTactic1 fun mvarId => mvarId.liftLets config)
+      (atLocal := fun h => liftMetaTactic1 fun mvarId => some <$> mvarId.liftLetsLocalDecl h config)
+      (atTarget := liftMetaTactic1 fun mvarId => some <$> mvarId.liftLets config)
       (failed := fun _ => throwError "'lift_lets' tactic failed")
 
 end Lean.Elab.Tactic

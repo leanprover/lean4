@@ -52,9 +52,9 @@ def hasNextName : M Bool := do
 def nextName? : M (Option Name) := do
   let s ← get
   match s.givenNames, (← read).onlyGivenNames with
-  | n :: ns, _      => set { s with givenNames := ns }; return n
+  | n :: ns, _      => set { s with givenNames := ns }; return some n
   | []     , true   => return none
-  | []     , false  => return `_
+  | []     , false  => return some `_
 
 /--
 Generate a name to use for a new local declaration, derived possibly from the given binder name.
@@ -63,15 +63,15 @@ Returns `none` iff `hasNextName` is false.
 def nextNameForBinderName? (binderName : Name) : M (Option Name) := do
   if let some n ← nextName? then
     if n != `_ then
-      return n
+      return some n
     else
       if binderName.isAnonymous then
         -- Use a nicer binder name than `[anonymous]`, which can appear for example in `letFun x f` when `f` is not a lambda expression.
-        mkFreshUserName `a
+        some <$> mkFreshUserName `a
       else if (← read).preserveBinderNames || n.hasMacroScopes then
-        return n
+        return some n
       else
-        mkFreshUserName binderName
+        some <$> mkFreshUserName binderName
   else
     return none
 

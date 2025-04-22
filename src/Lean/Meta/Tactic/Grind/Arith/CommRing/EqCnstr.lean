@@ -79,7 +79,9 @@ def simplify1 (c c' : EqCnstr) : RingM (Option EqCnstr) := do
 def simplifyWith (c c' : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
+    checkSystem "ring"
     let some r ← simplify1 c c' | return c
+    trace_goal[grind.debug.ring.simp] "simplifying{indentD (← c.denoteExpr)}\nwith{indentD (← c'.denoteExpr)}"
     c := r
   return c
 
@@ -87,8 +89,9 @@ def simplifyWith (c c' : EqCnstr) : RingM EqCnstr := do
 def simplify (c : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
-    checkSystem "ring"
-    let some c' ← c.p.findSimp? | return c
+    let some c' ← c.p.findSimp? |
+      trace_goal[grind.debug.ring.simp] "simplified{indentD (← c.denoteExpr)}"
+      return c
     c ← simplifyWith c c'
   return c
 

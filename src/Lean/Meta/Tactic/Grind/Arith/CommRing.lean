@@ -28,5 +28,6 @@ builtin_initialize registerTraceClass `grind.ring.assert.discard (inherited := t
 builtin_initialize registerTraceClass `grind.ring.simp
 builtin_initialize registerTraceClass `grind.ring.superpose
 
+builtin_initialize registerTraceClass `grind.debug.ring.simp
 
 end Lean

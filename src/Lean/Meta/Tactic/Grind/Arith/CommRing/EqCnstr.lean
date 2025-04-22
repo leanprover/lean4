@@ -147,13 +147,15 @@ def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
 def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
   let k := c.p.lc
   if k == 1 then return c
-  let some p ← nonzeroChar? | return c
-  let (g, α, _β) := gcdExt k p
-  if g == 1 then
-    -- `α*k + β*p = 1`
-    -- `α*k = 1 (mod p)`
-    let α := if α < 0 then α % p else α
-    return { c with p := c.p.mulConstC α p, h := .mul α c }
+  if let some p ← nonzeroChar? then
+    let (g, α, _β) := gcdExt k p
+    if g == 1 then
+      -- `α*k + β*p = 1`
+      -- `α*k = 1 (mod p)`
+      let α := if α < 0 then α % p else α
+      return { c with p := c.p.mulConstC α p, h := .mul α c }
+    else
+      return c
   else if k == -1 then
     return { c with p := c.p.mulConst (-1), h := .mul (-1) c }
   else

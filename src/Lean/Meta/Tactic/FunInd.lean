@@ -1240,8 +1240,8 @@ In the future, we might post-process the theorem (or run the code below iterativ
 targets that are unchanged in each case, so simplify applying the lemma when these “fixed” parameters
 are not variables, to avoid having to generalize them.
 -/
-def deriveCases (name : Name) : MetaM Unit := do
-  let casesName := getFunCasesName name
+def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
+  let casesName := getFunCasesName (unfolding := true) name
   realizeConst name casesName do
   mapError (f := (m!"Cannot derive functional cases principle (please report this issue)\n{indentD ·}")) do
     let info ← getConstInfo name
@@ -1254,8 +1254,11 @@ def deriveCases (name : Name) : MetaM Unit := do
           | throwError "Type of {unfoldEqnName} not an equality: {body}"
         mkLambdaFVars xs rhs
     let motiveType ← lambdaTelescope value fun xs _body => do
-      withLocalDeclD `r (← instantiateForall info.type xs) fun r =>
-        mkForallFVars (xs.push r) (.sort 0)
+      if unfolding then
+        withLocalDeclD `r (← instantiateForall info.type xs) fun r =>
+          mkForallFVars (xs.push r) (.sort 0)
+      else
+        mkForallFVars xs (.sort 0)
     let motiveArity ← lambdaTelescope value fun xs _body => do
       pure xs.size
     let (e', numAlts) ← withLocalDeclD `motive motiveType fun motive => do
@@ -1344,7 +1347,8 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
 def isFunCasesName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
   match s with
-  | "fun_cases" =>
+  | "fun_cases"
+  | "fun_cases_unfolding" =>
     if (WF.eqnInfoExt.find? env p).isSome then return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
     if let some ci := env.find? p then
@@ -1363,8 +1367,9 @@ builtin_initialize
       MetaM.run' <| deriveInduction p
       return true
     if isFunCasesName (← getEnv) name then
-      let .str p _ := name | return false
-      MetaM.run' <| deriveCases p
+      let .str p s := name | return false
+      let unfolding := s == "fun_cases_unfolding"
+      MetaM.run' <| deriveCases unfolding p
       return true
     return false
 
@@ -1379,14 +1384,14 @@ def fib : Nat → Nat
   | n+2 => fib n + fib (n+1)
 termination_by x => x
 
-run_meta Lean.Tactic.FunInd.deriveCases `fib
+run_meta Lean.Tactic.FunInd.deriveCases true `fib
 
 /--
-info: fib.fun_cases (motive : Nat → Nat → Prop) (case1 : motive 0 0) (case2 : motive 1 1)
+info: fib.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : motive 0 0) (case2 : motive 1 1)
   (case3 : ∀ (n : Nat), motive n.succ.succ (fib n + fib (n + 1))) (x✝ : Nat) : motive x✝ (fib x✝)
 -/
 #guard_msgs in
-#check fib.fun_cases
+#check fib.fun_cases_unfolding
 
 def ackermann : (Nat × Nat) → Nat
   | (0, m) => m + 1
@@ -1394,16 +1399,16 @@ def ackermann : (Nat × Nat) → Nat
   | (n+1, m+1) => ackermann (n, ackermann (n + 1, m))
 termination_by p => p
 
-run_meta Lean.Tactic.FunInd.deriveCases `ackermann
+run_meta Lean.Tactic.FunInd.deriveCases true `ackermann
 
 /--
-info: ackermann.fun_cases (motive : Nat × Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive (0, m) (m + 1))
+info: ackermann.fun_cases_unfolding (motive : Nat × Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive (0, m) (m + 1))
   (case2 : ∀ (n : Nat), motive (n.succ, 0) (ackermann (n, 1)))
   (case3 : ∀ (n m : Nat), motive (n.succ, m.succ) (ackermann (n, ackermann (n + 1, m)))) (x✝ : Nat × Nat) :
   motive x✝ (ackermann x✝)
 -/
 #guard_msgs in
-#check ackermann.fun_cases
+#check ackermann.fun_cases_unfolding
 
 
 #guard_msgs (drop warning) in
@@ -1413,15 +1418,15 @@ def fib' : Nat → Nat
   | n => fib' (n-1) + fib' (n-2)
 decreasing_by all_goals sorry
 
-run_meta Lean.Tactic.FunInd.deriveCases `fib'
+run_meta Lean.Tactic.FunInd.deriveCases true `fib'
 
 /--
-info: fib'.fun_cases (motive : Nat → Nat → Prop) (case1 : motive 0 0) (case2 : motive 1 1)
+info: fib'.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : motive 0 0) (case2 : motive 1 1)
   (case3 : ∀ (n : Nat), (n = 0 → False) → (n = 1 → False) → motive n (fib' (n - 1) + fib' (n - 2))) (x✝ : Nat) :
   motive x✝ (fib' x✝)
 -/
 #guard_msgs in
-#check fib'.fun_cases
+#check fib'.fun_cases_unfolding
 
 def fib'' (n : Nat) : Nat :=
   if _h : n < 2 then
@@ -1433,10 +1438,10 @@ def fib'' (n : Nat) : Nat :=
     else
       0
 
-run_meta Lean.Tactic.FunInd.deriveCases `fib''
+run_meta Lean.Tactic.FunInd.deriveCases true `fib''
 
 /--
-info: fib''.fun_cases (motive : Nat → Nat → Prop) (case1 : ∀ (n : Nat), n < 2 → motive n n)
+info: fib''.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : ∀ (n : Nat), n < 2 → motive n n)
   (case2 :
     ∀ (n : Nat),
       ¬n < 2 →
@@ -1450,22 +1455,33 @@ info: fib''.fun_cases (motive : Nat → Nat → Prop) (case1 : ∀ (n : Nat), n 
   (n : Nat) : motive n (fib'' n)
 -/
 #guard_msgs in
-#check fib''.fun_cases
+#check fib''.fun_cases_unfolding
 
 def filter (p : Nat → Bool) : List Nat → List Nat
   | [] => []
   | x::xs => if p x then x::filter p xs else filter p xs
 
-run_meta Lean.Tactic.FunInd.deriveCases `filter
+run_meta Lean.Tactic.FunInd.deriveCases true `filter
 run_meta Lean.Tactic.FunInd.deriveInduction `filter
+
 /--
-info: filter.fun_cases (motive : (Nat → Bool) → List Nat → List Nat → Prop) (case1 : ∀ (p : Nat → Bool), motive p [] [])
+info: filter.fun_cases (motive : (Nat → Bool) → List Nat → Prop) (case1 : ∀ (p : Nat → Bool), motive p [])
+  (case2 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), p x = true → motive p (x :: xs))
+  (case3 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), ¬p x = true → motive p (x :: xs)) (p : Nat → Bool)
+  (x✝ : List Nat) : motive p x✝
+-/
+#guard_msgs in
+#check filter.fun_cases
+
+/--
+info: filter.fun_cases_unfolding (motive : (Nat → Bool) → List Nat → List Nat → Prop)
+  (case1 : ∀ (p : Nat → Bool), motive p [] [])
   (case2 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), p x = true → motive p (x :: xs) (x :: filter p xs))
   (case3 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), ¬p x = true → motive p (x :: xs) (filter p xs))
   (p : Nat → Bool) (x✝ : List Nat) : motive p x✝ (filter p x✝)
 -/
 #guard_msgs in
-#check filter.fun_cases
+#check filter.fun_cases_unfolding
 
 /--
 info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : motive [])
@@ -1474,3 +1490,34 @@ info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : mot
 -/
 #guard_msgs in
 #check filter.induct
+
+def map (f : Nat → Bool) : List Nat → List Bool
+  | [] => []
+  | x::xs => f x::map f xs
+
+run_meta Lean.Tactic.FunInd.deriveCases true `map
+run_meta Lean.Tactic.FunInd.deriveInduction `map
+
+/--
+info: map.fun_cases (motive : (Nat → Bool) → List Nat → Prop) (case1 : ∀ (f : Nat → Bool), motive f [])
+  (case2 : ∀ (f : Nat → Bool) (x : Nat) (xs : List Nat), motive f (x :: xs)) (f : Nat → Bool) (x✝ : List Nat) :
+  motive f x✝
+-/
+#guard_msgs in
+#check map.fun_cases
+
+/--
+info: map.fun_cases_unfolding (motive : (Nat → Bool) → List Nat → List Bool → Prop)
+  (case1 : ∀ (f : Nat → Bool), motive f [] [])
+  (case2 : ∀ (f : Nat → Bool) (x : Nat) (xs : List Nat), motive f (x :: xs) (f x :: map f xs)) (f : Nat → Bool)
+  (x✝ : List Nat) : motive f x✝ (map f x✝)
+-/
+#guard_msgs in
+#check map.fun_cases_unfolding
+
+/--
+info: map.induct (motive : List Nat → Prop) (case1 : motive [])
+  (case2 : ∀ (x : Nat) (xs : List Nat), motive xs → motive (x :: xs)) (a✝ : List Nat) : motive a✝
+-/
+#guard_msgs in
+#check map.induct

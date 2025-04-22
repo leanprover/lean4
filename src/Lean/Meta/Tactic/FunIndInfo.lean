@@ -45,8 +45,11 @@ builtin_initialize funIndInfoExt : MapDeclarationExtension FunIndInfo ← mkMapD
 def getFunInductName (declName : Name) : Name :=
   declName ++ `induct
 
-def getFunCasesName (declName : Name) : Name :=
-  declName ++ `fun_cases
+def getFunCasesName (declName : Name) (unfolding : Bool := false) : Name :=
+  if unfolding then
+    declName ++ `fun_cases_unfolding
+  else
+    declName ++ `fun_cases
 
 def getMutualInductName (declName : Name) : Name :=
   declName ++ `mutual_induct

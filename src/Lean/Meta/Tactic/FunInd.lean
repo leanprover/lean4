@@ -521,7 +521,68 @@ def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
     if b then ys := ys.push x
   return ys
 
+def withRewrittenMotiveArg (goal : Expr) (rw : Expr → MetaM Simp.Result) (k : Expr → M2 Expr) : M2 Expr := do
+  match goal with
+  | .app goal arg =>
+    let r ← rw arg
+    let e ← k (.app goal r.expr)
+    let h ← mkCongrArg goal (← r.getProof)
+    mkEqMPR h e
+  | _ => k goal
+
+def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
+  match_expr e with
+  | ite@ite α c h t f =>
+    let us := ite.constLevels!
+    if (← isDefEq c (← inferType hc)) then
+      return {
+        expr := t
+        proof? := (mkAppN (mkConst ``if_pos us) #[c, h, hc, α, t, f])
+      }
+    if (← isDefEq (mkNot c) (← inferType hc)) then
+      return {
+        expr := f
+        proof? := (mkAppN (mkConst ``if_neg us) #[c, h, hc, α, t, f])
+      }
+    else
+      return { expr := e}
+  | dite@dite α c h t f =>
+    let us := dite.constLevels!
+    if (← isDefEq c (← inferType hc)) then
+      return {
+        expr := t.beta #[hc]
+        proof? := (mkAppN (mkConst ``dif_pos us) #[c, h, hc, α, t, f])
+      }
+    if (← isDefEq (mkNot c) (← inferType hc)) then
+      return {
+        expr := f.beta #[hc]
+        proof? := (mkAppN (mkConst ``dif_neg us) #[c, h, hc, α, t, f])
+      }
+    else
+      return { expr := e}
+  | _ =>
+      return { expr := e}
+
+def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
+  if e.isLet then
+    if (← isDefEq e.letValue! h) then
+      return { expr := e.letBody!.instantiate1 h }
+  return { expr := e}
+
+def rwFun (name : Name) (e : Expr) : MetaM Simp.Result := do
+  e.withApp fun f xs => do
+    if f.isConstOf name then
+      let some unfoldThm ← getUnfoldEqnFor? name (nonRec := true)
+        | return { expr := e}
+      let h := mkAppN (mkConst unfoldThm f.constLevels!) xs
+      let some (_, _, rhs) := (← inferType h).eq?
+        | throwError "Not an equality: {h}"
+      return { expr := rhs, proof? := h }
+    else
+      return { expr := e}
+
 /--
+
 Builds an expression of type `goal` by replicating the expression `e` into its tail-call-positions,
 where it calls `buildInductionCase`. Collects the cases of the final induction hypothesis
 as `MVars` as it goes.
@@ -537,10 +598,12 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     let c' ← foldAndCollect oldIH newIH isRecCall c
     let h' ← foldAndCollect oldIH newIH isRecCall h
     let t' ← withLocalDecl `h .default c' fun h => M2.branch do
-      let t' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall t
+      let t' ← withRewrittenMotiveArg goal (rwIfWith h) fun goal' =>
+        buildInductionBody toErase toClear goal' oldIH newIH isRecCall t
       mkLambdaFVars #[h] t'
     let f' ← withLocalDecl `h .default (mkNot c') fun h => M2.branch do
-      let f' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall f
+      let f' ← withRewrittenMotiveArg goal (rwIfWith h) fun goal' =>
+        buildInductionBody toErase toClear goal' oldIH newIH isRecCall f
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
@@ -549,11 +612,13 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     let h' ← foldAndCollect oldIH newIH isRecCall h
     let t' ← withLocalDecl `h .default c' fun h => M2.branch do
       let t ← instantiateLambda t #[h]
-      let t' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall t
+      let t' ← withRewrittenMotiveArg goal (rwIfWith h) fun goal' =>
+        buildInductionBody toErase toClear goal' oldIH newIH isRecCall t
       mkLambdaFVars #[h] t'
     let f' ← withLocalDecl `h .default (mkNot c') fun h => M2.branch do
       let f ← instantiateLambda f #[h]
-      let f' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall f
+      let f' ← withRewrittenMotiveArg goal (rwIfWith h) fun goal' =>
+        buildInductionBody toErase toClear goal' oldIH newIH isRecCall f
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
@@ -602,7 +667,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
               let #[newIH'] := newIH' | unreachable!
               let toErase' := toErase ++ #[oldIH', newIH'.fvarId!]
               let toClear' := toClear ++ matcherApp.discrs.filterMap (·.fvarId?)
-              let alt' ← buildInductionBody toErase' toClear'  goal' oldIH' newIH'.fvarId! isRecCall alt
+              let alt' ← withRewrittenMotiveArg goal' Split.simpMatch fun goal'' =>
+                buildInductionBody toErase' toClear' goal'' oldIH' newIH'.fvarId! isRecCall alt
               mkLambdaFVars #[newIH'] alt')
         (onRemaining := fun _ => pure #[.fvar newIH])
       return matcherApp'.toExpr
@@ -618,7 +684,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => M2.branch do
-          buildInductionBody toErase toClear expAltType oldIH newIH isRecCall alt)
+          withRewrittenMotiveArg expAltType Split.simpMatch fun expAltType' =>
+            buildInductionBody toErase toClear expAltType' oldIH newIH isRecCall alt)
       return matcherApp'.toExpr
 
   -- we look through mdata
@@ -630,7 +697,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     let t' ← foldAndCollect oldIH newIH isRecCall t
     let v' ← foldAndCollect oldIH newIH isRecCall v
     return ← withLetDecl n t' v' fun x => M2.branch do
-      let b' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall (b.instantiate1 x)
+      let b' ← withRewrittenMotiveArg goal (rwLetWith x) fun goal' =>
+        buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
       mkLetFVars #[x] b'
 
   if let some (n, t, v, b) := e.letFun? then
@@ -1177,30 +1245,30 @@ def deriveCases (name : Name) : MetaM Unit := do
   realizeConst name casesName do
   mapError (f := (m!"Cannot derive functional cases principle (please report this issue)\n{indentD ·}")) do
     let info ← getConstInfo name
-    let value ←
-      if let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := false) name then
-        let eqInfo ← getConstInfo unfoldEqnName
-        forallTelescope eqInfo.type fun xs body => do
-          let some (_, _, rhs) := body.eq?
-            | throwError "Type of {unfoldEqnName} not an equality: {body}"
-          mkLambdaFVars xs rhs
-      else if let some value := info.value? then
-        pure value
-      else
-        throwError "'{name}' does not have an unfold theorem nor a value"
+    let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := true) name
+      | throwError "'{name}' does not have an unfold theorem nor a value"
+    let value ← do
+      let eqInfo ← getConstInfo unfoldEqnName
+      forallTelescope eqInfo.type fun xs body => do
+        let some (_, _, rhs) := body.eq?
+          | throwError "Type of {unfoldEqnName} not an equality: {body}"
+        mkLambdaFVars xs rhs
     let motiveType ← lambdaTelescope value fun xs _body => do
-      mkForallFVars xs (.sort 0)
+      withLocalDeclD `r (← instantiateForall info.type xs) fun r =>
+        mkForallFVars (xs.push r) (.sort 0)
     let motiveArity ← lambdaTelescope value fun xs _body => do
       pure xs.size
     let (e', numAlts) ← withLocalDeclD `motive motiveType fun motive => do
       lambdaTelescope value fun xs body => do
-        let (e',mvars) ← M2.run do
+        let (e', mvars) ← M2.run do
           let goal := mkAppN motive xs
-          -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
-          -- so `buildInductionBody` should just do the right thing
-          withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
-            let isRecCall := fun _ => none
-            buildInductionBody #[fakeIH.fvarId!] #[] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
+          let goal := mkApp goal (mkAppN (← mkConstWithLevelParams name) xs)
+          withRewrittenMotiveArg goal (rwFun name) fun goal => do
+            -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
+            -- so `buildInductionBody` should just do the right thing
+            withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
+              let isRecCall := fun _ => none
+              buildInductionBody #[fakeIH.fvarId!] #[] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
         let e' ← mkLambdaFVars xs e'
         let (numAlts, e') ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
         let e' ← mkLambdaFVars #[motive] e'
@@ -1304,3 +1372,105 @@ end Lean.Tactic.FunInd
 
 builtin_initialize
    Lean.registerTraceClass `Meta.FunInd
+
+def fib : Nat → Nat
+  | 0 => 0
+  | 1 => 1
+  | n+2 => fib n + fib (n+1)
+termination_by x => x
+
+run_meta Lean.Tactic.FunInd.deriveCases `fib
+
+/--
+info: fib.fun_cases (motive : Nat → Nat → Prop) (case1 : motive 0 0) (case2 : motive 1 1)
+  (case3 : ∀ (n : Nat), motive n.succ.succ (fib n + fib (n + 1))) (x✝ : Nat) : motive x✝ (fib x✝)
+-/
+#guard_msgs in
+#check fib.fun_cases
+
+def ackermann : (Nat × Nat) → Nat
+  | (0, m) => m + 1
+  | (n+1, 0) => ackermann (n, 1)
+  | (n+1, m+1) => ackermann (n, ackermann (n + 1, m))
+termination_by p => p
+
+run_meta Lean.Tactic.FunInd.deriveCases `ackermann
+
+/--
+info: ackermann.fun_cases (motive : Nat × Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive (0, m) (m + 1))
+  (case2 : ∀ (n : Nat), motive (n.succ, 0) (ackermann (n, 1)))
+  (case3 : ∀ (n m : Nat), motive (n.succ, m.succ) (ackermann (n, ackermann (n + 1, m)))) (x✝ : Nat × Nat) :
+  motive x✝ (ackermann x✝)
+-/
+#guard_msgs in
+#check ackermann.fun_cases
+
+
+#guard_msgs (drop warning) in
+def fib' : Nat → Nat
+  | 0 => 0
+  | 1 => 1
+  | n => fib' (n-1) + fib' (n-2)
+decreasing_by all_goals sorry
+
+run_meta Lean.Tactic.FunInd.deriveCases `fib'
+
+/--
+info: fib'.fun_cases (motive : Nat → Nat → Prop) (case1 : motive 0 0) (case2 : motive 1 1)
+  (case3 : ∀ (n : Nat), (n = 0 → False) → (n = 1 → False) → motive n (fib' (n - 1) + fib' (n - 2))) (x✝ : Nat) :
+  motive x✝ (fib' x✝)
+-/
+#guard_msgs in
+#check fib'.fun_cases
+
+def fib'' (n : Nat) : Nat :=
+  if _h : n < 2 then
+    n
+  else
+    let foo := n - 2
+    if foo < 100 then
+      fib'' (n - 1) + fib'' foo
+    else
+      0
+
+run_meta Lean.Tactic.FunInd.deriveCases `fib''
+
+/--
+info: fib''.fun_cases (motive : Nat → Nat → Prop) (case1 : ∀ (n : Nat), n < 2 → motive n n)
+  (case2 :
+    ∀ (n : Nat),
+      ¬n < 2 →
+        let foo := n - 2;
+        foo < 100 → motive n (fib'' (n - 1) + fib'' foo))
+  (case3 :
+    ∀ (n : Nat),
+      ¬n < 2 →
+        let foo := n - 2;
+        ¬foo < 100 → motive n 0)
+  (n : Nat) : motive n (fib'' n)
+-/
+#guard_msgs in
+#check fib''.fun_cases
+
+def filter (p : Nat → Bool) : List Nat → List Nat
+  | [] => []
+  | x::xs => if p x then x::filter p xs else filter p xs
+
+run_meta Lean.Tactic.FunInd.deriveCases `filter
+run_meta Lean.Tactic.FunInd.deriveInduction `filter
+/--
+info: filter.fun_cases (motive : (Nat → Bool) → List Nat → List Nat → Prop) (case1 : ∀ (p : Nat → Bool), motive p [] [])
+  (case2 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), p x = true → motive p (x :: xs) (x :: filter p xs))
+  (case3 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), ¬p x = true → motive p (x :: xs) (filter p xs))
+  (p : Nat → Bool) (x✝ : List Nat) : motive p x✝ (filter p x✝)
+-/
+#guard_msgs in
+#check filter.fun_cases
+
+/--
+info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : motive [])
+  (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive xs → motive (x :: xs))
+  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs → motive (x :: xs)) (a✝ : List Nat) : motive a✝
+-/
+#guard_msgs in
+#check filter.induct

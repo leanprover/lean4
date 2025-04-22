@@ -229,8 +229,29 @@ expr cheap_beta_reduce(expr const & e) {
     }
 }
 
+bool is_identity(names const & lps, levels const & ls) {
+    names const *it1  = &lps;
+    levels const *it2 = &ls;
+    while (!is_nil(*it1)) {
+        assert(!is_nil(*it2));
+        if (is_param(head(*it2))) {
+            if (param_id(head(*it2)) != head(*it1))
+                return false;
+            else {
+                it1 = &tail(*it1);
+                it2 = &tail(*it2);
+            }
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
 expr instantiate_lparams(expr const & e, names const & lps, levels const & ls) {
     if (!has_param_univ(e))
+        return e;
+    if (is_identity(lps, ls))
         return e;
     return replace(e, [&](expr const & e) -> optional<expr> {
             if (!has_param_univ(e))

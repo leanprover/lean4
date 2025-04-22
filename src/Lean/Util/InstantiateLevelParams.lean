@@ -24,12 +24,17 @@ private def getParamSubst : List Name → List Level → Name → Option Level
   | p::ps, u::us, p' => if p == p' then some u else getParamSubst ps us p'
   | _,     _,     _  => none
 
+private def isIdentity : List Name → List Level → Bool
+  | p::ps, u::us => if mkLevelParam p == u then isIdentity ps us else false
+  | _,    []    => true
+  | [],    _    => true
+
 /--
 Instantiate universe level parameters names `paramNames` with `lvls` in `e`.
 If the two lists have different length, the smallest one is used.
 -/
 def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
-  if paramNames.isEmpty || lvls.isEmpty then e else
+  if paramNames.isEmpty || lvls.isEmpty || isIdentity paramNames lvls then e else
     instantiateLevelParamsCore (getParamSubst paramNames lvls) e
 
 /--
@@ -38,7 +43,7 @@ If the two lists have different length, the smallest one is used.
 (Does not preserve expression sharing.)
 -/
 def instantiateLevelParamsNoCache (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
-  if paramNames.isEmpty || lvls.isEmpty then e else
+  if paramNames.isEmpty || lvls.isEmpty || isIdentity paramNames lvls then e else
     e.replaceNoCache (instantiateLevelParamsCore.replaceFn (getParamSubst paramNames lvls))
 
 private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' : Name) (i : Nat) : Option Level :=
@@ -50,11 +55,17 @@ private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' 
     else none
   else none
 
+private def isIdentityArray (ps : Array Name) (us : Array Level) : Bool := Id.run do
+  for p in ps, u in us do
+    unless mkLevelParam p == u do
+      return false
+  return true
+
 /--
 Instantiate universe level parameters names `paramNames` with `lvls` in `e`.
 If the two arrays have different length, the smallest one is used.
 -/
 def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
-  if paramNames.isEmpty || lvls.isEmpty then e else
+  if paramNames.isEmpty || lvls.isEmpty || isIdentityArray paramNames lvls then e else
     e.instantiateLevelParamsCore fun p =>
       getParamSubstArray paramNames lvls p 0

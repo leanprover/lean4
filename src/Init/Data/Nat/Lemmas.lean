@@ -3,6 +3,8 @@ Copyright (c) 2014 Floris van Doorn (c) 2016 Microsoft Corporation. All rights r
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Floris van Doorn
 -/
+module
+
 prelude
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Log2

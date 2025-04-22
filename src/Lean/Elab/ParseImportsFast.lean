@@ -133,8 +133,8 @@ partial def whitespace : Parser := fun input s =>
   else
     false
 
-def State.pushModule (module : Name) (s : State) : State :=
-  { s with imports := s.imports.push { module } }
+def State.pushImport (i : Import) (s : State) : State :=
+  { s with imports := s.imports.push i }
 
 @[inline] def isIdRestCold (c : Char) : Bool :=
   c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
@@ -142,7 +142,7 @@ def State.pushModule (module : Name) (s : State) : State :=
 @[inline] def isIdRestFast (c : Char) : Bool :=
   c.isAlphanum || (c != '.' && c != '\n' && c != ' ' && isIdRestCold c)
 
-partial def moduleIdent : Parser := fun input s =>
+partial def moduleIdent (importPrivate : Bool) : Parser := fun input s =>
   let rec parse (module : Name) (s : State) :=
     let i := s.pos
     if h : input.atEnd i then
@@ -162,7 +162,7 @@ partial def moduleIdent : Parser := fun input s =>
             let s := s.next input s.pos
             parse module s
           else
-            whitespace input (s.pushModule module)
+            whitespace input (s.pushImport { module, importPrivate })
       else if isIdFirst curr then
         let startPart := i
         let s         := takeWhile isIdRestFast input (s.next' input i h)
@@ -172,7 +172,7 @@ partial def moduleIdent : Parser := fun input s =>
           let s := s.next input s.pos
           parse module s
         else
-          whitespace input (s.pushModule module)
+          whitespace input (s.pushImport { module, importPrivate })
       else
         s.mkError "expected identifier"
   parse .anonymous s
@@ -187,8 +187,8 @@ partial def moduleIdent : Parser := fun input s =>
 
 def main : Parser :=
   keywordCore "module" (fun _ s => { s with isModule := true }) (fun _ s => s) >>
-  keywordCore "prelude" (fun _ s => s.pushModule `Init) (fun _ s => s) >>
-  many (keyword "import" >> moduleIdent)
+  keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
+  many (keyword "import" >> keywordCore "private" (moduleIdent true) (moduleIdent false))
 
 end ParseImports
 

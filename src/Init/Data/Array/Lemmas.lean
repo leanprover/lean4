@@ -930,6 +930,26 @@ abbrev getElem?_set_eq := @getElem?_set_self
   cases xs
   simp
 
+theorem set_push {xs : Array α} {x y : α} {h} :
+    (xs.push x).set i y = if _ : i < xs.size then (xs.set i y).push x else xs.push y := by
+  ext j hj
+  · split <;> simp
+  · split
+    · simp only [getElem_set, getElem_push, size_set]
+      split
+      · rw [dif_pos]
+        omega
+      · split <;> rfl
+    · simp only [getElem_set, getElem_push]
+      split
+      · rw [dif_neg]
+        omega
+      · simp_all only [size_set, size_push, dite_false]
+        split
+        · rfl
+        · simp at h
+          omega
+
 @[simp] theorem set_eq_empty_iff {xs : Array α} {i : Nat} {a : α} {h : i < xs.size} :
     xs.set i a = #[] ↔ xs = #[] := by
   cases xs <;> cases i <;> simp [set]
@@ -2273,7 +2293,7 @@ theorem flatMap_def {xs : Array α} {f : α → Array β} : xs.flatMap f = flatt
   rcases xs with ⟨l⟩
   simp [flatten_toArray, Function.comp_def, List.flatMap_def]
 
-@[simp] theorem flatMap_empty {β} {f : α → Array β} : (#[] : Array α).flatMap f = #[] := rfl
+@[simp, grind] theorem flatMap_empty {β} {f : α → Array β} : (#[] : Array α).flatMap f = #[] := rfl
 
 theorem flatMap_toList {xs : Array α} {f : α → List β} :
     xs.toList.flatMap f = (xs.flatMap (fun a => (f a).toArray)).toList := by
@@ -2338,6 +2358,11 @@ theorem flatMap_singleton {f : α → Array β} {x : α} : #[x].flatMap f = f x 
 
 -- The argument `xs : Array α` is explicit, to allow rewriting from right to left.
 @[simp] theorem flatMap_singleton' (xs : Array α) : (xs.flatMap fun x => #[x]) = xs := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp, grind _=_] theorem flatMap_push {xs : Array α} {x : α} {f : α → Array β} :
+    (xs.push x).flatMap f = xs.flatMap f ++ f x := by
   rcases xs with ⟨xs⟩
   simp
 
@@ -4034,11 +4059,11 @@ theorem all_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
   rw [List.append_toArray]
   simp [List.all_append]
 
-theorem any_append {xs ys : Array α} :
+@[grind _=_] theorem any_append {xs ys : Array α} :
     (xs ++ ys).any f 0 = (xs.any f || ys.any f) := by
   simp
 
-theorem all_append {xs ys : Array α} :
+@[grind _=_] theorem all_append {xs ys : Array α} :
     (xs ++ ys).all f 0 = (xs.all f && ys.all f) := by
   simp
 
@@ -4084,10 +4109,10 @@ theorem all_append {xs ys : Array α} :
   cases xss using array₂_induction
   simp [Function.comp_def]
 
-theorem any_flatten {xss : Array (Array α)} : xss.flatten.any f = xss.any (any · f) := by
+@[grind] theorem any_flatten {xss : Array (Array α)} : xss.flatten.any f = xss.any (any · f) := by
   simp
 
-theorem all_flatten {xss : Array (Array α)} : xss.flatten.all f = xss.all (all · f) := by
+@[grind] theorem all_flatten {xss : Array (Array α)} : xss.flatten.all f = xss.all (all · f) := by
   simp
 
 /-- Variant of `any_flatMap` with a side condition for the `stop` argument. -/
@@ -4106,11 +4131,11 @@ theorem all_flatten {xss : Array (Array α)} : xss.flatten.all f = xss.all (all 
   rw [List.flatMap_toArray]
   simp [List.all_flatMap]
 
-theorem any_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
+@[grind] theorem any_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
     (xs.flatMap f).any p 0 = xs.any fun a => (f a).any p := by
   simp
 
-theorem all_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
+@[grind] theorem all_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
     (xs.flatMap f).all p 0 = xs.all fun a => (f a).all p := by
   simp
 
@@ -4128,10 +4153,10 @@ theorem all_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
   rw [List.reverse_toArray]
   simp [List.all_reverse]
 
-theorem any_reverse {xs : Array α} : xs.reverse.any f 0 = xs.any f := by
+@[grind] theorem any_reverse {xs : Array α} : xs.reverse.any f 0 = xs.any f := by
   simp
 
-theorem all_reverse {xs : Array α} : xs.reverse.all f 0 = xs.all f := by
+@[grind] theorem all_reverse {xs : Array α} : xs.reverse.all f 0 = xs.all f := by
   simp
 
 @[simp] theorem any_replicate {n : Nat} {a : α} :

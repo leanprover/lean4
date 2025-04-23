@@ -1260,6 +1260,11 @@ abbrev getElem_set_eq := @getElem_set_self
   cases xs
   simp
 
+theorem set_push {xs : Vector α n} {x y : α} {h} :
+    (xs.push x).set i y = if _ : i < n then (xs.set i y).push x else xs.push y := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.set_push]
+
 theorem set_comm (a b : α) {xs : Vector α n} {hi : i < n} {hj : j < n} (h : i ≠ j) :
     (xs.set i a hi).set j b hj = (xs.set j b hj).set i a hi := by
   cases xs
@@ -1970,6 +1975,14 @@ theorem eq_iff_flatten_eq {xss xss' : Vector (Vector α n) m} :
 theorem flatMap_def {xs : Vector α n} {f : α → Vector β m} : xs.flatMap f = flatten (map f xs) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.flatMap_def, Function.comp_def]
+
+@[simp, grind] theorem flatMap_empty {f : α → Vector β m} :
+    (#v[] : Vector α n).flatMap f = #v[] := rfl
+
+@[simp, grind _=_] theorem flatMap_push {xs : Vector α n} {x : α} {f : α → Vector β m} :
+    (xs.push x).flatMap f = xs.flatMap f ++ f x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
 
 @[simp] theorem getElem_flatMap {xs : Vector α n} {f : α → Vector β m} {i : Nat} (hi : i < n * m) :
     (xs.flatMap f)[i] =
@@ -2873,13 +2886,13 @@ theorem any_eq_not_all_not {xs : Vector α n} {p : α → Bool} : xs.any p = !xs
   simp
   rfl
 
-@[simp] theorem any_append {xs : Vector α n} {ys : Vector α m} :
+@[simp, grind _=_] theorem any_append {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).any f = (xs.any f || ys.any f) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
   simp
 
-@[simp] theorem all_append {xs : Vector α n} {ys : Vector α m} :
+@[simp, grind _=_] theorem all_append {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).all f = (xs.all f && ys.all f) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
@@ -2913,15 +2926,15 @@ theorem any_eq_not_all_not {xs : Vector α n} {p : α → Bool} : xs.any p = !xs
   unfold all
   apply allM_congr w h
 
-@[simp] theorem any_flatten {xss : Vector (Vector α n) m} : xss.flatten.any f = xss.any (any · f) := by
+@[simp, grind] theorem any_flatten {xss : Vector (Vector α n) m} : xss.flatten.any f = xss.any (any · f) := by
   cases xss using vector₂_induction
   simp
 
-@[simp] theorem all_flatten {xss : Vector (Vector α n) m} : xss.flatten.all f = xss.all (all · f) := by
+@[simp, grind] theorem all_flatten {xss : Vector (Vector α n) m} : xss.flatten.all f = xss.all (all · f) := by
   cases xss using vector₂_induction
   simp
 
-@[simp] theorem any_flatMap {xs : Vector α n} {f : α → Vector β m} {p : β → Bool} :
+@[simp, grind] theorem any_flatMap {xs : Vector α n} {f : α → Vector β m} {p : β → Bool} :
     (xs.flatMap f).any p = xs.any fun a => (f a).any p := by
   rcases xs with ⟨xs⟩
   simp only [flatMap_mk, any_mk, Array.size_flatMap, size_toArray, Array.any_flatMap']
@@ -2930,7 +2943,7 @@ theorem any_eq_not_all_not {xs : Vector α n} {p : α → Bool} : xs.any p = !xs
   congr
   simp [Vector.size_toArray]
 
-@[simp] theorem all_flatMap {xs : Vector α n} {f : α → Vector β m} {p : β → Bool} :
+@[simp, grind] theorem all_flatMap {xs : Vector α n} {f : α → Vector β m} {p : β → Bool} :
     (xs.flatMap f).all p = xs.all fun a => (f a).all p := by
   rcases xs with ⟨xs⟩
   simp only [flatMap_mk, all_mk, Array.size_flatMap, size_toArray, Array.all_flatMap']
@@ -2939,11 +2952,11 @@ theorem any_eq_not_all_not {xs : Vector α n} {p : α → Bool} : xs.any p = !xs
   congr
   simp [Vector.size_toArray]
 
-@[simp] theorem any_reverse {xs : Vector α n} : xs.reverse.any f  = xs.any f := by
+@[simp, grind] theorem any_reverse {xs : Vector α n} : xs.reverse.any f  = xs.any f := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem all_reverse {xs : Vector α n} : xs.reverse.all f = xs.all f := by
+@[simp, grind] theorem all_reverse {xs : Vector α n} : xs.reverse.all f = xs.all f := by
   rcases xs with ⟨xs, rfl⟩
   simp
 

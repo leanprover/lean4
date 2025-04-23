@@ -730,8 +730,8 @@ Examples:
 -/
 @[inline] def flatMap {α : Type u} {β : Type v} (b : α → List β) (as : List α) : List β := flatten (map b as)
 
-@[simp] theorem flatMap_nil {f : α → List β} : List.flatMap f [] = [] := by simp [flatten, List.flatMap]
-@[simp] theorem flatMap_cons {x : α} {xs : List α} {f : α → List β} :
+@[simp, grind] theorem flatMap_nil {f : α → List β} : List.flatMap f [] = [] := by simp [flatten, List.flatMap]
+@[simp, grind] theorem flatMap_cons {x : α} {xs : List α} {f : α → List β} :
   List.flatMap f (x :: xs) = f x ++ List.flatMap f xs := by simp [flatten, List.flatMap]
 
 set_option linter.missingDocs false in

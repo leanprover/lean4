@@ -1981,7 +1981,11 @@ theorem slt_trichotomy (x y : BitVec w) : (x.slt y = true) ∨ (x = y) ∨ (y.sl
 
 
 theorem Int.natAbs_le_of_le_of_le {a : Int} {n : Nat} (ha₁ : a ≤ n) (ha₂ : -n ≤ a) : a.natAbs ≤ n := by omega
+theorem Int.natAbs_lt_of_lt_of_lt {a : Int} {n : Nat} (ha₁ : a < n) (ha₂ : -n < a) : a.natAbs < n := by omega
 
+/-- We can establish that the value of `d.toInt.natAbs` can be computed in terms of a bitvector
+  expression.
+-/
 theorem foo {n d : BitVec w} :
     (n = intMin w) ∨ (d ≠ intMin w ∧ d.abs.sle n.abs)
     ↔ d.toInt.natAbs ≤ n.toInt.natAbs := by
@@ -2001,9 +2005,18 @@ theorem foo {n d : BitVec w} :
         rw [toInt_intMin_of_pos (by omega)]
         simp only [Int.natAbs_neg]
         norm_cast
-        have hlt := toInt_lt (x := d)
-        have hle := le_toInt (x := d)
-        sorry
+        have hlt := toInt_lt (x := n)
+        have hle := le_toInt (x := n)
+        have hn' : n.toInt ≠ (intMin w).toInt := by
+          intros h
+          rw [toInt_inj] at h
+          subst h
+          contradiction
+        simp [toInt_abs_eq_natAbs,
+          show ¬ (n = intMin w) by simp [hn]]
+        apply Int.natAbs_lt_of_lt_of_lt
+        · push_cast; omega
+        · push_cast; rw [toInt_intMin_of_pos (by omega)] at hn'; omega
       · simp [hd]
         rw [sle_eq_decide]
         simp [toInt_abs_eq_natAbs,

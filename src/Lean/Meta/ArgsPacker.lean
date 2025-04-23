@@ -585,10 +585,10 @@ unless `numFuns = 1`
 def curryParam {α} (argsPacker : ArgsPacker) (value : Expr) (type : Expr)
     (k : Array Expr → Expr → Expr → MetaM α) : MetaM α := do
   unless type.isForall do
-    throwError "uncurryParam: expected forall, got {type}"
+    throwError "curryParam: expected forall, got {type}"
   let packedMotiveType := type.bindingDomain!
   unless packedMotiveType.isArrow do
-    throwError "uncurryParam: unexpected packed motive {packedMotiveType}"
+    throwError "curryParam: unexpected packed motive {packedMotiveType}"
   -- Bring unpacked motives (motive1 : a → b → Prop and motive2 : c → d → Prop) into scope
   withCurriedDecl argsPacker type.bindingName! packedMotiveType fun motives => do
     -- Combine them into a packed motive (motive : a ⊗' b ⊕' c ⊗' d → Prop), and use that

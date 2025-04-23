@@ -582,7 +582,23 @@ def rwFun (name : Name) (e : Expr) : MetaM Simp.Result := do
         | throwError "Not an equality: {h}"
       return { expr := rhs, proof? := h }
     else
-      return { expr := e}
+      return { expr := e }
+
+def rwMatcher (e : Expr) : MetaM Simp.Result := do
+  if e.isAppOf ``PSum.casesOn || e.isAppOf ``PSigma.casesOn then
+    let mut e := e
+    while true do
+      if let some e' ← reduceRecMatcher? e then
+          e := e'.headBeta
+      else
+        let e' := e.headBeta
+        if e != e' then
+          e := e'
+        else
+          break
+    return { expr := e }
+  else
+    Split.simpMatch e
 
 /--
 
@@ -670,7 +686,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
               let #[newIH'] := newIH' | unreachable!
               let toErase' := toErase ++ #[oldIH', newIH'.fvarId!]
               let toClear' := toClear ++ matcherApp.discrs.filterMap (·.fvarId?)
-              let alt' ← withRewrittenMotiveArg goal' Split.simpMatch fun goal'' =>
+              let alt' ← withRewrittenMotiveArg goal' rwMatcher fun goal'' => do
+                -- logInfo m!"rwMatcher after {matcherApp.matcherName} on{indentExpr goal'}\nyields{indentExpr goal''}"
                 buildInductionBody toErase' toClear' goal'' oldIH' newIH'.fvarId! isRecCall alt
               mkLambdaFVars #[newIH'] alt')
         (onRemaining := fun _ => pure #[.fvar newIH])
@@ -1397,7 +1414,6 @@ end Lean.Tactic.FunInd
 builtin_initialize
    Lean.registerTraceClass `Meta.FunInd
 
-/-
 def fib : Nat → Nat
   | 0 => 0
   | 1 => 1
@@ -1559,8 +1575,31 @@ termination_by x => x
 
 
 run_meta Lean.Tactic.FunInd.deriveInduction true `map2
-#check map2.induct_unfolding
-#check map2._unary.eq_def
-#print map2.eq_def
 
+/--
+info: map2.induct_unfolding (f : Nat → Nat → Bool) (motive : List Nat → List Nat → List Bool → Prop)
+  (case1 :
+    ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat),
+      motive xs ys (map2 f xs ys) → motive (x :: xs) (y :: ys) (f x y :: map2 f xs ys))
+  (case2 :
+    ∀ (x x_1 : List Nat),
+      (∀ (x_2 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), x = x_2 :: xs → x_1 = y :: ys → False) →
+        motive x x_1 [])
+  (a✝ a✝¹ : List Nat) : motive a✝ a✝¹ (map2 f a✝ a✝¹)
 -/
+#guard_msgs in
+#check map2.induct_unfolding
+
+mutual
+def map2a (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
+  | x::xs, y::ys => f x y::map2b f xs ys
+  | _, _ => []
+termination_by x => x
+def map2b (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
+  | x::xs, y::ys => f x y::map2a f xs ys
+  | _, _ => []
+termination_by x => x
+end
+
+run_meta Lean.Tactic.FunInd.deriveInduction true `map2a
+#check map2a.induct_unfolding

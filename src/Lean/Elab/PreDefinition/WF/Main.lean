@@ -70,7 +70,9 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefsNonrec ← preDefsFromUnaryNonRec fixedParamPerms argsPacker preDefs preDefNonRec
   Mutual.addPreDefsFromUnary (cacheProofs := false) preDefs preDefsNonrec preDefNonRec
-  let preDefs ← Mutual.cleanPreDefs (cacheProofs := false) preDefs
+  addAndCompilePartialRec preDefs
+  let unaryPreDef ← Mutual.cleanPreDef (cacheProofs := false) unaryPreDef
+  let preDefs ← preDefs.mapM (Mutual.cleanPreDef (cacheProofs := false) ·)
   registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms argsPacker
   unless (← isProp unaryPreDef.type) do
     WF.mkUnfoldEq unaryPreDef preDefNonRec.declName wfPreprocessProof

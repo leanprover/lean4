@@ -1125,26 +1125,30 @@ static obj_res task_bind_fn2(obj_arg t, obj_arg) {
     return v;
 }
 
+extern "C" LEAN_EXPORT obj_res lean_task_join_core(obj_arg t) {
+    lean_assert(lean_is_task(t));
+    b_obj_res v = lean_to_task(t)->m_value;
+    if (v) {
+        lean_inc(v);
+        lean_dec_ref(t);
+        return v;
+    } else {
+        lean_assert(g_current_task_object->m_imp);
+        lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
+        obj_res c = mk_closure_2_1(task_bind_fn2, t);
+        mark_mt(c);
+        g_current_task_object->m_imp->m_closure = c;
+        return nullptr; /* notify queue that task did not finish yet. */
+    }
+}
+
 static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     b_obj_res v = lean_to_task(x)->m_value;
     lean_assert(v != nullptr);
     lean_inc(v);
     lean_dec_ref(x);
     obj_res new_task = lean_apply_1(f, v);
-    lean_assert(lean_is_task(new_task));
-    v = lean_to_task(new_task)->m_value;
-    if (v) {
-        lean_inc(v);
-        lean_dec_ref(new_task);
-        return v;
-    } else {
-        lean_assert(g_current_task_object->m_imp);
-        lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
-        obj_res c = mk_closure_2_1(task_bind_fn2, new_task);
-        mark_mt(c);
-        g_current_task_object->m_imp->m_closure = c;
-        return nullptr; /* notify queue that task did not finish yet. */
-    }
+    return lean_task_join_core(new_task);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio,

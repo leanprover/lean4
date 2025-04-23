@@ -1403,6 +1403,23 @@ extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio, obj_ar
     return io_result_mk_ok(t);
 }
 
+/* {α : Type} (act : BaseIO (Task α)) (_ : IO.RealWorld) */
+static obj_res lean_io_join_task_fn(obj_arg act, obj_arg) {
+    obj_res r = apply_1(act, io_mk_world());
+    b_obj_res t = io_result_get_value(r);
+    inc_ref(t);
+    dec_ref(r);
+    return lean_task_join_core(t);
+}
+
+/* joinTask {α : Type} (act : BaseIO (Task α)) (prio : Nat) : BaseIO (Task α) */
+extern "C" LEAN_EXPORT obj_res lean_io_join_task(obj_arg act, obj_arg prio, obj_arg) {
+    object * c = lean_alloc_closure((void*)lean_io_join_task_fn, 2, 1);
+    lean_closure_set(c, 0, act);
+    object * t = lean_task_spawn_core(c, lean_unbox(prio), /* keep_alive */ true);
+    return io_result_mk_ok(t);
+}
+
 /* {α β : Type} (f : α → BaseIO β) (a : α) : β */
 static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     object_ref r(apply_2(f, a, io_mk_world()));

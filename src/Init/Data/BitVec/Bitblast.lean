@@ -2023,6 +2023,10 @@ theorem natAbs_toInt_le_natAbs_toInt_iff_eq_intMin_or_ne_intMin_and_abs_sle {n d
           show ¬ (d = intMin w) by simp [hd],
           show ¬ (n = intMin w) by simp [hn]]
 
+@[simp]
+theorem BitVec.sdiv_zero_eq {x : BitVec w} : x.sdiv (0#w) = 0#w := by
+  apply eq_of_toInt_eq; simp
+
 /--
 The sign of a division is determined as follows:
 - if the denominator is zero, then the output is zero and the msb is false as it is non-negative.
@@ -2034,10 +2038,11 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
     (x.sdiv y).msb =
       (decide (0 < w) &&
         -- either we have x = intMin w and y = -1#w
-        ((decide (x = intMin w) && decide (y = -1#w)) ||
+        ( (decide (x = intMin w) && decide (y = -1#w)) ||
+         (
         -- or we have `y = 0`, in which case the result is always non-negative.
         -- Then, when `y <> 0` and `|x| ≥ |y|` and at *exactly* one of them is negative
-        ((x.slt 0#w && (0#w).slt y || (0#w).slt x && y.slt 0#w))))
+        (y ≠ 0 && (x.slt 0#w && (0#w).slt y || (0#w).slt x && y.slt 0#w)))))
      := by
   by_cases hw : w = 0; subst hw; decide +revert
   simp [show 0 < w by omega]
@@ -2045,19 +2050,29 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
   · simp [hmin, decide_true, Bool.and_self, abs_intMin, Bool.true_or,
       intMin_sdiv_neg_one, msb_intMin]
     omega
-  · rw [Classical.not_and_iff_not_or_not] at hmin
-    rw [msb_eq_toInt, toInt_sdiv_of_ne_or_ne _ _ (by simp [hmin])]
-    have : (decide (x = intMin w) && decide (y = -1#w)) = false := by
-      rcases hmin with hmin | hmin <;> simp [hmin]
-    simp only [this, Bool.false_or]
-    have := Int.tdiv_neg_iff_neg_and_pos_or_pos_and_neg_of_ne_zero_of_natAbs_le_natAbs
-      (a := x.toInt) (b := y.toInt) (by sorry) (by sorry)
-    simp [this]
-    have hx_lt_zero : decide (x.toInt < 0) = x.slt 0#w := by simp [slt_eq_decide]
-    have hy_lt_zero : decide (y.toInt < 0) = y.slt 0#w := by simp [slt_eq_decide]
-    have zero_lt_hx : decide (0 < x.toInt) = (0#w).slt x := by simp [slt_eq_decide]
-    have zero_lt_hy : decide (0 < y.toInt) = (0#w).slt y := by simp [slt_eq_decide]
-    simp [hx_lt_zero, hy_lt_zero, zero_lt_hx, zero_lt_hy]
+  · by_cases hy : y = 0#w
+    · simp [hy]
+      bv_omega
+    · simp [hy]
+      rw [Classical.not_and_iff_not_or_not] at hmin
+      rw [msb_eq_toInt, toInt_sdiv_of_ne_or_ne _ _ (by simp [hmin])]
+      have : (decide (x = intMin w) && decide (y = -1#w)) = false := by
+        rcases hmin with hmin | hmin <;> simp [hmin]
+      simp only [this, Bool.false_or]
+      have hy0 : y.toInt ≠ 0 := by
+        intros hcontra
+        apply hy
+        apply eq_of_toInt_eq
+        simp [hcontra]
+
+      have := Int.tdiv_neg_iff_neg_and_pos_or_pos_and_neg_of_ne_zero_of_natAbs_le_natAbs
+        (a := x.toInt) (b := y.toInt) (by exact hy0) (by sorry)
+      simp [this]
+      have hx_lt_zero : decide (x.toInt < 0) = x.slt 0#w := by simp [slt_eq_decide]
+      have hy_lt_zero : decide (y.toInt < 0) = y.slt 0#w := by simp [slt_eq_decide]
+      have zero_lt_hx : decide (0 < x.toInt) = (0#w).slt x := by simp [slt_eq_decide]
+      have zero_lt_hy : decide (0 < y.toInt) = (0#w).slt y := by simp [slt_eq_decide]
+      simp [hx_lt_zero, hy_lt_zero, zero_lt_hx, zero_lt_hy]
 
 
 theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by

@@ -45,9 +45,9 @@ must be an equivalence relation and `a == b` must imply `hash a = hash b` (see a
 `EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
 instance is lawful, i.e., if `a == b` implies `a = b`.
 
-In contrast to regular dependent hash maps, `Std.DHashMap` offers several extensionality lemmas
-and therefore has more lemmas about equality of hash maps. This however also makes it lose the
-ability to iterate freely over the hash map.
+In contrast to regular dependent hash maps, `Std.Extensional.DHashMap` offers several
+extensionality lemmas and therefore has more lemmas about equality of hash maps. This however
+also makes it lose the ability to iterate freely over the hash map.
 
 These hash maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.DHashMap.Raw` and

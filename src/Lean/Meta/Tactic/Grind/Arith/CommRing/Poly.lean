@@ -78,6 +78,15 @@ structure SPolResult where
   /-- Monomial factor applied to polynomial `p₂`. -/
   m₂   : Mon  := .unit
 
+def Poly.mulConst' (p : Poly) (k : Int) (char? : Option Nat := none) : Poly :=
+  if let some char := char? then p.mulConstC k char else p.mulConst k
+
+def Poly.mulMon' (p : Poly) (k : Int) (m : Mon) (char? : Option Nat := none) : Poly :=
+  if let some char := char? then p.mulMonC k m char else p.mulMon k m
+
+def Poly.combine' (p₁ p₂ : Poly) (char? : Option Nat := none) : Poly :=
+  if let some char := char? then p₁.combineC p₂ char else p₁.combine p₂
+
 /--
 Returns the S-polynomial of polynomials `p₁` and `p₂`, and coefficients&terms used to construct it.
 Given polynomials with leading terms `k₁*m₁` and `k₂*m₂`, the S-polynomial is defined as:
@@ -95,16 +104,10 @@ def Poly.spol (p₁ p₂ : Poly) (char? : Option Nat := none) : SPolResult  :=
     let g    := Nat.gcd k₁.natAbs k₂.natAbs
     let c₁   := k₂/g
     let c₂   := -k₁/g
-    if let some char := char? then
-      let p₁   := p₁.mulMonC c₁ m₁ char
-      let p₂   := p₂.mulMonC c₂ m₂ char
-      let spol := p₁.combineC p₂ char
-      { spol, c₁, m₁, c₂, m₂ }
-    else
-      let p₁   := p₁.mulMon c₁ m₁
-      let p₂   := p₂.mulMon c₂ m₂
-      let spol := p₁.combine p₂
-      { spol, c₁, m₁, c₂, m₂ }
+    let p₁   := p₁.mulMon' c₁ m₁ char?
+    let p₂   := p₂.mulMon' c₂ m₂ char?
+    let spol := p₁.combine' p₂ char?
+    { spol, c₁, m₁, c₂, m₂ }
   | _, _ => {}
 
 /--
@@ -142,10 +145,7 @@ def Poly.simp? (p₁ p₂ : Poly) (char? : Option Nat := none) : Option SimpResu
           let g  := Nat.gcd k₁'.natAbs k₂'.natAbs
           let k₁ := -k₂'/g
           let k₂ := k₁'/g
-          let p  := if let some char := char? then
-            (p₁.mulMonC k₁ m char).combineC (p₂.mulConstC k₂ char) char
-          else
-            (p₁.mulMon k₁ m).combine (p₂.mulConst k₂)
+          let p  := (p₁.mulMon' k₁ m char?).combine' (p₂.mulConst' k₂ char?) char?
           some { p, k₁, k₂, m }
         else if let some r := go? p₂ then
           if let some char := char? then
@@ -181,5 +181,9 @@ def Poly.lc : Poly → Int
 def Poly.lm : Poly → Mon
  | .num _ => .unit
  | .add _ m _ => m
+
+def Poly.isZero : Poly → Bool
+  | .num 0 => true
+  | _ => false
 
 end Lean.Grind.CommRing

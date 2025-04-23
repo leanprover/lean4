@@ -10,7 +10,7 @@ import Std.Internal.Async.Basic
 
 /-!
 This module contains the implementation of a fair and data-loss free IO multiplexing primitive.
-The main entrypoint for users is `Selectable.one` and the various functions to produces
+The main entrypoint for users is `Selectable.one` and the various functions to produce
 `Selector`s from other modules.
 -/
 

@@ -29,12 +29,6 @@ structure Waiter (α : Type) where
     promise : IO.Promise (Except IO.Error α)
 
 /--
-Create a fresh `Waiter`.
--/
-def Waiter.new : BaseIO (Waiter α) := do
-  return { finished := ← IO.mkRef false, promise := ← IO.Promise.new }
-
-/--
 Swap out the `IO.Promise` within the `Waiter`. Note that the part which determines whether the
 `Waiter` is finished is not swapped out.
 -/

@@ -38,7 +38,60 @@ containing `q₁` ... `qₙ` needed to create the `EqCnstr`.
 We are assuming the number of hypotheses used to derive a conclusion is small
 and a dense array is a reasonable representation.
 -/
-abbrev PreNullCert := Array Poly
+structure PreNullCert where
+  qs : Array Poly
+  /--
+  We don't use rational coefficients in the polynomials.
+  Thus, we need to track a denominator to justify the proof step `div`.
+  -/
+  d  : Int := 1
+
+def PreNullCert.unit (i : Nat) (n : Nat) : PreNullCert :=
+  let qs := Array.replicate n (.num 0)
+  let qs := qs.set! i (.num 1)
+  { qs }
+
+def PreNullCert.mul (c : PreNullCert) (k : Int) (char? : Option Nat) : PreNullCert :=
+  if k == 1 then c
+  else
+    let g := Int.gcd k c.d
+    let k := k / g
+    let d := c.d / g
+    if k == 1 then
+      { c with d }
+    else
+      let qs := c.qs.map fun q => if q.isZero then q else q.mulConst' k char?
+      { qs, d }
+
+def PreNullCert.combine (k₁ : Int) (m₁ : Mon) (c₁ : PreNullCert) (k₂ : Int) (m₂ : Mon) (c₂ : PreNullCert) (char? : Option Nat) : PreNullCert := Id.run do
+  let d₁    := c₁.d
+  let d₂    := c₂.d
+  let k₁_d₂ := k₁*d₂
+  let k₂_d₁ := k₂*d₁
+  let d₁_d₂ := d₁*d₂
+  let g     := Int.gcd (Int.gcd k₁_d₂ k₂_d₁) d₁_d₂
+  let k₁    := k₁_d₂ / g
+  let k₂    := k₂_d₁ / g
+  let d     := d₁_d₂ / g
+  let qs₁   := c₁.qs
+  let qs₂   := c₂.qs
+  let n := Nat.max qs₁.size qs₂.size
+  let mut qs : Vector Poly n := Vector.replicate n (.num 0)
+  for h : i in [:n] do
+    if h₁ : i < qs₁.size then
+      let q₁ := qs₁[i].mulMon' k₁ m₁ char?
+      if h₂ : i < qs₂.size then
+        let q₂ := qs₂[i].mulMon' k₂ m₂ char?
+        qs := qs.set i (q₁.combine' q₂ char?)
+      else
+        qs := qs.set i q₁
+    else
+      have : i < n := h.upper
+      have : qs₁.size = n ∨ qs₂.size = n := by simp +zetaDelta [Nat.max_def]; split <;> simp [*]
+      have : i < qs₂.size := by omega
+      let q₂ := qs₂[i].mulMon' k₂ m₂ char?
+      qs := qs.set i q₂
+  return { qs := qs.toArray, d }
 
 structure NullCertHypothesis where
   h   : Expr

@@ -1986,7 +1986,7 @@ theorem Int.natAbs_lt_of_lt_of_lt {a : Int} {n : Nat} (ha₁ : a < n) (ha₂ : -
 /-- We can establish that the value of `d.toInt.natAbs` can be computed in terms of a bitvector
   expression.
 -/
-theorem foo {n d : BitVec w} :
+theorem natAbs_toInt_le_natAbs_toInt_iff_eq_intMin_or_ne_intMin_and_abs_sle {n d : BitVec w} :
     (n = intMin w) ∨ (d ≠ intMin w ∧ d.abs.sle n.abs)
     ↔ d.toInt.natAbs ≤ n.toInt.natAbs := by
   by_cases hw : w = 0
@@ -2037,7 +2037,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
         ((decide (x = intMin w) && decide (y = -1#w)) ||
         -- or we have `y = 0`, in which case the result is always non-negative.
         -- Then, when `y <> 0` and `|x| ≥ |y|` and at *exactly* one of them is negative
-        (decide (y ≠ (0#w)) && decide (y.abs ≤ x.abs) && (x.msb ^^ y.msb))))
+        ((x.slt 0#w && (0#w).slt y || (0#w).slt x && y.slt 0#w))))
      := by
   by_cases hw : w = 0; subst hw; decide +revert
   simp [show 0 < w by omega]
@@ -2050,28 +2050,14 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
     have : (decide (x = intMin w) && decide (y = -1#w)) = false := by
       rcases hmin with hmin | hmin <;> simp [hmin]
     simp only [this, Bool.false_or]
-    by_cases hy0 : y = 0#w
-    · subst hy0; simp
-    · simp [hy0]
-      simp only [bool_to_prop]
-      /-
-      We begin the case bash. Nothing particularly interesting, but we must
-      case bash over `x.msb`, `y.msb`, and `y.abs ≤ x.abs`.
-      -/
-      by_cases habs : y.abs ≤ x.abs
-      · simp [habs]
-        have hmsb : (¬ (x.msb = y.msb)) =
-          (((x.toInt < 0) ∧ (0 < y.toInt)) ∨ ((0 < x.toInt) ∧ (y.toInt < 0))) := sorry
-        rw [hmsb]
-        apply Int.tdiv_neg_iff_neg_and_pos_or_pos_and_neg_of_ne_zero_of_natAbs_le_natAbs
-        · apply ne_zero_iff_toInt_ne_zero_of_zero_lt (y := y) |>.mp
-          simp [hy0]
-        · sorry
-      · have : x.toInt.tdiv y.toInt = 0 := by
-          apply Int.tdiv_eq_zero_iff_natAbs_lt_natAbs
-          simp at habs
-          sorry
-        simp [this, habs]
+    have := Int.tdiv_neg_iff_neg_and_pos_or_pos_and_neg_of_ne_zero_of_natAbs_le_natAbs
+      (a := x.toInt) (b := y.toInt) (by sorry) (by sorry)
+    simp [this]
+    have hx_lt_zero : decide (x.toInt < 0) = x.slt 0#w := by simp [slt_eq_decide]
+    have hy_lt_zero : decide (y.toInt < 0) = y.slt 0#w := by simp [slt_eq_decide]
+    have zero_lt_hx : decide (0 < x.toInt) = (0#w).slt x := by simp [slt_eq_decide]
+    have zero_lt_hy : decide (0 < y.toInt) = (0#w).slt y := by simp [slt_eq_decide]
+    simp [hx_lt_zero, hy_lt_zero, zero_lt_hx, zero_lt_hy]
 
 
 theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by

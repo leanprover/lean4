@@ -2264,7 +2264,7 @@ Like `Quot.liftOn q f h` but allows `f a` to "know" that `q = Quot.mk r a`.
 protected abbrev Quot.pliftOn {α : Sort u} {r : α → α → Prop}
     (q : Quot r)
     (f : (a : α) → q = Quot.mk r a → β)
-    (h : ∀ (a b : α) {h h'}, r a b → f a h = f b h') : β :=
+    (h : ∀ (a b : α) (h h'), r a b → f a h = f b h') : β :=
   q.rec (motive := fun q' => q = q' → β) f
     (fun a b p => funext fun h' =>
       (apply_eqRec (motive := fun b _ => q = b)).trans
@@ -2276,7 +2276,7 @@ Like `Quotient.liftOn q f h` but allows `f a` to "know" that `q = Quotient.mk s 
 protected abbrev Quotient.pliftOn {α : Sort u} {s : Setoid α}
     (q : Quotient s)
     (f : (a : α) → q = Quotient.mk s a → β)
-    (h : ∀ (a b : α) {h h'}, a ≈ b → f a h = f b h') : β :=
+    (h : ∀ (a b : α) (h h'), a ≈ b → f a h = f b h') : β :=
   Quot.pliftOn q f h
 
 instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] :

@@ -2899,22 +2899,19 @@ theorem bmod_eq_self_of_le_mul_two {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt
 theorem ediv_lt_self_of_pos_of_ne_one {x y : Int} (hx : 0 < x) (hy : y ≠ 1) :
     x / y < x := by
   by_cases hy' : 1 < y
-  · rw [Int.div_def]
-    unfold Int.ediv
-    obtain ⟨xn, hx'⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-    obtain ⟨yn, hy'⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
-    simp only [hx', hy', Int.ofNat_eq_coe, Int.ofNat_lt]
+  · obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
+    obtain ⟨yn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
+    rw [← Int.ofNat_ediv]
+    norm_cast
     apply Nat.div_lt_self (by omega) (by omega)
   · have := @Int.ediv_nonpos_of_nonneg_of_nonpos x y (by omega) (by omega)
     omega
 
 theorem ediv_nonneg_of_nonneg_of_nonneg {x y : Int} (hx : 0 ≤ x) (hy : 0 ≤ y) :
     0 ≤ x / y := by
-  rw [Int.div_def, ]
-  unfold Int.ediv
-  obtain ⟨xn, hx'⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-  obtain ⟨yn, hy'⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
-  simp only [hx', hy', Int.ofNat_eq_coe, Int.ofNat_lt]
+  obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
+  obtain ⟨yn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
+  rw [← Int.ofNat_ediv]
   exact Int.ofNat_zero_le (xn / yn)
 
 /--  When both x and y are negative we need stricter bounds on x and y
@@ -2927,14 +2924,11 @@ theorem ediv_nonneg_of_nonneg_of_nonneg {x y : Int} (hx : 0 ≤ x) (hy : 0 ≤ y
 -/
 theorem ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one {x y : Int} (hx : x < -1) (hy : y < -1) :
     x / y < x.natAbs := by
-  rw [Int.div_def]
-  unfold Int.ediv
-  obtain ⟨xn, hx'⟩ := Int.eq_negSucc_of_lt_zero (a := x) (by omega)
-  obtain ⟨yn, hy'⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  simp only [hx', hy', Nat.succ_eq_add_one, Int.ofNat_eq_coe, Int.natCast_add, Int.cast_ofNat_Int]
-  norm_cast
-  rw [natAbs_negSucc, Nat.succ_eq_add_one, Nat.add_lt_add_iff_right,
-    Nat.div_lt_iff_lt_mul (x := xn) (k := yn + 1) (y := xn) (by omega),
+  obtain ⟨xn, rfl⟩ := Int.eq_negSucc_of_lt_zero (a := x) (by omega)
+  obtain ⟨yn, rfl⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
+  simp only [negSucc_ediv_negSucc, Int.natCast_add, natCast_ediv, cast_ofNat_Int, natAbs_negSucc,
+    Nat.succ_eq_add_one, Int.add_lt_add_iff_right]
+  rw_mod_cast [Nat.div_lt_iff_lt_mul (x := xn) (k := yn + 1) (y := xn) (by omega),
     show (xn < xn * (yn + 1)) = (1 * xn < (yn + 1) * xn) by rw [Nat.one_mul, Nat.mul_comm]]
   apply Nat.mul_lt_mul_of_lt_of_le (a := 1) (b := xn) (c := yn + 1) (d := xn) (by omega) (by omega) (by omega)
 
@@ -2952,11 +2946,11 @@ theorem neg_self_le_ediv_of_nonneg_of_nonpos (x y : Int) (hx : 0 ≤ x) (hy : y 
     -x ≤ x / y := by
   by_cases hy' : y = 0
   · simp [hy']; omega
-  · obtain ⟨xn, hx''⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-    obtain ⟨yn, hy''⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-    rw [Int.div_def]
-    unfold Int.ediv
-    simp only [hx'', hy'', Nat.succ_eq_add_one, Int.ofNat_eq_coe, ge_iff_le, Int.neg_le_neg_iff, Int.ofNat_le]
+  · obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
+    obtain ⟨yn, rfl⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
+    rw [show xn = ofNat xn by norm_cast, Int.ofNat_ediv_negSucc (a := xn)]
+    simp only [ofNat_eq_coe, natCast_ediv, Int.natCast_add, cast_ofNat_Int, Int.neg_le_neg_iff]
+    norm_cast
     apply Nat.le_trans (m := xn) (by exact Nat.div_le_self xn (yn + 1)) (by omega)
 
 /-! Helper theorems for `dvd` simproc -/

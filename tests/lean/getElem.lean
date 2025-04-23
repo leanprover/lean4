@@ -40,7 +40,7 @@ def withTwoRanges (xs : Array Nat) : Option Nat := Id.run do
   for h1 : i in [:xs.size] do
     for h2 : j in [i + 1:xs.size] do
       if xs[i] == xs[j] then
-        return soe i
+        return some i
   return none
 
 def palindromeNeedsOmega (xs : Array Nat) : Bool := Id.run do

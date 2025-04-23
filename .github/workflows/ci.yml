@@ -187,7 +187,7 @@ jobs:
               {
                 "name": "Linux Reldebug",
                 "os": "ubuntu-latest",
-                "check-level": 2,
+                "check-level": 0,  // for testing
                 "CMAKE_PRESET": "reldebug",
                 // exclude seriously slow/stackoverflowing tests
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress|3807'"

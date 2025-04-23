@@ -26,7 +26,7 @@ structure EqCnstr where
 
 inductive EqCnstrProof where
   | core (a b : Expr) (ra rb : RingExpr)
-  | superpose (c₁ c₂ : EqCnstr)
+  | superpose (c₁ c₂ : EqCnstr) (k₁ k₂ : Int) (m₁ m₂ : Mon)
   | simp (c₁ c₂ : EqCnstr) (k₁ k₂ : Int) (m : Mon)
   | mul (k : Int) (e : EqCnstr)
   | div (k : Int) (e : EqCnstr)
@@ -104,7 +104,7 @@ inductive SimpChain where
     ```
     If we have a commutative ring where
     ```
-    ∀ (k : Int) (a b : α), k ≠ 0 → (intCast k) * a = 0 → a = 0
+    ∀ (k : Int) (a : α), k ≠ 0 → (intCast k) * a = 0 → a = 0
     ```
     grind can deduce that `x+y+z = 0`
     -/

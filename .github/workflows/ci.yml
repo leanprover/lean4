@@ -166,8 +166,6 @@ jobs:
                 // foreign code may be linked against more recent glibc
                 "CTEST_OPTIONS": "-E 'foreign'"
               },
-              // deactivated due to bugs
-              /*
               {
                 "name": "Linux Lake",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
@@ -178,7 +176,6 @@ jobs:
                 // TODO: why does this fail?
                 "CTEST_OPTIONS": "-E 'scopedMacros'"
               },
-              */
               {
                 "name": "Linux",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",

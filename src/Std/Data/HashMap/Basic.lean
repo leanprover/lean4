@@ -223,13 +223,30 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β)
 instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
 @[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
     (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
+
+@[inline, inherit_doc DHashMap.modify] def modify (m : HashMap α β) (a : α) (f : β → β) :
+    HashMap α β :=
+  ⟨DHashMap.Const.modify m.inner a f⟩
+
+@[inline, inherit_doc DHashMap.alter] def alter (m : HashMap α β) (a : α)
+    (f : Option β → Option β) : HashMap α β :=
+  ⟨DHashMap.Const.alter m.inner a f⟩
+
+@[inline, inherit_doc DHashMap.Const.insertMany] def insertMany {ρ : Type w}
+    [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
+  ⟨DHashMap.Const.insertMany m.inner l⟩
+
+@[inline, inherit_doc DHashMap.Const.insertManyIfNewUnit] def insertManyIfNewUnit
+    {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
+  ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
+
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 @[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
     (m : HashMap α β) : HashMap α β × HashMap α β :=
@@ -250,22 +267,6 @@ section Unverified
 @[inline, inherit_doc DHashMap.valuesArray] def valuesArray (m : HashMap α β) :
     Array β :=
   m.inner.valuesArray
-
-@[inline, inherit_doc DHashMap.modify] def modify (m : HashMap α β) (a : α) (f : β → β) :
-    HashMap α β :=
-  ⟨DHashMap.Const.modify m.inner a f⟩
-
-@[inline, inherit_doc DHashMap.alter] def alter (m : HashMap α β) (a : α)
-    (f : Option β → Option β) : HashMap α β :=
-  ⟨DHashMap.Const.alter m.inner a f⟩
-
-@[inline, inherit_doc DHashMap.Const.insertMany] def insertMany {ρ : Type w}
-    [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
-  ⟨DHashMap.Const.insertMany m.inner l⟩
-
-@[inline, inherit_doc DHashMap.Const.insertManyIfNewUnit] def insertManyIfNewUnit
-    {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
-  ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=

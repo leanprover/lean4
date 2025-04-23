@@ -323,6 +323,11 @@ structure ENode where
   to the cutsat module. Its implementation is similar to the `offset?` field.
   -/
   cutsat? : Option Expr := none
+  /--
+  The `ring?` field is used to propagate equalities from the `grind` congruence closure module
+  to the comm ring module. Its implementation is similar to the `offset?` field.
+  -/
+  ring? : Option Expr := none
   -- Remark: we expect to have builtin support for offset constraints, cutsat, and comm ring.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
@@ -1014,6 +1019,53 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
   else
     setENode root.self { root with cutsat? := some e }
     propagateCutsatDiseqs (← getParents root.self)
+
+/--
+Notifies the comm ring module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ring_eq"] -- forward definition
+opaque Arith.CommRing.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the comm ring module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ring_diseq"] -- forward definition
+opaque Arith.CommRing.processNewDiseq (a b : Expr) : GoalM Unit
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have ring terms `e₁` and `e₂` attached to them,
+and invokes process `Arith.CommRing.processNewDiseq e₁ e₂`
+-/
+def propagateCommRingDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  Arith.CommRing.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    return (← getRootENode a).ring?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+comm ring module.
+-/
+def propagateCommRingDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateCommRingDiseq
+
+/--
+Marks `e` as a term of interest to the ring module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the ring module.
+-/
+def markAsCommRingTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.ring? then
+    Arith.CommRing.processNewEq e e'
+  else
+    setENode root.self { root with ring? := some e }
+    propagateCommRingDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do

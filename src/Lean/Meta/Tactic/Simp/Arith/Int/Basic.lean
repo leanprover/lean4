@@ -245,7 +245,7 @@ def dvdCnstr? (e : Expr) : MetaM (Option (Int × Int.Linear.Expr × Array Expr))
     let e := e.applyPerm perm
     return some (d, e, atoms)
 
-def toContextExpr (ctx : Array Expr) : Expr :=
+def toContextExpr (ctx : Array Expr) : MetaM Expr :=
   if h : 0 < ctx.size then
     RArray.toExpr (mkConst ``Int) id (RArray.ofArray ctx h)
   else

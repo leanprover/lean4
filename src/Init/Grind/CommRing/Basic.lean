@@ -57,7 +57,7 @@ namespace CommRing
 
 variable {α : Type u} [CommRing α]
 
-instance : NatCast α where
+instance natCastInst : NatCast α where
   natCast n := OfNat.ofNat n
 
 theorem natCast_zero : ((0 : Nat) : α) = 0 := rfl
@@ -125,7 +125,16 @@ theorem neg_sub (a b : α) : -(a - b) = b - a := by
 theorem sub_self (a : α) : a - a = 0 := by
   rw [sub_eq_add_neg, add_neg_cancel]
 
-instance : IntCast α where
+theorem sub_eq_iff {a b c : α} : a - b = c ↔ a = c + b := by
+  rw [sub_eq_add_neg]
+  constructor
+  next => intro; subst c; rw [add_assoc, neg_add_cancel, add_zero]
+  next => intro; subst a; rw [add_assoc, add_comm b, neg_add_cancel, add_zero]
+
+theorem sub_eq_zero_iff {a b : α} : a - b = 0 ↔ a = b := by
+  simp [sub_eq_iff, zero_add]
+
+instance intCastInst : IntCast α where
   intCast n := match n with
   | Int.ofNat n => OfNat.ofNat n
   | Int.negSucc n => -OfNat.ofNat (n + 1)
@@ -217,7 +226,7 @@ end CommRing
 
 open CommRing
 
-class IsCharP (α : Type u) [CommRing α] (p : Nat) where
+class IsCharP (α : Type u) [CommRing α] (p : outParam Nat) where
   ofNat_eq_zero_iff (p) : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0
 
 namespace IsCharP

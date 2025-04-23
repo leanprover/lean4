@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_toBoolUsing(lean_object*);
 static lean_object* l_term___u222a_____closed__6;
 static lean_object* l___aux__Init__Core______unexpand__Iff__1___closed__1;
 static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___closed__3;
+LEAN_EXPORT lean_object* l_Subtype_instBEq(lean_object*, lean_object*);
 static lean_object* l_term_x7b_x7d___closed__7;
 LEAN_EXPORT lean_object* l_Eq_mpr(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reduceNat(lean_object*);
@@ -120,6 +121,7 @@ static lean_object* l_term___x5c_____closed__5;
 LEAN_EXPORT lean_object* l_instInhabitedTrue;
 lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_term___x5c__;
+LEAN_EXPORT lean_object* l_Subtype_instBEq___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____1___closed__2;
 LEAN_EXPORT lean_object* l_Squash_lift(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x21_x3d_____closed__4;
@@ -482,6 +484,7 @@ LEAN_EXPORT lean_object* l_Quotient_recOnSubsingleton___boxed(lean_object*, lean
 static lean_object* l___aux__Init__Core______macroRules__term___u2229____1___closed__3;
 static lean_object* l_term___u2295_____closed__1;
 LEAN_EXPORT lean_object* l_Lean_reduceBool___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instDecidableEqOfLawfulBEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2194_____closed__1;
 LEAN_EXPORT lean_object* l_Thunk_get___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2282____1(lean_object*, lean_object*, lean_object*);
@@ -510,6 +513,7 @@ static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__t
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__HasEquiv__Equiv__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableIte___rarg(uint8_t, uint8_t, uint8_t);
 static lean_object* l_term___u2283_____closed__4;
+LEAN_EXPORT lean_object* l_instDecidableEqOfLawfulBEq(lean_object*);
 LEAN_EXPORT lean_object* l_term_u2205;
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__1;
 static lean_object* l_term___u2260_____closed__2;
@@ -5274,6 +5278,22 @@ lean_dec(x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_instDecidableEqOfLawfulBEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_apply_2(x_1, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_instDecidableEqOfLawfulBEq(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instDecidableEqOfLawfulBEq___rarg), 4, 0);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Eq_mp___rarg(lean_object* x_1) {
 _start:
 {
@@ -6171,6 +6191,22 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_instInhabitedForInStep__1___rarg), 1, 0);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Subtype_instBEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Subtype_instBEq(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Subtype_instBEq___rarg), 3, 0);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Subtype_instDecidableEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

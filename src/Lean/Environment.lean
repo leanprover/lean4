@@ -95,12 +95,11 @@ abbrev ConstMap := SMap Name ConstantInfo
 
 structure Import where
   module      : Name
-  runtimeOnly : Bool := false
   deriving Repr, Inhabited
 
 instance : Coe Name Import := ⟨({module := ·})⟩
 
-instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
+instance : ToString Import := ⟨fun imp => toString imp.module⟩
 
 /--
   A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
@@ -123,6 +122,8 @@ instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
 /-- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData where
+  /-- Participating in the module system? -/
+  isModule        : Bool
   imports         : Array Import
   /--
   `constNames` contains all constant names in `constants`.
@@ -152,6 +153,8 @@ structure EnvironmentHeader where
   Name of the module being compiled.
   -/
   mainModule   : Name         := default
+  /-- Participating in the module system? -/
+  isModule     : Bool         := false
   /-- Direct imports -/
   imports      : Array Import := #[]
   /-- Compacted regions for all imported modules. Objects in compacted memory regions do no require any memory management. -/
@@ -518,9 +521,9 @@ structure Environment where
   -/
   checked             : Task Kernel.Environment := .pure base
   /--
-  Container of asynchronously elaborated declarations. For consistency, `updateBaseAfterKernelAdd`
-  makes sure this contains constants added even synchronously, i.e. `base ⨃ asyncConsts` is the set
-  of constants known on the current environment branch, which is a subset of `checked`.
+  Container of asynchronously elaborated declarations. For consistency, `Lean.addDecl` makes sure
+  this contains constants added even synchronously, i.e. `base ⨃ asyncConsts` is the set of
+  constants known on the current environment branch, which is a subset of `checked`.
   -/
   private asyncConsts : AsyncConsts := default
   /-- Information about this asynchronous branch of the environment, if any. -/
@@ -1581,20 +1584,13 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
   -- TODO: does not include cstage* constants from the old codegen
   --let constants := constNames.filterMap env.find?
   let constNames := constants.map (·.name)
-  return {
-    imports         := env.header.imports
+  return { env.header with
     extraConstNames := env.checked.get.extraConstNames.toArray
     constNames, constants, entries
   }
 
-register_builtin_option experimental.module : Bool := {
-  defValue := false
-  descr := "Enable module system (experimental)"
-}
-
-@[export lean_write_module]
-def writeModule (env : Environment) (fname : System.FilePath) (split := false) : IO Unit := do
-  if split then
+def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
+  if env.header.isModule then
     let mkPart (level : OLeanLevel) :=
       return (level.adjustFileName fname, (← mkModuleData env level))
     saveModuleDataParts env.mainModule #[
@@ -1680,11 +1676,26 @@ where
     else
       return env
 
+private structure ImportedModule where
+  name      : Name
+  /-- Whether to use `.olean.private` as the main module. -/
+  importAll : Bool
+  /-- All loaded incremental compacted regions. -/
+  parts     : Array (ModuleData × CompactedRegion)
+
+/-- The main module data that will eventually be used to construct the environment. -/
+private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData := do
+  let (baseMod, _) ← self.parts[0]?
+  self.parts[if baseMod.isModule && self.importAll then 2 else 0]?.map (·.1)
+
+/-- The module data that should be used for server purposes. -/
+private def ImportedModule.serverData? (self : ImportedModule) : Option ModuleData := do
+  let (baseMod, _) ← self.parts[0]?
+  self.parts[if baseMod.isModule then 1 else 0]?.map (·.1)
+
 structure ImportState where
-  moduleNameSet : NameHashSet := {}
-  moduleNames   : Array Name := #[]
-  moduleData    : Array ModuleData := #[]
-  parts         : Array (Array (ModuleData × CompactedRegion)) := #[]
+  private moduleNameMap : Std.HashMap Name ImportedModule := {}
+  private moduleNames   : Array Name := #[]
 
 def throwAlreadyImported (s : ImportState) (const2ModIdx : Std.HashMap Name ModuleIdx) (modIdx : Nat) (cname : Name) : IO α := do
   let modName := s.moduleNames[modIdx]!
@@ -1696,31 +1707,35 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
   x.run s
 
-partial def importModulesCore (imports : Array Import) (level := OLeanLevel.private) :
+partial def importModulesCore (imports : Array Import) (forceImportAll := true) :
     ImportStateM Unit := do
   for i in imports do
-    if i.runtimeOnly || (← get).moduleNameSet.contains i.module then
+    -- import private info if (transitively) used by a non-`module` on any import path
+    let importAll := forceImportAll
+    if let some mod := (← get).moduleNameMap[i.module]? then
+      modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
+        importAll := mod.importAll || importAll }}
       continue
-    modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
     let mFile ← findOLean i.module
     unless (← mFile.pathExists) do
       throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
     let mut fnames := #[mFile]
-    if level != OLeanLevel.exported then
-      let sFile := OLeanLevel.server.adjustFileName mFile
-      if (← sFile.pathExists) then
-        fnames := fnames.push sFile
-        if level == OLeanLevel.private then
-          let pFile := OLeanLevel.private.adjustFileName mFile
-          if (← pFile.pathExists) then
-            fnames := fnames.push pFile
+    -- opportunistically load all available parts in case `importPrivate` is upgraded by a later
+    -- import
+    -- TODO: use Lake data to retrieve ultimate import level immediately
+    let sFile := OLeanLevel.server.adjustFileName mFile
+    if (← sFile.pathExists) then
+      fnames := fnames.push sFile
+      let pFile := OLeanLevel.private.adjustFileName mFile
+      if (← pFile.pathExists) then
+        fnames := fnames.push pFile
     let parts ← readModuleDataParts fnames
-    let some (mod, _) := parts[if level = .exported then 0 else parts.size - 1]? | unreachable!
-    importModulesCore (level := level) mod.imports
+    -- `imports` is identical for each part
+    let some (baseMod, _) := parts[0]? | unreachable!
+    importModulesCore (forceImportAll := forceImportAll || !baseMod.isModule) baseMod.imports
     modify fun s => { s with
-      moduleData  := s.moduleData.push mod
+      moduleNameMap := s.moduleNameMap.insert i.module { name := i.module, importAll, parts }
       moduleNames := s.moduleNames.push i.module
-      parts       := s.parts.push parts
     }
 
 /--
@@ -1756,13 +1771,18 @@ Constructs environment from `importModulesCore` results.
 See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv loadExts : Bool) : IO Environment := do
-  let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
+    (leakEnv loadExts : Bool) (isModule := false) : IO Environment := do
+  let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
+  let moduleData ← modules.mapM fun mod => do
+    let some data := mod.mainModule? |
+      throw <| IO.userError s!"missing data file for module {mod.name}"
+    return data
+  let numConsts := moduleData.foldl (init := 0) fun numConsts mod =>
     numConsts + mod.constants.size + mod.extraConstNames.size
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numConsts)
   let mut constantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numConsts)
-  for h : modIdx in [0:s.moduleData.size] do
-    let mod := s.moduleData[modIdx]
+  for h : modIdx in [0:moduleData.size] do
+    let mod := moduleData[modIdx]
     for cname in mod.constNames, cinfo in mod.constants do
       match constantMap.getThenInsertIfNew? cname cinfo with
       | (cinfoPrev?, constantMap') =>
@@ -1783,16 +1803,15 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       extraConstNames := {}
       extensions      := exts
       header     := {
-        trustLevel, imports
-        regions      := s.parts.flatMap (·.map (·.2))
+        trustLevel, isModule, imports, moduleData
+        regions      := modules.flatMap (·.parts.map (·.2))
         moduleNames  := s.moduleNames
-        moduleData   := s.moduleData
       }
     }
     realizedImportedConsts? := none
   }
-  env := env.setCheckedSync { env.base with extensions := (← setImportedEntries env.base.extensions s.moduleData) }
-  let serverData := s.parts.filterMap fun parts => (parts[1]? <|> parts[0]?).map Prod.fst
+  env := env.setCheckedSync { env.base with extensions := (← setImportedEntries env.base.extensions moduleData) }
+  let serverData := modules.filterMap (·.serverData?)
   env := { env with serverBaseExts := (← setImportedEntries env.base.extensions serverData) }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistenExtensions`, which
@@ -1809,7 +1828,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
        Safety: There are no concurrent accesses to `env` at this point. -/
     env ← unsafe Runtime.markPersistent env
   if loadExts then
-    env ← finalizePersistentExtensions env s.moduleData opts
+    env ← finalizePersistentExtensions env moduleData opts
     if leakEnv then
       /- Ensure the final environment including environment extension states is
         marked persistent as documented.
@@ -1837,6 +1856,11 @@ may use the interpreter and thus is only safe to do after calling `enableInitial
 also caveats there. If not set, every extension will have its initial value as its state. While the
 environment's constant map can be accessed without `loadExts`, many functions that take
 `Environment` or are in a monad carrying it such as `CoreM` may not function properly without it.
+
+If `level` is `exported`, the module to be elaborated is assumed to be participating in the module
+system and imports will be restricted accordingly. If it is `server`, the data for
+`getModuleEntries (includeServer := true)` is loaded as well. If it is `private`, all data is loaded
+as if no `module` annotations were present in the imports.
 -/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
@@ -1846,8 +1870,9 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (level := level) imports |>.run
-    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) s imports opts trustLevel
+    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports |>.run
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (isModule := level != .private)
+      s imports opts trustLevel
 
 /--
 Creates environment object from imports and frees compacted regions after calling `act`. No live
@@ -1878,13 +1903,18 @@ def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.E
 
 namespace Environment
 
+private def looksLikeOldCodegenName : Name → Bool
+  | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_"
+  | _        => false
+
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment :=
   { env with
     checked := .pure kenv
-    -- make constants available in `asyncConsts` as well; see its docstring
+    -- HACK: the old codegen adds some helper constants directly to the kernel environment, we need
+    -- to add them to the async consts as well in order to be able to replay them
     asyncConsts := decl.getNames.foldl (init := env.asyncConsts) fun asyncConsts n =>
-      if asyncConsts.find? n |>.isNone then
+      if looksLikeOldCodegenName n then
         asyncConsts.add {
           constInfo := .ofConstantInfo (kenv.find? n |>.get!)
           exts? := none
@@ -1892,7 +1922,6 @@ private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environm
         }
       else asyncConsts }
 
-@[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do
   let pExtDescrs ← persistentEnvExtensionsRef.get
   IO.println ("direct imports:                        " ++ toString env.header.imports);

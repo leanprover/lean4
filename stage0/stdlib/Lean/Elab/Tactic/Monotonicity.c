@@ -239,7 +239,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lambda__18(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____closed__15;
 static lean_object* l_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_5424____closed__5;
-lean_object* l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Split_splitMatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__5___closed__10;
@@ -405,6 +404,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoCall___lambda__5___closed__3;
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lambda__24___closed__1;
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____closed__10;
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_solveMonoCall___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -4902,7 +4902,7 @@ x_17 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hy
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_18, x_5, x_6, x_7, x_8, x_9);
+x_19 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_18, x_5, x_6, x_7, x_8, x_9);
 x_20 = !lean_is_exclusive(x_19);
 if (x_20 == 0)
 {
@@ -5001,7 +5001,7 @@ x_23 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hy
 x_24 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_24, x_7, x_8, x_9, x_10, x_15);
+x_25 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_24, x_7, x_8, x_9, x_10, x_15);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -5238,7 +5238,7 @@ x_17 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hy
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_18, x_5, x_6, x_7, x_8, x_9);
+x_19 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_18, x_5, x_6, x_7, x_8, x_9);
 x_20 = !lean_is_exclusive(x_19);
 if (x_20 == 0)
 {
@@ -5744,7 +5744,7 @@ x_24 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hy
 x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_25, x_8, x_9, x_10, x_11, x_16);
+x_26 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_25, x_8, x_9, x_10, x_11, x_16);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -8369,7 +8369,7 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = l_Lean_Meta_Monotonicity_solveMonoStep___lambda__12___closed__9;
-x_22 = l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_21, x_9, x_10, x_11, x_12, x_20);
+x_22 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_21, x_9, x_10, x_11, x_12, x_20);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -8551,7 +8551,7 @@ x_61 = lean_ctor_get(x_18, 1);
 lean_inc(x_61);
 lean_dec(x_18);
 x_62 = l_Lean_Meta_Monotonicity_solveMonoStep___lambda__12___closed__9;
-x_63 = l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_62, x_9, x_10, x_11, x_12, x_61);
+x_63 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_62, x_9, x_10, x_11, x_12, x_61);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);

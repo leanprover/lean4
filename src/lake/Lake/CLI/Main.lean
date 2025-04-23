@@ -539,11 +539,11 @@ private def evalLeanFile
     | error s!"file not found: {leanFile}"
   let spawnArgs ← id do
     if let some mod := ws.findModuleBySrc? path then
-      let deps ← ws.runBuild mod.deps.fetch buildConfig
+      let deps ← ws.runBuild (withRegisterJob s!"setup ({mod.name})" do mod.deps.fetch) buildConfig
       return mkSpawnArgs ws path deps (some mod.rootDir) mod.leanArgs
     else
-      let imports ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-      let imports := imports.filterMap (ws.findModule? ·.module)
+      let res ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
+      let imports := res.imports.filterMap (ws.findModule? ·.module)
       let deps ← ws.runBuild (buildImportsAndDeps leanFile imports) buildConfig
       return mkSpawnArgs ws path deps none ws.root.moreLeanArgs
   logVerbose (mkCmdLog spawnArgs)

@@ -2308,8 +2308,8 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
   · simp [hw]; omega
   · simp [hw]; omega
   · simp [umulOverflow, ge_iff_le, truncate_eq_setWidth, resRec, uppcRec, aandRec]
-    let k' := x.uppcRec y w (by omega)
-    rw [show x.uppcRec y w (by omega) = k' by rfl]
+    -- let k' := x.uppcRec y w (by omega)
+    -- rw [show x.uppcRec y w (by omega) = k' by rfl]
     by_cases hneg : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1]
     · simp only [hneg, Bool.true_or, decide_eq_true_eq, ge_iff_le]
       have h0 := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
@@ -2334,36 +2334,28 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
         have := BitVec.toNat_lt_of_msb_false (x := (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y))
         simp [BitVec.msb, getMsbD_eq_getLsbD, getLsbD_eq_getElem, show w + 1 + 1 = w + 2 by omega] at this
         simp [hneg, this]
-      induction k'
-      case neg.false =>
-        simp only [false_eq_true, _root_.and_false, _root_.and_self, _root_.or_false]
+      induction w
+      case neg.zero =>
         constructor
-        · intro h
-          have htrue := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
-          have hfalse := msb_eq_false_iff_two_mul_lt (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
-          simp_all
-          by_cases hxy : x.toNat * y.toNat ≤  2 ^ (w + 1 + 1 + 1)
-          · sorry
-
-
-
-
-          sorry
-        · intro h
-          simp_all
-      case neg.true =>
-        simp only [_root_.and_true, _root_.true_and]
-        constructor
-        · intro h
-          have htrue := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1) x * setWidth (w + 1 + 1) y)
-          have hfalse := msb_eq_false_iff_two_mul_lt (x := setWidth (w + 1 + 1) x * setWidth (w + 1 + 1) y)
+        · intro hxy
+          have htrue := msb_eq_true_iff_two_mul_ge (x := setWidth (1 + 1 + 1) x * setWidth (1 + 1 + 1) y)
+          have hfalse := msb_eq_false_iff_two_mul_lt (x := setWidth (1 + 1 + 1) x * setWidth (1 + 1 + 1) y)
           simp_all
           sorry
-        · intro h
-          have htrue := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1) x * setWidth (w + 1 + 1) y)
-          have hfalse := msb_eq_false_iff_two_mul_lt (x := setWidth (w + 1 + 1) x * setWidth (w + 1 + 1) y)
+        · intro hxy
           simp_all
+
           sorry
+      case neg.succ =>
+        sorry
+
+
+
+
+
+
+
+
 
 
 

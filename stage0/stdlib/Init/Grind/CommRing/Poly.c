@@ -4932,21 +4932,36 @@ x_6 = lean_int_emod(x_1, x_5);
 lean_dec(x_5);
 x_7 = l_Lean_Grind_CommRing_instInhabitedExpr___closed__1;
 x_8 = lean_int_dec_eq(x_6, x_7);
-lean_dec(x_6);
 if (x_8 == 0)
 {
-lean_object* x_9; 
-x_9 = l_Lean_Grind_CommRing_Poly_mulMonC_go(x_1, x_2, x_4, x_3);
-return x_9;
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_box(0);
+x_10 = l___private_Init_Grind_CommRing_Poly_0__Lean_Grind_CommRing_beqMon____x40_Init_Grind_CommRing_Poly___hyg_951_(x_2, x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; 
+lean_dec(x_6);
+x_11 = l_Lean_Grind_CommRing_Poly_mulMonC_go(x_1, x_2, x_4, x_3);
+return x_11;
 }
 else
 {
-lean_object* x_10; 
+lean_object* x_12; 
+lean_dec(x_2);
+x_12 = l_Lean_Grind_CommRing_Poly_mulConstC(x_6, x_3, x_4);
+lean_dec(x_6);
+return x_12;
+}
+}
+else
+{
+lean_object* x_13; 
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_10 = l_Lean_Grind_CommRing_instInhabitedPoly___closed__1;
-return x_10;
+x_13 = l_Lean_Grind_CommRing_instInhabitedPoly___closed__1;
+return x_13;
 }
 }
 }

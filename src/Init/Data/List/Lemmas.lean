@@ -3457,6 +3457,81 @@ theorem all_eq_not_any_not {l : List α} {p : α → Bool} : l.all p = !l.any (!
     (l.insert a).all f = (f a && l.all f) := by
   simp [all_eq]
 
+/-! ### `removeAll` -/
+
+@[simp] theorem removeAll_nil [BEq α] {xs : List α} : xs.removeAll [] = xs := by
+  simp [removeAll]
+
+theorem cons_removeAll [BEq α] {x : α} {xs ys : List α} :
+    (x :: xs).removeAll ys =
+      if ys.contains x = false then
+        x :: xs.removeAll ys
+      else
+        xs.removeAll ys := by
+  simp [removeAll, filter_cons]
+
+theorem removeAll_cons [BEq α] {xs : List α} {y : α} {ys : List α} :
+    xs.removeAll (y :: ys) = (xs.filter fun x => !x == y).removeAll ys := by
+  simp [removeAll, Bool.and_comm]
+
+@[simp] theorem filter_removeAll_filter [BEq α] [LawfulBEq α] {p : α → Bool} {xs ys : List α} :
+    (xs.filter p).removeAll (ys.filter p) = (xs.filter p).removeAll ys := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [filter_cons]
+    split
+    · simp [cons_removeAll]
+      split
+      · rw [if_neg] <;> simp_all
+      · rw [if_pos] <;> simp_all
+    · simp [ih]
+
+/-! ### `eraseDupsBy` and `eraseDups` -/
+
+@[simp] theorem eraseDupsBy_nil : ([] : List α).eraseDupsBy r = [] := rfl
+
+private theorem eraseDupsBy_loop_cons {as bs : List α} {r : α → α → Bool} :
+    eraseDupsBy.loop r as bs = bs.reverse ++ eraseDupsBy.loop r (as.filter fun a => !bs.any (r a)) [] := by
+  match as with
+  | nil => simp [eraseDupsBy.loop]
+  | cons a as =>
+    conv => lhs; unfold eraseDupsBy.loop
+    simp only [filter_cons]
+    split <;> rename_i h
+    · simp only [h, Bool.not_true, Bool.false_eq_true, ↓reduceIte]
+      rw [eraseDupsBy_loop_cons]
+    · simp only [h, Bool.not_false, ↓reduceIte]
+      rw [eraseDupsBy_loop_cons, eraseDupsBy.loop]
+      have : (filter (fun a => !bs.any (r a)) as).length < as.length + 1 :=
+        lt_add_one_of_le (List.length_filter_le _ as)
+      rw [eraseDupsBy_loop_cons (bs := [a])]
+      simp
+termination_by as.length
+
+theorem eraseDupsBy_cons :
+    (a :: as).eraseDupsBy r = a :: (as.filter fun b => r b a = false).eraseDupsBy r := by
+  simp only [eraseDupsBy, eraseDupsBy.loop, any_nil]
+  rw [eraseDupsBy_loop_cons]
+  simp
+
+@[simp] theorem eraseDups_nil [BEq α] : ([] : List α).eraseDups = [] := rfl
+theorem eraseDups_cons [BEq α] {a : α} {as : List α} :
+    (a :: as).eraseDups = a :: (as.filter fun b => !b == a).eraseDups := by
+  simp [eraseDups, eraseDupsBy_cons]
+
+theorem eraseDups_append [BEq α] [LawfulBEq α] {as bs : List α} :
+    (as ++ bs).eraseDups = as.eraseDups ++ (bs.removeAll as).eraseDups := by
+  match as with
+  | nil => simp
+  | cons a as =>
+    simp only [cons_append, eraseDups_cons, filter_append, cons.injEq, true_and]
+    have : (filter (fun b => !b == a) as).length < as.length + 1 :=
+      lt_add_one_of_le (List.length_filter_le _ as)
+    rw [eraseDups_append]
+    simp [removeAll_cons]
+termination_by as.length
+
 /-! ### Legacy lemmas about `get`, `get?`, and `get!`.
 
 Hopefully these should not be needed, in favour of lemmas about `xs[i]`, `xs[i]?`, and `xs[i]!`,

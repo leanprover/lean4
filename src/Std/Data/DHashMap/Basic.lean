@@ -18,7 +18,8 @@ Lemmas about the operations on `Std.Data.DHashMap` are available in the
 module `Std.Data.DHashMap.Lemmas`.
 
 See the module `Std.Data.DHashMap.Raw` for a variant of this type which is safe to use in
-nested inductive types and the module `Std.Data.EDHashMap` for a variant with extensionality.
+nested inductive types and the module `Std.Data.DHashMap.Extensional` for a variant with
+extensionality.
 
 For implementation notes, see the docstring of the module `Std.Data.DHashMap.Internal.Defs`.
 -/
@@ -59,7 +60,7 @@ be used in nested inductive types. For these use cases, `Std.DHashMap.Raw` and
 `DHashMap` over `DHashMap.Raw`.
 
 For a variant that is more convenient for use in proofs because of extensionalities, see
-`Std.EDHashMap` which is defined in the module `Std.Data.EDHashMap`.
+`Std.Extensional.DHashMap` which is defined in the module `Std.Data.DHashMap.Extensional`.
 -/
 def DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] := { m : DHashMap.Raw α β // m.WF }
 

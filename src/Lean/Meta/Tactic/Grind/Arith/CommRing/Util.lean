@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -77,9 +78,18 @@ Converts the given ring expression into a multivariate polynomial.
 If the ring has a nonzero characteristic, it is used during normalization.
 -/
 def _root_.Lean.Grind.CommRing.Expr.toPolyM (e : RingExpr) : RingM Poly := do
-  if let some c ← nonzeroChar? then
-    return e.toPolyC c
-  else
-    return e.toPoly
+  if let some c ← nonzeroChar? then return e.toPolyC c else return e.toPoly
+
+def _root_.Lean.Grind.CommRing.Poly.mulConstM (p : Poly) (k : Int) : RingM Poly :=
+  return p.mulConst' k (← nonzeroChar?)
+
+def _root_.Lean.Grind.CommRing.Poly.mulMonM (p : Poly) (k : Int) (m : Mon) : RingM Poly :=
+  return p.mulMon' k m (← nonzeroChar?)
+
+def _root_.Lean.Grind.CommRing.Poly.mulM (p₁ p₂ : Poly) : RingM Poly := do
+  if let some c ← nonzeroChar? then return p₁.mulC p₂ c else return p₁.mul p₂
+
+def _root_.Lean.Grind.CommRing.Poly.combineM (p₁ p₂ : Poly) : RingM Poly :=
+  return p₁.combine' p₂ (← nonzeroChar?)
 
 end Lean.Meta.Grind.Arith.CommRing

@@ -22,6 +22,35 @@ def toContextExpr : RingM Expr := do
   else
     RArray.toExpr ring.type id (RArray.leaf (mkApp ring.natCastFn (toExpr 0)))
 
+/--
+A "pre" Nullstellensatz certificate.
+Recall that, given the hypotheses `h₁ : lhs₁ = rhs₁` ... `hₙ : lhsₙ = rhsₙ`,
+a Nullstellensatz certificate is of the form
+```
+q₁*(lhs₁ - rhs₁) + ... + qₙ*(lhsₙ - rhsₙ)
+```
+Each hypothesis is an `EqCnstr` justified by a `.core ..` `EqnCnstrProof`.
+We dynamically associate them with unique indices based on the order we find them
+during traversal.
+For the other `EqCnstr`s we compute a "pre" certificate as a dense array
+containing `q₁` ... `qₙ` needed to create the `EqCnstr`.
+
+We are assuming the number of hypotheses used to derive a conclusion is small
+and a dense array is a reasonable representation.
+-/
+abbrev PreNullCert := Array Poly
+
+structure NullCertHypothesis where
+  h   : Expr
+  lhs : RingExpr
+  rhs : RingExpr
+
+structure ProofM.State where
+  /-- Mapping from `EqCnstr` to `PreNullCert` -/
+  cache       : Std.HashMap UInt64 PreNullCert := {}
+  hypToId     : Std.HashMap UInt64 Nat := {}
+  hyps        : Array NullCertHypothesis := #[]
+
 private def mkLemmaPrefix (declName declNameC : Name) : RingM Expr := do
   let ring ← getRing
   let ctx ← toContextExpr

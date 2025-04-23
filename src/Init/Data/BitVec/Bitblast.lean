@@ -2336,17 +2336,43 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
         simp [hneg, this]
       induction w
       case neg.zero =>
+        unfold uppcRec
+        simp
         constructor
-        · intro hxy
-          have htrue := msb_eq_true_iff_two_mul_ge (x := setWidth (1 + 1 + 1) x * setWidth (1 + 1 + 1) y)
-          have hfalse := msb_eq_false_iff_two_mul_lt (x := setWidth (1 + 1 + 1) x * setWidth (1 + 1 + 1) y)
+        · intro hle
+          have h1 := BitVec.msb_eq_true_iff_two_mul_ge (x := x)
+          have h2 := BitVec.msb_eq_true_iff_two_mul_ge (x := y)
+          have h3 := BitVec.msb_eq_true_iff_two_mul_ge (x := (setWidth 3 x * setWidth 3 y))
+          rw [← BitVec.getLsbD_eq_getElem, getLsbD_eq_getMsbD, ← BitVec.msb]
           simp_all
-          sorry
-        · intro hxy
-          simp_all
+          rw [← BitVec.getLsbD_eq_getElem, getLsbD_eq_getMsbD, ← BitVec.msb]
+          simp
+          rcases h3
+          case mp.intro mp mpr =>
+            simp_all
+            by_cases hmsb : (setWidth 3 x * setWidth 3 y).msb
+            · simp_all
+            · simp_all
+              simp [show ¬ 8 ≤ 2 * (x.toNat * y.toNat % 8) by omega]
+              rw [show 4 = 2 * 2 by omega]
+              have xmsb' := Nat.mul_le_mul_left (n := 2) (m := x.toNat) (k := 2)
+              have ymsb' := Nat.mul_le_mul_left (n := 2) (m := y.toNat) (k := 2)
+              by_cases hxle : 2 ≤ x.toNat <;> by_cases hyle : 2 ≤ y.toNat
+              · simp_all
+              · rw [show 4 = 2 * 2 by omega] at h1 h2
+                simp_all
+                omega
+                sorry
+              · simp_all
+                sorry
+              · simp_all
+                sorry
+        · intro heq
 
           sorry
-      case neg.succ =>
+      case neg.succ w ih =>
+        unfold uppcRec
+
         sorry
 
 

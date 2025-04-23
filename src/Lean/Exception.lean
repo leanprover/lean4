@@ -30,6 +30,10 @@ def Exception.hasSyntheticSorry : Exception → Bool
   | Exception.error _ msg => msg.hasSyntheticSorry
   | _                     => false
 
+def Exception.isInternal? : Exception → Option InternalExceptionId
+  | Exception.internal id _ => some id
+  | _                       => none
+
 /--
 Return syntax object providing position information for the exception.
 Recall that internal exceptions do not have position information.

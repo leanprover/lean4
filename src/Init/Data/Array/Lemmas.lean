@@ -3316,11 +3316,11 @@ theorem foldr_filterMap' {f : α → Option β} {g : β → γ → γ} {xs : Arr
 
 theorem foldl_filterMap {f : α → Option β} {g : γ → β → γ} {xs : Array α} {init : γ} :
     (xs.filterMap f).foldl g init = xs.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
-  simp [foldl_filterMap']
+  simp [foldl_filterMap']; try rfl
 
 theorem foldr_filterMap {f : α → Option β} {g : β → γ → γ} {xs : Array α} {init : γ} :
     (xs.filterMap f).foldr g init = xs.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
-  simp [foldr_filterMap']
+  simp [foldr_filterMap']; try rfl
 
 theorem foldl_map_hom' {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {xs : Array α}
     {stop : Nat} (h : ∀ x y, f' (g x) (g y) = g (f x y)) (w : stop = xs.size) :
@@ -3926,11 +3926,11 @@ theorem all_filter {xs : Array α} {p q : α → Bool} :
 
 theorem any_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
     (xs.filterMap f).any p 0 = xs.any fun a => match f a with | some b => p b | none => false := by
-  simp
+  simp; try rfl
 
 theorem all_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
     (xs.filterMap f).all p 0 = xs.all fun a => match f a with | some b => p b | none => true := by
-  simp
+  simp; try rfl
 
 /-- Variant of `any_append` with a side condition for the `stop` argument. -/
 @[simp] theorem any_append' {xs ys : Array α} (w : stop = (xs ++ ys).size) :

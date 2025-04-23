@@ -4,23 +4,23 @@
 
 /--
 info: • command @ ⟨82, 0⟩-⟨82, 40⟩ @ Lean.Elab.Command.elabDeclaration
-  • Nat : Type @ ⟨82, 15⟩-⟨82, 18⟩ @ Lean.Elab.Term.elabIdent
-    • [.] Nat : some Sort.{?_uniq.1} @ ⟨82, 15⟩-⟨82, 18⟩
-    • Nat : Type @ ⟨82, 15⟩-⟨82, 18⟩
-  • n (isBinder := true) : Nat @ ⟨82, 11⟩-⟨82, 12⟩
-  • 0 ≤ n : Prop @ ⟨82, 22⟩-⟨82, 27⟩ @ «_aux_Init_Notation___macroRules_term_≤__2»
-    • Macro expansion
-      0 ≤ n
-      ===>
-      binrel% LE.le✝ 0 n
-      • 0 ≤ n : Prop @ ⟨82, 22⟩†-⟨82, 27⟩† @ Lean.Elab.Term.Op.elabBinRel
-        • 0 ≤ n : Prop @ ⟨82, 22⟩†-⟨82, 27⟩†
-          • [.] LE.le✝ : none @ ⟨82, 22⟩†-⟨82, 27⟩†
-          • 0 : Nat @ ⟨82, 22⟩-⟨82, 23⟩ @ Lean.Elab.Term.elabNumLit
-          • n : Nat @ ⟨82, 26⟩-⟨82, 27⟩ @ Lean.Elab.Term.elabIdent
-            • [.] n : none @ ⟨82, 26⟩-⟨82, 27⟩
-            • n : Nat @ ⟨82, 26⟩-⟨82, 27⟩
   • CustomInfo(Lean.Elab.Term.AsyncBodyInfo)
+    • Nat : Type @ ⟨82, 15⟩-⟨82, 18⟩ @ Lean.Elab.Term.elabIdent
+      • [.] Nat : some Sort.{?_uniq.2} @ ⟨82, 15⟩-⟨82, 18⟩
+      • Nat : Type @ ⟨82, 15⟩-⟨82, 18⟩
+    • n (isBinder := true) : Nat @ ⟨82, 11⟩-⟨82, 12⟩
+    • 0 ≤ n : Prop @ ⟨82, 22⟩-⟨82, 27⟩ @ «_aux_Init_Notation___macroRules_term_≤__2»
+      • Macro expansion
+        0 ≤ n
+        ===>
+        binrel% LE.le✝ 0 n
+        • 0 ≤ n : Prop @ ⟨82, 22⟩†-⟨82, 27⟩† @ Lean.Elab.Term.Op.elabBinRel
+          • 0 ≤ n : Prop @ ⟨82, 22⟩†-⟨82, 27⟩†
+            • [.] LE.le✝ : none @ ⟨82, 22⟩†-⟨82, 27⟩†
+            • 0 : Nat @ ⟨82, 22⟩-⟨82, 23⟩ @ Lean.Elab.Term.elabNumLit
+            • n : Nat @ ⟨82, 26⟩-⟨82, 27⟩ @ Lean.Elab.Term.elabIdent
+              • [.] n : none @ ⟨82, 26⟩-⟨82, 27⟩
+              • n : Nat @ ⟨82, 26⟩-⟨82, 27⟩
     • t (isBinder := true) : ∀ (n : Nat), 0 ≤ n @ ⟨82, 8⟩-⟨82, 9⟩
     • n (isBinder := true) : Nat @ ⟨82, 11⟩-⟨82, 12⟩
     • CustomInfo(Lean.Elab.Term.BodyInfo)

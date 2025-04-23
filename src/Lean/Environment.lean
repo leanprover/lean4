@@ -406,6 +406,22 @@ also `AsyncContext.declPrefix`.
 private def AsyncContext.mayContain (ctx : AsyncContext) (n : Name) : Bool :=
   ctx.declPrefix.isPrefixOf <| privateToUserName n.eraseMacroScopes
 
+/-- Context for `realizeConst` established by `enableRealizationsForConst`. -/
+private structure RealizationContext where
+  /--
+  Saved `Environment`, untyped to avoid cyclic reference. Import environment for imported constants.
+  -/
+  env       : NonScalar
+  /-- Saved options. Empty for imported constants. -/
+  opts      : Options
+  /--
+  `realizeConst _ c ..` adds a mapping from `c` to a task of the realization results: the newly
+  added constants (incl. extension data in `AsyncConst.exts?`),  a function for replaying the
+  changes onto a derived kernel environment, and auxiliary data (always `SnapshotTree` in builtin
+  uses, but untyped to avoid cyclic module references).
+  -/
+  constsRef : IO.Ref (NameMap (Task Dynamic))
+
 /--
 Constant info and environment extension states eventually resulting from async elaboration.
 -/
@@ -421,6 +437,12 @@ private structure AsyncConst where
   elaborating this constant.
   -/
   consts    : Task Dynamic
+  /--
+  Realized constants belonging to local declarations. This is a map from local declarations, which
+  need to be registered synchronously using `enableRealizationsForConst`, to their realization
+  context incl. a ref of realized constants.
+  -/
+  realizationCtx? : Option RealizationContext := none
 
 /-- Data structure holding a sequence of `AsyncConst`s optimized for efficient access. -/
 private structure AsyncConsts where
@@ -432,12 +454,13 @@ private structure AsyncConsts where
   normalizedTrie : NameTrie AsyncConst
 deriving Inhabited, TypeName
 
-private def AsyncConsts.add (aconsts : AsyncConsts) (aconst : AsyncConst) : AsyncConsts :=
+private def AsyncConsts.add (aconsts : AsyncConsts) (aconst : AsyncConst) (override := false) : AsyncConsts := Id.run do
   let normalizedName := privateToUserName aconst.constInfo.name
-  if let some aconst' := aconsts.normalizedTrie.find? normalizedName then
-    let _ : Inhabited AsyncConsts := ⟨aconsts⟩
-    panic! s!"duplicate normalized declaration name {aconst.constInfo.name} vs. {aconst'.constInfo.name}"
-  else { aconsts with
+  if !override then
+    if let some aconst' := aconsts.normalizedTrie.find? normalizedName then
+      let _ : Inhabited AsyncConsts := ⟨aconsts⟩
+      return panic! s!"duplicate normalized declaration name {aconst.constInfo.name} vs. {aconst'.constInfo.name}"
+  { aconsts with
     size := aconsts.size + 1
     revList := aconst :: aconsts.revList
     map := aconsts.map.insert aconst.constInfo.name aconst
@@ -472,22 +495,6 @@ private partial def AsyncConsts.findRecTask (aconsts : AsyncConsts) (declName : 
   c.consts.bind (sync := true) fun aconsts => Id.run do
     let some aconsts := aconsts.get? AsyncConsts | .pure none
     AsyncConsts.findRecTask aconsts declName
-
-/-- Context for `realizeConst` established by `enableRealizationsForConst`. -/
-private structure RealizationContext where
-  /--
-  Saved `Environment`, untyped to avoid cyclic reference. Import environment for imported constants.
-  -/
-  env       : NonScalar
-  /-- Saved options. Empty for imported constants. -/
-  opts      : Options
-  /--
-  `realizeConst _ c ..` adds a mapping from `c` to a task of the realization results: the newly
-  added constants (incl. extension data in `AsyncConst.exts?`),  a function for replaying the
-  changes onto a derived kernel environment, and auxiliary data (always `SnapshotTree` in builtin
-  uses, but untyped to avoid cyclic module references).
-  -/
-  constsRef : IO.Ref (NameMap (Task (List AsyncConst × (Kernel.Environment → Except Kernel.Exception Kernel.Environment) × Dynamic)))
 
 /--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
@@ -533,12 +540,6 @@ structure Environment where
   `enableRealizationsForImports`.
   -/
   private realizedImportedConsts? : Option RealizationContext
-  /--
-  Realized constants belonging to local declarations. This is a map from local declarations, which
-  need to be registered synchronously using `enableRealizationsForConst`, to their realization
-  context incl. a ref of realized constants.
-  -/
-  private realizedLocalConsts  : NameMap RealizationContext := {}
   /--
   Task collecting all realizations from the current and already-forked environment branches, akin to
   how `checked` collects all declarations. We only use it as a fallback in
@@ -762,32 +763,27 @@ be triggered if any.
 -/
 def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     BaseIO Environment := do
-  if env.findAsync? c |>.isNone then
+  let some aconst := env.asyncConsts.find? c |
     panic! s!"declaration {c} not found in environment"
     return env
   if let some asyncCtx := env.asyncCtx? then
     if !asyncCtx.mayContain c then
       panic! s!"{c} is outside current context {asyncCtx.declPrefix}"
       return env
-  if env.realizedLocalConsts.contains c then
+  if aconst.realizationCtx?.isSome then
     return env
-  return { env with realizedLocalConsts := env.realizedLocalConsts.insert c {
+  return { env with asyncConsts := env.asyncConsts.add (override := true) { aconst with
+    realizationCtx? := some {
     -- safety: `RealizationContext` is private
     env := unsafe unsafeCast env
     opts
-    constsRef := (← IO.mkRef {}) } }
+    constsRef := (← IO.mkRef {}) } } }
 
 /-- Returns debug output about the asynchronous state of the environment. -/
 def dbgFormatAsyncState (env : Environment) : BaseIO String :=
   return s!"\
     asyncCtx.declPrefix: {repr <| env.asyncCtx?.map (·.declPrefix)}\
   \nasyncConsts: {repr <| env.asyncConsts.revList.reverse.map (·.constInfo.name)}\
-  \nrealizedLocalConsts: {repr (← env.realizedLocalConsts.toList.mapM fun (n, ctx) => do
-    let consts := (← ctx.constsRef.get).toList
-    return (n, consts.map (·.1)))}
-  \nrealizedImportedConsts?: {repr <| (← env.realizedImportedConsts?.mapM fun ctx => do
-    return (← ctx.constsRef.get).toList.map fun (n, m?) =>
-      (n, m?.get.1.map (fun c : AsyncConst => c.constInfo.name.toString) |> toString))}
   \nbase.constants.map₂: {repr <| env.base.constants.map₂.toList.map (·.1)}"
 
 /-- Returns debug output about the synchronous state of the environment. -/
@@ -1999,6 +1995,16 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
     | _ => false;
   c?.isSome
 
+deriving instance TypeName for Unit
+
+private structure RealizeConstData where
+  aconsts : List AsyncConst
+  replayFn : Kernel.Environment → Except Kernel.Exception Kernel.Environment
+  dyn : Dynamic
+deriving TypeName
+instance : Inhabited RealizeConstData where
+  default := ⟨default, default, .mk ()⟩
+
 /-- Plumbing function for `Lean.Meta.realizeConst`; see documentation there. -/
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
@@ -2009,12 +2015,15 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
   if env.asyncCtx?.any (·.realizingStack.contains constName) then
     throw <| IO.userError s!"Environment.realizeConst: cyclic realization of '{constName}'"
   let mut env := env
+  let aconst := env.asyncConsts.findRec? forConst |>.getD {
+    constInfo := env.findAsync? forConst |>.get!, exts? := none, consts := .pure <| .mk (α := AsyncConsts) default
+  }
   -- find `RealizationContext` for `forConst` in `realizedImportedConsts?` or `realizedLocalConsts`
   let ctx ← if env.base.const2ModIdx.contains forConst then
     env.realizedImportedConsts?.getDM <|
       throw <| .userError s!"Environment.realizeConst: `realizedImportedConsts` is empty"
   else
-    match env.realizedLocalConsts.find? forConst with
+    match env.asyncConsts.findRec? forConst |>.bind (·.realizationCtx?) with
     | some ctx => pure ctx
     | none =>
       throw <| .userError s!"trying to realize {constName} but `enableRealizationsForConst` must be called for '{forConst}' first"
@@ -2025,15 +2034,15 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     let existingConsts? ← ctx.constsRef.modifyGet fun m => match m.find? constName with
       | some prom' => (some prom', m)
       | none       => (none, m.insert constName prom.result!)
-    let (consts, replay, dyn) ← if let some existingConsts := existingConsts? then
-      pure existingConsts.get
+    let ⟨consts, replay, dyn⟩ ← if let some existingConsts := existingConsts? then
+      pure <| existingConsts.get.get? RealizeConstData |>.get!
     else
       -- safety: `RealizationContext` is private
       let realizeEnv : Environment := unsafe unsafeCast ctx.env
       let realizeEnv := { realizeEnv with
         -- allow realizations to recursively realize other constants for `forConst`. Do note that
         -- this allows for recursive realization of `constName` itself, which will deadlock.
-        realizedLocalConsts := realizeEnv.realizedLocalConsts.insert forConst ctx
+        asyncConsts := realizeEnv.asyncConsts.add (override := true) { aconst with realizationCtx? := ctx }
         realizedImportedConsts? := env.realizedImportedConsts?
       }
       -- ensure realized constants are nested below `forConst` and that environment extension
@@ -2055,8 +2064,9 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         else c
       let exts ← EnvExtension.envExtensionsRef.get
       let replay := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts consts
-      prom.resolve (consts, replay, dyn)
-      pure (consts, replay, dyn)
+      let data := ⟨consts, replay, dyn⟩
+      prom.resolve (.mk data)
+      pure data
     let exPromise ← IO.Promise.new
     let env := { env with
       asyncConsts := consts.foldl (init := env.asyncConsts) fun consts c =>

@@ -1738,8 +1738,8 @@ theorem toInt_sdiv_eq_ite {x y : BitVec w} :
 
 set_option Elab.async false
 
-#check Int.natAbs
 
+@[simp]
 theorem Int.natAbs_eq_neg_of_lt {x : Int} (hx : x < 0) : (x.natAbs : Int) = -x := by
   obtain ⟨n, hn⟩ := Int.eq_negSucc_of_lt_zero hx
   subst hn
@@ -1980,6 +1980,36 @@ theorem slt_trichotomy (x y : BitVec w) : (x.slt y = true) ∨ (x = y) ∨ (y.sl
   omega
 
 
+theorem Int.natAbs_le_of_le_of_le {a : Int} {n : Nat} (ha₁ : a ≤ n) (ha₂ : -n ≤ a) : a.natAbs ≤ n := by omega
+
+theorem foo {n d : BitVec w} :
+    (n = intMin w) ∨ (d ≠ intMin w ∧ d.abs.sle n.abs)
+    ↔ d.toInt.natAbs ≤ n.toInt.natAbs := by
+  by_cases hw : w = 0
+  · subst hw; decide +revert
+  · by_cases hn : n = intMin w
+    · simp [hn]
+      rw [toInt_intMin_of_pos (by omega)]
+      simp only [Int.natAbs_neg]
+      norm_cast
+      have hlt := toInt_lt (x := d)
+      have hle := le_toInt (x := d)
+      apply Int.natAbs_le_of_le_of_le <;> (push_cast; omega)
+    · simp [hn]
+      by_cases hd : d = intMin w
+      · simp [hd]
+        rw [toInt_intMin_of_pos (by omega)]
+        simp only [Int.natAbs_neg]
+        norm_cast
+        have hlt := toInt_lt (x := d)
+        have hle := le_toInt (x := d)
+        sorry
+      · simp [hd]
+        rw [sle_eq_decide]
+        simp [toInt_abs_eq_natAbs,
+          show ¬ (d = intMin w) by simp [hd],
+          show ¬ (n = intMin w) by simp [hn]]
+
 /--
 The sign of a division is determined as follows:
 - if the denominator is zero, then the output is zero and the msb is false as it is non-negative.
@@ -2027,9 +2057,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       · have : x.toInt.tdiv y.toInt = 0 := by
           apply Int.tdiv_eq_zero_iff_natAbs_lt_natAbs
           simp at habs
-          rw [BitVec.natAbs_toInt_eq]
-          sorry -- need to know that ≠ intMin
-          -- we need to know that .abs.toInt = .toInt.natAbs
+          sorry
         simp [this, habs]
 
 

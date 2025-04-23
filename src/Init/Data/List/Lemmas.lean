@@ -2558,11 +2558,11 @@ theorem flatMap_reverse {β} {l : List α} {f : α → List β} : (l.reverse.fla
 
 theorem foldl_eq_foldlM {f : β → α → β} {b : β} {l : List α} :
     l.foldl f b = l.foldlM (m := Id) f b := by
-  induction l generalizing b <;> simp [*, foldl]
+  induction l generalizing b <;> simp [*, foldl, Id.pure_eq, Id.bind_eq]
 
 theorem foldr_eq_foldrM {f : α → β → β} {b : β} {l : List α} :
     l.foldr f b = l.foldrM (m := Id) f b := by
-  induction l <;> simp [*, foldr]
+  induction l <;> simp [*, foldr, Id.pure_eq, Id.bind_eq]
 
 @[simp] theorem id_run_foldlM {f : β → α → Id β} {b : β} {l : List α} :
     Id.run (l.foldlM f b) = l.foldl f b := foldl_eq_foldlM.symm
@@ -2659,10 +2659,10 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
   induction l <;> simp [*]
 
 @[simp] theorem foldl_append {β : Type _} {f : β → α → β} {b : β} {l l' : List α} :
-    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM]
+    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM, Id.bind_eq]
 
 @[simp] theorem foldr_append {f : α → β → β} {b : β} {l l' : List α} :
-    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
+    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM, Id.bind_eq]
 
 theorem foldl_flatten {f : β → α → β} {b : β} {L : List (List α)} :
     (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by

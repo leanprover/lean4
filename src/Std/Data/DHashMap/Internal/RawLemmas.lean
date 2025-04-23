@@ -1202,12 +1202,12 @@ end monadic
 @[simp]
 theorem insertMany_nil :
     m.insertMany [] = m := by
-  simp [insertMany, Id.run]
+  simp [insertMany, Id.run, Id.pure_eq, Id.bind_eq]
 
 @[simp]
 theorem insertMany_list_singleton {k : α} {v : β k} :
     m.insertMany [⟨k, v⟩] = m.insert k v := by
-  simp [insertMany, Id.run]
+  simp [insertMany, Id.run, Id.pure_eq, Id.bind_eq]
 
 theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     (m.insertMany (⟨k, v⟩ :: l)).1 = ((m.insert k v).insertMany l).1 := by
@@ -1370,12 +1370,12 @@ variable {β : Type v} (m : Raw₀ α (fun _ => β))
 @[simp]
 theorem insertMany_nil :
     insertMany m [] = m := by
-  simp [insertMany, Id.run]
+  simp [insertMany, Id.run, Id.pure_eq, Id.bind_eq]
 
 @[simp]
 theorem insertMany_list_singleton {k : α} {v : β} :
     insertMany m [⟨k, v⟩] = m.insert k v := by
-  simp [insertMany, Id.run]
+  simp [insertMany, Id.run, Id.pure_eq, Id.bind_eq]
 
 theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     (insertMany m (⟨k, v⟩ :: l)).1 = (insertMany (m.insert k v) l).1 := by
@@ -1535,12 +1535,12 @@ variable (m : Raw₀ α (fun _ => Unit))
 @[simp]
 theorem insertManyIfNewUnit_nil :
     insertManyIfNewUnit m [] = m := by
-  simp [insertManyIfNewUnit, Id.run]
+  simp [insertManyIfNewUnit, Id.run, Id.pure_eq, Id.bind_eq]
 
 @[simp]
 theorem insertManyIfNewUnit_list_singleton {k : α} :
     insertManyIfNewUnit m [k] = m.insertIfNew k () := by
-  simp [insertManyIfNewUnit, Id.run]
+  simp [insertManyIfNewUnit, Id.run, Id.pure_eq, Id.bind_eq]
 
 theorem insertManyIfNewUnit_cons {l : List α} {k : α} :
     (insertManyIfNewUnit m (k :: l)).1 = (insertManyIfNewUnit (m.insertIfNew k ()) l).1 := by

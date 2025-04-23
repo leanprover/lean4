@@ -26,11 +26,11 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {l₁ 
   Decidable.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  simp [lex, Id.run]
+  simp [lex, Id.run, Id.pure_eq, Id.bind_eq]
 
 @[simp] theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #[a].lex #[b] lt = lt a b := by
   simp only [lex, List.getElem_toArray, List.getElem_singleton]
-  cases lt a b <;> cases a != b <;> simp [Id.run]
+  cases lt a b <;> cases a != b <;> simp [Id.run, Id.pure_eq, Id.bind_eq]
 
 private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs ys : Array α} :
      (#[a] ++ xs).lex (#[b] ++ ys) lt =
@@ -42,16 +42,16 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
     getElem_append_right]
   cases lt a b
   · rw [bne]
-    cases a == b <;> simp
-  · simp
+    cases a == b <;> simp [Id.pure_eq, Id.bind_eq]
+  · simp [Id.pure_eq, Id.bind_eq]
 
 @[simp] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with
-  | nil => cases l₂ <;> simp [lex, Id.run]
+  | nil => cases l₂ <;> simp [lex, Id.run, Id.pure_eq, Id.bind_eq]
   | cons x l₁ ih =>
     cases l₂ with
-    | nil => simp [lex, Id.run]
+    | nil => simp [lex, Id.run, Id.pure_eq, Id.bind_eq]
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
 

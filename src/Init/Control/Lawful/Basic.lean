@@ -238,9 +238,9 @@ theorem LawfulMonad.mk' (m : Type u → Type v) [Monad m]
 
 namespace Id
 
-@[simp] theorem map_eq (x : Id α) (f : α → β) : f <$> x = f x := rfl
-@[simp] theorem bind_eq (x : Id α) (f : α → id β) : x >>= f = f x := rfl
-@[simp] theorem pure_eq (a : α) : (pure a : Id α) = a := rfl
+theorem map_eq (x : Id α) (f : α → β) : f <$> x = f x := rfl
+theorem bind_eq (x : Id α) (f : α → id β) : x >>= f = f x := rfl
+theorem pure_eq (a : α) : (pure a : Id α) = a := rfl
 
 instance : LawfulMonad Id := by
   refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl

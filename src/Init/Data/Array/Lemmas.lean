@@ -595,7 +595,7 @@ theorem anyM_loop_iff_exists {p : α → Bool} {as : Array α} {start stop} (h :
       ∃ (i : Nat) (_ : i < as.size), start ≤ i ∧ i < stop ∧ p as[i] = true := by
   unfold anyM.loop
   split <;> rename_i h₁
-  · dsimp
+  · dsimp [Id.pure_eq, Id.bind_eq]
     split <;> rename_i h₂
     · simp only [true_iff]
       refine ⟨start, by omega, by omega, by omega, h₂⟩
@@ -1322,8 +1322,8 @@ theorem mapM_map_eq_foldl {as : Array α} {f : α → β} {i : Nat} :
     -- Calling `split` here gives a bad goal.
     have : size as - i = Nat.succ (size as - i - 1) := by omega
     rw [this]
-    simp [foldl, foldlM, Id.run, Nat.sub_add_eq]
-  · dsimp [foldl, Id.run, foldlM]
+    simp [foldl, foldlM, Id.run, Nat.sub_add_eq, Id.pure_eq, Id.bind_eq]
+  · dsimp [foldl, Id.run, foldlM, Id.pure_eq, Id.bind_eq]
     rw [dif_pos (by omega), foldlM.loop, dif_neg h]
     rfl
 termination_by as.size - i
@@ -1539,8 +1539,8 @@ theorem filterMap_congr {as bs : Array α} (h : as = bs)
     as.toList ++ List.filterMap f xs := ?_
   exact this #[]
   induction xs
-  · simp_all [Id.run]
-  · simp_all [Id.run, List.filterMap_cons]
+  · simp_all [Id.run, Id.pure_eq]
+  · simp_all [Id.run, List.filterMap_cons, Id.bind_eq, Id.pure_eq]
     split <;> simp_all
 
 theorem toList_filterMap {f : α → Option β} {xs : Array α} :
@@ -3377,15 +3377,15 @@ theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b} {xs
     (w : start = xs.size + ys.size) :
     (xs ++ ys).foldr f b start 0 = xs.foldr f (ys.foldr f b) := by
   subst w
-  simp [foldr_eq_foldrM]
+  simp [foldr_eq_foldrM, Id.bind_eq]
 
 theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs ys : Array α} :
     (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) := by
-  simp [foldl_eq_foldlM]
+  simp [foldl_eq_foldlM, Id.bind_eq]
 
 theorem foldr_append {f : α → β → β} {b} {xs ys : Array α} :
     (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) := by
-  simp [foldr_eq_foldrM]
+  simp [foldr_eq_foldrM, Id.bind_eq]
 
 @[simp] theorem foldl_flatten' {f : β → α → β} {b} {xss : Array (Array α)} {stop : Nat}
     (w : stop = xss.flatten.size) :
@@ -3654,7 +3654,7 @@ abbrev pop_mkArray := @pop_replicate
 
 @[simp] theorem size_modify {xs : Array α} {i : Nat} {f : α → α} : (xs.modify i f).size = xs.size := by
   unfold modify modifyM Id.run
-  split <;> simp
+  split <;> simp [Id.pure_eq, Id.bind_eq]
 
 theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
     (xs.modify j f)[i] = if j = i then f (xs[i]'(by simpa using h)) else xs[i]'(by simpa using h) := by

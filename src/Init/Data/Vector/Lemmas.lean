@@ -2397,10 +2397,10 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
   simp
 
 @[simp] theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs : Vector α n} {ys : Vector α k} :
-    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) := by simp [foldl_eq_foldlM]
+    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) := by simp [foldl_eq_foldlM, Id.pure_eq, Id.bind_eq]
 
 @[simp] theorem foldr_append {f : α → β → β} {b} {xs : Vector α n} {ys : Vector α k} :
-    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) := by simp [foldr_eq_foldrM]
+    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) := by simp [foldr_eq_foldrM, Id.pure_eq, Id.bind_eq]
 
 @[simp] theorem foldl_flatten {f : β → α → β} {b} {xss : Vector (Vector α m) n} :
     (flatten xss).foldl f b = xss.foldl (fun b xs => xs.foldl f b) b := by

@@ -7,7 +7,7 @@ export GetElem (getElem)
 instance : GetElem (Array α) Nat α where
   getElem xs i := xs.get i sorry
 
-opaque f : Option Bool → Bool
+opaque f : OptionArg Bool → Bool
 opaque g : Bool → Bool
 
 def bad (xs : Array Bool) : Bool :=

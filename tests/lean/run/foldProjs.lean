@@ -12,7 +12,7 @@ structure B (α : Type u) extends A α where
 
 open Lean Meta Elab Tactic
 elab "fold_projs" : tactic => liftMetaTactic1 fun mvarId => do
-  mvarId.replaceTargetDefEq (← Grind.foldProjs (← mvarId.getType))
+  some <$> mvarId.replaceTargetDefEq (← Grind.foldProjs (← mvarId.getType))
 
 example (a : Nat × Bool) : a.fst = 10 := by
   unfold Prod.fst

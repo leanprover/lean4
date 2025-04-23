@@ -10,7 +10,7 @@ namespace MyNamespace
 local elab "end" id:ident : command => do
   println!"foo"
   let node := mkNode ``Lean.Parser.Command.end
-    #[Lean.mkAtom "end", mkOptionalNode id]
+    #[Lean.mkAtom "end", mkOptionalNode (some id)]
   elabEnd node
 
 end MyNamespace -- print "foo"
@@ -26,7 +26,7 @@ namespace MyNamespace
   | `(end $id:ident) => do
     println!"boo"
     let node := mkNode ``Lean.Parser.Command.end
-      #[Lean.mkAtom "end", mkOptionalNode id]
+      #[Lean.mkAtom "end", mkOptionalNode (some id)]
     elabEnd node
   | _ => Elab.throwUnsupportedSyntax
 
@@ -42,7 +42,7 @@ local elab_rules : command
 | `(end $id:ident) => do
   println!"hello"
   let node := mkNode ``Lean.Parser.Command.end
-    #[Lean.mkAtom "end", mkOptionalNode id]
+    #[Lean.mkAtom "end", mkOptionalNode (some id)]
   elabEnd node
 
 end MyNamespace -- print "hello"
@@ -57,7 +57,7 @@ scoped elab_rules : command
 | `(end $id:ident) => do
   println!"bla"
   let node := mkNode ``Lean.Parser.Command.end
-    #[Lean.mkAtom "end", mkOptionalNode id]
+    #[Lean.mkAtom "end", mkOptionalNode (some id)]
   elabEnd node
 
 end MyNamespace -- print "bla"

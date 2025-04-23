@@ -47,7 +47,7 @@ elab "replace " fvar₁:ident " with " fvar₂:ident " via " proof:term : tactic
   -- make a metavariable to use as the type in `replaceLocalDecl`; assign it to `underlyingTypeNew`
   let typeNewMVar ← mkFreshExprMVar none
   typeNewMVar.mvarId!.assign underlyingTypeNew
-  let proof ← elabTerm proof underlyingTypeNew
+  let proof ← elabTerm proof (some underlyingTypeNew)
   let { mvarId .. } ← (← getMainGoal).replaceLocalDecl fvar₁ typeNewMVar proof
   replaceMainGoal [mvarId]
 

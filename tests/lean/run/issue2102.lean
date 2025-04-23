@@ -3,7 +3,7 @@ def g' (T : Type) (ls : List T) : (Option (List T)) :=
   match ls with
   | _::tl =>
       let res := Option.attach (g' T tl)
-      res.bind fun x => x.val
+      res.bind fun x => some x.val
   | [] => .none
 
 -- doesn't
@@ -41,5 +41,5 @@ def g'' (T : Type) (ls : List T) : (Option (List T)) :=
   match ls with
   | _::tl =>
       let res := Option.attach (g'' T tl)
-      res.bind fun ⟨x,h⟩ => x
+      res.bind fun ⟨x,h⟩ => some x
   | [] => .none

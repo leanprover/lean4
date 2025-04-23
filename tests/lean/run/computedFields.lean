@@ -15,7 +15,7 @@ def dagLikeTerm : Nat → Exp
 #guard (dagLikeTerm 1000).hash == 10432648428259852868 -- memoized
 
 def varNum? : Exp → Option UInt32
-  | .var i => i
+  | .var i => some i
   | _ => none
 
 example : varNum? (.var 32) = some 32 := by native_decide

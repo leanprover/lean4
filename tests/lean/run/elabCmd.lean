@@ -19,7 +19,7 @@ def elabAnonCtor (args : Array (TSyntax `term)) (τ : Expr) : TermElabM Expr :=
     (match ctors with
     | [c] => do
       let stx ← `($(Lean.mkIdent c) $args*);
-      elabTerm stx τ
+      elabTerm stx (some τ)
 -- error handling
     | _ => unreachable!)
   | _ => unreachable!

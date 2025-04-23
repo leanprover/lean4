@@ -225,7 +225,7 @@ macro (name := doNotUse) "doNotUseArg " name:declId arg:ident : command =>
 doNotUseArg unusedMacroVariable b
 
 @[unused_variables_ignore_fn]
-def ignoreDoNotUse : Lean.Linter.IgnoreFunction := fun _ stack _ => stack.matches [``doNotUse]
+def ignoreDoNotUse : Lean.Linter.IgnoreFunction := fun _ stack _ => stack.matches [some ``doNotUse]
 
 doNotUseArg unusedMacroVariable2 b
 end

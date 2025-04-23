@@ -21,10 +21,10 @@ set_option pp.explicit true
 
 #synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _ false⟩ Nat
 #synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _ false⟩ Bool
-#synth CoeT Nat 0 (Option Nat)
-#synth CoeT Bool true (Option Nat)
+#synth CoeT Nat 0 (OptionArg Nat)
+#synth CoeT Bool true (OptionArg Nat)
 #synth CoeT Prop (0 = 1) Bool
-#synth CoeT Bool true (Option Nat)
+#synth CoeT Bool true (OptionArg Nat)
 
 def f (c : ConstantFunction Nat Nat) : Nat :=
 c 0

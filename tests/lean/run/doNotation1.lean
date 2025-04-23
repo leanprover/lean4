@@ -87,10 +87,10 @@ def pred2 (x : Nat) : IO Bool := do
 return x > 0
 
 def tst5 (x : Nat) : IO (Option Nat) :=
-if x > 10 then pure x else pure none
+if x > 10 then pure (some x) else pure none
 
 def tst6 (x : Nat) : StateT Nat IO (Option Nat) :=
-if x > 10 then g x else pure none
+if x > 10 then some <$> g x else pure none
 
 syntax:max (name := doHash) "#" : term
 

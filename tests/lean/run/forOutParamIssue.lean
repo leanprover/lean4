@@ -7,7 +7,7 @@ export GetElem (getElem)
 instance : GetElem (Array α) Nat α where
   getElem xs i := xs.get i sorry
 
-opaque f : Option Bool → Id Unit
+opaque f : OptionArg Bool → Id Unit
 
 def bad2 (bs : Array Bool) (n : Nat) : Id Unit := do
   for idx in [:n] do

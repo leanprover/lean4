@@ -2,7 +2,7 @@ import Lean
 
 open Lean Meta Elab Term in
 elab "whnf%" t:term : term <= expectedType => do
-  let r ← whnf (← elabTerm t expectedType)
+  let r ← whnf (← elabTerm t (some expectedType))
   trace[Meta.debug] "r: {r}"
   return r
 

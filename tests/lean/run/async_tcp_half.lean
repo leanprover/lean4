@@ -61,7 +61,7 @@ def acceptClose : IO Unit := do
   let mes ← client.recv? 1024
   let msg ← mes.block
 
-  assertBEq (String.fromUTF8? =<< msg) ("hello robert!")
+  assertBEq (String.fromUTF8? =<< msg) (some "hello robert!")
 
   let mes ← client.recv? 1024
   let msg ← mes.block

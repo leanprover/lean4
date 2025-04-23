@@ -19,4 +19,4 @@ def f (stx : Option Syntax) : Syntax :=
 def bad (doFor : Syntax) : Syntax :=
   let doForDecls := (getElem' doFor 1).getArgs
   let doForDecl := getElem' doForDecls 1
-  f (getElem' doForDecl 1)
+  f (some (getElem' doForDecl 1))

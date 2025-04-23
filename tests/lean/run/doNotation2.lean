@@ -103,7 +103,7 @@ def find? (xs : List Nat) (p : Nat → Bool) : Option Nat := Id.run do
 let mut result := none
 for x in xs do
   if p x then
-    result := x
+    result := some x
     break
 return result
 

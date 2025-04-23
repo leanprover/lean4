@@ -14,7 +14,7 @@ open Lean Elab Tactic in
 for testing purposes -/
 elab "bv_ac_nf" : tactic =>
   withMainContext do
-    liftMetaTactic1 fun goal => BVDecide.Frontend.Normalize.bvAcNfTarget goal
+    liftMetaTactic1 fun goal => some <$> BVDecide.Frontend.Normalize.bvAcNfTarget goal
 
 /- NOTE: the expression in this test is used as an example in the `bv_ac_nf` tactic
 documentation. Any changes to the behaviour of this test should be reflected in

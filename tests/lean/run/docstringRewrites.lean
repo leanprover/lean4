@@ -161,7 +161,7 @@ def x := 44
 These tests check that the `LEAN_MANUAL_ROOT` environment variable affects rewriting as expected.
 -/
 
-def checkResultWithRoot (root : Option String) (str : String) : IO Unit := do
+def checkResultWithRoot (root : OptionArg String) (str : String) : IO Unit := do
   let lean ← IO.appPath
   IO.FS.withTempFile fun h path => do
     h.putStrLn r###"

@@ -1,4 +1,4 @@
 
 
-def f (x y : Nat) : Option Nat :=
+def f (x y : Nat) : OptionArg Nat :=
 if x > y then x else none

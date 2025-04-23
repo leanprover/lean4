@@ -25,7 +25,7 @@ def norm (f : FilePath) : String :=
   Test FilePath.parent with absolute paths for OS specific cases
   Some of these tests are not meaningful on Unix but are included for clarity
  -/
-def testParentAcrossOS (p : FilePath) (windowsParent : Option String) (unixParent : Option String) : Bool :=
+def testParentAcrossOS (p : FilePath) (windowsParent : OptionArg String) (unixParent : OptionArg String) : Bool :=
   if isWindows then
     p.parent == windowsParent
   else

@@ -10,7 +10,7 @@
 {"widgets":
  [{"range":
    {"start": {"line": 19, "character": 0},
-    "end": {"line": 19, "character": 63}},
+    "end": {"line": 19, "character": 68}},
    "props": {"name": "lean"},
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"}]}

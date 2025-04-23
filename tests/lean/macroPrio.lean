@@ -21,7 +21,7 @@ theorem ex2 : foo! 2 = 0 :=
 
 -- Define elaborator with even higher priority
 elab (priority := high+1) "foo!" x:term:max : term <= expectedType =>
-  Lean.Elab.Term.elabTerm x expectedType
+  Lean.Elab.Term.elabTerm x (some expectedType)
 
 theorem ex3 : foo! 3 = 3 :=
   rfl

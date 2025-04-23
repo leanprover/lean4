@@ -44,16 +44,16 @@ def Waiter.withPromise (w : Waiter α) (p : IO.Promise (Except IO.Error β)) : W
 /--
 Try to atomically finish the `Waiter`. If the race for finishing it is won, `win` is executed
 with the internal `IO.Promise` of the `Waiter`. This promise must under all circumstances be
-resolved by `win`. If the race is lost some cleanup work can be done in `loose`.
+resolved by `win`. If the race is lost some cleanup work can be done in `lose`.
 -/
 @[specialize]
 def Waiter.race [Monad m] [MonadLiftT (ST IO.RealWorld) m] (w : Waiter α)
-    (loose : m β) (win : IO.Promise (Except IO.Error α) → m β) : m β := do
+    (lose : m β) (win : IO.Promise (Except IO.Error α) → m β) : m β := do
   let first ← w.finished.modifyGet fun s => (s == false, true)
   if first then
     win w.promise
   else
-    loose
+    lose
 
 /--
 An event source that can be multiplexed using `Selectable.one`, see the documentation of

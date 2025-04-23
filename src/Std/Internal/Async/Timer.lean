@@ -79,9 +79,9 @@ def selector (s : Sleep) : IO (Selector Unit) := do
         return none
     registerFn waiter := do
       discard <| AsyncTask.mapIO (x := sleepWaiter) fun _ => do
-        let loose := return ()
+        let lose := return ()
         let win promise := promise.resolve (.ok ())
-        waiter.race loose win
+        waiter.race lose win
     unregisterFn := pure ()
   }
 

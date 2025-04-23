@@ -21,6 +21,9 @@ set_option linter.missingDocs true
 
 namespace BitVec
 
+@[simp] theorem mk_zero : BitVec.ofFin (w := w) ⟨0, h⟩ = 0#w := rfl
+@[simp] theorem ofNatLT_zero : BitVec.ofNatLT (w := w) 0 h = 0#w := rfl
+
 @[simp] theorem getLsbD_ofFin (x : Fin (2^n)) (i : Nat) :
     getLsbD (BitVec.ofFin x) i = x.val.testBit i := rfl
 
@@ -135,6 +138,8 @@ theorem toNat_ne_iff_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y :
 
 @[bitvec_to_nat] theorem toNat_eq {x y : BitVec n} : x = y ↔ x.toNat = y.toNat :=
   Iff.intro (congrArg BitVec.toNat) eq_of_toNat_eq
+
+theorem toNat_inj {x y : BitVec n} : x.toNat = y.toNat ↔ x = y := toNat_eq.symm
 
 @[bitvec_to_nat] theorem toNat_ne {x y : BitVec n} : x ≠ y ↔ x.toNat ≠ y.toNat := by
   rw [Ne, toNat_eq]
@@ -637,7 +642,7 @@ theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.t
   apply Nat.mod_eq_of_lt
   apply Nat.one_lt_two_pow (by omega)
 
-/-- Prove equality of bitvectors in terms of nat operations. -/
+/-- Prove equality of bitvectors in terms of integer operations. -/
 theorem eq_of_toInt_eq {x y : BitVec n} : x.toInt = y.toInt → x = y := by
   intro eq
   simp only [toInt_eq_toNat_cond] at eq

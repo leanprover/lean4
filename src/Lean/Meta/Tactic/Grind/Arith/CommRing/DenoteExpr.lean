@@ -68,4 +68,7 @@ where
   | .pow a k => return mkApp2 (← getRing).powFn (← go a) (toExpr k)
   | .neg a => return mkApp (← getRing).negFn (← go a)
 
+def EqCnstr.denoteExpr (c : EqCnstr) : RingM Expr := do
+  mkEq (← c.p.denoteExpr) (← denoteNum 0)
+
 end Lean.Meta.Grind.Arith.CommRing

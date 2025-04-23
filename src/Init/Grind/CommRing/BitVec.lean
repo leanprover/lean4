@@ -23,6 +23,7 @@ instance : CommRing (BitVec w) where
   pow_zero _ := BitVec.pow_zero
   pow_succ _ _ := BitVec.pow_succ
   ofNat_succ x := BitVec.ofNat_add x 1
+  intCast_neg _ := BitVec.ofInt_neg
 
 instance : IsCharP (BitVec w) (2 ^ w) where
   ofNat_eq_zero_iff {x} := by simp [BitVec.ofInt, BitVec.toNat_eq]

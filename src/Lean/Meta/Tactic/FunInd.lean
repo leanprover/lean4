@@ -20,6 +20,9 @@ import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
 import Lean.Meta.Tactic.FunIndInfo
 
+set_option interpreter.prefer_native false
+
+
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or
 well-founded, possibly mutual), a **functional induction principle** tailored to proofs about that
@@ -376,7 +379,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
       assert! fvar == oldIH
       pure <| mkFVar newIH
 
-    -- Now see if the type o/--f the expression we are building is a motive application.
+    -- Now see if the type of the expression we are building is a motive application.
     -- If it is we want to replace it with the corresponding function application,
     -- and remember the expression as a IH to be used in an inductive case.
 
@@ -750,8 +753,8 @@ def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : M
 Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
 `foo.induct` for it. See module doc for details.
  -/
-def deriveUnaryInduction (name : Name) : MetaM Name := do
-  let inductName := getFunInductName name
+def deriveUnaryInduction (unfolding : Bool) (name : Name) : MetaM Name := do
+  let inductName := getFunInductName (unfolding := unfolding) name
   realizeConst name inductName (doRealize inductName)
   return inductName
 where doRealize (inductName : Name) := do
@@ -775,17 +778,29 @@ where doRealize (inductName : Name) := do
       unless params.back! == target do
         throwError "functional induction: expected the target as last parameter{indentExpr e}"
       let fixedParamPerms := params.pop
-      let motiveType ← mkForallFVars #[target] (.sort levelZero)
+      let motiveType ←
+        if unfolding then
+          withLocalDeclD `r (← instantiateForall info.type params) fun r =>
+            mkForallFVars #[target, r] (.sort 0)
+        else
+          mkForallFVars #[target] (.sort 0)
       withLocalDeclD `motive motiveType fun motive => do
         let fn := mkAppN (← mkConstWithLevelParams name) fixedParamPerms
         let isRecCall : Expr → Option Expr := fun e =>
-          if e.isApp && e.appFn!.isFVarOf motive.fvarId! then
-            mkApp fn e.appArg!
+          e.withApp fun f xs =>
+            if f.isFVarOf motive.fvarId! && xs.size > 0 then
+            mkApp fn xs[0]!
           else
             none
 
+        let motiveArg ←
+          if unfolding then
+            let motiveArg := mkApp2 motive target (mkAppN (← mkConstWithLevelParams name) params)
+            mkLambdaFVars #[target] motiveArg
+          else
+            pure motive
         let e' := .const ``WellFounded.fix [fix.constLevels![0]!, levelZero]
-        let e' := mkApp4 e' α motive rel wf
+        let e' := mkApp4 e' α motiveArg rel wf
         check e'
         let (body', mvars) ← M2.run do
           forallTelescope (← inferType e').bindingDomain! fun xs goal => do
@@ -798,7 +813,8 @@ where doRealize (inductName : Name) := do
             let body ← instantiateLambda body targets
             lambdaTelescope1 body fun oldIH body => do
               let body ← instantiateLambda body extraParams
-              let body' ← buildInductionBody #[oldIH, genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
+              let body' ← withRewrittenMotiveArg goal (rwFun name) fun goal => do
+                buildInductionBody #[oldIH, genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
               if body'.containsFVar oldIH then
                 throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
               mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
@@ -947,21 +963,21 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
 Retrieves `foo._unary.induct`, where the motive is a `PSigma`/`PSum` type, and
 unpacks it into a n-ary and (possibly) joint induction principle.
 -/
-def unpackMutualInduction (eqnInfo : WF.EqnInfo) : MetaM Name := do
+def unpackMutualInduction (unfolding : Bool) (eqnInfo : WF.EqnInfo) : MetaM Name := do
   let inductName := if eqnInfo.declNames.size > 1 then
-    getMutualInductName eqnInfo.declNames[0]!
+    getMutualInductName (unfolding := unfolding) eqnInfo.declNames[0]!
   else
     -- If there is no mutual recursion, we generate the `foo.induct` directly.
-    getFunInductName eqnInfo.declNames[0]!
+    getFunInductName (unfolding := unfolding) eqnInfo.declNames[0]!
   realizeConst eqnInfo.declNames[0]! inductName (doRealize inductName)
   return inductName
 where doRealize inductName := do
-  let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
+  let unaryInductName ← deriveUnaryInduction (unfolding := unfolding) eqnInfo.declNameNonRec
   let ci ← getConstInfo unaryInductName
   let us := ci.levelParams
   let value := .const ci.name (us.map mkLevelParam)
   let motivePos ← forallTelescope ci.type fun xs concl => concl.withApp fun motive targets => do
-    unless motive.isFVar && targets.size = 1 && targets.all (·.isFVar) do
+    unless motive.isFVar && targets.size = (if unfolding then 2 else 1) && targets[0]!.isFVar do
       throwError "conclusion {concl} does not look like a packed motive application"
     let packedTarget := targets[0]!
     unless xs.back! == packedTarget do
@@ -1304,19 +1320,19 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.
 -/
-def deriveInduction (name : Name) : MetaM Unit := do
+def deriveInduction (unfolding : Bool) (name : Name) : MetaM Unit := do
   mapError (f := (m!"Cannot derive functional induction principle (please report this issue)\n{indentD ·}")) do
     if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then
-      let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
+      let unaryInductName ← deriveUnaryInduction unfolding eqnInfo.declNameNonRec
       if eqnInfo.declNames.size > 1 then
-        projectMutualInduct eqnInfo.declNames (unpackMutualInduction eqnInfo) do
+        projectMutualInduct eqnInfo.declNames (unpackMutualInduction unfolding eqnInfo) do
           -- We set the FunIndInfo on the first induction principle, which must happen inside its
           -- realization.
           if eqnInfo.argsPacker.numFuncs = 1 then
             setNaryFunIndInfo eqnInfo.fixedParamPerms eqnInfo.declNames[0]! unaryInductName
       else
         -- (in this case, `unpackMutualInduction` already does `setNaryFunIndInfo`)
-        let _ ← unpackMutualInduction eqnInfo
+        let _ ← unpackMutualInduction unfolding eqnInfo
     else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
       if eqnInfo.declNames.size > 1 then
         projectMutualInduct eqnInfo.declNames (deriveInductionStructural eqnInfo.declNames eqnInfo.fixedParamPerms) (pure ())
@@ -1328,12 +1344,14 @@ def deriveInduction (name : Name) : MetaM Unit := do
 def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
   match s with
-  | "induct" =>
+  | "induct"
+  | "induct_unfolding" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
       return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
     return false
-  | "mutual_induct" =>
+  | "mutual_induct"
+  | "mutual_induct_unfolding" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
       if h : eqnInfo.declNames.size > 1 then
         return eqnInfo.declNames[0] = p
@@ -1363,8 +1381,9 @@ builtin_initialize
 
   registerReservedNameAction fun name => do
     if isFunInductName (← getEnv) name then
-      let .str p _ := name | return false
-      MetaM.run' <| deriveInduction p
+      let .str p s := name | return false
+      let unfolding := s.endsWith "_unfolding"
+      MetaM.run' <| deriveInduction unfolding p
       return true
     if isFunCasesName (← getEnv) name then
       let .str p s := name | return false
@@ -1462,7 +1481,7 @@ def filter (p : Nat → Bool) : List Nat → List Nat
   | x::xs => if p x then x::filter p xs else filter p xs
 
 run_meta Lean.Tactic.FunInd.deriveCases true `filter
-run_meta Lean.Tactic.FunInd.deriveInduction `filter
+run_meta Lean.Tactic.FunInd.deriveInduction true `filter
 
 /--
 info: filter.fun_cases (motive : (Nat → Bool) → List Nat → Prop) (case1 : ∀ (p : Nat → Bool), motive p [])
@@ -1494,9 +1513,10 @@ info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : mot
 def map (f : Nat → Bool) : List Nat → List Bool
   | [] => []
   | x::xs => f x::map f xs
+termination_by x => x
 
 run_meta Lean.Tactic.FunInd.deriveCases true `map
-run_meta Lean.Tactic.FunInd.deriveInduction `map
+run_meta Lean.Tactic.FunInd.deriveInduction true `map
 
 /--
 info: map.fun_cases (motive : (Nat → Bool) → List Nat → Prop) (case1 : ∀ (f : Nat → Bool), motive f [])
@@ -1521,3 +1541,23 @@ info: map.induct (motive : List Nat → Prop) (case1 : motive [])
 -/
 #guard_msgs in
 #check map.induct
+
+/--
+info: map.induct_unfolding (f : Nat → Bool) (motive : List Nat → List Bool → Prop) (case1 : motive [] [])
+  (case2 : ∀ (x : Nat) (xs : List Nat), motive xs (map f xs) → motive (x :: xs) (f x :: map f xs)) (a✝ : List Nat) :
+  motive a✝ (map f a✝)
+-/
+#guard_msgs in
+#check map.induct_unfolding
+
+
+def map2 (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
+  | x::xs, y::ys => f x y::map2 f xs ys
+  | _, _ => []
+termination_by x => x
+
+
+run_meta Lean.Tactic.FunInd.deriveInduction true `map2
+#check map2.induct_unfolding
+#check map2._unary.eq_def
+#print map2.eq_def

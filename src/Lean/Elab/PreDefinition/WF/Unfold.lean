@@ -74,7 +74,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
         -- so #3133 removed it again (and can be recovered from there if this was premature).
         throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
-def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
+def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof? : Option Simp.Result) : MetaM Unit := do
   let baseName := preDef.declName
   let name := Name.str baseName unfoldThmSuffix
   withOptions (tactic.hygienic.set · false) do
@@ -85,8 +85,12 @@ def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessPr
 
       let main ← mkFreshExprSyntheticOpaqueMVar type
       let mvarId := main.mvarId!
-      let wfPreprocessProof ← Simp.mkCongr { expr := type.appFn! } (← wfPreprocessProof.addExtraArgs xs)
-      let mvarId ← applySimpResultToTarget mvarId type wfPreprocessProof
+      let mvarId ←
+        if let some wfPreprocessProof := wfPreprocessProof? then
+          let wfPreprocessProof ← Simp.mkCongr { expr := type.appFn! } (← wfPreprocessProof.addExtraArgs xs)
+          applySimpResultToTarget mvarId type wfPreprocessProof
+        else
+          pure mvarId
       let mvarId ← if preDef.declName != unaryPreDefName then deltaLHS mvarId else pure mvarId
       let mvarId ← rwFixEq mvarId
       mkUnfoldProof preDef.declName mvarId

@@ -69,10 +69,12 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   Mutual.addPreDefsFromUnary (cacheProofs := false) preDefs preDefsNonrec preDefNonRec
   let preDefs ← Mutual.cleanPreDefs (cacheProofs := false) preDefs
   registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms argsPacker
+  logInfo m!"Test"
+  WF.mkUnfoldEq unaryPreDef preDefNonRec.declName none
   for preDef in preDefs, wfPreprocessProof in wfPreprocessProofs do
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
-        WF.mkUnfoldEq preDef preDefNonRec.declName wfPreprocessProof
+        WF.mkUnfoldEq preDef preDefNonRec.declName (some wfPreprocessProof)
   -- must happen before `addPreDefAttributes` enables realizations for the top-level functions,
   -- which may need to use realizations on `preDefNonRec`
   enableRealizationsForConst preDefNonRec.declName

@@ -73,7 +73,7 @@ info: g._mutual.eq_def (i : Nat) (x✝ : Nat ⊕' Nat) :
   g._mutual i x✝ =
     PSum.casesOn x✝
       (fun j =>
-        if h : i < 5 then 0
+        if i < 5 then 0
         else
           match j with
           | Nat.zero => 1

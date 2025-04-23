@@ -72,9 +72,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   Mutual.addPreDefsFromUnary (cacheProofs := false) preDefs preDefsNonrec preDefNonRec
   let preDefs ← Mutual.cleanPreDefs (cacheProofs := false) preDefs
   registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms argsPacker
-  WF.mkUnfoldEq unaryPreDef preDefNonRec.declName wfPreprocessProof
-  unless argsPacker.onlyOneUnary do
-    for preDef in preDefs do
+  unless (← isProp unaryPreDef.type) do
+    WF.mkUnfoldEq unaryPreDef preDefNonRec.declName wfPreprocessProof
+  for preDef in preDefs do
+    unless preDef.declName = preDefNonRec.declName do
       unless preDef.kind.isTheorem do
         unless (← isProp preDef.type) do
           WF.mkBinaryUnfoldEq preDef preDefNonRec.declName

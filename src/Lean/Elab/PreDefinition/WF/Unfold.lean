@@ -132,7 +132,7 @@ def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM U
         name, type, value
         levelParams := preDef.levelParams
       }
-      trace[Elab.definition.wf] "mkUnfoldEq defined {.ofConstName name}"
+      trace[Elab.definition.wf] "mkBinaryUnfoldEq defined {.ofConstName name}"
 
 builtin_initialize
   registerTraceClass `Elab.definition.wf.eqns

@@ -57,16 +57,13 @@ private def getPowFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Exp
     throwError "instance for power operator{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
   internalizeFn <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
 
-private def getIntCastFn (type : Expr) (u : Level) (_commRingInst : Expr) : GoalM Expr := do
+private def getIntCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
   let instType := mkApp (mkConst ``IntCast [u]) type
   let .some inst ← trySynthInstance instType |
     throwError "failed to find instance for ring intCast{indentExpr instType}"
-  -- TODO uncomment after we fix `CommRing` definition
-  /-
-  let inst' := mkApp2 (mkConst ``Grind.CommRing.intCastInst [u]) type commRingInst
+  let inst' := mkApp2 (mkConst ``Grind.CommRing.intCast [u]) type commRingInst
   unless (← withDefault <| isDefEq inst inst') do
     throwError "instance for intCast{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
-  -/
   internalizeFn <| mkApp2 (mkConst ``IntCast.intCast [u]) type inst
 
 private def getNatCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
@@ -98,15 +95,15 @@ where
     let u ← getDecLevel type
     let ring := mkApp (mkConst ``Grind.CommRing [u]) type
     let .some commRingInst ← trySynthInstance ring | return none
-    trace[grind.ring] "new ring: {type}"
+    trace_goal[grind.ring] "new ring: {type}"
     let charInst? ← withNewMCtxDepth do
       let n ← mkFreshExprMVar (mkConst ``Nat)
       let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type commRingInst n
       let .some charInst ← trySynthInstance charType | pure none
       let n ← instantiateMVars n
       let some n ← evalNat n |>.run
-        | trace[grind.ring] "found instance for{indentExpr charType}\nbut characteristic is not a natural number"; pure none
-      trace[grind.ring] "characteristic: {n}"
+        | trace_goal[grind.ring] "found instance for{indentExpr charType}\nbut characteristic is not a natural number"; pure none
+      trace_goal[grind.ring] "characteristic: {n}"
       pure <| some (charInst, n)
     let addFn ← getAddFn type u commRingInst
     let mulFn ← getMulFn type u commRingInst
@@ -116,7 +113,7 @@ where
     let intCastFn ← getIntCastFn type u commRingInst
     let natCastFn ← getNatCastFn type u commRingInst
     let id := (← get').rings.size
-    let ring : Ring := { type, u, commRingInst, charInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
+    let ring : Ring := { id, type, u, commRingInst, charInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 

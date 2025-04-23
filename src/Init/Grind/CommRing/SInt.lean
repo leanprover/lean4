@@ -26,6 +26,7 @@ instance : CommRing Int8 where
   pow_zero := Int8.pow_zero
   pow_succ := Int8.pow_succ
   ofNat_succ x := Int8.ofNat_add x 1
+  intCast_neg := Int8.ofInt_neg
 
 instance : IsCharP Int8 (2 ^ 8) where
   ofNat_eq_zero_iff {x} := by
@@ -51,7 +52,7 @@ instance : CommRing Int16 where
   pow_zero := Int16.pow_zero
   pow_succ := Int16.pow_succ
   ofNat_succ x := Int16.ofNat_add x 1
-
+  intCast_neg := Int16.ofInt_neg
 instance : IsCharP Int16 (2 ^ 16) where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = Int16.ofInt x := rfl
@@ -76,7 +77,7 @@ instance : CommRing Int32 where
   pow_zero := Int32.pow_zero
   pow_succ := Int32.pow_succ
   ofNat_succ x := Int32.ofNat_add x 1
-
+  intCast_neg := Int32.ofInt_neg
 instance : IsCharP Int32 (2 ^ 32) where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = Int32.ofInt x := rfl
@@ -101,7 +102,7 @@ instance : CommRing Int64 where
   pow_zero := Int64.pow_zero
   pow_succ := Int64.pow_succ
   ofNat_succ x := Int64.ofNat_add x 1
-
+  intCast_neg := Int64.ofInt_neg
 instance : IsCharP Int64 (2 ^ 64) where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = Int64.ofInt x := rfl
@@ -126,7 +127,7 @@ instance : CommRing ISize where
   pow_zero := ISize.pow_zero
   pow_succ := ISize.pow_succ
   ofNat_succ x := ISize.ofNat_add x 1
-
+  intCast_neg := ISize.ofInt_neg
 open System.Platform (numBits)
 
 instance : IsCharP ISize (2 ^ numBits) where

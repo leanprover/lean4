@@ -78,14 +78,24 @@ structure SPolResult where
   /-- Monomial factor applied to polynomial `p₂`. -/
   m₂   : Mon  := .unit
 
+def Poly.mulConst' (p : Poly) (k : Int) (char? : Option Nat := none) : Poly :=
+  if let some char := char? then p.mulConstC k char else p.mulConst k
+
+def Poly.mulMon' (p : Poly) (k : Int) (m : Mon) (char? : Option Nat := none) : Poly :=
+  if let some char := char? then p.mulMonC k m char else p.mulMon k m
+
+def Poly.combine' (p₁ p₂ : Poly) (char? : Option Nat := none) : Poly :=
+  if let some char := char? then p₁.combineC p₂ char else p₁.combine p₂
+
 /--
 Returns the S-polynomial of polynomials `p₁` and `p₂`, and coefficients&terms used to construct it.
 Given polynomials with leading terms `k₁*m₁` and `k₂*m₂`, the S-polynomial is defined as:
 ```
 S(p₁, p₂) = (k₂/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₁) * p₁ - (k₁/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₂) * p₂
 ```
+Remark: if `char? = some c`, then `c` is the characteristic of the ring.
 -/
-def Poly.spol (p₁ p₂ : Poly) : SPolResult  :=
+def Poly.spol (p₁ p₂ : Poly) (char? : Option Nat := none) : SPolResult  :=
   match p₁, p₂ with
   | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
     let m    := m₁.lcm m₂
@@ -94,9 +104,9 @@ def Poly.spol (p₁ p₂ : Poly) : SPolResult  :=
     let g    := Nat.gcd k₁.natAbs k₂.natAbs
     let c₁   := k₂/g
     let c₂   := -k₁/g
-    let p₁   := p₁.mulMon c₁ m₁
-    let p₂   := p₂.mulMon c₂ m₂
-    let spol := p₁.combine p₂
+    let p₁   := p₁.mulMon' c₁ m₁ char?
+    let p₂   := p₂.mulMon' c₂ m₂ char?
+    let spol := p₁.combine' p₂ char?
     { spol, c₁, m₁, c₂, m₂ }
   | _, _ => {}
 
@@ -110,9 +120,9 @@ structure SimpResult where
   /-- The resulting simplified polynomial after rewriting. -/
   p  : Poly := .num 0
   /-- The integer coefficient multiplied with polynomial `p₁` in the rewriting step. -/
-  c₁ : Int  := 0
+  k₁ : Int  := 0
   /-- The integer coefficient multiplied with polynomial `p₂` during rewriting. -/
-  c₂ : Int  := 0
+  k₂ : Int  := 0
   /-- The monomial factor applied to polynomial `p₁`. -/
   m  : Mon  := .unit
 
@@ -121,26 +131,59 @@ Simplifies polynomial `p₂` using polynomial `p₁` by rewriting.
 
 This function attempts to rewrite `p₂` by eliminating the first occurrence of
 the leading monomial of `p₁`.
+
+Remark: if `char? = some c`, then `c` is the characteristic of the ring.
 -/
-def Poly.simp? (p₁ p₂ : Poly) : Option SimpResult :=
+def Poly.simp? (p₁ p₂ : Poly) (char? : Option Nat := none) : Option SimpResult :=
   match p₁ with
-  | .add k₁ m₁ p₁ =>
+  | .add k₁' m₁ p₁ =>
     let rec go? (p₂ : Poly) : Option SimpResult :=
       match p₂ with
-      | .add k₂ m₂ p₂ =>
+      | .add k₂' m₂ p₂ =>
         if m₁.divides m₂ then
           let m  := m₂.div m₁
-          let g  := Nat.gcd k₁.natAbs k₂.natAbs
-          let c₁ := -k₂/g
-          let c₂ := k₁/g
-          let p  := (p₁.mulMon c₁ m).combine (p₂.mulConst c₂)
-          some { p, c₁, c₂, m }
+          let g  := Nat.gcd k₁'.natAbs k₂'.natAbs
+          let k₁ := -k₂'/g
+          let k₂ := k₁'/g
+          let p  := (p₁.mulMon' k₁ m char?).combine' (p₂.mulConst' k₂ char?) char?
+          some { p, k₁, k₂, m }
         else if let some r := go? p₂ then
-          some { r with p := .add (k₂*r.c₂) m₂ r.p }
+          if let some char := char? then
+            let k := (k₂'*r.k₂) % char
+            if k == 0 then
+              some r
+            else
+              some { r with p := .add k m₂ r.p }
+          else
+            some { r with p := .add (k₂'*r.k₂) m₂ r.p }
         else
           none
       | .num _ => none
     go? p₂
   | _ => none
+
+def Poly.degree : Poly → Nat
+  | .num _ => 0
+  | .add _ m _ => m.degree
+
+/-- Returns `true` if the leading monomial of `p` divides `m`. -/
+def Poly.divides (p : Poly) (m : Mon) : Bool :=
+  match p with
+  | .num _ => true -- should be unreachable
+  | .add _ m' _ => m'.divides m
+
+/-- Returns the leading coefficient of the given polynomial -/
+def Poly.lc : Poly → Int
+ | .num k => k
+ | .add k _ _ => k
+
+/-- Returns the leading monomial of the given polynomial. -/
+def Poly.lm : Poly → Mon
+ | .num _ => .unit
+ | .add _ m _ => m
+
+def Poly.isZero : Poly → Bool
+  | .num 0 => true
+  | _ => false
 
 end Lean.Grind.CommRing

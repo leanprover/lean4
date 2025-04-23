@@ -230,6 +230,7 @@ extern lean_object* l_Lean_instInhabitedName;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkLambda(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_instantiateStructDefaultValueFn_x3f___spec__2___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -273,7 +274,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg_
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_etaStruct_x3f___spec__1___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_instantiateStructDefaultValueFn_x3f___spec__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_getStructureName___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -409,7 +409,7 @@ x_18 = l_Lean_Meta_getStructureName___closed__6;
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_19, x_2, x_3, x_4, x_5, x_12);
+x_20 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_19, x_2, x_3, x_4, x_5, x_12);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
 {
@@ -460,7 +460,7 @@ x_32 = l_Lean_Meta_getStructureName___closed__6;
 x_33 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_33, x_2, x_3, x_4, x_5, x_26);
+x_34 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_33, x_2, x_3, x_4, x_5, x_26);
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
 x_36 = lean_ctor_get(x_34, 1);
@@ -1202,7 +1202,7 @@ x_9 = lean_ctor_get(x_5, 5);
 x_10 = l_Lean_replaceRef(x_1, x_9);
 lean_dec(x_9);
 lean_ctor_set(x_5, 5, x_10);
-x_11 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 return x_11;
 }
@@ -1256,7 +1256,7 @@ lean_ctor_set(x_28, 11, x_24);
 lean_ctor_set(x_28, 12, x_26);
 lean_ctor_set_uint8(x_28, sizeof(void*)*13, x_23);
 lean_ctor_set_uint8(x_28, sizeof(void*)*13 + 1, x_25);
-x_29 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_2, x_3, x_4, x_28, x_6, x_7);
+x_29 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_2, x_3, x_4, x_28, x_6, x_7);
 lean_dec(x_28);
 return x_29;
 }
@@ -3151,7 +3151,7 @@ x_22 = l_Lean_Meta_mkProjections___lambda__3___closed__4;
 x_23 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
-x_24 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_23, x_11, x_12, x_13, x_14, x_15);
+x_24 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_23, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -3380,7 +3380,7 @@ x_19 = l_Lean_Meta_mkProjections___lambda__5___closed__4;
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_20, x_4, x_5, x_6, x_7, x_11);
+x_21 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_20, x_4, x_5, x_6, x_7, x_11);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);

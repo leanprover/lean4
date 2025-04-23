@@ -30,6 +30,7 @@ namespace Lean.Grind
 
 class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat α where
   [ofNat : ∀ n, OfNat α n]
+  [intCast : IntCast α]
   add_assoc : ∀ a b c : α, a + b + c = a + (b + c)
   add_comm : ∀ a b : α, a + b = b + a
   add_zero : ∀ a : α, a + 0 = a
@@ -43,6 +44,8 @@ class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat
   pow_zero : ∀ a : α, a ^ 0 = 1
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
+  intCast_ofNat : ∀ n : Nat, Int.cast (OfNat.ofNat (α := Int) n) = OfNat.ofNat (α := α) n := by intros; rfl
+  intCast_neg : ∀ i : Int, Int.cast (R := α) (-i) = -Int.cast i := by intros; rfl
 
 -- We reduce the priority of these parent instances,
 -- so that in downstream libraries with their own `CommRing` class,
@@ -52,6 +55,9 @@ attribute [instance 100] CommRing.toAdd CommRing.toMul CommRing.toNeg CommRing.t
 
 -- This is a low-priority instance, to avoid conflicts with existing `OfNat` instances.
 attribute [instance 100] CommRing.ofNat
+
+-- This is a low-priority instance, to avoid conflicts with existing `IntCast` instances.
+attribute [instance 100] CommRing.intCast
 
 namespace CommRing
 
@@ -69,6 +75,7 @@ theorem ofNat_add (a b : Nat) : OfNat.ofNat (α := α) (a + b) = OfNat.ofNat a +
   | succ b ih => rw [Nat.add_succ, ofNat_succ, ih, ofNat_succ b, add_assoc]
 
 theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : α) = ((n : α) + 1) := ofNat_add _ _
+theorem natCast_add (a b : Nat) : ((a + b : Nat) : α) = ((a : α) + (b : α)) := ofNat_add _ _
 
 theorem zero_add (a : α) : 0 + a = a := by
   rw [add_comm, add_zero]
@@ -95,6 +102,9 @@ theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a *
   induction b with
   | zero => simp [Nat.mul_zero, mul_zero]
   | succ a ih => rw [Nat.mul_succ, ofNat_add, ih, ofNat_add, left_distrib, mul_one]
+
+theorem natCast_mul (a b : Nat) : ((a * b : Nat) : α) = ((a : α) * (b : α)) := by
+  rw [← ofNat_eq_natCast, ofNat_mul, ofNat_eq_natCast, ofNat_eq_natCast]
 
 theorem add_left_inj {a b : α} (c : α) : a + c = b + c ↔ a = b :=
   ⟨fun h => by simpa [add_assoc, add_neg_cancel, add_zero] using (congrArg (· + -c) h),
@@ -125,31 +135,25 @@ theorem neg_sub (a b : α) : -(a - b) = b - a := by
 theorem sub_self (a : α) : a - a = 0 := by
   rw [sub_eq_add_neg, add_neg_cancel]
 
-theorem eq_of_sub_eq_zero {a b : α} : a - b = 0 → a = b := by
-  intro h
-  replace h := congrArg (. + b) h; simp only at h
-  rw [sub_eq_add_neg, add_assoc, neg_add_cancel, add_zero, zero_add] at h
-  assumption
+theorem sub_eq_iff {a b c : α} : a - b = c ↔ a = c + b := by
+  rw [sub_eq_add_neg]
+  constructor
+  next => intro; subst c; rw [add_assoc, neg_add_cancel, add_zero]
+  next => intro; subst a; rw [add_assoc, add_comm b, neg_add_cancel, add_zero]
 
-instance intCastInst : IntCast α where
-  intCast n := match n with
-  | Int.ofNat n => OfNat.ofNat n
-  | Int.negSucc n => -OfNat.ofNat (n + 1)
+theorem sub_eq_zero_iff {a b : α} : a - b = 0 ↔ a = b := by
+  simp [sub_eq_iff, zero_add]
 
-theorem intCast_zero : ((0 : Int) : α) = 0 := rfl
-theorem intCast_one : ((1 : Int) : α) = 1 := rfl
-theorem intCast_neg_one : ((-1 : Int) : α) = -1 := rfl
-theorem intCast_ofNat (n : Nat) : ((n : Int) : α) = (n : α) := rfl
-theorem intCast_ofNat_add_one (n : Nat) : ((n + 1 : Int) : α) = (n : α) + 1 := ofNat_add _ _
-theorem intCast_negSucc (n : Nat) : ((-(n + 1) : Int) : α) = -((n : α) + 1) := congrArg (- ·) (ofNat_add _ _)
-theorem intCast_neg (x : Int) : ((-x : Int) : α) = - (x : α) :=
-  match x with
-  | (0 : Nat) => neg_zero.symm
-  | (n + 1 : Nat) => by
-    rw [Int.natCast_add, Int.cast_ofNat_Int, intCast_negSucc, intCast_ofNat_add_one]
-  | -((n : Nat) + 1) => by
-    rw [Int.neg_neg, intCast_ofNat_add_one, intCast_negSucc, neg_neg]
-theorem intCast_nat_add {x y : Nat} : ((x + y : Int) : α) = ((x : α) + (y : α)) := ofNat_add _ _
+theorem intCast_zero : ((0 : Int) : α) = 0 := intCast_ofNat 0
+theorem intCast_one : ((1 : Int) : α) = 1 := intCast_ofNat 1
+theorem intCast_neg_one : ((-1 : Int) : α) = -1 := by rw [intCast_neg, intCast_ofNat]
+theorem intCast_natCast (n : Nat) : ((n : Int) : α) = (n : α) := intCast_ofNat n
+theorem intCast_natCast_add_one (n : Nat) : ((n + 1 : Int) : α) = (n : α) + 1 := by
+  rw [← Int.natCast_succ, intCast_natCast, natCast_add, ofNat_eq_natCast]
+theorem intCast_negSucc (n : Nat) : ((-(n + 1) : Int) : α) = -((n : α) + 1) := by
+  rw [intCast_neg, ← Int.natCast_succ, intCast_natCast, ofNat_eq_natCast, natCast_add]
+theorem intCast_nat_add {x y : Nat} : ((x + y : Int) : α) = ((x : α) + (y : α)) := by
+  rw [Int.ofNat_add_ofNat, intCast_natCast, natCast_add]
 theorem intCast_nat_sub {x y : Nat} (h : x ≥ y) : (((x - y : Nat) : Int) : α) = ((x : α) - (y : α)) := by
   induction x with
   | zero =>
@@ -159,29 +163,30 @@ theorem intCast_nat_sub {x y : Nat} (h : x ≥ y) : (((x - y : Nat) : Int) : α)
     by_cases h : x + 1 = y
     · simp [h, intCast_zero, sub_self]
     · have : ((x + 1 - y : Nat) : Int) = (x - y : Nat) + 1 := by omega
-      rw [this, intCast_ofNat_add_one]
+      rw [this, intCast_natCast_add_one]
       specialize ih (by omega)
-      rw [intCast_ofNat] at ih
+      rw [intCast_natCast] at ih
       rw [ih, natCast_succ, sub_eq_add_neg, sub_eq_add_neg, add_assoc, add_comm _ 1, ← add_assoc]
 theorem intCast_add (x y : Int) : ((x + y : Int) : α) = ((x : α) + (y : α)) :=
   match x, y with
-  | (x : Nat), (y : Nat) => ofNat_add _ _
+  | (x : Nat), (y : Nat) => by
+    rw [intCast_nat_add, intCast_natCast, intCast_natCast]
   | (x : Nat), (-(y + 1 : Nat)) => by
     by_cases h : x ≥ y + 1
     · have : (x + -(y+1 : Nat) : Int) = ((x - (y + 1) : Nat) : Int) := by omega
-      rw [this, intCast_neg, intCast_nat_sub h, intCast_ofNat, intCast_ofNat, sub_eq_add_neg]
+      rw [this, intCast_neg, intCast_nat_sub h, intCast_natCast, intCast_natCast, sub_eq_add_neg]
     · have : (x + -(y+1 : Nat) : Int) = (-(y + 1 - x : Nat) : Int) := by omega
-      rw [this, intCast_neg, intCast_nat_sub (by omega), intCast_ofNat, intCast_neg, intCast_ofNat,
+      rw [this, intCast_neg, intCast_nat_sub (by omega), intCast_natCast, intCast_neg, intCast_natCast,
         neg_sub, sub_eq_add_neg]
   | (-(x + 1 : Nat)), (y : Nat) => by
     by_cases h : y ≥ x+ 1
     · have : (-(x+1 : Nat) + y : Int) = ((y - (x + 1) : Nat) : Int) := by omega
-      rw [this, intCast_neg, intCast_nat_sub h, intCast_ofNat, intCast_ofNat, sub_eq_add_neg, add_comm]
+      rw [this, intCast_neg, intCast_nat_sub h, intCast_natCast, intCast_natCast, sub_eq_add_neg, add_comm]
     · have : (-(x+1 : Nat) + y : Int) = (-(x + 1 - y : Nat) : Int) := by omega
-      rw [this, intCast_neg, intCast_nat_sub (by omega), intCast_ofNat, intCast_neg, intCast_ofNat,
+      rw [this, intCast_neg, intCast_nat_sub (by omega), intCast_natCast, intCast_neg, intCast_natCast,
         neg_sub, sub_eq_add_neg, add_comm]
   | (-(x + 1 : Nat)), (-(y + 1 : Nat)) => by
-    rw [← Int.neg_add, intCast_neg, intCast_nat_add, neg_add, intCast_neg, intCast_neg, intCast_ofNat, intCast_ofNat]
+    rw [← Int.neg_add, intCast_neg, intCast_nat_add, neg_add, intCast_neg, intCast_neg, intCast_natCast, intCast_natCast]
 theorem intCast_sub (x y : Int) : ((x - y : Int) : α) = ((x : α) - (y : α)) := by
   rw [Int.sub_eq_add_neg, intCast_add, intCast_neg, sub_eq_add_neg]
 
@@ -197,17 +202,20 @@ theorem neg_mul (a b : α) : (-a) * b = -(a * b) := by
 theorem mul_neg (a b : α) : a * (-b) = -(a * b) := by
   rw [mul_comm, neg_mul, mul_comm]
 
-theorem intCast_nat_mul (x y : Nat) : ((x * y : Int) : α) = ((x : α) * (y : α)) := ofNat_mul _ _
+theorem intCast_nat_mul (x y : Nat) : ((x * y : Int) : α) = ((x : α) * (y : α)) := by
+  rw [Int.ofNat_mul_ofNat, intCast_natCast, natCast_mul]
+
 theorem intCast_mul (x y : Int) : ((x * y : Int) : α) = ((x : α) * (y : α)) :=
   match x, y with
-  | (x : Nat), (y : Nat) => ofNat_mul _ _
+  | (x : Nat), (y : Nat) => by
+    rw [intCast_nat_mul, intCast_natCast, intCast_natCast]
   | (x : Nat), (-(y + 1 : Nat)) => by
-    rw [Int.mul_neg, intCast_neg, intCast_nat_mul, intCast_neg, mul_neg, intCast_ofNat, intCast_ofNat]
+    rw [Int.mul_neg, intCast_neg, intCast_nat_mul, intCast_neg, mul_neg, intCast_natCast, intCast_natCast]
   | (-(x + 1 : Nat)), (y : Nat) => by
-    rw [Int.neg_mul, intCast_neg, intCast_nat_mul, intCast_neg, neg_mul, intCast_ofNat, intCast_ofNat]
+    rw [Int.neg_mul, intCast_neg, intCast_nat_mul, intCast_neg, neg_mul, intCast_natCast, intCast_natCast]
   | (-(x + 1 : Nat)), (-(y + 1 : Nat)) => by
     rw [Int.neg_mul_neg, intCast_neg, intCast_neg, neg_mul, mul_neg, neg_neg, intCast_nat_mul,
-      intCast_ofNat, intCast_ofNat]
+      intCast_natCast, intCast_natCast]
 
 theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k := by
   induction k
@@ -237,10 +245,10 @@ theorem intCast_eq_zero_iff (x : Int) : (x : α) = 0 ↔ x % p = 0 :=
   match x with
   | (x : Nat) => by
     have := ofNat_eq_zero_iff (α := α) p (x := x)
-    rw [Int.ofNat_mod_ofNat]
+    rw [Int.ofNat_mod_ofNat, intCast_natCast]
     norm_cast
   | -(x + 1 : Nat) => by
-    rw [Int.neg_emod, Int.ofNat_mod_ofNat, intCast_neg, intCast_ofNat, neg_eq_zero]
+    rw [Int.neg_emod, Int.ofNat_mod_ofNat, intCast_neg, intCast_natCast, neg_eq_zero]
     have := ofNat_eq_zero_iff (α := α) p (x := x + 1)
     rw [ofNat_eq_natCast] at this
     rw [this]
@@ -270,7 +278,7 @@ theorem intCast_ext_iff {x y : Int} : (x : α) = (y : α) ↔ x % p = y % p := b
 
 theorem ofNat_ext_iff {x y : Nat} : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p := by
   have := intCast_ext_iff (α := α) p (x := x) (y := y)
-  simp only [intCast_ofNat, ← Int.ofNat_emod] at this
+  simp only [intCast_natCast, ← Int.ofNat_emod] at this
   simp only [ofNat_eq_natCast]
   norm_cast at this
 
@@ -285,7 +293,7 @@ theorem intCast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
   rw [intCast_ext_iff p, Int.emod_emod]
 
 theorem natCast_emod (x : Nat) : ((x % p : Nat) : α) = (x : α) := by
-  simp only [← intCast_ofNat]
+  simp only [← intCast_natCast]
   rw [Int.ofNat_emod, intCast_emod]
 
 theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x :=

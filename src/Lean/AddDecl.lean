@@ -52,7 +52,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   modifyEnv (decl.getNames.foldl registerNamePrefixes)
 
   if !Elab.async.get (← getOptions) then
-    return (← doAdd)
+    return (← addSynchronously)
 
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
   -- kernel checking has finished; not all cases are supported yet
@@ -61,7 +61,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
     | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
-    | _ => return (← doAdd)
+    | _ => return (← addSynchronously)
 
   let env ← getEnv
   -- no environment extension changes to report after kernel checking; ensures we do not
@@ -81,6 +81,19 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
   Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
 where
+  addSynchronously := do
+    doAdd
+    -- make constants known to the elaborator; in the synchronous case, we can simply read them from
+    -- the kernel env
+    for n in decl.getNames do
+      let env ← getEnv
+      let some info := env.checked.get.find? n | unreachable!
+      -- do *not* report extensions in synchronous case at this point as they are usually set only
+      -- after adding the constant itself
+      let res ← env.addConstAsync (reportExts := false) n (.ofConstantInfo info)
+      res.commitConst env (info? := info)
+      res.commitCheckEnv res.asyncEnv
+      setEnv res.mainEnv
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do

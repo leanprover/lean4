@@ -554,6 +554,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth;
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_findBelowIdx___spec__3___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedInductiveVal;
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -586,7 +587,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkCt
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_IndPredBelow_mkContext___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_IndPredBelow_proveBrecOn_applyCtors___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_findBelowIdx___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
@@ -6382,7 +6382,7 @@ x_28 = l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkCtorType_mkBelowBind
 lean_ctor_set_tag(x_10, 7);
 lean_ctor_set(x_10, 1, x_28);
 lean_ctor_set(x_10, 0, x_18);
-x_29 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_10, x_3, x_4, x_5, x_6, x_21);
+x_29 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_10, x_3, x_4, x_5, x_6, x_21);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -6444,7 +6444,7 @@ x_43 = l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkCtorType_mkBelowBind
 lean_ctor_set_tag(x_10, 7);
 lean_ctor_set(x_10, 1, x_43);
 lean_ctor_set(x_10, 0, x_42);
-x_44 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_10, x_3, x_4, x_5, x_6, x_35);
+x_44 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_10, x_3, x_4, x_5, x_6, x_35);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -6573,7 +6573,7 @@ x_70 = l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkCtorType_mkBelowBind
 x_71 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_71, 0, x_69);
 lean_ctor_set(x_71, 1, x_70);
-x_72 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_71, x_3, x_4, x_5, x_6, x_61);
+x_72 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_71, x_3, x_4, x_5, x_6, x_61);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);

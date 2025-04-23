@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 -/
 
+module
+
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx

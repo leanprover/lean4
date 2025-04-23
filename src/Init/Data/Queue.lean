@@ -6,6 +6,8 @@ Authors: Daniel Selsam
 Simple queue implemented using two lists.
 Note: this is only a temporary placeholder.
 -/
+module
+
 prelude
 import Init.Data.Array.Basic
 

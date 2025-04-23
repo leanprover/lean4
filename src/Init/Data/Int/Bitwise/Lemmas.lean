@@ -3,6 +3,8 @@ Copyright (c) 2023 Siddharth Bhat. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddharth Bhat, Jeremy Avigad
 -/
+module
+
 prelude
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Int.Bitwise.Basic

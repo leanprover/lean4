@@ -1397,6 +1397,7 @@ end Lean.Tactic.FunInd
 builtin_initialize
    Lean.registerTraceClass `Meta.FunInd
 
+/-
 def fib : Nat → Nat
   | 0 => 0
   | 1 => 1
@@ -1561,3 +1562,5 @@ run_meta Lean.Tactic.FunInd.deriveInduction true `map2
 #check map2.induct_unfolding
 #check map2._unary.eq_def
 #print map2.eq_def
+
+-/

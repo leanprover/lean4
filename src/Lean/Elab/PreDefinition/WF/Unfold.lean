@@ -52,9 +52,6 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
   else if let some mvarId ← simpIf? mvarId then
     trace[Elab.definition.wf.eqns] "simpIf!"
     mkUnfoldProof declName mvarId
-  -- else if let some mvarId ← whnfReducibleLHS? mvarId then
-  --   trace[Elab.definition.wf.eqns] "whnfReducibleLHS!"
-  --   mkUnfoldProof declName mvarId
   else
     let ctx ← Simp.mkContext (config := { dsimp := false, etaStruct := .none })
     match (← simpTargetStar mvarId ctx (simprocs := {})).1 with

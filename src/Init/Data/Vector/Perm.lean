@@ -27,7 +27,7 @@ structure Perm (as bs : Vector α n) : Prop where
 @[inherit_doc] scoped infixl:50 " ~ " => Perm
 
 theorem perm_iff_toArray_perm {as bs : Vector α n} : as ~ bs ↔ as.toArray ~ bs.toArray :=
-  ⟨Perm.toArray_perm, Perm.of_toArray_perm⟩
+  ⟨Perm.toArray, Perm.of_toArray_perm⟩
 
 theorem perm_iff_toList_perm {as bs : Vector α n} : as ~ bs ↔ as.toList ~ bs.toList :=
   perm_iff_toArray_perm.trans Array.perm_iff_toList_perm
@@ -47,14 +47,14 @@ theorem toArray_perm_iff (xs : Vector α n) (ys : Array α) : xs.toArray ~ ys �
   · intro h
     refine ⟨by simp [← h.size_eq], .of_toArray_perm h⟩
   · intro ⟨h, p⟩
-    exact p.toArray_perm
+    exact p.toArray
 
 theorem perm_toArray_iff (xs : Array α) (ys : Vector α n) : xs ~ ys.toArray ↔ ∃ h, Vector.mk xs h ~ ys := by
   constructor
   · intro h
     refine ⟨by simp [h.size_eq], .of_toArray_perm h⟩
   · intro ⟨h, p⟩
-    exact p.toArray_perm
+    exact p.toArray
 
 @[simp, refl] protected theorem Perm.refl (xs : Vector α n) : xs ~ xs := by
   cases xs
@@ -119,7 +119,7 @@ theorem extract {xs ys : Vector α n} (h : xs ~ ys) {lo hi : Nat}
     xs.extract lo hi ~ ys.extract lo hi := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, h⟩
-  exact ⟨Array.Perm.extract h.toArray_perm (by simpa using wlo) (by simpa using whi)⟩
+  exact ⟨Array.Perm.extract h.toArray (by simpa using wlo) (by simpa using whi)⟩
 
 end Perm
 

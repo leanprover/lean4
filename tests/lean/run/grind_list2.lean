@@ -1,10 +1,10 @@
 -- Note that `grind_list.lean` uses `reset_grind_attrs%` to clear the grind attributes.
--- This file is testing the grind attributes in the library.
+-- This file does not: it is testing the grind attributes in the library.
 
 -- This file follows `Data/List/Lemmas.lean`. Indeed, if we decided `grind` is allowed there,
 -- it should be possible to replace proofs there with these.
 -- (In some cases, the proofs here are now cheating and directly using the same result from the library,
--- but originally this was not the case, but I haven't bothered writing `grind [-X]` everywhere.)
+-- but initially I was avoiding this, but haven't bothered writing `grind [-X]` everywhere.)
 
 -- This file only contains those theorems that can be proved "effortlessly" with `grind`.
 -- `tests/lean/grind/list_experiments.lean` contains everything from `Data/List/Lemmas.lean`

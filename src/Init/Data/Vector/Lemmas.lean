@@ -1263,7 +1263,8 @@ abbrev getElem_set_eq := @getElem_set_self
 theorem set_push {xs : Vector α n} {x y : α} {h} :
     (xs.push x).set i y = if _ : i < n then (xs.set i y).push x else xs.push y := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.set_push]
+  simp only [push_mk, set_mk, Array.set_push]
+  split <;> simp
 
 theorem set_comm (a b : α) {xs : Vector α n} {hi : i < n} {hj : j < n} (h : i ≠ j) :
     (xs.set i a hi).set j b hj = (xs.set j b hj).set i a hi := by
@@ -1977,10 +1978,10 @@ theorem flatMap_def {xs : Vector α n} {f : α → Vector β m} : xs.flatMap f =
   simp [Array.flatMap_def, Function.comp_def]
 
 @[simp, grind] theorem flatMap_empty {f : α → Vector β m} :
-    (#v[] : Vector α n).flatMap f = #v[] := rfl
+    (#v[] : Vector α 0).flatMap f = #v[].cast (by simp) := rfl
 
-@[simp, grind _=_] theorem flatMap_push {xs : Vector α n} {x : α} {f : α → Vector β m} :
-    (xs.push x).flatMap f = xs.flatMap f ++ f x := by
+@[simp, grind] theorem flatMap_push {xs : Vector α n} {x : α} {f : α → Vector β m} :
+    (xs.push x).flatMap f = (xs.flatMap f ++ f x).cast (by simp [Nat.add_mul]) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 

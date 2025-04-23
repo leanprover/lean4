@@ -520,6 +520,11 @@ theorem forall_getElem {xs : Array α} {p : α → Prop} :
 
 /-! ### isEmpty -/
 
+@[grind] theorem isEmpty_empty : (#[] : Array α).isEmpty = true := rfl
+@[simp, grind] theorem isEmpty_push {xs : Array α} : (xs.push x).isEmpty = false := by
+  rcases xs with ⟨xs⟩
+  simp
+
 @[simp] theorem isEmpty_toList {xs : Array α} : xs.toList.isEmpty = xs.isEmpty := by
   rcases xs with ⟨_ | _⟩ <;> simp
 
@@ -2361,7 +2366,7 @@ theorem flatMap_singleton {f : α → Array β} {x : α} : #[x].flatMap f = f x 
   rcases xs with ⟨xs⟩
   simp
 
-@[simp, grind _=_] theorem flatMap_push {xs : Array α} {x : α} {f : α → Array β} :
+@[simp, grind] theorem flatMap_push {xs : Array α} {x : α} {f : α → Array β} :
     (xs.push x).flatMap f = xs.flatMap f ++ f x := by
   rcases xs with ⟨xs⟩
   simp

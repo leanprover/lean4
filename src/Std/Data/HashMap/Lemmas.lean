@@ -1088,6 +1088,10 @@ theorem size_insertMany_list [EquivBEq α] [LawfulHashable α]
       (insertMany m l).size = m.size + l.length :=
   DHashMap.Const.size_insertMany_list distinct
 
+theorem size_insertMany_list' [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} :
+    (insertMany m l).size = ((l.eraseDupsBy (·.1 == ·.1)).filter fun ⟨a, b⟩ => ¬ a ∈ m).length + m.size
+
 theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     m.size ≤ (insertMany m l).size :=

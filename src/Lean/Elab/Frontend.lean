@@ -153,10 +153,7 @@ def runFrontend
   let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
   let processor := Language.Lean.process
-  let snap ← processor (fun header => do
-    if !header.raw[0].isNone && !Language.Lean.experimental.module.get opts then
-      throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
-    pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
+  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
   let snaps := Language.toSnapshotTree snap
   let severityOverrides := errorOnKinds.foldl (·.insert · .error) {}
 

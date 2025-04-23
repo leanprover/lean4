@@ -23,7 +23,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← floatRecApp preDef.value) }
-  let (fixedParamPerms, argsPacker, unaryPreDef, wfPreprocessProofs) ← withoutModifyingEnv do
+  let (fixedParamPerms, argsPacker, unaryPreDef) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
     let fixedParamPerms ← getFixedParamPerms preDefs
@@ -32,17 +32,20 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
       if varNames.isEmpty then
         throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
-    let (preDefsAttached, wfPreprocessProofs) ← Array.unzip <$> preDefs.mapM fun preDef => do
-      let result ← preprocess preDef.value
-      return ({preDef with value := result.expr}, result)
-    let unaryPreDef ← packMutual fixedParamPerms argsPacker preDefsAttached
-    return (fixedParamPerms, argsPacker, unaryPreDef, wfPreprocessProofs)
+    let unaryPreDef ← packMutual fixedParamPerms argsPacker preDefs
+    return (fixedParamPerms, argsPacker, unaryPreDef)
   trace[Elab.definition.wf] "unaryPreDef:{indentD unaryPreDef.value}"
+
+  let (unaryPreDefProcessed, wfPreprocessProof) ← withoutModifyingEnv do
+    addAsAxiom unaryPreDef
+    let result ← preprocess unaryPreDef.value
+    pure ({unaryPreDef with value := result.expr}, result)
+  trace[Elab.definition.wf] "unaryPreDefProcessed:{indentD unaryPreDef.value}"
 
   let wf : TerminationMeasures ← do
     if let some tms := termMeasures? then pure tms else
     -- No termination_by here, so use GuessLex to infer one
-    guessLex preDefs unaryPreDef fixedParamPerms argsPacker
+    guessLex preDefs unaryPreDefProcessed fixedParamPerms argsPacker
 
   let opaqueProof := !
     preDefs.any fun preDef =>
@@ -58,21 +61,23 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
-        let value ← mkFix unaryPreDef fixedArgs argsPacker wfRel (preDefs.map (·.declName)) (preDefs.map (·.termination.decreasingBy?)) opaqueProof
+        let value ← mkFix unaryPreDefProcessed fixedArgs argsPacker wfRel (preDefs.map (·.declName)) (preDefs.map (·.termination.decreasingBy?)) opaqueProof
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value
-      return { unaryPreDef with value }
+      return { unaryPreDefProcessed with value }
 
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefsNonrec ← preDefsFromUnaryNonRec fixedParamPerms argsPacker preDefs preDefNonRec
   Mutual.addPreDefsFromUnary (cacheProofs := false) preDefs preDefsNonrec preDefNonRec
   let preDefs ← Mutual.cleanPreDefs (cacheProofs := false) preDefs
   registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms argsPacker
-  for preDef in preDefs, wfPreprocessProof in wfPreprocessProofs do
-    unless preDef.kind.isTheorem do
-      unless (← isProp preDef.type) do
-        WF.mkUnfoldEq preDef preDefNonRec.declName wfPreprocessProof
+  WF.mkUnfoldEq unaryPreDef preDefNonRec.declName wfPreprocessProof
+  unless argsPacker.onlyOneUnary do
+    for preDef in preDefs do
+      unless preDef.kind.isTheorem do
+        unless (← isProp preDef.type) do
+          WF.mkBinaryUnfoldEq preDef preDefNonRec.declName
   -- must happen before `addPreDefAttributes` enables realizations for the top-level functions,
   -- which may need to use realizations on `preDefNonRec`
   enableRealizationsForConst preDefNonRec.declName

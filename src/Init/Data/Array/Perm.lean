@@ -22,15 +22,31 @@ For more complicated verification, use `perm_iff_toList_perm` and the `List` API
 -/
 structure Perm (as bs : Array α) : Prop where
   of_toList_perm ::
-  toList_perm : as.toList ~ bs.toList
+  toList : as.toList ~ bs.toList
 
 @[inherit_doc] scoped infixl:50 " ~ " => Perm
 
 theorem perm_iff_toList_perm {as bs : Array α} : as ~ bs ↔ as.toList ~ bs.toList :=
   ⟨Perm.toList_perm, Perm.of_toList_perm⟩
 
-@[simp] theorem _root_.List.perm_toArray (as bs : List α) : as.toArray ~ bs.toArray ↔ as ~ bs := by
+end Array
+
+namespace List
+
+theorem perm_iff_toArray_perm {as bs : List α} : as ~ bs ↔ as.toArray ~ bs.toArray := by
   simp [perm_iff_toList_perm]
+
+theorem Perm.of_toArray_perm {as bs : List α} : as.toArray ~ bs.toArray → as ~ bs := by
+  List.perm_iff_toArray_perm.mpr
+
+theorem Perm.toArray {as bs : List α} : as ~ bs → as.toArray ~ bs.toArray := by
+  List.perm_iff_toArray_perm.mp
+
+end List
+
+namespace Array
+
+open List
 
 @[simp, refl] protected theorem Perm.refl (xs : Array α) : xs ~ xs := by
   cases xs
@@ -43,12 +59,12 @@ theorem Perm.of_eq {xs ys : Array α} (h : xs = ys) : xs ~ ys := h ▸ .rfl
 @[symm]
 protected theorem Perm.symm {xs ys : Array α} (h : xs ~ ys) : ys ~ xs := by
   cases xs; cases ys
-  simp only [perm_toArray] at h
+  simp only [← perm_iff_toArray_perm] at h
   simpa using h.symm
 
 protected theorem Perm.trans {xs ys zs : Array α} (h₁ : xs ~ ys) (h₂ : ys ~ zs) : xs ~ zs := by
   cases xs; cases ys; cases zs
-  simp only [perm_toArray] at h₁ h₂
+  simp only [← perm_iff_toArray_perm] at h₁ h₂
   simpa using h₁.trans h₂
 
 instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
@@ -58,7 +74,7 @@ theorem perm_comm {xs ys : Array α} : xs ~ ys ↔ ys ~ xs := ⟨Perm.symm, Perm
 
 theorem Perm.size_eq {xs ys : Array α} (p : xs ~ ys) : xs.size = ys.size := by
   cases xs; cases ys
-  simp only [perm_toArray] at p
+  simp only [← perm_iff_toArray_perm] at p
   simpa using p.length_eq
 
 @[deprecated Perm.size_eq (since := "2025-04-17")]
@@ -73,7 +89,7 @@ theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a 
 theorem Perm.append {xs ys as bs : Array α} (p₁ : xs ~ ys) (p₂ : as ~ bs) :
     xs ++ as ~ ys ++ bs := by
   cases xs; cases ys; cases as; cases bs
-  simp only [append_toArray, perm_toArray] at p₁ p₂ ⊢
+  simp only [append_toArray, ← perm_iff_toArray_perm] at p₁ p₂ ⊢
   exact p₁.append p₂
 
 theorem Perm.push (x : α) {xs ys : Array α} (p : xs ~ ys) :
@@ -85,7 +101,7 @@ theorem Perm.push_comm (x y : α) {xs ys : Array α} (p : xs ~ ys) :
     (xs.push x).push y ~ (ys.push y).push x := by
   cases xs; cases ys
   simp only [perm_toArray] at p
-  simp only [push_toArray, List.append_assoc, singleton_append, perm_toArray]
+  simp only [push_toArray, List.append_assoc, singleton_append, ← perm_iff_toArray_perm]
   exact p.append (Perm.swap ..)
 
 theorem swap_perm {xs : Array α} {i j : Nat} (h₁ : i < xs.size) (h₂ : j < xs.size) :
@@ -101,7 +117,7 @@ theorem extract {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
     xs.extract lo hi ~ ys.extract lo hi := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
-  simp_all only [perm_toArray, List.getElem?_toArray, List.extract_toArray,
+  simp_all only [← perm_iff_toArray_perm, List.getElem?_toArray, List.extract_toArray,
     List.extract_eq_drop_take]
   apply List.Perm.take_of_getElem? (w := fun i h => by simpa using whi (lo + i) (by omega))
   apply List.Perm.drop_of_getElem? (w := wlo)

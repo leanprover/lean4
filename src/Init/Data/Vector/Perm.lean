@@ -22,7 +22,7 @@ For more complicated verification, use `perm_iff_toList_perm` and the `List` API
 -/
 structure Perm (as bs : Vector α n) : Prop where
   of_toArray_perm ::
-  toArray_perm : as.toArray ~ bs.toArray
+  toArray : as.toArray ~ bs.toArray
 
 @[inherit_doc] scoped infixl:50 " ~ " => Perm
 
@@ -35,7 +35,7 @@ theorem perm_iff_toList_perm {as bs : Vector α n} : as ~ bs ↔ as.toList ~ bs.
 theorem Perm.of_toList_perm {as bs : Vector α n} : as.toList ~ bs.toList → as ~ bs :=
   perm_iff_toList_perm.mpr
 
-theorem Perm.toList_perm {as bs : Vector α n} : as ~ bs → as.toList ~ bs.toList :=
+theorem Perm.toList {as bs : Vector α n} : as ~ bs → as.toList ~ bs.toList :=
   perm_iff_toList_perm.mp
 
 @[simp] theorem perm_mk (as bs : Array α) (ha : as.size = n) (hb : bs.size = n) :

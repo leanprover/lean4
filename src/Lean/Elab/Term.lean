@@ -1102,7 +1102,7 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
       | .some eNew => return eNew
       | .none => failure
       | .undef =>
-        let mvarAux ← mkFreshExprMVar (some expectedType) MetavarKind.syntheticOpaque
+        let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
         registerSyntheticMVarWithCurrRef mvarAux.mvarId! (.coe errorMsgHeader? expectedType e f? mkErrorMsg?)
         return mvarAux
   catch
@@ -1260,7 +1260,7 @@ def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind) : T
   if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
     withRef tacticCode <| mkLabeledSorry type false (unique := true)
   else
-    let mvar ← mkFreshExprMVar (some type) MetavarKind.syntheticOpaque
+    let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
     let mvarId := mvar.mvarId!
     let ref ← getRef
     registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext) kind
@@ -1717,7 +1717,7 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expe
   register metavariable as a pending one.
 -/
 def mkInstMVar (type : Expr) (extraErrorMsg? : OptionArg MessageData := .none) : TermElabM Expr := do
-  let mvar ← mkFreshExprMVar (some type) MetavarKind.synthetic
+  let mvar ← mkFreshExprMVar type MetavarKind.synthetic
   let mvarId := mvar.mvarId!
   unless (← synthesizeInstMVarCore mvarId (extraErrorMsg? := extraErrorMsg?)) do
     registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?)

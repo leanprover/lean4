@@ -16,7 +16,7 @@ inductive Lineage : Reactor → ID → Type
 
 def Lineage.container' {rtr i} : Lineage rtr i → (Option ID × Reactor)
   | .nested (.nested l h) _ => (Lineage.nested l h).container'
-  | @nested rtr' i' .. => (i', rtr')
+  | @nested rtr' i' .. => (some i', rtr')
   | _ => (none, rtr)
 
 attribute [simp] Lineage.container'
@@ -27,5 +27,5 @@ attribute [simp] Lineage.container'
 
 @[simp] def Lineage.container : Lineage rtr i → (Option ID × Reactor)
   | nested l@h:(nested ..) _ => l.container
-  | @nested rtr' i' .. => (i', rtr')
+  | @nested rtr' i' .. => (some i', rtr')
   | _ => (none, rtr)

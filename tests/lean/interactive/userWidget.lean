@@ -17,18 +17,18 @@ structure HelloWidgetProps where
   name? : Option String := none
   deriving Server.RpcEncodable
 
-#widget helloWidget with { name? := "lean" : HelloWidgetProps }
+#widget helloWidget with { name? := some "lean" : HelloWidgetProps }
   --^ widgets
 
-show_panel_widgets [helloWidget with { name? := "global" : HelloWidgetProps }]
+show_panel_widgets [helloWidget with { name? := some "global" : HelloWidgetProps }]
 
 section
-show_panel_widgets [local helloWidget with { name? := "local" : HelloWidgetProps }]
+show_panel_widgets [local helloWidget with { name? := some "local" : HelloWidgetProps }]
 --^ widgets
 end
 
 namespace Foo
-show_panel_widgets [scoped helloWidget with { name? := "scoped" : HelloWidgetProps }]
+show_panel_widgets [scoped helloWidget with { name? := some "scoped" : HelloWidgetProps }]
 end Foo
 
 open scoped Foo

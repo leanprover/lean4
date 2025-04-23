@@ -13,7 +13,7 @@ if x < 5 then x+1 else x-1
 
 def x := 1
 
-#check foo x x
+#check foo (some x) x
 
 #check match 1 with | x => x + 1
 #check match (motive := Int → _) 1 with | x => x + 1

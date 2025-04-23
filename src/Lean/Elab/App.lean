@@ -532,7 +532,7 @@ mutual
   private partial def addImplicitArg (argName : Name) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
-      let arg ← mkFreshExprMVar (some argType)
+      let arg ← mkFreshExprMVar argType
       /- When the result type is an output parameter, we don't want to propagate the expected type.
          So, we just mark `propagateExpected := false` to disable it.
          At `finalize`, we check whether `arg` is still unassigned, if it is, we apply default instances,
@@ -540,7 +540,7 @@ mutual
       modify fun s => { s with resultTypeOutParam? := some arg.mvarId!, propagateExpected := false }
       pure arg
     else
-      mkFreshExprMVar (some argType)
+      mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
     addNewArg argName arg
     main
@@ -703,7 +703,7 @@ mutual
       main
   where
     mkInstMVar (ty : Expr) : M Expr := do
-      let arg ← mkFreshExprMVar (some ty) MetavarKind.synthetic
+      let arg ← mkFreshExprMVar ty MetavarKind.synthetic
       addInstMVar arg.mvarId!
       addNewArg argName arg
       return arg
@@ -993,7 +993,7 @@ def saveArgInfo (arg : Expr) (binderName : Name) : M Unit := do
 
 /-- Create an implicit argument using the given `BinderInfo`. -/
 def mkImplicitArg (argExpectedType : Expr) (bi : BinderInfo) : M Expr := do
-  let arg ← mkFreshExprMVar (some argExpectedType) (if bi.isInstImplicit then .synthetic else .natural)
+  let arg ← mkFreshExprMVar argExpectedType (if bi.isInstImplicit then .synthetic else .natural)
   if bi.isInstImplicit then
     modify fun s => { s with instMVars := s.instMVars.push arg.mvarId! }
   return arg
@@ -1238,7 +1238,7 @@ private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : 
   match eType with
   | .forallE _ d b bi =>
     if bi.isImplicit || (hasArgs && bi.isStrictImplicit) then
-      let mvar ← mkFreshExprMVar (some d)
+      let mvar ← mkFreshExprMVar d
       registerMVarErrorHoleInfo mvar.mvarId! stx
       consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar) hasArgs
     else if bi.isInstImplicit then

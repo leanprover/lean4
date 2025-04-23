@@ -276,7 +276,7 @@ partial def readSolution? (p : Problem) : Option Solution := Id.run <| do
   let mut assignment : Array (Option Int) := mkArray p.nVars none
   for i in [0:p.nVars] do
     assignment := readSolution i assignment
-  return Solution.sat <| assignment.map (·.get!)
+  return some <| Solution.sat <| assignment.map (·.get!)
 where
   readSolution (varIdx : Nat) (assignment : Array (Option Int)) : Array (Option Int) := Id.run <| do
     match p.solvedEquations[varIdx]? with

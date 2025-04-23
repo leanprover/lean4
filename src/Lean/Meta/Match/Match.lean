@@ -904,7 +904,7 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
       return (mvarType, isEqMask)
     trace[Meta.Match.debug] "target: {mvarType}"
     withAlts motive discrs discrInfos lhss fun alts minors => do
-      let mvar ← mkFreshExprMVar (some mvarType)
+      let mvar ← mkFreshExprMVar mvarType
       trace[Meta.Match.debug] "goal\n{mvar.mvarId!}"
       let examples := discrs'.toList.map fun discr => Example.var discr.fvarId!
       let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs'.toList, alts := alts, examples := examples }).run {}
@@ -928,7 +928,7 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
     let mvarType  := mkAppN motive discrs
     trace[Meta.Match.debug] "target: {mvarType}"
     withAlts motive discrs discrInfos lhss fun alts minors => do
-      let mvar ← mkFreshExprMVar (some mvarType)
+      let mvar ← mkFreshExprMVar mvarType
       let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
       let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
       let args := #[motive] ++ discrs ++ minors.map Prod.fst

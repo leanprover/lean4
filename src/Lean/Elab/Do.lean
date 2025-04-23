@@ -98,8 +98,8 @@ structure ExtractMonadResult where
 private def mkUnknownMonadResult : MetaM ExtractMonadResult := do
   let u ← mkFreshLevelMVar
   let v ← mkFreshLevelMVar
-  let m ← mkFreshExprMVar (some (← mkArrow (mkSort (mkLevelSucc u)) (mkSort (mkLevelSucc v))))
-  let returnType ← mkFreshExprMVar (some (mkSort (mkLevelSucc u)))
+  let m ← mkFreshExprMVar (← mkArrow (mkSort (mkLevelSucc u)) (mkSort (mkLevelSucc v)))
+  let returnType ← mkFreshExprMVar (mkSort (mkLevelSucc u))
   return { m, returnType, expectedType := mkApp m returnType }
 
 private partial def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do

@@ -85,7 +85,7 @@ def elabRunIO : TermElab := fun stx expectedType? =>
   match stx with
   | `(run_io%$tk $t) => withRef t do
     let expectedType := mkApp (mkConst ``IO) <|
-      expectedType?.getD <| ← mkFreshExprMVar <| some <| mkSort <| .succ .zero
+      expectedType?.getD <| ← mkFreshExprMVar <| mkSort <| .succ .zero
     let v ← elabTermEnsuringType (← `(do $t)) (some expectedType)
     synthesizeSyntheticMVarsNoPostponing
     let v ← instantiateMVars v

@@ -298,13 +298,13 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
         let d  := d.instantiateRevRange j args.size args
         match bi with
         | BinderInfo.implicit     =>
-          let mvar ← mkFreshExprMVar (some d) MetavarKind.natural n
+          let mvar ← mkFreshExprMVar d MetavarKind.natural n
           loop b i j (args.push mvar) instMVars
         | BinderInfo.strictImplicit     =>
-          let mvar ← mkFreshExprMVar (some d) MetavarKind.natural n
+          let mvar ← mkFreshExprMVar d MetavarKind.natural n
           loop b i j (args.push mvar) instMVars
         | BinderInfo.instImplicit =>
-          let mvar ← mkFreshExprMVar (some d) MetavarKind.synthetic n
+          let mvar ← mkFreshExprMVar d MetavarKind.synthetic n
           loop b i j (args.push mvar) (instMVars.push mvar.mvarId!)
         | _ =>
           let x := xs[i]
@@ -370,10 +370,10 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (OptionArg Expr)) : Nat 
       | .none =>
         match bi with
         | BinderInfo.instImplicit => do
-          let mvar ← mkFreshExprMVar (some d) MetavarKind.synthetic n
+          let mvar ← mkFreshExprMVar d MetavarKind.synthetic n
           mkAppOptMAux f xs (i+1) (args.push mvar) j (instMVars.push mvar.mvarId!) b
         | _                       => do
-          let mvar ← mkFreshExprMVar (some d) MetavarKind.natural n
+          let mvar ← mkFreshExprMVar d MetavarKind.natural n
           mkAppOptMAux f xs (i+1) (args.push mvar) j instMVars b
       | .some x =>
         let xType ← inferType x

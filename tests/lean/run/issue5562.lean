@@ -53,7 +53,7 @@ run_meta do
 
 elab "with_unfolding_all" t:term : term <= expectedType? =>
   withTransparency .all <|
-    Elab.Term.elabTerm t expectedType?
+    Elab.Term.elabTerm t (some expectedType?)
 
 /--
 error: function expected

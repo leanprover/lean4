@@ -146,7 +146,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       let ctx ← read
       let argPos := (← get).argPos
       if ctx.elimInfo.motivePos == argPos then
-        let motive ← mkFreshExprMVar (some (← getArgExpectedType)) MetavarKind.syntheticOpaque
+        let motive ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.syntheticOpaque
         modify fun s => { s with motive := some motive.mvarId! }
         addNewArg motive
       else if ctx.elimInfo.targetsPos.contains argPos then
@@ -161,13 +161,13 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
         addNewArg target
       else match c with
         | .implicit =>
-          let arg ← mkFreshExprMVar (some (← getArgExpectedType))
+          let arg ← mkFreshExprMVar (← getArgExpectedType)
           addNewArg arg
         | .strictImplicit =>
-          let arg ← mkFreshExprMVar (some (← getArgExpectedType))
+          let arg ← mkFreshExprMVar (← getArgExpectedType)
           addNewArg arg
         | .instImplicit =>
-          let arg ← mkFreshExprMVar (some (← getArgExpectedType)) (kind := MetavarKind.synthetic) (userName := appendTag tag binderName)
+          let arg ← mkFreshExprMVar (← getArgExpectedType) (kind := MetavarKind.synthetic) (userName := appendTag tag binderName)
           modify fun s => { s with insts := s.insts.push arg.mvarId! }
           addNewArg arg
         | _ =>

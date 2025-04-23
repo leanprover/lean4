@@ -760,7 +760,7 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
       else
         -- Use a subobject for this parent.
         -- We create a metavariable to represent the subobject, so that `withStructField` can create projections
-        let inSubobject ← mkFreshExprMVar (some structType)
+        let inSubobject ← mkFreshExprMVar structType
         withStructFields' (.subobject structName) (some inSubobject) fun info => do
           inSubobject.mvarId!.assign info.fvar
           k info

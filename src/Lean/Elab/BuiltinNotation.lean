@@ -496,7 +496,7 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
   if mStx.getKind == ``Lean.Parser.Term.macroDollarArg then
     mStx := mStx[1]
   let m ← elabTerm mStx (some (← mkArrow (mkSort levelOne) (mkSort levelOne)))
-  let ω ← mkFreshExprMVar (some (mkSort levelOne))
+  let ω ← mkFreshExprMVar (mkSort levelOne)
   let stWorld ← mkAppM ``STWorld #[ω, m]
   discard <| mkInstMVar stWorld
   mkAppM ``StateRefT' #[ω, σ, m]

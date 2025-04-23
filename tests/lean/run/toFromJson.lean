@@ -123,5 +123,5 @@ structure MinusAsk where
   «branches-ignore?» : Option (Array String)
   deriving ToJson, FromJson, Repr, DecidableEq
 
-run_meta checkRoundTrip { «branches-ignore?» := #["master"] : MinusAsk }
-run_meta checkToJson { «branches-ignore?» := #["master"] : MinusAsk } (json { «branches-ignore» : ["master"] })
+run_meta checkRoundTrip { «branches-ignore?» := some #["master"] : MinusAsk }
+run_meta checkToJson { «branches-ignore?» := some #["master"] : MinusAsk } (json { «branches-ignore» : ["master"] })

@@ -135,7 +135,7 @@ example : State.get [x ↦ 10, y ↦ true] "y" = true := rfl
 
 @[simp] def Expr.eval (σ : State) : Expr → Option Val
   | val v   => some v
-  | var x   => σ.get x
+  | var x   => some <| σ.get x
   | bin lhs op rhs => match lhs.eval σ, rhs.eval σ with
     | some v₁, some v₂ => op.eval v₁ v₂  -- BinOp.eval : BinOp → Val → Val → Option Val
     | _,       _       => none

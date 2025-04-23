@@ -295,7 +295,7 @@ partial_fixpoint
 structure Tree where cs : List Tree
 
 def Tree.rev (t : Tree) : Option Tree := do
-  Tree.mk (← t.cs.reverse.mapM (Tree.rev ·))
+  some <| Tree.mk (← t.cs.reverse.mapM (Tree.rev ·))
 partial_fixpoint
 
 def Tree.rev' (t : Tree) : Option Tree := do
@@ -320,7 +320,7 @@ def VarName.computeLfp {α : Type u} [DecidableEq α] (f : α → Option α) (x 
   if x ≠ next then
     id $ computeLfp f next --NB: Error message should use correct variable name
   else
-    x
+    some x
 partial_fixpoint
 
 
@@ -344,7 +344,7 @@ error: Could not prove 'Tree.rev_bad' to be monotone in its recursive calls:
 -/
 #guard_msgs in
 def Tree.rev_bad (t : Tree) : Option Tree := do
-  Tree.mk (← t.cs.reverse.mapM (fun my_name => id (Tree.rev_bad my_name)))
+  some <| Tree.mk (← t.cs.reverse.mapM (fun my_name => id (Tree.rev_bad my_name)))
 partial_fixpoint
 
 /--
@@ -354,8 +354,8 @@ error: Could not prove 'Tree.rev''' to be monotone in its recursive calls:
 -/
 #guard_msgs in
 def Tree.rev'' (t : Tree) : Option Tree := do
-  Tree.mk (← t.cs.reverse.toArray.mapFinIdxM
-    (fun my_idx my_name _ => id (if my_idx < 0 then my_name else Tree.rev'' my_name))).toList
+  some <| Tree.mk (← t.cs.reverse.toArray.mapFinIdxM
+    (fun my_idx my_name _ => id (if my_idx < 0 then some my_name else Tree.rev'' my_name))).toList
 partial_fixpoint
 
 /--

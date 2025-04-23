@@ -6,7 +6,7 @@ def exec (x : MacroM α) : Option α :=
       currMacroScope := 0
       ref := default
       methods := default } { macroScope := 0 } with
-    | EStateM.Result.ok a s => a
+    | EStateM.Result.ok a s => some a
     | _ => none
 
 def tst : MacroM String := do

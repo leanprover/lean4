@@ -516,7 +516,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
          match (← findEntry? key') with
          | none =>
            let (mctx', mvar') ← withMCtx cNode.mctx do
-             let mvar' ← mkFreshExprMVar (some mvarType')
+             let mvar' ← mkFreshExprMVar mvarType'
              return (← getMCtx, mvar')
            newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
          | some entry' =>
@@ -627,7 +627,7 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
 
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
-     let mvar ← mkFreshExprMVar (some type)
+     let mvar ← mkFreshExprMVar type
      let key  ← mkTableKey type
      let action : SynthM (Option AbstractMVarsResult) := do
        newSubgoal (← getMCtx) key mvar Waiter.root
@@ -670,7 +670,7 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (
       We should not simply check `d.isOutParam`. See `checkOutParam` and issue #1852.
       If an instance implicit argument depends on an `outParam`, it is treated as an `outParam` too.
       -/
-      let arg ← if outParamsPos.contains i then mkFreshExprMVar (some d) else pure arg
+      let arg ← if outParamsPos.contains i then mkFreshExprMVar d else pure arg
       let args := args.set i arg
       preprocessArgs (b.instantiate1 arg) (i+1) args outParamsPos
     | _ =>

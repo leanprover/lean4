@@ -138,7 +138,7 @@ where
               let newGoalType := innerMotiveType.replaceFVar z (toExpr numBits)
               let motive ← mkLambdaFVars #[z, other] innerMotiveType
               return (motive, newGoalType)
-        let mut newGoal := (← mkFreshExprMVar (some newGoalType)).mvarId!
+        let mut newGoal := (← mkFreshExprMVar newGoalType).mvarId!
         let casesOn := mkApp6 (mkConst ``Eq.casesOn [0, 1])
           (mkConst ``Nat)
           (toExpr numBits)

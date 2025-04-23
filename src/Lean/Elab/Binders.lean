@@ -681,7 +681,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
     if elabBodyFirst then
       let type ← mkForallFVars fvars type
-      let val  ← mkFreshExprMVar (some type)
+      let val  ← mkFreshExprMVar type
       pure (type, val, binders)
     else
       let val  ← elabTermEnsuringType valStx (some type)

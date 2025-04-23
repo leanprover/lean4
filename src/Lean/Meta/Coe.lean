@@ -58,7 +58,7 @@ def coerceToFunction? (expr : Expr) : MetaM (Option Expr) := do
   let α ← inferType expr
   let u ← getLevel α
   let v ← mkFreshLevelMVar
-  let γ ← mkFreshExprMVar (some (← mkArrow α (mkSort v)))
+  let γ ← mkFreshExprMVar (← mkArrow α (mkSort v))
   let .some inst ← trySynthInstance (mkApp2 (.const ``CoeFun [u,v]) α γ) | return none
   let expanded ← expandCoe (mkApp4 (.const ``CoeFun.coe [u,v]) α γ inst expr)
   unless (← whnf (← inferType expanded)).isForall do
@@ -71,7 +71,7 @@ def coerceToSort? (expr : Expr) : MetaM (Option Expr) := do
   let α ← inferType expr
   let u ← getLevel α
   let v ← mkFreshLevelMVar
-  let β ← mkFreshExprMVar (some (mkSort v))
+  let β ← mkFreshExprMVar (mkSort v)
   let .some inst ← trySynthInstance (mkApp2 (.const ``CoeSort [u,v]) α β) | return none
   let expanded ← expandCoe (mkApp4 (.const ``CoeSort.coe [u,v]) α β inst expr)
   unless (← whnf (← inferType expanded)).isSort do

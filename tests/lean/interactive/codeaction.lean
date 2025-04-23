@@ -12,20 +12,20 @@ def helloProvider : CodeActionProvider := fun params _snap => do
     }
   let ca : CodeAction := {
     title := "hello world",
-    kind? := "quickfix",
-    edit? := WorkspaceEdit.ofTextEdit vi edit
+    kind? := some "quickfix",
+    edit? := some <| WorkspaceEdit.ofTextEdit vi edit
   }
   let longRunner : CodeAction := {
     title := "a long-running action",
-    kind? := "refactor",
+    kind? := some "refactor",
   }
   let lazyResult : IO CodeAction := do
     let v? ← IO.getEnv "PWD"
     let v := v?.getD "none"
     return { longRunner with
-      edit? := WorkspaceEdit.ofTextEdit vi { range := params.range, newText := v}
+      edit? := some <| WorkspaceEdit.ofTextEdit vi { range := params.range, newText := v}
     }
-  return #[ca, {eager := longRunner, lazy? := lazyResult}]
+  return #[ca, {eager := longRunner, lazy? := some <| lazyResult}]
 
 theorem asdf : (x : Nat) → x = x := by
   intro x

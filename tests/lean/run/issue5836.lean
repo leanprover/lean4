@@ -13,7 +13,7 @@ Cannot use parameter #2:
 def Foo.map (m : Foo → Foo) : Foo → Foo
   | .foo f => .foo fun s => match f s with
     | none => none
-    | some x => map m x
+    | some x => some <| map m x
 termination_by structural x => x
 
 -- workaround:
@@ -25,7 +25,7 @@ termination_by structural x => x
 
 def Foo.bar_aux (m : Foo → Foo) : Option Foo → Option Foo
     | none => none
-    | some x => bar m x
+    | some x => some <| bar m x
 termination_by structural x => x
 end
 

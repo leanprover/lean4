@@ -824,12 +824,12 @@ private def mkFreshExprMVarImpl (type? : Option Expr) (kind : MetavarKind) (user
     let type ← mkFreshExprMVarCore (mkSort u) MetavarKind.natural Name.anonymous
     mkFreshExprMVarCore type kind userName
 
-def mkFreshExprMVar (type? : Option Expr) (kind := MetavarKind.natural) (userName := Name.anonymous) : MetaM Expr :=
+def mkFreshExprMVar (type? : OptionArg Expr) (kind := MetavarKind.natural) (userName := Name.anonymous) : MetaM Expr :=
   mkFreshExprMVarImpl type? kind userName
 
 def mkFreshTypeMVar (kind := MetavarKind.natural) (userName := Name.anonymous) : MetaM Expr := do
   let u ← mkFreshLevelMVar
-  mkFreshExprMVar (some (mkSort u)) kind userName
+  mkFreshExprMVar (mkSort u) kind userName
 
 /-- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
    the metavar using this method. -/
@@ -843,7 +843,7 @@ def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind 
   | some type => mkFreshExprMVarWithIdCore mvarId type kind userName
   | none      => do
     let u ← mkFreshLevelMVar
-    let type ← mkFreshExprMVar (some (mkSort u))
+    let type ← mkFreshExprMVar (mkSort u)
     mkFreshExprMVarWithIdCore mvarId type kind userName
 
 def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
@@ -1545,7 +1545,7 @@ where
       | .forallE n d b bi =>
         let d  := d.instantiateRevRange j mvars.size mvars
         let k  := if bi.isInstImplicit then  MetavarKind.synthetic else kind
-        let mvar ← mkFreshExprMVar (some d) k n
+        let mvar ← mkFreshExprMVar d k n
         let mvars := mvars.push mvar
         let bis   := bis.push bi
         process mvars bis j b
@@ -1594,7 +1594,7 @@ where
       match type with
       | .lam _ d b bi =>
         let d     := d.instantiateRevRange j mvars.size mvars
-        let mvar ← mkFreshExprMVar (some d)
+        let mvar ← mkFreshExprMVar d
         let mvars := mvars.push mvar
         let bis   := bis.push bi
         process mvars bis j b

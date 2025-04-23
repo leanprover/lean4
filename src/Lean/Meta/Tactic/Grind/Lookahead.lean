@@ -44,7 +44,7 @@ private def tryLookahead (e : Expr) : GoalM Bool := do
     let goal ← get
     let tag ← goal.mvarId.getTag
     let target ← mkArrow (mkNot e) (← getFalseExpr)
-    let mvar ← mkFreshExprMVar (some target) .syntheticOpaque tag
+    let mvar ← mkFreshExprMVar target .syntheticOpaque tag
     let gen ← getGeneration e
     if (← solve gen { goal with mvarId := mvar.mvarId! }) then
       return some (← instantiateMVars mvar)

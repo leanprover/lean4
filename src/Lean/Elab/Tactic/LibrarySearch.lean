@@ -67,7 +67,7 @@ def evalApply : Tactic := fun stx => do
 def elabExact?Term : TermElab := fun stx expectedType? => do
   let `(exact?%) := stx | throwUnsupportedSyntax
   withExpectedType expectedType? fun expectedType => do
-    let goal ← mkFreshExprMVar (some expectedType)
+    let goal ← mkFreshExprMVar expectedType
     let (_, introdGoal) ← goal.mvarId!.intros
     introdGoal.withContext do
       if let some suggestions ← librarySearch introdGoal then

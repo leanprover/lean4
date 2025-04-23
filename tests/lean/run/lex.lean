@@ -95,7 +95,7 @@ def lex [Monad m] [MonadExceptOf LexErr m] (current? : Option (List Char × Nat)
           | none => throw <| LexErr.unexpected other
           | some d => match current? with
             | none => lex (some ([other], d)) it.next
-            | some (tokTxt, soFar) => lex (other :: tokTxt, soFar * 10 + d) it.next
+            | some (tokTxt, soFar) => lex (some (other :: tokTxt, soFar * 10 + d)) it.next
 
 /-- info: Except.ok [] -/
 #guard_msgs in

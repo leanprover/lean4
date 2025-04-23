@@ -409,11 +409,11 @@ private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Exp
       | throwError "unexpected constructor type"
     let param ←
       if bi.isInstImplicit then
-        let mvar ← mkFreshExprMVar (some d) .synthetic
+        let mvar ← mkFreshExprMVar d .synthetic
         instMVars := instMVars.push mvar.mvarId!
         pure mvar
       else
-        mkFreshExprMVar (some d)
+        mkFreshExprMVar d
     params := params.push param
     type := b.instantiate1 param
   let structType := mkAppN (.const ctorVal.induct us) params
@@ -715,7 +715,7 @@ private def elabStructField (_fieldName : Name) (stx : Term) (fieldType : Expr) 
 
 private def addStructFieldMVar (fieldName : Name) (ty : Expr) (kind : MetavarKind := .natural) : StructInstM Expr := do
   let ty ← normalizeExpr ty
-  let e ← mkFreshExprMVar (some ty) (kind := kind)
+  let e ← mkFreshExprMVar ty (kind := kind)
   addStructFieldAux fieldName e
   return e
 

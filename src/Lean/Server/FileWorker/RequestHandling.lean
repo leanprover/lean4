@@ -343,7 +343,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     -- for binders, hide the last hypothesis (the binder itself)
     let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
     let goal ← ci.runMetaM lctx' do
-      Widget.goalToInteractive (← Meta.mkFreshExprMVar (some ty)).mvarId!
+      Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
     let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
     return some { goal with range, term := ⟨ti⟩ }
 

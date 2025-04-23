@@ -97,7 +97,7 @@ where
     let .some commRingInst ← trySynthInstance ring | return none
     trace_goal[grind.ring] "new ring: {type}"
     let charInst? ← withNewMCtxDepth do
-      let n ← mkFreshExprMVar (some (mkConst ``Nat))
+      let n ← mkFreshExprMVar (mkConst ``Nat)
       let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type commRingInst n
       let .some charInst ← trySynthInstance charType | pure none
       let n ← instantiateMVars n

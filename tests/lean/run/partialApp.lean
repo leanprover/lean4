@@ -40,5 +40,5 @@ rfl
 theorem ex10 (x : α) : g x = fun (c : α) => x + c :=
 rfl
 
-theorem ex11 (x y : α) : g x y = fun (c : α) => x + y + c :=
+theorem ex11 (x y : α) : g x (some y) = fun (c : α) => x + y + c :=
 rfl

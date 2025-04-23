@@ -236,7 +236,7 @@ construct and return a proof of `x = y`.
 Uses `ac_rfl` internally to contruct said proof. -/
 def proveEqualityByAC (x y : Expr) : MetaM Expr := do
   let expectedType ← mkEq x y
-  let proof ← mkFreshExprMVar (some expectedType)
+  let proof ← mkFreshExprMVar expectedType
   AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
   instantiateMVars proof
 

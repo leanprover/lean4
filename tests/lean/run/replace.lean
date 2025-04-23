@@ -8,7 +8,7 @@ partial def mkBig : Nat → Expr
 
 def replaceTest (e : Expr) : Expr :=
 e.replace $ fun e => match e with
- | Expr.const c _ => if c == `f then mkConst `g else none
+ | Expr.const c _ => if c == `f then some <| mkConst `g else none
  | _ => none
 
 #eval replaceTest $ mkBig 4

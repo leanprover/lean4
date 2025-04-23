@@ -951,7 +951,7 @@ equality on the original term.
 -/
 theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
     {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
-    HEq (@Eq.rec α a motive refl b h) c ↔ HEq refl c :=
+    HEq c (@Eq.rec α a motive refl b h) ↔ HEq c refl :=
   h.rec (fun _ => ⟨id, id⟩) c
 
 /--
@@ -1009,7 +1009,7 @@ theorem HEq.comm {a : α} {b : β} : HEq a b ↔ HEq b a := Iff.intro HEq.symm H
 theorem heq_comm {a : α} {b : β} : HEq a b ↔ HEq b a := HEq.comm
 
 @[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
-theorem Iff.comm: (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
+theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
 theorem iff_comm : (a ↔ b) ↔ (b ↔ a) := Iff.comm
 
 @[symm] theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
@@ -1174,12 +1174,12 @@ theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) :
   | isTrue _    => rfl
   | isFalse _   => rfl
 
-instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e)  :=
+instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
   match dC with
   | isTrue _   => dT
   | isFalse _  => dE
 
-instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h)  :=
+instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h) :=
   match dC with
   | isTrue hc  => dT hc
   | isFalse hc => dE hc

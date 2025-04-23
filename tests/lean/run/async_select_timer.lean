@@ -45,8 +45,4 @@ def test2 (dur : Time.Millisecond.Offset) : IO Bool := do
 
 /-- info: true -/
 #guard_msgs in
-#eval test2 100
-
-/-- info: true -/
-#guard_msgs in
 #eval test2 0

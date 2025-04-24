@@ -79,4 +79,5 @@ def test : MetaM Unit := do
   if !orphanedModules.isEmpty then do
     logError s!"There are orphaned modules: {orphanedModules}"
 
+#guard_msgs in
 #eval test

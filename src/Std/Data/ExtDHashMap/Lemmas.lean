@@ -15,6 +15,8 @@ This file contains lemmas about `Std.ExtDHashMap`.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
+attribute [local instance] Std.DHashMap.isSetoid
+
 universe u v w w'
 
 variable {α : Type u} {_ : BEq α} {_ : Hashable α} {_ : EquivBEq α} {_ : LawfulHashable α}

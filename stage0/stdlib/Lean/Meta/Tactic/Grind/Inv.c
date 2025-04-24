@@ -1014,7 +1014,7 @@ LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___private_Lean_Meta_Tactic_
 _start:
 {
 uint8_t x_15; 
-x_15 = lean_ctor_get_uint8(x_3, sizeof(void*)*13 + 4);
+x_15 = lean_ctor_get_uint8(x_3, sizeof(void*)*12 + 4);
 if (x_15 == 0)
 {
 lean_object* x_16; 

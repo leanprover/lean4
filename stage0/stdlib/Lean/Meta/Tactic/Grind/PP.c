@@ -1169,7 +1169,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grin
 _start:
 {
 uint8_t x_12; 
-x_12 = lean_ctor_get_uint8(x_4, sizeof(void*)*13 + 2);
+x_12 = lean_ctor_get_uint8(x_4, sizeof(void*)*12 + 2);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -1221,7 +1221,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grin
 _start:
 {
 uint8_t x_12; 
-x_12 = lean_ctor_get_uint8(x_4, sizeof(void*)*13 + 1);
+x_12 = lean_ctor_get_uint8(x_4, sizeof(void*)*12 + 1);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 

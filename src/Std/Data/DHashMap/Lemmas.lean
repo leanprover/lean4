@@ -3155,7 +3155,8 @@ end Const
 
 end Equiv
 
-instance isSetoid (α β) [BEq α] [Hashable α] : Setoid (DHashMap α β) where
+/-- Internal implementation detail of the hash map. -/
+def isSetoid (α β) [BEq α] [Hashable α] : Setoid (DHashMap α β) where
   r := Equiv
   iseqv := {
     refl := .refl

@@ -851,14 +851,6 @@ theorem of_forall_mem_iff [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
 
 end Equiv
 
-instance isSetoid (α) : Setoid (Raw α) where
-  r := Equiv
-  iseqv := {
-    refl := .refl
-    symm := .symm
-    trans := .trans
-  }
-
 theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} (h : m.WF) :
     m ~m emptyWithCapacity c ↔ m.isEmpty :=
   ⟨fun ⟨h'⟩ => (HashMap.Raw.equiv_emptyWithCapacity_iff_isEmpty h.1).mp h',

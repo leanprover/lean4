@@ -3374,14 +3374,6 @@ end Const
 
 end Equiv
 
-instance isSetoid (α β) : Setoid (DHashMap.Raw α β) where
-  r := Equiv
-  iseqv := {
-    refl := .refl
-    symm := .symm
-    trans := .trans
-  }
-
 theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} (h : m.WF) :
     m ~m emptyWithCapacity c ↔ m.isEmpty :=
   ⟨fun h' => (Raw₀.equiv_emptyWithCapacity_iff_isEmpty ⟨m, h.size_buckets_pos⟩ h).mp h',

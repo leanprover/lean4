@@ -2115,14 +2115,6 @@ section Equiv
 
 variable {m m₁ m₂ : HashMap α β}
 
-instance isSetoid (α β) [BEq α] [Hashable α] : Setoid (HashMap α β) where
-  r := Equiv
-  iseqv := {
-    refl := .refl
-    symm := .symm
-    trans := .trans
-  }
-
 @[simp]
 theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
     m ~m emptyWithCapacity c ↔ m.isEmpty :=

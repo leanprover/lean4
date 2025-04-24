@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.CoreM
 import Lean.Namespace
+import Lean.Util.CollectAxioms
 
 namespace Lean
 
@@ -147,6 +148,8 @@ where
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException
           setEnv env
+          for n in decl.getTopLevelNames do
+            registerAxiomsForDecl n
         catch ex =>
           -- avoid follow-up errors by (trying to) add broken decl as axiom
           addAsAxiom

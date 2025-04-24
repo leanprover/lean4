@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Attach
@@ -40,7 +42,7 @@ theorem findSome?_singleton {a : α} {f : α → Option β} : #v[a].findSome? f 
   simp only [push_mk, findSomeRev?_mk, Array.findSomeRev?_push_of_isNone, h]
 
 theorem exists_of_findSome?_eq_some {f : α → Option β} {xs : Vector α n} (w : xs.findSome? f = some b) :
-    ∃ a, a ∈ xs ∧ f a = b := by
+    ∃ a, a ∈ xs ∧ f a = some b := by
   rcases xs with ⟨xs, rfl⟩
   simpa using Array.exists_of_findSome?_eq_some (by simpa using w)
 

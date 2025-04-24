@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Notation
+import Init.Data.Option.Coe
 
 namespace Lean
 

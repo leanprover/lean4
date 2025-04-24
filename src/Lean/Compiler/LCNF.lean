@@ -41,3 +41,4 @@ import Lean.Compiler.LCNF.MonadScope
 import Lean.Compiler.LCNF.Closure
 import Lean.Compiler.LCNF.LambdaLifting
 import Lean.Compiler.LCNF.ReduceArity
+import Lean.Compiler.LCNF.Probing

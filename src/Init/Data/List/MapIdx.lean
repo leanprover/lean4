@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Mario Carneiro
 -/
 
+module
+
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.Range
@@ -136,7 +138,7 @@ theorem mapFinIdx_eq_ofFn {as : List α} {f : (i : Nat) → α → (h : i < as.l
   apply ext_getElem <;> simp
 
 @[simp] theorem getElem?_mapFinIdx {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} {i : Nat} :
-    (l.mapFinIdx f)[i]? = l[i]?.pbind fun x m => f i x (by simp [getElem?_eq_some_iff] at m; exact m.1) := by
+    (l.mapFinIdx f)[i]? = l[i]?.pbind fun x m => some <| f i x (by simp [getElem?_eq_some_iff] at m; exact m.1) := by
   simp only [getElem?_def, length_mapFinIdx, getElem_mapFinIdx]
   split <;> simp
 
@@ -225,7 +227,7 @@ theorem mapFinIdx_eq_cons_iff {l : List α} {b : β} {f : (i : Nat) → α → (
 
 theorem mapFinIdx_eq_cons_iff' {l : List α} {b : β} {f : (i : Nat) → α → (h : i < l.length) → β} :
     l.mapFinIdx f = b :: l₂ ↔
-      l.head?.pbind (fun x m => (f 0 x (by cases l <;> simp_all))) = some b ∧
+      l.head?.pbind (fun x m => some (f 0 x (by cases l <;> simp_all))) = some b ∧
         l.tail?.attach.map (fun ⟨t, m⟩ => t.mapFinIdx fun i a h => f (i + 1) a (by cases l <;> simp_all)) = some l₂ := by
   cases l <;> simp
 

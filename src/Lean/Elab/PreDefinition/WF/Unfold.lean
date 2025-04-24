@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
+import Lean.Meta.Tactic.Apply
 
 namespace Lean.Elab.WF
 open Meta
@@ -51,9 +52,6 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
   else if let some mvarId ← simpIf? mvarId then
     trace[Elab.definition.wf.eqns] "simpIf!"
     mkUnfoldProof declName mvarId
-  else if let some mvarId ← whnfReducibleLHS? mvarId then
-    trace[Elab.definition.wf.eqns] "whnfReducibleLHS!"
-    mkUnfoldProof declName mvarId
   else
     let ctx ← Simp.mkContext (config := { dsimp := false, etaStruct := .none })
     match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
@@ -77,6 +75,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
 def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
   let baseName := preDef.declName
   let name := Name.str baseName unfoldThmSuffix
+  mapError (f := (m!"Cannot derive {name}{indentD ·}")) do
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope preDef.value fun xs body => do
       let us := preDef.levelParams.map mkLevelParam
@@ -99,6 +98,38 @@ def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessPr
         levelParams := preDef.levelParams
       }
       trace[Elab.definition.wf] "mkUnfoldEq defined {.ofConstName name}"
+
+/--
+Derives the equational theorem for the individual functions from the equational
+theorem of `foo._unary` or `foo._binary`.
+
+It should just be a specialization of that one, due to defeq.
+-/
+def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM Unit := do
+  let baseName := preDef.declName
+  let name := Name.str baseName unfoldThmSuffix
+  let unaryEqName := Name.str unaryPreDefName unfoldThmSuffix
+  mapError (f := (m!"Cannot derive {name} from {unaryEqName}{indentD ·}")) do
+  withOptions (tactic.hygienic.set · false) do
+    lambdaTelescope preDef.value fun xs body => do
+      let us := preDef.levelParams.map mkLevelParam
+      let lhs := mkAppN (Lean.mkConst preDef.declName us) xs
+      let type ← mkEq lhs body
+      let main ← mkFreshExprSyntheticOpaqueMVar type
+      let mvarId := main.mvarId!
+      let mvarId ← deltaLHS mvarId -- unfold the function
+      let mvarIds ← mvarId.applyConst unaryEqName
+      unless mvarIds.isEmpty do
+        throwError "Failed to apply '{unaryEqName}' to '{mvarId}'"
+
+      let value ← instantiateMVars main
+      let type ← mkForallFVars xs type
+      let value ← mkLambdaFVars xs value
+      addDecl <| Declaration.thmDecl {
+        name, type, value
+        levelParams := preDef.levelParams
+      }
+      trace[Elab.definition.wf] "mkBinaryUnfoldEq defined {.ofConstName name}"
 
 builtin_initialize
   registerTraceClass `Elab.definition.wf.eqns

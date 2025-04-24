@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Mario Carneiro, Kim Morrison, Markus Himmel
 -/
 
+module
+
 prelude
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Nat.Lemmas

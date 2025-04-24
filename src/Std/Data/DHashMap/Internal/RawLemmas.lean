@@ -1556,7 +1556,7 @@ theorem get?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable 
 theorem get?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) :
-    get? (insertMany m l).1 k' = v := by
+    get? (insertMany m l).1 k' = some v := by
   simp_to_model [Const.insertMany, Const.get?] using List.getValue?_insertListConst_of_mem
 
 theorem get_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)

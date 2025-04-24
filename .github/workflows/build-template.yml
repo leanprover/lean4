@@ -99,7 +99,6 @@ jobs:
         if: matrix.cmultilib
       - name: Cache
         id: restore-cache
-        if: matrix.name != 'Linux Lake'
         uses: actions/cache/restore@v4
         with:
           # NOTE: must be in sync with `save` below

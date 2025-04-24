@@ -1706,16 +1706,16 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
   · omega
 
 theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
-    (shiftLeftZeroExtend x n).toNat = if 0 < n then x.toNat <<< n else x.toNat := by
-  simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
-  by_cases hn : 0 < n
-  · simp only [hn, ↓reduceIte]
+    (shiftLeftZeroExtend x n).toNat = x.toNat <<< n := by
+  by_cases h : n = 0
+  · subst h
+    simp [shiftLeftZeroExtend]
+  · simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
     have :=  Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + n) (by omega) (by omega)
     have : x.toNat < 2 ^ (w + n) := by omega
     have : x.toNat <<< n < 2 ^ (w + n) := by
       rw [Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right (by apply Nat.two_pow_pos (w := n))]; omega
     rw [Nat.mod_eq_of_lt (by rw [Nat.mod_eq_of_lt (by omega)]; omega), Nat.mod_eq_of_lt (by omega)]
-  · simp [show n = 0 by omega]
 
 theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
     (shiftLeftZeroExtend x n).toInt = ((x.toNat <<< n) : Int).bmod (2 ^ w * 2 ^ n)  := by

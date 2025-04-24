@@ -268,7 +268,7 @@ fails.
 partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := do
   unless e.containsFVar oldIH do
     return e
-  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} foldAndCollect:{indentExpr e}") do
+  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} foldAndCollect ({mkFVar oldIH} → {mkFVar newIH})::{indentExpr e}") do
 
   let e' ← id do
     if let some (n, t, v, b) := e.letFun? then
@@ -283,7 +283,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
       if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
         -- We do different things to the matcher when folding recursive calls and when
         -- collecting inductive hypotheses. Therefore we do it separately,
-        -- droppin got `MetaM` in between, and using `M.eval`/`M.exec` as appropriate
+        -- dropping to `MetaM` in between, and using `M.eval`/`M.exec` as appropriate
         -- We could try to do it in one pass by breaking up the `matcherApp.transform`
         -- abstraction.
 
@@ -315,15 +315,21 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
         let ihMatcherApp'' ← ihMatcherApp'.inferMatchType
         M.tell ihMatcherApp''.toExpr
 
-        -- Folding the calls is straight forward
+        -- When folding the calls we don't want to remove the extra arg to the matcher
+        -- that was introduced in the translation
         let matcherApp' ← liftM <| matcherApp.transform
           (onParams := fun e => M.eval <| foldAndCollect oldIH newIH isRecCall e)
           (onMotive := fun _motiveArgs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
             M.eval (foldAndCollect oldIH newIH isRecCall body))
-          (onAlt := fun _altType alt => do
-            lambdaTelescope1 alt fun oldIH alt => do
-              M.eval (foldAndCollect oldIH newIH isRecCall alt))
+          (onAlt := fun altType alt => do
+            lambdaTelescope1 alt fun oldIH' alt => do
+            -- We don't have suitable newIH around here, but we don't care since
+            -- we just want to fold calls. So lets create a fake one.
+            -- (We cannot use oldIH as that would run into the sanity checks that we could
+            -- replace all of them)
+            withLocalDeclD `fakeNewIH (← inferType (mkFVar oldIH')) fun fakeNewIH =>
+              M.eval (foldAndCollect oldIH' fakeNewIH.fvarId! isRecCall alt))
           (onRemaining := fun _ => pure #[])
         return matcherApp'.toExpr
 

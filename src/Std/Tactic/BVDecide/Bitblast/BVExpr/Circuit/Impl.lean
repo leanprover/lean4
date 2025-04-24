@@ -5,7 +5,6 @@ Authors: Henrik Böving
 -/
 prelude
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Substructure
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations
 
 /-!
 This module contains the implementation of a bitblaster for general `BitVec` problems with boolean

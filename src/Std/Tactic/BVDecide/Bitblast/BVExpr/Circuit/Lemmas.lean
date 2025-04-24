@@ -6,7 +6,6 @@ Authors: Henrik Böving
 prelude
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Pred
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations
 
 /-!
 This module contains the verification of the bitblaster for general `BitVec` problems with boolean

@@ -77,5 +77,14 @@ def test : MetaM Unit := do
   if !orphanedModules.isEmpty then do
     logError s!"There are orphaned modules: {orphanedModules}"
 
+/-!
+We check which modules exist by looking at which `olean` files are present in the file system.
+This means that locally you might get false positives on this test because there are some `olean`
+files still floating around where the corresponding `lean` file no longer exists in the source.
+
+It would be better to check for `lean` files directly, but our CI step which runs the tests doesn't
+see the source files in the `srcPath`.
+-/
+
 #guard_msgs in
 #eval test

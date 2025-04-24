@@ -70,6 +70,12 @@ private def isSimpleRflProof (proof : Expr) : Bool :=
   else
     proof.isAppOfArity ``rfl 2
 
+private def looksLikeRelevantTheoremProofType (type : Expr) : Bool :=
+  if let .forallE _ _ type _ := type then
+    looksLikeRelevantTheoremProofType type
+  else
+    type.isAppOfArity ``WellFounded 2
+
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
@@ -86,7 +92,9 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let mut exportedKind? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
-      if (← getEnv).header.isModule && !isSimpleRflProof thm.value then
+      if (← getEnv).header.isModule && !isSimpleRflProof thm.value &&
+          -- TODO: this is horrible...
+          !looksLikeRelevantTheoremProofType thm.type then
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
         exportedKind? := some .axiom
       pure (thm.name, .thmInfo thm, .thm)

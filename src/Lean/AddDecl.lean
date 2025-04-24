@@ -49,11 +49,19 @@ private builtin_initialize privateConstKindsExt : MapDeclarationExtension Consta
 
 /--
 Returns the kind of the declaration as originally declared instead of as exported. This information
-is stored by `Lean.addDecl` and may be inaccurate if that function was circumvented.
+is stored by `Lean.addDecl` and may be inaccurate if that function was circumvented. Returns `none`
+if the declaration was not found.
 -/
 def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
   privateConstKindsExt.find? env declName <|>
     (env.setExporting false |>.findAsync? declName).map (·.kind)
+
+/--
+Checks whether the declaration was originally declared as a theorem; see also
+`Lean.getOriginalConstKind?`. Returns `false` if the declaration was not found.
+-/
+def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
+  getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
 
 -- HACK: remove together with MutualDef HACK when `[dsimp]` is introduced
 private def isSimpleRflProof (proof : Expr) : Bool :=

@@ -505,9 +505,9 @@ builtin_simproc [bv_normalize] extract_mul
 Lemmas about add-of-append are written using simp lemmas.
 This ensures that we correctly unify with `++`, even when the result type of the append
 has been reduced.
-If registered directly as a `simp` lemma,
-then we would not correctly unify `(x : BitVec 3) ++ (y : BitVec 4)` with the result type `BitVec 7`,
-which would instead be expecting `BitVec (3 + 4)`.
+If registered directly as a `simp` lemma, it would fail to unify against
+`(x : BitVec 3) ++ (y : BitVec 4)` with the result type `BitVec 7`.
+Simp would expect the resulting type to be `BitVec (3 + 4)`.
 -/
 builtin_simproc [bv_normalize] append_add_append_eq_append
     ((HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) _ _) +

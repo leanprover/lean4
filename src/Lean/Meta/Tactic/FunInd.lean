@@ -535,7 +535,7 @@ as `MVars` as it goes.
 partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M2 Expr := do
   withTraceNode `Meta.FunInd
-    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}:{indentExpr e}") do
+    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}\ngoal: {goal}:{indentExpr e}") do
 
   -- if-then-else cause case split:
   match_expr e with
@@ -645,6 +645,15 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     return ← withLocalDeclD n t' fun x => M2.branch do
       let b' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall (b.instantiate1 x)
       mkLetFun x v' b'
+
+  -- Special case for traversing the PProd’ed bodies in our encoding of structural mutual recursion
+  if let .lam n t b bi := e then
+    if goal.isForall then
+      let t' ← foldAndCollect oldIH newIH isRecCall t
+      return ← withLocalDecl n bi t' fun x => M2.branch do
+        let goal' ← instantiateForall goal #[x]
+        let b' ← buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
+        mkLambdaFVars #[x] b'
 
   liftM <| buildInductionCase oldIH newIH isRecCall toErase toClear goal e
 

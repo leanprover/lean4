@@ -1062,7 +1062,9 @@ where
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
-    let async ← env.addConstAsync declId.declName .thm (exportedKind := .axiom)
+    -- HACK: should be replaced by new `[dsimp]` attribute
+    let isRflLike := header.value matches `(declVal| := rfl)
+    let async ← env.addConstAsync declId.declName .thm (exportedKind := if isRflLike then .thm else .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,

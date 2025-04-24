@@ -6,6 +6,6 @@ module
 def f := 1
 
 /-- A theorem. -/
-theorem t : f = f := sorry
+theorem t : f = 1 := sorry
 
-theorem trfl : f = f := rfl
+theorem trfl : f = 1 := rfl

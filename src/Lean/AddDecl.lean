@@ -55,6 +55,13 @@ def getOriginalConstKind? (env : Environment) (declName : Name) : Option Constan
   privateConstKindsExt.find? env declName <|>
     (env.setExporting false |>.findAsync? declName).map (·.kind)
 
+-- HACK: remove together with MutualDef HACK when `[dsimp]` is introduced
+private def isSimpleRflProof (proof : Expr) : Bool :=
+  if let .lam _ _ proof _ := proof then
+    isSimpleRflProof proof
+  else
+    proof.isAppOfArity ``rfl 2
+
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
@@ -71,7 +78,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let mut exportedKind? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
-      if (← getEnv).header.isModule then
+      if (← getEnv).header.isModule && !isSimpleRflProof thm.value then
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
         exportedKind? := some .axiom
       pure (thm.name, .thmInfo thm, .thm)

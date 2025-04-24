@@ -309,9 +309,6 @@ instance boolToSort : CoeSort Bool Prop where
 instance decPropToBool (p : Prop) [Decidable p] : CoeDep Prop p Bool where
   coe := decide p
 
-instance optionCoe {α : Type u} : Coe α (Option α) where
-  coe := some
-
 instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeOut (Subtype p) α where
   coe v := v.val
 

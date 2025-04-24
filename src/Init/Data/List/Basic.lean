@@ -2002,7 +2002,7 @@ Examples:
 def zipWithAll (f : Option α → Option β → γ) : List α → List β → List γ
   | [], bs => bs.map fun b => f none (some b)
   | a :: as, [] => (a :: as).map fun a => f (some a) none
-  | a :: as, b :: bs => f a b :: zipWithAll f as bs
+  | a :: as, b :: bs => f (some a) (some b) :: zipWithAll f as bs
 
 @[simp] theorem zipWithAll_nil :
     zipWithAll f as [] = as.map fun a => f (some a) none := by

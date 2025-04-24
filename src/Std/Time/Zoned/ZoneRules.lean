@@ -190,7 +190,7 @@ Creates ZoneRules with a fixed offset of UTC (GMT+0).
 -/
 @[inline]
 def UTC : ZoneRules :=
-  fixedOffsetZone 0 "UTC" "UTC"
+  fixedOffsetZone 0 (some "UTC") (some "UTC")
 
 /--
 Finds the `LocalTimeType` corresponding to a given `Timestamp` in `ZoneRules`.

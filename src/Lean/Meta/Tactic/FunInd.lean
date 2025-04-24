@@ -1051,12 +1051,12 @@ Given a recursive definition `foo` defined via structural recursion, derive `foo
 if needed, and `foo.induct` for all functions in the group.
 See module doc for details.
  -/
-def deriveInductionStructural (names : Array Name) (fixedParamPerms : FixedParamPerms) : MetaM Name := do
+def deriveInductionStructural (unfolding : Bool) (names : Array Name) (fixedParamPerms : FixedParamPerms) : MetaM Name := do
   let inductName :=
     if names.size = 1 then
-      getFunInductName names[0]!
+      getFunInductName (unfolding := unfolding) names[0]!
     else
-      getMutualInductName names[0]!
+      getMutualInductName (unfolding := unfolding) names[0]!
   realizeConst names[0]! inductName (doRealize inductName)
   return inductName
 where doRealize inductName := do
@@ -1141,11 +1141,16 @@ where doRealize inductName := do
 
         -- Calculate the types of the induction motives (natural argument order) for each function
         let motiveTypes ← infos.mapIdxM fun funIdx info => do
-          lambdaTelescope (← fixedParamPerms.perms[funIdx]!.instantiateLambda info.value xs) fun ys _ =>
-            mkForallFVars ys (.sort levelZero)
-        let motiveArities ← infos.mapIdxM fun funIdx info => do
-          lambdaTelescope (← fixedParamPerms.perms[funIdx]!.instantiateLambda info.value xs) fun ys _ =>
-            pure ys.size
+          let funType ← fixedParamPerms.perms[funIdx]!.instantiateForall info.type xs
+          forallBoundedTelescope funType (some (fixedParamPerms.perms[funIdx]!.size - xs.size)) fun ys rType => do
+            if unfolding then
+              withLocalDeclD `r rType fun r =>
+                mkForallFVars (ys.push r) (.sort 0)
+            else
+              mkForallFVars ys (.sort 0)
+        trace[Meta.FunInd] m!"motiveTypes: {motiveTypes}"
+        let motiveArities ← motiveTypes.mapM fun motiveType =>
+          forallTelescope motiveType fun ys _ => pure ys.size
         let motiveNames := Array.ofFn (n := infos.size) fun ⟨i, _⟩ =>
           if infos.size = 1 then .mkSimple "motive" else .mkSimple s!"motive_{i+1}"
 
@@ -1156,15 +1161,27 @@ where doRealize inductName := do
             if let .some funIdx := motives.idxOf? e.getAppFn then
               if e.getAppNumArgs = motiveArities[funIdx]! then
                 let info := infos[funIdx]!
-                let args := fixedParamPerms.perms[funIdx]!.buildArgs xs e.getAppArgs
+                let args := if unfolding then e.getAppArgs.pop else e.getAppArgs
+                let args := fixedParamPerms.perms[funIdx]!.buildArgs xs args
                 return mkAppN (.const info.name (info.levelParams.map mkLevelParam)) args
             .none
 
-          -- Motives with parameters reordered, to put indices and major first
-          let brecMotives ← (Array.zip motives recArgInfos).mapM fun (motive, recArgInfo) => do
-            forallTelescope (← inferType motive) fun ys _ => do
+          -- Motives with parameters reordered, to put indices and major first,
+          -- and (when unfolding) the result field instantiated
+          let mut brecMotives := #[]
+          for motive in motives, recArgInfo in recArgInfos, info in infos, funIdx in [:motives.size] do
+            let brecMotive ← forallTelescope (← inferType motive) fun ys _ => do
+              let ys := if unfolding then ys.pop else ys
               let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
-              mkLambdaFVars indicesMajor (← mkForallFVars rest (mkAppN motive ys))
+              let motiveArg := mkAppN motive ys
+              let motiveArg ← if unfolding then
+                let args := fixedParamPerms.perms[funIdx]!.buildArgs xs ys
+                let fnCall := mkAppN (.const info.name (info.levelParams.map mkLevelParam)) args
+                pure <| mkApp motiveArg fnCall
+              else
+                pure motiveArg
+              mkLambdaFVars indicesMajor (← mkForallFVars rest motiveArg)
+            brecMotives := brecMotives.push brecMotive
 
           -- We need to pack these motives according to the `positions` assignment.
           let packedMotives ← positions.mapMwith PProdN.packLambdas brecMotiveTypes brecMotives
@@ -1358,9 +1375,9 @@ def deriveInduction (unfolding : Bool) (name : Name) : MetaM Unit := do
         let _ ← unpackMutualInduction unfolding eqnInfo
     else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
       if eqnInfo.declNames.size > 1 then
-        projectMutualInduct unfolding eqnInfo.declNames (deriveInductionStructural eqnInfo.declNames eqnInfo.fixedParamPerms) (pure ())
+        projectMutualInduct unfolding eqnInfo.declNames (deriveInductionStructural unfolding eqnInfo.declNames eqnInfo.fixedParamPerms) (pure ())
       else
-        let _ ← deriveInductionStructural eqnInfo.declNames eqnInfo.fixedParamPerms
+        let _ ← deriveInductionStructural unfolding eqnInfo.declNames eqnInfo.fixedParamPerms
     else
       throwError "constant '{name}' is not structurally or well-founded recursive"
 
@@ -1499,6 +1516,7 @@ info: fib''.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : ∀ (n 
 #guard_msgs in
 #check fib''.fun_cases_unfolding
 
+set_option trace.Meta.FunInd true
 def filter (p : Nat → Bool) : List Nat → List Nat
   | [] => []
   | x::xs => if p x then x::filter p xs else filter p xs
@@ -1532,6 +1550,15 @@ info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : mot
 -/
 #guard_msgs in
 #check filter.induct
+
+/--
+info: filter.induct_unfolding (p : Nat → Bool) (motive : List Nat → List Nat → Prop) (case1 : motive [] (filter p []))
+  (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive xs (filter p xs) → motive (x :: xs) (filter p (x :: xs)))
+  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs (filter p xs) → motive (x :: xs) (filter p (x :: xs)))
+  (a✝ : List Nat) : motive a✝ (filter p a✝)
+-/
+#guard_msgs in
+#check filter.induct_unfolding
 
 def map (f : Nat → Bool) : List Nat → List Bool
   | [] => []
@@ -1671,13 +1698,57 @@ def map2b (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
 termination_by structural x => x
 end
 
-run_meta Lean.Tactic.FunInd.deriveInduction false ``map2a
+run_meta Lean.Tactic.FunInd.deriveInduction true ``map2a
 
-/-- error: unknown constant 'MutualStructural.map2a.mutual_induct_unfolding' -/
+/--
+info: MutualStructural.map2a.mutual_induct_unfolding (f : Nat → Nat → Bool)
+  (motive_1 motive_2 : List Nat → List Nat → List Bool → Prop)
+  (case1 :
+    ∀ (t : List Nat),
+      (∀ (x : List Nat),
+          match t, x with
+          | x :: xs, y :: ys => motive_2 xs ys (map2b f xs ys)
+          | x, x_1 => True) →
+        ∀ (a : List Nat), motive_1 t a (map2a f t a))
+  (case2 :
+    ∀ (t : List Nat),
+      (∀ (x : List Nat),
+          match t, x with
+          | x :: xs, y :: ys => motive_2 xs ys (map2b f xs ys)
+          | x, x_1 => True) →
+        (∀ (x : List Nat),
+            match t, x with
+            | x :: xs, y :: ys => motive_1 xs ys (map2a f xs ys)
+            | x, x_1 => True) →
+          ∀ (a : List Nat), motive_2 t a (map2b f t a)) :
+  (∀ (a a_1 : List Nat), motive_1 a a_1 (map2a f a a_1)) ∧ ∀ (a a_1 : List Nat), motive_2 a a_1 (map2b f a a_1)
+-/
 #guard_msgs in
 #check map2a.mutual_induct_unfolding
 
-/-- error: unknown constant 'MutualStructural.map2a.induct_unfolding' -/
+/--
+info: MutualStructural.map2a.induct_unfolding (f : Nat → Nat → Bool)
+  (motive_1 motive_2 : List Nat → List Nat → List Bool → Prop)
+  (case1 :
+    ∀ (t : List Nat),
+      (∀ (x : List Nat),
+          match t, x with
+          | x :: xs, y :: ys => motive_2 xs ys (map2b f xs ys)
+          | x, x_1 => True) →
+        ∀ (a : List Nat), motive_1 t a (map2a f t a))
+  (case2 :
+    ∀ (t : List Nat),
+      (∀ (x : List Nat),
+          match t, x with
+          | x :: xs, y :: ys => motive_2 xs ys (map2b f xs ys)
+          | x, x_1 => True) →
+        (∀ (x : List Nat),
+            match t, x with
+            | x :: xs, y :: ys => motive_1 xs ys (map2a f xs ys)
+            | x, x_1 => True) →
+          ∀ (a : List Nat), motive_2 t a (map2b f t a))
+  (a✝ a✝¹ : List Nat) : motive_1 a✝ a✝¹ (map2a f a✝ a✝¹)
+-/
 #guard_msgs in
 #check map2a.induct_unfolding
 

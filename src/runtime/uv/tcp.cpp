@@ -316,7 +316,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket, 
     lean_inc(promise);
 
     int result = uv_read_start((uv_stream_t*)tcp_socket->m_uv_tcp, [](uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
-        // According to libuv documentation if we do this we do not loose data and a UV_ENOBUFS will
+        // According to libuv documentation if we do this we do not lose data and a UV_ENOBUFS will
         // be triggered in the read cb.
         buf->base = NULL;
         buf->len = 0;

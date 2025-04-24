@@ -152,7 +152,7 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : IO (Selector (Option 
         match res with
         | none => return ()
         | some res =>
-          let loose := return ()
+          let lose := return ()
           let win promise := do
             try
               discard <| IO.ofExcept res
@@ -161,7 +161,7 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : IO (Selector (Option 
               promise.resolve (.ok res)
             catch e =>
               promise.resolve (.error e)
-          waiter.race loose win
+          waiter.race lose win
     unregisterFn := s.native.cancelRecv
   }
 

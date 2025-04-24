@@ -111,6 +111,27 @@ info: filter.induct_unfolding (p : Nat → Bool) (motive : List Nat → List Nat
 #guard_msgs in
 #check filter.induct_unfolding
 
+theorem filter_const_false_is_nil :
+    filter (fun _ => false) xs = [] := by
+  refine filter.induct_unfolding (fun _ => false) (motive := fun xs r => r = []) ?case1 ?case2 ?case3 xs
+  case case1 => rfl
+  case case2 => intros; contradiction
+  case case3 => intros; assumption
+
+theorem filter_filter :
+    filter q (filter p xs) = filter (fun x => p x && q x) xs := by
+  refine filter.induct_unfolding p (motive := fun xs r => filter q r = filter (fun x => p x && q x) xs) ?case1 ?case2 ?case3 xs
+  case case1 => rfl
+  case case2 =>
+    intros x xs hp ih
+    by_cases hq : q x
+    case pos => simp [*, filter]
+    case neg => simp [*, filter]
+  case case3 =>
+    intros
+    simp [*, filter]
+
+
 def map (f : Nat → Bool) : List Nat → List Bool
   | [] => []
   | x::xs => f x::map f xs

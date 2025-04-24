@@ -27,14 +27,14 @@ def hexChar : Parser UInt16 := do
 
 def finishSurrogatePair (low : UInt16) : Parser Char := do
   let c ← any
-  if c != '\\' then fail "" else
+  if c != '\\' then fail ""
   let c ← any
-  if c != 'u' then fail "" else
+  if c != 'u' then fail ""
   let c ← any
-  if c != 'd' && c != 'D' then fail "" else
+  if c != 'd' && c != 'D' then fail ""
   let u2 ← hexChar; let u3 ← hexChar; let u4 ← hexChar
   let val := (u2 <<< 8) ||| (u3 <<< 4) ||| u4
-  if val < 0xC00 then fail "" else -- low or not a surrogate
+  if val < 0xC00 then fail "" -- low or not a surrogate
   let charVal := (((low.toUInt32 &&& 0x3FF) <<< 10) ||| (val.toUInt32 &&& 0x3FF)) + 0x10000
   if h : charVal.isValidChar then
     return ⟨charVal, h⟩

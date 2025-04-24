@@ -6,7 +6,6 @@ Authors: Henrik Böving
 prelude
 import Std.Tactic.BVDecide.LRAT.Actions
 import Std.Tactic.BVDecide.LRAT.Checker
-
 import Std.Tactic.BVDecide.LRAT.Parser
 
 /-!

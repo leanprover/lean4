@@ -1689,9 +1689,10 @@ private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleDa
   self.parts[if baseMod.isModule && self.importAll then 2 else 0]?.map (·.1)
 
 /-- The module data that should be used for server purposes. -/
-private def ImportedModule.serverData? (self : ImportedModule) : Option ModuleData := do
+private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLevel) :
+    Option ModuleData := do
   let (baseMod, _) ← self.parts[0]?
-  self.parts[if baseMod.isModule then 1 else 0]?.map (·.1)
+  self.parts[if baseMod.isModule && level != .exported then 1 else 0]?.map (·.1)
 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
@@ -1771,7 +1772,7 @@ Constructs environment from `importModulesCore` results.
 See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv loadExts : Bool) (isModule := false) : IO Environment := do
+    (leakEnv loadExts : Bool) (level := OLeanLevel.private) : IO Environment := do
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
   let moduleData ← modules.mapM fun mod => do
     let some data := mod.mainModule? |
@@ -1803,7 +1804,8 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       extraConstNames := {}
       extensions      := exts
       header     := {
-        trustLevel, isModule, imports, moduleData
+        trustLevel, imports, moduleData
+        isModule := level == .exported
         regions      := modules.flatMap (·.parts.map (·.2))
         moduleNames  := s.moduleNames
       }
@@ -1811,7 +1813,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     realizedImportedConsts? := none
   }
   env := env.setCheckedSync { env.base with extensions := (← setImportedEntries env.base.extensions moduleData) }
-  let serverData := modules.filterMap (·.serverData?)
+  let serverData := modules.filterMap (·.serverData? level)
   env := { env with serverBaseExts := (← setImportedEntries env.base.extensions serverData) }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistenExtensions`, which
@@ -1871,7 +1873,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
   withImporting do
     plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore (forceImportAll := level == .private) imports |>.run
-    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (isModule := level != .private)
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 
 /--

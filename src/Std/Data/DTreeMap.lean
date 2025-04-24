@@ -6,3 +6,4 @@ Authors: Paul Reichert
 prelude
 import Std.Data.DTreeMap.Basic
 import Std.Data.DTreeMap.AdditionalOperations
+import Std.Data.DTreeMap.Lemmas

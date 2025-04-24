@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.TreeMap.Basic
-import Std.Data.TreeMap.AdditionalOperations
-import Std.Data.TreeMap.Lemmas
+import Std.Data.DTreeMap.Raw.Basic
+import Std.Data.DTreeMap.Raw.AdditionalOperations
+import Std.Data.DTreeMap.Raw.Lemmas
+import Std.Data.DTreeMap.Raw.WF

@@ -659,6 +659,9 @@ example {x y : BitVec 8} :
     BitVec.extractLsb' 0 4 (x * y) = BitVec.extractLsb' 0 4 x * BitVec.extractLsb' 0 4 y := by
   bv_normalize
 
+-- BV_ADD_SHL
+example {x y : BitVec 8} : x + (y <<< x) = x ||| (y <<< x) := by bv_normalize
+
 -- NORM_BV_ADD_CONCAT
 example {x : BitVec 8} {y : BitVec 3} : (x ++ 0#3) + (0#8 ++ y) = x ++ y := by bv_normalize
 example {x : BitVec 8} {y : BitVec 3} : (0#3 ++ x) + (y ++ 0#8) = y ++ x := by bv_normalize

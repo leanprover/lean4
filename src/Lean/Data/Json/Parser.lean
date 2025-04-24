@@ -25,26 +25,21 @@ def hexChar : Parser UInt16 := do
   else
     fail "invalid hex character"
 
-def finishSurrogatePair (low : UInt16) : Parser Char := fun it =>
-  let parser : Parser Char := do
-    let c ← any
-    if c != '\\' then fail "" else
-    let c ← any
-    if c != 'u' then fail "" else
-    let c ← any
-    if c != 'd' && c != 'D' then fail "" else
-    let u2 ← hexChar; let u3 ← hexChar; let u4 ← hexChar
-    let val := (u2 <<< 8) ||| (u3 <<< 4) ||| u4
-    if val < 0xC00 then fail "" else -- low or not a surrogate
-    let charVal := (((low.toUInt32 &&& 0x3FF) <<< 10) ||| (val.toUInt32 &&& 0x3FF)) + 0x10000
-    if h : charVal.isValidChar then
-      return ⟨charVal, h⟩
-    else
-      fail "" -- should be unreachable
-  let result := parser it
-  match result with
-  | .success .. => result
-  | .error .. => .success it '\ufffd'
+def finishSurrogatePair (low : UInt16) : Parser Char := do
+  let c ← any
+  if c != '\\' then fail "" else
+  let c ← any
+  if c != 'u' then fail "" else
+  let c ← any
+  if c != 'd' && c != 'D' then fail "" else
+  let u2 ← hexChar; let u3 ← hexChar; let u4 ← hexChar
+  let val := (u2 <<< 8) ||| (u3 <<< 4) ||| u4
+  if val < 0xC00 then fail "" else -- low or not a surrogate
+  let charVal := (((low.toUInt32 &&& 0x3FF) <<< 10) ||| (val.toUInt32 &&& 0x3FF)) + 0x10000
+  if h : charVal.isValidChar then
+    return ⟨charVal, h⟩
+  else
+    fail "" -- should be unreachable
 
 def escapedChar : Parser Char := do
   let c ← any
@@ -66,7 +61,7 @@ def escapedChar : Parser Char := do
       -- low or high surrogate
       if val < 0xDC00 then
         -- low surrogate
-        finishSurrogatePair val
+        attempt (finishSurrogatePair val) <|> pure '\ufffd'
       else
         -- high/lone surrogate
         return '\ufffd' -- replacement character

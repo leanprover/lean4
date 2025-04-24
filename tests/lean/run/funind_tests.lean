@@ -847,24 +847,14 @@ end
 
 /--
 info: MutualStructural.map2a.mutual_induct (motive_1 motive_2 : List Nat → List Nat → Prop)
-  (case1 :
-    ∀ (t : List Nat),
-      (∀ (x : List Nat),
-          match t, x with
-          | x :: xs, y :: ys => motive_2 xs ys
-          | x, x_1 => True) →
-        ∀ (x : List Nat), motive_1 t x)
+  (case1 : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), motive_2 xs ys → motive_1 (x :: xs) (y :: ys))
   (case2 :
-    ∀ (t : List Nat),
-      (∀ (x : List Nat),
-          match t, x with
-          | x :: xs, y :: ys => motive_2 xs ys
-          | x, x_1 => True) →
-        (∀ (x : List Nat),
-            match t, x with
-            | x :: xs, y :: ys => motive_1 xs ys
-            | x, x_1 => True) →
-          ∀ (x : List Nat), motive_2 t x) :
+    ∀ (t x : List Nat),
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive_1 t x)
+  (case3 : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), motive_1 xs ys → motive_2 (x :: xs) (y :: ys))
+  (case4 :
+    ∀ (t x : List Nat),
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive_2 t x) :
   (∀ (a a_1 : List Nat), motive_1 a a_1) ∧ ∀ (a a_1 : List Nat), motive_2 a a_1
 -/
 #guard_msgs in
@@ -872,24 +862,14 @@ info: MutualStructural.map2a.mutual_induct (motive_1 motive_2 : List Nat → Lis
 
 /--
 info: MutualStructural.map2a.induct (motive_1 motive_2 : List Nat → List Nat → Prop)
-  (case1 :
-    ∀ (t : List Nat),
-      (∀ (x : List Nat),
-          match t, x with
-          | x :: xs, y :: ys => motive_2 xs ys
-          | x, x_1 => True) →
-        ∀ (x : List Nat), motive_1 t x)
+  (case1 : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), motive_2 xs ys → motive_1 (x :: xs) (y :: ys))
   (case2 :
-    ∀ (t : List Nat),
-      (∀ (x : List Nat),
-          match t, x with
-          | x :: xs, y :: ys => motive_2 xs ys
-          | x, x_1 => True) →
-        (∀ (x : List Nat),
-            match t, x with
-            | x :: xs, y :: ys => motive_1 xs ys
-            | x, x_1 => True) →
-          ∀ (x : List Nat), motive_2 t x)
+    ∀ (t x : List Nat),
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive_1 t x)
+  (case3 : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), motive_1 xs ys → motive_2 (x :: xs) (y :: ys))
+  (case4 :
+    ∀ (t x : List Nat),
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive_2 t x)
   (a✝ a✝¹ : List Nat) : motive_1 a✝ a✝¹
 -/
 #guard_msgs in

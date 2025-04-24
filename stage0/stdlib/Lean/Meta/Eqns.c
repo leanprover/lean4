@@ -255,6 +255,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_isEqnThm___boxed(lean_object*, lean_object*
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Eqns___hyg_2390____lambda__2___closed__7;
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm_doRealize___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___private_Lean_Meta_Eqns_0__Lean_Meta_registerEqnThms___spec__1(lean_object*, lean_object*, lean_object*);
@@ -301,7 +302,6 @@ lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Meta_isEqnThm(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Eqns___hyg_2390____lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at_Lean_Meta_isEqnThm___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwReservedNameNotAvailable___at_Lean_Meta_ensureEqnReservedNamesAvailable___spec__2___closed__3;
 static lean_object* l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFor_x3fCore___closed__4;
@@ -6019,7 +6019,7 @@ x_32 = l_List_forIn_x27_loop___at_Lean_Meta_getUnfoldEqnFor_x3f___spec__1___clos
 x_33 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_33, x_10, x_11, x_12, x_13, x_23);
+x_34 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_33, x_10, x_11, x_12, x_13, x_23);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -6187,7 +6187,7 @@ x_68 = l_List_forIn_x27_loop___at_Lean_Meta_getUnfoldEqnFor_x3f___spec__1___clos
 x_69 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_69, 0, x_67);
 lean_ctor_set(x_69, 1, x_68);
-x_70 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_69, x_10, x_11, x_12, x_13, x_58);
+x_70 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_69, x_10, x_11, x_12, x_13, x_58);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);

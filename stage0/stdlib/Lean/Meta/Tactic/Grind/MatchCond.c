@@ -724,7 +724,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_Tactic_Grind_MatchCond_0__Lean_Meta_Grind_replaceLhs_x3f___closed__1;
 x_2 = l___private_Lean_Meta_Tactic_Grind_MatchCond_0__Lean_Meta_Grind_replaceLhs_x3f___closed__2;
-x_3 = lean_unsigned_to_nat(19u);
+x_3 = lean_unsigned_to_nat(21u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_MatchCond_0__Lean_Meta_Grind_replaceLhs_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2239,11 +2239,11 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; uint8_t x_15; 
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*12 + 2);
+x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*13 + 2);
 if (x_15 == 0)
 {
 uint8_t x_16; 
-x_16 = lean_ctor_get_uint8(x_14, sizeof(void*)*12 + 1);
+x_16 = lean_ctor_get_uint8(x_14, sizeof(void*)*13 + 1);
 if (x_16 == 0)
 {
 uint8_t x_17; 
@@ -4053,7 +4053,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_MatchCond_0__Lean_Me
 _start:
 {
 uint8_t x_15; 
-x_15 = lean_ctor_get_uint8(x_1, sizeof(void*)*12 + 2);
+x_15 = lean_ctor_get_uint8(x_1, sizeof(void*)*13 + 2);
 if (x_15 == 0)
 {
 uint8_t x_16; 
@@ -4063,7 +4063,7 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
-x_16 = lean_ctor_get_uint8(x_1, sizeof(void*)*12 + 1);
+x_16 = lean_ctor_get_uint8(x_1, sizeof(void*)*13 + 1);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
@@ -8906,7 +8906,7 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*12 + 2);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*13 + 2);
 if (x_13 == 0)
 {
 uint8_t x_14; 
@@ -8914,7 +8914,7 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-x_14 = lean_ctor_get_uint8(x_12, sizeof(void*)*12 + 1);
+x_14 = lean_ctor_get_uint8(x_12, sizeof(void*)*13 + 1);
 if (x_14 == 0)
 {
 uint8_t x_15; 

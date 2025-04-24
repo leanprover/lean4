@@ -5,6 +5,8 @@ Authors: Leonardo de Moura, Mario Carneiro
 
 Notation for operators defined at Prelude.lean
 -/
+module
+
 prelude
 import Init.Prelude
 import Init.Coe

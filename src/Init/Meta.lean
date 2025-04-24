@@ -5,6 +5,8 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 
 Additional goodies for writing macros
 -/
+module
+
 prelude
 import Init.MetaTypes
 import Init.Syntax

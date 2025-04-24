@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Mario Carneiro
 -/
 
+module
+
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.Range

@@ -530,14 +530,50 @@ def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
     if b then ys := ys.push x
   return ys
 
-def withRewrittenMotiveArg (goal : Expr) (rw : Expr → MetaM Simp.Result) (k : Expr → M2 Expr) : M2 Expr := do
+/--
+Applies `rw` to `goal`, passes the rewritten `goal'` to `k` (which should return an expression of
+type `goal'`), and wraps that using the proof from `rw`.
+-/
+def withRewrittenMotive (goal : Expr) (rw : Expr → MetaM Simp.Result) (k : Expr → M2 Expr) : M2 Expr := do
+  let r ← rw goal
+  let e ← k r.expr
+  mkEqMPR (← r.getProof) e
+
+def inLastArg (rw : Expr → MetaM Simp.Result) (goal : Expr) : MetaM Simp.Result := do
   match goal with
   | .app goal arg =>
     let r ← rw arg
-    let e ← k (.app goal r.expr)
-    let h ← mkCongrArg goal (← r.getProof)
-    mkEqMPR h e
-  | _ => k goal
+    -- TODO: extract into function on Simp.Result
+    let goal' := .app goal r.expr
+    let proof ← mkCongrArg goal (← r.getProof)
+    return { expr := goal' , proof? := proof}
+  | _ =>
+    return { expr := goal }
+
+/--
+If `goal` is of the form `motive a b e`, applies `rw` to `e`, passes the simplified
+`goal'` to `k` (which should return an expression of type `goal'`), and rewrites that term
+accordingly.
+-/
+def withRewrittenMotiveArg (goal : Expr) (rw : Expr → MetaM Simp.Result) (k : Expr → M2 Expr) : M2 Expr := do
+  withRewrittenMotive goal (inLastArg rw) k
+
+/--
+Use to write inside the packed motives used for mutual structural recursion.
+-/
+partial def inProdLambdaLastArg (rw : Expr → MetaM Simp.Result) (goal : Expr) : MetaM Simp.Result := do
+  match_expr goal with
+  | PProd.mk _ _ goal1 goal2 =>
+    let r1 ← inProdLambdaLastArg rw goal1
+    let r2 ← inProdLambdaLastArg rw goal2
+    let f := goal.appFn!.appFn!
+    let goal' := mkApp2 f r1.expr r2.expr
+    let proof ← mkCongr (← mkCongrArg f (← r1.getProof)) (← r2.getProof)
+    return { expr := goal' , proof? := proof}
+  | _ =>
+    lambdaTelescope goal fun xs goal => do
+      let r ← inLastArg rw goal
+      r.addLambdas xs
 
 def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
   match_expr e with
@@ -578,9 +614,9 @@ def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
       return { expr := e.letBody!.instantiate1 h }
   return { expr := e}
 
-def rwFun (name : Name) (e : Expr) : MetaM Simp.Result := do
+def rwFun (names : Array Name) (e : Expr) : MetaM Simp.Result := do
   e.withApp fun f xs => do
-    if f.isConstOf name then
+    if let some name := names.find? f.isConstOf then
       let some unfoldThm ← getUnfoldEqnFor? name (nonRec := true)
         | return { expr := e}
       let h := mkAppN (mkConst unfoldThm f.constLevels!) xs
@@ -615,7 +651,7 @@ as `MVars` as it goes.
 partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M2 Expr := do
   withTraceNode `Meta.FunInd
-    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}:{indentExpr e}") do
+    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}\ngoal: {goal}:{indentExpr e}") do
 
   -- if-then-else cause case split:
   match_expr e with
@@ -836,7 +872,7 @@ where doRealize (inductName : Name) := do
             let body ← instantiateLambda body targets
             lambdaTelescope1 body fun oldIH body => do
               let body ← instantiateLambda body extraParams
-              let body' ← withRewrittenMotiveArg goal (rwFun name) fun goal => do
+              let body' ← withRewrittenMotiveArg goal (rwFun #[name]) fun goal => do
                 buildInductionBody #[oldIH, genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
               if body'.containsFVar oldIH then
                 throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
@@ -1206,7 +1242,9 @@ where doRealize inductName := do
                 lambdaTelescope1 body fun oldIH body => do
                   trace[Meta.FunInd] "replacing {Expr.fvar oldIH} with {genIH}"
                   let body ← instantiateLambda body extraParams
-                  let body' ← buildInductionBody #[oldIH, genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
+                  let body' ←
+                    withRewrittenMotive goal (inProdLambdaLastArg (rwFun names)) fun goal' =>
+                      buildInductionBody #[oldIH, genIH.fvarId!] #[] goal' oldIH genIH.fvarId! isRecCall body
                   if body'.containsFVar oldIH then
                     throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
                   mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
@@ -1297,7 +1335,7 @@ targets that are unchanged in each case, so simplify applying the lemma when the
 are not variables, to avoid having to generalize them.
 -/
 def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
-  let casesName := getFunCasesName (unfolding := true) name
+  let casesName := getFunCasesName (unfolding := unfolding) name
   realizeConst name casesName do
   mapError (f := (m!"Cannot derive functional cases principle (please report this issue)\n{indentD ·}")) do
     let info ← getConstInfo name
@@ -1321,8 +1359,11 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
       lambdaTelescope value fun xs body => do
         let (e', mvars) ← M2.run do
           let goal := mkAppN motive xs
-          let goal := mkApp goal (mkAppN (← mkConstWithLevelParams name) xs)
-          withRewrittenMotiveArg goal (rwFun name) fun goal => do
+          let goal ← if unfolding then
+            pure <| mkApp goal (mkAppN (← mkConstWithLevelParams name) xs)
+          else
+            pure goal
+          withRewrittenMotiveArg goal (rwFun #[name]) fun goal => do
             -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
             -- so `buildInductionBody` should just do the right thing
             withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
@@ -1437,6 +1478,8 @@ end Lean.Tactic.FunInd
 builtin_initialize
    Lean.registerTraceClass `Meta.FunInd
 
+-- #exit
+
 def fib : Nat → Nat
   | 0 => 0
   | 1 => 1
@@ -1516,7 +1559,7 @@ info: fib''.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : ∀ (n 
 #guard_msgs in
 #check fib''.fun_cases_unfolding
 
-set_option trace.Meta.FunInd true
+-- set_option trace.Meta.FunInd true in
 def filter (p : Nat → Bool) : List Nat → List Nat
   | [] => []
   | x::xs => if p x then x::filter p xs else filter p xs
@@ -1552,9 +1595,9 @@ info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : mot
 #check filter.induct
 
 /--
-info: filter.induct_unfolding (p : Nat → Bool) (motive : List Nat → List Nat → Prop) (case1 : motive [] (filter p []))
-  (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive xs (filter p xs) → motive (x :: xs) (filter p (x :: xs)))
-  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs (filter p xs) → motive (x :: xs) (filter p (x :: xs)))
+info: filter.induct_unfolding (p : Nat → Bool) (motive : List Nat → List Nat → Prop) (case1 : motive [] [])
+  (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive xs (filter p xs) → motive (x :: xs) (x :: filter p xs))
+  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs (filter p xs) → motive (x :: xs) (filter p xs))
   (a✝ : List Nat) : motive a✝ (filter p a✝)
 -/
 #guard_msgs in
@@ -1628,6 +1671,8 @@ end BinaryWF
 
 namespace BinaryStructural
 
+-- set_option trace.Meta.FunInd true
+
 def map2 (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
   | x::xs, y::ys => f x y::map2 f xs ys
   | _, _ => []
@@ -1640,11 +1685,10 @@ run_meta Lean.Tactic.FunInd.deriveInduction true ``map2
 info: BinaryStructural.map2.induct_unfolding (f : Nat → Nat → Bool) (motive : List Nat → List Nat → List Bool → Prop)
   (case1 :
     ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat),
-      motive xs ys (map2 f xs ys) → motive (x :: xs) (y :: ys) (map2 f (x :: xs) (y :: ys)))
+      motive xs ys (map2 f xs ys) → motive (x :: xs) (y :: ys) (f x y :: map2 f xs ys))
   (case2 :
     ∀ (t x : List Nat),
-      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) →
-        motive t x (map2 f t x))
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive t x [])
   (a✝ a✝¹ : List Nat) : motive a✝ a✝¹ (map2 f a✝ a✝¹)
 -/
 #guard_msgs in
@@ -1713,6 +1757,7 @@ end MutualWF
 
 namespace MutualStructural
 
+-- set_option trace.Meta.FunInd true in
 mutual
 def map2a (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
   | x::xs, y::ys => f x y::map2b f xs ys

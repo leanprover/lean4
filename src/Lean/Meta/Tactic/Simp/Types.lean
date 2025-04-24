@@ -773,6 +773,7 @@ def DStep.addExtraArgs (s : DStep) (extraArgs : Array Expr) : DStep :=
   | .continue (some eNew) => .continue (mkAppN eNew extraArgs)
 
 def Result.addLambdas (r : Result) (xs : Array Expr) : MetaM Result := do
+  if xs.isEmpty then return r
   let eNew ← mkLambdaFVars xs r.expr
   match r.proof? with
   | none   => return { expr := eNew }
@@ -782,6 +783,7 @@ def Result.addLambdas (r : Result) (xs : Array Expr) : MetaM Result := do
     return { expr := eNew, proof? := p }
 
 def Result.addForalls (r : Result) (xs : Array Expr) : MetaM Result := do
+  if xs.isEmpty then return r
   let eNew ← mkForallFVars xs r.expr
   match r.proof? with
   | none   => return { expr := eNew }

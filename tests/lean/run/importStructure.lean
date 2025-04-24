@@ -4,9 +4,12 @@ import Std
 open Std Lean
 
 /-!
-This test analyzes the import structure of the modules and core and fails if something is wrong.
+This test analyzes the import structure of the modules in core and fails if it detects something
+wrong.
 
-Currently, we only test for the absence of orphaned modules.
+Currently, we only test the following:
+* There are no orphaned modules
+* No module in `Init` or `Std` (transitively) imports `Init.Data.Option.Coe`.
 -/
 
 /-- Collects the module names corresponding to all `lean` files in the file system. -/
@@ -54,7 +57,7 @@ def analyzeModuleData (data : Array (Name × ModuleData)) : ImportGraph := Id.ru
       result := {
         imports := result.imports.alter fromString
           (fun arr => some <| (arr.getD #[]).push toString)
-        reverseImports := result.imports.alter toString
+        reverseImports := result.reverseImports.alter toString
           (fun arr => some <| (arr.getD #[]).push fromString)
       }
 
@@ -67,15 +70,29 @@ def computeOrphanedModules (sysroot : System.FilePath) (importGraph : ImportGrap
     (fun sofar root => sofar.insertMany (dfs root importGraph.imports ∅))
   return onFS.filter (fun module => !imported.contains module)
 
+def computeIllegalReverseImportsOfInitDataOptionCoe (importGraph : ImportGraph) :
+    Array String :=
+  let reverseImports := dfs "Init.Data.Option.Coe" importGraph.reverseImports ∅
+  reverseImports.toArray.filter isBannedModule
+where
+  isBannedModule (moduleName : String) : Bool :=
+    (moduleName.startsWith "Init." || moduleName.startsWith "Std.") && !allowList.contains moduleName
+  allowList : HashSet String :=
+    .ofList ["Init.Data.Option.Coe", "Init.Data.Option", "Init.Data"]
+
 def test : MetaM Unit := do
   let sysroot ← findSysroot
   initSearchPath sysroot
   let env ← importModules #[`Init, `Std, `Lean] {}
   let importGraph := analyzeModuleData (env.header.moduleNames.zip env.header.moduleData)
-  let orphanedModules ← computeOrphanedModules sysroot importGraph
 
+  let orphanedModules ← computeOrphanedModules sysroot importGraph
   if !orphanedModules.isEmpty then do
     logError s!"There are orphaned modules: {orphanedModules}"
+
+  let illegalReverseImports := computeIllegalReverseImportsOfInitDataOptionCoe importGraph
+  if !illegalReverseImports.isEmpty then do
+    logError s!"The following modules illegally (transitively) import Init.Data.Option.Coe: {illegalReverseImports}"
 
 /-!
 We check which modules exist by looking at which `olean` files are present in the file system.

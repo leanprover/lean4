@@ -11,6 +11,7 @@ https://clang.llvm.org/extra//doxygen/FuzzyMatch_8cpp_source.html
 prelude
 import Init.Data.Range
 import Init.Data.OfScientific
+import Init.Data.Option.Coe
 
 namespace Lean
 namespace FuzzyMatching

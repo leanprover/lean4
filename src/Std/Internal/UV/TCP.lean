@@ -50,22 +50,26 @@ Receives data from a TCP socket with a maximum size of size bytes. The promise r
 available or an error occurs. If data is received, it’s wrapped in .some. If EOF is reached, the
 result is .none, indicating no more data is available. Receiving data in parallel on the same
 socket is not supported. Instead, we recommend binding multiple sockets to the same address.
+Furthermore calling this function in parallel with `waitReadable` is not supported.
 -/
 @[extern "lean_uv_tcp_recv"]
 opaque recv? (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (Option ByteArray)))
 
 /--
-Return an `IO.Promise` that resolves to `true` once `socket` has data available for reading or to
-`false` if `socket` is closed before that. Note that calling this function twice on the same
-`Socket` or in parallel with `recv?` is not supported.
+Returns an `IO.Promise` that resolves to `true` once `socket` has data available for reading,
+or to `false` if `socket` is closed before that. Calling this function twice on the same `Socket`
+or in parallel with `recv?` is not supported.
 -/
 @[extern "lean_uv_tcp_wait_readable"]
 opaque waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Bool))
 
 /--
-Cancel a receive in the form of `recv?` or `waitReadable` if there is currently one pending.
-This is will resolve their returned `IO.Promise` to `none`. Note that his function is dangerous as
-improper use can cause data loss and is as such not exposed to the top level API.
+Cancels a receive operation in the form of `recv?` or `waitReadable` if there is currently one
+pending. This resolves their returned `IO.Promise` to `none`. This function is considered dangerous,
+as improper use can cause data loss, and is therefore not exposed to the top-level API.
+
+Note that this function is idempotent and as such can be called multiple times on the same socket
+without causing errors, in particular also without a receive running in the first place.
 -/
 @[extern "lean_uv_tcp_cancel_recv"]
 opaque cancelRecv (socket : @& Socket) : IO Unit

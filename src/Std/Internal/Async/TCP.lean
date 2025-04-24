@@ -125,15 +125,16 @@ def send (s : Client) (data : ByteArray) : IO (AsyncTask Unit) :=
 Receives data from the client socket. If data is received, it’s wrapped in .some. If EOF is reached,
 the result is .none, indicating no more data is available. Receiving data in parallel on the same
 socket is not supported. Instead, we recommend binding multiple sockets to the same address.
+Furthermore calling this function in parallel with `recvSelector` is not supported.
 -/
 @[inline]
 def recv? (s : Client) (size : UInt64) : IO (AsyncTask (Option ByteArray)) :=
   AsyncTask.ofPromise <$> s.native.recv? size
 
 /--
-Create a `Selector` that resolves once `s` has at max `size` bytes of data available and provides
-that data. Note that calling this function starts the waiting data and may thus not be called
-concurrently with `recv?`.
+Creates a `Selector` that resolves once `s` has data available, up to at most `size` bytes,
+and provides that data. Calling this function starts the data wait, so it must not be called
+in parallel with `recv?`.
 -/
 def recvSelector (s : TCP.Socket.Client) (size : UInt64) : IO (Selector (Option ByteArray)) := do
   let readableWaiter ← s.native.waitReadable

@@ -10,10 +10,9 @@ Currently, we only test for the absence of orphaned modules.
 -/
 
 /-- Collects the module names corresponding to all `lean` files in the file system. -/
-partial def collectModulesOnFileSystem (searchPaths : List System.FilePath) (roots : Array String) :
+partial def collectModulesOnFileSystem (sysroot : System.FilePath) (roots : Array String) :
     IO (Array String) :=
-  searchPaths.toArray.flatMapM (fun libdir =>
-    roots.flatMapM (fun (root : String) => go (libdir / root) root #[]))
+  roots.flatMapM (fun (root : String) => go (sysroot / "lib" / "lean" / root) root #[])
 where
   go (dir : System.FilePath) (pref : String) (sofar : Array String) : IO (Array String) := do
     if !(← dir.pathExists) then
@@ -25,7 +24,7 @@ where
       match mdata.type with
       | .dir => arr ← go entry.path (pref ++ "." ++ entry.fileName) arr
       | .file =>
-          if entry.path.extension == some "lean" then
+          if entry.path.extension == some "olean" then
             arr := arr.push (pref ++ "." ++ entry.path.fileStem.get!)
       | _ => pure ()
     return arr
@@ -61,10 +60,9 @@ def analyzeModuleData (data : Array (Name × ModuleData)) : ImportGraph := Id.ru
 
   result
 
-def computeOrphanedModules (importGraph : ImportGraph) :
+def computeOrphanedModules (sysroot : System.FilePath) (importGraph : ImportGraph) :
     IO (Array String) := do
-  let searchPath ← Lean.getSrcSearchPath
-  let onFS ← collectModulesOnFileSystem searchPath #["Init", "Std", "Lean"]
+  let onFS ← collectModulesOnFileSystem sysroot #["Init", "Std", "Lean"]
   let imported : HashSet String := #["Init", "Std", "Lean"].foldl (init := ∅)
     (fun sofar root => sofar.insertMany (dfs root importGraph.imports ∅))
   return onFS.filter (fun module => !imported.contains module)
@@ -74,7 +72,7 @@ def test : MetaM Unit := do
   initSearchPath sysroot
   let env ← importModules #[`Init, `Std, `Lean] {}
   let importGraph := analyzeModuleData (env.header.moduleNames.zip env.header.moduleData)
-  let orphanedModules ← computeOrphanedModules importGraph
+  let orphanedModules ← computeOrphanedModules sysroot importGraph
 
   if !orphanedModules.isEmpty then do
     logError s!"There are orphaned modules: {orphanedModules}"

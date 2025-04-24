@@ -55,19 +55,19 @@ An event source that can be multiplexed using `Selectable.one`, see the document
 -/
 structure Selector (α : Type) where
   /--
-  Try to get a piece of data from the event source in a non blocking fashion, returning `some` if
-  data is available and `none` otherwise.
+  Attempts to retrieve a piece of data from the event source in a non-blocking fashion, returning
+  `some` if data is available and `none` otherwise.
   -/
   tryFn : IO (Option α)
   /--
-  Register a `Waiter` with the event source. Once data is available on the event source it should
+  Registers a `Waiter` with the event source. Once data is available, the event source should
   attempt to call `Waiter.race` and resolve the `Waiter`'s promise if it wins. It is crucial that
   data is never actually consumed from the event source unless `Waiter.race` wins in order to
   prevent data loss.
   -/
   registerFn : Waiter α → IO Unit
   /--
-  A cleanup function that will be called once any `Selector` won the `Selectable.one` race.
+  A cleanup function that is called once any `Selector` has won the `Selectable.one` race.
   -/
   unregisterFn : IO Unit
 
@@ -83,7 +83,7 @@ structure Selectable (α : Type) where
     -/
     selector : Selector β
     /--
-    The continuation to call on results of the event source.
+    The continuation that is called on results from the event source.
     -/
     cont : β → IO (AsyncTask α)
 
@@ -99,15 +99,15 @@ where
       xs
 
 /--
-Perform fair and data-loss free multiplexing on the `Selectable`s in `selectables`.
+Performs fair and data-loss free multiplexing on the `Selectable`s in `selectables`.
 
 The protocol for this is as follows:
-1. Shuffle `selectables` randomly.
-2. Run `Selector.tryFn` for each element in `selectables`. If any of them succeeds, run
-  `Selectable.cont` on the result and return right away, otherwise continue.
-3. Register a `Waiter` with each `Selector` using `Selector.registerFn`. Once the `Waiter` is
-   resolved by a `Selector` run `Selector.unregisterFn` for all `Selectors`s, then the
-   `Selectable.cont` of the `Selector` that won and return the produced task.
+1. The `selectables` are shuffled randomly.
+2. Run `Selector.tryFn` for each element in `selectables`. If any succeed, the corresponding
+  `Selectable.cont` is executed and its result is returned immediately.
+3. If none succeed, a `Waiter` is registered with each `Selector` using `Selector.registerFn`.
+   Once one of them resolves the `Waiter`, all `Selector.unregisterFn` functions are called, and
+   the `Selectable.cont` of the winning `Selector` is executed and returned.
 -/
 partial def Selectable.one (selectables : Array (Selectable α)) : IO (AsyncTask α) := do
   let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))

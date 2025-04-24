@@ -1626,6 +1626,32 @@ info: BinaryWF.map2.induct_unfolding (f : Nat → Nat → Bool) (motive : List N
 
 end BinaryWF
 
+namespace BinaryStructural
+
+def map2 (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
+  | x::xs, y::ys => f x y::map2 f xs ys
+  | _, _ => []
+termination_by structural x => x
+
+
+run_meta Lean.Tactic.FunInd.deriveInduction true ``map2
+
+/--
+info: BinaryStructural.map2.induct_unfolding (f : Nat → Nat → Bool) (motive : List Nat → List Nat → List Bool → Prop)
+  (case1 :
+    ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat),
+      motive xs ys (map2 f xs ys) → motive (x :: xs) (y :: ys) (map2 f (x :: xs) (y :: ys)))
+  (case2 :
+    ∀ (t x : List Nat),
+      (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) →
+        motive t x (map2 f t x))
+  (a✝ a✝¹ : List Nat) : motive a✝ a✝¹ (map2 f a✝ a✝¹)
+-/
+#guard_msgs in
+#check map2.induct_unfolding
+
+end BinaryStructural
+
 namespace MutualWF
 
 mutual

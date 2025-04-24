@@ -24,4 +24,9 @@ open Lean
 
 /-! Theorems should be exported without their bodies -/
 
+/--
+info: theorem t : f = f :=
+<not imported>
+-/
+#guard_msgs in
 #print t

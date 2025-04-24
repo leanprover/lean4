@@ -46,9 +46,13 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
 private def mkHeader' (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) (sig : Bool := true) : CommandElabM MessageData :=
   mkHeader kind id levelParams type (if isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe) (sig := sig)
 
-private def printDefLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (value : Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
+private def mkOmittedMsg : Option Expr → MessageData
+  | none   => "<not imported>"
+  | some e => e
+
+private def printDefLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (value? : Option Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
   let m ← mkHeader kind id levelParams type safety
-  let m := m ++ " :=" ++ Format.line ++ value
+  let m := m ++ " :=" ++ Format.line ++ mkOmittedMsg value?
   logInfo m
 
 private def printAxiomLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe := false) : CommandElabM Unit := do
@@ -157,7 +161,11 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
 private def printIdCore (id : Name) : CommandElabM Unit := do
   let env ← getEnv
   match env.find? id with
-  | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
+  | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } =>
+    match getOriginalConstKind? env id with
+    | some .defn => printDefLike "def" id us t none (if u then .unsafe else .safe)
+    | some .thm => printDefLike "theorem" id us t none (if u then .unsafe else .safe)
+    | _  => printAxiomLike "axiom" id us t u
   | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
   | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
   | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t u

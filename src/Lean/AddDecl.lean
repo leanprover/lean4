@@ -44,6 +44,17 @@ where go env
   | .str p _ => if isNamespaceName p then go (env.registerNamespace p) p else env
   | _        => env
 
+private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
+  mkMapDeclarationExtension
+
+/--
+Returns the kind of the declaration as originally declared instead of as exported. This information
+is stored by `Lean.addDecl` and may be inaccurate if that function was circumvented.
+-/
+def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
+  privateConstKindsExt.find? env declName <|>
+    (env.setExporting false |>.findAsync? declName).map (·.kind)
+
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
@@ -54,23 +65,28 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   if !Elab.async.get (← getOptions) then
     return (← addSynchronously)
 
-  let env ← getEnv
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
   -- kernel checking has finished; not all cases are supported yet
   let mut exportedInfo? := none
   let mut exportedKind? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
-      exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
-      exportedKind? := some .axiom
+      if (← getEnv).header.isModule then
+        exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
+        exportedKind? := some .axiom
       pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
     | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← addSynchronously)
 
+  -- preserve original constant kind in extension if different from exported one
+  if exportedKind?.isSome then
+    modifyEnv (privateConstKindsExt.insert · name kind)
+
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
+  let env ← getEnv
   let async ← env.addConstAsync (reportExts := false) name kind (exportedKind?.getD kind)
   -- report preliminary constant info immediately
   async.commitConst async.asyncEnv (some info) exportedInfo?

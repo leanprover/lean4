@@ -1783,6 +1783,11 @@ theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
     (x ++ 0#w) + (0#v ++ y) = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
 
+/-- Adding bitvectors that are zero in complementary positions equals concatenation. -/
+theorem append_add_append_eq_append' {v w : Nat} {x : BitVec v} {y : BitVec w} :
+    (0#v ++ y) + (x ++ 0#w) = x ++ y := by
+  rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
+
 /-- Heuristically, `y <<< x` is much larger than `x`,
 and hence low bits of `y <<< x`. Thus, `x + (y <<< x) = x ||| (y <<< x).` -/
 theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :

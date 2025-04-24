@@ -272,87 +272,6 @@ private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Un
   | _             => failK ()
 
 -- ===========================
-/-! # Helper function for extracting "stuck term" -/
--- ===========================
-
-mutual
-  private partial def isRecStuck? (recVal : RecursorVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
-    if recVal.k then
-      -- TODO: improve this case
-      return none
-    else do
-      let majorIdx := recVal.getMajorIdx
-      if h : majorIdx < recArgs.size then do
-        let major := recArgs[majorIdx]
-        let major ← whnf major
-        getStuckMVar? major
-      else
-        return none
-
-  private partial def isQuotRecStuck? (recVal : QuotVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
-    let process? (majorPos : Nat) : MetaM (Option MVarId) :=
-      if h : majorPos < recArgs.size then do
-        let major := recArgs[majorPos]
-        let major ← whnf major
-        getStuckMVar? major
-      else
-        return none
-    match recVal.kind with
-    | QuotKind.lift => process? 5
-    | QuotKind.ind  => process? 4
-    | _             => return none
-
-  /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
-  partial def getStuckMVar? (e : Expr) : MetaM (Option MVarId) := do
-    match e with
-    | .mdata _ e  => getStuckMVar? e
-    | .proj _ _ e => getStuckMVar? (← whnf e)
-    | .mvar .. =>
-      let e ← instantiateMVars e
-      match e with
-      | .mvar mvarId => return some mvarId
-      | _ => getStuckMVar? e
-    | .app f .. =>
-      let f := f.getAppFn
-      match f with
-      | .mvar .. =>
-        let e ← instantiateMVars e
-        match e.getAppFn with
-        | .mvar mvarId => return some mvarId
-        | _ => getStuckMVar? e
-      | .const fName _ =>
-        match (← getEnv).find? fName with
-        | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
-        | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
-        | _  =>
-          unless e.hasExprMVar do return none
-          -- Projection function support
-          let some projInfo ← getProjectionFnInfo? fName | return none
-          -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
-          unless projInfo.fromClass do return none
-          let args := e.getAppArgs
-          -- First check whether `e`s instance is stuck.
-          if let some major := args[projInfo.numParams]? then
-            if let some mvarId ← getStuckMVar? major then
-              return mvarId
-          /-
-          Then, recurse on the explicit arguments
-          We want to detect the stuck instance in terms such as
-          `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
-          See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
-          -/
-          let info ← getFunInfo f
-          for pinfo in info.paramInfo, arg in args do
-            if pinfo.isExplicit then
-              if let some mvarId ← getStuckMVar? arg then
-                return some mvarId
-          return none
-      | .proj _ _ e => getStuckMVar? (← whnf e)
-      | _ => return none
-    | _ => return none
-end
-
--- ===========================
 /-! # Weak Head Normal Form auxiliary combinators -/
 -- ===========================
 
@@ -689,6 +608,114 @@ where
         | .yesWithDeltaI => k (← whnfAtMostI c)
       | _ => unreachable!
 
+-- ===========================
+/-! # Helper function for extracting "stuck term" -/
+-- ===========================
+
+mutual
+  private partial def isRecStuck? (recVal : RecursorVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+    if recVal.k then
+      -- TODO: improve this case
+      return none
+    else do
+      let majorIdx := recVal.getMajorIdx
+      if h : majorIdx < recArgs.size then do
+        let major := recArgs[majorIdx]
+        let major ← whnf major
+        getStuckMVar? major
+      else
+        return none
+
+  private partial def isQuotRecStuck? (recVal : QuotVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+    let process? (majorPos : Nat) : MetaM (Option MVarId) :=
+      if h : majorPos < recArgs.size then do
+        let major := recArgs[majorPos]
+        let major ← whnf major
+        getStuckMVar? major
+      else
+        return none
+    match recVal.kind with
+    | QuotKind.lift => process? 5
+    | QuotKind.ind  => process? 4
+    | _             => return none
+
+  private partial def isProjStuck? (projInfo : ProjectionFunctionInfo) (f : Expr) (args : Array Expr) : MetaM (Option MVarId) := do
+    -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
+    unless projInfo.fromClass do return none
+    -- First check whether `e`s instance is stuck.
+    if let some major := args[projInfo.numParams]? then
+      if let some mvarId ← getStuckMVar? major then
+        return mvarId
+    /-
+    Then, recurse on the explicit arguments
+    We want to detect the stuck instance in terms such as
+    `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
+    See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
+    -/
+    let info ← getFunInfo f
+    for pinfo in info.paramInfo, arg in args do
+      if pinfo.isExplicit then
+        if let some mvarId ← getStuckMVar? arg then
+          return some mvarId
+    return none
+
+  private partial def isDefnStuck? (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr) : MetaM (Option MVarId) := do
+    -- We simply report "stuck" iff one of the arguments is stuck on an MVar.
+    -- For matchers, we can do slightly better by only checking the discriminants.
+    -- C.f. `Lean.Meta.DiscrTree.getKeyArgs`.
+    match ← getMatcherInfo? c.name with
+    | some info =>
+      -- We cannot afford to unfold the matcher here.
+      -- We simply report "stuck" iff one of the discriminants is stuck on an MVar.
+      for arg in revArgs.reverse[info.getDiscrRange.lower:info.getDiscrRange.upper] do
+        if let some mvarId ← getStuckMVar? arg then
+          return some mvarId
+      return none
+    | none =>
+      -- We need to unfold here, otherwise we would need to report `Nat.succ ?m` as stuck on `?m`,
+      -- regressing e.g., 5333.lean.
+      deltaBetaDefinition c lvls revArgs (fun _ => return none) getStuckMVar?
+
+  /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
+  partial def getStuckMVar? (e : Expr) : MetaM (Option MVarId) := do
+    match e with
+    | .mdata _ e  => getStuckMVar? e
+    | .proj _ _ e => getStuckMVar? (← whnf e)
+    | .mvar .. =>
+      let e ← instantiateMVars e
+      match e with
+      | .mvar mvarId => return some mvarId
+      | _ => getStuckMVar? e
+    | .app f .. =>
+      let f := f.getAppFn
+      match f with
+      | .mvar .. =>
+        let e ← instantiateMVars e
+        match e.getAppFn with
+        | .mvar mvarId => return some mvarId
+        | _ => getStuckMVar? e
+      | .const fName lvls =>
+        match (← getEnv).find? fName with
+        | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
+        | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
+        | some <| c@(.defnInfo ..) =>
+          /- For some weird reason, hoisting this check to the top of the function breaks a DefEq
+          check in `3807.lean`. -/
+          unless e.hasExprMVar do return none
+          if let some projInfo ← getProjectionFnInfo? fName then
+            isProjStuck? projInfo f e.getAppArgs
+          else
+            isDefnStuck? c lvls e.getAppRevArgs
+        | _  => return none
+      | .proj _ _ e => getStuckMVar? (← whnf e)
+      | _ => return none
+    | _ => return none
+end
+
+-- ===========================
+/-! # Helper function for unfolding definitions -/
+-- ===========================
+
 /--
   Recall that `_sunfold` auxiliary definitions contains the markers: `markSmartUnfoldingMatch` (*) and `markSmartUnfoldingMatchAlt` (**).
   For example, consider the following definition
@@ -876,6 +903,10 @@ end
 def unfoldDefinition (e : Expr) : MetaM Expr := do
   let some e ← unfoldDefinition? e | throwError "failed to unfold definition{indentExpr e}"
   return e
+
+-- ===========================
+/-! # More Weak Head Normal Form auxiliary combinators -/
+-- ===========================
 
 @[specialize] partial def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : MetaM Expr :=
   whnfEasyCases e fun e => do

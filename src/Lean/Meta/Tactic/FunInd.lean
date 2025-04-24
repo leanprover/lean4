@@ -880,9 +880,9 @@ where doRealize (inductName : Name) := do
 Given a realizer for `foo.mutual_induct`, defines `foo.induct`, `bar.induct` etc.
 Used for well-founded and structural recursion.
 -/
-def projectMutualInduct (names : Array Name) (mutualInduct : MetaM Name) (finalizeFirstInd : MetaM Unit) : MetaM Unit := do
+def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : MetaM Name) (finalizeFirstInd : MetaM Unit) : MetaM Unit := do
   for name in names, idx in [:names.size] do
-    let inductName := getFunInductName name
+    let inductName := getFunInductName (unfolding := unfolding) name
     realizeConst name inductName do
       let ci ← getConstInfo (← mutualInduct)
       let levelParams := ci.levelParams
@@ -1342,7 +1342,7 @@ def deriveInduction (unfolding : Bool) (name : Name) : MetaM Unit := do
     if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then
       let unaryInductName ← deriveUnaryInduction unfolding eqnInfo.declNameNonRec
       if eqnInfo.declNames.size > 1 then
-        projectMutualInduct eqnInfo.declNames (unpackMutualInduction unfolding eqnInfo) do
+        projectMutualInduct unfolding eqnInfo.declNames (unpackMutualInduction unfolding eqnInfo) do
           -- We set the FunIndInfo on the first induction principle, which must happen inside its
           -- realization.
           if eqnInfo.argsPacker.numFuncs = 1 then
@@ -1352,7 +1352,7 @@ def deriveInduction (unfolding : Bool) (name : Name) : MetaM Unit := do
         let _ ← unpackMutualInduction unfolding eqnInfo
     else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
       if eqnInfo.declNames.size > 1 then
-        projectMutualInduct eqnInfo.declNames (deriveInductionStructural eqnInfo.declNames eqnInfo.fixedParamPerms) (pure ())
+        projectMutualInduct unfolding eqnInfo.declNames (deriveInductionStructural eqnInfo.declNames eqnInfo.fixedParamPerms) (pure ())
       else
         let _ ← deriveInductionStructural eqnInfo.declNames eqnInfo.fixedParamPerms
     else
@@ -1567,6 +1567,7 @@ info: map.induct_unfolding (f : Nat → Bool) (motive : List Nat → List Bool �
 #guard_msgs in
 #check map.induct_unfolding
 
+namespace BinaryWF
 
 def map2 (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
   | x::xs, y::ys => f x y::map2 f xs ys
@@ -1574,10 +1575,10 @@ def map2 (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
 termination_by x => x
 
 
-run_meta Lean.Tactic.FunInd.deriveInduction true `map2
+run_meta Lean.Tactic.FunInd.deriveInduction true ``map2
 
 /--
-info: map2.induct_unfolding (f : Nat → Nat → Bool) (motive : List Nat → List Nat → List Bool → Prop)
+info: BinaryWF.map2.induct_unfolding (f : Nat → Nat → Bool) (motive : List Nat → List Nat → List Bool → Prop)
   (case1 :
     ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat),
       motive xs ys (map2 f xs ys) → motive (x :: xs) (y :: ys) (f x y :: map2 f xs ys))
@@ -1590,6 +1591,10 @@ info: map2.induct_unfolding (f : Nat → Nat → Bool) (motive : List Nat → Li
 #guard_msgs in
 #check map2.induct_unfolding
 
+end BinaryWF
+
+namespace MutualWF
+
 mutual
 def map2a (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
   | x::xs, y::ys => f x y::map2b f xs ys
@@ -1601,5 +1606,73 @@ def map2b (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
 termination_by x => x
 end
 
-run_meta Lean.Tactic.FunInd.deriveInduction true `map2a
+run_meta Lean.Tactic.FunInd.deriveInduction true ``map2a
+
+/--
+info: MutualWF.map2a.mutual_induct_unfolding (f : Nat → Nat → Bool) (motive1 motive2 : List Nat → List Nat → List Bool → Prop)
+  (case1 :
+    ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat),
+      motive2 xs ys (map2b f xs ys) → motive1 (x :: xs) (y :: ys) (f x y :: map2b f xs ys))
+  (case2 :
+    ∀ (x x_1 : List Nat),
+      (∀ (x_2 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), x = x_2 :: xs → x_1 = y :: ys → False) →
+        motive1 x x_1 [])
+  (case3 :
+    ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat),
+      motive1 xs ys (map2a f xs ys) → motive2 (x :: xs) (y :: ys) (f x y :: map2a f xs ys))
+  (case4 :
+    ∀ (x x_1 : List Nat),
+      (∀ (x_2 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), x = x_2 :: xs → x_1 = y :: ys → False) →
+        motive2 x x_1 []) :
+  (∀ (a a_1 : List Nat), motive1 a a_1 (map2a f a a_1)) ∧ ∀ (a a_1 : List Nat), motive2 a a_1 (map2b f a a_1)
+-/
+#guard_msgs in
+#check map2a.mutual_induct_unfolding
+
+/--
+info: MutualWF.map2a.induct_unfolding (f : Nat → Nat → Bool) (motive1 motive2 : List Nat → List Nat → List Bool → Prop)
+  (case1 :
+    ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat),
+      motive2 xs ys (map2b f xs ys) → motive1 (x :: xs) (y :: ys) (f x y :: map2b f xs ys))
+  (case2 :
+    ∀ (x x_1 : List Nat),
+      (∀ (x_2 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), x = x_2 :: xs → x_1 = y :: ys → False) →
+        motive1 x x_1 [])
+  (case3 :
+    ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat),
+      motive1 xs ys (map2a f xs ys) → motive2 (x :: xs) (y :: ys) (f x y :: map2a f xs ys))
+  (case4 :
+    ∀ (x x_1 : List Nat),
+      (∀ (x_2 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), x = x_2 :: xs → x_1 = y :: ys → False) →
+        motive2 x x_1 [])
+  (a✝ a✝¹ : List Nat) : motive1 a✝ a✝¹ (map2a f a✝ a✝¹)
+-/
+#guard_msgs in
 #check map2a.induct_unfolding
+
+end MutualWF
+
+namespace MutualStructural
+
+mutual
+def map2a (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
+  | x::xs, y::ys => f x y::map2b f xs ys
+  | _, _ => []
+termination_by structural x => x
+def map2b (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
+  | x::xs, y::ys => f x y::map2a f xs ys
+  | _, _ => []
+termination_by structural x => x
+end
+
+run_meta Lean.Tactic.FunInd.deriveInduction false ``map2a
+
+/-- error: unknown constant 'MutualStructural.map2a.mutual_induct_unfolding' -/
+#guard_msgs in
+#check map2a.mutual_induct_unfolding
+
+/-- error: unknown constant 'MutualStructural.map2a.induct_unfolding' -/
+#guard_msgs in
+#check map2a.induct_unfolding
+
+end MutualStructural

@@ -18,6 +18,8 @@ module `Std.Data.ExtDHashMap.Lemmas`.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
+attribute [local instance] Std.DHashMap.isSetoid
+
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}

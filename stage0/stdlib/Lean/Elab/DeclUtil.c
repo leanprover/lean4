@@ -54,6 +54,7 @@ lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeCompatible___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__15___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__14___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3___closed__1;
@@ -77,7 +78,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompati
 LEAN_EXPORT lean_object* l_Lean_Elab_sortDeclLevelParams___lambda__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3___closed__3;
-uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__15(lean_object*);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___closed__4;
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___closed__1;
@@ -2808,7 +2808,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; size_t x_9; size_t x_10; 
 x_7 = lean_array_uget(x_2, x_3);
-x_8 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_7, x_1);
+x_8 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_7, x_1);
 x_9 = 1;
 x_10 = lean_usize_add(x_3, x_9);
 if (x_8 == 0)
@@ -2840,7 +2840,7 @@ x_4 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_3)
 if (x_4 == 0)
 {
 uint8_t x_5; 
-x_5 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_3, x_2);
+x_5 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_3, x_2);
 if (x_5 == 0)
 {
 uint8_t x_6; 

@@ -20,6 +20,8 @@ import Lean.Server.Utils
 import Lean.Server.Requests
 import Lean.Server.References
 import Lean.Server.ServerTask
+import Lean.Server.Completion.CompletionUtils
+import Init.Data.List.Sort
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -1016,17 +1018,17 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ReaderT ReferenceRequest
   let references := (← read).references
   let filterMapMod mod := documentUriFromModule? mod
   let filterMapIdent ident := do
-    let ident := privateToUserName? ident |>.getD ident
-    if let some score := fuzzyMatchScoreWithThreshold? p.query ident.toString then
-      return some (ident.toString, score)
+    let ident := privateToUserName? ident |>.getD ident |>.toString
+    if p.query.charactersIn ident then
+      return some ident
     else
       return none
   let symbols ← references.definitionsMatching filterMapMod filterMapIdent
   return symbols
-    |>.qsort (fun { ident := (_, s1), .. } { ident := (_, s2), .. } => s1 > s2)
-    |>.extract 0 100 -- max amount
+    |>.qsort (·.ident.length < ·.ident.length)
+    |>.extract 0 1000
     |>.map fun m => {
-      name := m.ident.1
+      name := m.ident
       kind := SymbolKind.constant
       location := { uri := m.mod, range := m.range }
     }

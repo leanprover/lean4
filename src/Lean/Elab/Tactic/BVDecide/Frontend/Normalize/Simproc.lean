@@ -538,26 +538,25 @@ builtin_simproc [bv_normalize] append_add_append_eq_append'
     ((HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) _ _) +
      (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) _ _))
       := fun e => do
-  -- ⊢ ∀ {v w : Nat} {x : BitVec v} {y : BitVec w}, 0#v ++ y + (x ++ 0#w) = x ++ y
   let_expr HAdd.hAdd _ _ _ _ lhsExpr rhsExpr := e | return .continue
-  let_expr HAppend.hAppend _ _ _ _ zerov y := lhsExpr | return .continue
-  let_expr HAppend.hAppend _ _ _ _ x zerow := rhsExpr | return .continue
-  let some ⟨v, lhsZeroValue⟩ ← getBitVecValue? zerov | return .continue
-  let some ⟨w, rhsZeroValue⟩ ← getBitVecValue? zerow | return .continue
+  let_expr HAppend.hAppend _ _ _ _ lhsZero lhsExpr := lhsExpr | return .continue
+  let_expr HAppend.hAppend _ _ _ _ rhsExpr rhsZero := rhsExpr | return .continue
+  let some ⟨v, lhsZeroValue⟩ ← getBitVecValue? lhsZero | return .continue
+  let some ⟨w, rhsZeroValue⟩ ← getBitVecValue? rhsZero | return .continue
   if lhsZeroValue ≠ 0#v then
     return .continue
   if rhsZeroValue ≠ 0#w then
     return .continue
   let wExpr := toExpr w
   let vExpr := toExpr v
-  let expr ← mkAppM ``HAppend.hAppend #[x, y]
+  let expr ← mkAppM ``HAppend.hAppend #[rhsExpr, lhsExpr]
   let proof :=
     mkApp4
       (mkConst ``BitVec.append_add_append_eq_append')
       vExpr
       wExpr
-      x
-      y
+      rhsExpr
+      lhsExpr
   return .visit { expr := expr, proof? := some proof }
 
 

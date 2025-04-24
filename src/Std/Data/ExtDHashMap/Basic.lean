@@ -96,7 +96,7 @@ instance : LawfulSingleton ((a : α) × β a) (ExtDHashMap α β) :=
         (Quotient.sound <|
           m.containsThenInsert_snd.symm ▸ m'.containsThenInsert_snd.symm ▸ h.insert a b))
 
-@[inline, inherit_doc DHashMap.containsThenInsert] def containsThenInsertIfNew
+@[inline, inherit_doc DHashMap.containsThenInsertIfNew] def containsThenInsertIfNew
     (m : ExtDHashMap α β) (a : α) (b : β a) : Bool × ExtDHashMap α β :=
   m.lift (fun m => let m' := m.containsThenInsertIfNew a b; ⟨m'.1, Quotient.mk' m'.2⟩)
     (fun m m' (h : m ~m m') =>

@@ -1347,7 +1347,7 @@ theorem get?_insertMany_list_of_contains_eq_false
 theorem get?_insertMany_list_of_mem
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) :
-    get? (insertMany m l) k' = v := by
+    get? (insertMany m l) k' = some v := by
   refine m.inductionOn (fun _ k_beq distinct mem => ?_) k_beq distinct mem
   simp only [insertMany_list_mk]
   exact DHashMap.Const.get?_insertMany_list_of_mem k_beq distinct mem

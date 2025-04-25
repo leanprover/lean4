@@ -974,9 +974,9 @@ def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : 
 For a (non-mutual!) definition of `name`, uses the `FunIndInfo` associated with the `unaryInduct` and
 derives the one for the n-ary function.
 -/
-def setNaryFunIndInfo (fixedParamPerms : FixedParamPerms) (name : Name) (unaryInduct : Name) : MetaM Unit := do
+def setNaryFunIndInfo (unfolding : Bool) (fixedParamPerms : FixedParamPerms) (name : Name) (unaryInduct : Name) : MetaM Unit := do
   assert!  fixedParamPerms.perms.size = 1 -- only non-mutual for now
-  let funIndName := getFunInductName name
+  let funIndName := getFunInductName (unfolding := unfolding) name
   unless funIndName = unaryInduct do
     let some unaryFunIndInfo ← getFunIndInfoForInduct? unaryInduct
       | throwError "Expected {unaryInduct} to have FunIndInfo"
@@ -1104,7 +1104,7 @@ where doRealize inductName := do
     { name := inductName, levelParams := ci.levelParams, type, value }
 
   if eqnInfo.argsPacker.numFuncs = 1 then
-    setNaryFunIndInfo eqnInfo.fixedParamPerms eqnInfo.declNames[0]! unaryInductName
+    setNaryFunIndInfo (unfolding := unfolding) eqnInfo.fixedParamPerms eqnInfo.declNames[0]! unaryInductName
 
 def withLetDecls {α} (name : Name) (ts : Array Expr) (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
   assert! es.size = ts.size
@@ -1442,7 +1442,7 @@ def deriveInduction (unfolding : Bool) (name : Name) : MetaM Unit := do
           -- We set the FunIndInfo on the first induction principle, which must happen inside its
           -- realization.
           if eqnInfo.argsPacker.numFuncs = 1 then
-            setNaryFunIndInfo eqnInfo.fixedParamPerms eqnInfo.declNames[0]! unaryInductName
+            setNaryFunIndInfo (unfolding := unfolding) eqnInfo.fixedParamPerms eqnInfo.declNames[0]! unaryInductName
       else
         -- (in this case, `unpackMutualInduction` already does `setNaryFunIndInfo`)
         let _ ← unpackMutualInduction unfolding eqnInfo

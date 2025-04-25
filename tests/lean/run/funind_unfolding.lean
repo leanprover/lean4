@@ -438,3 +438,49 @@ info: withHave.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : 0 <
 -/
 #guard_msgs in
 #check withHave.fun_cases_unfolding
+
+-- Structural Mutual recursion
+
+inductive Tree (α : Type u) : Type u where
+  | node : α → (Bool → List (Tree α)) → Tree α
+
+mutual
+def Tree.size : Tree α → Nat
+  | .node _ tsf => 1 + size_aux (tsf true) + size_aux (tsf false)
+termination_by structural t => t
+def Tree.size_aux : List (Tree α) → Nat
+  | [] => 0
+  | t :: ts => size t + size_aux ts
+end
+
+/--
+error: Failed to realize constant Tree.size.induct_unfolding:
+  Cannot derive functional induction principle (please report this issue)
+  ⏎
+    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
+---
+error: Failed to realize constant Tree.size.induct_unfolding:
+  Cannot derive functional induction principle (please report this issue)
+  ⏎
+    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
+---
+error: unknown identifier 'Tree.size.induct_unfolding'
+-/
+#guard_msgs in
+#check Tree.size.induct_unfolding
+
+/--
+error: Failed to realize constant Tree.size_aux.induct_unfolding:
+  Cannot derive functional induction principle (please report this issue)
+  ⏎
+    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
+---
+error: Failed to realize constant Tree.size_aux.induct_unfolding:
+  Cannot derive functional induction principle (please report this issue)
+  ⏎
+    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
+---
+error: unknown identifier 'Tree.size_aux.induct_unfolding'
+-/
+#guard_msgs in
+#check Tree.size_aux.induct_unfolding

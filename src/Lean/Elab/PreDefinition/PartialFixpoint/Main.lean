@@ -79,11 +79,10 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
   -- We check if any fixpoints were defined lattice-theoretically
-  let isLattice := hints.any (fun x => isLatticeTheoreticPartialFixpointType x.fixpointType)
+  let isLattice := hints.any (fun x => isLatticeTheoretic x.fixpointType)
   -- If yes, then we expect all of them to be defined using lattice theory
   if isLattice then
-    assert! preDefs.size = (hints.filter (fun x => isLatticeTheoreticPartialFixpointType x.fixpointType)).size
-
+    assert! preDefs.size = (hints.filter (fun x => isLatticeTheoretic x.fixpointType)).size
 
   -- We check if the
   -- For every function of type `∀ x y, r x y`, an CCPO instance

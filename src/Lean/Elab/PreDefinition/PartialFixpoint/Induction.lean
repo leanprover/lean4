@@ -50,13 +50,15 @@ def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
   return insts
 
 
-def desugarOrder (predType : Expr) (body : Expr) (reduceRhs : Bool := false) (isLeast : Bool) : MetaM (Expr) := do
+def desugarOrder (predType : Expr) (body : Expr) (reduceRhs : Bool := false) (fixpointType : Option Bool) : MetaM (Expr) := do
+  if fixpointType.isNone then
+    throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
   if body.isAppOfArity ``PartialOrder.rel 4 then
     let lhsTypes ← forallTelescope predType (fun ts _ =>  ts.mapM inferType)
     let names ← lhsTypes.mapM (fun _ => mkFreshUserName `x)
     let bodyArgs := body.getAppArgs
     withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
-      let mut applied := if isLeast then (bodyArgs[2]!, bodyArgs[3]!) else (bodyArgs[3]!, bodyArgs[2]!)
+      let mut applied := if fixpointType.get! then (bodyArgs[2]!, bodyArgs[3]!) else (bodyArgs[3]!, bodyArgs[2]!)
       for e in exprs do
         applied := (mkApp applied.1 e, mkApp applied.2 e)
       if reduceRhs then
@@ -86,22 +88,24 @@ def deriveInduction (name : Name) : MetaM Unit :=
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-    let e' ← if eqnInfo.fixpointType.all isLatticeTheoreticPartialFixpointType then
+    let e' ← if eqnInfo.fixpointType.all isLatticeTheoretic then
+      let leastOrGreatest : Option Bool := match eqnInfo.fixpointType[0]! with
+        | .leastFixpoint => Option.some true
+        | .greatestFixpoint => Option.some false
+        | _ => Option.none
       if (eqnInfo.declNames.size != 1) then
-        throwError "Mutual coinduction is not supported yet"
+        throwError "Mutual lattice (co)induction is not supported yet"
       eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
-        -- Now look at the body of an arbitrary of the functions (they are essentially the same
-        -- up to the final projections)
+        -- Now look at the body of the functions
         let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
-        -- We do not strip projections
         let body' := PProdN.stripProjs body.eta
-
+        -- We strip it until we reach an application of `lfp_montotone`
         let some fixApp ← whnfUntil body' ``lfp_monotone
           | throwError "Unexpected function body {body}, could not whnfUntil lfp_monotone"
         let_expr lfp_monotone α instcomplete_lattice F hmono := fixApp
           | throwError "Unexpected function body {body}, not an application of lfp_induction"
         let e' ← mkAppOptM ``lfp_induction_monotone #[α, instcomplete_lattice, F, hmono]
-        --get the type
+        -- We get the type of the induction principle
         let eTyp ← inferType e'
         let f ← mkConstWithLevelParams infos[0]!.name
         let fEtaExpanded ← lambdaTelescope infos[0]!.value fun ys _ =>
@@ -109,33 +113,25 @@ def deriveInduction (name : Name) : MetaM Unit :=
         let fInst ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda fEtaExpanded xs
         let fInst := fInst.eta
 
-        let isLeast := match eqnInfo.fixpointType[0]! with
-          | .leastFixpoint => true
-          | .greatestFixpoint => false
-          | _ => panic! "Trying to apply lattice induction to a non-lattice theoretic fixpoint"
-
-        -- Change the conclusion so it doesn't mention the greatest fixpoint
+        -- Then, we change the conclusion so it doesn't mention the `lfp_monotone`, but rather the actual predicate.
         let newTyp ← forallTelescope eTyp (fun args econc =>
           if (econc.isAppOfArity ``PartialOrder.rel 4) then
           let oldArgs := econc.getAppArgs
-          --if true then throwError "isCoinductive: {oldArgs}" else
           let newArgs := oldArgs.set! 2 fInst
           let newBody := mkAppN econc.getAppFn newArgs
-
           mkForallFVars args newBody
-
           else
             throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
         )
-
-        --Desugar partial order on predicates in premises and conclusion
+        -- Desugar partial order on predicates in premises and conclusion
         let newTyp ← forallTelescope newTyp (fun args conclusion => do
           let predicate := args[0]!
           let predicateType ← inferType predicate
           let premise := args[1]!
           let premiseType ← inferType premise
-          let premiseType ← desugarOrder predicateType premiseType (reduceRhs := true) (isLeast := isLeast)
-          let newConclusion ← desugarOrder predicateType conclusion (isLeast := isLeast)
+          let premiseType ← desugarOrder predicateType premiseType (reduceRhs := true) leastOrGreatest
+          let newConclusion ← desugarOrder predicateType conclusion
+            (fixpointType := leastOrGreatest)
           let abstracedNewConclusion ← mkForallFVars args newConclusion
           withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
             let typeHint ← mkExpectedTypeHint newPremise premiseType
@@ -150,7 +146,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
 
         let e' ← instantiateMVars e'
 
-        trace[Elab.definition.partialFixpoint.induction] "Complete body of (lattice theoretic) fixpoint induction principle:{indentExpr e'}"
+        trace[Elab.definition.partialFixpoint.induction] "Complete body of (lattice-theoretic) fixpoint induction principle:{indentExpr e'}"
 
         pure e'
 

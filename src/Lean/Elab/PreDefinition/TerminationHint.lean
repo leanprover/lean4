@@ -69,10 +69,9 @@ structure TerminationHints where
   extraParams : Nat
   deriving Inhabited
 
-def isLatticeTheoreticPartialFixpointType : PartialFixpointType → Bool
+def isLatticeTheoretic : PartialFixpointType → Bool
   | .partialFixpoint => false
-  | .greatestFixpoint => true
-  | .leastFixpoint => true
+  | _ => true
 
 def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, .none, 0⟩
 

@@ -44,6 +44,38 @@ theorem ackermann_mono1:
   induction n, m using ackermann_induct_unfolding
   fail
 
+--- Now with cases
+
+theorem ackermann_cases_unfolding (motive : Nat → Nat → Nat → Prop)
+  (case1 : ∀ (m : Nat), motive 0 m (m + 1))
+  (case2 : ∀ (n : Nat), motive n.succ 0 (ackermann n 1))
+  (case3 : ∀ (n m : Nat), motive n.succ m.succ (ackermann n (ackermann (n + 1) m)))
+  (n m : Nat) : motive n m (ackermann n m) :=
+  ackermann.fun_cases (motive := fun n m => motive n m (ackermann n m))
+    (fun m => by simpa [ackermann] using case1 m)
+    (fun n => by simpa [ackermann] using case2 n)
+    (fun n m => by simpa [ackermann] using case3 n m)
+     n m
+
+/--
+error: tactic 'fail' failed
+case case1
+m : Nat
+⊢ m + 1 ≤ ackermann (0 + 1) m
+
+case case2
+n✝ : Nat
+⊢ ackermann n✝ 1 ≤ ackermann (n✝.succ + 1) 0
+
+case case3
+n✝ m✝ : Nat
+⊢ ackermann n✝ (ackermann (n✝ + 1) m✝) ≤ ackermann (n✝.succ + 1) m✝.succ
+-/
+#guard_msgs in
+example : ackermann n m ≤ ackermann (n+1) m := by
+  cases n, m using ackermann_cases_unfolding
+  fail
+
 -- Now an artificial one with multiple complex arguments.
 
 axiom strange_induction
@@ -61,6 +93,27 @@ example : n -1 ≤ n ∧ n < n +1 := by
   induction n using strange_induction
   fail
 
+/--
+error: tactic 'fail' failed
+case case1
+⊢ True ∧ 0 < 42
+-/
+#guard_msgs in
+example : n -1 ≤ n ∧ n < n +1 := by
+  cases n using strange_induction
+  fail
+
+/--
+error: tactic 'fail' failed
+case case1
+n : Nat
+⊢ n - 1 ≤ n ∧ n < 0
+-/
+#guard_msgs in
+example : n -1 ≤ n ∧ n < n + 1 := by
+  cases n+1 using strange_induction
+  fail
+
 -- And now one where abstracing would cause a type error
 -- (induction silently skips abstracing over these)
 
@@ -73,4 +126,15 @@ P : (n : Nat) → n > 0 → Prop
 #guard_msgs in
 example (P : (n : Nat) → (h : n > 0) → Prop) : P (n + 1) (Nat.zero_lt_succ n) := by
   induction n using strange_induction
+  fail
+
+/--
+error: tactic 'fail' failed
+case case1
+P : (n : Nat) → n > 0 → Prop
+⊢ P (0 + 1) ⋯
+-/
+#guard_msgs in
+example (P : (n : Nat) → (h : n > 0) → Prop) : P (n + 1) (Nat.zero_lt_succ n) := by
+  cases n using strange_induction
   fail

@@ -46,7 +46,7 @@ def builtinPassManager : PassManager := {
   passes := #[
     init,
     pullInstances,
-    cse,
+    cse (shouldElimFunDecls := false),
     simp,
     floatLetIn,
     findJoinPoints,
@@ -61,7 +61,7 @@ def builtinPassManager : PassManager := {
     eagerLambdaLifting,
     specialize,
     simp (occurrence := 2),
-    cse (occurrence := 1),
+    cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase
     toMono,
     simp (occurrence := 3) (phase := .mono),
@@ -94,7 +94,6 @@ builtin_initialize passManagerExt : PersistentEnvExtension Name (Name × PassMan
     addImportedFn := fun ns => return ([], ← ImportM.runCoreM <| runImportedDecls ns)
     addEntryFn := fun (installerDeclNames, _) (installerDeclName, managerNew) => (installerDeclName :: installerDeclNames, managerNew)
     exportEntriesFn := fun s => s.1.reverse.toArray
-    asyncMode := .sync
   }
 
 def getPassManager : CoreM PassManager :=

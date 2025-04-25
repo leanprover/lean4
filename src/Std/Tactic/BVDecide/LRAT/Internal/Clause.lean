@@ -6,6 +6,7 @@ Authors: Josh Clune
 prelude
 import Init.Data.List.Erase
 import Init.Data.Array.Lemmas
+import Std.Data.HashMap
 import Std.Sat.CNF.Basic
 import Std.Tactic.BVDecide.LRAT.Internal.PosFin
 import Std.Tactic.BVDecide.LRAT.Internal.Assignment
@@ -36,9 +37,6 @@ class Clause (α : outParam (Type u)) (β : Type v) where
   not_tautology : ∀ c : β, ∀ l : Literal α, l ∉ toList c ∨ Literal.negate l ∉ toList c
   /-- Returns none if the given array contains complementary literals -/
   ofArray : Array (Literal α) → Option β
-  ofArray_eq :
-    ∀ arr : Array (Literal α), (∀ i : Fin arr.size, ∀ j : Fin arr.size, i.1 ≠ j.1 → arr[i] ≠ arr[j]) →
-      ∀ c : β, ofArray arr = some c → toList c = arr.toList
   empty : β
   empty_eq : toList empty = []
   unit : Literal α → β
@@ -47,8 +45,6 @@ class Clause (α : outParam (Type u)) (β : Type v) where
   isUnit_iff : ∀ c : β, ∀ l : Literal α, isUnit c = some l ↔ toList c = [l]
   negate : β → CNF.Clause α
   negate_eq : ∀ c : β, negate c = (toList c).map Literal.negate
-  /-- Returns none if the result is a tautology. -/
-  insert : β → Literal α → Option β
   delete : β → Literal α → β
   delete_iff : ∀ c : β, ∀ l : Literal α, ∀ l' : Literal α,
     l' ∈ toList (delete c l) ↔ l' ≠ l ∧ l' ∈ toList c
@@ -116,6 +112,7 @@ theorem not_tautology (c : DefaultClause n) (l : Literal (PosFin n)) :
     apply Or.symm
     rwa [← hl] at h
 
+@[inline]
 def empty : DefaultClause n :=
   let clause := []
   have nodupkey := by
@@ -126,6 +123,7 @@ def empty : DefaultClause n :=
 
 theorem empty_eq : toList (empty : DefaultClause n) = [] := rfl
 
+@[inline]
 def unit (l : Literal (PosFin n)) : DefaultClause n :=
   let clause := [l]
   have nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
@@ -142,6 +140,7 @@ def unit (l : Literal (PosFin n)) : DefaultClause n :=
 
 theorem unit_eq (l : Literal (PosFin n)) : toList (unit l) = [l] := rfl
 
+@[inline]
 def isUnit (c : DefaultClause n) : Option (Literal (PosFin n)) :=
   match c.clause with
   | [l] => some l
@@ -156,151 +155,137 @@ theorem isUnit_iff (c : DefaultClause n) (l : Literal (PosFin n)) :
     simp
     apply hne
 
+@[inline]
 def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal.negate
 
 theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.negate := rfl
 
-/--
-Attempts to add the literal `(idx, b)` to clause `c`. Returns none if doing so would make `c` a
-tautology.
--/
-def insert (c : DefaultClause n) (l : Literal (PosFin n)) : Option (DefaultClause n) :=
-  if heq1 : c.clause.contains (l.1, !l.2) then
-    none -- Adding l would make c a tautology
-  else if heq2 : c.clause.contains l then
-    some c
-  else
-    let clause := l :: c.clause
-    have nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
-      intro l'
-      simp only [List.contains, Bool.not_eq_true] at heq1
-      simp only [List.find?, List.mem_cons, not_or, clause]
-      by_cases l' = l.1
-      · next l'_eq_l =>
-        by_cases hl : l.2
-        · apply Or.inr
-          constructor
-          · intro heq
-            simp [← heq] at hl
-          · simpa [hl, ← l'_eq_l] using heq1
-        · simp only [Bool.not_eq_true] at hl
-          apply Or.inl
-          constructor
-          · intro heq
-            simp [← heq] at hl
-          · simpa [hl, ← l'_eq_l] using heq1
-      · next l'_ne_l =>
-        have := c.nodupkey l'
-        rcases c.nodupkey l' with h | h
-        · left
-          constructor
-          · intro heq
-            simp [← heq] at l'_ne_l
-          · simp [h]
-        · right
-          constructor
-          · intro heq
-            simp [← heq] at l'_ne_l
-          · simp [h]
-    have nodup : List.Nodup clause := by
-      simp only [List.elem_eq_mem, decide_eq_true_eq] at heq2
-      simp [c.nodup, heq2, clause]
-    some ⟨clause, nodupkey, nodup⟩
-
 def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
-  let fold_fn (l : Literal (PosFin n)) (acc : Option (DefaultClause n)) : Option (DefaultClause n) :=
+  let mapOption := ls.foldl folder (some (HashMap.emptyWithCapacity ls.size))
+  match mapOption with
+  | none => none
+  | some map =>
+   have mapnodup := map.distinct_keys
+    have nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ map.toList ∨ ¬(l, false) ∈ map.toList := by
+      intro l
+      apply Classical.byContradiction
+      simp_all
+    have nodup : map.toList.Nodup := by
+      rw [List.Nodup, List.pairwise_iff_forall_sublist]
+      simp only [ne_eq, Prod.forall, Bool.forall_bool, Prod.mk.injEq, not_and, Bool.not_eq_false,
+        Bool.not_eq_true, Bool.false_eq_true, imp_false, implies_true, and_true, Bool.true_eq_false,
+        true_and]
+      intro l1
+      constructor
+      . intros l2 h hl
+        rw [List.pairwise_iff_forall_sublist] at mapnodup
+        replace h : [l1, l2].Sublist map.keys := by
+          rw [← HashMap.map_fst_toList_eq_keys, List.sublist_map_iff]
+          apply Exists.intro [(l1, false), (l2, false)]
+          simp [h]
+        specialize mapnodup h
+        simp [hl] at mapnodup
+      . intros l2 h hl
+        rw [List.pairwise_iff_forall_sublist] at mapnodup
+        replace h : [l1, l2].Sublist map.keys := by
+          rw [← HashMap.map_fst_toList_eq_keys, List.sublist_map_iff]
+          apply Exists.intro [(l1, true), (l2, true)]
+          simp [h]
+        specialize mapnodup h
+        simp [hl] at mapnodup
+    some ⟨map.toList, nodupkey, nodup⟩
+where
+  folder (acc : Option (Std.HashMap (PosFin n) Bool)) (l : Literal (PosFin n)) :
+      Option (Std.HashMap (PosFin n) Bool) :=
     match acc with
     | none => none
-    | some acc => acc.insert l
-  ls.foldr fold_fn (some empty)
+    | some map =>
+      let (val?, map) := map.getThenInsertIfNew? l.1 l.2
+      if let some val' := val? then
+        if l.2 != val' then
+          none
+        else
+          some map
+      else
+        some map
 
-theorem ofArray_eq (arr : Array (Literal (PosFin n)))
-    (arrNodup : ∀ i : Fin arr.size, ∀ j : Fin arr.size, i.1 ≠ j.1 → arr[i] ≠ arr[j])
-    (c : DefaultClause n) :
-    ofArray arr = some c → toList c = Array.toList arr := by
-  intro h
-  simp only [ofArray] at h
-  rw [toList]
-  let motive (idx : Nat) (acc : Option (DefaultClause n)) : Prop :=
-    ∃ idx_le_arr_size : idx ≤ arr.size, ∀ c' : DefaultClause n, acc = some c' →
-      ∃ hsize : c'.clause.length = arr.size - idx, ∀ i : Fin c'.clause.length,
-      have idx_in_bounds : idx + i.1 < arr.size := by
-        omega
-      List.get c'.clause i = arr[idx + i]'idx_in_bounds
-  have h_base : motive arr.size (some empty) := by
-    apply Exists.intro <| Nat.le_refl arr.size
-    intro c' heq
-    simp only [Option.some.injEq] at heq
-    have hsize : List.length c'.clause = arr.size - arr.size := by
-      simp [← heq, empty]
-    apply Exists.intro hsize
-    intro i
-    simp only [← heq, empty, List.length_nil] at i
-    exact Fin.elim0 i
-  let fold_fn (l : Literal (PosFin n)) (acc : Option (DefaultClause n)) : Option (DefaultClause n) :=
-    match acc with
-    | none => none
-    | some acc => acc.insert l
-  have h_inductive (idx : Fin arr.size) (acc : Option (DefaultClause n)) (ih : motive (idx.1 + 1) acc) :
-    motive idx.1 (fold_fn arr[idx] acc) := by
-    rcases ih with ⟨idx_add_one_le_arr_size, ih⟩
-    apply Exists.intro <| Nat.le_of_succ_le idx_add_one_le_arr_size
-    intro c' heq
-    simp only [Fin.getElem_fin, fold_fn] at heq
-    split at heq
-    · simp at heq
-    · next acc =>
-      specialize ih acc rfl
-      rcases ih with ⟨hsize, ih⟩
-      simp only at ih
-      simp only [insert] at heq
-      split at heq
-      · simp at heq
-      · split at heq
-        · next h_dup =>
-          exfalso -- h_dup contradicts arrNodup
-          simp only [List.contains] at h_dup
-          rcases List.get_of_mem <| List.mem_of_elem_eq_true h_dup with ⟨j, hj⟩
-          specialize ih j
-          rw [hj] at ih
-          have idx_add_one_add_j_in_bounds : idx.1 + 1 + j.1 < arr.size := by
-            omega
-          have idx_ne_idx_add_one_add_j_in_bounds : idx.1 ≠ idx.1 + 1 + j.1 := by
-            omega
-          exact arrNodup idx ⟨idx.1 + 1 + j.1, idx_add_one_add_j_in_bounds⟩ idx_ne_idx_add_one_add_j_in_bounds ih
-        · simp only [Option.some.injEq] at heq
-          have hsize' : c'.clause.length = arr.size - idx.1 := by
-            simp only [← heq, List.length_cons, hsize]
-            omega
-          apply Exists.intro hsize'
-          intro i
-          simp only
-          have lhs_rw : c'.clause = arr[idx.1] :: acc.clause := by rw [← heq]
-          simp only [List.get_of_eq lhs_rw]
-          by_cases i.1 = 0
-          · next i_eq_zero =>
-            simp only [List.length_cons, i_eq_zero, List.get, Nat.add_zero]
-          · next i_ne_zero =>
-            rcases Nat.exists_eq_succ_of_ne_zero i_ne_zero with ⟨j, hj⟩
-            simp only [List.length_cons, hj, List.get, Nat.succ_eq_add_one]
-            simp only [Nat.add_comm j 1, ← Nat.add_assoc]
-            exact ih ⟨j, by omega⟩
-  rcases (Array.foldr_induction motive h_base h_inductive).2 c h with ⟨hsize, h⟩
-  ext
-  next i l =>
-  by_cases i_in_bounds : i < c.clause.length
-  · specialize h ⟨i, i_in_bounds⟩
-    have i_in_bounds' : i < arr.toList.length := by
-      dsimp; omega
-    rw [List.getElem?_eq_getElem i_in_bounds, List.getElem?_eq_getElem i_in_bounds']
-    simp only [List.get_eq_getElem, Nat.zero_add] at h
-    rw [Array.getElem_toList]
-    simp [h]
-  · have arr_data_length_le_i : arr.toList.length ≤ i := by
-      dsimp; omega
-    simp only [Nat.not_lt, ← List.getElem?_eq_none_iff] at i_in_bounds arr_data_length_le_i
-    rw [i_in_bounds, arr_data_length_le_i]
+@[simp]
+theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by
+  apply List.foldlRecOn (motive := (· = none))
+  · simp
+  · intro b hb a ha
+    unfold DefaultClause.ofArray.folder
+    simp [hb]
 
+theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
+    (h : List.foldl DefaultClause.ofArray.folder (some acc) ls = some acc') :
+    ∀ l ∈ acc.toList, l ∈ acc'.toList := by
+  intro l hl
+  induction ls generalizing acc with
+  | nil => simp_all
+  | cons x xs ih =>
+    rcases l with ⟨var, pol⟩
+    rw [List.foldl_cons, DefaultClause.ofArray.folder.eq_def] at h
+    split at h
+    · contradiction
+    · simp only [HashMap.getThenInsertIfNew?_fst, HashMap.get?_eq_getElem?, bne_iff_ne, ne_eq,
+        HashMap.getThenInsertIfNew?_snd, ite_not] at h
+      split at h
+      · split at h
+        · apply ih
+          · exact h
+          · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some, Std.HashMap.getElem?_insertIfNew]
+            rename_i map _ _ _ _ _
+            have : x.fst ∈ map := by
+              apply Classical.byContradiction
+              intro h2
+              have := Std.HashMap.getElem?_eq_none h2
+              simp_all
+            simp [this]
+            rw [Std.HashMap.mem_toList_iff_getElem?_eq_some] at hl
+            simp_all
+        · simp at h
+      · apply ih
+        · exact h
+        · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some, Std.HashMap.getElem?_insertIfNew]
+          simp_all
+          intros
+          cases pol <;> simp_all
+
+theorem ofArray.folder_foldl_mem_of_mem
+    (h : List.foldl DefaultClause.ofArray.folder acc ls = some map) :
+    ∀ l ∈ ls, l ∈ map.toList := by
+  intro l hl
+  induction ls generalizing acc with
+  | nil => simp at hl
+  | cons x xs ih =>
+    simp at hl h
+    rcases hl with hl | hl
+    · rw [DefaultClause.ofArray.folder.eq_def] at h
+      simp at h
+      split at h
+      · simp at h
+      · split at h
+        · split at h
+          · apply mem_of_mem_of_foldl_folder_eq_some
+            · exact h
+            · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some]
+              rw [Std.HashMap.getElem?_insertIfNew]
+              simp_all
+          · simp at h
+        · apply mem_of_mem_of_foldl_folder_eq_some
+          · exact h
+          · next hfoo =>
+            rw [hl]
+            cases x
+            simp [Std.HashMap.getElem?_insertIfNew]
+            intro hbar
+            exfalso
+            apply hfoo
+            rw [Std.HashMap.getElem?_eq_some_getElem! hbar]
+    · exact ih h hl
+
+@[inline]
 def delete (c : DefaultClause n) (l : Literal (PosFin n)) : DefaultClause n :=
   let clause := c.clause.erase l
   let nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
@@ -327,6 +312,7 @@ theorem delete_iff (c : DefaultClause n) (l l' : Literal (PosFin n)) :
   · simp only [hl, not_false_eq_true, true_and]
     exact List.mem_erase_of_ne hl
 
+@[inline]
 def contains (c : DefaultClause n) (l : Literal (PosFin n)) : Bool := c.clause.contains l
 
 theorem contains_iff :
@@ -393,7 +379,6 @@ instance : Clause (PosFin n) (DefaultClause n) where
   toList := toList
   not_tautology := not_tautology
   ofArray := ofArray
-  ofArray_eq := ofArray_eq
   empty := empty
   empty_eq := empty_eq
   unit := unit
@@ -402,7 +387,6 @@ instance : Clause (PosFin n) (DefaultClause n) where
   isUnit_iff := isUnit_iff
   negate := negate
   negate_eq := negate_eq
-  insert := insert
   delete := delete
   delete_iff := delete_iff
   contains := contains

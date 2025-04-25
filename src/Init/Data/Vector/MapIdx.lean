@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Array.MapIdx
 import Init.Data.Vector.Attach
@@ -15,26 +17,26 @@ namespace Vector
 
 /-! ### mapFinIdx -/
 
-@[simp] theorem getElem_mapFinIdx (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → β) (i : Nat)
+@[simp] theorem getElem_mapFinIdx {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {i : Nat}
     (h : i < n) :
     (xs.mapFinIdx f)[i] = f i xs[i] h := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem getElem?_mapFinIdx (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → β) (i : Nat) :
+@[simp] theorem getElem?_mapFinIdx {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {i : Nat} :
     (xs.mapFinIdx f)[i]? =
-      xs[i]?.pbind fun b h => f i b (getElem?_eq_some_iff.1 h).1 := by
+      xs[i]?.pbind fun b h => some <| f i b (getElem?_eq_some_iff.1 h).1 := by
   simp only [getElem?_def, getElem_mapFinIdx]
   split <;> simp_all
 
 /-! ### mapIdx -/
 
-@[simp] theorem getElem_mapIdx (f : Nat → α → β) (xs : Vector α n) (i : Nat) (h : i < n) :
+@[simp] theorem getElem_mapIdx {f : Nat → α → β} {xs : Vector α n} {i : Nat} (h : i < n) :
     (xs.mapIdx f)[i] = f i (xs[i]'(by simp_all)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem getElem?_mapIdx (f : Nat → α → β) (xs : Vector α n) (i : Nat) :
+@[simp] theorem getElem?_mapIdx {f : Nat → α → β} {xs : Vector α n} {i : Nat} :
     (xs.mapIdx f)[i]? = xs[i]?.map (f i) := by
   rcases xs with ⟨xs, rfl⟩
   simp
@@ -43,11 +45,11 @@ end Vector
 
 namespace Array
 
-@[simp] theorem mapFinIdx_toVector (xs : Array α) (f : (i : Nat) → α → (h : i < xs.size) → β) :
+@[simp] theorem mapFinIdx_toVector {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     xs.toVector.mapFinIdx f = (xs.mapFinIdx f).toVector.cast (by simp) := by
   ext <;> simp
 
-@[simp] theorem mapIdx_toVector (f : Nat → α → β) (xs : Array α) :
+@[simp] theorem mapIdx_toVector {f : Nat → α → β} {xs : Array α} :
     xs.toVector.mapIdx f = (xs.mapIdx f).toVector.cast (by simp) := by
   ext <;> simp
 
@@ -57,25 +59,25 @@ namespace Vector
 
 /-! ### zipIdx -/
 
-@[simp] theorem toList_zipIdx (xs : Vector α n) (k : Nat := 0) :
+@[simp] theorem toList_zipIdx {xs : Vector α n} (k : Nat := 0) :
     (xs.zipIdx k).toList = xs.toList.zipIdx k := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem getElem_zipIdx (xs : Vector α n) (i : Nat) (h : i < n) :
+@[simp] theorem getElem_zipIdx {xs : Vector α n} {i : Nat} {h : i < n} :
     (xs.zipIdx k)[i] = (xs[i]'(by simp_all), k + i) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
 theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {x : α} {i : Nat} {xs : Vector α n} {k : Nat} :
-    (x, i) ∈ xs.zipIdx k ↔ k ≤ i ∧ xs[i - k]? = x := by
+    (x, i) ∈ xs.zipIdx k ↔ k ≤ i ∧ xs[i - k]? = some x := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
 /-- Variant of `mk_mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
 to avoid the inequality and the subtraction. -/
 theorem mk_mem_zipIdx_iff_getElem? {x : α} {i : Nat} {xs : Vector α n} :
-    (x, i) ∈ xs.zipIdx ↔ xs[i]? = x := by
+    (x, i) ∈ xs.zipIdx ↔ xs[i]? = some x := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
@@ -217,10 +219,13 @@ theorem mapFinIdx_eq_mapFinIdx_iff {xs : Vector α n} {f g : (i : Nat) → α �
     (xs.mapFinIdx f).mapFinIdx g = xs.mapFinIdx (fun i a h => g i (f i a h) h) := by
   simp [mapFinIdx_eq_iff]
 
-theorem mapFinIdx_eq_mkVector_iff {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {b : β} :
-    xs.mapFinIdx f = mkVector n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] h = b := by
+theorem mapFinIdx_eq_replicate_iff {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {b : β} :
+    xs.mapFinIdx f = replicate n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] h = b := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.mapFinIdx_eq_mkArray_iff]
+  simp [Array.mapFinIdx_eq_replicate_iff]
+
+@[deprecated mapFinIdx_eq_replicate_iff (since := "2025-03-18")]
+abbrev mapFinIdx_eq_mkVector_iff := @mapFinIdx_eq_replicate_iff
 
 @[simp] theorem mapFinIdx_reverse {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (n - 1 - i) a (by omega))).reverse := by
@@ -350,18 +355,21 @@ theorem mapIdx_eq_mapIdx_iff {xs : Vector α n} :
     (xs.mapIdx f).mapIdx g = xs.mapIdx (fun i => g i ∘ f i) := by
   simp [mapIdx_eq_iff]
 
-theorem mapIdx_eq_mkVector_iff {xs : Vector α n} {f : Nat → α → β} {b : β} :
-    mapIdx f xs = mkVector n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = b := by
+theorem mapIdx_eq_replicate_iff {xs : Vector α n} {f : Nat → α → β} {b : β} :
+    mapIdx f xs = replicate n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = b := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.mapIdx_eq_mkArray_iff]
+  simp [Array.mapIdx_eq_replicate_iff]
+
+@[deprecated mapIdx_eq_replicate_iff (since := "2025-03-18")]
+abbrev mapIdx_eq_mkVector_iff := @mapIdx_eq_replicate_iff
 
 @[simp] theorem mapIdx_reverse {xs : Vector α n} {f : Nat → α → β} :
     xs.reverse.mapIdx f = (mapIdx (fun i => f (xs.size - 1 - i)) xs).reverse := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mapIdx_reverse]
 
-theorem toArray_mapFinIdxM [Monad m] [LawfulMonad m]
-    (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → m β) :
+theorem toArray_mapFinIdxM [Monad m] [LawfulMonad m] {xs : Vector α n}
+    {f : (i : Nat) → α → (h : i < n) → m β} :
     toArray <$> xs.mapFinIdxM f = xs.toArray.mapFinIdxM
       (fun i x h => f i x (size_toArray xs ▸ h)) := by
   let rec go (i j : Nat) (inv : i + j = n) (bs : Vector β (n - i)) :
@@ -377,8 +385,9 @@ theorem toArray_mapFinIdxM [Monad m] [LawfulMonad m]
   simp only [mapFinIdxM, Array.mapFinIdxM, size_toArray]
   exact go _ _ _ _
 
-theorem toArray_mapIdxM [Monad m] [LawfulMonad m] (xs : Vector α n) (f : Nat → α → m β) :
+theorem toArray_mapIdxM [Monad m] [LawfulMonad m] {xs : Vector α n}
+    {f : Nat → α → m β} :
     toArray <$> xs.mapIdxM f = xs.toArray.mapIdxM f := by
-  exact toArray_mapFinIdxM _ _
+  exact toArray_mapFinIdxM
 
 end Vector

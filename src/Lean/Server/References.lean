@@ -208,9 +208,8 @@ end Ilean
 
 /-- Gets the name of the module that contains `declName`. -/
 def getModuleContainingDecl? (env : Environment) (declName : Name) : Option Name := do
-  if env.constants.map₂.contains declName then
-    return env.header.mainModule
-  let modIdx ← env.getModuleIdxFor? declName
+  let some modIdx := env.getModuleIdxFor? declName
+    | env.header.mainModule
   env.allImportedModuleNames[modIdx]?
 
 /--
@@ -460,10 +459,9 @@ Yields all references in `self` for `ident`, as well as the `DocumentUri` that e
 reference occurs in.
 -/
 def allRefsFor
-    (self          : References)
-    (srcSearchPath : SearchPath)
-    (ident         : RefIdent)
-    : IO (Array (DocumentUri × Lsp.RefInfo)) := do
+    (self  : References)
+    (ident : RefIdent)
+    : IO (Array (DocumentUri × Name × Lsp.RefInfo)) := do
   let refsToCheck := match ident with
     | RefIdent.const .. => self.allRefs.toArray
     | RefIdent.fvar identModule .. =>
@@ -475,12 +473,9 @@ def allRefsFor
   for (module, refs) in refsToCheck do
     let some info := refs.get? ident
       | continue
-    let some path ← srcSearchPath.findModuleWithExt "lean" module
+    let some uri ← documentUriFromModule? module
       | continue
-    -- Resolve symlinks (such as `src` in the build dir) so that files are
-    -- opened in the right folder
-    let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
-    result := result.push (uri, info)
+    result := result.push (uri, module, info)
   return result
 
 /-- Yields all references in `module` at `pos`. -/
@@ -498,57 +493,66 @@ def findRange? (self : References) (module : Name) (pos : Lsp.Position) (include
 structure DocumentRefInfo where
   /-- Location of the reference. -/
   location    : Location
+  /-- Module name of the reference. -/
+  module      : Name
   /-- Parent declaration of the reference. -/
   parentInfo? : Option RefInfo.ParentDecl
 
 /-- Yields locations and parent declaration for all references referring to `ident`. -/
 def referringTo
     (self              : References)
-    (srcSearchPath     : SearchPath)
     (ident             : RefIdent)
     (includeDefinition : Bool := true)
     : IO (Array DocumentRefInfo) := do
   let mut result := #[]
-  for (moduleUri, info) in ← self.allRefsFor srcSearchPath ident do
+  for (moduleUri, module, info) in ← self.allRefsFor ident do
     if includeDefinition then
       if let some ⟨range, parentDeclInfo?⟩ := info.definition? then
-        result := result.push ⟨⟨moduleUri, range⟩, parentDeclInfo?⟩
+        result := result.push ⟨⟨moduleUri, range⟩, module, parentDeclInfo?⟩
     for ⟨range, parentDeclInfo?⟩ in info.usages do
-      result := result.push ⟨⟨moduleUri, range⟩, parentDeclInfo?⟩
+      result := result.push ⟨⟨moduleUri, range⟩, module, parentDeclInfo?⟩
   return result
 
 /-- Yields the definition location of `ident`. -/
 def definitionOf?
-    (self          : References)
-    (ident         : RefIdent)
-    (srcSearchPath : SearchPath)
+    (self  : References)
+    (ident : RefIdent)
     : IO (Option DocumentRefInfo) := do
-  for (moduleUri, info) in ← self.allRefsFor srcSearchPath ident do
+  for (moduleUri, module, info) in ← self.allRefsFor ident do
     let some ⟨definitionRange, definitionParentDeclInfo?⟩ := info.definition?
       | continue
-    return some ⟨⟨moduleUri, definitionRange⟩, definitionParentDeclInfo?⟩
+    return some ⟨⟨moduleUri, definitionRange⟩, module, definitionParentDeclInfo?⟩
   return none
+
+/-- A match in `References.definitionsMatching`. -/
+structure MatchedDefinition (α β : Type) where
+  /-- Result of `filterMapMod`. -/
+  mod   : α
+  /-- Result of `filterMapIdent`. -/
+  ident : β
+  /-- Definition range of matched identifier. -/
+  range : Range
 
 /-- Yields all definitions matching the given `filter`. -/
 def definitionsMatching
-    (self          : References)
-    (srcSearchPath : SearchPath)
-    (filter        : Name → Option α)
-    (maxAmount?    : Option Nat := none) : IO $ Array (α × Location) := do
+    (self           : References)
+    (filterMapMod   : Name → IO (Option α))
+    (filterMapIdent : Name → IO (Option β))
+    (cancelTk?      : Option CancelToken := none)
+    : IO (Array (MatchedDefinition α β)) := do
   let mut result := #[]
   for (module, refs) in self.allRefs do
-    let some path ← srcSearchPath.findModuleWithExt "lean" module
+    if let some cancelTk := cancelTk? then
+      if ← cancelTk.isSet then
+        return result
+    let some a ← filterMapMod module
       | continue
-    let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
     for (ident, info) in refs do
       let (RefIdent.const _ nameString, some ⟨definitionRange, _⟩) := (ident, info.definition?)
         | continue
-      let some a := filter nameString.toName
+      let some b ← filterMapIdent nameString.toName
         | continue
-      result := result.push (a, ⟨uri, definitionRange⟩)
-      if let some maxAmount := maxAmount? then
-        if result.size >= maxAmount then
-          return result
+      result := result.push ⟨a, b, definitionRange⟩
   return result
 
 end References

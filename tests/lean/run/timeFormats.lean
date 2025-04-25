@@ -12,6 +12,7 @@ def Time12Hour : GenericFormat .any := datespec("hh:mm:ss aa")
 def FullDayTimeZone : GenericFormat .any := datespec("EEEE, MMMM dd, uuuu HH:mm:ss ZZZ")
 def CustomDayTime : GenericFormat .any := datespec("EEE dd MMM uuuu HH:mm")
 def EraDate : GenericFormat .any := datespec("MM D, uuuu G")
+def DateSmall : GenericFormat .any := datespec("uu-MM-dd")
 
 -- Dates
 
@@ -795,13 +796,20 @@ info: 1
   let t : ZonedDateTime := .ofPlainDateTime datetime("2018-12-31T12:00:00") (TimeZone.ZoneRules.ofTimeZone TimeZone.UTC)
   IO.println s!"{t.format "w"}"
 
+
+/--
+info: Except.error "offset 0: condition not satisfied"
+-/
+#guard_msgs in
+#eval DateSmall.parse "-23-12-12"
+
 /-
 Truncation Test
 -/
 
 /--
 info: ("19343232432-01-04T01:04:03.000000000",
- Except.ok (datetime("19343232432-01-04T01:04:03.000000000")),
+ Except.error "offset 4: expected: -",
  datetime("1932-01-02T05:04:03.000000000"))
 -/
 #guard_msgs in
@@ -810,3 +818,137 @@ info: ("19343232432-01-04T01:04:03.000000000",
   let s := r.toLeanDateTimeString
   let r := PlainDateTime.parse s
   (s, r, datetime("1932-01-02T05:04:03.000000000"))
+
+def tuple2Mk (a : f) (b : g) := some (a, b)
+def tuple3Mk (a : f) (b : g) (c : h) := some (a, b, c)
+def tuple4Mk (a : f) (b : g) (c : h) (d : i) := some (a, b, c, d)
+def tuple5Mk (a : f) (b : g) (c : h) (d : i) (e : j) := some (a, b, c, d, e)
+def tuple6Mk (a : f) (b : g) (c : h) (d : i) (e : j) (k : z) := some (a, b, c, d, e, k)
+
+
+/-
+Parsing Length Tests
+-/
+
+def uFormat : GenericFormat .any := datespec("u uu uuuu uuuuu")
+
+#eval do assert! (uFormat.parseBuilder tuple4Mk "1 11 1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "12 11 1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "123443 11 1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "-1 11 1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "1 11 -1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "1 11 1211 -12311" |>.isOk)
+
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 -11 1211 12311" |>.isOk)
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "11 1211 12134" |>.isOk)
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 1 12 1234" |>.isOk)
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 11 1213 111123" |>.isOk)
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 367 1211 12311" |>.isOk)
+
+def yFormat : GenericFormat .any := datespec("y yy yyyy yyyyy")
+
+#eval do assert! (yFormat.parseBuilder tuple4Mk "1 11 1211 12311" |>.isOk)
+#eval do assert! (yFormat.parseBuilder tuple4Mk "12 11 1211 12311" |>.isOk)
+#eval do assert! (yFormat.parseBuilder tuple4Mk "123443 11 1211 12311" |>.isOk)
+
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "-1 11 1211 12311" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 -11 1211 12311" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 11 -1211 12311" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 11 1211 -12311" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "11 1211 12134" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 1 12 1234" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 11 1213 111123" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 367 1211 12311" |>.isOk)
+
+def dFormat : GenericFormat .any := datespec("D DD DDD")
+
+#eval do assert! (dFormat.parseBuilder tuple3Mk "1 12 123" |>.isOk)
+#eval do assert! (dFormat.parseBuilder tuple3Mk "323 12 123" |>.isOk)
+
+#eval do assert! (not <| dFormat.parseBuilder tuple3Mk "1 12 1234" |>.isOk)
+#eval do assert! (not <| dFormat.parseBuilder tuple3Mk "1 123 123" |>.isOk)
+#eval do assert! (not <| dFormat.parseBuilder tuple3Mk "367 12 123" |>.isOk)
+
+def dddFormat : GenericFormat .any := datespec("d dd ddd dddd ddddd")
+
+#eval do assert! (dddFormat.parseBuilder tuple5Mk "1 12 031 0031 00031" |>.isOk)
+#eval do assert! (dddFormat.parseBuilder tuple5Mk "000031 12 031 0031 00031" |>.isOk)
+
+#eval do assert! (not <| dddFormat.parseBuilder tuple5Mk "1 12 0031 00031" |>.isOk)
+#eval do assert! (not <| dddFormat.parseBuilder tuple5Mk "1 031 0031 000031" |>.isOk)
+
+def wFormat : GenericFormat .any := datespec("w ww www wwww")
+
+#eval do assert! (wFormat.parseBuilder tuple4Mk "1 01 031 0031" |>.isOk)
+#eval do assert! (wFormat.parseBuilder tuple4Mk "2 01 031 0031" |>.isOk)
+
+#eval do assert! (not <| wFormat.parseBuilder tuple4Mk "2 01 031 00310" |>.isOk)
+#eval do assert! (not <| wFormat.parseBuilder tuple4Mk "2 01 031 031" |>.isOk)
+
+def qFormat : GenericFormat .any := datespec("q qq")
+
+#eval do assert! (qFormat.parseBuilder tuple2Mk "1 02" |>.isOk)
+#eval do assert! (qFormat.parseBuilder tuple2Mk "3 03" |>.isOk)
+
+#eval do assert! (not <| qFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| qFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+def WFormat : GenericFormat .any := datespec("W WW")
+
+#eval do assert! (WFormat.parseBuilder tuple2Mk "1 06" |>.isOk)
+#eval do assert! (WFormat.parseBuilder tuple2Mk "3 03" |>.isOk)
+
+#eval do assert! (not <| WFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| WFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+def eFormat : GenericFormat .any := datespec("e ee")
+
+#eval do assert! (eFormat.parseBuilder tuple2Mk "1 07" |>.isOk)
+#eval do assert! (eFormat.parseBuilder tuple2Mk "3 03" |>.isOk)
+
+#eval do assert! (not <| eFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| eFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+def FFormat : GenericFormat .any := datespec("F FF")
+
+#eval do assert! (FFormat.parseBuilder tuple2Mk "1 04" |>.isOk)
+#eval do assert! (FFormat.parseBuilder tuple2Mk "3 03" |>.isOk)
+
+#eval do assert! (not <| FFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| FFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+def hFormat : GenericFormat .any := datespec("h hh")
+
+#eval do assert! (hFormat.parseBuilder tuple2Mk "1 09" |>.isOk)
+#eval do assert! (hFormat.parseBuilder tuple2Mk "12 12" |>.isOk)
+
+#eval do assert! (not <| hFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| hFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+/-
+Error tests with some formats.
+-/
+
+/--
+info: zoned("2002-07-14T14:13:12.000000000+23:59")
+-/
+#guard_msgs in
+#eval zoned("2002-07-14T14:13:12+23:59")
+
+/--
+info: Except.error "offset 22: invalid hour offset: 24. Must be between 0 and 23."
+-/
+#guard_msgs in
+#eval ZonedDateTime.fromLeanDateTimeWithZoneString "2002-07-14T14:13:12+24:59"
+
+/--
+info: Except.error "offset 25: invalid minute offset: 60. Must be between 0 and 59."
+-/
+#guard_msgs in
+#eval ZonedDateTime.fromLeanDateTimeWithZoneString "2002-07-14T14:13:12+23:60"
+
+/--
+info: Except.ok (zoned("2002-07-14T14:13:12.000000000Z"))
+-/
+#guard_msgs in
+#eval ZonedDateTime.fromLeanDateTimeWithZoneString "2002-07-14T14:13:12+00:00"

@@ -23,7 +23,7 @@ def g (i j k : Nat) (a : Array Nat) (h₁ : i < k) (h₂ : k < j) (h₃ : j < a.
 set_option pp.all true in
 #print g
 
-#check g.proof_1
+#check g._proof_1
 
 theorem ex1 {p q r s : Prop} : p ∧ q ∧ r ∧ s → r ∧ s ∧ q ∧ p :=
   fun ⟨hp, hq, hr, hs⟩ => ⟨hr, hs, hq, hp⟩

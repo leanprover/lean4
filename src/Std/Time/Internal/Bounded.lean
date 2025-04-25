@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Init.Omega
 import Init.Data.Int.DivMod.Lemmas
+import Std.Classes.Ord
 
 namespace Std
 namespace Time
@@ -30,16 +31,30 @@ instance : LT (Bounded rel n m) where
   lt l r := l.val < r.val
 
 @[always_inline]
+instance : Ord (Bounded rel n m) where
+  compare := compareOn (·.val)
+
+@[always_inline]
 instance : Repr (Bounded rel m n) where
   reprPrec n := reprPrec n.val
 
 @[always_inline]
-instance : BEq (Bounded rel n m) where
-  beq x y := (x.val = y.val)
+instance : DecidableEq (Bounded rel n m) := Subtype.instDecidableEq
 
 @[always_inline]
 instance {x y : Bounded rel a b} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance : OrientedOrd (Bounded rel n m) where
+  eq_swap := OrientedOrd.eq_swap (α := Int)
+
+instance : TransOrd (Bounded rel n m) where
+  isLE_trans := TransOrd.isLE_trans (α := Int)
+
+instance : LawfulEqOrd (Bounded rel n m) where
+  eq_of_compare := Subtype.ext ∘ LawfulEqOrd.eq_of_compare (α := Int)
+
+variable {rel a b}
 
 /--
 A `Bounded` integer that the relation used is the the less-equal relation so, it includes all
@@ -144,7 +159,7 @@ Convert a `Nat` to a `Bounded.LE` if it checks.
 @[inline]
 def ofNat? { hi : Nat } (val : Nat) : Option (Bounded.LE 0 hi) :=
   if h : val ≤ hi then
-    ofNat val h
+    some <| ofNat val h
   else
     none
 
@@ -243,7 +258,7 @@ def byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded.LE (- (i - 1)) (i - 1) := b
       apply (Int.le_trans · h)
       apply Int.le_of_neg_le_neg
       simp_all
-      exact (Int.le_sub_one_of_lt hi)
+      exact hi
     next m n =>
       apply Int.neg_le_neg
       have h := Int.tmod_lt_of_pos (m + 1) hi

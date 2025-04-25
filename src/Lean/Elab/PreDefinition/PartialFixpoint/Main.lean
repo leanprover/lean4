@@ -218,7 +218,8 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         pure { preDef with value }
 
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
-    let preDefs ← Mutual.cleanPreDefs preDefs
+    addAndCompilePartialRec preDefs
+    let preDefs ← preDefs.mapM (Mutual.cleanPreDef ·)
     PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms (hints.map (·.fixpointType))
     Mutual.addPreDefAttributes preDefs
 

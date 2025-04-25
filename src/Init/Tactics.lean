@@ -3,6 +3,8 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Notation
 set_option linter.missingDocs true -- keep it documented
@@ -290,7 +292,7 @@ syntax (name := allGoals) "all_goals " tacticSeq : tactic
 
 /--
 `any_goals tac` applies the tactic `tac` to every goal,
-concating the resulting goals for successful tactic applications.
+concatenating the resulting goals for successful tactic applications.
 If the tactic fails on all of the goals, the entire `any_goals` tactic fails.
 
 This tactic is like `all_goals try tac` except that it fails if none of the applications of `tac` succeeds.
@@ -495,6 +497,38 @@ syntax (name := change) "change " term (location)? : tactic
 * `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
 -/
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
+
+/--
+Extracts `let` and `let_fun` expressions from within the target or a local hypothesis,
+introducing new local definitions.
+
+- `extract_lets` extracts all the lets from the target.
+- `extract_lets x y z` extracts all the lets from the target and uses `x`, `y`, and `z` for the first names.
+  Using `_` for a name leaves it unnamed.
+- `extract_lets x y z at h` operates on the local hypothesis `h` instead of the target.
+
+For example, given a local hypotheses if the form `h : let x := v; b x`, then `extract_lets z at h`
+introduces a new local definition `z := v` and changes `h` to be `h : b z`.
+-/
+syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
+
+/--
+Lifts `let` and `let_fun` expressions within a term as far out as possible.
+It is like `extract_lets +lift`, but the top-level lets at the end of the procedure
+are not extracted as local hypotheses.
+
+- `lift_lets` lifts let expressions in the target.
+- `lift_lets at h` lifts let expressions at the given local hypothesis.
+
+For example,
+```lean
+example : (let x := 1; x) = 1 := by
+  lift_lets
+  -- ⊢ let x := 1; x = 1
+  ...
+```
+-/
+syntax (name := liftLets) "lift_lets " optConfig (location)? : tactic
 
 /--
 If `thm` is a theorem `a = b`, then as a rewrite rule,
@@ -819,12 +853,12 @@ The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
 to the constructor.
 -/
-syntax inductionAltLHS := "| " (("@"? ident) <|> hole) (ident <|> hole)*
+syntax inductionAltLHS := withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
 /--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
-syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
 /--
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
@@ -1621,7 +1655,8 @@ syntax (name := rewrites?) "rw?" (ppSpace location)? (rewrites_forbidden)? : tac
 
 /--
 `show_term tac` runs `tac`, then prints the generated term in the form
-"exact X Y Z" or "refine X ?_ Z" if there are remaining subgoals.
+"exact X Y Z" or "refine X ?_ Z" (prefixed by `expose_names` if necessary)
+if there are remaining subgoals.
 
 (For some tactics, the printed term will not be human readable.)
 -/
@@ -1751,7 +1786,7 @@ attribute @[simp ←] and_assoc
 ```
 
 When multiple simp theorems are applicable, the simplifier uses the one with highest priority.
-The equational theorems of function are applied at very low priority (100 and below).
+The equational theorems of functions are applied at very low priority (100 and below).
 If there are several with the same priority, it is uses the "most recent one". Example:
 ```lean
 @[simp high] theorem cond_true (a b : α) : cond true a b = a := rfl

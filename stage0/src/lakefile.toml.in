@@ -6,8 +6,9 @@
 # them, please consult the instructions in doc/dev/index.md.
 
 name = "lean4"
+bootstrap = true
 
-defaultTargets = ["Init", "Lean", "Lake"]
+defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain"]
 
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"
@@ -26,12 +27,18 @@ nativeLibDir = "lib/lean"
 
 [[lean_lib]]
 name = "Init"
+libName = "${LAKE_LIB_PREFIX}Init"
+defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Std"
+libName = "${LAKE_LIB_PREFIX}Std"
+defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Lean"
+libName = "${LAKE_LIB_PREFIX}Lean"
+defaultFacets = ["static", "static.export"]
 globs = [
   # Library root
   "Lean",
@@ -44,4 +51,17 @@ globs = [
 [[lean_lib]]
 name = "Lake"
 srcDir = "lake"
-moreLeanArgs = ["--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}"]
+globs = [
+  # Lake API imported by configuration files
+  "Lake",
+  # API only imported by `LakeMain` and the `lake` CLI
+  "Lake.CLI",
+]
+libName = "${LAKE_LIB_PREFIX}Lake"
+defaultFacets = ["static", "static.export"]
+
+[[lean_lib]]
+name = "LakeMain"
+srcDir = "lake"
+libName = "${LAKE_LIB_PREFIX}LakeMain"
+defaultFacets = ["static.export"]

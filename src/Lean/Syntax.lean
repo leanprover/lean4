@@ -8,6 +8,7 @@ import Init.Data.Range
 import Init.Data.Hashable
 import Lean.Data.Name
 import Lean.Data.Format
+import Init.Data.Option.Coe
 
 /--
 A position range inside a string. This type is mostly in combination with syntax trees,
@@ -509,7 +510,7 @@ def getCanonicalAntiquot (stx : Syntax) : Syntax :=
     stx
 
 def mkAntiquotNode (kind : Name) (term : Syntax) (nesting := 0) (name : Option String := none) (isPseudoKind := false) : Syntax :=
-  let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
+  let nesting := mkNullNode (.replicate nesting (mkAtom "$"))
   let term :=
     if term.isIdent then term
     else if term.isOfKind `Lean.Parser.Term.hole then term[0]
@@ -572,7 +573,7 @@ def getAntiquotSpliceSuffix (stx : Syntax) : Syntax :=
     stx[1]
 
 def mkAntiquotSpliceNode (kind : SyntaxNodeKind) (contents : Array Syntax) (suffix : String) (nesting := 0) : Syntax :=
-  let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
+  let nesting := mkNullNode (.replicate nesting (mkAtom "$"))
   mkNode (kind ++ `antiquot_splice) #[mkAtom "$", nesting, mkAtom "[", mkNullNode contents, mkAtom "]", mkAtom suffix]
 
 -- `$x,*` etc.

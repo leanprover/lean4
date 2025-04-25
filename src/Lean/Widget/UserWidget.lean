@@ -231,7 +231,10 @@ def WidgetInstance.ofHash (hash : UInt64) (props : StateM Server.RpcObjectStore 
 
 /-- Save the data of a panel widget which will be displayed whenever the text cursor is on `stx`.
 
-`hash` must be as in `WidgetInstance.ofHash`. -/
+`hash` must be as in `WidgetInstance.ofHash`.
+
+For panel widgets, the Lean infoview appends additional fields to the `props` object:
+see https://github.com/leanprover/vscode-lean4/blob/master/lean4-infoview/src/infoview/userWidget.tsx#L145. -/
 def savePanelWidgetInfo (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) :
     CoreM Unit := do
   let wi ← WidgetInstance.ofHash hash props

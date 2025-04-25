@@ -23,6 +23,11 @@ import Lean.Compiler.IR.EmitC
 import Lean.Compiler.IR.CtorLayout
 import Lean.Compiler.IR.Sorry
 
+-- The following imports are not required by the compiler. They are here to ensure that there
+-- are no orphaned modules.
+import Lean.Compiler.IR.LLVMBindings
+import Lean.Compiler.IR.EmitLLVM
+
 namespace Lean.IR
 
 register_builtin_option compiler.reuse : Bool := {

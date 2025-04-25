@@ -630,7 +630,7 @@ x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_5, 5);
 lean_inc(x_12);
-x_13 = lean_ctor_get_uint8(x_5, sizeof(void*)*12 + 1);
+x_13 = lean_ctor_get_uint8(x_5, sizeof(void*)*13 + 1);
 x_14 = l_Lean_replaceRef(x_1, x_12);
 lean_dec(x_12);
 x_15 = 0;

@@ -3,6 +3,8 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Lemmas
@@ -126,6 +128,33 @@ protected theorem ne_of_lt {a b : Fin n} (h : a < b) : a ≠ b := Fin.ne_of_val_
 protected theorem ne_of_gt {a b : Fin n} (h : a < b) : b ≠ a := Fin.ne_of_val_ne (Nat.ne_of_gt h)
 
 protected theorem le_of_lt {a b : Fin n} (h : a < b) : a ≤ b := Nat.le_of_lt h
+
+protected theorem lt_of_le_of_lt {a b c : Fin n} : a ≤ b → b < c → a < c := Nat.lt_of_le_of_lt
+
+protected theorem lt_of_lt_of_le {a b c : Fin n} : a < b → b ≤ c → a < c := Nat.lt_of_lt_of_le
+
+protected theorem le_rfl {a : Fin n} : a ≤ a := Nat.le_refl _
+
+protected theorem lt_iff_le_and_ne {a b : Fin n} : a < b ↔ a ≤ b ∧ a ≠ b := by
+  rw [← val_ne_iff]; exact Nat.lt_iff_le_and_ne
+
+protected theorem lt_or_lt_of_ne {a b : Fin n} (h : a ≠ b) : a < b ∨ b < a :=
+  Nat.lt_or_lt_of_ne <| val_ne_iff.2 h
+
+protected theorem lt_or_le (a b : Fin n) : a < b ∨ b ≤ a := Nat.lt_or_ge _ _
+
+protected theorem le_or_lt (a b : Fin n) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+
+protected theorem le_of_eq {a b : Fin n} (hab : a = b) : a ≤ b :=
+  Nat.le_of_eq <| congrArg val hab
+
+protected theorem ge_of_eq {a b : Fin n} (hab : a = b) : b ≤ a := Fin.le_of_eq hab.symm
+
+protected theorem eq_or_lt_of_le {a b : Fin n} : a ≤ b → a = b ∨ a < b := by
+  rw [Fin.ext_iff]; exact Nat.eq_or_lt_of_le
+
+protected theorem lt_or_eq_of_le {a b : Fin n} : a ≤ b → a < b ∨ a = b := by
+  rw [Fin.ext_iff]; exact Nat.lt_or_eq_of_le
 
 theorem is_le (i : Fin (n + 1)) : i ≤ n := Nat.le_of_lt_succ i.is_lt
 
@@ -382,6 +411,14 @@ theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
   funext (castLE_castLE km mn)
 
 @[simp] theorem coe_cast (h : n = m) (i : Fin n) : (i.cast h : Nat) = i := rfl
+
+@[simp] theorem cast_castLE {k m n} (km : k ≤ m) (mn : m = n) (i : Fin k) :
+    Fin.cast mn (i.castLE km) = i.castLE (mn ▸ km) :=
+  Fin.ext (by simp)
+
+@[simp] theorem cast_castLT {k m n} (i : Fin k) (h : (i : Nat) < m) (mn : m = n) :
+    Fin.cast mn (i.castLT h) = i.castLT (mn ▸ h) :=
+  Fin.ext (by simp)
 
 @[simp] theorem cast_zero [NeZero n] [NeZero m] (h : n = m) : Fin.cast h 0 = 0 := rfl
 
@@ -670,12 +707,20 @@ theorem pred_add_one (i : Fin (n + 2)) (h : (i : Nat) < n + 1) :
 @[simp] theorem natAdd_subNat_cast {i : Fin (n + m)} (h : n ≤ i) :
     natAdd n (subNat n (i.cast (Nat.add_comm ..)) h) = i := by simp [← cast_addNat]
 
-/-! ### recursion and induction principles -/
+/-! ### Recursion and induction principles -/
 
-/-- Define `motive n i` by induction on `i : Fin n` interpreted as `(0 : Fin (n - i)).succ.succ…`.
-This function has two arguments: `zero n` defines `0`-th element `motive (n+1) 0` of an
-`(n+1)`-tuple, and `succ n i` defines `(i+1)`-st element of `(n+1)`-tuple based on `n`, `i`, and
-`i`-th element of `n`-tuple. -/
+/--
+An induction principle for `Fin` that considers a given `i : Fin n` as given by a sequence of `i`
+applications of `Fin.succ`.
+
+The cases in the induction are:
+ * `zero` demonstrates the motive for `(0 : Fin (n + 1))` for all bounds `n`
+ * `succ` demonstrates the motive for `Fin.succ` applied to an arbitrary `Fin` for an arbitrary
+   bound `n`
+
+Unlike `Fin.induction`, the motive quantifies over the bound, and the bound varies at each inductive
+step. `Fin.succRecOn` is a version of this induction principle that takes the `Fin` argument first.
+-/
 -- FIXME: Performance review
 @[elab_as_elim] def succRec {motive : ∀ n, Fin n → Sort _}
     (zero : ∀ n, motive n.succ (0 : Fin (n + 1)))
@@ -684,13 +729,18 @@ This function has two arguments: `zero n` defines `0`-th element `motive (n+1) 0
   | Nat.succ n, ⟨0, _⟩ => by rw [mk_zero]; exact zero n
   | Nat.succ _, ⟨Nat.succ i, h⟩ => succ _ _ (succRec zero succ ⟨i, Nat.lt_of_succ_lt_succ h⟩)
 
-/-- Define `motive n i` by induction on `i : Fin n` interpreted as `(0 : Fin (n - i)).succ.succ…`.
-This function has two arguments:
-`zero n` defines the `0`-th element `motive (n+1) 0` of an `(n+1)`-tuple, and
-`succ n i` defines the `(i+1)`-st element of an `(n+1)`-tuple based on `n`, `i`,
-and the `i`-th element of an `n`-tuple.
+/--
+An induction principle for `Fin` that considers a given `i : Fin n` as given by a sequence of `i`
+applications of `Fin.succ`.
 
-A version of `Fin.succRec` taking `i : Fin n` as the first argument. -/
+The cases in the induction are:
+ * `zero` demonstrates the motive for `(0 : Fin (n + 1))` for all bounds `n`
+ * `succ` demonstrates the motive for `Fin.succ` applied to an arbitrary `Fin` for an arbitrary
+   bound `n`
+
+Unlike `Fin.induction`, the motive quantifies over the bound, and the bound varies at each inductive
+step. `Fin.succRec` is a version of this induction principle that takes the `Fin` argument last.
+-/
 -- FIXME: Performance review
 @[elab_as_elim] def succRecOn {n : Nat} (i : Fin n) {motive : ∀ n, Fin n → Sort _}
     (zero : ∀ n, motive (n + 1) 0) (succ : ∀ n i, motive n i → motive (Nat.succ n) i.succ) :
@@ -705,9 +755,17 @@ A version of `Fin.succRec` taking `i : Fin n` as the first argument. -/
   cases i; rfl
 
 
-/-- Define `motive i` by induction on `i : Fin (n + 1)` via induction on the underlying `Nat` value.
-This function has two arguments: `zero` handles the base case on `motive 0`,
-and `succ` defines the inductive step using `motive i.castSucc`.
+/--
+Proves a statement by induction on the underlying `Nat` value in a `Fin (n + 1)`.
+
+For the induction:
+ * `zero` is the base case, demonstrating `motive 0`.
+ * `succ` is the inductive step, assuming the motive for `i : Fin n` (lifted to `Fin (n + 1)` with
+   `Fin.castSucc`) and demonstrating it for `i.succ`.
+
+`Fin.inductionOn` is a version of this induction principle that takes the `Fin` as its first
+parameter, `Fin.cases` is the corresponding case analysis operator, and `Fin.reverseInduction` is a
+version that starts at the greatest value instead of `0`.
 -/
 -- FIXME: Performance review
 @[elab_as_elim] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
@@ -728,18 +786,30 @@ where
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) (i : Fin n) :
     induction (motive := motive) zero succ i.succ = succ i (induction zero succ (castSucc i)) := rfl
 
-/-- Define `motive i` by induction on `i : Fin (n + 1)` via induction on the underlying `Nat` value.
-This function has two arguments: `zero` handles the base case on `motive 0`,
-and `succ` defines the inductive step using `motive i.castSucc`.
+/--
+Proves a statement by induction on the underlying `Nat` value in a `Fin (n + 1)`.
 
-A version of `Fin.induction` taking `i : Fin (n + 1)` as the first argument.
+For the induction:
+ * `zero` is the base case, demonstrating `motive 0`.
+ * `succ` is the inductive step, assuming the motive for `i : Fin n` (lifted to `Fin (n + 1)` with
+   `Fin.castSucc`) and demonstrating it for `i.succ`.
+
+`Fin.induction` is a version of this induction principle that takes the `Fin` as its last
+parameter.
 -/
 -- FIXME: Performance review
 @[elab_as_elim] def inductionOn (i : Fin (n + 1)) {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) : motive i := induction zero succ i
 
-/-- Define `f : Π i : Fin n.succ, motive i` by separately handling the cases `i = 0` and
-`i = j.succ`, `j : Fin n`. -/
+/--
+Proves a statement by cases on the underlying `Nat` value in a `Fin (n + 1)`.
+
+The two cases are:
+ * `zero`, used when the value is of the form `(0 : Fin (n + 1))`
+ * `succ`, used when the value is of the form `(j : Fin n).succ`
+
+The corresponding induction principle is `Fin.induction`.
+-/
 @[elab_as_elim] def cases {motive : Fin (n + 1) → Sort _}
     (zero : motive 0) (succ : ∀ i : Fin n, motive i.succ) :
     ∀ i : Fin (n + 1), motive i := induction zero fun i _ => succ i
@@ -777,9 +847,14 @@ theorem fin_two_eq_of_eq_zero_iff : ∀ {a b : Fin 2}, (a = 0 ↔ b = 0) → a =
   simp only [forall_fin_two]; decide
 
 /--
-Define `motive i` by reverse induction on `i : Fin (n + 1)` via induction on the underlying `Nat`
-value. This function has two arguments: `last` handles the base case on `motive (Fin.last n)`,
-and `cast` defines the inductive step using `motive i.succ`, inducting downwards.
+Proves a statement by reverse induction on the underlying `Nat` value in a `Fin (n + 1)`.
+
+For the induction:
+ * `last` is the base case, demonstrating `motive (Fin.last n)`.
+ * `cast` is the inductive step, assuming the motive for `(j : Fin n).succ` and demonstrating it for
+    the predecessor `j.castSucc`.
+
+`Fin.induction` is the non-reverse induction principle.
 -/
 @[elab_as_elim] def reverseInduction {motive : Fin (n + 1) → Sort _} (last : motive (Fin.last n))
     (cast : ∀ i : Fin n, motive i.succ → motive (castSucc i)) (i : Fin (n + 1)) : motive i :=
@@ -802,8 +877,16 @@ decreasing_by decreasing_with
       succ i (reverseInduction zero succ i.succ) := by
   rw [reverseInduction, dif_neg (Fin.ne_of_lt (Fin.castSucc_lt_last i))]; rfl
 
-/-- Define `f : Π i : Fin n.succ, motive i` by separately handling the cases `i = Fin.last n` and
-`i = j.castSucc`, `j : Fin n`. -/
+/--
+Proves a statement by cases on the underlying `Nat` value in a `Fin (n + 1)`, checking whether the
+value is the greatest representable or a predecessor of some other.
+
+The two cases are:
+ * `last`, used when the value is `Fin.last n`
+ * `cast`, used when the value is of the form `(j : Fin n).succ`
+
+The corresponding induction principle is `Fin.reverseInduction`.
+-/
 @[elab_as_elim] def lastCases {n : Nat} {motive : Fin (n + 1) → Sort _} (last : motive (Fin.last n))
     (cast : ∀ i : Fin n, motive (castSucc i)) (i : Fin (n + 1)) : motive i :=
   reverseInduction last (fun i _ => cast i) i
@@ -816,8 +899,16 @@ decreasing_by decreasing_with
     (i : Fin n) : (Fin.lastCases last cast (Fin.castSucc i) : motive (Fin.castSucc i)) = cast i :=
   reverseInduction_castSucc ..
 
-/-- Define `f : Π i : Fin (m + n), motive i` by separately handling the cases `i = castAdd n i`,
-`j : Fin m` and `i = natAdd m j`, `j : Fin n`. -/
+/--
+A case analysis operator for `i : Fin (m + n)` that separately handles the cases where `i < m` and
+where `m ≤ i < m + n`.
+
+The first case, where `i < m`, is handled by `left`. In this case, `i` can be represented as
+`Fin.castAdd n (j : Fin m)`.
+
+The second case, where `m ≤ i < m + n`, is handled by `right`. In this case, `i` can be represented
+as `Fin.natAdd m (j : Fin n)`.
+-/
 @[elab_as_elim] def addCases {m n : Nat} {motive : Fin (m + n) → Sort u}
     (left : ∀ i, motive (castAdd n i)) (right : ∀ i, motive (natAdd m i))
     (i : Fin (m + n)) : motive i :=
@@ -894,6 +985,16 @@ theorem coe_sub_iff_lt {a b : Fin n} : (↑(a - b) : Nat) = n + a - b ↔ a < b 
     all_goals omega
 
 /-! ### mul -/
+
+theorem ofNat'_mul [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat' n x * y = Fin.ofNat' n (x * y.val) := by
+  apply Fin.eq_of_val_eq
+  simp [Fin.ofNat', Fin.mul_def]
+
+theorem mul_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
+    x * Fin.ofNat' n y = Fin.ofNat' n (x.val * y) := by
+  apply Fin.eq_of_val_eq
+  simp [Fin.ofNat', Fin.mul_def]
 
 theorem val_mul {n : Nat} : ∀ a b : Fin n, (a * b).val = a.val * b.val % n
   | ⟨_, _⟩, ⟨_, _⟩ => rfl

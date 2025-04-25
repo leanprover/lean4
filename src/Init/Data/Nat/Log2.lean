@@ -3,6 +3,8 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
 import Init.Data.Nat.Linear
 
@@ -18,9 +20,18 @@ theorem log2_terminates : ∀ n, n ≥ 2 → n / 2 < n
     simp
 
 /--
-Computes `⌊max 0 (log₂ n)⌋`.
+Base-two logarithm of natural numbers. Returns `⌊max 0 (log₂ n)⌋`.
 
-`log2 0 = log2 1 = 0`, `log2 2 = 1`, ..., `log2 (2^i) = i`, etc.
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `Nat.log2 0 = 0`
+ * `Nat.log2 1 = 0`
+ * `Nat.log2 2 = 1`
+ * `Nat.log2 4 = 2`
+ * `Nat.log2 7 = 2`
+ * `Nat.log2 8 = 3`
 -/
 @[extern "lean_nat_log2"]
 def log2 (n : @& Nat) : Nat :=

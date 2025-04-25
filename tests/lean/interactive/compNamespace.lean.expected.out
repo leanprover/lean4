@@ -1,5 +1,5 @@
 {"textDocument": {"uri": "file:///compNamespace.lean"},
- "position": {"line": 5, "character": 12}}
+ "position": {"line": 5, "character": 14}}
 {"items":
  [{"label": "LongNamespaceExample",
    "kind": 9,
@@ -7,11 +7,11 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 5, "character": 12}},
+     "position": {"line": 5, "character": 14}},
     "cPos": 0}}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
- "position": {"line": 9, "character": 12}}
+ "position": {"line": 9, "character": 14}}
 {"items":
  [{"label": "LongNamespaceExample",
    "kind": 9,
@@ -19,7 +19,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 9, "character": 12}},
+     "position": {"line": 9, "character": 14}},
     "cPos": 0}}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
@@ -47,7 +47,7 @@
     "cPos": 0}}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
- "position": {"line": 20, "character": 12}}
+ "position": {"line": 20, "character": 14}}
 {"items":
  [{"label": "LongNamespaceExample",
    "kind": 9,
@@ -55,6 +55,6 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 20, "character": 12}},
+     "position": {"line": 20, "character": 14}},
     "cPos": 0}}],
  "isIncomplete": false}

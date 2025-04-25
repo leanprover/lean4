@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
 
 import Init.ByCases
@@ -35,8 +37,11 @@ class PartialOrder (α : Sort u) where
   This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
   -/
   rel : α → α → Prop
+  /-- The “less-or-equal-to” or “approximates” relation is reflexive. -/
   rel_refl : ∀ {x}, rel x x
+  /-- The “less-or-equal-to” or “approximates” relation is transitive. -/
   rel_trans : ∀ {x y z}, rel x y → rel y z → rel x z
+  /-- The “less-or-equal-to” or “approximates” relation is antisymmetric. -/
   rel_antisymm : ∀ {x y}, rel x y → rel y x → x = y
 
 @[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
@@ -61,15 +66,21 @@ section CCPO
 /--
 A chain-complete partial order (CCPO) is a partial order where every chain has a least upper bound.
 
-This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used
+otherwise.
 -/
 class CCPO (α : Sort u) extends PartialOrder α where
   /--
   The least upper bound of a chain.
 
-  This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+  This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used
+  otherwise.
   -/
   csup : (α → Prop) → α
+  /--
+  `csup c` is the least upper bound of the chain `c` when all elements `x` that are at
+  least as large as `csup c` are at least as large as all elements of `c`, and vice versa.
+  -/
   csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
 open PartialOrder CCPO
@@ -179,7 +190,7 @@ variable {α : Sort u} [CCPO α]
 open PartialOrder CCPO
 
 /--
-A predicate is admissable if it can be transferred from the elements of a chain to the chains least
+A predicate is admissible if it can be transferred from the elements of a chain to the chains least
 upper bound. Such predicates can be used in fixpoint induction.
 
 This definition implies `P ⊥`. Sometimes (e.g. in Isabelle) the empty chain is excluded
@@ -646,7 +657,6 @@ instance instCCPOPProd [CCPO α] [CCPO β] : CCPO (α ×' β) where
   csup c := ⟨CCPO.csup (PProd.chain.fst c), CCPO.csup (PProd.chain.snd c)⟩
   csup_spec := by
     intro ⟨a, b⟩ c hchain
-    dsimp
     constructor
     next =>
       intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab

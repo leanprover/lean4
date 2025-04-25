@@ -16,7 +16,7 @@ a' : x = 1
 ⊢ { x := x, a' := a' }.x = 1
 case mk
 x y : Nat
-⊢ { x := x, y := y } = { x := { x := x, y := y }.x, y := { x := x, y := y }.y }
+⊢ { x := x, y := y } = { x := x, y := y }
 a.1 = 1
 z : A
 x✝ : Nat

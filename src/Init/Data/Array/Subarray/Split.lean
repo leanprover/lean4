@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
 
+module
+
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Array.Subarray
@@ -20,7 +22,8 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Subarray
 /--
-Splits a subarray into two parts.
+Splits a subarray into two parts, the first of which contains the first `i` elements and the second
+of which contains the remainder.
 -/
 def split (s : Subarray α) (i : Fin s.size.succ) : (Subarray α × Subarray α) :=
   let ⟨i', isLt⟩ := i

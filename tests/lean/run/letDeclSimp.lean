@@ -1,4 +1,4 @@
-attribute [-simp] Nat.add_left_eq_self -- This was later added to the simp set and interfere with the test.
+attribute [-simp] Nat.add_eq_right -- This was later added to the simp set and interfere with the test.
 
 example (a : Nat) : let n := 0; n + a = a := by
   intro n

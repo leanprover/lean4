@@ -25,12 +25,15 @@ private def pushOpt (a? : Option α) (as : Array α) : Array α :=
 
 /-! The hierarchy of Lean snapshot types -/
 
-/-- Snapshot after elaboration of the entire command. -/
-structure CommandFinishedSnapshot extends Language.Snapshot where
+/--
+Snapshot after command elaborator has returned. Also contains diagnostics from the elaborator's main
+task. Asynchronous elaboration tasks may not yet be finished.
+-/
+structure CommandResultSnapshot extends Language.Snapshot where
   /-- Resulting elaboration state. -/
   cmdState : Command.State
 deriving Nonempty
-instance : ToSnapshotTree CommandFinishedSnapshot where
+instance : ToSnapshotTree CommandResultSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
 /-- State after a command has been parsed. -/
@@ -44,8 +47,12 @@ structure CommandParsedSnapshot extends Snapshot where
   elaborator.
    -/
   elabSnap : SnapshotTask DynamicSnapshot
-  /-- State after processing is finished. -/
-  finishedSnap : SnapshotTask CommandFinishedSnapshot
+  /-- State after command elaborator has returned. -/
+  resultSnap : SnapshotTask CommandResultSnapshot
+  /--
+  State after all elaborator tasks are finished. In particular, contains the complete info tree.
+  -/
+  infoTreeSnap : SnapshotTask SnapshotLeaf
   /-- Additional, untyped snapshots used for reporting, not reuse. -/
   reportSnap : SnapshotTask SnapshotTree
   /-- Next command, unless this is a terminal command. -/
@@ -55,7 +62,8 @@ partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
     go s := ⟨s.toSnapshot,
       #[s.elabSnap.map (sync := true) toSnapshotTree,
-        s.finishedSnap.map (sync := true) toSnapshotTree,
+        s.resultSnap.map (sync := true) toSnapshotTree,
+        s.infoTreeSnap.map (sync := true) toSnapshotTree,
         s.reportSnap] |>
         pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
 

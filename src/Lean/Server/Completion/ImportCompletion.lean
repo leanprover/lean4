@@ -108,7 +108,7 @@ def collectAvailableImportsFromLake : IO (Option AvailableImports) := do
 
 def collectAvailableImportsFromSrcSearchPath : IO AvailableImports :=
   (·.2) <$> StateT.run (s := #[]) do
-    let srcSearchPath ← initSrcSearchPath
+    let srcSearchPath ← getSrcSearchPath
     for p in srcSearchPath do
       if ! (← p.isDir) then
         continue

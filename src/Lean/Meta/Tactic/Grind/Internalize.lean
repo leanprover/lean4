@@ -42,17 +42,13 @@ adds entry `f ↦ e` to `appMap`. Recall that `appMap` is a multi-map.
 -/
 private def updateAppMap (e : Expr) : GoalM Unit := do
   let key := e.toHeadIndex
+  trace_goal[grind.debug.appMap] "{e} => {repr key}"
   modify fun s => { s with
     appMap := if let some es := s.appMap.find? key then
       s.appMap.insert key (e :: es)
     else
       s.appMap.insert key [e]
   }
-
-/-- Inserts `e` into the list of case-split candidates. -/
-private def addSplitCandidate (e : Expr) : GoalM Unit := do
-  trace_goal[grind.split.candidate] "{e}"
-  modify fun s => { s with split.candidates := e :: s.split.candidates }
 
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
@@ -66,19 +62,19 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   match e with
   | .app .. =>
     if (← getConfig).splitIte && (e.isIte || e.isDIte) then
-      addSplitCandidate e
+      addSplitCandidate (.default e)
       return ()
     if isMorallyIff e then
-      addSplitCandidate e
+      addSplitCandidate (.default e)
       return ()
     if (← getConfig).splitMatch then
       if (← isMatcherApp e) then
         if let .reduced _ ← reduceMatcher? e then
           -- When instantiating `match`-equations, we add `match`-applications that can be reduced,
-          -- and consequently don't need to be splitted.
+          -- and consequently don't need to be split.
           return ()
         else
-          addSplitCandidate e
+          addSplitCandidate (.default e)
           return ()
     let .const declName _  := e.getAppFn | return ()
       if forbiddenSplitTypes.contains declName then
@@ -86,13 +82,21 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       unless (← isInductivePredicate declName) do
         return ()
       if (← get).split.casesTypes.isSplit declName then
-        addSplitCandidate e
+        addSplitCandidate (.default e)
       else if (← getConfig).splitIndPred then
-        addSplitCandidate e
+        addSplitCandidate (.default e)
   | .fvar .. =>
     let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
     if (← get).split.casesTypes.isSplit declName then
-      addSplitCandidate e
+      addSplitCandidate (.default e)
+  | .forallE _ d _ _ =>
+    if (← getConfig).splitImp then
+      addSplitCandidate (.default e)
+    else if Arith.isRelevantPred d then
+      if (← getConfig).lookahead then
+        addLookaheadCandidate (.default e)
+      else
+        addSplitCandidate (.default e)
   | _ => pure ()
 
 /--
@@ -116,14 +120,19 @@ private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
 
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
-  if pattern.isBVar || isPatternDontCare pattern then
-    return pattern
-  else if let some e := groundPattern? pattern then
-    let e ← preprocessGroundPattern e
-    internalize e generation none
-    return mkGroundPattern e
-  else pattern.withApp fun f args => do
-    return mkAppN f (← args.mapM (internalizePattern · generation))
+  -- Recall that it is important to ensure patterns are maximally shared since
+  -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
+  go (← shareCommon pattern)
+where
+  go (pattern : Expr) : GoalM Expr := do
+    if pattern.isBVar || isPatternDontCare pattern then
+      return pattern
+    else if let some e := groundPattern? pattern then
+      let e ← preprocessGroundPattern e
+      internalize e generation none
+      return mkGroundPattern e
+    else pattern.withApp fun f args => do
+      return mkAppN f (← args.mapM go)
 
 /-- Internalizes the `MatchCond` gadget. -/
 private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM Unit := do
@@ -163,13 +172,16 @@ private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Un
     modify fun s => { s with ematch.thmMap := thmMap }
     let appMap := (← get).appMap
     for thm in thms do
+      trace_goal[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
       unless (← get).ematch.thmMap.isErased thm.origin do
         let symbols := thm.symbols.filter fun sym => !appMap.contains sym
         let thm := { thm with symbols }
         match symbols with
-        | [] => activateTheorem thm generation
+        | [] =>
+          trace_goal[grind.debug.ematch.activate] "`{thm.origin.key}`"
+          activateTheorem thm generation
         | _ =>
-          trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
+          trace_goal[grind.debug.ematch.activate] "reinsert `{thm.origin.key}`"
           modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm }
 
 /--
@@ -195,6 +207,68 @@ private def propagateUnitLike (a : Expr) (generation : Nat) : GoalM Unit := do
         internalize unit generation
         pushEq a unit <| (← mkEqRefl unit)
 
+/-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
+private def extParentsToIgnore (declName : Name) : Bool :=
+  declName == ``Eq || declName == ``HEq || declName == ``dite || declName == ``ite
+  || declName == ``Exists || declName == ``Subtype
+
+/--
+Given a term `arg` that occurs as the argument at position `i` of an `f`-application `parent?`,
+we consider `arg` as a candidate for case-splitting. For every other argument `arg'` that also appears
+at position `i` in an `f`-application and has the same type as `e`, we add the case-split candidate `arg = arg'`.
+
+When performing the case split, we consider the following two cases:
+- `arg = arg'`, which may introduce a new congruence between the corresponding `f`-applications.
+- `¬(arg = arg')`, which may trigger extensionality theorems for the type of `arg`.
+
+This feature enables `grind` to solve examples such as:
+```lean
+example (f : (Nat → Nat) → Nat) : a = b → f (fun x => a + x) = f (fun x => b + x) := by
+  grind
+```
+-/
+private def addSplitCandidatesForExt (arg : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
+  let some parent := parent? | return ()
+  unless parent.isApp do return ()
+  let f := parent.getAppFn
+  if let .const declName _ := f then
+    if extParentsToIgnore declName then return ()
+  let type ← inferType arg
+  -- Remark: we currently do not perform function extensionality on functions that produce a type that is not a proposition.
+  -- We may add an option to enable that in the future.
+  let u? ← typeFormerTypeLevel type
+  if u? != .none && u? != some .zero then return ()
+  let mut i  := parent.getAppNumArgs
+  let mut it := parent
+  repeat
+    if !it.isApp then return ()
+    i := i - 1
+    if isSameExpr arg it.appArg! then
+      found f i type parent
+    it := it.appFn!
+where
+  found (f : Expr) (i : Nat) (type : Expr) (parent : Expr) : GoalM Unit := do
+    trace_goal[grind.debug.ext] "{f}, {i}, {arg}"
+    let others := (← get).split.argsAt.find? (f, i) |>.getD []
+    for other in others do
+      if (← withDefault <| isDefEq type other.type) then
+        let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type arg other.arg
+        let eq ← shareCommon eq
+        internalize eq generation
+        trace_goal[grind.ext.candidate] "{eq}"
+        -- We do not use lookahead here because it is too incomplete.
+        -- if (← getConfig).lookahead then
+        --   addLookaheadCandidate (.arg other.app parent i eq)
+        -- else
+        addSplitCandidate (.arg other.app parent i eq)
+    modify fun s => { s with split.argsAt := s.split.argsAt.insert (f, i) ({ arg, type, app := parent } :: others) }
+    return ()
+
+/-- Applies `addSplitCandidatesForExt` if `funext` is enabled. -/
+private def addSplitCandidatesForFunext (arg : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
+  unless (← getConfig).funext do return ()
+  addSplitCandidatesForExt arg generation parent?
+
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -217,7 +291,10 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
   | .fvar .. =>
     mkENode' e generation
     checkAndAddSplitCandidate e
-  | .letE .. | .lam .. =>
+  | .letE .. =>
+    mkENode' e generation
+  | .lam .. =>
+    addSplitCandidatesForFunext e generation parent?
     mkENode' e generation
   | .forallE _ d b _ =>
     mkENode' e generation
@@ -228,8 +305,12 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
         internalizeImpl b generation e
         registerParent e b
       propagateUp e
-  | .lit .. | .const .. =>
+      checkAndAddSplitCandidate e
+  | .lit .. =>
     mkENode e generation
+  | .const declName _ =>
+    mkENode e generation
+    activateTheoremPatterns declName generation
   | .mvar .. =>
     reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
     mkENode' e generation
@@ -247,6 +328,8 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     else if e.isAppOfArity ``Grind.MatchCond 1 then
       internalizeMatchCond e generation
     else e.withApp fun f args => do
+      mkENode e generation
+      updateAppMap e
       checkAndAddSplitCandidate e
       pushCastHEqs e
       addMatchEqns f generation
@@ -270,9 +353,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
           let arg := args[i]
           internalize arg generation e
           registerParent e arg
-      mkENode e generation
       addCongrTable e
-      updateAppMap e
       Arith.internalize e parent?
       propagateUp e
       propagateBetaForNewApp e

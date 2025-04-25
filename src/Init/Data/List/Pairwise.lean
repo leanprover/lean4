@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Sublist
 import Init.Data.List.Attach
@@ -38,7 +40,8 @@ theorem rel_of_pairwise_cons (p : (a :: l).Pairwise R) : ∀ {a'}, a' ∈ l → 
 theorem Pairwise.of_cons (p : (a :: l).Pairwise R) : Pairwise R l :=
   (pairwise_cons.1 p).2
 
-theorem Pairwise.tail : ∀ {l : List α} (_p : Pairwise R l), Pairwise R l.tail
+set_option linter.unusedVariables false in
+theorem Pairwise.tail : ∀ {l : List α} (h : Pairwise R l), Pairwise R l.tail
   | [], h => h
   | _ :: _, h => h.of_cons
 
@@ -93,7 +96,7 @@ theorem Pairwise.forall_of_forall_of_flip (h₁ : ∀ x ∈ l, R x x) (h₂ : Pa
     rw [pairwise_cons] at h₂ h₃
     simp only [mem_cons]
     rintro x (rfl | hx) y (rfl | hy)
-    · exact h₁ _ (l.mem_cons_self _)
+    · exact h₁ _ l.mem_cons_self
     · exact h₂.1 _ hy
     · exact h₃.1 _ hx
     · exact ih (fun x hx => h₁ _ <| mem_cons_of_mem _ hx) h₂.2 h₃.2 hx hy
@@ -117,9 +120,8 @@ theorem Pairwise.map {S : β → β → Prop} (f : α → β) (H : ∀ a b : α,
   pairwise_map.2 <| p.imp (H _ _)
 
 theorem pairwise_filterMap {f : β → Option α} {l : List β} :
-    Pairwise R (filterMap f l) ↔ Pairwise (fun a a' : β => ∀ b ∈ f a, ∀ b' ∈ f a', R b b') l := by
-  let _S (a a' : β) := ∀ b ∈ f a, ∀ b' ∈ f a', R b b'
-  simp only [Option.mem_def]
+    Pairwise R (filterMap f l) ↔ Pairwise (fun a a' : β => ∀ b, f a = some b → ∀ b', f a' = some b' → R b b') l := by
+  let _S (a a' : β) := ∀ b, f a = some b → ∀ b', f a' = some b' → R b b'
   induction l with
   | nil => simp only [filterMap, Pairwise.nil]
   | cons a l IH => ?_
@@ -133,11 +135,9 @@ theorem pairwise_filterMap {f : β → Option α} {l : List β} :
       ⟨fun h a ha b hab => h _ _ ha hab, fun h a b ha hab => h _ ha _ hab⟩
 
 theorem Pairwise.filterMap {S : β → β → Prop} (f : α → Option β)
-    (H : ∀ a a' : α, R a a' → ∀ b ∈ f a, ∀ b' ∈ f a', S b b') {l : List α} (p : Pairwise R l) :
+    (H : ∀ a a' : α, R a a' → ∀ b, f a = some b → ∀ b', f a' = some b' → S b b') {l : List α} (p : Pairwise R l) :
     Pairwise S (filterMap f l) :=
   pairwise_filterMap.2 <| p.imp (H _ _)
-
-@[deprecated Pairwise.filterMap (since := "2024-07-29")] abbrev Pairwise.filter_map := @Pairwise.filterMap
 
 theorem pairwise_filter {p : α → Prop} [DecidablePred p] {l : List α} :
     Pairwise R (filter p l) ↔ Pairwise (fun x y => p x → p y → R x y) l := by
@@ -145,7 +145,7 @@ theorem pairwise_filter {p : α → Prop} [DecidablePred p] {l : List α} :
   simp
 
 theorem Pairwise.filter (p : α → Bool) : Pairwise R l → Pairwise R (filter p l) :=
-  Pairwise.sublist (filter_sublist _)
+  Pairwise.sublist filter_sublist
 
 theorem pairwise_append {l₁ l₂ : List α} :
     (l₁ ++ l₂).Pairwise R ↔ l₁.Pairwise R ∧ l₂.Pairwise R ∧ ∀ a ∈ l₁, ∀ b ∈ l₂, R a b := by

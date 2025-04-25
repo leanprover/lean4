@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.TakeDrop
@@ -249,12 +251,15 @@ theorem extract_append_left {as bs : Array α} :
   · simp only [size_map, size_extract] at h₁ h₂
     simp only [getElem_map, getElem_extract]
 
-@[simp] theorem extract_mkArray {a : α} {n i j : Nat} :
-    (mkArray n a).extract i j = mkArray (min j n - i) a := by
+@[simp] theorem extract_replicate {a : α} {n i j : Nat} :
+    (replicate n a).extract i j = replicate (min j n - i) a := by
   ext l h₁ h₂
   · simp
-  · simp only [size_extract, size_mkArray] at h₁ h₂
-    simp only [getElem_extract, getElem_mkArray]
+  · simp only [size_extract, size_replicate] at h₁ h₂
+    simp only [getElem_extract, getElem_replicate]
+
+@[deprecated extract_replicate (since := "2025-03-18")]
+abbrev extract_mkArray := @extract_replicate
 
 theorem extract_eq_extract_right {as : Array α} {i j j' : Nat} :
     as.extract i j = as.extract i j' ↔ min (j - i) (as.size - i) = min (j' - i) (as.size - i) := by
@@ -319,32 +324,32 @@ theorem reverse_extract {as : Array α} {i j : Nat} :
 
 /-! ### takeWhile -/
 
-theorem takeWhile_map (f : α → β) (p : β → Bool) (as : Array α) :
+theorem takeWhile_map {f : α → β} {p : β → Bool} {as : Array α} :
     (as.map f).takeWhile p = (as.takeWhile (p ∘ f)).map f := by
   rcases as with ⟨as⟩
   simp [List.takeWhile_map]
 
-theorem popWhile_map (f : α → β) (p : β → Bool) (as : Array α) :
+theorem popWhile_map {f : α → β} {p : β → Bool} {as : Array α} :
     (as.map f).popWhile p = (as.popWhile (p ∘ f)).map f := by
   rcases as with ⟨as⟩
   simp [List.dropWhile_map, ← List.map_reverse]
 
-theorem takeWhile_filterMap (f : α → Option β) (p : β → Bool) (as : Array α) :
+theorem takeWhile_filterMap {f : α → Option β} {p : β → Bool} {as : Array α} :
     (as.filterMap f).takeWhile p = (as.takeWhile fun a => (f a).all p).filterMap f := by
   rcases as with ⟨as⟩
   simp [List.takeWhile_filterMap]
 
-theorem popWhile_filterMap (f : α → Option β) (p : β → Bool) (as : Array α) :
+theorem popWhile_filterMap {f : α → Option β} {p : β → Bool} {as : Array α} :
     (as.filterMap f).popWhile p = (as.popWhile fun a => (f a).all p).filterMap f := by
   rcases as with ⟨as⟩
   simp [List.dropWhile_filterMap, ← List.filterMap_reverse]
 
-theorem takeWhile_filter (p q : α → Bool) (as : Array α) :
+theorem takeWhile_filter {p q : α → Bool} {as : Array α} :
     (as.filter p).takeWhile q = (as.takeWhile fun a => !p a || q a).filter p := by
   rcases as with ⟨as⟩
   simp [List.takeWhile_filter]
 
-theorem popWhile_filter (p q : α → Bool) (as : Array α) :
+theorem popWhile_filter {p q : α → Bool} {as : Array α} :
     (as.filter p).popWhile q = (as.popWhile fun a => !p a || q a).filter p := by
   rcases as with ⟨as⟩
   simp [List.dropWhile_filter, ← List.filter_reverse]
@@ -387,23 +392,35 @@ theorem popWhile_append {xs ys : Array α} :
   rw [List.dropWhile_append_of_pos]
   simpa
 
-@[simp] theorem takeWhile_mkArray_eq_filter (p : α → Bool) :
-    (mkArray n a).takeWhile p = (mkArray n a).filter p := by
+@[simp] theorem takeWhile_replicate_eq_filter {p : α → Bool} :
+    (replicate n a).takeWhile p = (replicate n a).filter p := by
   simp [← List.toArray_replicate]
 
-theorem takeWhile_mkArray (p : α → Bool) :
-    (mkArray n a).takeWhile p = if p a then mkArray n a else #[] := by
-  simp [takeWhile_mkArray_eq_filter, filter_mkArray]
+@[deprecated takeWhile_replicate_eq_filter (since := "2025-03-18")]
+abbrev takeWhile_mkArray_eq_filter := @takeWhile_replicate_eq_filter
 
-@[simp] theorem popWhile_mkArray_eq_filter_not (p : α → Bool) :
-    (mkArray n a).popWhile p = (mkArray n a).filter (fun a => !p a) := by
+theorem takeWhile_replicate {p : α → Bool} :
+    (replicate n a).takeWhile p = if p a then replicate n a else #[] := by
+  simp [takeWhile_replicate_eq_filter, filter_replicate]
+
+@[deprecated takeWhile_replicate (since := "2025-03-18")]
+abbrev takeWhile_mkArray := @takeWhile_replicate
+
+@[simp] theorem popWhile_replicate_eq_filter_not {p : α → Bool} :
+    (replicate n a).popWhile p = (replicate n a).filter (fun a => !p a) := by
   simp [← List.toArray_replicate, ← List.filter_reverse]
 
-theorem popWhile_mkArray (p : α → Bool) :
-    (mkArray n a).popWhile p = if p a then #[] else mkArray n a := by
-  simp only [popWhile_mkArray_eq_filter_not, size_mkArray, filter_mkArray, Bool.not_eq_eq_eq_not,
+@[deprecated popWhile_replicate_eq_filter_not (since := "2025-03-18")]
+abbrev popWhile_mkArray_eq_filter_not := @popWhile_replicate_eq_filter_not
+
+theorem popWhile_replicate {p : α → Bool} :
+    (replicate n a).popWhile p = if p a then #[] else replicate n a := by
+  simp only [popWhile_replicate_eq_filter_not, size_replicate, filter_replicate, Bool.not_eq_eq_eq_not,
     Bool.not_true]
   split <;> simp_all
+
+@[deprecated popWhile_replicate (since := "2025-03-18")]
+abbrev popWhile_mkArray := @popWhile_replicate
 
 theorem extract_takeWhile {as : Array α} {i : Nat} :
     (as.takeWhile p).extract 0 i = (as.extract 0 i).takeWhile p := by

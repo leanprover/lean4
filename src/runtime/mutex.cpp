@@ -2,7 +2,7 @@
 Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Authors: Gabriel Ebner
+Authors: Gabriel Ebner, Henrik Böving
 */
 #include <lean/lean.h>
 #include "runtime/mutex.h"
@@ -29,6 +29,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_basemutex_new(obj_arg) {
 extern "C" LEAN_EXPORT obj_res lean_io_basemutex_lock(b_obj_arg mtx, obj_arg) {
     basemutex_get(mtx)->lock();
     return io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_basemutex_try_lock(b_obj_arg mtx, obj_arg) {
+    bool success = basemutex_get(mtx)->try_lock();
+    return io_result_mk_ok(box(success));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_basemutex_unlock(b_obj_arg mtx, obj_arg) {
@@ -67,9 +72,86 @@ extern "C" LEAN_EXPORT obj_res lean_io_condvar_notify_all(b_obj_arg condvar, obj
     return io_result_mk_ok(box(0));
 }
 
+static lean_external_class * g_baserecmutex_external_class = nullptr;
+static void baserecmutex_finalizer(void * h) {
+    delete static_cast<recursive_mutex *>(h);
+}
+static void baserecmutex_foreach(void *, b_obj_arg) {}
+
+static recursive_mutex * baserecmutex_get(lean_object * mtx) {
+    return static_cast<recursive_mutex *>(lean_get_external_data(mtx));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_baserecmutex_new(obj_arg) {
+    return io_result_mk_ok(lean_alloc_external(g_baserecmutex_external_class, new recursive_mutex));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_baserecmutex_lock(b_obj_arg mtx, obj_arg) {
+    baserecmutex_get(mtx)->lock();
+    return io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_baserecmutex_try_lock(b_obj_arg mtx, obj_arg) {
+    bool success = baserecmutex_get(mtx)->try_lock();
+    return io_result_mk_ok(box(success));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_baserecmutex_unlock(b_obj_arg mtx, obj_arg) {
+    baserecmutex_get(mtx)->unlock();
+    return io_result_mk_ok(box(0));
+}
+
+// We use a `shared_timed_mutex` instead of a `shared_mutex` for now as the latter is only available
+// in C++ 17 and we are currently on C++ 14.
+static lean_external_class * g_basesharedmutex_external_class = nullptr;
+static void basesharedmutex_finalizer(void * h) {
+    delete static_cast<shared_timed_mutex *>(h);
+}
+static void basesharedmutex_foreach(void *, b_obj_arg) {}
+
+static shared_timed_mutex * basesharedmutex_get(lean_object * mtx) {
+    return static_cast<shared_timed_mutex *>(lean_get_external_data(mtx));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_new(obj_arg) {
+    return io_result_mk_ok(lean_alloc_external(g_basesharedmutex_external_class, new shared_timed_mutex));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_write(b_obj_arg mtx, obj_arg) {
+    basesharedmutex_get(mtx)->lock();
+    return io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_try_write(b_obj_arg mtx, obj_arg) {
+    bool success = basesharedmutex_get(mtx)->try_lock();
+    return io_result_mk_ok(box(success));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_unlock_write(b_obj_arg mtx, obj_arg) {
+    basesharedmutex_get(mtx)->unlock();
+    return io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_read(b_obj_arg mtx, obj_arg) {
+    basesharedmutex_get(mtx)->lock_shared();
+    return io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_try_read(b_obj_arg mtx, obj_arg) {
+    bool success = basesharedmutex_get(mtx)->try_lock_shared();
+    return io_result_mk_ok(box(success));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_unlock_read(b_obj_arg mtx, obj_arg) {
+    basesharedmutex_get(mtx)->unlock_shared();
+    return io_result_mk_ok(box(0));
+}
+
 void initialize_mutex() {
     g_basemutex_external_class = lean_register_external_class(basemutex_finalizer, basemutex_foreach);
     g_condvar_external_class = lean_register_external_class(condvar_finalizer, condvar_foreach);
+    g_baserecmutex_external_class = lean_register_external_class(baserecmutex_finalizer, baserecmutex_foreach);
+    g_basesharedmutex_external_class = lean_register_external_class(basesharedmutex_finalizer, basesharedmutex_foreach);
 }
 
 void finalize_mutex() {

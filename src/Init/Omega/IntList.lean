@@ -3,6 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.List.Zip
 import Init.Data.Int.DivMod.Bootstrap
@@ -286,7 +288,7 @@ theorem gcd_cons_div_right : gcd (x::xs) ∣ gcd xs := by
   apply Nat.gcd_dvd_right
 
 theorem gcd_cons_div_right' : (gcd (x::xs) : Int) ∣ (gcd xs : Int) := by
-  rw [Int.ofNat_dvd_left, Int.natAbs_ofNat]
+  rw [Int.ofNat_dvd_left, Int.natAbs_natCast]
   exact gcd_cons_div_right
 
 theorem gcd_dvd (xs : IntList) {a : Int} (m : a ∈ xs) : (xs.gcd : Int) ∣ a := by
@@ -355,7 +357,7 @@ theorem dot_eq_zero_of_left_eq_zero {xs ys : IntList} (h : ∀ x, x ∈ xs → x
     cases ys with
     | nil => rfl
     | cons y ys =>
-      rw [dot_cons₂, h x (List.mem_cons_self _ _), ih (fun x m => h x (List.mem_cons_of_mem _ m)),
+      rw [dot_cons₂, h x List.mem_cons_self, ih (fun x m => h x (List.mem_cons_of_mem _ m)),
         Int.zero_mul, Int.add_zero]
 
 @[simp] theorem nil_dot (xs : IntList) : dot [] xs = 0 := rfl
@@ -377,7 +379,7 @@ theorem dot_sdiv_left (xs ys : IntList) {d : Int} (h : d ∣ xs.gcd) :
 abbrev bmod (x : IntList) (m : Nat) : IntList := x.map (Int.bmod · m)
 
 theorem bmod_length (x : IntList) (m) : (bmod x m).length ≤ x.length :=
-  Nat.le_of_eq (List.length_map _ _)
+  Nat.le_of_eq (List.length_map _)
 
 /--
 The difference between the balanced mod of a dot product,

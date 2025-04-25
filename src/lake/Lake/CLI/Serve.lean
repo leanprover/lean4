@@ -23,6 +23,12 @@ and falls back to plain `lean --server`.
 -/
 def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
 
+private def mkLeanPaths (ws : Workspace) (deps : ModuleDeps) : LeanPaths where
+  oleanPath := ws.leanPath
+  srcPath := ws.leanSrcPath
+  loadDynlibPaths := deps.dynlibs.map (·.path)
+  pluginPaths := deps.plugins.map (·.path)
+
 /--
 Build a list of imports of a file and print the `.olean` and source directories
 of every used package, as well as the server options for the file.
@@ -34,58 +40,45 @@ def setupFile
   (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
   (buildConfig : BuildConfig := {})
 : MainM PUnit := do
+  let path ← resolvePath path
   let configFile ← realConfigFile loadConfig.configFile
-  let isConfig := EIO.catchExceptions (h := fun _ => pure false) do
-    let path ← IO.FS.realPath path
-    return configFile.normalize == path.normalize
   if configFile.toString.isEmpty then
     exit noConfigFileCode
-  else if (← isConfig) then
-    IO.println <| Json.compress <| toJson {
+  else if configFile == path then do
+    let info : FileSetupInfo := {
       paths := {
         oleanPath := loadConfig.lakeEnv.leanPath
         srcPath := loadConfig.lakeEnv.leanSrcPath
-        loadDynlibPaths := #[]
         pluginPaths := #[loadConfig.lakeEnv.lake.sharedLib]
       }
       setupOptions := ⟨∅⟩
-      : FileSetupInfo
     }
+    IO.println (toJson info).compress
+  else if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
+    IO.eprint errLog
+    IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
+    exit 1
   else
-    if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
-      IO.eprint errLog
-      IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
-      exit 1
-    let outLv := buildConfig.verbosity.minLogLv
-    let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do
-      loadWorkspace loadConfig
-    -- Imperfect heuristic for determine when the Lake plugin is needed.
-    let usesLake := imports.any (·.startsWith "Lake")
-    let imports := imports.foldl (init := #[]) fun imps imp =>
-      if let some mod := ws.findModule? imp.toName then imps.push mod else imps
-    let {dynlibs, plugins} ←
-      MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
-        ws.runBuild (buildImportsAndDeps path imports) buildConfig
-    let plugins :=
-      if usesLake then plugins.push ws.lakeEnv.lake.sharedLib else plugins
-    let paths : LeanPaths := {
-      oleanPath := ws.leanPath
-      srcPath := ws.leanSrcPath
-      loadDynlibPaths := dynlibs
-      pluginPaths := plugins
-    }
-    let setupOptions : LeanOptions ← do
-      let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath
-        | pure ⟨∅⟩
-      let some module := ws.findModule? moduleName
-        | pure ⟨∅⟩
-      let options := module.serverOptions.map fun opt => ⟨opt.name, opt.value⟩
-      pure ⟨Lean.RBMap.fromArray options Lean.Name.cmp⟩
-    IO.println <| Json.compress <| toJson {
-      paths,
-      setupOptions
-      : FileSetupInfo
-    }
+    let some ws ← loadWorkspace loadConfig |>.toBaseIO buildConfig.outLv buildConfig.ansiMode
+      | error "failed to load workspace"
+    if let some mod := ws.findModuleBySrc? path then
+      let deps ← ws.runBuild (withRegisterJob s!"setup ({mod.name})" do mod.deps.fetch) buildConfig
+      let opts := mod.serverOptions.foldl (init := {}) fun opts opt =>
+        opts.insert opt.name opt.value
+      let info : FileSetupInfo := {
+        paths := mkLeanPaths ws deps
+        setupOptions := ⟨opts⟩
+      }
+      IO.println (toJson info).compress
+    else
+      let imports := imports.foldl (init := #[]) fun imps imp =>
+        if let some mod := ws.findModule? imp.toName then imps.push mod else imps
+      let deps ← ws.runBuild (buildImportsAndDeps path imports) buildConfig
+      let info : FileSetupInfo := {
+        paths := mkLeanPaths ws deps
+        setupOptions := ⟨∅⟩
+      }
+      IO.println (toJson info).compress
 
 /--
 Start the Lean LSP for the `Workspace` loaded from `config`

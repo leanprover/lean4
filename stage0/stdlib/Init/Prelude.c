@@ -420,6 +420,7 @@ LEAN_EXPORT lean_object* l_instDecidableLtUInt32___boxed(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_BitVec_decEq(lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqBool___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Array_emptyWithCapacity___boxed(lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
 LEAN_EXPORT lean_object* l_instDecidableEqBitVec(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
@@ -911,6 +912,7 @@ LEAN_EXPORT lean_object* l_instHAdd___rarg(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Nat_pow___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHAddPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedList(lean_object*);
 LEAN_EXPORT uint8_t l_Fin_decLe___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_choiceKind___closed__1;
@@ -4555,6 +4557,15 @@ return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mkEmpty___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_mk_empty_array_with_capacity(x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Array_emptyWithCapacity___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 

@@ -18,6 +18,9 @@ def anyExpr := mkConst ``lcAny
 def _root_.Lean.Expr.isErased (e : Expr) :=
   e.isAppOf ``lcErased
 
+def _root_.Lean.Expr.isAny (e : Expr) :=
+  e.isAppOf ``lcAny
+
 def isPropFormerTypeQuick : Expr → Bool
   | .forallE _ _ b _ => isPropFormerTypeQuick b
   | .sort .zero => true
@@ -132,7 +135,7 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
   | .forallE .. => visitForall type #[]
   | .app ..  => type.withApp visitApp
   | .fvar .. => visitApp type #[]
-  | _        => return erasedExpr
+  | _        => return mkConst ``lcAny
 where
   whnfEta (type : Expr) : MetaM Expr := do
     let type ← whnf type
@@ -156,10 +159,10 @@ where
   visitApp (f : Expr) (args : Array Expr) := do
     let fNew ← match f with
       | .const declName us =>
-        let .inductInfo _ ← getConstInfo declName | return erasedExpr
+        let .inductInfo _ ← getConstInfo declName | return anyExpr
         pure <| .const declName us
       | .fvar .. => pure f
-      | _ => return erasedExpr
+      | _ => return anyExpr
     let mut result := fNew
     for arg in args do
       if (← isProp arg) then
@@ -169,13 +172,13 @@ where
       else if (← isTypeFormer arg) then
         result := mkApp result (← toLCNFType arg)
       else
-        result := mkApp result erasedExpr
+        result := mkApp result (mkConst ``lcAny)
     return result
 
 mutual
 
 partial def joinTypes (a b : Expr) : Expr :=
-  joinTypes? a b |>.getD erasedExpr
+  joinTypes? a b |>.getD (mkConst ``lcAny)
 
 partial def joinTypes? (a b : Expr) : Option Expr := do
   if a.isErased || b.isErased then
@@ -194,16 +197,16 @@ partial def joinTypes? (a b : Expr) : Option Expr := do
       | .app f a, .app g b =>
         (do return .app (← joinTypes? f g) (← joinTypes? a b))
          <|>
-        return erasedExpr
+        return (mkConst ``lcAny)
       | .forallE n d₁ b₁ _, .forallE _ d₂ b₂ _ =>
         (do return .forallE n (← joinTypes? d₁ d₂) (joinTypes b₁ b₂) .default)
         <|>
-        return erasedExpr
+        return (mkConst ``lcAny)
       | .lam n d₁ b₁ _, .lam _ d₂ b₂ _ =>
         (do return .lam n (← joinTypes? d₁ d₂) (joinTypes b₁ b₂) .default)
         <|>
-        return erasedExpr
-      | _, _ => return erasedExpr
+        return (mkConst ``lcAny)
+      | _, _ => return (mkConst ``lcAny)
 
 end
 

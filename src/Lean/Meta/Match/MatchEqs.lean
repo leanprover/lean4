@@ -680,7 +680,7 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   let baseName := mkPrivateName (← getEnv) matchDeclName
   let splitterName := baseName ++ `splitter
   -- NOTE: `go` will generate both splitter and equations but we use the splitter as the "key" for
-  -- `realizeConst` as well as for looking up the resultant environment extension sate via
+  -- `realizeConst` as well as for looking up the resultant environment extension state via
   -- `findStateAsync`.
   realizeConst matchDeclName splitterName (go baseName splitterName)
   return matchEqnsExt.findStateAsync (← getEnv) splitterName |>.map.find! matchDeclName
@@ -768,5 +768,20 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       registerMatchEqns matchDeclName result
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
+
+private def isMatchEqName? (env : Environment) (n : Name) : Option Name := do
+  let .str p s := n | failure
+  guard <| isEqnReservedNameSuffix s || s == "splitter"
+  let p ← privateToUserName? p
+  guard <| isMatcherCore env p
+  return p
+
+builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
+
+builtin_initialize registerReservedNameAction fun name => do
+  let some p := isMatchEqName? (← getEnv) name |
+    return false
+  let _ ← MetaM.run' <| getEquationsFor p
+  return true
 
 end Lean.Meta.Match

@@ -60,11 +60,14 @@ structure Raw (α : Type u) (β : Type v) where
 
 namespace Raw
 
-@[inline, inherit_doc DHashMap.Raw.empty] def empty (capacity := 8) : Raw α β :=
-  ⟨DHashMap.Raw.empty capacity⟩
+@[inline, inherit_doc DHashMap.Raw.empty] def emptyWithCapacity (capacity := 8) : Raw α β :=
+  ⟨DHashMap.Raw.emptyWithCapacity capacity⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance : EmptyCollection (Raw α β) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance : Inhabited (Raw α β) where
   default := ∅
@@ -81,7 +84,7 @@ set_option linter.unusedVariables false in
     (a : α) (b : β) : Raw α β :=
   ⟨m.inner.insert a b⟩
 
-instance [BEq α] [Hashable α] : Singleton (α × β) (Raw α β) := ⟨fun ⟨a, b⟩ => Raw.empty.insert a b⟩
+instance [BEq α] [Hashable α] : Singleton (α × β) (Raw α β) := ⟨fun ⟨a, b⟩ => (∅ : Raw α β).insert a b⟩
 
 instance [BEq α] [Hashable α] : Insert (α × β) (Raw α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
@@ -284,11 +287,15 @@ structure WF [BEq α] [Hashable α] (m : Raw α β) : Prop where
   /-- Internal implementation detail of the hash map -/
   out : m.inner.WF
 
-theorem WF.empty [BEq α] [Hashable α] {c} : (empty c : Raw α β).WF :=
-  ⟨DHashMap.Raw.WF.empty⟩
+theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c} : (emptyWithCapacity c : Raw α β).WF :=
+  ⟨DHashMap.Raw.WF.emptyWithCapacity⟩
 
-theorem WF.emptyc [BEq α] [Hashable α] : (∅ : Raw α β).WF :=
-  WF.empty
+theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α β).WF :=
+  WF.emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated WF.empty (since := "2025-03-12")]
+abbrev WF.emptyc := @WF.empty
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) :
     (m.insert a b).WF :=

@@ -131,7 +131,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                   exact k_property
                 · intro h
                   simp only [← h, not_true, mostRecentUnitIdx] at hk
-              rw [Array.getElem_push_lt _ _ _ k_in_bounds]
+              rw [Array.getElem_push_lt k_in_bounds]
               rw [i_eq_l] at h2
               exact h2 ⟨k.1, k_in_bounds⟩
       · next i_ne_l =>
@@ -190,7 +190,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           refine ⟨⟨j.1, j_lt_updatedUnits_size⟩, mostRecentUnitIdx, i_gt_zero, ?_⟩
           simp only [insertUnit, h5, ite_false, Array.getElem_push_eq, ne_eq, reduceCtorEq]
           constructor
-          · rw [Array.getElem_push_lt units l j.1 j.2, h1]
+          · rw [Array.getElem_push_lt, h1]
           · constructor
             · simp +zetaDelta [i_eq_l, ← hl]
               rfl
@@ -230,7 +230,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           · simp +zetaDelta [i_eq_l, ← hl]
             rfl
           · constructor
-            · rw [Array.getElem_push_lt units l j.1 j.2, h1]
+            · rw [Array.getElem_push_lt, h1]
             · constructor
               · simp only [i_eq_l]
                 rw [Array.getElem_modify_self]
@@ -273,7 +273,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
         refine ⟨⟨j.1, j_lt_updatedUnits_size⟩, b,i_gt_zero, ?_⟩
         simp only [insertUnit, h5, ite_false, reduceCtorEq]
         constructor
-        · rw [Array.getElem_push_lt units l j.1 j.2, h1]
+        · rw [Array.getElem_push_lt, h1]
         · constructor
           · rw [Array.getElem_modify_of_ne (Ne.symm i_ne_l), h2]
           · constructor
@@ -305,11 +305,11 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
     constructor
     · split
       · exact h1
-      · simp only [Array.getElem_push_lt units l j1.1 j1.2, h1]
+      · simp only [Array.getElem_push_lt j1.2, h1]
     · constructor
       · split
         · exact h2
-        · simp only [Array.getElem_push_lt units l j2.1 j2.2, h2]
+        · simp only [Array.getElem_push_lt j2.2, h2]
       · constructor
         · split
           · exact h3
@@ -477,7 +477,7 @@ theorem size_clearUnit_foldl {α : Type u} (assignments : Array Assignment)
   have hb : assignments.size = assignments.size := rfl
   have hl (assignments' : Array Assignment) (hsize : assignments'.size = assignments.size) (a : α) (_ : a ∈ l) :
     (f assignments' a).size = assignments.size := by rw [f_preserves_size assignments' a, hsize]
-  exact List.foldlRecOn l f assignments hb hl
+  exact List.foldlRecOn l f hb hl
 
 def ClearInsertInductionMotive {n : Nat} (f : DefaultFormula n) (assignments_size : f.assignments.size = n)
     (units : Array (Literal (PosFin n))) :
@@ -743,7 +743,7 @@ theorem size_assignments_performRupCheck {n : Nat} (f : DefaultFormula n) (rupHi
     (id : Nat) (_ : id ∈ rupHints.toList) : (confirmRupHint f.clauses acc id).1.size = f.assignments.size := by
     have h := size_assignemnts_confirmRupHint f.clauses acc.1 acc.2.1 acc.2.2.1 acc.2.2.2 id
     rw [h, hsize]
-  exact List.foldlRecOn rupHints.toList (confirmRupHint f.clauses) (f.assignments, [], false, false) hb hl
+  exact List.foldlRecOn rupHints.toList (confirmRupHint f.clauses) hb hl
 
 def DerivedLitsInvariant {n : Nat} (f : DefaultFormula n)
     (fassignments_size : f.assignments.size = n) (assignments : Array Assignment)

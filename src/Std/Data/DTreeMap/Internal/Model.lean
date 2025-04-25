@@ -6,6 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 prelude
 import Std.Data.DTreeMap.Internal.WF.Defs
 import Std.Data.DTreeMap.Internal.Cell
+import Std.Data.Internal.Cut
 
 /-!
 # Model implementations of tree map functions
@@ -19,6 +20,7 @@ universe u v w
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
 
 namespace Std.DTreeMap.Internal
+open Std.Internal (IsStrictCut)
 
 namespace Impl
 
@@ -94,13 +96,13 @@ Internal implementation detail of the tree map
 -/
 inductive ExplorationStep [Ord α] (k : α → Ordering) where
   /-- Needle was less than key at this node: return key-value pair and unexplored right subtree,
-      recusion will continue in left subtree. -/
+      recursion will continue in left subtree. -/
   | lt : (a : α) → k a = .lt → β a → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was equal to key at this node: return key-value pair and both unexplored subtrees,
       recursion will terminate. -/
   | eq : List ((a : α) × β a) → Cell α β k → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was larger than key at this node: return key-value pair and unexplored left subtree,
-      recusion will containue in right subtree. -/
+      recursion will containue in right subtree. -/
   | gt : List ((a : α) × β a) → (a : α) → k a = .gt → β a → ExplorationStep k
 
 /-- General tree-traversal function. Internal implementation detail of the tree map -/
@@ -172,27 +174,24 @@ theorem explore_eq_applyPartition [Ord α] {k : α → Ordering} (init : δ) (l 
 General "update the mapping for a given key" function.
 Internal implementation detail of the tree map
 -/
-def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (compare k))
+noncomputable def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (compare k))
     (l : Impl α β) (hl : Balanced l) : SizedBalancedTree α β (l.size - 1) (l.size + 1) :=
   match l with
   | leaf => match (f .empty).inner with
-    | none => ⟨.leaf, by tree_tac, by tree_tac, by tree_tac⟩
-    | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, by tree_tac, by tree_tac, by tree_tac⟩
+    | none => ⟨.leaf, ✓, ✓, ✓⟩
+    | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, ✓, ✓, ✓⟩
   | inner sz ky y l r =>
     match h : compare k ky with
     | .lt =>
-      let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l (by tree_tac)
-      ⟨balance ky y newL r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-        by tree_tac⟩
+      let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l ✓
+      ⟨balance ky y newL r ✓ ✓ ✓, ✓, ✓, ✓⟩
     | .eq => match (f (.ofEq ky y h)).inner with
       | none =>
-        ⟨glue l r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-           by tree_tac⟩
-      | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, by tree_tac, by tree_tac, by tree_tac⟩
+        ⟨glue l r ✓ ✓ ✓, ✓, ✓, ✓⟩
+      | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, ✓, ✓, ✓⟩
     | .gt =>
-      let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r (by tree_tac)
-      ⟨balance ky y l newR (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-        by tree_tac⟩
+      let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r ✓
+      ⟨balance ky y l newR ✓ ✓ ✓, ✓, ✓, ✓⟩
 
 /-!
 ## Model functions
@@ -262,25 +261,41 @@ Internal implementation detail of the tree map
 def getKeyDₘ [Ord α] (k : α) (l : Impl α β) (fallback : α) : α :=
   getKey?ₘ l k |>.getD fallback
 
+/-- Internal implementation detail of the tree map -/
+def minEntry?ₘ' [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
+  explore (fun (_ : α) => .lt) none (fun sofar step =>
+    match step with
+    | .lt ky _ y _ => some ⟨ky, y⟩
+    | .eq _ _ r => r.head?.or sofar) l
+
+/-- Internal implementation detail of the tree map -/
+def minEntry?ₘ [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
+  applyPartition (fun (_ : α) => .lt) l fun _ _ _ r => r.head?
+
+/-- Internal implementation detail of the tree map -/
+def reverse : Impl α β → Impl α β
+  | .leaf => .leaf
+  | .inner sz k v l r => .inner sz k v (reverse r) (reverse l)
+
 /--
 Model implementation of the `insert` function.
 Internal implementation detail of the tree map
 -/
-def insertₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
+noncomputable def insertₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
   updateCell k (fun _ => .of k v) l h |>.impl
 
 /--
 Model implementation of the `erase` function.
 Internal implementation detail of the tree map
 -/
-def eraseₘ [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : Impl α β :=
+noncomputable def eraseₘ [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : Impl α β :=
   updateCell k (fun _ => .empty) t h |>.impl
 
 /--
 Model implementation of the `insertIfNew` function.
 Internal implementation detail of the tree map
 -/
-def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
+noncomputable def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
   updateCell k (fun
     | ⟨.none, _⟩ => .of k v
     | c => c) l h |>.impl
@@ -289,7 +304,7 @@ def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced
 Model implementation of the `alter` function.
 Internal implementation detail of the tree map
 -/
-def alterₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k))
+noncomputable def alterₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k))
     (t : Impl α β) (h : t.Balanced) : Impl α β :=
   updateCell k (·.alter f) t h |>.impl
 
@@ -330,7 +345,7 @@ def getDₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) (fallback : β) : β :
 Model implementation of the `alter` function.
 Internal implementation detail of the tree map
 -/
-def alterₘ [Ord α] [OrientedOrd α] (k : α) (f : Option β → Option β)
+noncomputable def alterₘ [Ord α] [OrientedOrd α] (k : α) (f : Option β → Option β)
     (t : Impl α (fun _ => β)) (h : t.Balanced) : Impl α (fun _ => β) :=
   updateCell k (Cell.Const.alter f) t h |>.impl
 
@@ -374,7 +389,7 @@ theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l :
   · simp [get?, applyCell]
 
 theorem get_eq_get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} :
-    l.get k h = l.get? k := by
+    some (l.get k h) = l.get? k := by
   induction l
   · simp only [applyCell, get, get?]
     split <;> rename_i ihl ihr hcmp <;> simp_all
@@ -413,7 +428,7 @@ theorem getKey?_eq_getKey?ₘ [Ord α] (k : α) (l : Impl α β) :
   · simp [getKey?, applyCell]
 
 theorem getKey_eq_getKey? [Ord α] (k : α) (l : Impl α β) {h} :
-    l.getKey k h = l.getKey? k := by
+    some (l.getKey k h) = l.getKey? k := by
   induction l
   · simp only [applyCell, getKey, getKey?]
     split <;> rename_i ihl ihr hcmp <;> simp_all
@@ -441,6 +456,58 @@ theorem getKeyD_eq_getKeyDₘ [Ord α] (k : α) (l : Impl α β)
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all [Cell.getKey?, Cell.ofEq]
   · simp only [getKeyD, applyCell, Cell.getKey?_empty, Option.getD_none]
+
+theorem minEntry?_eq_minEntry?ₘ' [Ord α] {l : Impl α β} : l.minEntry? = l.minEntry?ₘ' := by
+  rw [minEntry?ₘ']
+  induction l using minEntry?.induct <;> simp_all [minEntry?, explore]
+
+theorem minEntry?ₘ'_eq_minEntry?ₘ [Ord α] {l : Impl α β} : l.minEntry?ₘ' = l.minEntry?ₘ := by
+  rw [minEntry?ₘ', explore_eq_applyPartition, minEntry?ₘ] <;> simp
+
+theorem minEntry?_eq_minEntry?ₘ [Ord α] {l : Impl α β} : l.minEntry? = l.minEntry?ₘ := by
+  rw [minEntry?_eq_minEntry?ₘ', minEntry?ₘ'_eq_minEntry?ₘ]
+
+theorem minKey?_eq_minEntry?_map_fst [Ord α] {l : Impl α β} : l.minKey? = l.minEntry?.map Sigma.fst := by
+  induction l using minKey?.induct <;> simp only [minKey?, minEntry?] <;> trivial
+
+theorem some_minEntry_eq_minEntry? [Ord α] {l : Impl α β} {he} :
+    some (l.minEntry he) = l.minEntry? := by
+  induction l, he using minEntry.induct <;> simp_all [minEntry, minEntry?]
+
+theorem minEntry_eq_get_minEntry? [Ord α] {l : Impl α β} {he} :
+    l.minEntry he = l.minEntry?.get (by simp [← some_minEntry_eq_minEntry? (he := he)]) := by
+  simp [← some_minEntry_eq_minEntry? (he := he)]
+
+theorem minKey_eq_minEntry_fst [Ord α] {l : Impl α β} {he} : l.minKey he = (l.minEntry he).fst := by
+  induction l, he using minKey.induct <;> simp only [minKey, minEntry] <;> trivial
+
+theorem minKey!_eq_get!_minKey? [Ord α] [Inhabited α] {l : Impl α β} :
+    l.minKey! = l.minKey?.get! := by
+  induction l using minKey!.induct <;> simp_all only [minKey!, minKey?] <;> rfl
+
+theorem minKeyD_eq_getD_minKey? [Ord α] {l : Impl α β} {fallback} :
+    l.minKeyD fallback = l.minKey?.getD fallback := by
+  induction l, fallback using minKeyD.induct <;> simp_all only [minKeyD, minKey?] <;> rfl
+
+theorem maxKey?_eq_minKey?_reverse [Ord α] {l : Impl α β} :
+    l.maxKey? = (letI : Ord α := .opposite inferInstance; (reverse l).minKey?) := by
+  induction l using maxKey?.induct <;> simp_all only [minKey?, maxKey?, reverse]
+
+theorem some_maxKey_eq_maxKey? [Ord α] {l : Impl α β} {he} :
+    some (l.maxKey he) = l.maxKey? := by
+  induction l, he using maxKey.induct <;> simp_all [maxKey, maxKey?]
+
+theorem maxKey_eq_get_maxKey? [Ord α] {l : Impl α β} {he} :
+    l.maxKey he = l.maxKey?.get (by simp [← some_maxKey_eq_maxKey? (he := he)]) := by
+  simp [← some_maxKey_eq_maxKey? (he := he)]
+
+theorem maxKey!_eq_get!_maxKey? [Ord α] [Inhabited α] {l : Impl α β} :
+    l.maxKey! = l.maxKey?.get! := by
+  induction l using maxKey!.induct <;> simp_all only [maxKey!, maxKey?] <;> rfl
+
+theorem maxKeyD_eq_getD_maxKey? [Ord α] {l : Impl α β} {fallback} :
+    l.maxKeyD fallback = l.maxKey?.getD fallback := by
+  induction l, fallback using maxKeyD.induct <;> simp_all only [maxKeyD, maxKey?] <;> rfl
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by
@@ -655,7 +722,7 @@ theorem get?_eq_get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) :
   · simp [Const.get?, applyCell]
 
 theorem get_eq_get? [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} :
-    get l k h = get? l k := by
+    some (get l k h) = get? l k := by
   induction l
   · simp only [applyCell, get, get?]
     split <;> rename_i ihl ihr hcmp <;> simp_all

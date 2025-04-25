@@ -2,11 +2,11 @@ set_option grind.warning false
 set_option grind.debug true
 
 /--
-info: [grind.cutsat.assign] b := -1
-[grind.cutsat.assign] a := 3
+info: [grind.debug.cutsat.search.assign] b := -1
+[grind.debug.cutsat.search.assign] a := 3
 -/
 #guard_msgs (info) in
-set_option trace.grind.cutsat.assign true in
+set_option trace.grind.debug.cutsat.search.assign true in
 example (a b : Int) (h₁ : a ≤ 3) (h₂ : a > 2) (h₃ : a + b < 3) : False := by
   fail_if_success grind
   sorry

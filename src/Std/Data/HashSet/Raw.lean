@@ -62,11 +62,14 @@ Creates a new empty hash set. The optional parameter `capacity` can be supplied 
 so that it can hold the given number of elements without reallocating. It is also possible to use
 the empty collection notations `∅` and `{}` to create an empty hash set with the default capacity.
 -/
-@[inline] def empty (capacity := 8) : Raw α :=
-  ⟨HashMap.Raw.empty capacity⟩
+@[inline] def emptyWithCapacity (capacity := 8) : Raw α :=
+  ⟨HashMap.Raw.emptyWithCapacity capacity⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance : EmptyCollection (Raw α) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance : Inhabited (Raw α) where
   default := ∅
@@ -91,7 +94,7 @@ differently: it will overwrite an existing mapping.
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.insertIfNew a ()⟩
 
-instance [BEq α] [Hashable α] : Singleton α (Raw α) := ⟨fun a => Raw.empty.insert a⟩
+instance [BEq α] [Hashable α] : Singleton α (Raw α) := ⟨fun a => (∅ : Raw α).insert a⟩
 
 instance [BEq α] [Hashable α] : Insert α (Raw α) := ⟨fun a s => s.insert a⟩
 
@@ -283,11 +286,15 @@ structure WF [BEq α] [Hashable α] (m : Raw α) : Prop where
   /-- Internal implementation detail of the hash set -/
   out : m.inner.WF
 
-theorem WF.empty [BEq α] [Hashable α] {c} : (empty c : Raw α).WF :=
-  ⟨HashMap.Raw.WF.empty⟩
+theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c} : (emptyWithCapacity c : Raw α).WF :=
+  ⟨HashMap.Raw.WF.emptyWithCapacity⟩
 
-theorem WF.emptyc [BEq α] [Hashable α] : (∅ : Raw α).WF :=
-  ⟨HashMap.Raw.WF.empty⟩
+theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α).WF :=
+  WF.emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated WF.empty (since := "2025-03-12")]
+abbrev WF.emptyc := @WF.empty
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.insert a).WF :=
   ⟨HashMap.Raw.WF.insertIfNew h.out⟩

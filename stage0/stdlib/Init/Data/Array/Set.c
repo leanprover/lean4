@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Array_Set___hyg_17_;
 LEAN_EXPORT lean_object* l_Array_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_setIfInBounds___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_setD___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -51,6 +50,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_17____closed__2;
 LEAN_EXPORT lean_object* l_Array_set_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_17____closed__6;
 static lean_object* _init_l___auto____x40_Init_Data_Array_Set___hyg_17____closed__1() {
 _start:

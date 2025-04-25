@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_visit___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_resolveBinderNameHint_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_BinderNameHint_0__Lean_enterScope(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_hasBinderNameHint___lambda__1___closed__1;
@@ -25,9 +24,9 @@ lean_object* l_Lean_Core_instInhabitedCoreM___boxed(lean_object*, lean_object*, 
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Expr_resolveBinderNameHint_go___spec__1___closed__2;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__4;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_resolveBinderNameHint_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -117,6 +116,7 @@ lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Meta_BinderNameHint_0__Lean_exitScope___spec__1(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__2;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* _init_l_Lean_Expr_hasBinderNameHint___lambda__1___closed__1() {

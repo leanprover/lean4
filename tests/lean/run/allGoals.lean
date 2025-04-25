@@ -58,7 +58,7 @@ example (b : Bool) : b = b := by
 
 
 /-!
-Even if at least one suceeds, the entire tactic fails if any fails, stopping the tactic script.
+Even if at least one succeeds, the entire tactic fails if any fails, stopping the tactic script.
 -/
 /--
 error: type mismatch
@@ -113,7 +113,7 @@ example (b : Bool) : True := by
 
 
 /-!
-On error, all goals are admitted. There are two `sorry`s in the prof term even though the tactic succeeds in one case.
+On error, failing goals are admitted. There is one `sorry` in the proof term corresponding to the failing case.
 -/
 
 /--
@@ -124,8 +124,8 @@ has type
 but is expected to have type
   false = false : Prop
 ---
-info: Try this: Bool.casesOn (motive := fun t => b = t → b = b) b (fun h => Eq.symm h ▸ sorry) (fun h => Eq.symm h ▸ sorry)
-  (Eq.refl b)
+info: Try this: Bool.casesOn (motive := fun t => b = t → b = b) b (fun h => Eq.symm h ▸ sorry)
+  (fun h => Eq.symm h ▸ Eq.refl true) (Eq.refl b)
 -/
 #guard_msgs in
 example (b : Bool) : b = b := by?
@@ -134,22 +134,33 @@ example (b : Bool) : b = b := by?
 
 
 /-!
-Each successive goal sees the metavariable assignments of the preceding ones, even if the preceding one failed.
+If the tactic fails on a particular goal, then the state is restored, while preserving log messages.
+This allows the tactic to run on all goals, which is most useful in interactive mode.
+In this test, we see `v : Unit := ?_ true` in the `refine_2.true` case,
+even though the metavariable is assigned in the `refine_2.false` case before the "case tag 'true' not found" error.
 -/
+set_option pp.mvars false in
 /--
 error: Case tag 'true' not found.
 
 The only available case tag is 'refine_2.false'.
+---
+error: Case tag 'true' not found.
+
+The only available case tag is 'refine_1'.
 ---
 info: case refine_2.false
 v : Unit := ()
 this : () = v
 ⊢ True
 case refine_2.true
-v : Unit := ()
+v : Unit := ?_ true
 ⊢ True
+case refine_1
+b : Bool
+⊢ Unit
 ---
-info: true
+info: in true
 -/
 #guard_msgs in
 example (b : Bool) : True := by
@@ -158,7 +169,7 @@ example (b : Bool) : True := by
   all_goals
     try case' false => have : () = v := (by refine rfl)
     trace_state
-    case true => trace "true"; trivial
+    case true => trace "in true"; trivial
   trace "should not get here"
 
 
@@ -301,46 +312,46 @@ theorem idEq (a : α) : id a = a :=
 
 /--
 info: case sunday
-⊢ Weekday.sunday.previous.next = id Weekday.sunday
+⊢ sunday.previous.next = id sunday
 
 case monday
-⊢ Weekday.monday.previous.next = id Weekday.monday
+⊢ monday.previous.next = id monday
 
 case tuesday
-⊢ Weekday.tuesday.previous.next = id Weekday.tuesday
+⊢ tuesday.previous.next = id tuesday
 
 case wednesday
-⊢ Weekday.wednesday.previous.next = id Weekday.wednesday
+⊢ wednesday.previous.next = id wednesday
 
 case thursday
-⊢ Weekday.thursday.previous.next = id Weekday.thursday
+⊢ thursday.previous.next = id thursday
 
 case friday
-⊢ Weekday.friday.previous.next = id Weekday.friday
+⊢ friday.previous.next = id friday
 
 case saturday
-⊢ Weekday.saturday.previous.next = id Weekday.saturday
+⊢ saturday.previous.next = id saturday
 ---
 info: case sunday
-⊢ Weekday.sunday.previous.next = Weekday.sunday
+⊢ sunday.previous.next = sunday
 
 case monday
-⊢ Weekday.monday.previous.next = Weekday.monday
+⊢ monday.previous.next = monday
 
 case tuesday
-⊢ Weekday.tuesday.previous.next = Weekday.tuesday
+⊢ tuesday.previous.next = tuesday
 
 case wednesday
-⊢ Weekday.wednesday.previous.next = Weekday.wednesday
+⊢ wednesday.previous.next = wednesday
 
 case thursday
-⊢ Weekday.thursday.previous.next = Weekday.thursday
+⊢ thursday.previous.next = thursday
 
 case friday
-⊢ Weekday.friday.previous.next = Weekday.friday
+⊢ friday.previous.next = friday
 
 case saturday
-⊢ Weekday.saturday.previous.next = Weekday.saturday
+⊢ saturday.previous.next = saturday
 -/
 #guard_msgs in
 theorem Weekday.test (d : Weekday) : next (previous d) = id d := by
@@ -352,25 +363,25 @@ theorem Weekday.test (d : Weekday) : next (previous d) = id d := by
 
 /--
 info: case sunday
-⊢ Weekday.sunday.previous.next = Weekday.sunday
+⊢ sunday.previous.next = sunday
 
 case monday
-⊢ Weekday.monday.previous.next = Weekday.monday
+⊢ monday.previous.next = monday
 
 case tuesday
-⊢ Weekday.tuesday.previous.next = Weekday.tuesday
+⊢ tuesday.previous.next = tuesday
 
 case wednesday
-⊢ Weekday.wednesday.previous.next = Weekday.wednesday
+⊢ wednesday.previous.next = wednesday
 
 case thursday
-⊢ Weekday.thursday.previous.next = Weekday.thursday
+⊢ thursday.previous.next = thursday
 
 case friday
-⊢ Weekday.friday.previous.next = Weekday.friday
+⊢ friday.previous.next = friday
 
 case saturday
-⊢ Weekday.saturday.previous.next = Weekday.saturday
+⊢ saturday.previous.next = saturday
 -/
 #guard_msgs in
 theorem Weekday.test2 (d : Weekday) : next (previous d) = id d := by
@@ -380,3 +391,24 @@ theorem Weekday.test2 (d : Weekday) : next (previous d) = id d := by
 
 def bug {a b c : Nat} (h₁ : a = b) (h₂ : b = c) : a = c := by
   apply Eq.trans <;> assumption
+
+/-!
+`all_goals` was not correctly backtracking state
+https://github.com/leanprover/lean4/issues/7883
+There was an error because the metavariable state was being restored but not the goal list.
+-/
+/-- error: dsimp made no progress -/
+#guard_msgs in
+theorem foo : ∃ f : Unit → Unit, f () = () := by
+  refine ⟨fun x => ?f_old, ?hf⟩
+  all_goals dsimp
+/-!
+Another example from the comments of https://github.com/leanprover/lean4/issues/7883
+-/
+/--
+error: tactic 'fail' failed
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  all_goals (refine ?_; fail)

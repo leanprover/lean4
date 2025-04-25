@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Diff
-// Imports: Init.Data.Array.Subarray.Split Init.Data.Range Lean.Data.HashMap Std.Data.HashMap.Basic Init.Omega
+// Imports: Init.Data.Array.Subarray.Split Init.Data.Range Std.Data.HashMap.Basic Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,8 +37,8 @@ lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*)
 static lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____x40_Lean_Util_Diff___hyg_9____closed__9;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Diff_diff___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Diff_lcs___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_Action_linePrefix___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_hashAction____x40_Lean_Util_Diff___hyg_143____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Diff_linesToString___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4461,7 +4461,6 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Array_Subarray_Split(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -4473,9 +4472,6 @@ res = initialize_Init_Data_Array_Subarray_Split(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());

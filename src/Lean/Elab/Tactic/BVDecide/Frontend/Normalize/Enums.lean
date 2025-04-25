@@ -15,7 +15,7 @@ This module contains the implementation of the pre processing pass for handling 
 types.
 
 The implementation:
-1. generates mappings from enum inductives occuring in the goal to sufficiently large `BitVec` and
+1. generates mappings from enum inductives occurring in the goal to sufficiently large `BitVec` and
    replaces equality on the enum inductives with equality on these mapping functions.
 2. Constant folds these mappings if appropriate.
 3. Adds bounds on the values returned by the mappings if the size of the enum inductive does not fit
@@ -439,8 +439,16 @@ partial def enumsPass : Pass where
       if cfg.structures then
         (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
 
+      -- same for fixed integers
+      if cfg.fixedInt then
+        relevantLemmas := relevantLemmas.push (← intToBitVecExt.getTheorems)
+
       let simpCtx ← Simp.mkContext
-        (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
+        (config := {
+          failIfUnchanged := false,
+          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+          maxSteps := cfg.maxSteps,
+        })
         (simpTheorems := relevantLemmas)
         (congrTheorems := ← getSimpCongrTheorems)
 
@@ -457,7 +465,7 @@ where
     goal.withContext do
       let filter e :=
         if let .app (.const (.str _ s) []) _ := e then
-          s == enumToBitVecSuffix
+          s == enumToBitVecSuffix && !e.hasLooseBVars
         else
           false
 
@@ -465,7 +473,7 @@ where
         /-
         It is important that we maintain our own cache here in addition to the one of
         `forEachWhere`. This is because we call `forEachWhere` on multiple hypotheses and two
-        hypotheses could contain the same term but we still do not wan't to duplicate bounds
+        hypotheses could contain the same term but we still do not want to duplicate bounds
         hypotheses for it.
         -/
         if (← get).seen.contains e then return ()

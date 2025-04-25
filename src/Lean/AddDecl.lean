@@ -52,7 +52,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   modifyEnv (decl.getNames.foldl registerNamePrefixes)
 
   if !Elab.async.get (← getOptions) then
-    return (← doAdd)
+    return (← addSynchronously)
 
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
   -- kernel checking has finished; not all cases are supported yet
@@ -61,7 +61,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
     | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
-    | _ => return (← doAdd)
+    | _ => return (← addSynchronously)
 
   let env ← getEnv
   -- no environment extension changes to report after kernel checking; ensures we do not
@@ -73,19 +73,68 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let cancelTk ← IO.CancelToken.new
   let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
     setEnv async.asyncEnv
-    doAdd
-    async.commitCheckEnv (← getEnv)
-  let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
+    try
+      doAdd
+    finally
+      async.commitCheckEnv (← getEnv)
+  let t ← BaseIO.mapTask checkAct env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
   Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
-where doAdd := do
-  profileitM Exception "type checking" (← getOptions) do
-    withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
-      if !(← MonadLog.hasErrors) && decl.hasSorry then
-        logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
-      let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
-        |> ofExceptKernelException
-      setEnv env
+where
+  addSynchronously := do
+    doAdd
+    -- make constants known to the elaborator; in the synchronous case, we can simply read them from
+    -- the kernel env
+    for n in decl.getNames do
+      let env ← getEnv
+      let some info := env.checked.get.find? n | unreachable!
+      -- do *not* report extensions in synchronous case at this point as they are usually set only
+      -- after adding the constant itself
+      let res ← env.addConstAsync (reportExts := false) n (.ofConstantInfo info)
+      res.commitConst env (info? := info)
+      res.commitCheckEnv res.asyncEnv
+      setEnv res.mainEnv
+  doAdd := do
+    profileitM Exception "type checking" (← getOptions) do
+      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
+        if !(← MonadLog.hasErrors) && decl.hasSorry then
+          logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+        try
+          let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
+            |> ofExceptKernelException
+          setEnv env
+        catch ex =>
+          -- avoid follow-up errors by (trying to) add broken decl as axiom
+          addAsAxiom
+          throw ex
+  addAsAxiom := do
+    -- try to add as axiom with given type for def/theorem
+    match decl with
+    | .defnDecl d | .thmDecl d =>
+      let fallbackDecl := .axiomDecl {
+        name := d.name, levelParams := d.levelParams, type := d.type, isUnsafe := false
+      }
+      try
+        let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
+          |> ofExceptKernelException
+        setEnv env
+        return
+      catch _ => pure ()
+    | _ => pure ()
+
+    -- otherwise, add as axiom with type `sorry`
+    for n in decl.getNames do
+      let fallbackDecl := .axiomDecl {
+        name := n, levelParams := []
+        type := mkApp2 (mkConst ``sorryAx [1]) (mkSort 0) (mkConst ``true), isUnsafe := false
+      }
+      try
+        let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
+          |> ofExceptKernelException
+        setEnv env
+        return
+      catch _ => pure ()
+
 
 def addAndCompile (decl : Declaration) : CoreM Unit := do
   addDecl decl

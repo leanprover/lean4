@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Offset.Types
-// Imports: Lean.Data.PersistentArray Lean.Meta.Tactic.Grind.ENodeKey Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.Offset.Util
+// Imports: Lean.Data.AssocList Lean.Data.PersistentArray Lean.Meta.Tactic.Grind.ENodeKey Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.Offset.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___at_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___spec__1___closed__8;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__7;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___at_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___spec__1___closed__7;
@@ -51,6 +50,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___at_Lean_Meta_
 static size_t l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo;
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___at_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___spec__1___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId(lean_object*);
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_toMessageData___at_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___spec__1___closed__1() {
@@ -485,6 +485,7 @@ x_1 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__7;
 return x_1;
 }
 }
+lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_PersistentArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ENodeKey(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin, lean_object*);
@@ -494,6 +495,9 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Types(ui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Lean_Data_AssocList(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Data_PersistentArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -31,14 +31,12 @@ static lean_object* l_Lean_instInhabitedClassState___closed__3;
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_789____closed__3;
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_789____lambda__3___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_83____closed__6;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(uint8_t, uint8_t);
 size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Lean_addClass___lambda__2___closed__6;
 lean_object* lean_array_push(lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_789____closed__15;
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_789____lambda__2___closed__1;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_789____closed__2;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_getOutParamPositions_x3f___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,6 +45,7 @@ static lean_object* l_Lean_mkOutParamArgsImplicit_go___closed__4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_getOutParamPositions_x3f___spec__5___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_83____closed__2;
 LEAN_EXPORT uint8_t l_Lean_ClassEntry_lt(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_mkOutParamArgsImplicit_go___closed__5;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Class_0__Lean_checkOutParam___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -188,6 +187,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_789____closed__14;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 static lean_object* l_Lean_addClass___lambda__2___closed__3;
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(uint8_t, uint8_t);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_ClassState_addEntry___spec__7(lean_object*);
@@ -1665,21 +1665,23 @@ return x_1;
 static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_83____closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_Class___hyg_83____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_Class___hyg_83____closed__4;
 x_4 = l_Lean_initFn____x40_Lean_Class___hyg_83____closed__5;
 x_5 = l_Lean_initFn____x40_Lean_Class___hyg_83____closed__6;
 x_6 = 2;
-x_7 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_7, 0, x_2);
-lean_ctor_set(x_7, 1, x_3);
-lean_ctor_set(x_7, 2, x_4);
-lean_ctor_set(x_7, 3, x_5);
-lean_ctor_set(x_7, 4, x_1);
-lean_ctor_set_uint8(x_7, sizeof(void*)*5, x_6);
-return x_7;
+x_7 = 1;
+x_8 = lean_alloc_ctor(0, 5, 2);
+lean_ctor_set(x_8, 0, x_2);
+lean_ctor_set(x_8, 1, x_3);
+lean_ctor_set(x_8, 2, x_4);
+lean_ctor_set(x_8, 3, x_5);
+lean_ctor_set(x_8, 4, x_1);
+lean_ctor_set_uint8(x_8, sizeof(void*)*5, x_6);
+lean_ctor_set_uint8(x_8, sizeof(void*)*5 + 1, x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Class___hyg_83_(lean_object* x_1) {
@@ -2994,7 +2996,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_mkOutParamArgsImplicit_go___closed__1;
 x_2 = l_Lean_mkOutParamArgsImplicit_go___closed__2;
-x_3 = lean_unsigned_to_nat(1816u);
+x_3 = lean_unsigned_to_nat(1827u);
 x_4 = lean_unsigned_to_nat(24u);
 x_5 = l_Lean_mkOutParamArgsImplicit_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3015,7 +3017,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_mkOutParamArgsImplicit_go___closed__1;
 x_2 = l_Lean_mkOutParamArgsImplicit_go___closed__5;
-x_3 = lean_unsigned_to_nat(1805u);
+x_3 = lean_unsigned_to_nat(1816u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_mkOutParamArgsImplicit_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3838,7 +3840,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = 0;
-x_14 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(x_3, x_13);
+x_14 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(x_3, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 

@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Array.DecidableEq
 import Init.Data.Vector.Lemmas
@@ -62,8 +64,10 @@ theorem beq_eq_decide [BEq α] (xs ys : Vector α n) :
 @[simp] theorem beq_toList [BEq α] (xs ys : Vector α n) : (xs.toList == ys.toList) = (xs == ys) := by
   simp [beq_eq_decide, List.beq_eq_decide]
 
-instance [BEq α] [LawfulBEq α] : LawfulBEq (Vector α n) where
+instance [BEq α] [ReflBEq α] : ReflBEq (Vector α n) where
   rfl := by simp [BEq.beq, isEqv_self_beq]
+
+instance [BEq α] [LawfulBEq α] : LawfulBEq (Vector α n) where
   eq_of_beq := by
     rintro ⟨xs, rfl⟩ ⟨ys, h⟩ h'
     simpa using h'

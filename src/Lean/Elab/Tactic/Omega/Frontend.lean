@@ -595,7 +595,7 @@ where
       |> String.join
 
   mentioned (atoms : Array Expr) (constraints : Std.HashMap Coeffs Fact) : MetaM (Array Bool) := do
-    let initMask := Array.mkArray atoms.size false
+    let initMask := .replicate atoms.size false
     return constraints.fold (init := initMask) fun mask coeffs _ =>
       coeffs.zipIdx.foldl (init := mask) fun mask (c, i) =>
         if c = 0 then mask else mask.set! i true
@@ -672,18 +672,21 @@ open Lean Elab Tactic Parser.Tactic
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
-  let auxName ← Term.mkAuxName `omega
+  let declName? ← Term.getDeclName?
   liftMetaFinishingTactic fun g => do
-    let some g ← g.falseOrByContra | return ()
-    g.withContext do
-      let type ← g.getType
-      let g' ← mkFreshExprSyntheticOpaqueMVar type
-      let hyps := (← getLocalHyps).toList
-      trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
-      omega hyps g'.mvarId! cfg
-      -- Omega proofs are typically rather large, so hide them in a separate definition
-      let e ← mkAuxTheorem auxName type (← instantiateMVarsProfiling g') (zetaDelta := true)
-      g.assign e
+    if debug.terminalTacticsAsSorry.get (← getOptions) then
+      g.admit
+    else
+      let some g ← g.falseOrByContra | return ()
+      g.withContext do
+        let type ← g.getType
+        let g' ← mkFreshExprSyntheticOpaqueMVar type
+        let hyps := (← getLocalHyps).toList
+        trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
+        omega hyps g'.mvarId! cfg
+        -- Omega proofs are typically rather large, so hide them in a separate definition
+        let e ← mkAuxTheorem (prefix? := declName?) type (← instantiateMVarsProfiling g') (zetaDelta := true)
+        g.assign e
 
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This
@@ -693,7 +696,9 @@ def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]
 def evalOmega : Tactic
-  | `(tactic| omega $cfg:optConfig) => do
+  | `(tactic| omega%$tk $cfg:optConfig) => do
+    -- Call `assumption` first, to avoid constructing unnecessary proofs.
+    withReducibleAndInstances (evalAssumption tk) <|> do
     let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
   | _ => throwUnsupportedSyntax

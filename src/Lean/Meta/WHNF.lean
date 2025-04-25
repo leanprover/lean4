@@ -581,6 +581,14 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
   else
     return none
 
+partial def expandLet (e : Expr) (vs : Array Expr) : Expr :=
+  if let .letE _ _ v b _  := e then
+    expandLet b (vs.push <| v.instantiateRev vs)
+  else if let some (#[], _, _, v, b) := e.letFunAppArgs? then
+    expandLet b (vs.push <| v.instantiateRev vs)
+  else
+    e.instantiateRev vs
+
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
 expand let-expressions, expand assigned meta-variables.
@@ -593,13 +601,17 @@ where
       trace[Meta.whnf] e
       match e with
       | .const ..  => pure e
-      | .letE _ _ v b _ => if (← getConfig).zeta then go <| b.instantiate1 v else return e
+      | .letE _ _ v b _ =>
+        if (← getConfig).zeta then
+          go <| expandLet b #[v]
+        else
+          return e
       | .app f ..       =>
         let cfg ← getConfig
         if cfg.zeta then
           if let some (args, _, _, v, b) := e.letFunAppArgs? then
             -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
-            return (← go <| mkAppN (b.instantiate1 v) args)
+            return (← go <| mkAppN (expandLet b #[v]) args)
         let f := f.getAppFn
         let f' ← go f
         /-

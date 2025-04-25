@@ -65,7 +65,7 @@ private def closeGoalWithTrueEqFalse : GoalM Unit := do
   let mvarId := (← get).mvarId
   unless (← mvarId.isAssigned) do
     let trueEqFalse ← mkEqFalseProof (← getTrueExpr)
-    let falseProof ← mkEqMP trueEqFalse (mkConst ``True.intro)
+    let falseProof := mkApp4 (mkConst ``Eq.mp [levelZero]) (← getTrueExpr) (← getFalseExpr) trueEqFalse (mkConst ``True.intro)
     closeGoal falseProof
 
 /-- Closes the goal when `lhs` and `rhs` are both literal values and belong to the same equivalence class. -/
@@ -74,7 +74,7 @@ private def closeGoalWithValuesEq (lhs rhs : Expr) : GoalM Unit := do
   let hp ← mkEqProof lhs rhs
   let d ← mkDecide p
   let pEqFalse := mkApp3 (mkConst ``eq_false_of_decide) p d.appArg! (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``false))
-  let falseProof ← mkEqMP pEqFalse hp
+  let falseProof := mkApp4 (mkConst ``Eq.mp [levelZero]) p (← getFalseExpr) pEqFalse hp
   closeGoal falseProof
 
 /--
@@ -111,7 +111,7 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
 
 /--
 Helper function for combining `ENode.cutsat?` fields and propagating equalities
-to the offset constraint module.
+to the cutsat module.
 It returns a set of parents that should be traversed for disequality propagation.
 -/
 private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM ParentSet := do
@@ -135,6 +135,28 @@ private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM ParentSet := do
         return {}
       else
         getParents lhsRoot.self
+    else
+      return {}
+
+/--
+Helper function for combining `ENode.ring?` fields and propagating equalities
+to the commutative ring module.
+It returns a set of parents that should be traversed for disequality propagation.
+-/
+private def propagateCommRingEq (rhsRoot lhsRoot : ENode) : GoalM ParentSet := do
+  match lhsRoot.ring? with
+  | some lhsRing =>
+    if let some rhsRing := rhsRoot.ring? then
+      Arith.CommRing.processNewEq lhsRing rhsRing
+      return {}
+    else
+      -- We have to retrieve the node because other fields have been updated
+      let rhsRoot ← getENode rhsRoot.self
+      setENode rhsRoot.self { rhsRoot with ring? := lhsRing }
+      getParents rhsRoot.self
+  | none =>
+    if rhsRoot.ring?.isSome then
+      getParents lhsRoot.self
     else
       return {}
 
@@ -241,7 +263,8 @@ where
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
     propagateOffsetEq rhsRoot lhsRoot
-    let parentsToPropagateDiseqs ← propagateCutsatEq rhsRoot lhsRoot
+    let parentsToPropagateCutsatDiseqs ← propagateCutsatEq rhsRoot lhsRoot
+    let parentsToPropagateRingDiseqs ← propagateCommRingEq rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
@@ -251,8 +274,8 @@ where
         propagateUp parent
       for e in toPropagateDown do
         propagateDown e
-      propagateCutsatDiseqs parentsToPropagateDiseqs
-
+      propagateCutsatDiseqs parentsToPropagateCutsatDiseqs
+      propagateCommRingDiseqs parentsToPropagateRingDiseqs
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     traverseEqc lhs fun n =>
       setENode n.self { n with root := rootNew }

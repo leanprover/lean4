@@ -1,6 +1,6 @@
 #include "util/options.h"
 
-// update stage0
+// please update
 
 namespace lean {
 options get_default_options() {
@@ -9,6 +9,8 @@ options get_default_options() {
 #if LEAN_IS_STAGE0 == 1
     // set to true to generally avoid bootstrapping issues limited to proofs
     opts = opts.update({"debug", "proofAsSorry"}, false);
+    // set to true to generally avoid bootstrapping issues in `omega` and `grind`
+    opts = opts.update({"debug", "terminalTacticsAsSorry"}, false);
     // switch to `true` for ABI-breaking changes affecting meta code;
     // see also next option!
     opts = opts.update({"interpreter", "prefer_native"}, false);

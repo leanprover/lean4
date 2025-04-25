@@ -28,7 +28,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_RBNode_instEmptyCollection(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_instRepr___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_mapM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_RBMap_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_depth___rarg(lean_object*, lean_object*);
@@ -335,6 +334,7 @@ LEAN_EXPORT lean_object* l_Lean_RBMap_toArray(lean_object*, lean_object*, lean_o
 static lean_object* l_Prod_repr___at_Lean_RBMap_instRepr___spec__3___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RBNode_min___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_mergeBy(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at_Lean_RBMap_instRepr___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_revFold___boxed(lean_object*, lean_object*, lean_object*, lean_object*);

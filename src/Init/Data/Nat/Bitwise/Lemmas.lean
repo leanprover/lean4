@@ -11,7 +11,6 @@ import Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Simproc
 import Init.TacticsExtra
-import Init.Omega
 
 /-
 This module defines properties of the bitwise operations on Natural numbers.

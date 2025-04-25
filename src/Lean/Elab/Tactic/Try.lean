@@ -662,16 +662,13 @@ private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (T
 /-! Main code -/
 
 /-- Returns tactic for `evalAndSuggest` -/
-private def mkTryEvalSuggestStx (info : Try.Info) (config : Try.Config) : MetaM (TSyntax `tactic) := do
+private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
   let simple ← mkSimpleTacStx
   let simp ← mkSimpStx
   let grind ← mkGrindStx info
   let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
-  let funInds ← if config.funInd then mkAllFunIndStx info atomic else `(tactic| done)
-  let extra ← if config.exact then
-    `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
-  else
-    `(tactic| done)
+  let funInds ← mkAllFunIndStx info atomic
+  let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
   `(tactic| first | $atomic:tactic | $funInds:tactic | $extra:tactic)
 
 -- TODO: vanilla `induction`.
@@ -683,7 +680,7 @@ private def mkTryEvalSuggestStx (info : Try.Info) (config : Try.Config) : MetaM 
   | `(tactic| try?%$tk $config:optConfig) => Tactic.focus do withMainContext do
     let config ← elabTryConfig config
     let info ← Try.collect (← getMainGoal) config
-    let stx ← mkTryEvalSuggestStx info config
+    let stx ← mkTryEvalSuggestStx info
     evalAndSuggest tk stx config
   | _ => throwUnsupportedSyntax
 

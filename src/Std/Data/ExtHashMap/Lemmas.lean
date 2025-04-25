@@ -40,8 +40,6 @@ theorem isEmpty_iff [EquivBEq α] [LawfulHashable α] : m.isEmpty ↔ m = ∅ :=
 theorem isEmpty_eq_false_iff [EquivBEq α] [LawfulHashable α] : m.isEmpty = false ↔ ¬m = ∅ :=
   (Bool.not_eq_true _).symm.to_iff.trans (not_congr isEmpty_iff)
 
-set_option Elab.async false
-
 @[simp]
 theorem empty_eq : ∅ = m ↔ m = ∅ := eq_comm
 
@@ -1723,7 +1721,7 @@ theorem getKeyD_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k 
 
 end Modify
 
-section Equiv
+section Ext
 
 variable {m₁ m₂ : ExtHashMap α β}
 
@@ -1749,7 +1747,7 @@ theorem ext_mem_unit [LawfulBEq α]
     {m₁ m₂ : ExtHashMap α Unit} (h : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ = m₂ :=
   ext (ExtDHashMap.Const.ext_mem_unit h)
 
-end Equiv
+end Ext
 
 section filterMap
 

@@ -42,14 +42,14 @@ should be an equivalence relation and `a == b` should imply `hash a = hash b` (s
 `EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
 instance is lawful, i.e., if `a == b` implies `a = b`.
 
-In contrast to regular hash maps, `Std.ExtDHashMap` offers several extensionality lemmas
+In contrast to regular hash maps, `Std.ExtHashMap` offers several extensionality lemmas
 and therefore has more lemmas about equality of hash maps. This however also makes it lose the
-ability to iterate freely over the hash map.
+ability to iterate freely over hash maps.
 
 These hash maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.HashMap.Raw` and
 `Std.HashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
-`HashMap` over `HashMap.Raw`.
+`HashMap` or `ExtHashMap` over `HashMap.Raw`.
 
 Dependent hash maps, in which keys may occur in their values' types, are available as
 `Std.ExtDHashMap` in the module `Std.Data.ExtDHashMap`.

@@ -21,3 +21,4 @@
 #guard Int.divExact (2 ^ 100 : Nat) (-(2 ^ 100 : Nat)) (by decide) == -1
 #guard Int.divExact (-(3 ^ 200 : Nat)) (-(3 ^ 100 : Nat)) (by decide) == 3 ^ 100
 #guard Int.divExact (-(3 ^ 100 : Nat)) 3 (by decide) == -3 ^ 99
+#guard Int.divExact (-(2 ^ 31 : Nat)) (2 ^ 31 : Nat) (by decide) == -1

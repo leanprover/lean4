@@ -130,8 +130,9 @@ private def getFType : M Expr := do
 structure Result where
   elimApp : Expr
   motive  : MVarId
-  alts    : Array Alt := #[]
-  others  : Array MVarId := #[]
+  alts    : Array Alt
+  others  : Array MVarId
+  complexArgs : Array Expr
 
 /--
   Construct the an eliminator/recursor application. `targets` contains the explicit and implicit targets for
@@ -198,13 +199,33 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
   let alts ← s.alts.filterM fun alt => return !(← alt.mvarId.isAssigned)
   let some motive := s.motive |
       throwError "mkElimApp: motive not found"
-  return { elimApp := (← instantiateMVars s.f), alts, others, motive }
+  let complexArgs ← s.fType.withApp fun f motiveArgs => do
+    unless f == mkMVar motive do
+      throwError "mkElimApp: Expected application of {motive}:{indentExpr s.fType}"
+    -- Sanity-checking that the motive is applied to the targets.
+    -- NB: The motive can take them in a different order than the eliminator itself
+    for motiveArg in motiveArgs[:targets.size] do
+      unless targets.contains motiveArg do
+        throwError "mkElimApp: Expected first {targets.size} arguments of motive in conclusion to be one of the targets:{indentExpr s.fType}"
+    pure motiveArgs[targets.size:]
+  return { elimApp := (← instantiateMVars s.f), alts, others, motive, complexArgs }
 
 /-- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
   `motiveArg := fun targets => C[targets]` -/
-def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) : MetaM Unit := do
+def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) (complexArgs : Array Expr) : MetaM Unit := do
   let type ← inferType (mkMVar mvarId)
-  let motive ← mkLambdaFVars (targets.map mkFVar) type
+  let mut absType := type
+  for complexArg in complexArgs.reverse do
+    let complexTypeArg ← inferType complexArg
+    let absType' ← kabstract absType complexArg
+    let absType' := .lam (← mkFreshUserName `x) complexTypeArg absType' .default
+    if (← isTypeCorrect absType') then
+      absType := absType'
+    else
+      trace[Elab.induction] "Not abstracing goal over {complexArg}, resulting term is not type correct:{indentExpr absType'} }"
+      absType := .lam (← mkFreshUserName `x) complexTypeArg absType .default
+
+  let motive ← mkLambdaFVars (targets.map mkFVar) absType
   let motiverInferredType ← inferType motive
   let motiveType ← inferType (mkMVar motiveArg)
   unless (← isDefEqGuarded motiverInferredType motiveType) do
@@ -826,7 +847,7 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
       let result ← withRef stx[1] do -- use target position as reference
         ElimApp.mkElimApp elimInfo targets tag
       trace[Elab.induction] "elimApp: {result.elimApp}"
-      ElimApp.setMotiveArg mvarId result.motive targetFVarIds
+      ElimApp.setMotiveArg mvarId result.motive targetFVarIds result.complexArgs
       -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
       -- unchanged
       -- everything up to the alternatives must be unchanged for reuse
@@ -937,7 +958,7 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
     let mvarId ← generalizeTargetsEq mvarId motiveType targets
     let (targetsNew, mvarId) ← mvarId.introN targets.size
     mvarId.withContext do
-      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew
+      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew result.complexArgs
       mvarId.assign result.elimApp
       -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
       -- unchanged

@@ -622,7 +622,6 @@ instance instcomplete_latticePProd [complete_lattice α] [complete_lattice β] :
   sup c := ⟨complete_lattice.sup (PProd.fst c), complete_lattice.sup (PProd.snd c)⟩
   sup_spec := by
     intro ⟨a, b⟩ c
-    dsimp
     constructor
     case mp =>
       intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
@@ -857,7 +856,6 @@ instance inst_ind_complete_lattice : complete_lattice Prop where
       trivial
     case mpr =>
       intro h
-      simp
       intro e
       apply Exists.elim e
       intro a

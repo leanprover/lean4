@@ -1348,13 +1348,13 @@ extern "C" LEAN_EXPORT object * lean_nat_big_div(object * a1, object * a2) {
 extern "C" LEAN_EXPORT object * lean_nat_big_div_exact(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1)) {
+        lean_assert(a1 == lean_box(0));
         lean_assert(mpz_value(a2) != 0);
-        lean_assert(mpz::of_size_t(lean_unbox(a1)) / mpz_value(a2) == 0);
         return lean_box(0);
     } else if (lean_is_scalar(a2)) {
         usize n2 = lean_unbox(a2);
         lean_assert(n2 != 0);
-        return n2 == 0 ? a2 : mpz_to_nat(mpz::divexact(mpz_value(a1), n2));
+        return mpz_to_nat(mpz::divexact(mpz_value(a1), n2));
     } else {
         lean_assert(mpz_value(a2) != 0);
         return mpz_to_nat(mpz::divexact(mpz_value(a1), mpz_value(a2)));
@@ -1611,13 +1611,12 @@ extern "C" LEAN_EXPORT object * lean_int_big_div(object * a1, object * a2) {
 
 extern "C" LEAN_EXPORT object * lean_int_big_div_exact(object * a1, object * a2) {
     if (lean_is_scalar(a1)) {
-        return a1;
+        int n = lean_scalar_to_int(a1);
+        return n == 0 ? 0 : -1;
     } else if (lean_is_scalar(a2)) {
         int d = lean_scalar_to_int(a2);
-        if (d == 0)
-            return a2;
-        else
-            return mpz_to_int(mpz::divexact(mpz_value(a1), mpz(d)));
+        lean_assert(d != 0);
+        return mpz_to_int(mpz::divexact(mpz_value(a1), mpz(d)));
     } else {
         return mpz_to_int(mpz::divexact(mpz_value(a1), mpz_value(a2)));
     }

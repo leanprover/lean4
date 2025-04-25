@@ -1610,7 +1610,12 @@ extern "C" LEAN_EXPORT object * lean_int_big_div(object * a1, object * a2) {
 }
 
 extern "C" LEAN_EXPORT object * lean_int_big_div_exact(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1)) {
+        // a1 is scalar, a2 isn't but a2 divides a1
+        // two possibilities:
+        // 1. a1 = 0 -> return 0 or
+        // 2. a1 = LEAN_MIN_SMALL_INT and a2 = LEAN_MAX_SMALL_INT + 1 = -a1 -> return -1
         int n = lean_scalar_to_int(a1);
         return n == 0 ? a1 : lean_box(static_cast<unsigned>(-1));
     } else if (lean_is_scalar(a2)) {

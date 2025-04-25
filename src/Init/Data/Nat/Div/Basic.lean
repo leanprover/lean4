@@ -148,7 +148,7 @@ protected def divExact (x y : @& Nat) (h : y ∣ x) : Nat :=
   x / y
 
 @[simp]
-theorem divExact_eq (x y : Nat) (h : y ∣ x) : x.divExact y h = x / y := rfl
+theorem divExact_eq_div (x y : Nat) (h : y ∣ x) : x.divExact y h = x / y := rfl
 
 /--
 The modulo operator, which computes the remainder when dividing one natural number by another.

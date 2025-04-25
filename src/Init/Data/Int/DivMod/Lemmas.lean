@@ -2899,7 +2899,7 @@ theorem ediv_lt_self_of_pos_of_ne_one {x y : Int} (hx : 0 < x) (hy : y ≠ 1) :
   by_cases hy' : 1 < y
   · obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
     obtain ⟨yn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
-    rw [← Int.ofNat_ediv]
+    rw [← Int.natCast_ediv]
     norm_cast
     apply Nat.div_lt_self (by omega) (by omega)
   · have := @Int.ediv_nonpos_of_nonneg_of_nonpos x y (by omega) (by omega)
@@ -2909,7 +2909,7 @@ theorem ediv_nonneg_of_nonneg_of_nonneg {x y : Int} (hx : 0 ≤ x) (hy : 0 ≤ y
     0 ≤ x / y := by
   obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
   obtain ⟨yn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
-  rw [← Int.ofNat_ediv]
+  rw [← Int.natCast_ediv]
   exact Int.ofNat_zero_le (xn / yn)
 
 /--  When both x and y are negative we need stricter bounds on x and y

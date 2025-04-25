@@ -7,6 +7,7 @@ prelude
 import Std.Sat.CNF
 import Std.Sat.AIG.Basic
 import Std.Sat.AIG.Lemmas
+import Init.Data.Nat.Fold
 
 
 /-!
@@ -48,6 +49,14 @@ def gateToCNF (output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
      [(output, true),  (lhs, linv), (rhs, rinv)]
    ]
 
+def iteToCNF (output : α) (c l r : α) : CNF α :=
+  [
+    [(output, .false), (c, .false), (l, .true)],
+    [(output, .false), (c, .true), (r, .true)],
+    [(output, .true), (c, .false), (l, .false)],
+    [(output, .true), (c, .true), (r, .false)],
+  ]
+
 @[simp]
 theorem falseToCNF_eval :
     (falseToCNF output).eval assign
@@ -77,6 +86,19 @@ theorem gateToCNF_eval :
         <;> cases linv
           <;> cases rinv
             <;> decide
+
+@[simp]
+theorem iteToCNF_eval :
+    (iteToCNF output c l r).eval assign
+      =
+    (assign output == if assign c then assign l else assign r) := by
+  simp only [CNF.eval, iteToCNF, List.all_cons, CNF.Clause.eval_cons, beq_false, beq_true,
+    CNF.Clause.eval_nil, Bool.or_false, List.all_nil, Bool.and_true]
+  cases assign output
+    <;> cases assign c
+      <;> cases assign l
+        <;> cases assign r
+          <;> decide
 
 end Decl
 
@@ -349,6 +371,47 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
     }
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
 
+def Cache.addIte (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
+    (htip : aig.decls[idx]'h = .gate lhs rhs) (hl : cache.marks[lhs.gate]'hlb = true)
+    (hr : cache.marks[rhs.gate]'hrb = true) :
+    {
+      out : Cache
+              aig
+              (Decl.iteToCNF
+                (.inr ⟨idx, h⟩)
+                (.inr ⟨c, sorry⟩)
+                (.inr ⟨l, sorry⟩)
+                (.inr ⟨r, sorry⟩)
+                ++ cnf)
+        //
+      Cache.IsExtensionBy cache out idx h
+    } :=
+  have := aig.hdag h htip
+  have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
+  let out :=
+    { cache with
+      marks := cache.marks.set idx true
+      hmarks := by simp [cache.hmarks]
+      inv := by
+        intro assign heval idx hbound hmarked
+        rw [Array.getElem_set] at hmarked
+        split at hmarked
+        · next heq =>
+          simp only [heq, CNF.eval_append, Decl.iteToCNF_eval, Bool.and_eq_true, beq_iff_eq]
+            at htip heval
+          have hleval := cache.inv assign heval.right lhs.gate (by omega) hl
+          have hreval := cache.inv assign heval.right rhs.gate (by omega) hr
+          simp only [denote_idx_gate htip, Bool.bne_false, projectRightAssign_property, heval]
+          generalize lhs.invert = linv
+          generalize rhs.invert = rinv
+          cases linv <;> cases rinv <;> simp [hleval, hreval]
+        · next heq =>
+          simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
+          have := cache.inv assign heval.right idx hbound hmarked
+          rw [this]
+    }
+  ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
+
 /--
 The key invariant about the `State` itself (without cache): The CNF we produce is always satisfiable
 at `cnfSatAssignment`.
@@ -506,6 +569,32 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
   let ⟨cache, hcache⟩ := cache.addGate idx h htip hl hr
   ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
+def State.addIte1 (state : State aig) (idx : Nat) (lhs rhs ll lr rl rr : Fanin)
+    (hidx' : idx < aig.decls.size)
+    (hidx : aig.decls[idx]'hidx' = .gate lhs rhs)
+    (hlhs' : lhs.gate < aig.decls.size)
+    (hlhs : aig.decls[lhs.gate]'hlhs' = .gate ll lr)
+    (hrhs' : rhs.gate < aig.decls.size)
+    (hrhs : aig.decls[rhs.gate]'hrhs' = .gate rl rr)
+    (hlinv : lhs.invert = true)
+    (hrinv : rhs.invert = true)
+    (hllrl : ll = rl.flip true)
+
+    {hlhs} {hrhs}
+    (hl : state.cache.marks[lhs.gate]'hlhs = true)
+    (hr : state.cache.marks[rhs.gate]'hrhs = true)
+      :
+    { out : State aig // State.IsExtensionBy state out idx hidx' } :=
+  let ⟨cnf, cache, inv⟩ := state
+  let newCnf :=
+    Decl.iteToCNF
+      (.inr ⟨idx, hidx'⟩)
+      (.inr ⟨ll.gate, sorry⟩)
+      (.inr ⟨lr.gate, sorry⟩)
+      (.inr ⟨ll.gate, sorry⟩)
+  let ⟨cache, hcache⟩ := cache.addGate idx sorry sorry hl hr
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append sorry inv⟩, sorry⟩
+
 /--
 Evaluate the CNF contained within the state.
 -/
@@ -543,12 +632,37 @@ theorem State.sat_iff : State.Sat assign state ↔ state.cnf.Sat assign := by
 @[simp]
 theorem State.unsat_iff : State.Unsat state ↔ state.cnf.Unsat := by simp [State.unsat_def]
 
+def computeParents (entry : Entrypoint Nat) : ByteArray :=
+  let arr := Nat.fold entry.aig.decls.size (init := ByteArray.emptyWithCapacity entry.aig.decls.size) (fun _ _ acc => acc.push 0)
+  go entry.aig (arr.set! entry.ref.gate 1) entry.ref.gate entry.ref.hgate
+where
+  increment (aig : AIG Nat) (arr : ByteArray) (idx : Nat) (h : idx < aig.decls.size) : ByteArray :=
+    let val := arr[idx]!
+    if val = 0 then
+      let arr := arr.set! idx 1
+      go aig arr idx h
+    else if val = 1 then
+      let arr := arr.set! idx 2
+      arr
+    else
+      arr
+
+  go (aig : AIG Nat) (arr : ByteArray) (idx : Nat) (h : idx < aig.decls.size) : ByteArray :=
+    match h2 : aig.decls[idx]'h with
+    | .false .. | .atom .. => arr
+    | .gate lhs rhs =>
+      have := aig.hdag h h2
+      let arr := increment aig arr lhs.gate (by omega)
+      let arr := increment aig arr rhs.gate (by omega)
+      arr
+
 end toCNF
 
 /--
 Convert an AIG into CNF, starting at some entry node.
 -/
 def toCNF (entry : Entrypoint Nat) : CNF Nat :=
+  let parentsArray := toCNF.computeParents entry
   let ⟨state, _⟩ := go entry.aig entry.ref.gate entry.ref.hgate (toCNF.State.empty entry.aig)
   let cnf : CNF (CNFVar entry.aig) := [(.inr ⟨entry.ref.gate, entry.ref.hgate⟩, !entry.ref.invert)] :: state.cnf
   cnf.relabel inj
@@ -557,6 +671,9 @@ where
     match var with
     | .inl var => aig.decls.size + var
     | .inr var => var.val
+
+  isShared (idx : Fanin) : Bool := sorry
+
   go (aig : AIG Nat) (upper : Nat) (h : upper < aig.decls.size) (state : toCNF.State aig) :
       { out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h } :=
     if hmarked : state.cache.marks[upper]'(by have := state.cache.hmarks; omega) then
@@ -571,12 +688,32 @@ where
         let ⟨lstate, hlstate⟩ := go aig lhs.gate (by omega) state
         let ⟨rstate, hrstate⟩ := go aig rhs.gate (by omega) lstate
 
-        have : toCNF.State.IsExtensionBy state rstate lhs.gate (by omega) := by
+        have hext : toCNF.State.IsExtensionBy state rstate lhs.gate (by omega) := by
           apply toCNF.State.IsExtensionBy_trans_left
           · exact hlstate
           · exact hrstate
 
-        let ⟨ret, hretstate⟩ := rstate.addGate upper h heq this.trueAt hrstate.trueAt
+        let ⟨ret, hretstate⟩ :=
+          if hpre : lhs.invert ∧ rhs.invert ∧ !isShared lhs ∧ !isShared rhs then
+            match hlhs : aig.decls[lhs.gate], hrhs : aig.decls[rhs.gate] with
+            | .gate ll lr, .gate rl rr =>
+              have hlinv : lhs.invert := hpre.left
+              have hrinv : rhs.invert := hpre.right.left
+              if hllrl : ll = rl.flip true then
+                sorry
+              else if hllrr : ll = rr.flip true then
+                sorry
+              else if hlrrl : lr = rl.flip true then
+                sorry
+              else if hlrrr : lr = rr.flip true then
+                sorry
+              else
+                rstate.addGate upper h heq hext.trueAt hrstate.trueAt
+            | _, _ =>
+              rstate.addGate upper h heq hext.trueAt hrstate.trueAt
+          else
+            rstate.addGate upper h heq hext.trueAt hrstate.trueAt
+
         ⟨
           ret,
           by

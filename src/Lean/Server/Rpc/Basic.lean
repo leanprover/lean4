@@ -19,12 +19,19 @@ first connect to the session using `$/lean/rpc/connect`. -/
 
 namespace Lean.Lsp
 
-/-- An object which RPC clients can refer to without marshalling. -/
+/--
+An object which RPC clients can refer to without marshalling.
+
+The language server may serve the same `RpcRef` multiple times and maintains a reference count
+to track how often it has served the reference.
+If clients want to release the object associated with an `RpcRef`,
+they must release the reference as often as they have received it from the server.
+-/
 structure RpcRef where
   /- NOTE(WN): It is important for this to be a single-field structure
   in order to deserialize as an `Object` on the JS side. -/
   p : USize
-  deriving BEq, Hashable, FromJson, ToJson
+  deriving Inhabited, BEq, Hashable, FromJson, ToJson
 
 instance : ToString RpcRef where
   toString r := toString r.p
@@ -33,36 +40,123 @@ end Lean.Lsp
 
 namespace Lean.Server
 
-structure RpcObjectStore : Type where
-  /-- Objects that are being kept alive for the RPC client, together with their type names,
-  mapped to by their RPC reference.
+/--
+Marks values to be encoded as opaque references in RPC packets.
+Two identical `WithRpcRef`s with `id? = some id` and the same `id` will yield the same `RpcRef`.
 
-  Note that we may currently have multiple references to the same object. It is only disposed
-  of once all of those are gone. This simplifies the client a bit as it can drop every reference
-  received separately. -/
-  aliveRefs : PersistentHashMap Lsp.RpcRef Dynamic := {}
-  /-- Value to use for the next `RpcRef`. It is monotonically increasing to avoid any possible
-  bugs resulting from its reuse. -/
-  nextRef   : USize := 0
+See also the docstring for `RpcEncodable`.
+-/
+structure WithRpcRef (α : Type u) where
+  private mk' ::
+    val : α
+    id? : Option USize
+  deriving Inhabited
 
-def rpcStoreRef (any : Dynamic) : StateM RpcObjectStore Lsp.RpcRef := do
-  let st ← get
-  set { st with
-    aliveRefs := st.aliveRefs.insert ⟨st.nextRef⟩ any
-    nextRef := st.nextRef + 1
+/--
+Creates a non-reusable `WithRpcRef`.
+Every time `val` is served to the client, it generates a new `RpcRef`.
+-/
+def WithRpcRef.mkNonReusable (val : α) : WithRpcRef α where
+  val
+  id? := none
+
+/--
+Alias for `WithRpcRef.mkNonReusable`.
+-/
+def WithRpcRef.mk (val : α) : WithRpcRef α := .mkNonReusable val
+
+builtin_initialize freshWithRpcRefId : IO.Ref USize ← IO.mkRef 0
+
+/--
+Creates an `WithRpcRef` instance with a unique `id?`.
+Two identical `WithRpcRef`s with `id? = some id` and the same `id` will yield the same `RpcRef`.
+Hence, storing a `WithRpcRef` produced by `mkReusable` and serving it to the client twice will also
+yield the same `RpcRef` twice, allowing clients to reuse their associated UI state across
+RPC requests.
+-/
+def WithRpcRef.mkReusable (val : α) : BaseIO (WithRpcRef α) := do
+  let id ← freshWithRpcRefId.modifyGet fun id => (id, id + 1)
+  return {
+    val,
+    id? := some id
   }
-  return ⟨st.nextRef⟩
 
-def rpcGetRef (r : Lsp.RpcRef) : ReaderT RpcObjectStore Id (Option Dynamic) :=
-  return (← read).aliveRefs.find? r
+structure ReferencedObject where
+  obj : Dynamic
+  id? : Option USize
+  rc  : Nat
+
+structure RpcObjectStore : Type where
+  /--
+  Objects that are being kept alive for the RPC client, together with their type names,
+  mapped to by their RPC reference.
+  -/
+  aliveRefs : PersistentHashMap Lsp.RpcRef ReferencedObject := {}
+  /--
+  Unique `RpcRef` for the ID of an object that is being referenced through RPC.
+  We store this mapping so that we can reuse `RpcRef`s for the same object.
+  Reusing `RpcRef`s is helpful because it enables clients to reuse their UI state.
+  -/
+  refsById : PersistentHashMap USize Lsp.RpcRef := {}
+  /--
+  Value to use for the next fresh `RpcRef`. It is monotonically increasing to avoid any possible
+  bugs resulting from its reuse.
+  -/
+  nextRef : USize := 0
+
+def rpcStoreRef [TypeName α] (obj : WithRpcRef α) : StateM RpcObjectStore Lsp.RpcRef := do
+  let st ← get
+  let reusableRef? : Option Lsp.RpcRef := do st.refsById.find? (← obj.id?)
+  match reusableRef? with
+  | some ref =>
+    -- Reuse `RpcRef` for this `obj` so that clients can reuse their UI state for it.
+    -- We maintain a reference count so that we only free `obj` when the client has released
+    -- all of its instances of the `RpcRef` for `obj`.
+    let some referencedObj := st.aliveRefs.find? ref
+      | return panic! "Found object ID in `refsById` but not in `aliveRefs`."
+    let referencedObj := { referencedObj with rc := referencedObj.rc + 1 }
+    set { st with aliveRefs := st.aliveRefs.insert ref referencedObj }
+    return ref
+  | none =>
+    let ref : Lsp.RpcRef := ⟨st.nextRef⟩
+    set { st with
+      aliveRefs :=
+        st.aliveRefs.insert ref ⟨.mk obj.val, obj.id?, 1⟩
+      refsById :=
+        match obj.id? with
+        | none => st.refsById
+        | some id => st.refsById.insert id ref
+      nextRef :=
+        st.nextRef + 1
+    }
+    return ref
+
+def rpcGetRef (α) [TypeName α] (r : Lsp.RpcRef)
+    : ReaderT RpcObjectStore (ExceptT String Id) (WithRpcRef α) := do
+  let some referencedObj := (← read).aliveRefs.find? r
+    | throw s!"RPC reference '{r}' is not valid"
+  let some val := referencedObj.obj.get? α
+    | throw <| s!"RPC call type mismatch in reference '{r}'\nexpected '{TypeName.typeName α}', " ++
+        s!"got '{referencedObj.obj.typeName}'"
+  return { val, id? := referencedObj.id? }
 
 def rpcReleaseRef (r : Lsp.RpcRef) : StateM RpcObjectStore Bool := do
   let st ← get
-  if st.aliveRefs.contains r then
-    set { st with aliveRefs := st.aliveRefs.erase r }
-    return true
+  let some referencedObj := st.aliveRefs.find? r
+    | return false
+  let referencedObj := { referencedObj with rc := referencedObj.rc - 1 }
+  if referencedObj.rc == 0 then
+    set { st with
+      aliveRefs :=
+        st.aliveRefs.erase r
+      refsById :=
+        match referencedObj.id? with
+        | none => st.refsById
+        | some id => st.refsById.erase id
+    }
   else
-    return false
+    set { st with aliveRefs := st.aliveRefs.insert r referencedObj }
+  return true
 
 /-- `RpcEncodable α` means that `α` can be deserialized from and serialized into JSON
 for the purpose of receiving arguments to and sending return values from
@@ -121,26 +215,11 @@ instance [RpcEncodable α] : RpcEncodable (StateM RpcObjectStore α) where
     let a : α ← rpcDecode j
     return return a
 
-/-- Marks values to be encoded as opaque references in RPC packets.
-
-See the docstring for `RpcEncodable`. -/
-structure WithRpcRef (α : Type u) where
-  val : α
-  deriving Inhabited
-
 instance [TypeName α] : RpcEncodable (WithRpcRef α) :=
   { rpcEncode, rpcDecode }
 where
   -- separate definitions to prevent inlining
-  rpcEncode r := toJson <$> rpcStoreRef (.mk r.val)
-  rpcDecode j := do
-    let r ← fromJson? j
-    match (← rpcGetRef r) with
-      | none => throw s!"RPC reference '{r}' is not valid"
-      | some any =>
-        if let some obj := any.get? α then
-          return ⟨obj⟩
-        else
-          throw s!"RPC call type mismatch in reference '{r}'\nexpected '{TypeName.typeName α}', got '{any.typeName}'"
+  rpcEncode r := toJson <$> rpcStoreRef r
+  rpcDecode j := do rpcGetRef α (← fromJson? j)
 
 end Lean.Server

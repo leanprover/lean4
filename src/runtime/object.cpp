@@ -1612,7 +1612,7 @@ extern "C" LEAN_EXPORT object * lean_int_big_div(object * a1, object * a2) {
 extern "C" LEAN_EXPORT object * lean_int_big_div_exact(object * a1, object * a2) {
     if (lean_is_scalar(a1)) {
         int n = lean_scalar_to_int(a1);
-        return n == 0 ? 0 : -1;
+        return n == 0 ? a1 : lean_box(static_cast<unsigned>(-1));
     } else if (lean_is_scalar(a2)) {
         int d = lean_scalar_to_int(a2);
         lean_assert(d != 0);

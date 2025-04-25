@@ -40,7 +40,7 @@ hfuel✝ : x✝ < fuel✝.succ
 h✝ : 0 < y ∧ y ≤ x✝
 this✝ : x✝ - y < x✝
 ih1✝ : Bug.divCore (x✝ - y) y fuel✝ ⋯ = 42
-⊢ Bug.divCore (x✝ - y) y fuel✝ ⋯ + 1 = 42
+⊢ Bug.divCore x✝ y fuel✝.succ hfuel✝ = 42
 
 case case3
 x y fuel x✝ fuel✝ : Nat
@@ -66,7 +66,7 @@ hfuel✝ : x✝ < fuel✝.succ
 h✝ : 0 < y ∧ y ≤ x✝
 this✝ : x✝ - y < x✝
 ih1✝ : Bug.divCore (x✝ - y) y fuel✝ ⋯ = 42
-⊢ Bug.divCore (x✝ - y) y fuel✝ ⋯ + 1 = 42
+⊢ Bug.divCore x✝ y fuel✝.succ hfuel✝ = 42
 
 case case3
 x y fuel x✝ fuel✝ : Nat

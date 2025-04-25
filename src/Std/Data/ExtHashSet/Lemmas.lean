@@ -615,7 +615,8 @@ section Ext
 
 variable {m₁ m₂ : ExtHashSet α}
 
-theorem ext_getKey? [EquivBEq α] [LawfulHashable α]
+@[ext]
+theorem ext_get? [EquivBEq α] [LawfulHashable α] {m₁ m₂ : ExtHashSet α}
     (h : ∀ k, m₁.get? k = m₂.get? k) : m₁ = m₂ :=
   ext (ExtHashMap.ext_getKey?_unit h)
 

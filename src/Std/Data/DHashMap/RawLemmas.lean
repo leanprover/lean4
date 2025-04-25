@@ -3350,10 +3350,22 @@ theorem constModify [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m
     Const.modify m₁ k f ~m Const.modify m₂ k f := by
   simp_to_raw using Raw₀.Const.modify_equiv_congr
 
+theorem of_forall_getKey_eq_of_forall_constGet?_eq [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) : (∀ k hk hk', m₁.getKey k hk = m₂.getKey k hk') →
+    (∀ k, Const.get? m₁ k = Const.get? m₂ k) → m₁ ~m m₂ := by
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.Const.equiv_of_forall_getKey_eq_of_forall_get?_eq
+
+set_option linter.deprecated false in
+@[deprecated of_forall_getKey_eq_of_forall_constGet?_eq (since := "2025-04-25")]
 theorem of_forall_getKey?_eq_of_forall_constGet?_eq [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) : (∀ k, m₁.getKey? k = m₂.getKey? k) →
     (∀ k, Const.get? m₁ k = Const.get? m₂ k) → m₁ ~m m₂ := by
   simp_to_raw using Raw₀.Const.equiv_of_forall_getKey?_eq_of_forall_get?_eq
+
+theorem of_forall_constGet?_eq [LawfulBEq α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) : (∀ k, Const.get? m₁ k = Const.get? m₂ k) → m₁ ~m m₂ := by
+  simp_to_raw using Raw₀.Const.equiv_of_forall_get?_eq
 
 theorem of_forall_getKey?_unit_eq [EquivBEq α] [LawfulHashable α]
     {m₁ m₂ : DHashMap.Raw α fun _ => Unit} (h₁ : m₁.WF) (h₂ : m₂.WF) :

@@ -3176,9 +3176,19 @@ theorem modify_equiv_congr (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ~m 
     {k : α} (f : β → β) : (modify m₁ k f).1 ~m (modify m₂ k f).1 := by
   simp_to_model [Equiv, Const.modify] using List.Const.modifyKey_of_perm _ h.1
 
+theorem equiv_of_forall_getKey_eq_of_forall_get?_eq (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
+    (∀ k hk hk', m₁.getKey k hk = m₂.getKey k hk') → (∀ k, get? m₁ k = get? m₂ k) → m₁.1 ~m m₂.1 := by
+  simp_to_model [getKey, Const.get?, contains, Equiv] using List.getKey_getValue?_ext
+
+@[deprecated equiv_of_forall_getKey_eq_of_forall_get?_eq (since := "2025-04-25")]
 theorem equiv_of_forall_getKey?_eq_of_forall_get?_eq (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
     (∀ k, m₁.getKey? k = m₂.getKey? k) → (∀ k, get? m₁ k = get? m₂ k) → m₁.1 ~m m₂.1 := by
   simp_to_model [getKey?, Const.get?, Equiv] using List.getKey?_getValue?_ext
+
+theorem equiv_of_forall_get?_eq {α : Type u} [BEq α] [Hashable α] [LawfulBEq α]
+    {m₁ m₂ : Raw₀ α fun _ => β} (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
+    (∀ k, get? m₁ k = get? m₂ k) → m₁.1 ~m m₂.1 := by
+  simpa only [Const.get?_eq_get?, h₁, h₂] using Raw₀.equiv_of_forall_get?_eq m₁ m₂ h₁ h₂
 
 theorem equiv_of_forall_getKey?_unit_eq {m₁ m₂ : Raw₀ α fun _ => Unit}
     (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) : (∀ k, m₁.getKey? k = m₂.getKey? k) → m₁.1 ~m m₂.1 := by

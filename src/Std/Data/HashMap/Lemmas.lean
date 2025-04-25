@@ -2087,15 +2087,20 @@ theorem map (f : α → β → γ) (h : m₁ ~m m₂) : m₁.map f ~m m₂.map f
 theorem filterMap (f : α → β → Option γ) (h : m₁ ~m m₂) : m₁.filterMap f ~m m₂.filterMap f :=
   ⟨h.1.filterMap f⟩
 
+theorem of_forall_getKey_eq_of_forall_getElem?_eq [EquivBEq α] [LawfulHashable α]
+    (hk : ∀ k hk hk', m₁.getKey k hk = m₂.getKey k hk') (hv : ∀ k : α, m₁[k]? = m₂[k]?) :
+    m₁ ~m m₂ :=
+  ⟨.of_forall_getKey_eq_of_forall_constGet?_eq hk hv⟩
+
+set_option linter.deprecated false in
+@[deprecated of_forall_getKey_eq_of_forall_getElem?_eq (since := "2025-04-25")]
 theorem of_forall_getKey?_eq_of_forall_getElem?_eq [EquivBEq α] [LawfulHashable α]
     (hk : ∀ k, m₁.getKey? k = m₂.getKey? k) (hv : ∀ k : α, m₁[k]? = m₂[k]?) :
     m₁ ~m m₂ :=
   ⟨.of_forall_getKey?_eq_of_forall_constGet?_eq hk hv⟩
 
 theorem of_forall_getElem?_eq [LawfulBEq α] (h : ∀ k : α, m₁[k]? = m₂[k]?) : m₁ ~m m₂ :=
-  ⟨.of_forall_get?_eq fun k =>
-    DHashMap.Const.get?_eq_get? (m := m₁.1) ▸
-    DHashMap.Const.get?_eq_get? (m := m₂.1) ▸ h k⟩
+  ⟨.of_forall_constGet?_eq h⟩
 
 theorem of_forall_getKey?_unit_eq [EquivBEq α] [LawfulHashable α]
     {m₁ m₂ : HashMap α Unit} (h : ∀ k, m₁.getKey? k = m₂.getKey? k) : m₁ ~m m₂ :=

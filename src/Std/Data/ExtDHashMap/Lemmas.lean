@@ -2695,21 +2695,26 @@ end Const
 
 end Modify
 
-section Equiv
+section Ext
 
-variable {m₁ m₂ m₃ : Std.ExtDHashMap α β}
+variable {m₁ m₂ : Std.ExtDHashMap α β}
 
-theorem ext_get? [LawfulBEq α] (h : ∀ k, m₁.get? k = m₂.get? k) : m₁ = m₂ :=
+@[ext]
+theorem ext_get? [LawfulBEq α] {m₁ m₂ : Std.ExtDHashMap α β} (h : ∀ k, m₁.get? k = m₂.get? k) : m₁ = m₂ :=
   m₁.inductionOn₂ m₂ (fun _ _ h => Quotient.sound (.of_forall_get?_eq h)) h
 
 namespace Const
 
 variable {β : Type v} {m₁ m₂ : ExtDHashMap α fun _ => β}
 
-theorem ext_getKey?_get? [EquivBEq α] [LawfulHashable α] (hk : ∀ k, m₁.getKey? k = m₂.getKey? k)
+theorem ext_getKey_get? [EquivBEq α] [LawfulHashable α]
+    (hk : ∀ k hk hk', m₁.getKey k hk = m₂.getKey k hk')
     (hv : ∀ k, Const.get? m₁ k = Const.get? m₂ k) : m₁ = m₂ :=
   m₁.inductionOn₂ m₂ (fun _ _ hk hv => Quotient.sound
-    (.of_forall_getKey?_eq_of_forall_constGet?_eq hk hv)) hk hv
+    (.of_forall_getKey_eq_of_forall_constGet?_eq hk hv)) hk hv
+
+theorem ext_get? [LawfulBEq α] (h : ∀ k, get? m₁ k = get? m₂ k) : m₁ = m₂ :=
+  m₁.inductionOn₂ m₂ (fun _ _ h => Quotient.sound (.of_forall_constGet?_eq h)) h
 
 theorem ext_getKey?_unit [EquivBEq α] [LawfulHashable α] {m₁ m₂ : ExtDHashMap α fun _ => Unit}
     (h : ∀ k, m₁.getKey? k = m₂.getKey? k) : m₁ = m₂ :=
@@ -2725,7 +2730,7 @@ theorem ext_mem_unit [LawfulBEq α] {m₁ m₂ : ExtDHashMap α fun _ => Unit}
 
 end Const
 
-end Equiv
+end Ext
 
 section filterMap
 

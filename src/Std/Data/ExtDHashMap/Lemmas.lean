@@ -123,7 +123,8 @@ theorem erase_empty [EquivBEq α] [LawfulHashable α] {k : α} : (∅ : ExtDHash
   congrArg Quotient.mk' DHashMap.erase_empty
 
 @[simp]
-theorem erase_eq_empty_iff [EquivBEq α] [LawfulHashable α] {k : α} : m.erase k = ∅ ↔ m = ∅ ∨ m.size = 1 ∧ k ∈ m := by
+theorem erase_eq_empty_iff [EquivBEq α] [LawfulHashable α] {k : α} :
+    m.erase k = ∅ ↔ m = ∅ ∨ m.size = 1 ∧ k ∈ m := by
   apply isEmpty_iff.symm.trans
   rcases m with ⟨m⟩
   rw [← isEmpty_iff]

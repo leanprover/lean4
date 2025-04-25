@@ -129,7 +129,7 @@ Names that are valid identifiers are not escaped, and otherwise, if they do not 
 - If `force` is `true`, then even valid identifiers are escaped.
 -/
 def escapePart (s : String) (force : Bool := false) : Option String :=
-  if s.length > 0 && !force && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
+  if s.length > 0 && !force && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then some s
   else if s.any isIdEndEscape then none
   else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
 
@@ -428,11 +428,11 @@ instance : BEq (Lean.TSyntax k) := ⟨(·.raw == ·.raw)⟩
 Finds the first `SourceInfo` from the back of `stx` or `none` if no `SourceInfo` can be found.
 -/
 partial def getTailInfo? : Syntax → Option SourceInfo
-  | atom info _   => info
-  | ident info .. => info
+  | atom info _   => some info
+  | ident info .. => some info
   | node SourceInfo.none _ args =>
       args.findSomeRev? getTailInfo?
-  | node info _ _    => info
+  | node info _ _    => some info
   | _             => none
 
 /--
@@ -550,7 +550,7 @@ partial def getHead? : Syntax → Option Syntax
   | stx@(atom info ..)  => info.getPos?.map fun _ => stx
   | stx@(ident info ..) => info.getPos?.map fun _ => stx
   | node SourceInfo.none _ args => args.findSome? getHead?
-  | stx@(node ..) => stx
+  | stx@(node ..) => some stx
   | _ => none
 
 def copyHeadTailInfoFrom (target source : Syntax) : Syntax :=
@@ -918,7 +918,7 @@ Justification: this does not overlap with any other sequences beginning with `\`
 -/
 def decodeStringGap (s : String) (i : String.Pos) : Option String.Pos := do
   guard <| (s.get i).isWhitespace
-  s.nextWhile Char.isWhitespace (s.next i)
+  some <| s.nextWhile Char.isWhitespace (s.next i)
 
 partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String := do
   let c := s.get i
@@ -961,7 +961,7 @@ The function is not required to return `none` if the string literal is ill-forme
 -/
 def decodeStrLit (s : String) : Option String :=
   if s.get 0 == 'r' then
-    decodeRawStrLitAux s ⟨1⟩ 0
+    some <| decodeRawStrLitAux s ⟨1⟩ 0
   else
     decodeStrLitAux s ⟨1⟩ ""
 

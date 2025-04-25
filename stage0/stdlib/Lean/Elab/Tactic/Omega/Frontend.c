@@ -15342,7 +15342,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ofNat_emod", 10, 10);
+x_1 = lean_mk_string_unchecked("natCast_emod", 12, 12);
 return x_1;
 }
 }
@@ -15408,7 +15408,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ofNat_ediv", 10, 10);
+x_1 = lean_mk_string_unchecked("natCast_ediv", 12, 12);
 return x_1;
 }
 }
@@ -15494,7 +15494,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ofNat_add", 9, 9);
+x_1 = lean_mk_string_unchecked("natCast_add", 11, 11);
 return x_1;
 }
 }

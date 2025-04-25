@@ -571,7 +571,8 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
 
 private def getProofFor (declName : Name) : MetaM Expr := do
   let info ← getConstInfo declName
-  unless info.isTheorem do
+  -- For theorems, `isProp` has already been checked at declaration time
+  unless wasOriginallyTheorem (← getEnv) declName do
     unless (← isProp info.type) do
       throwError "invalid E-matching theorem `{declName}`, type is not a proposition"
   let us := info.levelParams.map mkLevelParam
@@ -868,7 +869,7 @@ def mkEMatchEqTheoremsForDef? (declName : Name) : MetaM (Option (Array EMatchThe
     mkEMatchEqTheorem eqn (normalizePattern := true)
 
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (useLhs := true) : MetaM Unit := do
-  if (← getConstInfo declName).isTheorem then
+  if wasOriginallyTheorem (← getEnv) declName then
     ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs)) attrKind
   else if let some thms ← mkEMatchEqTheoremsForDef? declName then
     unless useLhs do
@@ -880,8 +881,7 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind
 def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMatchTheorems := do
   let throwErr {α} : MetaM α :=
     throwError "`{declName}` is not marked with the `[grind]` attribute"
-  let info ← getConstInfo declName
-  if !info.isTheorem then
+  if !wasOriginallyTheorem (← getEnv) declName then
     if let some eqns ← getEqnsFor? declName then
        let s := ematchTheoremsExt.getState (← getEnv)
        unless eqns.all fun eqn => s.contains (.decl eqn) do
@@ -904,7 +904,7 @@ def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatch
     addGrindEqAttr declName attrKind thmKind (useLhs := false)
   else
     let info ← getConstInfo declName
-    if !info.isTheorem && !info.isCtor && !info.isAxiom then
+    if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
       addGrindEqAttr declName attrKind thmKind
     else
       let thm ← mkEMatchTheoremForDecl declName thmKind

@@ -34,7 +34,7 @@ protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
   | _, _, _, ⟨d, rfl⟩, ⟨e, rfl⟩ => Exists.intro (d * e) (by rw [Int.mul_assoc])
 
 @[norm_cast] theorem ofNat_dvd {m n : Nat} : (↑m : Int) ∣ ↑n ↔ m ∣ n := by
-  refine ⟨fun ⟨a, ae⟩ => ?_, fun ⟨k, e⟩ => ⟨k, by rw [e, Int.ofNat_mul]⟩⟩
+  refine ⟨fun ⟨a, ae⟩ => ?_, fun ⟨k, e⟩ => ⟨k, by rw [e, Int.natCast_mul]⟩⟩
   match Int.le_total a 0 with
   | .inl h =>
     have := ae.symm ▸ Int.mul_nonpos_of_nonneg_of_nonpos (ofNat_zero_le _) h
@@ -89,7 +89,10 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
 
 /-! ### ofNat mod -/
 
-@[simp, norm_cast] theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
+@[simp, norm_cast] theorem natCast_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
+
+@[deprecated natCast_emod (since := "2025-04-17")]
+theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := natCast_emod m n
 
 /-! ### mod definitions -/
 
@@ -103,7 +106,7 @@ theorem emod_add_ediv : ∀ a b : Int, a % b + b * (a / b) = a
   | -[m+1], -[n+1] => aux m n.succ
 where
   aux (m n : Nat) : n - (m % n + 1) - (n * (m / n) + n) = -[m+1] := by
-    rw [← ofNat_emod, ← ofNat_ediv, ← Int.sub_sub, negSucc_eq, Int.sub_sub n,
+    rw [← natCast_emod, ← natCast_ediv, ← Int.sub_sub, negSucc_eq, Int.sub_sub n,
       ← Int.neg_neg (_-_), Int.neg_sub, Int.sub_sub_self, Int.add_right_comm]
     exact congrArg (fun x => -(ofNat x + 1)) (Nat.mod_add_div ..)
 
@@ -184,7 +187,7 @@ theorem ediv_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : 0 ≤ a / b ↔ 0 ≤ a
   rw [Int.div_def]
   match b, h with
   | Int.ofNat (b+1), _ =>
-    rcases a with ⟨a⟩ <;> simp [Int.ediv]
+    rcases a with ⟨a⟩ <;> simp [Int.ediv, -natCast_ediv]
 
 @[deprecated ediv_nonneg_iff_of_pos (since := "2025-02-28")]
 abbrev div_nonneg_iff_of_pos := @ediv_nonneg_iff_of_pos

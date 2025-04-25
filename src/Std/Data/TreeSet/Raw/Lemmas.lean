@@ -710,7 +710,7 @@ theorem isSome_min?_iff_isEmpty_eq_false [TransCmp cmp] (h : t.WF) :
 
 theorem min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min? =
-      t.min?.elim k fun k' => if cmp k k' = .lt then k else k' :=
+      some (t.min?.elim k fun k' => if cmp k k' = .lt then k else k') :=
   TreeMap.Raw.minKey?_insertIfNew h
 
 theorem isSome_min?_insert [TransCmp cmp] (h : t.WF) {k} :
@@ -1012,7 +1012,7 @@ theorem isSome_max?_iff_isEmpty_eq_false [TransCmp cmp] (h : t.WF) :
 
 theorem max?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).max? =
-      t.max?.elim k fun k' => if cmp k' k = .lt then k else k' :=
+      some (t.max?.elim k fun k' => if cmp k' k = .lt then k else k') :=
   TreeMap.Raw.maxKey?_insertIfNew h
 
 theorem isSome_max?_insert [TransCmp cmp] (h : t.WF) {k} :

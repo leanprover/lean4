@@ -532,7 +532,7 @@ theorem merge_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b 
   cases a <;> rfl
 
 @[simp] theorem merge_some_some {f} {a b : α} :
-  merge f (some a) (some b) = f a b := rfl
+  merge f (some a) (some b) = some (f a b) := rfl
 
 @[deprecated merge_eq_or_eq (since := "2025-04-04")]
 theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
@@ -548,7 +548,7 @@ theorem liftOrGet_none_right {f} {a : Option α} : merge f a none = a :=
   merge_none_right
 
 @[deprecated merge_some_some (since := "2025-04-04")]
-theorem liftOrGet_some_some {f} {a b : α} : merge f (some a) (some b) = f a b :=
+theorem liftOrGet_some_some {f} {a b : α} : merge f (some a) (some b) = some (f a b) :=
   merge_some_some
 
 instance commutative_merge (f : α → α → α) [Std.Commutative f] :
@@ -600,7 +600,7 @@ abbrev choice_isSome_iff_nonempty := @isSome_choice_iff_nonempty
 
 end choice
 
-@[simp] theorem toList_some (a : α) : (a : Option α).toList = [a] := rfl
+@[simp] theorem toList_some (a : α) : (some a).toList = [a] := rfl
 
 @[simp] theorem toList_none (α : Type _) : (none : Option α).toList = [] := rfl
 
@@ -615,7 +615,7 @@ theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := 
 @[deprecated some_or (since := "2024-11-03")] theorem or_some : (some a).or o = some a := rfl
 
 /-- This will be renamed to `or_some` once the existing deprecated lemma is removed. -/
-@[simp] theorem or_some' {o : Option α} : o.or (some a) = o.getD a := by
+@[simp] theorem or_some' {o : Option α} : o.or (some a) = some (o.getD a) := by
   cases o <;> rfl
 
 theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by
@@ -860,7 +860,7 @@ theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → o = some a → Optio
     pmap f none h = none := rfl
 
 @[simp] theorem pmap_some {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
-    pmap f (some a) h = f a (h a rfl) := rfl
+    pmap f (some a) h = some (f a (h a rfl)) := rfl
 
 @[simp] theorem pmap_eq_none_iff {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
     pmap f o h = none ↔ o = none := by
@@ -901,7 +901,7 @@ theorem pmap_or {p : α → Prop} {f : ∀ (a : α), p a → β} {o o' : Option 
     (or o o').pmap f h =
       match o with
       | none => o'.pmap f (fun a h' => h a h')
-      | some a => f a (h a rfl) := by
+      | some a => some (f a (h a rfl)) := by
   cases o <;> simp
 
 theorem pmap_pred_congr {α : Type u}

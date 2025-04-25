@@ -6,5 +6,7 @@ register_option linter.foo_true : Bool := { defValue := true }
 
 register_linter_set linter.set.foo := linter.foo1 linter.foo2 linter.foo_true
 
-register_option linter.bar : Bool := { defValue := false }
+-- Note that we can register sets before their contents. Useful for `Init.lean`-style files.
 register_linter_set linter.set.bar := linter.bar
+
+register_option linter.bar : Bool := { defValue := false }

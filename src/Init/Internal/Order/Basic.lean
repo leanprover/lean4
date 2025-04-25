@@ -97,7 +97,11 @@ theorem bot_le (x : α) : ⊥ ⊑ x := by
   · intro x hx; contradiction
 
 end CCPO
+
 section complete_lattice
+  /--
+    A complete lattice is a partial order where every subset has a least upper bound.
+  -/
   class complete_lattice (α : Sort u) extends PartialOrder α where
   /--
   The least upper bound of a an arbitrary subset in the complete_lattice.
@@ -258,32 +262,17 @@ open PartialOrder complete_lattice
 variable {α  : Sort u} [complete_lattice α]
 
 variable {c : α → Prop}
+-- Note that monotonicity is not required for the definition of `lfp`
+-- but it is required to show that `lfp` is a fixpoints of `f`.
 
 def lfp (f : α → α) : α :=
   inf (fun c => f c ⊑ c)
 
-def gfp (f : α → α) : α :=
-    sup (fun c => c ⊑ f c)
-
-def gfp_monotone (f : α → α) (hm : monotone f) : α :=
-  gfp f
-
+-- The following definition takes a witness that a function is monotone
 def lfp_monotone (f : α → α) (hm : monotone f) : α :=
   lfp f
 
-theorem gfp_postfixed {f : α → α} {hm : monotone f} :
-    (gfp f) ⊑ f (gfp f) := by
-    apply sup_le
-    intro y hy
-    suffices h : f y ⊑ f (sup fun c => c ⊑ f c) from
-    by
-      apply rel_trans
-      exact hy
-      exact h
-    apply hm
-    apply le_sup
-    trivial
-
+-- Shwoing that `lfp` is a prefixed point makes use of monotonicity
 theorem lfp_prefixed {f : α → α} {hm : monotone f} :
   f (lfp f) ⊑ (lfp f) := by
   apply le_inf
@@ -294,34 +283,14 @@ theorem lfp_prefixed {f : α → α} {hm : monotone f} :
   apply inf_le
   trivial
 
+-- So does showing that `lfp` is a postfixed point
 theorem lfp_postfixed {f : α → α} {hm : monotone f} : lfp f ⊑ f (lfp f) := by
   apply inf_le
   apply hm
   apply lfp_prefixed
   trivial
 
-theorem gfp_prefixed {f : α → α} {hm : monotone f} :
-  f (gfp f) ⊑ (gfp f) := by
-  apply le_sup
-  apply hm
-  apply gfp_postfixed
-  trivial
-
--- Knaster-Tarski fixpoint theorem
-theorem gfp_fix {f : α → α} {hm : monotone f} :
-  gfp f = f (gfp f) := by
-  apply rel_antisymm
-  apply gfp_postfixed
-  exact hm
-  apply gfp_prefixed
-  exact hm
-
-theorem gfp_fix_monotone {f : α → α} (hm : monotone f) :
-  gfp_monotone f hm = f (gfp_monotone f hm) := by
-    unfold gfp_monotone
-    apply gfp_fix
-    trivial
-
+-- `lfp` being a fixpoint now follows as an easy corollary
 theorem lfp_fix {f : α → α} {hm : monotone f} :
   lfp f = f (lfp f) := by
   apply rel_antisymm
@@ -330,23 +299,18 @@ theorem lfp_fix {f : α → α} {hm : monotone f} :
   apply lfp_prefixed
   trivial
 
+-- Same as above, but uses the version of `lfp` that takes a witness of monotonicity
 theorem lfp_fix_monotone {f : α → α} (hm : monotone f) :
   lfp_monotone f hm = f (lfp_monotone f hm) := by
     unfold lfp_monotone
     apply lfp_fix
     trivial
 
-theorem gfp_coinduction {f : α → α} :
-  x ⊑ f x → x ⊑ gfp f := fun hx => le_sup hx
-
-theorem gfp_coinduction_monotone (f : α → α) {hm : monotone f} (x : α):
- x ⊑ f x → x ⊑ gfp_monotone f hm := by
-  unfold gfp_monotone
-  apply gfp_coinduction
-
+-- Park induction
 theorem lfp_induction {f : α → α} :
   f x ⊑ x → lfp f ⊑ x := fun hx => inf_le hx
 
+-- The same as above, but uses the version of `lfp` that takes a witness of monotonicity
 theorem lfp_induction_monotone (f : α → α) {hm : monotone f} (x : α):
   f x ⊑ x → lfp_monotone f hm ⊑ x := by
   unfold lfp_monotone
@@ -502,8 +466,6 @@ theorem chain_apply [∀ x, PartialOrder (β x)] {c : (∀ x, β x) → Prop} (h
   cases hc f g hf hg
   next h => left; apply h x
   next h => right; apply h x
-
-
 
 def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
   CCPO.csup (fun y => ∃ f, c f ∧ f x = y)
@@ -864,52 +826,36 @@ instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind
 
 end mono_bind
 
-section coinductive_predicates
-
-instance inst_coind_po : PartialOrder Prop where
-  rel x y := y → x
-  rel_refl := fun x => x
-  rel_trans := fun h₁ h₂ => fun x => h₁ (h₂ x)
-  rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
-
-instance inst_coind_complete_lattice : complete_lattice Prop where
-  sup c := ∀ p, c p → p
-  sup_spec := by
-    intro x c
-    constructor
-    case mp =>
-      intro h y cy l
-      apply h
-      exact l
-      exact cy
-    case mpr =>
-      intros h y cy ccy
-      apply h
-      exact ccy
-      exact y
-
-@[partial_fixpoint_monotone] theorem coind_monotone_exists
-    {α} [PartialOrder α] {β} (f : α → β → Prop)
-    (h : monotone f) :
-    monotone (fun x => Exists (f x)) :=
-  fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
-
-@[partial_fixpoint_monotone] theorem coind_monotone_and
-    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
-    (h₁ : monotone f₁) (h₂ : monotone f₂) :
-    monotone (fun x => f₁ x ∧ f₂ x) :=
-  fun x y hxy ⟨hfx₁, hfx₂⟩ => ⟨h₁ x y hxy hfx₁, h₂ x y hxy hfx₂⟩
-
-end coinductive_predicates
-
 section inductive_predicates
-
+-- Partial order on `Prop` given by implication
 instance inst_ind_po: PartialOrder Prop where
   rel x y := x → y
   rel_refl := fun x => x
   rel_trans h₁ h₂ := fun x => h₂ (h₁  x)
   rel_antisymm h₁ h₂ := propext ⟨h₁, h₂⟩
 
+-- This defines a complete lattice on `Prop`, used to define inductive predicates
+instance inst_ind_complete_lattice : complete_lattice Prop where
+  sup c := ∃ p, c p ∧ p
+  sup_spec := by
+    intro x c
+    constructor
+    case mp =>
+      intro h y cy hy
+      apply h
+      apply Exists.intro y
+      trivial
+    case mpr =>
+      intro h
+      simp
+      intro e
+      apply Exists.elim e
+      intro a
+      intro caa
+      have h' := h a caa.1 caa.2
+      trivial
+
+-- Monotonicity lemmas for inductive predicates
 @[partial_fixpoint_monotone] theorem ind_monotone_exists
     {α} [PartialOrder α] {β} (f : α → β → Prop)
     (h : monotone f) :
@@ -933,25 +879,55 @@ instance inst_ind_po: PartialOrder Prop where
 
 end inductive_predicates
 
-instance inst_ind_complete_lattice : complete_lattice Prop where
-  sup c := ∃ p, c p ∧ p
+section coinductive_predicates
+-- Partial order on `Prop` given by reverse implication
+instance inst_coind_po : PartialOrder Prop where
+  rel x y := y → x
+  rel_refl := fun x => x
+  rel_trans := fun h₁ h₂ => fun x => h₁ (h₂ x)
+  rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
+
+-- This defines a complete lattice on `Prop`, used to define coinductive predicates
+instance inst_coind_complete_lattice : complete_lattice Prop where
+  sup c := ∀ p, c p → p
   sup_spec := by
     intro x c
     constructor
     case mp =>
-      intro h y cy hy
+      intro h y cy l
       apply h
-      apply Exists.intro y
-      trivial
+      exact l
+      exact cy
     case mpr =>
-      intro h
-      simp
-      intro e
-      apply Exists.elim e
-      intro a
-      intro caa
-      have h' := h a caa.1 caa.2
-      trivial
+      intros h y cy ccy
+      apply h
+      exact ccy
+      exact y
+
+-- Monotonicity lemmas for coinductive predicates
+@[partial_fixpoint_monotone] theorem coind_monotone_exists
+    {α} [PartialOrder α] {β} (f : α → β → Prop)
+    (h : monotone f) :
+    monotone (fun x => Exists (f x)) :=
+  fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
+
+@[partial_fixpoint_monotone] theorem coind_monotone_and
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : monotone f₁) (h₂ : monotone f₂) :
+    monotone (fun x => f₁ x ∧ f₂ x) :=
+  fun x y hxy ⟨hfx₁, hfx₂⟩ => ⟨h₁ x y hxy hfx₁, h₂ x y hxy hfx₂⟩
+
+@[partial_fixpoint_monotone] theorem coind_monotone_or
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : monotone f₁) (h₂ : monotone f₂) :
+    monotone (fun x => f₁ x ∨ f₂ x) :=
+  fun x y hxy h =>
+    match h with
+    | Or.inl hfx₁ => Or.inl (h₁ x y hxy hfx₁)
+    | Or.inr hfx₂ => Or.inr (h₂ x y hxy hfx₂)
+
+end coinductive_predicates
+
 
 namespace Example
 

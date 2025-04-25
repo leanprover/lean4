@@ -1,45 +1,38 @@
-def infinite_chain {α} (step : α → Option α) (x : α) : Prop :=
-  ∃ y, step x = some y ∧ (infinite_chain step y)
-  greatest_fixpoint
-
-def infinite_chain_fixpoint {α} (step : α → Option α) (x : α) :
-  infinite_chain step x = ∃ y, step x = some y ∧ infinite_chain step y := by
-    rw [infinite_chain]
-
-theorem infinite_chain.coind {α} (P : α → Prop) (step : α → Option α)
-  (h : ∀ (x : α), P x → ∃ y, step x = some y ∧ P y) :
-  ∀ x, P x → infinite_chain step x := infinite_chain.fixpoint_induct _ _ h
-
-
+-- Coinductive predicate definition
 def infseq {α} (R : α → α → Prop) : α → Prop :=
   λ x : α => ∃ y, R x y ∧ infseq R y
   greatest_fixpoint
 
-#check infseq.fixpoint_induct
+-- Application of the rewrite rule
+def infseq_fixpoint {α} (R : α → α → Prop) (x : α) :
+  infseq R x = ∃ y, R x y ∧ infseq R y := by
+    rw [infseq]
 
+-- Usage of the associated coinduction principle
 theorem infseq.coind {α} (h : α → Prop) (R : α → α → Prop)
   (prem : ∀ (x : α), h x → ∃ y, R x y ∧ h y) : ∀ x, h x → infseq R x := by
   apply infseq.fixpoint_induct
   exact prem
 
-
-#check infseq.fixpoint_induct
-
+-- Simple proof by coinduction
 theorem cycle_infseq {R : α → α → Prop} (x : α) : R x x → infseq R x := by
   apply @infseq.fixpoint_induct α R (λ m => R m m)
   intro x _
   apply Exists.intro x
   trivial
 
+-- Inductive predicate, as a inductive definition
 inductive star (R : α → α → Prop) : α → α → Prop where
   | star_refl : ∀ x : α, star R x x
   | star_step : ∀ x y z, R x y → star R y z → star R x z
 
+-- Inductive predicate, as a least fixpoint
 def star_ind (tr : α → α → Prop) (q₁ q₂ : α) : Prop :=
  ∃ (z : α), q₁ = q₂ ∨ (tr q₁ z ∧ star_ind tr z q₂)
 least_fixpoint
 
-theorem star_implies_star (R : α → α → Prop) : ∀ a b : α, star R a b → star_ind R a b := by
+-- From one you can prove the other
+theorem star_implies_star' (R : α → α → Prop) : ∀ a b : α, star R a b → star_ind R a b := by
   intro a b s
   induction s
   case star_refl x =>
@@ -53,9 +46,7 @@ theorem star_implies_star (R : α → α → Prop) : ∀ a b : α, star R a b �
     right
     trivial
 
-
-
-
+-- More elaborate example from Xavier Leroy's compiler verification course
 theorem star_one (R : α → α → Prop)  : ∀ a b : α, R a b → star R a b := by
   intros a b Rab
   apply star.star_step

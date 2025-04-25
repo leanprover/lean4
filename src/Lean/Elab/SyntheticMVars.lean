@@ -341,6 +341,10 @@ mutual
   If `report := false`, then `runTactic` will not capture exceptions nor will report unsolved goals. Unsolved goals become exceptions.
   -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (kind : TacticMVarKind) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
+    let isExporting ← pure (← getEnv).isExporting <&&> do
+      mvarId.withContext do
+        return !(← isProp (← mvarId.getType))
+    withExporting (isExporting := isExporting) do
     instantiateMVarDeclMVars mvarId
     /-
     TODO: consider using `runPendingTacticsAt` at `mvarId` local context and target type.

@@ -1030,15 +1030,17 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     -- Look for _unary redexes
     if e.isAppOf eqnInfo.declNameNonRec then
       let args := e.getAppArgs
-      if eqnInfo.fixedPrefixSize + 1 ≤ args.size then
-        let packedArg := args.back!
-          let some (i, unpackedArgs) := eqnInfo.argsPacker.unpack packedArg
-            | throwError "Unexpected packedArg:{indentExpr packedArg}"
-          let e' := .const eqnInfo.declNames[i]! e.getAppFn.constLevels!
-          let e' := mkAppN e' args.pop
-          let e' := mkAppN e' unpackedArgs
-          let e' := mkAppN e' args[eqnInfo.fixedPrefixSize+1:]
-          return .continue e'
+      if h : args.size ≥ eqnInfo.fixedParamPerms.numFixed + 1 then
+        let xs := args[:eqnInfo.fixedParamPerms.numFixed]
+        let packedArg := args[eqnInfo.fixedParamPerms.numFixed]
+        let extraArgs := args[eqnInfo.fixedParamPerms.numFixed+1:]
+        let some (funIdx, ys) := eqnInfo.argsPacker.unpack packedArg
+          | throwError "Unexpected packedArg:{indentExpr packedArg}"
+        let args' := eqnInfo.fixedParamPerms.perms[funIdx]!.buildArgs xs ys
+        let e' := .const eqnInfo.declNames[funIdx]! e.getAppFn.constLevels!
+        let e' := mkAppN e' args'
+        let e' := mkAppN e' extraArgs
+        return .continue e'
 
     return .continue e)
   mkExpectedTypeHint value cleanType
@@ -1057,6 +1059,7 @@ def unpackMutualInduction (unfolding : Bool) (eqnInfo : WF.EqnInfo) : MetaM Name
   return inductName
 where doRealize inductName := do
   let unaryInductName ← deriveUnaryInduction (unfolding := unfolding) eqnInfo.declNameNonRec
+  mapError (f := (m!"Cannot unpack functional cases principle {.ofConstName unaryInductName} (please report this issue)\n{indentD ·}")) do
   let ci ← getConstInfo unaryInductName
   let us := ci.levelParams
   let value := .const ci.name (us.map mkLevelParam)
@@ -1085,7 +1088,7 @@ where doRealize inductName := do
         return value
 
   unless ← isTypeCorrect value do
-    logError m!"failed to unpack induction principle:{indentExpr value}"
+    logError m!"final term is type incorrect:{indentExpr value}"
     check value
   let type ← inferType value
   let type ← elimOptParam type

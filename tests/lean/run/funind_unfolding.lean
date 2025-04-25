@@ -348,3 +348,87 @@ info: MutualStructural.map2a.induct_unfolding (f : Nat → Nat → Bool)
 #check map2a.induct_unfolding
 
 end MutualStructural
+
+
+abbrev leftChild (i : Nat) := 2*i + 1
+abbrev parent (i : Nat) := (i - 1) / 2
+
+/--
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+-/
+#guard_msgs in
+def siftDown (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by omega) : Array Int :=
+  if _ : leftChild root < e then
+    let child := leftChild root
+    let child := if _ : child+1 < e then
+      if a[child] < a[child + 1] then
+        child + 1
+      else
+        child
+    else
+      child
+    if a[root]! < a[child]! then
+      let a := a.swapIfInBounds root child
+      siftDown a child e (by sorry)
+    else
+      a
+  else
+    a
+termination_by e - root
+decreasing_by sorry
+
+/--
+info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.size → Array Int → Prop)
+  (case1 :
+    ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
+      leftChild root < e →
+        let child := leftChild root;
+        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        a[root]! < a[child]! →
+          let a_1 := a.swapIfInBounds root child;
+          motive a_1 child ⋯ (siftDown a_1 child e ⋯) → motive a root h (siftDown a_1 child e ⋯))
+  (case2 :
+    ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
+      leftChild root < e →
+        let child := leftChild root;
+        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        ¬a[root]! < a[child]! → motive a root h a)
+  (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h a) (a : Array Int)
+  (root : Nat) (h : e ≤ a.size) : motive a root h (siftDown a root e h)
+-/
+#guard_msgs in
+#check siftDown.induct_unfolding
+
+/--
+info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.size → Prop)
+  (case1 :
+    ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
+      leftChild root < e →
+        let child := leftChild root;
+        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        a[root]! < a[child]! →
+          let a_1 := a.swapIfInBounds root child;
+          motive a_1 child ⋯ → motive a root h)
+  (case2 :
+    ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
+      leftChild root < e →
+        let child := leftChild root;
+        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        ¬a[root]! < a[child]! → motive a root h)
+  (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h) (a : Array Int)
+  (root : Nat) (h : e ≤ a.size) : motive a root h
+-/
+#guard_msgs in
+#check siftDown.induct

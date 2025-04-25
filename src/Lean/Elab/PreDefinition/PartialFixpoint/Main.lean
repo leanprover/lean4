@@ -59,6 +59,30 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedParamPer
       pure e
     k e
 
+def mkInstPiOfInstForall (x : Expr) (inst : Expr) : MetaM Expr := do
+  if (←inferType inst).isAppOf ``CCPO then
+    mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
+  else if (←inferType inst).isAppOf ``CompleteLattice then
+    mkAppOptM ``instCompleteLatticePi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
+  else
+    throwError "mkInstPiOfInstForall: unexpected type of {inst}"
+
+def mkFixOfMonFun (packedType : Expr) (packedInst : Expr) (hmono : Expr) : MetaM Expr := do
+  if (←inferType packedInst).isAppOf ``CCPO then
+    mkAppOptM ``fix #[packedType, packedInst, none, hmono]
+  else if (←inferType packedInst).isAppOf ``CompleteLattice then
+    mkAppOptM ``lfp_monotone #[packedType, packedInst, none, hmono]
+  else
+    throwError "mkFixOfMonFun: unexpected type of {packedInst}"
+
+def toPartialOrder (packedInst : Expr) (type : Option Expr := .none) := do
+  if (←inferType packedInst).isAppOf ``CCPO then
+    mkAppOptM ``CCPO.toPartialOrder #[type, packedInst]
+  else if (←inferType packedInst).isAppOf ``CompleteLattice then
+    mkAppOptM ``CompleteLattice.toPartialOrder #[type, packedInst]
+  else
+    throwError "getUnderlyingOrder: unexpected type of {packedInst}"
+
 def mkInstCCPOPProd (inst₁ inst₂ : Expr) : MetaM Expr := do
   mkAppOptM ``instCCPOPProd #[none, none, inst₁, inst₂]
 
@@ -126,15 +150,13 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       lambdaTelescope inst fun xs inst => do
         let mut inst := inst
         for x in xs.reverse do
-           inst ← if isLattice then mkAppOptM ``instCompleteLatticePi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
-            else
-            mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
+          inst ← mkInstPiOfInstForall x inst
         pure inst
     -- Either: CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
     -- Or:     CompleteLattice ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
-    let packedCCPOInst ← if isLattice then PProdN.genMk mkInstCompleteLatticePProd ccpoInsts' else PProdN.genMk mkInstCCPOPProd ccpoInsts'
+    let packedInst ← if isLattice then PProdN.genMk mkInstCompleteLatticePProd ccpoInsts' else PProdN.genMk mkInstCCPOPProd ccpoInsts'
     -- Order ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
-    let packedPartialOrderInst ← if isLattice then mkAppOptM ``CompleteLattice.toPartialOrder #[none, packedCCPOInst] else mkAppOptM ``CCPO.toPartialOrder #[none, packedCCPOInst]
+    let packedPartialOrderInst ← toPartialOrder packedInst
 
     -- Error reporting hook, presenting monotonicity errors in terms of recursive functions
     let failK {α} f (monoThms : Array Name) : MetaM α := do
@@ -167,7 +189,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     let hmonos ← preDefs.mapIdxM fun i preDef => do
       let type := types[i]!
       let F := Fs[i]!
-      let inst ← if isLattice then mkAppOptM ``CompleteLattice.toPartialOrder #[type, ccpoInsts'[i]!] else mkAppOptM ``CCPO.toPartialOrder #[type, ccpoInsts'[i]!]
+      let inst ← toPartialOrder ccpoInsts'[i]! type
       let goal ← mkAppOptM ``monotone #[packedType, packedPartialOrderInst, type, inst, F]
       if let some term := hints[i]!.term? then
         let hmono ← Term.withSynthesize <| Term.elabTermEnsuringType term goal
@@ -186,7 +208,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         instantiateMVars hmono
     let hmono ← PProdN.genMk mkMonoPProd hmonos
 
-    let packedValue ← if isLattice then mkAppOptM ``lfp_monotone #[packedType, packedCCPOInst, none, hmono] else mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]
+    let packedValue ← mkFixOfMonFun packedType packedInst hmono
 
     trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 

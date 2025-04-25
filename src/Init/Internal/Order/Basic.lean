@@ -11,7 +11,6 @@ import Init.ByCases
 import Init.RCases
 
 
-set_option linter.unusedVariables false in
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as
 the underlying construction of the `partial_fixpoint` feature. It is not meant to be used as a
@@ -281,6 +280,7 @@ variable {c : α → Prop}
 def lfp (f : α → α) : α :=
   inf (fun c => f c ⊑ c)
 
+set_option linter.unusedVariables false in
 -- The following definition takes a witness that a function is monotone
 def lfp_monotone (f : α → α) (hm : monotone f) : α :=
   lfp f

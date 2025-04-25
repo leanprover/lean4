@@ -10,6 +10,8 @@ prelude
 import Init.ByCases
 import Init.RCases
 
+
+set_option linter.unusedVariables false in
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as
 the underlying construction of the `partial_fixpoint` feature. It is not meant to be used as a

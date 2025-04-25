@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 
 notation, basic datatypes and type classes
 -/
+module
+
 prelude
 import Init.Prelude
 import Init.SizeOf

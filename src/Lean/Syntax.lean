@@ -8,6 +8,7 @@ import Init.Data.Range
 import Init.Data.Hashable
 import Lean.Data.Name
 import Lean.Data.Format
+import Init.Data.Option.Coe
 
 /--
 A position range inside a string. This type is mostly in combination with syntax trees,

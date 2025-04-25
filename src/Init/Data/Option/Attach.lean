@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Option.Basic
 import Init.Data.Option.List
@@ -231,7 +233,7 @@ def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map 
 
 @[simp] theorem unattach_none {p : α → Prop} : (none : Option { x // p x }).unattach = none := rfl
 @[simp] theorem unattach_some {p : α → Prop} {a : { x // p x }} :
-  (some a).unattach = a.val := rfl
+  (some a).unattach = some a.val := rfl
 
 @[simp] theorem isSome_unattach {p : α → Prop} {o : Option { x // p x }} :
     o.unattach.isSome = o.isSome := by

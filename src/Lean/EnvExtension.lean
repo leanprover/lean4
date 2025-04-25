@@ -23,6 +23,11 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
   toArrayFn     : List α → Array α := fun es => es.toArray
   asyncMode     : EnvExtension.AsyncMode := .mainOnly
   replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
+  /--
+  Whether entries should be imported into other modules. Entries are always accessible in the
+  language server via `getModuleEntries (includeServer := true)`.
+  -/
+  exported      : Bool := true
 
 /--
 Returns a function suitable for `SimplePersistentEnvExtensionDescr.replay?` that replays all new
@@ -42,7 +47,8 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     addImportedFn   := fun as => pure ([], descr.addImportedFn as),
     addEntryFn      := fun s e => match s with
       | (entries, s) => (e::entries, descr.addEntryFn s e),
-    exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
+    exportEntriesFn := fun s => if descr.exported then descr.toArrayFn s.1.reverse else #[],
+    saveEntriesFn := fun s => descr.toArrayFn s.1.reverse,
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
     replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>

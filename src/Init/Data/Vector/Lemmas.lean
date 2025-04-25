@@ -3,6 +3,8 @@ Copyright (c) 2024 Shreyas Srinivas. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Shreyas Srinivas, Francois Dorais, Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Basic
 import Init.Data.Array.Attach

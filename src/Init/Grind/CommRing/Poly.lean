@@ -3,6 +3,8 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Nat.Lemmas
 import Init.Data.Hashable
@@ -387,6 +389,8 @@ def Poly.mulMonC (k : Int) (m : Mon) (p : Poly) (c : Nat) : Poly :=
   let k := k % c
   bif k == 0 then
     .num 0
+  else bif m == .unit then
+    p.mulConstC k c
   else
     go p
 where
@@ -802,24 +806,28 @@ theorem Poly.denote_mulMonC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
     rw [← IsCharP.intCast_emod (p := c)]
     simp [denote, *, intCast_zero, zero_mul]
   next =>
-    fun_induction mulMonC.go <;> simp [mulMonC.go, denote, *, cond_eq_if]
+    split
     next h =>
-      simp +zetaDelta at h; simp [*, denote]
-      rw [mul_assoc, mul_left_comm, ← intCast_mul, ← IsCharP.intCast_emod (x := k * _) (p := c), h]
-      simp [intCast_zero, mul_zero]
-    next h =>
-      simp +zetaDelta at h; simp [*, denote, IsCharP.intCast_emod]
-      simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
-    next h _ =>
-      simp +zetaDelta at h; simp [*, denote, left_distrib]
-      rw [mul_left_comm]
-      conv => rhs; rw [← mul_assoc, ← mul_assoc, ← intCast_mul, ← IsCharP.intCast_emod (p := c)]
-      rw [Int.mul_comm] at h
-      simp [h, intCast_zero, zero_mul, zero_add]
-    next h _ =>
-      simp +zetaDelta at h
-      simp [*, denote, IsCharP.intCast_emod, Mon.denote_mul, intCast_mul, left_distrib,
-        mul_comm, mul_left_comm, mul_assoc]
+      simp at h; simp [*, Mon.denote, mul_one, denote_mulConstC, IsCharP.intCast_emod]
+    next =>
+      fun_induction mulMonC.go <;> simp [mulMonC.go, denote, *, cond_eq_if]
+      next h =>
+        simp +zetaDelta at h; simp [*, denote]
+        rw [mul_assoc, mul_left_comm, ← intCast_mul, ← IsCharP.intCast_emod (x := k * _) (p := c), h]
+        simp [intCast_zero, mul_zero]
+      next h =>
+        simp +zetaDelta at h; simp [*, denote, IsCharP.intCast_emod]
+        simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
+      next h _ =>
+        simp +zetaDelta at h; simp [*, denote, left_distrib]
+        rw [mul_left_comm]
+        conv => rhs; rw [← mul_assoc, ← mul_assoc, ← intCast_mul, ← IsCharP.intCast_emod (p := c)]
+        rw [Int.mul_comm] at h
+        simp [h, intCast_zero, zero_mul, zero_add]
+      next h _ =>
+        simp +zetaDelta at h
+        simp [*, denote, IsCharP.intCast_emod, Mon.denote_mul, intCast_mul, left_distrib,
+          mul_comm, mul_left_comm, mul_assoc]
 
 theorem Poly.denote_combineC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
     : (combineC p₁ p₂ c).denote ctx = p₁.denote ctx + p₂.denote ctx := by

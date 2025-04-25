@@ -468,6 +468,8 @@ where
       -- HACK: no better way to enable in core with `USE_LAKE` off
       if (`Init).isPrefixOf setup.mainModuleName then
         opts := experimental.module.setIfNotSet opts true
+      if !stx.raw[0].isNone && !experimental.module.get opts then
+        throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx opts .empty
         ctx.toInputContext setup.trustLevel setup.plugins

@@ -5056,7 +5056,7 @@ x_10 = l_Vector_swapAt_x21___rarg___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_Vector_swapAt_x21___rarg___closed__3;
 x_13 = l_Vector_swapAt_x21___rarg___closed__4;
-x_14 = lean_unsigned_to_nat(436u);
+x_14 = lean_unsigned_to_nat(438u);
 x_15 = lean_unsigned_to_nat(4u);
 x_16 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_12, x_13, x_14, x_15, x_11);
 lean_dec(x_11);
@@ -5388,7 +5388,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Vector_eraseIdx_x21___rarg___closed__1;
 x_2 = l_Vector_eraseIdx_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(370u);
+x_3 = lean_unsigned_to_nat(372u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Vector_eraseIdx_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5517,7 +5517,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Vector_eraseIdx_x21___rarg___closed__1;
 x_2 = l_Vector_insertIdx_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(383u);
+x_3 = lean_unsigned_to_nat(385u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Vector_eraseIdx_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

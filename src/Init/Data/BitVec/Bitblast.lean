@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 -/
+module
+
 prelude
 import Init.Data.BitVec.Folds
 import Init.Data.Nat.Mod
@@ -1358,6 +1360,38 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
   · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
+
+/--
+  Prove that signed division `x.toInt / y.toInt` only overflows when `x = intMin w` and `y = allOnes w` (for `0 < w`).
+-/
+theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
+    (sdivOverflow x y) = (decide (0 < w) && (x = intMin w) && (y = allOnes w)) := by
+  rcases w with _|w
+  · simp [sdivOverflow, of_length_zero]
+  · have yle := le_two_mul_toInt (x := y)
+    have ylt := two_mul_toInt_lt (x := y)
+    -- if y = allOnes (w + 1), thus y.toInt = -1,
+    -- the division overflows iff x = intMin (w + 1), as for negation
+    by_cases hy : y = allOnes (w + 1)
+    · simp [sdivOverflow_eq_negOverflow_of_eq_allOnes, negOverflow_eq, ← hy, beq_eq_decide_eq]
+    · simp only [sdivOverflow, hy, bool_to_prop]
+      have := BitVec.neg_two_pow_le_toInt_ediv (x := x) (y := y)
+      simp only [Nat.add_one_sub_one] at this
+      by_cases hx : 0 ≤ x.toInt
+      · by_cases hy' : 0 ≤ y.toInt
+        · have := BitVec.toInt_ediv_toInt_lt_of_nonneg_of_nonneg
+                (x := x) (y := y) (by omega) (by omega)
+          simp only [Nat.add_one_sub_one] at this; simp; omega
+        · have := BitVec.toInt_ediv_toInt_nonpos_of_nonneg_of_nonpos
+                (x := x) (y := y) (by omega) (by omega)
+          simp; omega
+      · by_cases hy' : 0 ≤ y.toInt
+        · have :=  BitVec.toInt_ediv_toInt_nonpos_of_nonpos_of_nonneg
+                (x := x) (y := y) (by omega) (by omega)
+          simp; omega
+        · have := BitVec.toInt_ediv_toInt_lt_of_nonpos_of_lt_neg_one
+                (x := x) (y := y) (by omega) (by rw [← toInt_inj, toInt_allOnes] at hy; omega)
+          simp only [Nat.add_one_sub_one] at this; simp; omega
 
 theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     umulOverflow x y =

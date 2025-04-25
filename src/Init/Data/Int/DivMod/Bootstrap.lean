@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Mario Carneiro
 -/
 
+module
+
 prelude
 import Init.Data.Int.DivMod.Basic
 import Init.Data.Int.Order

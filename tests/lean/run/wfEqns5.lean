@@ -30,6 +30,20 @@ info: foo.eq_def (x✝ x✝¹ : Nat) :
 #guard_msgs in
 #check foo.eq_4
 
+/--
+info: foo._unary.eq_def (_x : (_ : Nat) ×' Nat) :
+  foo._unary _x =
+    PSigma.casesOn _x fun a a_1 =>
+      match a, a_1 with
+      | 0, m =>
+        match m with
+        | 0 => 0
+        | m => m
+      | n.succ, m => foo._unary ⟨n, m⟩
+-/
+#guard_msgs in
+#check foo._unary.eq_def
+
 
 set_option backward.eqns.deepRecursiveSplit false in
 def bar : Nat → Nat → Nat

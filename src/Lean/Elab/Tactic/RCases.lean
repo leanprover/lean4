@@ -339,7 +339,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
           let elimInfo ← getElimInfo `Quot.ind
           let res ← ElimApp.mkElimApp elimInfo #[e] (← g.getTag)
           let elimArgs := res.elimApp.getAppArgs
-          ElimApp.setMotiveArg g elimArgs[elimInfo.motivePos]!.mvarId! #[e.fvarId!] #[]
+          ElimApp.setMotiveArg g elimArgs[elimInfo.motivePos]!.mvarId! #[e.fvarId!]
           g.assign res.elimApp
           let #[{ name := n, mvarId := g, .. }] := res.alts | unreachable!
           let (v, g) ← g.intro x

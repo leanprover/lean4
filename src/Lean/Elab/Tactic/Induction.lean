@@ -215,7 +215,7 @@ Given a goal `... targets ... |- C[targets, complexArgs]` associated with `mvarI
 where `complexArgs` are the the complex (i.e. non-target) arguments to the motive in the conclusion
 of the eliminator, construct `motiveArg := fun targets xs => C[targets, xs]`
 -/
-def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) (complexArgs : Array Expr) : MetaM Unit := do
+def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) (complexArgs : Array Expr := #[]) : MetaM Unit := do
   let type ← inferType (mkMVar mvarId)
   let mut absType := type
   for complexArg in complexArgs.reverse do

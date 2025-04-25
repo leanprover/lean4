@@ -10,6 +10,7 @@ namespace lean {
 
 using namespace std;
 
+// Stores all the things needed to request a random sequence of bytes.
 typedef struct {
     uv_random_t req;
     lean_object* promise;
@@ -203,7 +204,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid, obj_arg /
     int result = uv_os_get_group(&group, gid);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(ret, lean_mk_string("group")));
+        return lean_io_result_mk_error(lean_decode_uv_error(result, lean_mk_string("group")));
     }
 
     lean_object* groupname = lean_mk_string(group.groupname);
@@ -239,7 +240,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ(obj_arg /* w */) {
     int result = uv_os_environ(&env, &count);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_mk_string(uv_strerror(ret)));
+        return lean_io_result_mk_error(lean_mk_string(uv_strerror(result)));
     }
 
     lean_object* env_array = lean_mk_empty_array();

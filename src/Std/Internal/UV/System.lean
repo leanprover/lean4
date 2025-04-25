@@ -17,7 +17,7 @@ namespace System
 open Std.Net
 
 /--
-Breakdown of CPU time usage. All times in milliseconds.
+Represents the breakdown of CPU time usage in milliseconds.
 -/
 structure CPUTimes where
   user      : Nat
@@ -37,7 +37,7 @@ structure CPUInfo where
   deriving Repr, Inhabited
 
 /--
-Information about the current user (from `uv_os_get_passwd`).
+Information about the current user.
 -/
 structure PasswdInfo where
   username  : String
@@ -48,7 +48,7 @@ structure PasswdInfo where
   deriving Repr, Inhabited
 
 /--
-Information about the current group (custom extension, not directly in libuv).
+Information about the current group,
 -/
 structure GroupInfo where
   groupname : String
@@ -57,7 +57,7 @@ structure GroupInfo where
   deriving Repr, Inhabited
 
 /--
-Information about the OS (from `uv_os_uname`).
+Information about the OS.
 -/
 structure UnameInfo where
   sysname   : String

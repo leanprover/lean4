@@ -142,20 +142,20 @@ error: unsolved goals
 case case1
 P : Nat → Prop
 m✝ : Nat
-⊢ P (ackermann 0 m✝)
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n✝ : Nat
 ih1✝ : P (ackermann n✝ 1)
-⊢ P (ackermann n✝.succ 0)
+⊢ P (ackermann n✝ 1)
 
 case case3
 P : Nat → Prop
 n✝ m✝ : Nat
 ih2✝ : P (ackermann (n✝ + 1) m✝)
 ih1✝ : P (ackermann n✝ (ackermann (n✝ + 1) m✝))
-⊢ P (ackermann n✝.succ m✝.succ)
+⊢ P (ackermann n✝ (ackermann (n✝ + 1) m✝))
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
@@ -186,7 +186,7 @@ case case1
 α : Type u_1
 P : List α → Prop
 inc ms✝ : List α
-⊢ P (ackermann inc [] ms✝)
+⊢ P (ms✝ ++ inc)
 
 case case2
 α : Type u_1
@@ -195,7 +195,7 @@ inc : List α
 head✝ : α
 ns✝ : List α
 ih1✝ : P (ackermann inc ns✝ inc)
-⊢ P (ackermann inc (head✝ :: ns✝) [])
+⊢ P (ackermann inc ns✝ inc)
 
 case case3
 α : Type u_1
@@ -207,7 +207,7 @@ head✝ : α
 ms✝ : List α
 ih2✝ : P (ackermann inc (n✝ :: ns✝) ms✝)
 ih1✝ : P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
-⊢ P (ackermann inc (n✝ :: ns✝) (head✝ :: ms✝))
+⊢ P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
@@ -391,7 +391,7 @@ namespace Nonrec
 
 def foo := 1
 
-/-- error: no functional cases theorem for 'foo', or function is mutually recursive -/
+/-- error: no functional induction theorem for 'foo', or function is mutually recursive -/
 #guard_msgs in
 example : True := by
   fun_induction foo

@@ -13,7 +13,7 @@ namespace Lean.Linter
 def insertLinterSet [MonadEnv m] (setName : Name) (linterNames : Array Name) : m Unit :=
   modifyEnv (linterSetsExt.addEntry · (setName, linterNames))
 
-/-- Declare a new linter set by giving the set of options that will be enabled along with the set. -/
+/-- `registerSet` wraps `registerOption` by setting relevant values. -/
 def registerSet (setName : Name) (ref : Name := by exact decl_name%) : IO (Lean.Option Bool) := do
   registerOption setName {
     declName := ref
@@ -24,6 +24,7 @@ def registerSet (setName : Name) (ref : Name := by exact decl_name%) : IO (Lean.
   return { name := setName, defValue := false }
 
 open Lean.Elab.Command in
+/-- Declare a new linter set by giving the set of options that will be enabled along with the set. -/
 elab doc?:(docComment)? "register_linter_set" name:ident " := " decl:ident* : command => do
   insertLinterSet name.getId <| decl.map (·.getId)
   let initializer ← `($[$doc?]? initialize $name : Lean.Option Bool ← Lean.Linter.registerSet $(quote name.getId))

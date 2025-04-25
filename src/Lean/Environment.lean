@@ -473,6 +473,14 @@ private partial def AsyncConsts.findRecTask (aconsts : AsyncConsts) (declName : 
     let some aconsts := aconsts.get? AsyncConsts | .pure none
     AsyncConsts.findRecTask aconsts declName
 
+/-- Realization results, to be replayed onto other branches. -/
+private structure RealizationResult where
+  newPrivateConsts : List AsyncConst
+  newExportedConsts : List AsyncConst
+  replayKernel : Kernel.Environment → Except Kernel.Exception Kernel.Environment
+  dyn : Dynamic
+deriving Nonempty
+
 /-- Context for `realizeConst` established by `enableRealizationsForConst`. -/
 private structure RealizationContext where
   /--
@@ -487,7 +495,7 @@ private structure RealizationContext where
   changes onto a derived kernel environment, and auxiliary data (always `SnapshotTree` in builtin
   uses, but untyped to avoid cyclic module references).
   -/
-  constsRef : IO.Ref (NameMap (Task (List AsyncConst × (Kernel.Environment → Except Kernel.Exception Kernel.Environment) × Dynamic)))
+  constsRef : IO.Ref (NameMap (Task RealizationResult))
 
 /--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
@@ -520,12 +528,10 @@ structure Environment where
   all environment branches that contributed contained declarations.
   -/
   checked             : Task Kernel.Environment := .pure base
-  /--
-  Container of asynchronously elaborated declarations. For consistency, `Lean.addDecl` makes sure
-  this contains constants added even synchronously, i.e. `base ⨃ asyncConsts` is the set of
-  constants known on the current environment branch, which is a subset of `checked`.
-  -/
-  private asyncConsts : AsyncConsts := default
+  /-- Private view of `asyncConsts`, should correspond to kernel map. -/
+  private privateAsyncConsts : AsyncConsts := default
+  /-- Public view of `asyncConsts`: may contain fewer constants and less data per constant. -/
+  private exportedAsyncConsts : AsyncConsts := default
   /-- Information about this asynchronous branch of the environment, if any. -/
   private asyncCtx?   : Option AsyncContext := none
   /--
@@ -554,6 +560,14 @@ structure Environment where
 deriving Nonempty
 
 namespace Environment
+
+/--
+Container of asynchronously elaborated declarations. For consistency, `Lean.addDecl` makes sure
+this contains constants added even synchronously, i.e. `base ⨃ asyncConsts` is the set of
+constants known on the current environment branch, which is a subset of `checked`.
+-/
+private def asyncConsts (env : Environment) : AsyncConsts :=
+  if env.isExporting then env.exportedAsyncConsts else env.privateAsyncConsts
 
 -- used only when the kernel calls into the interpreter, and in `Lean.Kernel.Exception.mkCtx`
 @[export lean_elab_environment_of_kernel_env]
@@ -646,7 +660,13 @@ def const2ModIdx (env : Environment) : Std.HashMap Name ModuleIdx :=
 @[export lake_environment_add]
 private def lakeAdd (env : Environment) (cinfo : ConstantInfo) : Environment :=
   let env := env.setCheckedSync <| env.checked.get.add cinfo
-  { env with asyncConsts := env.asyncConsts.add {
+  { env with
+    privateAsyncConsts := env.privateAsyncConsts.add {
+      constInfo := .ofConstantInfo cinfo
+      exts? := none
+      consts := .pure <| .mk (α := AsyncConsts) default
+    }
+    exportedAsyncConsts := env.exportedAsyncConsts.add {
     constInfo := .ofConstantInfo cinfo
     exts? := none
     consts := .pure <| .mk (α := AsyncConsts) default
@@ -843,6 +863,15 @@ def PromiseCheckedResult.commitChecked (res : PromiseCheckedResult) (env : Envir
   assert! env.asyncCtx?.isSome
   res.checkedEnvPromise.resolve env.toKernelEnv
 
+/-- Data transmitted by `AddConstAsyncResult.commitConst`. -/
+private structure ConstPromiseVal where
+  privateConstInfo     : ConstantInfo
+  exportedConstInfo    : ConstantInfo
+  exts                 : Array EnvExtensionState
+  privateNestedConsts  : AsyncConsts
+  exportedNestedConsts : AsyncConsts
+deriving Nonempty
+
 /--
 Result of `Lean.Environment.addConstAsync` which is necessary to complete the asynchronous addition.
 -/
@@ -864,7 +893,7 @@ structure AddConstAsyncResult where
   private constName : Name
   private kind : ConstantKind
   private sigPromise : IO.Promise ConstantVal
-  private constPromise : IO.Promise (ConstantInfo × Array EnvExtensionState × AsyncConsts)
+  private constPromise : IO.Promise ConstPromiseVal
   private checkedEnvPromise : IO.Promise Kernel.Environment
   private allRealizationsPromise : IO.Promise (NameMap AsyncConst)
 
@@ -896,8 +925,8 @@ corresponding information has been added on the "async" environment branch and c
 the respective fields of `AddConstAsyncResult` as well as the [Environment Branches] note for more
 information.
 -/
-def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (reportExts := true)
-    (checkMayContain := true) :
+def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
+    (exportedKind := kind) (reportExts := true) (checkMayContain := true) :
     IO AddConstAsyncResult := do
   if checkMayContain then
     if let some ctx := env.asyncCtx? then
@@ -909,31 +938,39 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
   let allRealizationsPromise ← IO.Promise.new
   let checkedEnvPromise ← IO.Promise.new
 
-  -- We use a thunk here because we don't have a fallback for recursors, but that specific
-  -- invocation cannot fail anyway
-  let fallbackConstInfo := Thunk.mk fun _ => mkFallbackConstInfo constName kind
-
-  let asyncConst := {
+  let privateAsyncConst := {
     constInfo := {
       name := constName
       kind
-      sig := sigPromise.resultD fallbackConstInfo.get.toConstantVal
+      sig := sigPromise.resultD (mkFallbackConstInfo constName kind).toConstantVal
       constInfo := constPromise.result?.map (sync := true) fun
-        | some c => c.1
-        | none   => fallbackConstInfo.get
+        | some c => c.privateConstInfo
+        | none   => mkFallbackConstInfo constName kind
     }
     exts? := guard reportExts *> some (constPromise.result?.map (sync := true) fun
-      | some (_, exts, _) => exts
+      | some v => v.exts
       -- any value should work here, `base` does not block
-      | none              => env.base.extensions)
+      | none   => env.base.extensions)
     consts := constPromise.result?.map (sync := true) fun
-      | some (_, _, consts) => .mk consts
-      | none                => .mk (α := AsyncConsts) default
+      | some v => .mk v.privateNestedConsts
+      | none   => .mk (α := AsyncConsts) default
+  }
+  let exportedAsyncConst := { privateAsyncConst with
+    constInfo := { privateAsyncConst.constInfo with
+      kind := exportedKind
+      constInfo := constPromise.result?.map (sync := true) fun
+        | some c => c.exportedConstInfo
+        | none   => mkFallbackConstInfo constName exportedKind
+    }
+    consts := constPromise.result?.map (sync := true) fun
+      | some v => .mk v.exportedNestedConsts
+      | none   => .mk (α := AsyncConsts) default
   }
   return {
     constName, kind
     mainEnv := { env with
-      asyncConsts := env.asyncConsts.add asyncConst
+      privateAsyncConsts := env.privateAsyncConsts.add privateAsyncConst
+      exportedAsyncConsts := env.exportedAsyncConsts.add exportedAsyncConst
       checked := checkedEnvPromise.result?.bind (sync := true) fun
         | some kenv => .pure kenv
         | none      => env.checked
@@ -962,9 +999,9 @@ given environment. The declaration name and kind must match the original values 
 `addConstAsync`. The signature must match the previous `commitSignature` call, if any.
 -/
 def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environment)
-    (info? : Option ConstantInfo := none) :
+    (info? : Option ConstantInfo := none) (exportedInfo? : Option ConstantInfo := none) :
     IO Unit := do
-  let info ← match info? <|> env.find? res.constName with
+  let info ← match info? <|> (env.setExporting false).find? res.constName with
     | some info => pure info
     | none =>
       throw <| .userError s!"AddConstAsyncResult.commitConst: constant {res.constName} not found in async context"
@@ -977,7 +1014,17 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has level params {info.levelParams} but expected {sig.levelParams}"
   if sig.type != info.type then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has type {info.type} but expected {sig.type}"
-  res.constPromise.resolve (info, env.base.extensions, env.asyncConsts)
+  if let some exportedInfo := exportedInfo? then
+    if exportedInfo.toConstantVal != info.toConstantVal then
+      -- may want to add more details if necessary
+      throw <| .userError s!"AddConstAsyncResult.commitConst: exported constant has different signature"
+  res.constPromise.resolve {
+    privateConstInfo := info
+    exportedConstInfo := (exportedInfo? <|> (env.setExporting true).find? res.constName).getD info
+    exts := env.base.extensions
+    privateNestedConsts := env.privateAsyncConsts
+    exportedNestedConsts := env.exportedAsyncConsts
+  }
 
 /--
 Assuming `Lean.addDecl` has been run for the constant to be added on the async environment branch,
@@ -1567,6 +1614,10 @@ def OLeanLevel.adjustFileName (base : System.FilePath) : OLeanLevel → System.F
   | .server   => base.addExtension "server"
   | .private  => base.addExtension "private"
 
+private def looksLikeOldCodegenName : Name → Bool
+  | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
+  | _        => false
+
 def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt => Id.run do
@@ -1578,11 +1629,11 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     (pExt.name, if level = .exported then pExt.exportEntriesFn state else pExt.saveEntriesFn state)
   let kenv := env.toKernelEnv
   let env := env.setExporting (level != .private)
-  let constants := kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
-  --let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
+  let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
   -- not all kernel constants may be exported
-  -- TODO: does not include cstage* constants from the old codegen
-  --let constants := constNames.filterMap env.find?
+  let constants := constNames.filterMap fun n =>
+    env.find? n <|>
+    guard (looksLikeOldCodegenName n) *> kenv.find? n
   let constNames := constants.map (·.name)
   return { env.header with
     extraConstNames := env.checked.get.extraConstNames.toArray
@@ -1689,9 +1740,10 @@ private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleDa
   self.parts[if baseMod.isModule && self.importAll then 2 else 0]?.map (·.1)
 
 /-- The module data that should be used for server purposes. -/
-private def ImportedModule.serverData? (self : ImportedModule) : Option ModuleData := do
+private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLevel) :
+    Option ModuleData := do
   let (baseMod, _) ← self.parts[0]?
-  self.parts[if baseMod.isModule then 1 else 0]?.map (·.1)
+  self.parts[if baseMod.isModule && level != .exported then 1 else 0]?.map (·.1)
 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
@@ -1739,8 +1791,9 @@ partial def importModulesCore (imports : Array Import) (forceImportAll := true) 
     }
 
 /--
-Return `true` if `cinfo₁` and `cinfo₂` are theorems with the same name, universe parameters,
-and types. We allow different modules to prove the same theorem.
+Returns `true` if `cinfo₁` and `cinfo₂` represent the same theorem/axiom, with `cinfo₁` potentially
+being a richer representation; under the module system, a theorem may be weakened to an axiom when
+exported. We allow different modules to prove the same theorem.
 
 Motivation: We want to generate equational theorems on demand and potentially
 in different files, and we want them to have non-private names.
@@ -1757,13 +1810,15 @@ and theorems are (mostly) opaque in Lean. For `Acc.rec`, we may unfold theorems
 during type-checking, but we are assuming this is not an issue in practice,
 and we are planning to address this issue in the future.
 -/
-private def equivInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool := Id.run do
-  let .thmInfo tval₁ := cinfo₁ | false
-  let .thmInfo tval₂ := cinfo₂ | false
-  return tval₁.name == tval₂.name
-    && tval₁.type == tval₂.type
-    && tval₁.levelParams == tval₂.levelParams
-    && tval₁.all == tval₂.all
+private def subsumesInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool :=
+  cinfo₁.name == cinfo₂.name &&
+    cinfo₁.type == cinfo₂.type &&
+    cinfo₁.levelParams == cinfo₂.levelParams &&
+    match cinfo₁, cinfo₂ with
+    | .thmInfo tval₁, .thmInfo tval₂ => tval₁.all == tval₂.all
+    | .thmInfo tval₁, .axiomInfo aval₂ => tval₁.all == [aval₂.name] && !aval₂.isUnsafe
+    | .axiomInfo aval₁, .axiomInfo aval₂ => aval₁.isUnsafe == aval₂.isUnsafe
+    | _, _ => false
 
 /--
 Constructs environment from `importModulesCore` results.
@@ -1771,7 +1826,7 @@ Constructs environment from `importModulesCore` results.
 See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv loadExts : Bool) (isModule := false) : IO Environment := do
+    (leakEnv loadExts : Bool) (level := OLeanLevel.private) : IO Environment := do
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
   let moduleData ← modules.mapM fun mod => do
     let some data := mod.mainModule? |
@@ -1789,7 +1844,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         constantMap := constantMap'
         if let some cinfoPrev := cinfoPrev? then
           -- Recall that the map has not been modified when `cinfoPrev? = some _`.
-          unless equivInfo cinfoPrev cinfo do
+          if subsumesInfo cinfo cinfoPrev then
+            constantMap := constantMap.insert cname cinfo
+          else if !subsumesInfo cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
     for cname in mod.extraConstNames do
@@ -1803,7 +1860,8 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       extraConstNames := {}
       extensions      := exts
       header     := {
-        trustLevel, isModule, imports, moduleData
+        trustLevel, imports, moduleData
+        isModule := level == .exported
         regions      := modules.flatMap (·.parts.map (·.2))
         moduleNames  := s.moduleNames
       }
@@ -1811,7 +1869,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     realizedImportedConsts? := none
   }
   env := env.setCheckedSync { env.base with extensions := (← setImportedEntries env.base.extensions moduleData) }
-  let serverData := modules.filterMap (·.serverData?)
+  let serverData := modules.filterMap (·.serverData? level)
   env := { env with serverBaseExts := (← setImportedEntries env.base.extensions serverData) }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistenExtensions`, which
@@ -1871,7 +1929,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
   withImporting do
     plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore (forceImportAll := level == .private) imports |>.run
-    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (isModule := level != .private)
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 
 /--
@@ -1903,17 +1961,21 @@ def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.E
 
 namespace Environment
 
-private def looksLikeOldCodegenName : Name → Bool
-  | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_"
-  | _        => false
-
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment :=
   { env with
     checked := .pure kenv
     -- HACK: the old codegen adds some helper constants directly to the kernel environment, we need
     -- to add them to the async consts as well in order to be able to replay them
-    asyncConsts := decl.getNames.foldl (init := env.asyncConsts) fun asyncConsts n =>
+    privateAsyncConsts := decl.getNames.foldl (init := env.privateAsyncConsts) fun asyncConsts n =>
+      if looksLikeOldCodegenName n then
+        asyncConsts.add {
+          constInfo := .ofConstantInfo (kenv.find? n |>.get!)
+          exts? := none
+          consts := .pure <| .mk (α := AsyncConsts) default
+        }
+      else asyncConsts
+    exportedAsyncConsts := decl.getNames.foldl (init := env.exportedAsyncConsts) fun asyncConsts n =>
       if looksLikeOldCodegenName n then
         asyncConsts.add {
           constInfo := .ofConstantInfo (kenv.find? n |>.get!)
@@ -1959,16 +2021,23 @@ are not derived from `oldEnv`, the result is undefined.
 -/
 def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExisting := false) :
     BaseIO Environment := do
-  let numNewConsts := newEnv.asyncConsts.size - oldEnv.asyncConsts.size
-  let consts := newEnv.asyncConsts.revList.take numNewConsts |>.reverse
+  let numNewPrivateConsts := newEnv.privateAsyncConsts.size - oldEnv.privateAsyncConsts.size
+  let newPrivateConsts := newEnv.privateAsyncConsts.revList.take numNewPrivateConsts |>.reverse
+  let numNewExportedConsts := newEnv.exportedAsyncConsts.size - oldEnv.exportedAsyncConsts.size
+  let newExportedConsts := newEnv.exportedAsyncConsts.revList.take numNewExportedConsts |>.reverse
   let exts ← EnvExtension.envExtensionsRef.get
   return { dest with
-    asyncConsts := consts.foldl (init := dest.asyncConsts) fun consts c =>
+    privateAsyncConsts := newPrivateConsts.foldl (init := dest.privateAsyncConsts) fun consts c =>
       if skipExisting && (consts.find? c.constInfo.name).isSome then
         consts
       else
         consts.add c
-    checked := dest.checked.map fun kenv => replayKernel exts consts kenv |>.toOption.getD kenv
+    exportedAsyncConsts := newExportedConsts.foldl (init := dest.exportedAsyncConsts) fun consts c =>
+      if skipExisting && (consts.find? c.constInfo.name).isSome then
+        consts
+      else
+        consts.add c
+    checked := dest.checked.map fun kenv => replayKernel exts newPrivateConsts kenv |>.toOption.getD kenv
   }
 where
   replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
@@ -2053,7 +2122,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     let existingConsts? ← ctx.constsRef.modifyGet fun m => match m.find? constName with
       | some prom' => (some prom', m)
       | none       => (none, m.insert constName prom.result!)
-    let (consts, replay, dyn) ← if let some existingConsts := existingConsts? then
+    let res ← if let some existingConsts := existingConsts? then
       pure existingConsts.get
     else
       -- safety: `RealizationContext` is private
@@ -2075,35 +2144,47 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
 
       -- find new constants incl. nested realizations, add current extension state, and compute
       -- closure
-      let numNewConsts := realizeEnv'.asyncConsts.size - realizeEnv.asyncConsts.size
-      let consts := realizeEnv'.asyncConsts.revList.take numNewConsts |>.reverse
-      let consts := consts.map fun c =>
+      let numNewPrivateConsts := realizeEnv'.privateAsyncConsts.size - realizeEnv.privateAsyncConsts.size
+      let newPrivateConsts := realizeEnv'.privateAsyncConsts.revList.take numNewPrivateConsts |>.reverse
+      let newPrivateConsts := newPrivateConsts.map fun c =>
+        if c.exts?.isNone then
+          { c with exts? := some <| .pure realizeEnv'.base.extensions }
+        else c
+      let numNewExportedConsts := realizeEnv'.exportedAsyncConsts.size - realizeEnv.exportedAsyncConsts.size
+      let newExportedConsts := realizeEnv'.exportedAsyncConsts.revList.take numNewExportedConsts |>.reverse
+      let newExportedConsts := newExportedConsts.map fun c =>
         if c.exts?.isNone then
           { c with exts? := some <| .pure realizeEnv'.base.extensions }
         else c
       let exts ← EnvExtension.envExtensionsRef.get
-      let replay := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts consts
-      prom.resolve (consts, replay, dyn)
-      pure (consts, replay, dyn)
+      let replayKernel := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts newPrivateConsts
+      let res := { newPrivateConsts, newExportedConsts, replayKernel, dyn }
+      prom.resolve res
+      pure res
     let exPromise ← IO.Promise.new
     let env := { env with
-      asyncConsts := consts.foldl (init := env.asyncConsts) fun consts c =>
+      privateAsyncConsts := res.newPrivateConsts.foldl (init := env.privateAsyncConsts) fun consts c =>
+        if consts.find? c.constInfo.name |>.isSome then
+          consts
+        else
+          consts.add c
+      exportedAsyncConsts := res.newExportedConsts.foldl (init := env.exportedAsyncConsts) fun consts c =>
         if consts.find? c.constInfo.name |>.isSome then
           consts
         else
           consts.add c
       checked := (← BaseIO.mapTask (t := env.checked) fun kenv => do
-        match replay kenv with
+        match res.replayKernel kenv with
         | .ok kenv => return kenv
         | .error e =>
           exPromise.resolve e
           return kenv)
       allRealizations := env.allRealizations.map (sync := true) fun allRealizations =>
-        consts.foldl (init := allRealizations) fun allRealizations c =>
+        res.newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
           allRealizations.insert c.constInfo.name c
     }
     IO.setNumHeartbeats heartbeats
-    return (env, exPromise.result?, dyn)
+    return (env, exPromise.result?, res.dyn)
 
 end Environment
 
@@ -2152,6 +2233,25 @@ export MonadEnv (getEnv modifyEnv)
 instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
   getEnv    := liftM (getEnv : m Environment)
   modifyEnv := fun f => liftM (modifyEnv f : m Unit)
+
+/--
+Sets `Environment.isExporting` to the given value while executing `x`. No-op if
+`EnvironmentHeader.isModule` is false.
+-/
+@[inline]
+def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
+    (isExporting := true) : m α := do
+  let old := (← getEnv).isExporting
+  let isModule := (← getEnv).header.isModule
+  modifyEnv (·.setExporting (isExporting && isModule))
+  try
+    x
+  finally
+    modifyEnv (·.setExporting old)
+
+/-- Sets `Environment.isExporting` to false while executing `x`. -/
+def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α) : m α :=
+  withExporting (isExporting := false) x
 
 /-- Constructs a DefinitionVal, inferring the `unsafe` field -/
 def mkDefinitionValInferrringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)

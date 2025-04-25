@@ -151,9 +151,9 @@ theorem intCast_one : ((1 : Int) : α) = 1 := intCast_ofNat 1
 theorem intCast_neg_one : ((-1 : Int) : α) = -1 := by rw [intCast_neg, intCast_ofNat]
 theorem intCast_natCast (n : Nat) : ((n : Int) : α) = (n : α) := intCast_ofNat n
 theorem intCast_natCast_add_one (n : Nat) : ((n + 1 : Int) : α) = (n : α) + 1 := by
-  rw [← Int.natCast_succ, intCast_natCast, natCast_add, ofNat_eq_natCast]
+  rw [← Int.natCast_add_one, intCast_natCast, natCast_add, ofNat_eq_natCast]
 theorem intCast_negSucc (n : Nat) : ((-(n + 1) : Int) : α) = -((n : α) + 1) := by
-  rw [intCast_neg, ← Int.natCast_succ, intCast_natCast, ofNat_eq_natCast, natCast_add]
+  rw [intCast_neg, ← Int.natCast_add_one, intCast_natCast, ofNat_eq_natCast, natCast_add]
 theorem intCast_nat_add {x y : Nat} : ((x + y : Int) : α) = ((x : α) + (y : α)) := by
   rw [Int.ofNat_add_ofNat, intCast_natCast, natCast_add]
 theorem intCast_nat_sub {x y : Nat} (h : x ≥ y) : (((x - y : Nat) : Int) : α) = ((x : α) - (y : α)) := by
@@ -280,7 +280,7 @@ theorem intCast_ext_iff {x y : Int} : (x : α) = (y : α) ↔ x % p = y % p := b
 
 theorem ofNat_ext_iff {x y : Nat} : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p := by
   have := intCast_ext_iff (α := α) p (x := x) (y := y)
-  simp only [intCast_natCast, ← Int.ofNat_emod] at this
+  simp only [intCast_natCast, ← Int.natCast_emod] at this
   simp only [ofNat_eq_natCast]
   norm_cast at this
 
@@ -296,7 +296,7 @@ theorem intCast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
 
 theorem natCast_emod (x : Nat) : ((x % p : Nat) : α) = (x : α) := by
   simp only [← intCast_natCast]
-  rw [Int.ofNat_emod, intCast_emod]
+  rw [Int.natCast_emod, intCast_emod]
 
 theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x :=
   natCast_emod _ _

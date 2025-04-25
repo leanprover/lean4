@@ -1358,8 +1358,40 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
   rcases w with _|w
   · simp [toInt_of_zero_length, Int.min_eq_right]
   · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
-    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.natCast_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
+
+/--
+  Prove that signed division `x.toInt / y.toInt` only overflows when `x = intMin w` and `y = allOnes w` (for `0 < w`).
+-/
+theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
+    (sdivOverflow x y) = (decide (0 < w) && (x = intMin w) && (y = allOnes w)) := by
+  rcases w with _|w
+  · simp [sdivOverflow, of_length_zero]
+  · have yle := le_two_mul_toInt (x := y)
+    have ylt := two_mul_toInt_lt (x := y)
+    -- if y = allOnes (w + 1), thus y.toInt = -1,
+    -- the division overflows iff x = intMin (w + 1), as for negation
+    by_cases hy : y = allOnes (w + 1)
+    · simp [sdivOverflow_eq_negOverflow_of_eq_allOnes, negOverflow_eq, ← hy, beq_eq_decide_eq]
+    · simp only [sdivOverflow, hy, bool_to_prop]
+      have := BitVec.neg_two_pow_le_toInt_ediv (x := x) (y := y)
+      simp only [Nat.add_one_sub_one] at this
+      by_cases hx : 0 ≤ x.toInt
+      · by_cases hy' : 0 ≤ y.toInt
+        · have := BitVec.toInt_ediv_toInt_lt_of_nonneg_of_nonneg
+                (x := x) (y := y) (by omega) (by omega)
+          simp only [Nat.add_one_sub_one] at this; simp; omega
+        · have := BitVec.toInt_ediv_toInt_nonpos_of_nonneg_of_nonpos
+                (x := x) (y := y) (by omega) (by omega)
+          simp; omega
+      · by_cases hy' : 0 ≤ y.toInt
+        · have :=  BitVec.toInt_ediv_toInt_nonpos_of_nonpos_of_nonneg
+                (x := x) (y := y) (by omega) (by omega)
+          simp; omega
+        · have := BitVec.toInt_ediv_toInt_lt_of_nonpos_of_lt_neg_one
+                (x := x) (y := y) (by omega) (by rw [← toInt_inj, toInt_allOnes] at hy; omega)
+          simp only [Nat.add_one_sub_one] at this; simp; omega
 
 theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     umulOverflow x y =
@@ -1542,7 +1574,7 @@ theorem sdiv_ne_intMin_of_ne_intMin {x y : BitVec w} (h : x ≠ intMin w) :
 
 theorem toInt_eq_neg_toNat_neg_of_msb_true {x : BitVec w} (h : x.msb = true) :
     x.toInt = -((-x).toNat) := by
-  simp only [toInt_eq_msb_cond, h, ↓reduceIte, toNat_neg, Int.ofNat_emod]
+  simp only [toInt_eq_msb_cond, h, ↓reduceIte, toNat_neg, Int.natCast_emod]
   norm_cast
   rw [Nat.mod_eq_of_lt]
   · omega
@@ -1637,7 +1669,7 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
           (a.sdiv b).toInt = -((-a).toNat / b.toNat) := by
         simp only [sdiv_eq, ha, hb, udiv_eq]
         rw [toInt_eq_neg_toNat_neg_of_nonpos]
-        · rw [neg_neg, toNat_udiv, toNat_neg, Int.ofNat_emod, Int.neg_inj]
+        · rw [neg_neg, toNat_udiv, toNat_neg, Int.natCast_emod, Int.neg_inj]
           norm_cast
         · rw [neg_eq_zero_iff]
           by_cases h' : -a / b = 0#w

@@ -21,3 +21,4 @@ import Init.Data.Vector.InsertIdx
 import Init.Data.Vector.FinRange
 import Init.Data.Vector.Extract
 import Init.Data.Vector.Perm
+import Init.Data.Vector.Find

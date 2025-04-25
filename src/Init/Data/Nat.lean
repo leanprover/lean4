@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Data.Nat.Basic
-import Init.Data.Nat.Div.Basic
+import Init.Data.Nat.Div
 import Init.Data.Nat.Dvd
 import Init.Data.Nat.Gcd
 import Init.Data.Nat.MinMax

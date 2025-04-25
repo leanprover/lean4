@@ -187,6 +187,7 @@ LEAN_EXPORT lean_object* l_Lean_AttributeKind_noConfusion___rarg(uint8_t, uint8_
 LEAN_EXPORT lean_object* l_Lean_mkAttributeImplOfEntry(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_fold___at_Lean_mkModuleData___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedAttributeImpl___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedTagAttribute___closed__4;
 LEAN_EXPORT lean_object* l_Lean_registerBuiltinAttribute___lambda__3___boxed(lean_object*);
@@ -414,7 +415,6 @@ static lean_object* l_Lean_registerEnumAttributes___rarg___lambda__3___closed__4
 LEAN_EXPORT lean_object* l_Lean_instInhabitedEnumAttributes___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_registerEnumAttributes___rarg___lambda__3___closed__1;
 static lean_object* l_Lean_Attribute_Builtin_ensureNoArgs___closed__2;
-lean_object* l_Lean_RBNode_fold___at_Lean_mkModuleData___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerTagAttribute___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_get_num_attributes(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_EnumAttributes_setValue___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3874,7 +3874,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_2 = l_Lean_instInhabitedTagAttribute___lambda__4___closed__1;
-x_3 = l_Lean_RBNode_fold___at_Lean_mkModuleData___spec__5(x_2, x_1);
+x_3 = l_Lean_RBNode_fold___at_Lean_mkModuleData___spec__4(x_2, x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);

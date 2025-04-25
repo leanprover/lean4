@@ -1,3 +1,4 @@
+axiom testSorry : α
 
 def fib : Nat → Nat
   | 0 => 0
@@ -27,13 +28,11 @@ info: ackermann.fun_cases_unfolding (motive : Nat → Nat → Nat → Prop) (cas
 #guard_msgs in
 #check ackermann.fun_cases_unfolding
 
-
-#guard_msgs (drop warning) in
 def fib' : Nat → Nat
   | 0 => 0
   | 1 => 1
   | n => fib' (n-1) + fib' (n-2)
-decreasing_by all_goals sorry
+decreasing_by all_goals exact testSorry
 
 /--
 info: fib'.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : motive 0 0) (case2 : motive 1 1)
@@ -353,22 +352,6 @@ end MutualStructural
 abbrev leftChild (i : Nat) := 2*i + 1
 abbrev parent (i : Nat) := (i - 1) / 2
 
-/--
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
--/
-#guard_msgs in
 def siftDown (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by omega) : Array Int :=
   if _ : leftChild root < e then
     let child := leftChild root
@@ -381,13 +364,13 @@ def siftDown (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by omeg
       child
     if a[root]! < a[child]! then
       let a := a.swapIfInBounds root child
-      siftDown a child e (by sorry)
+      siftDown a child e testSorry
     else
       a
   else
     a
 termination_by e - root
-decreasing_by sorry
+decreasing_by exact testSorry
 
 /--
 info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.size → Array Int → Prop)
@@ -432,3 +415,26 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
 -/
 #guard_msgs in
 #check siftDown.induct
+
+-- Now something with have
+
+def withHave (n : Nat): Bool :=
+  have : 0 < n := testSorry
+  if n = 42 then true else withHave (n - 1)
+termination_by n
+decreasing_by exact testSorry
+
+/--
+info: withHave.induct_unfolding (motive : Nat → Bool → Prop) (case1 : 0 < 42 → motive 42 true)
+  (case2 : ∀ (x : Nat), 0 < x → ¬x = 42 → motive (x - 1) (withHave (x - 1)) → motive x (withHave (x - 1))) (n : Nat) :
+  motive n (withHave n)
+-/
+#guard_msgs in
+#check withHave.induct_unfolding
+
+/--
+info: withHave.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : 0 < 42 → motive 42 true)
+  (case2 : ∀ (n : Nat), 0 < n → ¬n = 42 → motive n (withHave (n - 1))) (n : Nat) : motive n (withHave n)
+-/
+#guard_msgs in
+#check withHave.fun_cases_unfolding

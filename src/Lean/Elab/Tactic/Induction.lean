@@ -880,8 +880,8 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
   match stx with
   | `($id:ident) =>
     let fnName ← realizeGlobalConstNoOverload id
-    let some _ ← getFunIndInfo? cases fnName |
-      let theoremKind := if cases then "induction" else "cases"
+    let some _ ← getFunIndInfo? (cases := cases) (unfolding := true) fnName |
+      let theoremKind := if cases then "cases" else "induction"
       throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
     let candidates ← FunInd.collect fnName (← getMainGoal)
     if candidates.isEmpty then
@@ -902,8 +902,8 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     funCall.withApp fun fn funArgs => do
     let .const fnName fnUs := fn |
       throwError "expected application headed by a function constant"
-    let some funIndInfo ← getFunIndInfo? cases fnName |
-      let theoremKind := if cases then "induction" else "cases"
+    let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := true) fnName |
+      let theoremKind := if cases then "cases" else "induction"
       throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
     if funArgs.size != funIndInfo.params.size then
       throwError "Expected fully applied application of '{.ofConstName fnName}' with \

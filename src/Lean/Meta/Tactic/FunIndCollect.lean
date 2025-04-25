@@ -36,7 +36,7 @@ def SeenCalls.isEmpty  (sc : SeenCalls) : Bool :=
 
 def SeenCalls.push (e : Expr) (declName : Name) (args : Array Expr) (calls : SeenCalls) :
     MetaM SeenCalls := do
-  let some funIndInfo ← getFunIndInfo? (cases := false) declName | return calls
+  let some funIndInfo ← getFunIndInfo? (unfolding := true) (cases := false) declName | return calls
   if funIndInfo.params.size != args.size then return calls
   let mut keys := #[]
   for arg in args, kind in funIndInfo.params do

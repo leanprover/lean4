@@ -58,6 +58,7 @@ Remark: while editing this comment, `siftDown` above was being recompiled by Lea
 #check siftDown.eq_1
 
 example : (siftDown a root e h).size = a.size := by
+   -- induction a, root, h using siftDown.induct_unfolding e <;> grind
    -- faster than the following theorem since unfolds siftDown only in the target
    fun_induction siftDown <;> unfold siftDown <;> grind
 

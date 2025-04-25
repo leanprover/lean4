@@ -59,13 +59,13 @@ def getMutualInductName (declName : Name) (unfolding : Bool := false) : Name :=
   else
     declName ++ `mutual_induct
 
-def getFunInduct? (cases : Bool) (declName : Name) : CoreM (Option Name) := do
+def getFunInduct? (unfolding : Bool) (cases : Bool) (declName : Name) : CoreM (Option Name) := do
   let .defnInfo _ ← getConstInfo declName | return none
   try
     let thmName := if cases then
-      getFunCasesName declName
+      getFunCasesName (unfolding := unfolding) declName
     else
-      getFunInductName declName
+      getFunInductName (unfolding := unfolding) declName
     let result ← realizeGlobalConstNoOverloadCore thmName
     return some result
   catch _ =>
@@ -78,8 +78,8 @@ def setFunIndInfo (funIndInfo : FunIndInfo) : CoreM Unit := do
 def getFunIndInfoForInduct?  (inductName : Name) : CoreM (Option FunIndInfo) := do
   return funIndInfoExt.find? (← getEnv) inductName
 
-def getFunIndInfo? (cases : Bool) (funName : Name) : CoreM (Option FunIndInfo) := do
-  let some inductName ← getFunInduct? cases funName | return none
+def getFunIndInfo? (cases : Bool) (unfolding : Bool) (funName : Name) : CoreM (Option FunIndInfo) := do
+  let some inductName ← getFunInduct? (cases := cases) (unfolding := unfolding) funName | return none
   getFunIndInfoForInduct? inductName
 
 end Lean.Meta

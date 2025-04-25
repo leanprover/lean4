@@ -529,4 +529,10 @@ where
           lines := lines.push cmd
     return if lines.isEmpty then none else MessageData.joinSep lines.toList "\n"
 
+@[builtin_command_elab Parser.Command.withExporting] def elabWithExporting : CommandElab
+  | `(Parser.Command.withExporting| #with_exporting $cmd) =>
+    withExporting do
+      elabCommand cmd
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Command

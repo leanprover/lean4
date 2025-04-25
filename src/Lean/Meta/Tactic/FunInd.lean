@@ -630,7 +630,13 @@ def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
   if e.isLet then
     if (← isDefEq e.letValue! h) then
       return { expr := e.letBody!.instantiate1 h }
-  return { expr := e}
+  return { expr := e }
+
+def rwHaveWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
+  if let some (_n, t, _v, b) := e.letFun? then
+    if (← isDefEq t (← inferType h)) then
+      return { expr := b.instantiate1 h }
+  return { expr := e }
 
 def rwFun (names : Array Name) (e : Expr) : MetaM Simp.Result := do
   e.withApp fun f xs => do
@@ -785,7 +791,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     let t' ← foldAndCollect oldIH newIH isRecCall t
     let v' ← foldAndCollect oldIH newIH isRecCall v
     return ← withLocalDeclD n t' fun x => M2.branch do
-      let b' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall (b.instantiate1 x)
+      let b' ← withRewrittenMotiveArg goal (rwHaveWith x) fun goal' =>
+        buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
       mkLetFun x v' b'
 
   -- Special case for traversing the PProd’ed bodies in our encoding of structural mutual recursion

@@ -957,7 +957,7 @@ Used for well-founded and structural recursion.
 def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : MetaM Name) (finalizeFirstInd : MetaM Unit) : MetaM Unit := do
   for name in names, idx in [:names.size] do
     let inductName := getFunInductName (unfolding := unfolding) name
-    realizeConst name inductName do
+    realizeConst names[0]! inductName do
       let ci ← getConstInfo (← mutualInduct)
       let levelParams := ci.levelParams
       let value ← forallTelescope ci.type fun xs _body => do

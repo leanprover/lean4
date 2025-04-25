@@ -457,12 +457,12 @@ end
 error: Failed to realize constant Tree.size.induct_unfolding:
   Cannot derive functional induction principle (please report this issue)
   ⏎
-    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
+    cannot add declaration Tree.size_aux.eq_1 to environment as it is restricted to the prefix Tree.size
 ---
 error: Failed to realize constant Tree.size.induct_unfolding:
   Cannot derive functional induction principle (please report this issue)
   ⏎
-    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
+    cannot add declaration Tree.size_aux.eq_1 to environment as it is restricted to the prefix Tree.size
 ---
 error: unknown identifier 'Tree.size.induct_unfolding'
 -/

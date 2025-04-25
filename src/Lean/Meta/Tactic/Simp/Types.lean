@@ -534,10 +534,22 @@ def Result.getProof' (source : Expr) (r : Result) : MetaM Expr := do
 def Result.mkCast (r : Simp.Result) (e : Expr) : MetaM Expr := do
   mkAppM ``cast #[← r.getProof, e]
 
+/-- Construct the `Expr` `h.mpr e`, from a `Simp.Result` with proof `h`. -/
+def Result.mkEqMPR (r : Simp.Result) (e : Expr) : MetaM Expr := do
+  if r.proof?.isNone && r.expr == e then
+    pure e
+  else
+    Meta.mkEqMPR (← r.getProof) e
+
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
   | none   => return { expr := mkApp r.expr a, proof? := none }
   | some h => return { expr := mkApp r.expr a, proof? := (← Meta.mkCongrFun h a) }
+
+def mkCongrArg (f : Expr) (r : Result) : MetaM Result :=
+  match r.proof? with
+  | none   => return { expr := mkApp f r.expr, proof? := none }
+  | some h => return { expr := mkApp f r.expr, proof? := (← Meta.mkCongrArg f h) }
 
 def mkCongr (r₁ r₂ : Result) : MetaM Result :=
   let e := mkApp r₁.expr r₂.expr
@@ -773,12 +785,23 @@ def DStep.addExtraArgs (s : DStep) (extraArgs : Array Expr) : DStep :=
   | .continue (some eNew) => .continue (mkAppN eNew extraArgs)
 
 def Result.addLambdas (r : Result) (xs : Array Expr) : MetaM Result := do
+  if xs.isEmpty then return r
   let eNew ← mkLambdaFVars xs r.expr
   match r.proof? with
   | none   => return { expr := eNew }
   | some h =>
     let p ← xs.foldrM (init := h) fun x h => do
       mkFunExt (← mkLambdaFVars #[x] h)
+    return { expr := eNew, proof? := p }
+
+def Result.addForalls (r : Result) (xs : Array Expr) : MetaM Result := do
+  if xs.isEmpty then return r
+  let eNew ← mkForallFVars xs r.expr
+  match r.proof? with
+  | none   => return { expr := eNew }
+  | some h =>
+    let p ← xs.foldrM (init := h) fun x h => do
+      mkForallCongr (← mkLambdaFVars #[x] h)
     return { expr := eNew, proof? := p }
 
 end Simp

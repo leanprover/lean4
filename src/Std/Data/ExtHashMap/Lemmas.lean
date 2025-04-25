@@ -1725,14 +1725,16 @@ section Ext
 
 variable {m₁ m₂ : ExtHashMap α β}
 
-@[ext]
+@[ext 900]
 theorem ext_getKey_getElem? [EquivBEq α] [LawfulHashable α]
     {m₁ m₂ : ExtHashMap α β}
     (hk : ∀ k hk hk', m₁.getKey k hk = m₂.getKey k hk')
     (hv : ∀ k : α, m₁[k]? = m₂[k]?) : m₁ = m₂ :=
   ext (ExtDHashMap.Const.ext_getKey_get? hk hv)
 
-theorem ext_getElem? [LawfulBEq α] (h : ∀ k : α, m₁[k]? = m₂[k]?) : m₁ = m₂ :=
+@[ext]
+theorem ext_getElem? [LawfulBEq α] {m₁ m₂ : ExtHashMap α β}
+    (h : ∀ k : α, m₁[k]? = m₂[k]?) : m₁ = m₂ :=
   ext (ExtDHashMap.Const.ext_get? h)
 
 theorem ext_getKey?_unit [EquivBEq α] [LawfulHashable α]

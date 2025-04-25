@@ -613,17 +613,17 @@ end
 
 section Ext
 
-variable {m₁ m₂ : ExtHashSet α}
-
-@[ext]
+@[ext 900]
 theorem ext_get? [EquivBEq α] [LawfulHashable α] {m₁ m₂ : ExtHashSet α}
     (h : ∀ k, m₁.get? k = m₂.get? k) : m₁ = m₂ :=
   ext (ExtHashMap.ext_getKey?_unit h)
 
-theorem ext_contains [LawfulBEq α] (h : ∀ k, m₁.contains k = m₂.contains k) : m₁ = m₂ :=
+theorem ext_contains [LawfulBEq α] {m₁ m₂ : ExtHashSet α}
+    (h : ∀ k, m₁.contains k = m₂.contains k) : m₁ = m₂ :=
   ext (ExtHashMap.ext_contains_unit h)
 
-theorem ext_mem [LawfulBEq α] (h : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ = m₂ :=
+@[ext]
+theorem ext_mem [LawfulBEq α] {m₁ m₂ : ExtHashSet α} (h : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ = m₂ :=
   ext (ExtHashMap.ext_mem_unit h)
 
 end Ext

@@ -759,8 +759,7 @@ the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manuall
 Defines a coinductive predicate using lattice theory, based on the Knaster-Tarski fixpoint theorem.
 
 This feature constructs coinductive predicates by leveraging the lattice structure on `Prop`
-(as provided by `Lean.Order.complete_lattice`) and ensures correctness through monotonicity
-(as defined in `Lean.Order.monotone`).
+and ensures correctness through monotonicity.
 
 The coinductive predicate is defined as the greatest fixed point of a monotone function on `Prop`.
 
@@ -777,8 +776,7 @@ def greatestFixpoint := leading_parser
 Defines an inductive predicate using lattice theory, based on the Knaster-Tarski fixpoint theorem.
 
 This feature constructs inductive predicates by leveraging the lattice structure on `Prop`
-(as provided by `Lean.Order.complete_lattice`) and ensures correctness through monotonicity
-(as defined in `Lean.Order.monotone`).
+and ensures correctness through monotonicity.
 
 The inductive predicate is defined as the least fixed point of a monotone function on `Prop`.
 

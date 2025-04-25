@@ -49,20 +49,30 @@ def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
     insts := insts.push inst₂
   return insts
 
+/--
+Desugars an appropriate `PartialOrder` instance on predicates to quantifications and implications.
+I.e `ImplicationOrder.instPartialOrder.rel P Q` becomes
+`∀ x y, P x y → Q x y`.
 
-def desugarOrder (predType : Expr) (body : Expr) (reduceRhs : Bool := false) (fixpointType : Option Bool) : MetaM (Expr) := do
+In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use a monotone map defining the predicate in the eta expanded form. In such a case, besides desugaring the predicate, we need to perform a weak head reduction.
+The optional parameter `reduceConclusion` (false by default) indicates whether we need to perform this reduction.
+-/
+def desugarOrder (predType : Expr) (body : Expr) (reduceConclusion : Bool := false) (fixpointType : Option Bool) : MetaM Expr := do
   if fixpointType.isNone then
     throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
   if body.isAppOfArity ``PartialOrder.rel 4 then
-    let lhsTypes ← forallTelescope predType (fun ts _ =>  ts.mapM inferType)
-    let names ← lhsTypes.mapM (fun _ => mkFreshUserName `x)
+    let lhsTypes ← forallTelescope predType fun ts _ =>  ts.mapM inferType
+    let names ← lhsTypes.mapM fun _ => mkFreshUserName `x
     let bodyArgs := body.getAppArgs
     withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
       let mut applied := if fixpointType.get! then (bodyArgs[2]!, bodyArgs[3]!) else (bodyArgs[3]!, bodyArgs[2]!)
       for e in exprs do
         applied := (mkApp applied.1 e, mkApp applied.2 e)
-      if reduceRhs then
-        applied := (applied.1, ←whnf applied.2)
+      if reduceConclusion then
+        if fixpointType.get! then
+          applied := ((←whnf applied.1), applied.2)
+        else
+          applied := (applied.1, (←whnf applied.2))
       mkForallFVars exprs (←mkArrow applied.1 applied.2)
   else
     throwError "{body} is not an application of partial order"
@@ -93,7 +103,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
         | .leastFixpoint => Option.some true
         | .greatestFixpoint => Option.some false
         | _ => Option.none
-      if (eqnInfo.declNames.size != 1) then
+      if eqnInfo.declNames.size != 1 then
         throwError "Mutual lattice (co)induction is not supported yet"
       eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
         -- Now look at the body of the functions
@@ -103,8 +113,8 @@ def deriveInduction (name : Name) : MetaM Unit :=
         let some fixApp ← whnfUntil body' ``lfp_monotone
           | throwError "Unexpected function body {body}, could not whnfUntil lfp_monotone"
         let_expr lfp_monotone α instcomplete_lattice F hmono := fixApp
-          | throwError "Unexpected function body {body}, not an application of lfp_induction"
-        let e' ← mkAppOptM ``lfp_induction_monotone #[α, instcomplete_lattice, F, hmono]
+          | throwError "Unexpected function body {body}, not an application of lfp_le_of_le"
+        let e' ← mkAppOptM ``lfp_le_of_le_monotone #[α, instcomplete_lattice, F, hmono]
         -- We get the type of the induction principle
         let eTyp ← inferType e'
         let f ← mkConstWithLevelParams infos[0]!.name
@@ -114,22 +124,25 @@ def deriveInduction (name : Name) : MetaM Unit :=
         let fInst := fInst.eta
 
         -- Then, we change the conclusion so it doesn't mention the `lfp_monotone`, but rather the actual predicate.
-        let newTyp ← forallTelescope eTyp (fun args econc =>
-          if (econc.isAppOfArity ``PartialOrder.rel 4) then
-          let oldArgs := econc.getAppArgs
-          let newArgs := oldArgs.set! 2 fInst
-          let newBody := mkAppN econc.getAppFn newArgs
-          mkForallFVars args newBody
+        let newTyp ← forallTelescope eTyp fun args econc =>
+          if econc.isAppOfArity ``PartialOrder.rel 4 then
+            let oldArgs := econc.getAppArgs
+            let newArgs := oldArgs.set! 2 fInst
+            let newBody := mkAppN econc.getAppFn newArgs
+            mkForallFVars args newBody
           else
             throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
-        )
+
         -- Desugar partial order on predicates in premises and conclusion
-        let newTyp ← forallTelescope newTyp (fun args conclusion => do
+        let newTyp ← forallTelescope newTyp fun args conclusion => do
           let predicate := args[0]!
           let predicateType ← inferType predicate
           let premise := args[1]!
           let premiseType ← inferType premise
-          let premiseType ← desugarOrder predicateType premiseType (reduceRhs := true) leastOrGreatest
+          -- Besides desugaring the predicate, we need to perform a weak head reduction in the premise,
+          -- where the monotone map defining the fixpoint is in the eta expanded form.
+          -- We do this by setting the optional parameter `reduceConclusion` to true.
+          let premiseType ← desugarOrder predicateType premiseType (reduceConclusion := true) leastOrGreatest
           let newConclusion ← desugarOrder predicateType conclusion
             (fixpointType := leastOrGreatest)
           let abstracedNewConclusion ← mkForallFVars args newConclusion
@@ -139,12 +152,9 @@ def deriveInduction (name : Name) : MetaM Unit :=
             let argsWithNewPremise := args.set! 1 newPremise
             let instantiated ← instantiateForall abstracedNewConclusion argsForInst
             mkForallFVars argsWithNewPremise instantiated
-          )
 
         let e' ← mkExpectedTypeHint e' newTyp
         let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
-
-        let e' ← instantiateMVars e'
 
         trace[Elab.definition.partialFixpoint.induction] "Complete body of (lattice-theoretic) fixpoint induction principle:{indentExpr e'}"
 

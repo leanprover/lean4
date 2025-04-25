@@ -22,7 +22,7 @@ structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
   fixedParamPerms : FixedParamPerms
-  fixpointType    :  Array PartialFixpointType
+  fixpointType    : Array PartialFixpointType
   deriving Inhabited
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
@@ -48,7 +48,7 @@ partial def rwFixUnder (lhs : Expr) : MetaM Expr := do
   if lhs.isAppOfArity ``Order.fix 4 then
     return mkAppN (mkConst ``Order.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
   else if lhs.isAppOfArity ``Order.lfp_monotone 4 then
-    return mkAppN (mkConst ``Order.lfp_fix_monotone lhs.getAppFn.constLevels!) lhs.getAppArgs
+    return mkAppN (mkConst ``Order.lfp_monotone_fix lhs.getAppFn.constLevels!) lhs.getAppArgs
   else if lhs.isApp then
     let h ← rwFixUnder lhs.appFn!
     mkAppM ``congrFun #[h, lhs.appArg!]

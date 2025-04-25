@@ -8,11 +8,16 @@ def infseq_fixpoint {α} (R : α → α → Prop) (x : α) :
   infseq R x = ∃ y, R x y ∧ infseq R y := by
     rw [infseq]
 
--- Usage of the associated coinduction principle
+-- The associated coinduction principle
 theorem infseq.coind {α} (h : α → Prop) (R : α → α → Prop)
   (prem : ∀ (x : α), h x → ∃ y, R x y ∧ h y) : ∀ x, h x → infseq R x := by
   apply infseq.fixpoint_induct
   exact prem
+/--
+info: infseq.fixpoint_induct.{u_1} {α : Sort u_1} (R : α → α → Prop) (x : α → Prop)
+  (y : ∀ (x_1 : α), x x_1 → ∃ y, R x_1 y ∧ x y) (x✝ : α) : x x✝ → infseq R x✝
+-/
+#guard_msgs in #check infseq.fixpoint_induct
 
 -- Simple proof by coinduction
 theorem cycle_infseq {R : α → α → Prop} (x : α) : R x x → infseq R x := by
@@ -30,6 +35,12 @@ inductive star (R : α → α → Prop) : α → α → Prop where
 def star_ind (tr : α → α → Prop) (q₁ q₂ : α) : Prop :=
  ∃ (z : α), q₁ = q₂ ∨ (tr q₁ z ∧ star_ind tr z q₂)
 least_fixpoint
+
+/--
+info: star_ind.fixpoint_induct.{u_1} {α : Sort u_1} (tr : α → α → Prop) (q₂ : α) (x : α → Prop)
+  (y : ∀ (x_1 : α), (∃ z, x_1 = q₂ ∨ tr x_1 z ∧ x z) → x x_1) (x✝ : α) : (fun q₁ => star_ind tr q₁ q₂) x✝ → x x✝
+-/
+#guard_msgs in #check star_ind.fixpoint_induct
 
 -- From one you can prove the other
 theorem star_implies_star' (R : α → α → Prop) : ∀ a b : α, star R a b → star_ind R a b := by
@@ -121,8 +132,8 @@ theorem infseq_coinduction_principle_2:
   ∀ (a : α), x a → infseq R a := by
     intro X
     intro h₁ a rel
-    apply infseq.coind (fun a => ∃ b, star R a b ∧ X b)
-    case a =>
+    apply @infseq.fixpoint_induct _ _ (fun a => ∃ b, star R a b ∧ X b)
+    case x =>
       apply Exists.elim (h₁ a rel)
       intro a' ⟨h₁, h₂⟩
       apply Exists.intro a'
@@ -130,7 +141,7 @@ theorem infseq_coinduction_principle_2:
       apply plus_star
       exact h₁
       exact h₂
-    case prem =>
+    case y =>
       intro a0 h₂
       apply Exists.elim h₂
       intro a1 ⟨ h₃ , h₄ ⟩

@@ -807,15 +807,20 @@ structure PromiseCheckedResult where
   asyncEnv : Environment
   private checkedEnvPromise : IO.Promise Kernel.Environment
 
+def realizingStack (env : Environment) : List Name :=
+  env.asyncCtx?.map (·.realizingStack) |>.getD []
+
 /-- Creates an async context for the given declaration name, normalizing it for use as a prefix. -/
-private def enterAsync (declName : Name) (realizing? : Option Name := none) (env : Environment) : Environment :=
+private def enterAsync (declName : Name) (env : Environment) : Environment :=
   { env with asyncCtx? := some {
     declPrefix := privateToUserName declName.eraseMacroScopes
-    realizingStack :=
-      let s := env.asyncCtx?.map (·.realizingStack) |>.getD []
-      match realizing? with
-      | none   => s
-      | some n => n :: s } }
+    realizingStack := env.realizingStack } }
+
+/-- Creates an async context when realizing `declName` -/
+private def enterAsyncRealizing (declName : Name) (env : Environment) : Environment :=
+  { env with asyncCtx? := some {
+    declPrefix := .anonymous
+    realizingStack := declName :: env.realizingStack } }
 
 /--
 Starts an asynchronous modification of the kernel environment. The environment is split into a
@@ -2040,9 +2045,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         realizedLocalConsts := realizeEnv.realizedLocalConsts.insert forConst ctx
         realizedImportedConsts? := env.realizedImportedConsts?
       }
-      -- ensure realized constants are nested below `forConst` and that environment extension
-      -- modifications know they are in an async context
-      let realizeEnv := realizeEnv.enterAsync (realizing? := constName) forConst
+      -- ensure that environment extension modifications know they are in an async context
+      let realizeEnv := realizeEnv.enterAsyncRealizing constName
       -- skip kernel in `realize`, we'll re-typecheck anyway
       let realizeOpts := debug.skipKernelTC.set ctx.opts true
       let (realizeEnv', dyn) ← realize realizeEnv realizeOpts

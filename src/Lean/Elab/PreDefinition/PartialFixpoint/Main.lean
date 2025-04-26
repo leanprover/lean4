@@ -106,7 +106,8 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   let isLattice := hints.any fun x => isLatticeTheoretic x.fixpointType
   -- If yes, then we expect all of them to be defined using lattice theory
   if isLattice then
-    assert! hints.all fun x => isLatticeTheoretic x.fixpointType
+    unless hints.all fun x => isLatticeTheoretic x.fixpointType do
+      throwError "all functions in the clique must be defined using lattice theory, but some are not"
 
   -- For every function of type `∀ x y, r x y`, an CCPO instance
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`

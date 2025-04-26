@@ -116,41 +116,43 @@ def PolyDerivation.p : PolyDerivation → Poly
 
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where
-  id           : Nat
-  type         : Expr
+  id             : Nat
+  type           : Expr
   /-- Cached `getDecLevel type` -/
-  u            : Level
+  u              : Level
   /-- `CommRing` instance for `type` -/
-  commRingInst : Expr
+  commRingInst   : Expr
   /-- `IsCharP` instance for `type` if available. -/
-  charInst?    : Option (Expr × Nat) := .none
-  addFn        : Expr
-  mulFn        : Expr
-  subFn        : Expr
-  negFn        : Expr
-  powFn        : Expr
-  intCastFn    : Expr
-  natCastFn    : Expr
+  charInst?      : Option (Expr × Nat) := .none
+  /-- `NoZeroNatDivisors` instance for `type` if available. -/
+  noZeroDivInst? : Option Expr := .none
+  addFn          : Expr
+  mulFn          : Expr
+  subFn          : Expr
+  negFn          : Expr
+  powFn          : Expr
+  intCastFn      : Expr
+  natCastFn      : Expr
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.
   -/
-  vars         : PArray Expr := {}
+  vars           : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
-  varMap       : PHashMap ENodeKey Var := {}
+  varMap         : PHashMap ENodeKey Var := {}
   /-- Mapping from Lean expressions to their representations as `RingExpr` -/
-  denote       : PHashMap ENodeKey RingExpr := {}
+  denote         : PHashMap ENodeKey RingExpr := {}
   /-- Next unique id for `EqCnstr`s. -/
-  nextId       : Nat := 0
+  nextId         : Nat := 0
   /-- Number of "steps": simplification and superposition. -/
-  steps        : Nat := 0
+  steps          : Nat := 0
   /-- Equations to process. -/
-  queue        : Queue := {}
+  queue          : Queue := {}
   /--
   Mapping from variables `x` to equations such that the smallest variable
   in the leading monomial is `x`.
   -/
-  varToBasis   : PArray (List EqCnstr) := {}
+  varToBasis     : PArray (List EqCnstr) := {}
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/

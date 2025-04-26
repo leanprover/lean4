@@ -130,7 +130,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_CommRing_isAddInst(lean_object* x_1,
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 5);
+x_3 = lean_ctor_get(x_1, 6);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec(x_4);
@@ -152,7 +152,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_CommRing_isMulInst(lean_object* x_1,
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 6);
+x_3 = lean_ctor_get(x_1, 7);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec(x_4);
@@ -174,7 +174,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_CommRing_isSubInst(lean_object* x_1,
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 7);
+x_3 = lean_ctor_get(x_1, 8);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec(x_4);
@@ -196,7 +196,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_CommRing_isNegInst(lean_object* x_1,
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 8);
+x_3 = lean_ctor_get(x_1, 9);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec(x_4);
@@ -218,7 +218,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_CommRing_isPowInst(lean_object* x_1,
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 9);
+x_3 = lean_ctor_get(x_1, 10);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec(x_4);
@@ -240,7 +240,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_CommRing_isIntCastInst(lean_object* 
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 10);
+x_3 = lean_ctor_get(x_1, 11);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec(x_4);
@@ -262,7 +262,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_CommRing_isNatCastInst(lean_object* 
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 11);
+x_3 = lean_ctor_get(x_1, 12);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec(x_4);
@@ -441,7 +441,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = lean_ctor_get(x_23, 11);
+x_25 = lean_ctor_get(x_23, 12);
 lean_inc(x_25);
 lean_dec(x_23);
 x_26 = l_Lean_Expr_app___override(x_25, x_4);
@@ -798,7 +798,7 @@ lean_inc(x_107);
 x_108 = lean_ctor_get(x_106, 1);
 lean_inc(x_108);
 lean_dec(x_106);
-x_109 = lean_ctor_get(x_107, 11);
+x_109 = lean_ctor_get(x_107, 12);
 lean_inc(x_109);
 lean_dec(x_107);
 x_110 = l_Lean_Expr_app___override(x_109, x_4);
@@ -2986,7 +2986,7 @@ lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
-x_27 = lean_ctor_get(x_25, 11);
+x_27 = lean_ctor_get(x_25, 12);
 lean_inc(x_27);
 lean_dec(x_25);
 x_28 = l_Lean_Expr_app___override(x_27, x_2);
@@ -3363,7 +3363,7 @@ lean_inc(x_122);
 x_123 = lean_ctor_get(x_121, 1);
 lean_inc(x_123);
 lean_dec(x_121);
-x_124 = lean_ctor_get(x_122, 11);
+x_124 = lean_ctor_get(x_122, 12);
 lean_inc(x_124);
 lean_dec(x_122);
 x_125 = l_Lean_Expr_app___override(x_124, x_2);

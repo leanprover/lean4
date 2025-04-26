@@ -222,15 +222,15 @@ def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
   let ring ← getRing
   let ctx ← toContextExpr
   let k := c.d.getMultiplier
-  let h ← match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? k) with
+  let h := match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? k) with
     | some (charInst, char), some nzDivInst =>
-      pure <| mkApp8 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr k)
+      mkApp8 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr k)
     | some (charInst, char), none =>
-      pure <| mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx nc
+      mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx nc
     | none, some nzDivInst =>
-      pure <| mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type ring.commRingInst nzDivInst ctx nc (toExpr k)
+      mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type ring.commRingInst nzDivInst ctx nc (toExpr k)
     | none, none =>
-      pure <| mkApp4 (mkConst ``Grind.CommRing.NullCert.ne_unsat [ring.u]) ring.type ring.commRingInst ctx nc
+      mkApp4 (mkConst ``Grind.CommRing.NullCert.ne_unsat [ring.u]) ring.type ring.commRingInst ctx nc
   let h := mkApp4 h (toExpr c.rlhs) (toExpr c.rrhs) reflBoolTrue (← mkDiseqProof c.lhs c.rhs)
   let h := ncx.applyEqs h
   closeGoal h

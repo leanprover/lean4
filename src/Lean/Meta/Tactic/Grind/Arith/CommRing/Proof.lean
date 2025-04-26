@@ -47,6 +47,9 @@ structure PreNullCert where
   d  : Int := 1
   deriving Inhabited
 
+def PreNullCert.zero : PreNullCert :=
+  { qs := #[] }
+
 def PreNullCert.unit (i : Nat) (n : Nat) : PreNullCert :=
   let qs := Array.replicate n (.num 0)
   let qs := qs.set! i (.num 1)
@@ -131,12 +134,23 @@ partial def EqCnstr.toPreNullCert (c : EqCnstr) : ProofM PreNullCert := caching 
   | .mul k c => (← c.toPreNullCert).mul k
   | .div k c => (← c.toPreNullCert).div k
 
+def PolyDerivation.toPreNullCert (d : PolyDerivation) : ProofM PreNullCert := do
+  match d with
+  | .input _ => return .zero
+  | .step _p k₁ d k₂ m₂ c₂ =>
+    -- Recall that _p = k₁*d.getPoly + k₂*m₂*c.p
+    (← d.toPreNullCert).combine k₁ .unit (-k₂) m₂ (← c₂.toPreNullCert)
+
 structure NullCertExt where
   d   : Int
   qhs : Array (Poly × NullCertHypothesis)
 
 def EqCnstr.mkNullCertExt (c : EqCnstr) : RingM NullCertExt := do
   let (nc, s) ← c.toPreNullCert.run {}
+  return { d := nc.d, qhs := nc.qs.zip s.hyps }
+
+def DiseqCnstr.mkNullCertExt (c : DiseqCnstr) : RingM NullCertExt := do
+  let (nc, s) ← c.d.toPreNullCert.run {}
   return { d := nc.d, qhs := nc.qs.zip s.hyps }
 
 def NullCertExt.toPoly (nc : NullCertExt) : RingM Poly := do
@@ -159,6 +173,10 @@ def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
 
 def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
+  let nc ← c.mkNullCertExt
+  trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.d.p.denoteExpr}), {← (← nc.toPoly).denoteExpr}"
+  trace_goal[grind.ring.assert.unsat] "{← (c.rlhs.sub c.rrhs).toPoly.denoteExpr}"
+  trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.d.p.denoteExpr}), {← nc.qhs.mapM fun (p, h) => return (← p.denoteExpr, ← h.lhs.denoteExpr, ← h.rhs.denoteExpr) }"
 
 private def mkLemmaPrefix (declName declNameC : Name) : RingM Expr := do
   let ring ← getRing

@@ -836,7 +836,7 @@ some 10
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
   for a in as do
     match (← f a) with
-    | some b => return b
+    | some b => return some b
     | _      => pure ⟨⟩
   return none
 
@@ -867,7 +867,7 @@ some 1
 def findM? {α : Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) := do
   for a in as do
     if (← p a) then
-      return a
+      return some a
   return none
 
 /--
@@ -1175,7 +1175,7 @@ def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=
   Id.run do
     for a in as do
       if p a then
-        return a
+        return some a
     return none
 
 /--

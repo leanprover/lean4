@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.Match
-// Imports: Lean.Meta.LitValues Lean.Meta.Check Lean.Meta.Closure Lean.Meta.CtorRecognizer Lean.Meta.Tactic.Cases Lean.Meta.Tactic.Contradiction Lean.Meta.GeneralizeTelescope Lean.Meta.Match.Basic Lean.Meta.Match.MatcherApp.Basic
+// Imports: Lean.Meta.LitValues Lean.Meta.Check Lean.Meta.Closure Lean.Meta.CtorRecognizer Lean.Meta.Tactic.Cases Lean.Meta.Tactic.Contradiction Lean.Meta.GeneralizeTelescope Lean.Meta.Match.Basic Lean.Meta.Match.MatcherApp.Basic Lean.Meta.Match.MVarRenaming
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4472,7 +4472,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__2;
-x_3 = lean_unsigned_to_nat(194u);
+x_3 = lean_unsigned_to_nat(195u);
 x_4 = lean_unsigned_to_nat(48u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4790,7 +4790,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__2;
-x_3 = lean_unsigned_to_nat(192u);
+x_3 = lean_unsigned_to_nat(193u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10523,7 +10523,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processAsPattern___closed__1;
-x_3 = lean_unsigned_to_nat(297u);
+x_3 = lean_unsigned_to_nat(298u);
 x_4 = lean_unsigned_to_nat(25u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10826,7 +10826,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processVariable___spec__2___closed__1;
-x_3 = lean_unsigned_to_nat(341u);
+x_3 = lean_unsigned_to_nat(342u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11562,7 +11562,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processVariable___spec__2___closed__1;
-x_3 = lean_unsigned_to_nat(331u);
+x_3 = lean_unsigned_to_nat(332u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -13696,7 +13696,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_Lean_Meta_Match_processInaccessibleAsCtor___closed__1;
-x_3 = lean_unsigned_to_nat(434u);
+x_3 = lean_unsigned_to_nat(435u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -15126,7 +15126,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_filterMapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___spec__9___closed__1;
-x_3 = lean_unsigned_to_nat(500u);
+x_3 = lean_unsigned_to_nat(501u);
 x_4 = lean_unsigned_to_nat(37u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16106,7 +16106,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_filterMapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___spec__9___closed__1;
-x_3 = lean_unsigned_to_nat(453u);
+x_3 = lean_unsigned_to_nat(454u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16993,7 +16993,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___spec__1___closed__1;
-x_3 = lean_unsigned_to_nat(527u);
+x_3 = lean_unsigned_to_nat(528u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -17580,7 +17580,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___spec__1___closed__1;
-x_3 = lean_unsigned_to_nat(521u);
+x_3 = lean_unsigned_to_nat(522u);
 x_4 = lean_unsigned_to_nat(15u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -18567,7 +18567,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___spec__1___closed__1;
-x_3 = lean_unsigned_to_nat(510u);
+x_3 = lean_unsigned_to_nat(511u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -19143,7 +19143,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processValue___spec__7___closed__1;
-x_3 = lean_unsigned_to_nat(565u);
+x_3 = lean_unsigned_to_nat(566u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -20077,7 +20077,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processValue___spec__7___closed__1;
-x_3 = lean_unsigned_to_nat(543u);
+x_3 = lean_unsigned_to_nat(544u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -21487,7 +21487,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processArrayLit___spec__8___closed__1;
-x_3 = lean_unsigned_to_nat(622u);
+x_3 = lean_unsigned_to_nat(623u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22584,7 +22584,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 x_2 = l_List_mapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processArrayLit___spec__8___closed__1;
-x_3 = lean_unsigned_to_nat(598u);
+x_3 = lean_unsigned_to_nat(599u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_List_mapTR_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -47949,6 +47949,7 @@ lean_object* initialize_Lean_Meta_Tactic_Contradiction(uint8_t builtin, lean_obj
 lean_object* initialize_Lean_Meta_GeneralizeTelescope(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Match_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Match_MatcherApp_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Match_MVarRenaming(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_Match(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -47979,6 +47980,9 @@ res = initialize_Lean_Meta_Match_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_MatcherApp_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Match_MVarRenaming(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_checkNumPatterns___closed__1 = _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_checkNumPatterns___closed__1();

@@ -85,7 +85,7 @@ structure WorkerContext where
   /--
   Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
   -/
-  stickyDiagnosticsRef     : IO.Ref (Array ReportableDiagnostic)
+  stickyDiagnosticsRef     : IO.Ref (Array InteractiveDiagnostic)
   partialHandlersRef       : IO.Ref (RBMap String PartialHandlerInfo compare)
   pendingServerRequestsRef : IO.Ref (Std.TreeMap RequestID (IO.Promise (ServerRequestResponse Json)))
   hLog                     : FS.Stream
@@ -192,7 +192,7 @@ This option can only be set on the command line, not in the lakefile or via `set
   See also section "Communication" in Lean/Server/README.md.
   -/
   structure MemorizedInteractiveDiagnostics where
-    diags : Array ReportableDiagnostic
+    diags : Array Widget.InteractiveDiagnostic
   deriving TypeName
 
   /--
@@ -205,7 +205,7 @@ This option can only be set on the command line, not in the lakefile or via `set
     let docInteractiveDiagnostics ← doc.diagnosticsRef.get
     let diagnostics :=
       stickyInteractiveDiagnostics ++ docInteractiveDiagnostics
-      |>.map (Widget.InteractiveDiagnostic.toDiagnostic ·.toDiagnosticWith)
+      |>.map (·.toDiagnostic)
     let notification := mkPublishDiagnosticsNotification doc.meta diagnostics
     ctx.chanOut.sync.send notification
 
@@ -300,8 +300,6 @@ This option can only be set on the command line, not in the lakefile or via `set
               msgs := msgs.filter (! ·.isSilent)
             let diags ← msgs.mapM
               (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
-            let diags ← diags.mapM fun diag => do
-              return { diag with encodedDiag := ← IO.Promise.new }
             if let some cacheRef := node.element.diagnostics.interactiveDiagsRef? then
               cacheRef.set <| some <| .mk { diags : MemorizedInteractiveDiagnostics }
             pure diags
@@ -464,7 +462,7 @@ section Initialization
     }
     let doc : EditableDocumentCore := {
       meta, initSnap
-      diagnosticsRef := ← IO.mkRef ∅
+      diagnosticsRef := (← IO.mkRef ∅)
     }
     let reporterCancelTk ← CancelToken.new
     let reporter ← reportSnapshots ctx doc reporterCancelTk
@@ -550,7 +548,7 @@ section Updates
     let initSnap ← ctx.processor meta.mkInputContext
     let doc : EditableDocumentCore := {
       meta, initSnap
-      diagnosticsRef := ← IO.mkRef ∅
+      diagnosticsRef := (← IO.mkRef ∅)
     }
     let reporterCancelTk ← CancelToken.new
     let reporter ← reportSnapshots ctx doc reporterCancelTk
@@ -610,7 +608,6 @@ section NotificationHandling
       fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.endPos⟩
       severity?  := DiagnosticSeverity.information
       message := importOutOfDataMessage
-      encodedDiag := ← IO.Promise.new
     }
     ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics =>
       let stickyDiagnostics := stickyDiagnostics.filter
@@ -723,12 +720,8 @@ section MessageHandling
   open Widget RequestM Language in
   def handleGetInteractiveDiagnosticsRequest
       (ctx : WorkerContext)
-      (st : WorkerState)
-      (params : RpcCallParams)
-      : RequestM (LspResponse Json) := do
-    let some seshRef := st.rpcSessions.find? params.sessionId
-      | throw RequestError.rpcNeedsReconnect
-    let params ← RequestM.parseRequestParams Widget.GetInteractiveDiagnosticsParams params.params
+      (params : GetInteractiveDiagnosticsParams)
+      : RequestM (Array InteractiveDiagnostic) := do
     let doc ← readDoc
     -- NOTE: always uses latest document (which is the only one we can retrieve diagnostics for);
     -- any race should be temporary as the client should re-request interactive diagnostics when
@@ -738,7 +731,7 @@ section MessageHandling
     -- NOTE: does not wait for `lineRange?` to be fully elaborated, which would be problematic with
     -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
     -- request when the non-interactive diagnostics of this range have changed
-    let matchedDiags := (stickyDiags ++ diags).filter fun diag =>
+    return (stickyDiags ++ diags).filter fun diag =>
       let r := diag.fullRange
       let diagStartLine := r.start.line
       let diagEndLine   :=
@@ -750,18 +743,6 @@ section MessageHandling
         -- does [s,e) intersect [diagStartLine,diagEndLine)?
         s ≤ diagStartLine ∧ diagStartLine < e ∨
         diagStartLine ≤ s ∧ s < diagEndLine
-    for diag in matchedDiags do
-      if ← diag.encodedDiag.isResolved then
-        continue
-      let encodedDiag ← seshRef.modifyGet fun st =>
-        let (encoded, objects') := StateT.run (s := st.objects) <| rpcEncode diag.toDiagnosticWith
-        (encoded, { st with objects := objects' })
-      diag.encodedDiag.resolve encodedDiag
-    let encodedDiags := matchedDiags.map (·.encodedDiag.result!.get)
-    let resp ← seshRef.modifyGet fun st =>
-      let (encoded, objects') := StateT.run (s := st.objects) <| rpcEncode encodedDiags
-      (encoded, { st with objects := objects' })
-    return { response := resp, isComplete := true }
 
   def handlePreRequestSpecialCases? (ctx : WorkerContext) (st : WorkerState)
       (id : RequestID) (method : String) (params : Json)
@@ -771,8 +752,13 @@ section MessageHandling
       let params ← RequestM.parseRequestParams Lsp.RpcCallParams params
       if params.method != `Lean.Widget.getInteractiveDiagnostics then
         return none
-      let resp ← handleGetInteractiveDiagnosticsRequest ctx st params
-      return some <| .pure resp
+      let some seshRef := st.rpcSessions.find? params.sessionId
+        | throw RequestError.rpcNeedsReconnect
+      let params ← RequestM.parseRequestParams Widget.GetInteractiveDiagnosticsParams params.params
+      let resp ← handleGetInteractiveDiagnosticsRequest ctx params
+      let resp ← seshRef.modifyGet fun st =>
+        rpcEncode resp st.objects |>.map (·) ({st with objects := ·})
+      return some <| .pure { response := resp, isComplete := true }
     | "codeAction/resolve" =>
       let params ← RequestM.parseRequestParams CodeAction params
       let some data := params.data?

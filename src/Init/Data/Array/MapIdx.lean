@@ -66,7 +66,7 @@ theorem mapFinIdx_spec {xs : Array α} {f : (i : Nat) → α → (h : i < xs.siz
 
 @[simp] theorem getElem?_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {i : Nat} :
     (xs.mapFinIdx f)[i]? =
-      xs[i]?.pbind fun b h => f i b (getElem?_eq_some_iff.1 h).1 := by
+      xs[i]?.pbind fun b h => some <| f i b (getElem?_eq_some_iff.1 h).1 := by
   simp only [getElem?_def, size_mapFinIdx, getElem_mapFinIdx]
   split <;> simp_all
 
@@ -155,7 +155,7 @@ theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {k i : Nat} {x : α} {xs : Array �
 /-- Variant of `mk_mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
 to avoid the inequality and the subtraction. -/
 theorem mk_mem_zipIdx_iff_getElem? {x : α} {i : Nat} {xs : Array α} :
-    (x, i) ∈ xs.zipIdx ↔ xs[i]? = x := by
+    (x, i) ∈ xs.zipIdx ↔ xs[i]? = some x := by
   rw [mk_mem_zipIdx_iff_le_and_getElem?_sub]
   simp
 

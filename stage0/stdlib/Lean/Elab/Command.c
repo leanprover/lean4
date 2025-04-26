@@ -271,6 +271,7 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_Linter_name___autoParam___closed__6;
 static lean_object* l_Lean_Elab_Command_mkCommandElabAttributeUnsafe___closed__5;
 static lean_object* l_Lean_Elab_Command_Linter_name___autoParam___closed__22;
+uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__6(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_runLintersAsync___lambda__2___closed__1;
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadExceptOfExceptionCommandElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -459,7 +460,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Command_wra
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_liftTermElabM___spec__12(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MetaM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabCommand_go___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getResetInfoTrees___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__3___rarg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Elab_Command___hyg_2185____closed__15;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadEnvCommandElabM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41272,7 +41272,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_5, x_13);
+x_15 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_5, x_13);
 lean_dec(x_13);
 if (x_15 == 0)
 {
@@ -41328,7 +41328,7 @@ lean_inc(x_30);
 x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec(x_29);
-x_32 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_5, x_30);
+x_32 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_5, x_30);
 lean_dec(x_30);
 if (x_32 == 0)
 {

@@ -112,7 +112,10 @@ because mathematical reasoning tends to be easier.
 instance : Mod Int where
   mod := Int.emod
 
-@[norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+@[simp, norm_cast] theorem natCast_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+
+@[deprecated natCast_ediv (since := "2025-04-17")]
+theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := natCast_ediv m n
 
 theorem ofNat_ediv_ofNat {a b : Nat} : (↑a / ↑b : Int) = (a / b : Nat) := rfl
 @[norm_cast]

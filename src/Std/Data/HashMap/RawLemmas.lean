@@ -1082,7 +1082,7 @@ theorem getElem?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHasha
 theorem getElem?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) :
-    (insertMany m l)[k']? = v :=
+    (insertMany m l)[k']? = some v :=
   DHashMap.Raw.Const.get?_insertMany_list_of_mem h.out k_beq distinct mem
 
 theorem getElem_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]

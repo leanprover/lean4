@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.CoreM
 import Lean.Namespace
+import Lean.Util.CollectAxioms
 
 namespace Lean
 
@@ -44,6 +45,38 @@ where go env
   | .str p _ => if isNamespaceName p then go (env.registerNamespace p) p else env
   | _        => env
 
+private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
+  mkMapDeclarationExtension
+
+/--
+Returns the kind of the declaration as originally declared instead of as exported. This information
+is stored by `Lean.addDecl` and may be inaccurate if that function was circumvented. Returns `none`
+if the declaration was not found.
+-/
+def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
+  privateConstKindsExt.find? env declName <|>
+    (env.setExporting false |>.findAsync? declName).map (·.kind)
+
+/--
+Checks whether the declaration was originally declared as a theorem; see also
+`Lean.getOriginalConstKind?`. Returns `false` if the declaration was not found.
+-/
+def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
+  getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
+
+-- HACK: remove together with MutualDef HACK when `[dsimp]` is introduced
+private def isSimpleRflProof (proof : Expr) : Bool :=
+  if let .lam _ _ proof _ := proof then
+    isSimpleRflProof proof
+  else
+    proof.isAppOfArity ``rfl 2
+
+private def looksLikeRelevantTheoremProofType (type : Expr) : Bool :=
+  if let .forallE _ _ type _ := type then
+    looksLikeRelevantTheoremProofType type
+  else
+    type.isAppOfArity ``WellFounded 2
+
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
@@ -56,19 +89,31 @@ def addDecl (decl : Declaration) : CoreM Unit := do
 
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
   -- kernel checking has finished; not all cases are supported yet
+  let mut exportedInfo? := none
+  let mut exportedKind? := none
   let (name, info, kind) ← match decl with
-    | .thmDecl thm => pure (thm.name, .thmInfo thm, .thm)
+    | .thmDecl thm =>
+      if (← getEnv).header.isModule && !isSimpleRflProof thm.value &&
+          -- TODO: this is horrible...
+          !looksLikeRelevantTheoremProofType thm.type then
+        exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
+        exportedKind? := some .axiom
+      pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
     | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← addSynchronously)
 
-  let env ← getEnv
+  -- preserve original constant kind in extension if different from exported one
+  if exportedKind?.isSome then
+    modifyEnv (privateConstKindsExt.insert · name kind)
+
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
-  let async ← env.addConstAsync (reportExts := false) name kind
+  let env ← getEnv
+  let async ← env.addConstAsync (reportExts := false) name kind (exportedKind?.getD kind)
   -- report preliminary constant info immediately
-  async.commitConst async.asyncEnv (some info)
+  async.commitConst async.asyncEnv (some info) exportedInfo?
   setEnv async.mainEnv
   let cancelTk ← IO.CancelToken.new
   let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
@@ -103,6 +148,8 @@ where
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException
           setEnv env
+          for n in decl.getTopLevelNames do
+            registerAxiomsForDecl n
         catch ex =>
           -- avoid follow-up errors by (trying to) add broken decl as axiom
           addAsAxiom

@@ -65,12 +65,12 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := fal
     | some c => return some c
     | none => p.findSimp? unitOnly
 
-/-- Simplifies `c` using `c'`. -/
-def EqCnstr.simplify1 (c c' : EqCnstr) : RingM (Option EqCnstr) := do
-  let some r := c'.p.simp? c.p (← nonzeroChar?) | return none
-  let c := { c with
+/-- Simplifies `c₁` using `c₂`. -/
+def EqCnstr.simplify1 (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
+  let some r := c₁.p.simp? c₂.p (← nonzeroChar?) | return none
+  let c := { c₁ with
     p := r.p
-    h := .simp c' c r.k₁ r.k₂ r.m
+    h := .simp r.k₁ c₁ r.k₂ r.m₂ c₂
   }
   trace_goal[grind.ring.simp] "{← c.p.denoteExpr}"
   return some c
@@ -101,7 +101,7 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
   if k == 0 then
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   else if (← hasChar) then
-    setInconsistent c
+    setUnsatEq c
   else
     -- Remark: we currently don't do anything if the characteristic is not known.
     trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"

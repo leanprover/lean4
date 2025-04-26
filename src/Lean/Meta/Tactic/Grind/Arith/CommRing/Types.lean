@@ -26,8 +26,8 @@ structure EqCnstr where
 
 inductive EqCnstrProof where
   | core (a b : Expr) (ra rb : RingExpr)
-  | superpose (c₁ c₂ : EqCnstr) (k₁ k₂ : Int) (m₁ m₂ : Mon)
-  | simp (c₁ c₂ : EqCnstr) (k₁ k₂ : Int) (m : Mon)
+  | superpose (k₁ : Int) (m₁ : Mon) (c₁ : EqCnstr) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr)
+  | simp (k₁ : Int) (c₁ : EqCnstr) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr)
   | mul (k : Int) (e : EqCnstr)
   | div (k : Int) (e : EqCnstr)
 

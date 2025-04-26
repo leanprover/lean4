@@ -61,6 +61,9 @@ def nonzeroCharInst? : RingM (Option (Expr × Nat)) := do
       return some (inst, c)
   return none
 
+def noZeroDivisorsInst? : RingM (Option Expr) := do
+  return (← getRing).noZeroDivInst?
+
 /--
 Returns `true` if the current ring satifies the property
 ```

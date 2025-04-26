@@ -700,33 +700,6 @@ theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) 
   simp [denote_toPoly] at h
   assumption
 
-def ne_unsat_cert (a b : Expr) : Bool :=
-  (a.sub b).toPoly == .num 0
-
-theorem ne_unsat {α} [CommRing α] (ctx : Context α) (a b : Expr)
-    : ne_unsat_cert a b → a.denote ctx ≠ b.denote ctx → False := by
-  simp [ne_unsat_cert]
-  intro h
-  replace h := congrArg (Poly.denote ctx .) h
-  simp [Poly.denote, Expr.denote, Expr.denote_toPoly, intCast_zero, sub_eq_zero_iff] at h
-  assumption
-
-def eq_unsat_cert (a b : Expr) (k : Int) : Bool :=
-  k != 0 && (a.sub b).toPoly == .num k
-
--- Remark: `[IsCharP α 0]` after `(ctx : Context α)` is not a mistake.
--- The `grind` procedure assumes that support theorems start with `{α} [CommRing α] (ctx : Context α)`
-theorem eq_unsat {α} [CommRing α] (ctx : Context α) [IsCharP α 0] (a b : Expr) (k : Int)
-    : eq_unsat_cert a b k → a.denote ctx = b.denote ctx → False := by
-  simp [eq_unsat_cert]
-  intro h₁ h₂
-  replace h₂ := congrArg (Poly.denote ctx .) h₂
-  simp [Poly.denote, Expr.denote, Expr.denote_toPoly, intCast_zero, sub_eq_iff] at h₂
-  have := IsCharP.intCast_eq_zero_iff (α := α) 0 k
-  simp [h₁] at this
-  rw [h₂, Eq.comm, ← sub_eq_iff, sub_self, Eq.comm]
-  assumption
-
 /-- Helper theorem for proving `NullCert` theorems. -/
 theorem NullCert.eqsImplies_helper {α} [CommRing α] (ctx : Context α) (nc : NullCert) (p : Prop) : (nc.denote ctx = 0 → p) → nc.eqsImplies ctx p := by
   induction nc <;> simp [denote, eqsImplies]
@@ -742,7 +715,7 @@ theorem NullCert.denote_toPoly {α} [CommRing α] (ctx : Context α) (nc : NullC
 def NullCert.eq_cert (nc : NullCert) (lhs rhs : Expr) :=
   (lhs.sub rhs).toPoly == nc.toPoly
 
-theorem NullCert.eq {α} [CommRing α] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
+theorem NullCert.eq {α} [CommRing α] (ctx : Context α) (nc : NullCert) {lhs rhs : Expr}
     : nc.eq_cert lhs rhs → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
   simp [eq_cert]; intro h₁
   apply eqsImplies_helper
@@ -750,6 +723,46 @@ theorem NullCert.eq {α} [CommRing α] (ctx : Context α) (nc : NullCert) (lhs r
   replace h₁ := congrArg (Poly.denote ctx) h₁
   simp [Expr.denote_toPoly, denote_toPoly, h₂, Expr.denote, sub_eq_zero_iff] at h₁
   assumption
+
+theorem NullCert.eqsImplies_helper' {α} [CommRing α] {ctx : Context α} {nc : NullCert} {p q : Prop} : nc.eqsImplies ctx p → (p → q) → nc.eqsImplies ctx q := by
+  induction nc <;> simp [denote, eqsImplies]
+  next => intro h₁ h₂; exact h₂ h₁
+  next ih => intro h₁ h₂ h₃; exact ih (h₁ h₃) h₂
+
+theorem NullCert.ne_unsat {α} [CommRing α] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
+    : nc.eq_cert lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  intro h₁ h₂
+  exact eqsImplies_helper' (eq ctx nc h₁) h₂
+
+def NullCert.ne_nzdiv_unsat_cert (nc : NullCert) (k : Int) (lhs rhs : Expr) : Bool :=
+  k ≠ 0 && (lhs.sub rhs).toPoly.mulConst k == nc.toPoly
+
+theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+    : nc.ne_nzdiv_unsat_cert k lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  simp [ne_nzdiv_unsat_cert]
+  intro h₁ h₂ h₃
+  apply eqsImplies_helper
+  intro h₄
+  replace h₂ := congrArg (Poly.denote ctx) h₂
+  simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, h₄, Expr.denote] at h₂
+  replace h₂ := no_zero_int_divisors h₁ h₂
+  rw [sub_eq_zero_iff] at h₂
+  exact h₃ h₂
+
+def NullCert.eq_unsat_cert (nc : NullCert) (k : Int) : Bool :=
+  k ≠ 0 && nc.toPoly == .num k
+
+theorem NullCert.eq_unsat {α} [CommRing α] [IsCharP α 0] (ctx : Context α) (nc : NullCert) (k : Int)
+    : nc.eq_unsat_cert k → nc.eqsImplies ctx False := by
+  simp [eq_unsat_cert]
+  intro h₁ h₂
+  apply eqsImplies_helper
+  intro h₃
+  replace h₂ := congrArg (Poly.denote ctx) h₂
+  simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, Expr.denote, h₃, Poly.denote] at h₂
+  have := IsCharP.intCast_eq_zero_iff (α := α) 0 k
+  simp [← h₂] at this
+  contradiction
 
 /-!
 Theorems for justifying the procedure for commutative rings with a characteristic in `grind`.
@@ -877,45 +890,55 @@ theorem Expr.eq_of_toPolyC_eq {α c} [CommRing α] [IsCharP α c] (ctx : Context
   simp [denote_toPolyC] at h
   assumption
 
-def ne_unsatC_cert (a b : Expr) (c : Nat) : Bool :=
-  (a.sub b).toPolyC c == .num 0
-
-theorem ne_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (a b : Expr)
-    : ne_unsatC_cert a b c → a.denote ctx ≠ b.denote ctx → False := by
-  simp [ne_unsatC_cert]
-  intro h
-  replace h := congrArg (Poly.denote ctx .) h
-  simp [Poly.denote, Expr.denote, Expr.denote_toPolyC, intCast_zero, sub_eq_zero_iff] at h
-  assumption
-
-def eq_unsatC_cert (a b : Expr) (c : Nat) (k : Int) : Bool :=
-  k != 0 && k % c != 0 && (a.sub b).toPolyC c == .num k
-
-theorem eq_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (a b : Expr) (k : Int)
-    : eq_unsatC_cert a b c k → a.denote ctx = b.denote ctx → False := by
-  simp [eq_unsatC_cert]
-  intro h₁ h₂ h₃
-  replace h₃ := congrArg (Poly.denote ctx .) h₃
-  simp [Poly.denote, Expr.denote, Expr.denote_toPolyC, intCast_zero, sub_eq_iff] at h₃
-  have := IsCharP.intCast_eq_zero_iff (α := α) c k
-  simp [h₁, h₂] at this
-  rw [h₃, Eq.comm, ← sub_eq_iff, sub_self, Eq.comm]
-  assumption
-
 theorem NullCert.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) : (nc.toPolyC c).denote ctx = nc.denote ctx := by
   induction nc <;> simp [toPolyC, denote, Poly.denote, intCast_zero, Poly.denote_combineC, Poly.denote_mulC, Expr.denote_toPolyC, Expr.denote, *]
 
 def NullCert.eq_certC (nc : NullCert) (lhs rhs : Expr) (c : Nat) :=
-  (lhs.sub rhs).toPolyC c == nc.toPoly
+  (lhs.sub rhs).toPolyC c == nc.toPolyC c
 
-theorem NullCert.eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
+theorem NullCert.eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) {lhs rhs : Expr}
     : nc.eq_certC lhs rhs c → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
   simp [eq_certC]; intro h₁
   apply eqsImplies_helper
   intro h₂
   replace h₁ := congrArg (Poly.denote ctx) h₁
-  simp [Expr.denote_toPolyC, denote_toPoly, h₂, Expr.denote, sub_eq_zero_iff] at h₁
+  simp [Expr.denote_toPolyC, denote_toPolyC, h₂, Expr.denote, sub_eq_zero_iff] at h₁
   assumption
+
+theorem NullCert.ne_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
+    : nc.eq_certC lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  intro h₁ h₂
+  exact eqsImplies_helper' (eqC ctx nc h₁) h₂
+
+def NullCert.ne_nzdiv_unsat_certC (nc : NullCert) (k : Int) (lhs rhs : Expr) (c : Nat) : Bool :=
+  k ≠ 0 && ((lhs.sub rhs).toPolyC c).mulConstC k c == nc.toPolyC c
+
+theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+    : nc.ne_nzdiv_unsat_certC k lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  simp [ne_nzdiv_unsat_certC]
+  intro h₁ h₂ h₃
+  apply eqsImplies_helper
+  intro h₄
+  replace h₂ := congrArg (Poly.denote ctx) h₂
+  simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₄, Expr.denote] at h₂
+  replace h₂ := no_zero_int_divisors h₁ h₂
+  rw [sub_eq_zero_iff] at h₂
+  exact h₃ h₂
+
+def NullCert.eq_unsat_certC (nc : NullCert) (k : Int) (c : Nat) : Bool :=
+  k % c != 0 && nc.toPolyC c == .num k
+
+theorem NullCert.eq_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) (k : Int)
+    : nc.eq_unsat_certC k c → nc.eqsImplies ctx False := by
+  simp [eq_unsat_certC]
+  intro h₁ h₂
+  apply eqsImplies_helper
+  intro h₃
+  replace h₂ := congrArg (Poly.denote ctx) h₂
+  simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₃, Poly.denote] at h₂
+  have := IsCharP.intCast_eq_zero_iff (α := α) c k
+  simp [h₂] at this
+  contradiction
 
 end CommRing
 end Lean.Grind

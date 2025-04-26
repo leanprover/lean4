@@ -54,13 +54,13 @@ using the equations `x - 1 = 0` (`c₁`) and `y - 2 = 0` (`c₂`).
 ```
 2*x^2 + x*y                  | s₁ := .input (2*x^2 + x*y)
 =           - 2*x*(x - 1)
-(2*x + x*y)                  | s₂ := .simp (2*x + x*y) c₁ 1 (-2) x s₁
+(2*x + x*y)                  | s₂ := .step (2*x + x*y)  1 s₁ (-2) x c₁
 =           - 2*1*(x - 1)
-(x*y + 2)                    | s₃ := .simp (x*y + 2) c₁ 1 (-2) 1 s₂
+(x*y + 2)                    | s₃ := .step (x*y + 2) 1 s₂ (-2) 1 c₁
 =           - 1*y*(x - 1)
-(y + 2)                      | s₄ := .simp (y+2) c₁ 1 (-1) y s₃
+(y + 2)                      | s₄ := .step (y+2) 1 s₃ (-1) y c₁
 =           - 1*1*(y - 2)
-4                            | s₅ := .simp 4 c₂ 1 1 1 s₄
+4                            | s₅ := .step 4 1 s₄ 1 1 c₂
 ```
 From the chain above, we build the certificate
 ```
@@ -88,12 +88,12 @@ inductive PolyDerivation where
     x + y + z            | s₁ := .input (x + y + z)
     *2
     =   - 1*1*(2*x - 1)
-    2*y + 2*z + 1        | s₂ := .simp (2*y + 2*z + 1) c₁ 2 (-1) 1 s₁
+    2*y + 2*z + 1        | s₂ := .step (2*y + 2*z + 1) 2 s₁ (-1) 1 c₁
     *3
     =   - 2*1*(3*y - 1)
-    6*z + 5              | s₃ := .simp (6*z + 5) c₂ 3 (-2) 1 s₂
+    6*z + 5              | s₃ := .step (6*z + 5) 3 s₂ (-2) 1 c₂
     =   - 1*1*(6*z + 5)
-    0                    | s₄ := .simp (0) c₃ 1 (-1) 1 s₃
+    0                    | s₄ := .step (0) 1 s₃ (-1) 1 c₃
     ```
     For this chain, we build the certificate
     ```
@@ -114,6 +114,17 @@ inductive PolyDerivation where
 def PolyDerivation.p : PolyDerivation → Poly
   | .input p   => p
   | .step p .. => p
+
+/-- A disequality `lhs ≠ rhs` asserted by the core. -/
+structure DiseqCnstr where
+  lhs : Expr
+  rhs : Expr
+  /-- Reified `lhs` -/
+  rlhs : RingExpr
+  /-- Reified `rhs` -/
+  rrhs : RingExpr
+  /-- `lhs - rhs` simplication chain. If it becomes `0` we have an inconsistency. -/
+  d : PolyDerivation
 
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where
@@ -154,6 +165,9 @@ structure Ring where
   in the leading monomial is `x`.
   -/
   varToBasis     : PArray (List EqCnstr) := {}
+  /-- Disequalities. -/
+  -- TODO: add indexing
+  diseqs         : PArray DiseqCnstr := {}
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/

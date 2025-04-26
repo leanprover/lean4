@@ -47,6 +47,9 @@ structure PreNullCert where
   d  : Int := 1
   deriving Inhabited
 
+def PreNullCert.zero : PreNullCert :=
+  { qs := #[] }
+
 def PreNullCert.unit (i : Nat) (n : Nat) : PreNullCert :=
   let qs := Array.replicate n (.num 0)
   let qs := qs.set! i (.num 1)
@@ -131,12 +134,33 @@ partial def EqCnstr.toPreNullCert (c : EqCnstr) : ProofM PreNullCert := caching 
   | .mul k c => (← c.toPreNullCert).mul k
   | .div k c => (← c.toPreNullCert).div k
 
+def PolyDerivation.toPreNullCert (d : PolyDerivation) : ProofM PreNullCert := do
+  match d with
+  | .input _ => return .zero
+  | .step _p k₁ d k₂ m₂ c₂ =>
+    -- Recall that _p = k₁*d.getPoly + k₂*m₂*c.p
+    trace[grind.debug.ring.proof] ">> k₁: {k₁}, {(← d.toPreNullCert).d}, {(← c₂.toPreNullCert).d}"
+    (← d.toPreNullCert).combine k₁ .unit (-k₂) m₂ (← c₂.toPreNullCert)
+
+/-- Returns the multiplier `k` for the input polynomial. See comment at `PolyDerivation.step`. -/
+def PolyDerivation.getMultiplier (d : PolyDerivation) : Int :=
+  go d 1
+where
+  go (d : PolyDerivation) (acc : Int) : Int :=
+    match d with
+    | .input _ => acc
+    | .step _ k₁ d .. => go d (k₁ * acc)
+
 structure NullCertExt where
   d   : Int
   qhs : Array (Poly × NullCertHypothesis)
 
 def EqCnstr.mkNullCertExt (c : EqCnstr) : RingM NullCertExt := do
   let (nc, s) ← c.toPreNullCert.run {}
+  return { d := nc.d, qhs := nc.qs.zip s.hyps }
+
+def DiseqCnstr.mkNullCertExt (c : DiseqCnstr) : RingM NullCertExt := do
+  let (nc, s) ← c.d.toPreNullCert.run {}
   return { d := nc.d, qhs := nc.qs.zip s.hyps }
 
 def NullCertExt.toPoly (nc : NullCertExt) : RingM Poly := do
@@ -150,33 +174,75 @@ def NullCertExt.check (c : EqCnstr) (nc : NullCertExt) : RingM Bool := do
   let p₂ ← nc.toPoly
   return p₁ == p₂
 
-def setUnsatEq (c : EqCnstr) : RingM Unit := do
-  trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
-  let nc ← c.mkNullCertExt
-  trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.p.denoteExpr}), {← (← nc.toPoly).denoteExpr}"
-  trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.p.denoteExpr}), {← nc.qhs.mapM fun (p, h) => return (← p.denoteExpr, ← h.lhs.denoteExpr, ← h.rhs.denoteExpr) }"
-  -- TODO
+def NullCertExt.toNullCert (nc : NullCertExt) : Grind.CommRing.NullCert :=
+  go nc.qhs.size .empty (by omega)
+where
+  go (i : Nat) (acc : Grind.CommRing.NullCert) (h : i ≤ nc.qhs.size) : Grind.CommRing.NullCert :=
+    if h : i > 0 then
+      let i := i - 1
+      let (p, h) := nc.qhs[i]
+      go i (.add p h.lhs h.rhs acc) (by omega)
+    else
+      acc
 
-private def mkLemmaPrefix (declName declNameC : Name) : RingM Expr := do
+/--
+Given a `pr`, returns `pr h₁ ... hₙ`, where `n` is size `nc.qhs.size`, and `hᵢ`s
+are the equalities in the certificate.
+-/
+def NullCertExt.applyEqs (pr : Expr) (nc : NullCertExt) : Expr :=
+  go 0 pr
+where
+  go (i : Nat) (pr : Expr) : Expr :=
+    if _ : i < nc.qhs.size then
+      let (_, h) := nc.qhs[i]
+      go (i + 1) (mkApp pr h.h)
+    else
+      pr
+
+private def getNoZeroDivInstIfNeeded? (k : Int) : RingM (Option Expr) := do
+  if k == 1 then
+    return none
+  else
+    let some inst ← noZeroDivisorsInst?
+      | throwError "`grind` internal error, `NoZeroNatDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
+    return some inst
+
+def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
+  trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
+  let .num k := c.p
+    | throwError "`grind` internal error, constant polynomial expected {indentExpr (← c.p.denoteExpr)}"
+  let ncx ← c.mkNullCertExt
+  trace_goal[grind.ring.assert.unsat] "{ncx.d}*({← c.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
+  let ring ← getRing
+  let some (charInst, char) := ring.charInst?
+    | throwError "`grind` internal error, `IsCharP` insrtance is needed, but it is not available for{indentExpr (← getRing).type}"
+  let h := if char == 0 then
+    mkApp (mkConst ``Grind.CommRing.NullCert.eq_unsat [ring.u]) ring.type
+  else
+    mkApp2 (mkConst ``Grind.CommRing.NullCert.eq_unsatC [ring.u]) ring.type (toExpr char)
+  let ctx ← toContextExpr
+  let nc := toExpr (ncx.toNullCert)
+  let h := mkApp6 h ring.commRingInst charInst ctx nc (toExpr k) reflBoolTrue
+  closeGoal <| ncx.applyEqs h
+
+def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
+  trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
+  let ncx ← c.mkNullCertExt
+  trace_goal[grind.ring.assert.unsat] "{ncx.d}*({← c.d.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
+  let nc := toExpr (ncx.toNullCert)
   let ring ← getRing
   let ctx ← toContextExpr
-  if let some (charInst, c) ← nonzeroCharInst? then
-    return mkApp5 (mkConst declNameC [ring.u]) ring.type (toExpr c) ring.commRingInst charInst ctx
-  else
-    return mkApp3 (mkConst declName [ring.u]) ring.type ring.commRingInst ctx
-
--- TODO: delete
-def setNeUnsat (a b : Expr) (ra rb : RingExpr) : RingM Unit := do
-  let h ← mkLemmaPrefix ``Grind.CommRing.ne_unsat ``Grind.CommRing.ne_unsatC
-  closeGoal <| mkApp4 h (toExpr ra) (toExpr rb) reflBoolTrue (← mkDiseqProof a b)
-
--- TODO: delete
-def setEqUnsat (k : Int) (a b : Expr) (ra rb : RingExpr) : RingM Unit := do
-  let mut h ← mkLemmaPrefix ``Grind.CommRing.eq_unsat ``Grind.CommRing.eq_unsatC
-  let (charInst, c) ← getCharInst
-  if c == 0 then
-    h := mkApp h charInst
-  closeGoal <| mkApp5 h (toExpr ra) (toExpr rb) (toExpr k) reflBoolTrue (← mkEqProof a b)
-
+  let k := c.d.getMultiplier
+  let h := match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? k) with
+    | some (charInst, char), some nzDivInst =>
+      mkApp8 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr k)
+    | some (charInst, char), none =>
+      mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx nc
+    | none, some nzDivInst =>
+      mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type ring.commRingInst nzDivInst ctx nc (toExpr k)
+    | none, none =>
+      mkApp4 (mkConst ``Grind.CommRing.NullCert.ne_unsat [ring.u]) ring.type ring.commRingInst ctx nc
+  let h := mkApp4 h (toExpr c.rlhs) (toExpr c.rrhs) reflBoolTrue (← mkDiseqProof c.lhs c.rhs)
+  closeGoal <| ncx.applyEqs h
 
 end Lean.Meta.Grind.Arith.CommRing

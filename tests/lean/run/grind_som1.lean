@@ -37,4 +37,4 @@ def nc   : NullCert := .add q₁ lhs₁ rhs₁ (.add q₂ lhs₂ rhs₂ .empty)
 
 example (x y : Int) : x = y → y - x*y + y^2 = 1 → y = 1 :=
   let ctx := #R[x, y]
-  nc.eq ctx lhs rhs (Eq.refl true)
+  nc.eq ctx (lhs := lhs) (rhs := rhs) (Eq.refl true)

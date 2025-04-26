@@ -325,7 +325,7 @@ class NoZeroNatDivisors (α : Type u) [CommRing α] where
 
 export NoZeroNatDivisors (no_zero_nat_divisors)
 
-theorem no_zero_int_divisors (α : Type u) [CommRing α] [NoZeroNatDivisors α] {k : Int} (a : α)
+theorem no_zero_int_divisors {α : Type u} [CommRing α] [NoZeroNatDivisors α] {k : Int} {a : α}
     : k ≠ 0 → k * a = 0 → a = 0 := by
   match k with
   | (k : Nat) =>

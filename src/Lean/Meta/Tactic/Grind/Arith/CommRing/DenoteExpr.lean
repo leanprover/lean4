@@ -74,4 +74,7 @@ def EqCnstr.denoteExpr (c : EqCnstr) : RingM Expr := do
 def PolyDerivation.denoteExpr (d : PolyDerivation) : RingM Expr := do
   d.p.denoteExpr
 
+def DiseqCnstr.denoteExpr (c : DiseqCnstr) : RingM Expr := do
+  return mkNot (← mkEq (← c.d.denoteExpr) (← denoteNum 0))
+
 end Lean.Meta.Grind.Arith.CommRing

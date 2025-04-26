@@ -130,7 +130,7 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
   if k == 0 then
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   else if (← hasChar) then
-    setUnsatEq c
+    c.setUnsat
   else
     -- Remark: we currently don't do anything if the characteristic is not known.
     trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
@@ -219,6 +219,28 @@ def addNewEq (c : EqCnstr) : RingM Unit := do
   else
     c.addToQueue
 
+/-- Returns `true` if `c.d.p` is the constant polynomial. -/
+def DiseqCnstr.checkConstant (c : DiseqCnstr) : RingM Bool := do
+  let .num k := c.d.p | return false
+  if k == 0 then
+    c.setUnsat
+  else
+    trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
+  return true
+
+def DiseqCnstr.simplify (c : DiseqCnstr) : RingM DiseqCnstr := do
+  return { c with d := (← c.d.simplify) }
+
+def saveDiseq (c : DiseqCnstr) : RingM Unit := do
+  trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
+  modifyRing fun s => { s with diseqs := s.diseqs.push c }
+
+def addNewDiseq (c : DiseqCnstr) : RingM Unit := do
+  let c ← c.simplify
+  if (← c.checkConstant) then
+    return ()
+  saveDiseq c
+
 @[export lean_process_ring_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
@@ -228,17 +250,6 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
-    -- TODO: delete this `if` after simplifier is fully integrated
-    if let .num k := p then
-      if k == 0 then
-        trace_goal[grind.ring.assert.trivial] "{← p.denoteExpr} = 0"
-      else if (← hasChar) then
-        trace_goal[grind.ring.assert.unsat] "{← p.denoteExpr} = 0"
-        setEqUnsat k a b ra rb
-      else
-        -- Remark: we currently don't do anything if the characteristic is not known.
-        trace_goal[grind.ring.assert.discard] "{← p.denoteExpr} = 0"
-      return ()
     addNewEq (← mkEqCnstr p (.core a b ra rb))
 
 @[export lean_process_ring_diseq]
@@ -249,16 +260,10 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
-    if let .num k := p then
-      if k == 0 then
-        trace_goal[grind.ring.assert.unsat] "{← p.denoteExpr} ≠ 0"
-        setNeUnsat a b ra rb
-      else
-        -- Remark: if the characteristic is known, it is trivial.
-        -- Otherwise, we don't do anything.
-        trace_goal[grind.ring.assert.trivial] "{← p.denoteExpr} ≠ 0"
-      return ()
-    trace_goal[grind.ring.assert.store] "{← p.denoteExpr} ≠ 0"
-    -- TODO: save disequalitys
+    addNewDiseq {
+      lhs := a, rhs := b
+      rlhs := ra, rrhs := rb
+      d := .input p
+    }
 
 end Lean.Meta.Grind.Arith.CommRing

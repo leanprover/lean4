@@ -164,6 +164,39 @@ def NullCertExt.check (c : EqCnstr) (nc : NullCertExt) : RingM Bool := do
   let p₂ ← nc.toPoly
   return p₁ == p₂
 
+def NullCertExt.toNullCert (nc : NullCertExt) : Grind.CommRing.NullCert :=
+  go nc.qhs.size .empty (by omega)
+where
+  go (i : Nat) (acc : Grind.CommRing.NullCert) (h : i ≤ nc.qhs.size) : Grind.CommRing.NullCert :=
+    if h : i > 0 then
+      let i := i - 1
+      let (p, h) := nc.qhs[i]
+      go i (.add p h.lhs h.rhs acc) (by omega)
+    else
+      acc
+
+/--
+Given a `pr`, returns `pr h₁ ... hₙ`, where `n` is size `nc.qhs.size`, and `hᵢ`s
+are the equalities in the certificate.
+-/
+def NullCertExt.applyEqs (pr : Expr) (nc : NullCertExt) : Expr :=
+  go 0 pr
+where
+  go (i : Nat) (pr : Expr) : Expr :=
+    if _ : i < nc.qhs.size then
+      let (_, h) := nc.qhs[i]
+      go (i + 1) (mkApp pr h.h)
+    else
+      pr
+
+private def getNoZeroDivInstIfNeeded? (nc : NullCertExt) : RingM (Option Expr) := do
+  if nc.d == 1 then
+    return none
+  else
+    let some inst ← noZeroDivisorsInst?
+      | throwError "`grind` internal error, `NoZeroNatDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
+    return some inst
+
 def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
   let nc ← c.mkNullCertExt
@@ -173,10 +206,23 @@ def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
 
 def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
-  let nc ← c.mkNullCertExt
-  trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.d.p.denoteExpr}), {← (← nc.toPoly).denoteExpr}"
-  trace_goal[grind.ring.assert.unsat] "{← (c.rlhs.sub c.rrhs).toPoly.denoteExpr}"
-  trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.d.p.denoteExpr}), {← nc.qhs.mapM fun (p, h) => return (← p.denoteExpr, ← h.lhs.denoteExpr, ← h.rhs.denoteExpr) }"
+  let ncx ← c.mkNullCertExt
+  trace_goal[grind.ring.assert.unsat] "{ncx.d}*({← c.d.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
+  let nc := toExpr (ncx.toNullCert)
+  let ring ← getRing
+  let ctx ← toContextExpr
+  let h ← match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? ncx) with
+    | some (charInst, char), some nzDivInst =>
+      pure <| mkApp8 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr ncx.d)
+    | some (charInst, char), none =>
+      pure <| mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx nc
+    | none, some nzDivInst =>
+      pure <| mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type ring.commRingInst nzDivInst ctx nc (toExpr ncx.d)
+    | none, none =>
+      pure <| mkApp4 (mkConst ``Grind.CommRing.NullCert.ne_unsat [ring.u]) ring.type ring.commRingInst ctx nc
+  let h := mkApp4 h (toExpr c.rlhs) (toExpr c.rrhs) reflBoolTrue (← mkDiseqProof c.lhs c.rhs)
+  let h := ncx.applyEqs h
+  closeGoal h
 
 private def mkLemmaPrefix (declName declNameC : Name) : RingM Expr := do
   let ring ← getRing

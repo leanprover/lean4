@@ -1789,6 +1789,11 @@ partial def importModulesCore (imports : Array Import) (forceImportAll := true) 
     -- `imports` is identical for each part
     let some (baseMod, _) := parts[0]? | unreachable!
     importModulesCore (forceImportAll := forceImportAll || !baseMod.isModule) baseMod.imports
+    if baseMod.isModule && !forceImportAll then
+      for i' in baseMod.imports do
+        if let some mod := (← get).moduleNameMap[i'.module]?.bind (·.mainModule?) then
+          if !mod.isModule then
+            throw <| IO.userError s!"cannot import non`-module` {i'.module} from `module` {i.module}"
     modify fun s => { s with
       moduleNameMap := s.moduleNameMap.insert i.module { name := i.module, importAll, parts }
       moduleNames := s.moduleNames.push i.module

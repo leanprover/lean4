@@ -217,9 +217,9 @@ def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
   let some (charInst, char) := ring.charInst?
     | throwError "`grind` internal error, `IsCharP` insrtance is needed, but it is not available for{indentExpr (← getRing).type}"
   let h := if char == 0 then
-    mkApp2 (mkConst ``Grind.CommRing.NullCert.eq_unsatC [ring.u]) ring.type (toExpr char)
-  else
     mkApp (mkConst ``Grind.CommRing.NullCert.eq_unsat [ring.u]) ring.type
+  else
+    mkApp2 (mkConst ``Grind.CommRing.NullCert.eq_unsatC [ring.u]) ring.type (toExpr char)
   let ctx ← toContextExpr
   let nc := toExpr (ncx.toNullCert)
   let h := mkApp5 h ring.commRingInst charInst ctx nc (toExpr k)

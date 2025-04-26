@@ -776,6 +776,21 @@ theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoZeroNatDivisors α] (ctx :
   rw [sub_eq_zero_iff] at h₂
   exact h₃ h₂
 
+def NullCert.eq_unsat_cert (nc : NullCert) (k : Int) : Bool :=
+  k ≠ 0 && nc.toPoly == .num k
+
+theorem NullCert.eq_unsat {α} [CommRing α] [IsCharP α 0] (ctx : Context α) (nc : NullCert) (k : Int)
+    : nc.eq_unsat_cert k → nc.eqsImplies ctx False := by
+  simp [eq_unsat_cert]
+  intro h₁ h₂
+  apply eqsImplies_helper
+  intro h₃
+  replace h₂ := congrArg (Poly.denote ctx) h₂
+  simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, Expr.denote, h₃, Poly.denote] at h₂
+  have := IsCharP.intCast_eq_zero_iff (α := α) 0 k
+  simp [← h₂] at this
+  contradiction
+
 /-!
 Theorems for justifying the procedure for commutative rings with a characteristic in `grind`.
 -/
@@ -961,6 +976,21 @@ theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoZeroNatD
   replace h₂ := no_zero_int_divisors h₁ h₂
   rw [sub_eq_zero_iff] at h₂
   exact h₃ h₂
+
+def NullCert.eq_unsat_certC (nc : NullCert) (k : Int) (c : Nat) : Bool :=
+  k % c != 0 && nc.toPolyC c == .num k
+
+theorem NullCert.eq_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) (k : Int)
+    : nc.eq_unsat_certC k c → nc.eqsImplies ctx False := by
+  simp [eq_unsat_certC]
+  intro h₁ h₂
+  apply eqsImplies_helper
+  intro h₃
+  replace h₂ := congrArg (Poly.denote ctx) h₂
+  simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₃, Poly.denote] at h₂
+  have := IsCharP.intCast_eq_zero_iff (α := α) c k
+  simp [h₂] at this
+  contradiction
 
 end CommRing
 end Lean.Grind

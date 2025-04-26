@@ -1765,8 +1765,12 @@ partial def importModulesCore (imports : Array Import) (forceImportAll := true) 
     -- import private info if (transitively) used by a non-`module` on any import path
     let importAll := forceImportAll
     if let some mod := (← get).moduleNameMap[i.module]? then
-      modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-        importAll := mod.importAll || importAll }}
+      -- when module is already imported, bump entire closure to private if necessary
+      if importAll && !mod.importAll then
+        modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
+          importAll := true }}
+        if let some mod := mod.mainModule? then
+          importModulesCore mod.imports true
       continue
     let mFile ← findOLean i.module
     unless (← mFile.pathExists) do

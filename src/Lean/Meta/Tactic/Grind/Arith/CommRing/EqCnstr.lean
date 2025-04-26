@@ -38,32 +38,35 @@ private def toRingExpr? (e : Expr) : RingM (Option RingExpr) := do
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides `m`.
-If `unitOnly` is true, only equations with a unit leading coefficient are considered.
+Remark: if the current ring does not satisfy the property
+```
+∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
+```
+then the leading coefficient of the equation must also divide `k`
 -/
-def _root_.Lean.Grind.CommRing.Mon.findSimp? (m : Mon) (unitOnly : Bool := false) : RingM (Option EqCnstr) :=
-  go m
-where
-  go : Mon → RingM (Option EqCnstr)
+def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
+  let noZeroDiv ← noZeroDivisors
+  let rec go : Mon → RingM (Option EqCnstr)
     | .unit => return none
     | .mult pw m' => do
       for c in (← getRing).varToBasis[pw.x]! do
-        if !unitOnly || c.p.lc.natAbs == 1 then
+        if noZeroDiv || (c.p.lc ∣ k) then
         if c.p.divides m then
           return some c
       go m'
+  go m
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides some
 monomial in `p`.
-If `unitOnly` is true, only equations with a unit leading coefficient are considered.
 -/
-def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := false) : RingM (Option EqCnstr) := do
+def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) : RingM (Option EqCnstr) := do
   match p with
   | .num _ => return none
-  | .add _ m p =>
-    match (← m.findSimp? unitOnly) with
+  | .add k m p =>
+    match (← m.findSimp? k) with
     | some c => return some c
-    | none => p.findSimp? unitOnly
+    | none => p.findSimp?
 
 /-- Simplifies `c₁` using `c₂`. -/
 def EqCnstr.simplify1 (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do

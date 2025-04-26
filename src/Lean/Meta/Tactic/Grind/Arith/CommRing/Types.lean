@@ -115,6 +115,17 @@ def PolyDerivation.p : PolyDerivation → Poly
   | .input p   => p
   | .step p .. => p
 
+/-- A disequality `lhs ≠ rhs` asserted by the core. -/
+structure DiseqCnstr where
+  lhs : Expr
+  rhs : Expr
+  /-- Reified `lhs` -/
+  rlhs : RingExpr
+  /-- Reified `rhs` -/
+  rrhs : RingExpr
+  /-- `lhs - rhs` simplication chain. If it becomes `0` we have an inconsistency. -/
+  d : PolyDerivation
+
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where
   id             : Nat
@@ -154,6 +165,9 @@ structure Ring where
   in the leading monomial is `x`.
   -/
   varToBasis     : PArray (List EqCnstr) := {}
+  /-- Disequalities. -/
+  -- TODO: add indexing
+  diseqs         : PArray DiseqCnstr := {}
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/

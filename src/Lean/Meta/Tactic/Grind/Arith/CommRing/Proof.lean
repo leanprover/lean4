@@ -150,12 +150,15 @@ def NullCertExt.check (c : EqCnstr) (nc : NullCertExt) : RingM Bool := do
   let p₂ ← nc.toPoly
   return p₁ == p₂
 
-def setUnsatEq (c : EqCnstr) : RingM Unit := do
+def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
   let nc ← c.mkNullCertExt
   trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.p.denoteExpr}), {← (← nc.toPoly).denoteExpr}"
   trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.p.denoteExpr}), {← nc.qhs.mapM fun (p, h) => return (← p.denoteExpr, ← h.lhs.denoteExpr, ← h.rhs.denoteExpr) }"
   -- TODO
+
+def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
+  trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
 
 private def mkLemmaPrefix (declName declNameC : Name) : RingM Expr := do
   let ring ← getRing

@@ -224,7 +224,7 @@ def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
   let k := c.d.getMultiplier
   let h ← match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? k) with
     | some (charInst, char), some nzDivInst =>
-      pure <| mkApp8 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr k)
+      pure <| mkApp8 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr k)
     | some (charInst, char), none =>
       pure <| mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx nc
     | none, some nzDivInst =>

@@ -57,25 +57,28 @@ I.e `ImplicationOrder.instPartialOrder.rel P Q` becomes
 In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use a monotone map defining the predicate in the eta expanded form. In such a case, besides desugaring the predicate, we need to perform a weak head reduction.
 The optional parameter `reduceConclusion` (false by default) indicates whether we need to perform this reduction.
 -/
-def desugarOrder (predType : Expr) (body : Expr) (reduceConclusion : Bool := false) (fixpointType : Option Bool) : MetaM Expr := do
-  if fixpointType.isNone then
-    throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
-  if body.isAppOfArity ``PartialOrder.rel 4 then
+def desugarOrder (predType : Expr) (body : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
+  match fixpointType with
+  | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
+  | .leastFixpoint | .greatestFixpoint =>
+    unless body.isAppOfArity ``PartialOrder.rel 4 do
+      throwError "{body} is not an application of partial order"
     let lhsTypes ← forallTelescope predType fun ts _ =>  ts.mapM inferType
     let names ← lhsTypes.mapM fun _ => mkFreshUserName `x
     let bodyArgs := body.getAppArgs
     withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
-      let mut applied := if fixpointType.get! then (bodyArgs[2]!, bodyArgs[3]!) else (bodyArgs[3]!, bodyArgs[2]!)
+      let mut applied  := match fixpointType with
+        | .leastFixpoint => (bodyArgs[2]!, bodyArgs[3]!)
+        | .greatestFixpoint => (bodyArgs[3]!, bodyArgs[2]!)
+        | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
       for e in exprs do
         applied := (mkApp applied.1 e, mkApp applied.2 e)
       if reduceConclusion then
-        if fixpointType.get! then
-          applied := ((←whnf applied.1), applied.2)
-        else
-          applied := (applied.1, (←whnf applied.2))
+        match fixpointType with
+        | .leastFixpoint => applied := ((←whnf applied.1), applied.2)
+        | .greatestFixpoint => applied := (applied.1, (←whnf applied.2))
+        | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
       mkForallFVars exprs (←mkArrow applied.1 applied.2)
-  else
-    throwError "{body} is not an application of partial order"
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard library?
@@ -99,10 +102,6 @@ def deriveInduction (name : Name) : MetaM Unit :=
       throwError "{name} is not defined by partial_fixpoint"
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
     let e' ← if eqnInfo.fixpointType.all isLatticeTheoretic then
-      let leastOrGreatest : Option Bool := match eqnInfo.fixpointType[0]! with
-        | .leastFixpoint => Option.some true
-        | .greatestFixpoint => Option.some false
-        | _ => Option.none
       if eqnInfo.declNames.size != 1 then
         throwError "Mutual lattice (co)induction is not supported yet"
       eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
@@ -142,9 +141,8 @@ def deriveInduction (name : Name) : MetaM Unit :=
           -- Besides desugaring the predicate, we need to perform a weak head reduction in the premise,
           -- where the monotone map defining the fixpoint is in the eta expanded form.
           -- We do this by setting the optional parameter `reduceConclusion` to true.
-          let premiseType ← desugarOrder predicateType premiseType (reduceConclusion := true) leastOrGreatest
-          let newConclusion ← desugarOrder predicateType conclusion
-            (fixpointType := leastOrGreatest)
+          let premiseType ← desugarOrder predicateType premiseType eqnInfo.fixpointType[0]! (reduceConclusion := true)
+          let newConclusion ← desugarOrder predicateType conclusion eqnInfo.fixpointType[0]!
           let abstracedNewConclusion ← mkForallFVars args newConclusion
           withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
             let typeHint ← mkExpectedTypeHint newPremise premiseType

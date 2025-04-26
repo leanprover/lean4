@@ -1,8 +1,7 @@
 def computeFuel (mass : Nat) : Nat :=
   let rec go acc cur :=
     let n := cur / 3 - 2
-    -- TODO: investigate why we need `_ :`
-    if _ : n = 0 then acc + cur else go (acc + cur) n
+    if n = 0 then acc + cur else go (acc + cur) n
   termination_by cur
   go 0 mass - mass
 

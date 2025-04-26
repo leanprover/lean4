@@ -36,3 +36,9 @@ example [CommRing α] [NoZeroNatDivisors α] (x y : α) : 6*x = 1 → 3*y = 2 �
 
 example [CommRing α] [NoZeroNatDivisors α] (x y : α) : 600000*x = 1 → 300*y = 2 → 200000*x + 100*y = 1 := by
   grind +ring
+
+example (x y : Int) : y = 0 → (x + 1)*(x - 1) + y = x^2 → False := by
+  grind +ring
+
+example (x y z : BitVec 8) : z = y → (x + 1)*(x - 1)*y + y = z*x^2 + 1 → False := by
+  grind +ring

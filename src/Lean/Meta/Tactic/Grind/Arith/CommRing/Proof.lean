@@ -222,7 +222,7 @@ def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
     mkApp2 (mkConst ``Grind.CommRing.NullCert.eq_unsatC [ring.u]) ring.type (toExpr char)
   let ctx ← toContextExpr
   let nc := toExpr (ncx.toNullCert)
-  let h := mkApp5 h ring.commRingInst charInst ctx nc (toExpr k)
+  let h := mkApp6 h ring.commRingInst charInst ctx nc (toExpr k) reflBoolTrue
   closeGoal <| ncx.applyEqs h
 
 def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do

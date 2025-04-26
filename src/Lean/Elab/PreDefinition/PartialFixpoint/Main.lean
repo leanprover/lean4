@@ -10,6 +10,7 @@ import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
 import Lean.Elab.Tactic.Monotonicity
 import Init.Internal.Order.Basic
 import Lean.Meta.PProdN
+import Lean.Meta.Order
 
 namespace Lean.Elab
 
@@ -59,36 +60,6 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedParamPer
       pure e
     k e
 
-def mkInstPiOfInstForall (x : Expr) (inst : Expr) : MetaM Expr := do
-  if (←inferType inst).isAppOf ``CCPO then
-    mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
-  else if (←inferType inst).isAppOf ``CompleteLattice then
-    mkAppOptM ``instCompleteLatticePi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
-  else
-    throwError "mkInstPiOfInstForall: unexpected type of {inst}"
-
-def mkFixOfMonFun (packedType : Expr) (packedInst : Expr) (hmono : Expr) : MetaM Expr := do
-  if (←inferType packedInst).isAppOf ``CCPO then
-    mkAppOptM ``fix #[packedType, packedInst, none, hmono]
-  else if (←inferType packedInst).isAppOf ``CompleteLattice then
-    mkAppOptM ``lfp_monotone #[packedType, packedInst, none, hmono]
-  else
-    throwError "mkFixOfMonFun: unexpected type of {packedInst}"
-
-def toPartialOrder (packedInst : Expr) (type : Option Expr := .none) := do
-  if (←inferType packedInst).isAppOf ``CCPO then
-    mkAppOptM ``CCPO.toPartialOrder #[type, packedInst]
-  else if (←inferType packedInst).isAppOf ``CompleteLattice then
-    mkAppOptM ``CompleteLattice.toPartialOrder #[type, packedInst]
-  else
-    throwError "getUnderlyingOrder: unexpected type of {packedInst}"
-
-def mkInstCCPOPProd (inst₁ inst₂ : Expr) : MetaM Expr := do
-  mkAppOptM ``instCCPOPProd #[none, none, inst₁, inst₂]
-
-def mkInstCompleteLatticePProd (inst₁ inst₂ : Expr) : MetaM Expr := do
-  mkAppOptM ``instCompleteLatticePProd #[none, none, inst₁, inst₂]
-
 def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
   -- mkAppM does not support the equivalent of (cfg := { synthAssignedInstances := false}),
   -- so this is a bit more pedestrian
@@ -111,7 +82,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
   -- For every function of type `∀ x y, r x y`, an CCPO instance
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
-  let ccpoInsts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
+  let insts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
     lambdaTelescope preDef.value fun xs _body => do
       let type ← instantiateForall preDef.type xs
       let inst ←
@@ -138,8 +109,9 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   let declNames := preDefs.map (·.declName)
   let fixedParamPerms ← getFixedParamPerms preDefs
   fixedParamPerms.perms[0]!.forallTelescope preDefs[0]!.type fun fixedArgs => do
-    -- ∀ x y, CCPO (rᵢ x y)
-    let ccpoInsts ← ccpoInsts.mapIdxM (fixedParamPerms.perms[·]!.instantiateLambda · fixedArgs)
+    -- Either: ∀ x y, CCPO (rᵢ x y)
+    -- Or:     ∀ x y, CompleteLattice (rᵢ x y)
+    let insts ← insts.mapIdxM (fixedParamPerms.perms[·]!.instantiateLambda · fixedArgs)
     let types ← preDefs.mapIdxM (fixedParamPerms.perms[·]!.instantiateForall ·.type fixedArgs)
 
     -- (∀ x y, r₁ x y) ×' (∀ x y, r₂ x y)
@@ -147,15 +119,16 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     -- Either: CCPO (∀ x y, rᵢ x y)
     -- Or:     CompleteLattice (∀ x y, rᵢ x y)
-    let ccpoInsts' ← ccpoInsts.mapM fun inst =>
+    let insts' ← insts.mapM fun inst =>
       lambdaTelescope inst fun xs inst => do
         let mut inst := inst
         for x in xs.reverse do
           inst ← mkInstPiOfInstForall x inst
         pure inst
+
     -- Either: CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
     -- Or:     CompleteLattice ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
-    let packedInst ← if isLattice then PProdN.genMk mkInstCompleteLatticePProd ccpoInsts' else PProdN.genMk mkInstCCPOPProd ccpoInsts'
+    let packedInst ← mkPackedPPRodInstance insts'
     -- Order ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
     let packedPartialOrderInst ← toPartialOrder packedInst
 
@@ -190,7 +163,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     let hmonos ← preDefs.mapIdxM fun i preDef => do
       let type := types[i]!
       let F := Fs[i]!
-      let inst ← toPartialOrder ccpoInsts'[i]! type
+      let inst ← toPartialOrder insts'[i]! type
       let goal ← mkAppOptM ``monotone #[packedType, packedPartialOrderInst, type, inst, F]
       if let some term := hints[i]!.term? then
         let hmono ← Term.withSynthesize <| Term.elabTermEnsuringType term goal

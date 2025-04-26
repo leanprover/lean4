@@ -742,7 +742,7 @@ theorem NullCert.denote_toPoly {α} [CommRing α] (ctx : Context α) (nc : NullC
 def NullCert.eq_cert (nc : NullCert) (lhs rhs : Expr) :=
   (lhs.sub rhs).toPoly == nc.toPoly
 
-theorem NullCert.eq {α} [CommRing α] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
+theorem NullCert.eq {α} [CommRing α] (ctx : Context α) (nc : NullCert) {lhs rhs : Expr}
     : nc.eq_cert lhs rhs → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
   simp [eq_cert]; intro h₁
   apply eqsImplies_helper
@@ -750,6 +750,31 @@ theorem NullCert.eq {α} [CommRing α] (ctx : Context α) (nc : NullCert) (lhs r
   replace h₁ := congrArg (Poly.denote ctx) h₁
   simp [Expr.denote_toPoly, denote_toPoly, h₂, Expr.denote, sub_eq_zero_iff] at h₁
   assumption
+
+theorem NullCert.eqsImplies_helper' {α} [CommRing α] {ctx : Context α} {nc : NullCert} {p q : Prop} : nc.eqsImplies ctx p → (p → q) → nc.eqsImplies ctx q := by
+  induction nc <;> simp [denote, eqsImplies]
+  next => intro h₁ h₂; exact h₂ h₁
+  next ih => intro h₁ h₂ h₃; exact ih (h₁ h₃) h₂
+
+theorem NullCert.ne_unsat {α} [CommRing α] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
+    : nc.eq_cert lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  intro h₁ h₂
+  exact eqsImplies_helper' (eq ctx nc h₁) h₂
+
+def NullCert.ne_nzdiv_unsat_cert (nc : NullCert) (k : Int) (lhs rhs : Expr) : Bool :=
+  k ≠ 0 && (lhs.sub rhs).toPoly.mulConst k == nc.toPoly
+
+theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+    : nc.ne_nzdiv_unsat_cert k lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  simp [ne_nzdiv_unsat_cert]
+  intro h₁ h₂ h₃
+  apply eqsImplies_helper
+  intro h₄
+  replace h₂ := congrArg (Poly.denote ctx) h₂
+  simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, h₄, Expr.denote] at h₂
+  replace h₂ := no_zero_int_divisors h₁ h₂
+  rw [sub_eq_zero_iff] at h₂
+  exact h₃ h₂
 
 /-!
 Theorems for justifying the procedure for commutative rings with a characteristic in `grind`.
@@ -906,16 +931,36 @@ theorem NullCert.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Conte
   induction nc <;> simp [toPolyC, denote, Poly.denote, intCast_zero, Poly.denote_combineC, Poly.denote_mulC, Expr.denote_toPolyC, Expr.denote, *]
 
 def NullCert.eq_certC (nc : NullCert) (lhs rhs : Expr) (c : Nat) :=
-  (lhs.sub rhs).toPolyC c == nc.toPoly
+  (lhs.sub rhs).toPolyC c == nc.toPolyC c
 
-theorem NullCert.eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
+theorem NullCert.eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) {lhs rhs : Expr}
     : nc.eq_certC lhs rhs c → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
   simp [eq_certC]; intro h₁
   apply eqsImplies_helper
   intro h₂
   replace h₁ := congrArg (Poly.denote ctx) h₁
-  simp [Expr.denote_toPolyC, denote_toPoly, h₂, Expr.denote, sub_eq_zero_iff] at h₁
+  simp [Expr.denote_toPolyC, denote_toPolyC, h₂, Expr.denote, sub_eq_zero_iff] at h₁
   assumption
+
+theorem NullCert.ne_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (nc : NullCert) (lhs rhs : Expr)
+    : nc.eq_certC lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  intro h₁ h₂
+  exact eqsImplies_helper' (eqC ctx nc h₁) h₂
+
+def NullCert.ne_nzdiv_unsat_certC (nc : NullCert) (k : Int) (lhs rhs : Expr) (c : Nat) : Bool :=
+  k ≠ 0 && ((lhs.sub rhs).toPolyC c).mulConstC k c == nc.toPolyC c
+
+theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+    : nc.ne_nzdiv_unsat_certC k lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  simp [ne_nzdiv_unsat_certC]
+  intro h₁ h₂ h₃
+  apply eqsImplies_helper
+  intro h₄
+  replace h₂ := congrArg (Poly.denote ctx) h₂
+  simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₄, Expr.denote] at h₂
+  replace h₂ := no_zero_int_divisors h₁ h₂
+  rw [sub_eq_zero_iff] at h₂
+  exact h₃ h₂
 
 end CommRing
 end Lean.Grind

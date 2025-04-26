@@ -209,10 +209,21 @@ private def getNoZeroDivInstIfNeeded? (k : Int) : RingM (Option Expr) := do
 
 def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
-  let nc ← c.mkNullCertExt
-  trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.p.denoteExpr}), {← (← nc.toPoly).denoteExpr}"
-  trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.p.denoteExpr}), {← nc.qhs.mapM fun (p, h) => return (← p.denoteExpr, ← h.lhs.denoteExpr, ← h.rhs.denoteExpr) }"
-  -- TODO
+  let .num k := c.p
+    | throwError "`grind` internal error, constant polynomial expected {indentExpr (← c.p.denoteExpr)}"
+  let ncx ← c.mkNullCertExt
+  trace_goal[grind.ring.assert.unsat] "{ncx.d}*({← c.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
+  let ring ← getRing
+  let some (charInst, char) := ring.charInst?
+    | throwError "`grind` internal error, `IsCharP` insrtance is needed, but it is not available for{indentExpr (← getRing).type}"
+  let h := if char == 0 then
+    mkApp2 (mkConst ``Grind.CommRing.NullCert.eq_unsatC [ring.u]) ring.type (toExpr char)
+  else
+    mkApp (mkConst ``Grind.CommRing.NullCert.eq_unsat [ring.u]) ring.type
+  let ctx ← toContextExpr
+  let nc := toExpr (ncx.toNullCert)
+  let h := mkApp5 h ring.commRingInst charInst ctx nc (toExpr k)
+  closeGoal <| ncx.applyEqs h
 
 def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
@@ -232,8 +243,7 @@ def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
     | none, none =>
       mkApp4 (mkConst ``Grind.CommRing.NullCert.ne_unsat [ring.u]) ring.type ring.commRingInst ctx nc
   let h := mkApp4 h (toExpr c.rlhs) (toExpr c.rrhs) reflBoolTrue (← mkDiseqProof c.lhs c.rhs)
-  let h := ncx.applyEqs h
-  closeGoal h
+  closeGoal <| ncx.applyEqs h
 
 private def mkLemmaPrefix (declName declNameC : Name) : RingM Expr := do
   let ring ← getRing

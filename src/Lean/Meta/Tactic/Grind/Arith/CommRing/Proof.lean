@@ -139,7 +139,17 @@ def PolyDerivation.toPreNullCert (d : PolyDerivation) : ProofM PreNullCert := do
   | .input _ => return .zero
   | .step _p k₁ d k₂ m₂ c₂ =>
     -- Recall that _p = k₁*d.getPoly + k₂*m₂*c.p
+    trace[grind.debug.ring.proof] ">> k₁: {k₁}, {(← d.toPreNullCert).d}, {(← c₂.toPreNullCert).d}"
     (← d.toPreNullCert).combine k₁ .unit (-k₂) m₂ (← c₂.toPreNullCert)
+
+/-- Returns the multiplier `k` for the input polynomial. See comment at `PolyDerivation.step`. -/
+def PolyDerivation.getMultiplier (d : PolyDerivation) : Int :=
+  go d 1
+where
+  go (d : PolyDerivation) (acc : Int) : Int :=
+    match d with
+    | .input _ => acc
+    | .step _ k₁ d .. => go d (k₁ * acc)
 
 structure NullCertExt where
   d   : Int
@@ -189,8 +199,8 @@ where
     else
       pr
 
-private def getNoZeroDivInstIfNeeded? (nc : NullCertExt) : RingM (Option Expr) := do
-  if nc.d == 1 then
+private def getNoZeroDivInstIfNeeded? (k : Int) : RingM (Option Expr) := do
+  if k == 1 then
     return none
   else
     let some inst ← noZeroDivisorsInst?
@@ -211,13 +221,14 @@ def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
   let nc := toExpr (ncx.toNullCert)
   let ring ← getRing
   let ctx ← toContextExpr
-  let h ← match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? ncx) with
+  let k := c.d.getMultiplier
+  let h ← match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? k) with
     | some (charInst, char), some nzDivInst =>
-      pure <| mkApp8 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr ncx.d)
+      pure <| mkApp8 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr k)
     | some (charInst, char), none =>
       pure <| mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx nc
     | none, some nzDivInst =>
-      pure <| mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type ring.commRingInst nzDivInst ctx nc (toExpr ncx.d)
+      pure <| mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type ring.commRingInst nzDivInst ctx nc (toExpr k)
     | none, none =>
       pure <| mkApp4 (mkConst ``Grind.CommRing.NullCert.ne_unsat [ring.u]) ring.type ring.commRingInst ctx nc
   let h := mkApp4 h (toExpr c.rlhs) (toExpr c.rrhs) reflBoolTrue (← mkDiseqProof c.lhs c.rhs)

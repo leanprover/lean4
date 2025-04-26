@@ -377,7 +377,8 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun infoSt => do
     let messages := tree.getAll.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) .empty
     -- do not double-report
-    modify ({ · with messages := messages.markAllReported })
+    let messages := messages.markAllReported
+    modify fun st => { st with messages := st.messages ++ messages }
     modifyInfoState fun _ => infoSt
     runLinters stx
 

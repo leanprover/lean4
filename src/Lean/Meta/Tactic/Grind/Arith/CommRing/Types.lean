@@ -47,7 +47,7 @@ protected def EqCnstr.compare (c₁ c₂ : EqCnstr) : Ordering :=
 abbrev Queue : Type := RBTree EqCnstr EqCnstr.compare
 
 /--
-A simplification chain.
+A polynomial equipped with a chain of rewrite steps that justifies its equality to the original input.
 From an input polynomial `p`, we use equations (i.e., `EqCnstr`) as rewriting rules.
 For example, consider the following sequence of rewrites for the input polynomial `x^2 + x*y`
 using the equations `x - 1 = 0` (`c₁`) and `y - 2 = 0` (`c₂`).
@@ -72,7 +72,7 @@ for
 ```
 because `x-1 = 0` and `y-2=0`
 -/
-inductive SimpChain where
+inductive PolyDerivation where
   | input (p : Poly)
   | /--
     ```
@@ -108,12 +108,11 @@ inductive SimpChain where
     ```
     grind can deduce that `x+y+z = 0`
     -/
-    simp (p : Poly) (c : EqCnstr) (k₁ : Int) (k₂ : Int) (m : Mon) (s : SimpChain)
+    step (p : Poly) (c : EqCnstr) (k₁ : Int) (k₂ : Int) (m : Mon) (s : PolyDerivation)
 
-def SimpChain.getPoly : SimpChain → Poly
+def PolyDerivation.p : PolyDerivation → Poly
   | .input p   => p
-  | .simp p .. => p
-
+  | .step p .. => p
 
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where

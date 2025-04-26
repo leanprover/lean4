@@ -43,7 +43,7 @@ coinductive infinite_chain step : α → Prop where
 ```
 -/
 def infinite_chain {α} (step : α → Option α) (x : α) : Prop :=
-  ∃ y, step x = some y ∧ (infinite_chain step y)
+  ∃ y, step x = some y ∧ infinite_chain step y
   partial_fixpoint
 
 theorem infinite_chain.intro {α} (step : α → Option α) (y x : α) :

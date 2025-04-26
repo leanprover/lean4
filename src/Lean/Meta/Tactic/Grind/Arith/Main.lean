@@ -38,11 +38,7 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
 
 def check : GrindTactic := fun goal => do
   let (progress, goal) ← GoalM.run goal do
-    if (← Cutsat.hasAssignment) then
-      return false
-    else
-      Cutsat.searchAssigment
-      return true
+    Cutsat.check
   unless progress do
     return none
   if goal.inconsistent then

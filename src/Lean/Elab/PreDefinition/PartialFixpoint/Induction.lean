@@ -101,19 +101,25 @@ def deriveInduction (name : Name) : MetaM Unit :=
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-    let e' ← if eqnInfo.fixpointType.all isLatticeTheoretic then
-      if eqnInfo.declNames.size != 1 then
-        throwError "Mutual lattice (co)induction is not supported yet"
-      eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
-        -- Now look at the body of the functions
-        let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
-        let body' := PProdN.stripProjs body.eta
+    let e' ← eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
+      -- Now look at the body of an arbitrary of the functions (they are essentially the same
+      -- up to the final projections)
+      let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
+
+      -- The body should now be of the form of the form (fix … ).2.2.1
+      -- We strip the projections (if present)
+      let body' := PProdN.stripProjs body.eta -- TODO: Eta more carefully?
+      if eqnInfo.fixpointType.all isLatticeTheoretic then
+        unless eqnInfo.declNames.size == 1 do
+          throwError "Mutual lattice (co)induction is not supported yet"
+
         -- We strip it until we reach an application of `lfp_montotone`
         let some fixApp ← whnfUntil body' ``lfp_monotone
           | throwError "Unexpected function body {body}, could not whnfUntil lfp_monotone"
         let_expr lfp_monotone α instcomplete_lattice F hmono := fixApp
-          | throwError "Unexpected function body {body}, not an application of lfp_le_of_le"
+          | throwError "Unexpected function body {body}, not an application of lfp_monotone"
         let e' ← mkAppOptM ``lfp_le_of_le_monotone #[α, instcomplete_lattice, F, hmono]
+
         -- We get the type of the induction principle
         let eTyp ← inferType e'
         let f ← mkConstWithLevelParams infos[0]!.name
@@ -157,16 +163,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
         trace[Elab.definition.partialFixpoint.induction] "Complete body of (lattice-theoretic) fixpoint induction principle:{indentExpr e'}"
 
         pure e'
-
-    else
-      eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
-        -- Now look at the body of an arbitrary of the functions (they are essentially the same
-        -- up to the final projections)
-        let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
-
-        -- The body should now be of the form of the form (fix … ).2.2.1
-        -- We strip the projections (if present)
-        let body' := PProdN.stripProjs body.eta -- TODO: Eta more carefully?
+      else
         let some fixApp ← whnfUntil body' ``fix
           | throwError "Unexpected function body {body}, could not whnfUntil fix"
         let_expr fix α instCCPOα F hmono := fixApp

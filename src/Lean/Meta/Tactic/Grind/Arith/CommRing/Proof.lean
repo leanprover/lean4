@@ -245,26 +245,4 @@ def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
   let h := mkApp4 h (toExpr c.rlhs) (toExpr c.rrhs) reflBoolTrue (← mkDiseqProof c.lhs c.rhs)
   closeGoal <| ncx.applyEqs h
 
-private def mkLemmaPrefix (declName declNameC : Name) : RingM Expr := do
-  let ring ← getRing
-  let ctx ← toContextExpr
-  if let some (charInst, c) ← nonzeroCharInst? then
-    return mkApp5 (mkConst declNameC [ring.u]) ring.type (toExpr c) ring.commRingInst charInst ctx
-  else
-    return mkApp3 (mkConst declName [ring.u]) ring.type ring.commRingInst ctx
-
--- TODO: delete
-def setNeUnsat (a b : Expr) (ra rb : RingExpr) : RingM Unit := do
-  let h ← mkLemmaPrefix ``Grind.CommRing.ne_unsat ``Grind.CommRing.ne_unsatC
-  closeGoal <| mkApp4 h (toExpr ra) (toExpr rb) reflBoolTrue (← mkDiseqProof a b)
-
--- TODO: delete
-def setEqUnsat (k : Int) (a b : Expr) (ra rb : RingExpr) : RingM Unit := do
-  let mut h ← mkLemmaPrefix ``Grind.CommRing.eq_unsat ``Grind.CommRing.eq_unsatC
-  let (charInst, c) ← getCharInst
-  if c == 0 then
-    h := mkApp h charInst
-  closeGoal <| mkApp5 h (toExpr ra) (toExpr rb) (toExpr k) reflBoolTrue (← mkEqProof a b)
-
-
 end Lean.Meta.Grind.Arith.CommRing

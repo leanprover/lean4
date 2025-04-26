@@ -250,17 +250,6 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
-    -- TODO: delete this `if` after simplifier is fully integrated
-    if let .num k := p then
-      if k == 0 then
-        trace_goal[grind.ring.assert.trivial] "{← p.denoteExpr} = 0"
-      else if (← hasChar) then
-        trace_goal[grind.ring.assert.unsat] "{← p.denoteExpr} = 0"
-        setEqUnsat k a b ra rb
-      else
-        -- Remark: we currently don't do anything if the characteristic is not known.
-        trace_goal[grind.ring.assert.discard] "{← p.denoteExpr} = 0"
-      return ()
     addNewEq (← mkEqCnstr p (.core a b ra rb))
 
 @[export lean_process_ring_diseq]
@@ -271,16 +260,6 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
-    -- TODO: delete if-then-else
-    if let .num k := p then
-      if k == 0 then
-        trace_goal[grind.ring.assert.unsat] "{← p.denoteExpr} ≠ 0"
-        setNeUnsat a b ra rb
-      else
-        -- Remark: if the characteristic is known, it is trivial.
-        -- Otherwise, we don't do anything.
-        trace_goal[grind.ring.assert.trivial] "{← p.denoteExpr} ≠ 0"
-      return ()
     addNewDiseq {
       lhs := a, rhs := b
       rlhs := ra, rrhs := rb

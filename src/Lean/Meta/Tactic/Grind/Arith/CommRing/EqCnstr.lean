@@ -68,6 +68,32 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) : RingM (Option EqCnstr
     | some c => return some c
     | none => p.findSimp?
 
+/-- Simplifies `d.p` using `c`, and returns an extended polynomial derivation. -/
+def PolyDerivation.simplify1 (d : PolyDerivation) (c : EqCnstr) : RingM (Option PolyDerivation) := do
+  let some r := d.p.simp? c.p (← nonzeroChar?) | return none
+  trace_goal[grind.ring.simp] "{← r.p.denoteExpr}"
+  return some <| .step r.p r.k₁ d r.k₂ r.m₂ c
+
+/-- Simplifies `d.p` using `c` until it is not applicable anymore, and returns an extended polynomial derivation.  -/
+def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyDerivation := do
+  let mut d := d
+  repeat
+    checkSystem "ring"
+    let some r ← d.simplify1 c | return d
+    trace_goal[grind.debug.ring.simp] "simplifying{indentD (← d.denoteExpr)}\nwith{indentD (← c.denoteExpr)}"
+    d := r
+  return d
+
+/-- Simplified `d.p` using the current basis, and returns the extended polynomial derivation. -/
+def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
+  let mut d := d
+  repeat
+    let some c ← d.p.findSimp? |
+      trace_goal[grind.debug.ring.simp] "simplified{indentD (← d.denoteExpr)}"
+      return d
+    d ← d.simplifyWith c
+  return d
+
 /-- Simplifies `c₁` using `c₂`. -/
 def EqCnstr.simplify1 (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
   let some r := c₁.p.simp? c₂.p (← nonzeroChar?) | return none

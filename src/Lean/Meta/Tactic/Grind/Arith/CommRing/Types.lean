@@ -168,6 +168,11 @@ structure Ring where
   /-- Disequalities. -/
   -- TODO: add indexing
   diseqs         : PArray DiseqCnstr := {}
+  /--
+  If `recheck` is `true`, then new equalities have been added to the basis since we checked
+  disequalities and implied equalities.
+  -/
+  recheck        : Bool := false
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/

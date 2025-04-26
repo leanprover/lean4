@@ -206,7 +206,10 @@ def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   let .add _ m _ := c.p | return ()
   let .mult pw _ := m | return ()
   trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
-  modifyRing fun s => { s with varToBasis := s.varToBasis.modify pw.x (c :: ·) }
+  modifyRing fun s => { s with
+    varToBasis := s.varToBasis.modify pw.x (c :: ·)
+    recheck := true
+  }
 
 def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
   let some c ← c.simplifyAndCheck | return ()
@@ -265,5 +268,38 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
       rlhs := ra, rrhs := rb
       d := .input p
     }
+
+/--
+Returns `true` if the todo queue is not empty or the `recheck` flag is set to `true`
+-/
+private def needCheck : RingM Bool := do
+  unless (← isQueueEmpty) do return true
+  return (← getRing).recheck
+
+private def checkDiseqs : RingM Unit := do
+  -- TODO
+  return ()
+
+def checkRing : RingM Bool := do
+  unless (← needCheck) do return false
+  trace_goal[grind.debug.ring.check] "{(← getRing).type}"
+  repeat
+    checkSystem "ring"
+    let some c ← getNext? | break
+    trace_goal[grind.debug.ring.check] "{← c.denoteExpr}"
+    -- TODO: superpose
+    if (← isInconsistent) then return true
+  checkDiseqs
+  modifyRing fun s => { s with recheck := false }
+  return true
+
+def check : GoalM Bool := do
+  let mut progress := false
+  for ringId in [:(← get').rings.size] do
+    let r ← RingM.run ringId checkRing
+    progress := progress || r
+    if (← isInconsistent) then
+      return true
+  return progress
 
 end Lean.Meta.Grind.Arith.CommRing

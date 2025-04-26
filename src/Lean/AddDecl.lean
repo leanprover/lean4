@@ -148,8 +148,12 @@ where
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException
           setEnv env
-          for n in decl.getTopLevelNames do
-            registerAxiomsForDecl n
+          if env.header.isModule then
+            -- Under the module system, must record axioms in environment extension now when we
+            -- still have access to the declaration's body. We could skip this for non-opaque decls
+            -- but for them, registering simply acts as a cache.
+            for n in decl.getTopLevelNames do
+              registerAxiomsForDecl n
         catch ex =>
           -- avoid follow-up errors by (trying to) add broken decl as axiom
           addAsAxiom

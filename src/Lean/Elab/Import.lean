@@ -11,9 +11,12 @@ import Lean.CoreM
 namespace Lean.Elab
 
 def headerToImports : TSyntax ``Parser.Module.header → Array Import
-  | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $[import $ns]*) =>
+  | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
     let imports := if preludeTk.isNone then #[{ module := `Init : Import }] else #[]
-    imports ++ ns.map ({ module := ·.getId })
+    imports ++ importsStx.map fun
+      | `(Parser.Module.import| import $[private%$privateTk]? $n) =>
+        { module := n.getId, importPrivate := privateTk.isSome }
+      | _ => unreachable!
   | _ => unreachable!
 
 def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options) (messages : MessageLog)

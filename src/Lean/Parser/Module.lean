@@ -13,8 +13,7 @@ namespace Parser
 namespace Module
 def moduleTk   := leading_parser "module"
 def «prelude»  := leading_parser "prelude"
-def «private»  := leading_parser (withAnonymousAntiquot := false) "private"
-def «import»   := leading_parser "import " >> optional «private» >> identWithPartialTrailingDot
+def «import»   := leading_parser "import " >> identWithPartialTrailingDot
 def header     := leading_parser optional (moduleTk >> ppLine >> ppLine) >>
   optional («prelude» >> ppLine) >>
   many («import» >> ppLine) >>

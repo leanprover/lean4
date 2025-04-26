@@ -49,16 +49,16 @@ def simp? (p₁ p₂ : Poly) : Option Poly :=
 
 partial def simp' (p₁ p₂ : Poly) : Poly :=
   if let some r := p₁.simp? p₂ then
-    assert! r.p == (p₁.mulMon r.k₁ r.m).combine (p₂.mulConst r.k₂)
-    simp' p₁ r.p
+    assert! r.p == (p₂.mulMon r.k₂ r.m₂).combine (p₁.mulConst r.k₁)
+    simp' r.p p₂
   else
-    p₂
+    p₁
 
 def check_simp' (e₁ e₂ r : Expr) : Bool :=
   r.toPoly == simp' e₁.toPoly e₂.toPoly
 
-example : check_simp' (x*y - y) (x^2*y - 1) (y - 1) := by native_decide
-example : check_simp' (2*x + 1) (x^2 + x + 1) 3 := by native_decide
-example : check_simp' (2*x + 1) (3*x^2 + x + y + 1) (4*y + 5) := by native_decide
-example : check_simp' (2*x + y) (3*x^2 + x + y + 1) (3*y^2 + 2*y + 4) := by native_decide
-example : check_simp' (2*x + 1) (z^4 + w^3 + x^2 + x + 1) (4*z^4 + 4*w^3 + 3) := by native_decide
+example : check_simp' (x^2*y - 1) (x*y - y) (y - 1) := by native_decide
+example : check_simp' (x^2 + x + 1) (2*x + 1) 3 := by native_decide
+example : check_simp' (3*x^2 + x + y + 1) (2*x + 1) (4*y + 5) := by native_decide
+example : check_simp' (3*x^2 + x + y + 1) (2*x + y) (3*y^2 + 2*y + 4) := by native_decide
+example : check_simp' (z^4 + w^3 + x^2 + x + 1) (2*x + 1) (4*z^4 + 4*w^3 + 3) := by native_decide

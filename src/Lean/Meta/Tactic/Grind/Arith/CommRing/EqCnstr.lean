@@ -38,39 +38,68 @@ private def toRingExpr? (e : Expr) : RingM (Option RingExpr) := do
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides `m`.
-If `unitOnly` is true, only equations with a unit leading coefficient are considered.
+Remark: if the current ring does not satisfy the property
+```
+∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
+```
+then the leading coefficient of the equation must also divide `k`
 -/
-def _root_.Lean.Grind.CommRing.Mon.findSimp? (m : Mon) (unitOnly : Bool := false) : RingM (Option EqCnstr) :=
-  go m
-where
-  go : Mon → RingM (Option EqCnstr)
+def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
+  let noZeroDiv ← noZeroDivisors
+  let rec go : Mon → RingM (Option EqCnstr)
     | .unit => return none
     | .mult pw m' => do
       for c in (← getRing).varToBasis[pw.x]! do
-        if !unitOnly || c.p.lc.natAbs == 1 then
+        if noZeroDiv || (c.p.lc ∣ k) then
         if c.p.divides m then
           return some c
       go m'
+  go m
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides some
 monomial in `p`.
-If `unitOnly` is true, only equations with a unit leading coefficient are considered.
 -/
-def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := false) : RingM (Option EqCnstr) := do
+def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) : RingM (Option EqCnstr) := do
   match p with
   | .num _ => return none
-  | .add _ m p =>
-    match (← m.findSimp? unitOnly) with
+  | .add k m p =>
+    match (← m.findSimp? k) with
     | some c => return some c
-    | none => p.findSimp? unitOnly
+    | none => p.findSimp?
 
-/-- Simplifies `c` using `c'`. -/
-def EqCnstr.simplify1 (c c' : EqCnstr) : RingM (Option EqCnstr) := do
-  let some r := c'.p.simp? c.p (← nonzeroChar?) | return none
-  let c := { c with
+/-- Simplifies `d.p` using `c`, and returns an extended polynomial derivation. -/
+def PolyDerivation.simplify1 (d : PolyDerivation) (c : EqCnstr) : RingM (Option PolyDerivation) := do
+  let some r := d.p.simp? c.p (← nonzeroChar?) | return none
+  trace_goal[grind.ring.simp] "{← r.p.denoteExpr}"
+  return some <| .step r.p r.k₁ d r.k₂ r.m₂ c
+
+/-- Simplifies `d.p` using `c` until it is not applicable anymore, and returns an extended polynomial derivation.  -/
+def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyDerivation := do
+  let mut d := d
+  repeat
+    checkSystem "ring"
+    let some r ← d.simplify1 c | return d
+    trace_goal[grind.debug.ring.simp] "simplifying{indentD (← d.denoteExpr)}\nwith{indentD (← c.denoteExpr)}"
+    d := r
+  return d
+
+/-- Simplified `d.p` using the current basis, and returns the extended polynomial derivation. -/
+def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
+  let mut d := d
+  repeat
+    let some c ← d.p.findSimp? |
+      trace_goal[grind.debug.ring.simp] "simplified{indentD (← d.denoteExpr)}"
+      return d
+    d ← d.simplifyWith c
+  return d
+
+/-- Simplifies `c₁` using `c₂`. -/
+def EqCnstr.simplify1 (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
+  let some r := c₁.p.simp? c₂.p (← nonzeroChar?) | return none
+  let c := { c₁ with
     p := r.p
-    h := .simp c' c r.k₁ r.k₂ r.m
+    h := .simp r.k₁ c₁ r.k₂ r.m₂ c₂
   }
   trace_goal[grind.ring.simp] "{← c.p.denoteExpr}"
   return some c
@@ -101,7 +130,7 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
   if k == 0 then
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   else if (← hasChar) then
-    setInconsistent c
+    setUnsatEq c
   else
     -- Remark: we currently don't do anything if the characteristic is not known.
     trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"

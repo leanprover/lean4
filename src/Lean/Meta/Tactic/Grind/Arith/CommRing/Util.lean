@@ -61,6 +61,15 @@ def nonzeroCharInst? : RingM (Option (Expr × Nat)) := do
       return some (inst, c)
   return none
 
+/--
+Returns `true` if the current ring satifies the property
+```
+∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
+```
+-/
+def noZeroDivisors : RingM Bool := do
+  return (← getRing).noZeroDivInst?.isSome
+
 /-- Returns `true` if the current ring has a `IsCharP` instance. -/
 def hasChar  : RingM Bool := do
   return (← getRing).charInst?.isSome

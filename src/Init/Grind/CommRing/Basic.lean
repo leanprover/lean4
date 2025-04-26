@@ -317,4 +317,27 @@ theorem natCast_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
 
 end IsCharP
 
+/--
+Special case of Mathlib's `NoZeroSMulDivisors Nat α`.
+-/
+class NoZeroNatDivisors (α : Type u) [CommRing α] where
+  no_zero_nat_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
+
+export NoZeroNatDivisors (no_zero_nat_divisors)
+
+theorem no_zero_int_divisors (α : Type u) [CommRing α] [NoZeroNatDivisors α] {k : Int} (a : α)
+    : k ≠ 0 → k * a = 0 → a = 0 := by
+  match k with
+  | (k : Nat) =>
+    simp [intCast_natCast]
+    intro h₁ h₂
+    replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
+    exact no_zero_nat_divisors k a h₁ h₂
+  | -(k+1 : Nat) =>
+    rw [Int.natCast_add, ← Int.natCast_add, intCast_neg, intCast_natCast]
+    intro _ h
+    replace h := congrArg (-·) h; simp at h
+    rw [← neg_mul, neg_neg, neg_zero] at h
+    exact no_zero_nat_divisors (k+1) a (Nat.succ_ne_zero _) h
+
 end Lean.Grind

@@ -126,8 +126,8 @@ partial def EqCnstr.toPreNullCert (c : EqCnstr) : ProofM PreNullCert := caching 
     let h ← mkEqProof a b
     modify fun s => { s with hyps := s.hyps.push { h, lhs, rhs } }
     return PreNullCert.unit i (i+1)
-  | .superpose c₁ c₂ k₁ k₂ m₁ m₂ => (← c₁.toPreNullCert).combine k₁ m₁ k₂ m₂ (← c₂.toPreNullCert)
-  | .simp c₁ c₂ k₁ k₂ m => (← c₁.toPreNullCert).combine k₁ m k₂ .unit (← c₂.toPreNullCert)
+  | .superpose k₁ m₁ c₁ k₂ m₂ c₂ => (← c₁.toPreNullCert).combine k₁ m₁ k₂ m₂ (← c₂.toPreNullCert)
+  | .simp k₁ c₁ k₂ m₂ c₂ => (← c₁.toPreNullCert).combine k₁ .unit k₂ m₂ (← c₂.toPreNullCert)
   | .mul k c => (← c.toPreNullCert).mul k
   | .div k c => (← c.toPreNullCert).div k
 
@@ -150,7 +150,7 @@ def NullCertExt.check (c : EqCnstr) (nc : NullCertExt) : RingM Bool := do
   let p₂ ← nc.toPoly
   return p₁ == p₂
 
-def setInconsistent (c : EqCnstr) : RingM Unit := do
+def setUnsatEq (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
   let nc ← c.mkNullCertExt
   trace_goal[grind.ring.assert.unsat] "{nc.d}*({← c.p.denoteExpr}), {← (← nc.toPoly).denoteExpr}"
@@ -165,10 +165,12 @@ private def mkLemmaPrefix (declName declNameC : Name) : RingM Expr := do
   else
     return mkApp3 (mkConst declName [ring.u]) ring.type ring.commRingInst ctx
 
+-- TODO: delete
 def setNeUnsat (a b : Expr) (ra rb : RingExpr) : RingM Unit := do
   let h ← mkLemmaPrefix ``Grind.CommRing.ne_unsat ``Grind.CommRing.ne_unsatC
   closeGoal <| mkApp4 h (toExpr ra) (toExpr rb) reflBoolTrue (← mkDiseqProof a b)
 
+-- TODO: delete
 def setEqUnsat (k : Int) (a b : Expr) (ra rb : RingExpr) : RingM Unit := do
   let mut h ← mkLemmaPrefix ``Grind.CommRing.eq_unsat ``Grind.CommRing.eq_unsatC
   let (charInst, c) ← getCharInst

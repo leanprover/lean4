@@ -111,10 +111,10 @@ def Poly.spol (p₁ p₂ : Poly) (char? : Option Nat := none) : SPolResult  :=
   | _, _ => {}
 
 /--
-Result of simplifying a polynomial `p₂` using a polynomial `p₁`.
+Result of simplifying a polynomial `p₁` using a polynomial `p₂`.
 
-The simplification rewrites the first monomial of `p₂` that can be divided
-by the leading monomial of `p₁`.
+The simplification rewrites the first monomial of `p₁` that can be divided
+by the leading monomial of `p₂`.
 -/
 structure SimpResult where
   /-- The resulting simplified polynomial after rewriting. -/
@@ -123,43 +123,43 @@ structure SimpResult where
   k₁ : Int  := 0
   /-- The integer coefficient multiplied with polynomial `p₂` during rewriting. -/
   k₂ : Int  := 0
-  /-- The monomial factor applied to polynomial `p₁`. -/
-  m  : Mon  := .unit
+  /-- The monomial factor applied to polynomial `p₂`. -/
+  m₂ : Mon  := .unit
 
 /--
-Simplifies polynomial `p₂` using polynomial `p₁` by rewriting.
+Simplifies polynomial `p₁` using polynomial `p₂` by rewriting.
 
-This function attempts to rewrite `p₂` by eliminating the first occurrence of
-the leading monomial of `p₁`.
+This function attempts to rewrite `p₁` by eliminating the first occurrence of
+the leading monomial of `p₂`.
 
 Remark: if `char? = some c`, then `c` is the characteristic of the ring.
 -/
 def Poly.simp? (p₁ p₂ : Poly) (char? : Option Nat := none) : Option SimpResult :=
-  match p₁ with
-  | .add k₁' m₁ p₁ =>
-    let rec go? (p₂ : Poly) : Option SimpResult :=
-      match p₂ with
-      | .add k₂' m₂ p₂ =>
-        if m₁.divides m₂ then
-          let m  := m₂.div m₁
+  match p₂ with
+  | .add k₂' m₂ p₂ =>
+    let rec go? (p₁ : Poly) : Option SimpResult :=
+      match p₁ with
+      | .add k₁' m₁ p₁ =>
+        if m₂.divides m₁ then
+          let m₂ := m₁.div m₂
           let g  := Nat.gcd k₁'.natAbs k₂'.natAbs
-          let k₁ := -k₂'/g
-          let k₂ := k₁'/g
-          let p  := (p₁.mulMon' k₁ m char?).combine' (p₂.mulConst' k₂ char?) char?
-          some { p, k₁, k₂, m }
-        else if let some r := go? p₂ then
+          let k₁ := k₂'/g
+          let k₂ := -k₁'/g
+          let p  := (p₂.mulMon' k₂ m₂ char?).combine' (p₁.mulConst' k₁ char?) char?
+          some { p, k₁, k₂, m₂ }
+        else if let some r := go? p₁ then
           if let some char := char? then
-            let k := (k₂'*r.k₂) % char
+            let k := (k₁'*r.k₁) % char
             if k == 0 then
               some r
             else
-              some { r with p := .add k m₂ r.p }
+              some { r with p := .add k m₁ r.p }
           else
-            some { r with p := .add (k₂'*r.k₂) m₂ r.p }
+            some { r with p := .add (k₁'*r.k₁) m₁ r.p }
         else
           none
       | .num _ => none
-    go? p₂
+    go? p₁
   | _ => none
 
 def Poly.degree : Poly → Nat

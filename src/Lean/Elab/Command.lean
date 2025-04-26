@@ -590,7 +590,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
   try
     try
       -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
-      -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
+      -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
       -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
       elabCommand stx
     finally

@@ -142,7 +142,7 @@ protected def divExact (x y : @& Int) (h : y ∣ x) : Int :=
   x / y
 
 @[simp]
-theorem divExact_eq_ediv (x y : Int) (h : y ∣ x) : x.divExact y h = x / y := rfl
+theorem divExact_eq_ediv {x y : Int} (h : y ∣ x) : x.divExact y h = x / y := rfl
 
 /-! ### T-rounding division -/
 

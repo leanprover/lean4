@@ -71,6 +71,7 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) : RingM (Option EqCnstr
 /-- Simplifies `d.p` using `c`, and returns an extended polynomial derivation. -/
 def PolyDerivation.simplify1 (d : PolyDerivation) (c : EqCnstr) : RingM (Option PolyDerivation) := do
   let some r := d.p.simp? c.p (← nonzeroChar?) | return none
+  incSteps
   trace_goal[grind.ring.simp] "{← r.p.denoteExpr}"
   return some <| .step r.p r.k₁ d r.k₂ r.m₂ c
 
@@ -78,7 +79,7 @@ def PolyDerivation.simplify1 (d : PolyDerivation) (c : EqCnstr) : RingM (Option 
 def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyDerivation := do
   let mut d := d
   repeat
-    checkSystem "ring"
+    if (← checkMaxSteps) then return d
     let some r ← d.simplify1 c | return d
     trace_goal[grind.debug.ring.simp] "simplifying{indentD (← d.denoteExpr)}\nwith{indentD (← c.denoteExpr)}"
     d := r
@@ -88,6 +89,7 @@ def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyD
 def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
   let mut d := d
   repeat
+    if (← checkMaxSteps) then return d
     let some c ← d.p.findSimp? |
       trace_goal[grind.debug.ring.simp] "simplified{indentD (← d.denoteExpr)}"
       return d
@@ -101,6 +103,7 @@ def EqCnstr.simplify1 (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
     p := r.p
     h := .simp r.k₁ c₁ r.k₂ r.m₂ c₂
   }
+  incSteps
   trace_goal[grind.ring.simp] "{← c.p.denoteExpr}"
   return some c
 
@@ -108,7 +111,7 @@ def EqCnstr.simplify1 (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
 def EqCnstr.simplifyWith (c c' : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
-    checkSystem "ring"
+    if (← checkMaxSteps) then return c
     let some r ← c.simplify1 c' | return c
     trace_goal[grind.debug.ring.simp] "simplifying{indentD (← c.denoteExpr)}\nwith{indentD (← c'.denoteExpr)}"
     c := r
@@ -118,6 +121,7 @@ def EqCnstr.simplifyWith (c c' : EqCnstr) : RingM EqCnstr := do
 def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
+    if (← checkMaxSteps) then return c
     let some c' ← c.p.findSimp? |
       trace_goal[grind.debug.ring.simp] "simplified{indentD (← c.denoteExpr)}"
       return c
@@ -174,10 +178,12 @@ def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
       addToBasisCore c'
 
 def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
+  if (← checkMaxSteps) then return ()
   trace_goal[grind.ring.assert.queue] "{← c.denoteExpr}"
   modifyRing fun s => { s with queue := s.queue.insert c }
 
 def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
+  if (← checkMaxSteps) then return ()
   let .add _ m _ := c.p | return ()
   go m
 where
@@ -310,6 +316,7 @@ private def propagateEqs : RingM Unit := do
   -/
   let mut map : PropagateEqMap := {}
   for (a, ra) in (← getRing).denote do
+    if (← checkMaxSteps) then return ()
     let a := a.expr
     let d : PolyDerivation := .input (← ra.toPolyM)
     let d ← d.simplify
@@ -334,12 +341,14 @@ def checkRing : RingM Bool := do
     trace_goal[grind.debug.ring.check] "{← c.denoteExpr}"
     c.addToBasis
     if (← isInconsistent) then return true
+    if (← checkMaxSteps) then return true
   checkDiseqs
   propagateEqs
   modifyRing fun s => { s with recheck := false }
   return true
 
 def check : GoalM Bool := do
+  if (← checkMaxSteps) then return false
   let mut progress := false
   for ringId in [:(← get').rings.size] do
     let r ← RingM.run ringId checkRing

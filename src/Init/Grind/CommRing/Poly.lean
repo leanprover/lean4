@@ -50,7 +50,7 @@ def Expr.denote {α} [CommRing α] (ctx : Context α) : Expr → α
 structure Power where
   x : Var
   k : Nat
-  deriving BEq, Repr, Inhabited
+  deriving BEq, Repr, Inhabited, Hashable
 
 instance : LawfulBEq Power where
   eq_of_beq {a} := by cases a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
@@ -69,7 +69,7 @@ def Power.denote {α} [CommRing α] (ctx : Context α) : Power → α
 inductive Mon where
   | unit
   | mult (p : Power) (m : Mon)
-  deriving BEq, Repr, Inhabited
+  deriving BEq, Repr, Inhabited, Hashable
 
 instance : LawfulBEq Mon where
   eq_of_beq {a} := by
@@ -189,7 +189,7 @@ def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Mon) (p : Poly)
-  deriving BEq, Inhabited
+  deriving BEq, Inhabited, Hashable
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by

@@ -30,7 +30,7 @@ def check_spoly (e₁ e₂ r : Expr) : Bool :=
   spol' p₁ p₂ == r &&
   spol' p₂ p₁ == r.mulConst (-1) &&
   s.spol == r &&
-  r == (p₁.mulMon s.c₁ s.m₁).combine (p₂.mulMon s.c₂ s.m₂)
+  r == (p₁.mulMon s.k₁ s.m₁).combine (p₂.mulMon s.k₂ s.m₂)
 
 example : check_spoly (y^2 - x + 1) (x*y - 1 + y) (-x^2 + y + x - y^2) := by native_decide
 example : check_spoly (y - z + 1) (x*y - 1) (-x*z + 1 + x) := by native_decide

@@ -104,6 +104,9 @@ def _root_.Lean.Grind.CommRing.Poly.mulM (p₁ p₂ : Poly) : RingM Poly := do
 def _root_.Lean.Grind.CommRing.Poly.combineM (p₁ p₂ : Poly) : RingM Poly :=
   return p₁.combine' p₂ (← nonzeroChar?)
 
+def _root_.Lean.Grind.CommRing.Poly.spolM (p₁ p₂ : Poly) : RingM Grind.CommRing.SPolResult := do
+  if let some c ← nonzeroChar? then return p₁.spol p₂ c else return p₁.spol p₂
+
 def isQueueEmpty : RingM Bool :=
   return (← getRing).queue.isEmpty
 

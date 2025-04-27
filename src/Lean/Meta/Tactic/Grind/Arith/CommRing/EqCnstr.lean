@@ -207,6 +207,9 @@ if the ring has a nonzero characteristic `p` and `gcd k p = 1`, then
 `k` has an inverse.
 
 It also handles the easy case where `k` is `-1`.
+
+Remark: if the ring implements the class `NoZeroNatDivisors`, then
+the coefficients are divided by the gcd of all coefficients.
 -/
 def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
   let k := c.p.lc
@@ -218,12 +221,14 @@ def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
       -- `α*k = 1 (mod p)`
       let α := if α < 0 then α % p else α
       return { c with p := c.p.mulConstC α p, h := .mul α c }
-    else
-      return c
-  else if k == -1 then
+  if (← noZeroDivisors) then
+    let g : Int := c.p.gcdCoeffs
+    if g != 1 then
+      let g := if k < 0 then -g else g
+      return { c with p := c.p.divConst g, h := .div g c }
+  if k < 0 then
     return { c with p := c.p.mulConst (-1), h := .mul (-1) c }
-  else
-    return c
+  return c
 
 def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   let c ← c.toMonic

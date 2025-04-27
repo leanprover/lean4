@@ -106,12 +106,25 @@ preserving all evaluations.
 -/
 def IfNormalization : Type := { Z : IfExpr → IfExpr // ∀ e, (Z e).normalized ∧ (Z e).eval = e.eval }
 
+
 /-!
 # A solution to the if normalization challenge in Lean, using `grind`.
 -/
 
 -- `grind` is currently experimental, but for now we can suppress the warnings about this.
 set_option grind.warning false
+
+-- We first set up some convenient macros for dealing with subtypes using `grind`.
+
+/-- Construct a term of a subtype, using `grind` to discharge the condition. -/
+macro "g⟨" a:term "⟩" : term => `(⟨$a, by grind (gen := 8) (splits := 9)⟩)
+/--
+Replace a term of a subtype with a term of a different subtype, using the same data,
+and using `grind` to discharge the new condition (with access to the old condition).
+-/
+macro "c⟨" a:term "⟩" : term => `(have aux := $a; ⟨aux.1, by grind⟩)
+
+
 
 namespace IfExpr
 
@@ -149,7 +162,7 @@ we are allowed to increase the size of the branches by one, and still be smaller
 def normalize (assign : Std.HashMap Nat Bool) : IfExpr → IfExpr
   | lit b => lit b
   | var v =>
-    match assign[v]? with -- Note unused `h`: if we remove this things work again.
+    match h : assign[v]? with -- Note unused `h`: if we remove this things work again.
     | none => var v
     | some b => lit b
   | ite (lit true)  t _ => normalize assign t
@@ -158,25 +171,27 @@ def normalize (assign : Std.HashMap Nat Bool) : IfExpr → IfExpr
   | ite (var v)     t e =>
     match assign[v]? with
     | none =>
-      let t' := normalize (assign.insert v true) t
-      let e' := normalize (assign.insert v false) e
+      have t' := normalize (assign.insert v true) t
+      have e' := normalize (assign.insert v false) e
       if t' = e' then t' else ite (var v) t' e'
     | some b => normalize assign (ite (lit b) t e)
   termination_by e => e.normSize
 
-theorem normalize_spec (assign : Std.HashMap Nat Bool) (e : IfExpr) :
+theorem normalize_correct (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     (normalize assign e).normalized
-    ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
+    ∧ ∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w)
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign[v]? = none := by
-  fun_induction normalize with (unfold normalize <;> grind (gen := 8) (splits := 8))
-
-/-
-We recall the statement of the if-normalization problem.
-
-We want a function from if-expressions to if-expressions,
-that outputs normalized if-expressions and preserves meaning.
--/
-example : IfNormalization :=
-  ⟨_, fun e => ⟨(IfExpr.normalize_spec ∅ e).1, by simp [(IfExpr.normalize_spec ∅ e).2.1]⟩⟩
-
-end IfExpr
+  fun_induction normalize
+  rotate_left
+  · unfold normalize
+    -- Note this error disappears if we remove the unused `h` from the match above.
+    -- Fails with
+    -- [issue] type error constructing proof for IfExpr.normalize.match_1.eq_1
+    --   when assigning metavariable ?h_1 with
+    --     fun h => var v
+    --   has type
+    --     assign[v]? = none → IfExpr : Type
+    --   but is expected to have type
+    --     none = none → IfExpr : Type
+    grind
+  all_goals sorry

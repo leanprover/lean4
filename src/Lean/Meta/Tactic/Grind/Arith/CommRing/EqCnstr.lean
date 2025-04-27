@@ -148,30 +148,49 @@ def EqCnstr.simplifyAndCheck (c : EqCnstr) : RingM (Option EqCnstr) := do
   else
     return some c
 
+def addToBasisCore (c : EqCnstr) : RingM Unit := do
+  let .add _ m _ := c.p | return ()
+  let .mult pw _ := m | return ()
+  trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
+  modifyRing fun s => { s with
+    varToBasis := s.varToBasis.modify pw.x (c :: ·)
+    recheck := true
+  }
+
 def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
   let .add _ m _ := c.p | return ()
   let .mult pw _ := m | return ()
   let x := pw.x
   let cs := (← getRing).varToBasis[x]!
-  let cs ← cs.filterMapM fun c' => do
-    let .add _ m' _ := c'.p | return none
+  if cs.isEmpty then return ()
+  modifyRing fun s => { s with varToBasis := s.varToBasis.set x {} }
+  for c' in cs do
+    let .add _ m' _ := c'.p | pure ()
     if m.divides m' then
-      let c' ← c'.simplifyWith c'
-      if (← c'.checkConstant) then
-        return none
-      else
-        return some c'
+      let c'' ← c'.simplifyWith c
+      unless (← c''.checkConstant) do
+        addToBasisCore c''
     else
-      return some c'
-  modifyRing fun s => { s with varToBasis := s.varToBasis.set x cs }
+      addToBasisCore c'
 
 def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.queue] "{← c.denoteExpr}"
   modifyRing fun s => { s with queue := s.queue.insert c }
 
 def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
-  trace[grind.ring.superpose] "{← c.denoteExpr}"
-  return ()
+  let .add _ m _ := c.p | return ()
+  go m
+where
+  go : Mon → RingM Unit
+    | .unit => return ()
+    | .mult pw m => do
+      let x := pw.x
+      let cs := (← getRing).varToBasis[x]!
+      for c' in cs do
+        let r ← c.p.spolM c'.p
+        trace_goal[grind.ring.superpose] "{← c.denoteExpr}\nwith: {← c'.denoteExpr}\nresult: {← r.spol.denoteExpr} = 0"
+        addToQueue (← mkEqCnstr r.spol <| .superpose r.k₁ r.m₁ c r.k₂ r.m₂ c')
+      go m
 
 /--
 Tries to convert the leading monomial into a monic one.
@@ -203,10 +222,7 @@ def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   let c ← c.toMonic
   c.simplifyBasis
   c.superposeWith
-  let .add _ m _ := c.p | return ()
-  let .mult pw _ := m | return ()
-  trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
-  modifyRing fun s => { s with varToBasis := s.varToBasis.modify pw.x (c :: ·) }
+  addToBasisCore c
 
 def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
   let some c ← c.simplifyAndCheck | return ()
@@ -265,5 +281,42 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
       rlhs := ra, rrhs := rb
       d := .input p
     }
+
+/--
+Returns `true` if the todo queue is not empty or the `recheck` flag is set to `true`
+-/
+private def needCheck : RingM Bool := do
+  unless (← isQueueEmpty) do return true
+  return (← getRing).recheck
+
+private def checkDiseqs : RingM Unit := do
+  let diseqs := (← getRing).diseqs
+  modifyRing fun s => { s with diseqs := {} }
+  -- No indexing simple
+  for diseq in diseqs do
+    addNewDiseq diseq
+    if (← isInconsistent) then return
+
+def checkRing : RingM Bool := do
+  unless (← needCheck) do return false
+  trace_goal[grind.debug.ring.check] "{(← getRing).type}"
+  repeat
+    checkSystem "ring"
+    let some c ← getNext? | break
+    trace_goal[grind.debug.ring.check] "{← c.denoteExpr}"
+    c.addToBasis
+    if (← isInconsistent) then return true
+  checkDiseqs
+  modifyRing fun s => { s with recheck := false }
+  return true
+
+def check : GoalM Bool := do
+  let mut progress := false
+  for ringId in [:(← get').rings.size] do
+    let r ← RingM.run ringId checkRing
+    progress := progress || r
+    if (← isInconsistent) then
+      return true
+  return progress
 
 end Lean.Meta.Grind.Arith.CommRing

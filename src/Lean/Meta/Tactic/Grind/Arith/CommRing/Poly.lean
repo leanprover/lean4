@@ -70,11 +70,11 @@ structure SPolResult where
   /-- The computed S-polynomial. -/
   spol : Poly := .num 0
   /-- Coefficient applied to polynomial `p₁`. -/
-  c₁   : Int  := 0
+  k₁   : Int  := 0
   /-- Monomial factor applied to polynomial `p₁`. -/
   m₁   : Mon  := .unit
   /-- Coefficient applied to polynomial `p₂`. -/
-  c₂   : Int  := 0
+  k₂   : Int  := 0
   /-- Monomial factor applied to polynomial `p₂`. -/
   m₂   : Mon  := .unit
 
@@ -107,7 +107,7 @@ def Poly.spol (p₁ p₂ : Poly) (char? : Option Nat := none) : SPolResult  :=
     let p₁   := p₁.mulMon' c₁ m₁ char?
     let p₂   := p₂.mulMon' c₂ m₂ char?
     let spol := p₁.combine' p₂ char?
-    { spol, c₁, m₁, c₂, m₂ }
+    { spol, m₁, m₂, k₁ := c₁, k₂ := c₂ }
   | _, _ => {}
 
 /--

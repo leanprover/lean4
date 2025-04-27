@@ -31,5 +31,6 @@ builtin_initialize registerTraceClass `grind.ring.superpose
 
 builtin_initialize registerTraceClass `grind.debug.ring.simp
 builtin_initialize registerTraceClass `grind.debug.ring.proof
+builtin_initialize registerTraceClass `grind.debug.ring.check
 
 end Lean

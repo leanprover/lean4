@@ -104,4 +104,15 @@ def _root_.Lean.Grind.CommRing.Poly.mulM (p₁ p₂ : Poly) : RingM Poly := do
 def _root_.Lean.Grind.CommRing.Poly.combineM (p₁ p₂ : Poly) : RingM Poly :=
   return p₁.combine' p₂ (← nonzeroChar?)
 
+def _root_.Lean.Grind.CommRing.Poly.spolM (p₁ p₂ : Poly) : RingM Grind.CommRing.SPolResult := do
+  if let some c ← nonzeroChar? then return p₁.spol p₂ c else return p₁.spol p₂
+
+def isQueueEmpty : RingM Bool :=
+  return (← getRing).queue.isEmpty
+
+def getNext? : RingM (Option EqCnstr) := do
+  let some c := (← getRing).queue.min | return none
+  modifyRing fun s => { s with queue := s.queue.erase c }
+  return some c
+
 end Lean.Meta.Grind.Arith.CommRing

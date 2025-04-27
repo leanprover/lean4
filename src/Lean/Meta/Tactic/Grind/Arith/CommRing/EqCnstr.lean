@@ -321,6 +321,7 @@ private def propagateEqs : RingM Unit := do
     let d : PolyDerivation := .input (← ra.toPolyM)
     let d ← d.simplify
     let k := d.getMultiplier
+    trace_goal[grind.debug.ring.impEq] "{a}, {k}, {← d.p.denoteExpr}"
     if let some (b, rb) := map[(k, d.p)]? then
       -- TODO: use `isEqv` more effectively
       unless (← isEqv a b) do

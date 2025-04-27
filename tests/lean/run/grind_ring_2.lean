@@ -51,3 +51,9 @@ example [CommRing α] (x y : α) : x^2*y = 1 → x*y^2 = y → y*x = 1 := by
 
 example (x y : BitVec 16) : x^2*y = 1 → x*y^2 = y → y*x = 1 := by
   grind +ring
+
+example [CommRing α] (x y : α) (f : α → Nat) : x^2*y = 1 → x*y^2 = y → f (y*x) = f 1 := by
+  grind +ring
+
+example [CommRing α] (x y : α) (f : α → Nat) : x^2*y = 1 → x*y^2 - y = 0 → f (y*x) = f (y*x*y) := by
+  grind +ring

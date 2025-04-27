@@ -1,10 +1,10 @@
 -- Note that `grind_list.lean` uses `reset_grind_attrs%` to clear the grind attributes.
--- This file is testing the grind attributes in the library.
+-- This file does not: it is testing the grind attributes in the library.
 
 -- This file follows `Data/List/Lemmas.lean`. Indeed, if we decided `grind` is allowed there,
 -- it should be possible to replace proofs there with these.
 -- (In some cases, the proofs here are now cheating and directly using the same result from the library,
--- but originally this was not the case, but I haven't bothered writing `grind [-X]` everywhere.)
+-- but initially I was avoiding this, but haven't bothered writing `grind [-X]` everywhere.)
 
 -- This file only contains those theorems that can be proved "effortlessly" with `grind`.
 -- `tests/lean/grind/list_experiments.lean` contains everything from `Data/List/Lemmas.lean`
@@ -1070,7 +1070,11 @@ theorem dropLast_append {l₁ l₂ : List α} :
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
   grind
 
-theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by grind
+-- Failing with:
+-- [issue] unexpected metavariable during internalization
+--       ?α
+--     `grind` is not supposed to be used in goals containing metavariables.
+theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by grind (gen := 6)
 
 theorem dropLast_replicate {n : Nat} {a : α} : dropLast (replicate n a) = replicate (n - 1) a := by
   grind

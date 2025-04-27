@@ -1765,7 +1765,7 @@ theorem head_append_right {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) (h : l
 -- `getLast_append_of_ne_nil`, `getLast_append` and `getLast?_append`
 -- are stated and proved later in the `reverse` section.
 
-theorem tail?_append {l l' : List α} : (l ++ l').tail? = (l.tail?.map (· ++ l')).or l'.tail? := by
+@[grind] theorem tail?_append {l l' : List α} : (l ++ l').tail? = (l.tail?.map (· ++ l')).or l'.tail? := by
   cases l <;> simp
 
 theorem tail?_append_of_ne_nil {l l' : List α} (_ : l ≠ []) : (l ++ l').tail? = some (l.tail ++ l') :=
@@ -2117,7 +2117,7 @@ theorem flatMap_singleton (f : α → List β) (x : α) : [x].flatMap f = f x :=
 @[simp] theorem flatMap_singleton' (l : List α) : (l.flatMap fun x => [x]) = l := by
   induction l <;> simp [*]
 
-theorem head?_flatMap {l : List α} {f : α → List β} :
+@[grind] theorem head?_flatMap {l : List α} {f : α → List β} :
     (l.flatMap f).head? = l.findSome? fun a => (f a).head? := by
   induction l with
   | nil => rfl
@@ -2480,10 +2480,10 @@ theorem reverse_eq_iff {as bs : List α} : as.reverse = bs ↔ as = bs.reverse :
 
 @[deprecated reverse_eq_cons_iff (since := "2024-09-05")] abbrev reverse_eq_cons := @reverse_eq_cons_iff
 
-@[simp] theorem getLast?_reverse {l : List α} : l.reverse.getLast? = l.head? := by
+@[simp, grind] theorem getLast?_reverse {l : List α} : l.reverse.getLast? = l.head? := by
   cases l <;> simp [getLast?_concat]
 
-@[simp] theorem head?_reverse {l : List α} : l.reverse.head? = l.getLast? := by
+@[simp, grind] theorem head?_reverse {l : List α} : l.reverse.head? = l.getLast? := by
   rw [← getLast?_reverse, reverse_reverse]
 
 theorem getLast?_eq_head?_reverse {xs : List α} : xs.getLast? = xs.reverse.head? := by
@@ -2854,7 +2854,7 @@ theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} {r : β → 
 
 /-! #### Further results about `getLast` and `getLast?` -/
 
-@[simp] theorem head_reverse {l : List α} (h : l.reverse ≠ []) :
+@[simp, grind] theorem head_reverse {l : List α} (h : l.reverse ≠ []) :
     l.reverse.head h = getLast l (by simp_all) := by
   induction l with
   | nil => contradiction
@@ -2886,7 +2886,7 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
 
 @[deprecated mem_of_getLast? (since := "2024-10-21")] abbrev mem_of_getLast?_eq_some := @mem_of_getLast?
 
-@[simp] theorem getLast_reverse {l : List α} (h : l.reverse ≠ []) :
+@[simp, grind] theorem getLast_reverse {l : List α} (h : l.reverse ≠ []) :
     l.reverse.getLast h = l.head (by simp_all) := by
   simp [getLast_eq_head_reverse]
 
@@ -3440,38 +3440,38 @@ theorem all_eq_not_any_not {l : List α} {p : α → Bool} : l.all p = !l.any (!
     simp only [filterMap_cons]
     split <;> simp_all
 
-@[simp] theorem any_append {xs ys : List α} : (xs ++ ys).any f = (xs.any f || ys.any f) := by
+@[simp, grind _=_] theorem any_append {xs ys : List α} : (xs ++ ys).any f = (xs.any f || ys.any f) := by
   induction xs with
   | nil => rfl
   | cons h t ih => simp_all [Bool.or_assoc]
 
-@[simp] theorem all_append {xs ys : List α} : (xs ++ ys).all f = (xs.all f && ys.all f) := by
+@[simp, grind _=_] theorem all_append {xs ys : List α} : (xs ++ ys).all f = (xs.all f && ys.all f) := by
   induction xs with
   | nil => rfl
   | cons h t ih => simp_all [Bool.and_assoc]
 
-@[simp] theorem any_flatten {l : List (List α)} : l.flatten.any f = l.any (any · f) := by
+@[simp, grind] theorem any_flatten {l : List (List α)} : l.flatten.any f = l.any (any · f) := by
   induction l <;> simp_all
 
 @[deprecated any_flatten (since := "2024-10-14")] abbrev any_join := @any_flatten
 
-@[simp] theorem all_flatten {l : List (List α)} : l.flatten.all f = l.all (all · f) := by
+@[simp, grind] theorem all_flatten {l : List (List α)} : l.flatten.all f = l.all (all · f) := by
   induction l <;> simp_all
 
 @[deprecated all_flatten (since := "2024-10-14")] abbrev all_join := @all_flatten
 
-@[simp] theorem any_flatMap {l : List α} {f : α → List β} :
+@[simp, grind] theorem any_flatMap {l : List α} {f : α → List β} :
     (l.flatMap f).any p = l.any fun a => (f a).any p := by
   induction l <;> simp_all
 
-@[simp] theorem all_flatMap {l : List α} {f : α → List β} :
+@[simp, grind] theorem all_flatMap {l : List α} {f : α → List β} :
     (l.flatMap f).all p = l.all fun a => (f a).all p := by
   induction l <;> simp_all
 
-@[simp] theorem any_reverse {l : List α} : l.reverse.any f = l.any f := by
+@[simp, grind] theorem any_reverse {l : List α} : l.reverse.any f = l.any f := by
   induction l <;> simp_all [Bool.or_comm]
 
-@[simp] theorem all_reverse {l : List α} : l.reverse.all f = l.all f := by
+@[simp, grind] theorem all_reverse {l : List α} : l.reverse.all f = l.all f := by
   induction l <;> simp_all [Bool.and_comm]
 
 @[simp] theorem any_replicate {n : Nat} {a : α} :
@@ -3676,36 +3676,10 @@ theorem isNone_getElem? {l : List α} {i : Nat} : l[i]?.isNone ↔ l.length ≤ 
 -- attribute [grind] List.getElem_append_left List.getElem_append_right
 -- attribute [grind] List.getElem?_append_left List.getElem?_append_right
 
--- Array.set_push appears to be missing!?
--- Array.isEmpty_empty and Array.isEmpty_push are missing!?
-
 -- Uh oh, Array and Vector use different ext lemmas... Better investigate carefully.
 attribute [grind ext] List.ext_getElem?
 
--- attribute [grind] List.getLast!_nil -- shouldn't we jsut be replacing `getLast!`
+-- attribute [grind] List.getLast!_nil -- shouldn't we just be replacing `getLast!`
 
-
-
-
-
-attribute [grind] List.map_nil List.map_cons
-attribute [grind] List.filter_nil List.filter_cons
-attribute [grind] List.any_nil List.any_cons
-attribute [grind] List.all_nil List.all_cons
-
-attribute [grind] List.any_append List.all_append
-attribute [grind] List.any_flatten List.all_flatten
-attribute [grind] List.any_flatMap List.all_flatMap
-
-attribute [grind] List.any_reverse List.all_reverse
-
-attribute [grind] List.tail?_append
-
-attribute [grind] List.flatMap_nil List.flatMap_cons
-
-attribute [grind] List.head_reverse List.getLast_reverse
-attribute [grind] List.head?_flatMap
-
-attribute [grind] List.head?_reverse List.getLast?_reverse
 
 end List

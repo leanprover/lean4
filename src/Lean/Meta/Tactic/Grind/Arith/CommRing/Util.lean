@@ -23,6 +23,18 @@ def incSteps : GoalM Unit := do
 
 structure RingM.Context where
   ringId : Nat
+  /--
+  If `checkCoeffDvd` is `true`, then when using a polynomial `k*m - p`
+  to simplify `.. + k'*m*m_2 + ...`, the substitution is performed IF
+  - `k` divides `k'`, OR
+  - Ring implements `NoZeroNatDivisors`.
+
+  We need this check when simplifying disequalities. In this case, if we perform
+  the simplification anyway, we may end up with a proof that `k * q = 0`, but
+  we cannot deduce `q = 0` since the ring does not implement `NoZeroNatDivisors`
+  See comment at `PolyDerivation`.
+  -/
+  checkCoeffDvd : Bool := false
 
 /-- We don't want to keep carrying the `RingId` around. -/
 abbrev RingM := ReaderT RingM.Context GoalM
@@ -44,6 +56,12 @@ def getRing : RingM Ring := do
 @[inline] def modifyRing (f : Ring → Ring) : RingM Unit := do
   let ringId ← getRingId
   modify' fun s => { s with rings := s.rings.modify ringId f }
+
+abbrev withCheckCoeffDvd (x : RingM α) : RingM α :=
+  withReader (fun ctx => { ctx with checkCoeffDvd := true }) x
+
+def checkCoeffDvd : RingM Bool :=
+  return (← read).checkCoeffDvd
 
 def getTermRingId? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToRingId.find? { expr := e }

@@ -46,12 +46,13 @@ Remark: if the current ring does not satisfy the property
 then the leading coefficient of the equation must also divide `k`
 -/
 def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
+  let checkCoeff ← checkCoeffDvd
   let noZeroDiv ← noZeroDivisors
   let rec go : Mon → RingM (Option EqCnstr)
     | .unit => return none
     | .mult pw m' => do
       for c in (← getRing).varToBasis[pw.x]! do
-        if noZeroDiv || (c.p.lc ∣ k) then
+        if !checkCoeff || noZeroDiv || (c.p.lc ∣ k) then
         if c.p.divides m then
           return some c
       go m'
@@ -256,8 +257,10 @@ def DiseqCnstr.checkConstant (c : DiseqCnstr) : RingM Bool := do
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   return true
 
-def DiseqCnstr.simplify (c : DiseqCnstr) : RingM DiseqCnstr := do
-  return { c with d := (← c.d.simplify) }
+def DiseqCnstr.simplify (c : DiseqCnstr) : RingM DiseqCnstr :=
+  withCheckCoeffDvd do
+    -- We must enable `checkCoeffDvd := true`. See comments at `PolyDerivation`.
+    return { c with d := (← c.d.simplify) }
 
 def saveDiseq (c : DiseqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"

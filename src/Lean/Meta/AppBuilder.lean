@@ -545,7 +545,7 @@ def mkDecideProof (p : Expr) : MetaM Expr := do
   let decP      ← mkDecide p
   let decEqTrue ← mkEq decP (mkConst ``Bool.true)
   let h         ← mkEqRefl (mkConst ``Bool.true)
-  let h         ← mkExpectedTypeHint h decEqTrue
+  let h         := mkExpectedPropHint h decEqTrue
   mkAppM ``of_decide_eq_true #[h]
 
 /-- Returns `a < b` -/

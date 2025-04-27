@@ -7,7 +7,7 @@
 -- but initially I was avoiding this, but haven't bothered writing `grind [-X]` everywhere.)
 
 -- This file only contains those theorems that can be proved "effortlessly" with `grind`.
--- `tests/lean/grind/list_experiments.lean` contains everything from `Data/List/Lemmas.lean`
+-- `tests/lean/grind/experiments/list.lean` contains everything from `Data/List/Lemmas.lean`
 -- that still resists `grind`!
 
 set_option grind.warning false

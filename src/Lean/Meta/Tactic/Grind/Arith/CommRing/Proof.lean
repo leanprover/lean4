@@ -265,6 +265,7 @@ def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Uni
       mkApp4 (mkConst ``Grind.CommRing.NullCert.eq [ring.u]) ring.type ring.commRingInst ctx nc
   let h := mkApp3 h (toExpr ra) (toExpr rb) reflBoolTrue
   trace_goal[grind.debug.ring.impEq] "{a}, {b}"
-  pushEq a b <| ncx.applyEqs h
+  let eq := mkApp3 (mkConst ``Eq [.succ ring.u]) ring.type a b
+  pushEq a b <| mkExpectedPropHint (ncx.applyEqs h) eq
 
 end Lean.Meta.Grind.Arith.CommRing

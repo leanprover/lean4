@@ -917,6 +917,7 @@ theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := rfl
 theorem getLast!_of_getLast? [Inhabited α] : ∀ {l : List α}, getLast? l = some a → getLast! l = a
   | _ :: _, rfl => rfl
 
+@[grind]
 theorem getLast!_eq_getElem! [Inhabited α] {l : List α} : l.getLast! = l[l.length - 1]! := by
   cases l with
   | nil => simp
@@ -3669,17 +3670,5 @@ theorem isSome_getElem? {l : List α} {i : Nat} : l[i]?.isSome ↔ i < l.length 
 @[deprecated _root_.isNone_getElem? (since := "2024-12-09")]
 theorem isNone_getElem? {l : List α} {i : Nat} : l[i]?.isNone ↔ l.length ≤ i := by
   simp
-
-/-! Preliminary home for proposed `grind` attributes -/
-
--- Not needed:
--- attribute [grind] List.getElem_append_left List.getElem_append_right
--- attribute [grind] List.getElem?_append_left List.getElem?_append_right
-
--- Uh oh, Array and Vector use different ext lemmas... Better investigate carefully.
-attribute [grind ext] List.ext_getElem?
-
--- attribute [grind] List.getLast!_nil -- shouldn't we just be replacing `getLast!`
-
 
 end List

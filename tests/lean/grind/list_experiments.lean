@@ -11,7 +11,7 @@ set_option grind.warning false
 -- Rejected `grind` attributes:
 -- attribute [grind] List.getElem?_eq_getElem -- This is way too slow, it adds about 30% time to this file.
 -- attribute [grind] List.not_mem_nil -- unnecessary
--- attribute [grind →] List.length_eq_of_beq -- FIXME very bad!
+-- attribute [grind →] List.length_eq_of_beq -- very bad!
 -- attribute [grind] List.getLastD_concat
 -- attribute [grind] List.head?_eq_getElem?
 -- attribute [grind] LawfulMonad.bind_assoc -- time out?
@@ -339,17 +339,13 @@ theorem getLast_eq_iff_getLast?_eq_some {xs : List α} (h) :
 theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := by grind
 
 theorem getLast!_eq_getLast?_getD [Inhabited α] {l : List α} : getLast! l = (getLast? l).getD default := by
-  cases l with grind [getLast!]
+  cases l with grind
 
 theorem getLast!_of_getLast? [Inhabited α] : ∀ {l : List α}, getLast? l = some a → getLast! l = a
   | _ :: _, rfl => rfl
 
 theorem getLast!_eq_getElem! [Inhabited α] {l : List α} : l.getLast! = l[l.length - 1]! := by
-  cases l with
-  | nil => grind
-  | cons _ _ =>
-    apply getLast!_of_getLast?
-    grind
+  cases l with grind [getLast!_of_getLast?]
 
 /-! ## Head and tail -/
 

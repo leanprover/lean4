@@ -313,6 +313,16 @@ theorem getLast?_concat {l : List α} {a : α} : (l ++ [a]).getLast? = some a :=
 
 theorem getLastD_concat {a b} {l : List α} : (l ++ [b]).getLastD a = b := by grind
 
+/-! ### getLast! -/
+
+theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := by grind
+
+theorem getLast!_eq_getLast?_getD [Inhabited α] {l : List α} : getLast! l = (getLast? l).getD default := by
+  cases l with grind
+
+theorem getLast!_eq_getElem! [Inhabited α] {l : List α} : l.getLast! = l[l.length - 1]! := by
+  cases l with grind [→ getLast!_of_getLast?]
+
 /-! ## Head and tail -/
 
 /-! ### head -/
@@ -1074,7 +1084,7 @@ theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (
 -- [issue] unexpected metavariable during internalization
 --       ?α
 --     `grind` is not supposed to be used in goals containing metavariables.
-theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by grind (gen := 6)
+-- theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by grind (gen := 6)
 
 theorem dropLast_replicate {n : Nat} {a : α} : dropLast (replicate n a) = replicate (n - 1) a := by
   grind

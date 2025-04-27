@@ -157,9 +157,9 @@ def Mon.revlexWF (m₁ m₂ : Mon) : Ordering :=
     bif pw₁.x == pw₂.x then
       revlexWF m₁ m₂ |>.then (powerRevlex pw₁.k pw₂.k)
     else bif pw₁.x.blt pw₂.x then
-      revlexWF m₁ (.mult pw₂ m₂) |>.then .gt
+      revlexWF m₁ (.mult pw₂ m₂) |>.then .lt
     else
-      revlexWF (.mult pw₁ m₁) m₂ |>.then .lt
+      revlexWF (.mult pw₁ m₁) m₂ |>.then .gt
 
 def Mon.revlexFuel (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
   match fuel with
@@ -176,9 +176,9 @@ def Mon.revlexFuel (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
       bif pw₁.x == pw₂.x then
         revlexFuel fuel m₁ m₂ |>.then (powerRevlex pw₁.k pw₂.k)
       else bif pw₁.x.blt pw₂.x then
-        revlexFuel fuel m₁ (.mult pw₂ m₂) |>.then .gt
+        revlexFuel fuel m₁ (.mult pw₂ m₂) |>.then .lt
       else
-        revlexFuel fuel (.mult pw₁ m₁) m₂ |>.then .lt
+        revlexFuel fuel (.mult pw₁ m₁) m₂ |>.then .gt
 
 def Mon.revlex (m₁ m₂ : Mon) : Ordering :=
   revlexFuel hugeFuel m₁ m₂

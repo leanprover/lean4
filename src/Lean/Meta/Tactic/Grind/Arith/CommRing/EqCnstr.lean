@@ -318,9 +318,10 @@ private def propagateEqs : RingM Unit := do
       -- TODO: use `isEqv` more effectively
       unless (← isEqv a b) do
         let p ← (ra.sub rb).toPolyM
+        let d : PolyDerivation := .input p
+        let d ← d.simplify
         trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
-        -- TODO
-        pure ()
+        propagateEq a b ra rb d
     else
       map := map.insert (k, d.p) (a, ra)
 

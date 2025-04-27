@@ -159,9 +159,12 @@ def EqCnstr.mkNullCertExt (c : EqCnstr) : RingM NullCertExt := do
   let (nc, s) ← c.toPreNullCert.run {}
   return { d := nc.d, qhs := nc.qs.zip s.hyps }
 
-def DiseqCnstr.mkNullCertExt (c : DiseqCnstr) : RingM NullCertExt := do
-  let (nc, s) ← c.d.toPreNullCert.run {}
+def PolyDerivation.mkNullCertExt (d : PolyDerivation) : RingM NullCertExt := do
+  let (nc, s) ← d.toPreNullCert.run {}
   return { d := nc.d, qhs := nc.qs.zip s.hyps }
+
+def DiseqCnstr.mkNullCertExt (c : DiseqCnstr) : RingM NullCertExt :=
+  c.d.mkNullCertExt
 
 def NullCertExt.toPoly (nc : NullCertExt) : RingM Poly := do
   let mut p : Poly := .num 0
@@ -244,5 +247,24 @@ def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
       mkApp4 (mkConst ``Grind.CommRing.NullCert.ne_unsat [ring.u]) ring.type ring.commRingInst ctx nc
   let h := mkApp4 h (toExpr c.rlhs) (toExpr c.rrhs) reflBoolTrue (← mkDiseqProof c.lhs c.rhs)
   closeGoal <| ncx.applyEqs h
+
+def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
+  let ncx ← d.mkNullCertExt
+  let nc := toExpr (ncx.toNullCert)
+  let ring ← getRing
+  let ctx ← toContextExpr
+  let k := d.getMultiplier
+  let h := match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? k) with
+    | some (charInst, char), some nzDivInst =>
+      mkApp8 (mkConst ``Grind.CommRing.NullCert.eq_nzdivC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr k)
+    | some (charInst, char), none =>
+      mkApp6 (mkConst ``Grind.CommRing.NullCert.eqC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx nc
+    | none, some nzDivInst =>
+      mkApp6 (mkConst ``Grind.CommRing.NullCert.eq_nzdiv [ring.u]) ring.type ring.commRingInst nzDivInst ctx nc (toExpr k)
+    | none, none =>
+      mkApp4 (mkConst ``Grind.CommRing.NullCert.eq [ring.u]) ring.type ring.commRingInst ctx nc
+  let h := mkApp3 h (toExpr ra) (toExpr rb) reflBoolTrue
+  trace_goal[grind.debug.ring.impEq] "{a}, {b}"
+  pushEq a b <| ncx.applyEqs h
 
 end Lean.Meta.Grind.Arith.CommRing

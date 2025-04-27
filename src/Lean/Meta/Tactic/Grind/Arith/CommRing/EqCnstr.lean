@@ -167,9 +167,9 @@ def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
   for c' in cs do
     let .add _ m' _ := c'.p | pure ()
     if m.divides m' then
-      let c' ← c'.simplifyWith c'
-      unless (← c'.checkConstant) do
-        addToBasisCore c'
+      let c'' ← c'.simplifyWith c
+      unless (← c''.checkConstant) do
+        addToBasisCore c''
     else
       addToBasisCore c'
 
@@ -178,7 +178,6 @@ def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
   modifyRing fun s => { s with queue := s.queue.insert c }
 
 def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
-  trace[grind.ring.superpose] "{← c.denoteExpr}"
   let .add _ m _ := c.p | return ()
   go m
 where
@@ -189,6 +188,7 @@ where
       let cs := (← getRing).varToBasis[x]!
       for c' in cs do
         let r ← c.p.spolM c'.p
+        trace_goal[grind.ring.superpose] "{← c.denoteExpr}\nwith: {← c'.denoteExpr}\nresult: {← r.spol.denoteExpr} = 0"
         addToQueue (← mkEqCnstr r.spol <| .superpose r.k₁ r.m₁ c r.k₂ r.m₂ c')
       go m
 

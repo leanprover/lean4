@@ -57,3 +57,10 @@ example [CommRing α] (x y : α) (f : α → Nat) : x^2*y = 1 → x*y^2 = y → 
 
 example [CommRing α] (x y : α) (f : α → Nat) : x^2*y = 1 → x*y^2 - y = 0 → f (y*x) = f (y*x*y) := by
   grind +ring
+
+example [CommRing α] (a b c : α)
+  : a + b + c = 3 →
+    a^2 + b^2 + c^2 = 5 →
+    a^3 + b^3 + c^3 = 7 →
+    a^4 + b^4 + c^4 = 9 := by
+  grind +ring

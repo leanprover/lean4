@@ -17,12 +17,21 @@ def mkId (e : Expr) : MetaM Expr := do
   let u    ← getLevel type
   return mkApp2 (mkConst ``id [u]) type e
 
+def mkExpectedTypeHintCore (e : Expr) (expectedType : Expr) (expectedTypeUniv : Level) : Expr :=
+  mkApp2 (mkConst ``id [expectedTypeUniv]) expectedType e
+
 /--
-  Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, returns
-  term `@id expectedType e`. -/
+Given `proof` s.t. `inferType proof` is definitionally equal to `expectedProp`, returns
+term `@id expectedProp proof`. -/
+def mkExpectedPropHint (proof : Expr) (expectedProp : Expr) : Expr :=
+  mkExpectedTypeHintCore proof expectedProp levelZero
+
+/--
+Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, returns
+term `@id expectedType e`. -/
 def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
   let u ← getLevel expectedType
-  return mkApp2 (mkConst ``id [u]) expectedType e
+  return mkExpectedTypeHintCore e expectedType u
 
 /--
 `mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.

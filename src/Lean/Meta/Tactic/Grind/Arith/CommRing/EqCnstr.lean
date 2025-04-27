@@ -156,7 +156,6 @@ def EqCnstr.simplifyAndCheck (c : EqCnstr) : RingM (Option EqCnstr) := do
 def addToBasisCore (c : EqCnstr) : RingM Unit := do
   let .add _ m _ := c.p | return ()
   let .mult pw _ := m | return ()
-  trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
   modifyRing fun s => { s with
     varToBasis := s.varToBasis.modify pw.x (c :: ·)
     recheck := true
@@ -234,6 +233,7 @@ def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   let c ← c.toMonic
   c.simplifyBasis
   c.superposeWith
+  trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
   addToBasisCore c
 
 def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do

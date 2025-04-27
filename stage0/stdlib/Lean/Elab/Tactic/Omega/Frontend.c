@@ -135,7 +135,6 @@ lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda__15___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Omega_elabOmegaConfig___lambda__4___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Omega_succ_x3f___closed__4;
-uint8_t l_List_elem___at_Lean_Meta_SolveByElim_mkAssumptionSet___spec__5(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda__31___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_omegaTactic___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_omegaTactic___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -442,6 +441,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda__
 static lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda__5___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_addIntInequality___lambda__1___closed__1;
 lean_object* l_Lean_MVarId_admit(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_Meta_ExtractLets_extractable___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__10___closed__14;
 static lean_object* l_panic___at_Lean_Elab_Tactic_Omega_asLinearComboImpl_rewrite___spec__1___closed__3;
 static lean_object* l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda__15___closed__2;
@@ -23950,7 +23950,7 @@ x_19 = lean_ctor_get(x_1, 1);
 lean_inc(x_19);
 x_20 = lean_ctor_get(x_1, 2);
 lean_inc(x_20);
-x_21 = l_List_elem___at_Lean_Meta_SolveByElim_mkAssumptionSet___spec__5(x_2, x_20);
+x_21 = l_List_elem___at_Lean_Meta_ExtractLets_extractable___spec__1(x_2, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 

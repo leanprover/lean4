@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lean.Elab.Eval
 import Lake.Util.Version
+import Lake.DSL.Syntax
 
 open Lean Elab Term Meta
 
@@ -30,9 +31,6 @@ instance : ToExpr StdVer where
 
 private def toResultExpr [ToExpr α] (x : Except String α) : Except String Expr :=
   Functor.map toExpr x
-
-/-- A Lake version literal. -/
-scoped syntax:max (name := verLit) "v!" noWs interpolatedStr(term) : term
 
 @[builtin_term_elab verLit]
 def elabVerLit : TermElab := fun stx expectedType? => do

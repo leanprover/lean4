@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.List.Nat.Find
 import Init.Data.Array.Lemmas
@@ -36,7 +38,7 @@ theorem findSome?_singleton {a : α} {f : α → Option β} : #[a].findSome? f =
   cases xs; simp_all
 
 theorem exists_of_findSome?_eq_some {f : α → Option β} {xs : Array α} (w : xs.findSome? f = some b) :
-    ∃ a, a ∈ xs ∧ f a = b := by
+    ∃ a, a ∈ xs ∧ f a = some b := by
   cases xs; simp_all [List.exists_of_findSome?_eq_some]
 
 @[simp] theorem findSome?_eq_none_iff : findSome? p xs = none ↔ ∀ x ∈ xs, p x = none := by

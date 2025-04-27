@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 
 Notation for operators defined at Prelude.lean
 -/
+module
+
 prelude
 import Init.Tactics
 import Init.Meta

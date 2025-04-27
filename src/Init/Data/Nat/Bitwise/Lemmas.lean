@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
 
+module
+
 prelude
 import Init.Data.Bool
 import Init.Data.Int.Pow

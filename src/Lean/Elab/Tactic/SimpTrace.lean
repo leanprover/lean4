@@ -31,6 +31,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
     else
       `(tactic| simp%$tk $cfg:optConfig $[$discharger]? $[only%$o]? $[[$args,*]]? $(loc)?)
     let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
+    let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
     let stats ← dischargeWrapper.with fun discharge? =>
       simpLocation ctx (simprocs := simprocs) discharge? <|
         (loc.map expandLocation).getD (.targets #[] true)
@@ -48,6 +49,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       `(tactic| simp_all%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
     let { ctx, .. } ← mkSimpContext stx (eraseLocal := true)
       (kind := .simpAll) (ignoreStarArg := true)
+    let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
     let (result?, stats) ← simpAll (← getMainGoal) ctx
     match result? with
     | none => replaceMainGoal []
@@ -88,6 +90,7 @@ where
       `(tactic| dsimp%$tk $cfg:optConfig $[only%$o]? $[[$args,*]]? $(loc)?)
     let { ctx, simprocs, .. } ←
       withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
+    let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
     let stats ← dsimpLocation' ctx simprocs <| (loc.map expandLocation).getD (.targets #[] true)
     let stx ← mkSimpCallStx stx stats.usedTheorems
     addSuggestion tk stx (origSpan? := ← getRef)

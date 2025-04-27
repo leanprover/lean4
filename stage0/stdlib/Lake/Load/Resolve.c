@@ -129,6 +129,7 @@ static lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT_
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__41___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__43(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT___rarg___lambda__3(lean_object*, lean_object*);
 lean_object* l_System_FilePath_pathExists(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__31___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -206,7 +207,6 @@ uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadLift(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Resolve_0__Lake_reuseManifest___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__12(lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__42(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__21(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4147,7 +4147,7 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_ctor_get(x_10, 0);
 x_13 = lean_ctor_get(x_10, 1);
-x_14 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_1, x_12);
+x_14 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_1, x_12);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
@@ -4208,7 +4208,7 @@ x_28 = lean_ctor_get(x_10, 1);
 lean_inc(x_28);
 lean_inc(x_27);
 lean_dec(x_10);
-x_29 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_1, x_27);
+x_29 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_1, x_27);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
@@ -14133,7 +14133,7 @@ _start:
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-x_9 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_8, x_3);
+x_9 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -16135,7 +16135,7 @@ _start:
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-x_9 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_8, x_3);
+x_9 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -18020,7 +18020,7 @@ _start:
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-x_9 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_8, x_3);
+x_9 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -20214,7 +20214,7 @@ _start:
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-x_9 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_8, x_3);
+x_9 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -25763,7 +25763,7 @@ _start:
 lean_object* x_10; uint8_t x_11; 
 x_10 = lean_ctor_get(x_5, 0);
 lean_inc(x_10);
-x_11 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_10, x_6);
+x_11 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_10, x_6);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 

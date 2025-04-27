@@ -65,19 +65,130 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := fal
     | some c => return some c
     | none => p.findSimp? unitOnly
 
-/-- Simplify the given equation constraint using the current basis. -/
-def simplify (c : EqCnstr) : RingM EqCnstr := do
+/-- Simplifies `c` using `c'`. -/
+def EqCnstr.simplify1 (c c' : EqCnstr) : RingM (Option EqCnstr) := do
+  let some r := c'.p.simp? c.p (← nonzeroChar?) | return none
+  let c := { c with
+    p := r.p
+    h := .simp c' c r.k₁ r.k₂ r.m
+  }
+  trace_goal[grind.ring.simp] "{← c.p.denoteExpr}"
+  return some c
+
+/-- Keep simplifying `c` with `c'` until it is not applicable anymore. -/
+def EqCnstr.simplifyWith (c c' : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
     checkSystem "ring"
-    let some c' ← c.p.findSimp? | return c
-    let some r := c'.p.simp? c.p | unreachable!
-    c := { c with
-      p := r.p
-      h := .simp c' c r.k₁ r.k₂ r.m
-    }
-    trace_goal[grind.ring.simp] "{← c.p.denoteExpr}"
+    let some r ← c.simplify1 c' | return c
+    trace_goal[grind.debug.ring.simp] "simplifying{indentD (← c.denoteExpr)}\nwith{indentD (← c'.denoteExpr)}"
+    c := r
   return c
+
+/-- Simplify the given equation constraint using the current basis. -/
+def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
+  let mut c := c
+  repeat
+    let some c' ← c.p.findSimp? |
+      trace_goal[grind.debug.ring.simp] "simplified{indentD (← c.denoteExpr)}"
+      return c
+    c ← c.simplifyWith c'
+  return c
+
+/-- Returns `true` if `c.p` is the constant polynomial. -/
+def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
+  let .num k := c.p | return false
+  if k == 0 then
+    trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
+  else if (← hasChar) then
+    setInconsistent c
+  else
+    -- Remark: we currently don't do anything if the characteristic is not known.
+    trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
+  return true
+
+/--
+Simplifies and checks whether the resulting constraint is trivial (i.e., `0 = 0`),
+or inconsistent (i.e., `k = 0` where `k % c != 0` for a comm-ring with characteristic `c`),
+and returns `none`. Otherwise, returns the simplified constraint.
+-/
+def EqCnstr.simplifyAndCheck (c : EqCnstr) : RingM (Option EqCnstr) := do
+  let c ← c.simplify
+  if (← c.checkConstant) then
+    return none
+  else
+    return some c
+
+def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
+  let .add _ m _ := c.p | return ()
+  let .mult pw _ := m | return ()
+  let x := pw.x
+  let cs := (← getRing).varToBasis[x]!
+  let cs ← cs.filterMapM fun c' => do
+    let .add _ m' _ := c'.p | return none
+    if m.divides m' then
+      let c' ← c'.simplifyWith c'
+      if (← c'.checkConstant) then
+        return none
+      else
+        return some c'
+    else
+      return some c'
+  modifyRing fun s => { s with varToBasis := s.varToBasis.set x cs }
+
+def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
+  trace_goal[grind.ring.assert.queue] "{← c.denoteExpr}"
+  modifyRing fun s => { s with queue := s.queue.insert c }
+
+def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
+  trace[grind.ring.superpose] "{← c.denoteExpr}"
+  return ()
+
+/--
+Tries to convert the leading monomial into a monic one.
+
+It exploits the fact that given a polynomial with leading coefficient `k`,
+if the ring has a nonzero characteristic `p` and `gcd k p = 1`, then
+`k` has an inverse.
+
+It also handles the easy case where `k` is `-1`.
+-/
+def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
+  let k := c.p.lc
+  if k == 1 then return c
+  if let some p ← nonzeroChar? then
+    let (g, α, _β) := gcdExt k p
+    if g == 1 then
+      -- `α*k + β*p = 1`
+      -- `α*k = 1 (mod p)`
+      let α := if α < 0 then α % p else α
+      return { c with p := c.p.mulConstC α p, h := .mul α c }
+    else
+      return c
+  else if k == -1 then
+    return { c with p := c.p.mulConst (-1), h := .mul (-1) c }
+  else
+    return c
+
+def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
+  let c ← c.toMonic
+  c.simplifyBasis
+  c.superposeWith
+  let .add _ m _ := c.p | return ()
+  let .mult pw _ := m | return ()
+  trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
+  modifyRing fun s => { s with varToBasis := s.varToBasis.modify pw.x (c :: ·) }
+
+def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
+  let some c ← c.simplifyAndCheck | return ()
+  c.addToBasisAfterSimp
+
+def addNewEq (c : EqCnstr) : RingM Unit := do
+  let some c ← c.simplifyAndCheck | return ()
+  if c.p.degree == 1 then
+    c.addToBasisAfterSimp
+  else
+    c.addToQueue
 
 @[export lean_process_ring_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
@@ -88,6 +199,7 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
+    -- TODO: delete this `if` after simplifier is fully integrated
     if let .num k := p then
       if k == 0 then
         trace_goal[grind.ring.assert.trivial] "{← p.denoteExpr} = 0"
@@ -98,9 +210,7 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
         -- Remark: we currently don't do anything if the characteristic is not known.
         trace_goal[grind.ring.assert.discard] "{← p.denoteExpr} = 0"
       return ()
-
-    trace_goal[grind.ring.assert.store] "{← p.denoteExpr} = 0"
-  -- TODO: save equality
+    addNewEq (← mkEqCnstr p (.core a b ra rb))
 
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do

@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
   Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Bool
 import Init.Data.Option.Lemmas
@@ -869,7 +871,7 @@ theorem getElem_cons_length {x : α} {xs : List α} {i : Nat} (h : i = xs.length
 
 /-! ### getLast? -/
 
-@[simp] theorem getLast?_singleton {a : α} : getLast? [a] = a := rfl
+@[simp] theorem getLast?_singleton {a : α} : getLast? [a] = some a := rfl
 
 -- The `l : List α` argument is intentionally explicit.
 theorem getLast?_eq_getLast : ∀ {l : List α} h, l.getLast? = some (l.getLast h)
@@ -890,7 +892,7 @@ theorem getLast_eq_iff_getLast?_eq_some {xs : List α} (h) :
 -- are proved later once more `reverse` theorems are available.
 
 @[grind]
-theorem getLast?_cons {a : α} : (a::l).getLast? = l.getLast?.getD a := by
+theorem getLast?_cons {a : α} : (a::l).getLast? = some (l.getLast?.getD a) := by
   cases l <;> simp [getLast?, getLast]
 
 @[simp] theorem getLast?_cons_cons : (a :: b :: l).getLast? = (b :: l).getLast? := by
@@ -987,7 +989,7 @@ theorem head_mem_head? : ∀ {l : List α} (h : l ≠ []), head l h ∈ head? l
 theorem head?_eq_some_head : ∀ {l : List α} (h : l ≠ []), head? l = some (head l h)
   | _ :: _, _ => rfl
 
-theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
+theorem head?_concat {a : α} : (l ++ [a]).head? = some (l.head?.getD a) := by
   cases l <;> simp
 
 theorem head?_concat_concat : (l ++ [a, b]).head? = (l ++ [a]).head? := by

@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
   Kim Morrison, Jannis Limperg
 -/
+module
+
 prelude
 import Init.Data.List.Lemmas
 import Init.Data.List.Sublist
@@ -38,7 +40,7 @@ open Nat
   split <;> simp_all
 
 theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.findSome? f = some b) :
-    ∃ a, a ∈ l ∧ f a = b := by
+    ∃ a, a ∈ l ∧ f a = some b := by
   induction l with
   | nil => simp_all
   | cons h l ih =>

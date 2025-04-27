@@ -338,6 +338,12 @@ private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos := do
     stx := stx[1]
   stx.getPos?
 
+/-- Allow use of module system -/
+register_builtin_option experimental.module : Bool := {
+  defValue := false
+  descr := "Allow use of module system (experimental)"
+}
+
 /--
 Entry point of the Lean language processor.
 
@@ -458,8 +464,14 @@ where
         | .error snap => return snap
 
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
+      let mut opts := setup.opts
+      -- HACK: no better way to enable in core with `USE_LAKE` off
+      if (`Init).isPrefixOf setup.mainModuleName then
+        opts := experimental.module.setIfNotSet opts true
+      if !stx.raw[0].isNone && !experimental.module.get opts then
+        throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
-      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx setup.opts .empty
+      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx opts .empty
         ctx.toInputContext setup.trustLevel setup.plugins
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
@@ -478,7 +490,7 @@ where
           }].toPArray'
         }
       -- now that imports have been loaded, check options again
-      let opts ← reparseOptions setup.opts
+      opts ← reparseOptions opts
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with
         infoState := {

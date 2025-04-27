@@ -1769,8 +1769,12 @@ partial def importModulesCore (imports : Array Import) (forceImportAll := true) 
     -- import private info if (transitively) used by a non-`module` on any import path
     let importAll := forceImportAll
     if let some mod := (← get).moduleNameMap[i.module]? then
-      modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-        importAll := mod.importAll || importAll }}
+      -- when module is already imported, bump entire closure to private if necessary
+      if importAll && !mod.importAll then
+        modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
+          importAll := true }}
+        if let some mod := mod.mainModule? then
+          importModulesCore mod.imports true
       continue
     let mFile ← findOLean i.module
     unless (← mFile.pathExists) do
@@ -1789,6 +1793,11 @@ partial def importModulesCore (imports : Array Import) (forceImportAll := true) 
     -- `imports` is identical for each part
     let some (baseMod, _) := parts[0]? | unreachable!
     importModulesCore (forceImportAll := forceImportAll || !baseMod.isModule) baseMod.imports
+    if baseMod.isModule && !forceImportAll then
+      for i' in baseMod.imports do
+        if let some mod := (← get).moduleNameMap[i'.module]?.bind (·.mainModule?) then
+          if !mod.isModule then
+            throw <| IO.userError s!"cannot import non`-module` {i'.module} from `module` {i.module}"
     modify fun s => { s with
       moduleNameMap := s.moduleNameMap.insert i.module { name := i.module, importAll, parts }
       moduleNames := s.moduleNames.push i.module

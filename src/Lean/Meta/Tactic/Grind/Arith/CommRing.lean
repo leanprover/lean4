@@ -28,9 +28,10 @@ builtin_initialize registerTraceClass `grind.ring.assert.basis (inherited := tru
 builtin_initialize registerTraceClass `grind.ring.assert.discard (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.simp
 builtin_initialize registerTraceClass `grind.ring.superpose
+builtin_initialize registerTraceClass `grind.ring.impEq
 
 builtin_initialize registerTraceClass `grind.debug.ring.simp
 builtin_initialize registerTraceClass `grind.debug.ring.proof
-builtin_initialize registerTraceClass `grind.debug.ring.check
+builtin_initialize registerTraceClass `grind.debug.ring.cherck
 
 end Lean

@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 
 namespace Lean.Meta.Grind.Arith.CommRing
 /-- Returns `some ringId` if `a` and `b` are elements of the same ring. -/
@@ -321,6 +322,7 @@ private def propagateEqs : RingM Unit := do
     let d : PolyDerivation := .input (← ra.toPolyM)
     let d ← d.simplify
     let k := d.getMultiplier
+    trace_goal[grind.debug.ring.impEq] "{a}, {k}, {← d.p.denoteExpr}"
     if let some (b, rb) := map[(k, d.p)]? then
       -- TODO: use `isEqv` more effectively
       unless (← isEqv a b) do
@@ -350,11 +352,15 @@ def checkRing : RingM Bool := do
 def check : GoalM Bool := do
   if (← checkMaxSteps) then return false
   let mut progress := false
-  for ringId in [:(← get').rings.size] do
-    let r ← RingM.run ringId checkRing
-    progress := progress || r
-    if (← isInconsistent) then
-      return true
-  return progress
+  checkInvariants
+  try
+    for ringId in [:(← get').rings.size] do
+      let r ← RingM.run ringId checkRing
+      progress := progress || r
+      if (← isInconsistent) then
+        return true
+    return progress
+  finally
+    checkInvariants
 
 end Lean.Meta.Grind.Arith.CommRing

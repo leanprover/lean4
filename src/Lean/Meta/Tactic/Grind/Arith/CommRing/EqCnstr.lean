@@ -290,8 +290,12 @@ private def needCheck : RingM Bool := do
   return (← getRing).recheck
 
 private def checkDiseqs : RingM Unit := do
-  -- TODO
-  return ()
+  let diseqs := (← getRing).diseqs
+  modifyRing fun s => { s with diseqs := {} }
+  -- No indexing simple
+  for diseq in diseqs do
+    addNewDiseq diseq
+    if (← isInconsistent) then return
 
 def checkRing : RingM Bool := do
   unless (← needCheck) do return false

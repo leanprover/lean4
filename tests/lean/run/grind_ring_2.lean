@@ -93,3 +93,6 @@ example [CommRing α] [NoZeroNatDivisors α] (a b c : α)
     a^4 + b^4 = 9 - c^4 := by
   set_option trace.grind.ring.assert.basis true in
   grind +ring
+
+example [CommRing α] (a b : α) (f : α → Nat) : a - b = 0 → f a = f b := by
+  grind +ring

@@ -2,7 +2,7 @@ variable {α : Type u} {l : List α} {P Q : α → Bool}
 
 attribute [grind] List.countP_nil List.countP_cons
 
--- It would be rely nice if we didn't need to `specialize` here!
+-- It would be really nice if we didn't need to `specialize` here!
 
 theorem List.countP_le_countP (hpq : ∀ x ∈ l, P x → Q x) :
     l.countP P ≤ l.countP Q := by

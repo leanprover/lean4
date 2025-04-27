@@ -1,5 +1,5 @@
 /-!
-This file contains notes about further `grind` attributes for `Option`.
+This file contains WIP notes about potential further `grind` attributes for `Option`.
 
 -/
 

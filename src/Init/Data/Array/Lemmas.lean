@@ -1630,7 +1630,7 @@ theorem _root_.List.filterMap_toArray {f : α → Option β} {l : List α} :
   rcases xs with ⟨xs⟩
   simp [h]
 
-@[grind] theorem filterMap_push{f : α → Option β} {a : α} {xs : Array α}
+@[grind] theorem filterMap_push {f : α → Option β} {a : α} {xs : Array α}
     (w : stop = xs.size + 1) :
     filterMap f (xs.push a) 0 stop =
       match f a with

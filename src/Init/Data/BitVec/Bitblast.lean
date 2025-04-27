@@ -1358,7 +1358,7 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
   rcases w with _|w
   · simp [toInt_of_zero_length, Int.min_eq_right]
   · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
-    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.natCast_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
 /--
@@ -1574,7 +1574,7 @@ theorem sdiv_ne_intMin_of_ne_intMin {x y : BitVec w} (h : x ≠ intMin w) :
 
 theorem toInt_eq_neg_toNat_neg_of_msb_true {x : BitVec w} (h : x.msb = true) :
     x.toInt = -((-x).toNat) := by
-  simp only [toInt_eq_msb_cond, h, ↓reduceIte, toNat_neg, Int.ofNat_emod]
+  simp only [toInt_eq_msb_cond, h, ↓reduceIte, toNat_neg, Int.natCast_emod]
   norm_cast
   rw [Nat.mod_eq_of_lt]
   · omega
@@ -1669,7 +1669,7 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
           (a.sdiv b).toInt = -((-a).toNat / b.toNat) := by
         simp only [sdiv_eq, ha, hb, udiv_eq]
         rw [toInt_eq_neg_toNat_neg_of_nonpos]
-        · rw [neg_neg, toNat_udiv, toNat_neg, Int.ofNat_emod, Int.neg_inj]
+        · rw [neg_neg, toNat_udiv, toNat_neg, Int.natCast_emod, Int.neg_inj]
           norm_cast
         · rw [neg_eq_zero_iff]
           by_cases h' : -a / b = 0#w

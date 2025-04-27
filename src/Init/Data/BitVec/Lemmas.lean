@@ -620,10 +620,10 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
   simp only [toInt_eq_toNat_cond]
   split
   next g =>
-    rw [Int.bmod_pos] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
+    rw [Int.bmod_pos] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
     omega
   next g =>
-    rw [Int.bmod_neg] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
+    rw [Int.bmod_neg] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
     omega
 
 theorem toInt_neg_of_msb_true {x : BitVec w} (h : x.msb = true) : x.toInt < 0 := by
@@ -639,7 +639,7 @@ theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.t
 @[simp] theorem toInt_one_of_lt {w : Nat} (h : 1 < w) : (1#w).toInt = 1 := by
   rw [toInt_eq_msb_cond]
   simp only [msb_one, show w ≠ 1 by omega, decide_false, Bool.false_eq_true, ↓reduceIte,
-    toNat_ofNat, Int.ofNat_emod]
+    toNat_ofNat, Int.natCast_emod]
   norm_cast
   apply Nat.mod_eq_of_lt
   apply Nat.one_lt_two_pow (by omega)
@@ -2548,7 +2548,7 @@ where
       simp [getElem_signExtend, Nat.le_sub_one_of_lt hv]
       omega
     have H : 2^w ≤ 2^v := Nat.pow_le_pow_right (by omega) (by omega)
-    simp only [this, toNat_setWidth, Int.natCast_add, Int.ofNat_emod, Int.natCast_mul]
+    simp only [this, toNat_setWidth, Int.natCast_add, Int.natCast_emod, Int.natCast_mul]
     by_cases h : x.msb
     <;> norm_cast
     <;> simp [h, Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le x.isLt H), -Int.natCast_pow]
@@ -3871,7 +3871,7 @@ theorem le_zero_iff {x : BitVec w} : x ≤ 0#w ↔ x = 0#w := by
 theorem lt_one_iff {x : BitVec w} (h : 0 < w) : x < 1#w ↔ x = 0#w := by
   constructor
   · intro h₂
-    rw [lt_def, toNat_ofNat, ← Int.ofNat_lt, Int.ofNat_emod, Int.ofNat_one, Int.natCast_pow,
+    rw [lt_def, toNat_ofNat, ← Int.ofNat_lt, Int.natCast_emod, Int.ofNat_one, Int.natCast_pow,
       Int.ofNat_two, @Int.emod_eq_of_lt 1 (2^w) (by omega) (by omega)] at h₂
     simp [toNat_eq, show x.toNat = 0 by omega]
   · simp_all
@@ -5056,7 +5056,7 @@ theorem toInt_intMin_le (x : BitVec w) :
   cases w
   case zero => simp [toInt_intMin, @of_length_zero x]
   case succ w =>
-    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.natCast_emod]
     have : 0 < 2 ^ w := Nat.two_pow_pos w
     rw [Int.emod_eq_of_lt (by omega) (by omega)]
     rw [BitVec.toInt_eq_toNat_bmod]

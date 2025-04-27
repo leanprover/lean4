@@ -15,6 +15,12 @@ def get' : GoalM State := do
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   modify fun s => { s with arith.ring := f s.arith.ring }
 
+def checkMaxSteps : GoalM Bool := do
+  return (← get').steps >= (← getConfig).ringSteps
+
+def incSteps : GoalM Unit := do
+  modify' fun s => { s with steps := s.steps + 1 }
+
 /-- We don't want to keep carrying the `RingId` around. -/
 abbrev RingM := ReaderT Nat GoalM
 
@@ -61,6 +67,18 @@ def nonzeroCharInst? : RingM (Option (Expr × Nat)) := do
       return some (inst, c)
   return none
 
+def noZeroDivisorsInst? : RingM (Option Expr) := do
+  return (← getRing).noZeroDivInst?
+
+/--
+Returns `true` if the current ring satifies the property
+```
+∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
+```
+-/
+def noZeroDivisors : RingM Bool := do
+  return (← getRing).noZeroDivInst?.isSome
+
 /-- Returns `true` if the current ring has a `IsCharP` instance. -/
 def hasChar  : RingM Bool := do
   return (← getRing).charInst?.isSome
@@ -91,5 +109,17 @@ def _root_.Lean.Grind.CommRing.Poly.mulM (p₁ p₂ : Poly) : RingM Poly := do
 
 def _root_.Lean.Grind.CommRing.Poly.combineM (p₁ p₂ : Poly) : RingM Poly :=
   return p₁.combine' p₂ (← nonzeroChar?)
+
+def _root_.Lean.Grind.CommRing.Poly.spolM (p₁ p₂ : Poly) : RingM Grind.CommRing.SPolResult := do
+  if let some c ← nonzeroChar? then return p₁.spol p₂ c else return p₁.spol p₂
+
+def isQueueEmpty : RingM Bool :=
+  return (← getRing).queue.isEmpty
+
+def getNext? : RingM (Option EqCnstr) := do
+  let some c := (← getRing).queue.min | return none
+  modifyRing fun s => { s with queue := s.queue.erase c }
+  incSteps
+  return some c
 
 end Lean.Meta.Grind.Arith.CommRing

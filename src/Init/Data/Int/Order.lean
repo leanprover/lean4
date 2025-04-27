@@ -51,7 +51,7 @@ protected theorem le_total (a b : Int) : a ≤ b ∨ b ≤ a :=
 @[simp, norm_cast] theorem ofNat_le {m n : Nat} : (↑m : Int) ≤ ↑n ↔ m ≤ n :=
   ⟨fun h =>
     let ⟨k, hk⟩ := le.dest h
-    Nat.le.intro <| Int.ofNat.inj <| (Int.ofNat_add m k).trans hk,
+    Nat.le.intro <| Int.ofNat.inj <| (Int.natCast_add m k).trans hk,
   fun h =>
     let ⟨k, (hk : m + k = n)⟩ := Nat.le.dest h
     le.intro k (by rw [← hk]; rfl)⟩
@@ -75,7 +75,7 @@ theorem lt.dest {a b : Int} (h : a < b) : ∃ n : Nat, a + Nat.succ n = b :=
   let ⟨n, h⟩ := le.dest h; ⟨n, by rwa [Int.add_comm, Int.add_left_comm] at h⟩
 
 @[simp, norm_cast] theorem ofNat_lt {n m : Nat} : (↑n : Int) < ↑m ↔ n < m := by
-  rw [lt_iff_add_one_le, ← ofNat_succ, ofNat_le]; rfl
+  rw [lt_iff_add_one_le, ← natCast_succ, ofNat_le]; rfl
 
 @[simp, norm_cast] theorem ofNat_pos {n : Nat} : 0 < (↑n : Int) ↔ 0 < n := ofNat_lt
 
@@ -93,11 +93,11 @@ protected theorem ge_of_eq {a b : Int} (hab : a = b) : b ≤ a := Int.le_of_eq h
 
 protected theorem le_trans {a b c : Int} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
   let ⟨n, hn⟩ := le.dest h₁; let ⟨m, hm⟩ := le.dest h₂
-  le.intro (n + m) <| by rw [← hm, ← hn, Int.add_assoc, ofNat_add]
+  le.intro (n + m) <| by rw [← hm, ← hn, Int.add_assoc, natCast_add]
 
 protected theorem le_antisymm {a b : Int} (h₁ : a ≤ b) (h₂ : b ≤ a) : a = b := by
   let ⟨n, hn⟩ := le.dest h₁; let ⟨m, hm⟩ := le.dest h₂
-  have := hn; rw [← hm, Int.add_assoc, ← ofNat_add] at this
+  have := hn; rw [← hm, Int.add_assoc, ← natCast_add] at this
   have := Int.ofNat.inj <| Int.add_left_cancel <| this.trans (Int.add_zero _).symm
   rw [← hn, Nat.eq_zero_of_add_eq_zero_left this, ofNat_zero, Int.add_zero a]
 
@@ -475,7 +475,7 @@ instance : Std.IdempotentOp (α := Int) max := ⟨Int.max_self⟩
 protected theorem mul_nonneg {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a * b := by
   let ⟨n, hn⟩ := eq_ofNat_of_zero_le ha
   let ⟨m, hm⟩ := eq_ofNat_of_zero_le hb
-  rw [hn, hm, ← ofNat_mul]; apply ofNat_nonneg
+  rw [hn, hm, ← natCast_mul]; apply ofNat_nonneg
 
 protected theorem mul_pos {a b : Int} (ha : 0 < a) (hb : 0 < b) : 0 < a * b := by
   let ⟨n, hn⟩ := eq_succ_of_zero_lt ha
@@ -673,7 +673,7 @@ theorem toNat_add_nat {a : Int} (ha : 0 ≤ a) (n : Nat) : (a + n).toNat = a.toN
 
 @[simp] theorem pred_toNat : ∀ i : Int, (i - 1).toNat = i.toNat - 1
   | 0 => rfl
-  | (_+1:Nat) => by simp [ofNat_add]
+  | (_+1:Nat) => by simp [natCast_add]
   | -[_+1] => rfl
 
 theorem toNat_sub_toNat_neg : ∀ n : Int, ↑n.toNat - ↑(-n).toNat = n
@@ -1306,7 +1306,7 @@ theorem natAbs_mul_natAbs_eq {a b : Int} {c : Nat}
     (h : a * b = (c : Int)) : a.natAbs * b.natAbs = c := by rw [← natAbs_mul, h, natAbs.eq_def]
 
 @[simp] theorem natAbs_mul_self' (a : Int) : (natAbs a * natAbs a : Int) = a * a := by
-  rw [← Int.ofNat_mul, natAbs_mul_self]
+  rw [← Int.natCast_mul, natAbs_mul_self]
 
 theorem natAbs_eq_iff {a : Int} {n : Nat} : a.natAbs = n ↔ a = n ∨ a = -↑n := by
   rw [← Int.natAbs_eq_natAbs_iff, Int.natAbs_natCast]
@@ -1314,7 +1314,7 @@ theorem natAbs_eq_iff {a : Int} {n : Nat} : a.natAbs = n ↔ a = n ∨ a = -↑n
 theorem natAbs_add_le (a b : Int) : natAbs (a + b) ≤ natAbs a + natAbs b := by
   suffices ∀ a b : Nat, natAbs (subNatNat a b.succ) ≤ (a + b).succ by
     match a, b with
-    | (a:Nat), (b:Nat) => rw [← ofNat_add, natAbs_natCast]; apply Nat.le_refl
+    | (a:Nat), (b:Nat) => rw [← natCast_add, natAbs_natCast]; apply Nat.le_refl
     | (a:Nat), -[b+1]  => rw [natAbs_natCast, natAbs_negSucc]; apply this
     | -[a+1],  (b:Nat) =>
       rw [natAbs_negSucc, natAbs_natCast, Nat.succ_add, Nat.add_comm a b]; apply this

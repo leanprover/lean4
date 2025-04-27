@@ -604,8 +604,6 @@ theorem sign_ediv (a b : Int) : sign (a / b) = if 0 ≤ a ∧ a < b.natAbs then 
       | negSucc a =>
         norm_cast
 
-@[simp, norm_cast] theorem natCast_ediv (m n : Nat) : ((m / n : Nat) : Int) = m / n := rfl
-
 /-! ### emod -/
 
 theorem mod_def' (m n : Int) : m % n = emod m n := rfl
@@ -713,8 +711,6 @@ theorem one_emod {b : Int} : 1 % b = if b.natAbs = 1 then 0 else 1 := by
   · simp
 
 @[simp] theorem neg_emod_two (i : Int) : -i % 2 = i % 2 := by omega
-
-@[simp, norm_cast] theorem natCast_emod (m n : Nat) : (↑(m % n) : Int) = ↑m % ↑n := rfl
 
 /-! ### properties of `/` and `%` -/
 
@@ -1325,7 +1321,7 @@ theorem lt_tmod_of_pos (a : Int) {b : Int} (H : 0 < b) : -b < tmod a b :=
   match a, b, eq_succ_of_zero_lt H with
   | ofNat _, _, ⟨n, rfl⟩ => by rw [ofNat_eq_coe, ← Int.natCast_succ, ← ofNat_tmod]; omega
   | -[a+1], _, ⟨n, rfl⟩ => by
-    rw [negSucc_eq, neg_tmod, ← Int.natCast_succ, ← Int.natCast_succ, ← ofNat_tmod]
+    rw [negSucc_eq, neg_tmod, ← Int.natCast_add_one, ← Int.natCast_add_one, ← ofNat_tmod]
     have : (a + 1) % (n + 1) < n + 1 := Nat.mod_lt _ (Nat.zero_lt_succ n)
     omega
 
@@ -2017,7 +2013,7 @@ theorem neg_fdiv {a b : Int} : (-a).fdiv b = -(a.fdiv b) - if b = 0 ∨ b ∣ a 
     rw [neg_negSucc, ← negSucc_eq]
   | -[a+1], -[b+1] =>
     unfold fdiv
-    simp only [ofNat_eq_coe, ofNat_ediv, Nat.succ_eq_add_one, Int.natCast_add, cast_ofNat_Int]
+    simp only [ofNat_eq_coe, natCast_ediv, Nat.succ_eq_add_one, Int.natCast_add, cast_ofNat_Int]
     rw [neg_negSucc, neg_negSucc]
     simp
 
@@ -2903,7 +2899,7 @@ theorem ediv_lt_self_of_pos_of_ne_one {x y : Int} (hx : 0 < x) (hy : y ≠ 1) :
   by_cases hy' : 1 < y
   · obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
     obtain ⟨yn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
-    rw [← Int.ofNat_ediv]
+    rw [← Int.natCast_ediv]
     norm_cast
     apply Nat.div_lt_self (by omega) (by omega)
   · have := @Int.ediv_nonpos_of_nonneg_of_nonpos x y (by omega) (by omega)
@@ -2913,7 +2909,7 @@ theorem ediv_nonneg_of_nonneg_of_nonneg {x y : Int} (hx : 0 ≤ x) (hy : 0 ≤ y
     0 ≤ x / y := by
   obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
   obtain ⟨yn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
-  rw [← Int.ofNat_ediv]
+  rw [← Int.natCast_ediv]
   exact Int.ofNat_zero_le (xn / yn)
 
 /--  When both x and y are negative we need stricter bounds on x and y

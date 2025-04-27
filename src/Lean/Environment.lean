@@ -94,7 +94,11 @@ instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
 abbrev ConstMap := SMap Name ConstantInfo
 
 structure Import where
-  module      : Name
+  module        : Name
+  /-- `import private`; whether to import and expose all data saved by the module. -/
+  importPrivate : Bool := false
+  /-- Whether to activate this import when the current module itself is imported. -/
+  isExported    : Bool := false
   deriving Repr, Inhabited
 
 instance : Coe Name Import := ⟨({module := ·})⟩
@@ -865,10 +869,11 @@ def PromiseCheckedResult.commitChecked (res : PromiseCheckedResult) (env : Envir
 
 /-- Data transmitted by `AddConstAsyncResult.commitConst`. -/
 private structure ConstPromiseVal where
-  privateConstInfo  : ConstantInfo
-  exportedConstInfo : ConstantInfo
-  exts              : Array EnvExtensionState
-  nestedConsts      : AsyncConsts
+  privateConstInfo     : ConstantInfo
+  exportedConstInfo    : ConstantInfo
+  exts                 : Array EnvExtensionState
+  privateNestedConsts  : AsyncConsts
+  exportedNestedConsts : AsyncConsts
 deriving Nonempty
 
 /--
@@ -951,7 +956,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       -- any value should work here, `base` does not block
       | none   => env.base.extensions)
     consts := constPromise.result?.map (sync := true) fun
-      | some v => .mk v.nestedConsts
+      | some v => .mk v.privateNestedConsts
       | none   => .mk (α := AsyncConsts) default
   }
   let exportedAsyncConst := { privateAsyncConst with
@@ -961,6 +966,9 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
         | some c => c.exportedConstInfo
         | none   => mkFallbackConstInfo constName exportedKind
     }
+    consts := constPromise.result?.map (sync := true) fun
+      | some v => .mk v.exportedNestedConsts
+      | none   => .mk (α := AsyncConsts) default
   }
   return {
     constName, kind
@@ -997,7 +1005,7 @@ given environment. The declaration name and kind must match the original values 
 def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environment)
     (info? : Option ConstantInfo := none) (exportedInfo? : Option ConstantInfo := none) :
     IO Unit := do
-  let info ← match info? <|> env.find? res.constName with
+  let info ← match info? <|> (env.setExporting false).find? res.constName with
     | some info => pure info
     | none =>
       throw <| .userError s!"AddConstAsyncResult.commitConst: constant {res.constName} not found in async context"
@@ -1016,9 +1024,10 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
       throw <| .userError s!"AddConstAsyncResult.commitConst: exported constant has different signature"
   res.constPromise.resolve {
     privateConstInfo := info
-    exportedConstInfo := exportedInfo?.getD info
+    exportedConstInfo := (exportedInfo? <|> (env.setExporting true).find? res.constName).getD info
     exts := env.base.extensions
-    nestedConsts := env.asyncConsts
+    privateNestedConsts := env.privateAsyncConsts
+    exportedNestedConsts := env.exportedAsyncConsts
   }
 
 /--
@@ -1786,8 +1795,9 @@ partial def importModulesCore (imports : Array Import) (forceImportAll := true) 
     }
 
 /--
-Return `true` if `cinfo₁` and `cinfo₂` are theorems with the same name, universe parameters,
-and types. We allow different modules to prove the same theorem.
+Returns `true` if `cinfo₁` and `cinfo₂` represent the same theorem/axiom, with `cinfo₁` potentially
+being a richer representation; under the module system, a theorem may be weakened to an axiom when
+exported. We allow different modules to prove the same theorem.
 
 Motivation: We want to generate equational theorems on demand and potentially
 in different files, and we want them to have non-private names.
@@ -1804,13 +1814,15 @@ and theorems are (mostly) opaque in Lean. For `Acc.rec`, we may unfold theorems
 during type-checking, but we are assuming this is not an issue in practice,
 and we are planning to address this issue in the future.
 -/
-private def equivInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool := Id.run do
-  let .thmInfo tval₁ := cinfo₁ | false
-  let .thmInfo tval₂ := cinfo₂ | false
-  return tval₁.name == tval₂.name
-    && tval₁.type == tval₂.type
-    && tval₁.levelParams == tval₂.levelParams
-    && tval₁.all == tval₂.all
+private def subsumesInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool :=
+  cinfo₁.name == cinfo₂.name &&
+    cinfo₁.type == cinfo₂.type &&
+    cinfo₁.levelParams == cinfo₂.levelParams &&
+    match cinfo₁, cinfo₂ with
+    | .thmInfo tval₁, .thmInfo tval₂ => tval₁.all == tval₂.all
+    | .thmInfo tval₁, .axiomInfo aval₂ => tval₁.all == [aval₂.name] && !aval₂.isUnsafe
+    | .axiomInfo aval₁, .axiomInfo aval₂ => aval₁.isUnsafe == aval₂.isUnsafe
+    | _, _ => false
 
 /--
 Constructs environment from `importModulesCore` results.
@@ -1836,7 +1848,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         constantMap := constantMap'
         if let some cinfoPrev := cinfoPrev? then
           -- Recall that the map has not been modified when `cinfoPrev? = some _`.
-          unless equivInfo cinfoPrev cinfo do
+          if subsumesInfo cinfo cinfoPrev then
+            constantMap := constantMap.insert cname cinfo
+          else if !subsumesInfo cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
     for cname in mod.extraConstNames do

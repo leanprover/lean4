@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 
 namespace Lean.Meta.Grind.Arith.CommRing
 /-- Returns `some ringId` if `a` and `b` are elements of the same ring. -/
@@ -351,11 +352,15 @@ def checkRing : RingM Bool := do
 def check : GoalM Bool := do
   if (← checkMaxSteps) then return false
   let mut progress := false
-  for ringId in [:(← get').rings.size] do
-    let r ← RingM.run ringId checkRing
-    progress := progress || r
-    if (← isInconsistent) then
-      return true
-  return progress
+  checkInvariants
+  try
+    for ringId in [:(← get').rings.size] do
+      let r ← RingM.run ringId checkRing
+      progress := progress || r
+      if (← isInconsistent) then
+        return true
+    return progress
+  finally
+    checkInvariants
 
 end Lean.Meta.Grind.Arith.CommRing

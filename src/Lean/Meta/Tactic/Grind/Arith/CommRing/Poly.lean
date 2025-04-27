@@ -186,4 +186,13 @@ def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
 
+def Poly.checkCoeffs : Poly → Bool
+  | .num _ => true
+  | .add k _ p => k != 0 && checkCoeffs p
+
+def Poly.checkNoUnitMon : Poly → Bool
+  | .num _ => true
+  | .add _ .unit _ => false
+  | .add _ _ p => p.checkNoUnitMon
+
 end Lean.Grind.CommRing

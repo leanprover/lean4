@@ -50,7 +50,7 @@ def Expr.denote {α} [CommRing α] (ctx : Context α) : Expr → α
 structure Power where
   x : Var
   k : Nat
-  deriving BEq, Repr, Inhabited
+  deriving BEq, Repr, Inhabited, Hashable
 
 instance : LawfulBEq Power where
   eq_of_beq {a} := by cases a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
@@ -69,7 +69,7 @@ def Power.denote {α} [CommRing α] (ctx : Context α) : Power → α
 inductive Mon where
   | unit
   | mult (p : Power) (m : Mon)
-  deriving BEq, Repr, Inhabited
+  deriving BEq, Repr, Inhabited, Hashable
 
 instance : LawfulBEq Mon where
   eq_of_beq {a} := by
@@ -189,7 +189,7 @@ def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Mon) (p : Poly)
-  deriving BEq, Inhabited
+  deriving BEq, Inhabited, Hashable
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
@@ -734,20 +734,25 @@ theorem NullCert.ne_unsat {α} [CommRing α] (ctx : Context α) (nc : NullCert) 
   intro h₁ h₂
   exact eqsImplies_helper' (eq ctx nc h₁) h₂
 
-def NullCert.ne_nzdiv_unsat_cert (nc : NullCert) (k : Int) (lhs rhs : Expr) : Bool :=
+def NullCert.eq_nzdiv_cert (nc : NullCert) (k : Int) (lhs rhs : Expr) : Bool :=
   k ≠ 0 && (lhs.sub rhs).toPoly.mulConst k == nc.toPoly
 
-theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
-    : nc.ne_nzdiv_unsat_cert k lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
-  simp [ne_nzdiv_unsat_cert]
-  intro h₁ h₂ h₃
+theorem NullCert.eq_nzdiv {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+    : nc.eq_nzdiv_cert k lhs rhs → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
+  simp [eq_nzdiv_cert]
+  intro h₁ h₂
   apply eqsImplies_helper
-  intro h₄
+  intro h₃
   replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, h₄, Expr.denote] at h₂
+  simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, h₃, Expr.denote] at h₂
   replace h₂ := no_zero_int_divisors h₁ h₂
   rw [sub_eq_zero_iff] at h₂
-  exact h₃ h₂
+  assumption
+
+theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+    : nc.eq_nzdiv_cert k lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  intro h₁ h₂
+  exact eqsImplies_helper' (eq_nzdiv ctx nc k lhs rhs h₁) h₂
 
 def NullCert.eq_unsat_cert (nc : NullCert) (k : Int) : Bool :=
   k ≠ 0 && nc.toPoly == .num k
@@ -910,20 +915,25 @@ theorem NullCert.ne_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α
   intro h₁ h₂
   exact eqsImplies_helper' (eqC ctx nc h₁) h₂
 
-def NullCert.ne_nzdiv_unsat_certC (nc : NullCert) (k : Int) (lhs rhs : Expr) (c : Nat) : Bool :=
+def NullCert.eq_nzdiv_certC (nc : NullCert) (k : Int) (lhs rhs : Expr) (c : Nat) : Bool :=
   k ≠ 0 && ((lhs.sub rhs).toPolyC c).mulConstC k c == nc.toPolyC c
 
-theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
-    : nc.ne_nzdiv_unsat_certC k lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
-  simp [ne_nzdiv_unsat_certC]
-  intro h₁ h₂ h₃
+theorem NullCert.eq_nzdivC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+    : nc.eq_nzdiv_certC k lhs rhs c → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
+  simp [eq_nzdiv_certC]
+  intro h₁ h₂
   apply eqsImplies_helper
-  intro h₄
+  intro h₃
   replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₄, Expr.denote] at h₂
+  simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₃, Expr.denote] at h₂
   replace h₂ := no_zero_int_divisors h₁ h₂
   rw [sub_eq_zero_iff] at h₂
-  exact h₃ h₂
+  assumption
+
+theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+    : nc.eq_nzdiv_certC k lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
+  intro h₁ h₂
+  exact eqsImplies_helper' (eq_nzdivC ctx nc k lhs rhs h₁) h₂
 
 def NullCert.eq_unsat_certC (nc : NullCert) (k : Int) (c : Nat) : Bool :=
   k % c != 0 && nc.toPolyC c == .num k

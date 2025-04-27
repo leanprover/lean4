@@ -41,7 +41,11 @@ def check : GrindTactic := fun goal => do
   let (progress, goal) ← GoalM.run goal do
     let c₁ ← Cutsat.check
     let c₂ ← CommRing.check
-    return c₁ || c₂
+    if c₁ || c₂ then
+      processNewFacts
+      return true
+    else
+      return false
   unless progress do
     return none
   if goal.inconsistent then

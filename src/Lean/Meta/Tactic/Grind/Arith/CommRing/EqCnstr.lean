@@ -297,6 +297,34 @@ private def checkDiseqs : RingM Unit := do
     addNewDiseq diseq
     if (← isInconsistent) then return
 
+abbrev PropagateEqMap := Std.HashMap (Int × Poly) (Expr × RingExpr)
+
+/--
+Propagates implied equalities.
+-/
+private def propagateEqs : RingM Unit := do
+  /-
+  This is a very simple procedure that does not use any indexing data-structure.
+  We don't even cache the simplied polynomials.
+  TODO: optimize
+  -/
+  let mut map : PropagateEqMap := {}
+  for (a, ra) in (← getRing).denote do
+    let a := a.expr
+    let d : PolyDerivation := .input (← ra.toPolyM)
+    let d ← d.simplify
+    let k := d.getMultiplier
+    if let some (b, rb) := map[(k, d.p)]? then
+      -- TODO: use `isEqv` more effectively
+      unless (← isEqv a b) do
+        let p ← (ra.sub rb).toPolyM
+        let d : PolyDerivation := .input p
+        let d ← d.simplify
+        trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
+        propagateEq a b ra rb d
+    else
+      map := map.insert (k, d.p) (a, ra)
+
 def checkRing : RingM Bool := do
   unless (← needCheck) do return false
   trace_goal[grind.debug.ring.check] "{(← getRing).type}"
@@ -307,6 +335,7 @@ def checkRing : RingM Bool := do
     c.addToBasis
     if (← isInconsistent) then return true
   checkDiseqs
+  propagateEqs
   modifyRing fun s => { s with recheck := false }
   return true
 

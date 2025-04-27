@@ -265,12 +265,12 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
     prop ← annotateMatchEqnType prop (← read).initApp
     -- We must add a hint here because `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` and
     -- `Grind.PreMatchCond` which are not reducible.
-    proof ← mkExpectedTypeHint proof prop
+    proof := mkExpectedPropHint proof prop
   else if (← isEqnThm thm.origin.key) then
     prop ← annotateEqnTypeConds prop
     -- We must add a hint because `annotateEqnTypeConds` introduces `Grind.PreMatchCond`
     -- which is not reducible.
-    proof ← mkExpectedTypeHint proof prop
+    proof := mkExpectedPropHint proof prop
   trace_goal[grind.ematch.instance] "{← thm.origin.pp}: {prop}"
   addTheoremInstance thm proof prop (generation+1)
 

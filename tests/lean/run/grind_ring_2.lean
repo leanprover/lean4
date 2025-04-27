@@ -1,4 +1,5 @@
 set_option grind.warning false
+set_option grind.debug true
 open Lean.Grind
 
 example [CommRing α] [NoZeroNatDivisors α] (x y : α) : 3*x = 1 → 3*y = 2 → x + y = 1 := by

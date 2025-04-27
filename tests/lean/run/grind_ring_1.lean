@@ -1,4 +1,6 @@
 set_option grind.warning false
+set_option grind.debug true
+
 open Lean.Grind
 
 example [CommRing α] (x : α) : (x + 1)*(x - 1) = x^2 - 1 := by

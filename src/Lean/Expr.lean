@@ -2212,7 +2212,7 @@ def mkNatEq (a b : Expr) : Expr :=
 
 /-- Given `a b : Prop`, return `a = b` -/
 def mkPropEq (a b : Expr) : Expr :=
-  mkApp3 (mkConst ``Eq [levelZero]) (mkSort levelZero) a b
+  mkApp3 (mkConst ``Eq [levelOne]) (mkSort levelZero) a b
 
 /-! Constants for Int typeclasses. -/
 namespace Int

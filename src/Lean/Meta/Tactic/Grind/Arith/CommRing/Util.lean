@@ -21,14 +21,17 @@ def checkMaxSteps : GoalM Bool := do
 def incSteps : GoalM Unit := do
   modify' fun s => { s with steps := s.steps + 1 }
 
+structure RingM.Context where
+  ringId : Nat
+
 /-- We don't want to keep carrying the `RingId` around. -/
-abbrev RingM := ReaderT Nat GoalM
+abbrev RingM := ReaderT RingM.Context GoalM
 
 abbrev RingM.run (ringId : Nat) (x : RingM α) : GoalM α :=
-  x ringId
+  x { ringId }
 
 abbrev getRingId : RingM Nat :=
-  read
+  return (← read).ringId
 
 def getRing : RingM Ring := do
   let s ← get'

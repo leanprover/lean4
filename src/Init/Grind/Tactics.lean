@@ -118,6 +118,7 @@ structure Config where
   When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
   -/
   ring := false
+  ringSteps := 10000
   deriving Inhabited, BEq
 
 end Lean.Grind

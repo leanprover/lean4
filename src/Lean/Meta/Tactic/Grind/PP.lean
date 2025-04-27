@@ -153,6 +153,8 @@ private def ppThresholds (c : Grind.Config) : M Unit := do
     msgs := msgs.push <| .trace { cls := `limit } m!"maximum number of case-splits has been reached, threshold: `(splits := {c.splits})`" #[]
   if maxGen ≥ c.gen then
     msgs := msgs.push <| .trace { cls := `limit } m!"maximum term generation has been reached, threshold: `(gen := {c.gen})`" #[]
+  if goal.arith.ring.steps ≥ c.ringSteps then
+    msgs := msgs.push <| .trace { cls := `limit } m!"maximum number of ring steps has been reached, threshold: `(ringSteps := {c.ringSteps})`" #[]
   unless msgs.isEmpty do
     pushMsg <| .trace { cls := `limits } "Thresholds reached" msgs
 

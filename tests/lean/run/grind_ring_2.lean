@@ -65,3 +65,31 @@ example [CommRing α] (a b c : α)
     a^3 + b^3 + c^3 = 7 →
     a^4 + b^4 + c^4 = 9 := by
   grind +ring
+
+/--
+info: [grind.ring.assert.basis] a + b + c + -3 = 0
+[grind.ring.assert.basis] 2 * b ^ 2 + 2 * (b * c) + 2 * c ^ 2 + -6 * b + -6 * c + 4 = 0
+[grind.ring.assert.basis] 6 * c ^ 3 + -18 * c ^ 2 + 12 * c + 4 = 0
+-/
+#guard_msgs (info) in
+example [CommRing α] (a b c : α)
+  : a + b + c = 3 →
+    a^2 + b^2 + c^2 = 5 →
+    a^3 + b^3 + c^3 = 7 →
+    a^4 + b^4 = 9 - c^4 := by
+  set_option trace.grind.ring.assert.basis true in
+  grind +ring
+
+/--
+info: [grind.ring.assert.basis] a + b + c + -3 = 0
+[grind.ring.assert.basis] b ^ 2 + b * c + c ^ 2 + -3 * b + -3 * c + 2 = 0
+[grind.ring.assert.basis] 3 * c ^ 3 + -9 * c ^ 2 + 6 * c + 2 = 0
+-/
+#guard_msgs (info) in
+example [CommRing α] [NoZeroNatDivisors α] (a b c : α)
+  : a + b + c = 3 →
+    a^2 + b^2 + c^2 = 5 →
+    a^3 + b^3 + c^3 = 7 →
+    a^4 + b^4 = 9 - c^4 := by
+  set_option trace.grind.ring.assert.basis true in
+  grind +ring

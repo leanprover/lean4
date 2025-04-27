@@ -96,3 +96,12 @@ example [CommRing α] [NoZeroNatDivisors α] (a b c : α)
 
 example [CommRing α] (a b : α) (f : α → Nat) : a - b = 0 → f a = f b := by
   grind +ring
+
+example (a b : BitVec 8) (f : BitVec 8 → Nat) : a - b = 0 → f a = f b := by
+  grind +ring
+
+example (a b c : BitVec 8) (f : BitVec 8 → Nat) : c = 255 → - a + b - 1 = c → f a = f b := by
+  grind +ring
+
+example (a b c : BitVec 8) (f : BitVec 8 → Nat) : c = 255 → - a + b - 1 = c → f (2*a) = f (b + a) := by
+  grind +ring

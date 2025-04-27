@@ -324,9 +324,15 @@ private def propagateEqs : RingM Unit := do
   TODO: optimize
   -/
   let mut map : PropagateEqMap := {}
+  for a in (← getRing).vars do
+    if (← checkMaxSteps) then return ()
+    let some ra ← toRingExpr? a | unreachable!
+    map ← process map a ra
   for (a, ra) in (← getRing).denote do
     if (← checkMaxSteps) then return ()
-    let a := a.expr
+    map ← process map a.expr ra
+where
+  process (map : PropagateEqMap) (a : Expr) (ra : RingExpr) : RingM PropagateEqMap := do
     let d : PolyDerivation := .input (← ra.toPolyM)
     let d ← d.simplify
     let k := d.getMultiplier
@@ -339,8 +345,9 @@ private def propagateEqs : RingM Unit := do
         let d ← d.simplify
         trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
         propagateEq a b ra rb d
+      return map
     else
-      map := map.insert (k, d.p) (a, ra)
+      return map.insert (k, d.p) (a, ra)
 
 def checkRing : RingM Bool := do
   unless (← needCheck) do return false

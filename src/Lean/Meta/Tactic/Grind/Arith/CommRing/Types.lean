@@ -188,6 +188,7 @@ structure State where
   typeIdOf : PHashMap ENodeKey (Option Nat) := {}
   /- Mapping from expressions/terms to their ring ids. -/
   exprToRingId : PHashMap ENodeKey Nat := {}
+  steps := 0
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.CommRing

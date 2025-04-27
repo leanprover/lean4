@@ -15,6 +15,12 @@ def get' : GoalM State := do
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   modify fun s => { s with arith.ring := f s.arith.ring }
 
+def checkMaxSteps : GoalM Bool := do
+  return (← get').steps >= (← getConfig).ringSteps
+
+def incSteps : GoalM Unit := do
+  modify' fun s => { s with steps := s.steps + 1 }
+
 /-- We don't want to keep carrying the `RingId` around. -/
 abbrev RingM := ReaderT Nat GoalM
 
@@ -113,6 +119,7 @@ def isQueueEmpty : RingM Bool :=
 def getNext? : RingM (Option EqCnstr) := do
   let some c := (← getRing).queue.min | return none
   modifyRing fun s => { s with queue := s.queue.erase c }
+  incSteps
   return some c
 
 end Lean.Meta.Grind.Arith.CommRing

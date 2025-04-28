@@ -507,9 +507,9 @@ theorem getKey?_eq_some [LawfulBEq α] {k : α} (h : k ∈ m) : m.getKey? k = so
   simpa only [mem_iff_contains] using getKey?_eq_some_of_contains h
 
 theorem getKey_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
-    (m.insert k v)[a]'h₁ =
-      if h₂ : k == a then v else m[a]'(mem_of_mem_insert h₁ (Bool.eq_false_iff.2 h₂)) :=
-  DHashMap.Const.get_insert (h₁ := h₁)
+    (m.insert k v).getKey a h₁ =
+      if h₂ : k == a then k else m.getKey a (mem_of_mem_insert h₁ (by simpa using h₂)) :=
+  DHashMap.getKey_insert (h₁ := h₁)
 
 @[simp]
 theorem getKey_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :

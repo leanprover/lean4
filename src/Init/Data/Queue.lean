@@ -9,7 +9,7 @@ Note: this is only a temporary placeholder.
 module
 
 prelude
-import Init.Data.Array.Basic
+import Init.Data.List.Control
 
 namespace Std
 
@@ -62,3 +62,17 @@ def dequeue? (q : Queue α) : Option (α × Queue α) :=
 
 def toArray (q : Queue α) : Array α :=
   q.dList.toArray ++ q.eList.toArray.reverse
+
+/--
+`O(n)`. Applies the monadic predicate `p` to every element in the queue, and returns the queue
+of elements for which `p` returns `true`.
+-/
+@[specialize]
+def filterM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (q : Queue α) :
+    m (Queue α) := do
+  let dList ← q.dList.filterM p
+  let eList ← q.eList.filterM p
+  if dList.isEmpty then
+    return { dList := eList.reverse, eList := [] }
+  else
+    return { dList, eList }

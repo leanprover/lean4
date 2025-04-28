@@ -56,11 +56,11 @@ private def Consumer.resolve (c : Consumer α) (x : Option α) : BaseIO Bool := 
     promise.resolve x
     return true
   | .select waiter =>
-    let loose := return false
+    let lose := return false
     let win promise := do
       promise.resolve (.ok x)
       return true
-    waiter.race loose win
+    waiter.race lose win
 
 /--
 The central state structure for an unbounded channel, maintains the following invariants:
@@ -181,17 +181,23 @@ private def recvSelector (ch : Unbounded α) : Selector (Option α) :=
       ch.state.atomically do
         -- We did drop the lock between `tryFn` and now so maybe ready?
         if ← recvReady' then
-          let loose := return ()
+          let lose := return ()
           let win promise := do
             -- We know we are ready so the value by this is fine
             promise.resolve (.ok (← tryRecv'))
 
-          waiter.race loose win
+          waiter.race lose win
         else
           modify fun st => { st with consumers := st.consumers.enqueue (.select waiter) }
 
-    -- TODO: gc
-    unregisterFn := return ()
+    unregisterFn := do
+      ch.state.atomically do
+        let st ← get
+        let consumers ← st.consumers.filterM
+          fun
+            | .normal .. => return true
+            | .select waiter => return !(← waiter.checkFinished)
+        set { st with consumers }
   }
 
 end Unbounded
@@ -327,20 +333,34 @@ private def recvSelector (ch : Zero α) : Selector (Option α) :=
       ch.state.atomically do
         -- We did drop the lock between `tryFn` and now so maybe ready?
         if ← recvReady' then
-          let loose := return ()
+          let lose := return ()
           let win promise := do
             -- We know we are ready so the value by this is fine
             promise.resolve (.ok (← tryRecv'))
 
-          waiter.race loose win
+          waiter.race lose win
         else
           modify fun st => { st with consumers := st.consumers.enqueue (.select waiter) }
 
-    -- TODO: gc
-    unregisterFn := return ()
+    unregisterFn := do
+      ch.state.atomically do
+        let st ← get
+        let consumers ← st.consumers.filterM
+          fun
+            | .normal .. => pure true
+            | .select waiter => return !(← waiter.checkFinished)
+        set { st with consumers }
   }
 
 end Zero
+
+open Internal.IO.Async in
+private structure Bounded.Consumer (α : Type) where
+  promise : IO.Promise Bool
+  waiter : Option (Waiter (Option α))
+
+private def Bounded.Consumer.resolve (c : Bounded.Consumer α) (b : Bool) : BaseIO Unit :=
+  c.promise.resolve b
 
 /--
 The central state structure for a bounded channel, maintains the following invariants:
@@ -365,10 +385,10 @@ private structure Bounded.State (α : Type) where
   producers : Std.Queue (IO.Promise Bool)
   /--
   Consumers that are blocked on a producer providing them a value, as there was no value
-  enqueued when they tried to dequeue. The `IO.Promise` will be resolved to `false` if the channel
-  closes.
+  enqueued when they tried to dequeue. The `IO.Promise` within will be resolved to `false` if the
+  channel closes.
   -/
-  consumers : Std.Queue (IO.Promise Bool)
+  consumers : Std.Queue (Bounded.Consumer α)
   /--
   The capacity of the buffer space.
   -/
@@ -524,7 +544,7 @@ private partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
       return .pure none
     else
       let promise ← IO.Promise.new
-      modify fun st => { st with consumers := st.consumers.enqueue promise }
+      modify fun st => { st with consumers := st.consumers.enqueue ⟨promise, none⟩ }
       BaseIO.bindTask promise.result? fun res => do
         if res.getD false then
           Bounded.recv ch
@@ -550,23 +570,30 @@ private partial def recvSelector (ch : Bounded α) : Selector (Option α) :=
 
     registerFn := registerAux ch
 
-    -- TODO: gc
-    unregisterFn := return ()
+    unregisterFn := do
+      ch.state.atomically do
+        let st ← get
+        let consumers ← st.consumers.filterM fun c => do
+          match c.waiter with
+          | some waiter => return !(← waiter.checkFinished)
+          | none => return true
+
+        set { st with consumers }
   }
 where
   registerAux (ch : Bounded α) (waiter : Waiter (Option α)) : IO Unit := do
     ch.state.atomically do
       -- We did drop the lock between `tryFn` and now so maybe ready?
       if ← recvReady' then
-        let loose := return ()
+        let lose := return ()
         let win promise := do
           -- We know we are ready so the value by this is fine
           promise.resolve (.ok (← tryRecv'))
 
-        waiter.race loose win
+        waiter.race lose win
       else
         let promise ← IO.Promise.new
-        modify fun st => { st with consumers := st.consumers.enqueue promise }
+        modify fun st => { st with consumers := st.consumers.enqueue ⟨promise, some waiter⟩ }
 
         IO.chainTask promise.result? fun res? => do
           match res? with
@@ -575,8 +602,8 @@ where
             if res then
               registerAux ch waiter
             else
-              -- if we loose we must trigger the next promise (if available) to avoid deadlocking
-              let loose := do
+              -- if we lose we must trigger the next promise (if available) to avoid deadlocking
+              let lose := do
                 ch.state.atomically do
                   let st ← get
                   if let some (consumer, consumers) := st.consumers.dequeue? then
@@ -584,7 +611,7 @@ where
                     set { st with consumers }
 
               let win promise := promise.resolve (.ok none)
-              waiter.race loose win
+              waiter.race lose win
 
 end Bounded
 

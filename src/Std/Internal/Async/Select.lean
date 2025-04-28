@@ -32,6 +32,7 @@ structure Waiter (α : Type) where
 Swap out the `IO.Promise` within the `Waiter`. Note that the part which determines whether the
 `Waiter` is finished is not swapped out.
 -/
+@[inline]
 def Waiter.withPromise (w : Waiter α) (p : IO.Promise (Except IO.Error β)) : Waiter β :=
   Waiter.mk w.finished p
 
@@ -48,6 +49,14 @@ def Waiter.race [Monad m] [MonadLiftT (ST IO.RealWorld) m] (w : Waiter α)
     win w.promise
   else
     lose
+
+/--
+Atomically checks whether the `Waiter` has already finished. Note that right after this function
+call ends this might have already changed.
+-/
+@[inline]
+def Waiter.checkFinished [Monad m] [MonadLiftT (ST IO.RealWorld) m] (w : Waiter α) : m Bool := do
+  w.finished.get
 
 /--
 An event source that can be multiplexed using `Selectable.one`, see the documentation of

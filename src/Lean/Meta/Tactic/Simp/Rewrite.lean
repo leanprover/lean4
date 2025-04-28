@@ -118,7 +118,7 @@ private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
   let rec go (e : Expr) : SimpM (Option Result) := do
-    if (← withSimpMetaConfig <| isDefEq lhs e) then
+    if (← withSimpMetaConfig <| isDefEq e lhs) then
       unless (← synthesizeArgs thm.origin bis xs) do
         return none
       let proof? ← if (← useImplicitDefEqProof thm) then

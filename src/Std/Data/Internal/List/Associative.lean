@@ -252,8 +252,8 @@ private theorem Option.dmap_eq_some {o : Option α} {f : (a : α) → (o = some 
 
 end
 
-theorem Option.guard_eq_map' (p : (a : α) × β a → Prop) [DecidablePred p] :
-    Option.guard p  = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
+theorem Option.guard_eq_map' (p : (a : α) × β a → Bool) :
+    Option.guard p = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
   funext x
   simp [Option.guard]
 
@@ -4511,7 +4511,6 @@ theorem getEntry?_filter [BEq α] [EquivBEq α]
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
     getEntry? k (l.filter f) = (getEntry? k l).filter f := by
   rw [← List.filterMap_eq_filter, getEntry?_filterMap' _ hl, Option.bind_guard]
-  simp only [Bool.decide_eq_true]
   intro p
   simp only [Option.all_guard, BEq.rfl, Bool.or_true]
 

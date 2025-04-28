@@ -55,6 +55,10 @@ theorem not_insert_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} :
 theorem mem_iff_contains [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m ↔ m.contains a :=
   ExtHashMap.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} : m.contains a ↔ a ∈ m :=
+  ExtHashMap.contains_iff_mem
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
   ExtHashMap.contains_congr hab

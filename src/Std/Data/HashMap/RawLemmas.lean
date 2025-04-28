@@ -68,6 +68,10 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v 
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   DHashMap.Raw.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
+  DHashMap.Raw.contains_iff_mem
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
   DHashMap.Raw.contains_congr h.out hab

@@ -41,6 +41,10 @@ theorem isEmpty_insert [TransCmp cmp] {k : α} {v : β k} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   Impl.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
+  Impl.contains_iff_mem
+
 theorem contains_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   Impl.contains_congr t.wf hab

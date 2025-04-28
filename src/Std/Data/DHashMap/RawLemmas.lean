@@ -102,13 +102,17 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v 
 theorem mem_iff_contains {m : Raw α β} {a : α} :
     a ∈ m ↔ m.contains a := Iff.rfl
 
+@[simp]
+theorem contains_iff_mem {m : Raw α β} {a : α} :
+    m.contains a ↔ a ∈ m := Iff.rfl
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) :
     m.contains a = m.contains b := by
   simp_to_raw using Raw₀.contains_congr
 
 theorem mem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) :
     a ∈ m ↔ b ∈ m := by
-  simp [mem_iff_contains, contains_congr h hab]
+  simp [← contains_iff_mem, contains_congr h hab]
 
 @[simp] theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : Raw α β).contains a = false := by
   simp_to_raw using Raw₀.contains_emptyWithCapacity
@@ -136,7 +140,7 @@ theorem contains_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α
 
 theorem not_mem_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.isEmpty → ¬a ∈ m := by
-  simpa [mem_iff_contains] using contains_of_isEmpty h
+  simpa [← contains_iff_mem] using contains_of_isEmpty h
 
 theorem isEmpty_eq_false_iff_exists_contains_eq_true [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.isEmpty = false ↔ ∃ a, m.contains a = true := by
@@ -144,7 +148,7 @@ theorem isEmpty_eq_false_iff_exists_contains_eq_true [EquivBEq α] [LawfulHashab
 
 theorem isEmpty_eq_false_iff_exists_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.isEmpty = false ↔ ∃ a, a ∈ m := by
-  simpa [mem_iff_contains] using isEmpty_eq_false_iff_exists_contains_eq_true h
+  simpa [← contains_iff_mem] using isEmpty_eq_false_iff_exists_contains_eq_true h
 
 theorem isEmpty_iff_forall_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.isEmpty = true ↔ ∀ a, m.contains a = false := by
@@ -152,7 +156,7 @@ theorem isEmpty_iff_forall_contains [EquivBEq α] [LawfulHashable α] (h : m.WF)
 
 theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.isEmpty = true ↔ ∀ a, ¬a ∈ m := by
-  simpa [mem_iff_contains] using isEmpty_iff_forall_contains h
+  simpa [← contains_iff_mem] using isEmpty_iff_forall_contains h
 
 @[simp] theorem insert_eq_insert {p : (a : α) × β a} : Insert.insert p m = m.insert p.1 p.2 := rfl
 
@@ -168,7 +172,7 @@ theorem contains_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a k : α} 
 @[simp]
 theorem mem_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β k} :
     a ∈ m.insert k v ↔ k == a ∨ a ∈ m := by
-  simp [mem_iff_contains, contains_insert h]
+  simp [← contains_iff_mem, contains_insert h]
 
 theorem contains_of_contains_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a k : α} {v : β k} :
     (m.insert k v).contains a → (k == a) = false → m.contains a := by
@@ -176,7 +180,7 @@ theorem contains_of_contains_insert [EquivBEq α] [LawfulHashable α] (h : m.WF)
 
 theorem mem_of_mem_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β k} :
     a ∈ m.insert k v → (k == a) = false → a ∈ m := by
-  simpa [mem_iff_contains] using contains_of_contains_insert h
+  simpa [← contains_iff_mem] using contains_of_contains_insert h
 
 @[simp]
 theorem contains_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
@@ -227,7 +231,7 @@ theorem contains_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
 @[simp]
 theorem mem_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     a ∈ m.erase k ↔ (k == a) = false ∧ a ∈ m := by
-  simp [mem_iff_contains, contains_erase h]
+  simp [← contains_iff_mem, contains_erase h]
 
 theorem contains_of_contains_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     (m.erase k).contains a → m.contains a := by
@@ -235,7 +239,7 @@ theorem contains_of_contains_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) 
 
 theorem mem_of_mem_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     a ∈ m.erase k → a ∈ m := by
-  simpa [mem_iff_contains] using contains_of_contains_erase h
+  simpa [← contains_iff_mem] using contains_of_contains_erase h
 
 theorem size_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.erase k).size = if k ∈ m then m.size - 1 else m.size := by
@@ -317,7 +321,7 @@ theorem get?_eq_none_of_contains_eq_false [LawfulBEq α] (h : m.WF) {a : α} :
   simp_to_raw using Raw₀.get?_eq_none
 
 theorem get?_eq_none [LawfulBEq α] (h : m.WF) {a : α} : ¬a ∈ m → m.get? a = none := by
-  simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
+  simpa [← contains_iff_mem] using get?_eq_none_of_contains_eq_false h
 
 theorem get?_erase [LawfulBEq α] (h : m.WF) {k a : α} :
     (m.erase k).get? a = if k == a then none else m.get? a := by
@@ -381,7 +385,7 @@ theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h :
 
 theorem get?_eq_none [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     ¬a ∈ m → get? m a = none := by
-  simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
+  simpa [← contains_iff_mem] using get?_eq_none_of_contains_eq_false h
 
 theorem get?_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     Const.get? (m.erase k) a = if k == a then none else get? m a := by
@@ -503,7 +507,7 @@ theorem get!_eq_default_of_contains_eq_false [LawfulBEq α] (h : m.WF) {a : α} 
 
 theorem get!_eq_default [LawfulBEq α] (h : m.WF) {a : α} [Inhabited (β a)] :
     ¬a ∈ m → m.get! a = default := by
-  simpa [mem_iff_contains] using get!_eq_default_of_contains_eq_false h
+  simpa [← contains_iff_mem] using get!_eq_default_of_contains_eq_false h
 
 theorem get!_erase [LawfulBEq α] (h : m.WF) {k a : α} [Inhabited (β a)] :
     (m.erase k).get! a = if k == a then default else m.get! a := by
@@ -520,7 +524,7 @@ theorem get?_eq_some_get!_of_contains [LawfulBEq α] (h : m.WF) {a : α} [Inhabi
 
 theorem get?_eq_some_get! [LawfulBEq α] (h : m.WF) {a : α} [Inhabited (β a)] :
     a ∈ m → m.get? a = some (m.get! a) := by
-  simpa [mem_iff_contains] using get?_eq_some_get!_of_contains h
+  simpa [← contains_iff_mem] using get?_eq_some_get!_of_contains h
 
 theorem get!_eq_get!_get? [LawfulBEq α] (h : m.WF) {a : α} [Inhabited (β a)] :
     m.get! a = (m.get? a).get! := by
@@ -566,7 +570,7 @@ theorem get!_eq_default_of_contains_eq_false [EquivBEq α] [LawfulHashable α] [
 
 theorem get!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited β] (h : m.WF) {a : α} :
     ¬a ∈ m → get! m a = default := by
-  simpa [mem_iff_contains] using get!_eq_default_of_contains_eq_false h
+  simpa [← contains_iff_mem] using get!_eq_default_of_contains_eq_false h
 
 theorem get!_erase [EquivBEq α] [LawfulHashable α] [Inhabited β] (h : m.WF) {k a : α} :
     get! (m.erase k) a = if k == a then default else get! m a := by
@@ -583,7 +587,7 @@ theorem get?_eq_some_get!_of_contains [EquivBEq α] [LawfulHashable α] [Inhabit
 
 theorem get?_eq_some_get! [EquivBEq α] [LawfulHashable α] [Inhabited β] (h : m.WF) {a : α} :
     a ∈ m → get? m a = some (get! m a) := by
-  simpa [mem_iff_contains] using get?_eq_some_get!_of_contains h
+  simpa [← contains_iff_mem] using get?_eq_some_get!_of_contains h
 
 theorem get!_eq_get!_get? [EquivBEq α] [LawfulHashable α] [Inhabited β] (h : m.WF) {a : α} :
     get! m a = (get? m a).get! := by
@@ -637,7 +641,7 @@ theorem getD_eq_fallback_of_contains_eq_false [LawfulBEq α] (h : m.WF) {a : α}
 
 theorem getD_eq_fallback [LawfulBEq α] (h : m.WF) {a : α} {fallback : β a} :
     ¬a ∈ m → m.getD a fallback = fallback := by
-  simpa [mem_iff_contains] using getD_eq_fallback_of_contains_eq_false h
+  simpa [← contains_iff_mem] using getD_eq_fallback_of_contains_eq_false h
 
 theorem getD_erase [LawfulBEq α] (h : m.WF) {k a : α} {fallback : β a} :
     (m.erase k).getD a fallback = if k == a then fallback else m.getD a fallback := by
@@ -654,7 +658,7 @@ theorem get?_eq_some_getD_of_contains [LawfulBEq α] (h : m.WF) {a : α} {fallba
 
 theorem get?_eq_some_getD [LawfulBEq α] (h : m.WF) {a : α} {fallback : β a} :
     a ∈ m → m.get? a = some (m.getD a fallback) := by
-  simpa [mem_iff_contains] using get?_eq_some_getD_of_contains h
+  simpa [← contains_iff_mem] using get?_eq_some_getD_of_contains h
 
 theorem getD_eq_getD_get? [LawfulBEq α] (h : m.WF) {a : α} {fallback : β a} :
     m.getD a fallback = (m.get? a).getD fallback := by
@@ -704,7 +708,7 @@ theorem getD_eq_fallback_of_contains_eq_false [EquivBEq α] [LawfulHashable α] 
 
 theorem getD_eq_fallback [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {fallback : β} :
     ¬a ∈ m → getD m a fallback = fallback := by
-  simpa [mem_iff_contains] using getD_eq_fallback_of_contains_eq_false h
+  simpa [← contains_iff_mem] using getD_eq_fallback_of_contains_eq_false h
 
 theorem getD_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {fallback : β} :
     getD (m.erase k) a fallback = if k == a then fallback else getD m a fallback := by
@@ -721,7 +725,7 @@ theorem get?_eq_some_getD_of_contains [EquivBEq α] [LawfulHashable α] (h : m.W
 
 theorem get?_eq_some_getD [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {fallback : β} :
     a ∈ m → get? m a = some (getD m a fallback) := by
-  simpa [mem_iff_contains] using get?_eq_some_getD_of_contains h
+  simpa [← contains_iff_mem] using get?_eq_some_getD_of_contains h
 
 theorem getD_eq_getD_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {fallback : β} :
     getD m a fallback = (get? m a).getD fallback := by
@@ -793,7 +797,7 @@ theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a :
 theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {a a' : α} (h : m.WF) :
     m.getKey? a = some a' → a' ∈ m := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
   simp_to_raw using Raw₀.contains_of_getKey?_eq_some
 
 theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
@@ -802,7 +806,7 @@ theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (
 
 theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     ¬a ∈ m → m.getKey? a = none := by
-  simpa [mem_iff_contains] using getKey?_eq_none_of_contains_eq_false h
+  simpa [← contains_iff_mem] using getKey?_eq_none_of_contains_eq_false h
 
 theorem getKey?_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     (m.erase k).getKey? a = if k == a then none else m.getKey? a := by
@@ -907,7 +911,7 @@ theorem getKey!_eq_default_of_contains_eq_false [EquivBEq α] [LawfulHashable α
 
 theorem getKey!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {a : α} :
     ¬a ∈ m → m.getKey! a = default := by
-  simpa [mem_iff_contains] using getKey!_eq_default_of_contains_eq_false h
+  simpa [← contains_iff_mem] using getKey!_eq_default_of_contains_eq_false h
 
 theorem getKey!_erase [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {k a : α} :
     (m.erase k).getKey! a = if k == a then default else m.getKey! a := by
@@ -925,7 +929,7 @@ theorem getKey?_eq_some_getKey!_of_contains [EquivBEq α] [LawfulHashable α] [I
 
 theorem getKey?_eq_some_getKey! [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {a : α} :
     a ∈ m → m.getKey? a = some (m.getKey! a) := by
-  simpa [mem_iff_contains] using getKey?_eq_some_getKey!_of_contains h
+  simpa [← contains_iff_mem] using getKey?_eq_some_getKey!_of_contains h
 
 theorem getKey!_eq_get!_getKey? [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {a : α} :
     m.getKey! a = (m.getKey? a).get! := by
@@ -982,7 +986,7 @@ theorem getKeyD_eq_fallback_of_contains_eq_false [EquivBEq α] [LawfulHashable �
 
 theorem getKeyD_eq_fallback [EquivBEq α] [LawfulHashable α] (h : m.WF) {a fallback : α} :
     ¬a ∈ m → m.getKeyD a fallback = fallback := by
-  simpa [mem_iff_contains] using getKeyD_eq_fallback_of_contains_eq_false h
+  simpa [← contains_iff_mem] using getKeyD_eq_fallback_of_contains_eq_false h
 
 theorem getKeyD_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a fallback : α} :
     (m.erase k).getKeyD a fallback = if k == a then fallback else m.getKeyD a fallback := by
@@ -1000,7 +1004,7 @@ theorem getKey?_eq_some_getKeyD_of_contains [EquivBEq α] [LawfulHashable α] (h
 
 theorem getKey?_eq_some_getKeyD [EquivBEq α] [LawfulHashable α] (h : m.WF) {a fallback : α} :
     a ∈ m → m.getKey? a = some (m.getKeyD a fallback) := by
-  simpa [mem_iff_contains] using getKey?_eq_some_getKeyD_of_contains h
+  simpa [← contains_iff_mem] using getKey?_eq_some_getKeyD_of_contains h
 
 theorem getKeyD_eq_getD_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a fallback : α} :
     m.getKeyD a fallback = (m.getKey? a).getD fallback := by
@@ -1040,7 +1044,7 @@ theorem contains_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a :
 @[simp]
 theorem mem_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β k} :
     a ∈ m.insertIfNew k v ↔ k == a ∨ a ∈ m := by
-  simp [mem_iff_contains, contains_insertIfNew h]
+  simp [← contains_iff_mem, contains_insertIfNew h]
 
 theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
     (m.insertIfNew k v).contains k := by
@@ -1048,7 +1052,7 @@ theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {
 
 theorem mem_insertIfNew_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
     k ∈ m.insertIfNew k v := by
-  simpa [mem_iff_contains, -contains_insertIfNew] using contains_insertIfNew_self h
+  simpa [← contains_iff_mem, -contains_insertIfNew] using contains_insertIfNew_self h
 
 theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α}
     {v : β k} : (m.insertIfNew k v).contains a → (k == a) = false → m.contains a := by
@@ -1056,7 +1060,7 @@ theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] (h : 
 
 theorem mem_of_mem_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β k} :
     a ∈ m.insertIfNew k v → (k == a) = false → a ∈ m := by
-  simpa [mem_iff_contains, -contains_insertIfNew] using contains_of_contains_insertIfNew h
+  simpa [← contains_iff_mem, -contains_insertIfNew] using contains_of_contains_insertIfNew h
 
 /-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the proof
 obligation in the statement of `get_insertIfNew`. -/
@@ -1069,7 +1073,7 @@ theorem contains_of_contains_insertIfNew' [EquivBEq α] [LawfulHashable α] (h :
 in the statement of `get_insertIfNew`. -/
 theorem mem_of_mem_insertIfNew' [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β k} :
     a ∈ m.insertIfNew k v → ¬((k == a) ∧ ¬k ∈ m) → a ∈ m := by
-  simpa [mem_iff_contains] using contains_of_contains_insertIfNew' h
+  simpa [← contains_iff_mem] using contains_of_contains_insertIfNew' h
 
 theorem size_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
     (m.insertIfNew k v).size = if k ∈ m then m.size else m.size + 1 := by
@@ -1213,7 +1217,7 @@ theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
 
 theorem mem_of_mem_keys [EquivBEq α] [LawfulHashable α] {k : α}
     (h : m.WF) (h' : k ∈ m.keys) : k ∈ m := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
   simp_to_raw using Raw₀.contains_of_mem_keys
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -1510,7 +1514,7 @@ theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
 theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List ((a : α) × β a)} {k : α} :
     k ∈ (m.insertMany l) ↔ k ∈ m ∨ (l.map Sigma.fst).contains k := by
-  simp [mem_iff_contains, contains_insertMany_list h]
+  simp [← contains_iff_mem, contains_insertMany_list h]
 
 theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List ((a : α) × β a)} {k : α} :
@@ -1713,7 +1717,7 @@ theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
 theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} {k : α} :
     k ∈ insertMany m l ↔ k ∈ m ∨ (l.map Prod.fst).contains k := by
-  simp [mem_iff_contains, contains_insertMany_list h]
+  simp [← contains_iff_mem, contains_insertMany_list h]
 
 theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} {k : α} :
@@ -1790,7 +1794,7 @@ theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (∀ (a : α), a ∈ m → (l.map Prod.fst).contains a = false) →
       (insertMany m l).size = m.size + l.length := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
   simp_to_raw using Raw₀.Const.size_insertMany_list
 
 theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -1910,12 +1914,12 @@ theorem contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h :
 theorem mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} {k : α} :
     k ∈ insertManyIfNewUnit m l ↔ k ∈ m ∨ l.contains k := by
-  simp [mem_iff_contains, contains_insertManyIfNewUnit_list h]
+  simp [← contains_iff_mem, contains_insertManyIfNewUnit_list h]
 
 theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
     k ∈ insertManyIfNewUnit m l → k ∈ m := by
-  simp only [mem_iff_contains]
+  simp only [← contains_iff_mem]
   simp_to_raw using Raw₀.Const.contains_of_contains_insertManyIfNewUnit_list
 
 theorem mem_insertManyIfNewUnit_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -2498,7 +2502,7 @@ theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (
 
 theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF) :
     k' ∈ m.alter k f ↔ if k == k' then (f (m.get? k)).isSome = true else k' ∈ m := by
-  simp [mem_iff_contains, contains_alter h]
+  simp [← contains_iff_mem, contains_alter h]
 
 theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF)
     (he : k == k') : k' ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
@@ -3612,7 +3616,7 @@ theorem isSome_apply_of_mem_filterMap [EquivBEq α] [LawfulHashable α]
     ∀ (h' : k ∈ m.filterMap f),
       (f (m.getKey k (mem_of_mem_filterMap h h'))
         (Const.get m k (mem_of_mem_filterMap h h'))).isSome := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
   simp_to_raw using Raw₀.Const.isSome_apply_of_contains_filterMap
 
 @[simp]
@@ -3778,7 +3782,7 @@ theorem filter_equiv_self_iff [LawfulBEq α]
 theorem filter_key_equiv_self_iff [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → Bool} (h : m.WF) :
     m.filter (fun k _ => f k) ~m m ↔ ∀ k h, f (m.getKey k h) = true := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
   simp_to_raw using Raw₀.filter_key_equiv_self_iff
 
 theorem size_filter_key_eq_size_iff [EquivBEq α] [LawfulHashable α]
@@ -3897,7 +3901,7 @@ theorem filter_equiv_self_iff [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} (h : m.WF) :
     m.filter f ~m m ↔ ∀ (a : α) (h : a ∈ m),
       f (m.getKey a h) (Const.get m a h) := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
   simp_to_raw using Raw₀.Const.filter_equiv_self_iff
 
 theorem get?_filter [EquivBEq α] [LawfulHashable α]

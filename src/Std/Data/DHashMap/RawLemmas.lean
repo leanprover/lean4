@@ -1801,6 +1801,17 @@ theorem get?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
     get? (insertMany m l) k' = some v := by
   simp_to_raw using Raw₀.Const.get?_insertMany_list_of_mem
 
+theorem get?_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List (α × β)} {k : α} :
+    get? (insertMany m l) k =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if a == k then some b else none)).or (get? m k) := by
+  induction l generalizing m with
+  | nil =>
+    rw [get?_insertMany_list_of_contains_eq_false h] <;> simp
+  | cons x l ih =>
+    rcases x with ⟨a, b⟩
+    rw [insertMany_cons h, ih h.insert, get?_insert h]
+    by_cases h : a == k <;> simp [h]
+
 theorem get_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false)

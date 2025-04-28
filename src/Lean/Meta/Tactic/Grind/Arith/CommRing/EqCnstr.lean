@@ -46,12 +46,13 @@ Remark: if the current ring does not satisfy the property
 then the leading coefficient of the equation must also divide `k`
 -/
 def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
+  let checkCoeff ← checkCoeffDvd
   let noZeroDiv ← noZeroDivisors
   let rec go : Mon → RingM (Option EqCnstr)
     | .unit => return none
     | .mult pw m' => do
       for c in (← getRing).varToBasis[pw.x]! do
-        if noZeroDiv || (c.p.lc ∣ k) then
+        if !checkCoeff || noZeroDiv || (c.p.lc ∣ k) then
         if c.p.divides m then
           return some c
       go m'
@@ -156,7 +157,6 @@ def EqCnstr.simplifyAndCheck (c : EqCnstr) : RingM (Option EqCnstr) := do
 def addToBasisCore (c : EqCnstr) : RingM Unit := do
   let .add _ m _ := c.p | return ()
   let .mult pw _ := m | return ()
-  trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
   modifyRing fun s => { s with
     varToBasis := s.varToBasis.modify pw.x (c :: ·)
     recheck := true
@@ -207,6 +207,9 @@ if the ring has a nonzero characteristic `p` and `gcd k p = 1`, then
 `k` has an inverse.
 
 It also handles the easy case where `k` is `-1`.
+
+Remark: if the ring implements the class `NoZeroNatDivisors`, then
+the coefficients are divided by the gcd of all coefficients.
 -/
 def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
   let k := c.p.lc
@@ -218,17 +221,20 @@ def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
       -- `α*k = 1 (mod p)`
       let α := if α < 0 then α % p else α
       return { c with p := c.p.mulConstC α p, h := .mul α c }
-    else
-      return c
-  else if k == -1 then
+  if (← noZeroDivisors) then
+    let g : Int := c.p.gcdCoeffs
+    if g != 1 then
+      let g := if k < 0 then -g else g
+      return { c with p := c.p.divConst g, h := .div g c }
+  if k < 0 then
     return { c with p := c.p.mulConst (-1), h := .mul (-1) c }
-  else
-    return c
+  return c
 
 def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   let c ← c.toMonic
   c.simplifyBasis
   c.superposeWith
+  trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
   addToBasisCore c
 
 def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
@@ -251,8 +257,10 @@ def DiseqCnstr.checkConstant (c : DiseqCnstr) : RingM Bool := do
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   return true
 
-def DiseqCnstr.simplify (c : DiseqCnstr) : RingM DiseqCnstr := do
-  return { c with d := (← c.d.simplify) }
+def DiseqCnstr.simplify (c : DiseqCnstr) : RingM DiseqCnstr :=
+  withCheckCoeffDvd do
+    -- We must enable `checkCoeffDvd := true`. See comments at `PolyDerivation`.
+    return { c with d := (← c.d.simplify) }
 
 def saveDiseq (c : DiseqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
@@ -316,9 +324,15 @@ private def propagateEqs : RingM Unit := do
   TODO: optimize
   -/
   let mut map : PropagateEqMap := {}
+  for a in (← getRing).vars do
+    if (← checkMaxSteps) then return ()
+    let some ra ← toRingExpr? a | unreachable!
+    map ← process map a ra
   for (a, ra) in (← getRing).denote do
     if (← checkMaxSteps) then return ()
-    let a := a.expr
+    map ← process map a.expr ra
+where
+  process (map : PropagateEqMap) (a : Expr) (ra : RingExpr) : RingM PropagateEqMap := do
     let d : PolyDerivation := .input (← ra.toPolyM)
     let d ← d.simplify
     let k := d.getMultiplier
@@ -329,10 +343,17 @@ private def propagateEqs : RingM Unit := do
         let p ← (ra.sub rb).toPolyM
         let d : PolyDerivation := .input p
         let d ← d.simplify
+        if d.getMultiplier != 1 then
+          unless (← noZeroDivisors) do
+            -- Given the multipiler `k' = d.getMultiplier`, we have that `k*(a - b) = 0`,
+            -- but we cannot eliminate the `k` because we don't have `noZeroDivisors`.
+            trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, noZeroDivisors: false"
+            return map.insert (k, d.p) (a, ra)
         trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
         propagateEq a b ra rb d
+      return map
     else
-      map := map.insert (k, d.p) (a, ra)
+      return map.insert (k, d.p) (a, ra)
 
 def checkRing : RingM Bool := do
   unless (← needCheck) do return false

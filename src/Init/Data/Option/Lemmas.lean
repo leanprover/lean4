@@ -232,13 +232,13 @@ theorem isSome_apply_of_isSome_bind {α β : Type _} {x : Option α} {f : α →
       (isSome_apply_of_isSome_bind h) := by
   cases x <;> trivial
 
+theorem join_eq_bind_id {x : Option (Option α)} : x.join = x.bind id := rfl
+
 theorem join_eq_some_iff : x.join = some a ↔ x = some (some a) := by
-  simp [bind_eq_some_iff]
+  simp [join_eq_bind_id, bind_eq_some_iff]
 
 @[deprecated join_eq_some_iff (since := "2025-04-10")]
 abbrev join_eq_some := @join_eq_some_iff
-
-theorem join_eq_bind_id {x : Option (Option α)} : x.join = x.bind id := rfl
 
 theorem join_ne_none : x.join ≠ none ↔ ∃ z, x = some (some z) := by
   simp only [ne_none_iff_exists', join_eq_some_iff, iff_self]
@@ -247,7 +247,7 @@ theorem join_ne_none' : ¬x.join = none ↔ ∃ z, x = some (some z) :=
   join_ne_none
 
 theorem join_eq_none_iff : o.join = none ↔ o = none ∨ o = some none :=
-  match o with | none | some none | some (some _) => by simp
+  match o with | none | some none | some (some _) => by simp [join_eq_bind_id]
 
 @[deprecated join_eq_none_iff (since := "2025-04-10")]
 abbrev join_eq_none := @join_eq_none_iff

@@ -207,7 +207,7 @@ theorem contains_eq_isSome_getElem? [EquivBEq α] [LawfulHashable α] {a : α} :
 @[simp]
 theorem isSome_getElem?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     m[a]?.isSome = m.contains a :=
-  (contains_eq_isSome_getElem? m).symm
+  contains_eq_isSome_getElem?.symm
 
 theorem mem_iff_isSome_getElem? [EquivBEq α] [LawfulHashable α] {a : α} :
     a ∈ m ↔ m[a]?.isSome :=
@@ -394,7 +394,7 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
 @[simp]
 theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.getKey? a).isSome = m.contains a :=
-  (contains_eq_isSome_getKey? m).symm
+  contains_eq_isSome_getKey?.symm
 
 theorem mem_iff_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     a ∈ m ↔ (m.getKey? a).isSome :=

@@ -195,7 +195,7 @@ theorem contains_eq_isSome_get? [LawfulBEq α] {a : α} : m.contains a = (m.get?
 
 @[simp]
 theorem isSome_get?_eq_contains [LawfulBEq α] {a : α} : (m.get? a).isSome = m.contains a :=
-  (contains_eq_isSome_get? m).symm
+  contains_eq_isSome_get?.symm
 
 theorem mem_iff_isSome_get? [LawfulBEq α] {a : α} : a ∈ m ↔ (m.get? a).isSome :=
   m.inductionOn fun _ => DHashMap.mem_iff_isSome_get?
@@ -243,7 +243,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
 @[simp]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (get? m a).isSome = m.contains a :=
-  (contains_eq_isSome_get? m).symm
+  contains_eq_isSome_get?.symm
 
 theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m ↔ (get? m a).isSome :=
   m.inductionOn fun _ => DHashMap.Const.mem_iff_isSome_get?

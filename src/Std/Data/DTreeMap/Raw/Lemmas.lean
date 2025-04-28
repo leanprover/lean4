@@ -242,7 +242,7 @@ theorem mem_iff_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α}
   Impl.mem_iff_isSome_get? h
 
 @[simp]
-theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
     (t.get? a).isSome ↔ a ∈ t :=
   (mem_iff_isSome_get? h).symm
 

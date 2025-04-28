@@ -1542,11 +1542,11 @@ theorem WF.eraseMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
 
 theorem insertMany!_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} :
     (t.insertMany! l).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp [insertMany!, Id.run, ← List.foldl_hom Subtype.val]
+  simp [insertMany!, Id.run, Id.pure_eq, Id.bind_eq, ← List.foldl_hom Subtype.val]
 
 theorem insertMany_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} (h : t.Balanced) :
     (t.insertMany l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp [insertMany, Id.run, insert_eq_insert!, ← List.foldl_hom Subtype.val]
+  simp [insertMany, Id.run, insert_eq_insert!, Id.pure_eq, Id.bind_eq, ← List.foldl_hom Subtype.val]
 
 theorem insertMany_eq_insertMany! {_ : Ord α} {l : List ((a : α) × β a)}
     {t : Impl α β} (h : t.Balanced) :

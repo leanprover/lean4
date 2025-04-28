@@ -36,11 +36,11 @@ theorem fib_correct {n} : fib_impl n = fib_spec n := by
   -- and converts the `for` loop into a `List.foldl` over `List.range'`.
   simp [fib_impl, Id.run]
   match n with
-  | 0 => simp [fib_spec]
+  | 0 => simp [fib_spec, Id.pure_eq]
   | n+1 =>
     -- Note here that we have to use `⟨x, y⟩ : MProd _ _`, because these are not `Prod` products.
     suffices ((List.range' 1 n).foldl (fun b a ↦ ⟨b.snd, b.fst + b.snd⟩) (⟨0, 1⟩ : MProd _ _)) =
-        ⟨fib_spec n, fib_spec (n + 1)⟩ by simp_all
+        ⟨fib_spec n, fib_spec (n + 1)⟩ by simp_all [Id.pure_eq]
     induction n with
     | zero => rfl
     | succ n ih => simp [fib_spec, List.range'_1_concat, ih]

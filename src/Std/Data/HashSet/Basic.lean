@@ -304,6 +304,15 @@ def eraseDupsWithHash [BEq α] [Hashable α] (xs : List α) : List α := Id.run 
       seen := seen.insert x
   return result.toList
 
+def eraseDupsWithHash' [BEq α] [Hashable α] (xs : List α) (seen : HashSet α := ∅) : List α :=
+  match xs with
+  | nil => []
+  | x :: xs =>
+    if seen.contains x then
+      eraseDupsWithHash' xs seen
+    else
+      x :: eraseDupsWithHash' xs (seen.insert x)
+
 end List
 
 namespace Array

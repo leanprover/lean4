@@ -1352,7 +1352,7 @@ mutual
                 k fvars type
             else
               k fvars type
-    process (← getLCtx) #[] 0 type
+    process (← getLCtx) (Array.emptyWithCapacity <| maxFVars?.getD 0) 0 type
 
   private partial def forallTelescopeReducingAux (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
     match maxFVars? with
@@ -1469,7 +1469,7 @@ def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Exp
 
 private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (maxFVars? : Option Nat)
     (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
-  process consumeLet (← getLCtx) #[] e
+  process consumeLet (← getLCtx) (Array.emptyWithCapacity <| maxFVars?.getD 0) e
 where
   process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (e : Expr) : MetaM α := do
     match fvarsSizeLtMaxFVars fvars maxFVars?, consumeLet, e with
@@ -1533,7 +1533,7 @@ def getParamNames (declName : Name) : MetaM (Array Name) := do
 -- `kind` specifies the metavariable kind for metavariables not corresponding to instance implicit `[ ... ]` arguments.
 private partial def forallMetaTelescopeReducingAux
     (e : Expr) (reducing : Bool) (maxMVars? : Option Nat) (kind : MetavarKind) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-  process #[] #[] 0 e
+  process (Array.emptyWithCapacity <| maxMVars?.getD 0) (Array.emptyWithCapacity <| maxMVars?.getD 0) 0 e
 where
   process (mvars : Array Expr) (bis : Array BinderInfo) (j : Nat) (type : Expr) : MetaM (Array Expr × Array BinderInfo × Expr) := do
     if maxMVars?.isEqSome mvars.size then
@@ -1581,7 +1581,7 @@ def forallMetaBoundedTelescope (e : Expr) (maxMVars : Nat) (kind : MetavarKind :
 
 /-- Similar to `forallMetaTelescopeReducingAux` but for lambda expressions. -/
 partial def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-  process #[] #[] 0 e
+  process (Array.emptyWithCapacity <| maxMVars?.getD 0) (Array.emptyWithCapacity <| maxMVars?.getD 0) 0 e
 where
   process (mvars : Array Expr) (bis : Array BinderInfo) (j : Nat) (type : Expr) : MetaM (Array Expr × Array BinderInfo × Expr) := do
     let finalize : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do
@@ -1643,7 +1643,7 @@ partial def withLocalDecls
     (declInfos : Array (Name × BinderInfo × (Array Expr → n Expr)))
     (k : (xs : Array Expr) → n α)
     : n α :=
-  loop #[]
+  loop (Array.emptyWithCapacity declInfos.size)
 where
   loop [Inhabited α] (acc : Array Expr) : n α := do
     if acc.size < declInfos.size then

@@ -56,7 +56,7 @@ end AllFalse
 set_option linter.set.foo false
 
 def fooSetFalse : MetaM Unit := do
-  -- All linters in the `foo` set should now be back to default
+ -- All linters in the `foo` set should now be back to default.
   assert! !(getLinterValue linter.foo1 (← getLinterOptions))
   assert! !(getLinterValue linter.foo2 (← getLinterOptions))
   assert! (getLinterValue linter.foo_true (← getLinterOptions))

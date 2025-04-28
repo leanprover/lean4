@@ -16,6 +16,11 @@ to make it easy to look up which sets to check for enabling a linter.
 def LinterSets := NameMap (Array Name)
   deriving EmptyCollection, Inhabited
 
+/-- Insert a set into a `LinterSets` map.
+
+`entry.1` is the name of the linter set,
+`entry.2` contains the name of the set's linter options.
+-/
 def insertLinterSetEntry (map : LinterSets) (entry : Name × Array Name) : LinterSets :=
   entry.2.foldl (init := map) fun map linterName =>
     map.insert linterName ((map.findD linterName #[]).push entry.1)
@@ -37,7 +42,7 @@ def _root_.Lean.Options.toLinterOptions [Monad m] [MonadEnv m] (o : Options) : m
   let linterSets := linterSetsExt.getState (← getEnv)
   return { toOptions := o, linterSets }
 
-/-- Return the set of linter options that this option is contained in. -/
+/-- Return the set of linter sets that this option is contained in. -/
 def LinterOptions.getSet (o : LinterOptions) (opt : Lean.Option α) : Array Name :=
   o.linterSets.findD opt.name #[]
 
@@ -78,6 +83,8 @@ Whether a linter option is enabled or not is determined by the following sequenc
 1. If it is set, then the value determines whether or not it is enabled.
 2. Otherwise, if `linter.all` is set, then its value determines whether or not the option is enabled.
 3. Otherwise, if any of the linter sets containing the option is enabled, it is enabled.
+  (Only enabled linter sets are considered: explicitly disabling a linter set
+  will revert the linters it contains to their default behavior.)
 4. Otherwise, the default value determines whether or not it is enabled.
 -/
 def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadLinterOptions m]

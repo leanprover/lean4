@@ -343,6 +343,12 @@ where
         let p ← (ra.sub rb).toPolyM
         let d : PolyDerivation := .input p
         let d ← d.simplify
+        if d.getMultiplier != 1 then
+          unless (← noZeroDivisors) do
+            -- Given the multipiler `k' = d.getMultiplier`, we have that `k*(a - b) = 0`,
+            -- but we cannot eliminate the `k` because we don't have `noZeroDivisors`.
+            trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, noZeroDivisors: false"
+            return map.insert (k, d.p) (a, ra)
         trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
         propagateEq a b ra rb d
       return map

@@ -1681,38 +1681,40 @@ return x_18;
 static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_normConfig___closed__1() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_1 = 0;
 x_2 = lean_unsigned_to_nat(8u);
 x_3 = lean_unsigned_to_nat(5u);
 x_4 = lean_unsigned_to_nat(1000u);
 x_5 = 1;
 x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_alloc_ctor(0, 6, 17);
-lean_ctor_set(x_7, 0, x_2);
-lean_ctor_set(x_7, 1, x_3);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_6);
-lean_ctor_set(x_7, 5, x_4);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6, x_1);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 1, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 2, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 3, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 4, x_1);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 5, x_1);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 6, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 7, x_1);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 8, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 9, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 10, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 11, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 12, x_1);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 13, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 14, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 15, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 16, x_1);
-return x_7;
+x_7 = lean_unsigned_to_nat(10000u);
+x_8 = lean_alloc_ctor(0, 7, 17);
+lean_ctor_set(x_8, 0, x_2);
+lean_ctor_set(x_8, 1, x_3);
+lean_ctor_set(x_8, 2, x_3);
+lean_ctor_set(x_8, 3, x_4);
+lean_ctor_set(x_8, 4, x_6);
+lean_ctor_set(x_8, 5, x_4);
+lean_ctor_set(x_8, 6, x_7);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7, x_1);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 1, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 2, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 3, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 4, x_1);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 5, x_1);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 6, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 7, x_1);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 8, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 9, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 10, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 11, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 12, x_1);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 13, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 14, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 15, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 16, x_1);
+return x_8;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_normConfig() {

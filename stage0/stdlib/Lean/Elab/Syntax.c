@@ -343,7 +343,6 @@ static lean_object* l_Lean_Elab_Term_toParserDescr_processAtom___lambda__1___clo
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabSyntax___lambda__2___closed__1;
 lean_object* l_Lean_Syntax_mkStrLit(lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at_Lean_Elab_Command_runLintersAsync___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabSyntax___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_toParserDescr_ensureNoPrec___closed__2;
 static lean_object* l_Lean_Elab_Command_elabSyntax___lambda__3___closed__17;
@@ -768,6 +767,7 @@ lean_object* l_Lean_throwError___at_Lean_withSetOptionIn___spec__7(lean_object*,
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__4;
 static lean_object* l_Lean_Elab_Term_toParserDescr_process___closed__13;
 static lean_object* l_Lean_Elab_Command_elabDeclareSyntaxCat___closed__21;
+lean_object* l_Lean_setEnv___at_Lean_Elab_Command_runLintersAsync___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_toParserDescr_processNonReserved___closed__10;
 static lean_object* l_Lean_Elab_Command_expandNoKindMacroRulesAux___lambda__1___closed__5;
 static lean_object* l_Lean_Elab_Command_elabSyntaxAbbrev___lambda__3___closed__2;
@@ -15864,7 +15864,7 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_25, 1);
 lean_inc(x_27);
 lean_dec(x_25);
-x_28 = l_Lean_setEnv___at_Lean_Elab_Command_runLintersAsync___spec__2(x_26, x_2, x_3, x_27);
+x_28 = l_Lean_setEnv___at_Lean_Elab_Command_runLintersAsync___spec__4(x_26, x_2, x_3, x_27);
 x_29 = !lean_is_exclusive(x_28);
 if (x_29 == 0)
 {
@@ -17181,7 +17181,7 @@ lean_inc(x_463);
 x_464 = lean_ctor_get(x_462, 1);
 lean_inc(x_464);
 lean_dec(x_462);
-x_465 = l_Lean_setEnv___at_Lean_Elab_Command_runLintersAsync___spec__2(x_463, x_2, x_3, x_464);
+x_465 = l_Lean_setEnv___at_Lean_Elab_Command_runLintersAsync___spec__4(x_463, x_2, x_3, x_464);
 x_466 = lean_ctor_get(x_465, 1);
 lean_inc(x_466);
 if (lean_is_exclusive(x_465)) {

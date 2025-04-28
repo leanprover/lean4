@@ -1657,6 +1657,42 @@ theorem findSome?_cons {f : α → Option β} :
     (a::as).findSome? f = match f a with | some b => some b | none => as.findSome? f :=
   rfl
 
+/-! ### findRev? -/
+
+/--
+Returns the last element of the list for which the predicate `p` returns `true`, or `none` if no
+such element is found.
+
+`O(|l|)`.
+
+Examples:
+* `[7, 6, 5, 8, 1, 2, 6].find? (· < 5) = some 2`
+* `[7, 6, 5, 8, 1, 2, 6].find? (· < 1) = none`
+-/
+def findRev? (p : α → Bool) : List α → Option α
+  | []    => none
+  | a::as => match findRev? p as with
+    | some b => some b
+    | none   => if p a then some a else none
+
+/-! ### findSomeRev? -/
+
+/--
+Returns the last non-`none` result of applying `f` to each element of the list in order. Returns
+`none` if `f` returns `none` for all elements of the list.
+
+`O(|l|)`.
+
+Examples:
+ * `[7, 6, 5, 8, 1, 2, 6].findSomeRev? (fun x => if x < 5 then some (10 * x) else none) = some 20`
+ * `[7, 6, 5, 8, 1, 2, 6].findSomeRev? (fun x => if x < 1 then some (10 * x) else none) = none`
+-/
+def findSomeRev? (f : α → Option β) : List α → Option β
+  | []    => none
+  | a::as => match findSomeRev? f as with
+    | some b => some b
+    | none   => f a
+
 /-! ### findIdx -/
 
 /--
@@ -2251,6 +2287,26 @@ Examples:
 def intercalate (sep : List α) (xs : List (List α)) : List α :=
   (intersperse sep xs).flatten
 
+/-! ### eraseDupsBy -/
+
+/--
+Erases duplicated elements in the list, using a given comparison function,
+keeping the first occurrence of duplicated elements.
+
+`O(|l|^2)`.
+
+Examples:
+ * `[1, 3, 4, 2, 1, 5].eraseDupsBy (· % 3 == · % 3) = [1, 3, 2]`
+-/
+def eraseDupsBy {α} (r : α → α → Bool) (as : List α) : List α :=
+  loop as []
+where
+  loop : List α → List α → List α
+  | [],    bs => bs.reverse
+  | a::as, bs => match bs.any (r a) with
+    | true  => loop as bs
+    | false => loop as (a::bs)
+
 /-! ### eraseDups -/
 
 /--
@@ -2262,14 +2318,28 @@ Examples:
  * `[1, 3, 2, 2, 3, 5].eraseDups = [1, 3, 2, 5]`
  * `["red", "green", "green", "blue"].eraseDups = ["red", "green", "blue"]`
 -/
-def eraseDups {α} [BEq α] (as : List α) : List α :=
-  loop as []
+def eraseDups {α} [BEq α] (as : List α) : List α := eraseDupsBy (· == ·) as
+
+/-! ### eraseRepsBy -/
+
+/--
+Erases repeated elements, using a given comparison function,
+keeping the first element of each run.
+
+`O(|l|)`.
+
+Example:
+* `[1, 3, 2, 2, 2, 3, 3, 7].eraseRepsBy (· % 4 == · % 5) = [1, 3, 2, 3]`
+-/
+def eraseRepsBy {α} (r : α → α → Bool) : List α → List α
+  | []    => []
+  | a::as => loop a as []
 where
-  loop : List α → List α → List α
-  | [],    bs => bs.reverse
-  | a::as, bs => match bs.elem a with
-    | true  => loop as bs
-    | false => loop as (a::bs)
+  loop : α → List α → List α → List α
+  | a, [], acc => (a::acc).reverse
+  | a, a'::as, acc => match r a a' with
+    | true  => loop a as acc
+    | false => loop a' as (a::acc)
 
 /-! ### eraseReps -/
 
@@ -2281,15 +2351,7 @@ Erases repeated elements, keeping the first element of each run.
 Example:
 * `[1, 3, 2, 2, 2, 3, 3, 5].eraseReps = [1, 3, 2, 3, 5]`
 -/
-def eraseReps {α} [BEq α] : List α → List α
-  | []    => []
-  | a::as => loop a as []
-where
-  loop {α} [BEq α] : α → List α → List α → List α
-  | a, [], acc => (a::acc).reverse
-  | a, a'::as, acc => match a == a' with
-    | true  => loop a as acc
-    | false => loop a' as (a::acc)
+def eraseReps {α} [BEq α] (as : List α) : List α := eraseRepsBy (· == ·) as
 
 /-! ### span -/
 
@@ -2360,6 +2422,8 @@ Examples:
 -/
 def removeAll [BEq α] (xs ys : List α) : List α :=
   xs.filter (fun x => !ys.elem x)
+
+@[simp] theorem nil_removeAll [BEq α] {ys : List α} : [].removeAll ys = [] := rfl
 
 /-!
 # Runtime re-implementations using `@[csimp]`

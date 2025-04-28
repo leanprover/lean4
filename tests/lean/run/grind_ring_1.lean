@@ -1,4 +1,6 @@
 set_option grind.warning false
+set_option grind.debug true
+
 open Lean.Grind
 
 example [CommRing α] (x : α) : (x + 1)*(x - 1) = x^2 - 1 := by
@@ -13,12 +15,26 @@ example (x : Int) : (x + 1)*(x - 1) = x^2 - 1 := by
 example (x : UInt8) : (x + 16)*(x - 16) = x^2 := by
   grind +ring
 
+/--
+info: [grind.ring] new ring: Int
+[grind.ring] characteristic: 0
+[grind.ring] NoZeroNatDivisors available: true
+-/
+#guard_msgs (info) in
+set_option trace.grind.ring true in
 example (x : Int) : (x + 1)^2 - 1 = x^2 + 2*x := by
   grind +ring
 
 example (x : BitVec 8) : (x + 16)*(x - 16) = x^2 := by
   grind +ring
 
+/--
+info: [grind.ring] new ring: BitVec 8
+[grind.ring] characteristic: 256
+[grind.ring] NoZeroNatDivisors available: false
+-/
+#guard_msgs (info) in
+set_option trace.grind.ring true in
 example (x : BitVec 8) : (x + 1)^2 - 1 = x^2 + 2*x := by
   grind +ring
 

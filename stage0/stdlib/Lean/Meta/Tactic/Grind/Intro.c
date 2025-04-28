@@ -498,14 +498,16 @@ return x_8;
 static lean_object* _init_l_Lean_Meta_Grind_instInhabitedIntroResult___closed__17() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Meta_Grind_instInhabitedIntroResult___closed__4;
 x_2 = l_Lean_Meta_Grind_instInhabitedIntroResult___closed__2;
-x_3 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-lean_ctor_set(x_3, 2, x_2);
-return x_3;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set(x_4, 3, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_instInhabitedIntroResult___closed__18() {
@@ -1873,7 +1875,7 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14;
 x_12 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*6 + 11);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*7 + 11);
 lean_dec(x_13);
 if (x_14 == 0)
 {
@@ -5802,7 +5804,7 @@ lean_dec(x_30);
 x_31 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_29);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
-x_33 = lean_ctor_get_uint8(x_32, sizeof(void*)*6 + 14);
+x_33 = lean_ctor_get_uint8(x_32, sizeof(void*)*7 + 14);
 lean_dec(x_32);
 if (x_33 == 0)
 {

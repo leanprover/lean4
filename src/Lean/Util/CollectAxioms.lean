@@ -51,6 +51,10 @@ def collectAxioms [Monad m] [MonadEnv m] (constName : Name) : m (Array Name) := 
   let (_, s) := ((CollectAxioms.collect constName).run env).run {}
   pure s.axioms
 
+/--
+Registers axioms used by the declaration in an environment extension so they can be retrieved even
+if some parts of the declaration's become inaccessible.
+-/
 def registerAxiomsForDecl (n : Name) : CoreM Unit := do
   let axioms ← collectAxioms n
   modifyEnv (exportedAxiomsExt.addEntry · (n, axioms))

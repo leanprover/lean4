@@ -826,6 +826,7 @@ theorem getKey_eq_get_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : 
     m.getKey a h' = (m.getKey? a).get ((mem_iff_isSome_getKey? h).mp h') := by
   simp only [getKey?_eq_some_getKey h h', Option.get_some]
 
+@[simp]
 theorem get_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {h'} :
     (m.getKey? a).get h' = m.getKey a ((mem_iff_isSome_getKey? h).mpr h') :=
   (getKey_eq_get_getKey? h).symm
@@ -1438,6 +1439,10 @@ end Const
 
 end monadic
 
+section insertMany
+
+variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+
 @[simp]
 theorem insertMany_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.insertMany [] = m := by
@@ -1456,6 +1461,17 @@ theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} [Equiv
   simp_to_raw
   rw [Raw₀.insertMany_cons]
 
+@[elab_as_elim]
+theorem insertMany_ind {motive : Raw α β → Prop} (m : Raw α β) (l : ρ)
+    (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :
+    motive (m.insertMany l) := by
+  dsimp [insertMany]
+  split
+  · rename_i h
+    refine Raw₀.insertMany_ind ⟨m, h⟩ l init (fun m a b h => ?_)
+    simpa only [Raw.insert, m.2, ↓reduceDIte] using insert m.1 a b h
+  · exact init
+
 @[simp]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List ((a : α) × β a)} {k : α} :
@@ -1473,6 +1489,11 @@ theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     k ∈ (m.insertMany l) → (l.map Sigma.fst).contains k = false → k ∈ m := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.contains_of_contains_insertMany_list
+
+theorem mem_insertMany_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} {k : α} : k ∈ m → k ∈ m.insertMany l := by
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.contains_insertMany_of_contains
 
 theorem get?_insertMany_list_of_contains_eq_false [LawfulBEq α] (h : m.WF)
     {l : List ((a : α) × β a)} {k : α}
@@ -1600,6 +1621,10 @@ theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF
     m.size ≤ (m.insertMany l).size := by
   simp_to_raw using Raw₀.size_le_size_insertMany_list ⟨m, _⟩
 
+theorem size_le_size_insertMany [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} : m.size ≤ (m.insertMany l).size := by
+  simp_to_raw using Raw₀.size_le_size_insertMany ⟨m, _⟩
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List ((a : α) × β a)} :
     (m.insertMany l).size ≤ m.size + l.length := by
@@ -1611,9 +1636,14 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     (m.insertMany l).isEmpty = (m.isEmpty && l.isEmpty) := by
   simp_to_raw using Raw₀.isEmpty_insertMany_list
 
+theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} : (m.insertMany l).isEmpty → m.isEmpty := by
+  simp_to_raw using Raw₀.isEmpty_of_isEmpty_insertMany
+
 namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
+variable {ρ : Type w} [ForIn Id ρ (α × β)]
 
 @[simp]
 theorem insertMany_nil (h : m.WF) :
@@ -1634,6 +1664,17 @@ theorem insertMany_cons (h : m.WF) {l : List (α × β)}
   simp_to_raw
   rw [Raw₀.Const.insertMany_cons]
 
+@[elab_as_elim]
+theorem insertMany_ind {motive : Raw α (fun _ => β) → Prop} (m : Raw α fun _ => β) (l : ρ)
+    (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :
+    motive (insertMany m l) := by
+  dsimp [insertMany]
+  split
+  · rename_i h
+    refine Raw₀.Const.insertMany_ind ⟨m, h⟩ l init (fun m a b h => ?_)
+    simpa only [Raw.insert, m.2, ↓reduceDIte] using insert m.1 a b h
+  · exact init
+
 @[simp]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} {k : α} :
@@ -1651,6 +1692,11 @@ theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     k ∈ insertMany m l → (l.map Prod.fst).contains k = false → k ∈ m := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.contains_of_contains_insertMany_list
+
+theorem mem_insertMany_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} {k : α} : k ∈ m → k ∈ insertMany m l := by
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.Const.contains_insertMany_of_contains
 
 theorem getKey?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} {k : α}
@@ -1724,6 +1770,10 @@ theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF
     m.size ≤ (insertMany m l).size := by
   simp_to_raw using Raw₀.Const.size_le_size_insertMany_list ⟨m, _⟩
 
+theorem size_le_size_insertMany [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} : m.size ≤ (insertMany m l).size := by
+  simp_to_raw using Raw₀.Const.size_le_size_insertMany ⟨m, _⟩
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} :
     (insertMany m l).size ≤ m.size + l.length := by
@@ -1734,6 +1784,10 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} :
     (insertMany m l).isEmpty = (m.isEmpty && l.isEmpty) := by
   simp_to_raw using Raw₀.Const.isEmpty_insertMany_list
+
+theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} : (insertMany m l).isEmpty → m.isEmpty := by
+  simp_to_raw using Raw₀.Const.isEmpty_of_isEmpty_insertMany
 
 theorem get?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} {k : α}
@@ -1787,6 +1841,8 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
 
 variable {m : Raw α (fun _ => Unit)}
 
+variable {ρ : Type w} [ForIn Id ρ α]
+
 @[simp]
 theorem insertManyIfNewUnit_nil (h : m.WF) :
     insertManyIfNewUnit m [] = m := by
@@ -1803,6 +1859,18 @@ theorem insertManyIfNewUnit_cons (h : m.WF) {l : List α} {k : α} :
     insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l := by
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_cons]
+
+@[elab_as_elim]
+theorem insertManyIfNewUnit_ind {motive : Raw α (fun _ => Unit) → Prop}
+    (m : Raw α fun _ => Unit) (l : ρ)
+    (init : motive m) (insert : ∀ m a, motive m → motive (m.insertIfNew a ())) :
+    motive (insertManyIfNewUnit m l) := by
+  dsimp [insertManyIfNewUnit]
+  split
+  · rename_i h
+    refine Raw₀.Const.insertManyIfNewUnit_ind ⟨m, h⟩ l init (fun m a h => ?_)
+    simpa only [Raw.insertIfNew, m.2, ↓reduceDIte] using insert m.1 a h
+  · exact init
 
 @[simp]
 theorem contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -1821,6 +1889,11 @@ theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h
     k ∈ insertManyIfNewUnit m l → k ∈ m := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.contains_of_contains_insertManyIfNewUnit_list
+
+theorem mem_insertManyIfNewUnit_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} {k : α} : k ∈ m → k ∈ insertManyIfNewUnit m l := by
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.Const.contains_insertManyIfNewUnit_of_contains
 
 theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α} :
@@ -1909,6 +1982,10 @@ theorem size_le_size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] 
     m.size ≤ (insertManyIfNewUnit m l).size := by
   simp_to_raw using Raw₀.Const.size_le_size_insertManyIfNewUnit_list ⟨m, _⟩
 
+theorem size_le_size_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} : m.size ≤ (insertManyIfNewUnit m l).size := by
+  simp_to_raw using Raw₀.Const.size_le_size_insertManyIfNewUnit ⟨m, _⟩
+
 theorem size_insertManyIfNewUnit_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} :
     (insertManyIfNewUnit m l).size ≤ m.size + l.length := by
@@ -1919,6 +1996,10 @@ theorem isEmpty_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : 
     {l : List α} :
     (insertManyIfNewUnit m l).isEmpty = (m.isEmpty && l.isEmpty) := by
   simp_to_raw using Raw₀.Const.isEmpty_insertManyIfNewUnit_list
+
+theorem isEmpty_of_isEmpty_insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} : (insertManyIfNewUnit m l).isEmpty → m.isEmpty := by
+  simp_to_raw using Raw₀.Const.isEmpty_of_isEmpty_insertManyIfNewUnit
 
 @[simp]
 theorem get?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -1947,6 +2028,8 @@ theorem getD_insertManyIfNewUnit_list
   simp
 
 end Const
+
+end insertMany
 
 end Raw
 
@@ -3092,12 +3175,15 @@ section Raw
 
 variable {α : Type u} {β : α → Type v} {m m₁ m₂ m₃ : Std.DHashMap.Raw α β}
 
-theorem refl (m : Std.DHashMap.Raw α β) : m ~m m := ⟨.rfl⟩
+@[refl, simp] theorem refl (m : Std.DHashMap.Raw α β) : m ~m m := ⟨.rfl⟩
 theorem rfl : m ~m m := ⟨.rfl⟩
-theorem symm : m₁ ~m m₂ → m₂ ~m m₁
+@[symm] theorem symm : m₁ ~m m₂ → m₂ ~m m₁
   | ⟨h⟩ => ⟨h.symm⟩
 theorem trans : m₁ ~m m₂ → m₂ ~m m₃ → m₁ ~m m₃
   | ⟨h₁⟩, ⟨h₂⟩ => ⟨h₁.trans h₂⟩
+
+instance instTrans : Trans (α := Std.DHashMap.Raw α β) Equiv Equiv Equiv := ⟨trans⟩
+
 theorem comm : m₁ ~m m₂ ↔ m₂ ~m m₁ := ⟨symm, symm⟩
 theorem congr_left (h : m₁ ~m m₂) : m₁ ~m m₃ ↔ m₂ ~m m₃ := ⟨h.symm.trans, h.trans⟩
 theorem congr_right (h : m₁ ~m m₂) : m₃ ~m m₁ ↔ m₃ ~m m₂ :=
@@ -3265,10 +3351,22 @@ theorem constModify [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m
     Const.modify m₁ k f ~m Const.modify m₂ k f := by
   simp_to_raw using Raw₀.Const.modify_equiv_congr
 
+theorem of_forall_getKey_eq_of_forall_constGet?_eq [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) : (∀ k hk hk', m₁.getKey k hk = m₂.getKey k hk') →
+    (∀ k, Const.get? m₁ k = Const.get? m₂ k) → m₁ ~m m₂ := by
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.Const.equiv_of_forall_getKey_eq_of_forall_get?_eq
+
+set_option linter.deprecated false in
+@[deprecated of_forall_getKey_eq_of_forall_constGet?_eq (since := "2025-04-25")]
 theorem of_forall_getKey?_eq_of_forall_constGet?_eq [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) : (∀ k, m₁.getKey? k = m₂.getKey? k) →
     (∀ k, Const.get? m₁ k = Const.get? m₂ k) → m₁ ~m m₂ := by
   simp_to_raw using Raw₀.Const.equiv_of_forall_getKey?_eq_of_forall_get?_eq
+
+theorem of_forall_constGet?_eq [LawfulBEq α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) : (∀ k, Const.get? m₁ k = Const.get? m₂ k) → m₁ ~m m₂ := by
+  simp_to_raw using Raw₀.Const.equiv_of_forall_get?_eq
 
 theorem of_forall_getKey?_unit_eq [EquivBEq α] [LawfulHashable α]
     {m₁ m₂ : DHashMap.Raw α fun _ => Unit} (h₁ : m₁.WF) (h₂ : m₂.WF) :

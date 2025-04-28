@@ -14,8 +14,8 @@ def headerToImports : TSyntax ``Parser.Module.header → Array Import
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
     let imports := if preludeTk.isNone then #[{ module := `Init : Import }] else #[]
     imports ++ importsStx.map fun
-      | `(Parser.Module.import| import $[private%$privateTk]? $n) =>
-        { module := n.getId, importPrivate := privateTk.isSome }
+      | `(Parser.Module.import| $[private%$privateExpTk]? import $[private%$privateImpTk]? $n) =>
+        { module := n.getId, importPrivate := privateImpTk.isSome, isExported := privateExpTk.isNone }
       | _ => unreachable!
   | _ => unreachable!
 
@@ -32,8 +32,13 @@ def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options) (me
   else
     .private
   try
+    let imports := headerToImports header
+    if !isModule then
+      for i in imports do
+        if !i.isExported then
+          throw <| .userError "cannot use `private import` without `module`"
     let env ←
-      importModules (leakEnv := leakEnv) (loadExts := true) (level := level) (headerToImports header) opts trustLevel plugins
+      importModules (leakEnv := leakEnv) (loadExts := true) (level := level) imports opts trustLevel plugins
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment

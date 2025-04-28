@@ -2272,10 +2272,10 @@ functional: consider x = 6#3 = 110, y = 5#3 = 101
 /--
   unsigned parallel prefix for fast umulOverflow circuit
 -/
-def uppcRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+def uppcRec (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
   match s with
   | 0 => x.msb
-  | i + 1 =>  x.getLsbD (w - (i + 1) - 1) && uppcRec x y i (by omega)
+  | i + 1 =>  x.getLsbD (w - i - 1) || uppcRec x i (by omega) -- there is one redundant case here
 
 /--
   conjunction for fast umulOverflow circuit
@@ -2283,7 +2283,7 @@ def uppcRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
 def aandRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
   match s with
   | 0 => true
-  | i + 1 => y.getLsbD (i + 1) && uppcRec x y i (by omega)
+  | i + 1 => y.getLsbD (i + 1) && uppcRec x (i + 1) (by omega)
 
 /--
   preliminary overflow flag for fast umulOverflow circuit
@@ -2291,12 +2291,32 @@ def aandRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
 def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (_ : 1 < w): Bool :=
   match s with
   | 0 => false
-  | i + 1 => uppcRec x y i (by omega) && aandRec x y (i + 1) (by omega)
+  | i + 1 => resRec x y i (by omega) (by omega) || aandRec x y (i + 1) (by omega)
+
+#eval uppcRec (5#3) 2 (by omega)
 
 -- testing these definitions:
--- #eval resRec (3#3) (3#3) 2 (by omega) false
--- #eval resRec (2#3) (3#3) 2 (by omega) false
--- #eval resRec (6#3) (5#3) 2 (by omega) true
+
+
+#eval uppcRec (1#3) 0 (by omega)
+#eval uppcRec (1#3) 1 (by omega)
+#eval uppcRec (2#3) 2 (by omega)
+
+-- uppcRec x s hs ↔ decide (x.toNat ≥ 2 ^ (w - s))
+#eval uppcRec (1#3) 0 (by omega) ↔ decide ((1#3).toNat ≥ 2 ^ (3 + 0))
+#eval uppcRec (1#3) 1 (by omega) ↔ decide ((1#3).toNat ≥ 2 ^ (3 + 1))
+#eval uppcRec (1#3) 2 (by omega) ↔ decide ((1#3).toNat ≥ 2 ^ (3 + 2))
+
+
+#eval uppcRec (2#3) 0 (by omega) ↔ decide ((2#3).toNat ≥ 2 ^ (3 - 0))
+#eval uppcRec (2#3) 1 (by omega) ↔ decide ((2#3).toNat ≥ 2 ^ (3 - 1))
+#eval uppcRec (2#3) 2 (by omega) ↔ decide ((2#3).toNat ≥ 2 ^ (3 - 2))
+
+
+#eval uppcRec (4#3) 0 (by omega) ↔ decide ((4#3).toNat ≥ 2 ^ (3 - 0))
+#eval uppcRec (4#3) 1 (by omega) ↔ decide ((4#3).toNat ≥ 2 ^ (3 ))
+#eval uppcRec (4#3) 2 (by omega) ↔ decide ((4#3).toNat ≥ 2 ^ (3 + 1))
+
 
 
 /--
@@ -2361,8 +2381,6 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
               · simp_all
               · rw [show 4 = 2 * 2 by omega] at h1 h2
                 simp_all
-                omega
-                sorry
               · simp_all
                 sorry
               · simp_all

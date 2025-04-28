@@ -767,10 +767,6 @@ mpz divexact(mpz const & n, mpz const & d) {
     return n / d;
 }
 
-mpz divexact(mpz const & n, size_t d) {
-    return n / mpz::of_size_t(d);
-}
-
 mpz mpz::ediv(mpz const & n, mpz const & d) {
     if (d.m_size > n.m_size) {
         if (n.is_neg()) {

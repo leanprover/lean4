@@ -1354,7 +1354,7 @@ extern "C" LEAN_EXPORT object * lean_nat_big_div_exact(object * a1, object * a2)
     } else if (lean_is_scalar(a2)) {
         usize n2 = lean_unbox(a2);
         lean_assert(n2 != 0);
-        return mpz_to_nat(mpz::divexact(mpz_value(a1), n2));
+        return mpz_to_nat(mpz::divexact(mpz_value(a1), mpz::of_size_t(n2)));
     } else {
         lean_assert(mpz_value(a2) != 0);
         return mpz_to_nat(mpz::divexact(mpz_value(a1), mpz_value(a2)));

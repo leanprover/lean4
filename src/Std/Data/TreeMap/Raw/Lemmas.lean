@@ -232,9 +232,19 @@ theorem contains_eq_isSome_getElem? [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = t[a]?.isSome :=
   DTreeMap.Raw.Const.contains_eq_isSome_get? h
 
+@[simp]
+theorem isSome_getElem?_eq_contains [TransCmp cmp] (h : t.WF) {a : α} :
+    t[a]?.isSome = t.contains a :=
+  (contains_eq_isSome_getElem? h).symm
+
 theorem mem_iff_isSome_getElem? [TransCmp cmp] (h : t.WF) {a : α} :
     a ∈ t ↔ t[a]?.isSome :=
   DTreeMap.Raw.Const.mem_iff_isSome_get? h
+
+@[simp]
+theorem isSome_getElem?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
+    t[a]?.isSome ↔ a ∈ t :=
+  (mem_iff_isSome_getElem? h).symm
 
 theorem getElem?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t[a]? = none :=
@@ -424,9 +434,19 @@ theorem contains_eq_isSome_getKey? [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = (t.getKey? a).isSome :=
   DTreeMap.Raw.contains_eq_isSome_getKey? h
 
+@[simp]
+theorem isSome_getKey?_eq_contains [TransCmp cmp] (h : t.WF) {a : α} :
+    (t.getKey? a).isSome = t.contains a :=
+  (contains_eq_isSome_getKey? h).symm
+
 theorem mem_iff_isSome_getKey? [TransCmp cmp] (h : t.WF) {a : α} :
     a ∈ t ↔ (t.getKey? a).isSome :=
   DTreeMap.Raw.mem_iff_isSome_getKey? h
+
+@[simp]
+theorem isSome_getKey?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
+    (t.getKey? a).isSome ↔ a ∈ t :=
+  (mem_iff_isSome_getKey? h).symm
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.getKey? a = none :=

@@ -298,10 +298,19 @@ theorem contains_eq_isSome_get? [LawfulBEq α] (h : m.WF) {a : α} :
     m.contains a = (m.get? a).isSome := by
   simp_to_raw using Raw₀.contains_eq_isSome_get?
 
+@[simp]
+theorem isSome_get?_eq_contains [LawfulBEq α] (h : m.WF) {a : α} :
+    (m.get? a).isSome = m.contains a :=
+  (contains_eq_isSome_get? h).symm
+
 theorem mem_iff_isSome_get? [LawfulBEq α] (h : m.WF) {a : α} :
     a ∈ m ↔ (m.get? a).isSome := by
   simp only [mem_iff_contains, Bool.coe_iff_coe]
   simp_to_raw using Raw₀.contains_eq_isSome_get?
+
+@[simp]
+theorem isSome_get?_iff_mem [LawfulBEq α] (h : m.WF) {a : α} : (m.get? a).isSome ↔ a ∈ m :=
+  (mem_iff_isSome_get? h).symm
 
 theorem get?_eq_none_of_contains_eq_false [LawfulBEq α] (h : m.WF) {a : α} :
     m.contains a = false → m.get? a = none := by
@@ -351,10 +360,20 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
     m.contains a = (get? m a).isSome := by
   simp_to_raw using Raw₀.Const.contains_eq_isSome_get?
 
+@[simp]
+theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (get? m a).isSome = m.contains a :=
+  (contains_eq_isSome_get? h).symm
+
 theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     a ∈ m ↔ (get? m a).isSome := by
   simp only [mem_iff_contains, Bool.coe_iff_coe]
   simp_to_raw using Raw₀.Const.contains_eq_isSome_get?
+
+@[simp]
+theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (get? m a).isSome ↔ a ∈ m :=
+  (mem_iff_isSome_get? h).symm
 
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → get? m a = none := by
@@ -756,10 +775,20 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) 
     m.contains a = (m.getKey? a).isSome := by
   simp_to_raw using Raw₀.contains_eq_isSome_getKey?
 
+@[simp]
+theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.getKey? a).isSome = m.contains a :=
+  (contains_eq_isSome_getKey? h).symm
+
 theorem mem_iff_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     a ∈ m ↔ (m.getKey? a).isSome := by
   simp only [mem_iff_contains, Bool.coe_iff_coe]
   simp_to_raw using Raw₀.contains_eq_isSome_getKey?
+
+@[simp]
+theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.getKey? a).isSome ↔ a ∈ m :=
+  (mem_iff_isSome_getKey? h).symm
 
 theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {a a' : α} (h : m.WF) :

@@ -208,6 +208,11 @@ theorem contains_eq_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = (t.get? a).isSome :=
   TreeMap.Raw.contains_eq_isSome_getKey? h
 
+@[simp]
+theorem isSome_get?_eq_contains [TransCmp cmp] (h : t.WF) {a : α} :
+    (t.get? a).isSome = t.contains a :=
+  (contains_eq_isSome_get? h).symm
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.get? a = none :=
   TreeMap.Raw.getKey?_eq_none_of_contains_eq_false h

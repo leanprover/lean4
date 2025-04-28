@@ -246,9 +246,19 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
     m.contains a = (m.get? a).isSome :=
   HashMap.Raw.contains_eq_isSome_getKey? h.out
 
+@[simp]
+theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.get? a).isSome = m.contains a :=
+  (contains_eq_isSome_get? h).symm
+
 theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     a ∈ m ↔ (m.get? a).isSome :=
   HashMap.Raw.mem_iff_isSome_getKey? h.out
+
+@[simp]
+theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.get? a).isSome ↔ a ∈ m :=
+  (mem_iff_isSome_get? h).symm
 
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m.get? a = none :=

@@ -193,8 +193,16 @@ theorem get?_insert_self [LawfulBEq α] {k : α} {v : β k} : (m.insert k v).get
 theorem contains_eq_isSome_get? [LawfulBEq α] {a : α} : m.contains a = (m.get? a).isSome :=
   m.inductionOn fun _ => DHashMap.contains_eq_isSome_get?
 
+@[simp]
+theorem isSome_get?_eq_contains [LawfulBEq α] {a : α} : (m.get? a).isSome = m.contains a :=
+  (contains_eq_isSome_get? m).symm
+
 theorem mem_iff_isSome_get? [LawfulBEq α] {a : α} : a ∈ m ↔ (m.get? a).isSome :=
   m.inductionOn fun _ => DHashMap.mem_iff_isSome_get?
+
+@[simp]
+theorem isSome_get?_iff_mem [LawfulBEq α] {a : α} : (m.get? a).isSome ↔ a ∈ m :=
+  mem_iff_isSome_get?.symm
 
 theorem get?_eq_none_of_contains_eq_false [LawfulBEq α] {a : α} :
     m.contains a = false → m.get? a = none :=
@@ -232,8 +240,18 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (get? m a).isSome :=
   m.inductionOn fun _ => DHashMap.Const.contains_eq_isSome_get?
 
+@[simp]
+theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
+    (get? m a).isSome = m.contains a :=
+  (contains_eq_isSome_get? m).symm
+
 theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m ↔ (get? m a).isSome :=
   m.inductionOn fun _ => DHashMap.Const.mem_iff_isSome_get?
+
+@[simp]
+theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
+    (get? m a).isSome ↔ a ∈ m :=
+  mem_iff_isSome_get?.symm
 
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → get? m a = none :=
@@ -569,9 +587,19 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.getKey? a).isSome :=
   m.inductionOn fun _ => DHashMap.contains_eq_isSome_getKey?
 
+@[simp]
+theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
+    (m.getKey? a).isSome = m.contains a :=
+  (contains_eq_isSome_getKey? m).symm
+
 theorem mem_iff_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     a ∈ m ↔ (m.getKey? a).isSome :=
   m.inductionOn fun _ => DHashMap.mem_iff_isSome_getKey?
+
+@[simp]
+theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
+    (m.getKey? a).isSome ↔ a ∈ m :=
+  mem_iff_isSome_getKey?.symm
 
 theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
     (h : m.getKey? k = some k') : k' ∈ m :=

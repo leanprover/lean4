@@ -31,6 +31,11 @@ theorem not_eq_prop (p q : Prop) : (¬(p = q)) = (p = ¬q) := by
 theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
   by_cases p <;> by_cases q <;> simp [*]
 
+-- Unless `+splitImp` is used, `grind` will not be able to do much with this kind of implication.
+-- Thus, this normalization step is enabled by default.
+theorem forall_imp_eq_or {α} (p : α → Prop) (q : Prop) : ((∀ a, p a) → q) = ((∃ a, ¬ p a) ∨ q) := by
+  rw [imp_eq]; simp
+
 theorem true_imp_eq (p : Prop) : (True → p) = p := by simp
 theorem false_imp_eq (p : Prop) : (False → p) = True := by simp
 theorem imp_true_eq (p : Prop) : (p → True) = True := by simp
@@ -125,6 +130,7 @@ init_grind_norm
   dite_eq_ite
   -- Forall
   forall_and forall_false forall_true
+  forall_imp_eq_or
   -- Exists
   exists_const exists_or exists_prop exists_and_left exists_and_right
   -- Bool cond

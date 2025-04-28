@@ -3,6 +3,8 @@ Copyright (c) 2016 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.Int.Basic
 import Init.Conv
@@ -23,9 +25,17 @@ theorem subNatNat_of_sub_eq_succ {m n k : Nat} (h : n - m = succ k) : subNatNat 
 
 @[simp] protected theorem neg_zero : -(0:Int) = 0 := rfl
 
-@[norm_cast] theorem ofNat_add (n m : Nat) : (↑(n + m) : Int) = n + m := rfl
-@[norm_cast] theorem ofNat_mul (n m : Nat) : (↑(n * m) : Int) = n * m := rfl
-@[norm_cast] theorem ofNat_succ (n : Nat) : (succ n : Int) = n + 1 := rfl
+@[simp, norm_cast] theorem natCast_add (n m : Nat) : (↑(n + m) : Int) = n + m := rfl
+@[simp, norm_cast] theorem natCast_mul (n m : Nat) : (↑(n * m) : Int) = n * m := rfl
+@[norm_cast] theorem natCast_succ (n : Nat) : (succ n : Int) = n + 1 := rfl
+@[norm_cast] theorem natCast_add_one (n : Nat) : ((n + 1 : Nat) : Int) = n + 1 := rfl
+
+@[deprecated natCast_add (since := "2025-04-17")]
+theorem ofNat_add (n m : Nat) : (↑(n + m) : Int) = n + m := rfl
+@[deprecated natCast_mul (since := "2025-04-17")]
+theorem ofNat_mul (n m : Nat) : (↑(n * m) : Int) = n * m := rfl
+@[deprecated natCast_succ (since := "2025-04-17")]
+theorem ofNat_succ (n : Nat) : (succ n : Int) = n + 1 := rfl
 
 theorem neg_ofNat_zero : -((0 : Nat) : Int) = 0 := rfl
 theorem neg_ofNat_succ (n : Nat) : -(succ n : Int) = -[n+1] := rfl
@@ -155,7 +165,7 @@ theorem subNatNat_add (m n k : Nat) : subNatNat (m + n) k = m + subNatNat n k :=
     conv => lhs; rw [← Nat.sub_add_cancel (Nat.le_of_lt h')]
     apply subNatNat_add_add
   | inr h' => simp [subNatNat_of_le h',
-      subNatNat_of_le (Nat.le_trans h' (le_add_left ..)), Nat.add_sub_assoc h']
+      subNatNat_of_le (Nat.le_trans h' (le_add_left ..)), Nat.add_sub_assoc h', -natCast_add]
 
 theorem subNatNat_add_negSucc (m n k : Nat) :
     subNatNat m n + -[k+1] = subNatNat m (n + succ k) := by
@@ -182,7 +192,7 @@ theorem subNatNat_self : ∀ n, subNatNat n n = 0
 /- addition -/
 
 protected theorem add_comm : ∀ a b : Int, a + b = b + a
-  | ofNat n, ofNat m => by simp [Nat.add_comm]
+  | ofNat n, ofNat m => by simp [Nat.add_comm, -natCast_add]
   | ofNat _, -[_+1]  => rfl
   | -[_+1],  ofNat _ => rfl
   | -[_+1],  -[_+1]  => by simp [Nat.add_comm]
@@ -216,8 +226,8 @@ protected theorem add_assoc : ∀ a b c : Int, a + b + c = a + (b + c)
     simp [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]
 where
   aux1 (m n : Nat) : ∀ c : Int, m + n + c = m + (n + c)
-    | (k:Nat) => by simp [Nat.add_assoc]
-    | -[k+1]  => by simp [subNatNat_add]
+    | (k:Nat) => by simp [Nat.add_assoc, -natCast_add]
+    | -[k+1]  => by simp [subNatNat_add, -natCast_add]
   aux2 (m n k : Nat) : -[m+1] + -[n+1] + k = -[m+1] + (-[n+1] + k) := by
     simp
     rw [Int.add_comm, subNatNat_add_negSucc]
@@ -234,8 +244,8 @@ protected theorem add_right_comm (a b c : Int) : a + b + c = a + c + b := by
 
 protected theorem add_left_neg : ∀ a : Int, -a + a = 0
   | 0      => rfl
-  | succ m => by simp [neg_ofNat_succ]
-  | -[m+1] => by simp [neg_negSucc]
+  | succ m => by simp [neg_ofNat_succ, -natCast_add]
+  | -[m+1] => by simp [neg_negSucc, -natCast_add]
 
 protected theorem add_right_neg (a : Int) : a + -a = 0 := by
   rw [Int.add_comm, Int.add_left_neg]
@@ -281,7 +291,7 @@ theorem wlog_sign {P : Int → Prop} (inv : ∀ i, P i ↔ P (-i)) (w : ∀ n : 
   cases i with
   | ofNat n => exact w n
   | negSucc n =>
-    rw [negSucc_eq, ← inv, ← ofNat_succ]
+    rw [negSucc_eq, ← inv, ← natCast_succ]
     apply w
 
 /- ## subtraction -/
@@ -340,10 +350,10 @@ theorem negSucc_coe' (n : Nat) : -[n+1] = -↑n - 1 := by
 protected theorem subNatNat_eq_coe {m n : Nat} : subNatNat m n = ↑m - ↑n := by
   apply subNatNat_elim m n fun m n i => i = m - n
   · intros i n
-    rw [Int.ofNat_add, Int.sub_eq_add_neg, Int.add_assoc, Int.add_left_comm,
+    rw [Int.natCast_add, Int.sub_eq_add_neg, Int.add_assoc, Int.add_left_comm,
       Int.add_right_neg, Int.add_zero]
   · intros i n
-    simp only [negSucc_eq, ofNat_add, ofNat_one, Int.sub_eq_add_neg, Int.neg_add, ← Int.add_assoc]
+    simp only [negSucc_eq, natCast_add, ofNat_one, Int.sub_eq_add_neg, Int.neg_add, ← Int.add_assoc]
     rw [Int.add_neg_eq_sub (a := n), ← ofNat_sub, Nat.sub_self, ofNat_zero, Int.zero_add]
     apply Nat.le_refl
 
@@ -408,7 +418,7 @@ theorem negSucc_mul_ofNat (m n : Nat) : -[m+1] * n = -↑(succ m * n) := rfl
 theorem negSucc_mul_negSucc (m n : Nat) : -[m+1] * -[n+1] = succ m * succ n := rfl
 
 protected theorem mul_comm (a b : Int) : a * b = b * a := by
-  cases a <;> cases b <;> simp [Nat.mul_comm]
+  cases a <;> cases b <;> simp [Nat.mul_comm, -natCast_mul]
 instance : Std.Commutative (α := Int) (· * ·) := ⟨Int.mul_comm⟩
 
 theorem ofNat_mul_negOfNat (m n : Nat) : (m : Nat) * negOfNat n = negOfNat (m * n) := by
@@ -425,7 +435,8 @@ theorem negOfNat_mul_negSucc (m n : Nat) : negOfNat n * -[m+1] = ofNat (n * succ
 
 protected theorem mul_assoc (a b c : Int) : a * b * c = a * (b * c) := by
   cases a <;> cases b <;> cases c <;>
-    simp [Nat.mul_assoc, ofNat_mul_negOfNat, negOfNat_mul_ofNat, negSucc_mul_negOfNat, negOfNat_mul_negSucc]
+    simp [Nat.mul_assoc, ofNat_mul_negOfNat, negOfNat_mul_ofNat, negSucc_mul_negOfNat,
+      negOfNat_mul_negSucc, -natCast_mul]
 
 instance : Std.Associative (α := Int) (· * ·) := ⟨Int.mul_assoc⟩
 
@@ -448,12 +459,14 @@ theorem ofNat_mul_subNatNat (m n k : Nat) :
   | succ m => cases n.lt_or_ge k with
     | inl h =>
       have h' : succ m * n < succ m * k := Nat.mul_lt_mul_of_pos_left h (Nat.succ_pos m)
-      simp [subNatNat_of_lt h, subNatNat_of_lt h']
+      simp only [subNatNat_of_lt h, pred_eq_sub_one, ofNat_mul_negSucc', succ_eq_add_one,
+        subNatNat_of_lt h']
       rw [sub_one_add_one_eq_of_pos (Nat.sub_pos_of_lt h), ← neg_ofNat_succ, Nat.mul_sub_left_distrib,
         ← succ_pred_eq_of_pos (Nat.sub_pos_of_lt h')]; rfl
     | inr h =>
       have h' : succ m * k ≤ succ m * n := Nat.mul_le_mul_left _ h
-      simp [subNatNat_of_le h, subNatNat_of_le h', Nat.mul_sub_left_distrib]
+      simp [subNatNat_of_le h, subNatNat_of_le h', Nat.mul_sub_left_distrib,
+        -natCast_mul, -natCast_add]
 
 theorem negOfNat_add (m n : Nat) : negOfNat m + negOfNat n = negOfNat (m + n) := by
   cases m <;> cases n <;> simp [Nat.succ_add] <;> rfl
@@ -474,17 +487,17 @@ theorem negSucc_mul_subNatNat (m n k : Nat) :
 
 attribute [local simp] ofNat_mul_subNatNat negOfNat_add negSucc_mul_subNatNat in
 protected theorem mul_add : ∀ a b c : Int, a * (b + c) = a * b + a * c
-  | (m:Nat), (n:Nat), (k:Nat) => by simp [Nat.left_distrib]
+  | (m:Nat), (n:Nat), (k:Nat) => by simp [Nat.left_distrib, -natCast_add, -natCast_mul]
   | (m:Nat), (n:Nat), -[k+1]  => by
-    simp [negOfNat_eq_subNatNat_zero]; rw [← subNatNat_add]; rfl
+    simp [negOfNat_eq_subNatNat_zero, -natCast_mul]; rw [← subNatNat_add]; rfl
   | (m:Nat), -[n+1],  (k:Nat) => by
-    simp [negOfNat_eq_subNatNat_zero]; rw [Int.add_comm, ← subNatNat_add]; rfl
+    simp [negOfNat_eq_subNatNat_zero, -natCast_mul]; rw [Int.add_comm, ← subNatNat_add]; rfl
   | (m:Nat), -[n+1],  -[k+1]  => by simp [← Nat.left_distrib, Nat.add_left_comm, Nat.add_assoc]
-  | -[m+1],  (n:Nat), (k:Nat) => by simp [Nat.mul_comm]; rw [← Nat.right_distrib, Nat.mul_comm]
+  | -[m+1],  (n:Nat), (k:Nat) => by simp [Nat.mul_comm, -natCast_mul, -natCast_add]; rw [← Nat.right_distrib, Nat.mul_comm]
   | -[m+1],  (n:Nat), -[k+1]  => by
-    simp [negOfNat_eq_subNatNat_zero]; rw [Int.add_comm, ← subNatNat_add]; rfl
-  | -[m+1],  -[n+1],  (k:Nat) => by simp [negOfNat_eq_subNatNat_zero]; rw [← subNatNat_add]; rfl
-  | -[m+1],  -[n+1],  -[k+1]  => by simp [← Nat.left_distrib, Nat.add_left_comm, Nat.add_assoc]
+    simp [negOfNat_eq_subNatNat_zero, -natCast_add, -natCast_mul]; rw [Int.add_comm, ← subNatNat_add]; rfl
+  | -[m+1],  -[n+1],  (k:Nat) => by simp [negOfNat_eq_subNatNat_zero, -natCast_add, -natCast_mul]; rw [← subNatNat_add]; rfl
+  | -[m+1],  -[n+1],  -[k+1]  => by simp [← Nat.left_distrib, Nat.add_left_comm, Nat.add_assoc, -natCast_mul]
 
 protected theorem add_mul (a b c : Int) : (a + b) * c = a * c + b * c := by
   simp [Int.mul_comm, Int.mul_add]
@@ -580,13 +593,5 @@ but it is convenient to have these earlier, for users who only need `Nat` and `I
 protected theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
 protected theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
-
-@[simp, norm_cast] protected theorem natCast_add (a b : Nat) : ((a + b : Nat) : Int) = (a : Int) + (b : Int) := by
-  rfl
-
-protected theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : Int) = (n : Int) + 1 := rfl
-
-@[simp] protected theorem natCast_mul (a b : Nat) : ((a * b : Nat) : Int) = (a : Int) * (b : Int) := by
-  simp
 
 end Int

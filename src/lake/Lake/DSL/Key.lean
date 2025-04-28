@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Build.Key
+import Lake.DSL.Syntax
 
 /-! # DSL for Build Key
 Notation for specifying build keys in a package.
@@ -13,16 +14,6 @@ Notation for specifying build keys in a package.
 open Lean
 
 namespace Lake.DSL
-
-syntax facetSuffix := atomic(":" noWs) ident
-syntax packageTargetLit := atomic("+" noWs)? ident
-
-/-- A module target key literal (with optional facet). -/
-scoped syntax:max "`+" noWs ident facetSuffix* : term
-
-/-- A package target key literal (with optional facet). -/
-scoped syntax:max "`@" (noWs ident)?
-  (atomic(noWs "/" noWs) packageTargetLit)? (noWs facetSuffix)* : term
 
 private def expandFacets (tgt : Term) (facets : Array Ident) : MacroM Term := do
   let facetLits := facets.map fun facet => Name.quoteFrom facet facet.getId

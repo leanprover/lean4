@@ -2210,6 +2210,10 @@ private def natEqPred : Expr :=
 def mkNatEq (a b : Expr) : Expr :=
   mkApp2 natEqPred a b
 
+/-- Given `a b : Prop`, return `a = b` -/
+def mkPropEq (a b : Expr) : Expr :=
+  mkApp3 (mkConst ``Eq [levelOne]) (mkSort levelZero) a b
+
 /-! Constants for Int typeclasses. -/
 namespace Int
 

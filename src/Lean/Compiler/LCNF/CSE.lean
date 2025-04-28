@@ -44,7 +44,7 @@ def replaceFun (decl : FunDecl) (fvarId : FVarId) : M Unit := do
   eraseFunDecl decl
   addFVarSubst decl.fvarId fvarId
 
-partial def _root_.Lean.Compiler.LCNF.Code.cse (code : Code) : CompilerM Code :=
+partial def _root_.Lean.Compiler.LCNF.Code.cse (shouldElimFunDecls : Bool) (code : Code) : CompilerM Code :=
   go code |>.run' {}
 where
   goFunDecl (decl : FunDecl) : M FunDecl := do
@@ -67,14 +67,18 @@ where
         addEntry key decl.fvarId
         return code.updateLet! decl (← go k)
     | .fun decl k =>
-      let decl ← goFunDecl decl
-      let value := decl.toExpr
-      match (← get).map.find? value with
-      | some fvarId' =>
-        replaceFun decl fvarId'
-        go k
-      | none =>
-        addEntry value decl.fvarId
+      if shouldElimFunDecls then
+        let decl ← goFunDecl decl
+        let value := decl.toExpr
+        match (← get).map.find? value with
+        | some fvarId' =>
+          replaceFun decl fvarId'
+          go k
+        | none =>
+          addEntry value decl.fvarId
+          return code.updateFun! decl (← go k)
+      else
+        let decl ← goFunDecl decl
         return code.updateFun! decl (← go k)
     | .jp decl k =>
       let decl ← goFunDecl decl
@@ -101,12 +105,12 @@ end CSE
 /--
 Common sub-expression elimination
 -/
-def Decl.cse (decl : Decl) : CompilerM Decl := do
-  let value ← decl.value.mapCodeM (·.cse)
+def Decl.cse (shouldElimFunDecls : Bool) (decl : Decl) : CompilerM Decl := do
+  let value ← decl.value.mapCodeM (·.cse shouldElimFunDecls)
   return { decl with value }
 
-def cse (phase : Phase := .base) (occurrence := 0) : Pass :=
-  .mkPerDeclaration `cse Decl.cse phase occurrence
+def cse (phase : Phase := .base) (shouldElimFunDecls := false) (occurrence := 0) : Pass :=
+  .mkPerDeclaration `cse (Decl.cse shouldElimFunDecls) phase occurrence
 
 builtin_initialize
   registerTraceClass `Compiler.cse (inherited := true)

@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 
 notation, basic datatypes and type classes
 -/
+module
+
 prelude
 import Init.Core
 set_option linter.missingDocs true -- keep it documented

@@ -189,6 +189,16 @@ def lambdaTelescope1 {n} [MonadControlT MetaM n] [MonadError n] [MonadNameGenera
       throwError "lambdaTelescope1: expected lambda, got {e}"
     k xs[0]!.fvarId! body
 
+/-- There are multiple variants of this function around in the code base, maybe unify at some point. -/
+private def elimTypeAnnotations (type : Expr) : CoreM Expr := do
+  Core.transform type fun e =>
+    if e.isOptParam || e.isAutoParam then
+      return .visit e.appFn!.appArg!
+    else if e.isOutParam || e.isSemiOutParam then
+      return .visit e.appArg!
+    else
+      return .continue
+
 /--
 A monad to help collecting inductive hypothesis.
 
@@ -255,7 +265,7 @@ fails.
 partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := do
   unless e.containsFVar oldIH do
     return e
-  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} foldAndCollect:{indentExpr e}") do
+  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} foldAndCollect ({mkFVar oldIH} → {mkFVar newIH})::{indentExpr e}") do
 
   let e' ← id do
     if let some (n, t, v, b) := e.letFun? then
@@ -270,7 +280,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
       if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
         -- We do different things to the matcher when folding recursive calls and when
         -- collecting inductive hypotheses. Therefore we do it separately,
-        -- droppin got `MetaM` in between, and using `M.eval`/`M.exec` as appropriate
+        -- dropping to `MetaM` in between, and using `M.eval`/`M.exec` as appropriate
         -- We could try to do it in one pass by breaking up the `matcherApp.transform`
         -- abstraction.
 
@@ -302,15 +312,21 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
         let ihMatcherApp'' ← ihMatcherApp'.inferMatchType
         M.tell ihMatcherApp''.toExpr
 
-        -- Folding the calls is straight forward
+        -- When folding the calls we don't want to remove the extra arg to the matcher
+        -- that was introduced in the translation
         let matcherApp' ← liftM <| matcherApp.transform
           (onParams := fun e => M.eval <| foldAndCollect oldIH newIH isRecCall e)
           (onMotive := fun _motiveArgs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
             M.eval (foldAndCollect oldIH newIH isRecCall body))
-          (onAlt := fun _altType alt => do
-            lambdaTelescope1 alt fun oldIH alt => do
-              M.eval (foldAndCollect oldIH newIH isRecCall alt))
+          (onAlt := fun altType alt => do
+            lambdaTelescope1 alt fun oldIH' alt => do
+            -- We don't have suitable newIH around here, but we don't care since
+            -- we just want to fold calls. So lets create a fake one.
+            -- (We cannot use oldIH as that would run into the sanity checks that we could
+            -- replace all of them)
+            withLocalDeclD `fakeNewIH (← inferType (mkFVar oldIH')) fun fakeNewIH =>
+              M.eval (foldAndCollect oldIH' fakeNewIH.fvarId! isRecCall alt))
           (onRemaining := fun _ => pure #[])
         return matcherApp'.toExpr
 
@@ -519,7 +535,7 @@ as `MVars` as it goes.
 partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M2 Expr := do
   withTraceNode `Meta.FunInd
-    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}:{indentExpr e}") do
+    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}\ngoal: {goal}:{indentExpr e}") do
 
   -- if-then-else cause case split:
   match_expr e with
@@ -629,6 +645,15 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     return ← withLocalDeclD n t' fun x => M2.branch do
       let b' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall (b.instantiate1 x)
       mkLetFun x v' b'
+
+  -- Special case for traversing the PProd’ed bodies in our encoding of structural mutual recursion
+  if let .lam n t b bi := e then
+    if goal.isForall then
+      let t' ← foldAndCollect oldIH newIH isRecCall t
+      return ← withLocalDecl n bi t' fun x => M2.branch do
+        let goal' ← instantiateForall goal #[x]
+        let b' ← buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
+        mkLambdaFVars #[x] b'
 
   liftM <| buildInductionCase oldIH newIH isRecCall toErase toClear goal e
 
@@ -746,7 +771,7 @@ where doRealize (inductName : Name) := do
     check e'
 
   let eTyp ← inferType e'
-  let eTyp ← elimOptParam eTyp
+  let eTyp ← elimTypeAnnotations eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -850,15 +875,17 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     -- Look for _unary redexes
     if e.isAppOf eqnInfo.declNameNonRec then
       let args := e.getAppArgs
-      if eqnInfo.fixedPrefixSize + 1 ≤ args.size then
-        let packedArg := args.back!
-          let some (i, unpackedArgs) := eqnInfo.argsPacker.unpack packedArg
-            | throwError "Unexpected packedArg:{indentExpr packedArg}"
-          let e' := .const eqnInfo.declNames[i]! e.getAppFn.constLevels!
-          let e' := mkAppN e' args.pop
-          let e' := mkAppN e' unpackedArgs
-          let e' := mkAppN e' args[eqnInfo.fixedPrefixSize+1:]
-          return .continue e'
+      if h : args.size ≥ eqnInfo.fixedParamPerms.numFixed + 1 then
+        let xs := args[:eqnInfo.fixedParamPerms.numFixed]
+        let packedArg := args[eqnInfo.fixedParamPerms.numFixed]
+        let extraArgs := args[eqnInfo.fixedParamPerms.numFixed+1:]
+        let some (funIdx, ys) := eqnInfo.argsPacker.unpack packedArg
+          | throwError "Unexpected packedArg:{indentExpr packedArg}"
+        let args' := eqnInfo.fixedParamPerms.perms[funIdx]!.buildArgs xs ys
+        let e' := .const eqnInfo.declNames[funIdx]! e.getAppFn.constLevels!
+        let e' := mkAppN e' args'
+        let e' := mkAppN e' extraArgs
+        return .continue e'
 
     return .continue e)
   mkExpectedTypeHint value cleanType
@@ -877,6 +904,7 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) : MetaM Name := do
   return inductName
 where doRealize inductName := do
   let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
+  mapError (f := (m!"Cannot unpack functional cases principle {.ofConstName unaryInductName} (please report this issue)\n{indentD ·}")) do
   let ci ← getConstInfo unaryInductName
   let us := ci.levelParams
   let value := .const ci.name (us.map mkLevelParam)
@@ -905,7 +933,7 @@ where doRealize inductName := do
         return value
 
   unless ← isTypeCorrect value do
-    logError m!"failed to unpack induction principle:{indentExpr value}"
+    logError m!"final term is type incorrect:{indentExpr value}"
     check value
   let type ← inferType value
   let type ← elimOptParam type
@@ -1121,7 +1149,7 @@ where doRealize inductName := do
     check e'
 
   let eTyp ← inferType e'
-  let eTyp ← elimOptParam eTyp
+  let eTyp ← elimTypeAnnotations eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -1199,7 +1227,7 @@ def deriveCases (name : Name) : MetaM Unit := do
       check e'
 
     let eTyp ← inferType e'
-    let eTyp ← elimOptParam eTyp
+    let eTyp ← elimTypeAnnotations eTyp
     -- logInfo m!"eTyp: {eTyp}"
     let levelParams := (collectLevelParams {} eTyp).params
     -- Prune unused level parameters, preserving the original order

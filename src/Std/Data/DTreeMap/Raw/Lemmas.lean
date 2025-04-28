@@ -42,6 +42,10 @@ theorem isEmpty_insert [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   Impl.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
+  Impl.contains_iff_mem
+
 theorem contains_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   Impl.contains_congr h hab
@@ -232,9 +236,19 @@ theorem contains_eq_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a :
     t.contains a = (t.get? a).isSome :=
   Impl.contains_eq_isSome_get? h
 
+@[simp]
+theorem isSome_get?_eq_contains [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
+    (t.get? a).isSome = t.contains a :=
+  (contains_eq_isSome_get? h).symm
+
 theorem mem_iff_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
     a ∈ t ↔ (t.get? a).isSome :=
   Impl.mem_iff_isSome_get? h
+
+@[simp]
+theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
+    (t.get? a).isSome ↔ a ∈ t :=
+  (mem_iff_isSome_get? h).symm
 
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.get? a = none :=
@@ -280,9 +294,19 @@ theorem contains_eq_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = (get? t a).isSome :=
   Impl.Const.contains_eq_isSome_get? h
 
+@[simp]
+theorem isSome_get?_eq_contains [TransCmp cmp] (h : t.WF) {a : α} :
+    (get? t a).isSome = t.contains a :=
+  (contains_eq_isSome_get? h).symm
+
 theorem mem_iff_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
     a ∈ t ↔ (get? t a).isSome :=
   Impl.Const.mem_iff_isSome_get? h
+
+@[simp]
+theorem isSome_get?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
+    (get? t a).isSome ↔ a ∈ t :=
+  (mem_iff_isSome_get? h).symm
 
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → get? t a = none :=
@@ -634,9 +658,19 @@ theorem contains_eq_isSome_getKey? [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = (t.getKey? a).isSome :=
   Impl.contains_eq_isSome_getKey? h
 
+@[simp]
+theorem isSome_getKey?_eq_contains [TransCmp cmp] (h : t.WF) {a : α} :
+    (t.getKey? a).isSome = t.contains a :=
+  (contains_eq_isSome_getKey? h).symm
+
 theorem mem_iff_isSome_getKey? [TransCmp cmp] (h : t.WF) {a : α} :
     a ∈ t ↔ (t.getKey? a).isSome :=
   Impl.mem_iff_isSome_getKey? h
+
+@[simp]
+theorem isSome_getKey?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
+    (t.getKey? a).isSome ↔ a ∈ t :=
+  (mem_iff_isSome_getKey? h).symm
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.getKey? a = none :=
@@ -1543,7 +1577,7 @@ theorem get?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [Lawfu
 theorem get?_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     {l : List (α × β)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
-    get? (insertMany t l) k' = v :=
+    get? (insertMany t l) k' = some v :=
   Impl.Const.get?_insertMany!_list_of_mem h k_eq distinct mem
 
 theorem get_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -2929,7 +2963,7 @@ theorem minKey?_le_minKey?_erase [TransCmp cmp] (h : t.WF) {k km kme} :
 
 theorem minKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :
     (t.insertIfNew k v).minKey? =
-      t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k' :=
+      some (t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k') :=
   Impl.minKey?_insertIfNew! h
 
 theorem isSome_minKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :
@@ -3414,7 +3448,7 @@ theorem maxKey?_erase_le_maxKey? [TransCmp cmp] (h : t.WF) {k km kme} :
 
 theorem maxKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :
     (t.insertIfNew k v).maxKey? =
-      t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
+      some (t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k') :=
   Impl.maxKey?_insertIfNew! h
 
 theorem isSome_maxKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :

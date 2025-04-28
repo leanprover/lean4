@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Mario Carneiro, Kim Morrison, Markus Himmel
 -/
 
+module
+
 prelude
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Nat.Lemmas
@@ -602,8 +604,6 @@ theorem sign_ediv (a b : Int) : sign (a / b) = if 0 ≤ a ∧ a < b.natAbs then 
       | negSucc a =>
         norm_cast
 
-@[simp, norm_cast] theorem natCast_ediv (m n : Nat) : ((m / n : Nat) : Int) = m / n := rfl
-
 /-! ### emod -/
 
 theorem mod_def' (m n : Int) : m % n = emod m n := rfl
@@ -711,8 +711,6 @@ theorem one_emod {b : Int} : 1 % b = if b.natAbs = 1 then 0 else 1 := by
   · simp
 
 @[simp] theorem neg_emod_two (i : Int) : -i % 2 = i % 2 := by omega
-
-@[simp, norm_cast] theorem natCast_emod (m n : Nat) : (↑(m % n) : Int) = ↑m % ↑n := rfl
 
 /-! ### properties of `/` and `%` -/
 
@@ -1323,7 +1321,7 @@ theorem lt_tmod_of_pos (a : Int) {b : Int} (H : 0 < b) : -b < tmod a b :=
   match a, b, eq_succ_of_zero_lt H with
   | ofNat _, _, ⟨n, rfl⟩ => by rw [ofNat_eq_coe, ← Int.natCast_succ, ← ofNat_tmod]; omega
   | -[a+1], _, ⟨n, rfl⟩ => by
-    rw [negSucc_eq, neg_tmod, ← Int.natCast_succ, ← Int.natCast_succ, ← ofNat_tmod]
+    rw [negSucc_eq, neg_tmod, ← Int.natCast_add_one, ← Int.natCast_add_one, ← ofNat_tmod]
     have : (a + 1) % (n + 1) < n + 1 := Nat.mod_lt _ (Nat.zero_lt_succ n)
     omega
 
@@ -2015,7 +2013,7 @@ theorem neg_fdiv {a b : Int} : (-a).fdiv b = -(a.fdiv b) - if b = 0 ∨ b ∣ a 
     rw [neg_negSucc, ← negSucc_eq]
   | -[a+1], -[b+1] =>
     unfold fdiv
-    simp only [ofNat_eq_coe, ofNat_ediv, Nat.succ_eq_add_one, Int.natCast_add, cast_ofNat_Int]
+    simp only [ofNat_eq_coe, natCast_ediv, Nat.succ_eq_add_one, Int.natCast_add, cast_ofNat_Int]
     rw [neg_negSucc, neg_negSucc]
     simp
 
@@ -2893,6 +2891,65 @@ theorem bmod_eq_of_le_mul_two {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x 
 theorem bmod_eq_self_of_le_mul_two {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x * 2 < y) :
     x.bmod y = x :=
   bmod_eq_of_le_mul_two hle hlt
+
+/- ### ediv -/
+
+theorem ediv_lt_self_of_pos_of_ne_one {x y : Int} (hx : 0 < x) (hy : y ≠ 1) :
+    x / y < x := by
+  by_cases hy' : 1 < y
+  · obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
+    obtain ⟨yn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
+    rw [← Int.natCast_ediv]
+    norm_cast
+    apply Nat.div_lt_self (by omega) (by omega)
+  · have := @Int.ediv_nonpos_of_nonneg_of_nonpos x y (by omega) (by omega)
+    omega
+
+theorem ediv_nonneg_of_nonneg_of_nonneg {x y : Int} (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    0 ≤ x / y := by
+  obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
+  obtain ⟨yn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
+  rw [← Int.natCast_ediv]
+  exact Int.ofNat_zero_le (xn / yn)
+
+/--  When both x and y are negative we need stricter bounds on x and y
+  to establish the upper bound of x/y, i.e., x / y < x.natAbs.
+  In particular, consider the following counter examples:
+  · (-1) / (-2) = 1 and ¬ 1 < (-1).natAbs
+    (note that Int.neg_one_ediv already handles `ediv` where the numerator is -1)
+  · (-2) / (-1) = 2 and ¬ 1 < (-2).natAbs
+  To exclude these cases, we enforce stricter bounds on the values of x and y.
+-/
+theorem ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one {x y : Int} (hx : x < -1) (hy : y < -1) :
+    x / y < x.natAbs := by
+  obtain ⟨xn, rfl⟩ := Int.eq_negSucc_of_lt_zero (a := x) (by omega)
+  obtain ⟨yn, rfl⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
+  simp only [negSucc_ediv_negSucc, Int.natCast_add, natCast_ediv, cast_ofNat_Int, natAbs_negSucc,
+    Nat.succ_eq_add_one, Int.add_lt_add_iff_right]
+  rw_mod_cast [Nat.div_lt_iff_lt_mul (x := xn) (k := yn + 1) (y := xn) (by omega),
+    show (xn < xn * (yn + 1)) = (1 * xn < (yn + 1) * xn) by rw [Nat.one_mul, Nat.mul_comm]]
+  apply Nat.mul_lt_mul_of_lt_of_le (a := 1) (b := xn) (c := yn + 1) (d := xn) (by omega) (by omega) (by omega)
+
+theorem self_le_ediv_of_nonpos_of_nonneg {x y : Int} (hx : x ≤ 0) (hy : 0 ≤ y) :
+    x ≤ x / y := by
+  by_cases hx' : x = 0
+  · simp [hx', zero_ediv]
+  · by_cases hy : y = 0
+    · simp [hy]; omega
+    · simp only [ge_iff_le, Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega),
+        show (x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one], Int.mul_one]
+      apply Int.mul_le_mul_of_nonpos_left (a := x) (b := y) (c  := (1 : Int)) (by omega) (by omega)
+
+theorem neg_self_le_ediv_of_nonneg_of_nonpos (x y : Int) (hx : 0 ≤ x) (hy : y ≤ 0) :
+    -x ≤ x / y := by
+  by_cases hy' : y = 0
+  · simp [hy']; omega
+  · obtain ⟨xn, rfl⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
+    obtain ⟨yn, rfl⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
+    rw [show xn = ofNat xn by norm_cast, Int.ofNat_ediv_negSucc (a := xn)]
+    simp only [ofNat_eq_coe, natCast_ediv, Int.natCast_add, cast_ofNat_Int, Int.neg_le_neg_iff]
+    norm_cast
+    apply Nat.le_trans (m := xn) (by exact Nat.div_le_self xn (yn + 1)) (by omega)
 
 /-! Helper theorems for `dvd` simproc -/
 

@@ -12,13 +12,13 @@ set_option autoImplicit false
 /-!
 # Hash maps
 
-This module develops the type `Std.Data.HashMap` of hash maps. Dependent hash maps are defined in
+This module develops the type `Std.HashMap` of hash maps. Dependent hash maps are defined in
 `Std.Data.DHashMap`.
 
-The operations `map` and `filterMap` on `Std.Data.HashMap` are defined in the module
+The operations `map` and `filterMap` on `Std.HashMap` are defined in the module
 `Std.Data.HashMap.AdditionalOperations`.
 
-Lemmas about the operations on `Std.Data.HashMap` are available in the
+Lemmas about the operations on `Std.HashMap` are available in the
 module `Std.Data.HashMap.Lemmas`.
 
 See the module `Std.Data.HashMap.Raw` for a variant of this type which is safe to use in
@@ -223,13 +223,30 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β)
 instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
 @[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
     (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
+
+@[inline, inherit_doc DHashMap.modify] def modify (m : HashMap α β) (a : α) (f : β → β) :
+    HashMap α β :=
+  ⟨DHashMap.Const.modify m.inner a f⟩
+
+@[inline, inherit_doc DHashMap.alter] def alter (m : HashMap α β) (a : α)
+    (f : Option β → Option β) : HashMap α β :=
+  ⟨DHashMap.Const.alter m.inner a f⟩
+
+@[inline, inherit_doc DHashMap.Const.insertMany] def insertMany {ρ : Type w}
+    [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
+  ⟨DHashMap.Const.insertMany m.inner l⟩
+
+@[inline, inherit_doc DHashMap.Const.insertManyIfNewUnit] def insertManyIfNewUnit
+    {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
+  ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
+
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 @[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
     (m : HashMap α β) : HashMap α β × HashMap α β :=
@@ -250,22 +267,6 @@ section Unverified
 @[inline, inherit_doc DHashMap.valuesArray] def valuesArray (m : HashMap α β) :
     Array β :=
   m.inner.valuesArray
-
-@[inline, inherit_doc DHashMap.modify] def modify (m : HashMap α β) (a : α) (f : β → β) :
-    HashMap α β :=
-  ⟨DHashMap.Const.modify m.inner a f⟩
-
-@[inline, inherit_doc DHashMap.alter] def alter (m : HashMap α β) (a : α)
-    (f : Option β → Option β) : HashMap α β :=
-  ⟨DHashMap.Const.alter m.inner a f⟩
-
-@[inline, inherit_doc DHashMap.Const.insertMany] def insertMany {ρ : Type w}
-    [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
-  ⟨DHashMap.Const.insertMany m.inner l⟩
-
-@[inline, inherit_doc DHashMap.Const.insertManyIfNewUnit] def insertManyIfNewUnit
-    {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
-  ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
@@ -304,7 +305,7 @@ def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
     : Std.HashMap α (Array β) := Id.run do
   let mut groups := ∅
   for x in xs do
-    groups := groups.alter (key x) (·.getD #[] |>.push x)
+    groups := groups.alter (key x) (some <| ·.getD #[] |>.push x)
   return groups
 
 /--
@@ -321,4 +322,4 @@ Std.HashMap.ofList [(0, [0, 2, 4, 6]), (1, [1, 3, 5])]
 -/
 def List.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : List β) :
     Std.HashMap α (List β) :=
-  xs.foldr (init := ∅) fun x acc => acc.alter (key x) (fun v => x :: v.getD [])
+  xs.foldr (init := ∅) fun x acc => acc.alter (key x) (fun v => some <| x :: v.getD [])

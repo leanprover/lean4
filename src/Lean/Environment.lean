@@ -98,7 +98,7 @@ structure Import where
   /-- `import private`; whether to import and expose all data saved by the module. -/
   importPrivate : Bool := false
   /-- Whether to activate this import when the current module itself is imported. -/
-  isExported    : Bool := false
+  isExported    : Bool := true
   deriving Repr, Inhabited
 
 instance : Coe Name Import := ⟨({module := ·})⟩

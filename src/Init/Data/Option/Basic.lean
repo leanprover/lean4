@@ -23,8 +23,8 @@ def getM [Alternative m] : Option α → m α
   | some _ => true
   | none   => false
 
-@[simp] theorem isSome_none : @isSome α none = false := rfl
-@[simp] theorem isSome_some : isSome (some a) = true := rfl
+@[simp, grind] theorem isSome_none : @isSome α none = false := rfl
+@[simp, grind] theorem isSome_some : isSome (some a) = true := rfl
 
 /--
 Returns `true` on `none` and `false` on `some x`.
@@ -39,8 +39,8 @@ Examples:
   | some _ => false
   | none   => true
 
-@[simp] theorem isNone_none : @isNone α none = true := rfl
-@[simp] theorem isNone_some : isNone (some a) = false := rfl
+@[simp, grind] theorem isNone_none : @isNone α none = true := rfl
+@[simp, grind] theorem isNone_some : isNone (some a) = false := rfl
 
 /--
 Checks whether an optional value is both present and equal to some other value.
@@ -230,14 +230,14 @@ def merge (fn : α → α → α) : Option α → Option α → Option α
   | none  , some y => some y
   | some x, some y => some <| fn x y
 
-@[simp] theorem getD_none : getD none a = a := rfl
-@[simp] theorem getD_some : getD (some a) b = a := rfl
+@[simp, grind] theorem getD_none : getD none a = a := rfl
+@[simp, grind] theorem getD_some : getD (some a) b = a := rfl
 
-@[simp] theorem map_none (f : α → β) : none.map f = none := rfl
-@[simp] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
+@[simp, grind] theorem map_none (f : α → β) : none.map f = none := rfl
+@[simp, grind] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
 
-@[simp] theorem none_bind (f : α → Option β) : none.bind f = none := rfl
-@[simp] theorem some_bind (a) (f : α → Option β) : (some a).bind f = f a := rfl
+@[simp, grind] theorem none_bind (f : α → Option β) : none.bind f = none := rfl
+@[simp, grind] theorem some_bind (a) (f : α → Option β) : (some a).bind f = f a := rfl
 
 /--
 A case analysis function for `Option`.
@@ -400,11 +400,11 @@ instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
     | some x, some y => rw [LawfulBEq.eq_of_beq (α := α) h]
     | none, none => rfl
 
-@[simp] theorem all_none : Option.all p none = true := rfl
-@[simp] theorem all_some : Option.all p (some x) = p x := rfl
+@[simp, grind] theorem all_none : Option.all p none = true := rfl
+@[simp, grind] theorem all_some : Option.all p (some x) = p x := rfl
 
-@[simp] theorem any_none : Option.any p none = false := rfl
-@[simp] theorem any_some : Option.any p (some x) = p x := rfl
+@[simp, grind] theorem any_none : Option.any p none = false := rfl
+@[simp, grind] theorem any_some : Option.any p (some x) = p x := rfl
 
 /--
 The minimum of two optional values, with `none` treated as the least element. This function is

@@ -513,6 +513,13 @@ private structure RealizationContext where
   -/
   constsRef : IO.Ref (NameMap (Task RealizationResult))
 
+private structure Cached {α : Type} (val : α) where
+  cached : α := val
+  cached_eq : val = cached := by rfl
+
+instance [Nonempty α] (val : α) : Nonempty (Cached val) :=
+  ⟨{ cached := val, cached_eq := rfl }⟩
+
 /--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
 elaborated declarations.
@@ -524,6 +531,12 @@ structure Environment where
   elaboration.
   -/
   private mk ::
+  /--
+  Indicates whether the environment is being used in an exported context, i.e. whether it should
+  provide access to only the data to be imported by other modules participating in the module
+  system.
+  -/
+  isExporting : Bool := false
   /--
   Kernel environments containing imported constants. Also stores environment extension state for the
   current branch of the environment (in `private`). Any other data should be considered
@@ -554,6 +567,7 @@ structure Environment where
   data per constant.
   -/
   private asyncConstsMap : VisibilityMap AsyncConsts := default
+  private asyncConstsCache : Cached (if isExporting then asyncConstsMap.public else asyncConstsMap.private) := {}
   /-- Information about this asynchronous branch of the environment, if any. -/
   private asyncCtx?   : Option AsyncContext := none
   /--
@@ -573,12 +587,6 @@ structure Environment where
   `findAsyncCore?`/`findStateAsync`; see there.
   -/
   private allRealizations : Task (NameMap AsyncConst) := .pure {}
-  /--
-  Indicates whether the environment is being used in an exported context, i.e. whether it should
-  provide access to only the data to be imported by other modules participating in the module
-  system.
-  -/
-  isExporting : Bool := false
 deriving Nonempty
 
 @[inline] private def VisibilityMap.get (m : VisibilityMap α) (env : Environment) : α :=
@@ -593,8 +601,8 @@ private def VisibilityMap.const (a : α) : VisibilityMap α :=
 
 namespace Environment
 
-private def asyncConsts (env : Environment) : AsyncConsts :=
-  env.asyncConstsMap.get env
+@[inline] private def asyncConsts (env : Environment) : AsyncConsts :=
+  env.asyncConstsCache.cached
 
 -- Used only when the kernel calls into the interpreter, and in `Lean.Kernel.Exception.mkCtx`. In
 -- both cases, the environment should be temporary and not leak into elaboration.
@@ -608,7 +616,7 @@ def toKernelEnv (env : Environment) : Kernel.Environment :=
 
 /-- Updates `Environment.isExporting`. -/
 def setExporting (env : Environment) (isExporting : Bool) : Environment :=
-  { env with isExporting }
+  { env with isExporting, asyncConstsCache := {} }
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -695,6 +703,7 @@ private def lakeAdd (env : Environment) (cinfo : ConstantInfo) : Environment :=
       exts? := none
       consts := .pure <| .mk (α := AsyncConsts) default
     })
+    asyncConstsCache := {}
   }
 
 /--
@@ -997,6 +1006,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
         «private» := env.asyncConstsMap.private.add privateAsyncConst
         «public»  := env.asyncConstsMap.public.add exportedAsyncConst
       }
+      asyncConstsCache := {}
       checked := checkedEnvPromise.result?.bind (sync := true) fun
         | some kenv => .pure kenv
         | none      => env.checked
@@ -2013,6 +2023,7 @@ private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environm
             consts := .pure <| .mk (α := AsyncConsts) default
           }
         else asyncConsts
+    asyncConstsCache := {}
   }
 
 def displayStats (env : Environment) : IO Unit := do
@@ -2070,6 +2081,7 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
         else
           consts.add c
     }
+    asyncConstsCache := {}
     checked := dest.checked.map fun kenv => replayKernel exts newPrivateConsts kenv |>.toOption.getD kenv
   }
 where
@@ -2208,6 +2220,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
           else
             consts.add c
       }
+      asyncConstsCache := {}
       checked := (← BaseIO.mapTask (t := env.checked) fun kenv => do
         match res.replayKernel kenv with
         | .ok kenv => return kenv

@@ -283,3 +283,54 @@ end Unverified
 end HashSet
 
 end Std
+
+open Std
+
+namespace List
+
+def eraseDupsWithHash [BEq α] [Hashable α] (xs : List α) : List α := Id.run do
+  let mut result := #[]
+  let mut seen : HashSet α := ∅
+  for x in xs do
+    if ¬ x ∈ seen then
+      result := result.push x
+      seen := seen.insert x
+  return result.toList
+
+@[simp] theorem eraseDupWithHash_nil : ([] : List α).eraseDupsWithHash = [] := by
+  simp [eraseDupsWithHash, Id.run]
+
+@[simp] theorem eraseDupsWithHash_cons {x : α} {xs : List α} :
+    (x :: xs).eraseDupsWithHash = x :: (xs.filter (· != x)).eraseDupsWithHash := by
+  simp [eraseDupsWithHash]
+
+
+theorem eraseDupsWithHash_eq {xs : List α} : xs.eraseDupsWithHash = xs.eraseDups := by
+  cases xs with
+  | nil => simp
+  | cons x xs => simp
+
+end List
+
+namespace Array
+
+/--
+Deduplicate an `Array α`, keeping the first of each class of `==` elements.
+Uses the `Hashable α` instance for the type,
+for O(n * log n) performance for good hash hash functions.
+
+See `Array.eraseDupsWithHash_eq : xs.eraseDupsWithHash = xs.eraseDups`.
+-/
+def eraseDupsWithHash [BEq α] [Hashable α] (xs : Array α) : Array α := Id.run do
+  let mut result := #[]
+  let mut seen : HashSet α := ∅
+  for x in xs do
+    if ¬ x ∈ seen then
+      result := result.push x
+      seen := seen.insert x
+  return result
+
+theorem eraseDupsWithHash_eq {xs : Array α} : xs.eraseDupsWithHash = xs.toList.eraseDups.toArray := by
+  sorry
+
+end Array

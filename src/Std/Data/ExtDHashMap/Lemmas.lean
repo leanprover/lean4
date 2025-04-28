@@ -633,6 +633,7 @@ theorem getKey_eq_get_getKey? [EquivBEq α] [LawfulHashable α] {a : α} {h} :
     m.getKey a h = (m.getKey? a).get (mem_iff_isSome_getKey?.mp h) :=
   m.inductionOn (fun _ _ => DHashMap.getKey_eq_get_getKey?) h
 
+@[simp]
 theorem get_getKey? [EquivBEq α] [LawfulHashable α] {a : α} {h} :
     (m.getKey? a).get h = m.getKey a (mem_iff_isSome_getKey?.mpr h) :=
   m.inductionOn (fun _ _ => DHashMap.get_getKey?) h

@@ -90,6 +90,9 @@ resulting collections are empty.
     return none
 
 /--
+Applies a function in some applicative functor to an optional value, returning `none` with no
+effects if the value is missing.
+
 Runs a monadic function `f` on an optional value, returning the result. If the optional value is
 `none`, the function is not called and the result is also `none`.
 
@@ -340,7 +343,7 @@ Examples:
  * `(some none).join = none`
  * `(some (some v)).join = some v`
 -/
-@[simp, inline] def join (x : Option (Option α)) : Option α := x.bind id
+@[inline] def join (x : Option (Option α)) : Option α := x.bind id
 
 /--
 Converts an optional monadic computation into a monadic computation of an optional value.

@@ -49,6 +49,9 @@ theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g =
 @[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
   rfl
 
+@[simp] theorem Function.comp_id {f : α → β} : f ∘ id = f := rfl
+@[simp] theorem Function.id_comp {f : α → β} : id ∘ f = f := rfl
+
 attribute [simp] namedPattern
 
 /--

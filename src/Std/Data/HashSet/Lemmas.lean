@@ -913,6 +913,19 @@ open Std
 
 namespace List
 
+theorem eraseDupsWithHash'_eq {xs : List α} {seen : HashSet α} :
+    xs.eraseDupsWithHash' seen = (xs.filter fun x => !seen.contains x).eraseDupsWithHash' := by
+  fun_induction eraseDupsWithHash'
+  case case1 =>
+    unfold eraseDupsWithHash'
+    simp
+  case case2 h ih =>
+    unfold eraseDupsWithHash'
+    simp_all [filter_cons]
+  case case3 =>
+    unfold eraseDupsWithHash'
+    simp
+
 @[simp] theorem eraseDupWithHash_nil : ([] : List α).eraseDupsWithHash = [] := by
   simp [eraseDupsWithHash, Id.run]
 

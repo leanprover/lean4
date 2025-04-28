@@ -105,3 +105,24 @@ example (a b c : BitVec 8) (f : BitVec 8 → Nat) : c = 255 → - a + b - 1 = c 
 
 example (a b c : BitVec 8) (f : BitVec 8 → Nat) : c = 255 → - a + b - 1 = c → f (2*a) = f (b + a) := by
   grind +ring
+
+/-- info: [grind.ring.impEq] skip: b = a, k: 2, noZeroDivisors: false -/
+#guard_msgs (info) in
+example (a b c : BitVec 8) (f : BitVec 8 → Nat) : 2*a = 1 → 2*b = 1 → f (a) = f (b) := by
+  set_option trace.grind.ring.impEq true in
+  fail_if_success grind +ring
+  sorry
+
+example (a b c : Int) (f : Int → Nat)
+  : a + b + c = 3 →
+    a^2 + b^2 + c^2 = 5 →
+    a^3 + b^3 + c^3 = 7 →
+    f (a^4 + b^4) + f (9 - c^4) ≠ 1 := by
+  grind +ring
+
+example [CommRing α] (a b c : α) (f : α → Nat)
+  : a + b + c = 3 →
+    a^2 + b^2 + c^2 = 5 →
+    a^3 + b^3 + c^3 = 7 →
+    f (a^4 + b^4) + f (9 - c^4) ≠ 1 := by
+  grind +ring

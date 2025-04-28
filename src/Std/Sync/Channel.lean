@@ -73,8 +73,8 @@ private structure Unbounded.State (α : Type) where
   -/
   values : Std.Queue α
   /--
-  Consumers that are blocked on a producer providing them a value. The `IO.Promise` will be
-  resolved to `none` if the channel closes.
+  Consumers that are blocked on a producer providing them a value. They will be resolved to `none`
+  if the channel closes.
   -/
   consumers : Std.Queue (Consumer α)
   /--
@@ -213,8 +213,8 @@ private structure Zero.State (α : Type) where
   -/
   producers : Std.Queue (α × IO.Promise Bool)
   /--
-  Consumers that are blocked on a producer providing them a value. The `IO.Promise` will be resolved
-  to `none` if the channel closes.
+  Consumers that are blocked on a producer providing them a value. They will be resolved to `none`
+  if the channel closes.
   -/
   consumers : Std.Queue (Consumer α)
   /--
@@ -385,8 +385,7 @@ private structure Bounded.State (α : Type) where
   producers : Std.Queue (IO.Promise Bool)
   /--
   Consumers that are blocked on a producer providing them a value, as there was no value
-  enqueued when they tried to dequeue. The `IO.Promise` within will be resolved to `false` if the
-  channel closes.
+  enqueued when they tried to dequeue. They will be resolved to `false` if the channel closes.
   -/
   consumers : Std.Queue (Bounded.Consumer α)
   /--
@@ -736,7 +735,7 @@ def recv (ch : CloseableChannel α) : BaseIO (Task (Option α)) :=
 
 open Internal.IO.Async in
 /--
-Create a `Selector` that resolves once `ch` has data available and provides that that data.
+Creates a `Selector` that resolves once `ch` has data available and provides that that data.
 In particular if `ch` is closed while waiting on this `Selector` and no data is available already
 this will resolve to `none`.
 -/
@@ -871,7 +870,7 @@ def recv [Inhabited α] (ch : Channel α) : BaseIO (Task α) := do
 
 open Internal.IO.Async in
 /--
-Create a `Selector` that resolves once `ch` has data available and provides that that data.
+Creates a `Selector` that resolves once `ch` has data available and provides that that data.
 -/
 def recvSelector [Inhabited α] (ch : Channel α) : Selector α :=
   let sel := CloseableChannel.recvSelector ch.inner

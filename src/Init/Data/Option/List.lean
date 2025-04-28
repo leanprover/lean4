@@ -84,9 +84,4 @@ theorem toList_bind {o : Option α} {f : α → Option β} :
 theorem toList_join {o : Option (Option α)} : o.join.toList = o.toList.flatMap Option.toList := by
   simp [toList_bind, join_eq_bind_id]
 
-#check Option.sequence
-
-theorem map_toList_sequence {m : Type u → Type v} [Monad m] {o : Option (m α)} :
-    _ = o.toList.mapM _ := sorry
-
 end Option

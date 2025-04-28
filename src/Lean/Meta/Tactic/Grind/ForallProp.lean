@@ -95,7 +95,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       let prop := mkApp2 (mkConst ``Exists [u]) α (mkLambda n bi α (mkNot p))
       let proof := mkApp3 (mkConst ``Grind.of_forall_eq_false [u]) α (mkLambda n bi α p) (← mkEqFalseProof e)
       addNewRawFact proof prop (← getGeneration e)
-    else
+    else if (← isProp a <&&> isProp b) then
       let h ← mkEqFalseProof e
       pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
       pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h

@@ -908,3 +908,29 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
 end filter
 
 end Std.HashSet
+
+open Std
+
+namespace List
+
+@[simp] theorem eraseDupWithHash_nil : ([] : List α).eraseDupsWithHash = [] := by
+  simp [eraseDupsWithHash, Id.run]
+
+@[simp] theorem eraseDupsWithHash_cons {x : α} {xs : List α} :
+    (x :: xs).eraseDupsWithHash = x :: (xs.filter (· != x)).eraseDupsWithHash := by
+  simp [eraseDupsWithHash]
+
+
+theorem eraseDupsWithHash_eq {xs : List α} : xs.eraseDupsWithHash = xs.eraseDups := by
+  cases xs with
+  | nil => simp
+  | cons x xs => simp
+
+end List
+
+namespace Array
+
+theorem eraseDupsWithHash_eq {xs : Array α} : xs.eraseDupsWithHash = xs.toList.eraseDups.toArray := by
+  sorry
+
+end Array

@@ -166,12 +166,6 @@ mpz mpz::divexact(mpz const & n, mpz const & d) {
     return q;
 }
 
-mpz mpz::divexact(mpz const & n, size_t d) {
-    mpz q;
-    mpz_divexact_ui(q.m_val, n.m_val, d);
-    return q;
-}
-
 mpz mpz::ediv(mpz const & n, mpz const & d) {
     mpz q;
     mpz_t r;

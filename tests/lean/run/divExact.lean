@@ -5,6 +5,7 @@
 #guard Nat.divExact (2 ^ 100) (2 ^ 100) (by decide) == 1
 #guard Nat.divExact (2 ^ 100) 4 (by decide) == 2 ^ 98
 #guard Nat.divExact (3 ^ 200) (3 ^ 100) (by decide) == 3 ^ 100
+#guard Nat.divExact (2 ^ 100) (2 ^ 60) (by decide) == 2 ^ 40
 
 #guard Int.divExact 4 2 (by decide) == 2
 #guard Int.divExact 0 0 (by decide) == 0

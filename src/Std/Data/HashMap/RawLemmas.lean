@@ -551,6 +551,7 @@ theorem getKey_eq_get_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : 
     m.getKey a h' = (m.getKey? a).get ((mem_iff_isSome_getKey? h).mp h') :=
   DHashMap.Raw.getKey_eq_get_getKey? h.out
 
+@[simp]
 theorem get_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {h'} :
     (m.getKey? a).get h' = m.getKey a ((mem_iff_isSome_getKey? h).mpr h') :=
   DHashMap.Raw.get_getKey? h.out

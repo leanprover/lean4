@@ -10,6 +10,7 @@ prelude
 import Init.Data.List.Lemmas
 import Init.Data.List.Sublist
 import Init.Data.List.Range
+import Init.Data.List.Impl
 import Init.Data.Fin.Lemmas
 
 /-!
@@ -26,10 +27,6 @@ namespace List
 open Nat
 
 /-! ### findSome? -/
-
-@[simp] theorem findSome?_singleton {a : α} {f : α → Option β} : [a].findSome? f = f a := by
-  simp only [findSome?]
-  split <;> simp_all
 
 @[simp] theorem findSome?_cons_of_isSome {l} (h : (f a).isSome) : findSome? f (a :: l) = f a := by
   simp only [findSome?]
@@ -140,13 +137,6 @@ theorem findSome?_map {f : β → γ} {l : List β} : findSome? p (l.map f) = l.
     simp only [map_cons, findSome?]
     split <;> simp_all
 
-theorem findSome?_append {l₁ l₂ : List α} : (l₁ ++ l₂).findSome? f = (l₁.findSome? f).or (l₂.findSome? f) := by
-  induction l₁ with
-  | nil => simp
-  | cons x xs ih =>
-    simp only [cons_append, findSome?]
-    split <;> simp_all
-
 theorem head_flatten {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
     (flatten L).head (by simpa using h) = (L.findSome? fun l => l.head?).get (by simpa using h) := by
   simp [head_eq_iff_head?_eq_some, head?_flatten]
@@ -207,10 +197,6 @@ theorem IsInfix.findSome?_eq_none {l₁ l₂ : List α} {f : α → Option β} (
   h.sublist.findSome?_eq_none
 
 /-! ### find? -/
-
-@[simp] theorem find?_singleton {a : α} {p : α → Bool} : [a].find? p = if p a then some a else none := by
-  simp only [find?]
-  split <;> simp_all
 
 @[simp] theorem find?_cons_of_pos {l} (h : p a) : find? p (a :: l) = some a := by
   simp [find?, h]
@@ -337,13 +323,6 @@ theorem get_find?_mem {xs : List α} {p : α → Bool} (h) : (xs.find? p).get h 
   | cons x xs ih =>
     simp only [map_cons, find?]
     by_cases h : p (f x) <;> simp [h, ih]
-
-@[simp] theorem find?_append {l₁ l₂ : List α} : (l₁ ++ l₂).find? p = (l₁.find? p).or (l₂.find? p) := by
-  induction l₁ with
-  | nil => simp
-  | cons x xs ih =>
-    simp only [cons_append, find?]
-    by_cases h : p x <;> simp [h, ih]
 
 @[simp] theorem find?_flatten {xss : List (List α)} {p : α → Bool} :
     xss.flatten.find? p = xss.findSome? (·.find? p) := by

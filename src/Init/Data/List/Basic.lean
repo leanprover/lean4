@@ -1657,6 +1657,42 @@ theorem findSome?_cons {f : α → Option β} :
     (a::as).findSome? f = match f a with | some b => some b | none => as.findSome? f :=
   rfl
 
+/-! ### findRev? -/
+
+/--
+Returns the last element of the list for which the predicate `p` returns `true`, or `none` if no
+such element is found.
+
+`O(|l|)`.
+
+Examples:
+* `[7, 6, 5, 8, 1, 2, 6].find? (· < 5) = some 2`
+* `[7, 6, 5, 8, 1, 2, 6].find? (· < 1) = none`
+-/
+def findRev? (p : α → Bool) : List α → Option α
+  | []    => none
+  | a::as => match findRev? p as with
+    | some b => some b
+    | none   => if p a then some a else none
+
+/-! ### findSomeRev? -/
+
+/--
+Returns the last non-`none` result of applying `f` to each element of the list in order. Returns
+`none` if `f` returns `none` for all elements of the list.
+
+`O(|l|)`.
+
+Examples:
+ * `[7, 6, 5, 8, 1, 2, 6].findSomeRev? (fun x => if x < 5 then some (10 * x) else none) = some 20`
+ * `[7, 6, 5, 8, 1, 2, 6].findSomeRev? (fun x => if x < 1 then some (10 * x) else none) = none`
+-/
+def findSomeRev? (f : α → Option β) : List α → Option β
+  | []    => none
+  | a::as => match findSomeRev? f as with
+    | some b => some b
+    | none   => f a
+
 /-! ### findIdx -/
 
 /--

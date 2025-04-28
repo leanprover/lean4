@@ -267,7 +267,7 @@ Extracts the value from an option that can be proven to be `some`.
 @[simp] theorem get_some (x : α) (h : isSome (some x)) : (some x).get h = x := rfl
 
 /--
-Returns `none` if a value doesn't satisfy a predicate, or the value itself otherwise.
+Returns `none` if a value doesn't satisfy a Boolean predicate, or the value itself otherwise.
 
 From the perspective of `Option` as computations that might fail, this function is a run-time
 assertion operator in the `Option` monad.
@@ -276,7 +276,7 @@ Examples:
  * `Option.guard (· > 2) 1 = none`
  * `Option.guard (· > 2) 5 = some 5`
 -/
-@[inline] def guard (p : α → Prop) [DecidablePred p] (a : α) : Option α :=
+@[inline] def guard (p : α → Bool) (a : α) : Option α :=
   if p a then some a else none
 
 /--

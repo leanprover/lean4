@@ -378,16 +378,15 @@ theorem mem_filter_iff {p : α → Bool} {a : α} {o : Option α} :
   simp
 
 theorem filter_eq_bind (x : Option α) (p : α → Bool) :
-    x.filter p = x.bind (Option.guard (fun a => p a)) := by
+    x.filter p = x.bind (Option.guard p) := by
   cases x <;> rfl
 
-@[simp] theorem all_guard (p : α → Prop) [DecidablePred p] (a : α) :
+@[simp] theorem all_guard (a : α) :
     Option.all q (guard p a) = (!p a || q a) := by
   simp only [guard]
   split <;> simp_all
 
-@[simp] theorem any_guard (p : α → Prop) [DecidablePred p] (a : α) :
-    Option.any q (guard p a) = (p a && q a) := by
+@[simp] theorem any_guard (a : α) : Option.any q (guard p a) = (p a && q a) := by
   simp only [guard]
   split <;> simp_all
 
@@ -465,58 +464,56 @@ theorem map_orElse {x : Option α} {y} :
     (x.orElse y).map f = (x.map f).orElse (fun _ => (y ()).map f) := by
   cases x <;> simp
 
-@[simp] theorem guard_eq_some_iff [DecidablePred p] : guard p a = some b ↔ a = b ∧ p a :=
+@[simp] theorem guard_eq_some_iff : guard p a = some b ↔ a = b ∧ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
 
 @[deprecated guard_eq_some_iff (since := "2025-04-10")]
 abbrev guard_eq_some := @guard_eq_some_iff
 
-@[simp] theorem isSome_guard [DecidablePred p] : (Option.guard p a).isSome ↔ p a :=
+@[simp] theorem isSome_guard : (Option.guard p a).isSome = p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
 
 @[deprecated isSome_guard (since := "2025-03-18")]
 abbrev guard_isSome := @isSome_guard
 
-@[simp] theorem guard_eq_none_iff [DecidablePred p] : Option.guard p a = none ↔ ¬ p a :=
+@[simp] theorem guard_eq_none_iff : Option.guard p a = none ↔ p a = false :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
 
 @[deprecated guard_eq_none_iff (since := "2025-04-10")]
 abbrev guard_eq_none := @guard_eq_none_iff
 
-@[simp] theorem guard_pos [DecidablePred p] (h : p a) : Option.guard p a = some a := by
+@[simp] theorem guard_pos (h : p a) : Option.guard p a = some a := by
   simp [Option.guard, h]
 
-@[congr] theorem guard_congr {f g : α → Prop} [DecidablePred f] [DecidablePred g]
-    (h : ∀ a, f a ↔ g a):
-    guard f = guard g := by
+@[congr] theorem guard_congr {f g : α → Bool} (h : ∀ a, f a = g a) : guard f = guard g := by
   funext a
   simp [guard, h]
 
 @[simp] theorem guard_false {α} :
-    guard (fun (_ : α) => False) = fun _ => none := by
+    guard (fun (_ : α) => false) = fun _ => none := by
   funext a
   simp [guard]
 
 @[simp] theorem guard_true {α} :
-    guard (fun (_ : α) => True) = some := by
+    guard (fun (_ : α) => true) = some := by
   funext a
   simp [guard]
 
-theorem guard_comp {p : α → Prop} [DecidablePred p] {f : β → α} :
+theorem guard_comp {p : α → Bool} {f : β → α} :
     guard p ∘ f = Option.map f ∘ guard (p ∘ f) := by
   ext1 b
   simp [guard]
 
-theorem bind_guard (x : Option α) (p : α → Prop) {_ : DecidablePred p} :
+theorem bind_guard (x : Option α) (p : α → Bool) :
     x.bind (Option.guard p) = x.filter p := by
   simp only [Option.filter_eq_bind, decide_eq_true_eq]
 
-theorem guard_eq_map (p : α → Prop) [DecidablePred p] :
+theorem guard_eq_map (p : α → Bool) :
     Option.guard p = fun x => Option.map (fun _ => x) (if p x then some x else none) := by
   funext x
   simp [Option.guard]
 
-theorem guard_def (p : α → Prop) {_ : DecidablePred p} :
+theorem guard_def (p : α → Bool) :
     Option.guard p = fun x => if p x then some x else none := rfl
 
 theorem merge_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :

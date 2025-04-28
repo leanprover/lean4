@@ -41,6 +41,10 @@ theorem isEmpty_insert [TransCmp cmp] {k : α} {v : β k} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   Impl.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
+  Impl.contains_iff_mem
+
 theorem contains_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   Impl.contains_congr t.wf hab
@@ -231,9 +235,19 @@ theorem contains_eq_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     t.contains a = (t.get? a).isSome :=
   Impl.contains_eq_isSome_get? t.wf
 
+@[simp]
+theorem isSome_get?_eq_contains [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+    (t.get? a).isSome = t.contains a :=
+  contains_eq_isSome_get?.symm
+
 theorem mem_iff_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     a ∈ t ↔ (t.get? a).isSome :=
   Impl.mem_iff_isSome_get? t.wf
+
+@[simp]
+theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+    (t.get? a).isSome ↔ a ∈ t :=
+  mem_iff_isSome_get?.symm
 
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
@@ -279,9 +293,19 @@ theorem contains_eq_isSome_get? [TransCmp cmp] {a : α} :
     t.contains a = (get? t a).isSome :=
   Impl.Const.contains_eq_isSome_get? t.wf
 
+@[simp]
+theorem isSome_get?_eq_contains [TransCmp cmp] {a : α} :
+    (get? t a).isSome = t.contains a :=
+  contains_eq_isSome_get?.symm
+
 theorem mem_iff_isSome_get? [TransCmp cmp] {a : α} :
     a ∈ t ↔ (get? t a).isSome :=
   Impl.Const.mem_iff_isSome_get? t.wf
+
+@[simp]
+theorem isSome_get?_iff_mem [TransCmp cmp] {a : α} :
+    (get? t a).isSome ↔ a ∈ t :=
+  mem_iff_isSome_get?.symm
 
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → get? t a = none :=
@@ -631,9 +655,19 @@ theorem contains_eq_isSome_getKey? [TransCmp cmp] {a : α} :
     t.contains a = (t.getKey? a).isSome :=
   Impl.contains_eq_isSome_getKey? t.wf
 
+@[simp]
+theorem isSome_getKey?_eq_contains [TransCmp cmp] {a : α} :
+    (t.getKey? a).isSome = t.contains a :=
+  contains_eq_isSome_getKey?.symm
+
 theorem mem_iff_isSome_getKey? [TransCmp cmp] {a : α} :
     a ∈ t ↔ (t.getKey? a).isSome :=
   Impl.mem_iff_isSome_getKey? t.wf
+
+@[simp]
+theorem isSome_getKey?_iff_mem [TransCmp cmp] {a : α} :
+    (t.getKey? a).isSome ↔ a ∈ t :=
+  mem_iff_isSome_getKey?.symm
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.getKey? a = none :=

@@ -52,6 +52,10 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   DHashMap.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
+  DHashMap.contains_iff_mem
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
   DHashMap.contains_congr hab
@@ -258,9 +262,19 @@ theorem contains_eq_isSome_getElem? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = m[a]?.isSome :=
   DHashMap.Const.contains_eq_isSome_get?
 
+@[simp]
+theorem isSome_getElem?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
+    m[a]?.isSome = m.contains a :=
+  contains_eq_isSome_getElem?.symm
+
 theorem mem_iff_isSome_getElem? [EquivBEq α] [LawfulHashable α] {a : α} :
     a ∈ m ↔ m[a]?.isSome :=
   DHashMap.Const.mem_iff_isSome_get?
+
+@[simp]
+theorem isSome_getElem?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
+    m[a]?.isSome ↔ a ∈ m :=
+  mem_iff_isSome_getElem?.symm
 
 theorem getElem?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → m[a]? = none :=
@@ -469,9 +483,19 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.getKey? a).isSome :=
   DHashMap.contains_eq_isSome_getKey?
 
+@[simp]
+theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
+    (m.getKey? a).isSome = m.contains a :=
+  contains_eq_isSome_getKey?.symm
+
 theorem mem_iff_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     a ∈ m ↔ (m.getKey? a).isSome :=
   DHashMap.mem_iff_isSome_getKey?
+
+@[simp]
+theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
+    (m.getKey? a).isSome ↔ a ∈ m :=
+  mem_iff_isSome_getKey?.symm
 
 theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
     (h : m.getKey? k = some k') : k' ∈ m :=

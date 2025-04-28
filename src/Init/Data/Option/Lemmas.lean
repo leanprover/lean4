@@ -765,7 +765,7 @@ variable [BEq α]
     infer_instance
 
 @[simp] theorem isEqSome_eq_true {o : Option α} :
-    Option.isEqSome o a ↔ o == some a := by
+    Option.isEqSome o a = (o == some a) := by
   cases o <;> simp [Option.isEqSome]
 
 theorem isEqSome_filter_of_forall_eq {o : Option α}

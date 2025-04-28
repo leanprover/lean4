@@ -1000,6 +1000,18 @@ def bindingInfo! : Expr → BinderInfo
   | lam _ _ _ bi     => bi
   | _                => panic! "binding expected"
 
+def forallName : (a : Expr) → a.isForall → Name
+  | forallE n _ _ _, _  => n
+
+def forallDomain : (a : Expr) → a.isForall → Expr
+  | forallE _ d _ _, _  => d
+
+def forallBody : (a : Expr) → a.isForall → Expr
+  | forallE _ _ b _, _  => b
+
+def forallInfo : (a : Expr) → a.isForall → BinderInfo
+  | forallE _ _ _ i, _  => i
+
 def letName! : Expr → Name
   | letE n .. => n
   | _         => panic! "let expression expected"

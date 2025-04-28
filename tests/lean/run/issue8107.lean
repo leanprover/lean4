@@ -1,5 +1,10 @@
 import Lean.Meta
-
+/-!
+This test checks that within ```realizeConst ``foo `foo.test``` we are not restricted
+to adding declarations with a name scoped under `foo`, but can add any names
+to the environment. This is important for constructions that add names to each 
+function in a mutual recursive group.
+-/
 def foo := True
 def bar := True
 

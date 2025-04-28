@@ -2629,7 +2629,7 @@ lean_free_object(x_13);
 x_22 = l_Lean_Meta_Grind_getConfig___rarg(x_6, x_7, x_8, x_9, x_10, x_11, x_16);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
-x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*6 + 10);
+x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*7 + 10);
 lean_dec(x_23);
 if (x_24 == 0)
 {
@@ -2713,7 +2713,7 @@ lean_object* x_46; lean_object* x_47; uint8_t x_48;
 x_46 = l_Lean_Meta_Grind_getConfig___rarg(x_6, x_7, x_8, x_9, x_10, x_11, x_39);
 x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
-x_48 = lean_ctor_get_uint8(x_47, sizeof(void*)*6 + 10);
+x_48 = lean_ctor_get_uint8(x_47, sizeof(void*)*7 + 10);
 lean_dec(x_47);
 if (x_48 == 0)
 {

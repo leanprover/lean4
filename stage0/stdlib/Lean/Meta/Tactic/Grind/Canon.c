@@ -749,7 +749,7 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23;
 x_20 = lean_ctor_get(x_18, 0);
 x_21 = lean_ctor_get(x_18, 1);
 x_22 = l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_isDefEqBounded___lambda__2___closed__1;
-x_23 = lean_ctor_get_uint8(x_20, sizeof(void*)*6 + 10);
+x_23 = lean_ctor_get_uint8(x_20, sizeof(void*)*7 + 10);
 lean_dec(x_20);
 if (x_23 == 0)
 {
@@ -829,7 +829,7 @@ lean_inc(x_52);
 lean_inc(x_51);
 lean_dec(x_18);
 x_53 = l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_isDefEqBounded___lambda__2___closed__1;
-x_54 = lean_ctor_get_uint8(x_51, sizeof(void*)*6 + 10);
+x_54 = lean_ctor_get_uint8(x_51, sizeof(void*)*7 + 10);
 lean_dec(x_51);
 if (x_54 == 0)
 {

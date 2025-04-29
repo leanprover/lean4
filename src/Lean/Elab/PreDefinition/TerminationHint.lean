@@ -86,7 +86,10 @@ def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : C
   | .none, .some term_by, .none, .none =>
     logWarningAt term_by.ref m!"unused `termination_by`, function is {reason}"
   | .none, .none, .none, .some partialFixpoint =>
-    logWarningAt partialFixpoint.ref m!"unused `partial_fixpoint`, function is {reason}"
+    match partialFixpoint.fixpointType with
+    | .partialFixpoint => logWarningAt partialFixpoint.ref m!"unused `partial_fixpoint`, function is {reason}"
+    | .greatestFixpoint => logWarningAt partialFixpoint.ref m!"unused `greatest_fixpoint`, function is {reason}"
+    | .leastFixpoint  => logWarningAt partialFixpoint.ref m!"unused `least_fixpoint`, function is {reason}"
   | _, _, _, _=>
     logWarningAt hints.ref m!"unused termination hints, function is {reason}"
 

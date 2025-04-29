@@ -22,11 +22,18 @@ def g (x : Nat) : Nat :=
 least_fixpoint
 
 /--
-warning: unused `partial_fixpoint`, function is not recursive
+warning: unused `greatest_fixpoint`, function is not recursive
 -/
 #guard_msgs in
 def h (x : Nat) : Prop := x > 42
   greatest_fixpoint
+
+/--
+warning: unused `least_fixpoint`, function is not recursive
+-/
+#guard_msgs in
+def h' (x : Nat) : Prop := x > 42
+  least_fixpoint
 
 /--
 error: all functions in the clique must be defined using lattice theory, but some are not

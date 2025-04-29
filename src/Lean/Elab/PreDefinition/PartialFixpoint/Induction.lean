@@ -50,14 +50,14 @@ def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
   return insts
 
 /--
-Desugars an appropriate `PartialOrder` instance on predicates to quantifications and implications.
+Unfolds an appropriate `PartialOrder` instance on predicates to quantifications and implications.
 I.e `ImplicationOrder.instPartialOrder.rel P Q` becomes
 `∀ x y, P x y → Q x y`.
 
 In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use a monotone map defining the predicate in the eta expanded form. In such a case, besides desugaring the predicate, we need to perform a weak head reduction.
 The optional parameter `reduceConclusion` (false by default) indicates whether we need to perform this reduction.
 -/
-def desugarOrder (predType : Expr) (body : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
+def unfoldPredRel (predType : Expr) (body : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
   match fixpointType with
   | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
   | .leastFixpoint | .greatestFixpoint =>
@@ -144,11 +144,11 @@ def deriveInduction (name : Name) : MetaM Unit :=
           let predicateType ← inferType predicate
           let premise := args[1]!
           let premiseType ← inferType premise
-          -- Besides desugaring the predicate, we need to perform a weak head reduction in the premise,
+          -- Besides unfolding the predicate, we need to perform a weak head reduction in the premise,
           -- where the monotone map defining the fixpoint is in the eta expanded form.
           -- We do this by setting the optional parameter `reduceConclusion` to true.
-          let premiseType ← desugarOrder predicateType premiseType eqnInfo.fixpointType[0]! (reduceConclusion := true)
-          let newConclusion ← desugarOrder predicateType conclusion eqnInfo.fixpointType[0]!
+          let premiseType ← unfoldPredRel predicateType premiseType eqnInfo.fixpointType[0]! (reduceConclusion := true)
+          let newConclusion ← unfoldPredRel predicateType conclusion eqnInfo.fixpointType[0]!
           let abstracedNewConclusion ← mkForallFVars args newConclusion
           withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
             let typeHint ← mkExpectedTypeHint newPremise premiseType

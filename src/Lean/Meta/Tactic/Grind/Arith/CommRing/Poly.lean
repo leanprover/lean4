@@ -211,4 +211,16 @@ def Poly.divConst (p : Poly) (a : Int) : Poly :=
   | .num k => .num (k / a)
   | .add k m p => .add (k / a) m (divConst p a)
 
+def Mon.size : Mon → Nat
+  | .unit => 0
+  | .mult _ m => m.size + 1
+
+def Poly.size : Poly → Nat
+  | .num _ => 1
+  | .add _ m p => m.size + 1 + p.size
+
+def Poly.length : Poly → Nat
+  | .num _ => 0
+  | .add _ _ p => 1 + p.length
+
 end Lean.Grind.CommRing

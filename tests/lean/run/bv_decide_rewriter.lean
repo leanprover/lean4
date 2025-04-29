@@ -661,6 +661,7 @@ example {x y : BitVec 8} :
 
 -- BV_ADD_SHL
 example {x y : BitVec 8} : x + (y <<< x) = x ||| (y <<< x) := by bv_normalize
+example {x y : BitVec 8} : (y <<< x) + x = (y <<< x) ||| x := by bv_normalize
 
 -- NORM_BV_ADD_CONCAT
 example {x : BitVec 8} {y : BitVec 3} : (x ++ 0#3) + (0#8 ++ y) = x ++ y := by bv_normalize

@@ -19,9 +19,15 @@ def headerToImports : TSyntax ``Parser.Module.header → Array Import
       | _ => unreachable!
   | _ => unreachable!
 
+/--
+Elaborates the given header syntax into an environment.
+
+If `mainModule` is not given, `Environment.setMainModule` should be called manually. This is a
+backwards compatibility measure not compatible with the module system.
+-/
 def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options) (messages : MessageLog)
     (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
-    (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (plugins : Array System.FilePath := #[]) (leakEnv := false) (mainModule := Name.anonymous)
     : IO (Environment × MessageLog) := do
   let isModule := !header.raw[0].isNone
   let level := if isModule then
@@ -31,12 +37,15 @@ def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options) (me
       .exported
   else
     .private
-  try
+  let (env, messages) ← try
     let imports := headerToImports header
-    if !isModule then
-      for i in imports do
-        if !i.isExported then
-          throw <| .userError "cannot use `private import` without `module`"
+    for i in imports do
+      if !isModule && i.importPrivate then
+        throw <| .userError "cannot use `import private` without `module`"
+      if i.importPrivate && mainModule.getRoot != i.module.getRoot then
+        throw <| .userError "cannot use `import private` across module path roots"
+      if !isModule && !i.isExported then
+        throw <| .userError "cannot use `private import` without `module`"
     let env ←
       importModules (leakEnv := leakEnv) (loadExts := true) (level := level) imports opts trustLevel plugins
     pure (env, messages)
@@ -45,6 +54,7 @@ def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options) (me
     let spos := header.raw.getPos?.getD 0
     let pos  := inputCtx.fileMap.toPosition spos
     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
+  return (env.setMainModule mainModule, messages)
 
 def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) := do
   let fileName := fileName.getD "<input>"

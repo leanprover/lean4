@@ -471,14 +471,14 @@ where
       if !stx.raw[0].isNone && !experimental.module.get opts then
         throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
-      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx opts .empty
-        ctx.toInputContext setup.trustLevel setup.plugins
+      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true)
+        (mainModule := setup.mainModuleName) stx opts .empty ctx.toInputContext setup.trustLevel
+        setup.plugins
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
         return { diagnostics, result? := none }
 
-      let headerEnv := headerEnv.setMainModule setup.mainModuleName
       let mut traceState := default
       if trace.profiler.output.get? setup.opts |>.isSome then
         traceState := {

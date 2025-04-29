@@ -81,7 +81,7 @@ inductive PolyDerivation where
     The coefficient `k₁` is used because the leading monomial in `c` may not be monic.
     Thus, if we follow the chain back to the input polynomial, we have that
     `p = C * input_p` for a `C` that is equal to the product of all `k₁`s in the chain.
-    We have that `C ≠ 1` only if the ring does not implement `NoZeroNatDivisors`.
+    We have that `C ≠ 1` only if the ring does not implement `NoNatZeroDivisors`.
     Here is a small example where we simplify `x+y` using the equations
     `2*x - 1 = 0` (`c₁`), `3*y - 1 = 0` (`c₂`), and `6*z + 5 = 0` (`c₃`)
     ```
@@ -103,7 +103,7 @@ inductive PolyDerivation where
     ```
     0 = 6*(x + y + z)
     ```
-    Recall that if the ring implement `NoZeroNatDivisors`, then the following property holds:
+    Recall that if the ring implement `NoNatZeroDivisors`, then the following property holds:
     ```
     ∀ (k : Int) (a : α), k ≠ 0 → (intCast k) * a = 0 → a = 0
     ```
@@ -136,7 +136,7 @@ structure Ring where
   commRingInst   : Expr
   /-- `IsCharP` instance for `type` if available. -/
   charInst?      : Option (Expr × Nat) := .none
-  /-- `NoZeroNatDivisors` instance for `type` if available. -/
+  /-- `NoNatZeroDivisors` instance for `type` if available. -/
   noZeroDivInst? : Option Expr := .none
   addFn          : Expr
   mulFn          : Expr

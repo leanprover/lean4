@@ -11,6 +11,9 @@ import Init.Data.SInt.Lemmas
 
 namespace Lean.Grind
 
+instance : NatCast Int8 where
+  natCast x := Int8.ofNat x
+
 instance : IntCast Int8 where
   intCast x := Int8.ofInt x
 
@@ -37,6 +40,9 @@ instance : IsCharP Int8 (2 ^ 8) where
     simp [Int8.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
+instance : NatCast Int16 where
+  natCast x := Int16.ofNat x
+
 instance : IntCast Int16 where
   intCast x := Int16.ofInt x
 
@@ -61,6 +67,9 @@ instance : IsCharP Int16 (2 ^ 16) where
     rw [this]
     simp [Int16.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+
+instance : NatCast Int32 where
+  natCast x := Int32.ofNat x
 
 instance : IntCast Int32 where
   intCast x := Int32.ofInt x
@@ -87,6 +96,9 @@ instance : IsCharP Int32 (2 ^ 32) where
     simp [Int32.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
+instance : NatCast Int64 where
+  natCast x := Int64.ofNat x
+
 instance : IntCast Int64 where
   intCast x := Int64.ofInt x
 
@@ -111,6 +123,9 @@ instance : IsCharP Int64 (2 ^ 64) where
     rw [this]
     simp [Int64.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+
+instance : NatCast ISize where
+  natCast x := ISize.ofNat x
 
 instance : IntCast ISize where
   intCast x := ISize.ofInt x

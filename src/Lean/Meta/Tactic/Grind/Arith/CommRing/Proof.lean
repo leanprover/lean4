@@ -207,7 +207,7 @@ private def getNoZeroDivInstIfNeeded? (k : Int) : RingM (Option Expr) := do
     return none
   else
     let some inst ← noZeroDivisorsInst?
-      | throwError "`grind` internal error, `NoZeroNatDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
+      | throwError "`grind` internal error, `NoNatZeroDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
     return some inst
 
 def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do

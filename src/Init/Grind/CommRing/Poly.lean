@@ -737,7 +737,7 @@ theorem NullCert.ne_unsat {α} [CommRing α] (ctx : Context α) (nc : NullCert) 
 def NullCert.eq_nzdiv_cert (nc : NullCert) (k : Int) (lhs rhs : Expr) : Bool :=
   k ≠ 0 && (lhs.sub rhs).toPoly.mulConst k == nc.toPoly
 
-theorem NullCert.eq_nzdiv {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+theorem NullCert.eq_nzdiv {α} [CommRing α] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
     : nc.eq_nzdiv_cert k lhs rhs → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
   simp [eq_nzdiv_cert]
   intro h₁ h₂
@@ -745,11 +745,11 @@ theorem NullCert.eq_nzdiv {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Conte
   intro h₃
   replace h₂ := congrArg (Poly.denote ctx) h₂
   simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, h₃, Expr.denote] at h₂
-  replace h₂ := no_zero_int_divisors h₁ h₂
+  replace h₂ := no_int_zero_divisors h₁ h₂
   rw [sub_eq_zero_iff] at h₂
   assumption
 
-theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
     : nc.eq_nzdiv_cert k lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
   intro h₁ h₂
   exact eqsImplies_helper' (eq_nzdiv ctx nc k lhs rhs h₁) h₂
@@ -918,7 +918,7 @@ theorem NullCert.ne_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α
 def NullCert.eq_nzdiv_certC (nc : NullCert) (k : Int) (lhs rhs : Expr) (c : Nat) : Bool :=
   k ≠ 0 && ((lhs.sub rhs).toPolyC c).mulConstC k c == nc.toPolyC c
 
-theorem NullCert.eq_nzdivC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+theorem NullCert.eq_nzdivC {α c} [CommRing α] [IsCharP α c] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
     : nc.eq_nzdiv_certC k lhs rhs c → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
   simp [eq_nzdiv_certC]
   intro h₁ h₂
@@ -926,11 +926,11 @@ theorem NullCert.eq_nzdivC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisor
   intro h₃
   replace h₂ := congrArg (Poly.denote ctx) h₂
   simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₃, Expr.denote] at h₂
-  replace h₂ := no_zero_int_divisors h₁ h₂
+  replace h₂ := no_int_zero_divisors h₁ h₂
   rw [sub_eq_zero_iff] at h₂
   assumption
 
-theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
     : nc.eq_nzdiv_certC k lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
   intro h₁ h₂
   exact eqsImplies_helper' (eq_nzdivC ctx nc k lhs rhs h₁) h₂

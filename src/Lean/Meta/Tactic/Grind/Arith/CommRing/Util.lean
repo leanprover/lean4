@@ -27,11 +27,11 @@ structure RingM.Context where
   If `checkCoeffDvd` is `true`, then when using a polynomial `k*m - p`
   to simplify `.. + k'*m*m_2 + ...`, the substitution is performed IF
   - `k` divides `k'`, OR
-  - Ring implements `NoZeroNatDivisors`.
+  - Ring implements `NoNatZeroDivisors`.
 
   We need this check when simplifying disequalities. In this case, if we perform
   the simplification anyway, we may end up with a proof that `k * q = 0`, but
-  we cannot deduce `q = 0` since the ring does not implement `NoZeroNatDivisors`
+  we cannot deduce `q = 0` since the ring does not implement `NoNatZeroDivisors`
   See comment at `PolyDerivation`.
   -/
   checkCoeffDvd : Bool := false

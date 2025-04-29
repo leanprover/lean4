@@ -95,8 +95,8 @@ abbrev ConstMap := SMap Name ConstantInfo
 
 structure Import where
   module        : Name
-  /-- `import private`; whether to import and expose all data saved by the module. -/
-  importPrivate : Bool := false
+  /-- `import all`; whether to import and expose all data saved by the module. -/
+  importAll : Bool := false
   /-- Whether to activate this import when the current module itself is imported. -/
   isExported    : Bool := true
   deriving Repr, Inhabited
@@ -1767,7 +1767,7 @@ private structure ImportedModule extends Import where
 /-- The main module data that will eventually be used to construct the kernel environment. -/
 private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData := do
   let (baseMod, _) ← self.parts[0]?
-  self.parts[if baseMod.isModule && self.importPrivate then 2 else 0]?.map (·.1)
+  self.parts[if baseMod.isModule && self.importAll then 2 else 0]?.map (·.1)
 
 /-- The main module data that will eventually be used to construct the publically accessible constants. -/
 private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
@@ -1794,22 +1794,22 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
   x.run s
 
-partial def importModulesCore (imports : Array Import) (forceImportPrivate := true) :
+partial def importModulesCore (imports : Array Import) (forceImportAll := true) :
     ImportStateM Unit := go
 where go := do
   for i in imports do
     -- import private info if (transitively) used by a non-`module` on any import path, or with
-    -- `import private` (non-transitively)
-    let importPrivate := forceImportPrivate || i.importPrivate
+    -- `import all` (non-transitively)
+    let importAll := forceImportAll || i.importAll
     if let some mod := (← get).moduleNameMap[i.module]? then
       -- when module is already imported, bump `importPrivate`
-      if importPrivate && !mod.importPrivate then
+      if importAll && !mod.importAll then
         modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-          importPrivate := true }}
-        if forceImportPrivate then
+          importAll := true }}
+        if forceImportAll then
           -- bump entire closure
           if let some mod := mod.mainModule? then
-            importModulesCore (forceImportPrivate := true) mod.imports
+            importModulesCore (forceImportAll := true) mod.imports
       continue
     let mFile ← findOLean i.module
     unless (← mFile.pathExists) do
@@ -1829,14 +1829,14 @@ where go := do
     let some (baseMod, _) := parts[0]? | unreachable!
     -- exclude `private import`s from transitive importing
     let imports := baseMod.imports.filter (·.isExported)
-    importModulesCore (forceImportPrivate := forceImportPrivate || !baseMod.isModule) imports
-    if baseMod.isModule && !forceImportPrivate then
+    importModulesCore (forceImportAll := forceImportAll || !baseMod.isModule) imports
+    if baseMod.isModule && !forceImportAll then
       for i' in imports do
         if let some mod := (← get).moduleNameMap[i'.module]?.bind (·.mainModule?) then
           if !mod.isModule then
             throw <| IO.userError s!"cannot import non`-module` {i'.module} from `module` {i.module}"
     modify fun s => { s with
-      moduleNameMap := s.moduleNameMap.insert i.module { i with importPrivate, parts }
+      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, parts }
       moduleNames := s.moduleNames.push i.module
     }
 
@@ -2001,7 +2001,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (forceImportPrivate := level == .private) imports |>.run
+    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 

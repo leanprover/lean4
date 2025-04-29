@@ -14,8 +14,8 @@ def headerToImports : TSyntax ``Parser.Module.header → Array Import
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
     let imports := if preludeTk.isNone then #[{ module := `Init : Import }] else #[]
     imports ++ importsStx.map fun
-      | `(Parser.Module.import| $[private%$privateExpTk]? import $[private%$privateImpTk]? $n) =>
-        { module := n.getId, importPrivate := privateImpTk.isSome, isExported := privateExpTk.isNone }
+      | `(Parser.Module.import| $[private%$privateTk]? import $[all%$allTk]? $n) =>
+        { module := n.getId, importAll := allTk.isSome, isExported := privateTk.isNone }
       | _ => unreachable!
   | _ => unreachable!
 
@@ -40,10 +40,10 @@ def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options) (me
   let (env, messages) ← try
     let imports := headerToImports header
     for i in imports do
-      if !isModule && i.importPrivate then
-        throw <| .userError "cannot use `import private` without `module`"
-      if i.importPrivate && mainModule.getRoot != i.module.getRoot then
-        throw <| .userError "cannot use `import private` across module path roots"
+      if !isModule && i.importAll then
+        throw <| .userError "cannot use `import all` without `module`"
+      if i.importAll && mainModule.getRoot != i.module.getRoot then
+        throw <| .userError "cannot use `import all` across module path roots"
       if !isModule && !i.isExported then
         throw <| .userError "cannot use `private import` without `module`"
     let env ←

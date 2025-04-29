@@ -1,7 +1,7 @@
 import Lean
 import Module.Basic
 import Module.Imported
-import Module.ImportedPrivate
+import Module.ImportedAll
 import Module.ImportedPrivateImported
 import Module.PrivateImported
 

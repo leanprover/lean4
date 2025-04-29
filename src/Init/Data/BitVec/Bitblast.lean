@@ -1778,17 +1778,22 @@ theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
     (x * y).extractLsb' 0 len = (x.extractLsb' 0 len) * (y.extractLsb' 0 len) := by
   simp [← setWidth_eq_extractLsb' hlen, setWidth_mul _ _ hlen]
 
-/-- Adding bitvectors that are zero in complementary positions equals concatenation. -/
+/-- Adding bitvectors that are zero in complementary positions equals concatenation.
+We add a `no_index` annotation to `HAppend.hAppend` such that the width `v + w`
+does not act as a key in the discrimination tree.
+This is important to allow matching, when the type of the result of append
+`x : BitVec 3` and `y : BitVec 4` has been reduced to `x ++ y : BitVec 7`.
+-/
 theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
-    (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) x 0#w) + 
-    (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) 0#v y)
+    (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w) +
+    (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y)
     = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
 
 /-- Adding bitvectors that are zero in complementary positions equals concatenation. -/
 theorem append_add_append_eq_append' {v w : Nat} {x : BitVec v} {y : BitVec w} :
-  (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) 0#v y) +
-  (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) x 0#w)
+  (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y) +
+  (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w)
   = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
 

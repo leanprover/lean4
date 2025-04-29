@@ -167,38 +167,36 @@ private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
   return !st.values.isEmpty || st.closed
 
 open Internal.IO.Async in
-private def recvSelector (ch : Unbounded α) : Selector (Option α) :=
-  {
-    tryFn := do
-      ch.state.atomically do
-        if ← recvReady' then
-          let val ← tryRecv'
-          return some val
-        else
-          return none
+private def recvSelector (ch : Unbounded α) : Selector (Option α) where
+  tryFn := do
+    ch.state.atomically do
+      if ← recvReady' then
+        let val ← tryRecv'
+        return some val
+      else
+        return none
 
-    registerFn waiter := do
-      ch.state.atomically do
-        -- We did drop the lock between `tryFn` and now so maybe ready?
-        if ← recvReady' then
-          let lose := return ()
-          let win promise := do
-            -- We know we are ready so the value by this is fine
-            promise.resolve (.ok (← tryRecv'))
+  registerFn waiter := do
+    ch.state.atomically do
+      -- We did drop the lock between `tryFn` and now so maybe ready?
+      if ← recvReady' then
+        let lose := return ()
+        let win promise := do
+          -- We know we are ready so the value by this is fine
+          promise.resolve (.ok (← tryRecv'))
 
-          waiter.race lose win
-        else
-          modify fun st => { st with consumers := st.consumers.enqueue (.select waiter) }
+        waiter.race lose win
+      else
+        modify fun st => { st with consumers := st.consumers.enqueue (.select waiter) }
 
-    unregisterFn := do
-      ch.state.atomically do
-        let st ← get
-        let consumers ← st.consumers.filterM
-          fun
-            | .normal .. => return true
-            | .select waiter => return !(← waiter.checkFinished)
-        set { st with consumers }
-  }
+  unregisterFn := do
+    ch.state.atomically do
+      let st ← get
+      let consumers ← st.consumers.filterM
+        fun
+          | .normal .. => return true
+          | .select waiter => return !(← waiter.checkFinished)
+      set { st with consumers }
 
 end Unbounded
 
@@ -319,38 +317,36 @@ private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
   return !st.producers.isEmpty || st.closed
 
 open Internal.IO.Async in
-private def recvSelector (ch : Zero α) : Selector (Option α) :=
-  {
-    tryFn := do
-      ch.state.atomically do
-        if ← recvReady' then
-          let val ← tryRecv'
-          return some val
-        else
-          return none
+private def recvSelector (ch : Zero α) : Selector (Option α) where
+  tryFn := do
+    ch.state.atomically do
+      if ← recvReady' then
+        let val ← tryRecv'
+        return some val
+      else
+        return none
 
-    registerFn waiter := do
-      ch.state.atomically do
-        -- We did drop the lock between `tryFn` and now so maybe ready?
-        if ← recvReady' then
-          let lose := return ()
-          let win promise := do
-            -- We know we are ready so the value by this is fine
-            promise.resolve (.ok (← tryRecv'))
+  registerFn waiter := do
+    ch.state.atomically do
+      -- We did drop the lock between `tryFn` and now so maybe ready?
+      if ← recvReady' then
+        let lose := return ()
+        let win promise := do
+          -- We know we are ready so the value by this is fine
+          promise.resolve (.ok (← tryRecv'))
 
-          waiter.race lose win
-        else
-          modify fun st => { st with consumers := st.consumers.enqueue (.select waiter) }
+        waiter.race lose win
+      else
+        modify fun st => { st with consumers := st.consumers.enqueue (.select waiter) }
 
-    unregisterFn := do
-      ch.state.atomically do
-        let st ← get
-        let consumers ← st.consumers.filterM
-          fun
-            | .normal .. => pure true
-            | .select waiter => return !(← waiter.checkFinished)
-        set { st with consumers }
-  }
+  unregisterFn := do
+    ch.state.atomically do
+      let st ← get
+      let consumers ← st.consumers.filterM
+        fun
+          | .normal .. => pure true
+          | .select waiter => return !(← waiter.checkFinished)
+      set { st with consumers }
 
 end Zero
 
@@ -557,34 +553,38 @@ private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
   return st.bufCount != 0 || st.closed
 
 open Internal.IO.Async in
-private partial def recvSelector (ch : Bounded α) : Selector (Option α) :=
-  {
-    tryFn := do
-      ch.state.atomically do
-        if ← recvReady' then
-          let val ← tryRecv'
-          return some val
-        else
-          return none
+private partial def recvSelector (ch : Bounded α) : Selector (Option α) where
+  tryFn := do
+    ch.state.atomically do
+      if ← recvReady' then
+        let val ← tryRecv'
+        return some val
+      else
+        return none
 
-    registerFn := registerAux ch
+  registerFn := registerAux ch
 
-    unregisterFn := do
-      ch.state.atomically do
-        let st ← get
-        let consumers ← st.consumers.filterM fun c => do
-          match c.waiter with
-          | some waiter => return !(← waiter.checkFinished)
-          | none => return true
+  unregisterFn := do
+    ch.state.atomically do
+      let st ← get
+      let consumers ← st.consumers.filterM fun c => do
+        match c.waiter with
+        | some waiter => return !(← waiter.checkFinished)
+        | none => return true
 
-        set { st with consumers }
-  }
+      set { st with consumers }
 where
   registerAux (ch : Bounded α) (waiter : Waiter (Option α)) : IO Unit := do
     ch.state.atomically do
       -- We did drop the lock between `tryFn` and now so maybe ready?
       if ← recvReady' then
-        let lose := return ()
+        -- if we lose we must trigger the next promise (if available) to avoid deadlocking
+        let lose := do
+          ch.state.atomically do
+            let st ← get
+            if let some (consumer, consumers) := st.consumers.dequeue? then
+              consumer.resolve true
+              set { st with consumers }
         let win promise := do
           -- We know we are ready so the value by this is fine
           promise.resolve (.ok (← tryRecv'))
@@ -601,14 +601,7 @@ where
             if res then
               registerAux ch waiter
             else
-              -- if we lose we must trigger the next promise (if available) to avoid deadlocking
-              let lose := do
-                ch.state.atomically do
-                  let st ← get
-                  if let some (consumer, consumers) := st.consumers.dequeue? then
-                    consumer.resolve true
-                    set { st with consumers }
-
+              let lose := return ()
               let win promise := promise.resolve (.ok none)
               waiter.race lose win
 

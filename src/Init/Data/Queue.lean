@@ -65,7 +65,8 @@ def toArray (q : Queue α) : Array α :=
 
 /--
 `O(n)`. Applies the monadic predicate `p` to every element in the queue, and returns the queue
-of elements for which `p` returns `true`.
+of elements for which `p` returns `true`. Note that there are currently no guarantees for the order
+that `p` is applied in.
 -/
 @[specialize]
 def filterM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (q : Queue α) :

@@ -580,11 +580,10 @@ where
       if ← recvReady' then
         -- if we lose we must trigger the next promise (if available) to avoid deadlocking
         let lose := do
-          ch.state.atomically do
-            let st ← get
-            if let some (consumer, consumers) := st.consumers.dequeue? then
-              consumer.resolve true
-              set { st with consumers }
+          let st ← get
+          if let some (consumer, consumers) := st.consumers.dequeue? then
+            consumer.resolve true
+            set { st with consumers }
         let win promise := do
           -- We know we are ready so the value by this is fine
           promise.resolve (.ok (← tryRecv'))

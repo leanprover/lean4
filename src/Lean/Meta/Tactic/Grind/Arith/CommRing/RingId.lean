@@ -70,10 +70,19 @@ private def getNatCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM
   let instType := mkApp (mkConst ``NatCast [u]) type
   let .some inst ← trySynthInstance instType |
     throwError "failed to find instance for ring natCast{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``Grind.CommRing.natCastInst [u]) type commRingInst
+  let inst' := mkApp2 (mkConst ``Grind.CommRing.natCast [u]) type commRingInst
   unless (← withDefault <| isDefEq inst inst') do
     throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
   internalizeFn <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
+
+private def getOfNatFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM Expr := do
+  let instType := mkApp (mkConst ``OfNat [u]) type
+  let .some inst ← trySynthInstance instType |
+    throwError "failed to find instance for ring ofNat{indentExpr instType}"
+  let inst' := mkApp2 (mkConst ``Grind.CommRing.ofNat [u]) type commRingInst
+  unless (← withDefault <| isDefEq inst inst') do
+    throwError "instance for ofNat{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
+  internalizeFn <| mkApp2 (mkConst ``OfNat.ofNat [u]) type inst
 
 /--
 Returns the ring id for the given type if there is a `CommRing` instance for it.

@@ -1780,12 +1780,16 @@ theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
 
 /-- Adding bitvectors that are zero in complementary positions equals concatenation. -/
 theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
-    (x ++ 0#w) + (0#v ++ y) = x ++ y := by
+    (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) x 0#w) + 
+    (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) 0#v y)
+    = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
 
 /-- Adding bitvectors that are zero in complementary positions equals concatenation. -/
 theorem append_add_append_eq_append' {v w : Nat} {x : BitVec v} {y : BitVec w} :
-    (0#v ++ y) + (x ++ 0#w) = x ++ y := by
+  (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) 0#v y) +
+  (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _)) x 0#w)
+  = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
 
 /-- Heuristically, `y <<< x` is much larger than `x`,

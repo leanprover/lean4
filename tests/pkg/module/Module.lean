@@ -4,6 +4,7 @@ import Module.Imported
 import Module.ImportedAll
 import Module.ImportedPrivateImported
 import Module.PrivateImported
+import Module.ImportedAllPrivateImported
 
 /-! # Module system basic tests -/
 

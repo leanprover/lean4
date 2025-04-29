@@ -1827,8 +1827,8 @@ where go := do
     let parts ← readModuleDataParts fnames
     -- `imports` is identical for each part
     let some (baseMod, _) := parts[0]? | unreachable!
-    -- exclude `private import`s from transitive importing
-    let imports := baseMod.imports.filter (·.isExported)
+    -- exclude `private import`s from transitive importing, except through `import all`
+    let imports := baseMod.imports.filter (·.isExported || importAll)
     importModulesCore (forceImportAll := forceImportAll || !baseMod.isModule) imports
     if baseMod.isModule && !forceImportAll then
       for i' in imports do

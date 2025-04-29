@@ -71,21 +71,11 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) : RingM (Option EqCnstr
     | none => p.findSimp?
 
 /-- Simplifies `d.p` using `c`, and returns an extended polynomial derivation. -/
-def PolyDerivation.simplify1 (d : PolyDerivation) (c : EqCnstr) : RingM (Option PolyDerivation) := do
-  let some r := d.p.simp? c.p (← nonzeroChar?) | return none
+def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyDerivation := do
+  let some r := d.p.simp? c.p (← nonzeroChar?) | return d
   incSteps
   trace_goal[grind.ring.simp] "{← r.p.denoteExpr}"
-  return some <| .step r.p r.k₁ d r.k₂ r.m₂ c
-
-/-- Simplifies `d.p` using `c` until it is not applicable anymore, and returns an extended polynomial derivation.  -/
-def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyDerivation := do
-  let mut d := d
-  repeat
-    if (← checkMaxSteps) then return d
-    let some r ← d.simplify1 c | return d
-    trace_goal[grind.debug.ring.simp] "simplifying{indentD (← d.denoteExpr)}\nwith{indentD (← c.denoteExpr)}"
-    d := r
-  return d
+  return .step r.p r.k₁ d r.k₂ r.m₂ c
 
 /-- Simplified `d.p` using the current basis, and returns the extended polynomial derivation. -/
 def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
@@ -99,24 +89,14 @@ def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
   return d
 
 /-- Simplifies `c₁` using `c₂`. -/
-def EqCnstr.simplify1 (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
-  let some r := c₁.p.simp? c₂.p (← nonzeroChar?) | return none
+def EqCnstr.simplifyWith (c₁ c₂ : EqCnstr) : RingM EqCnstr := do
+  let some r := c₁.p.simp? c₂.p (← nonzeroChar?) | return c₁
   let c := { c₁ with
     p := r.p
     h := .simp r.k₁ c₁ r.k₂ r.m₂ c₂
   }
   incSteps
   trace_goal[grind.ring.simp] "{← c.p.denoteExpr}"
-  return some c
-
-/-- Keep simplifying `c` with `c'` until it is not applicable anymore. -/
-def EqCnstr.simplifyWith (c c' : EqCnstr) : RingM EqCnstr := do
-  let mut c := c
-  repeat
-    if (← checkMaxSteps) then return c
-    let some r ← c.simplify1 c' | return c
-    trace_goal[grind.debug.ring.simp] "simplifying{indentD (← c.denoteExpr)}\nwith{indentD (← c'.denoteExpr)}"
-    c := r
   return c
 
 /-- Simplify the given equation constraint using the current basis. -/

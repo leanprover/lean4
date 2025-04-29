@@ -1,6 +1,7 @@
 import Lean
 import Module.Basic
 import Module.Imported
+import Module.WFRecFunInd
 
 /-! # Module system basic tests -/
 

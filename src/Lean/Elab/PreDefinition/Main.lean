@@ -174,13 +174,13 @@ def ensureFunIndReservedNamesAvailable (preDefs : Array PreDefinition) : MetaM U
 Checks consistency of a clique of TerminationHints:
 
 * If not all have a hint, the hints are ignored (log error)
-* None have both `termination_by` and `nontermination` (throw error)
+* None have both `termination_by` and `partialFixpoint` (throw error)
 * If one has `structural` or `partialFixpoint`, check that all have it (else throw error)
 * A `structural` should not have a `decreasing_by` (else log error)
 
 -/
 def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
-  let some preDefWith := preDefs.find? (·.termination.terminationBy?.isSome) | return
+  let some preDefWith := preDefs.find? (·.termination.isNotNone) | return
   let preDefsWithout := preDefs.filter (·.termination.terminationBy?.isNone)
   let structural :=
     preDefWith.termination.terminationBy? matches some {structural := true, ..}
@@ -215,8 +215,8 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
     if partialFixpoint && preDef.termination.partialFixpoint?.isNone then
       throwErrorAt preDef.ref (m!"Invalid `termination_by`; this function is mutually " ++
         m!"recursive with {preDefWith.declName}, which is marked as " ++
-        m!"`nontermination_partialFixpointursive` so this one also needs to be marked " ++
-        m!"`nontermination_partialFixpointursive`.")
+        m!"`partialFixpoint` so this one also needs to be marked " ++
+        m!"`partialFixpoint`.")
 
     if preDef.termination.partialFixpoint?.isSome then
         if let .some decr := preDef.termination.decreasingBy? then
@@ -227,7 +227,7 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
       if let some stx := preDef.termination.partialFixpoint? then
       throwErrorAt stx.ref (m!"Invalid `termination_by`; this function is mutually " ++
        m!"recursive with {preDefWith.declName}, which is not also marked as " ++
-        m!"`nontermination_partialFixpointursive`, so this one cannot be either.")
+        m!"`partialFixpoint`, so this one cannot be either.")
 
 /--
 Elaborates the `TerminationHint` in the clique to `TerminationMeasures`

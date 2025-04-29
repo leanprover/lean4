@@ -80,3 +80,17 @@ mutual
   def g₄ (x : Nat) : Prop := f₄ (x + 1)
   partial_fixpoint
 end
+
+/--
+error: Invalid `termination_by`; this function is mutually recursive with f₅, which is not also marked as `partialFixpoint`, so this one cannot be either.
+-/
+#guard_msgs in
+mutual
+  def f₅ (x : Nat) : Prop :=
+    g₅ (x + 1)
+    termination_by?
+
+  def g₅ (x : Nat) : Prop :=
+    f₅ (x + 1)
+    partial_fixpoint
+end

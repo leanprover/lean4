@@ -1721,7 +1721,28 @@ and a uniform uniformly expression as `x.toInt.tdiv y.toInt` for all other cases
 
 Recall that `x.tdiv 0 = 0`, so there is an implicit case analysis on `y`.
 -/
-theorem toInt_sdiv_eq_ite {x y : BitVec w} :
+theorem toInt_sdiv_eq_ite_tdiv {x y : BitVec w} :
+    (x.sdiv y).toInt =
+    if x = intMin w ∧ y = -1#w then (intMin w).toInt
+    else x.toInt.tdiv y.toInt := by
+  by_cases hx : x = intMin w
+  · simp only [hx, _root_.true_and]
+    by_cases hy : y = -1#w
+    · simp [hy, intMin_sdiv_neg_one]
+    · simp only [hy, ↓reduceIte]
+      apply toInt_sdiv_of_ne_or_ne
+      simp [hy]
+  · simp only [hx, _root_.false_and, ↓reduceIte]
+    apply toInt_sdiv_of_ne_or_ne
+    simp [hx]
+
+/--
+Rewrite `(x.sdiv y).toInt` as an exceptional case of `intMin / -1`,
+and a uniform uniformly expression as `x.toInt.tdiv y.toInt` for all other cases.
+
+Recall that `x.tdiv 0 = 0`, so there is an implicit case analysis on `y`.
+-/
+theorem toInt_sdiv_eq_ite_ediv {x y : BitVec w} :
     (x.sdiv y).toInt =
     if x = intMin w ∧ y = -1#w then (intMin w).toInt
     else x.toInt.tdiv y.toInt := by
@@ -1804,7 +1825,7 @@ theorem Int.tdiv_ofNat_eq_zero_of_natAbs_lt {a : Int} {b : Nat}
     subst hn
     unfold Int.tdiv
     simp only [Int.ofNat_eq_coe]
-    simp only [Int.natAbs_ofNat] at hab
+    simp only [Int.natAbs_natCast] at hab
     norm_cast
     apply Nat.div_eq_zero_of_lt (by omega)
 
@@ -1894,18 +1915,18 @@ theorem Int.ofNat_tdiv_ofNat {a b : Nat} : (a : Int).tdiv (b : Int) = (a / b : N
 
 /-- `a.tdiv b < 0` iff exactly one of `a < 0` or `b < 0` -/
 theorem Int.tdiv_neg_iff_neg_and_pos_or_pos_and_neg_of_ne_zero_of_natAbs_le_natAbs
-    {a b : Int} (hb : b ≠ 0) (hab : b.natAbs ≤ a.natAbs) :
-    a.tdiv b < 0 ↔ ((a < 0) ∧ (b > 0) ∨ ((a > 0) ∧ (b < 0))) := by
+    {a b : Int} (hb : b ≠ 0) :
+    a.tdiv b < 0 ↔ (((a < 0) ∧ (b > 0) ∧ (b ≤ -a)) ∨ ((a > 0) ∧ (b < 0) ∧ (-b ≤ a))) := by
   have hb' : b < 0 ∨ 0 < b := by omega
   rcases hb' with hb' | hb'
   · obtain ⟨bn, hbn⟩ := Int.exists_eq_neg_ofNat (a := b) (by omega)
     subst hbn
     simp [show 0 < bn by omega, show ¬ (bn : Int) < 0 by omega]
-    apply Int.tdiv_ofNat_pos_iff_of_le_natAbs_of_ne_zero (by omega) (by omega)
+    sorry
   · obtain ⟨bn, hbn⟩ := Int.eq_ofNat_of_zero_le (a := b) (by omega)
     subst hbn
     simp [show ¬ (bn : Int) < 0 by omega, show 0 < bn by omega]
-    apply Int.tdiv_ofNat_neg_iff_of_le_natAbs_of_ne_zero (by omega) (by omega)
+    sorry
 
 /-- `a.tdiv b > 0` iff both `a < 0` and `b < 0`, or both `a > 0` and `b > 0`. -/
 theorem Int.tdiv_pos_iff_pos_and_pos_or_neg_and_neg_of_ne_zero_of_natAbs_le_natAbs
@@ -2027,6 +2048,48 @@ theorem natAbs_toInt_le_natAbs_toInt_iff_eq_intMin_or_ne_intMin_and_abs_sle {n d
 theorem BitVec.sdiv_zero_eq {x : BitVec w} : x.sdiv (0#w) = 0#w := by
   apply eq_of_toInt_eq; simp
 
+theorem msb_sdiv_eq_decide {x y : BitVec w} :
+    (x.sdiv y).msb = ((0 < w) && 
+      -- both positive, never negative.
+      (!x.msb && y.msb && True) ||
+      (x.msb && !y.msb && True) ||
+      (x.msb && y.msb && (x = intMin w && y = -1#w))) -- both negative, only negative in the overflow case.
+     := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  simp [show 0 < w by omega]
+  simp only [sdiv_eq, udiv_eq]
+  by_cases hxmsb : x.msb <;> by_cases hymsb : y.msb 
+  · simp only [hxmsb, hymsb, Bool.not_true, Bool.and_true, Bool.and_false, Bool.or_self,
+    Bool.and_self, Bool.true_and, Bool.false_or]
+    rw [msb_udiv, msb_neg]
+    simp only [hxmsb, bne_true, Bool.not_and]
+    simp only [bool_to_prop]
+    simp only [not_eq_eq_eq_not, Bool.not_true, bne_eq_false_iff_eq, beq_iff_eq]
+    have hxne0 : ¬ (x = 0#w) := by 
+      intros h
+      simp [h] at hxmsb
+    simp only [hxne0, _root_.false_or, and_congr_right_iff, neg_eq_iff_eq_neg]
+  · simp at hxmsb hymsb
+    simp [hxmsb, hymsb, msb_neg, msb_udiv]
+    simp only [bool_to_prop]
+    simp
+    have hxne0 : ¬ (x = 0#w) := by 
+      intros h
+      simp [h] at hxmsb
+    simp [hxne0]
+    sorry
+  · simp at hxmsb hymsb
+    simp [hxmsb, hymsb, msb_neg, msb_udiv]
+    -- hymsb : y.msb = true
+    -- hxmsb : x.msb = false
+    -- ⊢ (1a) ¬x / -y = 0#w ∧ (1b) ¬x / -y = intMin w
+    -- case (1a) needs a rewrite, where we show that 'a/b = 0' iff 'a <_u b'.
+    -- case (1b) is impossible, as (a/b) = intMin iff a is the largest number, but that can't happen since x.msb = false.
+    sorry
+  · simp at hxmsb hymsb 
+    simp [hxmsb, hymsb]
+
+
 /--
 The sign of a division is determined as follows:
 - if the denominator is zero, then the output is zero and the msb is false as it is non-negative.
@@ -2034,7 +2097,7 @@ The sign of a division is determined as follows:
 - If the denominator is negative, then the sign of the output is the opposite of the sign of the numerator,
   except for the case where the numerator is `intMin`, in which case the result is `true`.
 -/
-theorem msb_sdiv_eq_decide {x y : BitVec w} :
+theorem msb_sdiv_eq_decide' {x y : BitVec w} :
     (x.sdiv y).msb =
       (decide (0 < w) &&
         -- either we have x = intMin w and y = -1#w

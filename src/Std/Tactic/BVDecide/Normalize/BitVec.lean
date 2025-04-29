@@ -367,6 +367,9 @@ attribute [bv_normalize] BitVec.ssubOverflow_eq
 attribute [bv_normalize] BitVec.add_shiftLeft_eq_or_shiftLeft
 attribute [bv_normalize] BitVec.shiftLeft_add_eq_shiftLeft_or
 
+attribute [bv_normalize] BitVec.append_add_append_eq_append
+attribute [bv_normalize] BitVec.append_add_append_eq_append'
+
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :
     x / (BitVec.ofNat w n) = x >>> k := by

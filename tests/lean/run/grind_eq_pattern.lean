@@ -1,4 +1,4 @@
-%reset_grind_attrs
+reset_grind_attrs%
 
 /--
 info: [grind.ematch.pattern] List.append_ne_nil_of_left_ne_nil: [@HAppend.hAppend _ _ _ _ #2 #0]

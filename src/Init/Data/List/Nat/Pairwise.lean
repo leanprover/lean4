@@ -3,6 +3,8 @@ Copyright (c) 2018 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, James Gallicchio
 -/
+module
+
 prelude
 import Init.Data.Fin.Lemmas
 import Init.Data.List.Nat.TakeDrop
@@ -37,12 +39,6 @@ theorem map_getElem_sublist {l : List α} {is : List (Fin l.length)} (h : is.Pai
     simp [Nat.min_eq_left (Nat.le_of_lt hd.isLt), his]
 
 set_option linter.listVariables false in
-@[deprecated map_getElem_sublist (since := "2024-07-30")]
-theorem map_get_sublist {l : List α} {is : List (Fin l.length)} (h : is.Pairwise (·.val < ·.val)) :
-    is.map (get l) <+ l := by
-  simpa using map_getElem_sublist h
-
-set_option linter.listVariables false in
 /-- Given a sublist `l' <+ l`, there exists an increasing list of indices `is` such that
   `l' = is.map fun i => l[i]`. -/
 theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (Fin l.length),
@@ -57,12 +53,6 @@ theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (F
     rcases IH with ⟨is,IH⟩
     refine ⟨⟨0, by simp [Nat.zero_lt_succ]⟩ :: is.map (·.succ), ?_⟩
     simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem, get_cons_zero, get_cons_succ']
-
-set_option linter.listVariables false in
-@[deprecated sublist_eq_map_getElem (since := "2024-07-30")]
-theorem sublist_eq_map_get (h : l' <+ l) : ∃ is : List (Fin l.length),
-    l' = map (get l) is ∧ is.Pairwise (· < ·) := by
-  simpa using sublist_eq_map_getElem h
 
 set_option linter.listVariables false in
 theorem pairwise_iff_getElem : Pairwise R l ↔

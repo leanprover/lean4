@@ -3,6 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Omega.LinearCombo
 import Init.Omega.Int
@@ -58,11 +60,6 @@ def translate (c : Constraint) (t : Int) : Constraint := c.map (· + t)
 
 theorem translate_sat : {c : Constraint} → {v : Int} → sat c v → sat (c.translate t) (v + t) := by
   rintro ⟨_ | l, _ | u⟩ v w <;> simp_all [sat, translate, map]
-  · exact Int.add_le_add_right w t
-  · exact Int.add_le_add_right w t
-  · rcases w with ⟨w₁, w₂⟩; constructor
-    · exact Int.add_le_add_right w₁ t
-    · exact Int.add_le_add_right w₂ t
 
 /--
 Flip a constraint.
@@ -79,11 +76,6 @@ def neg (c : Constraint) : Constraint := c.flip.map (- ·)
 
 theorem neg_sat : {c : Constraint} → {v : Int} → sat c v → sat (c.neg) (-v) := by
   rintro ⟨_ | l, _ | u⟩ v w <;> simp_all [sat, neg, flip, map]
-  · exact Int.neg_le_neg w
-  · exact Int.neg_le_neg w
-  · rcases w with ⟨w₁, w₂⟩; constructor
-    · exact Int.neg_le_neg w₂
-    · exact Int.neg_le_neg w₁
 
 /-- The trivial constraint, satisfied everywhere. -/
 def trivial : Constraint := ⟨none, none⟩
@@ -306,7 +298,7 @@ def positivize? : Constraint × Coeffs → Option (Constraint × Coeffs)
     if 0 ≤ x.leading then
       none
     else
-      (s.neg, Coeffs.smul x (-1))
+      some (s.neg, Coeffs.smul x (-1))
 
 /-- Multiply by `-1` if the leading coefficient is negative, otherwise do nothing. -/
 noncomputable def positivize (p : Constraint × Coeffs) : Constraint × Coeffs :=
@@ -339,7 +331,7 @@ def tidy? : Constraint × Coeffs → Option (Constraint × Coeffs)
     | none => match normalize? (s, x) with
       | none => none
       | some (s', x') => some (s', x')
-    | some (s', x') => normalize (s', x')
+    | some (s', x') => some (normalize (s', x'))
 
 /-- `positivize` and `normalize` -/
 def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=

@@ -33,6 +33,8 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
     asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (!·.contains ·.key) addEntry
   }
 
 def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
@@ -259,6 +261,9 @@ def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Arr
       result := result.push arg
   return result ++ args[paramsInfo.size:]
 
+def paramsToVarSet (params : Array Param) : FVarIdSet :=
+  params.foldl (fun r p => r.insert p.fvarId) {}
+
 mutual
   /--
   Try to specialize the function application in the given let-declaration.
@@ -293,7 +298,8 @@ mutual
       specDecl.saveBase
       let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
-      let value ← withReader (fun _ => { declName := specDecl.name }) do
+      let ground := paramsToVarSet specDecl.params
+      let value ← withReader (fun _ => { declName := specDecl.name, ground }) do
          withParams specDecl.params <| specDecl.value.mapCodeM visitCode
       let specDecl := { specDecl with value }
       modify fun s => { s with decls := s.decls.push specDecl }
@@ -335,7 +341,8 @@ def main (decl : Decl) : SpecializeM Decl := do
 end Specialize
 
 partial def Decl.specialize (decl : Decl) : CompilerM (Array Decl) := do
-  let (decl, s) ← Specialize.main decl |>.run { declName := decl.name } |>.run {}
+  let ground := Specialize.paramsToVarSet decl.params
+  let (decl, s) ← Specialize.main decl |>.run { declName := decl.name, ground } |>.run {}
   return s.decls.push decl
 
 def specialize : Pass where

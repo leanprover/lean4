@@ -36,7 +36,7 @@ abbrev RecBuildT (m : Type → Type) :=
 
 /-- Log build cycle and error. -/
 @[specialize] def buildCycleError [MonadError m] (cycle : Cycle BuildKey) : m α :=
-  error s!"build cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
+  error s!"build cycle detected:\n{formatCycle cycle}"
 
 instance [Monad m] [MonadError m] : MonadCycleOf BuildKey (RecBuildT m) where
   throwCycle := buildCycleError
@@ -75,14 +75,12 @@ abbrev FetchT (m : Type → Type) := IndexT <| RecBuildT m
 /-- The top-level monad for Lake build functions. -/
 abbrev FetchM := FetchT LogIO
 
-/-- The top-level monad for Lake build functions. **Renamed `FetchM`.** -/
-@[deprecated FetchM (since := "2024-04-30")] abbrev IndexBuildM := FetchM
-
-/-- The old build monad. **Uses should generally be replaced by `FetchM`.** -/
-@[deprecated FetchM (since := "2024-04-30")] abbrev BuildM := BuildT LogIO
-
 /-- Fetch the result associated with the info using the Lake build index. -/
 @[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : FetchM (Job α) :=
   fun build => cast (by simp) <| build self
 
 export BuildInfo (fetch)
+
+/-- Fetch the result of this facet of a module. -/
+protected def ModuleFacet.fetch (self : ModuleFacet α) (mod : Module) : FetchM (Job α) :=
+  fetch <| mod.facetCore self.name

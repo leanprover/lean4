@@ -5,7 +5,7 @@ private axiom test_sorry : ∀ {α}, α
 
 /--
 info: Try this: rw [List.map_append]
--- "no goals"
+-- no goals
 -/
 #guard_msgs in
 example (f : α → β) (L M : List α) : (L ++ M).map f = L.map f ++ M.map f := by
@@ -13,7 +13,7 @@ example (f : α → β) (L M : List α) : (L ++ M).map f = L.map f ++ M.map f :=
 
 /--
 info: Try this: rw [Nat.one_mul]
--- "no goals"
+-- no goals
 -/
 #guard_msgs in
 example (h : Nat) : 1 * h = h := by
@@ -98,7 +98,7 @@ example : zero = 0 := by
 -- Discharge side conditions from local hypotheses.
 /--
 info: Try this: rw [h p]
--- "no goals"
+-- no goals
 -/
 #guard_msgs in
 example {P : Prop} (p : P) (h : P → 1 = 2) : 2 = 1 := by
@@ -107,7 +107,7 @@ example {P : Prop} (p : P) (h : P → 1 = 2) : 2 = 1 := by
 -- Use `solve_by_elim` to discharge side conditions.
 /--
 info: Try this: rw [h (f p)]
--- "no goals"
+-- no goals
 -/
 #guard_msgs in
 example {P Q : Prop} (p : P) (f : P → Q) (h : Q → 1 = 2) : 2 = 1 := by

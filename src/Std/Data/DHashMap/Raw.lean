@@ -8,17 +8,17 @@ import Init.Data.BEq
 import Init.Data.Hashable
 import Std.Data.DHashMap.Internal.Defs
 
-/-
+/-!
 # Dependent hash maps with unbundled well-formedness invariant
 
 This file develops the type `Std.DHashMap.Raw` of dependent hash
 maps with unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
-available as `Std.Data.DHashMap.Raw.WF` and we prove in this file that all operations preserve
+available as `Std.DHashMap.Raw.WF` and we prove in this file that all operations preserve
 well-formedness. When in doubt, prefer `DHashMap` over `DHashMap.Raw`.
 
-Lemmas about the operations on `Std.Data.DHashMap.Raw` are available in the module
+Lemmas about the operations on `Std.DHashMap.Raw` are available in the module
 `Std.Data.DHashMap.RawLemmas`.
 -/
 
@@ -48,11 +48,14 @@ map so that it can hold the given number of mappings without reallocating. It is
 use the empty collection notations `∅` and `{}` to create an empty hash map with the default
 capacity.
 -/
-@[inline] def empty (capacity := 8) : Raw α β :=
-  (Raw₀.empty capacity).1
+@[inline] def emptyWithCapacity (capacity := 8) : Raw α β :=
+  (Raw₀.emptyWithCapacity capacity).1
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance : EmptyCollection (Raw α β) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance : Inhabited (Raw α β) where
   default := ∅
@@ -81,7 +84,7 @@ unchanged if a matching key is already present.
   else m -- will never happen for well-formed inputs
 
 instance [BEq α] [Hashable α] : Singleton ((a : α) × β a) (Raw α β) :=
-  ⟨fun ⟨a, b⟩ => Raw.empty.insert a b⟩
+  ⟨fun ⟨a, b⟩ => (∅ : Raw α β).insert a b⟩
 
 instance [BEq α] [Hashable α] : Insert ((a : α) × β a) (Raw α β) :=
   ⟨fun ⟨a, b⟩ s => s.insert a b⟩
@@ -456,15 +459,15 @@ only those mappings where the function returns `some` value.
 
 /-- Transforms the hash map into an array of mappings in some order. -/
 @[inline] def toArray (m : Raw α β) : Array ((a : α) × β a) :=
-  m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
+  m.fold (fun acc k v => acc.push ⟨k, v⟩) (.emptyWithCapacity m.size)
 
 @[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
     Array (α × β) :=
-  m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
+  m.fold (fun acc k v => acc.push ⟨k, v⟩) (.emptyWithCapacity m.size)
 
 /-- Returns an array of all keys present in the hash map in some order. -/
 @[inline] def keysArray (m : Raw α β) : Array α :=
-  m.fold (fun acc k _ => acc.push k) #[]
+  m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
@@ -472,7 +475,7 @@ only those mappings where the function returns `some` value.
 
 /-- Returns an array of all values present in the hash map in some order. -/
 @[inline] def valuesArray {β : Type v} (m : Raw α (fun _ => β)) : Array β :=
-  m.fold (fun acc _ v => acc.push v) #[]
+  m.fold (fun acc _ v => acc.push v) (.emptyWithCapacity m.size)
 
 /--
 Inserts multiple mappings into the hash map by iterating over the given collection and calling
@@ -581,7 +584,7 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   | wf {α β} [BEq α] [Hashable α] {m : Raw α β} : 0 < m.buckets.size →
       (∀ [EquivBEq α] [LawfulHashable α], Raw.WFImp m) → WF m
   /-- Internal implementation detail of the hash map -/
-  | empty₀ {α β} [BEq α] [Hashable α] {c} : WF (Raw₀.empty c : Raw₀ α β).1
+  | emptyWithCapacity₀ {α β} [BEq α] [Hashable α] {c} : WF (Raw₀.emptyWithCapacity c : Raw₀ α β).1
   /-- Internal implementation detail of the hash map -/
   | insert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.insert ⟨m, h⟩ a b).1
   /-- Internal implementation detail of the hash map -/
@@ -616,10 +619,15 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   | constAlter₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a}
       {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
 
+-- TODO: this needs to be deprecated, but there is a bootstrapping issue.
+-- @[deprecated WF.emptyWithCapacity₀ (since := "2025-03-12")]
+@[inherit_doc Raw.WF.emptyWithCapacity₀]
+abbrev WF.empty₀ := @WF.emptyWithCapacity₀
+
 /-- Internal implementation detail of the hash map -/
 theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
   | wf h₁ _ => h₁
-  | empty₀ => (Raw₀.empty _).2
+  | emptyWithCapacity₀ => (Raw₀.emptyWithCapacity _).2
   | insert₀ _ => (Raw₀.insert ⟨_, _⟩ _ _).2
   | containsThenInsert₀ _ => (Raw₀.containsThenInsert ⟨_, _⟩ _ _).2.2
   | containsThenInsertIfNew₀ _ => (Raw₀.containsThenInsertIfNew ⟨_, _⟩ _ _).2.2
@@ -633,11 +641,15 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | alter₀ _ => (Raw₀.alter _ _ _).2
   | constAlter₀ _ => (Raw₀.Const.alter _ _ _).2
 
-@[simp] theorem WF.empty [BEq α] [Hashable α] {c : Nat} : (Raw.empty c : Raw α β).WF :=
-  .empty₀
+@[simp] theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c : Nat} : (Raw.emptyWithCapacity c : Raw α β).WF :=
+  .emptyWithCapacity₀
 
-@[simp] theorem WF.emptyc [BEq α] [Hashable α] : (∅ : Raw α β).WF :=
-  .empty
+@[simp] theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α β).WF :=
+  .emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated WF.empty (since := "2025-03-12")]
+abbrev WF.emptyc := @WF.empty
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) :
     (m.insert a b).WF := by

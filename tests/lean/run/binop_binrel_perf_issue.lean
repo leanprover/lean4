@@ -22,18 +22,6 @@ end Set
 
 end Mathlib.Init.Set
 
-section Mathlib.Init.ZeroOne
-
-set_option autoImplicit true
-
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Init.ZeroOne
-
 section Mathlib.Init.Function
 
 universe u₁ u₂

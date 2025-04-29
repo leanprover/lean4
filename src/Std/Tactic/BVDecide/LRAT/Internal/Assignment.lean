@@ -46,6 +46,7 @@ instance : ToString Assignment where
     | both => "both"
     | unassigned => "unassigned"
 
+@[inline]
 def hasPosAssignment (assignment : Assignment) : Bool :=
   match assignment with
   | pos => true
@@ -53,6 +54,7 @@ def hasPosAssignment (assignment : Assignment) : Bool :=
   | both => true
   | unassigned => false
 
+@[inline]
 def hasNegAssignment (assignment : Assignment) : Bool :=
   match assignment with
   | pos => false
@@ -63,6 +65,7 @@ def hasNegAssignment (assignment : Assignment) : Bool :=
 /--
 Updates the old assignment of `l` to reflect the fact that `(l, true)` is now part of the formula.
 -/
+@[inline]
 def addPosAssignment (oldAssignment : Assignment) : Assignment :=
   match oldAssignment with
   | pos => pos
@@ -74,6 +77,7 @@ def addPosAssignment (oldAssignment : Assignment) : Assignment :=
 Updates the old assignment of `l` to reflect the fact that `(l, true)` is no longer part of the
 formula.
 -/
+@[inline]
 def removePosAssignment (oldAssignment : Assignment) : Assignment :=
   match oldAssignment with
   | pos => unassigned
@@ -84,6 +88,7 @@ def removePosAssignment (oldAssignment : Assignment) : Assignment :=
 /--
 Updates the old assignment of `l` to reflect the fact that `(l, false)` is now part of the formula.
 -/
+@[inline]
 def addNegAssignment (oldAssignment : Assignment) : Assignment :=
   match oldAssignment with
   | pos => both
@@ -95,6 +100,7 @@ def addNegAssignment (oldAssignment : Assignment) : Assignment :=
 Updates the old assignment of `l` to reflect the fact that `(l, false)` is no longer part of the
 formula.
 -/
+@[inline]
 def removeNegAssignment (oldAssignment : Assignment) : Assignment :=
   match oldAssignment with
   | pos => pos -- Note: This case should not occur

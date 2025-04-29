@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Data.HashMap
 import Lean.Util.ShareCommon
 import Lean.Meta.Basic
 import Lean.Meta.FunInfo
@@ -49,7 +48,7 @@ State for the `CanonM` monad.
 structure State where
   /-- Mapping from `Expr` to hash. -/
   -- We use `HashMap.Raw` to ensure we don't have to tag `State` as `unsafe`.
-  cache      : Std.HashMap.Raw ExprVisited UInt64 := Std.HashMap.Raw.empty
+  cache      : Std.HashMap.Raw ExprVisited UInt64 := ∅
   /--
   Given a hashcode `k` and `keyToExprs.find? h = some es`, we have that all `es` have hashcode `k`, and
   are not definitionally equal modulo the transparency setting used. -/

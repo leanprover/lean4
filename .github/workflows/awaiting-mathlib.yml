@@ -3,7 +3,7 @@ name: Check awaiting-mathlib label
 on:
   merge_group:
   pull_request:
-    types: [opened, labeled]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
   check-awaiting-mathlib:

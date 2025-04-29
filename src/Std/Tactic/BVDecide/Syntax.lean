@@ -60,6 +60,11 @@ structure BVDecideConfig where
   The maximum number of subexpressions to visit when performing simplification.
   -/
   maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps
+  /--
+  Short-circuit multiplication as a abstraction-style optimization that triggers
+  if matching multiplications are not needed to proof a goal.
+  -/
+  shortCircuit : Bool := false
 
 end Lean.Elab.Tactic.BVDecide.Frontend
 
@@ -89,6 +94,12 @@ syntax (name := bvTrace) "bv_decide?" optConfig : tactic
 syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 
 end Tactic
+
+/--
+Theorems tagged with the `bv_normalize` attribute are used during the rewriting step of the
+`bv_decide` tactic. 
+-/
+syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 /--
 Auxiliary attribute for builtin `bv_normalize` simprocs.

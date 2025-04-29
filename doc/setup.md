@@ -7,7 +7,7 @@ Platforms built & tested by our CI, available as binary releases via elan (see b
 * x86-64 Linux with glibc 2.26+
 * x86-64 macOS 10.15+
 * aarch64 (Apple Silicon) macOS 10.15+
-* x86-64 Windows 11 (any version), Windows 10 (version 1903 or higher), Windows Server 2022
+* x86-64 Windows 11 (any version), Windows 10 (version 1903 or higher), Windows Server 2022, Windows Server 2025
 
 ### Tier 2
 

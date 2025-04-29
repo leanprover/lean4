@@ -1992,6 +1992,7 @@ static lean_object* l___regBuiltin_Lean_Parser_Term_showTermElabImpl_declRange__
 static lean_object* l___regBuiltin_Lean_Parser_Term_byTactic_x27_formatter__1___closed__2;
 static lean_object* l_Lean_Parser_Term_letIdDecl___closed__6;
 static lean_object* l_Lean_Parser_Term_funImplicitBinder_parenthesizer___closed__6;
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1(lean_object*);
 static lean_object* l_Lean_Parser_Term_matchExprPat___closed__12;
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_tacticSeq1Indented_parenthesizer__1___closed__1;
 static lean_object* l_Lean_Parser_Term_forall_formatter___closed__12;
@@ -2908,6 +2909,7 @@ static lean_object* l_Lean_Parser_Term_panic_formatter___closed__2;
 static lean_object* l___regBuiltin_Lean_Parser_Term_typeOf_declRange__1___closed__2;
 static lean_object* l_Lean_Parser_Term_matchDiscr_formatter___closed__3;
 static lean_object* l___regBuiltin_Lean_Parser_Term_structInstArrayRef_parenthesizer__1___closed__2;
+static lean_object* l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_unsafe_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_letIdBinder_parenthesizer___closed__1;
 static lean_object* l_Lean_Parser_Term_fun_parenthesizer___closed__6;
@@ -12136,7 +12138,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_syntheticHole_docStrin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("A *synthetic hole* (or *synthetic placeholder*), which stands for an unknown term that should be synthesized using tactics.\n- `\?_` creates a fresh metavariable with an auto-generated name.\n- `\?m` either refers to a pre-existing metavariable named `m` or creates a fresh metavariable with that name.\n\nIn particular, the synthetic hole syntax creates \"synthetic opaque metavariables\",\nthe same kind of metavariable used to represent goals in the tactic state.\n\nSynthetic holes are similar to holes in that `_` also creates metavariables,\nbut synthetic opaque metavariables have some different properties:\n- In tactics such as `refine`, only synthetic holes yield new goals.\n- During elaboration, unification will not solve for synthetic opaque metavariables, they are \"opaque\".\n  This is to prevent counterintuitive behavior such as disappearing goals.\n- When synthetic holes appear under binders, they capture local variables using a more complicated mechanism known as delayed assignment.\n\n## Delayed assigned metavariables\n\nThis section gives an overview of some technical details of synthetic holes, which you should feel free to skip.\nUnderstanding delayed assignments is mainly useful for those who are working on tactics and other metaprogramming.\nIt is included here until there is a suitable place for it in the reference manual.\n\nWhen a synthetic hole appears under a binding construct, such as for example `fun (x : α) (y : β) => \?s`,\nthe system creates a *delayed assignment*. This consists of\n1. A metavariable `\?m` of type `(x : α) → (y : β) → γ x y` whose local context is the local context outside the `fun`,\n  where `γ x y` is the type of `\?s`. Recall that `x` and `y` appear in the local context of `\?s`.\n2. A delayed assigment record associating `\?m` to `\?s` and the variables `#[x, y]` in the local context of `\?s`\n\nThen, this function elaborates as `fun (x : α) (y : β) => \?m x y`, where one should understand `x` and `y` here\nas being De Bruijn indexes, since Lean uses the locally nameless encoding of lambda calculus.\n\nOnce `\?s` is fully solved for, in the sense that after metavariable instantiation it is a metavariable-free term `e`,\nthen we can make the assignment `\?m := fun (x' : α) (y' : β) => e[x := x', y := y']`.\n(Implementation note: Lean only instantiates full applications `\?m x' y'` of delayed assigned metavariables, to skip forming this function.)\nThis delayed assignment mechanism is essential to the operation of basic tactics like `intro`,\nand a good mental model is that it is a way to \"apply\" the metavariable `\?s` by substituting values in for some of its local variables.\nWhile it would be easier to immediately assign `\?s := \?m x y`,\ndelayed assigment preserves `\?s` as an unsolved-for metavariable with a local context that still contains `x` and `y`,\nwhich is exactly what tactics like `intro` need.\n\nBy default, delayed assigned metavariables pretty print with what they are delayed assigned to.\nThe delayed assigned metavariables themselves can be pretty printed using `set_option pp.mvars.delayed true`.\n\nFor more information, see the \"Gruesome details\" module docstrings in `Lean.MetavarContext`.\n", 3163, 3149);
+x_1 = lean_mk_string_unchecked("A *synthetic hole* (or *synthetic placeholder*), which stands for an unknown term that should be synthesized using tactics.\n- `\?_` creates a fresh metavariable with an auto-generated name.\n- `\?m` either refers to a pre-existing metavariable named `m` or creates a fresh metavariable with that name.\n\nIn particular, the synthetic hole syntax creates \"synthetic opaque metavariables\",\nthe same kind of metavariable used to represent goals in the tactic state.\n\nSynthetic holes are similar to holes in that `_` also creates metavariables,\nbut synthetic opaque metavariables have some different properties:\n- In tactics such as `refine`, only synthetic holes yield new goals.\n- During elaboration, unification will not solve for synthetic opaque metavariables, they are \"opaque\".\n  This is to prevent counterintuitive behavior such as disappearing goals.\n- When synthetic holes appear under binders, they capture local variables using a more complicated mechanism known as delayed assignment.\n\n## Delayed assigned metavariables\n\nThis section gives an overview of some technical details of synthetic holes, which you should feel free to skip.\nUnderstanding delayed assignments is mainly useful for those who are working on tactics and other metaprogramming.\nIt is included here until there is a suitable place for it in the reference manual.\n\nWhen a synthetic hole appears under a binding construct, such as for example `fun (x : α) (y : β) => \?s`,\nthe system creates a *delayed assignment*. This consists of\n1. A metavariable `\?m` of type `(x : α) → (y : β) → γ x y` whose local context is the local context outside the `fun`,\n  where `γ x y` is the type of `\?s`. Recall that `x` and `y` appear in the local context of `\?s`.\n2. A delayed assignment record associating `\?m` to `\?s` and the variables `#[x, y]` in the local context of `\?s`\n\nThen, this function elaborates as `fun (x : α) (y : β) => \?m x y`, where one should understand `x` and `y` here\nas being De Bruijn indexes, since Lean uses the locally nameless encoding of lambda calculus.\n\nOnce `\?s` is fully solved for, in the sense that after metavariable instantiation it is a metavariable-free term `e`,\nthen we can make the assignment `\?m := fun (x' : α) (y' : β) => e[x := x', y := y']`.\n(Implementation note: Lean only instantiates full applications `\?m x' y'` of delayed assigned metavariables, to skip forming this function.)\nThis delayed assignment mechanism is essential to the operation of basic tactics like `intro`,\nand a good mental model is that it is a way to \"apply\" the metavariable `\?s` by substituting values in for some of its local variables.\nWhile it would be easier to immediately assign `\?s := \?m x y`,\ndelayed assignment preserves `\?s` as an unsolved-for metavariable with a local context that still contains `x` and `y`,\nwhich is exactly what tactics like `intro` need.\n\nBy default, delayed assigned metavariables pretty print with what they are delayed assigned to.\nThe delayed assigned metavariables themselves can be pretty printed using `set_option pp.mvars.delayed true`.\n\nFor more information, see the \"Gruesome details\" module docstrings in `Lean.MetavarContext`.\n", 3165, 3151);
 return x_1;
 }
 }
@@ -65757,6 +65759,24 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
+static lean_object* _init_l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A state monad that uses an actual mutable reference cell (i.e. an `ST.Ref`).\n\nThis is syntax, rather than a function, to make it easier to use. Its elaborator synthesizes an\nappropriate parameter for the underlying monad's `ST` effects, then passes it to `StateRefT'`.\n", 269, 269);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Parser_Term_stateRefT___closed__2;
+x_3 = l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l___regBuiltin_Lean_Parser_Term_stateRefT_declRange__1___closed__1() {
 _start:
 {
@@ -83067,6 +83087,11 @@ lean_mark_persistent(l_Lean_Parser_Term_stateRefT___closed__11);
 l_Lean_Parser_Term_stateRefT = _init_l_Lean_Parser_Term_stateRefT();
 lean_mark_persistent(l_Lean_Parser_Term_stateRefT);
 if (builtin) {res = l___regBuiltin_Lean_Parser_Term_stateRefT__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1 = _init_l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1();
+lean_mark_persistent(l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1);
+if (builtin) {res = l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }l___regBuiltin_Lean_Parser_Term_stateRefT_declRange__1___closed__1 = _init_l___regBuiltin_Lean_Parser_Term_stateRefT_declRange__1___closed__1();

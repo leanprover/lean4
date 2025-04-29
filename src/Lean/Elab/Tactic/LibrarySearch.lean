@@ -36,7 +36,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
     match (← librarySearch goal tactic allowFailure) with
     -- Found goal that closed problem
     | none =>
-      addSuggestionIfValid ref mvar initialState
+      addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (checkState? := initialState)
     -- Found suggestions
     | some suggestions =>
       if requireClose then
@@ -45,49 +45,10 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
       reportOutOfHeartbeats `apply? ref
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
-          addSuggestionIfValid ref mvar initialState (addSubgoalsMsg := true) (errorOnInvalid := false)
+          addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta
+            (checkState? := initialState) (addSubgoalsMsg := true) (tacticErrorAsInfo := true)
       if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
       admitGoal goal
-where
-  /--
-  Executes `tac` in `savedState` (then restores the current state). Used to ensure that a suggested
-  tactic is valid.
-
-  Remark: we don't merely elaborate the proof term's syntax because it may successfully round-trip
-  (d)elaboration but still produce an invalid tactic (see the example in #5407).
-  -/
-  evalTacticWithState (savedState : Tactic.SavedState) (tac : TSyntax `tactic) : TacticM Unit := do
-    let currState ← saveState
-    savedState.restore
-    try
-      Term.withoutErrToSorry <| withoutRecover <| evalTactic tac
-    finally
-      currState.restore
-
-  /--
-  Suggests using the value of `goal` as a proof term if the corresponding tactic is valid at
-  `origGoal`, or else informs the user that a proof exists but is not syntactically valid.
-  -/
-  addSuggestionIfValid (ref : Syntax) (goal : MVarId) (initialState : Tactic.SavedState)
-                       (addSubgoalsMsg := false) (errorOnInvalid := true) : TacticM Unit := do
-    let proofExpr := (← instantiateMVars (mkMVar goal)).headBeta
-    let proofMVars ← getMVars proofExpr
-    let hasMVars := !proofMVars.isEmpty
-    let suggestion ← mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := false)
-    let mut exposeNames := false
-    try evalTacticWithState initialState suggestion
-    catch _ =>
-      exposeNames := true
-      let suggestion' ← mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := true)
-      try evalTacticWithState initialState suggestion'
-      catch _ =>
-        let suggestionStr ← SuggestionText.prettyExtra suggestion
-        -- Pretty-print the version without `expose_names` so variable names match the Infoview
-        let msg := m!"found a {if hasMVars then "partial " else ""}proof, \
-                      but the corresponding tactic failed:{indentD suggestionStr}"
-        if errorOnInvalid then throwError msg else logInfo msg
-        return
-    addExactSuggestion ref proofExpr (addSubgoalsMsg := addSubgoalsMsg) (exposeNames := exposeNames)
 
 @[builtin_tactic Lean.Parser.Tactic.exact?]
 def evalExact : Tactic := fun stx => do

@@ -3,6 +3,8 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Impl
 import Init.Data.List.Nat.Erase
@@ -16,7 +18,8 @@ We prefer to pull `List.toArray` outwards past `Array` operations.
 -/
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
-set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+-- TODO: restore after an update-stage0
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -537,10 +540,15 @@ private theorem popWhile_toArray_aux (p : α → Bool) (l : List α) :
   · simp
   · simp_all [List.set_eq_of_length_le]
 
-@[simp] theorem toArray_replicate (n : Nat) (v : α) : (List.replicate n v).toArray = mkArray n v := rfl
+@[simp] theorem toArray_replicate (n : Nat) (v : α) :
+    (List.replicate n v).toArray = Array.replicate n v := rfl
 
-theorem _root_.Array.mkArray_eq_toArray_replicate : mkArray n v = (List.replicate n v).toArray := by
+theorem _root_.Array.replicate_eq_toArray_replicate :
+    Array.replicate n v = (List.replicate n v).toArray := by
   simp
+
+@[deprecated _root_.Array.replicate_eq_toArray_replicate (since := "2025-03-18")]
+abbrev _root_.Array.mkArray_eq_toArray_replicate := @_root_.Array.replicate_eq_toArray_replicate
 
 @[simp] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
 
@@ -613,15 +621,15 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
     simp only [append_assoc, cons_append]
     rw [insertIdx_loop_toArray _ _ _ _ (by omega)]
     simp only [swap_toArray, w, append_assoc, cons_append, mk.injEq]
-    rw [take_set_of_le _ _ (by omega), drop_eq_getElem_cons (i := j) (by simpa), getElem_set_self,
-      drop_set_of_lt _ _ (by omega), drop_set_of_lt _ _ (by omega), getElem_set_ne (by omega),
-      getElem_set_self, take_set_of_le (j := j - 1) _ _ (by omega),
-      take_set_of_le (j := j - 1) _ _ (by omega), take_eq_append_getElem_of_pos (by omega) hj,
+    rw [take_set_of_le (by omega), drop_eq_getElem_cons (i := j) (by simpa), getElem_set_self,
+      drop_set_of_lt (by omega), drop_set_of_lt (by omega), getElem_set_ne (by omega),
+      getElem_set_self, take_set_of_le (j := j - 1) (by omega),
+      take_set_of_le (j := j - 1) (by omega), take_eq_append_getElem_of_pos (by omega) hj,
       drop_append_of_le_length (by simp; omega)]
     simp only [append_assoc, cons_append, nil_append, append_cancel_right_eq]
     cases i with
     | zero => simp
-    | succ i => rw [take_set_of_le _ _ (by omega)]
+    | succ i => rw [take_set_of_le (by omega)]
   · simp only [Nat.not_lt] at h'
     have : i = j := by omega
     subst this

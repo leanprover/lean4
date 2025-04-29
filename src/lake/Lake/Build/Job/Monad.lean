@@ -50,6 +50,14 @@ instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
 @[inline] def setTrace (trace : BuildTrace) : JobM PUnit :=
   modify fun s => {s with trace := trace}
 
+/-- Set the caption of the job's build trace. -/
+@[inline] def setTraceCaption (caption : String) : JobM PUnit :=
+  modify fun s => {s with trace.caption := caption}
+
+/-- Replace the job's build trace with a new empty trace. -/
+@[inline] def newTrace (caption := "<nil>") : JobM PUnit :=
+  modify fun s => {s with trace := .nil caption}
+
 /-- Mix a trace into the current job's build trace. -/
 @[inline] def addTrace (trace : BuildTrace) : JobM PUnit :=
   modify fun s => {s with trace := s.trace.mix trace}
@@ -66,8 +74,8 @@ abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO
 
 instance : MonadLift SpawnM JobM := ⟨JobM.runSpawnM⟩
 
-/-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
-@[deprecated SpawnM (since := "2024-05-21")] abbrev SchedulerM := SpawnM
+/-- Ensures that `SpawnM` lifts into `JobM`. -/
+example : MonadLiftT SpawnM JobM := inferInstance
 
 /--
 Run a `JobM` action in `FetchM`.
@@ -99,18 +107,16 @@ instance : MonadLift FetchM JobM := ⟨JobM.runFetchM⟩
 /-- Ensures that `FetchM` lifts into `JobM`. -/
 example : MonadLiftT FetchM JobM := inferInstance
 
-/-- Ensures that `FetchM` lifts into `SpawnM`. -/
-example : MonadLiftT SpawnM FetchM := inferInstance
-
 namespace Job
 
-@[inline] def bindTask [Monad m]
+@[inline] def bindTask
+  [Monad m] [OptDataKind β]
   (f : JobTask α → m (JobTask β)) (self : Job α)
-: m (Job β) := return {self with task := ← f self.task}
+: m (Job β) := return {self with task := ← f self.task, kind := inferInstance}
 
 /-- Spawn a job that asynchronously performs `act`. -/
 @[inline] protected def async
-  (act : JobM α) (prio := Task.Priority.default) (caption := "")
+  [OptDataKind α] (act : JobM α) (prio := Task.Priority.default) (caption := "")
 : SpawnM (Job α) := fun fetch stack store ctx => .ofTask (caption := caption) <$> do
   BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch stack store ctx {}
 
@@ -136,7 +142,7 @@ Logs the job's log and throws if there was an error.
 
 /-- Apply `f` asynchronously to the job's output. -/
 protected def mapM
-  (self : Job α) (f : α → JobM β)
+  [kind : OptDataKind β] (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
   fun fetch stack store ctx trace => do
@@ -149,7 +155,7 @@ protected def mapM
 
 @[deprecated Job.mapM (since := "2024-12-06")]
 protected abbrev bindSync
-  (self : Job α) (f : α → JobM β)
+  [OptDataKind β] (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) := self.mapM f prio sync
 
@@ -158,7 +164,7 @@ Apply `f` asynchronously to the job's output
 and asynchronously await the resulting job.
 -/
 def bindM
-  (self : Job α) (f : α → JobM (Job β))
+  [kind : OptDataKind β] (self : Job α) (f : α → JobM (Job β))
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
   fun fetch stack store ctx trace => do
@@ -176,7 +182,7 @@ def bindM
 
 @[deprecated bindM (since := "2024-12-06")]
 protected abbrev bindAsync
-  (self : Job α) (f : α → SpawnM (Job β))
+  [OptDataKind β] (self : Job α) (f : α → SpawnM (Job β))
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) := self.bindM (fun a => f a) prio sync
 
@@ -185,7 +191,7 @@ protected abbrev bindAsync
 results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 -/
 @[inline] def zipResultWith
-  (f : JobResult α → JobResult β → JobResult γ) (self : Job α) (other : Job β)
+  [OptDataKind γ] (f : JobResult α → JobResult β → JobResult γ) (self : Job α) (other : Job β)
   (prio := Task.Priority.default) (sync := true)
 : Job γ := Job.ofTask $
   self.task.bind (prio := prio) (sync := true) fun rx =>
@@ -197,7 +203,7 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 -/
 @[inline] def zipWith
-  (f : α → β → γ) (self : Job α) (other : Job β)
+  [OptDataKind γ] (f : α → β → γ) (self : Job α) (other : Job β)
   (prio := Task.Priority.default) (sync := true)
 : Job γ :=
   self.zipResultWith (other := other) (prio := prio) (sync := sync) fun
@@ -206,6 +212,7 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 
 /-- Merges this job with another, discarding its output and trace. -/
 def add (self : Job α) (other : Job β) : Job α :=
+  have : OptDataKind α := self.kind
   self.zipResultWith (other := other) fun
   | .ok a sa, .ok _ sb => .ok a {sa.merge sb with trace := sa.trace}
   | ra, rb => .error 0 {ra.state.merge rb.state with trace := ra.state.trace}
@@ -215,20 +222,20 @@ def mix (self : Job α) (other : Job β) : Job Unit :=
   self.zipWith (fun _ _ => ()) other
 
 /-- Merge a `List` of jobs into one, discarding their outputs. -/
-def mixList (jobs : List (Job α)) : Job Unit :=
-  jobs.foldr (·.mix ·) nil
+def mixList (jobs : List (Job α)) (traceCaption := "<collection>")  : Job Unit :=
+  jobs.foldr (·.mix ·) (traceRoot () traceCaption)
 
 /-- Merge an `Array` of jobs into one, discarding their outputs. -/
-def mixArray (jobs : Array (Job α)) : Job Unit :=
-  jobs.foldl (·.mix ·) nil
+def mixArray (jobs : Array (Job α)) (traceCaption := "<collection>")  : Job Unit :=
+  jobs.foldl (·.mix ·) (traceRoot () traceCaption)
 
 /-- Merge a `List` of jobs into one, collecting their outputs into a `List`. -/
-def collectList (jobs : List (Job α)) : Job (List α) :=
-  jobs.foldr (zipWith List.cons) (pure [])
+def collectList (jobs : List (Job α)) (traceCaption := "<collection>") : Job (List α) :=
+  jobs.foldr (zipWith List.cons) (traceRoot [] traceCaption)
 
 /-- Merge an `Array` of jobs into one, collecting their outputs into an `Array`. -/
-def collectArray (jobs : Array (Job α)) : Job (Array α) :=
-  jobs.foldl (zipWith Array.push) (pure (Array.mkEmpty jobs.size))
+def collectArray (jobs : Array (Job α)) (traceCaption := "<collection>") : Job (Array α) :=
+  jobs.foldl (zipWith Array.push) (traceRoot (Array.mkEmpty jobs.size) traceCaption)
 
 end Job
 
@@ -255,27 +262,27 @@ abbrev nil : BuildJob Unit :=
   Job.pure ()
 
 @[deprecated Job.map (since := "2024-12-06")]
-protected abbrev pure (a : α) : BuildJob α :=
+protected abbrev pure [OptDataKind α] (a : α) : BuildJob α :=
   Job.pure a
 
 instance : Pure BuildJob := ⟨Job.pure⟩
 
 @[deprecated Job.map (since := "2024-12-06")]
-protected abbrev map (f : α → β) (self : BuildJob α) : BuildJob β :=
+protected abbrev map [OptDataKind β] (f : α → β) (self : BuildJob α) : BuildJob β :=
   self.toJob.map f
 
 instance : Functor BuildJob where
   map := Job.map
 
 @[inline, deprecated "Removed without replacement." (since := "2024-12-06")]
-def mapWithTrace (f : α → BuildTrace → β × BuildTrace) (self : BuildJob α) : BuildJob β :=
+def mapWithTrace [OptDataKind β] (f : α → BuildTrace → β × BuildTrace) (self : BuildJob α) : BuildJob β :=
   self.toJob.mapOk fun a s =>
     let (b, trace) := f a s.trace
     .ok b {s with trace}
 
 @[inline, deprecated Job.mapM (since := "2024-12-06")]
 protected def bindSync
-  (self : BuildJob α) (f : α → BuildTrace → JobM (β × BuildTrace))
+  [OptDataKind β] (self : BuildJob α) (f : α → BuildTrace → JobM (β × BuildTrace))
   (prio : Task.Priority := .default) (sync := false)
 : SpawnM (Job β) :=
   self.toJob.mapM (prio := prio) (sync := sync) fun a => do
@@ -285,7 +292,7 @@ protected def bindSync
 
 @[inline, deprecated Job.bindM (since := "2024-12-06")]
 protected def bindAsync
-  (self : BuildJob α) (f : α → BuildTrace → SpawnM (Job β))
+  [OptDataKind β] (self : BuildJob α) (f : α → BuildTrace → SpawnM (Job β))
   (prio : Task.Priority := .default) (sync := false)
  : SpawnM (Job β)  :=
   self.toJob.bindM (prio := prio) (sync := sync) fun a => do
@@ -313,7 +320,7 @@ abbrev mixArray (jobs : Array (BuildJob α)) : Id (BuildJob Unit) :=
 
 @[deprecated Job.zipWith (since := "2024-12-06")]
 abbrev zipWith
-  (f : α → β → γ) (self : BuildJob α) (other : BuildJob β)
+  [OptDataKind γ] (f : α → β → γ) (self : BuildJob α) (other : BuildJob β)
 : BuildJob γ :=
   self.toJob.zipWith f other.toJob
 

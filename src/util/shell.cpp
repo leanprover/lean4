@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "runtime/array_ref.h"
 #include "runtime/object_ref.h"
+#include "runtime/option_ref.h"
 #include "runtime/utf8.h"
 #include "util/timer.h"
 #include "util/macros.h"
@@ -198,7 +199,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  -v, --version          display version information\n";
     std::cout << "  -V, --short-version    display short version number\n";
     std::cout << "  -g, --githash          display the git commit hash number used to build this binary\n";
-    std::cout << "      --run              call the 'main' definition in a file with the remaining arguments\n";
+    std::cout << "      --run <file>       call the 'main' definition in the given file with the remaining arguments\n";
     std::cout << "  -o, --o=oname          create olean file\n";
     std::cout << "  -i, --i=iname          create ilean file\n";
     std::cout << "  -c, --c=fname          name of the C output file\n";
@@ -333,35 +334,37 @@ extern "C" object * lean_run_frontend(
     object * filename,
     object * main_module_name,
     uint32_t trust_level,
+    object * olean_filename,
     object * ilean_filename,
     uint8_t  json_output,
     object * error_kinds,
     object * plugins,
+    bool     print_stats,
     object * w
 );
-pair_ref<elab_environment, object_ref> run_new_frontend(
+option_ref<elab_environment> run_new_frontend(
     std::string const & input,
     options const & opts, std::string const & file_name,
     name const & main_module_name,
     uint32_t trust_level,
+    optional<std::string> const & olean_file_name,
     optional<std::string> const & ilean_file_name,
     uint8_t json_output,
-    array_ref<name> const & error_kinds
+    array_ref<name> const & error_kinds,
+    bool print_stats
 ) {
-    object * oilean_file_name = mk_option_none();
-    if (ilean_file_name) {
-        oilean_file_name = mk_option_some(mk_string(*ilean_file_name));
-    }
-    return get_io_result<pair_ref<elab_environment, object_ref>>(lean_run_frontend(
+    return get_io_result<option_ref<elab_environment>>(lean_run_frontend(
         mk_string(input),
         opts.to_obj_arg(),
         mk_string(file_name),
         main_module_name.to_obj_arg(),
         trust_level,
-        oilean_file_name,
+        olean_file_name ? mk_option_some(mk_string(*olean_file_name)) : mk_option_none(),
+        ilean_file_name ? mk_option_some(mk_string(*ilean_file_name)) : mk_option_none(),
         json_output,
         error_kinds.to_obj_arg(),
         mk_empty_array(),
+        print_stats,
         io_mk_world()
     ));
 }
@@ -439,12 +442,12 @@ extern void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds);
 }
 static bool trace_task_get_blocked = getenv("LEAN_TRACE_TASK_GET_BLOCKED") != nullptr;
 static void report_task_get_blocked_time(std::chrono::nanoseconds d) {
-    if (has_profiling_task()) {
-        report_profiling_time("blocked", d);
+    if (has_no_block_profiling_task()) {
+        report_profiling_time("blocked (unaccounted)", d);
         exclude_profiling_time_from_current_task(d);
         if (trace_task_get_blocked) {
             sstream ss;
-            ss << "Task.get blocked for " << std::chrono::duration_cast<std::chrono::seconds>(d).count() << "s";
+            ss << "Task.get blocked for " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(d).count() << "ms";
             // using a panic for reporting is a bit of a hack, but good enough for this
             // `lean`-specific use case
             lean_panic(ss.str().c_str(), /* force stderr */ true);
@@ -514,7 +517,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     buffer<string_ref> forwarded_args;
     buffer<name> error_kinds;
 
-    while (true) {
+    while (!run) {  // stop consuming arguments after `--run`
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
             break; // end of command line
@@ -752,55 +755,45 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<elab_environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output, error_kinds);
-        elab_environment env = r.fst();
-        bool ok = unbox(r.snd().raw());
+        option_ref<elab_environment> opt_env = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, olean_fn, ilean_fn, json_output, error_kinds, stats);
 
-        if (stats) {
-            env.display_stats();
-        }
-
-        if (run && ok) {
-            uint32 ret = ir::run_main(env, opts, argc - optind, argv + optind);
-            // environment_free_regions(std::move(env));
-            return ret;
-        }
-        if (olean_fn && ok) {
-            time_task t(".olean serialization", opts);
-            write_module(env, *olean_fn);
-        }
-
-        if (c_output && ok) {
-            std::ofstream out(*c_output, std::ios_base::binary);
-            if (out.fail()) {
-                std::cerr << "failed to create '" << *c_output << "'\n";
-                return 1;
+        if (opt_env) {
+            elab_environment env = opt_env.get_val();
+            if (run) {
+                uint32 ret = ir::run_main(env, opts, argc - optind, argv + optind);
+                return ret;
             }
-            time_task _("C code generation", opts);
-            out << lean::ir::emit_c(env, *main_module_name).data();
-            out.close();
-        }
-
-        if (llvm_output && ok) {
-            initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
-                    lean_io_mk_world());
-            time_task _("LLVM code generation", opts);
-            lean::consume_io_result(lean_ir_emit_llvm(
-                        env.to_obj_arg(), (*main_module_name).to_obj_arg(),
-                        lean::string_ref(*llvm_output).to_obj_arg(),
-                        lean_io_mk_world()));
+            if (c_output) {
+                std::ofstream out(*c_output, std::ios_base::binary);
+                if (out.fail()) {
+                    std::cerr << "failed to create '" << *c_output << "'\n";
+                    return 1;
+                }
+                time_task _("C code generation", opts);
+                out << lean::ir::emit_c(env, *main_module_name).data();
+                out.close();
+            }
+            if (llvm_output) {
+                initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
+                        lean_io_mk_world());
+                time_task _("LLVM code generation", opts);
+                lean::consume_io_result(lean_ir_emit_llvm(
+                            env.to_obj_arg(), (*main_module_name).to_obj_arg(),
+                            lean::string_ref(*llvm_output).to_obj_arg(),
+                            lean_io_mk_world()));
+            }
         }
 
         display_cumulative_profiling_times(std::cerr);
 
-#ifdef LEAN_SMALL_ALLOCATOR
-        // If the small allocator is not enabled, then we assume we are not using the sanitizer.
-        // Thus, we interrupt execution without garbage collecting.
-        // This is useful when profiling improvements to Lean startup time.
-        exit(ok ? 0 : 1);
-#else
-        return ok ? 0 : 1;
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+        return opt_env ? 0 : 1;
 #endif
+#endif
+        // When not using the address/leak sanitizer, we interrupt execution without garbage collecting.
+        // This is useful when profiling improvements to Lean startup time.
+        exit(opt_env ? 0 : 1);
     } catch (lean::throwable & ex) {
         std::cerr << ex.what() << "\n";
     } catch (std::bad_alloc & ex) {

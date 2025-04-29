@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Util
 import Lean.Util.PtrSet
+import Lean.Meta.Transform
 import Lean.Meta.Basic
 import Lean.Meta.InferType
 import Lean.Meta.Tactic.Grind.Util
@@ -29,6 +30,10 @@ where
       TODO: We may have to normalize `prop` too.
       -/
       let prop ← unfoldReducible prop
+      /- We must also apply beta-reduction to improve the effectiveness of the congruence closure procedure. -/
+      let prop ← Core.betaReduce prop
+      /- We must mask proofs occurring in `prop` too. -/
+      let prop ← visit prop
       let e' := mkApp2 (mkConst ``Lean.Grind.nestedProof) prop e
       modify fun s => s.insert e e'
       return e'

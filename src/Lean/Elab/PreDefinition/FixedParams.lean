@@ -20,7 +20,7 @@ The main components of this module are
    (effectively a mask and a permutation)
  * The `FixedParamPerms` data type, with the data for a whole recursive group.
  * The `getFixedParamPerms` function that calculates the fixed parameters
- * Various `MetaM` functions for bringing into scope fixed and varying paramters, assembling
+ * Various `MetaM` functions for bringing into scope fixed and varying parameters, assembling
    argument lists etc.
 
 -/
@@ -81,7 +81,7 @@ structure Info where
 
 def Info.init (revDeps : Array (Array (Array Nat))) : Info where
   graph := revDeps.map fun deps =>
-    mkArray deps.size (some (mkArray revDeps.size none))
+    .replicate deps.size (some (.replicate revDeps.size none))
   revDeps
 
 def Info.addSelfCalls (info : Info) : Info :=
@@ -309,7 +309,7 @@ scope.
 -/
 private partial def FixedParamPerm.forallTelescopeImpl (perm : FixedParamPerm)
     (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
-  go 0 type (mkArray perm.numFixed (mkSort 0))
+  go 0 type (.replicate perm.numFixed (mkSort 0))
 where
   go i type xs := do
     match perm[i]? with
@@ -333,7 +333,7 @@ def FixedParamPerm.forallTelescope [MonadControlT MetaM n] [Monad n]
 
 
 /--
-If `type` is the type of the `funIdx`'s function, instantiate the fixed paramters.
+If `type` is the type of the `funIdx`'s function, instantiate the fixed parameters.
 -/
 def FixedParamPerm.instantiateForall (perm: FixedParamPerm) (type₀ : Expr) (xs : Array Expr) : MetaM Expr := do
   assert! xs.size = perm.numFixed
@@ -350,7 +350,7 @@ where
           mkForallFVars ys (← go mask type)
 
 /--
-If `value` is the body of the `funIdx`'s function, instantiate the fixed paramters.
+If `value` is the body of the `funIdx`'s function, instantiate the fixed parameters.
 Expects enough manifest lambdas to instantiate all fixed parameters, but can handle
 eta-contracted definitions beyond that.
 -/
@@ -382,7 +382,7 @@ def FixedParamPerm.pickFixed (perm : FixedParamPerm) (xs : Array α) : Array α 
     pure #[]
   else
     let dummy := xs[0]
-    let ys := mkArray perm.numFixed dummy
+    let ys := .replicate perm.numFixed dummy
     go (perm.zip xs).toList ys
 where
   go | [], ys => return ys
@@ -406,7 +406,7 @@ def FixedParamPerm.pickVarying (perm : FixedParamPerm) (xs : Array α) : Array �
 Intersperses the fixed and varying parameters to be in the original parameter order.
 Can handle over- or und-application (extra or missing varying args), as long
 as there are all varying parameters that go before fixed parameters.
-(We expect to always find all fixed parameters, else they woudn't be fixed parameters.)
+(We expect to always find all fixed parameters, else they wouldn't be fixed parameters.)
 -/
 partial def FixedParamPerm.buildArgs (perm : FixedParamPerm) (fixedArgs varyingArgs : Array α) : Array α :=
   assert! fixedArgs.size = perm.numFixed
@@ -437,7 +437,7 @@ def FixedParamPerms.fixedArePrefix (fixedParamPerms : FixedParamPerms) : Bool :=
   fixedParamPerms.perms.all fun paramInfos =>
     paramInfos ==
       (Array.range fixedParamPerms.numFixed).map Option.some ++
-      mkArray (paramInfos.size - fixedParamPerms.numFixed) .none
+      .replicate (paramInfos.size - fixedParamPerms.numFixed) .none
 
 /--
 If `xs` are the fixed parameters that are in scope, and `toErase` are, for each function, the
@@ -453,7 +453,7 @@ def FixedParamPerms.erase  (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
   assert! fixedParamPerms.numFixed  = xs.size
   assert! toErase.size = fixedParamPerms.perms.size
   -- Calculate a mask on the fixed parameters of variables to erase
-  let mut mask := mkArray fixedParamPerms.numFixed false
+  let mut mask := Array.replicate fixedParamPerms.numFixed false
   for funIdx in [:toErase.size], paramIdxs in toErase, mapping in fixedParamPerms.perms do
     for paramIdx in paramIdxs do
       assert! paramIdx < mapping.size

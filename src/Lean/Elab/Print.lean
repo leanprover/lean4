@@ -46,9 +46,13 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
 private def mkHeader' (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) (sig : Bool := true) : CommandElabM MessageData :=
   mkHeader kind id levelParams type (if isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe) (sig := sig)
 
-private def printDefLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (value : Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
+private def mkOmittedMsg : Option Expr → MessageData
+  | none   => "<not imported>"
+  | some e => e
+
+private def printDefLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (value? : Option Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
   let m ← mkHeader kind id levelParams type safety
-  let m := m ++ " :=" ++ Format.line ++ value
+  let m := m ++ " :=" ++ Format.line ++ mkOmittedMsg value?
   logInfo m
 
 private def printAxiomLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe := false) : CommandElabM Unit := do
@@ -68,26 +72,27 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
   logInfo m
 
 /--
-Computes the origin of a field. Returns its projection function at the origin.
+Computes the origin of a field. Returns its `StructureFieldInfo` at the origin.
 Multiple parents could be the origin of a field, but we say the first parent that provides it is the one that determines the origin.
 -/
-private partial def getFieldOrigin (structName field : Name) : MetaM Name := do
+private partial def getFieldOrigin (structName field : Name) : MetaM StructureFieldInfo := do
   let env ← getEnv
   for parent in getStructureParentInfo env structName do
     if (findField? env parent.structName field).isSome then
       return ← getFieldOrigin parent.structName field
   let some fi := getFieldInfo? env structName field
     | throwError "no such field {field} in {structName}"
-  return fi.projFn
+  return fi
 
 open Meta in
-private def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
+private partial def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr) (ctor : Name)
     (isUnsafe : Bool) : CommandElabM Unit := do
   let env ← getEnv
   let kind := if isClass env id then "class" else "structure"
   let header ← mkHeader' kind id levelParams type isUnsafe (sig := false)
+  let levels := levelParams.map Level.param
   liftTermElabM <| forallTelescope (← getConstInfo id).type fun params _ =>
-    let s := Expr.const id (levelParams.map .param)
+    let s := Expr.const id levels
     withLocalDeclD `self (mkAppN s params) fun self => do
       let mut m : MessageData := header
       -- Signature
@@ -100,20 +105,46 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
       unless parents.isEmpty do
         m := m ++ Format.line ++ "parents:"
         for parent in parents do
-          let ptype ← inferType (mkApp (mkAppN (.const parent.projFn (levelParams.map .param)) params) self)
+          let ptype ← inferType (mkApp (mkAppN (.const parent.projFn levels) params) self)
           m := m ++ indentD m!"{.ofConstName parent.projFn (fullNames := true)} : {ptype}"
       -- Fields
+      -- Collect autoParam tactics, which are all on the flat constructor:
+      let flatCtorName := mkFlatCtorOfStructCtorName ctor
+      let flatCtorInfo ← getConstInfo flatCtorName
+      let autoParams : NameMap Syntax ← forallTelescope flatCtorInfo.type fun args _ =>
+        args[numParams:].foldlM (init := {}) fun set arg => do
+          let decl ← arg.fvarId!.getDecl
+          if let some (.const tacticDecl _) := decl.type.getAutoParamTactic? then
+            let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
+            pure <| set.insert decl.userName tacticSyntax
+          else
+            pure set
       let fields := getStructureFieldsFlattened env id (includeSubobjectFields := false)
       if fields.isEmpty then
         m := m ++ Format.line ++ "fields: (none)"
       else
         m := m ++ Format.line ++ "fields:"
+        -- Map of fields to projections of `self`
+        let fieldMap : NameMap Expr ← fields.foldlM (init := {}) fun fieldMap field => do
+          pure <| fieldMap.insert field (← mkProjection self field)
         for field in fields do
           let some source := findField? env id field | panic! "missing structure field info"
-          let proj ← getFieldOrigin source field
+          let fi ← getFieldOrigin source field
+          let proj := fi.projFn
           let modifier := if isPrivateName proj then "private " else ""
-          let ftype ← inferType (← mkProjection self field)
-          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)} : {ftype}")
+          let ftype ← inferType (fieldMap.find! field)
+          let value ←
+            if let some stx := autoParams.find? field then
+              let stx : TSyntax ``Parser.Tactic.tacticSeq := ⟨stx⟩
+              pure m!" := by{indentD stx}"
+            else if let some defFn := getEffectiveDefaultFnForField? env id field then
+              if let some (_, val) ← instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldMap.find?) then
+                pure m!" :={indentExpr val}"
+              else
+                pure m!" := <error>"
+            else
+              pure m!""
+          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)} : {MessageData.nest 2 ftype}{value}")
       -- Constructor
       let cinfo := getStructureCtor (← getEnv) id
       let ctorModifier := if isPrivateName cinfo.name then "private " else ""
@@ -123,12 +154,18 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
       if resOrder.size > 1 then
         m := m ++ Format.line ++ "field notation resolution order:"
           ++ indentD (MessageData.joinSep (resOrder.map (.ofConstName · (fullNames := true))).toList ", ")
-      logInfo m
+      -- Omit proofs; the delaborator enables `pp.proofs` for non-constant proofs, but we don't want this for default values
+      withOptions (fun opts => opts.set pp.proofs.name false) do
+        logInfo m
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
   let env ← getEnv
   match env.find? id with
-  | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
+  | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } =>
+    match getOriginalConstKind? env id with
+    | some .defn => printDefLike "def" id us t none (if u then .unsafe else .safe)
+    | some .thm => printDefLike "theorem" id us t none (if u then .unsafe else .safe)
+    | _  => printAxiomLike "axiom" id us t u
   | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
   | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
   | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t u
@@ -137,7 +174,7 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     if isStructure env id then
-      printStructure id us numParams t u
+      printStructure id us numParams t ctors[0]! u
     else
       printInduct id us numParams t ctors u
   | none => throwUnknownId id

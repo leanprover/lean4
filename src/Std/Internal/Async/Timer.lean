@@ -5,8 +5,8 @@ Authors: Henrik Böving
 -/
 prelude
 import Std.Time
-import Std.Internal.UV
-import Std.Internal.Async.Basic
+import Std.Internal.UV.Timer
+import Std.Internal.Async.Select
 
 
 namespace Std
@@ -65,6 +65,26 @@ If:
 def stop (s : Sleep) : IO Unit :=
   s.native.stop
 
+/--
+Create a `Selector` that resolves once `s` has finished. Note that calling this function starts `s`
+if it hasn't already started.
+-/
+def selector (s : Sleep) : IO (Selector Unit) := do
+  let sleepWaiter ← s.wait
+  return {
+    tryFn := do
+      if ← IO.hasFinished sleepWaiter then
+        return some ()
+      else
+        return none
+    registerFn waiter := do
+      discard <| AsyncTask.mapIO (x := sleepWaiter) fun _ => do
+        let lose := return ()
+        let win promise := promise.resolve (.ok ())
+        waiter.race lose win
+    unregisterFn := pure ()
+  }
+
 end Sleep
 
 /--
@@ -73,6 +93,13 @@ Return an `AsyncTask` that resolves after `duration`.
 def sleep (duration : Std.Time.Millisecond.Offset) : IO (AsyncTask Unit) := do
   let sleeper ← Sleep.mk duration
   sleeper.wait
+
+/--
+Return a `Selector` that resolves after `duration`.
+-/
+def Selector.sleep (duration : Std.Time.Millisecond.Offset) : IO (Selector Unit) := do
+  let sleeper ← Sleep.mk duration
+  sleeper.selector
 
 /--
 `Interval` can be used to repeatedly wait for some duration like a clock.
@@ -101,9 +128,9 @@ If:
 - `i` is already running and:
   - the tick from the last call of `i` has not yet finished return the same `AsyncTask` as the last
     call
-  - the tick frrom the last call of `i` has finished return a new `AsyncTask` that waits for the
+  - the tick from the last call of `i` has finished return a new `AsyncTask` that waits for the
     closest next tick from the time of calling this function.
-- `i` is not running aymore this is a no-op.
+- `i` is not running anymore this is a no-op.
 -/
 @[inline]
 def tick (i : Interval) : IO (AsyncTask Unit) := do
@@ -122,7 +149,7 @@ def reset (i : Interval) : IO Unit :=
 
 /--
 If:
-- `i` is still running this stops `i` without resolving any remaing `AsyncTask` that were created
+- `i` is still running this stops `i` without resolving any remaining `AsyncTask` that were created
   through `tick`. Note that if another `AsyncTask` is binding on any of these it is going hang
   forever without further intervention.
 - `i` is not yet or not anymore running this is a no-op.

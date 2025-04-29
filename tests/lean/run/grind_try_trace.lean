@@ -1,5 +1,5 @@
 set_option grind.warning false
-%reset_grind_attrs
+reset_grind_attrs%
 
 /--
 info: Try these:

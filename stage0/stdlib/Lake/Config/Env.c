@@ -21,7 +21,6 @@ lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__10;
 lean_object* l_Lean_Json_compress(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__23;
 static lean_object* l_Lake_Env_baseVars___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Env_leanPath___boxed(lean_object*);
@@ -120,6 +119,7 @@ LEAN_EXPORT lean_object* l_Lake_Env_path(lean_object*);
 extern uint8_t l_System_Platform_isWindows;
 static lean_object* l_Lake_Env_noToolchainVars___closed__12;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___lambda__1___boxed(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___closed__1;
 static lean_object* _init_l_Lake_instInhabitedEnv___closed__1() {
 _start:

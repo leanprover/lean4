@@ -23,7 +23,7 @@ structure BVVar (width : Nat) where
   ident : Nat
 
 def blastVar (aig : AIG BVBit) (var : BVVar w) : AIG.RefVecEntry BVBit w :=
-  go aig w var.ident 0 .empty (by omega)
+  go aig w var.ident 0 (.emptyWithCapacity w) (by omega)
 where
   go (aig : AIG BVBit) (w : Nat) (a : Nat) (curr : Nat) (s : AIG.RefVec aig curr)
     (hcurr : curr ≤ w) :

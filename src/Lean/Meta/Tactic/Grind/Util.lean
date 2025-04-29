@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Simproc
+import Init.Grind.Tactics
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Util
@@ -19,14 +20,6 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
   let type ← instantiateMVars (← mvarId.getType)
   if type.hasExprMVar then
     throwTacticEx `grind mvarId "goal contains metavariables"
-
-/--
-Throws an exception if target is not a proposition.
--/
-def _root_.Lean.MVarId.ensureProp (mvarId : MVarId) : MetaM Unit := do
-  let type ← mvarId.getType
-  unless (← isProp type) do
-    throwTacticEx `grind mvarId "goal is not a proposition"
 
 def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `grind
@@ -104,7 +97,8 @@ def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.
     try
       mvarId ← mvarId.clear fvarId
     catch _ =>
-      throwTacticEx `grind.clear_aux_decls mvarId "failed to clear local auxiliary declaration"
+      let userName := (← fvarId.getDecl).userName
+      throwTacticEx `grind mvarId m!"the goal mentions the declaration `{userName}`, which is being defined. To avoid circular reasoning, try rewriting the goal to eliminate `{userName}` before using `grind`."
   return mvarId
 
 /--
@@ -166,7 +160,7 @@ Normalizes the given expression using the `grind` simplification theorems and si
 This function is used for normalzing E-matching patterns. Note that it does not return a proof.
 -/
 @[extern "lean_grind_normalize"] -- forward definition
-opaque normalize (e : Expr) : MetaM Expr
+opaque normalize (e : Expr) (config : Grind.Config) : MetaM Expr
 
 /--
 Returns `Grind.MatchCond e`.
@@ -213,6 +207,6 @@ def replacePreMatchCond (e : Expr) : MetaM Simp.Result := do
       let_expr Grind.PreMatchCond p := e | return .continue e
       return .continue (markAsMatchCond p)
     let e' ← Core.transform e (pre := pre)
-    return { expr := e', proof? := (← mkExpectedTypeHint (← mkEqRefl e') (← mkEq e e')) }
+    return { expr := e', proof? := mkExpectedPropHint (← mkEqRefl e') (← mkEq e e') }
 
 end Lean.Meta.Grind

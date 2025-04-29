@@ -36,7 +36,7 @@ structure TimeZone where
   Day light saving flag.
   -/
   isDST : Bool
-  deriving Inhabited, Repr, BEq
+deriving Inhabited, Repr, DecidableEq
 
 namespace TimeZone
 

@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
+
+option(USE_MIMALLOC "use mimalloc" ON)
+
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'
@@ -9,18 +12,19 @@ foreach(var ${vars})
   get_property(currentHelpString CACHE "${var}" PROPERTY HELPSTRING)
   if("${var}" MATCHES "STAGE0_(.*)")
     list(APPEND STAGE0_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
+  elseif("${var}" MATCHES "STAGE1_(.*)")
+    list(APPEND STAGE1_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
   elseif("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
     if("${var}" MATCHES "USE_GMP|CHECK_OLEAN_VERSION")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
-    endif()
-    if("${var}" MATCHES "LLVM*")
+    elseif("${var}" MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC")
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     endif()
-    if("${var}" MATCHES "PKG_CONFIG*")
-      list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
-    endif()
+  elseif("${var}" MATCHES "USE_MIMALLOC")
+    list(APPEND CL_ARGS "-D${var}=${${var}}")
+    list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
   elseif(("${var}" MATCHES "CMAKE_.*") AND NOT ("${var}" MATCHES "CMAKE_BUILD_TYPE") AND NOT ("${var}" MATCHES "CMAKE_HOME_DIRECTORY"))
     list(APPEND PLATFORM_ARGS "-D${var}=${${var}}")
   endif()
@@ -58,31 +62,47 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND "")
     set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} CACHE FILEPATH "path to cadical binary" FORCE)
-    set(EXTRA_DEPENDS "cadical")
+    list(APPEND EXTRA_DEPENDS cadical)
   endif()
   list(APPEND CL_ARGS -DCADICAL=${CADICAL})
 endif()
 
-ExternalProject_add(stage0
-  SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
-  SOURCE_SUBDIR src
-  BINARY_DIR stage0
-  # do not rebuild stage0 when git hash changes; it's not from this commit anyway
-  # (however, `CHECK_OLEAN_VERSION=ON` in CI will override this as we need to
-  # embed the githash into the stage 1 library built by stage 0)
-  CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
-  BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
-  INSTALL_COMMAND ""  # skip install
-  DEPENDS ${EXTRA_DEPENDS}
-)
+if (USE_MIMALLOC)
+  ExternalProject_add(mimalloc
+    PREFIX mimalloc
+    GIT_REPOSITORY https://github.com/microsoft/mimalloc
+    GIT_TAG v2.2.3
+    # just download, we compile it as part of each stage as it is small
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND "")
+  list(APPEND EXTRA_DEPENDS mimalloc)
+endif()
+
+if (NOT STAGE1_PREV_STAGE)
+  ExternalProject_add(stage0
+    SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
+    SOURCE_SUBDIR src
+    BINARY_DIR stage0
+    # do not rebuild stage0 when git hash changes; it's not from this commit anyway
+    # (however, CI will override this as we need to embed the githash into the stage 1 library built
+    # by stage 0)
+    CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
+    BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
+    INSTALL_COMMAND ""  # skip install
+    DEPENDS ${EXTRA_DEPENDS}
+  )
+  list(APPEND EXTRA_DEPENDS stage0)
+endif()
 ExternalProject_add(stage1
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
   SOURCE_SUBDIR src
   BINARY_DIR stage1
-  CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 -DPREV_STAGE_CMAKE_EXECUTABLE_SUFFIX=${STAGE0_CMAKE_EXECUTABLE_SUFFIX} ${CL_ARGS}
+  CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 -DPREV_STAGE_CMAKE_EXECUTABLE_SUFFIX=${STAGE0_CMAKE_EXECUTABLE_SUFFIX} ${CL_ARGS} ${STAGE1_ARGS}
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
-  DEPENDS stage0
+  DEPENDS ${EXTRA_DEPENDS}
+  STEP_TARGETS configure
 )
 ExternalProject_add(stage2
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
@@ -93,6 +113,7 @@ ExternalProject_add(stage2
   INSTALL_COMMAND ""
   DEPENDS stage1
   EXCLUDE_FROM_ALL ON
+  STEP_TARGETS configure
 )
 ExternalProject_add(stage3
   SOURCE_DIR "${LEAN_SOURCE_DIR}"

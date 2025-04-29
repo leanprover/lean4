@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
@@ -16,14 +18,14 @@ namespace Vector
 
 /-! ### Lexicographic ordering -/
 
-@[simp] theorem lt_toArray [LT α] (xs ys : Vector α n) : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
-@[simp] theorem le_toArray [LT α] (xs ys : Vector α n) : xs.toArray ≤ ys.toArray ↔ xs ≤ ys := Iff.rfl
+@[simp] theorem lt_toArray [LT α] {xs ys : Vector α n} : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
+@[simp] theorem le_toArray [LT α] {xs ys : Vector α n} : xs.toArray ≤ ys.toArray ↔ xs ≤ ys := Iff.rfl
 
-@[simp] theorem lt_toList [LT α] (xs ys : Vector α n) : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
-@[simp] theorem le_toList [LT α] (xs ys : Vector α n) : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
+@[simp] theorem lt_toList [LT α] {xs ys : Vector α n} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
+@[simp] theorem le_toList [LT α] {xs ys : Vector α n} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
-protected theorem not_lt_iff_ge [LT α] (xs ys : Vector α n) : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
-protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (xs ys : Vector α n) :
+protected theorem not_lt_iff_ge [LT α] {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys : Vector α n} :
     ¬ xs ≤ ys ↔ ys < xs :=
   Decidable.not_not
 
@@ -33,18 +35,18 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (xs ys
 @[simp] theorem mk_le_mk [LT α] :
     Vector.mk (α := α) (n := n) data₁ size₁ ≤ Vector.mk data₂ size₂ ↔ data₁ ≤ data₂ := Iff.rfl
 
-@[simp] theorem mk_lex_mk [BEq α] (lt : α → α → Bool) {xs ys : Array α} {n₁ : xs.size = n} {n₂ : ys.size = n} :
+@[simp] theorem mk_lex_mk [BEq α] {lt : α → α → Bool} {xs ys : Array α} {n₁ : xs.size = n} {n₂ : ys.size = n} :
     (Vector.mk xs n₁).lex (Vector.mk ys n₂) lt = xs.lex ys lt := by
   simp [Vector.lex, Array.lex, n₁, n₂]
   rfl
 
-@[simp] theorem lex_toArray [BEq α] (lt : α → α → Bool) (xs ys : Vector α n) :
+@[simp] theorem lex_toArray [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
     xs.toArray.lex ys.toArray lt = xs.lex ys lt := by
   cases xs
   cases ys
   simp
 
-@[simp] theorem lex_toList [BEq α] (lt : α → α → Bool) (xs ys : Vector α n) :
+@[simp] theorem lex_toList [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
     xs.toList.lex ys.toList lt = xs.lex ys lt := by
   rcases xs with ⟨xs, n₁⟩
   rcases ys with ⟨ys, n₂⟩
@@ -68,7 +70,7 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
 @[simp] theorem not_lt_empty [LT α] (xs : Vector α 0) : ¬ xs < #v[] := Array.not_lt_empty xs.toArray
 @[simp] theorem empty_le [LT α] (xs : Vector α 0) : #v[] ≤ xs := Array.empty_le xs.toArray
 
-@[simp] theorem le_empty [LT α] (xs : Vector α 0) : xs ≤ #v[] ↔ xs = #v[] := by
+@[simp] theorem le_empty [LT α] {xs : Vector α 0} : xs ≤ #v[] ↔ xs = #v[] := by
   cases xs
   simp
 
@@ -148,13 +150,13 @@ protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
     {xs ys : Vector α n} : xs ≤ ys ↔ xs < ys ∨ xs = ys := by
   simpa using Array.le_iff_lt_or_eq (xs := xs.toArray) (ys := ys.toArray)
 
-@[simp] theorem lex_eq_true_iff_lt [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_true_iff_lt [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {xs ys : Vector α n} : lex xs ys = true ↔ xs < ys := by
   cases xs
   cases ys
   simp
 
-@[simp] theorem lex_eq_false_iff_ge [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_false_iff_ge [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {xs ys : Vector α n} : lex xs ys = false ↔ ys ≤ xs := by
   cases xs
   cases ys
@@ -191,7 +193,7 @@ This formulation requires that `==` and `lt` are compatible in the following sen
 - `==` is symmetric
   (we unnecessarily further assume it is transitive, to make use of the existing typeclasses)
 - `lt` is irreflexive with respect to `==` (i.e. if `x == y` then `lt x y = false`
-- `lt` is asymmmetric  (i.e. `lt x y = true → lt y x = false`)
+- `lt` is asymmetric  (i.e. `lt x y = true → lt y x = false`)
 - `lt` is antisymmetric with respect to `==` (i.e. `lt x y = false → lt y x = false → x == y`)
 -/
 theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)

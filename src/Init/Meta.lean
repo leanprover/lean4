@@ -5,6 +5,8 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 
 Additional goodies for writing macros
 -/
+module
+
 prelude
 import Init.MetaTypes
 import Init.Syntax
@@ -127,7 +129,7 @@ Names that are valid identifiers are not escaped, and otherwise, if they do not 
 - If `force` is `true`, then even valid identifiers are escaped.
 -/
 def escapePart (s : String) (force : Bool := false) : Option String :=
-  if s.length > 0 && !force && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
+  if s.length > 0 && !force && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then some s
   else if s.any isIdEndEscape then none
   else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
 
@@ -275,6 +277,14 @@ class MonadNameGenerator (m : Type → Type) where
 
 export MonadNameGenerator (getNGen setNGen)
 
+/--
+Creates a globally unique `Name`, without any semantic interpretation.
+The names are not intended to be user-visible.
+With the default name generator, names use `_uniq` as a base and have a numeric suffix.
+
+This is used for example by `Lean.mkFreshFVarId`, `Lean.mkFreshMVarId`, and `Lean.mkFreshLMVarId`.
+To create fresh user-visible identifiers, use functions such as `Lean.Core.mkFreshUserName` instead.
+-/
 def mkFreshId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m Name := do
   let ngen ← getNGen
   let r := ngen.curr
@@ -292,18 +302,57 @@ deriving instance Repr for Syntax.Preresolved
 deriving instance Repr for Syntax
 deriving instance Repr for TSyntax
 
+/--
+Syntax that represents a Lean term.
+-/
 abbrev Term := TSyntax `term
+/--
+Syntax that represents a command.
+-/
 abbrev Command := TSyntax `command
+/--
+Syntax that represents a universe level.
+-/
 protected abbrev Level := TSyntax `level
+/--
+Syntax that represents a tactic.
+-/
 protected abbrev Tactic := TSyntax `tactic
+/--
+Syntax that represents a precedence (e.g. for an operator).
+-/
 abbrev Prec := TSyntax `prec
+/--
+Syntax that represents a priority (e.g. for an instance declaration).
+-/
 abbrev Prio := TSyntax `prio
+/--
+Syntax that represents an identifier.
+-/
 abbrev Ident := TSyntax identKind
+/--
+Syntax that represents a string literal.
+-/
 abbrev StrLit := TSyntax strLitKind
+/--
+Syntax that represents a character literal.
+-/
 abbrev CharLit := TSyntax charLitKind
+/--
+Syntax that represents a quoted name literal that begins with a back-tick.
+-/
 abbrev NameLit := TSyntax nameLitKind
+/--
+Syntax that represents a scientific numeric literal that may have decimal and exponential parts.
+-/
 abbrev ScientificLit := TSyntax scientificLitKind
+/--
+Syntax that represents a numeric literal.
+-/
 abbrev NumLit := TSyntax numLitKind
+/--
+Syntax that represents macro hygiene info.
+-/
 abbrev HygieneInfo := TSyntax hygieneInfoKind
 
 end Syntax
@@ -379,11 +428,11 @@ instance : BEq (Lean.TSyntax k) := ⟨(·.raw == ·.raw)⟩
 Finds the first `SourceInfo` from the back of `stx` or `none` if no `SourceInfo` can be found.
 -/
 partial def getTailInfo? : Syntax → Option SourceInfo
-  | atom info _   => info
-  | ident info .. => info
+  | atom info _   => some info
+  | ident info .. => some info
   | node SourceInfo.none _ args =>
       args.findSomeRev? getTailInfo?
-  | node info _ _    => info
+  | node info _ _    => some info
   | _             => none
 
 /--
@@ -501,7 +550,7 @@ partial def getHead? : Syntax → Option Syntax
   | stx@(atom info ..)  => info.getPos?.map fun _ => stx
   | stx@(ident info ..) => info.getPos?.map fun _ => stx
   | node SourceInfo.none _ args => args.findSome? getHead?
-  | stx@(node ..) => stx
+  | stx@(node ..) => some stx
   | _ => none
 
 def copyHeadTailInfoFrom (target source : Syntax) : Syntax :=
@@ -869,7 +918,7 @@ Justification: this does not overlap with any other sequences beginning with `\`
 -/
 def decodeStringGap (s : String) (i : String.Pos) : Option String.Pos := do
   guard <| (s.get i).isWhitespace
-  s.nextWhile Char.isWhitespace (s.next i)
+  some <| s.nextWhile Char.isWhitespace (s.next i)
 
 partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String := do
   let c := s.get i
@@ -912,7 +961,7 @@ The function is not required to return `none` if the string literal is ill-forme
 -/
 def decodeStrLit (s : String) : Option String :=
   if s.get 0 == 'r' then
-    decodeRawStrLitAux s ⟨1⟩ 0
+    some <| decodeRawStrLitAux s ⟨1⟩ 0
   else
     decodeStrLitAux s ⟨1⟩ ""
 
@@ -970,6 +1019,13 @@ private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : Li
 def splitNameLit (ss : Substring) : List Substring :=
   splitNameLitAux ss [] |>.reverse
 
+/--
+Converts a substring to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots (`'.'`).
+
+`"a.b".toSubstring.toName` is the name `a.b`, not `«a.b»`. For the latter, use
+`Name.mkSimple ∘ Substring.toString`.
+-/
 def _root_.Substring.toName (s : Substring) : Name :=
   match splitNameLitAux s [] with
   | [] => .anonymous
@@ -987,7 +1043,8 @@ def _root_.Substring.toName (s : Substring) : Name :=
         Name.mkStr n comp
 
 /--
-Converts a `String` to a hierarchical `Name` after splitting it at the dots.
+Converts a string to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots (`'.'`).
 
 `"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
 -/
@@ -1042,24 +1099,63 @@ end Syntax
 
 namespace TSyntax
 
+/--
+Interprets a numeric literal as a natural number.
+
+Returns `0` if the syntax is malformed.
+-/
 def getNat (s : NumLit) : Nat :=
   s.raw.isNatLit?.getD 0
 
+/--
+Extracts the parsed name from the syntax of an identifier.
+
+Returns `Name.anonymous` if the syntax is malformed.
+-/
 def getId (s : Ident) : Name :=
   s.raw.getId
 
+/--
+Extracts the components of a scientific numeric literal.
+
+Returns a triple `(n, sign, e) : Nat × Bool × Nat`; the number's value is given by:
+
+```
+if sign then n * 10 ^ (-e) else n * 10 ^ e
+```
+
+Returns `(0, false, 0)` if the syntax is malformed.
+-/
 def getScientific (s : ScientificLit) : Nat × Bool × Nat :=
   s.raw.isScientificLit?.getD (0, false, 0)
 
+/--
+Decodes a string literal, removing quotation marks and unescaping escaped characters.
+
+Returns `""` if the syntax is malformed.
+-/
 def getString (s : StrLit) : String :=
   s.raw.isStrLit?.getD ""
 
+/--
+Decodes a character literal.
+
+Returns `(default : Char)` if the syntax is malformed.
+-/
 def getChar (s : CharLit) : Char :=
   s.raw.isCharLit?.getD default
 
+/--
+Decodes a quoted name literal, returning the name.
+
+Returns `Lean.Name.anonymous` if the syntax is malformed.
+-/
 def getName (s : NameLit) : Name :=
   s.raw.isNameLit?.getD .anonymous
 
+/--
+Decodes macro hygiene information.
+-/
 def getHygieneInfo (s : HygieneInfo) : Name :=
   s.raw[0].getId
 
@@ -1207,9 +1303,19 @@ private partial def filterSepElemsMAux {m : Type → Type} [Monad m] (a : Array 
   else
     pure acc
 
+/--
+Filters an array of syntax, treating every other element as a separator rather than an element to
+test with the monadic predicate `p`. The resulting array contains the tested elements for which `p`
+returns `true`, separated by the corresponding separator elements.
+-/
 def filterSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax → m Bool) : m (Array Syntax) :=
   filterSepElemsMAux a p 0 #[]
 
+/--
+Filters an array of syntax, treating every other element as a separator rather than an element to
+test with the predicate `p`. The resulting array contains the tested elements for which `p` returns
+`true`, separated by the corresponding separator elements.
+-/
 def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
   Id.run <| a.filterSepElemsM p
 
@@ -1388,12 +1494,18 @@ structure ApplyConfig where
 
 namespace Rewrite
 
+@[inherit_doc ApplyNewGoals]
 abbrev NewGoals := ApplyNewGoals
 
+/-- Configures the behavior of the `rewrite` and `rw` tactics. -/
 structure Config where
+  /-- The transparency mode to use for unfolding -/
   transparency : TransparencyMode := .reducible
+  /-- Whether to support offset constraints such as `?x + 1 =?= e` -/
   offsetCnstrs : Bool := true
+  /-- Which occurrences to rewrite-/
   occs : Occurrences := .all
+  /-- How to convert the resulting metavariables into  new goals -/
   newGoals : NewGoals := .nonDependentFirst
 
 end Rewrite

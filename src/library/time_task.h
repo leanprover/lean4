@@ -11,7 +11,7 @@ Author: Sebastian Ullrich
 #include "util/message_definitions.h"
 
 namespace lean {
-LEAN_EXPORT bool has_profiling_task();
+LEAN_EXPORT bool has_no_block_profiling_task();
 LEAN_EXPORT void report_profiling_time(std::string const & category, second_duration time);
 LEAN_EXPORT void display_cumulative_profiling_times(std::ostream & out);
 LEAN_EXPORT void exclude_profiling_time_from_current_task(second_duration time);
@@ -25,6 +25,7 @@ public:
     time_task(std::string const & category, options const & opts, name decl = name());
     ~time_task();
     void exclude_duration(second_duration duration) { m_timeit->exclude_duration(duration); }
+    std::string const & category() const { return m_category; }
 };
 
 void initialize_time_task();

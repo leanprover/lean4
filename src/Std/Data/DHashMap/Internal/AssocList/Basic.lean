@@ -221,7 +221,7 @@ def alter [BEq α] {β : Type v} (a : α) (f : Option β → Option β) :
     | some b => AssocList.cons a b nil
   | cons k v l =>
     if k == a then
-      match f v with
+      match f (some v) with
       | none => l
       | some b => cons a b l
     else

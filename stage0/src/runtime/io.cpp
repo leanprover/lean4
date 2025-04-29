@@ -688,7 +688,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
         if (U_FAILURE(status)) {
             ucal_close(cal);
-            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transation")));
+            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transition")));
         }
 
         tm = (int64_t)(nextTransition / 1000.0);
@@ -913,9 +913,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }
 
-/* addHeartbeats (count : Int64) : BaseIO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_add_heartbeats(int64_t count, obj_arg /* w */) {
-    add_heartbeats(count);
+/* setHeartbeats (count : Nat) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count, obj_arg /* w */) {
+    set_heartbeats(lean_uint64_of_nat(count));
+    lean_dec(count);
     return io_result_mk_ok(box(0));
 }
 
@@ -1464,7 +1465,18 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /
     return io_result_mk_ok(a);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg /* a */, obj_arg /* w */) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#include <sanitizer/lsan_interface.h>
+#endif
+#endif
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg o, obj_arg /* w */) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+    __lsan_ignore_object(o);
+#endif
+#endif
     return io_result_mk_ok(box(0));
 }
 

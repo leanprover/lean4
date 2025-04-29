@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedArgsPacker;
 static lean_object* l_Lean_Meta_instInhabitedArgsPacker___closed__1;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* _init_l_Lean_Meta_instInhabitedArgsPacker___closed__1() {
 _start:
 {

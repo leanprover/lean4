@@ -14,17 +14,17 @@ import Lean.MonadEnv
 namespace Lean
 
 builtin_initialize builtinDeclRanges : IO.Ref (NameMap DeclarationRanges) ← IO.mkRef {}
-builtin_initialize declRangeExt : MapDeclarationExtension DeclarationRanges ← mkMapDeclarationExtension
+builtin_initialize declRangeExt : MapDeclarationExtension DeclarationRanges ←
+  mkMapDeclarationExtension (exportEntriesFn := fun _ => #[])
 
 def addBuiltinDeclarationRanges (declName : Name) (declRanges : DeclarationRanges) : IO Unit :=
   builtinDeclRanges.modify (·.insert declName declRanges)
 
 def addDeclarationRanges [Monad m] [MonadEnv m] (declName : Name) (declRanges : DeclarationRanges) : m Unit := do
-  unless declRangeExt.contains (← getEnv) declName do
-    modifyEnv fun env => declRangeExt.insert env declName declRanges
+  modifyEnv fun env => declRangeExt.insert env declName declRanges
 
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=
-  return declRangeExt.find? (← getEnv) declName
+  return declRangeExt.find? (includeServer := true) (← getEnv) declName
 
 def findDeclarationRanges? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) : m (Option DeclarationRanges) := do
   let env ← getEnv

@@ -530,8 +530,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     balance! k v l r = balanceₘ k v l r := by
   cases k, v, l, r using balance!.fun_cases
-  all_goals
-    simp only [balance!, balanceₘ]
+  all_goals dsimp only [balance!, balanceₘ]
   · rfl
   · split <;> simp_all [Std.Internal.tree_tac]
   · split <;> simp_all only [Std.Internal.tree_tac]
@@ -655,7 +654,7 @@ theorem balanced_rotateL (k v l rs rk rv rl rr) (hl : l.Balanced)
     (hlr : BalanceLErasePrecond l.size rs ∨ BalanceLErasePrecond rs l.size)
     (hh : rs > delta * l.size) :
     (rotateL k v l rk rv rl rr : Impl α β).Balanced := by
-  cases k, v, l, rk, rv, rl, rr using rotateL.fun_cases <;> simp only [rotateL]
+  fun_cases rotateL k v l rk rv rl rr <;> dsimp only [rotateL]
   · split
     · next h =>
       exact balanced_singleL _ _ _ _ _ _ _ _ hl hr hlr hh h
@@ -669,7 +668,7 @@ theorem balanced_rotateR (k v ls lk lv ll lr r) (hl : (Impl.inner ls lk lv ll lr
     (hr : r.Balanced) (hlr : BalanceLErasePrecond ls r.size ∨ BalanceLErasePrecond r.size ls)
     (hh : ls > delta * r.size) :
     (rotateR k v lk lv ll lr r : Impl α β).Balanced := by
-  cases k, v, lk, lv, ll, lr, r using rotateR.fun_cases <;> simp only [rotateR]
+  fun_cases rotateR k v lk lv ll lr r <;> dsimp only [rotateR]
   · split
     · next h =>
       exact balanced_singleR k v _ _ _ _ _ _ hl hr hlr hh h
@@ -681,89 +680,79 @@ theorem balanced_rotateR (k v ls lk lv ll lr r) (hl : (Impl.inner ls lk lv ll lr
 
 theorem balanceL_eq_balanceLErase {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balanceLErase k v l r hlb hrb hlr.erase := by
-  rw [balanceL.eq_def, balanceLErase.eq_def]
+  fun_cases balanceL k v l r hlb hrb hlr
+  all_goals dsimp only [balanceL, balanceLErase]
+  contradiction
   split
-  · dsimp only
-    split
-    all_goals dsimp only
-    contradiction
-  · dsimp only
-    split
-    all_goals dsimp only
-    split
-    · split
-      · dsimp only
-      · contradiction
-      · contradiction
-    · rfl
+  · split <;> contradiction
+  · rfl
 
 theorem balanceLErase_eq_balanceL! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceLErase k v l r hlb hrb hlr = balanceL! k v l r := by
-  rw [balanceLErase.eq_def, balanceL!.eq_def]
-  repeat' (split; dsimp)
-  all_goals try contradiction
-  all_goals simp_all [-Nat.not_lt]
+  fun_cases balanceL! k v l r
+  all_goals dsimp only [balanceLErase, balanceL!]
+  all_goals simp only [*]
+  all_goals dsimp only [dreduceDIte, dreduceIte]
+  all_goals contradiction
 
 theorem balanceL!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
     (hrb : r.Balanced) (hlr : BalanceLErasePrecond l.size r.size) :
     balanceL! k v l r = balance! k v l r := by
   cases k, v, l, r using balance!.fun_cases
-  all_goals
-    simp only [balanceL!, balance!, *, if_true, if_false, true_and, size_inner, size_leaf]
+  all_goals dsimp only [balanceL!, balance!]
+  all_goals try simp only [*]
+  all_goals try dsimp only [dreduceDIte, dreduceIte]
   all_goals try rfl
   all_goals try contradiction
   all_goals try (exfalso; tree_tac; done)
-  all_goals congr; tree_tac
+  congr; tree_tac
 
 theorem balanceR_eq_balanceRErase {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceR k v l r hlb hrb hlr = balanceRErase k v l r hlb hrb hlr.erase := by
-  rw [balanceR.eq_def, balanceRErase.eq_def]
+  fun_cases balanceR k v l r hlb hrb hlr
+  all_goals dsimp only [balanceR, balanceRErase]
+  contradiction
   split
-  · dsimp only
-    split
-    all_goals dsimp only
-    contradiction
-  · dsimp only
-    split
-    all_goals dsimp only
-    split
-    · split
-      · dsimp only
-      · contradiction
-      · contradiction
-    · rfl
+  · split <;> contradiction
+  · rfl
 
 theorem balanceRErase_eq_balanceR! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceRErase k v l r hlb hrb hlr = balanceR! k v l r := by
-  rw [balanceRErase.eq_def, balanceR!.eq_def]
-  repeat' (split; dsimp)
-  all_goals try contradiction
-  all_goals simp_all [-Nat.not_lt]
+  fun_cases balanceR! k v l r
+  all_goals dsimp only [balanceRErase, balanceR!]
+  all_goals simp only [*]
+  all_goals dsimp only [dreduceDIte, dreduceIte]
+  all_goals contradiction
 
 theorem balanceR!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
     (hrb : r.Balanced) (hlr : BalanceLErasePrecond r.size l.size) :
     balanceR! k v l r = balance! k v l r := by
   cases k, v, l, r using balance!.fun_cases
-  all_goals
-    simp only [balanceR!, balance!, *, if_true, if_false, true_and, size_inner, size_leaf]
+  all_goals dsimp only [balanceR!, balance!]
+  all_goals try simp only [*]
+  all_goals try dsimp only [dreduceDIte, dreduceIte]
   all_goals try rfl
   all_goals try contradiction
   all_goals try (exfalso; tree_tac; done)
-  all_goals congr; tree_tac
+  congr; tree_tac
 
 theorem balance_eq_balance! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balance k v l r hlb hrb hlr = balance! k v l r := by
-  rw [balance.eq_def, balance!.eq_def]
-  repeat' (split; dsimp)
-  all_goals try contradiction
-  all_goals simp_all [-Nat.not_lt]
+  fun_cases balance! k v l r
+  all_goals dsimp only [balance, balance!]
+  all_goals simp only [*]
+  all_goals dsimp only [dreduceDIte]
+  all_goals contradiction
 
 theorem balance_eq_inner [Ord α] {sz k v} {l r : Impl α β}
     (hl : (inner sz k v l r).Balanced) {h} :
     balance k v l r hl.left hl.right h = inner sz k v l r := by
   rw [balance_eq_balance!, balance!_eq_balanceₘ hl.left hl.right h, balanceₘ]
   have hl' := balanced_inner_iff.mp hl
-  fun_cases balanceₘ k v l r <;> tree_tac
+  rw [hl'.2.2.2]
+  split; rfl
+  replace hl' := hl'.2.2.1.resolve_left ‹_›
+  simp only [Nat.not_lt_of_le, hl'.1, hl'.2, reduceDIte, bin]
 
 theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :

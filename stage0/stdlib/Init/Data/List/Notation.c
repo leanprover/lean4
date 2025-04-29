@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__14;
 static lean_object* l_term_x5b___x5d___closed__14;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_term_x25_x5b___x7c___x5d___closed__11;
 LEAN_EXPORT lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_x5b___x5d___closed__3;
@@ -97,6 +96,7 @@ static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__te
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__7;
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_term_x5b___x5d___closed__10;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* _init_l_term_x5b___x5d___closed__1() {
 _start:
 {

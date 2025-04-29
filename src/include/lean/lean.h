@@ -995,14 +995,19 @@ static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i
 
 LEAN_EXPORT lean_obj_res lean_byte_array_set_size(lean_obj_arg a, b_lean_obj_arg sz, uint8_t exact);
 
-void * memset(void * ptr, int c, size_t n);
+void * memset(void * s, int c, size_t n);
+int memcmp(const void * s1, const void * s2, size_t n);
 
 static inline lean_obj_res lean_byte_array_fill(lean_obj_arg a, b_lean_obj_arg b, b_lean_obj_arg s, uint8_t v) {
     lean_obj_res r;
     if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
     else r = lean_copy_byte_array(a);
-    memset(lean_sarray_cptr(r) + lean_unbox(b), lean_unbox(s), v);
+    memset(lean_sarray_cptr(r) + lean_unbox(b), v, lean_unbox(s));
     return r;
+}
+
+static inline uint8_t lean_byte_array_slice_eq(b_lean_obj_arg b1, b_lean_obj_arg off1, b_lean_obj_arg b2, b_lean_obj_arg off2, b_lean_obj_arg len) {
+    return memcmp(lean_sarray_cptr(b1) + lean_unbox(off1), lean_sarray_cptr(b2) + lean_unbox(off2), lean_unbox(len)) == 0 ? 1 : 0;
 }
 
 /* FloatArray (special case of Array of Scalars) */

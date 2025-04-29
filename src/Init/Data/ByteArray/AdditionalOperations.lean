@@ -418,4 +418,37 @@ theorem data_replicate (size : Nat) (value : UInt8) :
   cases (emptyWithCapacity size).setSize' size using Quot.ind with | mk a => ?_
   simp [Quot.liftOn, fill', copySlice, ← size_def, Array.extract_empty_of_size_le_start, a.2]
 
+/--
+Return true iff the slices `[asOff, asOff + len)` in `as` and `[bsOff, bsOff + len)` in
+`bs` contain the same data.
+-/
+@[extern "lean_byte_array_slice_eq"]
+def sliceEq' (as : @& ByteArray) (asOff : @& Nat) (bs : @& ByteArray) (bsOff : @& Nat) (len : @& Nat)
+    (h : asOff + len ≤ as.size := by get_elem_tactic)
+    (h' : bsOff + len ≤ bs.size := by get_elem_tactic) : Bool :=
+  as.data.extract asOff (asOff + len) == bs.data.extract bsOff (bsOff + len)
+
+/--
+Returns whether two byte arrays are equal.
+
+The notation `==` is preferred over using this function directly.
+-/
+protected def beq (as bs : ByteArray) : Bool :=
+  if h : as.size = bs.size then
+    sliceEq' as 0 bs 0 as.size
+  else
+    false
+
+protected theorem beq_iff_eq {as bs : ByteArray} : as.beq bs ↔ as = bs := by
+  dsimp [ByteArray.beq]
+  split
+  · rename_i h
+    simp [sliceEq', ← size_def, h]
+    exact ⟨fun h => (h ▸ rfl : mk as.data = mk bs.data), fun h => h ▸ rfl⟩
+  · rename_i h
+    simp [ne_of_apply_ne size h]
+
+instance : DecidableEq ByteArray := fun _ _ =>
+  decidable_of_decidable_of_iff ByteArray.beq_iff_eq
+
 end ByteArray

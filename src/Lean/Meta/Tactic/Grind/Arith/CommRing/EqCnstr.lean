@@ -154,11 +154,19 @@ def EqCnstr.simplifyAndCheck (c : EqCnstr) : RingM (Option EqCnstr) := do
   else
     return some c
 
+private def addSorted (c : EqCnstr) : List EqCnstr → List EqCnstr
+  | [] => [c]
+  | c' :: cs =>
+    if c.p.lm.grevlex c'.p.lm == .gt then
+      c :: c' :: cs
+    else
+      c' :: addSorted c cs
+
 def addToBasisCore (c : EqCnstr) : RingM Unit := do
   let .add _ m _ := c.p | return ()
   let .mult pw _ := m | return ()
   modifyRing fun s => { s with
-    varToBasis := s.varToBasis.modify pw.x (c :: ·)
+    varToBasis := s.varToBasis.modify pw.x (addSorted c)
     recheck := true
   }
 

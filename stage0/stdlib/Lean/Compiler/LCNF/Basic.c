@@ -8724,8 +8724,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_Arg_updateTypeImp___closed__1;
 x_2 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_collectType___closed__1;
-x_3 = lean_unsigned_to_nat(657u);
-x_4 = lean_unsigned_to_nat(39u);
+x_3 = lean_unsigned_to_nat(658u);
+x_4 = lean_unsigned_to_nat(27u);
 x_5 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_Arg_updateTypeImp___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
@@ -8794,11 +8794,12 @@ return x_19;
 }
 case 10:
 {
-lean_object* x_20; lean_object* x_21; 
+lean_object* x_20; 
+x_20 = lean_ctor_get(x_1, 1);
+lean_inc(x_20);
 lean_dec(x_1);
-x_20 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_collectType___closed__2;
-x_21 = l_panic___at___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_collectType___spec__1(x_20, x_2);
-return x_21;
+x_1 = x_20;
+goto _start;
 }
 case 11:
 {

@@ -186,22 +186,22 @@ x_12 = l_Lean_Syntax_getId(x_5);
 lean_dec(x_5);
 if (lean_obj_tag(x_3) == 0)
 {
-uint8_t x_13; lean_object* x_14; 
+uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_13 = 0;
-x_14 = lean_alloc_ctor(0, 1, 2);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set_uint8(x_14, sizeof(void*)*1, x_13);
-lean_ctor_set_uint8(x_14, sizeof(void*)*1 + 1, x_13);
-return x_14;
+x_14 = 1;
+x_15 = lean_alloc_ctor(0, 1, 2);
+lean_ctor_set(x_15, 0, x_12);
+lean_ctor_set_uint8(x_15, sizeof(void*)*1, x_13);
+lean_ctor_set_uint8(x_15, sizeof(void*)*1 + 1, x_14);
+return x_15;
 }
 else
 {
-uint8_t x_15; uint8_t x_16; lean_object* x_17; 
-x_15 = 1;
-x_16 = 0;
+uint8_t x_16; lean_object* x_17; 
+x_16 = 1;
 x_17 = lean_alloc_ctor(0, 1, 2);
 lean_ctor_set(x_17, 0, x_12);
-lean_ctor_set_uint8(x_17, sizeof(void*)*1, x_15);
+lean_ctor_set_uint8(x_17, sizeof(void*)*1, x_16);
 lean_ctor_set_uint8(x_17, sizeof(void*)*1 + 1, x_16);
 return x_17;
 }
@@ -401,14 +401,15 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_headerToImports___lambda__1___closed__5() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+lean_object* x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_1 = l_Lean_Elab_headerToImports___lambda__1___closed__4;
 x_2 = 0;
-x_3 = lean_alloc_ctor(0, 1, 2);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 1, x_2);
-return x_3;
+x_3 = 1;
+x_4 = lean_alloc_ctor(0, 1, 2);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set_uint8(x_4, sizeof(void*)*1, x_2);
+lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 1, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Elab_headerToImports___lambda__1___closed__6() {

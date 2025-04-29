@@ -2981,7 +2981,7 @@ block_123:
 {
 uint8_t x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; 
 lean_dec(x_118);
-x_119 = 0;
+x_119 = 1;
 x_120 = lean_alloc_ctor(0, 1, 2);
 lean_ctor_set(x_120, 0, x_117);
 lean_ctor_set_uint8(x_120, sizeof(void*)*1, x_1);
@@ -3220,7 +3220,7 @@ block_181:
 {
 uint8_t x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; 
 lean_dec(x_176);
-x_177 = 0;
+x_177 = 1;
 x_178 = lean_alloc_ctor(0, 1, 2);
 lean_ctor_set(x_178, 0, x_175);
 lean_ctor_set_uint8(x_178, sizeof(void*)*1, x_1);
@@ -3445,7 +3445,7 @@ block_23:
 {
 uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_18);
-x_19 = 0;
+x_19 = 1;
 x_20 = lean_alloc_ctor(0, 1, 2);
 lean_ctor_set(x_20, 0, x_17);
 lean_ctor_set_uint8(x_20, sizeof(void*)*1, x_1);
@@ -3831,14 +3831,15 @@ return x_3;
 static lean_object* _init_l_Lean_ParseImports_keywordCore_go___at_Lean_ParseImports_main___spec__2___closed__3() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+lean_object* x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_1 = l_Lean_ParseImports_keywordCore_go___at_Lean_ParseImports_main___spec__2___closed__2;
 x_2 = 0;
-x_3 = lean_alloc_ctor(0, 1, 2);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 1, x_2);
-return x_3;
+x_3 = 1;
+x_4 = lean_alloc_ctor(0, 1, 2);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set_uint8(x_4, sizeof(void*)*1, x_2);
+lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 1, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_ParseImports_keywordCore_go___at_Lean_ParseImports_main___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

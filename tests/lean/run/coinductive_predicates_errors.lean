@@ -36,7 +36,7 @@ def h' (x : Nat) : Prop := x > 42
   least_fixpoint
 
 /--
-error: all functions in the clique must be defined using lattice theory, but some are not
+error: Invalid `termination_by`; this function is mutually recursive with f₁, which is marked as `partial_fixpoint` so this one also needs to be marked `partial_fixpoint`.
 -/
 #guard_msgs in
 mutual
@@ -47,7 +47,7 @@ mutual
   least_fixpoint
 end
 
--- Only lattice-theoretic fixpoints in the clique are fine
+-- Only `least_fixpoint`/`greatest_fixpoint` in the clique are fine
 mutual
   def f₂ (x : Nat) : Prop :=
     g₂ (x + 1)
@@ -58,7 +58,7 @@ mutual
 end
 
 /--
-error: all functions in the clique must be defined using lattice theory, but some are not
+error: Invalid `termination_by`; this function is mutually recursive with f₃, which is marked as `greatest_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.
 -/
 #guard_msgs in
 mutual
@@ -82,7 +82,7 @@ mutual
 end
 
 /--
-error: Invalid `termination_by`; this function is mutually recursive with f₅, which is not also marked as `partialFixpoint`, so this one cannot be either.
+error: Invalid `termination_by`; this function is mutually recursive with f₅, which is not also marked as `partial_fixpoint`, so this one cannot be either.
 -/
 #guard_msgs in
 mutual
@@ -93,4 +93,45 @@ mutual
   def g₅ (x : Nat) : Prop :=
     f₅ (x + 1)
     partial_fixpoint
+end
+
+/--
+error: Invalid `termination_by`; this function is mutually recursive with f₆, which is not also marked as `least_fixpoint` or `greatest_fixpoint`, so this one cannot be either.
+-/
+#guard_msgs in
+mutual
+  def f₆ (x : Nat) : Prop :=
+    g₆ (x + 1)
+    termination_by?
+
+  def g₆ (x : Nat) : Prop :=
+    f₆ (x + 1)
+    least_fixpoint
+end
+
+/--
+error: Invalid `termination_by`; this function is mutually recursive with f₇, which is marked as `greatest_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.
+-/
+#guard_msgs in
+mutual
+  def f₇ (x : Nat) : Prop :=
+    g₇ (x + 1)
+    greatest_fixpoint
+
+  def g₇ (x : Nat) : Prop :=
+    f₇ (x + 1)
+    termination_by?
+end
+
+/--
+error: Invalid `termination_by`; this function is mutually recursive with f₈, which is marked as `partial_fixpoint` so this one also needs to be marked `partial_fixpoint`.
+-/
+#guard_msgs in
+mutual
+  def f₈ (x : Nat) : Prop :=
+    g₈ (x +1)
+    partial_fixpoint
+
+  def g₈ (x : Nat) : Prop :=
+    f₈ (x + 1)
 end

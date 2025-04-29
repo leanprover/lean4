@@ -77,6 +77,10 @@ def isGreatest : PartialFixpointType → Bool
   | .greatestFixpoint => true
   | _ => false
 
+def isPartial : PartialFixpointType → Bool
+  | .partialFixpoint => true
+  | _ => false
+
 def isLatticeTheoretic (p : PartialFixpointType ) : Bool :=
   isLeast p ∨ isGreatest p
 

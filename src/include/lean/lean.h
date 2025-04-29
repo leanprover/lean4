@@ -995,8 +995,10 @@ static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i
 
 LEAN_EXPORT lean_obj_res lean_byte_array_set_size(lean_obj_arg a, b_lean_obj_arg sz, uint8_t exact);
 
+#ifndef __cplusplus
 void * memset(void * s, int c, size_t n);
 int memcmp(const void * s1, const void * s2, size_t n);
+#endif
 
 static inline lean_obj_res lean_byte_array_fill(lean_obj_arg a, b_lean_obj_arg b, b_lean_obj_arg s, uint8_t v) {
     lean_obj_res r;

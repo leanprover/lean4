@@ -139,8 +139,8 @@ instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) :=
 Interprets a string as the decimal representation of an integer, returning it. Returns `none` if
 the string does not contain a decimal integer.
 
-A string can be interpreted as a decimal integer if it consists of at least one decimal digit with
-optionally `-` in front. Leading `+` characters are not allowed.
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally `-` in front. Leading `+` characters are not allowed.
 
 Use `String.isInt` to check whether `String.toInt?` would return `some`. `String.toInt!` is an
 alternative that panics instead of returning `none` when the string is not an integer.
@@ -167,8 +167,8 @@ def String.toInt? (s : String) : Option Int := do
 /--
 Checks whether the string can be interpreted as the decimal representation of an integer.
 
-A string can be interpreted as a decimal integer if it consists of at least one decimal digit with
-optionally `-` in front. Leading `+` characters are not allowed.
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally `-` in front. Leading `+` characters are not allowed.
 
 Use `String.toInt?` or `String.toInt!` to convert such a string to an integer.
 
@@ -195,8 +195,8 @@ def String.isInt (s : String) : Bool :=
 Interprets a string as the decimal representation of an integer, returning it. Panics if the string
 does not contain a decimal integer.
 
-A string can be interpreted as a decimal integer if it consists of at least one decimal digit with
-optionally `-` in front. Leading `+` characters are not allowed.
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally `-` in front. Leading `+` characters are not allowed.
 
 Use `String.isInt` to check whether `String.toInt!` would return a value. `String.toInt?` is a safer
 alternative that returns `none` instead of panicking when the string is not an integer.

@@ -1811,22 +1811,58 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
   return fnames
 
 partial def importModulesCore
-    (imports : Array Import) (forceImportAll := true) (arts : NameMap ModuleArtifacts := {}) :
-    ImportStateM Unit := go
-where go := do
+    (imports : Array Import) (isModule := false) (arts : NameMap ModuleArtifacts := {}) :
+    ImportStateM Unit := go imports (importAll := true) (isExported := isModule)
+/-
+When the module system is disabled for the root, we import all transitively referenced modules and
+ignore any module sytem annotations on the way.
+
+When the module system is enabled for the root, we start with the direct imports and then apply the
+following rules:
+* for any `(private)? import all`, we mark it for importing its private information into the private
+  scope and, unless it is a `private` import, its public information into the public scope. We
+  recursively apply these rules to *all* its imports.
+* for any `private import`, we mark it for importing its public information into the private scope.
+  We recursively apply these rules to all its *non-`private`* imports, which *are changed to
+  `private`*.
+* for any `import`, we mark it for importing its public information into the public scope. We
+  recursively apply these rules to all its *non-`private`* imports.
+
+* all = isExported && importAll
+* privateAll = !isExported && importAll
+* private = !isExported && !importAll
+* public = isExported && !importAll
+
+* all > public > private > none
+* all > privateAll > private > none
+
+* Root ≥ all
+* A ≥ privateAll ∧ A `private import all` B → B ≥ privateAll
+* A ≥ private ∧ A `import all` B → B ≥ privateAll
+* A ≥ public ∧ A `import all` B → B ≥ all
+* A ≥ privateAll ∧ A `private import` B → B ≥ private
+* A ≥ private ∧ A `import` B → B ≥ private
+* A ≥ public ∧ A `import` B → B ≥ public
+
+As imports are a DAG, we may
+-/
+where go (imports : Array Import) (importAll  : Bool) (isExported : Bool) := do
   for i in imports do
-    -- import private info if (transitively) used by a non-`module` on any import path, or with
-    -- `import all` (non-transitively)
-    let importAll := forceImportAll || i.importAll
+    let importAll := !isModule || ((importAll || i.isExported) && i.importAll)
+    -- import public info with non-`private` `import` chain (value ignored outside the module system)
+    let isExported := isExported && i.isExported
+    if !importAll && !isExported then
+      continue
+    let goRec imports := do
+      go (importAll := importAll) (isExported := isExported) imports
     if let some mod := (← get).moduleNameMap[i.module]? then
-      -- when module is already imported, bump `importPrivate`
-      if importAll && !mod.importAll then
+      -- when module is already imported, bump flags
+      if importAll && !mod.importAll || isExported && !mod.isExported then
         modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-          importAll := true }}
-        if forceImportAll then
-          -- bump entire closure
-          if let some mod := mod.mainModule? then
-            importModulesCore (forceImportAll := true) mod.imports
+          importAll, isExported }}
+        -- bump entire closure
+        if let some mod := mod.mainModule? then
+          goRec mod.imports
       continue
     let fnames ←
       if let some arts := arts.find? i.module then
@@ -1839,16 +1875,14 @@ where go := do
     let parts ← readModuleDataParts fnames
     -- `imports` is identical for each part
     let some (baseMod, _) := parts[0]? | unreachable!
-    -- exclude `private import`s from transitive importing, except through `import all`
-    let imports := baseMod.imports.filter (·.isExported || importAll)
-    importModulesCore (forceImportAll := forceImportAll || !baseMod.isModule) imports
-    if baseMod.isModule && !forceImportAll then
+    goRec baseMod.imports
+    if baseMod.isModule && isModule then
       for i' in imports do
         if let some mod := (← get).moduleNameMap[i'.module]?.bind (·.mainModule?) then
           if !mod.isModule then
             throw <| IO.userError s!"cannot import non`-module` {i'.module} from `module` {i.module}"
     modify fun s => { s with
-      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, parts }
+      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, isExported, parts }
       moduleNames := s.moduleNames.push i.module
     }
 
@@ -2014,7 +2048,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports arts |>.run
+    let (_, s) ← importModulesCore (isModule := level != .private) imports arts |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 

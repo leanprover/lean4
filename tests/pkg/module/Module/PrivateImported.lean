@@ -11,6 +11,10 @@ has type
   Nat : Type
 but is expected to have type
   True : Prop
+reduction results in
+  Nat
+and
+  True
 -/
 #guard_msgs in
 theorem g : True := f

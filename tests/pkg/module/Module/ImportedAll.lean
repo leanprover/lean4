@@ -1,7 +1,7 @@
 module
 
 prelude
-private import all Module.Basic
+import all Module.Basic
 
 /-! `import all` should uncover theorem bodies. -/
 

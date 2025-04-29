@@ -208,7 +208,7 @@ if the ring has a nonzero characteristic `p` and `gcd k p = 1`, then
 
 It also handles the easy case where `k` is `-1`.
 
-Remark: if the ring implements the class `NoZeroNatDivisors`, then
+Remark: if the ring implements the class `NoNatZeroDivisors`, then
 the coefficients are divided by the gcd of all coefficients.
 -/
 def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do

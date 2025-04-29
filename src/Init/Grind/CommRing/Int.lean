@@ -29,8 +29,8 @@ instance : CommRing Int where
 instance : IsCharP Int 0 where
   ofNat_eq_zero_iff {x} := by erw [Int.ofNat_eq_zero]; simp
 
-instance : NoZeroNatDivisors Int where
-  no_zero_nat_divisors k a h₁ h₂ := by
+instance : NoNatZeroDivisors Int where
+  no_nat_zero_divisors k a h₁ h₂ := by
     cases Int.mul_eq_zero.mp h₂
     next h =>
       rw [← Int.natCast_zero] at h

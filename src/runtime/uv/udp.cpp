@@ -296,7 +296,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket, 
     lean_inc(socket);
 
     int result = uv_udp_recv_start(udp_socket->m_uv_udp, [](uv_handle_t* handle, size_t suggested_size, uv_buf_t *buf) {
-        // According to libuv documentation if we do this we do not loose data and a UV_ENOBUFS will
+        // According to libuv documentation if we do this we do not lose data and a UV_ENOBUFS will
         // be triggered in the read cb.
         buf->base = NULL;
         buf->len = 0;

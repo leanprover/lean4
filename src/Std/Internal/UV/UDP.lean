@@ -62,9 +62,8 @@ Furthermore calling this function in parallel with `waitReadable` is not support
 opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × Option SocketAddress)))
 
 /--
-Returns an `IO.Promise` that resolves to `true` once `socket` has data available for reading,
-or to `false` if `socket` is closed before that. Calling this function twice on the same `Socket`
-or in parallel with `recv` is not supported.
+Returns an `IO.Promise` that resolves once `socket` has data available for reading. Calling this
+function twice on the same `Socket` or in parallel with `recv` is not supported.
 -/
 @[extern "lean_uv_udp_wait_readable"]
 opaque waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit))

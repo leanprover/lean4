@@ -11,6 +11,7 @@ Author: Sofia Rodrigues
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
+#endif
 
 namespace lean {
 

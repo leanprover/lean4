@@ -22058,7 +22058,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = l_Lean_Meta_Grind_getConfig___rarg(x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*6 + 10);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*7 + 10);
 lean_dec(x_12);
 if (x_13 == 0)
 {

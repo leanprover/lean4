@@ -118,7 +118,7 @@ Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.o
 the corresponding string, or returns `none` if the array is not a valid UTF-8 encoding of a string.
 -/
 @[inline] def fromUTF8? (a : ByteArray) : Option String :=
-  if h : validateUTF8 a then fromUTF8 a h else none
+  if h : validateUTF8 a then some (fromUTF8 a h) else none
 
 /--
 Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into

@@ -207,6 +207,6 @@ def replacePreMatchCond (e : Expr) : MetaM Simp.Result := do
       let_expr Grind.PreMatchCond p := e | return .continue e
       return .continue (markAsMatchCond p)
     let e' ← Core.transform e (pre := pre)
-    return { expr := e', proof? := (← mkExpectedTypeHint (← mkEqRefl e') (← mkEq e e')) }
+    return { expr := e', proof? := mkExpectedPropHint (← mkEqRefl e') (← mkEq e e') }
 
 end Lean.Meta.Grind

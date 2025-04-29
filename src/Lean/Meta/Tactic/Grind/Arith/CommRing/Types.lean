@@ -26,8 +26,8 @@ structure EqCnstr where
 
 inductive EqCnstrProof where
   | core (a b : Expr) (ra rb : RingExpr)
-  | superpose (c₁ c₂ : EqCnstr) (k₁ k₂ : Int) (m₁ m₂ : Mon)
-  | simp (c₁ c₂ : EqCnstr) (k₁ k₂ : Int) (m : Mon)
+  | superpose (k₁ : Int) (m₁ : Mon) (c₁ : EqCnstr) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr)
+  | simp (k₁ : Int) (c₁ : EqCnstr) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr)
   | mul (k : Int) (e : EqCnstr)
   | div (k : Int) (e : EqCnstr)
 
@@ -47,20 +47,20 @@ protected def EqCnstr.compare (c₁ c₂ : EqCnstr) : Ordering :=
 abbrev Queue : Type := RBTree EqCnstr EqCnstr.compare
 
 /--
-A simplification chain.
+A polynomial equipped with a chain of rewrite steps that justifies its equality to the original input.
 From an input polynomial `p`, we use equations (i.e., `EqCnstr`) as rewriting rules.
 For example, consider the following sequence of rewrites for the input polynomial `x^2 + x*y`
 using the equations `x - 1 = 0` (`c₁`) and `y - 2 = 0` (`c₂`).
 ```
 2*x^2 + x*y                  | s₁ := .input (2*x^2 + x*y)
 =           - 2*x*(x - 1)
-(2*x + x*y)                  | s₂ := .simp (2*x + x*y) c₁ 1 (-2) x s₁
+(2*x + x*y)                  | s₂ := .step (2*x + x*y)  1 s₁ (-2) x c₁
 =           - 2*1*(x - 1)
-(x*y + 2)                    | s₃ := .simp (x*y + 2) c₁ 1 (-2) 1 s₂
+(x*y + 2)                    | s₃ := .step (x*y + 2) 1 s₂ (-2) 1 c₁
 =           - 1*y*(x - 1)
-(y + 2)                      | s₄ := .simp (y+2) c₁ 1 (-1) y s₃
+(y + 2)                      | s₄ := .step (y+2) 1 s₃ (-1) y c₁
 =           - 1*1*(y - 2)
-4                            | s₅ := .simp 4 c₂ 1 1 1 s₄
+4                            | s₅ := .step 4 1 s₄ 1 1 c₂
 ```
 From the chain above, we build the certificate
 ```
@@ -72,27 +72,28 @@ for
 ```
 because `x-1 = 0` and `y-2=0`
 -/
-inductive SimpChain where
+inductive PolyDerivation where
   | input (p : Poly)
   | /--
     ```
-    p = k₁*s.getPoly + k₂*m*c.p
+    p = k₁*d.getPoly + k₂*m₂*c.p
     ```
     The coefficient `k₁` is used because the leading monomial in `c` may not be monic.
     Thus, if we follow the chain back to the input polynomial, we have that
     `p = C * input_p` for a `C` that is equal to the product of all `k₁`s in the chain.
+    We have that `C ≠ 1` only if the ring does not implement `NoZeroNatDivisors`.
     Here is a small example where we simplify `x+y` using the equations
     `2*x - 1 = 0` (`c₁`), `3*y - 1 = 0` (`c₂`), and `6*z + 5 = 0` (`c₃`)
     ```
     x + y + z            | s₁ := .input (x + y + z)
     *2
     =   - 1*1*(2*x - 1)
-    2*y + 2*z + 1        | s₂ := .simp (2*y + 2*z + 1) c₁ 2 (-1) 1 s₁
+    2*y + 2*z + 1        | s₂ := .step (2*y + 2*z + 1) 2 s₁ (-1) 1 c₁
     *3
     =   - 2*1*(3*y - 1)
-    6*z + 5              | s₃ := .simp (6*z + 5) c₂ 3 (-2) 1 s₂
+    6*z + 5              | s₃ := .step (6*z + 5) 3 s₂ (-2) 1 c₂
     =   - 1*1*(6*z + 5)
-    0                    | s₄ := .simp (0) c₃ 1 (-1) 1 s₃
+    0                    | s₄ := .step (0) 1 s₃ (-1) 1 c₃
     ```
     For this chain, we build the certificate
     ```
@@ -102,56 +103,76 @@ inductive SimpChain where
     ```
     0 = 6*(x + y + z)
     ```
-    If we have a commutative ring where
+    Recall that if the ring implement `NoZeroNatDivisors`, then the following property holds:
     ```
     ∀ (k : Int) (a : α), k ≠ 0 → (intCast k) * a = 0 → a = 0
     ```
     grind can deduce that `x+y+z = 0`
     -/
-    simp (p : Poly) (c : EqCnstr) (k₁ : Int) (k₂ : Int) (m : Mon) (s : SimpChain)
+    step (p : Poly) (k₁ : Int) (d : PolyDerivation) (k₂ : Int) (m₂ : Mon) (c : EqCnstr)
 
-def SimpChain.getPoly : SimpChain → Poly
+def PolyDerivation.p : PolyDerivation → Poly
   | .input p   => p
-  | .simp p .. => p
+  | .step p .. => p
 
+/-- A disequality `lhs ≠ rhs` asserted by the core. -/
+structure DiseqCnstr where
+  lhs : Expr
+  rhs : Expr
+  /-- Reified `lhs` -/
+  rlhs : RingExpr
+  /-- Reified `rhs` -/
+  rrhs : RingExpr
+  /-- `lhs - rhs` simplication chain. If it becomes `0` we have an inconsistency. -/
+  d : PolyDerivation
 
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where
-  id           : Nat
-  type         : Expr
+  id             : Nat
+  type           : Expr
   /-- Cached `getDecLevel type` -/
-  u            : Level
+  u              : Level
   /-- `CommRing` instance for `type` -/
-  commRingInst : Expr
+  commRingInst   : Expr
   /-- `IsCharP` instance for `type` if available. -/
-  charInst?    : Option (Expr × Nat) := .none
-  addFn        : Expr
-  mulFn        : Expr
-  subFn        : Expr
-  negFn        : Expr
-  powFn        : Expr
-  intCastFn    : Expr
-  natCastFn    : Expr
+  charInst?      : Option (Expr × Nat) := .none
+  /-- `NoZeroNatDivisors` instance for `type` if available. -/
+  noZeroDivInst? : Option Expr := .none
+  addFn          : Expr
+  mulFn          : Expr
+  subFn          : Expr
+  negFn          : Expr
+  powFn          : Expr
+  intCastFn      : Expr
+  natCastFn      : Expr
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.
   -/
-  vars         : PArray Expr := {}
+  vars           : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
-  varMap       : PHashMap ENodeKey Var := {}
+  varMap         : PHashMap ENodeKey Var := {}
   /-- Mapping from Lean expressions to their representations as `RingExpr` -/
-  denote       : PHashMap ENodeKey RingExpr := {}
+  denote         : PHashMap ENodeKey RingExpr := {}
   /-- Next unique id for `EqCnstr`s. -/
-  nextId       : Nat := 0
+  nextId         : Nat := 0
   /-- Number of "steps": simplification and superposition. -/
-  steps        : Nat := 0
+  steps          : Nat := 0
   /-- Equations to process. -/
-  queue        : Queue := {}
+  queue          : Queue := {}
   /--
   Mapping from variables `x` to equations such that the smallest variable
   in the leading monomial is `x`.
   -/
-  varToBasis   : PArray (List EqCnstr) := {}
+  varToBasis     : PArray (List EqCnstr) := {}
+  /-- Disequalities. -/
+  -- TODO: add indexing
+  diseqs         : PArray DiseqCnstr := {}
+  /--
+  If `recheck` is `true`, then new equalities have been added to the basis since we checked
+  disequalities and implied equalities.
+  -/
+  recheck        : Bool := false
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/
@@ -167,6 +188,7 @@ structure State where
   typeIdOf : PHashMap ENodeKey (Option Nat) := {}
   /- Mapping from expressions/terms to their ring ids. -/
   exprToRingId : PHashMap ENodeKey Nat := {}
+  steps := 0
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.CommRing

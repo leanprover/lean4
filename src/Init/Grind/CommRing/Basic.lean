@@ -151,9 +151,9 @@ theorem intCast_one : ((1 : Int) : α) = 1 := intCast_ofNat 1
 theorem intCast_neg_one : ((-1 : Int) : α) = -1 := by rw [intCast_neg, intCast_ofNat]
 theorem intCast_natCast (n : Nat) : ((n : Int) : α) = (n : α) := intCast_ofNat n
 theorem intCast_natCast_add_one (n : Nat) : ((n + 1 : Int) : α) = (n : α) + 1 := by
-  rw [← Int.natCast_succ, intCast_natCast, natCast_add, ofNat_eq_natCast]
+  rw [← Int.natCast_add_one, intCast_natCast, natCast_add, ofNat_eq_natCast]
 theorem intCast_negSucc (n : Nat) : ((-(n + 1) : Int) : α) = -((n : α) + 1) := by
-  rw [intCast_neg, ← Int.natCast_succ, intCast_natCast, ofNat_eq_natCast, natCast_add]
+  rw [intCast_neg, ← Int.natCast_add_one, intCast_natCast, ofNat_eq_natCast, natCast_add]
 theorem intCast_nat_add {x y : Nat} : ((x + y : Int) : α) = ((x : α) + (y : α)) := by
   rw [Int.ofNat_add_ofNat, intCast_natCast, natCast_add]
 theorem intCast_nat_sub {x y : Nat} (h : x ≥ y) : (((x - y : Nat) : Int) : α) = ((x : α) - (y : α)) := by
@@ -280,7 +280,7 @@ theorem intCast_ext_iff {x y : Int} : (x : α) = (y : α) ↔ x % p = y % p := b
 
 theorem ofNat_ext_iff {x y : Nat} : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p := by
   have := intCast_ext_iff (α := α) p (x := x) (y := y)
-  simp only [intCast_natCast, ← Int.ofNat_emod] at this
+  simp only [intCast_natCast, ← Int.natCast_emod] at this
   simp only [ofNat_eq_natCast]
   norm_cast at this
 
@@ -296,7 +296,7 @@ theorem intCast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
 
 theorem natCast_emod (x : Nat) : ((x % p : Nat) : α) = (x : α) := by
   simp only [← intCast_natCast]
-  rw [Int.ofNat_emod, intCast_emod]
+  rw [Int.natCast_emod, intCast_emod]
 
 theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x :=
   natCast_emod _ _
@@ -316,5 +316,28 @@ theorem natCast_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
   rw [natCast_ext_iff p, Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt h₂]
 
 end IsCharP
+
+/--
+Special case of Mathlib's `NoZeroSMulDivisors Nat α`.
+-/
+class NoZeroNatDivisors (α : Type u) [CommRing α] where
+  no_zero_nat_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
+
+export NoZeroNatDivisors (no_zero_nat_divisors)
+
+theorem no_zero_int_divisors {α : Type u} [CommRing α] [NoZeroNatDivisors α] {k : Int} {a : α}
+    : k ≠ 0 → k * a = 0 → a = 0 := by
+  match k with
+  | (k : Nat) =>
+    simp [intCast_natCast]
+    intro h₁ h₂
+    replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
+    exact no_zero_nat_divisors k a h₁ h₂
+  | -(k+1 : Nat) =>
+    rw [Int.natCast_add, ← Int.natCast_add, intCast_neg, intCast_natCast]
+    intro _ h
+    replace h := congrArg (-·) h; simp at h
+    rw [← neg_mul, neg_neg, neg_zero] at h
+    exact no_zero_nat_divisors (k+1) a (Nat.succ_ne_zero _) h
 
 end Lean.Grind

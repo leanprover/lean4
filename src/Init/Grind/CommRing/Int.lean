@@ -29,4 +29,14 @@ instance : CommRing Int where
 instance : IsCharP Int 0 where
   ofNat_eq_zero_iff {x} := by erw [Int.ofNat_eq_zero]; simp
 
+instance : NoZeroNatDivisors Int where
+  no_zero_nat_divisors k a h₁ h₂ := by
+    cases Int.mul_eq_zero.mp h₂
+    next h =>
+      rw [← Int.natCast_zero] at h
+      have h : (k : Int).toNat = (↑0 : Int).toNat := congrArg Int.toNat h;
+      simp at h
+      contradiction
+    next => assumption
+
 end Lean.Grind

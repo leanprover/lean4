@@ -68,6 +68,10 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   HashMap.Raw.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
+  HashMap.Raw.contains_iff_mem
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
   HashMap.Raw.contains_congr h.out hab
@@ -246,9 +250,19 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
     m.contains a = (m.get? a).isSome :=
   HashMap.Raw.contains_eq_isSome_getKey? h.out
 
+@[simp]
+theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.get? a).isSome = m.contains a :=
+  (contains_eq_isSome_get? h).symm
+
 theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     a ∈ m ↔ (m.get? a).isSome :=
   HashMap.Raw.mem_iff_isSome_getKey? h.out
+
+@[simp]
+theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.get? a).isSome ↔ a ∈ m :=
+  (mem_iff_isSome_get? h).symm
 
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m.get? a = none :=
@@ -521,6 +535,8 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
 
 end monadic
 
+variable {ρ : Type v} [ForIn Id ρ α]
+
 @[simp]
 theorem insertMany_nil (h : m.WF) :
     insertMany m [] = m :=
@@ -534,6 +550,13 @@ theorem insertMany_list_singleton (h : m.WF) {k : α} :
 theorem insertMany_cons (h : m.WF) {l : List α} {k : α} :
     insertMany m (k :: l) = insertMany (m.insert k) l :=
   ext (HashMap.Raw.insertManyIfNewUnit_cons h.1)
+
+@[elab_as_elim]
+theorem insertMany_ind {motive : Raw α → Prop} (m : Raw α) (l : ρ)
+    (init : motive m) (insert : ∀ m a, motive m → motive (m.insert a)) :
+    motive (insertMany m l) :=
+  show motive ⟨m.1.insertManyIfNewUnit l⟩ from
+    HashMap.Raw.insertManyIfNewUnit_ind m.inner l init fun m => insert ⟨m⟩
 
 @[simp]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -551,6 +574,10 @@ theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
     k ∈ insertMany m l → k ∈ m :=
   HashMap.Raw.mem_of_mem_insertManyIfNewUnit_list h.1 contains_eq_false
+
+theorem mem_insertMany_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} {k : α} : k ∈ m → k ∈ insertMany m l :=
+  HashMap.Raw.mem_insertManyIfNewUnit_of_mem h.out
 
 theorem get?_insertMany_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α}
@@ -638,6 +665,10 @@ theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF
     m.size ≤ (insertMany m l).size :=
   HashMap.Raw.size_le_size_insertManyIfNewUnit_list h.1
 
+theorem size_le_size_insertMany [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} : m.size ≤ (insertMany m l).size :=
+  HashMap.Raw.size_le_size_insertManyIfNewUnit h.out
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} :
     (insertMany m l).size ≤ m.size + l.length :=
@@ -648,6 +679,10 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} :
     (insertMany m l).isEmpty = (m.isEmpty && l.isEmpty) :=
   HashMap.Raw.isEmpty_insertManyIfNewUnit_list h.1
+
+theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : ρ} : (insertMany m l).isEmpty → m.isEmpty :=
+  HashMap.Raw.isEmpty_of_isEmpty_insertManyIfNewUnit h.out
 
 @[simp]
 theorem ofList_nil :
@@ -744,12 +779,15 @@ section Raw
 
 variable {α : Type u} {β : Type v} {m m₁ m₂ m₃ : Raw α}
 
-theorem refl (m : Raw α) : m ~m m := ⟨.rfl⟩
+@[refl, simp] theorem refl (m : Raw α) : m ~m m := ⟨.rfl⟩
 theorem rfl : m ~m m := ⟨.rfl⟩
-theorem symm : m₁ ~m m₂ → m₂ ~m m₁
+@[symm] theorem symm : m₁ ~m m₂ → m₂ ~m m₁
   | ⟨h⟩ => ⟨h.symm⟩
 theorem trans : m₁ ~m m₂ → m₂ ~m m₃ → m₁ ~m m₃
   | ⟨h₁⟩, ⟨h₂⟩ => ⟨h₁.trans h₂⟩
+
+instance instTrans : Trans (α := Raw α) Equiv Equiv Equiv := ⟨trans⟩
+
 theorem comm : m₁ ~m m₂ ↔ m₂ ~m m₁ := ⟨symm, symm⟩
 theorem congr_left (h : m₁ ~m m₂) : m₁ ~m m₃ ↔ m₂ ~m m₃ := ⟨h.symm.trans, h.trans⟩
 theorem congr_right (h : m₁ ~m m₂) : m₃ ~m m₁ ↔ m₃ ~m m₂ :=

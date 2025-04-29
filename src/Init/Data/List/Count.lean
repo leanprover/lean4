@@ -158,7 +158,7 @@ theorem countP_filterMap {p : β → Bool} {f : α → Option β} {l : List α} 
   simp only [length_filterMap_eq_countP]
   congr
   ext a
-  simp +contextual [Option.getD_eq_iff, Option.isSome_eq_isSome]
+  cases h : f a <;> simp_all [Option.isSome_filter]
 
 @[simp] theorem countP_flatten {l : List (List α)} :
     countP p l.flatten = (l.map (countP p)).sum := by

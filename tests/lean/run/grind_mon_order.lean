@@ -99,3 +99,26 @@ example : check_lcm (w^2 . x^3) (w^5 . x . y^2) (w^5 . x^3 . y^2) := by native_d
 example : check_lcm (w . x . y) z (w . x . y . z) := by native_decide
 example : check_lcm (x^2 . y^3) (x^2 . y^5) (x^2 . y^5) := by native_decide
 example : check_lcm (w^100 . x^2) (x^50 . y) (w^100 . x^50 . y) := by native_decide
+
+def a : Var := 0
+def b : Var := 1
+def c : Var := 2
+
+example : check_revlex (c) (a) := rfl
+example : check_revlex (c) (a . b) := rfl
+example : check_revlex (a . b . c) (c) := rfl
+example : check_revlex (c) (b) := rfl
+example : check_revlex (b) (a) := rfl
+example : check_revlex (c^2) (c) := rfl
+example : check_revlex (b . c) (a . c) := rfl
+example : check_revlex (b . c) (c) := rfl
+example : check_revlex (b^2 . c) (c) := rfl
+example : check_revlex (a . c) (c) := rfl
+example : check_revlex (a . b . c) (c) := rfl
+example : check_revlex (a . b . c) (b . c) := rfl
+example : check_revlex (a . b . c) (a . c) := rfl
+example : check_revlex (a . b . c) (a . b) := rfl
+example : check_revlex (a^2 . b . c) (a . b . c) := rfl
+example : check_revlex (b . c) (b) := rfl
+example : check_revlex (a . c) (a) := rfl
+example : check_revlex (b) (a) := rfl

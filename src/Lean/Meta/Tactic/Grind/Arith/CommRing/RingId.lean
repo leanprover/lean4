@@ -105,6 +105,9 @@ where
         | trace_goal[grind.ring] "found instance for{indentExpr charType}\nbut characteristic is not a natural number"; pure none
       trace_goal[grind.ring] "characteristic: {n}"
       pure <| some (charInst, n)
+    let noZeroDivType := mkApp2 (mkConst ``Grind.NoZeroNatDivisors [u]) type commRingInst
+    let noZeroDivInst? := (← trySynthInstance noZeroDivType).toOption
+    trace_goal[grind.ring] "NoZeroNatDivisors available: {noZeroDivInst?.isSome}"
     let addFn ← getAddFn type u commRingInst
     let mulFn ← getMulFn type u commRingInst
     let subFn ← getSubFn type u commRingInst
@@ -113,7 +116,7 @@ where
     let intCastFn ← getIntCastFn type u commRingInst
     let natCastFn ← getNatCastFn type u commRingInst
     let id := (← get').rings.size
-    let ring : Ring := { id, type, u, commRingInst, charInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
+    let ring : Ring := { id, type, u, commRingInst, charInst?, noZeroDivInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 

@@ -40,7 +40,8 @@ noncomputable abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop
 namespace Acc
 variable {α : Sort u} {r : α → α → Prop}
 
-theorem inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
+-- `def` for `WellFounded.fix`
+def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
   h₁.recOn (fun _ ac₁ _ h₂ => ac₁ y h₂) h₂
 
 end Acc
@@ -73,7 +74,8 @@ class WellFoundedRelation (α : Sort u) where
   wf  : WellFounded rel
 
 namespace WellFounded
-theorem apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
+-- `def` for `WellFounded.fix`
+def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   wf.rec (fun p => p) a
 
 section
@@ -162,10 +164,12 @@ private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = 
     subst x
     apply ih (f y) lt y rfl
 
-theorem accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
+-- `def` for `WellFounded.fix`
+def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
   accAux f ac a rfl
 
-theorem wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
+-- `def` for `WellFounded.fix`
+def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
@@ -456,5 +460,4 @@ Reverse direction of `dite_eq_ite`. Used by the well-founded definition preproce
 context of a termination proof inside `if-then-else` with the condition.
 -/
 @[wf_preprocess] theorem ite_eq_dite [Decidable P] :
-    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := by
-  rfl
+    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := rfl

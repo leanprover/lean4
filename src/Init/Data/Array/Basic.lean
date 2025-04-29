@@ -40,11 +40,11 @@ namespace Array
 
 /-! ### Preliminary theorems -/
 
-@[simp] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
+@[simp, grind] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
     (set xs i v h).size = xs.size :=
   List.length_set ..
 
-@[simp] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
+@[simp, grind] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
   List.length_concat ..
 
 theorem ext {xs ys : Array α}
@@ -110,7 +110,7 @@ theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
 @[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
   simp [mem_def]
 
-@[simp] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
+@[simp, grind] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
 
@@ -194,7 +194,7 @@ Examples:
 def pop (xs : Array α) : Array α where
   toList := xs.toList.dropLast
 
-@[simp] theorem size_pop {xs : Array α} : xs.pop.size = xs.size - 1 := by
+@[simp, grind] theorem size_pop {xs : Array α} : xs.pop.size = xs.size - 1 := by
   match xs with
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
@@ -836,7 +836,7 @@ some 10
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
   for a in as do
     match (← f a) with
-    | some b => return b
+    | some b => return some b
     | _      => pure ⟨⟩
   return none
 
@@ -867,7 +867,7 @@ some 1
 def findM? {α : Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) := do
   for a in as do
     if (← p a) then
-      return a
+      return some a
   return none
 
 /--
@@ -1175,7 +1175,7 @@ def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=
   Id.run do
     for a in as do
       if p a then
-        return a
+        return some a
     return none
 
 /--

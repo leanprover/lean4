@@ -148,7 +148,7 @@ def Mutex.tryAtomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     (mutex : Mutex α) (k : AtomicT α m β) : m (Option β) := do
   if ← mutex.mutex.tryLock then
     try
-      k mutex.ref
+      some <$> k mutex.ref
     finally
       mutex.mutex.unlock
   else

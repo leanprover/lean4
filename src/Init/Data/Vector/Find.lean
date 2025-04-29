@@ -26,10 +26,11 @@ open Nat
 
 /-! ### findSome? -/
 
-@[simp] theorem findSome?_empty : (#v[] : Vector α 0).findSome? f = none := rfl
-@[simp] theorem findSome?_push {xs : Vector α n} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
+@[simp, grind] theorem findSome?_empty : (#v[] : Vector α 0).findSome? f = none := rfl
+@[simp, grind] theorem findSome?_push {xs : Vector α n} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
   cases xs; simp [List.findSome?_append]
 
+@[grind]
 theorem findSome?_singleton {a : α} {f : α → Option β} : #v[a].findSome? f = f a := by
   simp
 
@@ -42,7 +43,7 @@ theorem findSome?_singleton {a : α} {f : α → Option β} : #v[a].findSome? f 
   simp only [push_mk, findSomeRev?_mk, Array.findSomeRev?_push_of_isNone, h]
 
 theorem exists_of_findSome?_eq_some {f : α → Option β} {xs : Vector α n} (w : xs.findSome? f = some b) :
-    ∃ a, a ∈ xs ∧ f a = b := by
+    ∃ a, a ∈ xs ∧ f a = some b := by
   rcases xs with ⟨xs, rfl⟩
   simpa using Array.exists_of_findSome?_eq_some (by simpa using w)
 

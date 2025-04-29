@@ -1496,7 +1496,7 @@ def formatGeneric (format : GenericFormat aw) (getInfo : (typ : Modifier) → Op
   let rec go (data : String) : (format : FormatString) → Option String
     | .modifier x :: xs => do go (data ++ formatWith x (← getInfo x)) xs
     | .string x :: xs => go (data ++ x) xs
-    | [] => data
+    | [] => some data
   go "" format.string
 
 /--

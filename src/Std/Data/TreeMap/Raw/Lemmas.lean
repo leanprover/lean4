@@ -1009,7 +1009,7 @@ theorem getElem?_insertMany_list_of_mem [TransCmp cmp] [BEq α] [LawfulBEqCmp cm
 theorem getElem?_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     (h : t.WF) {l : List (α × β)} {k : α} :
     (insertMany t l)[k]? =
-      (l.findSomeRev? (fun ⟨a, b⟩ => if a == k then some b else none)).or t[k]? :=
+      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).or t[k]? :=
   DTreeMap.Raw.Const.get?_insertMany_list h
 
 theorem getElem_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α]

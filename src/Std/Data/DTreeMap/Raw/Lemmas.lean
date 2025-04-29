@@ -1549,7 +1549,7 @@ theorem get?_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
 theorem get?_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
     {l : List (α × β)} {k : α} :
     get? (insertMany t l) k =
-      (l.findSomeRev? (fun ⟨a, b⟩ => if a == k then some b else none)).or (get? t k) :=
+      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).or (get? t k) :=
   Impl.Const.get?_insertMany!_list h (k := k)
 
 theorem get_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]

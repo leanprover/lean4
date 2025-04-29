@@ -2344,20 +2344,20 @@ theorem get?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
 theorem get?_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     {l : List (α × β)} {k : α} :
     get? (insertMany t l h.balanced).1 k =
-      (l.findSomeRev? (fun ⟨a, b⟩ => if a == k then some b else none)).or (get? t k) := by
+      (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none)).or (get? t k) := by
   induction l generalizing t with
   | nil =>
     rw [get?_insertMany_list_of_contains_eq_false h] <;> simp
   | cons x l ih =>
     rcases x with ⟨a, b⟩
     rw [insertMany_cons h, ih (WF.insert h), get?_insert h]
-    simp [LawfulBEqCmp.compare_eq_iff_beq]
+    simp
     split <;> simp
 
  theorem get?_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     {l : List (α × β)} {k : α} :
     get? (insertMany! t l).1 k =
-      (l.findSomeRev? (fun ⟨a, b⟩ => if a == k then some b else none)).or (get? t k) := by
+      (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k =.eq then some b else none)).or (get? t k) := by
   simpa only [insertMany_eq_insertMany!] using get?_insertMany_list h
 
 theorem get_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)

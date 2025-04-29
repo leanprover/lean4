@@ -318,6 +318,7 @@ abbrev PropagateEqMap := Std.HashMap (Int × Poly) (Expr × RingExpr)
 Propagates implied equalities.
 -/
 private def propagateEqs : RingM Unit := do
+  if (← isInconsistent) then return ()
   /-
   This is a very simple procedure that does not use any indexing data-structure.
   We don't even cache the simplied polynomials.

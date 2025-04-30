@@ -2089,6 +2089,9 @@ theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} {tl : 
   simp_to_raw
   rw [Raw₀.insertMany_emptyWithCapacity_list_cons]
 
+theorem ofList_eq_insertMany_empty {l : List ((a : α) × (β a))} :
+    ofList l = insertMany (∅ : Raw α β) l := rfl
+
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α} :
@@ -2235,6 +2238,9 @@ theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : Raw α (fun _ => β)).insert k v) tl := by
   simp_to_raw
   rw [Raw₀.Const.insertMany_emptyWithCapacity_list_cons]
+
+theorem ofList_eq_insertMany_empty {l : List (α × β)} :
+    ofList l = insertMany (∅ : Raw α (fun _ => β)) l := rfl
 
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]

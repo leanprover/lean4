@@ -1961,6 +1961,9 @@ theorem ofList_cons {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
     ofList (⟨k, v⟩ :: tl) = ((∅ : DHashMap α β).insert k v).insertMany tl :=
   Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_cons (α := α)) :)
 
+theorem ofList_eq_insertMany_empty {l : List ((a : α) × β a)} :
+    ofList l = insertMany (∅ : DHashMap α β) l := rfl
+
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α} :
@@ -2104,6 +2107,9 @@ theorem ofList_singleton {k : α} {v : β} :
 theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : DHashMap α (fun _ => β)).insert k v) tl :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_cons (α:= α)) :)
+
+theorem ofList_eq_insertMany_empty {l : List (α × β)} :
+    ofList l = insertMany (∅ : DHashMap α (fun _ => β)) l := rfl
 
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]

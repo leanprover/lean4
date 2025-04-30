@@ -611,6 +611,12 @@ theorem ofList_cons {hd : α} {tl : List α} :
       insertMany ((∅ : TreeSet α cmp).insert hd) tl :=
   ext TreeMap.unitOfList_cons
 
+theorem ofList_eq_insertMany_empty {l : List α} :
+    ofList l cmp = insertMany (∅ : TreeSet α cmp) l :=
+  match l with
+  | [] => by simp
+  | hd :: tl => by simp [ofList_cons, insertMany_cons]
+
 @[simp]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
     (ofList l cmp).contains k = l.contains k :=

@@ -16,12 +16,16 @@ extern "C" {
 LEAN_EXPORT lean_object* l___private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt(lean_object*);
 lean_object* lean_io_promise_new(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Std_Internal_IO_Async_Selectable_one___spec__1(lean_object*);
+lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Std_Internal_IO_Async_Selectable_one___spec__4___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_checkFinished(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Std_Internal_IO_Async_Selectable_one___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EIO_chainTask___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_checkFinished___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_Std_Internal_IO_Async_Selectable_one___spec__2___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_checkFinished___rarg(lean_object*, lean_object*);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_promise_result_opt(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Std_Internal_IO_Async_Selectable_one___spec__4(lean_object*);
@@ -229,6 +233,38 @@ lean_dec(x_4);
 x_6 = l_Std_Internal_IO_Async_Waiter_race___rarg___lambda__2(x_1, x_2, x_3, x_5);
 lean_dec(x_1);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_checkFinished___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+lean_dec(x_2);
+x_4 = lean_alloc_closure((void*)(l_ST_Prim_Ref_get___boxed), 4, 3);
+lean_closure_set(x_4, 0, lean_box(0));
+lean_closure_set(x_4, 1, lean_box(0));
+lean_closure_set(x_4, 2, x_3);
+x_5 = lean_apply_2(x_1, lean_box(0), x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_checkFinished(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Waiter_checkFinished___rarg), 2, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_checkFinished___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Internal_IO_Async_Waiter_checkFinished(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

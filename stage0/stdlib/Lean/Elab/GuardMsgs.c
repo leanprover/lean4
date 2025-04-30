@@ -298,6 +298,7 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_linesToString___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__46(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction_declare__1____x40_Lean_Elab_GuardMsgs___hyg_3378____closed__2;
 static lean_object* l_initFn____x40_Lean_Elab_GuardMsgs___hyg_6____closed__2;
+lean_object* l_Array_qsort_sort___at_Lean_Parser_Error_toString___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_instImpl____x40_Lean_Elab_GuardMsgs___hyg_1820____closed__5;
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rarg___closed__12;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction_declare__1____x40_Lean_Elab_GuardMsgs___hyg_3378_(lean_object*);
@@ -326,7 +327,6 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_CodeAction_insertBuiltin(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_EditableDocument_versionedIdentifier(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rarg___closed__7;
-lean_object* l_Array_qsort_sort___at_Lean_Parser_Error_toString___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__32(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__14(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_lcs___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__5___closed__1;
@@ -4596,7 +4596,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_inc(x_6);
-x_10 = l_Array_qsort_sort___at_Lean_Parser_Error_toString___spec__3(x_4, x_3, x_6, x_6, lean_box(0), lean_box(0));
+x_10 = l_Array_qsort_sort___at_Lean_Parser_Error_toString___spec__2(x_4, x_3, x_6, x_6, lean_box(0), lean_box(0));
 lean_dec(x_6);
 lean_dec(x_4);
 x_11 = lean_array_to_list(x_10);
@@ -4605,7 +4605,7 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = l_Array_qsort_sort___at_Lean_Parser_Error_toString___spec__3(x_4, x_3, x_7, x_6, lean_box(0), lean_box(0));
+x_12 = l_Array_qsort_sort___at_Lean_Parser_Error_toString___spec__2(x_4, x_3, x_7, x_6, lean_box(0), lean_box(0));
 lean_dec(x_6);
 lean_dec(x_4);
 x_13 = lean_array_to_list(x_12);

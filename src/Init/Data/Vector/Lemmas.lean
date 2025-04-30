@@ -3095,7 +3095,7 @@ theorem getElem_swap {xs : Vector α n} {i j : Nat} (hi hj) {k : Nat} (hk : k < 
     (xs.swap i j hi hj)[i]'(by simpa using hi) = xs[j] := by
   simp [getElem_swap]
 
-@[simp] theorem getElem_swap_of_ne {xs : Vector α n} {i j : Nat} (hi hj) (hk : k < n)
+@[simp] theorem getElem_swap_of_ne {xs : Vector α n} {i j : Nat} {hi hj} {hk : k < n}
       (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)[k] = xs[k] := by
   simp_all [getElem_swap]
 

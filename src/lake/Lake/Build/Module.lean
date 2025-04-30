@@ -218,7 +218,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
     mod.fetchImportLibs precompileImports mod.shouldPrecompile
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
-    mod.pkg.externLibs.mapM (·.dynlib.fetch)
+    if mod.shouldPrecompile then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 

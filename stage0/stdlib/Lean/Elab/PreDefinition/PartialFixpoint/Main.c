@@ -6807,7 +6807,6 @@ x_47 = lean_ctor_get(x_46, 1);
 lean_inc(x_47);
 lean_dec(x_46);
 x_48 = l_Lean_Elab_Mutual_addPreDefAttributes(x_44, x_14, x_15, x_16, x_17, x_18, x_19, x_47);
-lean_dec(x_44);
 return x_48;
 }
 else
@@ -7065,7 +7064,6 @@ x_87 = lean_ctor_get(x_86, 1);
 lean_inc(x_87);
 lean_dec(x_86);
 x_88 = l_Lean_Elab_Mutual_addPreDefAttributes(x_84, x_14, x_15, x_16, x_17, x_18, x_19, x_87);
-lean_dec(x_84);
 return x_88;
 }
 else

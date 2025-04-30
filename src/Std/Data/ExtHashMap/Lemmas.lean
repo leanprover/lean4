@@ -726,6 +726,13 @@ theorem insertMany_cons [EquivBEq α] [LawfulHashable α] {l : List (α × β)} 
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l :=
   ext ExtDHashMap.Const.insertMany_cons
 
+theorem insertMany_append [EquivBEq α] [LawfulHashable α] {l₁ l₂ : List (α × β)} :
+    insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 @[elab_as_elim]
 theorem insertMany_ind [EquivBEq α] [LawfulHashable α]
     {motive : ExtHashMap α β → Prop} (m : ExtHashMap α β) {l : ρ}

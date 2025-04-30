@@ -1395,6 +1395,13 @@ theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     m.insertMany (⟨k, v⟩ :: l) = (m.insert k v).insertMany l :=
   Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
 
+theorem insertMany_append {l₁ l₂ : List ((a : α) × β a)} :
+    m.insertMany (l₁ ++ l₂) = (m.insertMany l₁).insertMany l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 @[elab_as_elim]
 theorem insertMany_ind {motive : DHashMap α β → Prop} (m : DHashMap α β) (l : ρ)
     (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :
@@ -1588,6 +1595,13 @@ theorem insertMany_list_singleton {k : α} {v : β} :
 theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
+
+theorem insertMany_append {l₁ l₂ : List (α × β)} :
+    insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
 
 @[elab_as_elim]
 theorem insertMany_ind {motive : DHashMap α (fun _ => β) → Prop} (m : DHashMap α fun _ => β) (l : ρ)

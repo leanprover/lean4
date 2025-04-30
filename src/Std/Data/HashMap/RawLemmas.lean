@@ -1001,6 +1001,13 @@ theorem insertMany_cons (h : m.WF) {l : List (α × β)}
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l :=
   ext (DHashMap.Raw.Const.insertMany_cons h.out)
 
+theorem insertMany_append (h : m.WF) {l₁ l₂ : List (α × β)} :
+    insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp [h]
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons h, insertMany_cons h, ih h.insert]
+
 @[elab_as_elim]
 theorem insertMany_ind {motive : Raw α β → Prop} (m : Raw α β) {l : ρ}
     (init : motive m) (insert : ∀ m a b, motive m → motive (m.insert a b)) :

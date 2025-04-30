@@ -526,6 +526,13 @@ theorem insertMany_cons {l : List α} {k : α} :
     insertMany m (k :: l) = insertMany (m.insert k) l :=
   ext HashMap.insertManyIfNewUnit_cons
 
+theorem insertMany_append {l₁ l₂ : List α} :
+    insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 @[elab_as_elim]
 theorem insertMany_ind {motive : HashSet α → Prop} (m : HashSet α) {l : ρ}
     (init : motive m) (insert : ∀ m a, motive m → motive (m.insert a)) :

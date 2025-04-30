@@ -22,6 +22,11 @@ def toContextExpr : RingM Expr := do
   else
     RArray.toExpr ring.type id (RArray.leaf (mkApp ring.natCastFn (toExpr 0)))
 
+namespace Null
+/-!
+Proof term for a Nullstellensatz certificate.
+-/
+
 /--
 A "pre" Nullstellensatz certificate.
 Recall that, given the hypotheses `h₁ : lhs₁ = rhs₁` ... `hₙ : lhsₙ = rhsₙ`,
@@ -122,6 +127,14 @@ private abbrev caching (c : α) (k : ProofM PreNullCert) : ProofM PreNullCert :=
     modify fun s => { s with cache := s.cache.insert addr h }
     return h
 
+structure NullCertExt where
+  d   : Int
+  qhs : Array (Poly × NullCertHypothesis)
+
+end Null
+
+section
+open Null
 partial def EqCnstr.toPreNullCert (c : EqCnstr) : ProofM PreNullCert := caching c do
   match c.h with
   | .core a b lhs rhs =>
@@ -151,10 +164,6 @@ where
     | .input _ => acc
     | .step _ k₁ d .. => go d (k₁ * acc)
 
-structure NullCertExt where
-  d   : Int
-  qhs : Array (Poly × NullCertHypothesis)
-
 def EqCnstr.mkNullCertExt (c : EqCnstr) : RingM NullCertExt := do
   let (nc, s) ← c.toPreNullCert.run {}
   return { d := nc.d, qhs := nc.qs.zip s.hyps }
@@ -165,7 +174,9 @@ def PolyDerivation.mkNullCertExt (d : PolyDerivation) : RingM NullCertExt := do
 
 def DiseqCnstr.mkNullCertExt (c : DiseqCnstr) : RingM NullCertExt :=
   c.d.mkNullCertExt
+end
 
+namespace Null
 def NullCertExt.toPoly (nc : NullCertExt) : RingM Poly := do
   let mut p : Poly := .num 0
   for (q, h) in nc.qhs do
@@ -210,7 +221,7 @@ private def getNoZeroDivInstIfNeeded? (k : Int) : RingM (Option Expr) := do
       | throwError "`grind` internal error, `NoNatZeroDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
     return some inst
 
-def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
+def setEqUnsat (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
   let .num k := c.p
     | throwError "`grind` internal error, constant polynomial expected {indentExpr (← c.p.denoteExpr)}"
@@ -228,7 +239,7 @@ def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
   let h := mkApp6 h ring.commRingInst charInst ctx nc (toExpr k) reflBoolTrue
   closeGoal <| ncx.applyEqs h
 
-def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
+def setDiseqUnsat (c : DiseqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
   let ncx ← c.mkNullCertExt
   trace_goal[grind.ring.assert.unsat] "multiplier: {c.d.getMultiplier}, {ncx.d}*({← c.d.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
@@ -267,5 +278,61 @@ def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Uni
   trace_goal[grind.debug.ring.impEq] "{a}, {b}"
   let eq := mkApp3 (mkConst ``Eq [.succ ring.u]) ring.type a b
   pushEq a b <| mkExpectedPropHint (ncx.applyEqs h) eq
+
+end Null
+
+namespace Stepwise
+/-!
+Alternative proof term construction where we generate a sub-term for each step in
+the derivation.
+-/
+
+structure ProofM.State where
+  cache       : Std.HashMap UInt64 Expr := {}
+  polyMap     : Std.HashMap Poly Expr := {}
+  exprMap     : Std.HashMap RingExpr Expr := {}
+
+structure ProofM.Context where
+  ctx : Expr
+
+abbrev ProofM := ReaderT ProofM.Context (StateRefT ProofM.State GoalM)
+
+/-- Returns a Lean expression representing the variable context used to construct `CommRing` proof steps. -/
+private abbrev getContext : ProofM Expr := do
+  return (← read).ctx
+
+private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  if let some h := (← get).cache[addr]? then
+    return h
+  else
+    let h ← k
+    modify fun s => { s with cache := s.cache.insert addr h }
+    return h
+
+def mkPolyDecl (p : Poly) : ProofM Expr := do
+  if let some x := (← get).polyMap[p]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with polyMap := s.polyMap.insert p x }
+  return x
+
+def mkExprDecl (e : RingExpr) : ProofM Expr := do
+  if let some x := (← get).exprMap[e]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with exprMap := s.exprMap.insert e x }
+  return x
+
+end Stepwise
+
+def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
+  Null.setEqUnsat c
+
+def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
+  Null.setDiseqUnsat c
+
+def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
+  Null.propagateEq a b ra rb d
 
 end Lean.Meta.Grind.Arith.CommRing

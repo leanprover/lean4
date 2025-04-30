@@ -1017,6 +1017,11 @@ theorem getElem?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     (insertMany m l)[k']? = some v :=
   DHashMap.Const.get?_insertMany_list_of_mem k_beq distinct mem
 
+theorem getElem?_insertMany_list [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} {k : α} :
+    (insertMany m l)[k]? = (l.findSomeRev? (fun ⟨a, b⟩ => if a == k then some b else none)).or m[k]? :=
+  DHashMap.Const.get?_insertMany_list
+
 theorem getElem_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false)

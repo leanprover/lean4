@@ -1026,18 +1026,21 @@ theorem d_stepk {α} [CommRing α] (ctx : Context α) (k₁ : Int) (k : Int) (in
   simp [Poly.denote_combine, Poly.denote_mulMon, Poly.denote_mulConst, h₂, mul_zero, add_zero]
   rw [mul_assoc, h₁]
 
-theorem imp_1eq {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : core_cert lhs rhs p → (1:Int) * p.denote ctx = 0 → lhs.denote ctx = rhs.denote ctx := by
-  simp [core_cert, intCast_one, one_mul]; intro _; subst p
-  simp [Expr.denote_toPoly, Expr.denote, sub_eq_zero_iff]
+def imp_1eq_cert (lhs rhs : Expr) (p₁ p₂ : Poly) : Bool :=
+  (lhs.sub rhs).toPoly == p₁ && p₂ == .num 0
 
-def imp_keq_cert (lhs rhs : Expr) (k : Int) (p : Poly) : Bool :=
-  k != 0 && (lhs.sub rhs).toPoly == p
+theorem imp_1eq {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p₁ p₂ : Poly)
+    : imp_1eq_cert lhs rhs p₁ p₂ → (1:Int) * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  simp [imp_1eq_cert, intCast_one, one_mul]; intro _ _; subst p₁ p₂
+  simp [Expr.denote_toPoly, Expr.denote, sub_eq_zero_iff, Poly.denote, intCast_zero]
 
-theorem imp_keq  {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p : Poly)
-    : imp_keq_cert lhs rhs k p → k * p.denote ctx = 0 → lhs.denote ctx = rhs.denote ctx := by
-  simp [imp_keq_cert, intCast_one, one_mul]; intro hnz _; subst p
-  simp [Expr.denote_toPoly, Expr.denote]
+def imp_keq_cert (lhs rhs : Expr) (k : Int) (p₁ p₂ : Poly) : Bool :=
+  k != 0 && (lhs.sub rhs).toPoly == p₁ && p₂ == .num 0
+
+theorem imp_keq  {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p₁ p₂ : Poly)
+    : imp_keq_cert lhs rhs k p₁ p₂ → k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  simp [imp_keq_cert, intCast_one, one_mul]; intro hnz _ _; subst p₁ p₂
+  simp [Expr.denote_toPoly, Expr.denote, Poly.denote, intCast_zero]
   intro h; replace h := no_int_zero_divisors hnz h
   rw [← sub_eq_zero_iff, h]
 
@@ -1110,18 +1113,21 @@ theorem d_stepkC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : 
   simp [Poly.denote_combineC, Poly.denote_mulMonC, Poly.denote_mulConstC, h₂, mul_zero, add_zero]
   rw [mul_assoc, h₁]
 
-theorem imp_1eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : core_certC lhs rhs p c → (1:Int) * p.denote ctx = 0 → lhs.denote ctx = rhs.denote ctx := by
-  simp [core_certC, intCast_one, one_mul]; intro _; subst p
-  simp [Expr.denote_toPolyC, Expr.denote, sub_eq_zero_iff]
+def imp_1eq_certC (lhs rhs : Expr) (p₁ p₂ : Poly) (c : Nat) : Bool :=
+  (lhs.sub rhs).toPolyC c == p₁ && p₂ == .num 0
 
-def imp_keq_certC (lhs rhs : Expr) (k : Int) (p : Poly) (c : Nat) : Bool :=
-  k != 0 && (lhs.sub rhs).toPolyC c == p
+theorem imp_1eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (p₁ p₂ : Poly)
+    : imp_1eq_certC lhs rhs p₁ p₂ c → (1:Int) * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  simp [imp_1eq_certC, intCast_one, one_mul]; intro _ _; subst p₁ p₂
+  simp [Expr.denote_toPolyC, Expr.denote, sub_eq_zero_iff, Poly.denote, intCast_zero]
 
-theorem imp_keqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p : Poly)
-    : imp_keq_certC lhs rhs k p c → k * p.denote ctx = 0 → lhs.denote ctx = rhs.denote ctx := by
-  simp [imp_keq_certC, intCast_one, one_mul]; intro hnz _; subst p
-  simp [Expr.denote_toPolyC, Expr.denote]
+def imp_keq_certC (lhs rhs : Expr) (k : Int) (p₁ p₂ : Poly) (c : Nat) : Bool :=
+  k != 0 && (lhs.sub rhs).toPolyC c == p₁ && p₂ == .num 0
+
+theorem imp_keqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p₁ p₂ : Poly)
+    : imp_keq_certC lhs rhs k p₁ p₂ c → k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  simp [imp_keq_certC, intCast_one, one_mul]; intro hnz _ _; subst p₁ p₂
+  simp [Expr.denote_toPolyC, Expr.denote, Poly.denote, intCast_zero]
   intro h; replace h := no_int_zero_divisors hnz h
   rw [← sub_eq_zero_iff, h]
 

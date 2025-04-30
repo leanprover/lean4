@@ -14,7 +14,7 @@ inductive InlineAttributeKind where
   deriving Inhabited, BEq, Hashable
 
 /--
-  This is an approximate test for testing whether `declName` can be annotated with the `[macro_inline]` attribute or not.
+This is an approximate test for testing whether `declName` can be annotated with the `[macro_inline]` attribute or not.
 -/
 private def isValidMacroInline (declName : Name) : CoreM Bool := do
   let .defnInfo info ← getConstInfo declName
@@ -32,6 +32,26 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
     return false
   return true
 
+/--
+Changes the inlining behavior. This attribute comes in several variants:
+- `@[inline]`: marks the definition to be inlined when it is appropriate.
+- `@[inline_if_reduce]`: marks the definition to be inlined if the term after inlining and
+  applying reduction isn't a `match` expression. This attribute can be used for inlining
+  structurally recursive functions. Note: the current/old compiler (written in C++) does not
+  support this attribute.
+- `@[noinline]`: marks the definition to never be inlined.
+- `@[always_inline]`: marks the definition to always be inlined.
+- `@[macro_inline]`: marks the definition to always be inlined early. This makes it possible
+  to define functions that evaluate some of their parameters lazily. Example:
+  ```
+  @[macro_inline]
+  def test (x y : Nat) : Nat :=
+    if x = 42 then x else y
+
+  #eval test 42 (2^1000000000000) -- doesn't compute 2^1000000000000
+  ```
+-/
+@[builtin_doc]
 builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
   registerEnumAttributes
     [(`inline, "mark definition to be inlined", .inline),

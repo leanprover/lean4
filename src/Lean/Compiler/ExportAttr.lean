@@ -17,6 +17,27 @@ private def isValidCppName : Name → Bool
   | .str p s          => isValidCppId s && isValidCppName p
   | _                 => false
 
+/--
+Instructs the compiler to use a specific name for a function in compiled code.
+
+This feature can be used in combination with `@[extern]` to allow for cyclic references
+between files:
+```
+-- File1.lean
+@[extern "my_foo_function"]
+opaque fooFn : Nat → Nat
+
+def bar (x : Nat) : Nat := ... -- can use `foo` indirectly as `fooFn`
+
+-- File2.lean
+import File1
+
+@[export my_foo_function]
+def foo (x : Nat) : Nat := ... -- can use `bar`
+```
+Note however that this only works in compiled code.
+-/
+@[builtin_doc]
 builtin_initialize exportAttr : ParametricAttribute Name ←
   registerParametricAttribute {
     name := `export,

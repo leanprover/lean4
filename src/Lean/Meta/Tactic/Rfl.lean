@@ -27,7 +27,16 @@ initialize reflExt :
     initial := {}
   }
 
-initialize registerBuiltinAttribute {
+/--
+Tags reflexivity lemmas to be used by `rfl`.
+
+A reflexivity lemma should have the conclusion `r x x` where `r` is an arbitrary relation.
+
+It is not possible to tag reflexivity lemmas for `=` using this attribute, these are handled as
+a special case in `rfl`.
+-/
+@[builtin_init, builtin_doc]
+private def initFn := registerBuiltinAttribute {
   name := `refl
   descr := "reflexivity relation"
   add := fun decl _ kind => MetaM.run' do
@@ -83,8 +92,8 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
     goal.assign (mkApp2 (mkConst ``Eq.refl us) α lhs)
   else
     -- Else search through `@refl` keyed by the relation
-    -- We change the type to `lhs ~ lhs` so that we do not the (possibly costly) `lhs =?= rhs` check
-    -- again.
+    -- We change the type to `lhs ~ lhs` so that we don't do the (possibly costly) `lhs =?= rhs`
+    -- check again.
     goal.setType (.app t.appFn! lhs)
     let s ← saveState
     let mut ex? := none

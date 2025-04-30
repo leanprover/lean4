@@ -313,33 +313,41 @@ def ofList : List MessageData → MessageData
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
-/-- Puts `MessageData` into a comma-separated list with `"or"` at the back (no Oxford comma).
-Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+/--
+Puts `MessageData` into a comma-separated list with `"or"` at the back (with the serial comma).
+
+Best used on non-empty lists; returns `"– none –"` for an empty list.
+-/
 def orList (xs : List MessageData) : MessageData :=
   match xs with
   | [] => "– none –"
-  | [x] => "'" ++ x ++ "'"
-  | _ => joinSep (xs.dropLast.map (fun x => "'" ++ x ++ "'")) ", " ++ " or '" ++ xs.getLast! ++ "'"
+  | [x] => x
+  | [x₀, x₁] => x₀ ++ " or " ++ x₁
+  | _ => joinSep xs.dropLast ", " ++ ", or " ++ xs.getLast!
 
-/-- Puts `MessageData` into a comma-separated list with `"and"` at the back (no Oxford comma).
-Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+/--
+Puts `MessageData` into a comma-separated list with `"and"` at the back (with the serial comma).
+
+Best used on non-empty lists; returns `"– none –"` for an empty list.
+-/
 def andList (xs : List MessageData) : MessageData :=
   match xs with
   | [] => "– none –"
   | [x] => x
-  | _ => joinSep xs.dropLast ", " ++ " and " ++ xs.getLast!
+  | [x₀, x₁] => x₀ ++ " and " ++ x₁
+  | _ => joinSep xs.dropLast ", " ++ ", and " ++ xs.getLast!
 
 /--
 Produces a labeled note that can be appended to an error message.
 -/
 def note (note : MessageData) : MessageData :=
-  -- Note: the built-in string coercion in some cases prevents proper line breaks
+  -- Note: we do not use the built-in string coercion because it can prevent proper line breaks
   .tagged `note <| .compose (.ofFormat .line) <| .compose (.ofFormat .line) <|
     .compose "Note: " note
 
 /--
-Non-monadic variant of `MessageData.hint` that produces a labeled hint without an associated code
-action.
+Produces a labeled hint without an associated code action (non-monadic variant of
+`MessageData.hint`).
 -/
 def hint' (hint : MessageData) : MessageData :=
   .tagged `hint <| .compose (.ofFormat .line) <| .compose (.ofFormat .line) <|

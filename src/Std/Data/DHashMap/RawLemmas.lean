@@ -1795,7 +1795,7 @@ theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (∀ (a : α), a ∈ m → (l.map Prod.fst).contains a = false) →
       (insertMany m l).size = m.size + l.length := by
-  simp [← contains_iff_mem]
+  simp only [← contains_iff_mem]
   simp_to_raw using Raw₀.Const.size_insertMany_list
 
 theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)

@@ -1539,7 +1539,7 @@ Examples:
  * `[1, 2, 3].insert 2 = [1, 2, 3]`
 -/
 @[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
-  if l.elem a then l else a :: l
+  if l.contains a then l else a :: l
 
 /--
 Inserts an element into a list at the specified index. If the index is greater than the length of

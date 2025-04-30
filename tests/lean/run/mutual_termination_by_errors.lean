@@ -1,8 +1,8 @@
 
 namespace Test
 /--
-error: incomplete set of `termination_by` annotations:
-This function is mutually recursive with Test.f, Test.h and Test.i, which do not have a `termination_by` clause.
+error: incomplete set of termination hints:
+This function is mutually recursive with Test.f, Test.h and Test.i, which do not have a termination hint.
 The present clause is ignored.
 -/
 #guard_msgs in
@@ -28,7 +28,7 @@ end Test
 
 namespace Test2
 /--
-error: Invalid `termination_by`; this function is mutually recursive with Test2.f, which is marked as `termination_by structural` so this one also needs to be marked `structural`.
+error: Incompatible termination hint; this function is mutually recursive with Test2.f, which is marked as `termination_by structural` so this one also needs to be marked `structural`.
 -/
 #guard_msgs in
 mutual
@@ -51,7 +51,7 @@ end Test2
 
 namespace Test3
 /--
-error: Invalid `termination_by`; this function is mutually recursive with Test3.f, which is not marked as `structural` so this one cannot be `structural` either.
+error: Incompatible termination hint; this function is mutually recursive with Test3.f, which is not marked as `structural` so this one cannot be `structural` either.
 -/
 #guard_msgs in
 mutual
@@ -75,7 +75,7 @@ end Test3
 namespace Test4
 
 /--
-error: Invalid `termination_by`; this function is mutually recursive with Test4.f, which is not marked as `structural` so this one cannot be `structural` either.
+error: Incompatible termination hint; this function is mutually recursive with Test4.f, which is not marked as `structural` so this one cannot be `structural` either.
 -/
 #guard_msgs in
 mutual
@@ -98,7 +98,7 @@ end Test4
 
 namespace Test5
 /--
-error: Invalid `decreasing_by`; this function is marked as structurally recursive, so no explicit termination proof is needed.
+error: Incompatible termination hint; this function is marked as structurally recursive, so no explicit termination proof is needed.
 -/
 #guard_msgs in
 mutual
@@ -122,7 +122,7 @@ end Test5
 
 namespace Test6
 /--
-error: Invalid `termination_by`; this function is mutually recursive with Test6.f, which is marked as `partial_fixpoint` so this one also needs to be marked `partial_fixpoint`.
+error: Incompatible termination hint; this function is mutually recursive with Test6.f, which is marked as `partial_fixpoint` so this one also needs to be marked `partial_fixpoint`.
 -/
 #guard_msgs in
 mutual
@@ -138,7 +138,7 @@ end Test6
 
 namespace Test7
 /--
-error: Invalid `termination_by`; this function is mutually recursive with Test7.f, which is marked as `greatest_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.
+error: Incompatible termination hint; this function is mutually recursive with Test7.f, which is marked as `greatest_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.
 -/
 #guard_msgs in
 mutual
@@ -154,7 +154,7 @@ end Test7
 
 namespace Test8
 /--
-error: Invalid `termination_by`; this function is mutually recursive with Test8.f, which is not also marked as `partial_fixpoint`, so this one cannot be either.
+error: Incompatible termination hint; this function is mutually recursive with Test8.f, which is not also marked as `partial_fixpoint`, so this one cannot be either.
 -/
 #guard_msgs in
 mutual
@@ -170,7 +170,7 @@ end Test8
 
 namespace Test9
 /--
-error: Invalid `termination_by`; this function is mutually recursive with Test9.f, which is not also marked as `least_fixpoint` or `greatest_fixpoint`, so this one cannot be either.
+error: Incompatible termination hint; this function is mutually recursive with Test9.f, which is not also marked as `least_fixpoint` or `greatest_fixpoint`, so this one cannot be either.
 -/
 #guard_msgs in
 mutual
@@ -186,7 +186,7 @@ end Test9
 
 namespace Test10
 /--
-error: Invalid `termination_by`; this function is mutually recursive with Test10.f, which is marked as `greatest_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.
+error: Incompatible termination hint; this function is mutually recursive with Test10.f, which is marked as `greatest_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.
 -/
 #guard_msgs in
 mutual
@@ -202,7 +202,7 @@ end Test10
 
 namespace Test11
 /--
-error: Invalid `termination_by`; this function is mutually recursive with Test11.f, which is marked as `partial_fixpoint` so this one also needs to be marked `partial_fixpoint`.
+error: Incompatible termination hint; this function is mutually recursive with Test11.f, which is marked as `partial_fixpoint` so this one also needs to be marked `partial_fixpoint`.
 -/
 #guard_msgs in
 mutual

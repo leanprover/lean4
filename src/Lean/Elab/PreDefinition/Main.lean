@@ -205,41 +205,41 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
       if !structural && !partialFixpoint && !leastFixpoint && !greatestFixpoint && !preDefsWithout.isEmpty then
         let m := MessageData.andList (preDefsWithout.toList.map (m!"{·.declName}"))
         let doOrDoes := if preDefsWithout.size = 1 then "does" else "do"
-        logErrorAt termBy.ref m!"incomplete set of `termination_by` annotations:\n\
+        logErrorAt termBy.ref m!"incomplete set of termination hints:\n\
           This function is mutually recursive with {m}, which {doOrDoes} not have \
-          a `termination_by` clause.\n\
+          a termination hint.\n\
           The present clause is ignored."
 
       if structural && !termBy.structural then
-        throwErrorAt termBy.ref m!"Invalid `termination_by`; this function is mutually \
+        throwErrorAt termBy.ref m!"Incompatible termination hint; this function is mutually \
           recursive with {preDefWith.declName}, which is marked as `termination_by \
           structural` so this one also needs to be marked `structural`."
       if !structural && termBy.structural then
-        throwErrorAt termBy.ref m!"Invalid `termination_by`; this function is mutually \
+        throwErrorAt termBy.ref m!"Incompatible termination hint; this function is mutually \
           recursive with {preDefWith.declName}, which is not marked as `structural` \
          so this one cannot be `structural` either."
       if termBy.structural then
         if let .some decr := preDef.termination.decreasingBy? then
-          logErrorAt decr.ref m!"Invalid `decreasing_by`; this function is marked as \
+          logErrorAt decr.ref m!"Incompatible termination hint; this function is marked as \
             structurally recursive, so no explicit termination proof is needed."
 
     -- If one is partial, but others are not
     if partialFixpoint && !preDef.termination.partialFixpoint?.any fun x => isPartial x.fixpointType then
-      throwErrorAt preDef.ref m!"Invalid `termination_by`; this function is mutually \
+      throwErrorAt preDef.ref m!"Incompatible termination hint; this function is mutually \
         recursive with {preDefWith.declName}, which is marked as \
         `partial_fixpoint` so this one also needs to be marked \
         `partial_fixpoint`."
 
     -- If one is least, but others are not
     if leastFixpoint && !preDef.termination.partialFixpoint?.any fun x => isLatticeTheoretic x.fixpointType then
-      throwErrorAt preDef.ref m!"Invalid `termination_by`; this function is mutually \
+      throwErrorAt preDef.ref m!"Incompatible termination hint; this function is mutually \
         recursive with {preDefWith.declName}, which is marked as
         `least_fixpoint` so this one also needs to be marked \
         `least_fixpoint` or `greatest_fixpoint`."
 
     -- If one is greatest, but others are not
     if greatestFixpoint && !preDef.termination.partialFixpoint?.any fun x => isLatticeTheoretic x.fixpointType then
-      throwErrorAt preDef.ref m!"Invalid `termination_by`; this function is mutually \
+      throwErrorAt preDef.ref m!"Incompatible termination hint; this function is mutually \
         recursive with {preDefWith.declName}, which is marked as \
         `greatest_fixpoint` so this one also needs to be marked \
         `least_fixpoint` or `greatest_fixpoint`."
@@ -264,7 +264,7 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
     if !partialFixpoint then
       if let some stx := preDef.termination.partialFixpoint? then
         if isPartial stx.fixpointType then
-          throwErrorAt stx.ref m!"Invalid `termination_by`; this function is mutually \
+          throwErrorAt stx.ref m!"Incompatible termination hint; this function is mutually \
             recursive with {preDefWith.declName}, which is not also marked as \
             `partial_fixpoint`, so this one cannot be either."
 
@@ -272,7 +272,7 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
     unless leastFixpoint || greatestFixpoint do
       if let some stx := preDef.termination.partialFixpoint? then
         if isLatticeTheoretic stx.fixpointType then
-          throwErrorAt stx.ref m!"Invalid `termination_by`; this function is mutually \
+          throwErrorAt stx.ref m!"Incompatible termination hint; this function is mutually \
             recursive with {preDefWith.declName}, which is not also marked as \
             `least_fixpoint` or `greatest_fixpoint`, so this one cannot be either."
 

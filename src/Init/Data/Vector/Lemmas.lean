@@ -2679,6 +2679,61 @@ theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Vector α n} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp
 
+@[simp, grind]
+theorem contains_toList [BEq α] {xs : Vector α n} {x : α} :
+    xs.toList.contains x = xs.contains x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp, grind]
+theorem contains_toArray [BEq α] {xs : Vector α n} {x : α} :
+    xs.toArray.contains x = xs.contains x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp, grind]
+theorem contains_map [BEq β] {xs : Vector α n} {x : β} {f : α → β} :
+    (xs.map f).contains x = xs.any (fun a => x == f a) := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp, grind]
+theorem contains_filter [BEq α] {xs : Vector α n} {x : α} {p : α → Bool} :
+    (xs.filter p).contains x = xs.any (fun a => x == a && p a) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp, grind]
+theorem contains_filterMap [BEq β] {xs : Vector α n} {x : β} {f : α → Option β} :
+    (xs.filterMap f).contains x = xs.any (fun a => (f a).any fun b => x == b) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp, grind _=_]
+theorem contains_append [BEq α] {xs : Vector α n} {ys : Vector α m} {x : α} :
+    (xs ++ ys).contains x = (xs.contains x || ys.contains x) := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp
+
+@[simp, grind]
+theorem contains_flatten [BEq α] {xs : Vector (Vector α n) m} {x : α} :
+    (xs.flatten).contains x = xs.any fun xs => xs.contains x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Function.comp_def]
+
+@[simp, grind]
+theorem contains_reverse [BEq α] {xs : Vector α n} {x : α} :
+    (xs.reverse).contains x = xs.contains x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp, grind]
+theorem contains_flatMap [BEq β] {xs : Vector α n} {f : α → Vector β m} {x : β} :
+    (xs.flatMap f).contains x = xs.any fun a => (f a).contains x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
 /-! ### more lemmas about `pop` -/
 
 @[simp] theorem pop_empty : (#v[] : Vector α 0).pop = #v[] := rfl
@@ -2736,93 +2791,6 @@ theorem pop_append {xs : Vector α n} {ys : Vector α m} :
 
 @[deprecated pop_replicate (since := "2025-03-18")]
 abbrev pop_mkVector := @pop_replicate
-
-/-! ### replace -/
-
-section replace
-variable [BEq α]
-
-@[simp] theorem replace_cast {xs : Vector α n} {a b : α} :
-    (xs.cast h).replace a b = (xs.replace a b).cast (by simp [h]) := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
-
-@[simp, grind] theorem replace_empty : (#v[] : Vector α 0).replace a b = #v[] := by rfl
-
-@[grind] theorem replace_singleton {a b c : α} : #v[a].replace b c = #v[if a == b then c else a] := by
-  simp
-
--- This hypothesis could probably be dropped from some of the lemmas below,
--- by proving them direct from the definition rather than going via `List`.
-variable [LawfulBEq α]
-
-@[simp] theorem replace_of_not_mem {xs : Vector α n} (h : ¬ a ∈ xs) : xs.replace a b = xs := by
-  rcases xs with ⟨xs, rfl⟩
-  simp_all
-
-@[grind] theorem getElem?_replace {xs : Vector α n} {i : Nat} :
-    (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem?_replace, -beq_iff_eq]
-
-theorem getElem?_replace_of_ne {xs : Vector α n} {i : Nat} (h : xs[i]? ≠ some a) :
-    (xs.replace a b)[i]? = xs[i]? := by
-  simp_all [getElem?_replace]
-
-@[grind] theorem getElem_replace {xs : Vector α n} {i : Nat} (h : i < n) :
-    (xs.replace a b)[i] = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
-  apply Option.some.inj
-  rw [← getElem?_eq_getElem, getElem?_replace]
-  split <;> split <;> simp_all
-
-theorem getElem_replace_of_ne {xs : Vector α n} {i : Nat} {h : i < n} (h' : xs[i] ≠ a) :
-    (xs.replace a b)[i]'(by simpa) = xs[i]'(h) := by
-  rw [getElem_replace h]
-  simp [h']
-
-@[grind] theorem replace_append {xs : Vector α n} {ys : Vector α m} :
-    (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
-  rcases xs with ⟨xs, rfl⟩
-  rcases ys with ⟨ys, rfl⟩
-  simp only [mk_append_mk, replace_mk, eq_mk, Array.replace_append]
-  split <;> simp_all
-
-theorem replace_append_left {xs : Vector α n} {ys : Vector α m} (h : a ∈ xs) :
-    (xs ++ ys).replace a b = xs.replace a b ++ ys := by
-  simp [replace_append, h]
-
-theorem replace_append_right {xs : Vector α n} {ys : Vector α m} (h : ¬ a ∈ xs) :
-    (xs ++ ys).replace a b = xs ++ ys.replace a b := by
-  simp [replace_append, h]
-
-@[grind] theorem replace_push {xs : Vector α n} {a b c : α} :
-    (xs.push a).replace b c = if b ∈ xs then (xs.replace b c).push a else xs.push (if b == a then c else a) := by
-  rcases xs with ⟨xs, rfl⟩
-  simp only [push_mk, replace_mk, Array.replace_push, mem_mk]
-  split <;> simp
-
-theorem replace_extract {xs : Vector α n} {i : Nat} :
-    (xs.extract 0 i).replace a b = (xs.replace a b).extract 0 i := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.replace_extract]
-
-@[simp] theorem replace_replicate_self {a : α} (h : 0 < n) :
-    (replicate n a).replace a b = (#v[b] ++ replicate (n - 1) a).cast (by omega) := by
-  match n, h with
-  | n + 1, _ => simp_all [replicate_succ', replace_append]
-
-@[deprecated replace_replicate_self (since := "2025-03-18")]
-abbrev replace_mkArray_self := @replace_replicate_self
-
-@[simp] theorem replace_replicate_ne {a b c : α} (h : !b == a) :
-    (replicate n a).replace b c = replicate n a := by
-  rw [replace_of_not_mem]
-  simp_all
-
-@[deprecated replace_replicate_ne (since := "2025-03-18")]
-abbrev replace_mkArray_ne := @replace_replicate_ne
-
-end replace
 
 /-! ## Logic -/
 
@@ -2984,6 +2952,93 @@ abbrev any_mkVector := @any_replicate
 
 @[deprecated all_replicate (since := "2025-03-18")]
 abbrev all_mkVector := @all_replicate
+
+/-! ### replace -/
+
+section replace
+variable [BEq α]
+
+@[simp] theorem replace_cast {xs : Vector α n} {a b : α} :
+    (xs.cast h).replace a b = (xs.replace a b).cast (by simp [h]) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp, grind] theorem replace_empty : (#v[] : Vector α 0).replace a b = #v[] := by rfl
+
+@[grind] theorem replace_singleton {a b c : α} : #v[a].replace b c = #v[if a == b then c else a] := by
+  simp
+
+-- This hypothesis could probably be dropped from some of the lemmas below,
+-- by proving them direct from the definition rather than going via `List`.
+variable [LawfulBEq α]
+
+@[simp] theorem replace_of_not_mem {xs : Vector α n} (h : ¬ a ∈ xs) : xs.replace a b = xs := by
+  rcases xs with ⟨xs, rfl⟩
+  simp_all
+
+@[grind] theorem getElem?_replace {xs : Vector α n} {i : Nat} :
+    (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.getElem?_replace, -beq_iff_eq]
+
+theorem getElem?_replace_of_ne {xs : Vector α n} {i : Nat} (h : xs[i]? ≠ some a) :
+    (xs.replace a b)[i]? = xs[i]? := by
+  simp_all [getElem?_replace]
+
+@[grind] theorem getElem_replace {xs : Vector α n} {i : Nat} (h : i < n) :
+    (xs.replace a b)[i] = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
+  apply Option.some.inj
+  rw [← getElem?_eq_getElem, getElem?_replace]
+  split <;> split <;> simp_all
+
+theorem getElem_replace_of_ne {xs : Vector α n} {i : Nat} {h : i < n} (h' : xs[i] ≠ a) :
+    (xs.replace a b)[i]'(by simpa) = xs[i]'(h) := by
+  rw [getElem_replace h]
+  simp [h']
+
+@[grind] theorem replace_append {xs : Vector α n} {ys : Vector α m} :
+    (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp only [mk_append_mk, replace_mk, eq_mk, Array.replace_append]
+  split <;> simp_all
+
+theorem replace_append_left {xs : Vector α n} {ys : Vector α m} (h : a ∈ xs) :
+    (xs ++ ys).replace a b = xs.replace a b ++ ys := by
+  simp [replace_append, h]
+
+theorem replace_append_right {xs : Vector α n} {ys : Vector α m} (h : ¬ a ∈ xs) :
+    (xs ++ ys).replace a b = xs ++ ys.replace a b := by
+  simp [replace_append, h]
+
+@[grind] theorem replace_push {xs : Vector α n} {a b c : α} :
+    (xs.push a).replace b c = if b ∈ xs then (xs.replace b c).push a else xs.push (if b == a then c else a) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [push_mk, replace_mk, Array.replace_push, mem_mk]
+  split <;> simp
+
+theorem replace_extract {xs : Vector α n} {i : Nat} :
+    (xs.extract 0 i).replace a b = (xs.replace a b).extract 0 i := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.replace_extract]
+
+@[simp] theorem replace_replicate_self {a : α} (h : 0 < n) :
+    (replicate n a).replace a b = (#v[b] ++ replicate (n - 1) a).cast (by omega) := by
+  match n, h with
+  | n + 1, _ => simp_all [replicate_succ', replace_append]
+
+@[deprecated replace_replicate_self (since := "2025-03-18")]
+abbrev replace_mkArray_self := @replace_replicate_self
+
+@[simp] theorem replace_replicate_ne {a b c : α} (h : !b == a) :
+    (replicate n a).replace b c = replicate n a := by
+  rw [replace_of_not_mem]
+  simp_all
+
+@[deprecated replace_replicate_ne (since := "2025-03-18")]
+abbrev replace_mkArray_ne := @replace_replicate_ne
+
+end replace
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 

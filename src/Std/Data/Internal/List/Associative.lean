@@ -3008,7 +3008,7 @@ theorem containsKey_of_containsKey_insertListConst [BEq α] [PartialEquivBEq α]
     (h₂ : (toInsert.map Prod.fst).contains k = false) : containsKey k l := by
   unfold insertListConst at h₁
   apply containsKey_of_containsKey_insertList h₁
-  simpa
+  simpa using h₂
 
 theorem getKey?_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
@@ -3016,7 +3016,7 @@ theorem getKey?_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
     getKey? k (insertListConst l toInsert) = getKey? k l := by
   unfold insertListConst
   apply getKey?_insertList_of_contains_eq_false
-  simpa
+  simpa using not_contains
 
 theorem getKey?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
@@ -3125,7 +3125,7 @@ theorem getValue?_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq
   unfold insertListConst
   rw [getValue?_eq_getEntry?, getValue?_eq_getEntry?, getEntry?_insertList_of_contains_eq_false]
   rw [containsKey_eq_contains_map_fst]
-  simpa
+  simpa using not_contains
 
 theorem getValue?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}

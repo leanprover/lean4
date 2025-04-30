@@ -1776,7 +1776,7 @@ theorem ofList_cons {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     {l : List ((a : α) × β a)} {k : α} :
     (ofList l cmp).contains k = (l.map Sigma.fst).contains k := by
-  simp [ofList, contains, Impl.ofList]
+  simp only [contains, ofList, Impl.ofList]
   exact Impl.contains_insertMany_empty_list (instOrd := ⟨cmp⟩) (k := k) (l := l)
 
 @[simp]

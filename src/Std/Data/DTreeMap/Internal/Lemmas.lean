@@ -2380,7 +2380,7 @@ theorem get!_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [Lawfu
     (h' : (l.map Prod.fst).contains k = false) :
     get! (insertMany! t l).1 k = get! t k := by
   simpa only [insertMany_eq_insertMany!] using
-    get!_insertMany_list_of_contains_eq_false h (h' := by simpa [insertMany_eq_insertMany!])
+    get!_insertMany_list_of_contains_eq_false h (h' := by simpa [insertMany_eq_insertMany!] using h')
 
 theorem get!_insertMany_list_of_mem [TransOrd α] [Inhabited β] (h : t.WF)
     {l : List (α × β)} {k k' : α} {v : β} : (k_beq : compare k k' = .eq) →

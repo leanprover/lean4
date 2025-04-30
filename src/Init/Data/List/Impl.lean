@@ -19,8 +19,7 @@ then at runtime you will get non-tail recursive versions of the following defini
 -/
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- TODO: restore after an update-stage0
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -256,6 +255,62 @@ Examples:
 
 @[csimp] theorem dropLast_eq_dropLastTR : @dropLast = @dropLastTR := by
   funext α l; simp [dropLastTR]
+
+/-! ## Finding elements -/
+
+/-- Tail recursive implementation of `findRev?`. This is only used at runtime. -/
+def findRev?TR (p : α → Bool) (l : List α) : Option α := l.reverse.find? p
+
+@[simp] theorem find?_singleton {a : α} : [a].find? p = if p a then some a else none := by
+  simp only [find?]
+  split <;> simp_all
+
+@[simp] theorem find?_append {xs ys : List α} : (xs ++ ys).find? p = (xs.find? p).or (ys.find? p) := by
+  induction xs with
+  | nil => simp [find?]
+  | cons x xs ih =>
+    simp only [cons_append, find?_cons, ih]
+    split <;> simp
+
+@[csimp] theorem findRev?_eq_findRev?TR : @List.findRev? = @List.findRev?TR := by
+  apply funext; intro α; apply funext; intro p; apply funext; intro l
+  induction l with
+  | nil => simp [findRev?, findRev?TR]
+  | cons x l ih =>
+    simp only [findRev?, ih, findRev?TR, reverse_cons, find?_append, find?_singleton]
+    split <;> simp_all
+
+@[simp] theorem findRev?_eq_find?_reverse {l : List α} {p : α → Bool} :
+    l.findRev? p = l.reverse.find? p := by
+  simp [findRev?_eq_findRev?TR, findRev?TR]
+
+/-- Tail recursive implementation of `finSomedRev?`. This is only used at runtime. -/
+def findSomeRev?TR (f : α → Option β) (l : List α) : Option β := l.reverse.findSome? f
+
+@[simp] theorem findSome?_singleton {a : α} :
+    [a].findSome? f = f a := by
+  simp only [findSome?_cons, findSome?_nil]
+  split <;> simp_all
+
+@[simp] theorem findSome?_append {xs ys : List α} : (xs ++ ys).findSome? f = (xs.findSome? f).or (ys.findSome? f) := by
+  induction xs with
+  | nil => simp [findSome?]
+  | cons x xs ih =>
+    simp only [cons_append, findSome?_cons, ih]
+    split <;> simp
+
+@[csimp] theorem findSomeRev?_eq_findSomeRev?TR : @List.findSomeRev? = @List.findSomeRev?TR := by
+  apply funext; intro α; apply funext; intro β; apply funext; intro p; apply funext; intro l
+  induction l with
+  | nil => simp [findSomeRev?, findSomeRev?TR]
+  | cons x l ih =>
+    simp only [findSomeRev?, ih, findSomeRev?TR, reverse_cons, findSome?_append,
+      findSome?_singleton]
+    split <;> simp_all
+
+@[simp] theorem findSomeRev?_eq_findSome?_reverse {l : List α} {f : α → Option β} :
+    l.findSomeRev? f = l.reverse.findSome? f := by
+  simp [findSomeRev?_eq_findSomeRev?TR, findSomeRev?TR]
 
 /-! ## Manipulating elements -/
 

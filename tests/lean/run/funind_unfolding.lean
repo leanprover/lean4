@@ -454,33 +454,34 @@ def Tree.size_aux : List (Tree α) → Nat
 end
 
 /--
-error: Failed to realize constant Tree.size.induct_unfolding:
-  Cannot derive functional induction principle (please report this issue)
-  ⏎
-    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
----
-error: Failed to realize constant Tree.size.induct_unfolding:
-  Cannot derive functional induction principle (please report this issue)
-  ⏎
-    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
----
-error: unknown identifier 'Tree.size.induct_unfolding'
+info: Tree.size.induct_unfolding.{u_1} {α : Type u_1} (motive_1 : Tree α → Nat → Prop) (motive_2 : List (Tree α) → Nat → Prop)
+  (case1 :
+    ∀ (a : α) (tsf : Bool → List (Tree α)),
+      motive_2 (tsf true) (Tree.size_aux (tsf true)) →
+        motive_2 (tsf false) (Tree.size_aux (tsf false)) →
+          motive_1 (Tree.node a tsf) (1 + Tree.size_aux (tsf true) + Tree.size_aux (tsf false)))
+  (case2 : motive_2 [] 0)
+  (case3 :
+    ∀ (t : Tree α) (ts : List (Tree α)),
+      motive_1 t t.size → motive_2 ts (Tree.size_aux ts) → motive_2 (t :: ts) (t.size + Tree.size_aux ts))
+  (a✝ : Tree α) : motive_1 a✝ a✝.size
 -/
 #guard_msgs in
 #check Tree.size.induct_unfolding
 
 /--
-error: Failed to realize constant Tree.size_aux.induct_unfolding:
-  Cannot derive functional induction principle (please report this issue)
-  ⏎
-    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
----
-error: Failed to realize constant Tree.size_aux.induct_unfolding:
-  Cannot derive functional induction principle (please report this issue)
-  ⏎
-    trying to realize Tree.size_aux.eq_def but `enableRealizationsForConst` must be called for 'Tree.size_aux' first
----
-error: unknown identifier 'Tree.size_aux.induct_unfolding'
+info: Tree.size_aux.induct_unfolding.{u_1} {α : Type u_1} (motive_1 : Tree α → Nat → Prop)
+  (motive_2 : List (Tree α) → Nat → Prop)
+  (case1 :
+    ∀ (a : α) (tsf : Bool → List (Tree α)),
+      motive_2 (tsf true) (Tree.size_aux (tsf true)) →
+        motive_2 (tsf false) (Tree.size_aux (tsf false)) →
+          motive_1 (Tree.node a tsf) (1 + Tree.size_aux (tsf true) + Tree.size_aux (tsf false)))
+  (case2 : motive_2 [] 0)
+  (case3 :
+    ∀ (t : Tree α) (ts : List (Tree α)),
+      motive_1 t t.size → motive_2 ts (Tree.size_aux ts) → motive_2 (t :: ts) (t.size + Tree.size_aux ts))
+  (a✝ : List (Tree α)) : motive_2 a✝ (Tree.size_aux a✝)
 -/
 #guard_msgs in
 #check Tree.size_aux.induct_unfolding

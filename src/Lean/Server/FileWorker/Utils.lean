@@ -37,15 +37,6 @@ where
         | some next => .delayed <| next.task.asServerTask.bindCheap go
         | none => .nil)
 
-structure ReportableDiagnostic extends Widget.InteractiveDiagnostic where
-  /--
-  Memorized encoded representation of this diagnostic.
-  We store the encoded representation so that the RPC references in this `InteractiveDiagnostic`
-  are stable when this diagnostic is reused.
-  Otherwise, clients are forced to reset the UI when the reference changes.
-  -/
-  encodedDiag : IO.Promise Json
-
 /--
 A document bundled with processing information. Turned into `EditableDocument` as soon as the
 reporter task has been started.
@@ -61,7 +52,7 @@ structure EditableDocumentCore where
   Interactive versions of diagnostics reported so far. Filled by `reportSnapshots` and read by
   `handleGetInteractiveDiagnosticsRequest`.
   -/
-  diagnosticsRef : IO.Ref (Array ReportableDiagnostic)
+  diagnosticsRef : IO.Ref (Array Widget.InteractiveDiagnostic)
 
 /-- `EditableDocumentCore` with reporter task. -/
 structure EditableDocument extends EditableDocumentCore where

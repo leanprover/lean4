@@ -1,7 +1,6 @@
-module
-
 import Lean
 import Module.Basic
+import Module.Imported
 
 /-! # Module system basic tests -/
 

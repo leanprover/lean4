@@ -112,7 +112,10 @@ because mathematical reasoning tends to be easier.
 instance : Mod Int where
   mod := Int.emod
 
-@[norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+@[simp, norm_cast] theorem natCast_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+
+@[deprecated natCast_ediv (since := "2025-04-17")]
+theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := natCast_ediv m n
 
 theorem ofNat_ediv_ofNat {a b : Nat} : (↑a / ↑b : Int) = (a / b : Nat) := rfl
 @[norm_cast]
@@ -121,6 +124,28 @@ theorem negSucc_ediv_negSucc {a b : Nat} : ((-[a+1]) / (-[b+1]) : Int) = ((a / (
 theorem ofNat_ediv_negSucc {a b : Nat} : (ofNat a / (-[b+1])) = -(a / (b + 1) : Nat) := rfl
 theorem negSucc_emod_ofNat {a b : Nat} : -[a+1] % (b : Int) = subNatNat b (succ (a % b)) := rfl
 theorem negSucc_emod_negSucc {a b : Nat} : -[a+1] % -[b+1] = subNatNat (b + 1) (succ (a % (b + 1))) := rfl
+
+/--
+Division of two divisible integers. Division by `0` returns `0`.
+
+This operation uses an optimized implementation, specialized for two divisible integers.
+
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `Int.divExact 21 3 (by decide) = 7`
+ * `Int.divExact 21 (-3) (by decide) = -7`
+ * `Int.divExact (-15) 5 (by decide) = -3`
+ * `Int.divExact 0 22 (by decide) = 0`
+ * `Int.divExact 0 0 (by decide) = 0`
+-/
+@[extern "lean_int_div_exact"]
+protected def divExact (x y : @& Int) (h : y ∣ x) : Int :=
+  x / y
+
+@[simp]
+theorem divExact_eq_ediv {x y : Int} (h : y ∣ x) : x.divExact y h = x / y := rfl
 
 /-! ### T-rounding division -/
 

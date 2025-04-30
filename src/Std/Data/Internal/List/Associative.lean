@@ -252,8 +252,8 @@ private theorem Option.dmap_eq_some {o : Option α} {f : (a : α) → (o = some 
 
 end
 
-theorem Option.guard_eq_map' (p : (a : α) × β a → Prop) [DecidablePred p] :
-    Option.guard p  = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
+theorem Option.guard_eq_map' (p : (a : α) × β a → Bool) :
+    Option.guard p = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
   funext x
   simp [Option.guard]
 
@@ -2229,23 +2229,31 @@ theorem getValueCast?_ext [BEq α] [LawfulBEq α] {l l' : List ((a : α) × β a
   intro a
   simp only [getEntry?_eq_getValueCast?, h]
 
-theorem getKey?_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
+theorem getKey_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
     {l l' : List ((_ : α) × β)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
-    (hk : ∀ a, getKey? a l = getKey? a l') (hv : ∀ a, getValue? a l = getValue? a l') :
+    (hk : ∀ a h h', getKey a l h = getKey a l' h') (hv : ∀ a, getValue? a l = getValue? a l') :
     Perm l l' := by
   apply getEntry?_ext hl hl'
   intro a
   specialize hk a; specialize hv a
   by_cases h' : containsKey a l'
-  · simp only [getKey?_eq_some_getKey h'] at hk
-    have h'' := containsKey_eq_isSome_getKey?.trans (hk ▸ rfl : (getKey? a l).isSome = true)
-    simp only [getKey?_eq_some_getKey, getValue?_eq_some_getValue,
-      getEntry?_eq_some_getEntry, h', h'', Option.some.injEq,
-      getEntry_eq_getKey_getValue, Sigma.mk.injEq] at hk hv ⊢
-    exact ⟨hk, hv ▸ .rfl⟩
-  · simp only [getKey?_eq_none, h'] at hk
-    have h'' := containsKey_eq_isSome_getKey?.trans (hk ▸ rfl : (getKey? a l).isSome = false)
+  · simp only [getValue?_eq_some_getValue h'] at hv
+    have h'' := containsKey_eq_isSome_getValue?.trans (hv ▸ rfl : (getValue? a l).isSome = true)
+    specialize hk h'' h'
+    simp only [getEntry?_eq_some_getEntry, h', h'', getEntry_eq_getKey_getValue, Sigma.mk.injEq]
+    simp only [getValue?_eq_some_getValue h'', Option.some.injEq] at hv
+    rw [hk, hv]
+  · simp only [getValue?_eq_none.mpr, h'] at hv
+    have h'' := containsKey_eq_isSome_getValue?.trans (hv ▸ rfl : (getValue? a l).isSome = false)
     simp only [getEntry?_eq_none.mpr, h', h'']
+
+theorem getKey?_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
+    {l l' : List ((_ : α) × β)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
+    (hk : ∀ a, getKey? a l = getKey? a l') (hv : ∀ a, getValue? a l = getValue? a l') :
+    Perm l l' := by
+  refine getKey_getValue?_ext hl hl' ?_ hv
+  intro a ha ha'
+  simp only [getKey, hk]
 
 theorem getKey?_ext [BEq α] [EquivBEq α]
     {l l' : List ((_ : α) × Unit)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
@@ -4511,7 +4519,6 @@ theorem getEntry?_filter [BEq α] [EquivBEq α]
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
     getEntry? k (l.filter f) = (getEntry? k l).filter f := by
   rw [← List.filterMap_eq_filter, getEntry?_filterMap' _ hl, Option.bind_guard]
-  simp only [Bool.decide_eq_true]
   intro p
   simp only [Option.all_guard, BEq.rfl, Bool.or_true]
 

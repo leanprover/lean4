@@ -2292,7 +2292,7 @@ _start:
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_2, 0);
-x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*6 + 11);
+x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*7 + 11);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -3660,14 +3660,16 @@ return x_2;
 static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal___lambda__4___closed__10() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal___lambda__4___closed__9;
 x_2 = l_Lean_Meta_Grind_mkParams___closed__2;
-x_3 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-lean_ctor_set(x_3, 2, x_2);
-return x_3;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set(x_4, 3, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal___lambda__4___closed__11() {
@@ -3861,7 +3863,7 @@ _start:
 lean_object* x_11; uint8_t x_12; 
 x_11 = lean_ctor_get(x_2, 0);
 lean_inc(x_11);
-x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*6 + 11);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*7 + 11);
 lean_dec(x_11);
 if (x_12 == 0)
 {
@@ -6220,7 +6222,7 @@ lean_dec(x_9);
 x_12 = l_Lean_Meta_Grind_Result_toMessageData___closed__1;
 x_13 = lean_ctor_get(x_1, 3);
 lean_inc(x_13);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*6 + 10);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*7 + 10);
 lean_dec(x_13);
 if (x_14 == 0)
 {

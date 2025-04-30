@@ -4540,7 +4540,7 @@ lean_dec(x_14);
 x_17 = l_Lean_Meta_Grind_getConfig___rarg(x_7, x_8, x_9, x_10, x_11, x_12, x_16);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*6 + 10);
+x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*7 + 10);
 lean_dec(x_18);
 if (x_19 == 0)
 {

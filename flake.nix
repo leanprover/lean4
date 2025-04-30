@@ -1,29 +1,22 @@
 {
   description = "Lean development flake. Not intended for end users.";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  # We use channels so we're not affected by GitHub's rate limits
+  inputs.nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz";
   # old nixpkgs used for portable release with older glibc (2.27)
-  inputs.nixpkgs-old.url = "github:NixOS/nixpkgs/nixos-19.03";
+  inputs.nixpkgs-old.url = "https://channels.nixos.org/nixos-19.03/nixexprs.tar.xz";
   inputs.nixpkgs-old.flake = false;
   # old nixpkgs used for portable release with older glibc (2.26)
-  inputs.nixpkgs-older.url = "github:NixOS/nixpkgs/0b307aa73804bbd7a7172899e59ae0b8c347a62d";
+  inputs.nixpkgs-older.url = "https://channels.nixos.org/nixos-18.03/nixexprs.tar.xz";
   inputs.nixpkgs-older.flake = false;
-  # for cadical 2.1.2; sync with CMakeLists.txt by taking commit from https://www.nixhub.io/packages/cadical
-  inputs.nixpkgs-cadical.url = "github:NixOS/nixpkgs/199169a2135e6b864a888e89a2ace345703c025d";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = inputs: inputs.flake-utils.lib.eachDefaultSystem (system:
+  outputs = inputs: builtins.foldl' inputs.nixpkgs.lib.attrsets.recursiveUpdate {} (builtins.map (system:
     let
       pkgs = import inputs.nixpkgs { inherit system; };
       # An old nixpkgs for creating releases with an old glibc
       pkgsDist-old = import inputs.nixpkgs-older { inherit system; };
       # An old nixpkgs for creating releases with an old glibc
       pkgsDist-old-aarch = import inputs.nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
-      pkgsCadical = import inputs.nixpkgs-cadical { inherit system; };
-      cadical = if pkgs.stdenv.isLinux then
-        # use statically-linked cadical on Linux to avoid glibc versioning troubles
-        pkgsCadical.pkgsStatic.cadical.overrideAttrs { doCheck = false; }
-      else pkgsCadical.cadical;
 
       lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; };
 
@@ -31,7 +24,7 @@
           stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache cadical pkg-config
+            cmake gmp libuv ccache pkg-config
             lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             tree  # for CI
@@ -67,15 +60,17 @@
           GDB = pkgsDist.gdb;
         });
     in {
-      packages = {
+      packages.${system} = {
         # to be removed when Nix CI is not needed anymore
         inherit (lean-packages) cacheRoots test update-stage0-commit ciShell;
         deprecated = lean-packages;
       };
 
-      # The default development shell for working on lean itself
-      devShells.default = devShellWithDist pkgs;
-      devShells.oldGlibc = devShellWithDist pkgsDist-old;
-      devShells.oldGlibcAArch = devShellWithDist pkgsDist-old-aarch;
-    });
+      devShells.${system} = {
+        # The default development shell for working on lean itself
+        default = devShellWithDist pkgs;
+        oldGlibc = devShellWithDist pkgsDist-old;
+        oldGlibcAArch = devShellWithDist pkgsDist-old-aarch;
+      };
+    }) ["x86_64-linux" "aarch64-linux"]);
 }

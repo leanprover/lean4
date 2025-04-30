@@ -855,15 +855,20 @@ structure PromiseCheckedResult where
   asyncEnv : Environment
   private checkedEnvPromise : IO.Promise Kernel.Environment
 
+def realizingStack (env : Environment) : List Name :=
+  env.asyncCtx?.map (·.realizingStack) |>.getD []
+
 /-- Creates an async context for the given declaration name, normalizing it for use as a prefix. -/
-private def enterAsync (declName : Name) (realizing? : Option Name := none) (env : Environment) : Environment :=
+private def enterAsync (declName : Name) (env : Environment) : Environment :=
   { env with asyncCtx? := some {
     declPrefix := privateToUserName declName.eraseMacroScopes
-    realizingStack :=
-      let s := env.asyncCtx?.map (·.realizingStack) |>.getD []
-      match realizing? with
-      | none   => s
-      | some n => n :: s } }
+    realizingStack := env.realizingStack } }
+
+/-- Creates an async context when realizing `declName` -/
+private def enterAsyncRealizing (declName : Name) (env : Environment) : Environment :=
+  { env with asyncCtx? := some {
+    declPrefix := .anonymous
+    realizingStack := declName :: env.realizingStack } }
 
 /--
 Starts an asynchronous modification of the kernel environment. The environment is split into a
@@ -2076,6 +2081,16 @@ where
   replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
       (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
+    -- replay extensions first in case kernel checking needs them (`IR.declMapExt`)
+    for ext in exts do
+      if let some replay := ext.replay? then
+        kenv := { kenv with
+          -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
+          extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
+            replay
+              (ext.getStateImpl oldEnv.toKernelEnv.extensions)
+              (ext.getStateImpl newEnv.toKernelEnv.extensions)
+              (consts.map (·.constInfo.name))) }
     for c in consts do
       if skipExisting && (kenv.find? c.constInfo.name).isSome then
         continue
@@ -2097,15 +2112,6 @@ where
       -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
       -- reused between snapshots
       kenv ← ofExcept <| kenv.addDeclCore 0 decl none
-    for ext in exts do
-      if let some replay := ext.replay? then
-        kenv := { kenv with
-          -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
-          extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
-            replay
-              (ext.getStateImpl oldEnv.toKernelEnv.extensions)
-              (ext.getStateImpl newEnv.toKernelEnv.extensions)
-              (consts.map (·.constInfo.name))) }
     return kenv
 
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
@@ -2166,9 +2172,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         realizedLocalConsts := realizeEnv.realizedLocalConsts.insert forConst ctx
         realizedImportedConsts? := env.realizedImportedConsts?
       }
-      -- ensure realized constants are nested below `forConst` and that environment extension
-      -- modifications know they are in an async context
-      let realizeEnv := realizeEnv.enterAsync (realizing? := constName) forConst
+      -- ensure that environment extension modifications know they are in an async context
+      let realizeEnv := realizeEnv.enterAsyncRealizing constName
       -- skip kernel in `realize`, we'll re-typecheck anyway
       let realizeOpts := debug.skipKernelTC.set ctx.opts true
       let (realizeEnv', dyn) ← realize realizeEnv realizeOpts

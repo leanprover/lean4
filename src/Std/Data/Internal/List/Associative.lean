@@ -252,8 +252,8 @@ private theorem Option.dmap_eq_some {o : Option α} {f : (a : α) → (o = some 
 
 end
 
-theorem Option.guard_eq_map' (p : (a : α) × β a → Prop) [DecidablePred p] :
-    Option.guard p  = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
+theorem Option.guard_eq_map' (p : (a : α) × β a → Bool) :
+    Option.guard p = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
   funext x
   simp [Option.guard]
 
@@ -3008,7 +3008,7 @@ theorem containsKey_of_containsKey_insertListConst [BEq α] [PartialEquivBEq α]
     (h₂ : (toInsert.map Prod.fst).contains k = false) : containsKey k l := by
   unfold insertListConst at h₁
   apply containsKey_of_containsKey_insertList h₁
-  simpa
+  simpa using h₂
 
 theorem getKey?_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
@@ -3016,7 +3016,7 @@ theorem getKey?_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
     getKey? k (insertListConst l toInsert) = getKey? k l := by
   unfold insertListConst
   apply getKey?_insertList_of_contains_eq_false
-  simpa
+  simpa using not_contains
 
 theorem getKey?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
@@ -3125,7 +3125,7 @@ theorem getValue?_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq
   unfold insertListConst
   rw [getValue?_eq_getEntry?, getValue?_eq_getEntry?, getEntry?_insertList_of_contains_eq_false]
   rw [containsKey_eq_contains_map_fst]
-  simpa
+  simpa using not_contains
 
 theorem getValue?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
@@ -4519,7 +4519,6 @@ theorem getEntry?_filter [BEq α] [EquivBEq α]
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
     getEntry? k (l.filter f) = (getEntry? k l).filter f := by
   rw [← List.filterMap_eq_filter, getEntry?_filterMap' _ hl, Option.bind_guard]
-  simp only [Bool.decide_eq_true]
   intro p
   simp only [Option.all_guard, BEq.rfl, Bool.or_true]
 

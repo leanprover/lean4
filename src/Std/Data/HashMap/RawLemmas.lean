@@ -68,6 +68,10 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v 
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   DHashMap.Raw.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
+  DHashMap.Raw.contains_iff_mem
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
   DHashMap.Raw.contains_congr h.out hab
@@ -274,9 +278,19 @@ theorem contains_eq_isSome_getElem? [EquivBEq α] [LawfulHashable α] (h : m.WF)
     m.contains a = m[a]?.isSome :=
   DHashMap.Raw.Const.contains_eq_isSome_get? h.out
 
+@[simp]
+theorem isSome_getElem?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m[a]?.isSome = m.contains a :=
+  (contains_eq_isSome_getElem? h).symm
+
 theorem mem_iff_isSome_getElem? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     a ∈ m ↔ (m[a]?).isSome :=
   DHashMap.Raw.Const.mem_iff_isSome_get? h.out
+
+@[simp]
+theorem isSome_getElem?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m[a]?).isSome ↔ a ∈ m :=
+  (mem_iff_isSome_getElem? h).symm
 
 theorem getElem?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m[a]? = none :=
@@ -487,6 +501,11 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) 
     m.contains a = (m.getKey? a).isSome :=
   DHashMap.Raw.contains_eq_isSome_getKey? h.out
 
+@[simp]
+theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.getKey? a).isSome = m.contains a :=
+  (contains_eq_isSome_getKey? h).symm
+
 theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m.getKey? a = none :=
   DHashMap.Raw.getKey?_eq_none_of_contains_eq_false h.out
@@ -532,6 +551,11 @@ theorem getKey_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
 theorem mem_iff_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     a ∈ m ↔ (m.getKey? a).isSome :=
   DHashMap.Raw.mem_iff_isSome_getKey? h.out
+
+@[simp]
+theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.getKey? a).isSome ↔ a ∈ m :=
+  (mem_iff_isSome_getKey? h).symm
 
 theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {a a' : α} (h : m.WF) :

@@ -51,6 +51,10 @@ theorem not_insert_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} {v : β k
 theorem mem_iff_contains [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m ↔ m.contains a :=
   Iff.rfl
 
+@[simp]
+theorem contains_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} : m.contains a ↔ a ∈ m :=
+  Iff.rfl
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : m.contains a = m.contains b :=
   m.inductionOn fun _ => DHashMap.contains_congr hab
 
@@ -140,7 +144,7 @@ theorem contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
 @[simp]
 theorem mem_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
     a ∈ m.erase k ↔ (k == a) = false ∧ a ∈ m := by
-  simp [mem_iff_contains, contains_erase]
+  simp [← contains_iff_mem, contains_erase]
 
 theorem contains_of_contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.erase k).contains a → m.contains a :=
@@ -193,15 +197,23 @@ theorem get?_insert_self [LawfulBEq α] {k : α} {v : β k} : (m.insert k v).get
 theorem contains_eq_isSome_get? [LawfulBEq α] {a : α} : m.contains a = (m.get? a).isSome :=
   m.inductionOn fun _ => DHashMap.contains_eq_isSome_get?
 
+@[simp]
+theorem isSome_get?_eq_contains [LawfulBEq α] {a : α} : (m.get? a).isSome = m.contains a :=
+  contains_eq_isSome_get?.symm
+
 theorem mem_iff_isSome_get? [LawfulBEq α] {a : α} : a ∈ m ↔ (m.get? a).isSome :=
   m.inductionOn fun _ => DHashMap.mem_iff_isSome_get?
+
+@[simp]
+theorem isSome_get?_iff_mem [LawfulBEq α] {a : α} : (m.get? a).isSome ↔ a ∈ m :=
+  mem_iff_isSome_get?.symm
 
 theorem get?_eq_none_of_contains_eq_false [LawfulBEq α] {a : α} :
     m.contains a = false → m.get? a = none :=
   m.inductionOn fun _ => DHashMap.get?_eq_none_of_contains_eq_false
 
 theorem get?_eq_none [LawfulBEq α] {a : α} : ¬a ∈ m → m.get? a = none := by
-  simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false
+  simpa [← contains_iff_mem] using get?_eq_none_of_contains_eq_false
 
 theorem get?_erase [LawfulBEq α] {k a : α} :
     (m.erase k).get? a = if k == a then none else m.get? a :=
@@ -232,15 +244,25 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (get? m a).isSome :=
   m.inductionOn fun _ => DHashMap.Const.contains_eq_isSome_get?
 
+@[simp]
+theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
+    (get? m a).isSome = m.contains a :=
+  contains_eq_isSome_get?.symm
+
 theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m ↔ (get? m a).isSome :=
   m.inductionOn fun _ => DHashMap.Const.mem_iff_isSome_get?
+
+@[simp]
+theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
+    (get? m a).isSome ↔ a ∈ m :=
+  mem_iff_isSome_get?.symm
 
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → get? m a = none :=
   m.inductionOn fun _ => DHashMap.Const.get?_eq_none_of_contains_eq_false
 
 theorem get?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → get? m a = none := by
-  simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false
+  simpa [← contains_iff_mem] using get?_eq_none_of_contains_eq_false
 
 theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
     Const.get? (m.erase k) a = if k == a then none else get? m a :=
@@ -569,9 +591,19 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.getKey? a).isSome :=
   m.inductionOn fun _ => DHashMap.contains_eq_isSome_getKey?
 
+@[simp]
+theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
+    (m.getKey? a).isSome = m.contains a :=
+  contains_eq_isSome_getKey?.symm
+
 theorem mem_iff_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     a ∈ m ↔ (m.getKey? a).isSome :=
   m.inductionOn fun _ => DHashMap.mem_iff_isSome_getKey?
+
+@[simp]
+theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
+    (m.getKey? a).isSome ↔ a ∈ m :=
+  mem_iff_isSome_getKey?.symm
 
 theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
     (h : m.getKey? k = some k') : k' ∈ m :=

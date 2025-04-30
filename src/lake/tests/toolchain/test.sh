@@ -3,12 +3,17 @@ source ../common.sh
 
 # Tests which require Elan to download a toolchain
 
+ELAN=${ELAN:-elan}
+
 # skip if no elan found
 echo "# Check if elan exists"
-if ! command -v elan > /dev/null; then
+if ! command -v $ELAN > /dev/null; then
    echo "elan not found; skipping test"
    exit 0
 fi
+
+# Ensure runtime libraries of different Leans are not overridden
+export LD_LIBRARY_PATH=
 
 echo "# TESTS"
 
@@ -17,9 +22,9 @@ echo "# TESTS"
 
 TOOLCHAIN=leanprover/lean4:v4.0.0
 ./clean.sh
-test_cmd elan run --install $TOOLCHAIN lake new foo
+test_cmd $ELAN run --install $TOOLCHAIN lake new foo
 pushd foo
-test_cmd_out "Foo.olean" elan run $TOOLCHAIN lake build +Foo:olean -v
+test_cmd_out "Foo.olean" $ELAN run $TOOLCHAIN lake build +Foo:olean -v
 test_cmd rm lean-toolchain # switch to Lake under test
 test_out "Foo.olean" build -v
 popd

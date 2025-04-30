@@ -486,6 +486,17 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
         case zero => exact hmsb
         case succ => exact getMsbD_x _ hi (by omega)
 
+
+/--
+(-x).msb is !(x.msb) when x is not one of the exceptional cases
+where it is zero or intMin.
+-/
+theorem msb_neg_eq_not_msb_of_ne_of_ne {w : Nat} {x : BitVec w} 
+    (hx0 : x ≠ 0#w) (hx : x ≠ intMin w) : (-x).msb = !x.msb := by
+  rw [msb_neg]
+  simp only [bool_to_prop]
+  simp [hx0, hx]
+  
 /-- This is false if `v < w` and `b = intMin`. See also `signExtend_neg_of_ne_intMin`. -/
 @[simp] theorem signExtend_neg_of_le {v w : Nat} (h : w ≤ v) (b : BitVec v) :
     (-b).signExtend w = -b.signExtend w := by
@@ -2072,15 +2083,38 @@ theorem udiv_eq_zero_iff_eq_zero_or_lt {x y : BitVec w} :
     simp only [lt_def] at h
     rcases h with h | h <;> simp [h]
 
+example {P Q : Prop} (h : P ↔ Q) : ¬ P ↔ ¬ Q := by
+  exact not_congr h
+
+@[simp]
+theorem udiv_ne_zero_iff_ne_zero_and_le {x y : BitVec w} :
+     x / y ≠ 0#w ↔ (y ≠ 0#w ∧ y ≤ x) := by
+  simp only [ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, _root_.not_or, BitVec.not_lt]
+
+private theorem foo {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
+    -x / y = intMin w ↔ (x = intMin w ∧ y = 1#w) := by
+  constructor
+  · intros h
+    rcases w with _ | w; decide +revert
+    have : (-x / y).msb = true := by simp [h, msb_intMin]; 
+    rw [msb_udiv] at this
+    simp only [bool_to_prop] at this
+    obtain ⟨hx₂, hy⟩ := this
+    simp at hy
+    subst hy
+    simp
+    simp at h
+    simp [h]
+  · rintro ⟨hx, hy⟩
+    subst hx
+    subst hy
+    simp
 
 theorem msb_sdiv_eq_decide {x y : BitVec w} :
     (x.sdiv y).msb = ((0 < w) && 
       -- x +ve, y +ve.
       (!x.msb && y.msb && (- y ≤ x ∧ y ≠ 0#w)) || -- x +ve, y -ve.
-      (x.msb && !y.msb && (
-          (((!decide (y = 0#w) && decide (y ≤ -x)) && !decide (-x / y = intMin w)) ^^
-            (decide (x = intMin w) && decide (y = 1#w)))
-      )) || -- x -ve, y +ve.
+      (x.msb && !y.msb && (y ≤ -x && y ≠ 0#w)) || -- x -ve, y +ve. is negative if the division works out.
       (x.msb && y.msb && (x = intMin w && y = -1#w))) -- both negative, only negative in the overflow case.
      := by
   by_cases hw : w = 0; subst hw; decide +revert
@@ -2098,13 +2132,29 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       simp [h] at hxmsb
     simp [hxne0, neg_eq_iff_eq_neg]
   · simp at hxmsb hymsb
-    simp [hxmsb, hymsb, msb_neg, msb_udiv]
-    simp only [bool_to_prop]
-    simp
-    have hxne0 : ¬ (x = 0#w) := by 
-      intros h
-      simp [h] at hxmsb
-    simp [hxne0]
+    simp [hxmsb, hymsb]
+    -- if x = intMin, then ..
+    -- if x = 0, then...
+    by_cases hx₁ : x = 0#w
+    · simp [hx₁]
+    · by_cases hy₁ : y = 0#w
+      · simp [hy₁]
+      · simp [hy₁]
+        by_cases hxy₁ : (- x / y) = 0#w
+        · simp [hxy₁]
+          simp at hxy₁
+          simp [hy₁] at hxy₁
+          bv_omega
+        · simp at hxy₁
+          simp [hy₁] at hxy₁
+          simp [hxy₁]
+          simp [msb_neg]
+          simp only [bool_to_prop]
+          simp [hy₁, hxy₁]
+          rw [msb_udiv, msb_neg]
+          simp only [bool_to_prop]
+          simp [hx₁, hxmsb]
+          apply foo hxmsb hymsb
   · simp at hxmsb hymsb
     simp? [hxmsb, hymsb, msb_neg, msb_udiv]
     -- hymsb : y.msb = true

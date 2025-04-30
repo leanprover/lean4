@@ -231,11 +231,11 @@ def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
 def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
   let ncx ← c.mkNullCertExt
-  trace_goal[grind.ring.assert.unsat] "{ncx.d}*({← c.d.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
+  trace_goal[grind.ring.assert.unsat] "multiplier: {c.d.getMultiplier}, {ncx.d}*({← c.d.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
   let nc := toExpr (ncx.toNullCert)
   let ring ← getRing
   let ctx ← toContextExpr
-  let k := c.d.getMultiplier
+  let k := c.d.getMultiplier * ncx.d
   let h := match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? k) with
     | some (charInst, char), some nzDivInst =>
       mkApp8 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsatC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr k)
@@ -253,7 +253,7 @@ def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Uni
   let nc := toExpr (ncx.toNullCert)
   let ring ← getRing
   let ctx ← toContextExpr
-  let k := d.getMultiplier
+  let k := d.getMultiplier * ncx.d
   let h := match (← nonzeroCharInst?), (← getNoZeroDivInstIfNeeded? k) with
     | some (charInst, char), some nzDivInst =>
       mkApp8 (mkConst ``Grind.CommRing.NullCert.eq_nzdivC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst nzDivInst ctx nc (toExpr k)

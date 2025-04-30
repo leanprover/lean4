@@ -1021,10 +1021,10 @@ def d_stepk_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Po
   p == (p₁.mulConst k₁).combine (p₂.mulMon k₂ m₂)
 
 theorem d_stepk {α} [CommRing α] (ctx : Context α) (k₁ : Int) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
-    : d_stepk_cert k₁ p₁ k₂ m₂ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k) * init.denote ctx = p.denote ctx := by
+    : d_stepk_cert k₁ p₁ k₂ m₂ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k : Int) * init.denote ctx = p.denote ctx := by
   simp [d_stepk_cert]; intro _ h₁ h₂; subst p
   simp [Poly.denote_combine, Poly.denote_mulMon, Poly.denote_mulConst, h₂, mul_zero, add_zero]
-  rw [mul_assoc, h₁]
+  rw [intCast_mul, mul_assoc, h₁]
 
 def imp_1eq_cert (lhs rhs : Expr) (p₁ p₂ : Poly) : Bool :=
   (lhs.sub rhs).toPoly == p₁ && p₂ == .num 0
@@ -1108,10 +1108,10 @@ def d_stepk_certC (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : P
   p == (p₁.mulConstC k₁ c).combineC (p₂.mulMonC k₂ m₂ c) c
 
 theorem d_stepkC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
-    : d_stepk_certC k₁ p₁ k₂ m₂ p₂ p c → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k) * init.denote ctx = p.denote ctx := by
+    : d_stepk_certC k₁ p₁ k₂ m₂ p₂ p c → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k : Int) * init.denote ctx = p.denote ctx := by
   simp [d_stepk_certC]; intro _ h₁ h₂; subst p
   simp [Poly.denote_combineC, Poly.denote_mulMonC, Poly.denote_mulConstC, h₂, mul_zero, add_zero]
-  rw [mul_assoc, h₁]
+  rw [intCast_mul, mul_assoc, h₁]
 
 def imp_1eq_certC (lhs rhs : Expr) (p₁ p₂ : Poly) (c : Nat) : Bool :=
   (lhs.sub rhs).toPolyC c == p₁ && p₂ == .num 0

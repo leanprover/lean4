@@ -61,34 +61,6 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
 @[extern "lean_add_extern"]
 opaque addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
 
-/--
-Instructs the compiler to use a specific external implementation for a function.
-This attribute is similar to `@[implemented_by]` in that it changes the implementation
-and causes the original function not to be compiled, except that it uses an foreign function
-instead of a Lean function as implementation. This however also means that `@[extern]` only
-works correctly in compiled code.
-
-An `@[extern]` attribute consists of an optional arity (TODO: what kind of arity??) and a sequence
-of implementation entries specifying which implementation to use for which backend
-(TODO: describe what happens when none are specified).
-Each entry consists of either a name in quotes or an inline implementation
-of the form `inline "..."`, optionally prefixed by a backend name. If the backend name
-is omitted, the entry will be used for all backends (TODO: is that correct??).
-
-Examples:
-- `@[extern]`: TODO: what???
-- `@[extern "level_hash"]`: use the foreign function named `level_hash` for all backends.
-- `@[extern cpp "lean::string_size" llvm "lean_str_size"]`:
-    use `lean::string_size` for the C++ backend (TODO: is there even a C++ backend?)
-    and `lean_str_size` for the LLVM backend (TODO: is that correct??).
-- `@[extern cpp inline "#1 + #2"]`:
-    use the inline implementation for the C++ backend. `#1` refers to the first parameter
-    and `#2` to the second (TODO: is that correct??).
-- `@[extern 2 cpp "io_prim_println"]`:
-    use the function `io_prim_println` for the C++ implementation with arity 2
-    (TODO: what kind of arity??)
--/
-@[builtin_doc]
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {
     name := `extern

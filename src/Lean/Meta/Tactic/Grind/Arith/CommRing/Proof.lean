@@ -445,6 +445,13 @@ def setDiseqUnsat (c : DiseqCnstr) : RingM Unit := do
     mkImpEqExprProof c.rlhs c.rrhs c.d
   closeGoal <| mkApp (← mkDiseqProof c.lhs c.rhs) heq
 
+def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
+  let heq ← withProofContext do
+    mkImpEqExprProof ra rb d
+  let ring ← getRing
+  let eq := mkApp3 (mkConst ``Eq [.succ ring.u]) ring.type a b
+  pushEq a b <| mkExpectedPropHint heq eq
+
 end Stepwise
 
 def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
@@ -460,7 +467,9 @@ def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
     Stepwise.setDiseqUnsat c
 
 def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
-  Null.propagateEq a b ra rb d
-  -- TODO: stepwise support
+  if (← getConfig).ringNull then
+    Null.propagateEq a b ra rb d
+  else
+    Stepwise.propagateEq a b ra rb d
 
 end Lean.Meta.Grind.Arith.CommRing

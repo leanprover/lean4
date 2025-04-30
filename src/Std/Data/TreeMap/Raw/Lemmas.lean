@@ -1029,6 +1029,12 @@ theorem getElem_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     (t.insertMany l)[k']'h' = v :=
   DTreeMap.Raw.Const.get_insertMany_list_of_mem h k_eq distinct mem
 
+theorem getElem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    (h : t.WF) {l : List (α × β)} {k : α} {h'} :
+    (insertMany t l)[k]'h' =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).getD (t[k]'sorry) :=
+  DTreeMap.Raw.Const.get_insertMany_list h
+
 theorem getElem!_insertMany_list_of_contains_eq_false [TransCmp cmp]
     [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
     {l : List (α × β)} {k : α} [Inhabited β]
@@ -1043,6 +1049,12 @@ theorem getElem!_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     (t.insertMany l)[k']! = v :=
   DTreeMap.Raw.Const.get!_insertMany_list_of_mem h k_eq distinct mem
 
+theorem getElem!_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] [Inhabited β]
+    (h : t.WF) {l : List (α × β)} {k : α} :
+    (insertMany t l)[k]! =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).getD t[k]! :=
+  DTreeMap.Raw.Const.get!_insertMany_list h
+
 theorem getD_insertMany_list_of_contains_eq_false [TransCmp cmp]
     [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
     {l : List (α × β)} {k : α} {fallback : β}
@@ -1056,6 +1068,12 @@ theorem getD_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany l).getD k' fallback = v :=
   DTreeMap.Raw.Const.getD_insertMany_list_of_mem h k_eq distinct mem
+
+theorem getD_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    (h : t.WF) {l : List (α × β)} {k : α} {fallback : β} :
+    (insertMany t l).getD k fallback =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).getD (t.getD k fallback) :=
+  DTreeMap.Raw.Const.getD_insertMany_list h
 
 section Unit
 

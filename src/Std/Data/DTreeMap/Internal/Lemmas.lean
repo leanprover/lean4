@@ -2354,7 +2354,7 @@ theorem get?_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     simp
     split <;> simp
 
- theorem get?_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get?_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     {l : List (α × β)} {k : α} :
     get? (insertMany! t l).1 k =
       (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k =.eq then some b else none)).or (get? t k) := by
@@ -2387,6 +2387,37 @@ theorem get_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) → {h' : _} →
     get (insertMany! t l).1 k' h' = v := by
   simpa only [insertMany_eq_insertMany!] using get_insertMany_list_of_mem h
+
+/-- A variant of `contains_of_contains_insertMany_list` used in `get_insertMany_list`. -/
+theorem contains_of_contains_insertMany_list' [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α}
+    (h' : contains k (insertMany t l sorry).val = true)
+    (w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none) = none) :
+    contains k t = true := by
+  simp at w
+  apply contains_of_contains_insertMany_list h h'
+  rw [List.contains_map]
+  sorry
+
+theorem get_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α} {h'} :
+    get (insertMany t l h.balanced).1 k h' =
+      match w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none) with
+      | some v => v
+      | none => get t k (contains_of_contains_insertMany_list' h h' w) := by
+  apply Option.some_inj.mp
+  rw [get_eq_get?, get?_insertMany_list h]
+  split <;> rename_i p
+  · rw [p]
+    simp
+  · simp only [p]
+    simp [get_eq_get?]
+
+theorem get?_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α} :
+    get? (insertMany! t l).1 k =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k =.eq then some b else none)).or (get? t k) := by
+  simpa only [insertMany_eq_insertMany!] using get?_insertMany_list h
 
 theorem get!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [Inhabited β] (h : t.WF) {l : List (α × β)} {k : α}

@@ -219,8 +219,8 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
     (codeActionPrefix? : Option String := none) : MetaM Unit := do
   if suggestions.isEmpty then throwErrorAt ref "no suggestions available"
   let msgs := suggestions.map toMessageData
-      |>.foldl (init := MessageData.nil) (fun msg m => msg ++ .nest 2 m!"\n• {m}")
-  logInfoAt ref m!"\n{header}{msgs}\n"
+  let msgs := msgs.foldl (init := MessageData.nil) (fun msg m => msg ++ m!"\n• " ++ .nest 2 m)
+  logInfoAt ref m!"{header}{msgs}"
   addSuggestionCore ref suggestions header (isInline := false) origSpan? style? codeActionPrefix?
 
 /-! # Tactic-specific widget hooks -/

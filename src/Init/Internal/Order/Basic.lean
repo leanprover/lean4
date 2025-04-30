@@ -10,7 +10,6 @@ prelude
 import Init.ByCases
 import Init.RCases
 
-
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as
 the underlying construction of the `partial_fixpoint` feature. It is not meant to be used as a
@@ -110,11 +109,12 @@ theorem bot_le (x : α) : ⊥ ⊑ x := by
 
 end CCPO
 
+
 section CompleteLattice
-  /--
-  A complete lattice is a partial order where every subset has a least upper bound.
-  -/
-  class CompleteLattice (α : Sort u) extends PartialOrder α where
+/--
+A complete lattice is a partial order where every subset has a least upper bound.
+-/
+class CompleteLattice (α : Sort u) extends PartialOrder α where
   /--
   The least upper bound of an arbitrary subset in the complete_lattice.
   -/
@@ -131,7 +131,7 @@ theorem sup_le {c : α → Prop} : (∀ y, c y → y ⊑ x) → sup c ⊑ x :=
 theorem le_sup {c : α → Prop} {y : α} (hy : c y) : y ⊑ sup c :=
   sup_spec.mp rel_refl y hy
 
-def inf : (α → Prop) → α := fun c : (α → Prop) => sup (fun x => ∀ y, c y → x ⊑ y)
+def inf (c : α → Prop) : α := sup (∀ y, c y → · ⊑ y)
 
 theorem inf_spec {c : α → Prop} : x ⊑ inf c ↔ (∀ y, c y → x ⊑ y) where
   mp := by
@@ -153,7 +153,7 @@ theorem inf_spec {c : α → Prop} : x ⊑ inf c ↔ (∀ y, c y → x ⊑ y) wh
 
 theorem le_inf {c : α → Prop} : (∀ y, c y → x ⊑ y) → x ⊑ inf c := inf_spec.mpr
 
-theorem inf_le  {c : α → Prop} {y : α} (hy : c y) : inf c ⊑ y :=  inf_spec.mp (rel_refl) y hy
+theorem inf_le  {c : α → Prop} {y : α} (hy : c y) : inf c ⊑ y := inf_spec.mp (rel_refl) y hy
 
 end CompleteLattice
 
@@ -287,13 +287,13 @@ def lfp_monotone (f : α → α) (hm : monotone f) : α :=
 -- Showing that `lfp` is a prefixed point makes use of monotonicity
 theorem lfp_prefixed {f : α → α} {hm : monotone f} :
   f (lfp f) ⊑ (lfp f) := by
-  apply le_inf
-  intro y hy
-  suffices h : f (lfp f) ⊑ f y from by
-    apply rel_trans h hy
-  apply hm
-  apply inf_le
-  exact hy
+    apply le_inf
+    intro y hy
+    suffices h : f (lfp f) ⊑ f y from by
+      apply rel_trans h hy
+    apply hm
+    apply inf_le
+    exact hy
 
 -- So does showing that `lfp` is a postfixed point
 theorem lfp_postfixed {f : α → α} {hm : monotone f} : lfp f ⊑ f (lfp f) := by
@@ -329,8 +329,8 @@ Takes an explicit witness of `f` being monotone.
 -/
 theorem lfp_le_of_le_monotone (f : α → α) {hm : monotone f} (x : α):
   f x ⊑ x → lfp_monotone f hm ⊑ x := by
-  unfold lfp_monotone
-  apply lfp_le_of_le
+    unfold lfp_monotone
+    apply lfp_le_of_le
 
 end lattice_fix
 
@@ -630,7 +630,7 @@ instance instCompleteLatticePProd [CompleteLattice α] [CompleteLattice β] : Co
     constructor
     case mp =>
       intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
-      constructor <;> dsimp at *
+      constructor <;> dsimp only at *
       · apply rel_trans ?_ h₁
         unfold PProd.fst at *
         apply le_sup
@@ -643,7 +643,7 @@ instance instCompleteLatticePProd [CompleteLattice α] [CompleteLattice β] : Co
         exact cab
     case mpr =>
       intro h
-      constructor <;> dsimp
+      constructor <;> dsimp only
       . apply sup_le
         unfold PProd.fst
         intro y' ex

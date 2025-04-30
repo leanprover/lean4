@@ -103,7 +103,9 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`maxKey?, (``maxKey?_eq_maxKey?, #[``(maxKey?_of_perm _)])⟩,
      ⟨`maxKey, (``maxKey_eq_maxKey, #[``(maxKey_of_perm _)])⟩,
      ⟨`maxKey!, (``maxKey!_eq_maxKey!, #[``(maxKey!_of_perm _)])⟩,
-     ⟨`maxKeyD, (``maxKeyD_eq_maxKeyD, #[``(maxKeyD_of_perm _)])⟩]
+     ⟨`maxKeyD, (``maxKeyD_eq_maxKeyD, #[``(maxKeyD_of_perm _)])⟩,
+     ⟨`Equiv, (``equiv_iff_toListModel_perm,
+      #[``(_root_.List.Perm.congr_left), ``(_root_.List.Perm.congr_right)])⟩]
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
@@ -2389,8 +2391,7 @@ theorem get_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
   simpa only [insertMany_eq_insertMany!] using get_insertMany_list_of_mem h
 
 /-- A variant of `contains_of_contains_insertMany_list` used in `get_insertMany_list`. -/
--- This should not really need `PartialEquivBEq`, but fixing it would require many changes.
-theorem contains_of_contains_insertMany_list' [TransOrd α] [BEq α] [PartialEquivBEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_of_contains_insertMany_list' [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     {l : List (α × β)} {k : α}
     (h' : contains k (insertMany t l h.balanced).val = true)
     (w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none) = none) :
@@ -6005,5 +6006,202 @@ theorem maxKeyD_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
 end Const
 
 end Max
+
+namespace Equiv
+
+variable {t₁ t₂ t₃ : Impl α β} {δ : Type w} {m : Type w → Type w}
+
+@[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
+
+@[symm] theorem symm : Equiv t₁ t₂ → Equiv t₂ t₁
+  | ⟨h⟩ => ⟨h.symm⟩
+
+theorem trans : Equiv t₁ t₂ → Equiv t₂ t₃ → Equiv t₁ t₃
+  | ⟨h⟩, ⟨h'⟩ => ⟨h.trans h'⟩
+
+instance instTrans : @Trans (Impl α β) _ _ Equiv Equiv Equiv := ⟨trans⟩
+
+theorem isEmpty_eq (h : t₁ ~m t₂) : t₁.isEmpty = t₂.isEmpty := by
+  simp_to_model [isEmpty] using List.Perm.isEmpty_eq h.1
+
+theorem contains_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.contains k = t₂.contains k := by
+  simp_to_model [contains] using List.containsKey_of_perm h.1
+
+theorem mem_iff [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    k ∈ t₁ ↔ k ∈ t₂ := by
+  simp only [mem_iff_contains, Bool.coe_iff_coe, contains_eq h₁ h₂ h]
+
+theorem size_eq (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.size = t₂.size := by
+  simp_to_model [size] using List.Perm.length_eq h.1
+
+theorem get?_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.get? k = t₂.get? k := by
+  simp_to_model [get?] using List.getValueCast?_of_perm _ h.1
+
+theorem get_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} (hk : k ∈ t₁) : t₁.get k hk = t₂.get k ((h.mem_iff h₁ h₂).mp hk) := by
+  simp_to_model [get] using List.getValueCast_of_perm _ h.1
+
+theorem get!_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited (β k)] : t₁.get! k = t₂.get! k := by
+  simp_to_model [get!] using List.getValueCast!_of_perm _ h.1
+
+theorem getD_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {fallback : β k} : t₁.getD k fallback = t₂.getD k fallback := by
+  simp_to_model [getD] using List.getValueCastD_of_perm _ h.1
+
+theorem getKey?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.getKey? k = t₂.getKey? k := by
+  simp_to_model [getKey?] using List.getKey?_of_perm _ h.1
+
+theorem getKey_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} (hk : k ∈ t₁) : t₁.getKey k hk = t₂.getKey k ((h.mem_iff h₁ h₂).mp hk) := by
+  simp_to_model [getKey] using List.getKey_of_perm _ h.1
+
+theorem getKey!_eq [TransOrd α] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} : t₁.getKey! k = t₂.getKey! k := by
+  simp_to_model [getKey!] using List.getKey!_of_perm _ h.1
+
+theorem getKeyD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k fallback : α} : t₁.getKeyD k fallback = t₂.getKeyD k fallback := by
+  simp_to_model [getKeyD] using List.getKeyD_of_perm _ h.1
+
+theorem toList_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toList = t₂.toList := by
+  simp_to_model [toList] using h.toListModel_eq
+
+theorem keys_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.keys = t₂.keys := by
+  simp_to_model [keys]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem foldlM_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {f : δ → (a : α) → β a → m δ} {init : δ} :
+    t₁.foldlM f init = t₂.foldlM f init := by
+  simp_to_model [foldlM]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem foldl_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {f : δ → (a : α) → β a → δ} {init : δ} :
+    t₁.foldl f init = t₂.foldl f init := by
+  simp_to_model [foldl]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem foldrM_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {f : (a : α) → β a → δ → m δ} {init : δ} :
+    t₁.foldrM f init = t₂.foldrM f init := by
+  simp_to_model [foldrM]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem foldr_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {f : (a : α) → β a → δ → δ} {init : δ} :
+    t₁.foldr f init = t₂.foldr f init := by
+  simp_to_model [foldr]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem forIn_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
+    t₁.forIn f init = t₂.forIn f init := by
+  simp_to_model [forIn]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem forM_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {f : (a : α) → β a → m PUnit} :
+    t₁.forM f = t₂.forM f := by
+  simp_to_model [forM]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem minKey?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.minKey? = t₂.minKey? := by
+  simp_to_model [minKey?]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem minKey_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (h' : t₁.isEmpty = false) :
+    t₁.minKey h' = t₂.minKey (h.isEmpty_eq.symm.trans h') := by
+  simp_to_model [minKey]
+  simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem minKey!_eq [TransOrd α] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.minKey! = t₂.minKey! := by
+  simp_to_model [minKey!]
+  simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem minKeyD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {fallback : α} :
+    t₁.minKeyD fallback = t₂.minKeyD fallback := by
+  simp_to_model [minKeyD]
+  simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem maxKey?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.maxKey? = t₂.maxKey? := by
+  simp_to_model [maxKey?]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem maxKey_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (h' : t₁.isEmpty = false) :
+    t₁.maxKey h' = t₂.maxKey (h.isEmpty_eq.symm.trans h') := by
+  simp_to_model [maxKey]
+  simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem maxKey!_eq [TransOrd α] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.maxKey! = t₂.maxKey! := by
+  simp_to_model [maxKey!]
+  simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem maxKeyD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {fallback : α} :
+    t₁.maxKeyD fallback = t₂.maxKeyD fallback := by
+  simp_to_model [maxKeyD]
+  simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem insert [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {v : β k} : (t₁.insert k v h₁.balanced).impl ~m (t₂.insert k v h₂.balanced).impl := by
+  simp_to_model [insert, Equiv] using List.insertEntry_of_perm _ h.1
+
+theorem erase [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} : (t₁.erase k h₁.balanced).impl ~m (t₂.erase k h₂.balanced).impl := by
+  simp_to_model [erase, Equiv] using List.eraseKey_of_perm _ h.1
+
+theorem insertIfNew [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {v : β k} : (t₁.insertIfNew k v h₁.balanced).impl ~m (t₂.insertIfNew k v h₂.balanced).impl := by
+  simp_to_model [insertIfNew, Equiv] using List.insertEntryIfNew_of_perm _ h.1
+
+theorem alter [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {f : Option (β k) → Option (β k)} :
+    (t₁.alter k f h₁.balanced).impl ~m (t₂.alter k f h₂.balanced).impl := by
+  simp_to_model [alter, Equiv] using List.alterKey_of_perm _ h.1
+
+theorem modify [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {f : β k → β k} : t₁.modify k f ~m t₂.modify k f := by
+  simp_to_model [modify, Equiv] using List.modifyKey_of_perm _ h.1
+
+section Const
+
+variable {β : Type v} {t₁ t₂ t₃ : Impl α fun _ => β} {δ : Type w} {m : Type w → Type w}
+
+theorem constGet?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    Const.get? t₁ k = Const.get? t₂ k := by
+  simp_to_model [Const.get?] using List.getValue?_of_perm _ h.1
+
+theorem constGet_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} (hk : k ∈ t₁) : Const.get t₁ k hk = Const.get t₂ k ((h.mem_iff h₁ h₂).mp hk) := by
+  simp_to_model [Const.get] using List.getValue_of_perm _ h.1
+
+theorem constGet!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited β] : Const.get! t₁ k = Const.get! t₂ k := by
+  simp_to_model [Const.get!] using List.getValue!_of_perm _ h.1
+
+theorem constGetD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {fallback : β} : Const.getD t₁ k fallback = Const.getD t₂ k fallback := by
+  simp_to_model [Const.getD] using List.getValueD_of_perm _ h.1
+
+theorem constAlter [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {f : Option β → Option β} :
+    (Const.alter k f t₁ h₁.balanced).impl ~m (Const.alter k f t₂ h₂.balanced).impl := by
+  simp_to_model [Const.alter, Equiv] using List.Const.alterKey_of_perm _ h.1
+
+theorem constModify [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {f : β → β} : Const.modify k f t₁ ~m Const.modify k f t₂ := by
+  simp_to_model [Const.modify, Equiv] using List.Const.modifyKey_of_perm _ h.1
+
+end Const
+
+end Equiv
 
 end Std.DTreeMap.Internal.Impl

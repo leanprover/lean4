@@ -547,6 +547,22 @@ theorem applyCell_eq_apply_toListModel [Ord α] [TransOrd α] [BEq α] [LawfulBE
 -/
 
 /-!
+### Equiv
+-/
+
+theorem equiv_iff_toListModel_perm {t t' : Impl α β} :
+    t.Equiv t' ↔ t.toListModel.Perm t'.toListModel :=
+  ⟨Equiv.impl, Equiv.mk⟩
+
+theorem Equiv.toListModel_eq [Ord α] [OrientedOrd α]
+    {t t' : Impl α β} (h : t.Equiv t') (htb : t.Ordered) (htb' : t'.Ordered) :
+    t.toListModel = t'.toListModel := by
+  refine List.Perm.eq_of_sorted ?_ htb htb' h.1
+  intro a b ha hb hlt hgt
+  rw [OrientedOrd.eq_swap, hlt] at hgt
+  contradiction
+
+/-!
 ### `isEmpty`
 -/
 

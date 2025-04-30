@@ -207,7 +207,6 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
     if imp.name = mod.name then
       logError s!"{mod.leanFile}: module imports itself"
     imp.olean.fetch
-  let importJob := Job.mixArray importJobs "import oleans"
   /-
   Remark: It should be possible to avoid transitive imports here when the module
   itself is precompiled, but they are currently kept to perserve the "bad import" errors.

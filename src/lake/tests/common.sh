@@ -45,6 +45,24 @@ test_out() {
   return $rc
 }
 
+no_match_out() {
+  expected=$1; shift
+  echo "[NO MATCH \"$expected\"]"
+  if grep --color -F -- "$expected" produced.out; then
+    return 1
+  else
+    echo "No match found."
+    return 0
+  fi
+}
+
+test_not_out() {
+  expected=$1; shift
+  if test_run "$@"; then rc=$?; else rc=$?; fi
+  no_match_out "$expected"
+  return $rc
+}
+
 test_err() {
   expected=$1; shift
   if test_run "$@"; then rc=$?; else rc=$?; fi

@@ -415,7 +415,7 @@ private def mkImpEqExprProof (lhs rhs : RingExpr) (d : PolyDerivation) : ProofM 
     let some nzInst ← noZeroDivisorsInst?
       | throwNoNatZeroDivisors
     pure <| mkApp2 (← mkStepPrefix ``Stepwise.imp_keq ``Stepwise.imp_keqC) nzInst (toExpr k)
-  return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl p₀) reflBoolTrue h₁
+  return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl p₀) (← mkPolyDecl d.p) reflBoolTrue h₁
 
 private abbrev withProofContext (x : ProofM Expr) : RingM Expr := do
   let ring ← getRing

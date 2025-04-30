@@ -9,6 +9,12 @@ import Lean.Attributes
 
 namespace Lean
 
+/--
+Instructs the compiler that function applications using the tagged declaration should
+not be extracted when they are closed terms, nor common subexpression should be performed.
+This is useful for declarations that have implicit effects.
+-/
+@[builtin_doc]
 builtin_initialize neverExtractAttr : TagAttribute ←
   registerTagAttribute `never_extract "instruct the compiler that function applications using the tagged declaration should not be extracted when they are closed terms, nor common subexpression should be performed. This is useful for declarations that have implicit effects."
 

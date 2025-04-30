@@ -55,6 +55,10 @@ and must prove a statement `@f = @g` where `f` and `g` are arbitrary constants.
 In functions defined after the theorem tagged `@[csimp]`, any occurrence of `f` is replaced with
 `g` while compiling. In this sense, `@[csimp]` works as a safe alternative of `@[implemented_by]`.
 
+However, it is still possible to register unsound `@[csimp]` lemmas by using `unsafe` or unsound
+axioms (like `sorryAx`). In some cases this is unavoidable for changing the behavior of existing
+functions. As long as neither of these are the case, `@[csimp]` should be safe though.
+
 `@[csimp]` is useful for providing an efficient implementation to a function with useful
 definitional equalities or to make noncomputable functions computable.
 This is for example used for many `List` functions to provide a tail-recursive implementation.

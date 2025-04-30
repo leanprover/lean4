@@ -50,6 +50,15 @@ test_exp() {
   test "$@"
 }
 
+test_cmd_fails() {
+  if test_cmd "$@"; then
+    echo "FAILURE: Program unexpectedly succeeded"
+    return 1
+  else
+    return 0
+  fi
+}
+
 test_run() {
   echo '$' lake "$@"
   if "$LAKE" "$@" 2>&1; then
@@ -58,15 +67,6 @@ test_run() {
     rc=$?
     echo "Lake exited with code $rc"
     return $rc
-  fi
-}
-
-test_cmd_fails() {
-  if test_cmd "$@"; then
-    echo "FAILURE: Program unexpectedly succeeded"
-    return 1
-  else
-    return 0
   fi
 }
 
@@ -87,6 +87,19 @@ test_status() {
   else
     echo "FAILURE: Expected Lake to exit with code $expected."
     return 1
+  fi
+}
+
+program_out() {
+  echo '$' "$@"
+  if "$@" >produced.out 2>&1; then
+    cat produced.out
+    return 0
+  else
+    rc=$?
+    cat produced.out
+    echo "Program exited with code $rc"
+    return $rc
   fi
 }
 
@@ -134,6 +147,13 @@ no_match_pat() {
 test_out() {
   expected=$1; shift
   if lake_out "$@"; then rc=$?; else rc=$?; fi
+  match_text "$expected" produced.out
+  return $rc
+}
+
+test_cmd_out() {
+  expected=$1; shift
+  if program_out "$@"; then rc=$?; else rc=$?; fi
   match_text "$expected" produced.out
   return $rc
 }
@@ -211,7 +231,7 @@ test_err_diff() {
     if [ $rc != 1 ]; then
       echo "Lake exited with code $rc."
     fi
-    return 1
+    return 0
   fi
 }
 

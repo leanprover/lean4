@@ -521,6 +521,19 @@ def indentExpr (e : Expr) : MessageData :=
   indentD e
 
 /--
+Returns the character length of the message when rendered.
+
+Note: this is a potentially expensive operation that is only relevant to message data that are
+actually rendered. Consider using this function in lazy message data to avoid unnecessary
+computation for messages that are not displayed.
+-/
+private def MessageData.formatLength (ctx : PPContext) (msg : MessageData) : BaseIO Nat := do
+  let { env, mctx, lctx, opts, ..} := ctx
+  let fmt ← msg.format (some { env, mctx, lctx, opts })
+  return fmt.pretty.length
+
+
+/--
 Renders an expression `e` inline in a message if it will not exceed `maxInlineLength` characters;
 otherwise, renders the expression indented on a new line.
 
@@ -532,13 +545,30 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
   .ofLazy
     (fun ctx? => do
       let msg := MessageData.ofExpr e
-      let some { env, mctx, lctx, opts, ..} := ctx? | return Dynamic.mk (" " ++ msg ++ " ")
-      let fmt ← msg.format (some { env, mctx, lctx, opts })
-      if fmt.pretty.length > maxInlineLength then
+      let some ctx := ctx? | return Dynamic.mk (" " ++ msg ++ " ")
+      if (← msg.formatLength ctx) > maxInlineLength then
         return Dynamic.mk (indentD msg ++ "\n")
       else
         return Dynamic.mk (" " ++ msg ++ " "))
     (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
+
+/--
+Produces a message `e : ty` that moves `: ty` to a second, indented line if a maximum length is
+exceeded.
+-/
+def indentExprWithType (e : Expr) (ty : Expr) (maxSingleLineLength := 30) : MessageData :=
+  .ofLazy
+    (fun ctx? => do
+      let eMsg := MessageData.ofExpr e
+      let tyMsg := MessageData.ofExpr ty
+      let msg := eMsg ++ " : " ++ tyMsg
+      let some ctx := ctx? | return Dynamic.mk msg
+      if (← msg.formatLength ctx) ≤ maxSingleLineLength then
+        return Dynamic.mk msg
+      else
+        return Dynamic.mk <| eMsg ++ indentD (": " ++ tyMsg))
+    (fun mctx => (instantiateMVarsCore mctx e).1.hasSyntheticSorry ||
+                 (instantiateMVarsCore mctx ty).1.hasSyntheticSorry)
 
 /-- Atom quotes -/
 def aquote (msg : MessageData) : MessageData :=

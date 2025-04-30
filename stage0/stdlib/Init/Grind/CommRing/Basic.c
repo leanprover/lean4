@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__12;
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__19;
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_ofNat__eq__natCast___autoParam;
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__22;
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__16;
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__29;
@@ -22,7 +23,6 @@ static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__5;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__32;
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_natCastInst(lean_object*);
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__23;
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__26;
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__7;
@@ -37,7 +37,6 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__20;
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__28;
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_natCastInst___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_intCast__neg___autoParam;
 static lean_object* l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__15;
@@ -410,6 +409,14 @@ x_1 = l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__33;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Grind_CommRing_ofNat__eq__natCast___autoParam() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__33;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Grind_CommRing_intCast__ofNat___autoParam() {
 _start:
 {
@@ -424,25 +431,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__33;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_natCastInst___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_1, 5);
-lean_inc(x_3);
-lean_dec(x_1);
-x_4 = lean_apply_1(x_3, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_natCastInst(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Grind_CommRing_natCastInst___rarg), 2, 0);
-return x_2;
 }
 }
 lean_object* initialize_Init_Data_Zero(uint8_t builtin, lean_object*);
@@ -534,6 +522,8 @@ l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__33 = _init_l_Lean_Grind_
 lean_mark_persistent(l_Lean_Grind_CommRing_ofNat__succ___autoParam___closed__33);
 l_Lean_Grind_CommRing_ofNat__succ___autoParam = _init_l_Lean_Grind_CommRing_ofNat__succ___autoParam();
 lean_mark_persistent(l_Lean_Grind_CommRing_ofNat__succ___autoParam);
+l_Lean_Grind_CommRing_ofNat__eq__natCast___autoParam = _init_l_Lean_Grind_CommRing_ofNat__eq__natCast___autoParam();
+lean_mark_persistent(l_Lean_Grind_CommRing_ofNat__eq__natCast___autoParam);
 l_Lean_Grind_CommRing_intCast__ofNat___autoParam = _init_l_Lean_Grind_CommRing_intCast__ofNat___autoParam();
 lean_mark_persistent(l_Lean_Grind_CommRing_intCast__ofNat___autoParam);
 l_Lean_Grind_CommRing_intCast__neg___autoParam = _init_l_Lean_Grind_CommRing_intCast__neg___autoParam();

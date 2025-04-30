@@ -2055,7 +2055,7 @@ theorem of_keys_unit_perm {m₁ m₂ : HashMap α Unit} (h : m₁.keys.Perm m₂
   ⟨.of_keys_unit_perm h⟩
 
 theorem getElem?_eq [EquivBEq α] [LawfulHashable α] {k : α} (h : m₁ ~m m₂) :
-    m₁.get? k = m₂.get? k :=
+    m₁[k]? = m₂[k]? :=
   h.1.constGet?_eq
 
 theorem getElem_eq [EquivBEq α] [LawfulHashable α] {k : α} (hk : k ∈ m₁) (h : m₁ ~m m₂) :

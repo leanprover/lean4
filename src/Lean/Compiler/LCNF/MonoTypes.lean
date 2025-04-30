@@ -81,6 +81,7 @@ partial def toMonoType (type : Expr) : CoreM Expr := do
     | .const ``lcErased _ => return erasedExpr
     | _ => mkArrow (← toMonoType d) monoB
   | .sort _ => return erasedExpr
+  | .mdata _ b => toMonoType b
   | _ => return anyExpr
 where
   visitApp (f : Expr) (args : Array Expr) : CoreM Expr := do

@@ -14,6 +14,9 @@ namespace UInt8
 /-- Variant of `UInt8.ofNat_mod_size` replacing `2 ^ 8` with `256`.-/
 theorem ofNat_mod_size' : ofNat (x % 256) = ofNat x := ofNat_mod_size
 
+instance : NatCast UInt8 where
+  natCast x := UInt8.ofNat x
+
 instance : IntCast UInt8 where
   intCast x := UInt8.ofInt x
 
@@ -33,6 +36,9 @@ namespace UInt16
 
 /-- Variant of `UInt16.ofNat_mod_size` replacing `2 ^ 16` with `65536`.-/
 theorem ofNat_mod_size' : ofNat (x % 65536) = ofNat x := ofNat_mod_size
+
+instance : NatCast UInt16 where
+  natCast x := UInt16.ofNat x
 
 instance : IntCast UInt16 where
   intCast x := UInt16.ofInt x
@@ -54,6 +60,9 @@ namespace UInt32
 /-- Variant of `UInt32.ofNat_mod_size` replacing `2 ^ 32` with `4294967296`.-/
 theorem ofNat_mod_size' : ofNat (x % 4294967296) = ofNat x := ofNat_mod_size
 
+instance : NatCast UInt32 where
+  natCast x := UInt32.ofNat x
+
 instance : IntCast UInt32 where
   intCast x := UInt32.ofInt x
 
@@ -74,6 +83,9 @@ namespace UInt64
 /-- Variant of `UInt64.ofNat_mod_size` replacing `2 ^ 64` with `18446744073709551616`.-/
 theorem ofNat_mod_size' : ofNat (x % 18446744073709551616) = ofNat x := ofNat_mod_size
 
+instance : NatCast UInt64 where
+  natCast x := UInt64.ofNat x
+
 instance : IntCast UInt64 where
   intCast x := UInt64.ofInt x
 
@@ -91,6 +103,9 @@ end UInt64
 
 namespace USize
 
+instance : NatCast USize where
+  natCast x := USize.ofNat x
+
 instance : IntCast USize where
   intCast x := USize.ofInt x
 
@@ -107,7 +122,6 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : USize) = OfNat.of
 
 end USize
 namespace Lean.Grind
-
 
 instance : CommRing UInt8 where
   add_assoc := UInt8.add_assoc

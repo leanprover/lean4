@@ -1513,7 +1513,7 @@ in it are digits.
 Use `Substring.toNat?` to convert such a substring to a natural number.
 -/
 @[inline] def isNat (s : Substring) : Bool :=
-  s.all fun c => c.isDigit
+  !s.isEmpty && s.all fun c => c.isDigit
 
 /--
 Checks whether the substring can be interpreted as the decimal representation of a natural number,

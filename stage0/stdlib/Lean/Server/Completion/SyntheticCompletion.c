@@ -449,45 +449,52 @@ uint8_t x_12;
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
 {
-lean_object* x_13; uint8_t x_14; 
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_11, 0);
+lean_inc(x_13);
 lean_inc(x_10);
-lean_inc(x_11);
-x_13 = l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_isBetter___rarg(x_1, x_11, x_10);
-x_14 = lean_unbox(x_13);
+x_14 = l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_isBetter___rarg(x_1, x_11, x_10);
+x_15 = lean_unbox(x_14);
+lean_dec(x_14);
+if (x_15 == 0)
+{
 lean_dec(x_13);
-if (x_14 == 0)
-{
-lean_dec(x_11);
 return x_10;
 }
 else
 {
+lean_object* x_16; 
 lean_dec(x_10);
-return x_11;
-}
-}
-else
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_15 = lean_ctor_get(x_11, 0);
-lean_inc(x_15);
-lean_dec(x_11);
 x_16 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_inc(x_10);
-lean_inc(x_16);
-x_17 = l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_isBetter___rarg(x_1, x_16, x_10);
-x_18 = lean_unbox(x_17);
-lean_dec(x_17);
-if (x_18 == 0)
+lean_ctor_set(x_16, 0, x_13);
+return x_16;
+}
+}
+else
 {
-lean_dec(x_16);
+lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+x_17 = lean_ctor_get(x_11, 0);
+lean_inc(x_17);
+lean_dec(x_11);
+lean_inc(x_17);
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_inc(x_10);
+x_19 = l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_isBetter___rarg(x_1, x_18, x_10);
+x_20 = lean_unbox(x_19);
+lean_dec(x_19);
+if (x_20 == 0)
+{
+lean_dec(x_17);
 return x_10;
 }
 else
 {
+lean_object* x_21; 
 lean_dec(x_10);
-return x_16;
+x_21 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_21, 0, x_17);
+return x_21;
 }
 }
 }

@@ -93,18 +93,19 @@ lean_object* x_2; uint8_t x_3;
 lean_inc(x_1);
 x_2 = l_String_toName(x_1);
 x_3 = l_Lean_Name_isAnonymous(x_2);
+lean_dec(x_2);
 if (x_3 == 0)
 {
-lean_dec(x_1);
-return x_2;
+lean_object* x_4; 
+x_4 = l_String_toName(x_1);
+return x_4;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = l_Lean_Name_str___override(x_4, x_1);
-return x_5;
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_box(0);
+x_6 = l_Lean_Name_str___override(x_5, x_1);
+return x_6;
 }
 }
 }

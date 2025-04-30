@@ -1106,20 +1106,24 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t 
 x_2 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getFirstAltLhs(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = l_Lean_Syntax_getArg(x_2, x_3);
-lean_dec(x_2);
 x_5 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getAltName___closed__5;
 lean_inc(x_4);
 x_6 = l_Lean_Syntax_isOfKind(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
+lean_dec(x_2);
 x_7 = l_Lean_Syntax_getArg(x_4, x_3);
 lean_dec(x_4);
 return x_7;
 }
 else
 {
-return x_4;
+lean_object* x_8; 
+lean_dec(x_4);
+x_8 = l_Lean_Syntax_getArg(x_2, x_3);
+lean_dec(x_2);
+return x_8;
 }
 }
 }

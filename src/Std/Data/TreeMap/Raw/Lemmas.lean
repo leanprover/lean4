@@ -1053,10 +1053,12 @@ theorem getElem_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     (t.insertMany l)[k']'h' = v :=
   DTreeMap.Raw.Const.get_insertMany_list_of_mem h k_eq distinct mem
 
-theorem getElem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+theorem getElem_insertMany_list [TransCmp cmp] [BEq α] [PartialEquivBEq α] [LawfulBEqCmp cmp]
     (h : t.WF) {l : List (α × β)} {k : α} {h'} :
     (insertMany t l)[k]'h' =
-      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).getD (t[k]'sorry) :=
+      match w : l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none) with
+      | some v => v
+      | none => t[k]'(mem_of_mem_insertMany_list h h' (by simpa [LawfulBEqCmp.compare_eq_iff_beq, BEq.comm] using w)) :=
   DTreeMap.Raw.Const.get_insertMany_list h
 
 theorem getElem!_insertMany_list_of_contains_eq_false [TransCmp cmp]

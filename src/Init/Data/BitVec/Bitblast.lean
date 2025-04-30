@@ -2077,7 +2077,10 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
     (x.sdiv y).msb = ((0 < w) && 
       -- x +ve, y +ve.
       (!x.msb && y.msb && (- y ≤ x ∧ y ≠ 0#w)) || -- x +ve, y -ve.
-      (x.msb && !y.msb && (FOO)) || -- x -ve, y +ve.
+      (x.msb && !y.msb && (
+          (((!decide (y = 0#w) && decide (y ≤ -x)) && !decide (-x / y = intMin w)) ^^
+            (decide (x = intMin w) && decide (y = 1#w)))
+      )) || -- x -ve, y +ve.
       (x.msb && y.msb && (x = intMin w && y = -1#w))) -- both negative, only negative in the overflow case.
      := by
   by_cases hw : w = 0; subst hw; decide +revert
@@ -2102,11 +2105,6 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       intros h
       simp [h] at hxmsb
     simp [hxne0]
-    -- ⊢ (((!decide (y = 0#w) && decide (y ≤ -x)) && !decide (-x / y = intMin w)) ^^ (decide (x = intMin w) && decide (y = 1#w)))
---     
-    -- hxmsb : x.msb = true
-    -- hymsb : y.msb = false
-    sorry
   · simp at hxmsb hymsb
     simp? [hxmsb, hymsb, msb_neg, msb_udiv]
     -- hymsb : y.msb = true
@@ -2126,6 +2124,8 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
     simp [this, ne_zero_of_msb_true hymsb]
   · simp at hxmsb hymsb
     simp [hxmsb, hymsb]
+
+#print axioms msb_sdiv_eq_decide
 
 
 /--

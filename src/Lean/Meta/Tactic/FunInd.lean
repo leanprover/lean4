@@ -945,6 +945,7 @@ where doRealize (inductName : Name) := do
     { name := inductName, levelParams := us, type := eTyp, value := e' }
 
   setFunIndInfo {
+      funName := name
       funIndName := inductName
       levelMask := usMask
       params := paramMask.map (cond · .param .dropped) ++ #[.target]
@@ -1353,6 +1354,7 @@ where doRealize inductName := do
         params := params.push .target
 
     setFunIndInfo {
+      funName := names[0]!
       funIndName := inductName, levelMask := usMask, params := params
     }
 
@@ -1425,6 +1427,7 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
       { name := casesName, levelParams := us, type := eTyp, value := e' }
 
     setFunIndInfo {
+      funName := name
       funIndName := casesName
       levelMask := usMask
       params := .replicate motiveArity .target

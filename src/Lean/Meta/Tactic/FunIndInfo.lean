@@ -30,6 +30,7 @@ A `FunIndInfo` indicates how a function's arguments map to the arguments of the 
 The size of `params` also indicates the arity of the function.
 -/
 structure FunIndInfo where
+  funName : Name
   funIndName : Name
   /--
   `true` means that the corresponding level parameter of the function is also a level param

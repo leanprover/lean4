@@ -14,7 +14,7 @@ def append : (xs ys : List α) → List α
 namespace ListEx
 
 theorem map_id (xs : List α) : map id xs = xs := by
-  fun_induction map <;> simp_all only [map, id]
+  fun_induction map <;> simp_all only [id]
 
 -- This would work with the non-unfolding functional induction lemma, because there the function
 -- argument to `map` is `.dropped`. But since we use the unfolding lemma it doesn't anymore:
@@ -27,15 +27,13 @@ theorem map_map (f : α → β) (g : β → γ) xs :
   map g (map f xs) = map (g ∘ f) xs := by
   fun_induction map <;> simp_all only [map, Function.comp]
 
-/--
-error: unknown identifier 'unfolding'
----
-error: no functional cases theorem for 'Neg.neg', or function is mutually recursive
--/
-#guard_msgs in -- aspirational
+-- With `set_option tactic.fun_induction.unfolding false` this works, because the function
+-- argument to `map` is ignored when checking for a unique suitable call.
+
 theorem map_map' (f : α → β) (g : β → γ) xs :
   map g (map f xs) = map (g ∘ f) xs := by
-  fun_induction -unfolding map <;> simp_all only [map, Function.comp]
+  set_option tactic.fun_induction.unfolding false in
+  fun_induction map <;> simp_all only [map, Function.comp]
 
 -- This should genuinely not work, but have a good error message
 
@@ -123,7 +121,26 @@ def ackermann : Nat → Nat → Nat
   | n+1, m+1 => ackermann n (ackermann (n + 1) m)
 termination_by n m => (n, m)
 
-/-- error: no functional cases theorem for 'ackermann', or function is mutually recursive -/
+/--
+error: unsolved goals
+case case1
+P : Nat → Prop
+m✝ : Nat
+⊢ P (m✝ + 1)
+
+case case2
+P : Nat → Prop
+n✝ : Nat
+ih1✝ : P (ackermann n✝ 1)
+⊢ P (ackermann n✝ 1)
+
+case case3
+P : Nat → Prop
+n✝ m✝ : Nat
+ih2✝ : P (ackermann (n✝ + 1) m✝)
+ih1✝ : P (ackermann n✝ (ackermann (n✝ + 1) m✝))
+⊢ P (ackermann n✝ (ackermann (n✝ + 1) m✝))
+-/
 #guard_msgs in
 example : P (ackermann n m) := by
   fun_induction ackermann
@@ -140,7 +157,35 @@ def ackermann {α} (inc : List α) : List α → List α → List α
   | n::ns, _::ms => ackermann inc ns (ackermann inc (n::ns) ms)
 termination_by ns ms => (ns, ms)
 
-/-- error: no functional cases theorem for 'ackermann', or function is mutually recursive -/
+/--
+error: unsolved goals
+case case1
+α : Type u_1
+P : List α → Prop
+inc ms✝ : List α
+⊢ P (ms✝ ++ inc)
+
+case case2
+α : Type u_1
+P : List α → Prop
+inc : List α
+head✝ : α
+ns✝ : List α
+ih1✝ : P (ackermann inc ns✝ inc)
+⊢ P (ackermann inc ns✝ inc)
+
+case case3
+α : Type u_1
+P : List α → Prop
+inc : List α
+n✝ : α
+ns✝ : List α
+head✝ : α
+ms✝ : List α
+ih2✝ : P (ackermann inc (n✝ :: ns✝) ms✝)
+ih1✝ : P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
+⊢ P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
+-/
 #guard_msgs in
 example : P (ackermann inc n m) := by
   fun_induction ackermann
@@ -278,7 +323,7 @@ namespace Nonrec
 
 def foo := 1
 
-/-- error: no functional cases theorem for 'foo', or function is mutually recursive -/
+/-- error: no functional induction theorem for 'foo', or function is mutually recursive -/
 #guard_msgs in
 example : True := by
   fun_induction foo
@@ -301,7 +346,7 @@ def Tree.size_aux : List (Tree α) → Nat
   | t :: ts => size t + size_aux ts
 end
 
-/-- error: no functional cases theorem for 'Tree.size', or function is mutually recursive -/
+/-- error: no functional induction theorem for 'Tree.size', or function is mutually recursive -/
 #guard_msgs in
 example (t : Tree α) : True := by
   fun_induction Tree.size

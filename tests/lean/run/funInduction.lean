@@ -415,7 +415,7 @@ def Tree.size_aux : List (Tree α) → Nat
   | t :: ts => size t + size_aux ts
 end
 
-/-- error: no functional cases theorem for 'Tree.size', or function is mutually recursive -/
+/-- error: no functional induction theorem for 'Tree.size', or function is mutually recursive -/
 #guard_msgs in
 example (t : Tree α) : True := by
   fun_induction Tree.size t

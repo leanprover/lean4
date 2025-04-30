@@ -39,7 +39,6 @@ attribute [grind] Vector.toArray_perm_iff
 attribute [grind] Vector.perm_toArray_iff
 grind_pattern Array.Perm.refl => xs ~ xs
 
-
 @[simp, grind] theorem size_qsort (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
     (qsort as lt lo hi).size = as.size := by
   grind [qsort]
@@ -50,20 +49,21 @@ private theorem qpartition_loop_perm {n} (as : Vector α n) (lt : α → α → 
   unfold qpartition.loop
   split
   · split
-    · exact Perm.trans (qpartition_loop_perm ..) (Array.swap_perm ..)
+    · exact Vector.Perm.trans (qpartition_loop_perm ..) (Vector.swap_perm ..)
     · apply qpartition_loop_perm
-  · exact Array.swap_perm ..
+  · dsimp
+    exact Vector.swap_perm ..
 
 private theorem qpartition_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) :
     (qpartition as lt lo hi hlo hhi).2 ~ as := by
   unfold qpartition
-  refine Perm.trans (qpartition_loop_perm ..) ?_
+  refine Vector.Perm.trans (qpartition_loop_perm ..) ?_
   repeat' first
   | split
-  | apply Array.Perm.rfl
-  | apply Array.swap_perm
-  | refine Perm.trans (Array.swap_perm ..) ?_
+  | apply Vector.Perm.rfl
+  | apply Vector.swap_perm
+  | refine Vector.Perm.trans (Vector.swap_perm ..) ?_
 
 private theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) {hlo} {hhi} :
     qsort.sort lt as lo hi hlo hhi ~ as := by
@@ -74,8 +74,8 @@ private theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool)
     obtain rfl := (show as' = (qpartition as lt lo hi ..).2 by simp [h])
     split
     · apply qpartition_perm
-    · refine Perm.trans (qsort_sort_perm ..) ?_
-      refine Perm.trans (qsort_sort_perm ..) ?_
+    · refine Vector.Perm.trans (qsort_sort_perm ..) ?_
+      refine Vector.Perm.trans (qsort_sort_perm ..) ?_
       apply qpartition_perm
   · simp [qpartition]
 

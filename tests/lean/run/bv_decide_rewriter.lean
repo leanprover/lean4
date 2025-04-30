@@ -1,7 +1,4 @@
 import Std.Tactic.BVDecide
-import Std.Tactic.BVDecide.Normalize
-import Std.Tactic.BVDecide.Syntax
-import Lean.Elab.Tactic.Simp
 
 theorem x_eq_y (x y : Bool) (hx : x = True) (hy : y = True) : x = y := by
   bv_decide

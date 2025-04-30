@@ -126,3 +126,6 @@ example [CommRing α] (a b c : α) (f : α → Nat)
     a^3 + b^3 + c^3 = 7 →
     f (a^4 + b^4) + f (9 - c^4) ≠ 1 := by
   grind +ring
+
+example [CommRing α] [NoNatZeroDivisors α] (x y z : α) : 3*x = 1 → 3*z = 2 → 2*y = 2 → x + z + 3*y = 4 := by
+  grind +ring

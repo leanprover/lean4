@@ -297,6 +297,7 @@ the derivation.
 structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}
   polyMap     : Std.HashMap Poly Expr := {}
+  monMap      : Std.HashMap Mon Expr := {}
   exprMap     : Std.HashMap RingExpr Expr := {}
 
 structure ProofM.Context where
@@ -331,6 +332,13 @@ def mkExprDecl (e : RingExpr) : ProofM Expr := do
   modify fun s => { s with exprMap := s.exprMap.insert e x }
   return x
 
+def mkMonDecl (m : Mon) : ProofM Expr := do
+  if let some x := (← get).monMap[m]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with monMap := s.monMap.insert m x }
+  return x
+
 private def mkStepBasicPrefix (declName : Name) : ProofM Expr := do
   let ctx ← getContext
   let ring ← getRing
@@ -353,14 +361,14 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ =>
     let h ← mkStepPrefix ``Stepwise.superpose ``Stepwise.superposeC
     return mkApp10 h
-      (toExpr k₁) (toExpr m₁) (← mkPolyDecl c₁.p)
-      (toExpr k₂) (toExpr m₂) (← mkPolyDecl c₂.p)
+      (toExpr k₁) (← mkMonDecl m₁) (← mkPolyDecl c₁.p)
+      (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
       (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
   | .simp k₁ c₁ k₂ m₂ c₂ =>
     let h ← mkStepPrefix ``Stepwise.simp ``Stepwise.simpC
     return mkApp9 h
       (toExpr k₁) (← mkPolyDecl c₁.p)
-      (toExpr k₂) (toExpr m₂) (← mkPolyDecl c₂.p)
+      (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
       (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
   | .mul k c₁ =>
     let h ← mkStepPrefix ``Stepwise.mul ``Stepwise.mulC
@@ -390,7 +398,7 @@ private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr)
       pure <| mkApp (← mkStepPrefix ``Stepwise.d_stepk ``Stepwise.d_stepkC) (toExpr k₁)
     let h := mkApp10 h
       (toExpr k) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
-      (toExpr k₂) (toExpr m₂) (← mkPolyDecl c₂.p) (← mkPolyDecl p)
+      (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p) (← mkPolyDecl p)
       reflBoolTrue h₁ h₂
     return (k₁*k, p₀, h)
 
@@ -417,6 +425,7 @@ where
   go : ProofM Expr := do
     let h ← x
     let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.CommRing.Poly) toExpr
+    let h ← mkLetOfMap (← get).monMap h `m (mkConst ``Grind.CommRing.Mon) toExpr
     let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.CommRing.Expr) toExpr
     mkLetFVars #[(← getContext)] h
 

@@ -968,6 +968,13 @@ theorem insertMany_cons [EquivBEq α] [LawfulHashable α]
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
 
+theorem insertMany_append [EquivBEq α] [LawfulHashable α] {l₁ l₂ : List ((a : α) × β a)} :
+    insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 private theorem insertMany_list_mk [EquivBEq α] [LawfulHashable α]
     {m : DHashMap α β} {l : List ((a : α) × β a)} :
     (ExtDHashMap.insertMany (Quotient.mk _ m) l : ExtDHashMap α β) = Quotient.mk _ (m.insertMany l) := by
@@ -1217,6 +1224,13 @@ theorem insertMany_cons [EquivBEq α] [LawfulHashable α] {l : List (α × β)} 
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insert a.1 a.2) (m.insert k v) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
+
+theorem insertMany_append [EquivBEq α] [LawfulHashable α] {l₁ l₂ : List (α × β)} :
+    insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
 
 private theorem insertMany_list_mk [EquivBEq α] [LawfulHashable α]
     {m : DHashMap α fun _ => β} {l : List (α × β)} :

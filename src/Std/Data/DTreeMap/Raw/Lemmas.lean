@@ -1296,6 +1296,13 @@ theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     t.insertMany (⟨k, v⟩ :: l) = (t.insert k v).insertMany l :=
   ext <| Impl.insertMany!_cons
 
+theorem insertMany_append {l₁ l₂ : List ((a : α) × β a)} :
+    insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
+  induction l₁ generalizing t with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 @[simp]
 theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
@@ -1468,6 +1475,13 @@ theorem insertMany_list_singleton {k : α} {v : β} :
 theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     Const.insertMany t ((k, v) :: l) = Const.insertMany (t.insert k v) l :=
   ext <| Impl.Const.insertMany!_cons
+
+theorem insertMany_append {l₁ l₂ : List (α × β)} :
+    insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
+  induction l₁ generalizing t with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
 
 @[simp]
 theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)

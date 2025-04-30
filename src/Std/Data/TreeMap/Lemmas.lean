@@ -911,6 +911,13 @@ theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     t.insertMany (⟨k, v⟩ :: l) = (t.insert k v).insertMany l :=
   ext <| DTreeMap.Const.insertMany_cons
 
+theorem insertMany_append {l₁ l₂ : List (α × β)} :
+    insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
+  induction l₁ generalizing t with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 @[simp]
 theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     {l : List (α × β)} {k : α} :

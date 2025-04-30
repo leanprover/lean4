@@ -873,6 +873,7 @@ theorem getKey_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : �
     m.getKey k₁ h₁ = m.getKey k₂ (((mem_congr h h').mp h₁)) := by
   simp_to_raw using Raw₀.getKey_congr
 
+@[simp]
 theorem getKey_eq [LawfulBEq α] (h : m.WF) {k : α} (h') :
     m.getKey k h' = k := by
   simp_to_raw using Raw₀.getKey_eq

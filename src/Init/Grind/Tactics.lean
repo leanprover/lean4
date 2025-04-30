@@ -119,6 +119,11 @@ structure Config where
   -/
   ring := false
   ringSteps := 10000
+  /--
+  When `true` (default: `false`), the commutative ring procedure in `grind` constructs stepwise
+  proof terms, instead of a single-step Nullstellensatz certificate
+  -/
+  ringNull := false
   deriving Inhabited, BEq
 
 end Lean.Grind

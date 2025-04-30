@@ -2,7 +2,7 @@ set_option grind.warning false
 set_option grind.debug true
 open Lean.Grind
 
-example [CommRing α] [NoZeroNatDivisors α] (x y : α) : 3*x = 1 → 3*y = 2 → x + y = 1 := by
+example [CommRing α] [NoNatZeroDivisors α] (x y : α) : 3*x = 1 → 3*y = 2 → x + y = 1 := by
   grind +ring
 
 example [CommRing α] (x y : α) : 3*x = 1 → 3*y = 2 → x + y = 1 := by
@@ -22,7 +22,7 @@ example [CommRing α] [IsCharP α 8] (x y : α) : 2*x = 1 → 2*y = 1 → x + y 
   fail_if_success grind +ring
   sorry
 
-example [CommRing α] [IsCharP α 8] [NoZeroNatDivisors α] (x y : α) : 2*x = 1 → 2*y = 1 → x + y = 1 := by
+example [CommRing α] [IsCharP α 8] [NoNatZeroDivisors α] (x y : α) : 2*x = 1 → 2*y = 1 → x + y = 1 := by
   grind +ring
 
 example (x y : UInt8) : 3*x = 1 → 3*y = 2 → x + y = 1 := by
@@ -32,17 +32,23 @@ example (x y : UInt8) : 3*x = 1 → 3*y = 2 → False := by
   fail_if_success grind +ring
   sorry
 
-example [CommRing α] [NoZeroNatDivisors α] (x y : α) : 6*x = 1 → 3*y = 2 → 2*x + y = 1 := by
+example [CommRing α] [NoNatZeroDivisors α] (x y : α) : 6*x = 1 → 3*y = 2 → 2*x + y = 1 := by
   grind +ring
 
-example [CommRing α] [NoZeroNatDivisors α] (x y : α) : 600000*x = 1 → 300*y = 2 → 200000*x + 100*y = 1 := by
+example [CommRing α] [NoNatZeroDivisors α] (x y : α) : 600000*x = 1 → 300*y = 2 → 200000*x + 100*y = 1 := by
   grind +ring
 
 example (x y : Int) : y = 0 → (x + 1)*(x - 1) + y = x^2 → False := by
   grind +ring
 
+example (x y : Int) : y = 0 → (x + 1)*(x - 1) + y = x^2 → False := by
+  grind +ringNull
+
 example (x y z : BitVec 8) : z = y → (x + 1)*(x - 1)*y + y = z*x^2 + 1 → False := by
   grind +ring
+
+example (x y z : BitVec 8) : z = y → (x + 1)*(x - 1)*y + y = z*x^2 + 1 → False := by
+  grind +ringNull
 
 example [CommRing α] (x y : α) : x*y*x = 1 → x*y*y = y → y = 1 := by
   grind +ring
@@ -86,7 +92,7 @@ info: [grind.ring.assert.basis] a + b + c + -3 = 0
 [grind.ring.assert.basis] 3 * c ^ 3 + -9 * c ^ 2 + 6 * c + 2 = 0
 -/
 #guard_msgs (info) in
-example [CommRing α] [NoZeroNatDivisors α] (a b c : α)
+example [CommRing α] [NoNatZeroDivisors α] (a b c : α)
   : a + b + c = 3 →
     a^2 + b^2 + c^2 = 5 →
     a^3 + b^3 + c^3 = 7 →
@@ -125,4 +131,7 @@ example [CommRing α] (a b c : α) (f : α → Nat)
     a^2 + b^2 + c^2 = 5 →
     a^3 + b^3 + c^3 = 7 →
     f (a^4 + b^4) + f (9 - c^4) ≠ 1 := by
+  grind +ring
+
+example [CommRing α] [NoNatZeroDivisors α] (x y z : α) : 3*x = 1 → 3*z = 2 → 2*y = 2 → x + z + 3*y = 4 := by
   grind +ring

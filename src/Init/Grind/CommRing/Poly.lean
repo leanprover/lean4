@@ -25,7 +25,7 @@ inductive Expr where
   | sub  (a b : Expr)
   | mul (a b : Expr)
   | pow (a : Expr) (k : Nat)
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Hashable
 
 abbrev Context (α : Type u) := RArray α
 
@@ -737,7 +737,7 @@ theorem NullCert.ne_unsat {α} [CommRing α] (ctx : Context α) (nc : NullCert) 
 def NullCert.eq_nzdiv_cert (nc : NullCert) (k : Int) (lhs rhs : Expr) : Bool :=
   k ≠ 0 && (lhs.sub rhs).toPoly.mulConst k == nc.toPoly
 
-theorem NullCert.eq_nzdiv {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+theorem NullCert.eq_nzdiv {α} [CommRing α] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
     : nc.eq_nzdiv_cert k lhs rhs → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
   simp [eq_nzdiv_cert]
   intro h₁ h₂
@@ -745,11 +745,11 @@ theorem NullCert.eq_nzdiv {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Conte
   intro h₃
   replace h₂ := congrArg (Poly.denote ctx) h₂
   simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, h₃, Expr.denote] at h₂
-  replace h₂ := no_zero_int_divisors h₁ h₂
+  replace h₂ := no_int_zero_divisors h₁ h₂
   rw [sub_eq_zero_iff] at h₂
   assumption
 
-theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+theorem NullCert.ne_nzdiv_unsat {α} [CommRing α] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
     : nc.eq_nzdiv_cert k lhs rhs → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
   intro h₁ h₂
   exact eqsImplies_helper' (eq_nzdiv ctx nc k lhs rhs h₁) h₂
@@ -918,7 +918,7 @@ theorem NullCert.ne_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α
 def NullCert.eq_nzdiv_certC (nc : NullCert) (k : Int) (lhs rhs : Expr) (c : Nat) : Bool :=
   k ≠ 0 && ((lhs.sub rhs).toPolyC c).mulConstC k c == nc.toPolyC c
 
-theorem NullCert.eq_nzdivC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+theorem NullCert.eq_nzdivC {α c} [CommRing α] [IsCharP α c] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
     : nc.eq_nzdiv_certC k lhs rhs c → nc.eqsImplies ctx (lhs.denote ctx = rhs.denote ctx) := by
   simp [eq_nzdiv_certC]
   intro h₁ h₂
@@ -926,11 +926,11 @@ theorem NullCert.eq_nzdivC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisor
   intro h₃
   replace h₂ := congrArg (Poly.denote ctx) h₂
   simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₃, Expr.denote] at h₂
-  replace h₂ := no_zero_int_divisors h₁ h₂
+  replace h₂ := no_int_zero_divisors h₁ h₂
   rw [sub_eq_zero_iff] at h₂
   assumption
 
-theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoZeroNatDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
+theorem NullCert.ne_nzdiv_unsatC {α c} [CommRing α] [IsCharP α c] [NoNatZeroDivisors α] (ctx : Context α) (nc : NullCert) (k : Int) (lhs rhs : Expr)
     : nc.eq_nzdiv_certC k lhs rhs c → lhs.denote ctx ≠ rhs.denote ctx → nc.eqsImplies ctx False := by
   intro h₁ h₂
   exact eqsImplies_helper' (eq_nzdivC ctx nc k lhs rhs h₁) h₂
@@ -949,6 +949,116 @@ theorem NullCert.eq_unsatC {α c} [CommRing α] [IsCharP α c] (ctx : Context α
   have := IsCharP.intCast_eq_zero_iff (α := α) c k
   simp [h₂] at this
   contradiction
+
+namespace Stepwise
+/-!
+Theorems for stepwise proof-term construction
+-/
+def core_cert (lhs rhs : Expr) (p : Poly) : Bool :=
+  (lhs.sub rhs).toPoly == p
+
+theorem core {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_cert lhs rhs p → lhs.denote ctx = rhs.denote ctx → p.denote ctx = 0 := by
+  simp [core_cert]; intro; subst p
+  simp [Expr.denote_toPoly, Expr.denote]
+  simp [sub_eq_zero_iff]
+
+def superpose_cert (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
+  (p₁.mulMon k₁ m₁).combine (p₂.mulMon k₂ m₂) == p
+
+theorem superpose {α} [CommRing α] (ctx : Context α) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
+    : superpose_cert k₁ m₁ p₁ k₂ m₂ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [superpose_cert]; intro _ h₁ h₂; subst p
+  simp [Poly.denote_combine, Poly.denote_mulMon, h₁, h₂, mul_zero, add_zero]
+
+def simp_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
+  (p₁.mulConst k₁).combine (p₂.mulMon k₂ m₂) == p
+
+theorem simp {α} [CommRing α] (ctx : Context α) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
+    : simp_cert k₁ p₁ k₂ m₂ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [simp_cert]; intro _ h₁ h₂; subst p
+  simp [Poly.denote_combine, Poly.denote_mulMon, Poly.denote_mulConst, h₁, h₂, mul_zero, add_zero]
+
+def mul_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
+  p₁.mulConst k == p
+
+def mul {α} [CommRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+    : mul_cert p₁ k p → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [mul_cert]; intro _ h; subst p
+  simp [Poly.denote_mulConst, *, mul_zero]
+
+def div_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
+  k != 0 && p.mulConst k == p₁
+
+def div {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
+    : div_cert p₁ k p → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [div_cert]; intro hnz _ h; subst p₁
+  simp [Poly.denote_mulConst] at h
+  exact no_int_zero_divisors hnz h
+
+def unsat_eq_cert (p : Poly) (k : Int) : Bool :=
+  k != 0 && p == .num k
+
+def unsat_eq {α} [CommRing α] (ctx : Context α) [IsCharP α 0] (p : Poly) (k : Int)
+    : unsat_eq_cert p k → p.denote ctx = 0 → False := by
+  simp [unsat_eq_cert]; intro h _; subst p; simp [Poly.denote]
+  have := IsCharP.intCast_eq_zero_iff (α := α) 0 k
+  simp [h] at this
+  assumption
+
+def core_certC (lhs rhs : Expr) (p : Poly) (c : Nat) : Bool :=
+  (lhs.sub rhs).toPolyC c == p
+
+theorem coreC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_certC lhs rhs p c → lhs.denote ctx = rhs.denote ctx → p.denote ctx = 0 := by
+  simp [core_certC]; intro; subst p
+  simp [Expr.denote_toPolyC, Expr.denote]
+  simp [sub_eq_zero_iff]
+
+def superpose_certC (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (c : Nat) : Bool :=
+  (p₁.mulMonC k₁ m₁ c).combineC (p₂.mulMonC k₂ m₂ c) c == p
+
+theorem superposeC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
+    : superpose_certC k₁ m₁ p₁ k₂ m₂ p₂ p c → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [superpose_certC]; intro _ h₁ h₂; subst p
+  simp [Poly.denote_combineC, Poly.denote_mulMonC, h₁, h₂, mul_zero, add_zero]
+
+def mul_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
+  p₁.mulConstC k c == p
+
+def mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+    : mul_certC p₁ k p c → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [mul_certC]; intro _ h; subst p
+  simp [Poly.denote_mulConstC, *, mul_zero]
+
+def div_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
+  k != 0 && p.mulConstC k c == p₁
+
+def divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
+    : div_certC p₁ k p c → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [div_certC]; intro hnz _ h; subst p₁
+  simp [Poly.denote_mulConstC] at h
+  exact no_int_zero_divisors hnz h
+
+def simp_certC (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (c : Nat) : Bool :=
+  (p₁.mulConstC k₁ c).combineC (p₂.mulMonC k₂ m₂ c) c == p
+
+theorem simpC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
+    : simp_certC k₁ p₁ k₂ m₂ p₂ p c → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [simp_certC]; intro _ h₁ h₂; subst p
+  simp [Poly.denote_combineC, Poly.denote_mulMonC, Poly.denote_mulConstC, h₁, h₂, mul_zero, add_zero]
+
+def unsat_eq_certC (p : Poly) (k : Int) (c : Nat) : Bool :=
+  k % c != 0 && p == .num k
+
+def unsat_eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int)
+    : unsat_eq_certC p k c → p.denote ctx = 0 → False := by
+  simp [unsat_eq_certC]; intro h _; subst p; simp [Poly.denote]
+  have := IsCharP.intCast_eq_zero_iff (α := α) c k
+  simp [h] at this
+  assumption
+
+end Stepwise
 
 end CommRing
 end Lean.Grind

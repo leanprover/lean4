@@ -32,7 +32,7 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
     false
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  unless (← getConfig).ring do return ()
+  if !(← getConfig).ring && !(← getConfig).ringNull then return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
   let some ringId ← getRingId? type | return ()

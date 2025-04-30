@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Arith.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
@@ -21,6 +22,19 @@ def toContextExpr : RingM Expr := do
     RArray.toExpr ring.type id (RArray.ofFn (ring.vars[·]) h)
   else
     RArray.toExpr ring.type id (RArray.leaf (mkApp ring.natCastFn (toExpr 0)))
+
+def throwNoNatZeroDivisors : RingM α := do
+  throwError "`grind` internal error, `NoNatZeroDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
+
+def getPolyConst (p : Poly) : RingM Int := do
+  let .num k := p
+    | throwError "`grind` internal error, constant polynomial expected {indentExpr (← p.denoteExpr)}"
+  return k
+
+namespace Null
+/-!
+Proof term for a Nullstellensatz certificate.
+-/
 
 /--
 A "pre" Nullstellensatz certificate.
@@ -122,6 +136,14 @@ private abbrev caching (c : α) (k : ProofM PreNullCert) : ProofM PreNullCert :=
     modify fun s => { s with cache := s.cache.insert addr h }
     return h
 
+structure NullCertExt where
+  d   : Int
+  qhs : Array (Poly × NullCertHypothesis)
+
+end Null
+
+section
+open Null
 partial def EqCnstr.toPreNullCert (c : EqCnstr) : ProofM PreNullCert := caching c do
   match c.h with
   | .core a b lhs rhs =>
@@ -151,10 +173,6 @@ where
     | .input _ => acc
     | .step _ k₁ d .. => go d (k₁ * acc)
 
-structure NullCertExt where
-  d   : Int
-  qhs : Array (Poly × NullCertHypothesis)
-
 def EqCnstr.mkNullCertExt (c : EqCnstr) : RingM NullCertExt := do
   let (nc, s) ← c.toPreNullCert.run {}
   return { d := nc.d, qhs := nc.qs.zip s.hyps }
@@ -165,7 +183,9 @@ def PolyDerivation.mkNullCertExt (d : PolyDerivation) : RingM NullCertExt := do
 
 def DiseqCnstr.mkNullCertExt (c : DiseqCnstr) : RingM NullCertExt :=
   c.d.mkNullCertExt
+end
 
+namespace Null
 def NullCertExt.toPoly (nc : NullCertExt) : RingM Poly := do
   let mut p : Poly := .num 0
   for (q, h) in nc.qhs do
@@ -206,14 +226,12 @@ private def getNoZeroDivInstIfNeeded? (k : Int) : RingM (Option Expr) := do
   if k == 1 then
     return none
   else
-    let some inst ← noZeroDivisorsInst?
-      | throwError "`grind` internal error, `NoNatZeroDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
+    let some inst ← noZeroDivisorsInst? | throwNoNatZeroDivisors
     return some inst
 
-def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
+def setEqUnsat (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
-  let .num k := c.p
-    | throwError "`grind` internal error, constant polynomial expected {indentExpr (← c.p.denoteExpr)}"
+  let k ← getPolyConst c.p
   let ncx ← c.mkNullCertExt
   trace_goal[grind.ring.assert.unsat] "{ncx.d}*({← c.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
   let ring ← getRing
@@ -228,7 +246,7 @@ def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
   let h := mkApp6 h ring.commRingInst charInst ctx nc (toExpr k) reflBoolTrue
   closeGoal <| ncx.applyEqs h
 
-def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
+def setDiseqUnsat (c : DiseqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{← c.denoteExpr}"
   let ncx ← c.mkNullCertExt
   trace_goal[grind.ring.assert.unsat] "multiplier: {c.d.getMultiplier}, {ncx.d}*({← c.d.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
@@ -267,5 +285,122 @@ def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Uni
   trace_goal[grind.debug.ring.impEq] "{a}, {b}"
   let eq := mkApp3 (mkConst ``Eq [.succ ring.u]) ring.type a b
   pushEq a b <| mkExpectedPropHint (ncx.applyEqs h) eq
+
+end Null
+
+namespace Stepwise
+/-!
+Alternative proof term construction where we generate a sub-term for each step in
+the derivation.
+-/
+
+structure ProofM.State where
+  cache       : Std.HashMap UInt64 Expr := {}
+  polyMap     : Std.HashMap Poly Expr := {}
+  exprMap     : Std.HashMap RingExpr Expr := {}
+
+structure ProofM.Context where
+  ctx : Expr
+
+abbrev ProofM := ReaderT ProofM.Context (StateRefT ProofM.State RingM)
+
+/-- Returns a Lean expression representing the variable context used to construct `CommRing` proof steps. -/
+private abbrev getContext : ProofM Expr := do
+  return (← read).ctx
+
+private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  if let some h := (← get).cache[addr]? then
+    return h
+  else
+    let h ← k
+    modify fun s => { s with cache := s.cache.insert addr h }
+    return h
+
+def mkPolyDecl (p : Poly) : ProofM Expr := do
+  if let some x := (← get).polyMap[p]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with polyMap := s.polyMap.insert p x }
+  return x
+
+def mkExprDecl (e : RingExpr) : ProofM Expr := do
+  if let some x := (← get).exprMap[e]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with exprMap := s.exprMap.insert e x }
+  return x
+
+private def mkStepPrefix (declName declNameC : Name) : ProofM Expr := do
+  let ctx ← getContext
+  let ring ← getRing
+  if let some (charInst, char) ← nonzeroCharInst? then
+    return mkApp5 (mkConst declNameC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx
+  else
+    return mkApp3 (mkConst declName [ring.u]) ring.type ring.commRingInst ctx
+
+open Lean.Grind.CommRing in
+partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := caching c do
+  match c.h with
+  | .core a b lhs rhs =>
+    let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) reflBoolTrue (← mkEqProof a b)
+  | .superpose k₁ m₁ c₁ k₂ m₂ c₂ =>
+    let h ← mkStepPrefix ``Stepwise.superpose ``Stepwise.superposeC
+    return mkApp10 h
+      (toExpr k₁) (toExpr m₁) (← mkPolyDecl c₁.p)
+      (toExpr k₂) (toExpr m₂) (← mkPolyDecl c₂.p)
+      (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+  | .simp k₁ c₁ k₂ m₂ c₂ =>
+    let h ← mkStepPrefix ``Stepwise.simp ``Stepwise.simpC
+    return mkApp9 h
+      (toExpr k₁) (← mkPolyDecl c₁.p)
+      (toExpr k₂) (toExpr m₂) (← mkPolyDecl c₂.p)
+      (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+  | .mul k c₁ =>
+    let h ← mkStepPrefix ``Stepwise.mul ``Stepwise.mulC
+    return mkApp5 h (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁)
+  | .div k c₁ =>
+    let h ← mkStepPrefix ``Stepwise.div ``Stepwise.divC
+    let some nzInst ← noZeroDivisorsInst?
+      | throwNoNatZeroDivisors
+    return mkApp6 h nzInst (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁)
+
+private abbrev withProofContext (x : ProofM Expr) : RingM Expr := do
+  let ring ← getRing
+  withLetDecl `ctx (mkApp (mkConst ``RArray [ring.u]) ring.type) (← toContextExpr) fun ctx =>
+  go { ctx } |>.run' {}
+where
+  go : ProofM Expr := do
+    let h ← x
+    let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.CommRing.Poly) toExpr
+    let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.CommRing.Expr) toExpr
+    mkLetFVars #[(← getContext)] h
+
+open Lean.Grind.CommRing in
+def setEqUnsat (c : EqCnstr) : RingM Expr := do
+  withProofContext do
+    let mut h ← mkStepPrefix ``Stepwise.unsat_eq ``Stepwise.unsat_eqC
+    let (charInst, char) ← getCharInst
+    if char == 0 then
+      h := mkApp h charInst
+    let k ← getPolyConst c.p
+    return mkApp4 h (← mkPolyDecl c.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+
+end Stepwise
+
+def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
+  if (← getConfig).ringNull then
+    Null.setEqUnsat c
+  else
+    closeGoal (← Stepwise.setEqUnsat c)
+
+def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
+  Null.setDiseqUnsat c
+  -- TODO: stepwise support
+
+def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
+  Null.propagateEq a b ra rb d
+  -- TODO: stepwise support
 
 end Lean.Meta.Grind.Arith.CommRing

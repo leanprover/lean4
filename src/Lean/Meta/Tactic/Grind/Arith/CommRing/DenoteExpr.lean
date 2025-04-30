@@ -13,7 +13,14 @@ Helper functions for converting reified terms back into their denotations.
 -/
 
 private def denoteNum (k : Int) : RingM Expr := do
-  return mkApp (← getRing).intCastFn (toExpr k)
+  let ring ← getRing
+  let n := mkRawNatLit k.natAbs
+  let ofNatInst := mkApp3 (mkConst ``Grind.CommRing.ofNat [ring.u]) ring.type ring.commRingInst n
+  let n := mkApp3 (mkConst ``OfNat.ofNat [ring.u]) ring.type n ofNatInst
+  if k < 0 then
+    return mkApp ring.negFn n
+  else
+    return n
 
 def _root_.Lean.Grind.CommRing.Power.denoteExpr (pw : Power) : RingM Expr := do
   let x := (← getRing).vars[pw.x]!
@@ -60,5 +67,14 @@ where
   | .mul a b => return mkApp2 (← getRing).mulFn (← go a) (← go b)
   | .pow a k => return mkApp2 (← getRing).powFn (← go a) (toExpr k)
   | .neg a => return mkApp (← getRing).negFn (← go a)
+
+def EqCnstr.denoteExpr (c : EqCnstr) : RingM Expr := do
+  mkEq (← c.p.denoteExpr) (← denoteNum 0)
+
+def PolyDerivation.denoteExpr (d : PolyDerivation) : RingM Expr := do
+  d.p.denoteExpr
+
+def DiseqCnstr.denoteExpr (c : DiseqCnstr) : RingM Expr := do
+  return mkNot (← mkEq (← c.d.denoteExpr) (← denoteNum 0))
 
 end Lean.Meta.Grind.Arith.CommRing

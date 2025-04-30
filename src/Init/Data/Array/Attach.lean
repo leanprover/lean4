@@ -3,6 +3,8 @@ Copyright (c) 2021 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.Array.Mem
 import Init.Data.Array.Lemmas

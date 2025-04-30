@@ -1101,7 +1101,7 @@ lean_free_object(x_23);
 x_35 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_30);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
-x_37 = lean_ctor_get_uint8(x_36, sizeof(void*)*6 + 10);
+x_37 = lean_ctor_get_uint8(x_36, sizeof(void*)*7 + 10);
 lean_dec(x_36);
 if (x_37 == 0)
 {
@@ -1170,7 +1170,7 @@ lean_free_object(x_23);
 x_51 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_30);
 x_52 = lean_ctor_get(x_51, 0);
 lean_inc(x_52);
-x_53 = lean_ctor_get_uint8(x_52, sizeof(void*)*6 + 10);
+x_53 = lean_ctor_get_uint8(x_52, sizeof(void*)*7 + 10);
 lean_dec(x_52);
 if (x_53 == 0)
 {
@@ -1304,7 +1304,7 @@ lean_object* x_74; lean_object* x_75; uint8_t x_76;
 x_74 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_68);
 x_75 = lean_ctor_get(x_74, 0);
 lean_inc(x_75);
-x_76 = lean_ctor_get_uint8(x_75, sizeof(void*)*6 + 10);
+x_76 = lean_ctor_get_uint8(x_75, sizeof(void*)*7 + 10);
 lean_dec(x_75);
 if (x_76 == 0)
 {
@@ -1372,7 +1372,7 @@ lean_object* x_90; lean_object* x_91; uint8_t x_92;
 x_90 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_68);
 x_91 = lean_ctor_get(x_90, 0);
 lean_inc(x_91);
-x_92 = lean_ctor_get_uint8(x_91, sizeof(void*)*6 + 10);
+x_92 = lean_ctor_get_uint8(x_91, sizeof(void*)*7 + 10);
 lean_dec(x_91);
 if (x_92 == 0)
 {
@@ -1733,7 +1733,7 @@ lean_object* x_30; lean_object* x_31; uint8_t x_32;
 x_30 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_24);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
-x_32 = lean_ctor_get_uint8(x_31, sizeof(void*)*6 + 10);
+x_32 = lean_ctor_get_uint8(x_31, sizeof(void*)*7 + 10);
 lean_dec(x_31);
 if (x_32 == 0)
 {
@@ -1799,7 +1799,7 @@ lean_object* x_46; lean_object* x_47; uint8_t x_48;
 x_46 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_24);
 x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
-x_48 = lean_ctor_get_uint8(x_47, sizeof(void*)*6 + 10);
+x_48 = lean_ctor_get_uint8(x_47, sizeof(void*)*7 + 10);
 lean_dec(x_47);
 if (x_48 == 0)
 {

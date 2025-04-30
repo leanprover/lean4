@@ -139,20 +139,21 @@ jobs:
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
             let matrix = [
+              /* TODO: to be updated to new LLVM
               {
                 "name": "Linux LLVM",
                 "os": "ubuntu-latest",
                 "release": false,
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
                 // reverse-ffi needs to be updated to link to LLVM libraries
                 "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
                 "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
-              },
+              }, */
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
@@ -160,7 +161,7 @@ jobs:
                 "release": true,
                 "check-level": 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
@@ -169,8 +170,8 @@ jobs:
               {
                 "name": "Linux Lake",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
-                // just a secondary PR build job for now
-                "check-level": isPr ? 0 : 3,
+                "check-level": 0,
+                // just a secondary build job for now until false positives can be excluded
                 "secondary": true,
                 "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
                 // TODO: why does this fail?
@@ -207,7 +208,7 @@ jobs:
                 "release": true,
                 "check-level": 2,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
@@ -218,7 +219,7 @@ jobs:
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
@@ -239,7 +240,7 @@ jobs:
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
                 // for reasons unknown, interactivetests are flaky on Windows
                 "CTEST_OPTIONS": "--repeat until-pass:2",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
                 "binary-check": "ldd"
               },
@@ -250,7 +251,7 @@ jobs:
                 "release": true,
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*"
               },
               // Started running out of memory building expensive modules, a 2GB heap is just not that much even before fragmentation

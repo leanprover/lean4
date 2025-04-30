@@ -2332,13 +2332,13 @@ theorem get?_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [Lawfu
 theorem get?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
-    get? (insertMany t l h.balanced).1 k' = v := by
+    get? (insertMany t l h.balanced).1 k' = some v := by
   simp_to_model [Const.insertMany, Const.get?] using List.getValue?_insertListConst_of_mem
 
 theorem get?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
-    get? (insertMany! t l).1 k' = v := by
+    get? (insertMany! t l).1 k' = some v := by
   simpa only [insertMany_eq_insertMany!] using get?_insertMany_list_of_mem h
 
 theorem get_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
@@ -4432,12 +4432,12 @@ theorem minKey?_le_minKey?_erase! [TransOrd α] (h : t.WF) {k km kme} :
 
 theorem minKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.minKey? =
-      t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
+      some (t.minKey?.elim k fun k' => if compare k k' = .lt then k else k') := by
   simp_to_model [insertIfNew] using List.minKey?_insertEntryIfNew
 
 theorem minKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew! k v).minKey? =
-      t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
+      some (t.minKey?.elim k fun k' => if compare k k' = .lt then k else k') := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey?_insertIfNew h
 
 theorem isSome_minKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
@@ -5269,12 +5269,12 @@ theorem maxKey?_erase!_le_maxKey? [TransOrd α] (h : t.WF) {k km kme} :
 
 theorem maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.maxKey? =
-      t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
+      some (t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k') := by
   simp_to_model [insertIfNew] using List.maxKey?_insertEntryIfNew
 
 theorem maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew! k v).maxKey? =
-      t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
+      some (t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k') := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKey?_insertIfNew h
 
 theorem isSome_maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :

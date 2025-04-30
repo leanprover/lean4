@@ -29443,7 +29443,7 @@ x_1 = l_Lake_instToLeanArrayMkStr1___rarg___closed__1;
 x_2 = l_Lake_Package_mkLeanConfig___closed__5;
 x_3 = l_Lake_mkDeclValWhere_x3f___closed__11;
 x_4 = l_Lake_Package_mkLeanConfig___closed__11;
-x_5 = l_Lean_Syntax_node2(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_Syntax_node3(x_1, x_2, x_3, x_3, x_4);
 return x_5;
 }
 }

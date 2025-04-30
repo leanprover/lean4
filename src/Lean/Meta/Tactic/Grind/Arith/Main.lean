@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Arith.Offset
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
+import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 
 namespace Lean.Meta.Grind.Arith
 
@@ -38,11 +39,13 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
 
 def check : GrindTactic := fun goal => do
   let (progress, goal) ← GoalM.run goal do
-    if (← Cutsat.hasAssignment) then
-      return false
-    else
-      Cutsat.searchAssigment
+    let c₁ ← Cutsat.check
+    let c₂ ← CommRing.check
+    if c₁ || c₂ then
+      processNewFacts
       return true
+    else
+      return false
   unless progress do
     return none
   if goal.inconsistent then

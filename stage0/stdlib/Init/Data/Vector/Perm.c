@@ -25,6 +25,7 @@ static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Ve
 static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__1;
 static lean_object* l_Vector_term___x7e_____closed__2;
 LEAN_EXPORT lean_object* l_Vector_instTransPerm___boxed(lean_object*, lean_object*);
+static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__23;
 static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__15;
 LEAN_EXPORT lean_object* l_Vector_term___x7e__;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -59,6 +60,7 @@ static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Ve
 static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__18;
 static lean_object* l_Vector_term___x7e_____closed__5;
 static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__2;
+static lean_object* l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__22;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector_term___x7e_____closed__10;
@@ -291,32 +293,42 @@ return x_3;
 static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__11() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Array", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__11;
-x_2 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__6;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__13() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__12;
+x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__9;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__12() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Array", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__12;
+x_2 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__6;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__13;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -324,47 +336,35 @@ x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__15() {
+static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__14;
+x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__15;
 x_2 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__6;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__16() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__15;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__17() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__16;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__16;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__13;
+x_1 = lean_box(0);
 x_2 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__17;
 x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -372,7 +372,7 @@ static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRul
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__10;
+x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__14;
 x_2 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__18;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -383,17 +383,41 @@ return x_3;
 static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__20() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("null", 4, 4);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__11;
+x_2 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__19;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__10;
 x_2 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__20;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__22() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("null", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__23() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__22;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
@@ -437,14 +461,14 @@ lean_dec(x_2);
 x_17 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__8;
 x_18 = l_Lean_addMacroScope(x_16, x_17, x_15);
 x_19 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__7;
-x_20 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__19;
+x_20 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__21;
 lean_inc(x_14);
 x_21 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_21, 0, x_14);
 lean_ctor_set(x_21, 1, x_19);
 lean_ctor_set(x_21, 2, x_18);
 lean_ctor_set(x_21, 3, x_20);
-x_22 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__21;
+x_22 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__23;
 lean_inc(x_14);
 x_23 = l_Lean_Syntax_node2(x_14, x_22, x_9, x_11);
 x_24 = l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__5;
@@ -662,6 +686,10 @@ l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____
 lean_mark_persistent(l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__20);
 l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__21 = _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__21();
 lean_mark_persistent(l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__21);
+l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__22 = _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__22();
+lean_mark_persistent(l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__22);
+l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__23 = _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__23();
+lean_mark_persistent(l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__23);
 l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___closed__1 = _init_l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___closed__1();
 lean_mark_persistent(l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___closed__1);
 l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___closed__2 = _init_l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___closed__2();

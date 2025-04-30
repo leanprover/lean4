@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex Keizer, Harun Khan, Abdalrhman M Mohamed, Siddharth Bhat
 -/
+module
+
 prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Bitwise.Lemmas
@@ -766,6 +768,15 @@ SMT-Lib name: `bvnego`.
 -/
 def negOverflow {w : Nat} (x : BitVec w) : Bool :=
   x.toInt == - 2 ^ (w - 1)
+
+/--
+Checks whether the signed division of `x` by `y` results in overflow.
+For BitVecs `x` and `y` with nonzero width, this only happens if `x = intMin` and `y = allOnes w`.
+
+SMT-LIB name: `bvsdivo`.
+-/
+def sdivOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (2 ^ (w - 1) ≤ x.toInt / y.toInt) || (x.toInt / y.toInt <  - 2 ^ (w - 1))
 
 /- ### reverse -/
 

@@ -3,6 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Repr
 import Init.Data.Option.Basic
@@ -136,17 +138,18 @@ instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) :=
   toString (val s)⟩
 
 /--
-Interprets a string as the decimal representation of an integer, returning it. Returns `none` if the
-string does not contain a decimal integer.
+Interprets a string as the decimal representation of an integer, returning it. Returns `none` if
+the string does not contain a decimal integer.
 
-A string can be interpreted as a decimal integer if it is not empty, its first character is either
-`'-'` or a digit, and all remaining characters are digits.
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally `-` in front. Leading `+` characters are not allowed.
 
 Use `String.isInt` to check whether `String.toInt?` would return `some`. `String.toInt!` is an
 alternative that panics instead of returning `none` when the string is not an integer.
 
 Examples:
  * `"".toInt? = none`
+ * `"-".toInt? = none`
  * `"0".toInt? = some 0`
  * `"5".toInt? = some 5`
  * `"-5".toInt? = some (-5)`
@@ -166,13 +169,14 @@ def String.toInt? (s : String) : Option Int := do
 /--
 Checks whether the string can be interpreted as the decimal representation of an integer.
 
-A string can be interpreted as a decimal integer if it is not empty, its first character is
-`'-'` or a digit, and all subsequent characters are digits. Leading `+` characters are not allowed.
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally `-` in front. Leading `+` characters are not allowed.
 
 Use `String.toInt?` or `String.toInt!` to convert such a string to an integer.
 
 Examples:
  * `"".isInt = false`
+ * `"-".isInt = false`
  * `"0".isInt = true`
  * `"-0".isInt = true`
  * `"5".isInt = true`
@@ -193,8 +197,8 @@ def String.isInt (s : String) : Bool :=
 Interprets a string as the decimal representation of an integer, returning it. Panics if the string
 does not contain a decimal integer.
 
-A string can be interpreted as a decimal integer if it is not empty, its first character is `'-'` or
-a digit, and all remaining characters are digits.
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally `-` in front. Leading `+` characters are not allowed.
 
 Use `String.isInt` to check whether `String.toInt!` would return a value. `String.toInt?` is a safer
 alternative that returns `none` instead of panicking when the string is not an integer.

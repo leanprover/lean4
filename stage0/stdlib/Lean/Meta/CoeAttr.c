@@ -192,6 +192,7 @@ static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnType____
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____closed__18;
 LEAN_EXPORT lean_object* l_Lean_Meta_coeExt;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_CoeFnType_ofNat(lean_object*);
@@ -219,7 +220,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____clo
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_443____lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CoeFnType_toCtorIdx(uint8_t x_1) {
 _start:
 {
@@ -2504,7 +2504,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17;
 lean_dec(x_1);
 x_14 = l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____lambda__2___closed__13;
 x_15 = l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____lambda__2___closed__8;
-x_16 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_14, x_15, x_12, x_4, x_5, x_13);
+x_16 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_14, x_15, x_12, x_4, x_5, x_13);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_12);

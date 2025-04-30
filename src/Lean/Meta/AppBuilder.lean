@@ -17,23 +17,36 @@ def mkId (e : Expr) : MetaM Expr := do
   let u    ← getLevel type
   return mkApp2 (mkConst ``id [u]) type e
 
+def mkExpectedTypeHintCore (e : Expr) (expectedType : Expr) (expectedTypeUniv : Level) : Expr :=
+  mkApp2 (mkConst ``id [expectedTypeUniv]) expectedType e
+
 /--
-  Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, returns
-  term `@id expectedType e`. -/
+Given `proof` s.t. `inferType proof` is definitionally equal to `expectedProp`, returns
+term `@id expectedProp proof`. -/
+def mkExpectedPropHint (proof : Expr) (expectedProp : Expr) : Expr :=
+  mkExpectedTypeHintCore proof expectedProp levelZero
+
+/--
+Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, returns
+term `@id expectedType e`. -/
 def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
   let u ← getLevel expectedType
-  return mkApp2 (mkConst ``id [u]) expectedType e
+  return mkExpectedTypeHintCore e expectedType u
 
 /--
 `mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.
 The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
-NB: `x` must not be a let-bound free variable.
 -/
 def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
-  let f ← mkLambdaFVars #[x] e
+  -- If `x` is an `ldecl`, then the result of `mkLambdaFVars` is a let expression.
+  let ensureLambda : Expr → Expr
+    | .letE n t _ b _ => .lam n t b .default
+    | e@(.lam ..)     => e
+    | _               => unreachable!
+  let f ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] e
   let ety ← inferType e
   let α ← inferType x
-  let β ← mkLambdaFVars #[x] ety
+  let β ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] ety
   let u1 ← getLevel α
   let u2 ← getLevel ety
   return mkAppN (.const ``letFun [u1, u2]) #[α, β, v, f]
@@ -532,7 +545,7 @@ def mkDecideProof (p : Expr) : MetaM Expr := do
   let decP      ← mkDecide p
   let decEqTrue ← mkEq decP (mkConst ``Bool.true)
   let h         ← mkEqRefl (mkConst ``Bool.true)
-  let h         ← mkExpectedTypeHint h decEqTrue
+  let h         := mkExpectedPropHint h decEqTrue
   mkAppM ``of_decide_eq_true #[h]
 
 /-- Returns `a < b` -/

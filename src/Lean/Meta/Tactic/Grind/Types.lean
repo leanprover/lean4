@@ -496,24 +496,37 @@ inductive SplitInfo where
     Term `e` may be an inductive predicate, `match`-expression, `if`-expression, implication, etc.
     -/
     default (e : Expr)
+  /-- `e` is an implication and we want to split on its antecedent. -/
+  | imp (e : Expr) (h : e.isForall)
   | /--
     Given applications `a` and `b`, case-split on whether the corresponding
     `i`-th arguments are equal or not. The split is only performed if all other
     arguments are already known to be equal or are also tagged as split candidates.
     -/
     arg (a b : Expr) (i : Nat) (eq : Expr)
-  deriving BEq, Hashable, Inhabited
+  deriving Hashable, Inhabited
+
+def SplitInfo.beq : SplitInfo → SplitInfo → Bool
+ | .default e₁, .default e₂ => e₁ == e₂
+ | .imp e₁ _, .imp e₂ _ => e₁ == e₂
+ | .arg a₁ b₁ i₁ eq₁, arg a₂ b₂ i₂ eq₂ => a₁ == a₂ && b₁ == b₂ && i₁ == i₂ && eq₁ == eq₂
+ | _, _ => false
+
+instance : BEq SplitInfo where
+  beq := SplitInfo.beq
 
 def SplitInfo.getExpr : SplitInfo → Expr
-  | .default (.forallE _ d _ _) => d
   | .default e => e
+  | .imp e h => e.forallDomain h
   | .arg _ _ _ eq => eq
 
 def SplitInfo.lt : SplitInfo → SplitInfo → Bool
-  | .default e₁, .default e₂       => e₁.lt e₂
+  | .default e₁, .default e₂     => e₁.lt e₂
+  | .imp e₁ _, .imp e₂ _         => e₁.lt e₂
   | .arg _ _ _ e₁, .arg _ _ _ e₂ => e₁.lt e₂
-  | .default _, .arg ..           => true
-  | .arg .., .default _           => false
+  | .default .., _               => true
+  | .imp .., _                   => true
+  | _, _                         => false
 
 /-- Argument `arg : type` of an application `app` in `SplitInfo`. -/
 structure SplitArg where

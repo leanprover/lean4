@@ -3,6 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Control.Basic
 import Init.Control.Id
@@ -236,8 +238,8 @@ def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s
     let s' ← f s a
     List.foldlM f s' as
 
-@[simp] theorem foldlM_nil [Monad m] {f : β → α → m β} {b : β} : [].foldlM f b = pure b := rfl
-@[simp] theorem foldlM_cons [Monad m] {f : β → α → m β} {b : β} {a : α} {l : List α} :
+@[simp, grind] theorem foldlM_nil [Monad m] {f : β → α → m β} {b : β} : [].foldlM f b = pure b := rfl
+@[simp, grind] theorem foldlM_cons [Monad m] {f : β → α → m β} {b : β} {a : α} {l : List α} :
     (a :: l).foldlM f b = f b a >>= l.foldlM f := by
   simp [List.foldlM]
 
@@ -260,7 +262,7 @@ example [Monad m] (f : α → β → m β) :
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s) (l : List α) : m s :=
   l.reverse.foldlM (fun s a => f a s) init
 
-@[simp] theorem foldrM_nil [Monad m] {f : α → β → m β} {b : β} : [].foldrM f b = pure b := rfl
+@[simp, grind] theorem foldrM_nil [Monad m] {f : α → β → m β} {b : β} : [].foldrM f b = pure b := rfl
 
 /--
 Maps `f` over the list and collects the results with `<|>`. The result for the end of the list is

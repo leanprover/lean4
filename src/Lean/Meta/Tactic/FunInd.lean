@@ -717,6 +717,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp4 (mkConst ``Bool.dcond [u]) goal c' t' f'
+  | False.elim _ h => do
+    mkFalseElim goal h
   | _ =>
 
   -- we look in to `PProd.mk`, as it occurs in the mutual structural recursion construction

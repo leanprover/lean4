@@ -14,7 +14,7 @@ set_option linter.listVariables true -- Enforce naming conventions for `List`/`A
 
 namespace Array
 
-private def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
+def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) : {n : Nat // lo ≤ n} × Vector α n :=
   let mid := (lo + hi) / 2
   let as  := if lt as[mid] as[lo] then as.swap lo mid else as

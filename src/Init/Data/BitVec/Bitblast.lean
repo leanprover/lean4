@@ -1611,8 +1611,6 @@ theorem intMin_udiv_eq_intMin_iff (x : BitVec w) :
     subst h
     simp
 
-
-
 theorem intMin_udiv_ne_zero_of_ne_zero {b : BitVec w} (hb : b.msb = false) (hb0 : b ≠ 0#w) :
     intMin w / b ≠ 0#w := by
   by_cases hw : w = 0;   subst hw; decide +revert
@@ -1717,11 +1715,6 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rw [← toInt_bmod_cancel]
     rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Decidable.not_and_iff_not_or_not] using h)]
 
-@[simp]
-theorem BitVec.sdiv_zero_eq {x : BitVec w} : x.sdiv (0#w) = 0#w := by
-  apply eq_of_toInt_eq; simp
-
-
 /-- Unsigned division is zero if and only if either the denominator is zero,
 or the numerator is unsigned less than the denominator -/
 @[simp]
@@ -1770,46 +1763,50 @@ private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
 
 theorem msb_sdiv_eq_decide {x y : BitVec w} :
     (x.sdiv y).msb = ((0 < w) && 
-      -- x +ve, y +ve.
-      (!x.msb && y.msb && (- y ≤ x ∧ y ≠ 0#w)) || -- x +ve, y -ve.
-      (x.msb && !y.msb && (y ≤ -x && y ≠ 0#w)) || -- x -ve, y +ve.
-      (x.msb && y.msb && (x = intMin w && y = -1#w))) -- both negative, only negative in the overflow case.
+      -- x +ve, y +ve: never negative..
+      (!x.msb && y.msb && (-y ≤ x ∧ y ≠ 0#w)) || -- x +ve, y -ve: -ve when result nonzero.
+      (x.msb && !y.msb && (y ≤ -x && y ≠ 0#w)) || -- x -ve, y +ve: -ve when result nonzero.
+      (x.msb && y.msb && (x = intMin w && y = -1#w))) -- x -ve, y -ve:  `intMin / -1 = intMin` -ve.
      := by
   by_cases hw : w = 0; subst hw; decide +revert
-  simp [show 0 < w by omega]
+  simp only [show 0 < w by omega, decide_true, ne_eq, decide_and, decide_not, Bool.true_and]
   simp only [sdiv_eq, udiv_eq]
   by_cases hxmsb : x.msb <;> by_cases hymsb : y.msb 
-  · simp [hxmsb, hymsb, Bool.not_true, Bool.and_true, Bool.false_and, Bool.and_false,
-      Bool.or_self, Bool.and_self, Bool.true_and, Bool.false_or]
+  · simp only [hxmsb, hymsb, Bool.not_true, Bool.and_true, ne_zero_of_msb_true, decide_false,
+    Bool.not_false, Bool.false_and, Bool.and_false, Bool.or_self, Bool.and_self, Bool.true_and,
+    Bool.false_or]
     rw [msb_udiv, msb_neg]
-    simp [hxmsb, bne_true, Bool.not_and]
+    simp only [hxmsb, bne_true, Bool.not_and]
     simp only [bool_to_prop]
-    simp [not_eq_eq_eq_not, Bool.not_true, bne_eq_false_iff_eq, beq_iff_eq]
+    simp only [not_eq_eq_eq_not, Bool.not_true, bne_eq_false_iff_eq, beq_iff_eq]
     have hxne0 : ¬ (x = 0#w) := by 
       intros h
       simp [h] at hxmsb
-    simp [hxne0, neg_eq_iff_eq_neg]
+    simp only [hxne0, _root_.false_or, neg_eq_iff_eq_neg]
   · simp at hxmsb hymsb
-    simp [hxmsb, hymsb]
+    simp only [hxmsb, hymsb, Bool.not_true, Bool.and_self, Bool.false_and, Bool.not_false,
+      Bool.true_and, Bool.false_or, Bool.and_false, Bool.or_false]
     by_cases hx₁ : x = 0#w
-    · simp [hx₁]
+    · simp only [hx₁, neg_zero, zero_udiv, msb_zero, le_zero_iff, Bool.and_not_self]
     · by_cases hy₁ : y = 0#w
-      · simp [hy₁]
+      · simp only [hy₁, udiv_zero, neg_zero, msb_zero, decide_true, Bool.not_true, Bool.and_false]
       · simp only [hy₁, decide_false, Bool.not_false, Bool.and_true]
         by_cases hxy₁ : (- x / y) = 0#w
-        · simp [hxy₁]
-          simp at hxy₁
-          simp [hy₁] at hxy₁
+        · simp only [hxy₁, neg_zero, msb_zero, false_eq_decide_iff, BitVec.not_le]
+          simp only [udiv_eq_zero_iff_eq_zero_or_lt] at hxy₁
+          simp only [hy₁, _root_.false_or] at hxy₁
           bv_omega
-        · simp at hxy₁
-          simp [hy₁] at hxy₁
-          simp [hxy₁]
-          simp [msb_neg]
+        · simp only [udiv_eq_zero_iff_eq_zero_or_lt, _root_.not_or, BitVec.not_lt] at hxy₁
+          simp only [hy₁, not_false_eq_true, _root_.true_and] at hxy₁
+          simp only [hxy₁, decide_true]
+          simp only [msb_neg, bne_iff_ne, ne_eq]
           simp only [bool_to_prop]
-          simp [hy₁, hxy₁]
+          simp only [bne_iff_ne, ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, hy₁, _root_.false_or,
+            BitVec.not_lt, hxy₁, _root_.true_and, decide_not, not_eq_eq_eq_not, not_eq_not]
           rw [msb_udiv, msb_neg]
           simp only [bool_to_prop]
-          simp [hx₁, hxmsb]
+          simp only [bne_iff_ne, ne_eq, hx₁, not_false_eq_true, _root_.true_and, decide_not, hxmsb,
+            bne_true, Bool.not_not, decide_eq_true_eq, beq_iff_eq]
           apply neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true hxmsb hymsb
   · simp only [not_eq_true] at hxmsb hymsb
     simp only [hxmsb, hymsb, msb_neg, msb_udiv_eq_false_of, bne_false, Bool.not_false,
@@ -1819,14 +1816,17 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
     have : x / -y ≠ intMin w := by
         intros h
         have : (x  / -y).msb = (intMin w).msb := by simp [h]
-        simp [msb_intMin, show 0 < w by omega] at this
+        simp only [msb_intMin, show 0 < w by omega, decide_true] at this
         rw [msb_udiv] at this
-        simp at this
+        simp only [and_eq_true, beq_iff_eq] at this
         obtain ⟨hcontra, _⟩ := this
-        simp [hcontra] at hxmsb
-    simp [this, ne_zero_of_msb_true hymsb]
+        simp only [hcontra, true_eq_false] at hxmsb
+    simp only [bne_iff_ne, ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, neg_eq_zero_iff,
+      ne_zero_of_msb_true hymsb, _root_.false_or, BitVec.not_lt, this, not_false_eq_true,
+      _root_.and_true]
   · simp only [not_eq_true] at hxmsb hymsb
-    simp [hxmsb, hymsb]
+    simp only [hxmsb, hymsb, msb_udiv_eq_false_of, Bool.not_false, Bool.and_false, Bool.false_and,
+      Bool.and_true, Bool.or_self, Bool.and_self]
 
 theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by
   rw [msb_eq_false_iff_two_mul_lt] at hx ⊢

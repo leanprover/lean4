@@ -746,6 +746,7 @@ private partial def collect (e : Expr) : CollectorM Unit := do
 private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option (List Expr × List HeadIndex)) := do
   let go : CollectorM (Option (List Expr)) := do
     for place in searchPlaces do
+      trace[grind.ematch.pattern.search] "place: {place}"
       let place ← preprocessPattern place
       collect place
       if (← get).done then

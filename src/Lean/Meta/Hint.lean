@@ -33,6 +33,11 @@ The props to this widget are of the following form:
   ]
 }
 ```
+
+Note: we cannot add the `builtin_widget_module` attribute here because that would require importing
+`Lean.Widget.UserWidget`, which in turn imports much of `Lean.Elab` -- the module where we want to
+be able to use this widget. Instead, we register the attribute post-hoc when we declare the regular
+"Try This" widget in `Lean.Meta.Tactic.TryThis`.
 -/
 def tryThisDiffWidget : Widget.Module where
   javascript := "
@@ -66,7 +71,10 @@ export default function ({ diff, range, suggestion }) {
   return fullDiff
 }"
 
-def mkDiffJson (ds : Array (Diff.Action × Char)) :=
+/--
+Converts an array of diff actions into corresponding JSON interpretable by `tryThisDiffWidget`.
+-/
+private def mkDiffJson (ds : Array (Diff.Action × Char)) :=
   -- Avoid cluttering the DOM by grouping "runs" of the same action
   let unified : List (Diff.Action × List Char) := ds.foldr (init := []) fun
     | (act, c), [] => [(act, [c])]
@@ -80,7 +88,13 @@ def mkDiffJson (ds : Array (Diff.Action × Char)) :=
     | (.delete, s) => json% { type: "deletion", text: $(String.mk s) }
     | (.skip  , s) => json% { type: "unchanged", text: $(String.mk s) }
 
-def mkDiffString (ds : Array (Diff.Action × Char)) : String :=
+/--
+Converts an array of diff actions into a Unicode string that visually depicts the diff.
+
+Note that this function does not return the string that results from applying the diff to some
+input; rather, it returns a string representation of the actions that the diff itself comprises.
+-/
+private def mkDiffString (ds : Array (Diff.Action × Char)) : String :=
   let rangeStrs := ds.map fun
     | (.insert, s) => String.mk [s, '\u0332']
     | (.delete, s) => String.mk [s, '\u0335']
@@ -97,6 +111,7 @@ for the containing `Suggestions` value is used.
 structure Suggestion extends TryThis.Suggestion where
   span? : Option Syntax := none
 
+@[inherit_doc TryThis.SuggestionText]
 abbrev SuggestionText := TryThis.SuggestionText
 
 instance : Coe SuggestionText Suggestion where

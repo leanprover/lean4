@@ -246,6 +246,10 @@ structure ProcessedSuggestions where
   info : Elab.Info
   range : Lsp.Range
 
+/--
+Processes an array of `Suggestions` into data that can be used to construct a code-action info leaf
+and "try this" widget.
+-/
 def processSuggestions (ref : Syntax) (range : String.Range) (suggestions : Array Suggestion)
     (codeActionPrefix? : Option String) : CoreM ProcessedSuggestions := do
   let map ← getFileMap

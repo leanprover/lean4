@@ -2,17 +2,11 @@ open List
 reset_grind_attrs%
 set_option grind.warning false
 
---- Failing with:
---- [issue] unexpected metavariable during internalization
----       ?α
----     `grind` is not supposed to be used in goals containing metavariables.
--- [issue] type error constructing proof for Array.eq_empty_of_append_eq_empty
---     when assigning metavariable ?xs with
---       l₁
---     has type
---       List α : Type u_1
---     but is expected to have type
---       Array ?α : Type ?u.430
-theorem dropLast_concat' : dropLast (l₁ ++ [b]) = l₁ := by
-   set_option trace.Meta.debug true in
-   grind (gen := 6) [→ Array.eq_empty_of_append_eq_empty, Vector.getElem?_append, eq_nil_of_length_eq_zero, getElem?_dropLast]
+attribute [grind →] Array.eq_empty_of_append_eq_empty eq_nil_of_length_eq_zero
+attribute [grind] Vector.getElem?_append getElem?_dropLast
+
+#guard_msgs (info) in -- should not report any issues
+set_option trace.grind.issues true
+theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by
+   fail_if_success grind (gen := 6)
+   grind -ext only [List.dropLast_append_cons, List.dropLast_singleton, List.append_nil]

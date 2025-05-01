@@ -9,13 +9,12 @@ import Init.Data.Array.BinSearch
 import Init.Data.Stream
 import Init.System.Promise
 import Lean.ImportingFlag
-import Lean.Data.Json
 import Lean.Data.NameTrie
 import Lean.Data.SMap
+import Lean.Setup
 import Lean.Declaration
 import Lean.LocalContext
 import Lean.Util.Path
-import Lean.Util.LeanOptions
 import Lean.Util.FindExpr
 import Lean.Util.Profile
 import Lean.Util.InstantiateLevelParams
@@ -94,53 +93,6 @@ instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
   getElem! a i := a[i.toNat]!
 
 abbrev ConstMap := SMap Name ConstantInfo
-
-structure Import where
-  module        : Name
-  /-- `import all`; whether to import and expose all data saved by the module. -/
-  importAll : Bool := false
-  /-- Whether to activate this import when the current module itself is imported. -/
-  isExported    : Bool := true
-  deriving Repr, Inhabited, ToJson, FromJson
-
-instance : Coe Name Import := ⟨({module := ·})⟩
-
-instance : ToString Import := ⟨fun imp => toString imp.module⟩
-
-/-- Files containing data for a single module. -/
-structure ModuleArtifacts where
-  lean? : Option System.FilePath := none
-  olean? : Option System.FilePath := none
-  oleanServer? : Option System.FilePath := none
-  oleanPrivate? : Option System.FilePath := none
-  ilean? : Option System.FilePath := none
-  deriving Repr, Inhabited, ToJson, FromJson
-
-/--
-A module's setup information as described by a JSON file.
-Supercedes the module's header when the `--setup` CLI option is used.
--/
-structure ModuleSetup where
-  /-- Whether the module is participating in the module system. -/
-  isModule : Bool := false
-  /- The module's direct imports. -/
-  imports : Array Import := #[]
-  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
-  modules : NameMap ModuleArtifacts := {}
-  /-- Dynamic libraries to load with the module. -/
-  dynlibs : Array System.FilePath := #[]
-  /-- Plugins to initialize with the module. -/
-  plugins : Array System.FilePath := #[]
-  /-- Additional options for the module. -/
-  options : LeanOptions := {}
-  deriving Repr, Inhabited, ToJson, FromJson
-
-/-- Load a `ModuleSetup` from a JSON file. -/
-def ModuleSetup.load (path : System.FilePath) : IO ModuleSetup := do
-  let contents ← IO.FS.readFile path
-  match Json.parse contents >>= fromJson? with
-  | .ok info => pure info
-  | .error msg => throw <| IO.userError s!"failed to load header from {path}: {msg}"
 
 /--
   A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.

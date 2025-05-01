@@ -43,7 +43,8 @@ macro_rules
     | apply WF.erase | apply WF.insertMany
     | apply WF.constInsertMany | apply WF.constInsertManyIfNewUnit
     | apply WF.alter | apply WF.constAlter
-    | apply WF.modify | apply WF.constModify) <;> wf_trivial)
+    | apply WF.modify | apply WF.constModify
+    | apply WF.filterMap | apply WF.filter | apply WF.map) <;> wf_trivial)
 
 /-- Internal implementation detail of the tree map -/
 scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff] } )
@@ -68,7 +69,10 @@ private def modifyMap : Std.HashMap Name Name :=
      (`alter, ``toListModel_alter),
      (`Const.alter, ``Const.toListModel_alter),
      (`modify, ``toListModel_modify),
-     (`Const.modify, ``Const.toListModel_modify)]
+     (`Const.modify, ``Const.toListModel_modify),
+     (`filter, ``toListModel_filter),
+     (`map, ``toListModel_map),
+     (`filterMap, ``toListModel_filterMap)]
 
 private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
@@ -104,6 +108,19 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`maxKey, (``maxKey_eq_maxKey, #[``(maxKey_of_perm _)])⟩,
      ⟨`maxKey!, (``maxKey!_eq_maxKey!, #[``(maxKey!_of_perm _)])⟩,
      ⟨`maxKeyD, (``maxKeyD_eq_maxKeyD, #[``(maxKeyD_of_perm _)])⟩,
+     ⟨`minEntry?, (``minEntry?_eq_minEntry?, #[``(minEntry?_of_perm _)])⟩,
+     ⟨`entryAtIdx?, (``entryAtIdx?_eq_getElem?, #[])⟩,
+     ⟨`entryAtIdx, (``entryAtIdx_eq_getElem, #[])⟩,
+     ⟨`entryAtIdx!, (``entryAtIdx!_eq_getElem!, #[])⟩,
+     ⟨`entryAtIdxD, (``entryAtIdxD_eq_getD, #[])⟩,
+     ⟨`Const.entryAtIdx?, (``Const.entryAtIdx?_eq_getElem?, #[])⟩,
+     ⟨`Const.entryAtIdx, (``Const.entryAtIdx_eq_getElem, #[])⟩,
+     ⟨`Const.entryAtIdx!, (``Const.entryAtIdx!_eq_get!_map_getElem?, #[])⟩,
+     ⟨`Const.entryAtIdxD, (``Const.entryAtIdxD_eq_getD_map_getElem?, #[])⟩,
+     ⟨`keyAtIdx?, (``keyAtIdx?_eq_getElem?, #[])⟩,
+     ⟨`keyAtIdx, (``keyAtIdx_eq_getElem_fst, #[])⟩,
+     ⟨`keyAtIdx!, (``keyAtIdx!_eq_get!_map_getElem?, #[])⟩,
+     ⟨`keyAtIdxD, (``keyAtIdxD_eq_getD_map_getElem?, #[])⟩,
      ⟨`Equiv, (``equiv_iff_toListModel_perm,
       #[``(_root_.List.Perm.congr_left), ``(_root_.List.Perm.congr_right)])⟩]
 
@@ -6143,12 +6160,57 @@ theorem maxKey_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t
 theorem maxKey!_eq [TransOrd α] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.maxKey! = t₂.maxKey! := by
   simp_to_model [maxKey!]
-  simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
 theorem maxKeyD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {fallback : α} :
     t₁.maxKeyD fallback = t₂.maxKeyD fallback := by
   simp_to_model [maxKeyD]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem minEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.minEntry? = t₂.minEntry? := by
+  simp_to_model [minEntry?]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem entryAtIdx?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
+    t₁.entryAtIdx? i = t₂.entryAtIdx? i := by
+  simp_to_model [entryAtIdx?]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem entryAtIdx_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} {h'} :
+    t₁.entryAtIdx h₁.balanced i h' = t₂.entryAtIdx h₂.balanced i (h.size_eq h₁ h₂ ▸ h') := by
+  simp_to_model [entryAtIdx]
   simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem entryAtIdx!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+    [Inhabited ((a : α) × β a)] : t₁.entryAtIdx! i = t₂.entryAtIdx! i := by
+  simp_to_model [entryAtIdx!]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem entryAtIdxD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+    {fallback : (a : α) × β a} : t₁.entryAtIdxD i fallback = t₂.entryAtIdxD i fallback := by
+  simp_to_model [entryAtIdxD]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem keyAtIdx?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
+    t₁.keyAtIdx? i = t₂.keyAtIdx? i := by
+  simp_to_model [keyAtIdx?]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem keyAtIdx_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} {h'} :
+    t₁.keyAtIdx h₁.balanced i h' = t₂.keyAtIdx h₂.balanced i (h.size_eq h₁ h₂ ▸ h') := by
+  simp_to_model [keyAtIdx]
+  simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem keyAtIdx!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+    [Inhabited α] : t₁.keyAtIdx! i = t₂.keyAtIdx! i := by
+  simp_to_model [keyAtIdx!]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem keyAtIdxD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+    {fallback : α} : t₁.keyAtIdxD i fallback = t₂.keyAtIdxD i fallback := by
+  simp_to_model [keyAtIdxD]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
 theorem insert [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {v : β k} : (t₁.insert k v h₁.balanced).impl ~m (t₂.insert k v h₂.balanced).impl := by
@@ -6191,6 +6253,26 @@ theorem constGetD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~
     {k : α} {fallback : β} : Const.getD t₁ k fallback = Const.getD t₂ k fallback := by
   simp_to_model [Const.getD] using List.getValueD_of_perm _ h.1
 
+theorem constEntryAtIdx?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
+    Const.entryAtIdx? t₁ i = Const.entryAtIdx? t₂ i := by
+  simp_to_model [Const.entryAtIdx?]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem constEntryAtIdx_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} {h'} :
+    Const.entryAtIdx t₁ h₁.balanced i h' = Const.entryAtIdx t₂ h₂.balanced i (h.size_eq h₁ h₂ ▸ h') := by
+  simp_to_model [Const.entryAtIdx]
+  simp only [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem constEntryAtIdx!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+    [Inhabited (α × β)] : Const.entryAtIdx! t₁ i = Const.entryAtIdx! t₂ i := by
+  simp_to_model [Const.entryAtIdx!]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem constEntryAtIdxD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+    {fallback : α × β} : Const.entryAtIdxD t₁ i fallback = Const.entryAtIdxD t₂ i fallback := by
+  simp_to_model [Const.entryAtIdxD]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
 theorem constAlter [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : Option β → Option β} :
     (Const.alter k f t₁ h₁.balanced).impl ~m (Const.alter k f t₂ h₂.balanced).impl := by
@@ -6201,6 +6283,10 @@ theorem constModify [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m
   simp_to_model [Const.modify, Equiv] using List.Const.modifyKey_of_perm _ h.1
 
 end Const
+
+end Equiv
+
+section Equiv
 
 end Equiv
 

@@ -2662,7 +2662,6 @@ theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (�
     (h : m.WF) : (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default := by
   simp [getKey!_alter h]
 
-@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : m.WF) {hc : k' ∈ m.alter k f} :
     (m.alter k f).getKey k' hc =

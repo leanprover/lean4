@@ -2274,8 +2274,138 @@ functional: consider x = 6#3 = 110, y = 5#3 = 101
 -/
 def uppcRec (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
   match s with
-  | 0 => x.msb
-  | i + 1 =>  x.getLsbD (w - i - 1) || uppcRec x i (by omega) -- there is one redundant case here
+  | 0 => x.msb -- 1 * 1 never overflows anyways :)
+  | i + 1 =>  x.getMsbD i || uppcRec x i (by omega) -- there is one redundant case here
+
+theorem getLsbD_true_le (x : BitVec w) (i : Nat) (h : i < w) :
+    x.getLsbD i →  2 ^ i ≤ x.toNat := by
+  rcases w with rfl | w
+  · omega
+  · simp [getLsbD, Nat.testBit_eq_decide_div_mod_eq, Nat.succ_sub_succ_eq_sub, Nat.sub_zero]
+    rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ i)) with h'' | h''
+    · simp [Nat.div_eq_of_lt h'', h'']
+    · simp [h'']
+
+theorem le_toNat_getLsbD_false_iff (x : BitVec w) (i : Nat) (h : i < w) :
+    (2 ^ i ≤ x.toNat ∧ (x.getLsbD i = false)) → (∃ k, (x.getLsbD (i + k) = true)) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · intro h'
+    apply Classical.byContradiction
+    intros h
+    -- we have a bitvec that looks like:
+    -- 0 0 ... 0 ...
+    -- w ..... i ...
+    -- we need to show that under these conditions
+    -- it is impossible that 2 ^ i ≤ x.toNat
+    -- we truncate the vector to size i + 1:
+    -- 0 ....
+    -- i ...
+    -- we show x'.toNat = x.toNat since all the bits from i to w are 0
+    let x' := setWidth (i + 1) x
+    have hx' : setWidth (i + 1) x = x' := by rfl
+    have hcast : w - i + (i + 1) = w + 1 := by omega
+    simp at h
+    have hx'' : x = BitVec.cast hcast (0#(w - i) ++ x') := by
+      ext j
+      by_cases hj : j < i + 1
+      · simp [hj]
+        simp [getElem_append, hj]
+        simp [← hx']
+        rw [getLsbD_eq_getElem]
+      · simp [getElem_append, hj]
+        let j' := j - i
+        have hj' : j = i + j' := by omega
+        simp [hj']
+        apply h
+    -- we show that since x'.msb = false, then it can't be 2 ^ i ≤ x.toNat
+    have h2 := BitVec.getLsbD_setWidth (x := x) (m := i + 1) (i := i)
+    simp only [hx', show i < i + 1 by omega, decide_true, Bool.true_and] at h2
+    have h3 := msb_eq_false_iff_two_mul_lt (x := x')
+    simp only [BitVec.msb, getMsbD_eq_getLsbD, zero_lt_succ, decide_true, Nat.add_one_sub_one,
+      Nat.sub_zero, Nat.lt_add_one, Bool.true_and] at h3
+    rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm] at h3
+    have h6 : x'.toNat < 2 ^ i := by simp_all only [getLsbD_eq_getElem, Nat.lt_add_one,
+      zero_lt_succ, Nat.mul_lt_mul_right, true_iff]
+    have h1 : x'.toNat = x.toNat := by
+      have h5 := BitVec.setWidth_eq_append (w := (w + 1)) (v := i + 1) (x := x')
+      specialize h5 (by omega)
+      rw [toNat_eq, toNat_setWidth, Nat.mod_eq_of_lt (by omega)] at h5
+      simp [hx'']
+    specialize h 0
+    simp at h
+    omega
+
+
+theorem uppcReq_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
+    uppcRec x s h ↔ 2 ^ (w - 1 - (s - 1)) ≤ x.toNat := by
+  rcases w with _|w
+  · omega
+  · induction s
+    · case succ.zero =>
+      unfold uppcRec
+      simp [msb_eq_true_iff_two_mul_ge]
+      omega
+    · case succ.succ s ihs =>
+      constructor
+      · -- uppcRec (s + 1) h = true → 2 ^ (w - s) ≤ x.toNat
+        unfold uppcRec
+        rw [getMsbD_eq_getLsbD]
+        simp [h, show s < w + 1 by omega]
+        intro h'
+        have := getLsbD_true_le (x := x) (i := w - s) (by omega)
+        rcases h' with h'|h'
+        · simp [h'] at this; omega
+        · simp [h', show s < w + 1 by omega] at ihs
+          have := Nat.pow_le_pow_of_le (a := 2) (n := w - s) (m := w - (s - 1)) (by omega) (by omega)
+          omega
+      · -- 2 ^ (w - s) ≤ x.toNat → uppcRec (s + 1) h = true
+        unfold uppcRec
+        simp
+        intro h
+        simp [ihs]
+        simp [getMsbD_eq_getLsbD, show s + 1 < w + 1 by omega]
+        simp at ihs
+        --- note that
+        -- (w - 1) (w - 2) ... (w - (s - 1)) (w - s)) ...
+        --    x       x    ...    x             x     ...
+          -- even though x[w - (s + 1)] = false, there must be
+          -- some k for which x[w - (s + 1) + k] = true
+        by_cases hs : 0 < s
+        · have hlt := Nat.pow_lt_pow_of_lt (a := 2) (n := w - s) (m := w - (s - 1)) (by omega) (by omega)
+          have h1 := le_toNat_getLsbD_false_iff (x := x) (by omega) (i := w - (s - 1))
+          have h2 := le_toNat_getLsbD_false_iff (x := x) (by omega) (i := w - s)
+          have h4 := getLsbD_true_le (i := w - (s - 1)) (w := w + 1) (by omega) (by omega)
+          simp [h] at h1 h2 h4
+          simp [show s < w + 1 by omega]
+          by_cases hlsb : x.getLsbD (w - s)
+          · sorry
+          · simp [hlsb]
+            apply Classical.byContradiction
+            intro hcontra
+            simp at hcontra
+            -- by h2 : ∃ k, x.getLsbD (w - s + k) = true
+            -- and thus 2 ^ (w - s + k) ≤ x.toNat
+            -- which is contradictory wrt. x.toNat < 2 ^ (w - (s - 1))
+            have h2cons : ∃ k, x.getLsbD (w - s + k) = true := by simp_all
+            obtain ⟨k, hk⟩ :=  h2cons
+            have h2conscons := getLsbD_true_le (i := w - s + k) (w := w + 1) (by omega)
+            by_cases hwsk : w - s + k < w + 1
+            · simp [hwsk] at h2conscons
+              have hlt2 := Nat.pow_le_pow_of_le (a := 2) (n := w - s) (m := w - s + 1) (by omega) (by omega)
+              simp [hk] at h2conscons
+              have : 2 ^ (w - s) ≤ x.toNat := by omega
+              simp [show w - (s - 1) = w - s + 1 by omega] at hcontra
+              simp_all
+
+
+              sorry
+            · simp_all
+        · simp [show s = 0 by omega]
+          simp_all
+
+
+
 
 /--
   conjunction for fast umulOverflow circuit
@@ -2292,31 +2422,6 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (_ : 1 < w): Bool :=
   match s with
   | 0 => false
   | i + 1 => resRec x y i (by omega) (by omega) || aandRec x y (i + 1) (by omega)
-
-#eval uppcRec (5#3) 2 (by omega)
-
--- testing these definitions:
-
-
-#eval uppcRec (1#3) 0 (by omega)
-#eval uppcRec (1#3) 1 (by omega)
-#eval uppcRec (2#3) 2 (by omega)
-
--- uppcRec x s hs ↔ decide (x.toNat ≥ 2 ^ (w - s))
-#eval uppcRec (1#3) 0 (by omega) ↔ decide ((1#3).toNat ≥ 2 ^ (3 + 0))
-#eval uppcRec (1#3) 1 (by omega) ↔ decide ((1#3).toNat ≥ 2 ^ (3 + 1))
-#eval uppcRec (1#3) 2 (by omega) ↔ decide ((1#3).toNat ≥ 2 ^ (3 + 2))
-
-
-#eval uppcRec (2#3) 0 (by omega) ↔ decide ((2#3).toNat ≥ 2 ^ (3 - 0))
-#eval uppcRec (2#3) 1 (by omega) ↔ decide ((2#3).toNat ≥ 2 ^ (3 - 1))
-#eval uppcRec (2#3) 2 (by omega) ↔ decide ((2#3).toNat ≥ 2 ^ (3 - 2))
-
-
-#eval uppcRec (4#3) 0 (by omega) ↔ decide ((4#3).toNat ≥ 2 ^ (3 - 0))
-#eval uppcRec (4#3) 1 (by omega) ↔ decide ((4#3).toNat ≥ 2 ^ (3 ))
-#eval uppcRec (4#3) 2 (by omega) ↔ decide ((4#3).toNat ≥ 2 ^ (3 + 1))
-
 
 
 /--

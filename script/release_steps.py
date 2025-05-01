@@ -79,7 +79,7 @@ def generate_script(repo, version, config):
             "./test.sh"
         ])
     elif dependencies:
-        script_lines.append('echo "Please update the dependencies in lakefile.{lean,toml}"')
+        script_lines.append('perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*')
         script_lines.append("lake update")
 
     script_lines.append("")

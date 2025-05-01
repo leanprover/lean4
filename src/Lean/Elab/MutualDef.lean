@@ -1044,27 +1044,39 @@ where
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+    -- If the decl looks like a `rfl` theorem, we elaborate is synchronously as we need to wait for
+    -- the type before we can decide whether the theorem body should be exported and then waiting
+    -- for the body as well should not add any significant overhead.
+    let isRflLike := headers.all (·.value matches `(declVal| := rfl))
     -- elaborate body in parallel when all stars align
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
-      if Elab.async.get (← getOptions) && view.kind.isTheorem &&
+      if Elab.async.get (← getOptions) && view.kind.isTheorem && !isRflLike &&
           !deprecated.oldSectionVars.get (← getOptions) &&
           -- holes in theorem types is not a fatal error, but it does make parallelism impossible
           !headers[0]!.type.hasMVar then
         elabAsync headers[0]! view declId
-      else elabSync headers
-    else elabSync headers
+      else elabSync headers isRflLike
+    else elabSync headers isRflLike
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref
       addDeclarationRangesForBuiltin declId.declName view.modifiers.stx view.ref
-  elabSync headers := do
-    finishElab headers
+  elabSync headers isRflLike := do
+    -- If the reflexivity holds publically as well (we're still inside `withExporting` here), export
+    -- the body even if it is a theorem so that it is recognized as a rfl theorem even without
+    -- `import all`.
+    let rflPublic ← pure isRflLike <&&> pure (← getEnv).header.isModule <&&>
+      forallTelescopeReducing headers[0]!.type fun _ type => do
+        let some (_, lhs, rhs) := type.eq? | pure false
+        try
+          isDefEq lhs rhs
+        catch _ => pure false
+    withExporting (isExporting := rflPublic) do
+      finishElab headers
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
-    -- HACK: should be replaced by new `[dsimp]` attribute
-    let isRflLike := header.value matches `(declVal| := rfl)
-    let async ← env.addConstAsync declId.declName .thm (exportedKind := if isRflLike then .thm else .axiom)
+    let async ← env.addConstAsync declId.declName .thm (exportedKind := .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
@@ -1103,7 +1115,8 @@ where
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
-        finishElab #[header]
+        withoutExporting do
+          finishElab #[header]
       finally
         reportDiag
         -- must introduce node to fill `infoHole` with multiple info trees
@@ -1121,7 +1134,7 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers := withFunLocalDecls headers fun funFVars => withoutExporting do
+  finishElab headers := withFunLocalDecls headers fun funFVars => do
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try

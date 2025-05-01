@@ -2530,10 +2530,9 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
         m.getKey k' h' :=
   Raw₀.getKey_alter ⟨m.1, _⟩ m.2 h
 
-@[simp]
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
     {h : k ∈ m.alter k f} : (m.alter k f).getKey k h = k := by
-  simp [getKey_alter]
+  simp
 
 theorem getKeyD_alter [LawfulBEq α] {k k' fallback : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKeyD k' fallback =

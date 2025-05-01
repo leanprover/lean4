@@ -49,9 +49,8 @@ instance : ToJson System.FilePath := ⟨fun p => p.toString⟩
 
 instance [FromJson α] : FromJson (Array α) where
   fromJson?
-    | .arr a => a.mapM fromJson?
-    | .null  => .ok #[]
-    | j      => throw s!"expected JSON array, got '{j}'"
+    | Json.arr a => a.mapM fromJson?
+    | j          => throw s!"expected JSON array, got '{j}'"
 
 instance [ToJson α] : ToJson (Array α) :=
   ⟨fun a => Json.arr (a.map toJson)⟩
@@ -107,7 +106,6 @@ instance [FromJson α] : FromJson (NameMap α) where
           throw s!"expected a `Name`, got '{k}'"
         else
           return m.insert n (← fromJson? v)
-    | .null => .ok {}
     | j => throw s!"expected a `NameMap`, got '{j}'"
 
 instance [ToJson α] : ToJson (NameMap α) where

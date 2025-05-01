@@ -11,5 +11,8 @@
     "Dep": {
       "olean": "Dep.olean"
     }
-  }
+  },
+  "dynlibs": [],
+  "plugins": [],
+  "options": {}
 }

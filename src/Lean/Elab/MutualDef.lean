@@ -25,6 +25,11 @@ open Language
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
 
+register_builtin_option experimental.module.semireducibleDef : Bool := {
+  defValue := false
+  descr    := "default definitions in `module`s to @[semireducible]"
+}
+
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
@@ -1135,9 +1140,12 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => withExporting (isExporting := isExporting || headers.all fun header =>
-    !header.modifiers.isPrivate &&
-    (header.kind matches .abbrev | .instance || header.modifiers.attrs.any (·.name matches `reducible | `semireducible | `match_pattern))) do
+  finishElab headers (isExporting := false) := do
+    let opts ← getOptions
+    withFunLocalDecls headers fun funFVars => withExporting (isExporting :=
+    isExporting || experimental.module.semireducibleDef.get opts || headers.all fun header =>
+      !header.modifiers.isPrivate &&
+      (header.kind matches .abbrev | .instance || header.modifiers.attrs.any (·.name matches `reducible | `semireducible | `match_pattern))) do
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try

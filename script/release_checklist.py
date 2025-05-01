@@ -255,6 +255,7 @@ def main():
     branch_name = f"releases/v{version_major}.{version_minor}.0"
     if not branch_exists(lean_repo_url, branch_name, github_token):
         print(f"  ❌ Branch {branch_name} does not exist")
+        print(f"  🟡 After creating the branch, we'll need to check CMake version settings.")
         lean4_success = False
     else:
         print(f"  ✅ Branch {branch_name} exists")

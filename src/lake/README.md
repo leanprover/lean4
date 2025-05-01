@@ -236,7 +236,7 @@ Defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
 
 ## Specifying Targets
 
-Some Lake CLI commands take targets (e.g., `lake build`, `lake query`) and ertain Lake configuration options (e.g., `needs`, `plugins`, `moreLinkObjs`) accept targets. In general, targets can be specified with the following syntax.
+Some Lake CLI commands take targets (e.g., `lake build`, `lake query`) and certain Lake configuration options (e.g., `needs`, `plugins`, `moreLinkObjs`) accept targets. In general, targets can be specified with the following syntax.
 
 ```
 [@[<package>]/][<target>|[+]<module>][:<facet>]
@@ -267,7 +267,7 @@ name = "exe"
 plugins = ["Plugin:shared"] # i.e., @example/Plugin:shared
 ```
 
-In a Lean configuration file, targets specifiers are literals that start with
+In a Lean configuration file, target specifiers are literals that start with
 either `` `@ `` or `` `+ ``:
 
 **lakefile.lean**

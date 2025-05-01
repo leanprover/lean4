@@ -145,7 +145,7 @@ def runFrontend
     (errorOnKinds : Array Name := #[])
     (plugins : Array System.FilePath := #[])
     (printStats : Bool := false)
-    (headerFileName? : Option System.FilePath := none)
+    (setupFileName? : Option System.FilePath := none)
     : IO (Option Environment) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
@@ -154,8 +154,8 @@ def runFrontend
   let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
   let setup stx := do
-    if let some file := headerFileName? then
-      let h ← HeaderDescr.load file
+    if let some file := setupFileName? then
+      let h ← ModuleSetup.load file
       liftM <| h.dynlibs.forM Lean.loadDynlib
       return .ok {
         mainModuleName, trustLevel

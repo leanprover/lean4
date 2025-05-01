@@ -117,10 +117,10 @@ structure ModuleArtifacts where
   deriving Repr, Inhabited, ToJson, FromJson
 
 /--
-A module's import header as described by a JSON file.
-Used in place of the real header when the `--header` CLI option is used.
+A module's setup information as described by a JSON file.
+Supercedes the module's header when the `--setup` CLI option is used.
 -/
-structure HeaderDescr where
+structure ModuleSetup where
   /-- Whether the module is participating in the module system. -/
   isModule : Bool := false
   /- The module's direct imports. -/
@@ -135,8 +135,8 @@ structure HeaderDescr where
   options : LeanOptions := {}
   deriving Repr, Inhabited, ToJson, FromJson
 
-/-- Load a `HeaderDescr` from a JSON file. -/
-def HeaderDescr.load (path : System.FilePath) : IO HeaderDescr := do
+/-- Load a `ModuleSetup` from a JSON file. -/
+def ModuleSetup.load (path : System.FilePath) : IO ModuleSetup := do
   let contents ← IO.FS.readFile path
   match Json.parse contents >>= fromJson? with
   | .ok info => pure info

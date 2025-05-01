@@ -668,11 +668,11 @@ private def isPatternFnCandidate (f : Expr) : CollectorM Bool := do
   | _ => return false
 
 private def addNewPattern (p : Expr) : CollectorM Unit := do
-  trace[grind.ematch.pattern.search] "found pattern: {ppPattern p}"
+  trace[grind.debug.ematch.pattern] "found pattern: {ppPattern p}"
   let bvarsFound := (← getThe NormalizePattern.State).bvarsFound
   let done := (← checkCoverage (← read).proof (← read).xs.size bvarsFound) matches .ok
   if done then
-    trace[grind.ematch.pattern.search] "found full coverage"
+    trace[grind.debug.ematch.pattern] "found full coverage"
   modify fun s => { s with patterns := s.patterns.push p, done }
 
 /-- Collect the pattern (i.e., de Bruijn) variables in the given pattern. -/
@@ -711,30 +711,32 @@ private partial def collect (e : Expr) : CollectorM Unit := do
   if (← get).done then return ()
   match e with
   | .app .. =>
+    trace[grind.debug.ematch.pattern] "collect: {e}"
     let f := e.getAppFn
     let supportMask ← NormalizePattern.getPatternSupportMask f e.getAppNumArgs
     if (← isPatternFnCandidate f) then
       let saved ← getThe NormalizePattern.State
       try
-        trace[grind.ematch.pattern.search] "candidate: {e}"
+        trace[grind.debug.ematch.pattern] "candidate: {e}"
         let p := e.abstract (← read).xs
         unless p.hasLooseBVars do
-          trace[grind.ematch.pattern.search] "skip, does not contain pattern variables"
+          trace[grind.debug.ematch.pattern] "skip, does not contain pattern variables"
           return ()
         let p ← NormalizePattern.normalizePattern p
         if saved.bvarsFound.size < (← getThe NormalizePattern.State).bvarsFound.size then
           unless (← hasChildWithSameNewBVars p supportMask saved.bvarsFound) do
             addNewPattern p
             return ()
-        trace[grind.ematch.pattern.search] "skip, no new variables covered"
+        trace[grind.debug.ematch.pattern] "skip, no new variables covered"
         -- restore state and continue search
         set saved
       catch _ =>
-        trace[grind.ematch.pattern.search] "skip, exception during normalization"
+        trace[grind.debug.ematch.pattern] "skip, exception during normalization"
         -- restore state and continue search
         set saved
     let args := e.getAppArgs
     for arg in args, support in supportMask do
+      trace[grind.debug.ematch.pattern] "arg: {arg}, support: {support}"
       unless support do
         collect arg
   | .forallE _ d b _ =>
@@ -746,7 +748,7 @@ private partial def collect (e : Expr) : CollectorM Unit := do
 private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option (List Expr × List HeadIndex)) := do
   let go : CollectorM (Option (List Expr)) := do
     for place in searchPlaces do
-      trace[grind.ematch.pattern.search] "place: {place}"
+      trace[grind.debug.ematch.pattern] "place: {place}"
       let place ← preprocessPattern place
       collect place
       if (← get).done then

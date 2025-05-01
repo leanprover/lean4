@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
@@ -11,6 +9,8 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 echo "root" > toolchain
 echo "dep" > dep/toolchain
-$LAKE update | grep --color -F "post-update hello w/ arguments: [get]"
-test "`cat toolchain`" = dep
+test_out "post-update hello w/ arguments: [get]" update
+test_exp "`cat toolchain`" = dep
 
+# Cleanup
+rm -f produced.out

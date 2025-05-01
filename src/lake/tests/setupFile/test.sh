@@ -26,3 +26,6 @@ test_run -f invalid.lean setup-file invalid.lean Lake
 # Test that `setup-file` on a configuration file uses the Lake plugin,
 # even if the file is invalid and/or is not using a `Lake` import.
 test_not_out '"pluginPaths":[]' -f invalid.lean setup-file invalid.lean
+
+# Cleanup
+rm -f produced.out

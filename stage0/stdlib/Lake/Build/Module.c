@@ -7673,7 +7673,6 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Lake_Module_recParseImports___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_9;
 }

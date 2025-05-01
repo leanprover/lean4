@@ -253,7 +253,7 @@ Some Lake CLI commands take targets (e.g., `lake build`, `lake query`) and certa
 | `@a/+A`     | The default facet(s) of module `A` of package `a`             |
 | `@a/+A:c`   | The facet `c` of module `A` of package `a` (e.g., its C file) |
 
-On the command line or in a TOML configuration file, targets are specified as a simple string:
+On the command line or in a TOML configuration file, targets are specified as strings.
 
 **lakefile.toml**
 ```toml
@@ -267,8 +267,12 @@ name = "exe"
 plugins = ["Plugin:shared"] # i.e., @example/Plugin:shared
 ```
 
+```
+$ lake build @example/exe
+```
+
 In a Lean configuration file, target specifiers are literals that start with
-either `` `@ `` or `` `+ ``:
+either `` `@ `` or `` `+ ``.
 
 **lakefile.lean**
 ```lean
@@ -290,7 +294,7 @@ The full literal syntax is:
 `+<module>[:<facet>]
 ```
 
-In Lean, targets defined in the same configuration can also be specified by their identifier:
+In Lean, targets defined in the same configuration can also be specified by their identifier.
 
 **lakefile.lean**
 ```lean

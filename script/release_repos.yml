@@ -55,7 +55,7 @@ repositories:
     stable-branch: false
     branch: main
     dependencies:
-      - Batteries
+      - batteries
 
   - name: aesop
     url: https://github.com/leanprover-community/aesop
@@ -63,7 +63,7 @@ repositories:
     stable-branch: true
     branch: master
     dependencies:
-      - Batteries
+      - batteries
 
   - name: import-graph
     url: https://github.com/leanprover-community/import-graph
@@ -71,8 +71,8 @@ repositories:
     stable-branch: false
     branch: main
     dependencies:
-      - Cli
-      - Batteries
+      - lean4-cli
+      - batteries
 
   - name: plausible
     url: https://github.com/leanprover-community/plausible
@@ -88,10 +88,11 @@ repositories:
     branch: master
     bump-branch: true
     dependencies:
-      - Aesop
+      - aesop
       - ProofWidgets4
       - lean4checker
-      - Batteries
+      - batteries
+      - lean4-cli
       - doc-gen4
       - import-graph
       - plausible
@@ -102,4 +103,4 @@ repositories:
     stable-branch: true
     branch: master
     dependencies:
-      - Mathlib
+      - mathlib4

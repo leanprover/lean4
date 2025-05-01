@@ -155,16 +155,17 @@ def runFrontend
   let ctx := { inputCtx with }
   let setup stx := do
     if let some file := setupFileName? then
-      let h ← ModuleSetup.load file
-      liftM <| h.dynlibs.forM Lean.loadDynlib
+      let setup ← ModuleSetup.load file
+      liftM <| setup.dynlibs.forM Lean.loadDynlib
       return .ok {
-        mainModuleName, trustLevel
+        trustLevel
+        mainModuleName := setup.name
+        isModule := setup.isModule
+        imports := setup.imports
+        plugins := plugins ++ setup.plugins
+        modules := setup.modules
         -- override cmdline options with header options
-        opts := opts.mergeBy (fun _ _ hOpt => hOpt) h.options.toOptions
-        isModule := h.isModule
-        imports := h.imports
-        plugins := plugins ++ h.plugins
-        modules := h.modules
+        opts := opts.mergeBy (fun _ _ hOpt => hOpt) setup.options.toOptions
       }
     else
       let imports := headerToImports stx

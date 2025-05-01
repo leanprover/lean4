@@ -41,6 +41,8 @@ A module's setup information as described by a JSON file.
 Supercedes the module's header when the `--setup` CLI option is used.
 -/
 structure ModuleSetup where
+  /-- Name of the module. -/
+  name : Name
   /-- Whether the module is participating in the module system. -/
   isModule : Bool := false
   /- The module's direct imports. -/

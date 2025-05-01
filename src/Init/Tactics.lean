@@ -969,7 +969,7 @@ syntax (name := funInduction) "fun_induction " term
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /--
-The `fun_cass` tactic is a convenience wrapper of the `cases` tactic when using a functional
+The `fun_cases` tactic is a convenience wrapper of the `cases` tactic when using a functional
 cases principle.
 
 The tactic invocation

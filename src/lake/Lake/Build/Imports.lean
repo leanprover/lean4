@@ -33,12 +33,12 @@ def buildImportsAndDeps
     let precompileImports ← (← computePrecompileImportsAux leanFile imports).await
     let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
     let externLibsJob ← fetchExternLibs pkgs
-    let impLibsJob ← fetchImportLibs imports
+    let impLibsJob ← fetchImportLibs precompileImports
     let dynlibsJob ← root.dynlibs.fetchIn root
     let pluginsJob ← root.plugins.fetchIn root
     modJob.bindM fun _ =>
-    impLibsJob.bindM fun impLibs =>
-    dynlibsJob.bindM fun dynlibs =>
-    pluginsJob.bindM fun plugins =>
-    externLibsJob.mapM fun externLibs => do
-      return computeModuleDeps impLibs externLibs dynlibs plugins
+    impLibsJob.bindM (sync := true) fun impLibs =>
+    dynlibsJob.bindM (sync := true) fun dynlibs =>
+    pluginsJob.bindM (sync := true) fun plugins =>
+    externLibsJob.mapM (sync := true) fun externLibs => do
+      computeModuleDeps impLibs externLibs dynlibs plugins

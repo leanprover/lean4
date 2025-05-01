@@ -168,9 +168,11 @@ def runFrontend
         opts := opts.mergeBy (fun _ _ hOpt => hOpt) setup.options.toOptions
       }
     else
-      let imports := headerToImports stx
-      let isModule := !stx.raw[0].isNone
-      return .ok { mainModuleName, isModule, imports, opts, trustLevel, plugins }
+      return .ok {
+        imports := stx.imports
+        isModule := stx.isModule
+        mainModuleName, opts, trustLevel, plugins
+      }
   let processor := Language.Lean.process
   let snap ← processor setup none ctx
   let snaps := Language.toSnapshotTree snap

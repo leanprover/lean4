@@ -10,7 +10,15 @@ import Lean.CoreM
 
 namespace Lean.Elab
 
-def headerToImports : TSyntax ``Parser.Module.header → Array Import
+abbrev HeaderSyntax := TSyntax ``Parser.Module.header
+
+def HeaderSyntax.startPos (header : HeaderSyntax) : String.Pos :=
+  header.raw.getPos?.getD 0
+
+def HeaderSyntax.isModule (header : HeaderSyntax) : Bool :=
+  !header.raw[0].isNone
+
+def HeaderSyntax.imports : HeaderSyntax → Array Import
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
     let imports := if preludeTk.isNone then #[{ module := `Init : Import }] else #[]
     imports ++ importsStx.map fun
@@ -18,6 +26,8 @@ def headerToImports : TSyntax ``Parser.Module.header → Array Import
         { module := n.getId, importAll := allTk.isSome, isExported := privateTk.isNone }
       | _ => unreachable!
   | _ => unreachable!
+
+abbrev headerToImports := @HeaderSyntax.imports
 
 def processHeaderCore
     (startPos : String.Pos) (imports : Array Import) (isModule : Bool)
@@ -57,14 +67,12 @@ If `mainModule` is not given, `Environment.setMainModule` should be called manua
 backwards compatibility measure not compatible with the module system.
 -/
 @[inline] def processHeader
-    (header : TSyntax ``Parser.Module.header)
+    (header : HeaderSyntax)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
     (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
     (mainModule := Name.anonymous)
     : IO (Environment × MessageLog) := do
-  let spos := header.raw.getPos?.getD 0
-  let isModule := !header.raw[0].isNone
-  processHeaderCore spos (headerToImports header) isModule
+  processHeaderCore header.startPos header.imports header.isModule
     opts messages inputCtx trustLevel plugins leakEnv mainModule
 
 def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) := do

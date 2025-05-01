@@ -373,7 +373,7 @@ General notes:
   the `sync` parameter on `parseCmd` and spawn an elaboration task when we leave it.
 -/
 partial def process
-    (setupImports : TSyntax ``Parser.Module.header → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
+    (setupImports : HeaderSyntax → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
     (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
   parseHeader old? |>.run (old?.map (·.ictx))
 where
@@ -459,7 +459,7 @@ where
         }
       }
 
-  processHeader (stx : TSyntax ``Parser.Module.header) (parserState : Parser.ModuleParserState) :
+  processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
     SnapshotTask.ofIO stx none (some ⟨0, ctx.input.endPos⟩) <|
@@ -469,7 +469,6 @@ where
         | .ok setup => pure setup
         | .error snap => return snap
 
-      let spos := stx.raw.getPos?.getD 0
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
       -- HACK: no better way to enable in core with `USE_LAKE` off
@@ -479,7 +478,7 @@ where
         throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
-        spos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
+        stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
         setup.trustLevel setup.plugins setup.mainModuleName setup.modules
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)

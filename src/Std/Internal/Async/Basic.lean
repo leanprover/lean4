@@ -101,7 +101,7 @@ protected def bindIO (x : ExceptTask ε α) (f : α → EIO ε (ExceptTask ε β
     | .error e => .error e
 
 /--
-Similar to `map`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
+Similar to `bind`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
 `ExceptTask` resolves to that error.
 -/
 @[inline]
@@ -226,8 +226,7 @@ def mapTaskIO (f : α → IO β) (x : AsyncTask α) : BaseIO (AsyncTask β) :=
     | .error e => .error e
 
 /--
-Block until the `AsyncTask` in `x` finishes and returns its value.
-Propagates any error encountered during execution.
+Block until the `AsyncTask` in `x` finishes.
 -/
 def block (x : AsyncTask α) : IO α := do
   let res := x.get
@@ -236,14 +235,14 @@ def block (x : AsyncTask α) : IO α := do
   | .error e => .error e
 
 /--
-Create an `AsyncTask` that resolves to the value of the promise `x`.
+Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
 def ofPromise (x : IO.Promise (Except IO.Error α)) : AsyncTask α :=
   x.result!
 
 /--
-Create an `AsyncTask` that resolves to the pure value of the promise `x`.
+Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
 def ofPurePromise (x : IO.Promise α) : AsyncTask α :=

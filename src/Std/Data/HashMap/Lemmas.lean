@@ -2531,11 +2531,19 @@ theorem size_map [EquivBEq α] [LawfulHashable α]
     (m.map f).size = m.size :=
   DHashMap.size_map
 
-theorem getElem?_map [EquivBEq α] [LawfulHashable α]
+@[simp]
+theorem getElem?_map [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k : α} :
+    (m.map f)[k]? = m[k]?.map (f k) :=
+  DHashMap.Const.get?_map
+
+/-- Variant of `getElem?_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+@[simp (low)]
+theorem getElem?_map' [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} :
     (m.map f)[k]? = m[k]?.pmap (fun v h' => f (m.getKey k h') v)
       (fun _ h' => mem_iff_isSome_getElem?.mpr (Option.isSome_of_eq_some h')) :=
-  DHashMap.Const.get?_map
+  DHashMap.Const.get?_map'
 
 theorem getElem?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k k' : α} (h : m.getKey? k = some k') :
@@ -2543,30 +2551,52 @@ theorem getElem?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
   DHashMap.Const.get?_map_of_getKey?_eq_some h
 
 @[simp]
-theorem getElem_map [EquivBEq α] [LawfulHashable α]
+theorem getElem_map [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k : α} {h'} :
+    (m.map f)[k]'(h') =
+      f k (m[k]'(mem_of_mem_map h')) :=
+  DHashMap.Const.get_map
+
+/-- Variant of `getElem_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+@[simp (low)]
+theorem getElem_map' [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} {h'} :
     (m.map f)[k]'(h') =
       f (m.getKey k (mem_of_mem_map h')) (m[k]'(mem_of_mem_map h')) :=
-  DHashMap.Const.get_map
+  DHashMap.Const.get_map'
 
-theorem getElem!_map [EquivBEq α] [LawfulHashable α] [Inhabited γ]
+theorem getElem!_map [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+    {f : α → β → γ} {k : α} :
+    (m.map f)[k]! =
+      (m[k]?.map (f k)).get! :=
+  DHashMap.Const.get!_map
+
+/-- Variant of `getElem!_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+theorem getElem!_map' [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → γ} {k : α} :
     (m.map f)[k]! =
       (m[k]?.pmap (fun v h => f (m.getKey k h) v)
         (fun _ h' => mem_iff_isSome_getElem?.mpr (Option.isSome_of_mem h'))).get! :=
-  DHashMap.Const.get!_map
+  DHashMap.Const.get!_map'
 
 theorem getElem!_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → γ} {k k' : α} (h : m.getKey? k = some k') :
     (m.map f)[k]! = (m[k]?.map (f k')).get! :=
   DHashMap.Const.get!_map_of_getKey?_eq_some h
 
-theorem getD_map [EquivBEq α] [LawfulHashable α]
+theorem getD_map [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k : α} {fallback : γ} :
+    (m.map f).getD k fallback =
+      (m[k]?.map (f k)).getD fallback :=
+  DHashMap.Const.getD_map
+
+/-- Variant of `getD_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+theorem getD_map' [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} {fallback : γ} :
     (m.map f).getD k fallback =
       (m[k]?.pmap (fun v h => f (m.getKey k h) v)
         (fun _ h' => mem_iff_isSome_getElem?.mpr (Option.isSome_of_eq_some h'))).getD fallback :=
-  DHashMap.Const.getD_map
+  DHashMap.Const.getD_map'
 
 theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → γ} {k k' : α} {fallback : γ} (h : m.getKey? k = some k') :

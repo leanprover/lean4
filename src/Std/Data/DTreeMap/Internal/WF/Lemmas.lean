@@ -2084,78 +2084,42 @@ end Const
 ### `getEntryLE?` / `getKeyLE?` / ...
 -/
 
-theorem getEntryGE?.go_eq [Ord α] [TransOrd α] {t : Impl α β} {k : α} {x : Option ((a : α) × β a)} :
-    getEntryGE?.go k x t = (getEntryGE?.go k none t).or x := by
-  induction t generalizing x with
-  | leaf => rfl
-  | inner _ k' v l r ih ih' =>
-    rw [go, getEntryGE?.go]
-    split
-    · rw [ih, Option.or_assoc, Option.some_or]
-    · rfl
-    · rw [ih']
-
-theorem getEntryGT?.go_eq [Ord α] [TransOrd α] {t : Impl α β} {k : α} {x : Option ((a : α) × β a)} :
-    getEntryGT?.go k x t = (getEntryGT?.go k none t).or x := by
-  induction t generalizing x with
-  | leaf => rfl
-  | inner _ k' v l r ih ih' =>
-    rw [go, getEntryGT?.go]
-    split
-    · rw [ih, Option.or_assoc, Option.some_or]
-    · rw [ih']
+instance [Ord α] [TransOrd α] {k : α} : IsStrictCut compare fun k' => (compare k k').then .gt where
+  lt {_ _} := by simpa [Ordering.then_eq_lt] using TransCmp.lt_trans
+  eq {_ _} := by simp [Ordering.then_eq_eq]
+  gt h h' := by
+    simp only [Ordering.then_eq_gt, and_true] at h ⊢
+    rcases h with (h | h)
+    · exact .inl (TransCmp.gt_trans h h')
+    · exact .inl (TransCmp.gt_of_eq_of_gt h h')
 
 theorem getEntryGE?_eq_find? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) {k : α} :
     t.getEntryGE? k = t.toListModel.find? (fun e => (compare e.1 k).isGE) := by
-  rw [getEntryGE?]
-  simp only [Bool.coe_iff_coe.mp OrientedCmp.isGE_iff_isLE]
-  induction t with
-  | leaf => rfl
-  | inner n k' v l r ih ih' =>
-    rw [getEntryGE?.go, toListModel_inner, ← List.singleton_append,
-      List.find?_append, List.find?_append, List.find?_singleton]
-    split
-    · rename_i h
-      simp only [h, Ordering.isLE_lt, ↓reduceIte, Option.some_or]
-      rw [getEntryGE?.go_eq, ih hto.left]
-    · rename_i h
-      rw [List.find?_eq_none.mpr]
-      · simp [h]
-      · intro a ha
-        have := hto.compare_left ha
-        rw [OrientedOrd.eq_swap, TransCmp.lt_of_lt_of_eq this (OrientedCmp.eq_symm h)]
-        decide
-    · rename_i h
-      rw [List.find?_eq_none.mpr, ih' hto.right]
-      · simp [h]
-      · intro a ha
-        have := hto.compare_left ha
-        rw [OrientedOrd.eq_swap, TransCmp.lt_trans this (OrientedCmp.lt_of_gt h)]
-        decide
+  rw [getEntryGE?_eq_getEntryGE?ₘ, getEntryGE?ₘ, applyPartition_eq hto, List.head?_filter,
+    List.findCell_inner]
+  simp only [Bool.beq_eq_decide_eq, OrientedCmp.eq_swap (b := k), Ordering.isGE_swap]
+  change t.toListModel.Pairwise _ at hto
+  revert hto
+  induction t.toListModel using List.assoc_induction with
+  | nil => intro hto; rfl
+  | cons k' v t ih =>
+    intro hto
+    simp only [List.find?_cons]
+    rw [List.pairwise_cons] at hto
+    cases h : compare k k'
+    · simp only [reduceCtorEq, decide_false, decide_true, Option.or_some', Ordering.isLE_lt,
+        Option.some.injEq]
+      rw [List.find?_eq_none.mpr, Option.getD_none]
+      intro x hx hkx; have := hto.1 x hx
+      simp [TransCmp.lt_trans h this] at hkx
+    · rfl
+    · simp only [reduceCtorEq, decide_false, ih hto.2, Ordering.isLE_gt]
 
 theorem getEntryGT?_eq_find? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) {k : α} :
     t.getEntryGT? k = t.toListModel.find? (fun e => (compare e.1 k).isGT) := by
-  rw [getEntryGT?]
-  induction t with
-  | leaf => rfl
-  | inner n k' v l r ih ih' =>
-    rw [getEntryGT?.go, toListModel_inner, ← List.singleton_append,
-      List.find?_append, List.find?_append, List.find?_singleton]
-    split
-    · rename_i h
-      simp only [OrientedOrd.eq_swap (a := k'), h, Ordering.swap_lt, Ordering.isGT_gt, ↓reduceIte,
-        Option.some_or]
-      rw [getEntryGT?.go_eq, ih hto.left]
-    · rename_i h
-      rw [imp_false] at h
-      rw [List.find?_eq_none.mpr, ih' hto.right]
-      · simp [h, Ordering.isGT_iff_eq_gt, OrientedCmp.gt_iff_lt]
-      · intro a ha
-        have := hto.compare_left ha
-        replace h : (compare k k').isGE := match compare k k', h with | .eq, _ | .gt, _ => rfl
-        simp only [Ordering.isGT_iff_eq_gt, OrientedCmp.gt_iff_lt]
-        apply OrientedCmp.not_lt_of_isLE
-        exact TransCmp.isLE_trans (Ordering.isLE_of_eq_lt this) (OrientedCmp.isLE_of_isGE h)
+  rw [getEntryGT?_eq_getEntryGT?ₘ, getEntryGT?ₘ, applyPartition_eq hto, List.head?_filter]
+  congr; funext x; rw [Bool.eq_iff_iff, beq_iff_eq, Ordering.isGT_iff_eq_gt]
+  simp [OrientedCmp.eq_swap (a := k), Ordering.then_eq_lt]
 
 theorem getEntryLE?_eq_findRev? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) {k : α} :
     getEntryLE? k t = t.toListModel.findRev? (fun e => (compare e.1 k).isLE) := by

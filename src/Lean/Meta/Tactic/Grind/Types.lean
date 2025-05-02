@@ -602,6 +602,7 @@ structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
   enodeMap     : ENodeMap := {}
+  exprs        : PArray Expr := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodeMap := {}
   /--
@@ -895,14 +896,8 @@ def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
     curr := curr.insert parent
   modify fun s => { s with parents := s.parents.insert { expr := root } curr }
 
-def setENode (e : Expr) (n : ENode) : GoalM Unit :=
-  modify fun s => { s with
-    enodeMap := s.enodeMap.insert { expr := e } n
-    congrTable := unsafe unsafeCast s.congrTable
-  }
-
 def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM Unit := do
-  setENode e {
+  let n := {
     self := e, next := e, root := e, congr := e, size := 1
     flipped := false
     heqProofs := false
@@ -911,7 +906,12 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
     idx := (← get).nextIdx
     interpreted, ctor, generation
   }
-  modify fun s => { s with nextIdx := s.nextIdx + 1 }
+  modify fun s => { s with
+    enodeMap := s.enodeMap.insert { expr := e } n
+    exprs := s.exprs.push e
+    congrTable := unsafe unsafeCast s.congrTable
+    nextIdx := s.nextIdx + 1
+  }
 
 /--
 Creates an `ENode` for `e` if one does not already exist.
@@ -922,6 +922,12 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let ctor := (← isConstructorAppCore? e).isSome
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
+
+def setENode (e : Expr) (n : ENode) : GoalM Unit :=
+  modify fun s => { s with
+    enodeMap := s.enodeMap.insert { expr := e } n
+    congrTable := unsafe unsafeCast s.congrTable
+  }
 
 /--
 Notifies the offset constraint module that `a = b` where
@@ -1196,14 +1202,9 @@ def closeGoal (falseProof : Expr) : GoalM Unit := do
     else
       mvarId.assign (← mkFalseElim target falseProof)
 
-def Goal.getENodes (goal : Goal) : Array ENode :=
-  -- We must sort because we are using pointer addresses as keys in `enodes`
-  let nodes := goal.enodeMap.toArray.map (·.2)
-  nodes.qsort fun a b => a.idx < b.idx
-
 /-- Returns all enodes in the goal -/
-def getENodes : GoalM (Array ENode) := do
-  return (← get).getENodes
+def getExprs : GoalM (PArray Expr) := do
+  return (← get).exprs
 
 /-- Executes `f` to each term in the equivalence class containing `e` -/
 @[inline] def traverseEqc (e : Expr) (f : ENode → GoalM Unit) : GoalM Unit := do
@@ -1227,8 +1228,8 @@ def getENodes : GoalM (Array ENode) := do
   return r
 
 def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
-  let nodes ← getENodes
-  for n in nodes do
+  for e in (← getExprs) do
+    let n ← getENode e
     f n
 
 def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
@@ -1239,8 +1240,8 @@ def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
   ref.get
 
 def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
-  let nodes ← getENodes
-  for n in nodes do
+  for e in (← getExprs) do
+    let n ← getENode e
     if isSameExpr n.self n.root then
       f n
 
@@ -1290,9 +1291,9 @@ partial def getEqc (e : Expr) : GoalM (List Expr) :=
 
 /-- Returns all equivalence classes in the current goal. -/
 partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
-  let mut r : List (List Expr) := []
-  let nodes ← goal.getENodes
-  for node in nodes do
+ let mut r : List (List Expr) := []
+ for e in goal.exprs do
+    let some node := goal.getENode? e | pure ()
     if isSameExpr node.root node.self then
       r := goal.getEqc node.self :: r
   return r

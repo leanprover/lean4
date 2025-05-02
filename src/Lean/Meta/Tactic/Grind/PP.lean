@@ -56,8 +56,8 @@ private def Goal.ppENodeDecl (goal : Goal) (e : Expr) : MetaM MessageData := do
 /-- Pretty print goal state for debugging purposes. -/
 def Goal.ppState (goal : Goal) : MetaM MessageData := do
   let mut r := m!"Goal:"
-  let nodes := goal.getENodes
-  for node in nodes do
+  for e in goal.exprs do
+    let node ← goal.getENode e
     r := r ++ "\n" ++ (← goal.ppENodeDecl node.self)
   let eqcs := goal.getEqcs
   for eqc in eqcs do

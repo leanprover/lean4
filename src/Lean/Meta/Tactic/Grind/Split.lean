@@ -81,7 +81,7 @@ private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
     if flag then
       return true
     else
-      return c'.isApp && isCongruent (← get).enodes c c'
+      return c'.isApp && isCongruent (← get).enodeMap c c'
 
 private def checkDefaultSplitStatus (e : Expr) : GoalM SplitStatus := do
   match_expr e with

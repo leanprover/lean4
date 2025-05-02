@@ -375,7 +375,7 @@ private def hashRoot (enodes : ENodeMap) (e : Expr) : UInt64 :=
   else
     13
 
-def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
+private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
   if isSameExpr a b then
     return true
   else
@@ -383,7 +383,7 @@ def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
     let some n2 := enodes.find? { expr := b } | return false
     isSameExpr n1.root n2.root
 
-def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
+private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
   match_expr e with
   | Grind.nestedProof p _ => hashRoot enodes p
   | Eq _ lhs rhs => goEq lhs rhs
@@ -399,7 +399,7 @@ where
     | _ => mixHash r (hashRoot enodes e)
 
 /-- Returns `true` if `a` and `b` are congruent modulo the equivalence classes in `enodes`. -/
-partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
+private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   match_expr a with
   | Grind.nestedProof p₁ _ =>
     let_expr Grind.nestedProof p₂ _ := b | false
@@ -424,13 +424,13 @@ where
       -- because we are not in the `MetaM` monad.
       hasSameRoot enodes a b
 
-instance : Hashable (CongrKey enodes) where
-  hash k := congrHash enodes k.e
+instance : Hashable (CongrKey enodeMap) where
+  hash k := congrHash enodeMap k.e
 
-instance : BEq (CongrKey enodes) where
-  beq k1 k2 := isCongruent enodes k1.e k2.e
+instance : BEq (CongrKey enodeMap) where
+  beq k1 k2 := isCongruent enodeMap k1.e k2.e
 
-abbrev CongrTable (enodes : ENodeMap) := PHashSet (CongrKey enodes)
+abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
 abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
@@ -601,7 +601,7 @@ structure Clean.State where
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
-  enodeMap     : ENodeMap := {}
+  private enodeMap : ENodeMap := {}
   exprs        : PArray Expr := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodeMap := {}
@@ -632,6 +632,12 @@ structure Goal where
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
   deriving Inhabited
+
+def Goal.hasSameRoot (g : Goal) (a b : Expr) : Bool :=
+  Grind.hasSameRoot g.enodeMap a b
+
+def Goal.isCongruent (g : Goal) (a b : Expr) : Bool :=
+  Grind.isCongruent g.enodeMap a b
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
   goal.mvarId.admit

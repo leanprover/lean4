@@ -55,7 +55,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   if (← checkMaxCaseSplit) then return false
   let mut map : Map := {}
   let mut candidates : Candidates := {}
-  for ({ expr := e }, _) in (← get).enodes do
+  for e in (← get).exprs do
     if e.isApp && !e.isEq && !e.isHEq then
     if (← isCongrRoot e) then
     unless (← ctx.isInterpreted e) do

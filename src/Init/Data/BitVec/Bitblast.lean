@@ -2377,8 +2377,9 @@ theorem uppcReq_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
         by_cases hbit: x[w - s]
         · simp [← getLsbD_eq_getElem] at hbit
           simp [hbit]
-        · have := le_toNat_getLsbD_false_iff (x := x) (i := w - s) (by omega)
+        · have := le_toNat_iff (x := x) (i := w - s) (by omega)
           simp only [h', hbit, _root_.and_self, forall_const] at this
+          simp at this
           obtain ⟨k, hk⟩ := this
           by_cases hwk : w - s + k < w + 1
           · by_cases hk' : 0 < k
@@ -2406,18 +2407,29 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hw : 1 < w) : Bool :=
   | 0 => false
   | i + 1 => (resRec x y i (by omega) (by omega)) || (aandRec x y (i + 1) (by omega))
 
-
-theorem resRec_true (x y : BitVec w) (hs : s < w) :
-    x.resRec y s hs hw = true → 2 ^ s ≤ x.toNat * y.toNat % 2 ^ w  := by
-  rcases w with _|_|w
-  · omega
-  · omega
-  · induction s
-    · case succ.succ.zero => unfold resRec; simp
-    · case succ.succ.succ s ih =>
-      specialize ih (by omega)
-      sorry
-
+theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
+    x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
+  constructor
+  · intro h
+    apply Classical.byContradiction
+    intro hcontra
+    simp at hcontra
+    obtain ⟨k, hk⟩ := hcontra
+    have hle := getElem_true_le (x := x) (i := i + k)
+    by_cases hlt : i + k < w
+    · specialize hle (by omega)
+      rw [getLsbD_eq_getElem (by omega)] at hk
+      simp [hk] at hle
+      have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
+      omega
+    · simp [show w ≤ i + k by omega] at hk
+  · intro h
+    apply Classical.byContradiction
+    intro hcontra
+    simp at hcontra
+    have := le_toNat_iff (x := x) (i := i) hi
+    simp [this] at hcontra
+    simp_all
 
 /--
   complete fast overflow detecnion circuit for unsigned multiplication
@@ -2530,19 +2542,8 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
 
 
                 sorry
-            · sorry
         · intro h
           sorry
-
-
-
-
-
-
-
-
-
-
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
 and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/

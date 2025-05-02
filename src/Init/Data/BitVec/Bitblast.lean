@@ -2426,10 +2426,8 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
   · intro h
     apply Classical.byContradiction
     intro hcontra
-    simp at hcontra
     have := le_toNat_iff (x := x) (i := i) hi
-    simp [this] at hcontra
-    simp_all
+    simp [this, h] at hcontra
 
 /--
   complete fast overflow detecnion circuit for unsigned multiplication
@@ -2483,8 +2481,6 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
             have hymsb' := msb_eq_false_iff_two_mul_lt (x := y)
             have hx' := getElem_true_le (x := x) (i := 1) (by omega)
             have hy' := getElem_true_le (x := y) (i := 1) (by omega)
-            have hx'' := le_toNat_getLsbD_false_iff (x := x) (i := 1) (by omega)
-            have hy'' := le_toNat_getLsbD_false_iff (x := y) (i := 1) (by omega)
             simp [BitVec.msb, getMsbD_eq_getLsbD] at hxmsb hxmsb' hymsb hymsb'
             by_cases hx : 2 ≤ x.toNat <;> by_cases hy : 2 ≤ y.toNat
             · simp_all
@@ -2513,13 +2509,24 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
               have h1 := Nat.mul_le_mul (n₁ := 2) (m₁ := 2) (n₂ := x.toNat) (m₂ := y.toNat) (by omega) (by omega)
               omega
             · simp_all
-              have h4 := le_toNat_getLsbD_false_iff (x := x) (i := 1) (by omega)
-              simp [h, hx1] at h4
-              obtain ⟨k, hk⟩ := h4
-              by_cases hk' : 0 < k
-              · simp [show 1 + 1 ≤  1 + k by omega] at hk -- contradiction
-              · simp [show k = 0 by omega]
-                simp_all
+              have hlt := toNat_lt_iff (x := x) (i := 1) (by omega)
+              have hle := le_toNat_iff (x := x) (i := 1) (by omega)
+              simp at hlt hle
+              rw [← getLsbD_eq_getElem] at hx1
+              obtain ⟨k, hk⟩ := hle
+              by_cases hh : x.toNat < 2
+              · omega
+              · apply Classical.byContradiction
+                intro hcontra
+                simp at hcontra
+                rw [show 4 = 2 * 2 by omega] at hcontra
+                have hlt'' := toNat_lt_iff (x := x) (i := 1) (by omega)
+                have hle := le_toNat_iff (x := x) (i := 1) (by omega)
+                have hlt' := toNat_lt_iff (x := y) (i := 1) (by omega)
+                have hle' := le_toNat_iff (x := y) (i := 1) (by omega)
+                have := getElem_true_le (x := y) (i := 1)
+                -- this is a silly silly case
+                sorry
       · case neg.succ w ih =>
         simp_all
         unfold resRec
@@ -2539,9 +2546,9 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
                 simp at hc1 hc2
                 -- in particulat, I will prove that under these
                 -- conditions x.toNat * y.toNat < 2 ^ (w + 1 + 1 + 1)
-
-
                 sorry
+          sorry
+
         · intro h
           sorry
 

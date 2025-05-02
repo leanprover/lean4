@@ -164,14 +164,14 @@ mutual
   private partial def mkEqCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
     let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
-    let enodes := (← get).enodes
+    let enodeMap := (← get).enodeMap
     let us := f.constLevels!
     if !isSameExpr α₁ α₂ then
       mkHCongrProof lhs rhs heq
-    else if hasSameRoot enodes a₁ a₂ && hasSameRoot enodes b₁ b₂ then
+    else if hasSameRoot enodeMap a₁ a₂ && hasSameRoot enodeMap b₁ b₂ then
       return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
     else
-      assert! hasSameRoot enodes a₁ b₂ && hasSameRoot enodes b₁ a₂
+      assert! hasSameRoot enodeMap a₁ b₂ && hasSameRoot enodeMap b₁ a₂
       return mkApp7 (mkConst ``Grind.eq_congr' us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ false) (← mkEqProofCore b₁ a₂ false)
 
   /-- Constructs a congruence proof for `lhs` and `rhs`. -/

@@ -601,9 +601,9 @@ structure Clean.State where
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
-  enodes       : ENodeMap := {}
+  enodeMap     : ENodeMap := {}
   parents      : ParentMap := {}
-  congrTable   : CongrTable enodes := {}
+  congrTable   : CongrTable enodeMap := {}
   /--
   A mapping from each function application index (`HeadIndex`) to a list of applications with that index.
   Recall that the `HeadIndex` for a constant is its constant name, and for a free variable,
@@ -705,7 +705,7 @@ Returns `some n` if `e` has already been "internalized" into the
 Otherwise, returns `none`s.
 -/
 def Goal.getENode? (goal : Goal) (e : Expr) : Option ENode :=
-  goal.enodes.find? { expr := e }
+  goal.enodeMap.find? { expr := e }
 
 @[inline, inherit_doc Goal.getENode?]
 def getENode? (e : Expr) : GoalM (Option ENode) :=
@@ -716,7 +716,7 @@ def throwNonInternalizedExpr (e : Expr) : CoreM α :=
 
 /-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
 def Goal.getENode (goal : Goal) (e : Expr) : CoreM ENode := do
-  let some n := goal.enodes.find? { expr := e }
+  let some n := goal.enodeMap.find? { expr := e }
     | throwNonInternalizedExpr e
   return n
 
@@ -803,7 +803,7 @@ def getNext (e : Expr) : GoalM Expr := do
 
 /-- Returns `true` if `e` has already been internalized. -/
 def alreadyInternalized (e : Expr) : GoalM Bool :=
-  return (← get).enodes.contains { expr := e }
+  return (← get).enodeMap.contains { expr := e }
 
 def Goal.getTarget? (goal : Goal) (e : Expr) : Option Expr := Id.run do
   let some n ← goal.getENode? e | return none
@@ -897,7 +897,7 @@ def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
 
 def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   modify fun s => { s with
-    enodes := s.enodes.insert { expr := e } n
+    enodeMap := s.enodeMap.insert { expr := e } n
     congrTable := unsafe unsafeCast s.congrTable
   }
 
@@ -1198,7 +1198,7 @@ def closeGoal (falseProof : Expr) : GoalM Unit := do
 
 def Goal.getENodes (goal : Goal) : Array ENode :=
   -- We must sort because we are using pointer addresses as keys in `enodes`
-  let nodes := goal.enodes.toArray.map (·.2)
+  let nodes := goal.enodeMap.toArray.map (·.2)
   nodes.qsort fun a b => a.idx < b.idx
 
 /-- Returns all enodes in the goal -/

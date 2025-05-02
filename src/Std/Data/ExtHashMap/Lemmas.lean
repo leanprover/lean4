@@ -1092,6 +1092,10 @@ theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {tl : Li
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : ExtHashMap α β).insert k v) tl :=
   ext ExtDHashMap.Const.ofList_cons
 
+theorem ofList_eq_insertMany_empty [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
+    ofList l = insertMany (∅ : ExtHashMap α β) l :=
+  ext ExtDHashMap.Const.ofList_eq_insertMany_empty
+
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} :

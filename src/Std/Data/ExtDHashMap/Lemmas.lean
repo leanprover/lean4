@@ -1702,6 +1702,11 @@ theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} {tl : 
   conv => rhs; apply insertMany_list_mk
   exact congrArg Quotient.mk' DHashMap.ofList_cons
 
+theorem ofList_eq_insertMany_empty [EquivBEq α] [LawfulHashable α] {l : List ((a : α) × β a)} :
+    ofList l = insertMany (∅ : ExtDHashMap α β) l := by
+  conv => rhs; apply insertMany_list_mk
+  exact congrArg Quotient.mk' DHashMap.ofList_eq_insertMany_empty
+
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α} :
@@ -1846,6 +1851,11 @@ theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {tl : Li
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : ExtDHashMap α (fun _ => β)).insert k v) tl := by
   conv => rhs; apply insertMany_list_mk
   exact congrArg Quotient.mk' DHashMap.Const.ofList_cons
+
+theorem ofList_eq_insertMany_empty [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
+    ofList l = insertMany (∅ : ExtDHashMap α (fun _ => β)) l := by
+  conv => rhs; apply insertMany_list_mk
+  exact congrArg Quotient.mk' DHashMap.Const.ofList_eq_insertMany_empty
 
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]

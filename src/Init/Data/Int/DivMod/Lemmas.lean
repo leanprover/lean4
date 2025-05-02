@@ -1276,7 +1276,7 @@ theorem tdiv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.tdiv b = 
 /-- T-division of an integer by a natural number equals zero iff
 the absolute value of the numerator is less than the denominator.
 -/
-theorem Int.tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Nat} :
+theorem tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Nat} :
     a.tdiv b = 0 ↔ (a.natAbs < b ∨ b = 0):= by
   by_cases hb : b = 0
   · simp [hb]
@@ -1306,7 +1306,7 @@ theorem Int.tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Nat} :
 /-- T-divison equals zero iff the absolute value of the numerator is less
 than the absolute value of the denominator, or the denominator is zero.
 -/
-theorem Int.tdiv_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Int} :
+@[simp] theorem tdiv_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Int} :
     a.tdiv b = 0 ↔ (a.natAbs < b.natAbs ∨ b = 0):= by
   have hb := Int.lt_trichotomy b 0
   rcases hb with hb | hb | hb

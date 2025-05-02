@@ -2289,7 +2289,7 @@ theorem getLsbD_true_le (x : BitVec w) (i : Nat) (h : i < w) :
 theorem le_toNat_getLsbD_false_iff (x : BitVec w) (i : Nat) (h : i < w) :
     (2 ^ i ≤ x.toNat ∧ (x.getLsbD i = false)) → (∃ k, (x.getLsbD (i + k) = true)) := by
   rcases w with _|w
-  · simp [of_length_zero]
+  · simp [of_length_zero]; omega
   · intro h'
     apply Classical.byContradiction
     intros h
@@ -2336,7 +2336,6 @@ theorem le_toNat_getLsbD_false_iff (x : BitVec w) (i : Nat) (h : i < w) :
     simp at h
     omega
 
-
 theorem uppcReq_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
     uppcRec x s h ↔ 2 ^ (w - 1 - (s - 1)) ≤ x.toNat := by
   rcases w with _|w
@@ -2347,65 +2346,35 @@ theorem uppcReq_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
       simp [msb_eq_true_iff_two_mul_ge]
       omega
     · case succ.succ s ihs =>
+      unfold uppcRec
+      simp only [or_eq_true, ihs, Nat.add_one_sub_one]
+      have := Nat.pow_le_pow_of_le (a := 2) ( n := (w - s)) (m := (w - (s - 1))) (by omega) (by omega)
       constructor
-      · -- uppcRec (s + 1) h = true → 2 ^ (w - s) ≤ x.toNat
-        unfold uppcRec
-        rw [getMsbD_eq_getLsbD]
-        simp [h, show s < w + 1 by omega]
+      · -- x.getMsbD s = true ∨ 2 ^ (w - (s - 1)) ≤ x.toNat → 2 ^ (w - s) ≤ x.toNat
+        -- note that x.getMsbD s = true = x.getLsbD (w - s)
+        simp only [getMsbD_eq_getLsbD, show s < w + 1 by omega, decide_true, Nat.add_one_sub_one,
+          Bool.true_and]
         intro h'
-        have := getLsbD_true_le (x := x) (i := w - s) (by omega)
-        rcases h' with h'|h'
-        · simp [h'] at this; omega
-        · simp [h', show s < w + 1 by omega] at ihs
-          have := Nat.pow_le_pow_of_le (a := 2) (n := w - s) (m := w - (s - 1)) (by omega) (by omega)
+        by_cases hbit: x.getLsbD (w - s)
+        · apply getLsbD_true_le (x := x) (i := w - s) (by omega)
           omega
-      · -- 2 ^ (w - s) ≤ x.toNat → uppcRec (s + 1) h = true
-        unfold uppcRec
-        simp
-        intro h
-        simp [ihs]
-        simp [getMsbD_eq_getLsbD, show s + 1 < w + 1 by omega]
-        simp at ihs
-        --- note that
-        -- (w - 1) (w - 2) ... (w - (s - 1)) (w - s)) ...
-        --    x       x    ...    x             x     ...
-          -- even though x[w - (s + 1)] = false, there must be
-          -- some k for which x[w - (s + 1) + k] = true
-        by_cases hs : 0 < s
-        · have hlt := Nat.pow_lt_pow_of_lt (a := 2) (n := w - s) (m := w - (s - 1)) (by omega) (by omega)
-          have h1 := le_toNat_getLsbD_false_iff (x := x) (by omega) (i := w - (s - 1))
-          have h2 := le_toNat_getLsbD_false_iff (x := x) (by omega) (i := w - s)
-          have h4 := getLsbD_true_le (i := w - (s - 1)) (w := w + 1) (by omega) (by omega)
-          simp [h] at h1 h2 h4
-          simp [show s < w + 1 by omega]
-          by_cases hlsb : x.getLsbD (w - s)
-          · sorry
-          · simp [hlsb]
-            apply Classical.byContradiction
-            intro hcontra
-            simp at hcontra
-            -- by h2 : ∃ k, x.getLsbD (w - s + k) = true
-            -- and thus 2 ^ (w - s + k) ≤ x.toNat
-            -- which is contradictory wrt. x.toNat < 2 ^ (w - (s - 1))
-            have h2cons : ∃ k, x.getLsbD (w - s + k) = true := by simp_all
-            obtain ⟨k, hk⟩ :=  h2cons
-            have h2conscons := getLsbD_true_le (i := w - s + k) (w := w + 1) (by omega)
-            by_cases hwsk : w - s + k < w + 1
-            · simp [hwsk] at h2conscons
-              have hlt2 := Nat.pow_le_pow_of_le (a := 2) (n := w - s) (m := w - s + 1) (by omega) (by omega)
-              simp [hk] at h2conscons
-              have : 2 ^ (w - s) ≤ x.toNat := by omega
-              simp [show w - (s - 1) = w - s + 1 by omega] at hcontra
-              simp_all
-
-
-              sorry
-            · simp_all
-        · simp [show s = 0 by omega]
-          simp_all
-
-
-
+        · simp [hbit] at h'; omega
+      · -- 2 ^ (w - s) ≤ x.toNat → x.getMsbD s = true ∨ 2 ^ (w - (s - 1)) ≤ x.toNat
+        simp [getMsbD_eq_getLsbD, show s < w + 1 by omega]
+        intro h'
+        by_cases hbit: x.getLsbD (w - s)
+        · simp [hbit]
+        · have := le_toNat_getLsbD_false_iff (x := x) (i := w - s) (by omega)
+          simp only [h', hbit, _root_.and_self, forall_const] at this
+          obtain ⟨k, hk⟩ := this
+          by_cases hwk : w - s + k < w + 1
+          · by_cases hk' : 0 < k
+            · have hle := getLsbD_true_le (x := x) (i := w - s + k) (by omega)
+              have hpowle := Nat.pow_le_pow_of_le (a := 2) ( n := (w - (s - 1))) (m := (w - s + k)) (by omega) (by omega)
+              simp [hk] at this hle
+              omega
+            · simp_all [show k = 0 by omega]
+          · simp_all
 
 /--
   conjunction for fast umulOverflow circuit
@@ -2432,71 +2401,72 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
   rcases w with _|_|w
   · simp [hw]; omega
   · simp [hw]; omega
-  · simp [umulOverflow, ge_iff_le, truncate_eq_setWidth, resRec, uppcRec, aandRec]
-    -- let k' := x.uppcRec y w (by omega)
-    -- rw [show x.uppcRec y w (by omega) = k' by rfl]
-    by_cases hneg : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1]
-    · simp only [hneg, Bool.true_or, decide_eq_true_eq, ge_iff_le]
-      have h0 := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
-      have h4 : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).msb := by
-        simp [BitVec.msb, getMsbD_eq_getLsbD]
-      have h5 : (2 * (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1 + 1))
-                   ↔ (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1) := by
-          rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))]
-          refine Nat.mul_le_mul_left_iff ?_
-          omega
-      rw [h5] at h0
-      simp_all
-      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))] at h5
-      by_cases h6 : x.toNat * y.toNat < 2 * 2 ^ (w + 1 + 1)
-      · simp only [Nat.mod_eq_of_lt (by omega)] at h5
-        omega
-      · simp only [Nat.not_lt] at h6
-        omega
-    · simp only [bool_to_prop]
-      simp at hneg
-      have hlt0 : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat < 2 ^ (w + 1 + 1) := by
-        have := BitVec.toNat_lt_of_msb_false (x := (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y))
-        simp [BitVec.msb, getMsbD_eq_getLsbD, getLsbD_eq_getElem, show w + 1 + 1 = w + 2 by omega] at this
-        simp [hneg, this]
-      induction w
-      case neg.zero =>
-        unfold uppcRec
-        simp
-        constructor
-        · intro hle
-          have h1 := BitVec.msb_eq_true_iff_two_mul_ge (x := x)
-          have h2 := BitVec.msb_eq_true_iff_two_mul_ge (x := y)
-          have h3 := BitVec.msb_eq_true_iff_two_mul_ge (x := (setWidth 3 x * setWidth 3 y))
-          rw [← BitVec.getLsbD_eq_getElem, getLsbD_eq_getMsbD, ← BitVec.msb]
-          simp_all
-          rw [← BitVec.getLsbD_eq_getElem, getLsbD_eq_getMsbD, ← BitVec.msb]
-          simp
-          rcases h3
-          case mp.intro mp mpr =>
-            simp_all
-            by_cases hmsb : (setWidth 3 x * setWidth 3 y).msb
-            · simp_all
-            · simp_all
-              simp [show ¬ 8 ≤ 2 * (x.toNat * y.toNat % 8) by omega]
-              rw [show 4 = 2 * 2 by omega]
-              have xmsb' := Nat.mul_le_mul_left (n := 2) (m := x.toNat) (k := 2)
-              have ymsb' := Nat.mul_le_mul_left (n := 2) (m := y.toNat) (k := 2)
-              by_cases hxle : 2 ≤ x.toNat <;> by_cases hyle : 2 ≤ y.toNat
-              · simp_all
-              · rw [show 4 = 2 * 2 by omega] at h1 h2
-                simp_all
-              · simp_all
-                sorry
-              · simp_all
-                sorry
-        · intro heq
+  · sorry
+    -- simp [umulOverflow, ge_iff_le, truncate_eq_setWidth, resRec, uppcRec, aandRec]
+    -- -- let k' := x.uppcRec y w (by omega)
+    -- -- rw [show x.uppcRec y w (by omega) = k' by rfl]
+    -- by_cases hneg : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1]
+    -- · simp only [hneg, Bool.true_or, decide_eq_true_eq, ge_iff_le]
+    --   have h0 := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
+    --   have h4 : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).msb := by
+    --     simp [BitVec.msb, getMsbD_eq_getLsbD]
+    --   have h5 : (2 * (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1 + 1))
+    --                ↔ (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1) := by
+    --       rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))]
+    --       refine Nat.mul_le_mul_left_iff ?_
+    --       omega
+    --   rw [h5] at h0
+    --   simp_all
+    --   rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))] at h5
+    --   by_cases h6 : x.toNat * y.toNat < 2 * 2 ^ (w + 1 + 1)
+    --   · simp only [Nat.mod_eq_of_lt (by omega)] at h5
+    --     omega
+    --   · simp only [Nat.not_lt] at h6
+    --     omega
+    -- · simp only [bool_to_prop]
+    --   simp at hneg
+    --   have hlt0 : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat < 2 ^ (w + 1 + 1) := by
+    --     have := BitVec.toNat_lt_of_msb_false (x := (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y))
+    --     simp [BitVec.msb, getMsbD_eq_getLsbD, getLsbD_eq_getElem, show w + 1 + 1 = w + 2 by omega] at this
+    --     simp [hneg, this]
+    --   induction w
+    --   case neg.zero =>
+    --     unfold uppcRec
+    --     simp
+    --     constructor
+    --     · intro hle
+    --       have h1 := BitVec.msb_eq_true_iff_two_mul_ge (x := x)
+    --       have h2 := BitVec.msb_eq_true_iff_two_mul_ge (x := y)
+    --       have h3 := BitVec.msb_eq_true_iff_two_mul_ge (x := (setWidth 3 x * setWidth 3 y))
+    --       rw [← BitVec.getLsbD_eq_getElem, getLsbD_eq_getMsbD, ← BitVec.msb]
+    --       simp_all
+    --       rw [← BitVec.getLsbD_eq_getElem, getLsbD_eq_getMsbD, ← BitVec.msb]
+    --       simp
+    --       rcases h3
+    --       case mp.intro mp mpr =>
+    --         simp_all
+    --         by_cases hmsb : (setWidth 3 x * setWidth 3 y).msb
+    --         · simp_all
+    --         · simp_all
+    --           simp [show ¬ 8 ≤ 2 * (x.toNat * y.toNat % 8) by omega]
+    --           rw [show 4 = 2 * 2 by omega]
+    --           have xmsb' := Nat.mul_le_mul_left (n := 2) (m := x.toNat) (k := 2)
+    --           have ymsb' := Nat.mul_le_mul_left (n := 2) (m := y.toNat) (k := 2)
+    --           by_cases hxle : 2 ≤ x.toNat <;> by_cases hyle : 2 ≤ y.toNat
+    --           · simp_all
+    --           · rw [show 4 = 2 * 2 by omega] at h1 h2
+    --             simp_all
+    --           · simp_all
+    --             sorry
+    --           · simp_all
+    --             sorry
+    --     · intro heq
 
-          sorry
-      case neg.succ w ih =>
-        unfold uppcRec
+    --       sorry
+    --   case neg.succ w ih =>
+    --     unfold uppcRec
 
-        sorry
+    --     sorry
 
 
 

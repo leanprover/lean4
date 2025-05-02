@@ -116,6 +116,88 @@ def explore {γ : Type w} [Ord α] (k : α → Ordering) (init : γ)
     | .eq => inner init <| .eq l.toListModel (Cell.ofEq ky y h) r.toListModel
     | .gt => explore k (inner init <| .gt l.toListModel ky h y) inner r
 
+/-
+Note: these congruence lemmas are proven manually because `simp` currently can't handle
+matches with hypotheses on discriminants properly.
+-/
+
+@[congr]
+theorem applyPartition.go.match_1.congr {α : Sort u} {o o' : Ordering}
+    {lt : o = .lt → α} {eq : o = .eq → α} {gt : o = .gt → α}
+    {lt' : o' = .lt → α} {eq' : o' = .eq → α} {gt' : o' = .gt → α}
+    (ho : o = o')
+    (hlt : ∀ h, lt (ho.trans h) = lt' h)
+    (heq : ∀ h, eq (ho.trans h) = eq' h)
+    (hgt : ∀ h, gt (ho.trans h) = gt' h) :
+    (match (generalizing := false) h : o with | .lt => lt h | .eq => eq h | .gt => gt h)
+    = (match (generalizing := false) h : o' with | .lt => lt' h | .eq => eq' h | .gt => gt' h) := by
+  induction ho; induction funext hlt; induction funext heq; induction funext hgt
+  rfl
+
+@[congr]
+theorem entryAtIdx.match_1.congr {α : Sort u} {o o' : Ordering}
+    {lt : o = .lt → α} {eq : o = .eq → α} {gt : o = .gt → α}
+    {lt' : o' = .lt → α} {eq' : o' = .eq → α} {gt' : o' = .gt → α}
+    (ho : o = o')
+    (hlt : ∀ h, lt (ho.trans h) = lt' h)
+    (heq : ∀ h, eq (ho.trans h) = eq' h)
+    (hgt : ∀ h, gt (ho.trans h) = gt' h) :
+    entryAtIdx.match_1 (fun _ => α) o lt eq gt = entryAtIdx.match_1 (fun _ => α) o' lt' eq' gt' := by
+  induction ho; induction funext hlt; induction funext heq; induction funext hgt
+  rfl
+
+@[congr]
+theorem getEntryLE.match_1.congr {α : Sort u} {o o' : Ordering}
+    {lt : o = .lt → α} {eq : o = .eq → α} {gt : o = .gt → α}
+    {lt' : o' = .lt → α} {eq' : o' = .eq → α} {gt' : o' = .gt → α}
+    (ho : o = o')
+    (hlt : ∀ h, lt (ho.trans h) = lt' h)
+    (heq : ∀ h, eq (ho.trans h) = eq' h)
+    (hgt : ∀ h, gt (ho.trans h) = gt' h) :
+    getEntryLE.match_1 (fun _ => α) o gt eq lt = getEntryLE.match_1 (fun _ => α) o' gt' eq' lt' := by
+  induction ho; induction funext hlt; induction funext heq; induction funext hgt
+  rfl
+
+/--
+Induction principle on `Impl` with an additional case split on `k ky` for
+`Impl.inner _ ky _ _ _` without generalization.
+-/
+@[elab_as_elim]
+theorem tree_split_ind_no_gen [Ord α] (k : α → Ordering)
+    {motive : (l : Impl α β) → Prop}
+    (leaf : motive .leaf)
+    (lt : ∀ n ky y l r, (h : k ky = .lt) →
+      motive l → motive (.inner n ky y l r))
+    (eq : ∀ n ky y l r, (h : k ky = .eq) →
+      motive l → motive r → motive (.inner n ky y l r))
+    (gt : ∀ n ky y l r, (h : k ky = .gt) →
+      motive r → motive (.inner n ky y l r))
+    (t : Impl α β) : motive t := by
+  induction t with
+  | leaf => exact leaf
+  | inner n ky v l r ih ih' =>
+    cases h : k ky
+    · exact lt n ky v l r h ih
+    · exact eq n ky v l r h ih ih'
+    · exact gt n ky v l r h ih'
+
+/--
+Induction principle on `Impl` with an additional case split on `k ky` for
+`Impl.inner _ ky _ _ _` and a generalization built in for convenience.
+-/
+@[elab_as_elim]
+theorem tree_split_ind {γ : Sort w} [Ord α] (k : α → Ordering)
+    {motive : (l : Impl α β) → γ → Prop}
+    (leaf : ∀ x, motive .leaf x)
+    (lt : ∀ n ky y l r, (h : k ky = .lt) →
+      (∀ x, motive l x) → ∀ x, motive (.inner n ky y l r) x)
+    (eq : ∀ n ky y l r, (h : k ky = .eq) →
+      (∀ x, motive l x) → (∀ x, motive r x) → ∀ x, motive (.inner n ky y l r) x)
+    (gt : ∀ n ky y l r, (h : k ky = .gt) →
+      (∀ x, motive r x) → ∀ x, motive (.inner n ky y l r) x)
+    (t : Impl α β) : (x : γ) → motive t x :=
+  tree_split_ind_no_gen k leaf lt eq gt t
+
 open ExplorationStep
 
 theorem applyPartition_go_step [Ord α] {k : α → Ordering} {init : δ} (l₁ l₂) (l l' : Impl α β) (h)
@@ -750,6 +832,306 @@ theorem getD_eq_getDₘ [Ord α] (k : α) (l : Impl α (fun _ => β))
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all [Cell.Const.get?, Cell.ofEq]
   · simp only [getD, applyCell, Cell.Const.get?_empty, Option.getD_none]
+
+end Const
+
+/-- Implementation detail of the tree map -/
+def getEntryGE?ₘ [Ord α] (k : α) (t : Impl α β) : Option ((a : α) × β a) :=
+  applyPartition (compare k) t fun _ c _ r => c.inner.or r.head?
+
+/-- Implementation detail of the tree map -/
+def getEntryGE?ₘ' [Ord α] (k : α) (t : Impl α β) : Option ((a : α) × β a) :=
+  t.explore (compare k) none fun
+  | _, .lt k' _ v _ => some ⟨k', v⟩
+  | base, .eq _ c r => (c.inner.or r.head?).or base
+  | base, .gt _ _ _ _ => base
+
+theorem getEntryGE?_eq_getEntryGE?ₘ' [Ord α] (k : α) (t : Impl α β) :
+    getEntryGE? k t = getEntryGE?ₘ' k t := by
+  rw [getEntryGE?ₘ', getEntryGE?]
+  induction t, none using tree_split_ind (compare k) <;> simp [*, getEntryGE?.go, explore]
+
+theorem getEntryGE?_eq_getEntryGE?ₘ [Ord α] (k : α) (t : Impl α β) :
+    getEntryGE? k t = getEntryGE?ₘ k t := by
+  rw [getEntryGE?_eq_getEntryGE?ₘ', getEntryGE?ₘ', getEntryGE?ₘ, explore_eq_applyPartition] <;> simp
+
+/-- Implementation detail of the tree map -/
+def getEntryGT?ₘ [Ord α] (k : α) (t : Impl α β) : Option ((a : α) × β a) :=
+  applyPartition (fun k' => (compare k k').then .gt) t fun _ _ _ r => r.head?
+
+/-- Implementation detail of the tree map -/
+def getEntryGT?ₘ' [Ord α] (k : α) (t : Impl α β) : Option ((a : α) × β a) :=
+  t.explore (fun k' => (compare k k').then .gt) none fun
+  | _, .lt k' _ v _ => some ⟨k', v⟩
+  | base, .eq _ _ r => r.head?.or base
+  | base, .gt _ _ _ _ => base
+
+theorem getEntryGT?_eq_getEntryGT?ₘ' [Ord α] (k : α) (t : Impl α β) :
+    getEntryGT? k t = getEntryGT?ₘ' k t := by
+  rw [getEntryGT?ₘ', getEntryGT?]
+  induction t, none using tree_split_ind (compare k) <;> simp [*, getEntryGT?.go, explore]
+
+theorem getEntryGT?_eq_getEntryGT?ₘ [Ord α] (k : α) (t : Impl α β) :
+    getEntryGT? k t = getEntryGT?ₘ k t := by
+  rw [getEntryGT?_eq_getEntryGT?ₘ', getEntryGT?ₘ', getEntryGT?ₘ, explore_eq_applyPartition] <;> simp
+
+theorem getEntryLT?_eq_getEntryGT?_reverse [o : Ord α] [TransOrd α] {t : Impl α β} {k : α} :
+    getEntryLT? k t = @getEntryGT? α β o.opposite k t.reverse := by
+  rw [getEntryLT?, @getEntryGT?.eq_def, Ord.opposite]
+  induction t, none using tree_split_ind (compare k) <;>
+    simp only [*, getEntryLT?.go, reverse, getEntryGT?.go, OrientedCmp.eq_swap (b := k),
+      Ordering.swap]
+
+theorem getEntryLE?_eq_getEntryGE?_reverse [o : Ord α] [TransOrd α] {t : Impl α β} {k : α} :
+    getEntryLE? k t = @getEntryGE? α β o.opposite k t.reverse := by
+  rw [getEntryLE?, @getEntryGE?.eq_def, Ord.opposite]
+  induction t, none using tree_split_ind (compare k) <;>
+    simp only [*, getEntryLE?.go, reverse, getEntryGE?.go, OrientedCmp.eq_swap (b := k),
+      Ordering.swap]
+
+theorem getEntryGE!_eq_get!_getEntryGE? [Ord α] {t : Impl α β} {k : α} [Inhabited ((a : α) × β a)] :
+    t.getEntryGE! k = (t.getEntryGE? k).get! := rfl
+
+theorem getEntryGT!_eq_get!_getEntryGT? [Ord α] {t : Impl α β} {k : α} [Inhabited ((a : α) × β a)] :
+    t.getEntryGT! k = (t.getEntryGT? k).get! := rfl
+
+theorem getEntryLE!_eq_get!_getEntryLE? [Ord α] {t : Impl α β} {k : α} [Inhabited ((a : α) × β a)] :
+    t.getEntryLE! k = (t.getEntryLE? k).get! := rfl
+
+theorem getEntryLT!_eq_get!_getEntryLT? [Ord α] {t : Impl α β} {k : α} [Inhabited ((a : α) × β a)] :
+    t.getEntryLT! k = (t.getEntryLT? k).get! := rfl
+
+theorem getEntryGED_eq_getD_getEntryGE? [Ord α] {t : Impl α β} {k : α} {fallback : (a : α) × β a} :
+    t.getEntryGED k fallback = (t.getEntryGE? k).getD fallback := rfl
+
+theorem getEntryGTD_eq_getD_getEntryGT? [Ord α] {t : Impl α β} {k : α} {fallback : (a : α) × β a} :
+    t.getEntryGTD k fallback = (t.getEntryGT? k).getD fallback := rfl
+
+theorem getEntryLED_eq_getD_getEntryLE? [Ord α] {t : Impl α β} {k : α} {fallback : (a : α) × β a} :
+    t.getEntryLED k fallback = (t.getEntryLE? k).getD fallback := rfl
+
+theorem getEntryLTD_eq_getD_getEntryLT? [Ord α] {t : Impl α β} {k : α} {fallback : (a : α) × β a} :
+    t.getEntryLTD k fallback = (t.getEntryLT? k).getD fallback := rfl
+
+theorem getEntryGE?.eq_go [Ord α] (k : α) (x) (t : Impl α β) :
+    (getEntryGE? k t).or x = getEntryGE?.go k x t := by
+  rw [getEntryGE?]
+  induction t, x using tree_split_ind (compare k) <;>
+    simp only [go, Option.none_or, Option.some_or, *]
+  case _ ih _ => rw [← ih, Option.or_assoc, Option.some_or]
+
+theorem getEntryGT?.eq_go [Ord α] (k : α) (x) (t : Impl α β) :
+    (getEntryGT? k t).or x = getEntryGT?.go k x t := by
+  rw [getEntryGT?]
+  induction t, x using tree_split_ind (compare k) <;>
+    simp only [go, Option.none_or, Option.some_or, *]
+  case _ ih _ => rw [← ih, Option.or_assoc, Option.some_or]
+
+theorem getEntryLE?.eq_go [Ord α] (k : α) (x) (t : Impl α β) :
+    (getEntryLE? k t).or x = getEntryLE?.go k x t := by
+  rw [getEntryLE?]
+  induction t, x using tree_split_ind (compare k) <;>
+    simp only [go, Option.none_or, Option.some_or, *]
+  case _ ih _ => rw [← ih, Option.or_assoc, Option.some_or]
+
+theorem getEntryLT?.eq_go [Ord α] (k : α) (x) (t : Impl α β) :
+    (getEntryLT? k t).or x = getEntryLT?.go k x t := by
+  rw [getEntryLT?]
+  induction t, x using tree_split_ind (compare k) <;>
+    simp only [go, Option.none_or, Option.some_or, *]
+  case _ ih _ => rw [← ih, Option.or_assoc, Option.some_or]
+
+theorem some_getEntryGE_eq_getEntryGE? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
+    some (getEntryGE k t ho he) = getEntryGE? k t := by
+  rw [getEntryGE?]; apply of_eq_true
+  induction t, none using tree_split_ind (compare k) <;>
+    simp only [*, getEntryGE?.go, getEntryGE, getEntryGED, ← Option.or_some',
+      getEntryGE?.eq_go] <;> contradiction
+
+theorem some_getEntryGT_eq_getEntryGT? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
+    some (getEntryGT k t ho he) = getEntryGT? k t := by
+  rw [getEntryGT?]; apply of_eq_true
+  induction t, none using tree_split_ind (compare k) <;>
+    simp only [*, getEntryGT?.go, getEntryGT, getEntryGTD, ← Option.or_some',
+      getEntryGT?.eq_go, ↓reduceDIte, reduceCtorEq] <;> contradiction
+
+theorem some_getEntryLE_eq_getEntryLE? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
+    some (getEntryLE k t ho he) = getEntryLE? k t := by
+  rw [getEntryLE?]; apply of_eq_true
+  induction t, none using tree_split_ind (compare k) <;>
+    simp only [*, getEntryLE?.go, getEntryLE, getEntryLED, ← Option.or_some',
+      getEntryLE?.eq_go] <;> contradiction
+
+theorem some_getEntryLT_eq_getEntryLT? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
+    some (getEntryLT k t ho he) = getEntryLT? k t := by
+  rw [getEntryLT?]; apply of_eq_true
+  induction t, none using tree_split_ind (compare k) <;>
+    simp only [*, getEntryLT?.go, getEntryLT, getEntryLTD, ← Option.or_some',
+      getEntryLT?.eq_go, ↓reduceDIte, reduceCtorEq] <;> contradiction
+
+theorem getKeyGE?_eq_getEntryGE? [Ord α] {t : Impl α β} {k : α} :
+    getKeyGE? k t = (getEntryGE? k t).map (·.1) := by
+  rw [getKeyGE?, getEntryGE?]; symm
+  change _ = getKeyGE?.go k (Option.map (·.1) (none : Option ((a : α) × β a))) _
+  induction t, none using tree_split_ind (compare k) <;> simp [getKeyGE?.go, getEntryGE?.go, *]
+
+theorem getKeyGT?_eq_getEntryGT? [Ord α] {t : Impl α β} {k : α} :
+    getKeyGT? k t = (getEntryGT? k t).map (·.1) := by
+  rw [getKeyGT?, getEntryGT?]; symm
+  change _ = getKeyGT?.go k (Option.map (·.1) (none : Option ((a : α) × β a))) _
+  induction t, none using tree_split_ind (compare k) <;> simp [getKeyGT?.go, getEntryGT?.go, *]
+
+theorem getKeyLE?_eq_getEntryLE? [Ord α] {t : Impl α β} {k : α} :
+    getKeyLE? k t = (getEntryLE? k t).map (·.1) := by
+  rw [getKeyLE?, getEntryLE?]; symm
+  change _ = getKeyLE?.go k (Option.map (·.1) (none : Option ((a : α) × β a))) _
+  induction t, none using tree_split_ind (compare k) <;> simp [getKeyLE?.go, getEntryLE?.go, *]
+
+theorem getKeyLT?_eq_getEntryLT? [Ord α] {t : Impl α β} {k : α} :
+    getKeyLT? k t = (getEntryLT? k t).map (·.1) := by
+  rw [getKeyLT?, getEntryLT?]; symm
+  change _ = getKeyLT?.go k (Option.map (·.1) (none : Option ((a : α) × β a))) _
+  induction t, none using tree_split_ind (compare k) <;> simp [getKeyLT?.go, getEntryLT?.go, *]
+
+theorem getKeyGE!_eq_get!_getKeyGE? [Ord α] {t : Impl α β} {k : α} [Inhabited α] :
+    t.getKeyGE! k = (t.getKeyGE? k).get! := rfl
+
+theorem getKeyGT!_eq_get!_getKeyGT? [Ord α] {t : Impl α β} {k : α} [Inhabited α] :
+    t.getKeyGT! k = (t.getKeyGT? k).get! := rfl
+
+theorem getKeyLE!_eq_get!_getKeyLE? [Ord α] {t : Impl α β} {k : α} [Inhabited α] :
+    t.getKeyLE! k = (t.getKeyLE? k).get! := rfl
+
+theorem getKeyLT!_eq_get!_getKeyLT? [Ord α] {t : Impl α β} {k : α} [Inhabited α] :
+    t.getKeyLT! k = (t.getKeyLT? k).get! := rfl
+
+theorem getKeyGED_eq_getD_getKeyGE? [Ord α] {t : Impl α β} {k fallback : α} :
+    t.getKeyGED k fallback = (t.getKeyGE? k).getD fallback := rfl
+
+theorem getKeyGTD_eq_getD_getKeyGT? [Ord α] {t : Impl α β} {k fallback : α} :
+    t.getKeyGTD k fallback = (t.getKeyGT? k).getD fallback := rfl
+
+theorem getKeyLED_eq_getD_getKeyLE? [Ord α] {t : Impl α β} {k fallback : α} :
+    t.getKeyLED k fallback = (t.getKeyLE? k).getD fallback := rfl
+
+theorem getKeyLTD_eq_getD_getKeyLT? [Ord α] {t : Impl α β} {k fallback : α} :
+    t.getKeyLTD k fallback = (t.getKeyLT? k).getD fallback := rfl
+
+theorem getKeyGE_eq_getEntryGE [Ord α] [TransOrd α] {t : Impl α β} {k : α} {hto he} :
+    getKeyGE k t hto he = (getEntryGE k t hto he).1 := by
+  induction t using tree_split_ind_no_gen (compare k) <;> simp only [getKeyGE, getEntryGE, *]
+  · contradiction
+  · rw [getKeyGED, getEntryGED, getKeyGE?_eq_getEntryGE?]; symm
+    exact (Option.getD_map _ _ _).symm
+
+theorem getKeyGT_eq_getEntryGT [Ord α] [TransOrd α] {t : Impl α β} {k : α} {hto he} :
+    getKeyGT k t hto he = (getEntryGT k t hto he).1 := by
+  induction t using tree_split_ind_no_gen (compare k) <;>
+    simp only [getKeyGT, getEntryGT, *, ↓reduceDIte, reduceCtorEq]
+  · contradiction
+  · rw [getKeyGTD, getEntryGTD, getKeyGT?_eq_getEntryGT?]; symm
+    exact (Option.getD_map _ _ _).symm
+
+theorem getKeyLE_eq_getEntryLE [Ord α] [TransOrd α] {t : Impl α β} {k : α} {hto he} :
+    getKeyLE k t hto he = (getEntryLE k t hto he).1 := by
+  induction t using tree_split_ind_no_gen (compare k) <;> simp only [getKeyLE, getEntryLE, *]
+  · contradiction
+  · rw [getKeyLED, getEntryLED, getKeyLE?_eq_getEntryLE?]; symm
+    exact (Option.getD_map _ _ _).symm
+
+theorem getKeyLT_eq_getEntryLT [Ord α] [TransOrd α] {t : Impl α β} {k : α} {hto he} :
+    getKeyLT k t hto he = (getEntryLT k t hto he).1 := by
+  induction t using tree_split_ind_no_gen (compare k) <;>
+    simp only [getKeyLT, getEntryLT, *, ↓reduceDIte, reduceCtorEq]
+  · contradiction
+  · rw [getKeyLTD, getEntryLTD, getKeyLT?_eq_getEntryLT?]; symm
+    exact (Option.getD_map _ _ _).symm
+
+namespace Const
+
+variable {β : Type v}
+
+theorem getEntryGE?_eq_map [Ord α] {t : Impl α fun _ => β} {k : α} :
+    getEntryGE? k t = (Impl.getEntryGE? k t).map (fun x => (x.1, x.2)) := by
+  rw [getEntryGE?, Impl.getEntryGE?]; symm
+  change _ = getEntryGE?.go k (Option.map (fun x => (x.1, x.2)) (none : Option ((_ : α) × β))) _
+  induction t, none using tree_split_ind (compare k) <;> simp [getEntryGE?.go, Impl.getEntryGE?.go, *]
+
+theorem getEntryGT?_eq_map [Ord α] {t : Impl α fun _ => β} {k : α} :
+    getEntryGT? k t = (Impl.getEntryGT? k t).map (fun x => (x.1, x.2)) := by
+  rw [getEntryGT?, Impl.getEntryGT?]; symm
+  change _ = getEntryGT?.go k (Option.map (fun x => (x.1, x.2)) (none : Option ((_ : α) × β))) _
+  induction t, none using tree_split_ind (compare k) <;> simp [getEntryGT?.go, Impl.getEntryGT?.go, *]
+
+theorem getEntryLE?_eq_map [Ord α] {t : Impl α fun _ => β} {k : α} :
+    getEntryLE? k t = (Impl.getEntryLE? k t).map (fun x => (x.1, x.2)) := by
+  rw [getEntryLE?, Impl.getEntryLE?]; symm
+  change _ = getEntryLE?.go k (Option.map (fun x => (x.1, x.2)) (none : Option ((_ : α) × β))) _
+  induction t, none using tree_split_ind (compare k) <;> simp [getEntryLE?.go, Impl.getEntryLE?.go, *]
+
+theorem getEntryLT?_eq_map [Ord α] {t : Impl α fun _ => β} {k : α} :
+    getEntryLT? k t = (Impl.getEntryLT? k t).map (fun x => (x.1, x.2)) := by
+  rw [getEntryLT?, Impl.getEntryLT?]; symm
+  change _ = getEntryLT?.go k (Option.map (fun x => (x.1, x.2)) (none : Option ((_ : α) × β))) _
+  induction t, none using tree_split_ind (compare k) <;> simp [getEntryLT?.go, Impl.getEntryLT?.go, *]
+
+theorem getEntryGE!_eq_get!_getEntryGE? [Ord α] {t : Impl α fun _ => β} {k : α} [Inhabited (α × β)] :
+    getEntryGE! k t = (getEntryGE? k t).get! := rfl
+
+theorem getEntryGT!_eq_get!_getEntryGT? [Ord α] {t : Impl α fun _ => β} {k : α} [Inhabited (α × β)] :
+    getEntryGT! k t = (getEntryGT? k t).get! := rfl
+
+theorem getEntryLE!_eq_get!_getEntryLE? [Ord α] {t : Impl α fun _ => β} {k : α} [Inhabited (α × β)] :
+    getEntryLE! k t = (getEntryLE? k t).get! := rfl
+
+theorem getEntryLT!_eq_get!_getEntryLT? [Ord α] {t : Impl α fun _ => β} {k : α} [Inhabited (α × β)] :
+    getEntryLT! k t = (getEntryLT? k t).get! := rfl
+
+theorem getEntryGED_eq_getD_getEntryGE? [Ord α] {t : Impl α fun _ => β} {k : α} {fallback : α × β} :
+    getEntryGED k t fallback = (getEntryGE? k t).getD fallback := rfl
+
+theorem getEntryGTD_eq_getD_getEntryGT? [Ord α] {t : Impl α fun _ => β} {k : α} {fallback : α × β} :
+    getEntryGTD k t fallback = (getEntryGT? k t).getD fallback := rfl
+
+theorem getEntryLED_eq_getD_getEntryLE? [Ord α] {t : Impl α fun _ => β} {k : α} {fallback : α × β} :
+    getEntryLED k t fallback = (getEntryLE? k t).getD fallback := rfl
+
+theorem getEntryLTD_eq_getD_getEntryLT? [Ord α] {t : Impl α fun _ => β} {k : α} {fallback : α × β} :
+    getEntryLTD k t fallback = (getEntryLT? k t).getD fallback := rfl
+
+theorem getEntryGE_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
+    getEntryGE k t hto he = (letI e := Impl.getEntryGE k t hto he; (e.1, e.2)) := by
+  induction t using tree_split_ind_no_gen (compare k) <;> simp only [getEntryGE, Impl.getEntryGE, *]
+  · contradiction
+  · rename_i l _ _ _
+    rw [getEntryGED, Impl.getEntryGED, getEntryGE?_eq_map]
+    exact Option.getD_map (fun x => (x.1, x.2)) ⟨_, _⟩ (Impl.getEntryGE? k l)
+
+theorem getEntryGT_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
+    getEntryGT k t hto he = (letI e := Impl.getEntryGT k t hto he; (e.1, e.2)) := by
+  induction t using tree_split_ind_no_gen (compare k) <;>
+    simp only [getEntryGT, Impl.getEntryGT, *, ↓reduceDIte, reduceCtorEq]
+  · contradiction
+  · rename_i l _ _ _
+    rw [getEntryGTD, Impl.getEntryGTD, getEntryGT?_eq_map]
+    exact Option.getD_map (fun x => (x.1, x.2)) ⟨_, _⟩ (Impl.getEntryGT? k l)
+
+theorem getEntryLE_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
+    getEntryLE k t hto he = (letI e := Impl.getEntryLE k t hto he; (e.1, e.2)) := by
+  induction t using tree_split_ind_no_gen (compare k) <;> simp only [getEntryLE, Impl.getEntryLE, *]
+  · contradiction
+  · rename_i r _ _
+    rw [getEntryLED, Impl.getEntryLED, getEntryLE?_eq_map]
+    exact Option.getD_map (fun x => (x.1, x.2)) ⟨_, _⟩ (Impl.getEntryLE? k r)
+
+theorem getEntryLT_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
+    getEntryLT k t hto he = (letI e := Impl.getEntryLT k t hto he; (e.1, e.2)) := by
+  induction t using tree_split_ind_no_gen (compare k) <;>
+    simp only [getEntryLT, Impl.getEntryLT, *, ↓reduceDIte, reduceCtorEq]
+  · contradiction
+  · rename_i r _ _
+    rw [getEntryLTD, Impl.getEntryLTD, getEntryLT?_eq_map]
+    exact Option.getD_map (fun x => (x.1, x.2)) ⟨_, _⟩ (Impl.getEntryLT? k r)
 
 end Const
 

@@ -313,7 +313,7 @@ theorem getElem_zero {l : List α} (h : 0 < l.length) : l[0] = l.head (length_po
   match l, h with
   | _ :: _, _ => rfl
 
-@[ext, grind ext] theorem ext_getElem? {l₁ l₂ : List α} (h : ∀ i : Nat, l₁[i]? = l₂[i]?) : l₁ = l₂ :=
+@[ext] theorem ext_getElem? {l₁ l₂ : List α} (h : ∀ i : Nat, l₁[i]? = l₂[i]?) : l₁ = l₂ :=
   match l₁, l₂, h with
   | [], [], _ => rfl
   | _ :: _, [], h => by simpa using h 0

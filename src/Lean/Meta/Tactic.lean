@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Generalize
 import Lean.Meta.Tactic.Replace
+import Lean.Meta.Tactic.Lets
 import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.ElimInfo

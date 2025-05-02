@@ -68,6 +68,13 @@ structure Context where
   when performing lookahead.
   -/
   cheapCases : Bool := false
+  /-
+  If `reportMVarIssue` is `true`, `grind` reports an issue when internalizing metavariables.
+  The default value is `true`. We set it to `false` when invoking `proveEq` from the `instantiateTheorem`
+  at in the E-matching module. There, the terms may contain metavariables, and we don't want to bother
+  user with "false-alarms". If the instantiation fails, we produce a more informative issue anyways.
+  -/
+  reportMVarIssue : Bool := true
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -147,6 +154,16 @@ instance : Nonempty MethodsRef := MethodsRefPointed.property
 
 abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
+@[inline] def mapGrindM [MonadControlT GrindM m] [Monad m] (f : {α : Type} → GrindM α → GrindM α) {α} (x : m α) : m α :=
+  controlAt GrindM fun runInBase => f <| runInBase x
+
+/--
+`withoutReportingMVarIssues x` executes `x` without reporting metavariables found during internalization.
+See comment at `Grind.Context.reportMVarIssue` for additional details.
+-/
+def withoutReportingMVarIssues [MonadControlT GrindM m] [Monad m] : m α → m α :=
+  mapGrindM <| withTheReader Grind.Context fun ctx => { ctx with reportMVarIssue := false }
+
 /-- Returns the user-defined configuration options -/
 def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
@@ -176,6 +193,9 @@ def getMainDeclName : GrindM Name :=
 
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
+
+def reportMVarInternalization : GrindM Bool :=
+  return (← readThe Context).reportMVarIssue
 
 def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
@@ -323,6 +343,11 @@ structure ENode where
   to the cutsat module. Its implementation is similar to the `offset?` field.
   -/
   cutsat? : Option Expr := none
+  /--
+  The `ring?` field is used to propagate equalities from the `grind` congruence closure module
+  to the comm ring module. Its implementation is similar to the `offset?` field.
+  -/
+  ring? : Option Expr := none
   -- Remark: we expect to have builtin support for offset constraints, cutsat, and comm ring.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
@@ -491,24 +516,37 @@ inductive SplitInfo where
     Term `e` may be an inductive predicate, `match`-expression, `if`-expression, implication, etc.
     -/
     default (e : Expr)
+  /-- `e` is an implication and we want to split on its antecedent. -/
+  | imp (e : Expr) (h : e.isForall)
   | /--
     Given applications `a` and `b`, case-split on whether the corresponding
     `i`-th arguments are equal or not. The split is only performed if all other
     arguments are already known to be equal or are also tagged as split candidates.
     -/
     arg (a b : Expr) (i : Nat) (eq : Expr)
-  deriving BEq, Hashable, Inhabited
+  deriving Hashable, Inhabited
+
+def SplitInfo.beq : SplitInfo → SplitInfo → Bool
+ | .default e₁, .default e₂ => e₁ == e₂
+ | .imp e₁ _, .imp e₂ _ => e₁ == e₂
+ | .arg a₁ b₁ i₁ eq₁, arg a₂ b₂ i₂ eq₂ => a₁ == a₂ && b₁ == b₂ && i₁ == i₂ && eq₁ == eq₂
+ | _, _ => false
+
+instance : BEq SplitInfo where
+  beq := SplitInfo.beq
 
 def SplitInfo.getExpr : SplitInfo → Expr
-  | .default (.forallE _ d _ _) => d
   | .default e => e
+  | .imp e h => e.forallDomain h
   | .arg _ _ _ eq => eq
 
 def SplitInfo.lt : SplitInfo → SplitInfo → Bool
-  | .default e₁, .default e₂       => e₁.lt e₂
+  | .default e₁, .default e₂     => e₁.lt e₂
+  | .imp e₁ _, .imp e₂ _         => e₁.lt e₂
   | .arg _ _ _ e₁, .arg _ _ _ e₂ => e₁.lt e₂
-  | .default _, .arg ..           => true
-  | .arg .., .default _           => false
+  | .default .., _               => true
+  | .imp .., _                   => true
+  | _, _                         => false
 
 /-- Argument `arg : type` of an application `app` in `SplitInfo`. -/
 structure SplitArg where
@@ -1014,6 +1052,53 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
   else
     setENode root.self { root with cutsat? := some e }
     propagateCutsatDiseqs (← getParents root.self)
+
+/--
+Notifies the comm ring module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ring_eq"] -- forward definition
+opaque Arith.CommRing.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the comm ring module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_ring_diseq"] -- forward definition
+opaque Arith.CommRing.processNewDiseq (a b : Expr) : GoalM Unit
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have ring terms `e₁` and `e₂` attached to them,
+and invokes process `Arith.CommRing.processNewDiseq e₁ e₂`
+-/
+def propagateCommRingDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  Arith.CommRing.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    return (← getRootENode a).ring?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+comm ring module.
+-/
+def propagateCommRingDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateCommRingDiseq
+
+/--
+Marks `e` as a term of interest to the ring module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the ring module.
+-/
+def markAsCommRingTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.ring? then
+    Arith.CommRing.processNewEq e e'
+  else
+    setENode root.self { root with ring? := some e }
+    propagateCommRingDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do

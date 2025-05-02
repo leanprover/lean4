@@ -51,14 +51,16 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_recBuildWithIndex___closed__2;
 LEAN_EXPORT lean_object* l_Lake_buildCycleError___at_Lake_recFetchWithIndex___spec__6___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_recFetchWithIndex___spec__2___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lake_BuildTrace_nil;
+lean_object* l_Lake_BuildTrace_nil(lean_object*);
 static lean_object* l_Lake_recBuildWithIndex___closed__6;
+static lean_object* l_Lake_recBuildWithIndex___closed__12;
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lake_recFetchWithIndex___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildCycleError___at_Lake_recFetchWithIndex___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lake_recFetchWithIndex___spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_recBuildWithIndex___closed__4;
 static lean_object* l_Lake_recBuildWithIndex___closed__10;
 LEAN_EXPORT lean_object* l_Lake_recFetch___at_Lake_recFetchWithIndex___spec__7___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_recBuildWithIndex___closed__11;
 lean_object* l_Lake_Workspace_findFacetConfig_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_FetchT_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
@@ -106,10 +108,27 @@ return x_2;
 static lean_object* _init_l_Lake_recBuildWithIndex___closed__4() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("<nil>", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_recBuildWithIndex___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lake_recBuildWithIndex___closed__4;
+x_2 = l_Lake_BuildTrace_nil(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lake_recBuildWithIndex___closed__6() {
+_start:
+{
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lake_recBuildWithIndex___closed__3;
 x_2 = 0;
-x_3 = l_Lake_BuildTrace_nil;
+x_3 = l_Lake_recBuildWithIndex___closed__5;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -117,7 +136,7 @@ lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_recBuildWithIndex___closed__5() {
+static lean_object* _init_l_Lake_recBuildWithIndex___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -125,7 +144,7 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_recBuildWithIndex___closed__6() {
+static lean_object* _init_l_Lake_recBuildWithIndex___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -133,7 +152,7 @@ x_1 = lean_mk_string_unchecked("': unknown facet '", 18, 18);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_recBuildWithIndex___closed__7() {
+static lean_object* _init_l_Lake_recBuildWithIndex___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -141,7 +160,7 @@ x_1 = lean_alloc_closure((void*)(l_Lake_recBuildWithIndex___lambda__1___boxed), 
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_recBuildWithIndex___closed__8() {
+static lean_object* _init_l_Lake_recBuildWithIndex___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -149,7 +168,7 @@ x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_recBuildWithIndex___closed__9() {
+static lean_object* _init_l_Lake_recBuildWithIndex___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -157,7 +176,7 @@ x_1 = lean_mk_string_unchecked("': target is of kind '", 22, 22);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_recBuildWithIndex___closed__10() {
+static lean_object* _init_l_Lake_recBuildWithIndex___closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -273,11 +292,11 @@ x_44 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_44, 0, x_8);
 lean_ctor_set(x_44, 1, x_40);
 lean_ctor_set(x_44, 2, x_42);
-x_45 = l_Lake_recBuildWithIndex___closed__4;
+x_45 = l_Lake_recBuildWithIndex___closed__6;
 lean_ctor_set(x_1, 1, x_45);
 lean_ctor_set(x_1, 0, x_44);
 x_46 = lean_task_pure(x_1);
-x_47 = l_Lake_recBuildWithIndex___closed__5;
+x_47 = l_Lake_recBuildWithIndex___closed__7;
 x_48 = 0;
 x_49 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_49, 0, x_46);
@@ -331,12 +350,12 @@ x_59 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_59, 0, x_8);
 lean_ctor_set(x_59, 1, x_55);
 lean_ctor_set(x_59, 2, x_57);
-x_60 = l_Lake_recBuildWithIndex___closed__4;
+x_60 = l_Lake_recBuildWithIndex___closed__6;
 x_61 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_61, 0, x_59);
 lean_ctor_set(x_61, 1, x_60);
 x_62 = lean_task_pure(x_61);
-x_63 = l_Lake_recBuildWithIndex___closed__5;
+x_63 = l_Lake_recBuildWithIndex___closed__7;
 x_64 = 0;
 x_65 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_65, 0, x_62);
@@ -392,14 +411,14 @@ x_76 = l_Lake_BuildKey_toString(x_75);
 x_77 = l_Lake_recBuildWithIndex___closed__1;
 x_78 = lean_string_append(x_77, x_76);
 lean_dec(x_76);
-x_79 = l_Lake_recBuildWithIndex___closed__6;
+x_79 = l_Lake_recBuildWithIndex___closed__8;
 x_80 = lean_string_append(x_78, x_79);
 x_81 = 1;
-x_82 = l_Lake_recBuildWithIndex___closed__7;
+x_82 = l_Lake_recBuildWithIndex___closed__9;
 x_83 = l_Lean_Name_toString(x_72, x_81, x_82);
 x_84 = lean_string_append(x_80, x_83);
 lean_dec(x_83);
-x_85 = l_Lake_recBuildWithIndex___closed__8;
+x_85 = l_Lake_recBuildWithIndex___closed__10;
 x_86 = lean_string_append(x_84, x_85);
 x_87 = 3;
 x_88 = lean_alloc_ctor(0, 1, 1);
@@ -439,19 +458,19 @@ x_97 = l_Lake_BuildKey_toString(x_96);
 x_98 = l_Lake_recBuildWithIndex___closed__1;
 x_99 = lean_string_append(x_98, x_97);
 lean_dec(x_97);
-x_100 = l_Lake_recBuildWithIndex___closed__9;
+x_100 = l_Lake_recBuildWithIndex___closed__11;
 x_101 = lean_string_append(x_99, x_100);
 x_102 = 1;
-x_103 = l_Lake_recBuildWithIndex___closed__7;
+x_103 = l_Lake_recBuildWithIndex___closed__9;
 x_104 = l_Lean_Name_toString(x_70, x_102, x_103);
 x_105 = lean_string_append(x_101, x_104);
 lean_dec(x_104);
-x_106 = l_Lake_recBuildWithIndex___closed__10;
+x_106 = l_Lake_recBuildWithIndex___closed__12;
 x_107 = lean_string_append(x_105, x_106);
 x_108 = l_Lean_Name_toString(x_94, x_102, x_103);
 x_109 = lean_string_append(x_107, x_108);
 lean_dec(x_108);
-x_110 = l_Lake_recBuildWithIndex___closed__8;
+x_110 = l_Lake_recBuildWithIndex___closed__10;
 x_111 = lean_string_append(x_109, x_110);
 x_112 = 3;
 x_113 = lean_alloc_ctor(0, 1, 1);
@@ -3135,7 +3154,7 @@ x_7 = l_Lake_formatCycle___at_Lake_instMonadCycleOfBuildKeyRecBuildTOfMonadOfMon
 x_8 = l_Lake_buildCycleError___at_Lake_recFetchWithIndex___spec__6___rarg___closed__1;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
-x_10 = l_Lake_recBuildWithIndex___closed__5;
+x_10 = l_Lake_recBuildWithIndex___closed__7;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = 3;
 x_13 = lean_alloc_ctor(0, 1, 1);
@@ -3725,6 +3744,10 @@ l_Lake_recBuildWithIndex___closed__9 = _init_l_Lake_recBuildWithIndex___closed__
 lean_mark_persistent(l_Lake_recBuildWithIndex___closed__9);
 l_Lake_recBuildWithIndex___closed__10 = _init_l_Lake_recBuildWithIndex___closed__10();
 lean_mark_persistent(l_Lake_recBuildWithIndex___closed__10);
+l_Lake_recBuildWithIndex___closed__11 = _init_l_Lake_recBuildWithIndex___closed__11();
+lean_mark_persistent(l_Lake_recBuildWithIndex___closed__11);
+l_Lake_recBuildWithIndex___closed__12 = _init_l_Lake_recBuildWithIndex___closed__12();
+lean_mark_persistent(l_Lake_recBuildWithIndex___closed__12);
 l_Lake_buildCycleError___at_Lake_recFetchWithIndex___spec__6___rarg___closed__1 = _init_l_Lake_buildCycleError___at_Lake_recFetchWithIndex___spec__6___rarg___closed__1();
 lean_mark_persistent(l_Lake_buildCycleError___at_Lake_recFetchWithIndex___spec__6___rarg___closed__1);
 l_Lake_recFetch___at_Lake_recFetchWithIndex___spec__7___closed__1 = _init_l_Lake_recFetch___at_Lake_recFetchWithIndex___spec__7___closed__1();

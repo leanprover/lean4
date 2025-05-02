@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.List.Sort.Lemmas
 
@@ -39,7 +41,7 @@ open List
 namespace List.MergeSort.Internal
 
 /--
-`O(min |l| |r|)`. Merge two lists using `le` as a switch.
+`O(|l₁| + |l₂|)`. Merge two lists using `le` as a switch.
 -/
 def mergeTR (l₁ l₂ : List α) (le : α → α → Bool) : List α :=
   go l₁ l₂ []

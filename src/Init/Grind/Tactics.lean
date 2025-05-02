@@ -3,6 +3,8 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Tactics
 
@@ -62,7 +64,7 @@ structure Config where
   splitIndPred : Bool := false
   /--
   If `splitImp` is `true`, then given an implication `p → q` or `(h : p) → q h`, `grind` splits on `p`
-  it the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
+  if the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
   -/
   splitImp : Bool := false
   /-- By default, `grind` halts as soon as it encounters a sub-goal where no further progress can be made. -/
@@ -112,6 +114,16 @@ structure Config where
   That is, `let x := v; e[x]` reduces to `e[v]`. See also `zetaDelta`.
   -/
   zeta := true
+  /--
+  When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
+  -/
+  ring := false
+  ringSteps := 10000
+  /--
+  When `true` (default: `false`), the commutative ring procedure in `grind` constructs stepwise
+  proof terms, instead of a single-step Nullstellensatz certificate
+  -/
+  ringNull := false
   deriving Inhabited, BEq
 
 end Lean.Grind

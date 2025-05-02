@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Range
@@ -374,7 +376,7 @@ theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {k i : Nat} {x : α} {l : List α}
 
 /-- Variant of `mk_mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
 to avoid the inequality and the subtraction. -/
-theorem mk_mem_zipIdx_iff_getElem? {i : Nat} {x : α} {l : List α} : (x, i) ∈ zipIdx l ↔ l[i]? = x := by
+theorem mk_mem_zipIdx_iff_getElem? {i : Nat} {x : α} {l : List α} : (x, i) ∈ zipIdx l ↔ l[i]? = some x := by
   simp [mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
 theorem mem_zipIdx_iff_le_and_getElem?_sub {x : α × Nat} {l : List α} {k : Nat} :
@@ -505,7 +507,7 @@ theorem mk_add_mem_enumFrom_iff_getElem? {n i : Nat} {x : α} {l : List α} :
 
 @[deprecated mk_mem_zipIdx_iff_le_and_getElem?_sub (since := "2025-01-21")]
 theorem mk_mem_enumFrom_iff_le_and_getElem?_sub {n i : Nat} {x : α} {l : List α} :
-    (i, x) ∈ enumFrom n l ↔ n ≤ i ∧ l[i - n]? = x := by
+    (i, x) ∈ enumFrom n l ↔ n ≤ i ∧ l[i - n]? = some x := by
   if h : n ≤ i then
     rcases Nat.exists_eq_add_of_le h with ⟨i, rfl⟩
     simp [mk_add_mem_enumFrom_iff_getElem?, Nat.add_sub_cancel_left]
@@ -648,7 +650,7 @@ theorem tail_enum (l : List α) : (enum l).tail = enumFrom 1 l.tail := by
   simp [enum]
 
 @[deprecated mk_mem_zipIdx_iff_getElem? (since := "2025-01-21")]
-theorem mk_mem_enum_iff_getElem? {i : Nat} {x : α} {l : List α} : (i, x) ∈ enum l ↔ l[i]? = x := by
+theorem mk_mem_enum_iff_getElem? {i : Nat} {x : α} {l : List α} : (i, x) ∈ enum l ↔ l[i]? = some x := by
   simp [enum, mk_mem_enumFrom_iff_le_and_getElem?_sub]
 
 @[deprecated mem_zipIdx_iff_getElem? (since := "2025-01-21")]

@@ -10,34 +10,51 @@ import Lean.CoreM
 
 namespace Lean.Elab
 
-def headerToImports (header : Syntax) : Array Import :=
-  let imports := if header[0].isNone then #[{ module := `Init : Import }] else #[]
-  imports ++ header[1].getArgs.map fun stx =>
-    -- `stx` is of the form `(Module.import "import" "runtime"? id)
-    let runtime := !stx[1].isNone
-    let id      := stx[2].getId
-    { module := id, runtimeOnly := runtime }
+def headerToImports : TSyntax ``Parser.Module.header → Array Import
+  | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
+    let imports := if preludeTk.isNone then #[{ module := `Init : Import }] else #[]
+    imports ++ importsStx.map fun
+      | `(Parser.Module.import| $[private%$privateTk]? import $[all%$allTk]? $n) =>
+        { module := n.getId, importAll := allTk.isSome, isExported := privateTk.isNone }
+      | _ => unreachable!
+  | _ => unreachable!
 
-def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
+/--
+Elaborates the given header syntax into an environment.
+
+If `mainModule` is not given, `Environment.setMainModule` should be called manually. This is a
+backwards compatibility measure not compatible with the module system.
+-/
+def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options) (messages : MessageLog)
     (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
-    (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (plugins : Array System.FilePath := #[]) (leakEnv := false) (mainModule := Name.anonymous)
     : IO (Environment × MessageLog) := do
-  let level := if experimental.module.get opts then
+  let isModule := !header.raw[0].isNone
+  let level := if isModule then
     if Elab.inServer.get opts then
       .server
     else
       .exported
   else
     .private
-  try
+  let (env, messages) ← try
+    let imports := headerToImports header
+    for i in imports do
+      if !isModule && i.importAll then
+        throw <| .userError "cannot use `import all` without `module`"
+      if i.importAll && mainModule.getRoot != i.module.getRoot then
+        throw <| .userError "cannot use `import all` across module path roots"
+      if !isModule && !i.isExported then
+        throw <| .userError "cannot use `private import` without `module`"
     let env ←
-      importModules (leakEnv := leakEnv) (loadExts := true) (level := level) (headerToImports header) opts trustLevel plugins
+      importModules (leakEnv := leakEnv) (loadExts := true) (level := level) imports opts trustLevel plugins
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment
-    let spos := header.getPos?.getD 0
+    let spos := header.raw.getPos?.getD 0
     let pos  := inputCtx.fileMap.toPosition spos
     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
+  return (env.setMainModule mainModule, messages)
 
 def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) := do
   let fileName := fileName.getD "<input>"

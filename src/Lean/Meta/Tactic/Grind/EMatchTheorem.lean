@@ -337,35 +337,54 @@ private def foundBVar (idx : Nat) : M Bool :=
 private def saveBVar (idx : Nat) : M Unit := do
   modify fun s => { s with bvarsFound := s.bvarsFound.insert idx }
 
-private def getPatternFn? (pattern : Expr) : Option Expr :=
-  if !pattern.isApp && !pattern.isConst then
-    none
-  else match pattern.getAppFn with
-    | f@(.const declName _) => if isForbidden declName then none else some f
-    | f@(.fvar _) => some f
-    | _ => none
+inductive PatternArgKind where
+  | /-- Argument is relevant for E-matching. -/
+    relevant
+  | /-- Instance implicit arguments are considered support and handled using `isDefEq`. -/
+    instImplicit
+  | /-- Proofs are ignored during E-matching. Lean is proof irrelevant. -/
+    proof
+  | /--
+    Types and type formers are mostly ignored during E-matching, and processed using
+    `isDefEq`. However, if the argument is of the form `C ..` where `C` is inductive type
+    we process it as part of the pattern. Suppose we have `as bs : List α`, and a pattern
+    candidate expression `as ++ bs`, i.e., `@HAppend.hAppend (List α) (List α) (List α) inst as bs`.
+    If we completely ignore the types, the pattern will just be
+    ```
+    @HAppend.hAppend _ _ _ _ #1 #0
+    ```
+    This is not ideal because the E-matcher will try it in any goal that contains `++`,
+    even if it does not even mention lists.
+    -/
+    typeFormer
+    deriving Repr
+
+def PatternArgKind.isSupport : PatternArgKind → Bool
+  | .relevant => false
+  | _ => true
 
 /--
-Returns a bit-mask `mask` s.t. `mask[i]` is true if the corresponding argument is
+Returns an array `kinds` s.ts `kinds[i]` is the kind of the corresponding argument.
+
 - a type (that is not a proposition) or type former (which has forward dependencies) or
 - a proof, or
 - an instance implicit argument
 
-When `mask[i]`, we say the corresponding argument is a "support" argument.
+When `kinds[i].isSupport` is `true`, we say the corresponding argument is a "support" argument.
 -/
-def getPatternSupportMask (f : Expr) (numArgs : Nat) : MetaM (Array Bool) := do
+def getPatternArgKinds (f : Expr) (numArgs : Nat) : MetaM (Array PatternArgKind) := do
   let pinfos := (← getFunInfoNArgs f numArgs).paramInfo
   forallBoundedTelescope (← inferType f) numArgs fun xs _ => do
     xs.mapIdxM fun idx x => do
       if (← isProp x) then
-        return false
+        return .relevant
       else if (← isProof x) then
-        return true
+        return .proof
       else if (← isTypeFormer x) then
         if h : idx < pinfos.size then
           /-
           We originally wanted to ignore types and type formers in `grind` and treat them as supporting elements.
-          Thus, we would always return `true`. However, we changed our heuristic because of the following example:
+          Thus, we wanted to always return `.typeFormer`. However, we changed our heuristic because of the following example:
           ```
           example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (f a) := by
             grind
@@ -374,33 +393,53 @@ def getPatternSupportMask (f : Expr) (numArgs : Nat) : MetaM (Array Bool) := do
           a type or type former is considered a supporting element only if it has forward dependencies.
           Note that this is not the case for `Nonempty`.
           -/
-          return pinfos[idx].hasFwdDeps
+          if pinfos[idx].hasFwdDeps then return .typeFormer else return .relevant
         else
-          return true
+          return .typeFormer
+      else if (← x.fvarId!.getDecl).binderInfo matches .instImplicit then
+        return .instImplicit
       else
-        return (← x.fvarId!.getDecl).binderInfo matches .instImplicit
+        return .relevant
 
-private partial def go (pattern : Expr) : M Expr := do
+private def getPatternFn? (pattern : Expr) (inSupport : Bool) (argKind : PatternArgKind) : MetaM (Option Expr) := do
+  if !pattern.isApp && !pattern.isConst then
+    return none
+  else match pattern.getAppFn with
+    | f@(.const declName _) =>
+      if isForbidden declName then
+        return none
+      if inSupport then
+        if argKind matches .typeFormer | .relevant then
+          if (← isInductive declName) then
+            return some f
+        return none
+      return some f
+    | f@(.fvar _) =>
+      if inSupport then return none else return some f
+    | _ =>
+      return none
+
+private partial def go (pattern : Expr) (inSupport : Bool) : M Expr := do
   if let some (e, k) := isOffsetPattern? pattern then
-    let e ← goArg e (isSupport := false)
+    let e ← goArg e inSupport .relevant
     if e == dontCare then
       return dontCare
     else
       return mkOffsetPattern e k
-  let some f := getPatternFn? pattern
+  let some f ← getPatternFn? pattern inSupport .relevant
     | throwError "invalid pattern, (non-forbidden) application expected{indentExpr pattern}"
   assert! f.isConst || f.isFVar
   unless f.isConstOf ``Grind.eqBwdPattern do
-   saveSymbol f.toHeadIndex
+    saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs.toVector
-  let supportMask ← getPatternSupportMask f args.size
+  let patternArgKinds ← getPatternArgKinds f args.size
   for h : i in [:args.size] do
     let arg := args[i]
-    let isSupport := supportMask[i]?.getD false
-    args := args.set i (← goArg arg isSupport)
+    let argKind := patternArgKinds[i]?.getD .relevant
+    args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind)
   return mkAppN f args.toArray
 where
-  goArg (arg : Expr) (isSupport : Bool) : M Expr := do
+  goArg (arg : Expr) (inSupport : Bool) (argKind : PatternArgKind) : M Expr := do
     if !arg.hasLooseBVars then
       if arg.hasMVar then
         pure dontCare
@@ -408,25 +447,23 @@ where
         pure <| mkGroundPattern arg
     else match arg with
       | .bvar idx =>
-        if isSupport && (← foundBVar idx) then
+        if inSupport && (← foundBVar idx) then
           pure dontCare
         else
           saveBVar idx
           pure arg
       | _ =>
-        if isSupport then
-          pure dontCare
-        else if let some _ := getPatternFn? arg then
-          go arg
+        if let some _ ← getPatternFn? arg inSupport argKind then
+          go arg inSupport
         else
           pure dontCare
 
 def main (patterns : List Expr) : MetaM (List Expr × List HeadIndex × Std.HashSet Nat) := do
-  let (patterns, s) ← patterns.mapM go |>.run {}
+  let (patterns, s) ← patterns.mapM (go (inSupport := false)) |>.run {}
   return (patterns, s.symbols.toList, s.bvarsFound)
 
 def normalizePattern (e : Expr) : M Expr := do
-  go e
+  go e (inSupport := false)
 
 end NormalizePattern
 
@@ -571,7 +608,8 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
 
 private def getProofFor (declName : Name) : MetaM Expr := do
   let info ← getConstInfo declName
-  unless info.isTheorem do
+  -- For theorems, `isProp` has already been checked at declaration time
+  unless wasOriginallyTheorem (← getEnv) declName do
     unless (← isProp info.type) do
       throwError "invalid E-matching theorem `{declName}`, type is not a proposition"
   let us := info.levelParams.map mkLevelParam
@@ -667,11 +705,11 @@ private def isPatternFnCandidate (f : Expr) : CollectorM Bool := do
   | _ => return false
 
 private def addNewPattern (p : Expr) : CollectorM Unit := do
-  trace[grind.ematch.pattern.search] "found pattern: {ppPattern p}"
+  trace[grind.debug.ematch.pattern] "found pattern: {ppPattern p}"
   let bvarsFound := (← getThe NormalizePattern.State).bvarsFound
   let done := (← checkCoverage (← read).proof (← read).xs.size bvarsFound) matches .ok
   if done then
-    trace[grind.ematch.pattern.search] "found full coverage"
+    trace[grind.debug.ematch.pattern] "found full coverage"
   modify fun s => { s with patterns := s.patterns.push p, done }
 
 /-- Collect the pattern (i.e., de Bruijn) variables in the given pattern. -/
@@ -695,10 +733,11 @@ Returns `true` if pattern `p` contains a child `c` such that
 3- `c` is not an offset pattern.
 4- `c` is not a bound variable.
 -/
-private def hasChildWithSameNewBVars (p : Expr) (supportMask : Array Bool) (alreadyFound : Std.HashSet Nat) : CoreM Bool := do
+private def hasChildWithSameNewBVars (p : Expr)
+    (argKinds : Array NormalizePattern.PatternArgKind) (alreadyFound : Std.HashSet Nat) : CoreM Bool := do
   let s := diff (collectPatternBVars p) alreadyFound
-  for arg in p.getAppArgs, support in supportMask do
-    unless support do
+  for arg in p.getAppArgs, argKind in argKinds do
+    unless argKind.isSupport do
     unless arg.isBVar do
     unless isOffsetPattern? arg |>.isSome do
       let sArg := diff (collectPatternBVars arg) alreadyFound
@@ -710,31 +749,33 @@ private partial def collect (e : Expr) : CollectorM Unit := do
   if (← get).done then return ()
   match e with
   | .app .. =>
+    trace[grind.debug.ematch.pattern] "collect: {e}"
     let f := e.getAppFn
-    let supportMask ← NormalizePattern.getPatternSupportMask f e.getAppNumArgs
+    let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
     if (← isPatternFnCandidate f) then
       let saved ← getThe NormalizePattern.State
       try
-        trace[grind.ematch.pattern.search] "candidate: {e}"
+        trace[grind.debug.ematch.pattern] "candidate: {e}"
         let p := e.abstract (← read).xs
         unless p.hasLooseBVars do
-          trace[grind.ematch.pattern.search] "skip, does not contain pattern variables"
+          trace[grind.debug.ematch.pattern] "skip, does not contain pattern variables"
           return ()
         let p ← NormalizePattern.normalizePattern p
         if saved.bvarsFound.size < (← getThe NormalizePattern.State).bvarsFound.size then
-          unless (← hasChildWithSameNewBVars p supportMask saved.bvarsFound) do
+          unless (← hasChildWithSameNewBVars p argKinds saved.bvarsFound) do
             addNewPattern p
             return ()
-        trace[grind.ematch.pattern.search] "skip, no new variables covered"
+        trace[grind.debug.ematch.pattern] "skip, no new variables covered"
         -- restore state and continue search
         set saved
-      catch _ =>
-        trace[grind.ematch.pattern.search] "skip, exception during normalization"
+      catch ex =>
+        trace[grind.debug.ematch.pattern] "skip, exception during normalization{indentD ex.toMessageData}"
         -- restore state and continue search
         set saved
     let args := e.getAppArgs
-    for arg in args, support in supportMask do
-      unless support do
+    for arg in args, argKind in argKinds do
+      trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
+      unless argKind.isSupport do
         collect arg
   | .forallE _ d b _ =>
     if (← pure e.isArrow <&&> isProp d <&&> isProp b) then
@@ -745,6 +786,7 @@ private partial def collect (e : Expr) : CollectorM Unit := do
 private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option (List Expr × List HeadIndex)) := do
   let go : CollectorM (Option (List Expr)) := do
     for place in searchPlaces do
+      trace[grind.debug.ematch.pattern] "place: {place}"
       let place ← preprocessPattern place
       collect place
       if (← get).done then
@@ -781,8 +823,8 @@ where
         return some e
       else
         let args := e.getAppArgs
-        for arg in args, flag in (← NormalizePattern.getPatternSupportMask f args.size) do
-          unless flag do
+        for arg in args, argKind in (← NormalizePattern.getPatternArgKinds f args.size) do
+          unless argKind.isSupport do
             if let some r ← visit? arg then
               return r
         return none
@@ -868,7 +910,7 @@ def mkEMatchEqTheoremsForDef? (declName : Name) : MetaM (Option (Array EMatchThe
     mkEMatchEqTheorem eqn (normalizePattern := true)
 
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (useLhs := true) : MetaM Unit := do
-  if (← getConstInfo declName).isTheorem then
+  if wasOriginallyTheorem (← getEnv) declName then
     ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs)) attrKind
   else if let some thms ← mkEMatchEqTheoremsForDef? declName then
     unless useLhs do
@@ -880,8 +922,7 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind
 def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMatchTheorems := do
   let throwErr {α} : MetaM α :=
     throwError "`{declName}` is not marked with the `[grind]` attribute"
-  let info ← getConstInfo declName
-  if !info.isTheorem then
+  if !wasOriginallyTheorem (← getEnv) declName then
     if let some eqns ← getEqnsFor? declName then
        let s := ematchTheoremsExt.getState (← getEnv)
        unless eqns.all fun eqn => s.contains (.decl eqn) do
@@ -904,7 +945,7 @@ def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatch
     addGrindEqAttr declName attrKind thmKind (useLhs := false)
   else
     let info ← getConstInfo declName
-    if !info.isTheorem && !info.isCtor && !info.isAxiom then
+    if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
       addGrindEqAttr declName attrKind thmKind
     else
       let thm ← mkEMatchTheoremForDecl declName thmKind

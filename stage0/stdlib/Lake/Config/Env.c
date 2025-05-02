@@ -2048,16 +2048,18 @@ x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_3);
 if (x_5 == 0)
 {
-lean_inc(x_2);
-return x_2;
+lean_object* x_6; 
+x_6 = lean_ctor_get(x_1, 4);
+lean_inc(x_6);
+return x_6;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_ctor_get(x_1, 1);
-x_7 = lean_ctor_get(x_6, 1);
-lean_inc(x_7);
-return x_7;
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_7, 1);
+lean_inc(x_8);
+return x_8;
 }
 }
 }
@@ -2081,14 +2083,16 @@ x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_3);
 if (x_5 == 0)
 {
-lean_inc(x_2);
-return x_2;
+lean_object* x_6; 
+x_6 = lean_ctor_get(x_1, 6);
+lean_inc(x_6);
+return x_6;
 }
 else
 {
-lean_object* x_6; 
-x_6 = l_Lean_toolchain;
-return x_6;
+lean_object* x_7; 
+x_7 = l_Lean_toolchain;
+return x_7;
 }
 }
 }

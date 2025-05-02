@@ -18,12 +18,12 @@ namespace Async
 
 This module provides a set of primitives for asynchronous programming:
 
-## Task types
+## Concurrent units of work
 
 - `ExceptTask`: A task that may fail with an error.
 - `AsyncTask`: A task that may fail with an `IO.Error` (alias for `ExceptTask IO.Error`)
 
-## Momadic Interfaces
+## Monadic Interfaces
 
 - `EAsync`: A monadic interface for working with asynchronous computations that may fail
 - `Async`: A monadic interface for IO-based asynchronous computations (alias for `EAsync IO.Error`)

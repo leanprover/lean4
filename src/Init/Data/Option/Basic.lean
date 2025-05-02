@@ -262,9 +262,9 @@ Extracts the value from an option that can be proven to be `some`.
 @[inline] def get {α : Type u} : (o : Option α) → isSome o → α
   | some x, _ => x
 
-@[simp] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
+@[simp, grind] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
 | some _, _ => rfl
-@[simp] theorem get_some (x : α) (h : isSome (some x)) : (some x).get h = x := rfl
+@[simp, grind] theorem get_some (x : α) (h : isSome (some x)) : (some x).get h = x := rfl
 
 /--
 Returns `none` if a value doesn't satisfy a Boolean predicate, or the value itself otherwise.
@@ -428,10 +428,10 @@ protected def min [Min α] : Option α → Option α → Option α
 
 instance [Min α] : Min (Option α) where min := Option.min
 
-@[simp] theorem min_some_some [Min α] {a b : α} : min (some a) (some b) = some (min a b) := rfl
-@[simp] theorem min_some_none [Min α] {a : α} : min (some a) none = none := rfl
-@[simp] theorem min_none_some [Min α] {b : α} : min none (some b) = none := rfl
-@[simp] theorem min_none_none [Min α] : min (none : Option α) none = none := rfl
+@[simp, grind] theorem min_some_some [Min α] {a b : α} : min (some a) (some b) = some (min a b) := rfl
+@[simp, grind] theorem min_some_none [Min α] {a : α} : min (some a) none = none := rfl
+@[simp, grind] theorem min_none_some [Min α] {b : α} : min none (some b) = none := rfl
+@[simp, grind] theorem min_none_none [Min α] : min (none : Option α) none = none := rfl
 
 /--
 The maximum of two optional values.
@@ -453,10 +453,10 @@ protected def max [Max α] : Option α → Option α → Option α
 
 instance [Max α] : Max (Option α) where max := Option.max
 
-@[simp] theorem max_some_some [Max α] {a b : α} : max (some a) (some b) = some (max a b) := rfl
-@[simp] theorem max_some_none [Max α] {a : α} : max (some a) none = some a := rfl
-@[simp] theorem max_none_some [Max α] {b : α} : max none (some b) = some b := rfl
-@[simp] theorem max_none_none [Max α] : max (none : Option α) none = none := rfl
+@[simp, grind] theorem max_some_some [Max α] {a b : α} : max (some a) (some b) = some (max a b) := rfl
+@[simp, grind] theorem max_some_none [Max α] {a : α} : max (some a) none = some a := rfl
+@[simp, grind] theorem max_none_some [Max α] {b : α} : max none (some b) = some b := rfl
+@[simp, grind] theorem max_none_none [Max α] : max (none : Option α) none = none := rfl
 
 
 end Option

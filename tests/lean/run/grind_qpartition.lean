@@ -1,5 +1,5 @@
 open Array
-
+set_option grind.warning false
 reset_grind_attrs%
 
 attribute [grind] Vector.getElem_swap_of_ne
@@ -15,15 +15,6 @@ theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     ∀ k, (h₁ : lo ≤ k) → (h₂ : k < mid) → lt as'[k] as'[mid] := by
   sorry
 
-/--
-warning: The `grind` tactic is experimental and still under development. Avoid using it in production projects.
----
-error: internal `grind` error, failed to build disequality proof for
-  (lo + hi) / 2
-and
-  lo
--/
-#guard_msgs in
 example {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as : Vector α n) (mid as')

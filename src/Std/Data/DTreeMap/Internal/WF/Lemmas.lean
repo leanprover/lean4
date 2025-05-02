@@ -287,25 +287,21 @@ theorem toListModel_updateCell [Ord α] [TransOrd α] {k : α}
   · simp_all [updateCell]
   · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup ih
     simp only [updateCell, hcmp]
-    split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_balance, toListModel_filter_gt_of_lt hcmp hlo,
       toListModel_filter_lt_of_lt hcmp hlo, findCell_of_lt hcmp hlo, ih hlo.left]
     simp
   · rename_i sz k' v' l r hl hcmp hf
     simp only [updateCell, hcmp, hf]
-    split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_glue, toListModel_filter_gt_of_eq hcmp hlo, findCell_of_eq hcmp hlo,
       hf, toListModel_filter_lt_of_eq hcmp hlo]
     simp
   · rename_i sz k' v' l r hl hcmp k'' v'' hf
     simp only [updateCell, hcmp, hf]
-    split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_inner, toListModel_filter_gt_of_eq hcmp hlo, findCell_of_eq hcmp hlo,
       toListModel_filter_lt_of_eq hcmp hlo, hf]
     simp
   · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup ih
     simp only [updateCell, hcmp]
-    split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_filter_gt_of_gt hcmp hlo, findCell_of_gt hcmp hlo,
       toListModel_filter_lt_of_gt hcmp hlo, toListModel_balance, ih hlo.right]
     simp
@@ -1107,11 +1103,8 @@ theorem alter_eq_alterₘ [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α �
     rw [alter, updateCell]
     split <;> rename_i heq <;> simp only [heq]
     · simp [ihl htb.left hto.left]
-      split <;> simp_all
     · simp [ihr htb.right hto.right]
-      split <;> simp_all
     · apply Eq.symm
-      split <;> (try simp_all; done)
       simp [Cell.alter, Cell.ofOption, cast]
       cases h₁ : f _ <;> rfl
 
@@ -1361,11 +1354,8 @@ theorem alter_eq_alterₘ [Ord α] [TransOrd α] {t : Impl α β} {a f}
     rw [alter, updateCell]
     split <;> rename_i heq <;> simp only [heq]
     · simp [ihl htb.left hto.left]
-      split <;> simp_all
     · simp [ihr htb.right hto.right]
-      split <;> simp_all
     · apply Eq.symm
-      split <;> (try simp_all; done)
       simp [Cell.Const.alter, Cell.ofOption, cast]
       cases h₁ : f _ <;> rfl
 
@@ -2166,20 +2156,6 @@ theorem getEntryGT?_eq_find? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Or
         simp only [Ordering.isGT_iff_eq_gt, OrientedCmp.gt_iff_lt]
         apply OrientedCmp.not_lt_of_isLE
         exact TransCmp.isLE_trans (Ordering.isLE_of_eq_lt this) (OrientedCmp.isLE_of_isGE h)
-
-theorem getEntryLE?_eq_getEntryGE?_reverse [o : Ord α] [TransOrd α] {t : Impl α β} {k : α} :
-    getEntryLE? k t = @getEntryGE? α β o.opposite k t.reverse := by
-  rw [getEntryLE?, @getEntryGE?.eq_def, Ord.opposite]
-  induction none, t using getEntryLE?.go.induct k <;>
-    simp only [*, getEntryLE?.go, reverse, getEntryGE?.go, OrientedCmp.eq_swap (b := k),
-      Ordering.swap]
-
-theorem getEntryLT?_eq_getEntryGT?_reverse [o : Ord α] [TransOrd α] {t : Impl α β} {k : α} :
-    getEntryLT? k t = @getEntryGT? α β o.opposite k t.reverse := by
-  rw [getEntryLT?, @getEntryGT?.eq_def, Ord.opposite]
-  induction none, t using getEntryLE?.go.induct k <;>
-    simp only [*, getEntryLT?.go, reverse, getEntryGT?.go, OrientedCmp.eq_swap (b := k),
-      Ordering.swap]
 
 theorem getEntryLE?_eq_findRev? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) {k : α} :
     getEntryLE? k t = t.toListModel.findRev? (fun e => (compare e.1 k).isLE) := by

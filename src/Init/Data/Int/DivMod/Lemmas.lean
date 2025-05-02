@@ -1273,6 +1273,56 @@ theorem tdiv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.tdiv b = 
   match a, b, eq_ofNat_of_zero_le H1, eq_succ_of_zero_lt (Int.lt_of_le_of_lt H1 H2) with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => congrArg Nat.cast <| Nat.div_eq_of_lt <| ofNat_lt.1 H2
 
+/-- T-division of an integer by a natural number equals zero iff
+the absolute value of the numerator is less than the denominator.
+-/
+theorem Int.tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Nat} :
+    a.tdiv b = 0 ↔ (a.natAbs < b ∨ b = 0):= by
+  by_cases hb : b = 0
+  · simp [hb]
+  · simp at hb
+    simp [hb]
+    by_cases h : a < 0
+    · obtain ⟨n, hn⟩  := Int.eq_negSucc_of_lt_zero h
+      subst hn
+      unfold Int.tdiv
+      simp
+      norm_cast
+      constructor
+      · intros hab
+        simp at hab
+        norm_cast
+        omega
+      · intros hab
+        apply Nat.div_eq_zero_iff_lt (by omega) |>.mpr hab
+    · simp only [Int.not_lt] at h;
+      obtain ⟨n, hn⟩  := Int.eq_ofNat_of_zero_le h
+      subst hn
+      unfold Int.tdiv
+      simp only [Int.ofNat_eq_coe, Int.natAbs_natCast]
+      norm_cast
+      apply Nat.div_eq_zero_iff_lt (by omega)
+
+/-- T-divison equals zero iff the absolute value of the numerator is less
+than the absolute value of the denominator, or the denominator is zero.
+-/
+theorem Int.tdiv_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Int} :
+    a.tdiv b = 0 ↔ (a.natAbs < b.natAbs ∨ b = 0):= by
+  have hb := Int.lt_trichotomy b 0
+  rcases hb with hb | hb | hb
+  · obtain ⟨b, hb⟩ := exists_eq_neg_ofNat (show b ≤ 0 by omega)
+    subst hb
+    rw [Int.tdiv_neg]
+    simp only [Int.neg_eq_zero, natAbs_neg, natAbs_natCast]
+    norm_cast
+    apply Int.tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero
+  · subst hb; simp
+  · obtain ⟨b, hb⟩ := eq_ofNat_of_zero_le (show 0 ≤ b by omega)
+    subst hb
+    norm_cast
+    apply Int.tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero
+
+
 @[simp] theorem mul_tdiv_mul_of_pos {a : Int}
     (b c : Int) (H : 0 < a) : (a * b).tdiv (a * c) = b.tdiv c := by
   rw [tdiv_eq_ediv, mul_ediv_mul_of_pos _ _ H, tdiv_eq_ediv]

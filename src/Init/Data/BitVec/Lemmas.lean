@@ -855,7 +855,7 @@ theorem slt_eq_sle_and_ne {x y : BitVec w} : x.slt y = (x.sle y && x != y) := by
 /-- For all bitvectors `x, y`, either `x` is signed less than `y`,
 or is equal to `y`, or is signed greater than `y`. -/
 theorem slt_trichotomy {x y : BitVec w} : x.slt y ∨ (x = y) ∨ y.slt x := by
-  have : (x = y) ↔ (x.toInt = y.toInt) := by exact Iff.symm toInt_inj
+  have : (x = y) ↔ (x.toInt = y.toInt) := Iff.symm toInt_inj
   simp [slt_eq_decide, decide_eq_true_eq, this]
   omega
 
@@ -863,7 +863,7 @@ theorem slt_trichotomy {x y : BitVec w} : x.slt y ∨ (x = y) ∨ y.slt x := by
 or is equal to `y`, or is unsigned greater than `y`. -/
 theorem BitVec.ult_trichotomy {x y : BitVec w} :
     x.ult y ∨ x = y ∨ y.ult x := by
-  have : (x = y) ↔ (x.toNat = y.toNat) := by exact Iff.symm toNat_inj
+  have : (x = y) ↔ (x.toNat = y.toNat) := Iff.symm toNat_inj
   simp [ult_eq_decide, decide_eq_true_eq, this]
   omega
 

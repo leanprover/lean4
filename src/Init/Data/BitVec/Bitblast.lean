@@ -1501,7 +1501,6 @@ theorem sdiv_intMin {x : BitVec w} :
   by_cases h : x = intMin w
   · subst h
     simp
-    omega
   · simp only [sdiv_eq, msb_intMin, show 0 < w by omega, h]
     have := Nat.two_pow_pos (w-1)
     by_cases hx : x.msb

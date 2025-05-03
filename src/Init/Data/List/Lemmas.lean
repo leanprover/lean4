@@ -313,7 +313,7 @@ theorem getElem_zero {l : List α} (h : 0 < l.length) : l[0] = l.head (length_po
   match l, h with
   | _ :: _, _ => rfl
 
-@[ext, grind ext] theorem ext_getElem? {l₁ l₂ : List α} (h : ∀ i : Nat, l₁[i]? = l₂[i]?) : l₁ = l₂ :=
+@[ext] theorem ext_getElem? {l₁ l₂ : List α} (h : ∀ i : Nat, l₁[i]? = l₂[i]?) : l₁ = l₂ :=
   match l₁, l₂, h with
   | [], [], _ => rfl
   | _ :: _, [], h => by simpa using h 0
@@ -2972,7 +2972,10 @@ theorem leftpad_suffix {n : Nat} {a : α} {l : List α} : l <:+ (leftpad n a l) 
 
 /-! ## List membership -/
 
-/-! ### elem / contains -/
+/-! ### contains / elem
+
+Recall that the preferred simp normal form is `contains` rather than `elem`.
+-/
 
 theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by simp
 
@@ -2986,6 +2989,57 @@ theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     l.contains a ↔ a ∈ l := by
   simp
+
+@[simp, grind]
+theorem contains_map [BEq β] {l : List α} {x : β} {f : α → β} :
+    (l.map f).contains x = l.any (fun a => x == f a) := by
+  induction l with simp_all
+
+@[simp, grind]
+theorem contains_filter [BEq α] {l : List α} {x : α} {p : α → Bool} :
+    (l.filter p).contains x = l.any (fun a => x == a && p a) := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [filter_cons, any_cons]
+    split <;> simp_all
+
+@[simp, grind]
+theorem contains_filterMap [BEq β] {l : List α} {x : β} {f : α → Option β} :
+    (l.filterMap f).contains x = l.any (fun a => (f a).any fun b => x == b) := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [filterMap_cons, any_cons]
+    split <;> simp_all
+
+@[simp, grind _=_]
+theorem contains_append [BEq α] {l₁ l₂ : List α} {x : α} :
+    (l₁ ++ l₂).contains x = (l₁.contains x || l₂.contains x) := by
+  induction l₁ with
+  | nil => simp
+  | cons a l ih => simp [ih, Bool.or_assoc]
+
+@[simp, grind]
+theorem contains_flatten [BEq α] {l : List (List α)} {x : α} :
+    l.flatten.contains x = l.any fun l => l.contains x := by
+  induction l with
+  | nil => simp
+  | cons _ l ih => simp [ih]
+
+@[simp, grind]
+theorem contains_reverse [BEq α] {l : List α} {x : α} :
+    (l.reverse).contains x = l.contains x := by
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, Bool.or_comm]
+
+@[simp, grind]
+theorem contains_flatMap [BEq β] {l : List α} {f : α → List β} {x : β} :
+    (l.flatMap f).contains x = l.any fun a => (f a).contains x := by
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih]
 
 /-! ## Sublists -/
 
@@ -3138,6 +3192,137 @@ theorem splitAt_go {i : Nat} {l acc : List α} :
         singleton_append, length_cons]
       simp only [Nat.succ_lt_succ_iff]
 
+/-! ## Logic -/
+
+/-! ### any / all -/
+
+theorem not_any_eq_all_not {l : List α} {p : α → Bool} : (!l.any p) = l.all fun a => !p a := by
+  induction l with simp | cons _ _ ih => rw [ih]
+
+theorem not_all_eq_any_not {l : List α} {p : α → Bool} : (!l.all p) = l.any fun a => !p a := by
+  induction l with simp | cons _ _ ih => rw [ih]
+
+theorem and_any_distrib_left {l : List α} {p : α → Bool} {q : Bool} :
+    (q && l.any p) = l.any fun a => q && p a := by
+  induction l with simp | cons _ _ ih => rw [Bool.and_or_distrib_left, ih]
+
+theorem and_any_distrib_right {l : List α} {p : α → Bool} {q : Bool} :
+    (l.any p && q) = l.any fun a => p a && q := by
+  induction l with simp | cons _ _ ih => rw [Bool.and_or_distrib_right, ih]
+
+theorem or_all_distrib_left {l : List α} {p : α → Bool} {q : Bool} :
+    (q || l.all p) = l.all fun a => q || p a := by
+  induction l with simp | cons _ _ ih => rw [Bool.or_and_distrib_left, ih]
+
+theorem or_all_distrib_right {l : List α} {p : α → Bool} {q : Bool} :
+    (l.all p || q) = l.all fun a => p a || q := by
+  induction l with simp | cons _ _ ih => rw [Bool.or_and_distrib_right, ih]
+
+theorem any_eq_not_all_not {l : List α} {p : α → Bool} : l.any p = !l.all (!p .) := by
+  simp only [not_all_eq_any_not, Bool.not_not]
+
+theorem all_eq_not_any_not {l : List α} {p : α → Bool} : l.all p = !l.any (!p .) := by
+  simp only [not_any_eq_all_not, Bool.not_not]
+
+@[simp] theorem any_map {l : List α} {p : β → Bool} : (l.map f).any p = l.any (p ∘ f) := by
+  induction l with simp | cons _ _ ih => rw [ih]
+
+@[simp] theorem all_map {l : List α} {p : β → Bool} : (l.map f).all p = l.all (p ∘ f) := by
+  induction l with simp | cons _ _ ih => rw [ih]
+
+@[simp] theorem any_filter {l : List α} {p q : α → Bool} :
+    (filter p l).any q = l.any fun a => p a && q a := by
+  induction l with
+  | nil => rfl
+  | cons h t ih =>
+    simp only [filter_cons]
+    split <;> simp_all
+
+@[simp] theorem all_filter {l : List α} {p q : α → Bool} :
+    (filter p l).all q = l.all fun a => !(p a) || q a := by
+  induction l with
+  | nil => rfl
+  | cons h t ih =>
+    simp only [filter_cons]
+    split <;> simp_all
+
+@[simp] theorem any_filterMap {l : List α} {f : α → Option β} {p : β → Bool} :
+    (filterMap f l).any p = l.any fun a => match f a with | some b => p b | none => false := by
+  induction l with
+  | nil => rfl
+  | cons h t ih =>
+    simp only [filterMap_cons]
+    split <;> simp_all
+
+@[simp] theorem all_filterMap {l : List α} {f : α → Option β} {p : β → Bool} :
+    (filterMap f l).all p = l.all fun a => match f a with | some b => p b | none => true := by
+  induction l with
+  | nil => rfl
+  | cons h t ih =>
+    simp only [filterMap_cons]
+    split <;> simp_all
+
+@[simp, grind _=_] theorem any_append {xs ys : List α} : (xs ++ ys).any f = (xs.any f || ys.any f) := by
+  induction xs with
+  | nil => rfl
+  | cons h t ih => simp_all [Bool.or_assoc]
+
+@[simp, grind _=_] theorem all_append {xs ys : List α} : (xs ++ ys).all f = (xs.all f && ys.all f) := by
+  induction xs with
+  | nil => rfl
+  | cons h t ih => simp_all [Bool.and_assoc]
+
+@[simp, grind] theorem any_flatten {l : List (List α)} : l.flatten.any f = l.any (any · f) := by
+  induction l <;> simp_all
+
+@[deprecated any_flatten (since := "2024-10-14")] abbrev any_join := @any_flatten
+
+@[simp, grind] theorem all_flatten {l : List (List α)} : l.flatten.all f = l.all (all · f) := by
+  induction l <;> simp_all
+
+@[deprecated all_flatten (since := "2024-10-14")] abbrev all_join := @all_flatten
+
+@[simp, grind] theorem any_flatMap {l : List α} {f : α → List β} :
+    (l.flatMap f).any p = l.any fun a => (f a).any p := by
+  induction l <;> simp_all
+
+@[simp, grind] theorem all_flatMap {l : List α} {f : α → List β} :
+    (l.flatMap f).all p = l.all fun a => (f a).all p := by
+  induction l <;> simp_all
+
+@[simp, grind] theorem any_reverse {l : List α} : l.reverse.any f = l.any f := by
+  induction l <;> simp_all [Bool.or_comm]
+
+@[simp, grind] theorem all_reverse {l : List α} : l.reverse.all f = l.all f := by
+  induction l <;> simp_all [Bool.and_comm]
+
+@[simp] theorem any_replicate {n : Nat} {a : α} :
+    (replicate n a).any f = if n = 0 then false else f a := by
+  cases n <;> simp [replicate_succ]
+
+@[simp] theorem all_replicate {n : Nat} {a : α} :
+    (replicate n a).all f = if n = 0 then true else f a := by
+  cases n <;> simp +contextual [replicate_succ]
+
+theorem any_congr {l₁ l₂ : List α} (w : l₁ = l₂) {p q : α → Bool} (h : ∀ a, p a = q a) :
+    l₁.any p = l₂.any q := by
+  subst w
+  induction l₁ with
+  | nil => rfl
+  | cons a l ih => simp [ih, h]
+
+theorem all_congr {l₁ l₂ : List α} (w : l₁ = l₂) {p q : α → Bool} (h : ∀ a, p a = q a) :
+    l₁.all p = l₂.all q := by
+  subst w
+  induction l₁ with
+  | nil => rfl
+  | cons a l ih => simp [ih, h]
+
+theorem contains_congr [BEq α] [PartialEquivBEq α] {l : List α} {x y : α} (h : x == y) :
+    l.contains x = l.contains y := by
+  simp only [contains_eq_any_beq]
+  exact any_congr rfl fun a => BEq.congr_left h
+
 /-! ## Manipulating elements -/
 
 /-! ### replace -/
@@ -3252,6 +3437,15 @@ section insert
 variable [BEq α]
 
 @[simp, grind] theorem insert_nil (a : α) : [].insert a = [a] := rfl
+
+@[simp, grind] theorem contains_insert [PartialEquivBEq α] {l : List α} {a : α} {x : α} :
+    (l.insert a).contains x = (x == a || l.contains x) := by
+  simp only [List.insert]
+  split <;> rename_i h
+  · simp only [Bool.eq_or_self]
+    intro h'
+    simpa [contains_congr h']
+  · simp
 
 variable [LawfulBEq α]
 
@@ -3369,127 +3563,15 @@ theorem insert_append_of_not_mem_left {l₁ l₂ : List α} (h : ¬ a ∈ l₂) 
   rw [insert_of_not_mem]
   simp_all
 
-end insert
-
-/-! ## Logic -/
-
-/-! ### any / all -/
-
-theorem not_any_eq_all_not {l : List α} {p : α → Bool} : (!l.any p) = l.all fun a => !p a := by
-  induction l with simp | cons _ _ ih => rw [ih]
-
-theorem not_all_eq_any_not {l : List α} {p : α → Bool} : (!l.all p) = l.any fun a => !p a := by
-  induction l with simp | cons _ _ ih => rw [ih]
-
-theorem and_any_distrib_left {l : List α} {p : α → Bool} {q : Bool} :
-    (q && l.any p) = l.any fun a => q && p a := by
-  induction l with simp | cons _ _ ih => rw [Bool.and_or_distrib_left, ih]
-
-theorem and_any_distrib_right {l : List α} {p : α → Bool} {q : Bool} :
-    (l.any p && q) = l.any fun a => p a && q := by
-  induction l with simp | cons _ _ ih => rw [Bool.and_or_distrib_right, ih]
-
-theorem or_all_distrib_left {l : List α} {p : α → Bool} {q : Bool} :
-    (q || l.all p) = l.all fun a => q || p a := by
-  induction l with simp | cons _ _ ih => rw [Bool.or_and_distrib_left, ih]
-
-theorem or_all_distrib_right {l : List α} {p : α → Bool} {q : Bool} :
-    (l.all p || q) = l.all fun a => p a || q := by
-  induction l with simp | cons _ _ ih => rw [Bool.or_and_distrib_right, ih]
-
-theorem any_eq_not_all_not {l : List α} {p : α → Bool} : l.any p = !l.all (!p .) := by
-  simp only [not_all_eq_any_not, Bool.not_not]
-
-theorem all_eq_not_any_not {l : List α} {p : α → Bool} : l.all p = !l.any (!p .) := by
-  simp only [not_any_eq_all_not, Bool.not_not]
-
-@[simp] theorem any_map {l : List α} {p : β → Bool} : (l.map f).any p = l.any (p ∘ f) := by
-  induction l with simp | cons _ _ ih => rw [ih]
-
-@[simp] theorem all_map {l : List α} {p : β → Bool} : (l.map f).all p = l.all (p ∘ f) := by
-  induction l with simp | cons _ _ ih => rw [ih]
-
-@[simp] theorem any_filter {l : List α} {p q : α → Bool} :
-    (filter p l).any q = l.any fun a => p a && q a := by
-  induction l with
-  | nil => rfl
-  | cons h t ih =>
-    simp only [filter_cons]
-    split <;> simp_all
-
-@[simp] theorem all_filter {l : List α} {p q : α → Bool} :
-    (filter p l).all q = l.all fun a => !(p a) || q a := by
-  induction l with
-  | nil => rfl
-  | cons h t ih =>
-    simp only [filter_cons]
-    split <;> simp_all
-
-@[simp] theorem any_filterMap {l : List α} {f : α → Option β} {p : β → Bool} :
-    (filterMap f l).any p = l.any fun a => match f a with | some b => p b | none => false := by
-  induction l with
-  | nil => rfl
-  | cons h t ih =>
-    simp only [filterMap_cons]
-    split <;> simp_all
-
-@[simp] theorem all_filterMap {l : List α} {f : α → Option β} {p : β → Bool} :
-    (filterMap f l).all p = l.all fun a => match f a with | some b => p b | none => true := by
-  induction l with
-  | nil => rfl
-  | cons h t ih =>
-    simp only [filterMap_cons]
-    split <;> simp_all
-
-@[simp, grind _=_] theorem any_append {xs ys : List α} : (xs ++ ys).any f = (xs.any f || ys.any f) := by
-  induction xs with
-  | nil => rfl
-  | cons h t ih => simp_all [Bool.or_assoc]
-
-@[simp, grind _=_] theorem all_append {xs ys : List α} : (xs ++ ys).all f = (xs.all f && ys.all f) := by
-  induction xs with
-  | nil => rfl
-  | cons h t ih => simp_all [Bool.and_assoc]
-
-@[simp, grind] theorem any_flatten {l : List (List α)} : l.flatten.any f = l.any (any · f) := by
-  induction l <;> simp_all
-
-@[deprecated any_flatten (since := "2024-10-14")] abbrev any_join := @any_flatten
-
-@[simp, grind] theorem all_flatten {l : List (List α)} : l.flatten.all f = l.all (all · f) := by
-  induction l <;> simp_all
-
-@[deprecated all_flatten (since := "2024-10-14")] abbrev all_join := @all_flatten
-
-@[simp, grind] theorem any_flatMap {l : List α} {f : α → List β} :
-    (l.flatMap f).any p = l.any fun a => (f a).any p := by
-  induction l <;> simp_all
-
-@[simp, grind] theorem all_flatMap {l : List α} {f : α → List β} :
-    (l.flatMap f).all p = l.all fun a => (f a).all p := by
-  induction l <;> simp_all
-
-@[simp, grind] theorem any_reverse {l : List α} : l.reverse.any f = l.any f := by
-  induction l <;> simp_all [Bool.or_comm]
-
-@[simp, grind] theorem all_reverse {l : List α} : l.reverse.all f = l.all f := by
-  induction l <;> simp_all [Bool.and_comm]
-
-@[simp] theorem any_replicate {n : Nat} {a : α} :
-    (replicate n a).any f = if n = 0 then false else f a := by
-  cases n <;> simp [replicate_succ]
-
-@[simp] theorem all_replicate {n : Nat} {a : α} :
-    (replicate n a).all f = if n = 0 then true else f a := by
-  cases n <;> simp +contextual [replicate_succ]
-
-@[simp] theorem any_insert [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+@[simp] theorem any_insert {l : List α} {a : α} :
     (l.insert a).any f = (f a || l.any f) := by
   simp [any_eq]
 
-@[simp] theorem all_insert [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+@[simp] theorem all_insert {l : List α} {a : α} :
     (l.insert a).all f = (f a && l.all f) := by
   simp [all_eq]
+
+end insert
 
 /-! ### `removeAll` -/
 

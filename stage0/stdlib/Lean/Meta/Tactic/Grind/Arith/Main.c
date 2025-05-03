@@ -301,7 +301,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_13 = lean_ctor_get(x_11, 0);
-x_14 = lean_ctor_get(x_13, 13);
+x_14 = lean_ctor_get(x_13, 14);
 lean_inc(x_14);
 lean_dec(x_13);
 x_15 = lean_ctor_get(x_14, 0);
@@ -322,7 +322,7 @@ x_19 = lean_ctor_get(x_11, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_11);
-x_20 = lean_ctor_get(x_18, 13);
+x_20 = lean_ctor_get(x_18, 14);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = lean_ctor_get(x_20, 0);
@@ -1306,7 +1306,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_check___lambda__3(lean_object* 
 _start:
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*15);
+x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*16);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 

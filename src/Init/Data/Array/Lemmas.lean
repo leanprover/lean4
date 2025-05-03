@@ -3742,6 +3742,56 @@ theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp
 
+@[simp, grind]
+theorem contains_toList [BEq α] {xs : Array α} {x : α} :
+    xs.toList.contains x = xs.contains x := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp, grind]
+theorem contains_map [BEq β] {xs : Array α} {x : β} {f : α → β} :
+    (xs.map f).contains x = xs.any (fun a => x == f a) := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp, grind]
+theorem contains_filter [BEq α] {xs : Array α} {x : α} {p : α → Bool} :
+    (xs.filter p).contains x = xs.any (fun a => x == a && p a) := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp, grind]
+theorem contains_filterMap [BEq β] {xs : Array α} {x : β} {f : α → Option β} :
+    (xs.filterMap f).contains x = xs.any (fun a => (f a).any fun b => x == b) := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp, grind _=_]
+theorem contains_append [BEq α] {xs ys : Array α} {x : α} :
+    (xs ++ ys).contains x = (xs.contains x || ys.contains x) := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp
+
+@[simp, grind]
+theorem contains_flatten [BEq α] {xs : Array (Array α)} {x : α} :
+    (xs.flatten).contains x = xs.any fun xs => xs.contains x := by
+  rcases xs with ⟨xs⟩
+  simp [Function.comp_def]
+
+@[simp, grind]
+theorem contains_reverse [BEq α] {xs : Array α} {x : α} :
+    (xs.reverse).contains x = xs.contains x := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp, grind]
+theorem contains_flatMap [BEq β] {xs : Array α} {f : α → Array β} {x : β} :
+    (xs.flatMap f).contains x = xs.any fun a => (f a).contains x := by
+  rcases xs with ⟨xs⟩
+  simp
+
+
 /-! ### more lemmas about `pop` -/
 
 theorem pop_append {xs ys : Array α} :
@@ -3753,193 +3803,6 @@ theorem pop_append {xs ys : Array α} :
 
 @[deprecated pop_replicate (since := "2025-03-18")]
 abbrev pop_mkArray := @pop_replicate
-
-/-! ### modify -/
-
-@[simp] theorem size_modify {xs : Array α} {i : Nat} {f : α → α} : (xs.modify i f).size = xs.size := by
-  unfold modify modifyM Id.run
-  split <;> simp
-
-theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
-    (xs.modify j f)[i] = if j = i then f (xs[i]'(by simpa using h)) else xs[i]'(by simpa using h) := by
-  simp only [modify, modifyM, Id.run, Id.pure_eq]
-  split
-  · simp only [Id.bind_eq, getElem_set]; split <;> simp [*]
-  · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
-
-@[simp] theorem toList_modify {xs : Array α} {f : α → α} {i : Nat} :
-    (xs.modify i f).toList = xs.toList.modify i f := by
-  apply List.ext_getElem
-  · simp
-  · simp [getElem_modify, List.getElem_modify]
-
-theorem getElem_modify_self {xs : Array α} {i : Nat} (f : α → α) (h : i < (xs.modify i f).size) :
-    (xs.modify i f)[i] = f (xs[i]'(by simpa using h)) := by
-  simp [getElem_modify h]
-
-theorem getElem_modify_of_ne {xs : Array α} {i : Nat} (h : i ≠ j)
-    (f : α → α) (hj : j < (xs.modify i f).size) :
-    (xs.modify i f)[j] = xs[j]'(by simpa using hj) := by
-  simp [getElem_modify hj, h]
-
-theorem getElem?_modify {xs : Array α} {i : Nat} {f : α → α} {j : Nat} :
-    (xs.modify i f)[j]? = if i = j then xs[j]?.map f else xs[j]? := by
-  simp only [getElem?_def, size_modify, getElem_modify, Option.map_dif]
-  split <;> split <;> rfl
-
-/-! ### swap -/
-
-@[simp] theorem getElem_swap_right {xs : Array α} {i j : Nat} {hi hj} :
-    (xs.swap i j hi hj)[j]'(by simpa using hj) = xs[i] := by
-  simp [swap_def, getElem_set]
-
-@[simp] theorem getElem_swap_left {xs : Array α} {i j : Nat} {hi hj} :
-    (xs.swap i j hi hj)[i]'(by simpa using hi) = xs[j] := by
-  simp +contextual [swap_def, getElem_set]
-
-@[simp] theorem getElem_swap_of_ne {xs : Array α} {i j : Nat} {hi hj} (hp : k < xs.size)
-    (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)[k]'(xs.size_swap .. |>.symm ▸ hp) = xs[k] := by
-  simp [swap_def, getElem_set, hi'.symm, hj'.symm]
-
-theorem getElem_swap' {xs : Array α} {i j : Nat} {hi hj} {k : Nat} (hk : k < xs.size) :
-    (xs.swap i j hi hj)[k]'(by simp_all) = if k = i then xs[j] else if k = j then xs[i] else xs[k] := by
-  split
-  · simp_all only [getElem_swap_left]
-  · split <;> simp_all
-
-theorem getElem_swap {xs : Array α} {i j : Nat} (hi hj) {k : Nat} (hk : k < (xs.swap i j hi hj).size) :
-    (xs.swap i j hi hj)[k] = if k = i then xs[j] else if k = j then xs[i] else xs[k]'(by simp_all) := by
-  apply getElem_swap'
-
-@[simp] theorem swap_swap {xs : Array α} {i j : Nat} (hi hj) :
-    (xs.swap i j hi hj).swap i j ((xs.size_swap ..).symm ▸ hi) ((xs.size_swap ..).symm ▸ hj) = xs := by
-  apply ext
-  · simp only [size_swap]
-  · intros
-    simp only [getElem_swap]
-    split
-    · simp_all
-    · split <;> simp_all
-
-theorem swap_comm {xs : Array α} {i j : Nat} (hi hj) : xs.swap i j hi hj = xs.swap j i hj hi := by
-  apply ext
-  · simp only [size_swap]
-  · intros
-    simp only [getElem_swap]
-    split
-    · split <;> simp_all
-    · split <;> simp_all
-
-@[simp] theorem size_swapIfInBounds {xs : Array α} {i j : Nat} :
-    (xs.swapIfInBounds i j).size = xs.size := by unfold swapIfInBounds; split <;> (try split) <;> simp [size_swap]
-
-@[deprecated size_swapIfInBounds (since := "2024-11-24")] abbrev size_swap! := @size_swapIfInBounds
-
-/-! ### swapAt -/
-
-@[simp] theorem swapAt_def {xs : Array α} {i : Nat} {v : α} (hi) :
-    xs.swapAt i v hi = (xs[i], xs.set i v) := rfl
-
-theorem size_swapAt {xs : Array α} {i : Nat} {v : α} (hi) :
-    (xs.swapAt i v hi).2.size = xs.size := by simp
-
-@[simp]
-theorem swapAt!_def {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
-    xs.swapAt! i v = (xs[i], xs.set i v) := by simp [swapAt!, h]
-
-@[simp] theorem size_swapAt! {xs : Array α} {i : Nat} {v : α} :
-    (xs.swapAt! i v).2.size = xs.size := by
-  simp only [swapAt!]
-  split
-  · simp
-  · rfl
-
-/-! ### replace -/
-
-section replace
-variable [BEq α]
-
-@[simp, grind] theorem replace_empty : (#[] : Array α).replace a b = #[] := by rfl
-
-@[simp, grind] theorem replace_singleton {a b c : α} : #[a].replace b c = #[if a == b then c else a] := by
-  simp only [replace, List.finIdxOf?_toArray, List.finIdxOf?]
-  by_cases h : a == b <;> simp [h]
-
-@[simp, grind] theorem size_replace {xs : Array α} : (xs.replace a b).size = xs.size := by
-  simp only [replace]
-  split <;> simp
-
--- This hypothesis could probably be dropped from some of the lemmas below,
--- by proving them direct from the definition rather than going via `List`.
-variable [LawfulBEq α]
-
-@[simp] theorem replace_of_not_mem {xs : Array α} (h : ¬ a ∈ xs) : xs.replace a b = xs := by
-  cases xs
-  simp_all
-
-@[grind] theorem getElem?_replace {xs : Array α} {i : Nat} :
-    (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
-  rcases xs with ⟨xs⟩
-  simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, take_eq_extract,
-    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, mem_toArray]
-
-theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a) :
-    (xs.replace a b)[i]? = xs[i]? := by
-  simp_all [getElem?_replace]
-
-@[grind] theorem getElem_replace {xs : Array α} {i : Nat} (h : i < xs.size) :
-    (xs.replace a b)[i]'(by simpa) = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
-  apply Option.some.inj
-  rw [← getElem?_eq_getElem, getElem?_replace]
-  split <;> split <;> simp_all
-
-theorem getElem_replace_of_ne {xs : Array α} {i : Nat} {h : i < xs.size} (h' : xs[i] ≠ a) :
-    (xs.replace a b)[i]'(by simpa) = xs[i]'(h) := by
-  rw [getElem_replace h]
-  simp [h']
-
-@[grind] theorem replace_append {xs ys : Array α} :
-    (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
-  rcases xs with ⟨xs⟩
-  rcases ys with ⟨ys⟩
-  simp only [List.append_toArray, List.replace_toArray, List.replace_append, mem_toArray]
-  split <;> simp
-
-@[grind] theorem replace_push {xs : Array α} {a b c : α} :
-    (xs.push a).replace b c = if b ∈ xs then (xs.replace b c).push a else xs.push (if b == a then c else a) := by
-  rcases xs with ⟨xs⟩
-  simp [List.replace_append]
-  split <;> simp
-
-theorem replace_append_left {xs ys : Array α} (h : a ∈ xs) :
-    (xs ++ ys).replace a b = xs.replace a b ++ ys := by
-  simp [replace_append, h]
-
-theorem replace_append_right {xs ys : Array α} (h : ¬ a ∈ xs) :
-    (xs ++ ys).replace a b = xs ++ ys.replace a b := by
-  simp [replace_append, h]
-
-theorem replace_extract {xs : Array α} {i : Nat} :
-    (xs.extract 0 i).replace a b = (xs.replace a b).extract 0 i := by
-  rcases xs with ⟨xs⟩
-  simp [List.replace_take]
-
-@[simp] theorem replace_replicate_self {a : α} (h : 0 < n) :
-    (replicate n a).replace a b = #[b] ++ replicate (n - 1) a := by
-  cases n <;> simp_all [replicate_succ', replace_append]
-
-@[deprecated replace_replicate_self (since := "2025-03-18")]
-abbrev replace_mkArray_self := @replace_replicate_self
-
-@[simp] theorem replace_replicate_ne {a b c : α} (h : !b == a) :
-    (replicate n a).replace b c = replicate n a := by
-  rw [replace_of_not_mem]
-  simp_all
-
-@[deprecated replace_replicate_ne (since := "2025-03-18")]
-abbrev replace_mkArray_ne := @replace_replicate_ne
-
-end replace
 
 /-! ## Logic -/
 
@@ -4179,6 +4042,193 @@ abbrev any_mkArray := @any_replicate
 
 @[deprecated all_replicate (since := "2025-03-18")]
 abbrev all_mkArray := @all_replicate
+
+/-! ### modify -/
+
+@[simp] theorem size_modify {xs : Array α} {i : Nat} {f : α → α} : (xs.modify i f).size = xs.size := by
+  unfold modify modifyM Id.run
+  split <;> simp
+
+theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
+    (xs.modify j f)[i] = if j = i then f (xs[i]'(by simpa using h)) else xs[i]'(by simpa using h) := by
+  simp only [modify, modifyM, Id.run, Id.pure_eq]
+  split
+  · simp only [Id.bind_eq, getElem_set]; split <;> simp [*]
+  · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
+
+@[simp] theorem toList_modify {xs : Array α} {f : α → α} {i : Nat} :
+    (xs.modify i f).toList = xs.toList.modify i f := by
+  apply List.ext_getElem
+  · simp
+  · simp [getElem_modify, List.getElem_modify]
+
+theorem getElem_modify_self {xs : Array α} {i : Nat} (f : α → α) (h : i < (xs.modify i f).size) :
+    (xs.modify i f)[i] = f (xs[i]'(by simpa using h)) := by
+  simp [getElem_modify h]
+
+theorem getElem_modify_of_ne {xs : Array α} {i : Nat} (h : i ≠ j)
+    (f : α → α) (hj : j < (xs.modify i f).size) :
+    (xs.modify i f)[j] = xs[j]'(by simpa using hj) := by
+  simp [getElem_modify hj, h]
+
+theorem getElem?_modify {xs : Array α} {i : Nat} {f : α → α} {j : Nat} :
+    (xs.modify i f)[j]? = if i = j then xs[j]?.map f else xs[j]? := by
+  simp only [getElem?_def, size_modify, getElem_modify, Option.map_dif]
+  split <;> split <;> rfl
+
+/-! ### swap -/
+
+@[simp] theorem getElem_swap_right {xs : Array α} {i j : Nat} {hi hj} :
+    (xs.swap i j hi hj)[j]'(by simpa using hj) = xs[i] := by
+  simp [swap_def, getElem_set]
+
+@[simp] theorem getElem_swap_left {xs : Array α} {i j : Nat} {hi hj} :
+    (xs.swap i j hi hj)[i]'(by simpa using hi) = xs[j] := by
+  simp +contextual [swap_def, getElem_set]
+
+@[simp] theorem getElem_swap_of_ne {xs : Array α} {i j : Nat} {hi hj} (hp : k < xs.size)
+    (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)[k]'(xs.size_swap .. |>.symm ▸ hp) = xs[k] := by
+  simp [swap_def, getElem_set, hi'.symm, hj'.symm]
+
+theorem getElem_swap' {xs : Array α} {i j : Nat} {hi hj} {k : Nat} (hk : k < xs.size) :
+    (xs.swap i j hi hj)[k]'(by simp_all) = if k = i then xs[j] else if k = j then xs[i] else xs[k] := by
+  split
+  · simp_all only [getElem_swap_left]
+  · split <;> simp_all
+
+theorem getElem_swap {xs : Array α} {i j : Nat} (hi hj) {k : Nat} (hk : k < (xs.swap i j hi hj).size) :
+    (xs.swap i j hi hj)[k] = if k = i then xs[j] else if k = j then xs[i] else xs[k]'(by simp_all) := by
+  apply getElem_swap'
+
+@[simp] theorem swap_swap {xs : Array α} {i j : Nat} (hi hj) :
+    (xs.swap i j hi hj).swap i j ((xs.size_swap ..).symm ▸ hi) ((xs.size_swap ..).symm ▸ hj) = xs := by
+  apply ext
+  · simp only [size_swap]
+  · intros
+    simp only [getElem_swap]
+    split
+    · simp_all
+    · split <;> simp_all
+
+theorem swap_comm {xs : Array α} {i j : Nat} (hi hj) : xs.swap i j hi hj = xs.swap j i hj hi := by
+  apply ext
+  · simp only [size_swap]
+  · intros
+    simp only [getElem_swap]
+    split
+    · split <;> simp_all
+    · split <;> simp_all
+
+@[simp] theorem size_swapIfInBounds {xs : Array α} {i j : Nat} :
+    (xs.swapIfInBounds i j).size = xs.size := by unfold swapIfInBounds; split <;> (try split) <;> simp [size_swap]
+
+@[deprecated size_swapIfInBounds (since := "2024-11-24")] abbrev size_swap! := @size_swapIfInBounds
+
+/-! ### swapAt -/
+
+@[simp] theorem swapAt_def {xs : Array α} {i : Nat} {v : α} (hi) :
+    xs.swapAt i v hi = (xs[i], xs.set i v) := rfl
+
+theorem size_swapAt {xs : Array α} {i : Nat} {v : α} (hi) :
+    (xs.swapAt i v hi).2.size = xs.size := by simp
+
+@[simp]
+theorem swapAt!_def {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
+    xs.swapAt! i v = (xs[i], xs.set i v) := by simp [swapAt!, h]
+
+@[simp] theorem size_swapAt! {xs : Array α} {i : Nat} {v : α} :
+    (xs.swapAt! i v).2.size = xs.size := by
+  simp only [swapAt!]
+  split
+  · simp
+  · rfl
+
+/-! ### replace -/
+
+section replace
+variable [BEq α]
+
+@[simp, grind] theorem replace_empty : (#[] : Array α).replace a b = #[] := by rfl
+
+@[simp, grind] theorem replace_singleton {a b c : α} : #[a].replace b c = #[if a == b then c else a] := by
+  simp only [replace, List.finIdxOf?_toArray, List.finIdxOf?]
+  by_cases h : a == b <;> simp [h]
+
+@[simp, grind] theorem size_replace {xs : Array α} : (xs.replace a b).size = xs.size := by
+  simp only [replace]
+  split <;> simp
+
+-- This hypothesis could probably be dropped from some of the lemmas below,
+-- by proving them direct from the definition rather than going via `List`.
+variable [LawfulBEq α]
+
+@[simp] theorem replace_of_not_mem {xs : Array α} (h : ¬ a ∈ xs) : xs.replace a b = xs := by
+  cases xs
+  simp_all
+
+@[grind] theorem getElem?_replace {xs : Array α} {i : Nat} :
+    (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
+  rcases xs with ⟨xs⟩
+  simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, take_eq_extract,
+    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, mem_toArray]
+
+theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a) :
+    (xs.replace a b)[i]? = xs[i]? := by
+  simp_all [getElem?_replace]
+
+@[grind] theorem getElem_replace {xs : Array α} {i : Nat} (h : i < xs.size) :
+    (xs.replace a b)[i]'(by simpa) = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
+  apply Option.some.inj
+  rw [← getElem?_eq_getElem, getElem?_replace]
+  split <;> split <;> simp_all
+
+theorem getElem_replace_of_ne {xs : Array α} {i : Nat} {h : i < xs.size} (h' : xs[i] ≠ a) :
+    (xs.replace a b)[i]'(by simpa) = xs[i]'(h) := by
+  rw [getElem_replace h]
+  simp [h']
+
+@[grind] theorem replace_append {xs ys : Array α} :
+    (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp only [List.append_toArray, List.replace_toArray, List.replace_append, mem_toArray]
+  split <;> simp
+
+@[grind] theorem replace_push {xs : Array α} {a b c : α} :
+    (xs.push a).replace b c = if b ∈ xs then (xs.replace b c).push a else xs.push (if b == a then c else a) := by
+  rcases xs with ⟨xs⟩
+  simp [List.replace_append]
+  split <;> simp
+
+theorem replace_append_left {xs ys : Array α} (h : a ∈ xs) :
+    (xs ++ ys).replace a b = xs.replace a b ++ ys := by
+  simp [replace_append, h]
+
+theorem replace_append_right {xs ys : Array α} (h : ¬ a ∈ xs) :
+    (xs ++ ys).replace a b = xs ++ ys.replace a b := by
+  simp [replace_append, h]
+
+theorem replace_extract {xs : Array α} {i : Nat} :
+    (xs.extract 0 i).replace a b = (xs.replace a b).extract 0 i := by
+  rcases xs with ⟨xs⟩
+  simp [List.replace_take]
+
+@[simp] theorem replace_replicate_self {a : α} (h : 0 < n) :
+    (replicate n a).replace a b = #[b] ++ replicate (n - 1) a := by
+  cases n <;> simp_all [replicate_succ', replace_append]
+
+@[deprecated replace_replicate_self (since := "2025-03-18")]
+abbrev replace_mkArray_self := @replace_replicate_self
+
+@[simp] theorem replace_replicate_ne {a b c : α} (h : !b == a) :
+    (replicate n a).replace b c = replicate n a := by
+  rw [replace_of_not_mem]
+  simp_all
+
+@[deprecated replace_replicate_ne (since := "2025-03-18")]
+abbrev replace_mkArray_ne := @replace_replicate_ne
+
+end replace
 
 /-! ### toListRev -/
 

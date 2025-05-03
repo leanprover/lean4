@@ -674,6 +674,11 @@ theorem or_of_isNone {o o' : Option α} (h : o.isNone) : o.or o' = o' := by
   match o, h with
   | none, _ => simp
 
+@[simp, grind]
+theorem getD_or {o o' : Option α} {fallback : α} :
+    (o.or o').getD fallback = o.getD (o'.getD fallback) := by
+  cases o <;> simp
+
 /-! ### beq -/
 
 section beq

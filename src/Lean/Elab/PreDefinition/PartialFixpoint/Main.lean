@@ -10,6 +10,7 @@ import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
 import Lean.Elab.Tactic.Monotonicity
 import Init.Internal.Order.Basic
 import Lean.Meta.PProdN
+import Lean.Meta.Order
 
 namespace Lean.Elab
 
@@ -59,9 +60,6 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedParamPer
       pure e
     k e
 
-def mkInstCCPOPProd (inst₁ inst₂ : Expr) : MetaM Expr := do
-  mkAppOptM ``instCCPOPProd #[none, none, inst₁, inst₂]
-
 def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
   -- mkAppM does not support the equivalent of (cfg := { synthAssignedInstances := false}),
   -- so this is a bit more pedestrian
@@ -72,47 +70,65 @@ def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
   mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono₁, hmono₂]
 
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
-  -- We expect all functions in the clique to have `partial_fixpoint` syntax
+  -- We expect all functions in the clique to have `partial_fixpoint` or `greatest_fixpoint` syntax
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
+  -- We check if any fixpoints were defined lattice-theoretically
+  if hints.any fun x => isLatticeTheoretic x.fixpointType then
+    -- If yes, then we expect all of them to be defined using lattice theory
+    assert! hints.all fun x => isLatticeTheoretic x.fixpointType
+
   -- For every function of type `∀ x y, r x y`, an CCPO instance
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
-  let ccpoInsts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
+  let insts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
     lambdaTelescope preDef.value fun xs _body => do
       let type ← instantiateForall preDef.type xs
       let inst ←
-        try
-          synthInstance (← mkAppM ``CCPO #[type])
-        catch _ =>
-          trace[Elab.definition.partialFixpoint] "No CCPO instance found for {preDef.declName}, trying inhabitation"
-          let msg := m!"failed to compile definition '{preDef.declName}' using `partial_fixpoint`"
-          let w ← mkInhabitantFor msg #[] preDef.type
-          let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN w xs]
-          let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
-          mkAppOptM ``FlatOrder.instCCPO #[none, classicalWitness]
+        match hints[i]!.fixpointType with
+        | .greatestFixpoint =>
+          unless type.isProp do
+            throwError "`greatest_fixpoint` can be only used to define predicates"
+          pure (mkConst ``ReverseImplicationOrder.instCompleteLattice)
+        | .leastFixpoint =>
+          unless type.isProp do
+            throwError "`least_fixpoint` can be only used to define predicates"
+          pure (mkConst ``ImplicationOrder.instCompleteLattice)
+        | .partialFixpoint => try
+            synthInstance (← mkAppM ``CCPO #[type])
+          catch _ =>
+            trace[Elab.definition.partialFixpoint] "No CCPO instance found for {preDef.declName}, trying inhabitation"
+            let msg := m!"failed to compile definition '{preDef.declName}' using `partial_fixpoint`"
+            let w ← mkInhabitantFor msg #[] preDef.type
+            let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN w xs]
+            let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
+            mkAppOptM ``FlatOrder.instCCPO #[none, classicalWitness]
       mkLambdaFVars xs inst
 
   let declNames := preDefs.map (·.declName)
   let fixedParamPerms ← getFixedParamPerms preDefs
   fixedParamPerms.perms[0]!.forallTelescope preDefs[0]!.type fun fixedArgs => do
-    -- ∀ x y, CCPO (rᵢ x y)
-    let ccpoInsts ← ccpoInsts.mapIdxM (fixedParamPerms.perms[·]!.instantiateLambda · fixedArgs)
+    -- Either: ∀ x y, CCPO (rᵢ x y)
+    -- Or:     ∀ x y, CompleteLattice (rᵢ x y)
+    let insts ← insts.mapIdxM (fixedParamPerms.perms[·]!.instantiateLambda · fixedArgs)
     let types ← preDefs.mapIdxM (fixedParamPerms.perms[·]!.instantiateForall ·.type fixedArgs)
 
     -- (∀ x y, r₁ x y) ×' (∀ x y, r₂ x y)
     let packedType ← PProdN.pack 0 types
 
-    -- CCPO (∀ x y, rᵢ x y)
-    let ccpoInsts' ← ccpoInsts.mapM fun inst =>
+    -- Either: CCPO (∀ x y, rᵢ x y)
+    -- Or:     CompleteLattice (∀ x y, rᵢ x y)
+    let insts' ← insts.mapM fun inst =>
       lambdaTelescope inst fun xs inst => do
         let mut inst := inst
         for x in xs.reverse do
-          inst ← mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
+          inst ← mkInstPiOfInstForall x inst
         pure inst
-    -- CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
-    let packedCCPOInst ← PProdN.genMk mkInstCCPOPProd ccpoInsts'
+
+    -- Either: CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
+    -- Or:     CompleteLattice ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
+    let packedInst ← mkPackedPPRodInstance insts'
     -- Order ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
-    let packedPartialOrderInst ← mkAppOptM ``CCPO.toPartialOrder #[none, packedCCPOInst]
+    let packedPartialOrderInst ← toPartialOrder packedInst
 
     -- Error reporting hook, presenting monotonicity errors in terms of recursive functions
     let failK {α} f (monoThms : Array Name) : MetaM α := do
@@ -145,7 +161,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     let hmonos ← preDefs.mapIdxM fun i preDef => do
       let type := types[i]!
       let F := Fs[i]!
-      let inst ← mkAppOptM ``CCPO.toPartialOrder #[type, ccpoInsts'[i]!]
+      let inst ← toPartialOrder insts'[i]! type
       let goal ← mkAppOptM ``monotone #[packedType, packedPartialOrderInst, type, inst, F]
       if let some term := hints[i]!.term? then
         let hmono ← Term.withSynthesize <| Term.elabTermEnsuringType term goal
@@ -164,7 +180,8 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         instantiateMVars hmono
     let hmono ← PProdN.genMk mkMonoPProd hmonos
 
-    let packedValue ← mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]
+    let packedValue ← mkFixOfMonFun packedType packedInst hmono
+
     trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 
     let declName :=
@@ -194,7 +211,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
     addAndCompilePartialRec preDefs
     let preDefs ← preDefs.mapM (Mutual.cleanPreDef ·)
-    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms
+    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms (hints.map (·.fixpointType))
     Mutual.addPreDefAttributes preDefs
 
 end Lean.Elab

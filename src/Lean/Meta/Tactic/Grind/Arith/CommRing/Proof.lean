@@ -297,6 +297,7 @@ the derivation.
 structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}
   polyMap     : Std.HashMap Poly Expr := {}
+  monMap      : Std.HashMap Mon Expr := {}
   exprMap     : Std.HashMap RingExpr Expr := {}
 
 structure ProofM.Context where
@@ -331,13 +332,25 @@ def mkExprDecl (e : RingExpr) : ProofM Expr := do
   modify fun s => { s with exprMap := s.exprMap.insert e x }
   return x
 
-private def mkStepPrefix (declName declNameC : Name) : ProofM Expr := do
+def mkMonDecl (m : Mon) : ProofM Expr := do
+  if let some x := (← get).monMap[m]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with monMap := s.monMap.insert m x }
+  return x
+
+private def mkStepBasicPrefix (declName : Name) : ProofM Expr := do
   let ctx ← getContext
   let ring ← getRing
+  return mkApp3 (mkConst declName [ring.u]) ring.type ring.commRingInst ctx
+
+private def mkStepPrefix (declName declNameC : Name) : ProofM Expr := do
   if let some (charInst, char) ← nonzeroCharInst? then
+    let ctx ← getContext
+    let ring ← getRing
     return mkApp5 (mkConst declNameC [ring.u]) ring.type (toExpr char) ring.commRingInst charInst ctx
   else
-    return mkApp3 (mkConst declName [ring.u]) ring.type ring.commRingInst ctx
+    mkStepBasicPrefix declName
 
 open Lean.Grind.CommRing in
 partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := caching c do
@@ -348,14 +361,14 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ =>
     let h ← mkStepPrefix ``Stepwise.superpose ``Stepwise.superposeC
     return mkApp10 h
-      (toExpr k₁) (toExpr m₁) (← mkPolyDecl c₁.p)
-      (toExpr k₂) (toExpr m₂) (← mkPolyDecl c₂.p)
+      (toExpr k₁) (← mkMonDecl m₁) (← mkPolyDecl c₁.p)
+      (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
       (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
   | .simp k₁ c₁ k₂ m₂ c₂ =>
     let h ← mkStepPrefix ``Stepwise.simp ``Stepwise.simpC
     return mkApp9 h
       (toExpr k₁) (← mkPolyDecl c₁.p)
-      (toExpr k₂) (toExpr m₂) (← mkPolyDecl c₂.p)
+      (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
       (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
   | .mul k c₁ =>
     let h ← mkStepPrefix ``Stepwise.mul ``Stepwise.mulC
@@ -366,6 +379,44 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
       | throwNoNatZeroDivisors
     return mkApp6 h nzInst (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁)
 
+open Lean.Grind.CommRing in
+/--
+Given a polynomial derivation, returns `(k, p₀, h)` where `h` is a proof that
+`k*p₀ = d.p`
+-/
+private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr) := do
+  match d with
+  | .input p₀ =>
+    let h := mkApp (← mkStepBasicPrefix ``Stepwise.d_init) (← mkPolyDecl p₀)
+    return (1, p₀, h)
+  | .step p k₁ d k₂ m₂ c₂ =>
+    let (k, p₀, h₁) ← derivToExprProof d
+    let h₂ ← c₂.toExprProof
+    let h ← if k₁ == 1 then
+      mkStepPrefix ``Stepwise.d_step1 ``Stepwise.d_step1C
+    else
+      pure <| mkApp (← mkStepPrefix ``Stepwise.d_stepk ``Stepwise.d_stepkC) (toExpr k₁)
+    let h := mkApp10 h
+      (toExpr k) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
+      (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p) (← mkPolyDecl p)
+      reflBoolTrue h₁ h₂
+    return (k₁*k, p₀, h)
+
+open Lean.Grind.CommRing in
+/--
+Given a derivation `d` for `k * p = 0` where `lhs - rhs = p`, returns a proof for `lhs = rhs`.
+-/
+private def mkImpEqExprProof (lhs rhs : RingExpr) (d : PolyDerivation) : ProofM Expr := do
+  assert! d.p matches .num 0
+  let (k, p₀, h₁) ← derivToExprProof d
+  let h ← if k == 1 then
+    mkStepPrefix ``Stepwise.imp_1eq ``Stepwise.imp_1eqC
+  else
+    let some nzInst ← noZeroDivisorsInst?
+      | throwNoNatZeroDivisors
+    pure <| mkApp2 (← mkStepPrefix ``Stepwise.imp_keq ``Stepwise.imp_keqC) nzInst (toExpr k)
+  return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl p₀) (← mkPolyDecl d.p) reflBoolTrue h₁
+
 private abbrev withProofContext (x : ProofM Expr) : RingM Expr := do
   let ring ← getRing
   withLetDecl `ctx (mkApp (mkConst ``RArray [ring.u]) ring.type) (← toContextExpr) fun ctx =>
@@ -374,18 +425,32 @@ where
   go : ProofM Expr := do
     let h ← x
     let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.CommRing.Poly) toExpr
+    let h ← mkLetOfMap (← get).monMap h `m (mkConst ``Grind.CommRing.Mon) toExpr
     let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.CommRing.Expr) toExpr
     mkLetFVars #[(← getContext)] h
 
 open Lean.Grind.CommRing in
-def setEqUnsat (c : EqCnstr) : RingM Expr := do
-  withProofContext do
+def setEqUnsat (c : EqCnstr) : RingM Unit := do
+  let h ← withProofContext do
     let mut h ← mkStepPrefix ``Stepwise.unsat_eq ``Stepwise.unsat_eqC
     let (charInst, char) ← getCharInst
     if char == 0 then
       h := mkApp h charInst
     let k ← getPolyConst c.p
     return mkApp4 h (← mkPolyDecl c.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+  closeGoal h
+
+def setDiseqUnsat (c : DiseqCnstr) : RingM Unit := do
+  let heq ← withProofContext do
+    mkImpEqExprProof c.rlhs c.rrhs c.d
+  closeGoal <| mkApp (← mkDiseqProof c.lhs c.rhs) heq
+
+def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
+  let heq ← withProofContext do
+    mkImpEqExprProof ra rb d
+  let ring ← getRing
+  let eq := mkApp3 (mkConst ``Eq [.succ ring.u]) ring.type a b
+  pushEq a b <| mkExpectedPropHint heq eq
 
 end Stepwise
 
@@ -393,14 +458,18 @@ def EqCnstr.setUnsat (c : EqCnstr) : RingM Unit := do
   if (← getConfig).ringNull then
     Null.setEqUnsat c
   else
-    closeGoal (← Stepwise.setEqUnsat c)
+    Stepwise.setEqUnsat c
 
 def DiseqCnstr.setUnsat (c : DiseqCnstr) : RingM Unit := do
-  Null.setDiseqUnsat c
-  -- TODO: stepwise support
+  if (← getConfig).ringNull then
+    Null.setDiseqUnsat c
+  else
+    Stepwise.setDiseqUnsat c
 
 def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
-  Null.propagateEq a b ra rb d
-  -- TODO: stepwise support
+  if (← getConfig).ringNull then
+    Null.propagateEq a b ra rb d
+  else
+    Stepwise.propagateEq a b ra rb d
 
 end Lean.Meta.Grind.Arith.CommRing

@@ -612,20 +612,21 @@ where doCompile := do
     return
   let opts ← getOptions
   if compiler.enableNew.get opts then
-    compileDeclsNew decls
-
-  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
-    return compileDeclsOld (← getEnv) opts decls
-  match res with
-  | Except.ok env   => setEnv env
-  | Except.error (.other msg) =>
-    if logErrors then
-      if let some decl := ref? then
-        checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
-      throwError msg
-  | Except.error ex =>
-    if logErrors then
-      throwKernelException ex
+    try compileDeclsNew decls catch e =>
+      if logErrors then throw e else return ()
+  else
+    let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
+      return compileDeclsOld (← getEnv) opts decls
+    match res with
+    | Except.ok env   => setEnv env
+    | Except.error (.other msg) =>
+      if logErrors then
+        if let some decl := ref? then
+          checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
+        throwError msg
+    | Except.error ex =>
+      if logErrors then
+        throwKernelException ex
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors

@@ -1296,6 +1296,13 @@ theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     t.insertMany (⟨k, v⟩ :: l) = (t.insert k v).insertMany l :=
   ext <| Impl.insertMany!_cons
 
+theorem insertMany_append {l₁ l₂ : List ((a : α) × β a)} :
+    insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
+  induction l₁ generalizing t with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 @[simp]
 theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
@@ -1469,6 +1476,13 @@ theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     Const.insertMany t ((k, v) :: l) = Const.insertMany (t.insert k v) l :=
   ext <| Impl.Const.insertMany!_cons
 
+theorem insertMany_append {l₁ l₂ : List (α × β)} :
+    insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
+  induction l₁ generalizing t with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 @[simp]
 theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
     {l : List (α × β)} {k : α} :
@@ -1580,6 +1594,12 @@ theorem get?_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     get? (insertMany t l) k' = some v :=
   Impl.Const.get?_insertMany!_list_of_mem h k_eq distinct mem
 
+theorem get?_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
+    {l : List (α × β)} {k : α} :
+    get? (insertMany t l) k =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).or (get? t k) :=
+  Impl.Const.get?_insertMany!_list h (k := k)
+
 theorem get_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     (h : t.WF) {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false)
@@ -1593,6 +1613,14 @@ theorem get_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     get (insertMany t l) k' h' = v :=
   Impl.Const.get_insertMany!_list_of_mem h k_eq distinct mem
 
+theorem get_insertMany_list [TransCmp cmp] [BEq α] [PartialEquivBEq α] [LawfulBEqCmp cmp] (h : t.WF)
+    {l : List (α × β)} {k : α} {h'} :
+    get (insertMany t l) k h' =
+      match w : l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none) with
+      | some v => v
+      | none => get t k (Impl.Const.contains_of_contains_insertMany_list' h (by simpa [Impl.Const.insertMany_eq_insertMany!] using h') w) :=
+  Impl.Const.get_insertMany!_list h (k := k)
+
 theorem get!_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     [Inhabited β] (h : t.WF) {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
@@ -1605,6 +1633,12 @@ theorem get!_insertMany_list_of_mem [TransCmp cmp] [Inhabited β] (h : t.WF)
     get! (insertMany t l) k' = v :=
   Impl.Const.get!_insertMany!_list_of_mem h k_eq distinct mem
 
+theorem get!_insertMany_list [TransCmp cmp] [Inhabited β] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
+    {l : List (α × β)} {k : α} :
+    get! (insertMany t l) k =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).getD (get! t k) :=
+  Impl.Const.get!_insertMany!_list h (k := k)
+
 theorem getD_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     (h : t.WF) {l : List (α × β)} {k : α} {fallback : β}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
@@ -1616,6 +1650,12 @@ theorem getD_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
     getD (insertMany t l) k' fallback = v :=
   Impl.Const.getD_insertMany!_list_of_mem h k_eq distinct mem
+
+theorem getD_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
+    {l : List (α × β)} {k : α} {fallback : β} :
+    getD (insertMany t l) k fallback =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).getD (getD t k fallback) :=
+  Impl.Const.getD_insertMany!_list h (k := k) fallback
 
 variable {t : Raw α Unit cmp}
 
@@ -1772,11 +1812,17 @@ theorem ofList_cons {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
     ofList (⟨k, v⟩ :: tl) cmp = ((∅ : Raw α β cmp).insert k v).insertMany tl :=
   ext Impl.insertMany_empty_list_cons_eq_insertMany!
 
+theorem ofList_eq_insertMany_empty {l : List ((a : α) × (β a))} :
+    ofList l cmp = insertMany (∅ : Raw α β cmp) l :=
+  match l with
+  | [] => by simp
+  | ⟨k, v⟩ :: tl => by simp [ofList_cons, insertMany_cons]
+
 @[simp]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     {l : List ((a : α) × β a)} {k : α} :
     (ofList l cmp).contains k = (l.map Sigma.fst).contains k := by
-  simp [ofList, contains, Impl.ofList]
+  simp only [contains, ofList, Impl.ofList]
   exact Impl.contains_insertMany_empty_list (instOrd := ⟨cmp⟩) (k := k) (l := l)
 
 @[simp]
@@ -1914,6 +1960,12 @@ theorem ofList_singleton {k : α} {v : β} :
 theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) cmp = insertMany ((∅ : Raw α β cmp).insert k v) tl :=
   ext <| Impl.Const.insertMany_empty_list_cons_eq_insertMany!
+
+theorem ofList_eq_insertMany_empty {l : List (α × β)} :
+    ofList l cmp = insertMany (∅ : Raw α β cmp) l :=
+  match l with
+  | [] => by simp
+  | ⟨k, v⟩ :: tl => by simp [ofList_cons, insertMany_cons]
 
 @[simp]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List (α × β)} {k : α} :

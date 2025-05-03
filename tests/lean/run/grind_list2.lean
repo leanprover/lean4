@@ -247,12 +247,12 @@ theorem set_eq_nil_iff {l : List α} (i : Nat) (a : α) : l.set i a = [] ↔ l =
   cases l with cases i with grind
 
 theorem set_comm (a b : α) {i j : Nat} {l : List α} (h : i ≠ j) :
-    (l.set i a).set j b = (l.set j b).set i a := by grind
+    (l.set i a).set j b = (l.set j b).set i a := by grind +extAll
 
 theorem set_set (a : α) {b : α} {l : List α} {i : Nat} :  (l.set i a).set i b = l.set i b := by
-  cases l with cases i with grind
+  cases l with cases i with grind +extAll
 
-theorem set_set' (a : α) {b : α} {l : List α} {i : Nat} : (l.set i a).set i b = l.set i b := by grind
+theorem set_set' (a : α) {b : α} {l : List α} {i : Nat} : (l.set i a).set i b = l.set i b := by grind +extAll
 
 theorem mem_or_eq_of_mem_set' {l : List α} {i : Nat} {a b : α} : a ∈ l.set i b → a ∈ l ∨ a = b := by
   grind
@@ -454,14 +454,14 @@ theorem map_eq_map_iff : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l with grind
 
 theorem map_eq_iff : map f l = l' ↔ ∀ i : Nat, l'[i]? = l[i]?.map f := by
-  grind
+  grind +extAll
 
 theorem map_eq_foldr {f : α → β} {l : List α} : map f l = foldr (fun a bs => f a :: bs) [] l := by
   induction l <;> grind
 
 theorem map_set {f : α → β} {l : List α} {i : Nat} {a : α} :
     (l.set i a).map f = (l.map f).set i (f a) := by
-  grind
+  grind +extAll
 
 theorem head_map {f : α → β} {l : List α} (w) :
     (map f l).head w = f (l.head (by grind)) := by
@@ -831,10 +831,10 @@ theorem tail_replicate {n : Nat} {a : α} : (replicate n a).tail = replicate (n 
   cases n with grind
 
 theorem set_replicate_self : (replicate n a).set i a = replicate n a := by
-  grind
+  grind +extAll
 
 theorem replicate_append_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
-  grind
+  grind +extAll
 
 theorem replicate_eq_append_iff {l₁ l₂ : List α} {a : α} :
     replicate n a = l₁ ++ l₂ ↔
@@ -842,7 +842,7 @@ theorem replicate_eq_append_iff {l₁ l₂ : List α} {a : α} :
   grind [append_eq_replicate_iff]
 
 theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
-  grind
+  grind +extAll
 
 theorem filter_replicate_of_pos (h : p a) : (replicate n a).filter p = replicate n a := by grind
 
@@ -1071,14 +1071,14 @@ theorem getLast_dropLast {xs : List α} (h) :
   grind
 
 theorem map_dropLast {f : α → β} {l : List α} : l.dropLast.map f = (l.map f).dropLast := by
-  induction l with grind
+  induction l with grind +extAll
 
 theorem dropLast_append {l₁ l₂ : List α} :
     (l₁ ++ l₂).dropLast = if l₂.isEmpty then l₁.dropLast else l₁ ++ l₂.dropLast := by
-  grind
+  grind +extAll
 
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
-  grind
+  grind +extAll
 
 -- Failing with:
 -- [issue] unexpected metavariable during internalization
@@ -1087,7 +1087,7 @@ theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (
 -- theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by grind (gen := 6)
 
 theorem dropLast_replicate {n : Nat} {a : α} : dropLast (replicate n a) = replicate (n - 1) a := by
-  grind
+  grind +extAll
 
 
 /-! ## Manipulating elements -/

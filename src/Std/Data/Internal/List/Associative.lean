@@ -4495,10 +4495,10 @@ theorem getEntry?_filterMap' [BEq α] [EquivBEq α]
     specialize hf ⟨k', v⟩
     split
     · rename_i h
-      simp only [List.filterMap_cons, Option.some_bind]
+      simp only [List.filterMap_cons, Option.bind_some]
       simp only [containsKey_congr h] at hl
       split
-      · simp only [ih, ‹f _ = _›, Option.none_bind, getEntry?_eq_none.mpr hl.2]
+      · simp only [ih, ‹f _ = _›, Option.bind_none, getEntry?_eq_none.mpr hl.2]
       · rw [‹f _ = _›, Option.all_some, BEq.congr_right h] at hf
         rw [getEntry?_cons, hf, ‹f _ = _›, cond_true]
     · simp only [List.filterMap_cons]
@@ -5169,7 +5169,7 @@ theorem getValue?_filterMap_of_getKey?_eq_some {β : Type v} {γ : Type w} [BEq 
   simp only [getKey?_eq_getEntry?, Option.map_eq_some_iff, getValue?_eq_getEntry?,
     getEntry?_filterMap distinct, Option.map_bind, forall_exists_index, and_imp]
   intro x hx hk
-  simp only [hx, Option.some_bind, Function.comp_apply, hk, Option.map_map, Option.map_some]
+  simp only [hx, Option.bind_some, Function.comp_apply, hk, Option.map_map, Option.map_some]
   cases f k' x.2 <;> simp
 
 theorem getValue!_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] [Inhabited γ]

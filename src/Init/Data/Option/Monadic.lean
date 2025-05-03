@@ -12,15 +12,46 @@ import Init.Control.Lawful.Basic
 
 namespace Option
 
-@[simp] theorem forM_none [Monad m] (f : α → m PUnit) :
-    none.forM f = pure .unit := rfl
+@[simp, grind] theorem bindM_none [Monad m] (f : α → m (Option β)) : none.bindM f = pure none := rfl
+@[simp, grind] theorem bindM_some [Monad m] [LawfulMonad m] (a) (f : α → m (Option β)) : (some a).bindM f = f a := by
+  simp [Option.bindM]
 
-@[simp] theorem forM_some [Monad m] (f : α → m PUnit) (a : α) :
-    (some a).forM f = f a := rfl
+-- We simplify `Option.forM` to `forM`.
+@[simp] theorem forM_eq_forM [Monad m] : @Option.forM m α _ = forM := rfl
 
-@[simp] theorem forM_map [Monad m] [LawfulMonad m] (o : Option α) (g : α → β) (f : β → m PUnit) :
-    (o.map g).forM f = o.forM (fun a => f (g a)) := by
+@[simp, grind] theorem forM_none [Monad m] (f : α → m PUnit) :
+    forM none f = pure .unit := rfl
+
+@[simp, grind] theorem forM_some [Monad m] (f : α → m PUnit) (a : α) :
+    forM (some a) f = f a := rfl
+
+@[simp, grind] theorem forM_map [Monad m] [LawfulMonad m] (o : Option α) (g : α → β) (f : β → m PUnit) :
+    forM (o.map g) f = forM o (fun a => f (g a)) := by
   cases o <;> simp
+
+@[simp, grind] theorem forIn'_none [Monad m] (b : β) (f : (a : α) → a ∈ none → β → m (ForInStep β)) :
+    forIn' none b f = pure b := by
+  rfl
+
+@[simp, grind] theorem forIn'_some [Monad m] [LawfulMonad m] (a : α) (b : β) (f : (a' : α) → a' ∈ some a → β → m (ForInStep β)) :
+    forIn' (some a) b f = bind (f a rfl b) (fun r => pure (ForInStep.value r)) := by
+  simp only [forIn', bind_pure_comp]
+  rw [map_eq_pure_bind]
+  congr
+  funext x
+  split <;> rfl
+
+@[simp, grind] theorem forIn_none [Monad m] (b : β) (f : α → β → m (ForInStep β)) :
+    forIn none b f = pure b := by
+  rfl
+
+@[simp, grind] theorem forIn_some [Monad m] [LawfulMonad m] (a : α) (b : β) (f : α → β → m (ForInStep β)) :
+    forIn (some a) b f = bind (f a b) (fun r => pure (ForInStep.value r)) := by
+  simp only [forIn, forIn', bind_pure_comp]
+  rw [map_eq_pure_bind]
+  congr
+  funext x
+  split <;> rfl
 
 @[congr] theorem forIn'_congr [Monad m] [LawfulMonad m] {as bs : Option α} (w : as = bs)
     {b b' : β} (hb : b = b')
@@ -60,7 +91,7 @@ theorem forIn'_eq_pelim [Monad m] [LawfulMonad m]
       o.pelim b (fun a h => f a h b) := by
   cases o <;> simp
 
-@[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
+@[simp, grind] theorem forIn'_map [Monad m] [LawfulMonad m]
     (o : Option α) (g : α → β) (f : (b : β) → b ∈ o.map g → γ → m (ForInStep γ)) :
     forIn' (o.map g) init f = forIn' o init fun a h y => f (g a) (mem_map_of_mem g h) y := by
   cases o <;> simp
@@ -89,11 +120,9 @@ theorem forIn_eq_elim [Monad m] [LawfulMonad m]
       o.elim b (fun a => f a b) := by
   cases o <;> simp
 
-@[simp] theorem forIn_map [Monad m] [LawfulMonad m]
+@[simp, grind] theorem forIn_map [Monad m] [LawfulMonad m]
     (o : Option α) (g : α → β) (f : β → γ → m (ForInStep γ)) :
     forIn (o.map g) init f = forIn o init fun a y => f (g a) y := by
   cases o <;> simp
-
-@[simp] theorem mapA_eq_mapM : @Option.mapA = @Option.mapM := rfl
 
 end Option

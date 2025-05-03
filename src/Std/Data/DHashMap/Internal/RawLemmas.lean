@@ -2562,6 +2562,7 @@ theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF)
         m.getKey! k' := by
   simp_to_model [alter, get?, getKey!] using List.getKey!_alterKey
 
+-- Note that in many use cases `getKey_eq` gives a simpler right hand side.
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF)
     {f : Option (β k) → Option (β k)} (hc : (m.alter k f).contains k') :
     (m.alter k f).getKey k' hc =

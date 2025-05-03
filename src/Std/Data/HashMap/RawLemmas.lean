@@ -589,6 +589,7 @@ theorem getKey_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : �
     m.getKey k₁ h₁ = m.getKey k₂ ((mem_congr h h').mp h₁) :=
   DHashMap.Raw.getKey_congr h.out h' h₁
 
+@[simp]
 theorem getKey_eq [LawfulBEq α] (h : m.WF) {k : α} (h' : k ∈ m) :
     m.getKey k h' = k :=
   DHashMap.Raw.getKey_eq h.out h'

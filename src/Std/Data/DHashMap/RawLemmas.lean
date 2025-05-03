@@ -873,6 +873,7 @@ theorem getKey_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : �
     m.getKey k₁ h₁ = m.getKey k₂ (((mem_congr h h').mp h₁)) := by
   simp_to_raw using Raw₀.getKey_congr
 
+@[simp]
 theorem getKey_eq [LawfulBEq α] (h : m.WF) {k : α} (h') :
     m.getKey k h' = k := by
   simp_to_raw using Raw₀.getKey_eq
@@ -2692,6 +2693,7 @@ theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (�
     (h : m.WF) : (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default := by
   simp [getKey!_alter h]
 
+-- Note that in many use cases `getKey_eq` gives a simpler right hand side.
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : m.WF) {hc : k' ∈ m.alter k f} :
     (m.alter k f).getKey k' hc =
@@ -3052,6 +3054,7 @@ theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k →
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.getKey!_modify_self
 
+@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
     (h : m.WF) : {hc : k' ∈ m.modify k f} →
     (m.modify k f).getKey k' hc =

@@ -13,10 +13,19 @@ namespace Option
 deriving instance DecidableEq for Option
 deriving instance BEq for Option
 
+@[simp, grind] theorem getD_none : getD none a = a := rfl
+@[simp, grind] theorem getD_some : getD (some a) b = a := rfl
+
+@[simp, grind] theorem map_none (f : α → β) : none.map f = none := rfl
+@[simp, grind] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
+
 /-- Lifts an optional value to any `Alternative`, sending `none` to `failure`. -/
 def getM [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
+
+@[simp, grind] theorem getM_none [Alternative m] : getM none = (failure : m α) := rfl
+@[simp, grind] theorem getM_some [Alternative m] {a : α} : getM (some a) = (pure a : m α) := rfl
 
 /-- Returns `true` on `some x` and `false` on `none`. -/
 @[inline] def isSome : Option α → Bool
@@ -75,6 +84,14 @@ Examples:
   | none,   _ => none
   | some a, f => f a
 
+@[simp, grind] theorem bind_none (f : α → Option β) : none.bind f = none := rfl
+@[simp, grind] theorem bind_some (a) (f : α → Option β) : (some a).bind f = f a := rfl
+
+@[deprecated bind_none (since := "2025-05-03")]
+abbrev none_bind := @bind_none
+@[deprecated bind_some (since := "2025-05-03")]
+abbrev some_bind := @bind_some
+
 /--
 Runs the monadic action `f` on `o`'s value, if any, and returns the result, or  `none` if there is
 no value.
@@ -102,6 +119,9 @@ This function only requires `m` to be an applicative functor. An alias `Option.m
   | none => pure none
   | some x => some <$> f x
 
+@[simp, grind] theorem mapM_none [Applicative m] (f : α → m β) : none.mapM f = pure none := rfl
+@[simp, grind] theorem mapM_some [Applicative m] (x) (f : α → m β) : (some x).mapM f = some <$> f x := rfl
+
 /--
 Applies a function in some applicative functor to an optional value, returning `none` with no
 effects if the value is missing.
@@ -111,6 +131,10 @@ This is an alias for `Option.mapM`, which already works for applicative functors
 @[inline] protected def mapA [Applicative m] (f : α → m β) : Option α → m (Option β) :=
   Option.mapM f
 
+/-- For verification purposes, we replace `mapA` with `mapM`. -/
+@[simp, grind] theorem mapA_eq_mapM [Applicative m] {f : α → m β} : Option.mapA f o = Option.mapM f o := rfl
+
+@[simp, grind]
 theorem map_id : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some _ => rfl)
 
@@ -142,6 +166,9 @@ Examples:
   | some a => p a
   | none   => true
 
+@[simp, grind] theorem all_none : Option.all p none = true := rfl
+@[simp, grind] theorem all_some : Option.all p (some x) = p x := rfl
+
 /--
 Checks whether an optional value is not `none` and satisfies a Boolean predicate.
 
@@ -154,6 +181,9 @@ Examples:
   | some a => p a
   | none   => false
 
+@[simp, grind] theorem any_none : Option.any p none = false := rfl
+@[simp, grind] theorem any_some : Option.any p (some x) = p x := rfl
+
 /--
 Implementation of `OrElse`'s `<|>` syntax for `Option`. If the first argument is `some a`, returns
 `some a`, otherwise evaluates and returns the second argument.
@@ -163,6 +193,9 @@ See also `or` for a version that is strict in the second argument.
 @[always_inline, macro_inline] protected def orElse : Option α → (Unit → Option α) → Option α
   | some a, _ => some a
   | none,   b => b ()
+
+@[simp, grind] theorem orElse_some : (some a).orElse b = some a := rfl
+@[simp, grind] theorem orElse_none : none.orElse b = b () := rfl
 
 instance : OrElse (Option α) where
   orElse := Option.orElse
@@ -229,15 +262,6 @@ def merge (fn : α → α → α) : Option α → Option α → Option α
   | some x, none   => some x
   | none  , some y => some y
   | some x, some y => some <| fn x y
-
-@[simp, grind] theorem getD_none : getD none a = a := rfl
-@[simp, grind] theorem getD_some : getD (some a) b = a := rfl
-
-@[simp, grind] theorem map_none (f : α → β) : none.map f = none := rfl
-@[simp, grind] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
-
-@[simp, grind] theorem none_bind (f : α → Option β) : none.bind f = none := rfl
-@[simp, grind] theorem some_bind (a) (f : α → Option β) : (some a).bind f = f a := rfl
 
 /--
 A case analysis function for `Option`.
@@ -342,6 +366,9 @@ Examples:
 -/
 @[simp, inline] def join (x : Option (Option α)) : Option α := x.bind id
 
+@[simp, grind] theorem join_none : (none : Option (Option α)).join = none := rfl
+@[simp, grind] theorem join_some : (some o).join = o := rfl
+
 /--
 Converts an optional monadic computation into a monadic computation of an optional value.
 
@@ -363,7 +390,10 @@ some "world"
 -/
 @[inline] def sequence [Applicative m] {α : Type u} : Option (m α) → m (Option α)
   | none => pure none
-  | some fn => some <$> fn
+  | some f => some <$> f
+
+@[simp, grind] theorem sequence_none [Applicative m] : (none : Option (m α)).sequence = pure none := rfl
+@[simp, grind] theorem sequence_some [Applicative m] (f : m (Option α)) : (some f).sequence = some <$> f := rfl
 
 /--
 A monadic case analysis function for `Option`.
@@ -388,6 +418,9 @@ This is the monadic analogue of `Option.getD`.
   | some a => pure a
   | none => y
 
+@[simp, grind] theorem getDM_none [Pure m] (y : m α) : (none : Option α).getDM y = y := rfl
+@[simp, grind] theorem getDM_some [Pure m] (a : α) (y : m α) : (some a).getDM y = pure a := rfl
+
 instance (α) [BEq α] [ReflBEq α] : ReflBEq (Option α) where
   rfl {x} :=
     match x with
@@ -399,12 +432,6 @@ instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
     match x, y with
     | some x, some y => rw [LawfulBEq.eq_of_beq (α := α) h]
     | none, none => rfl
-
-@[simp, grind] theorem all_none : Option.all p none = true := rfl
-@[simp, grind] theorem all_some : Option.all p (some x) = p x := rfl
-
-@[simp, grind] theorem any_none : Option.any p none = false := rfl
-@[simp, grind] theorem any_some : Option.any p (some x) = p x := rfl
 
 /--
 The minimum of two optional values, with `none` treated as the least element. This function is
@@ -481,6 +508,7 @@ instance : Alternative Option where
   failure := Option.none
   orElse  := Option.orElse
 
+@[deprecated Option.getM (since := "2025-05-03")]
 def liftOption [Alternative m] : Option α → m α
   | some a => pure a
   | none   => failure

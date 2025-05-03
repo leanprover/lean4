@@ -180,9 +180,9 @@ abbrev ball_ne_none := @forall_ne_none
 
 @[simp] theorem orElse_eq_orElse : HOrElse.hOrElse = @Option.orElse α := rfl
 
-@[simp] theorem bind_some (x : Option α) : x.bind some = x := by cases x <;> rfl
+@[simp] theorem bind_some' (x : Option α) : x.bind some = x := by cases x <;> rfl
 
-@[simp] theorem bind_none (x : Option α) : x.bind (fun _ => none (α := β)) = none := by
+@[simp] theorem bind_none' (x : Option α) : x.bind (fun _ => none (α := β)) = none := by
   cases x <;> rfl
 
 theorem bind_eq_some_iff : x.bind f = some b ↔ ∃ a, x = some a ∧ f a = some b := by
@@ -447,11 +447,11 @@ theorem bind_map_comm {α β} {x : Option (Option α)} {f : α → β} :
 theorem mem_of_mem_join {a : α} {x : Option (Option α)} (h : a ∈ x.join) : some a ∈ x :=
   h.symm ▸ join_eq_some_iff.1 h
 
-@[simp, grind] theorem some_orElse (a : α) (f) : (some a).orElse f = some a := rfl
+@[deprecated orElse_some (since := "2025-05-03")]
+theorem some_orElse (a : α) (f) : (some a).orElse f = some a := rfl
 
-@[simp, grind] theorem none_orElse (f : Unit → Option α) : none.orElse f = f () := rfl
-
-@[simp] theorem orElse_none (x : Option α) : x.orElse (fun _ => none) = x := by cases x <;> rfl
+@[deprecated orElse_none (since := "2025-05-03")]
+theorem none_orElse (f : Unit → Option α) : none.orElse f = f () := rfl
 
 theorem orElse_eq_some_iff (o : Option α) (f) (x : α) :
     (o.orElse f) = some x ↔ o = some x ∨ o = none ∧ f () = some x := by
@@ -599,8 +599,10 @@ abbrev choice_isSome_iff_nonempty := @isSome_choice_iff_nonempty
 end choice
 
 @[simp, grind] theorem toList_some (a : α) : (some a).toList = [a] := rfl
-
 @[simp, grind] theorem toList_none (α : Type _) : (none : Option α).toList = [] := rfl
+
+@[simp, grind] theorem toArray_some (a : α) : (some a).toArray = #[a] := rfl
+@[simp, grind] theorem toArray_none (α : Type _) : (none : Option α).toArray = #[] := rfl
 
 -- See `Init.Data.Option.List` for lemmas about `toList`.
 
@@ -689,6 +691,10 @@ variable [BEq α]
 @[simp, grind] theorem none_beq_some (a : α) : ((none : Option α) == some a) = false := rfl
 @[simp, grind] theorem some_beq_none (a : α) : ((some a : Option α) == none) = false := rfl
 @[simp, grind] theorem some_beq_some {a b : α} : (some a == some b) = (a == b) := rfl
+
+/-- We simplify away `isEqSome` in terms of `==`. -/
+@[simp, grind] theorem isEqSome_eq_beq_some {o : Option α} : isEqSome o y = (o == some y) := by
+  cases o <;> simp [isEqSome]
 
 @[simp] theorem reflBEq_iff : ReflBEq (Option α) ↔ ReflBEq α := by
   constructor

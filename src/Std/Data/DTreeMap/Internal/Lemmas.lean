@@ -3603,6 +3603,7 @@ theorem getKey!_alter!_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t
     (t.alter! k f).getKey! k = if (f (t.get? k)).isSome then k else default := by
   simpa only [alter_eq_alter!] using getKey!_alter_self h
 
+-- Note that in many use cases `getKey_eq` gives a simpler right hand side.
 theorem getKey_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter k f h.balanced).1} :
     (t.alter k f h.balanced).1.getKey k' hc =

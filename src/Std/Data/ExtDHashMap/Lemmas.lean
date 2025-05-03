@@ -677,6 +677,7 @@ theorem getKey_congr [EquivBEq α] [LawfulHashable α] {k₁ k₂ : α} (h : k�
     (h₁ : k₁ ∈ m) : m.getKey k₁ h₁ = m.getKey k₂ ((mem_congr h).mp h₁) :=
   m.inductionOn (fun _ h h₁ => DHashMap.getKey_congr h h₁) h h₁
 
+@[simp]
 theorem getKey_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.getKey k h = k :=
   m.inductionOn (fun _ h => DHashMap.getKey_eq h) h
 
@@ -2264,6 +2265,7 @@ theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (�
     (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default :=
   m.inductionOn fun _ => DHashMap.getKey!_alter_self
 
+@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
     {h : k' ∈ m.alter k f} :
     (m.alter k f).getKey k' h =
@@ -2271,8 +2273,8 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
         k
       else
         haveI h' : k' ∈ m := mem_alter_of_beq_eq_false (Bool.not_eq_true _ ▸ heq) |>.mp h
-        m.getKey k' h' :=
-  m.inductionOn (fun _ _ => DHashMap.getKey_alter) h
+        m.getKey k' h' := by
+  split <;> simp_all
 
 @[simp]
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
@@ -2597,6 +2599,7 @@ theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k →
     (m.modify k f).getKey! k = if k ∈ m then k else default :=
   m.inductionOn fun _ => DHashMap.getKey!_modify_self
 
+@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
     {h : k' ∈ m.modify k f} :
     (m.modify k f).getKey k' h =
@@ -2604,8 +2607,8 @@ theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β
         k
       else
         haveI h' : k' ∈ m := mem_modify.mp h
-        m.getKey k' h' :=
-  m.inductionOn (fun _ _ => DHashMap.getKey_modify) h
+        m.getKey k' h' := by
+  split <;> simp_all
 
 @[simp]
 theorem getKey_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k}

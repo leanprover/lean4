@@ -807,6 +807,7 @@ theorem getKey_congr [EquivBEq α] [LawfulHashable α] {k₁ k₂ : α} (h : k�
     (h₁ : k₁ ∈ m) : m.getKey k₁ h₁ = m.getKey k₂ ((mem_congr h).mp h₁) :=
   Raw₀.getKey_congr ⟨m.1, _⟩ m.2 h h₁
 
+@[simp]
 theorem getKey_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.getKey k h = k :=
   Raw₀.getKey_eq ⟨m.1, _⟩ m.2 h
 
@@ -2550,6 +2551,7 @@ theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (�
     (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default := by
   simp only [getKey!_alter, beq_self_eq_true, reduceIte]
 
+@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
     {h : k' ∈ m.alter k f} :
     (m.alter k f).getKey k' h =
@@ -2560,10 +2562,9 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
         m.getKey k' h' :=
   Raw₀.getKey_alter ⟨m.1, _⟩ m.2 h
 
-@[simp]
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
     {h : k ∈ m.alter k f} : (m.alter k f).getKey k h = k := by
-  simp [getKey_alter]
+  simp
 
 theorem getKeyD_alter [LawfulBEq α] {k k' fallback : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKeyD k' fallback =
@@ -2881,6 +2882,7 @@ theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k →
     (m.modify k f).getKey! k = if k ∈ m then k else default :=
   Raw₀.getKey!_modify_self ⟨m.1, _⟩ m.2
 
+@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
     {h : k' ∈ m.modify k f} :
     (m.modify k f).getKey k' h =

@@ -55,27 +55,27 @@ def deptest (l : List Nat) : Nat :=
     | true => deptest l + someOtherFunction x h
 
 /--
-info: test.induct_unfolding (motive : List Nat → Nat → Prop) (case1 : motive [] 0)
+info: deptest.induct_unfolding (motive : List Nat → Nat → Prop) (case1 : motive [] 0)
   (case2 :
     ∀ (x : Nat) (l : List Nat),
       (x == 3) = false →
-        motive l (test l) →
+        motive l (deptest l) →
           motive (x :: l)
-            (match x == 3 with
-            | false => test l
-            | true => test l))
+            (match h : x == 3 with
+            | false => deptest l + someFunction x h
+            | true => deptest l + someOtherFunction x h))
   (case3 :
     ∀ (x : Nat) (l : List Nat),
       (x == 3) = true →
-        motive l (test l) →
+        motive l (deptest l) →
           motive (x :: l)
-            (match x == 3 with
-            | false => test l
-            | true => test l))
-  (l : List Nat) : motive l (test l)
+            (match h : x == 3 with
+            | false => deptest l + someFunction x h
+            | true => deptest l + someOtherFunction x h))
+  (l : List Nat) : motive l (deptest l)
 -/
 #guard_msgs in
-#check test.induct_unfolding
+#check deptest.induct_unfolding
 
 example (l : List Nat) : deptest l = sorry := by
   induction l using deptest.induct_unfolding with
@@ -88,7 +88,3 @@ example (l : List Nat) : deptest l = sorry := by
   | case3 x l h ih =>
     -- simp [h] -- fails
     sorry
-
-
-#print test.match_2
-#check test.match_1.fun_cases_unfolding

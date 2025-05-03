@@ -158,6 +158,18 @@ theorem getEntryLE.match_1.congr {α : Sort u} {o o' : Ordering}
   induction ho; induction funext hlt; induction funext heq; induction funext hgt
   rfl
 
+@[congr]
+theorem get?.match_1.congr {α : Sort u} {o o' : Ordering}
+    {lt : o = .lt → α} {eq : o = .eq → α} {gt : o = .gt → α}
+    {lt' : o' = .lt → α} {eq' : o' = .eq → α} {gt' : o' = .gt → α}
+    (ho : o = o')
+    (hlt : ∀ h, lt (ho.trans h) = lt' h)
+    (heq : ∀ h, eq (ho.trans h) = eq' h)
+    (hgt : ∀ h, gt (ho.trans h) = gt' h) :
+    get?.match_1 (fun _ => α) o lt gt eq = get?.match_1 (fun _ => α) o' lt' gt' eq' := by
+  induction ho; induction funext hlt; induction funext heq; induction funext hgt
+  rfl
+
 /--
 Induction principle on `Impl` with an additional case split on `k ky` for
 `Impl.inner _ ky _ _ _` without generalization.
@@ -458,7 +470,7 @@ theorem contains_eq_containsₘ [Ord α] (k : α) (l : Impl α β) :
   simp only [containsₘ]
   induction l
   · simp only [contains, applyCell]
-    split <;> split <;> simp_all
+    split <;> simp_all
   · simp [contains, applyCell]
 
 theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) :
@@ -466,15 +478,14 @@ theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l :
   simp only [get?ₘ]
   induction l
   · simp only [applyCell, get?]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.get?, Cell.ofEq]
+    split <;> simp_all [Cell.get?, Cell.ofEq]
   · simp [get?, applyCell]
 
 theorem get_eq_get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} :
     some (l.get k h) = l.get? k := by
   induction l
   · simp only [applyCell, get, get?]
-    split <;> rename_i ihl ihr hcmp <;> simp_all
+    split <;> simp_all
   · contradiction
 
 theorem get_eq_getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} (h') :
@@ -487,8 +498,7 @@ theorem get!_eq_get!ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) [Inh
   simp only [get!ₘ, get?ₘ]
   induction l
   · simp only [applyCell, get!]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.get?, Cell.ofEq]
+    split <;> simp_all [Cell.get?, Cell.ofEq]
   · simp only [get!, applyCell, Cell.get?_empty, Option.get!_none]; rfl
 
 theorem getD_eq_getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β)
@@ -496,8 +506,7 @@ theorem getD_eq_getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l :
   simp only [getDₘ, get?ₘ]
   induction l
   · simp only [applyCell, getD]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.get?, Cell.ofEq]
+    split <;> simp_all [Cell.get?, Cell.ofEq]
   · simp only [getD, applyCell, Cell.get?_empty, Option.getD_none]
 
 theorem getKey?_eq_getKey?ₘ [Ord α] (k : α) (l : Impl α β) :
@@ -505,15 +514,14 @@ theorem getKey?_eq_getKey?ₘ [Ord α] (k : α) (l : Impl α β) :
   simp only [getKey?ₘ]
   induction l
   · simp only [applyCell, getKey?]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.getKey?, Cell.ofEq]
+    split <;> simp_all [Cell.getKey?, Cell.ofEq]
   · simp [getKey?, applyCell]
 
 theorem getKey_eq_getKey? [Ord α] (k : α) (l : Impl α β) {h} :
     some (l.getKey k h) = l.getKey? k := by
   induction l
   · simp only [applyCell, getKey, getKey?]
-    split <;> rename_i ihl ihr hcmp <;> simp_all
+    split <;> simp_all
   · contradiction
 
 theorem getKey_eq_getKeyₘ [Ord α] (k : α) (l : Impl α β) {h} (h') :
@@ -526,8 +534,7 @@ theorem getKey!_eq_getKey!ₘ [Ord α] (k : α) [Inhabited α] (l : Impl α β) 
   simp only [getKey!ₘ, getKey?ₘ]
   induction l
   · simp only [applyCell, getKey!]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.getKey?, Cell.ofEq]
+    split <;> simp_all [Cell.getKey?, Cell.ofEq]
   · simp only [getKey!, applyCell, Cell.getKey?_empty, Option.get!_none]; rfl
 
 theorem getKeyD_eq_getKeyDₘ [Ord α] (k : α) (l : Impl α β)
@@ -535,8 +542,7 @@ theorem getKeyD_eq_getKeyDₘ [Ord α] (k : α) (l : Impl α β)
   simp only [getKeyDₘ, getKey?ₘ]
   induction l
   · simp only [applyCell, getKeyD]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.getKey?, Cell.ofEq]
+    split <;> simp_all [Cell.getKey?, Cell.ofEq]
   · simp only [getKeyD, applyCell, Cell.getKey?_empty, Option.getD_none]
 
 theorem minEntry?_eq_minEntry?ₘ' [Ord α] {l : Impl α β} : l.minEntry? = l.minEntry?ₘ' := by
@@ -549,47 +555,107 @@ theorem minEntry?ₘ'_eq_minEntry?ₘ [Ord α] {l : Impl α β} : l.minEntry?ₘ
 theorem minEntry?_eq_minEntry?ₘ [Ord α] {l : Impl α β} : l.minEntry? = l.minEntry?ₘ := by
   rw [minEntry?_eq_minEntry?ₘ', minEntry?ₘ'_eq_minEntry?ₘ]
 
-theorem minKey?_eq_minEntry?_map_fst [Ord α] {l : Impl α β} : l.minKey? = l.minEntry?.map Sigma.fst := by
-  induction l using minKey?.induct <;> simp only [minKey?, minEntry?] <;> trivial
+theorem minEntry!_eq_get!_minEntry? [Inhabited ((a : α) × β a)] {l : Impl α β} :
+    l.minEntry! = l.minEntry?.get! := by
+  induction l using minEntry?.induct_unfolding <;> simp only [minEntry!] <;> trivial
 
-theorem some_minEntry_eq_minEntry? [Ord α] {l : Impl α β} {he} :
+theorem minEntryD_eq_getD_minEntry? {l : Impl α β} {fallback : (a : α) × β a} :
+    l.minEntryD fallback = l.minEntry?.getD fallback := by
+  induction l using minEntry?.induct_unfolding <;> simp only [minEntryD] <;> trivial
+
+theorem some_minEntry_eq_minEntry? {l : Impl α β} {he} :
     some (l.minEntry he) = l.minEntry? := by
-  induction l, he using minEntry.induct <;> simp_all [minEntry, minEntry?]
+  induction l, he using minEntry.induct_unfolding <;> simp only [minEntry?] <;> assumption
 
-theorem minEntry_eq_get_minEntry? [Ord α] {l : Impl α β} {he} :
+theorem minEntry_eq_get_minEntry? {l : Impl α β} {he} :
     l.minEntry he = l.minEntry?.get (by simp [← some_minEntry_eq_minEntry? (he := he)]) := by
   simp [← some_minEntry_eq_minEntry? (he := he)]
 
-theorem minKey_eq_minEntry_fst [Ord α] {l : Impl α β} {he} : l.minKey he = (l.minEntry he).fst := by
-  induction l, he using minKey.induct <;> simp only [minKey, minEntry] <;> trivial
+theorem maxEntry?_eq_minEntry?_reverse {l : Impl α β} : l.maxEntry? = l.reverse.minEntry? := by
+  induction l using maxEntry?.induct_unfolding <;> simp only [minEntry?, reverse] <;> assumption
 
-theorem minKey!_eq_get!_minKey? [Ord α] [Inhabited α] {l : Impl α β} :
+theorem maxEntry!_eq_get!_maxEntry? [Inhabited ((a : α) × β a)] {l : Impl α β} :
+    l.maxEntry! = l.maxEntry?.get! := by
+  induction l using maxEntry?.induct_unfolding <;> simp only [maxEntry!] <;> trivial
+
+theorem maxEntryD_eq_getD_maxEntry? {l : Impl α β} {fallback : (a : α) × β a} :
+    l.maxEntryD fallback = l.maxEntry?.getD fallback := by
+  induction l using maxEntry?.induct_unfolding <;> simp only [maxEntryD] <;> trivial
+
+theorem some_maxEntry_eq_maxEntry? {l : Impl α β} {he} : some (l.maxEntry he) = l.maxEntry? := by
+  induction l, he using maxEntry.induct_unfolding <;> simp only [maxEntry?] <;> assumption
+
+theorem minKey?_eq_minEntry?_map_fst {l : Impl α β} : l.minKey? = l.minEntry?.map Sigma.fst := by
+  induction l using minKey?.induct_unfolding <;> simp only [minEntry?] <;> trivial
+
+theorem minKey_eq_minEntry_fst {l : Impl α β} {he} : l.minKey he = (l.minEntry he).fst := by
+  induction l, he using minKey.induct_unfolding <;> simp only [minEntry] <;> trivial
+
+theorem minKey!_eq_get!_minKey? [Inhabited α] {l : Impl α β} :
     l.minKey! = l.minKey?.get! := by
-  induction l using minKey!.induct <;> simp_all only [minKey!, minKey?] <;> rfl
+  induction l using minKey!.induct_unfolding <;> simp only [minKey?] <;> trivial
 
-theorem minKeyD_eq_getD_minKey? [Ord α] {l : Impl α β} {fallback} :
+theorem minKeyD_eq_getD_minKey? {l : Impl α β} {fallback} :
     l.minKeyD fallback = l.minKey?.getD fallback := by
-  induction l, fallback using minKeyD.induct <;> simp_all only [minKeyD, minKey?] <;> rfl
+  induction l, fallback using minKeyD.induct_unfolding <;> simp only [minKey?] <;> trivial
 
-theorem maxKey?_eq_minKey?_reverse [Ord α] {l : Impl α β} :
-    l.maxKey? = (letI : Ord α := .opposite inferInstance; (reverse l).minKey?) := by
-  induction l using maxKey?.induct <;> simp_all only [minKey?, maxKey?, reverse]
+theorem maxKey?_eq_minKey?_reverse {l : Impl α β} : l.maxKey? = l.reverse.minKey? := by
+  induction l using maxKey?.induct_unfolding <;> simp only [minKey?, reverse] <;> assumption
 
-theorem some_maxKey_eq_maxKey? [Ord α] {l : Impl α β} {he} :
-    some (l.maxKey he) = l.maxKey? := by
-  induction l, he using maxKey.induct <;> simp_all [maxKey, maxKey?]
+theorem some_maxKey_eq_maxKey? {l : Impl α β} {he} : some (l.maxKey he) = l.maxKey? := by
+  induction l, he using maxKey.induct_unfolding <;> simp only [maxKey?] <;> assumption
 
-theorem maxKey_eq_get_maxKey? [Ord α] {l : Impl α β} {he} :
+theorem maxKey_eq_get_maxKey? {l : Impl α β} {he} :
     l.maxKey he = l.maxKey?.get (by simp [← some_maxKey_eq_maxKey? (he := he)]) := by
   simp [← some_maxKey_eq_maxKey? (he := he)]
 
-theorem maxKey!_eq_get!_maxKey? [Ord α] [Inhabited α] {l : Impl α β} :
+theorem maxKey!_eq_get!_maxKey? [Inhabited α] {l : Impl α β} :
     l.maxKey! = l.maxKey?.get! := by
-  induction l using maxKey!.induct <;> simp_all only [maxKey!, maxKey?] <;> rfl
+  induction l using maxKey!.induct_unfolding <;> simp only [maxKey?] <;> trivial
 
-theorem maxKeyD_eq_getD_maxKey? [Ord α] {l : Impl α β} {fallback} :
+theorem maxKeyD_eq_getD_maxKey? {l : Impl α β} {fallback} :
     l.maxKeyD fallback = l.maxKey?.getD fallback := by
-  induction l, fallback using maxKeyD.induct <;> simp_all only [maxKeyD, maxKey?] <;> rfl
+  induction l using maxKey?.induct_unfolding <;> simp only [maxKeyD] <;> trivial
+
+namespace Const
+
+variable {β : Type v}
+
+theorem minEntry?_eq_minEntry? [Ord α] {l : Impl α fun _ => β} :
+    minEntry? l = l.minEntry?.map (fun x => (x.1, x.2)) := by
+  induction l using minEntry?.induct_unfolding <;> simp only [Impl.minEntry?] <;> trivial
+
+theorem minEntry!_eq_get!_minEntry? [Ord α] {l : Impl α fun _ => β} [Inhabited (α × β)] :
+    minEntry! l = (minEntry? l).get! := by
+  induction l using minEntry?.induct_unfolding <;> simp only [minEntry!] <;> trivial
+
+theorem minEntryD_eq_getD_minEntry? [Ord α] {l : Impl α fun _ => β} {fallback : α × β} :
+    minEntryD l fallback = (minEntry? l).getD fallback := by
+  induction l using minEntry?.induct_unfolding <;> simp only [minEntryD] <;> trivial
+
+theorem some_minEntry_eq_minEntry? [Ord α] {l : Impl α fun _ => β} {he} :
+    some (minEntry l he) = minEntry? l := by
+  induction l, he using minEntry.induct_unfolding <;> simp only [minEntry?] <;> trivial
+
+theorem maxEntry?_eq_maxEntry? [Ord α] {l : Impl α fun _ => β} :
+    maxEntry? l = l.maxEntry?.map (fun x => (x.1, x.2)) := by
+  induction l using maxEntry?.induct_unfolding <;> simp only [Impl.maxEntry?] <;> trivial
+
+theorem maxEntry!_eq_get!_minEntry? [Ord α] {l : Impl α fun _ => β} [Inhabited (α × β)] :
+    maxEntry! l = (maxEntry? l).get! := by
+  induction l using maxEntry?.induct_unfolding <;> simp only [maxEntry!] <;> trivial
+
+theorem maxEntryD_eq_getD_minEntry? [Ord α] {l : Impl α fun _ => β} {fallback : α × β} :
+    maxEntryD l fallback = (maxEntry? l).getD fallback := by
+  induction l using maxEntry?.induct_unfolding <;> simp only [maxEntryD] <;> trivial
+
+theorem some_maxEntry_eq_minEntry? [Ord α] {l : Impl α fun _ => β} {he} :
+    some (maxEntry l he) = maxEntry? l := by
+  induction l, he using maxEntry.induct_unfolding <;> simp only [maxEntry?] <;> trivial
+
+end Const
+
+set_option Elab.async false
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by
@@ -688,10 +754,8 @@ theorem erase_eq_erase! [Ord α] {k : α} {t : Impl α β} {h} :
 theorem erase_eq_eraseₘ [Ord α] {k : α} {t : Impl α β} {h} :
     (erase k t h).impl = eraseₘ k t h := by
   simp only [eraseₘ]
-  induction t
-  · simp only [erase, updateCell]
-    split <;> split <;> simp_all [balanceLErase_eq_balance, balanceRErase_eq_balance]
-  · simp [erase, eraseₘ, updateCell]
+  induction t using tree_split_ind_no_gen (compare k) <;>
+    simp only [erase, updateCell, *, Cell.empty_inner, balanceRErase_eq_balance, balanceLErase_eq_balance]
 
 theorem erase!_eq_eraseₘ [Ord α] {k : α} {t : Impl α β} (h : t.Balanced) :
     erase! k t = eraseₘ k t h := by
@@ -797,18 +861,12 @@ variable {β : Type v}
 theorem get?_eq_get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) :
     Const.get? l k = Const.get?ₘ l k := by
   simp only [Const.get?ₘ]
-  induction l
-  · simp only [applyCell, Const.get?]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.Const.get?, Cell.ofEq]
-  · simp [Const.get?, applyCell]
+  induction l using tree_split_ind_no_gen (compare k) <;>
+    simp only [*, get?, applyCell, Cell.Const.get?, Cell.empty_inner, Cell.ofEq_inner]
 
 theorem get_eq_get? [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} :
     some (get l k h) = get? l k := by
-  induction l
-  · simp only [applyCell, get, get?]
-    split <;> rename_i ihl ihr hcmp <;> simp_all
-  · contradiction
+  induction l using tree_split_ind_no_gen (compare k) <;> simp only [*, get, get?] <;> contradiction
 
 theorem get_eq_getₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} (h') :
     get l k h = getₘ l k h' := by
@@ -817,23 +875,31 @@ theorem get_eq_getₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} (h') :
 
 theorem get!_eq_get!ₘ [Ord α] (k : α) [Inhabited β] (l : Impl α (fun _ => β)) :
     get! l k = get!ₘ l k := by
-  simp only [get!ₘ, get?ₘ]
-  induction l
-  · simp only [applyCell, get!]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.Const.get?, Cell.ofEq]
-  · simp only [get!, applyCell, Option.get!_none]; rfl
+  rw [get!ₘ, get?ₘ]
+  induction l using tree_split_ind_no_gen (compare k) <;>
+    simp only [*, get!, applyCell, Cell.Const.get?, Cell.ofEq, Option.get!_some]
+  · rfl
 
 theorem getD_eq_getDₘ [Ord α] (k : α) (l : Impl α (fun _ => β))
     (fallback : β) : getD l k fallback = getDₘ l k fallback := by
-  simp only [getDₘ, get?ₘ]
-  induction l
-  · simp only [applyCell, getD]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.Const.get?, Cell.ofEq]
-  · simp only [getD, applyCell, Cell.Const.get?_empty, Option.getD_none]
+  rw [getDₘ, get?ₘ]
+  induction l using tree_split_ind_no_gen (compare k) <;>
+    simp only [*, getD, applyCell, Cell.Const.get?, Cell.ofEq, Option.getD_some]
+  · rfl
 
 end Const
+
+theorem entryAtIdx?_eq_some_entryAtIdx {t : Impl α β} (htb : t.Balanced) {i : Nat} (h) :
+    t.entryAtIdx? i = some (t.entryAtIdx htb i h) := by
+  induction t generalizing i with
+  | leaf => contradiction
+  | inner n k v l r ih ih' =>
+    simp only [entryAtIdx, entryAtIdx?]
+    split <;> split <;> rename_i h h'
+    all_goals try (rw [h] at h'; contradiction)
+    · exact ih htb.left _
+    · rfl
+    · exact ih' htb.right _
 
 /-- Implementation detail of the tree map -/
 def getEntryGE?ₘ [Ord α] (k : α) (t : Impl α β) : Option ((a : α) × β a) :=

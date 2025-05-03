@@ -1232,10 +1232,15 @@ theorem foldr_eq_foldr {t : Impl α β} {δ} {f : (a : α) → β a → δ → �
 
 theorem toList_eq_toListModel {t : Impl α β} :
     t.toList = t.toListModel := by
-  rw [toList, foldr_eq_foldr]
-  induction t with
-  | leaf => rfl
-  | inner sz k v l r ihl ihr => simp
+  rw [toList, foldr_eq_foldr, List.foldr_cons_eq_append, List.map_id', List.append_nil]
+
+/-!
+### toArray
+-/
+
+theorem toArray_eq_toArray {t : Impl α β} :
+    t.toArray = t.toListModel.toArray := by
+  rw [toArray, foldl_eq_foldl, Array.emptyWithCapacity_eq, List.foldl_push, Array.empty_append]
 
 /-!
 ### keys
@@ -1243,13 +1248,35 @@ theorem toList_eq_toListModel {t : Impl α β} :
 
 theorem keys_eq_keys {t : Impl α β} :
     t.keys = t.toListModel.keys := by
-  rw [keys, foldr_eq_foldr, List.keys.eq_def]
-  simp
-  induction t.toListModel with
-  | nil => rfl
-  | cons e es ih =>
-    simp [ih]
-    rw [List.keys.eq_def]
+  rw [keys, foldr_eq_foldr, List.foldr_cons_eq_append, List.append_nil, List.keys_eq_map]
+
+/-!
+### keysArray
+-/
+
+theorem keysArray_eq_toArray_keys {t : Impl α β} :
+    t.keysArray = t.toListModel.keys.toArray := by
+  rw [keysArray, foldl_eq_foldl, List.keys_eq_map]
+  conv => rhs; rw [← Array.empty_append (xs := List.toArray _), ← List.foldl_push]
+  rw [List.foldl_map, Array.emptyWithCapacity_eq]
+
+/-!
+### values
+-/
+
+theorem values_eq_map_snd {β : Type v} {t : Impl α β} :
+    t.values = t.toListModel.map (·.2) := by
+  rw [values, foldr_eq_foldr, List.foldr_cons_eq_append, List.append_nil]
+
+/-!
+### valuesArray
+-/
+
+theorem valuesArray_eq_toArray_map {β : Type v} {t : Impl α β} :
+    t.valuesArray = (t.toListModel.map (·.2)).toArray := by
+  rw [valuesArray, foldl_eq_foldl]
+  conv => rhs; rw [← Array.empty_append (xs := List.toArray _), ← List.foldl_push]
+  rw [List.foldl_map, Array.emptyWithCapacity_eq]
 
 /-!
 ### forM
@@ -1472,11 +1499,11 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
 variable {β'} in
 /-- Internal implementation detail of the tree map -/
 inductive SameKeys : Impl α β → Impl α β' → Prop where
-/-- Internal implementation detail of the tree map -/
-| leaf : SameKeys .leaf .leaf
-/-- Internal implementation detail of the tree map -/
-| inner (sz k v v' r r' l l') : SameKeys r r' → SameKeys l l' →
-    SameKeys (.inner sz k v l r) (.inner sz k v' l' r')
+  /-- Internal implementation detail of the tree map -/
+  | leaf : SameKeys .leaf .leaf
+  /-- Internal implementation detail of the tree map -/
+  | inner (sz k v v' r r' l l') : SameKeys r r' → SameKeys l l' →
+      SameKeys (.inner sz k v l r) (.inner sz k v' l' r')
 
 namespace SameKeys
 

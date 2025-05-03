@@ -12,7 +12,7 @@ universe u v
 
 namespace Option
 
-theorem eq_of_eq_some {α : Type u} : ∀ {x y : Option α}, (∀z, x = some z ↔ y = some z) → x = y
+theorem eq_of_eq_some {α : Type u} : ∀ {x y : Option α}, (∀ z, x = some z ↔ y = some z) → x = y
   | none,   none,   _ => rfl
   | none,   some z, h => Option.noConfusion ((h z).2 rfl)
   | some z, none,   h => Option.noConfusion ((h z).1 rfl)

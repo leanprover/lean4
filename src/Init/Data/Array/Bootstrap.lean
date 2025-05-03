@@ -110,7 +110,7 @@ abbrev pop_toList := @Array.toList_pop
   rw [← foldl_toList]
   induction ys.toList generalizing xs <;> simp [*]
 
-@[simp, grind =] theorem toList_empty : (#[] : Array α).toList = [] := rfl
+@[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
 
 @[simp, grind =] theorem append_empty {xs : Array α} : xs ++ #[] = xs := by
   apply ext'; simp only [toList_append, toList_empty, List.append_nil]

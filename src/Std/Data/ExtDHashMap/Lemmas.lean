@@ -2241,8 +2241,8 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
         k
       else
         haveI h' : k' ∈ m := mem_alter_of_beq_eq_false (Bool.not_eq_true _ ▸ heq) |>.mp h
-        m.getKey k' h' :=
-  m.inductionOn (fun _ _ => DHashMap.getKey_alter) h
+        m.getKey k' h' := by
+  split <;> simp_all
 
 @[simp]
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
@@ -2575,8 +2575,8 @@ theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β
         k
       else
         haveI h' : k' ∈ m := mem_modify.mp h
-        m.getKey k' h' :=
-  m.inductionOn (fun _ _ => DHashMap.getKey_modify) h
+        m.getKey k' h' := by
+  split <;> simp_all
 
 @[simp]
 theorem getKey_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k}

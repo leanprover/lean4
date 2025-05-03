@@ -68,7 +68,7 @@ theorem isEqv_eq_decide (xs ys : Array α) (r) :
       Bool.not_eq_true]
     simpa [isEqv_iff_rel] using h'
 
-@[simp] theorem isEqv_toList [BEq α] (xs ys : Array α) : (xs.toList.isEqv ys.toList r) = (xs.isEqv ys r) := by
+@[simp, grind =] theorem isEqv_toList [BEq α] (xs ys : Array α) : (xs.toList.isEqv ys.toList r) = (xs.isEqv ys r) := by
   simp [isEqv_eq_decide, List.isEqv_eq_decide]
 
 theorem eq_of_isEqv [DecidableEq α] (xs ys : Array α) (h : Array.isEqv xs ys (fun x y => x = y)) : xs = ys := by
@@ -99,17 +99,17 @@ theorem beq_eq_decide [BEq α] (xs ys : Array α) :
       decide (∀ (i : Nat) (h' : i < xs.size), xs[i] == ys[i]'(h ▸ h')) else false := by
   simp [BEq.beq, isEqv_eq_decide]
 
-@[simp] theorem beq_toList [BEq α] (xs ys : Array α) : (xs.toList == ys.toList) = (xs == ys) := by
+@[simp, grind =] theorem beq_toList [BEq α] (xs ys : Array α) : (xs.toList == ys.toList) = (xs == ys) := by
   simp [beq_eq_decide, List.beq_eq_decide]
 
 end Array
 
 namespace List
 
-@[simp] theorem isEqv_toArray [BEq α] (as bs : List α) : (as.toArray.isEqv bs.toArray r) = (as.isEqv bs r) := by
+@[simp, grind =] theorem isEqv_toArray [BEq α] (as bs : List α) : (as.toArray.isEqv bs.toArray r) = (as.isEqv bs r) := by
   simp [isEqv_eq_decide, Array.isEqv_eq_decide]
 
-@[simp] theorem beq_toArray [BEq α] (as bs : List α) : (as.toArray == bs.toArray) = (as == bs) := by
+@[simp, grind =] theorem beq_toArray [BEq α] (as bs : List α) : (as.toArray == bs.toArray) = (as == bs) := by
   simp [beq_eq_decide, Array.beq_eq_decide]
 
 end List

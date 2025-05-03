@@ -56,15 +56,15 @@ well-founded recursion mechanism to prove that the function terminates.
 -/
 @[inline] def attach (xs : Array α) : Array {x // x ∈ xs} := xs.attachWith _ fun _ => id
 
-@[simp] theorem _root_.List.attachWith_toArray {l : List α} {P : α → Prop} {H : ∀ x ∈ l.toArray, P x} :
+@[simp, grind =] theorem _root_.List.attachWith_toArray {l : List α} {P : α → Prop} {H : ∀ x ∈ l.toArray, P x} :
     l.toArray.attachWith P H = (l.attachWith P (by simpa using H)).toArray := by
   simp [attachWith]
 
-@[simp] theorem _root_.List.attach_toArray {l : List α} :
+@[simp, grind =] theorem _root_.List.attach_toArray {l : List α} :
     l.toArray.attach = (l.attachWith (· ∈ l.toArray) (by simp)).toArray := by
   simp [attach]
 
-@[simp] theorem _root_.List.pmap_toArray {l : List α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ l.toArray, P a} :
+@[simp, grind =] theorem _root_.List.pmap_toArray {l : List α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ l.toArray, P a} :
     l.toArray.pmap f H = (l.pmap f (by simpa using H)).toArray := by
   simp [pmap]
 
@@ -590,7 +590,7 @@ def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array �
   unfold unattach
   simp
 
-@[simp] theorem _root_.List.unattach_toArray {p : α → Prop} {xs : List { x // p x }} :
+@[simp, grind =] theorem _root_.List.unattach_toArray {p : α → Prop} {xs : List { x // p x }} :
     xs.toArray.unattach = xs.unattach.toArray := by
   simp only [unattach, List.map_toArray, List.unattach]
 

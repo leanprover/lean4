@@ -111,11 +111,11 @@ end Array
 
 namespace List
 
-@[simp] theorem mapFinIdx_toArray {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} :
+@[simp, grind =] theorem mapFinIdx_toArray {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} :
     l.toArray.mapFinIdx f = (l.mapFinIdx f).toArray := by
   ext <;> simp
 
-@[simp] theorem mapIdx_toArray {f : Nat → α → β} {l : List α} :
+@[simp, grind =] theorem mapIdx_toArray {f : Nat → α → β} {l : List α} :
     l.toArray.mapIdx f = (l.mapIdx f).toArray := by
   ext <;> simp
 
@@ -132,7 +132,7 @@ namespace Array
 @[deprecated getElem_zipIdx (since := "2025-01-21")]
 abbrev getElem_zipWithIndex := @getElem_zipIdx
 
-@[simp] theorem zipIdx_toArray {l : List α} {k : Nat} :
+@[simp, grind =] theorem zipIdx_toArray {l : List α} {k : Nat} :
     l.toArray.zipIdx k = (l.zipIdx k).toArray := by
   ext i hi₁ hi₂ <;> simp [Nat.add_comm]
 
@@ -454,7 +454,7 @@ end Array
 
 namespace List
 
-theorem mapFinIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
+@[grind] theorem mapFinIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
     {f : (i : Nat) → α → (h : i < l.length) → m β} :
     l.toArray.mapFinIdxM f = toArray <$> l.mapFinIdxM f := by
   let rec go (i : Nat) (acc : Array β) (inv : i + acc.size = l.length) :
@@ -475,7 +475,7 @@ theorem mapFinIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
   simp only [Array.mapFinIdxM, mapFinIdxM]
   exact go _ #[] _
 
-theorem mapIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
+@[grind] theorem mapIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
     {f : Nat → α → m β} :
     l.toArray.mapIdxM f = toArray <$> l.mapIdxM f := by
   let rec go (bs : List α) (acc : Array β) (inv : bs.length + acc.size = l.length) :

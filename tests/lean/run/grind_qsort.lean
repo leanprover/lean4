@@ -28,34 +28,76 @@ namespace Array
 
 open List Vector
 
--- These attributes still need to be moved to the standard library.
+-- Remove after merging master:
 
 attribute [grind] Vector.size_toArray
 attribute [grind =] Vector.getElem_swap
--- attribute [grind =] Vector.getElem_swap_of_ne -- Setting `(splits := 9)` means we don't need this
-
-attribute [grind] Vector.getElem?_eq_getElem
 attribute [grind] Vector.getElem?_toArray
 
+-- These attributes still need to be moved to the standard library.
+
+-- attribute [grind =] Vector.getElem_swap_of_ne -- Setting `(splits := 9)` means we don't need this
+
+-- set_option trace.grind.ematch.pattern true in
+-- attribute [grind] Vector.getElem?_eq_getElem -- This one requires some consideration! -- Probably not need, see Vector.Perm.extract' below.
+
+-- Hmm, we don't seem to have the Array analogues of these!
 attribute [grind] Vector.toArray_perm_iff
 attribute [grind] Vector.perm_toArray_iff
 
 attribute [grind] Vector.swap_perm
 
-grind_pattern List.Perm.refl => l ~ l
-grind_pattern Array.Perm.refl => xs ~ xs
-grind_pattern Vector.Perm.refl => xs ~ xs
+attribute [grind] List.Perm.refl
+attribute [grind] Array.Perm.refl
+attribute [grind] Vector.Perm.refl
 
-attribute [grind] Array.Perm.extract
-attribute [grind] Vector.Perm.extract
+-- attribute [grind] Array.Perm.extract
+-- attribute [grind] Vector.Perm.extract
+
+-- These are just the patterns resultin from `grind`, but the behaviour should be explained!
+grind_pattern List.Perm.trans => l₁ ~ l₂, l₁ ~ l₃
+grind_pattern Array.Perm.trans => xs ~ ys, xs ~ zs
+grind_pattern Vector.Perm.trans => xs ~ ys, xs ~ zs
+
+/-- Variant of `List.Perm.take` specifying the the permutation is constant after `i` elementwise. -/
+theorem _root_.List.Perm.take_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat}
+    (w : ∀ j, i ≤ j → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
+    l₁.take i ~ l₂.take i := by
+  apply h.take_of_getElem?
+  sorry
+
+/-- Variant of `List.Perm.drop` specifying the the permutation is constant before `i` elementwise. -/
+theorem _root_.List.Perm.drop_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat}
+    (w : ∀ j, j < i → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
+    l₁.drop i ~ l₂.drop i := by
+  apply h.drop_of_getElem?
+  sorry
+
+theorem _root_.Array.Perm.extract' {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
+    (wlo : ∀ i, i < lo → (_ : i < xs.size) → xs[i] = ys[i]'(by have := h.size_eq; omega))
+    (whi : ∀ i, hi ≤ i → (_ : i < xs.size) → xs[i] = ys[i]'(by have := h.size_eq; omega)) :
+    xs.extract lo hi ~ ys.extract lo hi := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp_all only [perm_iff_toList_perm, List.getElem?_toArray, List.extract_toArray,
+    List.extract_eq_drop_take]
+  apply List.Perm.take_of_getElem (w := fun i h₁ h₂ => by simpa using whi (lo + i) (by omega) sorry)
+  apply List.Perm.drop_of_getElem (w := wlo)
+  simpa using List.perm_iff_toArray_perm.mpr h
+
+theorem _root_.Vector.Perm.extract' {xs ys : Vector α n} (h : xs ~ ys) {lo hi : Nat}
+    (wlo : ∀ i, i < lo → (_ : i < n) → xs[i] = ys[i]) (whi : ∀ i, hi ≤ i → (_ : i < n) → xs[i] = ys[i]) :
+    xs.extract lo hi ~ ys.extract lo hi := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, h⟩
+  exact ⟨Array.Perm.extract' h.toArray (by simpa using wlo) (by simpa using whi)⟩
+
+attribute [grind] Array.Perm.extract'
+attribute [grind] Vector.Perm.extract'
 
 @[simp, grind] theorem size_qsort (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
     (qsort as lt lo hi).size = as.size := by
   grind [qsort]
-
-grind_pattern List.Perm.trans => l₁ ~ l₂, l₁ ~ l₃
-grind_pattern Array.Perm.trans => xs ~ ys, xs ~ zs
-grind_pattern Vector.Perm.trans => xs ~ ys, xs ~ zs
 
 private theorem qpartition_loop_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     {hhi} {ilo} {jh} :

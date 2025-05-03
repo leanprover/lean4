@@ -64,6 +64,24 @@ def fooSetFalse : MetaM Unit := do
 
 #eval fooSetFalse
 
+section AllTrue
+
+set_option linter.all true
+
+/-- Running this code will check that all linters in the `foo` set are true.
+
+This docstring is required due to `linter.all` being true(!). -/
+def allSetTrue : MetaM Unit := do
+  -- All linters, including those in the `foo` set, should now be true
+  assert! (getLinterValue linter.foo1 (← getLinterOptions))
+  assert! (getLinterValue linter.foo2 (← getLinterOptions))
+  assert! (getLinterValue linter.foo_true (← getLinterOptions))
+  pure ()
+
+#eval allSetTrue
+
+end AllTrue
+
 /-! Test setting user options from lakefile. -/
 
 open Lean

@@ -180,9 +180,9 @@ abbrev ball_ne_none := @forall_ne_none
 
 @[simp] theorem orElse_eq_orElse : HOrElse.hOrElse = @Option.orElse α := rfl
 
-@[simp] theorem bind_some' (x : Option α) : x.bind some = x := by cases x <;> rfl
+@[simp] theorem bind_fun_some (x : Option α) : x.bind some = x := by cases x <;> rfl
 
-@[simp] theorem bind_none' (x : Option α) : x.bind (fun _ => none (α := β)) = none := by
+@[simp] theorem bind_fun_none (x : Option α) : x.bind (fun _ => none (α := β)) = none := by
   cases x <;> rfl
 
 theorem bind_eq_some_iff : x.bind f = some b ↔ ∃ a, x = some a ∧ f a = some b := by

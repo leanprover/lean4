@@ -557,6 +557,12 @@ theorem ofList_cons [EquivBEq α] [LawfulHashable α] {hd : α} {tl : List α} :
       insertMany ((∅ : ExtHashSet α).insert hd) tl :=
   ext ExtHashMap.unitOfList_cons
 
+theorem ofList_eq_insertMany_empty [EquivBEq α] [LawfulHashable α] {l : List α} :
+    ofList l = insertMany (∅ : ExtHashSet α) l :=
+  match l with
+  | [] => by simp
+  | hd :: tl => by simp [ofList_cons, insertMany_cons]
+
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :

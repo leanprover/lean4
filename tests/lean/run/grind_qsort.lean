@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 
--- FIXME: when `grind` is ready for production use, move this file to `src/Init/Data/Array/QSort/Lemmas.lean`.
+-- TODO: when `grind` is ready for production use, move this file to `src/Init/Data/Array/QSort/Lemmas.lean`.
 set_option grind.warning false
 
 /-!
@@ -28,32 +28,41 @@ namespace Array
 
 open List Vector
 
--- These attributes should be moved to the standard library.
+-- These attributes still need to be moved to the standard library.
+
 attribute [grind] Vector.size_toArray
-attribute [grind] Vector.getElem_swap_left Vector.getElem_swap_right
-attribute [grind] Vector.getElem_swap_of_ne
-attribute [grind] Vector.getElem?_eq_none Vector.getElem?_eq_getElem
+attribute [grind =] Vector.getElem_swap
+-- attribute [grind =] Vector.getElem_swap_of_ne -- Setting `(splits := 9)` means we don't need this
+
+attribute [grind] Vector.getElem?_eq_getElem
 attribute [grind] Vector.getElem?_toArray
 
 attribute [grind] Vector.toArray_perm_iff
 attribute [grind] Vector.perm_toArray_iff
+
+attribute [grind] Vector.swap_perm
+
+grind_pattern List.Perm.refl => l ~ l
 grind_pattern Array.Perm.refl => xs ~ xs
+grind_pattern Vector.Perm.refl => xs ~ xs
+
+attribute [grind] Array.Perm.extract
+attribute [grind] Vector.Perm.extract
 
 @[simp, grind] theorem size_qsort (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
     (qsort as lt lo hi).size = as.size := by
   grind [qsort]
 
+grind_pattern List.Perm.trans => l₁ ~ l₂, l₁ ~ l₃
+grind_pattern Array.Perm.trans => xs ~ ys, xs ~ zs
+grind_pattern Vector.Perm.trans => xs ~ ys, xs ~ zs
+
 private theorem qpartition_loop_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     {hhi} {ilo} {jh} :
     (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2 ~ as := by
-  unfold qpartition.loop
-  split
-  · split
-    · exact Vector.Perm.trans (qpartition_loop_perm ..) (Vector.swap_perm ..)
-    · apply qpartition_loop_perm
-  · dsimp
-    exact Vector.swap_perm ..
+  fun_induction qpartition.loop with (unfold qpartition.loop; grind)
 
+@[local grind]
 private theorem qpartition_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) :
     (qpartition as lt lo hi hlo hhi).2 ~ as := by
@@ -61,12 +70,13 @@ private theorem qpartition_perm {n} (as : Vector α n) (lt : α → α → Bool)
   refine Vector.Perm.trans (qpartition_loop_perm ..) ?_
   repeat' first
   | split
-  | apply Vector.Perm.rfl
-  | apply Vector.swap_perm
+  | grind
   | refine Vector.Perm.trans (Vector.swap_perm ..) ?_
 
 private theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) {hlo} {hhi} :
     qsort.sort lt as lo hi hlo hhi ~ as := by
+  -- TODO: try `fun_induction` here,
+  -- but only after `fun_induction` takes care of more unfolding and splitting!
   unfold qsort.sort
   split
   · split
@@ -76,8 +86,8 @@ private theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool)
     · apply qpartition_perm
     · refine Vector.Perm.trans (qsort_sort_perm ..) ?_
       refine Vector.Perm.trans (qsort_sort_perm ..) ?_
-      apply qpartition_perm
-  · simp [qpartition]
+      grind
+  · grind
 
 grind_pattern qsort_sort_perm => qsort.sort lt as lo hi hlo hhi
 
@@ -93,7 +103,7 @@ private theorem getElem_qpartition_loop_snd_of_lt_lo {n} (lt : α → α → Boo
 private theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : k < lo) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := by
-  grind [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
+  grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
 
 @[local grind] private theorem getElem_qsort_sort_of_lt_lo
     {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
@@ -127,7 +137,7 @@ private theorem getElem_qpartition_loop_snd_of_hi_lt {n} (lt : α → α → Boo
 private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : hi < k) (h' : k < n) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := by
-  grind [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
+  grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
 
 @[local grind] private theorem getElem_qsort_sort_of_hi_lt
     {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
@@ -155,18 +165,16 @@ private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (a
 
 private theorem extract_qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (hlo) (hhi) (w : lo ≤ hi) :
     ((qsort.sort lt as lo hi hlo hhi).extract lo (hi + 1)) ~ (as.extract lo (hi + 1)) := by
-  apply Vector.Perm.extract <;> grind [qsort_sort_perm]
+  grind [qsort_sort_perm]
 
 private theorem getElem_qsort_sort_mem (lt : α → α → Bool)
     (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
     (i : Nat) (h : i < n) (_ : lo ≤ i) (_ : i ≤ hi) :
     (qsort.sort lt as lo hi hlo hhi)[i] ∈ as.extract lo (hi + 1) := by
-  rw [← (extract_qsort_sort_perm as lt lo hi hlo hhi (by grind)).mem_iff, Vector.mem_extract_iff_getElem]
-  refine ⟨i - lo, ?_⟩
-  -- FIXME: there appears to be a non-deterministic error appearing here.
-  -- If this `grind` fails, try restarting the server?
-  grind
+  rw [← (extract_qsort_sort_perm as lt lo hi hlo hhi (by grind)).mem_iff,
+    Vector.mem_extract_iff_getElem]
+  exact ⟨i - lo, by grind⟩
 
 private theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
@@ -291,6 +299,7 @@ private theorem qsort_sort_spec {n}
         rw [getElem_qsort_sort_of_lt_lo (i := i + 1)]
         -- And so we can appply the theorem recursively replacing `hi` with `mid`.
         apply qsort_sort_spec lt lt_asymm le_trans as' lo mid
+        -- The remaining arithmetic side conditions are easily resolved.
         all_goals grind
       else
         replace p₁ : mid ≤ i := by omega
@@ -330,7 +339,9 @@ private theorem qsort_sort_spec {n}
               apply le_trans (b := as'[mid])
               · grind [qpartition_spec₁]
               · grind [qpartition_spec₂]
-          all_goals omega
+          -- Various arithmetic side conditions remain from the rewriting,
+          -- but are now all easy to resolve.
+          all_goals grind
         else
           -- If `i < mid`, we can apply the theorem recursively replacing
           -- `as` with `qsort.sort lt as' lo mid hlo ⋯` and `lo` with `mid + 1`.
@@ -351,7 +362,7 @@ theorem qsort_sorted₁' (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b
   unfold qsort
   split <;> rename_i w
   · grind
-  · apply qsort_sort_spec lt lt_asymm le_trans as.toVector _ _ (w_as := rfl) <;> grind
+  · apply qsort_sort_spec lt lt_asymm le_trans (w_as := rfl) <;> grind
 
 /--
 `Array.qsort` returns a sorted array, i.e. adjacent elements are non-decreasing.
@@ -375,11 +386,11 @@ theorem qsort_sorted' (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b �
   | succ j ih =>
     if p : i = j then
       subst p
-      apply qsort_sorted₁' lt lt_asymm le_trans <;> grind
+      apply qsort_sorted₁' <;> grind
     else
       apply le_trans (b := (as.qsort lt lo hi)[j]'(by grind))
       · grind
-      · apply qsort_sorted₁' lt lt_asymm le_trans <;> grind
+      · apply qsort_sorted₁' <;> grind
 
 theorem qsort_sorted (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (le_trans : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a) (as : Array α) :

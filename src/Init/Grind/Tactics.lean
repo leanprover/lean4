@@ -92,7 +92,7 @@ structure Config where
   This approach is cheaper but incomplete. -/
   qlia : Bool := false
   /--
-  If `mbtc` is `true`, `grind` will use model-based theory commbination for creating new case splits.
+  If `mbtc` is `true`, `grind` will use model-based theory combination for creating new case splits.
   See paper "Model-based Theory Combination" for details.
   -/
   mbtc : Bool := true

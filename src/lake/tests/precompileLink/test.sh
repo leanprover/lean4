@@ -21,7 +21,7 @@ test_maybe_err "-lBogus" build -KlinkArgs=-lBogus
 test_run build -R
 echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 test_err "Building Foo" build --rehash
-rm .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
+test_cmd rm .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 test_run build -R -KplatformIndependent=true
 echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 test_run build --rehash --no-build

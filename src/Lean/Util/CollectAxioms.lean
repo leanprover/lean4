@@ -11,7 +11,6 @@ namespace Lean
 
 namespace CollectAxioms
 
-
 structure State where
   visited : NameSet    := {}
   axioms  : Array Name := #[]

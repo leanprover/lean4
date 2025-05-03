@@ -170,12 +170,13 @@ jobs:
               {
                 "name": "Linux Lake",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
-                // just a secondary PR build job for now
-                "check-level": isPr ? 0 : 3,
+                "check-level": 0,
+                // just a secondary build job for now until false positives can be excluded
                 "secondary": true,
                 "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
-                // TODO: why does this fail?
-                "CTEST_OPTIONS": "-E 'scopedMacros'"
+                // TODO: importStructure is not compatible with .olean caching
+                // TODO: why does scopedMacros fail?
+                "CTEST_OPTIONS": "-E 'scopedMacros|importStructure'"
               },
               {
                 "name": "Linux",

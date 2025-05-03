@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Array.MapIdx
 import Init.Data.Vector.Attach
@@ -23,7 +25,7 @@ namespace Vector
 
 @[simp] theorem getElem?_mapFinIdx {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {i : Nat} :
     (xs.mapFinIdx f)[i]? =
-      xs[i]?.pbind fun b h => f i b (getElem?_eq_some_iff.1 h).1 := by
+      xs[i]?.pbind fun b h => some <| f i b (getElem?_eq_some_iff.1 h).1 := by
   simp only [getElem?_def, getElem_mapFinIdx]
   split <;> simp_all
 
@@ -68,14 +70,14 @@ namespace Vector
   simp
 
 theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {x : α} {i : Nat} {xs : Vector α n} {k : Nat} :
-    (x, i) ∈ xs.zipIdx k ↔ k ≤ i ∧ xs[i - k]? = x := by
+    (x, i) ∈ xs.zipIdx k ↔ k ≤ i ∧ xs[i - k]? = some x := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
 /-- Variant of `mk_mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
 to avoid the inequality and the subtraction. -/
 theorem mk_mem_zipIdx_iff_getElem? {x : α} {i : Nat} {xs : Vector α n} :
-    (x, i) ∈ xs.zipIdx ↔ xs[i]? = x := by
+    (x, i) ∈ xs.zipIdx ↔ xs[i]? = some x := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mk_mem_zipIdx_iff_le_and_getElem?_sub]
 

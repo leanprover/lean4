@@ -70,7 +70,7 @@ private def getNatCastFn (type : Expr) (u : Level) (commRingInst : Expr) : GoalM
   let instType := mkApp (mkConst ``NatCast [u]) type
   let .some inst ← trySynthInstance instType |
     throwError "failed to find instance for ring natCast{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``Grind.CommRing.natCastInst [u]) type commRingInst
+  let inst' := mkApp2 (mkConst ``Grind.CommRing.natCast [u]) type commRingInst
   unless (← withDefault <| isDefEq inst inst') do
     throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.CommRing` one{indentExpr inst'}"
   internalizeFn <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
@@ -105,6 +105,9 @@ where
         | trace_goal[grind.ring] "found instance for{indentExpr charType}\nbut characteristic is not a natural number"; pure none
       trace_goal[grind.ring] "characteristic: {n}"
       pure <| some (charInst, n)
+    let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type commRingInst
+    let noZeroDivInst? := (← trySynthInstance noZeroDivType).toOption
+    trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
     let addFn ← getAddFn type u commRingInst
     let mulFn ← getMulFn type u commRingInst
     let subFn ← getSubFn type u commRingInst
@@ -113,7 +116,7 @@ where
     let intCastFn ← getIntCastFn type u commRingInst
     let natCastFn ← getNatCastFn type u commRingInst
     let id := (← get').rings.size
-    let ring : Ring := { id, type, u, commRingInst, charInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
+    let ring : Ring := { id, type, u, commRingInst, charInst?, noZeroDivInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 

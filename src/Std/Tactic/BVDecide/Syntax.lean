@@ -97,7 +97,7 @@ end Tactic
 
 /--
 Theorems tagged with the `bv_normalize` attribute are used during the rewriting step of the
-`bv_decide` tactic. 
+`bv_decide` tactic.
 -/
 syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 

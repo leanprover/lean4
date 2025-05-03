@@ -3,6 +3,8 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Notation
 set_option linter.missingDocs true -- keep it documented
@@ -967,7 +969,7 @@ syntax (name := funInduction) "fun_induction " term
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /--
-The `fun_cass` tactic is a convenience wrapper of the `cases` tactic when using a functional
+The `fun_cases` tactic is a convenience wrapper of the `cases` tactic when using a functional
 cases principle.
 
 The tactic invocation

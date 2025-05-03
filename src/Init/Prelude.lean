@@ -3,6 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude -- Don't import Init, because we're in Init itself
 set_option linter.missingDocs true -- keep it documented
 
@@ -1838,7 +1840,9 @@ theorem Nat.le_of_succ_le_succ {n m : Nat} : LE.le (succ n) (succ m) → LE.le n
 theorem Nat.le_of_lt_succ {m n : Nat} : LT.lt m (succ n) → LE.le m n :=
   le_of_succ_le_succ
 
-protected theorem Nat.eq_or_lt_of_le : {n m: Nat} → LE.le n m → Or (Eq n m) (LT.lt n m)
+set_option linter.missingDocs false in
+-- single generic "theorem" used in `WellFounded` reduction in core
+protected def Nat.eq_or_lt_of_le : {n m: Nat} → LE.le n m → Or (Eq n m) (LT.lt n m)
   | zero,   zero,   _ => Or.inl rfl
   | zero,   succ _, _ => Or.inr (Nat.succ_le_succ (Nat.zero_le _))
   | succ _, zero,   h => absurd h (not_succ_le_zero _)

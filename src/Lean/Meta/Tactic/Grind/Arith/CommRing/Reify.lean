@@ -65,10 +65,7 @@ partial def reify? (e : Expr) : RingM (Option RingExpr) := do
         asVar e
     | OfNat.ofNat _ n _ =>
       let some k ← getNatValue? n | toVar e
-      if (← withDefault <| isDefEq e (mkApp (← getRing).natCastFn n)) then
-        return .num k
-      else
-        asVar e
+      return .num k
     | _ => toVar e
   let asNone (e : Expr) : GoalM (Option RingExpr) := do
     reportAppIssue e
@@ -99,10 +96,7 @@ partial def reify? (e : Expr) : RingM (Option RingExpr) := do
       asNone e
   | OfNat.ofNat _ n _ =>
     let some k ← getNatValue? n | return none
-    if (← withDefault <| isDefEq e (mkApp (← getRing).natCastFn n)) then
-      return some (.num k)
-    else
-      asNone e
+    return some (.num k)
   | _ => return none
 
 end  Lean.Meta.Grind.Arith.CommRing

@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Zero
 import Init.Data.Int.DivMod.Lemmas
@@ -30,6 +32,7 @@ namespace Lean.Grind
 
 class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat α where
   [ofNat : ∀ n, OfNat α n]
+  [natCast : NatCast α]
   [intCast : IntCast α]
   add_assoc : ∀ a b c : α, a + b + c = a + (b + c)
   add_comm : ∀ a b : α, a + b = b + a
@@ -44,6 +47,7 @@ class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat
   pow_zero : ∀ a : α, a ^ 0 = 1
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
+  ofNat_eq_natCast : ∀ n : Nat, OfNat.ofNat (α := α) n = Nat.cast n := by intros; rfl
   intCast_ofNat : ∀ n : Nat, Int.cast (OfNat.ofNat (α := Int) n) = OfNat.ofNat (α := α) n := by intros; rfl
   intCast_neg : ∀ i : Int, Int.cast (R := α) (-i) = -Int.cast i := by intros; rfl
 
@@ -53,29 +57,25 @@ class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat
 -- (And similarly for the other parents.)
 attribute [instance 100] CommRing.toAdd CommRing.toMul CommRing.toNeg CommRing.toSub CommRing.toHPow
 
--- This is a low-priority instance, to avoid conflicts with existing `OfNat` instances.
-attribute [instance 100] CommRing.ofNat
-
--- This is a low-priority instance, to avoid conflicts with existing `IntCast` instances.
-attribute [instance 100] CommRing.intCast
+-- This is a low-priority instance, to avoid conflicts with existing `OfNat`, `NatCast`, and `IntCast` instances.
+attribute [instance 100] CommRing.ofNat CommRing.natCast CommRing.intCast
 
 namespace CommRing
 
 variable {α : Type u} [CommRing α]
 
-instance natCastInst : NatCast α where
-  natCast n := OfNat.ofNat n
-
-theorem natCast_zero : ((0 : Nat) : α) = 0 := rfl
-theorem ofNat_eq_natCast (n : Nat) : OfNat.ofNat n = (n : α) := rfl
+theorem natCast_zero : ((0 : Nat) : α) = 0 := (ofNat_eq_natCast 0).symm
+theorem natCast_one : ((1 : Nat) : α) = 1 := (ofNat_eq_natCast 1).symm
 
 theorem ofNat_add (a b : Nat) : OfNat.ofNat (α := α) (a + b) = OfNat.ofNat a + OfNat.ofNat b := by
   induction b with
   | zero => simp [Nat.add_zero, add_zero]
   | succ b ih => rw [Nat.add_succ, ofNat_succ, ih, ofNat_succ b, add_assoc]
 
-theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : α) = ((n : α) + 1) := ofNat_add _ _
-theorem natCast_add (a b : Nat) : ((a + b : Nat) : α) = ((a : α) + (b : α)) := ofNat_add _ _
+theorem natCast_add (a b : Nat) : ((a + b : Nat) : α) = ((a : α) + (b : α)) := by
+  rw [← ofNat_eq_natCast, ← ofNat_eq_natCast, ofNat_add, ofNat_eq_natCast, ofNat_eq_natCast]
+theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : α) = ((n : α) + 1) := by
+  rw [natCast_add, natCast_one]
 
 theorem zero_add (a : α) : 0 + a = a := by
   rw [add_comm, add_zero]
@@ -147,11 +147,13 @@ theorem sub_eq_zero_iff {a b : α} : a - b = 0 ↔ a = b := by
 theorem intCast_zero : ((0 : Int) : α) = 0 := intCast_ofNat 0
 theorem intCast_one : ((1 : Int) : α) = 1 := intCast_ofNat 1
 theorem intCast_neg_one : ((-1 : Int) : α) = -1 := by rw [intCast_neg, intCast_ofNat]
-theorem intCast_natCast (n : Nat) : ((n : Int) : α) = (n : α) := intCast_ofNat n
+theorem intCast_natCast (n : Nat) : ((n : Int) : α) = (n : α) := by
+  erw [intCast_ofNat]
+  rw [ofNat_eq_natCast]
 theorem intCast_natCast_add_one (n : Nat) : ((n + 1 : Int) : α) = (n : α) + 1 := by
-  rw [← Int.natCast_succ, intCast_natCast, natCast_add, ofNat_eq_natCast]
+  rw [← Int.natCast_add_one, intCast_natCast, natCast_add, ofNat_eq_natCast]
 theorem intCast_negSucc (n : Nat) : ((-(n + 1) : Int) : α) = -((n : α) + 1) := by
-  rw [intCast_neg, ← Int.natCast_succ, intCast_natCast, ofNat_eq_natCast, natCast_add]
+  rw [intCast_neg, ← Int.natCast_add_one, intCast_natCast, ofNat_eq_natCast, natCast_add]
 theorem intCast_nat_add {x y : Nat} : ((x + y : Int) : α) = ((x : α) + (y : α)) := by
   rw [Int.ofNat_add_ofNat, intCast_natCast, natCast_add]
 theorem intCast_nat_sub {x y : Nat} (h : x ≥ y) : (((x - y : Nat) : Int) : α) = ((x : α) - (y : α)) := by
@@ -238,14 +240,15 @@ namespace IsCharP
 
 variable (p)  {α : Type u} [CommRing α] [IsCharP α p]
 
-theorem natCast_eq_zero_iff (x : Nat) : (x : α) = 0 ↔ x % p = 0 :=
-  ofNat_eq_zero_iff p x
+theorem natCast_eq_zero_iff (x : Nat) : (x : α) = 0 ↔ x % p = 0 := by
+  rw [← ofNat_eq_natCast]
+  exact ofNat_eq_zero_iff p x
 
 theorem intCast_eq_zero_iff (x : Int) : (x : α) = 0 ↔ x % p = 0 :=
   match x with
   | (x : Nat) => by
     have := ofNat_eq_zero_iff (α := α) p (x := x)
-    rw [Int.ofNat_mod_ofNat, intCast_natCast]
+    rw [Int.ofNat_mod_ofNat, intCast_natCast, ← ofNat_eq_natCast]
     norm_cast
   | -(x + 1 : Nat) => by
     rw [Int.neg_emod, Int.ofNat_mod_ofNat, intCast_neg, intCast_natCast, neg_eq_zero]
@@ -278,26 +281,30 @@ theorem intCast_ext_iff {x y : Int} : (x : α) = (y : α) ↔ x % p = y % p := b
 
 theorem ofNat_ext_iff {x y : Nat} : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p := by
   have := intCast_ext_iff (α := α) p (x := x) (y := y)
-  simp only [intCast_natCast, ← Int.ofNat_emod] at this
+  simp only [intCast_natCast, ← Int.natCast_emod] at this
   simp only [ofNat_eq_natCast]
   norm_cast at this
 
 theorem ofNat_ext {x y : Nat} (h : x % p = y % p) : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y := (ofNat_ext_iff p).mpr h
 
-theorem natCast_ext {x y : Nat} (h : x % p = y % p) : (x : α) = (y : α) := ofNat_ext _ h
+theorem natCast_ext {x y : Nat} (h : x % p = y % p) : (x : α) = (y : α) := by
+  rw [← ofNat_eq_natCast, ← ofNat_eq_natCast]
+  exact ofNat_ext p h
 
-theorem natCast_ext_iff {x y : Nat} : (x : α) = (y : α) ↔ x % p = y % p :=
-  ofNat_ext_iff p
+theorem natCast_ext_iff {x y : Nat} : (x : α) = (y : α) ↔ x % p = y % p := by
+  rw [← ofNat_eq_natCast, ← ofNat_eq_natCast]
+  exact ofNat_ext_iff p
 
 theorem intCast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
   rw [intCast_ext_iff p, Int.emod_emod]
 
 theorem natCast_emod (x : Nat) : ((x % p : Nat) : α) = (x : α) := by
   simp only [← intCast_natCast]
-  rw [Int.ofNat_emod, intCast_emod]
+  rw [Int.natCast_emod, intCast_emod]
 
-theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x :=
-  natCast_emod _ _
+theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x := by
+  rw [ofNat_eq_natCast, ofNat_eq_natCast]
+  exact natCast_emod p x
 
 theorem ofNat_eq_zero_iff_of_lt {x : Nat} (h : x < p) : OfNat.ofNat (α := α) x = 0 ↔ x = 0 := by
   rw [ofNat_eq_zero_iff p, Nat.mod_eq_of_lt h]
@@ -314,5 +321,29 @@ theorem natCast_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
   rw [natCast_ext_iff p, Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt h₂]
 
 end IsCharP
+
+/--
+Special case of Mathlib's `NoZeroSMulDivisors Nat α`.
+-/
+class NoNatZeroDivisors (α : Type u) [CommRing α] where
+  no_nat_zero_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
+
+export NoNatZeroDivisors (no_nat_zero_divisors)
+
+theorem no_int_zero_divisors {α : Type u} [CommRing α] [NoNatZeroDivisors α] {k : Int} {a : α}
+    : k ≠ 0 → k * a = 0 → a = 0 := by
+  match k with
+  | (k : Nat) =>
+    simp [intCast_natCast]
+    intro h₁ h₂
+    replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
+    rw [← ofNat_eq_natCast] at h₂
+    exact no_nat_zero_divisors k a h₁ h₂
+  | -(k+1 : Nat) =>
+    rw [Int.natCast_add, ← Int.natCast_add, intCast_neg, intCast_natCast]
+    intro _ h
+    replace h := congrArg (-·) h; simp at h
+    rw [← neg_mul, neg_neg, neg_zero, ← ofNat_eq_natCast] at h
+    exact no_nat_zero_divisors (k+1) a (Nat.succ_ne_zero _) h
 
 end Lean.Grind

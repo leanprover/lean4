@@ -12,13 +12,13 @@ set_option autoImplicit false
 /-!
 # Hash maps
 
-This module develops the type `Std.Data.HashMap` of hash maps. Dependent hash maps are defined in
+This module develops the type `Std.HashMap` of hash maps. Dependent hash maps are defined in
 `Std.Data.DHashMap`.
 
-The operations `map` and `filterMap` on `Std.Data.HashMap` are defined in the module
+The operations `map` and `filterMap` on `Std.HashMap` are defined in the module
 `Std.Data.HashMap.AdditionalOperations`.
 
-Lemmas about the operations on `Std.Data.HashMap` are available in the
+Lemmas about the operations on `Std.HashMap` are available in the
 module `Std.Data.HashMap.Lemmas`.
 
 See the module `Std.Data.HashMap.Raw` for a variant of this type which is safe to use in
@@ -305,7 +305,7 @@ def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
     : Std.HashMap α (Array β) := Id.run do
   let mut groups := ∅
   for x in xs do
-    groups := groups.alter (key x) (·.getD #[] |>.push x)
+    groups := groups.alter (key x) (some <| ·.getD #[] |>.push x)
   return groups
 
 /--
@@ -322,4 +322,4 @@ Std.HashMap.ofList [(0, [0, 2, 4, 6]), (1, [1, 3, 5])]
 -/
 def List.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : List β) :
     Std.HashMap α (List β) :=
-  xs.foldr (init := ∅) fun x acc => acc.alter (key x) (fun v => x :: v.getD [])
+  xs.foldr (init := ∅) fun x acc => acc.alter (key x) (fun v => some <| x :: v.getD [])

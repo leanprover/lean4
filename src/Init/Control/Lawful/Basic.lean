@@ -3,6 +3,8 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
 import Init.SimpLemmas
 import Init.Meta
@@ -142,6 +144,7 @@ class LawfulMonad (m : Type u → Type v) [Monad m] : Prop extends LawfulApplica
 
 export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
 attribute [simp] pure_bind bind_assoc bind_pure_comp
+attribute [grind] pure_bind
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
   show x >>= (fun a => pure (id a)) = x

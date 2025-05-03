@@ -508,7 +508,7 @@ instance : Alternative Option where
   failure := Option.none
   orElse  := Option.orElse
 
-@[deprecated Option.getM (since := "2025-05-03")]
+-- This is a duplicate of `Option.getM`; one may be deprecated in the future.
 def liftOption [Alternative m] : Option α → m α
   | some a => pure a
   | none   => failure

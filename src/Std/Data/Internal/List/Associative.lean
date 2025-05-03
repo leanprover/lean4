@@ -3255,11 +3255,11 @@ theorem getEntry?_insertListIfNewUnit [BEq α] [PartialEquivBEq α] {l : List ((
     · simp
     · cases hc : containsKey hd l
       · simp only [Bool.not_false, Bool.and_self, ↓reduceIte, Option.some_or, cond_true,
-          Option.or_some', Option.some.injEq]
+          Option.or_some, Option.some.injEq]
         rw [getEntry?_eq_none.2, Option.getD_none]
         rwa [← containsKey_congr hhd]
       · simp only [Bool.not_true, Bool.and_false, Bool.false_eq_true, ↓reduceIte, cond_true,
-          Option.or_some', getEntry?_eq_none]
+          Option.or_some, getEntry?_eq_none]
         rw [containsKey_congr hhd, containsKey_eq_isSome_getEntry?] at hc
         obtain ⟨v, hv⟩ := Option.isSome_iff_exists.1 hc
         simp [hv]

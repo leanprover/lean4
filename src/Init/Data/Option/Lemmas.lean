@@ -453,6 +453,8 @@ theorem some_orElse (a : α) (f) : (some a).orElse f = some a := rfl
 @[deprecated orElse_none (since := "2025-05-03")]
 theorem none_orElse (f : Unit → Option α) : none.orElse f = f () := rfl
 
+@[simp] theorem orElse_fun_none (x : Option α) : x.orElse (fun _ => none) = x := by cases x <;> rfl
+
 theorem orElse_eq_some_iff (o : Option α) (f) (x : α) :
     (o.orElse f) = some x ↔ o = some x ∨ o = none ∧ f () = some x := by
   cases o <;> simp

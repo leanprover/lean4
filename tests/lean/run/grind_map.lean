@@ -28,18 +28,15 @@ example (m : HashMap Nat Nat) : ((m.insert 1 2).insert 1 4).size ≤ m.size + 1 
 
 attribute [grind] Option.pmap_eq_map
 
--- This probably should be in the library to begin with.
-theorem getElem?_map'
-  {m : HashMap α β} {f : α → β → γ} {k : α} :
-    (m.map f)[k]? = m[k]?.map (f k) := by
-  grind
-
 -- Do we want this?
 example (m : HashMap Nat Nat) (h : m.isEmpty) : m[3]? = none := by grind [HashMap.getElem?_of_isEmpty]
 
 example : (((∅ : HashMap Nat Nat).insert 3 6).erase 4)[3]? = some 6 := by grind
 
-attribute [grind] HashMap.getElem?_eq_some_getElem -- Do we do this for list?
+-- Don't just use `@[grind]`, instead add two patterns!
+-- Do this for List etc?
+-- attribute [grind] HashMap.getElem?_eq_some_getElem -- Do we do this for list?
+grind_pattern HashMap.getElem?_eq_some_getElem => a ∈ m, m[a]?
 
 example (m : HashMap Nat Nat) : ((m.alter 5 id).erase 7).size ≥ m.size - 1 := by grind
 

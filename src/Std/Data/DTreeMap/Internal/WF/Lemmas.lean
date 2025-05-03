@@ -1909,6 +1909,7 @@ theorem maxKeyD_eq_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {t 
 ### `entryAtIdx?` / `keyAtIdx?`
 -/
 
+/-
 theorem entryAtIdx?_eq_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat} :
     t.entryAtIdx? i = t.toListModel[i]? := by
   induction t generalizing i with
@@ -1929,111 +1930,52 @@ theorem entryAtIdx?_eq_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat} :
       Nat.le_of_lt h'', List.getElem?_cons, Nat.sub_eq_zero_iff_le,
       Nat.not_le_of_lt h'']
     exact ih' htb.right
+-/
 
-theorem entryAtIdx?_eq_some_entryAtIdx {t : Impl α β} (htb : t.Balanced) {i : Nat} (h) :
-    t.entryAtIdx? i = some (t.entryAtIdx htb i h) := by
-  induction t generalizing i with
-  | leaf => contradiction
-  | inner n k v l r ih ih' =>
-    simp only [entryAtIdx, entryAtIdx?]
-    split <;> split <;> rename_i h h'
-    all_goals try (rw [h] at h'; contradiction)
-    · exact ih htb.left _
-    · rfl
-    · exact ih' htb.right _
+theorem entryAtIdx?_eq_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat} :
+    t.entryAtIdx? i = t.toListModel[i]? := by
+  induction t, i using entryAtIdx?.induct_unfolding with
+  | case1 => rfl
+  | case2 _ _ _ _ _ _ h ih =>
+    simp only [toListModel_inner, *, htb.left]
+    simp_all only [toListModel_inner, Nat.compare_eq_lt, ← size_eq_length,
+      List.getElem?_append_left, htb.left]
+  | case3 =>
+    simp only [toListModel_inner, *]
+    simp_all only [Nat.compare_eq_eq, List.getElem?_append_right, Nat.le_refl, htb.left,
+      ← size_eq_length, Nat.sub_self, List.getElem?_cons_zero]
+  | case4 =>
+    simp only [toListModel_inner, *, htb.right]
+    simp_all only [Nat.compare_eq_gt, List.getElem?_append_right, Nat.le_of_lt,
+      ← size_eq_length, htb.left, List.getElem?_cons, Nat.sub_eq_zero_iff_le,
+      ← Nat.not_lt, not_true, ↓reduceIte]
 
 theorem entryAtIdx_eq_getElem {t : Impl α β} (htb : t.Balanced) {i : Nat} {h} :
     t.entryAtIdx htb i h = t.toListModel[i]'(size_eq_length t htb ▸ h) := by
   simp only [List.getElem_eq_getElem?_get, ← entryAtIdx?_eq_getElem? htb,
     entryAtIdx?_eq_some_entryAtIdx htb h, Option.get_some]
 
-theorem entryAtIdx!_eq_get!_entryAtIdx? {t : Impl α β} {i : Nat} [Inhabited ((a : α) × β a)] :
-    t.entryAtIdx! i = (t.entryAtIdx? i).get! := by
-  induction t generalizing i with
-  | leaf => rfl
-  | inner n k v l r ih ih' =>
-    simp only [entryAtIdx!, entryAtIdx?]
-    split
-    · exact ih
-    · rfl
-    · exact ih'
-
 theorem entryAtIdx!_eq_getElem! {t : Impl α β} (htb : t.Balanced) {i : Nat}
     [Inhabited ((a : α) × β a)] : t.entryAtIdx! i = t.toListModel[i]! := by
   simp only [entryAtIdx!_eq_get!_entryAtIdx?, entryAtIdx?_eq_getElem? htb,
     List.getElem!_eq_getElem?_getD, Option.get!_eq_getD]
-
-theorem entryAtIdxD_eq_getD_entryAtIdx? {t : Impl α β} {i : Nat} {fallback : (a : α) × β a} :
-    t.entryAtIdxD i fallback = (t.entryAtIdx? i).getD fallback := by
-  induction t generalizing i with
-  | leaf => rfl
-  | inner n k v l r ih ih' =>
-    simp only [entryAtIdxD, entryAtIdx?]
-    split
-    · exact ih
-    · rfl
-    · exact ih'
 
 theorem entryAtIdxD_eq_getD {t : Impl α β} (htb : t.Balanced) {i : Nat} {fallback : (a : α) × β a} :
     t.entryAtIdxD i fallback = t.toListModel.getD i fallback := by
   simp only [entryAtIdxD_eq_getD_entryAtIdx?, entryAtIdx?_eq_getElem? htb,
     List.getD_eq_getElem?_getD]
 
-theorem keyAtIdx?_eq_entryAtIdx? {t : Impl α β} {i : Nat} :
-    t.keyAtIdx? i = (t.entryAtIdx? i).map (·.1) := by
-  induction t generalizing i with
-  | leaf => rfl
-  | inner n k v l r ih ih' =>
-    simp only [keyAtIdx?, entryAtIdx?]
-    split
-    · exact ih
-    · rfl
-    · exact ih'
-
 theorem keyAtIdx?_eq_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat} :
     t.keyAtIdx? i = t.toListModel[i]?.map (·.1) := by
   rw [keyAtIdx?_eq_entryAtIdx?, entryAtIdx?_eq_getElem? htb]
-
-theorem keyAtIdx_eq_entryAtIdx_fst {t : Impl α β} (htb : t.Balanced) {i : Nat} {h} :
-    t.keyAtIdx htb i h = (t.entryAtIdx htb i h).1 := by
-  induction t generalizing i with
-  | leaf => contradiction
-  | inner n k v l r ih ih' =>
-    simp only [keyAtIdx, entryAtIdx]
-    split
-    · exact ih htb.left
-    · rfl
-    · exact ih' htb.right
 
 theorem keyAtIdx_eq_getElem_fst {t : Impl α β} (htb : t.Balanced) {i : Nat} {h} :
     t.keyAtIdx htb i h = (t.toListModel[i]'(size_eq_length t htb ▸ h)).1 := by
   rw [keyAtIdx_eq_entryAtIdx_fst, entryAtIdx_eq_getElem htb]
 
-theorem keyAtIdx!_eq_get!_keyAtIdx? [Inhabited α] {t : Impl α β} {i : Nat} :
-    t.keyAtIdx! i = (t.keyAtIdx? i).get! := by
-  induction t generalizing i with
-  | leaf => rfl
-  | inner n k v l r ih ih' =>
-    simp only [keyAtIdx!, keyAtIdx?]
-    split
-    · exact ih
-    · rfl
-    · exact ih'
-
 theorem keyAtIdx!_eq_get!_map_getElem? [Inhabited α] {t : Impl α β} (htb : t.Balanced) {i : Nat} :
     t.keyAtIdx! i = (t.toListModel[i]?.map (·.1)).get! := by
   rw [keyAtIdx!_eq_get!_keyAtIdx?, keyAtIdx?_eq_getElem? htb]
-
-theorem keyAtIdxD_eq_getD_keyAtIdx? {t : Impl α β} {i : Nat} {fallback : α} :
-    t.keyAtIdxD i fallback = (t.keyAtIdx? i).getD fallback := by
-  induction t generalizing i with
-  | leaf => rfl
-  | inner n k v l r ih ih' =>
-    simp only [keyAtIdxD, keyAtIdx?]
-    split
-    · exact ih
-    · rfl
-    · exact ih'
 
 theorem keyAtIdxD_eq_getD_map_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat} {fallback : α} :
     t.keyAtIdxD i fallback = (t.toListModel[i]?.map (·.1)).getD fallback := by
@@ -2043,62 +1985,18 @@ namespace Const
 
 variable {β : Type v}
 
-theorem entryAtIdx?_eq_map {t : Impl α β} {i : Nat} :
-    entryAtIdx? t i = (t.entryAtIdx? i).map (fun x => (x.1, x.2)) := by
-  induction t generalizing i with
-  | leaf => rfl
-  | inner n k v l r ih ih' =>
-    simp only [entryAtIdx?, Impl.entryAtIdx?]
-    split
-    · exact ih
-    · rfl
-    · exact ih'
-
 theorem entryAtIdx?_eq_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat} :
     entryAtIdx? t i = t.toListModel[i]?.map (fun x => (x.1, x.2)) := by
   rw [entryAtIdx?_eq_map, Impl.entryAtIdx?_eq_getElem? htb]
-
-theorem entryAtIdx_eq {t : Impl α β} (htb : t.Balanced) {i : Nat} {h} :
-    entryAtIdx t htb i h = ((t.entryAtIdx htb i h).1, (t.entryAtIdx htb i h).2) := by
-  induction t generalizing i with
-  | leaf => contradiction
-  | inner n k v l r ih ih' =>
-    simp only [entryAtIdx, Impl.entryAtIdx]
-    split
-    · exact ih htb.left
-    · rfl
-    · exact ih' htb.right
 
 theorem entryAtIdx_eq_getElem {t : Impl α β} (htb : t.Balanced) {i : Nat} {h} :
     entryAtIdx t htb i h = (letI x := t.toListModel[i]'(size_eq_length t htb ▸ h); (x.1, x.2)) := by
   rw [entryAtIdx_eq, Impl.entryAtIdx_eq_getElem htb]
 
-theorem entryAtIdx!_eq_get!_entryAtIdx? {t : Impl α β} {i : Nat} [Inhabited (α × β)] :
-    entryAtIdx! t i = (entryAtIdx? t i).get! := by
-  induction t generalizing i with
-  | leaf => rfl
-  | inner n k v l r ih ih' =>
-    simp only [entryAtIdx!, entryAtIdx?]
-    split
-    · exact ih
-    · rfl
-    · exact ih'
-
 theorem entryAtIdx!_eq_get!_map_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat}
     [Inhabited (α × β)] :
     entryAtIdx! t i = (t.toListModel[i]?.map (fun x => (x.1, x.2))).get! := by
   rw [entryAtIdx!_eq_get!_entryAtIdx?, entryAtIdx?_eq_getElem? htb]
-
-theorem entryAtIdxD_eq_getD_entryAtIdx? {t : Impl α β} {i : Nat} {fallback : α × β} :
-    entryAtIdxD t i fallback = (entryAtIdx? t i).getD fallback := by
-  induction t generalizing i with
-  | leaf => rfl
-  | inner n k v l r ih ih' =>
-    simp only [entryAtIdxD, entryAtIdx?]
-    split
-    · exact ih
-    · rfl
-    · exact ih'
 
 theorem entryAtIdxD_eq_getD_map_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat}
     {fallback : α × β} :

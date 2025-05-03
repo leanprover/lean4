@@ -655,8 +655,6 @@ theorem some_maxEntry_eq_minEntry? [Ord α] {l : Impl α fun _ => β} {he} :
 
 end Const
 
-set_option Elab.async false
-
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by
   rw [balanceL_eq_balanceLErase, balanceLErase_eq_balanceL!,
@@ -832,27 +830,25 @@ theorem insertMax_eq_insertMax! [Ord α] {a b} {t : Impl α β} (htb) :
 
 theorem link_eq_link! [Ord α] {k v} {l r : Impl α β} (hlb hrb) :
     (link k v l r hlb hrb).impl = link! k v l r := by
-  cases k, v, l, r using link!.fun_cases <;> rw [link, link!]
+  induction l, r using link!.induct_unfolding k v <;> rw [link]
   · rw [insertMin_eq_insertMin!]
   · rw [insertMax_eq_insertMax!]
-  · split <;> simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
-  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
-      link_eq_link! hlb hrb.left, link_eq_link! hlb.right hrb]
-  · split
-    · simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
-    · simp only [Std.Internal.tree_tac]
-termination_by sizeOf l + sizeOf r
+  · rw [dif_pos ‹_›]
+    simp only [balanceLErase_eq_balanceL!, *]
+  · rw [dif_neg ‹_›, dif_pos ‹_›]
+    simp only [balanceRErase_eq_balanceR!, *]
+  · rw [dif_neg ‹_›, dif_neg ‹_›]
+    simp only [size_inner]
 
 theorem link2_eq_link2! [Ord α] {l r : Impl α β} (hlb hrb) :
     (link2 l r hlb hrb).impl = link2! l r := by
-  cases l, r using link2!.fun_cases <;> rw [link2!, link2]
-  · split <;> simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
-  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
-      link2_eq_link2! hlb.right hrb, link2_eq_link2! hlb hrb.left]
-  · split
-    · simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
-    · simp only [Std.Internal.tree_tac, glue_eq_glue!]
-termination_by sizeOf l + sizeOf r
+  induction l, r using link2!.induct_unfolding <;> rw [link2]
+  · rw [dif_pos ‹_›]
+    simp only [balanceLErase_eq_balanceL!, *]
+  · rw [dif_neg ‹_›, dif_pos ‹_›]
+    simp only [balanceRErase_eq_balanceR!, *]
+  · rw [dif_neg ‹_›, dif_neg ‹_›]
+    simp only [size_inner, glue_eq_glue!]
 
 namespace Const
 
@@ -891,15 +887,31 @@ end Const
 
 theorem entryAtIdx?_eq_some_entryAtIdx {t : Impl α β} (htb : t.Balanced) {i : Nat} (h) :
     t.entryAtIdx? i = some (t.entryAtIdx htb i h) := by
-  induction t generalizing i with
-  | leaf => contradiction
-  | inner n k v l r ih ih' =>
-    simp only [entryAtIdx, entryAtIdx?]
-    split <;> split <;> rename_i h h'
-    all_goals try (rw [h] at h'; contradiction)
-    · exact ih htb.left _
-    · rfl
-    · exact ih' htb.right _
+  induction t, htb, i, h using entryAtIdx.induct_unfolding <;> simp only [entryAtIdx?, *]
+
+theorem entryAtIdx!_eq_get!_entryAtIdx? {t : Impl α β} {i : Nat} [Inhabited ((a : α) × β a)] :
+    t.entryAtIdx! i = (t.entryAtIdx? i).get! := by
+  induction t, i using entryAtIdx?.induct_unfolding <;> simp only [entryAtIdx!, *] <;> trivial
+
+theorem entryAtIdxD_eq_getD_entryAtIdx? {t : Impl α β} {i : Nat} {fallback : (a : α) × β a} :
+    t.entryAtIdxD i fallback = (t.entryAtIdx? i).getD fallback := by
+  induction t, i using entryAtIdx?.induct_unfolding <;> simp only [entryAtIdxD, *] <;> trivial
+
+theorem keyAtIdx?_eq_entryAtIdx? {t : Impl α β} {i : Nat} :
+    t.keyAtIdx? i = (t.entryAtIdx? i).map (·.1) := by
+  induction t, i using entryAtIdx?.induct_unfolding <;> simp only [keyAtIdx?, *] <;> trivial
+
+theorem keyAtIdx_eq_entryAtIdx_fst {t : Impl α β} (htb : t.Balanced) {i : Nat} {h} :
+    t.keyAtIdx htb i h = (t.entryAtIdx htb i h).1 := by
+  induction t, htb, i, h using keyAtIdx.induct_unfolding <;> simp only [entryAtIdx, *]
+
+theorem keyAtIdx!_eq_get!_keyAtIdx? [Inhabited α] {t : Impl α β} {i : Nat} :
+    t.keyAtIdx! i = (t.keyAtIdx? i).get! := by
+  induction t, i using keyAtIdx?.induct_unfolding <;> simp only [keyAtIdx!, *] <;> trivial
+
+theorem keyAtIdxD_eq_getD_keyAtIdx? {t : Impl α β} {i : Nat} {fallback : α} :
+    t.keyAtIdxD i fallback = (t.keyAtIdx? i).getD fallback := by
+  induction t, i using keyAtIdx?.induct_unfolding <;> simp only [keyAtIdxD, *] <;> trivial
 
 /-- Implementation detail of the tree map -/
 def getEntryGE?ₘ [Ord α] (k : α) (t : Impl α β) : Option ((a : α) × β a) :=
@@ -1116,6 +1128,22 @@ theorem getKeyLT_eq_getEntryLT [Ord α] [TransOrd α] {t : Impl α β} {k : α} 
 namespace Const
 
 variable {β : Type v}
+
+theorem entryAtIdx?_eq_map {t : Impl α fun _ => β} {i : Nat} :
+    entryAtIdx? t i = (t.entryAtIdx? i).map (fun x => (x.1, x.2)) := by
+  induction t, i using entryAtIdx?.induct_unfolding <;> simp only [Impl.entryAtIdx?, *] <;> rfl
+
+theorem entryAtIdx_eq {t : Impl α fun _ => β} (htb : t.Balanced) {i : Nat} {h} :
+    entryAtIdx t htb i h = ((t.entryAtIdx htb i h).1, (t.entryAtIdx htb i h).2) := by
+  induction t, htb, i, h using entryAtIdx.induct_unfolding <;> simp only [Impl.entryAtIdx, *]
+
+theorem entryAtIdx!_eq_get!_entryAtIdx? {t : Impl α fun _ => β} {i : Nat} [Inhabited (α × β)] :
+    entryAtIdx! t i = (entryAtIdx? t i).get! := by
+  induction t, i using entryAtIdx?.induct_unfolding <;> simp only [entryAtIdx!, *] <;> rfl
+
+theorem entryAtIdxD_eq_getD_entryAtIdx? {t : Impl α fun _ => β} {i : Nat} {fallback : α × β} :
+    entryAtIdxD t i fallback = (entryAtIdx? t i).getD fallback := by
+  induction t, i using entryAtIdx?.induct_unfolding <;> simp only [entryAtIdxD, *] <;> rfl
 
 theorem getEntryGE?_eq_map [Ord α] {t : Impl α fun _ => β} {k : α} :
     getEntryGE? k t = (Impl.getEntryGE? k t).map (fun x => (x.1, x.2)) := by

@@ -1838,17 +1838,17 @@ following rules:
 
 * Root ≥ all
 * A ≥ privateAll ∧ A `private import all` B → B ≥ privateAll
-* A ≥ private ∧ A `import all` B → B ≥ privateAll
-* A ≥ public ∧ A `import all` B → B ≥ all
+* A ≥ private ∧ A `import all` B → B ≥ public
+* A ≥ public ∧ A `import all` B → B ≥ public
 * A ≥ privateAll ∧ A `private import` B → B ≥ private
 * A ≥ private ∧ A `import` B → B ≥ private
 * A ≥ public ∧ A `import` B → B ≥ public
 
 As imports are a DAG, we may
 -/
-where go (imports : Array Import) (importAll  : Bool) (isExported : Bool) := do
+where go (imports : Array Import) (importAll : Bool) (isExported : Bool) := do
   for i in imports do
-    let importAll := !isModule || ((importAll || i.isExported) && i.importAll)
+    let importAll := !isModule || (importAll && i.importAll)
     -- import public info with non-`private` `import` chain (value ignored outside the module system)
     let isExported := isExported && i.isExported
     if !importAll && !isExported then

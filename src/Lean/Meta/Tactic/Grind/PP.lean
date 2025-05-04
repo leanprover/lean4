@@ -8,6 +8,7 @@ import Init.Grind.Util
 import Init.Grind.PP
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Model
+import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 
 namespace Lean.Meta.Grind
 
@@ -77,6 +78,10 @@ private abbrev M := ReaderT Goal (StateT (Array MessageData) MetaM)
 private def pushMsg (m : MessageData) : M Unit :=
   modify fun s => s.push m
 
+def ppExprArray (cls : Name) (header : String) (es : Array Expr) (clsElem : Name := Name.mkSimple "_") : MessageData :=
+  let es := es.map (toTraceElem · clsElem)
+  .trace { cls } header es
+
 private def ppEqcs : M Unit := do
    let mut trueEqc?  : Option MessageData := none
    let mut falseEqc? : Option MessageData := none
@@ -86,7 +91,7 @@ private def ppEqcs : M Unit := do
      if Option.isSome <| eqc.find? (·.isTrue) then
        let eqc := eqc.filter fun e => !e.isTrue
        unless eqc.isEmpty do
-         trueEqc? := ppExprArray `eqc "True propositions" eqc.toArray `prop
+         trueEqc? := ppExprArray `eqc  "True propositions" eqc.toArray `prop
      else if Option.isSome <| eqc.find? (·.isFalse) then
        let eqc := eqc.filter fun e => !e.isFalse
        unless eqc.isEmpty do
@@ -137,6 +142,11 @@ private def ppCutsat : M Unit := do
     ms := ms.push <| .trace { cls := `assign } m!"{Arith.quoteIfArithTerm e} := {val}" #[]
   pushMsg <| .trace { cls := `cutsat } "Assignment satisfying linear constraints" ms
 
+private def ppCommRing : M Unit := do
+  let goal ← read
+  let some msg ← Arith.CommRing.pp? goal | return ()
+  pushMsg msg
+
 private def ppThresholds (c : Grind.Config) : M Unit := do
   let goal ← read
   let maxGen := goal.exprs.foldl (init := 0) fun g e =>
@@ -182,6 +192,7 @@ where
     ppActiveTheoremPatterns
     ppOffset
     ppCutsat
+    ppCommRing
     ppThresholds config
 
 end Lean.Meta.Grind

@@ -100,14 +100,12 @@ where
       | Expr.forallE _ d b _ =>
         let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
         trace[Elab.match] "discr #{i} {discr} : {d}"
-        if isInvalidDiscriminantType d then
-          logInvalidDiscriminant discrStx[1] d
         if b.hasLooseBVars then
           isDep := true
         matchType := b.instantiate1 discr
         discrs := discrs.push { expr := discr }
       | _ =>
-        throwError "invalid motive provided to match-expression, function type with arity #{discrStxs.size} expected"
+        throwError "Invalid motive provided to match-expression: Function type with arity {discrStxs.size} expected"
     return (discrs, isDep)
 
   markIsDep (r : ElabMatchTypeAndDiscrsResult) :=
@@ -145,23 +143,12 @@ where
         the term to the kernel.
       -/
       let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
-      if isInvalidDiscriminantType discrType then
-        logInvalidDiscriminant discrStx discrType
       let matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody
       trace[Elab.match] m!"elabMatchType update type:{indentExpr matchType}"
       return { result with matchType }
     else
       trace[Elab.match] m!"elabMatchType base case:{indentExpr expectedType}"
       return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
-
-  isInvalidDiscriminantType (type : Expr) :=
-    type.isForall || type.isSort
-
-  logInvalidDiscriminant (stx : Syntax) (type : Expr) :=
-    let msg := m!"Invalid match discriminant: Cannot pattern match on a value of type{indentExpr type}\n\
-          because this type is not inductively defined"
-      ++ (if type.isProp then "\n\nHint: to pattern match on a decidable proposition `P` as a Boolean, write `decide P`" else "")
-    logErrorAt stx msg
 
 def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
   matchAlts.mapM fun matchAlt => do
@@ -364,6 +351,7 @@ open Meta.Match (throwIncorrectNumberOfPatternsAt logIncorrectNumberOfPatternsAt
 
 private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchType : Expr) : ExceptT PatternElabException TermElabM (Array Expr × Expr) :=
   withReader (fun ctx => { ctx with implicitLambda := false }) do
+    let origMatchType := matchType
     let mut patterns  := #[]
     let mut matchType := matchType
     let mut patternStxs := patternStxs
@@ -400,7 +388,7 @@ private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchTy
             | none => throw ex
         matchType := b.instantiate1 pattern
         patterns  := patterns.push pattern
-      | _ => throwError "unexpected match type"
+      | _ => throwError "Failed to elaborate match expression: Inferred {idx} discriminants, but more were found"
     return (patterns, matchType)
 
 open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.as Pattern.val Pattern.arrayLit AltLHS MatcherResult)
@@ -408,7 +396,7 @@ open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.a
 namespace ToDepElimPattern
 
 private def throwInvalidPattern (e : Expr) : MetaM α :=
-  throwError "invalid pattern {indentExpr e}"
+  throwError "Invalid pattern{indentExpr e}"
 
 structure State where
   patternVars : Array Expr := #[]
@@ -1037,7 +1025,7 @@ register_builtin_option match.ignoreUnusedAlts : Bool := {
 
 def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) : TermElabM Unit := do
   unless result.counterExamples.isEmpty do
-    withHeadRefOnly <| logError m!"missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
+    withHeadRefOnly <| logError m!"Missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
     return ()
   unless match.ignoreUnusedAlts.get (← getOptions) || result.unusedAltIdxs.isEmpty do
     let mut i := 0
@@ -1046,7 +1034,7 @@ def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) :
         withRef alt.ref do withInPattern do withExistingLocalDecls alt.fvarDecls do
           let pats ← alt.patterns.mapM fun p => return toMessageData (← Pattern.toExpr p)
           let pats := MessageData.joinSep pats ", "
-          logError m!"redundant alternative: expressions matching{indentD pats}\nwill always match one of the preceding alternatives"
+          logError m!"Redundant alternative: Expressions matching{indentD pats}\nwill always match one of the preceding alternatives"
       i := i + 1
 
 /--
@@ -1068,7 +1056,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
   let mut generalizing? := generalizing?
   if !matchOptMotive.isNone then
     if generalizing? == some true then
-      throwError "the '(generalizing := true)' parameter is not supported when the 'match' motive is explicitly provided"
+      throwError "The '(generalizing := true)' parameter is not supported when the 'match' motive is explicitly provided"
     generalizing? := some false
   let (discrs, matchType, altLHSS, isDep, rhss) ← commitIfDidNotPostpone do
     let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptMotive altViews expectedType
@@ -1123,12 +1111,12 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
             withExistingLocalDecls altLHS.fvarDecls do
               runPendingTacticsAt d.type
               if (← instantiateMVars d.type).hasExprMVar then
-                throwMVarError m!"invalid match-expression, type of pattern variable '{d.toExpr}' contains metavariables{indentExpr d.type}"
+                throwMVarError m!"invalid match-expression: The type of pattern variable '{d.toExpr}' contains metavariables:{indentExpr d.type}"
         for p in altLHS.patterns do
           if (← Match.instantiatePatternMVars p).hasExprMVar then
             tryPostpone
             withExistingLocalDecls altLHS.fvarDecls do
-              throwMVarError m!"invalid match-expression, pattern contains metavariables{indentExpr (← p.toExpr)}"
+              throwMVarError m!"Invalid match-expression: This pattern contains metavariables:{indentExpr (← p.toExpr)}"
         pure altLHS
     return (discrs, matchType, altLHSS, isDep, rhss)
   if let some r ← if isDep then pure none else isMatchUnit? altLHSS rhss then

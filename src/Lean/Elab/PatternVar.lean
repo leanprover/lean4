@@ -49,7 +49,7 @@ abbrev M := StateRefT State TermElabM
 
 private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
   let message : MessageData :=
-    "invalid pattern, constructor or constant marked with '[match_pattern]' expected"
+    "Invalid pattern: Constructor or constant marked with `[match_pattern]` expected"
   let some idStx := ident | throwError message
   let name := idStx.getId
   if let .anonymous := name then throwError message
@@ -94,7 +94,7 @@ where
       }
 
 private def throwInvalidPattern {α} : M α :=
-  throwError "invalid pattern"
+  throwError "Invalid pattern"
 
 /-!
 An application in a pattern can be
@@ -166,12 +166,12 @@ private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
 
 private def processVar (idStx : Syntax) : M Syntax := do
   unless idStx.isIdent do
-    throwErrorAt idStx "identifier expected"
+    throwErrorAt idStx "Identifier expected, but found{indentD idStx}"
   let id := idStx.getId
   unless id.eraseMacroScopes.isAtomic do
-    throwError "invalid pattern variable, must be atomic"
+    throwError "Invalid pattern variable: Variable name must be atomic, but '{id}' has multiple components"
   if (← get).found.contains id then
-    throwError "invalid pattern, variable '{id}' occurred more than once"
+    throwError "Invalid pattern: Variable '{id}' occurred more than once"
   modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 
@@ -273,13 +273,13 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       set stateSaved
       argsNew := argsNew.push (← collect arg)
       unless samePatternsVariables stateSaved.vars.size stateNew (← get) do
-        throwError "invalid pattern, overloaded notation is only allowed when all alternative have the same set of pattern variables"
+        throwError "Invalid pattern: Overloaded notation is only allowed when all alternative have the same set of pattern variables"
     set stateNew
     return mkNode choiceKind argsNew
   else match stx with
   | `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? }) =>
     if let some srcs := srcs? then
-      throwErrorAt (mkNullNode srcs) "invalid struct instance pattern, 'with' is not allowed in patterns"
+      throwErrorAt (mkNullNode srcs) "Invalid struct instance pattern: 'with' is not allowed in patterns"
     let fields ← fields.getElems.mapM fun
       | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
         let newVal ← collect val
@@ -370,7 +370,9 @@ where
     let (fId, explicit) ← match f with
       | `($fId:ident)  => pure (fId, false)
       | `(@$fId:ident) => pure (fId, true)
-      | _              => throwError "identifier expected"
+      | _              =>
+        -- TODO: use the pretty-printer
+        throwError "Invalid pattern: Only an identifier can appear in function position, but found{indentD stx.prettyPrint}"
     let some (Expr.const fName _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected (some fId)
     let fInfo ← getConstInfo fName
     let paramDecls ← forallTelescopeReducing fInfo.type fun xs _ => xs.mapM fun x => do

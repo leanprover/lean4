@@ -567,21 +567,20 @@ private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (e
     if let some maxDiscrs := maxDiscrs? then
       if numDiscrs > maxDiscrs then
         if maxDiscrs == 0 then
-          throwErrorAt matchAltViews[0].lhs m!"cannot define a value of type{indentExpr expectedType}\n\
-            by pattern matching\n\nOnly values of function types can be defined by pattern matching, \
-            but the type{indentExpr expectedType}\nis not a function type."
+          throwErrorAt matchAltViews[0].lhs m!"Cannot define a value of type{indentExpr expectedType}\n\
+            by pattern matching because it is not a function type"
         else
-          throwErrorAt matchAltViews[0].lhs m!"too many patterns in match alternative: \
-            at most {numPatternsStr maxDiscrs} expected in a definition of type {indentExpr expectedType}\n\
+          throwErrorAt matchAltViews[0].lhs m!"Too many patterns in match alternative: \
+            At most {numPatternsStr maxDiscrs} expected in a definition of type {indentExpr expectedType}\n\
             but found {numDiscrs}:{indentD <| sepPats matchAltViews[0].patterns.toList}"
     -- Catch inconsistencies between pattern counts here so that we can report them as "incorrect"
     -- rather than as "too many" or "too few" (as the `match` elaborator does)
     for view in matchAltViews do
       let numPats := view.patterns.size
-      if numPats ≠ numDiscrs then
+      if numPats != numDiscrs then
         let origPats := sepPats matchAltViews[0].patterns.toList
         let pats := sepPats view.patterns.toList
-        throwErrorAt view.lhs m!"inconsistent number of patterns in match alternatives: this \
+        throwErrorAt view.lhs m!"Inconsistent number of patterns in match alternatives: This \
           alternative contains {numPatternsStr numPats}:{indentD pats}\n\
           but a preceding alternative contains {numDiscrs}:{indentD origPats}"
 

@@ -18,7 +18,7 @@ def correct : Foo → Foo → Prop
   | .foo2 => fun _ => False
 
 /--
-error: inconsistent number of patterns in match alternatives: this alternative contains 2 patterns:
+error: Inconsistent number of patterns in match alternatives: This alternative contains 2 patterns:
   .foo2, x
 but a preceding alternative contains 1:
   .foo
@@ -29,20 +29,16 @@ def patCountMismatch : Foo → Foo → Prop
   | .foo2, x => False
 
 /--
-error: cannot define a value of type
+error: Cannot define a value of type
   Nat
-by pattern matching
-
-Only values of function types can be defined by pattern matching, but the type
-  Nat
-is not a function type.
+by pattern matching because it is not a function type
 -/
 #guard_msgs in
 def badType : Nat
   | 0 => 32
 
 /--
-error: too many patterns in match alternative: at most 2 patterns expected in a definition of type ⏎
+error: Too many patterns in match alternative: At most 2 patterns expected in a definition of type ⏎
   Foo → Foo → Prop
 but found 3:
   f₁, f₂, f₃
@@ -52,7 +48,7 @@ def tooMany₁ : Foo → Foo → Prop
   | f₁, f₂, f₃ => True
 
 /--
-error: too many patterns in match alternative: at most 2 patterns expected in a definition of type ⏎
+error: Too many patterns in match alternative: At most 2 patterns expected in a definition of type ⏎
   Foo → Foo → Prop
 but found 3:
   .foo, .foo, f
@@ -63,7 +59,7 @@ def tooMany₂ : Foo → Foo → Prop
   | .foo, .foo2 => True
 
 /--
-error: inconsistent number of patterns in match alternatives: this alternative contains 3 patterns:
+error: Inconsistent number of patterns in match alternatives: This alternative contains 3 patterns:
   .foo, .foo, f
 but a preceding alternative contains 2:
   .foo, .foo2
@@ -86,7 +82,7 @@ def tooFew₁ : Foo → Foo → Prop
   | _ => True
 
 /--
-error: inconsistent number of patterns in match alternatives: this alternative contains 2 patterns:
+error: Inconsistent number of patterns in match alternatives: This alternative contains 2 patterns:
   .foo, .foo2
 but a preceding alternative contains 1:
   .foo
@@ -97,7 +93,7 @@ def tooFew₂ : Foo → Foo → Prop
   | .foo, .foo2 => True
 
 /--
-error: inconsistent number of patterns in match alternatives: this alternative contains 1 pattern:
+error: Inconsistent number of patterns in match alternatives: This alternative contains 1 pattern:
   _
 but a preceding alternative contains 2:
   .foo, .foo
@@ -108,7 +104,7 @@ def tooFew₃ : Foo → Foo → Prop
   | _ => False
 
 /--
-error: inconsistent number of patterns in match alternatives: this alternative contains 1 pattern:
+error: Inconsistent number of patterns in match alternatives: This alternative contains 1 pattern:
   _
 but a preceding alternative contains 2:
   .foo, .foo
@@ -124,7 +120,7 @@ def withTyValOK : TyVal
   | x, _ => x
 
 /--
-error: too many patterns in match alternative: at most 2 patterns expected in a definition of type ⏎
+error: Too many patterns in match alternative: At most 2 patterns expected in a definition of type ⏎
   TyVal
 but found 3:
   x, y, z
@@ -136,7 +132,7 @@ def withTyValTooMany : TyVal
     toString x ++ y ++ z
 
 /--
-error: inconsistent number of patterns in match alternatives: this alternative contains 1 pattern:
+error: Inconsistent number of patterns in match alternatives: This alternative contains 1 pattern:
   _
 but a preceding alternative contains 2:
   Nat.zero, ""
@@ -208,78 +204,3 @@ def matchTooFewFn : Foo → Foo → Prop :=
   λ a b =>
   match a, b with
   | _ => fun b => True
-
-/--
-error: missing cases:
-Foo.foo2, Foo.foo
-Foo.foo, Foo.foo2
--/
-#guard_msgs in
-def matchMissing : Foo → Foo → Prop :=
-  λ a b => match a, b with
-  | .foo, .foo => True
-  | .foo2, .foo2 => True
-
-/-- error: alternative 'foo2' has not been provided -/
-#guard_msgs in
-theorem induction_missing : Foo → Foo → True :=
-  λ a b => by
-  induction a with
-  | foo => trivial
-
-/-- error: alternative 'foo2' has not been provided -/
-#guard_msgs in
-theorem cases_missing : Foo → Foo → True :=
-  λ a b => by
-  cases a with
-  | foo => trivial
-
-inductive Three
-  | one | two | three
-
-/--
-error: alternative 'two' has not been provided
----
-error: alternative 'three' has not been provided
--/
-#guard_msgs in
-theorem induction_missing_multiple (t : Three) : True := by
-  induction t with
-  | one => trivial
-
-/--
-error: alternative 'two' has not been provided
----
-error: alternative 'three' has not been provided
--/
-#guard_msgs in
-theorem cases_missing_multiple (t : Three) : True := by
-  cases t with
-  | one => trivial
-
-def f x :=
-  match x with
-  | [] => 0
-  | _ :: xs => 1 + f xs
-
-def List.empty : List α → Bool
-  | nil => true
-  | cons x (q := 43) => false
-
-inductive T where
-| mk (k : Nat)
-
-
-def List.empty' : List α → Bool
-  | .nil => true
-  | .cons => false
-
-def foo (T : Type) (P : Prop) :=
-  match (motive := Type → Prop → Bool) T, P with
-  | Nat, True => true
-  | _, _ => false
-
--- TODO: fix "invalid pattern" when using `@ctor` (e.g., `@nil`)
-example := match [] with
-  | @List.cons α x xs => True
-  | @nil => false

@@ -11,6 +11,13 @@ import Init.Data.List.Impl
 namespace Lean
 namespace Json
 
+#print List.length
+#print instOfNatNat
+set_option diagnostics.threshold 0
+set_option trace.Meta.whnf true in
+set_option diagnostics true in
+example : List.length [(), ()] = 2 := by rfl
+
 set_option maxRecDepth 1024 in
 /--
 This table contains for each UTF-8 byte whether we need to escape a string that contains it.
@@ -25,7 +32,7 @@ private def escapeTable : { xs : ByteArray // xs.size = 256 } :=
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-  ], by rfl⟩
+  ], by set_option diagnostics true in rfl⟩
 
 private def escapeAux (acc : String) (c : Char) : String :=
   -- escape ", \, \n and \r, keep all other characters ≥ 0x20 and render characters < 0x20 with \u

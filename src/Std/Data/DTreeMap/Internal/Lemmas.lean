@@ -6321,6 +6321,70 @@ theorem getEntryLTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁
     {k : α} {fallback : (a : α) × β a} : t₁.getEntryLTD k fallback = t₂.getEntryLTD k fallback := by
   simp only [getEntryLTD_eq_getD_getEntryLT?, h.getEntryLT?_eq h₁ h₂]
 
+theorem getKeyGE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.getKeyGE? k = t₂.getKeyGE? k := by
+  simp only [getKeyGE?_eq_getEntryGE?, h.getEntryGE?_eq h₁ h₂]
+
+theorem getKeyGE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    t₁.getKeyGE k h₁.ordered he = t₂.getKeyGE k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  simp only [getKeyGE_eq_getEntryGE, h.getEntryGE_eq h₁ h₂]
+
+theorem getKeyGE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited α] : t₁.getKeyGE! k = t₂.getKeyGE! k := by
+  simp only [getKeyGE!_eq_get!_getKeyGE?, h.getKeyGE?_eq h₁ h₂]
+
+theorem getKeyGED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k fallback : α} : t₁.getKeyGED k fallback = t₂.getKeyGED k fallback := by
+  simp only [getKeyGED_eq_getD_getKeyGE?, h.getKeyGE?_eq h₁ h₂]
+
+theorem getKeyGT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.getKeyGT? k = t₂.getKeyGT? k := by
+  simp only [getKeyGT?_eq_getEntryGT?, h.getEntryGT?_eq h₁ h₂]
+
+theorem getKeyGT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    t₁.getKeyGT k h₁.ordered he = t₂.getKeyGT k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  simp only [getKeyGT_eq_getEntryGT, h.getEntryGT_eq h₁ h₂]
+
+theorem getKeyGT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited α] : t₁.getKeyGT! k = t₂.getKeyGT! k := by
+  simp only [getKeyGT!_eq_get!_getKeyGT?, h.getKeyGT?_eq h₁ h₂]
+
+theorem getKeyGTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k fallback : α} : t₁.getKeyGTD k fallback = t₂.getKeyGTD k fallback := by
+  simp only [getKeyGTD_eq_getD_getKeyGT?, h.getKeyGT?_eq h₁ h₂]
+
+theorem getKeyLE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.getKeyLE? k = t₂.getKeyLE? k := by
+  simp only [getKeyLE?_eq_getEntryLE?, h.getEntryLE?_eq h₁ h₂]
+
+theorem getKeyLE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    t₁.getKeyLE k h₁.ordered he = t₂.getKeyLE k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  simp only [getKeyLE_eq_getEntryLE, h.getEntryLE_eq h₁ h₂]
+
+theorem getKeyLE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited α] : t₁.getKeyLE! k = t₂.getKeyLE! k := by
+  simp only [getKeyLE!_eq_get!_getKeyLE?, h.getKeyLE?_eq h₁ h₂]
+
+theorem getKeyLED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k fallback : α} : t₁.getKeyLED k fallback = t₂.getKeyLED k fallback := by
+  simp only [getKeyLED_eq_getD_getKeyLE?, h.getKeyLE?_eq h₁ h₂]
+
+theorem getKeyLT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.getKeyLT? k = t₂.getKeyLT? k := by
+  simp only [getKeyLT?_eq_getEntryLT?, h.getEntryLT?_eq h₁ h₂]
+
+theorem getKeyLT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    t₁.getKeyLT k h₁.ordered he = t₂.getKeyLT k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  simp only [getKeyLT_eq_getEntryLT, h.getEntryLT_eq h₁ h₂]
+
+theorem getKeyLT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited α] : t₁.getKeyLT! k = t₂.getKeyLT! k := by
+  simp only [getKeyLT!_eq_get!_getKeyLT?, h.getKeyLT?_eq h₁ h₂]
+
+theorem getKeyLTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k fallback : α} : t₁.getKeyLTD k fallback = t₂.getKeyLTD k fallback := by
+  simp only [getKeyLTD_eq_getD_getKeyLT?, h.getKeyLT?_eq h₁ h₂]
+
 theorem insert [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {v : β k} : (t₁.insert k v h₁.balanced).impl ~m (t₂.insert k v h₂.balanced).impl := by
   simp_to_model [insert, Equiv] using List.insertEntry_of_perm _ h.1

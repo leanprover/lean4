@@ -433,7 +433,7 @@ theorem contains_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
 
 theorem mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     a ∈ (t.insertIfNew k v h.balanced).impl ↔ compare k a = .eq ∨ a ∈ t := by
-  simp [mem_iff_contains, contains_insertIfNew, h, beq_eq]
+  simp [mem_iff_contains, contains_insertIfNew, h, compare_eq_iff_beq]
 
 theorem mem_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insertIfNew! k v ↔ compare k a = .eq ∨ a ∈ t := by

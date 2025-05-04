@@ -154,6 +154,7 @@ macro_rules
      $[apply $(using?.toArray):term];*)
     <;> with_reducible try wf_trivial)
 
+/-
 theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
   rfl
 
@@ -6023,6 +6024,7 @@ theorem maxKeyD_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
 end Const
 
 end Max
+-/
 
 namespace Equiv
 
@@ -6087,9 +6089,16 @@ theorem getKeyD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m 
 theorem toList_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toList = t₂.toList := by
   simp_to_model [toList] using h.toListModel_eq
 
+theorem toArray_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toArray = t₂.toArray := by
+  simp only [toArray_eq_toArray, h.toListModel_eq h₁.ordered h₂.ordered]
+
 theorem keys_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.keys = t₂.keys := by
   simp_to_model [keys]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem keysArray_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.keysArray = t₂.keysArray := by
+  simp only [keysArray_eq_toArray_keys, h.toListModel_eq h₁.ordered h₂.ordered]
 
 theorem foldlM_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {f : δ → (a : α) → β a → m δ} {init : δ} :
@@ -6172,6 +6181,36 @@ theorem minEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~
   simp_to_model [minEntry?]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
+theorem minEntry_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
+    t₁.minEntry he = t₂.minEntry (h.isEmpty_eq.symm.trans he) := by
+  simp only [minEntry_eq_get_minEntry?, h.minEntry?_eq h₁ h₂]
+
+theorem minEntry!_eq [TransOrd α] [Inhabited ((a : α) × β a)]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.minEntry! = t₂.minEntry! := by
+  simp only [minEntry!_eq_get!_minEntry?, h.minEntry?_eq h₁ h₂]
+
+theorem minEntryD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {fallback : (a : α) × β a} : t₁.minEntryD fallback = t₂.minEntryD fallback := by
+  simp only [minEntryD_eq_getD_minEntry?, h.minEntry?_eq h₁ h₂]
+
+theorem maxEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.maxEntry? = t₂.maxEntry? := by
+  simp only [maxEntry?_eq_maxEntry?, h₁.ordered, h₂.ordered]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem maxEntry_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
+    t₁.maxEntry he = t₂.maxEntry (h.isEmpty_eq.symm.trans he) := by
+  apply Option.some.inj
+  simp only [some_maxEntry_eq_maxEntry?, h.maxEntry?_eq h₁ h₂]
+
+theorem maxEntry!_eq [TransOrd α] [Inhabited ((a : α) × β a)]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.maxEntry! = t₂.maxEntry! := by
+  simp only [maxEntry!_eq_get!_maxEntry?, h.maxEntry?_eq h₁ h₂]
+
+theorem maxEntryD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {fallback : (a : α) × β a} : t₁.maxEntryD fallback = t₂.maxEntryD fallback := by
+  simp only [maxEntryD_eq_getD_maxEntry?, h.maxEntry?_eq h₁ h₂]
+
 theorem entryAtIdx?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
     t₁.entryAtIdx? i = t₂.entryAtIdx? i := by
   simp_to_model [entryAtIdx?]
@@ -6211,6 +6250,78 @@ theorem keyAtIdxD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~
     {fallback : α} : t₁.keyAtIdxD i fallback = t₂.keyAtIdxD i fallback := by
   simp_to_model [keyAtIdxD]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem getEntryGE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.getEntryGE? k = t₂.getEntryGE? k := by
+  simp only [getEntryGE?_eq_find?, h₁.ordered, h₂.ordered]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem getEntryGE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    t₁.getEntryGE k h₁.ordered he = t₂.getEntryGE k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  apply Option.some.inj
+  simp only [some_getEntryGE_eq_getEntryGE?, h.getEntryGE?_eq h₁ h₂]
+
+theorem getEntryGE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited ((a : α) × β a)] : t₁.getEntryGE! k = t₂.getEntryGE! k := by
+  simp only [getEntryGE!_eq_get!_getEntryGE?, h.getEntryGE?_eq h₁ h₂]
+
+theorem getEntryGED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {fallback : (a : α) × β a} : t₁.getEntryGED k fallback = t₂.getEntryGED k fallback := by
+  simp only [getEntryGED_eq_getD_getEntryGE?, h.getEntryGE?_eq h₁ h₂]
+
+theorem getEntryGT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.getEntryGT? k = t₂.getEntryGT? k := by
+  simp only [getEntryGT?_eq_find?, h₁.ordered, h₂.ordered]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem getEntryGT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    t₁.getEntryGT k h₁.ordered he = t₂.getEntryGT k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  apply Option.some.inj
+  simp only [some_getEntryGT_eq_getEntryGT?, h.getEntryGT?_eq h₁ h₂]
+
+theorem getEntryGT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited ((a : α) × β a)] : t₁.getEntryGT! k = t₂.getEntryGT! k := by
+  simp only [getEntryGT!_eq_get!_getEntryGT?, h.getEntryGT?_eq h₁ h₂]
+
+theorem getEntryGTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {fallback : (a : α) × β a} : t₁.getEntryGTD k fallback = t₂.getEntryGTD k fallback := by
+  simp only [getEntryGTD_eq_getD_getEntryGT?, h.getEntryGT?_eq h₁ h₂]
+
+theorem getEntryLE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.getEntryLE? k = t₂.getEntryLE? k := by
+  simp only [getEntryLE?_eq_findRev?, h₁.ordered, h₂.ordered]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem getEntryLE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    t₁.getEntryLE k h₁.ordered he = t₂.getEntryLE k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  apply Option.some.inj
+  simp only [some_getEntryLE_eq_getEntryLE?, h.getEntryLE?_eq h₁ h₂]
+
+theorem getEntryLE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited ((a : α) × β a)] : t₁.getEntryLE! k = t₂.getEntryLE! k := by
+  simp only [getEntryLE!_eq_get!_getEntryLE?, h.getEntryLE?_eq h₁ h₂]
+
+theorem getEntryLED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {fallback : (a : α) × β a} : t₁.getEntryLED k fallback = t₂.getEntryLED k fallback := by
+  simp only [getEntryLED_eq_getD_getEntryLE?, h.getEntryLE?_eq h₁ h₂]
+
+theorem getEntryLT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    t₁.getEntryLT? k = t₂.getEntryLT? k := by
+  simp only [getEntryLT?_eq_findRev?, h₁.ordered, h₂.ordered]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem getEntryLT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    t₁.getEntryLT k h₁.ordered he = t₂.getEntryLT k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  apply Option.some.inj
+  simp only [some_getEntryLT_eq_getEntryLT?, h.getEntryLT?_eq h₁ h₂]
+
+theorem getEntryLT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited ((a : α) × β a)] : t₁.getEntryLT! k = t₂.getEntryLT! k := by
+  simp only [getEntryLT!_eq_get!_getEntryLT?, h.getEntryLT?_eq h₁ h₂]
+
+theorem getEntryLTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {fallback : (a : α) × β a} : t₁.getEntryLTD k fallback = t₂.getEntryLTD k fallback := by
+  simp only [getEntryLTD_eq_getD_getEntryLT?, h.getEntryLT?_eq h₁ h₂]
 
 theorem insert [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {v : β k} : (t₁.insert k v h₁.balanced).impl ~m (t₂.insert k v h₂.balanced).impl := by
@@ -6253,6 +6364,47 @@ theorem constGetD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~
     {k : α} {fallback : β} : Const.getD t₁ k fallback = Const.getD t₂ k fallback := by
   simp_to_model [Const.getD] using List.getValueD_of_perm _ h.1
 
+theorem values_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.values = t₂.values := by
+  simp only [values_eq_map_snd, h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem valuesArray_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.valuesArray = t₂.valuesArray := by
+  simp only [valuesArray_eq_toArray_map, h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem constMinEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    Const.minEntry? t₁ = Const.minEntry? t₂ := by
+  simp only [Const.minEntry?_eq_minEntry?, h.minEntry?_eq h₁ h₂]
+
+theorem constMinEntry_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
+    Const.minEntry t₁ he = Const.minEntry t₂ (h.isEmpty_eq.symm.trans he) := by
+  apply Option.some.inj
+  simp only [Const.some_minEntry_eq_minEntry?, h.constMinEntry?_eq h₁ h₂]
+
+theorem constMinEntry!_eq [TransOrd α] [Inhabited (α × β)]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : Const.minEntry! t₁ = Const.minEntry! t₂ := by
+  simp only [Const.minEntry!_eq_get!_minEntry?, h.constMinEntry?_eq h₁ h₂]
+
+theorem constMinEntryD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {fallback : α × β} : Const.minEntryD t₁ fallback = Const.minEntryD t₂ fallback := by
+  simp only [Const.minEntryD_eq_getD_minEntry?, h.constMinEntry?_eq h₁ h₂]
+
+theorem constMaxEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    Const.maxEntry? t₁ = Const.maxEntry? t₂ := by
+  simp only [Const.maxEntry?_eq_maxEntry?, h.maxEntry?_eq h₁ h₂]
+
+theorem constMaxEntry_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
+    Const.maxEntry t₁ he = Const.maxEntry t₂ (h.isEmpty_eq.symm.trans he) := by
+  apply Option.some.inj
+  simp only [Const.some_maxEntry_eq_maxEntry?, h.constMaxEntry?_eq h₁ h₂]
+
+theorem constMaxEntry!_eq [TransOrd α] [Inhabited (α × β)]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : Const.maxEntry! t₁ = Const.maxEntry! t₂ := by
+  simp only [Const.maxEntry!_eq_get!_maxEntry?, h.constMaxEntry?_eq h₁ h₂]
+
+theorem constMaxEntryD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {fallback : α × β} : Const.maxEntryD t₁ fallback = Const.maxEntryD t₂ fallback := by
+  simp only [Const.maxEntryD_eq_getD_maxEntry?, h.constMaxEntry?_eq h₁ h₂]
+
 theorem constEntryAtIdx?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
     Const.entryAtIdx? t₁ i = Const.entryAtIdx? t₂ i := by
   simp_to_model [Const.entryAtIdx?]
@@ -6272,6 +6424,70 @@ theorem constEntryAtIdxD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h :
     {fallback : α × β} : Const.entryAtIdxD t₁ i fallback = Const.entryAtIdxD t₂ i fallback := by
   simp_to_model [Const.entryAtIdxD]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem constGetEntryGE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    Const.getEntryGE? k t₁ = Const.getEntryGE? k t₂ := by
+  simp only [Const.getEntryGE?_eq_map, h.getEntryGE?_eq h₁ h₂]
+
+theorem constGetEntryGE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    Const.getEntryGE k t₁ h₁.ordered he = Const.getEntryGE k t₂ h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  simp only [Const.getEntryGE_eq, h.getEntryGE_eq h₁ h₂]
+
+theorem constGetEntryGE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited (α × β)] : Const.getEntryGE! k t₁ = Const.getEntryGE! k t₂ := by
+  simp only [Const.getEntryGE!_eq_get!_getEntryGE?, h.constGetEntryGE?_eq h₁ h₂]
+
+theorem constGetEntryGED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {fallback : α × β} : Const.getEntryGED k t₁ fallback = Const.getEntryGED k t₂ fallback := by
+  simp only [Const.getEntryGED_eq_getD_getEntryGE?, h.constGetEntryGE?_eq h₁ h₂]
+
+theorem constGetEntryGT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    Const.getEntryGT? k t₁ = Const.getEntryGT? k t₂ := by
+  simp only [Const.getEntryGT?_eq_map, h.getEntryGT?_eq h₁ h₂]
+
+theorem constGetEntryGT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    Const.getEntryGT k t₁ h₁.ordered he = Const.getEntryGT k t₂ h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  simp only [Const.getEntryGT_eq, h.getEntryGT_eq h₁ h₂]
+
+theorem constGetEntryGT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited (α × β)] : Const.getEntryGT! k t₁ = Const.getEntryGT! k t₂ := by
+  simp only [Const.getEntryGT!_eq_get!_getEntryGT?, h.constGetEntryGT?_eq h₁ h₂]
+
+theorem constGetEntryGTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α}
+    {fallback : α × β} : Const.getEntryGTD k t₁ fallback = Const.getEntryGTD k t₂ fallback := by
+  simp only [Const.getEntryGTD_eq_getD_getEntryGT?, h.constGetEntryGT?_eq h₁ h₂]
+
+theorem constGetEntryLE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    Const.getEntryLE? k t₁ = Const.getEntryLE? k t₂ := by
+  simp only [Const.getEntryLE?_eq_map, h.getEntryLE?_eq h₁ h₂]
+
+theorem constGetEntryLE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    Const.getEntryLE k t₁ h₁.ordered he = Const.getEntryLE k t₂ h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  simp only [Const.getEntryLE_eq, h.getEntryLE_eq h₁ h₂]
+
+theorem constGetEntryLE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited (α × β)] : Const.getEntryLE! k t₁ = Const.getEntryLE! k t₂ := by
+  simp only [Const.getEntryLE!_eq_get!_getEntryLE?, h.constGetEntryLE?_eq h₁ h₂]
+
+theorem constGetEntryLED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α}
+    {fallback : α × β} : Const.getEntryLED k t₁ fallback = Const.getEntryLED k t₂ fallback := by
+  simp only [Const.getEntryLED_eq_getD_getEntryLE?, h.constGetEntryLE?_eq h₁ h₂]
+
+theorem constGetEntryLT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+    Const.getEntryLT? k t₁ = Const.getEntryLT? k t₂ := by
+  simp only [Const.getEntryLT?_eq_map, h.getEntryLT?_eq h₁ h₂]
+
+theorem constGetEntryLT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+    Const.getEntryLT k t₁ h₁.ordered he = Const.getEntryLT k t₂ h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
+  simp only [Const.getEntryLT_eq, h.getEntryLT_eq h₁ h₂]
+
+theorem constGetEntryLT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} [Inhabited (α × β)] : Const.getEntryLT! k t₁ = Const.getEntryLT! k t₂ := by
+  simp only [Const.getEntryLT!_eq_get!_getEntryLT?, h.constGetEntryLT?_eq h₁ h₂]
+
+theorem constGetEntryLTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α}
+    {fallback : α × β} : Const.getEntryLTD k t₁ fallback = Const.getEntryLTD k t₂ fallback := by
+  simp only [Const.getEntryLTD_eq_getD_getEntryLT?, h.constGetEntryLT?_eq h₁ h₂]
 
 theorem constAlter [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : Option β → Option β} :

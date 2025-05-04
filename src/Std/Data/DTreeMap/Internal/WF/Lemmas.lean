@@ -1884,6 +1884,14 @@ theorem Ordered.reverse [Ord α] {t : Impl α β} (h : t.Ordered) :
   simp only [Ordered, toListModel_reverse]
   exact List.pairwise_reverse.mpr h
 
+theorem maxEntry?_eq_maxEntry? [o : Ord α] [to : TransOrd α] {t : Impl α β} (hlo : t.Ordered) :
+    t.maxEntry? = (letI := o.opposite; List.minEntry? t.toListModel) := by
+  rw [maxEntry?_eq_minEntry?_reverse, @minEntry?_eq_minEntry? _ _ (_) _ _ hlo.reverse]
+  apply @List.minEntry?_of_perm _ _ o.opposite to.opposite (@beqOfOrd _ o.opposite)
+  · exact @hlo.reverse.distinctKeys _ _ (@beqOfOrd _ o.opposite) (_) _
+  · rw [toListModel_reverse]
+    exact List.reverse_perm t.toListModel
+
 theorem maxKey?_eq_maxKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {t : Impl α β}
     (hlo : t.Ordered) :
     t.maxKey? = List.maxKey? t.toListModel := by

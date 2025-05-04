@@ -641,15 +641,15 @@ theorem maxEntry?_eq_maxEntry? [Ord α] {l : Impl α fun _ => β} :
     maxEntry? l = l.maxEntry?.map (fun x => (x.1, x.2)) := by
   induction l using maxEntry?.induct_unfolding <;> simp only [Impl.maxEntry?] <;> trivial
 
-theorem maxEntry!_eq_get!_minEntry? [Ord α] {l : Impl α fun _ => β} [Inhabited (α × β)] :
+theorem maxEntry!_eq_get!_maxEntry? [Ord α] {l : Impl α fun _ => β} [Inhabited (α × β)] :
     maxEntry! l = (maxEntry? l).get! := by
   induction l using maxEntry?.induct_unfolding <;> simp only [maxEntry!] <;> trivial
 
-theorem maxEntryD_eq_getD_minEntry? [Ord α] {l : Impl α fun _ => β} {fallback : α × β} :
+theorem maxEntryD_eq_getD_maxEntry? [Ord α] {l : Impl α fun _ => β} {fallback : α × β} :
     maxEntryD l fallback = (maxEntry? l).getD fallback := by
   induction l using maxEntry?.induct_unfolding <;> simp only [maxEntryD] <;> trivial
 
-theorem some_maxEntry_eq_minEntry? [Ord α] {l : Impl α fun _ => β} {he} :
+theorem some_maxEntry_eq_maxEntry? [Ord α] {l : Impl α fun _ => β} {he} :
     some (maxEntry l he) = maxEntry? l := by
   induction l, he using maxEntry.induct_unfolding <;> simp only [maxEntry?] <;> trivial
 

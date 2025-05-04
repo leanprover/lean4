@@ -136,11 +136,11 @@ theorem mem_attach : ∀ (o : Option α) (x : {x // o = some x}), x ∈ o.attach
 
 theorem toList_attach (o : Option α) :
     o.attach.toList = o.toList.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
-  cases o <;> simp
+  cases o <;> simp [toList]
 
 @[simp, grind =] theorem attach_toList (o : Option α) :
     o.toList.attach = (o.attach.map fun ⟨a, h⟩ => ⟨a, by simpa using h⟩).toList := by
-  cases o <;> simp
+  cases o <;> simp [toList]
 
 theorem attach_map {o : Option α} (f : α → β) :
     (o.map f).attach = o.attach.map (fun ⟨x, h⟩ => ⟨f x, map_eq_some_iff.2 ⟨_, h, rfl⟩⟩) := by
@@ -193,7 +193,7 @@ theorem attach_filter {o : Option α} {p : α → Bool} :
   cases o with
   | none => simp
   | some a =>
-    simp only [filter_some, attach_some]
+    simp only [Option.filter, attach_some]
     ext
     simp only [attach_eq_some_iff, ite_none_right_eq_some, some.injEq, bind_some,
       dite_none_right_eq_some]

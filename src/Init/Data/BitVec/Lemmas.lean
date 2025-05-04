@@ -518,6 +518,10 @@ theorem getElem_ofBool {b : Bool} {h : i < 1}: (ofBool b)[i] = b := by
   · rintro rfl
     simp
 
+/-- `0#w = 1#w` iff the width is zero. -/
+@[simp] theorem zero_eq_one_iff (w : Nat) : (0#w = 1#w) ↔ (w = 0) := by
+  rw [← one_eq_zero_iff, eq_comm]
+
 /-! ### msb -/
 
 @[simp] theorem msb_zero : (0#w).msb = false := by simp [BitVec.msb, getMsbD]

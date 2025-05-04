@@ -10,6 +10,9 @@ import Std.Data.HashSet
 import Std.Data.DTreeMap
 import Std.Data.TreeMap
 import Std.Data.TreeSet
+import Std.Data.ExtDHashMap
+import Std.Data.ExtHashMap
+import Std.Data.ExtHashSet
 
 -- The imports above only import the modules needed to work with the version which bundles
 -- the well-formedness invariant, so we need to additionally import the files that deal with the

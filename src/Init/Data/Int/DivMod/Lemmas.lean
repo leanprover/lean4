@@ -222,6 +222,9 @@ theorem ediv_eq_tdiv {a b : Int} :
     a / b = a.tdiv b - if 0 ≤ a ∨ b ∣ a then 0 else sign b := by
   simp [tdiv_eq_ediv]
 
+theorem divExact_eq_tdiv {a b : Int} (h : b ∣ a) : a.divExact b h = a.tdiv b := by
+  simp [ediv_eq_tdiv, h]
+
 theorem fdiv_eq_ediv_of_nonneg : ∀ (a : Int) {b : Int}, 0 ≤ b → fdiv a b = a / b
   | 0, _, _ | -[_+1], 0, _ => by simp
   | succ _, ofNat _, _ | -[_+1], succ _, _ => rfl
@@ -251,6 +254,9 @@ theorem fdiv_eq_ediv {a b : Int} :
 theorem ediv_eq_fdiv {a b : Int} :
     a / b = a.fdiv b + if 0 ≤ b ∨ b ∣ a then 0 else 1 := by
   simp [fdiv_eq_ediv]
+
+theorem divExact_eq_fdiv {a b : Int} (h : b ∣ a) : a.divExact b h = a.fdiv b := by
+  simp [ediv_eq_fdiv, h]
 
 theorem fdiv_eq_tdiv_of_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = tdiv a b :=
   tdiv_eq_ediv_of_nonneg Ha ▸ fdiv_eq_ediv_of_nonneg _ Hb
@@ -2657,6 +2663,16 @@ theorem bmod_eq_zero_of_dvd : {a : Nat} → {b : Int} → (h : (a : Int) ∣ b) 
 
 theorem dvd_iff_bmod_eq_zero {a : Nat} {b : Int} : (a : Int) ∣ b ↔ b.bmod a = 0 :=
   ⟨bmod_eq_zero_of_dvd, dvd_of_bmod_eq_zero⟩
+
+theorem divExact_eq_bdiv {a : Int} {b : Nat} (h : (b : Int) ∣ a) : a.divExact b h = a.bdiv b := by
+  have := bdiv_add_bmod a b
+  rw [bmod_eq_zero_of_dvd h, Int.add_zero] at this
+  rw [divExact_eq_ediv]
+  conv => lhs; rw [← this]
+  by_cases h' : (b : Int) = 0
+  · cases h'
+    simp_all
+  · rw [mul_ediv_cancel_left _ h']
 
 theorem le_bmod {x : Int} {m : Nat} (h : 0 < m) : - (m/2) ≤ Int.bmod x m := by
   dsimp [bmod]

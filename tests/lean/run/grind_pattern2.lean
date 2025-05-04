@@ -62,7 +62,7 @@ theorem arrEx [Add α] (as : Array α) (h₁ : i < as.size) (h₂ : i = j) : as[
 
 
 /--
-info: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem _ `[Nat] _ _ _ #2 #5 _) (@getElem _ `[Nat] _ _ _ #2 #4 _)]
+info: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem (Array _) `[Nat] _ _ _ #2 #5 _) (@getElem (Array _) `[Nat] _ _ _ #2 #4 _)]
 -/
 #guard_msgs in
 grind_pattern arrEx => as[i]+as[j]'(h₂▸h₁)

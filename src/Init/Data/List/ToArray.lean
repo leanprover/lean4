@@ -66,7 +66,7 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
   apply ext'
   simp
 
-@[simp] theorem push_toArray (l : List α) (a : α) : l.toArray.push a = (l ++ [a]).toArray := by
+@[simp, grind =] theorem push_toArray (l : List α) (a : α) : l.toArray.push a = (l ++ [a]).toArray := by
   apply ext'
   simp
 
@@ -75,37 +75,37 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
   funext a
   simp
 
-@[simp] theorem isEmpty_toArray (l : List α) : l.toArray.isEmpty = l.isEmpty := by
+@[simp, grind =] theorem isEmpty_toArray (l : List α) : l.toArray.isEmpty = l.isEmpty := by
   cases l <;> simp [Array.isEmpty]
 
 @[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = Array.singleton a := rfl
 
-@[simp] theorem back!_toArray [Inhabited α] (l : List α) : l.toArray.back! = l.getLast! := by
+@[simp, grind =] theorem back!_toArray [Inhabited α] (l : List α) : l.toArray.back! = l.getLast! := by
   simp only [back!, size_toArray, getElem!_toArray, getLast!_eq_getElem!]
 
-@[simp] theorem back?_toArray (l : List α) : l.toArray.back? = l.getLast? := by
+@[simp, grind =] theorem back?_toArray (l : List α) : l.toArray.back? = l.getLast? := by
   simp [back?, List.getLast?_eq_getElem?]
 
-@[simp] theorem back_toArray (l : List α) (h) :
+@[simp, grind =] theorem back_toArray (l : List α) (h) :
     l.toArray.back = l.getLast (by simp at h; exact ne_nil_of_length_pos h) := by
   simp [back, List.getLast_eq_getElem]
 
-@[simp] theorem _root_.Array.getLast!_toList [Inhabited α] (xs : Array α) :
+@[simp, grind =] theorem _root_.Array.getLast!_toList [Inhabited α] (xs : Array α) :
     xs.toList.getLast! = xs.back! := by
   rcases xs with ⟨xs⟩
   simp
 
-@[simp] theorem _root_.Array.getLast?_toList (xs : Array α) :
+@[simp, grind =] theorem _root_.Array.getLast?_toList (xs : Array α) :
     xs.toList.getLast? = xs.back? := by
   rcases xs with ⟨xs⟩
   simp
 
-@[simp] theorem _root_.Array.getLast_toList (xs : Array α) (h) :
+@[simp, grind =] theorem _root_.Array.getLast_toList (xs : Array α) (h) :
     xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using h) := by
   rcases xs with ⟨xs⟩
   simp
 
-@[simp] theorem set_toArray (l : List α) (i : Nat) (a : α) (h : i < l.length) :
+@[simp, grind =] theorem set_toArray (l : List α) (i : Nat) (a : α) (h : i < l.length) :
     (l.toArray.set i a) = (l.set i a).toArray := rfl
 
 @[simp] theorem forIn'_loop_toArray [Monad m] (l : List α) (f : (a : α) → a ∈ l.toArray → β → m (ForInStep β)) (i : Nat)
@@ -126,30 +126,30 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
     simp only [t]
     congr
 
-@[simp] theorem forIn'_toArray [Monad m] (l : List α) (b : β) (f : (a : α) → a ∈ l.toArray → β → m (ForInStep β)) :
+@[simp, grind =] theorem forIn'_toArray [Monad m] (l : List α) (b : β) (f : (a : α) → a ∈ l.toArray → β → m (ForInStep β)) :
     forIn' l.toArray b f = forIn' l b (fun a m b => f a (mem_toArray.mpr m) b) := by
   change Array.forIn' _ _ _ = List.forIn' _ _ _
   rw [Array.forIn', forIn'_loop_toArray]
   simp
 
-@[simp] theorem forIn_toArray [Monad m] (l : List α) (b : β) (f : α → β → m (ForInStep β)) :
+@[simp, grind =] theorem forIn_toArray [Monad m] (l : List α) (b : β) (f : α → β → m (ForInStep β)) :
     forIn l.toArray b f = forIn l b f := by
   simpa using forIn'_toArray l b fun a m b => f a b
 
-theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :
+@[grind =] theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :
     l.toArray.foldrM f init = l.foldrM f init := by
   rw [foldrM_eq_reverse_foldlM_toList]
   simp
 
-theorem foldlM_toArray [Monad m] (f : β → α → m β) (init : β) (l : List α) :
+@[grind =] theorem foldlM_toArray [Monad m] (f : β → α → m β) (init : β) (l : List α) :
     l.toArray.foldlM f init = l.foldlM f init := by
   rw [foldlM_toList]
 
-theorem foldr_toArray (f : α → β → β) (init : β) (l : List α) :
+@[grind =] theorem foldr_toArray (f : α → β → β) (init : β) (l : List α) :
     l.toArray.foldr f init = l.foldr f init := by
   rw [foldr_toList]
 
-theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
+@[grind =] theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
     l.toArray.foldl f init = l.foldl f init := by
   rw [foldl_toList]
 
@@ -176,7 +176,7 @@ theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
   simp only [size_toArray, foldlM_toArray']
   induction l <;> simp_all
 
-@[simp]
+@[simp, grind =]
 theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
     (forM l.toArray f) = l.forM f :=
   forM_toArray' l f rfl
@@ -195,15 +195,15 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
   subst h
   rw [foldl_toList]
 
-@[simp] theorem sum_toArray [Add α] [Zero α] (l : List α) : l.toArray.sum = l.sum := by
+@[simp, grind =] theorem sum_toArray [Add α] [Zero α] (l : List α) : l.toArray.sum = l.sum := by
   simp [Array.sum, List.sum]
 
-@[simp] theorem append_toArray (l₁ l₂ : List α) :
+@[simp, grind =] theorem append_toArray (l₁ l₂ : List α) :
     l₁.toArray ++ l₂.toArray = (l₁ ++ l₂).toArray := by
   apply ext'
   simp
 
-@[simp] theorem push_append_toArray {as : Array α} {a : α} {bs : List α} : as.push a ++ bs.toArray = as ++ (a ::bs).toArray := by
+@[simp] theorem push_append_toArray {as : Array α} {a : α} {bs : List α} : as.push a ++ bs.toArray = as ++ (a :: bs).toArray := by
   cases as
   simp
 
@@ -213,7 +213,7 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 @[simp] theorem foldr_push {l : List α} {as : Array α} : l.foldr (fun a bs => push bs a) as = as ++ l.reverse.toArray := by
   rw [foldr_eq_foldl_reverse, foldl_push]
 
-@[simp] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
+@[simp, grind =] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
     l.toArray.findSomeM? f = l.findSomeM? f := by
   rw [Array.findSomeM?]
   simp only [bind_pure_comp, map_pure, forIn_toArray]
@@ -246,7 +246,7 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
     l.toArray.findRevM? f = l.reverse.findM? f := by
   rw [Array.findRevM?, findSomeRevM?_toArray, findM?_eq_findSomeM?]
 
-@[simp] theorem findM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : List α) :
+@[simp, grind =] theorem findM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : List α) :
     l.toArray.findM? f = l.findM? f := by
   rw [Array.findM?]
   simp only [bind_pure_comp, map_pure, forIn_toArray]
@@ -257,11 +257,11 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
     congr
     ext1 (_|_) <;> simp [ih]
 
-@[simp] theorem findSome?_toArray (f : α → Option β) (l : List α) :
+@[simp, grind =] theorem findSome?_toArray (f : α → Option β) (l : List α) :
     l.toArray.findSome? f = l.findSome? f := by
   rw [Array.findSome?, ← findSomeM?_id, findSomeM?_toArray, Id.run]
 
-@[simp] theorem find?_toArray (f : α → Bool) (l : List α) :
+@[simp, grind =] theorem find?_toArray (f : α → Bool) (l : List α) :
     l.toArray.find? f = l.find? f := by
   rw [Array.find?]
   simp only [Id.run, Id, Id.pure_eq, Id.bind_eq, forIn_toArray]
@@ -297,12 +297,12 @@ private theorem findFinIdx?_loop_toArray (w : l' = l.drop j) :
     simp
 termination_by l.length - j
 
-@[simp] theorem findFinIdx?_toArray (p : α → Bool) (l : List α) :
+@[simp, grind =] theorem findFinIdx?_toArray (p : α → Bool) (l : List α) :
     l.toArray.findFinIdx? p = l.findFinIdx? p := by
   rw [Array.findFinIdx?, findFinIdx?, findFinIdx?_loop_toArray]
   simp
 
-@[simp] theorem findIdx?_toArray (p : α → Bool) (l : List α) :
+@[simp, grind =] theorem findIdx?_toArray (p : α → Bool) (l : List α) :
     l.toArray.findIdx? p = l.findIdx? p := by
   rw [Array.findIdx?_eq_map_findFinIdx?_val, findIdx?_eq_map_findFinIdx?_val]
   simp
@@ -334,21 +334,21 @@ private theorem idxAuxOf_toArray [BEq α] (a : α) (l : List α) (j : Nat) (w : 
     simp
 termination_by l.length - j
 
-@[simp] theorem finIdxOf?_toArray [BEq α] (a : α) (l : List α) :
+@[simp, grind =] theorem finIdxOf?_toArray [BEq α] (a : α) (l : List α) :
     l.toArray.finIdxOf? a = l.finIdxOf? a := by
   rw [Array.finIdxOf?, finIdxOf?, findFinIdx?]
   simp [idxAuxOf_toArray]
 
-@[simp] theorem idxOf?_toArray [BEq α] (a : α) (l : List α) :
+@[simp, grind =] theorem idxOf?_toArray [BEq α] (a : α) (l : List α) :
     l.toArray.idxOf? a = l.idxOf? a := by
   rw [Array.idxOf?, idxOf?]
   simp [finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
 
-@[simp] theorem findIdx_toArray {as : List α} {p : α → Bool} :
+@[simp, grind =] theorem findIdx_toArray {as : List α} {p : α → Bool} :
     as.toArray.findIdx p = as.findIdx p := by
   rw [Array.findIdx, findIdx?_toArray, findIdx_eq_getD_findIdx?]
 
-@[simp] theorem idxOf_toArray [BEq α] {as : List α} {a : α} :
+@[simp, grind =] theorem idxOf_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.idxOf a = as.idxOf a := by
   rw [Array.idxOf, findIdx_toArray, idxOf]
 
@@ -383,7 +383,7 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
   | a::l₁, b::l₂ =>
     simp [isPrefixOf_cons₂, isPrefixOfAux_toArray_succ', isPrefixOfAux_toArray_zero]
 
-@[simp] theorem isPrefixOf_toArray [BEq α] (l₁ l₂ : List α) :
+@[simp, grind =] theorem isPrefixOf_toArray [BEq α] (l₁ l₂ : List α) :
     l₁.toArray.isPrefixOf l₂.toArray = l₁.isPrefixOf l₂ := by
   rw [Array.isPrefixOf]
   split <;> rename_i h
@@ -429,12 +429,12 @@ theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List
   | a :: as, b :: bs =>
     simp [zipWith_cons_cons, zipWithAux_toArray_succ', zipWithAux_toArray_zero, push_append_toArray]
 
-@[simp] theorem zipWith_toArray (as : List α) (bs : List β) (f : α → β → γ) :
+@[simp, grind =] theorem zipWith_toArray (as : List α) (bs : List β) (f : α → β → γ) :
     Array.zipWith f as.toArray bs.toArray = (List.zipWith f as bs).toArray := by
   rw [Array.zipWith]
   simp [zipWithAux_toArray_zero]
 
-@[simp] theorem zip_toArray (as : List α) (bs : List β) :
+@[simp, grind =] theorem zip_toArray (as : List α) (bs : List β) :
     Array.zip as.toArray bs.toArray = (List.zip as bs).toArray := by
   simp [Array.zip, zipWith_toArray, zip]
 
@@ -472,16 +472,16 @@ theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → O
   termination_by max as.length bs.length - i
   decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[simp] theorem zipWithAll_toArray (f : Option α → Option β → γ) (as : List α) (bs : List β) :
+@[simp, grind =] theorem zipWithAll_toArray (f : Option α → Option β → γ) (as : List α) (bs : List β) :
     Array.zipWithAll f as.toArray bs.toArray = (List.zipWithAll f as bs).toArray := by
   simp [Array.zipWithAll, zipWithAll_go_toArray]
 
-@[simp] theorem toArray_appendList (l₁ l₂ : List α) :
+@[simp, grind =] theorem toArray_appendList (l₁ l₂ : List α) :
     l₁.toArray ++ l₂ = (l₁ ++ l₂).toArray := by
   apply ext'
   simp
 
-@[simp] theorem pop_toArray (l : List α) : l.toArray.pop = l.dropLast.toArray := by
+@[simp, grind =] theorem pop_toArray (l : List α) : l.toArray.pop = l.dropLast.toArray := by
   apply ext'
   simp
 
@@ -513,7 +513,7 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
         split <;> simp_all
       · simp_all [drop_eq_nil_of_le]
 
-@[simp] theorem takeWhile_toArray (p : α → Bool) (l : List α) :
+@[simp, grind =] theorem takeWhile_toArray (p : α → Bool) (l : List α) :
     l.toArray.takeWhile p = (l.takeWhile p).toArray := by
   simp [Array.takeWhile, takeWhile_go_toArray]
 
@@ -528,11 +528,11 @@ private theorem popWhile_toArray_aux (p : α → Bool) (l : List α) :
     · rfl
     · simp
 
-@[simp] theorem popWhile_toArray (p : α → Bool) (l : List α) :
+@[simp, grind =] theorem popWhile_toArray (p : α → Bool) (l : List α) :
     l.toArray.popWhile p = (l.reverse.dropWhile p).reverse.toArray := by
   simp [← popWhile_toArray_aux]
 
-@[simp] theorem setIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
+@[simp, grind =] theorem setIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
     l.toArray.setIfInBounds i a  = (l.set i a).toArray := by
   apply ext'
   simp only [setIfInBounds]
@@ -540,7 +540,7 @@ private theorem popWhile_toArray_aux (p : α → Bool) (l : List α) :
   · simp
   · simp_all [List.set_eq_of_length_le]
 
-@[simp] theorem toArray_replicate (n : Nat) (v : α) :
+@[simp, grind =] theorem toArray_replicate (n : Nat) (v : α) :
     (List.replicate n v).toArray = Array.replicate n v := rfl
 
 theorem _root_.Array.replicate_eq_toArray_replicate :
@@ -550,7 +550,7 @@ theorem _root_.Array.replicate_eq_toArray_replicate :
 @[deprecated _root_.Array.replicate_eq_toArray_replicate (since := "2025-03-18")]
 abbrev _root_.Array.mkArray_eq_toArray_replicate := @_root_.Array.replicate_eq_toArray_replicate
 
-@[simp] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
+@[simp, grind =] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
 
 theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) :
     (a :: as).toArray.flatMap f = f a ++ as.toArray.flatMap f := by
@@ -562,7 +562,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
   intro xs
   induction as generalizing xs <;> simp_all
 
-@[simp] theorem flatMap_toArray {β} (f : α → Array β) (as : List α) :
+@[simp, grind =] theorem flatMap_toArray {β} (f : α → Array β) (as : List α) :
     as.toArray.flatMap f = (as.flatMap (fun a => (f a).toList)).toArray := by
   induction as with
   | nil => simp
@@ -570,12 +570,12 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
     apply ext'
     simp [ih, flatMap_toArray_cons]
 
-@[simp] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
+@[simp, grind =] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
     l.toArray.swap i j hi hj = ((l.set i l[j]).set j l[i]).toArray := by
   apply ext'
   simp
 
-@[simp] theorem eraseIdx_toArray (l : List α) (i : Nat) (h : i < l.toArray.size) :
+@[simp, grind =] theorem eraseIdx_toArray (l : List α) (i : Nat) (h : i < l.toArray.size) :
     l.toArray.eraseIdx i h = (l.eraseIdx i).toArray := by
   rw [Array.eraseIdx]
   split <;> rename_i h'
@@ -593,19 +593,19 @@ decreasing_by
   simp
   omega
 
-@[simp] theorem eraseIdxIfInBounds_toArray (l : List α) (i : Nat) :
+@[simp, grind =] theorem eraseIdxIfInBounds_toArray (l : List α) (i : Nat) :
     l.toArray.eraseIdxIfInBounds i = (l.eraseIdx i).toArray := by
   rw [Array.eraseIdxIfInBounds]
   split
   · simp
   · simp_all [eraseIdx_eq_self.2]
 
-@[simp] theorem eraseP_toArray {as : List α} {p : α → Bool} :
+@[simp, grind =] theorem eraseP_toArray {as : List α} {p : α → Bool} :
     as.toArray.eraseP p = (as.eraseP p).toArray := by
   rw [Array.eraseP, List.eraseP_eq_eraseIdx, findFinIdx?_toArray]
   split <;> simp [*, findIdx?_eq_map_findFinIdx?_val]
 
-@[simp] theorem erase_toArray [BEq α] {as : List α} {a : α} :
+@[simp, grind =] theorem erase_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.erase a = (as.erase a).toArray := by
   rw [Array.erase, finIdxOf?_toArray, List.erase_eq_eraseIdx]
   rw [idxOf?_eq_map_finIdxOf?_val]
@@ -635,7 +635,7 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
     subst this
     simp
 
-@[simp] theorem insertIdx_toArray (l : List α) (i : Nat) (a : α) (h : i ≤ l.toArray.size):
+@[simp, grind =] theorem insertIdx_toArray (l : List α) (i : Nat) (a : α) (h : i ≤ l.toArray.size):
     l.toArray.insertIdx i a = (l.insertIdx i a).toArray := by
   rw [Array.insertIdx]
   rw [insertIdx_loop_toArray (h := h)]
@@ -658,7 +658,7 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
         congr
         omega
 
-@[simp] theorem insertIdxIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
+@[simp, grind =] theorem insertIdxIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
     l.toArray.insertIdxIfInBounds i a = (l.insertIdx i a).toArray := by
   rw [Array.insertIdxIfInBounds]
   split <;> rename_i h'
@@ -666,7 +666,7 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
   · simp only [size_toArray, Nat.not_le] at h'
     rw [List.insertIdx_of_length_lt (h := h')]
 
-@[simp]
+@[simp, grind =]
 theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
     l.toArray.replace a b = (l.replace a b).toArray := by
   rw [Array.replace]
@@ -700,11 +700,11 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
               exact ⟨i, by omega, h.1⟩
           · rfl
 
-@[simp] theorem leftpad_toArray (n : Nat) (a : α) (l : List α) :
+@[simp, grind =] theorem leftpad_toArray (n : Nat) (a : α) (l : List α) :
     Array.leftpad n a l.toArray = (leftpad n a l).toArray := by
   simp [leftpad, Array.leftpad, ← toArray_replicate]
 
-@[simp] theorem rightpad_toArray (n : Nat) (a : α) (l : List α) :
+@[simp, grind =] theorem rightpad_toArray (n : Nat) (a : α) (l : List α) :
     Array.rightpad n a l.toArray = (rightpad n a l).toArray := by
   simp [rightpad, Array.rightpad, ← toArray_replicate]
 

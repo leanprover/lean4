@@ -29417,10 +29417,10 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_instToLeanArrayMkStr1___rarg___closed__1;
 x_2 = l_Lake_Package_mkLeanConfig___closed__7;
-x_3 = l_Lake_Package_mkLeanConfig___closed__8;
-x_4 = l_Lake_Package_mkLeanConfig___closed__9;
-x_5 = l_Lake_mkDeclValWhere_x3f___closed__11;
-x_6 = l_Lean_Syntax_node3(x_1, x_2, x_3, x_4, x_5);
+x_3 = l_Lake_mkDeclValWhere_x3f___closed__11;
+x_4 = l_Lake_Package_mkLeanConfig___closed__8;
+x_5 = l_Lake_Package_mkLeanConfig___closed__9;
+x_6 = l_Lean_Syntax_node5(x_1, x_2, x_3, x_4, x_3, x_5, x_3);
 return x_6;
 }
 }

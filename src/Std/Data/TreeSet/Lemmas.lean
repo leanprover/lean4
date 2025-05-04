@@ -38,6 +38,10 @@ theorem isEmpty_insert [TransCmp cmp] {k : α} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   TreeMap.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
+  TreeMap.contains_iff_mem
+
 theorem contains_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   TreeMap.contains_congr hab
@@ -206,6 +210,11 @@ theorem get?_insert [TransCmp cmp] {k a : α} :
 theorem contains_eq_isSome_get? [TransCmp cmp] {a : α} :
     t.contains a = (t.get? a).isSome :=
   TreeMap.contains_eq_isSome_getKey?
+
+@[simp]
+theorem isSome_get?_eq_contains [TransCmp cmp] {a : α} :
+    (t.get? a).isSome = t.contains a :=
+  contains_eq_isSome_get?.symm
 
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
@@ -481,6 +490,13 @@ theorem insertMany_cons {l : List α} {k : α} :
     t.insertMany (k :: l) = (t.insert k).insertMany l :=
   ext TreeMap.insertManyIfNewUnit_cons
 
+theorem insertMany_append {l₁ l₂ : List α} :
+    insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
+  induction l₁ generalizing t with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 @[simp]
 theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     {l : List α} {k : α} :
@@ -601,6 +617,12 @@ theorem ofList_cons {hd : α} {tl : List α} :
     ofList (hd :: tl) cmp =
       insertMany ((∅ : TreeSet α cmp).insert hd) tl :=
   ext TreeMap.unitOfList_cons
+
+theorem ofList_eq_insertMany_empty {l : List α} :
+    ofList l cmp = insertMany (∅ : TreeSet α cmp) l :=
+  match l with
+  | [] => by simp
+  | hd :: tl => by simp [ofList_cons, insertMany_cons]
 
 @[simp]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :

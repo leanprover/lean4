@@ -24,7 +24,7 @@ universe u v w
 
 namespace Std.DTreeMap.Internal.Impl
 
-variable {α : Type u} {β : α → Type v} {instOrd : Ord α} {t : Impl α β}
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {instOrd : Ord α} {t : Impl α β}
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 attribute [local instance low] beqOfOrd
@@ -6341,6 +6341,17 @@ theorem alter [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (
 theorem modify [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : β k → β k} : t₁.modify k f ~m t₂.modify k f := by
   simp_to_model [modify, Equiv] using List.modifyKey_of_perm _ h.1
+
+theorem filter_eq (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α) → β a → Bool} :
+    (t₁.filter f h₁.balanced).impl ~m (t₂.filter f h₂.balanced).impl := by
+  simpa only [equiv_iff_toListModel_perm, toListModel_filter] using h.impl.filter _
+
+theorem map_eq (h : t₁ ~m t₂) {f : (a : α) → β a → γ a} : t₁.map f ~m t₂.map f := by
+  simpa only [equiv_iff_toListModel_perm, toListModel_map] using h.impl.map _
+
+theorem filterMap_eq (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α) → β a → Option (γ a)} :
+    (t₁.filterMap f h₁.balanced).impl ~m (t₂.filterMap f h₂.balanced).impl := by
+  simpa only [equiv_iff_toListModel_perm, toListModel_filterMap] using h.impl.filterMap _
 
 section Const
 

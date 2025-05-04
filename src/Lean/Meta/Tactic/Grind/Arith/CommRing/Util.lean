@@ -36,6 +36,15 @@ structure RingM.Context where
   -/
   checkCoeffDvd : Bool := false
 
+class MonadGetRing (m : Type → Type) where
+  getRing : m Ring
+
+export MonadGetRing (getRing)
+
+@[always_inline]
+instance (m n) [MonadLift m n] [MonadGetRing m] : MonadGetRing n where
+  getRing    := liftM (getRing : m Ring)
+
 /-- We don't want to keep carrying the `RingId` around. -/
 abbrev RingM := ReaderT RingM.Context GoalM
 
@@ -45,13 +54,16 @@ abbrev RingM.run (ringId : Nat) (x : RingM α) : GoalM α :=
 abbrev getRingId : RingM Nat :=
   return (← read).ringId
 
-def getRing : RingM Ring := do
+protected def RingM.getRing : RingM Ring := do
   let s ← get'
   let ringId ← getRingId
   if h : ringId < s.rings.size then
     return s.rings[ringId]
   else
     throwError "`grind` internal error, invalid ringId"
+
+instance : MonadGetRing RingM where
+  getRing := RingM.getRing
 
 @[inline] def modifyRing (f : Ring → Ring) : RingM Unit := do
   let ringId ← getRingId
@@ -75,14 +87,14 @@ def setTermRingId (e : Expr) : RingM Unit := do
   modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
 
 /-- Returns `some c` if the current ring has a nonzero characteristic `c`. -/
-def nonzeroChar? : RingM (Option Nat) := do
+def nonzeroChar? [Monad m] [MonadGetRing m] : m (Option Nat) := do
   if let some (_, c) := (← getRing).charInst? then
     if c != 0 then
       return some c
   return none
 
 /-- Returns `some (charInst, c)` if the current ring has a nonzero characteristic `c`. -/
-def nonzeroCharInst? : RingM (Option (Expr × Nat)) := do
+def nonzeroCharInst? [Monad m] [MonadGetRing m] : m (Option (Expr × Nat)) := do
   if let some (inst, c) := (← getRing).charInst? then
     if c != 0 then
       return some (inst, c)

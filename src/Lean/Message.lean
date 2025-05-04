@@ -607,4 +607,10 @@ def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   | interrupted                         => "(kernel) interrupted"
 
 end Kernel.Exception
+
+/-- Helper functions for creating a `MessageData` with the given header and elements. -/
+def ppExprArray (cls : Name) (header : String) (es : Array Expr) (clsElem : Name := Name.mkSimple "_") : MessageData :=
+  let es := es.map fun e => .trace { cls := clsElem} m!"{e}" #[]
+  .trace { cls } header es
+
 end Lean

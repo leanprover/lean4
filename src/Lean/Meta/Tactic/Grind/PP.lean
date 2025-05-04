@@ -72,10 +72,6 @@ def ppGoals (goals : List Goal) : MetaM MessageData := do
     r := r ++ Format.line ++ m
   return r
 
-private def ppExprArray (cls : Name) (header : String) (es : Array Expr) (clsElem : Name := Name.mkSimple "_") : MessageData :=
-  let es := es.map fun e => .trace { cls := clsElem} m!"{e}" #[]
-  .trace { cls } header es
-
 private abbrev M := ReaderT Goal (StateT (Array MessageData) MetaM)
 
 private def pushMsg (m : MessageData) : M Unit :=

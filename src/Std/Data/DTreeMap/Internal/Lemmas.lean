@@ -28,8 +28,6 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w} {instOrd : Ord 
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 attribute [local instance low] beqOfOrd
-attribute [local instance] equivBEq_of_transOrd
-attribute [local instance] lawfulBEq_of_lawfulEqOrd
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "wf_trivial" : tactic
@@ -56,7 +54,8 @@ theorem compare_ne_iff_beq_eq_false {a b : α} :
   simp only [ne_eq, compare_eq_iff_beq, Bool.not_eq_true]
 
 private def helperLemmaNames : Array Name :=
-  #[``compare_eq_iff_beq, ``compare_ne_iff_beq_eq_false, ``Bool.not_eq_true, ``mem_iff_contains]
+  #[``compare_eq_iff_beq, ``compare_beq_eq_beq, ``compare_ne_iff_beq_eq_false,
+    ``Bool.not_eq_true, ``mem_iff_contains]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList

@@ -334,13 +334,21 @@ instance LawfulEqOrd.opposite [Ord α] [OrientedOrd α] [LawfulEqOrd α] :
     letI := Ord.opposite ‹_›; LawfulEqOrd α :=
   LawfulEqCmp.opposite (cmp := compare)
 
+theorem LawfulEqCmp.compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
+  ⟨LawfulEqCmp.eq_of_compare, fun h => h ▸ ReflCmp.compare_self⟩
+
+theorem LawfulEqCmp.compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
+  beq_iff_eq.trans compare_eq_iff_eq
+
 @[simp]
-theorem compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
+theorem LawfulEqOrd.compare_eq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} : compare a b = .eq ↔ a = b :=
   ⟨LawfulEqCmp.eq_of_compare, by rintro rfl; exact ReflCmp.compare_self⟩
 
 @[simp]
-theorem compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
+theorem LawfulEqOrd.compare_beq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} : compare a b == .eq ↔ a = b :=
   ⟨LawfulEqCmp.eq_of_compare ∘ eq_of_beq, by rintro rfl; simp⟩
+
+export LawfulEqOrd (compare_eq_iff_eq compare_beq_iff_eq)
 
 end LawfulEq
 
@@ -362,6 +370,14 @@ theorem LawfulBEqCmp.not_compare_eq_iff_beq_eq_false {α : Type u} [BEq α] {cmp
   rw [Bool.eq_false_iff, ne_eq, not_congr]
   exact compare_eq_iff_beq
 
+theorem LawfulBEqCmp.compare_beq_eq_beq {α : Type u} [BEq α] {cmp}
+    [LawfulBEqCmp (α := α) cmp] {a b : α} : (cmp a b == .eq) = (a == b) := by
+  rw [Bool.eq_iff_iff, beq_iff_eq, compare_eq_iff_beq]
+
+theorem LawfulBEqCmp.isEq_compare_eq_beq {α : Type u} [BEq α] {cmp}
+    [LawfulBEqCmp (α := α) cmp] {a b : α} : (cmp a b).isEq = (a == b) := by
+  rw [Bool.eq_iff_iff, Ordering.isEq_iff_eq_eq, compare_eq_iff_beq]
+
 /--
 A typeclass for types with a comparison function that satisfies `compare a b = .eq` if and only if
 the boolean equality `a == b` holds.
@@ -381,11 +397,19 @@ theorem LawfulBEqOrd.not_compare_eq_iff_beq_eq_false {α : Type u} {_ : BEq α} 
     [LawfulBEqOrd α] {a b : α} : ¬ compare a b = .eq ↔ (a == b) = false :=
   LawfulBEqCmp.not_compare_eq_iff_beq_eq_false
 
-export LawfulBEqOrd (compare_eq_iff_beq not_compare_eq_iff_beq_eq_false)
+theorem LawfulBEqOrd.compare_beq_eq_beq {α : Type u} {_ : Ord α} {_ : BEq α}
+    [LawfulBEqOrd α] {a b : α} : (compare a b == .eq) = (a == b) :=
+  LawfulBEqCmp.compare_beq_eq_beq
 
-instance [LawfulEqCmp cmp] [LawfulBEq α] :
-    LawfulBEqCmp cmp where
-  compare_eq_iff_beq := compare_eq_iff_eq.trans beq_iff_eq.symm
+theorem LawfulBEqOrd.isEq_compare_eq_beq {α : Type u} {_ : Ord α} {_ : BEq α}
+    [LawfulBEqOrd α] {a b : α} : (compare a b).isEq = (a == b) :=
+  LawfulBEqCmp.isEq_compare_eq_beq
+
+export LawfulBEqOrd (compare_eq_iff_beq not_compare_eq_iff_beq_eq_false
+  compare_beq_eq_beq isEq_compare_eq_beq)
+
+instance [LawfulEqCmp cmp] [LawfulBEq α] : LawfulBEqCmp cmp where
+  compare_eq_iff_beq := LawfulEqCmp.compare_eq_iff_eq.trans beq_iff_eq.symm
 
 theorem LawfulBEqCmp.equivBEq [inst : LawfulBEqCmp cmp] [TransCmp cmp] : EquivBEq α where
   rfl := inst.compare_eq_iff_beq.mp ReflCmp.compare_self
@@ -400,8 +424,8 @@ instance LawfulBEqOrd.equivBEq [Ord α] [LawfulBEqOrd α] [TransOrd α] : EquivB
   LawfulBEqCmp.equivBEq (cmp := compare)
 
 theorem LawfulBEqCmp.lawfulBEq [inst : LawfulBEqCmp cmp] [LawfulEqCmp cmp] : LawfulBEq α where
-  rfl := by simp [← inst.compare_eq_iff_beq, compare_eq_iff_eq]
-  eq_of_beq := by simp [← inst.compare_eq_iff_beq, compare_eq_iff_eq]
+  rfl := by simp [← inst.compare_eq_iff_beq, LawfulEqCmp.compare_eq_iff_eq]
+  eq_of_beq := by simp [← inst.compare_eq_iff_beq, LawfulEqCmp.compare_eq_iff_eq]
 
 instance LawfulBEqOrd.lawfulBEq [Ord α] [LawfulBEqOrd α] [LawfulEqOrd α] : LawfulBEq α :=
   LawfulBEqCmp.lawfulBEq (cmp := compare)
@@ -765,8 +789,8 @@ instance [LawfulEqCmp cmp] : LawfulEqCmp (List.compareLex cmp) where
     | cons x xs ih =>
       cases b
       · simp [List.compareLex_nil_right_eq_eq] at h
-      · simp only [List.compareLex_cons_cons, Ordering.then_eq_eq, compare_eq_iff_eq,
-        List.cons.injEq] at *
+      · simp only [List.compareLex_cons_cons, Ordering.then_eq_eq, LawfulEqCmp.compare_eq_iff_eq,
+          List.cons.injEq] at *
         exact ⟨h.1, ih h.2⟩
 
 instance [BEq α] [LawfulBEqCmp cmp] : LawfulBEqCmp (List.compareLex cmp) where
@@ -833,7 +857,7 @@ instance [ReflCmp cmp] : ReflCmp (Array.compareLex cmp) where
 
 instance [LawfulEqCmp cmp] : LawfulEqCmp (Array.compareLex cmp) where
   eq_of_compare {a b} := by
-    simp only [Array.compareLex_eq_compareLex_toList, compare_eq_iff_eq]
+    simp only [Array.compareLex_eq_compareLex_toList, LawfulEqCmp.compare_eq_iff_eq]
     exact congrArg List.toArray
 
 instance [BEq α] [LawfulBEqCmp cmp] : LawfulBEqCmp (Array.compareLex cmp) where
@@ -876,7 +900,7 @@ instance [ReflCmp cmp] {n} : ReflCmp (Vector.compareLex cmp (n := n)) where
   compare_self := ReflCmp.compare_self (cmp := Array.compareLex cmp)
 
 instance [LawfulEqCmp cmp] {n} : LawfulEqCmp (Vector.compareLex cmp (n := n)) where
-  eq_of_compare := by simp [Vector.compareLex_eq_compareLex_toArray]
+  eq_of_compare := by simp [Vector.compareLex_eq_compareLex_toArray, LawfulEqCmp.compare_eq_iff_eq]
 
 instance [BEq α] [LawfulBEqCmp cmp] {n} : LawfulBEqCmp (Vector.compareLex cmp (n := n)) where
   compare_eq_iff_beq := by simp [Vector.compareLex_eq_compareLex_toArray,

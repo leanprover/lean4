@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
+import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 
 namespace Lean
 

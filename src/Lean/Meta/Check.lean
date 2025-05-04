@@ -192,7 +192,7 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
 /--
   Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 -/
-def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do
+def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := pure <| MessageData.ofLazyM do
   try
     let givenTypeType ← inferType givenType
     let expectedTypeType ← inferType expectedType
@@ -203,7 +203,7 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageDat
     let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
     return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
 
-def throwAppTypeMismatch (f a : Expr) : MetaM α := do
+def throwAppTypeMismatch (f a : Expr) : MetaM α := throwError MessageData.ofLazyM do
   let (expectedType, binfo) ← getFunctionDomain f
   let mut e := mkApp f a
   unless binfo.isExplicit do

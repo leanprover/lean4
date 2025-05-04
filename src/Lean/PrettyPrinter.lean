@@ -13,16 +13,6 @@ import Lean.Util.NumObjs
 import Lean.Util.ShareCommon
 namespace Lean
 
-def PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
-  Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace
-                        openDecls := ppCtx.openDecls
-                        fileName := "<PrettyPrinter>", fileMap := default
-                        diag     := getDiag ppCtx.opts }
-                      { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
-
-def PPContext.runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
-  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
-
 namespace PrettyPrinter
 
 def ppCategory (cat : Name) (stx : Syntax) : CoreM Format := do
@@ -146,22 +136,6 @@ def ofFormatWithInfosM (fmt : MetaM FormatWithInfos) : MessageData :=
     match (← ctx.runMetaM fmt |>.toBaseIO) with
     | .ok fmt => return .ofFormatWithInfos fmt
     | .error ex => return m!"[Error pretty printing: {ex}]"
-
-/--
-Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
-The optional array of expressions is used to set the `hasSyntheticSorry` fields, and should
-comprise the expressions that are included in the message data.
--/
-def ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
-  .lazy
-    (f := fun ppctxt => do
-      match (← ppctxt.runMetaM f |>.toBaseIO) with
-      | .ok fmt => return fmt
-      | .error ex => return m!"[Error pretty printing: {ex}]"
-      )
-    (hasSyntheticSorry := fun mvarctxt => es.any (fun a =>
-        instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
-    ))
 
 /--
 Pretty print a const expression using `delabConst` and generate terminfo.

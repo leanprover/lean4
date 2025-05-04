@@ -6405,14 +6405,14 @@ theorem modify [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) 
     {k : α} {f : β k → β k} : t₁.modify k f ~m t₂.modify k f := by
   simp_to_model [modify, Equiv] using List.modifyKey_of_perm _ h.1
 
-theorem filter_eq (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α) → β a → Bool} :
+theorem filter (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α) → β a → Bool} :
     (t₁.filter f h₁.balanced).impl ~m (t₂.filter f h₂.balanced).impl := by
   simpa only [equiv_iff_toListModel_perm, toListModel_filter] using h.impl.filter _
 
-theorem map_eq (h : t₁ ~m t₂) {f : (a : α) → β a → γ a} : t₁.map f ~m t₂.map f := by
+theorem map (h : t₁ ~m t₂) {f : (a : α) → β a → γ a} : t₁.map f ~m t₂.map f := by
   simpa only [equiv_iff_toListModel_perm, toListModel_map] using h.impl.map _
 
-theorem filterMap_eq (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α) → β a → Option (γ a)} :
+theorem filterMap (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α) → β a → Option (γ a)} :
     (t₁.filterMap f h₁.balanced).impl ~m (t₂.filterMap f h₂.balanced).impl := by
   simpa only [equiv_iff_toListModel_perm, toListModel_filterMap] using h.impl.filterMap _
 
@@ -6435,6 +6435,14 @@ theorem constGet!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~
 theorem constGetD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {fallback : β} : Const.getD t₁ k fallback = Const.getD t₂ k fallback := by
   simp_to_model [Const.getD] using List.getValueD_of_perm _ h.1
+
+theorem constToList_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    Const.toList t₁ = Const.toList t₂ := by
+  simp_to_model [Const.toList] using congrArg _ (h.toListModel_eq ..)
+
+theorem constToArray_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    Const.toArray t₁ = Const.toArray t₂ := by
+  simp only [Const.toArray_eq_toArray_map, h.toListModel_eq h₁.ordered h₂.ordered]
 
 theorem values_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.values = t₂.values := by
   simp only [values_eq_map_snd, h.toListModel_eq h₁.ordered h₂.ordered]
@@ -6571,6 +6579,85 @@ theorem constModify [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m
   simp_to_model [Const.modify, Equiv] using List.Const.modifyKey_of_perm _ h.1
 
 end Const
+
+theorem alter_comm [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k'} {f f'}
+    (hk : compare k k' ≠ .eq) :
+    ((t.alter k f h.balanced).impl.alter k' f' h.alter.balanced).impl ~m
+    ((t.alter k' f' h.balanced).impl.alter k f h.alter.balanced).impl := by
+  simp_to_model [Equiv, alter]
+  rw [List.Perm.congr_left (List.alterKey_of_perm h.alter.ordered.distinctKeys
+    (toListModel_alter h.balanced h.ordered))]
+  rw [List.Perm.congr_right (List.alterKey_of_perm h.alter.ordered.distinctKeys
+    (toListModel_alter h.balanced h.ordered))]
+  apply List.getValueCast?_ext h.ordered.distinctKeys.alterKey.alterKey
+    h.ordered.distinctKeys.alterKey.alterKey
+  intro a
+  rw [getValueCast?_alterKey (hl := h.ordered.distinctKeys.alterKey)]
+  rw [getValueCast?_alterKey (hl := h.ordered.distinctKeys.alterKey)]
+  simp only [ne_eq, compare_eq_iff_beq] at hk
+  simp only [getValueCast?_alterKey (hl := h.ordered.distinctKeys), hk, reduceCtorEq, ↓reduceDIte,
+    BEq.comm (b := k)]
+  split
+  · split
+    · rename_i h1 h2
+      rw [BEq.congr_left h2, BEq.congr_right h1, BEq.refl] at hk
+      contradiction
+    · rfl
+  · rfl
+
+variable {t₄ : Impl α β}
+
+theorem mergeWith [TransOrd α] [LawfulEqOrd α]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    (h₃ : t₃.WF) (h₄ : t₄.WF) (h' : t₃ ~m t₄)
+    {f : (a : α) → β a → β a → β a} :
+    (t₁.mergeWith f t₃ h₁.balanced).impl ~m (t₂.mergeWith f t₄ h₂.balanced).impl := by
+  unfold Impl.mergeWith
+  simp only [foldl_eq_foldl, ← List.foldr_reverse]
+  have hl : List.Pairwise .. := (@Ordered.distinctKeys _ _ _ (_) _ _ h₃.ordered.reverse).1
+  have hl' : List.Pairwise .. := (@Ordered.distinctKeys _ _ _ (_) _ _ h₄.ordered.reverse).1
+  simp only [List.keys_eq_map] at hl hl'
+  replace h' := h'.1
+  rw [List.Perm.congr_left (List.reverse_perm _).symm] at h'
+  rw [List.Perm.congr_right (List.reverse_perm _).symm] at h'
+  simp only [toListModel_reverse] at hl hl'
+  generalize t₃.toListModel.reverse = l at hl h' ⊢
+  generalize t₄.toListModel.reverse = l' at hl' h' ⊢
+  let fn (y : (a : α) × β a) (x : BalancedTree α β) :=
+    letI k := y.1
+    (Impl.alter k
+      (fun | none => some y.snd | some b₁ => some (f y.1 b₁ y.2))
+      x.impl x.balanced_impl).toBalancedTree
+  have wf {t : Impl α β} {l : List ((a : α) × β a)} (ht : t.WF) :
+      (l.foldr fn ⟨t, ht.balanced⟩).impl.WF := by
+    induction l with
+    | nil => exact ht
+    | cons _ _ ih => exact ih.alter
+  change (List.foldr fn ..).impl ~m (List.foldr fn ..).impl
+  induction h' using List.Perm.recOnSwap' generalizing t₁ t₂ with
+  | nil => exact h
+  | cons x h' ih =>
+    simp only [List.foldr_cons]
+    apply Equiv.alter (wf h₁) (wf h₂)
+    exact ih h₁ h₂ h hl.tail hl'.tail
+  | @swap' x y l l' h' ih =>
+    simp only [List.foldr_cons]
+    apply Equiv.trans (t₂ := (fn y (fn x (List.foldr fn ⟨t₂, h₂.balanced⟩ l'))).impl)
+    · apply Equiv.alter (wf h₁).alter (wf h₂).alter
+      apply Equiv.alter (wf h₁) (wf h₂)
+      apply ih h₁ h₂ h hl.tail.tail hl'.tail.tail
+    · apply Equiv.alter_comm (wf h₂)
+      simp only [List.map_cons, List.pairwise_cons, List.mem_cons, forall_eq_or_imp] at hl
+      exact LawfulBEqOrd.not_compare_eq_iff_beq_eq_false.mpr (BEq.comm (a := x.1) ▸ hl.1.1)
+  | trans h' h'' ih ih' =>
+    apply Equiv.trans
+    · apply ih h₁ h₂ h hl
+      apply List.Pairwise.perm hl (h'.map _)
+      simp only [BEq.comm, imp_self, implies_true]
+    · apply ih' h₂ h₂ .rfl
+      · apply List.Pairwise.perm hl (h'.map _)
+        simp only [BEq.comm, imp_self, implies_true]
+      · exact hl'
 
 end Equiv
 

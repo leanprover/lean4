@@ -101,7 +101,7 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial then
-    `(@[semireducible] partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
   else
     `(@[semireducible] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
 

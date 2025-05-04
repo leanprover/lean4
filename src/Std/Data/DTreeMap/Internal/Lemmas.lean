@@ -424,11 +424,11 @@ theorem isEmpty_insertIfNew! [TransOrd α] (h : t.WF) {k : α} {v : β k} :
   simpa only [insertIfNew_eq_insertIfNew!] using isEmpty_insertIfNew h
 
 theorem contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew k v h.balanced).impl.contains a = (k == a || t.contains a) := by
+    (t.insertIfNew k v h.balanced).impl.contains a = (compare k a == .eq || t.contains a) := by
   simp_to_model [insertIfNew, contains] using List.containsKey_insertEntryIfNew
 
 theorem contains_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew! k v).contains a = (k == a || t.contains a) := by
+    (t.insertIfNew! k v).contains a = (compare k a == .eq || t.contains a) := by
   simpa only [insertIfNew_eq_insertIfNew!] using contains_insertIfNew h
 
 theorem mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :

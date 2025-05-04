@@ -154,7 +154,6 @@ macro_rules
      $[apply $(using?.toArray):term];*)
     <;> with_reducible try wf_trivial)
 
-/-
 theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
   rfl
 
@@ -6024,7 +6023,6 @@ theorem maxKeyD_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
 end Const
 
 end Max
--/
 
 namespace Equiv
 

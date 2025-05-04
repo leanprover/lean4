@@ -366,9 +366,11 @@ Runs `k` with a restricted local context where only section variables from `vars
 * are instance-implicit variables that only reference section variables included by these rules AND
   are not listed in `sc.omittedVars` (via `omit`; note that `omit` also subtracts from
   `sc.includedVars`).
+
+If `check` is false, no exceptions will be produced.
 -/
 private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (headers : Array DefViewElabHeader)
-    (k : Array Expr → TermElabM α) : TermElabM α := do
+    (k : Array Expr → TermElabM α) (check := true) : TermElabM α := do
   let mut revSectionFVars : Std.HashMap FVarId Name := {}
   for (uid, var) in (← read).sectionFVars do
     revSectionFVars := revSectionFVars.insert var.fvarId! uid
@@ -386,10 +388,11 @@ where
           modify (·.add var.fvarId!)
     -- transitively referenced
     get >>= (·.addDependencies) >>= set
-    for var in (← get).fvarIds do
-      if let some uid := revSectionFVars[var]? then
-        if sc.omittedVars.contains uid then
-          throwError "cannot omit referenced section variable '{Expr.fvar var}'"
+    if check then
+      for var in (← get).fvarIds do
+        if let some uid := revSectionFVars[var]? then
+          if sc.omittedVars.contains uid then
+            throwError "cannot omit referenced section variable '{Expr.fvar var}'"
     -- instances (`addDependencies` unnecessary as by definition they may only reference variables
     -- already included)
     for var in vars do
@@ -1148,7 +1151,10 @@ where
     let letRecsToLift ← getLetRecsToLift
     let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
     checkLetRecsToLiftTypes funFVars letRecsToLift
-    (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
+    (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then
+       -- do not repeat checks already done in `elabFunValues`
+       withHeaderSecVars (check := false) vars sc headers
+     else withUsed vars headers values letRecsToLift) fun vars => do
       let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
       checkAllDeclNamesDistinct preDefs
       for preDef in preDefs do

@@ -1652,10 +1652,14 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
   let kenv := env.toKernelEnv
   let env := env.setExporting (level != .private)
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
-  -- not all kernel constants may be exported
-  let constants := constNames.filterMap fun n =>
-    env.find? n <|>
-    guard (looksLikeOldCodegenName n) *> kenv.find? n
+  -- not all kernel constants may be exported at `level < .private`
+  let constants := if level == .private then
+    -- (this branch makes very sure all kernel constants are exported eventually)
+    kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
+  else
+    constNames.filterMap fun n =>
+      env.find? n <|>
+      guard (looksLikeOldCodegenName n) *> kenv.find? n
   let constNames := constants.map (·.name)
   return { env.header with
     extraConstNames := env.checked.get.extraConstNames.toArray

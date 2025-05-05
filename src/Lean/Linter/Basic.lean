@@ -54,19 +54,8 @@ def _root_.Lean.Options.toLinterOptions [Monad m] [MonadEnv m] (o : Options) : m
 def LinterOptions.getSet (o : LinterOptions) (opt : Lean.Option α) : Array Name :=
   o.linterSets.findD opt.name #[]
 
-class MonadLinterOptions (m : Type → Type) where
-  getLinterOptions : m LinterOptions
-
-export MonadLinterOptions (getLinterOptions)
-
-instance [Monad m] [MonadLinterOptions m] : MonadOptions m where
-  getOptions := do return (← getLinterOptions).toOptions
-
-instance [Monad m] [MonadOptions m] [MonadEnv m] : MonadLinterOptions m where
-  getLinterOptions := do (← getOptions).toLinterOptions
-
-instance [MonadLift m n] [MonadLinterOptions m] : MonadLinterOptions n where
-  getLinterOptions := liftM (getLinterOptions : m _)
+def getLinterOptions [Monad m] [MonadOptions m] [MonadEnv m] : m LinterOptions := do
+  (← getOptions).toLinterOptions
 
 register_builtin_option linter.all : Bool := {
   defValue := false
@@ -95,6 +84,6 @@ Whether a linter option is enabled or not is determined by the following sequenc
   will revert the linters it contains to their default behavior.)
 4. Otherwise, the default value determines whether or not it is enabled.
 -/
-def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadLinterOptions m]
+def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadEnv m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
   if getLinterValue linterOption (← getLinterOptions) then logLint linterOption stx msg

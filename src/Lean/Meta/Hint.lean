@@ -92,12 +92,13 @@ private def mkDiffJson (ds : Array (Diff.Action × Char)) :=
 Converts an array of diff actions into a Unicode string that visually depicts the diff.
 
 Note that this function does not return the string that results from applying the diff to some
-input; rather, it returns a string representation of the actions that the diff itself comprises.
+input; rather, it returns a string representation of the actions that the diff itself comprises, such as `b̵a̵c̲h̲e̲e̲rs̲`.
+
 -/
 private def mkDiffString (ds : Array (Diff.Action × Char)) : String :=
   let rangeStrs := ds.map fun
-    | (.insert, s) => String.mk [s, '\u0332']
-    | (.delete, s) => String.mk [s, '\u0335']
+    | (.insert, s) => String.mk [s, '\u0332'] -- U+0332 Combining Low Line
+    | (.delete, s) => String.mk [s, '\u0335'] -- U+0335 Combining Short Stroke Overlay
     | (.skip  , s) => String.mk [s]
   rangeStrs.foldl (· ++ ·) ""
 

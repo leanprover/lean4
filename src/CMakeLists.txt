@@ -511,7 +511,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # import libraries created by the stdlib.make targets
   string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_1 -lleanshared")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-  string(APPEND LEANC_SHARED_LINKER_FLAGS " -Wl,-undefined,dynamic_lookup")
+  # The second flag is necessary to even *load* dylibs without resolved symbols, as can happen
+  # if a Lake `extern_lib` depends on a symbols defined by the Lean library but is loaded even
+  # before definition.
+  string(APPEND LEANC_SHARED_LINKER_FLAGS " -Wl,-undefined,dynamic_lookup -Wl,-no_fixup_chains")
 endif()
 # Linux ignores undefined symbols in shared libraries by default
 

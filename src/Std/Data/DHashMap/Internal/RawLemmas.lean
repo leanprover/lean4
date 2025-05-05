@@ -2446,8 +2446,8 @@ def union : Raw₀ α β := ⟨m₁.val.union m₂.val, sorry⟩
 variable {m₁ m₂}
 
 @[simp]
-theorem union_singleton {p} [EquivBEq α] [LawfulHashable α] (h : m.val.WF) :
-    m.val.union {p} = m.insert p.fst p.snd  := by
+theorem union_insert_emptyWithCapacity {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] (h : m.val.WF) :
+    m.union (emptyWithCapacity.insert k v) = m.insert k v  := by
   sorry
 
 theorem contains_union_of_left  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)

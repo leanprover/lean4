@@ -342,7 +342,8 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[simpOnlyPos].isNone
   let simpTheorems ← if simpOnly then
-    simpOnlyBuiltins.foldlM (·.addConst ·) ({} : SimpTheorems)
+    -- `eq_self` and `iff_self` are given a priority just above default, since they prove the goal
+    simpOnlyBuiltins.foldlM (·.addConst · (prio := eval_prio default+10)) ({} : SimpTheorems)
   else
     simpTheorems
   let simprocs ← if simpOnly then pure {} else Simp.getSimprocs

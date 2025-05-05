@@ -5,6 +5,8 @@ deriving instance DecidableEq for ByteArray
 test_extern String.toUTF8 ""
 test_extern String.toUTF8 "\x00"
 test_extern String.toUTF8 "$£€𐍈"
+test_extern String.toUTF8 "\u1234"
+test_extern String.toUTF8 "\U0001D53C[x]"
 
 macro "test_extern'" t:term " => " v:term : command =>
   `(test_extern $t

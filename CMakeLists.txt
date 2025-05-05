@@ -78,7 +78,7 @@ if (USE_MIMALLOC)
   ExternalProject_add(mimalloc
     PREFIX mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
-    GIT_TAG v2.2.3
+    GIT_TAG v3.0.3
     # just download, we compile it as part of each stage as it is small
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""

@@ -37,7 +37,7 @@ builtin_initialize
 /--
 Elaborates the term, ensuring the result has no expression metavariables.
 If there would be unsolved-for metavariables, tries hinting that the resulting type
-is a monadic value with the `CommandElabM`, `TermElabM`, or `IO` monads.
+is a monadic value with the `CommandElabM`, `TermElabM`, `MarcoM`, or `IO` monads.
 Throws errors if the term is a proof or a type, but lifts props to `Bool` using `mkDecide`.
 -/
 private def elabTermForEval (term : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
@@ -63,7 +63,7 @@ where
     catch ex =>
       let exS ← saveState
       -- Try hinting that `ty` is a monad application.
-      for m in #[``CommandElabM, ``TermElabM, ``IO] do
+      for m in #[``CommandElabM, ``TermElabM, ``MacroM, ``IO] do
         s.restore true
         try
           if ← isDefEq ty (← mkFreshMonadApp m) then
@@ -159,8 +159,34 @@ private structure EvalAction where
   If `some`, the expression is what type to use for the type ascription when `pp.type` is true. -/
   printVal : Option Expr
 
-unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : Option Expr) : CommandElabM Unit := withRef tk do
+def elabEvalCoreAux (tk term : Syntax) (expectedType? : Option Expr)
+    (mkAct : Name → Expr → TermElabM EvalAction) : CommandElabM Unit := withRef tk do
   let declName := `_eval
+  let (output, exOrRes) ← IO.FS.withIsolatedStreams do
+    try
+      -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
+      -- we don't pollute the environment with auxiliary declarations.
+      let act : EvalAction ← liftTermElabM do Term.withDeclName declName do withoutModifyingEnv do
+        let e ← elabTermForEval term expectedType?
+        -- If there is an elaboration error, don't evaluate!
+        if e.hasSyntheticSorry then throwAbortTerm
+        mkAct declName e
+      let res ← act.eval
+      return Sum.inr (res, act.printVal)
+    catch ex =>
+      return Sum.inl ex
+  if !output.isEmpty then logInfoAt tk output
+  match exOrRes with
+  | .inl ex => logException ex
+  | .inr (_, none) => pure ()
+  | .inr (res, some type) =>
+    if eval.type.get (← getOptions) then
+      logInfo m!"{res} : {type}"
+    else
+      logInfo res
+
+unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : Option Expr) : CommandElabM Unit := do
+  elabEvalCoreAux tk term expectedType? fun declName e => do
   -- `t` is either `MessageData` or `Format`, and `mkT` is for synthesizing an expression that yields a `t`.
   -- The `toMessageData` function adapts `t` to `MessageData`.
   let mkAct {t : Type} [Inhabited t] (toMessageData : t → MessageData) (mkT : Expr → MetaM Expr) (e : Expr) : TermElabM EvalAction := do
@@ -185,8 +211,8 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
     if let some act ← mkMAct? ``CommandElabM CommandElabM e
                     -- Fallbacks in case we are in the Lean package but don't have `CommandElabM` yet
                     <||> mkMAct? ``TermElabM TermElabM e <||> mkMAct? ``MetaM MetaM e <||> mkMAct? ``CoreM CoreM e
-                    -- Fallback in case nothing is imported
-                    <||> mkMAct? ``IO IO e then
+                    -- Fallbacks in case nothing is imported
+                    <||> mkMAct? ``MacroM MacroM e <||> mkMAct? ``IO IO e then
       return act
     else
       -- Otherwise, assume this is a pure value.
@@ -208,33 +234,12 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
       -- `evalConst` may emit IO, but this is collected by `withIsolatedStreams` below.
       let r ← toMessageData <$> evalConst t declName
       return { eval := pure r, printVal := some (← inferType e) }
-  let (output, exOrRes) ← IO.FS.withIsolatedStreams do
-    try
-      -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
-      -- we don't pollute the environment with auxiliary declarations.
-      let act : EvalAction ← liftTermElabM do Term.withDeclName declName do withoutModifyingEnv do
-        let e ← elabTermForEval term expectedType?
-        -- If there is an elaboration error, don't evaluate!
-        if e.hasSyntheticSorry then throwAbortTerm
-        -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
-        -- we fall back on a `Format`-based approach.
-        if (← getEnv).contains ``Lean.MessageData.ofFormat then
-          mkAct id (mkMessageData ·) e
-        else
-          mkAct Lean.MessageData.ofFormat (mkFormat ·) e
-      let res ← act.eval
-      return Sum.inr (res, act.printVal)
-    catch ex =>
-      return Sum.inl ex
-  if !output.isEmpty then logInfoAt tk output
-  match exOrRes with
-  | .inl ex => logException ex
-  | .inr (_, none) => pure ()
-  | .inr (res, some type) =>
-    if eval.type.get (← getOptions) then
-      logInfo m!"{res} : {type}"
-    else
-      logInfo res
+  -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
+  -- we fall back on a `Format`-based approach.
+  if (← getEnv).contains ``Lean.MessageData.ofFormat then
+    mkAct id (mkMessageData ·) e
+  else
+    mkAct Lean.MessageData.ofFormat (mkFormat ·) e
 
 @[implemented_by elabEvalCoreUnsafe]
 opaque elabEvalCore (bang : Bool) (tk term : Syntax) (expectedType? : Option Expr) : CommandElabM Unit
@@ -272,6 +277,25 @@ def elabRunMeta : CommandElab := fun stx =>
     unless (← getEnv).contains ``MetaM do
       throwError "to use this command, include `import Lean.Meta.Basic`"
     elabEvalCore false tk (← `(discard do $elems)) (mkApp (mkConst ``MetaM) (mkConst ``Unit))
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab runMacro]
+def elabRunMacro : CommandElab := fun stx =>
+  match stx with
+  | `(run_macro%$tk $elems:doSeq) => do
+    elabEvalCore false tk (← `(discard do $elems)) (mkApp (mkConst ``MacroM) (mkConst ``Unit))
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab runCmdMacro]
+def elabRunCmdMacro : CommandElab
+  | `(run_cmd_macro%$tk $elems:doSeq) => do
+    let mkAct declName e : TermElabM EvalAction :=  do
+      addAndCompileExprForEval declName e
+      -- Safety: `e` has the (expected) type `MacroM Command`,
+      -- which we are assuming is defined appropriately in the environment.
+      let mf : MacroM Command ← unsafe evalConst (MacroM Command) declName
+      return { eval := do elabCommand =<< MonadEvalT.monadEval mf; pure "", printVal := none }
+    elabEvalCoreAux tk (← `(do $elems)) (mkApp (mkConst ``MacroM) (mkConst ``Command)) mkAct
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

@@ -100,9 +100,10 @@ def visitConst (declName : Name) : M Unit := do
 
 def saveFunInd (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   if (← isEligible declName) then
-    let sc := (← get).funIndCandidates
-    let sc' ← sc.push e declName args
-    modify fun s => { s with funIndCandidates := sc' }
+    if let some funIndInfo ← getFunIndInfo? (cases := false) (unfolding := true) declName then
+      let sc := (← get).funIndCandidates
+      let sc' ← sc.push e funIndInfo args
+      modify fun s => { s with funIndCandidates := sc' }
 
 open LibrarySearch in
 def saveLibSearchCandidates (e : Expr) : M Unit := do

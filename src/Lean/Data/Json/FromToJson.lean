@@ -95,6 +95,22 @@ instance : FromJson Name where
 instance : ToJson Name where
   toJson n := toString n
 
+instance [FromJson α] : FromJson (NameMap α) where
+  fromJson?
+    | .obj obj => obj.foldM (init := {}) fun m k v => do
+      if k == "[anonymous]" then
+        return m.insert .anonymous (← fromJson? v)
+      else
+        let n := k.toName
+        if n.isAnonymous then
+          throw s!"expected a `Name`, got '{k}'"
+        else
+          return m.insert n (← fromJson? v)
+    | j => throw s!"expected a `NameMap`, got '{j}'"
+
+instance [ToJson α] : ToJson (NameMap α) where
+  toJson m := Json.obj <| m.fold (fun n k v => n.insert compare k.toString (toJson v)) .leaf
+
 /-- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
 cannot represent 64-bit numbers. -/
 def bignumFromJson? (j : Json) : Except String Nat := do

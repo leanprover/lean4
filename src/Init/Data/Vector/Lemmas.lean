@@ -263,57 +263,57 @@ abbrev zipWithIndex_mk := @zipIdx_mk
 
 /-! ### toArray lemmas -/
 
-@[simp] theorem getElem_toArray {α n} {xs : Vector α n} {i : Nat} (h : i < xs.toArray.size) :
+@[simp, grind] theorem getElem_toArray {α n} {xs : Vector α n} {i : Nat} (h : i < xs.toArray.size) :
     xs.toArray[i] = xs[i]'(by simpa using h) := by
   cases xs
   simp
 
-@[simp] theorem getElem?_toArray {α n} {xs : Vector α n} {i : Nat} :
+@[simp, grind] theorem getElem?_toArray {α n} {xs : Vector α n} {i : Nat} :
     xs.toArray[i]? = xs[i]? := by
   cases xs
   simp
 
-@[simp] theorem toArray_append {xs : Vector α m} {ys : Vector α n} :
+@[simp, grind _=_] theorem toArray_append {xs : Vector α m} {ys : Vector α n} :
     (xs ++ ys).toArray = xs.toArray ++ ys.toArray := rfl
 
-@[simp] theorem toArray_drop {xs : Vector α n} {i} :
+@[simp, grind] theorem toArray_drop {xs : Vector α n} {i} :
     (xs.drop i).toArray = xs.toArray.extract i xs.size := rfl
 
-@[simp] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
+@[simp, grind] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
 
-@[simp] theorem toArray_emptyWithCapacity {cap} :
+@[simp, grind] theorem toArray_emptyWithCapacity {cap} :
     (Vector.emptyWithCapacity (α := α) cap).toArray = Array.emptyWithCapacity cap := rfl
 
 @[deprecated toArray_emptyWithCapacity (since := "2025-03-12")]
 abbrev toArray_mkEmpty := @toArray_emptyWithCapacity
 
-@[simp] theorem toArray_eraseIdx {xs : Vector α n} {i} (h) :
+@[simp, grind] theorem toArray_eraseIdx {xs : Vector α n} {i} (h) :
     (xs.eraseIdx i h).toArray = xs.toArray.eraseIdx i (by simp [h]) := rfl
 
-@[simp] theorem toArray_eraseIdx! {xs : Vector α n} {i} (hi : i < n) :
+@[simp, grind] theorem toArray_eraseIdx! {xs : Vector α n} {i} (hi : i < n) :
     (xs.eraseIdx! i).toArray = xs.toArray.eraseIdx! i := by
   cases xs; simp_all [Array.eraseIdx!]
 
-@[simp] theorem toArray_insertIdx {xs : Vector α n} {i x} (h) :
+@[simp, grind] theorem toArray_insertIdx {xs : Vector α n} {i x} (h) :
     (xs.insertIdx i x h).toArray = xs.toArray.insertIdx i x (by simp [h]) := rfl
 
-@[simp] theorem toArray_insertIdx! {xs : Vector α n} {i x} (hi : i ≤ n) :
+@[simp, grind] theorem toArray_insertIdx! {xs : Vector α n} {i x} (hi : i ≤ n) :
     (xs.insertIdx! i x).toArray = xs.toArray.insertIdx! i x := by
   cases xs; simp_all [Array.insertIdx!]
 
-@[simp] theorem toArray_cast {xs : Vector α n} (h : n = m) :
+@[simp, grind] theorem toArray_cast {xs : Vector α n} (h : n = m) :
     (xs.cast h).toArray = xs.toArray := rfl
 
-@[simp] theorem toArray_extract {xs : Vector α n} {start stop} :
+@[simp, grind] theorem toArray_extract {xs : Vector α n} {start stop} :
     (xs.extract start stop).toArray = xs.toArray.extract start stop := rfl
 
-@[simp] theorem toArray_map {f : α → β} {xs : Vector α n} :
+@[simp, grind] theorem toArray_map {f : α → β} {xs : Vector α n} :
     (xs.map f).toArray = xs.toArray.map f := rfl
 
-@[simp] theorem toArray_mapIdx {f : Nat → α → β} {xs : Vector α n} :
+@[simp, grind] theorem toArray_mapIdx {f : Nat → α → β} {xs : Vector α n} :
     (xs.mapIdx f).toArray = xs.toArray.mapIdx f := rfl
 
-@[simp] theorem toArray_mapFinIdx {f : (i : Nat) → α → (h : i < n) → β} {xs : Vector α n} :
+@[simp, grind] theorem toArray_mapFinIdx {f : (i : Nat) → α → (h : i < n) → β} {xs : Vector α n} :
     (xs.mapFinIdx f).toArray =
       xs.toArray.mapFinIdx (fun i a h => f i a (by simpa [xs.size_toArray] using h)) :=
   rfl
@@ -331,145 +331,145 @@ theorem toArray_mapM_go [Monad m] [LawfulMonad m] {f : α → m β} {xs : Vector
     rfl
   · simp
 
-@[simp] theorem toArray_mapM [Monad m] [LawfulMonad m] {f : α → m β} {xs : Vector α n} :
+@[simp, grind] theorem toArray_mapM [Monad m] [LawfulMonad m] {f : α → m β} {xs : Vector α n} :
     toArray <$> xs.mapM f = xs.toArray.mapM f := by
   rcases xs with ⟨xs, rfl⟩
   unfold mapM
   rw [toArray_mapM_go]
   rfl
 
-@[simp] theorem toArray_ofFn {f : Fin n → α} : (Vector.ofFn f).toArray = Array.ofFn f := rfl
+@[simp, grind] theorem toArray_ofFn {f : Fin n → α} : (Vector.ofFn f).toArray = Array.ofFn f := rfl
 
-@[simp] theorem toArray_pop {xs : Vector α n} : xs.pop.toArray = xs.toArray.pop := rfl
+@[simp, grind] theorem toArray_pop {xs : Vector α n} : xs.pop.toArray = xs.toArray.pop := rfl
 
-@[simp] theorem toArray_push {xs : Vector α n} {x} : (xs.push x).toArray = xs.toArray.push x := rfl
+@[simp, grind] theorem toArray_push {xs : Vector α n} {x} : (xs.push x).toArray = xs.toArray.push x := rfl
 
-@[simp] theorem toArray_beq_toArray [BEq α] {xs : Vector α n} {ys : Vector α n} :
+@[simp, grind] theorem toArray_beq_toArray [BEq α] {xs : Vector α n} {ys : Vector α n} :
     (xs.toArray == ys.toArray) = (xs == ys) := by
   simp [instBEq, isEqv, Array.instBEq, Array.isEqv, xs.2, ys.2]
 
-@[simp] theorem toArray_range : (Vector.range n).toArray = Array.range n := rfl
+@[simp, grind] theorem toArray_range : (Vector.range n).toArray = Array.range n := rfl
 
-@[simp] theorem toArray_reverse (xs : Vector α n) : xs.reverse.toArray = xs.toArray.reverse := rfl
+@[simp, grind] theorem toArray_reverse (xs : Vector α n) : xs.reverse.toArray = xs.toArray.reverse := rfl
 
-@[simp] theorem toArray_set {xs : Vector α n} {i x} (h) :
+@[simp, grind] theorem toArray_set {xs : Vector α n} {i x} (h) :
     (xs.set i x).toArray = xs.toArray.set i x (by simpa using h):= rfl
 
-@[simp] theorem toArray_set! {xs : Vector α n} {i x} :
+@[simp, grind] theorem toArray_set! {xs : Vector α n} {i x} :
     (xs.set! i x).toArray = xs.toArray.set! i x := rfl
 
-@[simp] theorem toArray_setIfInBounds {xs : Vector α n} {i x} :
+@[simp, grind] theorem toArray_setIfInBounds {xs : Vector α n} {i x} :
     (xs.setIfInBounds i x).toArray = xs.toArray.setIfInBounds i x := rfl
 
-@[simp] theorem toArray_singleton {x : α} : (Vector.singleton x).toArray = #[x] := rfl
+@[simp, grind] theorem toArray_singleton {x : α} : (Vector.singleton x).toArray = #[x] := rfl
 
-@[simp] theorem toArray_swap {xs : Vector α n} {i j} (hi hj) : (xs.swap i j).toArray =
+@[simp, grind] theorem toArray_swap {xs : Vector α n} {i j} (hi hj) : (xs.swap i j).toArray =
     xs.toArray.swap i j (by simp [hi, hj]) (by simp [hi, hj]) := rfl
 
-@[simp] theorem toArray_swapIfInBounds {xs : Vector α n} {i j} :
+@[simp, grind] theorem toArray_swapIfInBounds {xs : Vector α n} {i j} :
     (xs.swapIfInBounds i j).toArray = xs.toArray.swapIfInBounds i j := rfl
 
-@[simp] theorem toArray_swapAt {xs : Vector α n} {i x} (h) :
+theorem toArray_swapAt {xs : Vector α n} {i x} (h) :
     ((xs.swapAt i x).fst, (xs.swapAt i x).snd.toArray) =
       ((xs.toArray.swapAt i x (by simpa using h)).fst,
         (xs.toArray.swapAt i x (by simpa using h)).snd) := rfl
 
-@[simp] theorem toArray_swapAt! {xs : Vector α n} {i x} :
+theorem toArray_swapAt! {xs : Vector α n} {i x} :
     ((xs.swapAt! i x).fst, (xs.swapAt! i x).snd.toArray) =
       ((xs.toArray.swapAt! i x).fst, (xs.toArray.swapAt! i x).snd) := rfl
 
-@[simp] theorem toArray_take {xs : Vector α n} {i} : (xs.take i).toArray = xs.toArray.take i := rfl
+@[simp, grind] theorem toArray_take {xs : Vector α n} {i} : (xs.take i).toArray = xs.toArray.take i := rfl
 
-@[simp] theorem toArray_zipIdx {xs : Vector α n} (k : Nat := 0) :
+@[simp, grind] theorem toArray_zipIdx {xs : Vector α n} (k : Nat := 0) :
     (xs.zipIdx k).toArray = xs.toArray.zipIdx k := rfl
 
-@[simp] theorem toArray_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} :
+@[simp, grind] theorem toArray_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} :
     (Vector.zipWith f as bs).toArray = Array.zipWith f as.toArray bs.toArray := rfl
 
-@[simp] theorem anyM_toArray [Monad m] {p : α → m Bool} {xs : Vector α n} :
+@[simp, grind] theorem anyM_toArray [Monad m] {p : α → m Bool} {xs : Vector α n} :
     xs.toArray.anyM p = xs.anyM p := by
   cases xs
   simp
 
-@[simp] theorem allM_toArray [Monad m] {p : α → m Bool} {xs : Vector α n} :
+@[simp, grind] theorem allM_toArray [Monad m] {p : α → m Bool} {xs : Vector α n} :
     xs.toArray.allM p = xs.allM p := by
   cases xs
   simp
 
-@[simp] theorem any_toArray {p : α → Bool} {xs : Vector α n} :
+@[simp, grind] theorem any_toArray {p : α → Bool} {xs : Vector α n} :
     xs.toArray.any p = xs.any p := by
   cases xs
   simp
 
-@[simp] theorem all_toArray {p : α → Bool} {xs : Vector α n} :
+@[simp, grind] theorem all_toArray {p : α → Bool} {xs : Vector α n} :
     xs.toArray.all p = xs.all p := by
   cases xs
   simp
 
-@[simp] theorem countP_toArray {p : α → Bool} {xs : Vector α n} :
+@[simp, grind] theorem countP_toArray {p : α → Bool} {xs : Vector α n} :
     xs.toArray.countP p = xs.countP p := by
   cases xs
   simp
 
-@[simp] theorem count_toArray [BEq α] {a : α} {xs : Vector α n} :
+@[simp, grind] theorem count_toArray [BEq α] {a : α} {xs : Vector α n} :
     xs.toArray.count a = xs.count a := by
   cases xs
   simp
 
-@[simp] theorem replace_toArray [BEq α] {xs : Vector α n} {a b} :
+@[simp, grind] theorem replace_toArray [BEq α] {xs : Vector α n} {a b} :
     xs.toArray.replace a b = (xs.replace a b).toArray := rfl
 
-@[simp] theorem find?_toArray {p : α → Bool} {xs : Vector α n} :
+@[simp, grind] theorem find?_toArray {p : α → Bool} {xs : Vector α n} :
     xs.toArray.find? p = xs.find? p := by
   cases xs
   simp
 
-@[simp] theorem findSome?_toArray {f : α → Option β} {xs : Vector α n} :
+@[simp, grind] theorem findSome?_toArray {f : α → Option β} {xs : Vector α n} :
     xs.toArray.findSome? f = xs.findSome? f := by
   cases xs
   simp
 
-@[simp] theorem findRev?_toArray {p : α → Bool} {xs : Vector α n} :
+@[simp, grind] theorem findRev?_toArray {p : α → Bool} {xs : Vector α n} :
     xs.toArray.findRev? p = xs.findRev? p := by
   cases xs
   simp
 
-@[simp] theorem findSomeRev?_toArray {f : α → Option β} {xs : Vector α n} :
+@[simp, grind] theorem findSomeRev?_toArray {f : α → Option β} {xs : Vector α n} :
     xs.toArray.findSomeRev? f = xs.findSomeRev? f := by
   cases xs
   simp
 
-@[simp] theorem findM?_toArray [Monad m] {p : α → m Bool} {xs : Vector α n} :
+@[simp, grind] theorem findM?_toArray [Monad m] {p : α → m Bool} {xs : Vector α n} :
     xs.toArray.findM? p = xs.findM? p := by
   cases xs
   simp
 
-@[simp] theorem findSomeM?_toArray [Monad m] {f : α → m (Option β)} {xs : Vector α n} :
+@[simp, grind] theorem findSomeM?_toArray [Monad m] {f : α → m (Option β)} {xs : Vector α n} :
     xs.toArray.findSomeM? f = xs.findSomeM? f := by
   cases xs
   simp
 
-@[simp] theorem findRevM?_toArray [Monad m] {p : α → m Bool} {xs : Vector α n} :
+@[simp, grind] theorem findRevM?_toArray [Monad m] {p : α → m Bool} {xs : Vector α n} :
     xs.toArray.findRevM? p = xs.findRevM? p := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem findSomeRevM?_toArray [Monad m] {f : α → m (Option β)} {xs : Vector α n} :
+@[simp, grind] theorem findSomeRevM?_toArray [Monad m] {f : α → m (Option β)} {xs : Vector α n} :
     xs.toArray.findSomeRevM? f = xs.findSomeRevM? f := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem finIdxOf?_toArray [BEq α] {a : α} {xs : Vector α n} :
+@[simp, grind] theorem finIdxOf?_toArray [BEq α] {a : α} {xs : Vector α n} :
     xs.toArray.finIdxOf? a = (xs.finIdxOf? a).map (Fin.cast xs.size_toArray.symm) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem findFinIdx?_toArray {p : α → Bool} {xs : Vector α n} :
+@[simp, grind] theorem findFinIdx?_toArray {p : α → Bool} {xs : Vector α n} :
     xs.toArray.findFinIdx? p = (xs.findFinIdx? p).map (Fin.cast xs.size_toArray.symm) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem toArray_replicate : (replicate n a).toArray = Array.replicate n a := rfl
+@[simp, grind] theorem toArray_replicate : (replicate n a).toArray = Array.replicate n a := rfl
 
 @[deprecated toArray_replicate (since := "2025-03-18")]
 abbrev toArray_mkVector := @toArray_replicate
@@ -3082,7 +3082,7 @@ set_option linter.indexVariables false in
 
 /-! ### swap -/
 
-theorem getElem_swap {xs : Vector α n} {i j : Nat} (hi hj) {k : Nat} (hk : k < n) :
+@[grind] theorem getElem_swap {xs : Vector α n} {i j : Nat} (hi hj) {k : Nat} (hk : k < n) :
     (xs.swap i j hi hj)[k] = if k = i then xs[j] else if k = j then xs[i] else xs[k] := by
   cases xs
   simp_all [Array.getElem_swap]
@@ -3098,6 +3098,13 @@ theorem getElem_swap {xs : Vector α n} {i j : Nat} (hi hj) {k : Nat} (hk : k < 
 @[simp] theorem getElem_swap_of_ne {xs : Vector α n} {i j : Nat} {hi hj} {hk : k < n}
       (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)[k] = xs[k] := by
   simp_all [getElem_swap]
+
+@[grind]
+theorem getElem?_swap {xs : Vector α n} {i j : Nat} (hi hj) {k : Nat} : (xs.swap i j hi hj)[k]? =
+    if j = k then some xs[i] else if i = k then some xs[j] else xs[k]? := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.getElem?_swap]
+
 
 @[simp] theorem swap_swap {xs : Vector α n} {i j : Nat} (hi hj) :
     (xs.swap i j hi hj).swap i j hi hj = xs := by

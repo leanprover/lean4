@@ -310,6 +310,7 @@ theorem get_congr [EquivBEq α] [LawfulHashable α] {k₁ k₂ : α} (h : k₁ =
     (h₁ : k₁ ∈ m) : m.get k₁ h₁ = m.get k₂ ((mem_congr h).mp h₁) :=
   HashMap.getKey_congr h h₁
 
+@[simp]
 theorem get_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.get k h = k :=
   HashMap.getKey_eq h
 

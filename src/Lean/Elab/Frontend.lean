@@ -145,6 +145,7 @@ def runFrontend
     (errorOnKinds : Array Name := #[])
     (plugins : Array System.FilePath := #[])
     (printStats : Bool := false)
+    (setupFileName? : Option System.FilePath := none)
     : IO (Option Environment) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
@@ -152,8 +153,28 @@ def runFrontend
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
+  let setup stx := do
+    if let some file := setupFileName? then
+      let setup ← ModuleSetup.load file
+      liftM <| setup.dynlibs.forM Lean.loadDynlib
+      return .ok {
+        trustLevel
+        mainModuleName := setup.name
+        isModule := setup.isModule
+        imports := setup.imports
+        plugins := plugins ++ setup.plugins
+        modules := setup.modules
+        -- override cmdline options with header options
+        opts := opts.mergeBy (fun _ _ hOpt => hOpt) setup.options.toOptions
+      }
+    else
+      return .ok {
+        imports := stx.imports
+        isModule := stx.isModule
+        mainModuleName, opts, trustLevel, plugins
+      }
   let processor := Language.Lean.process
-  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
+  let snap ← processor setup none ctx
   let snaps := Language.toSnapshotTree snap
   let severityOverrides := errorOnKinds.foldl (·.insert · .error) {}
 

@@ -111,8 +111,7 @@ For example:
 
 (The type of `inst` must not contain mvars.)
 
-Remark: `projInfo?` is `some` if the instance is a projection.
-We need this information because of the heuristic we use to annotate binder
+Remark: Projections need special support because of the heuristic we use to annotate binder
 information in projections. See PR #5376 and issue #5333. Before PR
 #5376, given a class `C` at
 ```
@@ -133,11 +132,18 @@ After the PR, we have
 C.toB {inst : A 20000} [self : @C inst] : @B ...
 ```
 Note the attribute `inst` is now just a regular implicit argument.
-To ensure `computeSynthOrder` works as expected, we should take
-this change into account while processing field `self`.
-This field is the one at position `projInfo?.numParams`.
+To ensure `computeSynthOrder` works as expected, we take this change into account
+while processing the self field.
+In particular, we say a *projection* is any instance with a type of the form
+```
+{a1 : A1} → ... → {an : An} → [C a1 ... an] → ...
+```
+where the first n parameters are not instance implicit
+(we show implicit parameters above, but explicit is accepted as well).
+This definition of a projection captures all the kinds of projections
+that the `structure`/`class` commands declare (both field and parent projections).
 -/
-private partial def computeSynthOrder (inst : Expr) (projInfo? : Option ProjectionFunctionInfo) : MetaM (Array Nat) :=
+private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   withReducible do
   let instTy ← inferType inst
 
@@ -153,6 +159,15 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
       return pos
     else
       return #[]
+
+  -- Gets positions of all instance implicit arguments of `classTy`.
+  let getMixinPositionsOf (classTy : Expr) : MetaM (Array Nat) := do
+    forallTelescopeReducing (← inferType classTy.getAppFn) fun args _ => do
+      let mut pos := #[]
+      for arg in args, i in [:args.size] do
+        if (← arg.fvarId!.getDecl).binderInfo.isInstImplicit then
+          pos := pos.push i
+      return pos
 
   -- Create both metavariables and free variables for the instance args
   -- We will successively pick subgoals where all non-out-params have been
@@ -181,23 +196,30 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
   -- non-out-params are mvar-free.
   let mut synthed := #[]
   let mut toSynth := List.range argMVars.size |>.filter (argBIs[·]! == .instImplicit) |>.toArray
+  -- Not every instance argument will have instance implicits. Record the positions of instance arguments for mixin calculations.
+  let instArgs ← List.range argMVars.size |>.filterM (fun i => return (← Meta.isClass? (← inferType argMVars[i]!)).isSome)
   while !toSynth.isEmpty do
-    let next? ← toSynth.findM? fun i => do
+    let next? ← toSynth.findSomeM? fun i => do
       let argTy ← instantiateMVars (← inferType argMVars[i]!)
-      if let some projInfo := projInfo? then
-        if projInfo.numParams == i then
-          -- See comment regarding `projInfo?` at the beginning of this function
-          assignMVarsIn argTy
-          return true
       forallTelescopeReducing argTy fun _ argTy => do
       let argTy ← whnf argTy
       let argOutParams ← getSemiOutParamPositionsOf argTy
+      let argMixinParams ← getMixinPositionsOf argTy
       let argTyArgs := argTy.getAppArgs
+      let mut mixins : Array Nat := #[]
       for i in [:argTyArgs.size], argTyArg in argTyArgs do
-        if !argOutParams.contains i && argTyArg.hasExprMVar then
-          return false
-      return true
-    let next ←
+        if argOutParams.contains i then
+          pure ()
+        else if argMixinParams.contains i then
+          let mvars ← getMVars argTyArg
+          for mvar in mvars do
+            if let some idx := argMVars.findIdx? (· == .mvar mvar) then
+              if instArgs.contains idx && !mixins.contains idx then
+                mixins := mixins.push idx
+        else if argTyArg.hasExprMVar then
+          return none
+      return some (i, mixins)
+    let (next, mixins) ←
       match next? with
       | some next => pure next
       | none =>
@@ -208,9 +230,10 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
           throwError m!"\
             cannot find synthesization order for instance {inst} with type{indentExpr instTy}\n\
             all remaining arguments have metavariables:{typeLines}"
-        pure toSynth[0]!
+        pure (toSynth[0]!, #[])
+    let mixins := mixins |>.filter (!synthed.contains ·)
     synthed := synthed.push next
-    toSynth := toSynth.filter (· != next)
+    toSynth := toSynth.filter (fun i => i != next && !mixins.contains i) ++ mixins
     assignMVarsIn (← inferType argMVars[next]!)
     assignMVarsIn argMVars[next]!
 
@@ -228,8 +251,7 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
-  let projInfo? ← getProjectionFnInfo? declName
-  let synthOrder ← computeSynthOrder c projInfo?
+  let synthOrder ← computeSynthOrder c
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
 builtin_initialize

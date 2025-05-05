@@ -235,10 +235,10 @@ Represents processed data for a collection of suggestions that can be passed to 
 in an info leaf.
 
 It contains the following data:
-* `info`: the `TryThisInfo` data corresponding to a collection of suggestions
-* `suggestions`: elements of the form `(j, t, p)` where `j` is JSON containing a suggestion and its
+* `suggestions`: tuples of the form `(j, t, p)` where `j` is JSON containing a suggestion and its
   pre- and post-info, `t` is the text to be inserteed by the suggestion, and `p` is the code action
   prefix thereof.
+* `info`: the `TryThisInfo` data corresponding to a collection of suggestions
 * `range`: the range at which the suggestion is to be applied.
 -/
 structure ProcessedSuggestions where
@@ -247,7 +247,7 @@ structure ProcessedSuggestions where
   range : Lsp.Range
 
 /--
-Processes an array of `Suggestions` into data that can be used to construct a code-action info leaf
+Processes an array of `Suggestion`s into data that can be used to construct a code-action info leaf
 and "try this" widget.
 -/
 def processSuggestions (ref : Syntax) (range : String.Range) (suggestions : Array Suggestion)

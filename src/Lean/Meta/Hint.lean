@@ -111,10 +111,7 @@ for the containing `Suggestions` value is used.
 structure Suggestion extends TryThis.Suggestion where
   span? : Option Syntax := none
 
-@[inherit_doc TryThis.SuggestionText]
-abbrev SuggestionText := TryThis.SuggestionText
-
-instance : Coe SuggestionText Suggestion where
+instance : Coe TryThis.SuggestionText Suggestion where
   coe t := { suggestion := t }
 
 instance : ToMessageData Suggestion where

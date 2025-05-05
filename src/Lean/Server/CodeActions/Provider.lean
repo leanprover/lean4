@@ -184,36 +184,3 @@ A code action which calls all `@[command_code_action]` code actions on each comm
     for act in actions.onAnyCmd do
       try out := out ++ (← act params snap ctx node) catch _ => pure ()
   pure out
-
-structure HintSuggestion where
-  replacement : String
-  title : String
-
-structure HintCodeActionInfo where
-  range : Lsp.Range
-  suggestions : Array HintSuggestion
-deriving TypeName
-
-/--
-A code action for hints in message data.
--/
-@[builtin_code_action_provider] def hintCodeActionProvider : CodeActionProvider := fun params snap => do
-  let doc ← readDoc
-  pure <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
-    let .ofCustomInfo { stx, value } := info | result
-    let some { range, suggestions } := value.get? HintCodeActionInfo | result
-    let some stxRange := stx.getRange? | result
-    let stxRange := doc.meta.text.utf8RangeToLspRange stxRange
-    unless stxRange.start.line ≤ params.range.end.line do return result
-    unless params.range.start.line ≤ stxRange.end.line do return result
-    let mut result := result
-    for h : i in [:suggestions.size] do
-      let { replacement, title } := suggestions[i]
-      result := result.push {
-        eager.title := title
-        eager.kind? := "quickfix"
-        -- Only make the first option preferred
-        eager.isPreferred? := if i = 0 then true else none
-        eager.edit? := some <| .ofTextEdit doc.versionedIdentifier { range, newText := replacement }
-      }
-    result

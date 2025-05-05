@@ -542,8 +542,8 @@ private def MessageData.formatLength (ctx : PPContext) (msg : MessageData) : Bas
 
 
 /--
-Renders an expression `e` inline in a message if it will not exceed `maxInlineLength` characters;
-otherwise, renders the expression indented on a new line.
+Renders an expression `e` inline in a message unless it will exceed `maxInlineLength` characters, in
+which case the expression is indented on a new line.
 
 Note that the output of this function is formatted with preceding and trailing space included. Thus,
 in `m₁ ++ inlineExpr e ++ m₂`, `m₁` should not end with a space or new line, nor should `m₂` begin

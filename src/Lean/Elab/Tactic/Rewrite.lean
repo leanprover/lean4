@@ -34,7 +34,7 @@ def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Re
   let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
   replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
 
-def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := withMainContext do
+def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
   let lbrak := rwRulesSeqStx[0]
   let rules := rwRulesSeqStx[1].getArgs
   -- show initial state up to (incl.) `[`
@@ -51,7 +51,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
         let term := rule[1]
         let processId (id : Syntax) : TacticM Unit := do
           -- See if we can interpret `id` as a hypothesis first.
-          if (← Term.isLocalIdent? id).isSome then
+          if (← withMainContext <| Term.isLocalIdent? id).isSome then
             x symm term
           else
             -- Try to get equation theorems for `id`.

@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
@@ -10,25 +8,28 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # Later packages and libraries in the dependency tree shadow earlier ones.
 # https://github.com/leanprover/lean4/issues/2548
 
-$LAKE update -v
-$LAKE build +A -v | grep --color 222000
-$LAKE build +A.B -v | grep --color 333000
-$LAKE build +A.B.C -v | grep --color 333000
-$LAKE build +X -v | grep --color 888000 # bar
-$LAKE build +Y -v | grep --color 666000 # order
-$LAKE build +Z -v | grep --color 666000 # leaf from order
-$LAKE exe Y | grep --color root
+test_run update -v
+test_out 222000 -v build +A
+test_out 333000 -v build +A.B
+test_out 333000 -v build +A.B.C
+test_out 888000 -v build +X # bar
+test_out 666000 -v build +Y # order
+test_out 666000 -v build +Z # leaf from order
+test_out root exe Y
 
 # Tests that `lake update` does not reorder packages in the manifest
 # (if there have been no changes to the order in the configuration)
 # https://github.com/leanprover/lean4/issues/2664
 
-cp lake-manifest.json lake-manifest-1.json
-$LAKE update foo
-diff --strip-trailing-cr lake-manifest-1.json lake-manifest.json
+test_cmd cp lake-manifest.json lake-manifest-1.json
+test_run update foo
+test_cmd diff -u --strip-trailing-cr lake-manifest-1.json lake-manifest.json
 
 # Tests that order does not change in the presence of dep manifests
-$LAKE -d foo update
-$LAKE -d bar update
-$LAKE update
-diff --strip-trailing-cr lake-manifest-1.json lake-manifest.json
+test_run -d foo update
+test_run -d bar update
+test_run update
+test_cmd diff -u --strip-trailing-cr lake-manifest-1.json lake-manifest.json
+
+# Cleanup
+rm -f produced.out

@@ -148,9 +148,12 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   let mut msgs ← result.failures.mapM (goalToMessageData · result.config)
   if result.config.verbose then
     let mut issues := result.issues
+    -- We did not find the following very useful in practice.
+    /-
     unless result.skipped.isEmpty do
       let m := m!"#{result.skipped.length} other goal(s) were not fully processed due to previous failures, threshold: `(failures := {result.config.failures})`"
       issues := .trace { cls := `issue } m #[] :: issues
+    -/
     unless issues.isEmpty do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
     if let some msg ← mkGlobalDiag result.counters result.simp then
@@ -158,20 +161,26 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   return MessageData.joinSep msgs m!"\n"
 
 def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
-  let go : GrindM Result := withReducible do
-    let goals ← initCore mvarId params
-    let (failures, skipped) ← solve goals fallback
-    trace[grind.debug.final] "{← ppGoals goals}"
-    let issues   := (← get).issues
-    let trace    := (← get).trace
-    let counters := (← get).counters
-    let simp     := (← get).simpStats
-    if failures.isEmpty then
-      -- If there are no failures and diagnostics are enabled, we still report the performance counters.
-      if (← isDiagnosticsEnabled) then
-        if let some msg ← mkGlobalDiag counters simp then
-          logInfo msg
-    return { failures, skipped, issues, config := params.config, trace, counters, simp }
-  go.run mainDeclName params fallback
+  if debug.terminalTacticsAsSorry.get (← getOptions) then
+    mvarId.admit
+    return {
+        failures := [], skipped := [], issues := [], config := params.config, trace := {}, counters := {}, simp := {}
+    }
+  else
+    let go : GrindM Result := withReducible do
+      let goals ← initCore mvarId params
+      let (failures, skipped) ← solve goals fallback
+      trace[grind.debug.final] "{← ppGoals goals}"
+      let issues   := (← get).issues
+      let trace    := (← get).trace
+      let counters := (← get).counters
+      let simp     := (← get).simpStats
+      if failures.isEmpty then
+        -- If there are no failures and diagnostics are enabled, we still report the performance counters.
+        if (← isDiagnosticsEnabled) then
+          if let some msg ← mkGlobalDiag counters simp then
+            logInfo msg
+      return { failures, skipped, issues, config := params.config, trace, counters, simp }
+    go.run mainDeclName params fallback
 
 end Lean.Meta.Grind

@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.TakeDrop
 import Init.Data.Function
@@ -220,7 +222,7 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {l₁ : List α} {l₂ : Li
           · simp_all
         · obtain (⟨rfl, rfl⟩ | ⟨_, rfl, rfl⟩) := h₃
           · simp_all
-          · simp_all [zipWith_append, Nat.succ_inj']
+          · simp_all [zipWith_append, Nat.succ_inj]
 
 /-- See also `List.zipWith_replicate` in `Init.Data.List.TakeDrop` for a generalization with different lengths. -/
 @[simp] theorem zipWith_replicate' {a : α} {b : β} {n : Nat} :
@@ -399,7 +401,7 @@ theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option �
     cases l' <;> simp_all
 
 @[simp] theorem zipWithAll_replicate {a : α} {b : β} {n : Nat} :
-    zipWithAll f (replicate n a) (replicate n b) = replicate n (f a b) := by
+    zipWithAll f (replicate n a) (replicate n b) = replicate n (f (some a) (some b)) := by
   induction n with
   | zero => rfl
   | succ n ih => simp [replicate_succ, ih]

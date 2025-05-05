@@ -39,6 +39,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_LogEntry_fmt(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_isLogEnabledFor(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_addDecl(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464____closed__4;
 size_t lean_usize_mul(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_logDecls___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,7 +86,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_findEnvDecl_x27___lambda__1___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Lean_IR_getDecl___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_addDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464____lambda__2___closed__1;
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -163,7 +164,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_containsDecl(lean_object*, lean_object*, lean
 static lean_object* l_Lean_IR_LogEntry_fmt___closed__2;
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464____closed__1;
-lean_object* l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_getDecl_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1032,7 +1032,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_8 = l_Array_qsort_sort___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_sortDecls___spec__1___closed__1;
 lean_inc(x_3);
-x_9 = l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(x_1, x_2, x_8, x_3, x_4, lean_box(0), lean_box(0));
+x_9 = l_Array_qpartition___rarg(x_1, x_2, x_8, x_3, x_4, lean_box(0), lean_box(0));
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
@@ -2146,21 +2146,23 @@ return x_1;
 static lean_object* _init_l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464____closed__11() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_1 = l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464____closed__4;
 x_2 = l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464____closed__6;
 x_3 = l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464____closed__9;
 x_4 = l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464____closed__10;
 x_5 = 0;
 x_6 = l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464____closed__8;
-x_7 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_6);
-lean_ctor_set_uint8(x_7, sizeof(void*)*5, x_5);
-return x_7;
+x_7 = 1;
+x_8 = lean_alloc_ctor(0, 5, 2);
+lean_ctor_set(x_8, 0, x_1);
+lean_ctor_set(x_8, 1, x_2);
+lean_ctor_set(x_8, 2, x_3);
+lean_ctor_set(x_8, 3, x_4);
+lean_ctor_set(x_8, 4, x_6);
+lean_ctor_set_uint8(x_8, sizeof(void*)*5, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*5 + 1, x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_464_(lean_object* x_1) {
@@ -2495,57 +2497,59 @@ return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
 x_12 = l_Lean_IR_findEnvDecl___closed__3;
 x_13 = l_Lean_IR_findEnvDecl___closed__2;
-x_14 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_12, x_13, x_1, x_11);
+x_14 = 0;
+x_15 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_12, x_13, x_1, x_11, x_14);
 lean_dec(x_11);
-x_15 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f___closed__1;
-x_16 = lean_box(0);
-x_17 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f___closed__2;
-x_18 = lean_alloc_ctor(1, 4, 0);
-lean_ctor_set(x_18, 0, x_2);
-lean_ctor_set(x_18, 1, x_15);
-lean_ctor_set(x_18, 2, x_16);
-lean_ctor_set(x_18, 3, x_17);
-x_19 = lean_array_get_size(x_14);
-x_20 = lean_unsigned_to_nat(1u);
-x_21 = lean_nat_sub(x_19, x_20);
-x_22 = lean_unsigned_to_nat(0u);
-x_23 = lean_nat_dec_lt(x_22, x_19);
+lean_dec(x_1);
+x_16 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f___closed__1;
+x_17 = lean_box(0);
+x_18 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f___closed__2;
+x_19 = lean_alloc_ctor(1, 4, 0);
+lean_ctor_set(x_19, 0, x_2);
+lean_ctor_set(x_19, 1, x_16);
+lean_ctor_set(x_19, 2, x_17);
+lean_ctor_set(x_19, 3, x_18);
+x_20 = lean_array_get_size(x_15);
+x_21 = lean_unsigned_to_nat(1u);
+x_22 = lean_nat_sub(x_20, x_21);
+x_23 = lean_unsigned_to_nat(0u);
+x_24 = lean_nat_dec_lt(x_23, x_20);
+lean_dec(x_20);
+if (x_24 == 0)
+{
+lean_object* x_25; 
+lean_dec(x_22);
 lean_dec(x_19);
-if (x_23 == 0)
-{
-lean_object* x_24; 
-lean_dec(x_21);
-lean_dec(x_18);
-lean_dec(x_14);
-x_24 = lean_box(0);
-return x_24;
+lean_dec(x_15);
+x_25 = lean_box(0);
+return x_25;
 }
 else
 {
-uint8_t x_25; 
-x_25 = lean_nat_dec_le(x_22, x_21);
-if (x_25 == 0)
-{
-lean_object* x_26; 
-lean_dec(x_21);
-lean_dec(x_18);
-lean_dec(x_14);
-x_26 = lean_box(0);
-return x_26;
-}
-else
+uint8_t x_26; 
+x_26 = lean_nat_dec_le(x_23, x_22);
+if (x_26 == 0)
 {
 lean_object* x_27; 
-x_27 = l_Array_binSearchAux___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f___spec__1(x_14, x_18, x_22, x_21, lean_box(0));
-lean_dec(x_18);
-lean_dec(x_14);
+lean_dec(x_22);
+lean_dec(x_19);
+lean_dec(x_15);
+x_27 = lean_box(0);
 return x_27;
+}
+else
+{
+lean_object* x_28; 
+x_28 = l_Array_binSearchAux___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f___spec__1(x_15, x_19, x_23, x_22, lean_box(0));
+lean_dec(x_19);
+lean_dec(x_15);
+return x_28;
 }
 }
 }

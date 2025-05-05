@@ -53,12 +53,14 @@ def pushNewFact' (prop : Expr) (proof : Expr) (generation : Nat := 0) : GoalM Un
     mkApp4 (mkConst ``Eq.mp [levelZero]) prop prop' h proof
   else
     proof
+  trace[grind.debug.pushNewFact] "{prop} ==> {prop'}"
   modify fun s => { s with newFacts := s.newFacts.push <| .fact prop' proof generation }
 
 
 /-- Infers the type of the proof, preprocess it, and adds it to todo list. -/
 def pushNewFact (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
   let prop ← inferType proof
+  trace[grind.debug.pushNewFact] "{prop}"
   pushNewFact' prop proof generation
 
 end Lean.Meta.Grind

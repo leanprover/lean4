@@ -3,9 +3,12 @@ Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Erase
+import Init.Data.List.Find
 
 /-!
 # List Permutations
@@ -178,7 +181,7 @@ theorem Perm.singleton_eq (h : [a] ~ l) : [a] = l := singleton_perm.mp h
 
 theorem singleton_perm_singleton {a b : α} : [a] ~ [b] ↔ a = b := by simp
 
-theorem perm_cons_erase [DecidableEq α] {a : α} {l : List α} (h : a ∈ l) : l ~ a :: l.erase a :=
+theorem perm_cons_erase [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : a ∈ l) : l ~ a :: l.erase a :=
   let ⟨_, _, _, e₁, e₂⟩ := exists_erase_eq h
   e₂ ▸ e₁ ▸ perm_middle
 
@@ -200,6 +203,9 @@ theorem Perm.pmap {p : α → Prop} (f : ∀ a, p a → β) {l₁ l₂ : List α
   | cons x _p IH => simp [IH, Perm.cons]
   | swap x y => simp [swap]
   | trans _p₁ p₂ IH₁ IH₂ => exact IH₁.trans (IH₂ (H₁ := fun a m => H₂ a (p₂.subset m)))
+
+theorem Perm.unattach {α : Type u} {p : α → Prop} {l₁ l₂ : List { x // p x }} (h : l₁ ~ l₂) :
+    l₁.unattach.Perm l₂.unattach := h.map _
 
 theorem Perm.filter (p : α → Bool) {l₁ l₂ : List α} (s : l₁ ~ l₂) :
     filter p l₁ ~ filter p l₂ := by rw [← filterMap_eq_filter]; apply s.filterMap
@@ -268,7 +274,7 @@ theorem countP_eq_countP_filter_add (l : List α) (p q : α → Bool) :
     l.countP p = (l.filter q).countP p + (l.filter fun a => !q a).countP p :=
   countP_append .. ▸ Perm.countP_eq _ (filter_append_perm _ _).symm
 
-theorem Perm.count_eq [DecidableEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
+theorem Perm.count_eq [BEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
     count a l₁ = count a l₂ := p.countP_eq _
 
 /-
@@ -369,9 +375,9 @@ theorem perm_append_right_iff {l₁ l₂ : List α} (l) : l₁ ++ l ~ l₂ ++ l 
   refine ⟨fun p => ?_, .append_right _⟩
   exact (perm_append_left_iff _).1 <| perm_append_comm.trans <| p.trans perm_append_comm
 
-section DecidableEq
+section LawfulBEq
 
-variable [DecidableEq α]
+variable [BEq α] [LawfulBEq α]
 
 theorem Perm.erase (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : l₁.erase a ~ l₂.erase a :=
   if h₁ : a ∈ l₁ then
@@ -401,14 +407,14 @@ theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l�
     refine ((IH fun b => ?_).cons a).trans (perm_cons_erase this).symm
     specialize H b
     rw [(perm_cons_erase this).count_eq] at H
-    by_cases h : b = a <;> simpa [h, count_cons, Nat.succ_inj'] using H
+    by_cases h : b = a <;> simpa [h, count_cons, Nat.succ_inj] using H
 
 theorem isPerm_iff : ∀ {l₁ l₂ : List α}, l₁.isPerm l₂ ↔ l₁ ~ l₂
   | [], [] => by simp [isPerm, isEmpty]
   | [], _ :: _ => by simp [isPerm, isEmpty, Perm.nil_eq]
   | a :: l₁, l₂ => by simp [isPerm, isPerm_iff, cons_perm_iff_perm_erase]
 
-instance decidablePerm (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
+instance decidablePerm {α} [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
 
 protected theorem Perm.insert (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) :
     l₁.insert a ~ l₂.insert a := by
@@ -425,7 +431,7 @@ theorem perm_insert_swap (x y : α) (l : List α) :
   simp [List.insert, xl, yl, xy, Ne.symm xy]
   constructor
 
-end DecidableEq
+end LawfulBEq
 
 theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) :
     ∀ {l₁ l₂ : List α} (_p : l₁ ~ l₂), Pairwise R l₁ ↔ Pairwise R l₂ :=
@@ -535,5 +541,23 @@ theorem perm_insertIdx {α} (x : α) (l : List α) {i} (h : i ≤ l.length) :
     | succ =>
       simp only [insertIdx, modifyTailIdx]
       refine .trans (.cons _ (ih (Nat.le_of_succ_le_succ h))) (.swap ..)
+
+namespace Perm
+
+theorem take {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.drop n ~ l₂.drop n) :
+    l₁.take n ~ l₂.take n := by
+  classical
+  rw [perm_iff_count] at h w ⊢
+  rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h
+  simpa only [count_append, w, Nat.add_right_cancel_iff] using h
+
+theorem drop {l₁ l₂ : List α} (h : l₁ ~ l₂) {n : Nat} (w : l₁.take n ~ l₂.take n) :
+    l₁.drop n ~ l₂.drop n := by
+  classical
+  rw [perm_iff_count] at h w ⊢
+  rw [← take_append_drop n l₁, ← take_append_drop n l₂] at h
+  simpa only [count_append, w, Nat.add_left_cancel_iff] using h
+
+end Perm
 
 end List

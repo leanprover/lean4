@@ -8,17 +8,17 @@ import Init.Data.BEq
 import Init.Data.Hashable
 import Std.Data.DHashMap.Internal.Defs
 
-/-
+/-!
 # Dependent hash maps with unbundled well-formedness invariant
 
 This file develops the type `Std.DHashMap.Raw` of dependent hash
 maps with unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
-available as `Std.Data.DHashMap.Raw.WF` and we prove in this file that all operations preserve
+available as `Std.DHashMap.Raw.WF` and we prove in this file that all operations preserve
 well-formedness. When in doubt, prefer `DHashMap` over `DHashMap.Raw`.
 
-Lemmas about the operations on `Std.Data.DHashMap.Raw` are available in the module
+Lemmas about the operations on `Std.DHashMap.Raw` are available in the module
 `Std.Data.DHashMap.RawLemmas`.
 -/
 
@@ -459,15 +459,15 @@ only those mappings where the function returns `some` value.
 
 /-- Transforms the hash map into an array of mappings in some order. -/
 @[inline] def toArray (m : Raw α β) : Array ((a : α) × β a) :=
-  m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
+  m.fold (fun acc k v => acc.push ⟨k, v⟩) (.emptyWithCapacity m.size)
 
 @[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
     Array (α × β) :=
-  m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
+  m.fold (fun acc k v => acc.push ⟨k, v⟩) (.emptyWithCapacity m.size)
 
 /-- Returns an array of all keys present in the hash map in some order. -/
 @[inline] def keysArray (m : Raw α β) : Array α :=
-  m.fold (fun acc k _ => acc.push k) #[]
+  m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
@@ -475,7 +475,7 @@ only those mappings where the function returns `some` value.
 
 /-- Returns an array of all values present in the hash map in some order. -/
 @[inline] def valuesArray {β : Type v} (m : Raw α (fun _ => β)) : Array β :=
-  m.fold (fun acc _ v => acc.push v) #[]
+  m.fold (fun acc _ v => acc.push v) (.emptyWithCapacity m.size)
 
 /--
 Inserts multiple mappings into the hash map by iterating over the given collection and calling

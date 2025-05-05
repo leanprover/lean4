@@ -46,7 +46,7 @@ def builtinPassManager : PassManager := {
   passes := #[
     init,
     pullInstances,
-    cse,
+    cse (shouldElimFunDecls := false),
     simp,
     floatLetIn,
     findJoinPoints,
@@ -61,7 +61,7 @@ def builtinPassManager : PassManager := {
     eagerLambdaLifting,
     specialize,
     simp (occurrence := 2),
-    cse (occurrence := 1),
+    cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase
     toMono,
     simp (occurrence := 3) (phase := .mono),

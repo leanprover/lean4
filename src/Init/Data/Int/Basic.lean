@@ -5,6 +5,8 @@ Authors: Jeremy Avigad, Leonardo de Moura
 
 The integers, with addition, multiplication, and subtraction.
 -/
+module
+
 prelude
 import Init.Data.Cast
 import Init.Data.Nat.Div.Basic
@@ -419,6 +421,8 @@ instance : IntCast Int where intCast n := n
 @[coe, reducible, match_pattern, inherit_doc IntCast]
 protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
   IntCast.intCast
+
+@[simp] theorem Int.cast_eq (x : Int) : Int.cast x = x := rfl
 
 -- see the notes about coercions into arbitrary types in the module doc-string
 instance [IntCast R] : CoeTail Int R where coe := Int.cast

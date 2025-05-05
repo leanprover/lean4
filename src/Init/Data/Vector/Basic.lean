@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 -/
 
+module
+
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
@@ -27,7 +29,7 @@ structure Vector (α : Type u) (n : Nat) extends Array α where
   size_toArray : toArray.size = n
 deriving Repr, DecidableEq
 
-attribute [simp] Vector.size_toArray
+attribute [simp, grind] Vector.size_toArray
 
 /--
 Converts an array to a vector. The resulting vector's size is the array's size.
@@ -405,7 +407,7 @@ no element of the index matches the given value. -/
   (xs.toArray.findFinIdx? p).map (Fin.cast xs.size_toArray)
 
 /--
-Note that the universe level is contrained to `Type` here,
+Note that the universe level is constrained to `Type` here,
 to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 -/
 @[inline] def findM? {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α) :=
@@ -415,7 +417,7 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
   as.toArray.findSomeM? f
 
 /--
-Note that the universe level is contrained to `Type` here,
+Note that the universe level is constrained to `Type` here,
 to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 -/
 @[inline] def findRevM? {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α) :=

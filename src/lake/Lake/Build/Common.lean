@@ -24,12 +24,13 @@ namespace Lake
 /-- Exit code to return if `--no-build` is set and a build is required. -/
 def noBuildCode : ExitCode := 3
 
+open System.Platform in
 /--
 Build trace for the host platform.
 If an artifact includes this trace, it is platform-dependent
 and will be rebuilt on different host platforms.
 -/
-def platformTrace := pureHash System.Platform.target
+def platformTrace : BuildTrace := .ofHash (pureHash target) target
 
 /--
 Mixes the platform into the current job's trace.
@@ -44,8 +45,9 @@ and will be rebuilt on different host platforms.
   addTrace (← getLeanTrace)
 
 /-- Mixes the trace of a pure value into the current job's trace. -/
-@[inline] def addPureTrace [ComputeHash α Id] (a : α) : JobM PUnit := do
-  addTrace (pureHash a)
+@[inline] def addPureTrace
+  [ToString α] [ComputeHash α Id] (a : α) (caption := "pure")
+: JobM PUnit := addTrace <| .ofHash (pureHash a) s!"{caption}: {toString a}"
 
 /--
 The build trace file format,
@@ -53,17 +55,19 @@ which stores information about a (successful) build.
 -/
 structure BuildMetadata where
   depHash : Hash
+  inputs : Array (String × Json)
   log : Log
   deriving ToJson
 
 def BuildMetadata.ofHash (h : Hash) : BuildMetadata :=
-  {depHash := h, log := {}}
+  {depHash := h,  inputs := #[], log := {}}
 
 def BuildMetadata.fromJson? (json : Json) : Except String BuildMetadata := do
   let obj ← JsonObject.fromJson? json
   let depHash ← obj.get "depHash"
+  let inputs ← obj.getD "inputs" {}
   let log ← obj.getD "log" {}
-  return {depHash, log}
+  return {depHash, inputs, log}
 
 instance : FromJson BuildMetadata := ⟨BuildMetadata.fromJson?⟩
 
@@ -80,10 +84,23 @@ def readTraceFile? (path : FilePath) : LogIO (Option BuildMetadata) := OptionT.r
   | .error (.noFileOrDirectory ..) => failure
   | .error e => logWarning s!"{path}: read failed: {e}"; failure
 
+private partial def serializeInputs (inputs : Array BuildTrace) : Array (String × Json) :=
+  inputs.foldl (init := {}) fun r trace =>
+    let val :=
+      if trace.inputs.isEmpty then
+        toJson trace.hash
+      else
+        toJson (serializeInputs trace.inputs)
+    r.push (trace.caption, val)
+
 /-- Write persistent trace data to a file. -/
 def writeTraceFile (path : FilePath) (depTrace : BuildTrace) (log : Log) := do
   createParentDirs path
-  let data := {log, depHash := depTrace.hash : BuildMetadata}
+  let data : BuildMetadata := {
+    inputs := serializeInputs depTrace.inputs
+    depHash := depTrace.hash
+    log
+  }
   IO.FS.writeFile path (toJson data).pretty
 
 /--
@@ -205,18 +222,20 @@ in a `.hash` file. If no such `.hash` file exists, recomputes and creates it.
 If `text := true`, `file` is hashed as text file rather than a binary file.
 -/
 def fetchFileTrace (file : FilePath) (text := false) : JobM BuildTrace := do
-  return .mk (← fetchFileHash file text) (← getMTime file)
+  let hash ← fetchFileHash file text
+  let mtime ← getMTime file
+  return {caption := file.toString, hash, mtime}
 
 /--
 Builds `file` using `build` unless it already exists and the current job's
-trace matches the trace stored in the `.trace` file. If built, save the new
-trace and cache `file`'s hash in a `.hash` file. Otherwise, try to fetch the
+trace matches the trace stored in the `.trace` file. If built, saves the new
+trace and caches `file`'s hash in a `.hash` file. Otherwise, tries to fetch the
 hash from the `.hash` file using `fetchFileTrace`. Build logs (if any) are
 saved to the trace file and replayed from there if the build is skipped.
 
 For example, given `file := "foo.c"`, compares `getTrace` with that in
-`foo.c.trace` with the hash cached in `foo.c.hash` and the log cached in
-`foo.c.trace`.
+`foo.c.trace`. If built, the hash is cached in `foo.c.hash` and the new
+trace is saved to `foo.c.trace` (including the build log).
 
 If `text := true`, `file` is hashed as a text file rather than a binary file.
 -/
@@ -351,34 +370,37 @@ which will be computed in the resulting `Job` before building.
 : SpawnM (Job FilePath) :=
   srcJob.mapM fun srcFile => do
     addPlatformTrace -- object files are platform-dependent artifacts
-    addPureTrace traceArgs
+    addPureTrace traceArgs "traceArgs"
     addTrace (← extraDepTrace)
     buildFileUnlessUpToDate' oFile do
       compileO oFile srcFile (weakArgs ++ traceArgs) compiler
     return oFile
 
 /--
-Build an object file from a source fie job (i.e, a `lean -c` output)=
+Build an object file from a source fie job (i.e, a `lean -c` output)
 using the Lean toolchain's C compiler.
 -/
 def buildLeanO
   (oFile : FilePath) (srcJob : Job FilePath)
   (weakArgs traceArgs : Array String := #[])
+  (leanIncludeDir? : Option FilePath := none)
 : SpawnM (Job FilePath) :=
   srcJob.mapM fun srcFile => do
     addLeanTrace
-    addPureTrace traceArgs
+    addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- object files are platform-dependent artifacts
     buildFileUnlessUpToDate' oFile do
       let lean ← getLeanInstall
-      compileO oFile srcFile (lean.ccFlags ++ weakArgs ++ traceArgs) lean.cc
+      let includeDir := leanIncludeDir?.getD lean.includeDir
+      let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
+      compileO oFile srcFile args lean.cc
     return oFile
 
 /-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
 def buildStaticLib
   (libFile : FilePath) (oFileJobs : Array (Job FilePath)) (thin :=  false)
 : SpawnM (Job FilePath) :=
-  (Job.collectArray oFileJobs).mapM fun oFiles => do
+  (Job.collectArray oFileJobs "objs").mapM fun oFiles => do
     buildFileUnlessUpToDate' libFile do
       compileStaticLib libFile oFiles (← getLeanAr) thin
     return libFile
@@ -396,6 +418,29 @@ private def mkLinkObjArgs
   return args
 
 /--
+Topologically sorts the library dependency tree by name.
+Libraries come *before* their dependencies.
+-/
+private partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
+  let r := libs.foldlM (m := Except (Cycle String)) (init := ({}, #[])) fun (v, o) lib =>
+    go lib [] v o
+  match r with
+  | .ok (_, order) => pure order
+  | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
+where
+  go lib (ps : List String) (v : RBMap String Unit compare) (o : Array Dynlib) := do
+    let o := o.push lib
+    if v.contains lib.name then
+      return (v, o)
+    if ps.contains lib.name then
+      throw (lib.name :: ps)
+    let ps := lib.name :: ps
+    let v := v.insert lib.name ()
+    let (v, o) ← lib.deps.foldlM (init := (v, o)) fun (v, o) lib =>
+      go lib ps v o
+    return (v, o)
+
+/--
 Build a shared library by linking the results of `linkJobs`
 using the Lean toolchain's C compiler.
 -/
@@ -404,17 +449,18 @@ def buildSharedLib
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (linker := "c++")
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
-  (plugin := false)
+  (plugin := false) (linkDeps := Platform.isWindows)
 : SpawnM (Job Dynlib) :=
-  (Job.collectArray linkObjs).bindM fun objs => do
-  (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
-    addPureTrace traceArgs
+  (Job.collectArray linkObjs "linkObjs").bindM fun objs => do
+  (Job.collectArray linkLibs "linkLibs").mapM (sync := true) fun libs => do
+    addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
     buildFileUnlessUpToDate' libFile do
+      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
       compileSharedLib libFile args linker
-    return {name := libName, path := libFile, plugin}
+    return {name := libName, path := libFile, deps := libs, plugin}
 
 /--
 Build a shared library by linking the results of `linkJobs`
@@ -424,18 +470,20 @@ def buildLeanSharedLib
   (libName : String) (libFile : FilePath)
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (plugin := false)
+  (linkDeps := Platform.isWindows)
 : SpawnM (Job Dynlib) :=
-  (Job.collectArray linkObjs).bindM fun objs => do
-  (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
+  (Job.collectArray linkObjs "linkObjs").bindM fun objs => do
+  (Job.collectArray linkLibs "linkLibs").mapM (sync := true) fun libs => do
     addLeanTrace
-    addPureTrace traceArgs
+    addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     buildFileUnlessUpToDate' libFile do
       let lean ← getLeanInstall
-      let args := mkLinkObjArgs objs libs ++
-        weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
+      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
+      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
+        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkSharedFlags
       compileSharedLib libFile args lean.cc
-    return {name := libName, path := libFile, plugin}
+    return {name := libName, path := libFile, deps := libs, plugin}
 
 /--
 Build an executable by linking the results of `linkJobs`
@@ -446,14 +494,15 @@ def buildLeanExe
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (sharedLean : Bool := false)
 : SpawnM (Job FilePath) :=
-  (Job.collectArray linkObjs).bindM fun objs => do
-  (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
+  (Job.collectArray linkObjs "linkObjs").bindM fun objs => do
+  (Job.collectArray linkLibs "linkLibs").mapM (sync := true) fun libs => do
     addLeanTrace
-    addPureTrace traceArgs
+    addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- executables are platform-dependent artifacts
     buildFileUnlessUpToDate' exeFile do
       let lean ← getLeanInstall
-      let args := mkLinkObjArgs objs libs ++
-        weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
+      let libs ← mkLinkOrder libs
+      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
+        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkFlags sharedLean
       compileExe exeFile args lean.cc
     return exeFile

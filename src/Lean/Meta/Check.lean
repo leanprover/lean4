@@ -98,7 +98,7 @@ where
           -- That is to say, the arity might depend on the values of the arguments.
           -- We look for the first explicit argument that is different.
           -- Otherwise we look for the first implicit argument.
-          -- We try `isDefEq` on all arguments to get discretionary mvar assigments.
+          -- We try `isDefEq` on all arguments to get discretionary mvar assignments.
           let mut as := a.getAppArgs
           let mut bs := b.getAppArgs
           let mut aFnType ← inferType a.getAppFn

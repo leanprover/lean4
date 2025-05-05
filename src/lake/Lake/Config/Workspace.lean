@@ -102,6 +102,10 @@ protected def findModule? (mod : Name) (self : Workspace) : Option Module :=
 def findTargetModule? (mod : Name) (self : Workspace) : Option Module :=
   self.packages.findSome? (·.findTargetModule? mod)
 
+/-- Returns the buildable module in the workspace whose source file is `path`.  -/
+def findModuleBySrc? (path : FilePath) (self : Workspace) : Option Module :=
+  self.packages.findSome? (·.findModuleBySrc? path)
+
 /-- Try to find a Lean library in the workspace with the given name. -/
 protected def findLeanLib? (name : Name) (self : Workspace) : Option LeanLib :=
   self.packages.findSome? fun pkg => pkg.findLeanLib? name

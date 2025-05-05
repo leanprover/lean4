@@ -3,6 +3,8 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Lemmas
@@ -409,6 +411,14 @@ theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
   funext (castLE_castLE km mn)
 
 @[simp] theorem coe_cast (h : n = m) (i : Fin n) : (i.cast h : Nat) = i := rfl
+
+@[simp] theorem cast_castLE {k m n} (km : k ≤ m) (mn : m = n) (i : Fin k) :
+    Fin.cast mn (i.castLE km) = i.castLE (mn ▸ km) :=
+  Fin.ext (by simp)
+
+@[simp] theorem cast_castLT {k m n} (i : Fin k) (h : (i : Nat) < m) (mn : m = n) :
+    Fin.cast mn (i.castLT h) = i.castLT (mn ▸ h) :=
+  Fin.ext (by simp)
 
 @[simp] theorem cast_zero [NeZero n] [NeZero m] (h : n = m) : Fin.cast h 0 = 0 := rfl
 
@@ -975,6 +985,16 @@ theorem coe_sub_iff_lt {a b : Fin n} : (↑(a - b) : Nat) = n + a - b ↔ a < b 
     all_goals omega
 
 /-! ### mul -/
+
+theorem ofNat'_mul [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat' n x * y = Fin.ofNat' n (x * y.val) := by
+  apply Fin.eq_of_val_eq
+  simp [Fin.ofNat', Fin.mul_def]
+
+theorem mul_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
+    x * Fin.ofNat' n y = Fin.ofNat' n (x.val * y) := by
+  apply Fin.eq_of_val_eq
+  simp [Fin.ofNat', Fin.mul_def]
 
 theorem val_mul {n : Nat} : ∀ a b : Fin n, (a * b).val = a.val * b.val % n
   | ⟨_, _⟩, ⟨_, _⟩ => rfl

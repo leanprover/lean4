@@ -96,13 +96,13 @@ Internal implementation detail of the tree map
 -/
 inductive ExplorationStep [Ord α] (k : α → Ordering) where
   /-- Needle was less than key at this node: return key-value pair and unexplored right subtree,
-      recusion will continue in left subtree. -/
+      recursion will continue in left subtree. -/
   | lt : (a : α) → k a = .lt → β a → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was equal to key at this node: return key-value pair and both unexplored subtrees,
       recursion will terminate. -/
   | eq : List ((a : α) × β a) → Cell α β k → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was larger than key at this node: return key-value pair and unexplored left subtree,
-      recusion will containue in right subtree. -/
+      recursion will containue in right subtree. -/
   | gt : List ((a : α) × β a) → (a : α) → k a = .gt → β a → ExplorationStep k
 
 /-- General tree-traversal function. Internal implementation detail of the tree map -/
@@ -389,7 +389,7 @@ theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l :
   · simp [get?, applyCell]
 
 theorem get_eq_get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} :
-    l.get k h = l.get? k := by
+    some (l.get k h) = l.get? k := by
   induction l
   · simp only [applyCell, get, get?]
     split <;> rename_i ihl ihr hcmp <;> simp_all
@@ -428,7 +428,7 @@ theorem getKey?_eq_getKey?ₘ [Ord α] (k : α) (l : Impl α β) :
   · simp [getKey?, applyCell]
 
 theorem getKey_eq_getKey? [Ord α] (k : α) (l : Impl α β) {h} :
-    l.getKey k h = l.getKey? k := by
+    some (l.getKey k h) = l.getKey? k := by
   induction l
   · simp only [applyCell, getKey, getKey?]
     split <;> rename_i ihl ihr hcmp <;> simp_all
@@ -722,7 +722,7 @@ theorem get?_eq_get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) :
   · simp [Const.get?, applyCell]
 
 theorem get_eq_get? [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} :
-    get l k h = get? l k := by
+    some (get l k h) = get? l k := by
   induction l
   · simp only [applyCell, get, get?]
     split <;> rename_i ihl ihr hcmp <;> simp_all

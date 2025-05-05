@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
 import Init.Data.SInt.Basic
 import Init.Data.BitVec.Bitblast
@@ -183,18 +185,18 @@ theorem ISize.neg_ofNat {n : Nat} : -ofNat n = ofInt (-n) := by
   rw [← neg_ofInt, ofInt_eq_ofNat]
 
 theorem Int8.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 7) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem Int16.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 15) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem Int32.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 31) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem Int64.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 63) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem ISize.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 31) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_le (by omega) (by omega), Int.toNat_natCast]
 theorem ISize.toNatClampNeg_ofNat_of_lt_two_pow_numBits {n : Nat} (h : n < 2 ^ (System.Platform.numBits - 1)) :
     toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_two_pow_numBits_le, Int.toNat_ofNat]
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt_of_two_pow_numBits_le, Int.toNat_natCast]
   · cases System.Platform.numBits_eq <;> simp_all <;> omega
   · cases System.Platform.numBits_eq <;> simp_all <;> omega
 
@@ -537,41 +539,41 @@ theorem ISize.toFin_toBitVec (x : ISize) : x.toBitVec.toFin = x.toUSize.toFin :=
 @[simp] theorem Int64.toBitVec_ofIntLE (x : Int) (h₁ h₂) : (Int64.ofIntLE x h₁ h₂).toBitVec = BitVec.ofInt 64 x := rfl
 @[simp] theorem ISize.toBitVec_ofIntLE (x : Int) (h₁ h₂) : (ISize.ofIntLE x h₁ h₂).toBitVec = BitVec.ofInt System.Platform.numBits x := rfl
 
-@[simp] theorem Int8.toInt_bmod (x : Int8) : x.toInt.bmod 256 = x.toInt := Int.bmod_eq_self_of_le x.le_toInt x.toInt_lt
-@[simp] theorem Int16.toInt_bmod (x : Int16) : x.toInt.bmod 65536 = x.toInt := Int.bmod_eq_self_of_le x.le_toInt x.toInt_lt
-@[simp] theorem Int32.toInt_bmod (x : Int32) : x.toInt.bmod 4294967296 = x.toInt := Int.bmod_eq_self_of_le x.le_toInt x.toInt_lt
-@[simp] theorem Int64.toInt_bmod (x : Int64) : x.toInt.bmod 18446744073709551616 = x.toInt := Int.bmod_eq_self_of_le x.le_toInt x.toInt_lt
+@[simp] theorem Int8.toInt_bmod (x : Int8) : x.toInt.bmod 256 = x.toInt := Int.bmod_eq_of_le x.le_toInt x.toInt_lt
+@[simp] theorem Int16.toInt_bmod (x : Int16) : x.toInt.bmod 65536 = x.toInt := Int.bmod_eq_of_le x.le_toInt x.toInt_lt
+@[simp] theorem Int32.toInt_bmod (x : Int32) : x.toInt.bmod 4294967296 = x.toInt := Int.bmod_eq_of_le x.le_toInt x.toInt_lt
+@[simp] theorem Int64.toInt_bmod (x : Int64) : x.toInt.bmod 18446744073709551616 = x.toInt := Int.bmod_eq_of_le x.le_toInt x.toInt_lt
 @[simp] theorem ISize.toInt_bmod_two_pow_numBits (x : ISize) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
-  refine Int.bmod_eq_self_of_le ?_ ?_
+  refine Int.bmod_eq_of_le ?_ ?_
   · have := x.two_pow_numBits_le_toInt
     cases System.Platform.numBits_eq <;> simp_all
   · have := x.toInt_lt_two_pow_numBits
     cases System.Platform.numBits_eq <;> simp_all
 
 @[simp] theorem Int8.toInt_bmod_65536 (x : Int8) : x.toInt.bmod 65536 = x.toInt :=
-  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+  Int.bmod_eq_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
 @[simp] theorem Int8.toInt_bmod_4294967296 (x : Int8) : x.toInt.bmod 4294967296 = x.toInt :=
-  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+  Int.bmod_eq_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
 @[simp] theorem Int16.toInt_bmod_4294967296 (x : Int16) : x.toInt.bmod 4294967296 = x.toInt :=
-  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+  Int.bmod_eq_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
 @[simp] theorem Int8.toInt_bmod_18446744073709551616 (x : Int8) : x.toInt.bmod 18446744073709551616 = x.toInt :=
-  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+  Int.bmod_eq_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
 @[simp] theorem Int16.toInt_bmod_18446744073709551616 (x : Int16) : x.toInt.bmod 18446744073709551616 = x.toInt :=
-  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+  Int.bmod_eq_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
 @[simp] theorem Int32.toInt_bmod_18446744073709551616 (x : Int32) : x.toInt.bmod 18446744073709551616 = x.toInt :=
-  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+  Int.bmod_eq_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
 @[simp] theorem ISize.toInt_bmod_18446744073709551616 (x : ISize) : x.toInt.bmod 18446744073709551616 = x.toInt :=
-  Int.bmod_eq_self_of_le x.le_toInt x.toInt_lt
+  Int.bmod_eq_of_le x.le_toInt x.toInt_lt
 @[simp] theorem Int8.toInt_bmod_two_pow_numBits (x : Int8) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
-  refine Int.bmod_eq_self_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
+  refine Int.bmod_eq_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
     (Int.lt_of_le_sub_one (Int.le_trans x.toInt_le_iSizeMaxValue ?_))
   all_goals cases System.Platform.numBits_eq <;> simp_all [ISize.toInt_minValue, ISize.toInt_maxValue]
 @[simp] theorem Int16.toInt_bmod_two_pow_numBits (x : Int16) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
-  refine Int.bmod_eq_self_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
+  refine Int.bmod_eq_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
     (Int.lt_of_le_sub_one (Int.le_trans x.toInt_le_iSizeMaxValue ?_))
   all_goals cases System.Platform.numBits_eq <;> simp_all [ISize.toInt_minValue, ISize.toInt_maxValue]
 @[simp] theorem Int32.toInt_bmod_two_pow_numBits (x : Int32) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
-  refine Int.bmod_eq_self_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
+  refine Int.bmod_eq_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
     (Int.lt_of_le_sub_one (Int.le_trans x.toInt_le_iSizeMaxValue ?_))
   all_goals cases System.Platform.numBits_eq <;> simp_all [ISize.toInt_minValue, ISize.toInt_maxValue]
 
@@ -2066,7 +2068,7 @@ theorem ISize.toInt_maxValue_add_one : maxValue.toInt + 1 = 2 ^ (System.Platform
 theorem Int8.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int8.ofInt (a.tdiv b) = Int8.ofInt a / Int8.ofInt b := by
   rw [Int8.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact hb₁
   · exact Int.lt_of_le_sub_one hb₂
   · exact ha₁
@@ -2074,7 +2076,7 @@ theorem Int8.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a �
 theorem Int16.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int16.ofInt (a.tdiv b) = Int16.ofInt a / Int16.ofInt b := by
   rw [Int16.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact hb₁
   · exact Int.lt_of_le_sub_one hb₂
   · exact ha₁
@@ -2082,7 +2084,7 @@ theorem Int16.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a �
 theorem Int32.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int32.ofInt (a.tdiv b) = Int32.ofInt a / Int32.ofInt b := by
   rw [Int32.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact hb₁
   · exact Int.lt_of_le_sub_one hb₂
   · exact ha₁
@@ -2090,7 +2092,7 @@ theorem Int32.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a �
 theorem Int64.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int64.ofInt (a.tdiv b) = Int64.ofInt a / Int64.ofInt b := by
   rw [Int64.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact hb₁
   · exact Int.lt_of_le_sub_one hb₂
   · exact ha₁
@@ -2098,7 +2100,7 @@ theorem Int64.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a �
 theorem ISize.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : ISize.ofInt (a.tdiv b) = ISize.ofInt a / ISize.ofInt b := by
   rw [ISize.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt, toInt_neg]) hb₁
   · refine Int.lt_of_le_sub_one (le_of_le_of_eq hb₂ ?_)
     cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]
@@ -2625,6 +2627,17 @@ instance : Std.LawfulCommIdentity (α := ISize) (· * ·) 1 where
 @[simp] theorem Int64.zero_mul {a : Int64} : 0 * a = 0 := Int64.toBitVec_inj.1 BitVec.zero_mul
 @[simp] theorem ISize.zero_mul {a : ISize} : 0 * a = 0 := ISize.toBitVec_inj.1 BitVec.zero_mul
 
+@[simp] protected theorem Int8.pow_zero (x : Int8) : x ^ 0 = 1 := rfl
+protected theorem Int8.pow_succ (x : Int8) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem Int16.pow_zero (x : Int16) : x ^ 0 = 1 := rfl
+protected theorem Int16.pow_succ (x : Int16) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem Int32.pow_zero (x : Int32) : x ^ 0 = 1 := rfl
+protected theorem Int32.pow_succ (x : Int32) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem Int64.pow_zero (x : Int64) : x ^ 0 = 1 := rfl
+protected theorem Int64.pow_succ (x : Int64) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+@[simp] protected theorem ISize.pow_zero (x : ISize) : x ^ 0 = 1 := rfl
+protected theorem ISize.pow_succ (x : ISize) (n : Nat) : x ^ (n + 1) = x ^ n * x := rfl
+
 protected theorem Int8.mul_add {a b c : Int8} : a * (b + c) = a * b + a * c :=
     Int8.toBitVec_inj.1 BitVec.mul_add
 protected theorem Int16.mul_add {a b c : Int16} : a * (b + c) = a * b + a * c :=
@@ -2910,7 +2923,7 @@ protected theorem ISize.div_self {a : ISize} : a / a = if a = 0 then 0 else 1 :=
   simp [← ISize.toInt_inj]
   split
   · simp_all
-  · rw [Int.tdiv_self, Int.bmod_eq_self_of_le]
+  · rw [Int.tdiv_self, Int.bmod_eq_of_le]
     · simp
     · cases System.Platform.numBits_eq <;> simp_all
     · cases System.Platform.numBits_eq <;> simp_all
@@ -3065,15 +3078,15 @@ protected theorem Int64.lt_or_eq_of_le {a b : Int64} : a ≤ b → a < b ∨ a =
 protected theorem ISize.lt_or_eq_of_le {a b : ISize} : a ≤ b → a < b ∨ a = b := ISize.le_iff_lt_or_eq.mp
 
 theorem Int8.toInt_eq_toNatClampNeg {a : Int8} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
 theorem Int16.toInt_eq_toNatClampNeg {a : Int16} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
 theorem Int32.toInt_eq_toNatClampNeg {a : Int32} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
 theorem Int64.toInt_eq_toNatClampNeg {a : Int64} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
 theorem ISize.toInt_eq_toNatClampNeg {a : ISize} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le, toInt_zero] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le, toInt_zero] using ha
 
 @[simp] theorem UInt8.toInt8_add (a b : UInt8) : (a + b).toInt8 = a.toInt8 + b.toInt8 := rfl
 @[simp] theorem UInt16.toInt16_add (a b : UInt16) : (a + b).toInt16 = a.toInt16 + b.toInt16 := rfl
@@ -3311,7 +3324,7 @@ protected theorem ISize.ne_of_lt {a b : ISize} : a < b → a ≠ b := by
 theorem Int8.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int8.ofInt (a.tmod b) = Int8.ofInt a % Int8.ofInt b := by
   rw [Int8.ofInt_eq_iff_bmod_eq_toInt, ← toInt_bmod_size, toInt_mod, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact hb₁
   · exact Int.lt_of_le_sub_one hb₂
   · exact ha₁
@@ -3319,7 +3332,7 @@ theorem Int8.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a �
 theorem Int16.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int16.ofInt (a.tmod b) = Int16.ofInt a % Int16.ofInt b := by
   rw [Int16.ofInt_eq_iff_bmod_eq_toInt, ← toInt_bmod_size, toInt_mod, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact hb₁
   · exact Int.lt_of_le_sub_one hb₂
   · exact ha₁
@@ -3327,7 +3340,7 @@ theorem Int16.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a �
 theorem Int32.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int32.ofInt (a.tmod b) = Int32.ofInt a % Int32.ofInt b := by
   rw [Int32.ofInt_eq_iff_bmod_eq_toInt, ← toInt_bmod_size, toInt_mod, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact hb₁
   · exact Int.lt_of_le_sub_one hb₂
   · exact ha₁
@@ -3335,7 +3348,7 @@ theorem Int32.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a �
 theorem Int64.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int64.ofInt (a.tmod b) = Int64.ofInt a % Int64.ofInt b := by
   rw [Int64.ofInt_eq_iff_bmod_eq_toInt, ← toInt_bmod_size, toInt_mod, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact hb₁
   · exact Int.lt_of_le_sub_one hb₂
   · exact ha₁
@@ -3343,7 +3356,7 @@ theorem Int64.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a �
 theorem ISize.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : ISize.ofInt (a.tmod b) = ISize.ofInt a % ISize.ofInt b := by
   rw [ISize.ofInt_eq_iff_bmod_eq_toInt, ← toInt_bmod_size, toInt_mod, toInt_ofInt, toInt_ofInt,
-    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+    Int.bmod_eq_of_le (n := a), Int.bmod_eq_of_le (n := b)]
   · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt, toInt_neg]) hb₁
   · refine Int.lt_of_le_sub_one (le_of_le_of_eq hb₂ ?_)
     cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]

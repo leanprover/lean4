@@ -74,7 +74,7 @@ def Package.maybeFetchBuildCache (self : Package) : FetchM (Job Bool) := do
 @[inline]
 private def Package.optFacetDetails (self : Package) (facet : Name) : JobM String := do
   if (← getIsVerbose) then
-    return s!" (see '{self.name}:{facet}' for details)"
+    return s!" (see '{self.name}:{Name.eraseHead facet}' for details)"
   else
     return " (run with '-v' for details)"
 
@@ -102,9 +102,9 @@ Also, if the package is a dependency, maybe fetch its build cache.
 -/
 def Package.recBuildExtraDepTargets (self : Package) : FetchM (Job Unit) :=
   withRegisterJob s!"{self.name}:extraDep" do
-  let mut job := Job.nil
+  let mut job := Job.nil s!"@{self.name}:extraDep"
   -- Fetch build cache if this package is a dependency
-  if self.name ≠ (← getWorkspace).root.name then
+  if self.name ≠ (← getRootPackage).name then
     job := job.add (← self.maybeFetchBuildCacheWithWarning)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
@@ -161,7 +161,7 @@ private def Package.mkOptBuildArchiveFacetConfig
   (getUrl : Package → JobM String) (headers : Array String := #[])
   [FamilyDef FacetOut facet Bool]
 : PackageFacetConfig facet := mkFacetJobConfig fun pkg =>
-  withRegisterJob s!"{pkg.name}:{facet}" (optional := true) <| Job.async do
+  withRegisterJob s!"{pkg.name}:{Name.eraseHead facet}" (optional := true) <| Job.async do
   try
     let url ← getUrl pkg
     pkg.fetchBuildArchive url (archiveFile pkg) headers

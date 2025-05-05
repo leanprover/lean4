@@ -908,8 +908,11 @@ def levelMVarToParam (e : Expr) (except : LMVarId → Bool := fun _ => false) : 
   return r.expr
 
 /--
-  Auxiliary method for creating fresh binder names.
-  Do not confuse with the method for creating fresh free/meta variable ids. -/
+Creates a fresh inaccessible binder name based on `x`.
+Equivalent to ``Lean.Core.mkFreshUserName `x``.
+
+Do not confuse with `Lean.mkFreshId`, for creating fresh free variable and metavariable ids.
+-/
 def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
   withFreshMacroScope <| MonadQuotation.addMacroScope `x
 
@@ -1878,13 +1881,14 @@ where
       go todo (autos.push auto)
 
 /--
-  Similar to `autoBoundImplicits`, but immediately if the resulting array of expressions contains metavariables,
-  it immediately uses `mkForallFVars` + `forallBoundedTelescope` to convert them into free variables.
+  Similar to `addAutoBoundImplicits`, but converts all metavariables into free variables.
+
+  It uses `mkForallFVars` + `forallBoundedTelescope` to convert metavariables into free variables.
   The type `type` is modified during the process if type depends on `xs`.
   We use this method to simplify the conversion of code using `autoBoundImplicitsOld` to `autoBoundImplicits`.
 -/
-def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
-  let xs ← addAutoBoundImplicits xs none
+def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) (inlayHintPos? : Option String.Pos := none) : TermElabM α := do
+  let xs ← addAutoBoundImplicits xs inlayHintPos?
   if xs.all (·.isFVar) then
     k xs type
   else

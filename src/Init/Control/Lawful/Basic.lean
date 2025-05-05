@@ -3,6 +3,8 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
 import Init.SimpLemmas
 import Init.Meta
@@ -39,12 +41,15 @@ export LawfulFunctor (map_const id_map comp_map)
 
 attribute [simp] id_map
 
-@[simp] theorem id_map' [Functor m] [LawfulFunctor m] (x : m α) : (fun a => a) <$> x = x :=
+@[simp] theorem id_map' [Functor f] [LawfulFunctor f] (x : f α) : (fun a => a) <$> x = x :=
   id_map x
 
 @[simp] theorem Functor.map_map [Functor f] [LawfulFunctor f] (m : α → β) (g : β → γ) (x : f α) :
     g <$> m <$> x = (fun a => g (m a)) <$> x :=
   (comp_map _ _ _).symm
+
+theorem Functor.map_unit [Functor f] [LawfulFunctor f] {a : f PUnit} : (fun _ => PUnit.unit) <$> a = a := by
+  simp [map]
 
 /--
 An applicative functor satisfies the laws of an applicative functor.
@@ -139,6 +144,7 @@ class LawfulMonad (m : Type u → Type v) [Monad m] : Prop extends LawfulApplica
 
 export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
 attribute [simp] pure_bind bind_assoc bind_pure_comp
+attribute [grind] pure_bind
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
   show x >>= (fun a => pure (id a)) = x
@@ -183,9 +189,6 @@ theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y
     ((f <$> x) >>= fun b => g b) = (x >>= fun a => g (f a)) := by
   rw [← bind_pure_comp]
   simp only [bind_assoc, pure_bind]
-
-theorem Functor.map_unit [Monad m] [LawfulMonad m] {a : m PUnit} : (fun _ => PUnit.unit) <$> a = a := by
-  simp [map]
 
 /--
 This is just a duplicate of `LawfulApplicative.map_pure`,

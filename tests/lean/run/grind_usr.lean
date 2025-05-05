@@ -14,9 +14,9 @@ example : f (f (f x)) = f x := by
   grind only [fthm]
 
 /--
-info: [grind.ematch.instance] fthm: f (f (f (f x))) = f (f (f x))
+info: [grind.ematch.instance] fthm: f (f x) = f x
 [grind.ematch.instance] fthm: f (f (f x)) = f (f x)
-[grind.ematch.instance] fthm: f (f x) = f x
+[grind.ematch.instance] fthm: f (f (f (f x))) = f (f (f x))
 -/
 #guard_msgs (info) in
 set_option trace.grind.ematch.instance true in

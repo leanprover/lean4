@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
 
+module
+
 prelude
 import Init.Data.Bool
 import Init.Data.Int.Pow
@@ -11,7 +13,6 @@ import Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Simproc
 import Init.TacticsExtra
-import Init.Omega
 
 /-
 This module defines properties of the bitwise operations on Natural numbers.
@@ -815,6 +816,11 @@ theorem le_shiftLeft {a b : Nat} : a ≤ a <<< b :=
 
 theorem lt_of_shiftLeft_lt {a b c : Nat} (h : a <<< b < c) : a < c :=
   Nat.lt_of_le_of_lt le_shiftLeft h
+
+theorem shiftLeft_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
+    a <<< i + b = a <<< i ||| b := by
+  rw [shiftLeft_eq, Nat.mul_comm]
+  rw [two_pow_add_eq_or_of_lt b_lt]
 
 /-! ### le -/
 

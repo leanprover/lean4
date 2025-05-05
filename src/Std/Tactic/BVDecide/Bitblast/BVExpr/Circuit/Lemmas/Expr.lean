@@ -196,11 +196,20 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     apply Cache.Inv_cast
     · apply LawfulVecOperator.isPrefix_aig (f := blastConst)
     · exact hinv
-  · dsimp only at hres
-    split at hres
-    all_goals
+  · next op lhsExpr rhsExpr =>
+    dsimp only at hres
+    match op with
+    | .and | .or | .xor =>
+      dsimp only at hres
       rw [← hres]
-      dsimp only
+      apply Cache.Inv_cast
+      · apply RefVec.IsPrefix_zip
+      · apply goCache_Inv_of_Inv
+        apply goCache_Inv_of_Inv
+        exact hinv
+    | .add | .mul | .udiv | .umod =>
+      dsimp only at hres
+      rw [← hres]
       apply Cache.Inv_cast
       · apply LawfulVecOperator.isPrefix_aig
       · apply goCache_Inv_of_Inv

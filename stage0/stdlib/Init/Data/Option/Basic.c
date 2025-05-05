@@ -19,14 +19,13 @@ LEAN_EXPORT lean_object* l_instLEOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_tryCatch___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_guard___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instBEq(lean_object*);
-LEAN_EXPORT lean_object* l_Option_guard(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_guard(lean_object*);
 LEAN_EXPORT lean_object* l_instAlternativeOption;
 LEAN_EXPORT lean_object* l_instMonadOption___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_max(lean_object*);
 LEAN_EXPORT lean_object* l_Option_instOrElse___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_mapM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instMin___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Option_mapA___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Option_instDecidableEq(lean_object*);
 LEAN_EXPORT lean_object* l_Option_liftOrGet___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadOption___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35,7 +34,7 @@ LEAN_EXPORT lean_object* l_instAlternativeOption___lambda__2(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Option_instOrElse(lean_object*);
 LEAN_EXPORT lean_object* l_Option_filter___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toList(lean_object*);
-LEAN_EXPORT lean_object* l_Option_mapA(lean_object*);
+LEAN_EXPORT lean_object* l_Option_mapA(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_isNone___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_any(lean_object*);
 LEAN_EXPORT lean_object* l_Option_orElse(lean_object*);
@@ -55,6 +54,7 @@ LEAN_EXPORT lean_object* l_Option_or___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_bind___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instFunctorOption___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadOption___closed__6;
+static lean_object* l_Option_mapM___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Option_instMin(lean_object*);
 LEAN_EXPORT lean_object* l_Option_max___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_merge(lean_object*);
@@ -74,7 +74,6 @@ LEAN_EXPORT lean_object* l_Option_elimM(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4_(lean_object*);
 LEAN_EXPORT lean_object* l_Option_bindM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instFunctorOption___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Option_mapA___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Option_sequence(lean_object*);
 LEAN_EXPORT lean_object* l_Option_filter(lean_object*);
 LEAN_EXPORT uint8_t l_Option_isSome___rarg(lean_object*);
@@ -95,7 +94,7 @@ LEAN_EXPORT lean_object* l_Option_sequence___rarg(lean_object*, lean_object*, le
 static lean_object* l_instAlternativeOption___closed__2;
 LEAN_EXPORT lean_object* l_Option_tryCatch(lean_object*);
 static lean_object* l_instMonadExceptOfUnitOption___closed__3;
-LEAN_EXPORT lean_object* l_Option_mapM___rarg___lambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_mapM___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Option_getDM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toList___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_all___rarg(lean_object*, lean_object*);
@@ -117,7 +116,7 @@ LEAN_EXPORT lean_object* l_Option_tryCatch___rarg___boxed(lean_object*, lean_obj
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadOption___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadExceptOfUnitOption___closed__2;
-LEAN_EXPORT lean_object* l_Option_mapA___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_mapA___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_isSome(lean_object*);
 static lean_object* l_instFunctorOption___closed__2;
 LEAN_EXPORT lean_object* l_Option_min(lean_object*);
@@ -509,20 +508,21 @@ x_4 = lean_alloc_closure((void*)(l_Option_bindM___rarg), 3, 0);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Option_mapM___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Option_mapM___rarg___lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-lean_dec(x_1);
-x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
-lean_dec(x_3);
-x_5 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_5, 0, x_2);
-x_6 = lean_apply_2(x_4, lean_box(0), x_5);
-return x_6;
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Option_mapM___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_mapM___rarg___lambda__1), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Option_mapM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -530,30 +530,30 @@ _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 lean_dec(x_2);
-x_4 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = lean_ctor_get(x_4, 1);
-lean_inc(x_5);
-lean_dec(x_4);
-x_6 = lean_box(0);
-x_7 = lean_apply_2(x_5, lean_box(0), x_6);
-return x_7;
+x_5 = lean_box(0);
+x_6 = lean_apply_2(x_4, lean_box(0), x_5);
+return x_6;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_ctor_get(x_3, 0);
-lean_inc(x_8);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = lean_ctor_get(x_3, 0);
+lean_inc(x_7);
 lean_dec(x_3);
-x_9 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
-x_10 = lean_apply_1(x_2, x_8);
-x_11 = lean_alloc_closure((void*)(l_Option_mapM___rarg___lambda__1), 2, 1);
-lean_closure_set(x_11, 0, x_1);
-x_12 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_11);
+lean_dec(x_8);
+x_10 = lean_apply_1(x_2, x_7);
+x_11 = l_Option_mapM___rarg___closed__1;
+x_12 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_11, x_10);
 return x_12;
 }
 }
@@ -563,6 +563,47 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_Option_mapM___rarg), 3, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Option_mapA___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_dec(x_2);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_box(0);
+x_6 = lean_apply_2(x_4, lean_box(0), x_5);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = lean_ctor_get(x_3, 0);
+lean_inc(x_7);
+lean_dec(x_3);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_8, 0);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_apply_1(x_2, x_7);
+x_11 = l_Option_mapM___rarg___closed__1;
+x_12 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_11, x_10);
+return x_12;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Option_mapA(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Option_mapA___rarg), 3, 0);
 return x_4;
 }
 }
@@ -1058,12 +1099,12 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_guard(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Option_guard(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Option_guard___rarg), 2, 0);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_guard___rarg), 2, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Option_toList___rarg(lean_object* x_1) {
@@ -1281,98 +1322,34 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Option_mapA___rarg___lambda__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Option_mapA___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Option_mapA___rarg___lambda__1), 1, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Option_mapA___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-if (lean_obj_tag(x_5) == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_4);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_box(0);
-x_8 = lean_apply_2(x_6, lean_box(0), x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_9 = lean_ctor_get(x_5, 0);
-lean_inc(x_9);
-lean_dec(x_5);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
-lean_dec(x_1);
-x_11 = lean_ctor_get(x_10, 0);
-lean_inc(x_11);
-lean_dec(x_10);
-x_12 = lean_apply_1(x_4, x_9);
-x_13 = l_Option_mapA___rarg___closed__1;
-x_14 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_13, x_12);
-return x_14;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Option_mapA(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Option_mapA___rarg), 5, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Option_sequence___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_ctor_get(x_1, 0);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = lean_ctor_get(x_4, 1);
-lean_inc(x_5);
-lean_dec(x_4);
-x_6 = lean_box(0);
-x_7 = lean_apply_2(x_5, lean_box(0), x_6);
-return x_7;
+x_5 = lean_box(0);
+x_6 = lean_apply_2(x_4, lean_box(0), x_5);
+return x_6;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = lean_ctor_get(x_3, 0);
-lean_inc(x_8);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_7 = lean_ctor_get(x_3, 0);
+lean_inc(x_7);
 lean_dec(x_3);
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
 lean_dec(x_1);
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-lean_dec(x_9);
-x_11 = lean_ctor_get(x_10, 0);
-lean_inc(x_11);
-lean_dec(x_10);
-x_12 = l_Option_mapA___rarg___closed__1;
-x_13 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_12, x_8);
-return x_13;
+x_9 = lean_ctor_get(x_8, 0);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = l_Option_mapM___rarg___closed__1;
+x_11 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_7);
+return x_11;
 }
 }
 }
@@ -1446,18 +1423,12 @@ return x_3;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 lean_dec(x_2);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_ctor_get(x_5, 1);
-lean_inc(x_6);
-lean_dec(x_5);
-x_7 = lean_apply_2(x_6, lean_box(0), x_4);
-return x_7;
+x_5 = lean_apply_2(x_1, lean_box(0), x_4);
+return x_5;
 }
 }
 }
@@ -2288,10 +2259,10 @@ _G_initialized = true;
 res = initialize_Init_Control_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Option_mapM___rarg___closed__1 = _init_l_Option_mapM___rarg___closed__1();
+lean_mark_persistent(l_Option_mapM___rarg___closed__1);
 l_Option_toArray___rarg___closed__1 = _init_l_Option_toArray___rarg___closed__1();
 lean_mark_persistent(l_Option_toArray___rarg___closed__1);
-l_Option_mapA___rarg___closed__1 = _init_l_Option_mapA___rarg___closed__1();
-lean_mark_persistent(l_Option_mapA___rarg___closed__1);
 l_instFunctorOption___closed__1 = _init_l_instFunctorOption___closed__1();
 lean_mark_persistent(l_instFunctorOption___closed__1);
 l_instFunctorOption___closed__2 = _init_l_instFunctorOption___closed__2();

@@ -169,26 +169,18 @@ def resolveTargetInWorkspace
   else
     throw <| CliError.unknownTarget target
 
-def resolveTargetBaseSpec
-  (ws : Workspace) (spec : String) (facet : Name)
+private def resolveTargetLikeSpec
+  (ws : Workspace) (spec : String) (facet : Name) (isMaybePath explicit := false)
 : Except CliError (Array BuildSpec) := do
   match spec.splitOn "/" with
   | [spec] =>
     if spec.isEmpty then
       resolvePackageTarget ws ws.root facet
-    else if spec.startsWith "@" then
-      let pkg ← parsePackageSpec ws <| spec.drop 1
-      resolvePackageTarget ws pkg facet
-    else if spec.startsWith "+" then
-      let mod := spec.drop 1 |>.toName
-      if let some mod := ws.findTargetModule? mod then
-        Array.singleton <$> resolveModuleTarget ws mod facet
-      else
-        throw <| CliError.unknownModule mod
+    else if explicit then
+      resolvePackageTarget ws (← parsePackageSpec ws spec) facet
     else
       resolveTargetInWorkspace ws (stringToLegalOrSimpleName spec) facet
   | [pkgSpec, targetSpec] =>
-    let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
     let pkg ← parsePackageSpec ws pkgSpec
     if targetSpec.isEmpty then
       resolvePackageTarget ws pkg facet
@@ -201,7 +193,32 @@ def resolveTargetBaseSpec
     else
       resolveTargetInPackage ws pkg (stringToLegalOrSimpleName targetSpec) facet
   | _ =>
-    throw <| CliError.invalidTargetSpec spec '/'
+    if isMaybePath then
+      throw <| CliError.unknownModulePath spec
+    else
+      throw <| CliError.invalidTargetSpec spec '/'
+
+def resolveTargetBaseSpec
+  (ws : Workspace) (spec : String) (facet : Name)
+: EIO CliError (Array BuildSpec) := do
+  if spec.startsWith "@" then
+    let spec := spec.drop 1
+    resolveTargetLikeSpec ws spec facet (explicit := true)
+  else if spec.startsWith "+" then
+    let mod := spec.drop 1 |>.toName
+    if let some mod := ws.findTargetModule? mod then
+      Array.singleton <$> resolveModuleTarget ws mod facet
+    else
+      throw <| CliError.unknownModule mod
+  else if let some path ← resolvePath? spec then
+    if (← path.isDir) then
+      resolveTargetLikeSpec ws spec facet
+    else if let some mod := ws.findModuleBySrc? path then
+      Array.singleton <$> resolveModuleTarget ws mod facet
+    else
+      resolveTargetLikeSpec ws spec facet true
+  else
+    resolveTargetLikeSpec ws spec facet true
 
 def parseExeTargetSpec
   (ws : Workspace) (spec : String)
@@ -224,7 +241,7 @@ def parseExeTargetSpec
 
 def parseTargetSpec
   (ws : Workspace) (spec : String)
-: Except CliError (Array BuildSpec) := do
+: EIO CliError (Array BuildSpec) := do
   match spec.splitOn ":" with
   | [spec] =>
     resolveTargetBaseSpec ws spec .anonymous
@@ -235,7 +252,7 @@ def parseTargetSpec
 
 def parseTargetSpecs
   (ws : Workspace) (specs : List String)
-: Except CliError (Array BuildSpec) := do
+: EIO CliError (Array BuildSpec) := do
   let mut results := #[]
   for spec in specs do
     results := results ++ (← parseTargetSpec ws spec)

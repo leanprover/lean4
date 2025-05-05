@@ -10,9 +10,13 @@ namespace Lean
 namespace ParseImports
 
 structure State where
-  imports : Array Import := #[]
-  pos     : String.Pos := 0
-  error?  : Option String := none
+  imports       : Array Import := #[]
+  pos           : String.Pos := 0
+  error?        : Option String := none
+  isModule      : Bool := false
+  -- per-import fields to be consumed by `moduleIdent`
+  isExported    : Bool := false
+  importAll     : Bool := false
   deriving Inhabited
 
 def Parser := String → State → State
@@ -132,8 +136,8 @@ partial def whitespace : Parser := fun input s =>
   else
     false
 
-def State.pushModule (module : Name) (runtimeOnly : Bool) (s : State) : State :=
-  { s with imports := s.imports.push { module, runtimeOnly } }
+def State.pushImport (i : Import) (s : State) : State :=
+  { s with imports := s.imports.push i }
 
 @[inline] def isIdRestCold (c : Char) : Bool :=
   c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
@@ -141,7 +145,9 @@ def State.pushModule (module : Name) (runtimeOnly : Bool) (s : State) : State :=
 @[inline] def isIdRestFast (c : Char) : Bool :=
   c.isAlphanum || (c != '.' && c != '\n' && c != ' ' && isIdRestCold c)
 
-partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
+partial def moduleIdent : Parser := fun input s =>
+  let finalize (module : Name) : Parser := fun input s =>
+    whitespace input (s.pushImport { module, importAll := s.importAll, isExported := s.isExported })
   let rec parse (module : Name) (s : State) :=
     let i := s.pos
     if h : input.atEnd i then
@@ -161,7 +167,7 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
             let s := s.next input s.pos
             parse module s
           else
-            whitespace input (s.pushModule module runtimeOnly)
+            finalize module input s
       else if isIdFirst curr then
         let startPart := i
         let s         := takeWhile isIdRestFast input (s.next' input i h)
@@ -171,7 +177,7 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
           let s := s.next input s.pos
           parse module s
         else
-          whitespace input (s.pushModule module runtimeOnly)
+          finalize module input s
       else
         s.mkError "expected identifier"
   parse .anonymous s
@@ -184,28 +190,40 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
   | none => many p input s
   | some _ => { pos, error? := none, imports := s.imports.shrink size }
 
-@[inline] partial def preludeOpt (k : String) : Parser :=
-  keywordCore k (fun _ s => s.pushModule `Init false) (fun _ s => s)
+def setIsExported (isExported : Bool) : Parser := fun _ s =>
+  { s with isExported := isExported }
+
+def setImportAll (importAll : Bool) : Parser := fun _ s =>
+  { s with importAll }
 
 def main : Parser :=
-  preludeOpt "prelude" >>
-  many (keyword "import" >> keywordCore "runtime" (moduleIdent false) (moduleIdent true))
+  keywordCore "module" (fun _ s => { s with isModule := true }) (fun _ s => s) >>
+  keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
+  many (keywordCore "private" (setIsExported true) (setIsExported false) >>
+    keyword "import" >>
+    keywordCore "all" (setImportAll false) (setImportAll true) >>
+    moduleIdent)
 
 end ParseImports
+
+deriving instance ToJson for Import
+
+structure ParseImportsResult where
+  imports  : Array Import
+  isModule : Bool
+  deriving ToJson
 
 /--
 Simpler and faster version of `parseImports`. We use it to implement Lake.
 -/
-def parseImports' (input : String) (fileName : String) : IO (Array Lean.Import) := do
+def parseImports' (input : String) (fileName : String) : IO ParseImportsResult := do
   let s := ParseImports.main input (ParseImports.whitespace input {})
   match s.error? with
-  | none => return s.imports
+  | none => return { s with }
   | some err => throw <| IO.userError s!"{fileName}: {err}"
 
-deriving instance ToJson for Import
-
 structure PrintImportResult where
-  imports? : Option (Array Import) := none
+  result?  : Option ParseImportsResult := none
   errors   : Array String := #[]
   deriving ToJson
 
@@ -217,8 +235,8 @@ structure PrintImportsResult where
 def printImportsJson (fileNames : Array String) : IO Unit := do
   let rs ← fileNames.mapM fun fn => do
     try
-      let deps ← parseImports' (← IO.FS.readFile ⟨fn⟩) fn
-      return { imports? := some deps }
+      let res ← parseImports' (← IO.FS.readFile ⟨fn⟩) fn
+      return { result? := some res }
     catch e => return { errors := #[e.toString] }
   IO.println (toJson { imports := rs : PrintImportsResult } |>.compress)
 

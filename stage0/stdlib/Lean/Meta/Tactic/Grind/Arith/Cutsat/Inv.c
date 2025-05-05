@@ -3876,7 +3876,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = lean_ctor_get(x_11, 5);
+x_13 = lean_ctor_get(x_11, 6);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_13, 2);
 lean_inc(x_14);
@@ -3956,7 +3956,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = lean_ctor_get(x_11, 6);
+x_13 = lean_ctor_get(x_11, 7);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_13, 2);
 lean_inc(x_14);
@@ -5634,7 +5634,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_13, 2);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = lean_ctor_get(x_11, 4);
+x_15 = lean_ctor_get(x_11, 5);
 lean_inc(x_15);
 lean_dec(x_11);
 x_16 = lean_ctor_get(x_15, 2);
@@ -7692,7 +7692,7 @@ return x_72;
 else
 {
 lean_object* x_73; uint8_t x_74; 
-x_73 = lean_ctor_get(x_1, 9);
+x_73 = lean_ctor_get(x_1, 10);
 x_74 = l_List_elem___at_Lean_Meta_Grind_Arith_Cutsat_checkElimEqs___spec__1(x_30, x_73);
 if (x_74 == 0)
 {
@@ -8465,7 +8465,7 @@ return x_77;
 else
 {
 lean_object* x_78; uint8_t x_79; 
-x_78 = lean_ctor_get(x_1, 9);
+x_78 = lean_ctor_get(x_1, 10);
 x_79 = l_List_elem___at_Lean_Meta_Grind_Arith_Cutsat_checkElimEqs___spec__1(x_30, x_78);
 if (x_79 == 0)
 {
@@ -9030,7 +9030,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = lean_ctor_get(x_11, 8);
+x_13 = lean_ctor_get(x_11, 9);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_13, 2);
 lean_inc(x_14);
@@ -9444,7 +9444,7 @@ x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
 x_13 = lean_box(0);
-x_14 = lean_ctor_get(x_11, 9);
+x_14 = lean_ctor_get(x_11, 10);
 lean_inc(x_14);
 lean_dec(x_11);
 x_15 = lean_box(0);
@@ -11348,7 +11348,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_13, 2);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = lean_ctor_get(x_11, 7);
+x_15 = lean_ctor_get(x_11, 8);
 lean_inc(x_15);
 lean_dec(x_11);
 x_16 = lean_ctor_get(x_15, 2);

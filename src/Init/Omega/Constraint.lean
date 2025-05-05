@@ -3,6 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Omega.LinearCombo
 import Init.Omega.Int
@@ -166,13 +168,13 @@ theorem combo_sat (a) (w₁ : c₁.sat x₁) (b) (w₂ : c₂.sat x₂) :
 
 /-- The conjunction of two constraints. -/
 def combine (x y : Constraint) : Constraint where
-  lowerBound := Option.zipWith max x.lowerBound y.lowerBound
-  upperBound := Option.zipWith min x.upperBound y.upperBound
+  lowerBound := Option.merge max x.lowerBound y.lowerBound
+  upperBound := Option.merge min x.upperBound y.upperBound
 
 theorem combine_sat : (c : Constraint) → (c' : Constraint) → (t : Int) →
     (c.combine c').sat t = (c.sat t ∧ c'.sat t) := by
   rintro ⟨_ | l₁, _ | u₁⟩ <;> rintro ⟨_ | l₂, _ | u₂⟩ t
-    <;> simp [sat, LowerBound.sat, UpperBound.sat, combine, Int.le_min, Int.max_le, Option.zipWith] at *
+    <;> simp [sat, LowerBound.sat, UpperBound.sat, combine, Int.le_min, Int.max_le, Option.merge] at *
   · rw [And.comm]
   · rw [← and_assoc, And.comm (a := l₂ ≤ t), and_assoc]
   · rw [and_assoc]
@@ -296,7 +298,7 @@ def positivize? : Constraint × Coeffs → Option (Constraint × Coeffs)
     if 0 ≤ x.leading then
       none
     else
-      (s.neg, Coeffs.smul x (-1))
+      some (s.neg, Coeffs.smul x (-1))
 
 /-- Multiply by `-1` if the leading coefficient is negative, otherwise do nothing. -/
 noncomputable def positivize (p : Constraint × Coeffs) : Constraint × Coeffs :=
@@ -329,7 +331,7 @@ def tidy? : Constraint × Coeffs → Option (Constraint × Coeffs)
     | none => match normalize? (s, x) with
       | none => none
       | some (s', x') => some (s', x')
-    | some (s', x') => normalize (s', x')
+    | some (s', x') => some (normalize (s', x'))
 
 /-- `positivize` and `normalize` -/
 def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=

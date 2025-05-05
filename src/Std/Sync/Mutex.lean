@@ -100,7 +100,7 @@ opaque Condvar.notifyOne (condvar : @& Condvar) : BaseIO Unit
 opaque Condvar.notifyAll (condvar : @& Condvar) : BaseIO Unit
 
 /-- Waits on the condition variable until the predicate is true. -/
-def Condvar.waitUntil [Monad m] [MonadLift BaseIO m]
+def Condvar.waitUntil [Monad m] [MonadLiftT BaseIO m]
     (condvar : Condvar) (mutex : BaseMutex) (pred : m Bool) : m Unit := do
   while !(← pred) do
     condvar.wait mutex
@@ -148,7 +148,7 @@ def Mutex.tryAtomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     (mutex : Mutex α) (k : AtomicT α m β) : m (Option β) := do
   if ← mutex.mutex.tryLock then
     try
-      k mutex.ref
+      some <$> k mutex.ref
     finally
       mutex.mutex.unlock
   else

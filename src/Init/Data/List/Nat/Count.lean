@@ -3,6 +3,8 @@ Copyright (c) 2024 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.List.Count
 import Init.Data.Nat.Lemmas
@@ -30,6 +32,33 @@ theorem countP_set {p : α → Bool} {l : List α} {i : Nat} {a : α} (h : i < l
 theorem count_set [BEq α] {a b : α} {l : List α} {i : Nat} (h : i < l.length) :
     (l.set i a).count b = l.count b - (if l[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   simp [count_eq_countP, countP_set, h]
+
+theorem countP_replace [BEq α] [LawfulBEq α] {a b : α} {l : List α} {p : α → Bool} :
+    (l.replace a b).countP p =
+      if l.contains a then l.countP p + (if p b then 1 else 0) - (if p a then 1 else 0) else l.countP p := by
+  induction l with
+  | nil => simp
+  | cons x l ih =>
+    simp [replace_cons]
+    split <;> rename_i h
+    · simp at h
+      simp [h, ih, countP_cons]
+      omega
+    · simp only [beq_eq_false_iff_ne, ne_eq] at h
+      simp only [countP_cons, ih, contains_eq_mem, decide_eq_true_eq, mem_cons, h, false_or]
+      split <;> rename_i h'
+      · by_cases h'' : p a
+        · have : countP p l > 0 := countP_pos_iff.mpr ⟨a, h', h''⟩
+          simp [h'']
+          omega
+        · simp [h'']
+          omega
+      · omega
+
+theorem count_replace [BEq α] [LawfulBEq α] {a b c : α} {l : List α} :
+    (l.replace a b).count c =
+      if l.contains a then l.count c + (if b == c then 1 else 0) - (if a == c then 1 else 0) else l.count c := by
+  simp [count_eq_countP, countP_replace]
 
 /--
 The number of elements satisfying a predicate in a sublist is at least the number of elements satisfying the predicate in the list,

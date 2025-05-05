@@ -3,6 +3,8 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.SimpLemmas
 import Init.PropLemmas
@@ -28,6 +30,11 @@ theorem not_eq_prop (p q : Prop) : (¬(p = q)) = (p = ¬q) := by
 -- Implication as a clause
 theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
   by_cases p <;> by_cases q <;> simp [*]
+
+-- Unless `+splitImp` is used, `grind` will not be able to do much with this kind of implication.
+-- Thus, this normalization step is enabled by default.
+theorem forall_imp_eq_or {α} (p : α → Prop) (q : Prop) : ((∀ a, p a) → q) = ((∃ a, ¬ p a) ∨ q) := by
+  rw [imp_eq]; simp
 
 theorem true_imp_eq (p : Prop) : (True → p) = p := by simp
 theorem false_imp_eq (p : Prop) : (False → p) = True := by simp
@@ -71,11 +78,14 @@ theorem beq_eq_decide_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α)
 theorem bne_eq_decide_not_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a != b) = (decide (¬ a = b)) := by
   by_cases a = b <;> simp [*]
 
-theorem natCast_div (a b : Nat) : (↑(a / b) : Int) = ↑a / ↑b := by
+theorem xor_eq (a b : Bool) : (a ^^ b) = (a != b) := by
   rfl
 
-theorem natCast_mod (a b : Nat) : (↑(a % b) : Int) = ↑a % ↑b := by
-  rfl
+theorem natCast_eq [NatCast α] (a : Nat) : (Nat.cast a : α) = (NatCast.natCast a : α) := rfl
+theorem natCast_div (a b : Nat) : (NatCast.natCast (a / b) : Int) = (NatCast.natCast a) / (NatCast.natCast b) := rfl
+theorem natCast_mod (a b : Nat) : (NatCast.natCast (a % b) : Int) = (NatCast.natCast a) % (NatCast.natCast b) := rfl
+theorem natCast_add (a b : Nat) : (NatCast.natCast (a + b : Nat) : Int) = (NatCast.natCast a : Int) + (NatCast.natCast b : Int) := rfl
+theorem natCast_mul (a b : Nat) : (NatCast.natCast (a * b : Nat) : Int) = (NatCast.natCast a : Int) * (NatCast.natCast b : Int) := rfl
 
 theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
   simp
@@ -85,6 +95,14 @@ theorem Int.pow_one (a : Int) : a ^ 1 = a := by
 
 theorem forall_true (p : True → Prop) : (∀ h : True, p h) = p True.intro :=
   propext <| Iff.intro (fun h => h True.intro) (fun h _ => h)
+
+-- Helper theorem used by the simproc `simpBoolEq`
+theorem flip_bool_eq (a b : Bool) : (a = b) = (b = a) := by
+  rw [@Eq.comm _ a b]
+
+-- Helper theorem used by the simproc `simpBoolEq`
+theorem bool_eq_to_prop (a b : Bool) : (a = b) = ((a = true) = (b = true)) := by
+  simp
 
 init_grind_norm
   /- Pre theorems -/
@@ -112,6 +130,7 @@ init_grind_norm
   dite_eq_ite
   -- Forall
   forall_and forall_false forall_true
+  forall_imp_eq_or
   -- Exists
   exists_const exists_or exists_prop exists_and_left exists_and_right
   -- Bool cond
@@ -122,6 +141,8 @@ init_grind_norm
   Bool.and_false Bool.and_true Bool.false_and Bool.true_and Bool.and_eq_true Bool.and_assoc
   -- Bool not
   Bool.not_not
+  -- Bool xor
+  xor_eq
   -- beq
   beq_iff_eq beq_eq_decide_eq beq_self_eq_true
   -- bne
@@ -140,8 +161,10 @@ init_grind_norm
   Int.emod_neg Int.ediv_neg
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
-  Int.natCast_add Int.natCast_mul Int.natCast_pow
-  Int.natCast_zero natCast_div natCast_mod
+
+  natCast_eq natCast_div natCast_mod
+  natCast_add natCast_mul
+
   Int.pow_zero Int.pow_one
   -- GT GE
   ge_eq gt_eq

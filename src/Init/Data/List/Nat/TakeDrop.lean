@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Zip
 import Init.Data.List.Sublist
@@ -239,7 +241,7 @@ dropping the first `i` elements. Version designed to rewrite from the small list
 @[simp]
 theorem getElem?_drop {xs : List α} {i j : Nat} : (xs.drop i)[j]? = xs[i + j]? := by
   ext
-  simp only [getElem?_eq_some_iff, getElem_drop, Option.mem_def]
+  simp only [getElem?_eq_some_iff, getElem_drop]
   constructor <;> intro ⟨h, ha⟩
   · exact ⟨_, ha⟩
   · refine ⟨?_, ha⟩
@@ -532,7 +534,7 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
   | zero => simp
   | succ n =>
     suffices 1 < m → m - (m - (n + 1) % m) + min (m - (n + 1) % m) m = m by
-      simpa [rotateRight]
+      simp [rotateRight]
     intro h
     have : (n + 1) % m < m := Nat.mod_lt _ (by omega)
     rw [Nat.min_eq_left (by omega)]

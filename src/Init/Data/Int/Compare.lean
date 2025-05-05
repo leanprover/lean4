@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Paul Reichert
 -/
+module
+
 prelude
 import Init.Data.Ord
 import Init.Data.Int.Order
@@ -17,9 +19,6 @@ namespace Int
 
 protected theorem lt_or_eq_of_le {n m : Int} (h : n ≤ m) : n < m ∨ n = m := by
   omega
-
-protected theorem le_iff_lt_or_eq {n m : Int} : n ≤ m ↔ n < m ∨ n = m :=
-  ⟨Int.lt_or_eq_of_le, fun | .inl h => Int.le_of_lt h | .inr rfl => Int.le_refl _⟩
 
 theorem compare_eq_ite_lt (a b : Int) :
     compare a b = if a < b then .lt else if b < a then .gt else .eq := by

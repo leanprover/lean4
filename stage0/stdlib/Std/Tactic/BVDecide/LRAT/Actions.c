@@ -120,7 +120,7 @@ static lean_object* l_List_foldl___at_Std_Tactic_BVDecide_LRAT_Action_toString__
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Actions_0__Std_Tactic_BVDecide_LRAT_reprAction____x40_Std_Tactic_BVDecide_LRAT_Actions___hyg_451_(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toString___rarg___closed__7;
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Prod_repr___at___private_Std_Tactic_BVDecide_LRAT_Actions_0__Std_Tactic_BVDecide_LRAT_reprAction____x40_Std_Tactic_BVDecide_LRAT_Actions___hyg_451____spec__4___rarg___closed__12;
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Actions_0__Std_Tactic_BVDecide_LRAT_reprAction____x40_Std_Tactic_BVDecide_LRAT_Actions___hyg_451____rarg___closed__9;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction(lean_object*, lean_object*);
@@ -132,7 +132,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

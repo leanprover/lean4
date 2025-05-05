@@ -46,7 +46,7 @@ jobs:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_COMPRESS: true
       # current cache limit
-      CCACHE_MAXSIZE: 600M
+      CCACHE_MAXSIZE: 400M
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
       LSAN_OPTIONS: max_leaks=10
@@ -82,7 +82,7 @@ jobs:
       - name: CI Merge Checkout
         run: |
           git fetch --depth=1 origin ${{ github.sha }}
-          git checkout FETCH_HEAD flake.nix flake.lock
+          git checkout FETCH_HEAD flake.nix flake.lock script/prepare-*
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
@@ -99,7 +99,6 @@ jobs:
         if: matrix.cmultilib
       - name: Cache
         id: restore-cache
-        if: matrix.name != 'Linux Lake'
         uses: actions/cache/restore@v4
         with:
           # NOTE: must be in sync with `save` below

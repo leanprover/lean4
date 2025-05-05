@@ -78,13 +78,14 @@ where
       let next ← IO.Promise.new
       let finished ← IO.Promise.new
       let inner ← IO.Promise.new
+      let cancelTk? := (← readThe Core.Context).cancelTk?
       snap.new.resolve {
         desc := tac.getKind.toString
         diagnostics := .empty
         stx := tac
-        inner? := some { stx? := tac, task := inner.resultD default }
-        finished := { stx? := tac, task := finished.resultD default }
-        next := #[{ stx? := stxs, task := next.resultD default }]
+        inner? := some { stx? := tac, task := inner.resultD default, cancelTk? }
+        finished := { stx? := tac, task := finished.resultD default, cancelTk? }
+        next := #[{ stx? := stxs, task := next.resultD default, cancelTk? }]
       }
       -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
       -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
@@ -190,10 +191,10 @@ private def getOptRotation (stx : Syntax) : Nat :=
   let mvarIds ← getGoals
   let mut mvarIdsNew := #[]
   let mut abort := false
-  let mut mctxSaved ← getMCtx
   for mvarId in mvarIds do
     unless (← mvarId.isAssigned) do
       setGoals [mvarId]
+      let saved ← saveState
       abort ← Tactic.tryCatch
         (do
           evalTactic stx[1]
@@ -201,13 +202,15 @@ private def getOptRotation (stx : Syntax) : Nat :=
         (fun ex => do
           if (← read).recover then
             logException ex
+            let msgLog ← Core.getMessageLog
+            saved.restore
+            Core.setMessageLog msgLog
+            admitGoal mvarId
             pure true
           else
             throw ex)
       mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
   if abort then
-    setMCtx mctxSaved
-    mvarIds.forM fun mvarId => unless (← mvarId.isAssigned) do admitGoal mvarId
     throwAbortTactic
   setGoals mvarIdsNew.toList
 

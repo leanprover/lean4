@@ -108,12 +108,11 @@ def handleHover (p : HoverParams)
 open Elab GoToKind in
 def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     (infoTree? : Option InfoTree := none) : RequestM (Array LocationLink) := do
-  let rc ← read
   let doc ← readDoc
   let text := doc.meta.text
 
   let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
-    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange text) <$> i.range?
+    locationLinksFromDecl doc.meta.uri n <| (·.toLspRange text) <$> i.range?
 
   let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
     if let some i' := infoTree? >>= InfoTree.findInfo? fun
@@ -131,11 +130,12 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return #[]
 
   let locationLinksFromImport (i : Elab.Info) := do
-    let name := i.stx[2].getId
-    if let some modUri ← documentUriFromModule rc.srcSearchPath name then
+    let `(Parser.Module.import| $[private]? import $[all]? $mod) := i.stx
+      | return #[]
+    if let some modUri ← documentUriFromModule? mod.getId then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (canonicalOnly := true)
+        originSelectionRange? := (·.toLspRange text) <$> mod.raw.getRange? (canonicalOnly := true)
         targetUri := modUri
         targetRange := range
         targetSelectionRange := range
@@ -210,7 +210,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return ← locationLinksFromTermInfo ti
   | .ofDelabTermInfo { toTermInfo := ti, location?, .. } =>
     if let some location := location? then
-      if let some targetUri ← documentUriFromModule rc.srcSearchPath location.module then
+      if let some targetUri ← documentUriFromModule? location.module then
         let range := location.range.toLspRange
         let result : LocationLink := {
           targetUri, targetRange := range, targetSelectionRange := range,

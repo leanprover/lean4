@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Elab_Tactic_Doc_elabPrintTac
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_showParserName___spec__3___at___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_showParserName___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_showParserName___spec__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_showParserName___lambda__2___closed__2;
-lean_object* l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__4(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Doc_elabPrintTacTags___rarg___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Doc_elabTacticExtension___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Doc_elabPrintTacTags_declRange__1___closed__6;
@@ -299,6 +298,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Doc_elabRegisterTacticTag__1
 static lean_object* l_List_mapM_loop___at_Lean_Elab_Tactic_Doc_elabPrintTacTags___spec__9___closed__7;
 static lean_object* l_Lean_Elab_Tactic_Doc_elabRegisterTacticTag___closed__1;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Doc_elabRegisterTacticTag__1(lean_object*);
+lean_object* l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Tactic_Doc_elabTacticExtension___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_allTagsWithInfo___at_Lean_Elab_Tactic_Doc_elabPrintTacTags___spec__3___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Doc_elabPrintTacTags__1___closed__1;
@@ -8606,7 +8606,7 @@ goto block_81;
 else
 {
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; uint8_t x_91; lean_object* x_92; lean_object* x_93; 
-x_86 = l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__4(x_84);
+x_86 = l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__3(x_84);
 x_87 = lean_array_get_size(x_86);
 x_88 = lean_unsigned_to_nat(1u);
 x_89 = lean_nat_sub(x_87, x_88);

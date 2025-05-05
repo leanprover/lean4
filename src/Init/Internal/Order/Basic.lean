@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
 
 import Init.ByCases
@@ -107,6 +109,54 @@ theorem bot_le (x : α) : ⊥ ⊑ x := by
 
 end CCPO
 
+
+section CompleteLattice
+/--
+A complete lattice is a partial order where every subset has a least upper bound.
+-/
+class CompleteLattice (α : Sort u) extends PartialOrder α where
+  /--
+  The least upper bound of an arbitrary subset in the complete_lattice.
+  -/
+  sup : (α → Prop) → α
+  sup_spec {c : α → Prop} : sup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
+
+open PartialOrder CompleteLattice
+
+variable {α  : Sort u} [CompleteLattice α]
+
+theorem sup_le {c : α → Prop} : (∀ y, c y → y ⊑ x) → sup c ⊑ x :=
+  (sup_spec).mpr
+
+theorem le_sup {c : α → Prop} {y : α} (hy : c y) : y ⊑ sup c :=
+  sup_spec.mp rel_refl y hy
+
+def inf (c : α → Prop) : α := sup (∀ y, c y → · ⊑ y)
+
+theorem inf_spec {c : α → Prop} : x ⊑ inf c ↔ (∀ y, c y → x ⊑ y) where
+  mp := by
+    unfold inf
+    intro h
+    intro y cy
+    suffices g : (sup fun x => ∀ (y : α), c y → x ⊑ y) ⊑ y from
+      by
+        apply rel_trans h g
+    apply sup_le
+    intro z
+    intro i
+    exact i y cy
+  mpr := by
+    unfold inf
+    intro h
+    apply le_sup
+    apply h
+
+theorem le_inf {c : α → Prop} : (∀ y, c y → x ⊑ y) → x ⊑ inf c := inf_spec.mpr
+
+theorem inf_le  {c : α → Prop} {y : α} (hy : c y) : inf c ⊑ y := inf_spec.mp (rel_refl) y hy
+
+end CompleteLattice
+
 section monotone
 
 variable {α : Sort u} [PartialOrder α]
@@ -140,7 +190,7 @@ variable {α : Sort u} [CCPO α]
 open PartialOrder CCPO
 
 /--
-A predicate is admissable if it can be transferred from the elements of a chain to the chains least
+A predicate is admissible if it can be transferred from the elements of a chain to the chains least
 upper bound. Such predicates can be used in fixpoint induction.
 
 This definition implies `P ⊥`. Sometimes (e.g. in Isabelle) the empty chain is excluded
@@ -216,6 +266,73 @@ def admissible_pi (P : α → β → Prop)
     fun c hchain h y => hadm₁ y c hchain fun x hx => h x hx y
 
 end admissibility
+
+section lattice_fix
+open PartialOrder CompleteLattice
+
+variable {α  : Sort u} [CompleteLattice α]
+
+variable {c : α → Prop}
+-- Note that monotonicity is not required for the definition of `lfp`
+-- but it is required to show that `lfp` is a fixpoint of `f`.
+
+def lfp (f : α → α) : α :=
+  inf (fun c => f c ⊑ c)
+
+set_option linter.unusedVariables false in
+-- The following definition takes a witness that a function is monotone
+def lfp_monotone (f : α → α) (hm : monotone f) : α :=
+  lfp f
+
+-- Showing that `lfp` is a prefixed point makes use of monotonicity
+theorem lfp_prefixed {f : α → α} {hm : monotone f} :
+  f (lfp f) ⊑ (lfp f) := by
+    apply le_inf
+    intro y hy
+    suffices h : f (lfp f) ⊑ f y from by
+      apply rel_trans h hy
+    apply hm
+    apply inf_le
+    exact hy
+
+-- So does showing that `lfp` is a postfixed point
+theorem lfp_postfixed {f : α → α} {hm : monotone f} : lfp f ⊑ f (lfp f) := by
+  apply inf_le
+  apply hm
+  apply lfp_prefixed
+  exact hm
+
+-- `lfp` being a fixpoint now follows as an easy corollary
+theorem lfp_fix {f : α → α} (hm : monotone f) :
+  lfp f = f (lfp f) := by
+  apply rel_antisymm
+  . apply lfp_postfixed
+    exact hm
+  . apply lfp_prefixed
+    exact hm
+
+-- Same as above, but uses the version of `lfp` that takes a witness of monotonicity
+theorem lfp_monotone_fix {f : α → α} {hm : monotone f} :
+  lfp_monotone f hm = f (lfp_monotone f hm) := lfp_fix hm
+
+/--
+Park induction principle for least fixpoint.
+In general, this construction does not require monotonicity of `f`.
+Monotonicity is required to show that `lfp f` is indeed a fixpoint of `f`.
+-/
+theorem lfp_le_of_le {f : α → α} :
+  f x ⊑ x → lfp f ⊑ x := fun hx => inf_le hx
+
+/--
+Park induction for least fixpoint of a monotone function `f`.
+Takes an explicit witness of `f` being monotone.
+-/
+theorem lfp_le_of_le_monotone (f : α → α) {hm : monotone f} (x : α):
+  f x ⊑ x → lfp_monotone f hm ⊑ x := by
+    unfold lfp_monotone
+    apply lfp_le_of_le
+
+end lattice_fix
 
 section fix
 
@@ -369,6 +486,9 @@ theorem chain_apply [∀ x, PartialOrder (β x)] {c : (∀ x, β x) → Prop} (h
 def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
   CCPO.csup (fun y => ∃ f, c f ∧ f x = y)
 
+def fun_sup [∀ x, CompleteLattice (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
+  CompleteLattice.sup (fun y => ∃ f, c f ∧ f x = y)
+
 instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
   csup := fun_csup
   csup_spec := by
@@ -382,6 +502,23 @@ instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
     next =>
       intro h x
       apply csup_le (chain_apply hc x)
+      intro y ⟨z, hz, hyz⟩
+      subst y
+      apply h z hz
+
+instance instCompleteLatticePi [∀ x, CompleteLattice (β x)] : CompleteLattice (∀ x, β x) where
+  sup := fun_sup
+  sup_spec := by
+    intro f c
+    constructor
+    case mp =>
+      intro hf g hg x
+      apply rel_trans _ (hf x)
+      apply le_sup
+      exact ⟨g, hg, rfl⟩
+    case mpr =>
+      intro h x
+      apply sup_le
       intro y ⟨z, hz, hyz⟩
       subst y
       apply h z hz
@@ -431,7 +568,6 @@ theorem monotone_dite
     split
     · apply monotone_apply _ _ hmono₁
     · apply monotone_apply _ _ hmono₂
-
 end monotone_lemmas
 
 section pprod_order
@@ -470,6 +606,9 @@ theorem PProd.monotone_snd [PartialOrder α] [PartialOrder β] [PartialOrder γ]
 def PProd.chain.fst [CCPO α] [CCPO β] (c : α ×' β → Prop) : α → Prop := fun a => ∃ b, c ⟨a, b⟩
 def PProd.chain.snd [CCPO α] [CCPO β] (c : α ×' β → Prop) : β → Prop := fun b => ∃ a, c ⟨a, b⟩
 
+def PProd.fst [CompleteLattice α] [CompleteLattice β] (c : α ×' β → Prop) : α → Prop := fun a => ∃ b, c ⟨a, b⟩
+def PProd.snd [CompleteLattice α] [CompleteLattice β] (c : α ×' β → Prop) : β → Prop := fun b => ∃ a, c ⟨a, b⟩
+
 theorem PProd.chain.chain_fst [CCPO α] [CCPO β] {c : α ×' β → Prop} (hchain : chain c) :
     chain (chain.fst c) := by
   intro a₁ a₂ ⟨b₁, h₁⟩ ⟨b₂, h₂⟩
@@ -483,6 +622,40 @@ theorem PProd.chain.chain_snd [CCPO α] [CCPO β] {c : α ×' β → Prop} (hcha
   cases hchain ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ h₁ h₂
   case inl h => left; exact h.2
   case inr h => right; exact h.2
+
+instance instCompleteLatticePProd [CompleteLattice α] [CompleteLattice β] : CompleteLattice (α ×' β) where
+  sup c := ⟨CompleteLattice.sup (PProd.fst c), CompleteLattice.sup (PProd.snd c)⟩
+  sup_spec := by
+    intro ⟨a, b⟩ c
+    constructor
+    case mp =>
+      intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
+      constructor <;> dsimp only at *
+      · apply rel_trans ?_ h₁
+        unfold PProd.fst at *
+        apply le_sup
+        apply Exists.intro b'
+        exact cab
+      . apply rel_trans ?_ h₂
+        apply le_sup
+        unfold PProd.snd at *
+        apply Exists.intro a'
+        exact cab
+    case mpr =>
+      intro h
+      constructor <;> dsimp only
+      . apply sup_le
+        unfold PProd.fst
+        intro y' ex
+        apply Exists.elim ex
+        intro b' hc
+        apply (h ⟨y', b' ⟩ hc).1
+      . apply sup_le
+        unfold PProd.snd
+        intro b' ex
+        apply Exists.elim ex
+        intro y' hc
+        apply (h ⟨y', b' ⟩ hc).2
 
 instance instCCPOPProd [CCPO α] [CCPO β] : CCPO (α ×' β) where
   csup c := ⟨CCPO.csup (PProd.chain.fst c), CCPO.csup (PProd.chain.snd c)⟩
@@ -666,6 +839,115 @@ instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind
     · apply h₁₂
 
 end mono_bind
+
+section implication_order
+-- Partial order on `Prop` given by implication
+def ImplicationOrder := Prop
+
+instance ImplicationOrder.instOrder : PartialOrder ImplicationOrder where
+  rel x y := x → y
+  rel_refl := fun x => x
+  rel_trans h₁ h₂ := fun x => h₂ (h₁  x)
+  rel_antisymm h₁ h₂ := propext ⟨h₁, h₂⟩
+
+-- This defines a complete lattice on `Prop`, used to define inductive predicates
+instance ImplicationOrder.instCompleteLattice : CompleteLattice ImplicationOrder where
+  sup c := ∃ p, c p ∧ p
+  sup_spec := by
+    intro x c
+    constructor
+    case mp =>
+      intro h y cy hy
+      apply h
+      apply Exists.intro y
+      exact ⟨cy, hy⟩
+    case mpr =>
+      intro h
+      intro e
+      apply Exists.elim e
+      intro a
+      intro caa
+      exact h a caa.1 caa.2
+
+-- Monotonicity lemmas for inductive predicates
+@[partial_fixpoint_monotone] theorem implication_order_monotone_exists
+    {α} [PartialOrder α] {β} (f : α → β → ImplicationOrder)
+    (h : monotone f) :
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => (Exists (f x))) :=
+  fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
+
+@[partial_fixpoint_monotone] theorem implication_order_monotone_and
+    {α} [PartialOrder α] (f₁ : α → ImplicationOrder) (f₂ : α → ImplicationOrder)
+    (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ImplicationOrder.instOrder f₂) :
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => f₁ x ∧ f₂ x) :=
+  fun x y hxy ⟨hfx₁, hfx₂⟩ => ⟨h₁ x y hxy hfx₁, h₂ x y hxy hfx₂⟩
+
+@[partial_fixpoint_monotone] theorem implication_order_monotone_or
+    {α} [PartialOrder α] (f₁ : α → ImplicationOrder) (f₂ : α → ImplicationOrder)
+    (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ImplicationOrder.instOrder f₂) :
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => f₁ x ∨ f₂ x) :=
+  fun x y hxy h =>
+    match h with
+    | Or.inl hfx₁ => Or.inl (h₁ x y hxy hfx₁)
+    | Or.inr hfx₂ => Or.inr (h₂ x y hxy hfx₂)
+
+end implication_order
+
+section reverse_implication_order
+
+def ReverseImplicationOrder := Prop
+
+-- Partial order on `Prop` given by reverse implication
+instance ReverseImplicationOrder.instOrder : PartialOrder ReverseImplicationOrder where
+  rel x y := y → x
+  rel_refl := fun x => x
+  rel_trans := fun h₁ h₂ => fun x => h₁ (h₂ x)
+  rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
+
+-- This defines a complete lattice on `Prop`, used to define coinductive predicates
+def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
+  sup c := ∀ p, c p → p
+  sup_spec := by
+    intro x c
+    constructor
+    case mp =>
+      intro h y cy l
+      apply h
+      exact l
+      exact cy
+    case mpr =>
+      intros h y cy ccy
+      apply h
+      exact ccy
+      exact y
+
+-- Monotonicity lemmas for coinductive predicates
+@[partial_fixpoint_monotone] theorem coind_monotone_exists
+    {α} [PartialOrder α] {β} (f : α → β → ReverseImplicationOrder)
+    (h : monotone f) :
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => Exists (f x)) :=
+  fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
+
+@[partial_fixpoint_monotone] theorem coind_monotone_and
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₂) :
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => f₁ x ∧ f₂ x) :=
+  fun x y hxy ⟨hfx₁, hfx₂⟩ => ⟨h₁ x y hxy hfx₁, h₂ x y hxy hfx₂⟩
+
+@[partial_fixpoint_monotone] theorem coind_monotone_or
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₂) :
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => f₁ x ∨ f₂ x) :=
+  fun x y hxy h =>
+    match h with
+    | Or.inl hfx₁ => Or.inl (h₁ x y hxy hfx₁)
+    | Or.inr hfx₂ => Or.inr (h₂ x y hxy hfx₂)
+
+end reverse_implication_order
 
 namespace Example
 

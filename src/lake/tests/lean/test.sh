@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
-$LAKE lean Test.lean -v | grep --color "Hello from the library foo!"
-$LAKE lean Test.lean -- --run Test.lean Bob | grep --color "Hello Bob!"
-test -f .lake/build/lib/lean/Lib.olean
+# Test running a Lean file works and builds its imports
+test_out 'Hello from the library foo!' lean Test.lean
+test_exp -f .lake/build/lib/lean/Lib.olean
+
+# Test running a main function of a Lean file
+test_out 'Hello Bob!' lean Test.lean -- --run Test.lean Bob
+
+# Test that Lake uses module-specific configuration
+# if the source file is a module in the workspace
+test_out '-Dweak.foo="bar"' -v lean Lib/Basic.lean
+
+# cleanup
+rm -f produced.out

@@ -29,6 +29,7 @@ def loadLeanConfig (cfg : LoadConfig)
     name, config
     dir := cfg.pkgDir
     relDir := cfg.relPkgDir
+    configFile := cfg.configFile
     relConfigFile := cfg.relConfigFile
     scope := cfg.scope
     remoteUrl := cfg.remoteUrl

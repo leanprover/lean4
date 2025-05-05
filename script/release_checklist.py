@@ -7,6 +7,7 @@ import base64
 import subprocess
 import sys
 import os
+import re # Import re module
 # Import run_command from merge_remote.py
 from merge_remote import run_command
 
@@ -58,13 +59,29 @@ def release_page_exists(repo_url, tag_name, github_token):
     response = requests.get(api_url, headers=headers)
     return response.status_code == 200
 
-def get_release_notes(repo_url, tag_name, github_token):
-    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/releases/tags/{tag_name}"
-    headers = {'Authorization': f'token {github_token}'} if github_token else {}
-    response = requests.get(api_url, headers=headers)
-    if response.status_code == 200:
-        return response.json().get("body", "").strip()
-    return None
+def get_release_notes(tag_name):
+    """Fetch release notes page title from lean-lang.org."""
+    # Strip -rcX suffix if present for the URL
+    base_tag = tag_name.split('-')[0]
+    reference_url = f"https://lean-lang.org/doc/reference/latest/releases/{base_tag}/"
+    try:
+        response = requests.get(reference_url)
+        response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
+        
+        # Extract title using regex
+        match = re.search(r"<title>(.*?)</title>", response.text, re.IGNORECASE | re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        else:
+            print(f"  ⚠️ Could not find <title> tag in {reference_url}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        print(f"  ❌ Error fetching release notes from {reference_url}: {e}")
+        return None
+    except Exception as e:
+        print(f"  ❌ An unexpected error occurred while processing release notes: {e}")
+        return None
 
 def get_branch_content(repo_url, branch, file_path, github_token):
     api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/contents/{file_path}?ref={branch}"
@@ -255,6 +272,7 @@ def main():
     branch_name = f"releases/v{version_major}.{version_minor}.0"
     if not branch_exists(lean_repo_url, branch_name, github_token):
         print(f"  ❌ Branch {branch_name} does not exist")
+        print(f"  🟡 After creating the branch, we'll need to check CMake version settings.")
         lean4_success = False
     else:
         print(f"  ✅ Branch {branch_name} exists")
@@ -274,14 +292,22 @@ def main():
         lean4_success = False
     else:
         print(f"  ✅ Release page for {toolchain} exists")
-        release_notes = get_release_notes(lean_repo_url, toolchain, github_token)
-        if not (release_notes and toolchain in release_notes.splitlines()[0].strip()):
-            previous_minor_version = version_minor - 1
-            previous_release = f"v{version_major}.{previous_minor_version}.0"
-            print(f"  ❌ Release notes not published. Please run `script/release_notes.py --since {previous_release}` on branch `{branch_name}`.")
-            lean4_success = False
-        else:
-            print(f"  ✅ Release notes look good.")
+        
+    # Check the actual release notes page title
+    actual_title = get_release_notes(toolchain)
+    expected_title_prefix = f"Lean {toolchain.lstrip('v')}" # e.g., "Lean 4.19.0" or "Lean 4.19.0-rc1"
+
+    if actual_title is None:
+        # Error already printed by get_release_notes
+        lean4_success = False
+    elif not actual_title.startswith(expected_title_prefix):
+        # Construct URL for the error message (using the base tag)
+        base_tag = toolchain.split('-')[0]
+        check_url = f"https://lean-lang.org/doc/reference/latest/releases/{base_tag}/"
+        print(f"  ❌ Release notes page title mismatch. Expected prefix '{expected_title_prefix}', got '{actual_title}'. Check {check_url}")
+        lean4_success = False
+    else:
+        print(f"  ✅ Release notes page title looks good ('{actual_title}').")
 
     repo_status["lean4"] = lean4_success
 
@@ -360,10 +386,24 @@ def main():
         if check_stable and not is_release_candidate(toolchain):
             if not is_merged_into_stable(url, toolchain, "stable", github_token, verbose):
                 org_repo = extract_org_repo_from_url(url)
-                print(f"  ❌ Tag {toolchain} is not merged into stable")
-                print(f"     Run `script/merge_remote.py {org_repo} stable {toolchain}` to merge it")
-                repo_status[name] = False
-                continue
+                if args.dry_run:
+                    print(f"  ❌ Tag {toolchain} is not merged into stable")
+                    print(f"     Run `script/merge_remote.py {org_repo} stable {toolchain}` to merge it")
+                    repo_status[name] = False
+                    continue
+                else:
+                    print(f"  … Tag {toolchain} is not merged into stable. Running `script/merge_remote.py {org_repo} stable {toolchain}`...")
+                    
+                    # Run the script to merge the tag
+                    subprocess.run(["script/merge_remote.py", org_repo, "stable", toolchain])
+                    
+                    # Check again if the tag is merged now
+                    if not is_merged_into_stable(url, toolchain, "stable", github_token, verbose):
+                        print(f"  ❌ Manual intervention required.")
+                        repo_status[name] = False
+                        continue
+            
+            # This will print in all successful cases - whether tag was merged initially or was merged successfully
             print(f"  ✅ Tag {toolchain} is merged into stable")
 
         if check_bump:

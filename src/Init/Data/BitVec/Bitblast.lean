@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 -/
+module
+
 prelude
 import Init.Data.BitVec.Folds
 import Init.Data.Nat.Mod
@@ -566,7 +568,7 @@ theorem ult_eq_msb_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
 theorem slt_eq_not_ult_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
     x.slt y = !x.ult y := by
   simp only [BitVec.slt, toInt_eq_msb_cond, Bool.eq_not_of_ne h, ult_eq_msb_of_msb_neq h]
-  cases y.msb <;> (simp; omega)
+  cases y.msb <;> (simp [-Int.natCast_pow]; omega)
 
 theorem slt_eq_ult {x y : BitVec w} :
     x.slt y = (x.msb != y.msb).xor (x.ult y) := by
@@ -674,7 +676,7 @@ abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow :=
 /--
 Recurrence lemma: multiplying `x` with the first `s` bits of `y` is the
 same as truncating `y` to `s` bits, then zero extending to the original length,
-and performing the multplication. -/
+and performing the multiplication. -/
 theorem mulRec_eq_mul_signExtend_setWidth (x y : BitVec w) (s : Nat) :
     mulRec x y s = x * ((y.setWidth (s + 1)).setWidth w) := by
   induction s
@@ -1332,7 +1334,7 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
       decide_eq_decide]
     rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]
-    simp
+    simp only [Nat.add_one_sub_one, ge_iff_le]
     omega
 
 theorem usubOverflow_eq {w : Nat} (x y : BitVec w) :
@@ -1356,8 +1358,40 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
   rcases w with _|w
   · simp [toInt_of_zero_length, Int.min_eq_right]
   · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
-    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.natCast_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
+
+/--
+  Prove that signed division `x.toInt / y.toInt` only overflows when `x = intMin w` and `y = allOnes w` (for `0 < w`).
+-/
+theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
+    (sdivOverflow x y) = (decide (0 < w) && (x = intMin w) && (y = allOnes w)) := by
+  rcases w with _|w
+  · simp [sdivOverflow, of_length_zero]
+  · have yle := le_two_mul_toInt (x := y)
+    have ylt := two_mul_toInt_lt (x := y)
+    -- if y = allOnes (w + 1), thus y.toInt = -1,
+    -- the division overflows iff x = intMin (w + 1), as for negation
+    by_cases hy : y = allOnes (w + 1)
+    · simp [sdivOverflow_eq_negOverflow_of_eq_allOnes, negOverflow_eq, ← hy, beq_eq_decide_eq]
+    · simp only [sdivOverflow, hy, bool_to_prop]
+      have := BitVec.neg_two_pow_le_toInt_ediv (x := x) (y := y)
+      simp only [Nat.add_one_sub_one] at this
+      by_cases hx : 0 ≤ x.toInt
+      · by_cases hy' : 0 ≤ y.toInt
+        · have := BitVec.toInt_ediv_toInt_lt_of_nonneg_of_nonneg
+                (x := x) (y := y) (by omega) (by omega)
+          simp only [Nat.add_one_sub_one] at this; simp; omega
+        · have := BitVec.toInt_ediv_toInt_nonpos_of_nonneg_of_nonpos
+                (x := x) (y := y) (by omega) (by omega)
+          simp; omega
+      · by_cases hy' : 0 ≤ y.toInt
+        · have :=  BitVec.toInt_ediv_toInt_nonpos_of_nonpos_of_nonneg
+                (x := x) (y := y) (by omega) (by omega)
+          simp; omega
+        · have := BitVec.toInt_ediv_toInt_lt_of_nonpos_of_lt_neg_one
+                (x := x) (y := y) (by omega) (by rw [← toInt_inj, toInt_allOnes] at hy; omega)
+          simp only [Nat.add_one_sub_one] at this; simp; omega
 
 theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     umulOverflow x y =
@@ -1456,7 +1490,6 @@ theorem udiv_intMin_of_msb_false {x : BitVec w} (h : x.msb = false) :
   have wpos : 0 < w := by omega
   have := Nat.two_pow_pos (w-1)
   simp [toNat_eq, wpos]
-  rw [Nat.div_eq_zero_iff_lt (by omega)]
   exact toNat_lt_of_msb_false h
 
 theorem sdiv_intMin {x : BitVec w} :
@@ -1468,7 +1501,6 @@ theorem sdiv_intMin {x : BitVec w} :
   by_cases h : x = intMin w
   · subst h
     simp
-    omega
   · simp only [sdiv_eq, msb_intMin, show 0 < w by omega, h]
     have := Nat.two_pow_pos (w-1)
     by_cases hx : x.msb
@@ -1541,7 +1573,7 @@ theorem sdiv_ne_intMin_of_ne_intMin {x y : BitVec w} (h : x ≠ intMin w) :
 
 theorem toInt_eq_neg_toNat_neg_of_msb_true {x : BitVec w} (h : x.msb = true) :
     x.toInt = -((-x).toNat) := by
-  simp only [toInt_eq_msb_cond, h, ↓reduceIte, toNat_neg, Int.ofNat_emod]
+  simp only [toInt_eq_msb_cond, h, ↓reduceIte, toNat_neg, Int.natCast_emod]
   norm_cast
   rw [Nat.mod_eq_of_lt]
   · omega
@@ -1571,7 +1603,8 @@ theorem intMin_udiv_eq_intMin_iff (x : BitVec w) :
   · intro h
     rw [← toInt_inj, toInt_eq_msb_cond] at h
     have : (intMin w / x).msb = false := by simp [msb_udiv, msb_intMin,  wpos, hx]
-    simp [this, wpos, toInt_intMin] at h
+    simp only [this, false_eq_true, ↓reduceIte, toNat_udiv, toNat_intMin, wpos,
+      Nat.two_pow_pred_mod_two_pow, Int.natCast_ediv, toInt_intMin] at h
     omega
   · intro h
     subst h
@@ -1612,11 +1645,11 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
           Nat.two_pow_pred_mod_two_pow, Int.neg_tdiv, Int.neg_neg]
         rw [Int.tdiv_self (by omega)]
       · by_cases ha_nonneg : 0 ≤ a.toInt
-        · simp [Int.tdiv_eq_zero_of_lt ha_nonneg (by norm_cast at *), ha_intMin]
+        · simp [Int.tdiv_eq_zero_of_lt ha_nonneg (by norm_cast at *), ha_intMin, -Int.natCast_pow]
         · simp only [ne_eq, ← toInt_inj, toInt_intMin, wpos, Nat.two_pow_pred_mod_two_pow] at h
           rw [← Int.neg_tdiv, Int.tdiv_eq_zero_of_lt (by omega)]
           · simp [ha_intMin]
-          · simp [wpos, ← toInt_ne, toInt_intMin] at ha_intMin
+          · simp [wpos, ← toInt_ne, toInt_intMin, -Int.natCast_pow] at ha_intMin
             omega
 
   · by_cases ha : a.msb <;> by_cases hb : b.msb
@@ -1635,7 +1668,7 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
           (a.sdiv b).toInt = -((-a).toNat / b.toNat) := by
         simp only [sdiv_eq, ha, hb, udiv_eq]
         rw [toInt_eq_neg_toNat_neg_of_nonpos]
-        · rw [neg_neg, toNat_udiv, toNat_neg, Int.ofNat_emod, Int.neg_inj]
+        · rw [neg_neg, toNat_udiv, toNat_neg, Int.natCast_emod, Int.neg_inj]
           norm_cast
         · rw [neg_eq_zero_iff]
           by_cases h' : -a / b = 0#w
@@ -1778,9 +1811,23 @@ theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
     (x * y).extractLsb' 0 len = (x.extractLsb' 0 len) * (y.extractLsb' 0 len) := by
   simp [← setWidth_eq_extractLsb' hlen, setWidth_mul _ _ hlen]
 
+/-- Adding bitvectors that are zero in complementary positions equals concatenation.
+We add a `no_index` annotation to `HAppend.hAppend` such that the width `v + w`
+does not act as a key in the discrimination tree.
+This is important to allow matching, when the type of the result of append
+`x : BitVec 3` and `y : BitVec 4` has been reduced to `x ++ y : BitVec 7`.
+-/
+theorem append_zero_add_zero_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
+    (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w) +
+    (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y)
+    = x ++ y := by
+  rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
+
 /-- Adding bitvectors that are zero in complementary positions equals concatenation. -/
-theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
-    (x ++ 0#w) + (0#v ++ y) = x ++ y := by
+theorem zero_append_add_append_zero {v w : Nat} {x : BitVec v} {y : BitVec w} :
+  (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y) +
+  (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w)
+  = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
@@ -1795,5 +1842,11 @@ theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
   have : 2^i ≤ x.toNat := two_pow_le_toNat_of_getElem_eq_true hi hxi
   have : i < 2^i := by exact Nat.lt_two_pow_self
   omega
+
+/-- Heuristically, `y <<< x` is much larger than `x`,
+and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/
+theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
+    (y <<< x) + x =  (y <<< x) ||| x := by
+  rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
 
 end BitVec

@@ -3,6 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
 import Init.Core
 import Init.BinderNameHint
@@ -176,7 +178,7 @@ recommended_spelling "andM" for "<&&>" in [andM, «term_<&&>_»]
 /--
 Runs a monadic action and returns the negation of its result.
 -/
-@[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
+@[macro_inline] def notM {m : Type → Type v} [Functor m] (x : m Bool) : m Bool :=
   not <$> x
 
 /-!

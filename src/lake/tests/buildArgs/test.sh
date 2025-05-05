@@ -1,40 +1,10 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-exit 0  # TODO: flaky test disabled
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
 # Test that changing `moreLean/Leanc/LinkArgs` triggers a rebuild
 # Test that changing `weakLean/Leanc/LinkArgs` does not
-
-test_run() {
-  echo "[Command]"
-  echo "$> lake" "$@"
-  if $LAKE "$@" >produced.out 2>&1; then
-    rc=$?
-  else
-    rc=$?
-  fi
-  echo "Lake exited with code $rc"
-  echo "[Output]"
-  cat produced.out
-  return $rc
-}
-
-test_out() {
-  expected=$1; shift
-  if test_run "$@"; then rc=$?; else rc=$?; fi
-  echo "[Match \"$expected\"]"
-  if grep --color -F "$expected" produced.out; then
-    return $rc
-  else
-    echo "No match found."
-    return 1
-  fi
-}
 
 # Test `leanArgs`
 test_run build +Hello -R
@@ -66,5 +36,5 @@ test_run build +Hello:dynlib -R -KweakLinkArgs=-L.lake/build/lib  --no-build
 test_run build Hello:shared -R -KweakLinkArgs=-L.lake/build/lib  --no-build
 test_run build hello -R -KweakLinkArgs=-L.lake/build/lib  --no-build
 
-# cleanup
+# Cleanup
 rm -f produced.out

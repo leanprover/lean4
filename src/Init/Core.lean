@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 
 notation, basic datatypes and type classes
 -/
+module
+
 prelude
 import Init.Prelude
 import Init.SizeOf
@@ -20,6 +22,8 @@ which applies to all applications of the function).
 @[simp] def inline {α : Sort u} (a : α) : α := a
 
 theorem id_def {α : Sort u} (a : α) : id a = a := rfl
+
+attribute [grind] id
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -597,7 +601,10 @@ structure Task (α : Type u) : Type u where
   many tasks have finished.
 
   `Task.map` and `Task.bind` should be preferred over `Task.get` for setting up task dependencies
-  where possible as they do not require temporarily growing the threadpool in this way.
+  where possible as they do not require temporarily growing the threadpool in this way. In
+  particular, calling `Task.get` in a task continuation with `(sync := true)` will panic as the
+  continuation is decidedly not "cheap" in this case and deadlocks may otherwise occur. The
+  waited-upon task should instead be returned and unwrapped using `Task.bind/IO.bindTask`.
   -/
   get : α
   deriving Inhabited, Nonempty
@@ -735,6 +742,20 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
+/-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
+class ReflBEq (α) [BEq α] : Prop where
+  /-- `==` is reflexive, that is, `(a == a) = true`. -/
+  protected rfl {a : α} : a == a
+
+@[simp] theorem BEq.rfl [BEq α] [ReflBEq α] {a : α} : a == a := ReflBEq.rfl
+theorem BEq.refl [BEq α] [ReflBEq α] (a : α) : a == a := BEq.rfl
+
+theorem beq_of_eq [BEq α] [ReflBEq α] {a b : α} : a = b → a == b
+  | rfl => BEq.rfl
+
+theorem not_eq_of_beq_eq_false [BEq α] [ReflBEq α] {a b : α} (h : (a == b) = false) : ¬a = b := by
+  intro h'; subst h'; have : true = false := BEq.rfl.symm.trans h; contradiction
+
 /--
 A Boolean equality test coincides with propositional equality.
 
@@ -742,11 +763,9 @@ In other words:
  * `a == b` implies `a = b`.
  * `a == a` is true.
 -/
-class LawfulBEq (α : Type u) [BEq α] : Prop where
+class LawfulBEq (α : Type u) [BEq α] : Prop extends ReflBEq α where
   /-- If `a == b` evaluates to `true`, then `a` and `b` are equal in the logic. -/
   eq_of_beq : {a b : α} → a == b → a = b
-  /-- `==` is reflexive, that is, `(a == a) = true`. -/
-  protected rfl : {a : α} → a == a
 
 export LawfulBEq (eq_of_beq)
 
@@ -757,6 +776,15 @@ instance : LawfulBEq Bool where
 instance [DecidableEq α] : LawfulBEq α where
   eq_of_beq := of_decide_eq_true
   rfl := of_decide_eq_self_eq_true _
+
+/--
+Non-instance for `DecidableEq` from `LawfulBEq`.
+To use this, add `attribute [local instance 5] instDecidableEqOfLawfulBEq` at the top of a file.
+-/
+def instDecidableEqOfLawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α := fun x y =>
+  match h : x == y with
+  | false => .isFalse (not_eq_of_beq_eq_false h)
+  | true => .isTrue (eq_of_beq h)
 
 instance : LawfulBEq Char := inferInstance
 
@@ -852,8 +880,8 @@ theorem Bool.of_not_eq_false : {b : Bool} → ¬ (b = false) → b = true
   | true,  _ => rfl
   | false, h => absurd rfl h
 
-theorem ne_of_beq_false [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = false) : a ≠ b := by
-  intro h'; subst h'; have : true = false := Eq.trans LawfulBEq.rfl.symm h; contradiction
+theorem ne_of_beq_false [BEq α] [ReflBEq α] {a b : α} (h : (a == b) = false) : a ≠ b :=
+  not_eq_of_beq_eq_false h
 
 theorem beq_false_of_ne [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a == b) = false :=
   have : ¬ (a == b) = true := by
@@ -913,6 +941,34 @@ theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') 
   | rfl, p => HEq.refl p
 
 /--
+Heterogenous equality with an `Eq.rec` application on the left is equivalent to a heterogenous
+equality on the original term.
+-/
+theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
+    HEq (@Eq.rec α a motive refl b h) c ↔ HEq refl c :=
+  h.rec (fun _ => ⟨id, id⟩) c
+
+/--
+Heterogenous equality with an `Eq.rec` application on the right is equivalent to a heterogenous
+equality on the original term.
+-/
+theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
+    HEq c (@Eq.rec α a motive refl b h) ↔ HEq c refl :=
+  h.rec (fun _ => ⟨id, id⟩) c
+
+/--
+Moves an cast using `Eq.rec` from the function to the argument.
+Note: because the motive isn't reliably detected by unification,
+it needs to be provided as an explicit parameter.
+-/
+theorem apply_eqRec {α : Sort u} {a : α} (motive : (b : α) → a = b → Sort v)
+    {b : α} {h : a = b} {c : motive a (Eq.refl a) → β} {d : motive b h} :
+    @Eq.rec α a (fun b h => motive b h → β) c b h d = c (h.symm ▸ d) := by
+  cases h; rfl
+
+/--
 If casting a term with `Eq.rec` to another type makes it equal to some other term, then the two
 terms are heterogeneously equal.
 -/
@@ -957,7 +1013,7 @@ theorem HEq.comm {a : α} {b : β} : HEq a b ↔ HEq b a := Iff.intro HEq.symm H
 theorem heq_comm {a : α} {b : β} : HEq a b ↔ HEq b a := HEq.comm
 
 @[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
-theorem Iff.comm: (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
+theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
 theorem iff_comm : (a ↔ b) ↔ (b ↔ a) := Iff.comm
 
 @[symm] theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
@@ -1122,12 +1178,12 @@ theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) :
   | isTrue _    => rfl
   | isFalse _   => rfl
 
-instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e)  :=
+instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
   match dC with
   | isTrue _   => dT
   | isFalse _  => dE
 
-instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h)  :=
+instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h) :=
   match dC with
   | isTrue hc  => dT hc
   | isFalse hc => dE hc
@@ -1292,6 +1348,15 @@ protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
 theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
   exact rfl
+
+instance {α : Type u} {p : α → Prop} [BEq α] : BEq {x : α // p x} :=
+  ⟨fun x y => x.1 == y.1⟩
+
+instance {α : Type u} {p : α → Prop} [BEq α] [ReflBEq α] : ReflBEq {x : α // p x} where
+  rfl {x} := BEq.refl x.1
+
+instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x : α // p x} where
+  eq_of_beq h := Subtype.eq (eq_of_beq h)
 
 instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
@@ -1561,7 +1626,7 @@ theorem Nat.succ.injEq (u v : Nat) : (u.succ = v.succ) = (u = v) :=
   Eq.propIntro Nat.succ.inj (congrArg Nat.succ)
 
 @[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] {a b : α} : a == b ↔ a = b :=
-  ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
+  ⟨eq_of_beq, beq_of_eq⟩
 
 /-! # Prop lemmas -/
 
@@ -1834,9 +1899,7 @@ protected abbrev hrecOn
     (f : (a : α) → motive (Quot.mk r a))
     (c : (a b : α) → (p : r a b) → HEq (f a) (f b))
     : motive q :=
-  Quot.recOn q f fun a b p => eq_of_heq <|
-    have p₁ : HEq (Eq.ndrec (f a) (sound p)) (f a) := eqRec_heq (sound p) (f a)
-    HEq.trans p₁ (c a b p)
+  Quot.recOn q f fun a b p => eq_of_heq (eqRec_heq_iff.mpr (c a b p))
 
 end
 end Quot
@@ -2198,6 +2261,27 @@ theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
       (fun _ _ h => h x)
   show extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
   exact congrArg extfunApp (Quot.sound h)
+
+/--
+Like `Quot.liftOn q f h` but allows `f a` to "know" that `q = Quot.mk r a`.
+-/
+protected abbrev Quot.pliftOn {α : Sort u} {r : α → α → Prop}
+    (q : Quot r)
+    (f : (a : α) → q = Quot.mk r a → β)
+    (h : ∀ (a b : α) (h h'), r a b → f a h = f b h') : β :=
+  q.rec (motive := fun q' => q = q' → β) f
+    (fun a b p => funext fun h' =>
+      (apply_eqRec (motive := fun b _ => q = b)).trans
+        (@h a b (h'.trans (sound p).symm) h' p)) rfl
+
+/--
+Like `Quotient.liftOn q f h` but allows `f a` to "know" that `q = Quotient.mk s a`.
+-/
+protected abbrev Quotient.pliftOn {α : Sort u} {s : Setoid α}
+    (q : Quotient s)
+    (f : (a : α) → q = Quotient.mk s a → β)
+    (h : ∀ (a b : α) (h h'), a ≈ b → f a h = f b h') : β :=
+  Quot.pliftOn q f h
 
 instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] :
     Subsingleton (∀ a, β a) where

@@ -5,6 +5,8 @@ Authors: Sebastian Ullrich
 
 The identity Monad.
 -/
+module
+
 prelude
 import Init.Core
 

@@ -317,7 +317,7 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lake_Toml_elabLit___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabLit___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeDecNum(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_Toml_elabDecInt___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lake_Toml_elabArray___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_foldlAux___at_Lake_Toml_decodeMantissa___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5481,7 +5481,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }

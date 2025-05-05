@@ -3,6 +3,8 @@ Copyright (c) 2023 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Count
 import Init.Data.Subtype
@@ -334,7 +336,7 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
 
 @[simp] theorem head?_attachWith {P : α → Prop} {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) :
-    (xs.attachWith P H).head? = xs.head?.pbind (fun a h => some ⟨a, H _ (mem_of_mem_head? h)⟩) := by
+    (xs.attachWith P H).head? = xs.head?.pbind (fun a h => some ⟨a, H _ (mem_of_head? h)⟩) := by
   cases xs <;> simp_all
 
 @[simp] theorem head_attachWith {P : α → Prop} {xs : List α}
@@ -345,7 +347,7 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
   | cons x xs => simp [head_attachWith, h]
 
 @[simp] theorem head?_attach {xs : List α} :
-    xs.attach.head? = xs.head?.pbind (fun a h => some ⟨a, mem_of_mem_head? h⟩) := by
+    xs.attach.head? = xs.head?.pbind (fun a h => some ⟨a, mem_of_head? h⟩) := by
   cases xs <;> simp_all
 
 @[simp] theorem head_attach {xs : List α} (h) :
@@ -470,20 +472,19 @@ theorem attach_filterMap {l : List α} {f : α → Option β} :
   | cons x xs ih =>
     simp only [filterMap_cons, attach_cons, ih, filterMap_map]
     split <;> rename_i h
-    · simp only [Option.pbind_eq_none_iff, reduceCtorEq, Option.mem_def, exists_false,
+    · simp only [Option.pbind_eq_none_iff, reduceCtorEq, exists_false,
         or_false] at h
       rw [attach_congr]
       rotate_left
       · simp only [h]
         rfl
       rw [ih]
-      simp only [map_filterMap, Option.map_pbind, Option.map_some']
+      simp only [map_filterMap, Option.map_pbind, Option.map_some]
       rfl
     · simp only [Option.pbind_eq_some_iff] at h
       obtain ⟨a, h, w⟩ := h
       simp only [Option.some.injEq] at w
       subst w
-      simp only [Option.mem_def] at h
       rw [attach_congr]
       rotate_left
       · simp only [h]
@@ -641,12 +642,12 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {l : List α} (H :
   simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attachWith_map_subtype_val]
 
 @[simp]
-theorem count_attach [DecidableEq α] {l : List α} {a : {x // x ∈ l}} :
+theorem count_attach [BEq α] {l : List α} {a : {x // x ∈ l}} :
     l.attach.count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attach
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) {a : {x // p x}} :
+theorem count_attachWith [BEq α] {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) {a : {x // p x}} :
     (l.attachWith p H).count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _
 

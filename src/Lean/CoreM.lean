@@ -44,6 +44,13 @@ register_builtin_option Elab.async : Bool := {
       `Lean.Command.State.snapshotTasks`."
 }
 
+register_builtin_option Elab.inServer : Bool := {
+  defValue := false
+  descr := "true if elaboration is being run inside the Lean language server\
+    \n\
+    \nThis option is set by the file worker and should not be modified otherwise."
+}
+
 /-- Performance option used by cmdline driver. -/
 register_builtin_option internal.cmdlineSnapshots : Bool := {
   defValue := false
@@ -296,6 +303,17 @@ private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
   return addMacroScope (← getEnv).mainModule n fresh
 
+/--
+Creates a name from `n` that is guaranteed to be unique.
+This is intended to be used for creating inaccessible user names for free variables and constants.
+
+It works by adding a fresh macro scope to `n`.
+Applying `Lean.Name.eraseMacroScopes` to the resulting name yields `n`.
+
+See also `Lean.LocalContext.getUnusedName` (for creating a new accessible user name that is
+unused in the local context) and `Lean.Meta.mkFreshBinderNameForTactic` (for creating names
+that are conditionally inaccessible, depending on the current value of the `tactic.hygiene` option).
+-/
 def mkFreshUserName (n : Name) : CoreM Name :=
   mkFreshNameImp n
 
@@ -594,20 +612,21 @@ where doCompile := do
     return
   let opts ← getOptions
   if compiler.enableNew.get opts then
-    compileDeclsNew decls
-
-  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
-    return compileDeclsOld (← getEnv) opts decls
-  match res with
-  | Except.ok env   => setEnv env
-  | Except.error (.other msg) =>
-    if logErrors then
-      if let some decl := ref? then
-        checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
-      throwError msg
-  | Except.error ex =>
-    if logErrors then
-      throwKernelException ex
+    try compileDeclsNew decls catch e =>
+      if logErrors then throw e else return ()
+  else
+    let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
+      return compileDeclsOld (← getEnv) opts decls
+    match res with
+    | Except.ok env   => setEnv env
+    | Except.error (.other msg) =>
+      if logErrors then
+        if let some decl := ref? then
+          checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
+        throwError msg
+    | Except.error ex =>
+      if logErrors then
+        throwKernelException ex
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors

@@ -3,6 +3,8 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Tactics
 
@@ -25,7 +27,8 @@ syntax grindUsr    := &"usr "
 syntax grindCases  := &"cases "
 syntax grindCasesEager := atomic(&"cases" &"eager ")
 syntax grindIntro  := &"intro "
-syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro
+syntax grindExt    := &"ext "
+syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro <|> grindExt
 syntax (name := grind) "grind" (grindMod)? : attr
 end Attr
 end Lean.Parser
@@ -59,12 +62,26 @@ structure Config where
   If `splitIndPred` is `true`, `grind` performs case-splitting on inductive predicates.
   Otherwise, it performs case-splitting only on types marked with `[grind cases]` attribute. -/
   splitIndPred : Bool := false
+  /--
+  If `splitImp` is `true`, then given an implication `p → q` or `(h : p) → q h`, `grind` splits on `p`
+  if the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
+  -/
+  splitImp : Bool := false
   /-- By default, `grind` halts as soon as it encounters a sub-goal where no further progress can be made. -/
   failures : Nat := 1
   /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/
   canonHeartbeats : Nat := 1000
-  /-- If `ext` is `true`, `grind` uses extensionality theorems available in the environment. -/
+  /-- If `ext` is `true`, `grind` uses extensionality theorems that have been marked with `[grind ext]`. -/
   ext : Bool := true
+  /-- If `extAll` is `true`, `grind` uses any extensionality theorems available in the environment. -/
+  extAll : Bool := false
+  /--
+  If `funext` is `true`, `grind` creates new opportunities for applying function extensionality by case-splitting
+  on equalities between lambda expressions.
+  -/
+  funext : Bool := true
+  /-- TODO -/
+  lookahead : Bool := true
   /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
   verbose : Bool := true
   /-- If `clean` is `true`, `grind` uses `expose_names` and only generates accessible names. -/
@@ -97,6 +114,16 @@ structure Config where
   That is, `let x := v; e[x]` reduces to `e[v]`. See also `zetaDelta`.
   -/
   zeta := true
+  /--
+  When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
+  -/
+  ring := false
+  ringSteps := 10000
+  /--
+  When `true` (default: `false`), the commutative ring procedure in `grind` constructs stepwise
+  proof terms, instead of a single-step Nullstellensatz certificate
+  -/
+  ringNull := false
   deriving Inhabited, BEq
 
 end Lean.Grind

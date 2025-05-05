@@ -3,9 +3,12 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Int.Lemmas
 import Init.Data.Int.DivMod
+import Init.Data.Int.Linear
 import Init.Data.RArray
 
 namespace Int.OfNat
@@ -45,7 +48,10 @@ def Expr.denoteAsInt (ctx : Context) : Expr → Int
   | .mod a b  => Int.emod (denoteAsInt ctx a) (denoteAsInt ctx b)
 
 theorem Expr.denoteAsInt_eq (ctx : Context) (e : Expr) : e.denoteAsInt ctx = e.denote ctx := by
-  induction e <;> simp [denote, denoteAsInt, Int.ofNat_ediv, *] <;> rfl
+  induction e <;> simp [denote, denoteAsInt, Int.natCast_ediv, *] <;> rfl
+
+theorem Expr.eq_denoteAsInt (ctx : Context) (e : Expr) : e.denote ctx = e.denoteAsInt ctx := by
+  apply Eq.symm; apply denoteAsInt_eq
 
 theorem Expr.eq (ctx : Context) (lhs rhs : Expr)
     : (lhs.denote ctx = rhs.denote ctx) = (lhs.denoteAsInt ctx = rhs.denoteAsInt ctx) := by
@@ -84,7 +90,7 @@ theorem ofNat_toNat (a : Int) : (NatCast.natCast a.toNat : Int) = if a ≤ 0 the
     have := Int.toNat_of_nonneg (Int.le_of_lt h)
     assumption
 
-theorem Expr.denoteAsInt_nonneg (ctx : Context) (e : Expr) : e.denoteAsInt ctx ≥ 0 := by
+theorem Expr.denoteAsInt_nonneg (ctx : Context) (e : Expr) : 0 ≤ e.denoteAsInt ctx := by
   simp [Expr.denoteAsInt_eq]
 
 end Int.OfNat

@@ -119,7 +119,7 @@ LEAN_EXPORT lean_object* l_Lake_Env_path(lean_object*);
 extern uint8_t l_System_Platform_isWindows;
 static lean_object* l_Lake_Env_noToolchainVars___closed__12;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___lambda__1___boxed(lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___closed__1;
 static lean_object* _init_l_Lake_instInhabitedEnv___closed__1() {
 _start:
@@ -149,7 +149,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -2048,16 +2048,18 @@ x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_3);
 if (x_5 == 0)
 {
-lean_inc(x_2);
-return x_2;
+lean_object* x_6; 
+x_6 = lean_ctor_get(x_1, 4);
+lean_inc(x_6);
+return x_6;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_ctor_get(x_1, 1);
-x_7 = lean_ctor_get(x_6, 1);
-lean_inc(x_7);
-return x_7;
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_7, 1);
+lean_inc(x_8);
+return x_8;
 }
 }
 }
@@ -2081,14 +2083,16 @@ x_5 = lean_nat_dec_eq(x_3, x_4);
 lean_dec(x_3);
 if (x_5 == 0)
 {
-lean_inc(x_2);
-return x_2;
+lean_object* x_6; 
+x_6 = lean_ctor_get(x_1, 6);
+lean_inc(x_6);
+return x_6;
 }
 else
 {
-lean_object* x_6; 
-x_6 = l_Lean_toolchain;
-return x_6;
+lean_object* x_7; 
+x_7 = l_Lean_toolchain;
+return x_7;
 }
 }
 }

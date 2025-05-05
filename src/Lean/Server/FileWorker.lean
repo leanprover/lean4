@@ -207,7 +207,7 @@ This option can only be set on the command line, not in the lakefile or via `set
       stickyInteractiveDiagnostics ++ docInteractiveDiagnostics
       |>.map (·.toDiagnostic)
     let notification := mkPublishDiagnosticsNotification doc.meta diagnostics
-    ctx.chanOut.send notification
+    ctx.chanOut.sync.send notification
 
   open Language in
   /--
@@ -239,7 +239,7 @@ This option can only be set on the command line, not in the lakefile or via `set
         publishDiagnostics ctx doc
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
-      ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
+      ctx.chanOut.sync.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
       return ()
   where
     /--
@@ -252,7 +252,7 @@ This option can only be set on the command line, not in the lakefile or via `set
       let ts ← ts.flatMapM handleFinished
       -- all `ts` are now (likely) in-progress, report them
       sendFileProgress ts
-      -- check again whether this has changed before commiting to waiting
+      -- check again whether this has changed before committing to waiting
       if (← ts.anyM (IO.hasFinished ·.task)) then
         handleTasks ts
       else if h : ts.size > 0 then
@@ -312,7 +312,7 @@ This option can only be set on the command line, not in the lakefile or via `set
       if let some itree := node.element.infoTree? then
         let mut newInfoTrees := (← get).newInfoTrees.push itree
         if (← get).hasBlocked then
-          ctx.chanOut.send (← mkIleanInfoUpdateNotification doc.meta newInfoTrees)
+          ctx.chanOut.sync.send (← mkIleanInfoUpdateNotification doc.meta newInfoTrees)
           newInfoTrees := #[]
         modify fun st => { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
 
@@ -329,7 +329,7 @@ This option can only be set on the command line, not in the lakefile or via `set
         | none => rs.push r
       let ranges := ranges.map (·.toLspRange doc.meta.text)
       let notifs := ranges.map ({ range := ·, kind := .processing })
-      ctx.chanOut.send <| mkFileProgressNotification doc.meta notifs
+      ctx.chanOut.sync.send <| mkFileProgressNotification doc.meta notifs
 
 end Elab
 
@@ -348,7 +348,6 @@ structure WorkerState where
   doc                : EditableDocument
   /-- Token flagged for aborting `doc.reporter` when a new document version comes in. -/
   reporterCancelTk   : CancelToken
-  srcSearchPathTask  : ServerTask SearchPath
   importCachingTask? : Option (ServerTask (Except Error AvailableImportsCache))
   pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
@@ -365,9 +364,12 @@ open Language Lean in
 Callback from Lean language processor after parsing imports that requests necessary information from
 Lake for processing imports.
 -/
-def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Channel JsonRpc.Message)
-    (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
-    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
+def setupImports
+    (meta        : DocumentMeta)
+    (cmdlineOpts : Options)
+    (chanOut     : Std.Channel JsonRpc.Message)
+    (stx         : TSyntax ``Parser.Module.header)
+    : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
     -- As we never unload imports in the server, we should not run the code below twice in the
@@ -387,9 +389,9 @@ def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Ch
       severity?  := DiagnosticSeverity.information
       message    := stderrLine
     }
-    chanOut.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
+    chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
   -- clear progress notifications in the end
-  chanOut.send <| mkPublishDiagnosticsNotification meta #[]
+  chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[]
   match fileSetupResult.kind with
   | .importsOutOfDate =>
     return .error {
@@ -405,25 +407,17 @@ def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Ch
     }
   | _ => pure ()
 
-  srcSearchPathPromise.resolve fileSetupResult.srcSearchPath
-
-  let mainModuleName ← if let some path := System.Uri.fileUriToPath? meta.uri then
-    EIO.catchExceptions (h := fun _ => pure Name.anonymous) do
-      if let some mod ← searchModuleNameOfFileName path fileSetupResult.srcSearchPath then
-        pure mod
-      else
-        moduleNameOfFileName path none
-  else
-    pure Name.anonymous
-
   -- override cmdline options with file options
   let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
 
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
 
+  let opts := Elab.inServer.set opts true
+
   return .ok {
-    mainModuleName
+    mainModuleName := meta.mod
+    imports
     opts
     plugins := fileSetupResult.plugins
   }
@@ -438,7 +432,6 @@ section Initialization
     let stickyDiagnosticsRef ← IO.mkRef ∅
     let pendingServerRequestsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
-    let srcSearchPathPromise ← IO.Promise.new
     let timestamp ← IO.monoMsNow
     let partialHandlersRef ← IO.mkRef <| RBMap.fromArray (cmp := compare) <|
       (← partialLspRequestHandlerMethods).map fun (method, refreshMethod, _) =>
@@ -448,12 +441,12 @@ section Initialization
           -- Emit a refresh request after a file worker restart.
           pendingRefreshInfo? := some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
         })
-    let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
+    let processor := Language.Lean.process (setupImports meta opts chanOut)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
-    let _ ← ServerTask.IO.mapTaskCostly (t := srcSearchPathPromise.result!) fun srcSearchPath => do
+    let _ ← ServerTask.IO.asTask do
       let importClosure := getImportClosure? initSnap
-      let importClosure ← importClosure.filterMapM (documentUriFromModule srcSearchPath ·)
+      let importClosure ← importClosure.filterMapM (documentUriFromModule? ·)
       chanOut.send <| mkImportClosureNotification importClosure
     let ctx := {
       chanOut
@@ -477,7 +470,6 @@ section Initialization
     return (ctx, {
       doc := { doc with reporter }
       reporterCancelTk
-      srcSearchPathTask  := srcSearchPathPromise.result!
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none
@@ -534,7 +526,7 @@ section ServerRequests
       (freshRequestId, freshRequestId + 1)
     let responseTask ← ctx.initPendingServerRequest responseType freshRequestId
     let r : JsonRpc.Request paramType := ⟨freshRequestId, method, param⟩
-    ctx.chanOut.send r
+    ctx.chanOut.sync.send r
     return responseTask
 
   def sendUntypedServerRequest
@@ -579,7 +571,6 @@ section NotificationHandling
     let newVersion := docId.version?.getD 0
     let rc : RequestContext := {
       rpcSessions := st.rpcSessions
-      srcSearchPathTask := st.srcSearchPathTask
       doc := oldDoc
       cancelTk
       hLog := ctx.hLog
@@ -589,7 +580,10 @@ section NotificationHandling
     RequestM.runInIO (handleOnDidChange p) rc
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
-      updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
+      updateDocument { oldDoc.meta with
+        version := newVersion
+        text := newDocText
+      }
       for (_, r) in st.pendingRequests do
         r.cancelTk.cancelByEdit
 
@@ -685,8 +679,8 @@ section MessageHandling
     | none => ServerTask.IO.asTask do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
+      let completions := ImportCompletion.find text ⟨st.doc.initSnap.stx⟩ params availableImports
+      ctx.chanOut.sync.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
     | some task => ServerTask.IO.mapTaskCostly (t := task) fun (result : Except Error AvailableImportsCache) => do
@@ -695,8 +689,8 @@ section MessageHandling
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
+      let completions := ImportCompletion.find text ⟨st.doc.initSnap.stx⟩ params availableImports
+      ctx.chanOut.sync.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
   def handleStatefulPreRequestSpecialCases (id : RequestID) (method : String) (params : Json) : WorkerM Bool := do
@@ -708,12 +702,12 @@ section MessageHandling
       | "$/lean/rpc/connect" =>
         let ps ← parseParams RpcConnectParams params
         let resp ← handleRpcConnect ps
-        ctx.chanOut.send <| .response id (toJson resp)
+        ctx.chanOut.sync.send <| .response id (toJson resp)
         return true
       | "textDocument/completion" =>
         let params ← parseParams CompletionParams params
         -- Must not wait on import processing snapshot
-        if ! ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params then
+        if ! ImportCompletion.isImportCompletionRequest st.doc.meta.text ⟨st.doc.initSnap.stx⟩ params then
           return false
         let importCachingTask ← handleImportCompletionRequest id params
         set { st with importCachingTask? := some importCachingTask }
@@ -721,7 +715,7 @@ section MessageHandling
       | _ =>
         return false
     catch e =>
-      ctx.chanOut.send <| .responseError id .internalError (toString e) none
+      ctx.chanOut.sync.send <| .responseError id .internalError (toString e) none
       return true
 
   open Widget RequestM Language in
@@ -843,7 +837,7 @@ section MessageHandling
           emitResponse ctx (isComplete := false) <| e.toLspResponseError id
   where
     emitResponse (ctx : WorkerContext) (m : JsonRpc.Message) (isComplete : Bool) : IO Unit := do
-      ctx.chanOut.send m
+      ctx.chanOut.sync.send m
       let timestamp ← IO.monoMsNow
       ctx.modifyPartialHandler method fun h => { h with
         requestsInFlight := h.requestsInFlight - 1
@@ -872,7 +866,6 @@ section MessageHandling
     -- TODO: move into language-specific request handling
     let rc : RequestContext := {
       rpcSessions := st.rpcSessions
-      srcSearchPathTask := st.srcSearchPathTask
       doc := st.doc
       cancelTk
       hLog := ctx.hLog
@@ -1017,9 +1010,16 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
-  -- LSP always refers to characters by (line, column),
-  -- so converting CRLF to LF preserves line and column numbers.
-  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.crlfToLf.toFileMap, param.dependencyBuildMode?.getD .always⟩
+
+  let meta : DocumentMeta := {
+    uri := doc.uri
+    mod := ← moduleFromDocumentUri doc.uri
+    version := doc.version
+    -- LSP always refers to characters by (line, column),
+    -- so converting CRLF to LF preserves line and column numbers.
+    text := doc.text.crlfToLf.toFileMap
+    dependencyBuildMode := param.dependencyBuildMode?.getD .always
+  }
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   let (ctx, st) ← try

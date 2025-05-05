@@ -7,3 +7,4 @@ module
 
 prelude
 import Init.Data.ByteArray.Basic
+import Init.Data.ByteArray.AdditionalOperations

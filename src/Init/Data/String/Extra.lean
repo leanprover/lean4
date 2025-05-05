@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.ByteArray
+import Init.Data.ByteArray.Basic
 import Init.Data.UInt.Lemmas
 
 namespace String

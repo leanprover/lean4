@@ -255,6 +255,7 @@ def main():
     branch_name = f"releases/v{version_major}.{version_minor}.0"
     if not branch_exists(lean_repo_url, branch_name, github_token):
         print(f"  ❌ Branch {branch_name} does not exist")
+        print(f"  🟡 After creating the branch, we'll need to check CMake version settings.")
         lean4_success = False
     else:
         print(f"  ✅ Branch {branch_name} exists")
@@ -360,10 +361,24 @@ def main():
         if check_stable and not is_release_candidate(toolchain):
             if not is_merged_into_stable(url, toolchain, "stable", github_token, verbose):
                 org_repo = extract_org_repo_from_url(url)
-                print(f"  ❌ Tag {toolchain} is not merged into stable")
-                print(f"     Run `script/merge_remote.py {org_repo} stable {toolchain}` to merge it")
-                repo_status[name] = False
-                continue
+                if args.dry_run:
+                    print(f"  ❌ Tag {toolchain} is not merged into stable")
+                    print(f"     Run `script/merge_remote.py {org_repo} stable {toolchain}` to merge it")
+                    repo_status[name] = False
+                    continue
+                else:
+                    print(f"  … Tag {toolchain} is not merged into stable. Running `script/merge_remote.py {org_repo} stable {toolchain}`...")
+                    
+                    # Run the script to merge the tag
+                    subprocess.run(["script/merge_remote.py", org_repo, "stable", toolchain])
+                    
+                    # Check again if the tag is merged now
+                    if not is_merged_into_stable(url, toolchain, "stable", github_token, verbose):
+                        print(f"  ❌ Manual intervention required.")
+                        repo_status[name] = False
+                        continue
+            
+            # This will print in all successful cases - whether tag was merged initially or was merged successfully
             print(f"  ✅ Tag {toolchain} is merged into stable")
 
         if check_bump:

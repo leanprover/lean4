@@ -3,7 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian, Sebastian Ullrich
 -/
-module
+--module
 
 prelude
 import Init.Data.String
@@ -274,11 +274,20 @@ theorem isGT_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGT = (o₁.is
 @[simp] theorem eq_then {o : Ordering} : eq.then o = o := rfl
 
 @[simp] theorem then_eq : ∀ {o : Ordering}, o.then eq = o := by decide
+@[simp] theorem then_self : ∀ {o : Ordering}, o.then o = o := by decide
+theorem then_assoc : ∀ (o₁ o₂ o₃ : Ordering), (o₁.then o₂).then o₃ = o₁.then (o₂.then o₃) := by decide
 
 theorem isLE_then_iff_or : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE ↔ o₁ = lt ∨ (o₁ = eq ∧ o₂.isLE) := by decide
 theorem isLE_then_iff_and : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE ↔ o₁.isLE ∧ (o₁ = lt ∨ o₂.isLE) := by decide
 theorem isLE_left_of_isLE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE → o₁.isLE := by decide
 theorem isGE_left_of_isGE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGE → o₁.isGE := by decide
+
+instance : Std.Associative Ordering.then := ⟨then_assoc⟩
+instance : Std.IdempotentOp Ordering.then := ⟨fun _ => then_self⟩
+
+instance : Std.LawfulIdentity Ordering.then eq where
+  left_id _ := eq_then
+  right_id _ := then_eq
 
 end Lemmas
 

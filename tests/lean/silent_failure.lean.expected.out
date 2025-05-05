@@ -1,0 +1,1 @@
+silent_failure.lean:4:12-4:13: error: invalid use of 'partial', 'g' is not a function

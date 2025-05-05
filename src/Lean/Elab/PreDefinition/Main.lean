@@ -329,7 +329,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
         else if preDefs.any (·.modifiers.isPartial) then
           for preDef in preDefs do
             if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
-              withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
+              withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function"
           addAndCompilePartial preDefs
           preDefs.forM (·.termination.ensureNone "partial")
         else

@@ -15,7 +15,7 @@ else
   ln -s llvm llvm-host
 fi
 mkdir -p stage0/lib
-mkdir -p stage1/{bin,lib,lib/glibc,include/clang}
+mkdir -p stage1/{bin,lib,include/clang}
 CP="cp -d"  # preserve symlinks
 # a C compiler!
 cp -L llvm/bin/clang stage1/bin/
@@ -36,9 +36,6 @@ $CP $GCC_LIB/lib/libatomic.so* stage1/lib/
 find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
-# ELF dependencies, must be put there for `--sysroot`
-$CP $GLIBC/lib/*crt* llvm/lib/
-$CP $GLIBC/lib/*crt* stage1/lib/
 # runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ../stage1)
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a $LIBUV/lib/libuv.a stage1/lib/
@@ -49,15 +46,10 @@ $CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
 $CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* llvm-host/lib/
 # libc++ headers are looked up in the host compiler's root, so copy over target-specific includes
 $CP -r llvm/include/*-*-* llvm-host/include/ || true
-# glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
-$CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
-# libpthread_nonshared.a must be linked in order to be able to use `pthread_atfork(3)`. LibUV uses this function.
-$CP $GLIBC/lib/libpthread_nonshared.a stage1/lib/glibc
-for f in $GLIBC/lib/{ld,lib{c,dl,m,rt,pthread}}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
 # We build cadical using the custom toolchain on Linux to avoid glibc versioning issues
 echo -n " -DLEAN_STANDALONE=ON -DCADICAL_USE_CUSTOM_CXX=ON"
-echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
+echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-L ROOT/lib -Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
 # use target compiler directly when not cross-compiling
 if [[ -L llvm-host ]]; then
@@ -68,8 +60,8 @@ fi
 # use `-nostdinc` to make sure headers are not visible by default (in particular, not to `#include_next` in the clang headers),
 # but do not change sysroot so users can still link against system libs
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
-# ld.so is usually included by the libc.so linker script but we discard those
-echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a ROOT/lib/glibc/libpthread_nonshared.a -Wl,--as-needed -Wl,-Bstatic -lgmp -lunwind -luv -Wl,-Bdynamic ROOT/lib/glibc/ld.so -Wl,--no-as-needed -fuse-ld=lld'"
+# Do NOT set sysroot here so glibc and crt system libs are found. `-L` still takes priority.
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -Wl,--as-needed -Wl,-Bstatic -lgmp -lunwind -luv -Wl,-Bdynamic -Wl,--no-as-needed -fuse-ld=lld'"
 # when not using the above flags, link GMP dynamically/as usual
 echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-Wl,--as-needed -lgmp -luv -lpthread -ldl -lrt -Wl,--no-as-needed'"
 # do not set `LEAN_CC` for tests

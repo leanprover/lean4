@@ -60,7 +60,10 @@ We use the `fileMap` to find the line and column numbers for the error message.
 -/
 def logAt (ref : Syntax) (msgData : MessageData)
     (severity : MessageSeverity := MessageSeverity.error) (isSilent : Bool := false) : m Unit :=
-  unless severity == .error && msgData.hasSyntheticSorry do
+  -- Filter out follow-up errors on synthetic sorries, which should only be created when an error
+  -- for the relevant part of the input has already been logged. However, in case this invariant
+  -- was accidentally broken and no error has been logged yet, log at least one error.
+  unless severity == .error && msgData.hasSyntheticSorry && (← MonadLog.hasErrors) do
     let severity := if severity == .warning && warningAsError.get (← getOptions) then .error else severity
     let ref    := replaceRef ref (← MonadLog.getRef)
     let pos    := ref.getPos?.getD 0

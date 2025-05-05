@@ -196,8 +196,31 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
   synthesizeSyntheticMVars
   let s ← get
   let fType ← whnfForall s.fType
+  let throwFailed := throwError "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
   if fType.isForall then
     modify fun s => { s with fType }
+  else if let .mvar m := fType.getAppFn then
+    -- Specialize `fType` to be a pi type.
+    -- `fType` is of form `?m a1 ... an`.
+    -- We want to create type families `?dom` and `?cod` and
+    -- then assign `?m := fun x1 ... xn => ?dom x1 ... xn → ?cod x1 ... xn`.
+    -- Note: this is nondependent, since `(y : ?dom x1 ... xn) → ?cod x1 ... xn y` is even
+    -- less able to unify with the expected type.
+    let m' ← m.withContext do
+      forallBoundedTelescope (← m.getType) fType.getAppNumArgs fun xs _ => do
+        let u ← mkFreshLevelMVar
+        let v ← mkFreshLevelMVar
+        let domTy := (← getLCtx).mkForall xs (mkSort u)
+        let dom ← mkFreshExprMVar domTy
+        let yName ← mkFreshBinderName
+        let yType := mkAppN dom xs
+        let codTy := (← getLCtx).mkForall xs (mkSort v)
+        let cod ← mkFreshExprMVar codTy
+        pure <| (← getLCtx).mkLambda xs (mkForall yName .default yType <| mkAppN cod xs)
+    let fType' := mkAppN m' fType.getAppArgs
+    unless ← isDefEq (.mvar m) m' do
+      throwFailed
+    modify fun s => { s with fType := fType' }
   else
     if let some f ← coerceToFunction? s.f then
       let fType ← inferType f
@@ -209,7 +232,7 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
           throwInvalidNamedArg namedArg f.constName!
         else
           throwInvalidNamedArg namedArg none
-      throwError "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
+      throwFailed
 
 /-- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do

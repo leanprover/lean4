@@ -771,7 +771,8 @@ Constructs an `LT` instance from an `Ord` instance that asserts that the result 
 def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b = Ordering.lt
 
-instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
+attribute [local instance] ltOfOrd in
+instance [Ord α] : DecidableRel ((· : α) < ·) :=
   inferInstanceAs (DecidableRel (fun a b => compare a b = Ordering.lt))
 
 /--
@@ -781,7 +782,8 @@ satisfies `Ordering.isLE`.
 def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
 
-instance [Ord α] : DecidableRel (@LE.le α leOfOrd) :=
+attribute [local instance] leOfOrd in
+instance [Ord α] : DecidableRel ((· : α) ≤ ·) :=
   inferInstanceAs (DecidableRel (fun a b => (compare a b).isLE))
 
 namespace Ord

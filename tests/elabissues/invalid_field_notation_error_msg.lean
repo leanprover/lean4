@@ -23,5 +23,5 @@ def Foo.f5 (f : Foo) : Nat := f.n
   (λ f g h => f.f1 + g.f2 + h.f3 + f.f4 + g.f5 + h.f6) f g h)
 
 /-
-/home/dselsam/omega/lean4/tests/elabissues/invalid_field_notation_error.lean:8:0: error: invalid field notation, type is not of the form (C ...) where C is a constant
+/home/dselsam/omega/lean4/tests/elabissues/invalid_field_notation_error.lean:8:0: error: invalid field notation, type is not of the form 'C ...' where C is a constant
 -/

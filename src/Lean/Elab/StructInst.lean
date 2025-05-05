@@ -1292,7 +1292,7 @@ where
     if type.getAppFn.isMVar then
       throwUnknownExpectedType
     else
-      throwError "invalid \{...} notation, {kind} type is not of the form (C ...){indentExpr type}"
+      throwError "invalid \{...} notation, {kind} type is not of the form 'C ...'{indentExpr type}"
 
 @[builtin_term_elab structInst] def elabStructInst : TermElab := fun stx expectedType? => do
   match (← expandNonAtomicExplicitSources stx) with

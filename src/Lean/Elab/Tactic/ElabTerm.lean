@@ -342,7 +342,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       let fvarId ← withoutModifyingState <| withNewMCtxDepth <| withoutRecover do
         let type ← elabTerm typeStx none (mayPostpone := true)
         let fvarId? ← (← getLCtx).findDeclRevM? fun localDecl => do
-          if (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
+          if !localDecl.isImplementationDetail && (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
         match fvarId? with
         | none => throwError "failed to find a hypothesis with type{indentExpr type}"
         | some fvarId => return fvarId

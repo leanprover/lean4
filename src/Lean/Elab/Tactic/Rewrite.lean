@@ -51,7 +51,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
         let term := rule[1]
         let processId (id : Syntax) : TacticM Unit := do
           -- See if we can interpret `id` as a hypothesis first.
-          if (← optional <| getFVarId id).isSome then
+          if (← Term.isLocalIdent? id).isSome then
             x symm term
           else
             -- Try to get equation theorems for `id`.

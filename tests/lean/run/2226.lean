@@ -6,7 +6,14 @@ A : Nat
 #guard_msgs in
 variable (A : Nat) (B : by skip)
 
-/-- error: failed to infer definition type -/
+/--
+error: type mismatch
+  B
+has type
+  sorry : Sort ?u.9
+but is expected to have type
+  Nat : Type
+-/
 #guard_msgs in
 def foo :=
   A = B

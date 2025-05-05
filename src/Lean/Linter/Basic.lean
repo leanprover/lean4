@@ -21,13 +21,13 @@ def LinterSets := NameMap (Array Name)
 `entry.1` is the name of the linter set,
 `entry.2` contains the names of the set's linter options.
 -/
-def insertLinterSetEntry (map : LinterSets) (entry : Name × Array Name) : LinterSets :=
-  entry.2.foldl (init := map) fun map linterName =>
-    map.insert linterName ((map.findD linterName #[]).push entry.1)
+def insertLinterSetEntry (map : LinterSets) (setName : Name) (options : NameSet) : LinterSets :=
+  options.fold (init := map) fun map linterName =>
+    map.insert linterName ((map.findD linterName #[]).push setName)
 
-builtin_initialize linterSetsExt : SimplePersistentEnvExtension (Name × Array Name) LinterSets ← Lean.registerSimplePersistentEnvExtension {
-  addImportedFn := mkStateFromImportedEntries insertLinterSetEntry {}
-  addEntryFn := insertLinterSetEntry
+builtin_initialize linterSetsExt : SimplePersistentEnvExtension (Name × NameSet) LinterSets ← Lean.registerSimplePersistentEnvExtension {
+  addImportedFn := mkStateFromImportedEntries (Function.uncurry <| insertLinterSetEntry ·) {}
+  addEntryFn := (Function.uncurry <| insertLinterSetEntry ·)
   toArrayFn es := es.toArray
 }
 

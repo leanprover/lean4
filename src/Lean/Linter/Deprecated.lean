@@ -47,7 +47,7 @@ def _root_.Lean.MessageData.isDeprecationWarning (msg : MessageData) : Bool :=
 def getDeprecatedNewName (env : Environment) (declName : Name) : Option Name := do
   (← deprecatedAttr.getParam? env declName).newName?
 
-def checkDeprecated [Monad m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadLinterOptions m] (declName : Name) : m Unit := do
+def checkDeprecated [Monad m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (declName : Name) : m Unit := do
   if getLinterValue linter.deprecated (← getLinterOptions) then
     let some attr := deprecatedAttr.getParam? (← getEnv) declName | pure ()
     logWarning <| .tagged ``deprecatedAttr <|

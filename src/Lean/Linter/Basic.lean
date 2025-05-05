@@ -31,6 +31,14 @@ builtin_initialize linterSetsExt : SimplePersistentEnvExtension (Name × NameSet
   toArrayFn es := es.toArray
 }
 
+/-- The `LinterOptions` structure is used to determine whether given linters are enabled.
+
+This structure contains all the data required to do so, the `Options` set on the command line
+or by the `set_option` command, and the `LinterSets` that have been declared.
+
+A single structure holding this data is useful since we want `getLinterValue` to be a pure
+function: determinining the `LinterSets` would otherwise require a `MonadEnv` instance.
+-/
 structure LinterOptions where
   toOptions : Options
   linterSets : LinterSets

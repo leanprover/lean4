@@ -14,3 +14,10 @@ example : IO Unit := do
       catch _ => unreachable!
   finally
     pure ()
+
+example : IO Unit := do
+  if true then
+    pure ()
+  else try
+    pure ()
+  catch _ => pure ()

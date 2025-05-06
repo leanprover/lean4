@@ -152,7 +152,7 @@ macro_rules
       [$[$(Array.map Lean.mkIdent (helperLemmaNames ++ queryNames) ++ congrModify):term],*]
      $[apply $(using?.toArray):term];*)
     <;> with_reducible try wf_trivial)
-/-/
+
 theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
   rfl
 
@@ -6022,7 +6022,7 @@ theorem maxKeyD_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
 end Const
 
 end Max
--/
+
 namespace Equiv
 
 variable {t₁ t₂ t₃ : Impl α β} {δ : Type w} {m : Type w → Type w}

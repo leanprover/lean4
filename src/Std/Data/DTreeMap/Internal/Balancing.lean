@@ -7,6 +7,10 @@ prelude
 import Init.Data.AC
 import Std.Data.DTreeMap.Internal.Balanced
 
+-- Temporary bootstrapping fix
+#guard_msgs(drop error) in
+set_option backward.funind.contradiction false
+
 /-!
 # Balancing operations
 

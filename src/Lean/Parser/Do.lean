@@ -165,12 +165,15 @@ def optMetaFalse :=
   "match_expr " >> optMetaFalse >> termParser >> " with" >> doMatchExprAlts
 
 def doCatch      := leading_parser
-  ppDedent ppLine >> atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
+  ppDedent ppLine >> checkColGe "'catch' must be indented" >>
+    atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
 def doCatchMatch := leading_parser
-  ppDedent ppLine >> "catch " >> doMatchAlts
+  ppDedent ppLine >> checkColGe "'catch' must be indented" >>
+    "catch " >> doMatchAlts
 def doFinally    := leading_parser
-  ppDedent ppLine >> "finally " >> doSeq
-@[builtin_doElem_parser] def doTry    := leading_parser
+  ppDedent ppLine >> checkColGe "'finally' must be indented" >>
+    "finally " >> doSeq
+@[builtin_doElem_parser] def doTry    := leading_parser withPosition <|
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 
 /-- `break` exits the surrounding `for` loop. -/

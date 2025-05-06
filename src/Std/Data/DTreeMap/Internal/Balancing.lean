@@ -7,10 +7,6 @@ prelude
 import Init.Data.AC
 import Std.Data.DTreeMap.Internal.Balanced
 
--- Temporary bootstrapping fix
-#guard_msgs(drop error) in
-set_option backward.funind.contradiction false
-
 /-!
 # Balancing operations
 
@@ -686,7 +682,6 @@ theorem balanceL_eq_balanceLErase {k : α} {v : β k} {l r : Impl α β} {hlb hr
     balanceL k v l r hlb hrb hlr = balanceLErase k v l r hlb hrb hlr.erase := by
   fun_cases balanceL k v l r hlb hrb hlr
   all_goals dsimp only [balanceL, balanceLErase]
-  contradiction
   split
   · split <;> contradiction
   · rfl
@@ -715,7 +710,6 @@ theorem balanceR_eq_balanceRErase {k : α} {v : β k} {l r : Impl α β} {hlb hr
     balanceR k v l r hlb hrb hlr = balanceRErase k v l r hlb hrb hlr.erase := by
   fun_cases balanceR k v l r hlb hrb hlr
   all_goals dsimp only [balanceR, balanceRErase]
-  contradiction
   split
   · split <;> contradiction
   · rfl
@@ -766,14 +760,10 @@ theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) 
   · rw [if_pos ‹_›, bin, balanced_inner_iff]
     exact ⟨rfl, hlb, hrb, Or.inl ‹_›, rfl⟩
   · rw [if_neg ‹_›, dif_pos ‹_›]
-    contradiction
-  · rw [if_neg ‹_›, dif_pos ‹_›]
     simp only [size_rotateL (.left ‹_›), size_bin, size_inner]
     rw [← Balanced.eq ‹_›]
     refine ⟨rfl, ?_⟩
     apply balanced_rotateL <;> assumption
-  · simp only [delta, size_leaf] at *
-    omega
   · rw [if_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
     simp only [size_rotateR (.right ‹_›), size_bin, size_inner]
     rw [← Balanced.eq ‹_›]

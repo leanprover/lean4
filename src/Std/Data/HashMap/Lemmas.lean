@@ -19,8 +19,6 @@ is to provide an instance of `LawfulBEq α`.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-set_option trace.grind.ematch.pattern true
-
 universe u v w w'
 
 variable {α : Type u} {β : Type v} {γ : Type w} {δ : Type w'} {_ : BEq α} {_ : Hashable α}
@@ -927,7 +925,7 @@ theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
     m.fold f init = m.toList.foldl (fun a b => f a b.1 b.2) init :=
   DHashMap.Const.fold_eq_foldl_toList
 
-@[simp]
+@[simp, grind]
 theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
     m.forM f = ForM.forM m (fun a => f a.1 a.2) := rfl
 
@@ -935,7 +933,7 @@ theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α × β → m' PUn
     ForM.forM m f = ForM.forM m.toList f :=
   DHashMap.Const.forMUncurried_eq_forM_toList
 
-@[simp]
+@[simp, grind]
 theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
     {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
     m.forIn f init = ForIn.forIn m init (fun a d => f a.1 a.2 d) := rfl
@@ -1031,6 +1029,7 @@ theorem getElem?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     (insertMany m l)[k']? = some v :=
   DHashMap.Const.get?_insertMany_list_of_mem k_beq distinct mem
 
+@[grind]
 theorem getElem?_insertMany_list [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} :
     (insertMany m l)[k]? = (l.findSomeRev? (fun ⟨a, b⟩ => if a == k then some b else none)).or m[k]? :=
@@ -1816,6 +1815,7 @@ theorem getKey?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Optio
     (alter m k f).getKey? k = if (f m[k]?).isSome then some k else none :=
   DHashMap.Const.getKey?_alter_self
 
+@[grind]
 theorem getKey!_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
     {f : Option β → Option β} : (alter m k f).getKey! k' =
       if k == k' then
@@ -1829,6 +1829,7 @@ theorem getKey!_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k :
     (alter m k f).getKey! k = if (f m[k]?).isSome then k else default :=
   DHashMap.Const.getKey!_alter_self
 
+@[grind]
 theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
     {f : Option β → Option β} {h : k' ∈ alter m k f} :
     (alter m k f).getKey k' h =
@@ -1845,6 +1846,7 @@ theorem getKey_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : 
     (alter m k f).getKey k h = k :=
   DHashMap.Const.getKey_alter_self
 
+@[grind]
 theorem getKeyD_alter [EquivBEq α] [LawfulHashable α] {k k' fallback : α}
     {f : Option β → Option β} :
     (alter m k f).getKeyD k' fallback =
@@ -2006,6 +2008,7 @@ theorem getKey?_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {f : β �
     (modify m k f).getKey? k = if k ∈ m then some k else none :=
   DHashMap.Const.getKey?_modify_self
 
+@[grind]
 theorem getKey!_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β} :
     (modify m k f).getKey! k' =
       if k == k' then
@@ -2018,6 +2021,7 @@ theorem getKey!_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k 
     (modify m k f).getKey! k = if k ∈ m then k else default :=
   DHashMap.Const.getKey!_modify_self
 
+@[grind]
 theorem getKey_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β}
     {h : k' ∈ modify m k f} :
     (modify m k f).getKey k' h =
@@ -2033,6 +2037,7 @@ theorem getKey_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k :
     {h : k ∈ modify m k f} : (modify m k f).getKey k h = k :=
   DHashMap.Const.getKey_modify_self
 
+@[grind]
 theorem getKeyD_modify [EquivBEq α] [LawfulHashable α] {k k' fallback : α} {f : β → β} :
     (modify m k f).getKeyD k' fallback =
       if k == k' then
@@ -2338,12 +2343,13 @@ theorem getKey?_filterMap [EquivBEq α] [LawfulHashable α]
       (f x (m[x]'(mem_of_getKey?_eq_some h'))).isSome) :=
   DHashMap.Const.getKey?_filterMap
 
-@[simp]
+@[simp, grind]
 theorem getKey_filterMap [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} {h'} :
     (m.filterMap f).getKey k h' = m.getKey k (mem_of_mem_filterMap h') :=
   DHashMap.getKey_filterMap
 
+@[grind]
 theorem getKey!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : α → β → Option γ} {k : α} :
     (m.filterMap f).getKey! k =
@@ -2351,6 +2357,7 @@ theorem getKey!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited α]
       (f x (m[x]'(mem_of_getKey?_eq_some h'))).isSome)).get! :=
   DHashMap.Const.getKey!_filterMap
 
+@[grind]
 theorem getKeyD_filterMap [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k fallback : α} :
     (m.filterMap f).getKeyD k fallback =
@@ -2486,12 +2493,13 @@ theorem getKey?_filter_key [EquivBEq α] [LawfulHashable α]
     (m.filter fun k _ => f k).getKey? k = (m.getKey? k).filter f :=
   DHashMap.getKey?_filter_key
 
-@[simp]
+@[simp, grind]
 theorem getKey_filter [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k : α} {h'} :
     (m.filter f).getKey k h' = m.getKey k (mem_of_mem_filter h') :=
   DHashMap.getKey_filter
 
+@[grind]
 theorem getKey!_filter [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : α → β → Bool} {k : α} :
     (m.filter f).getKey! k =
@@ -2504,6 +2512,7 @@ theorem getKey!_filter_key [EquivBEq α] [LawfulHashable α] [Inhabited α]
     (m.filter fun k _ => f k).getKey! k = ((m.getKey? k).filter f).get! :=
   DHashMap.getKey!_filter_key
 
+@[grind]
 theorem getKeyD_filter [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k fallback : α} :
     (m.filter f).getKeyD k fallback =
@@ -2655,19 +2664,19 @@ theorem getKey?_map [EquivBEq α] [LawfulHashable α]
     (m.map f).getKey? k = m.getKey? k :=
   DHashMap.getKey?_map
 
-@[simp]
+@[simp, grind]
 theorem getKey_map [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} {h'} :
     (m.map f).getKey k h' = m.getKey k (mem_of_mem_map h') :=
   DHashMap.getKey_map
 
-@[simp]
+@[simp, grind]
 theorem getKey!_map [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : α → β → γ} {k : α} :
     (m.map f).getKey! k = m.getKey! k :=
   DHashMap.getKey!_map
 
-@[simp]
+@[simp, grind]
 theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k fallback : α} :
     (m.map f).getKeyD k fallback = m.getKeyD k fallback :=

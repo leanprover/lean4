@@ -8,6 +8,8 @@ import Lean.PrettyPrinter.Delaborator.Attributes
 import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+import Lean.Parser.Do
+import Lean.Parser.Command
 import Lean.Meta.CoeAttr
 import Lean.Meta.Structure
 

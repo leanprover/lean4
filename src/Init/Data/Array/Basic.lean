@@ -2158,13 +2158,15 @@ Examples:
 
 /-! ### Repr and ToString -/
 
+protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
+  let _ : Std.ToFormat α := ⟨repr⟩
+  if xs.size == 0 then
+    "#[]"
+  else
+    Std.Format.bracketFill "#[" (Std.Format.joinSep (toList xs) ("," ++ Std.Format.line)) "]"
+
 instance {α : Type u} [Repr α] : Repr (Array α) where
-  reprPrec xs _ :=
-    let _ : Std.ToFormat α := ⟨repr⟩
-    if xs.size == 0 then
-      "#[]"
-    else
-      Std.Format.bracketFill "#[" (Std.Format.joinSep (toList xs) ("," ++ Std.Format.line)) "]"
+  reprPrec xs _ := Array.repr xs
 
 instance [ToString α] : ToString (Array α) where
   toString xs := "#" ++ toString xs.toList

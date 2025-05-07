@@ -55,10 +55,12 @@ This instance allows us to use `Empty` as a type parameter without causing insta
 instance : Repr Empty where
   reprPrec := nofun
 
+protected def Bool.repr : Bool → Nat → Format
+  | true, _  => "true"
+  | false, _ => "false"
+
 instance : Repr Bool where
-  reprPrec
-    | true, _  => "true"
-    | false, _ => "false"
+  reprPrec := Bool.repr
 
 def Repr.addAppParen (f : Format) (prec : Nat) : Format :=
   if prec >= max_prec then
@@ -66,10 +68,12 @@ def Repr.addAppParen (f : Format) (prec : Nat) : Format :=
   else
     f
 
+protected def Decidable.repr : Decidable p → Nat → Format
+  | .isTrue _, prec  => Repr.addAppParen "isTrue _" prec
+  | .isFalse _, prec => Repr.addAppParen "isFalse _" prec
+
 instance : Repr (Decidable p) where
-  reprPrec
-    | Decidable.isTrue _, prec  => Repr.addAppParen "isTrue _" prec
-    | Decidable.isFalse _, prec => Repr.addAppParen "isFalse _" prec
+  reprPrec := Decidable.repr
 
 instance : Repr PUnit.{u+1} where
   reprPrec _ _ := "PUnit.unit"
@@ -109,8 +113,11 @@ export ReprTuple (reprTuple)
 instance [Repr α] : ReprTuple α where
   reprTuple a xs := repr a :: xs
 
+protected def Prod.reprTuple [Repr α] [ReprTuple β] : α × β → List Format → List Format
+  | (a, b), xs => reprTuple b (repr a :: xs)
+
 instance [Repr α] [ReprTuple β] : ReprTuple (α × β) where
-  reprTuple | (a, b), xs => reprTuple b (repr a :: xs)
+  reprTuple := Prod.reprTuple
 
 protected def Prod.repr [Repr α] [ReprTuple β] : α × β → Nat → Format
   | (a, b), _ => Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
@@ -118,8 +125,11 @@ protected def Prod.repr [Repr α] [ReprTuple β] : α × β → Nat → Format
 instance [Repr α] [ReprTuple β] : Repr (α × β) where
   reprPrec := Prod.repr
 
+protected def Sigma.repr {β : α → Type v} [Repr α] [(x : α) → Repr (β x)] : Sigma β → Nat → Format
+  | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"
+
 instance {β : α → Type v} [Repr α] [(x : α) → Repr (β x)] : Repr (Sigma β) where
-  reprPrec | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"
+  reprPrec := Sigma.repr
 
 instance {p : α → Prop} [Repr α] : Repr (Subtype p) where
   reprPrec s prec := reprPrec s.val prec

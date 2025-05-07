@@ -1842,11 +1842,6 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     have := le_toNat_iff (x := x) (i := i) hi
     simp [this, h] at hcontra
 
-theorem umod_eq_zero_iff {x y : BitVec w} :
-    (y = 1#w ∨ x = y ∨ x = 0#w) → (x % y = 0#w):= by
-  intro h
-  rcases h with h|h|h <;> simp [h]
-
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by

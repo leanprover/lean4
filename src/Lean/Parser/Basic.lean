@@ -1538,8 +1538,8 @@ This parser has the same arity as `p` - it just forwards the results of `p`. -/
     adaptCacheableContextFn ({ · with savedPos? := s.pos }) f c s
 
 /--
-`withPositionAfterLinebreak(p)` works similar to `withPosition(p)` except it only changes the
-position if the current position is preceded by whitespace.
+`withPositionAfterLinebreak(p)` works similar to `withPosition(p)` except it only changes the saved
+position if the current position is only preceded by whitespace.
 -/
 @[builtin_doc] def withPositionAfterLinebreak : Parser → Parser := withFn fun f c s =>
   adaptCacheableContextFn (fun c => if go s.stxStack s.stackSize then { c with savedPos? := s.pos } else c) f c s

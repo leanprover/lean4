@@ -1750,6 +1750,7 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
         ((not_congr neg_eq_zero_iff).mpr hyz)]
       exact neg_le_intMin_of_msb_eq_true h'
 
+
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
   rw [smod_eq]
@@ -1772,125 +1773,22 @@ theorem toInt_smod {x y : BitVec w} :
         norm_cast
         rw [Nat.mod_eq_of_lt (a := x.toNat % y.toNat) (b := 2 ^ (w + 1)) (by sorry)]
       · -- 0 ≤ x.toInt, y.toInt < 0
-        dsimp only
-        rw [toInt_eq_toNat_of_msb (msb_umod_eq_false_of_left h _), toNat_umod]
-        rw [toInt_eq_toNat_of_msb h, toInt_eq_neg_toNat_neg_of_msb_true h']
-        rw [Int.tmod_neg, ← Int.ofNat_tmod]
+        simp [h, h']
+        by_cases h1 : x % -y = 0#(w + 1)
+        · -- iff -y = x or -y = 1: deal with these cases separately
+          simp [h1]
+          sorry
+        · simp [h1]
+          simp [toInt_umod]
+          -- in this case since y.msb we'll have 2 ^ (w + 1) - y.toNat < 0 and in particular
+          -- - 2 ^ w ≤ 2 ^ (w + 1) - y.toNat < 0, we need to use this information to get rid of the bmod and then
+          -- translate fmod into emod (based on a similar if as h1 iirc)
+          sorry
     · cases h' : y.msb
       · -- x.toInt < 0, 0 ≤ y.toInt
-        dsimp only
-        rw [toInt_eq_neg_toNat_neg_of_msb_true h, toInt_eq_toNat_of_msb h', Int.neg_tmod]
-        rw [← Int.ofNat_tmod, ← toNat_umod, toInt_neg_eq_of_msb ?msb, toInt_eq_toNat_of_msb ?msb]
-        rw [BitVec.msb_umod_of_le_of_ne_zero_of_le (neg_le_intMin_of_msb_eq_true h) hyz]
-        exact le_intMin_of_msb_eq_false h'
+        sorry
       · -- x.toInt < 0, y.toInt < 0
-        dsimp only
-        rw [toInt_eq_neg_toNat_neg_of_msb_true h, toInt_eq_neg_toNat_neg_of_msb_true h', Int.neg_tmod, Int.tmod_neg]
-        rw [← Int.ofNat_tmod, ← toNat_umod, toInt_neg_eq_of_msb ?msb', toInt_eq_toNat_of_msb ?msb']
-        rw [BitVec.msb_umod_of_le_of_ne_zero_of_le (neg_le_intMin_of_msb_eq_true h)
-          ((not_congr neg_eq_zero_iff).mpr hyz)]
-        exact neg_le_intMin_of_msb_eq_true h'
-
-
-    have h1 := Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt)
-    have h2 := Int.fmod_eq_tmod_of_nonneg (a := x.toInt) (b := y.toInt)
-    have h3 := Int.emod_eq_fmod (a := x.toInt) (b := y.toInt)
-    have h4 := Int.fmod_eq_emod (a := x.toInt) (b := y.toInt)
-    have h5 := Int.tmod_eq_fmod (a := x.toInt) (b := y.toInt)
-    have h6 := Int.bmod_eq_emod (x := x.toInt) (m := y.toNat)
-    have h7 := Int.bmod_eq_emod_of_lt (x := x.toInt) (m := y.toNat)
-    rcases w with _|w
-    · simp [of_length_zero]
-    · unfold smod
-      by_cases hxzero : x = 0#(w + 1)
-      · sorry
-      · by_cases hymsb : y.msb <;> by_cases hxmsb : x.msb
-        · simp [hxmsb, hymsb]
-          simp [toInt_neg]
-          simp [toInt_umod]
-          have xtoNatlt : x.toNat < 2 ^ (w + 1) := by omega
-          have : ¬ x.toNat = 0 := by sorry
-          have twoPowSubxToNat : 2 ^ (w + 1) - x.toNat < 2 ^ (w + 1):= by omega
-          by_cases hxlt : x.toNat < 2 ^ w
-          · rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat) (b := 2 ^ (w + 1)) twoPowSubxToNat]
-            simp
-            sorry
-          ·
-            sorry
-        · simp [hxmsb, hymsb]
-
-          sorry
-        · simp [hxmsb, hymsb]
-
-          sorry
-        · simp [hxmsb, hymsb]
-          simp [toInt_umod]
-          have xtoNatlt : x.toNat < 2 ^ w := by sorry
-          have : ¬ x.toNat = 0 := by sorry
-          have twoPowSubxToNat : 2 ^ (w + 1) - x.toNat < 2 ^ (w + 1):= by omega
-          by_cases hxlt : x.toNat < 2 ^ w
-          · rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat) (b := 2 ^ (w + 1)) twoPowSubxToNat]
-            simp
-            sorry
-          ·
-            sorry
-
-          sorry
-
-        by_cases hyzero : y = 0#w
-        · sorry
-        · by_cases hymsb : y.msb
-          · sorry
-          · -- if y is positive, then y.toInt = y.toNat
-            -- and x.toInt.fmod y.toInt = x.toInt.emod y.toInt
-            -- and moreover x.toInt.bmod y.toNat = x.toInt.emod = y.toInt.toNat
-            simp only [← toInt_inj, toInt_zero] at hyzero
-            simp only [not_eq_true] at hymsb
-            have := toInt_nonneg_of_msb_false (x := y) hymsb
-            have hypos : 0 < y.toInt := by omega
-            have h1 := Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) (by omega)
-            unfold smod
-            simp [hymsb]
-            sorry
-
-        -- simp [Int.fmod, BitVec.smod]
-        -- by_cases hxzero : x = 0#w
-        -- · have := toInt_zero (w := w)
-        --   simp [hxzero, show x.toInt = 0 by simp_all]
-        --   by_cases hymsb : y.msb
-        --   · simp_all
-        --   · simp_all
-        -- · by_cases hxmsb : x.msb <;> by_cases hymsb : y.msb
-        --   · -- x < 0, y < 0
-        --     have hxneg := BitVec.toInt_neg_of_msb_true (x := x)
-        --     have hyneg := BitVec.toInt_neg_of_msb_true (x := y)
-        --     simp [hxmsb, hymsb]
-        --     simp [hxmsb, hymsb] at hxneg hyneg
-        --     obtain ⟨xn, hx'⟩ := Int.eq_negSucc_of_lt_zero (a := x.toInt) hxneg
-        --     obtain ⟨yn, hy'⟩ := Int.eq_negSucc_of_lt_zero (a := y.toInt) hyneg
-        --     simp [hx', hy']
-        --     -- (-(-x % -y)).toInt = -((↑xn + 1) % (↑yn + 1))
-        --     -- note that - x = (- xn - 1)
-        --     -- note that - y = (- yn - 1)
-        --     rw [BitVec.toInt_neg]
-        --     simp [toInt_umod]
-          --   -- x = Int.negSucc xn
-          --   -- x.toNat = xn + 1
-          --   have := Int.negSucc_eq (n := xn)
-          --   have h1 : x.toNat < 2 ^ w := by omega
-          --   have h2 : y.toNat < 2 ^ w := by omega
-          --   by_cases h3 : 0 < x.toNat
-          --   · have := Int.sub_lt_self (a := 2 ^ w) (b := x.toNat) (by omega)
-          --     norm_cast
-          --     sorry
-          --   · sorry
-          -- · simp [hxmsb, hymsb]
-          --   sorry
-          -- · simp [hxmsb, hymsb]
-          --   sorry
-          -- · simp [hxmsb, hymsb]
-          --   sorry
-
+        sorry
 
 /-! ### Lemmas that use bit blasting circuits -/
 

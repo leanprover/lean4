@@ -1501,32 +1501,7 @@ theorem sdiv_intMin {x : BitVec w} :
         (BitVec.ne_zero_of_msb_true hx), hx]
     · simp [hx]
 
--- x : something.toInt
--- y : somethingElse.toInt
 
--- x.tmod y ← operation on integers
--- suppose x' : x'.toInt = x → x' = something
--- suppose y' : y'.toInt = y → y' = somethingElse
--- find operation op such that x.tmod y ↔ x'.op y'
-
-#print BitVec.ofInt
-
-theorem tmod_of_something (x y : BitVec w) :
-    (x.toInt).tmod (y.toInt) = x.toNat % y.toNat := by
-  unfold Int.tmod
-  by_cases 0 < x.toInt <;> by_cases 0 < y.toInt
-  · obtain ⟨xn, hx'⟩ := Int.eq_ofNat_of_zero_le (a := x.toInt) (by omega)
-    obtain ⟨yn, hy'⟩ := Int.eq_ofNat_of_zero_le (a := y.toInt) (by omega)
-    simp [hx', hy']
-    norm_cast
-    obtain ⟨xn', hx''⟩ := Int.eq_ofNat_of_zero_le (a := x.toNat) (by omega)
-    obtain ⟨yn', hy''⟩ := Int.eq_ofNat_of_zero_le (a := y.toNat) (by omega)
-    sorry
-  · sorry
-  · sorry
-  · sorry
-
-#print BitVec.toNat
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by

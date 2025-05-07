@@ -292,7 +292,7 @@ end SimpH
   Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
   We have one hypothesis for each previous case.
 -/
-private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
+partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
   let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
   let mvarId := (← mkFreshExprSyntheticOpaqueMVar h).mvarId!
   let (xs, mvarId) ← mvarId.introN numVars
@@ -341,9 +341,16 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr) : MetaM Expr := 
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
-    let mvarId' ← mvarId.modifyTargetEqLHS whnfCore
-    let mvarId := mvarId'
+    let mvarId' ← observing? <| mvarId.modifyTargetEqLHS whnfCore
+    let mvarId := mvarId'.getD mvarId
     let subgoals ←
+      (do
+        -- mvarId.heqOfEq does not fail
+        mvarId.withContext do
+          let mvarIds ← mvarId.apply (mkConst ``heq_of_eq [← mkFreshLevelMVar])
+          return mvarIds.toArray
+      )
+      <|>
       (do mvarId.refl; return #[])
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])
@@ -648,7 +655,7 @@ where
   Recall that `alts` depends on `discrs` when `numDiscrEqs > 0`, where `numDiscrEqs` is the number of discriminants
   annotated with `h : discr`.
 -/
-private partial def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patterns : Array Expr) (alts : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
+partial def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patterns : Array Expr) (alts : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
   if numDiscrEqs == 0 then
     k alts
   else

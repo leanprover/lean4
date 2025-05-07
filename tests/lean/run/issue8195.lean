@@ -181,43 +181,129 @@ theorem depTestOddType.fun_cases_unfolding_good
           (if_pos h ▸ () : if (x == 3) = true then Unit else Nat))
   (l : List Nat) : motive l (depTestOddType l) := sorry
 
-
 open Lean Meta
+
+partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
+    (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
+    : MetaM α := do
+  go #[] #[] #[] #[] 0 altType
+where
+  go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
+    let type ← whnfForall type
+    if i < altNumParams then
+      let Expr.forallE n d b .. := type
+        | throwError "expecting {altNumParams} parameters, including {numDiscrEqs} equalities, but found type{indentExpr altType}"
+      if i < altNumParams - numDiscrEqs then
+        let d ← Match.unfoldNamedPattern d
+        withLocalDeclD n d fun y => do
+          let typeNew := b.instantiate1 y
+          -- if let some (_, lhs, rhs) ← matchEq? d then
+          --   if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
+          --      let some j  := ys.finIdxOf? lhs | unreachable!
+          --      let ys      := ys.eraseIdx j
+          --      let some k  := args.idxOf? lhs | unreachable!
+          --      let mask    := mask.set! k false
+          --      let args    := args.map fun arg => if arg == lhs then rhs else arg
+          --      let arg     ← mkEqRefl rhs
+          --      let typeNew := typeNew.replaceFVar lhs rhs
+          --      return ← withReplaceFVarId lhs.fvarId! rhs do
+          --       withReplaceFVarId y.fvarId! arg do
+          --         go ys eqs (args.push arg) (mask.push false) (i+1) typeNew
+          go (ys.push y) eqs (args.push y) (mask.push true) (i+1) typeNew
+      else
+        -- let arg ← if let some (_, _, rhs) ← matchEq? d then
+        --   mkEqRefl rhs
+        -- else if let some (_, _, _, rhs) ← matchHEq? d then
+        --   mkHEqRefl rhs
+        -- else
+        --   throwError "unexpected match alternative type{indentExpr altType}"
+        withLocalDeclD n d fun eq => do
+          let typeNew := b.instantiate1 eq
+          go ys (eqs.push eq) (args.push eq) (mask.push false) (i+1) typeNew
+    else
+      let type ← Match.unfoldNamedPattern type
+      /- Recall that alternatives that do not have variables have a `Unit` parameter to ensure
+         they are not eagerly evaluated. -/
+      if ys.size == 1 then
+        if (← inferType ys[0]!).isConstOf ``Unit && !(← dependsOn type ys[0]!.fvarId!) then
+          let rhs := mkConst ``Unit.unit
+          return ← withReplaceFVarId ys[0]!.fvarId! rhs do
+          return (← k #[] #[] #[rhs] #[false] type)
+      k ys eqs args mask type
+
+  isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
+    Option.isSome <| type.find? fun e =>
+      if let some e := Match.isNamedPattern? e then
+        e.appArg! == h
+      else
+        false
+
 def genGeneralizedMatchEqns (matchDeclName : Name) : MetaM Unit := do
-  let matchEqns ← Match.getEquationsFor matchDeclName
-  let some matcherInfo ← getMatcherInfo? matchDeclName | throwError "expected match info for {matchDeclName}"
-  let matcherVal ← getConstVal matchDeclName
-  for eqnName in matchEqns.eqnNames do
-    let eqnVal ← getConstVal eqnName
-    unless matcherVal.levelParams = eqnVal.levelParams do
-      throwError "level params of {eqnName} do not match the level params of {matchDeclName}"
-    forallTelescope matcherVal.type fun xs _ => do
-      assert! matcherInfo.numParams + 1 + matcherInfo.numDiscrs + matcherInfo.numAlts == xs.size
-      -- let params := xs[0:matcherInfo.numParams]
-      -- let motive := xs[matcherInfo.numParams]!
-      let discrs := xs[matcherInfo.getFirstDiscrPos:matcherInfo.getFirstAltPos]
-      let alts := xs[matcherInfo.getFirstAltPos:]
-      let lhs := mkAppN (← mkConstWithLevelParams matchDeclName) xs
-
-      let eqnType := eqnVal.type
-      let eqnType ← instantiateForall eqnType xs[:matcherInfo.numParams + 1]
-      let (hs, _, eqType) ← forallMetaTelescope eqnType
-      let some (_, eqLhs, eqRhs) := eqType.eq?
-        | throwError "expected equation type for {eqnName}"
-      unless eqLhs.isAppOfArity matchDeclName xs.size do
-        throwError "unexpected arity of {matchDeclName} in{indentExpr eqLhs}"
-      let mut eqHyps := #[]
-      for d1 in discrs, d2 in eqLhs.getAppArgs[matcherInfo.getFirstDiscrPos:] do
-        eqHyps := eqHyps.push (← mkEqHEq d1 d2)
-      for a1 in alts, a2 in eqLhs.getAppArgs[matcherInfo.getFirstAltPos:] do
-        a2.mvarId!.assign a1
-      let hs ← hs.filterM fun h => do return ! (← h.mvarId!.isAssigned)
-
-      let genEqType ← mkForallFVars (xs ++ hs) (← mkHEq lhs eqRhs)
-      logInfo m!"{eqnName} : {genEqType}"
-      check genEqType
-      pure ()
-
+  let baseName := mkPrivateName (← getEnv) matchDeclName
+  withConfig (fun c => { c with etaStruct := .none }) do
+  let constInfo ← getConstInfo matchDeclName
+  let us := constInfo.levelParams.map mkLevelParam
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
+  let numDiscrEqs := Match.getNumEqsFromDiscrInfos matchInfo.discrInfos
+  forallTelescopeReducing constInfo.type fun xs matchResultType => do
+    let mut eqnNames := #[]
+    let params := xs[:matchInfo.numParams]
+    let motive := xs[matchInfo.getMotivePos]!
+    let alts   := xs[xs.size - matchInfo.numAlts:]
+    let firstDiscrIdx := matchInfo.numParams + 1
+    let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
+    let mut notAlts := #[]
+    let mut idx := 1
+    let mut splitterAltTypes := #[]
+    let mut splitterAltNumParams := #[]
+    let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
+    for i in [:alts.size] do
+      let altNumParams := matchInfo.altNumParams[i]!
+      let thmName := baseName ++ ((`gen_eq).appendIndexAfter idx)
+      eqnNames := eqnNames.push thmName
+      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ←
+          forallAltTelescope (← inferType alts[i]!) altNumParams numDiscrEqs
+          fun ys eqs rhsArgs argMask altResultType => do
+        let patterns := altResultType.getAppArgs
+        let mut hs := #[]
+        for notAlt in notAlts do
+          let h ← instantiateForall notAlt patterns
+          if let some h ← Match.simpH? h patterns.size then
+            hs := hs.push h
+        trace[Meta.Match.matchEqs] "hs: {hs}"
+        let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) (mkArrow · ·))
+        let splitterAltNumParam := hs.size + ys.size
+        -- Create a proposition for representing terms that do not match `patterns`
+        let mut notAlt := mkConst ``False
+        for discr in discrs.toArray.reverse, pattern in patterns.reverse do
+          notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
+        notAlt ← mkForallFVars (discrs ++ ys) notAlt
+        /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
+           Thus, we need to create new `alts`. -/
+        id do
+        -- Match.withNewAlts numDiscrEqs discrs patterns alts fun alts => do
+          let alt := alts[i]!
+          let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+          let rhs := mkAppN alt rhsArgs
+          let thmType ← mkHEq lhs rhs
+          let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
+          -- let thmVal ← mkFreshExprSyntheticOpaqueMVar thmType
+          let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ ys ++ eqs) thmType
+          let thmType ← Match.unfoldNamedPattern thmType
+          let thmVal ← Match.proveCondEqThm matchDeclName thmType
+          addDecl <| Declaration.thmDecl {
+            name        := thmName
+            levelParams := constInfo.levelParams
+            type        := thmType
+            value       := thmVal
+          }
+          return (notAlt, splitterAltType, splitterAltNumParam, argMask)
+      notAlts := notAlts.push notAlt
+      splitterAltTypes := splitterAltTypes.push splitterAltType
+      splitterAltNumParams := splitterAltNumParams.push splitterAltNumParam
+      altArgMasks := altArgMasks.push argMask
+      trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
+      idx := idx + 1
 
 
 def myTest {α}
@@ -229,8 +315,41 @@ def myTest {α}
   | a :: dc => h_1 a dc h
   | x' => h_2 x' h
 
+-- set_option trace.Meta.Match.matchEqs true in
 run_meta do
   genGeneralizedMatchEqns ``myTest.match_1
 
 -- #check myTest.match_1
--- #check myTest.match_1.eq_2
+/--
+info: myTest.match_1.splitter.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)
+  (h_1 : (a : α) → (dc : List α) → x✝ = a :: dc → motive (a :: dc))
+  (h_2 : (x' : List α) → (∀ (a : α) (dc : List α), x' = a :: dc → False) → x✝ = x' → motive x') : motive x✝
+-/
+#guard_msgs in
+#check myTest.match_1.splitter
+/--
+info: myTest.match_1.gen_eq_1.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)
+  (h_1 : (a : α) → (dc : List α) → x✝ = a :: dc → motive (a :: dc)) (h_2 : (x' : List α) → x✝ = x' → motive x') (a : α)
+  (dc : List α) (h : x✝ = a :: dc) :
+  HEq
+    (match h : x✝ with
+    | a :: dc => h_1 a dc h
+    | x' => h_2 x' h)
+    (h_1 a dc h)
+-/
+#guard_msgs in
+#check myTest.match_1.gen_eq_1
+
+/--
+info: myTest.match_1.gen_eq_2.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)
+  (h_1 : (a : α) → (dc : List α) → x✝ = a :: dc → motive (a :: dc)) (h_2 : (x' : List α) → x✝ = x' → motive x')
+  (x' : List α) (h : x✝ = x') :
+  (∀ (a : α) (dc : List α), x' = a :: dc → False) →
+    HEq
+      (match h : x✝ with
+      | a :: dc => h_1 a dc h
+      | x' => h_2 x' h)
+      (h_2 x' h)
+-/
+#guard_msgs in
+#check myTest.match_1.gen_eq_2

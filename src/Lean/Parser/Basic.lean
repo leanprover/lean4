@@ -1537,27 +1537,22 @@ This parser has the same arity as `p` - it just forwards the results of `p`. -/
 @[builtin_doc] def withPosition : Parser → Parser := withFn fun f c s =>
     adaptCacheableContextFn ({ · with savedPos? := s.pos }) f c s
 
-def withPositionAfterLinebreak : Parser → Parser := withFn fun f c s =>
-  let prev := s.stxStack.back
-  adaptCacheableContextFn (fun c => if checkTailLinebreak prev then { c with savedPos? := s.pos } else c) f c s
-
 /--
-`withPositionFromLineStart(p)` works similar to `withPosition(p)` except that the saved position
-is the beginning of the line (after whitespace).
+`withPositionAfterLinebreak(p)` works similar to `withPosition(p)` except it only changes the
+position if the current position is preceded by whitespace.
 -/
-@[builtin_doc] def withPositionFromLineStart : Parser → Parser := withFn fun f c s => Id.run do
-  let pos := go s.stxStack s.stackSize
-  adaptCacheableContextFn (fun c => { c with savedPos? := pos }) f c s
+@[builtin_doc] def withPositionAfterLinebreak : Parser → Parser := withFn fun f c s =>
+  adaptCacheableContextFn (fun c => if go s.stxStack s.stackSize then { c with savedPos? := s.pos } else c) f c s
 where
-  go (stack : SyntaxStack) (i : Nat) : Option String.Pos :=
+  go (stack : SyntaxStack) (i : Nat) : Bool :=
     match i with
-    | 0 => none
+    | 0 => false
     | k + 1 =>
       let stx := stack.get! k
       match stx.getTailInfo with
-      | .original _ _ trailing _ =>
-        if trailing.contains '\n' then some trailing.stopPos else go stack k
-      | _ => go stack k
+      | .original _ _ trailing _ => trailing.contains '\n'
+      | .none => go stack k
+      | _ => false
 
 /-- `withoutPosition(p)` runs `p` without the saved position, meaning that position-checking
 parsers like `colGt` will have no effect. This is usually used by bracketing constructs like

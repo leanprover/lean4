@@ -173,7 +173,7 @@ def doCatchMatch := leading_parser
 def doFinally    := leading_parser
   ppDedent ppLine >> checkColGe "'finally' must be indented" >>
     "finally " >> doSeq
-@[builtin_doElem_parser] def doTry    := leading_parser withResetCache <| withPositionFromLineStart <|
+@[builtin_doElem_parser] def doTry    := leading_parser withResetCache <| withPositionAfterLinebreak <|
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 
 /-- `break` exits the surrounding `for` loop. -/

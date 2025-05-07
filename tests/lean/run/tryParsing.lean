@@ -38,6 +38,18 @@ example : IO Unit := do
   try
     let _ ← try
       pure ()
+    catch _ => try
+      pure ()
+    catch _ =>
+      pure ()
+  catch _ =>
+    pure ()
+
+example : IO Unit := do
+  try
+    let _ :=
+      (); try
+      pure ()
     catch _ =>
       pure ()
   catch _ =>

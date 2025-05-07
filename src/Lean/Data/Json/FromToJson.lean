@@ -47,46 +47,46 @@ instance : ToJson String := ⟨fun s => s⟩
 instance : FromJson System.FilePath := ⟨fun j => System.FilePath.mk <$> Json.getStr? j⟩
 instance : ToJson System.FilePath := ⟨fun p => p.toString⟩
 
-protected def Array.fromJson? [FromJson α] : Json → Except String (Array α)
+protected def _root_.Array.fromJson? [FromJson α] : Json → Except String (Array α)
   | Json.arr a => a.mapM fromJson?
   | j          => throw s!"expected JSON array, got '{j}'"
 
 instance [FromJson α] : FromJson (Array α) where
   fromJson? := Array.fromJson?
 
-protected def Array.toJson [ToJson α] (a : Array α) : Json :=
+protected def _root_.Array.toJson [ToJson α] (a : Array α) : Json :=
   Json.arr (a.map toJson)
 
 instance [ToJson α] : ToJson (Array α) where
   toJson := Array.toJson
 
-protected def List.fromJson? [FromJson α] (j : Json) : Except String (List α) :=
+protected def _root_.List.fromJson? [FromJson α] (j : Json) : Except String (List α) :=
   (fromJson? j (α := Array α)).map Array.toList
 
 instance [FromJson α] : FromJson (List α) where
   fromJson? := List.fromJson?
 
-protected def List.toJson [ToJson α] (a : List α) : Json :=
+protected def _root_.List.toJson [ToJson α] (a : List α) : Json :=
   toJson a.toArray
 
 instance [ToJson α] : ToJson (List α) where
   toJson := List.toJson
 
-protected def Option.fromJson? [FromJson α] : Json → Except String (Option α)
+protected def _root_.Option.fromJson? [FromJson α] : Json → Except String (Option α)
   | Json.null => Except.ok none
   | j         => some <$> fromJson? j
 
 instance [FromJson α] : FromJson (Option α) where
   fromJson? := Option.fromJson?
 
-protected def Option.toJson [ToJson α] : Option α → Json
+protected def _root_.Option.toJson [ToJson α] : Option α → Json
   | none   => Json.null
   | some a => toJson a
 
 instance [ToJson α] : ToJson (Option α) where
   toJson := Option.toJson
 
-protected def Prod.fromJson? {α : Type u} {β : Type v} [FromJson α] [FromJson β] : Json → Except String (α × β)
+protected def _root_.Prod.fromJson? {α : Type u} {β : Type v} [FromJson α] [FromJson β] : Json → Except String (α × β)
   | Json.arr #[ja, jb] => do
     let ⟨a⟩ : ULift.{v} α := ← (fromJson? ja).map ULift.up
     let ⟨b⟩ : ULift.{u} β := ← (fromJson? jb).map ULift.up
@@ -96,7 +96,7 @@ protected def Prod.fromJson? {α : Type u} {β : Type v} [FromJson α] [FromJson
 instance {α : Type u} {β : Type v} [FromJson α] [FromJson β] : FromJson (α × β) where
   fromJson? := Prod.fromJson?
 
-protected def Prod.toJson [ToJson α] [ToJson β] : α × β → Json
+protected def _root_.Prod.toJson [ToJson α] [ToJson β] : α × β → Json
   | (a, b) => Json.arr #[toJson a, toJson b]
 
 instance [ToJson α] [ToJson β] : ToJson (α × β) where
@@ -149,7 +149,7 @@ def bignumFromJson? (j : Json) : Except String Nat := do
 def bignumToJson (n : Nat) : Json :=
   toString n
 
-protected def USize.fromJson? (j : Json) : Except String USize := do
+protected def _root_.USize.fromJson? (j : Json) : Except String USize := do
   let n ← bignumFromJson? j
   if n ≥ USize.size then
     throw "value '{j}' is too large for `USize`"
@@ -161,7 +161,7 @@ instance : FromJson USize where
 instance : ToJson USize where
   toJson v := bignumToJson (USize.toNat v)
 
-protected def UInt64.fromJson? (j : Json) : Except String UInt64 := do
+protected def _root_.UInt64.fromJson? (j : Json) : Except String UInt64 := do
   let n ← bignumFromJson? j
   if n ≥ UInt64.size then
     throw "value '{j}' is too large for `UInt64`"
@@ -173,7 +173,7 @@ instance : FromJson UInt64 where
 instance : ToJson UInt64 where
   toJson v := bignumToJson (UInt64.toNat v)
 
-protected def Float.toJson (x : Float) : Json :=
+protected def _root_.Float.toJson (x : Float) : Json :=
   match JsonNumber.fromFloat? x with
   | Sum.inl e => Json.str e
   | Sum.inr n => Json.num n
@@ -181,7 +181,7 @@ protected def Float.toJson (x : Float) : Json :=
 instance : ToJson Float where
   toJson := Float.toJson
 
-protected def Float.fromJson? : Json → Except String Float
+protected def _root_.Float.fromJson? : Json → Except String Float
   | (Json.str "Infinity") => Except.ok (1.0 / 0.0)
   | (Json.str "-Infinity") => Except.ok (-1.0 / 0.0)
   | (Json.str "NaN") => Except.ok (0.0 / 0.0)

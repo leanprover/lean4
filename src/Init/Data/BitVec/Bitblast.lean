@@ -1750,45 +1750,161 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
         ((not_congr neg_eq_zero_iff).mpr hyz)]
       exact neg_le_intMin_of_msb_eq_true h'
 
+theorem getElem_true_le (x : BitVec w) (i : Nat) (h : i < w) :
+    x[i] →  2 ^ i ≤ x.toNat := by
+  rcases w with rfl | w
+  · omega
+  · simp [← getLsbD_eq_getElem, getLsbD, Nat.testBit_eq_decide_div_mod_eq, Nat.succ_sub_succ_eq_sub, Nat.sub_zero]
+    rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ i)) with h'' | h''
+    · simp [Nat.div_eq_of_lt h'', h'']
+    · simp [h'']
+
+theorem le_toNat_iff (x : BitVec w) (hi : i < w ) :
+    (2 ^ i ≤ x.toNat) ↔ (∃ k, x.getLsbD (i + k) = true) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · constructor
+    · -- (2 ^ i ≤ x.toNat) → (∃ k, x.getLsbD (i + k) = true)
+      intro hle
+      apply Classical.byContradiction
+      intros hcontra
+      -- we have a bitvec that looks like:
+      -- 0 0 ... 0 ...
+      -- w ..... i ...
+      -- we need to show that under these conditions
+      -- it is impossible that 2 ^ i ≤ x.toNat
+      -- we truncate the vector to size i + 1:
+      -- 0 ....
+      -- i ...
+      -- we show x'.toNat = x.toNat since all the bits from i to w are 0
+      let x' := setWidth (i + 1) x
+      have hx' : setWidth (i + 1) x = x' := by rfl
+      have hcast : w - i + (i + 1) = w + 1 := by omega
+      simp at hcontra
+      have hx'' : x = BitVec.cast hcast (0#(w - i) ++ x') := by
+        ext j
+        by_cases hj : j < i + 1
+        · simp [hj]
+          simp [getElem_append, hj]
+          simp [← hx']
+          rw [getLsbD_eq_getElem]
+        · simp [getElem_append, hj]
+          let j' := j - i
+          have hj' : j = i + j' := by omega
+          simp [hj']
+          apply hcontra
+      -- we show that since x'.msb = false, then it can't be 2 ^ i ≤ x.toNat
+      have h2 := BitVec.getLsbD_setWidth (x := x) (m := i + 1) (i := i)
+      simp only [hx', show i < i + 1 by omega, decide_true, Bool.true_and] at h2
+      have h3 := msb_eq_false_iff_two_mul_lt (x := x')
+      simp only [BitVec.msb, getMsbD_eq_getLsbD, zero_lt_succ, decide_true, Nat.add_one_sub_one,
+        Nat.sub_zero, Nat.lt_add_one, Bool.true_and] at h3
+      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm] at h3
+      have h6 : x'.toNat < 2 ^ i := by
+        specialize hcontra 0
+        simp_all
+      have h1 : x'.toNat = x.toNat := by
+        have h5 := BitVec.setWidth_eq_append (w := (w + 1)) (v := i + 1) (x := x')
+        specialize h5 (by omega)
+        rw [toNat_eq, toNat_setWidth, Nat.mod_eq_of_lt (by omega)] at h5
+        simp [hx'']
+      omega
+    · -- (∃ k, x.getLsbD (i + k) = true) → (2 ^ i ≤ x.toNat)
+      intro h
+      obtain ⟨k, hk⟩ := h
+      by_cases hk' : i + k < w + 1
+      · rw [getLsbD_eq_getElem (by omega)] at hk
+        have := getElem_true_le (x := x) (i := i + k) (by omega)
+        simp [hk] at this
+        have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
+        omega
+      · simp [show w + 1 ≤ i + k by omega] at hk
+
+theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
+    x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
+  constructor
+  · intro h
+    apply Classical.byContradiction
+    intro hcontra
+    simp at hcontra
+    obtain ⟨k, hk⟩ := hcontra
+    have hle := getElem_true_le (x := x) (i := i + k)
+    by_cases hlt : i + k < w
+    · specialize hle (by omega)
+      rw [getLsbD_eq_getElem (by omega)] at hk
+      simp [hk] at hle
+      have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
+      omega
+    · simp [show w ≤ i + k by omega] at hk
+  · intro h
+    apply Classical.byContradiction
+    intro hcontra
+    have := le_toNat_iff (x := x) (i := i) hi
+    simp [this, h] at hcontra
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
   rw [smod_eq]
   rcases w with _|w
   · sorry
-  · by_cases hyz : y.toInt = 0
-    · simp only [hyz, ofNat_eq_ofNat, msb_zero, umod_zero, neg_zero, neg_neg, toInt_zero, Int.tmod_zero]
-      cases x.msb <;> sorry
-    cases h : x.msb
-    · cases h' : y.msb
-      · -- 0 ≤ x.toInt, 0 ≤ y.toInt
-        have hynonneg : 0 ≤ y.toInt := by sorry
-        rw [Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) hynonneg]
-        rw [toInt_eq_toNat_of_msb h, toInt_eq_toNat_of_msb h']
-        simp [toInt_umod]
-        have : x.toNat < 2 ^ w := by sorry
-        have : y.toNat < 2 ^ w := by sorry
-        have := Int.emod_lt (a := x.toInt) (b := y.toInt) (by sorry)
-        simp [Int.bmod_eq_emod_of_lt (by sorry)]
-        norm_cast
-        rw [Nat.mod_eq_of_lt (a := x.toNat % y.toNat) (b := 2 ^ (w + 1)) (by sorry)]
-      · -- 0 ≤ x.toInt, y.toInt < 0
-        simp [h, h']
-        by_cases h1 : x % -y = 0#(w + 1)
-        · -- iff -y = x or -y = 1: deal with these cases separately
-          simp [h1]
+  · by_cases hyzero : y = 0#(w + 1)
+    · sorry
+    · cases hxmsb : x.msb
+      · cases hymsb : y.msb
+        · -- 0 ≤ x.toInt, 0 ≤ y.toInt
+          have hxnonneg := toInt_nonneg_of_msb_false (x := y) hymsb
+          have hynonneg := toInt_nonneg_of_msb_false (x := x) hxmsb
+          rw [Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) (by omega)]
+          rw [toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb]
+          simp only [umod_eq, toInt_umod]
+          have hxlt := toNat_lt_of_msb_false (x := x) (by omega)
+          have hylt := toNat_lt_of_msb_false (x := y) (by omega)
+          have := Int.emod_lt (a := x.toInt) (b := y.toInt)
+            (by simp [← toInt_inj] at hyzero; omega)
+          norm_cast
+          have hnatAbsEq: y.toInt.natAbs = y.toNat := by
+            simp [toInt_eq_toNat_of_msb hymsb]
+          have hModLt := Nat.mod_lt (x := x.toNat) (y := y.toNat)
+            (by simp [← toInt_inj] at hyzero; omega)
+          simp [Int.emod_bmod]
+          simp at hylt hxlt
+          have := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + 1) (by omega) (by omega)
+          rw [Int.bmod_eq_emod_of_lt (x := x.toNat % y.toNat) (m := 2 ^ (w + 1))
+            (by rw_mod_cast [Nat.mod_eq_of_lt (by omega)]; omega)]
+          rw_mod_cast [Nat.mod_eq_of_lt (by omega)]
+        · -- 0 ≤ x.toInt, y.toInt < 0
+          have hyneg : y.toInt < 0 := by sorry
+          simp [hxmsb, hymsb]
+          by_cases h1 : x % -y = 0#(w + 1)
+          · -- iff -y = x or -y = 1: deal with these cases separately
+            simp [h1]
+            sorry
+          · simp [h1]
+            simp [toInt_umod]
+            -- in this case since y.msb we'll have 2 ^ (w + 1) - y.toNat < 0 and in particular
+            -- - 2 ^ w ≤ 2 ^ (w + 1) - y.toNat < 0, we need to use this information to get rid of the bmod and then
+            -- translate fmod into emod (based on a similar if as h1 iirc)
+            simp [Int.fmod_eq_emod]
+            -- exclude y.toInt | x.toInt → this means that the modulo is zero! just like h1
+            -- given that y.toNat > 2 ^ w (because y.msb is true), then 2 ^ (w + 1) - y.toNat < 2 ^ w (note that 2 ^ (w + 1) / 2 = 2 ^ w)
+            have : 2 ^ (w + 1) - y.toNat < 2 ^ w := by sorry
+            have hh : 2 ^ (w + 1) - y.toNat < 2 ^ (w + 1) := by sorry
+            by_cases hdvd : (y.toInt ∣ x.toInt)
+            · simp [hdvd, hyneg]
+              sorry
+            · simp [hdvd, hyneg, show ¬ 0 ≤ y.toInt by omega]
+              rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ (w + 1) - y.toNat) (b := 2 ^ (w + 1)) hh]
+              norm_cast
+              simp [Int.bmod_eq_emod]
+
+              sorry
+      · cases hymsb : y.msb
+        · -- x.toInt < 0, 0 ≤ y.toInt
+          simp [hxmsb, hymsb]
           sorry
-        · simp [h1]
-          simp [toInt_umod]
-          -- in this case since y.msb we'll have 2 ^ (w + 1) - y.toNat < 0 and in particular
-          -- - 2 ^ w ≤ 2 ^ (w + 1) - y.toNat < 0, we need to use this information to get rid of the bmod and then
-          -- translate fmod into emod (based on a similar if as h1 iirc)
+        · -- x.toInt < 0, y.toInt < 0
+          simp [hxmsb, hymsb]
           sorry
-    · cases h' : y.msb
-      · -- x.toInt < 0, 0 ≤ y.toInt
-        sorry
-      · -- x.toInt < 0, y.toInt < 0
-        sorry
 
 /-! ### Lemmas that use bit blasting circuits -/
 

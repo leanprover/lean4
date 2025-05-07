@@ -1545,7 +1545,7 @@ def withPositionAfterLinebreak : Parser → Parser := withFn fun f c s =>
 `withPositionFromLineStart(p)` works similar to `withPosition(p)` except that the saved position
 is the beginning of the line (after whitespace).
 -/
-def withPositionFromLineStart : Parser → Parser := withFn fun f c s => Id.run do
+@[builtin_doc] def withPositionFromLineStart : Parser → Parser := withFn fun f c s => Id.run do
   let pos := go s.stxStack s.stackSize
   adaptCacheableContextFn (fun c => { c with savedPos? := pos }) f c s
 where

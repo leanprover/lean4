@@ -1844,12 +1844,12 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
-  rw [smod_eq]
   rcases w with _|w
-  · sorry
+  · simp [of_length_zero]
   · by_cases hyzero : y = 0#(w + 1)
-    · sorry
-    · cases hxmsb : x.msb
+    · simp [hyzero]
+    · rw [smod_eq]
+      cases hxmsb : x.msb
       · cases hymsb : y.msb
         · -- 0 ≤ x.toInt, 0 ≤ y.toInt
           have hxnonneg := toInt_nonneg_of_msb_false (x := y) hymsb

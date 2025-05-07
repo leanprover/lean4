@@ -1508,6 +1508,73 @@ theorem sdiv_intMin {x : BitVec w} :
         (BitVec.ne_zero_of_msb_true hx), hx]
     · simp [hx]
 
+-- x : something.toInt
+-- y : somethingElse.toInt
+
+-- x.tmod y ← operation on integers
+-- suppose x' : x'.toInt = x → x' = something
+-- suppose y' : y'.toInt = y → y' = somethingElse
+-- find operation op such that x.tmod y ↔ x'.op y'
+
+#print BitVec.ofInt
+
+theorem tmod_of_something (x y : BitVec w) :
+    (x.toInt).tmod (y.toInt) = x.toNat % y.toNat := by
+  unfold Int.tmod
+  by_cases 0 < x.toInt <;> by_cases 0 < y.toInt
+  · obtain ⟨xn, hx'⟩ := Int.eq_ofNat_of_zero_le (a := x.toInt) (by omega)
+    obtain ⟨yn, hy'⟩ := Int.eq_ofNat_of_zero_le (a := y.toInt) (by omega)
+    simp [hx', hy']
+    norm_cast
+    obtain ⟨xn', hx''⟩ := Int.eq_ofNat_of_zero_le (a := x.toNat) (by omega)
+    obtain ⟨yn', hy''⟩ := Int.eq_ofNat_of_zero_le (a := y.toNat) (by omega)
+    sorry
+  · sorry
+  · sorry
+  · sorry
+
+#print BitVec.toNat
+
+theorem toInt_smod {x y : BitVec w} :
+    (x.smod y).toInt = x.toInt.fmod y.toInt := by
+  simp [Int.fmod, BitVec.smod]
+  by_cases hxzero : x = 0#w
+  · have := toInt_zero (w := w)
+    simp [hxzero, show x.toInt = 0 by simp_all]
+    by_cases hymsb : y.msb
+    · simp_all
+    · simp_all
+  · by_cases hxmsb : x.msb <;> by_cases hymsb : y.msb
+    · -- x < 0, y < 0
+      have hxneg := BitVec.toInt_neg_of_msb_true (x := x)
+      have hyneg := BitVec.toInt_neg_of_msb_true (x := y)
+      simp [hxmsb, hymsb]
+      simp [hxmsb, hymsb] at hxneg hyneg
+      obtain ⟨xn, hx'⟩ := Int.eq_negSucc_of_lt_zero (a := x.toInt) hxneg
+      obtain ⟨yn, hy'⟩ := Int.eq_negSucc_of_lt_zero (a := y.toInt) hyneg
+      simp [hx', hy']
+      -- (-(-x % -y)).toInt = -((↑xn + 1) % (↑yn + 1))
+      -- note that - x = (- xn - 1)
+      -- note that - y = (- yn - 1)
+      rw [BitVec.toInt_neg]
+      simp [toInt_umod]
+      -- x = Int.negSucc xn
+      -- x.toNat = xn + 1
+      have := Int.negSucc_eq (n := xn)
+      have h1 : x.toNat < 2 ^ w := by omega
+      have h2 : y.toNat < 2 ^ w := by omega
+      by_cases h3 : 0 < x.toNat
+      · have := Int.sub_lt_self (a := 2 ^ w) (b := x.toNat) (by omega)
+        norm_cast
+        sorry
+      · sorry
+    · simp [hxmsb, hymsb]
+      sorry
+    · simp [hxmsb, hymsb]
+      sorry
+    · simp [hxmsb, hymsb]
+      sorry
+
 theorem sdiv_neg {x y : BitVec w} (h : y ≠ intMin w) :
     x.sdiv (-y) = -(x.sdiv y) := by
   by_cases h' : y = 0#w

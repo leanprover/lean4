@@ -54,3 +54,15 @@ example : IO Unit := do
       pure ()
   catch _ =>
     pure ()
+
+example : IO Unit := do
+  try
+    try
+      pure ()
+    catch
+        _ => try
+      pure ()
+    catch _ =>
+      pure ()
+  catch _ =>
+    pure ()

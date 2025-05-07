@@ -291,8 +291,11 @@ implementation.
 instance : Inhabited Float where
   default := UInt64.toFloat 0
 
+protected def Float.repr (n : Float) (prec : Nat) : Std.Format :=
+  if n < UInt64.toFloat 0 then Repr.addAppParen (toString n) prec else toString n
+
 instance : Repr Float where
-  reprPrec n prec := if n < UInt64.toFloat 0 then Repr.addAppParen (toString n) prec else toString n
+  reprPrec := Float.repr
 
 instance : ReprAtom Float  := ⟨⟩
 

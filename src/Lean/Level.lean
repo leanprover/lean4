@@ -10,6 +10,7 @@ import Lean.Data.PersistentHashSet
 import Lean.Hygiene
 import Lean.Data.Name
 import Lean.Data.Format
+import Init.Data.Option.Coe
 
 def Nat.imax (n m : Nat) : Nat :=
   if m = 0 then 0 else Nat.max n m

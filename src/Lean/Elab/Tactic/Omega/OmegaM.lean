@@ -158,7 +158,7 @@ where op (f : Int → Int → Int) (x y : Expr) : Option Int :=
 
 /-- Construct the term with type hint `(Eq.refl a : a = b)`-/
 def mkEqReflWithExpectedType (a b : Expr) : MetaM Expr := do
-  mkExpectedTypeHint (← mkEqRefl a) (← mkEq a b)
+  return mkExpectedPropHint (← mkEqRefl a) (← mkEq a b)
 
 /--
 Analyzes a newly recorded atom,

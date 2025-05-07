@@ -42,7 +42,8 @@ def buildLeanSharedLibOfStatic
           #[s!"-Wl,-force_load,{staticLib}"]
         else
           #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
-      let args := baseArgs ++ weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
+      let args := baseArgs ++ weakArgs ++ traceArgs ++
+        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkSharedFlags
       compileSharedLib dynlib args lean.cc
     return dynlib
 

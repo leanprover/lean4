@@ -255,14 +255,14 @@ where
         mkAtomLinearCombo e
     | _ => match n.getAppFnArgs with
     | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
-    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
+    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_add []) a b)
     | (``HMul.hMul, #[_, _, _, _, a, b]) =>
       let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
       -- Add the fact that the multiplication is non-negative.
       pure (lc, prf, r.insert (mkApp2 (.const ``Int.ofNat_mul_nonneg []) a b))
-    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
+    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_ediv []) a b)
     | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
-    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
+    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_emod []) a b)
     | (``HSub.hSub, #[_, _, _, _, mkApp6 (.const ``HSub.hSub _) _ _ _ _ a b, c]) =>
       rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
     | (``HPow.hPow, #[_, _, _, _, a, b]) =>
@@ -674,16 +674,19 @@ open Lean Elab Tactic Parser.Tactic
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
   let declName? ← Term.getDeclName?
   liftMetaFinishingTactic fun g => do
-    let some g ← g.falseOrByContra | return ()
-    g.withContext do
-      let type ← g.getType
-      let g' ← mkFreshExprSyntheticOpaqueMVar type
-      let hyps := (← getLocalHyps).toList
-      trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
-      omega hyps g'.mvarId! cfg
-      -- Omega proofs are typically rather large, so hide them in a separate definition
-      let e ← mkAuxTheorem (prefix? := declName?) type (← instantiateMVarsProfiling g') (zetaDelta := true)
-      g.assign e
+    if debug.terminalTacticsAsSorry.get (← getOptions) then
+      g.admit
+    else
+      let some g ← g.falseOrByContra | return ()
+      g.withContext do
+        let type ← g.getType
+        let g' ← mkFreshExprSyntheticOpaqueMVar type
+        let hyps := (← getLocalHyps).toList
+        trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
+        omega hyps g'.mvarId! cfg
+        -- Omega proofs are typically rather large, so hide them in a separate definition
+        let e ← mkAuxTheorem (prefix? := declName?) type (← instantiateMVarsProfiling g') (zetaDelta := true)
+        g.assign e
 
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This

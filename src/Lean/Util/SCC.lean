@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Std.Data.HashMap.Basic
+import Init.Data.Option.Coe
+
 namespace Lean.SCC
 /-!
   Very simple implementation of Tarjan's SCC algorithm.

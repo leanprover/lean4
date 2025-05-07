@@ -501,6 +501,7 @@ static lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_mkCo
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__commandConfigElab__1___closed__2;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_elabConfig___spec__3___lambda__2___closed__2;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_elabConfig___spec__3___lambda__2___closed__5;
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_mkConfigElaborator___closed__221;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mapMAux___at___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_elabConfig___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -517,7 +518,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Tactic
 static lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_mkConfigElaborator___closed__255;
 static lean_object* l_Lean_Elab_Tactic_configElab___closed__12;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_elabConfig___spec__3___lambda__4___closed__4;
-lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_checkCommandConfigElab__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandFieldName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_mkConfigElaborator___closed__64;
@@ -1181,7 +1181,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandFieldName___lambda__1___closed__11;
 x_2 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandFieldName___lambda__1___closed__12;
-x_3 = lean_unsigned_to_nat(19u);
+x_3 = lean_unsigned_to_nat(21u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandFieldName___lambda__1___closed__13;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1344,7 +1344,7 @@ x_17 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandFieldName__
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_8);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_18, x_3, x_4, x_5, x_6, x_11);
+x_19 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_18, x_3, x_4, x_5, x_6, x_11);
 x_20 = !lean_is_exclusive(x_19);
 if (x_20 == 0)
 {
@@ -1402,7 +1402,7 @@ x_34 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandFieldName__
 x_35 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_35, 0, x_33);
 lean_ctor_set(x_35, 1, x_34);
-x_36 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_35, x_3, x_4, x_5, x_6, x_27);
+x_36 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_35, x_3, x_4, x_5, x_6, x_27);
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
 x_38 = lean_ctor_get(x_36, 1);
@@ -1725,7 +1725,7 @@ x_38 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandFieldName__
 x_39 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);
-x_40 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_39, x_3, x_4, x_5, x_6, x_29);
+x_40 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_39, x_3, x_4, x_5, x_6, x_29);
 x_41 = !lean_is_exclusive(x_40);
 if (x_41 == 0)
 {
@@ -1792,7 +1792,7 @@ x_58 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandFieldName__
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_57);
 lean_ctor_set(x_59, 1, x_58);
-x_60 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_59, x_3, x_4, x_5, x_6, x_48);
+x_60 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_59, x_3, x_4, x_5, x_6, x_48);
 x_61 = lean_ctor_get(x_60, 0);
 lean_inc(x_61);
 x_62 = lean_ctor_get(x_60, 1);
@@ -1952,7 +1952,7 @@ x_103 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandFieldName_
 x_104 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_104, 0, x_102);
 lean_ctor_set(x_104, 1, x_103);
-x_105 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_104, x_3, x_4, x_5, x_6, x_91);
+x_105 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_104, x_3, x_4, x_5, x_6, x_91);
 x_106 = lean_ctor_get(x_105, 0);
 lean_inc(x_106);
 x_107 = lean_ctor_get(x_105, 1);

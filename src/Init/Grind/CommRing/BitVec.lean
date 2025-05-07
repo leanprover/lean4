@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Grind.CommRing.Basic
 import Init.Data.BitVec.Lemmas
@@ -23,6 +25,7 @@ instance : CommRing (BitVec w) where
   pow_zero _ := BitVec.pow_zero
   pow_succ _ _ := BitVec.pow_succ
   ofNat_succ x := BitVec.ofNat_add x 1
+  intCast_neg _ := BitVec.ofInt_neg
 
 instance : IsCharP (BitVec w) (2 ^ w) where
   ofNat_eq_zero_iff {x} := by simp [BitVec.ofInt, BitVec.toNat_eq]

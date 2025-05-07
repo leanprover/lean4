@@ -8,6 +8,7 @@ import Lean.Elab.Tactic.Conv.Basic
 import Lean.Elab.Tactic.Conv.Congr
 import Lean.Elab.Tactic.Conv.Rewrite
 import Lean.Elab.Tactic.Conv.Change
+import Lean.Elab.Tactic.Conv.Lets
 import Lean.Elab.Tactic.Conv.Simp
 import Lean.Elab.Tactic.Conv.Pattern
 import Lean.Elab.Tactic.Conv.Delta

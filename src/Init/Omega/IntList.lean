@@ -3,6 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.List.Zip
 import Init.Data.Int.DivMod.Bootstrap
@@ -286,7 +288,7 @@ theorem gcd_cons_div_right : gcd (x::xs) ∣ gcd xs := by
   apply Nat.gcd_dvd_right
 
 theorem gcd_cons_div_right' : (gcd (x::xs) : Int) ∣ (gcd xs : Int) := by
-  rw [Int.ofNat_dvd_left, Int.natAbs_ofNat]
+  rw [Int.ofNat_dvd_left, Int.natAbs_natCast]
   exact gcd_cons_div_right
 
 theorem gcd_dvd (xs : IntList) {a : Int} (m : a ∈ xs) : (xs.gcd : Int) ∣ a := by

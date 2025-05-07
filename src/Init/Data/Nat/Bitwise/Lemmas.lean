@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
 
+module
+
 prelude
 import Init.Data.Bool
 import Init.Data.Int.Pow
@@ -11,7 +13,6 @@ import Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Simproc
 import Init.TacticsExtra
-import Init.Omega
 
 /-
 This module defines properties of the bitwise operations on Natural numbers.

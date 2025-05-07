@@ -3,6 +3,8 @@ Copyright (c) 2016 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.Int.Lemmas
 import Init.Data.Nat.Lemmas
@@ -36,7 +38,7 @@ abbrev pow_le_pow_of_le_right := @Nat.pow_le_pow_right
 @[deprecated Nat.pow_pos (since := "2025-02-17")]
 abbrev pos_pow_of_pos := @Nat.pow_pos
 
-@[norm_cast]
+@[simp, norm_cast]
 protected theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
   match n with
   | 0 => rfl
@@ -54,7 +56,7 @@ protected theorem two_pow_pred_sub_two_pow' {w : Nat} (h : 0 < w) :
     (2 : Int) ^ (w - 1) - (2 : Int) ^ w = - (2 : Int) ^ (w - 1) := by
   norm_cast
   rw [← Nat.two_pow_pred_add_two_pow_pred h]
-  simp [h]
+  simp [h, -Int.natCast_pow]
 
 theorem pow_lt_pow_of_lt {a : Int} {b c : Nat} (ha : 1 < a) (hbc : b < c):
     a ^ b < a ^ c := by
@@ -63,8 +65,14 @@ theorem pow_lt_pow_of_lt {a : Int} {b c : Nat} (ha : 1 < a) (hbc : b < c):
   simp only [Int.ofNat_lt]
   omega
 
-theorem natAbs_pow (n : Int) : (k : Nat) → (n ^ k).natAbs = n.natAbs ^ k
+@[simp] theorem natAbs_pow (n : Int) : (k : Nat) → (n ^ k).natAbs = n.natAbs ^ k
   | 0 => rfl
   | k + 1 => by rw [Int.pow_succ, natAbs_mul, natAbs_pow, Nat.pow_succ]
+
+theorem toNat_pow_of_nonneg {x : Int} (h : 0 ≤ x) (k : Nat) : (x ^ k).toNat = x.toNat ^ k := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    rw [Int.pow_succ, Int.toNat_mul (Int.pow_nonneg h) h, ih, Nat.pow_succ]
 
 end Int

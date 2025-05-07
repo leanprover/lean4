@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_EStateT_orElse___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_lift___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EStateT_toEStateM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instMonad___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_catchExceptions___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EResult_result_x3f(lean_object*, lean_object*, lean_object*);
@@ -34,12 +35,14 @@ LEAN_EXPORT lean_object* l_Lake_EStateT_toStateT___rarg(lean_object*, lean_objec
 static lean_object* l_Lake_instFunctorEResult___closed__3;
 LEAN_EXPORT lean_object* l_Lake_EStateT_tryCatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instMonad___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EResult_ofEStateMResult(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instPure(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instOrElseOfMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instMonad___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_throw(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EResult_error_x3f___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EResult_toProd(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EResult_ofEStateMResult___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instMonad___rarg___lambda__8(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_run_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instMonadFinallyOfMonad___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -57,6 +60,7 @@ LEAN_EXPORT lean_object* l_Lake_EStateT_set___rarg(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lake_EResult_modifyState(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedEResult__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instMonad___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EStateT_toEStateM___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EResult_error_x3f___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_map___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_get(lean_object*, lean_object*, lean_object*);
@@ -106,7 +110,9 @@ LEAN_EXPORT lean_object* l_Lake_EStateT_seqRight___rarg___lambda__1(lean_object*
 LEAN_EXPORT lean_object* l_Lake_EStateT_catchExceptions(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EResult_setState___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_run_x27___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EStateT_ofEStateM___rarg(lean_object*, lean_object*);
 static lean_object* l_Lake_EStateT_toStateT___rarg___closed__1;
+LEAN_EXPORT lean_object* l_Lake_EStateT_ofEStateM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instMonadLiftOfMonad(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_seqRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedEResult(lean_object*, lean_object*, lean_object*);
@@ -129,7 +135,9 @@ LEAN_EXPORT lean_object* l_Lake_EStateT_instMonadExceptOfOfMonad___rarg___lambda
 LEAN_EXPORT lean_object* l_Lake_EStateT_instMonad___rarg___lambda__6(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instFunctorEResult___closed__1;
 LEAN_EXPORT lean_object* l_Lake_EStateT_tryCatch(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EResult_toEStateMResult(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_instMonad(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EResult_toEStateMResult___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_run_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EStateT_map___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EResult_result_x3f___rarg___boxed(lean_object*);
@@ -783,6 +791,120 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lake_instFunctorEResult___closed__3;
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_EResult_toEStateMResult___rarg(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_2; 
+x_2 = !lean_is_exclusive(x_1);
+if (x_2 == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_inc(x_3);
+lean_dec(x_1);
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_4);
+return x_5;
+}
+}
+else
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_1);
+if (x_6 == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_1, 0);
+x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_dec(x_1);
+x_9 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set(x_9, 1, x_8);
+return x_9;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_EResult_toEStateMResult(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Lake_EResult_toEStateMResult___rarg), 1, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_EResult_ofEStateMResult___rarg(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_2; 
+x_2 = !lean_is_exclusive(x_1);
+if (x_2 == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_inc(x_3);
+lean_dec(x_1);
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_4);
+return x_5;
+}
+}
+else
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_1);
+if (x_6 == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_1, 0);
+x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_dec(x_1);
+x_9 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set(x_9, 1, x_8);
+return x_9;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_EResult_ofEStateMResult(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Lake_EResult_ofEStateMResult___rarg), 1, 0);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_EStateT_instInhabitedOfPure___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2548,6 +2670,40 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_Lake_EStateT_instMonadFinallyOfMonad___rarg), 6, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_EStateT_ofEStateM___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_apply_1(x_1, x_2);
+x_4 = l_Lake_EResult_ofEStateMResult___rarg(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_EStateT_ofEStateM(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Lake_EStateT_ofEStateM___rarg), 2, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_EStateT_toEStateM___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_apply_1(x_1, x_2);
+x_4 = l_Lake_EResult_toEStateMResult___rarg(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_EStateT_toEStateM(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Lake_EStateT_toEStateM___rarg), 2, 0);
 return x_4;
 }
 }

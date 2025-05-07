@@ -4,7 +4,7 @@ LAKE ?= ./.lake/build/bin/lake
 # Suite Targets
 #-------------------------------------------------------------------------------
 
-TESTS := $(addprefix tests/, $(shell ls tests))
+TESTS := $(addprefix tests/, $(filter-out common.sh, $(shell ls tests)))
 EXAMPLES := $(addprefix examples/, $(filter-out bootstrap, $(shell ls examples)))
 
 default: build

@@ -3,6 +3,8 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Basic
 import Init.Data.Char.Basic
@@ -150,7 +152,7 @@ def get (s : @& String) (p : @& Pos) : Char :=
 
 def utf8GetAux? : List Char → Pos → Pos → Option Char
   | [],    _, _ => none
-  | c::cs, i, p => if i = p then c else utf8GetAux? cs (i + c) p
+  | c::cs, i, p => if i = p then some c else utf8GetAux? cs (i + c) p
 
 
 /--
@@ -1511,7 +1513,7 @@ in it are digits.
 Use `Substring.toNat?` to convert such a substring to a natural number.
 -/
 @[inline] def isNat (s : Substring) : Bool :=
-  s.all fun c => c.isDigit
+  !s.isEmpty && s.all fun c => c.isDigit
 
 /--
 Checks whether the substring can be interpreted as the decimal representation of a natural number,

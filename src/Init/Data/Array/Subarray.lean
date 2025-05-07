@@ -3,6 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Array.Basic
 
@@ -462,8 +464,12 @@ instance : Append (Subarray α) where
    let a := x.toArray ++ y.toArray
    a.toSubarray 0 a.size
 
+/-- `Subarray` representation. -/
+protected def Subarray.repr [Repr α] (s : Subarray α) : Std.Format :=
+  repr s.toArray ++ ".toSubarray"
+
 instance [Repr α] : Repr (Subarray α) where
-  reprPrec s  _ := repr s.toArray ++ ".toSubarray"
+  reprPrec s  _ := Subarray.repr s
 
 instance [ToString α] : ToString (Subarray α) where
   toString s := toString s.toArray

@@ -387,10 +387,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
 }
@@ -1111,6 +1107,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_m
 _start:
 {
 lean_object* x_15; 
+lean_inc(x_13);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_inc(x_10);
 x_15 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(x_1, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -1668,6 +1668,10 @@ _start:
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_11; lean_object* x_12; 
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1918,10 +1922,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkNot___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 return x_11;
 }
@@ -2091,6 +2091,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_m
 _start:
 {
 lean_object* x_17; 
+lean_inc(x_15);
+lean_inc(x_14);
+lean_inc(x_13);
+lean_inc(x_12);
 x_17 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(x_1, x_11, x_12, x_13, x_14, x_15, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -2100,6 +2104,10 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
+lean_inc(x_15);
+lean_inc(x_14);
+lean_inc(x_13);
+lean_inc(x_12);
 x_20 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(x_2, x_11, x_12, x_13, x_14, x_15, x_19);
 if (lean_obj_tag(x_20) == 0)
 {

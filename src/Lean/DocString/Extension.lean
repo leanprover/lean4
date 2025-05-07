@@ -59,6 +59,7 @@ private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
   toArrayFn     := fun es => es.toArray
+  exported      := false
 }
 
 def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=
@@ -68,7 +69,8 @@ def getMainModuleDoc (env : Environment) : PersistentArray ModuleDoc :=
   moduleDocExt.getState env
 
 def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array ModuleDoc) :=
-  env.getModuleIdx? moduleName |>.map fun modIdx => moduleDocExt.getModuleEntries env modIdx
+  env.getModuleIdx? moduleName |>.map fun modIdx =>
+    moduleDocExt.getModuleEntries (includeServer := true) env modIdx
 
 def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Command.docComment) : m String :=
   match stx.raw[1] with

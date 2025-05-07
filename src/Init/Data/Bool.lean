@@ -3,6 +3,8 @@ Copyright (c) 2023 F. G. Dorais. No rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: F. G. Dorais
 -/
+module
+
 prelude
 import Init.NotationExtra
 
@@ -690,9 +692,5 @@ def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
 
 /-! ### subtypes -/
 
-@[simp] theorem Subtype.beq_iff {α : Type u} [DecidableEq α] {p : α → Prop} {x y : {a : α // p a}} :
-    (x == y) = (x.1 == y.1) := by
-  cases x
-  cases y
-  rw [Bool.eq_iff_iff]
-  simp [beq_iff_eq]
+@[simp] theorem Subtype.beq_iff {α : Type u} [BEq α] {p : α → Prop} {x y : {a : α // p a}} :
+    (x == y) = (x.1 == y.1) := rfl

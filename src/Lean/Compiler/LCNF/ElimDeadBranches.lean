@@ -394,6 +394,16 @@ def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : In
       updateVarAssignment param.fvarId .top
   return ret
 
+def updateFunDeclParamsTop (params : Array Param) : InterpM Bool := do
+  let mut ret := false
+  for param in params do
+    let paramVal ← findVarValue param.fvarId
+    let newVal := .top
+    if newVal != paramVal then
+      modifyAssignment (·.insert param.fvarId newVal)
+      ret := true
+  return ret
+
 private partial def resetNestedFunDeclParams : Code → InterpM Unit
 | .let _ k => resetNestedFunDeclParams k
 | .jp decl k | .fun decl k => do
@@ -489,8 +499,12 @@ where
   -/
   handleFunVar (var : FVarId) : InterpM Unit := do
     if let some funDecl ← findFunDecl? var then
-      funDecl.params.forM (updateVarAssignment ·.fvarId .top)
-      interpFunCall funDecl #[]
+      let updated ← updateFunDeclParamsTop funDecl.params
+      if updated then
+        /- We must reset the value of nested function declaration
+        parameters since they depend on `args` values. -/
+        resetNestedFunDeclParams funDecl.value
+        interpCode funDecl.value
 
   interpFunCall (funDecl : FunDecl) (args : Array Arg) : InterpM Unit := do
     let updated ← updateFunDeclParamsAssignment funDecl.params args

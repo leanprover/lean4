@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.Match.Basic
 import Lean.Meta.Match.MatcherApp.Basic
+import Lean.Meta.Match.MVarRenaming
 
 namespace Lean.Meta.Match
 

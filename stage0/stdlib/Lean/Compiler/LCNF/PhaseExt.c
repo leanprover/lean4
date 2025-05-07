@@ -34,6 +34,7 @@ size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Lean_SimplePersistentEnvExtension_replayOfFilter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Compiler_LCNF_mkDeclExt___spec__5(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Compiler_LCNF_mkDeclExt___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_55____closed__11;
@@ -174,7 +175,6 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_Compiler_LCNF_forEachDecl___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getExt___closed__2;
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at_Lean_Compiler_LCNF_mkDeclExt___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -282,7 +282,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_8 = l_Array_qsort_sort___at___private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_sortDecls___spec__1___closed__1;
 lean_inc(x_3);
-x_9 = l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(x_1, x_2, x_8, x_3, x_4, lean_box(0), lean_box(0));
+x_9 = l_Array_qpartition___rarg(x_1, x_2, x_8, x_3, x_4, lean_box(0), lean_box(0));
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
@@ -1682,21 +1682,23 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkDeclExt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; 
 x_3 = l_Lean_Compiler_LCNF_mkDeclExt___closed__2;
 x_4 = l_Lean_Compiler_LCNF_mkDeclExt___closed__5;
 x_5 = l_Lean_Compiler_LCNF_mkDeclExt___closed__6;
 x_6 = 0;
 x_7 = l_Lean_Compiler_LCNF_mkDeclExt___closed__4;
-x_8 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_8, 0, x_1);
-lean_ctor_set(x_8, 1, x_3);
-lean_ctor_set(x_8, 2, x_4);
-lean_ctor_set(x_8, 3, x_5);
-lean_ctor_set(x_8, 4, x_7);
-lean_ctor_set_uint8(x_8, sizeof(void*)*5, x_6);
-x_9 = l_Lean_registerSimplePersistentEnvExtension___rarg(x_8, x_2);
-return x_9;
+x_8 = 1;
+x_9 = lean_alloc_ctor(0, 5, 2);
+lean_ctor_set(x_9, 0, x_1);
+lean_ctor_set(x_9, 1, x_3);
+lean_ctor_set(x_9, 2, x_4);
+lean_ctor_set(x_9, 3, x_5);
+lean_ctor_set(x_9, 4, x_7);
+lean_ctor_set_uint8(x_9, sizeof(void*)*5, x_6);
+lean_ctor_set_uint8(x_9, sizeof(void*)*5 + 1, x_8);
+x_10 = l_Lean_registerSimplePersistentEnvExtension___rarg(x_9, x_2);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_LCNF_mkDeclExt___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

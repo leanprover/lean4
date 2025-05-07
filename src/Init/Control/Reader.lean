@@ -5,6 +5,8 @@ Authors: Sebastian Ullrich
 
 The Reader monad transformer for passing immutable State.
 -/
+module
+
 prelude
 import Init.Control.Basic
 import Init.Control.Id

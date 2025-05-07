@@ -58,9 +58,14 @@ a : Nat
 ⊢ Nat
 linterUnusedVariables.lean:244:0-244:7: warning: declaration uses 'sorry'
 linterUnusedVariables.lean:245:0-245:7: warning: declaration uses 'sorry'
-linterUnusedVariables.lean:246:29-248:7: error: unexpected token 'theorem'; expected '{' or tactic
+linterUnusedVariables.lean:246:29-247:7: error: unexpected token 'theorem'; expected '{' or tactic
 linterUnusedVariables.lean:246:27-246:29: error: unsolved goals
 a : Nat
 ⊢ Nat
-linterUnusedVariables.lean:281:41-281:43: warning: unused variable `ha`
+linterUnusedVariables.lean:247:33-247:40: error: unsolved goals
+a : Nat
+⊢ Nat
+linterUnusedVariables.lean:247:0-247:40: error: type of theorem 'async' is not a proposition
+  Nat → Nat
+linterUnusedVariables.lean:282:41-282:43: warning: unused variable `ha`
 note: this linter can be disabled with `set_option linter.unusedVariables false`

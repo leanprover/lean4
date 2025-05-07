@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Array.Attach
@@ -432,13 +434,13 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {xs : Vector α n}
   simp
 
 @[simp]
-theorem count_attach [DecidableEq α] {xs : Vector α n} {a : {x // x ∈ xs}} :
+theorem count_attach [BEq α] {xs : Vector α n} {a : {x // x ∈ xs}} :
     xs.attach.count a = xs.count ↑a := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} {xs : Vector α n} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
+theorem count_attachWith [BEq α] {p : α → Prop} {xs : Vector α n} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
     (xs.attachWith p H).count a = xs.count ↑a := by
   cases xs
   simp

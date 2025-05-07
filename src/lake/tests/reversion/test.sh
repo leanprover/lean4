@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
@@ -10,11 +8,14 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 # Initial state
 echo 'def hello := "foo"' > Hello.lean
-$LAKE -q build
+test_run -q build
 # Introduce error
 echo 'error' > Hello.lean
-$LAKE build && exit 1 || true
+test_fails build
 # Revert
 echo 'def hello := "foo"' > Hello.lean
 # Ensure error is not presevered but the warning in another file is
-$LAKE -q build | grep --color 'Replayed Main'
+test_out "Replayed Main" -q build
+
+# Cleanup
+rm -f produced.out

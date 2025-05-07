@@ -3,6 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Omega.LinearCombo
 import Init.Omega.Int
@@ -296,7 +298,7 @@ def positivize? : Constraint × Coeffs → Option (Constraint × Coeffs)
     if 0 ≤ x.leading then
       none
     else
-      (s.neg, Coeffs.smul x (-1))
+      some (s.neg, Coeffs.smul x (-1))
 
 /-- Multiply by `-1` if the leading coefficient is negative, otherwise do nothing. -/
 noncomputable def positivize (p : Constraint × Coeffs) : Constraint × Coeffs :=
@@ -329,7 +331,7 @@ def tidy? : Constraint × Coeffs → Option (Constraint × Coeffs)
     | none => match normalize? (s, x) with
       | none => none
       | some (s', x') => some (s', x')
-    | some (s', x') => normalize (s', x')
+    | some (s', x') => some (normalize (s', x'))
 
 /-- `positivize` and `normalize` -/
 def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=

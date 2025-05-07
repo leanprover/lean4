@@ -11,8 +11,8 @@ import Std.Data.HashMap.Raw
 /-!
 # Additional hash map operations
 
-This module defines the operations `map` and `filterMap` on `Std.Data.HashMap`.
-We currently do not provide lemmas for these functions.
+This module defines the operations `map` and `filterMap` on `Std.HashMap`.
+Lemmas about these operations are found in `Std.Data.HashMap.Lemmas`.
 -/
 
 set_option linter.missingDocs true

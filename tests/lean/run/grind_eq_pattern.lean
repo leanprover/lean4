@@ -1,14 +1,14 @@
 reset_grind_attrs%
 
 /--
-info: [grind.ematch.pattern] List.append_ne_nil_of_left_ne_nil: [@HAppend.hAppend _ _ _ _ #2 #0]
+info: [grind.ematch.pattern] List.append_ne_nil_of_left_ne_nil: [@HAppend.hAppend (List #3) (List _) (List _) _ #2 #0]
 -/
 #guard_msgs (info) in
 set_option trace.grind.ematch.pattern true in
 attribute [grind] List.append_ne_nil_of_left_ne_nil
 
 /--
-info: [grind.ematch.pattern] List.append_ne_nil_of_right_ne_nil: [@HAppend.hAppend _ _ _ _ #1 #2]
+info: [grind.ematch.pattern] List.append_ne_nil_of_right_ne_nil: [@HAppend.hAppend (List #3) (List _) (List _) _ #1 #2]
 -/
 #guard_msgs (info) in
 set_option trace.grind.ematch.pattern true in

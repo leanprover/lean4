@@ -3,6 +3,8 @@ Copyright (c) 2024 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.List.Nat.Range
 import Init.Data.List.Find
@@ -58,4 +60,4 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : List α} {p q : α → Boo
     rw [findIdx?_eq_some_iff_findIdx_eq] at h
     omega
   | none =>
-    refine ⟨l₁'.length, by simp, by simp_all⟩
+    refine ⟨l₁'.length, by simp, by simp_all [findIdx?_cons]⟩

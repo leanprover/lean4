@@ -83,15 +83,25 @@ error: `@[grind →] theorem using_grind_fwd.StransBad` failed to find patterns 
 @[grind→] theorem StransBad (a b c d : Nat) : S a b ∨ R a b → S b c → S a c ∧ S b d := sorry
 
 
-set_option trace.grind.ematch.pattern.search true in
+set_option trace.grind.debug.ematch.pattern true in
 /--
-info: [grind.ematch.pattern.search] candidate: S a b
-[grind.ematch.pattern.search] found pattern: S #4 #3
-[grind.ematch.pattern.search] candidate: R a b
-[grind.ematch.pattern.search] skip, no new variables covered
-[grind.ematch.pattern.search] candidate: S b c
-[grind.ematch.pattern.search] found pattern: S #3 #2
-[grind.ematch.pattern.search] found full coverage
+info: [grind.debug.ematch.pattern] place: S a b ∨ R a b
+[grind.debug.ematch.pattern] collect: S a b ∨ R a b
+[grind.debug.ematch.pattern] arg: S a b, support: false
+[grind.debug.ematch.pattern] collect: S a b
+[grind.debug.ematch.pattern] candidate: S a b
+[grind.debug.ematch.pattern] found pattern: S #4 #3
+[grind.debug.ematch.pattern] arg: R a b, support: false
+[grind.debug.ematch.pattern] collect: R a b
+[grind.debug.ematch.pattern] candidate: R a b
+[grind.debug.ematch.pattern] skip, no new variables covered
+[grind.debug.ematch.pattern] arg: a, support: false
+[grind.debug.ematch.pattern] arg: b, support: false
+[grind.debug.ematch.pattern] place: S b c
+[grind.debug.ematch.pattern] collect: S b c
+[grind.debug.ematch.pattern] candidate: S b c
+[grind.debug.ematch.pattern] found pattern: S #3 #2
+[grind.debug.ematch.pattern] found full coverage
 [grind.ematch.pattern] Strans: [S #4 #3, S #3 #2]
 -/
 #guard_msgs (info) in

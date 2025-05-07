@@ -3,6 +3,8 @@ Copyright (c) 2023 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Count
 import Init.Data.Subtype
@@ -640,12 +642,12 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {l : List α} (H :
   simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attachWith_map_subtype_val]
 
 @[simp]
-theorem count_attach [DecidableEq α] {l : List α} {a : {x // x ∈ l}} :
+theorem count_attach [BEq α] {l : List α} {a : {x // x ∈ l}} :
     l.attach.count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attach
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) {a : {x // p x}} :
+theorem count_attachWith [BEq α] {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) {a : {x // p x}} :
     (l.attachWith p H).count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _
 

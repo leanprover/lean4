@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Count
 import Init.Data.List.Find
@@ -118,7 +120,7 @@ theorem mem_eraseIdx_iff_getElem {x : α} :
   | a::l, 0 => by simp [mem_iff_getElem, Nat.succ_lt_succ_iff]
   | a::l, k+1 => by
     rw [← Nat.or_exists_add_one]
-    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, succ_inj', Nat.succ_lt_succ_iff]
+    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, succ_inj, Nat.succ_lt_succ_iff]
 
 theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l[i]? = some x := by
   simp only [mem_eraseIdx_iff_getElem, getElem_eq_iff, exists_and_left]

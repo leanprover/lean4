@@ -59,7 +59,7 @@ def isMorallyIff (e : Expr) : Bool :=
 
 /-- Inserts `e` into the list of case-split candidates if applicable. -/
 private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
-  match e with
+  match h : e with
   | .app .. =>
     if (← getConfig).splitIte && (e.isIte || e.isDIte) then
       addSplitCandidate (.default e)
@@ -91,12 +91,13 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       addSplitCandidate (.default e)
   | .forallE _ d _ _ =>
     if (← getConfig).splitImp then
-      addSplitCandidate (.default e)
+      if (← isProp d) then
+        addSplitCandidate (.imp e (h ▸ rfl))
     else if Arith.isRelevantPred d then
       if (← getConfig).lookahead then
-        addLookaheadCandidate (.default e)
+        addLookaheadCandidate (.imp e (h ▸ rfl))
       else
-        addSplitCandidate (.default e)
+        addSplitCandidate (.imp e (h ▸ rfl))
   | _ => pure ()
 
 /--
@@ -312,7 +313,8 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     mkENode e generation
     activateTheoremPatterns declName generation
   | .mvar .. =>
-    reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
+    if (← reportMVarInternalization) then
+      reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
     mkENode' e generation
   | .mdata .. =>
     reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"

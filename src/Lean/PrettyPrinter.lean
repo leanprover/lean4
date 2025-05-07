@@ -34,7 +34,7 @@ def ppTerm (stx : Term) : CoreM Format := ppCategory `term stx
 
 def ppUsing (e : Expr) (delab : Expr → MetaM Term) : MetaM Format := do
   let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }
-  Meta.withLCtx lctx #[] do
+  Meta.withLCtx' lctx do
     ppTerm (← delab e)
 
 register_builtin_option pp.exprSizes : Bool := {
@@ -58,7 +58,7 @@ to `Elab.Info` nodes produced by the delaborator at various subexpressions of `e
 def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {}) (delab := Delaborator.delab)
     : MetaM FormatWithInfos := do
   let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }
-  Meta.withLCtx lctx #[] do
+  Meta.withLCtx' lctx do
     let (stx, infos) ← delabCore e optsPerPos delab
     let fmt ← ppTerm stx >>= maybePrependExprSizes e
     return ⟨fmt, infos⟩

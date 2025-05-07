@@ -278,7 +278,6 @@ lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_mkConfigIte
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_elabModCast_declRange__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Tactic_NormCast___hyg_5____closed__1;
-lean_object* l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -461,6 +460,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim(lean_object*, l
 extern lean_object* l_Lean_trace_profiler;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___lambda__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_NormCast_evalUnsafe____x40_Lean_Elab_Tactic_NormCast___hyg_6395____closed__3;
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_derive___lambda__13___closed__4;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11714,7 +11714,7 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_1);
 x_20 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__2;
-x_21 = l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_20, x_2, x_3, x_4, x_5, x_15);
+x_21 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_20, x_2, x_3, x_4, x_5, x_15);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);

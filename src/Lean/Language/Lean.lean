@@ -283,10 +283,16 @@ simple uses, these can be computed eagerly without looking at the imports.
 structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
+  /-- Whether the file is participating in the module system. -/
+  isModule : Bool := false
+  /-- Direct imports of the file being processed. -/
+  imports : Array Import
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
+  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
+  modules : NameMap ModuleArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
   plugins : Array System.FilePath := #[]
 
@@ -338,6 +344,12 @@ private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos := do
     stx := stx[1]
   stx.getPos?
 
+/-- Allow use of module system -/
+register_builtin_option experimental.module : Bool := {
+  defValue := false
+  descr := "Allow use of module system (experimental)"
+}
+
 /--
 Entry point of the Lean language processor.
 
@@ -361,7 +373,7 @@ General notes:
   the `sync` parameter on `parseCmd` and spawn an elaboration task when we leave it.
 -/
 partial def process
-    (setupImports : Syntax → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
+    (setupImports : HeaderSyntax → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
     (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
   parseHeader old? |>.run (old?.map (·.ictx))
 where
@@ -423,7 +435,7 @@ where
           result? := none
         }
 
-      let trimmedStx := stx.unsetTrailing
+      let trimmedStx := stx.raw.unsetTrailing
       -- semi-fast path: go to next snapshot if syntax tree is unchanged
       -- NOTE: We compare modulo `unsetTrailing` in order to ensure that changes in trailing
       -- whitespace do not invalidate the header. This is safe because we only pass the trimmed
@@ -443,11 +455,11 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         result? := some {
           parserState
-          processedSnap := (← processHeader trimmedStx parserState)
+          processedSnap := (← processHeader ⟨trimmedStx⟩ parserState)
         }
       }
 
-  processHeader (stx : Syntax) (parserState : Parser.ModuleParserState) :
+  processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
     SnapshotTask.ofIO stx none (some ⟨0, ctx.input.endPos⟩) <|
@@ -458,15 +470,21 @@ where
         | .error snap => return snap
 
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
+      let mut opts := setup.opts
+      -- HACK: no better way to enable in core with `USE_LAKE` off
+      if (`Init).isPrefixOf setup.mainModuleName then
+        opts := experimental.module.setIfNotSet opts true
+      if !stx.raw[0].isNone && !experimental.module.get opts then
+        throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
-      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx setup.opts .empty
-        ctx.toInputContext setup.trustLevel setup.plugins
+      let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
+        stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
+        setup.trustLevel setup.plugins setup.mainModuleName setup.modules
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
         return { diagnostics, result? := none }
 
-      let headerEnv := headerEnv.setMainModule setup.mainModuleName
       let mut traceState := default
       if trace.profiler.output.get? setup.opts |>.isSome then
         traceState := {
@@ -478,7 +496,7 @@ where
           }].toPArray'
         }
       -- now that imports have been loaded, check options again
-      let opts ← reparseOptions setup.opts
+      opts ← reparseOptions opts
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with
         infoState := {
@@ -489,7 +507,7 @@ where
             ngen    := { namePrefix := `_import }
           }) (Elab.InfoTree.node
               (Elab.Info.ofCommandInfo { elaborator := `header, stx })
-              (stx[1].getArgs.toList.map (fun importStx =>
+              (stx.raw[2].getArgs.toList.map (fun importStx =>
                 Elab.InfoTree.node (Elab.Info.ofCommandInfo {
                   elaborator := `import
                   stx := importStx

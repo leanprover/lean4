@@ -86,7 +86,7 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
 def propagateForallPropDown (e : Expr) : GoalM Unit := do
   let .forallE n a b bi := e | return ()
   if (← isEqFalse e) then
-    if b.hasLooseBVars then
+    if b.hasLooseBVars || !(← isProp a) then
       let α := a
       let p := b
       -- `e` is of the form `∀ x : α, p x`

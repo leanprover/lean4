@@ -1303,7 +1303,7 @@ return x_11;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_12 = lean_string_utf8_byte_size(x_1);
 lean_inc(x_12);
 lean_inc(x_1);
@@ -1316,20 +1316,36 @@ x_15 = l_Substring_nextn(x_13, x_14, x_2);
 lean_dec(x_13);
 x_16 = lean_nat_add(x_2, x_15);
 lean_dec(x_15);
-x_17 = l_String_anyAux___at_String_isNat___spec__1(x_1, x_12, x_16);
+x_17 = lean_nat_sub(x_12, x_16);
+x_18 = lean_nat_dec_eq(x_17, x_2);
+lean_dec(x_17);
+if (x_18 == 0)
+{
+uint8_t x_19; 
+x_19 = l_String_anyAux___at_String_isNat___spec__1(x_1, x_12, x_16);
 lean_dec(x_12);
 lean_dec(x_1);
-if (x_17 == 0)
+if (x_19 == 0)
 {
-uint8_t x_18; 
-x_18 = 1;
-return x_18;
+uint8_t x_20; 
+x_20 = 1;
+return x_20;
 }
 else
 {
-uint8_t x_19; 
-x_19 = 0;
-return x_19;
+uint8_t x_21; 
+x_21 = 0;
+return x_21;
+}
+}
+else
+{
+uint8_t x_22; 
+lean_dec(x_16);
+lean_dec(x_12);
+lean_dec(x_1);
+x_22 = 0;
+return x_22;
 }
 }
 }

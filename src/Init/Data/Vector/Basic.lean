@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 -/
 
+module
+
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
@@ -27,7 +29,7 @@ structure Vector (α : Type u) (n : Nat) extends Array α where
   size_toArray : toArray.size = n
 deriving Repr, DecidableEq
 
-attribute [simp] Vector.size_toArray
+attribute [simp, grind] Vector.size_toArray
 
 /--
 Converts an array to a vector. The resulting vector's size is the array's size.

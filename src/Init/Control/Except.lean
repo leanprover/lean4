@@ -5,6 +5,8 @@ Authors: Jared Roesch, Sebastian Ullrich
 
 The Except monad transformer.
 -/
+module
+
 prelude
 import Init.Control.Basic
 import Init.Control.Id

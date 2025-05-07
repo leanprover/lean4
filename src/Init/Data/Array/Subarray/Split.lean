@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
 
+module
+
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Array.Subarray

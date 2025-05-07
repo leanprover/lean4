@@ -38,6 +38,10 @@ theorem isEmpty_insert [TransCmp cmp] {k : α} {v : β} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   DTreeMap.mem_iff_contains
 
+@[simp]
+theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
+  DTreeMap.contains_iff_mem
+
 theorem contains_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   DTreeMap.contains_congr hab
@@ -231,9 +235,19 @@ theorem contains_eq_isSome_getElem? [TransCmp cmp] {a : α} :
     t.contains a = t[a]?.isSome :=
   DTreeMap.Const.contains_eq_isSome_get?
 
+@[simp]
+theorem isSome_getElem?_eq_contains [TransCmp cmp] {a : α} :
+    t[a]?.isSome = t.contains a :=
+  contains_eq_isSome_getElem?.symm
+
 theorem mem_iff_isSome_getElem? [TransCmp cmp] {a : α} :
     a ∈ t ↔ t[a]?.isSome :=
   DTreeMap.Const.mem_iff_isSome_get?
+
+@[simp]
+theorem isSome_getElem?_iff_mem [TransCmp cmp] {a : α} :
+    t[a]?.isSome ↔ a ∈ t :=
+  mem_iff_isSome_getElem?.symm
 
 theorem getElem?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t[a]? = none :=
@@ -423,9 +437,19 @@ theorem contains_eq_isSome_getKey? [TransCmp cmp] {a : α} :
     t.contains a = (t.getKey? a).isSome :=
   DTreeMap.contains_eq_isSome_getKey?
 
+@[simp]
+theorem isSome_getKey?_eq_contains [TransCmp cmp] {a : α} :
+    (t.getKey? a).isSome = t.contains a :=
+  contains_eq_isSome_getKey?.symm
+
 theorem mem_iff_isSome_getKey? [TransCmp cmp] {a : α} :
     a ∈ t ↔ (t.getKey? a).isSome :=
   DTreeMap.mem_iff_isSome_getKey?
+
+@[simp]
+theorem isSome_getKey?_iff_mem [TransCmp cmp] {a : α} :
+    (t.getKey? a).isSome ↔ a ∈ t :=
+  mem_iff_isSome_getKey?.symm
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.getKey? a = none :=
@@ -887,6 +911,13 @@ theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     t.insertMany (⟨k, v⟩ :: l) = (t.insert k v).insertMany l :=
   ext <| DTreeMap.Const.insertMany_cons
 
+theorem insertMany_append {l₁ l₂ : List (α × β)} :
+    insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
+  induction l₁ generalizing t with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 @[simp]
 theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     {l : List (α × β)} {k : α} :
@@ -996,6 +1027,12 @@ theorem getElem?_insertMany_list_of_mem [TransCmp cmp] [BEq α] [LawfulBEqCmp cm
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany l)[k']? = some v :=
   DTreeMap.Const.get?_insertMany_list_of_mem k_eq distinct mem
+
+theorem getElem?_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)} {k : α} :
+    (t.insertMany l)[k]? =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).or (t[k]?) :=
+  DTreeMap.Const.get?_insertMany_list
 
 theorem getElem_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α]
     [LawfulBEqCmp cmp]
@@ -1202,6 +1239,9 @@ theorem ofList_singleton {k : α} {v : β} :
 theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) cmp = insertMany ((∅ : TreeMap α β cmp).insert k v) tl :=
   ext DTreeMap.Const.ofList_cons
+
+theorem ofList_eq_insertMany_empty {l : List (α × β)} :
+    ofList l cmp = insertMany (∅ : TreeMap α β cmp) l := rfl
 
 @[simp]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List (α × β)} {k : α} :
@@ -1889,7 +1929,7 @@ theorem minKey?_le_minKey?_erase [TransCmp cmp] {k km kme} :
 
 theorem minKey?_insertIfNew [TransCmp cmp] {k v} :
     (t.insertIfNew k v).minKey? =
-      t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k' :=
+      some (t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k') :=
   DTreeMap.minKey?_insertIfNew
 
 theorem isSome_minKey?_insertIfNew [TransCmp cmp] {k v} :
@@ -2461,7 +2501,7 @@ theorem maxKey?_erase_le_maxKey? [TransCmp cmp] {k km kme} :
 
 theorem maxKey?_insertIfNew [TransCmp cmp] {k v} :
     (t.insertIfNew k v).maxKey? =
-      t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
+      some (t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k') :=
   DTreeMap.maxKey?_insertIfNew
 
 theorem isSome_maxKey?_insertIfNew [TransCmp cmp] {k v} :

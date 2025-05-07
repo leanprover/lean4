@@ -48,7 +48,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
           addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta
             (checkState? := initialState) (addSubgoalsMsg := true) (tacticErrorAsInfo := true)
       if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
-      admitGoal goal
+      admitGoal goal (synthetic := false)
 
 @[builtin_tactic Lean.Parser.Tactic.exact?]
 def evalExact : Tactic := fun stx => do

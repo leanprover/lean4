@@ -8,6 +8,7 @@ import Lean.Data.NameTrie
 import Lean.Util.Paths
 import Lean.Util.LakePath
 import Lean.Server.Completion.CompletionItemData
+import Lean.Parser.Module
 
 namespace ImportCompletion
 
@@ -23,52 +24,47 @@ def AvailableImports.toImportTrie (imports : AvailableImports) : ImportTrie := I
     importTrie := importTrie.insert i i
   return importTrie
 
-def determinePartialHeaderCompletions
-    (headerStx : Syntax)
-    (completionPos : String.Pos)
-    : Option Syntax := Id.run do
-  let some importCmdToComplete := headerStx[1].find? fun importStx => Id.run do
-      let importIdStx := importStx
-      let some startPos := importIdStx.getPos?
-        | return false
-      let some endPos := importIdStx.getTailPos?
-        | return false
-      return startPos <= completionPos && completionPos <= endPos
-    | return none
-  return some importCmdToComplete
-
 /-- Checks whether `completionPos` points at the position after an incomplete `import` statement. -/
-def isImportNameCompletionRequest (headerStx : Syntax) (completionPos : String.Pos) : Bool :=
-  headerStx[1].getArgs.any fun importStx =>
-    let importCmd := importStx[0]
-    let importId := importStx[2]
-    importId.isMissing && importCmd.getTailPos?.isSome && completionPos == importCmd.getTailPos?.get! + ' '
+def isImportNameCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos) : Bool := Id.run do
+  let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
+    | return false
+  return importsStx.any fun importStx => Id.run do
+    let importStx := importStx.raw
+    let importCmd := importStx[1]
+    let allTk? := importStx[2].getOptional?
+    let importId := importStx[3]
+    let keywordsTailPos := allTk?.bind (·.getTailPos?) <|> importCmd.getTailPos?
+    return importId.isMissing && keywordsTailPos.isSome && completionPos == keywordsTailPos.get! + ' '
 
 /-- Checks whether `completionPos` points at a free space in the header. -/
-def isImportCmdCompletionRequest (headerStx : Syntax) (completionPos : String.Pos) : Bool :=
-  ! headerStx[1].getArgs.any fun importStx => importStx.getArgs.any fun arg =>
+def isImportCmdCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos) : Bool := Id.run do
+  let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
+    | return false
+  return ! importsStx.any fun importStx => importStx.raw.getArgs.any fun arg =>
     arg.getPos?.isSome && arg.getTailPos?.isSome
       && arg.getPos?.get! <= completionPos && completionPos <= arg.getTailPos?.get!
 
 def computePartialImportCompletions
-    (headerStx : Syntax)
+    (headerStx : TSyntax ``Parser.Module.header)
     (completionPos : String.Pos)
     (availableImports : ImportTrie)
     : Array Name := Id.run do
-  let some (completePrefix, incompleteSuffix) := headerStx[1].getArgs.findSome? fun importStx => do
-      -- `partialTrailingDotStx` ≙ `("." ident)?`
-      let partialTrailingDotStx := importStx[3]
-      if ! partialTrailingDotStx.hasArgs then
-        let tailPos ← importStx[2].getTailPos?
+  let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
+    | return #[]
+  let some (completePrefix, incompleteSuffix) := importsStx.findSome? fun importStx => do
+      let `(Parser.Module.«import»| $[private]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
+        | unreachable!
+      match trailingDotTk? with
+      | none =>
+        let tailPos ← importId.raw.getTailPos?
         guard <| tailPos == completionPos
-        let .str completePrefix incompleteSuffix := importStx[2].getId
+        let .str completePrefix incompleteSuffix := importId.getId
           | none
         return (completePrefix, incompleteSuffix)
-      else
-        let trailingDot := partialTrailingDotStx[0]
-        let tailPos ← trailingDot.getTailPos?
+      | some trailingDotTk =>
+        let tailPos ← trailingDotTk.getTailPos?
         guard <| tailPos == completionPos
-        return (importStx[2].getId, "")
+        return (importId.getId, "")
     | return #[]
 
   let completions := availableImports.matchingToArray completePrefix
@@ -80,10 +76,10 @@ def computePartialImportCompletions
   return completions
 
 
-def isImportCompletionRequest (text : FileMap) (headerStx : Syntax) (params : CompletionParams) : Bool :=
+def isImportCompletionRequest (text : FileMap) (headerStx : TSyntax ``Parser.Module.header) (params : CompletionParams) : Bool :=
   let completionPos := text.lspPosToUtf8Pos params.position
-  let headerStartPos := headerStx.getPos?.getD 0
-  let headerEndPos := headerStx.getTailPos?.getD headerStartPos
+  let headerStartPos := headerStx.raw.getPos?.getD 0
+  let headerEndPos := headerStx.raw.getTailPos?.getD headerStartPos
   completionPos <= headerEndPos + ' ' + ' '
 
 def collectAvailableImportsFromLake : IO (Option AvailableImports) := do
@@ -133,7 +129,7 @@ def addCompletionItemData (completionList : CompletionList) (params : Completion
   { completionList with items := completionList.items.map fun item =>
     { item with data? := some <| toJson data } }
 
-def find (text : FileMap) (headerStx : Syntax) (params : CompletionParams) (availableImports : AvailableImports) : CompletionList :=
+def find (text : FileMap) (headerStx : TSyntax ``Parser.Module.header) (params : CompletionParams) (availableImports : AvailableImports) : CompletionList :=
   let availableImports := availableImports.toImportTrie
   let completionPos := text.lspPosToUtf8Pos params.position
   if isImportNameCompletionRequest headerStx completionPos then
@@ -147,7 +143,7 @@ def find (text : FileMap) (headerStx : Syntax) (params : CompletionParams) (avai
     let completions : Array CompletionItem := completionNames.map ({ label := toString · })
     addCompletionItemData { isIncomplete := false, items := completions } params
 
-def computeCompletions (text : FileMap) (headerStx : Syntax) (params : CompletionParams)
+def computeCompletions (text : FileMap) (headerStx : TSyntax ``Parser.Module.header) (params : CompletionParams)
     : IO CompletionList := do
   let availableImports ← collectAvailableImports
   let completionList := find text headerStx params availableImports

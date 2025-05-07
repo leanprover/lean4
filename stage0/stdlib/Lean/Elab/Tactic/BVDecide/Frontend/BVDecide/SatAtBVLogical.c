@@ -854,6 +854,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_SatAtBVLogical_and
 _start:
 {
 lean_object* x_8; 
+lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_4);
+lean_inc(x_3);
 x_8 = l_Lean_Elab_Tactic_BVDecide_Frontend_M_atomsAssignment(x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -1337,6 +1341,10 @@ lean_dec(x_13);
 if (x_15 == 0)
 {
 lean_object* x_16; 
+lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_4);
 x_16 = l_Lean_Elab_Tactic_BVDecide_Frontend_M_atomsAssignment(x_3, x_4, x_5, x_6, x_7, x_11);
 if (lean_obj_tag(x_16) == 0)
 {

@@ -68,6 +68,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJs
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonBodyForInduct_mkAlts___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonBodyForInduct_mkAlts___spec__3___closed__5;
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkFromJsonBodyForStruct___closed__15;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonBodyForStruct___spec__1___closed__5;
@@ -441,7 +442,6 @@ static lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_Deriving_FromToJson_mk
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonBodyForInduct_mkAlts___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_FromToJson_mkToJsonBodyForInduct_mkAlts___spec__3___closed__3;
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkFromJsonBodyForInduct___closed__8;
-lean_object* l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonBodyForStruct___spec__1___closed__29;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_FromToJson_mkToJsonBodyForInduct_mkAlts___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Deriving_FromToJson_mkFromJsonBodyForInduct_mkAlts___spec__7___lambda__2___closed__13;
@@ -12069,7 +12069,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_8 = l_Array_qsort_sort___at_Lean_Elab_Deriving_FromToJson_mkFromJsonBodyForInduct_mkAlts___spec__8___closed__1;
 lean_inc(x_3);
-x_9 = l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(x_1, x_2, x_8, x_3, x_4, lean_box(0), lean_box(0));
+x_9 = l_Array_qpartition___rarg(x_1, x_2, x_8, x_3, x_4, lean_box(0), lean_box(0));
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);

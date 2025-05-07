@@ -47,53 +47,96 @@ instance : ToJson String := ⟨fun s => s⟩
 instance : FromJson System.FilePath := ⟨fun j => System.FilePath.mk <$> Json.getStr? j⟩
 instance : ToJson System.FilePath := ⟨fun p => p.toString⟩
 
-instance [FromJson α] : FromJson (Array α) where
-  fromJson?
-    | Json.arr a => a.mapM fromJson?
-    | j          => throw s!"expected JSON array, got '{j}'"
+protected def _root_.Array.fromJson? [FromJson α] : Json → Except String (Array α)
+  | Json.arr a => a.mapM fromJson?
+  | j          => throw s!"expected JSON array, got '{j}'"
 
-instance [ToJson α] : ToJson (Array α) :=
-  ⟨fun a => Json.arr (a.map toJson)⟩
+instance [FromJson α] : FromJson (Array α) where
+  fromJson? := Array.fromJson?
+
+protected def _root_.Array.toJson [ToJson α] (a : Array α) : Json :=
+  Json.arr (a.map toJson)
+
+instance [ToJson α] : ToJson (Array α) where
+  toJson := Array.toJson
+
+protected def _root_.List.fromJson? [FromJson α] (j : Json) : Except String (List α) :=
+  (fromJson? j (α := Array α)).map Array.toList
 
 instance [FromJson α] : FromJson (List α) where
-  fromJson? j := (fromJson? j (α := Array α)).map Array.toList
+  fromJson? := List.fromJson?
+
+protected def _root_.List.toJson [ToJson α] (a : List α) : Json :=
+  toJson a.toArray
 
 instance [ToJson α] : ToJson (List α) where
-  toJson xs := toJson xs.toArray
+  toJson := List.toJson
+
+protected def _root_.Option.fromJson? [FromJson α] : Json → Except String (Option α)
+  | Json.null => Except.ok none
+  | j         => some <$> fromJson? j
 
 instance [FromJson α] : FromJson (Option α) where
-  fromJson?
-    | Json.null => Except.ok none
-    | j         => some <$> fromJson? j
+  fromJson? := Option.fromJson?
 
-instance [ToJson α] : ToJson (Option α) :=
-  ⟨fun
-    | none   => Json.null
-    | some a => toJson a⟩
+protected def _root_.Option.toJson [ToJson α] : Option α → Json
+  | none   => Json.null
+  | some a => toJson a
+
+instance [ToJson α] : ToJson (Option α) where
+  toJson := Option.toJson
+
+protected def _root_.Prod.fromJson? {α : Type u} {β : Type v} [FromJson α] [FromJson β] : Json → Except String (α × β)
+  | Json.arr #[ja, jb] => do
+    let ⟨a⟩ : ULift.{v} α := ← (fromJson? ja).map ULift.up
+    let ⟨b⟩ : ULift.{u} β := ← (fromJson? jb).map ULift.up
+    return (a, b)
+  | j => throw s!"expected pair, got '{j}'"
 
 instance {α : Type u} {β : Type v} [FromJson α] [FromJson β] : FromJson (α × β) where
-  fromJson?
-    | Json.arr #[ja, jb] => do
-      let ⟨a⟩ : ULift.{v} α := ← (fromJson? ja).map ULift.up
-      let ⟨b⟩ : ULift.{u} β := ← (fromJson? jb).map ULift.up
-      return (a, b)
-    | j => throw s!"expected pair, got '{j}'"
+  fromJson? := Prod.fromJson?
+
+protected def _root_.Prod.toJson [ToJson α] [ToJson β] : α × β → Json
+  | (a, b) => Json.arr #[toJson a, toJson b]
 
 instance [ToJson α] [ToJson β] : ToJson (α × β) where
-  toJson := fun (a, b) => Json.arr #[toJson a, toJson b]
+  toJson := Prod.toJson
+
+protected def Name.fromJson? (j : Json) : Except String Name := do
+  let s ← j.getStr?
+  if s == "[anonymous]" then
+    return Name.anonymous
+  else
+    let n := s.toName
+    if n.isAnonymous then throw s!"expected a `Name`, got '{j}'"
+    return n
 
 instance : FromJson Name where
-  fromJson? j := do
-    let s ← j.getStr?
-    if s == "[anonymous]" then
-      return Name.anonymous
-    else
-      let n := s.toName
-      if n.isAnonymous then throw s!"expected a `Name`, got '{j}'"
-      return n
+  fromJson? := Name.fromJson?
 
 instance : ToJson Name where
   toJson n := toString n
+
+protected def NameMap.fromJson? [FromJson α] : Json → Except String (NameMap α)
+  | .obj obj => obj.foldM (init := {}) fun m k v => do
+    if k == "[anonymous]" then
+      return m.insert .anonymous (← fromJson? v)
+    else
+      let n := k.toName
+      if n.isAnonymous then
+        throw s!"expected a `Name`, got '{k}'"
+      else
+        return m.insert n (← fromJson? v)
+  | j => throw s!"expected a `NameMap`, got '{j}'"
+
+instance [FromJson α] : FromJson (NameMap α) where
+  fromJson? := NameMap.fromJson?
+
+protected def NameMap.toJson [ToJson α] (m : NameMap α) : Json :=
+  Json.obj <| m.fold (fun n k v => n.insert compare k.toString (toJson v)) .leaf
+
+instance [ToJson α] : ToJson (NameMap α) where
+  toJson := NameMap.toJson
 
 /-- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
 cannot represent 64-bit numbers. -/
@@ -106,58 +149,77 @@ def bignumFromJson? (j : Json) : Except String Nat := do
 def bignumToJson (n : Nat) : Json :=
   toString n
 
+protected def _root_.USize.fromJson? (j : Json) : Except String USize := do
+  let n ← bignumFromJson? j
+  if n ≥ USize.size then
+    throw "value '{j}' is too large for `USize`"
+  return USize.ofNat n
+
 instance : FromJson USize where
-  fromJson? j := do
-    let n ← bignumFromJson? j
-    if n ≥ USize.size then
-      throw "value '{j}' is too large for `USize`"
-    return USize.ofNat n
+  fromJson? := USize.fromJson?
 
 instance : ToJson USize where
   toJson v := bignumToJson (USize.toNat v)
 
+protected def _root_.UInt64.fromJson? (j : Json) : Except String UInt64 := do
+  let n ← bignumFromJson? j
+  if n ≥ UInt64.size then
+    throw "value '{j}' is too large for `UInt64`"
+  return UInt64.ofNat n
+
 instance : FromJson UInt64 where
-  fromJson? j := do
-    let n ← bignumFromJson? j
-    if n ≥ UInt64.size then
-      throw "value '{j}' is too large for `UInt64`"
-    return UInt64.ofNat n
+  fromJson? := UInt64.fromJson?
 
 instance : ToJson UInt64 where
   toJson v := bignumToJson (UInt64.toNat v)
 
+protected def _root_.Float.toJson (x : Float) : Json :=
+  match JsonNumber.fromFloat? x with
+  | Sum.inl e => Json.str e
+  | Sum.inr n => Json.num n
+
 instance : ToJson Float where
-  toJson x :=
-    match JsonNumber.fromFloat? x with
-    | Sum.inl e => Json.str e
-    | Sum.inr n => Json.num n
+  toJson := Float.toJson
+
+protected def _root_.Float.fromJson? : Json → Except String Float
+  | (Json.str "Infinity") => Except.ok (1.0 / 0.0)
+  | (Json.str "-Infinity") => Except.ok (-1.0 / 0.0)
+  | (Json.str "NaN") => Except.ok (0.0 / 0.0)
+  | (Json.num jn) => Except.ok jn.toFloat
+  | _ => Except.error "Expected a number or a string 'Infinity', '-Infinity', 'NaN'."
 
 instance : FromJson Float where
-  fromJson? := fun
-    | (Json.str "Infinity") => Except.ok (1.0 / 0.0)
-    | (Json.str "-Infinity") => Except.ok (-1.0 / 0.0)
-    | (Json.str "NaN") => Except.ok (0.0 / 0.0)
-    | (Json.num jn) => Except.ok jn.toFloat
-    | _ => Except.error "Expected a number or a string 'Infinity', '-Infinity', 'NaN'."
+  fromJson? := Float.fromJson?
+
+protected def RBMap.toJson [ToJson α] (m : RBMap String α cmp) : Json :=
+  Json.obj <| RBNode.map (fun _ => toJson) <| m.val
 
 instance [ToJson α] : ToJson (RBMap String α cmp) where
-  toJson m := Json.obj <| RBNode.map (fun _ => toJson) <| m.val
+  toJson := RBMap.toJson
+
+protected def RBMap.fromJson? [FromJson α] (j : Json) : Except String (RBMap String α cmp) := do
+  let o ← j.getObj?
+  o.foldM (fun x k v => x.insert k <$> fromJson? v) ∅
 
 instance {cmp} [FromJson α] : FromJson (RBMap String α cmp) where
-  fromJson? j := do
-    let o ← j.getObj?
-    o.foldM (fun x k v => x.insert k <$> fromJson? v) ∅
+  fromJson? := RBMap.fromJson?
 
 namespace Json
 
-instance : FromJson Structured := ⟨fun
-  | arr a => return Structured.arr a
-  | obj o => return Structured.obj o
-  | j     => throw s!"expected structured object, got '{j}'"⟩
+protected def Structured.fromJson? : Json → Except String Structured
+  | .arr a => return Structured.arr a
+  | .obj o => return Structured.obj o
+  | j     => throw s!"expected structured object, got '{j}'"
 
-instance : ToJson Structured := ⟨fun
-  | Structured.arr a => arr a
-  | Structured.obj o => obj o⟩
+instance : FromJson Structured where
+  fromJson? := Structured.fromJson?
+
+protected def Structured.toJson : Structured → Json
+  | .arr a => .arr a
+  | .obj o => .obj o
+
+instance : ToJson Structured where
+  toJson := Structured.toJson
 
 def toStructured? [ToJson α] (v : α) : Except String Structured :=
   fromJson? (toJson v)

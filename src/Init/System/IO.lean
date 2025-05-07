@@ -3,6 +3,8 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
 import Init.System.IOError
 import Init.System.FilePath
@@ -1355,6 +1357,8 @@ structure SpawnArgs extends StdioConfig where
   and `some` sets the variable to the new value, adding it if necessary. Variables are processed from left to right.
   -/
   env : Array (String × Option String) := #[]
+  /-- Inherit environment variables from the spawning process. -/
+  inheritEnv : Bool := true
   /--
   Starts the child process in a new session and process group using `setsid`. Currently a no-op on
   non-POSIX platforms.

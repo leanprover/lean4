@@ -7,6 +7,11 @@ source ../common.sh
 # https://github.com/leanprover/lean4/issues/7790
 test_run -v exe orderTest
 
+# Test that transitively importing a precompiled module
+# from a non-precompiled module works
+test_not_out '"pluginPaths":[]' -v setup-file bogus Downstream
+test_run -v build Downstream
+
 # Test that `moreLinkArgs` are included when linking precompiled modules
 ./clean.sh
 test_maybe_err "-lBogus" build -KlinkArgs=-lBogus
@@ -16,7 +21,7 @@ test_maybe_err "-lBogus" build -KlinkArgs=-lBogus
 test_run build -R
 echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 test_err "Building Foo" build --rehash
-rm .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
+test_cmd rm .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 test_run build -R -KplatformIndependent=true
 echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 test_run build --rehash --no-build

@@ -33,7 +33,7 @@ def buildImportsAndDeps
     let precompileImports ← (← computePrecompileImportsAux leanFile imports).await
     let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
     let externLibsJob ← fetchExternLibs pkgs
-    let impLibsJob ← fetchImportLibs imports
+    let impLibsJob ← fetchImportLibs precompileImports
     let dynlibsJob ← root.dynlibs.fetchIn root
     let pluginsJob ← root.plugins.fetchIn root
     modJob.bindM fun _ =>

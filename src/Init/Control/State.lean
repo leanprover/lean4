@@ -5,6 +5,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 
 The State monad transformer.
 -/
+module
+
 prelude
 import Init.Control.Basic
 import Init.Control.Id

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Types
-// Imports: Lean.Meta.Tactic.Grind.Arith.Offset.Types Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+// Imports: Lean.Meta.Tactic.Grind.Arith.Offset.Types Lean.Meta.Tactic.Grind.Arith.Cutsat.Types Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__8;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__5;
+static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__10;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__4;
 extern lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___spec__1;
@@ -145,25 +146,43 @@ return x_8;
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__1;
+x_2 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__6;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set(x_4, 3, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__7;
 x_2 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__8;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+x_3 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9;
+x_1 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__10;
 return x_1;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Types(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -173,6 +192,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Types(builtin, lean_io_mk_w
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_instInhabitedState___closed__1 = _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__1();
@@ -192,6 +214,8 @@ l_Lean_Meta_Grind_Arith_instInhabitedState___closed__8 = _init_l_Lean_Meta_Grind
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_instInhabitedState___closed__8);
 l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9 = _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9);
+l_Lean_Meta_Grind_Arith_instInhabitedState___closed__10 = _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__10();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_instInhabitedState___closed__10);
 l_Lean_Meta_Grind_Arith_instInhabitedState = _init_l_Lean_Meta_Grind_Arith_instInhabitedState();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_instInhabitedState);
 return lean_io_result_mk_ok(lean_box(0));

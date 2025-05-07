@@ -3,6 +3,8 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Lemmas
@@ -409,6 +411,14 @@ theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
   funext (castLE_castLE km mn)
 
 @[simp] theorem coe_cast (h : n = m) (i : Fin n) : (i.cast h : Nat) = i := rfl
+
+@[simp] theorem cast_castLE {k m n} (km : k ≤ m) (mn : m = n) (i : Fin k) :
+    Fin.cast mn (i.castLE km) = i.castLE (mn ▸ km) :=
+  Fin.ext (by simp)
+
+@[simp] theorem cast_castLT {k m n} (i : Fin k) (h : (i : Nat) < m) (mn : m = n) :
+    Fin.cast mn (i.castLT h) = i.castLT (mn ▸ h) :=
+  Fin.ext (by simp)
 
 @[simp] theorem cast_zero [NeZero n] [NeZero m] (h : n = m) : Fin.cast h 0 = 0 := rfl
 

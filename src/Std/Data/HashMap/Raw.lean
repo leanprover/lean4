@@ -9,17 +9,17 @@ import Std.Data.DHashMap.Raw
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-/-
+/-!
 # Hash maps with unbundled well-formedness invariant
 
-This module develops the type `Std.Data.HashMap.Raw` of dependent hash maps with unbundled
+This module develops the type `Std.HashMap.Raw` of dependent hash maps with unbundled
 well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
-available as `Std.Data.HashMap.Raw.WF` and we prove in this file that all operations preserve
-well-formedness. When in doubt, prefer `HashMap` over `DHashMap.Raw`.
+available as `Std.HashMap.Raw.WF` and we prove in this file that all operations preserve
+well-formedness. When in doubt, prefer `HashMap` over `HashMap.Raw`.
 
-Lemmas about the operations on `Std.Data.HashMap.Raw` are available in the module
+Lemmas about the operations on `Std.HashMap.Raw` are available in the module
 `Std.Data.HashMap.RawLemmas`.
 -/
 

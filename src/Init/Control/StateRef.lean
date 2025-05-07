@@ -5,6 +5,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 
 The State monad transformer using IO references.
 -/
+module
+
 prelude
 import Init.System.ST
 

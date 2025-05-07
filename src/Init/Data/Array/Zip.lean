@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Array.TakeDrop
 import Init.Data.List.Zip
@@ -323,7 +325,7 @@ theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option �
   simp [List.map_zipWithAll]
 
 @[simp] theorem zipWithAll_replicate {a : α} {b : β} {n : Nat} :
-    zipWithAll f (replicate n a) (replicate n b) = replicate n (f a b) := by
+    zipWithAll f (replicate n a) (replicate n b) = replicate n (f (some a) (some b)) := by
   simp [← List.toArray_replicate]
 
 @[deprecated zipWithAll_replicate (since := "2025-03-18")]

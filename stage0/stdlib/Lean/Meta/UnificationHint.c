@@ -299,6 +299,7 @@ size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_809____closed__20;
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedUnificationHintEntry;
 LEAN_EXPORT lean_object* l_Lean_Meta_instToFormatUnificationHints___boxed(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_UnificationHints_add___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -341,7 +342,6 @@ static lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUni
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_809____closed__7;
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_processPostponed(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
@@ -3267,7 +3267,7 @@ x_24 = l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_
 x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_25, x_2, x_3, x_4, x_5, x_17);
+x_26 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_25, x_2, x_3, x_4, x_5, x_17);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -3387,7 +3387,7 @@ x_52 = l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_
 x_53 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_53, 0, x_51);
 lean_ctor_set(x_53, 1, x_52);
-x_54 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_53, x_2, x_3, x_4, x_5, x_44);
+x_54 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_53, x_2, x_3, x_4, x_5, x_44);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);

@@ -3,6 +3,8 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Option.Basic
 
@@ -10,7 +12,7 @@ universe u v
 
 namespace Option
 
-theorem eq_of_eq_some {α : Type u} : ∀ {x y : Option α}, (∀z, x = some z ↔ y = some z) → x = y
+theorem eq_of_eq_some {α : Type u} : ∀ {x y : Option α}, (∀ z, x = some z ↔ y = some z) → x = y
   | none,   none,   _ => rfl
   | none,   some z, h => Option.noConfusion ((h z).2 rfl)
   | some z, none,   h => Option.noConfusion ((h z).1 rfl)
@@ -116,7 +118,7 @@ none
     (f : ∀ a : α, p a → β) :
     (o : Option α) → (∀ a, o = some a → p a) → Option β
   | none, _ => none
-  | some a, H => f a (H a rfl)
+  | some a, H => some <| f a (H a rfl)
 
 /--
 Given an optional value and a function that can be applied when the value is `some`, returns the

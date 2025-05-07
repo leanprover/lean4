@@ -7,6 +7,7 @@ A string trie data structure, used for tokenizing the Lean language
 -/
 prelude
 import Lean.Data.Format
+import Init.Data.Option.Coe
 
 namespace Lean
 namespace Data

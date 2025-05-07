@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Zip
@@ -69,7 +71,7 @@ theorem mem_range' : ∀ {n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step 
   | 0 => by simp [range', Nat.not_lt_zero]
   | n + 1 => by
     have h (i) : i ≤ n ↔ i = 0 ∨ ∃ j, i = succ j ∧ j < n := by
-      cases i <;> simp [Nat.succ_le, Nat.succ_inj']
+      cases i <;> simp [Nat.succ_le, Nat.succ_inj]
     simp [range', mem_range', Nat.lt_succ, h]; simp only [← exists_and_right, and_assoc]
     rw [exists_comm]; simp [Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
 

@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_instLEOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_tryCatch___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_guard___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instBEq(lean_object*);
-LEAN_EXPORT lean_object* l_Option_guard(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_guard(lean_object*);
 LEAN_EXPORT lean_object* l_instAlternativeOption;
 LEAN_EXPORT lean_object* l_instMonadOption___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_max(lean_object*);
@@ -1099,12 +1099,12 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_guard(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Option_guard(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Option_guard___rarg), 2, 0);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_guard___rarg), 2, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Option_toList___rarg(lean_object* x_1) {

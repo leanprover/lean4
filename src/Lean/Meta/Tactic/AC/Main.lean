@@ -124,7 +124,7 @@ def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × 
     let rhs := convert acExprNormed
     let proof := mkAppN (mkConst ``Context.eq_of_norm [u]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
     let proofType ← mkEq (convertTarget vars acExpr) (convertTarget vars acExprNormed)
-    let proof ← mkExpectedTypeHint proof proofType
+    let proof := mkExpectedPropHint proof proofType
     return proof
   let some (_, _, tgt) := (← inferType proof).eq? | panic! "unexpected proof type"
   return (proof, tgt)

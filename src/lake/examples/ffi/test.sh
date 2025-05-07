@@ -16,6 +16,6 @@ $LAKE exe -d lib test
 $LAKE -d app build -v | (grep --color -E 'load-dynlib|plugin' && exit 1 || true)
 $LAKE -d lib build -v | (grep --color -E 'load-dynlib|plugin' && exit 1 || true)
 
-# Tests the successful precompilation of an `extern_lib`
+# Tests the successful precompilation of an FFI library
 # Also tests a module with `precompileModules` always precompiles its imports
 $LAKE -d app build Test

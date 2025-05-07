@@ -55,7 +55,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   if (← checkMaxCaseSplit) then return false
   let mut map : Map := {}
   let mut candidates : Candidates := {}
-  for ({ expr := e }, _) in (← get).enodes do
+  for e in (← get).exprs do
     if e.isApp && !e.isEq && !e.isHEq then
     if (← isCongrRoot e) then
     unless (← ctx.isInterpreted e) do
@@ -79,7 +79,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   if candidates.isEmpty then
     return false
   if (← get).split.num > (← getConfig).splits then
-    reportIssue "skipping `mbtc`, maximum number of splits has been reached `(splits := {(← getConfig).splits})`"
+    reportIssue! "skipping `mbtc`, maximum number of splits has been reached `(splits := {(← getConfig).splits})`"
     return false
   let result := candidates.toArray.qsort fun c₁ c₂ => c₁.lt c₂
   let result ← result.filterMapM fun info => do

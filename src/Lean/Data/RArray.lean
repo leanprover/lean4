@@ -6,6 +6,8 @@ Authors: Joachim Breitner
 
 prelude
 import Init.Data.RArray
+import Lean.Meta.InferType
+import Lean.Meta.DecLevel
 import Lean.ToExpr
 
 /-!
@@ -54,22 +56,20 @@ theorem RArray.size_ofFn {n : Nat} (f : Fin n → α) (h : 0 < n) :
 where
   go lb ub h1 h2 : (ofFn.go f lb ub h1 h2).size = ub - lb := by
     induction lb, ub, h1, h2 using RArray.ofFn.go.induct (n := n)
-    case case1 => simp [ofFn.go, size]; omega
+    case case1 => simp [ofFn.go, size]
     case case2 ih1 ih2 hiu => rw [ofFn.go]; simp +zetaDelta [size, *]; omega
 
-section Meta
-open Lean
-
-def RArray.toExpr (ty : Expr) (f : α → Expr) : RArray α → Expr
-  | .leaf x  =>
-    mkApp2 (mkConst ``RArray.leaf) ty (f x)
-  | .branch p l r =>
-    mkApp4 (mkConst ``RArray.branch) ty (mkRawNatLit p) (l.toExpr ty f) (r.toExpr ty f)
-
-instance [ToExpr α] : ToExpr (RArray α) where
-  toTypeExpr := mkApp (mkConst ``RArray) (toTypeExpr α)
-  toExpr a := a.toExpr (toTypeExpr α) toExpr
-
-end Meta
+open Meta in
+def RArray.toExpr (ty : Expr) (f : α → Expr) (a : RArray α) : MetaM Expr := do
+  let u ← getDecLevel ty
+  let leaf := mkConst ``RArray.leaf [u]
+  let branch := mkConst ``RArray.branch [u]
+  let rec go (a : RArray α) : MetaM Expr := do
+    match a with
+    | .leaf x  =>
+      return mkApp2 leaf ty (f x)
+    | .branch p l r =>
+      return mkApp4 branch ty (mkRawNatLit p) (← go l) (← go r)
+  go a
 
 end Lean

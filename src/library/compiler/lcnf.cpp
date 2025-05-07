@@ -35,8 +35,38 @@ bool is_do_notation_joinpoint(name const & n) {
     return n2 != n && "do!jp";
 }
 
+namespace {
+
+struct cache_key {
+    expr e;
+    bool root;
+};
+
+struct cache_key_cmp {
+    typedef cache_key type;
+
+    int operator()(cache_key const & k1, cache_key const & k2) const {
+        if (is_lt(k1.e, k2.e, true)) {
+            return -1;
+        } else if (k1.e == k2.e) {
+            if (k1.root < k2.root) {
+                return -1;
+            } else if (k1.root == k2.root) {
+                return 0;
+            } else {
+                return 1;
+            }
+        } else {
+            return 1;
+        }
+    }
+};
+
+typedef rb_map<cache_key, expr, cache_key_cmp> cache;
+
+}
+
 class to_lcnf_fn {
-    typedef rb_expr_map<expr> cache;
     elab_environment    m_env;
     type_checker::state m_st;
     local_ctx           m_lctx;
@@ -574,9 +604,10 @@ public:
         return is_constant(fn) && has_never_extract_attribute(env(), const_name(fn));
     }
 
-    expr cache_result(expr const & e, expr const & r, bool shared) {
-        if (shared && !has_never_extract(e))
-            m_cache.insert(e, r);
+    expr cache_result(expr const & e, expr const & r, bool shared, bool root) {
+        if (shared && !has_never_extract(e)) {
+            m_cache.insert({e, root}, r);
+        }
         return r;
     }
 
@@ -595,7 +626,7 @@ public:
 
         bool shared = is_shared(e);
         if (shared) {
-            if (auto it = m_cache.find(e))
+            if (auto it = m_cache.find({e, root}))
                 return *it;
         }
 
@@ -604,11 +635,11 @@ public:
             expr type = tc.whnf(tc.infer(e));
             if (is_sort(type)) {
                 /* Types are not pre-processed */
-                return cache_result(e, e, shared);
+                return cache_result(e, e, shared, root);
             } else if (tc.is_prop(type)) {
                 /* We replace proofs using `lc_proof` constant */
                 expr r = mk_app(mk_constant(get_lc_proof_name()), type);
-                return cache_result(e, r, shared);
+                return cache_result(e, r, shared, root);
             } else if (is_pi(type)) {
                 /* Functions that return types are not pre-processed. */
                 flet<local_ctx> save_lctx(m_lctx, m_lctx);
@@ -617,17 +648,17 @@ public:
                     type = whnf(instantiate(binding_body(type), fvar));
                 }
                 if (is_sort(type))
-                    return cache_result(e, e, shared);
+                    return cache_result(e, e, shared, root);
             }
         }
 
         switch (e.kind()) {
-        case expr_kind::Const:  return cache_result(e, visit_constant(e, root), shared);
-        case expr_kind::App:    return cache_result(e, visit_app(e, root), shared);
-        case expr_kind::Proj:   return cache_result(e, visit_proj(e, root), shared);
-        case expr_kind::MData:  return cache_result(e, visit_mdata(e, root), shared);
-        case expr_kind::Lambda: return cache_result(e, visit_lambda(e, root), shared);
-        case expr_kind::Let:    return cache_result(e, visit_let(e, root), shared);
+        case expr_kind::Const:  return cache_result(e, visit_constant(e, root), shared, root);
+        case expr_kind::App:    return cache_result(e, visit_app(e, root), shared, root);
+        case expr_kind::Proj:   return cache_result(e, visit_proj(e, root), shared, root);
+        case expr_kind::MData:  return cache_result(e, visit_mdata(e, root), shared, root);
+        case expr_kind::Lambda: return cache_result(e, visit_lambda(e, root), shared, root);
+        case expr_kind::Let:    return cache_result(e, visit_let(e, root), shared, root);
         default: lean_unreachable();
         }
     }

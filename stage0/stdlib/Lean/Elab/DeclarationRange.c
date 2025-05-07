@@ -192,55 +192,59 @@ x_5 = l_Lean_Syntax_getArg(x_1, x_4);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Lean_Syntax_getArg(x_5, x_6);
 x_8 = l_Lean_Syntax_isIdent(x_7);
+lean_dec(x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 
-lean_dec(x_7);
 x_9 = l_Lean_Syntax_isIdent(x_5);
+lean_dec(x_5);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-lean_dec(x_5);
 x_10 = l_Lean_Syntax_getArg(x_1, x_6);
 lean_dec(x_1);
 return x_10;
 }
 else
 {
+lean_object* x_11; 
+x_11 = l_Lean_Syntax_getArg(x_1, x_4);
 lean_dec(x_1);
-return x_5;
+return x_11;
 }
 }
 else
 {
+lean_object* x_12; 
+lean_dec(x_1);
+x_12 = l_Lean_Syntax_getArg(x_5, x_6);
 lean_dec(x_5);
-lean_dec(x_1);
-return x_7;
+return x_12;
 }
 }
 else
 {
-lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_11 = lean_unsigned_to_nat(3u);
-x_12 = l_Lean_Syntax_getArg(x_1, x_11);
-x_13 = l_Lean_Syntax_isNone(x_12);
-if (x_13 == 0)
-{
-lean_object* x_14; lean_object* x_15; 
-lean_dec(x_1);
-x_14 = lean_unsigned_to_nat(0u);
-x_15 = l_Lean_Syntax_getArg(x_12, x_14);
-lean_dec(x_12);
-return x_15;
-}
-else
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_unsigned_to_nat(3u);
+x_14 = l_Lean_Syntax_getArg(x_1, x_13);
+x_15 = l_Lean_Syntax_isNone(x_14);
+if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
-lean_dec(x_12);
-x_16 = lean_unsigned_to_nat(1u);
-x_17 = l_Lean_Syntax_getArg(x_1, x_16);
 lean_dec(x_1);
+x_16 = lean_unsigned_to_nat(0u);
+x_17 = l_Lean_Syntax_getArg(x_14, x_16);
+lean_dec(x_14);
 return x_17;
+}
+else
+{
+lean_object* x_18; lean_object* x_19; 
+lean_dec(x_14);
+x_18 = lean_unsigned_to_nat(1u);
+x_19 = l_Lean_Syntax_getArg(x_1, x_18);
+lean_dec(x_1);
+return x_19;
 }
 }
 }

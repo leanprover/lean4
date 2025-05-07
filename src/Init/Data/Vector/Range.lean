@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Zip
@@ -101,9 +103,8 @@ theorem range'_eq_append_iff : range' s (n + m) = xs ++ ys ↔ xs = range' s n �
       simp_all
     subst w
     simp_all
-    omega
   · rintro ⟨h₁, h₂⟩
-    exact ⟨n, by omega, by simp_all; omega⟩
+    exact ⟨n, by omega, by simp_all⟩
 
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by

@@ -387,15 +387,10 @@ compacted_region::compacted_region(size_t sz, void * data, void * base_addr, boo
     m_end(static_cast<char*>(data)+sz) {
 }
 
-compacted_region::compacted_region(object_compactor const & c):
-    m_begin(malloc(c.size())),
-    m_next(m_begin),
-    m_end(static_cast<char*>(m_begin) + c.size()) {
-    memcpy(m_begin, c.data(), c.size());
-}
-
 compacted_region::~compacted_region() {
-    m_free_data();
+    if (m_free_data) {
+        m_free_data();
+    }
 }
 
 inline object * compacted_region::fix_object_ptr(object * o) {

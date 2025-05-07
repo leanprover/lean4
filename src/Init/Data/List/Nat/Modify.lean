@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
 
+module
+
 prelude
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Nat.Erase

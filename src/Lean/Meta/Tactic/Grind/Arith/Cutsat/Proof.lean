@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Arith.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 
@@ -64,32 +65,14 @@ def mkNatExprDecl (e : Int.OfNat.Expr) : ProofM Expr := do
   modify fun s => { s with natExprMap := s.natExprMap.insert e x }
   return x
 
-private def mkDiseqProof (a b : Expr) : GoalM Expr := do
- let some h ← mkDiseqProof? a b
-   | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
-  return h
-
-private def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) (e : Expr)
-    (varPrefix : Name) (varType : Expr) (toExpr : α → Expr) : GoalM Expr := do
-  if m.isEmpty then
-    return e
-  else
-    let as := m.toArray
-    let mut e := e.abstract <| as.map (·.2)
-    let mut i := as.size
-    for (p, _) in as.reverse do
-      e := mkLet (varPrefix.appendIndexAfter i) varType (toExpr p) e
-      i := i - 1
-    return e
-
-private def toContextExprCore (vars : PArray Expr) (type : Expr) : Expr :=
+private def toContextExprCore (vars : PArray Expr) (type : Expr) : MetaM Expr :=
   if h : 0 < vars.size then
     RArray.toExpr type id (RArray.ofFn (vars[·]) h)
   else
     RArray.toExpr type id (RArray.leaf (mkIntLit 0))
 
 private def toContextExpr : GoalM Expr := do
-  return toContextExprCore (← getVars) (mkConst ``Int)
+  toContextExprCore (← getVars) (mkConst ``Int)
 
 private def withForeignContexts (k : Std.HashMap ForeignType Expr → GoalM α) : GoalM α := do
   go 1 (← get').foreignVars.toList {}
@@ -99,8 +82,8 @@ where
     | [] => k r
     | (type, ctx) :: ctxs =>
       let typeExpr := type.denoteType
-      let ctxExpr := toContextExprCore ctx typeExpr
-      withLetDecl ((`ctx).appendIndexAfter i) (mkApp (mkConst ``RArray) typeExpr) ctxExpr fun ctx => do
+      let ctxExpr ← toContextExprCore ctx typeExpr
+      withLetDecl ((`ctx).appendIndexAfter i) (mkApp (mkConst ``RArray [levelZero]) typeExpr) ctxExpr fun ctx => do
         go (i+1) ctxs (r.insert type ctx)
 
 private def getLetCtxVars : ProofM (Array Expr) := do
@@ -110,7 +93,7 @@ private def getLetCtxVars : ProofM (Array Expr) := do
   return r
 
 private abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
-  withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx =>
+  withLetDecl `ctx (mkApp (mkConst ``RArray [levelZero]) (mkConst ``Int)) (← toContextExpr) fun ctx =>
   withForeignContexts fun foreignCtxs =>
     go { ctx, foreignCtxs } |>.run' {}
 where

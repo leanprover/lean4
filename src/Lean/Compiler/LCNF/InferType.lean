@@ -142,7 +142,7 @@ mutual
         fType := instantiateRevRangeArgs fType j i args |>.headBeta
         match fType with
         | .forallE _ _ b _ => j := i; fType := b
-        | _ => return erasedExpr
+        | _ => return anyExpr
     return instantiateRevRangeArgs fType j args.size args |>.headBeta
 
   partial def inferAppType (e : Expr) : InferTypeM Expr := do
@@ -157,7 +157,7 @@ mutual
         fType := fType.instantiateRevRange j i args |>.headBeta
         match fType with
         | .forallE _ _ b _ => j := i; fType := b
-        | _ => return erasedExpr
+        | _ => return anyExpr
     return fType.instantiateRevRange j args.size args |>.headBeta
 
   partial def inferProjType (structName : Name) (idx : Nat) (s : FVarId) : InferTypeM Expr := do
@@ -167,6 +167,8 @@ mutual
     if structType.isErased then
       /- TODO: after we erase universe variables, we can just extract a better type using just `structName` and `idx`. -/
       return erasedExpr
+    else if structType.isAny then
+      return anyExpr
     else
       matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal =>
         let structTypeArgs := structType.getAppArgs
@@ -179,7 +181,7 @@ mutual
             | .forallE _ _ body _ =>
               if body.hasLooseBVars then
                 -- This can happen when one of the fields is a type or type former.
-                ctorType := body.instantiate1 erasedExpr
+                ctorType := body.instantiate1 anyExpr
               else
                 ctorType := body
             | _ =>

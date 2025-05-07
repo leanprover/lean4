@@ -26,7 +26,7 @@ example (x : Nat) : 1 + 1 + f x = x + 2 := by
 info: Try these:
 • rfl
 • simp
-• simp only [Nat.succ_eq_add_one]
+• simp only [Nat.succ_eq_add_one, Nat.add_left_cancel_iff]
 • grind
 • grind only
 -/
@@ -38,7 +38,7 @@ example (x : Nat) : x + 1 = Nat.succ x := by
 info: Try these:
 • · intros; rfl
 • · intros; simp
-• · intros; simp only [Nat.succ_eq_add_one]
+• · intros; simp only [Nat.succ_eq_add_one, Nat.add_left_cancel_iff]
 • · intros; grind
 • · intros; grind only
 -/

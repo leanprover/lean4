@@ -1,3 +1,4 @@
+rm -f produced.out
 rm -rf hello
 rm -rf HelloWorld
 rm -rf hello-world

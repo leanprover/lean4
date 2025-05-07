@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
   Yury Kudryashov
 -/
+module
+
 prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Find
@@ -88,7 +90,7 @@ theorem exists_or_eq_self_of_eraseP (p) (l : List α) :
 @[simp] theorem length_eraseP_of_mem (al : a ∈ l) (pa : p a) :
     length (l.eraseP p) = length l - 1 := by
   let ⟨_, l₁, l₂, _, _, e₁, e₂⟩ := exists_of_eraseP al pa
-  rw [e₂]; simp [length_append, e₁]; rfl
+  rw [e₂]; simp [length_append, e₁]
 
 theorem length_eraseP {l : List α} : (l.eraseP p).length = if l.any p then l.length - 1 else l.length := by
   split <;> rename_i h
@@ -542,7 +544,7 @@ theorem eraseIdx_eq_take_drop_succ :
   match l, i with
   | [], _
   | a::l, 0
-  | a::l, i + 1 => simp [Nat.succ_inj']
+  | a::l, i + 1 => simp [Nat.succ_inj]
 
 @[deprecated eraseIdx_eq_nil_iff (since := "2025-01-30")]
 abbrev eraseIdx_eq_nil := @eraseIdx_eq_nil_iff
@@ -551,7 +553,7 @@ theorem eraseIdx_ne_nil_iff {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 
   match l with
   | []
   | [a]
-  | a::b::l => simp [Nat.succ_inj']
+  | a::b::l => simp [Nat.succ_inj]
 
 @[deprecated eraseIdx_ne_nil_iff (since := "2025-01-30")]
 abbrev eraseIdx_ne_nil := @eraseIdx_ne_nil_iff

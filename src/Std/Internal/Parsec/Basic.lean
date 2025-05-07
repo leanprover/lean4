@@ -127,7 +127,7 @@ def notFollowedBy (p : Parsec ι α) : Parsec ι Unit := fun it =>
 @[inline]
 def peek? : Parsec ι (Option elem) := fun it =>
   if h : Input.hasNext it then
-    .success it (Input.curr' it h)
+    .success it (some <| Input.curr' it h)
   else
     .success it none
 

@@ -81,21 +81,7 @@ private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
     if flag then
       return true
     else
-      return c'.isApp && isCongruent (← get).enodes c c'
-
-private def checkForallStatus (e : Expr) : GoalM SplitStatus := do
-  if (← isEqTrue e) then
-    let .forallE _ p q _ := e | return .resolved
-    if (← isEqTrue p <||> isEqFalse p) then
-      return .resolved
-    unless q.hasLooseBVars do
-      if (← isEqTrue q <||> isEqFalse q) then
-        return .resolved
-    return .ready 2
-  else if (← isEqFalse e) then
-    return .resolved
-  else
-    return .notReady
+      return c'.isApp && (← get).isCongruent c c'
 
 private def checkDefaultSplitStatus (e : Expr) : GoalM SplitStatus := do
   match_expr e with
@@ -112,10 +98,6 @@ private def checkDefaultSplitStatus (e : Expr) : GoalM SplitStatus := do
     if (← isResolvedCaseSplit e) then
       trace_goal[grind.debug.split] "split resolved: {e}"
       return .resolved
-    if e.isForall then
-      let s ← checkForallStatus e
-      trace_goal[grind.debug.split] "{e}, status: {repr s}"
-      return s
     if (← isCongrToPrevSplit e) then
       return .resolved
     if let some info := isMatcherAppCore? (← getEnv) e then
@@ -156,9 +138,25 @@ def checkSplitInfoArgStatus (a b : Expr) (eq : Expr) : GoalM SplitStatus := do
     it_b := it_b.appFn!
   return .ready 2
 
+private def checkForallStatus (imp : Expr) (h : imp.isForall) : GoalM SplitStatus := do
+  if (← isEqTrue imp) then
+    let p := imp.forallDomain h
+    let q := imp.forallBody h
+    if (← isEqTrue p <||> isEqFalse p) then
+      return .resolved
+    unless q.hasLooseBVars do
+      if (← isEqTrue q <||> isEqFalse q) then
+        return .resolved
+    return .ready 2
+  else if (← isEqFalse imp) then
+    return .resolved
+  else
+    return .notReady
+
 def checkSplitStatus (s : SplitInfo) : GoalM SplitStatus := do
   match s with
   | .default e => checkDefaultSplitStatus e
+  | .imp e h => checkForallStatus e h
   | .arg a b _ eq => checkSplitInfoArgStatus a b eq
 
 private inductive SplitCandidate where
@@ -229,9 +227,7 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
       return mkGrindEM c
   | Not e => return mkGrindEM e
   | _ =>
-    if let .forallE _ p _ _ := c then
-      return mkGrindEM p
-    else if (← isEqTrue c) then
+    if (← isEqTrue c) then
       return mkOfEqTrueCore c (← mkEqTrueProof c)
     else
       return c
@@ -242,6 +238,12 @@ private def introNewHyp (goals : List Goal) (acc : List Goal) (generation : Nat)
   | [] => return acc.reverse
   | goal::goals => introNewHyp goals ((← intros generation goal) ++ acc) generation
 
+private def casesWithTrace (major : Expr) : GoalM (List MVarId) := do
+  if (← getConfig).trace then
+    if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
+      saveCases declName false
+  cases (← get).mvarId major
+
 /--
 Selects a case-split from the list of candidates,
 and returns a new list of goals if successful.
@@ -250,22 +252,20 @@ def splitNext : GrindTactic := fun goal => do
   let (goals?, _) ← GoalM.run goal do
     let .some c numCases isRec _ ← selectNextSplit?
       | return none
-    let c := c.getExpr
-    let gen ← getGeneration c
+    let cExpr := c.getExpr
+    let gen ← getGeneration cExpr
     let genNew := if numCases > 1 || isRec then gen+1 else gen
-    markCaseSplitAsResolved c
-    trace_goal[grind.split] "{c}, generation: {gen}"
-    let mvarIds ← if (← isMatcherApp c) then
-      casesMatch (← get).mvarId c
+    markCaseSplitAsResolved cExpr
+    trace_goal[grind.split] "{cExpr}, generation: {gen}"
+    let mvarIds ← if let .imp e h := c then
+      casesWithTrace (mkGrindEM (e.forallDomain h))
+    else if (← isMatcherApp cExpr) then
+      casesMatch (← get).mvarId cExpr
     else
-      let major ← mkCasesMajor c
-      if (← getConfig).trace then
-        if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
-          saveCases declName false
-      cases (← get).mvarId major
+      casesWithTrace (← mkCasesMajor cExpr)
     let goal ← get
     let numSubgoals := mvarIds.length
-    let goals := mvarIds.mapIdx fun i mvarId => { goal with mvarId, split.trace := { expr := c, i, num := numSubgoals } :: goal.split.trace }
+    let goals := mvarIds.mapIdx fun i mvarId => { goal with mvarId, split.trace := { expr := cExpr, i, num := numSubgoals } :: goal.split.trace }
     let goals ← introNewHyp goals [] genNew
     return some goals
   return goals?

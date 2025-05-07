@@ -6,6 +6,8 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn, Mario Carneiro
 This provides additional lemmas about propositional types beyond what is
 needed for Core and SimpLemmas.
 -/
+module
+
 prelude
 import Init.Core
 import Init.NotationExtra

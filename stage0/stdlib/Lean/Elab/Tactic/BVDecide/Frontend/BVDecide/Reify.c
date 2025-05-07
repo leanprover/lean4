@@ -676,6 +676,10 @@ x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_1, 4);
 lean_inc(x_13);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
 lean_inc(x_12);
 x_14 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkEvalExpr(x_12, x_13, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_14) == 0)
@@ -690,6 +694,10 @@ x_17 = lean_ctor_get(x_2, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_2, 4);
 lean_inc(x_18);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
 x_19 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkEvalExpr(x_17, x_18, x_6, x_7, x_8, x_9, x_10, x_16);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -973,6 +981,10 @@ x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_1, 4);
 lean_inc(x_11);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
 lean_inc(x_10);
 x_12 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkEvalExpr(x_10, x_11, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_12) == 0)
@@ -9110,6 +9122,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_of_g
 _start:
 {
 lean_object* x_18; 
+lean_inc(x_16);
+lean_inc(x_15);
+lean_inc(x_14);
+lean_inc(x_13);
 lean_inc(x_1);
 x_18 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkEvalExpr(x_1, x_2, x_12, x_13, x_14, x_15, x_16, x_17);
 if (lean_obj_tag(x_18) == 0)

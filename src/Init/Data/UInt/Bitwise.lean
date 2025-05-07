@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Mac Malone
 -/
+module
+
 prelude
 import Init.Data.UInt.Lemmas
 import Init.Data.Fin.Bitwise

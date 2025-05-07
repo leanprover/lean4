@@ -275,7 +275,7 @@ structure MetavarDecl where
   userName       : Name := Name.anonymous
   /-- The local context containing the free variables that the mvar is permitted to depend upon. -/
   lctx           : LocalContext
-  /-- The type of the metavarible, in the given `lctx`. -/
+  /-- The type of the metavariable, in the given `lctx`. -/
   type           : Expr
   /--
     The nesting depth of this metavariable. We do not want

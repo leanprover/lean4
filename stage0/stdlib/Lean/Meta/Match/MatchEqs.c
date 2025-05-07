@@ -653,7 +653,6 @@ static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_simp
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___lambda__3___closed__4;
 extern lean_object* l_Lean_Meta_Match_instInhabitedMatchEqns;
 lean_object* l_Lean_MVarId_isAssigned___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_withNewAlts_go___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_idxOfAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__2(lean_object*, lean_object*, lean_object*);
@@ -669,6 +668,7 @@ lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_MVarId_contradictionQuick(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 LEAN_EXPORT lean_object* lean_get_match_equations_for(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_getNumEqsFromDiscrInfos(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitPost___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_initFn____x40_Lean_Meta_Match_MatchEqs___hyg_13937____closed__6;
@@ -787,6 +787,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_Match_forallAltTelesco
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Match_getEquationsForImpl_go___spec__4___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_substSomeVar___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_substSomeVar___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -824,7 +825,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Match_getEqua
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_contradiction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof___lambda__2___closed__2;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
@@ -7134,7 +7134,7 @@ return x_31;
 else
 {
 uint8_t x_32; 
-x_32 = l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__5(x_3, x_27);
+x_32 = l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_3, x_27);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
@@ -7147,7 +7147,7 @@ return x_34;
 else
 {
 uint8_t x_35; 
-x_35 = l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__5(x_4, x_27);
+x_35 = l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_4, x_27);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
@@ -16896,7 +16896,7 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 lean_dec(x_1);
 x_12 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_unfoldElimOffset___closed__3;
-x_13 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_12, x_2, x_3, x_4, x_5, x_9);
+x_13 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_12, x_2, x_3, x_4, x_5, x_9);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -17529,7 +17529,7 @@ else
 lean_object* x_284; lean_object* x_285; lean_object* x_286; lean_object* x_287; 
 lean_dec(x_279);
 x_284 = l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___closed__10;
-x_285 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_284, x_5, x_6, x_7, x_8, x_280);
+x_285 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_284, x_5, x_6, x_7, x_8, x_280);
 x_286 = lean_ctor_get(x_285, 0);
 lean_inc(x_286);
 x_287 = lean_ctor_get(x_285, 1);
@@ -18528,7 +18528,7 @@ else
 lean_object* x_386; lean_object* x_387; lean_object* x_388; lean_object* x_389; 
 lean_dec(x_381);
 x_386 = l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___closed__10;
-x_387 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_386, x_5, x_6, x_7, x_8, x_382);
+x_387 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_386, x_5, x_6, x_7, x_8, x_382);
 x_388 = lean_ctor_get(x_387, 0);
 lean_inc(x_388);
 x_389 = lean_ctor_get(x_387, 1);
@@ -19137,7 +19137,7 @@ else
 lean_object* x_501; lean_object* x_502; lean_object* x_503; lean_object* x_504; 
 lean_dec(x_496);
 x_501 = l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___closed__10;
-x_502 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_501, x_5, x_6, x_7, x_8, x_497);
+x_502 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_501, x_5, x_6, x_7, x_8, x_497);
 x_503 = lean_ctor_get(x_502, 0);
 lean_inc(x_503);
 x_504 = lean_ctor_get(x_502, 1);
@@ -19817,7 +19817,7 @@ else
 lean_object* x_629; lean_object* x_630; lean_object* x_631; lean_object* x_632; 
 lean_dec(x_624);
 x_629 = l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___closed__10;
-x_630 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_629, x_5, x_6, x_7, x_8, x_625);
+x_630 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_629, x_5, x_6, x_7, x_8, x_625);
 x_631 = lean_ctor_get(x_630, 0);
 lean_inc(x_631);
 x_632 = lean_ctor_get(x_630, 1);
@@ -20564,7 +20564,7 @@ else
 lean_object* x_765; lean_object* x_766; lean_object* x_767; lean_object* x_768; 
 lean_dec(x_760);
 x_765 = l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___closed__10;
-x_766 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_765, x_5, x_6, x_7, x_8, x_761);
+x_766 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_765, x_5, x_6, x_7, x_8, x_761);
 x_767 = lean_ctor_get(x_766, 0);
 lean_inc(x_767);
 x_768 = lean_ctor_get(x_766, 1);
@@ -21402,7 +21402,7 @@ else
 lean_object* x_917; lean_object* x_918; lean_object* x_919; lean_object* x_920; 
 lean_dec(x_912);
 x_917 = l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___closed__10;
-x_918 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_917, x_5, x_6, x_7, x_8, x_913);
+x_918 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_917, x_5, x_6, x_7, x_8, x_913);
 x_919 = lean_ctor_get(x_918, 0);
 lean_inc(x_919);
 x_920 = lean_ctor_get(x_918, 1);

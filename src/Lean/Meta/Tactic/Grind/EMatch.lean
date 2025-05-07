@@ -265,12 +265,12 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
     prop ← annotateMatchEqnType prop (← read).initApp
     -- We must add a hint here because `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` and
     -- `Grind.PreMatchCond` which are not reducible.
-    proof ← mkExpectedTypeHint proof prop
+    proof := mkExpectedPropHint proof prop
   else if (← isEqnThm thm.origin.key) then
     prop ← annotateEqnTypeConds prop
     -- We must add a hint because `annotateEqnTypeConds` introduces `Grind.PreMatchCond`
     -- which is not reducible.
-    proof ← mkExpectedTypeHint proof prop
+    proof := mkExpectedPropHint proof prop
   trace_goal[grind.ematch.instance] "{← thm.origin.pp}: {prop}"
   addTheoremInstance thm proof prop (generation+1)
 
@@ -300,7 +300,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       let report : M Unit := do
         reportIssue! "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
       unless (← withDefault <| isDefEq mvarIdType vType) do
-        let some heq ← proveEq? vType mvarIdType
+        let some heq ← withoutReportingMVarIssues <| proveEq? vType mvarIdType
           | report
             return ()
         /-

@@ -216,7 +216,7 @@ def minD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
 def maxEntry? (t : TreeMap α β cmp) : Option (α × β) :=
   DTreeMap.Const.maxEntry? t.inner
 
-@[inline, inherit_doc maxEntry?, deprecated minEntry? (since := "2025-03-13")]
+@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
 def max? (t : TreeMap α β cmp) : Option (α × β) :=
   t.maxEntry?
 
@@ -224,7 +224,7 @@ def max? (t : TreeMap α β cmp) : Option (α × β) :=
 def maxEntry (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
   DTreeMap.Const.maxEntry t.inner h
 
-@[inline, inherit_doc maxEntry, deprecated minEntry (since := "2025-03-13")]
+@[inline, inherit_doc maxEntry, deprecated maxEntry (since := "2025-03-13")]
 def max (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
   t.maxEntry h
 
@@ -232,7 +232,7 @@ def max (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
 def maxEntry! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
   DTreeMap.Const.maxEntry! t.inner
 
-@[inline, inherit_doc maxEntry!, deprecated minEntry! (since := "2025-03-13")]
+@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
 def max! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
   t.maxEntry!
 
@@ -240,7 +240,7 @@ def max! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
 def maxEntryD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
   DTreeMap.Const.maxEntryD t.inner fallback
 
-@[inline, inherit_doc maxEntryD, deprecated minEntryD (since := "2025-03-13")]
+@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
 def maxD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
   t.maxEntryD fallback
 

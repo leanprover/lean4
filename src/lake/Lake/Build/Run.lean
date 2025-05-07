@@ -24,7 +24,8 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
     opaqueWs := ws,
     toBuildConfig := config,
     registeredJobs := ← IO.mkRef #[],
-    leanTrace := Hash.ofString ws.lakeEnv.leanGithash
+    leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
+      s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
   }
 
 /-- Unicode icons that make up the spinner in animation order. -/

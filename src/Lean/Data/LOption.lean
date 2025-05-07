@@ -21,6 +21,10 @@ instance [ToString α] : ToString (LOption α) where
     | .undef  => "undef"
     | .some a => "(some " ++ toString a ++ ")"
 
+def LOption.toOption : LOption α → Option α
+  | .some a => .some a
+  | _ => .none
+
 end Lean
 
 def Option.toLOption {α : Type u} : Option α → Lean.LOption α

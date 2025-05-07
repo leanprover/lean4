@@ -3,6 +3,8 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Core
 import Init.Data.Int.Basic
@@ -290,8 +292,11 @@ implementation.
 instance : Inhabited Float32 where
   default := UInt64.toFloat32 0
 
+protected def Float32.repr (n : Float32) (prec : Nat) : Std.Format :=
+  if n < UInt64.toFloat32 0 then Repr.addAppParen (toString n) prec else toString n
+
 instance : Repr Float32 where
-  reprPrec n prec := if n < UInt64.toFloat32 0 then Repr.addAppParen (toString n) prec else toString n
+  reprPrec := Float32.repr
 
 instance : ReprAtom Float32  := ⟨⟩
 

@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Sublist
 
@@ -156,7 +158,7 @@ theorem countP_filterMap {p : β → Bool} {f : α → Option β} {l : List α} 
   simp only [length_filterMap_eq_countP]
   congr
   ext a
-  simp +contextual [Option.getD_eq_iff, Option.isSome_eq_isSome]
+  cases h : f a <;> simp_all [Option.isSome_filter]
 
 @[simp] theorem countP_flatten {l : List (List α)} :
     countP p l.flatten = (l.map (countP p)).sum := by
@@ -298,8 +300,8 @@ theorem filter_beq {l : List α} (a : α) : l.filter (· == a) = replicate (coun
   simp only [count, countP_eq_length_filter, eq_replicate_iff, mem_filter, beq_iff_eq]
   exact ⟨trivial, fun _ h => h.2⟩
 
-theorem filter_eq {α} [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = replicate (count a l) a :=
-  filter_beq a
+theorem filter_eq [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = replicate (count a l) a :=
+  funext (Bool.beq_eq_decide_eq · a) ▸ filter_beq a
 
 theorem le_count_iff_replicate_sublist {l : List α} : n ≤ count a l ↔ replicate n a <+ l := by
   refine ⟨fun h => ?_, fun h => ?_⟩
@@ -314,7 +316,7 @@ theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = len
   rw [count, countP_filter]; congr; funext b
   simp; rintro rfl; exact h
 
-theorem count_le_count_map [DecidableEq β] {l : List α} {f : α → β} {x : α} :
+theorem count_le_count_map {β} [BEq β] [LawfulBEq β] {l : List α} {f : α → β} {x : α} :
     count x l ≤ count (f x) (map f l) := by
   rw [count, count, countP_map]
   apply countP_mono_left; simp +contextual

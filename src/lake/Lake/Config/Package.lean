@@ -31,6 +31,9 @@ namespace Lake
 set_option linter.unusedVariables false in
 /-- A `Package`'s declarative configuration. -/
 configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
+  /-- **For internal use.** Whether this package is Lean itself. -/
+  bootstrap : Bool := false
+
   /--
   **This field is deprecated.**
 
@@ -315,7 +318,7 @@ structure Package where
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
+  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile |>.normalize
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/
@@ -393,6 +396,10 @@ structure PostUpdateHookDecl where
 
 namespace Package
 
+/-- **For internal use.** Whether this package is Lean itself.  -/
+@[inline] def bootstrap (self : Package) : Bool  :=
+  self.config.bootstrap
+
 /-- The package version. -/
 @[inline] def version (self : Package) : LeanVer  :=
   self.config.version
@@ -422,20 +429,20 @@ namespace Package
   self.config.license
 
 /-- The package's `licenseFiles` configuration. -/
-@[inline] def relLicenseFiles (self : Package) : Array FilePath  :=
-  self.config.licenseFiles
+@[inline] def relLicenseFiles (self : Package) : Array FilePath :=
+  self.config.licenseFiles.map (·.normalize)
 
 /-- The package's `dir` joined with each of its `relLicenseFiles`. -/
 @[inline] def licenseFiles (self : Package) : Array FilePath  :=
-  self.relLicenseFiles.map (self.dir / ·)
+  self.relLicenseFiles.map (self.dir / ·.normalize)
 
 /-- The package's `readmeFile` configuration. -/
 @[inline] def relReadmeFile (self : Package) : FilePath  :=
-  self.config.readmeFile
+  self.config.readmeFile.normalize
 
 /-- The package's `dir` joined with its `relReadmeFile`. -/
 @[inline] def readmeFile (self : Package) : FilePath  :=
-  self.dir / self.config.readmeFile
+  self.dir / self.relReadmeFile
 
 /-- The path to the package's Lake directory relative to `dir` (e.g., `.lake`). -/
 @[inline] def relLakeDir (_ : Package) : FilePath :=
@@ -447,7 +454,7 @@ namespace Package
 
 /-- The path for storing the package's remote dependencies relative to `dir` (i.e., `packagesDir`). -/
 @[inline] def relPkgsDir (self : Package) : FilePath :=
-  self.config.packagesDir
+  self.config.packagesDir.normalize
 
 /-- The package's `dir` joined with its `relPkgsDir`. -/
 @[inline] def pkgsDir (self : Package) : FilePath :=
@@ -459,7 +466,7 @@ namespace Package
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/
 @[inline] def buildDir (self : Package) : FilePath :=
-  self.dir / self.config.buildDir
+  self.dir / self.config.buildDir.normalize
 
 /-- The package's `testDriverArgs` configuration. -/
 @[inline] def testDriverArgs (self : Package) : Array String :=
@@ -563,7 +570,7 @@ namespace Package
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
 @[inline] def srcDir (self : Package) : FilePath :=
-  self.dir / self.config.srcDir
+  self.dir / self.config.srcDir.normalize
 
 /-- The package's root directory for `lean` (i.e., `srcDir`). -/
 @[inline] def rootDir (self : Package) : FilePath :=
@@ -571,34 +578,34 @@ namespace Package
 
 /-- The package's `buildDir` joined with its `leanLibDir` configuration. -/
 @[inline] def leanLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.leanLibDir
+  self.buildDir / self.config.leanLibDir.normalize
 
 /--
 Where static libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
 -/
 @[inline] def staticLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir
+  self.buildDir / self.config.nativeLibDir.normalize
 
 /--
 Where shared libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
 -/
 @[inline] def sharedLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir
+  self.buildDir / self.config.nativeLibDir.normalize
 
 /-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
 @[inline, deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
 def nativeLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir
+  self.buildDir / self.config.nativeLibDir.normalize
 
 /-- The package's `buildDir` joined with its `binDir` configuration. -/
 @[inline] def binDir (self : Package) : FilePath :=
-  self.buildDir / self.config.binDir
+  self.buildDir / self.config.binDir.normalize
 
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] def irDir (self : Package) : FilePath :=
-  self.buildDir / self.config.irDir
+  self.buildDir / self.config.irDir.normalize
 
 /-- Try to find a target configuration in the package with the given name. -/
 def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=

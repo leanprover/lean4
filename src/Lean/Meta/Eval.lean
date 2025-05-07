@@ -14,7 +14,7 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (s
   withoutModifyingEnv do
     -- Avoid waiting for all prior compilation if only imported constants are referenced. This is a
     -- very common case for tactic configurations (`Lean.Elab.Tactic.Config`).
-    if value.getUsedConstants.all (← getEnv).base.constants.contains then
+    if value.getUsedConstants.all (← getEnv).isImportedConst then
       modifyEnv fun env => env.importEnv?.getD env
 
     let name ← mkFreshUserName `_tmp

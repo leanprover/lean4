@@ -68,7 +68,7 @@ def generate_script(repo, version, config):
     ]
 
     # Special cases for specific repositories
-    if repo_name == "REPL":
+    if repo_name == "repl":
         script_lines.extend([
             "lake update",
             "cd test/Mathlib",
@@ -79,7 +79,7 @@ def generate_script(repo, version, config):
             "./test.sh"
         ])
     elif dependencies:
-        script_lines.append('echo "Please update the dependencies in lakefile.{lean,toml}"')
+        script_lines.append('perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*')
         script_lines.append("lake update")
 
     script_lines.append("")
@@ -89,10 +89,17 @@ def generate_script(repo, version, config):
         ""
     ])
 
-    if re.search(r'rc\d+$', version) and repo_name in ["Batteries", "Mathlib"]:
+    if re.search(r'rc\d+$', version) and repo_name in ["batteries", "mathlib4"]:
         script_lines.extend([
             "echo 'This repo has nightly-testing infrastructure'",
             f"git merge origin/bump/{version.split('-rc')[0]}",
+            "echo 'Please resolve any conflicts.'",
+            ""
+        ])
+    if re.search(r'rc\d+$', version) and repo_name in ["verso", "reference-manual"]:
+        script_lines.extend([
+            "echo 'This repo does development on nightly-testing: remember to rebase merge the PR.'",
+            f"git merge origin/nightly-testing",
             "echo 'Please resolve any conflicts.'",
             ""
         ])
@@ -104,7 +111,7 @@ def generate_script(repo, version, config):
 
     script_lines.extend([
         'gh pr create --title "chore: bump toolchain to ' + version + '" --body ""',
-        "echo 'Please review the PR and merge it.'",
+        "echo 'Please review the PR and merge or rebase it.'",
         ""
     ])
 

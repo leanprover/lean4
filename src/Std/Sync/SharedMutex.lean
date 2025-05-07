@@ -124,7 +124,7 @@ def SharedMutex.tryAtomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     (mutex : SharedMutex α) (k : AtomicT α m β) : m (Option β) := do
   if ← mutex.mutex.tryWrite then
     try
-      k mutex.ref
+      some <$> k mutex.ref
     finally
       mutex.mutex.unlockWrite
   else
@@ -159,7 +159,7 @@ def SharedMutex.tryAtomicallyRead [Monad m] [MonadLiftT BaseIO m] [MonadFinally 
   if ← mutex.mutex.tryRead then
     try
       let state ← (mutex.ref.get : BaseIO α)
-      k state
+      some <$> k state
     finally
       mutex.mutex.unlockRead
   else

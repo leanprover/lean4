@@ -1,6 +1,8 @@
 import Lean
 import UserAttr.BlaAttr
 
+attribute [-simp] Nat.add_left_cancel_iff Nat.add_right_cancel_iff
+
 @[bla] def f (x : Nat) := x + 2
 @[bla] def g (x : Nat) := x + 1
 

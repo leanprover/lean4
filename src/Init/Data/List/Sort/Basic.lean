@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.List.Impl
 import Init.Data.List.Nat.TakeDrop
@@ -24,7 +26,7 @@ Merges two lists, using `le` to select the first element of the resulting list i
 non-empty.
 
 If both input lists are sorted according to `le`, then the resulting list is also sorted according
-to `le`. `O(min |l| |r|)`.
+to `le`. `O(|xs| + |ys|)`.
 
 This implementation is not tail-recursive, but it is replaced at runtime by a proven-equivalent
 tail-recursive merge.

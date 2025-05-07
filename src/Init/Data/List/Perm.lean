@@ -3,6 +3,8 @@ Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Erase
@@ -202,6 +204,9 @@ theorem Perm.pmap {p : α → Prop} (f : ∀ a, p a → β) {l₁ l₂ : List α
   | swap x y => simp [swap]
   | trans _p₁ p₂ IH₁ IH₂ => exact IH₁.trans (IH₂ (H₁ := fun a m => H₂ a (p₂.subset m)))
 
+theorem Perm.unattach {α : Type u} {p : α → Prop} {l₁ l₂ : List { x // p x }} (h : l₁ ~ l₂) :
+    l₁.unattach.Perm l₂.unattach := h.map _
+
 theorem Perm.filter (p : α → Bool) {l₁ l₂ : List α} (s : l₁ ~ l₂) :
     filter p l₁ ~ filter p l₂ := by rw [← filterMap_eq_filter]; apply s.filterMap
 
@@ -388,11 +393,6 @@ theorem cons_perm_iff_perm_erase {a : α} {l₁ l₂ : List α} :
   have : a ∈ l₂ := h.subset mem_cons_self
   exact ⟨this, (h.trans <| perm_cons_erase this).cons_inv⟩
 
-end LawfulBEq
-section DecidableEq
-
-variable [DecidableEq α]
-
 theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l₁ = count a l₂ := by
   refine ⟨Perm.count_eq, fun H => ?_⟩
   induction l₁ generalizing l₂ with
@@ -407,14 +407,14 @@ theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l�
     refine ((IH fun b => ?_).cons a).trans (perm_cons_erase this).symm
     specialize H b
     rw [(perm_cons_erase this).count_eq] at H
-    by_cases h : b = a <;> simpa [h, count_cons, Nat.succ_inj'] using H
+    by_cases h : b = a <;> simpa [h, count_cons, Nat.succ_inj] using H
 
 theorem isPerm_iff : ∀ {l₁ l₂ : List α}, l₁.isPerm l₂ ↔ l₁ ~ l₂
   | [], [] => by simp [isPerm, isEmpty]
   | [], _ :: _ => by simp [isPerm, isEmpty, Perm.nil_eq]
   | a :: l₁, l₂ => by simp [isPerm, isPerm_iff, cons_perm_iff_perm_erase]
 
-instance decidablePerm (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
+instance decidablePerm {α} [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
 
 protected theorem Perm.insert (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) :
     l₁.insert a ~ l₂.insert a := by
@@ -431,7 +431,7 @@ theorem perm_insert_swap (x y : α) (l : List α) :
   simp [List.insert, xl, yl, xy, Ne.symm xy]
   constructor
 
-end DecidableEq
+end LawfulBEq
 
 theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) :
     ∀ {l₁ l₂ : List α} (_p : l₁ ~ l₂), Pairwise R l₁ ↔ Pairwise R l₂ :=

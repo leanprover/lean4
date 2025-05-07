@@ -227,7 +227,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
     // Locking early prevents potential parallelism issues setting the byte_array.
     event_loop_lock(&global_ev);
 
-    if (tcp_socket->m_byte_array != nullptr) {
+    if (tcp_socket->m_promise_read != nullptr) {
         event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
@@ -293,6 +293,102 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
     event_loop_unlock(&global_ev);
 
     return lean_io_result_mk_ok(promise);
+}
+
+/* Std.Internal.UV.TCP.Socket.waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Bool)) */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket, obj_arg /* w */) {
+    lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
+
+    event_loop_lock(&global_ev);
+
+    if (tcp_socket->m_promise_read != nullptr) {
+        event_loop_unlock(&global_ev);
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
+    }
+
+    lean_object* promise = lean_promise_new();
+    mark_mt(promise);
+
+    tcp_socket->m_promise_read = promise;
+
+    // The event loop owns the socket.
+    lean_inc(socket);
+    lean_inc(promise);
+
+    int result = uv_read_start((uv_stream_t*)tcp_socket->m_uv_tcp, [](uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
+        // According to libuv documentation if we do this we do not lose data and a UV_ENOBUFS will
+        // be triggered in the read cb.
+        buf->base = NULL;
+        buf->len = 0;
+    }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+        uv_read_stop(stream);
+
+        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
+        lean_object* promise = tcp_socket->m_promise_read;
+
+        tcp_socket->m_promise_read = nullptr;
+
+        if (nread == UV_ENOBUFS) {
+            lean_promise_resolve(mk_except_ok(lean_box(1)), promise);
+        } else if (nread == UV_EOF) {
+            lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
+        } else if (nread < 0) {
+            lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
+        } else {
+            // This branch should be dead, we cannot receive a value >= 0 according to docs.
+            lean_always_assert(false);
+        }
+
+        lean_dec(promise);
+
+        // The event loop does not own the object anymore.
+        lean_dec((lean_object*)stream->data);
+    });
+
+    if (result < 0) {
+        tcp_socket->m_promise_read = nullptr;
+
+        event_loop_unlock(&global_ev);
+
+        lean_dec(promise); // The structure does not own it.
+        lean_dec(promise); // We are not going to return it.
+        lean_dec(socket);
+
+        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+    }
+
+    event_loop_unlock(&global_ev);
+
+    return lean_io_result_mk_ok(promise);
+}
+
+/* Std.Internal.UV.TCP.Socket.cancelRecv (socket : @& Socket) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket, obj_arg /* w */) {
+    lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
+
+    event_loop_lock(&global_ev);
+
+    if (tcp_socket->m_promise_read == nullptr) {
+        event_loop_unlock(&global_ev);
+        return lean_io_result_mk_ok(lean_box(0));
+    }
+
+    uv_read_stop((uv_stream_t*)tcp_socket->m_uv_tcp);
+
+    lean_object* promise = tcp_socket->m_promise_read;
+    lean_dec(promise);
+    tcp_socket->m_promise_read = nullptr;
+
+    lean_object* byte_array = tcp_socket->m_byte_array;
+    if (byte_array != nullptr) {
+        lean_dec(byte_array);
+        tcp_socket->m_byte_array = nullptr;
+    }
+
+    lean_dec((lean_object*)tcp_socket);
+
+    event_loop_unlock(&global_ev);
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 /* Std.Internal.UV.TCP.Socket.bind (socket : @& Socket) (addr : @& SocketAddress) : IO Unit */

@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Attach
@@ -24,6 +26,14 @@ open Nat
 
 /-! ### findSome? -/
 
+@[simp, grind] theorem findSome?_empty : (#v[] : Vector α 0).findSome? f = none := rfl
+@[simp, grind] theorem findSome?_push {xs : Vector α n} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
+  cases xs; simp [List.findSome?_append]
+
+@[grind]
+theorem findSome?_singleton {a : α} {f : α → Option β} : #v[a].findSome? f = f a := by
+  simp
+
 @[simp] theorem findSomeRev?_push_of_isSome {xs : Vector α n} {h : (f a).isSome} : (xs.push a).findSomeRev? f = f a := by
   rcases xs with ⟨xs, rfl⟩
   simp only [push_mk, findSomeRev?_mk, Array.findSomeRev?_push_of_isSome, h]
@@ -33,7 +43,7 @@ open Nat
   simp only [push_mk, findSomeRev?_mk, Array.findSomeRev?_push_of_isNone, h]
 
 theorem exists_of_findSome?_eq_some {f : α → Option β} {xs : Vector α n} (w : xs.findSome? f = some b) :
-    ∃ a, a ∈ xs ∧ f a = b := by
+    ∃ a, a ∈ xs ∧ f a = some b := by
   rcases xs with ⟨xs, rfl⟩
   simpa using Array.exists_of_findSome?_eq_some (by simpa using w)
 
@@ -130,6 +140,8 @@ abbrev findSome?_mkVector_of_isNone := @findSome?_replicate_of_isNone
 
 /-! ### find? -/
 
+@[simp] theorem find?_empty : find? p #v[] = none := rfl
+
 @[simp] theorem find?_singleton {a : α} {p : α → Bool} :
     #v[a].find? p = if p a then some a else none := by
   simp
@@ -157,6 +169,10 @@ theorem find?_eq_some_iff_append {xs : Vector α n} :
     exact ⟨h, as.size, bs.size, by simp, ⟨as, rfl⟩, ⟨bs, rfl⟩, by simp, by simpa using w⟩
   · rintro ⟨h, k₁, k₂, w, as, bs, h', w'⟩
     exact ⟨h, as.toArray, bs.toArray, by simp [h'], by simpa using w'⟩
+
+theorem find?_push {xs : Vector α n} : (xs.push a).find? p = (xs.find? p).or (if p a then some a else none) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.find?_push]
 
 @[simp]
 theorem find?_push_eq_some {xs : Vector α n} :
@@ -288,11 +304,29 @@ theorem find?_eq_some_iff_getElem {xs : Vector α n} {p : α → Bool} {b : α} 
 /-! ### findFinIdx? -/
 
 @[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p (#v[] : Vector α 0) = none := by simp
+theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
+    #[a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
+  simp
 
 @[congr] theorem findFinIdx?_congr {p : α → Bool} {xs : Vector α n} {ys : Vector α n} (w : xs = ys) :
     findFinIdx? p xs = findFinIdx? p ys := by
   subst w
   simp
+
+theorem findFinIdx?_push {xs : Vector α n} {a : α} {p : α → Bool} :
+    (xs.push a).findFinIdx? p =
+      ((xs.findFinIdx? p).map Fin.castSucc).or (if p a then some ⟨n, by simp⟩ else none) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.findFinIdx?_push, Option.map_or, Function.comp_def]
+  congr
+
+theorem findFinIdx?_append {xs : Vector α n₁} {ys : Vector α n₂} {p : α → Bool} :
+    (xs ++ ys).findFinIdx? p =
+      ((xs.findFinIdx? p).map (Fin.castLE (by simp))).or
+        ((ys.findFinIdx? p).map (Fin.natAdd xs.size) |>.map (Fin.cast (by simp))) := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp [Array.findFinIdx?_append, Option.map_or, Function.comp_def]
 
 @[simp]
 theorem isSome_findFinIdx? {xs : Vector α n} {p : α → Bool} :

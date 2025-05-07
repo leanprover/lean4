@@ -6,6 +6,7 @@ Authors: Mac Malone
 
 prelude
 import Init.Control.Option
+import Init.Data.Option.Coe
 import Lean.Compiler.FFI
 import Lake.Util.NativeLib
 import Lake.Config.Defaults
@@ -77,9 +78,9 @@ structure LeanInstall where
   ar : FilePath := "ar"
   cc : FilePath := "cc"
   customCc : Bool := true
-  cFlags := getCFlags sysroot |>.push "-Wno-unused-command-line-argument"
-  linkStaticFlags := getLinkerFlags sysroot (linkStatic := true)
-  linkSharedFlags := getLinkerFlags sysroot (linkStatic := false)
+  cFlags := getCFlags'.push "-Wno-unused-command-line-argument"
+  linkStaticFlags := getLinkerFlags' (linkStatic := true)
+  linkSharedFlags := getLinkerFlags' (linkStatic := false)
   ccFlags := cFlags
   ccLinkStaticFlags := linkStaticFlags
   ccLinkSharedFlags := linkSharedFlags

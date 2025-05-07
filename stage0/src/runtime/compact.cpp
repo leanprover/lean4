@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <unordered_set>
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -12,6 +11,7 @@ Author: Leonardo de Moura
 #include <lean/lean.h>
 #include "runtime/hash.h"
 #include "runtime/compact.h"
+#include "util/alloc.h"
 
 #ifndef LEAN_WINDOWS
 #include <sys/mman.h>
@@ -50,7 +50,7 @@ struct max_sharing_eq {
 
 
 struct object_compactor::max_sharing_table {
-    std::unordered_set<max_sharing_key, max_sharing_hash, max_sharing_eq> m_table;
+    lean::unordered_set<max_sharing_key, max_sharing_hash, max_sharing_eq> m_table;
     max_sharing_table(object_compactor * manager):
         m_table(LEAN_MAX_SHARING_TABLE_INITIAL_SIZE, max_sharing_hash(manager), max_sharing_eq(manager)) {
     }
@@ -387,15 +387,10 @@ compacted_region::compacted_region(size_t sz, void * data, void * base_addr, boo
     m_end(static_cast<char*>(data)+sz) {
 }
 
-compacted_region::compacted_region(object_compactor const & c):
-    m_begin(malloc(c.size())),
-    m_next(m_begin),
-    m_end(static_cast<char*>(m_begin) + c.size()) {
-    memcpy(m_begin, c.data(), c.size());
-}
-
 compacted_region::~compacted_region() {
-    m_free_data();
+    if (m_free_data) {
+        m_free_data();
+    }
 }
 
 inline object * compacted_region::fix_object_ptr(object * o) {

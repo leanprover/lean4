@@ -23,23 +23,23 @@ open Lake DSL
 /-- info: Lake.BuildKey.facet (Lake.BuildKey.package `pkg) `facet -/
 #guard_msgs in #eval `@pkg:facet
 
-/-- info: Lake.BuildKey.packageTarget `pkg `target -/
-#guard_msgs in #eval `@pkg/target
+/-- info: Lake.BuildKey.packageTarget `pkg `tgt -/
+#guard_msgs in #eval `@pkg/tgt
 
-/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget `pkg `target) `facet -/
-#guard_msgs in #eval `@pkg/target:facet
+/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget `pkg `tgt) `facet -/
+#guard_msgs in #eval `@pkg/tgt:facet
 
-/-- info: Lake.BuildKey.packageTarget `pkg `target.«_+» -/
-#guard_msgs in #eval `@pkg/+target
+/-- info: Lake.BuildKey.packageTarget `pkg `tgt.«_+» -/
+#guard_msgs in #eval `@pkg/+tgt
 
-/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget `pkg `target.«_+») `facet -/
-#guard_msgs in #eval `@pkg/+target:facet
+/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget `pkg `tgt.«_+») `facet -/
+#guard_msgs in #eval `@pkg/+tgt:facet
 
-/-- info: Lake.BuildKey.packageTarget Lean.Name.anonymous `target -/
-#guard_msgs in #eval `@/target
+/-- info: Lake.BuildKey.packageTarget Lean.Name.anonymous `tgt -/
+#guard_msgs in #eval `@/tgt
 
-/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget Lean.Name.anonymous `target) `facet -/
-#guard_msgs in #eval `@/target:facet
+/-- info: Lake.BuildKey.facet (Lake.BuildKey.packageTarget Lean.Name.anonymous `tgt) `facet -/
+#guard_msgs in #eval `@/tgt:facet
 
 /-- info: Lake.BuildKey.packageTarget Lean.Name.anonymous `mod.«_+» -/
 #guard_msgs in #eval `@/+mod
@@ -53,4 +53,4 @@ open Lake DSL
 def stx  := (`@pkg : PartialBuildKey)
 
 -- Test coercion to a target
-def coe : Array (Target Dynlib) := #[`@pkg/target:facet]
+def coe : Array (Target Dynlib) := #[`@pkg/tgt:facet]

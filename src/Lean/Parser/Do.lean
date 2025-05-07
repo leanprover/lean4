@@ -151,7 +151,7 @@ until at least one of them is exhausted.
 The types of `e2` etc. must implement the `ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> " do " >> doSeq
 
 def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
 @[builtin_doElem_parser] def doMatch := leading_parser:leadPrec
@@ -173,7 +173,7 @@ def doCatchMatch := leading_parser
 def doFinally    := leading_parser
   ppDedent ppLine >> checkColGe "'finally' must be indented" >>
     "finally " >> doSeq
-@[builtin_doElem_parser] def doTry    := leading_parser withResetCache <| withoutPosition <| withPositionAfterLinebreak <|
+@[builtin_doElem_parser] def doTry    := leading_parser withResetCache <| withPositionFromLineStart <|
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 
 /-- `break` exits the surrounding `for` loop. -/

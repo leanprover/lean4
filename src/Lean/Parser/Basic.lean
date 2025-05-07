@@ -1541,6 +1541,24 @@ def withPositionAfterLinebreak : Parser → Parser := withFn fun f c s =>
   let prev := s.stxStack.back
   adaptCacheableContextFn (fun c => if checkTailLinebreak prev then { c with savedPos? := s.pos } else c) f c s
 
+/--
+`withPositionFromLineStart(p)` works similar to `withPosition(p)` except that the saved position
+is the beginning of the line (after whitespace).
+-/
+def withPositionFromLineStart : Parser → Parser := withFn fun f c s => Id.run do
+  let pos := go s.stxStack s.stackSize
+  adaptCacheableContextFn (fun c => { c with savedPos? := pos }) f c s
+where
+  go (stack : SyntaxStack) (i : Nat) : Option String.Pos :=
+    match i with
+    | 0 => none
+    | k + 1 =>
+      let stx := stack.get! k
+      match stx.getTailInfo with
+      | .original _ _ trailing _ =>
+        if trailing.contains '\n' then some trailing.stopPos else go stack k
+      | _ => go stack k
+
 /-- `withoutPosition(p)` runs `p` without the saved position, meaning that position-checking
 parsers like `colGt` will have no effect. This is usually used by bracketing constructs like
 `(...)` so that the user can locally override whitespace sensitivity.

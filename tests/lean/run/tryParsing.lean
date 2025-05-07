@@ -20,4 +20,25 @@ example : IO Unit := do
     pure ()
   else try
     pure ()
-  catch _ => pure ()
+  catch _ =>
+    pure ()
+
+example : IO Unit := do
+  try
+    if true then
+      pure ()
+    else try
+      pure ()
+    catch _ =>
+      pure ()
+  catch _ =>
+    pure ()
+
+example : IO Unit := do
+  try
+    let _ ← try
+      pure ()
+    catch _ =>
+      pure ()
+  catch _ =>
+    pure ()

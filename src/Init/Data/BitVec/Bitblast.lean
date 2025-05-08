@@ -2583,110 +2583,59 @@ theorem getElem_true_of_le_toNat_of_toNat_lt (x : BitVec w) (s : Nat) (hs : s < 
 theorem resRec_true_of_le_toNat_mul_toNat_and_toNat_mul_toNat_lt (x y : BitVec w) (s : Nat) (hs : s + 1 < w) (hw : 1 < w)
   (hxle : 2 ^ (w - 1 - (s - 1)) ≤ x.toNat )
   (hyle : 2 ^ s ≤ y.toNat)
-  (hltx : x.toNat < 2 ^ (w - 1 - (s - 1) + 1))
   (hlty : y.toNat < 2 ^ (s + 1)) :
      resRec x y s (by omega) hw := by
   rw [resRec_true_iff]
   unfold aandRec
   exists s
-  simp [le_toNat_mul_toNat_of_aandRec]
-  simp [uppcRec_true_iff]
-  and_intros
-  · have := getElem_true_of_le_toNat_of_toNat_lt (x := y) (s := s) (by omega) hyle hlty
-    omega
-  ·
-    sorry
-  have hmulle := Nat.mul_le_mul hxle hyle
-  have hmullt := Nat.mul_lt_mul'' hltx hlty
+  simp [le_toNat_mul_toNat_of_aandRec, uppcRec_true_iff, hxle]
+  have := getElem_true_of_le_toNat_of_toNat_lt (x := y) (s := s) (by omega) hyle hlty
+  omega
+
+theorem resRec_true_of_le_toNat_mul_toNat (x y : BitVec w) (s : Nat) (hs : s < w) (hw : 1 < w):
+    2 ^ (s + 1) ≤ x.toNat * y.toNat ↔ ∃ j, ∃ (hj : s + 1+ j < w), resRec x y (s + 1 + j) hj hw := by
   rcases w with _|_|w
   · omega
   · omega
-  · induction s
-    · case zero =>
-        unfold resRec
-        unfold aandRec
-        simp [uppcRec_true_iff]
-        apply Classical.byContradiction
-        intro hcontra
-        simp only [_root_.not_and, Nat.not_le] at hcontra
-        have : y.toNat = (1#(w + 2)).toNat := by simp [toNat_eq]; omega
-        have : y = 1#(w + 2) := by rw [← toNat_eq] at this; omega
-        have := Nat.pow_pos (a := 2) (n := w) (by omega)
-        simp_all
-        omega
-    · case succ s ihs =>
-        unfold resRec
-        specialize ihs (by omega)
-        by_cases hz0 : s = 0
-        · simp_all
-          by_cases hylt' : y.toNat < 2
-          · simp_all
-            have hmullt' := Nat.mul_lt_mul'' (a := x.toNat) (b := y.toNat) (c := 2 ^ (w + 1 + 1)) (d := 2) (by omega) (by omega)
-            simp [hylt', show 1 ≤ y.toNat by omega, hmulle, hmullt, show 2 ^ (w + 1) ≤ x.toNat * y.toNat by omega, hmullt'] at ihs
-            simp [ihs]
-          · simp_all
-            unfold resRec
-            unfold aandRec
-            simp [uppcRec_true_iff]
-            have hyval : y.toNat = 2 ∨ y.toNat = 3 := by omega
-            simp [hxle]
-            right
-            cases hyval
-            case neg.h.inl vy => -- y.toNat = 2
-
-              have vyy : y = 2#(w + 1 + 1) := by
-                rw [toNat_eq]
-                simp
-                rw [Nat.mod_eq_of_lt]
-                simp [vy]
-                omega
-              rw [vyy]
-              rw [BitVec.getElem_true_of_le_of_lt]
-              simp
-              rw [Nat.mod_eq_of_lt]
-              simp
-              have := Nat.pow_lt_pow_of_lt (a := 2) (n := 1) (m := w + 1 + 1) (by omega) (by omega)
-              simp [this]
-            case neg.h.inr vy => -- y.toNat = 3
-              have vyy : y = 3#(w + 1 + 1) := by
-                rw [toNat_eq]
-                simp
-                rw [Nat.mod_eq_of_lt]
-                simp [vy]
-                omega
-              rw [vyy]
-              rw [BitVec.getElem_true_of_le_of_lt]
-              simp
-              rw [Nat.mod_eq_of_lt]
-              simp
-              have := Nat.pow_lt_pow_of_lt (a := 2) (n := 1) (m := w + 1 + 1) (by omega) (by omega)
-              rw [show 3 = 2 ^ 1 + 1 by omega]
-              omega
-        · have hpowle := Nat.pow_lt_pow_of_lt (a := 2) (n := s) (m := s + 1) (by omega) (by omega)
-          have hpowle := Nat.pow_lt_pow_of_lt (a := 2) (n := w - s) (m := w - (s - 1)) (by omega) (by omega)
-          simp [show 2 ^ s ≤ y.toNat by omega] at ihs
+  · constructor
+    · intro h
+      exists 0
+      exists (by omega)
+      simp [resRec_true_iff]
+      exists 0
+      exists (by omega)
+      unfold aandRec
+      simp [uppcRec_true_iff]
+      -- now enumerate the cases and highlight the contraditction at h otherwise
+      by_cases hy0 : y[0]
+      · simp [hy0]
+        by_cases hxle : 2 ^ (w + 1) ≤ x.toNat
+        · simp [hxle]
+        · -- x < 2 ^ (w + 1) and y[0]
+          have h3 := getElem_true_le (x := y) (i := 0) (by omega) hy0
+          have h4 : y.toNat < 2 ^ (w + 1 + 1) := by omega
           simp at hxle
-          simp [show ¬ y.toNat < 2 ^ (s + 1) by omega] at ihs
-          unfold resRec aandRec
-          by_cases hxle' : 2 ^ (w + 1 - (s - 1)) ≤ x.toNat
-          · sorry
-
-
-
-
-
-
+          have h5 := Nat.mul_lt_mul'' (a := x.toNat) (b:= y.toNat) (c := 2 ^ (w + 1)) (d := 2 ^ (w + 1 + 1)) hxle h4
+          have h1 := le_toNat_mul_toNat_of_aandRec (x := x) (y := y) (s := 0) (by omega)
+          unfold aandRec at h1
+          simp [hy0] at h1
+          simp [uppcRec_true_iff] at h1
+          apply Classical.byContradiction
+          intro hcontra
+          simp at hcontra
+          simp_all
+          have h2 := resRec_true_of_aandRec (x := x) (y := y) (s := 0) (by omega) (by omega)
+          unfold aandRec at h2
+          simp [uppcRec_true_iff, hy0] at h2
+          have := Nat.pow_lt_pow_of_lt (a := 2) (n := s) (m := w + 1 + 1) (by omega) (by omega)
 
 
 
 
           sorry
-
-
-theorem resRec_true_of_le_toNat_mul_toNat (x y : BitVec w) (s : Nat) (hs : s < w) (hw : 1 < w):
-    2 ^ (s) ≤ x.toNat * y.toNat ↔ ∃ j, ∃ (hj : s + j < w), resRec x y (s + j) hj hw := by
-
-  sorry
+      · sorry
+    · intro h
+      sorry
 
 /--
   complete fast overflow detecnion circuit for unsigned multiplication
@@ -2702,24 +2651,8 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
     constructor
     · intro lhs
       by_cases hsetWidth : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = true
-      · sorry
       · simp [hsetWidth]
-        have := aandRec_true_of_le_toNat_mul_toNat (x := x) (y := y) (s := w + 1) (by omega) (by omega)
-        simp at this
-        rw [Nat.pow_add, show w + 1 - w = 1 by omega] at this
-        apply this
-        · sorry
-        · have : x.toNat < 2 ^ (w + 1 + 1) := by omega
-          have : y.toNat < 2 ^ (w + 1 + 1) := by omega
-          have x.toNat * y.toNat < 2 ^ (w + 1 + 1) *
-          sorry
-
-
-
-
-
-
-
+      · simp [hsetWidth]
 
         sorry
     · intro rhs
@@ -2736,62 +2669,6 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
 
 
 
-
-
-
-    by_cases hneg : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1]
-    · simp only [hneg, Bool.true_or, decide_eq_true_eq, ge_iff_le]
-      have h0 := msb_eq_true_iff_two_mul_ge (x := setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)
-      have h4 : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).msb := by
-        simp [BitVec.msb, getMsbD_eq_getLsbD]
-      have h5 : (2 * (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1 + 1))
-                   ↔ (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y).toNat ≥ 2 ^ (w + 1 + 1) := by
-          rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))]
-          refine Nat.mul_le_mul_left_iff ?_
-          omega
-      rw [h5] at h0
-      simp_all
-      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm (n := 2 ^ (w + 1 + 1))] at h5
-      by_cases h6 : x.toNat * y.toNat < 2 * 2 ^ (w + 1 + 1)
-      · simp only [Nat.mod_eq_of_lt (by omega)] at h5
-        omega
-      · simp only [Nat.not_lt] at h6
-        omega
-    · -- hneg : ((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y)).getLsbD w = false
-      -- we need to prove that umulOverflow = resRec x y s (by omega) (by omega)
-
-      simp only [bool_to_prop]
-      simp at hneg
-      simp only [hneg, false_eq_true, _root_.false_or]
-      -- direction umulOverflow = resRec x y s (by omega) (by omega)
-      -- 2 ^ (w + 1 + 1) ≤ x.toNat * y.toNat → x.resRec y w (by omega) hw = true ∨ (y[w + 1] = true ∧ (x.getMsbD w = true ∨ x.uppcRec w ⋯ = true))
-      simp [resRec_true_iff]
-      rw [getMsbD_eq_getLsbD]
-      rw [uppcRec_true_iff]
-      simp [show w < w + 1 + 1 by omega]
-      have := le_toNat_mul_toNat_of_resRec (x := x) (y := y) (by omega) (by omega) (by omega)
-
-
-
-
-      by_cases hw0 : w = 0
-      · sorry
-      · simp [show w + 1 - (w - 1) = w + 1 - w + 1 by omega]
-        simp [show w + 1 - w + 1 = 1 + 1 by omega]
-        simp [show w + 1 - w = 1 by omega]
-        constructor
-        · intro hlhs
-
-          sorry
-        · intro hrhs
-          have := resRec_true_of_aandRec (x := x) (y := y) (s := w + 1)
-          obtain ⟨k,hh,hk⟩ := hrhs
-          · specialize this (by omega) (by omega)
-
-            sorry
-
-          ·
-            sorry
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
 and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/

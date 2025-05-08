@@ -1,14 +1,14 @@
-elseifDoErrorPos.lean:4:10-4:11: error: application type mismatch
+elseifDoErrorPos.lean:4:10-4:11: error: Application type mismatch: In the appplication
   @ite ?m x
-argument
+the final argument
   x
 has type
   Nat : Type
 but is expected to have type
   Prop : Type
-elseifDoErrorPos.lean:7:11-7:14: error: application type mismatch
+elseifDoErrorPos.lean:7:11-7:14: error: Application type mismatch: In the appplication
   pure "a"
-argument
+the final argument
   "a"
 has type
   String : Type

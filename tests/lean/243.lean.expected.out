@@ -1,14 +1,14 @@
-243.lean:2:10-2:14: error: application type mismatch
+243.lean:2:10-2:14: error: Application type mismatch: In the appplication
   ⟨Bool, true⟩
-argument
+the final argument
   true
 has type
   _root_.Bool : Type
 but is expected to have type
   Bool : Type
-243.lean:13:7-13:8: error: application type mismatch
+243.lean:13:7-13:8: error: Application type mismatch: In the appplication
   ⟨A, a⟩
-argument
+the final argument
   a
 has type
   Foo.A : Type

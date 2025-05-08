@@ -2567,14 +2567,35 @@ theorem le_toNat_mul_toNat_of_resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hw
       rw [Nat.mul_comm]
       sorry
 
+theorem getElem_true_of_le_toNat_of_toNat_lt (x : BitVec w) (s : Nat) (hs : s < w) (hle: 2 ^ s ≤ x.toNat) (hlt : x.toNat < 2 ^ (s + 1)) :
+    x[s] = true := by
+  rcases w with _|w
+  · simp [of_length_zero]
+    omega
+  · have hle' := le_toNat_iff (x := x) (i := s) (by omega)
+    simp [hle] at hle'
+    obtain ⟨k, hk⟩ := hle'
+    rw [← getLsbD_eq_getElem]
+    simp_all
 
-theorem resRec_true_of_le_toNat_mul_toNat_and_toNat_mul_toNat_lt (x y : BitVec w) (s : Nat) (hs : s < w) (hw : 1 < w)
+    sorry
+
+theorem resRec_true_of_le_toNat_mul_toNat_and_toNat_mul_toNat_lt (x y : BitVec w) (s : Nat) (hs : s + 1 < w) (hw : 1 < w)
   (hxle : 2 ^ (w - 1 - (s - 1)) ≤ x.toNat )
   (hyle : 2 ^ s ≤ y.toNat)
   (hltx : x.toNat < 2 ^ (w - 1 - (s - 1) + 1))
   (hlty : y.toNat < 2 ^ (s + 1)) :
-     resRec x y s hs hw := by
-
+     resRec x y s (by omega) hw := by
+  rw [resRec_true_iff]
+  unfold aandRec
+  exists s
+  simp [le_toNat_mul_toNat_of_aandRec]
+  simp [uppcRec_true_iff]
+  and_intros
+  · have := getElem_true_of_le_toNat_of_toNat_lt (x := y) (s := s) (by omega) hyle hlty
+    omega
+  ·
+    sorry
   have hmulle := Nat.mul_le_mul hxle hyle
   have hmullt := Nat.mul_lt_mul'' hltx hlty
   rcases w with _|_|w
@@ -2612,6 +2633,7 @@ theorem resRec_true_of_le_toNat_mul_toNat_and_toNat_mul_toNat_lt (x y : BitVec w
             right
             cases hyval
             case neg.h.inl vy => -- y.toNat = 2
+
               have vyy : y = 2#(w + 1 + 1) := by
                 rw [toNat_eq]
                 simp
@@ -2642,10 +2664,13 @@ theorem resRec_true_of_le_toNat_mul_toNat_and_toNat_mul_toNat_lt (x y : BitVec w
               omega
         · have hpowle := Nat.pow_lt_pow_of_lt (a := 2) (n := s) (m := s + 1) (by omega) (by omega)
           have hpowle := Nat.pow_lt_pow_of_lt (a := 2) (n := w - s) (m := w - (s - 1)) (by omega) (by omega)
-          have hyle' : 2 ^ s ≤ y.toNat := by omega
-          have hxle : 2 ^ (w - (s - 1)) ≤ x.toNat := by
-            simp_all;
-            sorry
+          simp [show 2 ^ s ≤ y.toNat by omega] at ihs
+          simp at hxle
+          simp [show ¬ y.toNat < 2 ^ (s + 1) by omega] at ihs
+          unfold resRec aandRec
+          by_cases hxle' : 2 ^ (w + 1 - (s - 1)) ≤ x.toNat
+          · sorry
+
 
 
 
@@ -2656,6 +2681,7 @@ theorem resRec_true_of_le_toNat_mul_toNat_and_toNat_mul_toNat_lt (x y : BitVec w
 
 
           sorry
+
 
 theorem resRec_true_of_le_toNat_mul_toNat (x y : BitVec w) (s : Nat) (hs : s < w) (hw : 1 < w):
     2 ^ (s) ≤ x.toNat * y.toNat ↔ ∃ j, ∃ (hj : s + j < w), resRec x y (s + j) hj hw := by

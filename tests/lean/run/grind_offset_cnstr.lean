@@ -276,7 +276,7 @@ fun {a4} p a1 a2 a3 =>
                   (Nat.lo_lo a2 a3 a4 3 3 h_2 (Nat.of_ro_eq_false a4 a3 2 (Eq.trans (Eq.symm h_3) (eq_false h_1)))))))
             True.intro)
 -/
-#guard_msgs (all) in
+#guard_msgs in
 open Lean Grind in
 #print ex1._proof_1
 

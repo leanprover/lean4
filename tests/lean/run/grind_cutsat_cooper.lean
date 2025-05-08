@@ -29,7 +29,7 @@ example (x y : Int) : problem₁ x y → False := by
   sorry
 
 /-- info: true -/
-#guard_msgs (all) in
+#guard_msgs in
 open Std.Internal in
 #eval problem₁ (241/154 : Rat) (1 : Rat)
 

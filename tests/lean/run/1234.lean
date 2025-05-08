@@ -30,7 +30,7 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
     (if k ≤ v - 1 then Fin.mk (v-1+1) sorry else Fin.mk (v-1) sorry) = Fin.mk v sorry (n:=n) := by
     simp only [
@@ -67,7 +67,7 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
     (if k ≤ v - 1 then Fin.mk (v-1+1) sorry else Fin.mk (v-1) sorry) = Fin.mk v sorry (n:=n) := by
     simp (config := { memoize := false}) only [
@@ -102,7 +102,7 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
     (if k ≤ v - 1 then Fin.mk (v-1+1) sorry else Fin.mk (v-1) sorry) = Fin.mk v sorry (n:=n) := by
     simp only [

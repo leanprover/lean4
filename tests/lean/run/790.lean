@@ -22,7 +22,7 @@ trace: [Meta.Tactic.simp.rewrite] differential_of_linear:1000:
       f dx
 [Meta.Tactic.simp.rewrite] eq_self:1000: f dx = f dx ==> True
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example {Y : Type} [Vec Y] (f : Nat → Y) (x dx : Nat)
         : @differential _ _ Vec'.toVec _ f x dx = f dx :=
   by simp

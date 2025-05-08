@@ -23,5 +23,5 @@ trace: [Compiler.test] Starting wrapper test floatLetInSizeEq for floatLetIn occ
 [Compiler.test] Starting wrapper test floatLetInSizeEq for floatLetIn occurrence 2
 [Compiler.test] Wrapper test floatLetInSizeEq for floatLetIn occurrence 2 successful
 -/
-#guard_msgs(all) in
+#guard_msgs in
 run_meta Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

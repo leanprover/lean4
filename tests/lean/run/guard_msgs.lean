@@ -318,27 +318,27 @@ section Trace
 set_option trace.debug true
 
 /-- trace: [debug] a trace -/
-#guard_msgs(all) in
+#guard_msgs in
 #guard_msgs(info) in
 run_meta trace[debug] "a trace"
 
-#guard_msgs(all) in
+#guard_msgs in
 /-- trace: [debug] a trace -/
 #guard_msgs(trace) in
 run_meta trace[debug] "a trace"
 
-#guard_msgs(all) in
+#guard_msgs in
 #guard_msgs(drop trace) in
 run_meta trace[debug] "a trace"
 
-#guard_msgs(all) in
+#guard_msgs in
 /-- trace: [debug] a trace -/
 #guard_msgs in
 run_meta trace[debug] "a trace"
 
-#guard_msgs(all) in
+#guard_msgs in
 /-- trace: [debug] a trace -/
-#guard_msgs(all) in
+#guard_msgs in
 run_meta trace[debug] "a trace"
 
 end Trace

@@ -38,5 +38,5 @@ trace: [Meta.debug] ?_
 [Meta.debug] ?0 : Nat
 [Meta.debug] ?1 : Nat → Nat → Nat
 -/
-#guard_msgs(all) in
+#guard_msgs in
 #eval tst1

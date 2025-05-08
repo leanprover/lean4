@@ -719,7 +719,7 @@ trace: [simp] Diagnostics
     [simp] foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
@@ -740,7 +740,7 @@ trace: [simp] Diagnostics
     [simp] foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }

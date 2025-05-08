@@ -23,7 +23,7 @@ trace[Meta.debug] t
 pure ()
 
 /-- trace: [Meta.debug] fun x x => x -/
-#guard_msgs(all) in
+#guard_msgs in
 #eval tst1
 
 set_option pp.all true
@@ -40,7 +40,7 @@ trace[Meta.debug] t
 pure ()
 
 /-- trace: [Meta.debug] fun (x : Nat) (x_1 : Vec Nat x) (x : @Eq.{1} (Vec Nat x) x_1 x_1) => x -/
-#guard_msgs(all) in
+#guard_msgs in
 #eval tst2
 
 def failIfSuccess (x : MetaM Unit) : MetaM Unit := do
@@ -62,5 +62,5 @@ failIfSuccess do
 trace[Meta.debug] "failed as expected"
 
 /-- trace: [Meta.debug] failed as expected -/
-#guard_msgs(all) in
+#guard_msgs in
 #eval tst3

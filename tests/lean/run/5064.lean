@@ -14,7 +14,7 @@ def thingy : List (Nat ⊕ Nat) → List Bool
   termination_by l => l.length
 
 /-- trace: ⊢ [] = [] -/
-#guard_msgs(all) in
+#guard_msgs in
 theorem thingy_empty : thingy [] = [] := by
   unfold thingy
   trace_state

@@ -35,7 +35,7 @@ def foo (x : List Nat) (y : List Nat) := x ++ y ++ x
 theorem fooThm : foo x [a, b] = x ++ [a, b] ++ x := rfl
 
 /-- trace: [grind.ematch.pattern] fooThm: [foo #0 `[[a, b]]] -/
-#guard_msgs(all) in
+#guard_msgs in
 grind_pattern fooThm => foo x [a, b]
 
 
@@ -64,5 +64,5 @@ theorem arrEx [Add α] (as : Array α) (h₁ : i < as.size) (h₂ : i = j) : as[
 /--
 trace: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem (Array _) `[Nat] _ _ _ #2 #5 _) (@getElem (Array _) `[Nat] _ _ _ #2 #4 _)]
 -/
-#guard_msgs(all) in
+#guard_msgs in
 grind_pattern arrEx => as[i]+as[j]'(h₂▸h₁)

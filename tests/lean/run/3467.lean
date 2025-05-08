@@ -14,13 +14,13 @@ set_option structure.strictResolutionOrder true
 set_option trace.Elab.structure.resolutionOrder true
 
 /-- trace: [Elab.structure.resolutionOrder] computed resolution order: [A] -/
-#guard_msgs(all) in structure A
+#guard_msgs in structure A
 /-- trace: [Elab.structure.resolutionOrder] computed resolution order: [B, A] -/
-#guard_msgs(all) in structure B extends A
+#guard_msgs in structure B extends A
 /-- trace: [Elab.structure.resolutionOrder] computed resolution order: [C, A] -/
-#guard_msgs(all) in structure C extends A
+#guard_msgs in structure C extends A
 /-- trace: [Elab.structure.resolutionOrder] computed resolution order: [D, B, C, A] -/
-#guard_msgs(all) in structure D extends B, C
+#guard_msgs in structure D extends B, C
 
 def A.x (a : A) : Bool := default
 def B.x (b : B) : Nat := default
@@ -57,7 +57,7 @@ warning: failed to compute strict resolution order:
 ---
 trace: [Elab.structure.resolutionOrder] computed resolution order: [D', B, D, C, A]
 -/
-#guard_msgs(all) in
+#guard_msgs in
 structure D' extends B, D
 
 
@@ -68,17 +68,17 @@ Example from issue 3467.
 namespace Issue3467
 
 /-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.X] -/
-#guard_msgs(all) in
+#guard_msgs in
 structure X where
   base : Nat
 
 /-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.A, Issue3467.X] -/
-#guard_msgs(all) in
+#guard_msgs in
 structure A extends X where
   countA : Nat
 
 /-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.B, Issue3467.X] -/
-#guard_msgs(all) in
+#guard_msgs in
 structure B extends X where
   countB : Nat
 
@@ -97,7 +97,7 @@ end B
 /--
 trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.C, Issue3467.A, Issue3467.B, Issue3467.X]
 -/
-#guard_msgs(all) in
+#guard_msgs in
 structure C extends A, B
 
 def getCounts (c : C) :=
@@ -113,13 +113,13 @@ end Issue3467
 namespace Issue1881
 
 /-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue1881.Foo1] -/
-#guard_msgs(all) in
+#guard_msgs in
 structure Foo1 where
   a : Nat
   b : Nat
 
 /-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue1881.Foo2] -/
-#guard_msgs(all) in
+#guard_msgs in
 structure Foo2 where
   a : Nat
   c : Nat
@@ -127,7 +127,7 @@ structure Foo2 where
 /--
 trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue1881.Foo3, Issue1881.Foo1, Issue1881.Foo2]
 -/
-#guard_msgs(all) in
+#guard_msgs in
 structure Foo3 extends Foo1, Foo2 where
   d : Nat
 

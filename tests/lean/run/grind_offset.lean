@@ -10,7 +10,7 @@ set_option trace.grind.ematch.instance true
 set_option trace.grind.assert true
 
 /-- trace: [grind.ematch.pattern] f.eq_2: [f (#0 + 1)] -/
-#guard_msgs(all) in
+#guard_msgs in
 grind_pattern f.eq_2 => f (x + 1)
 
 
@@ -65,7 +65,7 @@ example : f (c + 2) = a → a = g (g (f c)) := by
   | a+2 => g (foo a)
 
 /-- trace: [grind.ematch.pattern] foo.eq_3: [foo (#0 + 2)] -/
-#guard_msgs(all) in
+#guard_msgs in
 grind_pattern foo.eq_3 => foo (a_2 + 2)
 
 -- The instance is correctly found in the following example.

@@ -9,7 +9,7 @@ d g : Nat
 H1 : d = g
 ⊢ Nat
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example : ∀ d g, d = g → exists x : Nat, x = d := by
   intros d g H1
   constructor

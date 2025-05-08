@@ -31,7 +31,7 @@ trace: [split.failure] `split` tactic failed to generalize discriminant(s) at
     resulting expression was not type correct
     possible solution: generalize discriminant(s) manually before using `split`
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (state: Nat) (p : (match h : step state with
     | none => [state]
     | some newState => state :: countdown newState) ≠

@@ -28,5 +28,5 @@ trace: [Compiler.test] Starting wrapper test cseSizeLeq for cse occurrence 0
 [Compiler.test] Starting post condition test cseFix for cse occurrence 2
 [Compiler.test] Post condition test cseFix for cse occurrence 2 successful
 -/
-#guard_msgs(all) in
+#guard_msgs in
 run_meta Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

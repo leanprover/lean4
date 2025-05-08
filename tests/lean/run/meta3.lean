@@ -66,5 +66,5 @@ trace: [Meta.debug] (Add.add => (node
 [Meta.debug] #[5, 1, 4, 2]
 [Meta.debug] #[5, 4]
 -/
-#guard_msgs(all) in
+#guard_msgs in
 run_meta tst1

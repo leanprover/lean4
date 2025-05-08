@@ -20,7 +20,7 @@ f : Nat → Nat
 h : a = b
 | a
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (a b : Nat) (g : {α : Type} → α → α) (f : Nat → Nat) (h : a = b) : g f a = g f b := by
   conv =>
     lhs
@@ -58,7 +58,7 @@ f : Nat → Nat
 h : a = b
 | a
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (a b : Nat) (g : {α : Type} → α → α) (f : Nat → Nat) (h : a = b) : g f a = g f b := by
   conv =>
     conv => enter [1,2]; trace_state

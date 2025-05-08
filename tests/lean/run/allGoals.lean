@@ -24,7 +24,7 @@ case m
 trace: running tac
 running tac
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example : 1 ≤ 2 := by
   apply Nat.le_trans
   trace_state
@@ -102,7 +102,7 @@ case refine_1
 b : Bool
 ⊢ Unit
 -/
-#guard_msgs(all) in
+#guard_msgs in
 set_option pp.mvars false in
 example (b : Bool) : True := by
   let v : Unit := ?_
@@ -162,7 +162,7 @@ b : Bool
 ---
 trace: in true
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (b : Bool) : True := by
   let v : Unit := ?_
   cases b
@@ -203,7 +203,7 @@ This is the responsibility of `first`, but `all_goals` coordinates by being sure
 trace: rfl
 rfl
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (b : Bool) : b = b := by
   cases b
   first | (all_goals exact Eq.refl false) | (all_goals trace "rfl"; rfl)
@@ -353,7 +353,7 @@ case friday
 case saturday
 ⊢ saturday.previous.next = saturday
 -/
-#guard_msgs(all) in
+#guard_msgs in
 theorem Weekday.test (d : Weekday) : next (previous d) = id d := by
   cases d
   trace_state
@@ -383,7 +383,7 @@ case friday
 case saturday
 ⊢ saturday.previous.next = saturday
 -/
-#guard_msgs(all) in
+#guard_msgs in
 theorem Weekday.test2 (d : Weekday) : next (previous d) = id d := by
   cases d <;> rw [idEq]
   trace_state

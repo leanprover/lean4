@@ -133,7 +133,7 @@ x✝ : MTree α
 h✝ : x✝ ∈ x✝¹
 ⊢ sizeOf x✝ < sizeOf t
 -/
-#guard_msgs(all) in
+#guard_msgs in
 def MTree.map (f : α → β) (t : MTree α) : MTree β :=
     ⟨f t.val, t.cs.map (·.map (·.map f))⟩
 termination_by t
@@ -228,7 +228,7 @@ x : String × Expression
 h✝ : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
 -/
-#guard_msgs(all) in
+#guard_msgs in
 def t (exp: Expression) : List String :=
   match exp with
   | Expression.var s => [s]
@@ -269,7 +269,7 @@ x : String × Expression
 h✝ : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
 -/
-#guard_msgs(all) in
+#guard_msgs in
 def t (exp: Expression) : List String :=
   match exp with
   | Expression.var s => [s]
@@ -324,7 +324,7 @@ t1' : Tree α
 h✝ : t1' ∈ t1.cs
 ⊢ sizeOf t1' < sizeOf t1
 -/
-#guard_msgs(all) in
+#guard_msgs in
 def Tree.map2 (f : α → β → γ) (t1 : Tree α) (t2 : Tree β) : Tree γ :=
     ⟨f t1.val t2.val, (List.zipWith fun t1' t2' => map2 f t1' t2') t1.cs t2.cs⟩
 termination_by t1

@@ -26,12 +26,12 @@ elab "test" : tactic => do
     }
 
 /-- trace: [Elab.debug] traced -/
-#guard_msgs(all) in
+#guard_msgs in
 theorem f1 : True := by test; trivial
 
 /-- trace: [Elab.debug] traced -/
-#guard_msgs(all) in
+#guard_msgs in
 def f2 : True := by test; trivial
 
-#guard_msgs(all) in
+#guard_msgs in
 def f3 : True := by test; trivial

@@ -22,7 +22,7 @@ trace: [Meta.Tactic.simp.discharge] bar discharge ✅️
         True
 [Meta.Tactic.simp.rewrite] bar:1000: U ==> True
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example : U := by
   set_option trace.Meta.Tactic.simp true in
   simp [bar, T.mk]

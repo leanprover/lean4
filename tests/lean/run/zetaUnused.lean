@@ -8,7 +8,7 @@ trace: b : Bool
 ---
 warning: declaration uses 'sorry'
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
   trace_state; sorry
 
@@ -18,7 +18,7 @@ trace: b : Bool
 ---
 warning: declaration uses 'sorry'
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
   simp; trace_state; sorry
 
@@ -30,7 +30,7 @@ trace: b : Bool
 ---
 warning: declaration uses 'sorry'
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig); trace_state; sorry
 
@@ -45,7 +45,7 @@ trace: b : Bool
 ---
 warning: declaration uses 'sorry'
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig) +zeta only; trace_state; sorry
 
@@ -56,7 +56,7 @@ trace: b : Bool
 ---
 warning: declaration uses 'sorry'
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig) +zetaUnused only; trace_state; sorry
 
@@ -73,7 +73,7 @@ h✝ : b = true
 ---
 warning: declaration uses 'sorry'
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
   split
   · trace_state; sorry

@@ -38,5 +38,5 @@ trace: [Elab] ⊢ ∀ (α : Type u) (xs : List (List α)) (h : Pred (List α) xs
     h✝ : Pred α a✝
     ⊢ List α✝ = α → HEq xs✝ a✝ → HEq h✝¹ h✝ → xs✝ ≠ [] → xs✝ = xs✝
 -/
-#guard_msgs(all) in
+#guard_msgs in
 #eval tst1

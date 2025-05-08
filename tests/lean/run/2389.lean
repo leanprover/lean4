@@ -15,7 +15,7 @@ inductive Tree : Type where
 set_option trace.Meta.IndPredBelow true in
 
 /-- trace: [Meta.IndPredBelow] Nested or not recursive -/
-#guard_msgs(all) in
+#guard_msgs in
 /-- Despite not having `.below` and `.brecOn`,
 the type is still usable thanks to well-founded recursion. -/
 inductive OnlyZeros : Tree → Prop where

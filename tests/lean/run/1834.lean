@@ -100,7 +100,7 @@ h : ∀ (n : Nat), P n = q
 hq : q
 ⊢ ∀ (n : Nat), q
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (P : Nat → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
     ∀ n, P n := by
   conv => enter [n]; rw [h]
@@ -117,7 +117,7 @@ h : (n : Nat) → P n = q
 hq : q
 ⊢ Nat → q
 -/
-#guard_msgs(all) in
+#guard_msgs in
 set_option pp.foralls false in
 example (P : Nat → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
     ∀ n, P n := by
@@ -136,7 +136,7 @@ h : ∀ (n : p), P n = q
 hq : q
 ⊢ p → q
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example (p : Prop) (P : p → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
     ∀ n, P n := by
   conv => enter [n]; rw [h]

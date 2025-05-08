@@ -26,7 +26,7 @@ trace: [diag] Diagnostics
     [kernel] HAdd.hAdd ↦ 61
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
-#guard_msgs(all) in
+#guard_msgs in
 set_option diagnostics.threshold 50 in
 set_option diagnostics true in
 theorem ex : ack 3 2 = 29 :=

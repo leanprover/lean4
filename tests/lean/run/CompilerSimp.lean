@@ -40,5 +40,5 @@ trace: [Compiler.test] Starting post condition test simpInlinesBinds for simp oc
 [Compiler.test] Starting post condition test simpFix for simp occurrence 5
 [Compiler.test] Post condition test simpFix for simp occurrence 5 successful
 -/
-#guard_msgs(all) in
+#guard_msgs in
 run_meta Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

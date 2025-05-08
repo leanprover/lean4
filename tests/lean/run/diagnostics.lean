@@ -23,7 +23,7 @@ trace: [diag] Diagnostics
     [reduction] Nat.casesOn ↦ 15
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example : f (x + 5) = q (q (q (q (q (f x))))) :=
   set_option diagnostics.threshold 4 in
   set_option diagnostics true in
@@ -44,7 +44,7 @@ trace: [diag] Diagnostics
     [reduction] Nat.casesOn ↦ 15
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
-#guard_msgs(all) in
+#guard_msgs in
 example : f (x + 5) = q (q (q (q (q (f x))))) := by
   set_option diagnostics.threshold 4 in
   set_option diagnostics true in

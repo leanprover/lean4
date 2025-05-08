@@ -21,7 +21,7 @@ theorem inv_eq {a b : α} (w : mul a b = one) : inv a = b := sorry
 /--
 trace: [grind.ematch.pattern] inv_eq: [@Lean.Grind.eqBwdPattern `[α] (inv #2) #1]
 -/
-#guard_msgs(all) in
+#guard_msgs in
 set_option trace.grind.ematch.pattern true in
 attribute [grind ←=] inv_eq
 

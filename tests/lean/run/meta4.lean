@@ -48,5 +48,5 @@ trace: [Meta.debug] (α β : Type) → α → β → DecidableEq β
 [Meta.debug] #[α, β, a✝¹, a✝, a, b]
 [Meta.debug] #[α, β, a✝¹, a✝, a, b]
 -/
-#guard_msgs(all) in
+#guard_msgs in
 #eval tst1

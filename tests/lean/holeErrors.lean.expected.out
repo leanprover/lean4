@@ -4,7 +4,8 @@ context:
 ⊢ Sort u
 holeErrors.lean:3:11-3:20: error: failed to infer type of `f1.{u}`
 holeErrors.lean:5:9-5:10: error: failed to infer type of `f2`
-note: when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
+
+Note: note: when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
 holeErrors.lean:8:9-8:15: error: don't know how to synthesize implicit argument 'α'
   @id ?m
 context:

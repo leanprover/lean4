@@ -1,8 +1,7 @@
 /--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
+error: Invalid field notation: type of
   x✝
-has type
-  ?m.9
+is not known; cannot resolve field '1'
 ---
 error: unsolved goals
 case refine'_1

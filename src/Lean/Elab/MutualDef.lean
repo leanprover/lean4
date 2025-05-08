@@ -89,8 +89,18 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   else
     pure ()
 
-private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
-  registerCustomErrorIfMVar type ref "failed to infer definition type"
+private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
+    TermElabM Unit :=
+  let ref := match view.kind with
+    | .example  => view.ref[0]
+    | .instance => view.ref[1]
+    | _         => view.declId
+  let msg := match view.kind with
+    | .example  => m!"example"
+    | .instance => m!"instance"
+    | .theorem  => m!"theorem '{view.declId}'"
+    | _         => m!"definition '{view.declId}'"
+  registerCustomErrorIfMVar type ref m!"Failed to infer type of {msg}"
 
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
@@ -188,13 +198,13 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             let mut type ← match view.type? with
               | some typeStx =>
                 let type ← elabType typeStx
-                registerFailedToInferDefTypeInfo type typeStx
+                registerFailedToInferDefTypeInfo type view
                 pure type
               | none =>
                 let hole := mkHole refForElabFunType
                 let type ← elabType hole
                 trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
-                registerFailedToInferDefTypeInfo type refForElabFunType
+                registerFailedToInferDefTypeInfo type view
                 pure type
             Term.synthesizeSyntheticMVarsNoPostponing
             if view.isInstance then

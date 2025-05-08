@@ -49,7 +49,7 @@ inductive SpecResult
   /-- Drop the message and delete it. -/
   | drop
   /-- Do not capture the message. -/
-  | passthrough
+  | pass
 
 /-- The method to use when normalizing whitespace, after trimming. -/
 inductive WhitespaceMode
@@ -67,6 +67,25 @@ inductive MessageOrdering
   /-- Sort the produced messages. -/
   | sorted
 
+def parseGuardMsgsFilterAction (action? : Option (TSyntax ``guardMsgsFilterAction)) :
+    CommandElabM SpecResult := do
+  if let some action := action? then
+    match action with
+    | `(guardMsgsFilterAction| check) => pure .check
+    | `(guardMsgsFilterAction| drop)  => pure .drop
+    | `(guardMsgsFilterAction| pass)  => pure .pass
+    | _ => throwUnsupportedSyntax
+  else
+    pure .check
+
+def parseGuardMsgsFilterSeverity : TSyntax ``guardMsgsFilterSeverity → CommandElabM (Message → Bool)
+  | `(guardMsgsFilterSeverity| trace) => pure fun msg => msg.isTrace
+  | `(guardMsgsFilterSeverity| info)  => pure fun msg => !msg.isTrace && msg.severity == .information
+  | `(guardMsgsFilterSeverity| warning) => pure fun msg => !msg.isTrace && msg.severity == .warning
+  | `(guardMsgsFilterSeverity| error) => pure fun msg => !msg.isTrace && msg.severity == .error
+  | `(guardMsgsFilterSeverity| all)   => pure fun _ => true
+  | _ => throwUnsupportedSyntax
+
 /-- Parses a `guardMsgsSpec`.
 - No specification: check everything.
 - With a specification: interpret the spec, and if nothing applies pass it through. -/
@@ -82,30 +101,22 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
   let mut whitespace : WhitespaceMode := .normalized
   let mut ordering : MessageOrdering := .exact
   let mut p? : Option (Message → SpecResult) := none
-  let sevP (s : MessageSeverity) : Message → Bool := fun msg =>
-    !msg.isTrace && msg.severity == s
-  let traceP : Message → Bool := fun msg =>
-    msg.isTrace
-  let pushP (msgP : Message → Bool) (drop : Bool) (p? : Option (Message → SpecResult))
+  let pushP (action : SpecResult) (msgP : Message → Bool) (p? : Option (Message → SpecResult))
       (msg : Message) : SpecResult :=
-    let p := p?.getD fun _ => .passthrough
-    if msgP msg then if drop then .drop else .check
-    else p msg
+    if msgP msg then
+      action
+    else
+      (p?.getD fun _ => .pass) msg
   for elt in elts.reverse do
     match elt with
-    | `(guardMsgsSpecElt| $[drop%$drop?]? trace)    => p? := pushP traceP drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? info)     => p? := pushP (sevP .information) drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? warning)  => p? := pushP (sevP .warning) drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? error)    => p? := pushP (sevP .error) drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? all)      => p? := some fun _ => if drop?.isSome then .drop else .check
+    | `(guardMsgsSpecElt| $[$action?]? $sev)        => p? := pushP (← parseGuardMsgsFilterAction action?) (← parseGuardMsgsFilterSeverity sev) p?
     | `(guardMsgsSpecElt| whitespace := exact)      => whitespace := .exact
     | `(guardMsgsSpecElt| whitespace := normalized) => whitespace := .normalized
     | `(guardMsgsSpecElt| whitespace := lax)        => whitespace := .lax
     | `(guardMsgsSpecElt| ordering := exact)        => ordering := .exact
     | `(guardMsgsSpecElt| ordering := sorted)       => ordering := .sorted
     | _ => throwUnsupportedSyntax
-  let defaultP := fun msg =>
-    if msg.isTrace then .passthrough else .check
+  let defaultP := fun _ => .check
   return (whitespace, ordering, p?.getD defaultP)
 
 /-- An info tree node corresponding to a failed `#guard_msgs` invocation,
@@ -167,7 +178,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       match specFn msg with
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()
-      | .passthrough => toPassthrough := toPassthrough.add msg
+      | pass => toPassthrough := toPassthrough.add msg
     let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
     let strings := ordering.apply strings
     let res := "---\n".intercalate strings |>.trim

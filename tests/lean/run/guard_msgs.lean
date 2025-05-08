@@ -317,13 +317,13 @@ section Trace
 
 set_option trace.debug true
 
-/-- info: [debug] a trace -/
+/-- trace: [debug] a trace -/
 #guard_msgs(all) in
 #guard_msgs(info) in
 run_meta trace[debug] "a trace"
 
 #guard_msgs(all) in
-/-- info: [debug] a trace -/
+/-- trace: [debug] a trace -/
 #guard_msgs(trace) in
 run_meta trace[debug] "a trace"
 
@@ -331,13 +331,13 @@ run_meta trace[debug] "a trace"
 #guard_msgs(drop trace) in
 run_meta trace[debug] "a trace"
 
-/-- info: [debug] a trace -/
 #guard_msgs(all) in
+/-- trace: [debug] a trace -/
 #guard_msgs in
 run_meta trace[debug] "a trace"
 
 #guard_msgs(all) in
-/-- info: [debug] a trace -/
+/-- trace: [debug] a trace -/
 #guard_msgs(all) in
 run_meta trace[debug] "a trace"
 

@@ -229,7 +229,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
 
 /-- Short-hand for applying a constant to the goal. -/
 def _root_.Lean.MVarId.applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
-  mvar.apply (← mkConstWithFreshMVarLevels c) cfg
+  mvar.apply (← mkConstWithFreshMVarLevels c) cfg (term? := m!"'{.ofConstName c}'")
 
 end Meta
 

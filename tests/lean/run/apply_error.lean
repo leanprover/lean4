@@ -5,7 +5,7 @@ with the goal
   False
 
 Note: The full type of `h` is
-  1 = 1 → True.
+  1 = 1 → True
 h : 1 = 1 → True
 ⊢ False
 -/
@@ -32,7 +32,7 @@ with the goal
   2 = 2 → False
 
 Note: The full type of `h` is
-  3 = 3 → 1 = 1 → True.
+  3 = 3 → 1 = 1 → True
 h : 3 = 3 → 1 = 1 → True
 ⊢ 2 = 2 → False
 -/

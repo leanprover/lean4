@@ -128,7 +128,7 @@ as needed (via `custom_data`).
 opaque CustomOut (target : Name × Name) : Type
 
 /--
-The open type family which maps a custom package targetto its output type.
+The open type family which maps a custom package target to its output type.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `custom_data`).

@@ -18,8 +18,8 @@ def LinterSets := NameMap (Array Name)
 
 /-- Insert a set into a `LinterSets` map.
 
-`entry.1` is the name of the linter set,
-`entry.2` contains the names of the set's linter options.
+`setName` is the name of the linter set,
+`options` contains the names of the set's linter options.
 -/
 def insertLinterSetEntry (map : LinterSets) (setName : Name) (options : NameSet) : LinterSets :=
   options.fold (init := map) fun map linterName =>

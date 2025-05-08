@@ -1,5 +1,5 @@
 /--
-info: case h
+trace: case h
 d g : Nat
 H1 : d = g
 ⊢ ?w = g
@@ -9,7 +9,7 @@ d g : Nat
 H1 : d = g
 ⊢ Nat
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example : ∀ d g, d = g → exists x : Nat, x = d := by
   intros d g H1
   constructor

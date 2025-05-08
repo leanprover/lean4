@@ -6,7 +6,7 @@
 The function `g` is "over-applied". Previously, conv-mode `congr` failed.
 -/
 /--
-info: case a
+trace: case a
 a b : Nat
 g : {α : Type} → α → α
 f : Nat → Nat
@@ -20,7 +20,7 @@ f : Nat → Nat
 h : a = b
 | a
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (a b : Nat) (g : {α : Type} → α → α) (f : Nat → Nat) (h : a = b) : g f a = g f b := by
   conv =>
     lhs
@@ -40,25 +40,25 @@ While we are here, test `arg` too via `enter`.
 -/
 
 /--
-info: a b : Nat
+trace: a b : Nat
 g : {α : Type} → α → α
 f : Nat → Nat
 h : a = b
 | a
 ---
-info: a b : Nat
+trace: a b : Nat
 g : {α : Type} → α → α
 f : Nat → Nat
 h : a = b
 | f
 ---
-info: a b : Nat
+trace: a b : Nat
 g : {α : Type} → α → α
 f : Nat → Nat
 h : a = b
 | a
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (a b : Nat) (g : {α : Type} → α → α) (f : Nat → Nat) (h : a = b) : g f a = g f b := by
   conv =>
     conv => enter [1,2]; trace_state

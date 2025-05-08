@@ -15,10 +15,10 @@ def pullInstancesSizeTest : PassInstaller :=
 
 set_option trace.Compiler.test true in
 /--
-info: [Compiler.test] Starting wrapper test pullInstancesSizeEq for pullInstances occurrence 0
+trace: [Compiler.test] Starting wrapper test pullInstancesSizeEq for pullInstances occurrence 0
 [Compiler.test] Wrapper test pullInstancesSizeEq for pullInstances occurrence 0 successful
 [Compiler.test] Starting post condition test pullInstancesFix for pullInstances occurrence 0
 [Compiler.test] Post condition test pullInstancesFix for pullInstances occurrence 0 successful
 -/
-#guard_msgs in
+#guard_msgs(all) in
 run_meta Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

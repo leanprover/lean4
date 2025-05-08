@@ -13,8 +13,8 @@ def thingy : List (Nat ⊕ Nat) → List Bool
   | _ => []
   termination_by l => l.length
 
-/-- info: ⊢ [] = [] -/
-#guard_msgs in
+/-- trace: ⊢ [] = [] -/
+#guard_msgs(all) in
 theorem thingy_empty : thingy [] = [] := by
   unfold thingy
   trace_state

@@ -94,13 +94,13 @@ end
 Rewrote forall, remains a forall, since domain is `Nat`.
 -/
 /--
-info: P : Nat → Prop
+trace: P : Nat → Prop
 q : Prop
 h : ∀ (n : Nat), P n = q
 hq : q
 ⊢ ∀ (n : Nat), q
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (P : Nat → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
     ∀ n, P n := by
   conv => enter [n]; rw [h]
@@ -111,13 +111,13 @@ example (P : Nat → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
 When `pp.foralls` is false, uses non-dependent `→`.
 -/
 /--
-info: P : Nat → Prop
+trace: P : Nat → Prop
 q : Prop
 h : (n : Nat) → P n = q
 hq : q
 ⊢ Nat → q
 -/
-#guard_msgs in
+#guard_msgs(all) in
 set_option pp.foralls false in
 example (P : Nat → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
     ∀ n, P n := by
@@ -129,14 +129,14 @@ example (P : Nat → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
 Rewrote forall, turns into an implication, since domain is a proposition.
 -/
 /--
-info: p : Prop
+trace: p : Prop
 P : p → Prop
 q : Prop
 h : ∀ (n : p), P n = q
 hq : q
 ⊢ p → q
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (p : Prop) (P : p → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
     ∀ n, P n := by
   conv => enter [n]; rw [h]

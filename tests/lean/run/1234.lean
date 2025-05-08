@@ -10,7 +10,7 @@ set_option Elab.async false -- for stable message ordering in #guard_msgs
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000:
+trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
@@ -30,7 +30,7 @@ info: [Meta.Tactic.simp.rewrite] h₁:1000:
       ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
     (if k ≤ v - 1 then Fin.mk (v-1+1) sorry else Fin.mk (v-1) sorry) = Fin.mk v sorry (n:=n) := by
     simp only [
@@ -47,7 +47,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000:
+trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
@@ -67,7 +67,7 @@ info: [Meta.Tactic.simp.rewrite] h₁:1000:
       ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
     (if k ≤ v - 1 then Fin.mk (v-1+1) sorry else Fin.mk (v-1) sorry) = Fin.mk v sorry (n:=n) := by
     simp (config := { memoize := false}) only [
@@ -82,7 +82,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000:
+trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
@@ -102,7 +102,7 @@ info: [Meta.Tactic.simp.rewrite] h₁:1000:
       ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
     (if k ≤ v - 1 then Fin.mk (v-1+1) sorry else Fin.mk (v-1) sorry) = Fin.mk v sorry (n:=n) := by
     simp only [

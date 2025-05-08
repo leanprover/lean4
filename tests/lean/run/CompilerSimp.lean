@@ -15,7 +15,7 @@ def simpReaderTest : PassInstaller :=
 
 set_option trace.Compiler.test true in
 /--
-info: [Compiler.test] Starting post condition test simpInlinesBinds for simp occurrence 0
+trace: [Compiler.test] Starting post condition test simpInlinesBinds for simp occurrence 0
 [Compiler.test] Post condition test simpInlinesBinds for simp occurrence 0 successful
 [Compiler.test] Starting post condition test simpFix for simp occurrence 0
 [Compiler.test] Post condition test simpFix for simp occurrence 0 successful
@@ -40,5 +40,5 @@ info: [Compiler.test] Starting post condition test simpInlinesBinds for simp occ
 [Compiler.test] Starting post condition test simpFix for simp occurrence 5
 [Compiler.test] Post condition test simpFix for simp occurrence 5 successful
 -/
-#guard_msgs in
+#guard_msgs(all) in
 run_meta Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

@@ -12,7 +12,7 @@ open Lean Elab Tactic
 Tactics may assign other goals. There are three goals, but the tactic is run twice.
 -/
 /--
-info: case a
+trace: case a
 ⊢ 1 ≤ ?m
 
 case a
@@ -21,10 +21,10 @@ case a
 case m
 ⊢ Nat
 ---
-info: running tac
+trace: running tac
 running tac
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example : 1 ≤ 2 := by
   apply Nat.le_trans
   trace_state
@@ -94,7 +94,7 @@ case refine_1
 b : Bool
 ⊢ Unit
 ---
-info: case refine_2.false
+trace: case refine_2.false
 v : Unit := ?_ false
 ⊢ True
 
@@ -102,7 +102,7 @@ case refine_1
 b : Bool
 ⊢ Unit
 -/
-#guard_msgs in
+#guard_msgs(all) in
 set_option pp.mvars false in
 example (b : Bool) : True := by
   let v : Unit := ?_
@@ -149,7 +149,7 @@ error: Case tag 'true' not found.
 
 The only available case tag is 'refine_1'.
 ---
-info: case refine_2.false
+trace: case refine_2.false
 v : Unit := ()
 this : () = v
 ⊢ True
@@ -160,9 +160,9 @@ case refine_1
 b : Bool
 ⊢ Unit
 ---
-info: in true
+trace: in true
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (b : Bool) : True := by
   let v : Unit := ?_
   cases b
@@ -200,10 +200,10 @@ This is the responsibility of `first`, but `all_goals` coordinates by being sure
 -/
 
 /--
-info: rfl
+trace: rfl
 rfl
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (b : Bool) : b = b := by
   cases b
   first | (all_goals exact Eq.refl false) | (all_goals trace "rfl"; rfl)
@@ -311,7 +311,7 @@ theorem idEq (a : α) : id a = a :=
   rfl
 
 /--
-info: case sunday
+trace: case sunday
 ⊢ sunday.previous.next = id sunday
 
 case monday
@@ -332,7 +332,7 @@ case friday
 case saturday
 ⊢ saturday.previous.next = id saturday
 ---
-info: case sunday
+trace: case sunday
 ⊢ sunday.previous.next = sunday
 
 case monday
@@ -353,7 +353,7 @@ case friday
 case saturday
 ⊢ saturday.previous.next = saturday
 -/
-#guard_msgs in
+#guard_msgs(all) in
 theorem Weekday.test (d : Weekday) : next (previous d) = id d := by
   cases d
   trace_state
@@ -362,7 +362,7 @@ theorem Weekday.test (d : Weekday) : next (previous d) = id d := by
   all_goals rfl
 
 /--
-info: case sunday
+trace: case sunday
 ⊢ sunday.previous.next = sunday
 
 case monday
@@ -383,7 +383,7 @@ case friday
 case saturday
 ⊢ saturday.previous.next = saturday
 -/
-#guard_msgs in
+#guard_msgs(all) in
 theorem Weekday.test2 (d : Weekday) : next (previous d) = id d := by
   cases d <;> rw [idEq]
   trace_state

@@ -24,14 +24,14 @@ p :
       p =
     state
 ---
-info: [split.failure] `split` tactic failed to generalize discriminant(s) at
+trace: [split.failure] `split` tactic failed to generalize discriminant(s) at
       match h : step state with
       | none => [state]
       | some newState => state :: countdown newState
     resulting expression was not type correct
     possible solution: generalize discriminant(s) manually before using `split`
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (state: Nat) (p : (match h : step state with
     | none => [state]
     | some newState => state :: countdown newState) ≠

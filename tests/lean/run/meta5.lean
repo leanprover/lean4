@@ -27,7 +27,7 @@ set_option pp.mvars false
 set_option trace.Meta.debug true
 
 /--
-info: [Meta.debug] ?_
+trace: [Meta.debug] ?_
 [Meta.debug] fun y =>
       let x := 0;
       ?_
@@ -38,5 +38,5 @@ info: [Meta.debug] ?_
 [Meta.debug] ?0 : Nat
 [Meta.debug] ?1 : Nat → Nat → Nat
 -/
-#guard_msgs in
+#guard_msgs(all) in
 #eval tst1

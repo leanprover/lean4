@@ -13,7 +13,7 @@ universe v u
 
 variable (α : Sort u)
 
-structure Opposite :=
+structure Opposite where
   op ::
   unop : α
 
@@ -714,12 +714,12 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
 
 
 /--
-info: [simp] Diagnostics
+trace: [simp] Diagnostics
   [simp] theorems with bad keys
     [simp] foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
@@ -735,12 +735,12 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
 attribute [simp] foo
 
 /--
-info: [simp] Diagnostics
+trace: [simp] Diagnostics
   [simp] theorems with bad keys
     [simp] foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }

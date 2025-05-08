@@ -2,11 +2,11 @@
   2 * a
 
 /--
-info: case h
+trace: case h
 x : Nat
 ⊢ 2 * x = x + x
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example : foo = fun a => a + a :=
 by
   fail_if_success simp -- should not unfold `foo` into a lambda
@@ -19,11 +19,11 @@ by
   | a => 2 * a
 
 /--
-info: case h
+trace: case h
 x : Nat
 ⊢ 2 * x = x + x
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example : boo = fun a => a + a :=
 by
   fail_if_success simp -- should not unfold `boo` into a lambda

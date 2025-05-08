@@ -9,7 +9,7 @@ theorem f_eq : f (x + 1) = q (f x) := rfl
 set_option trace.Meta.debug true
 
 /--
-info: [diag] Diagnostics
+trace: [diag] Diagnostics
   [reduction] unfolded declarations (max: 15, num: 6):
     [reduction] Nat.rec ↦ 15
     [reduction] Add.add ↦ 10
@@ -23,14 +23,14 @@ info: [diag] Diagnostics
     [reduction] Nat.casesOn ↦ 15
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example : f (x + 5) = q (q (q (q (q (f x))))) :=
   set_option diagnostics.threshold 4 in
   set_option diagnostics true in
   rfl
 
 /--
-info: [diag] Diagnostics
+trace: [diag] Diagnostics
   [reduction] unfolded declarations (max: 15, num: 6):
     [reduction] Nat.rec ↦ 15
     [reduction] Add.add ↦ 10
@@ -44,7 +44,7 @@ info: [diag] Diagnostics
     [reduction] Nat.casesOn ↦ 15
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
-#guard_msgs in
+#guard_msgs(all) in
 example : f (x + 5) = q (q (q (q (q (f x))))) := by
   set_option diagnostics.threshold 4 in
   set_option diagnostics true in

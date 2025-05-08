@@ -7,7 +7,6 @@ module
 
 prelude
 import Init.Data.List.Zip
-import Init.Data.List.Zip
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Nat.Gcd
 
@@ -28,7 +27,7 @@ namespace IntList
 /-- Get the `i`-th element (interpreted as `0` if the list is not long enough). -/
 def get (xs : IntList) (i : Nat) : Int := xs[i]?.getD 0
 
-@[simp] theorem get_nil : get ([] : IntList) i = 0 := by simp [get]
+@[simp] theorem get_nil : get ([] : IntList) i = 0 := rfl
 @[simp] theorem get_cons_zero : get (x :: xs) 0 = x := by simp [get]
 @[simp] theorem get_cons_succ : get (x :: xs) (i+1) = get xs i := by simp [get]
 
@@ -41,7 +40,7 @@ theorem get_of_length_le {xs : IntList} (h : xs.length ≤ i) : xs.get i = 0 := 
   rfl
 
 /-- Like `List.set`, but right-pad with zeroes as necessary first. -/
-@[semireducible] def set (xs : IntList) (i : Nat) (y : Int) : IntList :=
+def set (xs : IntList) (i : Nat) (y : Int) : IntList :=
   match xs, i with
   | [], 0 => [y]
   | [], (i+1) => 0 :: set [] i y
@@ -57,7 +56,7 @@ theorem get_of_length_le {xs : IntList} (h : xs.length ≤ i) : xs.get i = 0 := 
 def leading (xs : IntList) : Int := xs.find? (! · == 0) |>.getD 0
 
 /-- Implementation of `+` on `IntList`. -/
-@[semireducible] def add (xs ys : IntList) : IntList :=
+def add (xs ys : IntList) : IntList :=
   List.zipWithAll (fun x y => x.getD 0 + y.getD 0) xs ys
 
 instance : Add IntList := ⟨add⟩
@@ -87,9 +86,9 @@ theorem mul_def (xs ys : IntList) : xs * ys = List.zipWith (· * ·) xs ys :=
   simp only [get, mul_def, List.getElem?_zipWith]
   cases xs[i]? <;> cases ys[i]? <;> simp
 
-@[simp] theorem mul_nil_left : ([] : IntList) * ys = [] := by simp [mul_def]
+@[simp] theorem mul_nil_left : ([] : IntList) * ys = [] := rfl
 @[simp] theorem mul_nil_right : xs * ([] : IntList) = [] := List.zipWith_nil_right
-@[simp] theorem mul_cons₂ : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := by simp [mul_def]
+@[simp] theorem mul_cons₂ : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := rfl
 
 /-- Implementation of negation on `IntList`. -/
 def neg (xs : IntList) : IntList := xs.map fun x => -x
@@ -106,7 +105,7 @@ theorem neg_def (xs : IntList) : - xs = xs.map fun x => -x := rfl
 @[simp] theorem neg_cons : (- (x::xs : IntList)) = -x :: -xs := rfl
 
 /-- Implementation of subtraction on `IntList`. -/
-@[semireducible] def sub (xs ys : IntList) : IntList :=
+def sub (xs ys : IntList) : IntList :=
   List.zipWithAll (fun x y => x.getD 0 - y.getD 0) xs ys
 
 instance : Sub IntList := ⟨sub⟩
@@ -218,12 +217,12 @@ theorem sum_smul (i : Int) (xs : IntList) : (i * xs).sum = i * (xs.sum) := by
 /-- The dot product of two `IntList`s. -/
 def dot (xs ys : IntList) : Int := (xs * ys).sum
 
-example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c, d] [x, y, z] := by simp [dot]
-example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] := by simp [dot]
+example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c, d] [x, y, z] := rfl
+example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] := rfl
 
-@[local simp] theorem dot_nil_left : dot ([] : IntList) ys = 0 := by simp [dot]
+@[local simp] theorem dot_nil_left : dot ([] : IntList) ys = 0 := rfl
 @[simp] theorem dot_nil_right : dot xs ([] : IntList) = 0 := by simp [dot]
-@[simp] theorem dot_cons₂ : dot (x::xs) (y::ys) = x * y + dot xs ys := by simp [dot]
+@[simp] theorem dot_cons₂ : dot (x::xs) (y::ys) = x * y + dot xs ys := rfl
 
 -- theorem dot_comm (xs ys : IntList) : dot xs ys = dot ys xs := by
 --   rw [dot, dot, mul_comm]
@@ -355,15 +354,15 @@ theorem gcd_dvd_dot_left (xs ys : IntList) : (xs.gcd : Int) ∣ dot xs ys :=
 
 theorem dot_eq_zero_of_left_eq_zero {xs ys : IntList} (h : ∀ x, x ∈ xs → x = 0) : dot xs ys = 0 := by
   induction xs generalizing ys with
-  | nil => simp [dot]
+  | nil => rfl
   | cons x xs ih =>
     cases ys with
-    | nil => simp [dot]
+    | nil => rfl
     | cons y ys =>
       rw [dot_cons₂, h x List.mem_cons_self, ih (fun x m => h x (List.mem_cons_of_mem _ m)),
         Int.zero_mul, Int.add_zero]
 
-@[simp] theorem nil_dot (xs : IntList) : dot [] xs = 0 := by simp [dot]
+@[simp] theorem nil_dot (xs : IntList) : dot [] xs = 0 := rfl
 
 theorem dot_sdiv_left (xs ys : IntList) {d : Int} (h : d ∣ xs.gcd) :
     dot (xs.sdiv d) ys = (dot xs ys) / d := by

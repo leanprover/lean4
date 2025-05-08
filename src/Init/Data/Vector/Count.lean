@@ -26,7 +26,7 @@ section countP
 
 variable {p q : α → Bool}
 
-@[simp] theorem countP_empty : countP p #v[] = 0 := by simp
+@[simp] theorem countP_empty : countP p #v[] = 0 := rfl
 
 @[simp] theorem countP_push_of_pos {xs : Vector α n} (pa : p a) : countP p (xs.push a) = countP p xs + 1 := by
   rcases xs with ⟨xs, rfl⟩
@@ -136,7 +136,7 @@ section count
 
 variable [BEq α]
 
-@[simp] theorem count_empty {a : α} : count a #v[] = 0 := by simp
+@[simp] theorem count_empty {a : α} : count a #v[] = 0 := rfl
 
 theorem count_push {a b : α} {xs : Vector α n} :
     count a (xs.push b) = count a xs + if b == a then 1 else 0 := by

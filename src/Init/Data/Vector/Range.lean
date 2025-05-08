@@ -212,7 +212,7 @@ theorem zipIdx_eq_map_add {xs : Vector α n} {i : Nat} :
 
 @[simp]
 theorem zipIdx_singleton {x : α} {k : Nat} : zipIdx (#v[x]) k = #v[(x, k)] :=
-  by simp
+  rfl
 
 theorem mk_add_mem_zipIdx_iff_getElem? {k i : Nat} {x : α} {xs : Vector α n} :
     (x, k + i) ∈ zipIdx xs k ↔ xs[i]? = some x := by

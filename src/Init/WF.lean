@@ -10,6 +10,8 @@ import Init.SizeOf
 import Init.BinderNameHint
 import Init.Data.Nat.Basic
 
+set_option experimental.module.semireducibleDef true
+
 universe u v
 
 /--
@@ -165,11 +167,11 @@ private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = 
     apply ih (f y) lt y rfl
 
 -- `def` for `WellFounded.fix`
-def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
+@[semireducible] def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
   accAux f ac a rfl
 
 -- `def` for `WellFounded.fix`
-def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
+@[semireducible] def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 

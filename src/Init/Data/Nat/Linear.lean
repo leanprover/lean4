@@ -258,9 +258,7 @@ theorem Poly.denote_cons (ctx : Context) (k : Nat) (v : Var) (p : Poly) : denote
 attribute [local simp] Poly.denote_cons
 
 theorem Poly.denote_reverse (ctx : Context) (p : Poly) : denote ctx (List.reverse p) = denote ctx p := by
-  induction p with
-  | nil  => simp
-  | cons => simp [*]
+  induction p <;> simp [*]
 
 attribute [local simp] Poly.denote_reverse
 

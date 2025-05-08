@@ -24,7 +24,7 @@ open Nat
 
 /-! ### findSome? -/
 
-@[simp, grind] theorem findSome?_empty : (#[] : Array α).findSome? f = none := by simp
+@[simp, grind] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
 @[simp, grind] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
   cases xs; simp [List.findSome?_append]
 
@@ -140,7 +140,7 @@ abbrev findSome?_mkArray_of_isNone := @findSome?_replicate_of_isNone
 
 /-! ### find? -/
 
-@[simp] theorem find?_empty : find? p #[] = none := by simp
+@[simp] theorem find?_empty : find? p #[] = none := rfl
 
 @[simp] theorem find?_singleton {a : α} {p : α → Bool} :
     #[a].find? p = if p a then some a else none := by
@@ -347,7 +347,7 @@ theorem find?_eq_some_iff_getElem {xs : Array α} {p : α → Bool} {b : α} :
 
 /-! ### findIdx -/
 
-@[simp] theorem findIdx_empty : findIdx p #[] = 0 := by simp
+@[simp] theorem findIdx_empty : findIdx p #[] = 0 := rfl
 theorem findIdx_singleton {a : α} {p : α → Bool} :
     #[a].findIdx p = if p a then 0 else 1 := by
   simp

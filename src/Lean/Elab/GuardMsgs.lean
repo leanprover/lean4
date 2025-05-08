@@ -31,10 +31,13 @@ private def messageToStringWithoutPos (msg : Message) : BaseIO String := do
   unless msg.caption == "" do
     str := msg.caption ++ ":\n" ++ str
   if !("\n".isPrefixOf str) then str := " " ++ str
-  match msg.severity with
-  | MessageSeverity.information => str := "info:" ++ str
-  | MessageSeverity.warning     => str := "warning:" ++ str
-  | MessageSeverity.error       => str := "error:" ++ str
+  if msg.isTrace then
+    str := "trace:" ++ str
+  else
+    match msg.severity with
+    | MessageSeverity.information => str := "info:" ++ str
+    | MessageSeverity.warning     => str := "warning:" ++ str
+    | MessageSeverity.error       => str := "error:" ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str
@@ -79,16 +82,21 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
   let mut whitespace : WhitespaceMode := .normalized
   let mut ordering : MessageOrdering := .exact
   let mut p? : Option (Message → SpecResult) := none
-  let pushP (s : MessageSeverity) (drop : Bool) (p? : Option (Message → SpecResult))
+  let sevP (s : MessageSeverity) : Message → Bool := fun msg =>
+    !msg.isTrace && msg.severity == s
+  let traceP : Message → Bool := fun msg =>
+    msg.isTrace
+  let pushP (msgP : Message → Bool) (drop : Bool) (p? : Option (Message → SpecResult))
       (msg : Message) : SpecResult :=
     let p := p?.getD fun _ => .passthrough
-    if msg.severity == s then if drop then .drop else .check
+    if msgP msg then if drop then .drop else .check
     else p msg
   for elt in elts.reverse do
     match elt with
-    | `(guardMsgsSpecElt| $[drop%$drop?]? info)     => p? := pushP .information drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? warning)  => p? := pushP .warning drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? error)    => p? := pushP .error drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? trace)    => p? := pushP traceP drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? info)     => p? := pushP (sevP .information) drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? warning)  => p? := pushP (sevP .warning) drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? error)    => p? := pushP (sevP .error) drop?.isSome p?
     | `(guardMsgsSpecElt| $[drop%$drop?]? all)      => p? := some fun _ => if drop?.isSome then .drop else .check
     | `(guardMsgsSpecElt| whitespace := exact)      => whitespace := .exact
     | `(guardMsgsSpecElt| whitespace := normalized) => whitespace := .normalized
@@ -96,7 +104,9 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
     | `(guardMsgsSpecElt| ordering := exact)        => ordering := .exact
     | `(guardMsgsSpecElt| ordering := sorted)       => ordering := .sorted
     | _ => throwUnsupportedSyntax
-  return (whitespace, ordering, p?.getD fun _ => .check)
+  let defaultP := fun msg =>
+    if msg.isTrace then .passthrough else .check
+  return (whitespace, ordering, p?.getD defaultP)
 
 /-- An info tree node corresponding to a failed `#guard_msgs` invocation,
 used for code action support. -/

@@ -622,7 +622,7 @@ This is the same as `#eval show MetaM Unit from do discard doSeq`.
 syntax (name := runMeta) "run_meta " doSeq : command
 
 set_option linter.missingDocs false in
-syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
+syntax guardMsgsFilterSeverity := &"trace" <|> &"info" <|> &"warning" <|> &"error" <|> &"all"
 
 /--
 `#reduce <expression>` reduces the expression `<expression>` to its normal form. This
@@ -642,11 +642,14 @@ syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))
 
 /--
 A message filter specification for `#guard_msgs`.
-- `info`, `warning`, `error`: capture messages with the given severity level.
-- `all`: capture all messages (the default).
+- `info`, `warning`, `error`: capture (non-trace) messages with the given severity level.
+- `trace`: captures trace messages
+- `all`: capture all messages.
 - `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
 - `drop all`: drop every message.
 These filters are processed in left-to-right order.
+
+The default is to capture all non-trace messages.
 -/
 syntax guardMsgsFilter := &"drop"? guardMsgsFilterSeverity
 

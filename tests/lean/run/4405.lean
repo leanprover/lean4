@@ -3,9 +3,9 @@ import Lean.Elab.Command
 set_option pp.mvars false
 
 /--
-error: application type mismatch
+error: Application type mismatch: In the appplication
   ⟨Nat.lt_irrefl (?_ n), Fin.is_lt ?_⟩
-argument
+the final argument
   Fin.is_lt ?_
 has type
   ↑?_ < ?_ : Prop

@@ -1,3 +1,7 @@
 doSeqRightIssue.lean:5:23-5:24: error: unknown universe level 'v'
-doSeqRightIssue.lean:8:0-9:40: warning: declaration uses 'sorry'
-doSeqRightIssue.lean:7:8-7:10: warning: declaration uses 'sorry'
+doSeqRightIssue.lean:7:36-7:39: error: type mismatch
+  β a
+has type
+  sorry : Sort ?u
+but is expected to have type
+  Type ?u : Type (?u + 1)

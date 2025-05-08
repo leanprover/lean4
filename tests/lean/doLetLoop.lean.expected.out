@@ -1,2 +1,5 @@
 doLetLoop.lean:4:0: error: unexpected end of input
-doLetLoop.lean:2:4-2:5: warning: declaration uses 'sorry'
+doLetLoop.lean:3:2-3:8: error: failed to synthesize
+  Decidable sorry
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.

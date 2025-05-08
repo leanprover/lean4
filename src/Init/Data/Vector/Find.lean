@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Attach
 import Init.Data.Vector.Range
@@ -26,7 +28,7 @@ open Nat
 
 /-! ### findSome? -/
 
-@[simp, grind] theorem findSome?_empty : (#v[] : Vector α 0).findSome? f = none := by simp
+@[simp, grind] theorem findSome?_empty : (#v[] : Vector α 0).findSome? f = none := rfl
 @[simp, grind] theorem findSome?_push {xs : Vector α n} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
   cases xs; simp [List.findSome?_append]
 
@@ -140,7 +142,7 @@ abbrev findSome?_mkVector_of_isNone := @findSome?_replicate_of_isNone
 
 /-! ### find? -/
 
-@[simp] theorem find?_empty : find? p #v[] = none := by simp
+@[simp] theorem find?_empty : find? p #v[] = none := rfl
 
 @[simp] theorem find?_singleton {a : α} {p : α → Bool} :
     #v[a].find? p = if p a then some a else none := by

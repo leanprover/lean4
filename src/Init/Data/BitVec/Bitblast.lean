@@ -2623,7 +2623,8 @@ theorem resRec_true_of_le_toNat_mul_toNat_and_toNat_mul_toNat_lt (x y : BitVec w
               simp
               rw [Nat.mod_eq_of_lt]
               simp
-              sorry
+              have := Nat.pow_lt_pow_of_lt (a := 2) (n := 1) (m := w + 1 + 1) (by omega) (by omega)
+              simp [this]
             case neg.h.inr vy => -- y.toNat = 3
               have vyy : y = 3#(w + 1 + 1) := by
                 rw [toNat_eq]
@@ -2636,7 +2637,9 @@ theorem resRec_true_of_le_toNat_mul_toNat_and_toNat_mul_toNat_lt (x y : BitVec w
               simp
               rw [Nat.mod_eq_of_lt]
               simp
-              sorry
+              have := Nat.pow_lt_pow_of_lt (a := 2) (n := 1) (m := w + 1 + 1) (by omega) (by omega)
+              rw [show 3 = 2 ^ 1 + 1 by omega]
+              omega
         · have hpowle := Nat.pow_lt_pow_of_lt (a := 2) (n := s) (m := s + 1) (by omega) (by omega)
           have hpowle := Nat.pow_lt_pow_of_lt (a := 2) (n := w - s) (m := w - (s - 1)) (by omega) (by omega)
           have hyle' : 2 ^ s ≤ y.toNat := by omega

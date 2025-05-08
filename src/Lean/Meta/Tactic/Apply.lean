@@ -28,7 +28,7 @@ private def throwApplyError {α} (mvarId : MVarId)
     (term? : Option MessageData) : MetaM α := do
   throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) do
     let conclusionType := conclusionType?.getD eType
-    let note := if conclusionType?.isSome then .note m!"The full type of {term?.getD "the term"} is{indentExpr eType}." else m!""
+    let note := if conclusionType?.isSome then .note m!"The full type of {term?.getD "the term"} is{indentExpr eType}" else m!""
     let (conclusionType, targetType) ← addPPExplicitToExposeDiff conclusionType targetType
     let conclusion := if conclusionType?.isNone then "type" else "conclusion"
     return m!"could not unify the {conclusion} of {term?.getD "the term"}{indentExpr conclusionType}\n\

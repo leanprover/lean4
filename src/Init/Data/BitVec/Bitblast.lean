@@ -2609,11 +2609,34 @@ theorem resRec_true_of_le_toNat_mul_toNat_and_toNat_mul_toNat_lt (x y : BitVec w
             simp [uppcRec_true_iff]
             have hyval : y.toNat = 2 ∨ y.toNat = 3 := by omega
             simp [hxle]
-            apply Classical.byContradiction
-            intro hcontra
-            simp at hcontra
-
-            sorry
+            right
+            cases hyval
+            case neg.h.inl vy => -- y.toNat = 2
+              have vyy : y = 2#(w + 1 + 1) := by
+                rw [toNat_eq]
+                simp
+                rw [Nat.mod_eq_of_lt]
+                simp [vy]
+                omega
+              rw [vyy]
+              rw [BitVec.getElem_true_of_le_of_lt]
+              simp
+              rw [Nat.mod_eq_of_lt]
+              simp
+              sorry
+            case neg.h.inr vy => -- y.toNat = 3
+              have vyy : y = 3#(w + 1 + 1) := by
+                rw [toNat_eq]
+                simp
+                rw [Nat.mod_eq_of_lt]
+                simp [vy]
+                omega
+              rw [vyy]
+              rw [BitVec.getElem_true_of_le_of_lt]
+              simp
+              rw [Nat.mod_eq_of_lt]
+              simp
+              sorry
         · have hpowle := Nat.pow_lt_pow_of_lt (a := 2) (n := s) (m := s + 1) (by omega) (by omega)
           have hpowle := Nat.pow_lt_pow_of_lt (a := 2) (n := w - s) (m := w - (s - 1)) (by omega) (by omega)
           have hyle' : 2 ^ s ≤ y.toNat := by omega

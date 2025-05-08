@@ -8,7 +8,7 @@ termination_by n
 /--
 info: 89
 ---
-info: [diag] Diagnostics
+trace: [diag] Diagnostics
   [reduction] unfolded declarations (max: 407, num: 3):
     [reduction] Nat.rec ↦ 407
     [reduction] Or.rec ↦ 144

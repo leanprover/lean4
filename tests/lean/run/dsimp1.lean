@@ -7,7 +7,7 @@ axiom P : Bool → Prop
 axiom P_false : P false
 
 /--
-info: x : Nat
+trace: x : Nat
 ⊢ P (1 + x).isZero
 -/
 #guard_msgs in

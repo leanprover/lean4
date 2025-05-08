@@ -1,16 +1,16 @@
-issue3232.lean:5:2-5:9: error: tactic 'apply' failed, could not unify the type of `h`
+issue3232.lean:5:2-5:9: error: tactic 'apply' failed, failed to unify
   @foo 42
-with the goal
+with
   @foo 23
 h : foo
 ⊢ foo
-issue3232.lean:8:2-8:29: error: tactic 'apply' failed, could not unify the type of `rfl`
+issue3232.lean:8:2-8:29: error: tactic 'apply' failed, failed to unify
   (1 : Int) = 1
-with the goal
+with
   (1 : Nat) = 1
 ⊢ 1 = 1
-issue3232.lean:11:2-11:25: error: tactic 'apply' failed, could not unify the type of `Eq.refl PUnit`
+issue3232.lean:11:2-11:25: error: tactic 'apply' failed, failed to unify
   PUnit = PUnit
-with the goal
+with
   PUnit = PUnit
 ⊢ PUnit = PUnit

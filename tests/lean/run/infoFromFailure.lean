@@ -14,7 +14,7 @@ set_option trace.Meta.synthInstance true
 /--
 info: B.foo "hello" : String × String
 ---
-info: [Meta.synthInstance] ❌️ Add String
+trace: [Meta.synthInstance] ❌️ Add String
   [Meta.synthInstance] new goal Add String
     [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toAdd]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.CommRing.toAdd to Add String
@@ -29,7 +29,7 @@ info: [Meta.synthInstance] ❌️ Add String
 #check foo "hello"
 
 /--
-info: [Meta.synthInstance] ❌️ Add Bool
+trace: [Meta.synthInstance] ❌️ Add Bool
   [Meta.synthInstance] new goal Add Bool
     [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toAdd]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.CommRing.toAdd to Add Bool

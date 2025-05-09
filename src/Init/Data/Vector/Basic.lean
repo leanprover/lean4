@@ -24,7 +24,9 @@ set_option linter.listVariables true -- Enforce naming conventions for `List`/`A
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 /-- `Vector α n` is an `Array α` with size `n`. -/
-structure Vector (α : Type u) (n : Nat) extends Array α where
+structure Vector (α : Type u) (n : Nat) where
+  /-- The underlying array. -/
+  toArray : Array α
   /-- Array size. -/
   size_toArray : toArray.size = n
 deriving Repr, DecidableEq
@@ -47,6 +49,9 @@ macro_rules
 
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
+
+/-- Convert a vector to a list. -/
+def toList (xs : Vector α n) : List α := xs.toArray.toList
 
 /-- Custom eliminator for `Vector α n` through `Array α` -/
 @[elab_as_elim]
@@ -468,6 +473,16 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 
 @[inline] def replace [BEq α] (xs : Vector α n) (a b : α) : Vector α n :=
   ⟨xs.toArray.replace a b, by simp⟩
+
+/--
+Computes the sum of the elements of a vector.
+
+Examples:
+ * `#v[a, b, c].sum = a + (b + (c + 0))`
+ * `#v[1, 2, 5].sum = 8`
+-/
+@[inline] def sum [Add α] [Zero α] (xs : Vector α n) : α :=
+  xs.toArray.sum
 
 /--
 Pad a vector on the left with a given element.

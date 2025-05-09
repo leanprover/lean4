@@ -303,23 +303,24 @@ where
              |>.qsort (·.1 < ·.1)
              |>.toList
 
+          let discrParams := discrType.constLevels!
           let rec intersperseDefault hs idx acc := do
             if idx == inductiveInfo.numCtors then
               return acc.reverse
             else
-              let goDefault hs := do
-                -- TODO wrong
-                let ctor := mkConst inductiveInfo.ctors[idx]! levelParams
+              match hs with
+              | [] =>
+                let ctor := mkConst inductiveInfo.ctors[idx]! discrParams
                 let new := (idx, mkApp hdefault ctor)
                 intersperseDefault hs (idx + 1) (new :: acc)
-              match hs with
-              | [] => goDefault []
               | hs@((cidx, h) :: tail) =>
                 if cidx == idx then
                   let new := (idx, mkApp h (mkConst ``Unit.unit))
                   intersperseDefault tail (idx + 1) (new :: acc)
                 else
-                  goDefault hs
+                  let ctor := mkConst inductiveInfo.ctors[idx]! discrParams
+                  let new := (idx, mkApp hdefault ctor)
+                  intersperseDefault hs (idx + 1) (new :: acc)
 
           let caseProofs ← intersperseDefault sortedConcreteHs 0 []
           let case h := mkEqRefl h.2

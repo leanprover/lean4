@@ -24,7 +24,7 @@ p :
       p =
     state
 ---
-info: [split.failure] `split` tactic failed to generalize discriminant(s) at
+trace: [split.failure] `split` tactic failed to generalize discriminant(s) at
       match h : step state with
       | none => [state]
       | some newState => state :: countdown newState

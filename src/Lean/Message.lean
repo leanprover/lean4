@@ -147,6 +147,13 @@ def kind : MessageData → Name
   | tagged n _              => n
   | _                       => .anonymous
 
+def isTrace : MessageData → Bool
+  | withContext _ msg       => msg.isTrace
+  | withNamingContext _ msg => msg.isTrace
+  | tagged _ msg            => msg.isTrace
+  | .trace _ _ _            => true
+  | _                       => false
+
 /-- An empty message. -/
 def nil : MessageData :=
   ofFormat Format.nil
@@ -423,6 +430,9 @@ namespace Message
 
 @[inherit_doc MessageData.kind] abbrev kind (msg : Message) :=
   msg.data.kind
+
+def isTrace (msg : Message) : Bool :=
+  msg.data.isTrace
 
 /-- Serializes the message, converting its data into a string and saving its kind. -/
 @[inline] def serialize (msg : Message) : BaseIO SerialMessage := do

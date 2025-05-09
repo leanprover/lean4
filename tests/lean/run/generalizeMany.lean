@@ -1,7 +1,7 @@
 set_option pp.analyze false
 
 /--
-info: p : (n : Nat) → Fin n → Prop
+trace: p : (n : Nat) → Fin n → Prop
 n : Nat
 v : Fin n
 n' : Nat

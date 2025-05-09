@@ -32,3 +32,17 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 example : (∀ _ : PUnit.{1}, True) ↔ ∀ _ : PUnit.{2}, True := by
   rfl
+
+inductive Test where
+  | mk (x : Prop)
+
+/--
+error: tactic 'rfl' failed, the left-hand side
+  (Test.mk (∀ (x : PUnit.{1}), True)).1
+is not definitionally equal to the right-hand side
+  (Test.mk (∀ (x : PUnit.{2}), True)).1
+⊢ (Test.mk (∀ (x : PUnit), True)).1 = (Test.mk (∀ (x : PUnit), True)).1
+-/
+#guard_msgs in
+example : (Test.mk (∀ _ : PUnit.{1}, True)).1 = (Test.mk (∀ _ : PUnit.{2}, True)).1 := by
+  rfl

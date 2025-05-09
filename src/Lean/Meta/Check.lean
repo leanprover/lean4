@@ -89,6 +89,12 @@ where
           return (a, b)
         else
           return (a.setPPUniverses true, b.setPPUniverses true)
+      | .proj _ i a', .proj _ j b' =>
+        if i != j then
+          return (a, b)
+        else
+          let (a', b') ← visit a' b'
+          return (a.updateProj! a', b.updateProj! b')
       | .app .., .app .. =>
         if a.getAppNumArgs != b.getAppNumArgs then
           return (a, b)

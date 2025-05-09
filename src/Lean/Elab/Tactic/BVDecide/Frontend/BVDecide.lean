@@ -225,11 +225,11 @@ where
           throwError m!"Value for Int64 was not 64 bit but {value.w} bit"
       | _ =>
         match var with
-        | .app (.const (.str p s) []) arg =>
+        | .app (.const (.str p s) levels) arg =>
           if s == Normalize.enumToBitVecSuffix then
             let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
             let ctors := inductiveInfo.ctors
-            let enumVal := mkConst ctors[value.bv.toNat]!
+            let enumVal := mkConst ctors[value.bv.toNat]! levels
             return (arg, enumVal)
           else
             return (var, toExpr value.bv)

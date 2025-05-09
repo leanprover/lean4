@@ -15,7 +15,11 @@ def declareBuiltinDocStringAndRanges (declName : Name) : AttrM Unit := do
   if let some declRanges ← findDeclarationRanges? declName then
     declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
 
-builtin_initialize
+/--
+Makes the documentation and location of a declaration available as a builtin.
+-/
+@[builtin_init, builtin_doc]
+private def initFn :=
   registerBuiltinAttribute {
     name  := `builtin_doc
     descr := "make the docs and location of this declaration available as a builtin"

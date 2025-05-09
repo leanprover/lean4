@@ -11,6 +11,31 @@ import Lean.Elab.InfoTree
 
 namespace Lean.Compiler
 
+/--
+Instructs the compiler to use a different function as implementation for a function.
+Similarly to `@[extern]`, this causes the function to not be compiled and all compiler related
+attributes (e.g. `noncomputable`, `@[inline]`) to be ignored.
+
+The most common use cases of `@[implemented_by]` are to provide an efficient unsafe implementation
+and to make an unsafe function accessible through an opaque function:
+
+```
+unsafe def fooUnsafe (x : Bool) : UInt8 := unsafeCast x
+
+@[implemented_by fooUnsafe]
+def foo : Bool → UInt8 | false => 0 | true => 1
+
+unsafe def barUnsafe (x : Nat) : Nat := ...
+
+@[implemented_by barUnsafe]
+opaque bar (x : Nat) : Nat
+```
+
+Note: the provided implementation will not be checked to be correct, thus making it possible to
+prove `False` with `native_decide` using incorrect implementations. For a safer variant of this
+attribute that however only works for providing safe implementations, see `@[csimp]`.
+-/
+@[builtin_doc]
 builtin_initialize implementedByAttr : ParametricAttribute Name ← registerParametricAttribute {
   name := `implemented_by
   descr := "name of the Lean (probably unsafe) function that implements opaque constant"

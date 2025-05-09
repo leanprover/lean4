@@ -84,6 +84,11 @@ where
       | _, .mdata _ b' =>
         let (a, b') ← visit a b'
         return (a, b.updateMData! b')
+      | .const nm _, .const nm' _ =>
+        if nm != nm' then
+          return (a, b)
+        else
+          return (a.setPPUniverses true, b.setPPUniverses true)
       | .app .., .app .. =>
         if a.getAppNumArgs != b.getAppNumArgs then
           return (a, b)

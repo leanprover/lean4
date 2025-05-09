@@ -121,9 +121,9 @@ private def getPendingMVarErrorMessage (views : Array DefView) : MessageData :=
     MessageData.note m!"Recall that you cannot declare multiple constants in a single declaration. The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}."
   | none =>
     if views.all fun view => view.kind.isTheorem then
-      MessageData.note "note: all holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be"
+      MessageData.note "All holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be"
     else
-      MessageData.note "note: when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
+      MessageData.note "When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
 
 /--
 Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.

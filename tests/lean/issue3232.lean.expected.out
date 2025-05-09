@@ -10,7 +10,7 @@ with the goal
   (1 : Nat) = 1
 ⊢ 1 = 1
 issue3232.lean:11:2-11:25: error: tactic 'apply' failed, could not unify the type of `Eq.refl PUnit`
-  Eq.{1} PUnit PUnit
+  Eq.{2} PUnit PUnit
 with the goal
-  Eq.{0} PUnit PUnit
+  Eq.{1} PUnit PUnit
 ⊢ PUnit = PUnit

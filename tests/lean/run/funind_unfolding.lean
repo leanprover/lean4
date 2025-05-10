@@ -170,6 +170,7 @@ info: map.induct_unfolding (f : Nat → Bool) (motive : List Nat → List Bool �
 
 namespace BinaryWF
 
+-- set_option trace.Meta.FunInd true in
 def map2 (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
   | x::xs, y::ys => f x y::map2 f xs ys
   | _, _ => []

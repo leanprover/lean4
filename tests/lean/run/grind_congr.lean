@@ -47,3 +47,6 @@ example (a b c d e v : Nat) : f v = c → f (g b) = d → a = e → b = e → v 
 -- arrow congruence test
 example : α = α' → α'' = α' → β' = β → (α → β) = (α'' → β') := by
   grind
+
+example (a b c : Nat) (h₁ : a = c) (h₂ : b = c) : (a = b → Nat) = (b = a → Nat) := by
+  grind

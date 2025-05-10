@@ -681,10 +681,12 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
         throwError m!"Type of {.ofConstName eqnThm} is not an equality"
       if !(← isDefEq e lhs) then
         throwError m!"Left-hand side {lhs} of {.ofConstName eqnThm} does not apply to {e}"
-      for h in hyps do
-        h.refl <|> pure ()
-      for h in hyps do
-        h.assumption <|> pure ()
+      -- Here we instantiate the hypotheses of the generalized equation theorem
+      -- With more book keeping we could do this very precisely; for now let's see
+      -- if heuristics are good enough.
+      -- It seems that first trying all `.assumtions` and then all `rfl` works best
+      for h in hyps do h.assumption <|> pure ()
+      for h in hyps do h.refl <|> pure () -- this should handle cases where the pattern is a variable
       for h in hyps do
         unless (← h.isAssigned) do
           throwError m!"Failed to resolve {h}"

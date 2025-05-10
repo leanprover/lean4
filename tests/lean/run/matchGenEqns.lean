@@ -150,6 +150,24 @@ info: myNamedPatternTest.match_1.gen_eq_1.{u_1} (motive : List Bool → Sort u_1
 #guard_msgs in
 #check myNamedPatternTest.match_1.gen_eq_1
 
+def testMe (n : Nat) : Bool :=
+  match _ : n - 2 with
+  | 0 => true
+  | m => false
+
+/--
+info: testMe.match_1.gen_eq_2.{u_1} (motive : Nat → Sort u_1) (x✝ : Nat) (h_1 : x✝ = 0 → motive 0)
+  (h_2 : (m : Nat) → x✝ = m → motive m) (m : Nat) (heq_1 : x✝ = m) :
+  (m = 0 → False) →
+    HEq
+      (match h : x✝ with
+      | 0 => h_1 h
+      | m => h_2 m h)
+      (h_2 m heq_1)
+-/
+#guard_msgs in
+#check testMe.match_1.gen_eq_2
+
 -- JFR: Code to check if all matchers with equations also have generalize equations
 /-
 open Lean Meta in

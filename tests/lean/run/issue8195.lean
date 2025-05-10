@@ -60,3 +60,18 @@ def depTestOddType (l : List Nat) :
     (match h : x == 3 with
     | false => someFunction x h
     | true => () : if x == 3 then Unit else Nat)
+
+
+-- set_option trace.Meta.FunInd true in
+set_option linter.unusedVariables false in
+def testMe (n : Nat) : Bool :=
+  match _ : n - 2 with
+  | 0 => true
+  | m => false
+
+/--
+info: testMe.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : ∀ (n : Nat), n - 2 = 0 → motive n true)
+  (case2 : ∀ (n : Nat), (n - 2 = 0 → False) → motive n false) (n : Nat) : motive n (testMe n)
+-/
+#guard_msgs in
+#check testMe.fun_cases_unfolding

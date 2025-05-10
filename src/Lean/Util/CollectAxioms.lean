@@ -9,20 +9,19 @@ import Lean.Util.FoldConsts
 
 namespace Lean
 
-namespace CollectAxioms
-
-structure State where
+private structure State where
   visited : NameSet    := {}
   axioms  : Array Name := #[]
 
-abbrev M := ReaderT Environment $ StateM State
-
-partial def collect (c : Name) : M Unit := do
-  let collectExpr (e : Expr) : M Unit := e.getUsedConstants.forM collect
+partial def collectAxioms [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m (Array Name) := do
+  let (_, s) ← (collect constName).run {}
+  pure s.axioms
+where collect (c : Name) : StateT State m Unit := do
+  let collectExpr (e : Expr) : StateT State m Unit := e.getUsedConstants.forM collect
   let s ← get
   unless s.visited.contains c do
     modify fun s => { s with visited := s.visited.insert c }
-    let env ← read
+    let env ← getEnv
     -- We should take the constant from the kernel env, which may differ from the one in the elab
     -- env in case of (async) errors.
     match env.checked.get.find? c with
@@ -34,13 +33,6 @@ partial def collect (c : Name) : M Unit := do
     | some (ConstantInfo.ctorInfo v)   => collectExpr v.type
     | some (ConstantInfo.recInfo v)    => collectExpr v.type
     | some (ConstantInfo.inductInfo v) => collectExpr v.type *> v.ctors.forM collect
-    | none                             => pure ()
-
-end CollectAxioms
-
-def collectAxioms [Monad m] [MonadEnv m] (constName : Name) : m (Array Name) := do
-  let env ← getEnv
-  let (_, s) := ((CollectAxioms.collect constName).run env).run {}
-  pure s.axioms
+    | none                             => liftM (m := m) <| throwError "unknown constant '{c}'"
 
 end Lean

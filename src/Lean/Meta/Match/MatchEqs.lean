@@ -840,7 +840,7 @@ example : genEqn1ThmSuffix = "gen_eq_1" := rfl
 
 /-- Returns `true` if `s` is of the form `eq_<idx>` -/
 def isGenEqnReservedNameSuffix (s : String) : Bool :=
-  genEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop 3).isNat
+  genEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop genEqnThmSuffixBasePrefix.length).isNat
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
 builtin_initialize matchGenEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←

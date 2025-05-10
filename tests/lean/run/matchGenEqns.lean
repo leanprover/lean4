@@ -1,5 +1,3 @@
-import Lean
-
 /-!
 Tricky cases and regressions tests for generalized match equations.
 -/
@@ -12,9 +10,6 @@ def myTest {α}
   match (generalizing := false) h : x with
   | (a :: dc) => h_1 a dc h
   | x' => h_2 x' h
-
--- set_option trace.Meta.Match.matchEqs true in
-run_meta do let _ ← Lean.Tactic.FunInd.Match.genGeneralizedMatchEqns ``myTest.match_1
 
 -- #check myTest.match_1
 /--
@@ -65,9 +60,6 @@ info: take.match_1.{u_1, u_2} {α : Type u_1} (motive : Nat → List α → Sort
 #guard_msgs in
 #check take.match_1
 
--- set_option trace.Meta.Match.matchEqs true in
-run_meta do let _ ← Lean.Tactic.FunInd.Match.genGeneralizedMatchEqns ``take.match_1
-
 /--
 info: take.match_1.gen_eq_1.{u_1, u_2} {α : Type u_1} (motive : Nat → List α → Sort u_2) (n✝ : Nat) (xs✝ : List α)
   (h_1 : (x : List α) → motive 0 x) (h_2 : (n : Nat) → motive n.succ [])
@@ -88,8 +80,6 @@ def matchOptionUnit (o? : Option Unit) : Bool := Id.run do
     else
       false
 
-run_meta do let _ ← Lean.Tactic.FunInd.Match.genGeneralizedMatchEqns ``matchOptionUnit.match_1
-
 /--
 info: matchOptionUnit.match_1.gen_eq_1.{u_1} (motive : Option Unit → Sort u_1) (o?✝ : Option Unit)
   (h_1 : (val : Unit) → motive (some val)) (h_2 : (x : Option Unit) → motive x) (val✝ : Unit)
@@ -103,78 +93,30 @@ info: matchOptionUnit.match_1.gen_eq_1.{u_1} (motive : Option Unit → Sort u_1)
 #guard_msgs in
 #check matchOptionUnit.match_1.gen_eq_1
 
--- If checking this internal of the BVDecide tactic here turns out to be annoying, just remove --
--- this test
-run_meta do let _ ← Lean.Tactic.FunInd.Match.genGeneralizedMatchEqns ``Std.Tactic.BVDecide.BVExpr.bitblast.go.match_5
-
-/--
-info: Std.Tactic.BVDecide.BVExpr.bitblast.go.match_5.gen_eq_7.{u_1}
-  (motive : (w : Nat) → Std.Tactic.BVDecide.BVExpr w → Sort u_1) (w✝ : Nat) (expr✝ : Std.Tactic.BVDecide.BVExpr w✝)
-  (h_1 : (w a : Nat) → motive w (Std.Tactic.BVDecide.BVExpr.var a))
-  (h_2 : (w : Nat) → (val : BitVec w) → motive w (Std.Tactic.BVDecide.BVExpr.const val))
-  (h_3 :
-    (w : Nat) →
-      (lhsExpr : Std.Tactic.BVDecide.BVExpr w) →
-        (op : Std.Tactic.BVDecide.BVBinOp) →
-          (rhsExpr : Std.Tactic.BVDecide.BVExpr w) → motive w (lhsExpr.bin op rhsExpr))
-  (h_4 :
-    (w : Nat) →
-      (op : Std.Tactic.BVDecide.BVUnOp) →
-        (expr : Std.Tactic.BVDecide.BVExpr w) → motive w (Std.Tactic.BVDecide.BVExpr.un op expr))
-  (h_5 :
-    (w l r : Nat) →
-      (lhs : Std.Tactic.BVDecide.BVExpr l) →
-        (rhs : Std.Tactic.BVDecide.BVExpr r) → (h : w = l + r) → motive w (lhs.append rhs h))
-  (h_6 :
-    (w w_1 n : Nat) →
-      (expr : Std.Tactic.BVDecide.BVExpr w_1) →
-        (h : w = w_1 * n) → motive w (Std.Tactic.BVDecide.BVExpr.replicate n expr h))
-  (h_7 :
-    (len w start : Nat) →
-      (expr : Std.Tactic.BVDecide.BVExpr w) → motive len (Std.Tactic.BVDecide.BVExpr.extract start len expr))
-  (h_8 :
-    (w n : Nat) →
-      (lhs : Std.Tactic.BVDecide.BVExpr w) → (rhs : Std.Tactic.BVDecide.BVExpr n) → motive w (lhs.shiftLeft rhs))
-  (h_9 :
-    (w n : Nat) →
-      (lhs : Std.Tactic.BVDecide.BVExpr w) → (rhs : Std.Tactic.BVDecide.BVExpr n) → motive w (lhs.shiftRight rhs))
-  (h_10 :
-    (w n : Nat) →
-      (lhs : Std.Tactic.BVDecide.BVExpr w) → (rhs : Std.Tactic.BVDecide.BVExpr n) → motive w (lhs.arithShiftRight rhs))
-  (len w✝¹ start : Nat) (expr : Std.Tactic.BVDecide.BVExpr w✝¹) (heq_1 : w✝ = len)
-  (heq_2 : HEq expr✝ (Std.Tactic.BVDecide.BVExpr.extract start len expr)) :
-  HEq
-    (match w✝, expr✝ with
-    | w, Std.Tactic.BVDecide.BVExpr.var a => h_1 w a
-    | w, Std.Tactic.BVDecide.BVExpr.const val => h_2 w val
-    | w, lhsExpr.bin op rhsExpr => h_3 w lhsExpr op rhsExpr
-    | w, Std.Tactic.BVDecide.BVExpr.un op expr => h_4 w op expr
-    | w, lhs.append rhs h => h_5 w l r lhs rhs h
-    | w, Std.Tactic.BVDecide.BVExpr.replicate n expr h => h_6 w w_1 n expr h
-    | len, Std.Tactic.BVDecide.BVExpr.extract start .(len) expr => h_7 len w start expr
-    | w, lhs.shiftLeft rhs => h_8 w n lhs rhs
-    | w, lhs.shiftRight rhs => h_9 w n lhs rhs
-    | w, lhs.arithShiftRight rhs => h_10 w n lhs rhs)
-    (h_7 len w✝¹ start expr)
--/
-#guard_msgs in
-#check Std.Tactic.BVDecide.BVExpr.bitblast.go.match_5.gen_eq_7
-
 set_option linter.unusedVariables false in
-private partial def utf16PosToCodepointPosFromAux (s : String) : Nat → String.Pos → Nat → Bool
+partial def utf16PosToCodepointPosFromAux (s : String) : Nat → String.Pos → Nat → Bool
   | 0,        _,       cp => true
   | utf16pos, utf8pos, cp => false
 
-run_meta do let _ ← Lean.Tactic.FunInd.Match.genGeneralizedMatchEqns ``utf16PosToCodepointPosFromAux.match_1
+/--
+info: utf16PosToCodepointPosFromAux.match_1.gen_eq_1.{u_1} (motive : Nat → String.Pos → Nat → Sort u_1) (x✝ : Nat)
+  (x✝¹ : String.Pos) (x✝² : Nat) (h_1 : (x : String.Pos) → (cp : Nat) → motive 0 x cp)
+  (h_2 : (utf16pos : Nat) → (utf8pos : String.Pos) → (cp : Nat) → motive utf16pos utf8pos cp) (x✝³ : String.Pos)
+  (cp : Nat) (heq_1 : x✝ = 0) (heq_2 : x✝¹ = x✝³) (heq_3 : x✝² = cp) :
+  HEq
+    (match x✝, x✝¹, x✝² with
+    | 0, x, cp => h_1 x cp
+    | utf16pos, utf8pos, cp => h_2 utf16pos utf8pos cp)
+    (h_1 x✝³ cp)
+-/
+#guard_msgs in
+#check utf16PosToCodepointPosFromAux.match_1.gen_eq_1
 
 opaque some_expr : Option Nat
 def wrongEq (m? : Option Nat) (h : some_expr = m?)
   (w : 0 < m?.getD 0) : Bool := by
   match m?, w with
   | some m?, _ => exact true
-
-
-run_meta do let _ ← Lean.Tactic.FunInd.Match.genGeneralizedMatchEqns ``wrongEq.match_1
 
 /--
 info: wrongEq.match_1.gen_eq_1.{u_1} (motive : (m? : Option Nat) → 0 < m?.getD 0 → some_expr = m? → Sort u_1)
@@ -195,8 +137,6 @@ noncomputable def myNamedPatternTest (x : List Bool) : Bool :=
   | x'@hx':(x::xs) => false
   | x' => true
 
-run_meta do let _ ← Lean.Tactic.FunInd.Match.genGeneralizedMatchEqns ``myNamedPatternTest.match_1
-
 /--
 info: myNamedPatternTest.match_1.gen_eq_1.{u_1} (motive : List Bool → Sort u_1) (x✝ : List Bool)
   (h_1 : (x' : List Bool) → (x : Bool) → (xs : List Bool) → x' = x :: xs → x✝ = x :: xs → motive (x :: xs))
@@ -210,6 +150,8 @@ info: myNamedPatternTest.match_1.gen_eq_1.{u_1} (motive : List Bool → Sort u_1
 #guard_msgs in
 #check myNamedPatternTest.match_1.gen_eq_1
 
+-- JFR: Code to check if all matchers with equations also have generalize equations
+/-
 open Lean Meta in
 run_meta do
   -- if false do -- comment this line to run the test on all matchers in the environment
@@ -224,6 +166,7 @@ run_meta do
           pure ()
         if ok then
           try
-            let _ ← Lean.Tactic.FunInd.Match.genGeneralizedMatchEqns k
+            let _ ← Lean.Meta.Match.Match.genGeneralizedMatchEqns k
           catch e =>
             logError m!"failed to generate equations for {k} in {.ofConstName k.getPrefix}\n{indentD e.toMessageData}"
+-/

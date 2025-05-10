@@ -359,14 +359,6 @@ partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefaul
   else
     return none
 
-private def heqToEqSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
-  for localDecl in (← getLCtx) do
-    if let some (α, _lhs, β, _rhs) ← matchHEq? localDecl.type then
-    if (← isDefEq α β) then
-      let (_, mvarId') ← heqToEq mvarId localDecl.fvarId (tryToClear := true)
-      return #[mvarId']
-  throwError "substSomeVar failed"
-
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
     if let some (_, lhs, rhs) ← matchEqHEq? localDecl.type then
@@ -428,10 +420,6 @@ where
       (do mvarId.refl; return #[])
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])
-      -- <|>
-      -- (heqToEqSomeVar mvarId)
-      <|>
-      (substSomeVar mvarId)
       <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
@@ -446,6 +434,8 @@ where
             return #[mvarId₁, s₂.mvarId]
           else
             throwError "spliIf failed")
+      <|>
+      (substSomeVar mvarId)
       <|>
       (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))

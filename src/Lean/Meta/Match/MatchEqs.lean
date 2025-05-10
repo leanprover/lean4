@@ -375,43 +375,36 @@ private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
   mvarId.deltaTarget (· == ``Nat.elimOffset)
 
 /--
-  Helper method for proving a conditional equational theorem associated with an alternative of
-  the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem. -/
+Helper method for proving a conditional equational theorem associated with an alternative of
+the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
+
+The `heqPos`/`heqNum` arguments indicate that these hypotheses are `Eq`/`HEq` hypotheses
+to substitute first; this is used for the generalized match equations.
+-/
 partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
   (heqPos : Nat := 0) (heqNum : Nat := 0) : MetaM Expr := withLCtx {} {} do
   let type ← instantiateMVars type
-  if heqNum = 0 then
-    forallTelescope type fun ys target => withDefault do
-      let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
-      trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
-      let mvarId ← mvar0.mvarId!.deltaTarget (· == matchDeclName)
-      go mvarId 0
-      mkLambdaFVars ys (← instantiateMVars mvar0)
-  else
-    forallBoundedTelescope type heqPos fun ys target => withDefault do
-      let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
-      trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
-      goSubst mvar0.mvarId! 0
-      mkLambdaFVars ys (← instantiateMVars mvar0)
-
+  let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
+  trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
+  let mut mvarId := mvar0.mvarId!
+  if heqNum > 0 then
+    mvarId := (← mvarId.introN heqPos).2
+    for _ in [:heqNum] do
+      let (h, mvarId') ← mvarId.intro1
+      mvarId ← subst mvarId' h
+    trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvar0.mvarId!}"
+  mvarId := (← mvarId.intros).2
+  mvarId ← mvarId.deltaTarget (· == matchDeclName)
+  go mvarId 0
+  instantiateMVars mvar0
 where
-  goSubst (mvarId : MVarId) (i : Nat) : MetaM Unit := withIncRecDepth do
-    if i < heqNum then
-      let (h, mvarId) ← mvarId.intro1
-      let mvarId ← subst mvarId h
-      goSubst mvarId (i+1)
-    else
-      let (_, mvarId) ← mvarId.intros
-      let mvarId ← mvarId.deltaTarget (· == matchDeclName)
-      go mvarId 0
-
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
     let mvarId' ← observing? <| mvarId.modifyTargetEqLHS whnfCore
     let mvarId := mvarId'.getD mvarId
     let subgoals ←
       (do
-        -- mvarId.heqOfEq does not fail
+        -- MVarId.heqOfEq does not fail, so use `MVarId.apply`
         mvarId.withContext do
           let mvarIds ← mvarId.apply (mkConst ``heq_of_eq [← mkFreshLevelMVar])
           return mvarIds.toArray

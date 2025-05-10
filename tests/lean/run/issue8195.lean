@@ -45,6 +45,8 @@ info: deptest.induct_unfolding (motive : List Nat → Nat → Prop) (case1 : mot
 #guard_msgs in
 #check deptest.induct_unfolding
 
+-- This one doesn't work, the result type varies in the branches
+-- But we fail gracefully
 def depTestOddType (l : List Nat) :
     match l with
     | [] => Unit
@@ -61,6 +63,33 @@ def depTestOddType (l : List Nat) :
     | false => someFunction x h
     | true => () : if x == 3 then Unit else Nat)
 
+/--
+info: depTestOddType.fun_cases_unfolding
+  (motive :
+    (l : List Nat) →
+      (match l with
+        | [] => Unit
+        | x :: tail => if (x == 3) = true then Unit else Nat) →
+        Prop)
+  (case1 : motive [] ())
+  (case2 :
+    ∀ (x : Nat) (l : List Nat),
+      (x == 3) = false →
+        motive (x :: l)
+          (match h : x == 3 with
+          | false => someFunction x h
+          | true => ()))
+  (case3 :
+    ∀ (x : Nat) (l : List Nat),
+      (x == 3) = true →
+        motive (x :: l)
+          (match h : x == 3 with
+          | false => someFunction x h
+          | true => ()))
+  (l : List Nat) : motive l (depTestOddType l)
+-/
+#guard_msgs in
+#check depTestOddType.fun_cases_unfolding
 
 -- set_option trace.Meta.FunInd true in
 set_option linter.unusedVariables false in

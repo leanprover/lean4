@@ -509,7 +509,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
             -- statement and the inferred alt types
             let dummyGoal := mkConst ``True []
             mkArrow eTypeAbst dummyGoal)
-          (onAlt := fun altType alt => do
+          (onAlt := fun _altIdx altType alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
@@ -527,7 +527,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onMotive := fun _motiveArgs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
             M.eval (foldAndCollect oldIH newIH isRecCall body))
-          (onAlt := fun altType alt => do
+          (onAlt := fun _altIdx altType alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
             -- We don't have suitable newIH around here, but we don't care since
             -- we just want to fold calls. So lets create a fake one.
@@ -832,7 +832,7 @@ def rwFun (names : Array Name) (e : Expr) : MetaM Simp.Result := do
     else
       return { expr := e }
 
-def rwMatcher (e : Expr) : MetaM Simp.Result := do
+def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
   if e.isAppOf ``PSum.casesOn || e.isAppOf ``PSigma.casesOn then
     let mut e := e
     while true do
@@ -850,43 +850,44 @@ def rwMatcher (e : Expr) : MetaM Simp.Result := do
       return { expr := e }
     let matcherDeclName := e.getAppFn.constName!
     let eqns ← Match.genGeneralizedMatchEqns matcherDeclName
-    for eqThm in eqns do
-      try
-        let eqProof := mkAppN (mkConst eqThm e.getAppFn.constLevels!) e.getAppArgs
-        let (hyps, _, eqType) ← forallMetaTelescope (← inferType eqProof)
-        let proof := mkAppN eqProof hyps
-        let hyps := hyps.map (·.mvarId!)
-        let (isHeq, lhs, rhs) ← do
-          if let some (_, lhs, _, rhs) := eqType.heq? then pure (true, lhs, rhs) else
-          if let some (_, lhs, rhs) := eqType.eq? then pure (false, lhs, rhs) else
-          throwError m!"Type of {.ofConstName eqThm} is not an equality"
-        if !(← isDefEq e lhs) then
-          throwError m!"Left-hand side {lhs} of {.ofConstName eqThm} does not apply to {e}"
-        for h in hyps do
-          h.refl <|> pure ()
-        for h in hyps do
-          h.assumption <|> pure ()
-        for h in hyps do
-          unless (← h.isAssigned) do
-            throwError m!"Failed to resolve {h}"
-        let rhs ← instantiateMVars rhs
-        let proof ← instantiateMVars proof
-        let proof ← if isHeq then
-            try mkEqOfHEq proof
-            catch e => throwError m!"Could not un-HEq {proof}:{indentD e.toMessageData} "
-          else
-            pure proof
-        return {
-          expr := rhs
-          proof? := proof
-        }
-      catch ex =>
-        trace[Meta.FunInd] "Failed to apply {.ofConstName eqThm}:{indentD ex.toMessageData}"
-    return { expr := e }
-
+    unless altIdx < eqns.size do
+      trace[Tactic.FunInd] "Am supposed to reduce arm {altIdx}, but got only {eqns.size} equations for {.ofConstName matcherDeclName}"
+      return { expr := e }
+    let eqnThm := eqns[altIdx]!
+    try
+      let eqProof := mkAppN (mkConst eqnThm e.getAppFn.constLevels!) e.getAppArgs
+      let (hyps, _, eqType) ← forallMetaTelescope (← inferType eqProof)
+      let proof := mkAppN eqProof hyps
+      let hyps := hyps.map (·.mvarId!)
+      let (isHeq, lhs, rhs) ← do
+        if let some (_, lhs, _, rhs) := eqType.heq? then pure (true, lhs, rhs) else
+        if let some (_, lhs, rhs) := eqType.eq? then pure (false, lhs, rhs) else
+        throwError m!"Type of {.ofConstName eqnThm} is not an equality"
+      if !(← isDefEq e lhs) then
+        throwError m!"Left-hand side {lhs} of {.ofConstName eqnThm} does not apply to {e}"
+      for h in hyps do
+        h.refl <|> pure ()
+      for h in hyps do
+        h.assumption <|> pure ()
+      for h in hyps do
+        unless (← h.isAssigned) do
+          throwError m!"Failed to resolve {h}"
+      let rhs ← instantiateMVars rhs
+      let proof ← instantiateMVars proof
+      let proof ← if isHeq then
+          try mkEqOfHEq proof
+          catch e => throwError m!"Could not un-HEq {proof}:{indentD e.toMessageData} "
+        else
+          pure proof
+      return {
+        expr := rhs
+        proof? := proof
+      }
+    catch ex =>
+      trace[Meta.FunInd] "Failed to apply {.ofConstName eqnThm}:{indentD ex.toMessageData}"
+      return { expr := e }
 
 /--
-
 Builds an expression of type `goal` by replicating the expression `e` into its tail-call-positions,
 where it calls `buildInductionCase`. Collects the cases of the final induction hypothesis
 as `MVars` as it goes.
@@ -965,13 +966,13 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => M2.branch do
+        (onAlt := fun altIdx expAltType alt => M2.branch do
           lambdaTelescope1 alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
               let toErase' := toErase ++ #[oldIH', newIH'.fvarId!]
               let toClear' := toClear ++ matcherApp.discrs.filterMap (·.fvarId?)
-              let alt' ← withRewrittenMotiveArg goal' rwMatcher fun goal'' => do
+              let alt' ← withRewrittenMotiveArg goal' (rwMatcher altIdx) fun goal'' => do
                 -- logInfo m!"rwMatcher after {matcherApp.matcherName} on{indentExpr goal'}\nyields{indentExpr goal''}"
                 buildInductionBody toErase' toClear' goal'' oldIH' newIH'.fvarId! isRecCall alt
               mkLambdaFVars #[newIH'] alt')
@@ -988,8 +989,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => M2.branch do
-          withRewrittenMotiveArg expAltType rwMatcher fun expAltType' =>
+        (onAlt := fun altIdx expAltType alt => M2.branch do
+          withRewrittenMotiveArg expAltType (rwMatcher altIdx) fun expAltType' =>
             buildInductionBody toErase toClear expAltType' oldIH newIH isRecCall alt)
       return matcherApp'.toExpr
 

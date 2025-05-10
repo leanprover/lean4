@@ -130,7 +130,7 @@ theorem getElem?_intersperse_two_mul_add_one {l : List α} (sep : α) (h : i + 1
     (l.intersperse sep)[2 * i + 1]? = some sep := by
   fun_induction intersperse generalizing i <;> try contradiction
   next hn _ =>
-    have ⟨_, tl, hn⟩ := ne_nil_iff_exists_cons.mp hn
+    have ⟨_, tl, _⟩ := ne_nil_iff_exists_cons.mp hn
     cases tl <;> cases i <;> simp_all +arith
 
 /-! ### eraseIdx -/

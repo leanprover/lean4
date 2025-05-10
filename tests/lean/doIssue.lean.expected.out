@@ -10,9 +10,9 @@ has type
   Array Nat : Type
 but is expected to have type
   IO PUnit : Type
-doIssue.lean:18:7-18:20: error: application type mismatch
+doIssue.lean:18:7-18:20: error: Application type mismatch: In the appplication
   pure (xs.set! 0 1)
-argument
+the final argument
   xs.set! 0 1
 has type
   Array Nat : Type

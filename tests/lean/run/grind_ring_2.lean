@@ -73,11 +73,11 @@ example [CommRing α] (a b c : α)
   grind +ring
 
 /--
-info: [grind.ring.assert.basis] a + b + c + -3 = 0
+trace: [grind.ring.assert.basis] a + b + c + -3 = 0
 [grind.ring.assert.basis] 2 * b ^ 2 + 2 * (b * c) + 2 * c ^ 2 + -6 * b + -6 * c + 4 = 0
 [grind.ring.assert.basis] 6 * c ^ 3 + -18 * c ^ 2 + 12 * c + 4 = 0
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example [CommRing α] (a b c : α)
   : a + b + c = 3 →
     a^2 + b^2 + c^2 = 5 →
@@ -87,11 +87,11 @@ example [CommRing α] (a b c : α)
   grind +ring
 
 /--
-info: [grind.ring.assert.basis] a + b + c + -3 = 0
+trace: [grind.ring.assert.basis] a + b + c + -3 = 0
 [grind.ring.assert.basis] b ^ 2 + b * c + c ^ 2 + -3 * b + -3 * c + 2 = 0
 [grind.ring.assert.basis] 3 * c ^ 3 + -9 * c ^ 2 + 6 * c + 2 = 0
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example [CommRing α] [NoNatZeroDivisors α] (a b c : α)
   : a + b + c = 3 →
     a^2 + b^2 + c^2 = 5 →
@@ -112,8 +112,8 @@ example (a b c : BitVec 8) (f : BitVec 8 → Nat) : c = 255 → - a + b - 1 = c 
 example (a b c : BitVec 8) (f : BitVec 8 → Nat) : c = 255 → - a + b - 1 = c → f (2*a) = f (b + a) := by
   grind +ring
 
-/-- info: [grind.ring.impEq] skip: b = a, k: 2, noZeroDivisors: false -/
-#guard_msgs (info) in
+/-- trace: [grind.ring.impEq] skip: b = a, k: 2, noZeroDivisors: false -/
+#guard_msgs (trace) in
 example (a b c : BitVec 8) (f : BitVec 8 → Nat) : 2*a = 1 → 2*b = 1 → f (a) = f (b) := by
   set_option trace.grind.ring.impEq true in
   fail_if_success grind +ring

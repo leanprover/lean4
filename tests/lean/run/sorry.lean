@@ -84,7 +84,7 @@ error: unknown identifier 'a'
 ---
 error: unknown identifier 'b'
 ---
-info: ⊢ sorry = sorry
+trace: ⊢ sorry = sorry
 -/
 #guard_msgs in
 set_option autoImplicit false in
@@ -98,7 +98,7 @@ error: unknown identifier 'a'
 ---
 error: unknown identifier 'b'
 ---
-info: ⊢ sorry `«sorry:106:10» = sorry `«sorry:106:14»
+trace: ⊢ sorry `«sorry:106:10» = sorry `«sorry:106:14»
 -/
 #guard_msgs in
 set_option autoImplicit false in
@@ -111,7 +111,7 @@ This requires `Lean.Widget.ppExprTagged` to have a pretty printing mode that doe
 https://github.com/leanprover/lean4/issues/6715
 -/
 /--
-info: n : Nat := sorry
+trace: n : Nat := sorry
 ⊢ True
 ---
 warning: declaration uses 'sorry'

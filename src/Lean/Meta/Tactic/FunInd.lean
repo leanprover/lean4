@@ -719,6 +719,27 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     return mkApp4 (mkConst ``Bool.dcond [u]) goal c' t' f'
   | _ =>
 
+
+  -- Check for unreachable cases. We look for the kind of expressions that `by contradiction`
+  -- produces
+  match_expr e with
+  | False.elim _ h => do
+    return ← mkFalseElim goal h
+  | absurd _ _ h₁ h₂ => do
+    return ← mkAbsurd goal h₁ h₂
+  | _ => pure ()
+  if e.isApp && e.getAppFn.isConst && isNoConfusion (← getEnv) e.getAppFn.constName! then
+    let arity := (← inferType e.getAppFn).getNumHeadForalls -- crucially not reducing the noConfusionType in the type
+    let h := e.getArg! (arity - 1)
+    let hType ← inferType h
+    -- The following duplicates a bit of code from the contradiction tactic, maybe worth extracting
+    -- into a common helper at some point
+    if let some (_, lhs, rhs) ← matchEq? hType then
+      if let some lhsCtor ← matchConstructorApp? lhs then
+      if let some rhsCtor ← matchConstructorApp? rhs then
+      if lhsCtor.name != rhsCtor.name then
+        return (← mkNoConfusion goal h)
+
   -- we look in to `PProd.mk`, as it occurs in the mutual structural recursion construction
   match_expr goal with
   | And goal₁ goal₂ => match_expr e with

@@ -292,8 +292,11 @@ implementation.
 instance : Inhabited Float32 where
   default := UInt64.toFloat32 0
 
+protected def Float32.repr (n : Float32) (prec : Nat) : Std.Format :=
+  if n < UInt64.toFloat32 0 then Repr.addAppParen (toString n) prec else toString n
+
 instance : Repr Float32 where
-  reprPrec n prec := if n < UInt64.toFloat32 0 then Repr.addAppParen (toString n) prec else toString n
+  reprPrec := Float32.repr
 
 instance : ReprAtom Float32  := ⟨⟩
 

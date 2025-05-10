@@ -12,7 +12,7 @@ def z : Nat := 0
 set_option trace.Meta.Tactic.simp.rewrite true
 
 /--
-info: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
+trace: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
       binderNameHint x y z
     ==>
       z
@@ -24,7 +24,7 @@ example : binderNameHint x y z = 0 := by
   simp [x, y, z]
 
 /--
-info: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
+trace: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
       binderNameHint x y z
     ==>
       z

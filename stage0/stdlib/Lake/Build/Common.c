@@ -360,7 +360,6 @@ LEAN_EXPORT lean_object* l_Lake_buildUnlessUpToDate_x3f___rarg___lambda__1(lean_
 LEAN_EXPORT lean_object* l_Lake_buildLeanO(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_buildLeanO___lambda__6___closed__3;
 LEAN_EXPORT lean_object* l_Lake_MTime_checkUpToDate___at_Lake_buildFileUnlessUpToDate_x27___spec__3___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_flatMapTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_55____spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_bignumToJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_inputBinFile___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
@@ -444,6 +443,7 @@ LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lake_inputDir___spec__
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lake_buildFileUnlessUpToDate_x27___spec__5___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildFileUnlessUpToDate(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_flatMapTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_Basic___hyg_221____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lake_platformTrace___closed__5;
 LEAN_EXPORT lean_object* l_Lake_Job_bindM___at_Lake_buildSharedLib___spec__7___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lake_buildFileAfterDep___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -940,7 +940,7 @@ x_27 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_27, 0, x_9);
 lean_ctor_set(x_27, 1, x_26);
 x_28 = l_Lake_platformTrace___closed__3;
-x_29 = l_List_flatMapTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_55____spec__2(x_27, x_28);
+x_29 = l_List_flatMapTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_Basic___hyg_221____spec__1(x_27, x_28);
 x_30 = l_Lean_Json_mkObj(x_29);
 return x_30;
 }

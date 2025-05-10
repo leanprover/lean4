@@ -98,9 +98,68 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
 
   1. Eliminates arguments for named parameters and the associated equation proofs.
 
-  2. Equality parameters associated with the `h : discr` notation are replaced with `rfl` proofs.
-     Recall that this kind of parameter always occurs after the parameters correspoting to pattern variables.
-     `numNonEqParams` is the size of the prefix.
+  2. Instantiate the `Unit` parameter of an otherwise argumentless alternative.
+
+  It does not handle the equality parameters associated with the `h : discr` notation.
+
+  The continuation `k` takes four arguments `ys args mask type`.
+  - `ys` are variables for the hypotheses that have not been eliminated.
+  - `args` are the arguments for the alternative `alt` that has type `altType`. `ys.size <= args.size`
+  - `mask[i]` is true if the hypotheses has not been eliminated. `mask.size == args.size`.
+  - `type` is the resulting type for `altType`.
+
+  We use the `mask` to build the splitter proof. See `mkSplitterProof`.
+
+  This can be used to use the alternative of a match expression in its splitter.
+-/
+partial def forallAltVarsTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
+  (k : (patVars : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α) : MetaM α := do
+  go #[] #[] #[] 0 altType
+where
+  go (ys : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
+    let type ← whnfForall type
+    if i < altNumParams - numDiscrEqs then
+      let Expr.forallE n d b .. := type
+        | throwError "expecting {altNumParams} parameters, excluding {numDiscrEqs} equalities, but found type{indentExpr altType}"
+
+      -- Handle the special case of `Unit` parameters.
+      if i = 0 && altNumParams - numDiscrEqs = 1 && d.isConstOf ``Unit && !b.hasLooseBVars then
+        return ← k #[] #[mkConst ``Unit.unit] #[false] b
+
+      let d ← Match.unfoldNamedPattern d
+      withLocalDeclD n d fun y => do
+        let typeNew := b.instantiate1 y
+        if let some (_, lhs, rhs) ← matchEq? d then
+          if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
+              let some j  := ys.finIdxOf? lhs | unreachable!
+              let ys      := ys.eraseIdx j
+              let some k  := args.idxOf? lhs | unreachable!
+              let mask    := mask.set! k false
+              let args    := args.map fun arg => if arg == lhs then rhs else arg
+              let arg     ← mkEqRefl rhs
+              let typeNew := typeNew.replaceFVar lhs rhs
+              return ← withReplaceFVarId lhs.fvarId! rhs do
+              withReplaceFVarId y.fvarId! arg do
+                go ys (args.push arg) (mask.push false) (i+1) typeNew
+        go (ys.push y) (args.push y) (mask.push true) (i+1) typeNew
+    else
+      let type ← Match.unfoldNamedPattern type
+      k ys args mask type
+
+  isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
+    Option.isSome <| type.find? fun e =>
+      if let some e := Match.isNamedPattern? e then
+        e.appArg! == h
+      else
+        false
+
+
+/--
+  Extension of `forallAltTelescope` that continues further:
+
+  Equality parameters associated with the `h : discr` notation are replaced with `rfl` proofs.
+  Recall that this kind of parameter always occurs after the parameters corresponding to pattern
+  variables.
 
   The continuation `k` takes four arguments `ys args mask type`.
   - `ys` are variables for the hypotheses that have not been eliminated.
@@ -116,57 +175,45 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
 partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
     (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
     : MetaM α := do
-  go #[] #[] #[] #[] 0 altType
+  forallAltVarsTelescope altType altNumParams numDiscrEqs fun ys args mask altType => do
+    go ys #[] args mask 0 altType
 where
   go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
-    if i < altNumParams then
+    if i < numDiscrEqs then
       let Expr.forallE n d b .. := type
         | throwError "expecting {altNumParams} parameters, including {numDiscrEqs} equalities, but found type{indentExpr altType}"
-      if i < altNumParams - numDiscrEqs then
-        let d ← unfoldNamedPattern d
-        withLocalDeclD n d fun y => do
-          let typeNew := b.instantiate1 y
-          if let some (_, lhs, rhs) ← matchEq? d then
-            if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
-               let some j  := ys.finIdxOf? lhs | unreachable!
-               let ys      := ys.eraseIdx j
-               let some k  := args.idxOf? lhs | unreachable!
-               let mask    := mask.set! k false
-               let args    := args.map fun arg => if arg == lhs then rhs else arg
-               let arg     ← mkEqRefl rhs
-               let typeNew := typeNew.replaceFVar lhs rhs
-               return ← withReplaceFVarId lhs.fvarId! rhs do
-                withReplaceFVarId y.fvarId! arg do
-                  go ys eqs (args.push arg) (mask.push false) (i+1) typeNew
-          go (ys.push y) eqs (args.push y) (mask.push true) (i+1) typeNew
+      let arg ← if let some (_, _, rhs) ← matchEq? d then
+        mkEqRefl rhs
+      else if let some (_, _, _, rhs) ← matchHEq? d then
+        mkHEqRefl rhs
       else
-        let arg ← if let some (_, _, rhs) ← matchEq? d then
-          mkEqRefl rhs
-        else if let some (_, _, _, rhs) ← matchHEq? d then
-          mkHEqRefl rhs
-        else
-          throwError "unexpected match alternative type{indentExpr altType}"
-        withLocalDeclD n d fun eq => do
-          let typeNew := b.instantiate1 eq
-          go ys (eqs.push eq) (args.push arg) (mask.push false) (i+1) typeNew
+        throwError "unexpected match alternative type{indentExpr altType}"
+      withLocalDeclD n d fun eq => do
+        let typeNew := b.instantiate1 eq
+        go ys (eqs.push eq) (args.push arg) (mask.push false) (i+1) typeNew
     else
       let type ← unfoldNamedPattern type
-      /- Recall that alternatives that do not have variables have a `Unit` parameter to ensure
-         they are not eagerly evaluated. -/
-      if ys.size == 1 then
-        if (← inferType ys[0]!).isConstOf ``Unit && !(← dependsOn type ys[0]!.fvarId!) then
-          let rhs := mkConst ``Unit.unit
-          return ← withReplaceFVarId ys[0]!.fvarId! rhs do
-          return (← k #[] #[] #[rhs] #[false] type)
       k ys eqs args mask type
 
-  isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
-    Option.isSome <| type.find? fun e =>
-      if let some e := isNamedPattern? e then
-        e.appArg! == h
-      else
-        false
+/--
+Given an application of an matcher arm `alt` that is expecting the `numDiscrEqs`, and
+an array of `discr = pattern` equalities (one for each discriminant), apply those that
+are expected by the alternative.
+-/
+partial def mkAppDiscrEqs (alt : Expr) (heqs : Array Expr) (numDiscrEqs : Nat) : MetaM Expr := do
+  go alt (← inferType alt) 0
+where
+  go e ty i := do
+    if i < numDiscrEqs then
+      let Expr.forallE n d b .. := ty
+        | throwError "expecting {numDiscrEqs} equalities, but found type{indentExpr alt}"
+      for heq in heqs do
+        if (← isDefEq (← inferType heq) d) then
+          return ← go (mkApp e heq) (b.instantiate1 heq) (i+1)
+      throwError "Could not find equation {n} : {d} among {heqs}"
+    else
+      return e
 
 namespace SimpH
 

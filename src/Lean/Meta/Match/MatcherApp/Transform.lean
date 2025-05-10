@@ -190,8 +190,8 @@ private def forallAltTelescope'
     {α} (origAltType : Expr) (numParams numDiscrEqs : Nat)
     (k : Array Expr → Array Expr → n α) : n α := do
   map2MetaM (fun k =>
-    Match.forallAltTelescope origAltType (numParams - numDiscrEqs) 0
-      fun ys _eqs args _mask _bodyType => k ys args
+    Match.forallAltVarsTelescope origAltType numParams numDiscrEqs
+      fun ys args _mask _bodyType => k ys args
   ) k
 
 /--

@@ -28,23 +28,67 @@ private def ensureInternalized (e : Expr) : GoalM Expr := do
     internalize e 0
     return e
 
+/-!
+`abstractGroundMismatches?` is an auxiliary function for creating auxiliary equality
+proofs. When trying to prove `lhs = rhs`, we use two different approaches. In the first
+one, we just internalize the terms, propagate, and then check whether they are in the same
+equivalence class. The function `abstractGroundMismatches?` is used to implement the
+second approach that focus on terms containing binders. Here is a motivating example,
+suppose we are trying to prove that `(b : Bool) → a[i]? = some b → Nat` is equal to
+`(b : Bool) → some v = some b → Nat` and the goal contains the equivalence class
+`{a[i]?, some v}`.
+Congruence closure does not process terms containing free variables, and fails to
+prove the equality.
+`abstractGroundMismatches?` extracts ground terms that are equal in the current goal,
+and creates an auxiliary function. In the example above, the following two terms
+are generated.
+- `(fun x => (b : Bool) → x = some b → Nat) a[i]?`
+- `(fun x => (b : Bool) → x = some b → Nat) (some v)`
+
+The two new terms are definitionally equal to the original ones, but congruence
+closure will now detect the equality.
+
+The motivation for this infrastructure is match-expression equalities.
+Suppose we have
+```
+match h : assign[v]? with
+| none => ...
+| some b => ...
+```
+When instantiating the match-expr equations for the `none` and `some` cases,
+we need to introduce casts.
+-/
+
+/-- Context for the `AbstractM` monad used to implement `abstractGroundMismatches?` -/
 private structure AbstractM.Context where
+  /-- Number of binders under which the terms being processed occur under. -/
   offset : Nat := 0
 
+/-- State for the `AbstractM` monad used to implement `abstractGroundMismatches?` -/
 private structure AbstractM.State where
   cache       : Std.HashMap (Expr × Expr) Expr := {}
+  /-- Types of the new variables created for the auxiliary `fun`. -/
   varTypes    : Array Expr  := #[]
+  /-- Ground terms from the `lhs` that have been abstracted so far. -/
   lhss        : Array Expr  := #[]
+  /-- Ground terms from the `rhs` that have been abstracted so far. -/
   rhss        : Array Expr  := #[]
 
+/-- Helper monad for implementing `abstractGroundMismatches?` -/
 private abbrev AbstractM := ReaderT AbstractM.Context $ StateT AbstractM.State $ OptionT GoalM
 
+/-- Returns `true` if current terms occur under binders. -/
 private def inBinder : AbstractM Bool :=
   return (← read).offset > 0
 
+/-- Executes `x` in a context where the number of binders have been increased. -/
 private abbrev withIncOffset (x : AbstractM α) : AbstractM α :=
   withReader (fun ctx => { ctx with offset := ctx.offset + 1 }) x
 
+/--
+Returns `fun (x_0 : varTypes[0]) ... (x_n : varTypes[n]) => b`.
+`b` contains `varTypes.size` loose bound variables.
+-/
 private def mkLambdaWithBodyAndVarType (varTypes : Array Expr) (b : Expr) : Expr := Id.run do
   let mut i := 0
   let mut f := b
@@ -52,11 +96,21 @@ private def mkLambdaWithBodyAndVarType (varTypes : Array Expr) (b : Expr) : Expr
     f := mkLambda ((`_x).appendIndexAfter i) .default varType f
   return f
 
+/--
+Helper function for `proveEq?`. It abstracts nested ground terms in `lhs` and `rhs`.
+Suppose `lhs` is `(b : Bool) → a[i]? = some b → Nat`, and
+`rhs` is `(b : Bool) → some v = some b → Nat`.
+Then, the result is
+- `(fun x => (b : Bool) → x = some b → Nat) a[i]?`
+- `(fun x => (b : Bool) → x = some b → Nat) (some v)`
+-/
 private partial def abstractGroundMismatches? (lhs rhs : Expr) : GoalM (Option (Expr × Expr)) := do
   let lhs ← shareCommon lhs
   let rhs ← shareCommon rhs
   let some (f, s) ← go lhs rhs |>.run {} |>.run {} |>.run
     | return none
+  if s.lhss.isEmpty then
+    return none
   let f := mkLambdaWithBodyAndVarType s.varTypes f
   return some (mkAppN f s.lhss, mkAppN f s.rhss)
 where
@@ -66,7 +120,6 @@ where
         let lhs ← ensureInternalized lhs
         let rhs ← ensureInternalized rhs
         processNewFacts
-        trace[grind.debug.proveEq] "isEqv ({← isEqv lhs rhs}): ({lhs}) = ({rhs})"
         if (← isEqv lhs rhs) then
         if (← hasSameType lhs rhs) then
         let varType ← inferType lhs
@@ -101,7 +154,6 @@ where
       return mkLet n₁ (← go t₁ t₂) (← go v₁ v₂) (← withIncOffset <| go b₁ b₂) nd₁
 
   go (lhs rhs : Expr) : AbstractM Expr := do
-    trace[grind.debug.proveEq] "go: ({lhs}) = ({rhs})"
     if isSameExpr lhs rhs then
       return lhs
     if let some e := (← get).cache[(lhs, rhs)]? then
@@ -109,6 +161,10 @@ where
     let r ← goCore lhs rhs
     modify fun s => { s with cache := s.cache.insert (lhs, rhs) r }
     return r
+
+/-!
+Helper functions for creating equalities proofs.
+-/
 
 /--
 Try to construct a proof that `lhs = rhs` using the information in the

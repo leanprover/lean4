@@ -32,6 +32,18 @@ def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
   let isRangeAtEOF := r.stop == text.source.endPos
   r.contains hoverPos (includeStop := includeStop || isRangeAtEOF)
 
+def Lean.FileMap.rangeOverlapsRequestedRange
+    (text : Lean.FileMap)
+    (documentRange : String.Range)
+    (requestedRange : String.Range)
+    (includeDocumentRangeStop := false)
+    (includeRequestedRangeStop := false)
+    : Bool :=
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  documentRange.overlaps requestedRange
+    (includeFirstStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
+    (includeSecondStop := includeRequestedRangeStop)
+
 namespace Lean.Language
 
 open Lean.Server
@@ -316,40 +328,46 @@ def withWaitFindSnapAtPos
     (x := f)
 
 open Language.Lean in
-/-- Finds the first `CommandParsedSnapshot` containing `hoverPos`, asynchronously. -/
-partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos)
-    : ServerTask (Option CommandParsedSnapshot) := Id.run do
+/-- Finds all `CommandParsedSnapshot`s overlapping `requestedRange`, asynchronously. -/
+partial def findCmdParsedSnaps (doc : EditableDocument) (requestedRange : String.Range)
+    : ServerTask (Array CommandParsedSnapshot) := Id.run do
   let some headerParsed := doc.initSnap.result?
-    | .pure none
+    | .pure #[]
   headerParsed.processedSnap.task.asServerTask.bindCheap fun headerProcessed => Id.run do
     let some headerSuccess := headerProcessed.result?
-      | return .pure none
+      | return .pure #[]
     let firstCmdSnapTask : ServerTask CommandParsedSnapshot := headerSuccess.firstCmdSnap.task
-    firstCmdSnapTask.bindCheap go
+    firstCmdSnapTask.bindCheap (go · #[])
 where
-  go (cmdParsed : CommandParsedSnapshot) : ServerTask (Option CommandParsedSnapshot) := Id.run do
-    if containsHoverPos cmdParsed then
-      return .pure (some cmdParsed)
-    if isAfterHoverPos cmdParsed then
-      -- This should never happen in principle
-      -- (commands + trailing ws are consecutive and there is no unassigned space between them),
-      -- but it's always good to eliminate one additional assumption.
-      return .pure none
+  go (cmdParsed : CommandParsedSnapshot) (acc : Array CommandParsedSnapshot)
+      : ServerTask (Array CommandParsedSnapshot) := Id.run do
+    if isAfterRequestedRange cmdParsed then
+      return .pure acc
+    let mut acc := acc
+    if overlapsRequestedRange cmdParsed then
+      acc := acc.push cmdParsed
     match cmdParsed.nextCmdSnap? with
     | some next =>
-      next.task.asServerTask.bindCheap go
-    | none => .pure none
+      next.task.asServerTask.bindCheap (go · acc)
+    | none =>
+      return .pure acc
 
-  containsHoverPos (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
+  overlapsRequestedRange (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
     let some range := cmdParsed.stx.getRangeWithTrailing? (canonicalOnly := true)
       | return false
-    return doc.meta.text.rangeContainsHoverPos range hoverPos (includeStop := false)
+    return doc.meta.text.rangeOverlapsRequestedRange range requestedRange
+      (includeDocumentRangeStop := false) (includeRequestedRangeStop := true)
 
-  isAfterHoverPos (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
+  isAfterRequestedRange (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
     let some startPos := cmdParsed.stx.getPos? (canonicalOnly := true)
       | return false
-    return hoverPos < startPos
+    return requestedRange.stop < startPos
 
+open Language.Lean in
+/-- Finds the first `CommandParsedSnapshot` containing `hoverPos`, asynchronously. -/
+partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos)
+    : ServerTask (Option CommandParsedSnapshot) :=
+  findCmdParsedSnaps doc ⟨hoverPos, hoverPos⟩ |>.mapCheap (·[0]?)
 
 open Language in
 /--

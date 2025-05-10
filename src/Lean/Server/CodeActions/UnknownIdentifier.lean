@@ -23,7 +23,11 @@ structure UnknownIdentifierInfo where
 def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : String.Range)
     : BaseIO (Array String.Range) := do
   let text := doc.meta.text
-  let msgLog := Language.toSnapshotTree doc.initSnap |>.collectMessagesInRange requestedRange |>.get
+  let parsedSnaps := RequestM.findCmdParsedSnaps doc requestedRange |>.get
+  let msgLog := parsedSnaps.map Language.toSnapshotTree
+    |>.map (·.collectMessagesInRange requestedRange)
+    |>.map (·.get)
+    |>.foldl (· ++ ·) .empty
   let mut ranges := #[]
   for msg in msgLog.reportedPlusUnreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then

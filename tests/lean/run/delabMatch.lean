@@ -39,7 +39,7 @@ info: fun x =>
   this : ∀ (x : Fin 1), ∃ n, ↑x = n
 -/
 #guard_msgs in
-#check fun (x : Fin 1) => show ∃ (n : Nat), x = n from
+#check fun (x : Fin 1) => show ∃ (n : Nat), ↑x = n from
   match h : x.1 + 1 with
   | 0 => Nat.noConfusion h
   | n + 1 => ⟨n, Nat.succ.inj h⟩
@@ -57,7 +57,7 @@ info: fun h =>
   this : ∀ (h : Fin 1), ∃ n, ↑h = n
 -/
 #guard_msgs in
-#check fun (h : Fin 1) => show ∃ (n : Nat), h = n from
+#check fun (h : Fin 1) => show ∃ (n : Nat), ↑h = n from
   match h : h.1 + 1 with
   | 0 => Nat.noConfusion h
   | n + 1 => ⟨n, Nat.succ.inj h⟩
@@ -76,7 +76,7 @@ info: fun h =>
   this : ∀ (h : Fin 1), ∃ n, ↑h = n
 -/
 #guard_msgs in
-#check fun (h : Fin 1) => show ∃ (n : Nat), h = n from
+#check fun (h : Fin 1) => show ∃ (n : Nat), ↑h = n from
   match h : h.1 + 1 with
   | 0 => Nat.noConfusion h
   | h + 1 => ⟨_, Nat.succ.inj ‹_›⟩

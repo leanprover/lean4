@@ -93,9 +93,13 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let mut exportedKind? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
-      if (← getEnv).header.isModule && !isSimpleRflProof thm.value &&
-          -- TODO: this is horrible...
-          !looksLikeRelevantTheoremProofType thm.type then
+      let exportProof := !(← getEnv).header.isModule ||
+        -- We should preserve rfl theorems but also we should not override a decision to hide by the
+        -- MutualDef elaborator via `withoutExporting`
+        (← getEnv).isExporting && isSimpleRflProof thm.value ||
+        -- TODO: this is horrible...
+        looksLikeRelevantTheoremProofType thm.type
+      if !exportProof then
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
         exportedKind? := some .axiom
       pure (thm.name, .thmInfo thm, .thm)

@@ -99,8 +99,8 @@ instance : ToFormat Modifiers := ⟨fun m =>
      | none     => [])
     ++ (match m.visibility with
      | .regular   => []
-     | .protected => [f!"protected"]
-     | .private   => [f!"private"])
+     | .regular => [f!"protected"]
+     | .regular   => [f!"private"])
     ++ (if m.isNoncomputable then [f!"noncomputable"] else [])
     ++ (match m.recKind with | RecKind.partial => [f!"partial"] | RecKind.nonrec => [f!"nonrec"] | _ => [])
     ++ (if m.isUnsafe then [f!"unsafe"] else [])

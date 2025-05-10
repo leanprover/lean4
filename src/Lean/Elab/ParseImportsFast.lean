@@ -199,7 +199,7 @@ def setImportAll (importAll : Bool) : Parser := fun _ s =>
 def main : Parser :=
   keywordCore "module" (fun _ s => { s with isModule := true }) (fun _ s => s) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
-  many (keywordCore "private" (setIsExported true) (setIsExported false) >>
+  many (keywordCore "private" (setIsExported true) (setIsExported true) >>
     keyword "import" >>
     keywordCore "all" (setImportAll false) (setImportAll true) >>
     moduleIdent)

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.InferType
 import Lean.Meta.Sorry
+import Lean.Meta.Reduce
 
 /-!
 This is not the Kernel type checker, but an auxiliary method for checking
@@ -198,7 +199,10 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageDat
     let expectedTypeType ← inferType expectedType
     let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
     let (givenTypeType, expectedTypeType) ← addPPExplicitToExposeDiff givenTypeType expectedTypeType
-    return m!"has type{indentD m!"{givenType} : {givenTypeType}"}\nbut is expected to have type{indentD m!"{expectedType} : {expectedTypeType}"}"
+    return m!"has type{indentD m!"{givenType} : {givenTypeType}"}\
+      \nbut is expected to have type{indentD m!"{expectedType} : {expectedTypeType}"}\
+      \nreduction results in{indentD (← reduce (skipTypes := false) givenType)}\
+      \nand{indentD (← reduce (skipTypes := false) expectedType)}"
   catch _ =>
     let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
     return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"

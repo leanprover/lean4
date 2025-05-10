@@ -6,9 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
+import all Init.Prelude  -- for verifying `lengthTR`
 import Init.SimpLemmas
 import Init.Data.Nat.Basic
 import Init.Data.List.Notation
+
+set_option experimental.module.semireducibleDef true
 
 /-!
 # Basic operations on `List`.
@@ -482,7 +485,7 @@ Examples:
 * `["one", "two", "three"].map (·.length) = [3, 3, 5]`
 * `["one", "two", "three"].map (·.reverse) = ["eno", "owt", "eerht"]`
 -/
-@[specialize] def map (f : α → β) : (l : List α) → List β
+@[specialize, semireducible] def map (f : α → β) : (l : List α) → List β
   | []    => []
   | a::as => f a :: map f as
 
@@ -553,7 +556,7 @@ Examples:
  * `[1, 2, 3].foldr (toString · ++ ·) "" = "123"`
  * `[1, 2, 3].foldr (s!"({·} {·})") "!" = "(1 (2 (3 !)))"`
 -/
-@[specialize] def foldr (f : α → β → β) (init : β) : (l : List α) → β
+@[specialize, semireducible] def foldr (f : α → β → β) (init : β) : (l : List α) → β
   | []     => init
   | a :: l => f a (foldr f init l)
 
@@ -564,7 +567,7 @@ Examples:
 /-! ### reverse -/
 
 /-- Auxiliary for `List.reverse`. `List.reverseAux l r = l.reverse ++ r`, but it is defined directly. -/
-def reverseAux : List α → List α → List α
+@[semireducible] def reverseAux : List α → List α → List α
   | [],   r => r
   | a::l, r => reverseAux l (a::r)
 
@@ -584,7 +587,7 @@ Examples:
 * `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
 * `[].reverse = []`
 -/
-def reverse (as : List α) : List α :=
+@[semireducible] def reverse (as : List α) : List α :=
   reverseAux as []
 
 @[simp, grind] theorem reverse_nil : reverse ([] : List α) = [] := rfl
@@ -607,7 +610,7 @@ Examples:
   * `[] ++ [4, 5] = [4, 5]`.
   * `[1, 2, 3] ++ [] = [1, 2, 3]`.
 -/
-protected def append : (xs ys : List α) → List α
+@[reducible] protected def append : (xs ys : List α) → List α
   | [],    bs => bs
   | a::as, bs => a :: List.append as bs
 
@@ -983,7 +986,7 @@ Examples:
 * `[0, 1, 2, 3, 4].drop 3 = [3, 4]`
 * `[0, 1, 2, 3, 4].drop 6 = []`
 -/
-def drop : (n : Nat) → (xs : List α) → List α
+@[semireducible] def drop : (n : Nat) → (xs : List α) → List α
   | 0,   as     => as
   | _+1, []    => []
   | n+1, _::as => drop n as
@@ -1123,7 +1126,7 @@ theorem dropLast_single : [x].dropLast = [] := dropLast_singleton
 /--
 `l₁ ⊆ l₂` means that every element of `l₁` is also an element of `l₂`, ignoring multiplicity.
 -/
-protected def Subset (l₁ l₂ : List α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂
+@[semireducible] protected def Subset (l₁ l₂ : List α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂
 
 instance : HasSubset (List α) := ⟨List.Subset⟩
 
@@ -1422,7 +1425,7 @@ The list has no duplicates: it contains every element at most once.
 
 It is defined as `Pairwise (· ≠ ·)`: each element is unequal to all other elements.
 -/
-def Nodup : List α → Prop := Pairwise (· ≠ ·)
+@[semireducible] def Nodup : List α → Prop := Pairwise (· ≠ ·)
 
 instance nodupDecidable [DecidableEq α] : ∀ l : List α, Decidable (Nodup l) :=
   instDecidablePairwise

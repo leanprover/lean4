@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import Init.Data.Ord
+import all Init.Data.Ord
 
 /-! # Basic lemmas about comparing natural numbers
 

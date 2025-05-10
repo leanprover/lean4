@@ -9,6 +9,7 @@ prelude
 import Init.Data.Fin.Basic
 import Init.Data.BitVec.BasicAux
 
+set_option experimental.module.semireducibleDef true
 set_option linter.missingDocs true
 
 /-!
@@ -21,7 +22,7 @@ This file thus breaks the import cycle that would be created by this dependency.
 open Nat
 
 /-- Converts a `UInt8` into the corresponding `Fin UInt8.size`. -/
-def UInt8.toFin (x : UInt8) : Fin UInt8.size := x.toBitVec.toFin
+@[semireducible] def UInt8.toFin (x : UInt8) : Fin UInt8.size := x.toBitVec.toFin
 @[deprecated UInt8.toFin (since := "2025-02-12"), inherit_doc UInt8.toFin]
 def UInt8.val (x : UInt8) : Fin UInt8.size := x.toFin
 
@@ -71,7 +72,7 @@ Converts an 8-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_to_nat"]
+@[extern "lean_uint8_to_nat", semireducible]
 def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
 
 instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
@@ -158,7 +159,7 @@ Examples:
  * `UInt32.ofNat 65539 = 65539`
  * `UInt32.ofNat 4_294_967_299 = 3`
 -/
-@[extern "lean_uint32_of_nat"]
+@[extern "lean_uint32_of_nat", semireducible]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨BitVec.ofNat 32 n⟩
 @[inline, deprecated UInt32.ofNatLT (since := "2025-02-13"), inherit_doc UInt32.ofNatLT]
 def UInt32.ofNat' (n : Nat) (h : n < UInt32.size) : UInt32 := UInt32.ofNatLT n h
@@ -204,7 +205,7 @@ Converts 8-bit unsigned integers to 32-bit unsigned integers.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_to_uint32"]
+@[extern "lean_uint8_to_uint32", semireducible]
 def UInt8.toUInt32 (a : UInt8) : UInt32 := ⟨⟨a.toNat, Nat.lt_trans a.toBitVec.isLt (by decide)⟩⟩
 /--
 Converts 16-bit unsigned integers to 32-bit unsigned integers.

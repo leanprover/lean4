@@ -284,7 +284,7 @@ structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
   /-- Whether the file is participating in the module system. -/
-  isModule : Bool := false
+  isModule : Bool
   /-- Direct imports of the file being processed. -/
   imports : Array Import
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/

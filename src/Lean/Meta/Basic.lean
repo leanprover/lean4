@@ -650,6 +650,7 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 
 /-- If diagnostics are enabled, record that `declName` has been unfolded. -/
 def recordUnfold (declName : Name) : MetaM Unit := do
+  trace[Meta.whnf] "unfolding 999 {declName}";
   modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
     { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures }

@@ -640,11 +640,11 @@ where
             let .const cname lvls := f' | return e
             let some cinfo := (← getEnv).find? cname | return e
             match cinfo with
-            | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-            | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do trace[Meta.whnf] "unfolding 8 {e}"; recordUnfold cinfo.name; go e)
+            | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do trace[Meta.whnf] "unfolding 9 {e}"; recordUnfold cinfo.name; go e)
             | c@(.defnInfo _) => do
               if (← isAuxDef c.name) then
-                recordUnfold c.name
+                trace[Meta.whnf] "unfolding 10 {e}"; recordUnfold c.name
                 deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
               else
                 return e
@@ -739,7 +739,7 @@ mutual
         | some e =>
           match (← withReducibleAndInstances <| reduceProj? e.getAppFn) with
           | none   => return none
-          | some r => recordUnfold declName; return mkAppN r e.getAppArgs |>.headBeta
+          | some r => trace[Meta.whnf] "upi {e}"; recordUnfold declName; return mkAppN r e.getAppArgs |>.headBeta
       | _ => return none
     | _ => return none
 
@@ -767,6 +767,7 @@ mutual
         else
           let unfoldDefault (_ : Unit) : MetaM (Option Expr) := do
             if fInfo.hasValue then
+              trace[Meta.whnf] "unfolding {fInfo.name}"
               recordUnfold fInfo.name
               deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
             else
@@ -817,11 +818,15 @@ mutual
                   Note that the `Vector` example above does not even work in Lean 3.
                 -/
                 let some recArgPos ← getStructuralRecArgPos? fInfo.name
-                  | recordUnfold fInfo.name; return some r
+                  |
+
+                  trace[Meta.whnf] "unfolding 2 {fInfo.name}"
+                  recordUnfold fInfo.name; return some r
                 let numArgs := e.getAppNumArgs
                 if recArgPos >= numArgs then return none
                 let recArg := e.getArg! recArgPos numArgs
                 if !(← isConstructorApp (← whnfMatcher recArg)) then return none
+                trace[Meta.whnf] "unfolding 3 {fInfo.name}"
                 recordUnfold fInfo.name
                 return some r
             | _ =>
@@ -842,7 +847,9 @@ mutual
         unless cinfo.hasValue do return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)
-          (fun e => do recordUnfold declName; pure (some e))
+          (fun e => do
+          trace[Meta.whnf] "unfolding 4 {e}"
+          recordUnfold declName; pure (some e))
     | _ => return none
 end
 
@@ -877,11 +884,11 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
       let .const cname lvls := e.getAppFn | return none
       let some cinfo := (← getEnv).find? cname | return none
       match cinfo with
-      | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
-      | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
+      | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do trace[Meta.whnf] "unfolding 5 {e}"; recordUnfold cinfo.name; pure (some e))
+      | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => do trace[Meta.whnf] "unfolding 6 {e}"; recordUnfold cinfo.name; pure (some e))
       | c@(.defnInfo _) =>
         if (← isAuxDef c.name) then
-          deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => pure none) (fun e => do recordUnfold c.name; pure (some e))
+          deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => pure none) (fun e => do trace[Meta.whnf] "unfolding 7 {e}"; recordUnfold c.name; pure (some e))
         else
           return none
       | _ => return none

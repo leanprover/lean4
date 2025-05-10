@@ -29,6 +29,7 @@ nativeLibDir = "lib/lean"
 name = "Init"
 libName = "${LAKE_LIB_PREFIX}Init"
 defaultFacets = ["static", "static.export"]
+leanOptions = {interpreter.prefer_native = false}
 
 [[lean_lib]]
 name = "Std"

@@ -6,6 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Basic
 import Init.Data.Array.TakeDrop
 import Init.Data.List.Zip
 

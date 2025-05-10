@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Grind.CommRing.Basic
+import all Init.Data.BitVec.Basic
 import Init.Data.BitVec.Lemmas
 
 namespace Lean.Grind

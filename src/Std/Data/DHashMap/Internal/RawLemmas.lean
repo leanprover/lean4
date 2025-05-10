@@ -2436,6 +2436,165 @@ end Const
 
 end insertMany
 
+section Union
+
+variable (m₁ m₂ : Raw₀ α β)
+
+--Temporary: presumably we'll want to have this somewhere else (and redefine it in terms of `insertMany`?)
+def union : Raw₀ α β := ⟨m₁.val.union m₂.val, sorry⟩
+
+variable {m₁ m₂}
+
+@[simp]
+theorem union_insert_emptyWithCapacity {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] (h : m.val.WF) :
+    m.union (emptyWithCapacity.insert k v) = m.insert k v  := by
+  sorry
+
+theorem contains_union_of_left  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
+    m₁.contains k → (m₁.union m₂).contains k := by
+  sorry
+
+theorem contains_union_of_right  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
+    m₂.contains k → (m₁.union m₂).contains k := by
+  sorry
+
+@[simp]
+theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k = (m₁.contains k || m₂.contains k) := by
+  sorry
+
+@[simp]
+theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k ↔ m₁.contains k ∨ m₂.contains k := by
+  sorry
+
+theorem contains_of_contains_union_of_contains_right_eq_false [EquivBEq α]
+    [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k → m₂.contains k = false → m₁.contains k := by
+  sorry
+
+theorem contains_of_contains_union_of_contains_left_eq_false [EquivBEq α]
+    [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k → m₁.contains k = false → m₂.contains k := by
+  sorry
+
+theorem get?_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) :
+    (m₁.union m₂).get? k = m₁.get? k := by
+  sorry
+
+theorem get_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
+    (m₁.union m₂).get k h' = m₁.get k (contains_of_contains_union_of_contains_right_eq_false h₁ h₂ h' contains_eq_false) := by
+  sorry
+
+theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 := by
+  sorry
+
+theorem getKey?_union_of_contains_right [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) × β a} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (mem : m₂.contains k) :
+    (m₁.union m₂).getKey? k = some k := by
+  sorry
+
+theorem getKey_union_of_contains_right
+    [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (mem : m₂.contains k) :
+    (m₁.union m₂).getKey k (contains_union_of_right h₁ h₂ mem) = k := by
+  sorry
+
+theorem getKey!_union_of_contains_right_eq_false [Inhabited α]
+    [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
+    (h' : m₂.contains k = false) :
+    (m₁.union m₂).getKey! k = m₁.getKey! k := by
+  sorry
+
+theorem getKey!_union_of_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.1.WF)
+    (h₂ : m₂.1.WF) {k : α} (mem : m₂.contains k) :
+    (m₁.union m₂).getKey! k = k := by
+  sorry
+
+theorem getKeyD_union_of_contains_right_eq_false [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k fallback : α} (h' : m₂.contains k = false) :
+    (m₁.union m₂).getKeyD k fallback = m₁.getKeyD k fallback := by
+  sorry
+
+theorem getKeyD_union_of_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k fallback : α} (mem : m₂.contains k) :
+    (m₁.union m₂).getKeyD k fallback = k := by
+  sorry
+
+theorem get?_union_of_contains_left_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) :
+    (m₁.union m₂).get? k = m₂.get? k := by
+  sorry
+
+theorem get_union_of_contains_left_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) {h'} :
+    (m₁.union m₂).get k h' = m₂.get k (contains_of_contains_union_of_contains_left_eq_false h₁ h₂ h' contains_eq_false) := by
+  sorry
+
+theorem getKey?_union_of_contains_left_of_contains_right_eq_false [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (mem : m₁.contains k) (not_mem : m₂.contains k = false) :
+    (m₁.union m₂).getKey? k = some k := by
+  sorry
+
+theorem getKey_union_of_contains_left_of_contains_right_eq_false
+    [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (mem : m₁.contains k) :
+    (m₁.union m₂).getKey k (contains_union_of_left h₁ h₂ mem) = k := by
+  sorry
+
+theorem getKey!_union_of_contains_left_eq_false [Inhabited α]
+    [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
+    (h' : m₁.contains k = false) :
+    (m₁.union m₂).getKey! k = m₂.getKey! k := by
+  sorry
+
+theorem getKey!_union_of_mem_left_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    (h₁ : m₁.1.WF)
+    (h₂ : m₂.1.WF) {k : α} (mem : m₁.contains k) (not_mem : m₂.contains k = false) :
+    (m₁.union m₂).getKey! k = k := by
+  sorry
+
+theorem getKeyD_union_of_mem_left_of_contains_right_eq_false [EquivBEq α]
+    [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k fallback : α} (mem : m₁.contains k)  (not_mem : m₂.contains k = false) :
+    (m₁.union m₂).getKeyD k fallback = k := by
+  sorry
+
+theorem size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) : (∀ (a : α), m₁.contains a → m₂.contains a = false) →
+    (m₁.union m₂).1.size = m₁.1.size + m₂.1.size := by
+  sorry
+
+theorem size_left_le_size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) : m₁.1.size ≤ (m₁.union m₂).1.size := by
+  sorry
+
+theorem size_right_le_size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) : m₂.1.size ≤ (m₁.union m₂).1.size := by
+  sorry
+
+theorem size_union_le_size_add_size [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.union m₂).1.size ≤ m₁.1.size + m₂.1.size := by
+  sorry
+
+@[simp]
+theorem isEmpty_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.union m₂).1.isEmpty = (m₁.1.isEmpty && m₂.1.isEmpty) := by
+  sorry
+
+end Union
+
 section Alter
 
 theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] (h : m.1.WF) {k : α}

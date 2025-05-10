@@ -133,9 +133,9 @@ theorem getElem?_intersperse_two_mul_add_one {l : List α} (sep : α) (h : i + 1
     have ⟨_, tl, hn⟩ := ne_nil_iff_exists_cons.mp hn
     cases tl <;> cases i
     case cons.succ j => have hj : 2 * (j + 1) = 2 * j + 2 := rfl; simp_all
-    · simp_all
+    · simp [*]
     · simp only [hn] at h; contradiction
-    · simp_all
+    · simp [*]
 
 /-! ### eraseIdx -/
 

@@ -100,4 +100,7 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
 
+instance (n : Nat) [NeZero n] : IsCharP (Fin n) n where
+  ofNat_eq_zero_iff x := by simp only [OfNat.ofNat, Fin.ofNat']; simp
+
 end Lean.Grind

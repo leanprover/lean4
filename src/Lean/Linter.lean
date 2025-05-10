@@ -12,3 +12,4 @@ import Lean.Linter.UnusedVariables
 import Lean.Linter.MissingDocs
 import Lean.Linter.Omit
 import Lean.Linter.List
+import Lean.Linter.Sets

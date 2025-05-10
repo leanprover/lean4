@@ -684,12 +684,8 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       -- Here we instantiate the hypotheses of the generalized equation theorem
       -- With more book keeping we could do this very precisely; for now let's see
       -- if heuristics are good enough.
-      -- It seems that first trying all `.assumtions` and then all `rfl` works best
-      for h in hyps do h.assumption <|> pure ()
-      for h in hyps do h.refl <|> pure () -- this should handle cases where the pattern is a variable
-      for h in hyps do
-        unless (← h.isAssigned) do
-          throwError m!"Failed to resolve {h}"
+      -- Trying assumption before rfl seems to be important?
+      for h in hyps do h.assumption <|> h.refl <|> throwError m!"Failed to resolve {h}"
       let rhs ← instantiateMVars rhs
       let proof ← instantiateMVars proof
       let proof ← if isHeq then

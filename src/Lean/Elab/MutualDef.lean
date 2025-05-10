@@ -89,8 +89,15 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   else
     pure ()
 
-private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
-  registerCustomErrorIfMVar type ref "failed to infer definition type"
+private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) (view : DefView) : TermElabM Unit :=
+  let msg := if view.kind.isExample then
+    m!"failed to infer type of example"
+  else if view.kind matches .instance then
+    -- TODO: instances are sometime named. We should probably include the name if available.
+    m!"failed to infer type of instance"
+  else
+    m!"failed to infer type of `{view.declId}`"
+  registerCustomErrorIfMVar type ref msg
 
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
@@ -106,14 +113,17 @@ private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   else
     none
 
-private def getPendingMVarErrorMessage (views : Array DefView) : String :=
+private def getPendingMVarErrorMessage (views : Array DefView) : MessageData :=
   match isMultiConstant? views with
   | some ids =>
     let idsStr := ", ".intercalate <| ids.map fun id => s!"`{id}`"
     let paramsStr := ", ".intercalate <| ids.map fun id => s!"`({id} : _)`"
-    s!"\nrecall that you cannot declare multiple constants in a single declaration. The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}"
+    MessageData.note m!"Recall that you cannot declare multiple constants in a single declaration. The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}."
   | none =>
-    "\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
+    if views.all fun view => view.kind.isTheorem then
+      MessageData.note "All holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be"
+    else
+      MessageData.note "When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
 
 /--
 Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.
@@ -188,13 +198,13 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             let mut type ← match view.type? with
               | some typeStx =>
                 let type ← elabType typeStx
-                registerFailedToInferDefTypeInfo type typeStx
+                registerFailedToInferDefTypeInfo type typeStx view
                 pure type
               | none =>
                 let hole := mkHole refForElabFunType
                 let type ← elabType hole
                 trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
-                registerFailedToInferDefTypeInfo type refForElabFunType
+                registerFailedToInferDefTypeInfo type refForElabFunType view
                 pure type
             Term.synthesizeSyntheticMVarsNoPostponing
             if view.isInstance then

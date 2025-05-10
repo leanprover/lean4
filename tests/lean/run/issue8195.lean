@@ -189,18 +189,45 @@ open Lean Meta
 /--
 Brings the pattern variables of the telescope into scope, but not the equations or the
 extra `Unit` parameter
-TODO: Handling of namedPatterns
 -/
-def forallAltVarsTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
-  (k : (patVars : Array Expr) → (hasUnit : Bool) → (type : Expr) → MetaM α) : MetaM α := do
-  forallBoundedTelescope altType (altNumParams - numDiscrEqs) fun ys altType' => do
-    if ys.size == 1 then
-      let y := ys[0]!
-      if (← inferType y).isConstOf ``Unit && !(← dependsOn altType' y.fvarId!) then
-        return ← withErasedFVars #[y.fvarId!] do
-          k #[] true altType
-    k ys false altType'
+partial def forallAltVarsTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
+  (k : (patVars : Array Expr) → (args : Array Expr) → (type : Expr) → MetaM α) : MetaM α := do
+  go #[] #[] 0 altType
+where
+  go (ys : Array Expr) (args : Array Expr) (i : Nat) (type : Expr) : MetaM α := do
+    let type ← whnfForall type
+    if i + numDiscrEqs < altNumParams then
+      let Expr.forallE n d b .. := type
+        | throwError "expecting {altNumParams} parameters, excluding {numDiscrEqs} equalities, but found type{indentExpr altType}"
 
+      if i = 0 && d.isConstOf ``Unit && !b.hasLooseBVars then
+        return ← k #[] #[mkConst ``Unit.unit] b
+
+      let d ← Match.unfoldNamedPattern d
+      withLocalDeclD n d fun y => do
+        let typeNew := b.instantiate1 y
+        if let some (_, lhs, rhs) ← matchEq? d then
+          if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
+              let some j  := ys.finIdxOf? lhs | unreachable!
+              let ys      := ys.eraseIdx j
+              let some k  := args.idxOf? lhs | unreachable!
+              let args    := args.map fun arg => if arg == lhs then rhs else arg
+              let arg     ← mkEqRefl rhs
+              let typeNew := typeNew.replaceFVar lhs rhs
+              return ← withReplaceFVarId lhs.fvarId! rhs do
+              withReplaceFVarId y.fvarId! arg do
+                go ys (args.push arg) (i+1) typeNew
+        go (ys.push y) (args.push y) (i+1) typeNew
+    else
+      let type ← Match.unfoldNamedPattern type
+      k ys args type
+
+  isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
+    Option.isSome <| type.find? fun e =>
+      if let some e := Match.isNamedPattern? e then
+        e.appArg! == h
+      else
+        false
 
 /--
 From the alt result pattern as returned by `forallAltVarsTelescope`, returns the patterns.
@@ -209,13 +236,8 @@ def getPatternFromAltType (altType : Expr) : MetaM (Array Expr) := do
   forallTelescope altType fun _ altType' => do
     return altType'.getAppArgs
 
-partial def instantiateAlt (alt : Expr) (altVars : Array Expr) (heqs : Array Expr) (numDiscrEqs : Nat) (hasUnit : Bool) : MetaM Expr := do
-  if hasUnit then
-    assert! altVars.size == 0
-    assert! numDiscrEqs == 0
-    return mkApp alt (mkConst ``Unit.unit)
-  let e := mkAppN alt altVars
-  go e (← inferType e) 0
+partial def instantiateAltDiscrEqs (alt : Expr) (heqs : Array Expr) (numDiscrEqs : Nat) : MetaM Expr := do
+  go alt (← inferType alt) 0
 where
   go e ty i := do
     if i < numDiscrEqs then
@@ -305,7 +327,7 @@ def genGeneralizedMatchEqns (matchDeclName : Name) : MetaM Unit := do
       eqnNames := eqnNames.push thmName
       let notAlt ← do
         let alt := alts[i]!
-        forallAltVarsTelescope (← inferType alt) altNumParams numDiscrEqs fun altVars hasUnit altResultType => do
+        forallAltVarsTelescope (← inferType alt) altNumParams numDiscrEqs fun altVars args altResultType => do
         let patterns ← getPatternFromAltType altResultType
         let mut heqsTypes := #[]
         assert! patterns.size == discrs.size
@@ -313,7 +335,7 @@ def genGeneralizedMatchEqns (matchDeclName : Name) : MetaM Unit := do
           let heqType ← mkEqHEq discr pattern
           heqsTypes := heqsTypes.push ((`heq).appendIndexAfter (heqsTypes.size + 1), heqType)
         withLocalDeclsDND heqsTypes fun heqs => do
-          let rhs ← instantiateAlt alt altVars heqs numDiscrEqs hasUnit
+          let rhs ← instantiateAltDiscrEqs (mkAppN alt args) heqs numDiscrEqs
           let mut hs := #[]
           for notAlt in notAlts do
             let h ← instantiateForall notAlt patterns
@@ -466,7 +488,28 @@ def wrongEq (m? : Option Nat) (h : some_expr = m?)
 run_meta do
   genGeneralizedMatchEqns ``wrongEq.match_1
 
-#exit
+set_option linter.unusedVariables false in
+noncomputable def myNamedPatternTest (x : List Bool) : Bool :=
+  match h : x with
+  | x'@(x::xs) => false
+  | x' => true
+
+run_meta do
+  genGeneralizedMatchEqns ``myNamedPatternTest.match_1
+
+/--
+info: myNamedPatternTest.match_1.gen_eq_1.{u_1} (motive : List Bool → Sort u_1) (x✝ : List Bool)
+  (h_1 : (x' : List Bool) → (x : Bool) → (xs : List Bool) → x' = x :: xs → x✝ = x :: xs → motive (x :: xs))
+  (h_2 : (x' : List Bool) → x✝ = x' → motive x') (x : Bool) (xs : List Bool) (heq_1 : x✝ = x :: xs) :
+  HEq
+    (match h : x✝ with
+    | x'@h:(x :: xs) => h_1 x' x xs h h
+    | x' => h_2 x' h)
+    (h_1 (x :: xs) x xs ⋯ heq_1)
+-/
+#guard_msgs in
+#check myNamedPatternTest.match_1.gen_eq_1
+
 run_meta do
   let s := Lean.Meta.Match.Extension.extension.getState (← getEnv) (asyncMode := .local)
   for (k,_) in s.map do --, _ in [:600] do

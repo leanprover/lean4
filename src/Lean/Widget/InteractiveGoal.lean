@@ -192,7 +192,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     return {
       hyps
       type := goalFmt
-      ctx := ⟨{← Elab.CommandContextInfo.save with }⟩
+      ctx := ← WithRpcRef.mkReusable {← Elab.CommandContextInfo.save with }
       userName?
       goalPrefix := getGoalPrefix mvarDecl
       mvarId

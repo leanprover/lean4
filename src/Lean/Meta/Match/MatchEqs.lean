@@ -361,7 +361,7 @@ partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefaul
 
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
-    if let some (_, lhs, rhs) ← matchEqHEq? localDecl.type then
+    if let some (_, lhs, rhs) ← matchEq? localDecl.type then
       if lhs.isFVar then
         if !(← dependsOn rhs lhs.fvarId!) then
           match (← subst? mvarId lhs.fvarId!) with
@@ -713,7 +713,7 @@ where
   Recall that `alts` depends on `discrs` when `numDiscrEqs > 0`, where `numDiscrEqs` is the number of discriminants
   annotated with `h : discr`.
 -/
-partial def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patterns : Array Expr) (alts : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
+def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patterns : Array Expr) (alts : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
   if numDiscrEqs == 0 then
     k alts
   else

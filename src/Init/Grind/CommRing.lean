@@ -10,5 +10,6 @@ import Init.Grind.CommRing.Basic
 import Init.Grind.CommRing.Int
 import Init.Grind.CommRing.UInt
 import Init.Grind.CommRing.SInt
+import Init.Grind.CommRing.Fin
 import Init.Grind.CommRing.BitVec
 import Init.Grind.CommRing.Poly

@@ -207,71 +207,6 @@ namespace Lean.Tactic.FunInd
 
 open Lean Elab Meta
 
-namespace Match -- this section to be moved
-
-def genGeneralizedMatchEqns (matchDeclName : Name) : MetaM (Array Name) := do
-  let baseName := mkPrivateName (← getEnv) matchDeclName
-  withConfig (fun c => { c with etaStruct := .none }) do
-  let constInfo ← getConstInfo matchDeclName
-  let us := constInfo.levelParams.map mkLevelParam
-  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
-  let numDiscrEqs := matchInfo.getNumDiscrEqs
-  forallTelescopeReducing constInfo.type fun xs _matchResultType => do
-    let mut eqnNames := #[]
-    let params := xs[:matchInfo.numParams]
-    let motive := xs[matchInfo.getMotivePos]!
-    let alts   := xs[xs.size - matchInfo.numAlts:]
-    let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
-    let mut notAlts := #[]
-    let mut idx := 1
-    for i in [:alts.size] do
-      let altNumParams := matchInfo.altNumParams[i]!
-      let thmName := baseName ++ ((`gen_eq).appendIndexAfter idx)
-      eqnNames := eqnNames.push thmName
-      let notAlt ← do
-        let alt := alts[i]!
-        Match.forallAltVarsTelescope (← inferType alt) altNumParams numDiscrEqs fun altVars args _mask altResultType => do
-        let patterns ← forallTelescope altResultType fun _ t => pure t.getAppArgs
-        let mut heqsTypes := #[]
-        assert! patterns.size == discrs.size
-        for discr in discrs, pattern in patterns do
-          let heqType ← mkEqHEq discr pattern
-          heqsTypes := heqsTypes.push ((`heq).appendIndexAfter (heqsTypes.size + 1), heqType)
-        withLocalDeclsDND heqsTypes fun heqs => do
-          let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
-          let mut hs := #[]
-          for notAlt in notAlts do
-            let h ← instantiateForall notAlt patterns
-            if let some h ← Match.simpH? h patterns.size then
-              hs := hs.push h
-          trace[Meta.Match.matchEqs] "hs: {hs}"
-          -- Create a proposition for representing terms that do not match `patterns`
-          let mut notAlt := mkConst ``False
-          for discr in discrs.toArray.reverse, pattern in patterns.reverse do
-            notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
-          notAlt ← mkForallFVars (discrs ++ altVars) notAlt
-          let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-          let thmType ← mkHEq lhs rhs
-          let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
-          let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
-          let thmType ← Match.unfoldNamedPattern thmType
-          let thmVal ← Match.proveCondEqThm matchDeclName thmType
-            (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
-          unless (← getEnv).contains thmName do
-            addDecl <| Declaration.thmDecl {
-              name        := thmName
-              levelParams := constInfo.levelParams
-              type        := thmType
-              value       := thmVal
-            }
-          return notAlt
-      notAlts := notAlts.push notAlt
-      idx := idx + 1
-    return eqnNames
-
-end Match
-
 def lambdaTelescope1 {n} [MonadControlT MetaM n] [MonadError n] [MonadNameGenerator n] [Monad n] {α} (e : Expr) (k : FVarId → Expr → n α) : n α := do
   lambdaBoundedTelescope e 1 fun xs body => do
     unless xs.size == 1 do
@@ -732,7 +667,7 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
     let matcherDeclName := e.getAppFn.constName!
     let eqns ← Match.genGeneralizedMatchEqns matcherDeclName
     unless altIdx < eqns.size do
-      trace[Tactic.FunInd] "Am supposed to reduce arm {altIdx}, but got only {eqns.size} equations for {.ofConstName matcherDeclName}"
+      trace[Tactic.FunInd] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
       return { expr := e }
     let eqnThm := eqns[altIdx]!
     try

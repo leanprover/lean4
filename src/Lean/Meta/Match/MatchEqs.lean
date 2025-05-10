@@ -833,21 +833,120 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       let result := { eqnNames, splitterName, splitterAltNumParams }
       registerMatchEqns matchDeclName result
 
+def genEqnThmSuffixBase := "gen_eq"
+def genEqnThmSuffixBasePrefix := genEqnThmSuffixBase ++ "_"
+def genEqn1ThmSuffix := genEqnThmSuffixBasePrefix ++ "1"
+example : genEqn1ThmSuffix = "gen_eq_1" := rfl
+
+/-- Returns `true` if `s` is of the form `eq_<idx>` -/
+def isGenEqnReservedNameSuffix (s : String) : Bool :=
+  genEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop 3).isNat
+
+/- We generate the equations and splitter on demand, and do not save them on .olean files. -/
+builtin_initialize matchGenEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
+  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
+  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- see below
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+def registerMatchGenEqns (matchDeclName : Name) (eqnNames : Array Name) : CoreM Unit := do
+  modifyEnv fun env => matchGenEqnsExt.modifyState env fun map =>
+    map.insert matchDeclName eqnNames
+
+/--
+Generate the generalized match equations for the given match auxiliary declaration.
+The generalized equations have a completely unrestriced left-hand side (arbitrary discriminants),
+and take propositional equations relating the discriminants to the patterns as arguments. Therefore
+they are `HEq` equations.
+
+The code duplicates a fair bit of the logic above, and has to repeat the calculation of the
+`notAlts`. One could avoid that and generate the generalized equations eagerly above, but they are
+not always needed, so for now we live with the code duplication.
+-/
+def genGeneralizedMatchEqns (matchDeclName : Name) : MetaM (Array Name) := do
+  let baseName := mkPrivateName (← getEnv) matchDeclName
+  let firstEqnName := .str baseName genEqn1ThmSuffix
+  realizeConst matchDeclName firstEqnName (go baseName)
+  return matchGenEqnsExt.findStateAsync (← getEnv) firstEqnName |>.find! matchDeclName
+where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
+  withConfig (fun c => { c with etaStruct := .none }) do
+  let constInfo ← getConstInfo matchDeclName
+  let us := constInfo.levelParams.map mkLevelParam
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
+  let numDiscrEqs := matchInfo.getNumDiscrEqs
+  forallTelescopeReducing constInfo.type fun xs _matchResultType => do
+    let mut eqnNames := #[]
+    let params := xs[:matchInfo.numParams]
+    let motive := xs[matchInfo.getMotivePos]!
+    let alts   := xs[xs.size - matchInfo.numAlts:]
+    let firstDiscrIdx := matchInfo.numParams + 1
+    let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
+    let mut notAlts := #[]
+    let mut idx := 1
+    for i in [:alts.size] do
+      let altNumParams := matchInfo.altNumParams[i]!
+      let thmName := (Name.str baseName genEqnThmSuffixBase).appendIndexAfter idx
+      eqnNames := eqnNames.push thmName
+      let notAlt ← do
+        let alt := alts[i]!
+        Match.forallAltVarsTelescope (← inferType alt) altNumParams numDiscrEqs fun altVars args _mask altResultType => do
+        let patterns ← forallTelescope altResultType fun _ t => pure t.getAppArgs
+        let mut heqsTypes := #[]
+        assert! patterns.size == discrs.size
+        for discr in discrs, pattern in patterns do
+          let heqType ← mkEqHEq discr pattern
+          heqsTypes := heqsTypes.push ((`heq).appendIndexAfter (heqsTypes.size + 1), heqType)
+        withLocalDeclsDND heqsTypes fun heqs => do
+          let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
+          let mut hs := #[]
+          for notAlt in notAlts do
+            let h ← instantiateForall notAlt patterns
+            if let some h ← Match.simpH? h patterns.size then
+              hs := hs.push h
+          trace[Meta.Match.matchEqs] "hs: {hs}"
+          let mut notAlt := mkConst ``False
+          for discr in discrs.toArray.reverse, pattern in patterns.reverse do
+            notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
+          notAlt ← mkForallFVars (discrs ++ altVars) notAlt
+          let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+          let thmType ← mkHEq lhs rhs
+          let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
+          let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
+          let thmType ← Match.unfoldNamedPattern thmType
+          -- Here we prove the theorem from scratch. One could likely also use the (non-generalized)
+          -- match equation theorem after subst'ing the `heqs`.
+          let thmVal ← Match.proveCondEqThm matchDeclName thmType
+            (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
+          unless (← getEnv).contains thmName do
+            addDecl <| Declaration.thmDecl {
+              name        := thmName
+              levelParams := constInfo.levelParams
+              type        := thmType
+              value       := thmVal
+            }
+          return notAlt
+      notAlts := notAlts.push notAlt
+      idx := idx + 1
+    registerMatchGenEqns matchDeclName eqnNames
+
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
-private def isMatchEqName? (env : Environment) (n : Name) : Option Name := do
+private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × Bool) := do
   let .str p s := n | failure
-  guard <| isEqnReservedNameSuffix s || s == "splitter"
+  guard <| isEqnReservedNameSuffix s || s == "splitter" || isGenEqnReservedNameSuffix s
   let p ← privateToUserName? p
   guard <| isMatcherCore env p
-  return p
+  return (p, isGenEqnReservedNameSuffix s)
 
 builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
-  let some p := isMatchEqName? (← getEnv) name |
+  let some (p, isGenEq) := isMatchEqName? (← getEnv) name |
     return false
-  let _ ← MetaM.run' <| getEquationsFor p
+  if isGenEq then
+    let _ ← MetaM.run' <| genGeneralizedMatchEqns p
+  else
+    let _ ← MetaM.run' <| getEquationsFor p
   return true
 
 end Lean.Meta.Match

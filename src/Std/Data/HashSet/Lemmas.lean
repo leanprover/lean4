@@ -527,6 +527,7 @@ theorem insertMany_cons {l : List α} {k : α} :
     insertMany m (k :: l) = insertMany (m.insert k) l :=
   ext HashMap.insertManyIfNewUnit_cons
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List α} :
     insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
   induction l₁ generalizing m with

@@ -29,11 +29,11 @@ namespace Std.DHashMap
 
 variable {m : DHashMap α β}
 
-@[simp]
+@[simp, grind]
 theorem isEmpty_emptyWithCapacity {c} : (emptyWithCapacity c : DHashMap α β).isEmpty :=
   Raw₀.isEmpty_emptyWithCapacity
 
-@[simp]
+@[simp, grind]
 theorem isEmpty_empty : (∅ : DHashMap α β).isEmpty :=
   isEmpty_emptyWithCapacity
 
@@ -41,7 +41,7 @@ set_option linter.missingDocs false in
 @[deprecated isEmpty_empty (since := "2025-03-12")]
 abbrev isEmpty_emptyc := @isEmpty_empty
 
-@[simp]
+@[simp, grind]
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insert k v).isEmpty = false :=
   Raw₀.isEmpty_insert _ m.2
@@ -62,14 +62,16 @@ theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == 
 theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : a ∈ m ↔ b ∈ m := by
   simp [← contains_iff_mem, contains_congr hab]
 
-@[simp]
+@[simp, grind]
 theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : DHashMap α β).contains a = false :=
   Raw₀.contains_emptyWithCapacity
 
-@[simp] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : DHashMap α β) := by
+set_option trace.grind.ematch.pattern true
+
+@[simp, grind] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : DHashMap α β) := by
   simp [mem_iff_contains]
 
-@[simp] theorem contains_empty {a : α} : (∅ : DHashMap α β).contains a = false :=
+@[simp, grind] theorem contains_empty {a : α} : (∅ : DHashMap α β).contains a = false :=
   contains_emptyWithCapacity
 
 set_option linter.missingDocs false in
@@ -113,12 +115,12 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
     Singleton.singleton p = (∅ : DHashMap α β).insert p.1 p.2 :=
   rfl
 
-@[simp]
+@[simp, grind]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     (m.insert k v).contains a = (k == a || m.contains a) :=
   Raw₀.contains_insert ⟨m.1, _⟩ m.2
 
-@[simp]
+@[simp, grind]
 theorem mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     a ∈ m.insert k v ↔ k == a ∨ a ∈ m := by
   simp [← contains_iff_mem, contains_insert]
@@ -1396,6 +1398,7 @@ theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     m.insertMany (⟨k, v⟩ :: l) = (m.insert k v).insertMany l :=
   Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List ((a : α) × β a)} :
     m.insertMany (l₁ ++ l₂) = (m.insertMany l₁).insertMany l₂ := by
   induction l₁ generalizing m with
@@ -1597,6 +1600,7 @@ theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List (α × β)} :
     insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
   induction l₁ generalizing m with

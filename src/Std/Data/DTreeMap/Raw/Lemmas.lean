@@ -1296,6 +1296,7 @@ theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     t.insertMany (⟨k, v⟩ :: l) = (t.insert k v).insertMany l :=
   ext <| Impl.insertMany!_cons
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List ((a : α) × β a)} :
     insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
   induction l₁ generalizing t with
@@ -1476,6 +1477,7 @@ theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     Const.insertMany t ((k, v) :: l) = Const.insertMany (t.insert k v) l :=
   ext <| Impl.Const.insertMany!_cons
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List (α × β)} :
     insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
   induction l₁ generalizing t with

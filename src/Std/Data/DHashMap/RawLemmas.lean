@@ -1495,6 +1495,7 @@ theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} [Equiv
   simp_to_raw
   rw [Raw₀.insertMany_cons]
 
+@[grind _=_]
 theorem insertMany_append [EquivBEq α] [LawfulHashable α] (h : m.WF) {l₁ l₂ : List ((a : α) × β a)} :
     insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
   induction l₁ generalizing m with
@@ -1705,6 +1706,7 @@ theorem insertMany_cons (h : m.WF) {l : List (α × β)}
   simp_to_raw
   rw [Raw₀.Const.insertMany_cons]
 
+@[grind _=_]
 theorem insertMany_append (h : m.WF) {l₁ l₂ : List (α × β)} :
     insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
   induction l₁ generalizing m with

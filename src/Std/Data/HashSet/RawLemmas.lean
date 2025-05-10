@@ -552,6 +552,7 @@ theorem insertMany_cons (h : m.WF) {l : List α} {k : α} :
     insertMany m (k :: l) = insertMany (m.insert k) l :=
   ext (HashMap.Raw.insertManyIfNewUnit_cons h.1)
 
+@[grind _=_]
 theorem insertMany_append (h : m.WF) {l₁ l₂ : List α} :
     insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
   induction l₁ generalizing m with

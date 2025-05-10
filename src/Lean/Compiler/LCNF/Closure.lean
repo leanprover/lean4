@@ -29,6 +29,10 @@ structure Context where
   Remark: the lambda lifting pass abstracts all `let`/`fun`-declarations.
   -/
   abstract : FVarId → Bool
+  /--
+  Indicates whether we are processing terms beneath a binder.
+  -/
+  isUnderBinder : Bool
 
 /--
 State for the `ClosureM` monad.
@@ -93,7 +97,11 @@ mutual
   -/
   partial def collectCode (c : Code) : ClosureM Unit := do
     match c with
-    | .let decl k => collectType decl.type; collectLetValue decl.value; collectCode k
+    | .let decl k =>
+      collectType decl.type
+      withReader (fun ctx => { ctx with isUnderBinder := ctx.isUnderBinder || decl.type.isForall })
+        do collectLetValue decl.value
+      collectCode k
     | .fun decl k | .jp decl k => collectFunDecl decl; collectCode k
     | .cases c =>
       collectType c.resultType
@@ -110,7 +118,8 @@ mutual
   partial def collectFunDecl (decl : FunDecl) : ClosureM Unit := do
     collectType decl.type
     collectParams decl.params
-    collectCode decl.value
+    withReader (fun ctx => { ctx with isUnderBinder := true }) do
+      collectCode decl.value
 
   /--
   Process the given free variable.
@@ -119,10 +128,11 @@ mutual
   partial def collectFVar (fvarId : FVarId) : ClosureM Unit := do
     unless (← get).visited.contains fvarId do
       markVisited fvarId
-      if (← read).inScope fvarId then
+      let ctx ← read
+      if ctx.inScope fvarId then
         /- We only collect the variables in the scope of the function application being specialized. -/
         if let some funDecl ← findFunDecl? fvarId then
-          if (← read).abstract funDecl.fvarId then
+          if ctx.isUnderBinder || ctx.abstract funDecl.fvarId then
             modify fun s => { s with params := s.params.push <| { funDecl with borrow := false } }
           else
             collectFunDecl funDecl
@@ -132,7 +142,7 @@ mutual
           modify fun s => { s with params := s.params.push param }
         else if let some letDecl ← findLetDecl? fvarId then
           collectType letDecl.type
-          if (← read).abstract letDecl.fvarId then
+          if ctx.isUnderBinder || ctx.abstract letDecl.fvarId then
             modify fun s => { s with params := s.params.push <| { letDecl with borrow := false } }
           else
             collectLetValue letDecl.value
@@ -147,7 +157,7 @@ mutual
 end
 
 def run (x : ClosureM α) (inScope : FVarId → Bool) (abstract : FVarId → Bool := fun _ => true) : CompilerM (α × Array Param × Array CodeDecl) := do
-  let (a, s) ← x { inScope, abstract } |>.run {}
+  let (a, s) ← x { inScope, abstract, isUnderBinder := false } |>.run {}
   return (a, s.params, s.decls)
 
 end Closure

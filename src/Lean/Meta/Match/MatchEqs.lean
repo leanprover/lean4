@@ -312,9 +312,17 @@ partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefaul
   else
     return none
 
+private def heqToEqSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
+  for localDecl in (← getLCtx) do
+    if let some (α, _lhs, β, _rhs) ← matchHEq? localDecl.type then
+    if (← isDefEq α β) then
+      let (_, mvarId') ← heqToEq mvarId localDecl.fvarId (tryToClear := true)
+      return #[mvarId']
+  throwError "substSomeVar failed"
+
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
-    if let some (_, lhs, rhs) ← matchEq? localDecl.type then
+    if let some (_, lhs, rhs) ← matchEqHEq? localDecl.type then
       if lhs.isFVar then
         if !(← dependsOn rhs lhs.fvarId!) then
           match (← subst? mvarId lhs.fvarId!) with
@@ -330,15 +338,34 @@ private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
 /--
   Helper method for proving a conditional equational theorem associated with an alternative of
   the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem. -/
-partial def proveCondEqThm (matchDeclName : Name) (type : Expr) : MetaM Expr := withLCtx {} {} do
+partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
+  (heqPos : Nat := 0) (heqNum : Nat := 0) : MetaM Expr := withLCtx {} {} do
   let type ← instantiateMVars type
-  forallTelescope type fun ys target => do
-    let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
-    trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
-    let mvarId ← mvar0.mvarId!.deltaTarget (· == matchDeclName)
-    withDefault <| go mvarId 0
-    mkLambdaFVars ys (← instantiateMVars mvar0)
+  if heqNum = 0 then
+    forallTelescope type fun ys target => withDefault do
+      let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
+      trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
+      let mvarId ← mvar0.mvarId!.deltaTarget (· == matchDeclName)
+      go mvarId 0
+      mkLambdaFVars ys (← instantiateMVars mvar0)
+  else
+    forallBoundedTelescope type heqPos fun ys target => withDefault do
+      let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
+      trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
+      goSubst mvar0.mvarId! 0
+      mkLambdaFVars ys (← instantiateMVars mvar0)
+
 where
+  goSubst (mvarId : MVarId) (i : Nat) : MetaM Unit := withIncRecDepth do
+    if i < heqNum then
+      let (h, mvarId) ← mvarId.intro1
+      let mvarId ← subst mvarId h
+      goSubst mvarId (i+1)
+    else
+      let (_, mvarId) ← mvarId.intros
+      let mvarId ← mvarId.deltaTarget (· == matchDeclName)
+      go mvarId 0
+
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
     let mvarId' ← observing? <| mvarId.modifyTargetEqLHS whnfCore
@@ -354,6 +381,10 @@ where
       (do mvarId.refl; return #[])
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])
+      -- <|>
+      -- (heqToEqSomeVar mvarId)
+      <|>
+      (substSomeVar mvarId)
       <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
@@ -369,11 +400,8 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (substSomeVar mvarId)
-      <|>
       (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
-
 
 /-- Construct new local declarations `xs` with types `altTypes`, and then execute `f xs`  -/
 private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr → MetaM α) : MetaM α := do

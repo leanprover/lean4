@@ -196,7 +196,7 @@ def forallAltVarsTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
   forallBoundedTelescope altType (altNumParams - numDiscrEqs) fun ys altType' => do
     if ys.size == 1 then
       let y := ys[0]!
-      if (← inferType y).isConstOf ``Unit && !(← dependsOn altType y.fvarId!) then
+      if (← inferType y).isConstOf ``Unit && !(← dependsOn altType' y.fvarId!) then
         return ← withErasedFVars #[y.fvarId!] do
           k #[] true altType
     k ys false altType'
@@ -211,7 +211,7 @@ def getPatternFromAltType (altType : Expr) : MetaM (Array Expr) := do
 
 partial def instantiateAlt (alt : Expr) (altVars : Array Expr) (heqs : Array Expr) (numDiscrEqs : Nat) (hasUnit : Bool) : MetaM Expr := do
   if hasUnit then
-    assert! altVars.size == 1
+    assert! altVars.size == 0
     assert! numDiscrEqs == 0
     return mkApp alt (mkConst ``Unit.unit)
   let e := mkAppN alt altVars
@@ -325,20 +325,20 @@ def genGeneralizedMatchEqns (matchDeclName : Name) : MetaM Unit := do
           for discr in discrs.toArray.reverse, pattern in patterns.reverse do
             notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
           notAlt ← mkForallFVars (discrs ++ altVars) notAlt
-          let alt := alts[i]!
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
           let thmType ← mkHEq lhs rhs
           let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
-          -- let thmVal ← mkFreshExprSyntheticOpaqueMVar thmType
           let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
           let thmType ← Match.unfoldNamedPattern thmType
           let thmVal ← Match.proveCondEqThm matchDeclName thmType
-          addDecl <| Declaration.thmDecl {
-            name        := thmName
-            levelParams := constInfo.levelParams
-            type        := thmType
-            value       := thmVal
-          }
+            (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
+          unless (← getEnv).contains thmName do
+            addDecl <| Declaration.thmDecl {
+              name        := thmName
+              levelParams := constInfo.levelParams
+              type        := thmType
+              value       := thmVal
+            }
           return notAlt
       notAlts := notAlts.push notAlt
       idx := idx + 1
@@ -368,12 +368,12 @@ info: myTest.match_1.splitter.{u_1, u_2} {α : Type u_1} (motive : List α → S
 /--
 info: myTest.match_1.gen_eq_1.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)
   (h_1 : (a : α) → (dc : List α) → x✝ = a :: dc → motive (a :: dc)) (h_2 : (x' : List α) → x✝ = x' → motive x') (a : α)
-  (dc : List α) (h : x✝ = a :: dc) :
+  (dc : List α) (heq_1 : x✝ = a :: dc) :
   HEq
     (match h : x✝ with
     | a :: dc => h_1 a dc h
     | x' => h_2 x' h)
-    (h_1 a dc h)
+    (h_1 a dc heq_1)
 -/
 #guard_msgs in
 #check myTest.match_1.gen_eq_1
@@ -381,13 +381,13 @@ info: myTest.match_1.gen_eq_1.{u_1, u_2} {α : Type u_1} (motive : List α → S
 /--
 info: myTest.match_1.gen_eq_2.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)
   (h_1 : (a : α) → (dc : List α) → x✝ = a :: dc → motive (a :: dc)) (h_2 : (x' : List α) → x✝ = x' → motive x')
-  (x' : List α) (h : x✝ = x') :
+  (x' : List α) (heq_1 : x✝ = x') :
   (∀ (a : α) (dc : List α), x' = a :: dc → False) →
     HEq
       (match h : x✝ with
       | a :: dc => h_1 a dc h
       | x' => h_2 x' h)
-      (h_2 x' h)
+      (h_2 x' heq_1)
 -/
 #guard_msgs in
 #check myTest.match_1.gen_eq_2
@@ -406,15 +406,71 @@ info: take.match_1.{u_1, u_2} {α : Type u_1} (motive : Nat → List α → Sort
 #guard_msgs in
 #check take.match_1
 
-set_option trace.Meta.Match.matchEqs true in
+-- set_option trace.Meta.Match.matchEqs true in
 run_meta
   genGeneralizedMatchEqns ``take.match_1
+
+/--
+info: take.match_1.gen_eq_1.{u_1, u_2} {α : Type u_1} (motive : Nat → List α → Sort u_2) (n✝ : Nat) (xs✝ : List α)
+  (h_1 : (x : List α) → motive 0 x) (h_2 : (n : Nat) → motive n.succ [])
+  (h_3 : (n : Nat) → (a : α) → (as : List α) → motive n.succ (a :: as)) (x✝ : List α) (heq_1 : n✝ = 0)
+  (heq_2 : xs✝ = x✝) :
+  HEq
+    (match n✝, xs✝ with
+    | 0, x => h_1 x
+    | n.succ, [] => h_2 n
+    | n.succ, a :: as => h_3 n a as)
+    (h_1 x✝)
+-/
+#guard_msgs in #check take.match_1.gen_eq_1
+
+
+def matchOptionUnit (o? : Option Unit) : Bool := Id.run do
+    if let some _ := o? then
+      true
+    else
+      false
+
+run_meta do
+  genGeneralizedMatchEqns ``matchOptionUnit.match_1
+
+/--
+info: matchOptionUnit.match_1.gen_eq_1.{u_1} (motive : Option Unit → Sort u_1) (o?✝ : Option Unit)
+  (h_1 : (val : Unit) → motive (some val)) (h_2 : (x : Option Unit) → motive x) (val✝ : Unit)
+  (heq_1 : o?✝ = some val✝) :
+  HEq
+    (match o?✝ with
+    | some val => h_1 ()
+    | x => h_2 x)
+    (h_1 val✝)
+-/
+#guard_msgs in
+#check matchOptionUnit.match_1.gen_eq_1
+
+run_meta genGeneralizedMatchEqns ``Std.Tactic.BVDecide.BVExpr.bitblast.go.match_5
+
+set_option linter.unusedVariables false in
+private partial def utf16PosToCodepointPosFromAux (s : String) : Nat → String.Pos → Nat → Bool
+  | 0,        _,       cp => true
+  | utf16pos, utf8pos, cp => false
+
+run_meta do
+  genGeneralizedMatchEqns ``utf16PosToCodepointPosFromAux.match_1
+
+axiom some_expr : Option Nat
+def wrongEq (m? : Option Nat) (h : some_expr = m?)
+  (w : 0 < m?.getD 0) : Bool := by
+  match m?, w with
+  | some m?, _ => exact true
+
+run_meta do
+  genGeneralizedMatchEqns ``wrongEq.match_1
 
 #exit
 run_meta do
   let s := Lean.Meta.Match.Extension.extension.getState (← getEnv) (asyncMode := .local)
-  for (k,_) in s.map, i in [:100] do
-    unless (`Lean).isPrefixOf k do
+  for (k,_) in s.map do --, _ in [:600] do
+    unless (`Lean).isPrefixOf (privateToUserName k) do
       let mut ok := false
       try
         let _ ← Match.getEquationsFor k

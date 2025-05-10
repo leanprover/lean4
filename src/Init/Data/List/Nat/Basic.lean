@@ -109,6 +109,32 @@ theorem length_rightpad {n : Nat} {a : α} {l : List α} :
   simp [rightpad]
   omega
 
+/-! ### intersperse -/
+
+@[simp] theorem length_intersperse (l : List α) (sep : α) :
+    (l.intersperse sep).length = 2 * l.length - 1 := by
+  fun_induction intersperse <;> simp only [intersperse, length_cons, length_nil] at * <;> try omega
+  next h _ => have := length_pos_iff.mpr h; omega
+
+@[simp] theorem intersperse_getElem?_even {l : List α} (sep : α) (h : 1 < l.length) :
+    (l.intersperse sep)[2 * i]? = l[i]? := by
+  fun_induction intersperse generalizing i <;> try contradiction
+  next hn _ =>
+    have ⟨_, tl, hn⟩ := ne_nil_iff_exists_cons.mp hn
+    cases tl <;> cases i
+    case nil.succ  j => cases j <;> simp_all +arith
+    case cons.succ j => have hj : 2 * (j + 1) = 2 * j + 2 := rfl; simp_all
+    all_goals simp [intersperse]
+
+@[simp] theorem intersperse_getElem?_odd {l : List α} (sep : α) (hl : 1 < l.length) (hi : i < l.length - 1) :
+    (l.intersperse sep)[2 * i + 1]? = some sep := by
+  fun_induction intersperse generalizing i <;> try contradiction
+  next hn _ =>
+    have ⟨_, tl, hn⟩ := ne_nil_iff_exists_cons.mp hn
+    cases tl <;> cases i
+    case cons.succ j => have hj : 2 * (j + 1) = 2 * j + 2 := rfl; simp_all
+    all_goals simp_all
+
 /-! ### eraseIdx -/
 
 theorem mem_eraseIdx_iff_getElem {x : α} :

@@ -264,7 +264,6 @@ lean_ctor_set(x_28, 0, x_13);
 x_29 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_29, 0, x_16);
 x_30 = l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion(x_3, x_22, x_25, x_27, x_28, x_29, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_17);
-lean_dec(x_28);
 return x_30;
 }
 else
@@ -299,7 +298,6 @@ lean_ctor_set(x_44, 0, x_13);
 x_45 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_45, 0, x_31);
 x_46 = l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion(x_3, x_38, x_41, x_43, x_44, x_45, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_32);
-lean_dec(x_44);
 return x_46;
 }
 }
@@ -4045,7 +4043,6 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_List_forIn_x27_loop___at_Lean_Elab_Rewrites_evalExact___spec__2___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_13;
 }

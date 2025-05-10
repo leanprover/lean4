@@ -28939,7 +28939,6 @@ x_30 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_WF_GuessLex_reportTermination
 x_31 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_17, x_29, x_28, x_30, x_28, x_7, x_8, x_9, x_10, x_25);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_17);
 if (lean_obj_tag(x_31) == 0)
 {
 uint8_t x_32; 
@@ -29106,7 +29105,6 @@ x_61 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_WF_GuessLex_reportTermination
 x_62 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_48, x_60, x_59, x_61, x_59, x_7, x_8, x_9, x_10, x_56);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_48);
 if (lean_obj_tag(x_62) == 0)
 {
 lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 

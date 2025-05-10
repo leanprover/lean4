@@ -68,6 +68,7 @@ static lean_object* l_Lake_Module_recParseImports___lambda__4___closed__2;
 size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Module_recParseImports___spec__9___closed__3;
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_toJson___at_Lake_Module_importsFacetConfig___spec__3(lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Module_recParseImports___spec__9___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Module_recBuildDeps___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -170,7 +171,7 @@ LEAN_EXPORT lean_object* l_Lake_ensureJob___at_Lake_Module_recBuildLeanCToOExpor
 static lean_object* l_Lake_Module_recBuildDeps___lambda__9___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Module_recBuildLeanCToOExport___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Module_recBuildLean___lambda__1___closed__9;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__3(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_collectImportsAux___closed__4;
 lean_object* l_Lake_buildLeanSharedLib(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_sharedLibExt;
@@ -178,6 +179,7 @@ LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Module_recComputeTransImports
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Module_recParseImports___spec__9___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Module_recBuildLeanCToOExport(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_clearOutputHashes(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__4(size_t, size_t, lean_object*);
 lean_object* l_Lake_EquipT_bind___at_Lake_buildFileUnlessUpToDate_x27___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Module_recBuildDeps___spec__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_platformTrace;
@@ -393,7 +395,6 @@ LEAN_EXPORT lean_object* l_Lake_Module_recBuildDeps___lambda__2(lean_object*, le
 LEAN_EXPORT lean_object* l_Lake_ensureJob___at_Lake_Module_recBuildDeps___spec__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_recBuildExternDynlibs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Module_recComputeTransImports___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_computePrecompileImportsAux___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lake_Module_recParseImports___spec__2(lean_object*, lean_object*);
@@ -7749,7 +7750,7 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__3(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__4(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -7779,6 +7780,18 @@ x_2 = x_14;
 x_3 = x_15;
 goto _start;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Array_toJson___at_Lake_Module_importsFacetConfig___spec__3(lean_object* x_1) {
+_start:
+{
+size_t x_2; size_t x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = lean_array_size(x_1);
+x_3 = 0;
+x_4 = l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__4(x_2, x_3, x_1);
+x_5 = lean_alloc_ctor(4, 1, 0);
+lean_ctor_set(x_5, 0, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Lake_stdFormat___at_Lake_Module_importsFacetConfig___spec__1___closed__1() {
@@ -7907,14 +7920,10 @@ return x_19;
 }
 else
 {
-size_t x_20; size_t x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_20 = lean_array_size(x_2);
-x_21 = 0;
-x_22 = l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__3(x_20, x_21, x_2);
-x_23 = lean_alloc_ctor(4, 1, 0);
-lean_ctor_set(x_23, 0, x_22);
-x_24 = l_Lean_Json_compress(x_23);
-return x_24;
+lean_object* x_20; lean_object* x_21; 
+x_20 = l_Array_toJson___at_Lake_Module_importsFacetConfig___spec__3(x_2);
+x_21 = l_Lean_Json_compress(x_20);
+return x_21;
 }
 }
 }
@@ -7983,7 +7992,7 @@ lean_dec(x_1);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -7991,7 +8000,7 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__3(x_4, x_5, x_3);
+x_6 = l_Array_mapMUnsafe_map___at_Lake_Module_importsFacetConfig___spec__4(x_4, x_5, x_3);
 return x_6;
 }
 }

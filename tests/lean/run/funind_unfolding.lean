@@ -10,9 +10,10 @@ termination_by x => x
 info: fib.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : motive 0 0) (case2 : motive 1 1)
   (case3 : ∀ (n : Nat), motive n.succ.succ (fib n + fib (n + 1))) (x✝ : Nat) : motive x✝ (fib x✝)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check fib.fun_cases_unfolding
 
+-- set_option trace.Meta.FunInd true in
 def ackermann : Nat → Nat → Nat
   | 0, m => m + 1
   | n+1, 0 => ackermann n 1
@@ -25,7 +26,7 @@ info: ackermann.fun_cases_unfolding (motive : Nat → Nat → Nat → Prop) (cas
   (case3 : ∀ (n m : Nat), motive n.succ m.succ (ackermann n (ackermann (n + 1) m))) (x✝ x✝¹ : Nat) :
   motive x✝ x✝¹ (ackermann x✝ x✝¹)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check ackermann.fun_cases_unfolding
 
 def fib' : Nat → Nat
@@ -39,7 +40,7 @@ info: fib'.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : motive 0
   (case3 : ∀ (n : Nat), (n = 0 → False) → (n = 1 → False) → motive n (fib' (n - 1) + fib' (n - 2))) (x✝ : Nat) :
   motive x✝ (fib' x✝)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check fib'.fun_cases_unfolding
 
 def fib'' (n : Nat) : Nat :=
@@ -66,7 +67,7 @@ info: fib''.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : ∀ (n 
         ¬foo < 100 → motive n 0)
   (n : Nat) : motive n (fib'' n)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check fib''.fun_cases_unfolding
 
 -- set_option trace.Meta.FunInd true in
@@ -80,7 +81,7 @@ info: filter.fun_cases (motive : (Nat → Bool) → List Nat → Prop) (case1 : 
   (case3 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), ¬p x = true → motive p (x :: xs)) (p : Nat → Bool)
   (x✝ : List Nat) : motive p x✝
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check filter.fun_cases
 
 /--
@@ -90,7 +91,7 @@ info: filter.fun_cases_unfolding (motive : (Nat → Bool) → List Nat → List 
   (case3 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), ¬p x = true → motive p (x :: xs) (filter p xs))
   (p : Nat → Bool) (x✝ : List Nat) : motive p x✝ (filter p x✝)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check filter.fun_cases_unfolding
 
 /--
@@ -98,7 +99,7 @@ info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : mot
   (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive xs → motive (x :: xs))
   (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs → motive (x :: xs)) (a✝ : List Nat) : motive a✝
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check filter.induct
 
 /--
@@ -107,7 +108,7 @@ info: filter.induct_unfolding (p : Nat → Bool) (motive : List Nat → List Nat
   (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs (filter p xs) → motive (x :: xs) (filter p xs))
   (a✝ : List Nat) : motive a✝ (filter p a✝)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check filter.induct_unfolding
 
 theorem filter_const_false_is_nil :
@@ -141,7 +142,7 @@ info: map.fun_cases (motive : (Nat → Bool) → List Nat → Prop) (case1 : ∀
   (case2 : ∀ (f : Nat → Bool) (x : Nat) (xs : List Nat), motive f (x :: xs)) (f : Nat → Bool) (x✝ : List Nat) :
   motive f x✝
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map.fun_cases
 
 /--
@@ -150,14 +151,14 @@ info: map.fun_cases_unfolding (motive : (Nat → Bool) → List Nat → List Boo
   (case2 : ∀ (f : Nat → Bool) (x : Nat) (xs : List Nat), motive f (x :: xs) (f x :: map f xs)) (f : Nat → Bool)
   (x✝ : List Nat) : motive f x✝ (map f x✝)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map.fun_cases_unfolding
 
 /--
 info: map.induct (motive : List Nat → Prop) (case1 : motive [])
   (case2 : ∀ (x : Nat) (xs : List Nat), motive xs → motive (x :: xs)) (a✝ : List Nat) : motive a✝
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map.induct
 
 /--
@@ -165,11 +166,12 @@ info: map.induct_unfolding (f : Nat → Bool) (motive : List Nat → List Bool �
   (case2 : ∀ (x : Nat) (xs : List Nat), motive xs (map f xs) → motive (x :: xs) (f x :: map f xs)) (a✝ : List Nat) :
   motive a✝ (map f a✝)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map.induct_unfolding
 
 namespace BinaryWF
 
+-- set_option trace.Meta.FunInd true in
 def map2 (f : Nat → Nat → Bool) : List Nat → List Nat → List Bool
   | x::xs, y::ys => f x y::map2 f xs ys
   | _, _ => []
@@ -187,7 +189,7 @@ info: BinaryWF.map2.induct_unfolding (f : Nat → Nat → Bool) (motive : List N
         motive x x_1 [])
   (a✝ a✝¹ : List Nat) : motive a✝ a✝¹ (map2 f a✝ a✝¹)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map2.induct_unfolding
 
 end BinaryWF
@@ -209,7 +211,7 @@ info: BinaryStructural.map2.induct_unfolding (f : Nat → Nat → Bool) (motive 
       (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive t x [])
   (a✝ a✝¹ : List Nat) : motive a✝ a✝¹ (map2 f a✝ a✝¹)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map2.induct_unfolding
 
 end BinaryStructural
@@ -245,7 +247,7 @@ info: MutualWF.map2a.mutual_induct_unfolding (f : Nat → Nat → Bool) (motive1
         motive2 x x_1 []) :
   (∀ (a a_1 : List Nat), motive1 a a_1 (map2a f a a_1)) ∧ ∀ (a a_1 : List Nat), motive2 a a_1 (map2b f a a_1)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map2a.mutual_induct_unfolding
 
 /--
@@ -266,7 +268,7 @@ info: MutualWF.map2a.induct_unfolding (f : Nat → Nat → Bool) (motive1 motive
         motive2 x x_1 [])
   (a✝ a✝¹ : List Nat) : motive1 a✝ a✝¹ (map2a f a✝ a✝¹)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map2a.induct_unfolding
 
 end MutualWF
@@ -297,7 +299,7 @@ info: MutualStructural.map2a.induct (motive_1 motive_2 : List Nat → List Nat �
       (∀ (x_1 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t = x_1 :: xs → x = y :: ys → False) → motive_2 t x)
   (a✝ a✝¹ : List Nat) : motive_1 a✝ a✝¹
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map2a.induct
 
 
@@ -320,7 +322,7 @@ info: MutualStructural.map2a.mutual_induct_unfolding (f : Nat → Nat → Bool)
         motive_2 t x (map2b f t x)) :
   (∀ (a a_1 : List Nat), motive_1 a a_1 (map2a f a a_1)) ∧ ∀ (a a_1 : List Nat), motive_2 a a_1 (map2b f a a_1)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map2a.mutual_induct_unfolding
 
 
@@ -343,7 +345,7 @@ info: MutualStructural.map2a.induct_unfolding (f : Nat → Nat → Bool)
         motive_2 t x (map2b f t x))
   (a✝ a✝¹ : List Nat) : motive_1 a✝ a✝¹ (map2a f a✝ a✝¹)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check map2a.induct_unfolding
 
 end MutualStructural
@@ -391,7 +393,7 @@ info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → 
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h a) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h (siftDown a root e h)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check siftDown.induct_unfolding
 
 /--
@@ -413,7 +415,7 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check siftDown.induct
 
 -- Now something with have
@@ -429,14 +431,14 @@ info: withHave.induct_unfolding (motive : Nat → Bool → Prop) (case1 : 0 < 42
   (case2 : ∀ (x : Nat), 0 < x → ¬x = 42 → motive (x - 1) (withHave (x - 1)) → motive x (withHave (x - 1))) (n : Nat) :
   motive n (withHave n)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check withHave.induct_unfolding
 
 /--
 info: withHave.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : 0 < 42 → motive 42 true)
   (case2 : ∀ (n : Nat), 0 < n → ¬n = 42 → motive n (withHave (n - 1))) (n : Nat) : motive n (withHave n)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check withHave.fun_cases_unfolding
 
 -- Structural Mutual recursion
@@ -466,7 +468,7 @@ info: Tree.size.induct_unfolding.{u_1} {α : Type u_1} (motive_1 : Tree α → N
       motive_1 t t.size → motive_2 ts (Tree.size_aux ts) → motive_2 (t :: ts) (t.size + Tree.size_aux ts))
   (a✝ : Tree α) : motive_1 a✝ a✝.size
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check Tree.size.induct_unfolding
 
 /--
@@ -483,5 +485,55 @@ info: Tree.size_aux.induct_unfolding.{u_1} {α : Type u_1} (motive_1 : Tree α �
       motive_1 t t.size → motive_2 ts (Tree.size_aux ts) → motive_2 (t :: ts) (t.size + Tree.size_aux ts))
   (a✝ : List (Tree α)) : motive_2 a✝ (Tree.size_aux a✝)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check Tree.size_aux.induct_unfolding
+
+
+-- When the discriminants are duplicated, it is very easy for `FunInd` to be confused
+-- about how to instantiate the equality theorem. Maybe not relevant in practice for now?
+-- Maybe even impossible to solve.
+
+-- set_option trace.Meta.FunInd true in
+set_option linter.unusedVariables false in
+def duplicatedDiscriminant (n : Nat) : Bool :=
+  match h1 : n, h2 : n with
+  | 0, 0 => true
+  | a+1, 0 => false -- by simp_all
+  | 0, b+1 => false -- by simp_all
+  | a, b => true
+
+/--
+info: duplicatedDiscriminant.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : 0 = 0 → motive 0 true)
+  (case2 :
+    ∀ (a : Nat),
+      a.succ = 0 →
+        motive 0
+          (match h1 : 0, h2 : 0 with
+          | 0, 0 => true
+          | a.succ, 0 => false
+          | 0, b.succ => false
+          | a, b => true))
+  (case3 :
+    ∀ (b : Nat),
+      0 = b.succ →
+        motive b.succ
+          (match h1 : b.succ, h2 : b.succ with
+          | 0, 0 => true
+          | a.succ, 0 => false
+          | 0, b_1.succ => false
+          | a, b_1 => true))
+  (case4 :
+    ∀ (b : Nat),
+      (b = 0 → b = 0 → False) →
+        (∀ (a : Nat), b = a.succ → b = 0 → False) →
+          (∀ (b_1 : Nat), b = 0 → b = b_1.succ → False) →
+            motive b
+              (match h1 : b, h2 : b with
+              | 0, 0 => true
+              | a.succ, 0 => false
+              | 0, b_1.succ => false
+              | a, b_1 => true))
+  (n : Nat) : motive n (duplicatedDiscriminant n)
+-/
+#guard_msgs(pass trace, all) in
+#check duplicatedDiscriminant.fun_cases_unfolding

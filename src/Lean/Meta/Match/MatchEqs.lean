@@ -339,7 +339,7 @@ end SimpH
   Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
   We have one hypothesis for each previous case.
 -/
-partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
+private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
   let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
   let mvarId := (← mkFreshExprSyntheticOpaqueMVar h).mvarId!
   let (xs, mvarId) ← mvarId.introN numVars
@@ -425,6 +425,7 @@ where
       <|>
       (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
+
 
 /-- Construct new local declarations `xs` with types `altTypes`, and then execute `f xs`  -/
 private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr → MetaM α) : MetaM α := do
@@ -706,7 +707,7 @@ where
   Recall that `alts` depends on `discrs` when `numDiscrEqs > 0`, where `numDiscrEqs` is the number of discriminants
   annotated with `h : discr`.
 -/
-def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patterns : Array Expr) (alts : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
+private partial def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patterns : Array Expr) (alts : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
   if numDiscrEqs == 0 then
     k alts
   else

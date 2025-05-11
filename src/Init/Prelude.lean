@@ -2459,7 +2459,7 @@ structure Char where
   /-- The value must be a legal scalar value. -/
   valid : val.isValidChar
 
-private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
+theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
   match h with
   | Or.inl h      => Nat.lt_trans h (of_decide_eq_true rfl)
   | Or.inr ⟨_, h⟩ => Nat.lt_trans h (of_decide_eq_true rfl)
@@ -4060,7 +4060,12 @@ protected opaque String.hash (s : @& String) : UInt64
 instance : Hashable String where
   hash := String.hash
 
+end  -- don't expose `Lean` defs
+
 namespace Lean
+
+open BEq (beq)
+open HAdd (hAdd)
 
 /--
 Hierarchical names consist of a sequence of components, each of
@@ -4146,35 +4151,35 @@ abbrev mkSimple (s : String) : Name :=
   .str .anonymous s
 
 /-- Make name `s₁` -/
-@[reducible] def mkStr1 (s₁ : String) : Name :=
+@[expose, reducible] def mkStr1 (s₁ : String) : Name :=
   .str .anonymous s₁
 
 /-- Make name `s₁.s₂` -/
-@[reducible] def mkStr2 (s₁ s₂ : String) : Name :=
+@[expose, reducible] def mkStr2 (s₁ s₂ : String) : Name :=
   .str (.str .anonymous s₁) s₂
 
 /-- Make name `s₁.s₂.s₃` -/
-@[reducible] def mkStr3 (s₁ s₂ s₃ : String) : Name :=
+@[expose, reducible] def mkStr3 (s₁ s₂ s₃ : String) : Name :=
   .str (.str (.str .anonymous s₁) s₂) s₃
 
 /-- Make name `s₁.s₂.s₃.s₄` -/
-@[reducible] def mkStr4 (s₁ s₂ s₃ s₄ : String) : Name :=
+@[expose, reducible] def mkStr4 (s₁ s₂ s₃ s₄ : String) : Name :=
   .str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄
 
 /-- Make name `s₁.s₂.s₃.s₄.s₅` -/
-@[reducible] def mkStr5 (s₁ s₂ s₃ s₄ s₅ : String) : Name :=
+@[expose, reducible] def mkStr5 (s₁ s₂ s₃ s₄ s₅ : String) : Name :=
   .str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅
 
 /-- Make name `s₁.s₂.s₃.s₄.s₅.s₆` -/
-@[reducible] def mkStr6 (s₁ s₂ s₃ s₄ s₅ s₆ : String) : Name :=
+@[expose, reducible] def mkStr6 (s₁ s₂ s₃ s₄ s₅ s₆ : String) : Name :=
   .str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆
 
 /-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇` -/
-@[reducible] def mkStr7 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ : String) : Name :=
+@[expose, reducible] def mkStr7 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ : String) : Name :=
   .str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇
 
 /-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇.s₈` -/
-@[reducible] def mkStr8 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ s₈ : String) : Name :=
+@[expose, reducible] def mkStr8 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ s₈ : String) : Name :=
   .str (.str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇) s₈
 
 /-- (Boolean) equality comparator for names. -/
@@ -4423,7 +4428,7 @@ def Syntax.node8 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a�
 Singleton `SyntaxNodeKinds` are extremely common. They are written as name literals, rather than as
 lists; list syntax is required only for empty or non-singleton sets of kinds.
 -/
-def SyntaxNodeKinds := List SyntaxNodeKind
+@[expose] def SyntaxNodeKinds := List SyntaxNodeKind
 
 /--
 Typed syntax, which tracks the potential kinds of the `Syntax` it contains.
@@ -5110,7 +5115,8 @@ namespace Macro
 /-- References -/
 private opaque MethodsRefPointed : NonemptyType.{0}
 
-private def MethodsRef : Type := MethodsRefPointed.type
+/-- An opaque reference to the `Methods` object. -/
+def MethodsRef : Type := MethodsRefPointed.type
 
 private instance : Nonempty MethodsRef := MethodsRefPointed.property
 

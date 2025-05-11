@@ -264,13 +264,13 @@ abbrev get_drop_eq_drop := @getElem_cons_drop_succ_eq_drop
 /-! ### getElem? -/
 
 /-- Internal implementation of `as[i]?`. Do not use directly. -/
-private def get?Internal : (as : List α) → (i : Nat) → Option α
+def get?Internal : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get?Internal as n
   | _,     _   => none
 
 /-- Internal implementation of `as[i]!`. Do not use directly. -/
-private def get!Internal [Inhabited α] : (as : List α) → (i : Nat) → α
+def get!Internal [Inhabited α] : (as : List α) → (i : Nat) → α
   | a::_,  0   => a
   | _::as, n+1 => get!Internal as n
   | _,     _   => panic! "invalid index"

@@ -120,13 +120,8 @@ theorem length_rightpad {n : Nat} {a : α} {l : List α} :
 
 @[simp] theorem getElem?_intersperse_two_mul {l : List α} (sep : α) :
     (l.intersperse sep)[2 * i]? = l[i]? := by
-  induction l using List.intersperse.induct_unfolding sep generalizing i
-  · rfl
-  · cases i <;> rfl
-  · rename_i ih
-    cases i
-    · rfl
-    · simp [Nat.mul_succ, ih]
+  induction l using intersperse.induct_unfolding sep generalizing i <;> cases i
+  all_goals simp [mul_succ, *]
 
 theorem getElem?_intersperse_two_mul_add_one {l : List α} (h : i + 1 < l.length) (sep : α) :
     (l.intersperse sep)[2 * i + 1]? = some sep := by

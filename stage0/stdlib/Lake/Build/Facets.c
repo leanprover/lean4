@@ -139,7 +139,6 @@ static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleDeps____x40_
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lake_Build_Facets_0__Lake_reprModuleDeps____x40_Lake_Build_Facets___hyg_51____spec__3(lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___private_Lake_Build_Facets_0__Lake_reprModuleDeps____x40_Lake_Build_Facets___hyg_51____spec__1___closed__9;
 LEAN_EXPORT lean_object* l_Lake_LeanExe_defaultFacet;
-LEAN_EXPORT lean_object* l_Lake_Package_releaseFacet;
 static lean_object* l_Lake_Package_optBuildCacheFacet___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instReprModuleFacet(lean_object*, lean_object*);
 static lean_object* l_Lake_Module_coFacet___closed__1;
@@ -170,7 +169,6 @@ LEAN_EXPORT lean_object* l_Lake_Module_oFacet;
 static lean_object* l_Array_Array_repr___at___private_Lake_Build_Facets_0__Lake_reprModuleDeps____x40_Lake_Build_Facets___hyg_51____spec__1___closed__4;
 static lean_object* l_Lake_LeanExe_exeFacet___closed__2;
 static lean_object* l_Array_Array_repr___at___private_Lake_Build_Facets_0__Lake_reprModuleDeps____x40_Lake_Build_Facets___hyg_51____spec__1___closed__5;
-LEAN_EXPORT lean_object* l_Lake_Package_optReleaseFacet;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleDeps____x40_Lake_Build_Facets___hyg_51____closed__5;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleDeps____x40_Lake_Build_Facets___hyg_51____closed__9;
@@ -1353,14 +1351,6 @@ x_1 = l_Lake_Package_optGitHubReleaseFacet___closed__2;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Package_optReleaseFacet() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_Package_optGitHubReleaseFacet;
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_Package_gitHubReleaseFacet___closed__1() {
 _start:
 {
@@ -1384,14 +1374,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lake_Package_gitHubReleaseFacet___closed__2;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Package_releaseFacet() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_Package_gitHubReleaseFacet;
 return x_1;
 }
 }
@@ -1957,16 +1939,12 @@ l_Lake_Package_optGitHubReleaseFacet___closed__2 = _init_l_Lake_Package_optGitHu
 lean_mark_persistent(l_Lake_Package_optGitHubReleaseFacet___closed__2);
 l_Lake_Package_optGitHubReleaseFacet = _init_l_Lake_Package_optGitHubReleaseFacet();
 lean_mark_persistent(l_Lake_Package_optGitHubReleaseFacet);
-l_Lake_Package_optReleaseFacet = _init_l_Lake_Package_optReleaseFacet();
-lean_mark_persistent(l_Lake_Package_optReleaseFacet);
 l_Lake_Package_gitHubReleaseFacet___closed__1 = _init_l_Lake_Package_gitHubReleaseFacet___closed__1();
 lean_mark_persistent(l_Lake_Package_gitHubReleaseFacet___closed__1);
 l_Lake_Package_gitHubReleaseFacet___closed__2 = _init_l_Lake_Package_gitHubReleaseFacet___closed__2();
 lean_mark_persistent(l_Lake_Package_gitHubReleaseFacet___closed__2);
 l_Lake_Package_gitHubReleaseFacet = _init_l_Lake_Package_gitHubReleaseFacet();
 lean_mark_persistent(l_Lake_Package_gitHubReleaseFacet);
-l_Lake_Package_releaseFacet = _init_l_Lake_Package_releaseFacet();
-lean_mark_persistent(l_Lake_Package_releaseFacet);
 l_Lake_Package_extraDepFacet___closed__1 = _init_l_Lake_Package_extraDepFacet___closed__1();
 lean_mark_persistent(l_Lake_Package_extraDepFacet___closed__1);
 l_Lake_Package_extraDepFacet___closed__2 = _init_l_Lake_Package_extraDepFacet___closed__2();

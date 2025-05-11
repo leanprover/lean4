@@ -17,7 +17,7 @@ A state monad that uses an actual mutable reference cell (i.e. an `ST.Ref ω σ`
 
 The macro `StateRefT σ m α` infers `ω` from `m`. It should normally be used instead.
 -/
-def StateRefT' (ω : Type) (σ : Type) (m : Type → Type) (α : Type) : Type := ReaderT (ST.Ref ω σ) m α
+@[expose] def StateRefT' (ω : Type) (σ : Type) (m : Type → Type) (α : Type) : Type := ReaderT (ST.Ref ω σ) m α
 
 /-! Recall that `StateRefT` is a macro that infers `ω` from the `m`. -/
 

@@ -83,7 +83,7 @@ def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
 
 mutual
 
-partial def FunDeclCore.toMono (decl : FunDecl) : ToMonoM FunDecl := do
+partial def FunDecl.toMono (decl : FunDecl) : ToMonoM FunDecl := do
   let type ← toMonoType decl.type
   let params ← decl.params.mapM (·.toMono)
   let value ← decl.value.toMono

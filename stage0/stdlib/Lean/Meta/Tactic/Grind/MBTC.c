@@ -6974,7 +6974,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29;
 x_26 = lean_ctor_get(x_24, 0);
 x_27 = lean_ctor_get(x_24, 1);
 x_28 = l_Lean_Meta_Grind_mbtc___lambda__4___closed__1;
-x_29 = lean_ctor_get_uint8(x_26, sizeof(void*)*7 + 10);
+x_29 = lean_ctor_get_uint8(x_26, sizeof(void*)*7 + 11);
 lean_dec(x_26);
 if (x_29 == 0)
 {
@@ -7061,7 +7061,7 @@ lean_inc(x_60);
 lean_inc(x_59);
 lean_dec(x_24);
 x_61 = l_Lean_Meta_Grind_mbtc___lambda__4___closed__1;
-x_62 = lean_ctor_get_uint8(x_59, sizeof(void*)*7 + 10);
+x_62 = lean_ctor_get_uint8(x_59, sizeof(void*)*7 + 11);
 lean_dec(x_59);
 if (x_62 == 0)
 {
@@ -7425,7 +7425,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = l_Lean_Meta_Grind_getConfig___rarg(x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*7 + 13);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*7 + 14);
 lean_dec(x_12);
 if (x_13 == 0)
 {

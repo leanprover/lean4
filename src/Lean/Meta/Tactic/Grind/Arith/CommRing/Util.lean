@@ -104,7 +104,7 @@ def noZeroDivisorsInst? : RingM (Option Expr) := do
   return (← getRing).noZeroDivInst?
 
 /--
-Returns `true` if the current ring satifies the property
+Returns `true` if the current ring satisfies the property
 ```
 ∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
 ```

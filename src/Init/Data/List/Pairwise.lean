@@ -254,7 +254,7 @@ theorem pairwise_pmap {p : β → Prop} {f : ∀ b, p b → α} {l : List β} (h
   | nil => simp
   | cons a l ihl =>
     obtain ⟨_, hl⟩ : p a ∧ ∀ b, b ∈ l → p b := by simpa using h
-    simp only [ihl hl, pairwise_cons, exists₂_imp, pmap, and_congr_left_iff, mem_pmap]
+    simp only [pmap_cons, pairwise_cons, mem_pmap, forall_exists_index, ihl hl, and_congr_left_iff]
     refine fun _ => ⟨fun H b hb _ hpb => H _ _ hb rfl, ?_⟩
     rintro H _ b hb rfl
     exact H b hb _ _

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.CommRing
-// Imports: Init.Grind.CommRing.Basic Init.Grind.CommRing.Int Init.Grind.CommRing.UInt Init.Grind.CommRing.SInt Init.Grind.CommRing.BitVec Init.Grind.CommRing.Poly
+// Imports: Init.Grind.CommRing.Basic Init.Grind.CommRing.Int Init.Grind.CommRing.UInt Init.Grind.CommRing.SInt Init.Grind.CommRing.Fin Init.Grind.CommRing.BitVec Init.Grind.CommRing.Poly
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Init_Grind_CommRing_Basic(uint8_t builtin, lean_object*)
 lean_object* initialize_Init_Grind_CommRing_Int(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_CommRing_UInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_CommRing_SInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_CommRing_Fin(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_CommRing_BitVec(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_CommRing_Poly(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -34,6 +35,9 @@ res = initialize_Init_Grind_CommRing_UInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_CommRing_SInt(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_CommRing_Fin(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_CommRing_BitVec(builtin, lean_io_mk_world());

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.WF.Lemmas
-// Imports: Init.Data.Option.List Init.Data.Array.Bootstrap Std.Classes.Ord Std.Data.DTreeMap.Internal.Model Std.Data.Internal.Cut Std.Data.Internal.List.Associative
+// Imports: Init.Data.Option.List Init.Data.Array.Bootstrap Std.Classes.Ord.Basic Std.Data.DTreeMap.Internal.Model Std.Data.Internal.Cut Std.Data.Internal.List.Associative
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1335,7 +1335,7 @@ return x_4;
 }
 lean_object* initialize_Init_Data_Option_List(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Classes_Ord(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Classes_Ord_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DTreeMap_Internal_Model(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Internal_Cut(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin, lean_object*);
@@ -1350,7 +1350,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Array_Bootstrap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Classes_Ord(builtin, lean_io_mk_world());
+res = initialize_Std_Classes_Ord_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Internal_Model(builtin, lean_io_mk_world());

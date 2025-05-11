@@ -46,7 +46,7 @@ inductive PatternDescr (α : Type u) (β : Type v)
 | all (ps : Array (Pattern α β))
 /-- Matches a value that satisfies any one of the patterns. Short-circuits. -/
 | any (ps : Array (Pattern α β))
-/-- Matches a value that statisfies the underlying pattern description. -/
+/-- Matches a value that satisfies the underlying pattern description. -/
 | coe (p : β)
 deriving Inhabited
 
@@ -112,7 +112,7 @@ def Pattern.empty : Pattern α β :=
 instance : EmptyCollection (PatternDescr α β) := ⟨.empty⟩
 instance : EmptyCollection (Pattern α β) := ⟨.empty⟩
 
-/-- Matches eveything. -/
+/-- Matches everything. -/
 def PatternDescr.star : PatternDescr α β := .all #[]
 
 @[inherit_doc PatternDescr.star]

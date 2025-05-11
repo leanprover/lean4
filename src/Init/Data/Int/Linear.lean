@@ -12,9 +12,9 @@ import Init.Data.Int.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.Cooper
-import Init.Data.Int.Gcd
+import all Init.Data.Int.Gcd
 import Init.Data.RArray
-import Init.Data.AC
+import all Init.Data.AC
 
 namespace Int.Linear
 

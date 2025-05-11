@@ -210,7 +210,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let importJob := Job.mixArray importJobs "import oleans"
   /-
   Remark: It should be possible to avoid transitive imports here when the module
-  itself is precompiled, but they are currently kept to perserve the "bad import" errors.
+  itself is precompiled, but they are currently kept to preserve the "bad import" errors.
   -/
   let precompileImports ← if mod.shouldPrecompile then
     mod.transImports.fetch else mod.precompileImports.fetch
@@ -291,7 +291,7 @@ def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
       /-
       Avoid recompiling unchanged Olean files.
       Olean files incorporate not only their own content, but also their
-      transitive imports. However, they are independnt of their module sources.
+      transitive imports. However, they are independent of their module sources.
       -/
       newTrace s!"{mod.name.toString}:olean"
       addTrace (← mod.deps.fetch).getTrace.withoutInputs

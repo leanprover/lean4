@@ -1,0 +1,5 @@
+{"textDocument": {"uri": "file:///rwElabConst.lean"},
+ "position": {"line": 18, "character": 12}}
+{"range":
+ {"start": {"line": 18, "character": 10}, "end": {"line": 18, "character": 17}},
+ "goal": "⊢ ∀ {α : Sort ?u} (a : α), (a = a) = True"}

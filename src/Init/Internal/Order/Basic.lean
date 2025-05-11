@@ -9,6 +9,7 @@ prelude
 
 import Init.ByCases
 import Init.RCases
+import all Init.Control.Except  -- for `MonoBind` instance
 
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as
@@ -167,7 +168,7 @@ A function is monotone if it maps related elements to related elements.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
+@[expose] def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
 
 theorem monotone_const (c : β) : monotone (fun (_ : α) => c) :=
   fun _ _ _ => PartialOrder.rel_refl
@@ -707,7 +708,7 @@ set_option linter.unusedVariables false in
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def FlatOrder {α : Sort u} (b : α) := α
+@[expose] def FlatOrder {α : Sort u} (b : α) := α
 
 variable {b : α}
 
@@ -842,7 +843,7 @@ end mono_bind
 
 section implication_order
 -- Partial order on `Prop` given by implication
-def ImplicationOrder := Prop
+@[expose] def ImplicationOrder := Prop
 
 instance ImplicationOrder.instOrder : PartialOrder ImplicationOrder where
   rel x y := x → y
@@ -897,7 +898,7 @@ end implication_order
 
 section reverse_implication_order
 
-def ReverseImplicationOrder := Prop
+@[expose] def ReverseImplicationOrder := Prop
 
 -- Partial order on `Prop` given by reverse implication
 instance ReverseImplicationOrder.instOrder : PartialOrder ReverseImplicationOrder where

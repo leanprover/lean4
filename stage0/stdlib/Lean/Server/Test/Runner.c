@@ -6989,7 +6989,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Server_Test_Runner_main_readFirstResponse___closed__4;
 x_2 = l_Lean_Server_Test_Runner_main_readFirstResponse___closed__5;
-x_3 = lean_unsigned_to_nat(258u);
+x_3 = lean_unsigned_to_nat(261u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_Server_Test_Runner_main_readFirstResponse___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -18292,7 +18292,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Server_Test_Runner_main_readFirstResponse___closed__4;
 x_2 = l_List_forIn_x27_loop___at_Lean_Server_Test_Runner_main___spec__32___lambda__8___closed__3;
-x_3 = lean_unsigned_to_nat(150u);
+x_3 = lean_unsigned_to_nat(153u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Server_Test_Runner_main___spec__32___lambda__8___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22156,15 +22156,16 @@ return x_2;
 static lean_object* _init_l_Lean_Server_Test_Runner_main___closed__13() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Server_Test_Runner_main___closed__12;
-x_3 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_1);
-return x_3;
+x_3 = l_Lean_Server_Test_Runner_main___closed__9;
+x_4 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_1);
+lean_ctor_set(x_4, 2, x_1);
+lean_ctor_set(x_4, 3, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Server_Test_Runner_main___closed__14() {

@@ -30,7 +30,7 @@ def x : Nat := 10
 /--
 error: Application type mismatch: In the application
   mul ?_ x
-the final argument
+the argument
   x
 has type
   Nat : Type
@@ -43,7 +43,7 @@ but is expected to have type
 /--
 error: Application type mismatch: In the application
   mul ?_ (x, x)
-the final argument
+the argument
   (x, x)
 has type
   Nat × Nat : Type
@@ -58,7 +58,7 @@ local infix:65 (priority := high) "*" => mul
 /--
 error: Application type mismatch: In the application
   ?_*x
-the final argument
+the argument
   x
 has type
   Nat : Type
@@ -76,7 +76,7 @@ open Algebra -- activate unification hints
 /--
 error: Application type mismatch: In the application
   ?_*(x, x)
-the final argument
+the argument
   (x, x)
 has type
   Nat × Nat : Type
@@ -104,7 +104,7 @@ end Sec1
 /--
 error: Application type mismatch: In the application
   ?_*(x, x)
-the final argument
+the argument
   (x, x)
 has type
   Nat × Nat : Type

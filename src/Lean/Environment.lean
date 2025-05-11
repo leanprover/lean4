@@ -745,7 +745,7 @@ tasks unless necessary. This can usually be done efficiently because `addConstAs
 declarations added in an environment branch have that branch's declaration name as a prefix, so we
 know exactly what tasks to wait for to find a declaration. However, this is not true for
 declarations from `realizeConst`, which are not restricted to the current prefix, and reference to
-which may escpae the branch(es) they have been realized on such as when looking into the type `Expr`
+which may escape the branch(es) they have been realized on such as when looking into the type `Expr`
 of a declaration found on another branch. Thus when we cannot find the declaration using the fast
 prefix-based lookup, we fall back to waiting for and looking at the realizations from all branches.
 To avoid this expensive search for realizations from other branches, `skipRealize` can set to ensure
@@ -796,7 +796,9 @@ be triggered if any.
 -/
 def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     BaseIO Environment := do
-  if env.findAsync? c |>.isNone then
+  -- Meta code working on a non-exported declaration should usually do so inside `withoutExporting`
+  -- but we're lenient here in case this call is the only one that needs the setting.
+  if env.setExporting false |>.findAsync? c |>.isNone then
     panic! s!"declaration {c} not found in environment"
     return env
   if let some asyncCtx := env.asyncCtx? then
@@ -910,6 +912,7 @@ structure AddConstAsyncResult where
   asyncEnv : Environment
   private constName : Name
   private kind : ConstantKind
+  private exportedKind? : Option ConstantKind
   private sigPromise : IO.Promise ConstantVal
   private constPromise : IO.Promise ConstPromiseVal
   private checkedEnvPromise : IO.Promise Kernel.Environment
@@ -942,9 +945,13 @@ Starts the asynchronous addition of a constant to the environment. The environme
 corresponding information has been added on the "async" environment branch and committed there; see
 the respective fields of `AddConstAsyncResult` as well as the [Environment Branches] note for more
 information.
+
+`exportedKind?` must be passed if the eventual kind of the constant in the exported constant map
+will differ from that of the private version. It must be `none` if the constant will not be
+exported.
 -/
 def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
-    (exportedKind := kind) (reportExts := true) (checkMayContain := true) :
+    (exportedKind? : Option ConstantKind := some kind) (reportExts := true) (checkMayContain := true) :
     IO AddConstAsyncResult := do
   if checkMayContain then
     if let some ctx := env.asyncCtx? then
@@ -973,7 +980,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       | some v => .mk v.nestedConsts.private
       | none   => .mk (α := AsyncConsts) default
   }
-  let exportedAsyncConst := { privateAsyncConst with
+  let exportedAsyncConst? := exportedKind?.map fun exportedKind => { privateAsyncConst with
     constInfo := { privateAsyncConst.constInfo with
       kind := exportedKind
       constInfo := constPromise.result?.map (sync := true) fun
@@ -985,11 +992,12 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       | none   => .mk (α := AsyncConsts) default
   }
   return {
-    constName, kind
+    constName, kind, exportedKind?
     mainEnv := { env with
       asyncConstsMap := {
         «private» := env.asyncConstsMap.private.add privateAsyncConst
-        «public»  := env.asyncConstsMap.public.add exportedAsyncConst
+        «public»  := exportedAsyncConst?.map (env.asyncConstsMap.public.add ·)
+          |>.getD env.asyncConstsMap.public
       }
       checked := checkedEnvPromise.result?.bind (sync := true) fun
         | some kenv => .pure kenv
@@ -1021,6 +1029,7 @@ given environment. The declaration name and kind must match the original values 
 def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environment)
     (info? : Option ConstantInfo := none) (exportedInfo? : Option ConstantInfo := none) :
     IO Unit := do
+  -- Make sure to access the non-exported version here
   let info ← match info? <|> (env.setExporting false).find? res.constName with
     | some info => pure info
     | none =>
@@ -1034,10 +1043,13 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has level params {info.levelParams} but expected {sig.levelParams}"
   if sig.type != info.type then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has type {info.type} but expected {sig.type}"
+  let mut exportedInfo? := exportedInfo?
   if let some exportedInfo := exportedInfo? then
     if exportedInfo.toConstantVal != info.toConstantVal then
       -- may want to add more details if necessary
       throw <| .userError s!"AddConstAsyncResult.commitConst: exported constant has different signature"
+  else if res.exportedKind?.isNone then
+    exportedInfo? := some info  -- avoid `find?` call, ultimately unused
   res.constPromise.resolve {
     privateConstInfo := info
     exportedConstInfo := (exportedInfo? <|> (env.setExporting true).find? res.constName).getD info
@@ -1136,7 +1148,7 @@ end ConstantInfo
 Async access mode for environment extensions used in `EnvExtension.get/set/modifyState`.
 When modified in concurrent contexts, extensions may need to switch to a different mode than the
 default `mainOnly`, which will panic in such cases. The access mode is set at environment extension
-registration time but can be overriden when calling the mentioned functions in order to weaken it
+registration time but can be overridden when calling the mentioned functions in order to weaken it
 for specific accesses.
 
 In all modes, the state stored into the `.olean` file for persistent environment extensions is the
@@ -1347,7 +1359,7 @@ private unsafe def findStateAsyncUnsafe {σ : Type} [Inhabited σ]
 where
   /--
   Like `AsyncConsts.findRec?`, but if `AsyncConst.exts?` is `none`, returns the extension state of
-  the surrounding `AsyncConst` instead, which is where state for synchronously added constatns is
+  the surrounding `AsyncConst` instead, which is where state for synchronously added constants is
   stored.
   -/
   findRecExts? (parent? : Option AsyncConst) (aconsts : AsyncConsts) (declName : Name) :
@@ -1762,7 +1774,7 @@ private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleDa
   let (baseMod, _) ← self.parts[0]?
   self.parts[if baseMod.isModule && self.importAll then 2 else 0]?.map (·.1)
 
-/-- The main module data that will eventually be used to construct the publically accessible constants. -/
+/-- The main module data that will eventually be used to construct the publicly accessible constants. -/
 private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
   let (baseMod, _) ← self.parts[0]?
   return baseMod
@@ -1815,22 +1827,66 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
   return fnames
 
 partial def importModulesCore
-    (imports : Array Import) (forceImportAll := true) (arts : NameMap ModuleArtifacts := {}) :
-    ImportStateM Unit := go
-where go := do
+    (imports : Array Import) (isModule := false) (arts : NameMap ModuleArtifacts := {}) :
+    ImportStateM Unit := go imports (importAll := true) (isExported := isModule)
+/-
+When the module system is disabled for the root, we import all transitively referenced modules and
+ignore any module sytem annotations on the way.
+
+When the module system is enabled for the root, each module may need to be imported at one of the
+following levels:
+
+* all: import public information into public scope and private information into private scope
+* public: import public information into public scope
+* privateAll: import public and private information into private scope
+* private: import public information into private scope
+* none: do not import
+
+These levels form a lattice in the following way:
+
+* all > public > private > none
+* all > privateAll > private > none
+
+The level at which a module then is to be imported based on the given `import` relations is
+determined by the least fixed point of the following rules:
+
+* Root ≥ all
+* A ≥ privateAll ∧ A `(private)? import all` B → B ≥ privateAll
+* A ≥ private ∧ A `import (all)?` B → B ≥ private
+* A ≥ public ∧ A `import (all)?` B → B ≥ public
+* A ≥ privateAll ∧ A `private import` B → B ≥ private
+
+As imports are a DAG, we may need to visit the same module multiple times until its minimum
+necessary level is established.
+
+For implementation purposes, we represent elements in the lattice using two flags as follows:
+
+* all = isExported && importAll
+* privateAll = !isExported && importAll
+* private = !isExported && !importAll
+* public = isExported && !importAll
+
+`none` then is represented by not visiting a module at all.
+-/
+where go (imports : Array Import) (importAll : Bool) (isExported : Bool) := do
   for i in imports do
-    -- import private info if (transitively) used by a non-`module` on any import path, or with
-    -- `import all` (non-transitively)
-    let importAll := forceImportAll || i.importAll
+    -- `B = none`?
+    if !(i.isExported || importAll) then
+      continue
+    -- `B ≥ privateAll`?
+    let importAll := !isModule || (importAll && i.importAll)
+    -- `B ≥ public`?
+    let isExported := isExported && i.isExported
+    let goRec imports := do
+      go (importAll := importAll) (isExported := isExported) imports
     if let some mod := (← get).moduleNameMap[i.module]? then
-      -- when module is already imported, bump `importPrivate`
-      if importAll && !mod.importAll then
+      -- when module is already imported, bump flags
+      if importAll && !mod.importAll || isExported && !mod.isExported then
         modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-          importAll := true }}
-        if forceImportAll then
-          -- bump entire closure
-          if let some mod := mod.mainModule? then
-            importModulesCore (forceImportAll := true) mod.imports
+          importAll, isExported }}
+        -- bump entire closure
+        if let some mod := mod.mainModule? then
+          goRec mod.imports
       continue
     let fnames ←
       if let some arts := arts.find? i.module then
@@ -1843,16 +1899,14 @@ where go := do
     let parts ← readModuleDataParts fnames
     -- `imports` is identical for each part
     let some (baseMod, _) := parts[0]? | unreachable!
-    -- exclude `private import`s from transitive importing, except through `import all`
-    let imports := baseMod.imports.filter (·.isExported || importAll)
-    importModulesCore (forceImportAll := forceImportAll || !baseMod.isModule) imports
-    if baseMod.isModule && !forceImportAll then
+    goRec baseMod.imports
+    if baseMod.isModule && isModule then
       for i' in imports do
         if let some mod := (← get).moduleNameMap[i'.module]?.bind (·.mainModule?) then
           if !mod.isModule then
             throw <| IO.userError s!"cannot import non`-module` {i'.module} from `module` {i.module}"
     modify fun s => { s with
-      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, parts }
+      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, isExported, parts }
       moduleNames := s.moduleNames.push i.module
     }
 
@@ -2018,7 +2072,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports arts |>.run
+    let (_, s) ← importModulesCore (isModule := level != .private) imports arts |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 

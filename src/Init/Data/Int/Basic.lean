@@ -11,6 +11,8 @@ prelude
 import Init.Data.Cast
 import Init.Data.Nat.Div.Basic
 
+@[expose] section
+
 set_option linter.missingDocs true -- keep it documented
 open Nat
 

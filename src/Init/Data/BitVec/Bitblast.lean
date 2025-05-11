@@ -7,9 +7,11 @@ module
 
 prelude
 import Init.Data.BitVec.Folds
+import all Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Mod
+import all Init.Data.Int.DivMod
 import Init.Data.Int.LemmasAux
-import Init.Data.BitVec.Lemmas
+import all Init.Data.BitVec.Lemmas
 
 /-!
 # Bit blasting of bitvectors

@@ -8,6 +8,8 @@ module
 prelude
 import Init.Control.Basic
 
+@[expose] section
+
 namespace Option
 
 deriving instance DecidableEq for Option

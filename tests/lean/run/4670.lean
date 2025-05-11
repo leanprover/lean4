@@ -13,7 +13,7 @@ Was printing `true.out`, but it should have been `Foo.out true`.
 /--
 error: Application type mismatch: In the application
   Foo.out true
-the final argument
+the argument
   true
 has type
   Bool : Type
@@ -31,7 +31,7 @@ def Foo.out' (f : Foo) : Nat := f.out
 /--
 error: Application type mismatch: In the application
   Foo.out' true
-the final argument
+the argument
   true
 has type
   Bool : Type

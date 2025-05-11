@@ -11,7 +11,7 @@ test_out "hello" -f script.lean test -- hello
 test_out "hello" -f script.lean lint -- hello
 
 # Executable driver
-echo "# TEST: Excutable driver"
+echo "# TEST: Executable driver"
 test_out "exe: []" -f exe.lean test
 test_out "exe: []" -f exe.toml test
 test_out "exe: []" -f exe.lean lint

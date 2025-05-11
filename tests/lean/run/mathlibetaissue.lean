@@ -44,7 +44,6 @@ end Std.Classes.RatCast
 
 section Mathlib.Algebra.Group.Defs
 
-class Inv (α : Type u) where
 class Semigroup (G : Type u) extends Mul G where
 class AddSemigroup (G : Type u) extends Add G where
 class CommSemigroup (G : Type u) extends Semigroup G where

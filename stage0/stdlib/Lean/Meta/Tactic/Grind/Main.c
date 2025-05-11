@@ -2294,7 +2294,7 @@ _start:
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_2, 0);
-x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*7 + 11);
+x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*7 + 12);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -3866,7 +3866,7 @@ _start:
 lean_object* x_11; uint8_t x_12; 
 x_11 = lean_ctor_get(x_2, 0);
 lean_inc(x_11);
-x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*7 + 11);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*7 + 12);
 lean_dec(x_11);
 if (x_12 == 0)
 {
@@ -6229,7 +6229,7 @@ lean_dec(x_9);
 x_12 = l_Lean_Meta_Grind_Result_toMessageData___closed__1;
 x_13 = lean_ctor_get(x_1, 3);
 lean_inc(x_13);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*7 + 10);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*7 + 11);
 lean_dec(x_13);
 if (x_14 == 0)
 {

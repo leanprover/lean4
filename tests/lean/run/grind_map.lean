@@ -2,6 +2,8 @@ import Std.Data.HashMap
 import Std.Data.DHashMap
 import Std.Data.ExtHashMap
 import Std.Data.HashSet
+import Std.Data.TreeMap
+
 set_option grind.warning false
 
 open Std
@@ -30,5 +32,8 @@ example (m : HashMap Nat Nat) : m.size ≤ ((m.insert 1 2).insert 1 4).size := b
 example (m : HashMap Nat Nat) : ((m.insert 1 2).insert 1 4).size ≤ m.size + 1 := by grind
 
 example : (((∅ : HashMap Nat Nat).insert 3 6).erase 4)[3]? = some 6 := by grind
+
+example (m : Std.TreeMap Nat Bool) : (m.insert 37 true)[32]? = m[32]? := by
+  grind
 
 end

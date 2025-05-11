@@ -107,7 +107,7 @@ structure LegalVarState extends VarState where
 -/
 
 /-- A representation of an expression as a map from variable index to the number
-of occurences of the expression represented by that variable.
+of occurrences of the expression represented by that variable.
 
 See `CoefficientsMap.toExpr` for the explicit conversion. -/
 abbrev CoefficientsMap := Std.HashMap VarIndex Nat
@@ -233,7 +233,7 @@ open VarStateM Lean.Meta Lean.Elab Term
 Given two expressions `x, y` which are equal up to associativity and commutativity,
 construct and return a proof of `x = y`.
 
-Uses `ac_rfl` internally to contruct said proof. -/
+Uses `ac_rfl` internally to construct said proof. -/
 def proveEqualityByAC (x y : Expr) : MetaM Expr := do
   let expectedType ← mkEq x y
   let proof ← mkFreshExprMVar expectedType

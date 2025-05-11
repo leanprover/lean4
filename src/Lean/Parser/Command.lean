@@ -517,6 +517,15 @@ and options set with `set_option`.
 /-- Shows the current Lean version. Prints `Lean.versionString`. -/
 @[builtin_command_parser] def version        := leading_parser
   "#version"
+/--
+Debugging command. Runs the following command in an exported context just like elaboration of
+declaration signatures.
+-/
+@[builtin_command_parser] def withExporting  := leading_parser
+  "#with_exporting " >> commandParser
+/-- Debugging command. -/
+@[builtin_command_parser] def dumpEnvState := leading_parser
+  "#dump_env_state"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit

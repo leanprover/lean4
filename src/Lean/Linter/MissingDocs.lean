@@ -19,7 +19,7 @@ register_builtin_option linter.missingDocs : Bool := {
   descr := "enable the 'missing documentation' linter"
 }
 
-def getLinterMissingDocs (o : Options) : Bool := getLinterValue linter.missingDocs o
+def getLinterMissingDocs (o : LinterOptions) : Bool := getLinterValue linter.missingDocs o
 
 
 namespace MissingDocs
@@ -68,7 +68,7 @@ def getHandlers (env : Environment) : NameMap Handler := (missingDocsExt.getStat
 partial def missingDocs : Linter where
   run stx := do
     if let some h := (getHandlers (← getEnv)).find? stx.getKind then
-      h (getLinterMissingDocs (← getOptions)) stx
+      h (getLinterMissingDocs (← getLinterOptions)) stx
 
 builtin_initialize addLinter missingDocs
 

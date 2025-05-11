@@ -1,6 +1,6 @@
 423.lean:3:35-3:40: error: Application type mismatch: In the application
   HAdd.hAdd a
-the final argument
+the argument
   a
 has type
   T : Sort u
@@ -8,7 +8,7 @@ but is expected to have type
   Nat : Type
 423.lean:5:37-5:38: error: Application type mismatch: In the application
   Add T
-the final argument
+the argument
   T
 has type
   Sort u : Type u
@@ -16,7 +16,7 @@ but is expected to have type
   Type ?u : Type (?u + 1)
 423.lean:5:47-5:48: error: Application type mismatch: In the application
   OfNat T
-the final argument
+the argument
   T
 has type
   Sort u : Type u
@@ -24,7 +24,7 @@ but is expected to have type
   Type ?u : Type (?u + 1)
 423.lean:5:55-5:60: error: Application type mismatch: In the application
   HAdd.hAdd a
-the final argument
+the argument
   a
 has type
   T : Sort u

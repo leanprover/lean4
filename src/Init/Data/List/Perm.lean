@@ -9,6 +9,7 @@ prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Erase
 import Init.Data.List.Find
+import all Init.Data.List.Attach
 
 /-!
 # List Permutations

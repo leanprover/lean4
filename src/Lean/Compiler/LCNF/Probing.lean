@@ -54,7 +54,7 @@ where
     | .fun decl k | .jp decl k =>
       go decl.value
       go k
-    | .cases (cases : CasesCore Code) => cases.alts.forM (go ·.getCode)
+    | .cases cs => cs.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
   start (decls : Array Decl) : StateRefT (Array LetValue) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)

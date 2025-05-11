@@ -10,6 +10,8 @@ import Init.SizeOf
 import Init.BinderNameHint
 import Init.Data.Nat.Basic
 
+@[expose] section
+
 universe u v
 
 /--

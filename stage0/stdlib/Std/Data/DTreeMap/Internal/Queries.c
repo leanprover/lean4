@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Queries
-// Imports: Init.Data.Nat.Compare Std.Data.DTreeMap.Internal.Def Std.Data.DTreeMap.Internal.Balanced Std.Data.DTreeMap.Internal.Ordered Std.Classes.Ord
+// Imports: Init.Data.Nat.Compare Std.Data.DTreeMap.Internal.Def Std.Data.DTreeMap.Internal.Balanced Std.Data.DTreeMap.Internal.Ordered Std.Classes.Ord.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9221,7 +9221,7 @@ lean_object* initialize_Init_Data_Nat_Compare(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DTreeMap_Internal_Def(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DTreeMap_Internal_Balanced(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DTreeMap_Internal_Ordered(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Classes_Ord(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Classes_Ord_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Internal_Queries(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -9239,7 +9239,7 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Internal_Ordered(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Classes_Ord(builtin, lean_io_mk_world());
+res = initialize_Std_Classes_Ord_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DTreeMap_Internal_Impl_get_x21___rarg___closed__1 = _init_l_Std_DTreeMap_Internal_Impl_get_x21___rarg___closed__1();

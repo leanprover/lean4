@@ -41,9 +41,15 @@ def propagateCtor (a b : Expr) : GoalM Unit := do
     let info ← getConstInfo injDeclName
     let n := info.type.getForallArity
     let mask : Array (Option Expr) := .replicate n none
-    let mask := mask.set! (n-1) (some (← mkEqProof a b))
+    /-
+    We use `mkExpectedTypeHint` here to ensure that `mkAppOptM` will "fill" the implicit
+    arguments of `injDeclName` using exactly the fields of `a` and `b`.
+    There is no guarantee that `inferType (← mkEqProof a b)` is structurally equal to `a = b`.
+    -/
+    let mask := mask.set! (n-1) (some (← mkExpectedTypeHint (← mkEqProof a b) (← mkEq a b)))
     let injLemma ← mkAppOptM injDeclName mask
-    propagateInjEqs (← inferType injLemma) injLemma
+    let injLemmaType ← inferType injLemma
+    propagateInjEqs injLemmaType injLemma
   else
     let .const declName _ := aType.getAppFn | return ()
     let noConfusionDeclName := Name.mkStr declName "noConfusion"

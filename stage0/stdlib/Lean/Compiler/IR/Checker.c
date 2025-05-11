@@ -126,8 +126,8 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkEqTypes(lean_object*, lean_objec
 static lean_object* l_Lean_IR_Checker_checkExpr___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkExpr___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkFnBody(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_Alt_body(lean_object*);
 static lean_object* l_Lean_IR_Checker_checkExpr___closed__1;
-lean_object* l_Lean_IR_AltCore_body(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkScalarVar(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_getDecl___lambda__1___boxed(lean_object*);
@@ -4880,7 +4880,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
-x_9 = l_Lean_IR_AltCore_body(x_8);
+x_9 = l_Lean_IR_Alt_body(x_8);
 lean_dec(x_8);
 lean_inc(x_5);
 x_10 = l_Lean_IR_Checker_checkFnBody(x_9, x_5, x_6);

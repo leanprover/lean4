@@ -41,7 +41,7 @@ Non-strict inequality on strings, typically used via the `≤` operator.
 
 `a ≤ b` is defined to mean `¬ b < a`.
 -/
-@[reducible] protected def le (a b : String) : Prop := ¬ b < a
+@[expose, reducible] protected def le (a b : String) : Prop := ¬ b < a
 
 instance : LE String :=
   ⟨String.le⟩

@@ -17,7 +17,7 @@ def createParentDirs (path : System.FilePath) : IO Unit := do
 def resolvePath (path : System.FilePath) : BaseIO System.FilePath := do
   match (← (IO.FS.realPath path).toBaseIO) with
   | .ok path =>
-    -- Real path does not guarentee the file exists on Windows
+    -- Real path does not guarantee the file exists on Windows
     if (← path.pathExists) then
       return path.normalize
     else

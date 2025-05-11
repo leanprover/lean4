@@ -57,7 +57,7 @@ Examples:
 * `Nat.repeat f 3 a = f <| f <| f <| a`
 * `Nat.repeat (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
-@[specialize] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
+@[specialize, expose] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
   | succ n, a => f (repeat f n a)
 
@@ -89,7 +89,7 @@ Examples:
  * `Nat.blt 5 2 = false`
  * `Nat.blt 5 5 = false`
 -/
-def blt (a b : Nat) : Bool :=
+@[expose] def blt (a b : Nat) : Bool :=
   ble a.succ b
 
 attribute [simp] Nat.zero_le

@@ -9,6 +9,8 @@ module
 prelude
 import Init.PropLemmas
 
+@[expose] section
+
 namespace Lean
 
 /--

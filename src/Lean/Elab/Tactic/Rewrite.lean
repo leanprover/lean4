@@ -51,7 +51,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
         let term := rule[1]
         let processId (id : Syntax) : TacticM Unit := do
           -- See if we can interpret `id` as a hypothesis first.
-          if (← optional <| getFVarId id).isSome then
+          if (← withMainContext <| Term.isLocalIdent? id).isSome then
             x symm term
           else
             -- Try to get equation theorems for `id`.
@@ -62,8 +62,8 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
             let rec go : List Name →  TacticM Unit
               | [] => throwError "failed to rewrite using equation theorems for '{declName}'.{hint}"
               | eqThm::eqThms => (x symm (mkCIdentFrom id eqThm)) <|> go eqThms
-            go eqThms.toList
             discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
+            go eqThms.toList
         match term with
         | `($id:ident)  => processId id
         | `(@$id:ident) => processId id

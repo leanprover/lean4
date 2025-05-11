@@ -8,12 +8,12 @@ open Lean.JsonRpc
 Tests language server memory use by repeatedly re-elaborate a given file.
 
 NOTE: only works on Linux for now.
-ot to touch the imports for usual files.
 -/
 
 def main (args : List String) : IO Unit := do
   let leanCmd :: file :: iters :: args := args | panic! "usage: script <lean> <file> <#iterations> <server-args>..."
-  let uri := s!"file:///{file}"
+  let file ← IO.FS.realPath file
+  let uri := s!"file://{file}"
   Ipc.runWith leanCmd (#["--worker", "-DstderrAsMessages=false"] ++ args ++ #[uri]) do
   -- for use with heaptrack:
   --Ipc.runWith "heaptrack" (#[leanCmd, "--worker", "-DstderrAsMessages=false"] ++ args ++ #[uri]) do

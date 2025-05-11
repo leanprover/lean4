@@ -17,7 +17,7 @@ test_out '"loadDynlibPaths":[]' setup-file bogus Foo
 test_out '"setupOptions":{}' setup-file bogus Foo
 
 # Test that a more specific configuration will be used if
-# Lake can indentify the module corresponding to the path.
+# Lake can identify the module corresponding to the path.
 test_out '"setupOptions":{"weak.foo":"bar"}' setup-file Test.lean
 
 # Test that `setup-file` on an invalid Lean configuration file succeeds.

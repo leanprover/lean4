@@ -166,12 +166,12 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_ownArgsIf
 uint64_t l_Lean_Name_hash___override(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_Borrow_updateParamMap___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_mkInitParamMap(lean_object*, lean_object*);
+lean_object* l_Lean_IR_Alt_body(lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 extern lean_object* l_Id_instMonad;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_collectDecls(lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2;
-lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__1;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -1637,7 +1637,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
 lean_dec(x_5);
 x_8 = lean_array_uget(x_2, x_3);
-x_9 = l_Lean_IR_AltCore_body(x_8);
+x_9 = l_Lean_IR_Alt_body(x_8);
 lean_dec(x_8);
 lean_inc(x_1);
 x_10 = l_Lean_IR_Borrow_InitParamMap_visitFnBody(x_1, x_9, x_6);
@@ -5829,7 +5829,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
 lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
-x_9 = l_Lean_IR_AltCore_body(x_8);
+x_9 = l_Lean_IR_Alt_body(x_8);
 lean_dec(x_8);
 lean_inc(x_5);
 x_10 = l_Lean_IR_Borrow_collectFnBody(x_9, x_5, x_6);

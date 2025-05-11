@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.List.Nat.Find
+import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Attach
 import Init.Data.Array.Range

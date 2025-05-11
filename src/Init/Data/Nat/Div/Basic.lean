@@ -10,6 +10,8 @@ import Init.WF
 import Init.WFTactics
 import Init.Data.Nat.Basic
 
+@[expose] section
+
 namespace Nat
 
 /--

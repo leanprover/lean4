@@ -9,6 +9,8 @@ prelude
 import Init.Data.Fin.Basic
 import Init.Data.BitVec.BasicAux
 
+@[expose] section
+
 set_option linter.missingDocs true
 
 /-!

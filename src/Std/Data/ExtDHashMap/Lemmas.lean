@@ -677,6 +677,7 @@ theorem getKey_congr [EquivBEq α] [LawfulHashable α] {k₁ k₂ : α} (h : k�
     (h₁ : k₁ ∈ m) : m.getKey k₁ h₁ = m.getKey k₂ ((mem_congr h).mp h₁) :=
   m.inductionOn (fun _ h h₁ => DHashMap.getKey_congr h h₁) h h₁
 
+@[simp]
 theorem getKey_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.getKey k h = k :=
   m.inductionOn (fun _ h => DHashMap.getKey_eq h) h
 
@@ -968,6 +969,13 @@ theorem insertMany_cons [EquivBEq α] [LawfulHashable α]
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
 
+theorem insertMany_append [EquivBEq α] [LawfulHashable α] {l₁ l₂ : List ((a : α) × β a)} :
+    insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 private theorem insertMany_list_mk [EquivBEq α] [LawfulHashable α]
     {m : DHashMap α β} {l : List ((a : α) × β a)} :
     (ExtDHashMap.insertMany (Quotient.mk _ m) l : ExtDHashMap α β) = Quotient.mk _ (m.insertMany l) := by
@@ -1218,6 +1226,13 @@ theorem insertMany_cons [EquivBEq α] [LawfulHashable α] {l : List (α × β)} 
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
 
+theorem insertMany_append [EquivBEq α] [LawfulHashable α] {l₁ l₂ : List (α × β)} :
+    insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
+
 private theorem insertMany_list_mk [EquivBEq α] [LawfulHashable α]
     {m : DHashMap α fun _ => β} {l : List (α × β)} :
     (insertMany (Quotient.mk _ m) l : ExtDHashMap α fun _ => β) =
@@ -1392,6 +1407,14 @@ theorem get?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
   refine m.inductionOn (fun _ k_beq distinct mem => ?_) k_beq distinct mem
   simp only [insertMany_list_mk]
   exact DHashMap.Const.get?_insertMany_list_of_mem k_beq distinct mem
+
+theorem get?_insertMany_list [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} {k : α} :
+    get? (insertMany m l) k =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if a == k then some b else none)).or (get? m k) := by
+  refine m.inductionOn (fun _ => ?_)
+  simp only [insertMany_list_mk]
+  exact DHashMap.Const.get?_insertMany_list
 
 theorem get_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
@@ -1680,6 +1703,11 @@ theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} {tl : 
   conv => rhs; apply insertMany_list_mk
   exact congrArg Quotient.mk' DHashMap.ofList_cons
 
+theorem ofList_eq_insertMany_empty [EquivBEq α] [LawfulHashable α] {l : List ((a : α) × β a)} :
+    ofList l = insertMany (∅ : ExtDHashMap α β) l := by
+  conv => rhs; apply insertMany_list_mk
+  exact congrArg Quotient.mk' DHashMap.ofList_eq_insertMany_empty
+
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α} :
@@ -1824,6 +1852,11 @@ theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {tl : Li
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : ExtDHashMap α (fun _ => β)).insert k v) tl := by
   conv => rhs; apply insertMany_list_mk
   exact congrArg Quotient.mk' DHashMap.Const.ofList_cons
+
+theorem ofList_eq_insertMany_empty [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
+    ofList l = insertMany (∅ : ExtDHashMap α (fun _ => β)) l := by
+  conv => rhs; apply insertMany_list_mk
+  exact congrArg Quotient.mk' DHashMap.Const.ofList_eq_insertMany_empty
 
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -2232,6 +2265,7 @@ theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (�
     (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default :=
   m.inductionOn fun _ => DHashMap.getKey!_alter_self
 
+@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
     {h : k' ∈ m.alter k f} :
     (m.alter k f).getKey k' h =
@@ -2239,8 +2273,8 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
         k
       else
         haveI h' : k' ∈ m := mem_alter_of_beq_eq_false (Bool.not_eq_true _ ▸ heq) |>.mp h
-        m.getKey k' h' :=
-  m.inductionOn (fun _ _ => DHashMap.getKey_alter) h
+        m.getKey k' h' := by
+  split <;> simp_all
 
 @[simp]
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
@@ -2565,6 +2599,7 @@ theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k →
     (m.modify k f).getKey! k = if k ∈ m then k else default :=
   m.inductionOn fun _ => DHashMap.getKey!_modify_self
 
+@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
     {h : k' ∈ m.modify k f} :
     (m.modify k f).getKey k' h =
@@ -2572,8 +2607,8 @@ theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β
         k
       else
         haveI h' : k' ∈ m := mem_modify.mp h
-        m.getKey k' h' :=
-  m.inductionOn (fun _ _ => DHashMap.getKey_modify) h
+        m.getKey k' h' := by
+  split <;> simp_all
 
 @[simp]
 theorem getKey_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k}
@@ -3273,11 +3308,19 @@ namespace Const
 
 variable {β : Type v} {γ : Type w} {m : ExtDHashMap α fun _ => β}
 
-theorem get?_map [EquivBEq α] [LawfulHashable α]
+@[simp]
+theorem get?_map [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k : α} :
+    Const.get? (m.map f) k = (Const.get? m k).map (f k) :=
+  m.inductionOn fun _ => DHashMap.Const.get?_map
+
+/-- Variant of `get?_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+@[simp (low)]
+theorem get?_map' [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} :
     Const.get? (m.map f) k = (Const.get? m k).pmap (fun v h' => f (m.getKey k h') v)
       (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h')) :=
-  m.inductionOn fun _ => DHashMap.Const.get?_map
+  m.inductionOn fun _ => DHashMap.Const.get?_map'
 
 theorem get?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k k' : α} (h : m.getKey? k = some k') :
@@ -3285,30 +3328,49 @@ theorem get?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
   m.inductionOn (fun _ h => DHashMap.Const.get?_map_of_getKey?_eq_some h) h
 
 @[simp]
-theorem get_map [EquivBEq α] [LawfulHashable α]
+theorem get_map [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k : α} {h'} :
+    Const.get (m.map f) k h' = f k (Const.get m k (mem_of_mem_map h')) :=
+  m.inductionOn (fun _ _ => DHashMap.Const.get_map) h'
+
+/-- Variant of `get_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+@[simp (low)]
+theorem get_map' [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} {h'} :
     Const.get (m.map f) k h' =
       f (m.getKey k (mem_of_mem_map h')) (Const.get m k (mem_of_mem_map h')) :=
-  m.inductionOn (fun _ _ => DHashMap.Const.get_map) h'
+  m.inductionOn (fun _ _ => DHashMap.Const.get_map') h'
 
-theorem get!_map [EquivBEq α] [LawfulHashable α] [Inhabited γ]
+theorem get!_map [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+    {f : α → β → γ} {k : α} :
+    Const.get! (m.map f) k = ((Const.get? m k).map (f k)).get! :=
+  m.inductionOn fun _ => DHashMap.Const.get!_map
+
+/-- Variant of `get!_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+theorem get!_map' [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → γ} {k : α} :
     Const.get! (m.map f) k =
       ((get? m k).pmap (fun v h => f (m.getKey k h) v)
         (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_mem h'))).get! :=
-  m.inductionOn fun _ => DHashMap.Const.get!_map
+  m.inductionOn fun _ => DHashMap.Const.get!_map'
 
 theorem get!_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → γ} {k k' : α} (h : m.getKey? k = some k') :
     Const.get! (m.map f) k = ((Const.get? m k).map (f k')).get! :=
   m.inductionOn (fun _ h => DHashMap.Const.get!_map_of_getKey?_eq_some h) h
 
-theorem getD_map [EquivBEq α] [LawfulHashable α]
+theorem getD_map [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k : α} {fallback : γ} :
+    Const.getD (m.map f) k fallback = ((Const.get? m k).map (f k)).getD fallback :=
+  m.inductionOn fun _ => DHashMap.Const.getD_map
+
+/-- Variant of `getD_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+theorem getD_map' [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} {fallback : γ} :
     Const.getD (m.map f) k fallback =
       ((get? m k).pmap (fun v h => f (m.getKey k h) v)
         (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))).getD fallback :=
-  m.inductionOn fun _ => DHashMap.Const.getD_map
+  m.inductionOn fun _ => DHashMap.Const.getD_map'
 
 theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → γ} {k k' : α} {fallback : γ} (h : m.getKey? k = some k') :

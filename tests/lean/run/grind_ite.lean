@@ -115,25 +115,11 @@ set_option grind.warning false
 
 namespace IfExpr
 
-attribute [grind] List.mem_cons List.not_mem_nil List.mem_append
-  Option.getD_some Option.getD_none
-
-attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars
+-- We tell `grind` it can unfold our definitions above.
+attribute [grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars eval
 
 -- I'd prefer to use `TreeMap` here, but its `getElem?_insert` lemma is not useful.
 attribute [grind] Std.HashMap.getElem?_insert
-
-/-!
-Lemmas for `eval`.
--/
-@[grind] theorem eval_lit : (lit b).eval f = b := rfl
-@[grind] theorem eval_var : (var i).eval f = f i := rfl
-@[grind] theorem eval_ite_lit :
-    (ite (.lit b) t e).eval f = bif b then t.eval f else e.eval f := rfl
-@[grind] theorem eval_ite_var :
-    (ite (.var i) t e).eval f = bif f i then t.eval f else e.eval f := rfl
-@[grind] theorem eval_ite_ite {a b c d e : IfExpr} :
-    (ite (ite a b c) d e).eval f = (ite a (ite b d e) (ite c d e)).eval f := by grind [eval]
 
 /--
 Custom size function for if-expressions, used for proving termination.
@@ -149,7 +135,7 @@ we are allowed to increase the size of the branches by one, and still be smaller
 def normalize (assign : Std.HashMap Nat Bool) : IfExpr → IfExpr
   | lit b => lit b
   | var v =>
-    match assign[v]? with -- Note unused `h`: if we remove this things work again.
+    match assign[v]? with
     | none => var v
     | some b => lit b
   | ite (lit true)  t _ => normalize assign t

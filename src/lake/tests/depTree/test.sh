@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
-set -exo pipefail
-
-LAKE=${LAKE:-$PWD/../../.lake/build/bin/lake}
-
-unamestr=`uname`
-if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
-  sed_i() { sed -i '' "$@"; }
-else
-  sed_i() { sed -i "$@"; }
-fi
+source ../common.sh
+set -x
 
 ./clean.sh
 

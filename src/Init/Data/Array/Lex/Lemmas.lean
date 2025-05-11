@@ -16,11 +16,11 @@ namespace Array
 
 /-! ### Lexicographic ordering -/
 
-@[simp] theorem _root_.List.lt_toArray [LT α] {l₁ l₂ : List α} : l₁.toArray < l₂.toArray ↔ l₁ < l₂ := Iff.rfl
-@[simp] theorem _root_.List.le_toArray [LT α] {l₁ l₂ : List α} : l₁.toArray ≤ l₂.toArray ↔ l₁ ≤ l₂ := Iff.rfl
+@[simp, grind =] theorem _root_.List.lt_toArray [LT α] {l₁ l₂ : List α} : l₁.toArray < l₂.toArray ↔ l₁ < l₂ := Iff.rfl
+@[simp, grind =] theorem _root_.List.le_toArray [LT α] {l₁ l₂ : List α} : l₁.toArray ≤ l₂.toArray ↔ l₁ ≤ l₂ := Iff.rfl
 
-@[simp] theorem lt_toList [LT α] {xs ys : Array α} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
-@[simp] theorem le_toList [LT α] {xs ys : Array α} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
+@[simp, grind =] theorem lt_toList [LT α] {xs ys : Array α} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
+@[simp, grind =] theorem le_toList [LT α] {xs ys : Array α} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
 protected theorem not_lt_iff_ge [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
 protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : List α} :
@@ -47,7 +47,7 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
     cases a == b <;> simp
   · simp
 
-@[simp] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
+@[simp, grind =] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with
   | nil => cases l₂ <;> simp [lex, Id.run]
@@ -57,7 +57,7 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
 
-@[simp] theorem lex_toList [BEq α] {lt : α → α → Bool} {xs ys : Array α} :
+@[simp, grind =] theorem lex_toList [BEq α] {lt : α → α → Bool} {xs ys : Array α} :
     xs.toList.lex ys.toList lt = xs.lex ys lt := by
   cases xs <;> cases ys <;> simp
 

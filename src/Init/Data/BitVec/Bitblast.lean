@@ -1501,7 +1501,6 @@ theorem sdiv_intMin {x : BitVec w} :
   by_cases h : x = intMin w
   · subst h
     simp
-    omega
   · simp only [sdiv_eq, msb_intMin, show 0 < w by omega, h]
     have := Nat.two_pow_pos (w-1)
     by_cases hx : x.msb
@@ -1812,9 +1811,23 @@ theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
     (x * y).extractLsb' 0 len = (x.extractLsb' 0 len) * (y.extractLsb' 0 len) := by
   simp [← setWidth_eq_extractLsb' hlen, setWidth_mul _ _ hlen]
 
+/-- Adding bitvectors that are zero in complementary positions equals concatenation.
+We add a `no_index` annotation to `HAppend.hAppend` such that the width `v + w`
+does not act as a key in the discrimination tree.
+This is important to allow matching, when the type of the result of append
+`x : BitVec 3` and `y : BitVec 4` has been reduced to `x ++ y : BitVec 7`.
+-/
+theorem append_zero_add_zero_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
+    (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w) +
+    (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y)
+    = x ++ y := by
+  rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
+
 /-- Adding bitvectors that are zero in complementary positions equals concatenation. -/
-theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
-    (x ++ 0#w) + (0#v ++ y) = x ++ y := by
+theorem zero_append_add_append_zero {v w : Nat} {x : BitVec v} {y : BitVec w} :
+  (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y) +
+  (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w)
+  = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
@@ -1829,5 +1842,11 @@ theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
   have : 2^i ≤ x.toNat := two_pow_le_toNat_of_getElem_eq_true hi hxi
   have : i < 2^i := by exact Nat.lt_two_pow_self
   omega
+
+/-- Heuristically, `y <<< x` is much larger than `x`,
+and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/
+theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
+    (y <<< x) + x =  (y <<< x) ||| x := by
+  rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
 
 end BitVec

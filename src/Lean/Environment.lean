@@ -11,6 +11,7 @@ import Init.System.Promise
 import Lean.ImportingFlag
 import Lean.Data.NameTrie
 import Lean.Data.SMap
+import Lean.Setup
 import Lean.Declaration
 import Lean.LocalContext
 import Lean.Util.Path
@@ -92,18 +93,6 @@ instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
   getElem! a i := a[i.toNat]!
 
 abbrev ConstMap := SMap Name ConstantInfo
-
-structure Import where
-  module        : Name
-  /-- `import private`; whether to import and expose all data saved by the module. -/
-  importPrivate : Bool := false
-  /-- Whether to activate this import when the current module itself is imported. -/
-  isExported    : Bool := true
-  deriving Repr, Inhabited
-
-instance : Coe Name Import := ⟨({module := ·})⟩
-
-instance : ToString Import := ⟨fun imp => toString imp.module⟩
 
 /--
   A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
@@ -614,9 +603,9 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
   { env with checked := env.checked.map (sync := true) f, base.private := f env.base.private }
 
-/-- Sets synchronous and asynchronous parts of the environment to the given kernel environment. -/
+/-- Sets synchronous and (private) asynchronous parts of the environment to the given kernel environment. -/
 private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment) : Environment :=
-  { env with checked := .pure newChecked, base.private := newChecked, base.public := newChecked }
+  { env with checked := .pure newChecked, base.private := newChecked }
 
 /-- The declaration prefix to which the environment is restricted to, if any. -/
 def asyncPrefix? (env : Environment) : Option Name :=
@@ -1663,10 +1652,14 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
   let kenv := env.toKernelEnv
   let env := env.setExporting (level != .private)
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
-  -- not all kernel constants may be exported
-  let constants := constNames.filterMap fun n =>
-    env.find? n <|>
-    guard (looksLikeOldCodegenName n) *> kenv.find? n
+  -- not all kernel constants may be exported at `level < .private`
+  let constants := if level == .private then
+    -- (this branch makes very sure all kernel constants are exported eventually)
+    kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
+  else
+    constNames.filterMap fun n =>
+      env.find? n <|>
+      guard (looksLikeOldCodegenName n) *> kenv.find? n
   let constNames := constants.map (·.name)
   return { env.header with
     extraConstNames := env.checked.get.extraConstNames.toArray
@@ -1760,17 +1753,19 @@ where
     else
       return env
 
-private structure ImportedModule where
-  name      : Name
-  /-- Whether to use `.olean.private` as the main module. -/
-  importAll : Bool
+private structure ImportedModule extends Import where
   /-- All loaded incremental compacted regions. -/
   parts     : Array (ModuleData × CompactedRegion)
 
-/-- The main module data that will eventually be used to construct the environment. -/
+/-- The main module data that will eventually be used to construct the kernel environment. -/
 private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData := do
   let (baseMod, _) ← self.parts[0]?
   self.parts[if baseMod.isModule && self.importAll then 2 else 0]?.map (·.1)
+
+/-- The main module data that will eventually be used to construct the publically accessible constants. -/
+private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
+  let (baseMod, _) ← self.parts[0]?
+  return baseMod
 
 /-- The module data that should be used for server purposes. -/
 private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLevel) :
@@ -1792,43 +1787,72 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
   x.run s
 
-partial def importModulesCore (imports : Array Import) (forceImportAll := true) :
-    ImportStateM Unit := do
+def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  -- Opportunistically load all available parts.
+  -- Producer (e.g., Lake) should limit parts to the proper import level.
+  if let some mFile := arts.olean? then
+    fnames := fnames.push mFile
+    if let some sFile := arts.oleanServer? then
+      fnames := fnames.push sFile
+      if let some pFile := arts.oleanPrivate? then
+        fnames := fnames.push pFile
+  return fnames
+
+private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
+  let mFile ← findOLean mod
+  unless (← mFile.pathExists) do
+    throw <| IO.userError s!"object file '{mFile}' of module {mod} does not exist"
+  let mut fnames := #[mFile]
+  -- Opportunistically load all available parts.
+  -- Necessary because the import level may be upgraded a later import.
+  let sFile := OLeanLevel.server.adjustFileName mFile
+  if (← sFile.pathExists) then
+    fnames := fnames.push sFile
+    let pFile := OLeanLevel.private.adjustFileName mFile
+    if (← pFile.pathExists) then
+      fnames := fnames.push pFile
+  return fnames
+
+partial def importModulesCore
+    (imports : Array Import) (forceImportAll := true) (arts : NameMap ModuleArtifacts := {}) :
+    ImportStateM Unit := go
+where go := do
   for i in imports do
-    -- import private info if (transitively) used by a non-`module` on any import path
-    let importAll := forceImportAll
+    -- import private info if (transitively) used by a non-`module` on any import path, or with
+    -- `import all` (non-transitively)
+    let importAll := forceImportAll || i.importAll
     if let some mod := (← get).moduleNameMap[i.module]? then
-      -- when module is already imported, bump entire closure to private if necessary
+      -- when module is already imported, bump `importPrivate`
       if importAll && !mod.importAll then
         modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
           importAll := true }}
-        if let some mod := mod.mainModule? then
-          importModulesCore mod.imports true
+        if forceImportAll then
+          -- bump entire closure
+          if let some mod := mod.mainModule? then
+            importModulesCore (forceImportAll := true) mod.imports
       continue
-    let mFile ← findOLean i.module
-    unless (← mFile.pathExists) do
-      throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
-    let mut fnames := #[mFile]
-    -- opportunistically load all available parts in case `importPrivate` is upgraded by a later
-    -- import
-    -- TODO: use Lake data to retrieve ultimate import level immediately
-    let sFile := OLeanLevel.server.adjustFileName mFile
-    if (← sFile.pathExists) then
-      fnames := fnames.push sFile
-      let pFile := OLeanLevel.private.adjustFileName mFile
-      if (← pFile.pathExists) then
-        fnames := fnames.push pFile
+    let fnames ←
+      if let some arts := arts.find? i.module then
+        let fnames := arts.oleanParts
+        if fnames.isEmpty then
+          findOLeanParts i.module
+        else pure fnames
+      else
+        findOLeanParts i.module
     let parts ← readModuleDataParts fnames
     -- `imports` is identical for each part
     let some (baseMod, _) := parts[0]? | unreachable!
-    importModulesCore (forceImportAll := forceImportAll || !baseMod.isModule) baseMod.imports
+    -- exclude `private import`s from transitive importing, except through `import all`
+    let imports := baseMod.imports.filter (·.isExported || importAll)
+    importModulesCore (forceImportAll := forceImportAll || !baseMod.isModule) imports
     if baseMod.isModule && !forceImportAll then
-      for i' in baseMod.imports do
+      for i' in imports do
         if let some mod := (← get).moduleNameMap[i'.module]?.bind (·.mainModule?) then
           if !mod.isModule then
             throw <| IO.userError s!"cannot import non`-module` {i'.module} from `module` {i.module}"
     modify fun s => { s with
-      moduleNameMap := s.moduleNameMap.insert i.module { name := i.module, importAll, parts }
+      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, parts }
       moduleNames := s.moduleNames.push i.module
     }
 
@@ -1869,45 +1893,68 @@ See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (leakEnv loadExts : Bool) (level := OLeanLevel.private) : IO Environment := do
+  let isModule := level != .private
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
   let moduleData ← modules.mapM fun mod => do
     let some data := mod.mainModule? |
-      throw <| IO.userError s!"missing data file for module {mod.name}"
+      throw <| IO.userError s!"missing data file for module {mod.module}"
     return data
-  let numConsts := moduleData.foldl (init := 0) fun numConsts mod =>
-    numConsts + mod.constants.size + mod.extraConstNames.size
-  let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numConsts)
-  let mut constantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numConsts)
+  let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data => Id.run do
+    numPrivateConsts + data.constants.size + data.extraConstNames.size
+  let numPublicConsts := modules.foldl (init := 0) fun numPublicConsts mod => Id.run do
+    if !mod.isExported then numPublicConsts else
+      let some data := mod.publicModule? | numPublicConsts
+      numPublicConsts + data.constants.size
+  let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts + numPublicConsts)
+  let mut privateConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts)
+  let mut publicConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPublicConsts)
   for h : modIdx in [0:moduleData.size] do
-    let mod := moduleData[modIdx]
-    for cname in mod.constNames, cinfo in mod.constants do
-      match constantMap.getThenInsertIfNew? cname cinfo with
+    let data := moduleData[modIdx]
+    for cname in data.constNames, cinfo in data.constants do
+      match privateConstantMap.getThenInsertIfNew? cname cinfo with
       | (cinfoPrev?, constantMap') =>
-        constantMap := constantMap'
+        privateConstantMap := constantMap'
         if let some cinfoPrev := cinfoPrev? then
           -- Recall that the map has not been modified when `cinfoPrev? = some _`.
           if subsumesInfo cinfo cinfoPrev then
-            constantMap := constantMap.insert cname cinfo
+            privateConstantMap := privateConstantMap.insert cname cinfo
           else if !subsumesInfo cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
-    for cname in mod.extraConstNames do
+    for cname in data.extraConstNames do
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
-  let constants : ConstMap := SMap.fromHashMap constantMap false
+
+  if isModule then
+    for mod in modules.filter (·.isExported) do
+      let some data := mod.publicModule? | continue
+      for cname in data.constNames, cinfo in data.constants do
+        match publicConstantMap.getThenInsertIfNew? cname cinfo with
+        | (cinfoPrev?, constantMap') =>
+          publicConstantMap := constantMap'
+          if let some cinfoPrev := cinfoPrev? then
+            if subsumesInfo cinfo cinfoPrev then
+              publicConstantMap := publicConstantMap.insert cname cinfo
+            -- no need to check for duplicates again, `privateConstMap` should be a superset
+
   let exts ← mkInitialExtensionStates
-  let mut env : Environment := {
-    base := .const {
-      const2ModIdx, constants
-      quotInit        := !imports.isEmpty -- We assume `core.lean` initializes quotient module
-      extraConstNames := {}
-      extensions      := exts
-      header     := {
-        trustLevel, imports, moduleData
-        isModule := level == .exported
-        regions      := modules.flatMap (·.parts.map (·.2))
-        moduleNames  := s.moduleNames
-      }
+  let privateConstants : ConstMap := SMap.fromHashMap privateConstantMap false
+  let privateBase : Kernel.Environment := {
+    const2ModIdx, constants := privateConstants
+    quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
+    extraConstNames := {}
+    extensions      := exts
+    header     := {
+      trustLevel, imports, moduleData
+      isModule
+      regions      := modules.flatMap (·.parts.map (·.2))
+      moduleNames  := s.moduleNames
     }
+  }
+  let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
+  let publicBase := { privateBase with constants := publicConstants, header.regions := #[] }
+  let mut env : Environment := {
+    base.private := privateBase
+    base.public  := publicBase
     realizedImportedConsts? := none
   }
   env := env.setCheckedSync { env.base.private with extensions := (← setImportedEntries env.base.private.extensions moduleData) }
@@ -1964,13 +2011,14 @@ as if no `module` annotations were present in the imports.
 -/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
-    (level := OLeanLevel.private) : IO Environment := profileitIO "import" opts do
+    (level := OLeanLevel.private) (arts : NameMap ModuleArtifacts := {})
+    : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports |>.run
+    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports arts |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 

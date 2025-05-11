@@ -261,7 +261,7 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
           if unhandledAlts.isEmpty then
             m!"invalid alternative name '{altName}', no unhandled alternatives"
           else
-            let unhandledAltsMessages := unhandledAlts.map (m!"{·.name}")
+            let unhandledAltsMessages := unhandledAlts.map (m!"'{·.name}'")
             let unhandledAlts := MessageData.orList unhandledAltsMessages.toList
             m!"invalid alternative name '{altName}', expected {unhandledAlts}"
         throwErrorAt altStx msg

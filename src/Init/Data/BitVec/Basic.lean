@@ -199,7 +199,13 @@ protected def toHex {n : Nat} (x : BitVec n) : String :=
   let t := (List.replicate ((n+3) / 4 - s.length) '0').asString
   t ++ s
 
-instance : Repr (BitVec n) where reprPrec a _ := "0x" ++ (a.toHex : Std.Format) ++ "#" ++ repr n
+/-- `BitVec` representation. -/
+protected def BitVec.repr (a : BitVec n) : Std.Format :=
+  "0x" ++ (a.toHex : Std.Format) ++ "#" ++ repr n
+
+instance : Repr (BitVec n) where
+  reprPrec a _ := BitVec.repr a
+
 instance : ToString (BitVec n) where toString a := toString (repr a)
 
 end repr_toString

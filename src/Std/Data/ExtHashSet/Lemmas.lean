@@ -259,6 +259,7 @@ theorem get_congr [EquivBEq α] [LawfulHashable α] {k₁ k₂ : α} (h : k₁ =
     (h₁ : k₁ ∈ m) : m.get k₁ h₁ = m.get k₂ ((mem_congr h).mp h₁) :=
   ExtHashMap.getKey_congr h h₁
 
+@[simp]
 theorem get_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.get k h = k :=
   ExtHashMap.getKey_eq h
 
@@ -397,6 +398,13 @@ theorem insertMany_list_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
 theorem insertMany_cons [EquivBEq α] [LawfulHashable α] {l : List α} {k : α} :
     insertMany m (k :: l) = insertMany (m.insert k) l :=
   ext ExtHashMap.insertManyIfNewUnit_cons
+
+theorem insertMany_append [EquivBEq α] [LawfulHashable α] {l₁ l₂ : List α} :
+    insertMany m (l₁ ++ l₂) = insertMany (insertMany m l₁) l₂ := by
+  induction l₁ generalizing m with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [List.cons_append, insertMany_cons, insertMany_cons, ih]
 
 @[elab_as_elim]
 theorem insertMany_ind [EquivBEq α] [LawfulHashable α]
@@ -549,6 +557,12 @@ theorem ofList_cons [EquivBEq α] [LawfulHashable α] {hd : α} {tl : List α} :
     ofList (hd :: tl) =
       insertMany ((∅ : ExtHashSet α).insert hd) tl :=
   ext ExtHashMap.unitOfList_cons
+
+theorem ofList_eq_insertMany_empty [EquivBEq α] [LawfulHashable α] {l : List α} :
+    ofList l = insertMany (∅ : ExtHashSet α) l :=
+  match l with
+  | [] => by simp
+  | hd :: tl => by simp [ofList_cons, insertMany_cons]
 
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]

@@ -14,9 +14,9 @@ def myTest {α}
 error: Failed to realize constant myTest.fun_cases:
   Cannot derive functional cases principle (please report this issue)
   ⏎
-    application type mismatch
+    Application type mismatch: In the appplication
       motive mmotive x✝ h_1
-    argument
+    the final argument
       h_1
     has type
       (a : α) → (dc : List α) → x = a :: dc → mmotive (a :: dc) : Sort (imax (u_1 + 1) (u_1 + 1) v)

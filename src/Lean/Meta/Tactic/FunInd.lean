@@ -683,10 +683,16 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
         throwError m!"Type of {.ofConstName eqnThm} is not an equality"
       if !(← isDefEq e lhs) then
         throwError m!"Left-hand side {lhs} of {.ofConstName eqnThm} does not apply to {e}"
-      -- Here we instantiate the hypotheses of the generalized equation theorem
-      -- With more book keeping we could do this very precisely; for now let's see
-      -- if heuristics are good enough.
-      -- Trying assumption before rfl seems to be important?
+      /-
+      Here we instantiate the hypotheses of the generalized equation theorem
+      There are two sets of hypotheses to instantiate:
+      - `Eq` or `HEq` that relate the discriminants to the patterns
+        Solving these should instantiate the pattern variables.
+      - Overlap hypotheses (`isEqnThmHypothesis`)
+      With more book keeping we could maybe do this very precisely, knowing exactly
+      which facts provided by the splitter should go where, but it's tedious.
+      So for now let's use heuristics and try `assumption` and `rfl`.
+      -/
       for h in hyps do
         unless (← h.isAssigned) do
           let hType ← h.getType
@@ -696,6 +702,11 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
             h.assumption <|> throwError "Failed to discharge {h}"
           else if hType.isEq then
             h.assumption <|> h.refl <|> throwError m!"Failed to resolve {h}"
+          else if hType.isHEq then
+            h.assumption <|> h.hrefl <|> throwError m!"Failed to resolve {h}"
+      let unassignedHyps ← hyps.filterM fun h => return !(← h.isAssigned)
+      unless unassignedHyps.isEmpty do
+        throwError m!"Not all hypotheses of {.ofConstName eqnThm} could be discharged: {unassignedHyps}"
       let rhs ← instantiateMVars rhs
       let proof ← instantiateMVars proof
       let proof ← if isHeq then

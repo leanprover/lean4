@@ -2500,8 +2500,12 @@ Pack a `Nat` encoding a valid codepoint into a `Char`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
-def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
-  { val := ⟨BitVec.ofNatLT n (isValidChar_UInt32 h)⟩, valid := h }
+def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char where
+  val := ⟨BitVec.ofNatLT n
+    -- We would conventionally use `by exact` here to enter a private context, but `exact` does not
+    -- exist here yet.
+    (private_decl% isValidChar_UInt32 h)⟩
+  valid := h
 
 /--
 Converts a `Nat` into a `Char`. If the `Nat` does not encode a valid Unicode scalar value, `'\0'` is

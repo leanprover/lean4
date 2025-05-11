@@ -294,7 +294,7 @@ private structure State where
   out    : String := ""
   column : Nat    := 0
 
-instance : MonadPrettyFormat (StateM State) where
+private instance : MonadPrettyFormat (StateM State) where
   -- We avoid a structure instance update, and write these functions using pattern matching because of issue #316
   pushOutput s       := modify fun ⟨out, col⟩ => ⟨out ++ s, col + s.length⟩
   pushNewline indent := modify fun ⟨out, _⟩ => ⟨out ++ "\n".pushn ' ' indent, indent⟩

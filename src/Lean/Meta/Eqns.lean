@@ -86,7 +86,9 @@ builtin_initialize registerReservedNamePredicate fun env n =>
   match n with
   | .str p s =>
     (isEqnReservedNameSuffix s || s == unfoldThmSuffix || s == eqUnfoldThmSuffix)
-    && env.isSafeDefinition p
+    -- Make equation theorems accessible even when body should not be visible for compatibility.
+    -- TODO: Make them private instead.
+    && (env.setExporting false).isSafeDefinition p
     -- Remark: `f.match_<idx>.eq_<idx>` are handled separately in `Lean.Meta.Match.MatchEqs`.
     && !isMatcherCore env p
   | _ => false

@@ -671,8 +671,10 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       return { expr := e }
     let eqnThm := eqns[altIdx]!
     try
+      withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} rewriting with {.ofConstName eqnThm} in{indentExpr e}") do
       let eqProof := mkAppN (mkConst eqnThm e.getAppFn.constLevels!) e.getAppArgs
       let (hyps, _, eqType) ← forallMetaTelescope (← inferType eqProof)
+      trace[Meta.FunInd] "eqProof has type{indentExpr eqType}"
       let proof := mkAppN eqProof hyps
       let hyps := hyps.map (·.mvarId!)
       let (isHeq, lhs, rhs) ← do
@@ -685,7 +687,11 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       -- With more book keeping we could do this very precisely; for now let's see
       -- if heuristics are good enough.
       -- Trying assumption before rfl seems to be important?
-      for h in hyps do h.assumption <|> h.refl <|> throwError m!"Failed to resolve {h}"
+      for h in hyps do
+        unless (← h.isAssigned) do
+          if (← isProp (← h.getType)) then
+            h.assumption <|> h.refl <|> throwError m!"Failed to resolve {h}"
+            trace[Meta.FunInd] "Instantiated {h} with {← instantiateMVars (.mvar h)}"
       let rhs ← instantiateMVars rhs
       let proof ← instantiateMVars proof
       let proof ← if isHeq then

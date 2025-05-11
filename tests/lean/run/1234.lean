@@ -10,7 +10,7 @@ set_option Elab.async false -- for stable message ordering in #guard_msgs
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000:
+trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
@@ -47,7 +47,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000:
+trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
@@ -82,7 +82,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000:
+trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True

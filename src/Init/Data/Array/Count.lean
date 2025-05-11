@@ -25,7 +25,7 @@ section countP
 
 variable {p q : α → Bool}
 
-@[simp] theorem _root_.List.countP_toArray {l : List α} : countP p l.toArray = l.countP p := by
+@[simp, grind =] theorem _root_.List.countP_toArray {l : List α} : countP p l.toArray = l.countP p := by
   simp [countP]
   induction l with
   | nil => rfl
@@ -33,7 +33,7 @@ variable {p q : α → Bool}
     simp only [List.foldr_cons, ih, List.countP_cons]
     split <;> simp_all
 
-@[simp] theorem countP_toList {xs : Array α} : xs.toList.countP p = countP p xs := by
+@[simp, grind =] theorem countP_toList {xs : Array α} : xs.toList.countP p = countP p xs := by
   cases xs
   simp
 
@@ -164,10 +164,10 @@ section count
 
 variable [BEq α]
 
-@[simp] theorem _root_.List.count_toArray {l : List α} {a : α} : count a l.toArray = l.count a := by
+@[simp, grind =] theorem _root_.List.count_toArray {l : List α} {a : α} : count a l.toArray = l.count a := by
   simp [count, List.count_eq_countP]
 
-@[simp] theorem count_toList {xs : Array α} {a : α} : xs.toList.count a = xs.count a := by
+@[simp, grind =] theorem count_toList {xs : Array α} {a : α} : xs.toList.count a = xs.count a := by
   cases xs
   simp
 

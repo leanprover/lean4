@@ -55,12 +55,12 @@ theorem foldlM_toList.aux [Monad m]
     rfl
   · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
 
-@[simp] theorem foldlM_toList [Monad m]
+@[simp, grind =] theorem foldlM_toList [Monad m]
     {f : β → α → m β} {init : β} {xs : Array α} :
     xs.toList.foldlM f init = xs.foldlM f init := by
   simp [foldlM, foldlM_toList.aux]
 
-@[simp] theorem foldl_toList (f : β → α → β) {init : β} {xs : Array α} :
+@[simp, grind =] theorem foldl_toList (f : β → α → β) {init : β} {xs : Array α} :
     xs.toList.foldl f init = xs.foldl f init :=
   List.foldl_eq_foldlM .. ▸ foldlM_toList ..
 
@@ -79,32 +79,32 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
   match xs, this with | _, .inl rfl => rfl | xs, .inr h => ?_
   simp [foldrM, h, ← foldrM_eq_reverse_foldlM_toList.aux, List.take_length]
 
-@[simp] theorem foldrM_toList [Monad m]
+@[simp, grind =] theorem foldrM_toList [Monad m]
     {f : α → β → m β} {init : β} {xs : Array α} :
     xs.toList.foldrM f init = xs.foldrM f init := by
   rw [foldrM_eq_reverse_foldlM_toList, List.foldlM_reverse]
 
-@[simp] theorem foldr_toList (f : α → β → β) {init : β} {xs : Array α} :
+@[simp, grind =] theorem foldr_toList (f : α → β → β) {init : β} {xs : Array α} :
     xs.toList.foldr f init = xs.foldr f init :=
   List.foldr_eq_foldrM .. ▸ foldrM_toList ..
 
-@[simp] theorem push_toList {xs : Array α} {a : α} : (xs.push a).toList = xs.toList ++ [a] := by
+@[simp, grind =] theorem push_toList {xs : Array α} {a : α} : (xs.push a).toList = xs.toList ++ [a] := by
   simp [push, List.concat_eq_append]
 
-@[simp] theorem toListAppend_eq {xs : Array α} {l : List α} : xs.toListAppend l = xs.toList ++ l := by
+@[simp, grind =] theorem toListAppend_eq {xs : Array α} {l : List α} : xs.toListAppend l = xs.toList ++ l := by
   simp [toListAppend, ← foldr_toList]
 
-@[simp] theorem toListImpl_eq {xs : Array α} : xs.toListImpl = xs.toList := by
+@[simp, grind =] theorem toListImpl_eq {xs : Array α} : xs.toListImpl = xs.toList := by
   simp [toListImpl, ← foldr_toList]
 
-@[simp] theorem toList_pop {xs : Array α} : xs.pop.toList = xs.toList.dropLast := rfl
+@[simp, grind =] theorem toList_pop {xs : Array α} : xs.pop.toList = xs.toList.dropLast := rfl
 
 @[deprecated toList_pop (since := "2025-02-17")]
 abbrev pop_toList := @Array.toList_pop
 
 @[simp] theorem append_eq_append {xs ys : Array α} : xs.append ys = xs ++ ys := rfl
 
-@[simp] theorem toList_append {xs ys : Array α} :
+@[simp, grind =] theorem toList_append {xs ys : Array α} :
     (xs ++ ys).toList = xs.toList ++ ys.toList := by
   rw [← append_eq_append]; unfold Array.append
   rw [← foldl_toList]
@@ -112,13 +112,13 @@ abbrev pop_toList := @Array.toList_pop
 
 @[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
 
-@[simp, grind] theorem append_empty {xs : Array α} : xs ++ #[] = xs := by
+@[simp, grind =] theorem append_empty {xs : Array α} : xs ++ #[] = xs := by
   apply ext'; simp only [toList_append, toList_empty, List.append_nil]
 
 @[deprecated append_empty (since := "2025-01-13")]
 abbrev append_nil := @append_empty
 
-@[simp, grind] theorem empty_append {xs : Array α} : #[] ++ xs = xs := by
+@[simp, grind =] theorem empty_append {xs : Array α} : #[] ++ xs = xs := by
   apply ext'; simp only [toList_append, toList_empty, List.nil_append]
 
 @[deprecated empty_append (since := "2025-01-13")]
@@ -129,7 +129,7 @@ abbrev nil_append := @empty_append
 
 @[simp] theorem appendList_eq_append {xs : Array α} {l : List α} : xs.appendList l = xs ++ l := rfl
 
-@[simp] theorem toList_appendList {xs : Array α} {l : List α} :
+@[simp, grind =] theorem toList_appendList {xs : Array α} {l : List α} :
     (xs ++ l).toList = xs.toList ++ l := by
   rw [← appendList_eq_append]; unfold Array.appendList
   induction l generalizing xs <;> simp [*]

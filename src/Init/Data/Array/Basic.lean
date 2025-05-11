@@ -88,11 +88,11 @@ theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
 @[simp] theorem toArrayAux_eq {as : List α} {acc : Array α} : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-@[simp] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
+@[simp, grind =] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
 
-@[simp] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
+@[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
 
-@[simp] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
+@[simp, grind =] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
   simp [getElem?_def]
 
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
@@ -107,7 +107,7 @@ instance : Membership α (Array α) where
 theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
 
-@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+@[simp, grind =] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
   simp [mem_def]
 
 @[simp, grind] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
@@ -127,18 +127,18 @@ theorem toList_toArray {as : List α} : as.toArray.toList = as := rfl
 @[deprecated toList_toArray (since := "2025-02-17")]
 abbrev _root_.Array.toList_toArray := @List.toList_toArray
 
-@[simp] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
+@[simp, grind] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
 
 @[deprecated size_toArray (since := "2025-02-17")]
 abbrev _root_.Array.size_toArray := @List.size_toArray
 
-@[simp] theorem getElem_toArray {xs : List α} {i : Nat} (h : i < xs.toArray.size) :
+@[simp, grind =] theorem getElem_toArray {xs : List α} {i : Nat} (h : i < xs.toArray.size) :
     xs.toArray[i] = xs[i]'(by simpa using h) := rfl
 
-@[simp] theorem getElem?_toArray {xs : List α} {i : Nat} : xs.toArray[i]? = xs[i]? := by
+@[simp, grind =] theorem getElem?_toArray {xs : List α} {i : Nat} : xs.toArray[i]? = xs[i]? := by
   simp [getElem?_def]
 
-@[simp] theorem getElem!_toArray [Inhabited α] {xs : List α} {i : Nat} :
+@[simp, grind =] theorem getElem!_toArray [Inhabited α] {xs : List α} {i : Nat} :
     xs.toArray[i]! = xs[i]! := by
   simp [getElem!_def]
 
@@ -2158,13 +2158,15 @@ Examples:
 
 /-! ### Repr and ToString -/
 
+protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
+  let _ : Std.ToFormat α := ⟨repr⟩
+  if xs.size == 0 then
+    "#[]"
+  else
+    Std.Format.bracketFill "#[" (Std.Format.joinSep (toList xs) ("," ++ Std.Format.line)) "]"
+
 instance {α : Type u} [Repr α] : Repr (Array α) where
-  reprPrec xs _ :=
-    let _ : Std.ToFormat α := ⟨repr⟩
-    if xs.size == 0 then
-      "#[]"
-    else
-      Std.Format.bracketFill "#[" (Std.Format.joinSep (toList xs) ("," ++ Std.Format.line)) "]"
+  reprPrec xs _ := Array.repr xs
 
 instance [ToString α] : ToString (Array α) where
   toString xs := "#" ++ toString xs.toList

@@ -197,10 +197,13 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 example : true'' = true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply' failed, failed to unify
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
   @HEq ?α ?a ?α ?a
-with
+with the goal
   @HEq Bool true'' Bool true
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort ?u.601} (a : α), HEq a a
 ⊢ HEq true'' true
 -/
 #guard_msgs in
@@ -262,10 +265,13 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 example : false = true   := by apply_rfl -- Error
 /--
-error: tactic 'apply' failed, failed to unify
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
   HEq ?a ?a
-with
+with the goal
   HEq false true
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort ?u.653} (a : α), HEq a a
 ⊢ HEq false true
 -/
 #guard_msgs in
@@ -326,10 +332,13 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 example : false = true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply' failed, failed to unify
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
   HEq ?a ?a
-with
+with the goal
   HEq false true
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort ?u.705} (a : α), HEq a a
 ⊢ HEq false true
 -/
 #guard_msgs in
@@ -383,19 +392,25 @@ example : R false true   := by with_reducible apply_rfl -- Error
 -- Inheterogeneous unequal
 
 /--
-error: tactic 'apply' failed, failed to unify
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
   HEq ?a ?a
-with
+with the goal
   HEq true 1
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort ?u.774} (a : α), HEq a a
 ⊢ HEq true 1
 -/
 #guard_msgs in
 example : HEq true 1 := by apply_rfl -- Error
 /--
-error: tactic 'apply' failed, failed to unify
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
   HEq ?a ?a
-with
+with the goal
   HEq true 1
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort ?u.815} (a : α), HEq a a
 ⊢ HEq true 1
 -/
 #guard_msgs in

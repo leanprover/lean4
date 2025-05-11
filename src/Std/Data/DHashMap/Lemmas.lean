@@ -807,6 +807,7 @@ theorem getKey_congr [EquivBEq α] [LawfulHashable α] {k₁ k₂ : α} (h : k�
     (h₁ : k₁ ∈ m) : m.getKey k₁ h₁ = m.getKey k₂ ((mem_congr h).mp h₁) :=
   Raw₀.getKey_congr ⟨m.1, _⟩ m.2 h h₁
 
+@[simp]
 theorem getKey_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.getKey k h = k :=
   Raw₀.getKey_eq ⟨m.1, _⟩ m.2 h
 
@@ -1987,6 +1988,9 @@ theorem ofList_cons {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
     ofList (⟨k, v⟩ :: tl) = ((∅ : DHashMap α β).insert k v).insertMany tl :=
   Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_cons (α := α)) :)
 
+theorem ofList_eq_insertMany_empty {l : List ((a : α) × β a)} :
+    ofList l = insertMany (∅ : DHashMap α β) l := rfl
+
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α} :
@@ -2130,6 +2134,9 @@ theorem ofList_singleton {k : α} {v : β} :
 theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : DHashMap α (fun _ => β)).insert k v) tl :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_cons (α:= α)) :)
+
+theorem ofList_eq_insertMany_empty {l : List (α × β)} :
+    ofList l = insertMany (∅ : DHashMap α (fun _ => β)) l := rfl
 
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -2544,6 +2551,7 @@ theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (�
     (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default := by
   simp only [getKey!_alter, beq_self_eq_true, reduceIte]
 
+@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
     {h : k' ∈ m.alter k f} :
     (m.alter k f).getKey k' h =
@@ -2554,10 +2562,9 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
         m.getKey k' h' :=
   Raw₀.getKey_alter ⟨m.1, _⟩ m.2 h
 
-@[simp]
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
     {h : k ∈ m.alter k f} : (m.alter k f).getKey k h = k := by
-  simp [getKey_alter]
+  simp
 
 theorem getKeyD_alter [LawfulBEq α] {k k' fallback : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKeyD k' fallback =
@@ -2875,6 +2882,7 @@ theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k →
     (m.modify k f).getKey! k = if k ∈ m then k else default :=
   Raw₀.getKey!_modify_self ⟨m.1, _⟩ m.2
 
+@[deprecated getKey_eq (since := "2025-01-05")]
 theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
     {h : k' ∈ m.modify k f} :
     (m.modify k f).getKey k' h =
@@ -3880,11 +3888,19 @@ namespace Const
 
 variable {β : Type v} {γ : Type w} {m : DHashMap α fun _ => β}
 
-theorem get?_map [EquivBEq α] [LawfulHashable α]
+@[simp]
+theorem get?_map [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k : α} :
+    Const.get? (m.map f) k = (Const.get? m k).map (f k) :=
+  Raw₀.Const.get?_map ⟨m.1, _⟩ m.2
+
+/-- Variant of `get?_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+@[simp (low)]
+theorem get?_map' [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} :
     Const.get? (m.map f) k = (Const.get? m k).pmap (fun v h' => f (m.getKey k h') v)
       (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h')) :=
-  Raw₀.Const.get?_map ⟨m.1, _⟩ m.2
+  Raw₀.Const.get?_map' ⟨m.1, _⟩ m.2
 
 theorem get?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k k' : α} (h : m.getKey? k = some k') :
@@ -3892,30 +3908,49 @@ theorem get?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
   Raw₀.Const.get?_map_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
 
 @[simp]
-theorem get_map [EquivBEq α] [LawfulHashable α]
+theorem get_map [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k : α} {h'} :
+    Const.get (m.map f) k h' = f k (Const.get m k (mem_of_mem_map h')) :=
+  Raw₀.Const.get_map ⟨m.1, _⟩ m.2
+
+/-- Variant of `get_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+@[simp (low)]
+theorem get_map' [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} {h'} :
     Const.get (m.map f) k h' =
       f (m.getKey k (mem_of_mem_map h')) (Const.get m k (mem_of_mem_map h')) :=
-  Raw₀.Const.get_map ⟨m.1, _⟩ m.2
+  Raw₀.Const.get_map' ⟨m.1, _⟩ m.2
 
-theorem get!_map [EquivBEq α] [LawfulHashable α] [Inhabited γ]
+theorem get!_map [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+    {f : α → β → γ} {k : α} :
+    Const.get! (m.map f) k = ((Const.get? m k).map (f k)).get! :=
+  Raw₀.Const.get!_map ⟨m.1, _⟩ m.2
+
+/-- Variant of `get!_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+theorem get!_map' [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → γ} {k : α} :
     Const.get! (m.map f) k =
       ((get? m k).pmap (fun v h => f (m.getKey k h) v)
         (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_mem h'))).get! :=
-  Raw₀.Const.get!_map ⟨m.1, _⟩ m.2
+  Raw₀.Const.get!_map' ⟨m.1, _⟩ m.2
 
 theorem get!_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → γ} {k k' : α} (h : m.getKey? k = some k') :
     Const.get! (m.map f) k = ((Const.get? m k).map (f k')).get! :=
   Raw₀.Const.get!_map_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
 
-theorem getD_map [EquivBEq α] [LawfulHashable α]
+theorem getD_map [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → γ} {k : α} {fallback : γ} :
+    Const.getD (m.map f) k fallback = ((Const.get? m k).map (f k)).getD fallback :=
+  Raw₀.Const.getD_map ⟨m.1, _⟩ m.2
+
+/-- Variant of `getD_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+theorem getD_map' [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} {fallback : γ} :
     Const.getD (m.map f) k fallback =
       ((get? m k).pmap (fun v h => f (m.getKey k h) v)
         (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))).getD fallback :=
-  Raw₀.Const.getD_map ⟨m.1, _⟩ m.2
+  Raw₀.Const.getD_map' ⟨m.1, _⟩ m.2
 
 theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → γ} {k k' : α} {fallback : γ} (h : m.getKey? k = some k') :

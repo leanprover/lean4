@@ -11,6 +11,7 @@ import Init.System.Promise
 import Lean.ImportingFlag
 import Lean.Data.NameTrie
 import Lean.Data.SMap
+import Lean.Setup
 import Lean.Declaration
 import Lean.LocalContext
 import Lean.Util.Path
@@ -92,18 +93,6 @@ instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
   getElem! a i := a[i.toNat]!
 
 abbrev ConstMap := SMap Name ConstantInfo
-
-structure Import where
-  module        : Name
-  /-- `import all`; whether to import and expose all data saved by the module. -/
-  importAll : Bool := false
-  /-- Whether to activate this import when the current module itself is imported. -/
-  isExported    : Bool := true
-  deriving Repr, Inhabited
-
-instance : Coe Name Import := ⟨({module := ·})⟩
-
-instance : ToString Import := ⟨fun imp => toString imp.module⟩
 
 /--
   A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
@@ -1663,10 +1652,14 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
   let kenv := env.toKernelEnv
   let env := env.setExporting (level != .private)
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
-  -- not all kernel constants may be exported
-  let constants := constNames.filterMap fun n =>
-    env.find? n <|>
-    guard (looksLikeOldCodegenName n) *> kenv.find? n
+  -- not all kernel constants may be exported at `level < .private`
+  let constants := if level == .private then
+    -- (this branch makes very sure all kernel constants are exported eventually)
+    kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
+  else
+    constNames.filterMap fun n =>
+      env.find? n <|>
+      guard (looksLikeOldCodegenName n) *> kenv.find? n
   let constNames := constants.map (·.name)
   return { env.header with
     extraConstNames := env.checked.get.extraConstNames.toArray
@@ -1794,7 +1787,35 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
   x.run s
 
-partial def importModulesCore (imports : Array Import) (forceImportAll := true) :
+def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  -- Opportunistically load all available parts.
+  -- Producer (e.g., Lake) should limit parts to the proper import level.
+  if let some mFile := arts.olean? then
+    fnames := fnames.push mFile
+    if let some sFile := arts.oleanServer? then
+      fnames := fnames.push sFile
+      if let some pFile := arts.oleanPrivate? then
+        fnames := fnames.push pFile
+  return fnames
+
+private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
+  let mFile ← findOLean mod
+  unless (← mFile.pathExists) do
+    throw <| IO.userError s!"object file '{mFile}' of module {mod} does not exist"
+  let mut fnames := #[mFile]
+  -- Opportunistically load all available parts.
+  -- Necessary because the import level may be upgraded a later import.
+  let sFile := OLeanLevel.server.adjustFileName mFile
+  if (← sFile.pathExists) then
+    fnames := fnames.push sFile
+    let pFile := OLeanLevel.private.adjustFileName mFile
+    if (← pFile.pathExists) then
+      fnames := fnames.push pFile
+  return fnames
+
+partial def importModulesCore
+    (imports : Array Import) (forceImportAll := true) (arts : NameMap ModuleArtifacts := {}) :
     ImportStateM Unit := go
 where go := do
   for i in imports do
@@ -1811,19 +1832,14 @@ where go := do
           if let some mod := mod.mainModule? then
             importModulesCore (forceImportAll := true) mod.imports
       continue
-    let mFile ← findOLean i.module
-    unless (← mFile.pathExists) do
-      throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
-    let mut fnames := #[mFile]
-    -- opportunistically load all available parts in case `importPrivate` is upgraded by a later
-    -- import
-    -- TODO: use Lake data to retrieve ultimate import level immediately
-    let sFile := OLeanLevel.server.adjustFileName mFile
-    if (← sFile.pathExists) then
-      fnames := fnames.push sFile
-      let pFile := OLeanLevel.private.adjustFileName mFile
-      if (← pFile.pathExists) then
-        fnames := fnames.push pFile
+    let fnames ←
+      if let some arts := arts.find? i.module then
+        let fnames := arts.oleanParts
+        if fnames.isEmpty then
+          findOLeanParts i.module
+        else pure fnames
+      else
+        findOLeanParts i.module
     let parts ← readModuleDataParts fnames
     -- `imports` is identical for each part
     let some (baseMod, _) := parts[0]? | unreachable!
@@ -1995,13 +2011,14 @@ as if no `module` annotations were present in the imports.
 -/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
-    (level := OLeanLevel.private) : IO Environment := profileitIO "import" opts do
+    (level := OLeanLevel.private) (arts : NameMap ModuleArtifacts := {})
+    : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports |>.run
+    let (_, s) ← importModulesCore (forceImportAll := level == .private) imports arts |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 

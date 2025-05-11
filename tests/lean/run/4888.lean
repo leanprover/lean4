@@ -5,9 +5,9 @@ https://github.com/leanprover/lean4/issues/4888
 -/
 
 /--
-error: application type mismatch
+error: Application type mismatch: In the appplication
   Nat.succ True
-argument
+the final argument
   True
 has type
   Prop : Type

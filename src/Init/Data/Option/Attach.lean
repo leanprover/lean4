@@ -138,7 +138,7 @@ theorem toList_attach (o : Option α) :
     o.attach.toList = o.toList.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
   cases o <;> simp
 
-@[simp] theorem attach_toList (o : Option α) :
+@[simp, grind =] theorem attach_toList (o : Option α) :
     o.toList.attach = (o.attach.map fun ⟨a, h⟩ => ⟨a, by simpa using h⟩).toList := by
   cases o <;> simp
 
@@ -195,7 +195,7 @@ theorem attach_filter {o : Option α} {p : α → Bool} :
   | some a =>
     simp only [filter_some, attach_some]
     ext
-    simp only [attach_eq_some_iff, ite_none_right_eq_some, some.injEq, some_bind,
+    simp only [attach_eq_some_iff, ite_none_right_eq_some, some.injEq, bind_some,
       dite_none_right_eq_some]
     constructor
     · rintro ⟨h, w⟩

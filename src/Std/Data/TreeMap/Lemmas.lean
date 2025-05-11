@@ -1240,6 +1240,9 @@ theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) cmp = insertMany ((∅ : TreeMap α β cmp).insert k v) tl :=
   ext DTreeMap.Const.ofList_cons
 
+theorem ofList_eq_insertMany_empty {l : List (α × β)} :
+    ofList l cmp = insertMany (∅ : TreeMap α β cmp) l := rfl
+
 @[simp]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List (α × β)} {k : α} :
     (ofList l cmp).contains k = (l.map Prod.fst).contains k :=

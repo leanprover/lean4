@@ -1,6 +1,6 @@
-autoPPExplicit.lean:2:26-2:31: error: application type mismatch
+autoPPExplicit.lean:2:26-2:31: error: Application type mismatch: In the appplication
   @Eq.trans α a (b = c)
-argument
+the final argument
   b = c
 has type
   Prop : Type

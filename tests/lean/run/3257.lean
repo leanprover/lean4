@@ -14,7 +14,7 @@ example : U := by
   simp [foo, T.mk]
 
 /--
-info: [Meta.Tactic.simp.discharge] bar discharge ✅️
+trace: [Meta.Tactic.simp.discharge] bar discharge ✅️
       autoParam T _auto✝
   [Meta.Tactic.simp.rewrite] T.mk:1000:
         T

@@ -12,7 +12,7 @@ open Lean Elab Tactic
 Tactics may assign other goals. There are three goals, but the tactic is run twice.
 -/
 /--
-info: case a
+trace: case a
 ⊢ 1 ≤ ?m
 
 case a
@@ -21,7 +21,7 @@ case a
 case m
 ⊢ Nat
 ---
-info: running tac
+trace: running tac
 running tac
 -/
 #guard_msgs in
@@ -94,7 +94,7 @@ case refine_1
 b : Bool
 ⊢ Unit
 ---
-info: case refine_2.false
+trace: case refine_2.false
 v : Unit := ?_ false
 ⊢ True
 
@@ -149,7 +149,7 @@ error: Case tag 'true' not found.
 
 The only available case tag is 'refine_1'.
 ---
-info: case refine_2.false
+trace: case refine_2.false
 v : Unit := ()
 this : () = v
 ⊢ True
@@ -160,7 +160,7 @@ case refine_1
 b : Bool
 ⊢ Unit
 ---
-info: in true
+trace: in true
 -/
 #guard_msgs in
 example (b : Bool) : True := by
@@ -200,7 +200,7 @@ This is the responsibility of `first`, but `all_goals` coordinates by being sure
 -/
 
 /--
-info: rfl
+trace: rfl
 rfl
 -/
 #guard_msgs in
@@ -311,7 +311,7 @@ theorem idEq (a : α) : id a = a :=
   rfl
 
 /--
-info: case sunday
+trace: case sunday
 ⊢ sunday.previous.next = id sunday
 
 case monday
@@ -332,7 +332,7 @@ case friday
 case saturday
 ⊢ saturday.previous.next = id saturday
 ---
-info: case sunday
+trace: case sunday
 ⊢ sunday.previous.next = sunday
 
 case monday
@@ -362,7 +362,7 @@ theorem Weekday.test (d : Weekday) : next (previous d) = id d := by
   all_goals rfl
 
 /--
-info: case sunday
+trace: case sunday
 ⊢ sunday.previous.next = sunday
 
 case monday

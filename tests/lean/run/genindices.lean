@@ -25,7 +25,7 @@ pure ()
 set_option trace.Elab true
 
 /--
-info: [Elab] ⊢ ∀ (α : Type u) (xs : List (List α)) (h : Pred (List α) xs), xs ≠ [] → xs = xs
+trace: [Elab] ⊢ ∀ (α : Type u) (xs : List (List α)) (h : Pred (List α) xs), xs ≠ [] → xs = xs
 [Elab] α✝ : Type u
     xs✝ : List (List α✝)
     h✝ : Pred (List α✝) xs✝

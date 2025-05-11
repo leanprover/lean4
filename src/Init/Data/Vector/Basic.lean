@@ -29,7 +29,7 @@ structure Vector (α : Type u) (n : Nat) extends Array α where
   size_toArray : toArray.size = n
 deriving Repr, DecidableEq
 
-attribute [simp] Vector.size_toArray
+attribute [simp, grind] Vector.size_toArray
 
 /--
 Converts an array to a vector. The resulting vector's size is the array's size.

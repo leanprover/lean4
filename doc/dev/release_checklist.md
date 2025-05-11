@@ -144,6 +144,10 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     - Run `script/release_steps.py v4.7.0-rc1 <repo>` (e.g. replacing `<repo>` with `batteries`), which will walk you through the following steps:
       - Create a new branch off `master`/`main` (as specified in the `branch` field), called `bump_to_v4.7.0-rc1`.
       - Merge `origin/bump/v4.7.0` if relevant (i.e. `bump-branch: true` appears in `release_repos.yml`).
+      - Otherwise, you *may* need to merge `origin/nightly-testing`.
+      - Note that for `verso` and `reference-manual` development happens on `nightly-testing`, so
+        we will merge that branch into `bump_to_v4.7.0-rc1`, but it is essential in the GitHub interface that we do a rebase merge,
+        in order to preserve the history.
       - Update the contents of `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1`.
       - In the `lakefile.toml` or `lakefile.lean`, if there are dependencies on `nightly-testing`, `bump/v4.7.0`, or specific version tags, update them to the new tag.
         If they depend on `main` or `master`, don't change this; you've just updated the dependency, so `lake update` will take care of modifying the manifest.
@@ -151,7 +155,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
       - Run `lake build && if lake check-test; then lake test; fi` to check things are working.
       - Commit the changes as `chore: bump toolchain to v4.7.0-rc1` and push.
       - Create a PR with title "chore: bump toolchain to v4.7.0-rc1".
-    - Merge the PR once CI completes.
+    - Merge the PR once CI completes. (Recall: for `verso` and `reference-manual` you will need to do a rebase merge.)
     - Re-running `script/release_checklist.py` will then create the tag `v4.7.0-rc1` from `master`/`main` and push it (unless `toolchain-tag: false` in the `release_repos.yml` file)
   - We do this for the same list of repositories as for stable releases, see above for notes about special cases.
     As above, there are dependencies between these, and so the process above is iterative.

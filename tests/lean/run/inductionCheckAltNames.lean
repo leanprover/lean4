@@ -6,7 +6,7 @@ axiom elimEx (motive : Nat → Nat → Sort u) (x y : Nat)
   (lower : (delta a : Nat) → motive (a + delta.succ) a)
   : motive y x
 
-/-- error: invalid alternative name 'lower2', expected 'diag', 'upper' or 'lower' -/
+/-- error: invalid alternative name 'lower2', expected 'diag', 'upper', or 'lower' -/
 #guard_msgs in
 theorem invalidAlt (p: Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx with

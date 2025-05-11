@@ -89,15 +89,25 @@ def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
   return d
 
 /-- Simplifies `c₁` using `c₂`. -/
-def EqCnstr.simplifyWith (c₁ c₂ : EqCnstr) : RingM EqCnstr := do
-  let some r := c₁.p.simp? c₂.p (← nonzeroChar?) | return c₁
+def EqCnstr.simplifyWithCore (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
+  let some r := c₁.p.simp? c₂.p (← nonzeroChar?) | return none
   let c := { c₁ with
     p := r.p
     h := .simp r.k₁ c₁ r.k₂ r.m₂ c₂
   }
   incSteps
   trace_goal[grind.ring.simp] "{← c.p.denoteExpr}"
+  return some c
+
+/-- Simplifies `c₁` using `c₂`. -/
+def EqCnstr.simplifyWith (c₁ c₂ : EqCnstr) : RingM EqCnstr := do
+  let some c ← c₁.simplifyWithCore c₂ | return c₁
   return c
+
+/-- Simplifies `c₁` using `c₂` exhaustively. -/
+partial def EqCnstr.simplifyWithExhaustively (c₁ c₂ : EqCnstr) : RingM EqCnstr := do
+  let some c ← c₁.simplifyWithCore c₂ | return c₁
+  c.simplifyWithExhaustively c₂
 
 /-- Simplify the given equation constraint using the current basis. -/
 def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
@@ -150,22 +160,6 @@ def addToBasisCore (c : EqCnstr) : RingM Unit := do
     recheck := true
   }
 
-def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
-  let .add _ m _ := c.p | return ()
-  let .mult pw _ := m | return ()
-  let x := pw.x
-  let cs := (← getRing).varToBasis[x]!
-  if cs.isEmpty then return ()
-  modifyRing fun s => { s with varToBasis := s.varToBasis.set x {} }
-  for c' in cs do
-    let .add _ m' _ := c'.p | pure ()
-    if m.divides m' then
-      let c'' ← c'.simplifyWith c
-      unless (← c''.checkConstant) do
-        addToBasisCore c''
-    else
-      addToBasisCore c'
-
 def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
   if (← checkMaxSteps) then return ()
   trace_goal[grind.ring.assert.queue] "{← c.denoteExpr}"
@@ -217,6 +211,29 @@ def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
   if k < 0 then
     return { c with p := c.p.mulConst (-1), h := .mul (-1) c }
   return c
+
+def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
+  trace[grind.debug.ring.simpBasis] "using: {← c.denoteExpr}"
+  let .add _ m _ := c.p | return ()
+  let rec go (m' : Mon) : RingM Unit := do
+    match m' with
+    | .unit => return ()
+    | .mult pw m' => goVar m pw.x; go m'
+  go m
+where
+  goVar (m : Mon) (x : Var) : RingM Unit := do
+    let cs := (← getRing).varToBasis[x]!
+    if cs.isEmpty then return ()
+    modifyRing fun s => { s with varToBasis := s.varToBasis.set x {} }
+    for c' in cs do
+      trace[grind.debug.ring.simpBasis] "target: {← c'.denoteExpr}"
+      let .add _ m' _ := c'.p | pure ()
+      if m.divides m' then
+        let c'' ← c'.simplifyWithExhaustively c
+        trace[grind.debug.ring.simpBasis] "simplified: {← c''.denoteExpr}"
+        addToQueue c''
+      else
+        addToBasisCore c'
 
 def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   let c ← c.toMonic

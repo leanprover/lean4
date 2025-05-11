@@ -375,7 +375,7 @@ private def hashRoot (enodes : ENodeMap) (e : Expr) : UInt64 :=
   else
     13
 
-def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
+private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
   if isSameExpr a b then
     return true
   else
@@ -383,7 +383,7 @@ def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
     let some n2 := enodes.find? { expr := b } | return false
     isSameExpr n1.root n2.root
 
-def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
+private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
   match_expr e with
   | Grind.nestedProof p _ => hashRoot enodes p
   | Eq _ lhs rhs => goEq lhs rhs
@@ -399,7 +399,7 @@ where
     | _ => mixHash r (hashRoot enodes e)
 
 /-- Returns `true` if `a` and `b` are congruent modulo the equivalence classes in `enodes`. -/
-partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
+private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   match_expr a with
   | Grind.nestedProof p₁ _ =>
     let_expr Grind.nestedProof p₂ _ := b | false
@@ -424,13 +424,13 @@ where
       -- because we are not in the `MetaM` monad.
       hasSameRoot enodes a b
 
-instance : Hashable (CongrKey enodes) where
-  hash k := congrHash enodes k.e
+instance : Hashable (CongrKey enodeMap) where
+  hash k := congrHash enodeMap k.e
 
-instance : BEq (CongrKey enodes) where
-  beq k1 k2 := isCongruent enodes k1.e k2.e
+instance : BEq (CongrKey enodeMap) where
+  beq k1 k2 := isCongruent enodeMap k1.e k2.e
 
-abbrev CongrTable (enodes : ENodeMap) := PHashSet (CongrKey enodes)
+abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
 abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
@@ -601,9 +601,10 @@ structure Clean.State where
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
-  enodes       : ENodeMap := {}
+  private enodeMap : ENodeMap := {}
+  exprs        : PArray Expr := {}
   parents      : ParentMap := {}
-  congrTable   : CongrTable enodes := {}
+  congrTable   : CongrTable enodeMap := {}
   /--
   A mapping from each function application index (`HeadIndex`) to a list of applications with that index.
   Recall that the `HeadIndex` for a constant is its constant name, and for a free variable,
@@ -631,6 +632,12 @@ structure Goal where
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
   deriving Inhabited
+
+def Goal.hasSameRoot (g : Goal) (a b : Expr) : Bool :=
+  Grind.hasSameRoot g.enodeMap a b
+
+def Goal.isCongruent (g : Goal) (a b : Expr) : Bool :=
+  Grind.isCongruent g.enodeMap a b
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
   goal.mvarId.admit
@@ -705,7 +712,7 @@ Returns `some n` if `e` has already been "internalized" into the
 Otherwise, returns `none`s.
 -/
 def Goal.getENode? (goal : Goal) (e : Expr) : Option ENode :=
-  goal.enodes.find? { expr := e }
+  goal.enodeMap.find? { expr := e }
 
 @[inline, inherit_doc Goal.getENode?]
 def getENode? (e : Expr) : GoalM (Option ENode) :=
@@ -716,7 +723,7 @@ def throwNonInternalizedExpr (e : Expr) : CoreM α :=
 
 /-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
 def Goal.getENode (goal : Goal) (e : Expr) : CoreM ENode := do
-  let some n := goal.enodes.find? { expr := e }
+  let some n := goal.enodeMap.find? { expr := e }
     | throwNonInternalizedExpr e
   return n
 
@@ -803,7 +810,7 @@ def getNext (e : Expr) : GoalM Expr := do
 
 /-- Returns `true` if `e` has already been internalized. -/
 def alreadyInternalized (e : Expr) : GoalM Bool :=
-  return (← get).enodes.contains { expr := e }
+  return (← get).enodeMap.contains { expr := e }
 
 def Goal.getTarget? (goal : Goal) (e : Expr) : Option Expr := Id.run do
   let some n ← goal.getENode? e | return none
@@ -895,14 +902,8 @@ def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
     curr := curr.insert parent
   modify fun s => { s with parents := s.parents.insert { expr := root } curr }
 
-def setENode (e : Expr) (n : ENode) : GoalM Unit :=
-  modify fun s => { s with
-    enodes := s.enodes.insert { expr := e } n
-    congrTable := unsafe unsafeCast s.congrTable
-  }
-
 def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM Unit := do
-  setENode e {
+  let n := {
     self := e, next := e, root := e, congr := e, size := 1
     flipped := false
     heqProofs := false
@@ -911,7 +912,12 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
     idx := (← get).nextIdx
     interpreted, ctor, generation
   }
-  modify fun s => { s with nextIdx := s.nextIdx + 1 }
+  modify fun s => { s with
+    enodeMap := s.enodeMap.insert { expr := e } n
+    exprs := s.exprs.push e
+    congrTable := unsafe unsafeCast s.congrTable
+    nextIdx := s.nextIdx + 1
+  }
 
 /--
 Creates an `ENode` for `e` if one does not already exist.
@@ -922,6 +928,12 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let ctor := (← isConstructorAppCore? e).isSome
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
+
+def setENode (e : Expr) (n : ENode) : GoalM Unit :=
+  modify fun s => { s with
+    enodeMap := s.enodeMap.insert { expr := e } n
+    congrTable := unsafe unsafeCast s.congrTable
+  }
 
 /--
 Notifies the offset constraint module that `a = b` where
@@ -1196,14 +1208,9 @@ def closeGoal (falseProof : Expr) : GoalM Unit := do
     else
       mvarId.assign (← mkFalseElim target falseProof)
 
-def Goal.getENodes (goal : Goal) : Array ENode :=
-  -- We must sort because we are using pointer addresses as keys in `enodes`
-  let nodes := goal.enodes.toArray.map (·.2)
-  nodes.qsort fun a b => a.idx < b.idx
-
 /-- Returns all enodes in the goal -/
-def getENodes : GoalM (Array ENode) := do
-  return (← get).getENodes
+def getExprs : GoalM (PArray Expr) := do
+  return (← get).exprs
 
 /-- Executes `f` to each term in the equivalence class containing `e` -/
 @[inline] def traverseEqc (e : Expr) (f : ENode → GoalM Unit) : GoalM Unit := do
@@ -1227,8 +1234,8 @@ def getENodes : GoalM (Array ENode) := do
   return r
 
 def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
-  let nodes ← getENodes
-  for n in nodes do
+  for e in (← getExprs) do
+    let n ← getENode e
     f n
 
 def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
@@ -1239,8 +1246,8 @@ def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
   ref.get
 
 def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
-  let nodes ← getENodes
-  for n in nodes do
+  for e in (← getExprs) do
+    let n ← getENode e
     if isSameExpr n.self n.root then
       f n
 
@@ -1290,9 +1297,9 @@ partial def getEqc (e : Expr) : GoalM (List Expr) :=
 
 /-- Returns all equivalence classes in the current goal. -/
 partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
-  let mut r : List (List Expr) := []
-  let nodes ← goal.getENodes
-  for node in nodes do
+ let mut r : List (List Expr) := []
+ for e in goal.exprs do
+    let some node := goal.getENode? e | pure ()
     if isSameExpr node.root node.self then
       r := goal.getEqc node.self :: r
   return r

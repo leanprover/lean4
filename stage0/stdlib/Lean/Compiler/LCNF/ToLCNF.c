@@ -142,7 +142,6 @@ static lean_object* l_panic___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCasesImpl
 uint8_t l_Lean_MapDeclarationExtension_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitApp___closed__11;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCasesImplementedBy___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToLCNF_instInhabitedElement;
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_bindCases_go___closed__8;
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*);
@@ -408,6 +407,7 @@ LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_mkOverApplication___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitQuotLift___lambda__1___closed__5;
+uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCasesImplementedBy___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -17417,7 +17417,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12;
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = l_Lean_Name_getPrefix(x_9);
 x_11 = l_Lean_Compiler_LCNF_builtinRuntimeTypes;
-x_12 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_10, x_11);
+x_12 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_11, x_10);
 lean_dec(x_10);
 if (x_12 == 0)
 {

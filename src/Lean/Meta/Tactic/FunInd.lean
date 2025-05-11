@@ -689,9 +689,13 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       -- Trying assumption before rfl seems to be important?
       for h in hyps do
         unless (← h.isAssigned) do
-          if (← isProp (← h.getType)) then
+          let hType ← h.getType
+          if Simp.isEqnThmHypothesis hType then
+            -- Using unrestricted h.substVars here does not work well; it could
+            -- even introduce a dependency on the `oldIH` we want to eliminate
+            h.assumption <|> throwError "Failed to discharge {h}"
+          else if hType.isEq then
             h.assumption <|> h.refl <|> throwError m!"Failed to resolve {h}"
-            trace[Meta.FunInd] "Instantiated {h} with {← instantiateMVars (.mvar h)}"
       let rhs ← instantiateMVars rhs
       let proof ← instantiateMVars proof
       let proof ← if isHeq then

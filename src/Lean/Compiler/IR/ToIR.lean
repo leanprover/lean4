@@ -29,7 +29,7 @@ structure BuilderState where
   fvars : Std.HashMap FVarId FVarClassification := {}
   nextId : Nat := 1
 
-abbrev M := StateT BuilderState CoreM
+abbrev M := StateRefT BuilderState CoreM
 
 def M.run (x : M α) : CoreM α := do
   x.run' {}
@@ -188,26 +188,26 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
-  let mkVar (v : VarId) : M FnBody := do
+  let rec mkVar (v : VarId) : M FnBody := do
     bindVarToVarId decl.fvarId v
     lowerCode k
-  let mkExpr (e : Expr) : M FnBody := do
+  let rec mkExpr (e : Expr) : M FnBody := do
     let var ← bindVar decl.fvarId
     let type ← match e with
     | .ctor .. | .pap .. | .proj .. => pure <| .object
     | _ => lowerType decl.type
     return .vdecl var type e (← lowerCode k)
-  let mkErased (_ : Unit) : M FnBody := do
+  let rec mkErased (_ : Unit) : M FnBody := do
     bindErased decl.fvarId
     lowerCode k
-  let mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
+  let rec mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
     let tmpVar ← newVar
     let type ← match e with
     | .ctor .. | .pap .. | .proj .. => pure <| .object
     | _ => lowerType decl.type
     return .vdecl tmpVar .object e (.vdecl var type (.ap tmpVar restArgs) (← lowerCode k))
-  let tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
+  let rec tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then
       let numArgs := args.size
       let numParams := decl.params.size

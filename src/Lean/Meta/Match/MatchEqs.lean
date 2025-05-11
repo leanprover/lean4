@@ -401,8 +401,7 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
-    let mvarId' ← observing? <| mvarId.modifyTargetEqLHS whnfCore
-    let mvarId := mvarId'.getD mvarId
+    let mvarId ← mvarId.modifyTargetEqLHS whnfCore
     let subgoals ←
       (do mvarId.refl; return #[])
       <|>

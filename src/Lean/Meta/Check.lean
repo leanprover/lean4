@@ -209,7 +209,7 @@ def throwAppTypeMismatch (f a : Expr) : MetaM α := throwError MessageData.ofLaz
   unless binfo.isExplicit do
     e := e.setAppPPExplicit
   let aType ← inferType a
-  throwError "Application type mismatch: In the appplication{indentExpr e}\nthe final argument{indentExpr a}\n{← mkHasTypeButIsExpectedMsg aType expectedType}"
+  return "Application type mismatch: In the appplication{indentExpr e}\nthe final argument{indentExpr a}\n{← mkHasTypeButIsExpectedMsg aType expectedType}"
 
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f

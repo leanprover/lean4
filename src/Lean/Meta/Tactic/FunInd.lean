@@ -665,7 +665,7 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
     unless (← isMatcherApp e) do
       return { expr := e }
     let matcherDeclName := e.getAppFn.constName!
-    let eqns ← Match.genGeneralizedMatchEqns matcherDeclName
+    let eqns ← Match.genMatchCongrEqns matcherDeclName
     unless altIdx < eqns.size do
       trace[Tactic.FunInd] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
       return { expr := e }
@@ -684,7 +684,7 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       if !(← isDefEq e lhs) then
         throwError m!"Left-hand side {lhs} of {.ofConstName eqnThm} does not apply to {e}"
       /-
-      Here we instantiate the hypotheses of the generalized equation theorem
+      Here we instantiate the hypotheses of the congruence equation theorem
       There are two sets of hypotheses to instantiate:
       - `Eq` or `HEq` that relate the discriminants to the patterns
         Solving these should instantiate the pattern variables.

@@ -833,41 +833,42 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       let result := { eqnNames, splitterName, splitterAltNumParams }
       registerMatchEqns matchDeclName result
 
-def genEqnThmSuffixBase := "gen_eq"
-def genEqnThmSuffixBasePrefix := genEqnThmSuffixBase ++ "_"
-def genEqn1ThmSuffix := genEqnThmSuffixBasePrefix ++ "1"
-example : genEqn1ThmSuffix = "gen_eq_1" := rfl
+def congrEqnThmSuffixBase := "congr_eq"
+def congrEqnThmSuffixBasePrefix := congrEqnThmSuffixBase ++ "_"
+def congrEqn1ThmSuffix := congrEqnThmSuffixBasePrefix ++ "1"
+example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
 
-/-- Returns `true` if `s` is of the form `eq_<idx>` -/
-def isGenEqnReservedNameSuffix (s : String) : Bool :=
-  genEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop genEqnThmSuffixBasePrefix.length).isNat
+/-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
+def iscongrEqnReservedNameSuffix (s : String) : Bool :=
+  congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
-builtin_initialize matchGenEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
+builtin_initialize matchCongrEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
   -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
   -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
   -- see below
   registerEnvExtension (pure {}) (asyncMode := .local)
 
-def registerMatchGenEqns (matchDeclName : Name) (eqnNames : Array Name) : CoreM Unit := do
-  modifyEnv fun env => matchGenEqnsExt.modifyState env fun map =>
+def registerMatchcongrEqns (matchDeclName : Name) (eqnNames : Array Name) : CoreM Unit := do
+  modifyEnv fun env => matchCongrEqnsExt.modifyState env fun map =>
     map.insert matchDeclName eqnNames
 
 /--
-Generate the generalized match equations for the given match auxiliary declaration.
-The generalized equations have a completely unrestriced left-hand side (arbitrary discriminants),
-and take propositional equations relating the discriminants to the patterns as arguments. Therefore
-they are `HEq` equations.
+Generate the congruence equations for the given match auxiliary declaration.
+The congruence equations have a completely unrestriced left-hand side (arbitrary discriminants),
+and take propositional equations relating the discriminants to the patterns as arguments. In this
+sense they combine a congruence lemma with the regular equation lemma.
+Since the motive depends on the discriminants, they are `HEq` equations.
 
 The code duplicates a fair bit of the logic above, and has to repeat the calculation of the
 `notAlts`. One could avoid that and generate the generalized equations eagerly above, but they are
 not always needed, so for now we live with the code duplication.
 -/
-def genGeneralizedMatchEqns (matchDeclName : Name) : MetaM (Array Name) := do
+def genMatchCongrEqns (matchDeclName : Name) : MetaM (Array Name) := do
   let baseName := mkPrivateName (← getEnv) matchDeclName
-  let firstEqnName := .str baseName genEqn1ThmSuffix
+  let firstEqnName := .str baseName congrEqn1ThmSuffix
   realizeConst matchDeclName firstEqnName (go baseName)
-  return matchGenEqnsExt.findStateAsync (← getEnv) firstEqnName |>.find! matchDeclName
+  return matchCongrEqnsExt.findStateAsync (← getEnv) firstEqnName |>.find! matchDeclName
 where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
@@ -885,7 +886,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     let mut idx := 1
     for i in [:alts.size] do
       let altNumParams := matchInfo.altNumParams[i]!
-      let thmName := (Name.str baseName genEqnThmSuffixBase).appendIndexAfter idx
+      let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
       eqnNames := eqnNames.push thmName
       let notAlt ← do
         let alt := alts[i]!
@@ -927,16 +928,16 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           return notAlt
       notAlts := notAlts.push notAlt
       idx := idx + 1
-    registerMatchGenEqns matchDeclName eqnNames
+    registerMatchcongrEqns matchDeclName eqnNames
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
 private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × Bool) := do
   let .str p s := n | failure
-  guard <| isEqnReservedNameSuffix s || s == "splitter" || isGenEqnReservedNameSuffix s
+  guard <| isEqnReservedNameSuffix s || s == "splitter" || iscongrEqnReservedNameSuffix s
   let p ← privateToUserName? p
   guard <| isMatcherCore env p
-  return (p, isGenEqnReservedNameSuffix s)
+  return (p, iscongrEqnReservedNameSuffix s)
 
 builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
 
@@ -944,7 +945,7 @@ builtin_initialize registerReservedNameAction fun name => do
   let some (p, isGenEq) := isMatchEqName? (← getEnv) name |
     return false
   if isGenEq then
-    let _ ← MetaM.run' <| genGeneralizedMatchEqns p
+    let _ ← MetaM.run' <| genMatchCongrEqns p
   else
     let _ ← MetaM.run' <| getEquationsFor p
   return true

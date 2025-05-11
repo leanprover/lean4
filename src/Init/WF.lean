@@ -157,14 +157,8 @@ end Subrelation
 namespace InvImage
 variable {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
-private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x := by
-  induction ac with
-  | intro x acx ih =>
-    intro z e
-    apply Acc.intro
-    intro y lt
-    subst x
-    apply ih (f y) lt y rfl
+def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x :=
+  Acc.recOn ac fun _ _ ih => fun _ e => Acc.intro _ (fun y lt => ih (f y) (e ▸ lt) y rfl)
 
 -- `def` for `WellFounded.fix`
 def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=

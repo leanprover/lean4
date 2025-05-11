@@ -392,9 +392,10 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
     for _ in [:heqNum] do
       let (h, mvarId') ← mvarId.intro1
       mvarId ← subst mvarId' h
-    trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvar0.mvarId!}"
+    trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
   mvarId ← mvarId.deltaTarget (· == matchDeclName)
+  mvarId ← mvarId.heqOfEq
   go mvarId 0
   instantiateMVars mvar0
 where
@@ -403,13 +404,6 @@ where
     let mvarId' ← observing? <| mvarId.modifyTargetEqLHS whnfCore
     let mvarId := mvarId'.getD mvarId
     let subgoals ←
-      (do
-        -- MVarId.heqOfEq does not fail, so use `MVarId.apply`
-        mvarId.withContext do
-          let mvarIds ← mvarId.apply (mkConst ``heq_of_eq [← mkFreshLevelMVar])
-          return mvarIds.toArray
-      )
-      <|>
       (do mvarId.refl; return #[])
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])

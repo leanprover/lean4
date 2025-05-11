@@ -1,6 +1,7 @@
 /-!
 Tricky cases and regressions tests for generalized match equations.
 -/
+-- set_option trace.Meta.Match.matchEqs true
 
 def myTest {α}
   (mmotive : (x : List α) → Sort v)
@@ -17,7 +18,7 @@ info: myTest.match_1.splitter.{u_1, u_2} {α : Type u_1} (motive : List α → S
   (h_1 : (a : α) → (dc : List α) → x✝ = a :: dc → motive (a :: dc))
   (h_2 : (x' : List α) → (∀ (a : α) (dc : List α), x' = a :: dc → False) → x✝ = x' → motive x') : motive x✝
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check myTest.match_1.splitter
 /--
 info: myTest.match_1.congr_eq_1.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)
@@ -29,7 +30,7 @@ info: myTest.match_1.congr_eq_1.{u_1, u_2} {α : Type u_1} (motive : List α →
     | x' => h_2 x' h)
     (h_1 a dc heq_1)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check myTest.match_1.congr_eq_1
 
 /--
@@ -43,7 +44,7 @@ info: myTest.match_1.congr_eq_2.{u_1, u_2} {α : Type u_1} (motive : List α →
       | x' => h_2 x' h)
       (h_2 x' heq_1)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check myTest.match_1.congr_eq_2
 
 
@@ -57,7 +58,7 @@ info: take.match_1.{u_1, u_2} {α : Type u_1} (motive : Nat → List α → Sort
   (h_1 : (x : List α) → motive 0 x) (h_2 : (n : Nat) → motive n.succ [])
   (h_3 : (n : Nat) → (a : α) → (as : List α) → motive n.succ (a :: as)) : motive n✝ xs✝
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check take.match_1
 
 /--
@@ -72,7 +73,7 @@ info: take.match_1.congr_eq_1.{u_1, u_2} {α : Type u_1} (motive : Nat → List 
     | n.succ, a :: as => h_3 n a as)
     (h_1 x✝)
 -/
-#guard_msgs in #check take.match_1.congr_eq_1
+#guard_msgs(pass trace, all) in #check take.match_1.congr_eq_1
 
 def matchOptionUnit (o? : Option Unit) : Bool := Id.run do
     if let some _ := o? then
@@ -90,7 +91,7 @@ info: matchOptionUnit.match_1.congr_eq_1.{u_1} (motive : Option Unit → Sort u_
     | x => h_2 x)
     (h_1 val✝)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check matchOptionUnit.match_1.congr_eq_1
 
 set_option linter.unusedVariables false in
@@ -109,7 +110,7 @@ info: utf16PosToCodepointPosFromAux.match_1.congr_eq_1.{u_1} (motive : Nat → S
     | utf16pos, utf8pos, cp => h_2 utf16pos utf8pos cp)
     (h_1 x✝³ cp)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check utf16PosToCodepointPosFromAux.match_1.congr_eq_1
 
 opaque some_expr : Option Nat
@@ -129,7 +130,7 @@ info: wrongEq.match_1.congr_eq_1.{u_1} (motive : (m? : Option Nat) → 0 < m?.ge
     | some m?, x, h => h_1 m? x h)
     (h_1 m? x✝ h✝)
 -/
-#guard_msgs in #check wrongEq.match_1.congr_eq_1
+#guard_msgs(pass trace, all) in #check wrongEq.match_1.congr_eq_1
 
 set_option linter.unusedVariables false in
 noncomputable def myNamedPatternTest (x : List Bool) : Bool :=
@@ -147,7 +148,7 @@ info: myNamedPatternTest.match_1.congr_eq_1.{u_1} (motive : List Bool → Sort u
     | x' => h_2 x' hx)
     (h_1 (x :: xs) x xs ⋯ heq_1)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check myNamedPatternTest.match_1.congr_eq_1
 
 set_option linter.unusedVariables false in
@@ -166,7 +167,7 @@ info: testMe.match_1.congr_eq_2.{u_1} (motive : Nat → Sort u_1) (x✝ : Nat) (
       | m => h_2 m h)
       (h_2 m heq_1)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check testMe.match_1.congr_eq_2
 
 -- JFR: Code to check if all matchers with equations also have congruence equations

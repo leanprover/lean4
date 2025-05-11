@@ -137,10 +137,16 @@ theorem getElem?_intersperse_two_mul_add_one {l : List α} (h : i + 1 < l.length
     have ⟨_, tl, _⟩ := ne_nil_iff_exists_cons.mp hn
     cases tl <;> cases i <;> simp_all +arith
 
+@[simp] theorem getElem_intersperse_two_mul
+    {l : List α} (h : 2 * i < (l.intersperse sep).length) :
+    (l.intersperse sep)[2 * i] = l[i]'(by rw [length_intersperse] at h; omega) := by
+  rw [← Option.some_inj, ← getElem?_eq_getElem h]
+  simp
+
 @[simp] theorem getElem_intersperse_two_mul_add_one
     {l : List α} (h : 2 * i + 1 < (l.intersperse sep).length) :
     (l.intersperse sep)[2 * i + 1] = sep := by
-  rw [←Option.some_inj, ←getElem?_eq_getElem h, getElem?_intersperse_two_mul_add_one]
+  rw [← Option.some_inj, ← getElem?_eq_getElem h, getElem?_intersperse_two_mul_add_one]
   rw [length_intersperse] at h
   omega
 

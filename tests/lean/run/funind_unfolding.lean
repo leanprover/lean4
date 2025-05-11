@@ -487,3 +487,53 @@ info: Tree.size_aux.induct_unfolding.{u_1} {α : Type u_1} (motive_1 : Tree α �
 -/
 #guard_msgs(pass trace, all) in
 #check Tree.size_aux.induct_unfolding
+
+
+-- When the discriminants are duplicated, it is very easy for `FunInd` to be confused
+-- about how to instantiate the equality theorem. Maybe not relevant in practice for now?
+-- Maybe even impossible to solve.
+
+-- set_option trace.Meta.FunInd true in
+set_option linter.unusedVariables false in
+def duplicatedDiscriminant (n : Nat) : Bool :=
+  match h1 : n, h2 : n with
+  | 0, 0 => true
+  | a+1, 0 => false -- by simp_all
+  | 0, b+1 => false -- by simp_all
+  | a, b => true
+
+/--
+info: duplicatedDiscriminant.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : 0 = 0 → motive 0 true)
+  (case2 :
+    ∀ (a : Nat),
+      a.succ = 0 →
+        motive 0
+          (match h1 : 0, h2 : 0 with
+          | 0, 0 => true
+          | a.succ, 0 => false
+          | 0, b.succ => false
+          | a, b => true))
+  (case3 :
+    ∀ (b : Nat),
+      0 = b.succ →
+        motive b.succ
+          (match h1 : b.succ, h2 : b.succ with
+          | 0, 0 => true
+          | a.succ, 0 => false
+          | 0, b_1.succ => false
+          | a, b_1 => true))
+  (case4 :
+    ∀ (b : Nat),
+      (b = 0 → b = 0 → False) →
+        (∀ (a : Nat), b = a.succ → b = 0 → False) →
+          (∀ (b_1 : Nat), b = 0 → b = b_1.succ → False) →
+            motive b
+              (match h1 : b, h2 : b with
+              | 0, 0 => true
+              | a.succ, 0 => false
+              | 0, b_1.succ => false
+              | a, b_1 => true))
+  (n : Nat) : motive n (duplicatedDiscriminant n)
+-/
+#guard_msgs(pass trace, all) in
+#check duplicatedDiscriminant.fun_cases_unfolding

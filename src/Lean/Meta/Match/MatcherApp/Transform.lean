@@ -190,8 +190,8 @@ private def forallAltTelescope'
     {α} (origAltType : Expr) (numParams numDiscrEqs : Nat)
     (k : Array Expr → Array Expr → n α) : n α := do
   map2MetaM (fun k =>
-    Match.forallAltTelescope origAltType (numParams - numDiscrEqs) 0
-      fun ys _eqs args _mask _bodyType => k ys args
+    Match.forallAltVarsTelescope origAltType numParams numDiscrEqs
+      fun ys args _mask _bodyType => k ys args
   ) k
 
 /--
@@ -282,8 +282,8 @@ def transform
     let aux1 := mkApp aux1 motive'
     let aux1 := mkAppN aux1 discrs'
     unless (← isTypeCorrect aux1) do
-      logError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}"
-      check aux1
+      mapError (f := (m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}\n{indentD ·}")) do
+        check aux1
     let origAltTypes ← inferArgumentTypesN matcherApp.alts.size aux1
 
     -- We replace the matcher with the splitter

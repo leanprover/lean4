@@ -716,6 +716,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             hs := hs.push h
         trace[Meta.Match.matchEqs] "hs: {hs}"
         let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) (mkArrow · ·))
+        let splitterAltType ← unfoldNamedPattern splitterAltType
         let splitterAltNumParam := hs.size + ys.size
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False

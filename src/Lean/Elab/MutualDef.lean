@@ -376,9 +376,11 @@ Runs `k` with a restricted local context where only section variables from `vars
 * are instance-implicit variables that only reference section variables included by these rules AND
   are not listed in `sc.omittedVars` (via `omit`; note that `omit` also subtracts from
   `sc.includedVars`).
+
+If `check` is false, no exceptions will be produced.
 -/
 private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (headers : Array DefViewElabHeader)
-    (k : Array Expr → TermElabM α) : TermElabM α := do
+    (k : Array Expr → TermElabM α) (check := true) : TermElabM α := do
   let mut revSectionFVars : Std.HashMap FVarId Name := {}
   for (uid, var) in (← read).sectionFVars do
     revSectionFVars := revSectionFVars.insert var.fvarId! uid
@@ -396,10 +398,11 @@ where
           modify (·.add var.fvarId!)
     -- transitively referenced
     get >>= (·.addDependencies) >>= set
-    for var in (← get).fvarIds do
-      if let some uid := revSectionFVars[var]? then
-        if sc.omittedVars.contains uid then
-          throwError "cannot omit referenced section variable '{Expr.fvar var}'"
+    if check then
+      for var in (← get).fvarIds do
+        if let some uid := revSectionFVars[var]? then
+          if sc.omittedVars.contains uid then
+            throwError "cannot omit referenced section variable '{Expr.fvar var}'"
     -- instances (`addDependencies` unnecessary as by definition they may only reference variables
     -- already included)
     for var in vars do
@@ -1054,27 +1057,39 @@ where
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+    -- If the decl looks like a `rfl` theorem, we elaborate is synchronously as we need to wait for
+    -- the type before we can decide whether the theorem body should be exported and then waiting
+    -- for the body as well should not add any significant overhead.
+    let isRflLike := headers.all (·.value matches `(declVal| := rfl))
     -- elaborate body in parallel when all stars align
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
-      if Elab.async.get (← getOptions) && view.kind.isTheorem &&
+      if Elab.async.get (← getOptions) && view.kind.isTheorem && !isRflLike &&
           !deprecated.oldSectionVars.get (← getOptions) &&
           -- holes in theorem types is not a fatal error, but it does make parallelism impossible
           !headers[0]!.type.hasMVar then
         elabAsync headers[0]! view declId
-      else elabSync headers
-    else elabSync headers
+      else elabSync headers isRflLike
+    else elabSync headers isRflLike
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref
       addDeclarationRangesForBuiltin declId.declName view.modifiers.stx view.ref
-  elabSync headers := do
-    finishElab headers
+  elabSync headers isRflLike := do
+    -- If the reflexivity holds publically as well (we're still inside `withExporting` here), export
+    -- the body even if it is a theorem so that it is recognized as a rfl theorem even without
+    -- `import all`.
+    let rflPublic ← pure isRflLike <&&> pure (← getEnv).header.isModule <&&>
+      forallTelescopeReducing headers[0]!.type fun _ type => do
+        let some (_, lhs, rhs) := type.eq? | pure false
+        try
+          isDefEq lhs rhs
+        catch _ => pure false
+    withExporting (isExporting := rflPublic) do
+      finishElab headers
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
-    -- HACK: should be replaced by new `[dsimp]` attribute
-    let isRflLike := header.value matches `(declVal| := rfl)
-    let async ← env.addConstAsync declId.declName .thm (exportedKind := if isRflLike then .thm else .axiom)
+    let async ← env.addConstAsync declId.declName .thm (exportedKind := .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
@@ -1113,7 +1128,8 @@ where
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
-        finishElab #[header]
+        withoutExporting do
+          finishElab #[header]
       finally
         reportDiag
         -- must introduce node to fill `infoHole` with multiple info trees
@@ -1131,7 +1147,7 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers := withFunLocalDecls headers fun funFVars => withoutExporting do
+  finishElab headers := withFunLocalDecls headers fun funFVars => do
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try
@@ -1145,7 +1161,10 @@ where
     let letRecsToLift ← getLetRecsToLift
     let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
     checkLetRecsToLiftTypes funFVars letRecsToLift
-    (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
+    (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then
+       -- do not repeat checks already done in `elabFunValues`
+       withHeaderSecVars (check := false) vars sc headers
+     else withUsed vars headers values letRecsToLift) fun vars => do
       let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
       checkAllDeclNamesDistinct preDefs
       for preDef in preDefs do

@@ -135,10 +135,11 @@ structure Result where
   complexArgs : Array Expr
 
 /--
-  Construct the an eliminator/recursor application. `targets` contains the explicit and implicit targets for
-  the eliminator. For example, the indices of builtin recursors are considered implicit targets.
-  Remark: the method `addImplicitTargets` may be used to compute the sequence of implicit and explicit targets
-  from the explicit ones.
+  Construct the an eliminator/recursor application. `targets` contains the explicit and implicit
+  targets for the eliminator, not yet generalized.
+  For example, the indices of builtin recursors are considered implicit targets.
+  Remark: the method `addImplicitTargets` may be used to compute the sequence of implicit and
+  explicit targets from the explicit ones.
 -/
 partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) : TermElabM Result := do
   let rec loop : M Unit := do
@@ -213,24 +214,37 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
 /--
 Given a goal `... targets ... |- C[targets, complexArgs]` associated with `mvarId`,
 where `complexArgs` are the the complex (i.e. non-target) arguments to the motive in the conclusion
-of the eliminator, construct `motiveArg := fun targets xs => C[targets, xs]`
+of the eliminator, construct `motiveArg := fun targets rs => C[targets, rs]`
+
+This checks if the type of the complex arguments match what's expected by the motive, and
+ignores them otherwise. This limits the ability of `cases` to use unfolding function
+principles with dependent types, because after generalization of the targets, the types do
+no longer match. This can likely be improved.
 -/
 def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) (complexArgs : Array Expr := #[]) : MetaM Unit := do
   let type ← inferType (mkMVar mvarId)
+
+  let motiveType ← inferType (mkMVar motiveArg)
+  let exptComplexArgTypes ← arrowDomainsN complexArgs.size (← instantiateForall motiveType (targets.map mkFVar))
+
   let mut absType := type
-  for complexArg in complexArgs.reverse do
-    let complexTypeArg ← inferType complexArg
-    let absType' ← kabstract absType complexArg
-    let absType' := .lam (← mkFreshUserName `x) complexTypeArg absType' .default
-    if (← isTypeCorrect absType') then
-      absType := absType'
+  for complexArg in complexArgs.reverse, exptComplexArgType in exptComplexArgTypes.reverse do
+    trace[Elab.induction] "setMotiveArg: trying to abstract over {complexArg}, expected type {exptComplexArgType}"
+    let complexArgType ← inferType complexArg
+    if (← isDefEq complexArgType exptComplexArgType) then
+      let absType' ← kabstract absType complexArg
+      let absType' := .lam (← mkFreshUserName `x) complexArgType absType' .default
+      if (← isTypeCorrect absType') then
+        absType := absType'
+      else
+        trace[Elab.induction] "Not abstracing goal over {complexArg}, resulting term is not type correct:{indentExpr absType'} }"
+        absType := .lam (← mkFreshUserName `x) complexArgType absType .default
     else
-      trace[Elab.induction] "Not abstracing goal over {complexArg}, resulting term is not type correct:{indentExpr absType'} }"
-      absType := .lam (← mkFreshUserName `x) complexTypeArg absType .default
+      trace[Elab.induction] "Not abstracing goal over {complexArg}, its type {complexArgType} does not match the expected {exptComplexArgType}"
+      absType := .lam (← mkFreshUserName `x) exptComplexArgType absType .default
 
   let motive ← mkLambdaFVars (targets.map mkFVar) absType
   let motiverInferredType ← inferType motive
-  let motiveType ← inferType (mkMVar motiveArg)
   unless (← isDefEqGuarded motiverInferredType motiveType) do
     throwError "type mismatch when assigning motive{indentExpr motive}\n{← mkHasTypeButIsExpectedMsg motiverInferredType motiveType}"
   motiveArg.assign motive

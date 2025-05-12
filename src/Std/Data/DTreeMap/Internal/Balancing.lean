@@ -649,9 +649,6 @@ theorem balanced_doubleR (k v ls lk lv ll lrs lrk lrv lrl lrr) (r : Impl α β)
     (doubleR k v lk lv ll lrk lrv lrl lrr r).Balanced := by
   tree_tac
 
--- bootstrapping work-around
-set_option tactic.fun_induction.unfolding false
-
 theorem balanced_rotateL (k v l rs rk rv rl rr) (hl : l.Balanced)
     (hr : (Impl.inner rs rk rv rl rr).Balanced)
     (hlr : BalanceLErasePrecond l.size rs ∨ BalanceLErasePrecond rs l.size)

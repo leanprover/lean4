@@ -3,7 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
-module
+--module
 
 prelude -- Don't import Init, because we're in Init itself
 set_option linter.missingDocs true -- keep it documented
@@ -886,196 +886,6 @@ theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := r
 /-- Bijection between `α` and `ULift.{v} α` -/
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
-/--
-Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
-with a proof that the `Bool` is `true` if and only if `p` is true.
-
-`Decidable` instances are primarily used via `if`-expressions and the tactic `decide`. In
-conditional expressions, the `Decidable` instance for the proposition is used to select a branch. At
-run time, this case distinction code is identical to that which would be generated for a
-`Bool`-based conditional. In proofs, the tactic `decide` synthesizes an instance of `Decidable p`,
-attempts to reduce it to `isTrue h`, and then succeeds with the proof `h` if it can.
-
-Because `Decidable` carries data, when writing `@[simp]` lemmas which include a `Decidable` instance
-on the LHS, it is best to use `{_ : Decidable p}` rather than `[Decidable p]` so that non-canonical
-instances can be found via unification rather than instance synthesis.
--/
-class inductive Decidable (p : Prop) where
-  /-- Proves that `p` is decidable by supplying a proof of `¬p` -/
-  | isFalse (h : Not p) : Decidable p
-  /-- Proves that `p` is decidable by supplying a proof of `p` -/
-  | isTrue (h : p) : Decidable p
-
-/--
-Converts a decidable proposition into a `Bool`.
-
-If `p : Prop` is decidable, then `decide p : Bool` is the Boolean value
-that is `true` if `p` is true and `false` if `p` is false.
--/
-@[inline_if_reduce, nospecialize] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
-  h.casesOn (fun _ => false) (fun _ => true)
-
-export Decidable (isTrue isFalse decide)
-
-/--
-A decidable predicate.
-
-A predicate is decidable if the corresponding proposition is `Decidable` for each possible argument.
--/
-abbrev DecidablePred {α : Sort u} (r : α → Prop) :=
-  (a : α) → Decidable (r a)
-
-/--
-A decidable relation.
-
-A relation is decidable if the corresponding proposition is `Decidable` for all possible arguments.
--/
-abbrev DecidableRel {α : Sort u} {β : Sort v} (r : α → β → Prop) :=
-  (a : α) → (b : β) → Decidable (r a b)
-
-/--
-Propositional equality is `Decidable` for all elements of a type.
-
-In other words, an instance of `DecidableEq α` is a means of deciding the proposition `a = b` is
-for all `a b : α`.
--/
-abbrev DecidableEq (α : Sort u) :=
-  (a b : α) → Decidable (Eq a b)
-
-/--
-Checks whether two terms of a type are equal using the type's `DecidableEq` instance.
--/
-def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
-  inst a b
-
-set_option linter.unusedVariables false in
-theorem decide_eq_true : [inst : Decidable p] → p → Eq (decide p) true
-  | isTrue  _, _   => rfl
-  | isFalse h₁, h₂ => absurd h₂ h₁
-
-theorem decide_eq_false : [Decidable p] → Not p → Eq (decide p) false
-  | isTrue  h₁, h₂ => absurd h₁ h₂
-  | isFalse _, _   => rfl
-
-theorem of_decide_eq_true [inst : Decidable p] : Eq (decide p) true → p := fun h =>
-  match (generalizing := false) inst with
-  | isTrue  h₁ => h₁
-  | isFalse h₁ => absurd h (ne_true_of_eq_false (decide_eq_false h₁))
-
-theorem of_decide_eq_false [inst : Decidable p] : Eq (decide p) false → Not p := fun h =>
-  match (generalizing := false) inst with
-  | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
-  | isFalse h₁ => h₁
-
-theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
-  match (generalizing := false) inst a a with
-  | isTrue  _  => rfl
-  | isFalse h₁ => absurd rfl h₁
-
-/--
-Decides whether two Booleans are equal.
-
-This function should normally be called via the `DecidableEq Bool` instance that it exists to
-support.
--/
-@[inline] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
-   match a, b with
-   | false, false => isTrue rfl
-   | false, true  => isFalse (fun h => Bool.noConfusion h)
-   | true, false  => isFalse (fun h => Bool.noConfusion h)
-   | true, true   => isTrue rfl
-
-@[inline] instance : DecidableEq Bool :=
-   Bool.decEq
-
-/--
-`BEq α` is a typeclass for supplying a boolean-valued equality relation on
-`α`, notated as `a == b`. Unlike `DecidableEq α` (which uses `a = b`), this
-is `Bool` valued instead of `Prop` valued, and it also does not have any
-axioms like being reflexive or agreeing with `=`. It is mainly intended for
-programming applications. See `LawfulBEq` for a version that requires that
-`==` and `=` coincide.
-
-Typically we prefer to put the "more variable" term on the left,
-and the "more constant" term on the right.
--/
-class BEq (α : Type u) where
-  /-- Boolean equality, notated as `a == b`. -/
-  beq : α → α → Bool
-
-open BEq (beq)
-
-instance (priority := 500) [DecidableEq α] : BEq α where
-  beq a b := decide (Eq a b)
-
-
-/--
-"Dependent" if-then-else, normally written via the notation `if h : c then t(h) else e(h)`,
-is sugar for `dite c (fun h => t(h)) (fun h => e(h))`, and it is the same as
-`if c then t else e` except that `t` is allowed to depend on a proof `h : c`,
-and `e` can depend on `h : ¬c`. (Both branches use the same name for the hypothesis,
-even though it has different types in the two cases.)
-
-We use this to be able to communicate the if-then-else condition to the branches.
-For example, `Array.get arr i h` expects a proof `h : i < arr.size` in order to
-avoid a bounds check, so you can write `if h : i < arr.size then arr.get i h else ...`
-to avoid the bounds check inside the if branch. (Of course in this case we have only
-lifted the check into an explicit `if`, but we could also use this proof multiple times
-or derive `i < arr.size` from some other proposition that we are checking in the `if`.)
--/
-@[macro_inline] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
-  h.casesOn e t
-
-/-! # if-then-else -/
-
-/--
-`if c then t else e` is notation for `ite c t e`, "if-then-else", which decides to
-return `t` or `e` depending on whether `c` is true or false. The explicit argument
-`c : Prop` does not have any actual computational content, but there is an additional
-`[Decidable c]` argument synthesized by typeclass inference which actually
-determines how to evaluate `c` to true or false. Write `if h : c then t else e`
-instead for a "dependent if-then-else" `dite`, which allows `t`/`e` to use the fact
-that `c` is true/false.
--/
-/-
-Because Lean uses a strict (call-by-value) evaluation strategy, the signature of this
-function is problematic in that it would require `t` and `e` to be evaluated before
-calling the `ite` function, which would cause both sides of the `if` to be evaluated.
-Even if the result is discarded, this would be a big performance problem,
-and is undesirable for users in any case. To resolve this, `ite` is marked as
-`@[macro_inline]`, which means that it is unfolded during code generation, and
-the definition of the function uses `fun _ => t` and `fun _ => e` so this recovers
-the expected "lazy" behavior of `if`: the `t` and `e` arguments delay evaluation
-until `c` is known.
--/
-@[macro_inline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
-  h.casesOn (fun _ => e) (fun _ => t)
-
-@[macro_inline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) :=
-  match dp with
-  | isTrue  hp =>
-    match dq with
-    | isTrue hq  => isTrue ⟨hp, hq⟩
-    | isFalse hq => isFalse (fun h => hq (And.right h))
-  | isFalse hp =>
-    isFalse (fun h => hp (And.left h))
-
-@[macro_inline] instance [dp : Decidable p] [dq : Decidable q] : Decidable (Or p q) :=
-  match dp with
-  | isTrue  hp => isTrue (Or.inl hp)
-  | isFalse hp =>
-    match dq with
-    | isTrue hq  => isTrue (Or.inr hq)
-    | isFalse hq =>
-      isFalse fun h => match h with
-        | Or.inl h => hp h
-        | Or.inr h => hq h
-
-instance [dp : Decidable p] : Decidable (Not p) :=
-  match dp with
-  | isTrue hp  => isFalse (absurd hp)
-  | isFalse hp => isTrue hp
-
 /-! # Boolean operators -/
 
 /--
@@ -1092,7 +902,6 @@ only the selected branch is evaluated.
   match c with
   | true  => x
   | false => y
-
 
 /--
 The dependent conditional function, in which each branch is provided with a local assumption about
@@ -1153,6 +962,224 @@ propositional connective is `Not : Prop → Prop`.
   | false => true
 
 export Bool (or and not)
+
+/--
+Boolean equality. This should usually be used via the `a == b` notation.
+
+This function returns `true` if the booleans are equal or `false` otherwise. The propositional
+connective is `Iff : Prop → Prop → Prop`, written with the `↔` operator.
+
+This function comes with two definional equalities: `(a == true) = a` and `(a == false) = !a`.
+-/
+@[inline] def Bool.beq (a b : Bool) : Bool :=
+  match b with
+  | false => not a
+  | true => a
+
+/--
+Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
+with a proof that the `Bool` is `true` if and only if `p` is true.
+
+`Decidable` instances are primarily used via `if`-expressions and the tactic `decide`. In
+conditional expressions, the `Decidable` instance for the proposition is used to select a branch. At
+run time, this case distinction code is identical to that which would be generated for a
+`Bool`-based conditional. In proofs, the tactic `decide` synthesizes an instance of `Decidable p`,
+attempts to reduce it to `isTrue h`, and then succeeds with the proof `h` if it can.
+
+Because `Decidable` carries data, when writing `@[simp]` lemmas which include a `Decidable` instance
+on the LHS, it is best to use `{_ : Decidable p}` rather than `[Decidable p]` so that non-canonical
+instances can be found via unification rather than instance synthesis.
+-/
+class Decidable (p : Prop) where
+  /--
+  Converts a decidable proposition into a `Bool`.
+
+  If `p : Prop` is decidable, then `decide p : Bool` is the Boolean value
+  that is `true` if `p` is true and `false` if `p` is false.
+  -/
+  decide : Bool
+  /--
+  A proof of `¬p` or `p`, depending on the value of `decide`.
+  -/
+  of_decide (p) : cond decide p (Not p)
+
+/-- Proves that `p` is decidable by supplying a proof of `¬p` -/
+@[match_pattern] abbrev Decidable.isFalse (h : Not p) : Decidable p := ⟨false, h⟩
+
+/-- Proves that `p` is decidable by supplying a proof of `p` -/
+@[match_pattern] abbrev Decidable.isTrue (h : p) : Decidable p := ⟨true, h⟩
+
+/--
+The default eliminator for `Decidable`, using `isFalse` and `isTrue`.
+-/
+@[cases_eliminator, induction_eliminator]
+def Decidable.falseTrueCases {p : Prop} {motive : Decidable p → Sort u}
+    (isFalse : ∀ h, motive (isFalse h)) (isTrue : ∀ h, motive (isTrue h))
+    (t : Decidable p) : motive t :=
+  t.casesOn fun x => x.casesOn isFalse isTrue
+
+export Decidable (isTrue isFalse decide)
+
+/--
+A decidable predicate.
+
+A predicate is decidable if the corresponding proposition is `Decidable` for each possible argument.
+-/
+abbrev DecidablePred {α : Sort u} (r : α → Prop) :=
+  (a : α) → Decidable (r a)
+
+/--
+A decidable relation.
+
+A relation is decidable if the corresponding proposition is `Decidable` for all possible arguments.
+-/
+abbrev DecidableRel {α : Sort u} {β : Sort v} (r : α → β → Prop) :=
+  (a : α) → (b : β) → Decidable (r a b)
+
+/--
+Propositional equality is `Decidable` for all elements of a type.
+
+In other words, an instance of `DecidableEq α` is a means of deciding the proposition `a = b` is
+for all `a b : α`.
+-/
+abbrev DecidableEq (α : Sort u) :=
+  (a b : α) → Decidable (Eq a b)
+
+/--
+Checks whether two terms of a type are equal using the type's `DecidableEq` instance.
+-/
+def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
+  inst a b
+
+set_option linter.unusedVariables false in
+theorem decide_eq_true : [inst : Decidable p] → p → Eq (decide p) true
+  | isTrue  _, _   => rfl
+  | isFalse h₁, h₂ => absurd h₂ h₁
+
+theorem decide_eq_false : [Decidable p] → Not p → Eq (decide p) false
+  | isTrue  h₁, h₂ => absurd h₁ h₂
+  | isFalse _, _   => rfl
+
+theorem of_decide_eq_true [inst : Decidable p] : Eq (decide p) true → p := fun h =>
+  match (generalizing := false) inst with
+  | isTrue  h₁ => h₁
+  | isFalse h₁ => absurd h (ne_true_of_eq_false (decide_eq_false h₁))
+
+theorem of_decide_eq_false [inst : Decidable p] : Eq (decide p) false → Not p := fun h =>
+  match (generalizing := false) inst with
+  | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
+  | isFalse h₁ => h₁
+
+theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
+  match (generalizing := false) inst a a with
+  | isTrue  _  => rfl
+  | isFalse h₁ => absurd rfl h₁
+
+@[macro_inline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) where
+  decide := and (decide p) (decide q)
+  of_decide :=
+    match dp, dq with
+    | isTrue  hp, isTrue  hq => ⟨hp, hq⟩
+    | isTrue   _, isFalse hq => fun h => hq h.2
+    | isFalse hp, _          => fun h => hp (And.left h)
+
+@[macro_inline] instance [dp : Decidable p] [dq : Decidable q] : Decidable (Or p q) where
+  decide := or (decide p) (decide q)
+  of_decide :=
+    match dp, dq with
+    | isTrue  hp, _          => .inl hp
+    | isFalse  _, isTrue  hq => .inr hq
+    | isFalse hp, isFalse hq => fun
+      | Or.inl h => hp h
+      | Or.inr h => hq h
+
+@[inline] instance [dp : Decidable p] : Decidable (Not p) where
+  decide := not (decide p)
+  of_decide :=
+    match dp with
+    | isTrue  hp => absurd hp
+    | isFalse hp => hp
+
+/--
+Decides whether two Booleans are equal.
+
+This function should normally be called via the `DecidableEq Bool` instance that it exists to
+support.
+-/
+@[inline] def Bool.decEq (a b : Bool) : Decidable (Eq a b) where
+  decide := a.beq b
+  of_decide :=
+    match a, b with
+    | false, false => rfl
+    | false, true => Bool.noConfusion
+    | true, false => Bool.noConfusion
+    | true, true => rfl
+
+@[inline] instance : DecidableEq Bool :=
+  Bool.decEq
+
+/--
+`BEq α` is a typeclass for supplying a boolean-valued equality relation on
+`α`, notated as `a == b`. Unlike `DecidableEq α` (which uses `a = b`), this
+is `Bool` valued instead of `Prop` valued, and it also does not have any
+axioms like being reflexive or agreeing with `=`. It is mainly intended for
+programming applications. See `LawfulBEq` for a version that requires that
+`==` and `=` coincide.
+
+Typically we prefer to put the "more variable" term on the left,
+and the "more constant" term on the right.
+-/
+class BEq (α : Type u) where
+  /-- Boolean equality, notated as `a == b`. -/
+  beq : α → α → Bool
+
+open BEq (beq)
+
+instance (priority := 500) [DecidableEq α] : BEq α where
+  beq a b := decide (Eq a b)
+
+
+/--
+"Dependent" if-then-else, normally written via the notation `if h : c then t(h) else e(h)`,
+is sugar for `dite c (fun h => t(h)) (fun h => e(h))`, and it is the same as
+`if c then t else e` except that `t` is allowed to depend on a proof `h : c`,
+and `e` can depend on `h : ¬c`. (Both branches use the same name for the hypothesis,
+even though it has different types in the two cases.)
+
+We use this to be able to communicate the if-then-else condition to the branches.
+For example, `Array.get arr i h` expects a proof `h : i < arr.size` in order to
+avoid a bounds check, so you can write `if h : i < arr.size then arr.get i h else ...`
+to avoid the bounds check inside the if branch. (Of course in this case we have only
+lifted the check into an explicit `if`, but we could also use this proof multiple times
+or derive `i < arr.size` from some other proposition that we are checking in the `if`.)
+-/
+@[macro_inline] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
+  h.decide.casesOn e t h.of_decide
+
+/-! # if-then-else -/
+
+/--
+`if c then t else e` is notation for `ite c t e`, "if-then-else", which decides to
+return `t` or `e` depending on whether `c` is true or false. The explicit argument
+`c : Prop` does not have any actual computational content, but there is an additional
+`[Decidable c]` argument synthesized by typeclass inference which actually
+determines how to evaluate `c` to true or false. Write `if h : c then t else e`
+instead for a "dependent if-then-else" `dite`, which allows `t`/`e` to use the fact
+that `c` is true/false.
+-/
+/-
+Because Lean uses a strict (call-by-value) evaluation strategy, the signature of this
+function is problematic in that it would require `t` and `e` to be evaluated before
+calling the `ite` function, which would cause both sides of the `if` to be evaluated.
+Even if the result is discarded, this would be a big performance problem,
+and is undesirable for users in any case. To resolve this, `ite` is marked as
+`@[macro_inline]`, which means that it is unfolded during code generation, and
+the definition of the function uses `fun _ => t` and `fun _ => e` so this recovers
+the expected "lazy" behavior of `if`: the `t` and `e` arguments delay evaluation
+until `c` is known.
+-/
+@[macro_inline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
+  dite c (fun _ => t) (fun _ => e)
 
 /--
 The natural numbers, starting at zero.
@@ -1727,10 +1754,12 @@ Examples:
  * `show 12 = 12 by decide`
 -/
 @[reducible, extern "lean_nat_dec_eq"]
-protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
-  match h:beq n m with
-  | true  => isTrue (eq_of_beq_eq_true h)
-  | false => isFalse (ne_of_beq_eq_false h)
+protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) where
+  decide := beq n m
+  of_decide :=
+    match h : beq n m with
+    | true  => eq_of_beq_eq_true h
+    | false => ne_of_beq_eq_false h
 
 @[inline] instance : DecidableEq Nat := Nat.decEq
 
@@ -1915,8 +1944,12 @@ Examples:
  * `show 5 ≤ 12 by decide`
 -/
 @[extern "lean_nat_dec_le"]
-instance Nat.decLe (n m : @& Nat) : Decidable (LE.le n m) :=
-  dite (Eq (Nat.ble n m) true) (fun h => isTrue (Nat.le_of_ble_eq_true h)) (fun h => isFalse (Nat.not_le_of_not_ble_eq_true h))
+instance Nat.decLe (n m : @& Nat) : Decidable (LE.le n m) where
+  decide := ble n m
+  of_decide :=
+    match h : ble n m with
+    | true => Nat.le_of_ble_eq_true h
+    | false => Nat.not_le_of_not_ble_eq_true (fun h' => Bool.noConfusion (h' ▸ h :))
 
 /--
 A decision procedure for strict inequality of natural numbers, usually accessed via the
@@ -2009,11 +2042,13 @@ theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
 theorem Fin.val_eq_of_eq {n} {i j : Fin n} (h : Eq i j) : Eq i.val j.val :=
   h ▸ rfl
 
-instance (n : Nat) : DecidableEq (Fin n) :=
-  fun i j =>
-    match decEq i.val j.val with
-    | isTrue h  => isTrue (Fin.eq_of_val_eq h)
-    | isFalse h => isFalse (fun h' => absurd (Fin.val_eq_of_eq h') h)
+instance (n : Nat) : DecidableEq (Fin n) := fun i j => {
+  decide := decide (Eq i.val j.val)
+  of_decide :=
+    match instDecidableEqNat i.val j.val with
+    | isTrue  h => Fin.eq_of_val_eq h
+    | isFalse h => fun h' => absurd (Fin.val_eq_of_eq h') h
+}
 
 instance {n} : LT (Fin n) where
   lt a b := LT.lt a.val b.val
@@ -2046,12 +2081,12 @@ This should be used via the instance `DecidableEq (BitVec w)`.
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
 -- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
-def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) :=
-  match x, y with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m)
-      (fun h => isTrue (h ▸ rfl))
-      (fun h => isFalse (fun h' => BitVec.noConfusion h' (fun h' => absurd h' h)))
+def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) where
+  decide := decide (Eq x.toFin y.toFin)
+  of_decide :=
+    match instDecidableEqFin _ x.toFin y.toFin with
+    | isTrue  h => congrArg BitVec.ofFin h
+    | isFalse h => fun h' => BitVec.noConfusion h' h
 
 instance : DecidableEq (BitVec w) := BitVec.decEq
 
@@ -2120,12 +2155,12 @@ Examples:
  * `show (7 : UInt8) = 7 by decide`
 -/
 @[extern "lean_uint8_dec_eq"]
-def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m)
-      (fun h => isTrue (h ▸ rfl))
-      (fun h => isFalse (fun h' => UInt8.noConfusion h' (fun h' => absurd h' h)))
+def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) where
+  decide := decide (Eq a.toBitVec b.toBitVec)
+  of_decide :=
+    match instDecidableEqBitVec a.toBitVec b.toBitVec with
+    | isTrue  h => congrArg UInt8.ofBitVec h
+    | isFalse h => fun h' => UInt8.noConfusion h' h
 
 instance : DecidableEq UInt8 := UInt8.decEq
 
@@ -2178,12 +2213,12 @@ Examples:
  * `show (7 : UInt16) = 7 by decide`
 -/
 @[extern "lean_uint16_dec_eq"]
-def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m)
-      (fun h => isTrue (h ▸ rfl))
-      (fun h => isFalse (fun h' => UInt16.noConfusion h' (fun h' => absurd h' h)))
+def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) where
+  decide := decide (Eq a.toBitVec b.toBitVec)
+  of_decide :=
+    match instDecidableEqBitVec a.toBitVec b.toBitVec with
+    | isTrue  h => congrArg UInt16.ofBitVec h
+    | isFalse h => fun h' => UInt16.noConfusion h' h
 
 instance : DecidableEq UInt16 := UInt16.decEq
 
@@ -2243,10 +2278,12 @@ Examples:
  * `show (7 : UInt32) = 7 by decide`
 -/
 @[extern "lean_uint32_dec_eq"]
-def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt32.noConfusion h' (fun h' => absurd h' h)))
+def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) where
+  decide := decide (Eq a.toBitVec b.toBitVec)
+  of_decide :=
+    match instDecidableEqBitVec a.toBitVec b.toBitVec with
+    | isTrue  h => congrArg UInt32.ofBitVec h
+    | isFalse h => fun h' => UInt32.noConfusion h' h
 
 instance : DecidableEq UInt32 := UInt32.decEq
 
@@ -2341,12 +2378,12 @@ Examples:
  * `show (7 : UInt64) = 7 by decide`
 -/
 @[extern "lean_uint64_dec_eq"]
-def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m)
-      (fun h => isTrue (h ▸ rfl))
-      (fun h => isFalse (fun h' => UInt64.noConfusion h' (fun h' => absurd h' h)))
+def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) where
+  decide := decide (Eq a.toBitVec b.toBitVec)
+  of_decide :=
+    match instDecidableEqBitVec a.toBitVec b.toBitVec with
+    | isTrue  h => congrArg UInt64.ofBitVec h
+    | isFalse h => fun h' => UInt64.noConfusion h' h
 
 instance : DecidableEq UInt64 := UInt64.decEq
 
@@ -2411,12 +2448,12 @@ Examples:
  * `show (7 : USize) = 7 by decide`
 -/
 @[extern "lean_usize_dec_eq"]
-def USize.decEq (a b : USize) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m)
-      (fun h => isTrue (h ▸ rfl))
-      (fun h => isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h)))
+def USize.decEq (a b : USize) : Decidable (Eq a b) where
+  decide := decide (Eq a.toBitVec b.toBitVec)
+  of_decide :=
+    match instDecidableEqBitVec a.toBitVec b.toBitVec with
+    | isTrue  h => congrArg USize.ofBitVec h
+    | isFalse h => fun h' => USize.noConfusion h' h
 
 instance : DecidableEq USize := USize.decEq
 
@@ -2481,11 +2518,13 @@ theorem Char.ne_of_val_ne {c d : Char} (h : Not (Eq c.val d.val)) : Not (Eq c d)
 theorem Char.val_ne_of_ne {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val) :=
   fun h' => absurd (eq_of_val_eq h') h
 
-instance : DecidableEq Char :=
-  fun c d =>
-    match decEq c.val d.val with
-    | isTrue h  => isTrue (Char.eq_of_val_eq h)
-    | isFalse h => isFalse (Char.ne_of_val_ne h)
+instance : DecidableEq Char := fun c d => {
+  decide := decide (Eq c.val d.val)
+  of_decide :=
+    match instDecidableEqUInt32 c.val d.val with
+    | isTrue  h => Char.eq_of_val_eq h
+    | isFalse h => Char.ne_of_val_ne h
+}
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
 def Char.utf8Size (c : Char) : Nat :=
@@ -2566,18 +2605,32 @@ inductive List (α : Type u) where
 instance {α} : Inhabited (List α) where
   default := List.nil
 
+/--
+Checks whether two lists have the same length and their elements are pairwise `BEq`. Normally used
+via the `==` operator.
+-/
+protected def List.beq {α : Type u} [BEq α] : (a b : List α) → Bool
+  | nil,       nil       => true
+  | cons _ _,  nil       => false
+  | nil,       cons _ _  => false
+  | cons a as, cons b bs => and (beq a b) (List.beq as bs)
+
+set_option pp.notation false
+
 /-- Implements decidable equality for `List α`, assuming `α` has decidable equality. -/
-protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
-  | nil,       nil       => isTrue rfl
-  | cons _ _, nil        => isFalse (fun h => List.noConfusion h)
-  | nil,       cons _ _  => isFalse (fun h => List.noConfusion h)
-  | cons a as, cons b bs =>
-    match decEq a b with
-    | isTrue hab  =>
-      match List.hasDecEq as bs with
-      | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
-      | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
-    | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
+protected def List.hasDecEq {α : Type u} [d : DecidableEq α] (a b : List α) : Decidable (Eq a b) where
+  decide := a.beq b
+  of_decide := go a b
+where
+  go : (a b : List α) → cond (a.beq b) (Eq a b) (Not (Eq a b))
+  | nil, nil => rfl
+  | cons _ _, nil => List.noConfusion
+  | nil, cons _ _ => List.noConfusion
+  | cons a as, cons b bs => show cond (and (decide (Eq a b)) (List.beq as bs)) _ _ from
+    match d a b, List.beq as bs, go as bs with
+    | isFalse h, _,     _  => fun h' => List.noConfusion h' fun h1 _ => absurd h1 h
+    | isTrue  _, false, h  => fun h' => List.noConfusion h' fun _ h2 => absurd h2 h
+    | isTrue  h, true,  h' => h ▸ h' ▸ rfl
 
 instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
 
@@ -2693,10 +2746,12 @@ Decides whether two strings are equal. Normally used via the `DecidableEq String
 At runtime, this function is overridden with an efficient native implementation.
 -/
 @[extern "lean_string_dec_eq"]
-def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
-  match s₁, s₂ with
-  | ⟨s₁⟩, ⟨s₂⟩ =>
-    dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
+def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) where
+  decide := decide (Eq s₁.data s₂.data)
+  of_decide :=
+    match instDecidableEqList s₁.data s₂.data with
+    | isTrue  h => congrArg String.mk h
+    | isFalse h => fun h' => String.noConfusion h' h
 
 instance : DecidableEq String := String.decEq
 
@@ -2717,10 +2772,13 @@ structure String.Pos where
 instance : Inhabited String.Pos where
   default := {}
 
-instance : DecidableEq String.Pos :=
-  fun ⟨a⟩ ⟨b⟩ => match decEq a b with
-    | isTrue h => isTrue (h ▸ rfl)
-    | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
+instance : DecidableEq String.Pos := fun a b => {
+  decide := decide (Eq a.byteIdx b.byteIdx)
+  of_decide :=
+    match instDecidableEqNat a.byteIdx b.byteIdx with
+    | isTrue  h => congrArg String.Pos.mk h
+    | isFalse h => fun h' => String.Pos.noConfusion h' h
+}
 
 /--
 A region or slice of some underlying string.

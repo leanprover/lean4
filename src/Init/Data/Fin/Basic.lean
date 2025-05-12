@@ -230,6 +230,12 @@ instance : ShiftRight (Fin n) where
 instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin n) i where
   ofNat := Fin.ofNat' n i
 
+instance (n : Nat) [NeZero n] : Neg (Fin n) where
+  neg a := 0 - a
+
+theorem neg_def [NeZero n] (a : Fin n) : -a = 0 - a := by
+  rfl
+
 instance instInhabited {n : Nat} [NeZero n] : Inhabited (Fin n) where
   default := 0
 

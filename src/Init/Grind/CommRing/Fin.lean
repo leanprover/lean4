@@ -16,20 +16,17 @@ namespace Fin
 instance (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat' n a
 
-instance (n : Nat) [NeZero n] : Neg (Fin n) where
-  neg a := 0 - a
-
-theorem neg_def [NeZero n] (a : Fin n) : -a = 0 - a := by
-  rfl
-
 def intCast [NeZero n] (a : Int) : Fin n :=
-  if a >= 0 then
+  if 0 ≤ a then
     Fin.ofNat' n a.natAbs
   else
     - Fin.ofNat' n a.natAbs
 
 instance (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
+
+theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
+    (x : Fin n) = if 0 ≤ x then Fin.ofNat' n x.natAbs else -Fin.ofNat' n x.natAbs := rfl
 
 -- TODO: we should replace this at runtime with either repeated squaring,
 -- or a GMP accelerated function.

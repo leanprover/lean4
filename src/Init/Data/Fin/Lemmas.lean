@@ -8,6 +8,7 @@ module
 prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Lemmas
+import Init.Data.Int.DivMod.Lemmas
 import Init.Ext
 import Init.ByCases
 import Init.Conv
@@ -99,6 +100,21 @@ theorem dite_val {n : Nat} {c : Prop} [Decidable c] {x y : Fin n} :
     (if c then x else y).val = if c then x.val else y.val := by
   by_cases c <;> simp [*]
 
+instance (n : Nat) [NeZero n] : NatCast (Fin n) where
+  natCast a := Fin.ofNat' n a
+
+def intCast [NeZero n] (a : Int) : Fin n :=
+  if 0 ≤ a then
+    Fin.ofNat' n a.natAbs
+  else
+    - Fin.ofNat' n a.natAbs
+
+instance (n : Nat) [NeZero n] : IntCast (Fin n) where
+  intCast := Fin.intCast
+
+theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
+    (x : Fin n) = if 0 ≤ x then Fin.ofNat' n x.natAbs else -Fin.ofNat' n x.natAbs := rfl
+
 /-! ### order -/
 
 theorem le_def {a b : Fin n} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
@@ -156,7 +172,7 @@ protected theorem eq_or_lt_of_le {a b : Fin n} : a ≤ b → a = b ∨ a < b := 
 protected theorem lt_or_eq_of_le {a b : Fin n} : a ≤ b → a < b ∨ a = b := by
   rw [Fin.ext_iff]; exact Nat.lt_or_eq_of_le
 
-theorem is_le (i : Fin (n + 1)) : i ≤ n := Nat.le_of_lt_succ i.is_lt
+theorem is_le (i : Fin (n + 1)) : i.1 ≤ n := Nat.le_of_lt_succ i.is_lt
 
 @[simp] theorem is_le' {a : Fin n} : a ≤ n := Nat.le_of_lt a.is_lt
 
@@ -219,7 +235,7 @@ theorem rev_eq {n a : Nat} (i : Fin (n + 1)) (h : n = a + i) :
 
 /-! ### last -/
 
-@[simp] theorem val_last (n : Nat) : last n = n := rfl
+@[simp] theorem val_last (n : Nat) : (last n).1 = n := rfl
 
 @[simp] theorem last_zero : (Fin.last 0 : Fin 1) = 0 := by
   ext
@@ -260,7 +276,7 @@ theorem subsingleton_iff_le_one : Subsingleton (Fin n) ↔ n ≤ 1 := by
   (match n with | 0 | 1 | n+2 => ?_) <;> try simp
   · exact ⟨nofun⟩
   · exact ⟨fun ⟨0, _⟩ ⟨0, _⟩ => rfl⟩
-  · exact iff_of_false (fun h => Fin.ne_of_lt zero_lt_one (h.elim ..)) (of_decide_eq_false rfl)
+  · exact fun h => by have := zero_lt_one (n := n); simp_all [h.elim 0 1]
 
 instance subsingleton_zero : Subsingleton (Fin 0) := subsingleton_iff_le_one.2 (by decide)
 
@@ -925,6 +941,15 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
   have : ¬(natAdd m i : Nat) < m := Nat.not_lt.2 (le_coe_natAdd ..)
   rw [addCases, dif_neg this]; exact eq_of_heq <| (eqRec_heq _ _).trans (by congr 1; simp)
 
+/-! ### zero -/
+
+@[simp, norm_cast]
+theorem val_eq_zero_iff [NeZero n] {a : Fin n} : a.val = 0 ↔ a = 0 := by
+  rw [Fin.ext_iff, val_zero]
+
+theorem val_ne_zero_iff [NeZero n] {a : Fin n} : a.val ≠ 0 ↔ a ≠ 0 :=
+  not_congr val_eq_zero_iff
+
 /-! ### add -/
 
 theorem ofNat'_add [NeZero n] (x : Nat) (y : Fin n) :
@@ -983,6 +1008,17 @@ theorem coe_sub_iff_lt {a b : Fin n} : (↑(a - b) : Nat) = n + a - b ↔ a < b 
   else
     rw [Nat.mod_eq_of_lt]
     all_goals omega
+
+/-! ### neg -/
+
+theorem val_neg {n : Nat} [NeZero n] (x : Fin n) :
+    (-x).val = if x = 0 then 0 else n - x.val := by
+  change (n - ↑x) % n = _
+  split <;> rename_i h
+  · simp_all
+  · rw [Nat.mod_eq_of_lt]
+    have := Fin.val_ne_zero_iff.mpr h
+    omega
 
 /-! ### mul -/
 

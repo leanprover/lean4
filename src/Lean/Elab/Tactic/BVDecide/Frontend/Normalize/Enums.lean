@@ -85,7 +85,7 @@ bif input = discrs 0 then values[0] else bif input = discrs 1 then values 1 else
 -/
 private def mkCondChain {w : Nat} (input : Expr) (retType : Expr)
     (discrs : Nat → BitVec w) (values : List Expr) (acc : Expr) : MetaM Expr := do
-  let instBEq ← synthInstance (mkApp (mkConst ``BEq [0]) (mkApp (mkConst ``BitVec) (toExpr w)))
+  let instBEq ← synthInstance (mkApp (mkConst ``BEq [0]) (toTypeExpr <| BitVec w))
   go input retType instBEq discrs values 0 acc
 where
   go {w : Nat} (input : Expr) (retType : Expr) (instBEq : Expr)
@@ -235,7 +235,7 @@ where
     let matchConstInfo ← getConstInfo declName
     let levelParamNames := matchConstInfo.levelParams
     let u := mkLevelParam levelParamNames.getLast!
-    let levelParams := levelParamNames.dropLast.map mkLevelParam
+    let levelParams := levelParamNames.map mkLevelParam
     let .forallE _ (.forallE _ discrType ..) .. := matchConstInfo.type | unreachable!
     let (type, value) ←
       withLocalDeclD `a (.sort u) fun a => do
@@ -244,7 +244,7 @@ where
         let hBinders := ctors.foldl (init := #[]) (fun acc _ => acc.push (`h, hType))
         withLocalDeclsDND hBinders fun hs => do
           let args := #[mkLambda `x .default discrType a , x] ++ hs
-          let lhs := mkAppN (mkConst declName (levelParams ++ [u])) args
+          let lhs := mkAppN (mkConst declName levelParams) args
           let enumToBitVec ← getEnumToBitVecFor inductiveInfo.name
           let domainSize := inductiveInfo.ctors.length
           let bvSize := getBitVecSize domainSize
@@ -275,7 +275,7 @@ where
     let matchConstInfo ← getConstInfo declName
     let levelParamNames := matchConstInfo.levelParams
     let u := mkLevelParam levelParamNames.getLast!
-    let levelParams := levelParamNames.dropLast.map mkLevelParam
+    let levelParams := levelParamNames.map mkLevelParam
     let .forallE _ (.forallE _ discrType ..) .. := matchConstInfo.type | unreachable!
     let (type, value) ←
       withLocalDeclD `a (.sort u) fun a => do
@@ -285,7 +285,7 @@ where
         hBinders := hBinders.push <| (`h, ← mkArrow discrType a)
         withLocalDeclsDND hBinders fun hs => do
           let args := #[mkLambda `x .default discrType a , x] ++ hs
-          let lhs := mkAppN (mkConst declName (levelParams ++ [u])) args
+          let lhs := mkAppN (mkConst declName levelParams) args
           let enumToBitVec ← getEnumToBitVecFor inductiveInfo.name
           let domainSize := inductiveInfo.ctors.length
           let bvSize := getBitVecSize domainSize
@@ -303,7 +303,6 @@ where
              |>.qsort (·.1 < ·.1)
              |>.toList
 
-          -- TODO: consider in how far we should always use this instead of levelParams?
           let discrParams := discrType.constLevels!
           let rec intersperseDefault hs idx acc := do
             if idx == inductiveInfo.numCtors then

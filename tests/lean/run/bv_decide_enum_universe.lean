@@ -60,28 +60,20 @@ def test3 (x : PBool) : Bool :=
   | .false => false
   | .true => false
 
-#check test3.match_1.eq_cond_enumToBitVec
-
 def test4 (x : PBool.{1}) : Bool :=
   match x with
   | .false => false
   | .true => false
-
-#check test4.match_1.eq_cond_enumToBitVec
 
 def test5 (x : PBool) : Bool :=
   match x with
   | .true => false
   | _ => false
 
-#check test5.match_1.eq_cond_enumToBitVec
-
 def test6 (x : PBool.{1}) : Bool :=
   match x with
   | .true => false
   | _ => false
-
-#check test6.match_1.eq_cond_enumToBitVec
 
 example (_a : PBool) : True := by
   bv_normalize

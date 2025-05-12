@@ -1,3 +1,4 @@
+-- set_option trace.Meta.FunInd true in
 def foo (n m : Nat) (h : n < m) : Nat :=
   match m with
   | 0 => by contradiction -- This case should not show up in the principles below
@@ -10,7 +11,7 @@ info: foo.induct (motive : (n m : Nat) → n < m → Prop) (case1 : ∀ (m : Nat
   (case2 : ∀ (m n : Nat) (h : n + 1 < m + 1), n.succ < m.succ → motive n m ⋯ → motive n.succ m.succ h) (n m : Nat)
   (h : n < m) : motive n m h
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check foo.induct
 
 /--
@@ -20,7 +21,7 @@ info: foo.induct_unfolding (motive : (n m : Nat) → n < m → Nat → Prop)
     ∀ (m n : Nat) (h : n + 1 < m + 1), n.succ < m.succ → motive n m ⋯ (foo n m ⋯) → motive n.succ m.succ h (foo n m ⋯))
   (n m : Nat) (h : n < m) : motive n m h (foo n m h)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check foo.induct_unfolding
 
 
@@ -30,7 +31,7 @@ info: foo.fun_cases (motive : (n m : Nat) → n < m → Prop)
   (case2 : ∀ (m n : Nat) (h : n + 1 < m + 1), n.succ < m + 1 → n.succ < m.succ → motive n.succ m.succ h) (n m : Nat)
   (h : n < m) : motive n m h
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check foo.fun_cases
 
 def bar (n m : Nat) (h : n = m) : Nat :=
@@ -45,7 +46,7 @@ info: bar.induct (motive : (n m : Nat) → n = m → Prop) (case1 : ∀ (h : 0 =
   (case2 : ∀ (m n : Nat) (h : n + 1 = m + 1), m.succ = n.succ → motive n m ⋯ → motive n.succ m.succ h) (n m : Nat)
   (h : n = m) : motive n m h
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check bar.induct
 
 /--
@@ -54,7 +55,7 @@ info: bar.induct_unfolding (motive : (n m : Nat) → n = m → Nat → Prop) (ca
     ∀ (m n : Nat) (h : n + 1 = m + 1), m.succ = n.succ → motive n m ⋯ (bar n m ⋯) → motive n.succ m.succ h (bar n m ⋯))
   (n m : Nat) (h : n = m) : motive n m h (bar n m h)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check bar.induct_unfolding
 
 /--
@@ -62,7 +63,7 @@ info: bar.fun_cases (motive : (n m : Nat) → n = m → Prop) (case1 : ∀ (h : 
   (case2 : ∀ (m n : Nat) (h : n + 1 = m + 1), m.succ = m + 1 → m.succ = n.succ → motive n.succ m.succ h) (n m : Nat)
   (h : n = m) : motive n m h
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check bar.fun_cases
 
 def baz (n : Nat) (h : n ≠ 0) : Nat :=
@@ -76,7 +77,7 @@ info: baz.induct (motive : (n : Nat) → n ≠ 0 → Prop) (case1 : ∀ (h : 0 +
   (case2 : ∀ (k : Nat) (h : k + 1 ≠ 0) (h_1 : ¬k = 0), motive k h_1 → motive k.succ h) (n : Nat) (h : n ≠ 0) :
   motive n h
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check baz.induct
 
 /--
@@ -84,14 +85,14 @@ info: baz.induct_unfolding (motive : (n : Nat) → n ≠ 0 → Nat → Prop) (ca
   (case2 : ∀ (k : Nat) (h : k + 1 ≠ 0) (h_1 : ¬k = 0), motive k h_1 (baz k h_1) → motive k.succ h (baz k h_1)) (n : Nat)
   (h : n ≠ 0) : motive n h (baz n h)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check baz.induct_unfolding
 
 /--
 info: baz.fun_cases (motive : (n : Nat) → n ≠ 0 → Prop) (case1 : ∀ (h : 0 + 1 ≠ 0), Nat.succ 0 ≠ 0 → motive (Nat.succ 0) h)
   (case2 : ∀ (k : Nat) (h : k + 1 ≠ 0), ¬k = 0 → k.succ ≠ 0 → motive k.succ h) (n : Nat) (h : n ≠ 0) : motive n h
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check baz.fun_cases
 
 
@@ -107,5 +108,5 @@ info: mean.fun_cases (motive : (n m : Nat) → n = m → Prop) (case1 : ∀ (h :
   (case2 : ∀ (m n : Nat) (h : n + 1 = m + 1), m.succ = m + 1 → m.succ = n.succ → motive n.succ m.succ h) (n m : Nat)
   (h : n = m) : motive n m h
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check mean.fun_cases

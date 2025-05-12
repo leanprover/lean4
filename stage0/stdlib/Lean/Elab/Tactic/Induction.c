@@ -6653,7 +6653,7 @@ x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_8);
 lean_dec(x_5);
 x_9 = l_Lean_MessageData_ofName(x_8);
-x_10 = l_Subarray_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp_mkElimApp___spec__3___closed__6;
+x_10 = l_Lean_Elab_Tactic_ElimApp_mkElimApp_loop___closed__5;
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);

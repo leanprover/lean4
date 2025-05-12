@@ -244,8 +244,9 @@ def «structure»          := leading_parser
    «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
-@[builtin_command_parser] def noncomputableSection := leading_parser
-  "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
+def sectionHeader := leading_parser
+  optional ("@[" >> nonReservedSymbol "expose" >> "]") >>
+  optional ("noncomputable")
 /--
 A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
 commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
@@ -253,7 +254,7 @@ with the matching `end`. In either case, the `end` can be omitted, in which case
 closed at the end of the file.
 -/
 @[builtin_command_parser] def «section»      := leading_parser
-  "section" >> optional (ppSpace >> checkColGt >> ident)
+  sectionHeader >> "section" >> optional (ppSpace >> checkColGt >> ident)
 /--
 `namespace <id>` opens a section with label `<id>` that influences naming and name resolution inside
 the section:

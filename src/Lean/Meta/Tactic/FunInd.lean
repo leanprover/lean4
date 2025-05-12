@@ -693,27 +693,20 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       which facts provided by the splitter should go where, but it's tedious.
       So for now let's use heuristics and try `assumption` and `rfl`.
       -/
-      let mut anyChanged := true
-      while anyChanged do
-        anyChanged := false
-        for h in hyps do
-          unless (← h.isAssigned) do
-            let hType ← h.getType
-            if hType.isEq then
-              h.assumption <|> h.refl <|> pure ()
-            else if hType.isHEq then
-              h.assumption <|> h.hrefl <|> pure ()
-            if (← h.isAssigned) then
-              anyChanged := true
+      for h in hyps do
+        unless (← h.isAssigned) do
+          let hType ← h.getType
+          if Simp.isEqnThmHypothesis hType then
+            -- Using unrestricted h.substVars here does not work well; it could
+            -- even introduce a dependency on the `oldIH` we want to eliminate
+            h.assumption <|> throwError "Failed to discharge {h}"
+          else if hType.isEq then
+            h.assumption <|> h.refl <|> throwError m!"Failed to resolve {h}"
+          else if hType.isHEq then
+            h.assumption <|> h.hrefl <|> throwError m!"Failed to resolve {h}"
       let unassignedHyps ← hyps.filterM fun h => return !(← h.isAssigned)
       unless unassignedHyps.isEmpty do
         throwError m!"Not all hypotheses of {.ofConstName eqnThm} could be discharged: {unassignedHyps}"
-      for h in hyps do
-        let hType ← h.getType
-        if Simp.isEqnThmHypothesis hType then
-          -- Using unrestricted h.substVars here does not work well; it could
-          -- even introduce a dependency on the `oldIH` we want to eliminate
-          h.assumption <|> throwError "Failed to discharge {h}"
       let rhs ← instantiateMVars rhs
       let proof ← instantiateMVars proof
       let proof ← if isHeq then

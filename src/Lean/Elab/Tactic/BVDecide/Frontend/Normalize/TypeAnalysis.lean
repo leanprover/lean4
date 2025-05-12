@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.SInt.Basic
+import Std.Tactic.BVDecide.Normalize.BitVec
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 
 /-!
@@ -176,6 +177,19 @@ def builtinTypes : Array Name :=
 
 @[inline]
 def isBuiltIn (n : Name) : Bool := builtinTypes.contains n
+
+def addDefaultTypeAnalysisLemmas (lemmas : SimpTheoremsArray) : PreProcessM SimpTheoremsArray := do
+  let mut lemmas := lemmas
+
+  let relevantNames := #[
+    ``ne_eq,
+    ``dif_eq_if,
+    ``Std.Tactic.BVDecide.Normalize.BitVec.getElem_eq_getLsbD,
+  ]
+  for name in relevantNames do
+    lemmas ← lemmas.addTheorem (.decl name) (mkConst name)
+
+  return lemmas
 
 partial def typeAnalysisPass : Pass where
   name := `typeAnalysis

@@ -413,7 +413,6 @@ partial def enumsPass : Pass where
 
       let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
-      relevantLemmas ← relevantLemmas.addTheorem (.decl ``ne_eq) (mkConst ``ne_eq)
       for type in interestingEnums do
         let lemma ← getEqIffEnumToBitVecEqFor type
         relevantLemmas ← relevantLemmas.addTheorem (.decl lemma) (mkConst lemma)
@@ -436,6 +435,7 @@ partial def enumsPass : Pass where
       -- structures. Thus we must also re run lemmas that handle structure projections in the
       -- presence of control flow.
       let cfg ← PreProcessM.getConfig
+      relevantLemmas ← addDefaultTypeAnalysisLemmas relevantLemmas
       if cfg.structures then
         (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
 

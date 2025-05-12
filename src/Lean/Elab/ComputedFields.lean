@@ -62,7 +62,7 @@ def getComputedFieldValue (computedField : Name) (ctorTerm : Expr) : MetaM Expr 
   let val ←
     if let some wfEqn := WF.eqnInfoExt.find? (← getEnv) computedField then
       pure <| mkAppN (wfEqn.value.instantiateLevelParams wfEqn.levelParams val.getAppFn.constLevels!) val.getAppArgs
-    else withoutExporting do
+    else
       unfoldDefinition val
   let val ← whnfHeadPred val (return ctorTerm.occurs ·)
   if !ctorTerm.occurs val then return val
@@ -125,8 +125,11 @@ def overrideConstructors : M Unit := do
   for ctor in ctors do
     forallTelescope (← inferType (mkAppN (mkConst ctor lparams) params)) fun fields retTy => do
     let ctorTerm := mkAppN (mkConst ctor lparams) (params ++ fields)
-    let computedFieldVals ← if ← isScalarField ctor then pure #[] else
-      compFields.mapM (getComputedFieldValue · ctorTerm)
+    let computedFieldVals ←
+      -- elaborating a non-exposed def body
+      withoutExporting do
+        if ← isScalarField ctor then pure #[] else
+          compFields.mapM (getComputedFieldValue · ctorTerm)
     addDecl <| .defnDecl {
       name := ctor ++ `_override
       levelParams
@@ -146,13 +149,16 @@ def overrideComputedFields : M Unit := do
     if isExtern (← getEnv) cfn then
       compileDecls [cfn]
       continue
-    let cases ← ctors.toArray.mapM fun ctor => do
-      forallTelescope (← inferType (mkAppN (mkConst ctor lparams) params)) fun fields _ => do
-      if ← isScalarField ctor then
-        mkLambdaFVars fields <|
-          ← getComputedFieldValue cfn (mkAppN (mkConst ctor lparams) (params ++ fields))
-      else
-        mkLambdaFVars (compFieldVars ++ fields) cf
+    let cases ←
+      -- elaborating a non-exposed def body
+      withoutExporting do
+        ctors.toArray.mapM fun ctor => do
+          forallTelescope (← inferType (mkAppN (mkConst ctor lparams) params)) fun fields _ => do
+            if ← isScalarField ctor then
+              mkLambdaFVars fields <|
+                ← getComputedFieldValue cfn (mkAppN (mkConst ctor lparams) (params ++ fields))
+            else
+              mkLambdaFVars (compFieldVars ++ fields) cf
     addDecl <| .defnDecl {
       name := cfn ++ `_override
       levelParams

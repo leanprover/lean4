@@ -24,16 +24,12 @@ open Language
 
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
-
-private builtin_initialize exposeAttr : TagAttribute ←
-  registerTagAttribute
-    `expose
-    "(module system) Make bodies of definitions available to importing modules."
-    (validate := fun c => do
-      if let some info := (← getEnv).setExporting false |>.findAsync? c then
-        if info.kind == .defn then
-          return
-      throwError "Invalid use of `expose` attribute, it can only be used on definitions")
+  registerBuiltinAttribute {
+    name := `expose
+    descr := "(module system) Make bodies of definitions available to importing modules."
+    add := fun _ _ _ => do
+      throwError "Invalid attribute 'expose', must be used when declaring `def`"
+  }
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
@@ -1161,6 +1157,8 @@ where
       headers.all fun header =>
         !header.modifiers.isPrivate &&
         (header.kind matches .abbrev | .instance || header.modifiers.attrs.any (·.name == `expose))) do
+    let headers := headers.map fun header =>
+      { header with modifiers.attrs := header.modifiers.attrs.filter (·.name != `expose) }
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try

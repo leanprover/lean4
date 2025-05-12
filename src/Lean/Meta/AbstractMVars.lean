@@ -137,7 +137,7 @@ def abstractMVars (e : Expr) (levels : Bool := true): MetaM AbstractMVarsResult 
   pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
 
 def openAbstractMVarsResult (a : AbstractMVarsResult) : MetaM (Array Expr × Array BinderInfo × Expr) := do
-  let us ← a.paramNames.mapM fun _ => mkFreshLevelMVar
+  let us ← a.paramNames.mapM fun u => mkFreshLevelMVar (suffix := u)
   let e := a.expr.instantiateLevelParamsArray a.paramNames us
   lambdaMetaTelescope e (some a.numMVars)
 

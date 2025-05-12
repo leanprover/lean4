@@ -3,6 +3,6 @@
 argument
   f
 has type
-  ?m : Sort ?u
+  ?t : Sort ?u
 but is expected to have type
   optParam (Sort ?u) t : Type ?u

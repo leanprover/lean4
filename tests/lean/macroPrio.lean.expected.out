@@ -1,6 +1,6 @@
 0 + 1 : Nat
 macroPrio.lean:12:7-12:13: error: ambiguous, possible interpretations 
-  1 * 2 : ?m
+  1 * 2 : ?γ
   
-  1 + 1 : ?m
+  1 + 1 : ?γ
 2 - 2 : Nat

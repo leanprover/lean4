@@ -1,5 +1,11 @@
-mvarAtDefaultValue.lean:5:7-5:8: error: failed to infer default value for field 'x'
-mvarAtDefaultValue.lean:8:7-8:8: error: don't know how to synthesize placeholder
+mvarAtDefaultValue.lean:5:7-5:8: error: Default value could not be inferred for field `x`.
+
+context:
+x : Nat
+toA : A := { x := x }
+⊢ Nat
+mvarAtDefaultValue.lean:8:7-8:8: error: Placeholder could not be inferred.
+
 context:
 x : Nat
 toA : A := { x := x }

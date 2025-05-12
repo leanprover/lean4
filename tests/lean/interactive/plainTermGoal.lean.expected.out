@@ -32,12 +32,12 @@
  "position": {"line": 16, "character": 17}}
 {"range":
  {"start": {"line": 16, "character": 17}, "end": {"line": 16, "character": 18}},
- "goal": "m n : Nat\n⊢ ?m m n < n"}
+ "goal": "m n : Nat\n⊢ ?_ m n < n"}
 {"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 16, "character": 18}}
 {"range":
  {"start": {"line": 16, "character": 17}, "end": {"line": 16, "character": 18}},
- "goal": "m n : Nat\n⊢ ?m m n < n"}
+ "goal": "m n : Nat\n⊢ ?_ m n < n"}
 {"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 20, "character": 18}}
 {"range":

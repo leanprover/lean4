@@ -118,7 +118,13 @@ end Ex4
 Here, `(α β)` is not an override since `β` is not an existing parameter, so `α` is treated as a binder.
 -/
 namespace Ex5
-/-- error: failed to infer binder type -/
+/--
+error: Failed to infer type for binder `α`.
+
+context:
+α : Type
+⊢ Sort ?u.1245
+-/
 #guard_msgs in
 class C (α : Type) where
   f (α β) : β
@@ -128,7 +134,13 @@ end Ex5
 Here, `(α β)` is not an override since `β` is a field.
 -/
 namespace Ex6
-/-- error: failed to infer binder type -/
+/--
+error: Failed to infer type for binder `α`.
+
+context:
+α β : Type
+⊢ Sort ?u.1285
+-/
 #guard_msgs in
 class C (α : Type) where
   β : Type

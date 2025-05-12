@@ -1,4 +1,5 @@
-autoBoundErrorMsg.lean:1:43-1:44: error: don't know how to synthesize placeholder
+autoBoundErrorMsg.lean:1:43-1:44: error: Placeholder could not be inferred.
+
 context:
 α : Sort u_1
 α✝ : Sort u_2

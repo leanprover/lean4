@@ -16,7 +16,7 @@
    "range":
    {"start": {"line": 21, "character": 26},
     "end": {"line": 21, "character": 31}},
-   "message": "failed to infer universe levels in binder type\n  PUnit.{_}",
+   "message": "Failed to infer universe levels in binder type\n  PUnit.{_}",
    "fullRange":
    {"start": {"line": 21, "character": 26},
     "end": {"line": 21, "character": 31}}},

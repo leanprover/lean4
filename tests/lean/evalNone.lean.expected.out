@@ -1,12 +1,21 @@
-evalNone.lean:1:6-1:10: error: don't know how to synthesize implicit argument 'α'
-  @none ?m
+evalNone.lean:1:6-1:10: error: Implicit argument could not be inferred in application of `none`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @none ?α
+
 context:
 ⊢ Type ?u
-evalNone.lean:3:6-3:14: error: don't know how to synthesize implicit argument 'α'
-  @List.head? ?m []
+evalNone.lean:3:6-3:8: error: Implicit argument could not be inferred in application of `List.nil`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @List.nil ?α
+
 context:
 ⊢ Type ?u
-evalNone.lean:3:6-3:8: error: don't know how to synthesize implicit argument 'α'
-  @List.nil ?m
+evalNone.lean:3:6-3:14: error: Implicit argument could not be inferred in application of `List.head?`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @List.head? ?α []
+
 context:
 ⊢ Type ?u

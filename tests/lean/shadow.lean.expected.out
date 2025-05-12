@@ -10,19 +10,22 @@ has type
   x = x : Prop
 but is expected to have type
   x = x : Prop
-shadow.lean:13:0-13:1: error: don't know how to synthesize placeholder
+shadow.lean:13:0-13:1: error: Placeholder could not be inferred.
+
 context:
 α : Type u_1
 inst✝¹ : Inhabited α
 inst✝ inst : α
 ⊢ {β δ : Type} → α → β → δ → α × β × δ
-shadow.lean:17:0-17:1: error: don't know how to synthesize placeholder
+shadow.lean:17:0-17:1: error: Placeholder could not be inferred.
+
 context:
 α : Type u_1
 inst.74 : Inhabited α
 inst inst : α
 ⊢ {β δ : Type} → α → β → δ → α × β × δ
-shadow.lean:20:0-20:1: error: don't know how to synthesize placeholder
+shadow.lean:20:0-20:1: error: Placeholder could not be inferred.
+
 context:
 α : Type u_1
 β : Sort u_2

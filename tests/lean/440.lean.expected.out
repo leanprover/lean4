@@ -1,7 +1,9 @@
-440.lean:1:21-1:22: error: don't know how to synthesize placeholder
+440.lean:1:21-1:22: error: Placeholder could not be inferred.
+
 context:
 ⊢ True
-440.lean:4:29-4:30: error: don't know how to synthesize placeholder
+440.lean:4:29-4:30: error: Placeholder could not be inferred.
+
 context:
 x : Nat
 ⊢ Nat

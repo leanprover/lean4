@@ -54,7 +54,7 @@ set_option pp.mvars.levels false
 /-- info: ?a : Nat -/
 #guard_msgs in #check (?a : Nat)
 
-/-- info: ?m.222222222 : Nat -/
+/-- info: ?222222222 : Nat -/
 #guard_msgs in #check by_elab do
   -- Control the mvarId with something that's too big to happen naturally:
   let mvarId : MVarId := .mk (.num `_uniq 222222222)

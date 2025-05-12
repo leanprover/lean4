@@ -1,2 +1,2 @@
 1719.lean:2:8-2:12: error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
-  ?m
+  ?_

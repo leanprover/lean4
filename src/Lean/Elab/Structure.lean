@@ -845,11 +845,11 @@ where
       k
 
 private def registerFailedToInferFieldType (fieldName : Name) (e : Expr) (ref : Syntax) : TermElabM Unit := do
-  Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"failed to infer type of field '{.ofConstName fieldName}'"
+  Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"Type could not be inferred for field `{fieldName}`."
 
 private def registerFailedToInferDefaultValue (fieldName : Name) (e : Expr) (ref : Syntax) : TermElabM Unit := do
-  Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"failed to infer default value for field '{.ofConstName fieldName}'"
-  Term.registerLevelMVarErrorExprInfo e ref m!"failed to infer universe levels in default value for field '{.ofConstName fieldName}'"
+  Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"Default value could not be inferred for field `{fieldName}`."
+  Term.registerLevelMVarErrorExprInfo e ref m!"Universe levels could not be inferred in default value for field `{fieldName}`."
 
 /--
 Goes through all the natural mvars appearing in `e`, assigning any whose type is one of the inherited parents.

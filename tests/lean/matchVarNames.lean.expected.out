@@ -1,4 +1,5 @@
-matchVarNames.lean:13:29-13:30: error: don't know how to synthesize placeholder
+matchVarNames.lean:13:29-13:30: error: Placeholder could not be inferred.
+
 context:
 α✝ : Type
 β : α✝ → Type u_1

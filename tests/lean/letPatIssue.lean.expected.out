@@ -1,9 +1,11 @@
-letPatIssue.lean:3:2-3:3: error: don't know how to synthesize placeholder
+letPatIssue.lean:3:2-3:3: error: Placeholder could not be inferred.
+
 context:
 x : Nat × Nat
 a b : Nat
 ⊢ (a, b).fst + (a, b).snd ≥ 0
-letPatIssue.lean:7:2-7:3: error: don't know how to synthesize placeholder
+letPatIssue.lean:7:2-7:3: error: Placeholder could not be inferred.
+
 context:
 x : Nat × Nat
 a b : Nat

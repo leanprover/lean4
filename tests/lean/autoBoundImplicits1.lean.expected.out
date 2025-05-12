@@ -9,5 +9,5 @@ autoBoundImplicits1.lean:24:37-24:38: error: unknown identifier 'β'
 autoBoundImplicits1.lean:24:46-24:47: error: unknown identifier 'β'
 autoBoundImplicits1.lean:24:48-24:49: error: unknown identifier 'n'
 f {α : Type} {n : Nat} (xs : Vec α n) : Vec α n
-f mkVec : Vec ?m 0
+f mkVec : Vec ?α 0
 f mkVec : Vec Nat 0

@@ -1,10 +1,16 @@
 c.someRight : Option Nat
-evalWithMVar.lean:13:6-13:21: error: don't know how to synthesize implicit argument 'α'
-  @Sum.someRight ?m Nat c
+evalWithMVar.lean:13:20-13:21: error: Implicit argument could not be inferred in application of `c`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @c ?α
+
 context:
 ⊢ Type ?u
-evalWithMVar.lean:13:20-13:21: error: don't know how to synthesize implicit argument 'α'
-  @c ?m
+evalWithMVar.lean:13:6-13:21: error: Implicit argument could not be inferred in application of `Sum.someRight`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @Sum.someRight ?α Nat c
+
 context:
 ⊢ Type ?u
 c.someRight : Option Nat

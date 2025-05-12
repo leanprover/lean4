@@ -141,7 +141,7 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
 
 private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
-    let value ← mkSorry (synthetic := true) preDef.type
+    let value ← withRef preDef.ref <| mkLabeledSorry preDef.type (synthetic := true) (unique := true)
     let decl := if preDef.kind.isTheorem then
       Declaration.thmDecl {
         name        := preDef.declName,

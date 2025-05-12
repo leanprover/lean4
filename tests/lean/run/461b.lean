@@ -10,7 +10,13 @@ structure BarS extends FooS where
 def f (x : Nat) : BarS :=
   { x,  y := x, h' := rfl }
 
-/-- error: cannot synthesize placeholder for field 'h' -/
+/--
+error: Field `h` could not be inferred for structure `BarS`.
+
+context:
+x : Nat
+⊢ x = x
+-/
 #guard_msgs in
 example (x : Nat) : BarS :=
   { x, h' := rfl, .. }

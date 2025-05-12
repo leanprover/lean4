@@ -90,30 +90,37 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
     pure ()
 
 private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
-  registerCustomErrorIfMVar type ref "failed to infer definition type"
+  registerCustomErrorIfMVar type ref "Failed to infer definition type."
 
 /--
-  Return `some [b, c]` if the given `views` are representing a declaration of the form
+  Return `some [b, c]` if the given `view` represents a declaration of the form
   ```
   opaque a b c : Nat
   ```  -/
-private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
-  if views.size == 1 &&
-     views[0]!.kind == .opaque &&
-     views[0]!.binders.getArgs.size > 0 &&
-     views[0]!.binders.getArgs.all (·.isIdent) then
-    some (views[0]!.binders.getArgs.toList.map (·.getId))
+private def isMultiConstant? (view : DefView) : Option (List Name) :=
+  if view.kind == .opaque &&
+     view.binders.getArgs.size > 0 &&
+     view.binders.getArgs.all (·.isIdent) then
+    some (view.binders.getArgs.toList.map (·.getId))
   else
     none
 
-private def getPendingMVarErrorMessage (views : Array DefView) : String :=
-  match isMultiConstant? views with
+private def logExtraPendingMVarWarnings (view : DefView) : TermElabM Unit := do
+  match isMultiConstant? view with
   | some ids =>
-    let idsStr := ", ".intercalate <| ids.map fun id => s!"`{id}`"
-    let paramsStr := ", ".intercalate <| ids.map fun id => s!"`({id} : _)`"
-    s!"\nrecall that you cannot declare multiple constants in a single declaration. The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}"
+    let idsStr := MessageData.andList <| ids.map fun id => m!"`{id}`"
+    let paramsStr := MessageData.andList <| ids.map fun id => m!"`({id} : _)`"
+    logWarningAt view.headerRef m!"\
+      Declaration `{view.declId}` has parameters with undetermined types.\
+      \n\n\
+      Recall that the `opaque` command defines a single constant. \
+      The identifier(s) {idsStr} are being interpreted as parameter(s) {paramsStr}."
   | none =>
-    "\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
+    logWarningAt view.headerRef m!"\
+      Declaration type has metavariables.\
+      \n\n\
+      Recall that when the resulting type of a declaration is explicitly provided, \
+      all placeholders (e.g., `_`) in the header must be resolved before the declaration body is processed."
 
 /--
 Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.
@@ -207,8 +214,9 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             let levelNames ← getLevelNames
             if view.type?.isSome then
               let pendingMVarIds ← getMVars type
-              discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
-                getPendingMVarErrorMessage views
+              let hadErrors ← MonadLog.hasErrors
+              if ← logUnassignedUsingErrorInfos pendingMVarIds then
+                unless hadErrors do logExtraPendingMVarWarnings view
             let newHeader : DefViewElabHeaderData := {
               declName, shortDeclName, type, levelNames, binderIds
               numParams := xs.size

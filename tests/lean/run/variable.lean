@@ -21,7 +21,8 @@ theorem t4 (a : α) : a = a := let _ := toString a; rfl
 /-! Instance variables not mentioning only included variables should not be included. -/
 variable {α β : Type} [Coe α β] in
 /--
-error: don't know how to synthesize placeholder
+error: Placeholder could not be inferred.
+
 context:
 α : Type
 a : α

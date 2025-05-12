@@ -91,6 +91,8 @@ inductive MVarErrorKind where
   /-- Metavariable for implicit arguments. `ctx` is the parent application,
   `lctx` is a local context where it is valid (necessary for eta feature for named arguments). -/
   | implicitArg (lctx : LocalContext) (ctx : Expr)
+  /-- Metavariable for a binder type. `fvar` is the binder being defined, and `lctx` is its local context. -/
+  | binderType (lctx : LocalContext) (fvar : Expr)
   /-- Metavariable for explicit holes provided by the user (e.g., `_` and `?m`) -/
   | hole
   /-- "Custom", `msgData` stores the additional error messages. -/
@@ -100,6 +102,7 @@ inductive MVarErrorKind where
 instance : ToString MVarErrorKind where
   toString
     | .implicitArg _ _ => "implicitArg"
+    | .binderType _ _  => "binderTy"
     | .hole            => "hole"
     | .custom _        => "custom"
 
@@ -751,6 +754,9 @@ def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit 
 def registerMVarErrorImplicitArgInfo (mvarId : MVarId) (ref : Syntax) (app : Expr) : TermElabM Unit := do
   registerMVarErrorInfo { mvarId, ref, kind := .implicitArg (← getLCtx) app }
 
+def registerMVarErrorBinderTypeInfo (mvarId : MVarId) (ref : Syntax) (fvar : Expr) : TermElabM Unit := do
+  registerMVarErrorInfo { mvarId, ref, kind := .binderType (← getLCtx) fvar }
+
 def registerMVarErrorCustomInfo (mvarId : MVarId) (ref : Syntax) (msgData : MessageData) : TermElabM Unit := do
   registerMVarErrorInfo { mvarId, ref, kind := .custom msgData }
 
@@ -773,31 +779,89 @@ def throwMVarError (m : MessageData) : TermElabM α := do
   else
     throwError m
 
-def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
-  match mvarErrorInfo.kind with
-  | MVarErrorKind.implicitArg lctx app => withLCtx lctx {} do
-    let app ← instantiateMVars app
-    let msg ← addArgName "don't know how to synthesize implicit argument"
-    let msg := msg ++ m!"{indentExpr app.setAppPPExplicitForExposingMVars}" ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
-    logErrorAt mvarErrorInfo.ref (appendExtra msg)
-  | MVarErrorKind.hole => do
-    let msg ← addArgName "don't know how to synthesize placeholder" " for argument"
-    let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
-    logErrorAt mvarErrorInfo.ref (MessageData.tagged `Elab.synthPlaceholder <| appendExtra msg)
-  | MVarErrorKind.custom msg =>
-    logErrorAt mvarErrorInfo.ref (appendExtra msg)
-where
-  /-- Append the argument name (if available) to the message.
-      Remark: if the argument name contains macro scopes we do not append it. -/
-  addArgName (msg : MessageData) (extra : String := "") : TermElabM MessageData := do
-    match (← get).mvarArgNames.find? mvarErrorInfo.mvarId with
-    | none => return msg
-    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
+private def MVarErrorInfo.isImplicitForApp (error : MVarErrorInfo) (app : Expr) : Bool :=
+  if let .implicitArg _ app' := error.kind then
+    app' == app
+  else
+    false
 
-  appendExtra (msg : MessageData) : MessageData :=
-    match extraMsg? with
-    | none => msg
-    | some extraMsg => msg ++ extraMsg
+private def logMVarErrorInfos (errors : Array MVarErrorInfo) : TermElabM Unit := do
+  let argName? (error : MVarErrorInfo) (implicit : Bool := false) : TermElabM (Option MessageData) := do
+    match (← get).mvarArgNames.find? error.mvarId with
+    | none => pure none
+    | some argName =>
+      pure <|
+        if argName.hasMacroScopes then
+          if implicit then some m!"{argName.eraseMacroScopes}✝" else none
+        else some m!"{argName}"
+  let mkPartialAssign (error : MVarErrorInfo): TermElabM MessageData := do
+    let e ← instantiateMVars (Expr.mvar error.mvarId)
+    -- TODO(kmill): expose all mvars in `e` when printing partial assignment.
+    pure <| if e.getAppFn.isMVar then m!"" else m!"\n\nPartial assignment{indentExpr e}"
+  let mut reported : MVarIdSet := {}
+  for i in [0:errors.size], error in errors do
+    if reported.contains error.mvarId then
+      continue
+    reported := reported.insert error.mvarId
+    let log (msg : MessageData) : TermElabM Unit :=
+      logErrorAt error.ref m!"{msg}\n\ncontext:\n{error.mvarId}"
+    let logTagged (tag : Name) (msg : MessageData) : TermElabM Unit :=
+      log <| MessageData.tagged tag msg
+    match error.kind with
+    | MVarErrorKind.custom msg => error.mvarId.withContext do
+      let valMsg ← mkPartialAssign error
+      if let some argName ← argName? error then
+        log m!"{msg}\n\nThis error occurs at argument `{argName}` of a surrounding application.{valMsg}"
+      else
+        log m!"{msg}{valMsg}"
+    | MVarErrorKind.hole => error.mvarId.withContext do
+      let valMsg ← mkPartialAssign error
+      if let some name ← argName? error then
+        logTagged `Elab.synthPlaceholder m!"Placeholder could not be inferred.\n\n\
+          Argument `{name}` is not determined by the other arguments in the application or by the expected type.{valMsg}"
+      else
+        logTagged `Elab.synthPlaceholder m!"Placeholder could not be inferred.{valMsg}"
+    | MVarErrorKind.implicitArg lctx app =>
+      -- Coalesce errors about the same app.
+      -- Assumption: no need to `instantiateMVars app` since all the MVarErrorInfos were added at the same time
+      -- with the same app.
+      let impErrors := errors.filter (start := i) (·.isImplicitForApp app)
+      reported := impErrors.foldl (init := reported) fun reported error' => reported.insert error'.mvarId
+      withLCtx lctx {} do
+        let app ← instantiateMVars app
+        let namedArgs ← impErrors.filterMapM (argName? (implicit := true))
+        let (s_are, s_arguments) := if impErrors.size == 1 then ("is", "argument") else ("are", "arguments")
+
+        let fnMsg :=
+          if let .const constName _ := app.getAppFn then
+            m!" of `{MessageData.ofConstName constName}`"
+          else
+            m!""
+
+        let argsMsg :=
+          if namedArgs.size > 0 then
+            m!" " ++ MessageData.andList (namedArgs.map fun arg => m!"`{arg}`").toList
+          else
+            m!""
+
+        let partials ← impErrors.filterMapM fun error => do
+          let e ← instantiateMVars (Expr.mvar error.mvarId)
+          if e.getAppFn.isMVar then
+            pure none
+          else if let some n ← argName? (implicit := true) error then
+            pure <| some <| m!"\n\nArgument `{n}` has partial assignment{indentExpr e}"
+          else
+            pure <| some <| m!"\n\nUnnamed argument has partial assignment{indentExpr e}"
+        let partials := MessageData.joinSep partials.toList ""
+
+        let app' := app.setAppPPExplicitForExposingMVars
+        log m!"Implicit {s_arguments} could not be inferred in application{fnMsg}.\n\n\
+          The {s_arguments}{argsMsg} \
+          {s_are} not determined by the other arguments or the expected type in{indentExpr app'}\
+          {partials}"
+    | MVarErrorKind.binderType lctx fvar => withLCtx lctx {} do
+      let valMsg ← mkPartialAssign error
+      log m!"Failed to infer type for binder `{fvar}`.{valMsg}"
 
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds`.
@@ -806,14 +870,15 @@ where
   TODO: try to fill "all" holes using synthetic "sorry's"
 
   Remark: We only log the "unfilled holes" as new errors if no error has been logged so far. -/
-def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Option MessageData := none) : TermElabM Bool := do
+def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Bool := do
   if pendingMVarIds.isEmpty then
     return false
   else
     let hasOtherErrors ← MonadLog.hasErrors
     let mut hasNewErrors := false
     let mut alreadyVisited : MVarIdSet := {}
-    let mut errors : Array MVarErrorInfo := #[]
+    -- Using a list since `mvarErrorInfos` is in reverse order.
+    let mut errors : List MVarErrorInfo := []
     for mvarErrorInfo in (← get).mvarErrorInfos do
       let mvarId := mvarErrorInfo.mvarId
       unless alreadyVisited.contains mvarId do
@@ -823,13 +888,13 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
         let mvarDeps ← getMVars (mkMVar mvarId)
         if mvarDeps.any pendingMVarIds.contains then do
           unless hasOtherErrors do
-            errors := errors.push mvarErrorInfo
+            errors := mvarErrorInfo :: errors
           hasNewErrors := true
     -- To sort the errors by position use
     -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
-    for error in errors do
-      error.mvarId.withContext do
-        error.logError extraMsg?
+    -- We are not currently sorting because elaboration order appears to be easier to understand.
+    unless errors.isEmpty do
+      logMVarErrorInfos errors.toArray
     return hasNewErrors
 
 def registerLevelMVarErrorInfo (levelMVarErrorInfo : LevelMVarErrorInfo) : TermElabM Unit :=
@@ -1926,8 +1991,8 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for '{constName}'"
   else
-    let numMissingLevels := cinfo.levelParams.length - explicitLevels.length
-    let us ← mkFreshLevelMVars numMissingLevels
+    let missingLevels := cinfo.levelParams.drop explicitLevels.length
+    let us ← mkFreshLevelMVarsForParams missingLevels
     return Lean.mkConst constName (explicitLevels ++ us)
 
 def checkDeprecated (ref : Syntax) (e : Expr) : TermElabM Unit := do

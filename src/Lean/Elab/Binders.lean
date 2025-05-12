@@ -175,9 +175,10 @@ private def toBinderViews (stx : Syntax) : TermElabM (Array BinderView) := do
   else
     throwUnsupportedSyntax
 
-private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit := do
-  registerCustomErrorIfMVar type ref "failed to infer binder type"
-  registerLevelMVarErrorExprInfo type ref m!"failed to infer universe levels in binder type"
+private def registerFailedToInferBinderTypeInfo (type : Expr) (fvar : Expr) (ref : Syntax) : TermElabM Unit := do
+  if let .mvar mvarId := type.getAppFn then
+    registerMVarErrorBinderTypeInfo mvarId ref fvar
+  registerLevelMVarErrorExprInfo type ref m!"Failed to infer universe levels in binder type"
 
 def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit :=
   addTermInfo' (isBinder := true) stx fvar
@@ -209,7 +210,6 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
       let binderView := binderViews[i]
       ensureAtomicBinderName binderView
       let type ← elabType binderView.type
-      registerFailedToInferBinderTypeInfo type binderView.type
       if binderView.bi.isInstImplicit && checkBinderAnnotations.get (← getOptions) then
         unless (← isClass? type).isSome do
           throwErrorAt binderView.type "invalid binder annotation, type is not a class instance{indentExpr type}\nuse the command `set_option checkBinderAnnotations false` to disable the check"
@@ -217,6 +217,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
       let id := binderView.id.getId
       let kind := kindOfBinderName id
       withLocalDecl id binderView.bi type (kind := kind) fun fvar => do
+        registerFailedToInferBinderTypeInfo type fvar binderView.type
         addLocalVarInfo binderView.ref fvar
         loop (i+1) (fvars.push (binderView.id, fvar))
     else
@@ -420,7 +421,6 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
     ensureAtomicBinderName binderView
     withRef binderView.type <| withLCtx s.lctx s.localInsts do
       let type ← elabType binderView.type
-      registerFailedToInferBinderTypeInfo type binderView.type
       let fvarId ← mkFreshFVarId
       let fvar  := mkFVar fvarId
       let s     := { s with fvars := s.fvars.push fvar }
@@ -433,6 +433,8 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
       -/
       let lctx  := s.lctx.mkLocalDecl fvarId id type binderView.bi kind
       addTermInfo' (lctx? := some lctx) (isBinder := true) binderView.ref fvar
+      withLCtx lctx {} do
+        registerFailedToInferBinderTypeInfo type fvar binderView.type
       let s ← withRef binderView.id <| propagateExpectedType fvar type s
       let s := { s with lctx }
       match ← isClass? type, kind with
@@ -677,7 +679,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     -/
     let type ← withSynthesize (postpone := .partial) <| elabType typeStx
     let letMsg := if useLetExpr then "let" else "have"
-    registerCustomErrorIfMVar type typeStx m!"failed to infer '{letMsg}' declaration type"
+    registerCustomErrorIfMVar type typeStx m!"Failed to infer type for '{letMsg}' declaration of `{id}`"
     registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
     if elabBodyFirst then
       let type ← mkForallFVars fvars type

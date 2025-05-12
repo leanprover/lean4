@@ -1,3 +1,4 @@
-309.lean:1:19-1:20: error: don't know how to synthesize placeholder
+309.lean:1:19-1:20: error: Placeholder could not be inferred.
+
 context:
 ⊢ False

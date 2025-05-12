@@ -10,12 +10,21 @@ Test: now reports "don't know how to synthesize implicit argument" rather than a
 -/
 
 /--
-error: don't know how to synthesize implicit argument 'α'
-  @none ?_
+error: failed to infer 'let' declaration type
+
+Partial assignment
+  Option ?_
+
 context:
 ⊢ Type _
 ---
-error: failed to infer 'let' declaration type
+error: Implicit argument could not be inferred in application of `none`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @none ?_
+
+context:
+⊢ Type _
 -/
 #guard_msgs in
 example : IO Unit := do
@@ -64,7 +73,7 @@ Test: Works for `fun` binders.
 -/
 
 /--
-error: failed to infer universe levels in binder type
+error: Failed to infer universe levels in binder type
   PUnit.{_}
 -/
 #guard_msgs in

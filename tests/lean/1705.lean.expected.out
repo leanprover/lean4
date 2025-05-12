@@ -1,5 +1,5 @@
 1705.lean:1:13-1:16: error: function expected at
   T
 term has type
-  ?m
+  ?_
 1705.lean:1:18-1:19: error: unexpected identifier; expected command

@@ -1,5 +1,24 @@
-implicitTypePos.lean:1:8-1:9: error: failed to infer binder type
-implicitTypePos.lean:1:6-1:7: error: failed to infer binder type
-implicitTypePos.lean:3:9-3:10: error: failed to infer binder type
-implicitTypePos.lean:5:9-5:10: error: failed to infer binder type
-implicitTypePos.lean:7:10-7:11: error: failed to infer binder type
+implicitTypePos.lean:1:6-1:7: error: Failed to infer type for binder `x`.
+
+context:
+⊢ Sort ?u
+implicitTypePos.lean:1:8-1:9: error: Failed to infer type for binder `y`.
+
+context:
+x : ?_
+⊢ Sort ?u
+implicitTypePos.lean:3:9-3:10: error: Failed to infer type for binder `y`.
+
+context:
+x : Nat
+⊢ Sort ?u
+implicitTypePos.lean:5:9-5:10: error: Failed to infer type for binder `β`.
+
+context:
+α : Sort u_1
+⊢ Sort ?u
+implicitTypePos.lean:7:10-7:11: error: Failed to infer type for binder `β`.
+
+context:
+α : Sort u_1
+⊢ Sort ?u

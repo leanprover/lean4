@@ -1,8 +1,14 @@
-theoremType.lean:1:22-1:23: error: don't know how to synthesize placeholder
+theoremType.lean:1:22-1:23: error: Placeholder could not be inferred.
+
 context:
 ⊢ Nat
-when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
-theoremType.lean:4:18-4:19: error: don't know how to synthesize placeholder
+theoremType.lean:1:0-1:23: warning: Declaration type has metavariables.
+
+Recall that when the resulting type of a declaration is explicitly provided, all placeholders (e.g., `_`) in the header must be resolved before the declaration body is processed.
+theoremType.lean:4:18-4:19: error: Placeholder could not be inferred.
+
 context:
 ⊢ Nat
-when the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
+theoremType.lean:4:0-4:19: warning: Declaration type has metavariables.
+
+Recall that when the resulting type of a declaration is explicitly provided, all placeholders (e.g., `_`) in the header must be resolved before the declaration body is processed.

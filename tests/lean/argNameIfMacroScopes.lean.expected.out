@@ -1,4 +1,5 @@
-argNameIfMacroScopes.lean:5:4-5:5: error: don't know how to synthesize placeholder
+argNameIfMacroScopes.lean:5:4-5:5: error: Placeholder could not be inferred.
+
 context:
 x : Nat
 ⊢ Nat

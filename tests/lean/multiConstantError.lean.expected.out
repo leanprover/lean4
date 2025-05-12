@@ -1,6 +1,19 @@
-multiConstantError.lean:1:11-1:12: error: failed to infer binder type
-recall that you cannot declare multiple constants in a single declaration. The identifier(s) `b`, `c` are being interpreted as parameters `(b : _)`, `(c : _)`
-multiConstantError.lean:1:9-1:10: error: failed to infer binder type
-recall that you cannot declare multiple constants in a single declaration. The identifier(s) `b`, `c` are being interpreted as parameters `(b : _)`, `(c : _)`
-multiConstantError.lean:3:9-3:10: error: failed to infer binder type
-recall that you cannot declare multiple constants in a single declaration. The identifier(s) `α`, `β` are being interpreted as parameters `(α : _)`, `(β : _)`
+multiConstantError.lean:1:9-1:10: error: Failed to infer type for binder `b`.
+
+context:
+⊢ Sort ?u
+multiConstantError.lean:1:11-1:12: error: Failed to infer type for binder `c`.
+
+context:
+b : ?_
+⊢ Sort ?u
+multiConstantError.lean:1:0-1:18: warning: Declaration `a` has parameters with undetermined types.
+
+Recall that the `opaque` command defines a single constant. The identifier(s) `b` and `c` are being interpreted as parameter(s) `(b : _)` and `(c : _)`.
+multiConstantError.lean:3:9-3:10: error: Failed to infer type for binder `α`.
+
+context:
+⊢ Sort ?u
+multiConstantError.lean:3:0-3:23: warning: Declaration `a` has parameters with undetermined types.
+
+Recall that the `opaque` command defines a single constant. The identifier(s) `α` and `β` are being interpreted as parameter(s) `(α : _)` and `(β : _)`.

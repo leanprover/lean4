@@ -1,50 +1,60 @@
-1616.lean:10:24-10:41: error: don't know how to synthesize implicit argument 'z'
-  @Linear ?m ?m (?m :: ?m) (?m :: ?m) c.right
+1616.lean:9:11-9:19: error: Implicit argument could not be inferred in application.
+
+The argument `x✝` is not determined by the other arguments or the expected type in
+  @Linear ?_ ?_ ?_ ?_ c
+
 context:
-c : Cover ?m ?m ?m
-⊢ List ?m
-1616.lean:10:24-10:41: error: don't know how to synthesize implicit argument 'y'
-  @Linear ?m ?m (?m :: ?m) (?m :: ?m) c.right
-context:
-c : Cover ?m ?m ?m
-⊢ List ?m
-1616.lean:10:24-10:41: error: don't know how to synthesize implicit argument
-  @Linear ?m ?m (?m :: ?m) (?m :: ?m) c.right
-context:
-c : Cover ?m ?m ?m
+c : Cover ?_ ?_ ?_
 ⊢ Type u_1
-1616.lean:10:32-10:40: error: don't know how to synthesize implicit argument 'α'
-  @Cover.right ?m ?m ?m ?m ?m c
+1616.lean:9:31-9:38: error: Implicit argument could not be inferred in application of `Cover.left`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @Cover.left ?_ ?_ ?_ ?_ ?t c
+
 context:
-c : Cover ?m ?m ?m
+c : Cover ?_ ?_ ?_
 ⊢ Type u_1
-1616.lean:10:12-10:20: error: don't know how to synthesize implicit argument
-  @Linear ?m ?m ?m ?m c
+1616.lean:9:23-9:39: error: Implicit arguments could not be inferred in application.
+
+The arguments `x✝`, `x` and `z` are not determined by the other arguments or the expected type in
+  @Linear ?_ (?t :: ?_) ?_ (?t :: ?_) c.left
+
+Argument `x` has partial assignment
+  ?t :: ?_
+
+Argument `z` has partial assignment
+  ?t :: ?_
+
 context:
-c : Cover ?m ?m ?m
+c : Cover ?_ ?_ ?_
 ⊢ Type u_1
-1616.lean:9:23-9:39: error: don't know how to synthesize implicit argument 'z'
-  @Linear ?m (?m :: ?m) ?m (?m :: ?m) c.left
+1616.lean:10:12-10:20: error: Implicit argument could not be inferred in application.
+
+The argument `x✝` is not determined by the other arguments or the expected type in
+  @Linear ?_ ?_ ?_ ?_ c
+
 context:
-c : Cover ?m ?m ?m
-⊢ List ?m
-1616.lean:9:23-9:39: error: don't know how to synthesize implicit argument 'x'
-  @Linear ?m (?m :: ?m) ?m (?m :: ?m) c.left
-context:
-c : Cover ?m ?m ?m
-⊢ List ?m
-1616.lean:9:23-9:39: error: don't know how to synthesize implicit argument
-  @Linear ?m (?m :: ?m) ?m (?m :: ?m) c.left
-context:
-c : Cover ?m ?m ?m
+c : Cover ?_ ?_ ?_
 ⊢ Type u_1
-1616.lean:9:31-9:38: error: don't know how to synthesize implicit argument 'α'
-  @Cover.left ?m ?m ?m ?m ?m c
+1616.lean:10:32-10:40: error: Implicit argument could not be inferred in application of `Cover.right`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @Cover.right ?_ ?_ ?_ ?_ ?t c
+
 context:
-c : Cover ?m ?m ?m
+c : Cover ?_ ?_ ?_
 ⊢ Type u_1
-1616.lean:9:11-9:19: error: don't know how to synthesize implicit argument
-  @Linear ?m ?m ?m ?m c
+1616.lean:10:24-10:41: error: Implicit arguments could not be inferred in application.
+
+The arguments `x✝`, `y` and `z` are not determined by the other arguments or the expected type in
+  @Linear ?_ ?_ (?t :: ?_) (?t :: ?_) c.right
+
+Argument `y` has partial assignment
+  ?t :: ?_
+
+Argument `z` has partial assignment
+  ?t :: ?_
+
 context:
-c : Cover ?m ?m ?m
+c : Cover ?_ ?_ ?_
 ⊢ Type u_1

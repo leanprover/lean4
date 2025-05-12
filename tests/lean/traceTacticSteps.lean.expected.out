@@ -5,7 +5,7 @@
     by
       skip
       trivial
-  [Elab.step.result] ?m
+  [Elab.step.result] ?_
 [Elab.step] 
       skip
       trivial

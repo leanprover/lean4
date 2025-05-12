@@ -14,21 +14,23 @@ structure Subalgebra [OneHom R A] : Type extends Subone A where
 
 set_option pp.mvars false
 /--
-error: don't know how to synthesize placeholder
-context:
-R A : Type
-inst✝² : One R
-inst✝¹ : One A
-inst✝ : OneHom R A
-⊢ ∀ (r : R), ?_ R A _example (OneHom.toFun r)
----
-error: don't know how to synthesize placeholder
+error: Placeholder could not be inferred.
+
 context:
 R A : Type
 inst✝² : One R
 inst✝¹ : One A
 inst✝ : OneHom R A
 ⊢ A → Prop
+---
+error: Placeholder could not be inferred.
+
+context:
+R A : Type
+inst✝² : One R
+inst✝¹ : One A
+inst✝ : OneHom R A
+⊢ ∀ (r : R), ?_ R A _example (OneHom.toFun r)
 -/
 #guard_msgs in
 example [OneHom R A] : Subalgebra R A where

@@ -20,8 +20,8 @@ match1.lean:119:0-119:41: error: dependent match elimination failed, inaccessibl
 constructor expected
 [false, true, true]
 match1.lean:136:7-136:22: error: invalid match-expression, type of pattern variable 'a' contains metavariables
-  ?m
-fun x => ?m : ?m × ?m → ?m
+  ?_
+fun x => ?_ : ?_ × ?_ → ?_
 fun x =>
   match x with
   | (a, b) => a + b : Nat × Nat → Nat

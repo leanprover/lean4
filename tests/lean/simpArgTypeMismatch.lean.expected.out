@@ -5,4 +5,4 @@ argument
 has type
   Type : Type 1
 but is expected to have type
-  ¬?m : Prop
+  ¬?p : Prop

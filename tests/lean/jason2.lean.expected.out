@@ -1,8 +1,14 @@
-jason2.lean:4:30-4:37: error: don't know how to synthesize implicit argument 'x'
-  @Foo.foo ?m
+jason2.lean:4:20-4:23: error: Implicit argument could not be inferred in application of `Foo`.
+
+The argument `x` is not determined by the other arguments or the expected type in
+  @Foo ?_
+
 context:
 ⊢ Nat
-jason2.lean:4:20-4:23: error: don't know how to synthesize implicit argument 'x'
-  @Foo ?m
+jason2.lean:4:30-4:37: error: Implicit argument could not be inferred in application of `Foo.foo`.
+
+The argument `x` is not determined by the other arguments or the expected type in
+  @Foo.foo ?_
+
 context:
 ⊢ Nat

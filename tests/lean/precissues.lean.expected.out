@@ -1,4 +1,4 @@
-id fun x => x : ?m → ?m
+id fun x => x : ?_ → ?_
 0 : Nat
 f 1 fun x => x : Nat
 0 : Nat

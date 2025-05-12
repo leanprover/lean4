@@ -8,8 +8,11 @@ In this example, that is 'n'.
 def foo {n : Nat} := 2*n
 
 /--
-error: don't know how to synthesize implicit argument 'n'
+error: Implicit argument could not be inferred in application of `foo`.
+
+The argument `n` is not determined by the other arguments or the expected type in
   @foo ?_
+
 context:
 ⊢ Nat
 -/

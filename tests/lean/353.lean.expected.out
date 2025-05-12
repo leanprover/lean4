@@ -1,2 +1,2 @@
 353.lean:13:26-13:50: error: typeclass instance problem is stuck, it is often due to metavariables
-  Arr.{?u, ?u + 1} (@?m a₁ a₂) (Sort ?u)
+  Arr.{?u, ?u + 1} (@?_ a₁ a₂) (Sort ?u)

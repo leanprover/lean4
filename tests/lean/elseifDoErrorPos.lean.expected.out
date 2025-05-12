@@ -1,5 +1,5 @@
 elseifDoErrorPos.lean:4:10-4:11: error: application type mismatch
-  @ite ?m x
+  @ite ?α x
 argument
   x
 has type

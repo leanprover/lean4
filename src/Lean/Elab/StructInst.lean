@@ -400,7 +400,7 @@ The `structureType?` is the expected type of the structure instance.
 private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Expr) : TermElabM CtorHeaderResult := do
   let flatCtorName := mkFlatCtorOfStructCtorName ctorVal.name
   let cinfo ← getConstInfo flatCtorName
-  let us ← mkFreshLevelMVars ctorVal.levelParams.length
+  let us ← mkFreshLevelMVarsForParams ctorVal.levelParams
   let mut type ← instantiateTypeLevelParams cinfo.toConstantVal us
   let mut params : Array Expr := #[]
   let mut instMVars : Array MVarId := #[]
@@ -830,7 +830,7 @@ private def synthOptParamFields : StructInstM Unit := do
         for pendingField in pendingFields do
           if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
             registerCustomErrorIfMVar (.mvar mvarId) (← read).view.ref m!"\
-              cannot synthesize placeholder for field '{pendingField.fieldName}'"
+              Field `{pendingField.fieldName}` could not be inferred for structure `{.ofConstName (← read).structName}`."
         return
       let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
       let mut requiredErrors : Array MessageData := #[]

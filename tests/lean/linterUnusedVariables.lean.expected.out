@@ -52,7 +52,8 @@ linterUnusedVariables.lean:214:6-214:7: warning: unused variable `y`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
 linterUnusedVariables.lean:225:32-225:33: warning: unused variable `b`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:243:27-243:28: error: don't know how to synthesize placeholder
+linterUnusedVariables.lean:243:27-243:28: error: Placeholder could not be inferred.
+
 context:
 a : Nat
 ⊢ Nat

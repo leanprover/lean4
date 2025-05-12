@@ -801,30 +801,60 @@ private def mkFreshExprMVarAtCore
   modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId userName lctx localInsts type kind numScopeArgs;
   return mkMVar mvarId
 
+/--
+Creates a new metavariable with a fresh `MVarId`.
+- `lctx` is the local context for the metavariable.
+- `localInsts` should be the correct cached local instances for `lctx`.
+- `type` is the type of the metavariable.
+- `kind` is the kind of the metavariable.
+- `userName` is the name to store in the `MetavarDecl`.
+  If the name is not anonymous, then the metavariable is registered to have this name in the metacontext's `userNames` table,
+  causing `?userName` syntax to resolve to this metavariable.
+- `numScopeArgs` is explained at `mkAuxMVar`.
+- `suffix` is used to embed contextual information into the `MVarId` itself;
+  the pretty printer uses it to print anonymous metavariables as `?suffix.22` rather than `?22`.
+
+See `mkFreshExprMVar` and `mkFreshTypeMVar` for convenient frontends to this function.
+-/
 def mkFreshExprMVarAt
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr)
-    (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0)
+    (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0) (suffix : Name := .anonymous)
     : MetaM Expr := do
-  mkFreshExprMVarAtCore (← mkFreshMVarId) lctx localInsts type kind userName numScopeArgs
+  mkFreshExprMVarAtCore (← mkFreshMVarId (suffix := suffix)) lctx localInsts type kind userName numScopeArgs
 
-def mkFreshLevelMVar : MetaM Level := do
-  let mvarId ← mkFreshLMVarId
+/--
+Creates a new universe level metavariable with a fresh `LMVarId`.
+- `suffix` is used to embed contextual information into the `MVarId` itself;
+  the pretty printer uses it to print the level metavariable as `?suffix.22` rather than `?22`.
+  Generally it is used to reflect which universe level parameter it instantiates.
+-/
+def mkFreshLevelMVar (suffix : Name := .anonymous) : MetaM Level := do
+  let mvarId ← mkFreshLMVarId (suffix := suffix)
   modifyMCtx fun mctx => mctx.addLevelMVarDecl mvarId;
   return mkLevelMVar mvarId
 
-private def mkFreshExprMVarCore (type : Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr := do
-  mkFreshExprMVarAt (← getLCtx) (← getLocalInstances) type kind userName
+private def mkFreshExprMVarCore (type : Expr) (kind : MetavarKind) (userName : Name) (suffix : Name) : MetaM Expr := do
+  mkFreshExprMVarAt (← getLCtx) (← getLocalInstances) type kind userName (suffix := suffix)
 
-private def mkFreshExprMVarImpl (type? : Option Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr :=
+private def mkFreshExprMVarImpl (type? : Option Expr) (kind : MetavarKind) (userName : Name) (suffix : Name) : MetaM Expr :=
   match type? with
-  | some type => mkFreshExprMVarCore type kind userName
+  | some type => mkFreshExprMVarCore type kind userName suffix
   | none      => do
-    let u ← mkFreshLevelMVar
-    let type ← mkFreshExprMVarCore (mkSort u) MetavarKind.natural Name.anonymous
-    mkFreshExprMVarCore type kind userName
+    let u ← mkFreshLevelMVar (suffix := suffix)
+    let type ← mkFreshExprMVarCore (mkSort u) MetavarKind.natural Name.anonymous suffix
+    mkFreshExprMVarCore type kind userName suffix
 
-def mkFreshExprMVar (type? : Option Expr) (kind := MetavarKind.natural) (userName := Name.anonymous) : MetaM Expr :=
-  mkFreshExprMVarImpl type? kind userName
+/--
+Creates a new expression metavariable with a fresh `MVarId`.
+- If `type?` is not none then it is used for the type of the metavariable,
+  and otherwise the type is a fresh type metavariable (a metavariable whose type is `Sort ?u`
+  for a fresh universe level metavariable `?u`); see `mkFreshTypeMVar`.
+- `kind` is the kind of the new metavariable.
+  If `type?` is none, then the type of this metavariable will be a `MetavarKind.natural` metavariable no matter the value of `kind`.
+- `userName` sets the user name of the new metavariable
+-/
+def mkFreshExprMVar (type? : Option Expr) (kind := MetavarKind.natural) (userName := Name.anonymous) (suffix : Name := Name.anonymous) : MetaM Expr :=
+  mkFreshExprMVarImpl type? kind userName suffix
 
 def mkFreshTypeMVar (kind := MetavarKind.natural) (userName := Name.anonymous) : MetaM Expr := do
   let u ← mkFreshLevelMVar
@@ -849,8 +879,15 @@ def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
   num.foldM (init := []) fun _ _ us =>
     return (← mkFreshLevelMVar)::us
 
+/--
+Creates fresh level metavariables for each parameter name.
+The names are used as suffixes for the `LMVarId`s, which affects pretty printing.
+-/
+def mkFreshLevelMVarsForParams (params : List Name) : MetaM (List Level) :=
+  params.mapM fun u => mkFreshLevelMVar (suffix := u)
+
 def mkFreshLevelMVarsFor (info : ConstantInfo) : MetaM (List Level) :=
-  mkFreshLevelMVars info.numLevelParams
+  mkFreshLevelMVarsForParams info.levelParams
 
 /--
 Create a constant with the given name and new universe metavariables.

@@ -6,7 +6,7 @@ fun x => do
       {
         raw :=
           Syntax.node2 info `«term👉__» (Syntax.atom info "👉")
-            x.raw } : (x : TSyntax [`ident, `token._]) → ?m x (TSyntax `term)
+            x.raw } : (x : TSyntax [`ident, `token._]) → ?_ x (TSyntax `term)
 true
 true
 fun x => do
@@ -17,6 +17,6 @@ fun x => do
       {
         raw :=
           Syntax.node2 info `termBarBazBoing (Syntax.atom info "bar")
-            x.raw } : (x : TSyntax [`token.baz, `token.boing]) → ?m x (TSyntax `term)
+            x.raw } : (x : TSyntax [`token.baz, `token.boing]) → ?_ x (TSyntax `term)
 true
 true

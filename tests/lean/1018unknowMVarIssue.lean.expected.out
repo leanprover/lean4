@@ -2,7 +2,8 @@
   • command @ ⟨6, 0⟩-⟨6, 31⟩ @ Lean.Elab.Command.elabSetOption
     • [.] (Command.set_option "set_option" `trace.Elab.info []) @ ⟨6, 0⟩-⟨6, 26⟩
     • option trace.Elab.info @ ⟨6, 11⟩-⟨6, 26⟩
-1018unknowMVarIssue.lean:9:18-9:19: error: don't know how to synthesize placeholder
+1018unknowMVarIssue.lean:9:18-9:19: error: Placeholder could not be inferred.
+
 context:
 α✝ β : Type
 x : Fam2 α✝ β
@@ -35,7 +36,7 @@ a : α
     • CustomInfo(Lean.Elab.Term.BodyInfo)
       • Partial term @ ⟨8, 2⟩-⟨10, 19⟩ @ Lean.Elab.Term.Quotation.elabMatchSyntax
       • match α, β, x, a with
-        | α_1, .(α_1), Fam2.any, a => ?m x α_1 a
+        | α_1, .(α_1), Fam2.any, a => ?_ x α_1 a
         | .(Nat), .(Nat), Fam2.nat n, a => n : β @ ⟨8, 2⟩-⟨10, 19⟩ @ Lean.Elab.Term.elabMatch
         • x : Fam2 α β @ ⟨8, 8⟩-⟨8, 9⟩ @ Lean.Elab.Term.elabIdent
           • [.] x : none @ ⟨8, 8⟩-⟨8, 9⟩
@@ -62,7 +63,7 @@ a : α
         • a (isBinder := true) : α @ ⟨8, 2⟩†-⟨10, 19⟩†
         • FVarAlias a: _uniq.608 -> _uniq.325
         • FVarAlias α: _uniq.607 -> _uniq.323
-        • ?m x α a : α @ ⟨9, 18⟩-⟨9, 19⟩ @ Lean.Elab.Term.elabHole
+        • ?_ x α a : α @ ⟨9, 18⟩-⟨9, 19⟩ @ Lean.Elab.Term.elabHole
         • [.] Fam2.nat : none @ ⟨10, 4⟩-⟨10, 12⟩
         • Fam2.nat : Nat → Fam2 Nat Nat @ ⟨10, 4⟩-⟨10, 12⟩
         • [.] n : none @ ⟨10, 13⟩-⟨10, 14⟩

@@ -50,7 +50,8 @@ function exec_capture {
     # mvar suffixes like in `?m.123` are deterministic but prone to change on minor changes, so strip them
     # similarly, links to the language reference may have URL components depending on the toolchain, so normalize those
     LEAN_BACKTRACE=0 "$@" 2>&1 \
-      | perl -pe 's/(\?(\w|_\w+))\.[0-9]+/\1/g' \
+      | perl -pe 's/\?[0-9]+/?_/g' \
+      | perl -pe 's/(\?(\w|[Α-Ωα-ω])+)\.[0-9]+/\1/g' \
       | perl -pe 's/https:\/\/lean-lang\.org\/doc\/reference\/(v?[0-9.]+(-rc[0-9]+)?|latest)/REFERENCE/g'  > "$f.produced.out"
 }
 

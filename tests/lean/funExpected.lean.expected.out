@@ -1,4 +1,4 @@
 funExpected.lean:4:2-4:29: error: function expected at
   List.map (fun x => x + 1) xs
 term has type
-  List ?m
+  List ?β

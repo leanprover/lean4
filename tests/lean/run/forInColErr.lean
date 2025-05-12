@@ -14,17 +14,29 @@ example {c} := Id.run do
 
 
 /--
-error: don't know how to synthesize implicit argument 'ρ'
-  @forIn Id (List ?_) ?_ instForInOfForIn' PUnit Id.instMonad [] PUnit.unit fun x r => do
-    pure ()
-    pure (ForInStep.yield PUnit.unit)
+error: Implicit argument could not be inferred in application of `List.nil`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @List.nil ?_
+
 context:
 ⊢ Type _
 ---
-error: failed to infer binder type
+error: Failed to infer type for binder `x`.
+
+context:
+⊢ Type _
 ---
-error: don't know how to synthesize implicit argument 'α'
-  @List.nil ?_
+error: Implicit argument could not be inferred in application of `forIn`.
+
+The argument `ρ` is not determined by the other arguments or the expected type in
+  @forIn Id (List ?_) ?_ instForInOfForIn' PUnit Id.instMonad [] PUnit.unit fun x r => do
+    pure ()
+    pure (ForInStep.yield PUnit.unit)
+
+Argument `ρ` has partial assignment
+  List ?_
+
 context:
 ⊢ Type _
 -/
@@ -47,28 +59,42 @@ example {c} := Id.run do
   pure ()
 
 /--
-error: don't know how to synthesize implicit argument 'd'
-  @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembership PUnit Id.instMonad [] PUnit.unit
-    fun x h r => do
-    pure ()
-    pure (ForInStep.yield PUnit.unit)
-context:
-⊢ outParam (Membership ?_ (List ?_))
----
-error: don't know how to synthesize implicit argument 'ρ'
-  @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembership PUnit Id.instMonad [] PUnit.unit
-    fun x h r => do
-    pure ()
-    pure (ForInStep.yield PUnit.unit)
+error: Implicit argument could not be inferred in application of `List.nil`.
+
+The argument `α` is not determined by the other arguments or the expected type in
+  @List.nil ?_
+
 context:
 ⊢ Type _
 ---
-error: failed to infer binder type
+error: Failed to infer type for binder `x`.
+
+context:
+⊢ Type _
 ---
-error: failed to infer binder type
+error: Failed to infer type for binder `h`.
+
+Partial assignment
+  x ∈ []
+
+context:
+x : ?_
+⊢ Prop
 ---
-error: don't know how to synthesize implicit argument 'α'
-  @List.nil ?_
+error: Implicit arguments could not be inferred in application of `forIn'`.
+
+The arguments `ρ` and `d` are not determined by the other arguments or the expected type in
+  @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembership PUnit Id.instMonad [] PUnit.unit
+    fun x h r => do
+    pure ()
+    pure (ForInStep.yield PUnit.unit)
+
+Argument `ρ` has partial assignment
+  List ?_
+
+Argument `d` has partial assignment
+  inferInstance
+
 context:
 ⊢ Type _
 -/

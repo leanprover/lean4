@@ -11,7 +11,10 @@ This used to have a "don't know how to synthesize placeholder" error on the `hav
 This is because `have` is `refine_lift have ...; ?_`, so it indeed had a placeholder.
 -/
 /--
-error: don't know how to synthesize placeholder for argument 'a'
+error: Placeholder could not be inferred.
+
+Argument `a` is not determined by the other arguments in the application or by the expected type.
+
 context:
 htrue : True
 ⊢ False
@@ -30,7 +33,10 @@ example : False := by
 Simplified version of the test.
 -/
 /--
-error: don't know how to synthesize placeholder for argument 'a'
+error: Placeholder could not be inferred.
+
+Argument `a` is not determined by the other arguments in the application or by the expected type.
+
 context:
 ⊢ False
 ---

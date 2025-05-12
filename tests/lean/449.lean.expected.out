@@ -1,9 +1,11 @@
-449.lean:7:54-7:55: error: don't know how to synthesize placeholder
+449.lean:7:54-7:55: error: Placeholder could not be inferred.
+
 context:
 m n : Nat
 ih : m * n = n * m
 ⊢ m * n + m = m * n + zero.succ * m
-449.lean:13:19-13:20: error: don't know how to synthesize placeholder
+449.lean:13:19-13:20: error: Placeholder could not be inferred.
+
 context:
 x y : Prop
 h : y

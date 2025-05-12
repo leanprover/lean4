@@ -51,6 +51,35 @@ def delabBVar : Delab := do
   let Expr.bvar idx ← getExpr | unreachable!
   pure $ mkIdent $ Name.mkSimple $ "#" ++ toString idx
 
+/--
+Takes the underlying unique name for a metavariable and transforms it into a user-visible name.
+Examples:
+- `_uniq.22` is transformed into `22`
+- `_uniq.22.x` is transformed into `x.22`
+-/
+private def mkAnonMVarName (mvarId : MVarId) : Name :=
+  if mvarId.name.getRoot != `_uniq then
+    mvarId.name
+  else
+    /- Recall that the name generator creates names of the form `_uniq.n1.n2.n3`, which then may have a suffix -/
+    let name := mvarId.name.replacePrefix `_uniq .anonymous
+    let rec isNums (n : Name) : Bool :=
+      match n with
+      | .str _ _ => false
+      | .num n' _ => isNums n'
+      | _ => true
+    let rec getSuffix (n : Name) : Name :=
+      match n with
+      | .anonymous => .anonymous
+      | .num n' i => if isNums n' then .anonymous else .num (getSuffix n') i
+      | .str n' s => .str (getSuffix n') s
+    let rec extract (n : Name) (suffix : Name) : Name :=
+      match n with
+      | .anonymous => suffix
+      | .num n' _ => if isNums n' then Name.appendCore suffix n else extract n' suffix
+      | .str n' _ => extract n' suffix
+    name.modifyBase fun name => extract name (getSuffix name)
+
 def delabMVarAux (m : MVarId) : DelabM Term := do
   let mkMVarPlaceholder : DelabM Term := `(?_)
   let mkMVar (n : Name) : DelabM Term := `(?$(mkIdent n))
@@ -59,7 +88,7 @@ def delabMVarAux (m : MVarId) : DelabM Term := do
       match (← m.getDecl).userName with
       | .anonymous =>
         if ← getPPOption getPPMVarsAnonymous then
-          mkMVar <| m.name.replacePrefix `_uniq `m
+          mkMVar <| mkAnonMVarName m
         else
           mkMVarPlaceholder
       | n => mkMVar n

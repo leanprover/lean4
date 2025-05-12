@@ -73,6 +73,43 @@ abbrev LMVarId := LevelMVarId
 instance : Repr LMVarId where
   reprPrec n p := reprPrec n.name p
 
+/--
+Pretty prints the `LMVarId`, prefixing with `?`.
+- For an ID such as `_uniq.22`, returns `?22`.
+- For an ID with a suffix such as `_uniq.22.v`, returns `?v.22`.
+
+This handles suffixes added by `Lean.Meta.mkFreshLMVarId`.
+-/
+def LevelMVarId.pretty (mvarId : LMVarId) : Name :=
+  -- To simulate prefixing with `?`, we add it to the first name component.
+  let rec prefixQ (name : Name) : Name :=
+    match name with
+    | .anonymous => Name.mkSimple "?"
+    | .num .anonymous v | .str .anonymous v => Name.mkSimple s!"?{v}"
+    | .num name' i => .num (prefixQ name') i
+    | .str name' s => .str (prefixQ name') s
+  if mvarId.name.getRoot != `_uniq then
+    prefixQ mvarId.name
+  else
+    /- Recall that the name generator creates names of the form `_uniq.n1.n2.n3`, which then may have a suffix -/
+    let name := mvarId.name.replacePrefix `_uniq .anonymous
+    let rec isNums (n : Name) : Bool :=
+      match n with
+      | .str _ _ => false
+      | .num n' _ => isNums n'
+      | _ => true
+    let rec getSuffix (n : Name) : Name :=
+      match n with
+      | .anonymous => .anonymous
+      | .num n' i => if isNums n' then .anonymous else .num (getSuffix n') i
+      | .str n' s => .str (getSuffix n') s
+    let rec extract (n : Name) (suffix : Name) : Name :=
+      match n with
+      | .anonymous => suffix
+      | .num n' _ => if isNums n' then Name.appendCore suffix n else extract n' suffix
+      | .str n' _ => extract n' suffix
+    name.modifyBase fun name => prefixQ (extract name (getSuffix name))
+
 def LMVarIdSet := RBTree LMVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
@@ -435,7 +472,7 @@ def toResult (l : Level) (mvars : Bool) : Result :=
   | param n    => Result.leaf n
   | mvar n     =>
     if mvars then
-      Result.leaf <| n.name.replacePrefix `_uniq (Name.mkSimple "?u")
+      Result.leaf <| n.pretty
     else
       Result.leaf `_
 

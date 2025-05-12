@@ -1,4 +1,5 @@
-implicitLambdaIssue.lean:42:12-42:13: error: don't know how to synthesize placeholder
+implicitLambdaIssue.lean:42:12-42:13: error: Placeholder could not be inferred.
+
 context:
 α : Type u_1
 x y z : Set α

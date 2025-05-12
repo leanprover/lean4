@@ -2127,16 +2127,40 @@ def mkFreshFVarId [Monad m] [MonadNameGenerator m] : m FVarId :=
 /--
 Polymorphic operation for generating unique/fresh metavariable identifiers.
 It is available in any monad `m` that implements the interface `MonadNameGenerator`.
+
+The `suffix` is appended to the underlying ID, without affecting uniqueness.
+Downstream consumers can extract the suffix by taking everything after the number component.
+For example the pretty printer uses it to give contextual information for metavariables:
+when the suffix is not provided, the metavariable pretty prints in the form `?37`,
+but if a suffix `s` is provided, it instead pretty prints as `?s.37`.
 -/
-def mkFreshMVarId [Monad m] [MonadNameGenerator m] : m MVarId :=
-  return { name := (← mkFreshId) }
+def mkFreshMVarId [Monad m] [MonadNameGenerator m] (suffix : Name := .anonymous) : m MVarId :=
+  return { name := Name.appendCore (← mkFreshId) suffix }
+
+/--
+For pretty printing, returns the underlying ID split into the "fresh id" part and the suffix part.
+Assumes that the last num component is the delimiter.
+-/
+def MVarId.extractIdAndSuffix (mvarId : MVarId) : Name × Name :=
+  let rec extract (n : Name) (suffix : List String) : Name × Name :=
+    match n with
+    | .anonymous => (mvarId.name, .anonymous) -- should not happen
+    | .num .. => (n, suffix.foldl (init := .anonymous) Name.str)
+    | .str n' s => extract n' (s :: suffix)
+  extract mvarId.name []
 
 /--
 Polymorphic operation for generating unique/fresh universe metavariable identifiers.
 It is available in any monad `m` that implements the interface `MonadNameGenerator`.
+
+The `suffix` is appended to the underlying ID, without affecting uniqueness.
+Downstream consumers can extract the suffix by taking everything after the number component.
+For example the pretty printer uses it to give contextual information for metavariables:
+when the suffix is not provided, the metavariable pretty prints in the form `?37`,
+but if a suffix `u` is provided, it instead pretty prints as `?u.37`.
 -/
-def mkFreshLMVarId [Monad m] [MonadNameGenerator m] : m LMVarId :=
-  return { name := (← mkFreshId) }
+def mkFreshLMVarId [Monad m] [MonadNameGenerator m] (suffix : Name := .anonymous) : m LMVarId :=
+  return { name := Name.appendCore (← mkFreshId) suffix }
 
 /-- Return `Not p` -/
 def mkNot (p : Expr) : Expr := mkApp (mkConst ``Not) p

@@ -3019,7 +3019,7 @@ x_2 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_BuiltinEvalCommand___hyg_7____
 x_3 = lean_box(0);
 x_4 = l_Lean_collectAxioms___at___private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_addAndCompileExprForEval___spec__1___closed__1;
 x_5 = 0;
-x_6 = lean_alloc_ctor(0, 9, 1);
+x_6 = lean_alloc_ctor(0, 10, 1);
 lean_ctor_set(x_6, 0, x_2);
 lean_ctor_set(x_6, 1, x_1);
 lean_ctor_set(x_6, 2, x_3);
@@ -3029,7 +3029,8 @@ lean_ctor_set(x_6, 5, x_4);
 lean_ctor_set(x_6, 6, x_4);
 lean_ctor_set(x_6, 7, x_1);
 lean_ctor_set(x_6, 8, x_1);
-lean_ctor_set_uint8(x_6, sizeof(void*)*9, x_5);
+lean_ctor_set(x_6, 9, x_1);
+lean_ctor_set_uint8(x_6, sizeof(void*)*10, x_5);
 return x_6;
 }
 }

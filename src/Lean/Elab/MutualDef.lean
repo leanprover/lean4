@@ -25,6 +25,16 @@ open Language
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
 
+private builtin_initialize exposeAttr : TagAttribute ←
+  registerTagAttribute
+    `expose
+    "(module system) Make bodies of definitions available to importing modules."
+    (validate := fun c => do
+      if let some info := (← getEnv).setExporting false |>.findAsync? c then
+        if info.kind == .defn then
+          return
+      throwError "Invalid use of `expose` attribute, it can only be used on definitions")
+
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do

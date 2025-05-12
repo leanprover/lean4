@@ -77,7 +77,7 @@ where
         trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
         return false
       else if (← isDefEq (← inferType a) (← inferType b)) then
-        checkpointDefEq do
+        checkpointDefEq (shareCache := true) do
           let args := b.getAppArgs
           let params := args[:ctorVal.numParams].toArray
           for h : i in [ctorVal.numParams : args.size] do
@@ -1069,7 +1069,7 @@ private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) 
     else
       trace[Meta.isDefEq.foApprox] "{mvar} {args} := {v}"
       let v := v.headBeta
-      if (← checkpointDefEq <| processAssignmentFOApproxAux mvar args v) then
+      if (← checkpointDefEq (shareCache := true) <| processAssignmentFOApproxAux mvar args v) then
         pure true
       else
         match (← unfoldDefinition? v) with
@@ -1789,12 +1789,12 @@ private partial def isDefEqQuickMVarMVar (t s : Expr) : MetaM LBool := do
   if s.isMVar && !t.isMVar then
      /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
         Reason: this assignment is precise. -/
-     if (← checkpointDefEq (processAssignment s t)) then
+     if (← checkpointDefEq (shareCache := true) (processAssignment s t)) then
        return LBool.true
      else
        toLBoolM <| processAssignment t s
   else
-     if (← checkpointDefEq (processAssignment t s)) then
+     if (← checkpointDefEq (shareCache := true) (processAssignment t s)) then
        return LBool.true
      else
        toLBoolM <| processAssignment s t
@@ -1982,11 +1982,11 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
     /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
-    if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
+    if (← checkpointDefEq (shareCache := true) (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
       return true
     else
       isDefEqOnFailure t s
-  else if (← checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
+  else if (← checkpointDefEq (shareCache := true) (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
     return true
   else
     isDefEqOnFailure t s

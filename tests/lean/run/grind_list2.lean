@@ -690,7 +690,7 @@ theorem set_append {s t : List α} :
     (s ++ t).set i x = if i < s.length then s.set i x ++ t else s ++ t.set (i - s.length) x := by
   induction s generalizing i with
   | nil => grind [-List.set_append]
-  | cons a as ih => cases i with grind [-List.set_append]
+  | cons a as ih => cases i with grind (splits := 12) [-List.set_append]
 
 theorem set_append_left {s t : List α} (i : Nat) (x : α) (h : i < s.length) :
     (s ++ t).set i x = s.set i x ++ t := by grind
@@ -1075,7 +1075,7 @@ theorem map_dropLast {f : α → β} {l : List α} : l.dropLast.map f = (l.map f
 
 theorem dropLast_append {l₁ l₂ : List α} :
     (l₁ ++ l₂).dropLast = if l₂.isEmpty then l₁.dropLast else l₁ ++ l₂.dropLast := by
-  grind +extAll
+  grind +extAll (splits := 10)
 
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
   grind +extAll

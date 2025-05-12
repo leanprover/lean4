@@ -92,13 +92,16 @@ open Nat
 
 /-! ### length -/
 
-@[grind →] theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
+-- Note: this is not a good `grind` candidate,
+-- as in some circumstances it results in many case splits.
+theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
 
 theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := fun _ => nomatch l
 
 theorem ne_nil_of_length_pos (_ : 0 < length l) : l ≠ [] := fun _ => nomatch l
 
-@[simp] theorem length_eq_zero_iff : length l = 0 ↔ l = [] :=
+-- TODO: reconsider whether this should be `grind`
+@[simp, grind] theorem length_eq_zero_iff : length l = 0 ↔ l = [] :=
   ⟨eq_nil_of_length_eq_zero, fun h => h ▸ rfl⟩
 
 @[deprecated length_eq_zero_iff (since := "2025-02-24")]

@@ -33,7 +33,7 @@ def expr_1eq1 : Expr := mkApp3 (.const ``Eq [0]) (.const ``Nat []) (mkNatLit 1) 
 elab "elab_1eq1" : term => return expr_1eq1
 
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   @Eq Nat
 the final argument
   Nat
@@ -45,7 +45,7 @@ but is expected to have type
 #guard_msgs in #check elab_1eq1
 
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   @Eq Nat
 the final argument
   Nat

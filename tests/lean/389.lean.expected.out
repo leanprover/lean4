@@ -1,4 +1,4 @@
-389.lean:7:14-7:17: error: Application type mismatch: In the appplication
+389.lean:7:14-7:17: error: Application type mismatch: In the application
   getFoo bar
 the final argument
   bar

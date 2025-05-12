@@ -1,4 +1,4 @@
-sorryAtError.lean:13:46-13:47: error: Application type mismatch: In the appplication
+sorryAtError.lean:13:46-13:47: error: Application type mismatch: In the application
   ty.ty Γ
 the final argument
   Γ

@@ -1273,7 +1273,6 @@ theorem tdiv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.tdiv b = 
   match a, b, eq_ofNat_of_zero_le H1, eq_succ_of_zero_lt (Int.lt_of_le_of_lt H1 H2) with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => congrArg Nat.cast <| Nat.div_eq_of_lt <| ofNat_lt.1 H2
 
-
 @[simp] theorem mul_tdiv_mul_of_pos {a : Int}
     (b c : Int) (H : 0 < a) : (a * b).tdiv (a * c) = b.tdiv c := by
   rw [tdiv_eq_ediv, mul_ediv_mul_of_pos _ _ H, tdiv_eq_ediv]
@@ -1382,6 +1381,7 @@ than the absolute value of the denominator, or the denominator is zero.
     subst hb
     norm_cast
     apply Int.tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero
+    
 /-! ### tmod -/
 
 -- `tmod` analogues of `emod` lemmas from `Bootstrap.lean`

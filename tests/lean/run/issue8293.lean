@@ -4,6 +4,7 @@ inductive MyVec (α : Type u) : Nat → Type u where
   | nil : MyVec α 0
   | cons : α → MyVec α n → MyVec α (n + 1)
 
+-- set_option trace.Meta.FunInd true in
 def test (f : Unit → MyVec α n) : Nat :=
   match f () with
   | .nil => 52

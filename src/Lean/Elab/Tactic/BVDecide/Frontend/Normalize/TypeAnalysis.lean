@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.SInt.Basic
+import Std.Tactic.BVDecide.Normalize.BitVec
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 
 /-!
@@ -180,6 +181,7 @@ def isBuiltIn (n : Name) : Bool := builtinTypes.contains n
 partial def typeAnalysisPass : Pass where
   name := `typeAnalysis
   run' goal := do
+    let some goal ← prepareAnalysis goal | return none
     checkContext goal
     let analysis ← PreProcessM.getTypeAnalysis
     trace[Meta.Tactic.bv] m!"Type analysis found structures: {analysis.interestingStructures.toList}"
@@ -187,6 +189,31 @@ partial def typeAnalysisPass : Pass where
     trace[Meta.Tactic.bv] m!"Type analysis found matchers: {analysis.interestingMatchers.keys}"
     return goal
 where
+  prepareAnalysis (goal : MVarId) : PreProcessM (Option MVarId) := do
+    goal.withContext do
+      let mut relevantLemmas : SimpTheoremsArray := #[]
+      let relevantNames := #[
+        ``ne_eq,
+        ``dif_eq_if,
+        ``Std.Tactic.BVDecide.Normalize.BitVec.getElem_eq_getLsbD,
+      ]
+      for name in relevantNames do
+        relevantLemmas ← relevantLemmas.addTheorem (.decl name) (mkConst name)
+
+      let cfg ← PreProcessM.getConfig
+      let simpCtx ← Simp.mkContext
+        (config := {
+          failIfUnchanged := false,
+          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+          maxSteps := cfg.maxSteps,
+        })
+        (simpTheorems := relevantLemmas)
+        (congrTheorems := ← getSimpCongrTheorems)
+
+      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := ← getPropHyps)
+      let some (_, newGoal) := result? | return none
+      return newGoal
+
   checkContext (goal : MVarId) : PreProcessM Unit := do
     goal.withContext do
       for decl in ← getLCtx do

@@ -1,15 +1,24 @@
 import Std.Tactic.BVDecide
 
-open BitVec
-
-/--
-error: The SAT solver timed out while solving the problem.
-Consider increasing the timeout with the `timeout` config option.
-If solving your problem relies inherently on using associativity or commutativity, consider enabling the `acNf` config option.
--/
-#guard_msgs in
-theorem timeout (x y z : BitVec 1024) : x - (y + z) = x - y - z := by
-  bv_decide (config := { timeout := 1 })
+inductive Bar : Type
+| A : Bar
+| B : Bar
+| C : Bar -- Requires extra variant in enum
+deriving DecidableEq
+structure Foo where
+  state : Bar
+  num : BitVec 1
+deriving DecidableEq
+def r' (b : Bool)
+  : Bool :=
+  -- Two inline if-statements
+  let a : Foo :=
+    if b then { state := .A, num := 0 }
+    else { state := .B, num := 0 }
+  let x : Foo :=
+    if a.state = .A then { state := .A, num := 0}
+    else { state := .B, num := 0 }
+  x.num.getLsbD 0
 
 /--
 error: None of the hypotheses are in the supported BitVec fragment after applying preprocessing.
@@ -20,5 +29,6 @@ There are three potential reasons for this:
 3. The original goal was reduced to False and is thus invalid.
 -/
 #guard_msgs in
-theorem no_hyps (x y : Nat) : x * y = y * x := by
+theorem wtf (a : Bool) : r' a := by
+  simp [r']
   bv_decide

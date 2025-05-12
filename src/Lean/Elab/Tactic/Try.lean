@@ -407,10 +407,11 @@ private def evalSuggestSimpTrace : TryTactic := fun tac => do (← getMainGoal).
       return tac
   | _ => throwUnsupportedSyntax
 
-mutual
+@[extern "lean_eval_suggest_tactic"] -- forward definition to avoid mutual block
+opaque evalSuggest : TryTactic
 
 /-- `evalSuggest` for `tac1 <;> tac2` -/
-private partial def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := focus do
+private def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := focus do
   unless (← read).terminal do
     throwError "invalid `<;>` occurrence in non-terminal position for `try?` script{indentD (← read).root}"
   let tac1 ← withNonTerminal do evalSuggest tac1
@@ -428,7 +429,7 @@ private partial def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : TryTacticM 
   mkChainResult tac1 tac2s
 
 /-- `evalSuggest` for a sequence of tactics. -/
-private partial def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : TryTacticM (TSyntax `tactic) := do
+private def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : TryTacticM (TSyntax `tactic) := do
   if (← read).terminal then
     let mut result := #[]
     for i in [:tacs.size - 1] do
@@ -439,10 +440,10 @@ private partial def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : TryTacticM
   else
     mkSeq (← tacs.mapM evalSuggest) (terminal := false)
 
-private partial def evalSuggestSeqCore (tacs : Array Syntax) : TryTacticM (TSyntax `tactic) := do
+private def evalSuggestSeqCore (tacs : Array Syntax) : TryTacticM (TSyntax `tactic) := do
   evalSuggestSeq (tacs.map fun tac => ⟨tac⟩)
 
-private partial def evalSuggestTacticSeq (s : TSyntax ``Parser.Tactic.tacticSeq) : TryTacticM (TSyntax `tactic) := do
+private def evalSuggestTacticSeq (s : TSyntax ``Parser.Tactic.tacticSeq) : TryTacticM (TSyntax `tactic) := do
   let tacs ← match s with
     | `(tacticSeq| { $t;* }) => pure t.getElems
     | `(tacticSeq| $t;*) => pure t.getElems
@@ -525,7 +526,9 @@ where
         else
           throw ex
 
-partial def evalSuggest : TryTactic := fun tac => do
+-- `evalSuggest` implementation
+@[export lean_eval_suggest_tactic]
+private partial def evalSuggestImpl : TryTactic := fun tac => do
   trace[try.debug] "{tac}"
   -- TODO: Implement builtin cases using `[builtin_try_tactic]` after update-stage0
   match tac with
@@ -551,8 +554,6 @@ partial def evalSuggest : TryTactic := fun tac => do
         unless (← getGoals).isEmpty do
           throwError "unsolved goals"
       return r
-
-end
 
 /-! `evalAndSuggest` frontend -/
 

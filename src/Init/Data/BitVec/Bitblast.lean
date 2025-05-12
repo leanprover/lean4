@@ -1860,26 +1860,22 @@ theorem toInt_smod {x y : BitVec w} :
       cases hxmsb : x.msb
       · cases hymsb : y.msb
         · -- 0 ≤ x.toInt, 0 ≤ y.toInt
+          simp only [umod_eq, toInt_umod]
           have hxnonneg := toInt_nonneg_of_msb_false (x := y) hymsb
-          have hynonneg := toInt_nonneg_of_msb_false (x := x) hxmsb
           rw [Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) (by omega)]
           rw [toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb]
-          simp only [umod_eq, toInt_umod]
           have hxlt := toNat_lt_of_msb_false (x := x) (by omega)
           have hylt := toNat_lt_of_msb_false (x := y) (by omega)
           have := Int.emod_lt (a := x.toInt) (b := y.toInt)
             (by simp only [← toInt_inj, toInt_zero] at hyzero; omega)
-          norm_cast
           have hnatAbsEq: y.toInt.natAbs = y.toNat := by
             simp only [toInt_eq_toNat_of_msb hymsb, Int.natAbs_natCast]
           have hModLt := Nat.mod_lt (x := x.toNat) (y := y.toNat)
             (by simp only [← toInt_inj, toInt_zero] at hyzero; omega)
-          simp only [Int.natCast_emod]
           simp only [Nat.add_one_sub_one] at hylt hxlt
-          have := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + 1) (by omega) (by omega)
-          rw [Int.bmod_eq_emod_of_lt (x := x.toNat % y.toNat) (m := 2 ^ (w + 1))
-            (by rw_mod_cast [Nat.mod_eq_of_lt (by omega)]; omega)]
-          rw_mod_cast [Nat.mod_eq_of_lt (by omega)]
+          rw [Int.bmod_eq_of_le_mul_two]
+          omega
+          omega
         · -- 0 ≤ x.toInt, y.toInt < 0
           -- in this case since y.msb we'll have 2 ^ (w + 1) - y.toNat < 0 and in particular
           -- - 2 ^ w ≤ 2 ^ (w + 1) - y.toNat < 0, we need to use this information to get rid of the bmod and then

@@ -303,6 +303,7 @@ where
              |>.qsort (·.1 < ·.1)
              |>.toList
 
+          -- TODO: consider in how far we should always use this instead of levelParams?
           let discrParams := discrType.constLevels!
           let rec intersperseDefault hs idx acc := do
             if idx == inductiveInfo.numCtors then

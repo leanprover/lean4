@@ -44,7 +44,7 @@ Integer division that uses the E-rounding convention. Usually accessed via the `
 Division by zero is defined to be zero, rather than an error.
 
 In the E-rounding convention (Euclidean division), `Int.emod x y` satisfies `0 ≤ Int.emod x y < Int.natAbs y`
-for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.edivx y) * y = x`
+for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.ediv x y) * y = x`
 for `y ≠ 0`.
 
 This means that `Int.ediv x y` is `⌊x / y⌋` when `y > 0` and `⌈x / y⌉` when `y < 0`.
@@ -76,7 +76,7 @@ def ediv : (@& Int) → (@& Int) → Int
 Integer modulus that uses the E-rounding convention. Usually accessed via the `%` operator.
 
 In the E-rounding convention (Euclidean division), `Int.emod x y` satisfies `0 ≤ Int.emod x y < Int.natAbs y`
-for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.edivx y) * y = x`
+for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.ediv x y) * y = x`
 for `y ≠ 0`.
 
 This function is overridden by the compiler with an efficient implementation. This definition is

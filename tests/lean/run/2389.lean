@@ -8,17 +8,17 @@ inductive Forall (P : α → Prop) : List α → Prop
   | nil : Forall P []
   | cons : {x : α} → P x → Forall P l → Forall P (x::l)
 
-inductive Tree : Type :=
+inductive Tree : Type where
   | leaf : Nat → Tree
   | node : List Tree → Tree
 
 set_option trace.Meta.IndPredBelow true in
 
-/-- info: [Meta.IndPredBelow] Nested or not recursive -/
+/-- trace: [Meta.IndPredBelow] Nested or not recursive -/
 #guard_msgs in
 /-- Despite not having `.below` and `.brecOn`,
 the type is still usable thanks to well-founded recursion. -/
-inductive OnlyZeros : Tree → Prop :=
+inductive OnlyZeros : Tree → Prop where
   | leaf : OnlyZeros (.leaf 0)
   | node (l : List Tree): Forall OnlyZeros l → OnlyZeros (.node l)
 

@@ -13,7 +13,7 @@ has type
 but is expected to have type
   True : Prop
 ---
-info: h : True
+trace: h : True
 ⊢ True
 -/
 #guard_msgs in

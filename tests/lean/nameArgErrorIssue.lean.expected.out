@@ -1,16 +1,16 @@
 bla 5 2 : Nat
-nameArgErrorIssue.lean:5:20-5:24: error: application type mismatch
+nameArgErrorIssue.lean:5:20-5:24: error: Application type mismatch: In the appplication
   bla "hi"
-argument
+the final argument
   "hi"
 has type
   String : Type
 but is expected to have type
   Nat : Type
 bla sorry 5 : Nat
-nameArgErrorIssue.lean:6:20-6:24: error: application type mismatch
+nameArgErrorIssue.lean:6:20-6:24: error: Application type mismatch: In the appplication
   bla "hi"
-argument
+the final argument
   "hi"
 has type
   String : Type

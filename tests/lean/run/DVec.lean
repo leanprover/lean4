@@ -40,9 +40,9 @@ example (v : Vec Nat 1) : Nat :=
 
 -- Does not work: Aliases find that `v` could be the `TypeVec` argument since `TypeVec` is an abbrev for `Vec`.
 /--
-error: application type mismatch
+error: Application type mismatch: In the appplication
   @DVec.hd ?_ v
-argument
+the final argument
   v
 has type
   Vec Nat 1 : Type

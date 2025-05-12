@@ -23,12 +23,13 @@ def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
     -- `f` and `g` must have the same type.
     -- See paper: Congruence Closure in Intensional Type Theory
-    let f := e.getAppFn
-    let g := e'.getAppFn
-    unless isSameExpr f g do
-      unless (← hasSameType f g) do
-        reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
-        return ()
+    if e.isApp then
+      let f := e.getAppFn
+      let g := e'.getAppFn
+      unless isSameExpr f g do
+        unless (← hasSameType f g) do
+          reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
+          return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
     let node ← getENode e
@@ -299,12 +300,13 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     mkENode' e generation
   | .forallE _ d b _ =>
     mkENode' e generation
+    internalizeImpl d generation e
+    registerParent e d
+    unless b.hasLooseBVars do
+      internalizeImpl b generation e
+      registerParent e b
+      addCongrTable e
     if (← isProp d <&&> isProp e) then
-      internalizeImpl d generation e
-      registerParent e d
-      unless b.hasLooseBVars do
-        internalizeImpl b generation e
-        registerParent e b
       propagateUp e
       checkAndAddSplitCandidate e
   | .lit .. =>

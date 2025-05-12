@@ -1,3 +1,5 @@
+set_option grind.warning false
+
 universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
 namespace CategoryTheory

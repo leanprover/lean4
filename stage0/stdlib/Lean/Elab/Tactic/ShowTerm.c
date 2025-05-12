@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm(lean_object*, 
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_ShowTerm_elabShowTerm__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_ShowTerm_evalShowTerm__1___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvar___override(lean_object*);
@@ -175,7 +174,6 @@ lean_ctor_set(x_28, 0, x_16);
 x_29 = 0;
 x_30 = 1;
 x_31 = l_Lean_Meta_Tactic_TryThis_addExactSuggestion(x_2, x_24, x_26, x_29, x_27, x_28, x_30, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_23);
-lean_dec(x_26);
 return x_31;
 }
 else
@@ -191,6 +189,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 x_32 = !lean_is_exclusive(x_18);
 if (x_32 == 0)
 {
@@ -222,6 +221,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_36 = !lean_is_exclusive(x_12);
 if (x_36 == 0)
@@ -318,7 +318,7 @@ x_15 = l_Lean_Syntax_getArg(x_1, x_14);
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = l_Lean_Syntax_getArg(x_1, x_16);
 lean_dec(x_1);
-x_18 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1___boxed), 11, 2);
+x_18 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1), 11, 2);
 lean_closure_set(x_18, 0, x_17);
 lean_closure_set(x_18, 1, x_15);
 x_19 = l_Lean_Elab_Tactic_withMainContext___rarg(x_18, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
@@ -340,15 +340,6 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
-_start:
-{
-lean_object* x_12; 
-x_12 = l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_2);
-return x_12;
 }
 }
 static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_ShowTerm_evalShowTerm__1___closed__1() {
@@ -631,8 +622,6 @@ x_31 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_31, 0, x_29);
 x_32 = l_Lean_Elab_Tactic_ShowTerm_elabShowTerm___closed__4;
 x_33 = l_Lean_Meta_Tactic_TryThis_addTermSuggestion(x_14, x_30, x_31, x_32, x_17, x_5, x_6, x_7, x_8, x_28);
-lean_dec(x_31);
-lean_dec(x_14);
 if (lean_obj_tag(x_33) == 0)
 {
 uint8_t x_34; 

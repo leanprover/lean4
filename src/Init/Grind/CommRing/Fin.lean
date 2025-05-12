@@ -29,9 +29,9 @@ def Fin.intCast [NeZero n] (a : Int) : Fin n :=
 instance (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
-def Fin.npow [NeZero n] : Fin n → Nat → Fin n
-  | _, 0   => 1
-  | a, n+1 => npow a n * a
+-- TODO: we should replace this at runtime with either repeated squaring,
+-- or a GMP accelerated function.
+def Fin.npow [NeZero n] (x : Fin n) (y : Nat) : Fin n := npowRec y x
 
 instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
   hPow := Fin.npow

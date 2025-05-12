@@ -537,3 +537,24 @@ info: duplicatedDiscriminant.fun_cases_unfolding (motive : Nat → Bool → Prop
 -/
 #guard_msgs(pass trace, all) in
 #check duplicatedDiscriminant.fun_cases_unfolding
+
+set_option linter.unusedVariables false in
+def with_bif_tailrec : Nat → Nat
+  | 0 => 0
+  | n+1 =>
+    bif n % 2 == 0 then
+      with_bif_tailrec n
+    else
+      with_bif_tailrec (n-1)
+termination_by n => n
+
+/--
+info: with_bif_tailrec.induct_unfolding (motive : Nat → Nat → Prop) (case1 : motive 0 0)
+  (case2 : ∀ (n : Nat), (n % 2 == 0) = true → motive n (with_bif_tailrec n) → motive n.succ (with_bif_tailrec n))
+  (case3 :
+    ∀ (n : Nat),
+      (n % 2 == 0) = false → motive (n - 1) (with_bif_tailrec (n - 1)) → motive n.succ (with_bif_tailrec (n - 1)))
+  (a✝ : Nat) : motive a✝ (with_bif_tailrec a✝)
+-/
+#guard_msgs in
+#check with_bif_tailrec.induct_unfolding

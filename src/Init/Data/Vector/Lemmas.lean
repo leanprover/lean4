@@ -3119,14 +3119,14 @@ theorem swap_comm {xs : Vector α n} {i j : Nat} (hi hj) :
 
 /-! ### take -/
 
-@[simp] theorem getElem_take {xs : Vector α n} {j : Nat} (hi : i < min j n) :
+@[simp, grind =] theorem getElem_take {xs : Vector α n} {j : Nat} (hi : i < min j n) :
     (xs.take j)[i] = xs[i] := by
   cases xs
   simp
 
 /-! ### drop -/
 
-@[simp] theorem getElem_drop {xs : Vector α n} {j : Nat} (hi : i < n - j) :
+@[simp, grind =] theorem getElem_drop {xs : Vector α n} {j : Nat} (hi : i < n - j) :
     (xs.drop j)[i] = xs[j + i] := by
   cases xs
   simp

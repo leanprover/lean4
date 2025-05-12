@@ -28,7 +28,7 @@ has type
   ExceptT String (StateT Nat Id) Nat : Type
 but is expected to have type
   ExceptT String (StateT Nat Id) String : Type
-doErrorMsg.lean:28:13-28:18: error: Application type mismatch: In the appplication
+doErrorMsg.lean:28:13-28:18: error: Application type mismatch: In the application
   Prod.mk false
 the final argument
   false

@@ -317,9 +317,12 @@ structure SynthInstanceCacheKey where
 /-- Resulting type for `abstractMVars` -/
 structure AbstractMVarsResult where
   paramNames : Array Name
-  numMVars   : Nat
+  mvars      : Array Expr
   expr       : Expr
   deriving Inhabited, BEq
+
+def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
+  r.mvars.size
 
 abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
 

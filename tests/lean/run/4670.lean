@@ -11,7 +11,7 @@ structure Foo : Type where
 Was printing `true.out`, but it should have been `Foo.out true`.
 -/
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   Foo.out true
 the final argument
   true
@@ -29,7 +29,7 @@ Verifying that generalized field notation does not have this bug.
 -/
 def Foo.out' (f : Foo) : Nat := f.out
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   Foo.out' true
 the final argument
   true

@@ -27,7 +27,7 @@ open Nat
 
 /-! ### take -/
 
-@[simp] theorem length_take : ∀ {i : Nat} {l : List α}, (take i l).length = min i l.length
+@[simp, grind =] theorem length_take : ∀ {i : Nat} {l : List α}, (take i l).length = min i l.length
   | 0, l => by simp [Nat.zero_min]
   | succ n, [] => by simp [Nat.min_zero]
   | succ n, _ :: l => by simp [Nat.succ_min_succ, length_take]

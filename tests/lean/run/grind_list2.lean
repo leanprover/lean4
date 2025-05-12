@@ -21,21 +21,21 @@ theorem nil_eq {α} {xs : List α} : [] = xs ↔ xs = [] := by grind
 
 /-! ### length -/
 
-theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := by grind
+theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := by grind [length_eq_zero_iff]
 
 theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := by grind
 
 theorem ne_nil_of_length_pos (_ : 0 < length l) : l ≠ [] := by grind
 
-theorem length_eq_zero_iff : length l = 0 ↔ l = [] := by grind
+theorem length_eq_zero_iff : length l = 0 ↔ l = [] := by grind [length_eq_zero_iff]
 
-theorem eq_nil_iff_length_eq_zero : l = [] ↔ length l = 0 := by grind
+theorem eq_nil_iff_length_eq_zero : l = [] ↔ length l = 0 := by grind [length_eq_zero_iff]
 
 theorem length_pos_of_mem {a : α} : ∀ {l : List α}, a ∈ l → 0 < length l := by grind
 
-theorem length_pos_iff {l : List α} : 0 < length l ↔ l ≠ [] := by grind
+theorem length_pos_iff {l : List α} : 0 < length l ↔ l ≠ [] := by grind [length_eq_zero_iff]
 
-theorem ne_nil_iff_length_pos {l : List α} : l ≠ [] ↔ 0 < length l := by grind
+theorem ne_nil_iff_length_pos {l : List α} : l ≠ [] ↔ 0 < length l := by grind [length_eq_zero_iff]
 
 /-! ### cons -/
 
@@ -121,7 +121,7 @@ theorem eq_append_cons_of_mem {a : α} {xs : List α} (h : a ∈ xs) :
 theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := by grind
 
 theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=
-  exists_mem_of_length_pos (by grind)
+  exists_mem_of_length_pos (by grind [length_eq_zero_iff])
 
 theorem mem_dite_nil_left {x : α} [Decidable p] {l : ¬ p → List α} :
     (x ∈ if h : p then [] else l h) ↔ ∃ h : ¬ p, x ∈ l h := by grind
@@ -203,7 +203,7 @@ theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by grind
 
 theorem isEmpty_eq_false_iff {l : List α} : l.isEmpty = false ↔ l ≠ [] := by grind
 
-theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by grind
+theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by grind [length_eq_zero_iff]
 
 /-! ### any / all -/
 
@@ -331,7 +331,7 @@ theorem head?_singleton {a : α} : head? [a] = some a := by grind
 
 theorem head?_eq_getElem? {l : List α} : l.head? = l[0]? := by induction l with grind
 
-theorem head_eq_getElem {l : List α} (h : l ≠ []) : head l h = l[0]'(by grind) := by
+theorem head_eq_getElem {l : List α} (h : l ≠ []) : head l h = l[0]'(by grind [length_eq_zero_iff]) := by
   cases l with grind
 
 theorem getElem_zero_eq_head {l : List α} (h : 0 < l.length) :
@@ -399,7 +399,7 @@ theorem set_tail {l : List α} {i : Nat} {a : α} :
   cases l with grind
 
 theorem one_lt_length_of_tail_ne_nil {l : List α} (h : l.tail ≠ []) : 1 < l.length := by
-  cases l with grind
+  cases l with grind [length_eq_zero_iff]
 
 /-! ## Basic operations -/
 
@@ -1067,7 +1067,7 @@ theorem head_dropLast {xs : List α} (h) :
   | cons x xs => cases xs with grind
 
 theorem getLast_dropLast {xs : List α} (h) :
-   xs.dropLast.getLast h = xs[xs.length - 2]'(by grind) := by
+   xs.dropLast.getLast h = xs[xs.length - 2]'(by grind [length_eq_zero_iff]) := by
   grind
 
 theorem map_dropLast {f : α → β} {l : List α} : l.dropLast.map f = (l.map f).dropLast := by
@@ -1075,7 +1075,7 @@ theorem map_dropLast {f : α → β} {l : List α} : l.dropLast.map f = (l.map f
 
 theorem dropLast_append {l₁ l₂ : List α} :
     (l₁ ++ l₂).dropLast = if l₂.isEmpty then l₁.dropLast else l₁ ++ l₂.dropLast := by
-  grind +extAll (splits := 10)
+  grind +extAll (splits := 10) [length_eq_zero_iff]
 
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
   grind +extAll
@@ -1283,3 +1283,8 @@ theorem all_reverse {l : List α} : l.reverse.all f = l.all f := by
 
 
 end Hidden
+
+/-! Additional examples -/
+
+example {xs : List α} {i : Nat} (h : i < xs.length) : xs.take i ++ xs[i] :: xs.drop (i + 1) = xs := by
+  apply List.ext_getElem <;> grind (splits := 10)

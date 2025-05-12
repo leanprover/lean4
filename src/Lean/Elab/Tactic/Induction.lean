@@ -913,7 +913,8 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     funCall.withApp fun fn funArgs => do
     let .const fnName fnUs := fn |
       throwError "expected application headed by a function constant"
-    let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := true) fnName |
+    let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
+    let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
       throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
     if funArgs.size != funIndInfo.params.size then

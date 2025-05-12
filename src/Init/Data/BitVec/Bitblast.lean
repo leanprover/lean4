@@ -1918,6 +1918,11 @@ theorem toInt_smod {x y : BitVec w} :
       · cases hymsb : y.msb
         · -- x.toInt < 0, 0 ≤ y.toInt
           simp [hxmsb, hymsb]
+          have hxnonneg := toInt_nonneg_of_msb_false (x := y) hymsb
+          rw [Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) (by omega)]
+
+
+
           sorry
         · -- x.toInt < 0, y.toInt < 0
           simp [hxmsb, hymsb]

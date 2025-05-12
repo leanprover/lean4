@@ -51,14 +51,6 @@ protected theorem divCore_eq_div : Bug.divCore x y fuel h = 42 := by
 /--
 error: tactic 'fail' failed
 case case1
-<<<<<<< HEAD
-x y fuel x✝ : Nat
-hfuel✝ : x✝ < 0
-⊢ ⋯.elim = 42
-
-case case2
-=======
->>>>>>> @{-1}
 x y fuel x✝ fuel✝ : Nat
 hfuel✝ : x✝ < fuel✝.succ
 h✝ : 0 < y ∧ y ≤ x✝

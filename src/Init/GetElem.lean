@@ -8,7 +8,7 @@ module
 prelude
 import Init.Util
 
-set_option experimental.module.semireducibleDef true
+@[expose] section
 
 @[never_extract]
 def outOfBounds [Inhabited α] : α :=

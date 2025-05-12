@@ -15,7 +15,7 @@ A restricted version of `IO` in which mutable state and exceptions are the only 
 
 It is possible to run `EST` computations in a non-monadic context using `runEST`.
 -/
-@[semireducible] def EST (ε : Type) (σ : Type) : Type → Type := EStateM ε σ
+@[expose] def EST (ε : Type) (σ : Type) : Type → Type := EStateM ε σ
 
 /--
 A restricted version of `IO` in which mutable state is the only side effect.

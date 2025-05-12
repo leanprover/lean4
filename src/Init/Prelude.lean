@@ -7,6 +7,7 @@ module
 
 prelude -- Don't import Init, because we're in Init itself
 set_option linter.missingDocs true -- keep it documented
+@[expose] section  -- Expose all defs
 
 /-!
 # Init.Prelude
@@ -32,7 +33,7 @@ difference for typeclass inference, since `T` and `T'` may have different
 typeclass instances on them. `show T' from e` is sugar for an `@id T' e`
 expression.
 -/
-@[inline, semireducible] def id {α : Sort u} (a : α) : α := a
+@[inline] def id {α : Sort u} (a : α) : α := a
 
 /--
 Function composition, usually written with the infix operator `∘`. A new function is created from
@@ -42,7 +43,7 @@ Examples:
  * `Function.comp List.reverse (List.drop 2) [3, 2, 4, 1] = [1, 4]`
  * `(List.reverse ∘ List.drop 2) [3, 2, 4, 1] = [1, 4]`
 -/
-@[inline, semireducible] def Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
+@[inline] def Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
   fun x => f (g x)
 
 /--
@@ -56,7 +57,7 @@ Examples:
  * `Function.const Bool 10 false = 10`
  * `Function.const String 10 "any string" = 10`
 -/
-@[inline, semireducible] def Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
+@[inline] def Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun _ => a
 
 /--
@@ -70,7 +71,7 @@ despite the fact it is marked `irreducible`.
 For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a `let_fun` expression
 to extract its parts as if it were a `let` expression.
 -/
-@[semireducible] def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
+def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
 -- We need to export the body of `letFun`, which is suppressed if `[irreducible]` is set directly.
 -- We can work around this rare case by applying the attribute after the fact.
 attribute [irreducible] letFun
@@ -219,7 +220,7 @@ so if your goal is `¬p` you can use `intro h` to turn the goal into
 and `(hn h).elim` will prove anything.
 For more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
-@[semireducible] def Not (a : Prop) : Prop := a → False
+def Not (a : Prop) : Prop := a → False
 
 /--
 `False.elim : False → C` says that from `False`, any desired proposition
@@ -344,7 +345,7 @@ definitionally sometimes there isn't anything better you can do.
 
 For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
-@[macro_inline, semireducible] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
+@[macro_inline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
   h.rec a
 
 /--
@@ -846,7 +847,7 @@ It is mainly used in constant declarations where we wish to introduce a type
 and simultaneously assert that it is nonempty, but otherwise make the type
 opaque.
 -/
-@[semireducible] def NonemptyType := Subtype fun α : Type u => Nonempty α
+def NonemptyType := Subtype fun α : Type u => Nonempty α
 
 /-- The underlying type of a `NonemptyType`. -/
 abbrev NonemptyType.type (type : NonemptyType.{u}) : Type u :=
@@ -915,7 +916,7 @@ Converts a decidable proposition into a `Bool`.
 If `p : Prop` is decidable, then `decide p : Bool` is the Boolean value
 that is `true` if `p` is true and `false` if `p` is false.
 -/
-@[inline_if_reduce, nospecialize, semireducible] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
+@[inline_if_reduce, nospecialize] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
   h.casesOn (fun _ => false) (fun _ => true)
 
 export Decidable (isTrue isFalse decide)
@@ -948,7 +949,7 @@ abbrev DecidableEq (α : Sort u) :=
 /--
 Checks whether two terms of a type are equal using the type's `DecidableEq` instance.
 -/
-@[semireducible] def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
+def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
   inst a b
 
 set_option linter.unusedVariables false in
@@ -981,7 +982,7 @@ Decides whether two Booleans are equal.
 This function should normally be called via the `DecidableEq Bool` instance that it exists to
 support.
 -/
-@[inline, semireducible] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
+@[inline] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
    match a, b with
    | false, false => isTrue rfl
    | false, true  => isFalse (fun h => Bool.noConfusion h)
@@ -1026,7 +1027,7 @@ to avoid the bounds check inside the if branch. (Of course in this case we have 
 lifted the check into an explicit `if`, but we could also use this proof multiple times
 or derive `i < arr.size` from some other proposition that we are checking in the `if`.)
 -/
-@[macro_inline, semireducible] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
+@[macro_inline] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
   h.casesOn e t
 
 /-! # if-then-else -/
@@ -1051,7 +1052,7 @@ the definition of the function uses `fun _ => t` and `fun _ => e` so this recove
 the expected "lazy" behavior of `if`: the `t` and `e` arguments delay evaluation
 until `c` is known.
 -/
-@[macro_inline, semireducible] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
+@[macro_inline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
   h.casesOn (fun _ => e) (fun _ => t)
 
 @[macro_inline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) :=
@@ -1091,7 +1092,7 @@ Just like `ite`, `cond` is declared `@[macro_inline]`, which causes applications
 unfolded. As a result, `x` and `y` are not evaluated at runtime until one of them is selected, and
 only the selected branch is evaluated.
 -/
-@[macro_inline, semireducible] def cond {α : Sort u} (c : Bool) (x y : α) : α :=
+@[macro_inline] def cond {α : Sort u} (c : Bool) (x y : α) : α :=
   match c with
   | true  => x
   | false => y
@@ -1111,7 +1112,7 @@ one of them is selected, and only the selected branch is evaluated. `dcond` is i
 metaprogramming use, rather than for use in verified programs, so behavioral lemmas are not
 provided.
 -/
-@[macro_inline, semireducible]
+@[macro_inline]
 protected def Bool.dcond {α : Sort u} (c : Bool) (x : Eq c true → α) (y : Eq c false → α) : α :=
   match c with
   | true  => x rfl
@@ -1126,7 +1127,7 @@ operator.
 The Boolean `or` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
 if `x` is `true` then `y` is not evaluated at runtime.
 -/
-@[macro_inline, semireducible] def Bool.or (x y : Bool) : Bool :=
+@[macro_inline] def Bool.or (x y : Bool) : Bool :=
   match x with
   | true  => true
   | false => y
@@ -1140,7 +1141,7 @@ operator.
 The Boolean `and` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
 if `x` is `false` then `y` is not evaluated at runtime.
 -/
-@[macro_inline, semireducible] def Bool.and (x y : Bool) : Bool :=
+@[macro_inline] def Bool.and (x y : Bool) : Bool :=
   match x with
   | false => false
   | true  => y
@@ -1151,7 +1152,7 @@ Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
 This is a function that maps the value `true` to `false` and the value `false` to `true`. The
 propositional connective is `Not : Prop → Prop`.
 -/
-@[inline, semireducible] def Bool.not : Bool → Bool
+@[inline] def Bool.not : Bool → Bool
   | true  => false
   | false => true
 
@@ -1239,7 +1240,7 @@ export Max (max)
 Constructs a `Max` instance from a decidable `≤` operation.
 -/
 -- Marked inline so that `min x y + max x y` can be optimized to a single branch.
-@[inline, semireducible]
+@[inline]
 def maxOfLe [LE α] [DecidableRel (@LE.le α _)] : Max α where
   max x y := ite (LE.le x y) y x
 
@@ -1256,7 +1257,7 @@ export Min (min)
 Constructs a `Min` instance from a decidable `≤` operation.
 -/
 -- Marked inline so that `min x y + max x y` can be optimized to a single branch.
-@[inline, semireducible]
+@[inline]
 def minOfLe [LE α] [DecidableRel (@LE.le α _)] : Min α where
   min x y := ite (LE.le x y) x y
 
@@ -1654,7 +1655,7 @@ Addition of natural numbers, typically used via the `+` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
-@[extern "lean_nat_add", semireducible]
+@[extern "lean_nat_add"]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
   | a, Nat.zero   => a
   | a, Nat.succ b => Nat.succ (Nat.add a b)
@@ -1673,7 +1674,7 @@ Multiplication of natural numbers, usually accessed via the `*` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
-@[extern "lean_nat_mul", semireducible]
+@[extern "lean_nat_mul"]
 protected def Nat.mul : (@& Nat) → (@& Nat) → Nat
   | _, 0          => 0
   | a, Nat.succ b => Nat.add (Nat.mul a b) a
@@ -1688,7 +1689,7 @@ The power operation on natural numbers, usually accessed via the `^` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
-@[extern "lean_nat_pow", semireducible]
+@[extern "lean_nat_pow"]
 protected def Nat.pow (m : @& Nat) : (@& Nat) → Nat
   | 0      => 1
   | succ n => Nat.mul (Nat.pow m n) m
@@ -1702,7 +1703,7 @@ Boolean equality of natural numbers, usually accessed via the `==` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
-@[extern "lean_nat_dec_eq", semireducible]
+@[extern "lean_nat_dec_eq"]
 def Nat.beq : (@& Nat) → (@& Nat) → Bool
   | zero,   zero   => true
   | zero,   succ _ => false
@@ -1738,7 +1739,7 @@ Examples:
  * `(if 3 = 4 then "yes" else "no") = "no"`
  * `show 12 = 12 by decide`
 -/
-@[reducible, extern "lean_nat_dec_eq", semireducible]
+@[reducible, extern "lean_nat_dec_eq"]
 protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
   match h:beq n m with
   | true  => isTrue (eq_of_beq_eq_true h)
@@ -1758,7 +1759,7 @@ Examples:
  * `Nat.ble 5 2 = false`
  * `Nat.ble 5 5 = true`
 -/
-@[extern "lean_nat_dec_le", semireducible]
+@[extern "lean_nat_dec_le"]
 def Nat.ble : @& Nat → @& Nat → Bool
   | zero,   zero   => true
   | zero,   succ _ => true
@@ -1782,7 +1783,7 @@ Strict inequality of natural numbers, usually accessed via the `<` operator.
 
 It is defined as `n < m = n + 1 ≤ m`.
 -/
-@[semireducible] protected def Nat.lt (n m : Nat) : Prop :=
+protected def Nat.lt (n m : Nat) : Prop :=
   Nat.le (succ n) m
 
 instance instLTNat : LT Nat where
@@ -1836,7 +1837,7 @@ The predecessor of a natural number is one less than it. The predecessor of `0` 
 This definition is overridden in the compiler with an efficient implementation. This definition is
 the logical model.
 -/
-@[extern "lean_nat_pred", semireducible]
+@[extern "lean_nat_pred"]
 def Nat.pred : (@& Nat) → Nat
   | 0      => 0
   | succ a => a
@@ -1961,7 +1962,7 @@ Examples:
 * `8 - 8 = 0`
 * `8 - 20 = 0`
 -/
-@[extern "lean_nat_sub", semireducible]
+@[extern "lean_nat_sub"]
 protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
   | a, succ b => pred (Nat.sub a b)
@@ -2058,7 +2059,7 @@ This should be used via the instance `DecidableEq (BitVec w)`.
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
 -- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
-@[semireducible] def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) :=
+def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) :=
   match x, y with
   | ⟨n⟩, ⟨m⟩ =>
     dite (Eq n m)
@@ -2077,7 +2078,7 @@ Return the underlying `Nat` that represents a bitvector.
 
 This is O(1) because `BitVec` is a (zero-cost) wrapper around a `Nat`.
 -/
-@[semireducible] protected def BitVec.toNat (x : BitVec w) : Nat := x.toFin.val
+protected def BitVec.toNat (x : BitVec w) : Nat := x.toFin.val
 
 instance : LT (BitVec w) where lt := (LT.lt ·.toNat ·.toNat)
 instance (x y : BitVec w) : Decidable (LT.lt x y) :=
@@ -2115,7 +2116,7 @@ enough to be representable without overflow; it must be smaller than `2^8`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_of_nat", semireducible]
+@[extern "lean_uint8_of_nat"]
 def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
   toBitVec := BitVec.ofNatLT n h
 
@@ -2131,7 +2132,7 @@ Examples:
  * `(if (6 : UInt8) = 7 then "yes" else "no") = "no"`
  * `show (7 : UInt8) = 7 by decide`
 -/
-@[extern "lean_uint8_dec_eq", semireducible]
+@[extern "lean_uint8_dec_eq"]
 def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2172,7 +2173,7 @@ enough to be representable without overflow; it must be smaller than `2^16`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_of_nat", semireducible]
+@[extern "lean_uint16_of_nat"]
 def UInt16.ofNatLT (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
   toBitVec := BitVec.ofNatLT n h
 
@@ -2189,7 +2190,7 @@ Examples:
  * `(if (6 : UInt16) = 7 then "yes" else "no") = "no"`
  * `show (7 : UInt16) = 7 by decide`
 -/
-@[extern "lean_uint16_dec_eq", semireducible]
+@[extern "lean_uint16_dec_eq"]
 def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2230,7 +2231,7 @@ enough to be representable without overflow; it must be smaller than `2^32`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_of_nat", semireducible]
+@[extern "lean_uint32_of_nat"]
 def UInt32.ofNatLT (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
   toBitVec := BitVec.ofNatLT n h
 
@@ -2239,7 +2240,7 @@ Converts a 32-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_to_nat", semireducible]
+@[extern "lean_uint32_to_nat"]
 def UInt32.toNat (n : UInt32) : Nat := n.toBitVec.toNat
 
 set_option bootstrap.genMatcherCode false in
@@ -2254,7 +2255,7 @@ Examples:
  * `(if (6 : UInt32) = 7 then "yes" else "no") = "no"`
  * `show (7 : UInt32) = 7 by decide`
 -/
-@[extern "lean_uint32_dec_eq", semireducible]
+@[extern "lean_uint32_dec_eq"]
 def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2282,7 +2283,7 @@ Examples:
  * `(if (5 : UInt32) < 5 then "yes" else "no") = "no"`
  * `show ¬((7 : UInt32) < 7) by decide`
 -/
-@[extern "lean_uint32_dec_lt", semireducible]
+@[extern "lean_uint32_dec_lt"]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=
   inferInstanceAs (Decidable (LT.lt a.toBitVec b.toBitVec))
 
@@ -2298,7 +2299,7 @@ Examples:
  * `(if (5 : UInt32) ≤ 15 then "yes" else "no") = "yes"`
  * `show (7 : UInt32) ≤ 7 by decide`
 -/
-@[extern "lean_uint32_dec_le", semireducible]
+@[extern "lean_uint32_dec_le"]
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
   inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
 
@@ -2335,7 +2336,7 @@ enough to be representable without overflow; it must be smaller than `2^64`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_of_nat", semireducible]
+@[extern "lean_uint64_of_nat"]
 def UInt64.ofNatLT (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
   toBitVec := BitVec.ofNatLT n h
 
@@ -2352,7 +2353,7 @@ Examples:
  * `(if (6 : UInt64) = 7 then "yes" else "no") = "no"`
  * `show (7 : UInt64) = 7 by decide`
 -/
-@[extern "lean_uint64_dec_eq", semireducible]
+@[extern "lean_uint64_dec_eq"]
 def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2406,7 +2407,7 @@ representable without overflow.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_usize_of_nat", semireducible]
+@[extern "lean_usize_of_nat"]
 def USize.ofNatLT (n : @& Nat) (h : LT.lt n USize.size) : USize where
   toBitVec := BitVec.ofNatLT n h
 
@@ -2422,7 +2423,7 @@ Examples:
  * `(if (6 : USize) = 7 then "yes" else "no") = "no"`
  * `show (7 : USize) = 7 by decide`
 -/
-@[extern "lean_usize_dec_eq", semireducible]
+@[extern "lean_usize_dec_eq"]
 def USize.decEq (a b : USize) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2467,7 +2468,7 @@ private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt3
 Pack a `Nat` encoding a valid codepoint into a `Char`.
 This function is overridden with a native implementation.
 -/
-@[extern "lean_uint32_of_nat", semireducible]
+@[extern "lean_uint32_of_nat"]
 def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
   { val := ⟨BitVec.ofNatLT n (isValidChar_UInt32 h)⟩, valid := h }
 
@@ -2500,7 +2501,7 @@ instance : DecidableEq Char :=
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-@[semireducible] def Char.utf8Size (c : Char) : Nat :=
+def Char.utf8Size (c : Char) : Nat :=
   let v := c.val
   ite (LE.le v (UInt32.ofNatLT 0x7F (of_decide_eq_true rfl))) 1
     (ite (LE.le v (UInt32.ofNatLT 0x7FF (of_decide_eq_true rfl))) 2
@@ -2535,7 +2536,7 @@ Examples:
  * `(some "hello").getD "goodbye" = "hello"`
  * `none.getD "goodbye" = "hello"`
 -/
-@[macro_inline, semireducible] def Option.getD (opt : Option α) (dflt : α) : α :=
+@[macro_inline] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
   | some x => x
   | none => dflt
@@ -2550,7 +2551,7 @@ Examples:
  * `(none : Option Nat).map (· + 1) = none`
  * `(some 3).map (· + 1) = some 4`
 -/
-@[inline, semireducible] protected def Option.map (f : α → β) : Option α → Option β
+@[inline] protected def Option.map (f : α → β) : Option α → Option β
   | some x => some (f x)
   | none   => none
 
@@ -2579,7 +2580,7 @@ instance {α} : Inhabited (List α) where
   default := List.nil
 
 /-- Implements decidable equality for `List α`, assuming `α` has decidable equality. -/
-@[semireducible] protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
+protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
   | nil,       nil       => isTrue rfl
   | cons _ _, nil        => isFalse (fun h => List.noConfusion h)
   | nil,       cons _ _  => isFalse (fun h => List.noConfusion h)
@@ -2602,7 +2603,7 @@ Examples:
  * `([] : List String).length = 0`
  * `["green", "brown"].length = 2`
 -/
-@[semireducible] def List.length : List α → Nat
+def List.length : List α → Nat
   | nil       => 0
   | cons _ as => HAdd.hAdd (length as) 1
 
@@ -2634,7 +2635,7 @@ Examples:
  * `["spring", "summer", "fall", "winter"].get (2 : Fin 4) = "fall"`
  * `["spring", "summer", "fall", "winter"].get (0 : Fin 4) = "spring"`
 -/
-@[semireducible] def List.get {α : Type u} : (as : List α) → Fin as.length → α
+def List.get {α : Type u} : (as : List α) → Fin as.length → α
   | cons a _,  ⟨0, _⟩ => a
   | cons _ as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
 
@@ -2646,7 +2647,7 @@ Examples:
 * `["water", "coffee", "soda", "juice"].set 1 "tea" = ["water", "tea", "soda", "juice"]`
 * `["water", "coffee", "soda", "juice"].set 4 "tea" = ["water", "coffee", "soda", "juice"]`
 -/
-@[semireducible] def List.set : (l : List α) → (n : Nat) → (a : α) → List α
+def List.set : (l : List α) → (n : Nat) → (a : α) → List α
   | cons _ as, 0,          b => cons b as
   | cons a as, Nat.succ n, b => cons a (set as n b)
   | nil,       _,          _ => nil
@@ -2660,7 +2661,7 @@ Examples:
  * `[1, 2, 3].foldl (· ++ toString ·) "" = "123"`
  * `[1, 2, 3].foldl (s!"({·} {·})") "" = "((( 1) 2) 3)"`
 -/
-@[specialize, semireducible]
+@[specialize]
 def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
   | a, nil      => a
   | a, cons b l => foldl f (f a b) l
@@ -2675,7 +2676,7 @@ Examples:
  * `List.concat [1, 2, 3] 4 = [1, 2, 3, 4]`
  * `List.concat [] () = [()]`
 -/
-@[semireducible] def List.concat {α : Type u} : List α → α → List α
+def List.concat {α : Type u} : List α → α → List α
   | nil,       b => cons b nil
   | cons a as, b => cons a (concat as b)
 
@@ -2704,7 +2705,7 @@ Decides whether two strings are equal. Normally used via the `DecidableEq String
 
 At runtime, this function is overridden with an efficient native implementation.
 -/
-@[extern "lean_string_dec_eq", semireducible]
+@[extern "lean_string_dec_eq"]
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   match s₁, s₂ with
   | ⟨s₁⟩, ⟨s₂⟩ =>
@@ -2769,7 +2770,7 @@ The number of bytes used by the string's UTF-8 encoding.
 
 At runtime, this function takes constant time because the byte length of strings is cached.
 -/
-@[extern "lean_string_utf8_byte_size", semireducible]
+@[extern "lean_string_utf8_byte_size"]
 def String.utf8ByteSize : (@& String) → Nat
   | ⟨s⟩ => go s
 where
@@ -2810,7 +2811,7 @@ A UTF-8 byte position that points at the end of a string, just after the last ch
 * `"abc".endPos = ⟨3⟩`
 * `"L∃∀N".endPos = ⟨8⟩`
 -/
-@[inline, semireducible] def String.endPos (s : String) : String.Pos where
+@[inline] def String.endPos (s : String) : String.Pos where
   byteIdx := utf8ByteSize s
 
 /--
@@ -2826,7 +2827,7 @@ Converts a `String` into a `Substring` that denotes the entire string.
 
 This is a version of `String.toSubstring` that doesn't have an `@[inline]` annotation.
 -/
-@[semireducible] def String.toSubstring' (s : String) : Substring :=
+def String.toSubstring' (s : String) : Substring :=
   s.toSubstring
 
 /--
@@ -2868,7 +2869,7 @@ will prevent the actual monad from being "copied" to the code being specialized.
 When we reimplement the specializer, we may consider copying `inst` if it also
 occurs outside binders or if it is an instance.
 -/
-@[never_extract, extern "lean_panic_fn", semireducible]
+@[never_extract, extern "lean_panic_fn"]
 def panicCore {α : Sort u} [Inhabited α] (msg : String) : α := default
 
 /--
@@ -2882,7 +2883,7 @@ Because this is a pure function with side effects, it is marked as
 `@[never_extract]` so that the compiler will not perform common sub-expression
 elimination and other optimizations that assume that the expression is pure.
 -/
-@[noinline, never_extract, semireducible]
+@[noinline, never_extract]
 def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
   panicCore msg
 
@@ -3007,7 +3008,7 @@ Use the indexing notation `a[i]!` instead.
 
 Access an element from an array, or panic if the index is out of bounds.
 -/
-@[extern "lean_array_get", semireducible]
+@[extern "lean_array_get"]
 def Array.get!Internal {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
@@ -3511,7 +3512,7 @@ overridden by `withReader`, but it cannot be mutated.
 Actions in the resulting monad are functions that take the local value as a parameter, returning
 ordinary actions in `m`.
 -/
-@[semireducible] def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   ρ → m α
 
 instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] : Inhabited (ReaderT ρ m α) where
@@ -3520,7 +3521,7 @@ instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] 
 /--
 Executes an action from a monad with a read-only value in the underlying monad `m`.
 -/
-@[always_inline, inline, semireducible]
+@[always_inline, inline]
 def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
   x r
 
@@ -3546,7 +3547,7 @@ variable {ρ : Type u} {m : Type u → Type v}
 Retrieves the reader monad's local value. Typically accessed via `read`, or via `readThe` when more
 than one local value is available.
 -/
-@[always_inline, inline, semireducible]
+@[always_inline, inline]
 protected def read [Monad m] : ReaderT ρ m ρ :=
   pure
 
@@ -3554,7 +3555,7 @@ protected def read [Monad m] : ReaderT ρ m ρ :=
 Returns the provided value `a`, ignoring the reader monad's local value. Typically used via
 `Pure.pure`.
 -/
-@[always_inline, inline, semireducible]
+@[always_inline, inline]
 protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
   fun _ => pure a
 
@@ -3562,7 +3563,7 @@ protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
 Sequences two reader monad computations. Both are provided with the local value, and the second is
 passed the value of the first. Typically used via the `>>=` operator.
 -/
-@[always_inline, inline, semireducible]
+@[always_inline, inline]
 protected def bind [Monad m] {α β} (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
   fun r => bind (x r) fun a => f a r
 
@@ -3588,7 +3589,7 @@ instance (ρ m) : MonadFunctor m (ReaderT ρ m) where
 Modifies a reader monad's local value with `f`. The resulting computation applies `f` to the
 incoming local value and passes the result to the inner computation.
 -/
-@[always_inline, inline, semireducible]
+@[always_inline, inline]
 protected def adapt {ρ' α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
   fun x r => x (f r)
 
@@ -3636,7 +3637,7 @@ one type of value.
 
 Use `read` for a version that expects the type `ρ` to be inferred from `m`.
 -/
-@[always_inline, inline, semireducible]
+@[always_inline, inline]
 def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
   MonadReaderOf.read
 
@@ -3674,7 +3675,7 @@ control returns from `x`, the reader monad's value is restored.
 
 Use `withReader` for a version that expects the local value's type to be inferred from `m`.
 -/
-@[always_inline, inline, semireducible]
+@[always_inline, inline]
 def withTheReader (ρ : Type u) {m : Type u → Type v} [MonadWithReaderOf ρ m] {α : Type u} (f : ρ → ρ) (x : m α) : m α :=
   MonadWithReaderOf.withReader f x
 
@@ -3815,7 +3816,7 @@ It is equivalent to `do set (f (← get))`. However, using `modify` may lead to 
 because it doesn't add a new reference to the state value. Additional references can inhibit
 in-place updates of data.
 -/
-@[always_inline, inline, semireducible]
+@[always_inline, inline]
 def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m PUnit :=
   modifyGet fun s => (PUnit.unit, f s)
 
@@ -3824,7 +3825,7 @@ Replaces the state with the result of applying `f` to it. Returns the old value 
 
 It is equivalent to `get <* modify f` but may be more efficient.
 -/
-@[always_inline, inline, semireducible]
+@[always_inline, inline]
 def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m σ :=
   modifyGet fun s => (s, f s)
 
@@ -3866,7 +3867,7 @@ Instances of `EStateM.Backtrackable` provide a way to roll back some part of the
 
 `EStateM ε σ` is equivalent to `ExceptT ε (StateM σ)`, but it is more efficient.
 -/
-@[semireducible] def EStateM (ε σ α : Type u) := σ → Result ε σ α
+def EStateM (ε σ α : Type u) := σ → Result ε σ α
 
 namespace EStateM
 
@@ -4177,7 +4178,7 @@ abbrev mkSimple (s : String) : Name :=
   .str (.str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇) s₈
 
 /-- (Boolean) equality comparator for names. -/
-@[extern "lean_name_eq", semireducible]
+@[extern "lean_name_eq"]
 protected def beq : (@& Name) → (@& Name) → Bool
   | anonymous, anonymous => true
   | str p₁ s₁, str p₂ s₂ => and (BEq.beq s₁ s₂) (Name.beq p₁ p₂)
@@ -4422,7 +4423,7 @@ def Syntax.node8 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a�
 Singleton `SyntaxNodeKinds` are extremely common. They are written as name literals, rather than as
 lists; list syntax is required only for empty or non-singleton sets of kinds.
 -/
-@[semireducible] def SyntaxNodeKinds := List SyntaxNodeKind
+def SyntaxNodeKinds := List SyntaxNodeKind
 
 /--
 Typed syntax, which tracks the potential kinds of the `Syntax` it contains.

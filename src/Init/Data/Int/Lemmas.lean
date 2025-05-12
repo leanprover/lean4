@@ -6,7 +6,6 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-import all Init.Data.Int.Basic
 import Init.Conv
 import Init.NotationExtra
 import Init.PropLemmas

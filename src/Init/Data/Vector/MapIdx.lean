@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-import all Init.Prelude   -- for unfolding `Array.getInternal`
 import Init.Data.Array.MapIdx
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic

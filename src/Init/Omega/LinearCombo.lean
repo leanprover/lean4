@@ -17,7 +17,7 @@ We use this data structure while processing hypotheses.
 -/
 
 -- most defs used in proofs by reflection
-set_option experimental.module.semireducibleDef true
+@[expose] section
 
 namespace Lean.Omega
 

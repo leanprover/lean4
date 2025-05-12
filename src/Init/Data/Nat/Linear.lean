@@ -10,7 +10,7 @@ import Init.ByCases
 import Init.Data.Prod
 import Init.Data.RArray
 
-set_option experimental.module.semireducibleDef true
+@[expose] section
 
 namespace Nat.Linear
 

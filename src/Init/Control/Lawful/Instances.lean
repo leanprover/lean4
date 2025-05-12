@@ -6,7 +6,6 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import all Init.Prelude  -- for unfolding some `EStateM` defs
 import Init.Control.Lawful.Basic
 import all Init.Control.Except
 import all Init.Control.State

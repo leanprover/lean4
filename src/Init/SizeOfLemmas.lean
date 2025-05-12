@@ -7,7 +7,6 @@ module
 
 prelude
 import all Init.Data.Char.Basic
-import all Init.Data.UInt.BasicAux
 import Init.Meta
 import all Init.SizeOf
 import Init.Data.Nat.Linear

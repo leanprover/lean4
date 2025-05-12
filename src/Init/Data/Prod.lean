@@ -8,7 +8,6 @@ module
 prelude
 import Init.SimpLemmas
 import Init.NotationExtra
-import all Init.Core  -- for unfolding `Prod.map`
 
 namespace Prod
 

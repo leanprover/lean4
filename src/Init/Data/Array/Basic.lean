@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import all Init.Prelude  -- for unfolding `Array.getInternal`
 import Init.WFTactics
 import Init.Data.Nat.Basic
 import Init.Data.Fin.Basic
@@ -14,7 +13,6 @@ import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
-import all Init.Data.List.Basic
 import all Init.Data.List.ToArrayImpl
 import all Init.Data.Array.Set
 

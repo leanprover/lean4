@@ -6,7 +6,6 @@ Authors: Mario Carneiro
 module
 
 prelude
-import all Init.Prelude  -- for unfolding `List.tail`
 import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
 import Init.Data.List.Count
 import Init.Data.Subtype

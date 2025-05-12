@@ -22,7 +22,7 @@ Adds a mutable state of type `σ` to a monad.
 Actions in the resulting monad are functions that take an initial state and return, in `m`, a tuple
 of a value and a state.
 -/
-@[semireducible] def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+@[expose] def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   σ → m (α × σ)
 
 /--
@@ -47,7 +47,7 @@ A tuple-based state monad.
 Actions in `StateM σ` are functions that take an initial state and return a value paired with a
 final state.
 -/
-@[reducible]
+@[expose, reducible]
 def StateM (σ α : Type u) : Type u := StateT σ Id α
 
 instance {σ α} [Subsingleton σ] [Subsingleton α] : Subsingleton (StateM σ α) where

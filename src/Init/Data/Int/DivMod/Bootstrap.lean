@@ -7,8 +7,7 @@ Authors: Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import all Init.Data.Int.Basic
-import all Init.Data.Int.DivMod.Basic
+import Init.Data.Int.DivMod.Basic
 import Init.Data.Int.Order
 import Init.Data.Nat.Dvd
 import Init.RCases

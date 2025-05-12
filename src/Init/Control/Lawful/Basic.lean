@@ -8,7 +8,6 @@ module
 prelude
 import Init.SimpLemmas
 import Init.Meta
-import all Init.Data.Option.Basic
 
 open Function
 

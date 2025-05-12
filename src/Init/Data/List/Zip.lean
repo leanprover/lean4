@@ -6,7 +6,6 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import all Init.Data.List.Basic
 import Init.Data.List.TakeDrop
 import Init.Data.Function
 

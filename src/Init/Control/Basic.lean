@@ -119,7 +119,7 @@ export Alternative (failure)
 /--
 If the proposition `p` is true, does nothing, else fails (using `failure`).
 -/
-@[always_inline, inline, semireducible] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
+@[always_inline, inline, expose] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
   if p then pure () else failure
 
 /--

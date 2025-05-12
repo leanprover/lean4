@@ -10,7 +10,7 @@ import Init.WF
 import Init.WFTactics
 import Init.Data.Nat.Basic
 
-set_option experimental.module.semireducibleDef true  -- for omega
+@[expose] section
 
 namespace Nat
 
@@ -237,7 +237,7 @@ Examples:
  * `show ∀ (n : Nat), 0 % n = 0 from fun _ => rfl`
  * `show ∀ (m : Nat), 5 % (m + 6) = 5 from fun _ => rfl`
 -/
-@[extern "lean_nat_mod", semireducible]
+@[extern "lean_nat_mod", expose]
 protected def mod : @& Nat → @& Nat → Nat
   /-
   Nat.modCore is defined with fuel and thus does not reduce with open terms very well.

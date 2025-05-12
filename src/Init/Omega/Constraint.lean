@@ -15,7 +15,7 @@ constraining a value to a set of the form `∅`, `{x}`, `[x, y]`, `[x, ∞)`, `(
 -/
 
 -- most defs used in proofs by reflection
-set_option experimental.module.semireducibleDef true
+@[expose] section
 
 namespace Lean.Omega
 
@@ -95,7 +95,7 @@ def exact (r : Int) : Constraint := ⟨some r, some r⟩
   exact Int.eq_iff_le_and_ge.symm
 
 /-- Check if a constraint is unsatisfiable. -/
-@[semireducible] def isImpossible : Constraint → Bool
+@[expose] def isImpossible : Constraint → Bool
   | ⟨some x, some y⟩ => y < x
   | _ => false
 
@@ -337,7 +337,7 @@ def tidy? : Constraint × Coeffs → Option (Constraint × Coeffs)
     | some (s', x') => some (normalize (s', x'))
 
 /-- `positivize` and `normalize` -/
-@[semireducible] def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=
+@[expose] def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=
   tidy? p |>.getD p
 
 /-- Shorthand for the first component of `tidy`. -/

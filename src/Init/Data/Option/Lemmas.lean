@@ -6,7 +6,6 @@ Authors: Mario Carneiro
 module
 
 prelude
-import all Init.Data.Option.Basic
 import all Init.Data.Option.BasicAux
 import all Init.Data.Option.Instances
 import Init.Data.BEq

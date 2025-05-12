@@ -1341,7 +1341,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
       TODO: instead of throwing an exception as soon as we get stuck, we should just set a flag.
       Then the entry-point for `isDefEq` checks the flag before returning `true`.
     -/
-    checkpointDefEq do
+    checkpointDefEq (shareCache := true) do
       isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&>
         isListLevelDefEqAux tFn.constLevels! sFn.constLevels!
 

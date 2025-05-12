@@ -2178,7 +2178,7 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
   We currently try to postpone universe constraints as much as possible, even when by postponing them we
   are not sure whether `x` really succeeded or not.
 -/
-@[specialize] def checkpointDefEq (x : MetaM Bool) (mayPostpone : Bool := true) : MetaM Bool := do
+@[specialize] def checkpointDefEq (x : MetaM Bool) (mayPostpone : Bool := true) (shareCache : Bool := false) : MetaM Bool := do
   let s ← saveState
   /-
     It is not safe to use the `isDefEq` cache between different `isDefEq` calls.
@@ -2189,19 +2189,26 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
     See issue #1102 for an example that triggers an exponential blowup if we don't use this more
     aggressive form of caching.
   -/
-  modifyDefEqTransientCache fun _ => {}
+  unless shareCache do
+    modifyDefEqTransientCache fun _ => {}
   let postponed ← getResetPostponed
   try
+    let restore : MetaM Unit := do
+      if shareCache && (← getMCtx).numAssignments == s.meta.mctx.numAssignments then
+        /- There are no new metavariable assigments, so the cache is still valid. -/
+        ({ s with meta.cache := (← get).cache }).restore
+      else
+        s.restore
     if (← x) then
       if (← processPostponed mayPostpone) then
         let newPostponed ← getPostponed
         setPostponed (postponed ++ newPostponed)
         return true
       else
-        s.restore
+        restore
         return false
     else
-      s.restore
+      restore
       return false
   catch ex =>
     s.restore

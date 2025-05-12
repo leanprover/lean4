@@ -621,6 +621,20 @@ def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
       }
     else
       return { expr := e }
+  | cond@cond α c t f =>
+    let us := cond.constLevels!
+    if (← isDefEq c (← inferType hc)) then
+      return {
+        expr := t.beta #[hc]
+        proof? := (mkAppN (mkConst ``Bool.cond_pos us) #[α, c, α, t, f])
+      }
+    if (← isDefEq (mkNot c) (← inferType hc)) then
+      return {
+        expr := f.beta #[hc]
+        proof? := (mkAppN (mkConst ``Bool.cond_neg us) #[α, c, α, t, f])
+      }
+    else
+      return { expr := e }
   | _ =>
       return { expr := e }
 
@@ -765,10 +779,12 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
   | cond _α c t f =>
     let c' ← foldAndCollect oldIH newIH isRecCall c
     let t' ← withLocalDecl `h .default (← mkEq c' (toExpr true)) fun h => M2.branch do
-      let t' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall t
+      let t' ← withRewrittenMotiveArg goal (rwIfWith h) fun goal' =>
+        buildInductionBody toErase toClear goal oldIH newIH isRecCall t
       mkLambdaFVars #[h] t'
     let f' ← withLocalDecl `h .default (← mkEq c' (toExpr false)) fun h => M2.branch do
-      let f' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall f
+      let t' ← withRewrittenMotiveArg goal (rwIfWith h) fun goal' =>
+        buildInductionBody toErase toClear goal oldIH newIH isRecCall f
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp4 (mkConst ``Bool.dcond [u]) goal c' t' f'

@@ -188,6 +188,7 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
+  -- temporary fix: the old compiler inlines these too much as regular `let`s
   let rec mkVar (v : VarId) : M FnBody := do
     bindVarToVarId decl.fvarId v
     lowerCode k

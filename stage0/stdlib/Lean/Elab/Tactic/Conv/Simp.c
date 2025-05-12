@@ -1005,6 +1005,7 @@ x_49 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lambda__1___closed__3;
 x_50 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_2, x_47, x_48, x_49, x_46, x_11, x_12, x_13, x_14, x_43);
 lean_dec(x_12);
 lean_dec(x_11);
+lean_dec(x_48);
 return x_50;
 }
 else
@@ -1015,7 +1016,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_2);
 x_51 = !lean_is_exclusive(x_41);
 if (x_51 == 0)
 {
@@ -1046,7 +1046,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_2);
 x_55 = !lean_is_exclusive(x_38);
 if (x_55 == 0)
 {
@@ -1123,6 +1122,7 @@ x_73 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lambda__1___closed__3;
 x_74 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_2, x_71, x_72, x_73, x_70, x_11, x_12, x_13, x_14, x_66);
 lean_dec(x_12);
 lean_dec(x_11);
+lean_dec(x_72);
 return x_74;
 }
 else
@@ -1132,7 +1132,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_2);
 x_75 = lean_ctor_get(x_64, 0);
 lean_inc(x_75);
 x_76 = lean_ctor_get(x_64, 1);
@@ -1164,7 +1163,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_2);
 x_79 = lean_ctor_get(x_61, 0);
 lean_inc(x_79);
 x_80 = lean_ctor_get(x_61, 1);
@@ -1200,7 +1198,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_2);
 x_83 = !lean_is_exclusive(x_32);
 if (x_83 == 0)
 {
@@ -1236,7 +1233,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_2);
 x_87 = !lean_is_exclusive(x_28);
 if (x_87 == 0)
 {
@@ -1269,7 +1265,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_2);
 x_91 = !lean_is_exclusive(x_22);
 if (x_91 == 0)
 {
@@ -1677,7 +1672,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_4);
-lean_dec(x_3);
 x_21 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(x_15);
 return x_21;
 }
@@ -1703,7 +1697,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_4);
-lean_dec(x_3);
 x_26 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(x_15);
 return x_26;
 }
@@ -1890,6 +1883,7 @@ x_16 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lambda__1(x_1, x_2, x_3, x_4, x_5
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_16;
 }
@@ -1901,6 +1895,7 @@ lean_object* x_16;
 x_16 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_16;
@@ -3000,6 +2995,7 @@ x_46 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lambda__1___closed__3;
 x_47 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_1, x_44, x_45, x_46, x_43, x_10, x_11, x_12, x_13, x_40);
 lean_dec(x_11);
 lean_dec(x_10);
+lean_dec(x_45);
 return x_47;
 }
 else
@@ -3010,7 +3006,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_1);
 x_48 = !lean_is_exclusive(x_38);
 if (x_48 == 0)
 {
@@ -3041,7 +3036,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_1);
 x_52 = !lean_is_exclusive(x_35);
 if (x_52 == 0)
 {
@@ -3118,6 +3112,7 @@ x_70 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lambda__1___closed__3;
 x_71 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_1, x_68, x_69, x_70, x_67, x_10, x_11, x_12, x_13, x_63);
 lean_dec(x_11);
 lean_dec(x_10);
+lean_dec(x_69);
 return x_71;
 }
 else
@@ -3127,7 +3122,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_1);
 x_72 = lean_ctor_get(x_61, 0);
 lean_inc(x_72);
 x_73 = lean_ctor_get(x_61, 1);
@@ -3159,7 +3153,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_1);
 x_76 = lean_ctor_get(x_58, 0);
 lean_inc(x_76);
 x_77 = lean_ctor_get(x_58, 1);
@@ -3195,7 +3188,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_80 = !lean_is_exclusive(x_29);
 if (x_80 == 0)
 {
@@ -3229,7 +3221,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_84 = !lean_is_exclusive(x_24);
 if (x_84 == 0)
 {
@@ -3262,7 +3253,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_88 = !lean_is_exclusive(x_20);
 if (x_88 == 0)
 {
@@ -3331,7 +3321,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 x_20 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(x_14);
 return x_20;
 }
@@ -3357,7 +3346,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 x_25 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(x_14);
 return x_25;
 }
@@ -3511,6 +3499,7 @@ x_15 = l_Lean_Elab_Tactic_Conv_evalDSimpTrace___lambda__1(x_1, x_2, x_3, x_4, x_
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_15;
 }
 }
@@ -3521,6 +3510,7 @@ lean_object* x_15;
 x_15 = l_Lean_Elab_Tactic_Conv_evalDSimpTrace___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_15;
 }

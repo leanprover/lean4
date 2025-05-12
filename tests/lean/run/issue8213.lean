@@ -17,7 +17,7 @@ error: Failed to realize constant myTest.fun_cases:
     failed to transform matcher, type error when constructing new pre-splitter motive:
       @myTest.match_1 _fvar.28 (fun x => @_fvar.27 _fvar.28 _fvar.29 x _fvar.31 _fvar.32) _fvar.30
     ⏎
-      Application type mismatch: In the appplication
+      Application type mismatch: In the application
         motive mmotive x✝ h_1
       the final argument
         h_1

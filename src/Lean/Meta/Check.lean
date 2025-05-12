@@ -84,6 +84,17 @@ where
       | _, .mdata _ b' =>
         let (a, b') ← visit a b'
         return (a, b.updateMData! b')
+      | .const nm _, .const nm' _ =>
+        if nm != nm' then
+          return (a, b)
+        else
+          return (a.setPPUniverses true, b.setPPUniverses true)
+      | .proj _ i a', .proj _ j b' =>
+        if i != j then
+          return (a, b)
+        else
+          let (a', b') ← visit a' b'
+          return (a.updateProj! a', b.updateProj! b')
       | .app .., .app .. =>
         if a.getAppNumArgs != b.getAppNumArgs then
           return (a, b)
@@ -198,7 +209,7 @@ def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   unless binfo.isExplicit do
     e := e.setAppPPExplicit
   let aType ← inferType a
-  throwError "application type mismatch{indentExpr e}\nargument{indentExpr a}\n{← mkHasTypeButIsExpectedMsg aType expectedType}"
+  throwError "Application type mismatch: In the appplication{indentExpr e}\nthe final argument{indentExpr a}\n{← mkHasTypeButIsExpectedMsg aType expectedType}"
 
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f

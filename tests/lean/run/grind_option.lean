@@ -7,7 +7,7 @@ set_option grind.warning false
 variable [BEq α] {o₁ o₂ o₃ o₄ o₅ : Option α}
 
 /--
-info: Try this: grind only [Option.some_or, Option.or_some', Option.or_assoc, Option.some_beq_none]
+info: Try this: grind only [Option.or_some, Option.some_or, Option.or_assoc, Option.some_beq_none]
 -/
 #guard_msgs in
 example : ((o₁.or (o₂.or (some x))).or (o₄.or o₅) == none) = false := by grind?
@@ -16,6 +16,10 @@ example : ((o₁.or (o₂.or (some x))).or (o₄.or o₅) == none) = false := by
 #guard_msgs in
 example : max (some 7) none = min (some 13) (some 7) := by grind?
 
-/-- info: Try this: grind only [Option.guard_pos] -/
+/-- info: Try this: grind only [Option.guard_def] -/
 #guard_msgs in
-example : Option.guard (· ≤ 7) 3 = some 3 := by grind? [Option.guard_pos]
+example : Option.guard (· ≤ 7) 3 = some 3 := by grind?
+
+/-- info: Try this: grind only [Option.mem_bind_iff] -/
+#guard_msgs in
+example {x : β} {o : Option α} {f : α → Option β} (h : a ∈ o) (h' : x ∈ f a) : x ∈ o.bind f := by grind?

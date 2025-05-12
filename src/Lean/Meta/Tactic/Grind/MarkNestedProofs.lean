@@ -32,6 +32,8 @@ where
       let prop ← unfoldReducible prop
       /- We must also apply beta-reduction to improve the effectiveness of the congruence closure procedure. -/
       let prop ← Core.betaReduce prop
+      /- We must fold kernel projections like it is done in the preprocessor. -/
+      let prop ← foldProjs prop
       /- We must mask proofs occurring in `prop` too. -/
       let prop ← visit prop
       let e' := mkApp2 (mkConst ``Lean.Grind.nestedProof) prop e

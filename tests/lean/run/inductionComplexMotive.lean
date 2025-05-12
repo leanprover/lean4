@@ -71,7 +71,7 @@ case case3
 n✝ m✝ : Nat
 ⊢ ackermann n✝ (ackermann (n✝ + 1) m✝) ≤ ackermann (n✝.succ + 1) m✝.succ
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 example : ackermann n m ≤ ackermann (n+1) m := by
   cases n, m using ackermann_cases_unfolding
   fail
@@ -157,28 +157,31 @@ example (P : (n : Nat) → Fin (n+1) → Prop) : P n (Fin.last n) := by
   induction n using dep_induction
   fail
 
+
+-- Using cases does not unfold as expected, due to the dependent motive.
+-- This can be improved, but at least it does not error
+
 /--
-error: type mismatch when assigning motive
-  fun n_1 x => n = n_1 → P n x
-has type
-  Nat → Fin (n + 1) → Prop : Type
-but is expected to have type
-  (n : Nat) → Fin (n + 1) → Prop : Type
+error: tactic 'fail' failed
+case case1
+P : (n : Nat) → Fin (n + 1) → Prop
+⊢ P 0 (Fin.last 0)
 -/
 #guard_msgs in
 example (P : (n : Nat) → Fin (n+1) → Prop) : P n (Fin.last n) := by
   cases n using dep_induction
   fail
 
+-- Using cases does not unfold as expected, due to the dependent motive.
+-- This can be improved, but at least it does not error
+
 /--
-error: type mismatch when assigning motive
-  fun n x => x✝ = n → P x✝ x
-has type
-  Nat → Fin (x✝ + 1) → Prop : Type
-but is expected to have type
-  (n : Nat) → Fin (n + 1) → Prop : Type
+error: tactic 'fail' failed
+case case1
+P : (n : Nat) → Fin (n + 1) → Prop
+⊢ P 0 (Fin.last 0)
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 example (P : (n : Nat) → Fin (n+1) → Prop) : P 10 (Fin.last 10) := by
   cases 10 using dep_induction
   fail

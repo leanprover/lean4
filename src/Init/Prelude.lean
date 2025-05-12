@@ -3,7 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
---module
+module
 
 prelude -- Don't import Init, because we're in Init itself
 set_option linter.missingDocs true -- keep it documented
@@ -1012,7 +1012,7 @@ class Decidable (p : Prop) where
 /--
 The default eliminator for `Decidable`, using `isFalse` and `isTrue`.
 -/
-@[cases_eliminator, induction_eliminator]
+@[cases_eliminator, induction_eliminator, elab_as_elim]
 def Decidable.falseTrueCases {p : Prop} {motive : Decidable p → Sort u}
     (isFalse : ∀ h, motive (isFalse h)) (isTrue : ∀ h, motive (isTrue h))
     (t : Decidable p) : motive t :=

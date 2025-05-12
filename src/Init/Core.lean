@@ -1053,7 +1053,7 @@ set_option linter.missingDocs false in
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
-  decide (h := d)
+  @decide p d
 
 theorem toBoolUsing_eq_true {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
   decide_eq_true (inst := d) h
@@ -1117,34 +1117,34 @@ end Decidable
 section
 variable {p q : Prop}
 /-- Transfer a decidability proof across an equivalence of propositions. -/
-@[inline] def decidable_of_decidable_of_iff [Decidable p] (h : p ↔ q) : Decidable q :=
-  if hp : p then
-    isTrue (Iff.mp h hp)
-  else
-    isFalse fun hq => absurd (Iff.mpr h hq) hp
+@[inline] def decidable_of_decidable_of_iff [dp : Decidable p] (h : p ↔ q) : Decidable q where
+  decide := decide p
+  of_decide :=
+    match dp with
+    | isTrue hp => Iff.mp h hp
+    | isFalse hp => fun hq => absurd (Iff.mpr h hq) hp
 
 /-- Transfer a decidability proof across an equality of propositions. -/
 @[inline] def decidable_of_decidable_of_eq [Decidable p] (h : p = q) : Decidable q :=
   decidable_of_decidable_of_iff (p := p) (h ▸ Iff.rfl)
 end
 
-@[macro_inline] instance {p q} [Decidable p] [Decidable q] : Decidable (p → q) :=
-  if hp : p then
-    if hq : q then isTrue (fun _ => hq)
-    else isFalse (fun h => absurd (h hp) hq)
-  else isTrue (fun h => absurd h hp)
+@[macro_inline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (p → q) where
+  decide := !p || q
+  of_decide :=
+    match dp, dq with
+    | isTrue   _, isTrue  hq => fun _ => hq
+    | isTrue  hp, isFalse hq => fun h => absurd (h hp) hq
+    | isFalse hp, _          => fun h => absurd h hp
 
-instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
-  if hp : p then
-    if hq : q then
-      isTrue ⟨fun _ => hq, fun _ => hp⟩
-    else
-      isFalse fun h => hq (h.1 hp)
-  else
-    if hq : q then
-      isFalse fun h => hp (h.2 hq)
-    else
-      isTrue ⟨fun h => absurd h hp, fun h => absurd h hq⟩
+instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (p ↔ q) where
+  decide := (decide p).beq (decide q)
+  of_decide :=
+    match dp, dq with
+    | isTrue  hp, isTrue  hq => ⟨fun _ => hq, fun _ => hp⟩
+    | isTrue  hp, isFalse hq => fun h => hq (h.1 hp)
+    | isFalse hp, isTrue  hq => fun h => hp (h.2 hq)
+    | isFalse hp, isFalse hq => ⟨fun h => absurd h hp, fun h => absurd h hq⟩
 
 /-! # if-then-else expression theorems -/
 
@@ -1192,18 +1192,16 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
   | isFalse hc => dE hc
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
-abbrev noConfusionTypeEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) (P : Sort w) (x y : α) : Sort w :=
-  (inst (f x) (f y)).casesOn
-    (fun _ => P)
-    (fun _ => P → P)
+abbrev noConfusionTypeEnum {α : Sort u} (f : α → Nat) (P : Sort w) (x y : α) : Sort w :=
+  ((f x).beq (f y)).casesOn P (P → P)
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
-abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
-  Decidable.casesOn
-    (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
-    (inst (f x) (f y))
-    (fun h' => False.elim (h' (congrArg f h)))
-    (fun _ => fun x => x)
+abbrev noConfusionEnum {α : Sort u} (f : α → Nat) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
+  ((f x).beq (f y)).casesOn
+    (motive := fun b => (f x).beq (f y) = b → b.casesOn P (P → P))
+    (fun h' => False.elim (Nat.ne_of_beq_eq_false h' (congrArg f h)))
+    (fun _ a => a)
+    rfl
 
 /-! # Inhabited -/
 
@@ -1271,7 +1269,7 @@ theorem recSubsingleton
      {h₂ : ¬p → Sort u}
      [h₃ : ∀ (h : p), Subsingleton (h₁ h)]
      [h₄ : ∀ (h : ¬p), Subsingleton (h₂ h)]
-     : Subsingleton (h.casesOn h₂ h₁) :=
+     : Subsingleton (h.falseTrueCases h₂ h₁) :=
   match h with
   | isTrue h  => h₃ h
   | isFalse h => h₄ h

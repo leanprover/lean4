@@ -453,10 +453,10 @@ where
   doElab (expectedType : Expr) : TacticM Expr := do
     let dec ← mkDecide expectedType
     -- Get instance from `pf`
-    let inst := dec.appFn!.appArg!
+    let inst := dec.appArg!
     -- reduce `dec`
     let r ← withAtLeastTransparency .default <| whnf dec
-    if r.isAppOf ``Bool.true then
+    if r.isConstOf ``Bool.true then
       -- Success!
       return mkApp3 (mkConst ``of_decide_eq_true) expectedType inst reflBoolTrue
     else
@@ -482,11 +482,11 @@ where
     -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
     throwError MessageData.ofLazyM (es := #[expectedType]) do
       let r ← r?.getDM (withAtLeastTransparency .default <| whnf b)
-      if r.isAppOf ``Bool.true then
+      if r.isConstOf ``Bool.true then
         return m!"\
           tactic '{tacticName}' failed. internal error: the elaborator is able to reduce the \
           '{.ofConstName ``Decidable}' instance, but the kernel is not able to"
-      else if r.isAppOf ``isFalse then
+      else if r.isConstOf ``Bool.false then
         return m!"\
           tactic '{tacticName}' proved that the proposition\
           {indentExpr expectedType}\n\

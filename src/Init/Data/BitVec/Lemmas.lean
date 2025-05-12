@@ -5319,7 +5319,7 @@ theorem msb_eq_toNat {x : BitVec w}:
 /-- Negating a bitvector created from a natural number equals
 creating a bitvector from the the negative of that number.
 -/
-theorem neg_ofNat_eq_ofInt_neg {w : Nat} (x : Nat) :
+theorem neg_ofNat_eq_ofInt_neg {w : Nat} {x : Nat} :
     - BitVec.ofNat w x = BitVec.ofInt w (- x) := by
   apply BitVec.eq_of_toInt_eq
   simp [BitVec.toInt_neg, BitVec.toInt_ofNat]

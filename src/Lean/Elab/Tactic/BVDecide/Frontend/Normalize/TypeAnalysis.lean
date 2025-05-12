@@ -83,7 +83,6 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
         let .ctorInfo ctorInfo ← getConstInfo c | return none
         handledCtors := handledCtors.push ctorInfo
 
-
       -- Check that the last parameter looks like a default case one
       let defaultArgType ← inferType xs[xs.size - 1]!
       let defaultOk ← forallTelescope defaultArgType fun args dom => do
@@ -158,7 +157,6 @@ where
         - `(h_n InductiveEnum.ctor)` if the constructor is handled as part of the default case
         -/
         for i in [0:inductiveInfo.numCtors] do
-          trace[Meta.Tactic.bv] m!"{args[i+2]!}"
           let .app fn (.const argName ..) := args[i + 2]! | return false
           if argName == ``Unit.unit then
             let some (_, .app _ (.const relevantCtor ..)) := (← inferType fn).arrow? | unreachable!

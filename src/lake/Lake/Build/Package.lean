@@ -93,9 +93,6 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
         let details ← self.optFacetDetails optReservoirBarrelFacet
         logVerbose s!"building from source; failed to fetch Reservoir build{details}"
 
-@[deprecated maybeFetchBuildCacheWithWarning (since := "2024-09-27")]
-def Package.fetchOptRelease := @maybeFetchBuildCacheWithWarning
-
 /--
 Build the `extraDepTargets` for the package.
 Also, if the package is a dependency, maybe fetch its build cache.
@@ -198,15 +195,9 @@ def Package.barrelFacetConfig : PackageFacetConfig reservoirBarrelFacet :=
 def Package.optGitHubReleaseFacetConfig : PackageFacetConfig optGitHubReleaseFacet :=
   mkOptBuildArchiveFacetConfig buildArchiveFile getReleaseUrl
 
-@[deprecated optGitHubReleaseFacetConfig (since := "2024-09-27")]
-abbrev Package.optReleaseFacetConfig := optGitHubReleaseFacetConfig
-
 /-- The `PackageFacetConfig` for the builtin `gitHubReleaseFacet`. -/
 def Package.gitHubReleaseFacetConfig : PackageFacetConfig gitHubReleaseFacet :=
   mkBuildArchiveFacetConfig optGitHubReleaseFacet "GitHub release"
-
-@[deprecated gitHubReleaseFacetConfig (since := "2024-09-27")]
-abbrev Package.releaseFacetConfig := gitHubReleaseFacetConfig
 
 /--
 Perform a build job after first checking for an (optional) cached build
@@ -220,9 +211,6 @@ def Package.afterBuildCacheAsync (self : Package) (build : JobM (Job α)) : Fetc
   else
     build
 
-@[deprecated afterBuildCacheAsync (since := "2024-09-27")]
-def Package.afterReleaseAsync := @afterBuildCacheAsync
-
 /--
  Perform a build after first checking for an (optional) cached build
  for the package (e.g., from Reservoir or GitHub).
@@ -234,9 +222,6 @@ def Package.afterBuildCacheSync (self : Package) (build : JobM α) : FetchM (Job
       build
   else
     Job.async build
-
-@[deprecated afterBuildCacheSync (since := "2024-09-27")]
-def Package.afterReleaseSync := @afterBuildCacheSync
 
 /--
 A name-configuration map for the initial set of

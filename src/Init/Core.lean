@@ -2527,9 +2527,6 @@ class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
 
-@[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
-abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
-
 /-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
 `r a b → ¬ r b a`. -/
 class Asymm (r : α → α → Prop) : Prop where

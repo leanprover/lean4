@@ -374,7 +374,6 @@ partial def isNatCmp (e : Expr) : MetaM (Option (Expr × Expr)) := withReducible
       | LE.le α _ e₁ e₂ => pure (α, e₁, e₂)
       | GT.gt α _ e₁ e₂ => pure (α, e₂, e₁)
       | GE.ge α _ e₁ e₂ => pure (α, e₂, e₁)
-      | Not e => return ← isNatCmp e
       | _ => return none
 
     if (←isDefEq α (mkConst ``Nat)) then

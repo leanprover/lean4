@@ -573,7 +573,7 @@ private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (e
           throwErrorAt matchAltViews[0].lhs m!"Too many patterns in match alternative: \
             At most {numPatternsStr maxDiscrs} expected in a definition of type {indentExpr expectedType}\n\
             but found {numDiscrs}:{indentD <| sepPats matchAltViews[0].patterns.toList}"
-    -- Catch inconsistencies between pattern counts here so that we can report them as "incorrect"
+    -- Catch inconsistencies between pattern counts here so that we can report them as "inconsistent"
     -- rather than as "too many" or "too few" (as the `match` elaborator does)
     for view in matchAltViews do
       let numPats := view.patterns.size

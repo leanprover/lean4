@@ -143,7 +143,7 @@ def noType
   | _ => false
 
 /--
-error: too many patterns in match alternative: expected 1, but found 2:
+error: Too many patterns in match alternative: expected 1, but found 2:
   .foo, .foo
 -/
 #guard_msgs in
@@ -153,7 +153,7 @@ def matchTooMany₁ (f : Foo) : Nat :=
   | _ => 41
 
 /--
-error: too many patterns in match alternative: expected 1, but found 2:
+error: Too many patterns in match alternative: expected 1, but found 2:
   .foo2, .foo2
 -/
 #guard_msgs in
@@ -163,10 +163,10 @@ def matchTooMany₂ (f : Foo) : Nat :=
   | .foo2, .foo2 => 32
 
 /--
-error: not enough patterns in match alternative: expected 2, but found 1:
+error: Not enough patterns in match alternative: expected 2, but found 1:
   .foo
 ---
-error: missing cases:
+error: Missing cases:
 Foo.foo2, Foo.foo
 -/
 #guard_msgs in
@@ -176,10 +176,10 @@ def matchTooFew₁ (f : Foo) : Nat :=
   | .foo2, .foo2 => 32
 
 /--
-error: not enough patterns in match alternative: expected 2, but found 1:
+error: Not enough patterns in match alternative: expected 2, but found 1:
   .foo
 ---
-error: missing cases:
+error: Missing cases:
 Foo.foo2, Foo.foo
 -/
 #guard_msgs in
@@ -189,13 +189,13 @@ def matchTooFew₂ (f : Foo) : Nat :=
   | .foo => 41
 
 /--
-error: not enough patterns in match alternative: expected 2, but found 1:
+error: Not enough patterns in match alternative: expected 2, but found 1:
   .(_)
 ---
 error: type mismatch
   fun b => True
 has type
-  ?m.857 → Prop : Sort (max 1 ?u.856)
+  ?m.874 → Prop : Sort (max 1 ?u.873)
 but is expected to have type
   Prop : Type
 -/

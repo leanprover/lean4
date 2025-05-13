@@ -357,14 +357,14 @@ private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchTy
     let mut patternStxs := patternStxs
     if patternStxs.size < numDiscrs then
       -- If there are too few patterns, log the error but continue elaborating with holes for the missing patterns
-      logIncorrectNumberOfPatternsAt (← getRef) "not enough" numDiscrs patternStxs.size patternStxs.toList
+      logIncorrectNumberOfPatternsAt (← getRef) "Not enough" numDiscrs patternStxs.size patternStxs.toList
       let numHoles := numDiscrs - patternStxs.size
       let mut extraStxs := Array.emptyWithCapacity numHoles
       for _ in [:numHoles] do
         extraStxs := extraStxs.push (← `(_))
       patternStxs := patternStxs ++ extraStxs
     else if patternStxs.size > numDiscrs then
-      throwIncorrectNumberOfPatternsAt (← getRef) "too many" numDiscrs patternStxs.size patternStxs.toList
+      throwIncorrectNumberOfPatternsAt (← getRef) "Too many" numDiscrs patternStxs.size patternStxs.toList
 
     for h : idx in [:patternStxs.size] do
       let patternStx := patternStxs[idx]
@@ -505,7 +505,7 @@ partial def normalize (e : Expr) : M Expr := do
         let p := e.getArg! 2
         let h := e.getArg! 3
         unless x.consumeMData.isFVar && h.consumeMData.isFVar do
-          throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+          throwError "Unexpected occurrence of auxiliary declaration 'namedPattern'"
         addVar x
         let p ← normalize p
         addVar h
@@ -607,7 +607,7 @@ private partial def toPattern (e : Expr) : MetaM Pattern := do
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x, Expr.fvar h => return Pattern.as x p h
-        | _,           _           => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+        | _,           _           => throwError "Unexpected occurrence of auxiliary declaration 'namedPattern'"
       else if (← isMatchValue e) then
         return Pattern.val (← normLitValue e)
       else if e.isFVar then
@@ -705,7 +705,7 @@ partial def main (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (mat
   for explicit in explicitPatternVars do
     unless patternVars.any (· == mkFVar explicit) do
       withInPattern do
-        throwError "invalid patterns, `{mkFVar explicit}` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching{indentD (MessageData.joinSep (ps.toList.map (MessageData.ofExpr .)) m!"\n\n")}"
+        throwError "Invalid pattern(s): `{mkFVar explicit}` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching:{indentD (MessageData.joinSep (ps.toList.map (MessageData.ofExpr .)) m!"\n\n")}"
   let packed ← pack patternVars ps matchType
   trace[Elab.match] "packed: {packed}"
   withErasedFVars explicitPatternVars do
@@ -831,7 +831,7 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
               let rhs ← elabTermEnsuringType alt.rhs matchType'
               -- We use all approximations to ensure the auxiliary type is defeq to the original one.
               unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
-                throwError "type mismatch, alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
+                throwError "Type mismatch: Alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
               let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr ++ eqs
               let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
               trace[Elab.match] "rhs: {rhs}"
@@ -891,6 +891,7 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
         let discrs := discrs ++  ys.map fun y => { expr := y : Discr }
         let altViews ← altViews.mapM fun altView => do
           let patternVars ← getPatternsVars altView.patterns
+          trace[Elab.match] "Got pattern vars: {patternVars}"
           -- We traverse backwards because we want to keep the most recent names.
           -- For example, if `ys` contains `#[h, h]`, we want to make sure `mkFreshUsername is applied to the first `h`,
           -- since it is already shadowed by the second.
@@ -1111,7 +1112,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
             withExistingLocalDecls altLHS.fvarDecls do
               runPendingTacticsAt d.type
               if (← instantiateMVars d.type).hasExprMVar then
-                throwMVarError m!"invalid match-expression: The type of pattern variable '{d.toExpr}' contains metavariables:{indentExpr d.type}"
+                throwMVarError m!"Invalid match-expression: The type of pattern variable '{d.toExpr}' contains metavariables:{indentExpr d.type}"
         for p in altLHS.patterns do
           if (← Match.instantiatePatternMVars p).hasExprMVar then
             tryPostpone

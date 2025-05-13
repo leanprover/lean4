@@ -200,15 +200,16 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       others := others.push mvarId
   let alts ← s.alts.filterM fun alt => return !(← alt.mvarId.isAssigned)
   let some motive := s.motive |
-      throwError "Internal error: Motive not found when constructing recursor application"
+      throwError "Internal error in mkElimApp: Motive not found"
   let complexArgs ← s.fType.withApp fun f motiveArgs => do
     unless f == mkMVar motive do
-      throwError "mkElimApp: Expected application of {motive}:{indentExpr s.fType}"
+      throwError "Internal error in mkElimApp: Expected application of {motive}:{indentExpr s.fType}"
     -- Sanity-checking that the motive is applied to the targets.
     -- NB: The motive can take them in a different order than the eliminator itself
     for motiveArg in motiveArgs[:targets.size] do
       unless targets.contains motiveArg do
-        throwError "mkElimApp: Expected first {targets.size} arguments of motive in conclusion to be one of the targets:{indentExpr s.fType}"
+        throwError "Internal error in mkElimApp: Expected first {targets.size} arguments of motive \
+          in conclusion to be one of the targets:{indentExpr s.fType}"
     pure motiveArgs[targets.size:]
   let elimApp ← instantiateMVars s.f
   -- `elimArgs` is the argument list that the offsets in `elimInfo` work with

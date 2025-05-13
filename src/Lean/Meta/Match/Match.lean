@@ -300,7 +300,7 @@ where
         let targetType ← mvarId.getType
         unless (← isDefEqGuarded targetType eType) do
           trace[Meta.Match.match] "assignGoalOf failed {eType} =?= {targetType}"
-          throwError "Dependent elimination failed: Type mismatch when solving alternative with type{indentExpr eType}\nbut expected{indentExpr targetType}"
+          throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it has type{indentExpr eType}\nbut was expected to have type{indentExpr targetType}"
         mvarId.assign alt.rhs
         modify fun s => { s with used := s.used.insert alt.idx }
         return true

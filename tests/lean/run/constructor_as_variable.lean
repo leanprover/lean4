@@ -89,7 +89,7 @@ inductive MyProd where
 /--
 error: Invalid pattern: Constructor or constant marked with `[match_pattern]` expected
 
-Suggestion: 'MyProd.construct' is similar
+Hint: 'MyProd.construct' is similar
 -/
 #guard_msgs in
 def ctorSuggestion1 (pair : MyProd) : Nat :=
@@ -100,7 +100,7 @@ def ctorSuggestion1 (pair : MyProd) : Nat :=
 /--
 error: Invalid pattern: Constructor or constant marked with `[match_pattern]` expected
 
-Suggestions:
+Hint: These are similar:
   'List.Lex.below.cons',
   'List.Lex.cons',
   'List.Pairwise.below.cons',
@@ -128,7 +128,7 @@ inductive StringList : Type where
 /--
 error: Invalid pattern: Constructor or constant marked with `[match_pattern]` expected
 
-Suggestions:
+Hint: These are similar:
   'List.Lex.below.cons',
   'List.Lex.cons',
   'List.Pairwise.below.cons',

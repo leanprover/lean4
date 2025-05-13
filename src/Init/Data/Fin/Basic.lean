@@ -230,10 +230,17 @@ instance : ShiftRight (Fin n) where
 instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin n) i where
   ofNat := Fin.ofNat' n i
 
-instance (n : Nat) [NeZero n] : Neg (Fin n) where
-  neg a := 0 - a
+/-- If you actually have an element of `Fin n`, then the `n` is always positive -/
+protected theorem pos (i : Fin n) : 0 < n :=
+  Nat.lt_of_le_of_lt (Nat.zero_le _) i.2
 
-theorem neg_def [NeZero n] (a : Fin n) : -a = 0 - a := by
+/-- Negation on `Fin n` -/
+instance neg (n : Nat) : Neg (Fin n) :=
+  ⟨fun a => ⟨(n - a) % n, Nat.mod_lt _ a.pos⟩⟩
+
+theorem neg_def (a : Fin n) : -a = ⟨(n - a) % n, Nat.mod_lt _ a.pos⟩ := rfl
+
+protected theorem coe_neg (a : Fin n) : ((-a : Fin n) : Nat) = (n - a) % n :=
   rfl
 
 instance instInhabited {n : Nat} [NeZero n] : Inhabited (Fin n) where
@@ -252,10 +259,6 @@ theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (modn i m).val < m
 
 theorem val_lt_of_le (i : Fin b) (h : b ≤ n) : i.val < n :=
   Nat.lt_of_lt_of_le i.isLt h
-
-/-- If you actually have an element of `Fin n`, then the `n` is always positive -/
-protected theorem pos (i : Fin n) : 0 < n :=
-  Nat.lt_of_le_of_lt (Nat.zero_le _) i.2
 
 /--
 The greatest value of `Fin (n+1)`, namely `n`.

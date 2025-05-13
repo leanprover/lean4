@@ -46,8 +46,7 @@ def addStructureSimpLemmas (simprocs : Simprocs) (lemmas : SimpTheoremsArray) :
     let lemmaName := mkInjectiveEqTheoremNameFor ctorName
     if (← getEnv).find? lemmaName |>.isSome then
       trace[Meta.Tactic.bv] m!"Using injEq lemma: {lemmaName}"
-      let statement ← mkConstWithLevelParams lemmaName
-      lemmas ← lemmas.addTheorem (.decl lemmaName) statement
+      lemmas ← lemmas.addTheorem (.decl lemmaName) (mkConst lemmaName)
     let fields := (getStructureInfo env const).fieldNames.size
     let numParams := constInfo.numParams
     for proj in [0:fields] do
@@ -71,6 +70,7 @@ partial def structuresPass : Pass where
       else
         let some const := (← instantiateMVars decl.type).getAppFn.constName? | return false
         return interesting.contains const
+
     match goals with
     | [goal] => postprocess goal
     | _ => throwError "structures preprocessor generated more than 1 goal"

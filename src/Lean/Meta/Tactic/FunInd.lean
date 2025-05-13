@@ -1449,6 +1449,60 @@ where doRealize inductName := do
 
 
 /--
+The body of `deriveCases`, producing a cases theorem for the given `paramKinds`.
+Will be iterated by `deriveCases` to figure out the best paramKinds.
+-/
+def derivecCasesBody (unfolding : Bool) (info : ConstantInfo) (value : Expr) (_paramKinds : Array FunIndParamKind) : MetaM Expr := do
+  let name := info.name
+  let motiveType ← lambdaTelescope value fun xs _body => do
+    if unfolding then
+      withLocalDeclD `r (← instantiateForall info.type xs) fun r =>
+        mkForallFVars (xs.push r) (.sort 0)
+    else
+      mkForallFVars xs (.sort 0)
+  let e' ← withLocalDeclD `motive motiveType fun motive => do
+    lambdaTelescope value fun xs body => do
+      let (e', mvars) ← M2.run do
+        let goal := mkAppN motive xs
+        let goal ← if unfolding then
+          pure <| mkApp goal (mkAppN (← mkConstWithLevelParams name) xs)
+        else
+          pure goal
+        withRewrittenMotiveArg goal (rwFun #[name]) fun goal => do
+          -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
+          -- so `buildInductionBody` should just do the right thing
+          withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
+            let isRecCall := fun _ => none
+            buildInductionBody #[fakeIH.fvarId!] #[] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
+      let e' ← mkLambdaFVars xs e'
+      let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
+      mkLambdaFVars #[motive] e'
+
+  mapError (f := (m!"constructed functional cases principle is not type correct:{indentExpr e'}\n{indentD ·}")) do
+    check e'
+
+  pure e'
+
+/--
+Given the type of a functional cases principle dervied with all parametrs as targets, determines
+a (possibly) changed set of `FunIndParamKind` that turns targetst that are actually unchanged
+in each case into parameters.
+TODO: Also drop parameters.
+-/
+def improveParamKinds (unfolding : Bool) (arity : Nat) (type : Expr) : MetaM (Array FunIndParamKind) := do
+  forallBoundedTelescope type (some 1) fun motive type => do
+    let motive := motive[0]!
+    forallTelescope fun xs type => do
+      let alts := xs[:xs.size - arity]
+      let targets := xs[xs.size - arity:]
+      assert! targets.size = arity
+      let mut mask := Array.mkArray arity false -- true if target is changed ins some alt
+      for alt in alts do
+        let altMask ← forallTelescope alt fun _
+
+
+
+/--
 For non-recursive (and recursive functions) functions we derive a “functional case splitting theorem”. This is very similar
 than the functional induction theorem. It splits the goal, but does not give you inductive hyptheses.
 
@@ -1473,35 +1527,10 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
         let some (_, _, rhs) := body.eq?
           | throwError "Type of {unfoldEqnName} not an equality: {body}"
         mkLambdaFVars xs rhs
-    let motiveType ← lambdaTelescope value fun xs _body => do
-      if unfolding then
-        withLocalDeclD `r (← instantiateForall info.type xs) fun r =>
-          mkForallFVars (xs.push r) (.sort 0)
-      else
-        mkForallFVars xs (.sort 0)
-    let motiveArity ← lambdaTelescope value fun xs _body => do
+    let funArity ← lambdaTelescope value fun xs _body => do
       pure xs.size
-    let e' ← withLocalDeclD `motive motiveType fun motive => do
-      lambdaTelescope value fun xs body => do
-        let (e', mvars) ← M2.run do
-          let goal := mkAppN motive xs
-          let goal ← if unfolding then
-            pure <| mkApp goal (mkAppN (← mkConstWithLevelParams name) xs)
-          else
-            pure goal
-          withRewrittenMotiveArg goal (rwFun #[name]) fun goal => do
-            -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
-            -- so `buildInductionBody` should just do the right thing
-            withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
-              let isRecCall := fun _ => none
-              buildInductionBody #[fakeIH.fvarId!] #[] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
-        let e' ← mkLambdaFVars xs e'
-        let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
-        mkLambdaFVars #[motive] e'
-
-    unless (← isTypeCorrect e') do
-      logError m!"constructed functional cases principle is not type correct:{indentExpr e'}"
-      check e'
+    let initialParamKinds := .replicate funArity .target
+    let e' ← derivecCasesBody unfolding info value initialParamKinds
 
     let eTyp ← inferType e'
     let eTyp ← elimTypeAnnotations eTyp
@@ -1519,7 +1548,7 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
       funName := name
       funIndName := casesName
       levelMask := usMask
-      params := .replicate motiveArity .target
+      params := initialParamKinds
     }
 
 /--

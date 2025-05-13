@@ -40,6 +40,9 @@ abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
 
 namespace Vector
 
+/-- The size of a vector. -/
+abbrev size {α n} (_ : Vector α n) : Nat := n
+
 /-- Syntax for `Vector α n` -/
 syntax (name := «term#v[_,]») "#v[" withoutPosition(term,*,?) "]" : term
 

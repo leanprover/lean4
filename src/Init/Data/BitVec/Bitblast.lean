@@ -1907,18 +1907,10 @@ theorem toInt_smod {x y : BitVec w} :
           have := BitVec.toInt_umod_of_msb (x := x) (y := y) (by omega)
           · by_cases hyone : -y = 1#(w + 1)
             · simp [hyone]
-
               sorry
-            ·
-
-
-
-
-              by_cases h1 : x % -y = 0#(w + 1)
+            · by_cases h1 : x % -y = 0#(w + 1)
               -- iff -y = x or -y = 1: deal with these cases separately
-              ·
-                simp [h1]
-
+              · simp [h1]
                 sorry
               · simp [h1]
                 simp [toInt_umod]
@@ -1977,7 +1969,18 @@ theorem toInt_smod {x y : BitVec w} :
               · rw [Int.emod_eq_of_lt]
                 · sorry
                 · by_cases hxintmin : x = intMin (w + 1)
-                  · sorry
+                  · simp [hxintmin]
+                    rw [toInt_umod]
+                    simp [toNat_intMin]
+                    rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ w) (b := 2 ^ (w + 1)) (by omega)]
+                    push_cast
+                    have := Nat.mod_lt (x := 2 ^ w) (y := y.toNat) (by omega)
+                    rw [Int.bmod_eq_of_le (by norm_cast; omega) (by norm_cast; omega)]
+                    norm_cast
+                    by_cases hymodeq : 2 ^ w % y.toNat = y.toNat
+                    · simp_all
+                    · simp [Nat.mod_lt (by omega)]
+                      omega
                   · simp_all
                     have : (-x).msb = false := by
                       simp [msb_neg]

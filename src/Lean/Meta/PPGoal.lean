@@ -27,10 +27,44 @@ register_builtin_option pp.inaccessibleNames : Bool := {
 }
 
 register_builtin_option pp.showLetValues : Bool := {
-  defValue := true
+  defValue := false
   group    := "pp"
   descr    := "display let-declaration values in the info view"
 }
+
+register_builtin_option pp.showLetValues.threshold : Nat := {
+  defValue := 0
+  group    := "pp"
+  descr    := "when `pp.showLetValues` is false, the size of the term allowed before it is replaced by `⋯`"
+}
+register_builtin_option pp.showLetValues.tactic.threshold : Nat := {
+  defValue := 255
+  group    := "pp"
+  descr    := "when `pp.showLetValues` is false, the size of the term allowed before it is replaced by `⋯`, for tactic goals"
+}
+
+/--
+Given the current values of the options `pp.showLetValues` and `pp.showLetValues.threshold`,
+determines whether the local let declaration's value should be omitted.
+
+- `tactic` is whether the goal is synthetic opaque. In that case,
+  uses the maximum of `pp.showLetValues.tactic.threshold` and `pp.showLetValues.threshold` for the threshold.
+  In tactics, we usually want to see let values.
+-/
+def ppGoal.shouldShowLetValue (tactic : Bool) (e : Expr) : MetaM Bool := do
+  -- Atomic expressions never get omitted, so we can do an early return here.
+  if e.isAtomic then
+    return true
+
+  let options ← getOptions
+
+  if pp.showLetValues.get options then
+    return true
+
+  let threshold := pp.showLetValues.threshold.get options
+  let threshold := max threshold (if tactic then pp.showLetValues.tactic.threshold.get options else 0)
+  let threshold := min 254 threshold.toUInt32
+  return e.approxDepth ≤ threshold
 
 private def addLine (fmt : Format) : Format :=
   if fmt.isNil then fmt else fmt ++ "\n"
@@ -47,9 +81,9 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
   | none          => return "unknown goal"
   | some mvarDecl =>
     let indent         := 2 -- Use option
-    let showLetValues  := pp.showLetValues.get (← getOptions)
     let ppAuxDecls     := pp.auxDecls.get (← getOptions)
     let ppImplDetailHyps := pp.implementationDetailHyps.get (← getOptions)
+    let tactic         := mvarDecl.kind.isSyntheticOpaque
     let lctx           := mvarDecl.lctx
     let lctx           := lctx.sanitizeNames.run' { options := (← getOptions) }
     withLCtx lctx mvarDecl.localInstances do
@@ -82,10 +116,12 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
           let type ← instantiateMVars type
           let typeFmt ← ppExpr type
           let mut fmtElem  := format varName ++ " : " ++ typeFmt
-          if showLetValues then
-            let val ← instantiateMVars val
+          let val ← instantiateMVars val
+          if ← ppGoal.shouldShowLetValue tactic val then
             let valFmt ← ppExpr val
             fmtElem := fmtElem ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)
+          else
+            fmtElem := fmtElem ++ " := ⋯"
           let fmt := fmt ++ fmtElem.group
           return ([], none, fmt)
       let (varNames, type?, fmt) ← lctx.foldlM (init := ([], none, Format.nil)) fun (varNames, prevType?, fmt) (localDecl : LocalDecl) =>

@@ -109,6 +109,47 @@ theorem length_rightpad {n : Nat} {a : α} {l : List α} :
   simp [rightpad]
   omega
 
+/-! ### intersperse -/
+section intersperse
+
+variable {l : List α} {sep : α} {i : Nat}
+
+@[simp] theorem length_intersperse : (l.intersperse sep).length = 2 * l.length - 1 := by
+  fun_induction intersperse <;> simp only [intersperse, length_cons, length_nil] at *
+  rename_i h _
+  have := length_pos_iff.mpr h
+  omega
+
+@[simp] theorem getElem?_intersperse_two_mul : (l.intersperse sep)[2 * i]? = l[i]? := by
+  induction l using intersperse.induct_unfolding sep generalizing i <;> cases i
+  all_goals simp [mul_succ, *]
+
+theorem getElem?_intersperse_two_mul_add_one (h : i + 1 < l.length) :
+    (l.intersperse sep)[2 * i + 1]? = some sep := by
+  fun_induction intersperse generalizing i
+  · contradiction
+  · contradiction
+  · rename_i hn _
+    have ⟨_, tl, _⟩ := ne_nil_iff_exists_cons.mp hn
+    cases tl <;> cases i <;> simp_all +arith
+
+@[simp] theorem getElem_intersperse_two_mul (h : 2 * i < (l.intersperse sep).length) :
+    (l.intersperse sep)[2 * i] = l[i]'(by rw [length_intersperse] at h; omega) := by
+  rw [← Option.some_inj, ← getElem?_eq_getElem h]
+  simp
+
+@[simp] theorem getElem_intersperse_two_mul_add_one (h : 2 * i + 1 < (l.intersperse sep).length) :
+    (l.intersperse sep)[2 * i + 1] = sep := by
+  rw [← Option.some_inj, ← getElem?_eq_getElem h, getElem?_intersperse_two_mul_add_one]
+  rw [length_intersperse] at h
+  omega
+
+theorem getElem_eq_getElem_intersperse_two_mul (h : i < l.length) :
+    l[i] = (l.intersperse sep)[2 * i]'(by rw [length_intersperse]; omega) := by
+  simp
+
+end intersperse
+
 /-! ### eraseIdx -/
 
 theorem mem_eraseIdx_iff_getElem {x : α} :

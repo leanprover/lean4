@@ -77,8 +77,14 @@ theorem lt.dest {a b : Int} (h : a < b) : ∃ n : Nat, a + Nat.succ n = b :=
 @[simp, norm_cast] theorem ofNat_lt {n m : Nat} : (↑n : Int) < ↑m ↔ n < m := by
   rw [lt_iff_add_one_le, ← natCast_succ, ofNat_le]; rfl
 
-@[simp, norm_cast] theorem ofNat_pos {n : Nat} : 0 < (↑n : Int) ↔ 0 < n := ofNat_lt
+@[simp, norm_cast] theorem natCast_pos {n : Nat} : (0 : Int) < n ↔ 0 < n := ofNat_lt
 
+@[deprecated natCast_pos (since := "2025-05-13"), simp high]
+theorem ofNat_pos {n : Nat} : 0 < (↑n : Int) ↔ 0 < n := ofNat_lt
+
+theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
+
+@[deprecated natCast_nonneg (since := "2025-05-13")]
 theorem ofNat_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
 
 theorem ofNat_succ_pos (n : Nat) : 0 < (succ n : Int) := ofNat_lt.2 <| Nat.succ_pos _
@@ -475,7 +481,7 @@ instance : Std.IdempotentOp (α := Int) max := ⟨Int.max_self⟩
 protected theorem mul_nonneg {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a * b := by
   let ⟨n, hn⟩ := eq_ofNat_of_zero_le ha
   let ⟨m, hm⟩ := eq_ofNat_of_zero_le hb
-  rw [hn, hm, ← natCast_mul]; apply ofNat_nonneg
+  rw [hn, hm, ← natCast_mul]; apply natCast_nonneg
 
 protected theorem mul_pos {a b : Int} (ha : 0 < a) (hb : 0 < b) : 0 < a * b := by
   let ⟨n, hn⟩ := eq_succ_of_zero_lt ha
@@ -1253,7 +1259,7 @@ theorem neg_of_sign_eq_neg_one : ∀ {a : Int}, sign a = -1 → a < 0
   | 0 => rfl
   | .ofNat (_ + 1) =>
     simp +decide only [sign, true_iff]
-    exact Int.le_add_one (ofNat_nonneg _)
+    exact Int.le_add_one (natCast_nonneg _)
   | .negSucc _ => simp +decide [sign]
 
 @[deprecated sign_nonneg_iff (since := "2025-03-11")] abbrev sign_nonneg := @sign_nonneg_iff

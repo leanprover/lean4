@@ -135,3 +135,27 @@ example [CommRing α] (a b c : α) (f : α → Nat)
 
 example [CommRing α] [NoNatZeroDivisors α] (x y z : α) : 3*x = 1 → 3*z = 2 → 2*y = 2 → x + z + 3*y = 4 := by
   grind +ring
+
+example (x y : Fin 11) : x^2*y = 1 → x*y^2 = y → y*x = 1 := by
+  grind +ring
+
+example (x y : Fin 11) : 3*x = 1 → 3*y = 2 → x + y = 1 := by
+  grind +ring
+
+example (x y z : Fin 13) :
+    (x + y + z) ^ 2 = x ^ 2 + y ^ 2 + z ^ 2 + 2 * (x * y + y * z + z * x) := by
+  grind +ring
+
+example (x y : Fin 17) : (x + y) ^ 3 = x ^ 3 + y ^ 3 + 3 * x * y * (x + y) := by
+  grind +ring
+
+example (x y : Fin 19) : (x - y) * (x ^ 2 + x * y + y ^ 2) = x ^ 3 - y ^ 3 := by
+  grind +ring
+
+example (x : Fin 19) : (1 + x) ^ 5 = x ^ 5 + 5 * x ^ 4 + 10 * x ^ 3 + 10 * x ^ 2 + 5 * x + 1 := by
+  grind +ring
+
+example (x : Fin 10) : (1 + x) ^ 5 = x ^ 5 + 5 * x ^ 4 - 5 * x + 1 := by
+  grind +ring
+
+example (x y : Fin 3) (h : x = y) : ((x + y) ^ 3 : Fin 3) = - x^3 := by grind +ring

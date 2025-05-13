@@ -6,4 +6,7 @@ Authors: Kim Morrison
 prelude
 import Std.Classes.Ord.Basic
 import Std.Classes.Ord.SInt
+import Std.Classes.Ord.UInt
+import Std.Classes.Ord.String
+import Std.Classes.Ord.BitVec
 import Std.Classes.Ord.Vector

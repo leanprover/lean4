@@ -10,6 +10,7 @@ import Init.System.IOError
 import Init.System.FilePath
 import Init.System.ST
 import Init.Data.Ord
+import Init.Data.String.Extra
 
 open System
 

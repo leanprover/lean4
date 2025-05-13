@@ -7,6 +7,7 @@ prelude
 import Init.Data.Ord
 import Init.Data.SInt.Lemmas
 import Init.Data.Vector.Lemmas
+import Init.Data.String.Lemmas
 
 /-!
 # Type classes related to `Ord`

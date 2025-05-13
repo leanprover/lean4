@@ -15,8 +15,6 @@ This module contains lemmas about `Std.Data.HashSet`. Most of the lemmas require
 is to provide an instance of `LawfulBEq α`.
 -/
 
-set_option trace.grind.ematch.pattern true
-
 set_option linter.missingDocs true
 set_option autoImplicit false
 

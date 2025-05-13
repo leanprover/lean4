@@ -13,8 +13,6 @@ import Std.Data.ExtDHashMap.Lemmas
 This module contains lemmas about `Std.ExtHashMap`.
 -/
 
-set_option trace.grind.ematch.pattern true
-
 set_option linter.missingDocs true
 set_option autoImplicit false
 

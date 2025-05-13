@@ -376,13 +376,36 @@ def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool :
 
 /-! # Collecting and maintaining reference info from different sources -/
 
+/-- Reference information from a loaded ILean file. -/
+structure LoadedILean where
+  /-- URI of the module of this ILean. -/
+  moduleUri : DocumentUri
+  /-- Path to the ILean file. -/
+  ileanPath : System.FilePath
+  /-- Reference information from this ILean. -/
+  refs      : Lsp.ModuleRefs
+
 /-- Paths and module references for every module name. Loaded from `.ilean` files. -/
-abbrev ILeanMap := Std.TreeMap Name (System.FilePath × Lsp.ModuleRefs) Name.quickCmp
+abbrev ILeanMap := Std.TreeMap Name LoadedILean Name.quickCmp
+
+/--
+Transient reference information from a file worker.
+We track this information so that we have up-to-date reference information before a file has been
+built.
+-/
+structure TransientWorkerILean where
+  /-- URI of the module that the file worker is associated with. -/
+  moduleUri : DocumentUri
+  /-- Document version for which these references have been collected. -/
+  version   : Nat
+  /-- References provided by the worker. -/
+  refs      : Lsp.ModuleRefs
+
 /--
 Document versions and module references for every module name. Loaded from the current state
 in a file worker.
 -/
-abbrev WorkerRefMap := Std.TreeMap Name (Nat × Lsp.ModuleRefs) Name.quickCmp
+abbrev WorkerRefMap := Std.TreeMap Name TransientWorkerILean Name.quickCmp
 
 /-- References from ilean files and current ilean information from file workers. -/
 structure References where
@@ -397,12 +420,22 @@ namespace References
 def empty : References := { ileans := ∅, workers := ∅ }
 
 /-- Adds the contents of an ilean file `ilean` at `path` to `self`. -/
-def addIlean (self : References) (path : System.FilePath) (ilean : Ilean) : References :=
-  { self with ileans := self.ileans.insert ilean.module (path, ilean.references) }
+def addIlean
+    (self      : References)
+    (moduleUri : DocumentUri)
+    (path      : System.FilePath)
+    (ilean     : Ilean)
+    : References := { self with
+  ileans := self.ileans.insert ilean.module {
+    moduleUri
+    ileanPath := path
+    refs := ilean.references
+  }
+}
 
 /-- Removes the ilean file data at `path` from `self`. -/
 def removeIlean (self : References) (path : System.FilePath) : References :=
-  let namesToRemove := self.ileans.filter (fun _ (p, _) => p == path)
+  let namesToRemove := self.ileans.filter (fun _ { ileanPath, .. } => ileanPath == path)
   namesToRemove.foldl (init := self) fun self name _ =>
     { self with ileans := self.ileans.erase name }
 
@@ -411,26 +444,40 @@ Updates the worker references in `self` with the `refs` of the worker managing t
 Replaces the current references with `refs` if `version` is newer than the current version managed
 in `refs` and otherwise merges the reference data if `version` is equal to the current version.
 -/
-def updateWorkerRefs (self : References) (name : Name) (version : Nat) (refs : Lsp.ModuleRefs) : References := Id.run do
-  if let some (currVersion, _) := self.workers[name]? then
+def updateWorkerRefs
+    (self      : References)
+    (name      : Name)
+    (moduleUri : DocumentUri)
+    (version   : Nat)
+    (refs      : Lsp.ModuleRefs)
+    : References := Id.run do
+  if let some { version := currVersion, .. } := self.workers[name]? then
     if version > currVersion then
-      return { self with workers := self.workers.insert name (version, refs) }
+      return { self with workers := self.workers.insert name { moduleUri, version, refs} }
     if version == currVersion then
-      let current := self.workers.getD name (version, Std.TreeMap.empty)
-      let merged := refs.foldl (init := current.snd) fun m ident info =>
+      let current := self.workers.getD name { moduleUri, version, refs := Std.TreeMap.empty }
+      let merged := refs.foldl (init := current.refs) fun m ident info =>
         m.getD ident Lsp.RefInfo.empty |>.merge info |> m.insert ident
-      return { self with workers := self.workers.insert name (version, merged) }
+      return { self with
+        workers := self.workers.insert name { moduleUri, version, refs := merged }
+      }
   return self
 
 /--
 Replaces the worker references in `self` with the `refs` of the worker managing the module `name`
 if `version` is newer than the current version managed in `refs`.
 -/
-def finalizeWorkerRefs (self : References) (name : Name) (version : Nat) (refs : Lsp.ModuleRefs) : References := Id.run do
-  if let some (currVersion, _) := self.workers[name]? then
+def finalizeWorkerRefs
+    (self      : References)
+    (name      : Name)
+    (moduleUri : DocumentUri)
+    (version   : Nat)
+    (refs      : Lsp.ModuleRefs)
+    : References := Id.run do
+  if let some { version := currVersion, .. } := self.workers[name]? then
     if version < currVersion then
       return self
-  return { self with workers := self.workers.insert name (version, refs) }
+  return { self with workers := self.workers.insert name { moduleUri, version, refs } }
 
 /-- Erases all worker references in `self` for the worker managing `name`. -/
 def removeWorkerRefs (self : References) (name : Name) : References :=
@@ -440,19 +487,23 @@ def removeWorkerRefs (self : References) (name : Name) : References :=
 All references for a module.
 The current references in a file worker take precedence over those in .ilean files.
 -/
-abbrev AllRefsMap := Std.TreeMap Name Lsp.ModuleRefs Name.quickCmp
+abbrev AllRefsMap := Std.TreeMap Name (DocumentUri × Lsp.ModuleRefs) Name.quickCmp
 
 /-- Yields a map from all modules to all of their references. -/
 def allRefs (self : References) : AllRefsMap :=
-  let ileanRefs := self.ileans.foldl (init := ∅) fun m name (_, refs) => m.insert name refs
-  self.workers.foldl (init := ileanRefs) fun m name (_, refs) => m.insert name refs
+  let ileanRefs := self.ileans.foldl (init := ∅) fun m name { moduleUri, refs, .. } => m.insert name (moduleUri, refs)
+  self.workers.foldl (init := ileanRefs) fun m name { moduleUri, refs, ..} => m.insert name (moduleUri, refs)
 
 /--
 Gets the references for `mod`.
 The current references in a file worker take precedence over those in .ilean files.
 -/
-def getModuleRefs? (self : References) (mod : Name) : Option Lsp.ModuleRefs :=
-  self.workers[mod]?.map (·.2) <|> self.ileans[mod]?.map (·.2)
+def getModuleRefs? (self : References) (mod : Name) : Option (DocumentUri × Lsp.ModuleRefs) := do
+  if let some worker := self.workers[mod]? then
+    return (worker.moduleUri, worker.refs)
+  if let some ilean := self.ileans[mod]? then
+    return (ilean.moduleUri, ilean.refs)
+  none
 
 /--
 Yields all references in `self` for `ident`, as well as the `DocumentUri` that each
@@ -468,25 +519,23 @@ def allRefsFor
       let identModuleName := identModule.toName
       match self.getModuleRefs? identModuleName with
       | none => #[]
-      | some refs => #[(identModuleName, refs)]
+      | some (moduleUri, refs) => #[(identModuleName, moduleUri, refs)]
   let mut result := #[]
-  for (module, refs) in refsToCheck do
+  for (module, moduleUri, refs) in refsToCheck do
     let some info := refs.get? ident
       | continue
-    let some uri ← documentUriFromModule? module
-      | continue
-    result := result.push (uri, module, info)
+    result := result.push (moduleUri, module, info)
   return result
 
 /-- Yields all references in `module` at `pos`. -/
 def findAt (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Array RefIdent := Id.run do
-  if let some refs := self.getModuleRefs? module then
+  if let some (_, refs) := self.getModuleRefs? module then
     return refs.findAt pos includeStop
   #[]
 
 /-- Yields the first reference in `module` at `pos`. -/
 def findRange? (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Option Range := do
-  let refs ← self.getModuleRefs? module
+  let (_, refs) ← self.getModuleRefs? module
   refs.findRange? pos includeStop
 
 /-- Location and parent declaration of a reference. -/
@@ -525,34 +574,33 @@ def definitionOf?
   return none
 
 /-- A match in `References.definitionsMatching`. -/
-structure MatchedDefinition (α β : Type) where
+structure MatchedDefinition (α : Type) where
   /-- Result of `filterMapMod`. -/
-  mod   : α
+  mod    : Name
+  /-- URI for `mod`. -/
+  modUri : DocumentUri
   /-- Result of `filterMapIdent`. -/
-  ident : β
+  ident  : α
   /-- Definition range of matched identifier. -/
-  range : Range
+  range  : Range
 
 /-- Yields all definitions matching the given `filter`. -/
 def definitionsMatching
     (self           : References)
-    (filterMapMod   : Name → IO (Option α))
-    (filterMapIdent : Name → IO (Option β))
+    (filterMapIdent : Name → IO (Option α))
     (cancelTk?      : Option CancelToken := none)
-    : IO (Array (MatchedDefinition α β)) := do
+    : IO (Array (MatchedDefinition α)) := do
   let mut result := #[]
-  for (module, refs) in self.allRefs do
+  for (module, moduleUri, refs) in self.allRefs do
     if let some cancelTk := cancelTk? then
       if ← cancelTk.isSet then
         return result
-    let some a ← filterMapMod module
-      | continue
     for (ident, info) in refs do
       let (RefIdent.const _ nameString, some ⟨definitionRange, _⟩) := (ident, info.definition?)
         | continue
-      let some b ← filterMapIdent nameString.toName
+      let some v ← filterMapIdent nameString.toName
         | continue
-      result := result.push ⟨a, b, definitionRange⟩
+      result := result.push ⟨module, moduleUri, v, definitionRange⟩
   return result
 
 end References

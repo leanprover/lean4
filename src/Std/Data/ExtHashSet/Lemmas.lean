@@ -13,8 +13,6 @@ import Std.Data.ExtHashSet.Basic
 This module contains lemmas about `Std.ExtHashSet`.
 -/
 
-set_option trace.grind.ematch.pattern true
-
 set_option linter.missingDocs true
 set_option autoImplicit false
 

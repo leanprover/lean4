@@ -599,7 +599,7 @@ theorem decide_forall_mem {l : List α} {p : α → Prop} [DecidablePred p] :
 @[simp] theorem all_eq_false {l : List α} : l.all p = false ↔ ∃ x, x ∈ l ∧ ¬p x := by
   simp [all_eq]
 
-theorem any_beq [BEq α] {l : List α} {a : α} : (l.any fun x => a == x) = l.contains a := by
+@[grind] theorem any_beq [BEq α] {l : List α} {a : α} : (l.any fun x => a == x) = l.contains a := by
   induction l <;> simp_all [contains_cons]
 
 /-- Variant of `any_beq` with `==` reversed. -/
@@ -607,7 +607,7 @@ theorem any_beq' [BEq α] [PartialEquivBEq α] {l : List α} :
     (l.any fun x => x == a) = l.contains a := by
   simp only [BEq.comm, any_beq]
 
-theorem all_bne [BEq α] {l : List α} : (l.all fun x => a != x) = !l.contains a := by
+@[grind] theorem all_bne [BEq α] {l : List α} : (l.all fun x => a != x) = !l.contains a := by
   induction l <;> simp_all [bne]
 
 /-- Variant of `all_bne` with `!=` reversed. -/

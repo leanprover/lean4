@@ -12,8 +12,6 @@ import Std.Data.ExtDHashMap.Basic
 This file contains lemmas about `Std.ExtDHashMap`.
 -/
 
-set_option trace.grind.ematch.pattern true
-
 set_option linter.missingDocs true
 set_option autoImplicit false
 

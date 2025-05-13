@@ -183,8 +183,7 @@ theorem normalize_correct (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign[v]? = none := by
   fun_induction normalize
   rotate_left
-  · unfold normalize
-    -- Note this error disappears if we remove the unused `h` from the match above.
+  · -- Note this error disappears if we remove the unused `h` from the match above.
     -- Fails with
     -- [issue] type error constructing proof for IfExpr.normalize.match_1.eq_1
     --   when assigning metavariable ?h_1 with

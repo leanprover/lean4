@@ -15,8 +15,6 @@ This file contains lemmas about `Std.Data.DHashMap.Raw`. Most of the lemmas requ
 is to provide an instance of `LawfulBEq α`.
 -/
 
-set_option trace.grind.ematch.pattern true
-
 open Std.DHashMap.Internal
 
 set_option linter.missingDocs true

@@ -26,6 +26,8 @@ That is, expressions that evaluate to `BitVec` again. Its used as a building blo
 general `BitVec` problems with boolean substructure.
 -/
 
+set_option maxHeartbeats 2000000
+
 namespace Std.Tactic.BVDecide
 
 open Std.Sat

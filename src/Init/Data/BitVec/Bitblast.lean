@@ -1899,8 +1899,10 @@ theorem toInt_smod {x y : BitVec w} :
           have hylt : (-y).toNat ≤  2 ^ w := by rw [toNat_neg, Nat.mod_eq_of_lt (by omega)]; omega
           have := BitVec.toInt_umod_of_msb (x := x) (y := y) (by omega)
           · by_cases hyone : -y = 1#(w + 1)
-            · sorry
-            · -- we need to show that ¬ x % -y = 0#(w + 1) if -y ≠ 1#(w + 1) and x ≠ - y
+            · simp [hyone]
+
+              sorry
+            ·
 
 
 
@@ -1965,26 +1967,25 @@ theorem toInt_smod {x y : BitVec w} :
               simp only [hyonebv, umod_one, toInt_zero, Int.sub_zero]
               simp_all
             · rw [Int.bmod_pos]
-              ·
-                sorry
-
-              ·
-                sorry
-
-
-
-
-            by_cases hxintmin : x = intMin (w + 1)
-            · -- overflow
-              simp [hxintmin]
-
-              sorry
-            · have hnegxmsb := msb_neg (x := x)
-              have := BitVec.toInt_umod_of_msb (x := -x) (y := y) (by sorry)
-              rw [this]
-              by_cases hmod : 0 ≤ (-x).toInt % ↑y.toNat
-              · simp [Int.bmod_eq_of_le (by sorry) (by sorry)]
-                sorry
+              · rw [Int.emod_eq_of_lt]
+                · sorry
+                · by_cases hxintmin : x = intMin (w + 1)
+                  · sorry
+                  · simp_all
+                    have : (-x).msb = false := by
+                      simp [msb_neg]
+                      have := ne_zero_of_msb_true (x := x) hxmsb
+                      rw [← bne_iff_ne] at this
+                      simp [← bne_iff_ne] at hxintmin
+                      simp [this, hxintmin]
+                      omega
+                    rw [toInt_umod_of_msb (by omega)]
+                    · by_cases hemod : (-x).toInt % ↑y.toNat = ↑y.toNat
+                      · simp [hemod]
+                      · have := Int.emod_lt (a := (-x).toInt) (b := y.toNat) (by omega)
+                        simp_all
+                        omega
+                · sorry
               · sorry
         · -- x.toInt < 0, y.toInt < 0
           simp [hxmsb, hymsb]

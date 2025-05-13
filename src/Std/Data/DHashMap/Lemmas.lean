@@ -31,11 +31,11 @@ namespace Std.DHashMap
 
 variable {m : DHashMap α β}
 
-@[simp, grind]
+@[simp, grind =]
 theorem isEmpty_emptyWithCapacity {c} : (emptyWithCapacity c : DHashMap α β).isEmpty :=
   Raw₀.isEmpty_emptyWithCapacity
 
-@[simp, grind]
+@[simp, grind =]
 theorem isEmpty_empty : (∅ : DHashMap α β).isEmpty :=
   isEmpty_emptyWithCapacity
 
@@ -232,7 +232,7 @@ theorem containsThenInsertIfNew_snd {k : α} {v : β k} :
 theorem get?_emptyWithCapacity [LawfulBEq α] {a : α} {c} : (emptyWithCapacity c : DHashMap α β).get? a = none :=
   Raw₀.get?_emptyWithCapacity
 
-@[simp]
+@[simp, grind =]
 theorem get?_empty [LawfulBEq α] {a : α} : (∅ : DHashMap α β).get? a = none :=
   get?_emptyWithCapacity
 
@@ -288,7 +288,7 @@ variable {β : Type v} {m : DHashMap α (fun _ => β)}
 theorem get?_emptyWithCapacity {a : α} {c} : get? (emptyWithCapacity c : DHashMap α (fun _ => β)) a = none :=
   Raw₀.Const.get?_emptyWithCapacity
 
-@[simp]
+@[simp, grind =]
 theorem get?_empty {a : α} : get? (∅ : DHashMap α (fun _ => β)) a = none :=
   get?_emptyWithCapacity
 
@@ -361,7 +361,7 @@ theorem get_insert_self [LawfulBEq α] {k : α} {v : β k} :
     (m.insert k v).get k mem_insert_self = v :=
   Raw₀.get_insert_self ⟨m.1, _⟩ m.2
 
-@[simp]
+@[simp, grind =]
 theorem get_erase [LawfulBEq α] {k a : α} {h'} :
     (m.erase k).get a h' = m.get a (mem_of_mem_erase h') :=
   Raw₀.get_erase ⟨m.1, _⟩ m.2
@@ -391,7 +391,7 @@ theorem get_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
     get (m.insert k v) k mem_insert_self = v :=
   Raw₀.Const.get_insert_self ⟨m.1, _⟩ m.2
 
-@[simp]
+@[simp, grind =]
 theorem get_erase [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
     get (m.erase k) a h' = get m a (mem_of_mem_erase h') :=
   Raw₀.Const.get_erase ⟨m.1, _⟩ m.2
@@ -1120,11 +1120,11 @@ namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
-@[simp]
+@[simp, grind =]
 theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = get? m k :=
   Raw₀.Const.getThenInsertIfNew?_fst _
 
-@[simp]
+@[simp, grind =]
 theorem getThenInsertIfNew?_snd {k : α} {v : β} :
     (getThenInsertIfNew? m k v).2 = m.insertIfNew k v :=
   Subtype.eq <| (congrArg Subtype.val (Raw₀.Const.getThenInsertIfNew?_snd _ (k := k)) :)

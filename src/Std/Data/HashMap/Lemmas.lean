@@ -34,11 +34,11 @@ variable {m : HashMap α β}
 private theorem ext {m m' : HashMap α β} : m.inner = m'.inner → m = m' := by
   cases m; cases m'; rintro rfl; rfl
 
-@[simp, grind]
+@[simp, grind =]
 theorem isEmpty_emptyWithCapacity {c} : (emptyWithCapacity c : HashMap α β).isEmpty :=
   DHashMap.isEmpty_emptyWithCapacity
 
-@[simp, grind]
+@[simp, grind =]
 theorem isEmpty_empty : (∅ : HashMap α β).isEmpty :=
   DHashMap.isEmpty_empty
 
@@ -118,12 +118,12 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
     Singleton.singleton p = (∅ : HashMap α β).insert p.1 p.2 :=
   rfl
 
-@[simp, grind]
+@[simp, grind =]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
     (m.insert k v).contains a = (k == a || m.contains a) :=
   DHashMap.contains_insert
 
-@[simp, grind]
+@[simp, grind =]
 theorem mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
     a ∈ m.insert k v ↔ k == a ∨ a ∈ m :=
   DHashMap.mem_insert
@@ -309,7 +309,7 @@ theorem getElem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} 
     (m.insert k v)[k]'mem_insert_self = v :=
   DHashMap.Const.get_insert_self
 
-@[simp]
+@[simp, grind =]
 theorem getElem_erase [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
     (m.erase k)[a]'h' = m[a]'(mem_of_mem_erase h') :=
   DHashMap.Const.get_erase (h' := h')

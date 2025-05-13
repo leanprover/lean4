@@ -86,8 +86,7 @@ Examples:
 @[extern "lean_uint8_mod"]
 protected def UInt8.mod (a b : UInt8) : UInt8 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 set_option linter.missingDocs false in
-@[deprecated UInt8.mod (since := "2024-09-23")]
-protected def UInt8.modn (a : UInt8) (n : Nat) : UInt8 := ⟨Fin.modn a.toFin n⟩
+
 /--
 Bitwise and for 8-bit unsigned integers. Usually accessed via the `&&&` operator.
 
@@ -298,8 +297,7 @@ Examples:
 @[extern "lean_uint16_mod"]
 protected def UInt16.mod (a b : UInt16) : UInt16 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 set_option linter.missingDocs false in
-@[deprecated UInt16.mod (since := "2024-09-23")]
-protected def UInt16.modn (a : UInt16) (n : Nat) : UInt16 := ⟨Fin.modn a.toFin n⟩
+
 /--
 Bitwise and for 16-bit unsigned integers. Usually accessed via the `&&&` operator.
 
@@ -512,8 +510,7 @@ Examples:
 @[extern "lean_uint32_mod"]
 protected def UInt32.mod (a b : UInt32) : UInt32 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 set_option linter.missingDocs false in
-@[deprecated UInt32.mod (since := "2024-09-23")]
-protected def UInt32.modn (a : UInt32) (n : Nat) : UInt32 := ⟨Fin.modn a.toFin n⟩
+
 /--
 Bitwise and for 32-bit unsigned integers. Usually accessed via the `&&&` operator.
 
@@ -688,8 +685,7 @@ Examples:
 @[extern "lean_uint64_mod"]
 protected def UInt64.mod (a b : UInt64) : UInt64 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 set_option linter.missingDocs false in
-@[deprecated UInt64.mod (since := "2024-09-23")]
-protected def UInt64.modn (a : UInt64) (n : Nat) : UInt64 := ⟨Fin.modn a.toFin n⟩
+
 /--
 Bitwise and for 64-bit unsigned integers. Usually accessed via the `&&&` operator.
 
@@ -895,8 +891,7 @@ Examples:
 @[extern "lean_usize_mod"]
 protected def USize.mod (a b : USize) : USize := ⟨a.toBitVec % b.toBitVec⟩
 set_option linter.missingDocs false in
-@[deprecated USize.mod (since := "2024-09-23")]
-protected def USize.modn (a : USize) (n : Nat) : USize := ⟨Fin.modn a.toFin n⟩
+
 /--
 Bitwise and for word-sized unsigned integers. Usually accessed via the `&&&` operator.
 

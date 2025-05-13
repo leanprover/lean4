@@ -186,11 +186,4 @@ theorem le_max?_getD_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) :
     a ≤ l.max?.getD k :=
   Option.get_eq_getD _ ▸ le_max?_get_of_mem h
 
-@[deprecated min?_eq_some_iff' (since := "2024-09-29")] abbrev minimum?_eq_some_iff' := @min?_eq_some_iff'
-@[deprecated min?_cons' (since := "2024-09-29")] abbrev minimum?_cons' := @min?_cons'
-@[deprecated min?_getD_le_of_mem (since := "2024-09-29")] abbrev minimum?_getD_le_of_mem := @min?_getD_le_of_mem
-@[deprecated max?_eq_some_iff' (since := "2024-09-29")] abbrev maximum?_eq_some_iff' := @max?_eq_some_iff'
-@[deprecated max?_cons' (since := "2024-09-29")] abbrev maximum?_cons' := @max?_cons'
-@[deprecated le_max?_getD_of_mem (since := "2024-09-29")] abbrev le_maximum?_getD_of_mem := @le_max?_getD_of_mem
-
 end List

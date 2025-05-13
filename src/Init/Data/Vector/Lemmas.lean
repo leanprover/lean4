@@ -2679,6 +2679,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Vector α n} {a : α} :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.contains_iff_exists_mem_beq]
 
+@[grind =]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Vector α n} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp

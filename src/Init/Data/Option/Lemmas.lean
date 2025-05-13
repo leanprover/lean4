@@ -721,8 +721,7 @@ abbrev choice_eq := @choice_eq_some
 theorem choice_eq_default [Subsingleton α] [Inhabited α] : choice α = some default :=
   choice_eq_some _
 
-@[simp]
-theorem choice_eq_none : choice α = none ↔ ¬Nonempty α := by
+theorem choice_eq_none_iff_not_nonempty : choice α = none ↔ ¬Nonempty α := by
   simp [choice]
 
 theorem isSome_choice_iff_nonempty : (choice α).isSome ↔ Nonempty α :=
@@ -732,8 +731,7 @@ theorem isSome_choice_iff_nonempty : (choice α).isSome ↔ Nonempty α :=
 abbrev choice_isSome_iff_nonempty := @isSome_choice_iff_nonempty
 
 theorem isNone_choice_iff_not_nonempty : (choice α).isNone ↔ ¬Nonempty α := by
-  rw [Iff.comm, ← Classical.not_iff, Iff.comm, Classical.not_iff, Bool.not_eq_true,
-    Option.isNone_eq_false_iff, isSome_choice_iff_nonempty]
+  rw [isNone_iff_eq_none, choice_eq_none_iff_not_nonempty]
 
 end choice
 

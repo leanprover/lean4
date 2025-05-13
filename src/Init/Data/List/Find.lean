@@ -95,7 +95,7 @@ theorem findSome?_eq_some_iff {f : α → Option β} {l : List α} {b : β} :
   induction l with
   | nil => simp
   | cons x xs ih =>
-    simp [guard, findSome?, find?]
+    simp [findSome?, find?]
     split <;> rename_i h
     · simp only [Option.guard_eq_some_iff] at h
       obtain ⟨rfl, h⟩ := h

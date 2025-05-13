@@ -567,12 +567,14 @@ protected def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.toBitVec >>> (UI
 Strict inequality of 32-bit unsigned integers, defined as inequality of the corresponding
 natural numbers. Usually accessed via the `<` operator.
 -/
-protected def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
+-- These need to be exposed as `Init.Prelude` already has an instance for bootstrapping puproses and
+-- they should be defeq
+@[expose] protected def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
 /--
 Non-strict inequality of 32-bit unsigned integers, defined as inequality of the corresponding
 natural numbers. Usually accessed via the `≤` operator.
 -/
-protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
+@[expose] protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
@@ -584,6 +586,8 @@ set_option linter.deprecated false in
 instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 
 instance : Div UInt32       := ⟨UInt32.div⟩
+instance : LT UInt32        := ⟨UInt32.lt⟩
+instance : LE UInt32        := ⟨UInt32.le⟩
 
 /--
 Bitwise complement, also known as bitwise negation, for 32-bit unsigned integers. Usually accessed

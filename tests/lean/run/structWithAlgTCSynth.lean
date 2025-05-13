@@ -140,7 +140,7 @@ class AddZeroClass (M : Type u) extends Zero M, Add M where
 class AddMonoid (M : Type u) extends AddSemigroup M, AddZeroClass M where
   nsmul : Nat → M → M := nsmulRec
   nsmul_zero : ∀ x, nsmul 0 x = 0 := by intros; rfl
-  nsmul_succ : ∀ (n : Nat) (x), nsmul (n + 1) x = x + nsmul n x := by intros; rfl
+  nsmul_succ : ∀ (n : Nat) (x), nsmul (n + 1) x = nsmul n x + x := by intros; rfl
 
 attribute [instance 150] AddSemigroup.toAdd
 attribute [instance 50] AddZeroClass.toAdd
@@ -148,7 +148,7 @@ attribute [instance 50] AddZeroClass.toAdd
 class Monoid (M : Type u) extends Semigroup M, MulOneClass M where
   npow : Nat → M → M := npowRec
   npow_zero : ∀ x, npow 0 x = 1 := by intros; rfl
-  npow_succ : ∀ (n : Nat) (x), npow (n + 1) x = x * npow n x := by intros; rfl
+  npow_succ : ∀ (n : Nat) (x), npow (n + 1) x = npow n x * x := by intros; rfl
 
 @[default_instance high] instance Monoid.Pow {M : Type _} [Monoid M] : Pow M Nat :=
   ⟨fun x n ↦ Monoid.npow n x⟩
@@ -196,7 +196,7 @@ class SubNegMonoid (G : Type u) extends AddMonoid G, Neg G, Sub G where
   sub_eq_add_neg : ∀ a b : G, a - b = a + -b := by intros; rfl
   zsmul : Int → G → G := zsmulRec
   zsmul_zero' : ∀ a : G, zsmul 0 a = 0 := by intros; rfl
-  zsmul_succ' (n : Nat) (a : G) : zsmul (Int.ofNat n.succ) a = a + zsmul (Int.ofNat n) a := by
+  zsmul_succ' (n : Nat) (a : G) : zsmul (Int.ofNat n.succ) a = zsmul (Int.ofNat n) a + a := by
     intros; rfl
   zsmul_neg' (n : Nat) (a : G) : zsmul (Int.negSucc n) a = -zsmul n.succ a := by intros; rfl
 

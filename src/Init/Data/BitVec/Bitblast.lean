@@ -1845,6 +1845,18 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
 theorem BitVec.umod_eq_zero_iff {x y : BitVec w} :
     x % y = 0 ↔ y = 0#w ∨ ∃ k, ∃ h : 0 < k, k * y = x := by sorry
 
+
+#eval (-4#3).toInt.fmod (0#3).toInt
+#eval (-4#3).toInt.fmod (1#3).toInt
+#eval (-4#3).toInt.fmod (2#3).toInt
+#eval (-4#3).toInt.fmod (3#3).toInt
+#eval (-4#3).toInt.fmod (4#3).toInt
+
+#eval ((-3#3).smod 0#3).toInt
+#eval ((-3#3).smod (-1#3)).toInt
+#eval ((-3#3).smod 2#3).toInt
+#eval ((-3#3).smod 3#3).toInt
+
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
   rcases w with _|w
@@ -1885,7 +1897,7 @@ theorem toInt_smod {x y : BitVec w} :
           have hpowlt := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + 1) (by omega) (by omega)
           have : y.toNat < 2 ^ (w + 1) := by omega
           have hylt : (-y).toNat ≤  2 ^ w := by rw [toNat_neg, Nat.mod_eq_of_lt (by omega)]; omega
-          -- simp [BitVec.toInt_umod_of_msb]
+          have := BitVec.toInt_umod_of_msb (x := x) (y := y) (by omega)
           · by_cases hyone : -y = 1#(w + 1)
             · sorry
             · -- we need to show that ¬ x % -y = 0#(w + 1) if -y ≠ 1#(w + 1) and x ≠ - y
@@ -1941,16 +1953,39 @@ theorem toInt_smod {x y : BitVec w} :
             simp only [Int.neg_neg]
             norm_cast
           · simp [humod]
-            simp [← Int.bmod_sub_bmod]
+            simp [toInt_eq_toNat_of_msb hymsb]
+            have : ¬ y.toNat = 0 := by
+              simp [toNat_eq] at hyzero
+              omega
+            by_cases hyone : y.toNat = 1
+            · -- mod is always zero
+              simp [hyone]
+              have hone := toNat_one (w := w + 1) (by omega)
+              have hyonebv : y = 1#(w + 1) := by rw [toNat_eq]; omega
+              simp only [hyonebv, umod_one, toInt_zero, Int.sub_zero]
+              simp_all
+            · rw [Int.bmod_pos]
+              ·
+                sorry
+
+              ·
+                sorry
 
 
-            sorry
-
-          -- umod_eq_zero_iff
-          --
 
 
+            by_cases hxintmin : x = intMin (w + 1)
+            · -- overflow
+              simp [hxintmin]
 
+              sorry
+            · have hnegxmsb := msb_neg (x := x)
+              have := BitVec.toInt_umod_of_msb (x := -x) (y := y) (by sorry)
+              rw [this]
+              by_cases hmod : 0 ≤ (-x).toInt % ↑y.toNat
+              · simp [Int.bmod_eq_of_le (by sorry) (by sorry)]
+                sorry
+              · sorry
         · -- x.toInt < 0, y.toInt < 0
           simp [hxmsb, hymsb]
           sorry

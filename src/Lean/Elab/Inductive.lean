@@ -246,15 +246,20 @@ where
   parameters from the inductive definition.
   -/
   checkParamOccs (ctorType : Expr) : MetaM Expr :=
-    let visit (e : Expr) : MetaM TransformStep := do
+    let hasSubExpr (e : Expr) :=
+      e matches .app .. | .proj .. | .mdata .. | .letE .. | .forallE .. | .lam ..
+    let visit (e : Expr) : StateT (List Expr) MetaM TransformStep := do
       let f := e.getAppFn
       if indFVars.contains f then
         let mut args := e.getAppArgs
         unless args.size ≥ params.size do
           let expected := mkAppN f params
-          let msg := m!"Missing parameters in occurrence of inductive type: Found{indentExpr e}\nbut expected{indentExpr expected}"
-          let noteMsg := m!"All occurrences of an inductive type in the types of its constructors must include its fixed parameters. \
-                            To omit a parameter, make it an index instead."
+          let msg :=
+            m!"Missing parameters in occurrence of inductive type: In the expression{indentExpr (← get).head!}\n\
+            found{indentExpr e}\nbut expected all parameters to be specified:{indentExpr expected}"
+          let noteMsg :=
+            m!"All occurrences of an inductive type in the types of its constructors must include its fixed parameters. \
+               To allow partial application of the type constructor without specifying this parameter, make it an index instead."
           throwError msg ++ .note noteMsg
         for h : i in [:params.size] do
           let param := params[i]
@@ -269,8 +274,14 @@ where
           args := args.set! i param
         return TransformStep.done (mkAppN f args)
       else
+        if hasSubExpr e then
+          modify fun es => e :: es
         return .continue
-    transform ctorType (pre := visit)
+    let post (e : Expr) : StateT (List Expr) MetaM TransformStep := do
+      if hasSubExpr e then
+        modify fun es => es.drop 1
+      return .done e
+    transform ctorType (pre := visit) (post := post) |>.run' [ctorType]
 
 @[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]
 def elabInductiveCommand : InductiveElabDescr where

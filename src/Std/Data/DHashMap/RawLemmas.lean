@@ -65,11 +65,11 @@ open Internal.Raw₀ Internal.Raw
 
 variable {m : Raw α β}
 
-@[simp]
+@[simp, grind]
 theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).size = 0 := by
   simp_to_raw using Raw₀.size_emptyWithCapacity
 
-@[simp]
+@[simp, grind]
 theorem size_empty : (∅ : Raw α β).size = 0 :=
   size_emptyWithCapacity
 
@@ -82,11 +82,11 @@ theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := by
 
 variable [BEq α] [Hashable α]
 
-@[simp]
+@[simp, grind]
 theorem isEmpty_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).isEmpty := by
   simp_to_raw using Raw₀.isEmpty_emptyWithCapacity
 
-@[simp]
+@[simp, grind]
 theorem isEmpty_empty : (∅ : Raw α β).isEmpty :=
   isEmpty_emptyWithCapacity
 
@@ -94,7 +94,7 @@ set_option linter.missingDocs false in
 @[deprecated isEmpty_empty (since := "2025-03-11")]
 abbrev isEmpty_emptyc := @isEmpty_empty
 
-@[simp]
+@[simp, grind]
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
     (m.insert k v).isEmpty = false := by
   simp_to_raw using Raw₀.isEmpty_insert
@@ -114,13 +114,13 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab :
     a ∈ m ↔ b ∈ m := by
   simp [← contains_iff_mem, contains_congr h hab]
 
-@[simp] theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : Raw α β).contains a = false := by
+@[simp, grind] theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : Raw α β).contains a = false := by
   simp_to_raw using Raw₀.contains_emptyWithCapacity
 
-@[simp] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : Raw α β) := by
+@[simp, grind] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : Raw α β) := by
   simp [mem_iff_contains]
 
-@[simp] theorem contains_empty {a : α} : (∅ : Raw α β).contains a = false :=
+@[simp, grind] theorem contains_empty {a : α} : (∅ : Raw α β).contains a = false :=
   contains_emptyWithCapacity
 
 set_option linter.missingDocs false in
@@ -164,12 +164,12 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) 
     Singleton.singleton p = (∅ : Raw α β).insert p.1 p.2 :=
   rfl
 
-@[simp]
+@[simp, grind]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a k : α} {v : β k} :
     (m.insert k v).contains a = (k == a || m.contains a) := by
   simp_to_raw using Raw₀.contains_insert
 
-@[simp]
+@[simp, grind]
 theorem mem_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β k} :
     a ∈ m.insert k v ↔ k == a ∨ a ∈ m := by
   simp [← contains_iff_mem, contains_insert h]

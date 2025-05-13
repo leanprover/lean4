@@ -51,6 +51,9 @@ theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g =
 @[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
   rfl
 
+@[simp] theorem Function.comp_id (f : α → β) : f ∘ id = f := rfl
+@[simp] theorem Function.id_comp (f : α → β) : id ∘ f = f := rfl
+
 attribute [simp] namedPattern
 
 /--
@@ -2523,9 +2526,6 @@ class Refl (r : α → α → Prop) : Prop where
 class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
-
-@[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
-abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
 
 /-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
 `r a b → ¬ r b a`. -/

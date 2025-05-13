@@ -184,8 +184,6 @@ theorem dropLast_take {i : Nat} {l : List α} (h : i < l.length) :
     (l.take i).dropLast = l.take (i - 1) := by
   simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
 
-@[deprecated map_eq_append_iff (since := "2024-09-05")] abbrev map_eq_append_split := @map_eq_append_iff
-
 theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     l.take i = l.dropLast := by
   induction l generalizing i with

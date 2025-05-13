@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Classes.Ord
-// Imports: Init.Data.Ord Init.Data.SInt.Lemmas Init.Data.Vector.Lemmas
+// Imports: Init.Data.Ord Init.Data.SInt.Lemmas Init.Data.Vector.Lemmas Init.Data.String.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -95,6 +95,7 @@ return x_5;
 lean_object* initialize_Init_Data_Ord(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Classes_Ord(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -107,6 +108,9 @@ res = initialize_Init_Data_SInt_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

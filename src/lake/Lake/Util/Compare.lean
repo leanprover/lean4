@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Init.Data.Ord
+import Init.Data.String.Lemmas
 
 namespace Lake
 

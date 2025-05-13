@@ -4704,11 +4704,6 @@ theorem get!_eq_getD_getElem? [Inhabited α] (xs : Array α) (i : Nat) :
 set_option linter.deprecated false in
 @[deprecated get!_eq_getD_getElem? (since := "2025-02-12")] abbrev get!_eq_getElem? := @get!_eq_getD_getElem?
 
-
-@[deprecated mem_of_back? (since := "2024-10-21")] abbrev mem_of_back?_eq_some := @mem_of_back?
-
-@[deprecated getElem?_size_le (since := "2024-10-21")] abbrev get?_len_le := @getElem?_size_le
-
 set_option linter.deprecated false in
 @[deprecated "`Array.get?` is deprecated, use `a[i]?` instead." (since := "2025-02-12")]
 theorem get?_eq_get?_toList (xs : Array α) (i : Nat) : xs.get? i = xs.toList.get? i := by
@@ -4717,44 +4712,10 @@ theorem get?_eq_get?_toList (xs : Array α) (i : Nat) : xs.get? i = xs.toList.ge
 set_option linter.deprecated false in
 @[deprecated get!_eq_getD_getElem? (since := "2025-02-12")] abbrev get!_eq_get? := @get!_eq_getD_getElem?
 
-@[deprecated getElem?_push_lt (since := "2024-10-21")] abbrev get?_push_lt := @getElem?_push_lt
-
-@[deprecated getElem?_push_eq (since := "2024-10-21")] abbrev get?_push_eq := @getElem?_push_eq
-
-@[deprecated getElem?_push (since := "2024-10-21")] abbrev get?_push := @getElem?_push
-
-@[deprecated getElem?_size (since := "2024-10-21")] abbrev get?_size := @getElem?_size
-
 @[deprecated getElem_set_self (since := "2025-01-17")]
 theorem get_set_eq (xs : Array α) (i : Nat) (v : α) (h : i < xs.size) :
     (xs.set i v h)[i]'(by simp [h]) = v := by
   simp only [set, ← getElem_toList, List.getElem_set_self]
-
-@[deprecated foldl_toList_eq_flatMap (since := "2024-10-16")]
-abbrev foldl_toList_eq_bind := @foldl_toList_eq_flatMap
-
-@[deprecated foldl_toList_eq_flatMap (since := "2024-10-16")]
-abbrev foldl_data_eq_bind := @foldl_toList_eq_flatMap
-
-@[deprecated getElem_mem (since := "2024-10-17")]
-abbrev getElem?_mem := @getElem_mem
-
-@[deprecated getElem_fin_eq_getElem_toList (since := "2024-10-17")]
-abbrev getElem_fin_eq_toList_get := @getElem_fin_eq_getElem_toList
-
-@[deprecated "Use reverse direction of `getElem?_toList`" (since := "2024-10-17")]
-abbrev getElem?_eq_toList_getElem? := @getElem?_toList
-
-@[deprecated getElem?_swap (since := "2024-10-17")] abbrev get?_swap := @getElem?_swap
-
-@[deprecated getElem_push (since := "2024-10-21")] abbrev get_push := @getElem_push
-@[deprecated getElem_push_lt (since := "2024-10-21")] abbrev get_push_lt := @getElem_push_lt
-@[deprecated getElem_push_eq (since := "2024-10-21")] abbrev get_push_eq := @getElem_push_eq
-
-@[deprecated back!_eq_back? (since := "2024-10-31")] abbrev back_eq_back? := @back!_eq_back?
-@[deprecated back!_push (since := "2024-10-31")] abbrev back_push := @back!_push
-@[deprecated eq_push_pop_back!_of_size_ne_zero (since := "2024-10-31")]
-abbrev eq_push_pop_back_of_size_ne_zero := @eq_push_pop_back!_of_size_ne_zero
 
 @[deprecated set!_is_setIfInBounds (since := "2024-11-24")] abbrev set_is_setIfInBounds := @set!_eq_setIfInBounds
 @[deprecated size_setIfInBounds (since := "2024-11-24")] abbrev size_setD := @size_setIfInBounds

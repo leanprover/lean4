@@ -159,34 +159,4 @@ theorem foldl_eq_foldl_toList {f : β → α → β} {init : β} {xs : Array α}
     xs.foldl f init = xs.toList.foldl f init:= by
   simp
 
-@[deprecated foldlM_toList (since := "2024-09-09")]
-abbrev foldlM_eq_foldlM_data := @foldlM_toList
-
-@[deprecated foldl_toList (since := "2024-09-09")]
-abbrev foldl_eq_foldl_data := @foldl_toList
-
-@[deprecated foldrM_eq_reverse_foldlM_toList (since := "2024-09-09")]
-abbrev foldrM_eq_reverse_foldlM_data := @foldrM_eq_reverse_foldlM_toList
-
-@[deprecated foldrM_toList (since := "2024-09-09")]
-abbrev foldrM_eq_foldrM_data := @foldrM_toList
-
-@[deprecated foldr_toList (since := "2024-09-09")]
-abbrev foldr_eq_foldr_data := @foldr_toList
-
-@[deprecated push_toList (since := "2024-09-09")]
-abbrev push_data := @push_toList
-
-@[deprecated toListImpl_eq (since := "2024-09-09")]
-abbrev toList_eq := @toListImpl_eq
-
-@[deprecated pop_toList (since := "2024-09-09")]
-abbrev pop_data := @toList_pop
-
-@[deprecated toList_append (since := "2024-09-09")]
-abbrev append_data := @toList_append
-
-@[deprecated toList_appendList (since := "2024-09-09")]
-abbrev appendList_data := @toList_appendList
-
 end Array

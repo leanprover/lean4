@@ -502,8 +502,6 @@ theorem Perm.flatten {l₁ l₂ : List (List α)} (h : l₁ ~ l₂) : l₁.flatt
   | swap => simp only [flatten_cons, ← append_assoc, perm_append_right_iff]; exact perm_append_comm ..
   | trans _ _ ih₁ ih₂ => exact trans ih₁ ih₂
 
-@[deprecated Perm.flatten (since := "2024-10-14")] abbrev Perm.join := @Perm.flatten
-
 theorem cons_append_cons_perm {a b : α} {as bs : List α} :
     a :: as ++ b :: bs ~ b :: as ++ a :: bs := by
   suffices [[a], as, [b], bs].flatten ~ [[b], as, [a], bs].flatten by simpa
@@ -515,8 +513,6 @@ theorem cons_append_cons_perm {a b : α} {as bs : List α} :
 
 theorem Perm.flatMap_right {l₁ l₂ : List α} (f : α → List β) (p : l₁ ~ l₂) : l₁.flatMap f ~ l₂.flatMap f :=
   (p.map _).flatten
-
-@[deprecated Perm.flatMap_right (since := "2024-10-16")] abbrev Perm.bind_right := @Perm.flatMap_right
 
 theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
     (H : Pairwise (fun a b => f a → f b → False) l₁) (p : l₁ ~ l₂) : eraseP f l₁ ~ eraseP f l₂ := by

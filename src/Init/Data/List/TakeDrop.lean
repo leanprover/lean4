@@ -131,8 +131,6 @@ theorem drop_eq_nil_iff {l : List α} {i : Nat} : l.drop i = [] ↔ l.length ≤
     · simp only [drop] at h
       simpa [Nat.succ_le_succ_iff] using hi h
 
-@[deprecated drop_eq_nil_iff (since := "2024-09-10")] abbrev drop_eq_nil_iff_le := @drop_eq_nil_iff
-
 @[simp]
 theorem take_eq_nil_iff {l : List α} {k : Nat} : l.take k = [] ↔ k = 0 ∨ l = [] := by
   cases l <;> cases k <;> simp [Nat.succ_ne_zero]

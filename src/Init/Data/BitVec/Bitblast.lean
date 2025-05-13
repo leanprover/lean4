@@ -516,7 +516,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
   rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
   omega
 
-@[simp] theorem BitVec.setWidth_neg_of_le {x : BitVec v} (h : w ≤ v) : BitVec.setWidth w (-x) = -BitVec.setWidth w x := by
+@[simp] theorem setWidth_neg_of_le {x : BitVec v} (h : w ≤ v) : BitVec.setWidth w (-x) = -BitVec.setWidth w x := by
   simp [← BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.signExtend_neg_of_le h]
 
 /-! ### abs -/
@@ -668,11 +668,6 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
       getLsbD_zero, and_eq_false_imp, and_eq_true, decide_eq_true_eq, and_imp]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
-@[deprecated setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (since := "2024-09-18"),
-  inherit_doc setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow]
-abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow :=
-  @setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow
-
 /--
 Recurrence lemma: multiplying `x` with the first `s` bits of `y` is the
 same as truncating `y` to `s` bits, then zero extending to the original length,
@@ -698,10 +693,6 @@ theorem mulRec_eq_mul_signExtend_setWidth (x y : BitVec w) (s : Nat) :
       simp only [ofNat_eq_ofNat, and_twoPow]
       by_cases hy : y.getLsbD (s' + 1) <;> simp [hy]
     rw [heq, ← BitVec.mul_add, ← setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow]
-
-@[deprecated mulRec_eq_mul_signExtend_setWidth (since := "2024-09-18"),
-  inherit_doc mulRec_eq_mul_signExtend_setWidth]
-abbrev mulRec_eq_mul_signExtend_truncate := @mulRec_eq_mul_signExtend_setWidth
 
 theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
     (x * y).getLsbD i = (mulRec x y w).getLsbD i := by

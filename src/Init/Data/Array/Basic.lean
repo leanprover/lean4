@@ -36,8 +36,6 @@ variable {α : Type u}
 
 namespace Array
 
-@[deprecated toList (since := "2024-09-10")] abbrev data := @toList
-
 /-! ### Preliminary theorems -/
 
 @[simp, grind] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
@@ -147,8 +145,6 @@ end List
 namespace Array
 
 theorem size_eq_length_toList {xs : Array α} : xs.size = xs.toList.length := rfl
-
-@[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @List.toList_toArray
 
 /-! ### Externs -/
 
@@ -1487,8 +1483,6 @@ The resulting arrays are appended.
 def flatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
   as.foldlM (init := empty) fun bs a => do return bs ++ (← f a)
 
-@[deprecated flatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
-
 /--
 Applies a function that returns an array to each element of an array. The resulting arrays are
 appended.
@@ -1500,8 +1494,6 @@ Examples:
 @[inline]
 def flatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
-
-@[deprecated flatMap (since := "2024-10-16")] abbrev concatMap := @flatMap
 
 /--
 Appends the contents of array of arrays into a single array. The resulting array contains the same

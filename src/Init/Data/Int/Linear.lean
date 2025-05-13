@@ -16,6 +16,10 @@ import Init.Data.Int.Gcd
 import Init.Data.RArray
 import Init.Data.AC
 
+-- bootstrapping aid
+#guard_msgs(drop error) in
+set_option tactic.fun_induction.unfolding false
+
 namespace Int.Linear
 
 /-! Helper definitions and theorems for constructing linear arithmetic proofs. -/

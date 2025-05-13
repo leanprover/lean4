@@ -27,7 +27,7 @@ open Nat
 
 /-! ### take -/
 
-@[simp] theorem length_take : ∀ {i : Nat} {l : List α}, (take i l).length = min i l.length
+@[simp, grind =] theorem length_take : ∀ {i : Nat} {l : List α}, (take i l).length = min i l.length
   | 0, l => by simp [Nat.zero_min]
   | succ n, [] => by simp [Nat.min_zero]
   | succ n, _ :: l => by simp [Nat.succ_min_succ, length_take]
@@ -47,7 +47,7 @@ theorem getElem_take' {xs : List α} {i j : Nat} (hi : i < xs.length) (hj : i < 
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
-@[simp] theorem getElem_take {xs : List α} {j i : Nat} {h : i < (xs.take j).length} :
+@[simp, grind =] theorem getElem_take {xs : List α} {j i : Nat} {h : i < (xs.take j).length} :
     (xs.take j)[i] =
     xs[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
   rw [length_take, Nat.lt_min] at h; rw [getElem_take' (xs := xs) _ h.1]
@@ -56,7 +56,7 @@ theorem getElem?_take_eq_none {l : List α} {i j : Nat} (h : i ≤ j) :
     (l.take i)[j]? = none :=
   getElem?_eq_none <| Nat.le_trans (length_take_le _ _) h
 
-theorem getElem?_take {l : List α} {i j : Nat} :
+@[grind =]theorem getElem?_take {l : List α} {i j : Nat} :
     (l.take i)[j]? = if j < i then l[j]? else none := by
   split
   · next h => exact getElem?_take_of_lt h
@@ -232,7 +232,7 @@ theorem getElem_drop' {xs : List α} {i j : Nat} (h : i + j < xs.length) :
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the small list to the big list. -/
-@[simp] theorem getElem_drop {xs : List α} {i : Nat} {j : Nat} {h : j < (xs.drop i).length} :
+@[simp, grind =] theorem getElem_drop {xs : List α} {i : Nat} {j : Nat} {h : j < (xs.drop i).length} :
     (xs.drop i)[j] = xs[i + j]'(by
       rw [Nat.add_comm]
       exact Nat.add_lt_of_lt_sub (length_drop ▸ h)) := by

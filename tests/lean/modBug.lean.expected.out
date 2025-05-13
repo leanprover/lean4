@@ -1,4 +1,4 @@
-modBug.lean:1:48-1:64: error: Application type mismatch: In the appplication
+modBug.lean:1:48-1:64: error: Application type mismatch: In the application
   Nat.zero_ne_one (Nat.mod_zero 1)
 the final argument
   Nat.mod_zero 1

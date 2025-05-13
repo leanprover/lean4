@@ -1,4 +1,5 @@
 import Lean
+set_option grind.warning false
 
 def f (a : Nat) := a + a + a
 def g (a : Nat) := a + a
@@ -42,3 +43,10 @@ trace: [Meta.debug] [d, f (g b), c, f v]
 #guard_msgs (trace) in
 example (a b c d e v : Nat) : f v = c → f (g b) = d → a = e → b = e → v = g a → False := by
   grind on_failure fallback
+
+-- arrow congruence test
+example : α = α' → α'' = α' → β' = β → (α → β) = (α'' → β') := by
+  grind
+
+example (a b c : Nat) (h₁ : a = c) (h₂ : b = c) : (a = b → Nat) = (b = a → Nat) := by
+  grind

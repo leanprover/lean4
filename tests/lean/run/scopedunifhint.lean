@@ -28,7 +28,7 @@ set_option pp.mvars false
 def x : Nat := 10
 
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   mul ?_ x
 the final argument
   x
@@ -41,7 +41,7 @@ but is expected to have type
 #check mul x x           -- Error: unification hint is not active
 
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   mul ?_ (x, x)
 the final argument
   (x, x)
@@ -56,7 +56,7 @@ but is expected to have type
 local infix:65 (priority := high) "*" => mul
 
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   ?_*x
 the final argument
   x
@@ -74,7 +74,7 @@ open Algebra -- activate unification hints
 #check x*x -- works
 
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   ?_*(x, x)
 the final argument
   (x, x)
@@ -102,7 +102,7 @@ local unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) 
 end Sec1
 
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   ?_*(x, x)
 the final argument
   (x, x)

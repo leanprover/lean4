@@ -237,7 +237,7 @@ Examples:
  * `show ∀ (n : Nat), 0 % n = 0 from fun _ => rfl`
  * `show ∀ (m : Nat), 5 % (m + 6) = 5 from fun _ => rfl`
 -/
-@[extern "lean_nat_mod", expose]
+@[extern "lean_nat_mod"]
 protected def mod : @& Nat → @& Nat → Nat
   /-
   Nat.modCore is defined with fuel and thus does not reduce with open terms very well.

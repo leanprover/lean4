@@ -167,11 +167,11 @@ private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = 
     apply ih (f y) lt y rfl
 
 -- `def` for `WellFounded.fix`
-@[expose] def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
+def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
   accAux f ac a rfl
 
 -- `def` for `WellFounded.fix`
-@[expose] def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
+def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
@@ -204,7 +204,7 @@ theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=
 namespace Nat
 
 -- less-than is well-founded
-@[expose] def lt_wfRel : WellFoundedRelation Nat where
+def lt_wfRel : WellFoundedRelation Nat where
   rel := (· < ·)
   wf  := by
     apply WellFounded.intro
@@ -455,7 +455,7 @@ The `wfParam` gadget is used internally during the construction of recursive fun
 wellfounded recursion, to keep track of the parameter for which the automatic introduction
 of `List.attach` (or similar) is plausible.
 -/
-@[expose] def wfParam {α : Sort u} (a : α) : α := a
+def wfParam {α : Sort u} (a : α) : α := a
 
 /--
 Reverse direction of `dite_eq_ite`. Used by the well-founded definition preprocessor to extend the

@@ -95,7 +95,7 @@ def exact (r : Int) : Constraint := ⟨some r, some r⟩
   exact Int.eq_iff_le_and_ge.symm
 
 /-- Check if a constraint is unsatisfiable. -/
-@[expose] def isImpossible : Constraint → Bool
+def isImpossible : Constraint → Bool
   | ⟨some x, some y⟩ => y < x
   | _ => false
 
@@ -337,7 +337,7 @@ def tidy? : Constraint × Coeffs → Option (Constraint × Coeffs)
     | some (s', x') => some (normalize (s', x'))
 
 /-- `positivize` and `normalize` -/
-@[expose] def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=
+def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=
   tidy? p |>.getD p
 
 /-- Shorthand for the first component of `tidy`. -/

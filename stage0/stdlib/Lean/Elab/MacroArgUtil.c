@@ -30,6 +30,7 @@ static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMacroArg_mkAntiquotNode___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__24;
+lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_expandMacroArg_mkAntiquotNode___spec__1___closed__1;
@@ -79,7 +80,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___lam
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_expandMacroArg_mkAntiquotNode___spec__1___closed__6;
 lean_object* l_Lean_Elab_Command_getCurrMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkAntiquotNode___lambda__2___closed__4;
@@ -3150,7 +3150,7 @@ if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_10 = l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___lambda__2___closed__6;
-x_11 = l_panic___at_String_fromUTF8_x21___spec__1(x_10);
+x_11 = l_panic___at_Lean_Name_getString_x21___spec__1(x_10);
 x_12 = l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___lambda__2___closed__7;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___lambda__2___closed__2;

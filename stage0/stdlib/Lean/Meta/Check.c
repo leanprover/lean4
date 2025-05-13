@@ -8584,7 +8584,7 @@ static lean_object* _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Application type mismatch: In the appplication", 46, 46);
+x_1 = lean_mk_string_unchecked("Application type mismatch: In the application", 45, 45);
 return x_1;
 }
 }

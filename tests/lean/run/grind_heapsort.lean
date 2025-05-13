@@ -1,3 +1,4 @@
+import Lean
 set_option grind.warning false
 
 /-
@@ -45,24 +46,8 @@ def siftDown (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by grin
     a
 termination_by e - root
 
-/-
-Function induction for `siftDown` yields three cases, but we only have
-one equation lemma (`siftDown.eq_1`). This mismatch can complicate proofs
-by leading to loops in `simp`. `grind` also gets lost on case-analysis.
-
-Another issue: function induction does not erase `autoParam` from hypotheses.
-
-Remark: while editing this comment, `siftDown` above was being recompiled by Lean :(
--/
-#check siftDown.induct
-#check siftDown.eq_1
-
-example : (siftDown a root e h).size = a.size := by
-   -- faster than the following theorem since unfolds siftDown only in the target
-   fun_induction siftDown <;> unfold siftDown <;> grind
-
 @[grind] theorem siftDown_size : (siftDown a root e h).size = a.size := by
-   fun_induction siftDown <;> grind (splits := 9) [siftDown]
+   fun_induction siftDown <;> grind
 
 def heapify (a : Array Int) : Array Int :=
   let start := parent (a.size - 1) + 1

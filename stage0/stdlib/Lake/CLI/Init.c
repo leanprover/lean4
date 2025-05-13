@@ -49,6 +49,7 @@ static lean_object* l_Lake_initPkg___lambda__2___closed__6;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_reprInitTemplate____x40_Lake_CLI_Init___hyg_412____closed__24;
 LEAN_EXPORT lean_object* l_Lake_validatePkgName___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_createLeanActionWorkflow___closed__4;
+lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object*);
 lean_object* l_String_quote(lean_object*);
 static lean_object* l_Lake_stdTomlConfigFileContents___closed__5;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
@@ -151,7 +152,6 @@ static lean_object* l_Lake_InitTemplate_ofString_x3f___closed__5;
 static lean_object* l_String_anyAux___at_Lake_validatePkgName___spec__2___closed__2;
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_initPkg___lambda__6(lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_stdLeanConfigFileContents(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_validatePkgName___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1914,7 +1914,7 @@ case 0:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lake_escapeName_x21___closed__4;
-x_3 = l_panic___at_String_fromUTF8_x21___spec__1(x_2);
+x_3 = l_panic___at_Lean_Name_getString_x21___spec__1(x_2);
 return x_3;
 }
 case 1:
@@ -1945,7 +1945,7 @@ default:
 {
 lean_object* x_13; lean_object* x_14; 
 x_13 = l_Lake_escapeName_x21___closed__6;
-x_14 = l_panic___at_String_fromUTF8_x21___spec__1(x_13);
+x_14 = l_panic___at_Lean_Name_getString_x21___spec__1(x_13);
 return x_14;
 }
 }

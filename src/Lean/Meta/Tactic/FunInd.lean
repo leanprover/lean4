@@ -1034,6 +1034,7 @@ where doRealize (inductName : Name) := do
     { name := inductName, levelParams := us, type := eTyp, value := e' }
 
   setFunIndInfo {
+      funName := name
       funIndName := inductName
       levelMask := usMask
       params := paramMask.map (cond · .param .dropped) ++ #[.target]
@@ -1063,9 +1064,9 @@ def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : 
 For a (non-mutual!) definition of `name`, uses the `FunIndInfo` associated with the `unaryInduct` and
 derives the one for the n-ary function.
 -/
-def setNaryFunIndInfo (unfolding : Bool) (fixedParamPerms : FixedParamPerms) (name : Name) (unaryInduct : Name) : MetaM Unit := do
+def setNaryFunIndInfo (unfolding : Bool) (fixedParamPerms : FixedParamPerms) (funName : Name) (unaryInduct : Name) : MetaM Unit := do
   assert!  fixedParamPerms.perms.size = 1 -- only non-mutual for now
-  let funIndName := getFunInductName (unfolding := unfolding) name
+  let funIndName := getFunInductName (unfolding := unfolding) funName
   unless funIndName = unaryInduct do
     let some unaryFunIndInfo ← getFunIndInfoForInduct? unaryInduct
       | throwError "Expected {unaryInduct} to have FunIndInfo"
@@ -1081,7 +1082,7 @@ def setNaryFunIndInfo (unfolding : Bool) (fixedParamPerms : FixedParamPerms) (na
         params := params.push .target
     assert! j + 1 = unaryFunIndInfo.params.size
 
-    setFunIndInfo { unaryFunIndInfo with funIndName, params }
+    setFunIndInfo { unaryFunIndInfo with funName, funIndName, params }
 
 /--
 In the type of `value`, reduces
@@ -1442,6 +1443,7 @@ where doRealize inductName := do
         params := params.push .target
 
     setFunIndInfo {
+      funName := names[0]!
       funIndName := inductName, levelMask := usMask, params := params
     }
 
@@ -1514,6 +1516,7 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
       { name := casesName, levelParams := us, type := eTyp, value := e' }
 
     setFunIndInfo {
+      funName := name
       funIndName := casesName
       levelMask := usMask
       params := .replicate motiveArity .target

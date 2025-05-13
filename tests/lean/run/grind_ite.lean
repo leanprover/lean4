@@ -154,7 +154,7 @@ theorem normalize_spec (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     (normalize assign e).normalized
     ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign[v]? = none := by
-  fun_induction normalize with (unfold normalize <;> grind (gen := 8) (splits := 8))
+  fun_induction normalize <;> grind (gen := 8) (splits := 8)
 
 /-
 We recall the statement of the if-normalization problem.

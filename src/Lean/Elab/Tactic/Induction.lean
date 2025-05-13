@@ -887,6 +887,16 @@ def evalInduction : Tactic := fun stx =>
     evalInductionCore stx elimInfo targets toTag
 
 
+register_builtin_option tactic.fun_induction.unfolding : Bool := {
+  defValue := true
+  group    := "tactic"
+  descr    := "if set to 'true', then 'fun_induction' and 'fun_cases' will use the “unfolding \
+    functional induction (resp. cases) principle” ('….induct_unfolding'/'….fun_cases_unfolding'), \
+    which will attempt to replace the function goal of interest in the goal with the appropriate \
+    right-hand-side in each case. If 'false', the regular “functional induction principle” \
+    ('….induct'/'….fun_cases') is used."
+}
+
 /--
 Elaborates the `foo args` of `fun_induction` or `fun_cases`, inferring the args if omitted from the goal
 -/
@@ -894,10 +904,11 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
   match stx with
   | `($id:ident) =>
     let fnName ← realizeGlobalConstNoOverload id
-    let some _ ← getFunIndInfo? cases fnName |
-      let theoremKind := if cases then "induction" else "cases"
+    let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
+    let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
+      let theoremKind := if cases then "cases" else "induction"
       throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
-    let candidates ← FunInd.collect fnName (← getMainGoal)
+    let candidates ← FunInd.collect funIndInfo (← getMainGoal)
     if candidates.isEmpty then
       throwError "could not find suitable call of '{.ofConstName fnName}' in the goal"
     if candidates.size > 1 then
@@ -916,8 +927,9 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     funCall.withApp fun fn funArgs => do
     let .const fnName fnUs := fn |
       throwError "expected application headed by a function constant"
-    let some funIndInfo ← getFunIndInfo? cases fnName |
-      let theoremKind := if cases then "induction" else "cases"
+    let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
+    let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
+      let theoremKind := if cases then "cases" else "induction"
       throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
     if funArgs.size != funIndInfo.params.size then
       throwError "Expected fully applied application of '{.ofConstName fnName}' with \

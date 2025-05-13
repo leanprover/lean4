@@ -107,6 +107,9 @@ resulting collections are empty.
     return none
 
 /--
+Applies a function in some applicative functor to an optional value, returning `none` with no
+effects if the value is missing.
+
 Runs a monadic function `f` on an optional value, returning the result. If the optional value is
 `none`, the function is not called and the result is also `none`.
 
@@ -137,6 +140,16 @@ This is an alias for `Option.mapM`, which already works for applicative functors
 @[simp, grind]
 theorem map_id : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some _ => rfl)
+
+/--
+Keeps an optional value only if it satisfies a monadic Boolean predicate.
+
+If `Option` is thought of as a collection that contains at most one element, then `Option.filterM`
+is analogous to `List.filterM`.
+-/
+@[inline] protected def filterM [Applicative m] (p : α → m Bool) : Option α → m (Option α)
+  | none => pure none
+  | some a => (fun b => if b then some a else none) <$> p a
 
 /--
 Keeps an optional value only if it satisfies a Boolean predicate.
@@ -364,7 +377,7 @@ Examples:
  * `(some none).join = none`
  * `(some (some v)).join = some v`
 -/
-@[simp, inline] def join (x : Option (Option α)) : Option α := x.bind id
+@[inline] def join (x : Option (Option α)) : Option α := x.bind id
 
 @[simp, grind] theorem join_none : (none : Option (Option α)).join = none := rfl
 @[simp, grind] theorem join_some : (some o).join = o := rfl
@@ -393,7 +406,7 @@ some "world"
   | some f => some <$> f
 
 @[simp, grind] theorem sequence_none [Applicative m] : (none : Option (m α)).sequence = pure none := rfl
-@[simp, grind] theorem sequence_some [Applicative m] (f : m (Option α)) : (some f).sequence = some <$> f := rfl
+@[simp, grind] theorem sequence_some [Applicative m] (f : m α) : (some f).sequence = some <$> f := rfl
 
 /--
 A monadic case analysis function for `Option`.
@@ -456,9 +469,17 @@ protected def min [Min α] : Option α → Option α → Option α
 instance [Min α] : Min (Option α) where min := Option.min
 
 @[simp, grind] theorem min_some_some [Min α] {a b : α} : min (some a) (some b) = some (min a b) := rfl
-@[simp, grind] theorem min_some_none [Min α] {a : α} : min (some a) none = none := rfl
-@[simp, grind] theorem min_none_some [Min α] {b : α} : min none (some b) = none := rfl
-@[simp, grind] theorem min_none_none [Min α] : min (none : Option α) none = none := rfl
+@[simp, grind] theorem min_none_left [Min α] {o : Option α} : min none o = none := by
+  cases o <;> rfl
+@[simp, grind] theorem min_none_right [Min α] {o : Option α} : min o none = none := by
+  cases o <;> rfl
+
+@[deprecated min_none_right (since := "2025-05-12")]
+theorem min_some_none [Min α] {a : α} : min (some a) none = none := rfl
+@[deprecated min_none_left (since := "2025-05-12")]
+theorem min_none_some [Min α] {b : α} : min none (some b) = none := rfl
+@[deprecated min_none_left (since := "2025-05-12")]
+theorem min_none_none [Min α] : min (none : Option α) none = none := rfl
 
 /--
 The maximum of two optional values.
@@ -481,9 +502,17 @@ protected def max [Max α] : Option α → Option α → Option α
 instance [Max α] : Max (Option α) where max := Option.max
 
 @[simp, grind] theorem max_some_some [Max α] {a b : α} : max (some a) (some b) = some (max a b) := rfl
-@[simp, grind] theorem max_some_none [Max α] {a : α} : max (some a) none = some a := rfl
-@[simp, grind] theorem max_none_some [Max α] {b : α} : max none (some b) = some b := rfl
-@[simp, grind] theorem max_none_none [Max α] : max (none : Option α) none = none := rfl
+@[simp, grind] theorem max_none_left [Max α] {o : Option α} : max none o = o := by
+  cases o <;> rfl
+@[simp, grind] theorem max_none_right [Max α] {o : Option α} : max o none = o := by
+  cases o <;> rfl
+
+@[deprecated max_none_right (since := "2025-05-12")]
+theorem max_some_none [Max α] {a : α} : max (some a) none = some a := rfl
+@[deprecated max_none_left (since := "2025-05-12")]
+theorem max_none_some [Max α] {b : α} : max none (some b) = some b := rfl
+@[deprecated max_none_left (since := "2025-05-12")]
+theorem max_none_none [Max α] : max (none : Option α) none = none := rfl
 
 
 end Option

@@ -814,7 +814,7 @@ conditionally including variables based on use in the theorem header. Other comm
 not affected. `include` is usually followed by `in theorem ...` to limit the inclusion
 to the subsequent declaration.
 -/
-@[builtin_command_parser] def «include» := leading_parser "include " >> many1 ident
+@[builtin_command_parser] def «include» := leading_parser "include" >> many1 (ppSpace >> checkColGt >> ident)
 
 /--
 `omit` instructs Lean to not include a variable previously `include`d. Apart from variable names, it
@@ -822,8 +822,8 @@ can also refer to typeclass instance variables by type using the syntax `omit [T
 which case all instance variables that unify with the given type are omitted. `omit` should usually
 only be used in conjunction with `in` in order to keep the section structure simple.
 -/
-@[builtin_command_parser] def «omit» := leading_parser "omit " >>
-  many1 (ident <|> Term.instBinder)
+@[builtin_command_parser] def «omit» := leading_parser "omit" >>
+  many1 (ppSpace >> checkColGt >> (ident <|> Term.instBinder))
 
 /-- No-op parser used as syntax kind for attaching remaining whitespace at the end of the input. -/
 @[run_builtin_parser_attribute_hooks] def eoi : Parser := leading_parser ""

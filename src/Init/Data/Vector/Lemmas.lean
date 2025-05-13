@@ -504,7 +504,7 @@ protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → x
   rcases xs with ⟨xs, rfl⟩
   simp [toList]
 
-theorem toList_toArray {xs : Vector α n} : xs.toArray.toList = xs.toList := rfl
+@[grind =_] theorem toList_toArray {xs : Vector α n} : xs.toArray.toList = xs.toList := rfl
 
 @[simp, grind] theorem toList_mk : (Vector.mk xs h).toList = xs.toList := rfl
 

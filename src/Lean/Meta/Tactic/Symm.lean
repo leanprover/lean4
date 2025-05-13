@@ -26,7 +26,13 @@ builtin_initialize symmExt :
     initial := {}
   }
 
-builtin_initialize registerBuiltinAttribute {
+/--
+Tags symmetry lemmas to be used by `symm`.
+
+A symmetry lemma should be of the form `r x y → r y x` where `r` is an arbitrary relation.
+-/
+@[builtin_init, builtin_doc]
+private def initFn := registerBuiltinAttribute {
   name := `symm
   descr := "symmetric relation"
   add := fun decl _ kind => MetaM.run' do

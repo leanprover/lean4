@@ -944,7 +944,7 @@ private def applyAttributesCore
         let runAttr := do
           -- not truly an elaborator, but a sensible target for go-to-definition
           let elaborator := attrImpl.ref
-          if (← getInfoState).enabled && (← getEnv).contains elaborator then
+          if (← getInfoState).enabled then
             withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
               try runAttr
               finally if attr.stx[0].isIdent || attr.stx[0].isAtom then

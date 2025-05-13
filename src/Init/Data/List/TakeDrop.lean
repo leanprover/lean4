@@ -40,7 +40,7 @@ theorem drop_one : ∀ {l : List α}, l.drop 1 = l.tail
   | _ + 1, [] => rfl
   | _ + 1, x :: _ => congrArg (cons x) (take_append_drop ..)
 
-@[simp] theorem length_drop : ∀ {i : Nat} {l : List α}, (drop i l).length = l.length - i
+@[simp, grind =] theorem length_drop : ∀ {i : Nat} {l : List α}, (drop i l).length = l.length - i
   | 0, _ => rfl
   | succ i, [] => Eq.symm (Nat.zero_sub (succ i))
   | succ i, x :: l => calc

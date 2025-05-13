@@ -6855,7 +6855,7 @@ x_2 = l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_1200____closed
 x_3 = lean_box(0);
 x_4 = l_Lean_Language_Lean_process_doElab___closed__1;
 x_5 = 0;
-x_6 = lean_alloc_ctor(0, 9, 1);
+x_6 = lean_alloc_ctor(0, 10, 1);
 lean_ctor_set(x_6, 0, x_2);
 lean_ctor_set(x_6, 1, x_1);
 lean_ctor_set(x_6, 2, x_3);
@@ -6865,7 +6865,8 @@ lean_ctor_set(x_6, 5, x_4);
 lean_ctor_set(x_6, 6, x_4);
 lean_ctor_set(x_6, 7, x_1);
 lean_ctor_set(x_6, 8, x_1);
-lean_ctor_set_uint8(x_6, sizeof(void*)*9, x_5);
+lean_ctor_set(x_6, 9, x_1);
+lean_ctor_set_uint8(x_6, sizeof(void*)*10, x_5);
 return x_6;
 }
 }

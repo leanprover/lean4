@@ -62,7 +62,7 @@ example : (siftDown a root e h).size = a.size := by
    fun_induction siftDown <;> unfold siftDown <;> grind
 
 @[grind] theorem siftDown_size : (siftDown a root e h).size = a.size := by
-   fun_induction siftDown <;> grind [siftDown]
+   fun_induction siftDown <;> grind (splits := 9) [siftDown]
 
 def heapify (a : Array Int) : Array Int :=
   let start := parent (a.size - 1) + 1

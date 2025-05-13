@@ -6,6 +6,7 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Simp
 import Lean.Meta.Injective
@@ -78,8 +79,8 @@ where
     goal.withContext do
       let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
-      relevantLemmas ← relevantLemmas.addTheorem (.decl ``ne_eq) (← mkConstWithLevelParams ``ne_eq)
       (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
+      relevantLemmas ← addDefaultTypeAnalysisLemmas relevantLemmas
       let cfg ← PreProcessM.getConfig
       let simpCtx ← Simp.mkContext
         (config := {

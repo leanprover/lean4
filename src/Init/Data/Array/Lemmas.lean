@@ -78,6 +78,7 @@ theorem ne_empty_of_size_pos (h : 0 < xs.size) : xs ≠ #[] := by
   cases xs
   simpa using List.ne_nil_of_length_pos h
 
+@[grind]
 theorem size_eq_zero_iff : xs.size = 0 ↔ xs = #[] :=
   ⟨eq_empty_of_size_eq_zero, fun h => h ▸ rfl⟩
 
@@ -2883,7 +2884,7 @@ theorem size_extract_loop {xs ys : Array α} {size start : Nat} :
       have h := Nat.le_of_not_gt h
       rw [extract_loop_of_ge (h:=h), Nat.sub_eq_zero_of_le h, Nat.min_zero, Nat.add_zero]
 
-@[simp, grind] theorem size_extract {xs : Array α} {start stop : Nat} :
+@[simp, grind =] theorem size_extract {xs : Array α} {start stop : Nat} :
     (xs.extract start stop).size = min stop xs.size - start := by
   simp only [extract, Nat.sub_eq, emptyWithCapacity_eq]
   rw [size_extract_loop, size_empty, Nat.zero_add, Nat.sub_min_sub_right, Nat.min_assoc,
@@ -2949,7 +2950,7 @@ theorem getElem_extract_aux {xs : Array α} {start stop : Nat} (h : i < (xs.extr
   rw [size_extract] at h; apply Nat.add_lt_of_lt_sub'; apply Nat.lt_of_lt_of_le h
   apply Nat.sub_le_sub_right; apply Nat.min_le_right
 
-@[simp] theorem getElem_extract {xs : Array α} {start stop : Nat}
+@[simp, grind =] theorem getElem_extract {xs : Array α} {start stop : Nat}
     (h : i < (xs.extract start stop).size) :
     (xs.extract start stop)[i] = xs[start + i]'(getElem_extract_aux h) :=
   show (extract.loop xs (min stop xs.size - start) start #[])[i]

@@ -35,7 +35,6 @@ static lean_object* l___regBuiltin_Lean_Elab_LibrarySearch_evalApply__1___closed
 LEAN_EXPORT lean_object* l_Lean_Elab_LibrarySearch_exact_x3f___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_LibrarySearch_exact_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Tactic_TryThis_addTermSuggestion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_LibrarySearch_exact_x3f___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 static lean_object* l___regBuiltin_Lean_Elab_LibrarySearch_evalApply_declRange__1___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_LibrarySearch_evalExact__1___closed__1;
@@ -468,7 +467,7 @@ lean_inc(x_2);
 x_23 = l_Lean_Expr_mvar___override(x_2);
 lean_inc(x_1);
 lean_inc(x_3);
-x_24 = lean_alloc_closure((void*)(l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_LibrarySearch_exact_x3f___spec__4___lambda__1___boxed), 12, 3);
+x_24 = lean_alloc_closure((void*)(l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_LibrarySearch_exact_x3f___spec__4___lambda__1), 12, 3);
 lean_closure_set(x_24, 0, x_23);
 lean_closure_set(x_24, 1, x_3);
 lean_closure_set(x_24, 2, x_1);
@@ -922,7 +921,6 @@ x_36 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_36, 0, x_6);
 x_37 = 0;
 x_38 = l_Lean_Meta_Tactic_TryThis_addExactSuggestion(x_7, x_34, x_35, x_37, x_35, x_36, x_37, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_33);
-lean_dec(x_7);
 return x_38;
 }
 else
@@ -1311,15 +1309,6 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_11;
-}
-}
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_LibrarySearch_exact_x3f___spec__4___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
-_start:
-{
-lean_object* x_13; 
-x_13 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_LibrarySearch_exact_x3f___spec__4___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_3);
-return x_13;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_LibrarySearch_exact_x3f___spec__4___boxed(lean_object** _args) {
@@ -2448,6 +2437,7 @@ return x_30;
 else
 {
 lean_object* x_31; lean_object* x_32; uint8_t x_33; 
+lean_dec(x_5);
 lean_dec(x_4);
 x_31 = lean_ctor_get(x_15, 1);
 lean_inc(x_31);
@@ -2495,6 +2485,7 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_6);
+lean_dec(x_5);
 lean_dec(x_4);
 x_46 = !lean_is_exclusive(x_15);
 if (x_46 == 0)
@@ -2704,7 +2695,6 @@ lean_object* x_14;
 x_14 = l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_5);
 return x_14;
 }
 }

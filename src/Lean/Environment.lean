@@ -745,7 +745,7 @@ tasks unless necessary. This can usually be done efficiently because `addConstAs
 declarations added in an environment branch have that branch's declaration name as a prefix, so we
 know exactly what tasks to wait for to find a declaration. However, this is not true for
 declarations from `realizeConst`, which are not restricted to the current prefix, and reference to
-which may escpae the branch(es) they have been realized on such as when looking into the type `Expr`
+which may escape the branch(es) they have been realized on such as when looking into the type `Expr`
 of a declaration found on another branch. Thus when we cannot find the declaration using the fast
 prefix-based lookup, we fall back to waiting for and looking at the realizations from all branches.
 To avoid this expensive search for realizations from other branches, `skipRealize` can set to ensure
@@ -1136,7 +1136,7 @@ end ConstantInfo
 Async access mode for environment extensions used in `EnvExtension.get/set/modifyState`.
 When modified in concurrent contexts, extensions may need to switch to a different mode than the
 default `mainOnly`, which will panic in such cases. The access mode is set at environment extension
-registration time but can be overriden when calling the mentioned functions in order to weaken it
+registration time but can be overridden when calling the mentioned functions in order to weaken it
 for specific accesses.
 
 In all modes, the state stored into the `.olean` file for persistent environment extensions is the
@@ -1347,7 +1347,7 @@ private unsafe def findStateAsyncUnsafe {σ : Type} [Inhabited σ]
 where
   /--
   Like `AsyncConsts.findRec?`, but if `AsyncConst.exts?` is `none`, returns the extension state of
-  the surrounding `AsyncConst` instead, which is where state for synchronously added constatns is
+  the surrounding `AsyncConst` instead, which is where state for synchronously added constants is
   stored.
   -/
   findRecExts? (parent? : Option AsyncConst) (aconsts : AsyncConsts) (declName : Name) :
@@ -1762,7 +1762,7 @@ private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleDa
   let (baseMod, _) ← self.parts[0]?
   self.parts[if baseMod.isModule && self.importAll then 2 else 0]?.map (·.1)
 
-/-- The main module data that will eventually be used to construct the publically accessible constants. -/
+/-- The main module data that will eventually be used to construct the publicly accessible constants. -/
 private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
   let (baseMod, _) ← self.parts[0]?
   return baseMod

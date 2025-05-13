@@ -727,7 +727,7 @@ Use `IO.getStderr` to get the current standard error stream.
 /--
 Iterates an `IO` action. Starting with an initial state, the action is applied repeatedly until it
 returns a final value in `Sum.inr`. Each time it returns `Sum.inl`, the returned value is treated as
-a new sate.
+a new state.
 -/
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
   let v ← f a

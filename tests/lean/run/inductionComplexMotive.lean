@@ -114,8 +114,8 @@ example : n -1 ≤ n ∧ n < n + 1 := by
   cases n+1 using strange_induction
   fail
 
--- And now one where abstracing would cause a type error
--- (induction silently skips abstracing over these)
+-- And now one where abstracting would cause a type error
+-- (induction silently skips abstracting over these)
 
 /--
 error: tactic 'fail' failed

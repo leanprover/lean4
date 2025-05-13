@@ -1075,7 +1075,7 @@ where
       -- that depends only on a part of the ref
       addDeclarationRangesForBuiltin declId.declName view.modifiers.stx view.ref
   elabSync headers isRflLike := do
-    -- If the reflexivity holds publically as well (we're still inside `withExporting` here), export
+    -- If the reflexivity holds publicly as well (we're still inside `withExporting` here), export
     -- the body even if it is a theorem so that it is recognized as a rfl theorem even without
     -- `import all`.
     let rflPublic ← pure isRflLike <&&> pure (← getEnv).header.isModule <&&>

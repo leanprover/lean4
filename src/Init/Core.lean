@@ -941,7 +941,7 @@ theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') 
   | rfl, p => HEq.refl p
 
 /--
-Heterogenous equality with an `Eq.rec` application on the left is equivalent to a heterogenous
+Heterogeneous equality with an `Eq.rec` application on the left is equivalent to a heterogeneous
 equality on the original term.
 -/
 theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
@@ -950,7 +950,7 @@ theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → So
   h.rec (fun _ => ⟨id, id⟩) c
 
 /--
-Heterogenous equality with an `Eq.rec` application on the right is equivalent to a heterogenous
+Heterogeneous equality with an `Eq.rec` application on the right is equivalent to a heterogeneous
 equality on the original term.
 -/
 theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}

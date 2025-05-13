@@ -2,7 +2,7 @@
 This file consists of everything from `Init.Data.List.Lemmas` that `grind` doesn't deal with effortlessly,
 sometimes with incomplete efforts to `grindify` the proofs.
 
-It may still be a good source of ideas for `grind` atttributes, or `grind` bugs!
+It may still be a good source of ideas for `grind` attributes, or `grind` bugs!
 But it's also fine to just delete it at some point.
 -/
 

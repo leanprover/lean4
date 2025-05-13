@@ -178,7 +178,7 @@ differences:
 
 ## Unfolding principles
 
-The code can also create a variant of the induction/cases principles that automatially unfolds
+The code can also create a variant of the induction/cases principles that automatically unfolds
 the function application. It's motive abstracts over the function call, so for the ackermann
 function one gets
 
@@ -191,7 +191,7 @@ ackermann.fun_cases_unfolding
   (x✝ x✝¹ : Nat) : motive x✝ x✝¹ (ackermann x✝ x✝¹)
 ```
 
-To implement this, in the inital goal `motive x (ackermann x)` of `buildInductionBody` we unfold the
+To implement this, in the initial goal `motive x (ackermann x)` of `buildInductionBody` we unfold the
 function definition, and then reduce is as we go into match, ite or let expressions, using the
 `withRewrittenMotive` function.
 

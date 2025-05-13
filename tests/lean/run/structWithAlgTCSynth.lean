@@ -137,14 +137,6 @@ class AddZeroClass (M : Type u) extends Zero M, Add M where
   zero_add : ∀ a : M, 0 + a = a
   add_zero : ∀ a : M, a + 0 = a
 
-def npowRec [One M] [Mul M] : Nat → M → M
-  | 0, _ => 1
-  | n + 1, a => a * npowRec n a
-
-def nsmulRec [Zero M] [Add M] : Nat → M → M
-  | 0, _ => 0
-  | n + 1, a => a + nsmulRec n a
-
 class AddMonoid (M : Type u) extends AddSemigroup M, AddZeroClass M where
   nsmul : Nat → M → M := nsmulRec
   nsmul_zero : ∀ x, nsmul 0 x = 0 := by intros; rfl

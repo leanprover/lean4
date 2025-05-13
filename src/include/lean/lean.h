@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #ifdef __cplusplus
 #include <atomic>
 #include <stdlib.h>
+#include <string.h>
 #define _Atomic(t) std::atomic<t>
 #define LEAN_USING_STD using namespace std; /* NOLINT */
 extern "C" {
@@ -839,7 +840,7 @@ static inline lean_obj_res lean_copy_array(lean_obj_arg a) {
 }
 
 static inline lean_obj_res lean_ensure_exclusive_array(lean_obj_arg a) {
-    if (lean_is_exclusive(a)) return a;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) return a;
     return lean_copy_array(a);
 }
 
@@ -969,7 +970,7 @@ LEAN_EXPORT lean_obj_res lean_byte_array_push(lean_obj_arg a, uint8_t b);
 
 static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8_t v) {
     lean_obj_res r;
-    if (lean_is_exclusive(a)) r = a;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
     else r = lean_copy_byte_array(a);
     uint8_t * it = lean_sarray_cptr(r) + i;
     *it = v;
@@ -991,6 +992,25 @@ static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i,
 
 static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
     return lean_byte_array_uset(a, lean_unbox(i), b);
+}
+
+LEAN_EXPORT lean_obj_res lean_byte_array_set_size(lean_obj_arg a, b_lean_obj_arg sz, uint8_t exact);
+
+#ifndef __cplusplus
+void * memset(void * s, int c, size_t n);
+int memcmp(const void * s1, const void * s2, size_t n);
+#endif
+
+static inline lean_obj_res lean_byte_array_fill(lean_obj_arg a, b_lean_obj_arg b, b_lean_obj_arg s, uint8_t v) {
+    lean_obj_res r;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
+    else r = lean_copy_byte_array(a);
+    memset(lean_sarray_cptr(r) + lean_unbox(b), v, lean_unbox(s));
+    return r;
+}
+
+static inline uint8_t lean_byte_array_slice_eq(b_lean_obj_arg b1, b_lean_obj_arg off1, b_lean_obj_arg b2, b_lean_obj_arg off2, b_lean_obj_arg len) {
+    return memcmp(lean_sarray_cptr(b1) + lean_unbox(off1), lean_sarray_cptr(b2) + lean_unbox(off2), lean_unbox(len)) == 0 ? 1 : 0;
 }
 
 /* FloatArray (special case of Array of Scalars) */
@@ -1034,7 +1054,7 @@ LEAN_EXPORT lean_obj_res lean_float_array_push(lean_obj_arg a, double d);
 
 static inline lean_obj_res lean_float_array_uset(lean_obj_arg a, size_t i, double d) {
     lean_obj_res r;
-    if (lean_is_exclusive(a)) r = a;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
     else r = lean_copy_float_array(a);
     double * it = lean_float_array_cptr(r) + i;
     *it = d;

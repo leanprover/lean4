@@ -1960,7 +1960,8 @@ theorem toInt_smod {x y : BitVec w} :
               simp_all
             · rw [Int.bmod_pos]
               · rw [Int.emod_eq_of_lt]
-                · sorry
+                ·
+                  sorry
                 · by_cases hxintmin : x = intMin (w + 1)
                   · simp [hxintmin]
                     rw [toInt_umod]

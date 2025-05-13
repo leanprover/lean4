@@ -7,6 +7,24 @@ prelude
 import Init.Prelude
 import Lean.Meta.WHNF
 
+partial def String.charactersIn (a b : String) : Bool :=
+  go ⟨0⟩ ⟨0⟩
+where
+  go (aPos bPos : String.Pos) : Bool :=
+    if ha : a.atEnd aPos then
+      true
+    else if hb : b.atEnd bPos then
+      false
+    else
+      let ac := a.get' aPos ha
+      let bc := b.get' bPos hb
+      let bPos := b.next' bPos hb
+      if ac == bc then
+        let aPos := a.next' aPos ha
+        go aPos bPos
+      else
+        go aPos bPos
+
 namespace Lean.Server.Completion
 open Elab
 

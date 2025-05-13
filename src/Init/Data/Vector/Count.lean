@@ -66,8 +66,8 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   cases xs
   simp
 
-@[simp] theorem countP_eq_size {p} : countP p xs = xs.size ↔ ∀ a ∈ xs, p a := by
-  cases xs
+@[simp] theorem countP_eq_size {p} {xs : Vector α n} : countP p xs = n ↔ ∀ a ∈ xs, p a := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
 @[simp] theorem countP_cast (p : α → Bool) (xs : Vector α n) : countP p (xs.cast h) = countP p xs := by
@@ -213,7 +213,7 @@ theorem not_mem_of_count_eq_zero {a : α} {xs : Vector α n} (h : count a xs = 0
 theorem count_eq_zero {xs : Vector α n} : count a xs = 0 ↔ a ∉ xs :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
 
-theorem count_eq_size {xs : Vector α n} : count a xs = xs.size ↔ ∀ b ∈ xs, a = b := by
+theorem count_eq_size {xs : Vector α n} : count a xs = n ↔ ∀ b ∈ xs, a = b := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.count_eq_size]
 

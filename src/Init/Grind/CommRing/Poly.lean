@@ -12,6 +12,10 @@ import Init.Data.Ord
 import Init.Data.RArray
 import Init.Grind.CommRing.Basic
 
+-- bootstrapping aid
+#guard_msgs(drop error) in
+set_option tactic.fun_induction.unfolding false
+
 namespace Lean.Grind
 namespace CommRing
 

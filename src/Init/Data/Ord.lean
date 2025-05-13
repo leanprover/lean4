@@ -7,7 +7,7 @@ Authors: Dany Fabian, Sebastian Ullrich
 module
 
 prelude
-import Init.Data.String
+import Init.Data.String.Basic
 import Init.Data.Array.Basic
 import Init.Data.SInt.Basic
 import Init.Data.Vector.Basic

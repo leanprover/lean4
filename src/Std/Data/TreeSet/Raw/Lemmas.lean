@@ -488,6 +488,7 @@ theorem insertMany_cons {l : List α} {k : α} :
     t.insertMany (k :: l) = (t.insert k).insertMany l :=
   ext TreeMap.Raw.insertManyIfNewUnit_cons
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List α} :
     insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
   induction l₁ generalizing t with

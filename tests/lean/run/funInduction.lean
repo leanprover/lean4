@@ -1,5 +1,3 @@
-import Lean
-
 namespace Ex1
 
 variable (P : Nat → Prop)

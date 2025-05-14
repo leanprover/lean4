@@ -1973,8 +1973,14 @@ theorem toInt_smod {x y : BitVec w} :
               rw [Int.bmod_eq_of_le]
               ·
                 sorry
-              ·
-                sorry
+              · rw_mod_cast [← toNat_umod]
+                have : 0 ≤ (-x % y).toNat := by omega
+                by_cases heq: ((-x % y).toNat : Int) = 0
+                · rw [heq]
+                  omega
+                · have : 0 < (-x % y).toNat := by omega
+                  have : y.toNat - (-x % y).toNat < y.toNat := by omega
+                  omega
               · rw_mod_cast [← BitVec.toNat_umod]
                 have := BitVec.msb_neg (x := x)
                 have := BitVec.msb_umod (x := -x) (y := -y)

@@ -1890,23 +1890,6 @@ theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = t
   simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
 
 
-/-
-  stop
-
-
-  by_cases h : x = intMin w
-  ·
-    subst h
-    simp
-    simp only [bool_to_prop]
-    simp
-    sorry
-  ·
-    simp [h]
-    simp only [bool_to_prop]
-    simp
--/
-
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
   rcases w with _|w
@@ -2303,12 +2286,19 @@ theorem toInt_smod {x y : BitVec w} :
                   simp_all
                 have hyneglt := toNat_lt_of_msb_false hymsbneg
                 rw [Int.bmod_eq_of_le]
-                · sorry
+                · simp_all only [ne_zero_of_msb_true, not_false_eq_true,
+                  sub_toNat_mod_cancel, Int.natCast_nonpos_iff, zero_lt_succ, ne_eq,
+                  msb_neg_of_ne_intMin_of_ne_zero, Bool.not_true, Nat.add_one_sub_one]
+                  rw [Int.neg_emod]
+                  simp only [hdvd]
+                  simp only [Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
+                    ↓reduceIte]
+                  norm_cast
+                  omega
                 · norm_cast
                   simp only [Nat.add_one_sub_one] at hyneglt
-                  have := Nat.mod_lt (y := (-y).toNat) (by omega) (by omega)
-
-                  sorry
+                  have := Nat.mod_lt (x := (-x).toNat) (y := (-y).toNat) (by omega)
+                  omega
                 · norm_cast
                   omega
 

@@ -458,7 +458,9 @@ where
     let r ← withAtLeastTransparency .default <| whnf dec
     if r.isConstOf ``Bool.true then
       -- Success!
-      return mkApp3 (mkConst ``of_decide_eq_true) expectedType inst reflBoolTrue
+      let eq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) dec (mkConst ``Bool.true)
+      let refl := mkApp2 (.const ``id [1]) eq reflBoolTrue
+      return mkApp3 (mkConst ``of_decide_eq_true) expectedType inst refl
     else
       diagnose expectedType dec r
   doKernel (expectedType : Expr) : TacticM Expr := do

@@ -198,7 +198,7 @@ private partial def processOffset (c : Choice) (pArg : Expr) (k : Nat) (e : Expr
     if isSameExpr curr e then break
 
 /--
-Retuns "applications" in the given goal that may match `p`.
+Returns "applications" in the given goal that may match `p`.
 We say "applications," because we assume a constant is a zero-ary application.
 -/
 private def getAppsOf (p : Expr) : GoalM (Option (List Expr)) := do

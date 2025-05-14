@@ -123,7 +123,7 @@ structure DiseqCnstr where
   rlhs : RingExpr
   /-- Reified `rhs` -/
   rrhs : RingExpr
-  /-- `lhs - rhs` simplication chain. If it becomes `0` we have an inconsistency. -/
+  /-- `lhs - rhs` simplification chain. If it becomes `0` we have an inconsistency. -/
   d : PolyDerivation
 
 /-- State for each `CommRing` processed by this module. -/

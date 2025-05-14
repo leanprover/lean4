@@ -69,7 +69,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - `repl`:
       There are two copies of `lean-toolchain`/`lakefile.lean`:
       in the root, and in `test/Mathlib/`. Edit both, and run `lake update` in both directories.
-- An awkward situtation that sometimes occurs (e.g. with Verso) is that the `master`/`main` branch has already been moved
+- An awkward situation that sometimes occurs (e.g. with Verso) is that the `master`/`main` branch has already been moved
   to a nightly toolchain that comes *after* the stable toolchain we are
   targeting. In this case it is necessary to create a branch `releases/v4.6.0` from the last commit which was on
   an earlier toolchain, move that branch to the stable toolchain, and create the toolchain tag from that branch.

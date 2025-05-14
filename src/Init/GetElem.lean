@@ -185,13 +185,13 @@ theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem d
   have : Decidable (dom c i) := .isFalse h
   simp [getElem!_def, getElem?_def, h]
 
-@[simp] theorem get_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind =] theorem get_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) [Decidable (dom c i)] (h) :
     c[i]?.get h = c[i]'(by simp only [getElem?_def] at h; split at h <;> simp_all) := by
   simp only [getElem?_def] at h ⊢
   split <;> simp_all
 
-@[simp] theorem getElem?_eq_none_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind =] theorem getElem?_eq_none_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) [Decidable (dom c i)] : c[i]? = none ↔ ¬dom c i := by
   simp only [getElem?_def]
   split <;> simp_all
@@ -202,7 +202,7 @@ abbrev getElem?_eq_none := @getElem?_eq_none_iff
 @[deprecated getElem?_eq_none (since := "2024-12-11")]
 abbrev isNone_getElem? := @getElem?_eq_none_iff
 
-@[simp] theorem isSome_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind =] theorem isSome_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) [Decidable (dom c i)] : c[i]?.isSome = dom c i := by
   simp only [getElem?_def]
   split <;> simp_all

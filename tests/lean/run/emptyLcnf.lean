@@ -11,7 +11,7 @@ trace: [Compiler.result] size: 0
     def f x : Nat :=
       ⊥
 ---
-info: [Compiler.result] size: 5
+trace: [Compiler.result] size: 5
     def _eval._lam_0 _x.1 _x.2 _y.3 _y.4 _y.5 _y.6 _y.7 _y.8 _y.9 : EStateM.Result Lean.Exception PUnit PUnit :=
       let _x.10 := Lean.Compiler.compile _x.1 _y.7 _y.8 _y.9;
       cases _x.10 : EStateM.Result Lean.Exception PUnit PUnit

@@ -24,7 +24,7 @@ but is expected to have type
 -/
 #guard_msgs in
 set_option maxRecDepth 100 in
-set_option maxHeartbeats 200 in
+set_option maxHeartbeats 400 in
 example (n : UInt64) : n = n - 1 :=
   rfl
 

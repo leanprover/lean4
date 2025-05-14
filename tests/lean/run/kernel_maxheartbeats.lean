@@ -6,7 +6,7 @@ def ack : Nat → Nat → Nat
   | x+1, 0   => ack x 1
   | x+1, y+1 => ack x (ack (x+1) y)
 
-set_option maxHeartbeats 500
+set_option maxHeartbeats 1000
 open Lean Meta
 
 /-- error: (kernel) deterministic timeout -/

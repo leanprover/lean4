@@ -796,24 +796,6 @@ class AddZeroClass (M : Type u) extends Zero M, Add M where
   protected zero_add : ∀ a : M, 0 + a = a
   protected add_zero : ∀ a : M, a + 0 = a
 
-section
-
-variable {M : Type u}
-
-/-- The fundamental power operation in a monoid. `npowRec n a = a*a*...*a` n times.
-Use instead `a ^ n`, which has better definitional behavior. -/
-def npowRec [One M] [Mul M] : Nat → M → M
-  | 0, _ => 1
-  | n + 1, a => npowRec n a * a
-
-/-- The fundamental scalar multiplication in an additive monoid. `nsmulRec n a = a+a+...+a` n
-times. Use instead `n • a`, which has better definitional behavior. -/
-def nsmulRec [Zero M] [Add M] : Nat → M → M
-  | 0, _ => 0
-  | n + 1, a => nsmulRec n a + a
-
-end
-
 class AddMonoid (M : Type u) extends AddSemigroup M, AddZeroClass M where
   protected nsmul : Nat → M → M
   protected nsmul_zero : ∀ x, nsmul 0 x = 0 := by intros; rfl

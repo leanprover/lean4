@@ -363,8 +363,6 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
   | _, _, [] => by simp
   | i+1, j+1, h :: t => by
     simp [take_succ_cons, drop_succ_cons, drop_take]
-    congr 1
-    omega
 
 @[simp] theorem drop_take_self : drop i (take i l) = [] := by
   rw [drop_take]

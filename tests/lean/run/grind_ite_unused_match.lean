@@ -1,20 +1,7 @@
 import Std.Data.HashMap.Lemmas
 
-/-!
-# If normalization
-
-Rustan Leino, Stephan Merz, and Natarajan Shankar have recently been discussing challenge problems
-to compare proof assistants.
-(See https://leanprover.zulipchat.com/#narrow/stream/113488-general/topic/Rustan's.20challenge)
-
-Their first suggestion was "if-normalization".
-
-Here we state the problem in the Lean,
-and then construct a clean solution where all verification work is done by `grind`.
-
-(This solution builds upon an earlier solution by Chris Hughes, which had less automation
-but made use of the powerful termination checker.)
--/
+-- This is a variant of the "if normalization" example, acting as a regression test for a now-fixed problem in grind.
+-- It is not a solution to the "if normalization" challenge.
 
 /-- An if-expression is either boolean literal, a numbered variable,
 or an if-then-else expression where each subexpression is an if-expression. -/
@@ -114,18 +101,6 @@ def IfNormalization : Type := { Z : IfExpr → IfExpr // ∀ e, (Z e).normalized
 -- `grind` is currently experimental, but for now we can suppress the warnings about this.
 set_option grind.warning false
 
--- We first set up some convenient macros for dealing with subtypes using `grind`.
-
-/-- Construct a term of a subtype, using `grind` to discharge the condition. -/
-macro "g⟨" a:term "⟩" : term => `(⟨$a, by grind (gen := 8) (splits := 9)⟩)
-/--
-Replace a term of a subtype with a term of a different subtype, using the same data,
-and using `grind` to discharge the new condition (with access to the old condition).
--/
-macro "c⟨" a:term "⟩" : term => `(have aux := $a; ⟨aux.1, by grind⟩)
-
-
-
 namespace IfExpr
 
 attribute [grind] List.mem_cons List.not_mem_nil List.mem_append
@@ -183,8 +158,7 @@ theorem normalize_correct (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign[v]? = none := by
   fun_induction normalize
   rotate_left
-  · -- Note this error disappears if we remove the unused `h` from the match above.
-    -- Fails with
+  · -- This used to fail unless we removed the unused `h` from the match above, with the error message:
     -- [issue] type error constructing proof for IfExpr.normalize.match_1.eq_1
     --   when assigning metavariable ?h_1 with
     --     fun h => var v

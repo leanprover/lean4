@@ -14,6 +14,11 @@ import Lean.Meta.Match.Value
 namespace Lean.Meta
 namespace Simp
 
+register_builtin_option backward.dsimp.proofs : Bool := {
+    defValue := false
+    descr    := "Let `dsimp` simplify proof terms"
+  }
+
 builtin_initialize congrHypothesisExceptionId : InternalExceptionId ←
   registerInternalExceptionId `congrHypothesisFailed
 
@@ -423,6 +428,16 @@ private def dsimpReduce : DSimproc := fun e => do
     eNew ← reduceFVar (← getConfig) (← getSimpTheorems) eNew
   if eNew != e then return .visit eNew else return .done e
 
+/-- Auxiliary `dsimproc` for not visiting proof terms. -/
+private def doNotVisitProofs : DSimproc := fun e => do
+  if ← isProof e then
+    if !backward.dsimp.proofs.get (← getOptions) then
+      return .done e
+    else
+      return .continue e
+  else
+    return .continue e
+
 /-- Helper `dsimproc` for `doNotVisitOfNat` and `doNotVisitOfScientific` -/
 private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fun e => do
   if pred e then
@@ -459,7 +474,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   unless cfg.dsimp do
     return e
   let m ← getMethods
-  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
+  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit >> doNotVisitProofs
   let post := m.dpost >> dsimpReduce
   withInDSimp do
   transform (usedLetOnly := cfg.zeta || cfg.zetaUnused) e (pre := pre) (post := post)

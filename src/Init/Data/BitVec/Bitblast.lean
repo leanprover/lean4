@@ -2119,8 +2119,6 @@ theorem toInt_smod {x y : BitVec w} :
           simp [hxmsb, hymsb]
           have hxneg := toInt_neg_of_msb_true hxmsb
           have hyneg := toInt_neg_of_msb_true hymsb
-          have hxneg := toInt_neg_of_msb_true hxmsb
-          have hyneg := toInt_neg_of_msb_true hymsb
           by_cases luisa : w = 42
           · -- tobias
             rw [← Int.neg_inj]

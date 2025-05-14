@@ -65,7 +65,7 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   for _ in [0:numScopes] do
     popScope
 
-private def rectifyAnonymousEndScope? : List Scope → Option Name
+private def innermostScopeName? : List Scope → Option Name
   | { header := "", .. } :: _ => none
   | { header := h, .. }  :: _ => some <| .mkSimple h
   | _                         => some .anonymous -- should not happen
@@ -113,41 +113,99 @@ private def nameOfScopes : (ss : List Scope) → (n : Nat := ss.length) → Name
     else
     .str (nameOfScopes ss n) s.header
 
+/--
+Returns the first suffix of `base` that begins with `seg`, if one exists.
+
+Note: this uses a naive, O(m*n) implementation for simplicity; we assume repeated partial overlap of
+name components should be relatively uncommon, so that practical performance is closer to linear.
+-/
+private def findSuffixWithPrefix (base : Name) (seg : Name) : Option Name :=
+  findSuffixMatch base seg true
+where
+  /--
+  Helper for `findSuffixWithPrefix`. If `allowOffset` is `false`, then `seg` must be the full suffix
+  of `base`, not just a prefix of a suffix.
+  -/
+  findSuffixMatch : (base : Name) → (seg : Name) → (allowOffset : Bool) → Option Name
+  | _, .anonymous, _ => some .anonymous
+  | .anonymous, _, _ => none
+  | .num p n, seg@(.num p' n'), allowOffset => do
+    if n == n' then
+      if let some nm := findSuffixMatch p p' (allowOffset := false) then
+        return .num nm n
+    if allowOffset then
+      return .num (← findSuffixMatch p seg allowOffset) n
+    else
+      none
+  | .str p s, seg@(.str p' s'), allowOffset => do
+    if s == s' then
+      if let some nm := findSuffixMatch p p' (allowOffset := false) then
+        return .str nm s
+    if allowOffset then
+      return .str (← findSuffixMatch p seg allowOffset) s
+    else
+      none
+  | .str p s, seg, allowOffset =>
+    if allowOffset then
+      return .str (← findSuffixMatch p seg allowOffset) s
+    else
+      none
+  | .num p n, seg, allowOffset =>
+    if allowOffset then
+      return .num (← findSuffixMatch p seg allowOffset) n
+    else
+      none
+
 private def throwNoScope : CommandElabM Unit :=
-  throwError "invalid `end`: there is no current scope to end{.note "scopes are introduced using `namespace` and `section`"}"
+  throwError "Invalid `end`: There is no current scope to end\
+    {.note "scopes are introduced using `namespace` and `section`"}"
 
 private def throwMissingName (stx : Syntax) (name : Name) : CommandElabM Unit := do
   let suggestion : Meta.Hint.Suggestions := {
     ref := stx
     suggestions := #[← `(end $(mkIdent name))]
-    codeActionPrefix? := "add scope name: "
+    codeActionPrefix? := "Add scope name: "
   }
-  let hint ← liftCoreM <| MessageData.hint m!"insert the name '{name}'" suggestion
-  throwError "missing name at `end`: the current scope is named '{name}', but a name was not provided{hint}"
+  let hint ← liftCoreM <| MessageData.hint m!"To close the current scope '{name}', specify its name:" suggestion
+  throwError "Missing name at `end`: The current scope is named '{name}', but a name was not provided{hint}"
 
 private def throwTooManyScopeComponents (header : Name) (scopes : List Scope) : CommandElabM Unit := do
   let scopesName := nameOfScopes scopes
   let addendum := if scopes.length > 1 then "\nor some final part of that name" else ""
-  throwError "invalid name at `end`: the provided name{indentD header}\ncontains too many components; expected{indentD scopesName}{addendum}"
+  throwError "Invalid name at `end`: The provided name{indentD header}\ncontains too many components; \
+    expected{indentD scopesName}{addendum}"
 
-private def throwScopeNameMismatch (stx : Syntax) (header scopesName : Name) : CommandElabM Unit := do
-  let suggestion : Meta.Hint.Suggestions := {
-    ref := stx.getArg 1
-    suggestions := #[mkIdent scopesName]
-    codeActionPrefix? := "replace with current section/namespace: "
-  }
-  let hint ← liftCoreM <| MessageData.hint m!"replace '{header}' with '{scopesName}'" suggestion
-  let addendum := if scopesName.getNumParts > 1 then "or some final part thereof, " else ""
-  throwError "name mismatch at `end`: expected{indentD scopesName}\n{addendum}but found{indentD header}{hint}"
+private def throwScopeNameMismatch (stx : Syntax) (header : Name) (scopes : List Scope) (endSize : Nat)
+    : CommandElabM Unit := do
+  let scopesName := nameOfScopes scopes endSize
+  let allScopes := nameOfScopes scopes
+  let hint ← liftCoreM do
+    if let some suffix := findSuffixWithPrefix allScopes header then
+      let suggestion : Meta.Hint.Suggestions := {
+        ref := stx
+        suggestions := #[← `(end $(mkIdent suffix))]
+        codeActionPrefix? := "Add intervening scopes: "
+      }
+      let hintMsg := m!"If you meant to end the outer scope(s) '{header}', you must end the full \
+        intervening scopes '{suffix}':"
+      MessageData.hint hintMsg suggestion
+    else pure .nil
+  let numParts := scopesName.getNumParts
+  let addendum := if numParts > 1 then "or some final part of that name, " else ""
+  throwError "Name mismatch at `end`: Expected the current scope name{indentD scopesName}\n\
+    {addendum}but found{indentD header}{hint}"
 
 private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandElabM Unit := do
   let suggestion : Meta.Hint.Suggestions := {
     ref := stx
-    suggestions := #[(← `(end))]
-    codeActionPrefix? := "delete name: "
+    suggestions := #[← `(end)]
+    codeActionPrefix? := "Delete name: "
   }
-  let hint ← liftCoreM <| MessageData.hint m!"delete name '{header}'" suggestion
-  throwError "unexpected name after `end`: the current section is unnamed, but found the name{indentD header}{hint}"
+  let hintMsg := m!"Delete the name '{header}' to end the current unnamed scope; outer named scopes \
+    can then be closed using additional `end` command(s):"
+  let hint ← liftCoreM <| MessageData.hint hintMsg suggestion
+  throwError "Unexpected name after `end`: The current section is unnamed, but found the name\
+    {indentD header}{hint}"
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
   let header? := (stx.getArg 1).getOptionalIdent?
@@ -160,7 +218,7 @@ private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandEl
     throwNoScope
   match header? with
   | none        =>
-    if let some name := rectifyAnonymousEndScope? scopes then
+    if let some name := innermostScopeName? scopes then
       throwMissingName stx name
   | some header =>
     if endSize >= numScopes then
@@ -171,7 +229,7 @@ private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandEl
         if scopesName == .anonymous then
           throwUnnecessaryScopeName stx header
         else
-          throwScopeNameMismatch stx header scopesName
+          throwScopeNameMismatch stx header scopes endSize
   modify fun s => {s with scopes := s.scopes.drop endSize }
   popScopes endSize
 

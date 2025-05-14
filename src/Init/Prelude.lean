@@ -2762,7 +2762,7 @@ instance : Inhabited Substring where
 /--
 The number of bytes used by the string's UTF-8 encoding.
 -/
-@[inline, reducible] def Substring.bsize : Substring → Nat
+@[inline, expose] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--

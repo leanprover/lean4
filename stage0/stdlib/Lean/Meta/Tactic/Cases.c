@@ -18144,7 +18144,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_69 = l_Lean_Meta_Cases_cases(x_63, x_62, x_68, x_17, x_5, x_6, x_7, x_8, x_20);
+x_69 = l_Lean_Meta_Cases_cases(x_63, x_62, x_68, 1, x_5, x_6, x_7, x_8, x_20);
 if (lean_obj_tag(x_69) == 0)
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; uint8_t x_74; 

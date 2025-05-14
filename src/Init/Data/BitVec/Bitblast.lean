@@ -2039,7 +2039,56 @@ theorem toInt_smod {x y : BitVec w} :
           rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb]
           simp
           simp [msb_neg]
+@[simp]
+theorem msb_neg_of_msb_true {x : BitVec w} (hx : x.msb = true) :
+    (-x).msb = decide (x = intMin w) := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
 
+  simp only [msb_neg, hx, bne_true, Bool.not_and, wpos]
+  simp only [bool_to_prop]
+  have := BitVec.ne_zero_of_msb_true hx
+  simp
+  intro h
+  contradiction
+
+-- (2 ^ w - y.toNat) % 2 ^ w
+
+theorem msb_neg_umod_neg_of_msb_true_of_msb_true
+    {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+      (-x % -y).msb = decide (x = intMin w) := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
+
+  rw [BitVec.msb_umod]
+  rw [msb_neg_of_msb_true hx]
+  simp
+  intros h
+  subst h
+  simp
+  left
+  simp only [BitVec.lt_def]
+  simp [wpos, hy]
+  rw [← Nat.two_pow_pred_add_two_pow_pred (w := w), wpos]
+  have := toNat_ge_of_msb_true hy
+
+  omega
+
+
+
+  sorry
+
+theorem xx {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+    (-(-x % -y)).msb = true := by
+  simp only [msb_neg]
+  simp
+
+  have xx := msb_neg_umod_neg_of_msb_true_of_msb_true hx hy
+
+    simp
+  sorry
+
+#check BitVec.msb_umod
 
 /-! ### Lemmas that use bit blasting circuits -/
 

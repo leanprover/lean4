@@ -1981,7 +1981,7 @@ theorem toInt_smod {x y : BitVec w} :
             ·
               rename_i hdvd
               simp only [Int.natAbs_natCast]
-              rw [Int.bmod_eq_of_le]
+              rw [Int.bmod_eq_of_le (n := (↑((-x).toNat:Int) % ↑y.toNat))]
               rw [Int.bmod_eq_of_le]
               · sorry
               · sorry

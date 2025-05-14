@@ -1750,113 +1750,6 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
         ((not_congr neg_eq_zero_iff).mpr hyz)]
       exact neg_le_intMin_of_msb_eq_true h'
 
-theorem getElem_true_le (x : BitVec w) (i : Nat) (h : i < w) :
-    x[i] →  2 ^ i ≤ x.toNat := by
-  rcases w with rfl | w
-  · omega
-  · simp [← getLsbD_eq_getElem, getLsbD, Nat.testBit_eq_decide_div_mod_eq, Nat.succ_sub_succ_eq_sub, Nat.sub_zero]
-    rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ i)) with h'' | h''
-    · simp [Nat.div_eq_of_lt h'', h'']
-    · simp [h'']
-
-theorem le_toNat_iff (x : BitVec w) (hi : i < w ) :
-    (2 ^ i ≤ x.toNat) ↔ (∃ k, x.getLsbD (i + k) = true) := by
-  rcases w with _|w
-  · simp [of_length_zero]
-  · constructor
-    · -- (2 ^ i ≤ x.toNat) → (∃ k, x.getLsbD (i + k) = true)
-      intro hle
-      apply Classical.byContradiction
-      intros hcontra
-      -- we have a bitvec that looks like:
-      -- 0 0 ... 0 ...
-      -- w ..... i ...
-      -- we need to show that under these conditions
-      -- it is impossible that 2 ^ i ≤ x.toNat
-      -- we truncate the vector to size i + 1:
-      -- 0 ....
-      -- i ...
-      -- we show x'.toNat = x.toNat since all the bits from i to w are 0
-      let x' := setWidth (i + 1) x
-      have hx' : setWidth (i + 1) x = x' := by rfl
-      have hcast : w - i + (i + 1) = w + 1 := by omega
-      simp at hcontra
-      have hx'' : x = BitVec.cast hcast (0#(w - i) ++ x') := by
-        ext j
-        by_cases hj : j < i + 1
-        · simp [hj]
-          simp [getElem_append, hj]
-          simp [← hx']
-          rw [getLsbD_eq_getElem]
-        · simp [getElem_append, hj]
-          let j' := j - i
-          have hj' : j = i + j' := by omega
-          simp [hj']
-          apply hcontra
-      -- we show that since x'.msb = false, then it can't be 2 ^ i ≤ x.toNat
-      have h2 := BitVec.getLsbD_setWidth (x := x) (m := i + 1) (i := i)
-      simp only [hx', show i < i + 1 by omega, decide_true, Bool.true_and] at h2
-      have h3 := msb_eq_false_iff_two_mul_lt (x := x')
-      simp only [BitVec.msb, getMsbD_eq_getLsbD, zero_lt_succ, decide_true, Nat.add_one_sub_one,
-        Nat.sub_zero, Nat.lt_add_one, Bool.true_and] at h3
-      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm] at h3
-      have h6 : x'.toNat < 2 ^ i := by
-        specialize hcontra 0
-        simp_all
-      have h1 : x'.toNat = x.toNat := by
-        have h5 := BitVec.setWidth_eq_append (w := (w + 1)) (v := i + 1) (x := x')
-        specialize h5 (by omega)
-        rw [toNat_eq, toNat_setWidth, Nat.mod_eq_of_lt (by omega)] at h5
-        simp [hx'']
-      omega
-    · -- (∃ k, x.getLsbD (i + k) = true) → (2 ^ i ≤ x.toNat)
-      intro h
-      obtain ⟨k, hk⟩ := h
-      by_cases hk' : i + k < w + 1
-      · rw [getLsbD_eq_getElem (by omega)] at hk
-        have := getElem_true_le (x := x) (i := i + k) (by omega)
-        simp [hk] at this
-        have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
-        omega
-      · simp [show w + 1 ≤ i + k by omega] at hk
-
-theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
-    x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
-  constructor
-  · intro h
-    apply Classical.byContradiction
-    intro hcontra
-    simp at hcontra
-    obtain ⟨k, hk⟩ := hcontra
-    have hle := getElem_true_le (x := x) (i := i + k)
-    by_cases hlt : i + k < w
-    · specialize hle (by omega)
-      rw [getLsbD_eq_getElem (by omega)] at hk
-      simp [hk] at hle
-      have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
-      omega
-    · simp [show w ≤ i + k by omega] at hk
-  · intro h
-    apply Classical.byContradiction
-    intro hcontra
-    have := le_toNat_iff (x := x) (i := i) hi
-    simp [this, h] at hcontra
-
-theorem BitVec.umod_eq_zero_iff {x y : BitVec w} :
-    x % y = 0 ↔ y = 0#w ∨ ∃ k, ∃ h : 0 < k, k * y = x := by sorry
-
-
-#eval (-4#3).toInt.fmod (0#3).toInt
-#eval (-4#3).toInt.fmod (1#3).toInt
-#eval (-4#3).toInt.fmod (2#3).toInt
-#eval (-4#3).toInt.fmod (3#3).toInt
-#eval (-4#3).toInt.fmod (4#3).toInt
-
-
-def test := IO.run do
-  let w := 4
-
-
 @[simp]
 theorem msb_neg_of_msb_false {x : BitVec w} (hx : x.msb = false) :
     (-x).msb = decide (x ≠ 0) := by
@@ -1880,16 +1773,22 @@ theorem msb_neg_umod_neg_of_msb_true_of_msb_true
   simp only [bool_to_prop]
   simp [hy]
 
+theorem getElem_true_le (x : BitVec w) (i : Nat) (h : i < w) :
+    x[i] →  2 ^ i ≤ x.toNat := by
+  rcases w with rfl | w
+  · omega
+  · simp [← getLsbD_eq_getElem, getLsbD, Nat.testBit_eq_decide_div_mod_eq, Nat.succ_sub_succ_eq_sub, Nat.sub_zero]
+    rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ i)) with h'' | h''
+    · simp [Nat.div_eq_of_lt h'', h'']
+    · simp [h'']
+
 theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
   (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) && decide (-x < -y)) := by
   --(-(-x % -y)).msb = sorry := by
   by_cases hw : w = 0; subst hw; decide +revert
   have wpos : 0 < w := by omega
-
   simp only [msb_neg]
   simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
-
-
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by

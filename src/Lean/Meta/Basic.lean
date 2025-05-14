@@ -2189,22 +2189,22 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
   let s ← saveState
   let postponed ← getResetPostponed
   try
-    let restore : MetaM Unit := do
-      if (← getMCtx).numAssignments == s.meta.mctx.numAssignments then
-        /- There are no new metavariable assigments, so the cache is still valid. -/
-        ({ s with meta.cache := (← get).cache }).restore
-      else
-        s.restore
     if (← x) then
       if (← processPostponed mayPostpone) then
         let newPostponed ← getPostponed
         setPostponed (postponed ++ newPostponed)
         return true
       else
-        restore
+        if (← getMCtx).numAssignments != s.meta.mctx.numAssignments then
+          -- Some metavariable assigments are being reverted, so the transient cache won't be valid anymore.
+          resetDefEqTransientCache
+        s.restore
         return false
     else
-      restore
+      if (← getMCtx).numAssignments != s.meta.mctx.numAssignments then
+        -- Some metavariable assigments are being reverted, so the transient cache won't be valid anymore.
+        resetDefEqTransientCache
+      s.restore
       return false
   catch ex =>
     s.restore

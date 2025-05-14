@@ -2238,99 +2238,74 @@ theorem toInt_smod {x y : BitVec w} :
                   rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ w) (by omega)]
                   simp
                   simp [hxintmin, hyintmin] at hdvd
-                · have hxmsbneg : (-x).msb = false := by
-                    simp [← bne_iff_ne] at hxintmin
-                    simp [msb_neg, hxintmin, show x != 0#(w+1) by
-                      sorry]
-                    omega
-                  have hxle := toNat_lt_of_msb_false hxmsbneg
-                  simp only [Nat.add_one_sub_one] at hxle
-                  rw_mod_cast [Nat.mod_eq_of_lt (a := (-x).toNat) (by omega)]
-                  rw [Int.bmod_eq_of_le]
-                  · simp only [Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int]
-                    conv =>
-                      rhs
-                      rw [toNat_neg]
-                    have : 0 < x.toNat := by sorry
-                    rw [Nat.mod_eq_of_lt (by omega)]
-                    simp
-                    rw_mod_cast [Nat.mod_eq_of_lt (by omega)]
-                    simp only [Int.natCast_pow, Int.cast_ofNat_Int]
-                    have := toNat_ge_of_msb_true hxmsb
-                    simp at this
-                    have : 2 ^ (w + 1) - x.toNat ≤  2 ^ w := by
-                      simp [Nat.pow_add]
-                      rw [Nat.mul_two]
-                      omega
-                    rw [Int.neg_emod]
-                    split
-                    · case neg.isTrue hdvd'  =>
+                · by_cases hxzero : x.toNat = 0
+                  · simp [hxzero]
+                    rw [show 0 = (0#(w+1)).toNat by rfl, ← toNat_eq] at hxzero
+                    rw [hxzero] at hdvd
+                    simp at hdvd
+                  · have hxnezero : 0 < x.toNat := by omega
+                    have hxmsbneg : (-x).msb = false := by
+                      simp [← bne_iff_ne] at hxintmin
+                      simp [msb_neg, hxintmin, show x != 0#(w+1) by
+                        rw [show 0 = (0#(w+1)).toNat by rfl] at hxzero
                         simp
-                        by_cases x.toNat = 2 ^ w
-                        · simp_all
-                          omega
-                        · simp_all
-                          -- contradicts hdvd'
-                          rw_mod_cast [dvd_iff_mod_eq_zero] at hdvd'
+                        rw [toNat_eq]
+                        omega]
+                      omega
+                    have hxle := toNat_lt_of_msb_false hxmsbneg
+                    simp only [Nat.add_one_sub_one] at hxle
+                    rw_mod_cast [Nat.mod_eq_of_lt (a := (-x).toNat) (by omega)]
+                    rw [Int.bmod_eq_of_le]
+                    · simp only [Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int]
+                      conv =>
+                        rhs
+                        rw [toNat_neg]
+                      rw [Nat.mod_eq_of_lt (by omega)]
+                      simp
+                      rw_mod_cast [Nat.mod_eq_of_lt (by omega)]
+                      simp only [Int.natCast_pow, Int.cast_ofNat_Int]
+                      have := toNat_ge_of_msb_true hxmsb
+                      simp at this
+                      have : 2 ^ (w + 1) - x.toNat ≤  2 ^ w := by
+                        simp [Nat.pow_add]
+                        rw [Nat.mul_two]
+                        omega
+                      rw [Int.neg_emod]
+                      split
+                      · case neg.isTrue hdvd'  =>
+                          simp [hdvd']
+                          by_cases x.toNat = 2 ^ w
+                          · simp_all
+                            omega
+                          · simp_all
+                            -- contradicts hdvd'
+                            rw_mod_cast [dvd_iff_mod_eq_zero] at hdvd'
+                            have : 0 < x.toNat := by omega
+                            rw [Nat.mod_eq_of_lt (by omega)] at hdvd'
+                            omega
+                      · case neg.isFalse hdvd' =>
+                          simp [hdvd']
                           have : 0 < x.toNat := by omega
-                          rw [Nat.mod_eq_of_lt (by omega)] at hdvd'
-                          omega
-                    · case neg.isFalse hdvd' =>
-                        sorry
-                  · norm_cast
-                    omega
-                  · norm_cast
-                    omega
-              · have hymsbneg : (-y).msb = false := by
-                  rw [msb_neg]
-                  simp [hyzero, hyintmin]
-                  sorry
-
-
-
+                          have : 2 ^ w ≤ x.toNat := by omega
+                          by_cases hxnateq : x.toNat = 2 ^ w
+                          · simp_all
+                            simp [show 2 ^ (w + 1) - 2 ^ w = 2 ^ w by
+                              rw [Nat.pow_add]
+                              omega
+                              ]
+                            omega
+                          · rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat)
+                            (by simp [Nat.pow_add]
+                                rw [Nat.mul_two]
+                                omega)]
+                            push_cast
+                            omega
+                    · norm_cast
+                      omega
+                    · norm_cast
+                      omega
+              · simp
                 sorry
-
-
-
-
-
-          by_cases hmsb : (-(-x%-y)).msb
-          · rw [toInt_eq_neg_toNat_neg_of_msb_true hmsb]
-            simp only [neg_neg, toNat_umod, Int.natCast_emod, Int.natCast_pow,
-              Int.cast_ofNat_Int, Int.neg_fmod_neg, Int.neg_inj]
-            rw [Int.fmod_eq_emod]
-            simp only [show 0 ≤ ((-y).toNat : Int) by omega]
-            simp
-          · simp at hmsb
-            rw [toInt_eq_toNat_of_msb hmsb]
-            simp only [toNat_umod, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
-              Int.neg_fmod_neg]
-            rw [Int.fmod_eq_emod]
-            simp only [show 0 ≤ ((-y).toNat : Int) by omega]
-            simp only [toNat_umod, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
-              _root_.true_or, ↓reduceIte, Int.add_zero]
-            rw_mod_cast [← toNat_umod]
-            by_cases hmsb' : (-x % -y).msb
-            · have : 0 ≤ (-x % -y).toNat := by omega
-              by_cases hmodzero : (-x % -y).toNat = 0
-              · simp [hmodzero]
-              · have : 0 < (-x % -y).toNat := by omega
-                have hge' := toNat_ge_of_msb_true (x := (-x % -y)) hmsb'
-                have hlt' := toNat_lt_of_msb_false (x := (-(-x % -y))) hmsb
-                simp only [toNat_umod, Nat.add_one_sub_one, ge_iff_le] at hge' hlt'
-                simp only [toNat_umod, Nat.add_one_sub_one, ge_iff_le] at this
-                have : (-x % -y).toNat < 2 ^ (w + 1) := by omega
-
-
-
-
-
-
-
-                sorry
-            · push_cast
-              simp at hmsb hmsb'
-              sorry
 
 
 /-! ### Lemmas that use bit blasting circuits -/

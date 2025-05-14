@@ -1955,6 +1955,11 @@ theorem toInt_smod {x y : BitVec w} :
             rw [toInt_umod]
             rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb]
             rw [Int.neg_emod]
+            have hypos : 0 < y.toNat := by
+              rw_mod_cast [toInt_eq_toNat_of_msb hymsb] at hynonneg
+              norm_cast at hynonneg
+              simp  [toNat_eq] at hyzero
+              omega
             split
             · rename_i hdvd
               have := Int.dvd_iff_emod_eq_zero (a := y.toNat) (b := (-x).toNat)
@@ -1962,15 +1967,39 @@ theorem toInt_smod {x y : BitVec w} :
               rw [toNat_umod] at humod
               simp only [hdvd, true_iff] at this
               norm_cast at this
-            ·
-              rename_i hdvd
+            · rename_i hdvd
               simp only [Int.natAbs_natCast]
               rw [Int.bmod_eq_of_le (n := (↑((-x).toNat:Int) % ↑y.toNat))]
               rw [Int.bmod_eq_of_le]
-              · sorry
-              · sorry
-              · sorry
-              · sorry
+              ·
+                sorry
+              ·
+                sorry
+              ·
+                sorry
+              · rw_mod_cast [← toNat_umod]
+                have : (-x % y).toNat < 2 ^ w := by
+                  rw [BitVec.toNat_umod]
+                  have := Nat.mod_lt (x := (-x).toNat) (y := y.toNat) hypos
+                  omega
+                omega
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         · -- x.toInt < 0, y.toInt < 0
           simp [hxmsb, hymsb]
           have hxneg := toInt_neg_of_msb_true hxmsb

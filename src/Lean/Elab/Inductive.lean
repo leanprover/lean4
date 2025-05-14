@@ -252,36 +252,38 @@ where
       let f := e.getAppFn
       if indFVars.contains f then
         let mut args := e.getAppArgs
-        unless args.size ≥ params.size do
-          let expected := mkAppN f params
-          let msg :=
-            m!"Missing parameters in occurrence of inductive type: In the expression{indentExpr (← get).head!}\n\
-            found{indentExpr e}\nbut expected all parameters to be specified:{indentExpr expected}"
-          let noteMsg :=
-            m!"All occurrences of an inductive type in the types of its constructors must include its fixed parameters. \
-               To allow partial application of the type constructor without specifying this parameter, make it an index instead."
-          throwError msg ++ .note noteMsg
-        for h : i in [:params.size] do
-          let param := params[i]
+        -- Prefer throwing an "argument mismatch" error rather than a "missing parameter" one
+        for i in [:min args.size params.size] do
+          let param := params[i]!
           let arg := args[i]!
           unless (← isDefEq param arg) do
             let (arg, param) ← addPPExplicitToExposeDiff arg param
-            let msg := m!"Mismatched inductive type parameters in{indentExpr e}\n\
+            let msg := m!"Mismatched inductive type parameter in{indentExpr e}\n\
                           The provided argument{indentExpr arg}\nis not definitionally equal to the expected parameter{indentExpr param}"
             let noteMsg := m!"The value of parameter '{param}' must be fixed throughout the inductive declaration. \
-                              Consider making this parameter an index if it must vary between occurrences in constructor types."
+                              Consider making this parameter an index if it must vary."
             throwError msg ++ .note noteMsg
           args := args.set! i param
+        unless args.size ≥ params.size do
+          let expected := mkAppN f params
+          let containingExpr := (← get).head?.map toMessageData |>.getD m!"<missing>"
+          let msg :=
+            m!"Missing parameter(s) in occurrence of inductive type: In the expression{indentD containingExpr}\n\
+               found{indentExpr e}\nbut expected all parameters to be specified:{indentExpr expected}"
+          let noteMsg :=
+            m!"All occurrences of an inductive type in the types of its constructors must include its fixed parameters. \
+               Only indices can be omitted in a partial application of the type constructor."
+          throwError msg ++ .note noteMsg
         return TransformStep.done (mkAppN f args)
       else
         if hasSubExpr e then
           modify fun es => e :: es
         return .continue
-    let post (e : Expr) : StateT (List Expr) MetaM TransformStep := do
+    let popContainingExpr (e : Expr) : StateT (List Expr) MetaM TransformStep := do
       if hasSubExpr e then
         modify fun es => es.drop 1
       return .done e
-    transform ctorType (pre := visit) (post := post) |>.run' [ctorType]
+    transform ctorType (pre := visit) (post := popContainingExpr) |>.run' [ctorType]
 
 @[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]
 def elabInductiveCommand : InductiveElabDescr where

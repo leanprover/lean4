@@ -63,7 +63,7 @@ instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get i
 
 instance : GetElem ByteArray USize UInt8 fun xs i => i.toFin < xs.size where
-  getElem xs i h := xs.uget i (by exact h)
+  getElem xs i h := xs.uget i h
 
 @[extern "lean_byte_array_set"]
 def set! : ByteArray → (@& Nat) → UInt8 → ByteArray

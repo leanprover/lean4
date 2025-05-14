@@ -2075,8 +2075,6 @@ theorem toInt_smod {x y : BitVec w} :
           rw [← Int.neg_inj]
           rw [← Int.neg_fmod_neg]
           rw [Int.fmod_eq_emod_of_nonneg (a := -x.toInt) (b := -y.toInt) (by omega)]
-          have hmsb : (-x % -y).msb = false := by
-            sorry
           rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true]
           rw [BitVec.neg_neg]
           rw [Int.neg_neg]
@@ -2084,15 +2082,10 @@ theorem toInt_smod {x y : BitVec w} :
           rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb]
           rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb]
           simp
-          by_cases h : x = intMin (w + 1)
-          · simp [h]
 
+          have hmsb : (-(-x % -y)).msb = true := by
             sorry
-          ·
-            simp [h]
-            sorry
-
-
+          simp [hmsb]
 
 @[simp]
 theorem msb_neg_of_msb_true {x : BitVec w} (hx : x.msb = true) :

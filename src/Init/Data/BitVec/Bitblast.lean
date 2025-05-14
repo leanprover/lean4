@@ -2066,6 +2066,16 @@ theorem msb_neg_of_msb_true {x : BitVec w} (hx : x.msb = true) :
   simp only [bool_to_prop]
   simp [hx]
 
+@[simp]
+theorem msb_neg_of_msb_false {x : BitVec w} (hx : x.msb = false) :
+    (-x).msb = decide (x ≠ 0) := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
+
+  simp only [msb_neg, hx, bne_false]
+  simp only [bool_to_prop]
+  simp [hx, wpos]
+
 theorem msb_neg_umod_neg_of_msb_true_of_msb_true
     {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
       (-x % -y).msb = (decide (x = intMin w) && decide (-x < -y)) := by

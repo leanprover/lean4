@@ -1863,6 +1863,54 @@ theorem BitVec.umod_eq_zero_iff {x y : BitVec w} :
 def test := IO.run do
   IO.println "a"
 
+
+@[simp]
+theorem msb_neg_of_msb_false {x : BitVec w} (hx : x.msb = false) :
+    (-x).msb = decide (x ≠ 0) := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
+  simp only [msb_neg, hx, bne_false]
+  simp only [bool_to_prop]
+  simp [hx, wpos]
+
+@[simp]
+theorem msb_neg_of_msb_true {x : BitVec w} (hx : x.msb = true) :
+    (-x).msb = decide (x = intMin w) := by
+  simp only [msb_neg, hx, bne_true, Bool.not_and]
+  simp only [bool_to_prop]
+  simp [hx]
+
+theorem msb_neg_umod_neg_of_msb_true_of_msb_true
+    {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+      (-x % -y).msb = (decide (x = intMin w) && decide (-x < -y)) := by
+  simp only [msb_umod, msb_neg_of_msb_true, hx]
+  simp only [bool_to_prop]
+  simp [hy]
+
+theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+    (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) && decide (-x < -y)) := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
+
+  simp only [msb_neg]
+  simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
+/-
+  stop
+
+
+  by_cases h : x = intMin w
+  ·
+    subst h
+    simp
+    simp only [bool_to_prop]
+    simp
+    sorry
+  ·
+    simp [h]
+    simp only [bool_to_prop]
+    simp
+-/
+
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
   rcases w with _|w
@@ -2085,68 +2133,11 @@ theorem toInt_smod {x y : BitVec w} :
           rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb]
           rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb]
           simp only [toNat_neg, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int, Int.neg_neg]
-          have hh : (-(-x % -y)).msb = true := by
-            sorry
-          simp [hh]
+          simp [msg_neg_neg_mod_neg, *]
 
-@[simp]
-theorem msb_neg_of_msb_false {x : BitVec w} (hx : x.msb = false) :
-    (-x).msb = decide (x ≠ 0) := by
-  by_cases hw : w = 0; subst hw; decide +revert
-  have wpos : 0 < w := by omega
-  simp only [msb_neg, hx, bne_false]
-  simp only [bool_to_prop]
-  simp [hx, wpos]
-
-@[simp]
-theorem msb_neg_of_msb_true {x : BitVec w} (hx : x.msb = true) :
-    (-x).msb = decide (x = intMin w) := by
-  simp only [msb_neg, hx, bne_true, Bool.not_and]
-  simp only [bool_to_prop]
-  simp [hx]
-
-theorem msb_neg_umod_neg_of_msb_true_of_msb_true
-    {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
-      (-x % -y).msb = (decide (x = intMin w) && decide (-x < -y)) := by
-  simp only [msb_umod, msb_neg_of_msb_true, hx]
-  simp only [bool_to_prop]
-  simp [hy]
-
-theorem xx {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
-    (-(-x % -y)).msb = sorry := by
-  by_cases hw : w = 0; subst hw; decide +revert
-  have wpos : 0 < w := by omega
-
-  simp only [msb_neg]
-  simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
-
-  by_cases h : x = intMin w
-  ·
-    subst h
-    simp
-    sorry
-  ·
-    simp [h]
+          sorry
 
 
-    sorry
-
-
-
-
-  3simp only [bool_to_prop]
-  simp
-
-
-
-
-  simp
-  simp
-
-  have xx := msb_neg_umod_neg_of_msb_true_of_msb_true hx hy
-
-    simp
-  sorry
 
 #check BitVec.msb_umod
 

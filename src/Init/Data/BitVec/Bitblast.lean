@@ -2133,7 +2133,12 @@ theorem toInt_smod {x y : BitVec w} :
           rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb]
           -- 2 ^ w ≤ x.toNat < 2 ^ (w + 1)
           -- 2 ^ w ≤ y.toNat < 2 ^ (w + 1)
-          by_cases hmsb : (- (-x%-y)).msb
+          rw [toInt_neg]
+          rw [toInt_umod]
+
+
+
+          by_cases hmsb : (-(-x%-y)).msb
           · rw [toInt_eq_neg_toNat_neg_of_msb_true hmsb]
             simp only [neg_neg, toNat_umod, Int.natCast_emod, Int.natCast_pow,
               Int.cast_ofNat_Int, Int.neg_fmod_neg, Int.neg_inj]
@@ -2144,19 +2149,33 @@ theorem toInt_smod {x y : BitVec w} :
             rw [toInt_eq_toNat_of_msb hmsb]
             simp only [toNat_umod, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
               Int.neg_fmod_neg]
-
-            sorry
-
-
-          by_cases hdvd : -((-y).toNat : Int) ∣ -((-x).toNat : Int)
-          · simp only [hdvd]
-            simp only [Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
-              Int.emod_neg, Int.neg_nonneg, _root_.or_true, ↓reduceIte, Int.add_zero]
-              rw [toInt_eq_toNat_of_msb]
+            rw [Int.fmod_eq_emod]
+            simp only [show 0 ≤ ((-y).toNat : Int) by omega]
+            simp only [toNat_umod, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
+              _root_.true_or, ↓reduceIte, Int.add_zero]
             rw_mod_cast [← toNat_umod]
+            by_cases hmsb' : (-x % -y).msb
+            · have : 0 ≤ (-x % -y).toNat := by omega
+              by_cases hmodzero : (-x % -y).toNat = 0
+              · simp [hmodzero]
+              · have : 0 < (-x % -y).toNat := by omega
+                have hge' := toNat_ge_of_msb_true (x := (-x % -y)) hmsb'
+                have hlt' := toNat_lt_of_msb_false (x := (-(-x % -y))) hmsb
+                simp only [toNat_umod, Nat.add_one_sub_one, ge_iff_le] at hge' hlt'
+                simp only [toNat_umod, Nat.add_one_sub_one, ge_iff_le] at this
+                have : (-x % -y).toNat < 2 ^ (w + 1) := by omega
 
-            sorry
-          · sorry
+
+
+
+
+
+
+                sorry
+            · push_cast
+              simp at hmsb hmsb'
+              sorry
+
 
 /-! ### Lemmas that use bit blasting circuits -/
 

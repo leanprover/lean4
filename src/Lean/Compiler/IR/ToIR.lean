@@ -15,7 +15,7 @@ import Lean.Environment
 
 namespace Lean.IR
 
-open Lean.Compiler (LCNF.AltCore LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LCtx LCNF.LetDecl
+open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LCtx LCNF.LetDecl
                     LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
 
 namespace ToIR
@@ -346,7 +346,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     | some (.joinPoint ..) | none => panic! "unexpected value"
   | .erased => mkErased ()
 
-partial def lowerAlt (discr : VarId) (a : LCNF.AltCore LCNF.Code) : M (AltCore FnBody) := do
+partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
   match a with
   | .alt ctorName params code =>
     let ⟨ctorInfo, fields⟩ ← getCtorInfo ctorName

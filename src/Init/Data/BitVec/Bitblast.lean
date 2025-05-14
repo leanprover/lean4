@@ -2083,6 +2083,15 @@ theorem toInt_smod {x y : BitVec w} :
           · sorry
 
 @[simp]
+theorem msb_neg_of_msb_false {x : BitVec w} (hx : x.msb = false) :
+    (-x).msb = decide (x ≠ 0) := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
+  simp only [msb_neg, hx, bne_false]
+  simp only [bool_to_prop]
+  simp [hx, wpos]
+
+@[simp]
 theorem msb_neg_of_msb_true {x : BitVec w} (hx : x.msb = true) :
     (-x).msb = decide (x = intMin w) := by
   simp only [msb_neg, hx, bne_true, Bool.not_and]

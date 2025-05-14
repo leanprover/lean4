@@ -17,7 +17,7 @@ set_option linter.all true
 namespace PlainDateTime
 
 /--
-Get the current time.
+Get the current time, in the current timezone.
 -/
 @[inline]
 def now : IO PlainDateTime := do
@@ -32,7 +32,7 @@ end PlainDateTime
 namespace PlainDate
 
 /--
-Get the current date.
+Get the current date, in the current timezone.
 -/
 @[inline]
 def now : IO PlainDate :=
@@ -42,7 +42,7 @@ end PlainDate
 namespace PlainTime
 
 /--
-Get the current time.
+Get the current time, in the current timezone.
 -/
 @[inline]
 def now : IO PlainTime :=

@@ -1963,10 +1963,12 @@ theorem toInt_smod {x y : BitVec w} :
             rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb]
             rw [Int.neg_emod]
             split
-            ·
-              rename_i hdvd
-              -- contradition hdvd humod
-              sorry
+            · rename_i hdvd
+              have := Int.dvd_iff_emod_eq_zero (a := y.toNat) (b := (-x).toNat)
+              rw [toNat_eq] at humod
+              rw [toNat_umod] at humod
+              simp only [hdvd, true_iff] at this
+              norm_cast at this
             ·
               rename_i hdvd
               simp only [Int.natAbs_natCast]

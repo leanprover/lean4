@@ -13795,7 +13795,7 @@ x_33 = lean_name_eq(x_22, x_32);
 if (x_33 == 0)
 {
 lean_object* decidable = l_Lean_MVarId_byCasesDec___closed__2; // ``Decidable
-if (lean_name_eq(x_22, x_32)) {
+if (lean_name_eq(x_22, decidable)) {
   lean_dec(x_22);
   lean_object* falseTrueCases = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__5;
 lean_object* x_34; lean_object* x_35; 

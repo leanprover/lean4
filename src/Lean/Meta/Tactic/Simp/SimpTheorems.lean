@@ -82,17 +82,6 @@ instance : LT Origin where
 instance (a b : Origin) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.lt b))
 
-/-
-Note: we want to use iota reduction when indexing instances. Otherwise,
-we cannot use simp theorems such as
-```
-@[simp] theorem liftOn_mk (a : α) (f : α → γ) (h : ∀ a₁ a₂, r a₁ a₂ → f a₁ = f a₂) :
-    Quot.liftOn (Quot.mk r a) f h = f a := rfl
-```
-If we use `iota`, then the lhs is reduced to `f a`.
-See comment at `DiscrTree`.
--/
-
 abbrev SimpTheoremKey := DiscrTree.Key
 
 /--
@@ -235,10 +224,12 @@ structure SimpTheorems where
 
 /--
 Configuration for `MetaM` used to process global simp theorems
+
+Note that this configuration should be similar to the default `simp` configuration,
+so that the discrimination tree keys are appropriate for `simp`lified expressions.
 -/
 def simpGlobalConfig : ConfigWithKey :=
-  { iota         := false
-    proj         := .no
+  { proj         := .no
     zetaDelta    := false
     transparency := .reducible
   : Config }.toConfigWithKey

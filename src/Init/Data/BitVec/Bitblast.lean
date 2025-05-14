@@ -1922,9 +1922,44 @@ theorem toInt_smod {x y : BitVec w} :
               norm_cast
             simp [h1, humod]
             omega
-          ·
-
-            sorry
+          · simp [humod]
+            have h1 : ¬ (y.toInt ∣ x.toInt) := by
+              simp only [toNat_eq, toNat_umod, toNat_ofNat, zero_mod] at humod
+              have := Nat.dvd_iff_mod_eq_zero (m := (-y).toNat) (n := x.toNat)
+              rw [toInt_eq_toNat_of_msb hxmsb]
+              rw [toInt_eq_neg_toNat_neg_of_msb_true hymsb]
+              rw [Int.neg_dvd]
+              rw_mod_cast [this]
+              norm_cast
+            simp [h1, hxnonneg, show ¬ 0 ≤ y.toInt by omega]
+            rw [toInt_eq_toNat_of_msb hxmsb]
+            rw [toInt_eq_neg_toNat_neg_of_msb_true hymsb]
+            rw [toInt_umod]
+            rw [Int.bmod_eq_of_le (n := ↑x.toNat % ↑(-y).toNat) (m := 2 ^ (w + 1))
+              (by omega)
+              (by
+                have := Nat.mod_lt (y := (-y).toNat) (x := x.toNat) (by
+                  simp
+                  have : 0 < y.toNat := by omega
+                  have : 2 ^ (w + 1) - y.toNat < 2 ^ (w + 1):= by omega
+                  rw [Nat.mod_eq_of_lt (by omega)]
+                  omega)
+                norm_cast
+                norm_cast at this
+                omega)]
+            rw [Int.bmod_eq_of_le]
+            · simp
+            · omega
+            · have := Nat.mod_lt (x := x.toNat) (y := (-y).toNat)
+                (by
+                  simp
+                  have : 0 < y.toNat := by omega
+                  have : 2 ^ (w + 1) - y.toNat < 2 ^ (w + 1):= by omega
+                  rw [Nat.mod_eq_of_lt (by omega)]
+                  omega)
+              push_cast
+              simp only [Int.add_neg_eq_sub]
+              omega
       · cases hymsb : y.msb
         · -- x.toInt < 0, 0 ≤ y.toInt
           simp [hxmsb, hymsb]

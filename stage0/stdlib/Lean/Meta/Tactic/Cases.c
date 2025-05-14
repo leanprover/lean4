@@ -13590,10 +13590,12 @@ static lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_induct
 LEAN_EXPORT lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__1___closed__1() {
 lean_object* x_1 = lean_mk_string_unchecked("isFalse", 7, 7);
 lean_object* x_2 = lean_mk_string_unchecked("isTrue", 6, 6);
-lean_object* x_3 = lean_mk_empty_array_with_capacity(lean_box(2));
-lean_object* x_4 = lean_array_push(x_3, x_1);
-lean_object* x_5 = lean_array_push(x_3, x_2);
-return x_5;
+lean_object* x_3 = l_Lean_Name_mkStr2(l_Lean_MVarId_byCasesDec___closed__2, x_1); // Decidable.isFalse
+lean_object* x_4 = l_Lean_Name_mkStr2(l_Lean_MVarId_byCasesDec___closed__2, x_2); // Decidable.isTrue
+lean_object* x_5 = lean_mk_empty_array_with_capacity(lean_box(2));
+lean_object* x_6 = lean_array_push(x_5, x_3);
+lean_object* x_7 = lean_array_push(x_5, x_4);
+return x_7;
 }
 
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
@@ -18652,8 +18654,6 @@ l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda_
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__3);
 l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__4 = _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__4();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__4);
-l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__5 = _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__5();
-lean_mark_persistent(l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__5);
 l_Lean_Meta_Cases_cases___lambda__2___closed__1 = _init_l_Lean_Meta_Cases_cases___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Meta_Cases_cases___lambda__2___closed__1);
 l_Lean_Meta_Cases_cases___lambda__2___closed__2 = _init_l_Lean_Meta_Cases_cases___lambda__2___closed__2();
@@ -18714,6 +18714,8 @@ l_Lean_MVarId_byCasesDec___closed__4 = _init_l_Lean_MVarId_byCasesDec___closed__
 lean_mark_persistent(l_Lean_MVarId_byCasesDec___closed__4);
 l_Lean_MVarId_byCasesDec___closed__5 = _init_l_Lean_MVarId_byCasesDec___closed__5();
 lean_mark_persistent(l_Lean_MVarId_byCasesDec___closed__5);
+l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__5 = _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__5();
+lean_mark_persistent(l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__2___closed__5);
 l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg_3903____closed__1 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg_3903____closed__1();
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg_3903____closed__1);
 l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg_3903____closed__2 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg_3903____closed__2();

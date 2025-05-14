@@ -1898,7 +1898,7 @@ theorem toInt_smod {x y : BitVec w} :
           -- - 2 ^ w ≤ 2 ^ (w + 1) - y.toNat < 0, we need to use this information to get rid of the bmod and then
           -- translate fmod into emod (based on a similar if as h1 iirc)
           have hxnonneg := toInt_nonneg_of_msb_false (x := x) hxmsb
-          have hxnonneg := toInt_neg_of_msb_true (x := y) hymsb
+          have hynonpos := toInt_neg_of_msb_true (x := y) hymsb
           have hletoInt := le_toInt (x := y)
           simp only [Nat.add_one_sub_one] at hletoInt
           simp only [umod_eq]
@@ -1908,28 +1908,27 @@ theorem toInt_smod {x y : BitVec w} :
           have : y.toNat < 2 ^ (w + 1) := by omega
           have hylt : (-y).toNat ≤  2 ^ w := by rw [toNat_neg, Nat.mod_eq_of_lt (by omega)]; omega
           have := BitVec.toInt_umod_of_msb (x := x) (y := y) (by omega)
-          · by_cases hyone : -y = 1#(w + 1)
-            · simp [hyone]
-              sorry
-            · by_cases h1 : x % -y = 0#(w + 1)
-              -- iff -y = x or -y = 1: deal with these cases separately
-              · simp [h1]
-                sorry
-              · simp [h1]
-                simp [toInt_umod]
-                -- in this case since y.msb we'll have 2 ^ (w + 1) - y.toNat < 0 and in particular
-                -- - 2 ^ w ≤ 2 ^ (w + 1) - y.toNat < 0, we need to use this information to get rid of the bmod and then
-                -- translate fmod into emod (based on a similar if as h1 iirc)
-                simp [Int.fmod_eq_emod]
-                -- exclude y.toInt | x.toInt → this means that the modulo is zero! just like h1
-                -- given that y.toNat > 2 ^ w (because y.msb is true), then 2 ^ (w + 1) - y.toNat < 2 ^ w (note that 2 ^ (w + 1) / 2 = 2 ^ w)
-                have : 2 ^ (w + 1) - y.toNat < 2 ^ w := by sorry
-                have hh : 2 ^ (w + 1) - y.toNat < 2 ^ (w + 1) := by sorry
-                sorry
+          have := BitVec.toNat_umod (x := x) (y := -y)
+          simp [Int.fmod_eq_tmod, Int.tmod_eq_emod_of_nonneg hxnonneg]
+          by_cases humod : x % -y = 0#(w+1)
+          · have h1 : (y.toInt ∣ x.toInt) := by
+              simp only [toNat_eq, toNat_umod, toNat_ofNat, zero_mod] at humod
+              have := Nat.dvd_iff_mod_eq_zero (m := (-y).toNat) (n := x.toNat)
+              refine Int.dvd_of_emod_eq_zero ?_
+              rw [toInt_eq_toNat_of_msb hxmsb]
+              rw [toInt_eq_neg_toNat_neg_of_msb_true hymsb]
+              simp only [Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
+                Int.emod_neg]
+              norm_cast
+            simp [h1, humod]
+            omega
+          ·
+
+            sorry
       · cases hymsb : y.msb
         · -- x.toInt < 0, 0 ≤ y.toInt
           simp [hxmsb, hymsb]
-          have hxnonneg := toInt_nonneg_of_msb_false (x := y) hymsb
+          have hynonneg := toInt_nonneg_of_msb_false (x := y) hymsb
           rw [Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) (by omega)]
           rw [toInt_eq_toNat_of_msb (x := y) hymsb]
           have hynonneg : 0 ≤ y.toInt := by omega
@@ -1944,7 +1943,8 @@ theorem toInt_smod {x y : BitVec w} :
             rw [← toInt_inj] at humod
             simp at humod
             have := Int.emod_lt (a := x.toInt) (b := y.toInt)
-            have : 0 ≤ -x := by sorry
+            have : 0 ≤ -x := by
+              simp [BitVec.le_def]
             rw [toInt_eq_toNat_of_msb (by sorry)] at humod
             rw [toNat_umod] at humod
             rw [Int.dvd_iff_emod_eq_zero.mp]
@@ -2040,23 +2040,6 @@ theorem toInt_smod {x y : BitVec w} :
                   have := Nat.mod_lt (x := (-x).toNat) (y := y.toNat) hypos
                   omega
                 omega
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         · -- x.toInt < 0, y.toInt < 0
           simp [hxmsb, hymsb]
           have hxneg := toInt_neg_of_msb_true hxmsb

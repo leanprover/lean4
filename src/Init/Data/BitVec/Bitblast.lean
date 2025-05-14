@@ -2297,8 +2297,21 @@ theorem toInt_smod {x y : BitVec w} :
                       omega
                     · norm_cast
                       omega
-              · simp
-                sorry
+              · have hymsbneg : (-y).msb = false := by
+                  simp [msb_neg]
+                  simp at hyzero hyintmin
+                  simp_all
+                have hyneglt := toNat_lt_of_msb_false hymsbneg
+                rw [Int.bmod_eq_of_le]
+                · sorry
+                · norm_cast
+                  simp only [Nat.add_one_sub_one] at hyneglt
+                  have := Nat.mod_lt (y := (-y).toNat) (by omega) (by omega)
+
+                  sorry
+                · norm_cast
+                  omega
+
 
 
 /-! ### Lemmas that use bit blasting circuits -/

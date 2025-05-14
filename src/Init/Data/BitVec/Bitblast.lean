@@ -1861,7 +1861,7 @@ theorem BitVec.umod_eq_zero_iff {x y : BitVec w} :
 
 
 def test := IO.run do
-  IO.println "a"
+  let w := 4
 
 
 @[simp]
@@ -1888,12 +1888,15 @@ theorem msb_neg_umod_neg_of_msb_true_of_msb_true
   simp [hy]
 
 theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
-    (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) && decide (-x < -y)) := by
+  (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) && decide (-x < -y)) := by
+  --(-(-x % -y)).msb = sorry := by
   by_cases hw : w = 0; subst hw; decide +revert
   have wpos : 0 < w := by omega
 
   simp only [msb_neg]
   simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
+
+
 /-
   stop
 
@@ -2126,14 +2129,43 @@ theorem toInt_smod {x y : BitVec w} :
           rw [← Int.neg_inj]
           rw [← Int.neg_fmod_neg]
           rw [Int.fmod_eq_emod_of_nonneg (a := -x.toInt) (b := -y.toInt) (by omega)]
-          rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true]
-          rw [BitVec.neg_neg]
-          rw [Int.neg_neg]
-          rw [toNat_umod]
-          rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb]
-          rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb]
-          simp only [toNat_neg, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int, Int.neg_neg]
+          by_cases hh : (-(-x % -y)).msb = true
+          ·
+            rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true]
+            rw [BitVec.neg_neg]
+            rw [Int.neg_neg]
+            rw [toNat_umod]
+            rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb]
+            rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb]
+            simp only [toNat_neg, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int, Int.neg_neg]
+            simp [hh]
+          ·
+            simp
+            simp at hh
+
+            rw [toInt_eq_toNat_of_msb hh]
+            simp only [toNat_neg]
+            have hr : (-x % -y).msb = false := by
+              simp [msb_neg_umod_neg_of_msb_true_of_msb_true, *]
+              sorry
+            have := BitVec.toNat_lt_of_msb_false hr
+
+            rw [Nat.mod_eq_of_lt]
+
+            sorry
+
+
+
+
+
+            rw []
+
+
+            simp [hh]
           simp [msg_neg_neg_mod_neg, *]
+          -- continue here:
+          -- I feel we can simplify the RHS of msg_neg_neg_mod_neg further
+          -- given some of the context knowledge here.
 
           sorry
 

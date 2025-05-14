@@ -14,15 +14,16 @@ namespace FoldConstsImpl
 
 unsafe structure State where
   visited       : PtrSet Expr := mkPtrSet
-  visitedConsts : NameSet := {}
+  visitedConsts : NameHashSet := {}
 
 unsafe abbrev FoldM := StateM State
 
+set_option trace.compiler.ir.result true in
 unsafe def fold {α : Type} (f : Name → α → α) (e : Expr) (acc : α) : FoldM α :=
   let rec visit (e : Expr) (acc : α) : FoldM α := do
     if (← get).visited.contains e then
       return acc
-    modify fun s => { s with visited := s.visited.insert e }
+    modify fun s => let a := s.1; let b := s.2; ⟨a.insert e, b⟩
     match e with
     | .forallE _ d b _   => visit b (← visit d acc)
     | .lam _ d b _       => visit b (← visit d acc)
@@ -34,7 +35,7 @@ unsafe def fold {α : Type} (f : Name → α → α) (e : Expr) (acc : α) : Fol
       if (← get).visitedConsts.contains c then
         return acc
       else
-        modify fun s => { s with visitedConsts := s.visitedConsts.insert c };
+        modify fun s => let a := s.1; let b := s.2; ⟨a, b.insert c⟩
         return f c acc
     | _ => return acc
   visit e acc

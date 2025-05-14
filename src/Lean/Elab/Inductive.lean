@@ -189,20 +189,9 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
             let type ← checkParamOccs type
             forallTelescopeReducing type fun _ resultingType => do
               unless resultingType.getAppFn == indFVar do
-                let lazyAppMsg := MessageData.ofLazyM do
-                  if let some fvarId := indFVar.fvarId? then
-                    if let some decl := (← getLCtx).find? fvarId then
-                      if (← whnfD decl.type).isForall then
-                        return m!" an application of"
-                  return m!""
-                throwErrorAt ctorType "Unexpected resulting type for constructor '{ctorView.declName}': \
-                  Expected{lazyAppMsg}{indentExpr indFVar}\nbut found{indentExpr resultingType}"
+                throwUnexpectedResultingTypeMismatch resultingType indFVar ctorView.declName ctorType
               unless (← isType resultingType) do
-                let lazyMsg := MessageData.ofLazyM do
-                  let resultingTypeType ← inferType resultingType
-                  return indentExpr resultingTypeType
-                throwErrorAt ctorType "Unexpected resulting type for constructor '{ctorView.declName}': \
-                  Expected a type, but found{indentExpr resultingType}\nof type{lazyMsg}"
+                throwUnexpectedResultingTypeNotType resultingType ctorView.declName ctorType
             return type
         let type ← elabCtorType
         Term.synthesizeSyntheticMVarsNoPostponing
@@ -246,8 +235,6 @@ where
   parameters from the inductive definition.
   -/
   checkParamOccs (ctorType : Expr) : MetaM Expr :=
-    let hasSubExpr (e : Expr) :=
-      e matches .app .. | .proj .. | .mdata .. | .letE .. | .forallE .. | .lam ..
     let visit (e : Expr) : StateT (List Expr) MetaM TransformStep := do
       let f := e.getAppFn
       if indFVars.contains f then
@@ -258,32 +245,47 @@ where
           let arg := args[i]!
           unless (← isDefEq param arg) do
             let (arg, param) ← addPPExplicitToExposeDiff arg param
-            let msg := m!"Mismatched inductive type parameter in{indentExpr e}\n\
-                          The provided argument{indentExpr arg}\nis not definitionally equal to the expected parameter{indentExpr param}"
-            let noteMsg := m!"The value of parameter '{param}' must be fixed throughout the inductive declaration. \
-                              Consider making this parameter an index if it must vary."
+            let msg := m!"Mismatched inductive type parameter in{indentExpr e}\nThe provided argument\
+              {indentExpr arg}\nis not definitionally equal to the expected parameter{indentExpr param}"
+            let noteMsg := m!"The value of parameter '{param}' must be fixed throughout the inductive \
+              declaration. Consider making this parameter an index if it must vary."
             throwError msg ++ .note noteMsg
           args := args.set! i param
         unless args.size ≥ params.size do
           let expected := mkAppN f params
-          let containingExpr := (← get).head?.map toMessageData |>.getD m!"<missing>"
+          let containingExprMsg := (← get).head?.map toMessageData |>.getD m!"<missing>"
           let msg :=
-            m!"Missing parameter(s) in occurrence of inductive type: In the expression{indentD containingExpr}\n\
+            m!"Missing parameter(s) in occurrence of inductive type: In the expression{indentD containingExprMsg}\n\
                found{indentExpr e}\nbut expected all parameters to be specified:{indentExpr expected}"
           let noteMsg :=
-            m!"All occurrences of an inductive type in the types of its constructors must include its fixed parameters. \
-               Only indices can be omitted in a partial application of the type constructor."
+            m!"All occurrences of an inductive type in the types of its constructors must specify its \
+              fixed parameters. Only indices can be omitted in a partial application of the type constructor."
           throwError msg ++ .note noteMsg
         return TransformStep.done (mkAppN f args)
       else
-        if hasSubExpr e then
-          modify fun es => e :: es
+        modify fun es => e :: es
         return .continue
     let popContainingExpr (e : Expr) : StateT (List Expr) MetaM TransformStep := do
-      if hasSubExpr e then
-        modify fun es => es.drop 1
+      modify fun es => es.drop 1
       return .done e
     transform ctorType (pre := visit) (post := popContainingExpr) |>.run' [ctorType]
+
+  throwUnexpectedResultingTypeMismatch (resultingType indFVar : Expr) (declName : Name) (ctorType : Syntax) := do
+    let lazyAppMsg := MessageData.ofLazyM do
+      if let some fvarId := indFVar.fvarId? then
+        if let some decl := (← getLCtx).find? fvarId then
+          if (← whnfD decl.type).isForall then
+            return m!" an application of"
+      return m!""
+    throwErrorAt ctorType "Unexpected resulting type for constructor '{declName}': \
+      Expected{lazyAppMsg}{indentExpr indFVar}\nbut found{indentExpr resultingType}"
+
+  throwUnexpectedResultingTypeNotType (resultingType : Expr) (declName : Name) (ctorType : Syntax) := do
+    let lazyMsg := MessageData.ofLazyM do
+      let resultingTypeType ← inferType resultingType
+      return indentExpr resultingTypeType
+    throwErrorAt ctorType "Unexpected resulting type for constructor '{declName}': \
+      Expected a type, but found{indentExpr resultingType}\nof type{lazyMsg}"
 
 @[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]
 def elabInductiveCommand : InductiveElabDescr where

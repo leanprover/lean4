@@ -9,6 +9,22 @@ https://github.com/leanprover/lean4/issues/2195
 
 /-! ## Example from Issue #2195 -/
 
+inductive Desc where
+  | intro
+    (name: String)
+    (hash: UInt64)
+    (params: List Desc)
+  : Desc
+  deriving Repr
+
+def hash_with_name (_name: String) (_params: List Desc): UInt64 := 0 -- mock hash function
+
+def Desc.intro_func (name: String) (params: List Desc): Desc :=
+  Desc.intro
+    name
+    (hash_with_name name params)
+    params
+
 inductive Forall {α : Type u} (p : α → Prop) : List α → Prop
   | nil  : Forall p ([] : List α)
   | cons : ∀ {x xs}, p x → Forall p xs → Forall p (x :: xs)
@@ -21,21 +37,24 @@ found
 but expected all parameters to be specified:
   IsSmart d
 
-Note: All occurrences of an inductive type in the types of its constructors must include its fixed parameters. Only indices can be omitted in a partial application of the type constructor.
+Note: All occurrences of an inductive type in the types of its constructors must specify its fixed parameters. Only indices can be omitted in a partial application of the type constructor.
 -/
 #guard_msgs in
-inductive IsSmart (d : Nat) : Prop
+inductive IsSmart (d: Desc): Prop
   | isSmart: ∀
-    (name : String)
-    (hash : UInt64)
-    (reader : Bool),
-    Forall IsSmart params
+    (name: String)
+    (params: List Desc)
+    (hash: UInt64)
+    (reader: Bool),
+    d = Desc.intro name hash params
+    → hash = hash_with_name name params
+    → Forall IsSmart params
     → IsSmart d
 
-abbrev NatOf (F : Type → Type) : Type := F Nat
 
 /-! ## "Missing parameter" error -/
 
+abbrev NatOf (F : Type → Type) : Type := F Nat
 /--
 error: Missing parameter(s) in occurrence of inductive type: In the expression
   NatOf T
@@ -44,7 +63,7 @@ found
 but expected all parameters to be specified:
   T α
 
-Note: All occurrences of an inductive type in the types of its constructors must include its fixed parameters. Only indices can be omitted in a partial application of the type constructor.
+Note: All occurrences of an inductive type in the types of its constructors must specify its fixed parameters. Only indices can be omitted in a partial application of the type constructor.
 -/
 #guard_msgs in
 inductive T (α : Type) where
@@ -61,7 +80,7 @@ found
 but expected all parameters to be specified:
   T₂ α β
 
-Note: All occurrences of an inductive type in the types of its constructors must include its fixed parameters. Only indices can be omitted in a partial application of the type constructor.
+Note: All occurrences of an inductive type in the types of its constructors must specify its fixed parameters. Only indices can be omitted in a partial application of the type constructor.
 -/
 #guard_msgs in
 inductive T₂ (α β : Type) : Type
@@ -77,11 +96,12 @@ found
 but expected all parameters to be specified:
   Foo α
 
-Note: All occurrences of an inductive type in the types of its constructors must include its fixed parameters. Only indices can be omitted in a partial application of the type constructor.
+Note: All occurrences of an inductive type in the types of its constructors must specify its fixed parameters. Only indices can be omitted in a partial application of the type constructor.
 -/
 #guard_msgs in
 inductive Foo (α : Type) : Type
   | mk : InList [Foo] → Foo α
+
 
 /-! ## "Mismatched parameter" error -/
 

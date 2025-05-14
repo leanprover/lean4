@@ -2119,52 +2119,37 @@ theorem toInt_smod {x y : BitVec w} :
           simp [hxmsb, hymsb]
           have hxneg := toInt_neg_of_msb_true hxmsb
           have hyneg := toInt_neg_of_msb_true hymsb
-          rw [← Int.neg_inj]
-          rw [← Int.neg_fmod_neg]
-          rw [Int.fmod_eq_emod_of_nonneg (a := -x.toInt) (b := -y.toInt) (by omega)]
-          by_cases luisa : w = 42
-          · -- tobias
-            by_cases hh : (-(-x % -y)).msb = true
-            ·
-              rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true]
-              rw [BitVec.neg_neg]
-              rw [Int.neg_neg]
-              rw [toNat_umod]
-              rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb]
-              rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb]
-              simp only [toNat_neg, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int, Int.neg_neg]
-              simp [hh]
-            ·
-              simp
-              simp at hh
-              rw [toInt_eq_toNat_of_msb hh]
-              simp only [toNat_neg]
-              have hr : (-x % -y).msb = false := by
-                simp [msb_neg_umod_neg_of_msb_true_of_msb_true, *]
-                sorry
-              have := BitVec.toNat_lt_of_msb_false hr
+          -- rw [← Int.neg_inj]
+          -- rw [← Int.neg_fmod_neg]
+          -- rw [Int.fmod_eq_emod_of_nonneg (a := -x.toInt) (b := -y.toInt) (by omega)]
+          rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb]
+          rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb]
+          -- 2 ^ w ≤ x.toNat < 2 ^ (w + 1)
+          -- 2 ^ w ≤ y.toNat < 2 ^ (w + 1)
+          by_cases hmsb : (- (-x%-y)).msb
+          · rw [toInt_eq_neg_toNat_neg_of_msb_true hmsb]
+            simp only [neg_neg, toNat_umod, Int.natCast_emod, Int.natCast_pow,
+              Int.cast_ofNat_Int, Int.neg_fmod_neg, Int.neg_inj]
+            rw [Int.fmod_eq_emod]
+            simp only [show 0 ≤ ((-y).toNat : Int) by omega]
+            simp
+          · simp at hmsb
+            rw [toInt_eq_toNat_of_msb hmsb]
+            simp only [toNat_umod, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
+              Int.neg_fmod_neg]
 
-              rw [Nat.mod_eq_of_lt]
-
-              sorry
-              sorry
-          · -- Luisa
-            have hlex  := le_toNat_of_msb_true hxmsb
-            have hley := le_toNat_of_msb_true hymsb
-            simp at hlex hley
-            rw [toInt_neg]
-            by_cases hxintmin : x = intMin (w + 1) <;> by_cases hyintmin : y = intMin (w + 1)
-            · simp [hxintmin, hyintmin]
-            · simp [hxintmin, hyintmin, toInt_intMin]
-              sorry
-            · sorry
-            · sorry
+            sorry
 
 
+          by_cases hdvd : -((-y).toNat : Int) ∣ -((-x).toNat : Int)
+          · simp only [hdvd]
+            simp only [Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
+              Int.emod_neg, Int.neg_nonneg, _root_.or_true, ↓reduceIte, Int.add_zero]
+              rw [toInt_eq_toNat_of_msb]
+            rw_mod_cast [← toNat_umod]
 
-
-
-#check BitVec.msb_umod
+            sorry
+          · sorry
 
 /-! ### Lemmas that use bit blasting circuits -/
 

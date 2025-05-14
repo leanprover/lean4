@@ -1864,26 +1864,6 @@ theorem BitVec.umod_eq_zero_iff {x y : BitVec w} :
 #eval ((-3#3).smod 2#3).toInt
 #eval ((-3#3).smod 3#3).toInt
 
-def test := IO.run do
-  IO.println "a"
-
-
-theorem neg_ofNat_eq_ofInt_neg {w : Nat} (x : BitVec w) :
-    -x.toInt = (-x).toNat := by
-  simp [BitVec.toInt]
-  by_cases hw : 2 * x.toNat < 2 ^ w
-  · simp [hw]
-
-    sorry
-  ·
-    rw [Nat.]
-    simp [hw]
-    simp
-    sorry
-
-  split
-  apply BitVec.eq_of_toInt_eq
-  simp [BitVec.toInt_neg, BitVec.toInt_ofNat]
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
@@ -1983,8 +1963,13 @@ theorem toInt_smod {x y : BitVec w} :
             split
             ·
               rename_i hdvd
-              -- contradition hdvd humod
-              sorry
+              -- contradcition hdvd humod
+              -- rw [BitVec.toNat_neg] at hdvd
+              have := Int.dvd_iff_emod_eq_zero (a := y.toNat) (b := (-x).toNat)
+              rw [toNat_eq] at humod
+              rw [toNat_umod] at humod
+              simp only [hdvd, true_iff] at this
+              norm_cast at this
             ·
               rename_i hdvd
               simp only [Int.natAbs_natCast]

@@ -992,6 +992,11 @@ instances can be found via unification rather than instance synthesis.
 -/
 class Decidable (p : Prop) where
   /--
+  Introduces `Decidable p` using a boolean `decide` and a proof of `¬p` if `decide` is `false`
+  or `p` if `decide` is `true`.
+  -/
+  intro ::
+  /--
   Converts a decidable proposition into a `Bool`.
 
   If `p : Prop` is decidable, then `decide p : Bool` is the Boolean value

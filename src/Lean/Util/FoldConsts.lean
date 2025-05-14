@@ -13,8 +13,8 @@ namespace Expr
 namespace FoldConstsImpl
 
 unsafe structure State where
- visited       : PtrSet Expr := mkPtrSet
- visitedConsts : NameHashSet := {}
+  visited       : PtrSet Expr := mkPtrSet
+  visitedConsts : NameSet := {}
 
 unsafe abbrev FoldM := StateM State
 

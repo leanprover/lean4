@@ -1897,6 +1897,7 @@ theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = t
   simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
 
 
+
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
   rcases w with _|w

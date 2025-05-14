@@ -187,27 +187,34 @@ private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Un
           modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm }
 
 /--
-If type of `a` is an inductive datatype with one constructor `ctor` without fields,
-pushes the equality `a = ctor`.
+If type of `a` is a structure and is tagged with `[grind ext]` attribute,
+propagate `a = ⟨a.1, ..., a.n⟩`
 
-Remark: we added this feature because `isDefEq` implements it, and consequently
-the simplifier reduces terms of the form `a = ctor` to `True` using `eq_self`.
+This function subsumes the `propagateUnitLike` function we used in the past.
+Recall that the `propagateUnitLike` was added because `isDefEq` implements it,
+and consequently the simplifier reduces terms of the form `a = ctor` to `True` using `eq_self`.
 This `isDefEq` feature was negatively affecting `grind` until we added an
 equivalent one here. For example, when splitting on a `match`-expression
 using Unit-like types, equalites about these types were being reduced to `True`
 by `simp` (i.e., in the `grind` preprocessor), and `grind` would never see
 these facts.
 -/
-private def propagateUnitLike (a : Expr) (generation : Nat) : GoalM Unit := do
+private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
   let aType ← whnfD (← inferType a)
   matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
     unless a.isAppOf ctorVal.name do
-      if ctorVal.numFields == 0 then
+      -- TODO: remove ctorVal.numFields after update stage0
+      if (← isExtTheorem inductVal.name) || ctorVal.numFields == 0 then
         let params := aType.getAppArgs[:inductVal.numParams]
-        let unit := mkAppN (mkConst ctorVal.name us) params
-        let unit ← shareCommon unit
-        internalize unit generation
-        pushEq a unit <| (← mkEqRefl unit)
+        let mut ctorApp := mkAppN (mkConst ctorVal.name us) params
+        for j in [: ctorVal.numFields] do
+          let mut proj ← mkProjFn ctorVal us params j a
+          if (← isProof proj) then
+            proj ← markProof proj
+          ctorApp := mkApp ctorApp proj
+        ctorApp ← shareCommon ctorApp
+        internalize ctorApp generation
+        pushEq a ctorApp <| (← mkEqRefl a)
 
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
 private def extParentsToIgnore (declName : Name) : Bool :=
@@ -284,82 +291,85 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Otherwise, it will not be able to propagate that `a + 1 = 1` when `a = 0`
     -/
     Arith.internalize e parent?
-    return ()
-  trace_goal[grind.internalize] "{e}"
-  propagateUnitLike e generation
-  match e with
-  | .bvar .. => unreachable!
-  | .sort .. => return ()
-  | .fvar .. =>
-    mkENode' e generation
-    checkAndAddSplitCandidate e
-  | .letE .. =>
-    mkENode' e generation
-  | .lam .. =>
-    addSplitCandidatesForFunext e generation parent?
-    mkENode' e generation
-  | .forallE _ d b _ =>
-    mkENode' e generation
-    internalizeImpl d generation e
-    registerParent e d
-    unless b.hasLooseBVars do
-      internalizeImpl b generation e
-      registerParent e b
-      addCongrTable e
-    if (← isProp d <&&> isProp e) then
-      propagateUp e
+  else
+    go
+    propagateEtaStruct e generation
+where
+  go : GoalM Unit := do
+    trace_goal[grind.internalize] "{e}"
+    match e with
+    | .bvar .. => unreachable!
+    | .sort .. => return ()
+    | .fvar .. =>
+      mkENode' e generation
       checkAndAddSplitCandidate e
-  | .lit .. =>
-    mkENode e generation
-  | .const declName _ =>
-    mkENode e generation
-    activateTheoremPatterns declName generation
-  | .mvar .. =>
-    if (← reportMVarInternalization) then
-      reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
-    mkENode' e generation
-  | .mdata .. =>
-    reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
-    mkENode' e generation
-  | .proj .. =>
-    reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
-    mkENode' e generation
-  | .app .. =>
-    if (← isLitValue e) then
-      -- We do not want to internalize the components of a literal value.
+    | .letE .. =>
+      mkENode' e generation
+    | .lam .. =>
+      addSplitCandidatesForFunext e generation parent?
+      mkENode' e generation
+    | .forallE _ d b _ =>
+      mkENode' e generation
+      internalizeImpl d generation e
+      registerParent e d
+      unless b.hasLooseBVars do
+        internalizeImpl b generation e
+        registerParent e b
+        addCongrTable e
+      if (← isProp d <&&> isProp e) then
+        propagateUp e
+        checkAndAddSplitCandidate e
+    | .lit .. =>
       mkENode e generation
-      Arith.internalize e parent?
-    else if e.isAppOfArity ``Grind.MatchCond 1 then
-      internalizeMatchCond e generation
-    else e.withApp fun f args => do
+    | .const declName _ =>
       mkENode e generation
-      updateAppMap e
-      checkAndAddSplitCandidate e
-      pushCastHEqs e
-      addMatchEqns f generation
-      if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
-        -- We only internalize the proposition. We can skip the proof because of
-        -- proof irrelevance
-        let c := args[0]!
-        internalizeImpl c generation e
-        registerParent e c
-      else if f.isConstOf ``ite && args.size == 5 then
-        let c := args[1]!
-        internalizeImpl c generation e
-        registerParent e c
-      else
-        if let .const fName _ := f then
-          activateTheoremPatterns fName generation
+      activateTheoremPatterns declName generation
+    | .mvar .. =>
+      if (← reportMVarInternalization) then
+        reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
+      mkENode' e generation
+    | .mdata .. =>
+      reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
+      mkENode' e generation
+    | .proj .. =>
+      reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
+      mkENode' e generation
+    | .app .. =>
+      if (← isLitValue e) then
+        -- We do not want to internalize the components of a literal value.
+        mkENode e generation
+        Arith.internalize e parent?
+      else if e.isAppOfArity ``Grind.MatchCond 1 then
+        internalizeMatchCond e generation
+      else e.withApp fun f args => do
+        mkENode e generation
+        updateAppMap e
+        checkAndAddSplitCandidate e
+        pushCastHEqs e
+        addMatchEqns f generation
+        if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+          -- We only internalize the proposition. We can skip the proof because of
+          -- proof irrelevance
+          let c := args[0]!
+          internalizeImpl c generation e
+          registerParent e c
+        else if f.isConstOf ``ite && args.size == 5 then
+          let c := args[1]!
+          internalizeImpl c generation e
+          registerParent e c
         else
-          internalizeImpl f generation e
-        registerParent e f
-        for h : i in [: args.size] do
-          let arg := args[i]
-          internalize arg generation e
-          registerParent e arg
-      addCongrTable e
-      Arith.internalize e parent?
-      propagateUp e
-      propagateBetaForNewApp e
+          if let .const fName _ := f then
+            activateTheoremPatterns fName generation
+          else
+            internalizeImpl f generation e
+          registerParent e f
+          for h : i in [: args.size] do
+            let arg := args[i]
+            internalize arg generation e
+            registerParent e arg
+        addCongrTable e
+        Arith.internalize e parent?
+        propagateUp e
+        propagateBetaForNewApp e
 
 end Lean.Meta.Grind

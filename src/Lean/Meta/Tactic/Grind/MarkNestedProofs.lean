@@ -13,6 +13,24 @@ import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
 
+private unsafe def markNestedProofImpl (e : Expr) (visit : Expr → StateRefT (PtrMap Expr Expr) MetaM Expr)
+    : StateRefT (PtrMap Expr Expr) MetaM Expr := do
+  let prop ← inferType e
+  /-
+  We must unfold reducible constants occurring in `prop` because the congruence closure
+  module in `grind` assumes they have been expanded.
+  See `grind_mark_nested_proofs_bug.lean` for an example.
+  TODO: We may have to normalize `prop` too.
+  -/
+  let prop ← unfoldReducible prop
+  /- We must also apply beta-reduction to improve the effectiveness of the congruence closure procedure. -/
+  let prop ← Core.betaReduce prop
+  /- We must fold kernel projections like it is done in the preprocessor. -/
+  let prop ← foldProjs prop
+  /- We must mask proofs occurring in `prop` too. -/
+  let prop ← visit prop
+  return mkApp2 (mkConst ``Lean.Grind.nestedProof) prop e
+
 unsafe def markNestedProofsImpl (e : Expr) : MetaM Expr := do
   visit e |>.run' mkPtrMap
 where
@@ -22,21 +40,7 @@ where
         return e -- `e` is already marked
       if let some r := (← get).find? e then
         return r
-      let prop ← inferType e
-      /-
-      We must unfold reducible constants occurring in `prop` because the congruence closure
-      module in `grind` assumes they have been expanded.
-      See `grind_mark_nested_proofs_bug.lean` for an example.
-      TODO: We may have to normalize `prop` too.
-      -/
-      let prop ← unfoldReducible prop
-      /- We must also apply beta-reduction to improve the effectiveness of the congruence closure procedure. -/
-      let prop ← Core.betaReduce prop
-      /- We must fold kernel projections like it is done in the preprocessor. -/
-      let prop ← foldProjs prop
-      /- We must mask proofs occurring in `prop` too. -/
-      let prop ← visit prop
-      let e' := mkApp2 (mkConst ``Lean.Grind.nestedProof) prop e
+      let e' ← markNestedProofImpl e visit
       modify fun s => s.insert e e'
       return e'
     -- Remark: we have to process `Expr.proj` since we only
@@ -77,5 +81,14 @@ Recall that the congruence closure module has special support for `Lean.Grind.ne
 -/
 def markNestedProofs (e : Expr) : MetaM Expr :=
   unsafe markNestedProofsImpl e
+
+/--
+Given a proof `e`, mark it with `Lean.Grind.nestedProof`
+-/
+def markProof (e : Expr) : MetaM Expr := do
+  if e.isAppOf ``Lean.Grind.nestedProof then
+    return e -- `e` is already marked
+  else
+    unsafe markNestedProofImpl e markNestedProofsImpl.visit |>.run' mkPtrMap
 
 end Lean.Meta.Grind

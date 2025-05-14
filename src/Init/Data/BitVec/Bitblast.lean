@@ -1978,8 +1978,36 @@ theorem toInt_smod {x y : BitVec w} :
               simp only [Int.natAbs_natCast]
               rw [Int.bmod_eq_of_le (n := (↑((-x).toNat:Int) % ↑y.toNat))]
               rw [Int.bmod_eq_of_le]
-              ·
-                sorry
+              · rw_mod_cast [← toNat_umod]
+                have : 0 ≤ (-x % y).toNat := by omega
+                by_cases heq: ((-x % y).toNat : Int) = 0
+                · rw [heq]
+                  omega
+                · have : y.toNat - (-x % y).toNat < y.toNat := by omega
+                  have h1 : 0 ≤ y.toNat - (-x % y).toNat := by omega
+                  have : 0 ≤ (y.toNat: Int) - ((-x % y).toNat : Int) := by
+                    simp only [Int.sub_nonneg]
+                    norm_cast
+                    have h1 := BitVec.umod_lt (x := -x) (y := y) (by
+                      simp [BitVec.lt_def]
+                      omega
+                      )
+                    have h2 := BitVec.le_of_lt (x := -x % y) (y := y) h1
+                    have := BitVec.ule_iff_toNat_le (x := -x % y) (y := y)
+                    simp only [← this]
+                    have := BitVec.ule_eq_decide_le (x := -x % y) (y := y)
+                    simp [this]
+                    omega
+                  have : 0 < (-x % y).toNat := by omega
+                  have := Nat.pow_pos (a := 2) (n := w + 1) (by omega)
+                  have := Nat.pow_pos (a := 2) (n := w) (by omega)
+                  have h2 : (2 ^ (w + 1) / 2 : Int) = 2 ^ w := by omega
+                  have : - (2 ^ (w + 1) / 2 ) < 0 := by
+                    have := Int.neg_pos (a := - (2 ^ (w + 1) / 2))
+                    simp [this]
+                    rw [h2]
+                    norm_cast
+                  omega
               · rw_mod_cast [← toNat_umod]
                 have : 0 ≤ (-x % y).toNat := by omega
                 by_cases heq: ((-x % y).toNat : Int) = 0

@@ -28,12 +28,6 @@ namespace Array
 
 open List Vector
 
--- Remove after merging master:
-
-attribute [grind] Vector.size_toArray
-attribute [grind =] Vector.getElem_swap
-attribute [grind] Vector.getElem?_toArray
-
 -- These attributes still need to be moved to the standard library.
 
 -- attribute [grind =] Vector.getElem_swap_of_ne -- Setting `(splits := 9)` means we don't need this

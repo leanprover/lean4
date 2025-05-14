@@ -9,7 +9,7 @@ prelude
 
 import Init.ByCases
 import Init.RCases
-import all Init.Control.Except  -- ??
+import all Init.Control.Except  -- for `MonoBind` instance
 
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as

@@ -1857,6 +1857,8 @@ theorem BitVec.umod_eq_zero_iff {x y : BitVec w} :
 #eval ((-3#3).smod 2#3).toInt
 #eval ((-3#3).smod 3#3).toInt
 
+def test := IO.run do
+  IO.println "a"
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
@@ -1956,13 +1958,8 @@ theorem toInt_smod {x y : BitVec w} :
             split
             ·
               rename_i hdvd
-              -- contradcition hdvd humod
-              -- rw [BitVec.toNat_neg] at hdvd
-              have := Int.dvd_iff_emod_eq_zero (a := y.toNat) (b := (-x).toNat)
-              rw [toNat_eq] at humod
-              rw [toNat_umod] at humod
-              simp only [hdvd, true_iff] at this
-              norm_cast at this
+              -- contradition hdvd humod
+              sorry
             ·
               rename_i hdvd
               simp only [Int.natAbs_natCast]
@@ -1974,7 +1971,22 @@ theorem toInt_smod {x y : BitVec w} :
               · sorry
         · -- x.toInt < 0, y.toInt < 0
           simp [hxmsb, hymsb]
-          sorry
+          have hxneg := toInt_neg_of_msb_true hxmsb
+          have hyneg := toInt_neg_of_msb_true hymsb
+          rw [← Int.neg_inj]
+          rw [← Int.neg_fmod_neg]
+          rw [Int.fmod_eq_emod_of_nonneg (a := -x.toInt) (b := -y.toInt) (by omega)]
+          have hmsb : (-x % -y).msb = false := by
+            sorry
+          rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true]
+          rw [BitVec.neg_neg]
+          rw [Int.neg_neg]
+          rw [toNat_umod]
+          rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb]
+          rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb]
+          simp
+          simp [msb_neg]
+
 
 /-! ### Lemmas that use bit blasting circuits -/
 

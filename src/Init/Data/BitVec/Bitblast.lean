@@ -1982,8 +1982,24 @@ theorem toInt_smod {x y : BitVec w} :
                 sorry
               ·
                 sorry
-              ·
-                sorry
+              · rw_mod_cast [← BitVec.toNat_umod]
+                have := BitVec.msb_neg (x := x)
+                have := BitVec.msb_umod (x := -x) (y := -y)
+                by_cases hxintmin : x = intMin (w + 1)
+                · simp_all
+                  rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ w) (b := 2 ^ (w + 1)) (by omega)]
+                  have := Nat.mod_le (x := 2 ^ w) (y := y.toNat)
+                  have : 0 ≤ (2 ^ w % y.toNat : Int) := by norm_cast; omega
+                  have := Nat.pow_pos (a := 2) (n := w + 1) (by omega)
+                  have := Nat.pow_pos (a := 2) (n := w) (by omega)
+                  have h2 : (2 ^ (w + 1) / 2 : Int) = 2 ^ w := by omega
+                  have : - (2 ^ (w + 1) / 2 ) < 0 := by
+                    have := Int.neg_pos (a := - (2 ^ (w + 1) / 2))
+                    simp [this]
+                    rw [h2]
+                    norm_cast
+                  omega
+                · omega
               · rw_mod_cast [← toNat_umod]
                 have : (-x % y).toNat < 2 ^ w := by
                   rw [BitVec.toNat_umod]

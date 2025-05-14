@@ -2126,11 +2126,11 @@ theorem toInt_smod {x y : BitVec w} :
           simp [hxmsb, hymsb]
           have hxneg := toInt_neg_of_msb_true hxmsb
           have hyneg := toInt_neg_of_msb_true hymsb
+          rw [← Int.neg_inj]
+          rw [← Int.neg_fmod_neg]
+          rw [Int.fmod_eq_emod_of_nonneg (a := -x.toInt) (b := -y.toInt) (by omega)]
           by_cases luisa : w = 42
           · -- tobias
-            rw [← Int.neg_inj]
-            rw [← Int.neg_fmod_neg]
-            rw [Int.fmod_eq_emod_of_nonneg (a := -x.toInt) (b := -y.toInt) (by omega)]
             by_cases hh : (-(-x % -y)).msb = true
             ·
               rw [BitVec.toInt_eq_neg_toNat_neg_of_msb_true]
@@ -2156,9 +2156,6 @@ theorem toInt_smod {x y : BitVec w} :
               sorry
               sorry
           · -- Luisa
-            rw [← Int.neg_inj]
-            rw [← Int.neg_fmod_neg]
-            rw [Int.fmod_eq_emod_of_nonneg (a := -x.toInt) (b := -y.toInt) (by omega)]
             have hlex  := le_toNat_of_msb_true hxmsb
             have hley := le_toNat_of_msb_true hymsb
             simp at hlex hley

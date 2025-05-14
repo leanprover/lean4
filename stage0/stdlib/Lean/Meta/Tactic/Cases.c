@@ -13590,7 +13590,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_induct
 LEAN_EXPORT lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_inductionCasesOn___lambda__1___closed__1() {
 lean_object* x_1 = lean_mk_string_unchecked("isFalse", 7, 7);
 lean_object* x_2 = lean_mk_string_unchecked("isTrue", 7, 7);
-lean_object* x_3 = lean_mk_empty_array_with_capacity(2);
+lean_object* x_3 = lean_mk_empty_array_with_capacity(lean_box(2));
 lean_object* x_4 = lean_array_push(x_3, x_1);
 lean_object* x_5 = lean_array_push(x_3, x_2);
 return x_5;

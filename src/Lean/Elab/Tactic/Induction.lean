@@ -981,13 +981,13 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
   let tag ← mvarId.getTag
   mvarId.withContext do
     let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
-    let elimArgs := result.elimApp.getAppArgs
-    let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]!
-    let motiveType ← inferType elimArgs[elimInfo.motivePos]!
+    let targets ← targets.mapM instantiateMVars
+    let motiveType ← result.motive.getType
+    trace[Elab.cases] "motiveType: {motiveType}"
     let mvarId ← generalizeTargetsEq mvarId motiveType targets
     let (targetsNew, mvarId) ← mvarId.introN targets.size
     mvarId.withContext do
-      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew result.complexArgs
+      ElimApp.setMotiveArg mvarId result.motive targetsNew result.complexArgs
       mvarId.assign result.elimApp
       -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
       -- unchanged

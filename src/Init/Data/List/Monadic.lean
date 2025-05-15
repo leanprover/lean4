@@ -8,6 +8,7 @@ module
 prelude
 import Init.Data.List.TakeDrop
 import Init.Data.List.Attach
+import all Init.Data.List.Control
 
 /-!
 # Lemmas about `List.mapM` and `List.forM`.
@@ -437,7 +438,6 @@ and simplifies these to the function directly taking the value.
     {f : β → { x // p x } → m β} {g : β → α → m β} {x : β}
     (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) :
     l.foldlM f x = l.unattach.foldlM g x := by
-  unfold unattach
   induction l generalizing x with
   | nil => simp
   | cons a l ih => simp [ih, hf]
@@ -460,7 +460,6 @@ and simplifies these to the function directly taking the value.
     {f : { x // p x } → β → m β} {g : α → β → m β} {x : β}
     (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) :
     l.foldrM f x = l.unattach.foldrM g x := by
-  unfold unattach
   induction l generalizing x with
   | nil => simp
   | cons a l ih =>
@@ -486,7 +485,6 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem mapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → m β} {g : α → m β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.mapM f = l.unattach.mapM g := by
-  unfold unattach
   simp [← List.mapM'_eq_mapM]
   induction l with
   | nil => simp
@@ -504,7 +502,6 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem filterMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → m (Option β)} {g : α → m (Option β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.filterMapM f = l.unattach.filterMapM g := by
-  unfold unattach
   induction l with
   | nil => simp
   | cons a l ih => simp [ih, hf, filterMapM_cons]
@@ -523,10 +520,9 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem flatMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → m (List β)} {g : α → m (List β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (l.flatMapM f) = l.unattach.flatMapM g := by
-  unfold unattach
   induction l with
-  | nil => simp
-  | cons a l ih => simp [ih, hf]
+  | nil => simp [flatMapM_nil]
+  | cons a l ih => simp only [flatMapM_cons, hf, ih, bind_pure_comp, unattach_cons]
 
 @[wf_preprocess] theorem flatMapM_wfParam [Monad m] [LawfulMonad m]
     {xs : List α} {f : α → m (List β)} :

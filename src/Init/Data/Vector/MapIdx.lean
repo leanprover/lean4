@@ -7,6 +7,8 @@ module
 
 prelude
 import Init.Data.Array.MapIdx
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Attach
 import Init.Data.Vector.Lemmas
 

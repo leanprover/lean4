@@ -262,7 +262,7 @@ def Code.inferParamType (params : Array Param) (code : Code) : CompilerM Expr :=
   let xs := params.map fun p => .fvar p.fvarId
   InferType.mkForallFVars xs type |>.run {}
 
-def AltCore.inferType (alt : Alt) : CompilerM Expr :=
+def Alt.inferType (alt : Alt) : CompilerM Expr :=
   alt.getCode.inferType
 
 def mkAuxLetDecl (e : LetValue) (prefixName := `_x) : CompilerM LetDecl := do

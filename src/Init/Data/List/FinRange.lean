@@ -29,7 +29,7 @@ def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
     (finRange n)[i] = Fin.cast length_finRange ⟨i, h⟩ := by
   simp [List.finRange]
 
-@[simp] theorem finRange_zero : finRange 0 = [] := by simp [finRange, ofFn]
+@[simp] theorem finRange_zero : finRange 0 = [] := by simp [finRange]
 
 theorem finRange_succ {n} : finRange (n+1) = 0 :: (finRange n).map Fin.succ := by
   apply List.ext_getElem; simp; intro i; cases i <;> simp

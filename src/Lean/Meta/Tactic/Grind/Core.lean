@@ -184,7 +184,7 @@ def propagateCutsat : PendingTheoryPropagation → GoalM Unit
 
 /--
 Helper function for combining `ENode.ring?` fields and detecting what needs to be
-progagated to the commutative ring module.
+propagated to the commutative ring module.
 -/
 private def checkCommRingEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropagation := do
   match lhsRoot.ring? with

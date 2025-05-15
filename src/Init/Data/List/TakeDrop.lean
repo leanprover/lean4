@@ -6,6 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
+import all Init.Data.List.Basic
 import Init.Data.List.Lemmas
 
 /-!
@@ -241,7 +242,7 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
     ∀ {l : List α} {i : Nat}, (l.take i).map f = (l.map f).take i
   | [], i => by simp
   | _, 0 => by simp
-  | _ :: tl, n + 1 => by dsimp; rw [map_take]
+  | _ :: tl, n + 1 => by simp [map_take]
 
 @[simp] theorem map_drop {f : α → β} :
     ∀ {l : List α} {i : Nat}, (l.drop i).map f = (l.map f).drop i

@@ -30,7 +30,7 @@ but is expected to have type
   ExceptT String (StateT Nat Id) String : Type
 doErrorMsg.lean:28:13-28:18: error: Application type mismatch: In the application
   Prod.mk false
-the final argument
+the argument
   false
 has type
   Bool : Type

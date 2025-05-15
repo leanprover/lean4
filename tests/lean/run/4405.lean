@@ -5,7 +5,7 @@ set_option pp.mvars false
 /--
 error: Application type mismatch: In the application
   ⟨Nat.lt_irrefl (?_ n), Fin.is_lt ?_⟩
-the final argument
+the argument
   Fin.is_lt ?_
 has type
   ↑?_ < ?_ : Prop

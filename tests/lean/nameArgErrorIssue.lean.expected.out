@@ -1,7 +1,7 @@
 bla 5 2 : Nat
 nameArgErrorIssue.lean:5:20-5:24: error: Application type mismatch: In the application
   bla "hi"
-the final argument
+the argument
   "hi"
 has type
   String : Type
@@ -10,7 +10,7 @@ but is expected to have type
 bla sorry 5 : Nat
 nameArgErrorIssue.lean:6:20-6:24: error: Application type mismatch: In the application
   bla "hi"
-the final argument
+the argument
   "hi"
 has type
   String : Type

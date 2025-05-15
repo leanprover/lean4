@@ -3975,6 +3975,7 @@ if (x_73 == 0)
 lean_object* x_74; uint8_t x_75; 
 x_74 = l_Lean_Compiler_LCNF_toMonoType_visitApp___closed__2;
 x_75 = lean_string_dec_eq(x_69, x_74);
+x_75 = 0; // bootstrap: disable
 lean_dec(x_69);
 if (x_75 == 0)
 {

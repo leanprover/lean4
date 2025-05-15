@@ -77,6 +77,8 @@ You can use `TSyntax.getId` to extract the name from the resulting syntax object
 -- can never fully succeed but ensures that the identifier
 -- produces a partial syntax that contains the dot.
 -- The partial syntax is sometimes useful for dot-auto-completion.
+
+/-- Variant of `ident` that allows for dot-auto-completion (i.e. completion after `foo.`). -/
 @[run_builtin_parser_attribute_hooks, builtin_doc] def identWithPartialTrailingDot :=
   ident >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)
 

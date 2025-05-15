@@ -14,13 +14,13 @@ import Std.Data.Iterators.Workbench
 
 The `Std.Data.Iterators` module provides a uniform abstraction over data that can be iterated over
 in a sequential way, with a focus on convenience and efficiency. It is heavily inspired by Rust's
-iterator library.
+iterator library and Haskell's `streamly`.
 
-An iterator is an abstraction of a sequence of values that may or may not terminate.
-TODO: add collections as examples
+An iterator is an abstraction of a sequence of values that may or may not terminate. For example,
+every list can be traversed with an iterator via `List.iter`.
 
 Most users of the iterator API will just put together existing library functions that
-create, combine and consumer iterators. Consider a simple example:
+create, combine and consume iterators. Consider a simple example:
 
 ```lean
 -- [1, 2, 3].iter : Iter (α := ListIterator α) Nat (α being implicit)
@@ -57,13 +57,9 @@ where
 ```
 
 In general, iterators do not need to terminate after finitely many steps. This example
-works because the iterator type at hand has an instance of the `Std.Iterator.Finite` typeclass.
+works because the iterator type at hand has an instance of the `Std.Iterators.Finite` typeclass.
 Iterators that may not terminate but will not end up in an infinite sequence of `.skip`
-steps are called productive. This behavior is encoded in the `Std.Iterator.Productive` typeclass.
-
-The framework is heavily inspired by Rust's iterator library and Haskell's streamly.
-In particular, it is designed so that even complex iterators are compiled into efficient
-loops (stream fusion).
+steps are called productive. This behavior is encoded in the `Std.Iterators.Productive` typeclass.
 
 ## Stability
 

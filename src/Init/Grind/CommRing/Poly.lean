@@ -508,6 +508,8 @@ def NullCert.toPolyC (nc : NullCert) (c : Nat) : Poly :=
 Theorems for justifying the procedure for commutative rings in `grind`.
 -/
 
+open Semiring Ring CommSemiring
+
 theorem denoteInt_eq {α} [CommRing α] (k : Int) : denoteInt (α := α) k = k := by
   simp [denoteInt, cond_eq_if] <;> split
   next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← intCast_neg, ← Int.eq_neg_natAbs_of_nonpos (Int.le_of_lt h)]

@@ -19,8 +19,11 @@ instance : CommRing Int where
   mul_assoc := Int.mul_assoc
   mul_comm := Int.mul_comm
   mul_one := Int.mul_one
+  one_mul := Int.one_mul
   left_distrib := Int.mul_add
+  right_distrib := Int.add_mul
   zero_mul := Int.zero_mul
+  mul_zero := Int.mul_zero
   pow_zero _ := by rfl
   pow_succ _ _ := by rfl
   ofNat_succ _ := by rfl

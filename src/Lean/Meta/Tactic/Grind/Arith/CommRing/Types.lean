@@ -132,6 +132,12 @@ structure Ring where
   type           : Expr
   /-- Cached `getDecLevel type` -/
   u              : Level
+  /-- `Semiring` instance for `type` -/
+  semiringInst   : Expr
+  /-- `Ring` instance for `type` -/
+  ringInst       : Expr
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
   /-- `CommRing` instance for `type` -/
   commRingInst   : Expr
   /-- `IsCharP` instance for `type` if available. -/

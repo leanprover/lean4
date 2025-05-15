@@ -1629,10 +1629,10 @@ theorem singleton_eq_toVector_singleton {a : α} : #v[a] = #[a].toVector := rfl
   cases ys
   simp
 
-@[grind] theorem mem_append_left {a : α} {xs : Vector α n} (ys : Vector α m) (h : a ∈ xs) : a ∈ xs ++ ys :=
+theorem mem_append_left {a : α} {xs : Vector α n} (ys : Vector α m) (h : a ∈ xs) : a ∈ xs ++ ys :=
   mem_append.2 (Or.inl h)
 
-@[grind] theorem mem_append_right {a : α} (xs : Vector α n) {ys : Vector α m} (h : a ∈ ys) : a ∈ xs ++ ys :=
+theorem mem_append_right {a : α} (xs : Vector α n) {ys : Vector α m} (h : a ∈ ys) : a ∈ xs ++ ys :=
   mem_append.2 (Or.inr h)
 
 theorem not_mem_append {a : α} {xs : Vector α n} {ys : Vector α m} (h₁ : a ∉ xs) (h₂ : a ∉ ys) :
@@ -2679,7 +2679,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Vector α n} {a : α} :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.contains_iff_exists_mem_beq]
 
-@[grind =]
+@[grind]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Vector α n} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp

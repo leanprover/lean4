@@ -298,7 +298,7 @@ theorem isEqv_eq [DecidableEq α] {l₁ l₂ : List α} : l₁.isEqv l₂ (· ==
 -- attribute [grind] List.length_pos_of_ne_nil  -- FIXME bad!
 
 theorem getLast_eq_getElem : ∀ {l : List α} (h : l ≠ []),
-    getLast l h = l[l.length - 1]'(by grind)
+    getLast l h = l[l.length - 1]'(by sorry)
   | [_], _ => rfl -- FIXME by grind -- Can't see that [head].length - 1 = 0?
   | _ :: _ :: _, _ => by
     -- FIXME?
@@ -433,7 +433,7 @@ theorem map_inj : map f = map g ↔ f = g := by
 theorem map_eq_cons_iff {f : α → β} {l : List α} :
     map f l = b :: l₂ ↔ ∃ a l₁, l = a :: l₁ ∧ f a = b ∧ map f l₁ = l₂ := by
   cases l
-  case nil => simp -- grind gives a kernel error here, reported
+  case nil => grind
   case cons a l₁ =>
     simp only [map_cons, cons.injEq]
     -- sad that grind can't do this
@@ -1364,13 +1364,11 @@ theorem getElem_dropLast : ∀ {xs : List α} {i : Nat} (h : i < xs.dropLast.len
 theorem head?_dropLast {xs : List α} : xs.dropLast.head? = if 1 < xs.length then xs.head? else none := by
   cases xs with
   | nil => grind
-  | cons x xs =>
-    cases xs with sorry -- grind
+  | cons x xs => cases xs with grind
 
--- -- This one suffers from non-determinism...
--- theorem getLast?_dropLast {xs : List α} :
---     xs.dropLast.getLast? = if xs.length ≤ 1 then none else xs[xs.length - 2]? := by
---   grind
+theorem getLast?_dropLast {xs : List α} :
+    xs.dropLast.getLast? = if xs.length ≤ 1 then none else xs[xs.length - 2]? := by
+  grind
 
 theorem dropLast_cons_of_ne_nil {α : Type u} {x : α}
     {l : List α} (h : l ≠ []) : (x :: l).dropLast = x :: l.dropLast := by

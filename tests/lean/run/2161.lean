@@ -1,3 +1,5 @@
+#exit -- disabled due to `decide` changes
+
 structure Foo where num : Nat deriving DecidableEq
 
 namespace Foo

@@ -10,7 +10,7 @@ set_option trace.Compiler.simp true in
 /--
 info: [0]
 ---
-info: [Compiler.simp] size: 22
+trace: [Compiler.simp] size: 22
     def _eval : Lean.MessageData :=
       let _x.1 := Lean.instToExprNat;
       let _x.2 := "Nat";
@@ -20,7 +20,7 @@ info: [Compiler.simp] size: 22
       let _x.5 := "List";
       let _x.6 := "nil";
       let _x.7 := Lean.Name.mkStr2 _x.5 _x.6;
-      let _x.8 := Lean.Level.zero._impl;
+      let _x.8 := Lean.Level.zero;
       let _x.9 := @List.nil _;
       let _x.10 := @List.cons _ _x.8 _x.9;
       let _x.11 := Lean.Expr.const._override _x.7 _x.10;
@@ -35,7 +35,7 @@ info: [Compiler.simp] size: 22
       let _x.18 := @Lean.List.toExprAux.0 _ _x.1 nil cons _x.17;
       let _x.19 := Lean.MessageData.ofExpr _x.18;
       return _x.19
-[Compiler.simp] size: 22
+[Compiler.simp] size: 23
     def _eval : Lean.MessageData :=
       let _x.1 := Lean.instToExprNat;
       let _x.2 := "Nat";
@@ -46,20 +46,21 @@ info: [Compiler.simp] size: 22
       let _x.6 := "nil";
       let _x.7 := Lean.Name.mkStr2 _x.5 _x.6;
       let _x.8 := Lean.Level.zero._impl;
-      let _x.9 := @List.nil _;
-      let _x.10 := @List.cons _ _x.8 _x.9;
-      let _x.11 := Lean.Expr.const._override _x.7 _x.10;
-      let nil := Lean.Expr.app._override _x.11 type;
-      let _x.12 := "cons";
-      let _x.13 := Lean.Name.mkStr2 _x.5 _x.12;
-      let _x.14 := Lean.Expr.const._override _x.13 _x.10;
-      let cons := Lean.Expr.app._override _x.14 type;
-      let _x.15 := 0;
-      let _x.16 := @List.nil _;
-      let _x.17 := @List.cons _ _x.15 _x.16;
-      let _x.18 := @Lean.List.toExprAux.0 _ _x.1 nil cons _x.17;
-      let _x.19 := Lean.MessageData.ofExpr _x.18;
-      return _x.19
+      let _x.9 := @unsafeCast _ _ _x.8;
+      let _x.10 := @List.nil _;
+      let _x.11 := @List.cons _ _x.9 _x.10;
+      let _x.12 := Lean.Expr.const._override _x.7 _x.11;
+      let nil := Lean.Expr.app._override _x.12 type;
+      let _x.13 := "cons";
+      let _x.14 := Lean.Name.mkStr2 _x.5 _x.13;
+      let _x.15 := Lean.Expr.const._override _x.14 _x.11;
+      let cons := Lean.Expr.app._override _x.15 type;
+      let _x.16 := 0;
+      let _x.17 := @List.nil _;
+      let _x.18 := @List.cons _ _x.16 _x.17;
+      let _x.19 := @Lean.List.toExprAux.0 _ _x.1 nil cons _x.18;
+      let _x.20 := Lean.MessageData.ofExpr _x.19;
+      return _x.20
 [Compiler.simp] size: 6
     def _private.Lean.ToExpr.0.Lean.List.toExprAux._at_._eval.spec_0 nilFn consFn x.1 : Lean.Expr :=
       cases x.1 : Lean.Expr
@@ -70,7 +71,7 @@ info: [Compiler.simp] size: 22
         let _x.5 := Lean.List.toExprAux._at_._eval.spec_0.0 nilFn consFn tail.3;
         let _x.6 := Lean.mkAppB consFn _x.4 _x.5;
         return _x.6
-[Compiler.simp] size: 21
+[Compiler.simp] size: 22
     def _eval : Lean.MessageData :=
       let _x.1 := "Nat";
       let _x.2 := Lean.Name.mkStr1 _x.1;
@@ -80,20 +81,21 @@ info: [Compiler.simp] size: 22
       let _x.5 := "nil";
       let _x.6 := Lean.Name.mkStr2 _x.4 _x.5;
       let _x.7 := Lean.Level.zero._impl;
-      let _x.8 := @List.nil _;
-      let _x.9 := @List.cons _ _x.7 _x.8;
-      let _x.10 := Lean.Expr.const._override _x.6 _x.9;
-      let nil := Lean.Expr.app._override _x.10 type;
-      let _x.11 := "cons";
-      let _x.12 := Lean.Name.mkStr2 _x.4 _x.11;
-      let _x.13 := Lean.Expr.const._override _x.12 _x.9;
-      let cons := Lean.Expr.app._override _x.13 type;
-      let _x.14 := 0;
-      let _x.15 := @List.nil _;
-      let _x.16 := @List.cons _ _x.14 _x.15;
-      let _x.17 := Lean.List.toExprAux._at_._eval.spec_0.0 nil cons _x.16;
-      let _x.18 := Lean.MessageData.ofExpr _x.17;
-      return _x.18
+      let _x.8 := @unsafeCast _ _ _x.7;
+      let _x.9 := @List.nil _;
+      let _x.10 := @List.cons _ _x.8 _x.9;
+      let _x.11 := Lean.Expr.const._override _x.6 _x.10;
+      let nil := Lean.Expr.app._override _x.11 type;
+      let _x.12 := "cons";
+      let _x.13 := Lean.Name.mkStr2 _x.4 _x.12;
+      let _x.14 := Lean.Expr.const._override _x.13 _x.10;
+      let cons := Lean.Expr.app._override _x.14 type;
+      let _x.15 := 0;
+      let _x.16 := @List.nil _;
+      let _x.17 := @List.cons _ _x.15 _x.16;
+      let _x.18 := Lean.List.toExprAux._at_._eval.spec_0.0 nil cons _x.17;
+      let _x.19 := Lean.MessageData.ofExpr _x.18;
+      return _x.19
 [Compiler.simp] size: 6
     def _private.Lean.ToExpr.0.Lean.List.toExprAux._at_._eval.spec_0 nilFn consFn x.1 : Lean.Expr :=
       cases x.1 : Lean.Expr

@@ -25,7 +25,7 @@ def checkMonoType! (type₁ type₂ : Expr) : MetaM Unit := do
 -- Decidable
 
 #eval checkMonoType!
-  (.const ``Decidable [])
+  (mkApp (.const ``Decidable []) (.const ``True []))
   (.const ``Bool [])
 
 -- Prop

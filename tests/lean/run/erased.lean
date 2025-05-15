@@ -25,7 +25,7 @@ trace: [Compiler.result] size: 1
       let _x.1 : PSigma lcErased lcAny := PSigma.mk lcErased ◾ ◾ ◾;
       return _x.1
 ---
-info: [Compiler.result] size: 5
+trace: [Compiler.result] size: 5
     def _eval._lam_0 (_x.1 : Array
        Lean.Name) (_x.2 : PUnit) (_y.3 : Lean.Elab.Term.Context) (_y.4 : lcAny) (_y.5 : Lean.Meta.Context) (_y.6 : lcAny) (_y.7 : Lean.Core.Context) (_y.8 : lcAny) (_y.9 : PUnit) : EStateM.Result
       Lean.Exception PUnit PUnit :=
@@ -42,7 +42,7 @@ info: [Compiler.result] size: 5
       let _x.4 : String := "Erased";
       let _x.5 : String := "mk";
       let _x.6 : Lean.Name := Lean.Name.mkStr2 _x.4 _x.5;
-      let _x.7 : Nat := 1;
+      let _x.7 : Nat := nat_lit 1;
       let _x.8 : Array Lean.Name := Array.mkEmpty ◾ _x.7;
       let _x.9 : Array Lean.Name := Array.push ◾ _x.8 _x.6;
       let _x.10 : PUnit := PUnit.unit;

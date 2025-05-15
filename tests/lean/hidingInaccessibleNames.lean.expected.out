@@ -42,7 +42,7 @@ h✝ : q
 hidingInaccessibleNames.lean:23:25-23:26: error: don't know how to synthesize placeholder
 context:
 p✝ : Prop
-h✝ x✝ : p✝
+of_decide✝ x✝ : p✝
 ⊢ decide p✝ = true
 hidingInaccessibleNames.lean:27:17-27:18: error: don't know how to synthesize placeholder
 context:

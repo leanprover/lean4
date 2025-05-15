@@ -1677,16 +1677,19 @@ x_71 = lean_ctor_get(x_1, 1);
 lean_dec(x_71);
 x_72 = l_Lean_Compiler_LCNF_LetValue_toMono___closed__4;
 x_73 = lean_name_eq(x_69, x_72);
+x_73 = 0; // bootstrap: disable
 if (x_73 == 0)
 {
 lean_object* x_74; uint8_t x_75; 
 x_74 = l_Lean_Compiler_LCNF_LetValue_toMono___closed__6;
 x_75 = lean_name_eq(x_69, x_74);
+x_75 = 0; // bootstrap: disable
 if (x_75 == 0)
 {
 lean_object* x_76; uint8_t x_77; 
 x_76 = l_Lean_Compiler_LCNF_LetValue_toMono___closed__8;
 x_77 = lean_name_eq(x_69, x_76);
+x_77 = 0; // bootstrap: disable
 if (x_77 == 0)
 {
 lean_object* x_78; 
@@ -3794,6 +3797,7 @@ x_147 = lean_ctor_get(x_143, 3);
 lean_inc(x_147);
 x_148 = l_Lean_Compiler_LCNF_Code_toMono___closed__1;
 x_149 = lean_name_eq(x_144, x_148);
+x_149 = 0; // bootstrap: disable
 if (x_149 == 0)
 {
 lean_object* x_150; uint8_t x_151; 

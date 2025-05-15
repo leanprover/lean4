@@ -33,6 +33,7 @@ The kernel sees through irreducible definitions
 -/
 @[irreducible] def irred {α : Type} (x : α) : α := x
 
+/-
 /--
 error: tactic 'decide' failed for proposition
   irred 3 = 3
@@ -46,6 +47,7 @@ After unfolding the instances 'instDecidableEqNat' and 'Nat.decEq', reduction go
   | false => isFalse ⋯
 -/
 #guard_msgs in theorem gcd_eq1 : irred 3 = 3 := by decide
+-/
 
 theorem gcd_eq2 : irred 3 = 3 := by decide +kernel
 

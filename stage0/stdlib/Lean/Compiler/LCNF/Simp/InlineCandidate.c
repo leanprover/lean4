@@ -292,6 +292,7 @@ lean_object* x_16; lean_object* x_17; uint8_t x_18;
 x_16 = lean_ctor_get(x_2, 0);
 x_17 = l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__5___closed__2;
 x_18 = lean_name_eq(x_16, x_17);
+x_18 = 0; // bootstrap: disable
 if (x_18 == 0)
 {
 uint8_t x_19; lean_object* x_20; lean_object* x_21; 

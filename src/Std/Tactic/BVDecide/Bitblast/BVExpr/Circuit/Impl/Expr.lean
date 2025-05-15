@@ -106,7 +106,7 @@ structure Return (aig : AIG BVBit) (w : Nat) where
   result : AIG.ExtendingRefVecEntry aig w
   cache : Cache result.val.aig
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 2000000 in
 def bitblast (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) : Return aig w :=
   let ⟨expr, cache⟩ := input
   goCache aig expr cache

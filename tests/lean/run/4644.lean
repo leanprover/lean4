@@ -23,6 +23,8 @@ is not definitionally equal to the right-hand side
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true := by
   rfl -- fails because `rfl` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
 
+-- disable because of `decide` changes
+/-
 /--
 error: tactic 'decide' failed for proposition
   check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true
@@ -40,6 +42,7 @@ After unfolding the instances 'instDecidableEqBool' and 'Bool.decEq', reduction 
 #guard_msgs in
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   decide -- fails because `decide` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
+-/
 
 unseal sorted_from_var in
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by

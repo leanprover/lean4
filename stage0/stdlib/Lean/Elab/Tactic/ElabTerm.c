@@ -195,6 +195,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_withoutTacticIncrementality___at_Lean_
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeRevMAux___at_Lean_Elab_Tactic_evalRename___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_ElabTerm___hyg_6057____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalConstructor(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithReducible_declRange__1___closed__4;
 lean_object* l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -806,6 +807,7 @@ static lean_object* l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_pr
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRefine_x27_declRange__1___closed__3;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithUnfoldingAll__1___closed__3;
+extern lean_object* l_Lean_reflBoolTrue;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_runTermElab_go___rarg(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -20454,18 +20456,20 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_2);
-x_12 = l_Lean_Meta_mkDecideProof(x_2, x_7, x_8, x_9, x_10, x_11);
+// x_2 = expectedType, x_1 = tacticName, x_3..x_6 = TacticM/TermElabM context + state, x_7..x_10 = MetaM/CoreM context + state, x_11 = IO.RealWorld
+x_12 = l_Lean_Meta_mkDecide(x_2, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint64_t x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
-x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-x_14 = lean_ctor_get(x_12, 1);
+x_13 = lean_ctor_get(x_12, 0); // x_13 = dec
+lean_inc(x_13); // x_13: rc +scope
+x_14 = lean_ctor_get(x_12, 1); // IO.RealWorld
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = l_Lean_Expr_appFn_x21(x_13);
-x_16 = l_Lean_Expr_appArg_x21(x_15);
-lean_dec(x_15);
+// x_15 = l_Lean_Expr_appFn_x21(x_13);
+x_16 = l_Lean_Expr_appArg_x21(x_13); // x_16 = decInst
+// lean_dec(x_15);
+// withAtLeastTransparency .default
 x_17 = lean_ctor_get(x_7, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get_uint64(x_7, sizeof(void*)*7);
@@ -20514,8 +20518,9 @@ lean_ctor_set_uint8(x_37, sizeof(void*)*7 + 10, x_28);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
-lean_inc(x_16);
-x_38 = lean_whnf(x_16, x_37, x_8, x_9, x_10, x_14);
+lean_inc(x_13); // x_13: rc +scope +whnf
+x_38 = lean_whnf(x_13, x_37, x_8, x_9, x_10, x_14); // whnf dec
+// x_13: rc +scope
 if (lean_obj_tag(x_38) == 0)
 {
 uint8_t x_39; 
@@ -20525,16 +20530,18 @@ if (x_39 == 0)
 lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; 
 x_40 = lean_ctor_get(x_38, 0);
 x_41 = lean_ctor_get(x_38, 1);
-x_42 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
-x_43 = l_Lean_Expr_isAppOf(x_40, x_42);
+//x_42 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
+// Bool.true
+x_42 = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__11;
+x_43 = l_Lean_Expr_isConstOf(x_40, x_42);
 if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; 
 lean_free_object(x_38);
-lean_dec(x_13);
+lean_dec(x_16);
 x_44 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_44, 0, x_40);
-x_45 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_16, x_44, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_41);
+x_45 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_13, x_44, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_41);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -20544,14 +20551,17 @@ return x_45;
 else
 {
 lean_dec(x_40);
-lean_dec(x_16);
 lean_dec(x_10);
+lean_dec(x_13);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_2);
 lean_dec(x_1);
-lean_ctor_set(x_38, 0, x_13);
+lean_object* of_decide_eq_true = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__14;
+// recall: x_2 = expected type, x_13 = dec, x_16 = decInst
+lean_object* myConst = l_Lean_Expr_const___override(of_decide_eq_true, lean_box(0));
+lean_object* out = l_Lean_mkApp3(myConst, x_2, x_16, l_Lean_reflBoolTrue);
+lean_ctor_set(x_38, 0, out);
 return x_38;
 }
 }
@@ -20563,8 +20573,10 @@ x_47 = lean_ctor_get(x_38, 1);
 lean_inc(x_47);
 lean_inc(x_46);
 lean_dec(x_38);
-x_48 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
-x_49 = l_Lean_Expr_isAppOf(x_46, x_48);
+//x_48 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
+// Bool.true
+x_48 = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__11;
+x_49 = l_Lean_Expr_isConstOf(x_46, x_48);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; 
@@ -20582,15 +20594,19 @@ else
 {
 lean_object* x_52; 
 lean_dec(x_46);
-lean_dec(x_16);
+lean_dec(x_13);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_2);
 lean_dec(x_1);
+lean_object* of_decide_eq_true = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__14;
+// recall: x_2 = expected type, x_13 = dec, x_16 = decInst
+lean_object* myConst = l_Lean_Expr_const___override(of_decide_eq_true, lean_box(0));
+lean_object* out = l_Lean_mkApp3(myConst, x_2, x_16, l_Lean_reflBoolTrue);
+
 x_52 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_52, 0, x_13);
+lean_ctor_set(x_52, 0, out);
 lean_ctor_set(x_52, 1, x_47);
 return x_52;
 }
@@ -20648,8 +20664,8 @@ lean_ctor_set_uint8(x_59, sizeof(void*)*7 + 10, x_28);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
-lean_inc(x_16);
-x_60 = lean_whnf(x_16, x_59, x_8, x_9, x_10, x_14);
+lean_inc(x_13);
+x_60 = lean_whnf(x_13, x_59, x_8, x_9, x_10, x_14); // whnf dec
 if (lean_obj_tag(x_60) == 0)
 {
 uint8_t x_61; 
@@ -20659,16 +20675,18 @@ if (x_61 == 0)
 lean_object* x_62; lean_object* x_63; lean_object* x_64; uint8_t x_65; 
 x_62 = lean_ctor_get(x_60, 0);
 x_63 = lean_ctor_get(x_60, 1);
-x_64 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
-x_65 = l_Lean_Expr_isAppOf(x_62, x_64);
+//x_64 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
+// Bool.true
+x_64 = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__11;
+x_65 = l_Lean_Expr_isConstOf(x_62, x_64);
 if (x_65 == 0)
 {
 lean_object* x_66; lean_object* x_67; 
 lean_free_object(x_60);
-lean_dec(x_13);
+lean_dec(x_16);
 x_66 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_66, 0, x_62);
-x_67 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_16, x_66, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_63);
+x_67 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_13, x_66, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_63);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -20678,14 +20696,17 @@ return x_67;
 else
 {
 lean_dec(x_62);
-lean_dec(x_16);
+lean_dec(x_13);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_2);
 lean_dec(x_1);
-lean_ctor_set(x_60, 0, x_13);
+lean_object* of_decide_eq_true = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__14;
+// recall: x_2 = expected type, x_13 = dec, x_16 = decInst
+lean_object* myConst = l_Lean_Expr_const___override(of_decide_eq_true, lean_box(0));
+lean_object* out = l_Lean_mkApp3(myConst, x_2, x_16, l_Lean_reflBoolTrue);
+lean_ctor_set(x_60, 0, out);
 return x_60;
 }
 }
@@ -20697,15 +20718,17 @@ x_69 = lean_ctor_get(x_60, 1);
 lean_inc(x_69);
 lean_inc(x_68);
 lean_dec(x_60);
-x_70 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
-x_71 = l_Lean_Expr_isAppOf(x_68, x_70);
+//x_70 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
+// Bool.true
+x_70 = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__11;
+x_71 = l_Lean_Expr_isConstOf(x_68, x_70);
 if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; 
-lean_dec(x_13);
+lean_dec(x_16);
 x_72 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_72, 0, x_68);
-x_73 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_16, x_72, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_69);
+x_73 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_13, x_72, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_69);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -20716,15 +20739,19 @@ else
 {
 lean_object* x_74; 
 lean_dec(x_68);
-lean_dec(x_16);
+lean_dec(x_13);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_2);
 lean_dec(x_1);
+lean_object* of_decide_eq_true = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__14;
+// recall: x_2 = expected type, x_13 = dec, x_16 = decInst
+lean_object* myConst = l_Lean_Expr_const___override(of_decide_eq_true, lean_box(0));
+lean_object* out = l_Lean_mkApp3(myConst, x_2, x_16, l_Lean_reflBoolTrue);
+
 x_74 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_74, 0, x_13);
+lean_ctor_set(x_74, 0, out);
 lean_ctor_set(x_74, 1, x_69);
 return x_74;
 }
@@ -20830,8 +20857,8 @@ lean_ctor_set_uint8(x_107, sizeof(void*)*7 + 10, x_80);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
-lean_inc(x_16);
-x_108 = lean_whnf(x_16, x_107, x_8, x_9, x_10, x_14);
+lean_inc(x_13);
+x_108 = lean_whnf(x_13, x_107, x_8, x_9, x_10, x_14); // whnf dec
 if (lean_obj_tag(x_108) == 0)
 {
 lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; uint8_t x_113; 
@@ -20847,16 +20874,18 @@ if (lean_is_exclusive(x_108)) {
  lean_dec_ref(x_108);
  x_111 = lean_box(0);
 }
-x_112 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
-x_113 = l_Lean_Expr_isAppOf(x_109, x_112);
+//x_112 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
+// Bool.true
+x_112 = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__11;
+x_113 = l_Lean_Expr_isConstOf(x_109, x_112);
 if (x_113 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 lean_dec(x_111);
-lean_dec(x_13);
+lean_dec(x_16);
 x_114 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_114, 0, x_109);
-x_115 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_16, x_114, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_110);
+x_115 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_13, x_114, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_110);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -20867,19 +20896,22 @@ else
 {
 lean_object* x_116; 
 lean_dec(x_109);
-lean_dec(x_16);
+lean_dec(x_13);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_2);
 lean_dec(x_1);
+lean_object* of_decide_eq_true = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__14;
+// recall: x_2 = expected type, x_13 = dec, x_16 = decInst
+lean_object* myConst = l_Lean_Expr_const___override(of_decide_eq_true, lean_box(0));
+lean_object* out = l_Lean_mkApp3(myConst, x_2, x_16, l_Lean_reflBoolTrue);
 if (lean_is_scalar(x_111)) {
  x_116 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_116 = x_111;
 }
-lean_ctor_set(x_116, 0, x_13);
+lean_ctor_set(x_116, 0, out);
 lean_ctor_set(x_116, 1, x_110);
 return x_116;
 }
@@ -20956,8 +20988,8 @@ lean_ctor_set_uint8(x_124, sizeof(void*)*7 + 10, x_80);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
-lean_inc(x_16);
-x_125 = lean_whnf(x_16, x_124, x_8, x_9, x_10, x_14);
+lean_inc(x_13);
+x_125 = lean_whnf(x_13, x_124, x_8, x_9, x_10, x_14); // whnf dec
 if (lean_obj_tag(x_125) == 0)
 {
 lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; uint8_t x_130; 
@@ -20973,16 +21005,18 @@ if (lean_is_exclusive(x_125)) {
  lean_dec_ref(x_125);
  x_128 = lean_box(0);
 }
-x_129 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
-x_130 = l_Lean_Expr_isAppOf(x_126, x_129);
+//x_129 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
+// Bool.true
+x_129 = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__11;
+x_130 = l_Lean_Expr_isConstOf(x_126, x_129);
 if (x_130 == 0)
 {
 lean_object* x_131; lean_object* x_132; 
 lean_dec(x_128);
-lean_dec(x_13);
+lean_dec(x_16);
 x_131 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_131, 0, x_126);
-x_132 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_16, x_131, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_127);
+x_132 = l_Lean_Elab_Tactic_evalDecideCore_diagnose(x_1, lean_box(0), x_2, x_13, x_131, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_127);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -20993,19 +21027,22 @@ else
 {
 lean_object* x_133; 
 lean_dec(x_126);
-lean_dec(x_16);
+lean_dec(x_13);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_2);
 lean_dec(x_1);
+lean_object* of_decide_eq_true = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___closed__14;
+// recall: x_2 = expected type, x_13 = dec, x_16 = decInst
+lean_object* myConst = l_Lean_Expr_const___override(of_decide_eq_true, lean_box(0));
+lean_object* out = l_Lean_mkApp3(myConst, x_2, x_16, l_Lean_reflBoolTrue);
 if (lean_is_scalar(x_128)) {
  x_133 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_133 = x_128;
 }
-lean_ctor_set(x_133, 0, x_13);
+lean_ctor_set(x_133, 0, out);
 lean_ctor_set(x_133, 1, x_127);
 return x_133;
 }

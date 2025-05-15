@@ -82,6 +82,12 @@ structure SnapshotTask (α : Type) where
   `Syntax` processed by this `SnapshotTask`.
   The `Syntax` is used by the language server to determine whether to force this `SnapshotTask`
   when a request is made.
+  In general, the elaborator retains the following invariant:
+  If `stx?` is `none`, then this snapshot task (and all of its children) do not contain `InfoTree`
+  information that can be used in the language server, and so the language server will ignore it
+  when it is looking for an `InfoTree`.
+  Nonetheless, if `stx?` is `none`, then this snapshot task (and any of its children) may still
+  contain message log information.
   -/
   stx? : Option Syntax
   /--

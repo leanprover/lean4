@@ -23,19 +23,31 @@ structure UnknownIdentifierInfo where
 def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : String.Range)
     : BaseIO (Array String.Range) := do
   let text := doc.meta.text
-  let parsedSnaps := RequestM.findCmdParsedSnaps doc requestedRange |>.get
-  let msgLog := parsedSnaps.map Language.toSnapshotTree
-    |>.map (·.collectMessagesInRange requestedRange)
-    |>.map (·.get)
-    |>.foldl (· ++ ·) .empty
+  let some parsedSnap := RequestM.findCmdParsedSnap doc requestedRange.start |>.get
+    | return #[]
+  let msgLog := Language.toSnapshotTree parsedSnap |>.collectMessagesInRange requestedRange |>.get
   let mut ranges := #[]
-  for msg in msgLog.reportedPlusUnreported do
+  for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
       continue
     let msgRange : String.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
     if ! msgRange.overlaps requestedRange
         (includeFirstStop := true) (includeSecondStop := true) then
       continue
+    ranges := ranges.push msgRange
+  return ranges
+
+def waitAllUnknownIdentifierRanges (doc : EditableDocument)
+    : BaseIO (Array String.Range) := do
+  let text := doc.meta.text
+  let msgLog : MessageLog := Language.toSnapshotTree doc.initSnap
+    |>.getAll.map (·.diagnostics.msgLog)
+    |>.foldl (· ++ ·) {}
+  let mut ranges := #[]
+  for msg in msgLog.unreported do
+    if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
+      continue
+    let msgRange : String.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
     ranges := ranges.push msgRange
   return ranges
 
@@ -59,34 +71,6 @@ partial def collectOpenNamespaces (currentNamespace : Name) (openDecls : List Op
     | .explicit id declName => .renamed declName id
   openNamespaces := openNamespaces ++ openDeclNamespaces.toArray
   return openNamespaces
-
-def computeFallbackQuery?
-    (doc : EditableDocument)
-    (requestedRange : String.Range)
-    (unknownIdentifierRange : String.Range)
-    (infoTree : Elab.InfoTree)
-    : Option Query := do
-  let text := doc.meta.text
-  let info? := infoTree.smallestInfo? fun info => Id.run do
-    let some range := info.range?
-      | return false
-    return range.overlaps requestedRange (includeFirstStop := true) (includeSecondStop := true)
-  let some (ctx, _) := info?
-    | none
-  return {
-    identifier := text.source.extract unknownIdentifierRange.start unknownIdentifierRange.stop
-    openNamespaces := collectOpenNamespaces ctx.currNamespace ctx.openDecls
-    env := ctx.env
-    determineInsertion decl :=
-      let minimizedId := minimizeGlobalIdentifierInContext ctx.currNamespace ctx.openDecls decl
-      {
-        fullName := minimizedId
-        edit := {
-          range := text.utf8RangeToLspRange unknownIdentifierRange
-          newText := minimizedId.toString
-        }
-      }
-  }
 
 def computeIdQuery?
     (doc : EditableDocument)
@@ -183,20 +167,19 @@ def computeDotIdQuery?
   }
 
 def computeQuery?
-    (doc                    : EditableDocument)
-    (requestedRange         : String.Range)
-    (unknownIdentifierRange : String.Range)
+    (doc          : EditableDocument)
+    (requestedPos : String.Pos)
     : RequestM (Option Query) := do
   let text := doc.meta.text
-  let some (stx, infoTree) := RequestM.findCmdDataAtPos doc unknownIdentifierRange.stop (includeStop := true) |>.get
+  let some (stx, infoTree) := RequestM.findCmdDataAtPos doc requestedPos (includeStop := true) |>.get
     | return none
   let completionInfo? : Option ContextualizedCompletionInfo := do
-    let (completionPartitions, _) := findPrioritizedCompletionPartitionsAt text unknownIdentifierRange.stop stx infoTree
+    let (completionPartitions, _) := findPrioritizedCompletionPartitionsAt text requestedPos stx infoTree
     let highestPrioPartition ← completionPartitions[0]?
     let (completionInfo, _) ← highestPrioPartition[0]?
     return completionInfo
   let some ⟨_, ctx, info⟩ := completionInfo?
-    | return computeFallbackQuery? doc requestedRange unknownIdentifierRange infoTree
+    | return none
   match info with
   | .id (stx := stx) (id := id) .. =>
     return computeIdQuery? doc ctx stx id
@@ -220,21 +203,18 @@ def importAllUnknownIdentifiersCodeAction (params : CodeActionParams) (kind : St
 }
 
 def handleUnknownIdentifierCodeAction
-    (id                      : JsonRpc.RequestID)
-    (params                  : CodeActionParams)
-    (requestedRange          : String.Range)
-    (unknownIdentifierRanges : Array String.Range)
+    (id             : JsonRpc.RequestID)
+    (params         : CodeActionParams)
+    (requestedRange : String.Range)
     : RequestM (Array CodeAction) := do
   let rc ← read
   let doc := rc.doc
   let text := doc.meta.text
-  let queries ← unknownIdentifierRanges.filterMapM fun unknownIdentifierRange =>
-    computeQuery? doc requestedRange unknownIdentifierRange
-  if queries.isEmpty then
-    return #[]
+  let some query ← computeQuery? doc requestedRange.stop
+    | return #[]
   let responseTask ← RequestM.sendServerRequest LeanQueryModuleParams LeanQueryModuleResponse "$/lean/queryModule" {
     sourceRequestID := id
-    queries := queries.map (·.toLeanModuleQuery)
+    queries := #[query.toLeanModuleQuery]
     : LeanQueryModuleParams
   }
   let r ← ServerTask.waitAny [
@@ -255,39 +235,40 @@ def handleUnknownIdentifierCodeAction
   let importInsertionRange : Lsp.Range := ⟨importInsertionPos, importInsertionPos⟩
   let mut unknownIdentifierCodeActions := #[]
   let mut hasUnambigiousImportCodeAction := false
-  for q in queries, result in response.queryResults do
-    for ⟨mod, decl, isExactMatch⟩ in result do
-      let isDeclInEnv := q.env.contains decl
-      if ! isDeclInEnv && mod == q.env.mainModule then
-        -- Don't offer any code actions for identifiers defined further down in the same file
-        continue
-      let insertion := q.determineInsertion decl
-      if ! isDeclInEnv then
-        unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
-          title := s!"Import {insertion.fullName} from {mod}"
-          kind? := "quickfix"
-          edit? := WorkspaceEdit.ofTextDocumentEdit {
-            textDocument := doc.versionedIdentifier
-            edits := #[
-              {
-                range := importInsertionRange
-                newText := s!"import {mod}\n"
-              },
-              insertion.edit
-            ]
-          }
+  let some result := response.queryResults[0]?
+    | return #[]
+  for ⟨mod, decl, isExactMatch⟩ in result do
+    let isDeclInEnv := query.env.contains decl
+    if ! isDeclInEnv && mod == query.env.mainModule then
+      -- Don't offer any code actions for identifiers defined further down in the same file
+      continue
+    let insertion := query.determineInsertion decl
+    if ! isDeclInEnv then
+      unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
+        title := s!"Import {insertion.fullName} from {mod}"
+        kind? := "quickfix"
+        edit? := WorkspaceEdit.ofTextDocumentEdit {
+          textDocument := doc.versionedIdentifier
+          edits := #[
+            {
+              range := importInsertionRange
+              newText := s!"import {mod}\n"
+            },
+            insertion.edit
+          ]
         }
-        if isExactMatch then
-          hasUnambigiousImportCodeAction := true
-      else
-        unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
-          title := s!"Change to {insertion.fullName}"
-          kind? := "quickfix"
-          edit? := WorkspaceEdit.ofTextDocumentEdit {
-            textDocument := doc.versionedIdentifier
-            edits := #[insertion.edit]
-          }
+      }
+      if isExactMatch then
+        hasUnambigiousImportCodeAction := true
+    else
+      unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
+        title := s!"Change to {insertion.fullName}"
+        kind? := "quickfix"
+        edit? := WorkspaceEdit.ofTextDocumentEdit {
+          textDocument := doc.versionedIdentifier
+          edits := #[insertion.edit]
         }
+      }
   if hasUnambigiousImportCodeAction then
     unknownIdentifierCodeActions := unknownIdentifierCodeActions.push <|
       importAllUnknownIdentifiersCodeAction params "quickfix"
@@ -302,7 +283,7 @@ def handleResolveImportAllUnknownIdentifiersCodeAction?
   let doc := rc.doc
   let text := doc.meta.text
   let queries ← unknownIdentifierRanges.filterMapM fun unknownIdentifierRange =>
-    computeQuery? doc ⟨0, text.source.endPos⟩ unknownIdentifierRange
+    computeQuery? doc unknownIdentifierRange.stop
   if queries.isEmpty then
     return none
   let responseTask ← RequestM.sendServerRequest LeanQueryModuleParams LeanQueryModuleResponse "$/lean/queryModule" {

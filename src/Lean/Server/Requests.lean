@@ -44,6 +44,18 @@ def Lean.FileMap.rangeOverlapsRequestedRange
     (includeFirstStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
     (includeSecondStop := includeRequestedRangeStop)
 
+def Lean.FileMap.rangeIncludesRequestedRange
+    (text : Lean.FileMap)
+    (documentRange : String.Range)
+    (requestedRange : String.Range)
+    (includeDocumentRangeStop := false)
+    (includeRequestedRangeStop := false)
+    : Bool :=
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  documentRange.includes requestedRange
+    (includeSuperStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
+    (includeSubStop := includeRequestedRangeStop)
+
 namespace Lean.Language
 
 open Lean.Server
@@ -88,13 +100,20 @@ that contains `hoverPos` in its whitespace, which is not necessarily the correct
 partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree)
     (hoverPos : String.Pos) (includeStop : Bool) : ServerTask (Option Elab.InfoTree) :=
   tree.foldSnaps (init := none) fun snap _ => Id.run do
-    let skipChild := .pure (none, .proceed (foldChildren := false))
     let some stx := snap.stx?
-      | return skipChild
+      -- One of the invariants of the snapshot tree is that `stx? = none` implies that
+      -- this entire subtree has no relevant `InfoTree` information, so we can safely discard it
+      -- here.
+      | return .pure (none, .proceed (foldChildren := false))
     let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
-      | return skipChild
+      -- In the worst case, the `infoTreeSnap` of the `CommandParsedSnap` will have canonical
+      -- syntax that we can use here, so ignoring snapshots with non-canonical syntax can only
+      -- at worst break incrementality in request handlers.
+      | return .pure (none, .proceed (foldChildren := true))
     if ! text.rangeContainsHoverPos range hoverPos includeStop then
-      return skipChild
+      -- Subtrees of the snapshot tree always have syntax ranges that are contained in those of
+      -- their parents, so we can terminate early here.
+      return .pure (none, .proceed (foldChildren := false))
     return snap.task.asServerTask.mapCheap fun tree => Id.run do
       let some infoTree := tree.element.infoTree?
         | return (none, .proceed (foldChildren := true))
@@ -328,46 +347,39 @@ def withWaitFindSnapAtPos
     (x := f)
 
 open Language.Lean in
-/-- Finds all `CommandParsedSnapshot`s overlapping `requestedRange`, asynchronously. -/
-partial def findCmdParsedSnaps (doc : EditableDocument) (requestedRange : String.Range)
-    : ServerTask (Array CommandParsedSnapshot) := Id.run do
-  let some headerParsed := doc.initSnap.result?
-    | .pure #[]
-  headerParsed.processedSnap.task.asServerTask.bindCheap fun headerProcessed => Id.run do
-    let some headerSuccess := headerProcessed.result?
-      | return .pure #[]
-    let firstCmdSnapTask : ServerTask CommandParsedSnapshot := headerSuccess.firstCmdSnap.task
-    firstCmdSnapTask.bindCheap (go · #[])
-where
-  go (cmdParsed : CommandParsedSnapshot) (acc : Array CommandParsedSnapshot)
-      : ServerTask (Array CommandParsedSnapshot) := Id.run do
-    if isAfterRequestedRange cmdParsed then
-      return .pure acc
-    let mut acc := acc
-    if overlapsRequestedRange cmdParsed then
-      acc := acc.push cmdParsed
-    match cmdParsed.nextCmdSnap? with
-    | some next =>
-      next.task.asServerTask.bindCheap (go · acc)
-    | none =>
-      return .pure acc
-
-  overlapsRequestedRange (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
-    let some range := cmdParsed.stx.getRangeWithTrailing? (canonicalOnly := true)
-      | return false
-    return doc.meta.text.rangeOverlapsRequestedRange range requestedRange
-      (includeDocumentRangeStop := false) (includeRequestedRangeStop := true)
-
-  isAfterRequestedRange (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
-    let some startPos := cmdParsed.stx.getPos? (canonicalOnly := true)
-      | return false
-    return requestedRange.stop < startPos
-
-open Language.Lean in
 /-- Finds the first `CommandParsedSnapshot` containing `hoverPos`, asynchronously. -/
 partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos)
-    : ServerTask (Option CommandParsedSnapshot) :=
-  findCmdParsedSnaps doc ⟨hoverPos, hoverPos⟩ |>.mapCheap (·[0]?)
+    : ServerTask (Option CommandParsedSnapshot) := Id.run do
+  let some headerParsed := doc.initSnap.result?
+    | .pure none
+  headerParsed.processedSnap.task.asServerTask.bindCheap fun headerProcessed => Id.run do
+    let some headerSuccess := headerProcessed.result?
+      | return .pure none
+    let firstCmdSnapTask : ServerTask CommandParsedSnapshot := headerSuccess.firstCmdSnap.task
+    firstCmdSnapTask.bindCheap go
+where
+  go (cmdParsed : CommandParsedSnapshot) : ServerTask (Option CommandParsedSnapshot) := Id.run do
+    if containsHoverPos cmdParsed then
+      return .pure (some cmdParsed)
+    if isAfterHoverPos cmdParsed then
+      -- This should never happen in principle
+      -- (commands + trailing ws are consecutive and there is no unassigned space between them),
+      -- but it's always good to eliminate one additional assumption.
+      return .pure none
+    match cmdParsed.nextCmdSnap? with
+    | some next =>
+      next.task.asServerTask.bindCheap go
+    | none => .pure none
+
+  containsHoverPos (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
+    let some range := cmdParsed.stx.getRangeWithTrailing? (canonicalOnly := true)
+      | return false
+    return doc.meta.text.rangeContainsHoverPos range hoverPos (includeStop := false)
+
+  isAfterHoverPos (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
+    let some startPos := cmdParsed.stx.getPos? (canonicalOnly := true)
+      | return false
+    return hoverPos < startPos
 
 open Language in
 /--

@@ -13,11 +13,6 @@ attribute [grind ext] Subtype Prod -- TODO: remove after update stage0
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
   fun_induction qsort.sort
-  case case1 a b =>
-    unfold qsort.sort
-    -- `grind` fails unless we uncomment the following line. I would hope it manages both!
-    -- simp only [dif_pos, *]
-    simp only [a] -- It needs `a` to be manually unfolded
-    grind [getElem_qpartition_snd_of_hi_lt]
+  case case1 a b => grind [getElem_qpartition_snd_of_hi_lt]
   case case2 a b ih1 ih2 ih3 => sorry
   case case3 => sorry

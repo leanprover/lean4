@@ -2019,7 +2019,7 @@ theorem getEntryGE?_eq_find? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Or
     simp only [List.find?_cons]
     rw [List.pairwise_cons] at hto
     cases h : compare k k'
-    · simp only [Option.or_some', Ordering.isLE_lt, Option.some.injEq,
+    · simp only [Option.or_some, Ordering.isLE_lt, Option.some.injEq,
         Ordering.isLT_lt, Ordering.isEq_lt]
       rw [List.find?_eq_none.mpr, Option.getD_none]
       intro x hx hkx; have := hto.1 x hx

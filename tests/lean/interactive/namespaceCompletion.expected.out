@@ -1,0 +1,13 @@
+{"textDocument": {"uri": "file:///lean\\interactive\\namespaceCompletion.lean"},
+ "position": {"line": 10, "character": 14}}
+{"items":
+ [{"label": "Inner",
+   "kind": 9,
+   "detail": "namespace",
+   "data":
+   {"params":
+    {"textDocument":
+     {"uri": "file:///lean\\interactive\\namespaceCompletion.lean"},
+     "position": {"line": 10, "character": 14}},
+    "cPos": 0}}],
+ "isIncomplete": false}

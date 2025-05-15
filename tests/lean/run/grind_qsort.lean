@@ -101,13 +101,13 @@ attribute [grind] Vector.Perm.extract'
 
 private theorem qpartition_loop_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     {hhi} {ilo} {ik w} :
-    (qpartition.loop lt lo hi hhi pivot as i k ilo ik w).2 ~ as := by
+    (qpartition.loop lt lo hi hhi pivot as i k).2 ~ as := by
   fun_induction qpartition.loop with grind
 
 @[local grind]
 private theorem qpartition_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) :
-    (qpartition as lt lo hi hlo hhi).2 ~ as := by
+    (qpartition as lt lo hi).2 ~ as := by
   unfold qpartition
   refine Vector.Perm.trans (qpartition_loop_perm ..) ?_
   repeat' first
@@ -139,18 +139,18 @@ theorem qsort_perm (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
 
 private theorem getElem_qpartition_loop_snd_of_lt_lo {n} (lt : α → α → Bool) (lo hi : Nat)
     (hhi : hi < n) (pivot) (as : Vector α n) (i k) (ilo) (ik w) (w' : lo ≤ hi)
-    (l : Nat) (h : l < lo) : (qpartition.loop lt lo hi hhi pivot as i k ilo ik w).2[l] = as[l] := by
+    (l : Nat) (h : l < lo) : (qpartition.loop lt lo hi hhi pivot as i k).2[l] = as[l] := by
   fun_induction qpartition.loop <;> grind
 
 private theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
-    (k : Nat) (h : k < lo) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := by
+    (k : Nat) (h : k < lo) : (qpartition as lt lo hi).2[k] = as[k] := by
   grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
 
 @[local grind] private theorem getElem_qsort_sort_of_lt_lo
     {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
-    (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
+    (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi)[i] = as[i] := by
   fun_induction qsort.sort
   case case1 a b =>
     grind [getElem_qpartition_snd_of_lt_lo]
@@ -168,18 +168,18 @@ private theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (a
 
 private theorem getElem_qpartition_loop_snd_of_hi_lt {n} (lt : α → α → Bool) (lo hi : Nat)
     (hhi : hi < n) (pivot) (as : Vector α n) (i k) (ilo) (ik w) (w' : lo ≤ hi) (z : i ≤ hi)
-    (l : Nat) (h : hi < l) (h' : l < n) : (qpartition.loop lt lo hi hhi pivot as i k ilo ik w).2[l] = as[l] := by
+    (l : Nat) (h : hi < l) (h' : l < n) : (qpartition.loop lt lo hi hhi pivot as i k).2[l] = as[l] := by
   fun_induction qpartition.loop <;> grind
 
 private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
-    (k : Nat) (h : hi < k) (h' : k < n) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := by
+    (k : Nat) (h : hi < k) (h' : k < n) : (qpartition as lt lo hi).2[k] = as[k] := by
   grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
 
 @[local grind] private theorem getElem_qsort_sort_of_hi_lt
     {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
-    (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
+    (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi)[i] = as[i] := by
   fun_induction qsort.sort
   case case1 a b =>
     grind [getElem_qpartition_snd_of_hi_lt]
@@ -195,16 +195,17 @@ private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (a
   case case3 =>
     grind
 
-private theorem extract_qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (hlo) (hhi) (w : lo ≤ hi) :
-    ((qsort.sort lt as lo hi hlo hhi).extract lo (hi + 1)) ~ (as.extract lo (hi + 1)) := by
+private theorem extract_qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
+    (hlo := by grind) (hhi := by grind) (w : lo ≤ hi := by grind) :
+    ((qsort.sort lt as lo hi).extract lo (hi + 1)) ~ (as.extract lo (hi + 1)) := by
   grind [qsort_sort_perm]
 
 private theorem getElem_qsort_sort_mem (lt : α → α → Bool)
     (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
     (i : Nat) (h : i < n) (_ : lo ≤ i) (_ : i ≤ hi) :
-    (qsort.sort lt as lo hi hlo hhi)[i] ∈ as.extract lo (hi + 1) := by
-  rw [← (extract_qsort_sort_perm as lt lo hi hlo hhi (by grind)).mem_iff,
+    (qsort.sort lt as lo hi)[i] ∈ as.extract lo (hi + 1) := by
+  rw [← (extract_qsort_sort_perm as lt lo hi).mem_iff,
     Vector.mem_extract_iff_getElem]
   exact ⟨i - lo, by grind⟩
 
@@ -213,9 +214,9 @@ private theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : N
     {ilo : lo ≤ i} {ik : i ≤ k} {w : k < n} (khi : k ≤ hi := by omega)
     (as : Vector α n) (hpivot : pivot = as[hi])
     (q : ∀ l, (hk₁ : lo ≤ l) → (hk₂ : l < i) → lt as[l] as[hi]) (mid as')
-    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i k ilo ik w).fst.1)
+    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i k).fst.1)
     (hmid : mid < n)
-    (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i k ilo ik w).2) :
+    (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i k).2) :
     ∀ l, (h₁ : lo ≤ l) → (h₂ : l < mid) → lt as'[l] as'[mid] := by
   fun_induction qpartition.loop with unfold qpartition.loop at w_mid w_as
   | case1
@@ -227,9 +228,9 @@ private theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : N
     {ilo : lo ≤ i} {ik : i ≤ k} {w : k < n} (khi : k ≤ hi := by omega)
     (as : Vector α n) (hpivot : pivot = as[hi])
     (q : ∀ l, (hk₁ : i ≤ l) → (hk₂ : l < k) → !lt as[l] as[hi]) (mid as')
-    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i k ilo ik w).fst.1)
+    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i k).fst.1)
     (hmid : mid < n)
-    (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i k ilo ik w).2) :
+    (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i k).2) :
     ∀ l, (h₁ : mid < l) → (h₂ : l ≤ hi) → lt as'[l] as'[mid] = false := by
   fun_induction qpartition.loop <;> grind
 
@@ -239,9 +240,9 @@ All elements in the active range before the pivot, are less than the pivot.
 private theorem qpartition_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as : Vector α n) (mid as')
-    (w_mid : mid = (qpartition as lt lo hi hlo hhi).fst.1)
+    (w_mid : mid = (qpartition as lt lo hi).fst.1)
     (hmid : mid < n)
-    (w_as : as' = (qpartition as lt lo hi hlo hhi).2) :
+    (w_as : as' = (qpartition as lt lo hi).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
   grind [qpartition, qpartition_loop_spec₁]
 
@@ -251,9 +252,9 @@ All elements in the active range after the pivot, are greater than or equal to t
 private theorem qpartition_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as : Vector α n) (mid as')
-    (w_mid : mid = (qpartition as lt lo hi hlo hhi).fst.1)
+    (w_mid : mid = (qpartition as lt lo hi).fst.1)
     (hmid : mid < n)
-    (w_as : as' = (qpartition as lt lo hi hlo hhi).2) :
+    (w_as : as' = (qpartition as lt lo hi).2) :
     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → lt as'[i] as'[mid] = false := by
   grind [qpartition, qpartition_loop_spec₂]
 
@@ -268,7 +269,7 @@ We prove two preliminary lemmas about `qpartition.loop`.
 /-- If we already have `i < k`, then we're sure to return something less than `hi`. -/
 private theorem qpartition_loop_lt_hi₁
     (h : lo < hi) (ilo : lo ≤ i) (ik : i < k) (w : k < n) (z : k ≤ hi) (ik' : i ≤ k):
-    (qpartition.loop lt lo hi hhi pivot as i k ilo ik' w).1.val < hi := by
+    (qpartition.loop lt lo hi hhi pivot as i k).1.val < hi := by
   fun_induction qpartition.loop <;> grind
 
 /--
@@ -277,8 +278,9 @@ then when we reach that we'll be sure `i < k`, and hence the previous lemma will
 and so we're sure to return something less than `hi`.
  -/
 private theorem qpartition_loop_lt_hi₂
-    {as : Vector α n} (h : lo < hi) (ilo : lo ≤ i) (jh : k < n) (w : i ≤ k) (z : k ≤ hi) (q : ∃ (k' : Nat) (hj' : k' < n), k' ≥ k ∧ k' < hi ∧ ¬ lt as[k'] pivot) :
-    (qpartition.loop lt lo hi hhi pivot as i k ilo (by omega) jh).1.val < hi := by
+    {as : Vector α n} (h : lo < hi) (ilo : lo ≤ i) (ik : i ≤ k) (w : k < n) (z : k ≤ hi)
+    (q : ∃ (k' : Nat) (hj' : k' < n), k' ≥ k ∧ k' < hi ∧ ¬ lt as[k'] pivot) :
+    (qpartition.loop lt lo hi hhi pivot as i k).1.val < hi := by
   fun_induction qpartition.loop with
   | case1 as i j iloi jh w h' h ih =>
     apply ih <;> grind -- It would be nice if a more aggressive mode in `grind` would do this.
@@ -291,7 +293,7 @@ private theorem qpartition_loop_lt_hi₂
 private theorem qpartition_fst_lt_hi {n} (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
-    (as : Vector α n) (w : lo < hi) : (qpartition as lt lo hi hlo hhi).fst.1 < hi := by
+    (as : Vector α n) (w : lo < hi) : (qpartition as lt lo hi).fst.1 < hi := by
   apply qpartition_loop_lt_hi₂ w
   · grind
   · exact ⟨(lo + hi)/2, by grind⟩
@@ -301,7 +303,7 @@ private theorem qsort_sort_spec {n}
     (le_trans : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a)
     (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
-    (as' : Vector α n) (w_as : as' = qsort.sort lt as lo hi hlo hhi) :
+    (as' : Vector α n) (w_as : as' = qsort.sort lt as lo hi) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < hi) → ¬ lt as'[i + 1] as'[i] := by
   unfold qsort.sort at w_as
   split at w_as <;> rename_i w₁

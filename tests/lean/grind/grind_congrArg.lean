@@ -13,9 +13,6 @@ private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (a
   fun_induction qsort.sort
   case case1 a b =>
     unfold qsort.sort
-    -- `grind` fails unless we uncomment the following line. I would hope it manages both!
-    -- simp only [dif_pos, *]
-    simp only [a] -- It needs `a` to be manually unfolded
     grind [getElem_qpartition_snd_of_hi_lt]
   case case2 a b ih1 ih2 ih3 => sorry
   case case3 => sorry

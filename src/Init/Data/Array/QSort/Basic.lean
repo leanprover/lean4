@@ -42,7 +42,7 @@ def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
   -- elements in `[k, hi)` are unexamined,
   -- while `as[hi]` is (by definition) the pivot.
   let rec loop (as : Vector α n) (i k : Nat)
-      (ilo : lo ≤ i := by omega) (kh : k < n := by omega) (w : i ≤ k := by omega) :=
+      (ilo : lo ≤ i := by omega) (ik : i ≤ k := by omega) (w : k < n := by omega) :=
     if h : k < hi then
       if lt as[k] pivot then
         loop (as.swap i k) (i+1) (k+1)

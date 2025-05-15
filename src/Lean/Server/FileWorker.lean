@@ -417,6 +417,8 @@ def setupImports
 
   return .ok {
     mainModuleName := meta.mod
+    isModule := Elab.HeaderSyntax.isModule stx
+    imports
     opts
     plugins := fileSetupResult.plugins
   }

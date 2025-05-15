@@ -204,7 +204,9 @@ def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Arr
     r := r.modify funidx (·.push goal)
   return r
 
-def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
+def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr :=
+  -- entering proof
+  withoutExporting do
   let goals ← getMVarsNoDelayed value
   let goals ← assignSubsumed goals
   let goalss ← groupGoalsByFunction argsPacker decrTactics.size goals

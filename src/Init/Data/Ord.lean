@@ -6,10 +6,10 @@ Authors: Dany Fabian, Sebastian Ullrich
 module
 
 prelude
-import Init.Data.String
+import Init.Data.String.Basic
 import Init.Data.Array.Basic
 import Init.Data.SInt.Basic
-import Init.Data.Vector.Basic
+import all Init.Data.Vector.Basic
 
 /--
 The result of a comparison according to a total order.
@@ -143,13 +143,13 @@ def isGE : Ordering → Bool
 
 section Lemmas
 
-theorem «forall» {p : Ordering → Prop} : (∀ o, p o) ↔ p .lt ∧ p .eq ∧ p .gt := by
+protected theorem «forall» {p : Ordering → Prop} : (∀ o, p o) ↔ p .lt ∧ p .eq ∧ p .gt := by
   constructor
   · intro h
     exact ⟨h _, h _, h _⟩
   · rintro ⟨h₁, h₂, h₃⟩ (_ | _ | _) <;> assumption
 
-theorem «exists» {p : Ordering → Prop} : (∃ o, p o) ↔ p .lt ∨ p .eq ∨ p .gt := by
+protected theorem «exists» {p : Ordering → Prop} : (∃ o, p o) ↔ p .lt ∨ p .eq ∨ p .gt := by
   constructor
   · rintro ⟨(_ | _ | _), h⟩
     · exact .inl h
@@ -158,10 +158,10 @@ theorem «exists» {p : Ordering → Prop} : (∃ o, p o) ↔ p .lt ∨ p .eq �
   · rintro (h | h | h) <;> exact ⟨_, h⟩
 
 instance [DecidablePred p] : Decidable (∀ o : Ordering, p o) :=
-  decidable_of_decidable_of_iff «forall».symm
+  decidable_of_decidable_of_iff Ordering.«forall».symm
 
 instance [DecidablePred p] : Decidable (∃ o : Ordering, p o) :=
-  decidable_of_decidable_of_iff «exists».symm
+  decidable_of_decidable_of_iff Ordering.«exists».symm
 
 @[simp] theorem isLT_lt : lt.isLT := rfl
 @[simp] theorem isLE_lt : lt.isLE := rfl
@@ -735,7 +735,7 @@ def beqOfOrd [Ord α] : BEq α where
 Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare` is
 `Ordering.lt`.
 -/
-def ltOfOrd [Ord α] : LT α where
+@[expose] def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b = Ordering.lt
 
 @[inline]
@@ -746,7 +746,7 @@ instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) := fun a b =>
 Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare`
 satisfies `Ordering.isLE`.
 -/
-def leOfOrd [Ord α] : LE α where
+@[expose] def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
 
 @[inline]
@@ -763,13 +763,13 @@ protected abbrev toBEq (ord : Ord α) : BEq α :=
 /--
 Constructs an `LT` instance from an `Ord` instance.
 -/
-protected abbrev toLT (ord : Ord α) : LT α :=
+@[expose] protected abbrev toLT (ord : Ord α) : LT α :=
   ltOfOrd
 
 /--
 Constructs an `LE` instance from an `Ord` instance.
 -/
-protected abbrev toLE (ord : Ord α) : LE α :=
+@[expose] protected abbrev toLE (ord : Ord α) : LE α :=
   leOfOrd
 
 /--

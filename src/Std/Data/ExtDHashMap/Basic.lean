@@ -69,7 +69,7 @@ def emptyWithCapacity [BEq α] [Hashable α]
 instance [BEq α] [Hashable α] : EmptyCollection (ExtDHashMap α β) where
   emptyCollection := emptyWithCapacity
 
-instance [BEq α] [Hashable α] : Inhabited (DHashMap α β) where
+instance [BEq α] [Hashable α] : Inhabited (ExtDHashMap α β) where
   default := ∅
 
 @[inline, inherit_doc DHashMap.insert]

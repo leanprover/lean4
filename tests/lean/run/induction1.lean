@@ -84,7 +84,7 @@ inductive Vec (α : Type) : Nat → Type
   | cons : (a : α) → {n : Nat} → (as : Vec α n) → Vec α (n+1)
 
 /--
-info: case cons.cons.fst
+trace: case cons.cons.fst
 α β : Type
 n : Nat
 a✝¹ : α
@@ -129,7 +129,7 @@ theorem ex1 (n m o : Nat) : n = m + 0 → m = o → m = o := by
 Test of named generalization, of an expression that does not appear in the goal.
 -/
 /--
-info: case succ
+trace: case succ
 α : Type
 ys zs : List α
 n : Nat
@@ -157,7 +157,7 @@ example {α : Type} (xs ys zs : List α) : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) :
 Test of named generalization, of an expression that appears in the goal.
 -/
 /--
-info: case cons
+trace: case cons
 α : Type
 zs : List α
 w : α
@@ -195,7 +195,7 @@ Test of hole for named generalization.
 Yields a fresh hygienic name.
 -/
 /--
-info: case zero
+trace: case zero
 n : Nat
 h✝ : n + 1 = 0
 ⊢ 0 = 1 + n
@@ -217,7 +217,7 @@ example (n : Nat) : n + 1 = 1 + n := by
 Having no `=>` clause is short for `=> ?_`.
 -/
 /--
-info: case mk
+trace: case mk
 p1 p2 : Nat
 ⊢ (p1, p2).fst = (p1, p2).fst
 -/
@@ -238,7 +238,7 @@ induction n with | zero => ?_ | succ n ih => ?_
 ```
 -/
 /--
-info: case zero
+trace: case zero
 ⊢ 0 + 1 = 1 + 0
 
 case succ

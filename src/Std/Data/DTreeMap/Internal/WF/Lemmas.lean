@@ -6,7 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 prelude
 import Init.Data.Option.List
 import Init.Data.Array.Bootstrap
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 import Std.Data.DTreeMap.Internal.Model
 import Std.Data.Internal.Cut
 import Std.Data.Internal.List.Associative

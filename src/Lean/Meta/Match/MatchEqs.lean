@@ -98,9 +98,68 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
 
   1. Eliminates arguments for named parameters and the associated equation proofs.
 
-  2. Equality parameters associated with the `h : discr` notation are replaced with `rfl` proofs.
-     Recall that this kind of parameter always occurs after the parameters correspoting to pattern variables.
-     `numNonEqParams` is the size of the prefix.
+  2. Instantiate the `Unit` parameter of an otherwise argumentless alternative.
+
+  It does not handle the equality parameters associated with the `h : discr` notation.
+
+  The continuation `k` takes four arguments `ys args mask type`.
+  - `ys` are variables for the hypotheses that have not been eliminated.
+  - `args` are the arguments for the alternative `alt` that has type `altType`. `ys.size <= args.size`
+  - `mask[i]` is true if the hypotheses has not been eliminated. `mask.size == args.size`.
+  - `type` is the resulting type for `altType`.
+
+  We use the `mask` to build the splitter proof. See `mkSplitterProof`.
+
+  This can be used to use the alternative of a match expression in its splitter.
+-/
+partial def forallAltVarsTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
+  (k : (patVars : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α) : MetaM α := do
+  go #[] #[] #[] 0 altType
+where
+  go (ys : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
+    let type ← whnfForall type
+    if i < altNumParams - numDiscrEqs then
+      let Expr.forallE n d b .. := type
+        | throwError "expecting {altNumParams} parameters, excluding {numDiscrEqs} equalities, but found type{indentExpr altType}"
+
+      -- Handle the special case of `Unit` parameters.
+      if i = 0 && altNumParams - numDiscrEqs = 1 && d.isConstOf ``Unit && !b.hasLooseBVars then
+        return ← k #[] #[mkConst ``Unit.unit] #[false] b
+
+      let d ← Match.unfoldNamedPattern d
+      withLocalDeclD n d fun y => do
+        let typeNew := b.instantiate1 y
+        if let some (_, lhs, rhs) ← matchEq? d then
+          if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
+              let some j  := ys.finIdxOf? lhs | unreachable!
+              let ys      := ys.eraseIdx j
+              let some k  := args.idxOf? lhs | unreachable!
+              let mask    := mask.set! k false
+              let args    := args.map fun arg => if arg == lhs then rhs else arg
+              let arg     ← mkEqRefl rhs
+              let typeNew := typeNew.replaceFVar lhs rhs
+              return ← withReplaceFVarId lhs.fvarId! rhs do
+              withReplaceFVarId y.fvarId! arg do
+                go ys (args.push arg) (mask.push false) (i+1) typeNew
+        go (ys.push y) (args.push y) (mask.push true) (i+1) typeNew
+    else
+      let type ← Match.unfoldNamedPattern type
+      k ys args mask type
+
+  isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
+    Option.isSome <| type.find? fun e =>
+      if let some e := Match.isNamedPattern? e then
+        e.appArg! == h
+      else
+        false
+
+
+/--
+  Extension of `forallAltTelescope` that continues further:
+
+  Equality parameters associated with the `h : discr` notation are replaced with `rfl` proofs.
+  Recall that this kind of parameter always occurs after the parameters corresponding to pattern
+  variables.
 
   The continuation `k` takes four arguments `ys args mask type`.
   - `ys` are variables for the hypotheses that have not been eliminated.
@@ -116,57 +175,45 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
 partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
     (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
     : MetaM α := do
-  go #[] #[] #[] #[] 0 altType
+  forallAltVarsTelescope altType altNumParams numDiscrEqs fun ys args mask altType => do
+    go ys #[] args mask 0 altType
 where
   go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
-    if i < altNumParams then
+    if i < numDiscrEqs then
       let Expr.forallE n d b .. := type
         | throwError "expecting {altNumParams} parameters, including {numDiscrEqs} equalities, but found type{indentExpr altType}"
-      if i < altNumParams - numDiscrEqs then
-        let d ← unfoldNamedPattern d
-        withLocalDeclD n d fun y => do
-          let typeNew := b.instantiate1 y
-          if let some (_, lhs, rhs) ← matchEq? d then
-            if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
-               let some j  := ys.finIdxOf? lhs | unreachable!
-               let ys      := ys.eraseIdx j
-               let some k  := args.idxOf? lhs | unreachable!
-               let mask    := mask.set! k false
-               let args    := args.map fun arg => if arg == lhs then rhs else arg
-               let arg     ← mkEqRefl rhs
-               let typeNew := typeNew.replaceFVar lhs rhs
-               return ← withReplaceFVarId lhs.fvarId! rhs do
-                withReplaceFVarId y.fvarId! arg do
-                  go ys eqs (args.push arg) (mask.push false) (i+1) typeNew
-          go (ys.push y) eqs (args.push y) (mask.push true) (i+1) typeNew
+      let arg ← if let some (_, _, rhs) ← matchEq? d then
+        mkEqRefl rhs
+      else if let some (_, _, _, rhs) ← matchHEq? d then
+        mkHEqRefl rhs
       else
-        let arg ← if let some (_, _, rhs) ← matchEq? d then
-          mkEqRefl rhs
-        else if let some (_, _, _, rhs) ← matchHEq? d then
-          mkHEqRefl rhs
-        else
-          throwError "unexpected match alternative type{indentExpr altType}"
-        withLocalDeclD n d fun eq => do
-          let typeNew := b.instantiate1 eq
-          go ys (eqs.push eq) (args.push arg) (mask.push false) (i+1) typeNew
+        throwError "unexpected match alternative type{indentExpr altType}"
+      withLocalDeclD n d fun eq => do
+        let typeNew := b.instantiate1 eq
+        go ys (eqs.push eq) (args.push arg) (mask.push false) (i+1) typeNew
     else
       let type ← unfoldNamedPattern type
-      /- Recall that alternatives that do not have variables have a `Unit` parameter to ensure
-         they are not eagerly evaluated. -/
-      if ys.size == 1 then
-        if (← inferType ys[0]!).isConstOf ``Unit && !(← dependsOn type ys[0]!.fvarId!) then
-          let rhs := mkConst ``Unit.unit
-          return ← withReplaceFVarId ys[0]!.fvarId! rhs do
-          return (← k #[] #[] #[rhs] #[false] type)
       k ys eqs args mask type
 
-  isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
-    Option.isSome <| type.find? fun e =>
-      if let some e := isNamedPattern? e then
-        e.appArg! == h
-      else
-        false
+/--
+Given an application of an matcher arm `alt` that is expecting the `numDiscrEqs`, and
+an array of `discr = pattern` equalities (one for each discriminant), apply those that
+are expected by the alternative.
+-/
+partial def mkAppDiscrEqs (alt : Expr) (heqs : Array Expr) (numDiscrEqs : Nat) : MetaM Expr := do
+  go alt (← inferType alt) 0
+where
+  go e ty i := do
+    if i < numDiscrEqs then
+      let Expr.forallE n d b .. := ty
+        | throwError "expecting {numDiscrEqs} equalities, but found type{indentExpr alt}"
+      for heq in heqs do
+        if (← isDefEq (← inferType heq) d) then
+          return ← go (mkApp e heq) (b.instantiate1 heq) (i+1)
+      throwError "Could not find equation {n} : {d} among {heqs}"
+    else
+      return e
 
 namespace SimpH
 
@@ -328,21 +375,33 @@ private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
   mvarId.deltaTarget (· == ``Nat.elimOffset)
 
 /--
-  Helper method for proving a conditional equational theorem associated with an alternative of
-  the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem. -/
-partial def proveCondEqThm (matchDeclName : Name) (type : Expr) : MetaM Expr := withLCtx {} {} do
+Helper method for proving a conditional equational theorem associated with an alternative of
+the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
+
+The `heqPos`/`heqNum` arguments indicate that these hypotheses are `Eq`/`HEq` hypotheses
+to substitute first; this is used for the generalized match equations.
+-/
+partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
+  (heqPos : Nat := 0) (heqNum : Nat := 0) : MetaM Expr := withLCtx {} {} do
   let type ← instantiateMVars type
-  forallTelescope type fun ys target => do
-    let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
-    trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
-    let mvarId ← mvar0.mvarId!.deltaTarget (· == matchDeclName)
-    withDefault <| go mvarId 0
-    mkLambdaFVars ys (← instantiateMVars mvar0)
+  let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
+  trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
+  let mut mvarId := mvar0.mvarId!
+  if heqNum > 0 then
+    mvarId := (← mvarId.introN heqPos).2
+    for _ in [:heqNum] do
+      let (h, mvarId') ← mvarId.intro1
+      mvarId ← subst mvarId' h
+    trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
+  mvarId := (← mvarId.intros).2
+  mvarId ← mvarId.deltaTarget (· == matchDeclName)
+  mvarId ← mvarId.heqOfEq
+  go mvarId 0
+  instantiateMVars mvar0
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
-    let mvarId' ← mvarId.modifyTargetEqLHS whnfCore
-    let mvarId := mvarId'
+    let mvarId ← mvarId.modifyTargetEqLHS whnfCore
     let subgoals ←
       (do mvarId.refl; return #[])
       <|>
@@ -716,6 +775,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             hs := hs.push h
         trace[Meta.Match.matchEqs] "hs: {hs}"
         let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) (mkArrow · ·))
+        let splitterAltType ← unfoldNamedPattern splitterAltType
         let splitterAltNumParam := hs.size + ys.size
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
@@ -767,21 +827,121 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       let result := { eqnNames, splitterName, splitterAltNumParams }
       registerMatchEqns matchDeclName result
 
+def congrEqnThmSuffixBase := "congr_eq"
+def congrEqnThmSuffixBasePrefix := congrEqnThmSuffixBase ++ "_"
+def congrEqn1ThmSuffix := congrEqnThmSuffixBasePrefix ++ "1"
+example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
+
+/-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
+def iscongrEqnReservedNameSuffix (s : String) : Bool :=
+  congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
+
+/- We generate the equations and splitter on demand, and do not save them on .olean files. -/
+builtin_initialize matchCongrEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
+  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
+  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- see below
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+def registerMatchcongrEqns (matchDeclName : Name) (eqnNames : Array Name) : CoreM Unit := do
+  modifyEnv fun env => matchCongrEqnsExt.modifyState env fun map =>
+    map.insert matchDeclName eqnNames
+
+/--
+Generate the congruence equations for the given match auxiliary declaration.
+The congruence equations have a completely unrestriced left-hand side (arbitrary discriminants),
+and take propositional equations relating the discriminants to the patterns as arguments. In this
+sense they combine a congruence lemma with the regular equation lemma.
+Since the motive depends on the discriminants, they are `HEq` equations.
+
+The code duplicates a fair bit of the logic above, and has to repeat the calculation of the
+`notAlts`. One could avoid that and generate the generalized equations eagerly above, but they are
+not always needed, so for now we live with the code duplication.
+-/
+def genMatchCongrEqns (matchDeclName : Name) : MetaM (Array Name) := do
+  let baseName := mkPrivateName (← getEnv) matchDeclName
+  let firstEqnName := .str baseName congrEqn1ThmSuffix
+  realizeConst matchDeclName firstEqnName (go baseName)
+  return matchCongrEqnsExt.findStateAsync (← getEnv) firstEqnName |>.find! matchDeclName
+where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
+  withConfig (fun c => { c with etaStruct := .none }) do
+  let constInfo ← getConstInfo matchDeclName
+  let us := constInfo.levelParams.map mkLevelParam
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
+  let numDiscrEqs := matchInfo.getNumDiscrEqs
+  forallTelescopeReducing constInfo.type fun xs _matchResultType => do
+    let mut eqnNames := #[]
+    let params := xs[:matchInfo.numParams]
+    let motive := xs[matchInfo.getMotivePos]!
+    let alts   := xs[xs.size - matchInfo.numAlts:]
+    let firstDiscrIdx := matchInfo.numParams + 1
+    let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
+    let mut notAlts := #[]
+    let mut idx := 1
+    for i in [:alts.size] do
+      let altNumParams := matchInfo.altNumParams[i]!
+      let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
+      eqnNames := eqnNames.push thmName
+      let notAlt ← do
+        let alt := alts[i]!
+        Match.forallAltVarsTelescope (← inferType alt) altNumParams numDiscrEqs fun altVars args _mask altResultType => do
+        let patterns ← forallTelescope altResultType fun _ t => pure t.getAppArgs
+        let mut heqsTypes := #[]
+        assert! patterns.size == discrs.size
+        for discr in discrs, pattern in patterns do
+          let heqType ← mkEqHEq discr pattern
+          heqsTypes := heqsTypes.push ((`heq).appendIndexAfter (heqsTypes.size + 1), heqType)
+        withLocalDeclsDND heqsTypes fun heqs => do
+          let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
+          let mut hs := #[]
+          for notAlt in notAlts do
+            let h ← instantiateForall notAlt patterns
+            if let some h ← Match.simpH? h patterns.size then
+              hs := hs.push h
+          trace[Meta.Match.matchEqs] "hs: {hs}"
+          let mut notAlt := mkConst ``False
+          for discr in discrs.toArray.reverse, pattern in patterns.reverse do
+            notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
+          notAlt ← mkForallFVars (discrs ++ altVars) notAlt
+          let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+          let thmType ← mkHEq lhs rhs
+          let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
+          let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
+          let thmType ← Match.unfoldNamedPattern thmType
+          -- Here we prove the theorem from scratch. One could likely also use the (non-generalized)
+          -- match equation theorem after subst'ing the `heqs`.
+          let thmVal ← Match.proveCondEqThm matchDeclName thmType
+            (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
+          unless (← getEnv).contains thmName do
+            addDecl <| Declaration.thmDecl {
+              name        := thmName
+              levelParams := constInfo.levelParams
+              type        := thmType
+              value       := thmVal
+            }
+          return notAlt
+      notAlts := notAlts.push notAlt
+      idx := idx + 1
+    registerMatchcongrEqns matchDeclName eqnNames
+
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
-private def isMatchEqName? (env : Environment) (n : Name) : Option Name := do
+private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × Bool) := do
   let .str p s := n | failure
-  guard <| isEqnReservedNameSuffix s || s == "splitter"
+  guard <| isEqnReservedNameSuffix s || s == "splitter" || iscongrEqnReservedNameSuffix s
   let p ← privateToUserName? p
   guard <| isMatcherCore env p
-  return p
+  return (p, iscongrEqnReservedNameSuffix s)
 
 builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
-  let some p := isMatchEqName? (← getEnv) name |
+  let some (p, isGenEq) := isMatchEqName? (← getEnv) name |
     return false
-  let _ ← MetaM.run' <| getEquationsFor p
+  if isGenEq then
+    let _ ← MetaM.run' <| genMatchCongrEqns p
+  else
+    let _ ← MetaM.run' <| getEquationsFor p
   return true
 
 end Lean.Meta.Match

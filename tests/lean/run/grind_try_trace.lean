@@ -146,13 +146,13 @@ def map (f : α → β) : List α → List β
 
 /--
 info: Try these:
-• (fun_induction map) <;> grind [= map]
-• (fun_induction map) <;> grind only [map]
+• (fun_induction map f xs) <;> grind [= map]
+• (fun_induction map f xs) <;> grind only [map]
 -/
 #guard_msgs (info) in
 theorem map_map (f : α → β) (g : β → γ) xs :
   map g (map f xs) = map (fun x => g (f x)) xs := by
-  try? -- NB: Multiple calls to `xs.map`, but they differ only in ignore arguments
+  try?
 
 
 def foo : Nat → Nat
@@ -160,10 +160,16 @@ def foo : Nat → Nat
   | x+1 => foo x - 1
 
 /--
-info: Try this: ·
-  fun_induction foo
-  · grind [= foo]
-  · sorry
+info: Try these:
+• · fun_induction foo
+    · simp
+    · sorry
+• · fun_induction foo
+    · grind
+    · sorry
+• · fun_induction foo
+    · simp_all
+    · sorry
 -/
 #guard_msgs (info) in
 example : foo x > 0 := by
@@ -190,8 +196,8 @@ info: Try these:
 • (fun_induction bla) <;> grind
 • (fun_induction bla) <;> simp_all
 • (fun_induction bla) <;> simp [*]
-• (fun_induction bla) <;> simp only [bla, List.length_reverse, *]
-• (fun_induction bla) <;> grind only [List.length_reverse, bla]
+• (fun_induction bla) <;> simp only [List.length_reverse, *]
+• (fun_induction bla) <;> grind only [List.length_reverse]
 -/
 #guard_msgs (info) in
 example : (bla xs ys).length = ys.length := by

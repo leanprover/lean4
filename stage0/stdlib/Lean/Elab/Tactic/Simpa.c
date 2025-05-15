@@ -40,7 +40,6 @@ lean_object* l_Lean_logAt___at_Lean_Elab_Tactic_closeUsingOrAdmit___spec__2(lean
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Simpa_0__Lean_Elab_Tactic_Simpa_reprUseImplicitLambdaResult____x40_Lean_Elab_Tactic_Simpa___hyg_51____closed__10;
 lean_object* l_Lean_MetavarContext_getDelayedMVarAssignmentCore_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_CollectFVars_visit___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Simpa_0__Lean_Elab_Tactic_Simpa_reprUseImplicitLambdaResult____x40_Lean_Elab_Tactic_Simpa___hyg_51____closed__14;
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
@@ -3757,7 +3756,6 @@ x_19 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3___closed__3;
 lean_inc(x_11);
 lean_inc(x_10);
 x_20 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_1, x_17, x_18, x_19, x_16, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_18);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -5159,7 +5157,7 @@ lean_inc(x_27);
 lean_dec(x_25);
 lean_inc(x_20);
 lean_inc(x_2);
-x_28 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3___boxed), 12, 2);
+x_28 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3), 12, 2);
 lean_closure_set(x_28, 0, x_2);
 lean_closure_set(x_28, 1, x_20);
 x_29 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__6___closed__2;
@@ -5192,7 +5190,6 @@ x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec(x_32);
 x_35 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3(x_2, x_20, x_33, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_34);
-lean_dec(x_2);
 return x_35;
 }
 else
@@ -5263,7 +5260,6 @@ x_46 = lean_ctor_get(x_44, 1);
 lean_inc(x_46);
 lean_dec(x_44);
 x_47 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3(x_2, x_20, x_45, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_46);
-lean_dec(x_2);
 return x_47;
 }
 else
@@ -5342,7 +5338,6 @@ x_61 = lean_ctor_get(x_59, 1);
 lean_inc(x_61);
 lean_dec(x_59);
 x_62 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3(x_2, x_20, x_60, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_61);
-lean_dec(x_2);
 return x_62;
 }
 else
@@ -9932,15 +9927,6 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
-_start:
-{
-lean_object* x_13; 
-x_13 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_1);
-return x_13;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___boxed(lean_object** _args) {

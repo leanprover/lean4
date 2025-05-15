@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 20)
+set(LEAN_VERSION_MINOR 21)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -511,7 +511,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # import libraries created by the stdlib.make targets
   string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_1 -lleanshared")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-  string(APPEND LEANC_SHARED_LINKER_FLAGS " -Wl,-undefined,dynamic_lookup")
+  # The second flag is necessary to even *load* dylibs without resolved symbols, as can happen
+  # if a Lake `extern_lib` depends on a symbols defined by the Lean library but is loaded even
+  # before definition.
+  string(APPEND LEANC_SHARED_LINKER_FLAGS " -Wl,-undefined,dynamic_lookup -Wl,-no_fixup_chains")
 endif()
 # Linux ignores undefined symbols in shared libraries by default
 

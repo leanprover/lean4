@@ -27,6 +27,7 @@ static lean_object* l_Lake_LeanExe_exeFacetConfig___closed__3;
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_insert___at_Lake_LeanExe_recBuildExe___spec__4(lean_object*, lean_object*);
 lean_object* lean_get_set_stdout(lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
+lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 uint8_t l_Lean_RBNode_isRed___rarg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -100,7 +101,6 @@ LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_LeanExe_recBuildExe___spec__2
 LEAN_EXPORT lean_object* l_Lake_stdFormat___at_Lake_LeanExe_exeFacetConfig___spec__1(uint8_t, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_LeanExe_recBuildExe___spec__18___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
 static lean_object* l_Lake_OrdHashSet_insert___at_Lake_LeanExe_recBuildExe___spec__4___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_LeanExe_recBuildExe___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
@@ -4653,7 +4653,7 @@ if (x_29 == 0)
 lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_28);
 x_30 = l_IO_FS_withIsolatedStreams___at_Lake_LeanExe_recBuildExe___spec__22___closed__5;
-x_31 = l_panic___at_String_fromUTF8_x21___spec__1(x_30);
+x_31 = l_panic___at_Lean_Name_getString_x21___spec__1(x_30);
 x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_23);
@@ -4691,7 +4691,7 @@ if (x_38 == 0)
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 lean_dec(x_37);
 x_39 = l_IO_FS_withIsolatedStreams___at_Lake_LeanExe_recBuildExe___spec__22___closed__5;
-x_40 = l_panic___at_String_fromUTF8_x21___spec__1(x_39);
+x_40 = l_panic___at_Lean_Name_getString_x21___spec__1(x_39);
 x_41 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
 lean_ctor_set(x_41, 1, x_23);
@@ -4777,7 +4777,7 @@ if (x_57 == 0)
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
 lean_dec(x_56);
 x_58 = l_IO_FS_withIsolatedStreams___at_Lake_LeanExe_recBuildExe___spec__22___closed__5;
-x_59 = l_panic___at_String_fromUTF8_x21___spec__1(x_58);
+x_59 = l_panic___at_Lean_Name_getString_x21___spec__1(x_58);
 x_60 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_60, 0, x_59);
 lean_ctor_set(x_60, 1, x_50);
@@ -4975,7 +4975,7 @@ if (x_99 == 0)
 lean_object* x_100; lean_object* x_101; lean_object* x_102; 
 lean_dec(x_98);
 x_100 = l_IO_FS_withIsolatedStreams___at_Lake_LeanExe_recBuildExe___spec__22___closed__5;
-x_101 = l_panic___at_String_fromUTF8_x21___spec__1(x_100);
+x_101 = l_panic___at_Lean_Name_getString_x21___spec__1(x_100);
 x_102 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_102, 0, x_101);
 lean_ctor_set(x_102, 1, x_93);
@@ -5013,7 +5013,7 @@ if (x_108 == 0)
 lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; 
 lean_dec(x_107);
 x_109 = l_IO_FS_withIsolatedStreams___at_Lake_LeanExe_recBuildExe___spec__22___closed__5;
-x_110 = l_panic___at_String_fromUTF8_x21___spec__1(x_109);
+x_110 = l_panic___at_Lean_Name_getString_x21___spec__1(x_109);
 x_111 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_111, 0, x_110);
 lean_ctor_set(x_111, 1, x_93);
@@ -5099,7 +5099,7 @@ if (x_127 == 0)
 lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; 
 lean_dec(x_126);
 x_128 = l_IO_FS_withIsolatedStreams___at_Lake_LeanExe_recBuildExe___spec__22___closed__5;
-x_129 = l_panic___at_String_fromUTF8_x21___spec__1(x_128);
+x_129 = l_panic___at_Lean_Name_getString_x21___spec__1(x_128);
 x_130 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_130, 0, x_129);
 lean_ctor_set(x_130, 1, x_120);

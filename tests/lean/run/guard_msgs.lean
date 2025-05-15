@@ -309,3 +309,36 @@ info: Tree.branch
 -/
 #guard_msgs in
 #eval Tree.build 8 3
+
+
+section Trace
+
+/-! check that guard_msgs by defaults passes trace messages -/
+
+set_option trace.debug true
+
+/-- trace: [debug] a trace -/
+#guard_msgs(all) in
+#guard_msgs(info) in
+run_meta trace[debug] "a trace"
+
+#guard_msgs(all) in
+/-- trace: [debug] a trace -/
+#guard_msgs(trace) in
+run_meta trace[debug] "a trace"
+
+#guard_msgs(all) in
+#guard_msgs(drop trace) in
+run_meta trace[debug] "a trace"
+
+#guard_msgs(all) in
+/-- trace: [debug] a trace -/
+#guard_msgs in
+run_meta trace[debug] "a trace"
+
+#guard_msgs(all) in
+/-- trace: [debug] a trace -/
+#guard_msgs in
+run_meta trace[debug] "a trace"
+
+end Trace

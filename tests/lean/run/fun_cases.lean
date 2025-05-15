@@ -9,8 +9,8 @@ info: Option.map.fun_cases.{u_1, u_2} (motive : {α : Type u_1} → {β : Type u
 
 example (x : Option Nat) (f : Nat → Nat) : (x.map f).isSome = x.isSome := by
   cases f, x using Option.map.fun_cases
-  case case1 x => simp [-Option.isSome_map']
-  case case2 =>   simp [-Option.isSome_map']
+  case case1 x => simp
+  case case2 =>   simp
 
 /--
 info: List.map.fun_cases.{u, v} (motive : {α : Type u} → {β : Type v} → (α → β) → List α → Prop)
@@ -30,3 +30,19 @@ info: List.find?.fun_cases.{u} (motive : {α : Type u} → (α → Bool) → Lis
 -/
 #guard_msgs in
 #check List.find?.fun_cases
+
+
+-- This tests shows that its not so easy to post-hoc recognize that `x` could be a parameter, but
+-- `y` should be a target of the `fun_cases` principle (or the other way around)
+def areTheseTargetsUnchanged (x y : Nat) : Bool :=
+  if _ : x = y then
+    true
+  else
+    false
+
+/--
+info: areTheseTargetsUnchanged.fun_cases (motive : Nat → Nat → Prop) (case1 : ∀ (y : Nat), motive y y)
+  (case2 : ∀ (x y : Nat), ¬x = y → motive x y) (x y : Nat) : motive x y
+-/
+#guard_msgs in
+#check areTheseTargetsUnchanged.fun_cases

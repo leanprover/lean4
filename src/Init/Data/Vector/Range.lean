@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Zip
 import Init.Data.Vector.MapIdx
@@ -78,7 +80,7 @@ theorem range'_append {s m n step : Nat} :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append (step := 1)
 
 theorem range'_concat {s n : Nat} : range' s (n + 1) step = range' s n step ++ #v[s + step * n] := by
-  simpa using range'_append.symm
+  simp [← range'_append]
 
 theorem range'_1_concat {s n : Nat} : range' s (n + 1) = range' s n ++ #v[s + n] := by
   simp [range'_concat]
@@ -140,7 +142,7 @@ theorem range_add {n m : Nat} : range (n + m) = range n ++ (range m).map (n + ·
   simpa [range_eq_range', Nat.add_comm] using (range'_append_1 (s := 0)).symm
 
 theorem reverse_range' {s n : Nat} : reverse (range' s n) = map (s + n - 1 - ·) (range n) := by
-  simp [← toList_inj, List.reverse_range']
+  simp [← toArray_inj, Array.reverse_range']
 
 @[simp]
 theorem mem_range {m n : Nat} : m ∈ range n ↔ m < n := by

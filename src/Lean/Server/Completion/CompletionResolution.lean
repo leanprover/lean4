@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Marc Huisinga
 prelude
 import Lean.Server.Completion.CompletionItemData
 import Lean.Server.Completion.CompletionInfoSelection
+import Lean.Linter.Deprecated
 
 namespace Lean.Lsp
 

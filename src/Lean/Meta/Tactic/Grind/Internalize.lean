@@ -219,7 +219,6 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
           ctorApp := mkApp ctorApp proj
         ctorApp ← preprocessLight ctorApp
         internalize ctorApp generation
-        trace[Meta.debug] "eta: {a}, {ctorApp}"
         pushEq a ctorApp <| (← mkEqRefl a)
 
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/

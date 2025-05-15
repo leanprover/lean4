@@ -1870,18 +1870,15 @@ theorem toInt_smod {x y : BitVec w} :
       · rw [smod_eq]
         cases hxmsb : x.msb
         · cases hymsb : y.msb
-          · simp only [umod_eq, toInt_umod]
-            have hxnonneg := toInt_nonneg_of_msb_false (x := y) hymsb
-            rw [Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) (by omega),
-              toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb]
-            have hylt := toNat_lt_of_msb_false (x := y) (by omega)
-            have hnatabseq: y.toInt.natAbs = y.toNat := by
-              simp only [toInt_eq_toNat_of_msb hymsb, Int.natAbs_natCast]
+          · have hylt := toNat_lt_of_msb_false (x := y) (by omega)
             have hmodlt := Nat.mod_lt (x := x.toNat) (y := y.toNat)
-              (by simp only [← toInt_inj, toInt_zero] at hyzero; omega)
-            simp only [Nat.add_one_sub_one] at hylt
-            rw [Int.bmod_eq_of_le_mul_two (by omega)]
-            omega
+              (by simp only [← toInt_inj, toInt_eq_toNat_of_msb hymsb, toInt_zero,
+                Int.natCast_eq_zero] at hyzero; omega)
+            rw [umod_eq, toInt_umod,
+              Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt)
+                (by exact toInt_nonneg_of_msb_false (x := y) hymsb),
+              toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb,
+              Int.bmod_eq_of_le_mul_two (by omega) (by simp at hylt; omega)]
           · have hxnonneg := toInt_nonneg_of_msb_false (x := x) hxmsb
             have hynonpos := toInt_neg_of_msb_true (x := y) hymsb
             simp only [umod_eq]

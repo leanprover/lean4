@@ -1023,28 +1023,28 @@ theorem some_getEntryGE_eq_getEntryGE? [Ord α] [TransOrd α] (k : α) (t : Impl
     some (getEntryGE k t ho he) = getEntryGE? k t := by
   rw [getEntryGE?]; apply of_eq_true
   induction t, none using tree_split_ind (compare k) <;>
-    simp only [*, getEntryGE?.go, getEntryGE, getEntryGED, ← Option.or_some',
+    simp only [*, getEntryGE?.go, getEntryGE, getEntryGED, ← Option.or_some,
       getEntryGE?.eq_go] <;> contradiction
 
 theorem some_getEntryGT_eq_getEntryGT? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
     some (getEntryGT k t ho he) = getEntryGT? k t := by
   rw [getEntryGT?]; apply of_eq_true
   induction t, none using tree_split_ind (compare k) <;>
-    simp only [*, getEntryGT?.go, getEntryGT, getEntryGTD, ← Option.or_some',
+    simp only [*, getEntryGT?.go, getEntryGT, getEntryGTD, ← Option.or_some,
       getEntryGT?.eq_go, ↓reduceDIte, reduceCtorEq] <;> contradiction
 
 theorem some_getEntryLE_eq_getEntryLE? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
     some (getEntryLE k t ho he) = getEntryLE? k t := by
   rw [getEntryLE?]; apply of_eq_true
   induction t, none using tree_split_ind (compare k) <;>
-    simp only [*, getEntryLE?.go, getEntryLE, getEntryLED, ← Option.or_some',
+    simp only [*, getEntryLE?.go, getEntryLE, getEntryLED, ← Option.or_some,
       getEntryLE?.eq_go] <;> contradiction
 
 theorem some_getEntryLT_eq_getEntryLT? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
     some (getEntryLT k t ho he) = getEntryLT? k t := by
   rw [getEntryLT?]; apply of_eq_true
   induction t, none using tree_split_ind (compare k) <;>
-    simp only [*, getEntryLT?.go, getEntryLT, getEntryLTD, ← Option.or_some',
+    simp only [*, getEntryLT?.go, getEntryLT, getEntryLTD, ← Option.or_some,
       getEntryLT?.eq_go, ↓reduceDIte, reduceCtorEq] <;> contradiction
 
 theorem getKeyGE?_eq_getEntryGE? [Ord α] {t : Impl α β} {k : α} :

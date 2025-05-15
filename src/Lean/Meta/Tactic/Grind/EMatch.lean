@@ -104,7 +104,23 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
   else if pArg.isBVar then
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
-    guard (← isEqv pArg eArg <||> withReducible (isDefEq pArg eArg))
+    /-
+    We need to use `withReducibleAndIntances` because ground patterns are often instances.
+    Here is an example
+    ```
+    instance : Max Nat where
+      max := Nat.max -- Redefined the instance
+
+    example (a : Nat) : max a a = a := by
+      grind
+    ```
+    Possible future improvements:
+    - When `diagnostics` is true, try with `withDefault` and report issue if it succeeds.
+    - (minor) Only use `withReducibleAndInstances` if the argument is an implicit instance.
+      Potential issue: some user write `{_ : Class α}` when the instance can be inferred from
+      explicit arguments.
+    -/
+    guard (← isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg))
     return c
   else if let some (pArg, k) := isOffsetPattern? pArg then
     assert! Option.isNone <| isOffsetPattern? pArg

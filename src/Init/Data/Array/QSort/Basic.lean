@@ -27,7 +27,7 @@ Internal implementation of `Array.qsort`.
 
 It does so by first swapping the elements at indices `lo`, `mid := (lo + hi) / 2`, and `hi`
 if necessary so that the middle (pivot) element is at index `hi`.
-We then iterate from `j = lo` to `j = hi`, with a pointer `i` starting at `lo`, and
+We then iterate from `k = lo` to `k = hi`, with a pointer `i` starting at `lo`, and
 swapping each element which is less than the pivot to position `i`, and then incrementing `i`.
 -/
 def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)

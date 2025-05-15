@@ -38,16 +38,16 @@ def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
   let as  := if lt as[mid] as[hi] then as.swap mid hi else as
   let pivot := as[hi]
   -- During this loop, elements below in `[lo, i)` are less than `pivot`,
-  -- elements in `[i, j)` are greater than or equal to `pivot`,
-  -- elements in `[j, hi)` are unexamined,
+  -- elements in `[i, k)` are greater than or equal to `pivot`,
+  -- elements in `[k, hi)` are unexamined,
   -- while `as[hi]` is (by definition) the pivot.
-  let rec loop (as : Vector α n) (i j : Nat)
-      (ilo : lo ≤ i := by omega) (jh : j < n := by omega) (w : i ≤ j := by omega) :=
-    if h : j < hi then
-      if lt as[j] pivot then
-        loop (as.swap i j) (i+1) (j+1)
+  let rec loop (as : Vector α n) (i k : Nat)
+      (ilo : lo ≤ i := by omega) (kh : k < n := by omega) (w : i ≤ k := by omega) :=
+    if h : k < hi then
+      if lt as[k] pivot then
+        loop (as.swap i k) (i+1) (k+1)
       else
-        loop as i (j+1)
+        loop as i (k+1)
     else
       (⟨i, ilo, by omega⟩, as.swap i hi)
   loop as lo lo

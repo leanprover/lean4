@@ -145,7 +145,7 @@
         lean --run ${f%.args} $(cat $f)
       done
       '
-    max_runs: 5
+    max_runs: 2
 - attributes:
     description: binarytrees
     tags: [fast, suite]
@@ -191,6 +191,7 @@
       lake -flakefile-clean.lean clean
       lake -flakefile-clean.lean build
       "
+    max_runs: 2
   build_config:
     cmd: |
       bash -c "
@@ -412,6 +413,7 @@
   run_config:
     <<: *time
     cmd: lean workspaceSymbols.lean
+    max_runs: 2
 - attributes:
     description: bv_decide_realworld
     tags: [fast]
@@ -430,12 +432,14 @@
   run_config:
     <<: *time
     cmd: lean bv_decide_mod.lean
+    max_runs: 2
 - attributes:
     description: bv_decide_inequality.lean
     tags: [fast]
   run_config:
     <<: *time
     cmd: lean bv_decide_inequality.lean
+    max_runs: 2
 - attributes:
     description: bv_decide_large_aig.lean
     tags: [fast]
@@ -481,3 +485,4 @@
   run_config:
     <<: *time
     cmd: lean riscv-ast.lean
+    max_runs: 2

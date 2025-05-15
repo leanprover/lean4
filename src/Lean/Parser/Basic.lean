@@ -1610,7 +1610,7 @@ Specifies how the parsing table lookup function behaves for identifiers.
 The function `Lean.Parser.prattParser` uses two tables: one each for leading and trailing parsers.
 These tables map tokens to parsers. Because keyword tokens are distinct from identifier tokens,
 keywords and identifiers cannot be confused, even when they are syntactically identical.
-Specifying an alternative leading identifier behavior allows greater flexiblity and makes it
+Specifying an alternative leading identifier behavior allows greater flexibility and makes it
 possible to avoid reserved keywords in some situations.
 
 When the leading token is syntactically an identifier, the current syntax category's

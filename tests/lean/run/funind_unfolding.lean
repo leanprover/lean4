@@ -558,3 +558,33 @@ info: with_bif_tailrec.induct_unfolding (motive : Nat → Nat → Prop) (case1 :
 -/
 #guard_msgs in
 #check with_bif_tailrec.induct_unfolding
+
+
+def binaryWithMatch (a b : Nat) :=
+  match h : decide (a < b) with
+  | true => 1 + binaryWithMatch (a - 1) (b - 1)
+  | false => 0
+termination_by b
+decreasing_by simp at h; omega
+
+/--
+info: binaryWithMatch.induct_unfolding (motive : Nat → Nat → Nat → Prop)
+  (case1 :
+    ∀ (a b : Nat),
+      decide (a < b) = true →
+        motive (a - 1) (b - 1) (binaryWithMatch (a - 1) (b - 1)) →
+          motive a b
+            (match h : decide (a < b) with
+            | true => 1 + binaryWithMatch (a - 1) (b - 1)
+            | false => 0))
+  (case2 :
+    ∀ (a b : Nat),
+      decide (a < b) = false →
+        motive a b
+          (match h : decide (a < b) with
+          | true => 1 + binaryWithMatch (a - 1) (b - 1)
+          | false => 0))
+  (a b : Nat) : motive a b (binaryWithMatch a b)
+-/
+#guard_msgs in
+#check binaryWithMatch.induct_unfolding

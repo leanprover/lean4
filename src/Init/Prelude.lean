@@ -1451,6 +1451,15 @@ class Div (α : Type u) where
   /-- `a / b` computes the result of dividing `a` by `b`. See `HDiv`. -/
   div : α → α → α
 
+/--
+The notation typeclass for inverses.
+This enables the notation `a⁻¹ : α` where `a : α`.
+-/
+class Inv (α : Type u) where
+  /-- `a⁻¹` computes the inverse of `a`.
+  The meaning of this notation is type-dependent. -/
+  inv : α → α
+
 /-- The homogeneous version of `HMod`: `a % b : α` where `a b : α`. -/
 class Mod (α : Type u) where
   /-- `a % b` computes the remainder upon dividing `a` by `b`. See `HMod`. -/
@@ -1652,7 +1661,7 @@ instance instAddNat : Add Nat where
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
-attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg Mul.mul HMul.hMul
+attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg Mul.mul HMul.hMul Inv.inv
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1818,7 +1827,7 @@ theorem Nat.succ_pos (n : Nat) : LT.lt 0 (succ n) :=
 
 set_option bootstrap.genMatcherCode false in
 /--
-The predecessor of a natural number is one less than it. The precedessor of `0` is defined to be
+The predecessor of a natural number is one less than it. The predecessor of `0` is defined to be
 `0`.
 
 This definition is overridden in the compiler with an efficient implementation. This definition is
@@ -1958,7 +1967,7 @@ instance instSubNat : Sub Nat where
   sub := Nat.sub
 
 /--
-Gets the word size of the curent platform. The word size may be 64 or 32 bits.
+Gets the word size of the current platform. The word size may be 64 or 32 bits.
 
 This function is opaque because there is no guarantee at compile time that the target will have the
 same word size as the host. It also helps avoid having type checking be architecture-dependent.
@@ -3409,7 +3418,7 @@ instance {ε : Type u} {α : Type v} [Inhabited ε] : Inhabited (Except ε α) w
 Exception monads provide the ability to throw errors and handle errors.
 
 In this class, `ε` is a `semiOutParam`, which means that it can influence the choice of instance.
-`MonadExcept ε` provides the same operations, but requires that `ε` be inferrable from `m`.
+`MonadExcept ε` provides the same operations, but requires that `ε` be inferable from `m`.
 
 `tryCatchThe`, which takes an explicit exception type, is used to desugar `try ... catch ...` steps
 inside `do`-blocks when the handlers have type annotations.
@@ -3589,7 +3598,7 @@ be read, but not written. A `MonadWithReader ρ` instance additionally allows th
 overridden for a sub-computation.
 
 In this class, `ρ` is a `semiOutParam`, which means that it can influence the choice of instance.
-`MonadReader ρ` provides the same operations, but requires that `ρ` be inferrable from `m`.
+`MonadReader ρ` provides the same operations, but requires that `ρ` be inferable from `m`.
 -/
 -- Note: This class can be seen as a simplification of the more "principled" definition
 -- ```
@@ -3641,7 +3650,7 @@ instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (Rea
 A reader monad that additionally allows the value to be locally overridden.
 
 In this class, `ρ` is a `semiOutParam`, which means that it can influence the choice of instance.
-`MonadWithReader ρ` provides the same operations, but requires that `ρ` be inferrable from `m`.
+`MonadWithReader ρ` provides the same operations, but requires that `ρ` be inferable from `m`.
 -/
 class MonadWithReaderOf (ρ : semiOutParam (Type u)) (m : Type u → Type v) where
   /--
@@ -3698,7 +3707,7 @@ Instances may implement these operations by passing state values around, by usin
 reference cell (e.g. `ST.Ref σ`), or in other ways.
 
 In this class, `σ` is a `semiOutParam`, which means that it can influence the choice of instance.
-`MonadState σ` provides the same operations, but requires that `σ` be inferrable from `m`.
+`MonadState σ` provides the same operations, but requires that `σ` be inferable from `m`.
 
 The mutable state of a state monad is visible between multiple `do`-blocks or functions, unlike
 [local mutable state](lean-manual://section/do-notation-let-mut) in `do`-notation.

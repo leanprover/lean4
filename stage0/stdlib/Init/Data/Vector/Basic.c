@@ -4739,7 +4739,7 @@ x_10 = l_Vector_swapAt_x21___rarg___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_Vector_swapAt_x21___rarg___closed__3;
 x_13 = l_Vector_swapAt_x21___rarg___closed__4;
-x_14 = lean_unsigned_to_nat(438u);
+x_14 = lean_unsigned_to_nat(434u);
 x_15 = lean_unsigned_to_nat(4u);
 x_16 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_12, x_13, x_14, x_15, x_11);
 lean_dec(x_11);

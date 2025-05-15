@@ -23,7 +23,7 @@ the final bitvector.
 It produces a sequence of state values `[s_0, s_1 .. s_w]` and a bitvector `v` where `f i s_i =
 (s_{i+1}, b_i)` and `b_i` is bit `i`th least-significant bit in `v` (e.g., `getLsb v i = b_i`).
 
-The theorem `iunfoldr_replace` allows uses of `BitVec.iunfoldr` to be replaced wiht declarative
+The theorem `iunfoldr_replace` allows uses of `BitVec.iunfoldr` to be replaced with declarative
 specifications that are easier to reason about.
 -/
 def iunfoldr (f : Fin w → α → α × Bool) (s : α) : α × BitVec w :=

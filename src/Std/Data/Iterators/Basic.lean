@@ -122,14 +122,18 @@ theorem PlausibleIterStep.map_id {plausible_step : IterStep α β → Prop}
 
 end IterStep
 
+section Typeclasses
+
 class Iterator (α : Type w) (m : Type w → Type w') (β : outParam (Type w)) where
   plausible_step : IterM (α := α) m β → IterStep (IterM (α := α) m β) β → Prop
   step : (it : IterM (α := α) m β) → m (PlausibleIterStep <| plausible_step it)
 
+end Typeclasses
+
 section Monadic
 
 @[always_inline, inline]
-def toIter {α : Type w} (it : α) (m : Type w → Type w') (β : Type v) :
+def toIter {α : Type w} (it : α) (m : Type w → Type w') (β : Type w) :
     IterM (α := α) m β :=
   ⟨it⟩
 

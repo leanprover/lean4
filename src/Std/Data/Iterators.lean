@@ -4,7 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterator.Basic
+import Std.Data.Iterators.Basic
+import Std.Data.Iterators.Producers
+import Std.Data.Iterators.Consumers
+import Std.Data.Iterators.Workbench
 
 /-!
 # Iterators

@@ -1773,16 +1773,6 @@ theorem msb_neg_umod_neg_of_msb_true_of_msb_true
   simp only [bool_to_prop]
   simp [hy]
 
-theorem getElem_true_le (x : BitVec w) (i : Nat) (h : i < w) :
-    x[i] →  2 ^ i ≤ x.toNat := by
-  rcases w with rfl | w
-  · omega
-  · simp [← getLsbD_eq_getElem, getLsbD, Nat.testBit_eq_decide_div_mod_eq, Nat.succ_sub_succ_eq_sub,
-      Nat.sub_zero]
-    rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ i)) with h'' | h''
-    · simp [Nat.div_eq_of_lt h'', h'']
-    · simp [h'']
-
 theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
     (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) &&
     decide (-x < -y)) := by

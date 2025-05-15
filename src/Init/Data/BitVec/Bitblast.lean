@@ -1932,10 +1932,8 @@ theorem toInt_smod {x y : BitVec w} :
               rw_mod_cast [← toNat_umod, humod] at hdvdiff
               simp only [hdvdiff, _root_.or_true, ↓reduceIte]
             · by_cases hyintmin : y = intMin (w + 1)
-              · -- y = intMin
-                by_cases hxintmin : x = intMin (w + 1)
-                · -- y = intMin, x = intMin
-                  simp [hxintmin, hyintmin]
+              · by_cases hxintmin : x = intMin (w + 1)
+                ·  simp [hxintmin, hyintmin]
                 · -- y = intMin, x ≠ intMin
                   have hynonneg : 0 ≤ ((-y).toNat : Int) := by omega
                   have hxnegmsb : (-x).msb = false := by simp_all
@@ -1975,21 +1973,14 @@ theorem toInt_smod {x y : BitVec w} :
                   have : ¬ 2 ^ w ∣ 2 ^ (w + 1) - x.toNat := by simp [this]
                   simp [-toNat_neg, this]
                   omega
-              · -- y ≠ intMin
-                have hymsbneg : (-y).msb = false := by simp_all
+              · have hymsbneg : (-y).msb = false := by simp_all
                 have hyneglt := toNat_lt_of_msb_false hymsbneg
-                rw [Int.bmod_eq_of_le]
-                · rw [Int.neg_emod]
-                  omega
-                · norm_cast
-                  simp only [Nat.add_one_sub_one] at hyneglt
-                  have hmodlt := Nat.mod_lt (y := (-y).toNat) (x := (-x).toNat) (by
-                  simp only [toNat_neg, gt_iff_lt]
-                  rw [Nat.mod_eq_of_lt (by simp [toNat_eq] at hyzero; omega)]
-                  omega)
-                  have := Nat.mod_lt (x := (-x).toNat) (y := (-y).toNat) (by omega)
-                  omega
-                · omega
+                simp only [Nat.add_one_sub_one] at hyneglt
+                have hmodlt := Nat.mod_lt (y := (-y).toNat) (x := (-x).toNat)
+                  (by rw [← neg_eq_zero_iff, toNat_eq, toNat_ofNat, zero_mod] at hyzero
+                      omega)
+                rw [Int.bmod_eq_of_le (by omega) (by omega), Int.neg_emod]
+                omega
 
 /-! ### Lemmas that use bit blasting circuits -/
 

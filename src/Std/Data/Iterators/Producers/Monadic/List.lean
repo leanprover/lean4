@@ -23,7 +23,7 @@ The iterator yields the elements of the list in order and then terminates.
 @[always_inline, inline]
 def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure m] :
     IterM (α := ListIterator α) m α :=
-  toIter { list := l } m α
+  toIterM { list := l } m α
 
 @[always_inline, inline]
 instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
@@ -33,7 +33,7 @@ instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
     | .done => it.inner.list = []
   step it := pure (match it with
         | ⟨⟨[]⟩⟩ => ⟨.done, rfl⟩
-        | ⟨⟨x :: xs⟩⟩ => ⟨.yield (toIter ⟨xs⟩ m α) x, rfl⟩)
+        | ⟨⟨x :: xs⟩⟩ => ⟨.yield (toIterM ⟨xs⟩ m α) x, rfl⟩)
 
 instance [Pure m] : FinitenessRelation (ListIterator α) m where
   rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.inner)

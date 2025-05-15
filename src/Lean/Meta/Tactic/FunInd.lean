@@ -1091,17 +1091,20 @@ In the type of `value`, reduces
 * `PSum.casesOn (PSum.inl x) k₁ k₂                    -->  k₁ x`
 * `foo._unary (PSum.inl (PSigma.mk a b))              -->  foo a b`
 and then wraps `value` in an appropriate type hint.
+
+(The implementation is repetitive and verbose, and should be cleaned up when convenient.)
 -/
 def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
   let type ← inferType value
-  let cleanType ← Meta.transform type (skipConstInApp := true) (pre := fun e => do
+  let cleanType ← Meta.transform type (skipConstInApp := true) (post := fun e => do
     -- Need to beta-reduce first
     let e' := e.headBeta
     if e' != e then
       return .visit e'
+
+    e.withApp fun f args => do
     -- Look for PSigma redexes
-    if e.isAppOf ``PSigma.casesOn then
-      let args := e.getAppArgs
+    if f.isConstOf ``PSigma.casesOn then
       if 5 ≤ args.size then
         let scrut := args[3]!
         let k := args[4]!
@@ -1110,9 +1113,32 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
           let #[_, _, x, y] := scrut.getAppArgs | unreachable!
           let e' := (k.beta #[x, y]).beta extra
           return .visit e'
+    -- Look for PSigma projection
+    if f.isConstOf ``PSigma.fst then
+      if h : 3 ≤ args.size then
+        let scrut := args[2]
+        let extra := args[3:]
+        if scrut.isAppOfArity ``PSigma.mk 4 then
+          let #[_, _, x, _y] := scrut.getAppArgs | unreachable!
+          let e' := x.beta extra
+          return .visit e'
+    if f.isConstOf ``PSigma.snd then
+      if h : 3 ≤ args.size then
+        let scrut := args[2]
+        let extra := args[3:]
+        if scrut.isAppOfArity ``PSigma.mk 4 then
+          let #[_, _, _x, y] := scrut.getAppArgs | unreachable!
+          let e' := y.beta extra
+          return .visit e'
+    if f.isProj then
+      let scrut := e.projExpr!
+      if scrut.isAppOfArity ``PSigma.mk 4 then
+        let #[_, _, x, y] := scrut.getAppArgs | unreachable!
+        let e' := (if e.projIdx! = 0 then x else y).beta args
+        return .visit e'
+
     -- Look for PSum redexes
-    if e.isAppOf ``PSum.casesOn then
-      let args := e.getAppArgs
+    if f.isConstOf ``PSum.casesOn then
       if 6 ≤ args.size then
         let scrut := args[3]!
         let k₁ := args[4]!
@@ -1125,8 +1151,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
           let e' := (k₂.beta #[scrut.appArg!]).beta extra
           return .visit e'
     -- Look for _unary redexes
-    if e.isAppOf eqnInfo.declNameNonRec then
-      let args := e.getAppArgs
+    if f.isConstOf eqnInfo.declNameNonRec then
       if h : args.size ≥ eqnInfo.fixedParamPerms.numFixed + 1 then
         let xs := args[:eqnInfo.fixedParamPerms.numFixed]
         let packedArg := args[eqnInfo.fixedParamPerms.numFixed]

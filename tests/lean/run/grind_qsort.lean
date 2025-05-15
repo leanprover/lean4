@@ -100,12 +100,12 @@ attribute [grind] Vector.Perm.extract'
   grind [qsort]
 
 private theorem qpartition_loop_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
-    (hhi : hi < n) (ilo : lo ≤ i) (ik : i ≤ k) (w : k < n) :
+    (hhi : hi < n) (ilo : lo ≤ i) (ik : i ≤ k) (w : k ≤ hi) :
     (qpartition.loop lt lo hi hhi pivot as i k).2 ~ as := by
   fun_induction qpartition.loop with grind
 
 @[local grind]
-private theorem qpartition_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
+private theorem qpartition_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (w : lo ≤ hi)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) :
     (qpartition as lt lo hi).2 ~ as := by
   unfold qpartition
@@ -115,9 +115,9 @@ private theorem qpartition_perm (as : Vector α n) (lt : α → α → Bool) (lo
   | grind
   | refine Vector.Perm.trans (Vector.swap_perm ..) ?_
 
-private theorem qsort_sort_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
+private theorem qsort_sort_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (w : lo ≤ hi)
     (hlo : lo < n) (hhi : hi < n) :
-    qsort.sort lt as lo hi hlo hhi ~ as := by
+    qsort.sort lt as lo hi w hlo hhi ~ as := by
   -- TODO: try `fun_induction` here,
   -- but only after `fun_induction` takes care of more unfolding and splitting!
   unfold qsort.sort
@@ -132,14 +132,14 @@ private theorem qsort_sort_perm (as : Vector α n) (lt : α → α → Bool) (lo
       grind
   · grind
 
-grind_pattern qsort_sort_perm => qsort.sort lt as lo hi hlo hhi
+grind_pattern qsort_sort_perm => qsort.sort lt as lo hi w hlo hhi
 
 theorem qsort_perm (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
     qsort as lt lo hi ~ as := by
   grind [qsort]
 
 private theorem getElem_qpartition_loop_snd_of_lt_lo (lt : α → α → Bool) (lo hi : Nat)
-    (hhi : hi < n) (pivot : α) (as : Vector α n) (i k : Nat) (ilo : lo ≤ i) (ik : i ≤ k) (w : k < n) (w' : lo ≤ hi)
+    (hhi : hi < n) (pivot : α) (as : Vector α n) (i k : Nat) (ilo : lo ≤ i) (ik : i ≤ k) (w : k ≤ hi) (w' : lo ≤ hi)
     (l : Nat) (h : l < lo) : (qpartition.loop lt lo hi hhi pivot as i k).2[l] = as[l] := by
   fun_induction qpartition.loop <;> grind
 
@@ -169,7 +169,7 @@ private theorem getElem_qpartition_snd_of_lt_lo (lt : α → α → Bool) (as : 
 
 private theorem getElem_qpartition_loop_snd_of_hi_lt (lt : α → α → Bool) (lo hi : Nat)
     (hhi : hi < n) (pivot) (as : Vector α n) (i k)
-    (ilo : lo ≤ i) (ik : i ≤ k) (w : k < n) (w' : lo ≤ hi) (z : i ≤ hi)
+    (ilo : lo ≤ i) (ik : i ≤ k) (w : k ≤ hi) (w' : lo ≤ hi) (z : i ≤ hi)
     (l : Nat) (h : hi < l) (h' : l < n) : (qpartition.loop lt lo hi hhi pivot as i k).2[l] = as[l] := by
   fun_induction qpartition.loop <;> grind
 
@@ -179,7 +179,7 @@ private theorem getElem_qpartition_snd_of_hi_lt (lt : α → α → Bool) (as : 
   grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
 
 @[local grind] private theorem getElem_qsort_sort_of_hi_lt
-    (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
+    (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat) (w : lo ≤ hi)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi)[i] = as[i] := by
   fun_induction qsort.sort
@@ -270,7 +270,7 @@ We prove two preliminary lemmas about `qpartition.loop`.
 
 /-- If we already have `i < k`, then we're sure to return something less than `hi`. -/
 private theorem qpartition_loop_lt_hi₁
-    (h : lo < hi) (ilo : lo ≤ i) (ik : i < k) (w : k < n) (z : k ≤ hi) (ik' : i ≤ k) :
+    (h : lo < hi) (ilo : lo ≤ i) (ik : i < k) (w : k ≤ hi) (z : k ≤ hi) (ik' : i ≤ k) :
     (qpartition.loop lt lo hi hhi pivot as i k).1.val < hi := by
   fun_induction qpartition.loop <;> grind
 

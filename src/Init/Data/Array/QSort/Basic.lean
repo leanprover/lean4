@@ -30,8 +30,8 @@ if necessary so that the middle (pivot) element is at index `hi`.
 We then iterate from `k = lo` to `k = hi`, with a pointer `i` starting at `lo`, and
 swapping each element which is less than the pivot to position `i`, and then incrementing `i`.
 -/
-def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
-    (hlo : lo < n := by omega) (hhi : hi < n := by omega) : {m : Nat // lo ≤ m ∧ m < n} × Vector α n :=
+def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (w : lo ≤ hi := by omega)
+    (hlo : lo < n := by omega) (hhi : hi < n := by omega) : {m : Nat // lo ≤ m ∧ m ≤ hi} × Vector α n :=
   let mid := (lo + hi) / 2
   let as  := if lt as[mid] as[lo] then as.swap lo mid else as
   let as  := if lt as[hi]  as[lo] then as.swap lo hi  else as
@@ -42,7 +42,7 @@ def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
   -- elements in `[k, hi)` are unexamined,
   -- while `as[hi]` is (by definition) the pivot.
   let rec loop (as : Vector α n) (i k : Nat)
-      (ilo : lo ≤ i := by omega) (ik : i ≤ k := by omega) (w : k < n := by omega) :=
+      (ilo : lo ≤ i := by omega) (ik : i ≤ k := by omega) (w : k ≤ hi := by omega) :=
     if h : k < hi then
       if lt as[k] pivot then
         loop (as.swap i k) (i+1) (k+1)
@@ -55,17 +55,17 @@ def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
 /--
 In-place quicksort.
 
-`qsort as lt low high` sorts the subarray `as[low:high+1]` in-place using `lt` to compare elements.
+`qsort as lt lo hi` sorts the subarray `as[lo:hi+1]` in-place using `lt` to compare elements.
 -/
 @[inline] def qsort (as : Array α) (lt : α → α → Bool := by exact (· < ·))
-    (low := 0) (high := as.size - 1) : Array α :=
-  let rec @[specialize] sort {n} (as : Vector α n) (lo hi : Nat)
+    (lo := 0) (hi := as.size - 1) : Array α :=
+  let rec @[specialize] sort {n} (as : Vector α n) (lo hi : Nat) (w : lo ≤ hi := by omega)
       (hlo : lo < n := by omega) (hhi : hi < n := by omega) :=
     if h₁ : lo < hi then
       let ⟨⟨mid, hmid⟩, as⟩ := qpartition as lt lo hi
       if h₂ : mid ≥ hi then
         -- This only occurs when `hi ≤ lo`,
-        -- and thus `as[low:high+1]` is trivially already sorted.
+        -- and thus `as[lo:hi+1]` is trivially already sorted.
         as
       else
         -- Otherwise, we recursively sort the two subarrays.
@@ -74,9 +74,9 @@ In-place quicksort.
   if h : as.size = 0 then
     as
   else
-    let low := min low (as.size - 1)
-    let high := min high (as.size - 1)
-    sort as.toVector low high |>.toArray
+    let lo := min lo (as.size - 1)
+    let hi := max lo (min hi (as.size - 1))
+    sort as.toVector lo hi |>.toArray
 
 set_option linter.unusedVariables.funArgs false in
 /--

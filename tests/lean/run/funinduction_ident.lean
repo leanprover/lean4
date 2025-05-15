@@ -20,7 +20,7 @@ theorem map_id (xs : List α) : map id xs = xs := by
 -- argument to `map` is `.dropped`. But since we use the unfolding lemma it doesn't anymore:
 
 /--
-error: found more than one suitable call of 'map' in the goal. Please include the desired arguments.
+error: Found more than one suitable call of 'map' in the goal. Please include the desired arguments.
 -/
 #guard_msgs in
 theorem map_map (f : α → β) (g : β → γ) xs :

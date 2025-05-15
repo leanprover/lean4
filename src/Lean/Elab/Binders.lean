@@ -9,8 +9,6 @@ import Lean.Elab.Term
 import Lean.Elab.BindersUtil
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.TerminationHint
-import Lean.Parser.Term
-import Lean.PrettyPrinter
 import Lean.Elab.Match
 
 namespace Lean.Elab.Term

@@ -195,12 +195,11 @@ error: Not enough patterns in match alternative: Expected 2, but found 1:
 error: type mismatch
   fun b => True
 has type
-  ?m.874 → Prop : Sort (max 1 ?u.873)
+  ?m.892 → Prop : Sort (max 1 ?u.891)
 but is expected to have type
   Prop : Type
 -/
 #guard_msgs in
-def matchTooFewFn : Foo → Foo → Prop :=
-  λ a b =>
+def matchTooFewFn : Foo → Foo → Prop := fun a b =>
   match a, b with
   | _ => fun b => True

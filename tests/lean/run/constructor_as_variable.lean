@@ -87,7 +87,7 @@ inductive MyProd where
   | construct : Nat → Nat → MyProd
 
 /--
-error: Invalid pattern: Constructor or constant marked with `[match_pattern]` expected
+error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
 Hint: 'MyProd.construct' is similar
 -/
@@ -98,7 +98,7 @@ def ctorSuggestion1 (pair : MyProd) : Nat :=
 
 -- This test is a realistic situation if a user doesn't know how Lean namespaces work
 /--
-error: Invalid pattern: Constructor or constant marked with `[match_pattern]` expected
+error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
 Hint: These are similar:
   'List.Lex.below.cons',
@@ -126,7 +126,7 @@ inductive StringList : Type where
   | cons (s : String) (ss : StringList)
 
 /--
-error: Invalid pattern: Constructor or constant marked with `[match_pattern]` expected
+error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
 Hint: These are similar:
   'List.Lex.below.cons',
@@ -151,9 +151,7 @@ def ctorSuggestion3 (list : List α) : Nat :=
 
 -- There isn't always a suggestion to provide
 
-/--
-error: Invalid pattern: Constructor or constant marked with `[match_pattern]` expected
--/
+/-- error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]` -/
 #guard_msgs in
 def ctorNoSuggestion (x : α) :=
   match x with

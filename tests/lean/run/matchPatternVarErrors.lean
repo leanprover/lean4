@@ -24,7 +24,7 @@ def T.mixNamedPositional₂ : T → Unit
 /--
 error: Invalid pattern: Not enough arguments to 'imp'; expected 3 arguments
 
-Hint: To elide all remaining arguments, use the ellipsis notation `..`
+Hint: To ignore all remaining arguments, use the ellipsis notation `..`
 -/
 #guard_msgs in
 def T.mixNamedPositional₃ : T → Unit

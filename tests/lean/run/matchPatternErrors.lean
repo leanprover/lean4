@@ -4,7 +4,7 @@ This file tests various error messages in invalid match patterns.
 -/
 
 /--
-error: Invalid match-expression: This pattern contains metavariables:
+error: Invalid match expression: This pattern contains metavariables:
   []
 -/
 #guard_msgs in
@@ -31,9 +31,9 @@ def compVarName : Unit × Unit → Unit
   | (_, x.y) => x.y
 
 /--
-error: Redundant alternative: Expressions matching
+error: Redundant alternative: Any expression matching
   x✝¹, x✝
-will always match one of the preceding alternatives
+will match one of the preceding alternatives
 -/
 #guard_msgs in
 def redundantMatch (T : Type) (P : Prop) :=

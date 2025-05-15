@@ -464,8 +464,6 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       withReuseContext header.value do
       withTraceNode `Elab.definition.value (fun _ => pure header.declName) do
       withDeclName header.declName <| withLevelNames header.levelNames do
-      -- FIXME: the below is too naive: we shouldn't generate a match that has more patterns than
-      -- the expected type
       let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do

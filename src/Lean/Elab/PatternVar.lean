@@ -16,7 +16,7 @@ abbrev PatternVar := Syntax  -- TODO: should be `Ident`
 
 /-!
   Patterns define new local variables.
-  This module collect them and preprocess `_` occurring in patterns.
+  This module collects them and preprocesses `_` occurring in patterns.
   Recall that an `_` may represent anonymous variables or inaccessible terms
   that are implied by typing constraints. Thus, we represent them with fresh named holes `?x`.
   After we elaborate the pattern, if the metavariable remains unassigned, we transform it into
@@ -49,7 +49,7 @@ abbrev M := StateRefT State TermElabM
 
 private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
   let message : MessageData :=
-    "Invalid pattern: Constructor or constant marked with `[match_pattern]` expected"
+    "Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`"
   let some idStx := ident | throwError message
   let name := idStx.getId
   if let .anonymous := name then throwError message
@@ -79,19 +79,19 @@ where
   -- makes infoview hovers and the like work. This technique only works because the names are known
   -- to be global constants, so we don't need the local context.
   showName (env : Environment) (n : Name) : MessageData :=
-      let params :=
-        env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
-      .ofFormatWithInfos {
-        fmt := "'" ++ .tag 0 (format n) ++ "'",
-        infos :=
-          .fromList [(0, .ofTermInfo {
-            lctx := .empty,
-            expr := .const n params,
-            stx := .ident .none (toString n).toSubstring n [.decl n []],
-            elaborator := `Delab,
-            expectedType? := none
-          })] _
-      }
+    let params :=
+      env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
+    .ofFormatWithInfos {
+      fmt := "'" ++ .tag 0 (format n) ++ "'",
+      infos :=
+        .fromList [(0, .ofTermInfo {
+          lctx := .empty,
+          expr := .const n params,
+          stx := .ident .none (toString n).toSubstring n [.decl n []],
+          elaborator := `Delab,
+          expectedType? := none
+        })] _
+    }
 
 private def throwInvalidPattern {α} : M α :=
   throwError "Invalid pattern"
@@ -107,7 +107,7 @@ An application in a pattern can be
 -/
 
 structure Context where
-  funId         : Term
+  funId         : Ident
   ctorVal?      : Option ConstructorVal -- It is `some`, if constructor application
   explicit      : Bool
   ellipsis      : Bool
@@ -132,9 +132,10 @@ private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
   let argKind := if ctx.explicit then "" else "explicit "
   let argWord := if numExpectedArgs == 1 then "argument" else "arguments"
   let discrepancyKind := if tooMany then "Too many" else "Not enough"
-  let mut msg := m!"Invalid pattern: {discrepancyKind} arguments to '{ctx.funId}'; expected {numExpectedArgs} {argKind}{argWord}"
+  let mut msg := m!"Invalid pattern: {discrepancyKind} arguments to '{ctx.funId}'; \
+    expected {numExpectedArgs} {argKind}{argWord}"
   if !tooMany then
-    msg := msg ++ .hint' "To elide all remaining arguments, use the ellipsis notation `..`"
+    msg := msg ++ .hint' "To ignore all remaining arguments, use the ellipsis notation `..`"
   throwError msg
 
 private def isDone (ctx : Context) : Bool :=
@@ -142,7 +143,7 @@ private def isDone (ctx : Context) : Bool :=
 
 private def finalize (ctx : Context) : M Syntax := do
   if ctx.namedArgs.isEmpty && ctx.args.isEmpty then
-    let fStx ← `(@$(ctx.funId))
+    let fStx ← `(@$(ctx.funId):ident)
     return Syntax.mkApp fStx ctx.newArgs
   else if ctx.args.isEmpty then
     throwInvalidNamedArgs ctx.namedArgs ctx.funId
@@ -188,7 +189,6 @@ private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool 
 open TSyntax.Compat in
 partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroScope do
   let k := stx.getKind
-  trace[Elab.match] "collecting patternVars at syntax of kind {k}: {stx}"
   if k == identKind then
     processId stx
   else if k == ``Lean.Parser.Term.app then

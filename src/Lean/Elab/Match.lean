@@ -77,7 +77,6 @@ structure ElabMatchTypeAndDiscrsResult where
 
 private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptMotive : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
       : TermElabM ElabMatchTypeAndDiscrsResult := do
-  trace[Elab.match] m!"elabMatchType {discrStxs} expecting {expectedType}"
   if matchOptMotive.isNone then
     elabDiscrs 0 #[]
   else
@@ -117,7 +116,6 @@ where
 
   /-- Elaborate discriminants inferring the match-type -/
   elabDiscrs (i : Nat) (discrs : Array Discr) : TermElabM ElabMatchTypeAndDiscrsResult := do
-    trace[Elab.match] "elabDiscrs {i} {discrs.map fun d => d.expr}"
     if h : i < discrStxs.size then
       let discrStx := discrStxs[i]
       let discr     ← elabAtomicDiscr discrStx
@@ -144,10 +142,8 @@ where
       -/
       let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
       let matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody
-      trace[Elab.match] m!"elabMatchType update type:{indentExpr matchType}"
       return { result with matchType }
     else
-      trace[Elab.match] m!"elabMatchType base case:{indentExpr expectedType}"
       return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
 
 def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
@@ -891,7 +887,6 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
         let discrs := discrs ++  ys.map fun y => { expr := y : Discr }
         let altViews ← altViews.mapM fun altView => do
           let patternVars ← getPatternsVars altView.patterns
-          trace[Elab.match] "Got pattern vars: {patternVars}"
           -- We traverse backwards because we want to keep the most recent names.
           -- For example, if `ys` contains `#[h, h]`, we want to make sure `mkFreshUsername is applied to the first `h`,
           -- since it is already shadowed by the second.
@@ -1024,6 +1019,17 @@ register_builtin_option match.ignoreUnusedAlts : Bool := {
   descr := "if true, do not generate error if an alternative is not used"
 }
 
+/--
+Constructs a "redundant alternative" error message.
+
+Optionally accepts the name of the constructor (e.g., for use in the `induction` tactic) and/or the
+message-data representation of the alternative in question.
+-/
+def mkRedundantAlternativeMsg (altName? : Option Name) (altMsg? : Option MessageData) : MessageData :=
+  let altName := altName?.map (m!" '{toMessageData ·}'") |>.getD ""
+  let altMsg := altMsg?.map (indentD · ++ m!"\n") |>.getD " this pattern "
+  m!"Redundant alternative{altName}: Any expression matching{altMsg}will match one of the preceding alternatives"
+
 def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) : TermElabM Unit := do
   unless result.counterExamples.isEmpty do
     withHeadRefOnly <| logError m!"Missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
@@ -1035,7 +1041,7 @@ def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) :
         withRef alt.ref do withInPattern do withExistingLocalDecls alt.fvarDecls do
           let pats ← alt.patterns.mapM fun p => return toMessageData (← Pattern.toExpr p)
           let pats := MessageData.joinSep pats ", "
-          logError m!"Redundant alternative: Expressions matching{indentD pats}\nwill always match one of the preceding alternatives"
+          logError (mkRedundantAlternativeMsg none pats)
       i := i + 1
 
 /--
@@ -1112,21 +1118,19 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
             withExistingLocalDecls altLHS.fvarDecls do
               runPendingTacticsAt d.type
               if (← instantiateMVars d.type).hasExprMVar then
-                throwMVarError m!"Invalid match-expression: The type of pattern variable '{d.toExpr}' contains metavariables:{indentExpr d.type}"
+                throwMVarError m!"Invalid match expression: The type of pattern variable '{d.toExpr}' contains metavariables:{indentExpr d.type}"
         for p in altLHS.patterns do
           if (← Match.instantiatePatternMVars p).hasExprMVar then
             tryPostpone
             withExistingLocalDecls altLHS.fvarDecls do
-              throwMVarError m!"Invalid match-expression: This pattern contains metavariables:{indentExpr (← p.toExpr)}"
+              throwMVarError m!"Invalid match expression: This pattern contains metavariables:{indentExpr (← p.toExpr)}"
         pure altLHS
     return (discrs, matchType, altLHSS, isDep, rhss)
   if let some r ← if isDep then pure none else isMatchUnit? altLHSS rhss then
-    trace[Elab.match] m!"discrs: is match unit"
     return r
   else
     let numDiscrs := discrs.size
     let matcherName ← mkAuxName `match
-    trace[Elab.match] m!"discrs: {discrs.map fun d => d.expr}"
     let matcherResult ← mkMatcher { matcherName, matchType, discrInfos := discrs.map fun discr => { hName? := discr.h?.map (·.getId) }, lhss := altLHSS }
     reportMatcherResultErrors altLHSS matcherResult
     matcherResult.addMatcher

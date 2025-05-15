@@ -20,7 +20,7 @@ namespace Lean.Meta.Match
 private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
     (discrepancyKind : String) (expected actual : Nat) (pats : List α) :=
   let patternsMsg := MessageData.joinSep (pats.map toMessageData) ", "
-  m!"{discrepancyKind} patterns in match alternative: expected {expected}, \
+  m!"{discrepancyKind} patterns in match alternative: Expected {expected}, \
     but found {actual}:{indentD patternsMsg}"
 
 /--
@@ -300,7 +300,7 @@ where
         let targetType ← mvarId.getType
         unless (← isDefEqGuarded targetType eType) do
           trace[Meta.Match.match] "assignGoalOf failed {eType} =?= {targetType}"
-          throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it has type{indentExpr eType}\nbut was expected to have type{indentExpr targetType}"
+          throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it {← mkHasTypeButIsExpectedMsg eType targetType}"
         mvarId.assign alt.rhs
         modify fun s => { s with used := s.used.insert alt.idx }
         return true

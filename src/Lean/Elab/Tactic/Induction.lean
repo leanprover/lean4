@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.FunIndCollect
 import Lean.Meta.GeneralizeVars
 import Lean.Elab.App
+import Lean.Elab.Match
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Generalize
 
@@ -268,7 +269,7 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
   for h : i in [:altsSyntax.size] do
     let altStx := altsSyntax[i]
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
-      withRef altStx <| throwError "Invalid occurrence of wildcard alternative: It must be the last alternative"
+      withRef altStx <| throwError "Invalid occurrence of the wildcard alternative `| _ => ...`: It must be the last alternative"
     let altName := getAltName altStx
     if altName != `_ then
       if seenNames.contains altName then
@@ -296,7 +297,7 @@ private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM 
     -- `forallMetaBoundTelescope` will reduce let-bindings, so we don't just count how many
     -- explicit binders are in `bis`, but how many implicit ones.
     -- If this turns out to be insufficient, then the real (and complicated) logic for which
-    -- arguments are explicit or implicit can be found in  `introNImp`,
+    -- arguments are explicit or implicit can be found in `introNImp`,
     let (_, bis, _) ← forallMetaBoundedTelescope target numFields
     let numImplicits := (bis.filter (!·.isExplicit)).size
     return numFields - numImplicits
@@ -411,8 +412,7 @@ where
           applyAltStx tacSnaps altStxs altStxIdx altStx alt
         alts := #[]
       else
-        throwErrorAt altStx "Unused alternative '{altName}': \
-          Expressions matching this pattern will always match a preceding alternative"
+        throwErrorAt altStx (Term.mkRedundantAlternativeMsg altName none)
 
     -- now process remaining alternatives; these might either be unreachable or we're in `induction`
     -- without `with`. In all other cases, remaining alternatives are flagged as errors.
@@ -664,9 +664,9 @@ private def checkAltsOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Un
       let n := getAltName alt
       if n == `_ then
         unless (getAltVars alt).isEmpty do
-          throwErrorAt alt "Wildcard alternative must not specify variable names"
+          throwErrorAt alt "The wildcard alternative `| _ => ...` must not specify variable names"
         if found then
-          throwErrorAt alt "More than one wildcard alternative '| _ => ...' used"
+          throwErrorAt alt "More than one wildcard alternative `| _ => ...` used"
         found := true
 
 def getInductiveValFromMajor (induction : Bool) (major : Expr) : TacticM InductiveVal :=

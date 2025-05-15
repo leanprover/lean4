@@ -30,7 +30,9 @@ theorem doubleAlt (p: Nat) : p ≤ q ∨ p > q := by
   | upper d /- error -/  => apply Or.inr
   | diag    => apply Or.inl; apply Nat.le_refl
 
-/-- error: Invalid occurrence of wildcard alternative: It must be the last alternative -/
+/--
+error: Invalid occurrence of the wildcard alternative `| _ => ...`: It must be the last alternative
+-/
 #guard_msgs in
 theorem invalidWildCard (p: Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx with

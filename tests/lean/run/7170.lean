@@ -143,7 +143,7 @@ def noType
   | _ => false
 
 /--
-error: Too many patterns in match alternative: expected 1, but found 2:
+error: Too many patterns in match alternative: Expected 1, but found 2:
   .foo, .foo
 -/
 #guard_msgs in
@@ -153,7 +153,7 @@ def matchTooMany₁ (f : Foo) : Nat :=
   | _ => 41
 
 /--
-error: Too many patterns in match alternative: expected 1, but found 2:
+error: Too many patterns in match alternative: Expected 1, but found 2:
   .foo2, .foo2
 -/
 #guard_msgs in
@@ -163,7 +163,7 @@ def matchTooMany₂ (f : Foo) : Nat :=
   | .foo2, .foo2 => 32
 
 /--
-error: Not enough patterns in match alternative: expected 2, but found 1:
+error: Not enough patterns in match alternative: Expected 2, but found 1:
   .foo
 ---
 error: Missing cases:
@@ -176,7 +176,7 @@ def matchTooFew₁ (f : Foo) : Nat :=
   | .foo2, .foo2 => 32
 
 /--
-error: Not enough patterns in match alternative: expected 2, but found 1:
+error: Not enough patterns in match alternative: Expected 2, but found 1:
   .foo
 ---
 error: Missing cases:
@@ -189,7 +189,7 @@ def matchTooFew₂ (f : Foo) : Nat :=
   | .foo => 41
 
 /--
-error: Not enough patterns in match alternative: expected 2, but found 1:
+error: Not enough patterns in match alternative: Expected 2, but found 1:
   .(_)
 ---
 error: type mismatch

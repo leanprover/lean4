@@ -619,12 +619,10 @@ def resetCache : MetaM Unit :=
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
 
-@[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modify fun s =>
-    if s.mctx.numAssignments == s.cache.defEqTrans.2 then
-      { s with cache.defEqTrans.1 := f s.cache.defEqTrans.1 }
-    else
-      { s with cache.defEqTrans := (f {}, s.mctx.numAssignments) }
+@[inline] def modifyDefEqTransientCache (numAssignments : Nat) (f : DefEqCache → DefEqCache) : MetaM Unit :=
+  modifyCache fun c =>
+    let (transCache, num) := c.defEqTrans
+    { c with defEqTrans := (f (if numAssignments == num then transCache else {}), numAssignments) }
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩

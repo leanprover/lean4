@@ -200,6 +200,7 @@ by `simp` (i.e., in the `grind` preprocessor), and `grind` would never see
 these facts.
 -/
 private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
+  unless (← getConfig).etaStruct do return ()
   let aType ← whnfD (← inferType a)
   matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
     unless a.isAppOf ctorVal.name do

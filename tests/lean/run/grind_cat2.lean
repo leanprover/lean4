@@ -61,14 +61,12 @@ variable {X Y : C} {G : Functor D E}
 
 end Functor
 
-@[ext]
+@[ext, grind ext]
 structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Functor C D) : Type max u₁ v₂ where
   /-- The component of a natural transformation. -/
   app : ∀ X : C, F.obj X ⟶ G.obj X
   /-- The naturality square for a given morphism. -/
   naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by grind
-
-attribute [grind ext] NatTrans.ext
 
 attribute [simp, grind =] NatTrans.naturality
 

@@ -154,13 +154,12 @@ private theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (a
   fun_induction qsort.sort
   case case1 a b =>
     simp only [dif_pos, *] -- why isn't this handled by grind?
-    have := congrArg (·.2) a -- grind should be able to do this?
     grind [getElem_qpartition_snd_of_lt_lo]
   case case2 a b ih1 ih2 ih3 =>
     simp only [↓reduceDIte, *] -- insufficient unfolding in qsort.sort.induct_unfolding
-    have := congrArg (·.2) a
     -- This should work from here, but we get "failed to create E-match local theorem" issues
     -- grind [getElem_qpartition_snd_of_lt_lo]
+    have := congrArg (·.2) a
     dsimp at this
     subst this
     rw [ih3, ih2, getElem_qpartition_snd_of_lt_lo]
@@ -185,13 +184,12 @@ private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (a
   fun_induction qsort.sort
   case case1 a b =>
     simp only [dif_pos, *] -- why isn't this handled by grind?
-    have := congrArg (·.2) a -- grind should be able to do this?
     grind [getElem_qpartition_snd_of_hi_lt]
   case case2 a b ih1 ih2 ih3 =>
     simp only [↓reduceDIte, *] -- insufficient unfolding in qsort.sort.induct_unfolding
-    have := congrArg (·.2) a
     -- This should work from here, but we get "failed to create E-match local theorem" issues
     -- grind [getElem_qpartition_snd_of_hi_lt]
+    have := congrArg (·.2) a
     dsimp at this
     subst this
     rw [ih3, ih2, getElem_qpartition_snd_of_hi_lt]

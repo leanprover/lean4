@@ -6,8 +6,6 @@ private theorem getElem_qpartition_snd_of_hi_lt {n} (lt : α → α → Bool) (a
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : hi < k) (h' : k < n) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := sorry
 
-attribute [grind ext] Subtype Prod -- TODO: remove after update stage0
-
 @[local grind] private theorem getElem_qsort_sort_of_hi_lt
     {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)

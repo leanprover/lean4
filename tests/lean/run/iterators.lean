@@ -1,5 +1,7 @@
 import Std.Data.Iterators
 
+section ListIteratorBasic
+
 /-- info: [1, 2, 3].iter : Std.Iter Nat -/
 #guard_msgs in
 #check [1, 2, 3].iter
@@ -28,6 +30,10 @@ import Std.Data.Iterators
 #guard_msgs in
 #eval [1, 2, 3].iterM IO |>.toArray
 
+end ListIteratorBasic
+
+section WellFoundedRecursion
+
 def sum (l : List Nat) : Nat :=
   go l.iter 0
 where
@@ -42,3 +48,16 @@ where
 /-- info: 6 -/
 #guard_msgs in
 #eval sum [1, 2, 3]
+
+end WellFoundedRecursion
+
+section Loop
+
+def sumFold (l : List Nat) : Nat :=
+  l.iter.fold (init := 0) (· + ·)
+
+/-- info: 6 -/
+#guard_msgs in
+#eval [1, 2, 3].iter.fold (init := 0) (· + · )
+
+end Loop

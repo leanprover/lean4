@@ -9,6 +9,12 @@ import Init.Classical
 import Init.NotationExtra
 import Init.TacticsExtra
 
+/-!
+### Definition of iterators
+
+This module defines iterators and what it means for an iterator to be finite and productive.
+-/
+
 namespace Std
 
 namespace Iterators
@@ -330,6 +336,7 @@ Makes a single step with the given iterator `it`, potentially emitting a value a
 succeeding iterator. If this function is used recursively, termination can sometimes be proved with
 the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
+@[always_inline, inline]
 def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) : m it.Step :=
   Iterator.step it

@@ -4,9 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Basic
 import Std.Data.Iterators.Consumers.Monadic.Loop
 import Std.Data.Iterators.Consumers.Partial
+
+/-!
+# Loop consumers
+
+This module provides consumers that iterate over a given iterator, applying a certain user-supplied
+function in every iteration. Concretely, the following operations are provided:
+
+* `ForIn` instances
+* `Iter.fold`, the analogue of `List.foldl`
+* `Iter.foldM`, the analogue of `List.foldlM`
+
+These operations are implemented using the `IteratorLoop` and `IteratorLoopPartial` typeclasses.
+-/
 
 namespace Std.Iterators
 
@@ -23,6 +35,17 @@ instance (α : Type w) (β : Type w) (n : Type w → Type w') [Monad n]
     letI : MonadLift Id n := ⟨pure⟩
     ForIn.forIn it.it.toIterM.allowNontermination init f
 
+/--
+Folds a monadic function over an iterator from the left, accumulating a value starting with `init`.
+The accumulated value is combined with the each element of the list in order, using `f`.
+
+It is equivalent to `it.toList.foldlM`.
+
+This function requires a `Finite` instance proving that the iterator will finish after a finite
+number of steps. If the iterator is not finite or such an instance is not available, consider using
+`it.allowNontermination.foldM` instead of `it.foldM`. However, it is not possible to formally
+verify the behavior of the partial variant.
+-/
 @[always_inline, inline]
 def Iter.foldM {n : Type w → Type w} [Monad n]
     {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β] [Finite α Id]
@@ -30,6 +53,15 @@ def Iter.foldM {n : Type w → Type w} [Monad n]
     (init : γ) (it : Iter (α := α) β) : n γ :=
   ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x)
 
+/--
+Folds a monadic function over an iterator from the left, accumulating a value starting with `init`.
+The accumulated value is combined with the each element of the list in order, using `f`.
+
+It is equivalent to `it.toList.foldlM`.
+
+This is a partial, potentially nonterminating, function. It is not possible to formally verify
+its behavior. If the iterator has a `Finite` instance, consider using `IterM.foldM` instead.
+-/
 @[always_inline, inline]
 def Iter.Partial.foldM {n : Type w → Type w} [Monad n]
     {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
@@ -37,14 +69,36 @@ def Iter.Partial.foldM {n : Type w → Type w} [Monad n]
     (init : γ) (it : Iter.Partial (α := α) β) : n γ :=
   ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x)
 
-@[always_inline, inline]
-def Iter.count {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id]
-    (it : Iter (α := α) β) : Nat :=
-  it.toIterM.count
+/--
+Folds a function over an iterator from the left, accumulating a value starting with `init`.
+The accumulated value is combined with the each element of the list in order, using `f`.
 
+It is equivalent to `it.toList.foldl`.
+
+This function requires a `Finite` instance proving that the iterator will finish after a finite
+number of steps. If the iterator is not finite or such an instance is not available, consider using
+`it.allowNontermination.fold` instead of `it.fold`. However, it is not possible to formally
+verify the behavior of the partial variant.
+-/
 @[always_inline, inline]
-def Iter.Partial.count {α : Type w} {β : Type w} [Iterator α Id β]
-    (it : Iter.Partial (α := α) β) : Nat :=
-  it.it.toIterM.allowNontermination.count
+def Iter.fold {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β] [Finite α Id]
+    [IteratorLoop α Id Id] (f : γ → β → γ)
+    (init : γ) (it : Iter (α := α) β) : γ :=
+  ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))
+
+/--
+Folds a function over an iterator from the left, accumulating a value starting with `init`.
+The accumulated value is combined with the each element of the list in order, using `f`.
+
+It is equivalent to `it.toList.foldl`.
+
+This is a partial, potentially nonterminating, function. It is not possible to formally verify
+its behavior. If the iterator has a `Finite` instance, consider using `IterM.fold` instead.
+-/
+@[always_inline, inline]
+def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
+    [IteratorLoopPartial α Id Id] (f : γ → β → γ)
+    (init : γ) (it : Iter.Partial (α := α) β) : γ :=
+  ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))
 
 end Std.Iterators

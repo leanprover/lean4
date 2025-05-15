@@ -43,15 +43,19 @@ instance [Pure m] : FinitenessRelation (ListIterator α) m where
     obtain ⟨step, h, h'⟩ := h
     cases step <;> simp_all [IterStep.successor, IterM.plausible_step, Iterator.plausible_step]
 
+@[always_inline, inline]
 instance {α : Type w} [Monad m] : IteratorCollect (ListIterator α) m :=
   .defaultImplementation
 
+@[always_inline, inline]
 instance {α : Type w} [Monad m] : IteratorCollectPartial (ListIterator α) m :=
   .defaultImplementation
 
+@[always_inline, inline]
 instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ListIterator α) m n :=
   .defaultImplementation
 
+@[always_inline, inline]
 instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ListIterator α) m n :=
   .defaultImplementation
 

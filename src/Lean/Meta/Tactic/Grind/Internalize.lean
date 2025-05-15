@@ -283,6 +283,17 @@ private def addSplitCandidatesForFunext (arg : Expr) (generation : Nat) (parent?
   unless (← getConfig).funext do return ()
   addSplitCandidatesForExt arg generation parent?
 
+/--
+Tries to eta-reduce the given expression.
+If successful, pushes a new equality between the two terms.
+-/
+private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
+  let e' := e.eta
+  if e != e' then
+    let e' ← shareCommon e'
+    internalize e' generation
+    pushEq e e' (← mkEqRefl e)
+
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -313,6 +324,7 @@ where
     | .lam .. =>
       addSplitCandidatesForFunext e generation parent?
       mkENode' e generation
+      tryEta e generation
     | .forallE _ d b _ =>
       mkENode' e generation
       internalizeImpl d generation e

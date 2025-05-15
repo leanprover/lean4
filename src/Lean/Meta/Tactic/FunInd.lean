@@ -641,6 +641,9 @@ def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
       return { expr := e.letBody!.instantiate1 h }
   return { expr := e }
 
+def rwMData (e : Expr) : MetaM Simp.Result := do
+  return { expr := e.consumeMData }
+
 def rwHaveWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
   if let some (_n, t, _v, b) := e.letFun? then
     if (← isDefEq t (← inferType h)) then
@@ -674,11 +677,12 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
     return { expr := e }
   else
     unless (← isMatcherApp e) do
+      trace[Meta.FunInd] "Not a matcher application:{indentExpr e}"
       return { expr := e }
     let matcherDeclName := e.getAppFn.constName!
     let eqns ← Match.genMatchCongrEqns matcherDeclName
     unless altIdx < eqns.size do
-      trace[Tactic.FunInd] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
+      trace[Meta.FunInd] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
       return { expr := e }
     let eqnThm := eqns[altIdx]!
     try
@@ -865,7 +869,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
 
   -- we look through mdata
   if e.isMData then
-    let b ← buildInductionBody toErase toClear goal oldIH newIH isRecCall e.mdataExpr!
+    let b ← withRewrittenMotiveArg goal (rwMData) fun goal' =>
+      buildInductionBody toErase toClear goal' oldIH newIH isRecCall e.mdataExpr!
     return e.updateMData! b
 
   if let .letE n t v b _ := e then

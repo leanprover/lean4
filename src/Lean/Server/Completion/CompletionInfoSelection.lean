@@ -45,8 +45,8 @@ def findCompletionInfosAt
     (fileMap  : FileMap)
     (hoverPos : String.Pos)
     (cmdStx   : Syntax)
-    (infoTree : InfoTree)
-    : Array ContextualizedCompletionInfo × Bool := Id.run do
+    (infoTree : InfoTree) :
+    Array ContextualizedCompletionInfo × Bool := Id.run do
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   let mut isComplete := true
   let mut completionInfoCandidates := infoTree.foldInfo (init := #[]) (go hoverLine)
@@ -63,8 +63,12 @@ where
       : Array ContextualizedCompletionInfo := Id.run do
     let .ofCompletionInfo completionInfo := info
       | return best
-    if ! info.occursInOrOnBoundary hoverPos then
-      return best
+    let mut completionInfo := completionInfo
+    unless info.occursInOrOnBoundary hoverPos do
+      unless info.atDanglingDotPosition fileMap.source hoverPos do
+        return best
+      let .id stx id false lctx ex? := completionInfo | return best
+      completionInfo := .id stx id true lctx ex?
     let headPos := info.pos?.get!
     let tailPos := info.tailPos?.get!
     let hoverInfo :=

@@ -69,12 +69,6 @@ def _root_.Lean.MVarId.unfoldReducible (mvarId : MVarId) : MetaM MVarId :=
   mvarId.transformTarget Grind.unfoldReducible
 
 /--
-Abstracts nested proofs occurring in the goal's target.
--/
-def _root_.Lean.MVarId.abstractNestedProofs (mvarId : MVarId) (mainDeclName : Name) : MetaM MVarId :=
-  mvarId.transformTarget (Lean.Meta.abstractNestedProofs mainDeclName)
-
-/--
 Beta-reduces the goal's target.
 -/
 def _root_.Lean.MVarId.betaReduce (mvarId : MVarId) : MetaM MVarId :=

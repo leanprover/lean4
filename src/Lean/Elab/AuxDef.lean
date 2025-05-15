@@ -24,8 +24,10 @@ def elabAuxDef : CommandElab
     let id := `_aux ++ (← getMainModule) ++ `_ ++ id
     let id := String.intercalate "_" <| id.components.map (·.toString (escape := false))
     let ns ← getCurrNamespace
-    -- make sure we only add a single component so that scoped works
-    let id ← mkAuxName (ns.mkStr id) 1
+    -- We use a new generator here because we want more control over the name; the default would
+    -- create a private name that then breaks the macro below. We assume that `aux_def` is not used
+    -- with the same arguments in parallel contexts.
+    let (id, _) := { namePrefix := ns : DeclNameGenerator }.mkUniqueName (← getEnv) («infix» := Name.mkSimple id)
     let id := id.replacePrefix ns Name.anonymous -- TODO: replace with def _root_.id
     elabCommand <|
       ← `($[$doc?:docComment]? $[$attrs?:attributes]?

@@ -393,7 +393,7 @@ theorem State.retProgression :
     | _ => exact ⟨1, by simp [stepN, step, isEnd]⟩
   | _ => sorry
 
-#check @State.step.match_2.eq_1
-#check @State.step.match_2.eq_2
-#check @State.step.match_2.eq_3
-#check @State.step.match_2.splitter
+#check @State.step.match_9.eq_1
+#check @State.step.match_9.eq_2
+#check @State.step.match_9.eq_3
+#check @State.step.match_9.splitter

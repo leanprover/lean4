@@ -20,6 +20,6 @@ def elabAsAuxLemma : Lean.Elab.Tactic.Tactic
   unless mvars.isEmpty do
     throwError "Cannot abstract term into auxiliary lemma because there are open goals."
   let e ← instantiateMVars (mkMVar mvarId)
-  let e ← mkAuxTheorem (prefix? := (← Term.getDeclName?)) (← mvarId.getType) e
+  let e ← mkAuxTheorem (← mvarId.getType) e
   mvarId.assign e
 | _ => throwError "Invalid as_aux_lemma syntax"

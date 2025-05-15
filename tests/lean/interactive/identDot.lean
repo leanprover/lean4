@@ -1,4 +1,4 @@
-macro "#test " i:identDot : command => `(#print $i)
+macro "#test " i:identDot : command => `(command| #print $i)
 
 namespace MyNamespace
 

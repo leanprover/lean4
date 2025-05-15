@@ -1451,6 +1451,15 @@ class Div (α : Type u) where
   /-- `a / b` computes the result of dividing `a` by `b`. See `HDiv`. -/
   div : α → α → α
 
+/--
+The notation typeclass for inverses.
+This enables the notation `a⁻¹ : α` where `a : α`.
+-/
+class Inv (α : Type u) where
+  /-- `a⁻¹` computes the inverse of `a`.
+  The meaning of this notation is type-dependent. -/
+  inv : α → α
+
 /-- The homogeneous version of `HMod`: `a % b : α` where `a b : α`. -/
 class Mod (α : Type u) where
   /-- `a % b` computes the remainder upon dividing `a` by `b`. See `HMod`. -/

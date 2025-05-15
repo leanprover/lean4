@@ -294,6 +294,7 @@ recommended_spelling "PProd" for "×'" in [PProd, «term_×'_»]
 @[inherit_doc] infixl:65 " ++ "  => HAppend.hAppend
 @[inherit_doc] prefix:75 "-"    => Neg.neg
 @[inherit_doc] prefix:100 "~~~"  => Complement.complement
+@[inherit_doc] postfix:max "⁻¹" => Inv.inv
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -311,6 +312,7 @@ macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
 macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
+macro_rules | `($x ⁻¹)     => `(unop% Inv.inv $x)
 
 recommended_spelling "or" for "|||" in [HOr.hOr, «term_|||_»]
 recommended_spelling "xor" for "^^^" in [HXor.hXor, «term_^^^_»]

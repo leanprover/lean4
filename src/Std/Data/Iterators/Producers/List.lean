@@ -6,6 +6,12 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Producers.Monadic.List
 
+/-!
+# List iterator
+
+This module provides an iterator for lists that is accessible via `List.iter`.
+-/
+
 namespace Std.Iterators
 
 @[always_inline, inline]

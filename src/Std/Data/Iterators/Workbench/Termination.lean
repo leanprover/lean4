@@ -6,9 +6,18 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Basic
 
+/-!
+This is an internal module used by iterator implementations.
+-/
+
 namespace Std.Iterators
 
 variable (α m) in
+/--
+Internal implementation detail of the iterator library.
+The purpose of this class is that it implies a `Finite` instance but
+it is more convenient to implement.
+-/
 class FinitenessRelation [Iterator α m β] where
   rel : (IterM (α := α) m β) → (IterM (α := α) m β) → Prop
   wf : WellFounded rel
@@ -36,6 +45,11 @@ theorem IterM.plausible_successor_of_skip
   ⟨_, rfl, h⟩
 
 variable (α m) in
+/--
+Internal implementation detail of the iterator library.
+The purpose of this class is that it implies a `Productive` instance but
+it is more convenient to implement.
+-/
 class ProductivenessRelation [Iterator α m β] where
   rel : (IterM (α := α) m β) → (IterM (α := α) m β) → Prop
   wf : WellFounded rel

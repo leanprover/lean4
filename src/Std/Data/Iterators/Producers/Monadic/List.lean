@@ -9,10 +9,20 @@ import Init.RCases
 import Std.Data.Iterators.Consumers
 import Std.Data.Iterators.Workbench.Termination
 
+/-!
+# List iterator
+
+This module provides an iterator for lists that is accessible via `List.iterM`.
+-/
+
 namespace Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'}
 
+/--
+The underlying state of a list iterator. Its contents are internal and should
+not be used by downstream users of the library.
+-/
 structure ListIterator (α : Type w) where
   list : List α
 

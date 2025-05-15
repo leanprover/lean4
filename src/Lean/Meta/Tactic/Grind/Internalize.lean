@@ -18,6 +18,13 @@ import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
 
+/--
+A lighter version of `preprocess` which produces a definitionally equal term,
+but ensures assumptions made by `grind` are satisfied.
+-/
+private def preprocessLight (e : Expr) : GoalM Expr := do
+  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedProofs (← unfoldReducible e))))))
+
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
@@ -114,9 +121,6 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | f@Eq.recOn α a motive b h v => pushHEq e v (mkApp6 (mkConst ``Grind.eqRecOn_heq f.constLevels!) α a motive b h v)
   | _ => return ()
 
-private def preprocessGroundPattern (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← unfoldReducible e)))))
-
 private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
 
@@ -130,7 +134,7 @@ where
     if pattern.isBVar || isPatternDontCare pattern then
       return pattern
     else if let some e := groundPattern? pattern then
-      let e ← preprocessGroundPattern e
+      let e ← preprocessLight e
       internalize e generation none
       return mkGroundPattern e
     else pattern.withApp fun f args => do
@@ -213,8 +217,9 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
           if (← isProof proj) then
             proj ← markProof proj
           ctorApp := mkApp ctorApp proj
-        ctorApp ← shareCommon ctorApp
+        ctorApp ← preprocessLight ctorApp
         internalize ctorApp generation
+        trace[Meta.debug] "eta: {a}, {ctorApp}"
         pushEq a ctorApp <| (← mkEqRefl a)
 
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/

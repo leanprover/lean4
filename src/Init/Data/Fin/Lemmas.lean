@@ -6,7 +6,6 @@ Authors: Mario Carneiro, Leonardo de Moura
 module
 
 prelude
-import Init.Data.Fin.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Int.DivMod.Lemmas
 import Init.Ext

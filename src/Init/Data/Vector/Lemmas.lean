@@ -6,7 +6,8 @@ Authors: Shreyas Srinivas, Francois Dorais, Kim Morrison
 module
 
 prelude
-import Init.Data.Vector.Basic
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Array.Attach
 import Init.Data.Array.Find
 
@@ -651,12 +652,12 @@ theorem toList_swap {xs : Vector α n} {i j} (hi hj) :
   simp
 
 @[simp] theorem finIdxOf?_toList [BEq α] {a : α} {xs : Vector α n} :
-    xs.toList.finIdxOf? a = (xs.finIdxOf? a).map (Fin.cast xs.size_toArray.symm) := by
+    xs.toList.finIdxOf? a = (xs.finIdxOf? a).map (Fin.cast (by exact xs.size_toArray.symm)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
 @[simp] theorem findFinIdx?_toList {p : α → Bool} {xs : Vector α n} :
-    xs.toList.findFinIdx? p = (xs.findFinIdx? p).map (Fin.cast xs.size_toArray.symm) := by
+    xs.toList.findFinIdx? p = (xs.findFinIdx? p).map (Fin.cast (by exact xs.size_toArray.symm)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 

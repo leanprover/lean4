@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Nat.Bitwise.Basic
 
+@[expose] section
+
 open Nat
 
 namespace Fin
@@ -44,7 +46,7 @@ Returns `a` modulo `n` as a `Fin n`.
 
 The assumption `NeZero n` ensures that `Fin n` is nonempty.
 -/
-protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
+@[expose] protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
   ⟨a % n, Nat.mod_lt _ (pos_of_neZero n)⟩
 
 /--

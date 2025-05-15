@@ -10,6 +10,8 @@ import Init.SimpLemmas
 import Init.Data.Nat.Basic
 import Init.Data.List.Notation
 
+@[expose] section
+
 /-!
 # Basic operations on `List`.
 

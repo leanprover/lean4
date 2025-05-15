@@ -24,9 +24,9 @@ instance : CommRing Int where
   right_distrib := Int.add_mul
   zero_mul := Int.zero_mul
   mul_zero := Int.mul_zero
-  pow_zero _ := rfl
-  pow_succ _ _ := rfl
-  ofNat_succ _ := rfl
+  pow_zero _ := by rfl
+  pow_succ _ _ := by rfl
+  ofNat_succ _ := by rfl
   sub_eq_add_neg _ _ := Int.sub_eq_add_neg
 
 instance : IsCharP Int 0 where

@@ -78,49 +78,57 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Init/Prelude.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Init/Prelude.lean
 - attributes:
     description: Init.Data.List.Sublist async
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Init/Data/List/Sublist.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Init/Data/List/Sublist.lean
 - attributes:
     description: Std.Data.Internal.List.Associative
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Std/Data/Internal/List/Associative.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Std/Data/Internal/List/Associative.lean
 - attributes:
     description: Std.Data.DHashMap.Internal.RawLemmas
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Std/Data/DHashMap/Internal/RawLemmas.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Std/Data/DHashMap/Internal/RawLemmas.lean
 - attributes:
     description: Init.Data.BitVec.Lemmas
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Init/Data/BitVec/Lemmas.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Init/Data/BitVec/Lemmas.lean
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4
   run_config:
     <<: *time
-    cmd: lean --run ../../script/benchReelabRss.lean lean ../../src/Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
     max_runs: 2
 - attributes:
     description: Init.Data.BitVec.Lemmas re-elab
   run_config:
     <<: *time
-    cmd: lean --run ../../script/benchReelabRss.lean lean ../../src/Init/Data/BitVec/Lemmas.lean 2 -j4 -Dexperimental.module=true
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 2 -j4 -Dexperimental.module=true
     max_runs: 2
 - attributes:
     description: import Lean
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../../src/Lean.lean
+    cwd: ../../src
+    cmd: lean Lean.lean
 - attributes:
     description: tests/compiler
     tags: [deterministic, slow]

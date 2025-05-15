@@ -128,10 +128,11 @@ private def getFType : M Expr := do
   pure fType
 
 structure Result where
-  elimApp : Expr
-  motive  : MVarId
-  alts    : Array Alt
-  others  : Array MVarId
+  elimApp     : Expr
+  elimArgs    : Array Expr
+  motive      : MVarId
+  alts        : Array Alt
+  others      : Array MVarId
   complexArgs : Array Expr
 
 /--
@@ -209,7 +210,10 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       unless targets.contains motiveArg do
         throwError "mkElimApp: Expected first {targets.size} arguments of motive in conclusion to be one of the targets:{indentExpr s.fType}"
     pure motiveArgs[targets.size:]
-  return { elimApp := (← instantiateMVars s.f), alts, others, motive, complexArgs }
+  let elimApp ← instantiateMVars s.f
+  -- `elimArgs` is the argument list that the offsets in `elimInfo` work with
+  let elimArgs := elimApp.getAppArgs[elimInfo.elimExpr.getAppNumArgs:]
+  return { elimApp, elimArgs, alts, others, motive, complexArgs }
 
 /--
 Given a goal `... targets ... |- C[targets, complexArgs]` associated with `mvarId`,
@@ -981,13 +985,13 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
   let tag ← mvarId.getTag
   mvarId.withContext do
     let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
-    let targets ← targets.mapM instantiateMVars
-    let motiveType ← result.motive.getType
-    trace[Elab.cases] "motiveType: {motiveType}"
+    let elimArgs := result.elimArgs
+    let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]!
+    let motiveType ← inferType elimArgs[elimInfo.motivePos]!
     let mvarId ← generalizeTargetsEq mvarId motiveType targets
     let (targetsNew, mvarId) ← mvarId.introN targets.size
     mvarId.withContext do
-      ElimApp.setMotiveArg mvarId result.motive targetsNew result.complexArgs
+      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew result.complexArgs
       mvarId.assign result.elimApp
       -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
       -- unchanged

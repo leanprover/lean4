@@ -6,11 +6,14 @@ Authors: Mario Carneiro
 module
 
 prelude
+import all Init.Data.List.Control
 import Init.Data.List.Impl
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Monadic
 import Init.Data.List.Nat.InsertIdx
 import Init.Data.Array.Lex.Basic
+import all Init.Data.Array.Basic
+import all Init.Data.Array.Set
 
 /-! ### Lemmas about `List.toArray`.
 

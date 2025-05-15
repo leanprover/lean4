@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.List.Control
+import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Attach
 import Init.Data.List.Monadic

@@ -8,7 +8,8 @@ module
 
 prelude
 import Init.Data.Bool
-import Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Basic
+import all Init.Data.BitVec.BasicAux
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Div.Lemmas
@@ -315,6 +316,12 @@ theorem ofFin_ofNat (n : Nat) :
     ofFin (no_index (OfNat.ofNat n : Fin (2^w))) = OfNat.ofNat n := by
   simp only [OfNat.ofNat, Fin.ofNat', BitVec.ofNat, Nat.and_two_pow_sub_one_eq_mod]
 
+@[simp] theorem ofFin_neg {x : Fin (2 ^ w)} : ofFin (-x) = -(ofFin x) := by
+  rfl
+
+@[simp, norm_cast] theorem ofFin_natCast (n : Nat) : ofFin (n : Fin (2^w)) = (n : BitVec w) := by
+  rfl
+
 theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
@@ -330,11 +337,14 @@ theorem toFin_zero : toFin (0 : BitVec w) = 0 := rfl
 theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
   rw [toFin_inj]; simp only [ofNat_eq_ofNat, ofFin_ofNat]
 
+@[simp, norm_cast] theorem toFin_natCast (n : Nat) : toFin (n : BitVec w) = (n : Fin (2^w)) := by
+  rfl
+
 @[simp] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by
   cases b <;> rfl
 
 @[simp] theorem toInt_ofBool (b : Bool) : (ofBool b).toInt = -b.toInt := by
-  cases b <;> rfl
+  cases b <;> simp
 
 @[simp] theorem toFin_ofBool (b : Bool) : (ofBool b).toFin = Fin.ofNat' 2 (b.toNat) := by
   cases b <;> rfl
@@ -672,6 +682,10 @@ theorem toInt_ne {x y : BitVec n} : x.toInt ≠ y.toInt ↔ x ≠ y  := by
 theorem toInt_ofNat {n : Nat} (x : Nat) : (BitVec.ofNat n x).toInt = (x : Int).bmod (2^n) := by
   simp [toInt_eq_toNat_bmod, -Int.natCast_pow]
 
+@[simp] theorem toInt_ofFin {w : Nat} (x : Fin (2^w)) :
+    (BitVec.ofFin x).toInt = Int.bmod x (2^w) := by
+  simp [toInt_eq_toNat_bmod]
+
 @[simp] theorem toInt_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toInt = i.bmod (2^n) := by
   have _ := Nat.two_pow_pos n
@@ -777,7 +791,6 @@ theorem le_two_mul_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
 
-
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   by_cases h : w = 0
   · subst h
@@ -792,6 +805,17 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   rw [toInt_ofInt, Int.bmod_eq_of_le_mul_two]
   · simpa [Int.mul_comm _ 2] using le_two_mul_toInt
   · simpa [Int.mul_comm _ 2] using two_mul_toInt_lt
+
+@[simp] theorem toNat_intCast {w : Nat} (x : Int) : (x : BitVec w).toNat = (x % 2^w).toNat := by
+  change (BitVec.ofInt w x).toNat = _
+  simp
+
+@[simp] theorem toInt_intCast {w : Nat} (x : Int) : (x : BitVec w).toInt = Int.bmod x (2^w) := by
+  rw [toInt_eq_toNat_bmod, toNat_intCast, Int.natCast_toNat_eq_self.mpr]
+  · have h : (2 ^ w : Int) = (2 ^ w : Nat) := by simp
+    rw [h, Int.emod_bmod]
+  · apply Int.emod_nonneg
+    exact Int.pow_ne_zero (by decide)
 
 /-! ### sle/slt -/
 
@@ -1949,7 +1973,7 @@ theorem allOnes_shiftLeft_or_shiftLeft {x : BitVec w} {n : Nat} :
 /-! ### shiftLeft reductions from BitVec to Nat -/
 
 @[simp]
-theorem shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} : x <<< y = x <<< y.toNat := by rfl
+theorem shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} : x <<< y = x <<< y.toNat := rfl
 
 theorem shiftLeft_zero' {x : BitVec w₁} : x <<< 0#w₂ = x := by simp
 
@@ -2109,7 +2133,7 @@ theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
 
 @[simp]
 theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
-    x >>> y = x >>> y.toNat := by rfl
+    x >>> y = x >>> y.toNat := rfl
 
 theorem ushiftRight_ofNat_eq {x : BitVec w} {k : Nat} : x >>> (BitVec.ofNat w k) = x >>> (k % 2^w) := rfl
 
@@ -3086,10 +3110,6 @@ theorem setWidth_succ (x : BitVec w) :
     · simp_all
     · omega
 
-@[deprecated "Use the reverse direction of `cons_msb_setWidth`" (since := "2024-09-23")]
-theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)) := by
-  simp
-
 @[simp] theorem not_cons (x : BitVec w) (b : Bool) : ~~~(cons b x) = cons (!b) (~~~x) := by
   simp [cons]
 
@@ -3353,7 +3373,7 @@ theorem add_eq_xor {a b : BitVec 1} : a + b = a ^^^ b := by
 
 /-! ### sub/neg -/
 
-theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := by rfl
+theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := rfl
 
 @[simp] theorem toNat_sub {n} (x y : BitVec n) :
     (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
@@ -3664,7 +3684,7 @@ theorem fill_false {w : Nat} : fill w false = 0#w := by
 
 /-! ### mul -/
 
-theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := by rfl
+theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := rfl
 
 @[simp, bitvec_to_nat] theorem toNat_mul (x y : BitVec n) : (x * y).toNat = (x.toNat * y.toNat) % 2 ^ n := rfl
 @[simp] theorem toFin_mul (x y : BitVec n) : (x * y).toFin = (x.toFin * y.toFin) := rfl
@@ -3711,6 +3731,10 @@ theorem mul_add {x y z : BitVec w} :
   simp only [toNat_mul, toNat_add, Nat.add_mod_mod, Nat.mod_add_mod]
   rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
     ← Nat.mul_mod, Nat.mul_add]
+
+theorem add_mul {x y z : BitVec w} :
+    (x + y) * z = x * z + y * z := by
+  rw [BitVec.mul_comm, mul_add, BitVec.mul_comm z, BitVec.mul_comm z]
 
 theorem mul_succ {x y : BitVec w} : x * (y + 1#w) = x * y + x := by simp [mul_add]
 theorem succ_mul {x y : BitVec w} : (x + 1#w) * y = x * y + y := by simp [BitVec.mul_comm, BitVec.mul_add]
@@ -4143,7 +4167,7 @@ theorem sdiv_eq_and (x y : BitVec 1) : x.sdiv y = x &&& y := by
   have hy : y = 0#1 ∨ y = 1#1 := by bv_omega
   rcases hx with rfl | rfl <;>
     rcases hy with rfl | rfl <;>
-      rfl
+      simp
 
 @[simp]
 theorem sdiv_self {x : BitVec w} :
@@ -5316,9 +5340,17 @@ theorem msb_eq_toNat {x : BitVec w}:
     x.msb = decide (x.toNat ≥ 2 ^ (w - 1)) := by
   simp only [msb_eq_decide, ge_iff_le]
 
+/-- Negating a bitvector created from a natural number equals
+creating a bitvector from the the negative of that number.
+-/
+theorem neg_ofNat_eq_ofInt_neg {w : Nat} {x : Nat} :
+    - BitVec.ofNat w x = BitVec.ofInt w (- x) := by
+  apply BitVec.eq_of_toInt_eq
+  simp [BitVec.toInt_neg, BitVec.toInt_ofNat]
+
 /-! ### abs -/
 
-theorem abs_eq (x : BitVec w) : x.abs = if x.msb then -x else x := by rfl
+theorem abs_eq (x : BitVec w) : x.abs = if x.msb then -x else x := rfl
 
 @[simp, bitvec_to_nat]
 theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
@@ -5550,150 +5582,6 @@ abbrev toFin_uShiftRight := @toFin_ushiftRight
 
 @[deprecated signExtend_eq_setWidth_of_msb_false (since := "2024-12-08")]
 abbrev signExtend_eq_not_setWidth_not_of_msb_false := @signExtend_eq_setWidth_of_msb_false
-
-@[deprecated truncate_eq_setWidth (since := "2024-09-18")]
-abbrev truncate_eq_zeroExtend := @truncate_eq_setWidth
-
-@[deprecated toNat_setWidth' (since := "2024-09-18")]
-abbrev toNat_zeroExtend' := @toNat_setWidth'
-
-@[deprecated toNat_setWidth (since := "2024-09-18")]
-abbrev toNat_zeroExtend := @toNat_setWidth
-
-@[deprecated toNat_setWidth (since := "2024-09-18")]
-abbrev toNat_truncate := @toNat_setWidth
-
-@[deprecated setWidth_eq (since := "2024-09-18")]
-abbrev zeroExtend_eq := @setWidth_eq
-
-@[deprecated setWidth_eq (since := "2024-09-18")]
-abbrev truncate_eq := @setWidth_eq
-
-@[deprecated setWidth_zero (since := "2024-09-18")]
-abbrev zeroExtend_zero := @setWidth_zero
-
-@[deprecated getElem_setWidth (since := "2024-09-18")]
-abbrev getElem_zeroExtend := @getElem_setWidth
-
-@[deprecated getElem_setWidth' (since := "2024-09-18")]
-abbrev getElem_zeroExtend' := @getElem_setWidth'
-
-@[deprecated getElem?_setWidth (since := "2024-09-18")]
-abbrev getElem?_zeroExtend := @getElem?_setWidth
-
-@[deprecated getElem?_setWidth' (since := "2024-09-18")]
-abbrev getElem?_zeroExtend' := @getElem?_setWidth'
-
-@[deprecated getLsbD_setWidth (since := "2024-09-18")]
-abbrev getLsbD_zeroExtend := @getLsbD_setWidth
-
-@[deprecated getLsbD_setWidth' (since := "2024-09-18")]
-abbrev getLsbD_zeroExtend' := @getLsbD_setWidth'
-
-@[deprecated getMsbD_setWidth_add (since := "2024-09-18")]
-abbrev getMsbD_zeroExtend_add := @getMsbD_setWidth_add
-
-@[deprecated getMsbD_setWidth' (since := "2024-09-18")]
-abbrev getMsbD_zeroExtend' := @getMsbD_setWidth'
-
-@[deprecated getElem_setWidth (since := "2024-09-18")]
-abbrev getElem_truncate := @getElem_setWidth
-
-@[deprecated getElem?_setWidth (since := "2024-09-18")]
-abbrev getElem?_truncate := @getElem?_setWidth
-
-@[deprecated getLsbD_setWidth (since := "2024-09-18")]
-abbrev getLsbD_truncate := @getLsbD_setWidth
-
-@[deprecated msb_setWidth (since := "2024-09-18")]
-abbrev msb_truncate := @msb_setWidth
-
-@[deprecated cast_setWidth (since := "2024-09-18")]
-abbrev cast_zeroExtend := @cast_setWidth
-
-@[deprecated cast_setWidth (since := "2024-09-18")]
-abbrev cast_truncate := @cast_setWidth
-
-@[deprecated setWidth_setWidth_of_le (since := "2024-09-18")]
-abbrev zeroExtend_zeroExtend_of_le := @setWidth_setWidth_of_le
-
-@[deprecated setWidth_eq (since := "2024-09-18")]
-abbrev truncate_eq_self := @setWidth_eq
-
-@[deprecated setWidth_cast (since := "2024-09-18")]
-abbrev truncate_cast := @setWidth_cast
-
-@[deprecated msb_setWidth (since := "2024-09-18")]
-abbrev mbs_zeroExtend := @msb_setWidth
-
-@[deprecated msb_setWidth' (since := "2024-09-18")]
-abbrev mbs_zeroExtend' := @msb_setWidth'
-
-@[deprecated setWidth_one_eq_ofBool_getLsb_zero (since := "2024-09-18")]
-abbrev zeroExtend_one_eq_ofBool_getLsb_zero := @setWidth_one_eq_ofBool_getLsb_zero
-
-@[deprecated setWidth_ofNat_one_eq_ofNat_one_of_lt (since := "2024-09-18")]
-abbrev zeroExtend_ofNat_one_eq_ofNat_one_of_lt := @setWidth_ofNat_one_eq_ofNat_one_of_lt
-
-@[deprecated setWidth_one (since := "2024-09-18")]
-abbrev truncate_one := @setWidth_one
-
-@[deprecated setWidth_ofNat_of_le (since := "2024-09-18")]
-abbrev truncate_ofNat_of_le := @setWidth_ofNat_of_le
-
-@[deprecated setWidth_or (since := "2024-09-18")]
-abbrev truncate_or := @setWidth_or
-
-@[deprecated setWidth_and (since := "2024-09-18")]
-abbrev truncate_and := @setWidth_and
-
-@[deprecated setWidth_xor (since := "2024-09-18")]
-abbrev truncate_xor := @setWidth_xor
-
-@[deprecated setWidth_not (since := "2024-09-18")]
-abbrev truncate_not := @setWidth_not
-
-@[deprecated signExtend_eq_setWidth_of_msb_false  (since := "2024-09-18")]
-abbrev signExtend_eq_not_zeroExtend_not_of_msb_false  := @signExtend_eq_setWidth_of_msb_false
-
-@[deprecated signExtend_eq_not_setWidth_not_of_msb_true (since := "2024-09-18")]
-abbrev signExtend_eq_not_zeroExtend_not_of_msb_true := @signExtend_eq_not_setWidth_not_of_msb_true
-
-@[deprecated signExtend_eq_setWidth_of_lt (since := "2024-09-18")]
-abbrev signExtend_eq_truncate_of_lt := @signExtend_eq_setWidth_of_le
-
-@[deprecated truncate_append (since := "2024-09-18")]
-abbrev truncate_append := @setWidth_append
-
-@[deprecated truncate_append_of_eq (since := "2024-09-18")]
-abbrev truncate_append_of_eq := @setWidth_append_of_eq
-
-@[deprecated truncate_cons (since := "2024-09-18")]
-abbrev truncate_cons := @setWidth_cons
-
-@[deprecated truncate_succ (since := "2024-09-18")]
-abbrev truncate_succ := @setWidth_succ
-
-@[deprecated truncate_add (since := "2024-09-18")]
-abbrev truncate_add := @setWidth_add
-
-@[deprecated setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (since := "2024-09-18")]
-abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsbD_false := @setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
-
-@[deprecated setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true (since := "2024-09-18")]
-abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true := @setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
-
-@[deprecated and_one_eq_setWidth_ofBool_getLsbD (since := "2024-09-18")]
-abbrev and_one_eq_zeroExtend_ofBool_getLsbD := @and_one_eq_setWidth_ofBool_getLsbD
-
-@[deprecated msb_sshiftRight (since := "2024-10-03")]
-abbrev sshiftRight_msb_eq_msb := @msb_sshiftRight
-
-@[deprecated shiftLeft_zero (since := "2024-10-27")]
-abbrev shiftLeft_zero_eq := @shiftLeft_zero
-
-@[deprecated ushiftRight_zero (since := "2024-10-27")]
-abbrev ushiftRight_zero_eq := @ushiftRight_zero
 
 @[deprecated replicate_zero (since := "2025-01-08")]
 abbrev replicate_zero_eq := @replicate_zero

@@ -198,7 +198,7 @@ private partial def processOffset (c : Choice) (pArg : Expr) (k : Nat) (e : Expr
     if isSameExpr curr e then break
 
 /--
-Retuns "applications" in the given goal that may match `p`.
+Returns "applications" in the given goal that may match `p`.
 We say "applications," because we assume a constant is a zero-ary application.
 -/
 private def getAppsOf (p : Expr) : GoalM (Option (List Expr)) := do
@@ -300,7 +300,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       let report : M Unit := do
         reportIssue! "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
       unless (← withDefault <| isDefEq mvarIdType vType) do
-        let some heq ← withoutReportingMVarIssues <| proveEq? vType mvarIdType
+        let some heq ← withoutReportingMVarIssues <| proveEq? vType mvarIdType (abstract := true)
           | report
             return ()
         /-

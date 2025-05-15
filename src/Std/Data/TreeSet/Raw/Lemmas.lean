@@ -39,7 +39,7 @@ theorem isEmpty_insert [TransCmp cmp] (h : t.WF) {k : α} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   TreeMap.Raw.mem_iff_contains
 
-@[simp]
+@[simp, grind]
 theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
   TreeMap.Raw.contains_iff_mem
 
@@ -488,6 +488,7 @@ theorem insertMany_cons {l : List α} {k : α} :
     t.insertMany (k :: l) = (t.insert k).insertMany l :=
   ext TreeMap.Raw.insertManyIfNewUnit_cons
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List α} :
     insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
   induction l₁ generalizing t with

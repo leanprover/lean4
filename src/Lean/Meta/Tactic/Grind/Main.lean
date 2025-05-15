@@ -94,8 +94,7 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
       activateTheorem thm 0
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) := do
-  -- TODO: abstract metavars
-  mvarId.ensureNoMVar
+  let mvarId ← mvarId.abstractMVars
   let mvarId ← mvarId.clearAuxDecls
   let mvarId ← mvarId.revertAll
   let mvarId ← mvarId.unfoldReducible

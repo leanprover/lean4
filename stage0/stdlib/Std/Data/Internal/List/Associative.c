@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Internal.List.Associative
-// Imports: Init.Data.BEq Init.Data.Nat.Simproc Init.Data.Option.Attach Init.Data.List.Perm Init.Data.List.Find Init.Data.List.MinMax Init.Data.List.Monadic Std.Data.Internal.List.Defs Std.Classes.Ord
+// Imports: Init.Data.BEq Init.Data.Nat.Simproc Init.Data.Option.Attach Init.Data.List.Perm Init.Data.List.Find Init.Data.List.MinMax Init.Data.List.Monadic Std.Data.Internal.List.Defs Std.Classes.Ord.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2933,7 +2933,7 @@ lean_object* initialize_Init_Data_List_Find(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_MinMax(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Classes_Ord(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Classes_Ord_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2963,7 +2963,7 @@ lean_dec_ref(res);
 res = initialize_Std_Data_Internal_List_Defs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Classes_Ord(builtin, lean_io_mk_world());
+res = initialize_Std_Classes_Ord_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_List_getValueCast_x21___rarg___closed__1 = _init_l_Std_Internal_List_getValueCast_x21___rarg___closed__1();

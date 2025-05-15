@@ -7,6 +7,7 @@ module
 
 prelude
 
+import all Init.Data.Option.Instances
 import Init.Data.Option.Attach
 import Init.Control.Lawful.Basic
 
@@ -39,7 +40,7 @@ namespace Option
   rw [map_eq_pure_bind]
   congr
   funext x
-  split <;> rfl
+  split <;> simp
 
 @[simp, grind] theorem forIn_none [Monad m] (b : β) (f : α → β → m (ForInStep β)) :
     forIn none b f = pure b := by
@@ -51,7 +52,7 @@ namespace Option
   rw [map_eq_pure_bind]
   congr
   funext x
-  split <;> rfl
+  split <;> simp
 
 @[congr] theorem forIn'_congr [Monad m] [LawfulMonad m] {as bs : Option α} (w : as = bs)
     {b b' : β} (hb : b = b')
@@ -124,5 +125,30 @@ theorem forIn_eq_elim [Monad m] [LawfulMonad m]
     (o : Option α) (g : α → β) (f : β → γ → m (ForInStep γ)) :
     forIn (o.map g) init f = forIn o init fun a y => f (g a) y := by
   cases o <;> simp
+
+@[simp] theorem elimM_pure [Monad m] [LawfulMonad m] (x : Option α) (y : m β) (z : α → m β) :
+    Option.elimM (pure x : m (Option α)) y z = x.elim y z := by
+  simp [Option.elimM]
+
+@[simp] theorem elimM_bind [Monad m] [LawfulMonad m] (x : m α) (f : α → m (Option β))
+    (y : m γ) (z : β → m γ) : Option.elimM (x >>= f) y z = (do Option.elimM (f (← x)) y z) := by
+  simp [Option.elimM]
+
+@[simp] theorem elimM_map [Monad m] [LawfulMonad m] (x : m α) (f : α → Option β)
+    (y : m γ) (z : β → m γ) : Option.elimM (f <$> x) y z = (do Option.elim (f (← x)) y z) := by
+  simp [Option.elimM]
+
+@[simp] theorem tryCatch_none (alternative : Unit → Option α) :
+  (tryCatch none alternative) = alternative () := rfl
+
+@[simp] theorem tryCatch_some (a : α) (alternative : Unit → Option α) :
+  (tryCatch (some a) alternative) = some a := rfl
+
+@[simp] theorem throw_eq_none : throw () = (none : Option α) := rfl
+
+@[simp, grind] theorem filterM_none [Applicative m] (p : α → m Bool) :
+    none.filterM p = pure none := rfl
+theorem filterM_some [Applicative m] (p : α → m Bool) (a : α) :
+    (some a).filterM p = (fun b => if b then some a else none) <$> p a := rfl
 
 end Option

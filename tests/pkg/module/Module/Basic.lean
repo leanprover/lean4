@@ -9,3 +9,5 @@ def f := 1
 theorem t : f = 1 := sorry
 
 theorem trfl : f = 1 := rfl
+
+@[expose] def fexp := 1

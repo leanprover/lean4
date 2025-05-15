@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 
 /-!
 # Low-level implementation of the size-bounded tree

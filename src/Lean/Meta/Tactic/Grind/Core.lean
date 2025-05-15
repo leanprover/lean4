@@ -38,6 +38,12 @@ where
     }
 
 /--
+Returns `true` if the parent is relevant for congruence closure.
+-/
+private def isCongrRelevant (parent : Expr) : Bool :=
+  parent.isApp || parent.isArrow
+
+/--
 Removes `root` parents from the congruence table.
 This is an auxiliary function performed while merging equivalence classes.
 -/
@@ -45,7 +51,7 @@ private def removeParents (root : Expr) : GoalM ParentSet := do
   let parents ← getParents root
   for parent in parents do
     -- Recall that we may have `Expr.forallE` in `parents` because of `ForallProp.lean`
-    if (← pure parent.isApp <&&> isCongrRoot parent) then
+    if (← pure (isCongrRelevant parent) <&&> isCongrRoot parent) then
       trace_goal[grind.debug.parent] "remove: {parent}"
       modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
   return parents
@@ -56,7 +62,7 @@ This is an auxiliary function performed while merging equivalence classes.
 -/
 private def reinsertParents (parents : ParentSet) : GoalM Unit := do
   for parent in parents do
-    if (← pure parent.isApp <&&> isCongrRoot parent) then
+    if (← pure (isCongrRelevant parent) <&&> isCongrRoot parent) then
       trace_goal[grind.debug.parent] "reinsert: {parent}"
       addCongrTable parent
 
@@ -178,7 +184,7 @@ def propagateCutsat : PendingTheoryPropagation → GoalM Unit
 
 /--
 Helper function for combining `ENode.ring?` fields and detecting what needs to be
-progagated to the commutative ring module.
+propagated to the commutative ring module.
 -/
 private def checkCommRingEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropagation := do
   match lhsRoot.ring? with

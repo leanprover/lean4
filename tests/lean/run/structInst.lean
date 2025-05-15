@@ -198,7 +198,7 @@ structure Bar extends Foo where
 /-
 Rather than `(fun x => x) 0 = 0` or `{ toFun := fun x => x }.toFun 0 = 0`
 -/
-/-- info: ⊢ 0 = 0 -/
+/-- trace: ⊢ 0 = 0 -/
 #guard_msgs in
 def bar : Bar where
   toFun x := x
@@ -309,9 +309,9 @@ structure A where
   m : Fin n
 
 /--
-info: a
+trace: a
 ---
-info: b
+trace: b
 -/
 #guard_msgs in
 example : A where

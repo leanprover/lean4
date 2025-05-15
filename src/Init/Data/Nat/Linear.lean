@@ -10,6 +10,8 @@ import Init.ByCases
 import Init.Data.Prod
 import Init.Data.RArray
 
+@[expose] section
+
 namespace Nat.Linear
 
 /-!
@@ -255,15 +257,8 @@ theorem Poly.denote_cons (ctx : Context) (k : Nat) (v : Var) (p : Poly) : denote
 
 attribute [local simp] Poly.denote_cons
 
-theorem Poly.denote_reverseAux (ctx : Context) (p q : Poly) : denote ctx (List.reverseAux p q) = denote ctx (p ++ q) := by
-  match p with
-  | [] => simp [List.reverseAux]
-  | (k, v) :: p => simp [List.reverseAux, denote_reverseAux]
-
-attribute [local simp] Poly.denote_reverseAux
-
 theorem Poly.denote_reverse (ctx : Context) (p : Poly) : denote ctx (List.reverse p) = denote ctx p := by
-  simp [List.reverse]
+  induction p <;> simp [*]
 
 attribute [local simp] Poly.denote_reverse
 

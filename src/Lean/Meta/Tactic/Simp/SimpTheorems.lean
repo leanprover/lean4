@@ -122,9 +122,23 @@ structure SimpTheorem where
     It is also viewed an `id` used to "erase" `simp` theorems from `SimpTheorems`.
   -/
   origin      : Origin
-  /-- `rfl` is true if `proof` is by `Eq.refl` or `rfl`. -/
+  /--
+  `rfl` is true if `proof` is by `Eq.refl` or `rfl`.
+
+  NOTE: As the visibility of `proof` may have changed between the point of declaration and use
+  of a `@[simp]` theorem, `isRfl` must be used to check for this flag.
+  -/
   rfl         : Bool
   deriving Inhabited
+
+/-- Checks whether the theorem holds by reflexivity in the scope given by the environment. -/
+def SimpTheorem.isRfl (s : SimpTheorem) (env : Environment) : Bool := Id.run do
+  if !s.rfl then
+    return false
+  let .decl declName _ _ := s.origin |
+    return true  -- not a global simp theorem, proof visibility must be unchanged
+  -- If we can see the proof, it must hold in the current scope.
+  env.findAsync? declName matches some ({ kind := .thm, .. })
 
 mutual
   private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
@@ -528,6 +542,10 @@ def SimpTheorems.unfoldEvenWithEqns (declName : Name) : CoreM Bool := do
   return false
 
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
+  -- NOTE: the latter condition is only to preserve previous behavior where simp accepts even things
+  -- that neither theorems nor unfoldable. This should likely be tightened up in the future.
+  if !(← getConstInfo declName).isDefinition && getOriginalConstKind? (← getEnv) declName == some .defn then
+    throwError "invalid 'simp', definition with exposed body expected: {.ofConstName declName}"
   if (← ignoreEquations declName) then
     return d.addDeclToUnfoldCore declName
   else if let some eqns ← getEqnsFor? declName then

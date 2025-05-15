@@ -647,8 +647,6 @@ x_33 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_33, 0, x_23);
 x_34 = l___private_Lean_Elab_Tactic_SimpArith_0__Lean_Elab_Tactic_addSuggestions___closed__3;
 x_35 = l_Lean_Meta_Tactic_TryThis_addSuggestions(x_25, x_32, x_33, x_34, x_27, x_27, x_4, x_5, x_6, x_7, x_22);
-lean_dec(x_33);
-lean_dec(x_25);
 return x_35;
 }
 else
@@ -697,8 +695,6 @@ x_49 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_49, 0, x_38);
 x_50 = l___private_Lean_Elab_Tactic_SimpArith_0__Lean_Elab_Tactic_addSuggestions___closed__3;
 x_51 = l_Lean_Meta_Tactic_TryThis_addSuggestions(x_40, x_48, x_49, x_50, x_43, x_43, x_4, x_5, x_6, x_7, x_37);
-lean_dec(x_49);
-lean_dec(x_40);
 return x_51;
 }
 }
@@ -766,8 +762,6 @@ x_70 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_70, 0, x_58);
 x_71 = l___private_Lean_Elab_Tactic_SimpArith_0__Lean_Elab_Tactic_addSuggestions___closed__3;
 x_72 = l_Lean_Meta_Tactic_TryThis_addSuggestions(x_60, x_69, x_70, x_71, x_63, x_63, x_4, x_5, x_6, x_7, x_56);
-lean_dec(x_70);
-lean_dec(x_60);
 return x_72;
 }
 }
@@ -852,8 +846,6 @@ x_96 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_96, 0, x_83);
 x_97 = l___private_Lean_Elab_Tactic_SimpArith_0__Lean_Elab_Tactic_addSuggestions___closed__3;
 x_98 = l_Lean_Meta_Tactic_TryThis_addSuggestions(x_85, x_95, x_96, x_97, x_88, x_88, x_4, x_5, x_6, x_7, x_81);
-lean_dec(x_96);
-lean_dec(x_85);
 return x_98;
 }
 }

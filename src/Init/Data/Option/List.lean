@@ -7,6 +7,8 @@ module
 
 prelude
 import Init.Data.List.Lemmas
+import all Init.Data.List.Control
+import all Init.Data.Option.Instances
 
 namespace Option
 
@@ -44,5 +46,20 @@ theorem pairwise_toList {P : α → α → Prop} {o : Option α} : o.toList.Pair
 @[simp, grind]
 theorem head?_toList {o : Option α} : o.toList.head? = o := by
   cases o <;> simp
+
+theorem toList_filter {o : Option α} {p : α → Bool} : (o.filter p).toList = o.toList.filter p :=
+  match o with
+  | none => rfl
+  | some a =>
+    match h : p a with
+    | false => by simp [filter_some_neg h, h]
+    | true => by simp [filter_some_pos h, h]
+
+theorem toList_bind {o : Option α} {f : α → Option β} :
+    (o.bind f).toList = o.toList.flatMap (Option.toList ∘ f) := by
+  cases o <;> simp
+
+theorem toList_join {o : Option (Option α)} : o.join.toList = o.toList.flatMap Option.toList := by
+  simp [toList_bind, join_eq_bind_id]
 
 end Option

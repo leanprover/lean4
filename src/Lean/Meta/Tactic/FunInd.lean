@@ -178,7 +178,7 @@ differences:
 
 ## Unfolding principles
 
-The code can also create a variant of the induction/cases principles that automatially unfolds
+The code can also create a variant of the induction/cases principles that automatically unfolds
 the function application. It's motive abstracts over the function call, so for the ackermann
 function one gets
 
@@ -191,7 +191,7 @@ ackermann.fun_cases_unfolding
   (x✝ x✝¹ : Nat) : motive x✝ x✝¹ (ackermann x✝ x✝¹)
 ```
 
-To implement this, in the inital goal `motive x (ackermann x)` of `buildInductionBody` we unfold the
+To implement this, in the initial goal `motive x (ackermann x)` of `buildInductionBody` we unfold the
 function definition, and then reduce is as we go into match, ite or let expressions, using the
 `withRewrittenMotive` function.
 
@@ -202,13 +202,6 @@ The combinators passed to `withRewrittenMotive` are forgiving, so when `unfoldin
 something goes wrong, one still gets a useful induction principle, just maybe with the function
 not fully simplified.
 -/
-
-register_builtin_option backward.funind.contradiction : Bool := {
-  defValue := true
-  descr    := "omit cases by contradiction (temporary bootstrap option)"
-}
-
-set_option autoImplicit false
 
 namespace Lean.Tactic.FunInd
 
@@ -332,7 +325,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
             -- statement and the inferred alt types
             let dummyGoal := mkConst ``True []
             mkArrow eTypeAbst dummyGoal)
-          (onAlt := fun altType alt => do
+          (onAlt := fun _altIdx altType alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
@@ -350,7 +343,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onMotive := fun _motiveArgs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
             M.eval (foldAndCollect oldIH newIH isRecCall body))
-          (onAlt := fun altType alt => do
+          (onAlt := fun _altIdx altType alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
             -- We don't have suitable newIH around here, but we don't care since
             -- we just want to fold calls. So lets create a fake one.
@@ -612,8 +605,7 @@ def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
         expr := f
         proof? := (mkAppN (mkConst ``if_neg us) #[c, h, hc, α, t, f])
       }
-    else
-      return { expr := e}
+    return { expr := e}
   | dite@dite α c h t f =>
     let us := dite.constLevels!
     if (← isDefEq c (← inferType hc)) then
@@ -626,10 +618,22 @@ def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
         expr := f.beta #[hc]
         proof? := (mkAppN (mkConst ``dif_neg us) #[c, h, hc, α, t, f])
       }
-    else
-      return { expr := e }
+    return { expr := e }
+  | cond@cond α c t f =>
+    let us := cond.constLevels!
+    if (← isDefEq (← inferType hc) (← mkEq c (mkConst ``Bool.true))) then
+      return {
+        expr := t
+        proof? := (mkAppN (mkConst ``Bool.cond_pos us) #[α, c, t, f, hc])
+      }
+    if (← isDefEq (← inferType hc) (← mkEq c (mkConst ``Bool.false))) then
+      return {
+        expr := f
+        proof? := (mkAppN (mkConst ``Bool.cond_neg us) #[α, c, t, f, hc])
+      }
+    return { expr := e }
   | _ =>
-      return { expr := e }
+    return { expr := e }
 
 def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
   if e.isLet then
@@ -655,7 +659,7 @@ def rwFun (names : Array Name) (e : Expr) : MetaM Simp.Result := do
     else
       return { expr := e }
 
-def rwMatcher (e : Expr) : MetaM Simp.Result := do
+def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
   if e.isAppOf ``PSum.casesOn || e.isAppOf ``PSigma.casesOn then
     let mut e := e
     while true do
@@ -669,10 +673,67 @@ def rwMatcher (e : Expr) : MetaM Simp.Result := do
           break
     return { expr := e }
   else
-    Split.simpMatch e
+    unless (← isMatcherApp e) do
+      return { expr := e }
+    let matcherDeclName := e.getAppFn.constName!
+    let eqns ← Match.genMatchCongrEqns matcherDeclName
+    unless altIdx < eqns.size do
+      trace[Tactic.FunInd] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
+      return { expr := e }
+    let eqnThm := eqns[altIdx]!
+    try
+      withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} rewriting with {.ofConstName eqnThm} in{indentExpr e}") do
+      let eqProof := mkAppN (mkConst eqnThm e.getAppFn.constLevels!) e.getAppArgs
+      let (hyps, _, eqType) ← forallMetaTelescope (← inferType eqProof)
+      trace[Meta.FunInd] "eqProof has type{indentExpr eqType}"
+      let proof := mkAppN eqProof hyps
+      let hyps := hyps.map (·.mvarId!)
+      let (isHeq, lhs, rhs) ← do
+        if let some (_, lhs, _, rhs) := eqType.heq? then pure (true, lhs, rhs) else
+        if let some (_, lhs, rhs) := eqType.eq? then pure (false, lhs, rhs) else
+        throwError m!"Type of {.ofConstName eqnThm} is not an equality"
+      if !(← isDefEq e lhs) then
+        throwError m!"Left-hand side {lhs} of {.ofConstName eqnThm} does not apply to {e}"
+      /-
+      Here we instantiate the hypotheses of the congruence equation theorem
+      There are two sets of hypotheses to instantiate:
+      - `Eq` or `HEq` that relate the discriminants to the patterns
+        Solving these should instantiate the pattern variables.
+      - Overlap hypotheses (`isEqnThmHypothesis`)
+      With more book keeping we could maybe do this very precisely, knowing exactly
+      which facts provided by the splitter should go where, but it's tedious.
+      So for now let's use heuristics and try `assumption` and `rfl`.
+      -/
+      for h in hyps do
+        unless (← h.isAssigned) do
+          let hType ← h.getType
+          if Simp.isEqnThmHypothesis hType then
+            -- Using unrestricted h.substVars here does not work well; it could
+            -- even introduce a dependency on the `oldIH` we want to eliminate
+            h.assumption <|> throwError "Failed to discharge {h}"
+          else if hType.isEq then
+            h.assumption <|> h.refl <|> throwError m!"Failed to resolve {h}"
+          else if hType.isHEq then
+            h.assumption <|> h.hrefl <|> throwError m!"Failed to resolve {h}"
+      let unassignedHyps ← hyps.filterM fun h => return !(← h.isAssigned)
+      unless unassignedHyps.isEmpty do
+        throwError m!"Not all hypotheses of {.ofConstName eqnThm} could be discharged: {unassignedHyps}"
+      let rhs ← instantiateMVars rhs
+      let proof ← instantiateMVars proof
+      let proof ← if isHeq then
+          try mkEqOfHEq proof
+          catch e => throwError m!"Could not un-HEq {proof}:{indentD e.toMessageData} "
+        else
+          pure proof
+      return {
+        expr := rhs
+        proof? := proof
+      }
+    catch ex =>
+      trace[Meta.FunInd] "Failed to apply {.ofConstName eqnThm}:{indentD ex.toMessageData}"
+      return { expr := e }
 
 /--
-
 Builds an expression of type `goal` by replicating the expression `e` into its tail-call-positions,
 where it calls `buildInductionCase`. Collects the cases of the final induction hypothesis
 as `MVars` as it goes.
@@ -714,12 +775,14 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
   | cond _α c t f =>
     let c' ← foldAndCollect oldIH newIH isRecCall c
-    let t' ← withLocalDecl `h .default (← mkEq c' (toExpr true)) fun h => M2.branch do
-      let t' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall t
+    let t' ← withLocalDecl `h .default (← mkEq c' (mkConst ``Bool.true)) fun h => M2.branch do
+      let t' ← withRewrittenMotiveArg goal (rwIfWith h) fun goal' =>
+        buildInductionBody toErase toClear goal' oldIH newIH isRecCall t
       mkLambdaFVars #[h] t'
-    let f' ← withLocalDecl `h .default (← mkEq c' (toExpr false)) fun h => M2.branch do
-      let f' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall f
-      mkLambdaFVars #[h] f'
+    let f' ← withLocalDecl `h .default (← mkEq c' (mkConst ``Bool.false)) fun h => M2.branch do
+      let t' ← withRewrittenMotiveArg goal (rwIfWith h) fun goal' =>
+        buildInductionBody toErase toClear goal' oldIH newIH isRecCall f
+      mkLambdaFVars #[h] t'
     let u ← getLevel goal
     return mkApp4 (mkConst ``Bool.dcond [u]) goal c' t' f'
   | _ =>
@@ -727,24 +790,23 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
 
   -- Check for unreachable cases. We look for the kind of expressions that `by contradiction`
   -- produces
-  if backward.funind.contradiction.get (← getOptions) then
-    match_expr e with
-    | False.elim _ h => do
-      return ← mkFalseElim goal h
-    | absurd _ _ h₁ h₂ => do
-      return ← mkAbsurd goal h₁ h₂
-    | _ => pure ()
-    if e.isApp && e.getAppFn.isConst && isNoConfusion (← getEnv) e.getAppFn.constName! then
-      let arity := (← inferType e.getAppFn).getNumHeadForalls -- crucially not reducing the noConfusionType in the type
-      let h := e.getArg! (arity - 1)
-      let hType ← inferType h
-      -- The following duplicates a bit of code from the contradiction tactic, maybe worth extracting
-      -- into a common helper at some point
-      if let some (_, lhs, rhs) ← matchEq? hType then
-        if let some lhsCtor ← matchConstructorApp? lhs then
-        if let some rhsCtor ← matchConstructorApp? rhs then
-        if lhsCtor.name != rhsCtor.name then
-          return (← mkNoConfusion goal h)
+  match_expr e with
+  | False.elim _ h => do
+    return ← mkFalseElim goal h
+  | absurd _ _ h₁ h₂ => do
+    return ← mkAbsurd goal h₁ h₂
+  | _ => pure ()
+  if e.isApp && e.getAppFn.isConst && isNoConfusion (← getEnv) e.getAppFn.constName! then
+    let arity := (← inferType e.getAppFn).getNumHeadForalls -- crucially not reducing the noConfusionType in the type
+    let h := e.getArg! (arity - 1)
+    let hType ← inferType h
+    -- The following duplicates a bit of code from the contradiction tactic, maybe worth extracting
+    -- into a common helper at some point
+    if let some (_, lhs, rhs) ← matchEq? hType then
+      if let some lhsCtor ← matchConstructorApp? lhs then
+      if let some rhsCtor ← matchConstructorApp? rhs then
+      if lhsCtor.name != rhsCtor.name then
+        return (← mkNoConfusion goal h)
 
   -- we look in to `PProd.mk`, as it occurs in the mutual structural recursion construction
   match_expr goal with
@@ -773,13 +835,13 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => M2.branch do
+        (onAlt := fun altIdx expAltType alt => M2.branch do
           lambdaTelescope1 alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
               let toErase' := toErase ++ #[oldIH', newIH'.fvarId!]
               let toClear' := toClear ++ matcherApp.discrs.filterMap (·.fvarId?)
-              let alt' ← withRewrittenMotiveArg goal' rwMatcher fun goal'' => do
+              let alt' ← withRewrittenMotiveArg goal' (rwMatcher altIdx) fun goal'' => do
                 -- logInfo m!"rwMatcher after {matcherApp.matcherName} on{indentExpr goal'}\nyields{indentExpr goal''}"
                 buildInductionBody toErase' toClear' goal'' oldIH' newIH'.fvarId! isRecCall alt
               mkLambdaFVars #[newIH'] alt')
@@ -796,8 +858,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => M2.branch do
-          withRewrittenMotiveArg expAltType Split.simpMatch fun expAltType' =>
+        (onAlt := fun altIdx expAltType alt => M2.branch do
+          withRewrittenMotiveArg expAltType (rwMatcher altIdx) fun expAltType' =>
             buildInductionBody toErase toClear expAltType' oldIH newIH isRecCall alt)
       return matcherApp'.toExpr
 
@@ -972,6 +1034,7 @@ where doRealize (inductName : Name) := do
     { name := inductName, levelParams := us, type := eTyp, value := e' }
 
   setFunIndInfo {
+      funName := name
       funIndName := inductName
       levelMask := usMask
       params := paramMask.map (cond · .param .dropped) ++ #[.target]
@@ -1001,9 +1064,9 @@ def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : 
 For a (non-mutual!) definition of `name`, uses the `FunIndInfo` associated with the `unaryInduct` and
 derives the one for the n-ary function.
 -/
-def setNaryFunIndInfo (unfolding : Bool) (fixedParamPerms : FixedParamPerms) (name : Name) (unaryInduct : Name) : MetaM Unit := do
+def setNaryFunIndInfo (unfolding : Bool) (fixedParamPerms : FixedParamPerms) (funName : Name) (unaryInduct : Name) : MetaM Unit := do
   assert!  fixedParamPerms.perms.size = 1 -- only non-mutual for now
-  let funIndName := getFunInductName (unfolding := unfolding) name
+  let funIndName := getFunInductName (unfolding := unfolding) funName
   unless funIndName = unaryInduct do
     let some unaryFunIndInfo ← getFunIndInfoForInduct? unaryInduct
       | throwError "Expected {unaryInduct} to have FunIndInfo"
@@ -1019,7 +1082,7 @@ def setNaryFunIndInfo (unfolding : Bool) (fixedParamPerms : FixedParamPerms) (na
         params := params.push .target
     assert! j + 1 = unaryFunIndInfo.params.size
 
-    setFunIndInfo { unaryFunIndInfo with funIndName, params }
+    setFunIndInfo { unaryFunIndInfo with funName, funIndName, params }
 
 /--
 In the type of `value`, reduces
@@ -1028,17 +1091,20 @@ In the type of `value`, reduces
 * `PSum.casesOn (PSum.inl x) k₁ k₂                    -->  k₁ x`
 * `foo._unary (PSum.inl (PSigma.mk a b))              -->  foo a b`
 and then wraps `value` in an appropriate type hint.
+
+(The implementation is repetitive and verbose, and should be cleaned up when convenient.)
 -/
 def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
   let type ← inferType value
-  let cleanType ← Meta.transform type (skipConstInApp := true) (pre := fun e => do
+  let cleanType ← Meta.transform type (skipConstInApp := true) (post := fun e => do
     -- Need to beta-reduce first
     let e' := e.headBeta
     if e' != e then
       return .visit e'
+
+    e.withApp fun f args => do
     -- Look for PSigma redexes
-    if e.isAppOf ``PSigma.casesOn then
-      let args := e.getAppArgs
+    if f.isConstOf ``PSigma.casesOn then
       if 5 ≤ args.size then
         let scrut := args[3]!
         let k := args[4]!
@@ -1047,9 +1113,32 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
           let #[_, _, x, y] := scrut.getAppArgs | unreachable!
           let e' := (k.beta #[x, y]).beta extra
           return .visit e'
+    -- Look for PSigma projection
+    if f.isConstOf ``PSigma.fst then
+      if h : 3 ≤ args.size then
+        let scrut := args[2]
+        let extra := args[3:]
+        if scrut.isAppOfArity ``PSigma.mk 4 then
+          let #[_, _, x, _y] := scrut.getAppArgs | unreachable!
+          let e' := x.beta extra
+          return .visit e'
+    if f.isConstOf ``PSigma.snd then
+      if h : 3 ≤ args.size then
+        let scrut := args[2]
+        let extra := args[3:]
+        if scrut.isAppOfArity ``PSigma.mk 4 then
+          let #[_, _, _x, y] := scrut.getAppArgs | unreachable!
+          let e' := y.beta extra
+          return .visit e'
+    if f.isProj then
+      let scrut := e.projExpr!
+      if scrut.isAppOfArity ``PSigma.mk 4 then
+        let #[_, _, x, y] := scrut.getAppArgs | unreachable!
+        let e' := (if e.projIdx! = 0 then x else y).beta args
+        return .visit e'
+
     -- Look for PSum redexes
-    if e.isAppOf ``PSum.casesOn then
-      let args := e.getAppArgs
+    if f.isConstOf ``PSum.casesOn then
       if 6 ≤ args.size then
         let scrut := args[3]!
         let k₁ := args[4]!
@@ -1062,8 +1151,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
           let e' := (k₂.beta #[scrut.appArg!]).beta extra
           return .visit e'
     -- Look for _unary redexes
-    if e.isAppOf eqnInfo.declNameNonRec then
-      let args := e.getAppArgs
+    if f.isConstOf eqnInfo.declNameNonRec then
       if h : args.size ≥ eqnInfo.fixedParamPerms.numFixed + 1 then
         let xs := args[:eqnInfo.fixedParamPerms.numFixed]
         let packedArg := args[eqnInfo.fixedParamPerms.numFixed]
@@ -1380,6 +1468,7 @@ where doRealize inductName := do
         params := params.push .target
 
     setFunIndInfo {
+      funName := names[0]!
       funIndName := inductName, levelMask := usMask, params := params
     }
 
@@ -1452,6 +1541,7 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
       { name := casesName, levelParams := us, type := eTyp, value := e' }
 
     setFunIndInfo {
+      funName := name
       funIndName := casesName
       levelMask := usMask
       params := .replicate motiveArity .target

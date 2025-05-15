@@ -79,14 +79,14 @@ end
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
 /--
-info: [grind.offset.model] i := 1
+trace: [grind.offset.model] i := 1
 [grind.offset.model] j := 0
 [grind.offset.model] 「0」 := 0
 [grind.offset.model] 「i + j」 := 0
 [grind.offset.model] 「i + 1」 := 2
 [grind.offset.model] 「i + j + 1」 := 1
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.offset.model true in
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
   fail_if_success grind
@@ -173,13 +173,13 @@ example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h�
   grind
 
 /--
-info: [grind.issues] found congruence between
+trace: [grind.issues] found congruence between
       g b
     and
       f a
     but functions have different types
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.issues true in
 set_option trace.grind.debug.proof false in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by

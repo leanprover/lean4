@@ -13,10 +13,10 @@ example (x y : Int) : x % 2 + y = 3 → x = 5 → y = 2 := by
   grind
 
 /--
-info: [grind.cutsat.model] x := 5
+trace: [grind.cutsat.model] x := 5
 [grind.cutsat.model] y := 2
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.cutsat.model true in
 example (x y : Int) : x % 2 + y = 3 → x ≤ 5 → x > 4 → y = 1 := by
   fail_if_success grind

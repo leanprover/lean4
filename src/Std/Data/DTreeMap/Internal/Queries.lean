@@ -8,7 +8,7 @@ import Init.Data.Nat.Compare
 import Std.Data.DTreeMap.Internal.Def
 import Std.Data.DTreeMap.Internal.Balanced
 import Std.Data.DTreeMap.Internal.Ordered
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 
 /-!
 # Low-level implementation of the size-bounded tree

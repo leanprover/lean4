@@ -25,7 +25,7 @@ namespace Int
 @[simp] protected theorem neg_nonpos_iff (i : Int) : -i ≤ 0 ↔ 0 ≤ i := by omega
 
 @[simp] theorem zero_le_ofNat (n : Nat) : 0 ≤ ((no_index (OfNat.ofNat n)) : Int) :=
-  ofNat_nonneg _
+  natCast_nonneg _
 
 @[simp] theorem neg_natCast_le_natCast (n m : Nat) : -(n : Int) ≤ (m : Int) :=
   Int.le_trans (by simp) (ofNat_zero_le m)
@@ -52,24 +52,16 @@ protected theorem ofNat_add_one_out (n : Nat) : ↑n + (1 : Int) = ↑(Nat.succ 
 
 @[norm_cast] theorem natCast_inj {m n : Nat} : (m : Int) = (n : Int) ↔ m = n := ofNat_inj
 
-@[simp, norm_cast] theorem natAbs_cast (n : Nat) : natAbs ↑n = n := rfl
-
 @[norm_cast]
 protected theorem natCast_sub {n m : Nat} : n ≤ m → (↑(m - n) : Int) = ↑m - ↑n := ofNat_sub
-
-@[simp high] theorem natCast_eq_zero {n : Nat} : (n : Int) = 0 ↔ n = 0 := by omega
 
 theorem natCast_ne_zero {n : Nat} : (n : Int) ≠ 0 ↔ n ≠ 0 := by omega
 
 theorem natCast_ne_zero_iff_pos {n : Nat} : (n : Int) ≠ 0 ↔ 0 < n := by omega
 
-@[simp high] theorem natCast_pos {n : Nat} : (0 : Int) < n ↔ 0 < n := by omega
-
 theorem natCast_succ_pos (n : Nat) : 0 < (n.succ : Int) := natCast_pos.2 n.succ_pos
 
 @[simp high] theorem natCast_nonpos_iff {n : Nat} : (n : Int) ≤ 0 ↔ n = 0 := by omega
-
-theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ofNat_le.2 (Nat.zero_le _)
 
 @[simp] theorem sign_natCast_add_one (n : Nat) : sign (n + 1) = 1 := rfl
 

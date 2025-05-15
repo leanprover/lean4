@@ -74,6 +74,11 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  /--
+  Attributes that should be applied to all matching declaration in the section. Inherited from
+  parent scopes.
+  -/
+  attrs : List (TSyntax ``Parser.Term.attrInstance) := []
   deriving Inhabited
 
 structure State where
@@ -231,7 +236,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     nextMacroScope           := coreS.nextMacroScope
     ngen                     := coreS.ngen
     infoState.trees          := s.infoState.trees.append coreS.infoState.trees
-    -- we assume substitution of `assingment` has already happened, but for lazy assignments we only
+    -- we assume substitution of `assignment` has already happened, but for lazy assignments we only
     -- do it at the very end
     infoState.lazyAssignment := coreS.infoState.lazyAssignment
     traceState.traces        := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }

@@ -12,7 +12,7 @@ import Init.Data.List.Find
 import Init.Data.List.MinMax
 import Init.Data.List.Monadic
 import Std.Data.Internal.List.Defs
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on

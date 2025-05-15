@@ -38,7 +38,7 @@ theorem isEmpty_insert [TransCmp cmp] {k : α} {v : β} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   DTreeMap.mem_iff_contains
 
-@[simp]
+@[simp, grind]
 theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
   DTreeMap.contains_iff_mem
 
@@ -94,12 +94,12 @@ theorem singleton_eq_insert {p : α × β} :
     Singleton.singleton p = (∅ : TreeMap α β cmp).insert p.1 p.2 :=
   rfl
 
-@[simp]
+@[simp, grind =]
 theorem contains_insert [h : TransCmp cmp] {k a : α} {v : β} :
     (t.insert k v).contains a = (cmp k a == .eq || t.contains a) :=
   DTreeMap.contains_insert
 
-@[simp]
+@[simp, grind =]
 theorem mem_insert [TransCmp cmp] {k a : α} {v : β} :
     a ∈ t.insert k v ↔ cmp k a = .eq ∨ a ∈ t :=
   DTreeMap.mem_insert
@@ -222,6 +222,7 @@ theorem getElem?_of_isEmpty [TransCmp cmp] {a : α} :
     t.isEmpty = true → t[a]? = none :=
   DTreeMap.Const.get?_of_isEmpty
 
+@[grind =]
 theorem getElem?_insert [TransCmp cmp] {a k : α} {v : β} :
     (t.insert k v)[a]? = if cmp k a = .eq then some v else t[a]? :=
   DTreeMap.Const.get?_insert
@@ -752,6 +753,15 @@ theorem getThenInsertIfNew?_fst [TransCmp cmp] {k : α} {v : β} :
 theorem getThenInsertIfNew?_snd [TransCmp cmp] {k : α} {v : β} :
     (getThenInsertIfNew? t k v).2 = t.insertIfNew k v :=
   ext <| DTreeMap.Const.getThenInsertIfNew?_snd
+
+instance [TransCmp cmp] : LawfulGetElem (TreeMap α β cmp) α β (fun m a => a ∈ m) where
+  getElem?_def m a _ := by
+    split
+    · exact getElem?_eq_some_getElem
+    · exact getElem?_eq_none ‹_›
+  getElem!_def m a := by
+    rw [getElem!_eq_get!_getElem?]
+    split <;> simp_all
 
 @[simp]
 theorem length_keys [TransCmp cmp] :

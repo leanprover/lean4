@@ -37,13 +37,13 @@ def propagateForallPropUp (e : Expr) : GoalM Unit := do
 where
   propagateImpliesUp (a b : Expr) : GoalM Unit := do
     unless (← alreadyInternalized b) do return ()
-    if (← isEqFalse a) then
+    if (← isEqFalse a <&&> isProp b) then
       -- a = False → (a → b) = True
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_false_left) a b (← mkEqFalseProof a)
-    else if (← isEqTrue a) then
+    else if (← isEqTrue a <&&> isProp b) then
       -- a = True → (a → b) = b
       pushEq e b <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_left) a b (← mkEqTrueProof a)
-    else if (← isEqTrue b) then
+    else if (← isEqTrue b <&&> isProp a) then
       -- b = True → (a → b) = True
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_right) a b (← mkEqTrueProof b)
     else if (← isEqFalse b <&&> isEqTrue e <&&> isProp a) then

@@ -3,7 +3,7 @@ variable (n v₁ v₂) (hv₁: v₁ < n + 1) (hv₂: v₂ < n + 1)
 theorem foo (_: ¬ Fin.mk v₂ hv₂ = Fin.mk v₁ hv₁ ): True := trivial
 
 /--
-info: [Meta.Tactic.simp.unify] eq_self:1000, failed to unify
+trace: [Meta.Tactic.simp.unify] eq_self:1000, failed to unify
       ?a = ?a
     with
       ⟨v₂, hv₂⟩ = ⟨v₁, hv₁⟩

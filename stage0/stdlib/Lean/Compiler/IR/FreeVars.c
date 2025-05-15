@@ -94,8 +94,8 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_IR_HasIndex_visitParam
 LEAN_EXPORT uint8_t l_Lean_IR_HasIndex_visitArgs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_seq(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_IR_Alt_body(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_withParams___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_AltCore_body(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectJP(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectVar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectAlts___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -634,7 +634,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxInd
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_IR_AltCore_body(x_2);
+x_4 = l_Lean_IR_Alt_body(x_2);
 x_5 = lean_apply_2(x_1, x_4, x_3);
 return x_5;
 }
@@ -1751,7 +1751,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIn
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Lean_IR_AltCore_body(x_2);
+x_5 = l_Lean_IR_Alt_body(x_2);
 x_6 = lean_apply_3(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -2503,7 +2503,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_array_uget(x_2, x_3);
-x_7 = l_Lean_IR_AltCore_body(x_6);
+x_7 = l_Lean_IR_Alt_body(x_6);
 lean_dec(x_6);
 x_8 = l_Lean_IR_HasIndex_visitFnBody(x_1, x_7);
 lean_dec(x_7);

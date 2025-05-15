@@ -65,7 +65,6 @@ static lean_object* l_Lean_Compiler_LCNF_FixedParams_instHashableAbsValue___clos
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__10___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_AltCore_getCode(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__8___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__9(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___closed__1;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -81,6 +80,7 @@ LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lean_Compiler_LCNF_FixedParams_ev
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__13(uint8_t, lean_object*, size_t, size_t);
 uint8_t l_Lean_Expr_isErased(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalFVar(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_Alt_getCode(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_inMutualBlock___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_mkFixedParamsMap___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -2690,7 +2690,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
-x_9 = l_Lean_Compiler_LCNF_AltCore_getCode(x_8);
+x_9 = l_Lean_Compiler_LCNF_Alt_getCode(x_8);
 lean_dec(x_8);
 lean_inc(x_5);
 x_10 = l_Lean_Compiler_LCNF_FixedParams_evalCode(x_9, x_5, x_6);

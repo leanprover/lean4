@@ -81,7 +81,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_Rese
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
-lean_object* l_Lean_IR_AltCore_body(lean_object*);
+lean_object* l_Lean_IR_Alt_body(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_tryS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3154,7 +3154,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
 lean_dec(x_4);
 x_7 = lean_array_uget(x_1, x_2);
-x_8 = l_Lean_IR_AltCore_body(x_7);
+x_8 = l_Lean_IR_Alt_body(x_7);
 lean_dec(x_7);
 x_9 = l_Lean_IR_ResetReuse_collectResets(x_8, x_5);
 x_10 = lean_ctor_get(x_9, 0);

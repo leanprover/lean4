@@ -105,8 +105,8 @@ LEAN_EXPORT uint8_t l_Lean_IR_ExpandResetReuse_isSelfSSet(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_ExpandResetReuse_mkSlowPath___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_IR_ExpandResetReuse_eraseProjIncForAux___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_Alt_body(lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
-lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_computeProjCounts___boxed(lean_object*);
 static lean_object* l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_IR_ExpandResetReuse_eraseProjIncForAux___spec__1___closed__3;
@@ -926,7 +926,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_2);
-x_7 = l_Lean_IR_AltCore_body(x_6);
+x_7 = l_Lean_IR_Alt_body(x_6);
 lean_dec(x_6);
 x_8 = l_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody(x_7, x_4);
 x_9 = 1;
@@ -1553,7 +1553,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_array_uget(x_2, x_3);
-x_7 = l_Lean_IR_AltCore_body(x_6);
+x_7 = l_Lean_IR_Alt_body(x_6);
 lean_dec(x_6);
 x_8 = l_Lean_IR_ExpandResetReuse_consumed(x_1, x_7);
 if (x_8 == 0)

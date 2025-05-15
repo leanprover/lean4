@@ -61,8 +61,8 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_allImportedModuleNames(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_isTailCallTo(lean_object*, lean_object*);
+lean_object* l_Lean_IR_Alt_body(lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
-lean_object* l_Lean_IR_AltCore_body(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_mkVarJPMaps(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_CollectUsedDecls_collectInitDecl(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -215,7 +215,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
 lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
-x_9 = l_Lean_IR_AltCore_body(x_8);
+x_9 = l_Lean_IR_Alt_body(x_8);
 lean_dec(x_8);
 x_10 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_9, x_5, x_6);
 x_11 = lean_ctor_get(x_10, 0);
@@ -2163,7 +2163,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_2);
-x_7 = l_Lean_IR_AltCore_body(x_6);
+x_7 = l_Lean_IR_Alt_body(x_6);
 lean_dec(x_6);
 x_8 = l_Lean_IR_CollectMaps_collectFnBody(x_7, x_4);
 x_9 = 1;

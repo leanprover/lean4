@@ -18,6 +18,10 @@ section ListIteratorBasic
 #guard_msgs in
 #eval [1, 2, 3].iter.toArray
 
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval [1, 2, 3].iter |>.allowNontermination.toList
+
 /-- info: ([1, 2, 3].iterM IO).toList : IO (List Nat) -/
 #guard_msgs in
 #check [1, 2, 3].iterM IO |>.toList

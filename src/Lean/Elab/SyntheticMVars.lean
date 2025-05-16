@@ -9,6 +9,7 @@ import Lean.Util.NumObjs
 import Lean.Util.ForEachExpr
 import Lean.Util.OccursCheck
 import Lean.Elab.Tactic.Basic
+import Lean.Meta.AbstractNestedProofs
 
 namespace Lean.Elab.Term
 open Tactic (TacticM evalTactic getUnsolvedGoals withTacticInfoContext)
@@ -342,11 +343,18 @@ mutual
   -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (kind : TacticMVarKind) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
     -- exit exporting context if entering proof
-    let isExporting ← pure (← getEnv).isExporting <&&> do
+    let isNoLongerExporting ← pure (← getEnv).isExporting <&&> do
       mvarId.withContext do
-        return !(← isProp (← mvarId.getType))
-    withExporting (isExporting := isExporting) do
+        isProp (← mvarId.getType)
     instantiateMVarDeclMVars mvarId
+    -- When exiting exporting context, use fresh mvar for running tactics and abstract it into an
+    -- aux theorem in the end so that we cannot leak references to private decls into the exporting
+    -- context.
+    let mut mvarId' := mvarId
+    if isNoLongerExporting then
+      let mvarDecl ← getMVarDecl mvarId
+      mvarId' := (← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances mvarDecl.type mvarDecl.kind).mvarId!
+    withExporting (isExporting := (← getEnv).isExporting && !isNoLongerExporting) do
     /-
     TODO: consider using `runPendingTacticsAt` at `mvarId` local context and target type.
     Issue #1380 demonstrates that the goal may still contain pending metavariables.
@@ -362,7 +370,7 @@ mutual
     in more complicated scenarios.
     -/
     tryCatchRuntimeEx
-      (do let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId <| kind.maybeWithoutRecovery do
+      (do let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId' <| kind.maybeWithoutRecovery do
             withTacticInfoContext tacticCode do
               -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
               -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
@@ -377,12 +385,18 @@ mutual
               kind.logError tacticCode
               reportUnsolvedGoals remainingGoals
             else
-              throwError "unsolved goals\n{goalsToMessageData remainingGoals}")
+              throwError "unsolved goals\n{goalsToMessageData remainingGoals}"
+          if isNoLongerExporting then
+            let mut e ← instantiateExprMVars (.mvar mvarId')
+            if !e.isFVar then
+              e ← mvarId'.withContext do
+                AbstractNestedProofs.visit.mkAuxLemma e |>.run { cache := true } |>.run
+            mvarId.assign e)
       fun ex => do
         if report then
           kind.logError tacticCode
         if report && (← read).errToSorry then
-          for mvarId in (← getMVars (mkMVar mvarId)) do
+          for mvarId in (← getMVars (mkMVar mvarId')) do
             mvarId.admit
           logException ex
         else

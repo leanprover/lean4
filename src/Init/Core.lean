@@ -95,7 +95,7 @@ structure Thunk (α : Type u) : Type u where
   -/
   mk ::
   /-- Extract the getter function out of a thunk. Use `Thunk.get` instead. -/
-  private fn : Unit → α
+  fn : Unit → α
 
 attribute [extern "lean_mk_thunk"] Thunk.mk
 

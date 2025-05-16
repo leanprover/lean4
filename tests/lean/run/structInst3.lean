@@ -31,7 +31,7 @@ rfl
 
 /--
 info: ex1 :
-  (let __src := c1;
+  (have __src := c1;
       { toB := __src.toB, z := 2 : C Nat }).z =
     2
 -/
@@ -42,7 +42,7 @@ rfl
 
 /--
 info: ex2 :
-  (let __src := c1;
+  (have __src := c1;
       { toB := __src.toB, z := 2 : C Nat }).x =
     c1.x
 -/
@@ -71,7 +71,7 @@ info: let __src := c2;
 #guard_msgs in #check { c2 with x.1 := 3 }
 
 /--
-info: let_fun this :=
+info: have this :=
   let __src := c2.toB;
   { toB := __src, z := __src.g __src.x __src.y : C (Nat × Nat) };
 this : C (Nat × Nat)

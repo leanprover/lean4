@@ -82,7 +82,7 @@ error: tactic 'native_decide' evaluated that the proposition
   False
 is false
 ---
-info: let_fun this := sorry;
+info: have this := sorry;
 this : False
 -/
 #guard_msgs in #check show False by native_decide

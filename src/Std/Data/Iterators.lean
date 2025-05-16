@@ -92,7 +92,7 @@ All of the following module names are prefixed with `Std.Data.Iterators`.
 
 ### Verification API
 
-`Lemmas` will provide the means to verify programs that use iterators.
+`Lemmas` provides the means to verify programs that use iterators.
 
 ### Implementation details
 

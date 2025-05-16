@@ -7,10 +7,10 @@ Authors: Dany Fabian, Sebastian Ullrich
 module
 
 prelude
-import Init.Data.String
+import Init.Data.String.Basic
 import Init.Data.Array.Basic
 import Init.Data.SInt.Basic
-import Init.Data.Vector.Basic
+import all Init.Data.Vector.Basic
 
 /--
 The result of a comparison according to a total order.
@@ -88,7 +88,7 @@ Ordering.gt
 Ordering.lt
 ```
 -/
-@[macro_inline] def «then» (a b : Ordering) : Ordering :=
+@[macro_inline, expose] def «then» (a b : Ordering) : Ordering :=
   match a with
   | .eq => b
   | a => a
@@ -768,7 +768,7 @@ def lexOrd [Ord α] [Ord β] : Ord (α × β) where
 Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare` is
 `Ordering.lt`.
 -/
-def ltOfOrd [Ord α] : LT α where
+@[expose] def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b = Ordering.lt
 
 instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
@@ -778,7 +778,7 @@ instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
 Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare`
 satisfies `Ordering.isLE`.
 -/
-def leOfOrd [Ord α] : LE α where
+@[expose] def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
 
 instance [Ord α] : DecidableRel (@LE.le α leOfOrd) :=
@@ -795,7 +795,7 @@ protected def toBEq (ord : Ord α) : BEq α where
 /--
 Constructs an `LT` instance from an `Ord` instance.
 -/
-protected def toLT (ord : Ord α) : LT α :=
+@[expose] protected def toLT (ord : Ord α) : LT α :=
   ltOfOrd
 
 instance [i : Ord α] : DecidableRel (@LT.lt _ (Ord.toLT i)) :=
@@ -804,7 +804,7 @@ instance [i : Ord α] : DecidableRel (@LT.lt _ (Ord.toLT i)) :=
 /--
 Constructs an `LE` instance from an `Ord` instance.
 -/
-protected def toLE (ord : Ord α) : LE α :=
+@[expose] protected def toLE (ord : Ord α) : LE α :=
   leOfOrd
 
 instance [i : Ord α] : DecidableRel (@LE.le _ (Ord.toLE i)) :=

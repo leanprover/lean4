@@ -1,8 +1,8 @@
 
 /--
-info: b : Bool
+trace: b : Bool
 ⊢ if b = true then
-    let_fun unused := ();
+    have unused := ();
     True
   else False
 ---
@@ -13,7 +13,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
   trace_state; sorry
 
 /--
-info: b : Bool
+trace: b : Bool
 ⊢ b = true
 ---
 warning: declaration uses 'sorry'
@@ -23,9 +23,9 @@ example (b : Bool) : if b then have unused := (); True else False := by
   simp; trace_state; sorry
 
 /--
-info: b : Bool
+trace: b : Bool
 ⊢ b = true ∧
-    let_fun unused := ();
+    have unused := ();
     True
 ---
 warning: declaration uses 'sorry'
@@ -40,7 +40,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig) only; trace_state; sorry
 
 /--
-info: b : Bool
+trace: b : Bool
 ⊢ if b = true then True else False
 ---
 warning: declaration uses 'sorry'
@@ -51,7 +51,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
 
 
 /--
-info: b : Bool
+trace: b : Bool
 ⊢ if b = true then True else False
 ---
 warning: declaration uses 'sorry'
@@ -65,10 +65,10 @@ example (b : Bool) : if b then have unused := (); True else False := by
 -- Now they are preserved:
 
 /--
-info: case isTrue
+trace: case isTrue
 b : Bool
 h✝ : b = true
-⊢ let_fun unused := ();
+⊢ have unused := ();
   True
 ---
 warning: declaration uses 'sorry'

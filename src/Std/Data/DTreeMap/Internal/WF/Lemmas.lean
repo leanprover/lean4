@@ -6,7 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 prelude
 import Init.Data.Option.List
 import Init.Data.Array.Bootstrap
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 import Std.Data.DTreeMap.Internal.Model
 import Std.Data.Internal.Cut
 import Std.Data.Internal.List.Associative
@@ -167,7 +167,7 @@ theorem toListModel_insertMax [Ord α] {k v} {t : Impl α β} {h} :
 @[simp]
 theorem toListModel_link [Ord α] {k v} {l r : Impl α β} {hl hr} :
     (l.link k v r hl hr).impl.toListModel = l.toListModel ++ ⟨k, v⟩ :: r.toListModel := by
-  cases k, v, l, r, hl, hr using link.fun_cases <;> simp [link] <;> split <;> (try simp; done)
+  fun_cases link <;> simp [link] <;> split <;> (try simp; done)
   all_goals
     simp only [toListModel_balanceLErase, toListModel_balanceRErase]
     rw [toListModel_link]

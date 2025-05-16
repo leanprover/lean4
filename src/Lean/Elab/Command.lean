@@ -74,6 +74,11 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  /--
+  Attributes that should be applied to all matching declaration in the section. Inherited from
+  parent scopes.
+  -/
+  attrs : List (TSyntax ``Parser.Term.attrInstance) := []
   deriving Inhabited
 
 structure State where
@@ -83,6 +88,7 @@ structure State where
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
+  auxDeclNGen    : DeclNameGenerator := {}
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
@@ -153,6 +159,8 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
   messages    := messages
   scopes      := [{ header := "", opts := opts }]
   maxRecDepth := maxRecDepth.get opts
+  -- Outside of declarations, fall back to a module-specific prefix
+  auxDeclNGen := { namePrefix := mkPrivateName env .anonymous }
 }
 
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the
@@ -198,6 +206,10 @@ instance : AddErrorMessageContext CommandElabM where
     let msg ← addMacroStack msg ctx.macroStack
     return (ref, msg)
 
+instance : MonadDeclNameGenerator CommandElabM where
+  getDeclNGen := return (← get).auxDeclNGen
+  setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
+
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -220,6 +232,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
   let x : EIO _ _ := x.run coreCtx {
     env
     ngen := s.ngen
+    auxDeclNGen := s.auxDeclNGen
     nextMacroScope := s.nextMacroScope
     infoState.enabled := s.infoState.enabled
     traceState := s.traceState
@@ -230,8 +243,9 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     env                      := coreS.env
     nextMacroScope           := coreS.nextMacroScope
     ngen                     := coreS.ngen
+    auxDeclNGen              := coreS.auxDeclNGen
     infoState.trees          := s.infoState.trees.append coreS.infoState.trees
-    -- we assume substitution of `assingment` has already happened, but for lazy assignments we only
+    -- we assume substitution of `assignment` has already happened, but for lazy assignments we only
     -- do it at the very end
     infoState.lazyAssignment := coreS.infoState.lazyAssignment
     traceState.traces        := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
@@ -307,7 +321,10 @@ def wrapAsync {α β : Type} (act : α → CommandElabM β) (cancelTk? : Option 
     CommandElabM (α → EIO Exception β) := do
   let ctx ← read
   let ctx := { ctx with cancelTk? }
+  let (childNGen, parentNGen) := (← getDeclNGen).mkChild
+  setDeclNGen parentNGen
   let st ← get
+  let st := { st with auxDeclNGen := childNGen }
   return (act · |>.run ctx |>.run' st)
 
 open Language in
@@ -806,6 +823,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       nextMacroScope := s.nextMacroScope
       maxRecDepth := ctx.maxRecDepth
       ngen := s.ngen
+      auxDeclNGen := s.auxDeclNGen
       scopes := [{ header := "", opts := ctx.options }]
       infoState.enabled := s.infoState.enabled
     }
@@ -813,6 +831,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
     env := commandState.env
     nextMacroScope := commandState.nextMacroScope
     ngen := commandState.ngen
+    auxDeclNGen := commandState.auxDeclNGen
     traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
   }
   if throwOnError then

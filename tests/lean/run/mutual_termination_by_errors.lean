@@ -2,7 +2,7 @@
 namespace Test
 /--
 error: incomplete set of termination hints:
-This function is mutually recursive with Test.f, Test.h and Test.i, which do not have a termination hint.
+This function is mutually recursive with Test.f, Test.h, and Test.i, which do not have a termination hint.
 The present clause is ignored.
 -/
 #guard_msgs in

@@ -23,11 +23,16 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   let (numArgs, _) ← getExpectedNumArgsAux e
   pure numArgs
 
-private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α := do
-  let explanation := MessageData.ofLazyM (es := #[eType, targetType]) do
-    let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
-    return m!"{indentExpr eType}\nwith{indentExpr targetType}"
-  throwTacticEx `apply mvarId m!"failed to unify{explanation}"
+private def throwApplyError {α} (mvarId : MVarId)
+    (eType : Expr) (conclusionType? : Option Expr) (targetType : Expr)
+    (term? : Option MessageData) : MetaM α := do
+  throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) do
+    let conclusionType := conclusionType?.getD eType
+    let note := if conclusionType?.isSome then .note m!"The full type of {term?.getD "the term"} is{indentExpr eType}" else m!""
+    let (conclusionType, targetType) ← addPPExplicitToExposeDiff conclusionType targetType
+    let conclusion := if conclusionType?.isNone then "type" else "conclusion"
+    return m!"could not unify the {conclusion} of {term?.getD "the term"}{indentExpr conclusionType}\n\
+      with the goal{indentExpr targetType}{note}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (mvarsNew : Array Expr) (binderInfos : Array BinderInfo)
     (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit := do
@@ -159,7 +164,8 @@ private def isDefEqApply (cfg : ApplyConfig) (a b : Expr) : MetaM Bool := do
 /--
 Close the given goal using `apply e`.
 -/
-def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
+def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {})
+    (term? : Option MessageData := none) : MetaM (List MVarId) :=
   mvarId.withContext do
     mvarId.checkNotAssigned `apply
     let targetType ← mvarId.getType
@@ -201,8 +207,13 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
           s.restore
           go (i+1)
       else
-        let (_, _, eType) ← forallMetaTelescopeReducing eType (some rangeNumArgs.start)
-        throwApplyError mvarId eType targetType
+
+        let conclusionType? ← if rangeNumArgs.start = 0 then
+          pure none
+        else
+          let (_, _, r) ← forallMetaTelescopeReducing eType (some rangeNumArgs.start)
+          pure (some r)
+        throwApplyError mvarId eType conclusionType? targetType term?
       termination_by rangeNumArgs.stop - i
     let (newMVars, binderInfos) ← go rangeNumArgs.start
     postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances cfg.allowSynthFailures
@@ -218,7 +229,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
 
 /-- Short-hand for applying a constant to the goal. -/
 def _root_.Lean.MVarId.applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
-  mvar.apply (← mkConstWithFreshMVarLevels c) cfg
+  mvar.apply (← mkConstWithFreshMVarLevels c) cfg (term? := m!"'{.ofConstName c}'")
 
 end Meta
 

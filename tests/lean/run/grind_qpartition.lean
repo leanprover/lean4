@@ -15,6 +15,9 @@ theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     ∀ k, (h₁ : lo ≤ k) → (h₂ : k < mid) → lt as'[k] as'[mid] := by
   sorry
 
+grind_pattern qpartition_loop_spec₁ =>
+  qpartition.loop lt lo hi hhi pivot as i j ilo jh w, as'[k], as'[mid]
+
 example {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as : Vector α n) (mid as')
@@ -22,4 +25,4 @@ example {n} (lt : α → α → Bool) (lo hi : Nat)
     (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi hlo hhi).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
-  grind [qpartition, qpartition_loop_spec₁]
+  grind [qpartition]

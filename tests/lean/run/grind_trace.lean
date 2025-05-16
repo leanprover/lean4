@@ -1,5 +1,7 @@
 reset_grind_attrs%
 
+set_option grind.warning false
+
 attribute [grind =] List.length_cons
 attribute [grind →] List.getElem?_eq_getElem
 attribute [grind =] List.length_replicate

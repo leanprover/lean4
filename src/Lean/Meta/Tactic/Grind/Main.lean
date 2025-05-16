@@ -54,7 +54,7 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
        prop e
   }
 
-def GrindM.run (x : GrindM α) (mainDeclName : Name) (params : Params) (fallback : Fallback) : MetaM α := do
+def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM α := do
   let scState := ShareCommon.State.mk _
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
@@ -64,7 +64,7 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) (params : Params) (fallback
   let simprocs := params.normProcs
   let simp := params.norm
   let config := params.config
-  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp }
+  x (← mkMethods fallback).toMethodsRef { config, simprocs, simp }
     |>.run' { scState, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
@@ -94,8 +94,7 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
       activateTheorem thm 0
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) := do
-  -- TODO: abstract metavars
-  mvarId.ensureNoMVar
+  let mvarId ← mvarId.abstractMVars
   let mvarId ← mvarId.clearAuxDecls
   let mvarId ← mvarId.revertAll
   let mvarId ← mvarId.unfoldReducible
@@ -160,7 +159,7 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
       msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
-def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
+def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
   if debug.terminalTacticsAsSorry.get (← getOptions) then
     mvarId.admit
     return {
@@ -181,6 +180,6 @@ def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : F
           if let some msg ← mkGlobalDiag counters simp then
             logInfo msg
       return { failures, skipped, issues, config := params.config, trace, counters, simp }
-    go.run mainDeclName params fallback
+    go.run params fallback
 
 end Lean.Meta.Grind

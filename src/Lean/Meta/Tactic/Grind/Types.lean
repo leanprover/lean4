@@ -57,7 +57,6 @@ register_builtin_option grind.warning : Bool := {
 structure Context where
   simp         : Simp.Context
   simprocs     : Array Simp.Simprocs
-  mainDeclName : Name
   config       : Grind.Config
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
@@ -119,8 +118,6 @@ private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCo
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
   scState    : ShareCommon.State.{0} ShareCommon.objectFactory := emptySC
-  /-- Next index for creating auxiliary theorems. -/
-  nextThmIdx : Nat := 1
   /--
   Congruence theorems generated so far. Recall that for constant symbols
   we rely on the reserved name feature (i.e., `mkHCongrWithArityForConst?`).
@@ -188,9 +185,6 @@ def getBoolFalseExpr : GrindM Expr := do
 def getNatZeroExpr : GrindM Expr := do
   return (← get).natZExpr
 
-def getMainDeclName : GrindM Name :=
-  return (← readThe Context).mainDeclName
-
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
 
@@ -230,11 +224,8 @@ def getMaxGeneration : GrindM Nat := do
 /--
 Abstracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
-def abstractNestedProofs (e : Expr) : GrindM Expr := do
-  let nextIdx := (← get).nextThmIdx
-  let (e, s') ← AbstractNestedProofs.visit e |>.run { cache := true, baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
-  modify fun s => { s with nextThmIdx := s'.nextIdx }
-  return e
+def abstractNestedProofs (e : Expr) : GrindM Expr :=
+  Meta.abstractNestedProofs e
 
 /--
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
@@ -384,7 +375,9 @@ private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
     isSameExpr n1.root n2.root
 
 private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
-  match_expr e with
+  if let .forallE _ d b _ := e then
+    mixHash (hashRoot enodes d) (hashRoot enodes b)
+  else match_expr e with
   | Grind.nestedProof p _ => hashRoot enodes p
   | Eq _ lhs rhs => goEq lhs rhs
   | _ => go e 17
@@ -400,7 +393,12 @@ where
 
 /-- Returns `true` if `a` and `b` are congruent modulo the equivalence classes in `enodes`. -/
 private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
-  match_expr a with
+  if let .forallE _ d₁ b₁ _ := a then
+    if let .forallE _ d₂ b₂ _ := b then
+      hasSameRoot enodes d₁ d₂ && hasSameRoot enodes b₁ b₂
+    else
+      false
+  else match_expr a with
   | Grind.nestedProof p₁ _ =>
     let_expr Grind.nestedProof p₂ _ := b | false
     hasSameRoot enodes p₁ p₂
@@ -410,7 +408,11 @@ private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
       goEq lhs₁ rhs₁ lhs₂ rhs₂
     else
       go a b
-  | _ => go a b
+  | _ =>
+    if a.isApp && b.isApp then
+      go a b
+    else
+      false
 where
   goEq (lhs₁ rhs₁ lhs₂ rhs₂ : Expr) : Bool :=
     (hasSameRoot enodes lhs₁ lhs₂ && hasSameRoot enodes rhs₁ rhs₂)

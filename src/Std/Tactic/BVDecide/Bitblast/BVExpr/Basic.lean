@@ -135,6 +135,10 @@ inductive BVUnOp where
   constant `Nat` value.
   -/
   | arithShiftRightConst (n : Nat)
+  /--
+  Reverse the bits in a bitvector.
+  -/
+  | reverse
   deriving Hashable, DecidableEq
 
 namespace BVUnOp
@@ -144,6 +148,7 @@ def toString : BVUnOp → String
   | rotateLeft n => s!"rotL {n}"
   | rotateRight n => s!"rotR {n}"
   | arithShiftRightConst n => s!">>a {n}"
+  | reverse => "rev"
 
 instance : ToString BVUnOp := ⟨toString⟩
 
@@ -155,6 +160,7 @@ def eval : BVUnOp → (BitVec w → BitVec w)
   | rotateLeft n => (BitVec.rotateLeft · n)
   | rotateRight n => (BitVec.rotateRight · n)
   | arithShiftRightConst n => (BitVec.sshiftRight · n)
+  | reverse =>  BitVec.reverse
 
 @[simp] theorem eval_not : eval .not = ((~~~ ·) : BitVec w → BitVec w) := by rfl
 
@@ -169,6 +175,8 @@ theorem eval_rotateRight : eval (rotateRight n) = ((BitVec.rotateRight · n) : B
 @[simp]
 theorem eval_arithShiftRightConst : eval (arithShiftRightConst n) = (BitVec.sshiftRight · n : BitVec w → BitVec w) := by
   rfl
+
+@[simp] theorem eval_reverse : eval .reverse = (BitVec.reverse : BitVec w → BitVec w) := by rfl
 
 end BVUnOp
 

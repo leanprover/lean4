@@ -11,6 +11,7 @@ import Init.Data.List.Lemmas
 import Init.Data.List.Sublist
 import Init.Data.List.Range
 import Init.Data.List.Impl
+import all Init.Data.List.Attach
 import Init.Data.Fin.Lemmas
 
 /-!
@@ -46,8 +47,6 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
 
 @[simp] theorem findSome?_eq_none_iff : findSome? p l = none ↔ ∀ x ∈ l, p x = none := by
   induction l <;> simp [findSome?_cons]; split <;> simp [*]
-
-@[deprecated findSome?_eq_none_iff (since := "2024-09-05")] abbrev findSome?_eq_none := @findSome?_eq_none_iff
 
 @[simp] theorem findSome?_isSome_iff {f : α → Option β} {l : List α} :
     (l.findSome? f).isSome ↔ ∃ x, x ∈ l ∧ (f x).isSome := by
@@ -96,7 +95,7 @@ theorem findSome?_eq_some_iff {f : α → Option β} {l : List α} {b : β} :
   induction l with
   | nil => simp
   | cons x xs ih =>
-    simp [guard, findSome?, find?]
+    simp [findSome?, find?]
     split <;> rename_i h
     · simp only [Option.guard_eq_some_iff] at h
       obtain ⟨rfl, h⟩ := h
@@ -386,16 +385,9 @@ abbrev find?_flatten_eq_some := @find?_flatten_eq_some_iff
     (xs.flatMap f).find? p = xs.findSome? (fun x => (f x).find? p) := by
   simp [flatMap_def, findSome?_map]; rfl
 
-@[deprecated find?_flatMap (since := "2024-10-16")] abbrev find?_bind := @find?_flatMap
-
 theorem find?_flatMap_eq_none_iff {xs : List α} {f : α → List β} {p : β → Bool} :
     (xs.flatMap f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
   simp
-
-@[deprecated find?_flatMap_eq_none_iff (since := "2024-10-16")]
-abbrev find?_flatMap_eq_none := @find?_flatMap_eq_none_iff
-
-@[deprecated find?_flatMap_eq_none (since := "2024-10-16")] abbrev find?_bind_eq_none := @find?_flatMap_eq_none_iff
 
 theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   cases n
@@ -1011,9 +1003,8 @@ theorem isNone_findFinIdx? {l : List α} {p : α → Bool} :
 @[simp] theorem findFinIdx?_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.findFinIdx? f = (l.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by
-  unfold unattach
   induction l with
-  | nil => simp
+  | nil => simp [unattach]
   | cons a l ih =>
     simp [hf, findFinIdx?_cons]
     split <;> simp [ih, Function.comp_def]
@@ -1269,14 +1260,5 @@ theorem IsInfix.lookup_eq_none {l₁ l₂ : List (α × β)} (h : l₁ <:+: l₂
   h.sublist.lookup_eq_none
 
 end lookup
-
-/-! ### Deprecations -/
-
-@[deprecated head_flatten (since := "2024-10-14")] abbrev head_join := @head_flatten
-@[deprecated getLast_flatten (since := "2024-10-14")] abbrev getLast_join := @getLast_flatten
-@[deprecated find?_flatten (since := "2024-10-14")] abbrev find?_join := @find?_flatten
-@[deprecated find?_flatten_eq_none (since := "2024-10-14")] abbrev find?_join_eq_none := @find?_flatten_eq_none_iff
-@[deprecated find?_flatten_eq_some (since := "2024-10-14")] abbrev find?_join_eq_some := @find?_flatten_eq_some_iff
-@[deprecated findIdx?_flatten (since := "2024-10-14")] abbrev findIdx?_join := @findIdx?_flatten
 
 end List

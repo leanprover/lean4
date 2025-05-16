@@ -3,7 +3,7 @@
 namespace lean {
 options get_default_options() {
     options opts;
-    // see https://lean-lang.org/lean4/doc/dev/bootstrap.html#further-bootstrapping-complications
+    // see https://github.com/leanprover/lean4/blob/master/doc/dev/bootstrap.md#further-bootstrapping-complications
 #if LEAN_IS_STAGE0 == 1
     // set to true to generally avoid bootstrapping issues limited to proofs
     opts = opts.update({"debug", "proofAsSorry"}, false);
@@ -11,7 +11,7 @@ options get_default_options() {
     opts = opts.update({"debug", "terminalTacticsAsSorry"}, false);
     // switch to `true` for ABI-breaking changes affecting meta code;
     // see also next option!
-    opts = opts.update({"interpreter", "prefer_native"}, false);
+    opts = opts.update({"interpreter", "prefer_native"}, true);
     // switch to `false` when enabling `prefer_native` should also affect use
     // of built-in parsers in quotations; this is usually the case, but setting
     // both to `true` may be necessary for handling non-builtin parsers with

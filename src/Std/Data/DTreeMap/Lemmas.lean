@@ -41,7 +41,7 @@ theorem isEmpty_insert [TransCmp cmp] {k : α} {v : β k} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   Impl.mem_iff_contains
 
-@[simp]
+@[simp, grind]
 theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
   Impl.contains_iff_mem
 
@@ -1289,6 +1289,7 @@ theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     t.insertMany (⟨k, v⟩ :: l) = (t.insert k v).insertMany l :=
   ext <| Impl.insertMany_cons t.wf
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List ((a : α) × β a)} :
     insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
   induction l₁ generalizing t with
@@ -1469,6 +1470,7 @@ theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     Const.insertMany t ((k, v) :: l) = Const.insertMany (t.insert k v) l :=
   ext <| Impl.Const.insertMany_cons t.wf
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List (α × β)} :
     insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
   induction l₁ generalizing t with

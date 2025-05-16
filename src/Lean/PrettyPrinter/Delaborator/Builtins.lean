@@ -8,6 +8,8 @@ import Lean.PrettyPrinter.Delaborator.Attributes
 import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+import Lean.Parser.Do
+import Lean.Parser.Command
 import Lean.Meta.CoeAttr
 import Lean.Meta.Structure
 
@@ -842,7 +844,7 @@ where
       x
 
 /--
-Delaborates applications of the form `letFun v (fun x => b)` as `let_fun x := v; b`.
+Delaborates applications of the form `letFun v (fun x => b)` as `have x := v; b`.
 -/
 @[builtin_delab app.letFun]
 def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
@@ -854,9 +856,9 @@ def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
   let (stxN, stxB) ← withAppArg <| withBindingBody' n (mkAnnotatedIdent n) fun stxN => return (stxN, ← delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← SubExpr.withNaryArg 0 delab
-    `(let_fun $stxN : $stxT := $stxV; $stxB)
+    `(have $stxN : $stxT := $stxV; $stxB)
   else
-    `(let_fun $stxN := $stxV; $stxB)
+    `(have $stxN := $stxV; $stxB)
 
 @[builtin_delab mdata]
 def delabMData : Delab := do

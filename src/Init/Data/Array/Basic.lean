@@ -13,8 +13,8 @@ import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
-import Init.Data.List.ToArrayImpl
-import Init.Data.Array.Set
+import all Init.Data.List.ToArrayImpl
+import all Init.Data.Array.Set
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -35,8 +35,6 @@ recommended_spelling "singleton" for "#[x]" in [«term#[_,]»]
 variable {α : Type u}
 
 namespace Array
-
-@[deprecated toList (since := "2024-09-10")] abbrev data := @toList
 
 /-! ### Preliminary theorems -/
 
@@ -147,8 +145,6 @@ end List
 namespace Array
 
 theorem size_eq_length_toList {xs : Array α} : xs.size = xs.toList.length := rfl
-
-@[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @List.toList_toArray
 
 /-! ### Externs -/
 
@@ -1487,8 +1483,6 @@ The resulting arrays are appended.
 def flatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
   as.foldlM (init := empty) fun bs a => do return bs ++ (← f a)
 
-@[deprecated flatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
-
 /--
 Applies a function that returns an array to each element of an array. The resulting arrays are
 appended.
@@ -1500,8 +1494,6 @@ Examples:
 @[inline]
 def flatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
-
-@[deprecated flatMap (since := "2024-10-16")] abbrev concatMap := @flatMap
 
 /--
 Appends the contents of array of arrays into a single array. The resulting array contains the same
@@ -2158,13 +2150,15 @@ Examples:
 
 /-! ### Repr and ToString -/
 
+protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
+  let _ : Std.ToFormat α := ⟨repr⟩
+  if xs.size == 0 then
+    "#[]"
+  else
+    Std.Format.bracketFill "#[" (Std.Format.joinSep (toList xs) ("," ++ Std.Format.line)) "]"
+
 instance {α : Type u} [Repr α] : Repr (Array α) where
-  reprPrec xs _ :=
-    let _ : Std.ToFormat α := ⟨repr⟩
-    if xs.size == 0 then
-      "#[]"
-    else
-      Std.Format.bracketFill "#[" (Std.Format.joinSep (toList xs) ("," ++ Std.Format.line)) "]"
+  reprPrec xs _ := Array.repr xs
 
 instance [ToString α] : ToString (Array α) where
   toString xs := "#" ++ toString xs.toList

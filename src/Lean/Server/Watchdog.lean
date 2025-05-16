@@ -20,6 +20,8 @@ import Lean.Server.Utils
 import Lean.Server.Requests
 import Lean.Server.References
 import Lean.Server.ServerTask
+import Lean.Server.Completion.CompletionUtils
+import Init.Data.List.Sort
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -454,9 +456,10 @@ section ServerM
     st.hLog.flush
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
-    let some module ← getFileWorkerMod? fw.doc.uri
+    let uri := fw.doc.uri
+    let some module ← getFileWorkerMod? uri
       | return
-    modifyReferences (·.updateWorkerRefs module params.version params.references)
+    modifyReferences (·.updateWorkerRefs module uri params.version params.references)
 
   def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
@@ -465,7 +468,7 @@ section ServerM
       | return
     s.referenceData.atomically do
       let pendingWaitForILeanRequests ← modifyGet fun rd =>
-        let rd := rd.modifyReferences (·.finalizeWorkerRefs module params.version params.references)
+        let rd := rd.modifyReferences (·.finalizeWorkerRefs module uri params.version params.references)
         let (pending, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
         let rd := { rd with pendingWaitForILeanRequests := rest }
         let rd := rd.modifyFinalizedWorkerILeanVersions (·.insert uri params.version)
@@ -581,12 +584,11 @@ section ServerM
     let task ← ServerTask.IO.asTask do
       let mut queryResults : Array LeanQueriedModule := #[]
       for query in params.queries do
-        let filterMapMod mod := pure <| some mod
         let filterMapIdent decl := pure <| matchAgainstQuery? query decl
-        let symbols ← refs.definitionsMatching filterMapMod filterMapIdent cancelTk
-        let sorted := symbols.qsort fun { ident := m1, .. } { ident := m2, .. } =>
+        let symbols ← refs.definitionsMatching filterMapIdent cancelTk
+        let sorted := symbols.toList.mergeSort fun { ident := m1, .. } { ident := m2, .. } =>
           m1.fastCompare m2 == .gt
-        let result : LeanQueriedModule := sorted.extract 0 10 |>.map fun m => {
+        let result : LeanQueriedModule := sorted.take 10 |>.toArray.map fun m => {
           module := m.mod
           decl := m.ident.decl
           isExactMatch := m.ident.isExactMatch
@@ -975,7 +977,7 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
 
   let references := (← read).references
 
-  let some refs := references.getModuleRefs? itemData.module
+  let some (_, refs) := references.getModuleRefs? itemData.module
     | return #[]
 
   let items ← refs.toArray.filterMapM fun ⟨ident, info⟩ => do
@@ -1014,22 +1016,27 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ReaderT ReferenceRequest
   if p.query.isEmpty then
     return #[]
   let references := (← read).references
-  let filterMapMod mod := documentUriFromModule? mod
   let filterMapIdent ident := do
-    let ident := privateToUserName? ident |>.getD ident
-    if let some score := fuzzyMatchScoreWithThreshold? p.query ident.toString then
-      return some (ident.toString, score)
+    let ident := privateToUserName? ident |>.getD ident |>.toString
+    let some score := FuzzyMatching.fuzzyMatchScoreWithThreshold? p.query ident
+      | return none
+    return some (ident, score)
+  let symbols ← references.definitionsMatching filterMapIdent
+  let ltSymbol symbol1 symbol2 :=
+    let (ident1, score1) := symbol1.ident
+    let (ident2, score2) := symbol2.ident
+    if score1 == score2 then
+      ident1.length < ident2.length
     else
-      return none
-  let symbols ← references.definitionsMatching filterMapMod filterMapIdent
-  return symbols
-    |>.qsort (fun { ident := (_, s1), .. } { ident := (_, s2), .. } => s1 > s2)
-    |>.extract 0 100 -- max amount
+      score1 > score2
+  let symbols := symbols.toList.mergeSort ltSymbol
+    |>.extract 0 1000
     |>.map fun m => {
       name := m.ident.1
       kind := SymbolKind.constant
-      location := { uri := m.mod, range := m.range }
+      location := { uri := m.modUri, range := m.range }
     }
+  return symbols.toArray
 
 def handlePrepareRename (p : PrepareRenameParams) : ReaderT ReferenceRequestContext IO (Option Range) := do
   -- This just checks that the cursor is over a renameable identifier
@@ -1133,10 +1140,12 @@ section NotificationHandling
           continue
         try
           let ilean ← Ilean.load path
+          let some moduleUri ← documentUriFromModule? ilean.module
+            | continue
           if let FileChangeType.Changed := c.type then
-            modifyReferences (·.removeIlean path |>.addIlean path ilean)
+            modifyReferences (·.removeIlean path |>.addIlean moduleUri path ilean)
           else
-            modifyReferences (·.addIlean path ilean)
+            modifyReferences (·.addIlean moduleUri path ilean)
         catch
           -- ilean vanished, ignore error
           | .noFileOrDirectory .. => modifyReferences (·.removeIlean path)
@@ -1501,8 +1510,10 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try
         let ilean ← Ilean.load path
+        let some moduleUri ← documentUriFromModule? ilean.module
+          | continue
         referenceData.atomically <| modify fun rd =>
-          rd.modifyReferences (·.addIlean path ilean)
+          rd.modifyReferences (·.addIlean moduleUri path ilean)
       catch _ =>
         -- could be a race with the build system, for example
         -- ilean load errors should not be fatal, but we *should* log them

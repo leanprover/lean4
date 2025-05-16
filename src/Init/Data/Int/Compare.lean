@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Paul Reichert
 module
 
 prelude
-import Init.Data.Ord
+import all Init.Data.Ord
 import Init.Data.Int.Order
 
 /-! # Basic lemmas about comparing integers

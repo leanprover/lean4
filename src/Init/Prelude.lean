@@ -7,6 +7,7 @@ module
 
 prelude -- Don't import Init, because we're in Init itself
 set_option linter.missingDocs true -- keep it documented
+@[expose] section  -- Expose all defs
 
 /-!
 # Init.Prelude
@@ -70,7 +71,10 @@ despite the fact it is marked `irreducible`.
 For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a `let_fun` expression
 to extract its parts as if it were a `let` expression.
 -/
-@[irreducible] def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
+def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
+-- We need to export the body of `letFun`, which is suppressed if `[irreducible]` is set directly.
+-- We can work around this rare case by applying the attribute after the fact.
+attribute [irreducible] letFun
 
 set_option checkBinderAnnotations false in
 /--
@@ -2758,7 +2762,7 @@ instance : Inhabited Substring where
 /--
 The number of bytes used by the string's UTF-8 encoding.
 -/
-@[inline] def Substring.bsize : Substring → Nat
+@[inline, expose] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--
@@ -5108,7 +5112,7 @@ private opaque MethodsRefPointed : NonemptyType.{0}
 
 private def MethodsRef : Type := MethodsRefPointed.type
 
-instance : Nonempty MethodsRef := MethodsRefPointed.property
+private instance : Nonempty MethodsRef := MethodsRefPointed.property
 
 /-- The read-only context for the `MacroM` monad. -/
 structure Context where

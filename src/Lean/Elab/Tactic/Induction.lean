@@ -128,10 +128,11 @@ private def getFType : M Expr := do
   pure fType
 
 structure Result where
-  elimApp : Expr
-  motive  : MVarId
-  alts    : Array Alt
-  others  : Array MVarId
+  elimApp     : Expr
+  elimArgs    : Array Expr
+  motive      : MVarId
+  alts        : Array Alt
+  others      : Array MVarId
   complexArgs : Array Expr
 
 /--
@@ -209,7 +210,10 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       unless targets.contains motiveArg do
         throwError "mkElimApp: Expected first {targets.size} arguments of motive in conclusion to be one of the targets:{indentExpr s.fType}"
     pure motiveArgs[targets.size:]
-  return { elimApp := (← instantiateMVars s.f), alts, others, motive, complexArgs }
+  let elimApp ← instantiateMVars s.f
+  -- `elimArgs` is the argument list that the offsets in `elimInfo` work with
+  let elimArgs := elimApp.getAppArgs[elimInfo.elimExpr.getAppNumArgs:]
+  return { elimApp, elimArgs, alts, others, motive, complexArgs }
 
 /--
 Given a goal `... targets ... |- C[targets, complexArgs]` associated with `mvarId`,
@@ -981,7 +985,7 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
   let tag ← mvarId.getTag
   mvarId.withContext do
     let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
-    let elimArgs := result.elimApp.getAppArgs
+    let elimArgs := result.elimArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]!
     let motiveType ← inferType elimArgs[elimInfo.motivePos]!
     let mvarId ← generalizeTargetsEq mvarId motiveType targets

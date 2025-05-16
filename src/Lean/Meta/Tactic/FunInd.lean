@@ -1057,6 +1057,7 @@ where doRealize (inductName : Name) := do
 
   let eTyp ← inferType e'
   let eTyp ← elimTypeAnnotations eTyp
+  let eTyp ← letToHave eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -1090,6 +1091,7 @@ def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : 
         let value ← PProdN.projM names.size idx value
         mkLambdaFVars xs value
       let type ← inferType value
+      let type ← letToHave type
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
 
       if idx == 0 then finalizeFirstInd
@@ -1248,6 +1250,7 @@ where doRealize inductName := do
     check value
   let type ← inferType value
   let type ← elimOptParam type
+  let type ← letToHave type
 
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := ci.levelParams, type, value }
@@ -1480,6 +1483,7 @@ where doRealize inductName := do
 
   let eTyp ← inferType e'
   let eTyp ← elimTypeAnnotations eTyp
+  let eTyp ← letToHave eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -1623,6 +1627,7 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
 
     let eTyp ← inferType e'
     let eTyp ← elimTypeAnnotations eTyp
+    let eTyp ← letToHave eTyp
     -- logInfo m!"eTyp: {eTyp}"
     let levelParams := (collectLevelParams {} eTyp).params
     -- Prune unused level parameters, preserving the original order

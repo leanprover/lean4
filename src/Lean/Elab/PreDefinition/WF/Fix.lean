@@ -85,6 +85,9 @@ where
       withLocalDecl n c (← loop F d) fun x => do
         mkForallFVars #[x] (← loop F (b.instantiate1 x))
     | Expr.letE n type val body nondep =>
+      -- Convert `have`s to `let`s if they aren't propositions so that the values
+      -- of local declarations can be used within decreasing-by proofs.
+      let nondep ← pure nondep <&&> Meta.isProp type
       mapLetDecl n (← loop F type) (← loop F val) (nondep := nondep) (usedLetOnly := false) fun x => do
         loop F (body.instantiate1 x)
     | Expr.mdata d b =>

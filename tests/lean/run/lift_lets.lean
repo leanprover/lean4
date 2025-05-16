@@ -49,7 +49,7 @@ example : (let x := 1; x) = (let y := 1; y) := by
   rfl
 
 /-!
-Not mergable, since they must match syntactically.
+Not mergeable, since they must match syntactically.
 -/
 /--
 trace: ⊢ let x := 2;

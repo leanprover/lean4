@@ -178,7 +178,7 @@ differences:
 
 ## Unfolding principles
 
-The code can also create a variant of the induction/cases principles that automatially unfolds
+The code can also create a variant of the induction/cases principles that automatically unfolds
 the function application. It's motive abstracts over the function call, so for the ackermann
 function one gets
 
@@ -191,7 +191,7 @@ ackermann.fun_cases_unfolding
   (x✝ x✝¹ : Nat) : motive x✝ x✝¹ (ackermann x✝ x✝¹)
 ```
 
-To implement this, in the inital goal `motive x (ackermann x)` of `buildInductionBody` we unfold the
+To implement this, in the initial goal `motive x (ackermann x)` of `buildInductionBody` we unfold the
 function definition, and then reduce is as we go into match, ite or let expressions, using the
 `withRewrittenMotive` function.
 
@@ -641,6 +641,9 @@ def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
       return { expr := e.letBody!.instantiate1 h }
   return { expr := e }
 
+def rwMData (e : Expr) : MetaM Simp.Result := do
+  return { expr := e.consumeMData }
+
 def rwHaveWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
   if let some (_n, t, _v, b) := e.letFun? then
     if (← isDefEq t (← inferType h)) then
@@ -674,11 +677,12 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
     return { expr := e }
   else
     unless (← isMatcherApp e) do
+      trace[Meta.FunInd] "Not a matcher application:{indentExpr e}"
       return { expr := e }
     let matcherDeclName := e.getAppFn.constName!
     let eqns ← Match.genMatchCongrEqns matcherDeclName
     unless altIdx < eqns.size do
-      trace[Tactic.FunInd] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
+      trace[Meta.FunInd] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
       return { expr := e }
     let eqnThm := eqns[altIdx]!
     try
@@ -865,7 +869,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
 
   -- we look through mdata
   if e.isMData then
-    let b ← buildInductionBody toErase toClear goal oldIH newIH isRecCall e.mdataExpr!
+    let b ← withRewrittenMotiveArg goal (rwMData) fun goal' =>
+      buildInductionBody toErase toClear goal' oldIH newIH isRecCall e.mdataExpr!
     return e.updateMData! b
 
   if let .letE n t v b _ := e then
@@ -1091,17 +1096,20 @@ In the type of `value`, reduces
 * `PSum.casesOn (PSum.inl x) k₁ k₂                    -->  k₁ x`
 * `foo._unary (PSum.inl (PSigma.mk a b))              -->  foo a b`
 and then wraps `value` in an appropriate type hint.
+
+(The implementation is repetitive and verbose, and should be cleaned up when convenient.)
 -/
 def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
   let type ← inferType value
-  let cleanType ← Meta.transform type (skipConstInApp := true) (pre := fun e => do
+  let cleanType ← Meta.transform type (skipConstInApp := true) (post := fun e => do
     -- Need to beta-reduce first
     let e' := e.headBeta
     if e' != e then
       return .visit e'
+
+    e.withApp fun f args => do
     -- Look for PSigma redexes
-    if e.isAppOf ``PSigma.casesOn then
-      let args := e.getAppArgs
+    if f.isConstOf ``PSigma.casesOn then
       if 5 ≤ args.size then
         let scrut := args[3]!
         let k := args[4]!
@@ -1110,9 +1118,32 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
           let #[_, _, x, y] := scrut.getAppArgs | unreachable!
           let e' := (k.beta #[x, y]).beta extra
           return .visit e'
+    -- Look for PSigma projection
+    if f.isConstOf ``PSigma.fst then
+      if h : 3 ≤ args.size then
+        let scrut := args[2]
+        let extra := args[3:]
+        if scrut.isAppOfArity ``PSigma.mk 4 then
+          let #[_, _, x, _y] := scrut.getAppArgs | unreachable!
+          let e' := x.beta extra
+          return .visit e'
+    if f.isConstOf ``PSigma.snd then
+      if h : 3 ≤ args.size then
+        let scrut := args[2]
+        let extra := args[3:]
+        if scrut.isAppOfArity ``PSigma.mk 4 then
+          let #[_, _, _x, y] := scrut.getAppArgs | unreachable!
+          let e' := y.beta extra
+          return .visit e'
+    if f.isProj then
+      let scrut := e.projExpr!
+      if scrut.isAppOfArity ``PSigma.mk 4 then
+        let #[_, _, x, y] := scrut.getAppArgs | unreachable!
+        let e' := (if e.projIdx! = 0 then x else y).beta args
+        return .visit e'
+
     -- Look for PSum redexes
-    if e.isAppOf ``PSum.casesOn then
-      let args := e.getAppArgs
+    if f.isConstOf ``PSum.casesOn then
       if 6 ≤ args.size then
         let scrut := args[3]!
         let k₁ := args[4]!
@@ -1125,8 +1156,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
           let e' := (k₂.beta #[scrut.appArg!]).beta extra
           return .visit e'
     -- Look for _unary redexes
-    if e.isAppOf eqnInfo.declNameNonRec then
-      let args := e.getAppArgs
+    if f.isConstOf eqnInfo.declNameNonRec then
       if h : args.size ≥ eqnInfo.fixedParamPerms.numFixed + 1 then
         let xs := args[:eqnInfo.fixedParamPerms.numFixed]
         let packedArg := args[eqnInfo.fixedParamPerms.numFixed]

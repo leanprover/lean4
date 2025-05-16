@@ -327,9 +327,19 @@ instance LawfulEqOrd.opposite [Ord α] [OrientedOrd α] [LawfulEqOrd α] :
 theorem compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
   ⟨LawfulEqCmp.eq_of_compare, by rintro rfl; exact ReflCmp.compare_self⟩
 
+@[grind]
+theorem _root_.Ord.compare_eq_iff_eq [Ord α] [LawfulEqOrd α] (x y : α) :
+    compare x y = .eq ↔ x = y :=
+  Std.compare_eq_iff_eq
+
 @[simp]
 theorem compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
   ⟨LawfulEqCmp.eq_of_compare ∘ eq_of_beq, by rintro rfl; simp⟩
+
+@[grind]
+theorem _root_.Ord.compare_beq_iff_eq [Ord α] [LawfulEqOrd α] (x y : α) :
+    compare x y == .eq ↔ x = y :=
+  Std.compare_beq_iff_eq
 
 end LawfulEq
 

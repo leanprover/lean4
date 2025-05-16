@@ -38,15 +38,15 @@ def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure
 @[always_inline, inline]
 instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
   plausible_step it
-    | .yield it' out => it.inner.list = out :: it'.inner.list
+    | .yield it' out => it.internalState.list = out :: it'.internalState.list
     | .skip _ => False
-    | .done => it.inner.list = []
+    | .done => it.internalState.list = []
   step it := pure (match it with
         | ⟨⟨[]⟩⟩ => ⟨.done, rfl⟩
         | ⟨⟨x :: xs⟩⟩ => ⟨.yield (toIterM ⟨xs⟩ m α) x, rfl⟩)
 
 instance [Pure m] : FinitenessRelation (ListIterator α) m where
-  rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.inner)
+  rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ BaseIter.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf

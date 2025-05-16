@@ -87,11 +87,12 @@ All of the following module names are prefixed with `Std.Data.Iterators`.
   return some result. Examples are the `toList` function and an instance for the `ForIn` typeclass.
   These operations allow for what is also known as *internal iteration*, where the caller delegates
   the control flow during the iteration to the called consumer.
-* `Combinators` provides operations that transform one or more iterators into a new iterator.
+* `Combinators` will provide operations that transform one or more iterators into a new iterator
+  as soon as the first such combinator has been implemented.
 
 ### Verification API
 
-`Lemmas` provides the means to verify programs that use iterators.
+`Lemmas` will provide the means to verify programs that use iterators.
 
 ### Iterator implementation API
 

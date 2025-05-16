@@ -45,9 +45,6 @@ convert a provably finite iterator `it` into a list and `it.allowNontermination.
 do so even if finiteness cannot be proved. It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 
-See `Std.Data.Iterators.Combinators` for ways to compose iterators. For example, `it.map f` is
-the iterator that applies a function `f` to every value emitted by `it`.
-
 See `Iter` for a more convenient interface in case that no monadic effects are needed (`m = Id`).
 
 Internally, `IterM m β` wraps an element of type `α` containing state information.
@@ -88,9 +85,6 @@ See `Std.Data.Iterators.Consumers` for ways to use an iterator. For example, `it
 convert a provably finite iterator `it` into a list and `it.allowNontermination.toList` will
 do so even if finiteness cannot be proved. It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
-
-See `Std.Data.Iterators.Combinators` for ways to compose iterators. For example, `it.map f` is
-the iterator that applies a function `f` to every value emitted by `it`.
 
 See `IterM` for iterators that operate in a monad.
 

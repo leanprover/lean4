@@ -103,6 +103,13 @@ jobs:
             echo "Tag ${TAG_NAME} did not match SemVer regex."
           fi
 
+      - name: Check for custom releases (e.g., not in the main lean repository)
+        if: startsWith(github.ref, 'refs/tags/') && github.repository != 'leanprover/lean4'
+        id: set-release-custom
+        run: |
+          TAG_NAME="${GITHUB_REF##*/}"
+          echo "RELEASE_TAG=$TAG_NAME" >> "$GITHUB_OUTPUT"
+
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -111,7 +118,7 @@ jobs:
         run: |
           check_level=0
 
-          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" ]]; then
+          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=2
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1

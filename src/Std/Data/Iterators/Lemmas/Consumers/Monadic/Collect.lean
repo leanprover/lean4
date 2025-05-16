@@ -19,8 +19,8 @@ theorem IterM.DefaultConsumers.toArrayMapped.go.aux₁ [Monad m] [LawfulMonad m]
   induction it, bs using IterM.DefaultConsumers.toArrayMapped.go.induct
   next it bs ih₁ ih₂ =>
   rw [go, map_eq_pure_bind, go, bind_assoc]
-  refine congrArg (IterM.step it >>= ·) ?_
-  ext step
+  apply bind_congr
+  intro step
   split
   · simp [ih₁ _ _ ‹_›]
   · simp [ih₂ _ ‹_›]
@@ -81,8 +81,8 @@ theorem IterM.toList_of_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finit
       | .done _ => return []) := by
   simp [← IterM.toList_toArray]
   rw [IterM.toArray_of_step, map_eq_pure_bind, bind_assoc]
-  refine congrArg (_ >>= ·) ?_
-  ext step
+  apply bind_congr
+  intro step
   split <;> simp
 
 theorem IterM.toListRev.go.aux₁ [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
@@ -91,8 +91,8 @@ theorem IterM.toListRev.go.aux₁ [Monad m] [LawfulMonad m] [Iterator α m β] [
   induction it, bs using IterM.toListRev.go.induct
   next it bs ih₁ ih₂ =>
   rw [go, go, map_eq_pure_bind, bind_assoc]
-  refine congrArg (IterM.step it >>= ·) ?_
-  ext step
+  apply bind_congr
+  intro step
   simp only [List.cons_append] at ih₁
   split <;> simp [*]
 
@@ -114,10 +114,9 @@ theorem IterM.toListRev_of_step [Monad m] [LawfulMonad m] [Iterator α m β] [Fi
       | .done _ => return []) := by
   simp [IterM.toListRev]
   rw [toListRev.go]
-  refine congrArg (it.step >>= ·) ?_
-  ext step
-  obtain ⟨step, h⟩ := step
-  cases step <;> simp [IterM.toListRev.go.aux₂]
+  apply bind_congr
+  intro step
+  cases step.casesHelper <;> simp [IterM.toListRev.go.aux₂]
 
 theorem IterM.reverse_toListRev [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     [IteratorCollect α m] [LawfulIteratorCollect α m]
@@ -127,8 +126,8 @@ theorem IterM.reverse_toListRev [Monad m] [LawfulMonad m] [Iterator α m β] [Fi
   induction it using IterM.induct
   rename_i it ihy ihs
   rw [toListRev_of_step, toList_of_step, map_eq_pure_bind, bind_assoc]
-  refine congrArg (_ >>= ·) ?_
-  ext step
+  apply bind_congr
+  intro step
   split <;> simp (discharger := assumption) [ihy, ihs]
 
 theorem IterM.toListRev_eq [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]

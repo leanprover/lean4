@@ -173,21 +173,25 @@ def IterStep.successor : IterStep α β → Option α
   | .skip it => some it
   | .done => none
 
+/--
+If present, applies `f` to the iterator of an `IterStep` and replaces the iterator
+with the result of the application of `f`.
+-/
 @[always_inline, inline]
-def IterStep.mapOutput {α' : Type u'} (f : α → α') : IterStep α β → IterStep α' β
+def IterStep.mapIterator {α' : Type u'} (f : α → α') : IterStep α β → IterStep α' β
   | .yield it out => .yield (f it) out
   | .skip it => .skip (f it)
   | .done => .done
 
 @[simp]
-theorem IterStep.mapOutput_mapOutput {α' : Type u'} {f : α → α'} {g : α' → α}
+theorem IterStep.mapIterator_mapIterator {α' : Type u'} {f : α → α'} {g : α' → α}
     {step : IterStep α β} :
-    (step.mapOutput f).mapOutput g = step.mapOutput (g ∘ f) := by
+    (step.mapIterator f).mapIterator g = step.mapIterator (g ∘ f) := by
   cases step <;> rfl
 
 @[simp]
-theorem IterStep.mapOutput_id {step : IterStep α β} :
-    step.mapOutput id = step := by
+theorem IterStep.mapIterator_id {step : IterStep α β} :
+    step.mapIterator id = step := by
   cases step <;> rfl
 
 /--
@@ -223,12 +227,31 @@ def PlausibleIterStep.done {plausible_step : IterStep α β → Prop}
     (h : plausible_step .done) : PlausibleIterStep plausible_step :=
   ⟨.done, h⟩
 
+/--
+An inductive type that makes it easier to apply the `cases` tactic to a
+`PlausibleIterStep`. See `PlausibleIterStep.casesHelper` for more information.
+-/
 inductive PlausibleIterStep.CasesHelper {plausible_step : IterStep α β → Prop} :
     PlausibleIterStep plausible_step → Type _ where
   | yield (it' out h) : CasesHelper (.yield it' out h)
   | skip (it' h) : CasesHelper (.skip it' h)
   | done (h) : CasesHelper (.done h)
 
+/--
+Because `PlausibleIterStep` is a subtype of `IterStep`, it is tedious to use
+the `cases` tactic:
+
+```lean
+obtain ⟨step, h⟩ := step
+cases step
+```
+
+Using `casesHelper`, the case distinction can be done more ergonomically.
+
+```lean
+cases step.casesHelper
+```
+-/
 def PlausibleIterStep.casesHelper {plausible_step : IterStep α β → Prop} :
     (step : PlausibleIterStep plausible_step) → PlausibleIterStep.CasesHelper step
   | .yield it' out h => .yield it' out h
@@ -328,7 +351,7 @@ is up to the `Iterator` instance but it should be strong enough to allow termina
 -/
 def Iter.plausible_step {α : Type w} {β : Type w} [Iterator α Id β]
     (it : Iter (α := α) β) (step : IterStep (Iter (α := α) β) β) : Prop :=
-  it.toIterM.plausible_step (step.mapOutput Iter.toIterM)
+  it.toIterM.plausible_step (step.mapIterator Iter.toIterM)
 
 /--
 The type of the step object returned by `Iter.step`, containing an `IterStep`
@@ -337,15 +360,21 @@ and a proof that this is a plausible step for the given iterator.
 def Iter.Step {α : Type w} {β : Type w} [Iterator α Id β] (it : Iter (α := α) β) :=
   PlausibleIterStep (Iter.plausible_step it)
 
+/--
+Converts an `Iter.Step` into an `IterM.Step`.
+-/
 @[always_inline, inline]
 def Iter.Step.toMonadic {α : Type w} {β : Type w} [Iterator α Id β] {it : Iter (α := α) β}
     (step : it.Step) : it.toIterM.Step :=
-  ⟨step.val.mapOutput Iter.toIterM, step.property⟩
+  ⟨step.val.mapIterator Iter.toIterM, step.property⟩
 
+/--
+Converts an `IterM.Step` into an `Iter.Step`.
+-/
 @[always_inline, inline]
 def IterM.Step.toPure {α : Type w} {β : Type w} [Iterator α Id β] {it : IterM (α := α) Id β}
     (step : it.Step) : it.toPureIter.Step :=
-  ⟨step.val.mapOutput IterM.toPureIter, (by simp [Iter.plausible_step, step.property])⟩
+  ⟨step.val.mapIterator IterM.toPureIter, (by simp [Iter.plausible_step, step.property])⟩
 
 @[simp]
 theorem IterM.Step.toPure_yield {α β : Type w} [Iterator α Id β] {it : IterM (α := α) Id β}

@@ -8,6 +8,16 @@ import Std.Data.Iterators.Consumers.Partial
 
 namespace Std.Iterators
 
+/--
+If possible, takes `n` steps with the iterator `it` and
+returns the `n`-th emitted value, or `none` if `it` finished
+before emitting `n` values.
+
+This function requires a `Productive` instance proving that the iterator will always emit a value
+after a finite number of skips. If the iterator is not productive or such an instance is not
+available, consider using `it.allowNontermination.toArray` instead of `it.toArray`. However, it is
+not possible to formally verify the behavior of the partial variant.
+-/
 @[specialize]
 def Iter.seekIdx? {α β} [Iterator α Id β] [Productive α Id]
     (n : Nat) (it : Iter (α := α) β) : Option β :=
@@ -20,6 +30,14 @@ def Iter.seekIdx? {α β} [Iterator α Id β] [Productive α Id]
   | .done _ => none
 termination_by (n, it.finitelyManySkips)
 
+/--
+If possible, takes `n` steps with the iterator `it` and
+returns the `n`-th emitted value, or `none` if `it` finished
+before emitting `n` values.
+
+This is a partial, potentially nonterminating, function. It is not possible to formally verify
+its behavior. If the iterator has a `Productive` instance, consider using `Iter.seekIdx?` instead.
+-/
 @[specialize]
 partial def Iter.Partial.seekIdx? {α β} [Iterator α Id β] [Monad Id]
     (n : Nat) (it : Iter.Partial (α := α) β) : Option β := do

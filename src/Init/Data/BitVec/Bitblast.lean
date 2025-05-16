@@ -1789,11 +1789,11 @@ theorem toInt_dvd_of_umod_zero {x y : BitVec w} :
   <;> simp only [hxmsb, hymsb, reduceIte, false_eq_true, toNat_eq, toNat_umod, toNat_ofNat,
         zero_mod, toInt_eq_neg_toNat_neg_of_msb_true, Int.dvd_neg, Int.neg_dvd,
         toInt_eq_toNat_of_msb] at h
-  <;> try simp only [hxmsb, hymsb, toInt_eq_neg_toNat_neg_of_msb_true, toInt_eq_toNat_of_msb,
+  <;> simp only [hxmsb, hymsb, toInt_eq_neg_toNat_neg_of_msb_true, toInt_eq_toNat_of_msb,
         Int.dvd_neg, Int.neg_dvd, toNat_eq, toNat_umod, reduceIte, toNat_ofNat, zero_mod]
   <;> norm_cast
   <;> norm_cast at h
-  <;> try simp only [dvd_of_mod_eq_zero, h, dvd_iff_mod_eq_zero.mp, reduceIte]
+  <;> simp only [dvd_of_mod_eq_zero, h, dvd_iff_mod_eq_zero.mp, reduceIte]
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
@@ -1853,7 +1853,6 @@ theorem toInt_smod {x y : BitVec w} :
                 toInt_eq_toNat_of_msb hymsb, Int.dvd_neg] at hdvd
               omega
           · simp only [umod_eq]
-            have hdvd := toInt_dvd_of_umod_zero (x := x) (y := y)
             simp only [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb,
                     toInt_neg, toInt_umod, Int.fmod_eq_emod, Int.natCast_emod, Int.natCast_pow,
                     Int.cast_ofNat_Int, Int.bmod_neg_bmod, Int.emod_neg, Int.neg_nonneg, Int.dvd_neg, Int.neg_dvd]

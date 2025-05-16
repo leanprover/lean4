@@ -65,8 +65,7 @@ theorem Iter.toArray_of_step {α β} [Iterator α Id β] [Finite α Id] [Iterato
   rw [IterM.toArray_of_step]
   simp only [Id.map_eq, Id.pure_eq, Id.bind_eq, Id.run]
   generalize it.toIterM.step = step
-  obtain ⟨step, h⟩ := step
-  cases step <;> simp
+  cases step.casesHelper <;> simp
 
 theorem Iter.toList_of_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :

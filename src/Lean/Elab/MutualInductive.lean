@@ -219,7 +219,7 @@ private def checkUnsafe (rs : Array PreElabHeaderResult) : TermElabM Unit := do
   let isUnsafe := rs[0]!.view.modifiers.isUnsafe
   for r in rs do
     unless r.view.modifiers.isUnsafe == isUnsafe do
-      throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes"
+      throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in mutually inductive datatypes"
 
 private def checkClass (rs : Array PreElabHeaderResult) : TermElabM Unit := do
   if rs.size > 1 then

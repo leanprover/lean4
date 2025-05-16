@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Closure
 import Lean.Meta.Diagnostics
 import Lean.Elab.Open
 import Lean.Elab.SetOption
@@ -349,5 +350,17 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
 
 @[builtin_term_elab Lean.Parser.Term.namedPattern] def elabNamedPatternErr : TermElab := fun stx _ =>
   throwError "`<identifier>@<term>` is a named pattern and can only be used in pattern matching contexts{indentD stx}"
+
+@[builtin_term_elab «privateDecl»] def elabPrivateDecl : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(Parser.Term.privateDecl| private_decl% $e) =>
+    if (← getEnv).isExporting then
+      let name ← mkAuxDeclName `_private
+      withoutExporting do
+        let e ← elabTerm e expectedType?
+        mkAuxDefinitionFor name e
+    else
+      elabTerm e expectedType?
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

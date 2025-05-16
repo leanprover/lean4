@@ -49,6 +49,24 @@ class MonadAsync (n : Type → Type) (m : Type → Type) where
   -/
   async : m α → m (n α)
 
+instance [inst : MonadAwait t m] [Monad m] : MonadAwait t (StateT n m) where
+  await := liftM (m := m) ∘ inst.await
+
+instance [inst : MonadAwait t m] [Monad m] : MonadAwait t (ExceptT n m) where
+  await := liftM (m := m) ∘ inst.await
+
+instance [inst : MonadAwait t m] [Monad m] : MonadAwait t (ReaderT n m) where
+  await := liftM (m := m) ∘ inst.await
+
+instance [inst : MonadAwait t m] [Monad m] : MonadAwait t (StateRefT' s n m) where
+  await := liftM (m := m) ∘ inst.await
+
+instance [inst : MonadAsync t m] [Monad m] : MonadAsync t (ReaderT n m) where
+  async p := inst.async ∘ p
+
+instance [inst : MonadAsync t m] [Monad m] : MonadAsync t (StateRefT' s n m) where
+  async p := inst.async ∘ p
+
 /--
 A `Task` that may resolve to either a value of type `α` or an error value of type `ε`.
 -/

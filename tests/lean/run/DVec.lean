@@ -42,7 +42,7 @@ example (v : Vec Nat 1) : Nat :=
 /--
 error: Application type mismatch: In the application
   @DVec.hd ?_ v
-the final argument
+the argument
   v
 has type
   Vec Nat 1 : Type

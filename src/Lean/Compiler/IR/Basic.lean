@@ -245,9 +245,11 @@ structure Param where
 @[export lean_ir_mk_param]
 def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩
 
-inductive AltCore (FnBody : Type) : Type where
-  | ctor (info : CtorInfo) (b : FnBody) : AltCore FnBody
-  | default (b : FnBody) : AltCore FnBody
+mutual
+
+inductive Alt where
+  | ctor (info : CtorInfo) (b : FnBody) : Alt
+  | default (b : FnBody) : Alt
 
 inductive FnBody where
   /-- `let x : ty := e; b` -/
@@ -271,11 +273,13 @@ inductive FnBody where
   | dec (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
   | del (x : VarId) (b : FnBody)
   | mdata (d : MData) (b : FnBody)
-  | case (tid : Name) (x : VarId) (xType : IRType) (cs : Array (AltCore FnBody))
+  | case (tid : Name) (x : VarId) (xType : IRType) (cs : Array Alt)
   | ret (x : Arg)
   /-- Jump to join point `j` -/
   | jmp (j : JoinPointId) (ys : Array Arg)
   | unreachable
+
+end
 
 instance : Inhabited FnBody := ⟨FnBody.unreachable⟩
 
@@ -285,16 +289,12 @@ abbrev FnBody.nil := FnBody.unreachable
 @[export lean_ir_mk_jdecl] def mkJDecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs v b
 @[export lean_ir_mk_uset] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
 @[export lean_ir_mk_sset] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
-@[export lean_ir_mk_case] def mkCase (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody :=
+@[export lean_ir_mk_case] def mkCase (tid : Name) (x : VarId) (cs : Array Alt) : FnBody :=
   -- Type field `xType` is set by `explicitBoxing` compiler pass.
   FnBody.case tid x IRType.object cs
 @[export lean_ir_mk_ret] def mkRet (x : Arg) : FnBody := FnBody.ret x
 @[export lean_ir_mk_jmp] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
 @[export lean_ir_mk_unreachable] def mkUnreachable : Unit → FnBody := fun _ => FnBody.unreachable
-
-abbrev Alt := AltCore FnBody
-@[match_pattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
-@[match_pattern] abbrev Alt.default := @AltCore.default FnBody
 
 instance : Inhabited Alt := ⟨Alt.default default⟩
 
@@ -341,19 +341,19 @@ def FnBody.setBody : FnBody → FnBody → FnBody
   let c  := b.resetBody
   (c, b')
 
-def AltCore.body : Alt → FnBody
+def Alt.body : Alt → FnBody
   | Alt.ctor _ b  => b
   | Alt.default b => b
 
-def AltCore.setBody : Alt → FnBody → Alt
+def Alt.setBody : Alt → FnBody → Alt
   | Alt.ctor c _, b  => Alt.ctor c b
   | Alt.default _, b => Alt.default b
 
-@[inline] def AltCore.modifyBody (f : FnBody → FnBody) : AltCore FnBody → Alt
+@[inline] def Alt.modifyBody (f : FnBody → FnBody) : Alt → Alt
   | Alt.ctor c b  => Alt.ctor c (f b)
   | Alt.default b => Alt.default (f b)
 
-@[inline] def AltCore.mmodifyBody {m : Type → Type} [Monad m] (f : FnBody → m FnBody) : AltCore FnBody → m Alt
+@[inline] def Alt.mmodifyBody {m : Type → Type} [Monad m] (f : FnBody → m FnBody) : Alt → m Alt
   | Alt.ctor c b  => Alt.ctor c <$> f b
   | Alt.default b => Alt.default <$> f b
 

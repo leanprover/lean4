@@ -15,7 +15,7 @@ import Lean.PrettyPrinter
 
 This defines the data types used in constructing "try this" widgets for suggestion-providing tactics
 and inline error-message hints, as well as basic infrastructure for generating info trees and
-widget content therefrom.
+widget content there from.
 -/
 
 namespace Lean.Meta.Tactic.TryThis

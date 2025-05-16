@@ -337,17 +337,24 @@ example : (replicate n a).map f = replicate n (f a) := by
   fail_if_success grind -ext only [Option.map_some, Option.map_none, getElem?_map, getElem?_replicate]
   sorry
 
-@[ext] structure S where
+@[ext, grind ext] structure S where
   a : Nat
   b : Bool
-
-attribute [grind ext] S.ext
 
 example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
   grind
 
 example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
-  fail_if_success grind -ext
+  fail_if_success grind -etaStruct
+  sorry
+
+attribute [grind ext] S.ext -- enable extensionality using S.ext
+
+example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
+  grind -etaStruct -- It is applying the extensionality theorem instead of eta for structures
+
+example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
+  fail_if_success grind -etaStruct -ext
   sorry
 
 example (x : S) : x.a = 10 → false ≠ x.b → x = { a := 10, b := true } := by

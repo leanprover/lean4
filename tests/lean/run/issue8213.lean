@@ -19,7 +19,7 @@ error: Failed to realize constant myTest.fun_cases:
     ⏎
       Application type mismatch: In the application
         motive x✝ h_1
-      the final argument
+      the argument
         h_1
       has type
         (a : α) → (dc : List α) → x = a :: dc → mmotive (a :: dc) : Sort (imax (u_1 + 1) (u_1 + 1) v)

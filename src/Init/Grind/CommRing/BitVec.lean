@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Grind.CommRing.Basic
+import all Init.Data.BitVec.Basic
 import Init.Data.BitVec.Lemmas
 
 namespace Lean.Grind
@@ -19,8 +20,11 @@ instance : CommRing (BitVec w) where
   mul_assoc := BitVec.mul_assoc
   mul_comm := BitVec.mul_comm
   mul_one := BitVec.mul_one
+  one_mul := BitVec.one_mul
   left_distrib _ _ _ := BitVec.mul_add
+  right_distrib _ _ _ := BitVec.add_mul
   zero_mul _ := BitVec.zero_mul
+  mul_zero _ := BitVec.mul_zero
   sub_eq_add_neg := BitVec.sub_eq_add_neg
   pow_zero _ := BitVec.pow_zero
   pow_succ _ _ := BitVec.pow_succ

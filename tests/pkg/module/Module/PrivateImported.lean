@@ -4,19 +4,13 @@ private import Module.Basic
 
 /-! `private import` should allow only private access to imported decls. -/
 
-/--
-error: type mismatch
-  f
-has type
-  Nat : Type
-but is expected to have type
-  True : Prop
--/
-#guard_msgs in
-theorem g : True := f
+def g := f
 
-/- FIXME: visibility for def bodies is wrong
 /-- error: unknown identifier 'f' -/
 #guard_msgs in
-@[reducible] def h : True := f
--/
+set_option autoImplicit false in
+theorem t2 : f = 1 := sorry
+
+/-- error: unknown identifier 'f' -/
+#guard_msgs in
+@[expose] def h : True := f

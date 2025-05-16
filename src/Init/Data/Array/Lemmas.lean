@@ -8,11 +8,13 @@ module
 prelude
 import Init.Data.Nat.Lemmas
 import Init.Data.List.Range
+import all Init.Data.List.Control
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Nat.Modify
 import Init.Data.List.Nat.Basic
 import Init.Data.List.Monadic
 import Init.Data.List.OfFn
+import all Init.Data.Array.Bootstrap
 import Init.Data.Array.Mem
 import Init.Data.Array.DecidableEq
 import Init.Data.Array.Lex.Basic
@@ -852,7 +854,7 @@ abbrev elem_eq_true_of_mem := @contains_eq_true_of_mem
     elem a xs = xs.contains a := by
   simp [elem]
 
-@[grind] theorem contains_empty [BEq α] : (#[] : Array α).contains a = false := rfl
+@[grind] theorem contains_empty [BEq α] : (#[] : Array α).contains a = false := by simp
 
 theorem elem_iff [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
     elem a xs = true ↔ a ∈ xs := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
@@ -869,8 +871,8 @@ theorem elem_eq_mem [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
 @[simp, grind] theorem contains_eq_mem [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
     xs.contains a = decide (a ∈ xs) := by rw [← elem_eq_contains, elem_eq_mem]
 
-@[simp, grind] theorem any_empty [BEq α] {p : α → Bool} : (#[] : Array α).any p = false := rfl
-@[simp, grind] theorem all_empty [BEq α] {p : α → Bool} : (#[] : Array α).all p = true := rfl
+@[simp, grind] theorem any_empty [BEq α] {p : α → Bool} : (#[] : Array α).any p = false := by simp
+@[simp, grind] theorem all_empty [BEq α] {p : α → Bool} : (#[] : Array α).all p = true := by simp
 
 /-- Variant of `any_push` with a side condition on `stop`. -/
 @[simp, grind] theorem any_push' [BEq α] {xs : Array α} {a : α} {p : α → Bool} (h : stop = xs.size + 1) :
@@ -1821,10 +1823,10 @@ theorem singleton_eq_toArray_singleton {a : α} : #[a] = [a].toArray := rfl
 @[simp, grind] theorem mem_append {a : α} {xs ys : Array α} : a ∈ xs ++ ys ↔ a ∈ xs ∨ a ∈ ys := by
   simp only [mem_def, toList_append, List.mem_append]
 
-@[grind] theorem mem_append_left {a : α} {xs : Array α} (ys : Array α) (h : a ∈ xs) : a ∈ xs ++ ys :=
+theorem mem_append_left {a : α} {xs : Array α} (ys : Array α) (h : a ∈ xs) : a ∈ xs ++ ys :=
   mem_append.2 (Or.inl h)
 
-@[grind] theorem mem_append_right {a : α} (xs : Array α) {ys : Array α} (h : a ∈ ys) : a ∈ xs ++ ys :=
+theorem mem_append_right {a : α} (xs : Array α) {ys : Array α} (h : a ∈ ys) : a ∈ xs ++ ys :=
   mem_append.2 (Or.inr h)
 
 theorem not_mem_append {a : α} {xs ys : Array α} (h₁ : a ∉ xs) (h₂ : a ∉ ys) : a ∉ xs ++ ys :=
@@ -3740,7 +3742,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Array α} {a : α} :
   rcases xs with ⟨xs⟩
   simp [List.contains_iff_exists_mem_beq]
 
-@[grind =]
+@[grind]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp
@@ -4152,7 +4154,7 @@ theorem swapAt!_def {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
 section replace
 variable [BEq α]
 
-@[simp, grind] theorem replace_empty : (#[] : Array α).replace a b = #[] := by rfl
+@[simp, grind] theorem replace_empty : (#[] : Array α).replace a b = #[] := by simp [replace]
 
 @[simp, grind] theorem replace_singleton {a b c : α} : #[a].replace b c = #[if a == b then c else a] := by
   simp only [replace, List.finIdxOf?_toArray, List.finIdxOf?]

@@ -9,7 +9,7 @@ module
 prelude
 import Init.Data.Bool
 import Init.Data.Int.Pow
-import Init.Data.Nat.Bitwise.Basic
+import all Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Simproc
 import Init.TacticsExtra

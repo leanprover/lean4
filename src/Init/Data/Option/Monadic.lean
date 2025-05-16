@@ -7,6 +7,7 @@ module
 
 prelude
 
+import all Init.Data.Option.Instances
 import Init.Data.Option.Attach
 import Init.Control.Lawful.Basic
 
@@ -39,7 +40,7 @@ namespace Option
   rw [map_eq_pure_bind]
   congr
   funext x
-  split <;> rfl
+  split <;> simp
 
 @[simp, grind] theorem forIn_none [Monad m] (b : β) (f : α → β → m (ForInStep β)) :
     forIn none b f = pure b := by
@@ -51,7 +52,7 @@ namespace Option
   rw [map_eq_pure_bind]
   congr
   funext x
-  split <;> rfl
+  split <;> simp
 
 @[congr] theorem forIn'_congr [Monad m] [LawfulMonad m] {as bs : Option α} (w : as = bs)
     {b b' : β} (hb : b = b')

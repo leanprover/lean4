@@ -234,7 +234,6 @@ static lean_object* l_Lake_Package_getBarrelUrl___lambda__1___closed__1;
 static lean_object* l_Lake_Package_getBarrelUrl___lambda__2___closed__8;
 static lean_object* l_Lake_Package_getReleaseUrl___closed__3;
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Package_recFetchDeps___spec__4___closed__5;
-LEAN_EXPORT lean_object* l_Lake_Package_afterReleaseAsync(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_barrelFacetConfig___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Package_0__Lake_Package_mkOptBuildArchiveFacetConfig___lambda__4(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lake_Package_recComputeTransDeps___spec__3(lean_object*);
@@ -243,7 +242,6 @@ static lean_object* l_Lake_Package_buildCacheFacetConfig___lambda__1___closed__6
 static lean_object* l_Lake_Package_barrelFacetConfig___lambda__1___closed__5;
 extern lean_object* l_Lake_Package_transDepsFacet;
 static lean_object* l_Lake_Package_buildCacheFacetConfig___closed__1;
-LEAN_EXPORT lean_object* l_Lake_Package_afterReleaseSync___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_getReleaseUrl___closed__7;
 static lean_object* l_Lake_Package_gitHubReleaseFacetConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Package_recComputeTransDeps___boxed__const__1;
@@ -254,9 +252,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_depsFacetConfi
 static lean_object* l_Lake_Package_buildCacheFacetConfig___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Package_getBarrelUrl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Package_0__Lake_Package_mkOptBuildArchiveFacetConfig___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_optReleaseFacetConfig;
 static lean_object* l_Lake_Package_recBuildExtraDepTargets___closed__6;
-LEAN_EXPORT lean_object* l_Lake_Package_afterReleaseSync(lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at___private_Lake_Build_Package_0__Lake_Package_mkBuildArchiveFacetConfig___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_JobState_merge(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lake_Package_recComputeTransDeps___spec__2___boxed(lean_object*, lean_object*);
@@ -316,7 +312,6 @@ LEAN_EXPORT lean_object* l_Lake_checkHashUpToDate___at_Lake_Package_fetchBuildAr
 LEAN_EXPORT lean_object* l_IO_withStdin___at_Lake_Package_recBuildExtraDepTargets___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_Git_defaultRemote;
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_Package_afterBuildCacheAsync___spec__5(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_releaseFacetConfig;
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lake_Package_initFacetConfigs___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_map___at_Lake_Package_recFetchDeps___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_getBarrelUrl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -396,7 +391,6 @@ LEAN_EXPORT lean_object* l_Lake_Job_mapM___at_Lake_Package_afterBuildCacheSync__
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* l_Lake_uriEncode(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_extraDepFacetConfig;
-LEAN_EXPORT lean_object* l_Lake_Package_fetchOptRelease(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_instHashablePackage___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_optGitHubReleaseFacetConfig___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -410,7 +404,6 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_gitHubReleaseFacetConfig___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_set_stdin(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_afterReleaseAsync___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_maybeFetchBuildCacheWithWarning___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_fetchBuildArchive___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___at_Lake_Package_maybeFetchBuildCacheWithWarning___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12200,14 +12193,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_fetchOptRelease(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lake_Package_maybeFetchBuildCacheWithWarning(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_Package_recBuildExtraDepTargets___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
@@ -34946,14 +34931,6 @@ lean_ctor_set_uint8(x_7, sizeof(void*)*4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lake_Package_optReleaseFacetConfig() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_Package_optGitHubReleaseFacetConfig;
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_Package_gitHubReleaseFacetConfig___lambda__1___closed__1() {
 _start:
 {
@@ -35610,14 +35587,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 return x_11;
-}
-}
-static lean_object* _init_l_Lake_Package_releaseFacetConfig() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_Package_gitHubReleaseFacetConfig;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Package_afterBuildCacheAsync___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -42713,22 +42682,6 @@ x_9 = lean_unbox(x_2);
 lean_dec(x_2);
 x_10 = l_Lake_Package_afterBuildCacheAsync___rarg___lambda__1(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_afterReleaseAsync___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Lake_Package_afterBuildCacheAsync___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_afterReleaseAsync(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lake_Package_afterReleaseAsync___rarg), 8, 0);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Package_afterBuildCacheSync___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -55416,22 +55369,6 @@ x_12 = l_Lake_Job_mapM___at_Lake_Package_afterBuildCacheSync___spec__7___rarg(x_
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Package_afterReleaseSync___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Lake_Package_afterBuildCacheSync___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_afterReleaseSync(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lake_Package_afterReleaseSync___rarg), 8, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lake_Package_initFacetConfigs___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -58184,8 +58121,6 @@ l_Lake_Package_barrelFacetConfig = _init_l_Lake_Package_barrelFacetConfig();
 lean_mark_persistent(l_Lake_Package_barrelFacetConfig);
 l_Lake_Package_optGitHubReleaseFacetConfig = _init_l_Lake_Package_optGitHubReleaseFacetConfig();
 lean_mark_persistent(l_Lake_Package_optGitHubReleaseFacetConfig);
-l_Lake_Package_optReleaseFacetConfig = _init_l_Lake_Package_optReleaseFacetConfig();
-lean_mark_persistent(l_Lake_Package_optReleaseFacetConfig);
 l_Lake_Package_gitHubReleaseFacetConfig___lambda__1___closed__1 = _init_l_Lake_Package_gitHubReleaseFacetConfig___lambda__1___closed__1();
 lean_mark_persistent(l_Lake_Package_gitHubReleaseFacetConfig___lambda__1___closed__1);
 l_Lake_Package_gitHubReleaseFacetConfig___lambda__1___closed__2 = _init_l_Lake_Package_gitHubReleaseFacetConfig___lambda__1___closed__2();
@@ -58208,8 +58143,6 @@ l_Lake_Package_gitHubReleaseFacetConfig___closed__2 = _init_l_Lake_Package_gitHu
 lean_mark_persistent(l_Lake_Package_gitHubReleaseFacetConfig___closed__2);
 l_Lake_Package_gitHubReleaseFacetConfig = _init_l_Lake_Package_gitHubReleaseFacetConfig();
 lean_mark_persistent(l_Lake_Package_gitHubReleaseFacetConfig);
-l_Lake_Package_releaseFacetConfig = _init_l_Lake_Package_releaseFacetConfig();
-lean_mark_persistent(l_Lake_Package_releaseFacetConfig);
 l_Lake_Package_initFacetConfigs = _init_l_Lake_Package_initFacetConfigs();
 lean_mark_persistent(l_Lake_Package_initFacetConfigs);
 l_Lake_initPackageFacetConfigs = _init_l_Lake_initPackageFacetConfigs();

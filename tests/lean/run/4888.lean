@@ -7,7 +7,7 @@ https://github.com/leanprover/lean4/issues/4888
 /--
 error: Application type mismatch: In the application
   Nat.succ True
-the final argument
+the argument
   True
 has type
   Prop : Type

@@ -56,7 +56,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
       let e ← mkNatLookupTable ctorIdx es default
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
-  let declName := indName ++ `withCtorType
+  let declName := .str indName "withCtorType"
   addAndCompile <| Declaration.defnDecl {
     name        := declName
     levelParams := casesOnInfo.levelParams
@@ -71,7 +71,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
 
 def mkWithCtor (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
-  let withCtorTypeName := indName ++ `withCtorType
+  let withCtorTypeName := .str indName "withCtorType"
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
@@ -115,7 +115,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
           let e := mkAppN e alts
           mkLambdaFVars (xs ++ #[P, ctorIdx, k, k'] ++ ys ++ #[x]) e
 
-  let declName := indName ++ `withCtor
+  let declName := .str indName "withCtor"
   -- not compiled to avoid old code generator bug #1774
   addDecl <| Declaration.defnDecl {
     name        := declName
@@ -155,7 +155,7 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
             let alts' ← alts.mapIdxM fun i alt => do
               let altType ← inferType alt
               forallTelescope altType fun zs1 _ => do
-                let alt := mkConst (indName ++ `withCtor) (v :: us)
+                let alt := mkConst (.str indName "withCtor") (v :: us)
                 let alt := mkAppN alt xs
                 let alt := mkApp alt PType
                 let alt := mkApp alt (mkNatLit i)
@@ -180,7 +180,7 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
             let e ← mkLambdaFVars xs e
             pure e
 
-  let declName := indName ++ `noConfusionType
+  let declName := .str indName "noConfusionType"
   addAndCompile <| Declaration.defnDecl {
     name        := declName
     levelParams := casesOnInfo.levelParams

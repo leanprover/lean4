@@ -57,14 +57,13 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
   let declName := .str indName "withCtorType"
-  addAndCompile <| Declaration.defnDecl {
-    name        := declName
-    levelParams := casesOnInfo.levelParams
-    type        := (← inferType e)
-    value       := e
-    safety      := DefinitionSafety.safe
-    hints       := ReducibilityHints.abbrev
-  }
+  addAndCompile (.defnDecl (← mkDefinitionValInferrringUnsafe
+    (name        := declName)
+    (levelParams := casesOnInfo.levelParams)
+    (type        := (← inferType e))
+    (value       := e)
+    (hints       := ReducibilityHints.abbrev)
+  ))
   modifyEnv fun env => addToCompletionBlackList env declName
   modifyEnv fun env => addProtected env declName
   setReducibleAttribute declName
@@ -117,14 +116,13 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
 
   let declName := .str indName "withCtor"
   -- not compiled to avoid old code generator bug #1774
-  addDecl <| Declaration.defnDecl {
-    name        := declName
-    levelParams := casesOnInfo.levelParams
-    type        := (← inferType e)
-    value       := e
-    safety      := DefinitionSafety.safe
-    hints       := ReducibilityHints.abbrev
-  }
+  addDecl (.defnDecl (← mkDefinitionValInferrringUnsafe
+    (name        := declName)
+    (levelParams := casesOnInfo.levelParams)
+    (type        := (← inferType e))
+    (value       := e)
+    (hints       := ReducibilityHints.abbrev)
+  ))
   modifyEnv fun env => addToCompletionBlackList env declName
   modifyEnv fun env => addProtected env declName
   setReducibleAttribute declName
@@ -181,14 +179,13 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
             pure e
 
   let declName := .str indName "noConfusionType"
-  addAndCompile <| Declaration.defnDecl {
-    name        := declName
-    levelParams := casesOnInfo.levelParams
-    type        := (← inferType e)
-    value       := e
-    safety      := DefinitionSafety.safe
-    hints       := ReducibilityHints.abbrev
-  }
+  addDecl (.defnDecl (← mkDefinitionValInferrringUnsafe
+    (name        := declName)
+    (levelParams := casesOnInfo.levelParams)
+    (type        := (← inferType e))
+    (value       := e)
+    (hints       := ReducibilityHints.abbrev)
+  ))
   modifyEnv fun env => addToCompletionBlackList env declName
   modifyEnv fun env => addProtected env declName
   setReducibleAttribute declName

@@ -1886,21 +1886,21 @@ theorem toInt_smod {x y : BitVec w} :
     · by_cases hxintmin : x = intMin (w + 1)
       · simp [hxintmin, hyintmin]
       · -- y = intMin, x ≠ intMin
-          simp only [hyintmin, neg_intMin, toNat_intMin, Nat.add_one_sub_one,
-            Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int]
-          have hmodpow := Nat.two_pow_pred_mod_two_pow (w := w + 1) (by omega)
-          simp only [Nat.add_one_sub_one] at hmodpow
-          rw_mod_cast [hmodpow]
-          rw [Int.bmod_eq_of_le (by norm_cast; omega) (by norm_cast; omega)]
-          simp only [toNat_neg, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
-            le_zero_eq, Nat.pow_eq_zero, add_one_ne_zero, ne_eq, _root_.false_and,
-            _root_.false_or]
-          rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat)
-            (by simp [Nat.pow_add, Nat.pow_one]; rw [Nat.mul_two];
-                have : 0 < x.toNat := by simp [toNat_eq] at hxzero; omega
-                omega)]
-          rw [Int.neg_emod]
-          omega
+        simp only [hyintmin, neg_intMin, toNat_intMin, Nat.add_one_sub_one,
+          Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int]
+        have hmodpow := Nat.two_pow_pred_mod_two_pow (w := w + 1) (by omega)
+        simp only [Nat.add_one_sub_one] at hmodpow
+        rw_mod_cast [hmodpow]
+        rw [Int.bmod_eq_of_le (by norm_cast; omega) (by norm_cast; omega)]
+        simp only [toNat_neg, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
+          le_zero_eq, Nat.pow_eq_zero, add_one_ne_zero, ne_eq, _root_.false_and,
+          _root_.false_or]
+        rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat)
+          (by simp [Nat.pow_add, Nat.pow_one]; rw [Nat.mul_two];
+              have : 0 < x.toNat := by simp [toNat_eq] at hxzero; omega
+              omega)]
+        rw [Int.neg_emod]
+        omega
     · have hyneglt : (-y).toNat < 2 ^ (w + 1 - 1) := by
         apply toNat_lt_of_msb_false
         simp [hyintmin, hymsb]

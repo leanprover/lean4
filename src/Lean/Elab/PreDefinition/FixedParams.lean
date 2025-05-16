@@ -172,20 +172,19 @@ end FixedParams
 
 open Lean Meta FixedParams
 
-def getParamRevDeps (preDefs : Array PreDefinition) : MetaM (Array (Array (Array Nat))) := do
-  preDefs.mapM fun preDef =>
-    lambdaTelescope preDef.value (cleanupAnnotations := true) fun xs _ => do
-      let mut revDeps := #[]
-      for h : i in [:xs.size] do
-        let mut deps := #[]
-        for h : j in [i+1:xs.size] do
-          if (← dependsOn (← inferType xs[j]) xs[i].fvarId!) then
-            deps := deps.push j
-        revDeps := revDeps.push deps
-      pure revDeps
+def getParamRevDeps (value : Expr) : MetaM (Array (Array Nat)) := do
+  lambdaTelescope value (cleanupAnnotations := true) fun xs _ => do
+    let mut revDeps := #[]
+    for h : i in [:xs.size] do
+      let mut deps := #[]
+      for h : j in [i+1:xs.size] do
+        if (← dependsOn (← inferType xs[j]) xs[i].fvarId!) then
+          deps := deps.push j
+      revDeps := revDeps.push deps
+    pure revDeps
 
 def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM FixedParams.Info := do
-  let revDeps ← getParamRevDeps preDefs
+  let revDeps ← preDefs.mapM (getParamRevDeps ·.value)
   let arities := revDeps.map (·.size)
   let ref ← IO.mkRef (Info.init revDeps)
 

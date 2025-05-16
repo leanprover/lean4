@@ -89,6 +89,9 @@ private def assign? (c : Choice) (bidx : Nat) (e : Expr) : OptionT GoalM Choice 
     -- `Choice` was not properly initialized
     unreachable!
 
+private def unassign (c : Choice) (bidx : Nat) : Choice :=
+  { c with assignment := c.assignment.set! bidx unassigned }
+
 /--
 Returns `true` if the function `pFn` of a pattern is equivalent to the function `eFn`.
 Recall that we ignore universe levels in patterns.
@@ -104,7 +107,23 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
   else if pArg.isBVar then
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
-    guard (← isEqv pArg eArg <||> withReducible (isDefEq pArg eArg))
+    /-
+    We need to use `withReducibleAndIntances` because ground patterns are often instances.
+    Here is an example
+    ```
+    instance : Max Nat where
+      max := Nat.max -- Redefined the instance
+
+    example (a : Nat) : max a a = a := by
+      grind
+    ```
+    Possible future improvements:
+    - When `diagnostics` is true, try with `withDefault` and report issue if it succeeds.
+    - (minor) Only use `withReducibleAndInstances` if the argument is an implicit instance.
+      Potential issue: some user write `{_ : Class α}` when the instance can be inferred from
+      explicit arguments.
+    -/
+    guard (← isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg))
     return c
   else if let some (pArg, k) := isOffsetPattern? pArg then
     assert! Option.isNone <| isOffsetPattern? pArg
@@ -274,6 +293,63 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
   trace_goal[grind.ematch.instance] "{← thm.origin.pp}: {prop}"
   addTheoremInstance thm proof prop (generation+1)
 
+private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : OptionT M Unit := do
+  let thm := (← read).thm
+  for mvar in mvars, bi in bis do
+    if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
+      let type ← inferType mvar
+      unless (← synthesizeInstanceAndAssign mvar type) do
+        reportIssue! "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
+        failure
+
+private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Unit := do
+  let thm := (← read).thm
+  let numParams := thm.numParams
+  for h : i in [:mvars.size] do
+    let bidx := numParams - i - 1
+    let mut v := (← get).assignment[bidx]!
+    unless isSameExpr v unassigned do
+      let mvarId := mvars[i].mvarId!
+      let mvarIdType ← mvarId.getType
+      let vType ← inferType v
+      let unassignOrFail : OptionT (StateT Choice M) Unit := do
+        /-
+        If there is type error and `vType` is a proposition, we can still instantiate the
+        theorem by unassigning `v` and using it as an extra hypothesis.
+        Here is an example to motivate the unassignment.
+        ```
+        example (xs : Array Nat) (w : xs.reverse = xs) (j : Nat) (hj : 0 ≤ j) (hj' : j < xs.size / 2)
+            : xs[j] = xs[xs.size - 1 - j] := by
+          grind
+        ```
+        Without the unassignment we get a type error while trying to instantiate the theorem
+        ```
+        theorem getElem_reverse {xs : Array α} {i : Nat} (hi : i < xs.reverse.size) :
+          (xs.reverse)[i] = xs[xs.size - 1 - i]'(by simp at hi; omega)
+        ```
+        The pattern for this theorem is `xs.reverese[i]`. Note that `hi` occurs there as an implicit argument.
+        The term `xs[j]` in our goal e-matches the pattern because we have the equality `xs.reverse = xs`.
+        However, the implicit proof at `xs[j]` has type `j < xs.size` instead of `j < xs.reverse.size`.
+        -/
+        if (← isProp vType) then
+          modify (unassign · bidx)
+        else
+          reportIssue! "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+          failure
+      unless (← withDefault <| isDefEq mvarIdType vType) do
+        if let some heq ← withoutReportingMVarIssues <| proveEq? vType mvarIdType (abstract := true) then
+          /-
+          Some of the `cast`s will appear inside the `Grind.MatchCond` binders, and
+          we want their proofs to be properly wrapped.
+          -/
+          let heq := mkApp2 (mkConst ``Grind.nestedProof) (← mkEq vType mvarIdType) heq
+          v ← mkAppM ``cast #[heq, v]
+        else
+          unassignOrFail
+          continue
+      unless (← mvarId.checkedAssign v) do
+        unassignOrFail
+
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
 Missing parameters are synthesized using type inference and type class synthesis."
@@ -290,35 +366,8 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   if mvars.size != thm.numParams then
     reportIssue! "unexpected number of parameters at {← thm.origin.pp}"
     return ()
-  -- Apply assignment
-  for h : i in [:mvars.size] do
-    let mut v := c.assignment[numParams - i - 1]!
-    unless isSameExpr v unassigned do
-      let mvarId := mvars[i].mvarId!
-      let mvarIdType ← mvarId.getType
-      let vType ← inferType v
-      let report : M Unit := do
-        reportIssue! "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
-      unless (← withDefault <| isDefEq mvarIdType vType) do
-        let some heq ← withoutReportingMVarIssues <| proveEq? vType mvarIdType (abstract := true)
-          | report
-            return ()
-        /-
-        Some of the `cast`s will appear inside the `Grind.MatchCond` binders, and
-        we want their proofs to be properly wrapped.
-        -/
-        let heq := mkApp2 (mkConst ``Grind.nestedProof) (← mkEq vType mvarIdType) heq
-        v ← mkAppM ``cast #[heq, v]
-      unless (← mvarId.checkedAssign v) do
-        report
-        return ()
-  -- Synthesize instances
-  for mvar in mvars, bi in bis do
-    if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
-      let type ← inferType mvar
-      unless (← synthesizeInstanceAndAssign mvar type) do
-        reportIssue! "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
-        return ()
+  let (some _, c) ← applyAssignment mvars |>.run c | return ()
+  let some _ ← synthesizeInsts mvars bis | return ()
   let proof := mkAppN proof mvars
   if (← mvars.allM (·.mvarId!.isAssigned)) then
     addNewInstance thm proof c.gen

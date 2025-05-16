@@ -9440,7 +9440,7 @@ lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; uint
 x_47 = lean_ctor_get(x_45, 1);
 x_48 = lean_ctor_get(x_45, 0);
 lean_dec(x_48);
-x_49 = lean_ctor_get(x_26, 2);
+x_49 = lean_ctor_get(x_26, 3);
 lean_inc(x_49);
 lean_dec(x_26);
 x_50 = lean_array_get_size(x_49);
@@ -10327,7 +10327,7 @@ lean_object* x_248; lean_object* x_249; lean_object* x_250; uint8_t x_251;
 x_248 = lean_ctor_get(x_45, 1);
 lean_inc(x_248);
 lean_dec(x_45);
-x_249 = lean_ctor_get(x_26, 2);
+x_249 = lean_ctor_get(x_26, 3);
 lean_inc(x_249);
 lean_dec(x_26);
 x_250 = lean_array_get_size(x_249);

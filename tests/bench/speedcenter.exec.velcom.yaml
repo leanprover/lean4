@@ -447,6 +447,7 @@
   run_config:
     <<: *time
     cmd: lean bv_decide_inequality.lean
+    discarded_runs: 1
     max_runs: 2
 - attributes:
     description: bv_decide_large_aig.lean

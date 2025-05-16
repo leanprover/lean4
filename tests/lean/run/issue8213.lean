@@ -15,10 +15,10 @@ error: Failed to realize constant myTest.fun_cases:
   Cannot derive functional cases principle (please report this issue)
   ⏎
     failed to transform matcher, type error when constructing new pre-splitter motive:
-      @myTest.match_1 _fvar.28 (fun x => @_fvar.27 _fvar.28 _fvar.29 x _fvar.31 _fvar.32) _fvar.30
+      @myTest.match_1 _fvar.27 (fun x => @_fvar.32 x _fvar.34 _fvar.35) _fvar.33
     ⏎
       Application type mismatch: In the application
-        motive mmotive x✝ h_1
+        motive x✝ h_1
       the argument
         h_1
       has type

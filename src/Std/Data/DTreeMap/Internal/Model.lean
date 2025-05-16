@@ -818,37 +818,25 @@ theorem containsThenInsertIfNew!_snd_eq_insertIfNew! [Ord α] (t : Impl α β) (
 
 theorem insertMin_eq_insertMin! [Ord α] {a b} {t : Impl α β} (htb) :
     (t.insertMin a b htb).impl = t.insertMin! a b := by
-  cases a, b, t using insertMin!.fun_cases
+  fun_cases insertMin!
   · rfl
   · simp only [insertMin!, insertMin, balanceL_eq_balanceL!, insertMin_eq_insertMin! htb.left]
 
 theorem insertMax_eq_insertMax! [Ord α] {a b} {t : Impl α β} (htb) :
     (t.insertMax a b htb).impl = t.insertMax! a b := by
-  cases a, b, t using insertMax!.fun_cases
+  fun_cases insertMax!
   · rfl
   · simp only [insertMax!, insertMax, balanceR_eq_balanceR!, insertMax_eq_insertMax! htb.right]
 
 theorem link_eq_link! [Ord α] {k v} {l r : Impl α β} (hlb hrb) :
     (link k v l r hlb hrb).impl = link! k v l r := by
-  induction l, r using link!.induct_unfolding k v <;> rw [link]
-  · rw [insertMin_eq_insertMin!]
-  · rw [insertMax_eq_insertMax!]
-  · rw [dif_pos ‹_›]
-    simp only [balanceLErase_eq_balanceL!, *]
-  · rw [dif_neg ‹_›, dif_pos ‹_›]
-    simp only [balanceRErase_eq_balanceR!, *]
-  · rw [dif_neg ‹_›, dif_neg ‹_›]
-    simp only [size_inner]
+  fun_induction link! <;>
+    simp [*, link, balanceLErase_eq_balanceL!, balanceRErase_eq_balanceR!, insertMin_eq_insertMin!, insertMax_eq_insertMax!, size]
 
 theorem link2_eq_link2! [Ord α] {l r : Impl α β} (hlb hrb) :
     (link2 l r hlb hrb).impl = link2! l r := by
-  induction l, r using link2!.induct_unfolding <;> rw [link2]
-  · rw [dif_pos ‹_›]
-    simp only [balanceLErase_eq_balanceL!, *]
-  · rw [dif_neg ‹_›, dif_pos ‹_›]
-    simp only [balanceRErase_eq_balanceR!, *]
-  · rw [dif_neg ‹_›, dif_neg ‹_›]
-    simp only [size_inner, glue_eq_glue!]
+  fun_induction link2! <;>
+    simp [*, link2, balanceLErase_eq_balanceL!, balanceRErase_eq_balanceR!, glue_eq_glue!]
 
 namespace Const
 

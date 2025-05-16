@@ -334,7 +334,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_elabChoice_declRange__1___clos
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabAppArgs___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_App_0__Lean_Elab_Term_mergeFailures___spec__4(size_t, size_t, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabApp__1___closed__5;
 static lean_object* l_Lean_Elab_Term_ElabElim_finalize___lambda__9___closed__11;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabNamedPattern__1___closed__3;
@@ -1108,6 +1107,7 @@ LEAN_EXPORT lean_object* l_Lean_addTrace___at___private_Lean_Elab_App_0__Lean_El
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at_Lean_Elab_Term_ElabElim_finalize___spec__9___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabAppArgs___lambda__4___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabAppArgs___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__1___boxed(lean_object**);
 static lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___closed__19;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -28307,7 +28307,7 @@ lean_ctor_set(x_22, 0, x_21);
 x_23 = lean_ctor_get(x_19, 6);
 lean_inc(x_23);
 lean_dec(x_19);
-x_24 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_22, x_23);
+x_24 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_22, x_23);
 lean_dec(x_23);
 lean_dec(x_22);
 if (x_24 == 0)

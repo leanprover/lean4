@@ -95,6 +95,7 @@ LEAN_EXPORT lean_object* l_Lake_ensureJob___at_Lake_Package_recBuildExtraDepTarg
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lake_stdFormat___at_Lake_Package_depsFacetConfig___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Package_recBuildExtraDepTargets___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lake_buildFileUnlessUpToDate_x27___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_Package_afterBuildCacheSync___spec__4(lean_object*);
 static lean_object* l_Lake_Package_maybeFetchBuildCache___closed__2;
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_Package_maybeFetchBuildCacheWithWarning___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -290,7 +291,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_Package_0__Lake_Package_mkBuildA
 LEAN_EXPORT lean_object* l_Lake_Package_gitHubReleaseFacetConfig___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_BuildTrace_nil(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_insert___at_Lake_Package_recComputeTransDeps___spec__1(lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lake_buildFileUnlessUpToDate_x27___spec__5(lean_object*, lean_object*);
 lean_object* lean_get_set_stderr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at___private_Lake_Build_Package_0__Lake_Package_mkOptBuildArchiveFacetConfig___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_initFacetConfigs;
@@ -1954,7 +1954,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___at_Lake_Package_recFetchDeps___spec__4___closed__2;
 x_2 = l_IO_FS_withIsolatedStreams___at_Lake_Package_recFetchDeps___spec__4___closed__3;
-x_3 = lean_unsigned_to_nat(128u);
+x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_Package_recFetchDeps___spec__4___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16928,7 +16928,7 @@ x_10 = lean_ctor_get(x_2, 2);
 lean_inc(x_10);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
-x_12 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lake_buildFileUnlessUpToDate_x27___spec__5(x_11, x_3);
+x_12 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lake_buildFileUnlessUpToDate_x27___spec__5(x_11, x_3);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 

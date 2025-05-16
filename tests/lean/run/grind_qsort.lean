@@ -89,17 +89,19 @@ theorem _root_.Vector.Perm.extract' {xs ys : Vector α n} (h : xs ~ ys) {lo hi :
 attribute [grind] Array.Perm.extract'
 attribute [grind] Vector.Perm.extract'
 
-@[simp, grind] theorem size_qsort (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
+variable (lt : α → α → Bool) (lo hi : Nat)
+
+@[simp, grind] theorem size_qsort (as : Array α) :
     (qsort as lt lo hi).size = as.size := by
   grind [qsort]
 
-private theorem qpartition_loop_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
+private theorem qpartition_loop_perm (as : Vector α n)
     (hhi : hi < n) (ilo : lo ≤ i) (ik : i ≤ k) (w : k ≤ hi) :
     (qpartition.loop lt lo hi hhi pivot as i k).2 ~ as := by
   fun_induction qpartition.loop with grind
 
 @[local grind]
-private theorem qpartition_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (w : lo ≤ hi)
+private theorem qpartition_perm (as : Vector α n) (w : lo ≤ hi)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) :
     (qpartition as lt lo hi).2 ~ as := by
   unfold qpartition
@@ -109,7 +111,7 @@ private theorem qpartition_perm (as : Vector α n) (lt : α → α → Bool) (lo
   | grind
   | refine Vector.Perm.trans (Vector.swap_perm ..) ?_
 
-private theorem qsort_sort_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (w : lo ≤ hi)
+private theorem qsort_sort_perm (as : Vector α n) (lo hi : Nat) (w : lo ≤ hi)
     (hlo : lo < n) (hhi : hi < n) :
     qsort.sort lt as lo hi w hlo hhi ~ as := by
   -- TODO: try `fun_induction` here,
@@ -128,64 +130,58 @@ private theorem qsort_sort_perm (as : Vector α n) (lt : α → α → Bool) (lo
 
 grind_pattern qsort_sort_perm => qsort.sort lt as lo hi w hlo hhi
 
-theorem qsort_perm (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
-    qsort as lt lo hi ~ as := by
+theorem qsort_perm (as : Array α) : qsort as lt lo hi ~ as := by
   grind [qsort]
 
-private theorem getElem_qpartition_loop_snd_of_lt_lo (lt : α → α → Bool) (lo hi : Nat)
-    (hhi : hi < n) (pivot : α) (as : Vector α n) (i k : Nat) (ilo : lo ≤ i) (ik : i ≤ k) (w : k ≤ hi) (w' : lo ≤ hi)
+private theorem getElem_qpartition_loop_snd_of_lt_lo
+    (hhi : hi < n) (as : Vector α n) (i k : Nat) (ilo : lo ≤ i) (ik : i ≤ k) (w : k ≤ hi) (w' : lo ≤ hi)
     (l : Nat) (h : l < lo) : (qpartition.loop lt lo hi hhi pivot as i k).2[l] = as[l] := by
   fun_induction qpartition.loop <;> grind
 
-private theorem getElem_qpartition_snd_of_lt_lo (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+private theorem getElem_qpartition_snd_of_lt_lo (as : Vector α n)
+    (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : k < lo) : (qpartition as lt lo hi).2[k] = as[k] := by
   grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
 
 @[local grind] private theorem getElem_qsort_sort_of_lt_lo
-    (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
+    (as : Vector α n)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi)[i] = as[i] := by
   fun_induction qsort.sort with grind [getElem_qpartition_snd_of_lt_lo]
 
-private theorem getElem_qpartition_loop_snd_of_hi_lt (lt : α → α → Bool) (lo hi : Nat)
-    (hhi : hi < n) (pivot) (as : Vector α n) (i k)
+private theorem getElem_qpartition_loop_snd_of_hi_lt
+    (hhi : hi < n) (as : Vector α n) (i k)
     (ilo : lo ≤ i) (ik : i ≤ k) (w : k ≤ hi) (w' : lo ≤ hi) (z : i ≤ hi)
     (l : Nat) (h : hi < l) (h' : l < n) : (qpartition.loop lt lo hi hhi pivot as i k).2[l] = as[l] := by
   fun_induction qpartition.loop <;> grind
 
-private theorem getElem_qpartition_snd_of_hi_lt (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+private theorem getElem_qpartition_snd_of_hi_lt (as : Vector α n)
+    (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : hi < k) (h' : k < n) : (qpartition as lt lo hi).2[k] = as[k] := by
   grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
 
 @[local grind] private theorem getElem_qsort_sort_of_hi_lt
-    (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat) (w : lo ≤ hi)
+    (as : Vector α n) (w : lo ≤ hi)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi)[i] = as[i] := by
   fun_induction qsort.sort with grind [getElem_qpartition_snd_of_hi_lt]
 
-private theorem extract_qsort_sort_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
+private theorem extract_qsort_sort_perm (as : Vector α n) (lt : α → α → Bool)
     (hlo := by grind) (hhi := by grind) (w : lo ≤ hi := by grind) :
     ((qsort.sort lt as lo hi).extract lo (hi + 1)) ~ (as.extract lo (hi + 1)) := by
   grind [qsort_sort_perm]
 
-private theorem getElem_qsort_sort_mem (lt : α → α → Bool)
-    (as : Vector α n) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n)
-    (i : Nat) (h : i < n) (_ : lo ≤ i) (_ : i ≤ hi) :
+private theorem getElem_qsort_sort_mem
+    (as : Vector α n) (hhi : hi < n) (i : Nat) (h : i < n) (_ : lo ≤ i) (_ : i ≤ hi) :
     (qsort.sort lt as lo hi)[i] ∈ as.extract lo (hi + 1) := by
-  rw [← (extract_qsort_sort_perm as lt lo hi).mem_iff,
-    Vector.mem_extract_iff_getElem]
+  rw [← (extract_qsort_sort_perm lo hi as lt).mem_iff, Vector.mem_extract_iff_getElem]
   exact ⟨i - lo, by grind⟩
 
-private theorem qpartition_loop_spec₁ (lt : α → α → Bool) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n)
-    (ilo : lo ≤ i) (ik : i ≤ k) (w : k < n) (khi : k ≤ hi)
+private theorem qpartition_loop_spec₁
+    (hhi : hi < n) (ilo : lo ≤ i) (ik : i ≤ k) (w : k < n) (khi : k ≤ hi)
     (as : Vector α n) (hpivot : pivot = as[hi])
     (q : ∀ l, (hk₁ : lo ≤ l) → (hk₂ : l < i) → lt as[l] as[hi]) (mid as')
-    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i k).fst.1)
-    (hmid : mid < n)
+    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i k).fst.1) (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i k).2) :
     ∀ l, (h₁ : lo ≤ l) → (h₂ : l < mid) → lt as'[l] as'[mid] := by
   fun_induction qpartition.loop with unfold qpartition.loop at w_mid w_as
@@ -193,13 +189,11 @@ private theorem qpartition_loop_spec₁ (lt : α → α → Bool) (lo hi : Nat)
   | case2 => apply_assumption <;> grind
   | case3 => grind
 
-private theorem qpartition_loop_spec₂ (lt : α → α → Bool) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n)
-    (ilo : lo ≤ i) (ik : i ≤ k) (w : k < n) (khi : k ≤ hi)
+private theorem qpartition_loop_spec₂
+    (hhi : hi < n) (ilo : lo ≤ i) (ik : i ≤ k) (w : k < n) (khi : k ≤ hi)
     (as : Vector α n) (hpivot : pivot = as[hi])
     (q : ∀ l, (hk₁ : i ≤ l) → (hk₂ : l < k) → !lt as[l] as[hi]) (mid as')
-    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i k).fst.1)
-    (hmid : mid < n)
+    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i k).fst.1) (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i k).2) :
     ∀ l, (h₁ : mid < l) → (h₂ : l ≤ hi) → lt as'[l] as'[mid] = false := by
   fun_induction qpartition.loop with grind
@@ -207,11 +201,10 @@ private theorem qpartition_loop_spec₂ (lt : α → α → Bool) (lo hi : Nat)
 /--
 All elements in the active range before the pivot, are less than the pivot.
 -/
-private theorem qpartition_spec₁ (lt : α → α → Bool) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+private theorem qpartition_spec₁
+    (hhi : hi < n) (w : lo ≤ hi)
     (as : Vector α n) (mid as')
-    (w_mid : mid = (qpartition as lt lo hi).fst.1)
-    (hmid : mid < n)
+    (w_mid : mid = (qpartition as lt lo hi).fst.1) (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
   grind [qpartition, qpartition_loop_spec₁]
@@ -219,11 +212,10 @@ private theorem qpartition_spec₁ (lt : α → α → Bool) (lo hi : Nat)
 /--
 All elements in the active range after the pivot, are greater than or equal to the pivot.
 -/
-private theorem qpartition_spec₂ (lt : α → α → Bool) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+private theorem qpartition_spec₂
+    (hhi : hi < n) (w : lo ≤ hi)
     (as : Vector α n) (mid as')
-    (w_mid : mid = (qpartition as lt lo hi).fst.1)
-    (hmid : mid < n)
+    (w_mid : mid = (qpartition as lt lo hi).fst.1) (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi).2) :
     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → lt as'[i] as'[mid] = false := by
   grind [qpartition, qpartition_loop_spec₂]
@@ -259,32 +251,29 @@ private theorem qpartition_loop_lt_hi₂
   | case3 => grind
 
 /-- The only way `qpartition` returns a pivot position `≥ hi` is if `hi ≤ lo`. -/
-private theorem qpartition_fst_lt_hi (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
-    (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n)
-    (as : Vector α n) (w : lo < hi) : (qpartition as lt lo hi).fst.1 < hi := by
-  apply qpartition_loop_lt_hi₂ w
+private theorem qpartition_fst_lt_hi (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
+    (as : Vector α n) (hhi : hi < n) (w : lo < hi) : (qpartition as lt lo hi).fst.1 < hi := by
+  apply qpartition_loop_lt_hi₂ lt lo hi w
   · grind
   · exact ⟨(lo + hi)/2, by grind⟩
 
 private theorem qsort_sort_spec
-    (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
+    (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)
     (le_trans : ∀ {a b c}, ¬ lt b a → ¬ lt c b → ¬ lt c a)
-    (as : Vector α n) (lo hi : Nat)
-    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+    (as : Vector α n) (lo hi : Nat) (hhi : hi < n) (w : lo ≤ hi)
     (as' : Vector α n) (w_as : as' = qsort.sort lt as lo hi) :
-    ∀ i, (h₁ : lo ≤ i) → (h₂ : i < hi) → ¬ lt as'[i + 1] as'[i] := by
+    ∀ i, (h₁ : lo ≤ i) → (h₂ : i < hi) → ¬ lt (as')[i + 1] as'[i] := by
   unfold qsort.sort at w_as
   split at w_as <;> rename_i w₁
   · -- The interesting case, where `lo < hi`.
     intro i h₁ h₂
-    -- Decompose `qpartition as lt lo hi hlo hhi` into `mid` (the pivot) and `as'` (the partitioned array).
+    -- Decompose `qpartition as lt lo hi` into `mid` (the pivot) and `as'` (the partitioned array).
     split at w_as <;> rename_i mid hmid as' w₂
     split at w_as <;> rename_i w₃
     · -- If the pivot was at least `hi`, then we get a contradiction from `lo < hi`.
       simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
       obtain ⟨rfl, rfl⟩ := w₂
-      have := qpartition_fst_lt_hi lt lt_asymm lo hi hlo hhi as w₁
+      have := qpartition_fst_lt_hi lt lo hi lt_asymm as hhi w₁
       grind
     · -- Now we know `lo ≤ mid < hi`.
       subst w_as
@@ -294,11 +283,11 @@ private theorem qsort_sort_spec
         rw [getElem_qsort_sort_of_lt_lo (i := i)]
         rw [getElem_qsort_sort_of_lt_lo (i := i + 1)]
         -- And so we can appply the theorem recursively replacing `hi` with `mid`.
-        apply qsort_sort_spec lt lt_asymm le_trans as' lo mid
+        apply qsort_sort_spec lt_asymm le_trans as' lo mid
         -- The remaining arithmetic side conditions are easily resolved.
         all_goals grind
       else
-        replace p₁ : mid ≤ i := by omega
+        replace p₁ : mid ≤ i := by grind
         -- If `mid ≤ i`, we need to consider two cases.
         if p₃ : mid = i then
           -- The tricky case, where `mid = i`.
@@ -306,17 +295,18 @@ private theorem qsort_sort_spec
           -- On the right hand side, the index is below the range where the second stage of sorting is happening,
           -- so we can drop that sort.
           rw [getElem_qsort_sort_of_lt_lo (i := mid)]
-          -- The `mid` element of `qsort.sort lt as' lo mid hlo ⋯`
+          -- The `mid` element of `qsort.sort lt as' lo mid ⋯`
           -- is *some* element `lo + k` of `as'` in the range `lo ≤ lo + k ≤ mid`.
-          have z := getElem_qsort_sort_mem lt as' lo mid ?_ ?_ mid ?_ ?_ ?_
+          have z := getElem_qsort_sort_mem lt lo mid as' ?_ mid ?_ ?_ ?_
           rw [Vector.mem_extract_iff_getElem] at z
           obtain ⟨k, hk, z⟩ := z
           rw [← z]
           clear z
           -- Similarly, the `mid + 1` element on the left hand side
-          -- is some element `mid + 1 + k'` of `qsort.sort lt as' lo mid hlo ⋯`
+          -- is some element `mid + 1 + k'` of `qsort.sort lt as' lo mid ⋯`
           -- in the range `mid + 1 ≤ mid + 1 + k' ≤ hi`
-          have z := getElem_qsort_sort_mem lt (qsort.sort lt as' lo mid ?_ ?_) (mid + 1) hi ?_ ?_ (mid + 1) ?_ ?_ ?_
+          have z := getElem_qsort_sort_mem lt (mid + 1) hi
+            (qsort.sort lt as' lo mid ?_ ?_) ?_ (mid + 1) ?_ ?_ ?_
           rw [Vector.mem_extract_iff_getElem] at z
           obtain ⟨k', hk', z⟩ := z
           rw [← z]
@@ -340,8 +330,8 @@ private theorem qsort_sort_spec
           all_goals grind
         else
           -- If `i < mid`, we can apply the theorem recursively replacing
-          -- `as` with `qsort.sort lt as' lo mid hlo ⋯` and `lo` with `mid + 1`.
-          apply qsort_sort_spec lt lt_asymm le_trans _ _ _ (w_as := rfl) <;> omega
+          -- `as` with `qsort.sort lt as' lo mid ⋯` and `lo` with `mid + 1`.
+          apply qsort_sort_spec lt_asymm le_trans _ _ _ (w_as := rfl) <;> grind
   · -- Just an arithmetical contradiction.
     grind
 

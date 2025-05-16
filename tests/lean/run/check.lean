@@ -35,7 +35,7 @@ elab "elab_1eq1" : term => return expr_1eq1
 /--
 error: Application type mismatch: In the application
   @Eq Nat
-the final argument
+the argument
   Nat
 has type
   Type : Type 1
@@ -47,7 +47,7 @@ but is expected to have type
 /--
 error: Application type mismatch: In the application
   @Eq Nat
-the final argument
+the argument
   Nat
 has type
   Type : Type 1

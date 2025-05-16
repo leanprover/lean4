@@ -326,7 +326,7 @@ private def propagateEqs : RingM Unit := do
   if (← isInconsistent) then return ()
   /-
   This is a very simple procedure that does not use any indexing data-structure.
-  We don't even cache the simplied polynomials.
+  We don't even cache the simplified polynomials.
   TODO: optimize
   -/
   let mut map : PropagateEqMap := {}
@@ -351,7 +351,7 @@ where
         let d ← d.simplify
         if d.getMultiplier != 1 then
           unless (← noZeroDivisors) do
-            -- Given the multipiler `k' = d.getMultiplier`, we have that `k*(a - b) = 0`,
+            -- Given the multiplier `k' = d.getMultiplier`, we have that `k*(a - b) = 0`,
             -- but we cannot eliminate the `k` because we don't have `noZeroDivisors`.
             trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, noZeroDivisors: false"
             return map.insert (k, d.p) (a, ra)

@@ -76,6 +76,12 @@ structure Config where
   /-- If `extAll` is `true`, `grind` uses any extensionality theorems available in the environment. -/
   extAll : Bool := false
   /--
+  If `etaStruct` is `true`, then for each term `t : S` such that `S` is a structure,
+  and is tagged with `[grind ext]`, `grind` adds the equation `t = ⟨t.1, ..., t.n⟩`
+  which holds by reflexivity. Moreover, the extensionality theorem for `S` is not used.
+  -/
+  etaStruct : Bool := true
+  /--
   If `funext` is `true`, `grind` creates new opportunities for applying function extensionality by case-splitting
   on equalities between lambda expressions.
   -/

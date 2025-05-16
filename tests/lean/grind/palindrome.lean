@@ -14,6 +14,34 @@ where
     else
       true
 
+example (xs : Array Nat) (w : xs.reverse = xs) (j : Nat) (hj : 0 ≤ j) (hj' : j < xs.size / 2) :
+    xs[j] = xs[xs.size - 1 - j] := by
+  -- [grind] Issues ▼
+  --   [issue] unexpected kernel projection term during internalization
+  --         xs.1
+  --       `grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term
+  --   [issue] unexpected kernel projection term during internalization
+  --         xs.reverse.1
+  --       `grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term
+  --   [issue] type error constructing proof for Array.getElem_reverse
+  --       when assigning metavariable ?hi with
+  --         ‹xs.toList.length - (j + 1) < xs.toList.length›
+  --       has type
+  --         xs.toList.length - (j + 1) < xs.toList.length : Prop
+  --       but is expected to have type
+  --         xs.toList.length - (j + 1) < xs.reverse.size : Prop
+  --   [issue] unexpected kernel projection term during internalization
+  --         xs.reverse.1
+  --       `grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term
+  --   [issue] type error constructing proof for Array.getElem_reverse
+  --       when assigning metavariable ?hi with
+  --         ‹j < xs.toList.length›
+  --       has type
+  --         j < xs.toList.length : Prop
+  --       but is expected to have type
+  --         j < xs.reverse.size : Prop
+  grind
+
 theorem checkPalin1_correct' : checkPalin1 xs = true ↔ IsPalindrome xs := by
   unfold checkPalin1
   suffices ∀ i, checkPalin1.go xs i = true ↔ ∀ j, i ≤ j → (_ : j < xs.size / 2) → xs[j] = xs[xs.size - 1 - j] by
@@ -22,33 +50,19 @@ theorem checkPalin1_correct' : checkPalin1 xs = true ↔ IsPalindrome xs := by
     · intro w
       ext i hi₁ hi₂
       · grind
-      · by_cases h : i < xs.size / 2
-        · grind
-        · rw [Array.getElem_reverse, w]
-          rotate_left
-          · grind
-          · -- Breaking because of:
-            -- [grind] Issues ▼
-            -- [issue] unexpected kernel projection term during internalization
-            --   xs.1
-            -- `grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term
-            grind
-          · grind
-    · sorry
+      · by_cases h : i < xs.size / 2 <;> grind
+    · intro w
+      intro j hj hj'
+      grind -- See example above.
   intro i
   fun_induction checkPalin1.go
   case case1 j h₁ h₂ ih =>
-    unfold checkPalin1.go
-    rw [dif_pos h₁, if_pos h₂, ih]
     constructor
     · intro w j'
       by_cases j' = j <;> grind
     · grind
   case case2 j h₁ h₂ =>
-    unfold checkPalin1.go
-    rw [dif_pos h₁, if_neg h₂]
     simp only [Bool.false_eq_true, false_iff, Classical.not_forall]
     refine ⟨j, by grind⟩
   case case3 x h =>
-    unfold checkPalin1.go
     grind

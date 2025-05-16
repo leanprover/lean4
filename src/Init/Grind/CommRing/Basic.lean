@@ -30,39 +30,51 @@ theorem ofNat_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
 
 namespace Lean.Grind
 
-class CommRing (α : Type u) extends Add α, Mul α, Neg α, Sub α, HPow α Nat α where
+class Semiring (α : Type u) extends Add α, Mul α, HPow α Nat α where
   [ofNat : ∀ n, OfNat α n]
   [natCast : NatCast α]
-  [intCast : IntCast α]
   add_assoc : ∀ a b c : α, a + b + c = a + (b + c)
   add_comm : ∀ a b : α, a + b = b + a
   add_zero : ∀ a : α, a + 0 = a
-  neg_add_cancel : ∀ a : α, -a + a = 0
   mul_assoc : ∀ a b c : α, a * b * c = a * (b * c)
-  mul_comm : ∀ a b : α, a * b = b * a
   mul_one : ∀ a : α, a * 1 = a
+  one_mul : ∀ a : α, 1 * a = a
   left_distrib : ∀ a b c : α, a * (b + c) = a * b + a * c
+  right_distrib : ∀ a b c : α, (a + b) * c = a * c + b * c
   zero_mul : ∀ a : α, 0 * a = 0
-  sub_eq_add_neg : ∀ a b : α, a - b = a + -b
+  mul_zero : ∀ a : α, a * 0 = 0
   pow_zero : ∀ a : α, a ^ 0 = 1
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
   ofNat_eq_natCast : ∀ n : Nat, OfNat.ofNat (α := α) n = Nat.cast n := by intros; rfl
+
+class Ring (α : Type u) extends Semiring α, Neg α, Sub α where
+  [intCast : IntCast α]
+  neg_add_cancel : ∀ a : α, -a + a = 0
+  sub_eq_add_neg : ∀ a b : α, a - b = a + -b
   intCast_ofNat : ∀ n : Nat, Int.cast (OfNat.ofNat (α := Int) n) = OfNat.ofNat (α := α) n := by intros; rfl
   intCast_neg : ∀ i : Int, Int.cast (R := α) (-i) = -Int.cast i := by intros; rfl
+
+class CommSemiring (α : Type u) extends Semiring α where
+  mul_comm : ∀ a b : α, a * b = b * a
+  one_mul := by intro a; rw [mul_comm, mul_one]
+  mul_zero := by intro a; rw [mul_comm, zero_mul]
+  right_distrib := by intro a b c; rw [mul_comm, left_distrib, mul_comm c, mul_comm c]
+
+class CommRing (α : Type u) extends Ring α, CommSemiring α
 
 -- We reduce the priority of these parent instances,
 -- so that in downstream libraries with their own `CommRing` class,
 -- the path `CommRing -> Add` is found before `CommRing -> Lean.Grind.CommRing -> Add`.
 -- (And similarly for the other parents.)
-attribute [instance 100] CommRing.toAdd CommRing.toMul CommRing.toNeg CommRing.toSub CommRing.toHPow
+attribute [instance 100] Semiring.toAdd Semiring.toMul Semiring.toHPow Ring.toNeg Ring.toSub
 
 -- This is a low-priority instance, to avoid conflicts with existing `OfNat`, `NatCast`, and `IntCast` instances.
-attribute [instance 100] CommRing.ofNat CommRing.natCast CommRing.intCast
+attribute [instance 100] Semiring.ofNat Semiring.natCast Ring.intCast
 
-namespace CommRing
+namespace Semiring
 
-variable {α : Type u} [CommRing α]
+variable {α : Type u} [Semiring α]
 
 theorem natCast_zero : ((0 : Nat) : α) = 0 := (ofNat_eq_natCast 0).symm
 theorem natCast_one : ((1 : Nat) : α) = 1 := (ofNat_eq_natCast 1).symm
@@ -80,23 +92,8 @@ theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : α) = ((n : α) + 1) := by
 theorem zero_add (a : α) : 0 + a = a := by
   rw [add_comm, add_zero]
 
-theorem add_neg_cancel (a : α) : a + -a = 0 := by
-  rw [add_comm, neg_add_cancel]
-
 theorem add_left_comm (a b c : α) : a + (b + c) = b + (a + c) := by
   rw [← add_assoc, ← add_assoc, add_comm a]
-
-theorem one_mul (a : α) : 1 * a = a := by
-  rw [mul_comm, mul_one]
-
-theorem right_distrib (a b c : α) : (a + b) * c = a * c + b * c := by
-  rw [mul_comm, left_distrib, mul_comm c, mul_comm c]
-
-theorem mul_zero (a : α) : a * 0 = 0 := by
-  rw [mul_comm, zero_mul]
-
-theorem mul_left_comm (a b c : α) : a * (b * c) = b * (a * c) := by
-  rw [← mul_assoc, ← mul_assoc, mul_comm a]
 
 theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a * OfNat.ofNat b := by
   induction b with
@@ -105,6 +102,22 @@ theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a *
 
 theorem natCast_mul (a b : Nat) : ((a * b : Nat) : α) = ((a : α) * (b : α)) := by
   rw [← ofNat_eq_natCast, ofNat_mul, ofNat_eq_natCast, ofNat_eq_natCast]
+
+theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂ := by
+  induction k₂
+  next => simp [pow_zero, mul_one]
+  next k₂ ih => rw [Nat.add_succ, pow_succ, pow_succ, ih, mul_assoc]
+
+end Semiring
+
+namespace Ring
+
+open Semiring
+
+variable {α : Type u} [Ring α]
+
+theorem add_neg_cancel (a : α) : a + -a = 0 := by
+  rw [add_comm, neg_add_cancel]
 
 theorem add_left_inj {a b : α} (c : α) : a + c = b + c ↔ a = b :=
   ⟨fun h => by simpa [add_assoc, add_neg_cancel, add_zero] using (congrArg (· + -c) h),
@@ -198,11 +211,17 @@ theorem neg_eq_neg_one_mul (a : α) : -a = (-1) * a := by
   rw [← right_distrib, ← intCast_neg_one, ← intCast_one (α := α)]
   simp [← intCast_add, intCast_zero, zero_mul]
 
+theorem neg_eq_mul_neg_one (a : α) : -a = a * (-1) := by
+  rw [← add_left_inj a, neg_add_cancel]
+  conv => rhs; arg 2; rw [← mul_one a]
+  rw [← left_distrib, ← intCast_neg_one, ← intCast_one (α := α)]
+  simp [← intCast_add, intCast_zero, mul_zero]
+
 theorem neg_mul (a b : α) : (-a) * b = -(a * b) := by
   rw [neg_eq_neg_one_mul a, neg_eq_neg_one_mul (a * b), mul_assoc]
 
 theorem mul_neg (a b : α) : a * (-b) = -(a * b) := by
-  rw [mul_comm, neg_mul, mul_comm]
+  rw [neg_eq_mul_neg_one b, neg_eq_mul_neg_one (a * b), mul_assoc]
 
 theorem intCast_nat_mul (x y : Nat) : ((x * y : Int) : α) = ((x : α) * (y : α)) := by
   rw [Int.ofNat_mul_ofNat, intCast_natCast, natCast_mul]
@@ -224,21 +243,27 @@ theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k :=
   next => simp [pow_zero, Int.pow_zero, intCast_one]
   next k ih => simp [pow_succ, Int.pow_succ, intCast_mul, *]
 
-theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂ := by
-  induction k₂
-  next => simp [pow_zero, mul_one]
-  next k₂ ih => rw [Nat.add_succ, pow_succ, pow_succ, ih, mul_assoc]
+end Ring
 
-end CommRing
+namespace CommSemiring
 
-open CommRing
+open Semiring
 
-class IsCharP (α : Type u) [CommRing α] (p : outParam Nat) where
+variable {α : Type u} [CommSemiring α]
+
+theorem mul_left_comm (a b c : α) : a * (b * c) = b * (a * c) := by
+  rw [← mul_assoc, ← mul_assoc, mul_comm a]
+
+end CommSemiring
+
+open Semiring Ring CommSemiring CommRing
+
+class IsCharP (α : Type u) [Ring α] (p : outParam Nat) where
   ofNat_eq_zero_iff (p) : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0
 
 namespace IsCharP
 
-variable (p)  {α : Type u} [CommRing α] [IsCharP α p]
+variable (p)  {α : Type u} [Ring α] [IsCharP α p]
 
 theorem natCast_eq_zero_iff (x : Nat) : (x : α) = 0 ↔ x % p = 0 := by
   rw [← ofNat_eq_natCast]
@@ -325,12 +350,12 @@ end IsCharP
 /--
 Special case of Mathlib's `NoZeroSMulDivisors Nat α`.
 -/
-class NoNatZeroDivisors (α : Type u) [CommRing α] where
+class NoNatZeroDivisors (α : Type u) [Ring α] where
   no_nat_zero_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
 
 export NoNatZeroDivisors (no_nat_zero_divisors)
 
-theorem no_int_zero_divisors {α : Type u} [CommRing α] [NoNatZeroDivisors α] {k : Int} {a : α}
+theorem no_int_zero_divisors {α : Type u} [Ring α] [NoNatZeroDivisors α] {k : Int} {a : α}
     : k ≠ 0 → k * a = 0 → a = 0 := by
   match k with
   | (k : Nat) =>

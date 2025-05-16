@@ -55,7 +55,7 @@ theorem not_insert_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} {v : β} 
 theorem mem_iff_contains [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m ↔ m.contains a :=
   ExtDHashMap.mem_iff_contains
 
-@[simp]
+@[simp, grind]
 theorem contains_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} : m.contains a ↔ a ∈ m :=
   Iff.rfl
 
@@ -265,7 +265,8 @@ theorem getElem_eq_get_getElem? [EquivBEq α] [LawfulHashable α] {a : α} {h} :
     m[a]'h = m[a]?.get (mem_iff_isSome_getElem?.mp h) :=
   ExtDHashMap.Const.get_eq_get_get? (h := h)
 
-@[grind =] theorem get_getElem? [EquivBEq α] [LawfulHashable α] {a : α} {h} :
+@[grind =]
+theorem get_getElem? [EquivBEq α] [LawfulHashable α] {a : α} {h} :
     m[a]?.get h = m[a]'(mem_iff_isSome_getElem?.mpr h) :=
   ExtDHashMap.Const.get_get?
 

@@ -39,7 +39,7 @@ theorem isEmpty_insert [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   DTreeMap.Raw.mem_iff_contains
 
-@[simp]
+@[simp, grind]
 theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
   DTreeMap.Raw.contains_iff_mem
 

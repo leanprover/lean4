@@ -1784,62 +1784,22 @@ theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = t
 theorem toInt_dvd_of_umod_zero {x y : BitVec w} :
     ((if x.msb then -x else x) % (if y.msb then -y else y) = 0#w) ↔ (y.toInt) ∣ (x.toInt) := by
   constructor
-  · intro h
-    by_cases hxmsb : x.msb <;> by_cases hymsb: y.msb
-    · simp only [hxmsb, ↓reduceIte, hymsb, false_eq_true,
-        toNat_eq, toNat_umod, toNat_ofNat, zero_mod] at h
-      simp only  [toInt_eq_neg_toNat_neg_of_msb_true hxmsb, toInt_eq_neg_toNat_neg_of_msb_true hymsb,
-        Int.dvd_neg, Int.neg_dvd]
-      norm_cast
-      exact dvd_of_mod_eq_zero h
-    · simp only [not_eq_true] at hymsb hxmsb
-      simp only [hxmsb, ↓reduceIte, hymsb, false_eq_true,
-        toNat_eq, toNat_umod, toNat_ofNat, zero_mod] at h
-      simp only  [toInt_eq_neg_toNat_neg_of_msb_true hxmsb, toInt_eq_toNat_of_msb hymsb,
-        Int.dvd_neg, Int.neg_dvd]
-      norm_cast
-      exact dvd_of_mod_eq_zero h
-    · simp only [not_eq_true] at hymsb hxmsb
-      simp only [hxmsb, ↓reduceIte, hymsb, false_eq_true,
-        toNat_eq, toNat_umod, toNat_ofNat, zero_mod] at h
-      simp only  [toInt_eq_toNat_of_msb hxmsb, toInt_eq_neg_toNat_neg_of_msb_true hymsb,
-        Int.dvd_neg, Int.neg_dvd]
-      norm_cast
-      exact dvd_of_mod_eq_zero h
-    · simp only [not_eq_true] at hymsb hxmsb
-      simp only [hxmsb, ↓reduceIte, hymsb, false_eq_true,
-        toNat_eq, toNat_umod, toNat_ofNat, zero_mod] at h
-      simp only  [toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb,
-        Int.dvd_neg, Int.neg_dvd]
-      norm_cast
-      exact dvd_of_mod_eq_zero h
-  · intro h
-    by_cases hxmsb : x.msb <;> by_cases hymsb: y.msb
-    · simp only [toInt_eq_neg_toNat_neg_of_msb_true hymsb,
-        toInt_eq_neg_toNat_neg_of_msb_true hxmsb, Int.dvd_neg, Int.neg_dvd] at h
-      simp only [hxmsb, ↓reduceIte, hymsb, toNat_eq, toNat_umod, toNat_ofNat, zero_mod]
-      norm_cast at h
-      exact dvd_iff_mod_eq_zero.mp h
-    · simp only [not_eq_true] at hymsb hxmsb
-      simp only [toInt_eq_toNat_of_msb hymsb,
-        toInt_eq_neg_toNat_neg_of_msb_true hxmsb, Int.dvd_neg, Int.neg_dvd] at h
-      simp only [hxmsb, ↓reduceIte, hymsb, toNat_eq, toNat_umod, toNat_ofNat, zero_mod]
-      norm_cast at h
-      norm_cast at h
-      simp [toNat_eq, -toNat_neg]
-      exact dvd_iff_mod_eq_zero.mp h
-    · simp only [not_eq_true] at hymsb hxmsb
-      simp only [toInt_eq_neg_toNat_neg_of_msb_true hymsb,
-        toInt_eq_toNat_of_msb hxmsb, Int.dvd_neg, Int.neg_dvd] at h
-      simp only [hxmsb, ↓reduceIte, hymsb, toNat_eq, toNat_umod, toNat_ofNat, zero_mod]
-      norm_cast at h
-      exact dvd_iff_mod_eq_zero.mp h
-    · simp only [not_eq_true] at hymsb hxmsb
-      simp only [toInt_eq_toNat_of_msb hymsb,
-        toInt_eq_toNat_of_msb hxmsb, Int.dvd_neg, Int.neg_dvd] at h
-      simp only [hxmsb, ↓reduceIte, hymsb, toNat_eq, toNat_umod, toNat_ofNat, zero_mod]
-      norm_cast at h
-      exact dvd_iff_mod_eq_zero.mp h
+  <;> by_cases hxmsb : x.msb <;> by_cases hymsb: y.msb
+  <;> intros h
+  <;> simp only [hxmsb, ↓reduceIte, hymsb, false_eq_true,
+        toNat_eq, toNat_umod, toNat_ofNat, zero_mod, toInt_eq_neg_toNat_neg_of_msb_true,
+        hymsb,Int.dvd_neg, Int.neg_dvd, toInt_eq_toNat_of_msb] at h
+  <;> simp only [not_eq_true] at hymsb hxmsb
+  <;> try simp only [toInt_eq_neg_toNat_neg_of_msb_true, hxmsb, hymsb,
+        toInt_eq_toNat_of_msb, Int.dvd_neg, Int.neg_dvd, reduceIte, toNat_eq, toNat_umod,
+        hxmsb, ↓reduceIte, hymsb, toNat_eq, toNat_umod, toNat_ofNat, zero_mod]
+  <;> norm_cast
+  <;> norm_cast at h
+  <;> try simp only [dvd_of_mod_eq_zero, h]
+  · simp only [dvd_iff_mod_eq_zero.mp, h, reduceIte, dvd_of_mod_eq_zero]
+  · simp only [dvd_iff_mod_eq_zero.mp, h, reduceIte, dvd_of_mod_eq_zero]
+  · simp only [dvd_iff_mod_eq_zero.mp, h, reduceIte, dvd_of_mod_eq_zero]
+  · simp only [dvd_iff_mod_eq_zero.mp, h, reduceIte, dvd_of_mod_eq_zero]
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by

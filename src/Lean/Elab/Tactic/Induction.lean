@@ -128,17 +128,19 @@ private def getFType : M Expr := do
   pure fType
 
 structure Result where
-  elimApp : Expr
-  motive  : MVarId
-  alts    : Array Alt
-  others  : Array MVarId
+  elimApp     : Expr
+  elimArgs    : Array Expr
+  motive      : MVarId
+  alts        : Array Alt
+  others      : Array MVarId
   complexArgs : Array Expr
 
 /--
-  Construct the an eliminator/recursor application. `targets` contains the explicit and implicit targets for
-  the eliminator. For example, the indices of builtin recursors are considered implicit targets.
-  Remark: the method `addImplicitTargets` may be used to compute the sequence of implicit and explicit targets
-  from the explicit ones.
+  Construct the an eliminator/recursor application. `targets` contains the explicit and implicit
+  targets for the eliminator, not yet generalized.
+  For example, the indices of builtin recursors are considered implicit targets.
+  Remark: the method `addImplicitTargets` may be used to compute the sequence of implicit and
+  explicit targets from the explicit ones.
 -/
 partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) : TermElabM Result := do
   let rec loop : M Unit := do
@@ -208,29 +210,45 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       unless targets.contains motiveArg do
         throwError "mkElimApp: Expected first {targets.size} arguments of motive in conclusion to be one of the targets:{indentExpr s.fType}"
     pure motiveArgs[targets.size:]
-  return { elimApp := (← instantiateMVars s.f), alts, others, motive, complexArgs }
+  let elimApp ← instantiateMVars s.f
+  -- `elimArgs` is the argument list that the offsets in `elimInfo` work with
+  let elimArgs := elimApp.getAppArgs[elimInfo.elimExpr.getAppNumArgs:]
+  return { elimApp, elimArgs, alts, others, motive, complexArgs }
 
 /--
 Given a goal `... targets ... |- C[targets, complexArgs]` associated with `mvarId`,
 where `complexArgs` are the the complex (i.e. non-target) arguments to the motive in the conclusion
-of the eliminator, construct `motiveArg := fun targets xs => C[targets, xs]`
+of the eliminator, construct `motiveArg := fun targets rs => C[targets, rs]`
+
+This checks if the type of the complex arguments match what's expected by the motive, and
+ignores them otherwise. This limits the ability of `cases` to use unfolding function
+principles with dependent types, because after generalization of the targets, the types do
+no longer match. This can likely be improved.
 -/
 def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) (complexArgs : Array Expr := #[]) : MetaM Unit := do
   let type ← inferType (mkMVar mvarId)
+
+  let motiveType ← inferType (mkMVar motiveArg)
+  let exptComplexArgTypes ← arrowDomainsN complexArgs.size (← instantiateForall motiveType (targets.map mkFVar))
+
   let mut absType := type
-  for complexArg in complexArgs.reverse do
-    let complexTypeArg ← inferType complexArg
-    let absType' ← kabstract absType complexArg
-    let absType' := .lam (← mkFreshUserName `x) complexTypeArg absType' .default
-    if (← isTypeCorrect absType') then
-      absType := absType'
+  for complexArg in complexArgs.reverse, exptComplexArgType in exptComplexArgTypes.reverse do
+    trace[Elab.induction] "setMotiveArg: trying to abstract over {complexArg}, expected type {exptComplexArgType}"
+    let complexArgType ← inferType complexArg
+    if (← isDefEq complexArgType exptComplexArgType) then
+      let absType' ← kabstract absType complexArg
+      let absType' := .lam (← mkFreshUserName `x) complexArgType absType' .default
+      if (← isTypeCorrect absType') then
+        absType := absType'
+      else
+        trace[Elab.induction] "Not abstracing goal over {complexArg}, resulting term is not type correct:{indentExpr absType'} }"
+        absType := .lam (← mkFreshUserName `x) complexArgType absType .default
     else
-      trace[Elab.induction] "Not abstracing goal over {complexArg}, resulting term is not type correct:{indentExpr absType'} }"
-      absType := .lam (← mkFreshUserName `x) complexTypeArg absType .default
+      trace[Elab.induction] "Not abstracing goal over {complexArg}, its type {complexArgType} does not match the expected {exptComplexArgType}"
+      absType := .lam (← mkFreshUserName `x) exptComplexArgType absType .default
 
   let motive ← mkLambdaFVars (targets.map mkFVar) absType
   let motiverInferredType ← inferType motive
-  let motiveType ← inferType (mkMVar motiveArg)
   unless (← isDefEqGuarded motiverInferredType motiveType) do
     throwError "type mismatch when assigning motive{indentExpr motive}\n{← mkHasTypeButIsExpectedMsg motiverInferredType motiveType}"
   motiveArg.assign motive
@@ -261,7 +279,7 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
           if unhandledAlts.isEmpty then
             m!"invalid alternative name '{altName}', no unhandled alternatives"
           else
-            let unhandledAltsMessages := unhandledAlts.map (m!"{·.name}")
+            let unhandledAltsMessages := unhandledAlts.map (m!"'{·.name}'")
             let unhandledAlts := MessageData.orList unhandledAltsMessages.toList
             m!"invalid alternative name '{altName}', expected {unhandledAlts}"
         throwErrorAt altStx msg
@@ -873,6 +891,16 @@ def evalInduction : Tactic := fun stx =>
     evalInductionCore stx elimInfo targets toTag
 
 
+register_builtin_option tactic.fun_induction.unfolding : Bool := {
+  defValue := true
+  group    := "tactic"
+  descr    := "if set to 'true', then 'fun_induction' and 'fun_cases' will use the “unfolding \
+    functional induction (resp. cases) principle” ('….induct_unfolding'/'….fun_cases_unfolding'), \
+    which will attempt to replace the function goal of interest in the goal with the appropriate \
+    right-hand-side in each case. If 'false', the regular “functional induction principle” \
+    ('….induct'/'….fun_cases') is used."
+}
+
 /--
 Elaborates the `foo args` of `fun_induction` or `fun_cases`, inferring the args if omitted from the goal
 -/
@@ -880,10 +908,11 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
   match stx with
   | `($id:ident) =>
     let fnName ← realizeGlobalConstNoOverload id
-    let some _ ← getFunIndInfo? cases fnName |
-      let theoremKind := if cases then "induction" else "cases"
+    let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
+    let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
+      let theoremKind := if cases then "cases" else "induction"
       throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
-    let candidates ← FunInd.collect fnName (← getMainGoal)
+    let candidates ← FunInd.collect funIndInfo (← getMainGoal)
     if candidates.isEmpty then
       throwError "could not find suitable call of '{.ofConstName fnName}' in the goal"
     if candidates.size > 1 then
@@ -902,8 +931,9 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     funCall.withApp fun fn funArgs => do
     let .const fnName fnUs := fn |
       throwError "expected application headed by a function constant"
-    let some funIndInfo ← getFunIndInfo? cases fnName |
-      let theoremKind := if cases then "induction" else "cases"
+    let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
+    let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
+      let theoremKind := if cases then "cases" else "induction"
       throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
     if funArgs.size != funIndInfo.params.size then
       throwError "Expected fully applied application of '{.ofConstName fnName}' with \
@@ -955,7 +985,7 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
   let tag ← mvarId.getTag
   mvarId.withContext do
     let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
-    let elimArgs := result.elimApp.getAppArgs
+    let elimArgs := result.elimArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]!
     let motiveType ← inferType elimArgs[elimInfo.motivePos]!
     let mvarId ← generalizeTargetsEq mvarId motiveType targets

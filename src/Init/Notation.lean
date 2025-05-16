@@ -292,8 +292,9 @@ recommended_spelling "PProd" for "×'" in [PProd, «term_×'_»]
 @[inherit_doc] infixl:75 " >>> " => HShiftRight.hShiftRight
 @[inherit_doc] infixr:80 " ^ "   => HPow.hPow
 @[inherit_doc] infixl:65 " ++ "  => HAppend.hAppend
-@[inherit_doc] prefix:75 "-"    => Neg.neg
+@[inherit_doc] prefix:75 "-"     => Neg.neg
 @[inherit_doc] prefix:100 "~~~"  => Complement.complement
+@[inherit_doc] postfix:max "⁻¹"  => Inv.inv
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -325,6 +326,7 @@ recommended_spelling "pow" for "^" in [HPow.hPow, «term_^_»]
 recommended_spelling "append" for "++" in [HAppend.hAppend, «term_++_»]
 /-- when used as a unary operator -/
 recommended_spelling "neg" for "-" in [Neg.neg, «term-_»]
+recommended_spelling "inv" for "⁻¹" in [Inv.inv]
 recommended_spelling "dvd" for "∣" in [Dvd.dvd, «term_∣_»]
 recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<_»]
 recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]
@@ -621,9 +623,6 @@ This is the same as `#eval show MetaM Unit from do discard doSeq`.
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 
-set_option linter.missingDocs false in
-syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
-
 /--
 `#reduce <expression>` reduces the expression `<expression>` to its normal form. This
 involves applying reduction rules until no further reduction is possible.
@@ -640,15 +639,27 @@ of expressions.
 -/
 syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))? (atomic("(" &"types" " := " &"true" ")"))? term : command
 
+set_option linter.missingDocs false in
+syntax guardMsgsFilterAction := &"check" <|> &"drop" <|> &"pass"
+
+set_option linter.missingDocs false in
+syntax guardMsgsFilterSeverity := &"trace" <|> &"info" <|> &"warning" <|> &"error" <|> &"all"
+
 /--
 A message filter specification for `#guard_msgs`.
-- `info`, `warning`, `error`: capture messages with the given severity level.
-- `all`: capture all messages (the default).
-- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
-- `drop all`: drop every message.
-These filters are processed in left-to-right order.
+- `info`, `warning`, `error`: capture (non-trace) messages with the given severity level.
+- `trace`: captures trace messages
+- `all`: capture all messages.
+
+The filters can be prefixed with
+- `check` (the default): capture and check the message
+- `drop`: drop the message
+- `pass`: let the message pass through
+
+If no filter is specified, `check all` is assumed.  Otherwise, these filters are processed in
+left-to-right order, with an implicit `pass all` at the end.
 -/
-syntax guardMsgsFilter := &"drop"? guardMsgsFilterSeverity
+syntax guardMsgsFilter := guardMsgsFilterAction ? guardMsgsFilterSeverity
 
 set_option linter.missingDocs false in
 syntax guardMsgsWhitespaceArg := &"exact" <|> &"normalized" <|> &"lax"
@@ -719,13 +730,20 @@ In general, `#guard_msgs` accepts a comma-separated list of configuration clause
 ```
 #guard_msgs (configElt,*) in cmd
 ```
-By default, the configuration list is `(all, whitespace := normalized, ordering := exact)`.
+By default, the configuration list is `(check all, whitespace := normalized, ordering := exact)`.
 
-Message filters (processed in left-to-right order):
-- `info`, `warning`, `error`: capture messages with the given severity level.
-- `all`: capture all messages (the default).
-- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
-- `drop all`: drop every message.
+Message filters select messages by severity:
+- `info`, `warning`, `error`: (non-trace) messages with the given severity level.
+- `trace`: trace messages
+- `all`: all messages.
+
+The filters can be prefixed with the action to take:
+- `check` (the default): capture and check the message
+- `drop`: drop the message
+- `pass`: let the message pass through
+
+If no filter is specified, `check all` is assumed.  Otherwise, these filters are processed in
+left-to-right order, with an implicit `pass all` at the end.
 
 Whitespace handling (after trimming leading and trailing whitespace):
 - `whitespace := exact` requires an exact whitespace match.

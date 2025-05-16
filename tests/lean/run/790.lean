@@ -16,7 +16,7 @@ instance : Vec' Nat := ⟨⟩
 
 set_option trace.Meta.Tactic.simp true
 /--
-info: [Meta.Tactic.simp.rewrite] differential_of_linear:1000:
+trace: [Meta.Tactic.simp.rewrite] differential_of_linear:1000:
       differential f x dx
     ==>
       f dx

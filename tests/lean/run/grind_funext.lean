@@ -4,8 +4,10 @@ example (f : (Nat → Nat) → Nat → Nat → Nat) : a = b → f (fun x => a + 
   grind
 
 example (f : (Nat → Nat) → Nat) : a = b → f (fun x => a + x) = f (fun x => b + x) := by
-  fail_if_success grind -funext
-  sorry
+  -- This test used to check `fail_if_success grind -funext`,
+  -- but now it succeeds even without funext
+  -- due to adding the eta rule in https://github.com/leanprover/lean4/pull/7977.
+  grind
 
 example (g : Nat → Nat → Nat) (f : (Nat → Nat) → Nat → (Nat → Nat) → Nat) :
     a = b → f (fun x => a + x) 1 (fun x => g x a) = f (fun x => x + b) 1 (fun x => g x b) := by

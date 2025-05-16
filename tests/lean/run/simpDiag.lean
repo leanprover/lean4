@@ -8,7 +8,7 @@ theorem f_eq : f (x + 1) = q (f x) := rfl
 axiom q_eq (x : Nat) : q x = x
 
 /--
-info: [simp] Diagnostics
+trace: [simp] Diagnostics
   [simp] used theorems (max: 50, num: 2):
     [simp] f_eq ↦ 50
     [simp] q_eq ↦ 50
@@ -32,7 +32,7 @@ def ack : Nat → Nat → Nat
   | x+1, y+1 => ack x (ack (x+1) y)
 
 /--
-info: [simp] Diagnostics
+trace: [simp] Diagnostics
   [simp] used theorems (max: 1201, num: 3):
     [simp] ack.eq_3 ↦ 1201
     [simp] Nat.reduceAdd (builtin simproc) ↦ 771
@@ -98,14 +98,14 @@ opaque q1 : Nat → Nat → Prop
 @[simp] axiom q1_ax (x : Nat) : q1 x 10
 
 /--
-info: [simp] Diagnostics
+trace: [simp] Diagnostics
   [simp] used theorems (max: 1, num: 1):
     [simp] q1_ax ↦ 1
   [simp] tried theorems (max: 1, num: 1):
     [simp] q1_ax ↦ 1, succeeded: 1
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
-info: [diag] Diagnostics
+trace: [diag] Diagnostics
   [reduction] unfolded declarations (max: 246, num: 2):
     [reduction] Nat.rec ↦ 246
     [reduction] OfNat.ofNat ↦ 24

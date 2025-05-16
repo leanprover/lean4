@@ -43,14 +43,14 @@ example (as bs cs : Array α) (v₁ v₂ : α)
   grind
 
 /--
-info: [grind.ematch.instance] Array.size_set: (cs.set i₃ v₃ ⋯).size = cs.size
+trace: [grind.ematch.instance] Array.size_set: (cs.set i₃ v₃ ⋯).size = cs.size
 [grind.ematch.instance] Array.size_set: (bs.set i₂ v₂ ⋯).size = bs.size
 [grind.ematch.instance] Array.size_set: (as.set i₁ v₁ ⋯).size = as.size
 [grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < cs.size), i₃ ≠ j → (cs.set i₃ v₃ ⋯)[j] = cs[j]
 [grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < bs.size), i₂ ≠ j → (bs.set i₂ v₂ ⋯)[j] = bs[j]
 [grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < as.size), i₁ ≠ j → (as.set i₁ v₁ ⋯)[j] = as[j]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (as bs cs ds : Array α) (v₁ v₂ v₃ : α)
         (i₁ i₂ i₃ j : Nat)
         (h₁ : i₁ < as.size)
@@ -69,8 +69,8 @@ opaque f (a b : α) : α := a
 @[grind =] theorem fx : f x (f x x) = x := sorry
 
 /--
-info: [grind.ematch.instance] fx: f a (f a a) = a
+trace: [grind.ematch.instance] fx: f a (f a a) = a
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example : a = b₁ → c = f b₁ b₂ → f a c ≠ a → a = b₂ → False := by
   grind

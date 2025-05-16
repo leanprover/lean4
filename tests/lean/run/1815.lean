@@ -7,7 +7,7 @@ theorem mul_comm (a b : α) : a * b = b * a := sorry
 
 set_option trace.Meta.Tactic.simp true
 /--
-info: [Meta.Tactic.simp.rewrite] mul_comm:1000:perm, perm rejected Left a ==> default * a
+trace: [Meta.Tactic.simp.rewrite] mul_comm:1000:perm, perm rejected Left a ==> default * a
 [Meta.Tactic.simp.rewrite] mul_comm:1000:perm:
       Right a
     ==>

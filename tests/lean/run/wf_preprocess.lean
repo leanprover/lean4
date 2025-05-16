@@ -8,12 +8,12 @@ structure Tree (α : Type u) where
 def Tree.isLeaf (t : Tree α) := t.cs.isEmpty
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 t t' : Tree α
 h✝ : t' ∈ t.cs
 ⊢ sizeOf t' < sizeOf t
 -/
-#guard_msgs in
+#guard_msgs(trace) in
 def Tree.map (f : α → β) (t : Tree α) : Tree β :=
     ⟨f t.val, t.cs.map (fun t' => t'.map f)⟩
 termination_by t
@@ -35,12 +35,12 @@ info: Tree.map.induct.{u_1} {α : Type u_1} (motive : Tree α → Prop)
 #check Tree.map.induct
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 t x✝ : Tree α
 h✝ : x✝ ∈ t.cs
 ⊢ sizeOf x✝ < sizeOf t
 -/
-#guard_msgs in
+#guard_msgs(trace) in
 def Tree.pruneRevAndMap (f : α → β) (t : Tree α) : Tree β :=
     ⟨f t.val, (t.cs.filter (fun t' => not t'.isLeaf)).reverse.map (·.pruneRevAndMap f)⟩
 termination_by t
@@ -64,14 +64,14 @@ info: Tree.pruneRevAndMap.induct.{u_1} {α : Type u_1} (motive : Tree α → Pro
 #check Tree.pruneRevAndMap.induct
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 v : α
 cs : List (Tree α)
 x✝ : Tree α
 h✝ : x✝ ∈ cs
 ⊢ sizeOf x✝ < sizeOf { val := v, cs := cs }
 -/
-#guard_msgs in
+#guard_msgs(trace) in
 def Tree.pruneRevAndMap' (f : α → β) : Tree α → Tree β
   | ⟨v,cs⟩ => ⟨f v, (cs.filter (fun t' => not t'.isLeaf)).reverse.map (·.pruneRevAndMap' f)⟩
 termination_by t => t
@@ -125,7 +125,7 @@ structure MTree (α : Type u) where
 /--
 warning: declaration uses 'sorry'
 ---
-info: α : Type u_1
+trace: α : Type u_1
 t : MTree α
 x✝¹ : List (MTree α)
 h✝¹ : x✝¹ ∈ t.cs
@@ -156,7 +156,7 @@ info: MTree.map.induct.{u_1} {α : Type u_1} (motive : MTree α → Prop)
 #check MTree.map.induct
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 t : MTree α
 css : List (MTree α)
 h✝¹ : css ∈ t.cs
@@ -164,7 +164,7 @@ c : MTree α
 h✝ : c ∈ css
 ⊢ sizeOf c < sizeOf t
 -/
-#guard_msgs in
+#guard_msgs(trace) in
 def MTree.size (t : MTree α) : Nat := Id.run do
   let mut s := 1
   for css in t.cs do
@@ -223,7 +223,7 @@ inductive Expression where
 /--
 warning: declaration uses 'sorry'
 ---
-info: L : List (String × Expression)
+trace: L : List (String × Expression)
 x : String × Expression
 h✝ : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
@@ -264,7 +264,7 @@ inductive Expression where
 /--
 warning: declaration uses 'sorry'
 ---
-info: L : List (String × Expression)
+trace: L : List (String × Expression)
 x : String × Expression
 h✝ : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
@@ -316,7 +316,7 @@ section Binary
 -- Main point of this test is to check whether `Tree.map2._unary` leaks the preprocessing
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 β : Type u_2
 t1 : Tree α
 t2 y : Tree β

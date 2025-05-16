@@ -23,6 +23,8 @@ open Nat (succ)
 
 namespace Int
 
+@[simp high] theorem natCast_eq_zero {n : Nat} : (n : Int) = 0 ↔ n = 0 := by omega
+
 protected theorem exists_add_of_le {a b : Int} (h : a ≤ b) : ∃ (c : Nat), b = a + c :=
   ⟨(b - a).toNat, by omega⟩
 
@@ -142,6 +144,20 @@ theorem dvd_of_mul_dvd_mul_left {a m n : Int} (ha : a ≠ 0) (h : a * m ∣ a * 
 
 theorem dvd_of_mul_dvd_mul_right {a m n : Int} (ha : a ≠ 0) (h : m * a ∣ n * a) : m ∣ n :=
   dvd_of_mul_dvd_mul_left ha (by simpa [Int.mul_comm] using h)
+
+@[norm_cast] theorem natCast_dvd_natCast {m n : Nat} : (↑m : Int) ∣ ↑n ↔ m ∣ n where
+  mp := by
+    rintro ⟨a, h⟩
+    obtain rfl | hm := m.eq_zero_or_pos
+    · simpa using h
+    have ha : 0 ≤ a := Int.not_lt.1 fun ha ↦ by
+      simpa [← h, Int.not_lt.2 (Int.natCast_nonneg _)]
+        using Int.mul_neg_of_pos_of_neg (natCast_pos.2 hm) ha
+    match a, ha with
+    | (a : Nat), _ =>
+      norm_cast at h
+      exact ⟨a, h⟩
+  mpr := by rintro ⟨a, rfl⟩; simp [Int.dvd_mul_right]
 
 /-! ### *div zero  -/
 
@@ -1031,6 +1047,27 @@ theorem ediv_dvd_of_dvd {m n : Int} (hmn : m ∣ n) : n / m ∣ n := by
   · obtain ⟨a, ha⟩ := hmn
     simp [ha, Int.mul_ediv_cancel_left _ hm, Int.dvd_mul_left]
 
+theorem emod_natAbs_of_nonneg {x : Int} (h : 0 ≤ x) {n : Nat} :
+    x.natAbs % n = (x % n).toNat := by
+  match x, h with
+  | (x : Nat), _ => rw [Int.natAbs_natCast, Int.ofNat_mod_ofNat, Int.toNat_natCast]
+
+theorem emod_natAbs_of_neg {x : Int} (h : x < 0) {n : Nat} (w : n ≠ 0) :
+    x.natAbs % n = if (n : Int) ∣ x then 0 else n - (x % n).toNat := by
+  match x, h with
+  | -(x + 1 : Nat), _ =>
+    rw [Int.natAbs_neg]
+    rw [Int.natAbs_cast]
+    rw [Int.neg_emod]
+    simp only [Int.dvd_neg]
+    simp only [Int.natCast_dvd_natCast]
+    split <;> rename_i h
+    · rw [Nat.mod_eq_zero_of_dvd h]
+    · rw [← Int.natCast_emod]
+      simp only [Int.natAbs_natCast]
+      have : (x + 1) % n < n := Nat.mod_lt (x + 1) (by omega)
+      omega
+
 /-! ### `/` and ordering -/
 
 protected theorem ediv_mul_le (a : Int) {b : Int} (H : b ≠ 0) : a / b * b ≤ a :=
@@ -1308,7 +1345,7 @@ theorem sign_tdiv (a b : Int) : sign (a.tdiv b) = if natAbs a < natAbs b then 0 
 theorem ofNat_tmod (m n : Nat) : (↑(m % n) : Int) = tmod m n := rfl
 
 theorem tmod_nonneg : ∀ {a : Int} (b : Int), 0 ≤ a → 0 ≤ tmod a b
-  | ofNat _, -[_+1], _ | ofNat _, ofNat _, _ => ofNat_nonneg _
+  | ofNat _, -[_+1], _ | ofNat _, ofNat _, _ => natCast_nonneg _
 
 @[simp] theorem tmod_neg (a b : Int) : tmod a (-b) = tmod a b := by
   rw [tmod_def, tmod_def, Int.tdiv_neg, Int.neg_mul_neg]
@@ -1321,7 +1358,7 @@ theorem tmod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : tmod a b < b :=
   match a, b, eq_succ_of_zero_lt H with
   | ofNat _, _, ⟨n, rfl⟩ => ofNat_lt.2 <| Nat.mod_lt _ n.succ_pos
   | -[_+1], _, ⟨n, rfl⟩ => Int.lt_of_le_of_lt
-    (Int.neg_nonpos_of_nonneg <| Int.ofNat_nonneg _) (ofNat_pos.2 n.succ_pos)
+    (Int.neg_nonpos_of_nonneg <| natCast_nonneg _) (natCast_pos.2 n.succ_pos)
 
 theorem lt_tmod_of_pos (a : Int) {b : Int} (H : 0 < b) : -b < tmod a b :=
   match a, b, eq_succ_of_zero_lt H with
@@ -1724,7 +1761,7 @@ protected theorem tdiv_mul_le (a : Int) {b : Int} (hb : b ≠ 0) : a.tdiv b * b 
     · simp_all [tmod_nonneg]
     · match b, hb with
       | .ofNat (b + 1), _ =>
-        have := lt_tmod_of_pos a (Int.ofNat_pos.2 (b.succ_pos))
+        have := lt_tmod_of_pos a (natCast_pos.2 (b.succ_pos))
         simp_all
         omega
       | .negSucc b, _ =>
@@ -2679,8 +2716,8 @@ theorem le_bmod {x : Int} {m : Nat} (h : 0 < m) : - (m/2) ≤ Int.bmod x m := by
   have v : (m : Int) % 2 = 0 ∨ (m : Int) % 2 = 1 := emod_two_eq _
   split <;> rename_i w
   · refine Int.le_trans ?_ (Int.emod_nonneg _ ?_)
-    · exact Int.neg_nonpos_of_nonneg (Int.ediv_nonneg (Int.ofNat_nonneg _) (by decide))
-    · exact Int.ne_of_gt (ofNat_pos.mpr h)
+    · exact Int.neg_nonpos_of_nonneg (Int.ediv_nonneg (natCast_nonneg _) (by decide))
+    · exact Int.ne_of_gt (natCast_pos.mpr h)
   · simp [Int.not_lt] at w
     refine Int.le_trans ?_ (Int.sub_le_sub_right w _)
     rw [← ediv_add_emod m 2]
@@ -2713,7 +2750,7 @@ theorem bmod_lt {x : Int} {m : Nat} (h : 0 < m) : bmod x m < (m + 1) / 2 := by
   · assumption
   · apply Int.lt_of_lt_of_le
     · show _ < 0
-      have : x % m < m := emod_lt_of_pos x (ofNat_pos.mpr h)
+      have : x % m < m := emod_lt_of_pos x (natCast_pos.mpr h)
       exact Int.sub_neg_of_lt this
     · exact Int.le.intro_sub _ rfl
 

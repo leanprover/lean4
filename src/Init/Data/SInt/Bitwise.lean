@@ -6,7 +6,11 @@ Authors: Markus Himmel
 module
 
 prelude
+import all Init.Data.UInt.Basic
 import Init.Data.UInt.Bitwise
+import all Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Lemmas
+import all Init.Data.SInt.Basic
 import Init.Data.SInt.Lemmas
 
 set_option hygiene false in

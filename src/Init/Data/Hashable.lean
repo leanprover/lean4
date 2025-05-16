@@ -7,7 +7,8 @@ module
 
 prelude
 import Init.Data.UInt.Basic
-import Init.Data.String
+import Init.Data.String.Basic
+import Init.Data.ByteArray.Basic
 universe u
 
 instance : Hashable Nat where

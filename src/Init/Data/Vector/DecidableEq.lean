@@ -58,7 +58,7 @@ theorem beq_eq_decide [BEq α] (xs ys : Vector α n) :
     (mk xs ha == mk ys hb) = (xs == ys) := by
   simp [BEq.beq]
 
-@[simp] theorem beq_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray == ys.toArray) = (xs == ys) := by
+@[simp, grind =] theorem beq_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray == ys.toArray) = (xs == ys) := by
   simp [beq_eq_decide, Array.beq_eq_decide]
 
 @[simp] theorem beq_toList [BEq α] (xs ys : Vector α n) : (xs.toList == ys.toList) = (xs == ys) := by

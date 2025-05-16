@@ -1191,7 +1191,7 @@ if (lean_obj_tag(x_17) == 0)
 lean_object* x_18; uint8_t x_19; 
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*15);
+x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*16);
 if (x_19 == 0)
 {
 uint8_t x_20; 

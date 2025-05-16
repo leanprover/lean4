@@ -146,20 +146,7 @@ private theorem getElem_qpartition_snd_of_lt_lo (lt : α → α → Bool) (as : 
     (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi)[i] = as[i] := by
-  fun_induction qsort.sort
-  case case1 a b =>
-    grind [getElem_qpartition_snd_of_lt_lo]
-  case case2 a b ih1 ih2 ih3 =>
-    simp only [↓reduceDIte, *] -- insufficient unfolding in qsort.sort.induct_unfolding
-    -- This should work from here, but we get "failed to create E-match local theorem" issues
-    -- grind [getElem_qpartition_snd_of_lt_lo]
-    have := congrArg (·.2) a
-    dsimp at this
-    subst this
-    rw [ih3, ih2, getElem_qpartition_snd_of_lt_lo]
-    all_goals grind
-  case case3 =>
-    grind
+  fun_induction qsort.sort with grind [getElem_qpartition_snd_of_lt_lo]
 
 private theorem getElem_qpartition_loop_snd_of_hi_lt (lt : α → α → Bool) (lo hi : Nat)
     (hhi : hi < n) (pivot) (as : Vector α n) (i k)
@@ -176,20 +163,7 @@ private theorem getElem_qpartition_snd_of_hi_lt (lt : α → α → Bool) (as : 
     (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat) (w : lo ≤ hi)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : hi < i) (h' : i < n) : (qsort.sort lt as lo hi)[i] = as[i] := by
-  fun_induction qsort.sort
-  case case1 a b =>
-    grind [getElem_qpartition_snd_of_hi_lt]
-  case case2 a b ih1 ih2 ih3 =>
-    simp only [↓reduceDIte, *] -- insufficient unfolding in qsort.sort.induct_unfolding
-    -- This should work from here, but we get "failed to create E-match local theorem" issues
-    -- grind [getElem_qpartition_snd_of_hi_lt]
-    have := congrArg (·.2) a
-    dsimp at this
-    subst this
-    rw [ih3, ih2, getElem_qpartition_snd_of_hi_lt]
-    all_goals grind
-  case case3 =>
-    grind
+  fun_induction qsort.sort with grind [getElem_qpartition_snd_of_hi_lt]
 
 private theorem extract_qsort_sort_perm (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     (hlo := by grind) (hhi := by grind) (w : lo ≤ hi := by grind) :
@@ -278,12 +252,11 @@ private theorem qpartition_loop_lt_hi₂
     (q : ∃ (k' : Nat) (hj' : k' < n), k' ≥ k ∧ k' < hi ∧ ¬ lt as[k'] pivot) :
     (qpartition.loop lt lo hi hhi pivot as i k).1.val < hi := by
   fun_induction qpartition.loop with
-  | case1 as i j iloi jh w h' h ih =>
-    apply ih <;> grind -- It would be nice if a more aggressive mode in `grind` would do this.
-  | case2 as i j ilo jh w h' h ih  =>
-    grind [qpartition_loop_lt_hi₁]
-  | case3 =>
-    grind
+  | case1 =>
+    -- It would be nice if a more aggressive mode in `grind` would do this.
+    apply_assumption <;> grind
+  | case2 => grind [qpartition_loop_lt_hi₁]
+  | case3 => grind
 
 /-- The only way `qpartition` returns a pivot position `≥ hi` is if `hi ≤ lo`. -/
 private theorem qpartition_fst_lt_hi (lt : α → α → Bool) (lt_asymm : ∀ {a b}, lt a b → ¬ lt b a)

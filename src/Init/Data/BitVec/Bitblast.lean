@@ -1815,8 +1815,7 @@ theorem toInt_smod {x y : BitVec w} :
 
   · have hylt := toNat_lt_of_msb_false (x := y) (by omega)
     have hmodlt := Nat.mod_lt x.toNat (by omega)
-    rw [toInt_umod,
-      Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) (toInt_nonneg_of_msb_false hymsb),
+    rw [toInt_umod, Int.fmod_eq_emod_of_nonneg x.toInt (toInt_nonneg_of_msb_false hymsb),
       toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb,
       Int.bmod_eq_of_le_mul_two (by omega) (by simp at hylt; omega)]
 

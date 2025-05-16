@@ -1,4 +1,10 @@
-invalidEnd.lean:5:0-5:7: error: invalid 'end', name mismatch (expected nothing)
-invalidEnd.lean:6:0-6:7: error: invalid 'end', name mismatch (expected Baz)
-invalidEnd.lean:7:0-7:12: error: invalid 'end', name mismatch (expected Foo.Bar)
-invalidEnd.lean:8:0-8:3: error: invalid 'end', insufficient scopes
+invalidEnd.lean:5:0-5:7: error: Unexpected name 'Baz' after `end`: The current section is unnamed`
+
+Hint: Delete the name 'Baz' to end the current unnamed scope; outer named scopes can then be closed using additional `end` command(s):
+  end ̵B̵a̵z̵
+invalidEnd.lean:7:0-7:7: error: Name 'Bal' does not match the current scope(s) 'Foo.Bar.Baz': Expected 'Baz' or some other suffix of the current scope(s)
+invalidEnd.lean:9:0-9:12: error: Name 'Fool.Bar' does not match the current scope(s) 'Foo.Bar': Expected 'Foo.Bar' or some other suffix of the current scope(s)
+invalidEnd.lean:10:0-10:3: error: Missing name after `end`: The current scope is named 'Bar', but a name was not provided
+
+Hint: To end the current scope 'Bar', specify its name:
+  end ̲B̲a̲r̲

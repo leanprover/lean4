@@ -169,12 +169,9 @@ def Suggestions.toHintMessage (suggestions : Suggestions) : CoreM MessageData :=
   return msg
 
 /--
-Appends a hint `hint` to `msg`. If `suggestions?` is non-`none`, will also append an inline
-suggestion widget.
+Creates a hint message from `hint` with associated code action(s) given by `suggestions`.
+
+To provide a hint without an associated code action, use `MessageData.hint'`.
 -/
-def _root_.Lean.MessageData.hint (hint : MessageData) (suggestions? : Option Suggestions := none)
-    : CoreM MessageData := do
-  let mut hintMsg := m!"\n\nHint: {hint}"
-  if let some suggestions := suggestions? then
-    hintMsg := hintMsg ++ (← suggestions.toHintMessage)
-  return .tagged `hint hintMsg
+def _root_.Lean.MessageData.hint (hint : MessageData) (suggestions : Suggestions) : CoreM MessageData :=
+  return .tagged `hint <| m!"\n\nHint: {hint}" ++ (← suggestions.toHintMessage)

@@ -118,11 +118,21 @@ identity monad `Id`.
 def Iter.toIterM {α : Type w} {β : Type w} (it : Iter (α := α) β) : IterM (α := α) Id β :=
   it
 
+@[simp]
+theorem IterM.toIterM_eq_self {α β} (it : IterM (α := α) Id β) :
+    Iter.toIterM it = it :=
+  rfl
+
 /--
 Converts a monadic iterator (`IterM Id β`) over `Id` into a pure iterator (`Iter β`).
 -/
 def IterM.toPureIter {α : Type w} {β : Type w} (it : IterM (α := α) Id β) : Iter (α := α) β :=
   it
+
+@[simp]
+theorem Iter.toPureIter_eq_self {α β} (it : Iter (α := α) β) :
+    IterM.toPureIter it = it :=
+  rfl
 
 @[simp]
 theorem Iter.toPureIter_toIterM {α : Type w} {β : Type w} (it : Iter (α := α) β) :

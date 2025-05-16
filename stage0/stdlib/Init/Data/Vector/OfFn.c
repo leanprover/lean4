@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.OfFn
-// Imports: Init.Data.Vector.Lemmas Init.Data.Array.OfFn
+// Imports: Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Array.OfFn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -20,6 +21,9 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Vector_OfFn(uint8_t builtin, lean_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

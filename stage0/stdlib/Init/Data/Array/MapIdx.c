@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.MapIdx
-// Imports: Init.Data.Array.Lemmas Init.Data.Array.Attach Init.Data.Array.OfFn Init.Data.List.MapIdx
+// Imports: Init.Data.Array.Basic Init.Data.Array.Lemmas Init.Data.Array.Attach Init.Data.Array.OfFn Init.Data.List.MapIdx
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -148,6 +148,7 @@ x_4 = lean_alloc_closure((void*)(l___private_Init_Data_Array_MapIdx_0__List_mapI
 return x_4;
 }
 }
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin, lean_object*);
@@ -157,6 +158,9 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

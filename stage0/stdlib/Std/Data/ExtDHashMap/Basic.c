@@ -41,7 +41,6 @@ LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instDecidableMem(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_emptyWithCapacity(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Std_ExtDHashMap_filterMap___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instDecidableMem___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instInhabitedDHashMap(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Std_ExtDHashMap_Const_unitOfList___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_Const_get_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -54,7 +53,6 @@ LEAN_EXPORT lean_object* l_Std_ExtDHashMap_Const_alter(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Std_ExtDHashMap_map___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instEmptyCollection(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instInsertSigmaOfEquivBEqOfLawfulHashable(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instInhabitedDHashMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_emptyWithCapacity___rarg(lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_filterMap_go___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_getKeyD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,6 +62,7 @@ LEAN_EXPORT lean_object* l_Std_ExtDHashMap_Const_insertManyIfNewUnit___rarg___la
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_contains(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Std_ExtDHashMap_Const_unitOfArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_erase(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instInhabited___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_filter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_ofList___rarg(lean_object*, lean_object*, lean_object*);
@@ -97,6 +96,7 @@ LEAN_EXPORT lean_object* l_Std_ExtDHashMap_getKey_x3f___rarg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Std_ExtDHashMap_map___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_Const_insertMany(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_get(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_Const_get___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_Const_getD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -304,7 +304,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instInhabitedDHashMap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instInhabited(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -312,11 +312,11 @@ x_5 = l_Std_ExtDHashMap_instEmptyCollection___closed__3;
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instInhabitedDHashMap___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instInhabited___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_ExtDHashMap_instInhabitedDHashMap(x_1, x_2, x_3, x_4);
+x_5 = l_Std_ExtDHashMap_instInhabited(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_5;

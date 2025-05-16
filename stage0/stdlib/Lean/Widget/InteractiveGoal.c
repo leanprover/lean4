@@ -85,7 +85,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_InteractiveGoa
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_goalToInteractive___spec__3(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_2614_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_InteractiveGoalCore_pretty___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Widget_goalToInteractive___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal___hyg_5____spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -279,6 +278,7 @@ lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_goalToInteractive___spec__4___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableInteractiveGoal_enc____x40_Lean_Widget_InteractiveGoal___hyg_1148_(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_InteractiveGoalCore_pretty___closed__1;
+uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_5____spec__7___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Widget_goalToInteractive___spec__1(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_1277____closed__33;
@@ -11117,7 +11117,7 @@ if (x_69 == 0)
 lean_object* x_70; lean_object* x_71; uint8_t x_72; 
 x_70 = lean_ctor_get(x_68, 0);
 x_71 = lean_ctor_get(x_68, 1);
-x_72 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_59, x_5);
+x_72 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_59, x_5);
 if (x_72 == 0)
 {
 lean_object* x_73; uint8_t x_74; 
@@ -11128,7 +11128,7 @@ if (lean_is_scalar(x_56)) {
  x_73 = x_56;
 }
 lean_ctor_set(x_73, 0, x_70);
-x_74 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_59, x_73);
+x_74 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_59, x_73);
 lean_dec(x_73);
 if (x_74 == 0)
 {
@@ -11268,7 +11268,7 @@ x_103 = lean_ctor_get(x_68, 1);
 lean_inc(x_103);
 lean_inc(x_102);
 lean_dec(x_68);
-x_104 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_59, x_5);
+x_104 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_59, x_5);
 if (x_104 == 0)
 {
 lean_object* x_105; uint8_t x_106; 
@@ -11279,7 +11279,7 @@ if (lean_is_scalar(x_56)) {
  x_105 = x_56;
 }
 lean_ctor_set(x_105, 0, x_102);
-x_106 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_59, x_105);
+x_106 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_59, x_105);
 lean_dec(x_105);
 if (x_106 == 0)
 {
@@ -11725,7 +11725,7 @@ if (lean_is_exclusive(x_198)) {
  lean_dec_ref(x_198);
  x_201 = lean_box(0);
 }
-x_202 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_189, x_5);
+x_202 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_189, x_5);
 if (x_202 == 0)
 {
 lean_object* x_203; uint8_t x_204; 
@@ -11736,7 +11736,7 @@ if (lean_is_scalar(x_56)) {
  x_203 = x_56;
 }
 lean_ctor_set(x_203, 0, x_199);
-x_204 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_189, x_203);
+x_204 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_189, x_203);
 lean_dec(x_203);
 if (x_204 == 0)
 {
@@ -12624,7 +12624,7 @@ if (x_74 == 0)
 lean_object* x_75; lean_object* x_76; uint8_t x_77; 
 x_75 = lean_ctor_get(x_73, 0);
 x_76 = lean_ctor_get(x_73, 1);
-x_77 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_64, x_5);
+x_77 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_64, x_5);
 if (x_77 == 0)
 {
 lean_object* x_78; uint8_t x_79; 
@@ -12635,7 +12635,7 @@ if (lean_is_scalar(x_61)) {
  x_78 = x_61;
 }
 lean_ctor_set(x_78, 0, x_75);
-x_79 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_64, x_78);
+x_79 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_64, x_78);
 lean_dec(x_78);
 if (x_79 == 0)
 {
@@ -12775,7 +12775,7 @@ x_108 = lean_ctor_get(x_73, 1);
 lean_inc(x_108);
 lean_inc(x_107);
 lean_dec(x_73);
-x_109 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_64, x_5);
+x_109 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_64, x_5);
 if (x_109 == 0)
 {
 lean_object* x_110; uint8_t x_111; 
@@ -12786,7 +12786,7 @@ if (lean_is_scalar(x_61)) {
  x_110 = x_61;
 }
 lean_ctor_set(x_110, 0, x_107);
-x_111 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_64, x_110);
+x_111 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_64, x_110);
 lean_dec(x_110);
 if (x_111 == 0)
 {
@@ -13232,7 +13232,7 @@ if (lean_is_exclusive(x_203)) {
  lean_dec_ref(x_203);
  x_206 = lean_box(0);
 }
-x_207 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_194, x_5);
+x_207 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_194, x_5);
 if (x_207 == 0)
 {
 lean_object* x_208; uint8_t x_209; 
@@ -13243,7 +13243,7 @@ if (lean_is_scalar(x_61)) {
  x_208 = x_61;
 }
 lean_ctor_set(x_208, 0, x_204);
-x_209 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Meta_ppGoal_ppVars___spec__1(x_194, x_208);
+x_209 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_ppGoal_ppVars___spec__1(x_194, x_208);
 lean_dec(x_208);
 if (x_209 == 0)
 {

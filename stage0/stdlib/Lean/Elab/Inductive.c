@@ -55,6 +55,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_re
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Linter_getLinterOptions___at___private_Lean_Elab_Term_0__Lean_Elab_Term_checkDeprecatedCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__6___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_reorderCtorArgs___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3893,28 +3894,64 @@ LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___at___private_Lean_Elab_Induct
 _start:
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_ctor_get(x_8, 2);
-lean_inc(x_11);
-lean_inc(x_1);
-x_12 = l_Lean_Linter_getLinterValue(x_1, x_11);
-lean_dec(x_11);
+lean_inc(x_8);
+x_11 = l_Lean_Linter_getLinterOptions___at___private_Lean_Elab_Term_0__Lean_Elab_Term_checkDeprecatedCore___spec__2(x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
 {
-lean_object* x_13; lean_object* x_14; 
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_11, 0);
+x_14 = lean_ctor_get(x_11, 1);
+lean_inc(x_1);
+x_15 = l_Lean_Linter_getLinterValue(x_1, x_13);
+lean_dec(x_13);
+if (x_15 == 0)
+{
+lean_object* x_16; 
 lean_dec(x_8);
 lean_dec(x_3);
 lean_dec(x_1);
-x_13 = lean_box(0);
-x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_10);
-return x_14;
+x_16 = lean_box(0);
+lean_ctor_set(x_11, 0, x_16);
+return x_11;
 }
 else
 {
-lean_object* x_15; 
-x_15 = l_Lean_Linter_logLint___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__19(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-return x_15;
+lean_object* x_17; 
+lean_free_object(x_11);
+x_17 = l_Lean_Linter_logLint___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__19(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_14);
+return x_17;
+}
+}
+else
+{
+lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+x_18 = lean_ctor_get(x_11, 0);
+x_19 = lean_ctor_get(x_11, 1);
+lean_inc(x_19);
+lean_inc(x_18);
+lean_dec(x_11);
+lean_inc(x_1);
+x_20 = l_Lean_Linter_getLinterValue(x_1, x_18);
+lean_dec(x_18);
+if (x_20 == 0)
+{
+lean_object* x_21; lean_object* x_22; 
+lean_dec(x_8);
+lean_dec(x_3);
+lean_dec(x_1);
+x_21 = lean_box(0);
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_21);
+lean_ctor_set(x_22, 1, x_19);
+return x_22;
+}
+else
+{
+lean_object* x_23; 
+x_23 = l_Lean_Linter_logLint___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__19(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_19);
+return x_23;
+}
 }
 }
 }

@@ -20,6 +20,7 @@ LEAN_EXPORT lean_object* l_Option_forM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_pelim___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instMembership(lean_object*);
 LEAN_EXPORT lean_object* l_Option_decidableExistsMem___rarg(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_5____rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_pelim___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_decidableEqNone___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_decidableEqNone___rarg___boxed(lean_object*);
@@ -36,7 +37,6 @@ LEAN_EXPORT lean_object* l_Option_instDecidableMemOfDecidableEq(lean_object*);
 LEAN_EXPORT lean_object* l_Option_forM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_decidable__eq__none___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_instForIn_x27InferInstanceMembership(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instForIn_x27InferInstanceMembership___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instForM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_pmap(lean_object*, lean_object*, lean_object*);
@@ -57,7 +57,7 @@ _start:
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_2);
-x_5 = l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____rarg(x_1, x_3, x_4);
+x_5 = l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_5____rarg(x_1, x_3, x_4);
 return x_5;
 }
 }

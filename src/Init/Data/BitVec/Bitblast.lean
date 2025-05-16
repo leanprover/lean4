@@ -1750,37 +1750,6 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
         ((not_congr neg_eq_zero_iff).mpr hyz)]
       exact neg_le_intMin_of_msb_eq_true h'
 
-@[simp]
-theorem msb_neg_of_msb_false {x : BitVec w} (hx : x.msb = false) :
-    (-x).msb = decide (x ≠ 0) := by
-  by_cases hw : w = 0; subst hw; decide +revert
-  have wpos : 0 < w := by omega
-  simp only [msb_neg, hx, bne_false]
-  simp only [bool_to_prop]
-  simp [hx, wpos]
-
-@[simp]
-theorem msb_neg_of_msb_true {x : BitVec w} (hx : x.msb = true) :
-    (-x).msb = decide (x = intMin w) := by
-  simp only [msb_neg, hx, bne_true, Bool.not_and]
-  simp only [bool_to_prop]
-  simp [hx]
-
-theorem msb_neg_umod_neg_of_msb_true_of_msb_true
-    {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
-      (-x % -y).msb = (decide (x = intMin w) && decide (-x < -y)) := by
-  simp only [msb_umod, msb_neg_of_msb_true, hx]
-  simp only [bool_to_prop]
-  simp [hy]
-
-theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
-    (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) &&
-    decide (-x < -y)) := by
-  by_cases hw : w = 0; subst hw; decide +revert
-  have wpos : 0 < w := by omega
-  simp only [msb_neg]
-  simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
-
 theorem toInt_dvd_toInt_iff {x y : BitVec w} :
     y.toInt ∣ x.toInt ↔ (if x.msb then -x else x) % (if y.msb then -y else y) = 0#w := by
   constructor

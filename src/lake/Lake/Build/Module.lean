@@ -186,6 +186,13 @@ def computeModuleDeps
       plugins := plugins.push impLib
     else
       dynlibs := dynlibs.push impLib
+  /-
+  On MacOS, Lake must be loaded as a plugin for
+  `import Lake` to work with precompiled modules.
+  https://github.com/leanprover/lean4/issues/7388
+  -/
+  if Platform.isOSX && !(plugins.isEmpty && dynlibs.isEmpty) then
+    plugins := plugins.push (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}
 
 /--

@@ -8,7 +8,7 @@ import Init.Data.Nat.Compare
 import Std.Data.DTreeMap.Internal.Def
 import Std.Data.DTreeMap.Internal.Balanced
 import Std.Data.DTreeMap.Internal.Ordered
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -40,6 +40,9 @@ instance [Ord α] : Membership α (Impl α β) where
   mem t a := t.contains a
 
 theorem mem_iff_contains {_ : Ord α} {t : Impl α β} {k : α} : k ∈ t ↔ t.contains k :=
+  Iff.rfl
+
+theorem contains_iff_mem {_ : Ord α} {t : Impl α β} {k : α} : t.contains k ↔ k ∈ t :=
   Iff.rfl
 
 instance [Ord α] {m : Impl α β} {a : α} : Decidable (a ∈ m) :=

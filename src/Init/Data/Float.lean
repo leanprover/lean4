@@ -3,6 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Core
 import Init.Data.Int.Basic
@@ -289,8 +291,11 @@ implementation.
 instance : Inhabited Float where
   default := UInt64.toFloat 0
 
+protected def Float.repr (n : Float) (prec : Nat) : Std.Format :=
+  if n < UInt64.toFloat 0 then Repr.addAppParen (toString n) prec else toString n
+
 instance : Repr Float where
-  reprPrec n prec := if n < UInt64.toFloat 0 then Repr.addAppParen (toString n) prec else toString n
+  reprPrec := Float.repr
 
 instance : ReprAtom Float  := ⟨⟩
 

@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Sublist
 import Init.Data.List.Attach
@@ -172,14 +174,10 @@ theorem pairwise_flatten {L : List (List α)} :
     rw [and_comm, and_congr_left_iff]
     intros; exact ⟨fun h l' b c d e => h c d e l' b, fun h c d e l' b => h l' b c d e⟩
 
-@[deprecated pairwise_flatten (since := "2024-10-14")] abbrev pairwise_join := @pairwise_flatten
-
 theorem pairwise_flatMap {R : β → β → Prop} {l : List α} {f : α → List β} :
     List.Pairwise R (l.flatMap f) ↔
       (∀ a ∈ l, Pairwise R (f a)) ∧ Pairwise (fun a₁ a₂ => ∀ x ∈ f a₁, ∀ y ∈ f a₂, R x y) l := by
   simp [List.flatMap, pairwise_flatten, pairwise_map]
-
-@[deprecated pairwise_flatMap (since := "2024-10-14")] abbrev pairwise_bind := @pairwise_flatMap
 
 theorem pairwise_reverse {l : List α} :
     l.reverse.Pairwise R ↔ l.Pairwise (fun a b => R b a) := by

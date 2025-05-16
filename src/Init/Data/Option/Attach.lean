@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Option.Basic
 import Init.Data.Option.List
@@ -136,7 +138,7 @@ theorem toList_attach (o : Option α) :
     o.attach.toList = o.toList.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
   cases o <;> simp
 
-@[simp] theorem attach_toList (o : Option α) :
+@[simp, grind =] theorem attach_toList (o : Option α) :
     o.toList.attach = (o.attach.map fun ⟨a, h⟩ => ⟨a, by simpa using h⟩).toList := by
   cases o <;> simp
 
@@ -193,7 +195,7 @@ theorem attach_filter {o : Option α} {p : α → Bool} :
   | some a =>
     simp only [filter_some, attach_some]
     ext
-    simp only [attach_eq_some_iff, ite_none_right_eq_some, some.injEq, some_bind,
+    simp only [attach_eq_some_iff, ite_none_right_eq_some, some.injEq, bind_some,
       dite_none_right_eq_some]
     constructor
     · rintro ⟨h, w⟩
@@ -204,6 +206,10 @@ theorem attach_filter {o : Option α} {p : α → Bool} :
 theorem filter_attach {o : Option α} {p : {x // o = some x} → Bool} :
     o.attach.filter p = o.pbind fun a h => if p ⟨a, h⟩ then some ⟨a, h⟩ else none := by
   cases o <;> simp [filter_some]
+
+theorem toList_pbind {o : Option α} {f : (a : α) → o = some a → Option β} :
+    (o.pbind f).toList = o.attach.toList.flatMap (fun ⟨x, h⟩ => (f x h).toList) := by
+  cases o <;> simp
 
 /-! ## unattach
 
@@ -231,7 +237,7 @@ def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map 
 
 @[simp] theorem unattach_none {p : α → Prop} : (none : Option { x // p x }).unattach = none := rfl
 @[simp] theorem unattach_some {p : α → Prop} {a : { x // p x }} :
-  (some a).unattach = a.val := rfl
+  (some a).unattach = some a.val := rfl
 
 @[simp] theorem isSome_unattach {p : α → Prop} {o : Option { x // p x }} :
     o.unattach.isSome = o.isSome := by

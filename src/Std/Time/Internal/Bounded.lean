@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Init.Omega
 import Init.Data.Int.DivMod.Lemmas
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 
 namespace Std
 namespace Time
@@ -159,7 +159,7 @@ Convert a `Nat` to a `Bounded.LE` if it checks.
 @[inline]
 def ofNat? { hi : Nat } (val : Nat) : Option (Bounded.LE 0 hi) :=
   if h : val ≤ hi then
-    ofNat val h
+    some <| ofNat val h
   else
     none
 

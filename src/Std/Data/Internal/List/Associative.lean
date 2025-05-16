@@ -12,7 +12,7 @@ import Init.Data.List.Find
 import Init.Data.List.MinMax
 import Init.Data.List.Monadic
 import Std.Data.Internal.List.Defs
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -252,8 +252,8 @@ private theorem Option.dmap_eq_some {o : Option α} {f : (a : α) → (o = some 
 
 end
 
-theorem Option.guard_eq_map' (p : (a : α) × β a → Prop) [DecidablePred p] :
-    Option.guard p  = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
+theorem Option.guard_eq_map' (p : (a : α) × β a → Bool) :
+    Option.guard p = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
   funext x
   simp [Option.guard]
 
@@ -2229,23 +2229,31 @@ theorem getValueCast?_ext [BEq α] [LawfulBEq α] {l l' : List ((a : α) × β a
   intro a
   simp only [getEntry?_eq_getValueCast?, h]
 
-theorem getKey?_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
+theorem getKey_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
     {l l' : List ((_ : α) × β)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
-    (hk : ∀ a, getKey? a l = getKey? a l') (hv : ∀ a, getValue? a l = getValue? a l') :
+    (hk : ∀ a h h', getKey a l h = getKey a l' h') (hv : ∀ a, getValue? a l = getValue? a l') :
     Perm l l' := by
   apply getEntry?_ext hl hl'
   intro a
   specialize hk a; specialize hv a
   by_cases h' : containsKey a l'
-  · simp only [getKey?_eq_some_getKey h'] at hk
-    have h'' := containsKey_eq_isSome_getKey?.trans (hk ▸ rfl : (getKey? a l).isSome = true)
-    simp only [getKey?_eq_some_getKey, getValue?_eq_some_getValue,
-      getEntry?_eq_some_getEntry, h', h'', Option.some.injEq,
-      getEntry_eq_getKey_getValue, Sigma.mk.injEq] at hk hv ⊢
-    exact ⟨hk, hv ▸ .rfl⟩
-  · simp only [getKey?_eq_none, h'] at hk
-    have h'' := containsKey_eq_isSome_getKey?.trans (hk ▸ rfl : (getKey? a l).isSome = false)
+  · simp only [getValue?_eq_some_getValue h'] at hv
+    have h'' := containsKey_eq_isSome_getValue?.trans (hv ▸ rfl : (getValue? a l).isSome = true)
+    specialize hk h'' h'
+    simp only [getEntry?_eq_some_getEntry, h', h'', getEntry_eq_getKey_getValue, Sigma.mk.injEq]
+    simp only [getValue?_eq_some_getValue h'', Option.some.injEq] at hv
+    rw [hk, hv]
+  · simp only [getValue?_eq_none.mpr, h'] at hv
+    have h'' := containsKey_eq_isSome_getValue?.trans (hv ▸ rfl : (getValue? a l).isSome = false)
     simp only [getEntry?_eq_none.mpr, h', h'']
+
+theorem getKey?_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
+    {l l' : List ((_ : α) × β)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
+    (hk : ∀ a, getKey? a l = getKey? a l') (hv : ∀ a, getValue? a l = getValue? a l') :
+    Perm l l' := by
+  refine getKey_getValue?_ext hl hl' ?_ hv
+  intro a ha ha'
+  simp only [getKey, hk]
 
 theorem getKey?_ext [BEq α] [EquivBEq α]
     {l l' : List ((_ : α) × Unit)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
@@ -3000,7 +3008,7 @@ theorem containsKey_of_containsKey_insertListConst [BEq α] [PartialEquivBEq α]
     (h₂ : (toInsert.map Prod.fst).contains k = false) : containsKey k l := by
   unfold insertListConst at h₁
   apply containsKey_of_containsKey_insertList h₁
-  simpa
+  simpa using h₂
 
 theorem getKey?_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
@@ -3008,7 +3016,7 @@ theorem getKey?_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
     getKey? k (insertListConst l toInsert) = getKey? k l := by
   unfold insertListConst
   apply getKey?_insertList_of_contains_eq_false
-  simpa
+  simpa using not_contains
 
 theorem getKey?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
@@ -3117,7 +3125,7 @@ theorem getValue?_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq
   unfold insertListConst
   rw [getValue?_eq_getEntry?, getValue?_eq_getEntry?, getEntry?_insertList_of_contains_eq_false]
   rw [containsKey_eq_contains_map_fst]
-  simpa
+  simpa using not_contains
 
 theorem getValue?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
@@ -3125,7 +3133,7 @@ theorem getValue?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {k k' : α} (k_beq : k == k') {v : β}
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ toInsert) :
-    getValue? k' (insertListConst l toInsert) = v := by
+    getValue? k' (insertListConst l toInsert) = some v := by
   unfold insertListConst
   rw [getValue?_eq_getEntry?]
   have : getEntry? k' (insertList l (toInsert.map Prod.toSigma)) =
@@ -3247,11 +3255,11 @@ theorem getEntry?_insertListIfNewUnit [BEq α] [PartialEquivBEq α] {l : List ((
     · simp
     · cases hc : containsKey hd l
       · simp only [Bool.not_false, Bool.and_self, ↓reduceIte, Option.some_or, cond_true,
-          Option.or_some', Option.some.injEq]
+          Option.or_some, Option.some.injEq]
         rw [getEntry?_eq_none.2, Option.getD_none]
         rwa [← containsKey_congr hhd]
       · simp only [Bool.not_true, Bool.and_false, Bool.false_eq_true, ↓reduceIte, cond_true,
-          Option.or_some', getEntry?_eq_none]
+          Option.or_some, getEntry?_eq_none]
         rw [containsKey_congr hhd, containsKey_eq_isSome_getEntry?] at hc
         obtain ⟨v, hv⟩ := Option.isSome_iff_exists.1 hc
         simp [hv]
@@ -3513,7 +3521,7 @@ def alterKey (k : α) (f : Option (β k) → Option (β k))
 theorem length_alterKey {k : α} {f : Option (β k) → Option (β k)} {l : List ((a : α) × β a)} :
     (alterKey k f l).length =
       if h : containsKey k l then
-        if f (getValueCast k l h) |>.isSome then l.length else l.length - 1
+        if f (some <| getValueCast k l h) |>.isSome then l.length else l.length - 1
       else
         if f none |>.isSome then l.length + 1 else l.length := by
   rw [alterKey]
@@ -4487,10 +4495,10 @@ theorem getEntry?_filterMap' [BEq α] [EquivBEq α]
     specialize hf ⟨k', v⟩
     split
     · rename_i h
-      simp only [List.filterMap_cons, Option.some_bind]
+      simp only [List.filterMap_cons, Option.bind_some]
       simp only [containsKey_congr h] at hl
       split
-      · simp only [ih, ‹f _ = _›, Option.none_bind, getEntry?_eq_none.mpr hl.2]
+      · simp only [ih, ‹f _ = _›, Option.bind_none, getEntry?_eq_none.mpr hl.2]
       · rw [‹f _ = _›, Option.all_some, BEq.congr_right h] at hf
         rw [getEntry?_cons, hf, ‹f _ = _›, cond_true]
     · simp only [List.filterMap_cons]
@@ -4511,7 +4519,6 @@ theorem getEntry?_filter [BEq α] [EquivBEq α]
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
     getEntry? k (l.filter f) = (getEntry? k l).filter f := by
   rw [← List.filterMap_eq_filter, getEntry?_filterMap' _ hl, Option.bind_guard]
-  simp only [Bool.decide_eq_true]
   intro p
   simp only [Option.all_guard, BEq.rfl, Bool.or_true]
 
@@ -5162,7 +5169,7 @@ theorem getValue?_filterMap_of_getKey?_eq_some {β : Type v} {γ : Type w} [BEq 
   simp only [getKey?_eq_getEntry?, Option.map_eq_some_iff, getValue?_eq_getEntry?,
     getEntry?_filterMap distinct, Option.map_bind, forall_exists_index, and_imp]
   intro x hx hk
-  simp only [hx, Option.some_bind, Function.comp_apply, hk, Option.map_map, Option.map_some]
+  simp only [hx, Option.bind_some, Function.comp_apply, hk, Option.map_map, Option.map_some]
   cases f k' x.2 <;> simp
 
 theorem getValue!_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] [Inhabited γ]

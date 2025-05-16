@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Lemmas
 
@@ -38,7 +40,7 @@ theorem drop_one : ∀ {l : List α}, l.drop 1 = l.tail
   | _ + 1, [] => rfl
   | _ + 1, x :: _ => congrArg (cons x) (take_append_drop ..)
 
-@[simp] theorem length_drop : ∀ {i : Nat} {l : List α}, (drop i l).length = l.length - i
+@[simp, grind =] theorem length_drop : ∀ {i : Nat} {l : List α}, (drop i l).length = l.length - i
   | 0, _ => rfl
   | succ i, [] => Eq.symm (Nat.zero_sub (succ i))
   | succ i, x :: l => calc
@@ -128,8 +130,6 @@ theorem drop_eq_nil_iff {l : List α} {i : Nat} : l.drop i = [] ↔ l.length ≤
     · simp
     · simp only [drop] at h
       simpa [Nat.succ_le_succ_iff] using hi h
-
-@[deprecated drop_eq_nil_iff (since := "2024-09-10")] abbrev drop_eq_nil_iff_le := @drop_eq_nil_iff
 
 @[simp]
 theorem take_eq_nil_iff {l : List α} {k : Nat} : l.take k = [] ↔ k = 0 ∨ l = [] := by

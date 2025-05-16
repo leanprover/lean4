@@ -3,11 +3,14 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
 import Init.System.IOError
 import Init.System.FilePath
 import Init.System.ST
 import Init.Data.Ord
+import Init.Data.String.Extra
 
 open System
 

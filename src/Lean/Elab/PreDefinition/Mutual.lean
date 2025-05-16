@@ -52,11 +52,10 @@ Cleans the right-hand-sides of the predefinitions, to prepare for inclusion in t
  * Remove RecAppSyntax markers
  * Abstracts nested proofs (and for that, add the `_unsafe_rec` definitions)
 -/
-def cleanPreDefs (preDefs : Array PreDefinition) (cacheProofs := true) : TermElabM (Array PreDefinition) := do
-  addAndCompilePartialRec preDefs
-  let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
-  let preDefs ← preDefs.mapM (abstractNestedProofs (cache := cacheProofs) ·)
-  return preDefs
+def cleanPreDef (preDef : PreDefinition) (cacheProofs := true) : MetaM PreDefinition := do
+  let preDef ← eraseRecAppSyntax preDef
+  let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
+  return preDef
 
 /--
 Assign final attributes to the definitions. Assumes the EqnInfos to be already present.
@@ -64,8 +63,12 @@ Assign final attributes to the definitions. Assumes the EqnInfos to be already p
 def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
     markAsRecursive preDef.declName
+  for preDef in preDefs.reverse do
     -- must happen before `generateEagerEqns`
+    -- must happen in reverse order so that constants realized as part of the first decl
+    -- have realizations for the other ones enabled
     enableRealizationsForConst preDef.declName
+  for preDef in preDefs do
     generateEagerEqns preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
     -- Unless the user asks for something else, mark the definition as irreducible

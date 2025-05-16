@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
 
+module
+
 prelude
 import Init.Data.Bool
 import Init.Data.Int.Pow
@@ -11,7 +13,6 @@ import Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Simproc
 import Init.TacticsExtra
-import Init.Omega
 
 /-
 This module defines properties of the bitwise operations on Natural numbers.
@@ -523,8 +524,6 @@ theorem and_lt_two_pow (x : Nat) {y n : Nat} (right : y < 2^n) : (x &&& y) < 2^n
 
 @[deprecated and_two_pow_sub_one_eq_mod (since := "2025-03-18")]
 abbrev and_pow_two_sub_one_eq_mod := @and_two_pow_sub_one_eq_mod
-@[deprecated and_two_pow_sub_one_eq_mod (since := "2024-09-11")]
-abbrev and_pow_two_is_mod := @and_two_pow_sub_one_eq_mod
 
 theorem and_two_pow_sub_one_of_lt_two_pow {x : Nat} (lt : x < 2^n) : x &&& 2^n - 1 = x := by
   rw [and_two_pow_sub_one_eq_mod]
@@ -532,8 +531,6 @@ theorem and_two_pow_sub_one_of_lt_two_pow {x : Nat} (lt : x < 2^n) : x &&& 2^n -
 
 @[deprecated and_two_pow_sub_one_of_lt_two_pow (since := "2025-03-18")]
 abbrev and_pow_two_sub_one_of_lt_two_pow := @and_two_pow_sub_one_of_lt_two_pow
-@[deprecated and_two_pow_sub_one_of_lt_two_pow (since := "2024-09-11")]
-abbrev and_two_pow_identity := @and_two_pow_sub_one_of_lt_two_pow
 
 @[simp] theorem and_mod_two_eq_one : (a &&& b) % 2 = 1 ↔ a % 2 = 1 ∧ b % 2 = 1 := by
   simp only [mod_two_eq_one_iff_testBit_zero]

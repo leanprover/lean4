@@ -317,9 +317,12 @@ structure SynthInstanceCacheKey where
 /-- Resulting type for `abstractMVars` -/
 structure AbstractMVarsResult where
   paramNames : Array Name
-  numMVars   : Nat
+  mvars      : Array Expr
   expr       : Expr
   deriving Inhabited, BEq
+
+def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
+  r.mvars.size
 
 abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
 
@@ -2377,13 +2380,13 @@ where
   realizeAndReport (coreCtx : Core.Context) env opts := do
     let coreCtx := { coreCtx with options := opts }
     let act :=
-      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) do
+      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
         -- catch all exceptions
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
           realize
           if !(← getEnv).contains constName then
-            throwError "Lean.Meta.realizeConst: {constName} was not added to the environment"
+            throwError "Lean.Meta.realizeConst: {constName} was not added to the environment")
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     match res? with

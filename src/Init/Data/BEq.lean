@@ -3,6 +3,8 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Markus Himmel
 -/
+module
+
 prelude
 import Init.Data.Bool
 
@@ -25,7 +27,7 @@ class EquivBEq (α) [BEq α] : Prop extends PartialEquivBEq α, ReflBEq α
 theorem BEq.symm [BEq α] [PartialEquivBEq α] {a b : α} : a == b → b == a :=
   PartialEquivBEq.symm
 
-theorem BEq.comm [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = (b == a) :=
+@[grind] theorem BEq.comm [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = (b == a) :=
   Bool.eq_iff_iff.2 ⟨BEq.symm, BEq.symm⟩
 
 theorem bne_comm [BEq α] [PartialEquivBEq α] {a b : α} : (a != b) = (b != a) := by

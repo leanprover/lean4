@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Array.Extract
@@ -86,7 +88,7 @@ theorem extract_set {xs : Vector α n} {i j k : Nat} (h : k < n) {a : α} :
     (xs.set k a).extract i j =
       if _ : k < i then
         xs.extract i j
-      else if _ : k < min j xs.size then
+      else if _ : k < min j n then
         (xs.extract i j).set (k - i) a (by omega)
       else xs.extract i j := by
   rcases xs with ⟨xs, rfl⟩

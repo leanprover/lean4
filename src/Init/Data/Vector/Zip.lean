@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Array.Zip
 import Init.Data.Vector.Lemmas
@@ -241,7 +243,7 @@ theorem map_prod_right_eq_zip {xs : Vector α n} {f : α → β} :
 
 theorem zip_eq_append_iff {as : Vector α (n + m)} {bs : Vector β (n + m)} {xs : Vector (α × β) n} {ys : Vector (α × β) m} :
     zip as bs = xs ++ ys ↔
-      ∃ as₁ as₂ bs₁ bs₂, as₁.size = bs₁.size ∧ as = as₁ ++ as₂ ∧ bs = bs₁ ++ bs₂ ∧ xs = zip as₁ bs₁ ∧ ys = zip as₂ bs₂ := by
+      ∃ as₁ as₂ bs₁ bs₂, as = as₁ ++ as₂ ∧ bs = bs₁ ++ bs₂ ∧ xs = zip as₁ bs₁ ∧ ys = zip as₂ bs₂ := by
   simp [zip_eq_zipWith, zipWith_eq_append_iff]
 
 @[simp] theorem zip_replicate {a : α} {b : β} {n : Nat} :

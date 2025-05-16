@@ -542,8 +542,8 @@ private def evalLeanFile
       let deps ← ws.runBuild (withRegisterJob s!"setup ({mod.name})" do mod.deps.fetch) buildConfig
       return mkSpawnArgs ws path deps (some mod.rootDir) mod.leanArgs
     else
-      let imports ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-      let imports := imports.filterMap (ws.findModule? ·.module)
+      let res ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
+      let imports := res.imports.filterMap (ws.findModule? ·.module)
       let deps ← ws.runBuild (buildImportsAndDeps leanFile imports) buildConfig
       return mkSpawnArgs ws path deps none ws.root.moreLeanArgs
   logVerbose (mkCmdLog spawnArgs)

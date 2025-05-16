@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
   Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.List.TakeDrop
 
@@ -1089,12 +1091,5 @@ theorem prefix_iff_eq_take : l₁ <+: l₂ ↔ l₁ = take (length l₁) l₂ :=
     fun e => e.symm ▸ take_prefix _ _⟩
 
 -- See `Init.Data.List.Nat.Sublist` for `suffix_iff_eq_append`, `prefix_take_iff`, and `suffix_iff_eq_drop`.
-
-/-! ### Deprecations -/
-
-@[deprecated sublist_flatten_of_mem (since := "2024-10-14")] abbrev sublist_join_of_mem := @sublist_flatten_of_mem
-@[deprecated sublist_flatten_iff (since := "2024-10-14")] abbrev sublist_join_iff := @sublist_flatten_iff
-@[deprecated flatten_sublist_iff (since := "2024-10-14")] abbrev flatten_join_iff := @flatten_sublist_iff
-@[deprecated infix_of_mem_flatten (since := "2024-10-14")] abbrev infix_of_mem_join := @infix_of_mem_flatten
 
 end List

@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Array.Attach
@@ -67,7 +69,8 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 
 @[simp] theorem toList_attachWith {xs : Vector α n} {P : α → Prop} {H : ∀ x ∈ xs, P x} :
    (xs.attachWith P H).toList = xs.toList.attachWith P (by simpa using H) := by
-  simp [attachWith]
+  rcases xs with ⟨xs, rfl⟩
+  simp
 
 @[simp] theorem toList_attach {xs : Vector α n} :
     xs.attach.toList = xs.toList.attachWith (· ∈ xs) (by simp) := by
@@ -75,7 +78,8 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 
 @[simp] theorem toList_pmap {xs : Vector α n} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ xs, P a} :
     (xs.pmap f H).toList = xs.toList.pmap f (fun a m => H a (by simpa using m)) := by
-  simp [pmap]
+  rcases xs with ⟨xs, rfl⟩
+  simp
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
 @[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) :
@@ -490,7 +494,8 @@ def unattach {α : Type _} {p : α → Prop} (xs : Vector { x // p x } n) : Vect
 
 @[simp] theorem toList_unattach {p : α → Prop} {xs : Vector { x // p x } n} :
     xs.unattach.toList = xs.toList.unattach := by
-  simp [unattach]
+  rcases xs with ⟨xs, rfl⟩
+  simp
 
 @[simp] theorem unattach_attach {xs : Vector α n} : xs.attach.unattach = xs := by
   rcases xs with ⟨xs, rfl⟩

@@ -6,6 +6,7 @@ Authors: Mac Malone
 
 prelude
 import Init.Control.Option
+import Init.Data.Option.Coe
 import Lean.Compiler.FFI
 import Lake.Util.NativeLib
 import Lake.Config.Defaults

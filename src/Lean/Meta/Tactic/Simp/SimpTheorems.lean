@@ -122,12 +122,26 @@ structure SimpTheorem where
     It is also viewed an `id` used to "erase" `simp` theorems from `SimpTheorems`.
   -/
   origin      : Origin
-  /-- `rfl` is true if `proof` is by `Eq.refl` or `rfl`. -/
+  /--
+  `rfl` is true if `proof` is by `Eq.refl` or `rfl`.
+
+  NOTE: As the visibility of `proof` may have changed between the point of declaration and use
+  of a `@[simp]` theorem, `isRfl` must be used to check for this flag.
+  -/
   rfl         : Bool
   deriving Inhabited
 
+/-- Checks whether the theorem holds by reflexivity in the scope given by the environment. -/
+def SimpTheorem.isRfl (s : SimpTheorem) (env : Environment) : Bool := Id.run do
+  if !s.rfl then
+    return false
+  let .decl declName _ _ := s.origin |
+    return true  -- not a global simp theorem, proof visibility must be unchanged
+  -- If we can see the proof, it must hold in the current scope.
+  env.findAsync? declName matches some ({ kind := .thm, .. })
+
 mutual
-  partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
+  private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
     match type with
     | .forallE _ _ type _ =>
       if let .lam _ _ proof _ := proof then
@@ -144,23 +158,34 @@ mutual
         else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem
           -- A constant which is a `rfl` theorem is a `rfl` theorem
-          isRflTheorem proof.getAppFn.constName!
+          isRflTheoremCore proof.getAppFn.constName!
         else
           return false
       else
         return false
 
-  partial def isRflTheorem (declName : Name) : CoreM Bool := do
+  private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
     let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
     let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
     isRflProofCore info.type info.value
 end
 
+def isRflTheorem (declName : Name) : CoreM Bool :=
+  -- Make theorem body available if `declName` is from the current module; the body does not matter
+  -- for the ultimate application of a rfl theorem, only that the theorem type's LHS and RHS are
+  -- defeq.
+  withoutExporting do
+    isRflTheoremCore declName
+
 def isRflProof (proof : Expr) : MetaM Bool := do
-  if let .const declName .. := proof then
-    isRflTheorem declName
-  else
-    isRflProofCore (← inferType proof) proof
+  -- Make theorem body available if `declName` is from the current module; the body does not matter
+  -- for the ultimate application of a rfl theorem, only that the theorem type's LHS and RHS are
+  -- defeq.
+  withoutExporting do
+    if let .const declName .. := proof then
+      isRflTheoremCore declName
+    else
+      isRflProofCore (← inferType proof) proof
 
 instance : ToFormat SimpTheorem where
   format s :=

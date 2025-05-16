@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Attach
@@ -67,32 +69,6 @@ theorem foldrM_map [Monad m] [LawfulMonad m] {f : β₁ → β₂} {g : β₂ �
     (xs.map f).foldrM g init = xs.foldrM (fun x y => g (f x) y) init := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.foldrM_map]
-
-theorem foldlM_filterMap [Monad m] [LawfulMonad m] {f : α → Option β} {g : γ → β → m γ} {xs : Vector α n} {init : γ} :
-    (xs.filterMap f).foldlM g init =
-      xs.foldlM (fun x y => match f y with | some b => g x b | none => pure x) init := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldlM_filterMap]
-  rfl
-
-theorem foldrM_filterMap [Monad m] [LawfulMonad m] {f : α → Option β} {g : β → γ → m γ} {xs : Vector α n} {init : γ} :
-    (xs.filterMap f).foldrM g init =
-      xs.foldrM (fun x y => match f x with | some b => g b y | none => pure y) init := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldrM_filterMap]
-  rfl
-
-theorem foldlM_filter [Monad m] [LawfulMonad m] {p : α → Bool} {g : β → α → m β} {xs : Vector α n} {init : β} :
-    (xs.filter p).foldlM g init =
-      xs.foldlM (fun x y => if p y then g x y else pure x) init := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldlM_filter]
-
-theorem foldrM_filter [Monad m] [LawfulMonad m] {p : α → Bool} {g : α → β → m β} {xs : Vector α n} {init : β} :
-    (xs.filter p).foldrM g init =
-      xs.foldrM (fun x y => if p x then g x y else pure y) init := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldrM_filter]
 
 @[simp] theorem foldlM_attachWith [Monad m]
     {xs : Vector α n} {q : α → Prop} (H : ∀ a, a ∈ xs → q a) {f : β → { x // q x} → m β} {b} :

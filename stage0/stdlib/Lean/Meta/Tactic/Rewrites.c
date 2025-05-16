@@ -335,6 +335,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Rewrites_RewriteResult_newGoal___boxed(lean
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Meta_Rewrites_rwLemma___lambda__3___closed__2;
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Meta_Rewrites_takeListAux___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Rewrites___hyg_5____closed__7;
@@ -393,7 +394,6 @@ lean_object* l_Lean_Meta_whnfR(lean_object*, lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Meta_Rewrites_solveByElim___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Rewrites_solveByElim___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Rewrites_RwDirection_toCtorIdx(uint8_t);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Rewrites___hyg_5____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Rewrites_rwLemma___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Rewrites_RwDirection_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
@@ -4547,7 +4547,7 @@ x_33 = lean_ctor_get(x_25, 1);
 lean_inc(x_33);
 lean_dec(x_25);
 x_34 = l_Lean_Meta_Rewrites_solveByElim___lambda__3___closed__2;
-x_35 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_34, x_3, x_4, x_5, x_6, x_33);
+x_35 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_34, x_3, x_4, x_5, x_6, x_33);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -18100,7 +18100,6 @@ lean_object* x_27; lean_object* x_28;
 x_27 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_27, 0, x_16);
 x_28 = l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion(x_3, x_22, x_24, x_25, x_26, x_27, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_17);
-lean_dec(x_26);
 return x_28;
 }
 else
@@ -18112,7 +18111,6 @@ if (x_29 == 0)
 {
 lean_object* x_30; 
 x_30 = l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion(x_3, x_22, x_24, x_25, x_26, x_2, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_17);
-lean_dec(x_26);
 return x_30;
 }
 else
@@ -18124,7 +18122,6 @@ lean_dec(x_2);
 x_32 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_32, 0, x_31);
 x_33 = l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion(x_3, x_22, x_24, x_25, x_26, x_32, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_17);
-lean_dec(x_26);
 return x_33;
 }
 }
@@ -18159,7 +18156,6 @@ lean_object* x_46; lean_object* x_47;
 x_46 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_46, 0, x_34);
 x_47 = l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion(x_3, x_41, x_43, x_44, x_45, x_46, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_35);
-lean_dec(x_45);
 return x_47;
 }
 else
@@ -18182,7 +18178,6 @@ if (lean_is_scalar(x_49)) {
 }
 lean_ctor_set(x_50, 0, x_48);
 x_51 = l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion(x_3, x_41, x_43, x_44, x_45, x_50, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_35);
-lean_dec(x_45);
 return x_51;
 }
 }
@@ -18207,7 +18202,6 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_Lean_Meta_Rewrites_RewriteResult_addSuggestion___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_13;
 }

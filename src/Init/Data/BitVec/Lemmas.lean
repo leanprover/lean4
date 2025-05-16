@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth Bhat
 
 -/
+module
+
 prelude
 import Init.Data.Bool
 import Init.Data.BitVec.Basic
@@ -20,6 +22,9 @@ import Init.Data.Int.LemmasAux
 set_option linter.missingDocs true
 
 namespace BitVec
+
+@[simp] theorem mk_zero : BitVec.ofFin (w := w) ⟨0, h⟩ = 0#w := rfl
+@[simp] theorem ofNatLT_zero : BitVec.ofNatLT (w := w) 0 h = 0#w := rfl
 
 @[simp] theorem getLsbD_ofFin (x : Fin (2^n)) (i : Nat) :
     getLsbD (BitVec.ofFin x) i = x.val.testBit i := rfl
@@ -135,6 +140,8 @@ theorem toNat_ne_iff_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y :
 
 @[bitvec_to_nat] theorem toNat_eq {x y : BitVec n} : x = y ↔ x.toNat = y.toNat :=
   Iff.intro (congrArg BitVec.toNat) eq_of_toNat_eq
+
+theorem toNat_inj {x y : BitVec n} : x.toNat = y.toNat ↔ x = y := toNat_eq.symm
 
 @[bitvec_to_nat] theorem toNat_ne {x y : BitVec n} : x ≠ y ↔ x.toNat ≠ y.toNat := by
   rw [Ne, toNat_eq]
@@ -308,6 +315,12 @@ theorem ofFin_ofNat (n : Nat) :
     ofFin (no_index (OfNat.ofNat n : Fin (2^w))) = OfNat.ofNat n := by
   simp only [OfNat.ofNat, Fin.ofNat', BitVec.ofNat, Nat.and_two_pow_sub_one_eq_mod]
 
+@[simp] theorem ofFin_neg {x : Fin (2 ^ w)} : ofFin (-x) = -(ofFin x) := by
+  rfl
+
+@[simp, norm_cast] theorem ofFin_natCast (n : Nat) : ofFin (n : Fin (2^w)) = (n : BitVec w) := by
+  rfl
+
 theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
@@ -322,6 +335,9 @@ theorem toFin_inj {x y : BitVec w} : x.toFin = y.toFin ↔ x = y := by
 theorem toFin_zero : toFin (0 : BitVec w) = 0 := rfl
 theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
   rw [toFin_inj]; simp only [ofNat_eq_ofNat, ofFin_ofNat]
+
+@[simp, norm_cast] theorem toFin_natCast (n : Nat) : toFin (n : BitVec w) = (n : Fin (2^w)) := by
+  rfl
 
 @[simp] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by
   cases b <;> rfl
@@ -511,6 +527,10 @@ theorem getElem_ofBool {b : Bool} {h : i < 1}: (ofBool b)[i] = b := by
   · rintro rfl
     simp
 
+/-- `0#w = 1#w` iff the width is zero. -/
+@[simp] theorem zero_eq_one_iff (w : Nat) : (0#w = 1#w) ↔ (w = 0) := by
+  rw [← one_eq_zero_iff, eq_comm]
+
 /-! ### msb -/
 
 @[simp] theorem msb_zero : (0#w).msb = false := by simp [BitVec.msb, getMsbD]
@@ -613,10 +633,10 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
   simp only [toInt_eq_toNat_cond]
   split
   next g =>
-    rw [Int.bmod_pos] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
+    rw [Int.bmod_pos] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
     omega
   next g =>
-    rw [Int.bmod_neg] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
+    rw [Int.bmod_neg] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
     omega
 
 theorem toInt_neg_of_msb_true {x : BitVec w} (h : x.msb = true) : x.toInt < 0 := by
@@ -632,12 +652,12 @@ theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.t
 @[simp] theorem toInt_one_of_lt {w : Nat} (h : 1 < w) : (1#w).toInt = 1 := by
   rw [toInt_eq_msb_cond]
   simp only [msb_one, show w ≠ 1 by omega, decide_false, Bool.false_eq_true, ↓reduceIte,
-    toNat_ofNat, Int.ofNat_emod]
+    toNat_ofNat, Int.natCast_emod]
   norm_cast
   apply Nat.mod_eq_of_lt
   apply Nat.one_lt_two_pow (by omega)
 
-/-- Prove equality of bitvectors in terms of nat operations. -/
+/-- Prove equality of bitvectors in terms of integer operations. -/
 theorem eq_of_toInt_eq {x y : BitVec n} : x.toInt = y.toInt → x = y := by
   intro eq
   simp only [toInt_eq_toNat_cond] at eq
@@ -660,6 +680,10 @@ theorem toInt_ne {x y : BitVec n} : x.toInt ≠ y.toInt ↔ x ≠ y  := by
 
 theorem toInt_ofNat {n : Nat} (x : Nat) : (BitVec.ofNat n x).toInt = (x : Int).bmod (2^n) := by
   simp [toInt_eq_toNat_bmod, -Int.natCast_pow]
+
+@[simp] theorem toInt_ofFin {w : Nat} (x : Fin (2^w)) :
+    (BitVec.ofFin x).toInt = Int.bmod x (2^w) := by
+  simp [toInt_eq_toNat_bmod]
 
 @[simp] theorem toInt_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toInt = i.bmod (2^n) := by
@@ -766,7 +790,6 @@ theorem le_two_mul_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
 
-
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   by_cases h : w = 0
   · subst h
@@ -781,6 +804,17 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   rw [toInt_ofInt, Int.bmod_eq_of_le_mul_two]
   · simpa [Int.mul_comm _ 2] using le_two_mul_toInt
   · simpa [Int.mul_comm _ 2] using two_mul_toInt_lt
+
+@[simp] theorem toNat_intCast {w : Nat} (x : Int) : (x : BitVec w).toNat = (x % 2^w).toNat := by
+  change (BitVec.ofInt w x).toNat = _
+  simp
+
+@[simp] theorem toInt_intCast {w : Nat} (x : Int) : (x : BitVec w).toInt = Int.bmod x (2^w) := by
+  rw [toInt_eq_toNat_bmod, toNat_intCast, Int.natCast_toNat_eq_self.mpr]
+  · have h : (2 ^ w : Int) = (2 ^ w : Nat) := by simp
+    rw [h, Int.emod_bmod]
+  · apply Int.emod_nonneg
+    exact Int.pow_ne_zero (by decide)
 
 /-! ### sle/slt -/
 
@@ -2541,7 +2575,7 @@ where
       simp [getElem_signExtend, Nat.le_sub_one_of_lt hv]
       omega
     have H : 2^w ≤ 2^v := Nat.pow_le_pow_right (by omega) (by omega)
-    simp only [this, toNat_setWidth, Int.natCast_add, Int.ofNat_emod, Int.natCast_mul]
+    simp only [this, toNat_setWidth, Int.natCast_add, Int.natCast_emod, Int.natCast_mul]
     by_cases h : x.msb
     <;> norm_cast
     <;> simp [h, Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le x.isLt H), -Int.natCast_pow]
@@ -3074,10 +3108,6 @@ theorem setWidth_succ (x : BitVec w) :
   · by_cases h' : i < w
     · simp_all
     · omega
-
-@[deprecated "Use the reverse direction of `cons_msb_setWidth`" (since := "2024-09-23")]
-theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)) := by
-  simp
 
 @[simp] theorem not_cons (x : BitVec w) (b : Bool) : ~~~(cons b x) = cons (!b) (~~~x) := by
   simp [cons]
@@ -3864,7 +3894,7 @@ theorem le_zero_iff {x : BitVec w} : x ≤ 0#w ↔ x = 0#w := by
 theorem lt_one_iff {x : BitVec w} (h : 0 < w) : x < 1#w ↔ x = 0#w := by
   constructor
   · intro h₂
-    rw [lt_def, toNat_ofNat, ← Int.ofNat_lt, Int.ofNat_emod, Int.ofNat_one, Int.natCast_pow,
+    rw [lt_def, toNat_ofNat, ← Int.ofNat_lt, Int.natCast_emod, Int.ofNat_one, Int.natCast_pow,
       Int.ofNat_two, @Int.emod_eq_of_lt 1 (2^w) (by omega) (by omega)] at h₂
     simp [toNat_eq, show x.toNat = 0 by omega]
   · simp_all
@@ -4142,6 +4172,110 @@ theorem sdiv_self {x : BitVec w} :
     · subst h
       rcases x.msb with msb | msb <;> simp
     · rcases x.msb with msb | msb <;> simp [h]
+
+/-- Unsigned division never overflows. -/
+theorem toNat_div_toNat_lt {w : Nat} {x y : BitVec w} :
+    x.toNat / y.toNat < 2 ^ w := by
+  have hy : y.toNat = 0 ∨ y.toNat = 1 ∨ 1 < y.toNat := by omega
+  rcases hy with hy|hy|hy
+  · simp [hy]; omega
+  · simp [hy]; omega
+  · rw [Nat.div_lt_iff_lt_mul (k := y.toNat) (x := x.toNat) (y := 2 ^ w) (by omega), show x.toNat = x.toNat * 1 by omega]
+    apply Nat.mul_lt_mul_of_le_of_lt (by omega) (by omega) (by omega)
+
+/-- Non-overflowing signed division bounds when numerator is nonneg, denominator is nonneg. -/
+theorem toInt_ediv_toInt_lt_of_nonneg_of_nonneg {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : 0 ≤ y.toInt) :
+    x.toInt / y.toInt < 2 ^ (w - 1) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    by_cases hy' : y.toInt = 1
+    · simp [hy', Int.ediv_one]; omega
+    · by_cases hx' : x.toInt = 0
+      · simp only [hx', Int.zero_ediv, Nat.add_one_sub_one, gt_iff_lt]
+        norm_cast
+        exact Nat.two_pow_pos (w := w)
+      · have := Int.ediv_lt_self_of_pos_of_ne_one (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+        simp; omega
+
+/-- Non-overflowing signed division bounds when numerator is nonpos, denominator is nonneg. -/
+theorem toInt_ediv_toInt_nonpos_of_nonpos_of_nonneg {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : 0 ≤ y.toInt) :
+    x.toInt / y.toInt ≤ 0 := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · by_cases hx' : x.toInt = 0
+    · simp [hx']
+    · by_cases hy' : y.toInt = 0
+      · simp [hy']
+      · have := Int.ediv_neg_of_neg_of_pos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+        simp; omega
+
+/-- Non-overflowing signed division bounds when numerator is nonneg, denominator is nonpos. -/
+theorem toInt_ediv_toInt_nonpos_of_nonneg_of_nonpos {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : y.toInt ≤ 0) :
+   x.toInt / y.toInt ≤ 0 := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · by_cases hy' : y.toInt = -1
+    · simp [hy']; omega
+    · have := Int.ediv_nonpos_of_nonneg_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+      simp; omega
+
+/-- Given the definition of ediv/emod for signed integer division (https://dl.acm.org/doi/pdf/10.1145/128861.128862)
+  we have that for two integers `x` and `y`: `x/y = q ↔ x.ediv y = q ↔ r = x.emod y`
+  and in particular: `-1/y = q ↔ -1.ediv y = q ↔ r = -1.emod y`.
+  from which it follows that:
+  (-1)/0 = 0
+  (-1)/y = -1 when 0 < y
+  (-1)/(-5) = 1 when y < 0
+-/
+theorem neg_one_ediv_toInt_eq {w : Nat} {y : BitVec w} :
+    (-1) / y.toInt = if y.toInt = 0 then 0 else if 0 < y.toInt then -1 else 1 := by
+  rcases w with _|_|w
+  · simp [of_length_zero]
+  · cases eq_zero_or_eq_one y
+    · case _ h => simp [h]
+    · case _ h => simp [h]
+  · by_cases 0 < y.toInt
+    · simp [Int.sign_eq_one_of_pos (a := y.toInt) (by omega), Int.neg_one_ediv]
+      omega
+    · by_cases hy : y.toInt = 0
+      · simp [hy]
+      · simp [Int.sign_eq_neg_one_of_neg (a := y.toInt) (by omega), Int.neg_one_ediv]
+        omega
+
+/-- Non-overflowing signed division bounds when numerator is nonpos, denominator is less than -1. -/
+theorem toInt_ediv_toInt_lt_of_nonpos_of_lt_neg_one {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : y.toInt < -1) :
+    x.toInt / y.toInt < 2 ^ (w - 1) := by
+  rcases w with _|_|w
+  · simp [of_length_zero]
+  · have hy := eq_zero_or_eq_one (a := y)
+    simp [← toInt_inj, toInt_zero, toInt_one] at hy
+    omega
+  · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    have hx' : x.toInt = 0 ∨ x.toInt = - 1 ∨ x.toInt < - 1 := by omega
+    rcases hx' with hx'|hx'|hx'
+    · simp [hx']; omega
+    · have := BitVec.neg_one_ediv_toInt_eq (y := y)
+      simp only [toInt_allOnes, Nat.lt_add_left_iff_pos, Nat.zero_lt_succ, ↓reduceIte,
+        Int.reduceNeg] at this
+      simp [hx', this]
+      omega
+    · have := Int.ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one (x := x.toInt) (y := y.toInt) (by omega) hy
+      simp; omega
+
+/-- Signed division of (x y : BitVec w) is always -2 ^ w ≤ x.toInt / y.toInt. -/
+theorem neg_two_pow_le_toInt_ediv {x y : BitVec w} :
+    - 2 ^ (w - 1) ≤ x.toInt / y.toInt := by
+  have xlt := @toInt_lt w x; have lex := @le_toInt w x
+  by_cases hx : 0 ≤ x.toInt <;> by_cases hy : 0 ≤ y.toInt
+  · have := Int.ediv_nonneg_of_nonneg_of_nonneg (x := x.toInt) (y := y.toInt) hx hy
+    omega
+  · have := Int.neg_self_le_ediv_of_nonneg_of_nonpos (x := x.toInt) (y := y.toInt) hx (by omega)
+    omega
+  · have := Int.self_le_ediv_of_nonpos_of_nonneg (x := x.toInt) (y := y.toInt) (by omega) hy
+    omega
+  · have := Int.ediv_nonneg_of_nonpos_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+    omega
 
 /-! ### smtSDiv -/
 
@@ -4945,7 +5079,7 @@ theorem toInt_intMin_le (x : BitVec w) :
   cases w
   case zero => simp [toInt_intMin, @of_length_zero x]
   case succ w =>
-    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.natCast_emod]
     have : 0 < 2 ^ w := Nat.two_pow_pos w
     rw [Int.emod_eq_of_lt (by omega) (by omega)]
     rw [BitVec.toInt_eq_toNat_bmod]
@@ -5140,6 +5274,22 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
   omega
 
+theorem sdiv_neg_one {w : Nat} {x : BitVec w} :
+    x.toInt / -1 = -x.toInt := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · simp [toInt_allOnes]
+
+theorem sdivOverflow_eq_negOverflow_of_eq_allOnes {w : Nat} {x y : BitVec w} (hy : y = allOnes w) :
+    sdivOverflow x y = negOverflow x := by
+  rcases w with _|w
+  · simp [sdivOverflow, negOverflow, of_length_zero]
+  · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    simp only [sdivOverflow, hy, show ¬2 ^ w < x.toInt by omega, negOverflow]
+    by_cases hx : x.toInt = - 2 ^ w
+    · simp [hx]
+    · simp [show ¬x.toInt == -2 ^ w by simp only [beq_iff_eq, hx, not_false_eq_true]]; omega
+
 theorem two_pow_le_toInt_mul_toInt_iff {x y : BitVec w} :
     2 ^ (w - 1) ≤ x.toInt * y.toInt ↔
       (signExtend (w * 2) (intMax w)).slt (signExtend (w * 2) x * signExtend (w * 2) y) := by
@@ -5184,6 +5334,14 @@ theorem msb_eq_toInt {x : BitVec w}:
 theorem msb_eq_toNat {x : BitVec w}:
     x.msb = decide (x.toNat ≥ 2 ^ (w - 1)) := by
   simp only [msb_eq_decide, ge_iff_le]
+
+/-- Negating a bitvector created from a natural number equals
+creating a bitvector from the the negative of that number.
+-/
+theorem neg_ofNat_eq_ofInt_neg {w : Nat} {x : Nat} :
+    - BitVec.ofNat w x = BitVec.ofInt w (- x) := by
+  apply BitVec.eq_of_toInt_eq
+  simp [BitVec.toInt_neg, BitVec.toInt_ofNat]
 
 /-! ### abs -/
 
@@ -5419,150 +5577,6 @@ abbrev toFin_uShiftRight := @toFin_ushiftRight
 
 @[deprecated signExtend_eq_setWidth_of_msb_false (since := "2024-12-08")]
 abbrev signExtend_eq_not_setWidth_not_of_msb_false := @signExtend_eq_setWidth_of_msb_false
-
-@[deprecated truncate_eq_setWidth (since := "2024-09-18")]
-abbrev truncate_eq_zeroExtend := @truncate_eq_setWidth
-
-@[deprecated toNat_setWidth' (since := "2024-09-18")]
-abbrev toNat_zeroExtend' := @toNat_setWidth'
-
-@[deprecated toNat_setWidth (since := "2024-09-18")]
-abbrev toNat_zeroExtend := @toNat_setWidth
-
-@[deprecated toNat_setWidth (since := "2024-09-18")]
-abbrev toNat_truncate := @toNat_setWidth
-
-@[deprecated setWidth_eq (since := "2024-09-18")]
-abbrev zeroExtend_eq := @setWidth_eq
-
-@[deprecated setWidth_eq (since := "2024-09-18")]
-abbrev truncate_eq := @setWidth_eq
-
-@[deprecated setWidth_zero (since := "2024-09-18")]
-abbrev zeroExtend_zero := @setWidth_zero
-
-@[deprecated getElem_setWidth (since := "2024-09-18")]
-abbrev getElem_zeroExtend := @getElem_setWidth
-
-@[deprecated getElem_setWidth' (since := "2024-09-18")]
-abbrev getElem_zeroExtend' := @getElem_setWidth'
-
-@[deprecated getElem?_setWidth (since := "2024-09-18")]
-abbrev getElem?_zeroExtend := @getElem?_setWidth
-
-@[deprecated getElem?_setWidth' (since := "2024-09-18")]
-abbrev getElem?_zeroExtend' := @getElem?_setWidth'
-
-@[deprecated getLsbD_setWidth (since := "2024-09-18")]
-abbrev getLsbD_zeroExtend := @getLsbD_setWidth
-
-@[deprecated getLsbD_setWidth' (since := "2024-09-18")]
-abbrev getLsbD_zeroExtend' := @getLsbD_setWidth'
-
-@[deprecated getMsbD_setWidth_add (since := "2024-09-18")]
-abbrev getMsbD_zeroExtend_add := @getMsbD_setWidth_add
-
-@[deprecated getMsbD_setWidth' (since := "2024-09-18")]
-abbrev getMsbD_zeroExtend' := @getMsbD_setWidth'
-
-@[deprecated getElem_setWidth (since := "2024-09-18")]
-abbrev getElem_truncate := @getElem_setWidth
-
-@[deprecated getElem?_setWidth (since := "2024-09-18")]
-abbrev getElem?_truncate := @getElem?_setWidth
-
-@[deprecated getLsbD_setWidth (since := "2024-09-18")]
-abbrev getLsbD_truncate := @getLsbD_setWidth
-
-@[deprecated msb_setWidth (since := "2024-09-18")]
-abbrev msb_truncate := @msb_setWidth
-
-@[deprecated cast_setWidth (since := "2024-09-18")]
-abbrev cast_zeroExtend := @cast_setWidth
-
-@[deprecated cast_setWidth (since := "2024-09-18")]
-abbrev cast_truncate := @cast_setWidth
-
-@[deprecated setWidth_setWidth_of_le (since := "2024-09-18")]
-abbrev zeroExtend_zeroExtend_of_le := @setWidth_setWidth_of_le
-
-@[deprecated setWidth_eq (since := "2024-09-18")]
-abbrev truncate_eq_self := @setWidth_eq
-
-@[deprecated setWidth_cast (since := "2024-09-18")]
-abbrev truncate_cast := @setWidth_cast
-
-@[deprecated msb_setWidth (since := "2024-09-18")]
-abbrev mbs_zeroExtend := @msb_setWidth
-
-@[deprecated msb_setWidth' (since := "2024-09-18")]
-abbrev mbs_zeroExtend' := @msb_setWidth'
-
-@[deprecated setWidth_one_eq_ofBool_getLsb_zero (since := "2024-09-18")]
-abbrev zeroExtend_one_eq_ofBool_getLsb_zero := @setWidth_one_eq_ofBool_getLsb_zero
-
-@[deprecated setWidth_ofNat_one_eq_ofNat_one_of_lt (since := "2024-09-18")]
-abbrev zeroExtend_ofNat_one_eq_ofNat_one_of_lt := @setWidth_ofNat_one_eq_ofNat_one_of_lt
-
-@[deprecated setWidth_one (since := "2024-09-18")]
-abbrev truncate_one := @setWidth_one
-
-@[deprecated setWidth_ofNat_of_le (since := "2024-09-18")]
-abbrev truncate_ofNat_of_le := @setWidth_ofNat_of_le
-
-@[deprecated setWidth_or (since := "2024-09-18")]
-abbrev truncate_or := @setWidth_or
-
-@[deprecated setWidth_and (since := "2024-09-18")]
-abbrev truncate_and := @setWidth_and
-
-@[deprecated setWidth_xor (since := "2024-09-18")]
-abbrev truncate_xor := @setWidth_xor
-
-@[deprecated setWidth_not (since := "2024-09-18")]
-abbrev truncate_not := @setWidth_not
-
-@[deprecated signExtend_eq_setWidth_of_msb_false  (since := "2024-09-18")]
-abbrev signExtend_eq_not_zeroExtend_not_of_msb_false  := @signExtend_eq_setWidth_of_msb_false
-
-@[deprecated signExtend_eq_not_setWidth_not_of_msb_true (since := "2024-09-18")]
-abbrev signExtend_eq_not_zeroExtend_not_of_msb_true := @signExtend_eq_not_setWidth_not_of_msb_true
-
-@[deprecated signExtend_eq_setWidth_of_lt (since := "2024-09-18")]
-abbrev signExtend_eq_truncate_of_lt := @signExtend_eq_setWidth_of_le
-
-@[deprecated truncate_append (since := "2024-09-18")]
-abbrev truncate_append := @setWidth_append
-
-@[deprecated truncate_append_of_eq (since := "2024-09-18")]
-abbrev truncate_append_of_eq := @setWidth_append_of_eq
-
-@[deprecated truncate_cons (since := "2024-09-18")]
-abbrev truncate_cons := @setWidth_cons
-
-@[deprecated truncate_succ (since := "2024-09-18")]
-abbrev truncate_succ := @setWidth_succ
-
-@[deprecated truncate_add (since := "2024-09-18")]
-abbrev truncate_add := @setWidth_add
-
-@[deprecated setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (since := "2024-09-18")]
-abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsbD_false := @setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
-
-@[deprecated setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true (since := "2024-09-18")]
-abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true := @setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
-
-@[deprecated and_one_eq_setWidth_ofBool_getLsbD (since := "2024-09-18")]
-abbrev and_one_eq_zeroExtend_ofBool_getLsbD := @and_one_eq_setWidth_ofBool_getLsbD
-
-@[deprecated msb_sshiftRight (since := "2024-10-03")]
-abbrev sshiftRight_msb_eq_msb := @msb_sshiftRight
-
-@[deprecated shiftLeft_zero (since := "2024-10-27")]
-abbrev shiftLeft_zero_eq := @shiftLeft_zero
-
-@[deprecated ushiftRight_zero (since := "2024-10-27")]
-abbrev ushiftRight_zero_eq := @ushiftRight_zero
 
 @[deprecated replicate_zero (since := "2025-01-08")]
 abbrev replicate_zero_eq := @replicate_zero

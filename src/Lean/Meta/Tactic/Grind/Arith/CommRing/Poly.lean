@@ -70,13 +70,22 @@ structure SPolResult where
   /-- The computed S-polynomial. -/
   spol : Poly := .num 0
   /-- Coefficient applied to polynomial `p₁`. -/
-  c₁   : Int  := 0
+  k₁   : Int  := 0
   /-- Monomial factor applied to polynomial `p₁`. -/
   m₁   : Mon  := .unit
   /-- Coefficient applied to polynomial `p₂`. -/
-  c₂   : Int  := 0
+  k₂   : Int  := 0
   /-- Monomial factor applied to polynomial `p₂`. -/
   m₂   : Mon  := .unit
+
+def Poly.mulConst' (p : Poly) (k : Int) (char? : Option Nat := none) : Poly :=
+  if let some char := char? then p.mulConstC k char else p.mulConst k
+
+def Poly.mulMon' (p : Poly) (k : Int) (m : Mon) (char? : Option Nat := none) : Poly :=
+  if let some char := char? then p.mulMonC k m char else p.mulMon k m
+
+def Poly.combine' (p₁ p₂ : Poly) (char? : Option Nat := none) : Poly :=
+  if let some char := char? then p₁.combineC p₂ char else p₁.combine p₂
 
 /--
 Returns the S-polynomial of polynomials `p₁` and `p₂`, and coefficients&terms used to construct it.
@@ -84,8 +93,9 @@ Given polynomials with leading terms `k₁*m₁` and `k₂*m₂`, the S-polynomi
 ```
 S(p₁, p₂) = (k₂/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₁) * p₁ - (k₁/gcd(k₁, k₂)) * (lcm(m₁, m₂)/m₂) * p₂
 ```
+Remark: if `char? = some c`, then `c` is the characteristic of the ring.
 -/
-def Poly.spol (p₁ p₂ : Poly) : SPolResult  :=
+def Poly.spol (p₁ p₂ : Poly) (char? : Option Nat := none) : SPolResult  :=
   match p₁, p₂ with
   | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
     let m    := m₁.lcm m₂
@@ -94,17 +104,17 @@ def Poly.spol (p₁ p₂ : Poly) : SPolResult  :=
     let g    := Nat.gcd k₁.natAbs k₂.natAbs
     let c₁   := k₂/g
     let c₂   := -k₁/g
-    let p₁   := p₁.mulMon c₁ m₁
-    let p₂   := p₂.mulMon c₂ m₂
-    let spol := p₁.combine p₂
-    { spol, c₁, m₁, c₂, m₂ }
+    let p₁   := p₁.mulMon' c₁ m₁ char?
+    let p₂   := p₂.mulMon' c₂ m₂ char?
+    let spol := p₁.combine' p₂ char?
+    { spol, m₁, m₂, k₁ := c₁, k₂ := c₂ }
   | _, _ => {}
 
 /--
-Result of simplifying a polynomial `p₂` using a polynomial `p₁`.
+Result of simplifying a polynomial `p₁` using a polynomial `p₂`.
 
-The simplification rewrites the first monomial of `p₂` that can be divided
-by the leading monomial of `p₁`.
+The simplification rewrites the first monomial of `p₁` that can be divided
+by the leading monomial of `p₂`.
 -/
 structure SimpResult where
   /-- The resulting simplified polynomial after rewriting. -/
@@ -113,34 +123,43 @@ structure SimpResult where
   k₁ : Int  := 0
   /-- The integer coefficient multiplied with polynomial `p₂` during rewriting. -/
   k₂ : Int  := 0
-  /-- The monomial factor applied to polynomial `p₁`. -/
-  m  : Mon  := .unit
+  /-- The monomial factor applied to polynomial `p₂`. -/
+  m₂ : Mon  := .unit
 
 /--
-Simplifies polynomial `p₂` using polynomial `p₁` by rewriting.
+Simplifies polynomial `p₁` using polynomial `p₂` by rewriting.
 
-This function attempts to rewrite `p₂` by eliminating the first occurrence of
-the leading monomial of `p₁`.
+This function attempts to rewrite `p₁` by eliminating the first occurrence of
+the leading monomial of `p₂`.
+
+Remark: if `char? = some c`, then `c` is the characteristic of the ring.
 -/
-def Poly.simp? (p₁ p₂ : Poly) : Option SimpResult :=
-  match p₁ with
-  | .add k₁' m₁ p₁ =>
-    let rec go? (p₂ : Poly) : Option SimpResult :=
-      match p₂ with
-      | .add k₂' m₂ p₂ =>
-        if m₁.divides m₂ then
-          let m  := m₂.div m₁
+def Poly.simp? (p₁ p₂ : Poly) (char? : Option Nat := none) : Option SimpResult :=
+  match p₂ with
+  | .add k₂' m₂ p₂ =>
+    let rec go? (p₁ : Poly) : Option SimpResult :=
+      match p₁ with
+      | .add k₁' m₁ p₁ =>
+        if m₂.divides m₁ then
+          let m₂ := m₁.div m₂
           let g  := Nat.gcd k₁'.natAbs k₂'.natAbs
-          let k₁ := -k₂'/g
-          let k₂ := k₁'/g
-          let p  := (p₁.mulMon k₁ m).combine (p₂.mulConst k₂)
-          some { p, k₁, k₂, m }
-        else if let some r := go? p₂ then
-          some { r with p := .add (k₂'*r.k₂) m₂ r.p }
+          let k₁ := k₂'/g
+          let k₂ := -k₁'/g
+          let p  := (p₂.mulMon' k₂ m₂ char?).combine' (p₁.mulConst' k₁ char?) char?
+          some { p, k₁, k₂, m₂ }
+        else if let some r := go? p₁ then
+          if let some char := char? then
+            let k := (k₁'*r.k₁) % char
+            if k == 0 then
+              some r
+            else
+              some { r with p := .add k m₁ r.p }
+          else
+            some { r with p := .add (k₁'*r.k₁) m₁ r.p }
         else
           none
       | .num _ => none
-    go? p₂
+    go? p₁
   | _ => none
 
 def Poly.degree : Poly → Nat
@@ -162,5 +181,46 @@ def Poly.lc : Poly → Int
 def Poly.lm : Poly → Mon
  | .num _ => .unit
  | .add _ m _ => m
+
+def Poly.isZero : Poly → Bool
+  | .num 0 => true
+  | _ => false
+
+def Poly.checkCoeffs : Poly → Bool
+  | .num _ => true
+  | .add k _ p => k != 0 && checkCoeffs p
+
+def Poly.checkNoUnitMon : Poly → Bool
+  | .num _ => true
+  | .add _ .unit _ => false
+  | .add _ _ p => p.checkNoUnitMon
+
+def Poly.gcdCoeffs : Poly → Nat
+  | .num k => k.natAbs
+  | .add k _ p => go p k.natAbs
+where
+  go (p : Poly) (acc : Nat) : Nat :=
+    if acc == 1 then
+      acc
+    else match p with
+      | .num k => Nat.gcd acc k.natAbs
+      | .add k _ p => go p (Nat.gcd acc k.natAbs)
+
+def Poly.divConst (p : Poly) (a : Int) : Poly :=
+  match p with
+  | .num k => .num (k / a)
+  | .add k m p => .add (k / a) m (divConst p a)
+
+def Mon.size : Mon → Nat
+  | .unit => 0
+  | .mult _ m => m.size + 1
+
+def Poly.size : Poly → Nat
+  | .num _ => 1
+  | .add _ m p => m.size + 1 + p.size
+
+def Poly.length : Poly → Nat
+  | .num _ => 0
+  | .add _ _ p => 1 + p.length
 
 end Lean.Grind.CommRing

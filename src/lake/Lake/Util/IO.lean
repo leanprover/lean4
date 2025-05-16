@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Init.System.IO
+import Init.Data.Option.Coe
 
 namespace Lake
 

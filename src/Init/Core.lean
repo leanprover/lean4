@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 
 notation, basic datatypes and type classes
 -/
+module
+
 prelude
 import Init.Prelude
 import Init.SizeOf
@@ -20,6 +22,8 @@ which applies to all applications of the function).
 @[simp] def inline {α : Sort u} (a : α) : α := a
 
 theorem id_def {α : Sort u} (a : α) : id a = a := rfl
+
+attribute [grind] id
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -46,6 +50,9 @@ theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g =
   rfl
 @[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
   rfl
+
+@[simp] theorem Function.comp_id (f : α → β) : f ∘ id = f := rfl
+@[simp] theorem Function.id_comp (f : α → β) : id ∘ f = f := rfl
 
 attribute [simp] namedPattern
 
@@ -937,6 +944,34 @@ theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') 
   | rfl, p => HEq.refl p
 
 /--
+Heterogenous equality with an `Eq.rec` application on the left is equivalent to a heterogenous
+equality on the original term.
+-/
+theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
+    HEq (@Eq.rec α a motive refl b h) c ↔ HEq refl c :=
+  h.rec (fun _ => ⟨id, id⟩) c
+
+/--
+Heterogenous equality with an `Eq.rec` application on the right is equivalent to a heterogenous
+equality on the original term.
+-/
+theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
+    HEq c (@Eq.rec α a motive refl b h) ↔ HEq c refl :=
+  h.rec (fun _ => ⟨id, id⟩) c
+
+/--
+Moves an cast using `Eq.rec` from the function to the argument.
+Note: because the motive isn't reliably detected by unification,
+it needs to be provided as an explicit parameter.
+-/
+theorem apply_eqRec {α : Sort u} {a : α} (motive : (b : α) → a = b → Sort v)
+    {b : α} {h : a = b} {c : motive a (Eq.refl a) → β} {d : motive b h} :
+    @Eq.rec α a (fun b h => motive b h → β) c b h d = c (h.symm ▸ d) := by
+  cases h; rfl
+
+/--
 If casting a term with `Eq.rec` to another type makes it equal to some other term, then the two
 terms are heterogeneously equal.
 -/
@@ -981,7 +1016,7 @@ theorem HEq.comm {a : α} {b : β} : HEq a b ↔ HEq b a := Iff.intro HEq.symm H
 theorem heq_comm {a : α} {b : β} : HEq a b ↔ HEq b a := HEq.comm
 
 @[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
-theorem Iff.comm: (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
+theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
 theorem iff_comm : (a ↔ b) ↔ (b ↔ a) := Iff.comm
 
 @[symm] theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
@@ -1146,12 +1181,12 @@ theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) :
   | isTrue _    => rfl
   | isFalse _   => rfl
 
-instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e)  :=
+instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
   match dC with
   | isTrue _   => dT
   | isFalse _  => dE
 
-instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h)  :=
+instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h) :=
   match dC with
   | isTrue hc  => dT hc
   | isFalse hc => dE hc
@@ -1867,9 +1902,7 @@ protected abbrev hrecOn
     (f : (a : α) → motive (Quot.mk r a))
     (c : (a b : α) → (p : r a b) → HEq (f a) (f b))
     : motive q :=
-  Quot.recOn q f fun a b p => eq_of_heq <|
-    have p₁ : HEq (Eq.ndrec (f a) (sound p)) (f a) := eqRec_heq (sound p) (f a)
-    HEq.trans p₁ (c a b p)
+  Quot.recOn q f fun a b p => eq_of_heq (eqRec_heq_iff.mpr (c a b p))
 
 end
 end Quot
@@ -2232,6 +2265,27 @@ theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
   show extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
   exact congrArg extfunApp (Quot.sound h)
 
+/--
+Like `Quot.liftOn q f h` but allows `f a` to "know" that `q = Quot.mk r a`.
+-/
+protected abbrev Quot.pliftOn {α : Sort u} {r : α → α → Prop}
+    (q : Quot r)
+    (f : (a : α) → q = Quot.mk r a → β)
+    (h : ∀ (a b : α) (h h'), r a b → f a h = f b h') : β :=
+  q.rec (motive := fun q' => q = q' → β) f
+    (fun a b p => funext fun h' =>
+      (apply_eqRec (motive := fun b _ => q = b)).trans
+        (@h a b (h'.trans (sound p).symm) h' p)) rfl
+
+/--
+Like `Quotient.liftOn q f h` but allows `f a` to "know" that `q = Quotient.mk s a`.
+-/
+protected abbrev Quotient.pliftOn {α : Sort u} {s : Setoid α}
+    (q : Quotient s)
+    (f : (a : α) → q = Quotient.mk s a → β)
+    (h : ∀ (a b : α) (h h'), a ≈ b → f a h = f b h') : β :=
+  Quot.pliftOn q f h
+
 instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] :
     Subsingleton (∀ a, β a) where
   allEq f g := funext fun a => Subsingleton.elim (f a) (g a)
@@ -2472,9 +2526,6 @@ class Refl (r : α → α → Prop) : Prop where
 class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
-
-@[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
-abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
 
 /-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
 `r a b → ¬ r b a`. -/

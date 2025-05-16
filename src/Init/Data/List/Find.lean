@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
   Kim Morrison, Jannis Limperg
 -/
+module
+
 prelude
 import Init.Data.List.Lemmas
 import Init.Data.List.Sublist
 import Init.Data.List.Range
+import Init.Data.List.Impl
 import Init.Data.Fin.Lemmas
 
 /-!
@@ -25,10 +28,6 @@ open Nat
 
 /-! ### findSome? -/
 
-@[simp] theorem findSome?_singleton {a : α} {f : α → Option β} : [a].findSome? f = f a := by
-  simp only [findSome?]
-  split <;> simp_all
-
 @[simp] theorem findSome?_cons_of_isSome {l} (h : (f a).isSome) : findSome? f (a :: l) = f a := by
   simp only [findSome?]
   split <;> simp_all
@@ -38,7 +37,7 @@ open Nat
   split <;> simp_all
 
 theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.findSome? f = some b) :
-    ∃ a, a ∈ l ∧ f a = b := by
+    ∃ a, a ∈ l ∧ f a = some b := by
   induction l with
   | nil => simp_all
   | cons h l ih =>
@@ -47,8 +46,6 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
 
 @[simp] theorem findSome?_eq_none_iff : findSome? p l = none ↔ ∀ x ∈ l, p x = none := by
   induction l <;> simp [findSome?_cons]; split <;> simp [*]
-
-@[deprecated findSome?_eq_none_iff (since := "2024-09-05")] abbrev findSome?_eq_none := @findSome?_eq_none_iff
 
 @[simp] theorem findSome?_isSome_iff {f : α → Option β} {l : List α} :
     (l.findSome? f).isSome ↔ ∃ x, x ∈ l ∧ (f x).isSome := by
@@ -138,13 +135,6 @@ theorem findSome?_map {f : β → γ} {l : List β} : findSome? p (l.map f) = l.
     simp only [map_cons, findSome?]
     split <;> simp_all
 
-theorem findSome?_append {l₁ l₂ : List α} : (l₁ ++ l₂).findSome? f = (l₁.findSome? f).or (l₂.findSome? f) := by
-  induction l₁ with
-  | nil => simp
-  | cons x xs ih =>
-    simp only [cons_append, findSome?]
-    split <;> simp_all
-
 theorem head_flatten {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
     (flatten L).head (by simpa using h) = (L.findSome? fun l => l.head?).get (by simpa using h) := by
   simp [head_eq_iff_head?_eq_some, head?_flatten]
@@ -205,10 +195,6 @@ theorem IsInfix.findSome?_eq_none {l₁ l₂ : List α} {f : α → Option β} (
   h.sublist.findSome?_eq_none
 
 /-! ### find? -/
-
-@[simp] theorem find?_singleton {a : α} {p : α → Bool} : [a].find? p = if p a then some a else none := by
-  simp only [find?]
-  split <;> simp_all
 
 @[simp] theorem find?_cons_of_pos {l} (h : p a) : find? p (a :: l) = some a := by
   simp [find?, h]
@@ -336,13 +322,6 @@ theorem get_find?_mem {xs : List α} {p : α → Bool} (h) : (xs.find? p).get h 
     simp only [map_cons, find?]
     by_cases h : p (f x) <;> simp [h, ih]
 
-@[simp] theorem find?_append {l₁ l₂ : List α} : (l₁ ++ l₂).find? p = (l₁.find? p).or (l₂.find? p) := by
-  induction l₁ with
-  | nil => simp
-  | cons x xs ih =>
-    simp only [cons_append, find?]
-    by_cases h : p x <;> simp [h, ih]
-
 @[simp] theorem find?_flatten {xss : List (List α)} {p : α → Bool} :
     xss.flatten.find? p = xss.findSome? (·.find? p) := by
   induction xss with
@@ -405,16 +384,9 @@ abbrev find?_flatten_eq_some := @find?_flatten_eq_some_iff
     (xs.flatMap f).find? p = xs.findSome? (fun x => (f x).find? p) := by
   simp [flatMap_def, findSome?_map]; rfl
 
-@[deprecated find?_flatMap (since := "2024-10-16")] abbrev find?_bind := @find?_flatMap
-
 theorem find?_flatMap_eq_none_iff {xs : List α} {f : α → List β} {p : β → Bool} :
     (xs.flatMap f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
   simp
-
-@[deprecated find?_flatMap_eq_none_iff (since := "2024-10-16")]
-abbrev find?_flatMap_eq_none := @find?_flatMap_eq_none_iff
-
-@[deprecated find?_flatMap_eq_none (since := "2024-10-16")] abbrev find?_bind_eq_none := @find?_flatMap_eq_none_iff
 
 theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   cases n
@@ -1288,14 +1260,5 @@ theorem IsInfix.lookup_eq_none {l₁ l₂ : List (α × β)} (h : l₁ <:+: l₂
   h.sublist.lookup_eq_none
 
 end lookup
-
-/-! ### Deprecations -/
-
-@[deprecated head_flatten (since := "2024-10-14")] abbrev head_join := @head_flatten
-@[deprecated getLast_flatten (since := "2024-10-14")] abbrev getLast_join := @getLast_flatten
-@[deprecated find?_flatten (since := "2024-10-14")] abbrev find?_join := @find?_flatten
-@[deprecated find?_flatten_eq_none (since := "2024-10-14")] abbrev find?_join_eq_none := @find?_flatten_eq_none_iff
-@[deprecated find?_flatten_eq_some (since := "2024-10-14")] abbrev find?_join_eq_some := @find?_flatten_eq_some_iff
-@[deprecated findIdx?_flatten (since := "2024-10-14")] abbrev findIdx?_join := @findIdx?_flatten
 
 end List

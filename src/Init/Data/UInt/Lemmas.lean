@@ -3,6 +3,8 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, François G. Dorais, Mario Carneiro, Mac Malone, Markus Himmel
 -/
+module
+
 prelude
 import Init.Data.UInt.Basic
 import Init.Data.Fin.Lemmas
@@ -181,20 +183,6 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
     · apply Nat.lt_of_lt_of_le
       · apply toNat_lt_size
       · simpa using h2
-
-  open $typeName (toNat_mod_lt modn) in
-  set_option linter.deprecated false in
-  @[deprecated toNat_mod_lt (since := "2024-09-24")]
-  protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m := by
-    intro u
-    simp only [(· % ·)]
-    simp only [gt_iff_lt, toNat, modn, Fin.modn_val, BitVec.natCast_eq_ofNat, BitVec.toNat_ofNat,
-      Nat.reducePow]
-    rw [Nat.mod_eq_of_lt]
-    · apply Nat.mod_lt
-    · apply Nat.lt_of_le_of_lt
-      · apply Nat.mod_le
-      · apply Fin.is_lt
 
   protected theorem mod_lt (a : $typeName) {b : $typeName} : 0 < b → a % b < b := by
     simp only [lt_iff_toBitVec_lt, mod_def]

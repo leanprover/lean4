@@ -3,6 +3,8 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.UInt.BasicAux
 import Init.Data.BitVec.Basic
@@ -83,6 +85,8 @@ Examples:
 -/
 @[extern "lean_uint8_mod"]
 protected def UInt8.mod (a b : UInt8) : UInt8 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated UInt8.mod (since := "2024-09-23")]
 protected def UInt8.modn (a : UInt8) (n : Nat) : UInt8 := ⟨Fin.modn a.toFin n⟩
@@ -295,6 +299,8 @@ Examples:
 -/
 @[extern "lean_uint16_mod"]
 protected def UInt16.mod (a b : UInt16) : UInt16 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated UInt16.mod (since := "2024-09-23")]
 protected def UInt16.modn (a : UInt16) (n : Nat) : UInt16 := ⟨Fin.modn a.toFin n⟩
@@ -509,6 +515,8 @@ Examples:
 -/
 @[extern "lean_uint32_mod"]
 protected def UInt32.mod (a b : UInt32) : UInt32 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated UInt32.mod (since := "2024-09-23")]
 protected def UInt32.modn (a : UInt32) (n : Nat) : UInt32 := ⟨Fin.modn a.toFin n⟩
@@ -685,6 +693,8 @@ Examples:
 -/
 @[extern "lean_uint64_mod"]
 protected def UInt64.mod (a b : UInt64) : UInt64 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated UInt64.mod (since := "2024-09-23")]
 protected def UInt64.modn (a : UInt64) (n : Nat) : UInt64 := ⟨Fin.modn a.toFin n⟩
@@ -892,6 +902,8 @@ Examples:
 -/
 @[extern "lean_usize_mod"]
 protected def USize.mod (a b : USize) : USize := ⟨a.toBitVec % b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated USize.mod (since := "2024-09-23")]
 protected def USize.modn (a : USize) (n : Nat) : USize := ⟨Fin.modn a.toFin n⟩

@@ -79,7 +79,7 @@ section Infrastructure
         return CompletionItemKind.enum
       else
         return CompletionItemKind.struct
-    else if constInfo.isTheorem then
+    else if wasOriginallyTheorem env constInfo.name then
       return CompletionItemKind.event
     else if (← isProjectionFn constInfo.name) then
       return CompletionItemKind.field
@@ -121,24 +121,6 @@ end Infrastructure
 
 section Utils
 
-  private partial def containsSuccessiveCharacters (a b : String) : Bool :=
-    go ⟨0⟩ ⟨0⟩
-  where
-    go (aPos bPos : String.Pos) : Bool :=
-      if ha : a.atEnd aPos then
-        true
-      else if hb : b.atEnd bPos then
-        false
-      else
-        let ac := a.get' aPos ha
-        let bc := b.get' bPos hb
-        let bPos := b.next' bPos hb
-        if ac == bc then
-          let aPos := a.next' aPos ha
-          go aPos bPos
-        else
-          go aPos bPos
-
   private def normPrivateName? (declName : Name) : MetaM (Option Name) := do
     match privateToUserName? declName with
     | none => return declName
@@ -169,7 +151,7 @@ section Utils
     else if let (.str p₁ s₁, .str p₂ s₂) := (id, declName) then
       if p₁ == p₂ then
         -- If the namespaces agree, fuzzy-match on the trailing part
-        if containsSuccessiveCharacters s₁ s₂ then
+        if s₁.charactersIn s₂ then
           return some <| .mkSimple s₂
         else
           return none
@@ -177,7 +159,7 @@ section Utils
         -- If `id` is namespace-less, also fuzzy-match declaration names in arbitrary namespaces
         -- (but don't match the namespace itself).
         -- Penalize score by component length of added namespace.
-        if containsSuccessiveCharacters s₁ s₂ then
+        if s₁.charactersIn s₂ then
           return some declName
         else
           return none
@@ -202,7 +184,7 @@ section IdCompletionUtils
       false
     else
       match id, declName with
-      | .str .anonymous s₁, .str .anonymous s₂ => containsSuccessiveCharacters s₁ s₂
+      | .str .anonymous s₁, .str .anonymous s₂ => s₁.charactersIn s₂
       | _, _ => false
 
   /--
@@ -236,7 +218,7 @@ section IdCompletionUtils
     else
       match ns, nsFragment with
       | .str p₁ s₁, .str p₂ s₂ =>
-        if p₁ == p₂ then containsSuccessiveCharacters s₂ s₁ else false
+        if p₁ == p₂ then s₂.charactersIn s₁ else false
       | _, _ => false
 
   def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
@@ -543,7 +525,7 @@ def fieldIdCompletion
     let fieldNames := getStructureFieldsFlattened (← getEnv) structName (includeSubobjectFields := false)
     for fieldName in fieldNames do
       let .str _ fieldName := fieldName | continue
-      if ! containsSuccessiveCharacters idStr fieldName then
+      if ! idStr.charactersIn fieldName then
         continue
       let item := { label := fieldName, detail? := "field", documentation? := none, kind? := CompletionItemKind.field }
       addItem item
@@ -571,7 +553,7 @@ def optionCompletion
     let opts ← getOptions
     let mut items := #[]
     for ⟨name, decl⟩ in decls do
-      if containsSuccessiveCharacters partialName name.toString then
+      if partialName.charactersIn name.toString then
         let textEdit :=
           if !caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·)))) then
             none -- InsertReplaceEdit not supported by client

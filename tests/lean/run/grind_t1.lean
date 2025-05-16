@@ -79,9 +79,9 @@ example (a b c : Nat) (f : Nat → Nat) : p.1 ≠ f a → p = { a := f b, c, b :
   grind
 
 /--
-info: [grind.debug.proj] { a := b, b := v₁, c := v₂ }.a
+trace: [grind.debug.proj] { a := b, b := v₁, c := v₂ }.a
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.debug.proj true in
 example (a b d e : Nat) (x y z : Boo Nat) (f : Nat → Boo Nat) : (f d).1 ≠ a → f d = ⟨b, v₁, v₂⟩ → x.1 = e → y.1 = e → z.1 = e → f d = x → f d = y → f d = z → b = a → False := by
   grind
@@ -115,30 +115,30 @@ example (foo : Nat → Nat)
 end dite_propagator_test
 
 /--
-info: [grind.eqc] x = 2 * a
+trace: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.eqc true in
 example (a : Nat) : let x := a + a; y = x → y = a + a := by
   grind -zetaDelta
 
 /--
-info: [grind.eqc] x = 2 * a
+trace: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.eqc true in
 example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
   grind -zetaDelta
 
 /--
-info: [grind.eqc] y = 2 * a
+trace: [grind.eqc] y = 2 * a
 [grind.eqc] (y = 2 * a) = False
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.eqc true in
 example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
   grind
@@ -184,7 +184,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
   grind
 
 /--
-info: [grind.assert] ∀ (a : α), a ∈ b → p a
+trace: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.ematch.pattern] h₁: [@Membership.mem `[α] `[List α] `[List.instMembership] `[b] #1]
 [grind.ematch.pattern] h₁: [p #1]
 [grind.assert] w ∈ b
@@ -193,7 +193,7 @@ info: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.ematch.instance] List.length_pos_of_mem: w ∈ b → 0 < b.length
 [grind.assert] w ∈ b → p w
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.ematch.pattern true in
 set_option trace.grind.ematch.instance true in
 set_option trace.grind.assert true in
@@ -201,7 +201,7 @@ example (b : List α) (p : α → Prop) (h₁ : ∀ a ∈ b, p a) (h₂ : ∃ a 
   grind
 
 /--
-info: [grind.assert] ∀ (x : α), Q x → P x
+trace: [grind.assert] ∀ (x : α), Q x → P x
 [grind.ematch.pattern] h₁: [Q #1]
 [grind.ematch.pattern] h₁: [P #1]
 [grind.assert] ∀ (x : α), R x → False = P x
@@ -214,7 +214,7 @@ info: [grind.assert] ∀ (x : α), Q x → P x
 [grind.assert] Q a → P a
 [grind.assert] R a → False = P a
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.ematch.pattern true in
 set_option trace.grind.ematch.instance true in
 set_option trace.grind.assert true in
@@ -379,7 +379,7 @@ example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by
   grind
 
 -- Should not generate a trace message about canonicalization issues
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.issues true in
 example : (if n + 2 < m then a else b) = (if n + 1 < m then c else d) := by
   fail_if_success grind (splits := 0)

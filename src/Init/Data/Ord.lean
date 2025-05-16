@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian, Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Init.Data.String
+import Init.Data.String.Basic
 import Init.Data.Array.Basic
 import Init.Data.SInt.Basic
-import Init.Data.Vector
+import Init.Data.Vector.Basic
 
 /--
 The result of a comparison according to a total order.

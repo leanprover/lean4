@@ -8,12 +8,12 @@ structure Tree (α : Type u) where
 def Tree.isLeaf (t : Tree α) := t.cs.isEmpty
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 t t' : Tree α
 h✝ : t' ∈ t.cs
 ⊢ sizeOf t' < sizeOf t
 -/
-#guard_msgs in
+#guard_msgs(trace) in
 def Tree.map (f : α → β) (t : Tree α) : Tree β :=
     ⟨f t.val, t.cs.map (fun t' => t'.map f)⟩
 termination_by t
@@ -35,12 +35,12 @@ info: Tree.map.induct.{u_1} {α : Type u_1} (motive : Tree α → Prop)
 #check Tree.map.induct
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 t x✝ : Tree α
 h✝ : x✝ ∈ t.cs
 ⊢ sizeOf x✝ < sizeOf t
 -/
-#guard_msgs in
+#guard_msgs(trace) in
 def Tree.pruneRevAndMap (f : α → β) (t : Tree α) : Tree β :=
     ⟨f t.val, (t.cs.filter (fun t' => not t'.isLeaf)).reverse.map (·.pruneRevAndMap f)⟩
 termination_by t
@@ -64,14 +64,14 @@ info: Tree.pruneRevAndMap.induct.{u_1} {α : Type u_1} (motive : Tree α → Pro
 #check Tree.pruneRevAndMap.induct
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 v : α
 cs : List (Tree α)
 x✝ : Tree α
 h✝ : x✝ ∈ cs
 ⊢ sizeOf x✝ < sizeOf { val := v, cs := cs }
 -/
-#guard_msgs in
+#guard_msgs(trace) in
 def Tree.pruneRevAndMap' (f : α → β) : Tree α → Tree β
   | ⟨v,cs⟩ => ⟨f v, (cs.filter (fun t' => not t'.isLeaf)).reverse.map (·.pruneRevAndMap' f)⟩
 termination_by t => t
@@ -125,7 +125,7 @@ structure MTree (α : Type u) where
 /--
 warning: declaration uses 'sorry'
 ---
-info: α : Type u_1
+trace: α : Type u_1
 t : MTree α
 x✝¹ : List (MTree α)
 h✝¹ : x✝¹ ∈ t.cs
@@ -156,7 +156,7 @@ info: MTree.map.induct.{u_1} {α : Type u_1} (motive : MTree α → Prop)
 #check MTree.map.induct
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 t : MTree α
 css : List (MTree α)
 h✝¹ : css ∈ t.cs
@@ -164,7 +164,7 @@ c : MTree α
 h✝ : c ∈ css
 ⊢ sizeOf c < sizeOf t
 -/
-#guard_msgs in
+#guard_msgs(trace) in
 def MTree.size (t : MTree α) : Nat := Id.run do
   let mut s := 1
   for css in t.cs do
@@ -223,7 +223,7 @@ inductive Expression where
 /--
 warning: declaration uses 'sorry'
 ---
-info: L : List (String × Expression)
+trace: L : List (String × Expression)
 x : String × Expression
 h✝ : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
@@ -264,7 +264,7 @@ inductive Expression where
 /--
 warning: declaration uses 'sorry'
 ---
-info: L : List (String × Expression)
+trace: L : List (String × Expression)
 x : String × Expression
 h✝ : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
@@ -297,3 +297,57 @@ termination_by t
 decreasing_by fail
 
 end WithOptionOff
+
+namespace List
+@[wf_preprocess] theorem List.zipWith_wfParam {xs : List α} {ys : List β} {f : α → β → γ} :
+    (wfParam xs).zipWith f ys = xs.attach.unattach.zipWith f ys := by
+  simp [wfParam]
+
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs (warning) in
+@[wf_preprocess] theorem List.zipWith_unattach {P : α → Prop} {xs : List (Subtype P)} {ys : List β} {f : α → β → γ} :
+    xs.unattach.zipWith f ys = xs.zipWith (fun ⟨x, h⟩ y =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) y) ys := by
+  sorry
+end List
+
+section Binary
+
+-- Main point of this test is to check whether `Tree.map2._unary` leaks the preprocessing
+
+/--
+trace: α : Type u_1
+β : Type u_2
+t1 : Tree α
+t2 y : Tree β
+t1' : Tree α
+h✝ : t1' ∈ t1.cs
+⊢ sizeOf t1' < sizeOf t1
+-/
+#guard_msgs in
+def Tree.map2 (f : α → β → γ) (t1 : Tree α) (t2 : Tree β) : Tree γ :=
+    ⟨f t1.val t2.val, (List.zipWith fun t1' t2' => map2 f t1' t2') t1.cs t2.cs⟩
+termination_by t1
+decreasing_by trace_state; cases t1; decreasing_tactic
+
+/--
+info: equations:
+theorem Tree.map2.eq_1.{u_1, u_2, u_3} : ∀ {α : Type u_1} {β : Type u_2} {γ : Type u_3} (f : α → β → γ) (t1 : Tree α)
+  (t2 : Tree β),
+  Tree.map2 f t1 t2 = { val := f t1.val t2.val, cs := List.zipWith (fun t1' t2' => Tree.map2 f t1' t2') t1.cs t2.cs }
+-/
+#guard_msgs in
+#print equations Tree.map2
+
+/--
+info: equations:
+theorem Tree.map2._unary.eq_1.{u_1, u_2, u_3} : ∀ {α : Type u_1} {β : Type u_2} {γ : Type u_3} (f : α → β → γ)
+  (_x : (_ : Tree α) ×' Tree β),
+  Tree.map2._unary f _x =
+    PSigma.casesOn _x fun t1 t2 =>
+      { val := f t1.val t2.val, cs := List.zipWith (fun t1' t2' => Tree.map2._unary f ⟨t1', t2'⟩) t1.cs t2.cs }
+-/
+#guard_msgs in
+#print equations Tree.map2._unary
+
+end Binary

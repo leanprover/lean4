@@ -10,7 +10,7 @@ axiom test_sorry {α : Sort _} : α
 Extract a top-level let, no names given.
 -/
 /--
-info: x✝ : Nat := 2
+trace: x✝ : Nat := 2
 ⊢ x✝ = 2
 -/
 #guard_msgs in
@@ -23,7 +23,7 @@ example : let x := 2; x = 2 := by
 Extract a top-level let, name given.
 -/
 /--
-info: z : Nat := 2
+trace: z : Nat := 2
 ⊢ z = 2
 -/
 #guard_msgs in
@@ -36,7 +36,7 @@ example : let x := 2; x = 2 := by
 Extract a top-level let, placeholder name given.
 -/
 /--
-info: x✝ : Nat := 2
+trace: x✝ : Nat := 2
 ⊢ x✝ = 2
 -/
 #guard_msgs in
@@ -49,7 +49,7 @@ example : let x := 2; x = 2 := by
 Extract an embedded let, name given.
 -/
 /--
-info: z : Nat := 2
+trace: z : Nat := 2
 ⊢ z = 2
 -/
 #guard_msgs in
@@ -62,7 +62,7 @@ example : (let x := 2; x) = 2 := by
 Extract multiple embedded lets, no names given.
 -/
 /--
-info: x✝ : Nat := 2
+trace: x✝ : Nat := 2
 y✝ : Nat := 1 + 1
 ⊢ x✝ = y✝
 -/
@@ -76,7 +76,7 @@ example : (let x := 2; x) = (let y := 1 + 1; y) := by
 Names extracted lets in order, but keeps extracting even after list is exhausted.
 -/
 /--
-info: z : Nat := 2
+trace: z : Nat := 2
 y✝ : Nat := 1 + 1
 ⊢ z = y✝
 -/
@@ -93,7 +93,7 @@ Too many names, linter warning.
 warning: unused name
 note: this linter can be disabled with `set_option linter.tactic.unusedName false`
 ---
-info: z : Nat := 2
+trace: z : Nat := 2
 z' : Nat := 1 + 1
 ⊢ z = z'
 -/
@@ -107,7 +107,7 @@ example : (let x := 2; x) = (let y := 1 + 1; y) := by
 Length of name list controls number of lets in `+onlyGivenNames` mode.
 -/
 /--
-info: z : Nat := 2
+trace: z : Nat := 2
 ⊢ z =
     let y := 1 + 1;
     y
@@ -118,7 +118,7 @@ example : (let x := 2; x) = (let y := 1 + 1; y) := by
   trace_state
   rfl
 /--
-info: z : Nat := 2
+trace: z : Nat := 2
 w : Nat := 1 + 1
 ⊢ z = w
 -/
@@ -132,7 +132,7 @@ example : (let x := 2; x) = (let y := 1 + 1; y) := by
 Merging.
 -/
 /--
-info: x✝ : Nat := 2
+trace: x✝ : Nat := 2
 ⊢ x✝ = x✝
 -/
 #guard_msgs in
@@ -145,7 +145,7 @@ example : (let x := 2; x) = (let y := 2; y) := by
 Merging, even if we run out of names.
 -/
 /--
-info: z : Nat := 2
+trace: z : Nat := 2
 ⊢ z = z
 -/
 #guard_msgs in
@@ -158,7 +158,7 @@ example : (let x := 2; x) = (let y := 2; y) := by
 Merging reuses pre-existing declarations
 -/
 /--
-info: z : Nat := 2
+trace: z : Nat := 2
 ⊢ z = z
 -/
 #guard_msgs in
@@ -172,7 +172,7 @@ example : (let x := 2; x) = (let y := 2; y) := by
 Merging doesn't reuse pre-existing declarations when `-useContext`.
 -/
 /--
-info: z : Nat := 2
+trace: z : Nat := 2
 x✝ : Nat := 2
 ⊢ x✝ = x✝
 -/
@@ -187,7 +187,7 @@ example : (let x := 2; x) = (let y := 2; y) := by
 Works with `have` (`let_fun`)
 -/
 /--
-info: a✝ : Nat := 2
+trace: a✝ : Nat := 2
 x✝ : Nat := a✝
 y✝ : Nat := a✝ + 0
 ⊢ x✝ = y✝
@@ -202,7 +202,7 @@ example : have a := 2; (have x := a; x) = (have y := a + 0; y) := by
 Extracts at both the type and the value of a local definition.
 -/
 /--
-info: α✝ : Type := Nat
+trace: α✝ : Type := Nat
 y✝ : Nat := 2
 x : α✝ := 2
 ⊢ x = x
@@ -215,7 +215,7 @@ example : let x : (let α := Nat; α) := (let y := 2; 2); x = x := by
   rfl
 -- Essentially same state:
 /--
-info: α✝ : Type := Nat
+trace: α✝ : Type := Nat
 y✝ : Nat := 2
 x✝ : α✝ := 2
 ⊢ x✝ = x✝
@@ -230,7 +230,7 @@ example : let x : (let α := Nat; α) := (let y := 2; 2); x = x := by
 Basic `descend := false` test.
 -/
 /--
-info: x✝ : Nat := 2
+trace: x✝ : Nat := 2
 ⊢ x✝ = 2
 -/
 #guard_msgs in
@@ -243,7 +243,7 @@ example : let x := 2; x = 2 := by
 Make sure `descend := false` is not obstructed by metadata.
 -/
 /--
-info: this : True
+trace: this : True
 x✝ : Nat := 2
 ⊢ x✝ = 2
 -/
@@ -271,7 +271,7 @@ example : (let x := 2; x) = 2 := by
 In `-descend` mode, merges using pre-existing declarations.
 -/
 /--
-info: w : Nat := 2
+trace: w : Nat := 2
 y✝ : Nat := 3
 ⊢ w = 2 + y✝ - y✝
 -/
@@ -286,7 +286,7 @@ example : let x := 2; let y := 3; let z := 3; x = 2 + y - z := by
 `-descend` works with `have` (`let_fun`)
 -/
 /--
-info: a✝ : Nat := 2
+trace: a✝ : Nat := 2
 ⊢ (let_fun x := a✝;
     x) =
     let_fun y := a✝ + 0;
@@ -302,7 +302,7 @@ example : have a := 2; (have x := a; x) = (have y := a + 0; y) := by
 Extracting at a hypothesis
 -/
 /--
-info: x✝ : Nat := 1
+trace: x✝ : Nat := 1
 h : x✝ = x✝
 ⊢ True
 -/
@@ -317,7 +317,7 @@ example (h : let x := 1; x = x) : True := by
 Extracting at a hypothesis, with names
 -/
 /--
-info: y : Nat := 1
+trace: y : Nat := 1
 h : y = y
 ⊢ True
 -/
@@ -332,7 +332,7 @@ example (h : let x := 1; x = x) : True := by
 Extracting at a hypothesis, reorders hypotheses
 -/
 /--
-info: h' : Nat
+trace: h' : Nat
 y : Nat := 1
 h : y = y
 ⊢ True
@@ -348,7 +348,7 @@ example (h : let x := 1; x = x) (h' : Nat) : True := by
 Extracting at a hypothesis, not all top level.
 -/
 /--
-info: x✝ : Nat := 1
+trace: x✝ : Nat := 1
 y✝ : Nat := 2
 h : x✝ + 1 = y✝
 ⊢ True
@@ -363,7 +363,7 @@ example (h : let x := 1; x + 1 = let y := 2; y) : True := by
 Extracting at a hypothesis, not all top level, in `-descend` mode.
 -/
 /--
-info: x✝ : Nat := 1
+trace: x✝ : Nat := 1
 h :
   x✝ + 1 =
     let y := 2;
@@ -380,7 +380,7 @@ example (h : let x := 1; x + 1 = let y := 2; y) : True := by
 At multiple locations with `merge := true`.
 -/
 /--
-info: _z✝ : Nat := 3
+trace: _z✝ : Nat := 3
 x✝ : Nat := 1
 h : x✝ + 2 = _z✝
 ⊢ ∀ (x : Nat), True
@@ -396,7 +396,7 @@ example (h : let x := 1; let y := 3; x + 2 = y) : let _z := 3; ∀ (_ : Nat), Tr
 At multiple locations with `merge := false`.
 -/
 /--
-info: _z✝ : Nat := 3
+trace: _z✝ : Nat := 3
 x✝ : Nat := 1
 y✝ : Nat := 3
 h : x✝ + 2 = y✝
@@ -413,7 +413,7 @@ example (h : let x := 1; let y := 3; x + 2 = y) : let _z := 3; ∀ (_ : Nat), Tr
 Merging can chain. This tests how extracted let declarations are recalled and can handle dependence.
 -/
 /--
-info: x✝ : Nat := 2
+trace: x✝ : Nat := 2
 y✝ : Nat := x✝
 ⊢ y✝ = y✝
 -/
@@ -427,7 +427,7 @@ example : (let x := 2; let y := x; y) = (let x' := 2; let y' := x'; y') := by
 Same merging example, but with `-merge`.
 -/
 /--
-info: x✝ : Nat := 2
+trace: x✝ : Nat := 2
 y✝ : Nat := x✝
 x'✝ : Nat := 2
 y'✝ : Nat := x'✝
@@ -445,21 +445,21 @@ Reported at https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topi
 Unused lets are handled properly.
 -/
 /--
-info: ok✝ : Prop := True
+trace: ok✝ : Prop := True
 h :
   let _not_ok := False;
   ok✝
 ⊢ let _also_ok := 3;
   True
 ---
-info: ok✝ : Prop := True
+trace: ok✝ : Prop := True
 h :
   let _not_ok := False;
   ok✝
 _also_ok✝ : Nat := 3
 ⊢ True
 ---
-info: ok✝ : Prop := True
+trace: ok✝ : Prop := True
 _also_ok✝ : Nat := 3
 _not_ok✝ : Prop := False
 h : ok✝
@@ -479,12 +479,12 @@ example (h : let ok := True; let _not_ok := False; ok) : let _also_ok := 3; True
 Testing `+usedOnly`
 -/
 /--
-info: ok✝ : Prop := True
+trace: ok✝ : Prop := True
 h : ok✝
 ⊢ let _also_ok := 3;
   True
 ---
-info: ok✝ : Prop := True
+trace: ok✝ : Prop := True
 h : ok✝
 ⊢ True
 -/
@@ -500,12 +500,12 @@ example (h : let ok := True; let _not_ok := False; ok) : let _also_ok := 3; True
 Testing `+usedOnly` with `-descend`
 -/
 /--
-info: ok✝ : Prop := True
+trace: ok✝ : Prop := True
 h : ok✝
 ⊢ let _also_ok := 3;
   True
 ---
-info: ok✝ : Prop := True
+trace: ok✝ : Prop := True
 h : ok✝
 ⊢ True
 -/
@@ -521,7 +521,7 @@ example (h : let ok := True; let _not_ok := False; ok) : let _also_ok := 3; True
 `+proofs`
 -/
 /--
-info: this✝ : (some true).isSome = true := of_eq_true (eq_self true)
+trace: this✝ : (some true).isSome = true := of_eq_true (eq_self true)
 ⊢ (some true).get this✝ = true
 -/
 #guard_msgs in
@@ -535,7 +535,7 @@ example : Option.get (some true) (have := (by simp); this) = true := by
 `+implicits`
 -/
 /--
-info: α✝ : Type := Nat
+trace: α✝ : Type := Nat
 ⊢ id 2 = 2
 -/
 #guard_msgs in
@@ -570,7 +570,7 @@ example : ∀ n : Nat, let x := n; x = x := by
 Can extract from underneath another `let`.
 -/
 /--
-info: y✝ : Nat := 2
+trace: y✝ : Nat := 2
 ⊢ ∀ (n : Nat),
     let x := n;
     x + y✝ = x + y✝
@@ -638,7 +638,7 @@ See also the `lift_lets.lean` test file.
 Lifts, does not make use of name generator.
 -/
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let x := n;
     n = x
 -/
@@ -654,7 +654,7 @@ example : ∀ n : Nat, n = (let x := n; x) := by
 Same example, but testing `letFun`.
 -/
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let_fun x := n;
     n = x
 -/
@@ -671,7 +671,7 @@ Merging of merely-lifted lets. Four cases to this test, depending on whether a `
 and whether the second is a `have` or `let`.
 -/
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let_fun x := n;
     x = x
 -/
@@ -683,7 +683,7 @@ example : ∀ n : Nat, (have x := n; x) = (have x' := n; x') := by
   intros
   rfl
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let x := n;
     x = x
 -/
@@ -695,7 +695,7 @@ example : ∀ n : Nat, (let x := n; x) = (have x' := n; x') := by
   intros
   rfl
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let x := n;
     x = x
 -/
@@ -707,7 +707,7 @@ example : ∀ n : Nat, (have x := n; x) = (let x' := n; x') := by
   intros
   rfl
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let x := n;
     x = x
 -/
@@ -723,7 +723,7 @@ example : ∀ n : Nat, (let x := n; x) = (let x' := n; x') := by
 Without merging
 -/
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let_fun x := n;
     let_fun x' := n;
     x = x'
@@ -748,7 +748,7 @@ example : ∀ n : Nat, let x := n; let y := x; y = n := by
 Extracting `let`s in proofs in `+proof` mode.
 -/
 /--
-info: m : Nat
+trace: m : Nat
 h : ∃ n, n + 1 = m
 x : Fin m
 y : Fin (h.choose + 1)
@@ -771,10 +771,10 @@ example (m : Nat) (h : ∃ n, n + 1 = m) (x : Fin m) (y : Fin _) :
 Limitation: we can use `extract_lets` within `conv`, but the let bindings do not persist.
 -/
 /--
-info: y : Type := Nat
+trace: y : Type := Nat
 | y = Int
 ---
-info: ⊢ Nat = Int
+trace: ⊢ Nat = Int
 -/
 #guard_msgs in
 example : let x := Nat; x = Int := by

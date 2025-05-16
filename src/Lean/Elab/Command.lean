@@ -9,6 +9,7 @@ import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.SetOption
 import Lean.Language.Basic
+import Lean.Meta.ForEachExpr
 
 namespace Lean.Elab.Command
 
@@ -73,6 +74,11 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  /--
+  Attributes that should be applied to all matching declaration in the section. Inherited from
+  parent scopes.
+  -/
+  attrs : List (TSyntax ``Parser.Term.attrInstance) := []
   deriving Inhabited
 
 structure State where
@@ -363,15 +369,27 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
       runLinters stx
     return
 
+  -- linters should have access to the complete info tree and message log
+  let mut snaps := (← get).snapshotTasks
+  if let some elabSnap := (← read).snap? then
+    snaps := snaps.push { stx? := none, cancelTk? := none, task := elabSnap.new.result!.map (sync := true) toSnapshotTree }
+  let tree := SnapshotTree.mk { diagnostics := .empty } snaps
+  let treeTask ← tree.waitAll
+
   -- We only start one task for all linters for now as most linters are fast and we simply want
   -- to unblock elaboration of the next command
   let cancelTk ← IO.CancelToken.new
   let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun infoSt => do
+    let messages := tree.getAll.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) .empty
+    -- do not double-report
+    let messages := messages.markAllReported
+    modify fun st => { st with messages := st.messages ++ messages }
     modifyInfoState fun _ => infoSt
     runLinters stx
 
-  -- linters should have access to the complete info tree
-  let task ← BaseIO.mapTask (t := (← getInfoState).substituteLazy) lintAct
+  let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
+    BaseIO.mapTask (t := treeTask) fun _ =>
+      lintAct infoSt
   logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
@@ -578,10 +596,17 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   try
-    -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
-    -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
-    -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
-    elabCommand stx
+    try
+      -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
+      -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
+      -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
+      elabCommand stx
+    finally
+      -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
+      -- be the caller of this function and add new messages and info trees
+      if let some snap := (← read).snap? then
+        snap.new.resolve default
+
     -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
     -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
     -- rather than engineer a general solution.
@@ -589,11 +614,6 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
       withLogging do
         runLintersAsync stx
   finally
-    -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
-    -- be the caller of this function and add new messages and info trees
-    if let some snap := (← read).snap? then
-      snap.new.resolve default
-
     let msgs := (← get).messages
     modify fun st => { st with
       messages := initMsgs ++ msgs
@@ -719,9 +739,16 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
           -- So, we use `Core.resetMessageLog`.
           Core.resetMessageLog
-          let someType := mkSort levelZero
-          Term.addAutoBoundImplicits' xs someType fun xs _ =>
+          let xs ← Term.addAutoBoundImplicits xs none
+          if xs.all (·.isFVar) then
             Term.withoutAutoBoundImplicit <| elabFn xs
+          else
+            -- Abstract any mvars that appear in `xs` using `mkForallFVars` (the type `mkSort levelZero` is an arbitrary placeholder)
+            -- and then rebuild the local context from scratch.
+            -- Resetting prevents the local context from including the original fvars from `xs`.
+            let ctxType ← Meta.mkForallFVars' xs (mkSort levelZero)
+            Meta.withLCtx {} {} <| Meta.forallBoundedTelescope ctxType xs.size fun xs _ =>
+              Term.withoutAutoBoundImplicit <| elabFn xs
 
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
   liftCoreM x

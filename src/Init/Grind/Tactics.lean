@@ -3,6 +3,8 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Tactics
 
@@ -62,7 +64,7 @@ structure Config where
   splitIndPred : Bool := false
   /--
   If `splitImp` is `true`, then given an implication `p → q` or `(h : p) → q h`, `grind` splits on `p`
-  it the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
+  if the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
   -/
   splitImp : Bool := false
   /-- By default, `grind` halts as soon as it encounters a sub-goal where no further progress can be made. -/
@@ -73,6 +75,12 @@ structure Config where
   ext : Bool := true
   /-- If `extAll` is `true`, `grind` uses any extensionality theorems available in the environment. -/
   extAll : Bool := false
+  /--
+  If `etaStruct` is `true`, then for each term `t : S` such that `S` is a structure,
+  and is tagged with `[grind ext]`, `grind` adds the equation `t = ⟨t.1, ..., t.n⟩`
+  which holds by reflexivity. Moreover, the extensionality theorem for `S` is not used.
+  -/
+  etaStruct : Bool := true
   /--
   If `funext` is `true`, `grind` creates new opportunities for applying function extensionality by case-splitting
   on equalities between lambda expressions.
@@ -116,6 +124,12 @@ structure Config where
   When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
   -/
   ring := false
+  ringSteps := 10000
+  /--
+  When `true` (default: `false`), the commutative ring procedure in `grind` constructs stepwise
+  proof terms, instead of a single-step Nullstellensatz certificate
+  -/
+  ringNull := false
   deriving Inhabited, BEq
 
 end Lean.Grind

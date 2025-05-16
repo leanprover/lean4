@@ -9,7 +9,7 @@ axiom test_sorry {α : Sort _} : α
 Basic test of let in expression.
 -/
 /--
-info: ⊢ let x := 1;
+trace: ⊢ let x := 1;
   x = 1
 -/
 #guard_msgs in
@@ -23,7 +23,7 @@ example : (let x := 1; x) = 1 := by
 Merging
 -/
 /--
-info: ⊢ let x := 1;
+trace: ⊢ let x := 1;
   x = x
 -/
 #guard_msgs in
@@ -37,7 +37,7 @@ example : (let x := 1; x) = (let y := 1; y) := by
 Merging off.
 -/
 /--
-info: ⊢ let x := 1;
+trace: ⊢ let x := 1;
   let y := 1;
   x = y
 -/
@@ -52,7 +52,7 @@ example : (let x := 1; x) = (let y := 1; y) := by
 Not mergable, since they must match syntactically.
 -/
 /--
-info: ⊢ let x := 2;
+trace: ⊢ let x := 2;
   let y := 1 + 1;
   x = y
 -/
@@ -66,7 +66,7 @@ example : (let x := 2; x) = (let y := 1 + 1; y) := by
 Merging with local context.
 -/
 /--
-info: y : Nat := 1
+trace: y : Nat := 1
 ⊢ y = 1
 -/
 #guard_msgs in
@@ -80,7 +80,7 @@ example : (let x := 1; x) = 1 := by
 Merging with local context, for top-level.
 -/
 /--
-info: y : Nat := 1
+trace: y : Nat := 1
 ⊢ y = 1
 -/
 #guard_msgs in
@@ -94,7 +94,7 @@ example : let x := 1; x = 1 := by
 Recursive lifting
 -/
 /--
-info: ⊢ let y := 1;
+trace: ⊢ let y := 1;
   let x := y + 1;
   x + 1 = 3
 -/
@@ -109,7 +109,7 @@ example : (let x := (let y := 1; y + 1); x + 1) = 3 := by
 Lifting under a binder, dependency.
 -/
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let x := n;
     n = x
 -/
@@ -124,7 +124,7 @@ example : ∀ n : Nat, n = (let x := n; x) := by
 Lifting under a binder, no dependency.
 -/
 /--
-info: ⊢ let x := 0;
+trace: ⊢ let x := 0;
   ∀ (n : Nat), n = n + x
 -/
 #guard_msgs in
@@ -138,7 +138,7 @@ example : ∀ n : Nat, n = (let x := 0; n + x) := by
 Lifting `letFun` under a binder, dependency.
 -/
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let_fun x := n;
     n = x
 -/
@@ -153,7 +153,7 @@ example : ∀ n : Nat, n = (have x := n; x) := by
 Lifting `letFun` under a binder, no dependency.
 -/
 /--
-info: ⊢ let_fun x := 0;
+trace: ⊢ let_fun x := 0;
   ∀ (n : Nat), n = n + x
 -/
 #guard_msgs in
@@ -167,7 +167,7 @@ example : ∀ n : Nat, n = (have x := 0; n + x) := by
 Recursive lifting, one of the internal lets can leave the binder.
 -/
 /--
-info: ⊢ let y := 1;
+trace: ⊢ let y := 1;
   (fun x =>
         let a := x;
         a + y)
@@ -185,7 +185,7 @@ example : (fun x => let a := x; let y := 1; a + y) 2 = 2 + 1 := by
 Lifting out of binder type.
 -/
 /--
-info: ⊢ let ty := Nat;
+trace: ⊢ let ty := Nat;
   (fun x => Nat) 2
 -/
 #guard_msgs in
@@ -211,7 +211,7 @@ Four cases to this test, depending on whether a `have` or `let` is seen first,
 and whether the second is a `have` or `let`.
 -/
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let_fun x := n;
     x = x
 -/
@@ -222,7 +222,7 @@ example : ∀ n : Nat, (have x := n; x) = (have x' := n; x') := by
   intros
   rfl
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let x := n;
     x = x
 -/
@@ -233,7 +233,7 @@ example : ∀ n : Nat, (let x := n; x) = (have x' := n; x') := by
   intros
   rfl
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let x := n;
     x = x
 -/
@@ -244,7 +244,7 @@ example : ∀ n : Nat, (have x := n; x) = (let x' := n; x') := by
   intros
   rfl
 /--
-info: ⊢ ∀ (n : Nat),
+trace: ⊢ ∀ (n : Nat),
     let x := n;
     x = x
 -/
@@ -267,7 +267,7 @@ example : ∀ n : Nat, let x := n; let y := x; y = n := by
 Lifting from underneath an unliftable let is OK.
 -/
 /--
-info: ⊢ let y := 0;
+trace: ⊢ let y := 0;
   ∀ (n : Nat),
     let x := n;
     x + y = n
@@ -294,7 +294,7 @@ example : (id : (let ty := Nat; ty) → Nat) = @id Nat := by
 Enable lifting from implicit arguments using `+implicit`.
 -/
 /--
-info: ⊢ let ty := Nat;
+trace: ⊢ let ty := Nat;
   id = id
 -/
 #guard_msgs in
@@ -307,7 +307,7 @@ example : (id : (let ty := Nat; ty) → Nat) = @id Nat := by
 Lifting at a local hypothesis.
 -/
 /--
-info: y : Nat
+trace: y : Nat
 h :
   let x := 1;
   x = y
@@ -323,7 +323,7 @@ example (h : (let x := 1; x) = y) : True := by
 Lifting in both the type and value for local declarations.
 -/
 /--
-info: v : let ty := Nat;
+trace: v : let ty := Nat;
 id ty :=
   let x := 2;
   id x
@@ -340,7 +340,7 @@ example : True := by
 Merges using local context, even if the local declaration comes after.
 -/
 /--
-info: y : Type := Nat
+trace: y : Type := Nat
 h : y
 ⊢ True
 -/
@@ -355,7 +355,7 @@ example (h : let x := Nat; x) : True := by
 A test to make sure `lift_lets` works after other tactics.
 -/
 /--
-info: y : Nat
+trace: y : Nat
 ⊢ let x := 1;
   x = y → True
 -/
@@ -372,7 +372,7 @@ example (h : (let x := 1; x) = y) : True := by
 Lifting `let`s in proofs in `+proof` mode.
 -/
 /--
-info: m : Nat
+trace: m : Nat
 h : ∃ n, n + 1 = m
 x : Fin m
 y : Fin (h.choose + 1)
@@ -397,10 +397,10 @@ Unlike `extract_lets`, the `lift_lets` conv tactic's modifications persist,
 since the local context remains the same.
 -/
 /--
-info: | let x := Nat;
+trace: | let x := Nat;
   x = Int
 ---
-info: ⊢ let x := Nat;
+trace: ⊢ let x := Nat;
   x = Int
 -/
 #guard_msgs in
@@ -415,10 +415,10 @@ example : (let x := Nat; x) = Int := by
 Merging with local context.
 -/
 /--
-info: y : Type := Nat
+trace: y : Type := Nat
 | y
 ---
-info: y : Type := Nat
+trace: y : Type := Nat
 ⊢ y = Int
 -/
 #guard_msgs in

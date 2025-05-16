@@ -35,8 +35,8 @@ building an `Array` product of its direct local imports.
 -/
 def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := Job.async do
   let contents ← IO.FS.readFile mod.leanFile
-  let imports ← Lean.parseImports' contents mod.leanFile.toString
-  let mods ← imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
+  let res ← Lean.parseImports' contents mod.leanFile.toString
+  let mods ← res.imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
     findModule? imp.module <&> fun | some mod => set.insert mod | none => set
   return mods.toArray
 
@@ -218,7 +218,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
     mod.fetchImportLibs precompileImports mod.shouldPrecompile
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
-    mod.pkg.externLibs.mapM (·.dynlib.fetch)
+    if mod.shouldPrecompile then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 

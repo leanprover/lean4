@@ -37,13 +37,14 @@ def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr 
 
 def mkWithCtorType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
-  let us := info.levelParams.map mkLevelParam
-  let v := `v -- this relies on the fact that the parameter names in `us` are never `v`
+  let casesOnName := mkCasesOnName indName
+  let casesOnInfo ← getConstVal casesOnName
+  let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
-  let indLevel ← getDecLevel indTyKind
+  let indLevel ← getLevel indTyKind
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs  _ => do
-    withLocalDeclD `P (mkSort (mkLevelParam v).succ) fun P => do
+    withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
       let default ← mkArrow (mkConst ``PUnit [indLevel]) P
       let es ← info.ctors.toArray.mapM fun ctorName => do
@@ -58,33 +59,37 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
   let declName := indName ++ `withCtorType
   addAndCompile <| Declaration.defnDecl {
     name        := declName
-    levelParams := v :: info.levelParams
+    levelParams := casesOnInfo.levelParams
     type        := (← inferType e)
     value       := e
     safety      := DefinitionSafety.safe
     hints       := ReducibilityHints.abbrev
   }
+  modifyEnv fun env => addToCompletionBlackList env declName
+  modifyEnv fun env => addProtected env declName
   setReducibleAttribute declName
 
 def mkWithCtor (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let withCtorTypeName := indName ++ `withCtorType
-  let us := info.levelParams.map mkLevelParam
-  let v := `v -- this relies on the fact that the parameter names in `us` are never `v`
+  let casesOnName := mkCasesOnName indName
+  let casesOnInfo ← getConstVal casesOnName
+  let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
-  let indLevel ← getDecLevel indTyKind
+  let indLevel ← getLevel indTyKind
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs t => do
-    withLocalDeclD `P (mkSort (mkLevelParam v).succ) fun P => do
+    withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
-      let withCtorTypeNameApp := mkAppN (mkConst withCtorTypeName (mkLevelParam v :: us)) (xs.push P)
+      let withCtorTypeNameApp := mkAppN (mkConst withCtorTypeName (v :: us)) (xs.push P)
       let kType := mkApp withCtorTypeNameApp  ctorIdx
       withLocalDeclD `k kType fun k =>
       withLocalDeclD `k' P fun k' =>
       forallBoundedTelescope t info.numIndices fun ys t' => do
+        let t' ← whnfD t'
         assert! t'.isSort
         withLocalDeclD `x (mkAppN indTyCon (xs ++ ys)) fun x => do
-          let e := mkConst (mkCasesOnName indName) (.succ (mkLevelParam v)::us)
+          let e := mkConst (mkCasesOnName indName) (v.succ :: us)
           let e := mkAppN e xs
           let motive ← mkLambdaFVars (ys.push x) P
           let e := mkApp e motive
@@ -103,7 +108,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
                 mkLambdaFVars #[h] e
               let «else» ← withLocalDeclD `h (mkNot heq) fun h =>
                 mkLambdaFVars #[h] k'
-              let alt := mkApp5 (mkConst ``dite [(mkLevelParam v).succ])
+              let alt := mkApp5 (mkConst ``dite [v.succ])
                   P heq (mkApp2 (mkConst ``Nat.decEq) ctorIdx (mkNatLit i))
                   «then» «else»
               mkLambdaFVars zs alt
@@ -114,18 +119,20 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   -- not compiled to avoid old code generator bug #1774
   addDecl <| Declaration.defnDecl {
     name        := declName
-    levelParams := v :: info.levelParams
+    levelParams := casesOnInfo.levelParams
     type        := (← inferType e)
     value       := e
     safety      := DefinitionSafety.safe
     hints       := ReducibilityHints.abbrev
   }
+  modifyEnv fun env => addToCompletionBlackList env declName
+  modifyEnv fun env => addProtected env declName
   setReducibleAttribute declName
 
 def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let casesOnName := mkCasesOnName indName
-  let ConstantInfo.defnInfo casesOnInfo ← getConstInfo casesOnName | unreachable!
+  let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let e := mkConst casesOnName (v.succ::us)
   let t ← inferType e
@@ -182,4 +189,6 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
     safety      := DefinitionSafety.safe
     hints       := ReducibilityHints.abbrev
   }
+  modifyEnv fun env => addToCompletionBlackList env declName
+  modifyEnv fun env => addProtected env declName
   setReducibleAttribute declName

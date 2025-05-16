@@ -54,18 +54,16 @@ def fib'' (n : Nat) : Nat :=
       0
 
 /--
-info: fib''.fun_cases_unfolding (motive : Nat → Nat → Prop) (case1 : ∀ (n : Nat), n < 2 → motive n n)
+info: fib''.fun_cases_unfolding (n : Nat) (motive : Nat → Prop) (case1 : n < 2 → motive n)
   (case2 :
-    ∀ (n : Nat),
-      ¬n < 2 →
-        let foo := n - 2;
-        foo < 100 → motive n (fib'' (n - 1) + fib'' foo))
+    ¬n < 2 →
+      let foo := n - 2;
+      foo < 100 → motive (fib'' (n - 1) + fib'' foo))
   (case3 :
-    ∀ (n : Nat),
-      ¬n < 2 →
-        let foo := n - 2;
-        ¬foo < 100 → motive n 0)
-  (n : Nat) : motive n (fib'' n)
+    ¬n < 2 →
+      let foo := n - 2;
+      ¬foo < 100 → motive 0) :
+  motive (fib'' n)
 -/
 #guard_msgs(pass trace, all) in
 #check fib''.fun_cases_unfolding
@@ -76,20 +74,18 @@ def filter (p : Nat → Bool) : List Nat → List Nat
   | x::xs => if p x then x::filter p xs else filter p xs
 
 /--
-info: filter.fun_cases (motive : (Nat → Bool) → List Nat → Prop) (case1 : ∀ (p : Nat → Bool), motive p [])
-  (case2 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), p x = true → motive p (x :: xs))
-  (case3 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), ¬p x = true → motive p (x :: xs)) (p : Nat → Bool)
-  (x✝ : List Nat) : motive p x✝
+info: filter.fun_cases (p : Nat → Bool) (motive : List Nat → Prop) (case1 : motive [])
+  (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive (x :: xs))
+  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive (x :: xs)) (x✝ : List Nat) : motive x✝
 -/
 #guard_msgs(pass trace, all) in
 #check filter.fun_cases
 
 /--
-info: filter.fun_cases_unfolding (motive : (Nat → Bool) → List Nat → List Nat → Prop)
-  (case1 : ∀ (p : Nat → Bool), motive p [] [])
-  (case2 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), p x = true → motive p (x :: xs) (x :: filter p xs))
-  (case3 : ∀ (p : Nat → Bool) (x : Nat) (xs : List Nat), ¬p x = true → motive p (x :: xs) (filter p xs))
-  (p : Nat → Bool) (x✝ : List Nat) : motive p x✝ (filter p x✝)
+info: filter.fun_cases_unfolding (p : Nat → Bool) (motive : List Nat → List Nat → Prop) (case1 : motive [] [])
+  (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive (x :: xs) (x :: filter p xs))
+  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive (x :: xs) (filter p xs)) (x✝ : List Nat) :
+  motive x✝ (filter p x✝)
 -/
 #guard_msgs(pass trace, all) in
 #check filter.fun_cases_unfolding
@@ -138,18 +134,15 @@ def map (f : Nat → Bool) : List Nat → List Bool
 termination_by x => x
 
 /--
-info: map.fun_cases (motive : (Nat → Bool) → List Nat → Prop) (case1 : ∀ (f : Nat → Bool), motive f [])
-  (case2 : ∀ (f : Nat → Bool) (x : Nat) (xs : List Nat), motive f (x :: xs)) (f : Nat → Bool) (x✝ : List Nat) :
-  motive f x✝
+info: map.fun_cases (motive : List Nat → Prop) (case1 : motive []) (case2 : ∀ (x : Nat) (xs : List Nat), motive (x :: xs))
+  (x✝ : List Nat) : motive x✝
 -/
 #guard_msgs(pass trace, all) in
 #check map.fun_cases
 
 /--
-info: map.fun_cases_unfolding (motive : (Nat → Bool) → List Nat → List Bool → Prop)
-  (case1 : ∀ (f : Nat → Bool), motive f [] [])
-  (case2 : ∀ (f : Nat → Bool) (x : Nat) (xs : List Nat), motive f (x :: xs) (f x :: map f xs)) (f : Nat → Bool)
-  (x✝ : List Nat) : motive f x✝ (map f x✝)
+info: map.fun_cases_unfolding (f : Nat → Bool) (motive : List Nat → List Bool → Prop) (case1 : motive [] [])
+  (case2 : ∀ (x : Nat) (xs : List Nat), motive (x :: xs) (f x :: map f xs)) (x✝ : List Nat) : motive x✝ (map f x✝)
 -/
 #guard_msgs(pass trace, all) in
 #check map.fun_cases_unfolding
@@ -435,8 +428,8 @@ info: withHave.induct_unfolding (motive : Nat → Bool → Prop) (case1 : 0 < 42
 #check withHave.induct_unfolding
 
 /--
-info: withHave.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : 0 < 42 → motive 42 true)
-  (case2 : ∀ (n : Nat), 0 < n → ¬n = 42 → motive n (withHave (n - 1))) (n : Nat) : motive n (withHave n)
+info: withHave.fun_cases_unfolding (n : Nat) (motive : Bool → Prop) (case1 : 0 < n → n = 42 → motive true)
+  (case2 : 0 < n → ¬n = 42 → motive (withHave (n - 1))) : motive (withHave n)
 -/
 #guard_msgs(pass trace, all) in
 #check withHave.fun_cases_unfolding

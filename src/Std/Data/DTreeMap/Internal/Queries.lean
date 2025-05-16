@@ -26,6 +26,13 @@ private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => �
 
 namespace Std.DTreeMap.Internal.Impl
 
+/-- Two hash maps are equivalent in the sense of Equiv iff all the keys and values are equal. -/
+structure Equiv (t t' : Impl α β) where
+  /-- Implementation detail of the tree map -/
+  impl : t.toListModel.Perm t'.toListModel
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
 /-- Returns `true` if the given key is contained in the map. -/
 def contains [Ord α] (k : α) (t : Impl α β) : Bool :=
   match t with

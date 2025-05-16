@@ -1901,11 +1901,11 @@ theorem toInt_smod {x y : BitVec w} :
                 omega)]
           rw [Int.neg_emod]
           omega
-    · have hymsbneg : (-y).msb = false := by simp_all
-      have hyneglt := toNat_lt_of_msb_false hymsbneg
-      have hmodlt := Nat.mod_lt (y := (-y).toNat) (x := (-x).toNat)
-        (by rw [← neg_eq_zero_iff, toNat_eq, toNat_ofNat, zero_mod] at hyzero
-            omega)
+    · have hyneglt : (-y).toNat < 2 ^ (w + 1 - 1) := by
+        apply toNat_lt_of_msb_false
+        simp [hyintmin, hymsb]
+      have hmodlt := Nat.mod_lt (-x).toNat (y := (-y).toNat)
+        (by rw [← neg_eq_zero_iff, toNat_eq, toNat_ofNat, zero_mod] at hyzero; omega)
       rw [Int.bmod_eq_of_le (by simp only [Nat.add_one_sub_one] at hyneglt; omega) (by omega), Int.neg_emod]
       omega
 

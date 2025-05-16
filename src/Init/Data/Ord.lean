@@ -728,7 +728,7 @@ def lexOrd [Ord α] [Ord β] : Ord (α × β) where
 Constructs an `BEq` instance from an `Ord` instance that asserts that the result of `compare` is
 `Ordering.eq`.
 -/
-def beqOfOrd [Ord α] : BEq α where
+@[expose] def beqOfOrd [Ord α] : BEq α where
   beq a b := (compare a b).isEq
 
 /--
@@ -757,7 +757,7 @@ namespace Ord
 /--
 Constructs a `BEq` instance from an `Ord` instance.
 -/
-protected abbrev toBEq (ord : Ord α) : BEq α :=
+@[expose] protected abbrev toBEq (ord : Ord α) : BEq α :=
   beqOfOrd
 
 /--

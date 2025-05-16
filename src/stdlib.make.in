@@ -61,7 +61,9 @@ Lean: Std
 	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Lean $(LEANMAKE_OPTS)
 
 Leanc: Lean
+ifneq "${STAGE}" "0"
 	+"${LEAN_BIN}/leanmake" -C "${CMAKE_BINARY_DIR}/leanc" lib PKG=Leanc $(LEANMAKE_OPTS) OUT="${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" LIB_OUT="${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
+endif
 
 Lake:
 # lake is in its own subdirectory, so must adjust relative paths...

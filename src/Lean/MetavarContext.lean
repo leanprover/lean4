@@ -331,6 +331,8 @@ structure MetavarContext where
   lAssignment    : PersistentHashMap LMVarId Level := {}
   /-- Assignment table for expression metavariables.-/
   eAssignment    : PersistentHashMap MVarId Expr := {}
+  /-- Number of assignments in `eAssignment` and `lAssignments`. -/
+  numAssignments : Nat := 0
   /-- Assignment table for delayed abstraction metavariables.
   For more information about delayed abstraction, see the docstring for `DelayedMetavarAssignment`. -/
   dAssignment    : PersistentHashMap MVarId DelayedMetavarAssignment := {}
@@ -489,11 +491,11 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   This is a low-level API, and it is safer to use `isLevelDefEq (mkLevelMVar mvarId) u`.
 -/
 def assignLevelMVar [MonadMCtx m] (mvarId : LMVarId) (val : Level) : m Unit :=
-  modifyMCtx fun m => { m with lAssignment := m.lAssignment.insert mvarId val }
+  modifyMCtx fun m => { m with lAssignment := m.lAssignment.insert mvarId val, numAssignments := m.numAssignments + 1 }
 
 @[export lean_assign_lmvar]
 def assignLevelMVarExp (m : MetavarContext) (mvarId : LMVarId) (val : Level) : MetavarContext :=
-  { m with lAssignment := m.lAssignment.insert mvarId val }
+  { m with lAssignment := m.lAssignment.insert mvarId val, numAssignments := m.numAssignments + 1 }
 
 /--
 Add `mvarId := x` to the metavariable assignment.
@@ -502,11 +504,11 @@ a cycle is being introduced, or whether the expression has the right type.
 This is a low-level API, and it is safer to use `isDefEq (mkMVar mvarId) x`.
 -/
 def _root_.Lean.MVarId.assign [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
-  modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val }
+  modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val, numAssignments := m.numAssignments + 1 }
 
 @[export lean_assign_mvar]
 def assignExp (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
-  { m with eAssignment := m.eAssignment.insert mvarId val }
+  { m with eAssignment := m.eAssignment.insert mvarId val, numAssignments := m.numAssignments + 1 }
 
 /--
 Add a delayed assignment for the given metavariable. You must make sure that

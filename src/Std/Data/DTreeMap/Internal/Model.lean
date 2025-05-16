@@ -674,19 +674,20 @@ theorem containsThenInsertIfNew!_snd_eq_insertIfNew! [Ord α] (t : Impl α β) (
 
 theorem insertMin_eq_insertMin! [Ord α] {a b} {t : Impl α β} (htb) :
     (t.insertMin a b htb).impl = t.insertMin! a b := by
-  cases a, b, t using insertMin!.fun_cases
+  fun_cases insertMin!
   · rfl
   · simp only [insertMin!, insertMin, balanceL_eq_balanceL!, insertMin_eq_insertMin! htb.left]
 
 theorem insertMax_eq_insertMax! [Ord α] {a b} {t : Impl α β} (htb) :
     (t.insertMax a b htb).impl = t.insertMax! a b := by
-  cases a, b, t using insertMax!.fun_cases
+  fun_cases insertMax!
   · rfl
   · simp only [insertMax!, insertMax, balanceR_eq_balanceR!, insertMax_eq_insertMax! htb.right]
 
 theorem link_eq_link! [Ord α] {k v} {l r : Impl α β} (hlb hrb) :
     (link k v l r hlb hrb).impl = link! k v l r := by
-  cases k, v, l, r using link!.fun_cases <;> rw [link, link!]
+  set_option tactic.fun_induction.unfolding false in
+  fun_cases link! <;> rw [link, link!]
   · rw [insertMin_eq_insertMin!]
   · rw [insertMax_eq_insertMax!]
   · split <;> simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
@@ -699,7 +700,8 @@ termination_by sizeOf l + sizeOf r
 
 theorem link2_eq_link2! [Ord α] {l r : Impl α β} (hlb hrb) :
     (link2 l r hlb hrb).impl = link2! l r := by
-  cases l, r using link2!.fun_cases <;> rw [link2!, link2]
+  set_option tactic.fun_induction.unfolding false in
+  fun_cases link2! <;> rw [link2!, link2]
   · split <;> simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
   · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
       link2_eq_link2! hlb.right hrb, link2_eq_link2! hlb hrb.left]

@@ -529,7 +529,8 @@ attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.inj
 theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     balance! k v l r = balanceₘ k v l r := by
-  cases k, v, l, r using balance!.fun_cases
+  set_option tactic.fun_induction.unfolding false in
+  fun_cases balance!
   all_goals dsimp only [balance!, balanceₘ]
   · rfl
   · split <;> simp_all [Std.Internal.tree_tac]
@@ -582,15 +583,13 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     simp only [Std.Internal.tree_tac, Nat.add_right_cancel_iff] at *
     omega
   · exfalso
-    rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hrb
-    simp only [delta] at h
+    simp only [delta] at ‹delta * _ < _›
     have := hlb.one_le
     omega
   · exfalso
-    rename_i ls rs h _ _ _ _ _ _ _
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hrb
-    simp only [delta] at h
+    simp only [delta] at ‹delta * _ < _›
     have := hlb.one_le
     omega
   · repeat simp_all only [Std.Internal.tree_tac, rotateR, dite_true, ite_true, dite_false]
@@ -602,15 +601,13 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     simp only [Std.Internal.tree_tac, Nat.reduceMul] at *
     omega
   · exfalso
-    rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hlb
-    simp only [delta] at h
+    simp only [delta] at ‹delta * _ < _›
     have := hrb.one_le
     omega
   · exfalso
-    rename_i ls rs h _ _ _ _ _ _ _
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hlb
-    simp only [delta] at h
+    simp only [delta] at ‹delta * _ < _›
     have := hrb.one_le
     omega
   · repeat simp only [Std.Internal.tree_tac, dite_true, dite_false, *] at *
@@ -654,6 +651,7 @@ theorem balanced_rotateL (k v l rs rk rv rl rr) (hl : l.Balanced)
     (hlr : BalanceLErasePrecond l.size rs ∨ BalanceLErasePrecond rs l.size)
     (hh : rs > delta * l.size) :
     (rotateL k v l rk rv rl rr : Impl α β).Balanced := by
+  set_option tactic.fun_induction.unfolding false in
   fun_cases rotateL k v l rk rv rl rr <;> dsimp only [rotateL]
   · split
     · next h =>
@@ -668,6 +666,7 @@ theorem balanced_rotateR (k v ls lk lv ll lr r) (hl : (Impl.inner ls lk lv ll lr
     (hr : r.Balanced) (hlr : BalanceLErasePrecond ls r.size ∨ BalanceLErasePrecond r.size ls)
     (hh : ls > delta * r.size) :
     (rotateR k v lk lv ll lr r : Impl α β).Balanced := by
+  set_option tactic.fun_induction.unfolding false in
   fun_cases rotateR k v lk lv ll lr r <;> dsimp only [rotateR]
   · split
     · next h =>
@@ -680,6 +679,7 @@ theorem balanced_rotateR (k v ls lk lv ll lr r) (hl : (Impl.inner ls lk lv ll lr
 
 theorem balanceL_eq_balanceLErase {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balanceLErase k v l r hlb hrb hlr.erase := by
+  set_option tactic.fun_induction.unfolding false in
   fun_cases balanceL k v l r hlb hrb hlr
   all_goals dsimp only [balanceL, balanceLErase]
   split
@@ -697,7 +697,7 @@ theorem balanceLErase_eq_balanceL! {k : α} {v : β k} {l r : Impl α β} {hlb h
 theorem balanceL!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
     (hrb : r.Balanced) (hlr : BalanceLErasePrecond l.size r.size) :
     balanceL! k v l r = balance! k v l r := by
-  cases k, v, l, r using balance!.fun_cases
+  fun_cases balance!
   all_goals dsimp only [balanceL!, balance!]
   all_goals try simp only [*]
   all_goals try dsimp only [dreduceDIte, dreduceIte]
@@ -708,6 +708,7 @@ theorem balanceL!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Ba
 
 theorem balanceR_eq_balanceRErase {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceR k v l r hlb hrb hlr = balanceRErase k v l r hlb hrb hlr.erase := by
+  set_option tactic.fun_induction.unfolding false in
   fun_cases balanceR k v l r hlb hrb hlr
   all_goals dsimp only [balanceR, balanceRErase]
   split
@@ -725,7 +726,7 @@ theorem balanceRErase_eq_balanceR! {k : α} {v : β k} {l r : Impl α β} {hlb h
 theorem balanceR!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
     (hrb : r.Balanced) (hlr : BalanceLErasePrecond r.size l.size) :
     balanceR! k v l r = balance! k v l r := by
-  cases k, v, l, r using balance!.fun_cases
+  fun_cases balance! k v l r
   all_goals dsimp only [balanceR!, balance!]
   all_goals try simp only [*]
   all_goals try dsimp only [dreduceDIte, dreduceIte]
@@ -736,6 +737,7 @@ theorem balanceR!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Ba
 
 theorem balance_eq_balance! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balance k v l r hlb hrb hlr = balance! k v l r := by
+  set_option tactic.fun_induction.unfolding false in
   fun_cases balance! k v l r
   all_goals dsimp only [balance, balance!]
   all_goals simp only [*]

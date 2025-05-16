@@ -101,8 +101,8 @@ private theorem qpartition_loop_perm (as : Vector α n)
   fun_induction qpartition.loop with grind
 
 @[local grind]
-private theorem qpartition_perm (as : Vector α n) (w : lo ≤ hi)
-    (hlo : lo < n := by omega) (hhi : hi < n := by omega) :
+private theorem qpartition_perm
+    (as : Vector α n) (w : lo ≤ hi) (hlo : lo < n) (hhi : hi < n) :
     (qpartition as lt lo hi).2 ~ as := by
   unfold qpartition
   refine Vector.Perm.trans (qpartition_loop_perm ..) ?_
@@ -111,22 +111,10 @@ private theorem qpartition_perm (as : Vector α n) (w : lo ≤ hi)
   | grind
   | refine Vector.Perm.trans (Vector.swap_perm ..) ?_
 
-private theorem qsort_sort_perm (as : Vector α n) (lo hi : Nat) (w : lo ≤ hi)
-    (hlo : lo < n) (hhi : hi < n) :
+private theorem qsort_sort_perm
+    (as : Vector α n) (w : lo ≤ hi) (hlo : lo < n) (hhi : hi < n) :
     qsort.sort lt as lo hi w hlo hhi ~ as := by
-  -- TODO: try `fun_induction` here,
-  -- but only after `fun_induction` takes care of more unfolding and splitting!
-  unfold qsort.sort
-  split
-  · split
-    rename_i as' h
-    obtain rfl := (show as' = (qpartition as lt lo hi ..).2 by simp [h])
-    split
-    · apply qpartition_perm
-    · refine Vector.Perm.trans (qsort_sort_perm ..) ?_
-      refine Vector.Perm.trans (qsort_sort_perm ..) ?_
-      grind
-  · grind
+  fun_induction qsort.sort with grind
 
 grind_pattern qsort_sort_perm => qsort.sort lt as lo hi w hlo hhi
 

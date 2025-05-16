@@ -224,7 +224,7 @@ theorem get?_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
 
 theorem get?_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a k : α} {v : β k} :
     (t.insert k v).get? a =
-      if h : cmp k a = .eq then some (cast (congrArg β (compare_eq_iff_eq.mp h)) v) else t.get? a :=
+      if h : cmp k a = .eq then some (cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp h)) v) else t.get? a :=
   Impl.get?_insert! h
 
 @[simp]
@@ -337,7 +337,7 @@ end Const
 theorem get_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insert k v).get a h₁ =
       if h₂ : cmp k a = .eq then
-        cast (congrArg β (compare_eq_iff_eq.mp h₂)) v
+        cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp h₂)) v
       else
         t.get a (mem_of_mem_insert h h₁ h₂) :=
   Impl.get_insert! h
@@ -401,7 +401,7 @@ theorem get!_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} [In
 
 theorem get!_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} [Inhabited (β a)]
     {v : β k} : (t.insert k v).get! a =
-      if h : cmp k a = .eq then cast (congrArg β (compare_eq_iff_eq.mp h)) v else t.get! a :=
+      if h : cmp k a = .eq then cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp h)) v else t.get! a :=
   Impl.get!_insert! h
 
 @[simp]
@@ -519,7 +519,7 @@ theorem getD_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} {fa
 theorem getD_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
     (t.insert k v).getD a fallback =
       if h : cmp k a = .eq then
-        cast (congrArg β (compare_eq_iff_eq.mp h)) v
+        cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp h)) v
       else t.getD a fallback :=
   Impl.getD_insert! h
 
@@ -928,7 +928,7 @@ theorem size_insertIfNew_le [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
 theorem get?_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v).get? a =
       if h : cmp k a = .eq ∧ ¬ k ∈ t then
-        some (cast (congrArg β (compare_eq_iff_eq.mp h.1)) v)
+        some (cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp h.1)) v)
       else
         t.get? a :=
   Impl.get?_insertIfNew! h
@@ -936,7 +936,7 @@ theorem get?_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} 
 theorem get_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insertIfNew k v).get a h₁ =
       if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then
-        cast (congrArg β (compare_eq_iff_eq.mp h₂.1)) v
+        cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp h₂.1)) v
       else
         t.get a (mem_of_mem_insertIfNew' h h₁ h₂) :=
   Impl.get_insertIfNew! h
@@ -944,7 +944,7 @@ theorem get_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {
 theorem get!_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
     (t.insertIfNew k v).get! a =
       if h : cmp k a = .eq ∧ ¬ k ∈ t then
-        cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
+        cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp h.1)) v
       else
         t.get! a :=
   Impl.get!_insertIfNew! h
@@ -952,7 +952,7 @@ theorem get!_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} 
 theorem getD_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
     (t.insertIfNew k v).getD a fallback =
       if h : cmp k a = .eq ∧ ¬ k ∈ t then
-        cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
+        cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp h.1)) v
       else
         t.getD a fallback :=
   Impl.getD_insertIfNew! h
@@ -1330,7 +1330,7 @@ theorem get?_insertMany_list_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cm
 theorem get?_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     (h : t.WF) {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k}
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
-    (t.insertMany l).get? k' = some (cast (by congr; apply compare_eq_iff_eq.mp k_eq) v) :=
+    (t.insertMany l).get? k' = some (cast (by congr; apply LawfulEqCmp.compare_eq_iff_eq.mp k_eq) v) :=
   Impl.get?_insertMany!_list_of_mem h k_eq distinct mem
 
 theorem get_insertMany_list_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] [BEq α]
@@ -1347,7 +1347,7 @@ theorem get_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l)
     {h'} :
-    (t.insertMany l).get k' h' = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+    (t.insertMany l).get k' h' = cast (by congr; apply LawfulEqCmp.compare_eq_iff_eq.mp k_eq) v :=
   Impl.get_insertMany!_list_of_mem h k_eq distinct mem
 
 theorem get!_insertMany_list_of_contains_eq_false [TransCmp cmp]
@@ -1361,7 +1361,7 @@ theorem get!_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k} [Inhabited (β k')]
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
-    (t.insertMany l).get! k' = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+    (t.insertMany l).get! k' = cast (by congr; apply LawfulEqCmp.compare_eq_iff_eq.mp k_eq) v :=
   Impl.get!_insertMany!_list_of_mem h k_eq distinct mem
 
 theorem getD_insertMany_list_of_contains_eq_false [TransCmp cmp]
@@ -1375,7 +1375,7 @@ theorem getD_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k} {fallback : β k'}
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
-    (t.insertMany l).getD k' fallback = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+    (t.insertMany l).getD k' fallback = cast (by congr; apply LawfulEqCmp.compare_eq_iff_eq.mp k_eq) v :=
   Impl.getD_insertMany!_list_of_mem h k_eq distinct mem
 
 theorem getKey?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -1843,7 +1843,7 @@ theorem get?_ofList_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
     {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k}
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
-    (ofList l cmp).get? k' = some (cast (by congr; apply compare_eq_iff_eq.mp k_eq) v) :=
+    (ofList l cmp).get? k' = some (cast (by congr; apply LawfulEqCmp.compare_eq_iff_eq.mp k_eq) v) :=
   Impl.get?_insertMany_empty_list_of_mem k_eq distinct mem
 
 theorem get_ofList_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
@@ -1851,7 +1851,7 @@ theorem get_ofList_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l)
     {h} :
-    (ofList l cmp).get k' h = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+    (ofList l cmp).get k' h = cast (by congr; apply LawfulEqCmp.compare_eq_iff_eq.mp k_eq) v :=
   Impl.get_insertMany_empty_list_of_mem k_eq distinct mem
 
 theorem get!_ofList_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -1864,7 +1864,7 @@ theorem get!_ofList_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
     {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k} [Inhabited (β k')]
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
-    (ofList l cmp).get! k' = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+    (ofList l cmp).get! k' = cast (by congr; apply LawfulEqCmp.compare_eq_iff_eq.mp k_eq) v :=
   Impl.get!_insertMany_empty_list_of_mem k_eq distinct mem
 
 theorem getD_ofList_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -1877,7 +1877,7 @@ theorem getD_ofList_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
     {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k} {fallback : β k'}
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
-    (ofList l cmp).getD k' fallback = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+    (ofList l cmp).getD k' fallback = cast (by congr; apply LawfulEqCmp.compare_eq_iff_eq.mp k_eq) v :=
   Impl.getD_insertMany_empty_list_of_mem k_eq distinct mem
 
 theorem getKey?_ofList_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -2295,7 +2295,7 @@ theorem get?_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f).get? k' =
       if h : cmp k k' = .eq then
-        cast (congrArg (Option ∘ β) (compare_eq_iff_eq.mp h)) (f (t.get? k))
+        cast (congrArg (Option ∘ β) (LawfulEqCmp.compare_eq_iff_eq.mp h)) (f (t.get? k))
       else
         t.get? k' :=
   Impl.get?_alter! h
@@ -2304,14 +2304,14 @@ theorem get?_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
 theorem get?_alter_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f).get? k = f (t.get? k) := by
-  simp [get?_alter h]
+  simp [get?_alter h, ReflCmp.compare_self]
 
 theorem get_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter k f)} :
     (t.alter k f).get k' hc =
       if heq : cmp k k' = .eq then
         haveI h' : (f (t.get? k)).isSome := mem_alter_of_compare_eq h heq |>.mp hc
-        cast (congrArg β (compare_eq_iff_eq.mp heq)) <| (f (t.get? k)).get <| h'
+        cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp heq)) <| (f (t.get? k)).get <| h'
       else
         haveI h' : k' ∈ t := mem_alter_of_not_compare_eq h heq |>.mp hc
         t.get k' h' :=
@@ -2328,7 +2328,7 @@ theorem get!_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α} [Inha
     {f : Option (β k) → Option (β k)} :
     (t.alter k f).get! k' =
       if heq : cmp k k' = .eq then
-        (f (t.get? k)).map (cast (congrArg β (compare_eq_iff_eq.mp heq))) |>.get!
+        (f (t.get? k)).map (cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp heq))) |>.get!
       else
         t.get! k' :=
   Impl.get!_alter! h
@@ -2343,7 +2343,7 @@ theorem getD_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α} {fall
     {f : Option (β k) → Option (β k)} :
     (t.alter k f).getD k' fallback =
       if heq : cmp k k' = .eq then
-        f (t.get? k) |>.map (cast (congrArg β <| compare_eq_iff_eq.mp heq)) |>.getD fallback
+        f (t.get? k) |>.map (cast (congrArg β <| LawfulEqCmp.compare_eq_iff_eq.mp heq)) |>.getD fallback
       else
         t.getD k' fallback :=
   Impl.getD_alter! h
@@ -2646,7 +2646,7 @@ theorem size_modify (h : t.WF) {k : α} {f : β k → β k} :
 theorem get?_modify (h : t.WF) {k k' : α} {f : β k → β k} :
     (t.modify k f).get? k' =
       if h : cmp k k' = .eq then
-        (cast (congrArg (Option ∘ β) (compare_eq_iff_eq.mp h)) ((t.get? k).map f))
+        (cast (congrArg (Option ∘ β) (LawfulEqCmp.compare_eq_iff_eq.mp h)) ((t.get? k).map f))
       else
         t.get? k' :=
   Impl.get?_modify h
@@ -2660,7 +2660,7 @@ theorem get_modify (h : t.WF) {k k' : α} {f : β k → β k} {hc : k' ∈ t.mod
     (t.modify k f).get k' hc =
       if heq : cmp k k' = .eq then
         haveI h' : k ∈ t := mem_congr h heq |>.mpr <| mem_modify h |>.mp hc
-        cast (congrArg β (compare_eq_iff_eq.mp heq)) <| f (t.get k h')
+        cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp heq)) <| f (t.get k h')
       else
         haveI h' : k' ∈ t := (mem_modify h).mp hc
         t.get k' h' :=
@@ -2675,7 +2675,7 @@ theorem get_modify_self (h : t.WF) {k : α} {f : β k → β k} {hc : k ∈ t.mo
 theorem get!_modify (h : t.WF) {k k' : α} [hi : Inhabited (β k')] {f : β k → β k} :
     (t.modify k f).get! k' =
       if heq : cmp k k' = .eq then
-        t.get? k |>.map f |>.map (cast (congrArg β (compare_eq_iff_eq.mp heq))) |>.get!
+        t.get? k |>.map f |>.map (cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp heq))) |>.get!
       else
         t.get! k' :=
   Impl.get!_modify h
@@ -2688,7 +2688,7 @@ theorem get!_modify_self (h : t.WF) {k : α} [Inhabited (β k)] {f : β k → β
 theorem getD_modify (h : t.WF) {k k' : α} {fallback : β k'} {f : β k → β k} :
     (t.modify k f).getD k' fallback =
       if heq : cmp k k' = .eq then
-        t.get? k |>.map f |>.map (cast (congrArg β <| compare_eq_iff_eq.mp heq)) |>.getD fallback
+        t.get? k |>.map f |>.map (cast (congrArg β <| LawfulEqCmp.compare_eq_iff_eq.mp heq)) |>.getD fallback
       else
         t.getD k' fallback :=
   Impl.getD_modify h

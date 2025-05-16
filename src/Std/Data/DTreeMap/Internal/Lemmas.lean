@@ -28,8 +28,6 @@ variable {α : Type u} {β : α → Type v} {instOrd : Ord α} {t : Impl α β}
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 attribute [local instance low] beqOfOrd
-attribute [local instance] equivBEq_of_transOrd
-attribute [local instance] lawfulBEq_of_lawfulEqOrd
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "wf_trivial" : tactic
@@ -55,7 +53,8 @@ theorem compare_ne_iff_beq_eq_false {a b : α} :
   simp only [ne_eq, compare_eq_iff_beq, Bool.not_eq_true]
 
 private def helperLemmaNames : Array Name :=
-  #[``compare_eq_iff_beq, ``compare_ne_iff_beq_eq_false, ``Bool.not_eq_true, ``mem_iff_contains]
+  #[``compare_eq_iff_beq, ``compare_beq_eq_beq, ``compare_ne_iff_beq_eq_false,
+    ``Bool.not_eq_true, ``mem_iff_contains]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -406,16 +405,16 @@ theorem isEmpty_insertIfNew! [TransOrd α] (h : t.WF) {k : α} {v : β k} :
   simpa only [insertIfNew_eq_insertIfNew!] using isEmpty_insertIfNew h
 
 theorem contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew k v h.balanced).impl.contains a = (k == a || t.contains a) := by
+    (t.insertIfNew k v h.balanced).impl.contains a = (compare k a == .eq || t.contains a) := by
   simp_to_model [insertIfNew, contains] using List.containsKey_insertEntryIfNew
 
 theorem contains_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew! k v).contains a = (k == a || t.contains a) := by
+    (t.insertIfNew! k v).contains a = (compare k a == .eq || t.contains a) := by
   simpa only [insertIfNew_eq_insertIfNew!] using contains_insertIfNew h
 
 theorem mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     a ∈ (t.insertIfNew k v h.balanced).impl ↔ compare k a = .eq ∨ a ∈ t := by
-  simp [mem_iff_contains, contains_insertIfNew, h, beq_eq]
+  simp [mem_iff_contains, contains_insertIfNew, h, compare_eq_iff_beq]
 
 theorem mem_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insertIfNew! k v ↔ compare k a = .eq ∨ a ∈ t := by
@@ -2389,8 +2388,7 @@ theorem get_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
   simpa only [insertMany_eq_insertMany!] using get_insertMany_list_of_mem h
 
 /-- A variant of `contains_of_contains_insertMany_list` used in `get_insertMany_list`. -/
--- This should not really need `PartialEquivBEq`, but fixing it would require many changes.
-theorem contains_of_contains_insertMany_list' [TransOrd α] [BEq α] [PartialEquivBEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_of_contains_insertMany_list' [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     {l : List (α × β)} {k : α}
     (h' : contains k (insertMany t l h.balanced).val = true)
     (w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none) = none) :

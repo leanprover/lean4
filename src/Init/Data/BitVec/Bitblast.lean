@@ -1795,6 +1795,30 @@ theorem toInt_dvd_of_umod_zero {x y : BitVec w} :
   <;> norm_cast at h
   <;> simp only [dvd_of_mod_eq_zero, h, dvd_iff_mod_eq_zero.mp, reduceIte]
 
+theorem mod_eq_zero_iff {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = false) :
+    x % y = 0#w ↔ y.toInt ∣ x.toInt := by
+  have := toInt_dvd_of_umod_zero (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
+theorem neg_mod_eq_zero_iff {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
+    (-x) % y = 0#w ↔ y.toInt ∣ x.toInt := by
+  have := toInt_dvd_of_umod_zero (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
+theorem mod_neg_eq_zero_iff {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    x % (-y) = 0#w ↔ y.toInt ∣ x.toInt := by
+  have := toInt_dvd_of_umod_zero (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
+theorem neg_mod_neg_eq_zero {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+    (-x) % (-y) = 0#w ↔ y.toInt ∣ x.toInt := by
+  have := toInt_dvd_of_umod_zero (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
 

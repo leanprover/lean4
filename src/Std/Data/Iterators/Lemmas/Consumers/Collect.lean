@@ -4,19 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
+import Std.Data.Iterators.Consumers.Access
 import Std.Data.Iterators.Consumers.Collect
+import Std.Data.Iterators.Lemmas.Basic
 import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 
 namespace Std.Iterators
-
-def Iter.induct {α β} [Iterator α Id β] [Finite α Id]
-  (motive : Iter (α := α) β → Sort x)
-  (step : (it : Iter (α := α) β) →
-    (ih_yield : ∀ {it' : Iter (α := α) β} {out : β}, it.plausible_step (.yield it' out) → motive it') →
-    (ih_skip : ∀ {it' : Iter (α := α) β}, it.plausible_step (.skip it') → motive it' ) →
-    motive it) (it : Iter (α := α) β) : motive it :=
-  step _ (fun {it' _} _ => Iter.induct motive step it') (fun {it'} _ => Iter.induct motive step it')
-termination_by it.finitelyManySteps
 
 theorem Iter.toArray_eq_toArray_toIterM {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :
@@ -92,29 +85,28 @@ theorem Iter.toListRev_of_step {α β} [Iterator α Id β] [Finite α Id] {it : 
   rw [Iter.toListRev_eq_toListRev_toIterM, IterM.toListRev_of_step, Iter.step]
   simp only [Id.map_eq, Id.pure_eq, Id.bind_eq, Id.run]
   generalize it.toIterM.step = step
-  obtain ⟨step, h⟩ := step
-  cases step <;> simp
+  cases step.run.casesHelper <;> simp
 
-theorem Iter.getElem?_toList_eq_getAtIdx? {α β}
+theorem Iter.getElem?_toList_eq_seekIdx? {α β}
     [Iterator α Id β] [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} {k : Nat} :
-    it.toList[k]? = it.getAtIdx? k := by
+    it.toList[k]? = it.seekIdx? k := by
   revert k
   induction it using Iter.induct with | step it ihy ihs =>
   intro k
-  rw [toList_of_step, getAtIdx?]
+  rw [toList_of_step, seekIdx?]
   obtain ⟨step, h⟩ := it.step
   cases step
   · cases k <;> simp [ihy h]
   · simp [ihs h]
   · simp
 
-theorem Iter.toList_eq_of_getAtIdx?_eq {α₁ α₂ β}
+theorem Iter.toList_eq_of_seekIdx?_eq {α₁ α₂ β}
     [Iterator α₁ Id β] [Finite α₁ Id] [IteratorCollect α₁ Id] [LawfulIteratorCollect α₁ Id]
     [Iterator α₂ Id β] [Finite α₂ Id] [IteratorCollect α₂ Id] [LawfulIteratorCollect α₂ Id]
     {it₁ : Iter (α := α₁) β} {it₂ : Iter (α := α₂) β}
-    (h : ∀ k, it₁.getAtIdx? k = it₂.getAtIdx? k) :
+    (h : ∀ k, it₁.seekIdx? k = it₂.seekIdx? k) :
     it₁.toList = it₂.toList := by
-  ext; simp [getElem?_toList_eq_getAtIdx?, h]
+  ext; simp [getElem?_toList_eq_seekIdx?, h]
 
 end Std.Iterators

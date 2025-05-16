@@ -18,8 +18,8 @@ def Iter.induct {α β} [Iterator α Id β] [Finite α Id]
   (motive : Iter (α := α) β → Sort x)
   (step : (it : Iter (α := α) β) →
     (ih_yield : ∀ {it' : Iter (α := α) β} {out : β},
-      it.plausible_step (.yield it' out) → motive it') →
-    (ih_skip : ∀ {it' : Iter (α := α) β}, it.plausible_step (.skip it') → motive it' ) →
+      it.IsPlausibleStep (.yield it' out) → motive it') →
+    (ih_skip : ∀ {it' : Iter (α := α) β}, it.IsPlausibleStep (.skip it') → motive it' ) →
     motive it)
   (it : Iter (α := α) β) : motive it :=
   step it

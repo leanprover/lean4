@@ -1842,8 +1842,28 @@ theorem toInt_smod {x y : BitVec w} :
   · simp only [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb,
             toInt_neg, toInt_umod, Int.fmod_eq_emod, Int.natCast_emod, Int.natCast_pow,
             Int.cast_ofNat_Int, Int.bmod_neg_bmod, Int.emod_neg, Int.neg_nonneg, Int.dvd_neg, Int.neg_dvd]
+
+
     by_cases hyintmin : y = intMin (w + 1)
-    · by_cases hxintmin : x = intMin (w + 1)
+    · simp [hyintmin, -toNat_neg]
+      simp only [toNat_neg]
+      have hmodlt1 := Nat.mod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat) (b := 2 ^ (w + 1)) (by simp [toNat_eq] at hxzero; omega)
+      have hmodlt2 := Int.emod_eq_of_lt (a := 2 ^ w) (b := 2 ^ (w + 1)) (by norm_cast; omega) (by norm_cast; omega)
+      have := toNat_ge_of_msb_true hxmsb
+      simp at this
+      have hmodlt3 := Int.emod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat) (b := 2 ^ w) (by sorry) (by sorry)
+      simp only [hmodlt1]
+      simp only [hmodlt2]
+      simp only [hmodlt3]
+
+
+
+      have hynegmsb := BitVec.msb_neg_of_ne_intMin_of_ne_zero (x := y) (by sorry) (by sorry)
+
+      have hmodlt := Nat.mod_lt (x := (-x).toNat) (y := (-y).toNat) (by sorry)
+
+
+      by_cases hxintmin : x = intMin (w + 1)
       · simp [hxintmin, hyintmin]
       · -- y = intMin, x ≠ intMin
         simp only [hyintmin, neg_intMin, toNat_intMin, Nat.add_one_sub_one,

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Range
-// Imports: Init.Data.Array.Lemmas Init.Data.Array.OfFn Init.Data.Array.MapIdx Init.Data.Array.Zip Init.Data.List.Nat.Range
+// Imports: Init.Data.Array.Lemmas Init.Data.Array.Basic Init.Data.Array.OfFn Init.Data.Array.MapIdx Init.Data.Array.Zip Init.Data.List.Nat.Range
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Zip(uint8_t builtin, lean_object*);
@@ -24,6 +25,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_OfFn(builtin, lean_io_mk_world());

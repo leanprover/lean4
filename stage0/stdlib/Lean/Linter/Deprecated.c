@@ -87,6 +87,7 @@ extern lean_object* l_Lean_warningAsError;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logWarning___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_88____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_checkDeprecated___rarg___lambda__1___closed__2;
+lean_object* l_Lean_Linter_getLinterOptions___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_88____lambda__6___closed__2;
@@ -2638,21 +2639,24 @@ return x_17;
 LEAN_EXPORT lean_object* l_Lean_Linter_checkDeprecated___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-lean_inc(x_7);
+lean_inc(x_2);
 lean_inc(x_5);
-x_8 = lean_alloc_closure((void*)(l_Lean_Linter_checkDeprecated___rarg___lambda__2___boxed), 8, 7);
-lean_closure_set(x_8, 0, x_1);
-lean_closure_set(x_8, 1, x_2);
-lean_closure_set(x_8, 2, x_6);
-lean_closure_set(x_8, 3, x_3);
-lean_closure_set(x_8, 4, x_4);
-lean_closure_set(x_8, 5, x_5);
-lean_closure_set(x_8, 6, x_7);
-x_9 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_5, x_8);
-return x_9;
+lean_inc(x_1);
+x_8 = l_Lean_Linter_getLinterOptions___rarg(x_1, x_5, x_2);
+lean_inc(x_7);
+x_9 = lean_alloc_closure((void*)(l_Lean_Linter_checkDeprecated___rarg___lambda__2___boxed), 8, 7);
+lean_closure_set(x_9, 0, x_1);
+lean_closure_set(x_9, 1, x_2);
+lean_closure_set(x_9, 2, x_6);
+lean_closure_set(x_9, 3, x_3);
+lean_closure_set(x_9, 4, x_4);
+lean_closure_set(x_9, 5, x_5);
+lean_closure_set(x_9, 6, x_7);
+x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Linter_checkDeprecated(lean_object* x_1) {

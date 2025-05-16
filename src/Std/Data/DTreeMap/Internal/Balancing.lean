@@ -588,7 +588,6 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     have := hlb.one_le
     omega
   · exfalso
-    rename_i ls rs h
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hrb
     simp only [delta] at ‹delta * _ < _›
     have := hlb.one_le

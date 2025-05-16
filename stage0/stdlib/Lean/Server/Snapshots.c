@@ -183,7 +183,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_ctor_get(x_1, 2);
 lean_inc(x_2);
 lean_dec(x_1);
-x_3 = lean_ctor_get(x_2, 6);
+x_3 = lean_ctor_get(x_2, 7);
 lean_inc(x_3);
 lean_dec(x_2);
 x_4 = l_Lean_Elab_InfoState_substituteLazy(x_3);

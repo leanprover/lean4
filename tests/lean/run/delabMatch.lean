@@ -32,7 +32,7 @@ fun {α} x =>
 -/
 /--
 info: fun x =>
-  let_fun this :=
+  have this :=
     match h : ↑x + 1 with
     | 0 => Nat.noConfusion h
     | n.succ => Exists.intro n (Nat.succ.inj h);
@@ -50,7 +50,7 @@ Shadowing with `h :` annotations
 -/
 /--
 info: fun h =>
-  let_fun this :=
+  have this :=
     match h_1 : ↑h + 1 with
     | 0 => Nat.noConfusion h_1
     | n.succ => Exists.intro n (Nat.succ.inj h_1);
@@ -69,7 +69,7 @@ Even more shadowing with `h :` annotations
 set_option linter.unusedVariables false in
 /--
 info: fun h =>
-  let_fun this :=
+  have this :=
     match h_1 : ↑h + 1 with
     | 0 => Nat.noConfusion h_1
     | h_2.succ => Exists.intro h_2 (Nat.succ.inj h_1);

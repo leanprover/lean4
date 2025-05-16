@@ -12,6 +12,7 @@ import Lean.Util.NumApps
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
 import Lean.Meta.Eqns
+import Lean.Meta.LetToHave
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition.TerminationHint
@@ -86,6 +87,25 @@ def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevel
 def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
   for preDef in preDefs do
     applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
+
+/--
+Applies `Meta.letToHave` to the type and value of defs, instances, abbrevs, and theorems.
+Does not apply the transformation to values that are proofs.
+-/
+def transformLetToHave (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if preDef.kind.isTheorem then
+    let type ← Meta.letToHave preDef.type
+    return { preDef with type }
+  else if preDef.kind.isExample || preDef.modifiers.isUnsafe || preDef.modifiers.isPartial then
+    return preDef
+  else
+    let type ← Meta.letToHave preDef.type
+    let value ←
+      if (← Meta.isProp type) || preDef.kind matches .opaque then
+        pure preDef.value
+      else
+        Meta.letToHave preDef.value
+    return { preDef with type, value }
 
 def abstractNestedProofs (preDef : PreDefinition) (cache := true) : MetaM PreDefinition := withRef preDef.ref do
   if preDef.kind.isTheorem || preDef.kind.isExample then

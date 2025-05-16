@@ -91,6 +91,12 @@ class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') [Monad m] [It
     [i : IteratorCollect α m] where
   lawful : i = .defaultImplementation
 
+theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m] [hl : LawfulIteratorCollect α m]
+    {f : β → m γ} {it : IterM (α := α) m β} :
+    IteratorCollect.toArrayMapped f it = IterM.DefaultConsumers.toArrayMapped f it := by
+  cases hl.lawful; rfl
+
 instance (α : Type w) (m : Type w → Type w') [Monad m] [Iterator α m β]
     [Monad m] [Iterator α m β] [Finite α m] :
     haveI : IteratorCollect α m := .defaultImplementation

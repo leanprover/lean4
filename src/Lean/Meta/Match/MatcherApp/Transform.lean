@@ -282,7 +282,7 @@ def transform
     let aux1 := mkApp aux1 motive'
     let aux1 := mkAppN aux1 discrs'
     unless (← isTypeCorrect aux1) do
-      mapError (f := (m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}\n{indentD ·}")) do
+      prependError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}" do
         check aux1
     let origAltTypes ← inferArgumentTypesN matcherApp.alts.size aux1
 
@@ -294,7 +294,7 @@ def transform
     let aux2 := mkApp aux2 motive'
     let aux2 := mkAppN aux2 discrs'
     unless (← isTypeCorrect aux2) do
-      mapError (f := (m!"failed to transform matcher, type error when constructing splitter motive:{indentExpr aux2}\n{indentD ·}")) do
+      prependError m!"failed to transform matcher, type error when constructing splitter motive:{indentExpr aux2}" do
         check aux2
     let altTypes ← inferArgumentTypesN matcherApp.alts.size aux2
 

@@ -2549,10 +2549,10 @@ theorem foldr_eq_foldrM {f : α → β → β} {b : β} {l : List α} :
   simp
 
 theorem id_run_foldlM {f : β → α → Id β} {b : β} {l : List α} :
-    Id.run (l.foldlM f b) = l.foldl (f · · |>.run) b := (foldl_eq_foldlM f b l).symm
+    Id.run (l.foldlM f b) = l.foldl (f · · |>.run) b := foldl_eq_foldlM.symm
 
 theorem id_run_foldrM {f : α → β → Id β} {b : β} {l : List α} :
-    Id.run (l.foldrM f b) = l.foldr (f · · |>.run) b := (foldr_eq_foldrM f b l).symm
+    Id.run (l.foldrM f b) = l.foldr (f · · |>.run) b := foldr_eq_foldrM.symm
 
 @[simp] theorem foldlM_reverse [Monad m] {l : List α} {f : β → α → m β} {b : β} :
     l.reverse.foldlM f b = l.foldrM (fun x y => f y x) b := rfl

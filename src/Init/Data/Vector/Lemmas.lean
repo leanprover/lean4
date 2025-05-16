@@ -2481,10 +2481,10 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
   simp
 
 @[simp, grind _=_] theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs : Vector α n} {ys : Vector α k} :
-    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) := foldlM_append _ _ _ _
+    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) := foldlM_append
 
 @[simp, grind _=_] theorem foldr_append {f : α → β → β} {b} {xs : Vector α n} {ys : Vector α k} :
-    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) := foldrM_append _ _ _ _
+    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) := foldrM_append
 
 @[simp, grind] theorem foldl_flatten {f : β → α → β} {b} {xss : Vector (Vector α m) n} :
     (flatten xss).foldl f b = xss.foldl (fun b xs => xs.foldl f b) b := by
@@ -2498,7 +2498,7 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
 
 @[simp, grind] theorem foldl_reverse {xs : Vector α n} {f : β → α → β} {b} :
     xs.reverse.foldl f b = xs.foldr (fun x y => f y x) b :=
-  foldlM_reverse _ _ _
+  foldlM_reverse
 
 @[simp, grind] theorem foldr_reverse {xs : Vector α n} {f : α → β → β} {b} :
     xs.reverse.foldr f b = xs.foldl (fun x y => f y x) b :=

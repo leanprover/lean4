@@ -343,7 +343,7 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
     (l : List α) (f : (a : α) → a ∈ l → β → Id β) (init : β) :
     (forIn' l init (fun a m b => .yield <$> f a m b)).run =
       l.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init :=
-  forIn'_pure_yield_eq_foldl _ _ _
+  forIn'_pure_yield_eq_foldl _ _
 
 @[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
     {l : List α} (g : α → β) (f : (b : β) → b ∈ l.map g → γ → m (ForInStep γ)) :
@@ -395,7 +395,7 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
     (l : List α) (f : α → β → Id β) (init : β) :
     (forIn l init (fun a b => .yield <$> f a b)).run =
       l.foldl (fun b a => f a b |>.run) init :=
-  forIn_pure_yield_eq_foldl _ _ _
+  forIn_pure_yield_eq_foldl _ _
 
 @[simp] theorem forIn_map [Monad m] [LawfulMonad m]
     {l : List α} {g : α → β} {f : β → γ → m (ForInStep γ)} :

@@ -3482,15 +3482,15 @@ theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b} {xs
 @[simp] theorem foldr_append' {f : α → β → β} {b} {xs ys : Array α} {start : Nat}
     (w : start = xs.size + ys.size) :
     (xs ++ ys).foldr f b start 0 = xs.foldr f (ys.foldr f b) :=
-  foldrM_append' _ _ _ _ w
+  foldrM_append' w
 
 @[grind _=_]theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs ys : Array α} :
     (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) :=
-  foldlM_append _ _ _ _
+  foldlM_append
 
 @[grind _=_] theorem foldr_append {f : α → β → β} {b} {xs ys : Array α} :
     (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) :=
-  foldrM_append _ _ _ _
+  foldrM_append
 
 @[simp] theorem foldl_flatten' {f : β → α → β} {b} {xss : Array (Array α)} {stop : Nat}
     (w : stop = xss.flatten.size) :
@@ -3520,21 +3520,21 @@ theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b} {xs
 @[simp] theorem foldl_reverse' {xs : Array α} {f : β → α → β} {b} {stop : Nat}
     (w : stop = xs.size) :
     xs.reverse.foldl f b 0 stop = xs.foldr (fun x y => f y x) b :=
-  foldlM_reverse' _ _ _ w
+  foldlM_reverse' w
 
 /-- Variant of `foldr_reverse` with a side condition for the `start` argument. -/
 @[simp] theorem foldr_reverse' {xs : Array α} {f : α → β → β} {b} {start : Nat}
     (w : start = xs.size) :
     xs.reverse.foldr f b start 0 = xs.foldl (fun x y => f y x) b :=
-  foldrM_reverse' _ _ _ w
+  foldrM_reverse' w
 
 @[grind] theorem foldl_reverse {xs : Array α} {f : β → α → β} {b} :
     xs.reverse.foldl f b = xs.foldr (fun x y => f y x) b :=
-  foldlM_reverse _ _ _
+  foldlM_reverse
 
 @[grind] theorem foldr_reverse {xs : Array α} {f : α → β → β} {b} :
     xs.reverse.foldr f b = xs.foldl (fun x y => f y x) b :=
-  foldrM_reverse _ _ _
+  foldrM_reverse
 
 theorem foldl_eq_foldr_reverse {xs : Array α} {f : β → α → β} {b} :
     xs.foldl f b = xs.reverse.foldr (fun x y => f y x) b := by simp
@@ -4049,15 +4049,16 @@ abbrev all_mkArray := @all_replicate
 /-! ### modify -/
 
 @[simp] theorem size_modify {xs : Array α} {i : Nat} {f : α → α} : (xs.modify i f).size = xs.size := by
-  unfold modify modifyM Id.run
+  unfold modify modifyM
   split <;> simp
 
 theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
     (xs.modify j f)[i] = if j = i then f (xs[i]'(by simpa using h)) else xs[i]'(by simpa using h) := by
-  simp only [modify, modifyM, Id.run, Id.pure_eq]
+  simp only [modify, modifyM]
   split
-  · simp only [Id.bind_eq, getElem_set]; split <;> simp [*]
-  · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
+  · simp only [getElem_set, Id.run_pure, Id.run_bind]; split <;> simp [*]
+  · simp only [Id.run_pure]
+    rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
 @[simp] theorem toList_modify {xs : Array α} {f : α → α} {i : Nat} :
     (xs.modify i f).toList = xs.toList.modify i f := by

@@ -202,7 +202,7 @@ private theorem qpartition_loop_spec₂ (lt : α → α → Bool) (lo hi : Nat)
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i k).2) :
     ∀ l, (h₁ : mid < l) → (h₂ : l ≤ hi) → lt as'[l] as'[mid] = false := by
-  fun_induction qpartition.loop <;> grind
+  fun_induction qpartition.loop with grind
 
 /--
 All elements in the active range before the pivot, are less than the pivot.
@@ -240,7 +240,7 @@ We prove two preliminary lemmas about `qpartition.loop`.
 private theorem qpartition_loop_lt_hi₁
     (h : lo < hi) (ilo : lo ≤ i) (ik : i < k) (w : k ≤ hi) (z : k ≤ hi) (ik' : i ≤ k) :
     (qpartition.loop lt lo hi hhi pivot as i k).1.val < hi := by
-  fun_induction qpartition.loop <;> grind
+  fun_induction qpartition.loop with grind
 
 /--
 Otherwise, if there is some position `k' ≥ k` which is greater than or equal to the pivot,

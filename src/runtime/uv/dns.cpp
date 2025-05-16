@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/dns.h"
+#include <cstring>
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN

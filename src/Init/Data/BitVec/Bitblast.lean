@@ -1872,20 +1872,12 @@ theorem toInt_smod {x y : BitVec w} :
               · by_cases hxintmin : x = intMin (w + 1)
                 · simp [hxintmin, hyintmin]
                 · -- y = intMin, x ≠ intMin
-                  have hynonneg : 0 ≤ ((-y).toNat : Int) := by omega
-                  have hxnegmsb : (-x).msb = false := by simp_all
-                  have hxneglt := toNat_lt_of_msb_false hxnegmsb
-                  simp only [Nat.add_one_sub_one] at hxneglt
                   simp only [hyintmin, neg_intMin, toNat_intMin, Nat.add_one_sub_one,
                     Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int]
                   have hmodpow := Nat.two_pow_pred_mod_two_pow (w := w + 1) (by omega)
-                  have := toNat_lt_of_msb_false hxnegmsb
                   simp only [Nat.add_one_sub_one] at hmodpow
                   rw_mod_cast [hmodpow]
                   rw [Int.bmod_eq_of_le (by norm_cast; omega) (by norm_cast; omega)]
-                  have hlex := le_toNat_of_msb_true hxmsb
-                  have : 0 < x.toNat := by simp [toNat_eq] at hxzero; omega
-                  simp only [Nat.add_one_sub_one] at hlex
                   simp only [toNat_neg, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
                     le_zero_eq, Nat.pow_eq_zero, add_one_ne_zero, ne_eq, _root_.false_and,
                     _root_.false_or]
@@ -1893,24 +1885,7 @@ theorem toInt_smod {x y : BitVec w} :
                     (by simp [Nat.pow_add, Nat.pow_one]; rw [Nat.mul_two];
                         have : 0 < x.toNat := by simp [toNat_eq] at hxzero; omega
                         omega)]
-                  have := Nat.pow_pos (a := 2) (n := w) (by omega)
-                  have : x.toNat < 2 ^ (w + 1) := by omega
-                  have : 2 ^ (w + 1) - x.toNat < 2 ^ w := by
-                    simp only [Nat.pow_add, Nat.pow_one]; rw [Nat.mul_two]
-                    simp_all
-                    omega
                   rw [Int.neg_emod]
-                  have := Int.dvd_iff_emod_eq_zero (a := 2 ^ w) (b := 2 ^ (w + 1) - x.toNat)
-                  rw [Int.emod_eq_of_lt (by norm_cast; omega) (by norm_cast; omega)] at this
-                  simp only [show ¬ 2 ^ (w + 1) - (x.toNat : Int) = 0 by norm_cast; omega] at this
-                  have : ¬ 2 ^ w ∣ (2 ^ (w + 1) - (x.toNat : Int): Int) := by simp [this]
-                  norm_cast
-                  push_cast at this
-                  have := Nat.dvd_iff_mod_eq_zero (m := 2 ^ w) (n := 2 ^ (w + 1) - x.toNat)
-                  rw [Nat.mod_eq_of_lt (by norm_cast)] at this
-                  simp only [show ¬ 2 ^ (w + 1) - x.toNat = 0 by norm_cast; omega] at this
-                  have : ¬ 2 ^ w ∣ 2 ^ (w + 1) - x.toNat := by simp [this]
-                  simp [-toNat_neg, this]
                   omega
               · have hymsbneg : (-y).msb = false := by simp_all
                 have hyneglt := toNat_lt_of_msb_false hymsbneg

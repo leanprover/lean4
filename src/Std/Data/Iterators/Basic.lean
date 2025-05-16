@@ -176,47 +176,6 @@ def IterStep.successor : IterStep α β → Option α
   | .done => none
 
 /--
-Applies functions to the succeeding iterator and the emitted value stored in an `IterStep`.
--/
-@[always_inline, inline]
-def IterStep.map {α' : Type u'} {β' : Type v'} (f : α → α') (g : β → β') :
-    IterStep α β → IterStep α' β'
-  | .yield it out => .yield (f it) (g out)
-  | .skip it => .skip (f it)
-  | .done => .done
-
-theorem IterStep.map_id {it : IterStep α β} :
-    it.map id id = it := by
-  simp only [map]
-  cases it <;> simp
-
-theorem IterStep.map_id' {it : IterStep α β} :
-    it.map (·) (·) = it :=
-  map_id
-
-@[simp]
-theorem IterStep.map_done {f : α → α'} {g : β → β'} :
-  (.done : IterStep α β).map f g = .done := rfl
-
-@[simp]
-theorem IterStep.map_skip {f : α → α'} {g : β → β'} :
-  (.skip it : IterStep α β).map f g = .skip (f it) := rfl
-
-@[simp]
-theorem IterStep.map_yield {f : α → α'} {g : β → β'} :
-  (.yield it out : IterStep α β).map f g = .yield (f it) (g out) := rfl
-
-theorem IterStep.map_map {α' : Type u'} {β' : Type v'} {f : α → α'} {g : β → β'}
-    {α'' : Type u''} {β'' : Type v''} {f' : α' → α''} {g' : β' → β''} {it : IterStep α β} :
-    (it.map f g).map f' g' = it.map (f · |> f') (g · |> g') := by
-  simp only [map]
-  cases it <;> simp
-
-theorem IterStep.successor_map {α' : Type u'} {β' : Type v'} {f : α → α'} {g : β → β'} {step : IterStep α β} :
-    (step.map f g).successor = step.successor.elim none (some <| f ·) := by
-  cases step <;> rfl
-
-/--
 A variant of `IterStep` that bundles the step together with a proof that it is "plausible".
 The plausibility predicate will later be chosen to assert that a state is a plausible successor
 of another state. Having this proof bundled up with the step is important for termination proofs.
@@ -248,23 +207,6 @@ Match pattern for the `done` case. See also `IterStep.done`.
 def PlausibleIterStep.done {plausible_step : IterStep α β → Prop}
     (h : plausible_step .done) : PlausibleIterStep plausible_step :=
   ⟨.done, h⟩
-
-/--
-Applies functions to the succeeding iterator and the emitted value stored in a `PlausibleIterStep`.
-See also `IterStep.map`.
--/
-@[always_inline, inline]
-def PlausibleIterStep.map {plausible_step : IterStep α β → Prop}
-    {α' : Type u'} {β' : Type v'} (f : α → α') (g : β → β') (new_plausible_step : IterStep α' β' → Prop)
-    (h : ∀ step : IterStep α β, plausible_step step → new_plausible_step (step.map f g))
-    (step : PlausibleIterStep plausible_step) : PlausibleIterStep new_plausible_step :=
-  ⟨step.val.map f g, h _ step.property⟩
-
-theorem PlausibleIterStep.map_id {plausible_step : IterStep α β → Prop}
-    {it : PlausibleIterStep plausible_step} :
-    it.map id id plausible_step (by simp [IterStep.map_id]) = it := by
-  simp only [map, IterStep.map]
-  cases it <;> dsimp only <;> split <;> simp
 
 end IterStep
 

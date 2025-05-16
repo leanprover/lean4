@@ -85,6 +85,8 @@ Examples:
 -/
 @[extern "lean_uint8_mod"]
 protected def UInt8.mod (a b : UInt8) : UInt8 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated UInt8.mod (since := "2024-09-23")]
 protected def UInt8.modn (a : UInt8) (n : Nat) : UInt8 := ⟨Fin.modn a.toFin n⟩
@@ -297,6 +299,8 @@ Examples:
 -/
 @[extern "lean_uint16_mod"]
 protected def UInt16.mod (a b : UInt16) : UInt16 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated UInt16.mod (since := "2024-09-23")]
 protected def UInt16.modn (a : UInt16) (n : Nat) : UInt16 := ⟨Fin.modn a.toFin n⟩
@@ -511,6 +515,8 @@ Examples:
 -/
 @[extern "lean_uint32_mod"]
 protected def UInt32.mod (a b : UInt32) : UInt32 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated UInt32.mod (since := "2024-09-23")]
 protected def UInt32.modn (a : UInt32) (n : Nat) : UInt32 := ⟨Fin.modn a.toFin n⟩
@@ -561,12 +567,14 @@ protected def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.toBitVec >>> (UI
 Strict inequality of 32-bit unsigned integers, defined as inequality of the corresponding
 natural numbers. Usually accessed via the `<` operator.
 -/
-protected def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
+-- These need to be exposed as `Init.Prelude` already has an instance for bootstrapping puproses and
+-- they should be defeq
+@[expose] protected def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
 /--
 Non-strict inequality of 32-bit unsigned integers, defined as inequality of the corresponding
 natural numbers. Usually accessed via the `≤` operator.
 -/
-protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
+@[expose] protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
@@ -687,6 +695,8 @@ Examples:
 -/
 @[extern "lean_uint64_mod"]
 protected def UInt64.mod (a b : UInt64) : UInt64 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated UInt64.mod (since := "2024-09-23")]
 protected def UInt64.modn (a : UInt64) (n : Nat) : UInt64 := ⟨Fin.modn a.toFin n⟩
@@ -894,6 +904,8 @@ Examples:
 -/
 @[extern "lean_usize_mod"]
 protected def USize.mod (a b : USize) : USize := ⟨a.toBitVec % b.toBitVec⟩
+
+-- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
 @[deprecated USize.mod (since := "2024-09-23")]
 protected def USize.modn (a : USize) (n : Nat) : USize := ⟨Fin.modn a.toFin n⟩

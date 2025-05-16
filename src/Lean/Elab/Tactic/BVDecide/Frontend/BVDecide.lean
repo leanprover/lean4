@@ -225,11 +225,11 @@ where
           throwError m!"Value for Int64 was not 64 bit but {value.w} bit"
       | _ =>
         match var with
-        | .app (.const (.str p s) []) arg =>
+        | .app (.const (.str p s) levels) arg =>
           if s == Normalize.enumToBitVecSuffix then
             let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
             let ctors := inductiveInfo.ctors
-            let enumVal := mkConst ctors[value.bv.toNat]!
+            let enumVal := mkConst ctors[value.bv.toNat]! levels
             return (arg, enumVal)
           else
             return (var, toExpr value.bv)
@@ -365,11 +365,12 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
     else
       unusedHypotheses := unusedHypotheses.insert hyp
   if h : sats.size = 0 then
-    let mut error := "None of the hypotheses are in the supported BitVec fragment.\n"
-    error := error ++ "There are two potential fixes for this:\n"
+    let mut error := "None of the hypotheses are in the supported BitVec fragment after applying preprocessing.\n"
+    error := error ++ "There are three potential reasons for this:\n"
     error := error ++ "1. If you are using custom BitVec constructs simplify them to built-in ones.\n"
     error := error ++ "2. If your problem is using only built-in ones it might currently be out of reach.\n"
-    error := error ++ "   Consider expressing it in terms of different operations that are better supported."
+    error := error ++ "   Consider expressing it in terms of different operations that are better supported.\n"
+    error := error ++ "3. The original goal was reduced to False and is thus invalid."
     throwError error
   else
     let sat := sats[1:].foldl (init := sats[0]) SatAtBVLogical.and

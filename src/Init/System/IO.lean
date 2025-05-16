@@ -10,6 +10,7 @@ import Init.System.IOError
 import Init.System.FilePath
 import Init.System.ST
 import Init.Data.Ord
+import Init.Data.String.Extra
 
 open System
 
@@ -36,7 +37,7 @@ A monad that can have side effects on the external world or throw exceptions of 
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
+@[expose] def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
 instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
 instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
@@ -47,7 +48,7 @@ instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (E
 /--
 An `IO` monad that cannot throw exceptions.
 -/
-def BaseIO := EIO Empty
+@[expose] def BaseIO := EIO Empty
 
 instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
 instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
@@ -727,7 +728,7 @@ Use `IO.getStderr` to get the current standard error stream.
 /--
 Iterates an `IO` action. Starting with an initial state, the action is applied repeatedly until it
 returns a final value in `Sum.inr`. Each time it returns `Sum.inl`, the returned value is treated as
-a new sate.
+a new state.
 -/
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
   let v ← f a

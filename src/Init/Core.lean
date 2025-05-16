@@ -12,6 +12,8 @@ import Init.Prelude
 import Init.SizeOf
 set_option linter.missingDocs true -- keep it documented
 
+@[expose] section
+
 universe u v w
 
 /--
@@ -50,6 +52,9 @@ theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g =
   rfl
 @[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
   rfl
+
+@[simp] theorem Function.comp_id (f : α → β) : f ∘ id = f := rfl
+@[simp] theorem Function.id_comp (f : α → β) : id ∘ f = f := rfl
 
 attribute [simp] namedPattern
 
@@ -941,7 +946,7 @@ theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') 
   | rfl, p => HEq.refl p
 
 /--
-Heterogenous equality with an `Eq.rec` application on the left is equivalent to a heterogenous
+Heterogeneous equality with an `Eq.rec` application on the left is equivalent to a heterogeneous
 equality on the original term.
 -/
 theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
@@ -950,7 +955,7 @@ theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → So
   h.rec (fun _ => ⟨id, id⟩) c
 
 /--
-Heterogenous equality with an `Eq.rec` application on the right is equivalent to a heterogenous
+Heterogeneous equality with an `Eq.rec` application on the right is equivalent to a heterogeneous
 equality on the original term.
 -/
 theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
@@ -2523,9 +2528,6 @@ class Refl (r : α → α → Prop) : Prop where
 class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
-
-@[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
-abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
 
 /-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
 `r a b → ¬ r b a`. -/

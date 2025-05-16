@@ -108,7 +108,7 @@ theorem resolve_left_lt_lcm (a c d p x : Int) (a_pos : 0 < a) (d_pos : 0 < d) (h
     resolve_left a c d p x < lcm a (a * d / gcd (a * d) c) := by
   simp only [h₁, resolve_left_eq, resolve_left', add_of_le, Int.ofNat_lt]
   exact Nat.mod_lt _ (Nat.pos_of_ne_zero (lcm_ne_zero (Int.ne_of_gt a_pos)
-    (Int.ne_of_gt (Int.ediv_pos_of_pos_of_dvd (Int.mul_pos a_pos d_pos) (Int.ofNat_nonneg _)
+    (Int.ne_of_gt (Int.ediv_pos_of_pos_of_dvd (Int.mul_pos a_pos d_pos) (Int.natCast_nonneg _)
       (gcd_dvd_left _ _)))))
 
 theorem resolve_left_ineq (a c d p x : Int) (a_pos : 0 < a) (b_pos : 0 < b)

@@ -1,5 +1,5 @@
 /--
-info: case h
+trace: case h
 d g : Nat
 H1 : d = g
 ⊢ ?w = g

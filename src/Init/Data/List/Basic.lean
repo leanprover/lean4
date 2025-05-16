@@ -10,6 +10,8 @@ import Init.SimpLemmas
 import Init.Data.Nat.Basic
 import Init.Data.List.Notation
 
+@[expose] section
+
 /-!
 # Basic operations on `List`.
 
@@ -703,8 +705,6 @@ def flatten : List (List α) → List α
 @[simp, grind] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
 @[simp, grind] theorem flatten_cons : (l :: L).flatten = l ++ L.flatten := rfl
 
-@[deprecated flatten (since := "2024-10-14"), inherit_doc flatten] abbrev join := @flatten
-
 /-! ### singleton -/
 
 /--
@@ -716,9 +716,6 @@ Examples:
  * `List.singleton [1, 2, 3] = [[1, 2, 3]]`
 -/
 @[inline] protected def singleton {α : Type u} (a : α) : List α := [a]
-
-set_option linter.missingDocs false in
-@[deprecated singleton (since := "2024-10-16")] protected abbrev pure := @singleton
 
 /-! ### flatMap -/
 
@@ -735,13 +732,6 @@ Examples:
 @[simp, grind] theorem flatMap_nil {f : α → List β} : List.flatMap f [] = [] := by simp [flatten, List.flatMap]
 @[simp, grind] theorem flatMap_cons {x : α} {xs : List α} {f : α → List β} :
   List.flatMap f (x :: xs) = f x ++ List.flatMap f xs := by simp [flatten, List.flatMap]
-
-set_option linter.missingDocs false in
-@[deprecated flatMap (since := "2024-10-16")] abbrev bind := @flatMap
-set_option linter.missingDocs false in
-@[deprecated flatMap_nil (since := "2024-10-16")] abbrev nil_flatMap := @flatMap_nil
-set_option linter.missingDocs false in
-@[deprecated flatMap_cons (since := "2024-10-16")] abbrev cons_flatMap := @flatMap_cons
 
 /-! ### replicate -/
 
@@ -912,13 +902,13 @@ theorem elem_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : List α} (h : a
 instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
 
-@[grind] theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
+theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
   intro h
   induction h with
   | head => apply Mem.head
   | tail => apply Mem.tail; assumption
 
-@[grind] theorem mem_append_right {b : α} (as : List α) {bs : List α} : b ∈ bs → b ∈ as ++ bs := by
+theorem mem_append_right {b : α} (as : List α) {bs : List α} : b ∈ bs → b ∈ as ++ bs := by
   intro h
   induction as with
   | nil  => simp [h]
@@ -2087,18 +2077,6 @@ def sum {α} [Add α] [Zero α] : List α → α :=
 @[simp, grind] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
 @[simp, grind] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
 
-/-- Sum of a list of natural numbers. -/
-@[deprecated List.sum (since := "2024-10-17")]
-protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
-
-set_option linter.deprecated false in
-@[deprecated sum_nil (since := "2024-10-17")]
-theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
-set_option linter.deprecated false in
-@[deprecated sum_cons (since := "2024-10-17")]
-theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
-    Nat.sum (a::l) = a + Nat.sum l := rfl
-
 /-! ### range -/
 
 /--
@@ -2220,8 +2198,6 @@ def min? [Min α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a
 
-@[inherit_doc min?, deprecated min? (since := "2024-09-29")] abbrev minimum? := @min?
-
 /-! ### max? -/
 
 /--
@@ -2235,8 +2211,6 @@ Examples:
 def max? [Max α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl max a
-
-@[inherit_doc max?, deprecated max? (since := "2024-09-29")] abbrev maximum? := @max?
 
 /-! ## Other list operations
 
@@ -2409,8 +2383,6 @@ where
     | true  => loop as a (b::r) acc
     | false => loop as a [] ((b::r).reverse::acc)
   | [], ag, r, acc => ((ag::r).reverse::acc).reverse
-
-@[deprecated splitBy (since := "2024-10-30"), inherit_doc splitBy] abbrev groupBy := @splitBy
 
 /-! ### removeAll -/
 

@@ -9,8 +9,8 @@ module
 prelude
 import Init.Data.Bool
 import Init.Data.Option.Lemmas
-import Init.Data.List.BasicAux
-import Init.Data.List.Control
+import all Init.Data.List.BasicAux
+import all Init.Data.List.Control
 import Init.Control.Lawful.Basic
 import Init.BinderPredicates
 
@@ -92,7 +92,9 @@ open Nat
 
 /-! ### length -/
 
-@[grind →] theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
+-- Note: this is not a good `grind` candidate,
+-- as in some circumstances it results in many case splits.
+theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
 
 theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := fun _ => nomatch l
 
@@ -239,15 +241,17 @@ theorem getElem!_eq_getElem?_getD [Inhabited α] {l : List α} {i : Nat} :
 
 @[simp, grind =] theorem getElem?_nil {i : Nat} : ([] : List α)[i]? = none := rfl
 
+@[grind =]
 theorem getElem_cons {l : List α} (w : i < (a :: l).length) :
     (a :: l)[i] =
       if h : i = 0 then a else l[i-1]'(match i, h with | i+1, _ => succ_lt_succ_iff.mp w) := by
   cases i <;> simp
 
-@[grind =] theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := rfl
+theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := rfl
 
-@[simp, grind =] theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl
+@[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl
 
+@[grind =]
 theorem getElem?_cons : (a :: l)[i]? = if i = 0 then some a else l[i-1]? := by
   cases i <;> simp [getElem?_cons_zero]
 
@@ -313,7 +317,7 @@ theorem getElem_zero {l : List α} (h : 0 < l.length) : l[0] = l.head (length_po
   match l, h with
   | _ :: _, _ => rfl
 
-@[ext, grind ext] theorem ext_getElem? {l₁ l₂ : List α} (h : ∀ i : Nat, l₁[i]? = l₂[i]?) : l₁ = l₂ :=
+@[ext] theorem ext_getElem? {l₁ l₂ : List α} (h : ∀ i : Nat, l₁[i]? = l₂[i]?) : l₁ = l₂ :=
   match l₁, l₂, h with
   | [], [], _ => rfl
   | _ :: _, [], h => by simpa using h 0
@@ -595,7 +599,7 @@ theorem decide_forall_mem {l : List α} {p : α → Prop} [DecidablePred p] :
 @[simp] theorem all_eq_false {l : List α} : l.all p = false ↔ ∃ x, x ∈ l ∧ ¬p x := by
   simp [all_eq]
 
-theorem any_beq [BEq α] {l : List α} {a : α} : (l.any fun x => a == x) = l.contains a := by
+@[grind] theorem any_beq [BEq α] {l : List α} {a : α} : (l.any fun x => a == x) = l.contains a := by
   induction l <;> simp_all [contains_cons]
 
 /-- Variant of `any_beq` with `==` reversed. -/
@@ -603,7 +607,7 @@ theorem any_beq' [BEq α] [PartialEquivBEq α] {l : List α} :
     (l.any fun x => x == a) = l.contains a := by
   simp only [BEq.comm, any_beq]
 
-theorem all_bne [BEq α] {l : List α} : (l.all fun x => a != x) = !l.contains a := by
+@[grind] theorem all_bne [BEq α] {l : List α} : (l.all fun x => a != x) = !l.contains a := by
   induction l <;> simp_all [bne]
 
 /-- Variant of `all_bne` with `!=` reversed. -/
@@ -1139,8 +1143,6 @@ theorem forall_mem_map {f : α → β} {l : List α} {P : β → Prop} :
 @[simp] theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
   constructor <;> exact fun _ => match l with | [] => rfl
 
-@[deprecated map_eq_nil_iff (since := "2024-09-05")] abbrev map_eq_nil := @map_eq_nil_iff
-
 @[grind →]
 theorem eq_nil_of_map_eq_nil {f : α → β} {l : List α} (h : map f l = []) : l = [] :=
   map_eq_nil_iff.mp h
@@ -1182,13 +1184,9 @@ theorem map_eq_cons_iff {f : α → β} {l : List α} :
     · rintro ⟨a, l₁, ⟨rfl, rfl⟩, ⟨rfl, rfl⟩⟩
       constructor <;> rfl
 
-@[deprecated map_eq_cons_iff (since := "2024-09-05")] abbrev map_eq_cons := @map_eq_cons_iff
-
 theorem map_eq_cons_iff' {f : α → β} {l : List α} :
     map f l = b :: l₂ ↔ l.head?.map f = some b ∧ l.tail?.map (map f) = some l₂ := by
   induction l <;> simp_all
-
-@[deprecated map_eq_cons' (since := "2024-09-05")] abbrev map_eq_cons' := @map_eq_cons_iff'
 
 @[simp] theorem map_eq_singleton_iff {f : α → β} {l : List α} {b : β} :
     map f l = [b] ↔ ∃ a, l = [a] ∧ f a = b := by
@@ -1213,11 +1211,6 @@ theorem map_eq_foldr {f : α → β} {l : List α} : map f l = foldr (fun a bs =
   induction l generalizing i with
   | nil => simp
   | cons b l ih => cases i <;> simp_all
-
-@[deprecated "Use the reverse direction of `map_set`." (since := "2024-09-20")]
-theorem set_map {f : α → β} {l : List α} {i : Nat} {a : α} :
-    (map f l).set i (f a) = map f (l.set i a) := by
-  simp
 
 @[simp] theorem head_map {f : α → β} {l : List α} (w) :
     (map f l).head w = f (l.head (by simpa using w)) := by
@@ -1320,8 +1313,6 @@ abbrev filter_length_eq_length := @length_filter_eq_length_iff
 @[simp] theorem filter_eq_nil_iff {l} : filter p l = [] ↔ ∀ a, a ∈ l → ¬p a := by
   simp only [eq_nil_iff_forall_not_mem, mem_filter, not_and]
 
-@[deprecated filter_eq_nil_iff (since := "2024-09-05")] abbrev filter_eq_nil := @filter_eq_nil_iff
-
 theorem forall_mem_filter {l : List α} {p : α → Bool} {P : α → Prop} :
     (∀ (i) (_ : i ∈ l.filter p), P i) ↔ ∀ (j) (_ : j ∈ l), p j → P j := by
   simp
@@ -1382,8 +1373,6 @@ theorem filter_eq_cons_iff {l} {a} {as} :
         exact ⟨x :: l₁, l₂, by simp_all⟩
   · rintro ⟨l₁, l₂, rfl, h₁, h, h₂⟩
     simp [h₂, filter_cons, filter_eq_nil_iff.mpr h₁, h]
-
-@[deprecated filter_eq_cons_iff (since := "2024-09-05")] abbrev filter_eq_cons := @filter_eq_cons_iff
 
 theorem filter_congr {p q : α → Bool} :
     ∀ {l : List α}, (∀ x ∈ l, p x = q x) → filter p l = filter q l
@@ -1544,8 +1533,6 @@ theorem forall_none_of_filterMap_eq_nil (h : filterMap f xs = []) : ∀ x ∈ xs
         simp_all
       · simp_all
 
-@[deprecated filterMap_eq_nil_iff (since := "2024-09-05")] abbrev filterMap_eq_nil := @filterMap_eq_nil_iff
-
 theorem filterMap_eq_cons_iff {l} {b} {bs} :
     filterMap f l = b :: bs ↔
       ∃ l₁ a l₂, l = l₁ ++ a :: l₂ ∧ (∀ x, x ∈ l₁ → f x = none) ∧ f a = some b ∧
@@ -1567,8 +1554,6 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
         refine ⟨[], a, l, by simp [h]⟩
   · rintro ⟨l₁, a, l₂, rfl, h₁, h₂, h₃⟩
     simp_all [filterMap_eq_nil_iff.mpr h₁, filterMap_cons_some h₂]
-
-@[deprecated filterMap_eq_cons_iff (since := "2024-09-05")] abbrev filterMap_eq_cons := @filterMap_eq_cons_iff
 
 /-! ### append -/
 
@@ -1760,7 +1745,7 @@ theorem head_append_right {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) (h : l
   rw [head_append, dif_pos (by simp_all)]
 
 @[simp, grind] theorem head?_append {l : List α} : (l ++ l').head? = l.head?.or l'.head? := by
-  cases l <;> rfl
+  cases l <;> simp
 
 -- Note:
 -- `getLast_append_of_ne_nil`, `getLast_append` and `getLast?_append`
@@ -1826,13 +1811,9 @@ theorem filterMap_eq_append_iff {f : α → Option β} :
   · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
     simp
 
-@[deprecated filterMap_eq_append_iff (since := "2024-09-05")] abbrev filterMap_eq_append := @filterMap_eq_append_iff
-
 theorem append_eq_filterMap_iff {f : α → Option β} :
     L₁ ++ L₂ = filterMap f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filterMap f l₁ = L₁ ∧ filterMap f l₂ = L₂ := by
   rw [eq_comm, filterMap_eq_append_iff]
-
-@[deprecated append_eq_filterMap (since := "2024-09-05")] abbrev append_eq_filterMap := @append_eq_filterMap_iff
 
 theorem filter_eq_append_iff {p : α → Bool} :
     filter p l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filter p l₁ = L₁ ∧ filter p l₂ = L₂ := by
@@ -1841,8 +1822,6 @@ theorem filter_eq_append_iff {p : α → Bool} :
 theorem append_eq_filter_iff {p : α → Bool} :
     L₁ ++ L₂ = filter p l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filter p l₁ = L₁ ∧ filter p l₂ = L₂ := by
   rw [eq_comm, filter_eq_append_iff]
-
-@[deprecated append_eq_filter_iff (since := "2024-09-05")] abbrev append_eq_filter := @append_eq_filter_iff
 
 @[simp, grind] theorem map_append {f : α → β} : ∀ {l₁ l₂}, map f (l₁ ++ l₂) = map f l₁ ++ map f l₂ := by
   intro l₁; induction l₁ <;> intros <;> simp_all
@@ -1854,9 +1833,6 @@ theorem map_eq_append_iff {f : α → β} :
 theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append_iff]
-
-@[deprecated map_eq_append_iff (since := "2024-09-05")] abbrev map_eq_append := @map_eq_append_iff
-@[deprecated append_eq_map_iff (since := "2024-09-05")] abbrev append_eq_map := @append_eq_map_iff
 
 /-! ### concat
 
@@ -1888,8 +1864,6 @@ theorem concat_inj_left {l l' : List α} (a : α) : concat l a = concat l' a ↔
 
 theorem concat_inj_right {l : List α} {a a' : α} : concat l a = concat l a' ↔ a = a' :=
   ⟨last_eq_of_concat_eq, by simp⟩
-
-@[deprecated concat_inj (since := "2024-09-05")] abbrev concat_eq_concat := @concat_inj
 
 theorem concat_append {a : α} {l₁ l₂ : List α} : concat l₁ a ++ l₂ = l₁ ++ a :: l₂ := by simp
 
@@ -2078,7 +2052,7 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
 
 /-! ### flatMap -/
 
-theorem flatMap_def {l : List α} {f : α → List β} : l.flatMap f = flatten (map f l) := by rfl
+theorem flatMap_def {l : List α} {f : α → List β} : l.flatMap f = flatten (map f l) := rfl
 
 @[simp] theorem flatMap_id {L : List (List α)} : L.flatMap id = L.flatten := by simp [flatMap_def]
 
@@ -2103,8 +2077,6 @@ theorem mem_flatMap_of_mem {b : β} {l : List α} {f : α → List β} {a} (al :
 theorem flatMap_eq_nil_iff {l : List α} {f : α → List β} : l.flatMap f = [] ↔ ∀ x ∈ l, f x = [] :=
   flatten_eq_nil_iff.trans <| by
     simp only [mem_map, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
-
-@[deprecated flatMap_eq_nil_iff (since := "2024-09-05")] abbrev bind_eq_nil := @flatMap_eq_nil_iff
 
 theorem forall_mem_flatMap {p : β → Prop} {l : List α} {f : α → List β} :
     (∀ (x) (_ : x ∈ l.flatMap f), p x) ↔ ∀ (a) (_ : a ∈ l) (b) (_ : b ∈ f a), p b := by
@@ -2184,12 +2156,6 @@ theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
     simp only [replicate_succ, elem_cons]
     split <;> simp_all
 
-@[deprecated mem_replicate (since := "2024-09-05")]
-theorem decide_mem_replicate [BEq α] [LawfulBEq α] {a b : α} :
-    ∀ {n}, decide (b ∈ replicate n a) = ((¬ n == 0) && b == a) := by
-  have : DecidableEq α := instDecidableEqOfLawfulBEq
-  simp [Bool.beq_eq_decide_eq]
-
 @[grind →] theorem eq_of_mem_replicate {a b : α} {n} (h : b ∈ replicate n a) : b = a := (mem_replicate.1 h).2
 
 theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
@@ -2201,8 +2167,6 @@ theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
 
 @[simp] theorem replicate_eq_nil_iff {n : Nat} (a : α) : replicate n a = [] ↔ n = 0 := by
   cases n <;> simp
-
-@[deprecated replicate_eq_nil_iff (since := "2024-09-05")] abbrev replicate_eq_nil := @replicate_eq_nil_iff
 
 @[simp, grind] theorem getElem_replicate {a : α} {n : Nat} {i : Nat} (h : i < (replicate n a).length) :
     (replicate n a)[i] = a :=
@@ -2255,8 +2219,6 @@ theorem eq_replicate_iff {a : α} {n} {l : List α} :
   ⟨fun h => h ▸ ⟨length_replicate .., fun _ => eq_of_mem_replicate⟩,
    fun ⟨e, al⟩ => e ▸ eq_replicate_of_mem al⟩
 
-@[deprecated eq_replicate_iff (since := "2024-09-05")] abbrev eq_replicate := @eq_replicate_iff
-
 theorem map_eq_replicate_iff {l : List α} {f : α → β} {b : β} :
     l.map f = replicate l.length b ↔ ∀ x ∈ l, f x = b := by
   simp [eq_replicate_iff]
@@ -2297,8 +2259,6 @@ theorem append_eq_replicate_iff {l₁ l₂ : List α} {a : α} :
   exact fun _ =>
     { mp := fun h => ⟨fun b m => h b (Or.inl m), fun b m => h b (Or.inr m)⟩,
       mpr := fun h b x => Or.casesOn x (fun m => h.left b m) fun m => h.right b m }
-
-@[deprecated append_eq_replicate_iff (since := "2024-09-05")] abbrev append_eq_replicate := @append_eq_replicate_iff
 
 theorem replicate_eq_append_iff {l₁ l₂ : List α} {a : α} :
     replicate n a = l₁ ++ l₂ ↔
@@ -2479,8 +2439,6 @@ theorem reverse_eq_iff {as bs : List α} : as.reverse = bs ↔ as = bs.reverse :
     xs.reverse = a :: ys ↔ xs = ys.reverse ++ [a] := by
   rw [reverse_eq_iff, reverse_cons]
 
-@[deprecated reverse_eq_cons_iff (since := "2024-09-05")] abbrev reverse_eq_cons := @reverse_eq_cons_iff
-
 @[simp, grind] theorem getLast?_reverse {l : List α} : l.reverse.getLast? = l.head? := by
   cases l <;> simp [getLast?_concat]
 
@@ -2530,8 +2488,6 @@ theorem getLast_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
 @[simp] theorem reverse_eq_append_iff {xs ys zs : List α} :
     xs.reverse = ys ++ zs ↔ xs = zs.reverse ++ ys.reverse := by
   rw [reverse_eq_iff, reverse_append]
-
-@[deprecated reverse_eq_append_iff (since := "2024-09-05")] abbrev reverse_eq_append := @reverse_eq_append_iff
 
 @[grind _=_] theorem reverse_concat {l : List α} {a : α} : (l ++ [a]).reverse = a :: l.reverse := by
   rw [reverse_append]; rfl
@@ -2637,8 +2593,6 @@ theorem foldr_eq_foldrM {f : α → β → β} {b : β} {l : List α} :
   induction l generalizing l' <;> simp [*]
 
 theorem foldr_cons_nil {l : List α} : l.foldr cons [] = l := by simp
-
-@[deprecated foldr_cons_nil (since := "2024-09-04")] abbrev foldr_self := @foldr_cons_nil
 
 theorem foldl_map {f : β₁ → β₂} {g : α → β₂ → α} {l : List β₁} {init : α} :
     (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
@@ -2885,8 +2839,6 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
   rw [getLast?_eq_head?_reverse, isSome_head?]
   simp
 
-@[deprecated mem_of_getLast? (since := "2024-10-21")] abbrev mem_of_getLast?_eq_some := @mem_of_getLast?
-
 @[simp, grind] theorem getLast_reverse {l : List α} (h : l.reverse ≠ []) :
     l.reverse.getLast h = l.head (by simp_all) := by
   simp [getLast_eq_head_reverse]
@@ -2986,6 +2938,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
     l.contains a ↔ ∃ a' ∈ l, a == a' := by
   induction l <;> simp_all
 
+@[grind]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     l.contains a ↔ a ∈ l := by
   simp
@@ -3101,7 +3054,7 @@ theorem head?_dropLast {xs : List α} : xs.dropLast.head? = if 1 < xs.length the
 
 theorem getLast_dropLast {xs : List α} (h) :
    xs.dropLast.getLast h =
-     xs[xs.length - 2]'(match xs, h with | (_ :: _ :: _), _ => Nat.lt_trans (Nat.lt_add_one _) (Nat.lt_add_one _)) := by
+     xs[xs.length - 2]'(by match xs, h with | (_ :: _ :: _), _ => exact Nat.lt_trans (Nat.lt_add_one _) (Nat.lt_add_one _)) := by
   rw [getLast_eq_getElem, getElem_dropLast]
   congr 1
   simp; rfl
@@ -3275,12 +3228,8 @@ theorem all_eq_not_any_not {l : List α} {p : α → Bool} : l.all p = !l.any (!
 @[simp, grind] theorem any_flatten {l : List (List α)} : l.flatten.any f = l.any (any · f) := by
   induction l <;> simp_all
 
-@[deprecated any_flatten (since := "2024-10-14")] abbrev any_join := @any_flatten
-
 @[simp, grind] theorem all_flatten {l : List (List α)} : l.flatten.all f = l.all (all · f) := by
   induction l <;> simp_all
-
-@[deprecated all_flatten (since := "2024-10-14")] abbrev all_join := @all_flatten
 
 @[simp, grind] theorem any_flatMap {l : List α} {f : α → List β} :
     (l.flatMap f).any p = l.any fun a => (f a).any p := by
@@ -3740,74 +3689,6 @@ theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a :=
   simp [getElem?_eq_some_iff, Fin.exists_iff, mem_iff_get]
 
 /-! ### Deprecations -/
-
-@[deprecated getElem_eq_getElem?_get (since := "2024-09-04")] abbrev getElem_eq_getElem? :=
-  @getElem_eq_getElem?_get
-@[deprecated flatten_eq_nil_iff (since := "2024-09-05")] abbrev join_eq_nil := @flatten_eq_nil_iff
-@[deprecated flatten_ne_nil_iff (since := "2024-09-05")] abbrev join_ne_nil := @flatten_ne_nil_iff
-@[deprecated flatten_eq_cons_iff (since := "2024-09-05")] abbrev join_eq_cons_iff := @flatten_eq_cons_iff
-@[deprecated flatten_eq_cons_iff (since := "2024-09-05")] abbrev join_eq_cons := @flatten_eq_cons_iff
-@[deprecated flatten_eq_append_iff (since := "2024-09-05")] abbrev join_eq_append := @flatten_eq_append_iff
-@[deprecated mem_of_getElem? (since := "2024-09-06")] abbrev getElem?_mem := @mem_of_getElem?
-@[deprecated getElem_set_self (since := "2024-09-04")] abbrev getElem_set_eq := @getElem_set_self
-@[deprecated getElem?_set_self (since := "2024-09-04")] abbrev getElem?_set_eq := @getElem?_set_self
-@[deprecated set_eq_nil_iff (since := "2024-09-05")] abbrev set_eq_nil := @set_eq_nil_iff
-
-@[deprecated flatten_nil (since := "2024-10-14")] abbrev join_nil := @flatten_nil
-@[deprecated flatten_cons (since := "2024-10-14")] abbrev join_cons := @flatten_cons
-@[deprecated length_flatten (since := "2024-10-14")] abbrev length_join := @length_flatten
-@[deprecated flatten_singleton (since := "2024-10-14")] abbrev join_singleton := @flatten_singleton
-@[deprecated mem_flatten (since := "2024-10-14")] abbrev mem_join := @mem_flatten
-@[deprecated flatten_eq_nil_iff (since := "2024-10-14")] abbrev join_eq_nil_iff := @flatten_eq_nil_iff
-@[deprecated flatten_ne_nil_iff (since := "2024-10-14")] abbrev join_ne_nil_iff := @flatten_ne_nil_iff
-@[deprecated exists_of_mem_flatten (since := "2024-10-14")] abbrev exists_of_mem_join := @exists_of_mem_flatten
-@[deprecated mem_flatten_of_mem (since := "2024-10-14")] abbrev mem_join_of_mem := @mem_flatten_of_mem
-@[deprecated forall_mem_flatten (since := "2024-10-14")] abbrev forall_mem_join := @forall_mem_flatten
-@[deprecated flatten_eq_flatMap (since := "2024-10-14")] abbrev join_eq_bind := @flatten_eq_flatMap
-@[deprecated head?_flatten (since := "2024-10-14")] abbrev head?_join := @head?_flatten
-@[deprecated foldl_flatten (since := "2024-10-14")] abbrev foldl_join := @foldl_flatten
-@[deprecated foldr_flatten (since := "2024-10-14")] abbrev foldr_join := @foldr_flatten
-@[deprecated map_flatten (since := "2024-10-14")] abbrev map_join := @map_flatten
-@[deprecated filterMap_flatten (since := "2024-10-14")] abbrev filterMap_join := @filterMap_flatten
-@[deprecated filter_flatten (since := "2024-10-14")] abbrev filter_join := @filter_flatten
-@[deprecated flatten_filter_not_isEmpty (since := "2024-10-14")] abbrev join_filter_not_isEmpty := @flatten_filter_not_isEmpty
-@[deprecated flatten_filter_ne_nil (since := "2024-10-14")] abbrev join_filter_ne_nil := @flatten_filter_ne_nil
-@[deprecated flatten_append (since := "2024-10-14")] abbrev join_append := @flatten_append
-@[deprecated flatten_concat (since := "2024-10-14")] abbrev join_concat := @flatten_concat
-@[deprecated flatten_flatten (since := "2024-10-14")] abbrev join_join := @flatten_flatten
-@[deprecated flatten_eq_append_iff (since := "2024-10-14")] abbrev join_eq_append_iff := @flatten_eq_append_iff
-@[deprecated eq_iff_flatten_eq (since := "2024-10-14")] abbrev eq_iff_join_eq := @eq_iff_flatten_eq
-@[deprecated flatten_replicate_nil (since := "2024-10-14")] abbrev join_replicate_nil := @flatten_replicate_nil
-@[deprecated flatten_replicate_singleton (since := "2024-10-14")] abbrev join_replicate_singleton := @flatten_replicate_singleton
-@[deprecated flatten_replicate_replicate (since := "2024-10-14")] abbrev join_replicate_replicate := @flatten_replicate_replicate
-@[deprecated reverse_flatten (since := "2024-10-14")] abbrev reverse_join := @reverse_flatten
-@[deprecated flatten_reverse (since := "2024-10-14")] abbrev join_reverse := @flatten_reverse
-@[deprecated getLast?_flatten (since := "2024-10-14")] abbrev getLast?_join := @getLast?_flatten
-@[deprecated flatten_eq_flatMap (since := "2024-10-16")] abbrev flatten_eq_bind := @flatten_eq_flatMap
-@[deprecated flatMap_def (since := "2024-10-16")] abbrev bind_def := @flatMap_def
-@[deprecated flatMap_id (since := "2024-10-16")] abbrev bind_id := @flatMap_id
-@[deprecated mem_flatMap (since := "2024-10-16")] abbrev mem_bind := @mem_flatMap
-@[deprecated exists_of_mem_flatMap (since := "2024-10-16")] abbrev exists_of_mem_bind := @exists_of_mem_flatMap
-@[deprecated mem_flatMap_of_mem (since := "2024-10-16")] abbrev mem_bind_of_mem := @mem_flatMap_of_mem
-@[deprecated flatMap_eq_nil_iff (since := "2024-10-16")] abbrev bind_eq_nil_iff := @flatMap_eq_nil_iff
-@[deprecated forall_mem_flatMap (since := "2024-10-16")] abbrev forall_mem_bind := @forall_mem_flatMap
-@[deprecated flatMap_singleton (since := "2024-10-16")] abbrev bind_singleton := @flatMap_singleton
-@[deprecated flatMap_singleton' (since := "2024-10-16")] abbrev bind_singleton' := @flatMap_singleton'
-@[deprecated head?_flatMap (since := "2024-10-16")] abbrev head_bind := @head?_flatMap
-@[deprecated flatMap_append (since := "2024-10-16")] abbrev bind_append := @flatMap_append
-@[deprecated flatMap_assoc (since := "2024-10-16")] abbrev bind_assoc := @flatMap_assoc
-@[deprecated map_flatMap (since := "2024-10-16")] abbrev map_bind := @map_flatMap
-@[deprecated flatMap_map (since := "2024-10-16")] abbrev bind_map := @flatMap_map
-@[deprecated map_eq_flatMap (since := "2024-10-16")] abbrev map_eq_bind := @map_eq_flatMap
-@[deprecated filterMap_flatMap (since := "2024-10-16")] abbrev filterMap_bind := @filterMap_flatMap
-@[deprecated filter_flatMap (since := "2024-10-16")] abbrev filter_bind := @filter_flatMap
-@[deprecated flatMap_eq_foldl (since := "2024-10-16")] abbrev bind_eq_foldl := @flatMap_eq_foldl
-@[deprecated flatMap_replicate (since := "2024-10-16")] abbrev bind_replicate := @flatMap_replicate
-@[deprecated reverse_flatMap (since := "2024-10-16")] abbrev reverse_bind := @reverse_flatMap
-@[deprecated flatMap_reverse (since := "2024-10-16")] abbrev bind_reverse := @flatMap_reverse
-@[deprecated getLast?_flatMap (since := "2024-10-16")] abbrev getLast?_bind := @getLast?_flatMap
-@[deprecated any_flatMap (since := "2024-10-16")] abbrev any_bind := @any_flatMap
-@[deprecated all_flatMap (since := "2024-10-16")] abbrev all_bind := @all_flatMap
 
 @[deprecated get?_eq_none (since := "2024-11-29")] abbrev get?_len_le := @getElem?_eq_none
 @[deprecated getElem?_eq_some_iff (since := "2024-11-29")]

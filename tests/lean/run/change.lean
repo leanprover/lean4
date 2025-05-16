@@ -85,7 +85,7 @@ is not definitionally equal to target
 `change` can create new metavariables and assign them
 -/
 /--
-info: x y z : Nat
+trace: x y z : Nat
 w : Nat := x + y
 ⊢ x + y = z
 -/
@@ -114,7 +114,7 @@ example : let x := 22; let y : Nat := x; let z : Fin (y + 1) := 0; z.1 < y + 1 :
 `change` reorders hypotheses if necessary
 -/
 /--
-info: x y z w : Nat
+trace: x y z w : Nat
 a : Nat := x + y
 h : a = z + w
 ⊢ True
@@ -199,7 +199,7 @@ example (m n : Nat) : m + 2 = n := by
 conv `change` to create a metavariable
 -/
 /--
-info: a b c d : Nat
+trace: a b c d : Nat
 e : Nat := a + b
 ⊢ a + b + c = d
 -/

@@ -6,6 +6,8 @@ Authors: Markus Himmel, Mac Malone
 module
 
 prelude
+import all Init.Data.BitVec.Basic
+import all Init.Data.UInt.Basic
 import Init.Data.UInt.Lemmas
 import Init.Data.Fin.Bitwise
 
@@ -575,15 +577,15 @@ expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
     BitVec.toNat_umod, toNat_toBitVec, toNat_ofNat', BitVec.toNat_ofNat, Nat.mod_two_pow_self]
   rw [Nat.mod_mod_of_dvd _ (by cases System.Platform.numBits_eq <;> simp_all)]
 
-@[simp] theorem UInt8.ofFin_shiftLeft (a b : Fin UInt8.size) (hb : b < 8) : UInt8.ofFin (a <<< b) = UInt8.ofFin a <<< UInt8.ofFin b :=
+@[simp] theorem UInt8.ofFin_shiftLeft (a b : Fin UInt8.size) (hb : b.val < 8) : UInt8.ofFin (a <<< b) = UInt8.ofFin a <<< UInt8.ofFin b :=
   UInt8.toFin_inj.1 (by simp [UInt8.toFin_shiftLeft (ofFin a) (ofFin b) hb])
-@[simp] theorem UInt16.ofFin_shiftLeft (a b : Fin UInt16.size) (hb : b < 16) : UInt16.ofFin (a <<< b) = UInt16.ofFin a <<< UInt16.ofFin b :=
+@[simp] theorem UInt16.ofFin_shiftLeft (a b : Fin UInt16.size) (hb : b.val < 16) : UInt16.ofFin (a <<< b) = UInt16.ofFin a <<< UInt16.ofFin b :=
   UInt16.toFin_inj.1 (by simp [UInt16.toFin_shiftLeft (ofFin a) (ofFin b) hb])
-@[simp] theorem UInt32.ofFin_shiftLeft (a b : Fin UInt32.size) (hb : b < 32) : UInt32.ofFin (a <<< b) = UInt32.ofFin a <<< UInt32.ofFin b :=
+@[simp] theorem UInt32.ofFin_shiftLeft (a b : Fin UInt32.size) (hb : b.val < 32) : UInt32.ofFin (a <<< b) = UInt32.ofFin a <<< UInt32.ofFin b :=
   UInt32.toFin_inj.1 (by simp [UInt32.toFin_shiftLeft (ofFin a) (ofFin b) hb])
-@[simp] theorem UInt64.ofFin_shiftLeft (a b : Fin UInt64.size) (hb : b < 64) : UInt64.ofFin (a <<< b) = UInt64.ofFin a <<< UInt64.ofFin b :=
+@[simp] theorem UInt64.ofFin_shiftLeft (a b : Fin UInt64.size) (hb : b.val < 64) : UInt64.ofFin (a <<< b) = UInt64.ofFin a <<< UInt64.ofFin b :=
   UInt64.toFin_inj.1 (by simp [UInt64.toFin_shiftLeft (ofFin a) (ofFin b) hb])
-@[simp] theorem USize.ofFin_shiftLeft (a b : Fin USize.size) (hb : b < System.Platform.numBits) : USize.ofFin (a <<< b) = USize.ofFin a <<< USize.ofFin b :=
+@[simp] theorem USize.ofFin_shiftLeft (a b : Fin USize.size) (hb : b.val < System.Platform.numBits) : USize.ofFin (a <<< b) = USize.ofFin a <<< USize.ofFin b :=
   USize.toFin_inj.1 (by simp [USize.toFin_shiftLeft (ofFin a) (ofFin b) hb])
 
 @[simp] theorem UInt8.ofFin_shiftLeft_mod (a b : Fin UInt8.size) : UInt8.ofFin (a <<< (b % 8)) = UInt8.ofFin a <<< UInt8.ofFin b :=
@@ -670,15 +672,15 @@ expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
     BitVec.toNat_umod, toNat_toBitVec, toNat_ofNat', BitVec.toNat_ofNat, Nat.mod_two_pow_self]
   rw [Nat.mod_mod_of_dvd _ (by cases System.Platform.numBits_eq <;> simp_all)]
 
-@[simp] theorem UInt8.ofFin_shiftRight (a b : Fin UInt8.size) (hb : b < 8) : UInt8.ofFin (a >>> b) = UInt8.ofFin a >>> UInt8.ofFin b :=
+@[simp] theorem UInt8.ofFin_shiftRight (a b : Fin UInt8.size) (hb : b.val < 8) : UInt8.ofFin (a >>> b) = UInt8.ofFin a >>> UInt8.ofFin b :=
   UInt8.toFin_inj.1 (by simp [UInt8.toFin_shiftRight (ofFin a) (ofFin b) hb])
-@[simp] theorem UInt16.ofFin_shiftRight (a b : Fin UInt16.size) (hb : b < 16) : UInt16.ofFin (a >>> b) = UInt16.ofFin a >>> UInt16.ofFin b :=
+@[simp] theorem UInt16.ofFin_shiftRight (a b : Fin UInt16.size) (hb : b.val < 16) : UInt16.ofFin (a >>> b) = UInt16.ofFin a >>> UInt16.ofFin b :=
   UInt16.toFin_inj.1 (by simp [UInt16.toFin_shiftRight (ofFin a) (ofFin b) hb])
-@[simp] theorem UInt32.ofFin_shiftRight (a b : Fin UInt32.size) (hb : b < 32) : UInt32.ofFin (a >>> b) = UInt32.ofFin a >>> UInt32.ofFin b :=
+@[simp] theorem UInt32.ofFin_shiftRight (a b : Fin UInt32.size) (hb : b.val < 32) : UInt32.ofFin (a >>> b) = UInt32.ofFin a >>> UInt32.ofFin b :=
   UInt32.toFin_inj.1 (by simp [UInt32.toFin_shiftRight (ofFin a) (ofFin b) hb])
-@[simp] theorem UInt64.ofFin_shiftRight (a b : Fin UInt64.size) (hb : b < 64) : UInt64.ofFin (a >>> b) = UInt64.ofFin a >>> UInt64.ofFin b :=
+@[simp] theorem UInt64.ofFin_shiftRight (a b : Fin UInt64.size) (hb : b.val < 64) : UInt64.ofFin (a >>> b) = UInt64.ofFin a >>> UInt64.ofFin b :=
   UInt64.toFin_inj.1 (by simp [UInt64.toFin_shiftRight (ofFin a) (ofFin b) hb])
-@[simp] theorem USize.ofFin_shiftRight (a b : Fin USize.size) (hb : b < System.Platform.numBits) : USize.ofFin (a >>> b) = USize.ofFin a >>> USize.ofFin b :=
+@[simp] theorem USize.ofFin_shiftRight (a b : Fin USize.size) (hb : b.val < System.Platform.numBits) : USize.ofFin (a >>> b) = USize.ofFin a >>> USize.ofFin b :=
   USize.toFin_inj.1 (by simp [USize.toFin_shiftRight (ofFin a) (ofFin b) hb])
 
 @[simp] theorem UInt8.ofFin_shiftRight_mod (a b : Fin UInt8.size) : UInt8.ofFin (a >>> (b % 8)) = UInt8.ofFin a >>> UInt8.ofFin b :=

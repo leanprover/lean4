@@ -6,7 +6,7 @@ example : ¬ true = false := by
 /-! Test `binop%` -/
 
 /--
-info: y x : Nat
+trace: y x : Nat
 h : y = 0
 ⊢ Add.add x y = x
 -/
@@ -19,7 +19,7 @@ example (h : y = 0) : x + y = x := by
   done
 
 /--
-info: y x : Nat
+trace: y x : Nat
 h : y = 0
 ⊢ Add.add x y = x
 -/

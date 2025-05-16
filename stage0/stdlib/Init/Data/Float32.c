@@ -63,6 +63,7 @@ LEAN_EXPORT lean_object* l_Float32_sub___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float32_toUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instNegFloat32;
 LEAN_EXPORT lean_object* l_float32DecLt___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Float32_repr(float, lean_object*);
 float lean_uint8_to_float32(uint8_t);
 float sinf(float);
 LEAN_EXPORT lean_object* l_instLEFloat32;
@@ -78,6 +79,7 @@ LEAN_EXPORT lean_object* l_UInt32_toFloat32___boxed(lean_object*);
 static lean_object* l_instToStringFloat32___closed__1;
 LEAN_EXPORT lean_object* l_Float32_acos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instLTFloat32;
+LEAN_EXPORT lean_object* l_Float32_repr___boxed(lean_object*, lean_object*);
 float lean_float_to_float32(double);
 uint32_t lean_float32_to_bits(float);
 LEAN_EXPORT lean_object* l_Float32_isNaN___boxed(lean_object*);
@@ -95,7 +97,7 @@ LEAN_EXPORT float l_instInhabitedFloat32;
 float lean_uint64_to_float32(uint64_t);
 float lean_float32_mul(float, float);
 static lean_object* l_instNegFloat32___closed__1;
-LEAN_EXPORT lean_object* l_instReprFloat32(float, lean_object*);
+LEAN_EXPORT lean_object* l_instReprFloat32;
 LEAN_EXPORT lean_object* l_Float32_atanh___boxed(lean_object*);
 uint64_t lean_float32_to_uint64(float);
 LEAN_EXPORT lean_object* l_UInt8_toFloat32___boxed(lean_object*);
@@ -127,6 +129,7 @@ LEAN_EXPORT lean_object* l_instReprAtomFloat32;
 float atanf(float);
 float lean_float32_div(float, float);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+static lean_object* l_instReprFloat32___closed__1;
 float asinf(float);
 LEAN_EXPORT lean_object* l_Float32_ceil___boxed(lean_object*);
 float cbrtf(float);
@@ -156,7 +159,6 @@ LEAN_EXPORT lean_object* l_Float32_cbrt___boxed(lean_object*);
 float lean_usize_to_float32(size_t);
 LEAN_EXPORT lean_object* l_Float32_pow___boxed(lean_object*, lean_object*);
 static lean_object* l_float32Spec___closed__2;
-LEAN_EXPORT lean_object* l_instReprFloat32___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_float32Spec___elambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -679,7 +681,7 @@ x_1 = l_instInhabitedFloat32___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instReprFloat32(float x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Float32_repr(float x_1, lean_object* x_2) {
 _start:
 {
 float x_3; uint8_t x_4; 
@@ -704,15 +706,31 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_instReprFloat32___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Float32_repr___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 float x_3; lean_object* x_4; 
 x_3 = lean_unbox_float32(x_1);
 lean_dec(x_1);
-x_4 = l_instReprFloat32(x_3, x_2);
+x_4 = l_Float32_repr(x_3, x_2);
 lean_dec(x_2);
 return x_4;
+}
+}
+static lean_object* _init_l_instReprFloat32___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Float32_repr___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instReprFloat32() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instReprFloat32___closed__1;
+return x_1;
 }
 }
 static lean_object* _init_l_instReprAtomFloat32() {
@@ -1169,6 +1187,10 @@ l_instToStringFloat32 = _init_l_instToStringFloat32();
 lean_mark_persistent(l_instToStringFloat32);
 l_instInhabitedFloat32___closed__1 = _init_l_instInhabitedFloat32___closed__1();
 l_instInhabitedFloat32 = _init_l_instInhabitedFloat32();
+l_instReprFloat32___closed__1 = _init_l_instReprFloat32___closed__1();
+lean_mark_persistent(l_instReprFloat32___closed__1);
+l_instReprFloat32 = _init_l_instReprFloat32();
+lean_mark_persistent(l_instReprFloat32);
 l_instReprAtomFloat32 = _init_l_instReprAtomFloat32();
 lean_mark_persistent(l_instReprAtomFloat32);
 l_instHomogeneousPowFloat32___closed__1 = _init_l_instHomogeneousPowFloat32___closed__1();

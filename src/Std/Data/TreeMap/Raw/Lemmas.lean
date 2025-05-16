@@ -39,7 +39,7 @@ theorem isEmpty_insert [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   DTreeMap.Raw.mem_iff_contains
 
-@[simp]
+@[simp, grind]
 theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
   DTreeMap.Raw.contains_iff_mem
 
@@ -920,6 +920,7 @@ theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     t.insertMany (⟨k, v⟩ :: l) = (t.insert k v).insertMany l :=
   ext <| DTreeMap.Raw.Const.insertMany_cons
 
+@[grind _=_]
 theorem insertMany_append {l₁ l₂ : List (α × β)} :
     insertMany t (l₁ ++ l₂) = insertMany (insertMany t l₁) l₂ := by
   induction l₁ generalizing t with
@@ -1268,6 +1269,10 @@ theorem ofList_singleton {k : α} {v : β} :
 theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) cmp = insertMany ((∅ : Raw α β cmp).insert k v) tl :=
   ext DTreeMap.Raw.Const.ofList_cons
+
+theorem ofList_eq_insertMany_empty {l : List (α × β)} :
+    ofList l cmp = insertMany (∅ : Raw α β cmp) l :=
+  ext DTreeMap.Raw.Const.ofList_eq_insertMany_empty
 
 @[simp]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List (α × β)} {k : α} :

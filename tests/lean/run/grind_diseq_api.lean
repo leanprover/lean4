@@ -23,58 +23,58 @@ def fallback : Fallback := do
 set_option trace.Meta.debug true
 
 /--
-info: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h_2 (Lean.Grind.ne_of_ne_of_eq_left h (Ne.symm h_1)) : a ≠ b
+trace: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h_2 (Lean.Grind.ne_of_ne_of_eq_left h (Ne.symm h_1)) : a ≠ b
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (x y : Nat) : a = x → y ≠ x → b = y → False := by
   grind on_failure fallback
 
 /--
-info: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h_2 (Lean.Grind.ne_of_ne_of_eq_left h h_1) : a ≠ b
+trace: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h_2 (Lean.Grind.ne_of_ne_of_eq_left h h_1) : a ≠ b
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (x y : Nat) : a = x → x ≠ y → b = y → False := by
   grind on_failure fallback
 
 /--
-info: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h_3 (Lean.Grind.ne_of_ne_of_eq_left (Eq.trans h (Eq.symm h_1)) h_2) : a ≠ b
+trace: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h_3 (Lean.Grind.ne_of_ne_of_eq_left (Eq.trans h (Eq.symm h_1)) h_2) : a ≠ b
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (x y z : Nat) : a = x → z = x → z ≠ y → b = y → False := by
   grind on_failure fallback
 
-/-- info: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_left h (Ne.symm h_1) : a ≠ b -/
-#guard_msgs (info) in
+/-- trace: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_left h (Ne.symm h_1) : a ≠ b -/
+#guard_msgs (trace) in
 example (x : Nat) : a = x → b ≠ x → False := by
   grind on_failure fallback
 
-/-- info: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_left h h_1 : a ≠ b -/
-#guard_msgs (info) in
+/-- trace: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_left h h_1 : a ≠ b -/
+#guard_msgs (trace) in
 example (x : Nat) : a = x → x ≠ b → False := by
   grind on_failure fallback
 
 
-/-- info: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h h_1 : a ≠ b -/
-#guard_msgs (info) in
+/-- trace: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h h_1 : a ≠ b -/
+#guard_msgs (trace) in
 example (x : Nat) : b = x → a ≠ x → False := by
   grind on_failure fallback
 
-/-- info: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h (Ne.symm h_1) : a ≠ b -/
-#guard_msgs (info) in
+/-- trace: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_right h (Ne.symm h_1) : a ≠ b -/
+#guard_msgs (trace) in
 example (x : Nat) : b = x → x ≠ a → False := by
   grind on_failure fallback
 
-/-- info: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_left h (Ne.symm h_1) : a ≠ b -/
-#guard_msgs (info) in
+/-- trace: [Meta.debug] Lean.Grind.ne_of_ne_of_eq_left h (Ne.symm h_1) : a ≠ b -/
+#guard_msgs (trace) in
 example (x : Nat) : a = x → b ≠ x → False := by
   grind on_failure fallback
 
-/-- info: [Meta.debug] h : ¬a = b -/
-#guard_msgs (info) in
+/-- trace: [Meta.debug] h : ¬a = b -/
+#guard_msgs (trace) in
 example : a ≠ b → False := by
   grind on_failure fallback
 
-/-- info: [Meta.debug] Ne.symm h : a ≠ b -/
-#guard_msgs (info) in
+/-- trace: [Meta.debug] Ne.symm h : a ≠ b -/
+#guard_msgs (trace) in
 example : b ≠ a → False := by
   grind on_failure fallback

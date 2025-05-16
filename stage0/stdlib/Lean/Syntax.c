@@ -193,6 +193,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_antiquotSuffixSplice_x3f(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goLeft___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_isAntiquot___boxed(lean_object*);
+LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Syntax_structRangeEq___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_modifyArgs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instInhabitedRange;
@@ -214,7 +215,6 @@ lean_object* l_String_posOfAux(lean_object*, uint32_t, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_Syntax_rewriteBottomUpM___at_Lean_Syntax_rewriteBottomUp___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop___at_Lean_Syntax_hasMissing___spec__1___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_antiquotSuffixSplice_x3f___closed__1;
-LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Syntax_structRangeEq___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_Stack_matches___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Syntax_isAntiquots___spec__1(lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_String_instBEqRange;
@@ -331,6 +331,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_isAntiquots___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_169____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Syntax_identComponents___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Syntax_rewriteBottomUp___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Syntax_structRangeEq___spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instHashableRange;
@@ -427,7 +428,6 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_antiquotKinds(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_setCur(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_setAtomVal(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SyntaxNode_getKind(lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Syntax_structRangeEq___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_instForInTopDown_loop___at_Lean_Syntax_hasMissing___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Syntax_findStack_x3f_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isAntiquots(lean_object*);
@@ -1794,7 +1794,7 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Syntax_structRangeEq___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Syntax_structRangeEq___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1914,7 +1914,7 @@ x_12 = l_Lean_SourceInfo_getRange_x3f(x_11, x_5);
 lean_dec(x_5);
 x_13 = l_Lean_SourceInfo_getRange_x3f(x_11, x_8);
 lean_dec(x_8);
-x_14 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Syntax_structRangeEq___spec__1(x_12, x_13);
+x_14 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Syntax_structRangeEq___spec__1(x_12, x_13);
 lean_dec(x_13);
 lean_dec(x_12);
 if (x_14 == 0)
@@ -1997,7 +1997,7 @@ x_29 = l_Lean_SourceInfo_getRange_x3f(x_28, x_24);
 lean_dec(x_24);
 x_30 = l_Lean_SourceInfo_getRange_x3f(x_28, x_26);
 lean_dec(x_26);
-x_31 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Syntax_structRangeEq___spec__1(x_29, x_30);
+x_31 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Syntax_structRangeEq___spec__1(x_29, x_30);
 lean_dec(x_30);
 lean_dec(x_29);
 if (x_31 == 0)
@@ -2054,7 +2054,7 @@ x_44 = l_Lean_SourceInfo_getRange_x3f(x_43, x_35);
 lean_dec(x_35);
 x_45 = l_Lean_SourceInfo_getRange_x3f(x_43, x_39);
 lean_dec(x_39);
-x_46 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Syntax_structRangeEq___spec__1(x_44, x_45);
+x_46 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Syntax_structRangeEq___spec__1(x_44, x_45);
 lean_dec(x_45);
 lean_dec(x_44);
 if (x_46 == 0)
@@ -2120,11 +2120,11 @@ return x_53;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Syntax_structRangeEq___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Syntax_structRangeEq___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Syntax_structRangeEq___spec__1(x_1, x_2);
+x_3 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Syntax_structRangeEq___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

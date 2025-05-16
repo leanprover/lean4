@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 import Std.Internal.Rat
 
 namespace Std

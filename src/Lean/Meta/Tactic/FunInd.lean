@@ -1212,7 +1212,7 @@ def unpackMutualInduction (unfolding : Bool) (eqnInfo : WF.EqnInfo) : MetaM Name
   return inductName
 where doRealize inductName := do
   let unaryInductName ← deriveUnaryInduction (unfolding := unfolding) eqnInfo.declNameNonRec
-  mapError (f := (m!"Cannot unpack functional cases principle {.ofConstName unaryInductName} (please report this issue)\n{indentD ·}")) do
+  prependError m!"Cannot unpack functional cases principle {.ofConstName unaryInductName} (please report this issue)" do
   let ci ← getConstInfo unaryInductName
   let us := ci.levelParams
   let value := .const ci.name (us.map mkLevelParam)
@@ -1568,7 +1568,7 @@ are not variables, to avoid having to generalize them.
 def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
   let casesName := getFunCasesName (unfolding := unfolding) name
   realizeConst name casesName do
-  mapError (f := (m!"Cannot derive functional cases principle (please report this issue)\n{indentD ·}")) do
+  prependError m!"Cannot derive functional cases principle (please report this issue)" do
     let info ← getConstInfo name
     let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := true) name
       | throwError "'{name}' does not have an unfold theorem nor a value"
@@ -1655,7 +1655,7 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.
 -/
 def deriveInduction (unfolding : Bool) (name : Name) : MetaM Unit := do
-  mapError (f := (m!"Cannot derive functional induction principle (please report this issue)\n{indentD ·}")) do
+  prependError m!"Cannot derive functional induction principle (please report this issue)" do
     if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then
       let unaryInductName ← deriveUnaryInduction unfolding eqnInfo.declNameNonRec
       if eqnInfo.declNames.size > 1 then

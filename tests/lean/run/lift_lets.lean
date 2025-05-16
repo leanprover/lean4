@@ -139,7 +139,7 @@ Lifting `letFun` under a binder, dependency.
 -/
 /--
 trace: ⊢ ∀ (n : Nat),
-    let_fun x := n;
+    have x := n;
     n = x
 -/
 #guard_msgs in
@@ -153,7 +153,7 @@ example : ∀ n : Nat, n = (have x := n; x) := by
 Lifting `letFun` under a binder, no dependency.
 -/
 /--
-trace: ⊢ let_fun x := 0;
+trace: ⊢ have x := 0;
   ∀ (n : Nat), n = n + x
 -/
 #guard_msgs in
@@ -212,7 +212,7 @@ and whether the second is a `have` or `let`.
 -/
 /--
 trace: ⊢ ∀ (n : Nat),
-    let_fun x := n;
+    have x := n;
     x = x
 -/
 #guard_msgs in

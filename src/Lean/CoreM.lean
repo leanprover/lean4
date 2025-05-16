@@ -102,14 +102,23 @@ partial def mkUniqueName (env : Environment) (g : DeclNameGenerator) («infix» 
   let «infix» := if g.namePrefix.hasMacroScopes && infix.hasMacroScopes then infix.eraseMacroScopes else «infix»
   let base := g.namePrefix ++ «infix»
   let mut g := g
+  while isConflict (curr g base) do
+    g := g.next
+  return (curr g base, g)
+where
+  -- Check whether the name conflicts with an existing one. Conflicts ignore privacy.
   -- NOTE: We only check the current branch and rely on the documented invariant instead because we
   -- do not want to block here and because it would not solve the issue for completely separated
   -- threads of elaboration such as in Aesop's backtracking search.
-  while env.containsOnBranch (curr g base) do
-    g := g.next
-  return (curr g base, g)
-where curr (g : DeclNameGenerator) (base : Name) : Name :=
-  g.idxs.foldr (fun i n => n.appendIndexAfter i) base
+  isConflict (n : Name) : Bool :=
+    (env.setExporting false).containsOnBranch n ||
+    isPrivateName n && (env.setExporting false).containsOnBranch (privateToUserName n) ||
+    !isPrivateName n && (env.setExporting false).containsOnBranch (mkPrivateName env n)
+  curr (g : DeclNameGenerator) (base : Name) : Name := Id.run do
+    let mut n := g.idxs.foldr (fun i n => n.appendIndexAfter i) base
+    if env.header.isModule && !env.isExporting && !isPrivateName n then
+      n := mkPrivateName env n
+    return n
 
 def mkChild (g : DeclNameGenerator) : DeclNameGenerator × DeclNameGenerator :=
   ({ g with parentIdxs := g.idx :: g.parentIdxs, idx := 1 },

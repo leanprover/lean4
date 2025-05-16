@@ -347,8 +347,9 @@ mutual
   If `report := false`, then `runTactic` will not capture exceptions nor will report unsolved goals. Unsolved goals become exceptions.
   -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (kind : TacticMVarKind) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
+    let wasExporting := (← getEnv).isExporting
     -- exit exporting context if entering proof
-    let isNoLongerExporting ← pure (← getEnv).isExporting <&&> do
+    let isNoLongerExporting ← pure wasExporting <&&> do
       mvarId.withContext do
         isProp (← mvarId.getType)
     instantiateMVarDeclMVars mvarId
@@ -359,7 +360,7 @@ mutual
     if isNoLongerExporting then
       let mvarDecl ← getMVarDecl mvarId
       mvarId' := (← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances mvarDecl.type mvarDecl.kind).mvarId!
-    withExporting (isExporting := (← getEnv).isExporting && !isNoLongerExporting) do
+    withExporting (isExporting := wasExporting && !isNoLongerExporting) do
     /-
     TODO: consider using `runPendingTacticsAt` at `mvarId` local context and target type.
     Issue #1380 demonstrates that the goal may still contain pending metavariables.
@@ -395,7 +396,8 @@ mutual
             let mut e ← instantiateExprMVars (.mvar mvarId')
             if !e.isFVar then
               e ← mvarId'.withContext do
-                abstractProof e
+                withExporting (isExporting := wasExporting) do
+                  abstractProof e
             mvarId.assign e)
       fun ex => do
         if report then

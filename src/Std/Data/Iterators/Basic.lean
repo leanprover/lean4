@@ -234,9 +234,9 @@ An inductive type that makes it easier to apply the `cases` tactic to a
 -/
 inductive PlausibleIterStep.CasesHelper {IsPlausibleStep : IterStep α β → Prop} :
     PlausibleIterStep IsPlausibleStep → Type _ where
-  | yield (it' out h) : CasesHelper (.yield it' out h)
-  | skip (it' h) : CasesHelper (.skip it' h)
-  | done (h) : CasesHelper (.done h)
+  | yield (it' out h) : CasesHelper ⟨.yield it' out, h⟩
+  | skip (it' h) : CasesHelper ⟨.skip it', h⟩
+  | done (h) : CasesHelper ⟨.done, h⟩
 
 /--
 Because `PlausibleIterStep` is a subtype of `IterStep`, it is tedious to use

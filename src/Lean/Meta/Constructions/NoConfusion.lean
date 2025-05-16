@@ -11,8 +11,8 @@ import Lean.Meta.Constructions.NoConfusionLinear
 
 
 register_builtin_option linearNoConfusionType : Bool := {
-  defValue := false
-  descr    := "use experimental linear noConfusion type construction for inductive types"
+  defValue := true
+  descr    := "use the linear-size construction for the no-confusion-tyep for inductive types"
 }
 
 namespace Lean
@@ -28,7 +28,13 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   let recInfo ← getConstInfo (mkRecName declName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
-  if linearNoConfusionType.get (← getOptions) then
+  let useLinear ←
+    if linearNoConfusionType.get (← getOptions) then
+      linearNoConfusionDeps.allM (hasConst · (skipRealize := true))
+    else
+      pure false
+
+  if useLinear then
     mkWithCtorType declName
     mkWithCtor declName
     mkNoConfusionTypeLinear declName

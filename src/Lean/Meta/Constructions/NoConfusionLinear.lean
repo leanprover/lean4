@@ -12,6 +12,13 @@ namespace Lean
 
 open Meta
 
+/--
+List of constants that the linear `noConfusionType` construction depends on.
+-/
+def linearNoConfusionDeps : Array Lean.Name :=
+  #[ ``Nat.lt, ``cond, ``OfNat.ofNat, ``instOfNatNat, ``Nat, ``PUnit, ``Eq, ``Not, ``dite,
+     ``Nat.decEq ]
+
 def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let type ← inferType default
   let u ← getLevel type
@@ -31,7 +38,7 @@ def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr 
 def mkWithCtorType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let us := info.levelParams.map mkLevelParam
-  let v ← pure `v -- TODO: mkFreshUserName `v
+  let v := `v -- this relies on the fact that the parameter names in `us` are never `v`
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
   let indLevel ← getDecLevel indTyKind
@@ -63,7 +70,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let withCtorTypeName := indName ++ `withCtorType
   let us := info.levelParams.map mkLevelParam
-  let v ← pure `v -- TODO: mkFreshUserName `v
+  let v := `v -- this relies on the fact that the parameter names in `us` are never `v`
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
   let indLevel ← getDecLevel indTyKind

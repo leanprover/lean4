@@ -348,7 +348,8 @@ theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (as : List �
     | false => simp [ih]
 
 @[simp]
-theorem findM?_id (p : α → Bool) (as : List α) : findM? (m := Id) p as = as.find? p :=
+theorem findM?_id (p : α → Id Bool) (as : List α) :
+    (findM? p as).run = as.find? (p · |>.run) :=
   findM?_pure _ _
 
 /--
@@ -394,7 +395,8 @@ theorem findSomeM?_pure [Monad m] [LawfulMonad m] {f : α → Option β} {as : L
     | none   => simp [ih]
 
 @[simp]
-theorem findSomeM?_id {f : α → Option β} {as : List α} : findSomeM? (m := Id) f as = as.findSome? f :=
+theorem findSomeM?_id (f : α → Id (Option β)) (as : List α) :
+    (findSomeM? f as).run = as.findSome? (f · |>.run) :=
   findSomeM?_pure
 
 theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as : List α} :

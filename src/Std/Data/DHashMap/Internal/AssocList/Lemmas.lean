@@ -36,7 +36,7 @@ open Std.Internal
 @[simp]
 theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocList α β} :
     l.foldl f init = l.toList.foldl (fun d p => f d p.1 p.2) init := by
-  induction l generalizing init <;> simp_all [foldl, Id.run, foldlM]
+  induction l generalizing init <;> simp_all [foldl, foldlM]
 
 @[simp]
 theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
@@ -260,11 +260,11 @@ end Const
 theorem foldl_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldl (fun acc k v => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)).reverse ++ acc := by
-  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM, Id.run]
+  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM]
 
 theorem foldr_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldr (fun k v acc => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)) ++ acc := by
-  induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM, Id.run]
+  induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM]
 
 end Std.DHashMap.Internal.AssocList

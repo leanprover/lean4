@@ -612,13 +612,13 @@ theorem anyM_loop_cons [Monad m] {p : α → m Bool} {a : α} {as : List α} {st
 
 -- Auxiliary for `any_iff_exists`.
 theorem anyM_loop_iff_exists {p : α → Bool} {as : Array α} {start stop} (h : stop ≤ as.size) :
-    anyM.loop (m := Id) p as stop h start = true ↔
+    (anyM.loop (m := Id) (pure <| p ·) as stop h start).run = true ↔
       ∃ (i : Nat) (_ : i < as.size), start ≤ i ∧ i < stop ∧ p as[i] = true := by
   unfold anyM.loop
   split <;> rename_i h₁
   · dsimp
     split <;> rename_i h₂
-    · simp only [true_iff]
+    · simp only [true_iff, Id.run_pure]
       refine ⟨start, by omega, by omega, by omega, h₂⟩
     · rw [anyM_loop_iff_exists]
       constructor
@@ -635,9 +635,9 @@ termination_by stop - start
 -- This could also be proved from `SatisfiesM_anyM_iff_exists` in `Batteries.Data.Array.Init.Monadic`
 theorem any_iff_exists {p : α → Bool} {as : Array α} {start stop} :
     as.any p start stop ↔ ∃ (i : Nat) (_ : i < as.size), start ≤ i ∧ i < stop ∧ p as[i] := by
-  dsimp [any, anyM, Id.run]
+  dsimp [any, anyM]
   split
-  · rw [anyM_loop_iff_exists]
+  · rw [anyM_loop_iff_exists (p := p)]
   · rw [anyM_loop_iff_exists]
     constructor
     · rintro ⟨i, hi, ge, _, h⟩
@@ -1369,17 +1369,17 @@ theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] {f : α → m β} {xs : Ar
 
 @[deprecated "Use `mapM_eq_foldlM` instead" (since := "2025-01-08")]
 theorem mapM_map_eq_foldl {as : Array α} {f : α → β} {i : Nat} :
-    mapM.map (m := Id) f as i b = as.foldl (start := i) (fun acc a => acc.push (f a)) b := by
+    mapM.map (m := Id) (pure <| f ·) as i b = pure (as.foldl (start := i) (fun acc a => acc.push (f a)) b) := by
   unfold mapM.map
   split <;> rename_i h
-  · simp only [Id.bind_eq]
-    dsimp [foldl, Id.run, foldlM]
+  · ext : 1
+    dsimp [foldl, foldlM]
     rw [mapM_map_eq_foldl, dif_pos (by omega), foldlM.loop, dif_pos h]
     -- Calling `split` here gives a bad goal.
     have : size as - i = Nat.succ (size as - i - 1) := by omega
     rw [this]
-    simp [foldl, foldlM, Id.run, Nat.sub_add_eq]
-  · dsimp [foldl, Id.run, foldlM]
+    simp [foldl, foldlM, Nat.sub_add_eq]
+  · dsimp [foldl, foldlM]
     rw [dif_pos (by omega), foldlM.loop, dif_neg h]
     rfl
 termination_by as.size - i
@@ -1601,8 +1601,8 @@ theorem filterMap_congr {as bs : Array α} (h : as = bs)
     as.toList ++ List.filterMap f xs := ?_
   exact this #[]
   induction xs
-  · simp_all [Id.run]
-  · simp_all [Id.run, List.filterMap_cons]
+  · simp_all
+  · simp_all [List.filterMap_cons]
     split <;> simp_all
 
 @[grind] theorem toList_filterMap {f : α → Option β} {xs : Array α} :
@@ -3214,18 +3214,16 @@ theorem foldlM_push [Monad m] [LawfulMonad m] {xs : Array α} {a : α} {f : β �
   rw [foldr, foldrM_start_stop, ← foldrM_toList, List.foldrM_pure, foldr_toList, foldr, ← foldrM_start_stop]
 
 theorem foldl_eq_foldlM {f : β → α → β} {b} {xs : Array α} {start stop : Nat} :
-    xs.foldl f b start stop = xs.foldlM (m := Id) f b start stop := by
-  simp [foldl, Id.run]
+    xs.foldl f b start stop = (xs.foldlM (m := Id) (pure <| f · ·) b start stop).run := rfl
 
 theorem foldr_eq_foldrM {f : α → β → β} {b} {xs : Array α} {start stop : Nat} :
-    xs.foldr f b start stop = xs.foldrM (m := Id) f b start stop := by
-  simp [foldr, Id.run]
+    xs.foldr f b start stop = (xs.foldrM (m := Id) (pure <| f · ·) b start stop).run := rfl
 
 @[simp] theorem id_run_foldlM {f : β → α → Id β} {b} {xs : Array α} {start stop : Nat} :
-    Id.run (xs.foldlM f b start stop) = xs.foldl f b start stop := foldl_eq_foldlM.symm
+    Id.run (xs.foldlM f b start stop) = xs.foldl (f · · |>.run) b start stop := rfl
 
 @[simp] theorem id_run_foldrM {f : α → β → Id β} {b} {xs : Array α} {start stop : Nat} :
-    Id.run (xs.foldrM f b start stop) = xs.foldr f b start stop := foldr_eq_foldrM.symm
+    Id.run (xs.foldrM f b start stop) = xs.foldr (f · · |>.run) b start stop := rfl
 
 /-- Variant of `foldlM_reverse` with a side condition for the `stop` argument. -/
 @[simp] theorem foldlM_reverse' [Monad m] {xs : Array α} {f : β → α → m β} {b} {stop : Nat}
@@ -3483,17 +3481,16 @@ theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b} {xs
 
 @[simp] theorem foldr_append' {f : α → β → β} {b} {xs ys : Array α} {start : Nat}
     (w : start = xs.size + ys.size) :
-    (xs ++ ys).foldr f b start 0 = xs.foldr f (ys.foldr f b) := by
-  subst w
-  simp [foldr_eq_foldrM]
+    (xs ++ ys).foldr f b start 0 = xs.foldr f (ys.foldr f b) :=
+  foldrM_append' w
 
 @[grind _=_]theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs ys : Array α} :
-    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) := by
-  simp [foldl_eq_foldlM]
+    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) :=
+  foldlM_append
 
 @[grind _=_] theorem foldr_append {f : α → β → β} {b} {xs ys : Array α} :
-    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) := by
-  simp [foldr_eq_foldrM]
+    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) :=
+  foldrM_append
 
 @[simp] theorem foldl_flatten' {f : β → α → β} {b} {xss : Array (Array α)} {stop : Nat}
     (w : stop = xss.flatten.size) :
@@ -3522,21 +3519,22 @@ theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b} {xs
 /-- Variant of `foldl_reverse` with a side condition for the `stop` argument. -/
 @[simp] theorem foldl_reverse' {xs : Array α} {f : β → α → β} {b} {stop : Nat}
     (w : stop = xs.size) :
-    xs.reverse.foldl f b 0 stop = xs.foldr (fun x y => f y x) b := by
-  simp [w, foldl_eq_foldlM, foldr_eq_foldrM]
+    xs.reverse.foldl f b 0 stop = xs.foldr (fun x y => f y x) b :=
+  foldlM_reverse' w
 
 /-- Variant of `foldr_reverse` with a side condition for the `start` argument. -/
 @[simp] theorem foldr_reverse' {xs : Array α} {f : α → β → β} {b} {start : Nat}
     (w : start = xs.size) :
-    xs.reverse.foldr f b start 0 = xs.foldl (fun x y => f y x) b := by
-  simp [w, foldl_eq_foldlM, foldr_eq_foldrM]
+    xs.reverse.foldr f b start 0 = xs.foldl (fun x y => f y x) b :=
+  foldrM_reverse' w
 
 @[grind] theorem foldl_reverse {xs : Array α} {f : β → α → β} {b} :
-    xs.reverse.foldl f b = xs.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
+    xs.reverse.foldl f b = xs.foldr (fun x y => f y x) b :=
+  foldlM_reverse
 
 @[grind] theorem foldr_reverse {xs : Array α} {f : α → β → β} {b} :
     xs.reverse.foldr f b = xs.foldl (fun x y => f y x) b :=
-  (foldl_reverse ..).symm.trans <| by simp
+  foldrM_reverse
 
 theorem foldl_eq_foldr_reverse {xs : Array α} {f : β → α → β} {b} :
     xs.foldl f b = xs.reverse.foldr (fun x y => f y x) b := by simp
@@ -4051,15 +4049,16 @@ abbrev all_mkArray := @all_replicate
 /-! ### modify -/
 
 @[simp] theorem size_modify {xs : Array α} {i : Nat} {f : α → α} : (xs.modify i f).size = xs.size := by
-  unfold modify modifyM Id.run
+  unfold modify modifyM
   split <;> simp
 
 theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
     (xs.modify j f)[i] = if j = i then f (xs[i]'(by simpa using h)) else xs[i]'(by simpa using h) := by
-  simp only [modify, modifyM, Id.run, Id.pure_eq]
+  simp only [modify, modifyM]
   split
-  · simp only [Id.bind_eq, getElem_set]; split <;> simp [*]
-  · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
+  · simp only [getElem_set, Id.run_pure, Id.run_bind]; split <;> simp [*]
+  · simp only [Id.run_pure]
+    rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
 @[simp] theorem toList_modify {xs : Array α} {f : α → α} {i : Nat} :
     (xs.modify i f).toList = xs.toList.modify i f := by
@@ -4600,12 +4599,12 @@ namespace Array
 @[simp] theorem findSomeRev?_eq_findSome?_reverse {f : α → Option β} {xs : Array α} :
     xs.findSomeRev? f = xs.reverse.findSome? f := by
   cases xs
-  simp [findSomeRev?, Id.run]
+  simp [findSomeRev?]
 
 @[simp] theorem findRev?_eq_find?_reverse {f : α → Bool} {xs : Array α} :
     xs.findRev? f = xs.reverse.find? f := by
   cases xs
-  simp [findRev?, Id.run]
+  simp [findRev?]
 
 /-! ### unzip -/
 

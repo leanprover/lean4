@@ -1828,13 +1828,15 @@ theorem msb_neg_umod_neg_of_msb_true_of_msb_true
     rw [this]
     simp
 
-theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
-    (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) &&
-    decide (-x < -y)) := by
-  by_cases hw : w = 0; subst hw; decide +revert
-  have wpos : 0 < w := by omega
-  simp only [msb_neg]
-  simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
+-- theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+--     (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) &&
+--     decide (-x < -y)) := by
+--   by_cases hw : w = 0; subst hw; decide +revert
+--   have wpos : 0 < w := by omega
+--   simp only [msb_neg]
+--   simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
+--   simp
+--   sorry
 
 theorem toInt_dvd_toInt_iff {x y : BitVec w} :
     y.toInt ∣ x.toInt ↔ (if x.msb then -x else x) % (if y.msb then -y else y) = 0#w := by
@@ -1896,7 +1898,7 @@ theorem neg_toInt_neg {x : BitVec w} (h : x.msb = false) :
   simp [toInt_neg_eq_of_msb h, toInt_eq_toNat_of_msb, h]
 
 @[simp]
-theorem complex {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+theorem neg_toInt_neg_umod_eq_ofmsb_true_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
     -(-(-x % -y)).toInt = (-x % -y).toNat := by
   by_cases hw : w = 0; subst hw; decide +revert
   have wpos : 0 < w := by omega
@@ -1956,64 +1958,10 @@ theorem toInt_smod {x y : BitVec w} :
       simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
         Int.dvd_neg, humod, iff_false] at hdvd
       omega
-  ·
-    by_cases tobias : w = 42
-    ·
-      rw [← Int.neg_inj]
-      rw [complex hxmsb hymsb]
-      simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb,
-        hymsb, Int.fmod_eq_emod_of_nonneg _, show 0 ≤ ↑(-y).toNat by omega]
-      -- This is solved here
-
-    -- Here starts the old prove which is not needed anymore
-    simp only [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb,
-            toInt_neg, toInt_umod, Int.fmod_eq_emod, Int.natCast_emod, Int.natCast_pow,
-            Int.cast_ofNat_Int, Int.bmod_neg_bmod, Int.emod_neg, Int.neg_nonneg, Int.dvd_neg, Int.neg_dvd]
-
-    by_cases hyintmin : y = intMin (w + 1)
-    · simp [hyintmin, -toNat_neg]
-      simp only [toNat_neg]
-      have hmodlt1 := Nat.mod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat) (b := 2 ^ (w + 1)) (by simp [toNat_eq] at hxzero; omega)
-      have hmodlt2 := Int.emod_eq_of_lt (a := 2 ^ w) (b := 2 ^ (w + 1)) (by norm_cast; omega) (by norm_cast; omega)
-      have := toNat_ge_of_msb_true hxmsb
-      simp at this
-      have hmodlt3 := Int.emod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat) (b := 2 ^ w) (by sorry) (by sorry)
-      simp only [hmodlt1]
-      simp only [hmodlt2]
-      simp only [hmodlt3]
-
-
-
-      have hynegmsb := BitVec.msb_neg_of_ne_intMin_of_ne_zero (x := y) (by sorry) (by sorry)
-
-      have hmodlt := Nat.mod_lt (x := (-x).toNat) (y := (-y).toNat) (by sorry)
-
-
-      by_cases hxintmin : x = intMin (w + 1)
-      · simp [hxintmin, hyintmin]
-      · -- y = intMin, x ≠ intMin
-        simp only [hyintmin, neg_intMin, toNat_intMin, Nat.add_one_sub_one,
-          Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int]
-        have hmodpow := Nat.two_pow_pred_mod_two_pow (w := w + 1) (by omega)
-        simp only [Nat.add_one_sub_one] at hmodpow
-        rw_mod_cast [hmodpow]
-        rw [Int.bmod_eq_of_le (by norm_cast; omega) (by norm_cast; omega)]
-        simp only [toNat_neg, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int,
-          le_zero_eq, Nat.pow_eq_zero, add_one_ne_zero, ne_eq, _root_.false_and,
-          _root_.false_or]
-        rw_mod_cast [Nat.mod_eq_of_lt (a := 2 ^ (w + 1) - x.toNat)
-          (by simp [Nat.pow_add, Nat.pow_one]; rw [Nat.mul_two];
-              have : 0 < x.toNat := by simp [toNat_eq] at hxzero; omega
-              omega)]
-        rw [Int.neg_emod]
-        omega
-    · have hyneglt : (-y).toNat < 2 ^ (w + 1 - 1) := by
-        apply toNat_lt_of_msb_false
-        simp [hyintmin, hymsb]
-      have hmodlt := Nat.mod_lt (-x).toNat (y := (-y).toNat)
-        (by rw [← neg_eq_zero_iff, toNat_eq, toNat_ofNat, zero_mod] at hyzero; omega)
-      rw [Int.bmod_eq_of_le (by simp only [Nat.add_one_sub_one] at hyneglt; omega) (by omega), Int.neg_emod]
-      omega
+  · rw [← Int.neg_inj]
+    rw [neg_toInt_neg_umod_eq_ofmsb_true_msb_true hxmsb hymsb]
+    simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb,
+    hymsb, Int.fmod_eq_emod_of_nonneg _, show 0 ≤ ↑(-y).toNat by omega]
 
 /-! ### Lemmas that use bit blasting circuits -/
 

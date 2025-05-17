@@ -1781,6 +1781,29 @@ theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = t
   simp only [msb_neg]
   simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
 
+@[simp]
+theorem lt_of_msb_true_of_msb_false {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    x < y := by
+  simp only [LT.lt]
+  simp
+  have := toNat_ge_of_msb_true hy
+  have := toNat_lt_of_msb_false hx
+  omega
+
+theorem toInt_dvd_iff_of_msb_false_msb_false {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = false) :
+    y.toInt ∣ x.toInt ↔ x % y = 0#w  := by
+  have := toInt_dvd_toInt_iff (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
+
+theorem toInt_dvd_iff_of_msb_true_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+    y.toInt ∣ x.toInt ↔ (-x) % (-y) = 0#w:= by
+  have := toInt_dvd_toInt_iff (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
+
 /-! ### Lemmas that use bit blasting circuits -/
 
 theorem add_sub_comm {x y : BitVec w} : x + y - z = x - z + y := by

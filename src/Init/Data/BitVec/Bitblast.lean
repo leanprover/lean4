@@ -1803,30 +1803,12 @@ theorem intMin_umod_msb_false {y : BitVec w} (hy : y.msb = true) (hy_ne_zero : y
 theorem msb_neg_umod_neg_of_msb_true_of_msb_true
     {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
       (-x % -y).msb = false := by
-  by_cases hw : w = 0; subst hw; decide +revert
-
-  by_cases hx' : x = intMin w
-  ·
-    by_cases hy' : y = intMin w
-    ·
-      subst hy'
-      simp [hw]
-      intro h
-      subst hx'
-      simp
-    ·
-      rw [umod_msb_false]
-      rw [msb_neg]
-      simp [hy, hy']
-      simp
-      have := BitVec.ne_zero_of_msb_true hy
-      simp [this]
-  · have : (-x).msb = false := by
-      simp [msb_neg]
-      simp [hx, hx']
-    simp
-    rw [this]
-    simp
+  rcases w with _|w
+  · simp [of_length_zero]
+  · by_cases hx' : x = intMin (w + 1)
+    · simp only [hx', neg_intMin]
+      exact intMin_umod_msb_false (y := y) hy (by simp [ne_zero_of_msb_true hy])
+    · simp [show (-x).msb = false by simp [hx, hx']]
 
 -- theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
 --     (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) &&

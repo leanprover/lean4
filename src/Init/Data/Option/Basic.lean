@@ -102,11 +102,9 @@ From the perspective of `Option` as a collection with at most one element, the m
 is applied to the element if present, and the final result is empty if either the initial or the
 resulting collections are empty.
 -/
-@[inline] protected def bindM [Monad m] (f : α → m (Option β)) (o : Option α) : m (Option β) := do
-  if let some a := o then
-    return (← f a)
-  else
-    return none
+@[inline] protected def bindM [Pure m] (f : α → m (Option β)) : Option α → m (Option β)
+  | none => pure none
+  | some a => f a
 
 /--
 Applies a function in some applicative functor to an optional value, returning `none` with no

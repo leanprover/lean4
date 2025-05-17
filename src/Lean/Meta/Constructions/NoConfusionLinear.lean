@@ -17,7 +17,7 @@ List of constants that the linear `noConfusionType` construction depends on.
 -/
 def linearNoConfusionDeps : Array Lean.Name :=
   #[ ``Nat.lt, ``cond, ``OfNat.ofNat, ``instOfNatNat, ``Nat, ``PUnit, ``Eq, ``Not, ``dite,
-     ``Nat.decEq ]
+     ``Nat.decEq, ``Nat.blt ]
 
 def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let type ← inferType default

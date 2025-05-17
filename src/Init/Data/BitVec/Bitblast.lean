@@ -1766,12 +1766,67 @@ theorem msb_neg_of_msb_true {x : BitVec w} (hx : x.msb = true) :
   simp only [bool_to_prop]
   simp [hx]
 
+@[simp]
+theorem le_of_msb_true_of_msb_false {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    x ≤ y := by
+  simp only [LE.le]
+  simp
+  have := toNat_ge_of_msb_true hy
+  have := toNat_lt_of_msb_false hx
+  omega
+
+@[simp]
+theorem lt_of_msb_true_of_msb_false {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    x < y := by
+  simp only [LT.lt]
+  simp
+  have := toNat_ge_of_msb_true hy
+  have := toNat_lt_of_msb_false hx
+  omega
+
+@[simp]
+theorem umod_msb_false {x y : BitVec w} (xmsb : y.msb = false) (hy_ne_zero : y ≠ 0#w) :
+    (x % y).msb = false := by
+  simp [hy_ne_zero]
+  intro h
+  exact le_of_msb_true_of_msb_false xmsb h
+
+@[simp]
+theorem intMin_umod_msb_false {y : BitVec w} (hy : y.msb = true) (hy_ne_zero : y ≠ 0#w):
+    (intMin w % (-y)).msb = false := by
+  by_cases yintmin : y = intMin w
+  · simp [yintmin]
+  · rw [umod_msb_false]
+    simp [msb_neg, hy, yintmin, hy_ne_zero]
+    simp [hy_ne_zero]
+
 theorem msb_neg_umod_neg_of_msb_true_of_msb_true
     {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
-      (-x % -y).msb = (decide (x = intMin w) && decide (-x < -y)) := by
-  simp only [msb_umod, msb_neg_of_msb_true, hx]
-  simp only [bool_to_prop]
-  simp [hy]
+      (-x % -y).msb = false := by
+  by_cases hw : w = 0; subst hw; decide +revert
+
+  by_cases hx' : x = intMin w
+  ·
+    by_cases hy' : y = intMin w
+    ·
+      subst hy'
+      simp [hw]
+      intro h
+      subst hx'
+      simp
+    ·
+      rw [umod_msb_false]
+      rw [msb_neg]
+      simp [hy, hy']
+      simp
+      have := BitVec.ne_zero_of_msb_true hy
+      simp [this]
+  · have : (-x).msb = false := by
+      simp [msb_neg]
+      simp [hx, hx']
+    simp
+    rw [this]
+    simp
 
 theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
     (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) &&
@@ -1818,6 +1873,37 @@ theorem toInt_dvd_iff_of_msb_true_msb_true {x y : BitVec w} (hx : x.msb = true) 
   have := toInt_dvd_toInt_iff (x := x) (y := y)
   simp [hx, hy] at this
   exact this
+
+theorem toInt_eq_neg_toNat_neg_of_msb_true' {x : BitVec w} (h : x.msb = true ∨ x = 0#w) :
+    x.toInt = -((-x).toNat) := by
+  cases h
+  case inl h =>
+    simp only [toInt_eq_msb_cond, h, ↓reduceIte, toNat_neg, Int.natCast_emod]
+    norm_cast
+    rw [Nat.mod_eq_of_lt]
+    · omega
+    · have := @BitVec.isLt w x
+      have ne_zero := ne_zero_of_msb_true h
+      simp only [ne_eq, toNat_eq, toNat_ofNat, zero_mod] at ne_zero
+      omega
+  case inr h =>
+    subst h
+    simp
+
+@[simp]
+theorem neg_toInt_neg {x : BitVec w} (h : x.msb = false) :
+    -((-x).toInt) = x.toNat := by
+  simp [toInt_neg_eq_of_msb h, toInt_eq_toNat_of_msb, h]
+
+@[simp]
+theorem complex {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+    -(-(-x % -y)).toInt = (-x % -y).toNat := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
+  rw [neg_toInt_neg]
+  by_cases h : -x % -y = 0#w
+  · simp [h]
+  · rw [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
@@ -1870,10 +1956,19 @@ theorem toInt_smod {x y : BitVec w} :
       simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
         Int.dvd_neg, humod, iff_false] at hdvd
       omega
-  · simp only [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb,
+  ·
+    by_cases tobias : w = 42
+    ·
+      rw [← Int.neg_inj]
+      rw [complex hxmsb hymsb]
+      simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb,
+        hymsb, Int.fmod_eq_emod_of_nonneg _, show 0 ≤ ↑(-y).toNat by omega]
+      -- This is solved here
+
+    -- Here starts the old prove which is not needed anymore
+    simp only [BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hymsb,
             toInt_neg, toInt_umod, Int.fmod_eq_emod, Int.natCast_emod, Int.natCast_pow,
             Int.cast_ofNat_Int, Int.bmod_neg_bmod, Int.emod_neg, Int.neg_nonneg, Int.dvd_neg, Int.neg_dvd]
-
 
     by_cases hyintmin : y = intMin (w + 1)
     · simp [hyintmin, -toNat_neg]

@@ -112,6 +112,8 @@ theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
 
+@[simp, grind] theorem mkEmpty_eq_empty {n : Nat} : (mkEmpty n : Array α) = #[] := rfl
+
 end Array
 
 namespace List
@@ -333,6 +335,8 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (emptyWithCapacity n) where
   go (i : Nat) (acc : Array α) : Array α :=
     if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
   decreasing_by simp_wf; decreasing_trivial_pre_omega
+
+-- See also `Array.ofFnM` defined in `Init.Data.Array.OfFn`.
 
 /--
 Constructs an array that contains all the numbers from `0` to `n`, exclusive.

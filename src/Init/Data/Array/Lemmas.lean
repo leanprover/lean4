@@ -247,6 +247,12 @@ theorem back?_pop {xs : Array α} :
 
 /-! ### push -/
 
+@[simp] theorem push_empty : #[].push x = #[x] := rfl
+
+@[simp] theorem toList_push {xs : Array α} {x : α} : (xs.push x).toList = xs.toList ++ [x] := by
+  rcases xs with ⟨xs⟩
+  simp
+
 @[simp] theorem push_ne_empty {a : α} {xs : Array α} : xs.push a ≠ #[] := by
   cases xs
   simp
@@ -3266,6 +3272,22 @@ rather than `(arr.push a).size` as the argument.
     (xs.push a).foldrM f init start = f a init >>= xs.foldrM f := by
   simp [← foldrM_push, h]
 
+@[simp, grind] theorem _root_.List.foldrM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
+    l.foldrM (fun x xs => xs.push <$> f x) xs = do return xs ++ (← l.reverse.mapM f).toArray := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp [ih]
+    congr 1
+    funext l'
+    congr 1
+    funext x
+    simp
+
+@[simp, grind] theorem _root_.List.foldlM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
+    l.foldlM (fun xs x => xs.push <$> f x) xs = do return xs ++ (← l.mapM f).toArray := by
+  induction l generalizing xs <;> simp [*]
+
 /-! ### foldl / foldr -/
 
 @[grind] theorem foldl_empty {f : β → α → β} {init : β} : (#[].foldl f init) = init := rfl
@@ -3361,6 +3383,24 @@ rather than `(arr.push a).size` as the argument.
   subst w
   rcases as with ⟨as⟩
   simp
+
+@[simp, grind] theorem _root_.List.foldr_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
+    l.foldr (fun x xs => xs.push (f x)) xs = xs ++ (l.reverse.map f).toArray := by
+  induction l <;> simp [*]
+
+/-- Variant of `List.foldr_push_eq_append` specialized to `f = id`. -/
+@[simp, grind] theorem _root_.List.foldr_push_eq_append' {l : List α} {xs : Array α} :
+    l.foldr (fun x xs => xs.push x) xs = xs ++ l.reverse.toArray := by
+  induction l <;> simp [*]
+
+@[simp, grind] theorem _root_.List.foldl_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
+    l.foldl (fun xs x => xs.push (f x)) xs = xs ++ (l.map f).toArray := by
+  induction l generalizing xs <;> simp [*]
+
+/-- Variant of `List.foldl_push_eq_append` specialized to `f = id`. -/
+@[simp, grind] theorem _root_.List.foldl_push_eq_append' {l : List α} {xs : Array α} :
+    l.foldl (fun xs x => xs.push x) xs = xs ++ l.toArray := by
+  induction l <;> simp [*]
 
 @[simp, grind] theorem foldr_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldr (f · ++ ·) ys = (xs.map f).flatten ++ ys := by

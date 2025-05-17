@@ -254,8 +254,10 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
   findCmdParsedSnap doc hoverPos |>.bindCostly fun
     | some cmdParsed =>
       let t := toSnapshotTree cmdParsed |>.foldSnaps [] fun snap oldGoals => Id.run do
-        let some (pos, tailPos, trailingPos) := getPositions snap
+        let some stx := snap.stx?
           | return .pure (oldGoals, .proceed (foldChildren := false))
+        let some (pos, tailPos, trailingPos) := getPositions stx
+          | return .pure (oldGoals, .proceed (foldChildren := true))
         let snapRange : String.Range := ⟨pos, trailingPos⟩
         -- When there is no trailing whitespace, we also consider snapshots directly before the
         -- cursor.
@@ -283,8 +285,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
     | none =>
       .pure none
 where
-  getPositions (snap : SnapshotTask SnapshotTree) : Option (String.Pos × String.Pos × String.Pos) := do
-    let stx ← snap.stx?
+  getPositions (stx : Syntax) : Option (String.Pos × String.Pos × String.Pos) := do
     let pos ← stx.getPos? (canonicalOnly := true)
     let tailPos ← stx.getTailPos? (canonicalOnly := true)
     let trailingPos? ← stx.getTrailingTailPos? (canonicalOnly := true)

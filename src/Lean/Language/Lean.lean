@@ -687,7 +687,8 @@ where
           -- create a temporary snapshot tree containing all tasks but it
           let snaps := #[
             { stx? := stx', task := elabPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none },
-            { stx? := stx', task := resultPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none }] ++
+            { stx? := stx', task := resultPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none },
+            { stx? := stx', task := finishedPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none }] ++
             cmdState.snapshotTasks
           let tree := SnapshotTree.mk { diagnostics := .empty } snaps
           BaseIO.bindTask (← tree.waitAll) fun _ => do

@@ -76,28 +76,36 @@ prompt the code action.
 -/
 def unknownIdentifierMessageTag : Name := `unknownIdentifier
 
+/-- Throw an error exception using the given message data and reference syntax. -/
+protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
+  withRef ref <| Lean.throwError msg
+
 /--
 Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.
 This tag is used by the 'import unknown identifier' code action to detect messages that should
 prompt the code action.
+The end position of the range of an unknown identifier message should always point at the
+unknown identifier.
 -/
 def mkUnknownIdentifierMessage (msg : MessageData) : MessageData :=
   MessageData.tagged unknownIdentifierMessageTag msg
 
 /--
 Throw an unknown identifier error message that is tagged with `unknownIdentifierMessageTag`.
+The end position of the range of `ref` should always point at the unknown identifier.
 See also `mkUnknownIdentifierMessage`.
 -/
-def throwUnknownIdentifier [Monad m] [MonadError m] (msg : MessageData) : m α :=
-  Lean.throwError <| mkUnknownIdentifierMessage msg
+def throwUnknownIdentifierAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α :=
+  Lean.throwErrorAt ref <| mkUnknownIdentifierMessage msg
 
 /-- Throw an unknown constant error message. -/
-def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
-  throwUnknownIdentifier m!"unknown constant '{.ofConstName constName}'"
+def throwUnknownConstantAt [Monad m] [MonadError m] (ref : Syntax) (constName : Name) : m α := do
+  throwUnknownIdentifierAt ref m!"unknown constant '{.ofConstName constName}'"
 
-/-- Throw an error exception using the given message data and reference syntax. -/
-protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
-  withRef ref <| Lean.throwError msg
+/-- Throw an unknown constant error message. -/
+@[deprecated throwUnknownConstantAt (since := "2025-05-16")]
+def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α := do
+  throwUnknownIdentifierAt (← getRef) m!"unknown constant '{.ofConstName constName}'"
 
 /--
 Convert an `Except` into a `m` monadic action, where `m` is any monad that

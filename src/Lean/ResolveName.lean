@@ -296,7 +296,7 @@ def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadErr
 /-- Helper function for `resolveGlobalConstCore`. -/
 def filterFieldList [Monad m] [MonadError m] (n : Name) (cs : List (Name × List String)) : m (List Name) := do
   let cs := cs.filter fun (_, fieldList) => fieldList.isEmpty
-  if cs.isEmpty then throwUnknownConstant n
+  if cs.isEmpty then throwUnknownConstantAt (← getRef) n
   return cs.map (·.1)
 
 /-- Given a name `n`, returns a list of possible interpretations for global constants.

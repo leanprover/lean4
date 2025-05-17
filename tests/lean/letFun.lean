@@ -1,34 +1,34 @@
 import Lean.Elab.Command
 
 /-!
-# Tests for `let_fun x := v; b` notation
+# Tests for `have x := v; b` notation
 -/
 
 /-!
-Checks that types can be inferred and that default instances work with `let_fun`.
+Checks that types can be inferred and that default instances work with `have`.
 -/
 #check
-  let_fun f x := x * 2
-  let_fun x := 1
-  let_fun y := x + 1
+  have f x := x * 2
+  have x := 1
+  have y := x + 1
   f (y + x)
 
 /-!
-Checks that `simp` can do zeta reduction of `let_fun`s
+Checks that `simp` can do zeta reduction of `have`s
 -/
-example (a b : Nat) (h1 : a = 0) (h2 : b = 0) : (let_fun x := a + 1; x + x) > b := by
+example (a b : Nat) (h1 : a = 0) (h2 : b = 0) : (have x := a + 1; x + x) > b := by
   simp (config := { zeta := false }) [h1]
   trace_state
   simp (config := { decide := true }) [h2]
 
 /-!
-Checks that the underlying encoding for `let_fun` can be overapplied.
-This still pretty prints with `let_fun` notation.
+Checks that the underlying encoding for `have` can be overapplied.
+This still pretty prints with `have` notation.
 -/
 #check (show Nat → Nat from id) 1
 
 /-!
-Checks that zeta reduction still occurs even if the `let_fun` is applied to an argument.
+Checks that zeta reduction still occurs even if the `have` is applied to an argument.
 -/
 example (a b : Nat) (h : a > b) : (show Nat → Nat from id) a > b := by
   simp
@@ -36,23 +36,23 @@ example (a b : Nat) (h : a > b) : (show Nat → Nat from id) a > b := by
   exact h
 
 /-!
-Checks that the type of a `let_fun` can depend on the value.
+Checks that the type of a `have` can depend on the value.
 -/
-#check let_fun n := 5
+#check have n := 5
   (⟨[], Nat.zero_le n⟩ : { as : List Bool // as.length ≤ n })
 
 /-!
-Check that `let_fun` is reducible.
+Check that `have` is reducible.
 -/
-#check (rfl : (let_fun n := 5; n) = 5)
+#check (rfl : (have n := 5; n) = 5)
 
 /-!
-Exercise `isDefEqQuick` for `let_fun`.
+Exercise `isDefEqQuick` for `have`.
 -/
-#check (rfl : (let_fun _n := 5; 2) = 2)
+#check (rfl : (have _n := 5; 2) = 2)
 
 /-!
-Check that `let_fun` responds to WHNF's `zeta` option.
+Check that `have` responds to WHNF's `zeta` option.
 -/
 
 open Lean Meta Elab Term in
@@ -61,5 +61,5 @@ elab "#whnfCore " z?:(&"noZeta")? t:term : command => Command.runTermElabM fun _
   let e ← withConfig (fun c => { c with zeta := z?.isNone }) <| Meta.whnfCore e
   logInfo m!"{e}"
 
-#whnfCore let_fun n := 5; n
-#whnfCore noZeta let_fun n := 5; n
+#whnfCore have n := 5; n
+#whnfCore noZeta have n := 5; n

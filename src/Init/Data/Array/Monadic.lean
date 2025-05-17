@@ -34,6 +34,11 @@ open Nat
 @[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f :=
   mapM_pure
 
+@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {xs : Array α} :
+    (xs.map f).mapM g = xs.mapM (g ∘ f) := by
+  rcases xs with ⟨xs⟩
+  simp
+
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] {f : α → m β} {xs ys : Array α} :
     (xs ++ ys).mapM f = (return (← xs.mapM f) ++ (← ys.mapM f)) := by
   rcases xs with ⟨xs⟩

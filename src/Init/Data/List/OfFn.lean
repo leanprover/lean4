@@ -27,6 +27,13 @@ Examples:
 -/
 def ofFn {n} (f : Fin n → α) : List α := Fin.foldr n (f · :: ·) []
 
+/--
+Creates a list wrapped in a monad by applying the monadic function `f : Fin n → m α`
+to each potential index in order, starting at `0`.
+-/
+def ofFnM {n} [Monad m] (f : Fin n → m α) : m (List α) :=
+  Array.toList <$> Fin.foldlM n (fun xs i => xs.push <$> f i) (Array.mkEmpty n)
+
 @[simp]
 theorem length_ofFn {f : Fin n → α} : (ofFn f).length = n := by
   simp only [ofFn]
@@ -60,15 +67,29 @@ protected theorem getElem?_ofFn {f : Fin n → α} : (ofFn f)[i]? = if h : i < n
 
 /-- `ofFn` on an empty domain is the empty list. -/
 @[simp]
-theorem ofFn_zero {f : Fin 0 → α} : ofFn f = [] :=
-  ext_get (by simp) (fun i hi₁ hi₂ => by contradiction)
+theorem ofFn_zero {f : Fin 0 → α} : ofFn f = [] := rfl
 
-@[simp]
 theorem ofFn_succ {n} {f : Fin (n + 1) → α} : ofFn f = f 0 :: ofFn fun i => f i.succ :=
   ext_get (by simp) (fun i hi₁ hi₂ => by
     cases i
     · simp
     · simp)
+
+theorem ofFn_succ_last {n} {f : Fin (n + 1) → α} :
+    ofFn f = (ofFn fun i => f i.castSucc) ++ [f (Fin.last n)] := by
+  induction n with
+  | zero => simp [ofFn_succ]
+  | succ n ih =>
+    rw [ofFn_succ]
+    conv => rhs; rw [ofFn_succ]
+    rw [ih]
+    simp
+
+theorem ofFn_add {n m} {f : Fin (n + m) → α} :
+    ofFn f = (ofFn fun i => f (i.castLE (Nat.le_add_right n m))) ++ (ofFn fun i => f (i.natAdd n)) := by
+  induction m with
+  | zero => simp
+  | succ m ih => simp [ofFn_succ_last, ih]
 
 @[simp]
 theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
@@ -91,5 +112,12 @@ theorem head_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
 theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).getLast h = f ⟨n - 1, Nat.sub_one_lt (mt ofFn_eq_nil_iff.2 h)⟩ := by
   simp [getLast_eq_getElem, length_ofFn, List.getElem_ofFn]
+
+/-- `ofFnM` on an empty domain is the empty list. -/
+@[simp]
+theorem ofFnM_zero [Monad m] [LawfulMonad m] {f : Fin 0 → m α} : ofFnM f = pure [] := by
+  simp [ofFnM]
+
+-- Further results about `List.ofFnM` are in `Init.Data.Array.OfFn`, as they rely on lemmas about `Array`.
 
 end List

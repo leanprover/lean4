@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.List.TakeDrop
 import Init.Data.List.Attach
+import Init.Data.List.OfFn
+import Init.Data.Array.Bootstrap
 import all Init.Data.List.Control
 
 /-!
@@ -68,6 +70,10 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} 
 
 @[simp] theorem mapM_id {l : List α} {f : α → Id β} : l.mapM f = l.map f :=
   mapM_pure
+
+@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {l : List α} :
+    (l.map f).mapM g = l.mapM (g ∘ f) := by
+  induction l <;> simp_all
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] {f : α → m β} {l₁ l₂ : List α} :
     (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by induction l₁ <;> simp [*]

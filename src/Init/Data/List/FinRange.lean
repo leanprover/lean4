@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.List.OfFn
+import Init.Data.List.Monadic
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -57,3 +58,38 @@ theorem finRange_reverse {n} : (finRange n).reverse = (finRange n).map Fin.rev :
     simp [Fin.rev_succ]
 
 end List
+
+namespace Fin
+
+theorem foldlM_eq_finRange_foldlM [Monad m] (f : α → Fin n → m α) (x : α) :
+    foldlM n f x = (List.finRange n).foldlM f x := by
+  induction n generalizing x with
+  | zero => simp
+  | succ n ih =>
+    simp [foldlM_succ, List.finRange_succ, List.foldlM_cons]
+    congr 1
+    funext y
+    simp [ih, List.foldlM_map]
+
+theorem foldrM_eq_finRange_foldrM [Monad m] [LawfulMonad m] (f : Fin n → α → m α) (x : α) :
+    foldrM n f x = (List.finRange n).foldrM f x := by
+  induction n generalizing x with
+  | zero => simp
+  | succ n ih =>
+    simp [foldrM_succ, List.finRange_succ, ih, List.foldrM_map]
+
+theorem foldl_eq_finRange_foldl (f : α → Fin n → α) (x : α) :
+    foldl n f x = (List.finRange n).foldl f x := by
+  induction n generalizing x with
+  | zero => simp
+  | succ n ih =>
+    simp [foldl_succ, List.finRange_succ, ih, List.foldl_map]
+
+theorem foldr_eq_finRange_foldr (f : Fin n → α → α) (x : α) :
+    foldr n f x = (List.finRange n).foldr f x := by
+  induction n generalizing x with
+  | zero => simp
+  | succ n ih =>
+    simp [foldr_succ, List.finRange_succ, ih, List.foldr_map]
+
+end Fin

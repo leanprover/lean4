@@ -1,3 +1,4 @@
+set_option linearNoConfusionType false
 unsafe inductive t
 | mk : (t → t) → t
 

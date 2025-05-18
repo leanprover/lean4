@@ -52,7 +52,7 @@ macro_rules
 
 @[app_unexpander Vector.mk]
 def _root_.unexpandVectorMk : Lean.PrettyPrinter.Unexpander
-  | `($_ #[$[$l],*] $_) => `(#v[$[$l],*])
+  | `($_ #[ $elems,* ] $_) => `(#v[ $elems,* ])
   | _ => throw ()
 
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]

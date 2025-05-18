@@ -16,7 +16,6 @@ This is the first file in the Lean import hierarchy. It is responsible for setti
 up basic definitions, most of which Lean already has "built in knowledge" about,
 so it is important that they be set up in exactly this way. (For example, Lean will
 use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler.)
-
 -/
 
 universe u v w

@@ -72,6 +72,8 @@ macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
 instance {α : Type u} [Mul α] : HSMul α α α where
   hSMul x y := x * y
 
+namespace Lean.Grind
+
 class NatModule (M : Type u) extends Zero M, Add M, HSMul Nat M M where
   add_zero : ∀ a : M, a + 0 = a
   zero_add : ∀ a : M, 0 + a = a
@@ -99,6 +101,14 @@ class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HSMul Int M M 
   neg_add_cancel : ∀ a : M, -a + a = 0
   sub_eq_add_neg : ∀ a b : M, a - b = a + -b
 
+instance IntModule.toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
+  { i with
+    hSMul a x := (a : Int) • x
+    smul_zero := by simp [IntModule.smul_zero]
+    add_smul := by simp [IntModule.add_smul]
+    smul_add := by simp [IntModule.smul_add]
+    mul_smul := by simp [IntModule.mul_smul] }
+
 /--
 We keep track of rational linear combinations as integer linear combinations,
 but with the assurance that we can cancel the GCD of the coefficients.
@@ -122,3 +132,5 @@ class IntModule.IsOrdered (M : Type u) [Preorder M] [IntModule M] where
   smul_neg : ∀ (k : Int) (a : M), a < 0 → (0 < k ↔ k • a < 0)
   smul_nonneg : ∀ (k : Int) (a : M), 0 ≤ a → 0 ≤ k → 0 ≤ k • a
   smul_nonpos : ∀ (k : Int) (a : M), a ≤ 0 → 0 ≤ k → k • a ≤ 0
+
+end Lean.Grind

@@ -57,7 +57,8 @@ def Key.ctorIdx : Key → Nat
   | .fvar ..  => 4
   | .const .. => 5
   | .arrow    => 6
-  | .proj ..  => 7
+  | .sort     => 7
+  | .proj ..  => 8
 
 def Key.lt : Key → Key → Bool
   | .lit v₁,        .lit v₂        => v₁ < v₂
@@ -79,6 +80,7 @@ def Key.format : Key → Format
   | .proj s i _      => Std.format s ++ "." ++ Std.format i
   | .fvar k _        => Std.format k.name
   | .arrow           => "∀"
+  | .sort            => "Sort"
 
 instance : ToFormat Key := ⟨Key.format⟩
 
@@ -122,6 +124,7 @@ where
       mkApp m!"fun" #[← go false] parenIfNonAtomic
     | .star => return "_"
     | .other => return "<other>"
+    | .sort => return "Sort"
     | .lit (.natVal v) => return m!"{v}"
     | .lit (.strVal v) => return m!"{v}"
 
@@ -415,12 +418,23 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
         return (.star, todo)
     | .forallE _n d _ _ =>
       return (.arrow, todo.push d)
-    | .lam _ t b _ =>
-      let mvar ← mkFreshExprMVar t
+    | .lam n t b _ =>
+      /-
+      The variable from the lambda should be treated as unassignable to handle
+      `fun x => x` (`#[fun, <other>]`, matches `id`) differently from
+      `fun x => y` (`#[fun, *]`, matches any constant function).
+      -/
+      let mvar ← mkFreshExprMVar t .syntheticOpaque n
       return (.lam, todo.push (b.instantiate1 mvar))
     | .sort _ =>
-      return (.other, todo)
+      return (.sort, todo)
     | _ => unreachable!
+
+private partial def removeTailLambda (keys : Array Key) : Array Key :=
+  if keys.back? matches some .lam then
+    removeTailLambda keys.pop
+  else
+    keys
 
 @[inherit_doc pushArgs]
 partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (noIndexAtArgs : Bool) : MetaM (Array Key) := do
@@ -430,6 +444,8 @@ partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (noIn
     let e    := todo.back!
     let todo := todo.pop
     let (k, todo) ← pushArgs root todo e noIndexAtArgs
+    -- `#[fun, *]` is basically equivalent to `#[*]`
+    let keys := match k with | .star => removeTailLambda keys | _ => keys
     mkPathAux false todo (keys.push k) noIndexAtArgs
 
 private def initCapacity := 8
@@ -509,10 +525,7 @@ def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (noIndexAtA
     d.insertCore keys v
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
-  /-
-  The temporary meta-variable used for eta-expanding for `.lam` matches is "unassignable" so
-  return `.other`.
-  -/
+  -- `tmpStar` is used as a bound variable for eta-expansion so use kind `.other`.
   if e == tmpStar then
     return (.other, #[])
   let e ← reduceDT e root
@@ -587,10 +600,10 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
     let nargs := e.getAppNumArgs
     return (.proj s i nargs, #[a] ++ e.getAppRevArgs)
   | .forallE _ d _ _ => return (.arrow, #[d])
-  | .lam _ t b _ =>
-    let mvar ← mkFreshExprMVar t
+  | .lam n t b _ =>
+    let mvar ← mkFreshExprMVar t .syntheticOpaque n
     return (.lam, #[b.instantiate1 mvar])
-  | .sort _ => return (.other, #[])
+  | .sort _ => return (.sort, #[])
   | _ => unreachable!
 
 private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
@@ -600,19 +613,28 @@ private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Ex
   getKeyArgs e (isMatch := false) (root := root)
 
 /--
-"Eta-expand" if `k` is not a lambda. The special `tmpStar` that is appended for eta-expansion is
-handled in `getKeyArgs` as an `.other` key.
+Try "eta-expanding" `k`. The special `tmpStar` that is appended for eta-expansion is handled in
+`getKeyArgs` as an `.other` key. `.lam`, `.sort`, `.arrow` and `.lit` can't be eta-expanded.
 -/
-private def matchLam (k : Key) (args : Array Expr) : Array Expr :=
+private abbrev etaExpandKeyArgs (k : Key) (args : Array Expr) : Option (Key × Array Expr) :=
   match k with
-  | .lam => args
-  | _ => args.push tmpStar
+  | .proj n i a => some (.proj n i (a + 1), args.push tmpStar)
+  | .const n a => some (.const n (a + 1), args.push tmpStar)
+  | .fvar f a => some (.fvar f (a + 1), args.push tmpStar)
+  | .other | .star => some (k, args)
+  | _ => none
 
 private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
   | none              => result
   | some (.node vs _) => result ++ vs
+
+private abbrev findLam? (cs : Array (Key × Trie α)) : Option (Trie α) :=
+  /- Recall that `Key.star` and `Key.lam` are the minimal keys -/
+  if let some (Key.lam, c) := cs[0]? then some c
+  else if let some (Key.lam, c) := cs[1]? then some c
+  else none
 
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
@@ -629,7 +651,6 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
       let todo  := todo.pop
       /- Recall that `Key.star` and `Key.lam` are the minimal keys -/
       let first := cs[0]!
-      let second := cs.getD 1 (.other, default)
       let (k, args) ← getMatchKeyArgs e (root := false)
       /- We must always visit `Key.star` edges since they are wildcards.
          Thus, `todo` is not used linearly when there is a `Key.star` edge
@@ -639,23 +660,18 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
           getMatchLoop todo first.2 result
         else
           return result
-      let visitLam (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
-        if first.1 matches .lam then
-          getMatchLoop (todo ++ matchLam k args) first.2 result
-        else if second.1 matches .lam then
-          getMatchLoop (todo ++ matchLam k args) second.2 result
-        else
-          return result
-      let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+      let rec visitNonStar (cs : Array (Key × Trie α)) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) := do
+        let mut result := result
+        if let some (.node _ cs) := findLam? cs then
+          if let some (k, args) := etaExpandKeyArgs k args then
+            result ← visitNonStar cs k args result
         match findKey cs k with
         | none   => return result
         | some c => getMatchLoop (todo ++ args) c.2 result
       let result ← visitStar result
       match k with
       | .star => return result
-      | _ =>
-        let result ← visitLam k args result
-        visitNonStar k args result
+      | _ => visitNonStar cs k args result
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with
@@ -664,17 +680,19 @@ private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (resul
 
 private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α) :=
   withReducible do
-    let result := getStarResult d
+    let mut result := getStarResult d
     let (k, args) ← getMatchKeyArgs e (root := true)
-    let result ← match k, d.root.find? .lam with
-      | .lam, _ -- don't match twice using `.lam`
-      | _, none => pure result
-      | _, some c => getMatchLoop (matchLam k args) c result
+    if let some (.node _ cs) := d.root.find? .lam then
+      if let some (k, args) := etaExpandKeyArgs k args then
+        result ← getMatchLoop.visitNonStar #[] cs k args result
     match k with
     | .star  => return (k, result)
     | _      => return (k, (← getMatchRoot d k args result))
 
-/-- Find values that match `e` in `d`. -/
+/--
+Find values that match `e` in `d`. In contrast to `getUnify`, `getMatch` treats meta-variables as
+unassignable (e.g. `x = x` will not be matched with `?m`). This variant is used by `simp`.
+-/
 def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   return (← getMatchCore d e).2
 
@@ -760,18 +778,21 @@ def getMatchLiberal (d : DiscrTree α) (e : Expr) : MetaM (Array α × Nat) := d
     | .star  => return (result, numArgs)
     | _      => return (getAllValuesForKey d k result, numArgs)
 
+/--
+Find values that may unify with `e` in `d` (i.e. where `isDefEq` may return `true`). In contrast to
+`getMatch`, `getUnify` treats meta-variables as wildcards (e.g. `Nat` will be matched with `?m`).
+This variant is used by typeclass search.
+-/
 partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let (k, args) ← getUnifyKeyArgs e (root := true)
     match k with
     | .star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
-      let result := getStarResult d
-      let result ←
-        match k, d.root.find? .lam with
-        | .lam, _ -- don't match twice using `.lam`
-        | _, none => pure result
-        | _, some c => process 0 (matchLam k args) c result
+      let mut result := getStarResult d
+      if let some (.node _ cs) := d.root.find? .lam then
+        if let some (k, args) := etaExpandKeyArgs k args then
+          result ← visitNonStar #[] cs k args result
       match d.root.find? k with
       | none   => return result
       | some c => process 0 args c result
@@ -798,22 +819,17 @@ where
             process 0 todo first.2 result
           else
             return result
-        let visitLam (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
-          let first := cs[0]!
-          let second := cs.getD 1 default
-          if first.1 matches .lam then
-            process 0 (todo ++ matchLam k args) first.2 result
-          else if second.1 matches .lam then
-            process 0 (todo ++ matchLam k args) second.2 result
-          else
-            return result
-        let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
-          match findKey cs k with
-          | none   => return result
-          | some c => process 0 (todo ++ args) c.2 result
         match k with
         | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-        | _      => visitNonStar k args (← visitLam k args (← visitStar result))
+        | _      => visitNonStar todo cs k args (← visitStar result)
+  visitNonStar (todo : Array Expr) (cs : Array (Key × Trie α)) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) := do
+    let mut result := result
+    if let some (.node _ cs) := findLam? cs then
+      if let some (k, args) := etaExpandKeyArgs k args then
+        result ← visitNonStar todo cs k args result
+    match findKey cs k with
+    | none   => return result
+    | some c => process 0 (todo ++ args) c.2 result
 
 namespace Trie
 

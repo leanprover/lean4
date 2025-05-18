@@ -24,12 +24,17 @@ inductive Key where
   | lit   : Literal → Key
   /-- Wildcard, matches everything (arity 0). -/
   | star  : Key
-  /-- Universes and synthetic opaque meta-variables (arity 0). -/
+  /--
+  Applications of unassignable meta-variables or variables bound by lambdas (arity 0, the
+  parameters are not captured).
+  -/
   | other : Key
   /-- Lambda expression. Also matches non-lambdas by eta expansion (arity 1, only the body). -/
   | lam   : Key
   /-- Forall type (arity 1, only the binding domain). -/
   | arrow : Key
+  /-- Universes (arity 0). The universe is not matched. -/
+  | sort  : Key
   /-- Application of a projection (arity for `proj nm i a` is `a + 1`). -/
   | proj  : Name → Nat → Nat → Key
   deriving Inhabited, BEq, Repr
@@ -42,6 +47,7 @@ protected def Key.hash : Key → UInt64
   | .other       => 2411
   | .lam         => 1583
   | .arrow       => 17
+  | .sort        => 7213
   | .proj s i a  => mixHash (hash a) $ mixHash (hash s) (hash i)
 
 instance : Hashable Key := ⟨Key.hash⟩
@@ -56,6 +62,7 @@ instance : ToExpr Key where
    | .other => mkConst ``Key.other
    | .lam => mkConst ``Key.lam
    | .arrow => mkConst ``Key.arrow
+   | .sort => mkConst ``Key.sort
    | .proj n i a => mkApp3 (mkConst ``Key.proj) (toExpr n) (toExpr i) (toExpr a)
 
 /--

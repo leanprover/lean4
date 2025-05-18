@@ -337,9 +337,6 @@ private def pushWildcards (n : Nat) (todo : Array Expr) : Array Expr :=
   | 0   => todo
   | n+1 => pushWildcards n (todo.push tmpStar)
 
-#guard_msgs (drop warning) in
-private def lambdaPlaceholder : α := sorry
-
 /--
 When `noIndexAtArgs := true`, `mkPath` assumes function application arguments have a `no_index` annotation.
 That is, `f a b` is indexed as it was `f (no_index a) (no_index b)`.
@@ -367,7 +364,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
     | .lit v     =>
       return (.lit v, todo)
     | .const c _ =>
-      if c == ``lambdaPlaceholder then
+      if c == ``lcUnreachable then
         return (.other, todo)
       unless root do
         if let some v := toNatLit? e then
@@ -402,7 +399,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
     | .lam _ t b _ =>
       /- We use a special placeholder function to mark variables bound by lambdas. -/
       let u ← getLevel t
-      let placeholder := mkApp (.const ``lambdaPlaceholder [u]) t
+      let placeholder := mkApp (.const ``lcUnreachable [u]) t
       return (.lam, todo.push (b.instantiate1 placeholder))
     | .sort _ =>
       return (.sort, todo)
@@ -513,7 +510,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
   match e.getAppFn with
   | .lit v         => return (.lit v, #[])
   | .const c _     =>
-    if c == ``lambdaPlaceholder then
+    if c == ``lcUnreachable then
       return (.other, #[])
     if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
@@ -582,7 +579,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
   | .forallE _ d _ _ => return (.arrow, #[d])
   | .lam _ t b _ =>
     let u ← getLevel t
-    let placeholder := mkApp (.const ``lambdaPlaceholder [u]) t
+    let placeholder := mkApp (.const ``lcUnreachable [u]) t
     return (.lam, #[b.instantiate1 placeholder])
   | .sort _ => return (.sort, #[])
   | _ => unreachable!

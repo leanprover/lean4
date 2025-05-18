@@ -171,9 +171,9 @@ where
   | n + 1 => .ctor ``Nat.succ #[goSmall n]
 
 def ofLCNFLit : LCNF.LitValue → Value
-| .natVal n => ofNat n
+| .nat n => ofNat n
 -- TODO: We could make this much more precise but the payoff is questionable
-| .strVal .. => .top
+| .str .. => .top
 
 partial def proj : Value → Nat → Value
 | .ctor _ vs , i => vs.getD i bot
@@ -206,11 +206,11 @@ partial def getLiteral (v : Value) : CompilerM (Option ((Array CodeDecl) × FVar
 where
   go : Value → CompilerM ((Array CodeDecl) × FVarId)
   | .ctor `Nat.zero #[] .. => do
-    let decl ← mkAuxLetDecl <| .lit <| .natVal <| 0
+    let decl ← mkAuxLetDecl <| .lit <| .nat <| 0
     return (#[.let decl], decl.fvarId)
   | .ctor `Nat.succ #[val] .. => do
     let val := getNatConstant val + 1
-    let decl ← mkAuxLetDecl <| .lit <| .natVal <| val
+    let decl ← mkAuxLetDecl <| .lit <| .nat <| val
     return (#[.let decl], decl.fvarId)
   | .ctor i vs => do
     let args ← vs.mapM go

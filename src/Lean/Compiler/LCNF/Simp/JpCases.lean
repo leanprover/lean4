@@ -290,7 +290,7 @@ where
         let argsNew := mkJmpNewArgs args info.paramIdx #[] jpAlt.dependsOnDiscr
         return some <| .jmp jpAlt.decl.fvarId argsNew
       | .natVal (n+1) =>
-        let auxDecl ← mkAuxLetDecl (.lit (.natVal n))
+        let auxDecl ← mkAuxLetDecl (.lit (.nat n))
         let argsNew := mkJmpNewArgs args info.paramIdx #[.fvar auxDecl.fvarId] jpAlt.dependsOnDiscr
         return some <| .let auxDecl (.jmp jpAlt.decl.fvarId argsNew)
 

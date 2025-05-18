@@ -34,14 +34,14 @@ def Param.toExpr (p : Param) : Expr :=
   .fvar p.fvarId
 
 inductive LitValue where
-  | natVal (val : Nat)
-  | strVal (val : String)
+  | nat (val : Nat)
+  | str (val : String)
   -- TODO: add constructors for `Int`, `Float`, `UInt` ...
   deriving Inhabited, BEq, Hashable
 
 def LitValue.toExpr : LitValue → Expr
-  | .natVal v => .lit (.natVal v)
-  | .strVal v => .lit (.strVal v)
+  | .nat v => .lit (.natVal v)
+  | .str v => .lit (.strVal v)
 
 inductive Arg where
   | erased
@@ -117,8 +117,8 @@ private unsafe def LetValue.updateArgsImp (e : LetValue) (args' : Array Arg) : L
 
 def LetValue.toExpr (e : LetValue) : Expr :=
   match e with
-  | .lit (.natVal val) => .lit (.natVal val)
-  | .lit (.strVal val) => .lit (.strVal val)
+  | .lit (.nat val) => .lit (.natVal val)
+  | .lit (.str val) => .lit (.strVal val)
   | .erased => erasedExpr
   | .proj n i s => .proj n i (.fvar s)
   | .const n us as => mkAppN (.const n us) (as.map Arg.toExpr)

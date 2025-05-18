@@ -118,7 +118,7 @@ theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
 theorem ofFnM_zero [Monad m] [LawfulMonad m] {f : Fin 0 → m α} : ofFnM f = pure [] := by
   simp [ofFnM]
 
--- See `Init.Data.Array.OfFn` for the `ofFnM_succ` variant.
+-- See `Init.Data.List.FinRange` for the `ofFnM_succ` variant.
 
 theorem ofFnM_succ_last {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
     ofFnM f = (do

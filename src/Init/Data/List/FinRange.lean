@@ -93,3 +93,15 @@ theorem foldr_eq_finRange_foldr (f : Fin n → α → α) (x : α) :
     simp [foldr_succ, List.finRange_succ, ih, List.foldr_map]
 
 end Fin
+
+namespace List
+
+theorem ofFnM_succ {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
+    ofFnM f = (do
+      let a ← f 0
+      let as ← ofFnM fun i => f i.succ
+      pure (a :: as)) := by
+  simp [ofFnM, Fin.foldlM_eq_finRange_foldlM, List.finRange_succ, List.foldlM_cons_eq_append,
+    List.foldlM_map]
+
+end List

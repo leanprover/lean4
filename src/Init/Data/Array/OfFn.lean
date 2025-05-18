@@ -18,18 +18,6 @@ import Init.Data.List.FinRange
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
-namespace List
-
-theorem ofFnM_succ {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
-    ofFnM f = (do
-      let a ← f 0
-      let as ← ofFnM fun i => f i.succ
-      pure (a :: as)) := by
-  simp [ofFnM, Fin.foldlM_eq_finRange_foldlM, List.finRange_succ, List.foldlM_cons_eq_append,
-    List.foldlM_map]
-
-end List
-
 namespace Array
 
 /-! ### ofFn -/

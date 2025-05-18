@@ -323,33 +323,9 @@ partial def reduce (e : Expr) : MetaM Expr := do
     | some e => reduce e
     | none   => return e
 
-/--
-Return `true` if `fn` is a "bad" key. That is, `pushArgs` would add `Key.other` or `Key.star`.
-We use this function when processing root terms, and will avoid unfolding terms.
--/
-private def isBadKey (_ : Expr) : Bool :=
-  false
-
-/--
-Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
-is a bad key (see comment at `isBadKey`).
-We use this method instead of `reduce` for root terms at `pushArgs`.
--/
-private partial def reduceUntilBadKey (e : Expr) : MetaM Expr := do
-  let e ← step e
-  match e.etaExpandedStrict? with
-  | some e => reduceUntilBadKey e
-  | none   => return e
-where
-  step (e : Expr) := do
-    let e ← whnfCore e
-    match (← unfoldDefinition? e) with
-    | some e' => if isBadKey e'.getAppFn then return e else step e'
-    | none    => return e
-
 /-- whnf for the discrimination tree module -/
-def reduceDT (e : Expr) (root : Bool) : MetaM Expr :=
-  if root then reduceUntilBadKey e else reduce e
+abbrev reduceDT (e : Expr) (_root : Bool) : MetaM Expr :=
+  reduce e
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
@@ -360,6 +336,9 @@ private def pushWildcards (n : Nat) (todo : Array Expr) : Array Expr :=
   match n with
   | 0   => todo
   | n+1 => pushWildcards n (todo.push tmpStar)
+
+#guard_msgs (drop warning) in
+private def lambdaPlaceholder : α := sorry
 
 /--
 When `noIndexAtArgs := true`, `mkPath` assumes function application arguments have a `no_index` annotation.
@@ -388,6 +367,8 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
     | .lit v     =>
       return (.lit v, todo)
     | .const c _ =>
+      if c == ``lambdaPlaceholder then
+        return (.other, todo)
       unless root do
         if let some v := toNatLit? e then
           return (.lit v, todo)
@@ -418,14 +399,11 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
         return (.star, todo)
     | .forallE _n d _ _ =>
       return (.arrow, todo.push d)
-    | .lam n t b _ =>
-      /-
-      The variable from the lambda should be treated as unassignable to handle
-      `fun x => x` (`#[fun, <other>]`, matches `id`) differently from
-      `fun x => y` (`#[fun, *]`, matches any constant function).
-      -/
-      let mvar ← mkFreshExprMVar t .syntheticOpaque n
-      return (.lam, todo.push (b.instantiate1 mvar))
+    | .lam _ t b _ =>
+      /- We use a special placeholder function to mark variables bound by lambdas. -/
+      let u ← getLevel t
+      let placeholder := mkApp (.const ``lambdaPlaceholder [u]) t
+      return (.lam, todo.push (b.instantiate1 placeholder))
     | .sort _ =>
       return (.sort, todo)
     | _ => unreachable!
@@ -525,7 +503,6 @@ def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (noIndexAtA
     d.insertCore keys v
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
-  -- `tmpStar` is used as a bound variable for eta-expansion so use kind `.other`.
   if e == tmpStar then
     return (.other, #[])
   let e ← reduceDT e root
@@ -536,6 +513,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
   match e.getAppFn with
   | .lit v         => return (.lit v, #[])
   | .const c _     =>
+    if c == ``lambdaPlaceholder then
+      return (.other, #[])
     if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
         /-
@@ -571,7 +550,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
     let nargs := e.getAppNumArgs
     return (.fvar fvarId nargs, e.getAppRevArgs)
   | .mvar mvarId   =>
-    if isMatch then
+    -- `tmpMVarId` is used for bound variables for eta-expansion so use kind `.other`.
+    if isMatch || mvarId == tmpMVarId then
       return (.other, #[])
     else do
       let cfg ← getConfig
@@ -600,9 +580,10 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
     let nargs := e.getAppNumArgs
     return (.proj s i nargs, #[a] ++ e.getAppRevArgs)
   | .forallE _ d _ _ => return (.arrow, #[d])
-  | .lam n t b _ =>
-    let mvar ← mkFreshExprMVar t .syntheticOpaque n
-    return (.lam, #[b.instantiate1 mvar])
+  | .lam _ t b _ =>
+    let u ← getLevel t
+    let placeholder := mkApp (.const ``lambdaPlaceholder [u]) t
+    return (.lam, #[b.instantiate1 placeholder])
   | .sort _ => return (.sort, #[])
   | _ => unreachable!
 
@@ -733,7 +714,7 @@ where
 Return the root symbol for `e`, and the number of arguments after `reduceDT`.
 -/
 def getMatchKeyRootFor (e : Expr) : MetaM (Key × Nat) := do
-  let e ← reduceDT e (root := true)
+  let e ← reduceDT e true
   let numArgs := e.getAppNumArgs
   let key := match e.getAppFn with
     | .lit v         => .lit v

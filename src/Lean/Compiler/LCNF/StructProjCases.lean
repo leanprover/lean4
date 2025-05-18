@@ -105,7 +105,7 @@ partial def visitLetValue (v : LetValue) : M LetValue := do
     return v.updateArgs! (← args.mapM visitArg)
   | .fvar fvarId args =>
     return v.updateFVar! (← remapFVar fvarId) (← args.mapM visitArg)
-  | .value _ | .erased => return v
+  | .lit _ | .erased => return v
   -- Projections should be handled directly by `visitCode`.
   | .proj .. => unreachable!
 

@@ -206,11 +206,11 @@ partial def getLiteral (v : Value) : CompilerM (Option ((Array CodeDecl) × FVar
 where
   go : Value → CompilerM ((Array CodeDecl) × FVarId)
   | .ctor `Nat.zero #[] .. => do
-    let decl ← mkAuxLetDecl <| .value <| .natVal <| 0
+    let decl ← mkAuxLetDecl <| .lit <| .natVal <| 0
     return (#[.let decl], decl.fvarId)
   | .ctor `Nat.succ #[val] .. => do
     let val := getNatConstant val + 1
-    let decl ← mkAuxLetDecl <| .value <| .natVal <| val
+    let decl ← mkAuxLetDecl <| .lit <| .natVal <| val
     return (#[.let decl], decl.fvarId)
   | .ctor i vs => do
     let args ← vs.mapM go
@@ -456,7 +456,7 @@ where
   -/
   interpLetValue (letVal : LetValue) : InterpM Value := do
     match letVal with
-    | .value val => return .ofLCNFLit val
+    | .lit val => return .ofLCNFLit val
     | .proj _ idx struct => return (← findVarValue struct).proj idx
     | .const declName _ args =>
       let env ← getEnv

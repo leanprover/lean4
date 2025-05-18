@@ -126,7 +126,7 @@ mutual
   partial def inferLetValueType (e : LetValue) : InferTypeM Expr := do
     match e with
     | .erased => return erasedExpr
-    | .value v => return inferLitValueType v
+    | .lit v => return inferLitValueType v
     | .proj structName idx fvarId => inferProjType structName idx fvarId
     | .const declName us args => inferAppTypeCore (← inferConstType declName us) args
     | .fvar fvarId args => inferAppTypeCore (← getType fvarId) args

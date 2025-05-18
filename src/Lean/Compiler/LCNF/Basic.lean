@@ -73,7 +73,7 @@ private unsafe def Arg.updateFVarImp (arg : Arg) (fvarId' : FVarId) : Arg :=
 @[implemented_by Arg.updateFVarImp] opaque Arg.updateFVar! (arg : Arg) (fvarId' : FVarId) : Arg
 
 inductive LetValue where
-  | value (value : LitValue)
+  | lit (value : LitValue)
   | erased
   | proj (typeName : Name) (idx : Nat) (struct : FVarId)
   | const (declName : Name) (us : List Level) (args : Array Arg)
@@ -117,8 +117,8 @@ private unsafe def LetValue.updateArgsImp (e : LetValue) (args' : Array Arg) : L
 
 def LetValue.toExpr (e : LetValue) : Expr :=
   match e with
-  | .value (.natVal val) => .lit (.natVal val)
-  | .value (.strVal val) => .lit (.strVal val)
+  | .lit (.natVal val) => .lit (.natVal val)
+  | .lit (.strVal val) => .lit (.strVal val)
   | .erased => erasedExpr
   | .proj n i s => .proj n i (.fvar s)
   | .const n us as => mkAppN (.const n us) (as.map Arg.toExpr)
@@ -457,7 +457,7 @@ where
     match e with
     | .const declName vs args => e.updateConst! declName (vs.mapMono instLevel) (args.mapMono instArg)
     | .fvar fvarId args => e.updateFVar! fvarId (args.mapMono instArg)
-    | .proj .. | .value .. | .erased => e
+    | .proj .. | .lit .. | .erased => e
 
   instLetDecl (decl : LetDecl) :=
     decl.updateCore (instExpr decl.type) (instLetValue decl.value)
@@ -673,7 +673,7 @@ private def collectLetValue (e : LetValue) (s : FVarIdSet) : FVarIdSet :=
   | .fvar fvarId args => collectArgs args <| s.insert fvarId
   | .const _ _ args => collectArgs args s
   | .proj _ _ fvarId => s.insert fvarId
-  | .value .. | .erased => s
+  | .lit .. | .erased => s
 
 private partial def collectParams (ps : Array Param) (s : FVarIdSet) : FVarIdSet :=
   ps.foldl (init := s) fun s p => collectType p.type s

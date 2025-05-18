@@ -224,7 +224,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       return none
 
   match decl.value with
-  | .value litValue =>
+  | .lit litValue =>
     mkExpr (.lit (lowerLitValue litValue))
   | .proj typeName i fvarId =>
     match (← get).fvars[fvarId]? with

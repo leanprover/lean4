@@ -50,6 +50,11 @@ open Lean in
 macro_rules
   | `(#v[ $elems,* ]) => `(Vector.mk (n := $(quote elems.getElems.size)) #[$elems,*] rfl)
 
+@[app_unexpander Vector.mk]
+def _root_.unexpandVectorMk : Lean.PrettyPrinter.Unexpander
+  | `($_ #[$[$l],*] $_) => `(#v[$[$l],*])
+  | _ => throw ()
+
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
 

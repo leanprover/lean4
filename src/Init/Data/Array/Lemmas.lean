@@ -61,11 +61,6 @@ theorem toArray_eq : List.toArray as = xs ↔ as = xs.toList := by
 
 @[grind] theorem size_empty : (#[] : Array α).size = 0 := rfl
 
-@[simp] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
-
-@[deprecated emptyWithCapacity_eq (since := "2025-03-12")]
-theorem mkEmpty_eq {α n} : @mkEmpty α n = #[] := rfl
-
 /-! ### size -/
 
 @[grind →] theorem eq_empty_of_size_eq_zero (h : xs.size = 0) : xs = #[] := by

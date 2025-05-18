@@ -7,3 +7,4 @@ module
 
 prelude
 import Init.Grind.Module.Basic
+import Init.Grind.Module.Int

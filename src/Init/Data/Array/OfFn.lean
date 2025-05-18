@@ -72,7 +72,7 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
 
 /-- Construct (in a monadic context) an array by applying a monadic function to each index. -/
 def ofFnM {n} [Monad m] (f : Fin n → m α) : m (Array α) :=
-  Fin.foldlM n (fun xs i => xs.push <$> f i) (Array.mkEmpty n)
+  Fin.foldlM n (fun xs i => xs.push <$> f i) (Array.emptyWithCapacity n)
 
 @[simp]
 theorem ofFnM_zero [Monad m] {f : Fin 0 → m α} : ofFnM f = pure #[] := by

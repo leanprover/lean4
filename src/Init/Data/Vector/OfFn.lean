@@ -112,18 +112,8 @@ theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
       let bs ← ofFnM (fun i => f (i.natAdd n))
       pure (as ++ bs)) := by
   induction k with
-  | zero =>
-    simp
-  | succ k ih =>
-    simp only [ofFnM_succ, Nat.add_eq, ih, Fin.castSucc_castLE, Fin.castSucc_natAdd, bind_pure_comp,
-      bind_assoc, bind_map_left, Fin.natAdd_last, map_bind, Functor.map_map]
-    congr 1
-    funext xs
-    congr 1
-    funext ys
-    congr 1
-    funext x
-    simp
+  | zero => simp
+  | succ k ih => simp [ofFnM_succ, ih, ← push_append]
 
 @[simp, grind] theorem toArray_ofFnM [Monad m] [LawfulMonad m] {f : Fin n → m α} :
     toArray <$> ofFnM f = Array.ofFnM f := by

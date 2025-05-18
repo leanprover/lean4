@@ -16,12 +16,21 @@ namespace DiscrTree
 Discrimination tree key. See `DiscrTree`
 -/
 inductive Key where
+  /-- Constant application with given arity. -/
   | const : Name → Nat → Key
+  /-- Application of a free variable with given arity. -/
   | fvar  : FVarId → Nat → Key
+  /-- Natural number literal or string literal (arity 0). -/
   | lit   : Literal → Key
+  /-- Wildcard, matches everything (arity 0). -/
   | star  : Key
+  /-- Universes and synthetic opaque meta-variables (arity 0). -/
   | other : Key
+  /-- Lambda expression. Also matches non-lambdas by eta expansion (arity 1, only the body). -/
+  | lam   : Key
+  /-- Forall type (arity 1, only the binding domain). -/
   | arrow : Key
+  /-- Application of a projection (arity for `proj nm i a` is `a + 1`). -/
   | proj  : Name → Nat → Nat → Key
   deriving Inhabited, BEq, Repr
 
@@ -31,8 +40,9 @@ protected def Key.hash : Key → UInt64
   | .lit v       => mixHash 1879 $ hash v
   | .star        => 7883
   | .other       => 2411
+  | .lam         => 1583
   | .arrow       => 17
-  | .proj s i a  =>  mixHash (hash a) $ mixHash (hash s) (hash i)
+  | .proj s i a  => mixHash (hash a) $ mixHash (hash s) (hash i)
 
 instance : Hashable Key := ⟨Key.hash⟩
 
@@ -44,6 +54,7 @@ instance : ToExpr Key where
    | .lit l => mkApp (mkConst ``Key.lit) (toExpr l)
    | .star => mkConst ``Key.star
    | .other => mkConst ``Key.other
+   | .lam => mkConst ``Key.lam
    | .arrow => mkConst ``Key.arrow
    | .proj n i a => mkApp3 (mkConst ``Key.proj) (toExpr n) (toExpr i) (toExpr a)
 

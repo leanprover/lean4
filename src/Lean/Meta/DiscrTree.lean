@@ -51,12 +51,13 @@ namespace Lean.Meta.DiscrTree
 
 def Key.ctorIdx : Key → Nat
   | .star     => 0
-  | .other    => 1
-  | .lit ..   => 2
-  | .fvar ..  => 3
-  | .const .. => 4
-  | .arrow    => 5
-  | .proj ..  => 6
+  | .lam      => 1
+  | .other    => 2
+  | .lit ..   => 3
+  | .fvar ..  => 4
+  | .const .. => 5
+  | .arrow    => 6
+  | .proj ..  => 7
 
 def Key.lt : Key → Key → Bool
   | .lit v₁,        .lit v₂        => v₁ < v₂
@@ -70,6 +71,7 @@ instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a
 
 def Key.format : Key → Format
   | .star            => "*"
+  | .lam             => "fun"
   | .other           => "◾"
   | .lit (.natVal v) => Std.format v
   | .lit (.strVal v) => repr v
@@ -115,7 +117,9 @@ where
     | .proj _ i nargs =>
       mkApp m!"{← go}.{i+1}" (← goN nargs) parenIfNonAtomic
     | .arrow =>
-      mkApp m!"∀ " (← goN 1) parenIfNonAtomic
+      mkApp m!"∀" (← goN 1) parenIfNonAtomic
+    | .lam =>
+      mkApp m!"fun" #[← go false] parenIfNonAtomic
     | .star => return "_"
     | .other => return "<other>"
     | .lit (.natVal v) => return m!"{v}"
@@ -140,6 +144,7 @@ def Key.arity : Key → Nat
   domain of the forall (whether dependent or non-dependent).
   -/
   | .arrow      => 1
+  | .lam        => 1
   | .proj _ _ a => 1 + a
   | _           => 0
 
@@ -179,11 +184,11 @@ instance : Inhabited (DiscrTree α) where
 
   - We ignore instance implicit arguments (e.g., `[Add α]`) because they are "morally" canonical.
     Moreover, we may have many definitionally equal terms floating around.
-    Example: `Ring.hasAdd Int Int.isRing` and `Int.hasAdd`.
+    Example: `@AddSemigroup.toAdd Int Int.instAddSemigroup` and `Int.instAdd`.
 
   - We considered ignoring implicit arguments (e.g., `{α : Type}`) since users don't "see" them,
     and may not even understand why some simplification rule is not firing.
-    However, in type class resolution, we have instance such as `Decidable (@Eq Nat x y)`,
+    However, in type class resolution, we have instances such as `Decidable (@Eq Nat x y)`,
     where `Nat` is an implicit argument. Thus, we would add the path
     ```
     Decidable -> Eq -> * -> * -> * -> [Nat.decEq]
@@ -268,12 +273,12 @@ private def isNatType (e : Expr) : MetaM Bool :=
   return (← whnf e).isConstOf ``Nat
 
 /--
-  Return true if `e` is one of the following
-  - `Nat.add _ k` where `isNumeral k`
-  - `Add.add Nat _ _ k` where `isNumeral k`
-  - `HAdd.hAdd _ Nat _ _ k` where `isNumeral k`
-  - `Nat.succ _`
-  This function assumes `e.isAppOf fName`
+Return true if `e` is one of the following
+- `Nat.add _ k` where `isNumeral k`
+- `Add.add Nat _ _ k` where `isNumeral k`
+- `HAdd.hAdd _ Nat _ _ k` where `isNumeral k`
+- `Nat.succ _`
+This function assumes `e.isAppOf fName`
 -/
 private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   if fName == ``Nat.add && e.getAppNumArgs == 2 then
@@ -286,14 +291,14 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
     return fName == ``Nat.succ && e.getAppNumArgs == 1
 
 /--
-  TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
-  Different `DiscrTree` users may populate this set using, for example, attributes.
+TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
+Different `DiscrTree` users may populate this set using, for example, attributes.
 
-  Remark: we currently tag "offset" terms as star to avoid having to add special
-  support for offset terms.
-  Example, suppose the discrimination tree contains the entry
-  `Nat.succ ?m |-> v`, and we are trying to retrieve the matches for `Expr.lit (Literal.natVal 1) _`.
-  In this scenario, we want to retrieve `Nat.succ ?m |-> v`
+Remark: we currently tag "offset" terms as star to avoid having to add special
+support for offset terms.
+Example, suppose the discrimination tree contains the entry
+`Nat.succ ?m |-> v`, and we are trying to retrieve the matches for `Expr.lit (Literal.natVal 1) _`.
+In this scenario, we want to retrieve `Nat.succ ?m |-> v`
 -/
 private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
   isOffset fName e
@@ -316,24 +321,17 @@ partial def reduce (e : Expr) : MetaM Expr := do
     | none   => return e
 
 /--
-  Return `true` if `fn` is a "bad" key. That is, `pushArgs` would add `Key.other` or `Key.star`.
-  We use this function when processing "root terms, and will avoid unfolding terms.
-  Note that without this trick the pattern `List.map f ∘ List.map g` would be mapped into the key `Key.other`
-  since the function composition `∘` would be unfolded and we would get `fun x => List.map g (List.map f x)`
+Return `true` if `fn` is a "bad" key. That is, `pushArgs` would add `Key.other` or `Key.star`.
+We use this function when processing root terms, and will avoid unfolding terms.
 -/
-private def isBadKey (fn : Expr) : Bool :=
-  match fn with
-  | .lit ..     => false
-  | .const ..   => false
-  | .fvar ..    => false
-  | .proj ..    => false
-  | .forallE .. => false
-  | _           => true
+private def isBadKey (_ : Expr) : Bool :=
+  false
 
 /--
 Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
 is a bad key (see comment at `isBadKey`).
-We use this method instead of `reduce` for root terms at `pushArgs`. -/
+We use this method instead of `reduce` for root terms at `pushArgs`.
+-/
 private partial def reduceUntilBadKey (e : Expr) : MetaM Expr := do
   let e ← step e
   match e.etaExpandedStrict? with
@@ -361,7 +359,7 @@ private def pushWildcards (n : Nat) (todo : Array Expr) : Array Expr :=
   | n+1 => pushWildcards n (todo.push tmpStar)
 
 /--
-When `noIndexAtArgs := true`, `pushArgs` assumes function application arguments have a `no_index` annotation.
+When `noIndexAtArgs := true`, `mkPath` assumes function application arguments have a `no_index` annotation.
 That is, `f a b` is indexed as it was `f (no_index a) (no_index b)`.
 This feature is used when indexing local proofs in the simplifier. This is useful in examples like the one described on issue #2670.
 In this issue, we have a local hypotheses `(h : ∀ p : α × β, f p p.2 = p.2)`, and users expect it to be applicable to
@@ -376,7 +374,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
   else
     let e ← reduceDT e root
     let fn := e.getAppFn
-    let push (k : Key) (nargs : Nat) (todo : Array Expr): MetaM (Key × Array Expr) := do
+    let push (k : Key) (nargs : Nat) (todo : Array Expr) : MetaM (Key × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
       let todo ← if noIndexAtArgs then
         pure <| pushWildcards nargs todo
@@ -417,7 +415,12 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
         return (.star, todo)
     | .forallE _n d _ _ =>
       return (.arrow, todo.push d)
-    | _ => return (.other, todo)
+    | .lam _ t b _ =>
+      let mvar ← mkFreshExprMVar t
+      return (.lam, todo.push (b.instantiate1 mvar))
+    | .sort _ =>
+      return (.other, todo)
+    | _ => unreachable!
 
 @[inherit_doc pushArgs]
 partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (noIndexAtArgs : Bool) : MetaM (Array Key) := do
@@ -434,8 +437,8 @@ private def initCapacity := 8
 @[inherit_doc pushArgs]
 def mkPath (e : Expr) (noIndexAtArgs := false) : MetaM (Array Key) := do
   withReducible do
-    let todo : Array Expr := .mkEmpty initCapacity
-    let keys : Array Key := .mkEmpty initCapacity
+    let todo : Array Expr := .emptyWithCapacity initCapacity
+    let keys : Array Key := .emptyWithCapacity initCapacity
     mkPathAux (root := true) (todo.push e) keys noIndexAtArgs
 
 private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
@@ -506,6 +509,12 @@ def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (noIndexAtA
     d.insertCore keys v
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
+  /-
+  The temporary meta-variable used for eta-expanding for `.lam` matches is "unassignable" so
+  return `.other`.
+  -/
+  if e == tmpStar then
+    return (.other, #[])
   let e ← reduceDT e root
   unless root do
     -- See pushArgs
@@ -516,20 +525,21 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
   | .const c _     =>
     if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
-        /- `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not unfolded.
-           This can happen if the metavariables in `e` are "blocking" smart unfolding.
-           If `isDefEqStuckEx` is enabled, then we must throw the `isDefEqStuck` exception to postpone TC resolution.
-           Here is an example. Suppose we have
-           ```
-            inductive Ty where
-              | bool | fn (a ty : Ty)
+        /-
+        `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not unfolded.
+        This can happen if the metavariables in `e` are "blocking" smart unfolding.
+        If `isDefEqStuckEx` is enabled, then we must throw the `isDefEqStuck` exception to postpone TC resolution.
+        Here is an example. Suppose we have
+        ```
+        inductive Ty where
+          | bool | fn (a ty : Ty)
 
 
-            @[reducible] def Ty.interp : Ty → Type
-              | bool   => Bool
-              | fn a b => a.interp → b.interp
-           ```
-           and we are trying to synthesize `BEq (Ty.interp ?m)`
+        @[reducible] def Ty.interp : Ty → Type
+          | bool   => Bool
+          | fn a b => a.interp → b.interp
+        ```
+        and we are trying to synthesize `BEq (Ty.interp ?m)`
         -/
         Meta.throwIsDefEqStuck
       else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
@@ -554,29 +564,34 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
       let cfg ← getConfig
       if cfg.isDefEqStuckEx then
         /-
-          When the configuration flag `isDefEqStuckEx` is set to true,
-          we want `isDefEq` to throw an exception whenever it tries to assign
-          a read-only metavariable.
-          This feature is useful for type class resolution where
-          we may want to notify the caller that the TC problem may be solvable
-          later after it assigns `?m`.
-          The method `DiscrTree.getUnify e` returns candidates `c` that may "unify" with `e`.
-          That is, `isDefEq c e` may return true. Now, consider `DiscrTree.getUnify d (Add ?m)`
-          where `?m` is a read-only metavariable, and the discrimination tree contains the keys
-          `HadAdd Nat` and `Add Int`. If `isDefEqStuckEx` is set to true, we must treat `?m` as
-          a regular metavariable here, otherwise we return the empty set of candidates.
-          This is incorrect because it is equivalent to saying that there is no solution even if
-          the caller assigns `?m` and try again. -/
+        When the configuration flag `isDefEqStuckEx` is set to true,
+        we want `isDefEq` to throw an exception whenever it tries to assign
+        a read-only metavariable.
+        This feature is useful for type class resolution where
+        we may want to notify the caller that the TC problem may be solvable
+        later after it assigns `?m`.
+        The method `DiscrTree.getUnify e` returns candidates `c` that may "unify" with `e`.
+        That is, `isDefEq c e` may return true. Now, consider `DiscrTree.getUnify d (Add ?m)`
+        where `?m` is a read-only metavariable, and the discrimination tree contains the keys
+        `HadAdd Nat` and `Add Int`. If `isDefEqStuckEx` is set to true, we must treat `?m` as
+        a regular metavariable here, otherwise we return the empty set of candidates.
+        This is incorrect because it is equivalent to saying that there is no solution even if
+        the caller assigns `?m` and try again.
+        -/
         return (.star, #[])
       else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return (.other, #[])
       else
         return (.star, #[])
-  | .proj s i a .. =>
+  | .proj s i a =>
     let nargs := e.getAppNumArgs
     return (.proj s i nargs, #[a] ++ e.getAppRevArgs)
   | .forallE _ d _ _ => return (.arrow, #[d])
-  | _ => return (.other, #[])
+  | .lam _ t b _ =>
+    let mvar ← mkFreshExprMVar t
+    return (.lam, #[b.instantiate1 mvar])
+  | .sort _ => return (.other, #[])
+  | _ => unreachable!
 
 private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
   getKeyArgs e (isMatch := true) (root := root)
@@ -584,10 +599,19 @@ private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Ex
 private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
   getKeyArgs e (isMatch := false) (root := root)
 
+/--
+"Eta-expand" if `k` is not a lambda. The special `tmpStar` that is appended for eta-expansion is
+handled in `getKeyArgs` as an `.other` key.
+-/
+private def matchLam (k : Key) (args : Array Expr) : Array Expr :=
+  match k with
+  | .lam => args
+  | _ => args.push tmpStar
+
 private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
-  | none                  => result
+  | none              => result
   | some (.node vs _) => result ++ vs
 
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
@@ -603,14 +627,23 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
     else
       let e     := todo.back!
       let todo  := todo.pop
-      let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
+      /- Recall that `Key.star` and `Key.lam` are the minimal keys -/
+      let first := cs[0]!
+      let second := cs.getD 1 (.other, default)
       let (k, args) ← getMatchKeyArgs e (root := false)
       /- We must always visit `Key.star` edges since they are wildcards.
-         Thus, `todo` is not used linearly when there is `Key.star` edge
+         Thus, `todo` is not used linearly when there is a `Key.star` edge
          and there is an edge for `k` and `k != Key.star`. -/
       let visitStar (result : Array α) : MetaM (Array α) :=
-        if first.1 == .star then
+        if first.1 matches .star then
           getMatchLoop todo first.2 result
+        else
+          return result
+      let visitLam (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+        if first.1 matches .lam then
+          getMatchLoop (todo ++ matchLam k args) first.2 result
+        else if second.1 matches .lam then
+          getMatchLoop (todo ++ matchLam k args) second.2 result
         else
           return result
       let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
@@ -619,8 +652,10 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
         | some c => getMatchLoop (todo ++ args) c.2 result
       let result ← visitStar result
       match k with
-      | .star  => return result
-      | _      => visitNonStar k args result
+      | .star => return result
+      | _ =>
+        let result ← visitLam k args result
+        visitNonStar k args result
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with
@@ -631,19 +666,22 @@ private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α)
   withReducible do
     let result := getStarResult d
     let (k, args) ← getMatchKeyArgs e (root := true)
+    let result ← match k, d.root.find? .lam with
+      | .lam, _ -- don't match twice using `.lam`
+      | _, none => pure result
+      | _, some c => getMatchLoop (matchLam k args) c result
     match k with
     | .star  => return (k, result)
     | _      => return (k, (← getMatchRoot d k args result))
 
-/--
-  Find values that match `e` in `d`.
--/
+/-- Find values that match `e` in `d`. -/
 def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   return (← getMatchCore d e).2
 
 /--
-  Similar to `getMatch`, but returns solutions that are prefixes of `e`.
-  We store the number of ignored arguments in the result.-/
+Similar to `getMatch`, but returns solutions that are prefixes of `e`.
+We store the number of ignored arguments in the result.
+-/
 partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : MetaM (Array (α × Nat)) := do
   let (k, result) ← getMatchCore d e
   let result := result.map (·, 0)
@@ -729,6 +767,11 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
     | .star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
       let result := getStarResult d
+      let result ←
+        match k, d.root.find? .lam with
+        | .lam, _ -- don't match twice using `.lam`
+        | _, none => pure result
+        | _, some c => process 0 (matchLam k args) c result
       match d.root.find? k with
       | none   => return result
       | some c => process 0 args c result
@@ -751,8 +794,17 @@ where
         let (k, args) ← getUnifyKeyArgs e (root := false)
         let visitStar (result : Array α) : MetaM (Array α) :=
           let first := cs[0]!
-          if first.1 == .star then
+          if first.1 matches .star then
             process 0 todo first.2 result
+          else
+            return result
+        let visitLam (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+          let first := cs[0]!
+          let second := cs.getD 1 default
+          if first.1 matches .lam then
+            process 0 (todo ++ matchLam k args) first.2 result
+          else if second.1 matches .lam then
+            process 0 (todo ++ matchLam k args) second.2 result
           else
             return result
         let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
@@ -761,7 +813,7 @@ where
           | some c => process 0 (todo ++ args) c.2 result
         match k with
         | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-        | _      => visitNonStar k args (← visitStar result)
+        | _      => visitNonStar k args (← visitLam k args (← visitStar result))
 
 namespace Trie
 

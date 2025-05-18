@@ -54,7 +54,7 @@ Remark: We use this method when simplifying projections and cases-constructor.
 -/
 def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
   match (← findLetDecl? fvarId) with
-  | some { value := .value (.natVal n), .. } =>
+  | some { value := .lit (.natVal n), .. } =>
     return some <| .natVal n
   | some { value := .const declName _ args, .. } =>
     let some (.ctorInfo val) := (← getEnv).find? declName | return none

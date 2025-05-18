@@ -59,7 +59,7 @@ def ppArgs (args : Array Arg) : M Format := do
 def ppLetValue (e : LetValue) : M Format := do
   match e with
   | .erased => return "◾"
-  | .value v => ppExpr v.toExpr
+  | .lit v => ppExpr v.toExpr
   | .proj _ i fvarId => return f!"{← ppFVar fvarId} # {i}"
   | .fvar fvarId args => return f!"{← ppFVar fvarId}{← ppArgs args}"
   | .const declName us args => return f!"{← ppExpr (.const declName us)}{← ppArgs args}"

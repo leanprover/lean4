@@ -453,7 +453,7 @@ where
     visitCore e
 
   visitLit (lit : Literal) : M Arg :=
-    letValueToArg (.value (litToValue lit))
+    letValueToArg (.lit (litToValue lit))
 
   visitAppArg (e : Expr) : M Arg := do
     if isLCProof e then

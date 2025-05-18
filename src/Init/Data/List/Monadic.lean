@@ -80,8 +80,8 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} 
 
 /-- Auxiliary lemma for `mapM_eq_reverse_foldlM_cons`. -/
 theorem foldlM_cons_eq_append [Monad m] [LawfulMonad m] {f : α → m β} {as : List α} {b : β} {bs : List β} :
-    (as.foldlM (init := b :: bs) fun acc a => return ((← f a) :: acc)) =
-      (· ++ b :: bs) <$> as.foldlM (init := []) fun acc a => return ((← f a) :: acc) := by
+    (as.foldlM (init := b :: bs) fun acc a => (· :: acc) <$> f a) =
+      (· ++ b :: bs) <$> as.foldlM (init := []) fun acc a => (· :: acc) <$> f a := by
   induction as generalizing b bs with
   | nil => simp
   | cons a as ih =>
@@ -89,7 +89,7 @@ theorem foldlM_cons_eq_append [Monad m] [LawfulMonad m] {f : α → m β} {as : 
     simp [ih, _root_.map_bind, Functor.map_map, Function.comp_def]
 
 theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} :
-    mapM f l = reverse <$> (l.foldlM (fun acc a => return ((← f a) :: acc)) []) := by
+    mapM f l = reverse <$> (l.foldlM (fun acc a => (· :: acc) <$> f a) []) := by
   rw [← mapM'_eq_mapM]
   induction l with
   | nil => simp

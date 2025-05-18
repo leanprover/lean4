@@ -32,7 +32,7 @@ Creates a list wrapped in a monad by applying the monadic function `f : Fin n �
 to each potential index in order, starting at `0`.
 -/
 def ofFnM {n} [Monad m] (f : Fin n → m α) : m (List α) :=
-  Array.toList <$> Fin.foldlM n (fun xs i => xs.push <$> f i) (Array.mkEmpty n)
+  List.reverse <$> Fin.foldlM n (fun xs i => (· :: xs) <$> f i) []
 
 @[simp]
 theorem length_ofFn {f : Fin n → α} : (ofFn f).length = n := by
@@ -118,6 +118,22 @@ theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
 theorem ofFnM_zero [Monad m] [LawfulMonad m] {f : Fin 0 → m α} : ofFnM f = pure [] := by
   simp [ofFnM]
 
--- Further results about `List.ofFnM` are in `Init.Data.Array.OfFn`, as they rely on lemmas about `Array`.
+-- See `Init.Data.Array.OfFn` for the `ofFnM_succ` variant.
+
+theorem ofFnM_succ_last {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
+    ofFnM f = (do
+      let as ← ofFnM fun i => f i.castSucc
+      let a  ← f (Fin.last n)
+      pure (as ++ [a])) := by
+  simp [ofFnM, Fin.foldlM_succ_last]
+
+theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
+    ofFnM f = (do
+      let as ← ofFnM fun i : Fin n => f (i.castLE (Nat.le_add_right n k))
+      let bs ← ofFnM fun i : Fin k => f (i.natAdd n)
+      pure (as ++ bs)) := by
+  induction k with
+  | zero => simp
+  | succ k ih => simp [ofFnM_succ_last, ih]
 
 end List

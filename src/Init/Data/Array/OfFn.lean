@@ -20,33 +20,13 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace List
 
-/-! ### ofFnM
-
-We prove some theorems about `List.ofFnM` here, as they rely on `Array` lemmas.
--/
-
 theorem ofFnM_succ {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
     ofFnM f = (do
       let a ← f 0
       let as ← ofFnM fun i => f i.succ
       pure (a :: as)) := by
-  simp [ofFnM, Fin.foldlM_eq_finRange_foldlM, List.foldlM_push_eq_append, List.finRange_succ, Function.comp_def]
-
-theorem ofFnM_succ_last {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
-    ofFnM f = (do
-      let as ← ofFnM fun i => f i.castSucc
-      let a  ← f (Fin.last n)
-      pure (as ++ [a])) := by
-  simp [ofFnM, Fin.foldlM_succ_last]
-
-theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
-    ofFnM f = (do
-      let as ← ofFnM fun i : Fin n => f (i.castLE (Nat.le_add_right n k))
-      let bs ← ofFnM fun i : Fin k => f (i.natAdd n)
-      pure (as ++ bs)) := by
-  induction k with
-  | zero => simp
-  | succ k ih => simp [ofFnM_succ_last, ih]
+  simp [ofFnM, Fin.foldlM_eq_finRange_foldlM, List.finRange_succ, List.foldlM_cons_eq_append,
+    List.foldlM_map]
 
 end List
 

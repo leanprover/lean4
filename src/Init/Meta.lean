@@ -8,6 +8,7 @@ Additional goodies for writing macros
 module
 
 prelude
+import all Init.Prelude  -- for unfolding `Name.beq`
 import Init.MetaTypes
 import Init.Syntax
 import Init.Data.Array.GetLit
@@ -1190,7 +1191,7 @@ instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote s.toString]⟩
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
-private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
+def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc
   | Name.str n s => do
     let s ← Name.escapePart s
@@ -1211,14 +1212,14 @@ instance [Quote α `term] [Quote β `term] : Quote (α × β) `term where
   quote
     | ⟨a, b⟩ => Syntax.mkCApp ``Prod.mk #[quote a, quote b]
 
-private def quoteList [Quote α `term] : List α → Term
+def quoteList [Quote α `term] : List α → Term
   | []      => mkCIdent ``List.nil
   | (x::xs) => Syntax.mkCApp ``List.cons #[quote x, quoteList xs]
 
 instance [Quote α `term] : Quote (List α) `term where
   quote := quoteList
 
-private def quoteArray [Quote α `term] (xs : Array α) : Term :=
+def quoteArray [Quote α `term] (xs : Array α) : Term :=
   if xs.size <= 8 then
     go 0 #[]
   else

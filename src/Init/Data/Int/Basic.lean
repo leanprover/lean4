@@ -269,7 +269,7 @@ set_option bootstrap.genMatcherCode false in
 
   Implemented by efficient native code. -/
 @[extern "lean_int_dec_nonneg"]
-private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
+def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m => isTrue <| NonNeg.mk m
   | -[_ +1] => isFalse <| fun h => nomatch h

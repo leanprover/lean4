@@ -523,6 +523,9 @@ declaration signatures.
 -/
 @[builtin_command_parser] def withExporting  := leading_parser
   "#with_exporting " >> commandParser
+/-- Debugging command. -/
+@[builtin_command_parser] def dumpEnvState := leading_parser
+  "#dump_env_state"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit

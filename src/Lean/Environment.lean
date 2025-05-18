@@ -796,7 +796,9 @@ be triggered if any.
 -/
 def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     BaseIO Environment := do
-  if env.findAsync? c |>.isNone then
+  -- Meta code working on a non-exported declaration should usually do so inside `withoutExporting`
+  -- but we're lenient here in case this call is the only one that needs the setting.
+  if env.setExporting false |>.findAsync? c |>.isNone then
     panic! s!"declaration {c} not found in environment"
     return env
   if let some asyncCtx := env.asyncCtx? then
@@ -910,6 +912,7 @@ structure AddConstAsyncResult where
   asyncEnv : Environment
   private constName : Name
   private kind : ConstantKind
+  private exportedKind? : Option ConstantKind
   private sigPromise : IO.Promise ConstantVal
   private constPromise : IO.Promise ConstPromiseVal
   private checkedEnvPromise : IO.Promise Kernel.Environment
@@ -942,9 +945,13 @@ Starts the asynchronous addition of a constant to the environment. The environme
 corresponding information has been added on the "async" environment branch and committed there; see
 the respective fields of `AddConstAsyncResult` as well as the [Environment Branches] note for more
 information.
+
+`exportedKind?` must be passed if the eventual kind of the constant in the exported constant map
+will differ from that of the private version. It must be `none` if the constant will not be
+exported.
 -/
 def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
-    (exportedKind := kind) (reportExts := true) (checkMayContain := true) :
+    (exportedKind? : Option ConstantKind := some kind) (reportExts := true) (checkMayContain := true) :
     IO AddConstAsyncResult := do
   if checkMayContain then
     if let some ctx := env.asyncCtx? then
@@ -973,7 +980,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       | some v => .mk v.nestedConsts.private
       | none   => .mk (α := AsyncConsts) default
   }
-  let exportedAsyncConst := { privateAsyncConst with
+  let exportedAsyncConst? := exportedKind?.map fun exportedKind => { privateAsyncConst with
     constInfo := { privateAsyncConst.constInfo with
       kind := exportedKind
       constInfo := constPromise.result?.map (sync := true) fun
@@ -985,11 +992,12 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       | none   => .mk (α := AsyncConsts) default
   }
   return {
-    constName, kind
+    constName, kind, exportedKind?
     mainEnv := { env with
       asyncConstsMap := {
         «private» := env.asyncConstsMap.private.add privateAsyncConst
-        «public»  := env.asyncConstsMap.public.add exportedAsyncConst
+        «public»  := exportedAsyncConst?.map (env.asyncConstsMap.public.add ·)
+          |>.getD env.asyncConstsMap.public
       }
       checked := checkedEnvPromise.result?.bind (sync := true) fun
         | some kenv => .pure kenv
@@ -1021,6 +1029,7 @@ given environment. The declaration name and kind must match the original values 
 def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environment)
     (info? : Option ConstantInfo := none) (exportedInfo? : Option ConstantInfo := none) :
     IO Unit := do
+  -- Make sure to access the non-exported version here
   let info ← match info? <|> (env.setExporting false).find? res.constName with
     | some info => pure info
     | none =>
@@ -1034,10 +1043,13 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has level params {info.levelParams} but expected {sig.levelParams}"
   if sig.type != info.type then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has type {info.type} but expected {sig.type}"
+  let mut exportedInfo? := exportedInfo?
   if let some exportedInfo := exportedInfo? then
     if exportedInfo.toConstantVal != info.toConstantVal then
       -- may want to add more details if necessary
       throw <| .userError s!"AddConstAsyncResult.commitConst: exported constant has different signature"
+  else if res.exportedKind?.isNone then
+    exportedInfo? := some info  -- avoid `find?` call, ultimately unused
   res.constPromise.resolve {
     privateConstInfo := info
     exportedConstInfo := (exportedInfo? <|> (env.setExporting true).find? res.constName).getD info

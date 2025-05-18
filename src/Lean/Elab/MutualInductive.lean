@@ -952,6 +952,7 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
   let view0 := elabs[0]!.view
   let ref := view0.ref
   Term.withDeclName view0.declName do withRef ref do
+  withExporting (isExporting := !isPrivateName view0.declName) do
     let res ← mkInductiveDecl vars elabs
     mkAuxConstructions (elabs.map (·.view.declName))
     unless view0.isClass do

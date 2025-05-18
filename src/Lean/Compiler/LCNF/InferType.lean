@@ -103,8 +103,8 @@ def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
 
 def inferLitValueType (value : LitValue) : Expr :=
   match value with
-  | .natVal .. => mkConst ``Nat
-  | .strVal .. => mkConst ``String
+  | .nat .. => mkConst ``Nat
+  | .str .. => mkConst ``String
 
 mutual
   partial def inferArgType (arg : Arg) : InferTypeM Expr :=

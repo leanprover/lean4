@@ -105,7 +105,7 @@ partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : ToMonoM Code
 partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code := do
   let resultType ← toMonoType c.resultType
   let natType := mkConst ``Nat
-  let zeroDecl ← mkLetDecl `zero natType (.lit (.natVal 0))
+  let zeroDecl ← mkLetDecl `zero natType (.lit (.nat 0))
   let isZeroDecl ← mkLetDecl `isZero (mkConst ``Bool) (.const ``Nat.decEq [] #[.fvar c.discr, .fvar zeroDecl.fvarId])
   let alts ← c.alts.mapM fun alt => do
     match alt with
@@ -114,7 +114,7 @@ partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code :
       eraseParams ps
       if ctorName == ``Nat.succ then
         let p := ps[0]!
-        let oneDecl ← mkLetDecl `one natType (.lit (.natVal 1))
+        let oneDecl ← mkLetDecl `one natType (.lit (.nat 1))
         let subOneDecl := { fvarId := p.fvarId, binderName := p.binderName, type := natType, value := .const ``Nat.sub [] #[.fvar c.discr, .fvar oneDecl.fvarId] }
         modifyLCtx fun lctx => lctx.addLetDecl subOneDecl
         return .alt ``Bool.false #[] (.let oneDecl (.let subOneDecl (← k.toMono)))
@@ -126,7 +126,7 @@ partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code :
 partial def casesIntToMono (c: Cases) (_ : c.typeName == ``Int) : ToMonoM Code := do
   let resultType ← toMonoType c.resultType
   let natType := mkConst ``Nat
-  let zeroNatDecl ← mkLetDecl `natZero natType (.lit (.natVal 0))
+  let zeroNatDecl ← mkLetDecl `natZero natType (.lit (.nat 0))
   let zeroIntDecl ← mkLetDecl `intZero (mkConst ``Int) (.const ``Int.ofNat [] #[.fvar zeroNatDecl.fvarId])
   let isNegDecl ← mkLetDecl `isNeg (mkConst ``Bool) (.const ``Int.decLt [] #[.fvar c.discr, .fvar zeroIntDecl.fvarId])
   let alts ← c.alts.mapM fun alt => do
@@ -137,7 +137,7 @@ partial def casesIntToMono (c: Cases) (_ : c.typeName == ``Int) : ToMonoM Code :
       let p := ps[0]!
       if ctorName == ``Int.negSucc then
         let absDecl ← mkLetDecl `abs natType (.const ``Int.natAbs [] #[.fvar c.discr])
-        let oneDecl ← mkLetDecl `one natType (.lit (.natVal 1))
+        let oneDecl ← mkLetDecl `one natType (.lit (.nat 1))
         let subOneDecl := { fvarId := p.fvarId, binderName := p.binderName, type := natType, value := .const ``Nat.sub [] #[.fvar absDecl.fvarId, .fvar oneDecl.fvarId] }
         modifyLCtx fun lctx => lctx.addLetDecl subOneDecl
         return .alt ``Bool.true #[] (.let absDecl (.let oneDecl (.let subOneDecl (← k.toMono))))

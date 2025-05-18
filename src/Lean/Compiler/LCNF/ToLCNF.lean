@@ -407,8 +407,8 @@ partial def etaReduceImplicit (e : Expr) : Expr :=
 
 def litToValue (lit : Literal) : LitValue :=
   match lit with
-  | .natVal val => .natVal val
-  | .strVal val => .strVal val
+  | .natVal val => .nat val
+  | .strVal val => .str val
 
 /--
 Put the given expression in `LCNF`.

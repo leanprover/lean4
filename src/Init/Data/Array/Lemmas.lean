@@ -3400,7 +3400,15 @@ rather than `(arr.push a).size` as the argument.
 /-- Variant of `List.foldl_push_eq_append` specialized to `f = id`. -/
 @[simp, grind] theorem _root_.List.foldl_push_eq_append' {l : List α} {xs : Array α} :
     l.foldl (fun xs x => xs.push x) xs = xs ++ l.toArray := by
-  induction l <;> simp [*]
+  simpa using List.foldl_push_eq_append (f := id)
+
+@[deprecated _root_.List.foldl_push_eq_append' (since := "2025-05-18")]
+theorem _root_.List.foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
+  induction l generalizing as <;> simp [*]
+
+@[deprecated _root_.List.foldr_push_eq_append' (since := "2025-05-18")]
+theorem _root_.List.foldr_push {l : List α} {as : Array α} : l.foldr (fun a bs => push bs a) as = as ++ l.reverse.toArray := by
+  rw [List.foldr_eq_foldl_reverse, List.foldl_push_eq_append']
 
 @[simp, grind] theorem foldr_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldr (f · ++ ·) ys = (xs.map f).flatten ++ ys := by

@@ -56,7 +56,8 @@ protected theorem getElem_ofFn {f : Fin n → α} (h : i < (ofFn f).length) :
       simp_all
 
 @[simp]
-protected theorem getElem?_ofFn {f : Fin n → α} : (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none :=
+protected theorem getElem?_ofFn {f : Fin n → α} :
+    (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none :=
   if h : i < (ofFn f).length
   then by
     rw [getElem?_eq_getElem h, List.getElem_ofFn]
@@ -135,5 +136,37 @@ theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
   induction k with
   | zero => simp
   | succ k ih => simp [ofFnM_succ_last, ih]
+
+
+end List
+
+namespace Fin
+
+theorem foldl_cons_eq_append {f : Fin n → α} {xs : List α} :
+    Fin.foldl n (fun xs i => f i :: xs) xs = (List.ofFn f).reverse ++ xs := by
+  induction n generalizing xs with
+  | zero => simp
+  | succ n ih => simp [Fin.foldl_succ, List.ofFn_succ, ih]
+
+theorem foldr_cons_eq_append {f : Fin n → α} {xs : List α} :
+    Fin.foldr n (fun i xs => f i :: xs) xs = List.ofFn f ++ xs:= by
+  induction n generalizing xs with
+  | zero => simp
+  | succ n ih => simp [Fin.foldr_succ, List.ofFn_succ, ih]
+
+end Fin
+
+namespace List
+
+@[simp]
+theorem ofFnM_pure [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
+    ofFnM (pure ∘ f) = (pure (ofFn f) : m (List α)) := by
+  simp [ofFnM, Fin.foldlM_pure, Fin.foldl_cons_eq_append]
+
+-- Variant of `ofFnM_pure` using a lambda.
+-- This is not marked a `@[simp]` as it would match on every occurrence of `ofFnM`.
+theorem ofFnM_pure' [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
+    ofFnM (fun i => pure (f i)) = (pure (ofFn f) : m (List α)) :=
+  ofFnM_pure
 
 end List

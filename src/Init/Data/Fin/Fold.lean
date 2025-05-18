@@ -264,10 +264,16 @@ theorem foldl_add (f : α → Fin (n + m) → α) (x) :
   | zero => simp
   | succ m ih => simp [foldl_succ_last, ih, ← Nat.add_assoc]
 
-
 theorem foldl_eq_foldlM (f : α → Fin n → α) (x) :
     foldl n f x = foldlM (m:=Id) n f x := by
   induction n generalizing x <;> simp [foldl_succ, foldlM_succ, *]
+
+-- This is not marked `@[simp]` as it would match on every occurrence of `foldlM`.
+theorem foldlM_pure [Monad m] [LawfulMonad m] {n} {f : α → Fin n → α} :
+    foldlM n (fun x i => pure (f x i)) x = (pure (foldl n f x) : m α) := by
+  induction n generalizing x with
+  | zero => simp
+  | succ n ih => simp [foldlM_succ, foldl_succ, ih]
 
 /-! ### foldr -/
 
@@ -326,5 +332,12 @@ theorem foldr_rev (f : α → Fin n → α) (x) :
   induction n generalizing x with
   | zero => simp
   | succ n ih => rw [foldl_succ_last, foldr_succ, ← ih]; simp [rev_succ]
+
+-- This is not marked `@[simp]` as it would match on every occurrence of `foldrM`.
+theorem foldrM_pure [Monad m] [LawfulMonad m] {n} {f : Fin n → α → α} :
+    foldrM n (fun i x => pure (f i x)) x = (pure (foldr n f x) : m α) := by
+  induction n generalizing x with
+  | zero => simp
+  | succ n ih => simp [foldrM_succ, foldr_succ, ih]
 
 end Fin

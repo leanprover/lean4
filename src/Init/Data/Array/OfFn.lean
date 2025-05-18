@@ -8,6 +8,7 @@ module
 prelude
 import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
+import Init.Data.Array.Monadic
 import Init.Data.List.OfFn
 import Init.Data.List.FinRange
 
@@ -114,5 +115,17 @@ theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
   induction n with
   | zero => simp
   | succ n ih => simp [ofFnM_succ, List.ofFnM_succ_last, ← ih]
+
+@[simp]
+theorem ofFnM_pure [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
+    ofFnM (pure ∘ f) = (pure (ofFn f) : m (Array α)) := by
+  apply Array.map_toList_inj.mp
+  simp
+
+-- Variant of `ofFnM_pure` using a lambda.
+-- This is not marked a `@[simp]` as it would match on every occurrence of `ofFnM`.
+theorem ofFnM_pure' [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
+    ofFnM (fun i => pure (f i)) = (pure (ofFn f) : m (Array α)) :=
+  ofFnM_pure
 
 end Array

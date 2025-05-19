@@ -1625,12 +1625,11 @@ instance [HomogeneousPow α] : Pow α α where
   pow a b := HomogeneousPow.pow a b
 
 @[default_instance]
-instance {α : Type u} [Mul α] : HSMul α α α where
-  hSMul x y := Mul.mul x y
-
-@[default_instance]
 instance instHSMul {α β} [SMul α β] : HSMul α β β where
   hSMul := SMul.smul
+
+instance (priority := 910) {α : Type u} [Mul α] : SMul α α where
+  smul x y := Mul.mul x y
 
 @[default_instance]
 instance [Append α] : HAppend α α α where

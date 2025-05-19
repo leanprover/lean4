@@ -38,8 +38,8 @@ stepper function.
 def IteratorLoop.rel (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (plausible_forInStep : β → γ → ForInStep γ → Prop)
     (p' p : IterM (α := α) m β × γ) : Prop :=
-    (∃ b, p.1.plausible_step (.yield p'.1 b) ∧ plausible_forInStep b p.2 (.yield p'.2)) ∨
-      (p.1.plausible_step (.skip p'.1) ∧ p'.2 = p.2)
+  (∃ b, p.1.IsPlausibleStep (.yield p'.1 b) ∧ plausible_forInStep b p.2 (.yield p'.2)) ∨
+    (p.1.IsPlausibleStep (.skip p'.1) ∧ p'.2 = p.2)
 
 /--
 Asserts that `IteratorLoop.rel` is well-founded.
@@ -67,7 +67,7 @@ class IteratorLoop (α : Type w) (m : Type w → Type w') {β : Type w} [Iterato
 
 /--
 `IteratorLoopPartial α m` provides efficient implementations of loop-based consumers for `α`-based
-iterators. The basis is a partial, i.e. potentially nonterminating, `ForIn` instance
+iterators. The basis is a partial, i.e. potentially nonterminating, `ForIn` instance.
 
 This class is experimental and users of the iterator API should not explicitly depend on it.
 They can, however, assume that consumers that require an instance will work for all iterators
@@ -218,7 +218,7 @@ Folds a monadic function over an iterator from the left, accumulating a value st
 The accumulated value is combined with the each element of the list in order, using `f`.
 
 The monadic effects of `f` are interleaved with potential effects caused by the iterator's step
-function. Therefore, it may *not* be equivalent to `it.toList.foldlM`.
+function. Therefore, it may *not* be equivalent to `(← it.toList).foldlM`.
 
 This function requires a `Finite` instance proving that the iterator will finish after a finite
 number of steps. If the iterator is not finite or such an instance is not available, consider using

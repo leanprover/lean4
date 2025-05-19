@@ -7,7 +7,7 @@ prelude
 import Init.Data.Nat.Lemmas
 import Init.RCases
 import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Workbench.Termination
+import Std.Data.Iterators.Internal.Termination
 
 /-!
 # List iterator
@@ -37,7 +37,7 @@ def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure
 
 @[always_inline, inline]
 instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
-  plausible_step it
+  IsPlausibleStep it
     | .yield it' out => it.internalState.list = out :: it'.internalState.list
     | .skip _ => False
     | .done => it.internalState.list = []
@@ -45,13 +45,17 @@ instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
         | ⟨⟨[]⟩⟩ => ⟨.done, rfl⟩
         | ⟨⟨x :: xs⟩⟩ => ⟨.yield (toIterM ⟨xs⟩ m α) x, rfl⟩)
 
-instance [Pure m] : FinitenessRelation (ListIterator α) m where
+private def ListIterator.finitenessRelation [Pure m] :
+    FinitenessRelation (ListIterator α) m where
   rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ BaseIter.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
-    cases step <;> simp_all [IterStep.successor, IterM.plausible_step, Iterator.plausible_step]
+    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
+
+instance [Pure m] : Finite (ListIterator α) m :=
+  Iterator.ofFinitenessRelation ListIterator.finitenessRelation
 
 @[always_inline, inline]
 instance {α : Type w} [Monad m] : IteratorCollect (ListIterator α) m :=

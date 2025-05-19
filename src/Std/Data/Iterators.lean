@@ -7,7 +7,7 @@ prelude
 import Std.Data.Iterators.Basic
 import Std.Data.Iterators.Producers
 import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Workbench
+import Std.Data.Iterators.Internal
 
 /-!
 # Iterators
@@ -37,10 +37,10 @@ iterators over a monad `m`. In both cases , implementation is provided by a type
 
 The heart of an iterator `it : Iter β` is its `it.step` function, which returns `it.Step α β`.
 Here, `it.Step` is a type that either (1) provides an output value in `β` and a
-successor iterator, (2) provides only a successor iterator with no output, or
-(3) signals that the iterator has finished and will provide no more outputs. For technical reasons
-related to termination proofs, the returned `it.Step` also contains proof that it is a "plausible"
-step obtained from `it`.
+successor iterator (`yield`), (2) provides only a successor iterator with no output (`skip`), or
+(3) signals that the iterator has finished and will provide no more outputs (`done`).
+For technical reasons related to termination proofs, the returned `it.Step` also contains proof
+that it is a "plausible" step obtained from `it`.
 
 The `step` function can also be used by hand:
 
@@ -94,9 +94,10 @@ All of the following module names are prefixed with `Std.Data.Iterators`.
 
 `Lemmas` will provide the means to verify programs that use iterators.
 
-### Iterator implementation API
+### Implementation details
 
-`Workbench` contains utilities for the implementation of iterators. This whole module is explicitly
-experimental and it is not advisable for downstream users expecting stability to implement their own
-iterators at this point in time.
+`Internal` contains code that should not be relied upon because it may change in the future.
+This whole module is explicitly experimental and it is not advisable for downstream users to
+expect stability to implement their own iterators at this point in time.
+
 -/

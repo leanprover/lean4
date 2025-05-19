@@ -167,7 +167,6 @@ def IterM.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type 
     [Iterator α m β] [Finite α m] (it : IterM (α := α) m β) : m (List β) :=
   go it []
 where
-  @[specialize]
   go [Finite α m] it bs := do
     match ← it.step with
     | .yield it' b _ => go it' (b :: bs)

@@ -121,7 +121,7 @@ theorem toNat_lt_toNat {n m : Int} (hn : 0 < m) : n.toNat < m.toNat ↔ n < m :=
 /-! ### min and max -/
 
 @[simp] protected theorem min_assoc : ∀ (a b c : Int), min (min a b) c = min a (min b c) := by omega
-instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
+instance : Std.Associative (α := Int) min := ⟨Int.min_assoc⟩
 
 @[simp] protected theorem min_self_assoc {m n : Int} : min m (min m n) = min m n := by
   rw [← Int.min_assoc, Int.min_self]
@@ -130,7 +130,7 @@ instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
   rw [Int.min_comm m n, ← Int.min_assoc, Int.min_self]
 
 @[simp] protected theorem max_assoc (a b c : Int) : max (max a b) c = max a (max b c) := by omega
-instance : Std.Associative (α := Nat) max := ⟨Nat.max_assoc⟩
+instance : Std.Associative (α := Int) max := ⟨Int.max_assoc⟩
 
 @[simp] protected theorem max_self_assoc {m n : Int} : max m (max m n) = max m n := by
   rw [← Int.max_assoc, Int.max_self]

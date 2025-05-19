@@ -1,4 +1,4 @@
-/-- info: fun * -/
+/-- info: fun _ -/
 #guard_msgs in
 #discr_tree_key fun x => x
 
@@ -29,18 +29,20 @@ example : List.foldr (fun x y => (x + 1) :: y) a b = sorry := by
 
 theorem fun_self_eq_id : (fun x : α => x) = id := rfl
 
+example : (fun x : { a // a < 5 } => ⟨x.1, x.2⟩) = id := by
+  simp only [fun_self_eq_id]
+
 /--
 error: unsolved goals
-m : Type u_1 → Type u_2
-α : Type u_1
+m : Type → Type u_1
 inst✝¹ : Monad m
 inst✝ : LawfulMonad m
-x : m α
-⊢ id <$> x = sorry
+x : m Nat
+⊢ Nat.succ <$> x = sorry
 -/
 #guard_msgs in
-example [Monad m] [LawfulMonad m] (x : m α) : x >>= (fun y => pure y) = sorry := by
-  simp only [bind_pure_comp, fun_self_eq_id]
+example [Monad m] [LawfulMonad m] (x : m Nat) : x >>= (fun y => pure y.succ) = sorry := by
+  simp only [bind_pure_comp]
 
 /--
 error: unsolved goals

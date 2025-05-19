@@ -404,7 +404,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
       return (.lam, todo.push (b.instantiate1 placeholder))
     | .sort _ =>
       return (.sort, todo)
-    | _ => unreachable!
+    | _ => return (.other, #[]) -- let declarations?
 
 private partial def removeTailLambda (keys : Array Key) : Array Key :=
   if keys.back? matches some .lam then
@@ -583,7 +583,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
     let placeholder := mkApp (.const ``lcUnreachable [u]) t
     return (.lam, #[b.instantiate1 placeholder])
   | .sort _ => return (.sort, #[])
-  | _ => unreachable!
+  | _ => return (.other, #[])
 
 private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
   getKeyArgs e (isMatch := true) (root := root)

@@ -85,7 +85,7 @@ theorem fold_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a �
 
 theorem fold_cons {l : Raw α β} {acc : List ((a : α) × β a)} :
     l.fold (fun acc k v => ⟨k, v⟩ :: acc) acc = (toListModel l.buckets).reverse ++ acc := by
-  simp [fold_cons_apply]
+  simp [fold_cons_apply, Sigma.eta]
 
 theorem fold_cons_key {l : Raw α β} {acc : List α} :
     l.fold (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets).reverse ++ acc := by
@@ -109,7 +109,7 @@ theorem foldRev_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β 
 
 theorem foldRev_cons {l : Raw α β} {acc : List ((a : α) × β a)} :
     Raw.Internal.foldRev (fun acc k v => ⟨k, v⟩ :: acc) acc l = toListModel l.buckets ++ acc := by
-  simp [foldRev_cons_apply]
+  simp [foldRev_cons_apply, Sigma.eta]
 
 theorem foldRev_cons_mk {β : Type v} {l : Raw α (fun _ => β)} {acc : List (α × β)} :
     Raw.Internal.foldRev (fun acc k v => (k, v) :: acc) acc l =

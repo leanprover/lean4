@@ -129,12 +129,12 @@ theorem pmap_map {p : β → Prop} {g : ∀ b, p b → γ} {f : α → β} {xs :
 theorem attach_congr {xs ys : Vector α n} (h : xs = ys) :
     xs.attach = ys.attach.map (fun x => ⟨x.1, h ▸ x.2⟩) := by
   subst h
-  simp
+  rw [map_id']
 
 theorem attachWith_congr {xs ys : Vector α n} (w : xs = ys) {P : α → Prop} {H : ∀ x ∈ xs, P x} :
     xs.attachWith P H = ys.attachWith P fun _ h => H _ (w ▸ h) := by
   subst w
-  simp
+  rfl
 
 @[simp] theorem attach_push {a : α} {xs : Vector α n} :
     (xs.push a).attach =

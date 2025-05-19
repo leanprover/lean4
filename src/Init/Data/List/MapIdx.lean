@@ -3,7 +3,6 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Mario Carneiro
 -/
-
 module
 
 prelude
@@ -452,12 +451,7 @@ theorem mapIdx_eq_append_iff {l : List α} :
         mapIdx f l₁' = l₁ ∧
         mapIdx (fun i => f (i + l₁'.length)) l₂' = l₂ := by
   rw [mapIdx_eq_mapFinIdx, mapFinIdx_eq_append_iff]
-  simp only [mapFinIdx_eq_mapIdx, exists_and_left, exists_prop]
-  constructor
-  · rintro ⟨l₁, rfl, l₂, rfl, h⟩
-    refine ⟨l₁, l₂, by simp_all⟩
-  · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
-    refine ⟨l₁, rfl, l₂, by simp_all⟩
+  simp
 
 theorem mapIdx_eq_mapIdx_iff {l : List α} :
     mapIdx f l = mapIdx g l ↔ ∀ i : Nat, (h : i < l.length) → f i l[i] = g i l[i] := by

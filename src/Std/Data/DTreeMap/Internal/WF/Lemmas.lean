@@ -1221,7 +1221,7 @@ theorem toList_eq_toListModel {t : Impl α β} :
   rw [toList, foldr_eq_foldr]
   induction t with
   | leaf => rfl
-  | inner sz k v l r ihl ihr => simp
+  | inner sz k v l r ihl ihr => simp [Sigma.eta]
 
 /-!
 ### keys

@@ -372,12 +372,12 @@ theorem mapIdx_eq_push_iff {xs : Array α} {b : β} :
     mapIdx f xs = ys.push b ↔
       ∃ (a : α) (zs : Array α), xs = zs.push a ∧ mapIdx f zs = ys ∧ f zs.size a = b := by
   rw [mapIdx_eq_mapFinIdx, mapFinIdx_eq_push_iff]
-  simp only [mapFinIdx_eq_mapIdx, exists_and_left, exists_prop]
+  simp only [mapFinIdx_eq_mapIdx, exists_prop]
   constructor
-  · rintro ⟨zs, rfl, a, rfl, rfl⟩
+  · rintro ⟨zs, a, rfl, rfl, rfl⟩
     exact ⟨a, zs, by simp⟩
   · rintro ⟨a, zs, rfl, rfl, rfl⟩
-    exact ⟨zs, rfl, a, by simp⟩
+    exact ⟨zs, a, by simp⟩
 
 @[simp] theorem mapIdx_eq_singleton_iff {xs : Array α} {f : Nat → α → β} {b : β} :
     mapIdx f xs = #[b] ↔ ∃ (a : α), xs = #[a] ∧ f 0 a = b := by

@@ -106,7 +106,7 @@ theorem pmap_map {p : β → Prop} {g : ∀ b, p b → γ} {f : α → β} {l : 
 theorem attach_congr {l₁ l₂ : List α} (h : l₁ = l₂) :
     l₁.attach = l₂.attach.map (fun x => ⟨x.1, h ▸ x.2⟩) := by
   subst h
-  simp
+  rw [map_id']
 
 theorem attachWith_congr {l₁ l₂ : List α} (w : l₁ = l₂) {P : α → Prop} {H : ∀ x ∈ l₁, P x} :
     l₁.attachWith P H = l₂.attachWith P fun _ h => H _ (w ▸ h) := by

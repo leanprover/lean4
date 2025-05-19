@@ -135,7 +135,7 @@ theorem pmap_map {p : β → Prop} {g : ∀ b, p b → γ} {f : α → β} {xs :
 theorem attach_congr {xs ys : Array α} (h : xs = ys) :
     xs.attach = ys.attach.map (fun x => ⟨x.1, h ▸ x.2⟩) := by
   subst h
-  simp
+  rw [map_id']
 
 theorem attachWith_congr {xs ys : Array α} (w : xs = ys) {P : α → Prop} {H : ∀ x ∈ xs, P x} :
     xs.attachWith P H = ys.attachWith P fun _ h => H _ (w ▸ h) := by
@@ -340,7 +340,8 @@ theorem foldl_attach {xs : Array α} {f : β → α → β} {b : β} :
     List.length_pmap, List.foldl_toArray', mem_toArray, List.foldl_subtype]
   congr
   ext
-  simpa using fun a => List.mem_of_getElem? a
+  simp only [List.getElem?_unattach, List.getElem?_map, List.getElem?_attach, Option.map_pmap,
+    Option.pmap_eq_map, Option.map_id_fun', id_eq]
 
 /--
 If we fold over `l.attach` with a function that ignores the membership predicate,
@@ -359,7 +360,8 @@ theorem foldr_attach {xs : Array α} {f : α → β → β} {b : β} :
     List.length_pmap, List.foldr_toArray', mem_toArray, List.foldr_subtype]
   congr
   ext
-  simpa using fun a => List.mem_of_getElem? a
+  simp only [List.getElem?_unattach, List.getElem?_map, List.getElem?_attach, Option.map_pmap,
+    Option.pmap_eq_map, Option.map_id_fun', id_eq]
 
 theorem attach_map {xs : Array α} {f : α → β} :
     (xs.map f).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by

@@ -22,7 +22,7 @@ def relabel (r : α → β) (c : Clause α) : Clause β := c.map (fun (i, n) => 
     (relabel r c).eval a = c.eval (a ∘ r) := by
   induction c <;> simp_all [relabel]
 
-@[simp] theorem relabel_id' : relabel (id : α → α) = id := by funext; simp [relabel]
+@[simp] theorem relabel_id' : relabel (id : α → α) = id := by funext; simp [relabel, Prod.eta]
 
 theorem relabel_congr {c : Clause α} {r1 r2 : α → β} (hw : ∀ v, Mem v c → r1 v = r2 v) :
     relabel r1 c = relabel r2 c := by

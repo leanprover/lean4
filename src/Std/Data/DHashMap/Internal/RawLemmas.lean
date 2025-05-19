@@ -3026,7 +3026,7 @@ theorem equiv_iff_toList_perm_toList {β : Type v} (m₁ m₂ : Raw α fun _ => 
   · exact List.Perm.map _
   · intro h
     have := h.map (fun (x, y) => (⟨x, y⟩ : (_ : α) × β))
-    simpa only [List.map_map, Function.comp_def, List.map_id'] using this
+    simpa only [List.map_map, Function.comp_def, List.map_id', Sigma.eta] using this
 
 theorem equiv_iff_keys_perm_keys (m₁ m₂ : Raw α fun _ => Unit) :
     m₁ ~m m₂ ↔ m₁.keys.Perm m₂.keys := by
@@ -3036,7 +3036,7 @@ theorem equiv_iff_keys_perm_keys (m₁ m₂ : Raw α fun _ => Unit) :
   · exact List.Perm.map _
   · intro h
     have := h.map (fun x => (⟨x, ()⟩ : (_ : α) × Unit))
-    simpa only [List.map_map, Function.comp_def, List.map_id'] using this
+    simpa only [List.map_map, Function.comp_def, List.map_id' _] using this
 
 end Const
 

@@ -57,7 +57,7 @@ terminates.
 theorem attach_congr {o₁ o₂ : Option α} (h : o₁ = o₂) :
     o₁.attach = o₂.attach.map (fun x => ⟨x.1, h ▸ x.2⟩) := by
   subst h
-  simp
+  rw [map_id']
 
 theorem attachWith_congr {o₁ o₂ : Option α} (w : o₁ = o₂) {P : α → Prop} {H : ∀ x, o₁ = some x → P x} :
     o₁.attachWith P H = o₂.attachWith P fun _ h => H _ (w ▸ h) := by
@@ -177,7 +177,7 @@ theorem map_attach_eq_attachWith {o : Option α} {p : α → Prop} (f : ∀ a, o
 theorem attach_bind {o : Option α} {f : α → Option β} :
     (o.bind f).attach =
       o.attach.bind fun ⟨x, h⟩ => (f x).attach.map fun ⟨y, h'⟩ => ⟨y, bind_eq_some_iff.2 ⟨_, h, h'⟩⟩ := by
-  cases o <;> simp
+  cases o <;> simp [Subtype.eta]
 
 theorem bind_attach {o : Option α} {f : {x // o = some x} → Option β} :
     o.attach.bind f = o.pbind fun a h => f ⟨a, h⟩ := by

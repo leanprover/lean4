@@ -438,7 +438,7 @@ theorem contains_eq_isSome_getKey? [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = (t.getKey? a).isSome :=
   DTreeMap.Raw.contains_eq_isSome_getKey? h
 
-@[simp]
+@[simp, grind =]
 theorem isSome_getKey?_eq_contains [TransCmp cmp] (h : t.WF) {a : α} :
     (t.getKey? a).isSome = t.contains a :=
   (contains_eq_isSome_getKey? h).symm

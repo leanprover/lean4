@@ -655,7 +655,7 @@ theorem contains_eq_isSome_getKey? [TransCmp cmp] {a : α} :
     t.contains a = (t.getKey? a).isSome :=
   Impl.contains_eq_isSome_getKey? t.wf
 
-@[simp]
+@[simp, grind =]
 theorem isSome_getKey?_eq_contains [TransCmp cmp] {a : α} :
     (t.getKey? a).isSome = t.contains a :=
   contains_eq_isSome_getKey?.symm

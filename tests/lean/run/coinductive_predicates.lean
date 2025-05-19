@@ -160,7 +160,6 @@ theorem infseq_coinduction_principle_2:
 -- Automata theory example that involves forall quantifier
 def DFA (Q : Type) (A : Type) : Type := Q → (Bool × (A → Q))
 
-
 def language_equivalent (automaton : DFA Q A) (q₁ q₂ : Q)  : Prop :=
   let ⟨o₁, t₁⟩ := automaton q₁
   let ⟨o₂, t₂⟩ := automaton q₂

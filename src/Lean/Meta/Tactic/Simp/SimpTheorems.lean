@@ -10,9 +10,15 @@ import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.AuxLemma
+import Lean.Meta.Tactic.Simp.RflEnvExt
 import Lean.DocString
 import Lean.PrettyPrinter
 namespace Lean.Meta
+
+register_builtin_option experimental.tactic.simp.useRflAttr : Bool := {
+  defValue := false
+  descr    := "use `rfl` attribute rather than theorem body to decide rfl-ness"
+}
 
 /--
 An `Origin` is an identifier for simp theorems which indicates roughly
@@ -165,9 +171,13 @@ mutual
         return false
 
   private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
-    let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
-    let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
-    isRflProofCore info.type info.value
+    if experimental.tactic.simp.useRflAttr.get (← getOptions) then
+      -- return rflAttr.hasTag (← getEnv) declName
+      return false
+    else
+      let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
+      let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
+      isRflProofCore info.type info.value
 end
 
 def isRflTheorem (declName : Name) : CoreM Bool :=

@@ -8,6 +8,7 @@ module
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Option.List
+import all Init.Data.Option.Instances
 
 namespace Option
 
@@ -16,11 +17,11 @@ namespace Option
 
 @[simp, grind] theorem forIn'_toArray [Monad m] (o : Option α) (b : β) (f : (a : α) → a ∈ o.toArray → β → m (ForInStep β)) :
     forIn' o.toArray b f = forIn' o b fun a m b => f a (by simpa using m) b := by
-  cases o <;> rfl
+  cases o <;> simp <;> rfl
 
 @[simp, grind] theorem forIn_toArray [Monad m] (o : Option α) (b : β) (f : α → β → m (ForInStep β)) :
     forIn o.toArray b f = forIn o b f := by
-  cases o <;> rfl
+  cases o <;> simp <;> rfl
 
 @[simp, grind] theorem foldlM_toArray [Monad m] [LawfulMonad m] (o : Option β) (a : α) (f : α → β → m α) :
     o.toArray.foldlM f a = o.elim (pure a) (fun b => f a b) := by

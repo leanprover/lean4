@@ -994,7 +994,7 @@ x_11 = lean_mk_empty_array_with_capacity(x_10);
 lean_dec(x_10);
 x_12 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
-x_13 = lean_alloc_ctor(6, 3, 0);
+x_13 = lean_alloc_ctor(8, 3, 0);
 lean_ctor_set(x_13, 0, x_1);
 lean_ctor_set(x_13, 1, x_3);
 lean_ctor_set(x_13, 2, x_12);

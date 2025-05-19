@@ -407,8 +407,7 @@ Lifts an `EAsync` computation into an `ExceptTask` that can be awaited and joine
 -/
 @[inline]
 protected def asTask (x : EAsync ε α) : EIO ε (ExceptTask ε α) := do
-  let res ← x.toRawEIO
-  pure res.toTask
+  MaybeExceptTask.joinTask <$> EIO.asTask x.toRawEIO
 
 /--
 Raises an error of type `ε` within the `EAsync` monad.
@@ -522,6 +521,25 @@ Starts the given `ExceptTask` in the background and discards the result.
 @[inline]
 def parallel {α : Type} (x : EAsync ε (ExceptTask ε α)) : EAsync ε Unit :=
   discard <| x
+
+/--
+A tail recursive version of the `forIn` for while loops inside the `EAsync` Monad.
+-/
+@[inline]
+protected partial def forIn {β : Type} [i : Inhabited ε] (init : β) (f : Unit → β → EAsync ε (ForInStep β)) : EAsync ε β := do
+  let promise ← IO.Promise.new
+
+  let rec @[specialize] loop (b : β) : EAsync ε (ExceptTask ε Unit) := async do
+    match ← f () b with
+      | ForInStep.done b => promise.resolve (.ok b)
+      | ForInStep.yield b => discard <| (loop b)
+
+  discard <| loop init
+
+  .mk <| pure <| .ofTask promise.result!
+
+instance [Inhabited ε] : ForIn (EAsync ε) Lean.Loop Unit where
+  forIn _ := EAsync.forIn
 
 end EAsync
 

@@ -53,7 +53,6 @@ theorem Iter.forIn_of_step {α β : Type w} [Iterator α Id β]
   · rfl
   · rfl
 
--- TODO: nonterminal simps
 theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -74,14 +73,12 @@ theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     apply bind_congr
     intro forInStep
     cases forInStep
-    · simp
-      induction it'.toList <;> simp [*]
-    · simp
-      simp only [ForIn.forIn, forIn', List.forIn'] at ihy
-      rw [ihy h, forIn_eq_forIn_toIterM]
-  · simp
-    rw [ihs]
-    assumption
+    · induction it'.toList <;> simp [*]
+    · simp only [ForIn.forIn, forIn', List.forIn'] at ihy
+      simp [ihy h, forIn_eq_forIn_toIterM]
+  · rename_i it' h
+    simp only [bind_pure_comp]
+    rw [ihs h]
   · simp
 
 theorem Iter.foldM_eq_forIn {α β γ : Type w} [Iterator α Id β] [Finite α Id] {m : Type w → Type w'}
@@ -119,7 +116,6 @@ theorem Iter.foldlM_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id
   rw [Iter.foldM_eq_forIn, ← Iter.forIn_toList]
   simp only [List.forIn_yield_eq_foldlM, id_map']
 
--- TODO: nonterminal simp
 theorem IterM.forIn_eq_foldM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -130,7 +126,7 @@ theorem IterM.forIn_eq_foldM {α β : Type w} [Iterator α Id β]
       it.foldM (fun c b => match c with
         | .yield c => f b c
         | .done c => pure (.done c)) (ForInStep.yield init) := by
-  simp [← Iter.forIn_toList, ← Iter.foldlM_toList, List.forIn_eq_foldlM]; rfl
+  simp only [← Iter.forIn_toList, List.forIn_eq_foldlM, ← Iter.foldlM_toList]; rfl
 
 theorem Iter.fold_eq_forIn {α β γ : Type w} [Iterator α Id β]
     [Finite α Id] [IteratorLoop α Id Id] {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :

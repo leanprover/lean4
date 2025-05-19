@@ -50,11 +50,11 @@ private def checkNumPatterns (numDiscrs : Nat) (lhss : List AltLHS) : MetaM Unit
       throwIncorrectNumberOfPatternsAt lhs.ref kind numDiscrs lhs.patterns.length
         (lhs.patterns.map Pattern.toMessageData)
     if lhs.patterns.length < numDiscrs then
-      doThrow "not enough"
+      doThrow "Not enough"
     else if lhs.patterns.length > numDiscrs then
       -- This case should be impossible, as an alternative with too many patterns will cause an
       -- error to be thrown in `Lean.Elab.Term.elabPatterns`
-      doThrow "too many"
+      doThrow "Too many"
 
 /--
   Execute `k hs` where `hs` contains new equalities `h : lhs[i] = rhs[i]` for each `discrInfos[i] = some h`.

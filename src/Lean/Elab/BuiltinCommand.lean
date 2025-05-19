@@ -204,7 +204,7 @@ private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandEl
   let hintMsg := m!"Delete the name '{header}' to end the current unnamed scope; outer named scopes \
     can then be closed using additional `end` command(s):"
   let hint ← liftCoreM <| MessageData.hint hintMsg suggestion
-  throwError m!"Unexpected name '{header}' after `end`: The current section is unnamed`" ++ hint
+  throwError m!"Unexpected name '{header}' after `end`: The current section is unnamed" ++ hint
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
   let header? := (stx.getArg 1).getOptionalIdent?

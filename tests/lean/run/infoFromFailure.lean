@@ -61,7 +61,21 @@ trace: [Meta.synthInstance] ❌️ Add String
 /--
 trace: [Meta.synthInstance] ❌️ Add Bool
   [Meta.synthInstance] new goal Add Bool
-    [Meta.synthInstance.instances] #[@Lean.Grind.Semiring.toAdd]
+    [Meta.synthInstance.instances] #[@Lean.Grind.Semiring.toAdd, @Lean.Grind.NatModule.toAdd, @Lean.Grind.IntModule.toAdd]
+  [Meta.synthInstance] ✅️ apply @Lean.Grind.IntModule.toAdd to Add Bool
+    [Meta.synthInstance.tryResolve] ✅️ Add Bool ≟ Add Bool
+    [Meta.synthInstance] new goal Lean.Grind.IntModule Bool
+      [Meta.synthInstance.instances] #[@Lean.Grind.RatModule.toIntModule]
+  [Meta.synthInstance] ✅️ apply @Lean.Grind.RatModule.toIntModule to Lean.Grind.IntModule Bool
+    [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.IntModule Bool ≟ Lean.Grind.IntModule Bool
+    [Meta.synthInstance] no instances for Lean.Grind.RatModule Bool
+      [Meta.synthInstance.instances] #[]
+  [Meta.synthInstance] ✅️ apply @Lean.Grind.NatModule.toAdd to Add Bool
+    [Meta.synthInstance.tryResolve] ✅️ Add Bool ≟ Add Bool
+    [Meta.synthInstance] new goal Lean.Grind.NatModule Bool
+      [Meta.synthInstance.instances] #[Lean.Grind.IntModule.toNatModule]
+  [Meta.synthInstance] ✅️ apply Lean.Grind.IntModule.toNatModule to Lean.Grind.NatModule Bool
+    [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.NatModule Bool ≟ Lean.Grind.NatModule Bool
   [Meta.synthInstance] ✅️ apply @Lean.Grind.Semiring.toAdd to Add Bool
     [Meta.synthInstance.tryResolve] ✅️ Add Bool ≟ Add Bool
     [Meta.synthInstance] new goal Lean.Grind.Semiring Bool

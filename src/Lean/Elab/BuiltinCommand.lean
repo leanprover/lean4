@@ -166,14 +166,14 @@ private def throwMissingName (stx : Syntax) (name : Name) : CommandElabM Unit :=
     suggestions := #[← `(end $(mkIdent name))]
     codeActionPrefix? := "Add scope name: "
   }
-  let hint ← liftCoreM <| MessageData.hint m!"To end the current scope '{name}', specify its name:" suggestion
-  throwError "Missing name after `end`: The current scope is named '{name}', but a name was not provided{hint}"
+  let hint ← liftCoreM <| MessageData.hint m!"To end the current scope `{name}`, specify its name:" suggestion
+  throwError "Missing name after `end`: The current scope is named `{name}`, but a name was not provided{hint}"
 
 private def throwTooManyScopeComponents (header : Name) (scopes : List Scope) : CommandElabM Unit := do
   let scopesName := nameOfScopes scopes
   let addendum := if scopes.length > 1 then " or some suffix thereof" else ""
-  throwError "Invalid name after `end`: The provided name '{header}' contains too many components; \
-    expected '{scopesName}'{addendum}"
+  throwError "Invalid name after `end`: The provided name `{header}` contains too many components; \
+    expected `{scopesName}`{addendum}"
 
 private def throwScopeNameMismatch (stx : Syntax) (header : Name) (scopes : List Scope) (endSize : Nat)
     : CommandElabM Unit := do
@@ -186,14 +186,14 @@ private def throwScopeNameMismatch (stx : Syntax) (header : Name) (scopes : List
         suggestions := #[← `(end $(mkIdent suffix))]
         codeActionPrefix? := "Add intervening scopes: "
       }
-      let hintMsg := m!"If you meant to end the outer scope(s) '{header}', you must end all the \
-        intervening scopes '{suffix}':"
+      let hintMsg := m!"If you meant to end the outer scope(s) `{header}`, you must end all the \
+        intervening scopes `{suffix}`:"
       MessageData.hint hintMsg suggestion
     else pure .nil
   let numParts := allScopes.getNumParts  -- NB this may not be equal to `endSize`
   let suffixMsg := if numParts > 1 then " or some other suffix of the current scope(s)" else ""
-  throwError m!"Name '{header}' does not match the current scope(s) '{allScopes}': \
-    Expected '{correspondingScopes}'{suffixMsg}" ++ hint
+  throwError m!"Name `{header}` does not match the current scope(s) `{allScopes}`: \
+    Expected `{correspondingScopes}`{suffixMsg}" ++ hint
 
 private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandElabM Unit := do
   let suggestion : Meta.Hint.Suggestions := {
@@ -201,10 +201,10 @@ private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandEl
     suggestions := #[← `(end)]
     codeActionPrefix? := "Delete name: "
   }
-  let hintMsg := m!"Delete the name '{header}' to end the current unnamed scope; outer named scopes \
+  let hintMsg := m!"Delete the name `{header}` to end the current unnamed scope; outer named scopes \
     can then be closed using additional `end` command(s):"
   let hint ← liftCoreM <| MessageData.hint hintMsg suggestion
-  throwError m!"Unexpected name '{header}' after `end`: The current section is unnamed" ++ hint
+  throwError m!"Unexpected name `{header}` after `end`: The current section is unnamed" ++ hint
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
   let header? := (stx.getArg 1).getOptionalIdent?

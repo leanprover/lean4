@@ -135,7 +135,9 @@ structure TagAttribute where
   deriving Inhabited
 
 def registerTagAttribute (name : Name) (descr : String)
-    (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO TagAttribute := do
+    (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%)
+    (applicationTime := AttributeApplicationTime.afterTypeChecking)
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
     name            := ref
     mkInitial       := pure {}
@@ -145,6 +147,12 @@ def registerTagAttribute (name : Name) (descr : String)
       let r : Array Name := es.fold (fun a e => a.push e) #[]
       r.qsort Name.quickLt
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
+    asyncMode       := asyncMode
+    replay?         := some fun _ newState newConsts s =>
+      newConsts.foldl (init := s) fun s c =>
+        if newState.contains c then
+          s.insert c
+        else s
   }
   let attrImpl : AttributeImpl := {
     ref, name, descr, applicationTime
@@ -165,7 +173,7 @@ namespace TagAttribute
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        => (attr.ext.getState env).contains decl
+  | none        => (attr.ext.findStateAsync env decl).contains decl
 
 end TagAttribute
 

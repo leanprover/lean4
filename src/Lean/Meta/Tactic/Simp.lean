@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Simp.RegisterCommand
 import Lean.Meta.Tactic.Simp.Attr
 import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Tactic.Simp.Arith
+import Lean.Meta.Tactic.Simp.RflEnvExt
 
 namespace Lean
 
@@ -27,7 +28,9 @@ builtin_initialize registerTraceClass `Meta.Tactic.simp.unify (inherited := true
 builtin_initialize registerTraceClass `Meta.Tactic.simp.ground (inherited := true)
 builtin_initialize registerTraceClass `Meta.Tactic.simp.numSteps
 builtin_initialize registerTraceClass `Meta.Tactic.simp.heads
+builtin_initialize registerTraceClass `Meta.Tactic.simp.rflAttrMismatch
 builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp
 builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp.congr (inherited := true)
+
 
 end Lean

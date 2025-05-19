@@ -1267,6 +1267,9 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     let mut view ← mkDefView modifiers d[1]
+    if view.kind != .example && view.value matches `(declVal| := rfl) then
+      --  TODO: Only add if not already present
+      view := { view with modifiers := { view.modifiers with attrs := view.modifiers.attrs.push { name := `rfl } } }
     let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
     if let some snap := snap? then
       view := { view with headerSnap? := some {

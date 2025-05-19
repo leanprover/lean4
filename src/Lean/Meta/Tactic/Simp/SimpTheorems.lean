@@ -16,7 +16,7 @@ import Lean.PrettyPrinter
 namespace Lean.Meta
 
 register_builtin_option experimental.tactic.simp.useRflAttr : Bool := {
-  defValue := false
+  defValue := true
   descr    := "use `rfl` attribute rather than theorem body to decide rfl-ness"
 }
 
@@ -171,13 +171,16 @@ mutual
         return false
 
   private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
+    let isRfl := rflAttr.hasTag (← getEnv) declName
     if experimental.tactic.simp.useRflAttr.get (← getOptions) then
-      -- return rflAttr.hasTag (← getEnv) declName
-      return false
+      return isRfl
     else
       let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
       let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
-      isRflProofCore info.type info.value
+      let r ← isRflProofCore info.type info.value
+      unless r = rflAttr.hasTag (← getEnv) declName do
+        trace[Meta.Tactic.simp.rflAttrMismatch] "theorem {.ofConstName declName}:\nattribute {isRfl}\ninferred {r}"
+      return r
 end
 
 def isRflTheorem (declName : Name) : CoreM Bool :=

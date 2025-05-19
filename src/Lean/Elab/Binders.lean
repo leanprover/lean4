@@ -554,6 +554,15 @@ def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (useExplicit :=
 def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
   withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := true) (useExplicit := false) (getMatchAltsNumPatterns matchAlts) #[] #[]
 
+/--
+Sanity-checks the number of patterns in each alternative of a definition by pattern matching.
+Specifically, verifies that all alternatives have the same number of patterns and that the number
+of patterns is upper-bounded by the number of (dependent) arrows in the expected type.
+
+Note: This function assumes that the number of patterns in the first alternative will be equal to
+`numDiscrs` (since we use the first alternative to infer the arity of the generated matcher in
+`getMatchAltsNumPatterns`).
+-/
 private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (expectedType : Expr)
     : MetaM Unit := do
   let sepPats (pats : List Syntax) := MessageData.joinSep (pats.map toMessageData) ", "

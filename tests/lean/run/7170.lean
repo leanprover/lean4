@@ -203,3 +203,15 @@ but is expected to have type
 def matchTooFewFn : Foo → Foo → Prop := fun a b =>
   match a, b with
   | _ => fun b => True
+
+/--
+error: Inconsistent number of patterns in match alternatives: This alternative contains 1 pattern:
+  n + 1
+but a preceding alternative contains 2:
+  x, 0
+-/
+#guard_msgs in
+def checkCounterexampleMsg : Nat → Nat → Nat
+  | x, 0 => x
+  | 0, n + 1 => n
+  | n + 1 => 42

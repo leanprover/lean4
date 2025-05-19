@@ -366,7 +366,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
       return (.lit v, todo)
     | .const c _ =>
       if c == ``lcUnreachable then
-        return (.other, todo)
+        return (.star, todo)
       unless root do
         if let some v := toNatLit? e then
           return (.lit v, todo)
@@ -406,12 +406,6 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs
       return (.sort, todo)
     | _ => return (.other, #[]) -- let declarations?
 
-private partial def removeTailLambda (keys : Array Key) : Array Key :=
-  if keys.back? matches some .lam then
-    removeTailLambda keys.pop
-  else
-    keys
-
 @[inherit_doc pushArgs]
 partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (noIndexAtArgs : Bool) : MetaM (Array Key) := do
   if todo.isEmpty then
@@ -420,8 +414,6 @@ partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (noIn
     let e    := todo.back!
     let todo := todo.pop
     let (k, todo) ← pushArgs root todo e noIndexAtArgs
-    -- `#[fun, *]` is basically equivalent to `#[*]`
-    let keys := match k with | .star => removeTailLambda keys | _ => keys
     mkPathAux false todo (keys.push k) noIndexAtArgs
 
 private def initCapacity := 8
@@ -501,8 +493,6 @@ def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (noIndexAtA
     d.insertCore keys v
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
-  if e == tmpStar then
-    return (.other, #[])
   let e ← reduceDT e root
   unless root do
     -- See pushArgs
@@ -512,7 +502,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
   | .lit v         => return (.lit v, #[])
   | .const c _     =>
     if c == ``lcUnreachable then
-      return (.other, #[])
+      return (.star, #[])
     if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
         /-
@@ -591,18 +581,6 @@ private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Ex
 private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
   getKeyArgs e (isMatch := false) (root := root)
 
-/--
-Try "eta-expanding" `k`. The special `tmpStar` that is appended for eta-expansion is handled in
-`getKeyArgs` as an `.other` key. `.lam`, `.sort`, `.arrow` and `.lit` can't be eta-expanded.
--/
-private abbrev etaExpandKeyArgs (k : Key) (args : Array Expr) : Option (Key × Array Expr) :=
-  match k with
-  | .proj n i a => some (.proj n i (a + 1), args.push tmpStar)
-  | .const n a => some (.const n (a + 1), args.push tmpStar)
-  | .fvar f a => some (.fvar f (a + 1), args.push tmpStar)
-  | .other | .star => some (k, args)
-  | _ => none
-
 private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
@@ -640,10 +618,6 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
         else
           return result
       let rec visitNonStar (cs : Array (Key × Trie α)) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) := do
-        let mut result := result
-        if let some (.node _ cs) := findLam? cs then
-          if let some (k, args) := etaExpandKeyArgs k args then
-            result ← visitNonStar cs k args result
         match findKey cs k with
         | none   => return result
         | some c => getMatchLoop (todo ++ args) c.2 result
@@ -659,11 +633,8 @@ private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (resul
 
 private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α) :=
   withReducible do
-    let mut result := getStarResult d
+    let result := getStarResult d
     let (k, args) ← getMatchKeyArgs e (root := true)
-    if let some (.node _ cs) := d.root.find? .lam then
-      if let some (k, args) := etaExpandKeyArgs k args then
-        result ← getMatchLoop.visitNonStar #[] cs k args result
     match k with
     | .star  => return (k, result)
     | _      => return (k, (← getMatchRoot d k args result))
@@ -768,10 +739,7 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
     match k with
     | .star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
-      let mut result := getStarResult d
-      if let some (.node _ cs) := d.root.find? .lam then
-        if let some (k, args) := etaExpandKeyArgs k args then
-          result ← visitNonStar #[] cs k args result
+      let result := getStarResult d
       match d.root.find? k with
       | none   => return result
       | some c => process 0 args c result
@@ -802,10 +770,7 @@ where
         | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
         | _      => visitNonStar todo cs k args (← visitStar result)
   visitNonStar (todo : Array Expr) (cs : Array (Key × Trie α)) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) := do
-    let mut result := result
-    if let some (.node _ cs) := findLam? cs then
-      if let some (k, args) := etaExpandKeyArgs k args then
-        result ← visitNonStar todo cs k args result
+    let result := result
     match findKey cs k with
     | none   => return result
     | some c => process 0 (todo ++ args) c.2 result

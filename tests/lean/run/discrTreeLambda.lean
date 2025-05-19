@@ -1,4 +1,4 @@
-/-- info: fun <other> -/
+/-- info: fun * -/
 #guard_msgs in
 #discr_tree_key fun x => x
 
@@ -27,16 +27,6 @@ a b : List Nat
 example : List.foldr (fun x y => (x + 1) :: y) a b = sorry := by
   simp only [List.foldr_cons_eq_append]
 
-/--
-error: unsolved goals
-α✝ : Type u_1
-a b : List α✝
-⊢ List.map (fun x => x) b ++ a = sorry
--/
-#guard_msgs in
-example : List.foldr (fun x y => x :: y) a b = sorry := by
-  simp only [List.foldr_cons_eq_append]
-
 theorem fun_self_eq_id : (fun x : α => x) = id := rfl
 
 /--
@@ -49,5 +39,21 @@ x : m α
 ⊢ id <$> x = sorry
 -/
 #guard_msgs in
-example [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = sorry := by
+example [Monad m] [LawfulMonad m] (x : m α) : x >>= (fun y => pure y) = sorry := by
   simp only [bind_pure_comp, fun_self_eq_id]
+
+/--
+error: unsolved goals
+⊢ List.foldl HAdd.hAdd 1 (List.map Nat.succ [1, 2, 3]) = sorry
+-/
+#guard_msgs in
+example : List.foldl (· + ·.succ) 1 [1, 2, 3] = sorry := by
+  simp only [← List.foldl_map]
+
+/--
+error: unsolved goals
+⊢ [(1, 2), (3, 4)] = sorry
+-/
+#guard_msgs in
+example : List.map (fun x => (x.1, x.2)) [(1, 2), (3, 4)] = sorry := by
+  simp only [List.map_id']

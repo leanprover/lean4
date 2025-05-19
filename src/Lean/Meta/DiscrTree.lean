@@ -323,8 +323,9 @@ partial def reduce (e : Expr) : MetaM Expr := do
     | some e => reduce e
     | none   => return e
 
+set_option linter.unusedVariables.funArgs false in
 /-- whnf for the discrimination tree module -/
-abbrev reduceDT (e : Expr) (_root : Bool) : MetaM Expr :=
+abbrev reduceDT (e : Expr) (root : Bool) : MetaM Expr :=
   reduce e
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
@@ -711,7 +712,7 @@ where
 Return the root symbol for `e`, and the number of arguments after `reduceDT`.
 -/
 def getMatchKeyRootFor (e : Expr) : MetaM (Key × Nat) := do
-  let e ← reduceDT e true
+  let e ← reduceDT e (root := true)
   let numArgs := e.getAppNumArgs
   let key := match e.getAppFn with
     | .lit v         => .lit v

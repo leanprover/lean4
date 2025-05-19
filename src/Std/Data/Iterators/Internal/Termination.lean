@@ -23,7 +23,7 @@ structure FinitenessRelation (α : Type w) (m : Type w → Type w') {β : Type w
   wf : WellFounded rel
   subrelation : ∀ {it it'}, it'.IsPlausibleSuccessorOf it → rel it' it
 
-theorem Iterator.ofFinitenessRelation
+theorem Finite.of_finitenessRelation
     {α : Type w} {m : Type w → Type w'} {β : Type w}
     [Iterator α m β] (r : FinitenessRelation α m) : Finite α m where
   wf := by
@@ -45,7 +45,7 @@ structure ProductivenessRelation (α : Type w) (m : Type w → Type w') {β : Ty
   wf : WellFounded rel
   subrelation : ∀ {it it'}, it'.IsPlausibleSkipSuccessorOf it → rel it' it
 
-def Iterator.ofProductivenessRelation
+theorem Productive.of_productivenessRelation
     {α : Type w} {m : Type w → Type w'} {β : Type w}
     [Iterator α m β] (r : ProductivenessRelation α m) : Productive α m where
   wf := by

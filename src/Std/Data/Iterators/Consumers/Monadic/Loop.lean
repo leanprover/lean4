@@ -193,7 +193,8 @@ def IteratorLoop.finiteForIn {m : Type w → Type w'} {n : Type w → Type w''}
   forIn {γ} [Monad n] it init f :=
     IteratorLoop.forIn (α := α) (m := m) lift γ (fun _ _ _ => True)
       (by
-        apply Subrelation.wf (r := InvImage IterM.TerminationMeasures.Finite.rel (fun p => p.1.finitelyManySteps))
+        apply Subrelation.wf
+          (r := InvImage IterM.TerminationMeasures.Finite.Rel (fun p => p.1.finitelyManySteps))
         · intro p' p h
           apply Relation.TransGen.single
           obtain ⟨b, h, _⟩ | ⟨h, _⟩ := h

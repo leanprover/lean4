@@ -363,14 +363,14 @@ structure IterM.TerminationMeasures.Finite
 The relation of plausible successors on `IterM.TerminationMeasures.Finite`. It is well-founded
 if there is a `Finite` instance.
 -/
-def IterM.TerminationMeasures.Finite.rel
+def IterM.TerminationMeasures.Finite.Rel
     {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] :
     TerminationMeasures.Finite α m → TerminationMeasures.Finite α m → Prop :=
   Relation.TransGen <| InvImage IterM.IsPlausibleSuccessorOf IterM.TerminationMeasures.Finite.it
 
 instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [Finite α m] : WellFoundedRelation (IterM.TerminationMeasures.Finite α m) where
-  rel := IterM.TerminationMeasures.Finite.rel
+  rel := IterM.TerminationMeasures.Finite.Rel
   wf := (InvImage.wf _ Finite.wf).transGen
 
 /--
@@ -388,14 +388,14 @@ with `IterM.finitelyManySteps`.
 theorem IterM.TerminationMeasures.Finite.rel_of_yield
     {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {it it' : IterM (α := α) m β} {out : β} (h : it.IsPlausibleStep (.yield it' out)) :
-    rel ⟨it'⟩ ⟨it⟩ := by
+    Rel ⟨it'⟩ ⟨it⟩ := by
   exact .single ⟨_, rfl, h⟩
 
 @[inherit_doc IterM.TerminationMeasures.Finite.rel_of_yield]
 theorem IterM.TerminationMeasures.Finite.rel_of_skip
     {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {it it' : IterM (α := α) m β} (h : it.IsPlausibleStep (.skip it')) :
-    rel ⟨it'⟩ ⟨it⟩ := by
+    Rel ⟨it'⟩ ⟨it⟩ := by
   exact .single ⟨_, rfl, h⟩
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
@@ -415,14 +415,14 @@ with `IterM.finitelyManySteps`.
 theorem Iter.TerminationMeasures.Finite.rel_of_yield
     {α : Type w} {β : Type w} [Iterator α Id β]
     {it it' : Iter (α := α) β} {out : β} (h : it.IsPlausibleStep (.yield it' out)) :
-    IterM.TerminationMeasures.Finite.rel ⟨it'⟩ ⟨it⟩ :=
+    IterM.TerminationMeasures.Finite.Rel ⟨it'⟩ ⟨it⟩ :=
   IterM.TerminationMeasures.Finite.rel_of_yield h
 
 @[inherit_doc Iter.TerminationMeasures.Finite.rel_of_yield]
 theorem Iter.TerminationMeasures.Finite.rel_of_skip
     {α : Type w} {β : Type w} [Iterator α Id β]
     {it it' : Iter (α := α) β} (h : it.IsPlausibleStep (.skip it')) :
-    IterM.TerminationMeasures.Finite.rel ⟨it'⟩ ⟨it⟩ :=
+    IterM.TerminationMeasures.Finite.Rel ⟨it'⟩ ⟨it⟩ :=
   IterM.TerminationMeasures.Finite.rel_of_skip h
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
@@ -468,14 +468,14 @@ structure IterM.TerminationMeasures.Productive
 The relation of plausible successors while skipping on `IterM.TerminationMeasures.Productive`.
 It is well-founded if there is a `Productive` instance.
 -/
-def IterM.TerminationMeasures.Productive.rel
+def IterM.TerminationMeasures.Productive.Rel
     {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] :
     TerminationMeasures.Productive α m → TerminationMeasures.Productive α m → Prop :=
   Relation.TransGen <| InvImage IterM.IsPlausibleSkipSuccessorOf IterM.TerminationMeasures.Productive.it
 
 instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [Productive α m] : WellFoundedRelation (IterM.TerminationMeasures.Productive α m) where
-  rel := IterM.TerminationMeasures.Productive.rel
+  rel := IterM.TerminationMeasures.Productive.Rel
   wf := (InvImage.wf _ Productive.wf).transGen
 
 /--
@@ -493,7 +493,7 @@ with `IterM.finitelyManySkips`.
 theorem IterM.TerminationMeasures.Productive.rel_of_skip
     {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {it it' : IterM (α := α) m β} (h : it.IsPlausibleStep (.skip it')) :
-    rel ⟨it'⟩ ⟨it⟩ :=
+    Rel ⟨it'⟩ ⟨it⟩ :=
   .single h
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
@@ -511,7 +511,7 @@ with `Iter.finitelyManySkips`.
 theorem Iter.TerminationMeasures.Productive.rel_of_skip
     {α : Type w} {β : Type w} [Iterator α Id β]
     {it it' : Iter (α := α) β} (h : it.IsPlausibleStep (.skip it')) :
-    IterM.TerminationMeasures.Productive.rel ⟨it'.toIterM⟩ ⟨it.toIterM⟩ :=
+    IterM.TerminationMeasures.Productive.Rel ⟨it'.toIterM⟩ ⟨it.toIterM⟩ :=
   IterM.TerminationMeasures.Productive.rel_of_skip h
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|

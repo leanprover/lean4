@@ -55,7 +55,7 @@ private def ListIterator.finitenessRelation [Pure m] :
     cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
 
 instance [Pure m] : Finite (ListIterator α) m :=
-  Iterator.ofFinitenessRelation ListIterator.finitenessRelation
+  Finite.of_finitenessRelation ListIterator.finitenessRelation
 
 @[always_inline, inline]
 instance {α : Type w} [Monad m] : IteratorCollect (ListIterator α) m :=

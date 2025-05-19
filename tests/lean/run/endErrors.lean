@@ -42,7 +42,7 @@ end D
 end
 
 /--
-error: Name 'Irrelevant' does not match the current scope(s) 'A.B.C': Expected 'C' or some other suffix of the current scope(s)
+error: Name `Irrelevant` does not match the current scope(s) `A.B.C`: Expected `C` or some other suffix of the current scope(s)
 -/
 #guard_msgs in
 end Irrelevant

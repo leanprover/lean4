@@ -1481,9 +1481,11 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 theorem Exists.of_psigma_prop {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
 
-protected theorem Sigma.eta {α : Type u} {β : α → Type v} {x : Sigma β} : Sigma.mk x.1 x.2 = x := rfl
+@[simp]
+protected theorem Sigma.eta {α : Type u} {β : α → Type v} (x : Sigma β) : Sigma.mk x.1 x.2 = x := rfl
 
-protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {x : PSigma β} : PSigma.mk x.1 x.2 = x := rfl
+@[simp]
+protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} (x : PSigma β) : PSigma.mk x.1 x.2 = x := rfl
 
 protected theorem PSigma.mk_congr {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {b₁ : β a₁} {b₂ : β a₂}
     (h₁ : a₁ = a₂) (h₂ : Eq.ndrec b₁ h₁ = b₂) : PSigma.mk a₁ b₁ = PSigma.mk a₂ b₂ := by

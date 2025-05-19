@@ -156,3 +156,24 @@ theorem infseq_coinduction_principle_2:
         exact rel2
         apply Exists.intro mid
         exact ⟨ s, h₆ ⟩
+
+-- Automata theory example that involves forall quantifier
+def DFA (Q : Type) (A : Type) : Type := Q → (Bool × (A → Q))
+
+
+def language_equivalent (automaton : DFA Q A) (q₁ q₂ : Q)  : Prop :=
+  let ⟨o₁, t₁⟩ := automaton q₁
+  let ⟨o₂, t₂⟩ := automaton q₂
+  o₁ = o₂ ∧ (∀ a : A, language_equivalent automaton (t₁ a) (t₂ a))
+greatest_fixpoint
+
+/--
+info: language_equivalent.fixpoint_induct {Q A : Type} (automaton : DFA Q A) (x : Q → Q → Prop)
+  (y :
+    ∀ (x_1 x_2 : Q),
+      x x_1 x_2 →
+        (automaton x_1).fst = (automaton x_2).fst ∧ ∀ (a : A), x ((automaton x_1).snd a) ((automaton x_2).snd a))
+  (x✝ x✝¹ : Q) : x x✝ x✝¹ → language_equivalent automaton x✝ x✝¹
+-/
+#guard_msgs in
+#check language_equivalent.fixpoint_induct

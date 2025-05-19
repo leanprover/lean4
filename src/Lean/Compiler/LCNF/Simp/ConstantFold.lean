@@ -309,6 +309,14 @@ def Folder.mulShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → α) 
   Folder.first #[Folder.mulLhsShift shiftLeft pow2 log2, Folder.mulRhsShift shiftLeft pow2 log2]
 
 /--
+Folder for ofNat operations on fixed-sized integer types.
+-/
+def Folder.ofNat (f : Nat → LitValue) (args : Array Arg): FolderM (Option LetValue) := do
+  let #[.fvar fvarId] := args | return none
+  let some value ← getNatLit fvarId | return none
+  return some (.lit (f value))
+
+/--
 All arithmetic folders.
 -/
 def arithmeticFolders : List (Name × Folder) := [
@@ -355,6 +363,13 @@ def relationFolders : List (Name × Folder) := [
   (``Bool.decEq, Folder.mkBinaryDecisionProcedure String.decEq)
 ]
 
+def conversionFolders : List (Name × Folder) := [
+  (``UInt8.ofNat, Folder.ofNat (fun v => .uint8 (UInt8.ofNat v))),
+  (``UInt16.ofNat, Folder.ofNat (fun v => .uint16 (UInt16.ofNat v))),
+  (``UInt32.ofNat, Folder.ofNat (fun v => .uint32 (UInt32.ofNat v))),
+  (``UInt64.ofNat, Folder.ofNat (fun v => .uint64 (UInt64.ofNat v))),
+]
+
 /--
 All string folders.
 -/
@@ -387,7 +402,7 @@ private def getFolder (declName : Name) : CoreM Folder := do
   ofExcept <| getFolderCore (← getEnv) (← getOptions) declName
 
 def builtinFolders : SMap Name Folder :=
-  (arithmeticFolders ++ relationFolders ++ higherOrderLiteralFolders ++ stringFolders).foldl (init := {}) fun s (declName, folder) =>
+  (arithmeticFolders ++ relationFolders ++ conversionFolders ++ higherOrderLiteralFolders ++ stringFolders).foldl (init := {}) fun s (declName, folder) =>
     s.insert declName folder
 
 structure FolderOleanEntry where

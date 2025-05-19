@@ -105,6 +105,10 @@ def inferLitValueType (value : LitValue) : Expr :=
   match value with
   | .nat .. => mkConst ``Nat
   | .str .. => mkConst ``String
+  | .uint8 .. => mkConst ``UInt8
+  | .uint16 .. => mkConst ``UInt16
+  | .uint32 .. => mkConst ``UInt32
+  | .uint64 .. => mkConst ``UInt64
 
 mutual
   partial def inferArgType (arg : Arg) : InferTypeM Expr :=

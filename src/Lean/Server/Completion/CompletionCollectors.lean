@@ -209,18 +209,6 @@ section IdCompletionUtils
             (Name.mkStr p (s.extract 0 ⟨newLen - optDot - len⟩), newLen)
     (go id).1
 
-  def matchNamespace (ns : Name) (nsFragment : Name) (danglingDot : Bool) : Bool :=
-    if danglingDot then
-      if nsFragment != ns && nsFragment.isPrefixOf ns then
-        true
-      else
-        false
-    else
-      match ns, nsFragment with
-      | .str p₁ s₁, .str p₂ s₂ =>
-        if p₁ == p₂ then s₂.charactersIn s₁ else false
-      | _, _ => false
-
   def bestLabelForDecl? (ctx : ContextInfo) (declName : Name) (id : Name) (danglingDot : Bool) :
       M (Option Name) := Prod.snd <$> StateT.run (s := none) do
     let matchUsingNamespace (ns : Name) : StateT (Option Name) M Unit := do
@@ -270,7 +258,7 @@ section DotCompletionUtils
       | _ => false
     if isConstOf then
       return true
-    let some e ← unfoldeDefinitionGuarded? e | return false
+    let some e ← unfoldDefinitionGuarded? e | return false
     isDefEqToAppOf e declName
 
   private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=

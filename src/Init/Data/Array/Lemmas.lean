@@ -4095,16 +4095,20 @@ theorem getElem?_modify {xs : Array α} {i : Nat} {f : α → α} {j : Nat} :
     (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)[k]'(xs.size_swap .. |>.symm ▸ hp) = xs[k] := by
   simp [swap_def, getElem_set, hi'.symm, hj'.symm]
 
+@[grind]
+theorem getElem_swap {xs : Array α} {i j : Nat} (hi hj) {k : Nat} (hk : k < (xs.swap i j hi hj).size) :
+    (xs.swap i j hi hj)[k] = if k = i then xs[j] else if k = j then xs[i] else xs[k]'(by simp_all) := by
+  simp only [size_swap] at hk
+  split
+  · simp_all only [getElem_swap_left]
+  · split <;> simp_all
+
+@[deprecated getElem_swap (since := "2025-05-19")]
 theorem getElem_swap' {xs : Array α} {i j : Nat} {hi hj} {k : Nat} (hk : k < xs.size) :
     (xs.swap i j hi hj)[k]'(by simp_all) = if k = i then xs[j] else if k = j then xs[i] else xs[k] := by
   split
   · simp_all only [getElem_swap_left]
   · split <;> simp_all
-
-@[grind]
-theorem getElem_swap {xs : Array α} {i j : Nat} (hi hj) {k : Nat} (hk : k < (xs.swap i j hi hj).size) :
-    (xs.swap i j hi hj)[k] = if k = i then xs[j] else if k = j then xs[i] else xs[k]'(by simp_all) := by
-  apply getElem_swap'
 
 @[simp] theorem swap_swap {xs : Array α} {i j : Nat} (hi hj) :
     (xs.swap i j hi hj).swap i j ((xs.size_swap ..).symm ▸ hi) ((xs.size_swap ..).symm ▸ hj) = xs := by

@@ -117,8 +117,7 @@ private unsafe def LetValue.updateArgsImp (e : LetValue) (args' : Array Arg) : L
 
 def LetValue.toExpr (e : LetValue) : Expr :=
   match e with
-  | .lit (.nat val) => .lit (.natVal val)
-  | .lit (.str val) => .lit (.strVal val)
+  | .lit v => v.toExpr
   | .erased => erasedExpr
   | .proj n i s => .proj n i (.fvar s)
   | .const n us as => mkAppN (.const n us) (as.map Arg.toExpr)

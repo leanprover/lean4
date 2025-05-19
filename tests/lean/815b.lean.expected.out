@@ -91,13 +91,13 @@
   [Meta.synthInstance] ✅️ apply @swap to IsSmooth fun g => g
     [Meta.synthInstance.tryResolve] ✅️ IsSmooth fun g => g ≟ IsSmooth fun b a => b a
   [Meta.synthInstance] ❌️ apply @diag to IsSmooth fun g => g
-    [Meta.synthInstance.tryResolve] ❌️ IsSmooth fun g => g ≟ IsSmooth fun a => ?m.1090 (?m.1091 a) (?m.1092 a)
+    [Meta.synthInstance.tryResolve] ❌️ IsSmooth fun g => g ≟ IsSmooth fun a => ?m (?m a) (?m a)
   [Meta.synthInstance] ❌️ apply @comp to IsSmooth fun g => g
-    [Meta.synthInstance.tryResolve] ❌️ IsSmooth fun g => g ≟ IsSmooth fun a => ?m.1102 (?m.1103 a)
+    [Meta.synthInstance.tryResolve] ❌️ IsSmooth fun g => g ≟ IsSmooth fun a => ?m (?m a)
   [Meta.synthInstance] ❌️ apply @parm to IsSmooth fun g => g
-    [Meta.synthInstance.tryResolve] ❌️ IsSmooth fun g => g ≟ IsSmooth fun a => ?m.1110 a ?m.1112
+    [Meta.synthInstance.tryResolve] ❌️ IsSmooth fun g => g ≟ IsSmooth fun a => ?m a ?m
   [Meta.synthInstance] ❌️ apply @const to IsSmooth fun g => g
-    [Meta.synthInstance.tryResolve] ❌️ IsSmooth fun g => g ≟ IsSmooth fun a => ?m.1116
+    [Meta.synthInstance.tryResolve] ❌️ IsSmooth fun g => g ≟ IsSmooth fun a => ?m
   [Meta.synthInstance] ✅️ apply @identity to IsSmooth fun g => g
     [Meta.synthInstance.tryResolve] ✅️ IsSmooth fun g => g ≟ IsSmooth fun a => a
     [Meta.synthInstance.answer] ✅️ IsSmooth fun g => g

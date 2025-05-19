@@ -581,6 +581,18 @@ private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Ex
 private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
   getKeyArgs e (isMatch := false) (root := root)
 
+/--
+Try "eta-expanding" `k`. The special `tmpStar` that is appended for eta-expansion is handled in
+`getKeyArgs` as an `.other` key. `.lam`, `.sort`, `.arrow` and `.lit` can't be eta-expanded.
+-/
+private abbrev etaExpandKeyArgs (k : Key) (args : Array Expr) : Option (Key × Array Expr) :=
+  match k with
+  | .proj n i a => some (.proj n i (a + 1), args.push tmpStar)
+  | .const n a => some (.const n (a + 1), args.push tmpStar)
+  | .fvar f a => some (.fvar f (a + 1), args.push tmpStar)
+  | .other | .star => some (k, args)
+  | _ => none
+
 private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
@@ -739,7 +751,10 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
     match k with
     | .star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
-      let result := getStarResult d
+      let mut result := getStarResult d
+      if let some (.node _ cs) := d.root.find? .lam then
+        if let some (k, args) := etaExpandKeyArgs k args then
+          result ← visit #[] cs k args result
       match d.root.find? k with
       | none   => return result
       | some c => process 0 args c result
@@ -760,17 +775,17 @@ where
         let e     := todo.back!
         let todo  := todo.pop
         let (k, args) ← getUnifyKeyArgs e (root := false)
-        let visitStar (result : Array α) : MetaM (Array α) :=
-          let first := cs[0]!
-          if first.1 matches .star then
-            process 0 todo first.2 result
-          else
-            return result
         match k with
         | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-        | _      => visitNonStar todo cs k args (← visitStar result)
-  visitNonStar (todo : Array Expr) (cs : Array (Key × Trie α)) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) := do
-    let result := result
+        | _      => visit todo cs k args result
+  visit (todo : Array Expr) (cs : Array (Key × Trie α)) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) := do
+    let mut result := result
+    let first := cs[0]!
+    if first.1 matches .star then
+      result ← process 0 todo first.2 result
+    if let some (.node _ cs) := findLam? cs then
+      if let some (k, args) := etaExpandKeyArgs k args then
+        result ← visit todo cs k args result
     match findKey cs k with
     | none   => return result
     | some c => process 0 (todo ++ args) c.2 result

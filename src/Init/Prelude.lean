@@ -1349,6 +1349,23 @@ class HPow (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hPow : α → β → γ
 
 /--
+The notation typeclass for heterogeneous scalar multiplication.
+This enables the notation `a • b : γ` where `a : α`, `b : β`.
+
+It is assumed to represent a left action in some sense.
+The notation `a • b` is augmented with a macro (below) to have it elaborate as a left action.
+Only the `b` argument participates in the elaboration algorithm: the algorithm uses the type of `b`
+when calculating the type of the surrounding arithmetic expression
+and it tries to insert coercions into `b` to get some `b'`
+such that `a • b'` has the same type as `b'`.
+See the module documentation near the macro for more details.
+-/
+class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  /-- `a • b` computes the product of `a` and `b`.
+  The meaning of this notation is type-dependent, but it is intended to be used for left actions. -/
+  hSMul : α → β → γ
+
+/--
 The notation typeclass for heterogeneous append.
 This enables the notation `a ++ b : γ` where `a : α`, `b : β`.
 -/
@@ -1510,6 +1527,12 @@ class HomogeneousPow (α : Type u) where
   /-- `a ^ b` computes `a` to the power of `b` where `a` and `b` both have the same type. -/
   protected pow : α → α → α
 
+/-- Typeclass for types with a scalar multiplication operation, denoted `•` (`\bu`) -/
+class SMul (M : Type u) (α : Type v) where
+  /-- `a • b` computes the product of `a` and `b`. The meaning of this notation is type-dependent,
+  but it is intended to be used for left actions. -/
+  smul : M → α → α
+
 /-- The homogeneous version of `HAppend`: `a ++ b : α` where `a b : α`. -/
 class Append (α : Type u) where
   /-- `a ++ b` is the result of concatenation of `a` and `b`. See `HAppend`. -/
@@ -1600,6 +1623,14 @@ instance instPowNat [NatPow α] : Pow α Nat where
 @[default_instance]
 instance [HomogeneousPow α] : Pow α α where
   pow a b := HomogeneousPow.pow a b
+
+@[default_instance]
+instance {α : Type u} [Mul α] : HSMul α α α where
+  hSMul x y := Mul.mul x y
+
+@[default_instance]
+instance instHSMul {α β} [SMul α β] : HSMul α β β where
+  hSMul := SMul.smul
 
 @[default_instance]
 instance [Append α] : HAppend α α α where

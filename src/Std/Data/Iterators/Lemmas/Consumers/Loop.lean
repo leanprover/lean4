@@ -1,0 +1,174 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Paul Reichert
+-/
+prelude
+import Init.Data.List.Control
+import Std.Data.Iterators.Lemmas.Basic
+import Std.Data.Iterators.Lemmas.Consumers.Collect
+import Std.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Std.Data.Iterators.Consumers.Collect
+import Std.Data.Iterators.Consumers.Loop
+
+namespace Std.Iterators
+
+theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
+    {m : Type w → Type w''} [Monad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : β → γ → m (ForInStep γ)} :
+    ForIn.forIn it init f =
+      IterM.DefaultConsumers.forIn (fun _ c => pure c.run) γ (fun _ _ _ => True)
+        IteratorLoop.wellFounded_of_finite it.toIterM init ((⟨·, .intro⟩) <$> f · ·) := by
+  cases hl.lawful; rfl
+
+theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : β → γ → m (ForInStep γ)} :
+    ForIn.forIn it init f = letI : MonadLift Id m := ⟨pure⟩; ForIn.forIn it.toIterM init f := by
+  rfl
+
+theorem Iter.forIn_of_step {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : β → γ → m (ForInStep γ)} :
+    ForIn.forIn it init f = (do
+      match it.step with
+      | .yield it' out _ =>
+        match ← f out init with
+        | .yield c => ForIn.forIn it' c f
+        | .done c => return c
+      | .skip it' _ => ForIn.forIn it' init f
+      | .done _ => return init) := by
+  rw [Iter.forIn_eq_forIn_toIterM, @IterM.forIn_of_step, Iter.step]
+  simp only [liftM, monadLift, pure_bind]
+  generalize it.toIterM.step = step
+  cases step.casesHelper
+  · apply bind_congr
+    intro forInStep
+    rfl
+  · rfl
+  · rfl
+
+-- TODO: nonterminal simps
+theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : β → γ → m (ForInStep γ)} :
+    ForIn.forIn it.toList init f = ForIn.forIn it init f := by
+  rw [List.forIn_eq_foldlM]
+  revert init
+  induction it using Iter.induct with case step it ihy ihs =>
+  intro init
+  rw [forIn_of_step, Iter.toList_of_step]
+  simp only [map_eq_pure_bind]
+  generalize it.step = step
+  cases step.casesHelper
+  · rename_i it' out h
+    simp only [List.foldlM_cons, bind_pure_comp, map_bind]
+    apply bind_congr
+    intro forInStep
+    cases forInStep
+    · simp
+      induction it'.toList <;> simp [*]
+    · simp
+      simp only [ForIn.forIn, forIn', List.forIn'] at ihy
+      rw [ihy h, forIn_eq_forIn_toIterM]
+  · simp
+    rw [ihs]
+    assumption
+  · simp
+
+theorem Iter.foldM_eq_forIn {α β γ : Type w} [Iterator α Id β] [Finite α Id] {m : Type w → Type w'}
+    [Monad m] [IteratorLoop α Id m] {f : γ → β → m γ}
+    {init : γ} {it : Iter (α := α) β} :
+    it.foldM (init := init) f = ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x) :=
+  rfl
+
+theorem Iter.forIn_yield_eq_foldM {α β γ δ : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
+    [LawfulIteratorLoop α Id m] {f : β → γ → m δ} {g : β → γ → δ → γ} {init : γ}
+    {it : Iter (α := α) β} :
+    ForIn.forIn it init (fun c b => (fun d => .yield (g c b d)) <$> f c b) =
+      it.foldM (fun b c => g c b <$> f c b) init := by
+  simp [Iter.foldM_eq_forIn]
+
+theorem Iter.foldM_of_step {α β γ : Type w} [Iterator α Id β] [Finite α Id]
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
+    [LawfulIteratorLoop α Id m] {f : γ → β → m γ} {init : γ} {it : Iter (α := α) β} :
+    it.foldM (init := init) f = (do
+      match it.step with
+      | .yield it' out _ => it'.foldM (init := ← f init out) f
+      | .skip it' _ => it'.foldM (init := init) f
+      | .done _ => return init) := by
+  rw [Iter.foldM_eq_forIn, Iter.forIn_of_step]
+  generalize it.step = step
+  cases step.casesHelper <;> simp [foldM_eq_forIn]
+
+theorem Iter.foldlM_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id] {m : Type w → Type w'}
+    [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    {f : γ → β → m γ}
+    {init : γ} {it : Iter (α := α) β} :
+    it.toList.foldlM (init := init) f = it.foldM (init := init) f := by
+  rw [Iter.foldM_eq_forIn, ← Iter.forIn_toList]
+  simp only [List.forIn_yield_eq_foldlM, id_map']
+
+-- TODO: nonterminal simp
+theorem IterM.forIn_eq_foldM {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : β → γ → m (ForInStep γ)} :
+    forIn it init f = ForInStep.value <$>
+      it.foldM (fun c b => match c with
+        | .yield c => f b c
+        | .done c => pure (.done c)) (ForInStep.yield init) := by
+  simp [← Iter.forIn_toList, ← Iter.foldlM_toList, List.forIn_eq_foldlM]; rfl
+
+theorem Iter.fold_eq_forIn {α β γ : Type w} [Iterator α Id β]
+    [Finite α Id] [IteratorLoop α Id Id] {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
+    it.fold (init := init) f =
+      ForIn.forIn (m := Id) it init (fun x acc => pure (ForInStep.yield (f acc x))) := by
+  rfl
+
+theorem Iter.fold_eq_foldM {α β γ : Type w} [Iterator α Id β]
+    [Finite α Id] [IteratorLoop α Id Id] {f : γ → β → γ} {init : γ}
+    {it : Iter (α := α) β} :
+    it.fold (init := init) f = it.foldM (m := Id) (init := init) (pure <| f · ·) := by
+  simp [foldM_eq_forIn, fold_eq_forIn]
+
+theorem Iter.forIn_yield_eq_fold {α β γ : Type w} [Iterator α Id β]
+    [Finite α Id] [IteratorLoop α Id Id]
+    [LawfulIteratorLoop α Id Id] {f : β → γ → γ} {init : γ}
+    {it : Iter (α := α) β} :
+    ForIn.forIn (m := Id) it init (fun c b => .yield (f c b)) =
+      it.fold (fun b c => f c b) init := by
+  simp [Iter.fold_eq_forIn]
+
+theorem Iter.fold_of_step {α β γ : Type w} [Iterator α Id β] [Finite α Id]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
+    it.fold (init := init) f = (match it.step with
+      | .yield it' out _ => it'.fold (init := f init out) f
+      | .skip it' _ => it'.fold (init := init) f
+      | .done _ => init) := by
+  rw [fold_eq_foldM, foldM_of_step]
+  simp only [fold_eq_foldM]
+  generalize it.step = step
+  cases step.casesHelper <;> simp
+
+theorem Iter.foldl_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
+    it.toList.foldl (init := init) f = it.fold (init := init) f := by
+  simp [Iter.fold_eq_foldM, ← Iter.foldlM_toList, List.foldl_eq_foldlM]
+
+end Std.Iterators

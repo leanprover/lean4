@@ -84,7 +84,7 @@ protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : Messag
 Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.
 This tag is used by the 'import unknown identifier' code action to detect messages that should
 prompt the code action.
-The end position of the range of an unknown identifier message should always point at the
+The end position of the range of an unknown identifier message should always point at the end of the
 unknown identifier.
 -/
 def mkUnknownIdentifierMessage (msg : MessageData) : MessageData :=

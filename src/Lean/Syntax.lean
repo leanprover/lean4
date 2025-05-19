@@ -22,6 +22,11 @@ protected structure String.Range where
 def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
+/--
+Checks whether `sub` is contained in `super`.
+`includeSuperStop` and `includeSubStop` control whether `super` and `sub` have
+an inclusive upper bound.
+-/
 def String.Range.includes (super sub : String.Range)
     (includeSuperStop := false) (includeSubStop := false) : Bool :=
   super.start <= sub.start && (

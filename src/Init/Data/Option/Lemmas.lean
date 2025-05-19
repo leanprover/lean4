@@ -960,7 +960,7 @@ theorem or_eq_orElse : or o o' = o.orElse (fun _ => o') := by
 
 /-- The `simp` normal form of `o.orElse f` is o.or (f ())`. -/
 @[simp, grind] theorem orElse_eq_or {o : Option α} {f} : o.orElse f = o.or (f ()) := by
-simp [or_eq_orElse]
+  simp [or_eq_orElse]
 
 @[deprecated or_some (since := "2025-05-03")]
 theorem some_orElse (a : α) (f) : (some a).orElse f = some a := rfl
@@ -1325,7 +1325,6 @@ theorem get_pmap {p : α → Bool} {f : (x : α) → p x → β} {o : Option α}
        o.pelim g (fun a h => g' (f a (H a h))) := by
   cases o <;> simp
 
-@[congr]
 theorem pelim_congr_left {o o' : Option α } {b : β} {f : (a : α) → (a ∈ o) → β} (h : o = o') :
     pelim o b f = pelim o' b (fun a ha => f a (h ▸ ha)) := by
   cases h; rfl
@@ -1345,9 +1344,11 @@ theorem pelim_join {o : Option (Option α)} {b : β} {f : (a : α) → a ∈ o.j
   cases o <;> simp <;> congr
 
 @[congr]
-theorem pelim_congr {o o' : Option α} {b : β} {f : (a : α) → o = some a → β} (h : o = o') :
-    o.pelim b f = o'.pelim b (fun a ha => f a (h ▸ ha)) := by
-  cases h; rfl
+theorem pelim_congr {o o' : Option α} {b b' : β}
+    {f : (a : α) → o = some a → β} {g : (a : α) → o' = some a → β}
+    (ho : o = o') (hb : b = b') (hf : ∀ a ha, f a (ho.trans ha) = g a ha) :
+    o.pelim b f = o'.pelim b' g := by
+  cases ho; cases hb; cases o <;> apply_assumption
 
 theorem pelim_guard {a : α} {f : (a' : α) → guard p a = some a' → β} :
     (guard p a).pelim b f = if h : p a then f a (by simpa) else b := by

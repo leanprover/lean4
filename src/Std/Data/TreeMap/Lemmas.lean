@@ -14,6 +14,8 @@ This file contains lemmas about `Std.Data.TreeMap`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
 -/
 
+set_option trace.grind.ematch.pattern true
+
 set_option linter.missingDocs true
 set_option autoImplicit false
 
@@ -1042,7 +1044,7 @@ theorem getElem?_insertMany_list_of_mem [TransCmp cmp] [BEq α] [LawfulBEqCmp cm
     (t.insertMany l)[k']? = some v :=
   DTreeMap.Const.get?_insertMany_list_of_mem k_eq distinct mem
 
-@[grind] theorem getElem?_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+@[grind =] theorem getElem?_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     {l : List (α × β)} {k : α} :
     (t.insertMany l)[k]? =
       (l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none)).or (t[k]?) :=

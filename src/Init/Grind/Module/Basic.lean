@@ -72,6 +72,9 @@ macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
 instance {α : Type u} [Mul α] : HSMul α α α where
   hSMul x y := x * y
 
+instance instHSMul {α β} [SMul α β] : HSMul α β β where
+  hSMul := SMul.smul
+
 namespace Lean.Grind
 
 class NatModule (M : Type u) extends Zero M, Add M, HSMul Nat M M where

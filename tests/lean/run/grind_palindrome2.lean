@@ -18,11 +18,11 @@ example (xs : Array Nat) (w : xs.reverse = xs) (j : Nat) (hj : 0 ≤ j) (hj' : j
     xs[j] = xs[xs.size - 1 - j] := by
   grind
 
+attribute [grind ext] Array.ext -- TODO: should we mark it by default?
+
 theorem checkPalin1_correct' : checkPalin1 xs = true ↔ IsPalindrome xs := by
   unfold checkPalin1
   suffices ∀ i, checkPalin1.go xs i = true ↔ ∀ j, i ≤ j → (_ : j < xs.size / 2) → xs[j] = xs[xs.size - 1 - j] by
-    -- We need array extensionality. TODO: easy way to enable array extensionality, `extAll` enables all [ext] theorems
-    -- TODO: `IsPalindrome` (without `.eq_1`) produces bad error message.
-    grind +extAll [IsPalindrome.eq_1]
+    grind [IsPalindrome]
   intro i
   fun_induction checkPalin1.go <;> grind

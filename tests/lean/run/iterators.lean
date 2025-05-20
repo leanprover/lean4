@@ -65,3 +65,9 @@ def sumFold (l : List Nat) : Nat :=
 #eval [1, 2, 3].iter.fold (init := 0) (· + · )
 
 end Loop
+
+section Take
+
+#eval [1, 2, 3].iterM Id |>.take 2 |>.toList
+
+end Take

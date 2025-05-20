@@ -182,9 +182,9 @@ private def getOptRotation (stx : Syntax) : Nat :=
   let options ← Elab.elabSetOption stx[1][0] stx[2]
   withOptions (fun _ => options) do
     try
-      evalTactic stx[5]
+      evalTactic stx[4]
     finally
-      if stx[1].getId == `diagnostics then
+      if stx[1][0].getId == `diagnostics then
         reportDiag
 
 @[builtin_tactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do

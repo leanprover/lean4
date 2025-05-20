@@ -63,9 +63,15 @@ def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.
     match stx with
     | `(Parser.Command.openDecl| $nss:identWithOptDot*) =>
       for ns in nss do
-        for ns in (← resolveNamespace ns) do
-          addOpenDecl (OpenDecl.simple ns [])
-          activateScoped ns
+        if ns.raw.isIdent then
+          -- bootstrapping hack: we use `open` in the `by_cases` macro
+          for ns in (← resolveNamespace ⟨ns.raw⟩) do
+            addOpenDecl (OpenDecl.simple ns [])
+            activateScoped ns
+        else
+          for ns in (← resolveNamespace ns) do
+            addOpenDecl (OpenDecl.simple ns [])
+            activateScoped ns
     | `(Parser.Command.openDecl| scoped $nss:identWithOptDot*) =>
       for ns in nss do
         for ns in (← resolveNamespace ns) do

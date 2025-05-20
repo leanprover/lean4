@@ -319,7 +319,8 @@ def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m]
 
 def preprocessSyntaxAndResolve [Monad m] [MonadError m] (stx : Syntax) (k : Name → m (List Name)) : m (List Name) := do
   match stx with
-  | .ident _ _ n pre => do
+  | .ident _ _ n pre
+  | .node _ ``identWithOptDot #[.ident _ _ n pre, _] => do
     let pre := pre.filterMap fun
       | .decl n [] => some n
       | _          => none

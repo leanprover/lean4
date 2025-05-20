@@ -1083,9 +1083,12 @@ def isNone (stx : Syntax) : Bool :=
   | Syntax.missing     => true
   | _                  => false
 
+def getIdOrIdWithOptDot (stx : Syntax) : Name :=
+  if let .ident _ _ n _ := stx then n else stx[0].getId
+
 def getOptionalIdent? (stx : Syntax) : Option Name :=
   match stx.getOptional? with
-  | some stx => some stx.getId
+  | some stx => some stx.getIdOrIdWithOptDot
   | none     => none
 
 partial def findAux (p : Syntax → Bool) : Syntax → Option Syntax
@@ -1114,6 +1117,14 @@ Returns `Name.anonymous` if the syntax is malformed.
 -/
 def getId (s : Ident) : Name :=
   s.raw.getId
+
+/--
+Extracts the parsed name from the syntax of an `identWithOptDot`.
+
+Returns `Name.anonymous` if the syntax is malformed.
+-/
+def getIdWithOptDot (s : TSyntax ``identWithOptDot) : Name :=
+  s.raw[0].getId
 
 /--
 Extracts the components of a scientific numeric literal.
@@ -1275,7 +1286,7 @@ macro "eval_prio " p:prio:max : term => return quote (k := `term) (← evalPrio 
 
 def evalOptPrio : Option (TSyntax `prio) → MacroM Nat
   | some prio => evalPrio prio
-  | none      => return 1000 -- TODO: FIX back eval_prio default
+  | none      => return eval_prio default
 
 end Lean
 
@@ -1372,6 +1383,9 @@ instance : CoeOut (TSyntaxArray k) (Array Syntax) where
 
 instance : Coe Ident (TSyntax `Lean.Parser.Command.declId) where
   coe id := mkNode _ #[id, mkNullNode #[]]
+
+instance : CoeOut (TSyntax ``identWithOptDot) Ident where
+  coe id := ⟨id.raw[0]⟩
 
 instance : Coe (Lean.Term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
   coe stx := ⟨stx⟩

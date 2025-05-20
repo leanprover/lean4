@@ -151,7 +151,7 @@ def whereStructInst  := leading_parser
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def optDefDeriving   :=
-  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
+  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 identWithPartialTrailingDot ", ")
 def definition     := leading_parser
   "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
@@ -171,7 +171,7 @@ def «example»        := leading_parser
 def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
-def derivingClasses  := sepBy1 ident ", "
+def derivingClasses  := sepBy1 identWithPartialTrailingDot ", "
 def optDeriving      := leading_parser
   optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser
@@ -243,15 +243,16 @@ def «structure»          := leading_parser
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
-  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
+  "deriving " >> "instance " >> derivingClasses >> " for " >>
+    sepBy1 (recover identWithPartialTrailingDot skip) ", "
 def sectionHeader := leading_parser
-  optional ("@[" >> nonReservedSymbol "expose" >> "]") >>
-  optional ("noncomputable")
+  optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
+  optional ("noncomputable ")
 /--
-A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
-commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
-with the matching `end`. In either case, the `end` can be omitted, in which case the section is
-closed at the end of the file.
+A `section`/`end` pair delimits the scope of `variable`, `include`, `open`, `set_option`, and
+`local` commands. Sections can be nested. `section <id>` provides a label to the section that has
+to appear with the matching `end`. In either case, the `end` can be omitted, in which case the
+section is closed at the end of the file.
 -/
 @[builtin_command_parser] def «section»      := leading_parser
   sectionHeader >> "section" >> optional (ppSpace >> checkColGt >> ident)
@@ -272,13 +273,13 @@ corresponding `end <id>` or the end of the file.
 `namespace` also acts like `section` in delimiting the scope of `variable`, `open`, and other scoped commands.
 -/
 @[builtin_command_parser] def «namespace»    := leading_parser
-  "namespace " >> checkColGt >> ident
+  "namespace " >> checkColGt >> identWithPartialTrailingDot
 /--
 `end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
 with `end <id>`. The `end` command is optional at the end of a file.
 -/
 @[builtin_command_parser] def «end»          := leading_parser
-  "end" >> optional (ppSpace >> checkColGt >> ident)
+  "end" >> optional (ppSpace >> checkColGt >> identWithPartialTrailingDot)
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
   implicit.
 
@@ -497,11 +498,11 @@ See also: `#reduce e` for evaluation by term reduction.
 @[builtin_command_parser] def exit           := leading_parser
   "#exit"
 @[builtin_command_parser] def print          := leading_parser
-  "#print " >> (ident <|> strLit)
+  "#print " >> (identWithPartialTrailingDot <|> strLit)
 @[builtin_command_parser] def printAxioms    := leading_parser
-  "#print " >> nonReservedSymbol "axioms " >> ident
+  "#print " >> nonReservedSymbol "axioms " >> identWithPartialTrailingDot
 @[builtin_command_parser] def printEqns      := leading_parser
-  "#print " >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> ident
+  "#print " >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> identWithPartialTrailingDot
 /--
 Displays all available tactic tags, with documentation.
 -/
@@ -548,7 +549,7 @@ def eraseAttr := leading_parser
 @[builtin_command_parser] def «attribute»    := leading_parser
   "attribute " >> "[" >>
     withoutPosition (sepBy1 (eraseAttr <|> Term.attrInstance) ", ") >>
-  "]" >> many1 (ppSpace >> ident)
+  "]" >> many1 (ppSpace >> identWithPartialTrailingDot)
 /-- Adds names from other namespaces to the current namespace.
 
 The command `export Some.Namespace (name₁ name₂)` makes `name₁` and `name₂`:
@@ -574,21 +575,21 @@ end Evening.Sky
 ```
 -/
 @[builtin_command_parser] def «export»       := leading_parser
-  "export " >> ident >> " (" >> many1 ident >> ")"
+  "export " >> identWithPartialTrailingDot >> " (" >> many1 identWithPartialTrailingDot >> ")"
 @[builtin_command_parser] def «import»       := leading_parser
   "import" -- not a real command, only for error messages
 def openHiding       := leading_parser
-  ppSpace >> atomic (ident >> " hiding") >> many1 (ppSpace >> checkColGt >> ident)
+  ppSpace >> atomic (identWithPartialTrailingDot >> " hiding") >> many1 (ppSpace >> checkColGt >> identWithPartialTrailingDot)
 def openRenamingItem := leading_parser
-  ident >> unicodeSymbol " → " " -> " >> checkColGt >> ident
+  identWithPartialTrailingDot >> unicodeSymbol " → " " -> " >> checkColGt >> ident
 def openRenaming     := leading_parser
-  ppSpace >> atomic (ident >> " renaming ") >> sepBy1 openRenamingItem ", "
+  ppSpace >> atomic (identWithPartialTrailingDot >> " renaming ") >> sepBy1 openRenamingItem ", "
 def openOnly         := leading_parser
-  ppSpace >> atomic (ident >> " (") >> many1 ident >> ")"
+  ppSpace >> atomic (identWithPartialTrailingDot >> " (") >> many1 identWithPartialTrailingDot >> ")"
 def openSimple       := leading_parser
-  many1 (ppSpace >> checkColGt >> ident)
+  many1 (ppSpace >> checkColGt >> identWithPartialTrailingDot)
 def openScoped       := leading_parser
-  " scoped" >> many1 (ppSpace >> checkColGt >> ident)
+  " scoped" >> many1 (ppSpace >> checkColGt >> identWithPartialTrailingDot)
 /-- `openDecl` is the body of an `open` declaration (see `open`) -/
 @[builtin_doc] def openDecl :=
   withAntiquot (mkAntiquot "openDecl" `Lean.Parser.Command.openDecl (isPseudoKind := true)) <|
@@ -743,7 +744,7 @@ add_decl_doc Triple.toProd
 Documentation can only be added to declarations in the same module.
 -/
 @[builtin_command_parser] def addDocString := leading_parser
-  docComment >> "add_decl_doc " >> ident
+  docComment >> "add_decl_doc " >> identWithPartialTrailingDot
 
 /--
 Registers a tactic tag, saving its user-facing name and docstring.
@@ -804,14 +805,14 @@ identifier names chosen in the docstring for consistency.
 @[builtin_command_parser] def «recommended_spelling» := leading_parser
   optional (docComment >> ppLine) >>
   "recommended_spelling " >> strLit >> " for " >> strLit >> " in " >>
-    "[" >> sepBy1 ident ", " >> "]"
+    "[" >> sepBy1 identWithPartialTrailingDot ", " >> "]"
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for
   inductive types defined at `Prelude.lean`.
   It is meant for bootstrapping purposes only. -/
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
-  "gen_injective_theorems% " >> ident
+  "gen_injective_theorems% " >> identWithPartialTrailingDot
 
 /--
 `include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all

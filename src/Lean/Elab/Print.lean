@@ -180,13 +180,12 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | none => throwUnknownId id
 
 private def printId (id : Syntax) : CommandElabM Unit := do
-  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
   let cs ← liftCoreM <| realizeGlobalConstWithInfos id
   cs.forM printIdCore
 
 @[builtin_command_elab «print»] def elabPrint : CommandElab
-  | `(#print%$tk $id:ident) => withRef tk <| printId id
   | `(#print%$tk $s:str)    => logInfoAt tk s.getString
+  | `(#print%$tk $id)       => withRef tk <| printId id
   | _                       => throwError "invalid #print command"
 
 private def printAxiomsOf (constName : Name) : CommandElabM Unit := do

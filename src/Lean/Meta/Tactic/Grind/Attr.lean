@@ -20,23 +20,19 @@ inductive AttrKind where
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   match stx with
-  | `(Parser.Attr.grindMod| =) => return .ematch .eqLhs
-  | `(Parser.Attr.grindMod| →)
-  | `(Parser.Attr.grindMod| ->) => return .ematch .fwd
-  | `(Parser.Attr.grindMod| ←)
-  | `(Parser.Attr.grindMod| <-) => return .ematch .bwd
-  | `(Parser.Attr.grindMod| =_) => return .ematch .eqRhs
-  | `(Parser.Attr.grindMod| _=_) => return .ematch .eqBoth
-  | `(Parser.Attr.grindMod| ←=) => return .ematch .eqBwd
-  | `(Parser.Attr.grindMod| ⇒)
-  | `(Parser.Attr.grindMod| =>) => return .ematch .leftRight
-  | `(Parser.Attr.grindMod| ⇐)
-  | `(Parser.Attr.grindMod| <=) => return .ematch .rightLeft
-  | `(Parser.Attr.grindMod| usr) => return .ematch .user
-  | `(Parser.Attr.grindMod| cases) => return .cases false
-  | `(Parser.Attr.grindMod| cases eager) => return .cases true
-  | `(Parser.Attr.grindMod| intro) => return .intro
-  | `(Parser.Attr.grindMod| ext) => return .ext
+  | `(Parser.Attr.grindMod| $_:grindEq) => return .ematch .eqLhs
+  | `(Parser.Attr.grindMod| $_:grindFwd) => return .ematch .fwd
+  | `(Parser.Attr.grindMod| $_:grindBwd) => return .ematch .bwd
+  | `(Parser.Attr.grindMod| $_:grindEqRhs) => return .ematch .eqRhs
+  | `(Parser.Attr.grindMod| $_:grindEqBoth) => return .ematch .eqBoth
+  | `(Parser.Attr.grindMod| $_:grindEqBwd) => return .ematch .eqBwd
+  | `(Parser.Attr.grindMod| $_:grindLR) => return .ematch .leftRight
+  | `(Parser.Attr.grindMod| $_:grindRL) => return .ematch .rightLeft
+  | `(Parser.Attr.grindMod| $_:grindUsr) => return .ematch .user
+  | `(Parser.Attr.grindMod| $_:grindCases) => return .cases false
+  | `(Parser.Attr.grindMod| $_:grindCasesEager) => return .cases true
+  | `(Parser.Attr.grindMod| $_:grindIntro) => return .intro
+  | `(Parser.Attr.grindMod| $_:grindExt) => return .ext
   | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
 
 /-- Return theorem kind for `stx` of the form `(Attr.grindMod)?` -/

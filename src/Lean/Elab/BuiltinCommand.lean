@@ -79,8 +79,9 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _, _ => some .anonymous -- should not happen
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
+  -- TODO after stage0 update: use `getIdWithOptDot`
   match stx with
-  | `(namespace $n) => addNamespace n.getId
+  | `(namespace $n) => addNamespace n.raw.getIdOrIdWithOptDot
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
@@ -98,7 +99,7 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _                        => throwUnsupportedSyntax
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
-  let header? := (stx.getArg 1).getOptionalIdent?;
+  let header? := (stx.getArg 1).getOptionalIdent?
   let endSize := match header? with
     | none   => 1
     | some n => n.getNumParts
@@ -354,7 +355,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     pure ()
 
 @[builtin_command_elab «set_option»] def elabSetOption : CommandElab := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let options ← Elab.elabSetOption stx[1][0] stx[2]
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 

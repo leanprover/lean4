@@ -30,6 +30,7 @@ def zetaDeltaTarget (declFVarId : FVarId) : TacticM Unit := do
     go declNameId loc
 where
   go (declNameId : Syntax) (loc : Location) : TacticM Unit := withMainContext <| withRef declNameId do
+    let declNameId := if declNameId.isNodeOf ``identWithOptDot 2 then declNameId[0] else declNameId
     let e ← withoutRecover <| elabTermForApply declNameId (mayPostpone := false)
     match e with
     | .const declName _ =>

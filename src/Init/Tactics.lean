@@ -737,6 +737,7 @@ syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
 @[inherit_doc simpa] macro "simpa?!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ?! $rest:simpaArgsRest)
 
+-- TODO after stage0 update: identWithOptDot
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
 This is a low-level tactic, it will expose how recursive definitions have been
@@ -744,6 +745,7 @@ compiled by Lean.
 -/
 syntax (name := delta) "delta" (ppSpace colGt ident)+ (location)? : tactic
 
+-- TODO after stage0 update: identWithOptDot
 /--
 * `unfold id` unfolds all occurrences of definition `id` in the target.
 * `unfold id1 id2 ...` is equivalent to `unfold id1; unfold id2; ...`.
@@ -843,7 +845,7 @@ macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_la
 /-- Similar to `have`, but using `refine'` -/
 macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
 set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
+macro (priority := high) "have' " x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
 attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
 /-- Similar to `let`, but using `refine'` -/
 macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
@@ -1484,10 +1486,11 @@ See also `norm_cast`.
 syntax (name := pushCast) "push_cast" optConfig (discharger)? (&" only")?
   (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
+-- TODO after stage0 update: identWithOptDot
 /--
 `norm_cast_add_elim foo` registers `foo` as an elim-lemma in `norm_cast`.
 -/
-syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
+syntax (name := normCastAddElim) "norm_cast_add_elim " ident : command
 
 /--
 `ac_nf` normalizes equalities up to application of an associative and commutative operator.
@@ -1648,7 +1651,7 @@ syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
 /--
 Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.
 -/
-syntax rewrites_forbidden := " [" (("-" ident),*,?) "]"
+syntax rewrites_forbidden := " [" (("-" ident),*,?) "]" -- TODO after stage0 update: identWithOptDot
 
 /--
 `rw?` tries to find a lemma which can rewrite the goal.

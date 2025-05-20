@@ -275,7 +275,7 @@ def evalPushCast : Tactic := fun stx => do
 open Command in
 @[builtin_command_elab Parser.Tactic.normCastAddElim] def elabAddElim : CommandElab := fun stx => do
   match stx with
-  | `(norm_cast_add_elim $id:ident) =>
+  | `(norm_cast_add_elim $id) =>
     Elab.Command.liftCoreM do MetaM.run' do
      addElim (← realizeGlobalConstNoOverload id)
   | _ => throwUnsupportedSyntax

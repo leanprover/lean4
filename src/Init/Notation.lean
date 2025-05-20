@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 
 Notation for operators defined at Prelude.lean
 -/
---module
+module
 
 prelude
 import Init.Prelude
@@ -564,6 +564,7 @@ scoped syntax (name := withAnnotateTerm) "with_annotate_term " rawStx ppSpace te
 /-- Normalize casts in an expression using the same method as the `norm_cast` tactic. -/
 syntax (name := modCast) "mod_cast " term : term
 
+-- TODO after stage0 update: identWithOptDot
 /--
 The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
@@ -583,6 +584,7 @@ applications of this function as `↑` when printing expressions.
 -/
 syntax (name := Attr.coe) "coe" : attr
 
+-- TODO after stage0 update: identWithOptDot
 /--
 This attribute marks a code action, which is used to suggest new tactics or replace existing ones.
 
@@ -597,6 +599,7 @@ This attribute marks a code action, which is used to suggest new tactics or repl
 -/
 syntax (name := command_code_action) "command_code_action" (ppSpace ident)* : attr
 
+-- TODO after stage0 update: identWithOptDot
 /--
 Builtin command code action. See `command_code_action`.
 -/
@@ -848,6 +851,7 @@ syntax (name := discrTreeKeyCmd) "#discr_tree_key " term : command
 @[inherit_doc discrTreeKeyCmd]
 syntax (name := discrTreeSimpKeyCmd) "#discr_tree_simp_key" term : command
 
+-- TODO after stage0 update: identWithOptDot
 /--
 The `seal foo` command ensures that the definition of `foo` is sealed, meaning it is marked as `[irreducible]`.
 This command is particularly useful in contexts where you want to prevent the reduction of `foo` in proofs.
@@ -858,6 +862,7 @@ which helps in maintaining the desired abstraction level without affecting globa
 -/
 syntax "seal " (ppSpace ident)+ : command
 
+-- TODO after stage0 update: identWithOptDot
 /--
 The `unseal foo` command ensures that the definition of `foo` is unsealed, meaning it is marked as `[semireducible]`, the
 default reducibility setting. This command is useful when you need to allow some level of reduction of `foo` in proofs.

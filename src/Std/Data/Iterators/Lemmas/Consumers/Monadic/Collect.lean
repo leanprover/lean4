@@ -38,7 +38,7 @@ theorem IterM.DefaultConsumers.toArrayMapped.go.aux₂ [Monad m] [LawfulMonad m]
     rw [List.toArray_cons, IterM.DefaultConsumers.toArrayMapped.go.aux₁, ih]
     simp only [Functor.map_map, Array.append_assoc]
 
-theorem IterM.DefaultConsumers.toArrayMapped_of_step [Monad m] [LawfulMonad m]
+theorem IterM.DefaultConsumers.toArrayMapped_eq_match_step [Monad m] [LawfulMonad m]
     [Iterator α m β] [Finite α m] {it : IterM (α := α) m β} {f : β → m γ} :
     IterM.DefaultConsumers.toArrayMapped f it = (do
       match ← it.step with
@@ -50,7 +50,7 @@ theorem IterM.DefaultConsumers.toArrayMapped_of_step [Monad m] [LawfulMonad m]
   intro step
   split <;> simp [IterM.DefaultConsumers.toArrayMapped.go.aux₂]
 
-theorem IterM.toArray_of_step [Monad m] [LawfulMonad m]
+theorem IterM.toArray_eq_match_step [Monad m] [LawfulMonad m]
     [Iterator α m β] [Finite α m] [IteratorCollect α m] [LawfulIteratorCollect α m]
     {it : IterM (α := α) m β} :
     it.toArray = (do
@@ -59,7 +59,7 @@ theorem IterM.toArray_of_step [Monad m] [LawfulMonad m]
       | .skip it' _ => it'.toArray
       | .done _ => return #[]) := by
   simp only [IterM.toArray, LawfulIteratorCollect.toArrayMapped_eq]
-  rw [IterM.DefaultConsumers.toArrayMapped_of_step]
+  rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
   simp [bind_pure_comp, pure_bind, toArray]
 
 theorem IterM.toList_toArray [Monad m] [Iterator α m β] [Finite α m] [IteratorCollect α m]
@@ -72,7 +72,7 @@ theorem IterM.toArray_toList [Monad m] [LawfulMonad m] [Iterator α m β] [Finit
     List.toArray <$> it.toList = it.toArray := by
   simp [IterM.toList]
 
-theorem IterM.toList_of_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
+theorem IterM.toList_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     [IteratorCollect α m] [LawfulIteratorCollect α m] {it : IterM (α := α) m β} :
     it.toList = (do
       match ← it.step with
@@ -80,7 +80,7 @@ theorem IterM.toList_of_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finit
       | .skip it' _ => it'.toList
       | .done _ => return []) := by
   simp [← IterM.toList_toArray]
-  rw [IterM.toArray_of_step, map_eq_pure_bind, bind_assoc]
+  rw [IterM.toArray_eq_match_step, map_eq_pure_bind, bind_assoc]
   apply bind_congr
   intro step
   split <;> simp
@@ -105,7 +105,7 @@ theorem IterM.toListRev.go.aux₂ [Monad m] [LawfulMonad m] [Iterator α m β] [
   | nil => simp [toListRev]
   | cons x xs ih => simp [IterM.toListRev.go.aux₁, ih]
 
-theorem IterM.toListRev_of_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
+theorem IterM.toListRev_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     {it : IterM (α := α) m β} :
     it.toListRev = (do
       match ← it.step with
@@ -116,16 +116,16 @@ theorem IterM.toListRev_of_step [Monad m] [LawfulMonad m] [Iterator α m β] [Fi
   rw [toListRev.go]
   apply bind_congr
   intro step
-  cases step.casesHelper <;> simp [IterM.toListRev.go.aux₂]
+  cases step using PlausibleIterStep.casesOn <;> simp [IterM.toListRev.go.aux₂]
 
 theorem IterM.reverse_toListRev [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     [IteratorCollect α m] [LawfulIteratorCollect α m]
     {it : IterM (α := α) m β} :
     List.reverse <$> it.toListRev = it.toList := by
   apply Eq.symm
-  induction it using IterM.induct
+  induction it using IterM.inductSteps
   rename_i it ihy ihs
-  rw [toListRev_of_step, toList_of_step, map_eq_pure_bind, bind_assoc]
+  rw [toListRev_eq_match_step, toList_eq_match_step, map_eq_pure_bind, bind_assoc]
   apply bind_congr
   intro step
   split <;> simp (discharger := assumption) [ihy, ihs]

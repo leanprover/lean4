@@ -27,15 +27,15 @@ theorem Iter.toListRev_eq_toListRev_toIterM {α β} [Iterator α Id β] [Finite 
   rfl
 
 @[simp]
-theorem IterM.toList_toPureIter {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
+theorem IterM.toList_toIter {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     {it : IterM (α := α) Id β} :
-    it.toPureIter.toList = it.toList :=
+    it.toIter.toList = it.toList :=
   rfl
 
 @[simp]
-theorem IterM.toListRev_toPureIter {α β} [Iterator α Id β] [Finite α Id]
+theorem IterM.toListRev_toIter {α β} [Iterator α Id β] [Finite α Id]
     {it : IterM (α := α) Id β} :
-    it.toPureIter.toListRev = it.toListRev :=
+    it.toIter.toListRev = it.toListRev :=
   rfl
 
 theorem Iter.toList_toArray {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
@@ -55,45 +55,43 @@ theorem Iter.toListRev_eq {α β} [Iterator α Id β] [Finite α Id] [IteratorCo
     it.toListRev = it.toList.reverse := by
   simp [Iter.toListRev_eq_toListRev_toIterM, Iter.toList_eq_toList_toIterM, IterM.toListRev_eq]
 
-theorem Iter.toArray_of_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
+theorem Iter.toArray_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :
     it.toArray = match it.step with
       | .yield it' out _ => #[out] ++ it'.toArray
       | .skip it' _ => it'.toArray
       | .done _ => #[] := by
   simp only [Iter.toArray_eq_toArray_toIterM, Iter.step]
-  rw [IterM.toArray_of_step]
+  rw [IterM.toArray_eq_match_step]
   simp only [Id.map_eq, Id.pure_eq, Id.bind_eq, Id.run]
   generalize it.toIterM.step = step
-  cases step.casesHelper <;> simp
+  cases step using PlausibleIterStep.casesOn <;> simp
 
-theorem Iter.toList_of_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
+theorem Iter.toList_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :
     it.toList = match it.step with
       | .yield it' out _ => out :: it'.toList
       | .skip it' _ => it'.toList
       | .done _ => [] := by
-  rw [← Iter.toList_toArray, Iter.toArray_of_step]
+  rw [← Iter.toList_toArray, Iter.toArray_eq_match_step]
   split <;> simp [Iter.toList_toArray]
 
-theorem Iter.toListRev_of_step {α β} [Iterator α Id β] [Finite α Id] {it : Iter (α := α) β} :
+theorem Iter.toListRev_eq_match_step {α β} [Iterator α Id β] [Finite α Id] {it : Iter (α := α) β} :
     it.toListRev = match it.step with
       | .yield it' out _ => it'.toListRev ++ [out]
       | .skip it' _ => it'.toListRev
       | .done _ => [] := by
-  rw [Iter.toListRev_eq_toListRev_toIterM, IterM.toListRev_of_step, Iter.step]
+  rw [Iter.toListRev_eq_toListRev_toIterM, IterM.toListRev_eq_match_step, Iter.step]
   simp only [Id.map_eq, Id.pure_eq, Id.bind_eq, Id.run]
   generalize it.toIterM.step = step
-  cases step.run.casesHelper <;> simp
+  cases step using PlausibleIterStep.casesOn <;> simp
 
 theorem Iter.getElem?_toList_eq_seekIdx? {α β}
     [Iterator α Id β] [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} {k : Nat} :
     it.toList[k]? = it.seekIdx? k := by
-  revert k
-  induction it using Iter.induct with | step it ihy ihs =>
-  intro k
-  rw [toList_of_step, seekIdx?]
+  induction it using Iter.inductSteps generalizing k with | step it ihy ihs =>
+  rw [toList_eq_match_step, seekIdx?]
   obtain ⟨step, h⟩ := it.step
   cases step
   · cases k <;> simp [ihy h]

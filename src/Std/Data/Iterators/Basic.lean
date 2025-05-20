@@ -115,27 +115,27 @@ def Iter.toIterM {α : Type w} {β : Type w} (it : Iter (α := α) β) : IterM (
 /--
 Converts a monadic iterator (`IterM Id β`) over `Id` into a pure iterator (`Iter β`).
 -/
-def IterM.toPureIter {α : Type w} {β : Type w} (it : IterM (α := α) Id β) : Iter (α := α) β :=
+def IterM.toIter {α : Type w} {β : Type w} (it : IterM (α := α) Id β) : Iter (α := α) β :=
   ⟨it.internalState⟩
 
 @[simp]
-theorem Iter.toPureIter_toIterM {α : Type w} {β : Type w} (it : Iter (α := α) β) :
-    it.toIterM.toPureIter = it :=
+theorem Iter.toIter_toIterM {α : Type w} {β : Type w} (it : Iter (α := α) β) :
+    it.toIterM.toIter = it :=
   rfl
 
 @[simp]
-theorem Iter.toPureIter_comp_toIterM {α : Type w} {β : Type w} :
-    IterM.toPureIter ∘ Iter.toIterM (α := α) (β := β) = id :=
+theorem Iter.toIter_comp_toIterM {α : Type w} {β : Type w} :
+    IterM.toIter ∘ Iter.toIterM (α := α) (β := β) = id :=
   rfl
 
 @[simp]
-theorem Iter.toIterM_toPureIter {α : Type w} {β : Type w} (it : IterM (α := α) Id β) :
-    it.toPureIter.toIterM = it :=
+theorem Iter.toIterM_toIter {α : Type w} {β : Type w} (it : IterM (α := α) Id β) :
+    it.toIter.toIterM = it :=
   rfl
 
 @[simp]
-theorem Iter.toIterM_comp_toPureIter {α : Type w} {β : Type w} :
-    Iter.toIterM ∘ IterM.toPureIter (α := α) (β := β) = id :=
+theorem Iter.toIterM_comp_toIter {α : Type w} {β : Type w} :
+    Iter.toIterM ∘ IterM.toIter (α := α) (β := β) = id :=
   rfl
 
 section IterStep
@@ -184,8 +184,8 @@ def IterStep.mapIterator {α' : Type u'} (f : α → α') : IterStep α β → I
   | .done => .done
 
 @[simp]
-theorem IterStep.mapIterator_mapIterator {α' : Type u'} {f : α → α'} {g : α' → α}
-    {step : IterStep α β} :
+theorem IterStep.mapIterator_mapIterator {α' : Type u'} {α'' : Type u''}
+    {f : α → α'} {g : α' → α''} {step : IterStep α β} :
     (step.mapIterator f).mapIterator g = step.mapIterator (g ∘ f) := by
   cases step <;> rfl
 
@@ -229,35 +229,18 @@ def PlausibleIterStep.done {IsPlausibleStep : IterStep α β → Prop}
   ⟨.done, h⟩
 
 /--
-An inductive type that makes it easier to apply the `cases` tactic to a
-`PlausibleIterStep`. See `PlausibleIterStep.casesHelper` for more information.
+A more convenient `cases` eliminator for `PlausibleIterStep`.
 -/
-inductive PlausibleIterStep.CasesHelper {IsPlausibleStep : IterStep α β → Prop} :
-    PlausibleIterStep IsPlausibleStep → Type _ where
-  | yield (it' out h) : CasesHelper ⟨.yield it' out, h⟩
-  | skip (it' h) : CasesHelper ⟨.skip it', h⟩
-  | done (h) : CasesHelper ⟨.done, h⟩
-
-/--
-Because `PlausibleIterStep` is a subtype of `IterStep`, it is tedious to use
-the `cases` tactic:
-
-```lean
-obtain ⟨step, h⟩ := step
-cases step
-```
-
-Using `casesHelper`, the case distinction can be done more ergonomically.
-
-```lean
-cases step.casesHelper
-```
--/
-def PlausibleIterStep.casesHelper {IsPlausibleStep : IterStep α β → Prop} :
-    (step : PlausibleIterStep IsPlausibleStep) → PlausibleIterStep.CasesHelper step
-  | .yield it' out h => .yield it' out h
-  | .skip it' h => .skip it' h
-  | .done h => .done h
+@[elab_as_elim, cases_eliminator]
+abbrev PlausibleIterStep.casesOn {IsPlausibleStep : IterStep α β → Prop}
+    {motive : PlausibleIterStep IsPlausibleStep → Sort x} (s : PlausibleIterStep IsPlausibleStep)
+    (yield : ∀ it' out h, motive ⟨.yield it' out, h⟩)
+    (skip : ∀ it' h, motive ⟨.skip it', h⟩)
+    (done : ∀ h, motive ⟨.done, h⟩) : motive s :=
+  match s with
+  | .yield it' out h => yield it' out h
+  | .skip it' h => skip it' h
+  | .done h => done h
 
 end IterStep
 
@@ -374,17 +357,17 @@ Converts an `IterM.Step` into an `Iter.Step`.
 -/
 @[always_inline, inline]
 def IterM.Step.toPure {α : Type w} {β : Type w} [Iterator α Id β] {it : IterM (α := α) Id β}
-    (step : it.Step) : it.toPureIter.Step :=
-  ⟨step.val.mapIterator IterM.toPureIter, (by simp [Iter.IsPlausibleStep, step.property])⟩
+    (step : it.Step) : it.toIter.Step :=
+  ⟨step.val.mapIterator IterM.toIter, (by simp [Iter.IsPlausibleStep, step.property])⟩
 
 @[simp]
 theorem IterM.Step.toPure_yield {α β : Type w} [Iterator α Id β] {it : IterM (α := α) Id β}
-    {it' out h} : IterM.Step.toPure (⟨.yield it' out, h⟩ : it.Step) = .yield it'.toPureIter out h :=
+    {it' out h} : IterM.Step.toPure (⟨.yield it' out, h⟩ : it.Step) = .yield it'.toIter out h :=
   rfl
 
 @[simp]
 theorem IterM.Step.toPure_skip {α β : Type w} [Iterator α Id β] {it : IterM (α := α) Id β}
-    {it' h} : IterM.Step.toPure (⟨.skip it', h⟩ : it.Step) = .skip it'.toPureIter h :=
+    {it' h} : IterM.Step.toPure (⟨.skip it', h⟩ : it.Step) = .skip it'.toIter h :=
   rfl
 
 @[simp]

@@ -15,7 +15,7 @@ before emitting `n` values.
 
 This function requires a `Productive` instance proving that the iterator will always emit a value
 after a finite number of skips. If the iterator is not productive or such an instance is not
-available, consider using `it.allowNontermination.toArray` instead of `it.toArray`. However, it is
+available, consider using `it.allowNontermination.seekIdx?` instead of `it.seekIdx?`. However, it is
 not possible to formally verify the behavior of the partial variant.
 -/
 @[specialize]

@@ -14,17 +14,32 @@ iterator `it` to an element of `motive it` by defining `f it` in terms of the va
 the plausible successors of `it'.
 -/
 @[specialize]
-def IterM.induct {α m β} [Iterator α m β] [Finite α m]
+def IterM.inductSteps {α m β} [Iterator α m β] [Finite α m]
   (motive : IterM (α := α) m β → Sort x)
   (step : (it : IterM (α := α) m β) →
     (ih_yield : ∀ {it' : IterM (α := α) m β} {out : β},
       it.IsPlausibleStep (.yield it' out) → motive it') →
-    (ih_skip : ∀ {it' : IterM (α := α) m β}, it.IsPlausibleStep (.skip it') → motive it' ) →
+    (ih_skip : ∀ {it' : IterM (α := α) m β}, it.IsPlausibleStep (.skip it') → motive it') →
     motive it)
   (it : IterM (α := α) m β) : motive it :=
   step it
-    (fun {it' _} _ => IterM.induct motive step it')
-    (fun {it'} _ => IterM.induct motive step it')
+    (fun {it' _} _ => inductSteps motive step it')
+    (fun {it'} _ => inductSteps motive step it')
 termination_by it.finitelyManySteps
+
+/--
+Induction principle for productive monadic iterators: One can define a function `f` that maps every
+iterator `it` to an element of `motive it` by defining `f it` in terms of the values of `f` on
+the plausible skip successors of `it'.
+-/
+@[specialize]
+def IterM.inductSkips {α m β} [Iterator α m β] [Productive α m]
+  (motive : IterM (α := α) m β → Sort x)
+  (step : (it : IterM (α := α) m β) →
+    (ih_skip : ∀ {it' : IterM (α := α) m β}, it.IsPlausibleStep (.skip it') → motive it') →
+    motive it)
+  (it : IterM (α := α) m β) : motive it :=
+  step it (fun {it'} _ => inductSkips motive step it')
+termination_by it.finitelyManySkips
 
 end Std.Iterators

@@ -4,5 +4,4 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Combinators.Monadic
-import Std.Data.Iterators.Combinators.Take
+import Std.Data.Iterators.Lemmas.Combinators.Monadic.Take

@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Grind.Module.Basic
+import Init.Grind.CommRing.Int
 import Init.Omega
 
 /-!
@@ -14,21 +15,6 @@ import Init.Omega
 -/
 
 namespace Lean.Grind
-
-instance : IntModule Int where
-  add_zero := Int.add_zero
-  zero_add := Int.zero_add
-  add_comm := Int.add_comm
-  add_assoc := Int.add_assoc
-  zero_hmul := Int.zero_mul
-  one_hmul := Int.one_mul
-  add_hmul := Int.add_mul
-  neg_hmul := Int.neg_mul
-  hmul_zero := Int.mul_zero
-  hmul_add := Int.mul_add
-  mul_hmul := Int.mul_assoc
-  neg_add_cancel := Int.add_left_neg
-  sub_eq_add_neg _ _ := Int.sub_eq_add_neg
 
 instance : Preorder Int where
   le_refl := Int.le_refl

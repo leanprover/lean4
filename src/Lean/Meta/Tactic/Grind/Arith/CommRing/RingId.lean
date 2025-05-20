@@ -111,8 +111,13 @@ where
         | trace_goal[grind.ring] "found instance for{indentExpr charType}\nbut characteristic is not a natural number"; pure none
       trace_goal[grind.ring] "characteristic: {n}"
       pure <| some (charInst, n)
-    let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type ringInst
-    let noZeroDivInst? := (← trySynthInstance noZeroDivType).toOption
+    let noZeroDivInst? ← withNewMCtxDepth do
+      let zeroType := mkApp (mkConst ``Zero [u]) type
+      let .some zeroInst ← trySynthInstance zeroType | return none
+      let hmulType := mkApp3 (mkConst ``HMul [0, u, u]) (mkConst ``Nat []) type type
+      let .some hmulInst ← trySynthInstance hmulType | return none
+      let noZeroDivType := mkApp3 (mkConst ``Grind.NoNatZeroDivisors [u]) type zeroInst hmulInst
+      LOption.toOption <$> trySynthInstance noZeroDivType
     trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
     let addFn ← getAddFn type u semiringInst
     let mulFn ← getMulFn type u semiringInst

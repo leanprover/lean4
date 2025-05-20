@@ -49,13 +49,6 @@ instance IntModule.toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
     hmul_add := by simp [IntModule.hmul_add]
     mul_hmul := by simp [IntModule.mul_hmul] }
 
-/--
-We keep track of rational linear combinations as integer linear combinations,
-but with the assurance that we can cancel the GCD of the coefficients.
--/
-class RatModule (M : Type u) extends IntModule M where
-  no_int_zero_divisors : ∀ (k : Int) (a : M), k ≠ 0 → k * a = 0 → a = 0
-
 /-- A preorder is a reflexive, transitive relation `≤` with `a < b` defined in the obvious way. -/
 class Preorder (α : Type u) extends LE α, LT α where
   le_refl : ∀ a : α, a ≤ a
@@ -72,5 +65,13 @@ class IntModule.IsOrdered (M : Type u) [Preorder M] [IntModule M] where
   hmul_neg : ∀ (k : Int) (a : M), a < 0 → (0 < k ↔ k * a < 0)
   hmul_nonneg : ∀ (k : Int) (a : M), 0 ≤ a → 0 ≤ k → 0 ≤ k * a
   hmul_nonpos : ∀ (k : Int) (a : M), a ≤ 0 → 0 ≤ k → k * a ≤ 0
+
+/--
+Special case of Mathlib's `NoZeroSMulDivisors Nat α`.
+-/
+class NoNatZeroDivisors (α : Type u) [Zero α] [HMul Nat α α] where
+  no_nat_zero_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → k * a = 0 → a = 0
+
+export NoNatZeroDivisors (no_nat_zero_divisors)
 
 end Lean.Grind

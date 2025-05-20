@@ -7,19 +7,16 @@ open Std.Net
 
 open Std.Net
 
--- Using this function to create IO Error. For some reason the assert! is not pausing the execution.
 def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
   unless actual == expected do
     throw <| IO.userError <|
       s!"expected '{expected}', got '{actual}'"
 
--- Define the Async monad
 structure Async (α : Type) where
   run : IO (AsyncTask α)
 
 namespace Async
 
--- Monad instance for Async
 instance : Monad Async where
   pure x := Async.mk (pure (AsyncTask.pure x))
   bind ma f := Async.mk do
@@ -53,14 +50,12 @@ def timeout (a : AsyncTask α) (time : Std.Time.Millisecond.Offset) : IO (AsyncT
     | .ok res => Task.pure (.ok res)
     | .error _ => Task.pure (.error (IO.userError "Timeout."))
 
--- Await function to simplify AsyncTask handling
 def await (task : IO (AsyncTask α)) : Async α :=
   Async.mk task
 
 instance : MonadLift IO Async where
   monadLift io := Async.mk (io >>= (pure ∘ AsyncTask.pure))
 
-/-- Joe is another client. -/
 def runDNS : Async Unit := do
   let infos ← await <| (timeout (← DNS.getAddrInfo "google.com" "http") 10000)
 

@@ -161,7 +161,7 @@ namespace List
 @[simp]
 theorem ofFnM_pure_comp [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
     ofFnM (pure ∘ f) = (pure (ofFn f) : m (List α)) := by
-  simp [ofFnM, Fin.foldlM_pure_comp, Fin.foldl_cons_eq_append]
+  simp [ofFnM, Fin.foldlM_pure, Fin.foldl_cons_eq_append]
 
 -- Variant of `ofFnM_pure_comp` using a lambda.
 -- This is not marked a `@[simp]` as it would match on every occurrence of `ofFnM`.

@@ -114,6 +114,8 @@ def computeDotQuery?
       return none
   let some typeNames := typeNames?
     | return none
+  if typeNames.isEmpty then
+    return none
   return some {
     identifier := text.source.extract pos tailPos
     openNamespaces := typeNames.map (.allExcept · #[])
@@ -166,28 +168,32 @@ def computeDotIdQuery?
       }
   }
 
-def computeQuery?
+def computeQueries
     (doc          : EditableDocument)
     (requestedPos : String.Pos)
-    : RequestM (Option Query) := do
+    : RequestM (Array Query) := do
   let text := doc.meta.text
   let some (stx, infoTree) := RequestM.findCmdDataAtPos doc requestedPos (includeStop := true) |>.get
-    | return none
-  let completionInfo? : Option ContextualizedCompletionInfo := do
-    let (completionPartitions, _) := findPrioritizedCompletionPartitionsAt text requestedPos stx infoTree
-    let highestPrioPartition ← completionPartitions[0]?
-    let (completionInfo, _) ← highestPrioPartition[0]?
-    return completionInfo
-  let some ⟨_, ctx, info⟩ := completionInfo?
-    | return none
-  match info with
-  | .id (stx := stx) (id := id) .. =>
-    return computeIdQuery? doc ctx stx id
-  | .dot (termInfo := ti) .. =>
-    return ← computeDotQuery? doc ctx ti
-  | .dotId stx id lctx expectedType? =>
-    return ← computeDotIdQuery? doc ctx stx id lctx expectedType?
-  | _ => return none
+    | return #[]
+  let (completionPartitions, _) := findPrioritizedCompletionPartitionsAt text requestedPos stx infoTree
+  let mut queries := #[]
+  for partition in completionPartitions do
+    for (i, _) in partition do
+      let query? ←
+        match i.info with
+        | .id (stx := stx) (id := id) .. =>
+          pure <| computeIdQuery? doc i.ctx stx id
+        | .dot (termInfo := ti) .. =>
+          computeDotQuery? doc i.ctx ti
+        | .dotId stx id lctx expectedType? =>
+          computeDotIdQuery? doc i.ctx stx id lctx expectedType?
+        | _ =>
+          pure none
+      if let some query := query? then
+        queries := queries.push query
+    if ! queries.isEmpty then
+      break
+  return queries
 
 def importAllUnknownIdentifiersProvider : Name := `unknownIdentifiers
 
@@ -210,11 +216,12 @@ def handleUnknownIdentifierCodeAction
   let rc ← read
   let doc := rc.doc
   let text := doc.meta.text
-  let some query ← computeQuery? doc requestedRange.stop
-    | return #[]
+  let queries ← computeQueries doc requestedRange.stop
+  if queries.isEmpty then
+    return #[]
   let responseTask ← RequestM.sendServerRequest LeanQueryModuleParams LeanQueryModuleResponse "$/lean/queryModule" {
     sourceRequestID := id
-    queries := #[query.toLeanModuleQuery]
+    queries := queries.map (·.toLeanModuleQuery)
     : LeanQueryModuleParams
   }
   let r ← ServerTask.waitAny [
@@ -237,38 +244,39 @@ def handleUnknownIdentifierCodeAction
   let mut hasUnambigiousImportCodeAction := false
   let some result := response.queryResults[0]?
     | return #[]
-  for ⟨mod, decl, isExactMatch⟩ in result do
-    let isDeclInEnv := query.env.contains decl
-    if ! isDeclInEnv && mod == query.env.mainModule then
-      -- Don't offer any code actions for identifiers defined further down in the same file
-      continue
-    let insertion := query.determineInsertion decl
-    if ! isDeclInEnv then
-      unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
-        title := s!"Import {insertion.fullName} from {mod}"
-        kind? := "quickfix"
-        edit? := WorkspaceEdit.ofTextDocumentEdit {
-          textDocument := doc.versionedIdentifier
-          edits := #[
-            {
-              range := importInsertionRange
-              newText := s!"import {mod}\n"
-            },
-            insertion.edit
-          ]
+  for query in queries, result in response.queryResults do
+    for ⟨mod, decl, isExactMatch⟩ in result do
+      let isDeclInEnv := query.env.contains decl
+      if ! isDeclInEnv && mod == query.env.mainModule then
+        -- Don't offer any code actions for identifiers defined further down in the same file
+        continue
+      let insertion := query.determineInsertion decl
+      if ! isDeclInEnv then
+        unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
+          title := s!"Import {insertion.fullName} from {mod}"
+          kind? := "quickfix"
+          edit? := WorkspaceEdit.ofTextDocumentEdit {
+            textDocument := doc.versionedIdentifier
+            edits := #[
+              {
+                range := importInsertionRange
+                newText := s!"import {mod}\n"
+              },
+              insertion.edit
+            ]
+          }
         }
-      }
-      if isExactMatch then
-        hasUnambigiousImportCodeAction := true
-    else
-      unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
-        title := s!"Change to {insertion.fullName}"
-        kind? := "quickfix"
-        edit? := WorkspaceEdit.ofTextDocumentEdit {
-          textDocument := doc.versionedIdentifier
-          edits := #[insertion.edit]
+        if isExactMatch then
+          hasUnambigiousImportCodeAction := true
+      else
+        unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
+          title := s!"Change to {insertion.fullName}"
+          kind? := "quickfix"
+          edit? := WorkspaceEdit.ofTextDocumentEdit {
+            textDocument := doc.versionedIdentifier
+            edits := #[insertion.edit]
+          }
         }
-      }
   if hasUnambigiousImportCodeAction then
     unknownIdentifierCodeActions := unknownIdentifierCodeActions.push <|
       importAllUnknownIdentifiersCodeAction params "quickfix"
@@ -282,8 +290,8 @@ def handleResolveImportAllUnknownIdentifiersCodeAction?
   let rc ← read
   let doc := rc.doc
   let text := doc.meta.text
-  let queries ← unknownIdentifierRanges.filterMapM fun unknownIdentifierRange =>
-    computeQuery? doc unknownIdentifierRange.stop
+  let queries ← unknownIdentifierRanges.flatMapM fun unknownIdentifierRange =>
+    computeQueries doc unknownIdentifierRange.stop
   if queries.isEmpty then
     return none
   let responseTask ← RequestM.sendServerRequest LeanQueryModuleParams LeanQueryModuleResponse "$/lean/queryModule" {

@@ -10,6 +10,7 @@ import Init.Data.Zero
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.Pow
 import Init.TacticsExtra
+import Init.Grind.Module.Basic
 
 /-!
 # A monolithic commutative ring typeclass for internal use in `grind`.
@@ -107,6 +108,24 @@ theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂
   induction k₂
   next => simp [pow_zero, mul_one]
   next k₂ ih => rw [Nat.add_succ, pow_succ, pow_succ, ih, mul_assoc]
+
+instance : NatModule α where
+  hMul a x := a * x
+  add_zero := by simp [add_zero]
+  zero_add := by simp [zero_add]
+  add_assoc := by simp [add_assoc]
+  add_comm := by simp [add_comm]
+  zero_hmul := by simp [natCast_zero, zero_mul]
+  one_hmul := by simp [natCast_one, one_mul]
+  add_hmul := by simp [natCast_add, right_distrib]
+  hmul_zero := by simp [mul_zero]
+  hmul_add := by simp [left_distrib]
+  mul_hmul := by simp [natCast_mul, mul_assoc]
+
+theorem hmul_eq_natCast_mul {α} [Semiring α] {k : Nat} {a : α} : HMul.hMul (α := Nat) k a = (k : α) * a := rfl
+
+theorem hmul_eq_ofNat_mul {α} [Semiring α] {k : Nat} {a : α} : HMul.hMul (α := Nat) k a = OfNat.ofNat k * a := by
+  simp [ofNat_eq_natCast, hmul_eq_natCast_mul]
 
 end Semiring
 
@@ -243,6 +262,24 @@ theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k :=
   next => simp [pow_zero, Int.pow_zero, intCast_one]
   next k ih => simp [pow_succ, Int.pow_succ, intCast_mul, *]
 
+instance : IntModule α where
+  hMul a x := a * x
+  add_zero := by simp [add_zero]
+  zero_add := by simp [zero_add]
+  add_assoc := by simp [add_assoc]
+  add_comm := by simp [add_comm]
+  zero_hmul := by simp [intCast_zero, zero_mul]
+  one_hmul := by simp [intCast_one, one_mul]
+  add_hmul := by simp [intCast_add, right_distrib]
+  hmul_zero := by simp [mul_zero]
+  hmul_add := by simp [left_distrib]
+  mul_hmul := by simp [intCast_mul, mul_assoc]
+  neg_hmul := by simp [intCast_neg, neg_mul]
+  neg_add_cancel := by simp [neg_add_cancel]
+  sub_eq_add_neg := by simp [sub_eq_add_neg]
+
+theorem hmul_eq_intCast_mul {α} [Ring α] {k : Int} {a : α} : HMul.hMul (α := Int) k a = (k : α) * a := rfl
+
 end Ring
 
 namespace CommSemiring
@@ -347,14 +384,7 @@ theorem natCast_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
 
 end IsCharP
 
-/--
-Special case of Mathlib's `NoZeroSMulDivisors Nat α`.
--/
-class NoNatZeroDivisors (α : Type u) [Ring α] where
-  no_nat_zero_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
-
-export NoNatZeroDivisors (no_nat_zero_divisors)
-
+-- TODO: This should be generalizable to any `IntModule α`, not just `Ring α`.
 theorem no_int_zero_divisors {α : Type u} [Ring α] [NoNatZeroDivisors α] {k : Int} {a : α}
     : k ≠ 0 → k * a = 0 → a = 0 := by
   match k with
@@ -362,13 +392,12 @@ theorem no_int_zero_divisors {α : Type u} [Ring α] [NoNatZeroDivisors α] {k :
     simp [intCast_natCast]
     intro h₁ h₂
     replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
-    rw [← ofNat_eq_natCast] at h₂
     exact no_nat_zero_divisors k a h₁ h₂
   | -(k+1 : Nat) =>
     rw [Int.natCast_add, ← Int.natCast_add, intCast_neg, intCast_natCast]
     intro _ h
     replace h := congrArg (-·) h; simp at h
-    rw [← neg_mul, neg_neg, neg_zero, ← ofNat_eq_natCast] at h
+    rw [← neg_mul, neg_neg, neg_zero, ← hmul_eq_natCast_mul] at h
     exact no_nat_zero_divisors (k+1) a (Nat.succ_ne_zero _) h
 
 end Lean.Grind

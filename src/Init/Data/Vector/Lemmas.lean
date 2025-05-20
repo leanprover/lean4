@@ -53,9 +53,9 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
     (Vector.mk xs size).contains a = xs.contains a := by
   simp [contains]
 
-@[simp] theorem push_mk {xs : Array α} {size : xs.size = n} {x : α} :
-    (Vector.mk xs size).push x =
-      Vector.mk (xs.push x) (by simp [size, Nat.succ_eq_add_one]) := rfl
+@[simp] theorem push_mk {xs : Array α} {size : xs.size = n} :
+    (Vector.mk xs size).push =
+      fun x => Vector.mk (xs.push x) (by simp [size, Nat.succ_eq_add_one]) := rfl
 
 @[simp] theorem pop_mk {xs : Array α} {size : xs.size = n} :
     (Vector.mk xs size).pop = Vector.mk xs.pop (by simp [size]) := rfl
@@ -1660,12 +1660,12 @@ theorem forall_mem_append {p : α → Prop} {xs : Vector α n} {ys : Vector α m
     (∀ (x) (_ : x ∈ xs ++ ys), p x) ↔ (∀ (x) (_ : x ∈ xs), p x) ∧ (∀ (x) (_ : x ∈ ys), p x) := by
   simp only [mem_append, or_imp, forall_and]
 
-@[grind]
+@[simp, grind]
 theorem empty_append {xs : Vector α n} : (#v[] : Vector α 0) ++ xs = xs.cast (by omega) := by
   rcases xs with ⟨as, rfl⟩
   simp
 
-@[grind]
+@[simp, grind]
 theorem append_empty {xs : Vector α n} : xs ++ (#v[] : Vector α 0) = xs := by
   rw [← toArray_inj, toArray_append, Array.append_empty]
 

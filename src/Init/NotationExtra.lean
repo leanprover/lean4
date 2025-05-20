@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Extra notation that depends on Init/Meta
 -/
---module
+module
 
 prelude
 import Init.Data.ToString.Basic

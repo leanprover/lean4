@@ -25,13 +25,4 @@ theorem checkPalin1_correct' : checkPalin1 xs = true ↔ IsPalindrome xs := by
     -- TODO: `IsPalindrome` (without `.eq_1`) produces bad error message.
     grind +extAll [IsPalindrome.eq_1]
   intro i
-  fun_induction checkPalin1.go
-  case case1 j h₁ h₂ ih =>
-    -- TODO: make sure we don't need `constructor` here. This is a normalization issue.
-    constructor <;> grind
-  case case2 j h₁ h₂ =>
-    -- TODO: fix normalization
-    simp only [Bool.false_eq_true, false_iff, Classical.not_forall]
-    grind
-  case case3 x h =>
-    grind
+  fun_induction checkPalin1.go <;> grind

@@ -171,7 +171,7 @@ def «example»        := leading_parser
 def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
-def derivingClasses  := sepBy1 identWithPartialTrailingDot ", "
+def derivingClasses  := sepBy1 ident ", " -- TODO after stage0 update: identWithPartialTrailingDot
 def optDeriving      := leading_parser
   optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser

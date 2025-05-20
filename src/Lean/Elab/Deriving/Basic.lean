@@ -117,7 +117,7 @@ structure DerivingClassView where
 
 def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassView) := do
   match optDeriving with
-  | `(Parser.Command.optDeriving| deriving $[$classes:identWithOptDot],*) =>
+  | `(Parser.Command.optDeriving| deriving $[$classes],*) =>
     let mut ret := #[]
     for cls in classes do
       let className ← realizeGlobalConstNoOverloadWithInfo cls

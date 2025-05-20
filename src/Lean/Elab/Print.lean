@@ -180,6 +180,8 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | none => throwUnknownId id
 
 private def printId (id : Syntax) : CommandElabM Unit := do
+  let danglingDot := id matches `(identWithOptDot| $_.$_)
+  addCompletionInfo <| .id id id.getIdOrIdWithOptDot danglingDot {} none
   let cs ← liftCoreM <| realizeGlobalConstWithInfos id
   cs.forM printIdCore
 

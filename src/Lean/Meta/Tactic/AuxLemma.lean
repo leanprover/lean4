@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.AddDecl
 import Lean.Meta.Basic
+import Lean.Meta.Tactic.Simp.RflEnvExt
 
 namespace Lean.Meta
 
@@ -27,7 +28,8 @@ builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ←
   This method is useful for tactics (e.g., `simp`) that may perform preprocessing steps to lemmas provided by
   users. For example, `simp` preprocessor may convert a lemma into multiple ones.
 -/
-def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : Option Name := none) (cache := true) : MetaM Name := do
+def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : Option Name := none)
+    (cache := true) (inferRfl := false) : MetaM Name := do
   let env ← getEnv
   let s := auxLemmasExt.getState env
   let mkNewAuxLemma := do
@@ -47,6 +49,8 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : O
           levelParams, type, value
         }
     addDecl decl
+    if inferRfl then
+      inferRflAttr auxName
     modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨lemmas⟩ => ⟨lemmas.insert type (auxName, levelParams)⟩
     return auxName
   if cache then

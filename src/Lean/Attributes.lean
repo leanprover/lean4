@@ -161,7 +161,9 @@ def registerTagAttribute (name : Name) (descr : String)
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
-        throwError "invalid attribute '{name}', declaration is in an imported module"
+        throwError "invalid attribute '{name}', declaration {.ofConstName decl} is in an imported module"
+      unless env.asyncMayContain decl do
+        throwError "invalid attribute '{name}', declaration {.ofConstName decl} is not from the present async context {env.asyncPrefix?}"
       validate decl
       modifyEnv fun env => ext.addEntry env decl
   }
@@ -173,7 +175,13 @@ namespace TagAttribute
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        => (attr.ext.findStateAsync env decl).contains decl
+  | none        =>
+    -- TODO: Is findStateAsync not always correct?
+    if attr.ext.toEnvExtension.asyncMode matches .async then
+      (attr.ext.findStateAsync env decl).contains decl ||
+      (attr.ext.getState env (asyncMode := .local)).contains decl
+    else
+      (attr.ext.getState env).contains decl
 
 end TagAttribute
 

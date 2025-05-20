@@ -4407,7 +4407,7 @@ theorem getElem?_size_le {xs : Array α} {i : Nat} (h : xs.size ≤ i) : xs[i]? 
   simp [getElem?_neg, h]
 
 theorem getElem_mem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs.toList := by
-  simp only [← getElem_toList, List.getElem_mem]
+  simp only [← getElem_toList, List.getElem_mem, ugetElem_eq_getElem]
 
 theorem back!_eq_back? [Inhabited α] {xs : Array α} : xs.back! = xs.back?.getD default := by
   simp [back!, back?, getElem!_def, Option.getD]; rfl

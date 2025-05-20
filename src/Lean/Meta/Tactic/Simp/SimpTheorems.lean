@@ -178,7 +178,7 @@ mutual
       let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
       let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
       let r ← isRflProofCore info.type info.value
-      unless r = rflAttr.hasTag (← getEnv) declName do
+      unless r = isRfl do
         trace[Meta.Tactic.simp.rflAttrMismatch] "theorem {.ofConstName declName}:\nattribute {isRfl}\ninferred {r}"
       return r
 end
@@ -452,7 +452,7 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
     if inv || (← shouldPreprocess type) then
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
-        let auxName ← mkAuxLemma cinfo.levelParams type val
+        let auxName ← mkAuxLemma cinfo.levelParams type val (inferRfl := true)
         r := r.push <| (← mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else

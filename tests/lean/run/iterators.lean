@@ -106,3 +106,9 @@ example (l : List Nat) :
   simp
 
 end Loop
+
+section Take
+
+#eval [1, 2, 3].iterM Id |>.take 2 |>.toList
+
+end Take

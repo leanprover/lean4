@@ -119,9 +119,9 @@ where
     else if kind == ``Lean.Parser.Syntax.cat then
       processNullaryOrCat stx
     else if kind == ``Lean.Parser.Syntax.unary then
-      processAlias stx[0] #[stx[2]]
+      processAlias ⟨stx[0]⟩ #[stx[2]]
     else if kind == ``Lean.Parser.Syntax.binary then
-      processAlias stx[0] #[stx[2], stx[4]]
+      processAlias ⟨stx[0]⟩ #[stx[2], stx[4]]
     else if kind == ``Lean.Parser.Syntax.sepBy then
       processSepBy stx
     else if kind == ``Lean.Parser.Syntax.sepBy1 then
@@ -160,7 +160,7 @@ where
     let prec := prec?.getD 0
     return (← `(ParserDescr.cat $(quote catName) $(quote prec)), 1)
 
-  processAlias (id : Syntax) (args : Array Syntax) := do
+  processAlias (id : Ident) (args : Array Syntax) := do
     let aliasName := id.getId.eraseMacroScopes
     let info ← Parser.getParserAliasInfo aliasName
     addAliasInfo id info

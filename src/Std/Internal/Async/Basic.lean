@@ -356,6 +356,20 @@ protected def toEIO (x : EAsync ε α) : EIO ε (ExceptTask ε α) :=
   MaybeExceptTask.toTask <$> x.toRawEIO
 
 /--
+Creates a new `EAsync` out of a `Task`.
+-/
+@[inline]
+protected def ofTask (x : Task α) : EAsync ε α :=
+  .mk (pure (MaybeExceptTask.ofTask <| x.map (.ok)))
+
+/--
+Creates a new `EAsync` out of a `ExceptTask`.
+-/
+@[inline]
+protected def ofExceptTask (x : ExceptTask ε α) : EAsync ε α :=
+  .mk (pure (MaybeExceptTask.ofTask x))
+
+/--
 Creates an `EAsync` computation that immediately returns the given value.
 -/
 @[inline]
@@ -475,6 +489,9 @@ def async (self : EAsync ε α) : EAsync ε (ExceptTask ε α) :=
 instance : MonadAwait (ExceptTask ε) (EAsync ε) where
   await t := mk <| pure <| .ofTask t
 
+instance : MonadAwait Task (EAsync ε) where
+  await t := mk <| pure <| .ofTask (t.map (.ok))
+
 instance : MonadAwait AsyncTask (EAsync IO.Error) where
   await t := mk <| pure <| .ofTask t
 
@@ -514,13 +531,6 @@ instance : OrElse (EAsync ε α) where
 
 instance [Inhabited ε] : Inhabited (EAsync ε α) where
   default := ⟨.error default⟩
-
-/--
-Starts the given `ExceptTask` in the background and discards the result.
--/
-@[inline]
-def parallel {α : Type} (x : EAsync ε (ExceptTask ε α)) : EAsync ε Unit :=
-  discard <| x
 
 /--
 A tail recursive version of the `forIn` for while loops inside the `EAsync` Monad.
@@ -579,9 +589,16 @@ Returns the `Async` computation inside an `AsyncTask`, so it can be awaited.
 def async (self : Async α) : Async (AsyncTask α) :=
   EAsync.lift <| self.asTask
 
-@[default_instance] instance : MonadAwait AsyncTask Async := inferInstanceAs (MonadAwait AsyncTask (EAsync IO.Error))
-@[default_instance] instance : MonadAsync AsyncTask Async := inferInstanceAs (MonadAsync (ExceptTask IO.Error) (EAsync IO.Error))
-instance : MonadAwait IO.Promise Async := inferInstanceAs (MonadAwait IO.Promise (EAsync IO.Error))
+@[default_instance]
+instance : MonadAwait AsyncTask Async :=
+  inferInstanceAs (MonadAwait AsyncTask (EAsync IO.Error))
+
+@[default_instance]
+instance : MonadAsync AsyncTask Async :=
+  inferInstanceAs (MonadAsync (ExceptTask IO.Error) (EAsync IO.Error))
+
+instance : MonadAwait IO.Promise Async :=
+  inferInstanceAs (MonadAwait IO.Promise (EAsync IO.Error))
 
 end Async
 
@@ -641,11 +658,74 @@ instance : MonadAwait Task BaseAsync where
 instance : MonadAsync Task BaseAsync where
   async := BaseAsync.async
 
+instance : MonadLiftT BaseAsync (EAsync ε) where
+  monadLift {α} x :=
+    let r : EIO ε (MaybeExceptTask ε α) := do
+      let r ← BaseIO.toEIO (x.toRawEIO)
+      match r with
+      | .pure res => pure <| .pure res
+      | .ofTask t => pure <| .ofTask <| Task.map (fun (.ok t) => .ok t) t
+    ⟨r⟩
+
+instance : MonadLiftT BaseAsync Async :=
+  inferInstanceAs (MonadLiftT BaseAsync (EAsync IO.Error))
+
 end BaseAsync
 
 export MonadAsync (async)
 export MonadAwait (await)
-export EAsync (parallel)
+
+/--
+Starts the given async task in the background and discards the result.
+-/
+@[inline, specialize]
+def parallel [Monad m] [MonadAsync t m] (x : m (t α)) : m Unit :=
+  discard <| x
+
+/--
+Runs two computations concurrently and returns both results as a pair.
+-/
+@[inline, specialize]
+def concurrently [Monad m] [MonadAwait t m] [MonadAsync t m] (x : m α) (y : m β) : m (α × β) := do
+  let taskX : t α ← async x
+  let taskY : t β ← async y
+  let resultX ← await taskX
+  let resultY ← await taskY
+  return (resultX, resultY)
+
+/--
+Runs two computations concurrently and returns the result of the one that finishes first.
+The other result is discarded.
+-/
+@[inline, specialize]
+def race [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync t m] [MonadAwait t m] [Monad m] [Inhabited α] (x : m α) (y : m α) : m α := do
+  let promise ← IO.Promise.new
+
+  discard (async (n := t) <| Bind.bind x (liftM ∘ promise.resolve))
+  discard (async (n := t) <| Bind.bind y (liftM ∘ promise.resolve))
+
+  await promise.result!
+
+/--
+Runs all computations in an `Array` concurrently and returns all results as an array.
+-/
+@[inline, specialize]
+def concurrentlyAll [Monad m] [MonadAwait t m] [MonadAsync t m] (xs : Array (m α)) : m (Array α) := do
+  let tasks : Array (t α) ← xs.mapM async
+  tasks.mapM await
+
+/--
+Runs all computations concurrently and returns the result of the first one to finish.
+All other results are discarded.
+-/
+@[inline, specialize]
+def raceAll [ForM m c (m α)] [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync t m] [MonadAwait t m] [Monad m] [Inhabited α] (xs : c) : m α := do
+  let promise ← IO.Promise.new
+
+  ForM.forM xs fun x =>
+    discard (async (n := t) <| Bind.bind x (liftM ∘ promise.resolve))
+
+  await promise.result!
 
 end Async
 end IO

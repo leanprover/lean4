@@ -15,7 +15,6 @@ namespace Lean.Widget
 open Elab Server
 
 deriving instance TypeName for InfoWithCtx
-deriving instance TypeName for MessageData
 deriving instance TypeName for LocalContext
 deriving instance TypeName for Elab.ContextInfo
 deriving instance TypeName for Elab.TermInfo

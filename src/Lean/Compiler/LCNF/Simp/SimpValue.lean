@@ -37,7 +37,7 @@ def simpAppApp? (e : LetValue) : OptionT SimpM LetValue := do
     return .fvar f (args' ++ args)
   | .const declName us args' => return .const declName us (args' ++ args)
   | .erased => return .erased
-  | .proj .. | .value .. => failure
+  | .proj .. | .lit .. => failure
 
 def simpCtorDiscr? (e : LetValue) : OptionT SimpM LetValue := do
   let .const declName _ _ := e | failure

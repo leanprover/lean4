@@ -6,9 +6,13 @@ Authors: Markus Himmel
 module
 
 prelude
-import Init.Data.SInt.Basic
+import all Init.Data.Nat.Bitwise.Basic
+import all Init.Data.SInt.Basic
+import all Init.Data.BitVec.Basic
 import Init.Data.BitVec.Bitblast
+import all Init.Data.BitVec.Lemmas
 import Init.Data.Int.LemmasAux
+import all Init.Data.UInt.Basic
 import Init.Data.UInt.Lemmas
 import Init.System.Platform
 
@@ -1455,16 +1459,16 @@ theorem ISize.toInt64_ofIntLE {n : Int} (h₁ h₂) :
   ISize.toInt64_ofNat' (by rw [toInt_maxValue]; cases System.Platform.numBits_eq <;> simp_all <;> omega)
 
 @[simp] theorem Int8.ofIntLE_bitVecToInt (n : BitVec 8) :
-    Int8.ofIntLE n.toInt n.le_toInt n.toInt_le = Int8.ofBitVec n :=
+    Int8.ofIntLE n.toInt (by exact n.le_toInt) (by exact n.toInt_le) = Int8.ofBitVec n :=
   Int8.toBitVec.inj (by simp)
 @[simp] theorem Int16.ofIntLE_bitVecToInt (n : BitVec 16) :
-    Int16.ofIntLE n.toInt n.le_toInt n.toInt_le = Int16.ofBitVec n :=
+    Int16.ofIntLE n.toInt (by exact n.le_toInt) (by exact n.toInt_le) = Int16.ofBitVec n :=
   Int16.toBitVec.inj (by simp)
 @[simp] theorem Int32.ofIntLE_bitVecToInt (n : BitVec 32) :
-    Int32.ofIntLE n.toInt n.le_toInt n.toInt_le = Int32.ofBitVec n :=
+    Int32.ofIntLE n.toInt (by exact n.le_toInt) (by exact n.toInt_le) = Int32.ofBitVec n :=
   Int32.toBitVec.inj (by simp)
 @[simp] theorem Int64.ofIntLE_bitVecToInt (n : BitVec 64) :
-    Int64.ofIntLE n.toInt n.le_toInt n.toInt_le = Int64.ofBitVec n :=
+    Int64.ofIntLE n.toInt (by exact n.le_toInt) (by exact n.toInt_le) = Int64.ofBitVec n :=
   Int64.toBitVec.inj (by simp)
 @[simp] theorem ISize.ofIntLE_bitVecToInt (n : BitVec System.Platform.numBits) :
     ISize.ofIntLE n.toInt (toInt_minValue ▸ n.le_toInt)

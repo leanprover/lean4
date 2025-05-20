@@ -6,6 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.OfFn
 
@@ -25,12 +26,11 @@ theorem ofFn_succ {f : Fin (n+1) → α} :
     ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by
   ext i h₁ h₂
   · simp
-  · simp [getElem_push]
-    split <;> rename_i h₃
-    · rfl
-    · congr
-      simp at h₁ h₂
-      omega
+  · simp only [getElem_ofFn, getElem_push, size_ofFn, Fin.castSucc_mk, left_eq_dite_iff,
+      Nat.not_lt]
+    simp only [size_ofFn] at h₁
+    intro h₃
+    simp only [show i = n by omega]
 
 @[simp] theorem _root_.List.toArray_ofFn {f : Fin n → α} : (List.ofFn f).toArray = Array.ofFn f := by
   ext <;> simp

@@ -49,7 +49,7 @@ def mkFixOfMonFun (packedType : Expr) (packedInst : Expr) (hmono : Expr) : MetaM
 /--
 Given `packedInst : CCPO α `, returns an underlying instance of the type
 `PartialOrder α`. Can handle `CompleteLattice` as well.
-Takes an optional argument with the type `α`. If the optional arument is `none`,
+Takes an optional argument with the type `α`. If the optional argument is `none`,
 it is treated implicitly.
 -/
 def toPartialOrder (packedInst : Expr) (type : Option Expr := .none) := do

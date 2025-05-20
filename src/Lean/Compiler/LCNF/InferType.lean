@@ -103,8 +103,8 @@ def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
 
 def inferLitValueType (value : LitValue) : Expr :=
   match value with
-  | .natVal .. => mkConst ``Nat
-  | .strVal .. => mkConst ``String
+  | .nat .. => mkConst ``Nat
+  | .str .. => mkConst ``String
 
 mutual
   partial def inferArgType (arg : Arg) : InferTypeM Expr :=
@@ -126,7 +126,7 @@ mutual
   partial def inferLetValueType (e : LetValue) : InferTypeM Expr := do
     match e with
     | .erased => return erasedExpr
-    | .value v => return inferLitValueType v
+    | .lit v => return inferLitValueType v
     | .proj structName idx fvarId => inferProjType structName idx fvarId
     | .const declName us args => inferAppTypeCore (← inferConstType declName us) args
     | .fvar fvarId args => inferAppTypeCore (← getType fvarId) args
@@ -262,7 +262,7 @@ def Code.inferParamType (params : Array Param) (code : Code) : CompilerM Expr :=
   let xs := params.map fun p => .fvar p.fvarId
   InferType.mkForallFVars xs type |>.run {}
 
-def AltCore.inferType (alt : Alt) : CompilerM Expr :=
+def Alt.inferType (alt : Alt) : CompilerM Expr :=
   alt.getCode.inferType
 
 def mkAuxLetDecl (e : LetValue) (prefixName := `_x) : CompilerM LetDecl := do

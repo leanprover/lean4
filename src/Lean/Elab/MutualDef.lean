@@ -24,6 +24,12 @@ open Language
 
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
+  registerBuiltinAttribute {
+    name := `expose
+    descr := "(module system) Make bodies of definitions available to importing modules."
+    add := fun _ _ _ => do
+      throwError "Invalid attribute 'expose', must be used when declaring `def`"
+  }
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
@@ -1075,7 +1081,7 @@ where
       -- that depends only on a part of the ref
       addDeclarationRangesForBuiltin declId.declName view.modifiers.stx view.ref
   elabSync headers isRflLike := do
-    -- If the reflexivity holds publically as well (we're still inside `withExporting` here), export
+    -- If the reflexivity holds publicly as well (we're still inside `withExporting` here), export
     -- the body even if it is a theorem so that it is recognized as a rfl theorem even without
     -- `import all`.
     let rflPublic ← pure isRflLike <&&> pure (← getEnv).header.isModule <&&>
@@ -1084,8 +1090,7 @@ where
         try
           isDefEq lhs rhs
         catch _ => pure false
-    withExporting (isExporting := rflPublic) do
-      finishElab headers
+    finishElab (isExporting := rflPublic) headers
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
@@ -1124,12 +1129,15 @@ where
 
     -- now start new thread for body elaboration, then nested thread for kernel checking
     let cancelTk ← IO.CancelToken.new
-    let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
+    let act ←
+      -- NOTE: We must set the decl name before going async to ensure that the `auxDeclNGen` is
+      -- forked correctly.
+      withDeclName header.declName do
+      wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
-        withoutExporting do
-          finishElab #[header]
+        finishElab (isExporting := false) #[header]
       finally
         reportDiag
         -- must introduce node to fill `infoHole` with multiple info trees
@@ -1147,7 +1155,14 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers := withFunLocalDecls headers fun funFVars => do
+  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => withExporting
+    (isExporting := isExporting ||
+      (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
+      headers.all fun header =>
+        !header.modifiers.isPrivate &&
+        (header.kind matches .abbrev | .instance || header.modifiers.attrs.any (·.name == `expose))) do
+    let headers := headers.map fun header =>
+      { header with modifiers.attrs := header.modifiers.attrs.filter (·.name != `expose) }
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try

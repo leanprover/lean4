@@ -90,7 +90,6 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
   -- kernel checking has finished; not all cases are supported yet
   let mut exportedInfo? := none
-  let mut exportedKind? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
       let exportProof := !(← getEnv).header.isModule ||
@@ -101,21 +100,23 @@ def addDecl (decl : Declaration) : CoreM Unit := do
         looksLikeRelevantTheoremProofType thm.type
       if !exportProof then
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
-        exportedKind? := some .axiom
       pure (thm.name, .thmInfo thm, .thm)
-    | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
-    | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
+    | .defnDecl defn | .mutualDefnDecl [defn] =>
+      if (← getEnv).header.isModule && !(← getEnv).isExporting then
+        exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
+      pure (defn.name, .defnInfo defn, .defn)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← addSynchronously)
 
   -- preserve original constant kind in extension if different from exported one
-  if exportedKind?.isSome then
+  if exportedInfo?.isSome then
     modifyEnv (privateConstKindsExt.insert · name kind)
 
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
   let env ← getEnv
-  let async ← env.addConstAsync (reportExts := false) name kind (exportedKind?.getD kind)
+  let async ← env.addConstAsync (reportExts := false) name kind
+    (exportedKind := exportedInfo?.map (.ofConstantInfo) |>.getD kind)
   -- report preliminary constant info immediately
   async.commitConst async.asyncEnv (some info) exportedInfo?
   setEnv async.mainEnv

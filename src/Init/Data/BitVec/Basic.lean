@@ -150,7 +150,7 @@ with `BitVec.toInt` results in the value `i.bmod (2^n)`.
 protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLT (i % (Int.ofNat (2^n))).toNat (by
   apply (Int.toNat_lt _).mpr
   · apply Int.emod_lt_of_pos
-    exact Int.ofNat_pos.mpr (Nat.two_pow_pos _)
+    exact Int.natCast_pos.mpr (Nat.two_pow_pos _)
   · apply Int.emod_nonneg
     intro eq
     apply Nat.ne_of_gt (Nat.two_pow_pos n)
@@ -435,8 +435,6 @@ def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by
     apply Nat.lt_of_lt_of_le x.isLt
     exact Nat.pow_le_pow_right (by trivial) le)
-
-@[deprecated setWidth' (since := "2024-09-18"), inherit_doc setWidth'] abbrev zeroExtend' := @setWidth'
 
 /--
 Returns `zeroExtend (w+n) x <<< n` without needing to compute `x % 2^(2+n)`.

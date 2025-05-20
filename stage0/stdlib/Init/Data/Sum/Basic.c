@@ -26,10 +26,11 @@ LEAN_EXPORT lean_object* l_Sum_map___rarg___lambda__2(lean_object*);
 LEAN_EXPORT lean_object* l_Sum_getRight_x3f___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Sum_instDecidableLiftRel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_instDecidableEq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_isLeft___rarg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_getRight(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_map___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_swap___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Sum_elim___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_getLeft_x3f___rarg(lean_object*);
@@ -40,7 +41,6 @@ LEAN_EXPORT lean_object* l_Sum_instDecidableLiftRel___rarg(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Sum_isRight___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Sum_getLeft___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_instDecidableRelSumLex___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_instDecidableRelSumLex(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_isLeft(lean_object*, lean_object*);
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
@@ -133,7 +133,7 @@ x_3 = lean_alloc_closure((void*)(l_Sum_instDecidableEq___rarg), 4, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -190,11 +190,11 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____rarg), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____rarg), 4, 0);
 return x_3;
 }
 }
@@ -202,7 +202,7 @@ LEAN_EXPORT lean_object* l_Sum_instBEq___rarg(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____rarg), 4, 2);
+x_3 = lean_alloc_closure((void*)(l_Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;

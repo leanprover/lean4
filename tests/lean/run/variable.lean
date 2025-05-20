@@ -136,9 +136,9 @@ theorem t13 (a : α) : toString a = toString a := rfl
 
 set_option pp.mvars false in
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   ToString True
-the final argument
+the argument
   True
 has type
   Prop : Type

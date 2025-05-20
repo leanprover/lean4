@@ -8,6 +8,7 @@ module
 
 prelude
 import Init.Data.List.TakeDrop
+import all Init.Data.Array.Basic
 
 /-!
 ## Bootstrapping theorems about arrays
@@ -52,8 +53,8 @@ theorem foldlM_toList.aux [Monad m]
   · rename_i i; rw [Nat.succ_add] at H
     simp [foldlM_toList.aux (j := j+1) H]
     rw (occs := [2]) [← List.getElem_cons_drop_succ_eq_drop ‹_›]
-    rfl
-  · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
+    simp
+  · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; simp
 
 @[simp, grind =] theorem foldlM_toList [Monad m]
     {f : β → α → m β} {init : β} {xs : Array α} :
@@ -69,14 +70,14 @@ theorem foldrM_eq_reverse_foldlM_toList.aux [Monad m]
     (xs.toList.take i).reverse.foldlM (fun x y => f y x) init = foldrM.fold f xs 0 i h init := by
   unfold foldrM.fold
   match i with
-  | 0 => simp [List.foldlM, List.take]
+  | 0 => simp
   | i+1 => rw [← List.take_concat_get h]; simp [← aux]
 
 theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init : β} {xs : Array α} :
     xs.foldrM f init = xs.toList.reverse.foldlM (fun x y => f y x) init := by
   have : xs = #[] ∨ 0 < xs.size :=
     match xs with | ⟨[]⟩ => .inl rfl | ⟨a::l⟩ => .inr (Nat.zero_lt_succ _)
-  match xs, this with | _, .inl rfl => rfl | xs, .inr h => ?_
+  match xs, this with | _, .inl rfl => simp [foldrM] | xs, .inr h => ?_
   simp [foldrM, h, ← foldrM_eq_reverse_foldlM_toList.aux, List.take_length]
 
 @[simp, grind =] theorem foldrM_toList [Monad m]
@@ -158,35 +159,5 @@ theorem foldr_eq_foldr_toList {f : α → β → β} {init : β} {xs : Array α}
 theorem foldl_eq_foldl_toList {f : β → α → β} {init : β} {xs : Array α} :
     xs.foldl f init = xs.toList.foldl f init:= by
   simp
-
-@[deprecated foldlM_toList (since := "2024-09-09")]
-abbrev foldlM_eq_foldlM_data := @foldlM_toList
-
-@[deprecated foldl_toList (since := "2024-09-09")]
-abbrev foldl_eq_foldl_data := @foldl_toList
-
-@[deprecated foldrM_eq_reverse_foldlM_toList (since := "2024-09-09")]
-abbrev foldrM_eq_reverse_foldlM_data := @foldrM_eq_reverse_foldlM_toList
-
-@[deprecated foldrM_toList (since := "2024-09-09")]
-abbrev foldrM_eq_foldrM_data := @foldrM_toList
-
-@[deprecated foldr_toList (since := "2024-09-09")]
-abbrev foldr_eq_foldr_data := @foldr_toList
-
-@[deprecated push_toList (since := "2024-09-09")]
-abbrev push_data := @push_toList
-
-@[deprecated toListImpl_eq (since := "2024-09-09")]
-abbrev toList_eq := @toListImpl_eq
-
-@[deprecated pop_toList (since := "2024-09-09")]
-abbrev pop_data := @toList_pop
-
-@[deprecated toList_append (since := "2024-09-09")]
-abbrev append_data := @toList_append
-
-@[deprecated toList_appendList (since := "2024-09-09")]
-abbrev appendList_data := @toList_appendList
 
 end Array

@@ -7,7 +7,8 @@ module
 
 prelude
 import Init.Data.Array.Lemmas
-import Init.Data.Array.OfFn
+import all Init.Data.Array.Basic
+import all Init.Data.Array.OfFn
 import Init.Data.Array.MapIdx
 import Init.Data.Array.Zip
 import Init.Data.List.Nat.Range
@@ -80,7 +81,7 @@ theorem range'_append {s m n step : Nat} :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append (step := 1)
 
 theorem range'_concat {s n : Nat} : range' s (n + 1) step = range' s n step ++ #[s + step * n] := by
-  simpa using range'_append.symm
+  simp [← range'_append]
 
 theorem range'_1_concat {s n : Nat} : range' s (n + 1) = range' s n ++ #[s + n] := by
   simp [range'_concat]

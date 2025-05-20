@@ -12,7 +12,7 @@ import Init.Data.List.Find
 import Init.Data.List.MinMax
 import Init.Data.List.Monadic
 import Std.Data.Internal.List.Defs
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -5911,7 +5911,7 @@ theorem minEntry?_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd
     have := isSome_minEntry?_of_containsKey hc
     cases h : minEntry? l
     · simp_all
-    · simp
+    · simp only [Option.some.injEq]
       split
       · have := minKey?_le_of_containsKey hd hc (by simp [minKey?, h]; rfl)
         simp_all [← OrientedCmp.gt_iff_lt]

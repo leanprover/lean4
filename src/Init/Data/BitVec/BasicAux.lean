@@ -22,7 +22,7 @@ section Nat
 /--
 The bitvector with value `i mod 2^n`.
 -/
-@[match_pattern]
+@[expose, match_pattern]
 protected def ofNat (n : Nat) (i : Nat) : BitVec n where
   toFin := Fin.ofNat' (2^n) i
 

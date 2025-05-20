@@ -21,6 +21,19 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
   if type.hasExprMVar then
     throwTacticEx `grind mvarId "goal contains metavariables"
 
+/-- Abstracts metavariables occurring in the target. -/
+def _root_.Lean.MVarId.abstractMVars (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.checkNotAssigned `grind
+  let type ← instantiateMVars (← mvarId.getType)
+  unless type.hasExprMVar do return mvarId
+  mvarId.withContext do
+  let r ← Meta.abstractMVars type (levels := false)
+  let typeNew ← lambdaTelescope r.expr fun xs body => mkForallFVars xs body
+  let tag ← mvarId.getTag
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew tag
+  mvarId.assign (mkAppN mvarNew r.mvars)
+  return mvarNew.mvarId!
+
 def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `grind
   let tag ← mvarId.getTag
@@ -54,12 +67,6 @@ Unfolds all `reducible` declarations occurring in the goal's target.
 -/
 def _root_.Lean.MVarId.unfoldReducible (mvarId : MVarId) : MetaM MVarId :=
   mvarId.transformTarget Grind.unfoldReducible
-
-/--
-Abstracts nested proofs occurring in the goal's target.
--/
-def _root_.Lean.MVarId.abstractNestedProofs (mvarId : MVarId) (mainDeclName : Name) : MetaM MVarId :=
-  mvarId.transformTarget (Lean.Meta.abstractNestedProofs mainDeclName)
 
 /--
 Beta-reduces the goal's target.

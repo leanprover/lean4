@@ -13,7 +13,7 @@ namespace Lean.Widget
 the identifier of a widget module and the hash of its JS source code
 together with props.
 
-See the [manual entry](https://lean-lang.org/lean4/doc/examples/widgets.lean.html)
+See the [manual entry](https://lean-lang.org/documentation/widgets/)
 for more information about widgets. -/
 structure WidgetInstance where
   /-- Name of the `@[widget_module]`. -/

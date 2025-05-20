@@ -1217,7 +1217,7 @@ private def expandNonAtomicExplicitSources (stx : Syntax) : TermElabM (Option Sy
 where
   /--
   If the source is a local, we can use it.
-  *However*, we need to watch out that the local doesn't have implicit arguemnts,
+  *However*, we need to watch out that the local doesn't have implicit arguments,
   since that could cause multiple evaluation.
   For simplicity, we just check that the fvar isn't a forall.
   -/

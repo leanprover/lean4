@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Data.Nat.Bitwise.Lemmas
-import Init.Data.Int.Bitwise.Basic
+import all Init.Data.Int.Bitwise.Basic
 import Init.Data.Int.DivMod.Lemmas
 
 namespace Int

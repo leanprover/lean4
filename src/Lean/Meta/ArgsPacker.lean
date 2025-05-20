@@ -430,7 +430,7 @@ def uncurryND (es : Array Expr) : MetaM Expr := do
     mkLambdaFVars #[x] value
 
 /-
-Given type `(A ⊕' C) → R` (possibly depenent), return types
+Given type `(A ⊕' C) → R` (possibly dependent), return types
 ```
 #[A → R, B → R]
 ```

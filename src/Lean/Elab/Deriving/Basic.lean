@@ -97,7 +97,7 @@ private def tryApplyDefHandler (className : Name) (declName : Name) : CommandEla
     Term.processDefDeriving className declName
 
 @[builtin_command_elab «deriving»] def elabDeriving : CommandElab
-  | `(deriving instance $[$classes],* for $[$declNames],*) => do
+  | `(deriving instance $[$classes],* for $[$declNames:identWithOptDot],*) => do
      let declNames ← liftCoreM <| declNames.mapM realizeGlobalConstNoOverloadWithInfo
      for cls in classes do
        try
@@ -117,7 +117,7 @@ structure DerivingClassView where
 
 def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassView) := do
   match optDeriving with
-  | `(Parser.Command.optDeriving| deriving $[$classes],*) =>
+  | `(Parser.Command.optDeriving| deriving $[$classes:identWithOptDot],*) =>
     let mut ret := #[]
     for cls in classes do
       let className ← realizeGlobalConstNoOverloadWithInfo cls

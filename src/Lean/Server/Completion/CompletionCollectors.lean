@@ -258,7 +258,7 @@ section DotCompletionUtils
       | _ => false
     if isConstOf then
       return true
-    let some e ← unfoldeDefinitionGuarded? e | return false
+    let some e ← unfoldDefinitionGuarded? e | return false
     isDefEqToAppOf e declName
 
   private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=

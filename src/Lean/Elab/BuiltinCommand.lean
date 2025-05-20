@@ -79,9 +79,8 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _, _ => some .anonymous -- should not happen
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
-  -- TODO after stage0 update: use `getIdWithOptDot`
   match stx with
-  | `(namespace $n) => addNamespace n.raw.getIdOrIdWithOptDot
+  | `(namespace $n:identWithOptDot) => addNamespace n.getIdWithOptDot
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
@@ -139,13 +138,13 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   liftCoreM <| addDecl Declaration.quotDecl
 
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
-  let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
+  let `(export $ns ($ids:identWithOptDot*)) := stx | throwUnsupportedSyntax
   let nss ← resolveNamespace ns
   let currNamespace ← getCurrNamespace
   if nss == [currNamespace] then throwError "invalid 'export', self export"
   let mut aliases := #[]
   for idStx in ids do
-    let id := idStx.getId
+    let id := idStx.getIdWithOptDot
     let declName ← resolveNameUsingNamespaces nss idStx
     if (← getInfoState).enabled then
       addConstInfo idStx declName
@@ -499,7 +498,7 @@ where
       if simple.isEmpty then
         return (lines, simple)
       else
-        return (lines.push <| ← `(command| open $(simple.map mkIdent)*), #[])
+        return (lines.push <| ← `(command| open $[$(simple.map mkIdent)]*), #[])
     for d in ds do
       match d with
       | .explicit id decl =>

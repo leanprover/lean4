@@ -14,7 +14,7 @@ open Lean.Elab.Command
 open Lean.Parser.Command
 
 @[builtin_command_elab «recommended_spelling»] def elabRecommendedSpelling : CommandElab
-  | `(«recommended_spelling»|$[$docs:docComment]? recommended_spelling $spelling:str for $«notation»:str in [$[$decls],*]) => do
+  | `(«recommended_spelling»|$[$docs:docComment]? recommended_spelling $spelling:str for $«notation»:str in [$[$decls:identWithOptDot],*]) => do
     let declNames ← liftTermElabM <| decls.mapM (fun decl => realizeGlobalConstNoOverloadWithInfo decl)
     let recommendedSpelling : RecommendedSpelling := {
       «notation» := «notation».getString

@@ -79,7 +79,8 @@ private def findSyntheticIdentifierCompletion?
     | none
   let some stack := info.stx.findStack? (·.getRange?.any (·.contains hoverPos (includeStop := true)))
     | none
-  let stack := stack.dropWhile fun (stx, _) => !(stx matches `($_:ident) || stx matches `($_:ident.))
+  let stack := stack.dropWhile fun (stx, _) =>
+    !(stx matches `($_:ident) || stx matches `($_:ident.) || stx matches `(identWithOptDot| $_:ident.$_))
   let some (stx, _) := stack.head?
     | none
   let isDotIdCompletion := stack.any fun (stx, _) => stx matches `(.$_:ident)
@@ -90,6 +91,7 @@ private def findSyntheticIdentifierCompletion?
       match stx with
       | `($id:ident) => some (id.getId, false)
       | `($id:ident.) => some (id.getId, true)
+      | `(identWithOptDot| $id:ident.$_) => some (id.getId, true)
       | _ => none
     | none
   let tailPos := stx.getTailPos?.get!

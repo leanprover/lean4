@@ -61,23 +61,23 @@ private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : 
 def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     match stx with
-    | `(Parser.Command.openDecl| $nss*) =>
+    | `(Parser.Command.openDecl| $nss:identWithOptDot*) =>
       for ns in nss do
         for ns in (← resolveNamespace ns) do
           addOpenDecl (OpenDecl.simple ns [])
           activateScoped ns
-    | `(Parser.Command.openDecl| scoped $nss*) =>
+    | `(Parser.Command.openDecl| scoped $nss:identWithOptDot*) =>
       for ns in nss do
         for ns in (← resolveNamespace ns) do
           activateScoped ns
-    | `(Parser.Command.openDecl| $ns ($ids*)) =>
+    | `(Parser.Command.openDecl| $ns ($ids:identWithOptDot*)) =>
       let nss ← resolveNamespace ns
       for idStx in ids do
         let declName ← resolveNameUsingNamespacesCore nss idStx
         if (← getInfoState).enabled then
           addConstInfo idStx declName
         addOpenDecl (OpenDecl.explicit idStx.getId declName)
-    | `(Parser.Command.openDecl| $ns hiding $ids*) =>
+    | `(Parser.Command.openDecl| $ns hiding $ids:identWithOptDot*) =>
       let ns ← resolveUniqueNamespace ns
       activateScoped ns
       for id in ids do

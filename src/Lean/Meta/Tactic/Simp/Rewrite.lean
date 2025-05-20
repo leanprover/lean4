@@ -222,6 +222,11 @@ where
           if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
             trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
             return some result
+        if !inErasedSet thm && rflOnly && !thm.isRfl (← getEnv) then
+            let r ← withOptions (experimental.tactic.simp.useRflAttr.set · false) do
+              isRflProof thm.proof
+            if r then
+              trace[Meta.Tactic.simp.rflAttrMismatch] "theorem {thm.proof} is no longer rfl"
       return none
 
   /--

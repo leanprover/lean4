@@ -171,16 +171,12 @@ mutual
         return false
 
   private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
-    let isRfl := rflAttr.hasTag (← getEnv) declName
     if experimental.tactic.simp.useRflAttr.get (← getOptions) then
-      return isRfl
+      return rflAttr.hasTag (← getEnv) declName
     else
       let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
       let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
-      let r ← isRflProofCore info.type info.value
-      unless r = isRfl do
-        trace[Meta.Tactic.simp.rflAttrMismatch] "theorem {.ofConstName declName}:\nattribute {isRfl}\ninferred {r}"
-      return r
+      isRflProofCore info.type info.value
 end
 
 def isRflTheorem (declName : Name) : CoreM Bool :=

@@ -172,14 +172,21 @@ def registerTagAttribute (name : Name) (descr : String)
 
 namespace TagAttribute
 
+/-- Sets the attribute (without running `validate`) -/
+def setTag  [Monad m] [MonadError m] [MonadEnv m] (attr : TagAttribute) (decl : Name) : m Unit := do
+  let env ← getEnv
+  unless (env.getModuleIdxFor? decl).isNone do
+    throwError "invalid attribute '{attr.attr.name}', declaration {.ofConstName decl} is in an imported module"
+  unless env.asyncMayContain decl do
+    throwError "invalid attribute '{attr.attr.name}', declaration {.ofConstName decl} is not from the present async context {env.asyncPrefix?}"
+  modifyEnv fun env => attr.ext.addEntry env decl
+
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
   | none        =>
-    -- TODO: Is findStateAsync not always correct?
     if attr.ext.toEnvExtension.asyncMode matches .async then
-      (attr.ext.findStateAsync env decl).contains decl ||
-      (attr.ext.getState env (asyncMode := .local)).contains decl
+      (attr.ext.findStateAsync env decl).contains decl
     else
       (attr.ext.getState env).contains decl
 

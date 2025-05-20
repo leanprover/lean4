@@ -67,6 +67,4 @@ def inferRflAttr (declName : Name) : MetaM Unit := do
     else
       pure false
   if isRfl then
-    unless (← getEnv).asyncMayContain declName do
-      throwError "inferRflAttr: declaration {.ofConstName declName} is not from the present async context {(← getEnv).asyncPrefix?}"
-    modifyEnv fun env => rflAttr.ext.addEntry env declName
+    rflAttr.setTag declName

@@ -27,14 +27,31 @@ theorem Iter.step_take {α β} [Iterator α Id β] {n : Nat}
         | .done h => .done (.done h)) := by
   simp only [Iter.step, Iter.step, Iter.take_eq, IterM.step_take, toIterM_toIter]
   cases n
-  case zero =>
-    simp [Id.run, PlausibleIterStep.done]
+  case zero => simp [Id.run, PlausibleIterStep.done]
   case succ k =>
     simp only [Id.pure_eq, Id.bind_eq, Id.run, take_eq]
     generalize it.toIterM.step = step
     obtain ⟨step, h⟩ := step
     cases step <;>
       simp [PlausibleIterStep.yield, PlausibleIterStep.skip, PlausibleIterStep.done]
+
+theorem Iter.atIdxSlow?_take {α β}
+    [Iterator α Id β] [Productive α Id] {k l : Nat}
+    {it : Iter (α := α) β} :
+    (it.take k).atIdxSlow? l = if l < k then it.atIdxSlow? l else none := by
+  fun_induction it.atIdxSlow? l generalizing k
+  case case1 it it' out h h' =>
+    simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
+    cases k <;> simp
+  case case2 it it' out h h' l ih =>
+    simp only [Nat.succ_eq_add_one, atIdxSlow?.eq_def (it := it.take k), step_take, h']
+    cases k <;> cases l <;> simp [ih]
+  case case3 l it it' h h' ih =>
+    simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
+    cases k <;> cases l <;> simp [ih]
+  case case4 l it h h' =>
+    simp only [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
+    cases k <;> cases l <;> simp
 
 theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
@@ -52,27 +69,16 @@ theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     · simp [ihs h]
     · simp
 
-theorem Iter.atIdxSlow?_take {α β}
-    [Iterator α Id β] [Productive α Id] {k l : Nat}
+theorem Iter.toListRev_take_of_finite {α β} [Iterator α Id β] {n : Nat}
+    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} :
-    (it.take k).atIdxSlow? l = if l < k then it.atIdxSlow? l else none := by
-  revert k
-  fun_induction it.atIdxSlow? l
-  case case1 it it' out h h' =>
-    intro k
-    simp [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
-    cases k <;> simp
-  case case2 it it' out h h' l ih =>
-    intro k
-    simp [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
-    cases k <;> cases l <;> simp [ih]
-  case case3 l it it' h h' ih =>
-    intro k
-    simp [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
-    cases k <;> cases l <;> simp [ih]
-  case case4 l it h h' =>
-    intro k
-    simp only [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
-    cases k <;> cases l <;> simp
+    (it.take n).toListRev = it.toListRev.drop (it.toList.length - n) := by
+  rw [toListRev_eq, toList_take_of_finite, List.reverse_take, toListRev_eq]
+
+theorem Iter.toArray_take_of_finite {α β} [Iterator α Id β] {n : Nat}
+    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    {it : Iter (α := α) β} :
+    (it.take n).toArray = it.toArray.take n := by
+  rw [← toArray_toList, ← toArray_toList, List.take_toArray, toList_take_of_finite]
 
 end Std.Iterators

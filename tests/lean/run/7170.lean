@@ -188,6 +188,7 @@ def matchTooFew₂ (f : Foo) : Nat :=
   | .foo2, .foo2 => 32
   | .foo => 41
 
+set_option pp.mvars false in
 /--
 error: Not enough patterns in match alternative: Expected 2, but found 1:
   .(_)
@@ -195,7 +196,7 @@ error: Not enough patterns in match alternative: Expected 2, but found 1:
 error: type mismatch
   fun b => True
 has type
-  ?m.892 → Prop : Sort (max 1 ?u.891)
+  ?_ → Prop : Sort (max 1 _)
 but is expected to have type
   Prop : Type
 -/

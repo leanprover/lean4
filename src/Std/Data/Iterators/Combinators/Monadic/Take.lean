@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
+import Init.Data.Nat.Lemmas
 import Init.RCases
 import Std.Data.Iterators.Basic
 import Std.Data.Iterators.Consumers.Monadic.Collect
@@ -135,23 +136,34 @@ instance Take.instIteratorFor [Monad m] [Monad n] [Iterator α m β]
     refine Prod.fst <$> IteratorLoop.forIn lift (γ := γ × Nat)
         (fun
           | out, (c, n), .yield (c', n') => n = n' + 1 ∧ Plausible out c (.yield c')
-          | out, (c, n), .done (c', n') => n = n' + 1 ∧ Plausible out c (.done c'))
+          | out, (c, n), .done (c', n') => True)
         (by
           simp only [IteratorLoop.WellFounded] at ⊢ wf
           letI : WellFoundedRelation _ := ⟨_, wf⟩
-          apply Subrelation.wf (r := InvImage WellFoundedRelation.rel fun p => (p.1.take p.2.2, p.2.1))
+          apply Subrelation.wf (r := InvImage WellFoundedRelation.rel fun p => (p.1.take (p.2.2 + 1), p.2.1))
             (fun {p q} h => by
-              simp [InvImage, WellFoundedRelation.rel, this, IteratorLoop.rel, IterM.plausible_step,
+              simp only [InvImage, WellFoundedRelation.rel, this, IteratorLoop.rel, IterM.plausible_step,
                 Iterator.plausible_step]
-              obtain ⟨out, h, h'⟩ | ⟨out, h⟩ := h
+              obtain ⟨out, h, h'⟩ | ⟨h, h'⟩ := h
               · apply Or.inl
-                refine ⟨out, ?_⟩
-                simp at h'
-              · sorry))
-          -- exact InvImage.wf (fun x : _ × _ × Nat => x.2.2) WellFoundedRelation.wf)
+                exact ⟨out, .yield h (by simp only [IterM.take, internalState_toIterM,
+                  Nat.add_right_cancel_iff, this]; exact h'.1), h'.2⟩
+              · apply Or.inr
+                refine ⟨?_, by rw [h']⟩
+                rw [h']
+                apply PlausibleStep.skip
+                · exact h
+                · rfl)
+          apply InvImage.wf
+          exact WellFoundedRelation.wf)
         it.internalState.inner
         (init, it.internalState.remaining)
-        sorry
+        fun out acc =>
+          match h : acc.snd with
+          | 0 => pure <| ⟨.done acc, .intro⟩
+          | n + 1 => (fun
+              | ⟨.yield x, hp⟩ => ⟨.yield ⟨x, n⟩, by simp [h, hp]⟩
+              | ⟨.done x ,hp⟩ => ⟨.done ⟨x, n⟩, .intro⟩) <$> f out acc.fst
 
 instance Take.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] :

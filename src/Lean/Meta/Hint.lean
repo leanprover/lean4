@@ -164,17 +164,18 @@ def Suggestions.toHintMessage (suggestions : Suggestions) : CoreM MessageData :=
           props := return json
         } (suggestion.messageData?.getD (mkDiffString edits))
       let widgetMsg := m!"{preInfo}{widget}{postInfo}"
-      let suggestionMsg := if suggestions.size == 1 then m!"\n{widgetMsg}" else m!"\n• {widgetMsg}"
+      let suggestionMsg := if suggestions.size == 1 then
+        MessageData.ofFormat "\n" ++ m!"{widgetMsg}"
+      else
+        MessageData.ofFormat "\n" ++ m!"• {widgetMsg}"
       msg := msg ++ MessageData.nestD suggestionMsg
   return msg
 
 /--
-Appends a hint `hint` to `msg`. If `suggestions?` is non-`none`, will also append an inline
-suggestion widget.
+Creates a hint message from `hint` with associated code action(s) given by `suggestions`.
+
+To provide a hint without an associated code action, use `MessageData.hint'`.
 -/
-def _root_.Lean.MessageData.hint (hint : MessageData) (suggestions? : Option Suggestions := none)
+def _root_.Lean.MessageData.hint (hint : MessageData) (suggestions : Suggestions)
     : CoreM MessageData := do
-  let mut hintMsg := m!"\n\nHint: {hint}"
-  if let some suggestions := suggestions? then
-    hintMsg := hintMsg ++ (← suggestions.toHintMessage)
-  return .tagged `hint hintMsg
+  return .tagged `hint (.ofFormat "\n\nHint: " ++ hint ++ (← suggestions.toHintMessage))

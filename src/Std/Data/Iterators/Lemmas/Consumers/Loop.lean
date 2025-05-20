@@ -30,7 +30,7 @@ theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
     ForIn.forIn it init f = letI : MonadLift Id m := ⟨pure⟩; ForIn.forIn it.toIterM init f := by
   rfl
 
-theorem Iter.forIn_of_step {α β : Type w} [Iterator α Id β]
+theorem Iter.forIn_eq_match_step {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}
@@ -43,10 +43,10 @@ theorem Iter.forIn_of_step {α β : Type w} [Iterator α Id β]
         | .done c => return c
       | .skip it' _ => ForIn.forIn it' init f
       | .done _ => return init) := by
-  rw [Iter.forIn_eq_forIn_toIterM, @IterM.forIn_of_step, Iter.step]
+  rw [Iter.forIn_eq_forIn_toIterM, @IterM.forIn_eq_match_step, Iter.step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
-  cases step.casesHelper
+  cases step using PlausibleIterStep.casesOn
   · apply bind_congr
     intro forInStep
     rfl
@@ -61,13 +61,11 @@ theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     {f : β → γ → m (ForInStep γ)} :
     ForIn.forIn it.toList init f = ForIn.forIn it init f := by
   rw [List.forIn_eq_foldlM]
-  revert init
-  induction it using Iter.induct with case step it ihy ihs =>
-  intro init
-  rw [forIn_of_step, Iter.toList_of_step]
+  induction it using Iter.inductSteps generalizing init with case step it ihy ihs =>
+  rw [forIn_eq_match_step, Iter.toList_eq_match_step]
   simp only [map_eq_pure_bind]
   generalize it.step = step
-  cases step.casesHelper
+  cases step using PlausibleIterStep.casesOn
   · rename_i it' out h
     simp only [List.foldlM_cons, bind_pure_comp, map_bind]
     apply bind_congr
@@ -95,7 +93,7 @@ theorem Iter.forIn_yield_eq_foldM {α β γ δ : Type w} [Iterator α Id β]
       it.foldM (fun b c => g c b <$> f c b) init := by
   simp [Iter.foldM_eq_forIn]
 
-theorem Iter.foldM_of_step {α β γ : Type w} [Iterator α Id β] [Finite α Id]
+theorem Iter.foldM_eq_match_step {α β γ : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type w → Type w'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
     [LawfulIteratorLoop α Id m] {f : γ → β → m γ} {init : γ} {it : Iter (α := α) β} :
     it.foldM (init := init) f = (do
@@ -103,9 +101,9 @@ theorem Iter.foldM_of_step {α β γ : Type w} [Iterator α Id β] [Finite α Id
       | .yield it' out _ => it'.foldM (init := ← f init out) f
       | .skip it' _ => it'.foldM (init := init) f
       | .done _ => return init) := by
-  rw [Iter.foldM_eq_forIn, Iter.forIn_of_step]
+  rw [Iter.foldM_eq_forIn, Iter.forIn_eq_match_step]
   generalize it.step = step
-  cases step.casesHelper <;> simp [foldM_eq_forIn]
+  cases step using PlausibleIterStep.casesOn <;> simp [foldM_eq_forIn]
 
 theorem Iter.foldlM_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id] {m : Type w → Type w'}
     [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -148,17 +146,17 @@ theorem Iter.forIn_yield_eq_fold {α β γ : Type w} [Iterator α Id β]
       it.fold (fun b c => f c b) init := by
   simp [Iter.fold_eq_forIn]
 
-theorem Iter.fold_of_step {α β γ : Type w} [Iterator α Id β] [Finite α Id]
+theorem Iter.fold_eq_match_step {α β γ : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.fold (init := init) f = (match it.step with
       | .yield it' out _ => it'.fold (init := f init out) f
       | .skip it' _ => it'.fold (init := init) f
       | .done _ => init) := by
-  rw [fold_eq_foldM, foldM_of_step]
+  rw [fold_eq_foldM, foldM_eq_match_step]
   simp only [fold_eq_foldM]
   generalize it.step = step
-  cases step.casesHelper <;> simp
+  cases step using PlausibleIterStep.casesOn <;> simp
 
 theorem Iter.foldl_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]

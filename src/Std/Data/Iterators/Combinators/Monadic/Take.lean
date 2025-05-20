@@ -125,11 +125,11 @@ instance Take.instFinite [Monad m] [Iterator α m β] [Productive α m] :
     Finite (Take α m β) m :=
   Finite.of_finitenessRelation instFinitenessRelation
 
-instance Take.instIteratorToArray [Monad m] [Iterator α m β] [Productive α m] :
+instance Take.instIteratorCollect [Monad m] [Iterator α m β] [Productive α m] :
     IteratorCollect (Take α m β) m :=
   .defaultImplementation
 
-instance Take.instIteratorToArrayPartial [Monad m] [Iterator α m β] :
+instance Take.instIteratorCollectPartial [Monad m] [Iterator α m β] :
     IteratorCollectPartial (Take α m β) m :=
   .defaultImplementation
 

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 
 Notation for operators defined at Prelude.lean
 -/
-module
+--module
 
 prelude
 import Init.Prelude
@@ -871,32 +871,5 @@ Functionally, `unseal foo` is equivalent to `attribute [local semireducible] foo
 Applying this attribute makes `foo` semireducible only within the local scope.
 -/
 syntax "unseal " (ppSpace ident)+ : command
-
--- bootstrapping hack
-private partial def mapIdentWithOptDotArray (x : TSyntaxArray `ident) : TSyntaxArray ``identWithOptDot :=
-  go 0 (Array.emptyWithCapacity x.size)
-where
-  go (i : Nat) (y : TSyntaxArray ``identWithOptDot) : TSyntaxArray ``identWithOptDot :=
-    if h : i < x.size then
-      let ident := x.getInternal i h
-      go (i + 1) (y.push ⟨.node2 .none ``identWithOptDot ident .missing⟩)
-    else
-      y
-
--- bootstrapping hack: exactly one of these will fail
-
-#guard_msgs (drop error) in
-macro_rules
-  | `(seal $fs:ident*) =>
-    let fs := mapIdentWithOptDotArray fs
-    `(attribute [local irreducible] $fs*)
-  | `(unseal $fs:ident*) =>
-    let fs := mapIdentWithOptDotArray fs
-    `(attribute [local semireducible] $fs*)
-
-#guard_msgs (drop error) in
-macro_rules
-  | `(seal $fs:ident*) => `(attribute [local irreducible] $fs*)
-  | `(unseal $fs:ident*) => `(attribute [local semireducible] $fs*)
 
 end Parser

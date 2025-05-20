@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Extra notation that depends on Init/Meta
 -/
-module
+--module
 
 prelude
 import Init.Data.ToString.Basic
@@ -327,6 +327,11 @@ macro_rules
   | `(letI _ $bs* : $ty := $val; $body) => `(letI x $bs* : $ty := $val; $body)
   | `(letI $x:ident $bs* := $val; $body) => `(letI $x $bs* : _ := $val; $body)
   | `(letI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
+
+-- TODO after stage0 update: move these back to `Init.Notation`
+macro_rules
+  | `(seal $fs:ident*) => `(attribute [local irreducible] $[$fs]*)
+  | `(unseal $fs:ident*) => `(attribute [local semireducible] $[$fs]*)
 
 
 namespace Lean

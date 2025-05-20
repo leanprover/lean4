@@ -473,11 +473,6 @@ theorem insert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (
     simp only [Array.uset, Array.ugetElem_eq_getElem]
   · rfl
 
--- set_option experimental.tactic.simp.useRflAttr false
--- set_option trace.Meta.Tactic.simp.rflAttrMismatch true
--- set_option trace.debug true
--- set_option trace.Meta.isDefEq true in
-
 theorem alter_eq_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : Option (β a) → Option (β a)) : m.alter a f = m.alterₘ a f := by
     dsimp only [alter, alterₘ, containsₘ, ← bucket_eq]

@@ -27,6 +27,8 @@ This behavior is ensured by the test case in the second section.
 See issue #2685.
 -/
 
+set_option Elab.async false -- Somehow we are looking up the rfl attribute wrongly
+
 /-- A wrapper which `dsimp` will eliminate after an appropriate `@[simp]` theorem is added. -/
 def w : Bool → Bool | b => b
 
@@ -36,7 +38,7 @@ def w : Bool → Bool | b => b
 example : w true = true := by dsimp
 
 theorem foo_internal_with_arg (_ : Nat) : w true = true := rfl
-@[simp] theorem foo_using_arg : w true = true := foo_internal_with_arg 0
+@[simp, rfl] theorem foo_using_arg : w true = true := foo_internal_with_arg 0
 
 example : w true = true := by dsimp
 
@@ -47,6 +49,6 @@ example : w true = true := by dsimp
 example : w false = false := by dsimp
 
 theorem foo_internal_without_arg : w false = false := rfl
-@[simp] theorem foo_without_arg : w false = false := foo_internal_without_arg
+@[simp, rfl] theorem foo_without_arg : w false = false := foo_internal_without_arg
 
 example : w false = false := by dsimp

@@ -67,8 +67,6 @@ structure Config where
   if the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
   -/
   splitImp : Bool := false
-  /-- By default, `grind` halts as soon as it encounters a sub-goal where no further progress can be made. -/
-  failures : Nat := 1
   /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/
   canonHeartbeats : Nat := 1000
   /-- If `ext` is `true`, `grind` uses extensionality theorems that have been marked with `[grind ext]`. -/

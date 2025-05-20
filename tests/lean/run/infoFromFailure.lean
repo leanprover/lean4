@@ -41,7 +41,11 @@ trace: [Meta.synthInstance] ❌️ Add String
       [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toCommSemiring]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.CommRing.toCommSemiring to Lean.Grind.CommSemiring String
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.CommSemiring String ≟ Lean.Grind.CommSemiring String
-    [Meta.synthInstance] no instances for Lean.Grind.CommRing String
+    [Meta.synthInstance] new goal Lean.Grind.CommRing String
+      [Meta.synthInstance.instances] #[@Lean.Grind.Field.toCommRing]
+  [Meta.synthInstance] ✅️ apply @Lean.Grind.Field.toCommRing to Lean.Grind.CommRing String
+    [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.CommRing String ≟ Lean.Grind.CommRing String
+    [Meta.synthInstance] no instances for Lean.Grind.Field String
       [Meta.synthInstance.instances] #[]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.Ring.toSemiring to Lean.Grind.Semiring String
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.Semiring String ≟ Lean.Grind.Semiring String
@@ -49,8 +53,6 @@ trace: [Meta.synthInstance] ❌️ Add String
       [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toRing]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.CommRing.toRing to Lean.Grind.Ring String
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.Ring String ≟ Lean.Grind.Ring String
-    [Meta.synthInstance] no instances for Lean.Grind.CommRing String
-      [Meta.synthInstance.instances] #[]
   [Meta.synthInstance] result <not-available>
 -/
 #guard_msgs in
@@ -86,7 +88,11 @@ trace: [Meta.synthInstance] ❌️ Add Bool
       [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toCommSemiring]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.CommRing.toCommSemiring to Lean.Grind.CommSemiring Bool
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.CommSemiring Bool ≟ Lean.Grind.CommSemiring Bool
-    [Meta.synthInstance] no instances for Lean.Grind.CommRing Bool
+    [Meta.synthInstance] new goal Lean.Grind.CommRing Bool
+      [Meta.synthInstance.instances] #[@Lean.Grind.Field.toCommRing]
+  [Meta.synthInstance] ✅️ apply @Lean.Grind.Field.toCommRing to Lean.Grind.CommRing Bool
+    [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.CommRing Bool ≟ Lean.Grind.CommRing Bool
+    [Meta.synthInstance] no instances for Lean.Grind.Field Bool
       [Meta.synthInstance.instances] #[]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.Ring.toSemiring to Lean.Grind.Semiring Bool
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.Semiring Bool ≟ Lean.Grind.Semiring Bool
@@ -94,8 +100,6 @@ trace: [Meta.synthInstance] ❌️ Add Bool
       [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toRing]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.CommRing.toRing to Lean.Grind.Ring Bool
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.Ring Bool ≟ Lean.Grind.Ring Bool
-    [Meta.synthInstance] no instances for Lean.Grind.CommRing Bool
-      [Meta.synthInstance.instances] #[]
   [Meta.synthInstance] result <not-available>
 -/
 #guard_msgs in

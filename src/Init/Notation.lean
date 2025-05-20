@@ -573,7 +573,7 @@ existing code. It may be removed in a future version of the library.
 * `@[deprecated myBetterDef "use myBetterDef instead"]` allows customizing the deprecation message.
 * `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
 -/
-syntax (name := deprecated) "deprecated" (ppSpace identWithOptDot)? (ppSpace str)?
+syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
     (" (" &"since" " := " str ")")? : attr
 
 /--
@@ -595,12 +595,12 @@ This attribute marks a code action, which is used to suggest new tactics or repl
 * `@[command_code_action]`: This is a command code action that applies to all commands.
   Use sparingly.
 -/
-syntax (name := command_code_action) "command_code_action" (ppSpace identWithOptDot)* : attr
+syntax (name := command_code_action) "command_code_action" (ppSpace ident)* : attr
 
 /--
 Builtin command code action. See `command_code_action`.
 -/
-syntax (name := builtin_command_code_action) "builtin_command_code_action" (ppSpace identWithOptDot)* : attr
+syntax (name := builtin_command_code_action) "builtin_command_code_action" (ppSpace ident)* : attr
 
 /--
 When `parent_dir` contains the current Lean file, `include_str "path" / "to" / "file"` becomes
@@ -856,7 +856,7 @@ In terms of functionality, `seal foo` is equivalent to `attribute [local irreduc
 This attribute specifies that `foo` should be treated as irreducible only within the local scope,
 which helps in maintaining the desired abstraction level without affecting global settings.
 -/
-syntax "seal " (ppSpace identWithOptDot)+ : command
+syntax "seal " (ppSpace ident)+ : command
 
 /--
 The `unseal foo` command ensures that the definition of `foo` is unsealed, meaning it is marked as `[semireducible]`, the
@@ -865,32 +865,33 @@ default reducibility setting. This command is useful when you need to allow some
 Functionally, `unseal foo` is equivalent to `attribute [local semireducible] foo`.
 Applying this attribute makes `foo` semireducible only within the local scope.
 -/
-syntax "unseal " (ppSpace identWithOptDot)+ : command
+syntax "unseal " (ppSpace ident)+ : command
 
 -- bootstrapping hack
-private partial def mapIdentWithOptDotArray (x : TSyntaxArray ``identWithOptDot) : TSyntaxArray `ident :=
+private partial def mapIdentWithOptDotArray (x : TSyntaxArray `ident) : TSyntaxArray ``identWithOptDot :=
   go 0 (Array.emptyWithCapacity x.size)
 where
-  go (i : Nat) (y : TSyntaxArray `ident) : TSyntaxArray `ident :=
+  go (i : Nat) (y : TSyntaxArray ``identWithOptDot) : TSyntaxArray ``identWithOptDot :=
     if h : i < x.size then
-      go (i + 1) (y.push ⟨(x.getInternal i h).raw.getArg 0⟩)
+      let ident := x.getInternal i h
+      go (i + 1) (y.push ⟨.node2 .none ``identWithOptDot ident .missing⟩)
     else
       y
 
--- bootstrapping hack: exactly one of these will fail, the second one is the new one
+-- bootstrapping hack: exactly one of these will fail
 
 #guard_msgs (drop error) in
 macro_rules
-  | `(seal $fs:identWithOptDot*) =>
+  | `(seal $fs:ident*) =>
     let fs := mapIdentWithOptDotArray fs
     `(attribute [local irreducible] $fs*)
-  | `(unseal $fs:identWithOptDot*) =>
+  | `(unseal $fs:ident*) =>
     let fs := mapIdentWithOptDotArray fs
     `(attribute [local semireducible] $fs*)
 
 #guard_msgs (drop error) in
 macro_rules
-  | `(seal $fs:identWithOptDot*) => `(attribute [local irreducible] $fs*)
-  | `(unseal $fs:identWithOptDot*) => `(attribute [local semireducible] $fs*)
+  | `(seal $fs:ident*) => `(attribute [local irreducible] $fs*)
+  | `(unseal $fs:ident*) => `(attribute [local semireducible] $fs*)
 
 end Parser

@@ -5,6 +5,9 @@ open Lean Meta
 /-!
 The following should not deadlock: The `simp` tactic should be able to use `a_eq_b` even before
 that theorem body is evaluated.
+
+TODO: Does't work any more with the rfl extension being .async, as that waits for the body to be
+evaluated.
 -/
 
 set_option experimental.tactic.simp.useRflAttr true
@@ -20,11 +23,11 @@ opaque b : Nat
 
 theorem a_eq_b : a = b := by
   -- wait_for_unblock_async
-  run_tac
-    while true do
-      if (← Server.Test.Cancel.unblockedCancelTk.isSet) then
-        break
-      IO.sleep 30
+  -- run_tac
+  --   while true do
+  --     if (← Server.Test.Cancel.unblockedCancelTk.isSet) then
+  --       break
+  --     IO.sleep 30
   -- sleep 100000
   exact testSorry
 

@@ -129,15 +129,15 @@ theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
   simp
 
 @[simp]
-theorem ofFnM_pure [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
+theorem ofFnM_pure_comp [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
     ofFnM (pure ∘ f) = (pure (ofFn f) : m (Vector α n)) := by
   apply Vector.map_toArray_inj.mp
   simp
 
--- Variant of `ofFnM_pure` using a lambda.
+-- Variant of `ofFnM_pure_comp` using a lambda.
 -- This is not marked a `@[simp]` as it would match on every occurrence of `ofFnM`.
-theorem ofFnM_pure' [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
+theorem ofFnM_pure [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
     ofFnM (fun i => pure (f i)) = (pure (ofFn f) : m (Vector α n)) :=
-  ofFnM_pure
+  ofFnM_pure_comp
 
 end Vector

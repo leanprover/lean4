@@ -19,6 +19,7 @@ namespace Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
+@[unbox]
 structure Take (α : Type w) (m : Type w → Type w') (β : Type w) where
   remaining : Nat
   inner : IterM (α := α) m β
@@ -65,6 +66,7 @@ inductive Take.PlausibleStep [Iterator α m β] (it : IterM (α := Take α m β)
   | depleted : it.internalState.remaining = 0 →
       PlausibleStep it .done
 
+@[always_inline, inline]
 instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m β) m β where
   IsPlausibleStep := Take.PlausibleStep
   step it :=
@@ -143,14 +145,15 @@ private def Take.wellFounded_plausibleForInStep {α β : Type w} {m : Type w →
     IteratorLoop.WellFounded α m (PlausibleForInStep f) := by
       simp only [IteratorLoop.WellFounded] at ⊢ wf
       letI : WellFoundedRelation _ := ⟨_, wf⟩
-      apply Subrelation.wf (r := InvImage WellFoundedRelation.rel fun p => (p.1.take (p.2.2 + 1), p.2.1))
+      apply Subrelation.wf
+        (r := InvImage WellFoundedRelation.rel fun p => (p.1.take (p.2.2 + 1), p.2.1))
         (fun {p q} h => by
-          simp only [InvImage, WellFoundedRelation.rel, this, IteratorLoop.rel, IterM.IsPlausibleStep,
-            Iterator.IsPlausibleStep]
+          simp only [InvImage, WellFoundedRelation.rel, this, IteratorLoop.rel,
+            IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
           obtain ⟨out, h, h'⟩ | ⟨h, h'⟩ := h
           · apply Or.inl
             exact ⟨out, .yield h (by simp only [IterM.take, internalState_toIterM,
-              Nat.add_right_cancel_iff, this]; exact h'.1), h'.2⟩
+                Nat.add_right_cancel_iff, this]; exact h'.1), h'.2⟩
           · apply Or.inr
             refine ⟨?_, by rw [h']⟩
             rw [h']

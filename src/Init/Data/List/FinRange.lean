@@ -6,7 +6,7 @@ Authors: François G. Dorais
 module
 
 prelude
-import Init.Data.List.OfFn
+import all Init.Data.List.OfFn
 import Init.Data.List.Monadic
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.

@@ -44,11 +44,10 @@ theorem back_ofFn {n} [NeZero n] {f : Fin n → α} :
 theorem ofFn_succ {f : Fin (n+1) → α} :
     ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by
   ext i h
-  · simp [getElem_push]
-    split <;> rename_i h₃
-    · rfl
-    · congr
-      omega
+  · simp only [getElem_ofFn, getElem_push, Fin.castSucc_mk, left_eq_dite_iff]
+    intro h'
+    have : i = n := by omega
+    simp_all
 
 theorem ofFn_add {n m} {f : Fin (n + m) → α} :
     ofFn f = (ofFn (fun i => f (i.castLE (Nat.le_add_right n m)))) ++ (ofFn (fun i => f (i.natAdd n))) := by

@@ -68,7 +68,8 @@ protected theorem getElem?_ofFn {f : Fin n → α} :
 
 /-- `ofFn` on an empty domain is the empty list. -/
 @[simp]
-theorem ofFn_zero {f : Fin 0 → α} : ofFn f = [] := rfl
+theorem ofFn_zero {f : Fin 0 → α} : ofFn f = [] := by
+  rw [ofFn, Fin.foldr_zero]
 
 theorem ofFn_succ {n} {f : Fin (n + 1) → α} : ofFn f = f 0 :: ofFn fun i => f i.succ :=
   ext_get (by simp) (fun i hi₁ hi₂ => by

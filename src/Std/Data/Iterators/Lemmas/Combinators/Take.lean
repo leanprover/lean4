@@ -13,7 +13,7 @@ namespace Std.Iterators
 
 theorem Iter.take_eq {α β} [Iterator α Id β] {n : Nat}
     {it : Iter (α := α) β} :
-    it.take n = (it.toIterM.take n).toPureIter :=
+    it.take n = (it.toIterM.take n).toIter :=
   rfl
 
 theorem Iter.step_take {α β} [Iterator α Id β] {n : Nat}
@@ -25,13 +25,12 @@ theorem Iter.step_take {α β} [Iterator α Id β] {n : Nat}
         | .yield it' out h => .yield (it'.take k) out (.yield h rfl)
         | .skip it' h => .skip (it'.take (k + 1)) (.skip h rfl)
         | .done h => .done (.done h)) := by
-  simp only [Iter.step, Iter.step, Iter.take_eq, IterM.step_take, toIterM_toPureIter]
+  simp only [Iter.step, Iter.step, Iter.take_eq, IterM.step_take, toIterM_toIter]
   cases n
   case zero =>
     simp [Id.run, PlausibleIterStep.done]
   case succ k =>
     simp only [Id.pure_eq, Id.bind_eq, Id.run, take_eq]
-    dsimp only [toIterM_toPureIter]
     generalize it.toIterM.step = step
     obtain ⟨step, h⟩ := step
     cases step <;>
@@ -41,10 +40,8 @@ theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} :
     (it.take n).toList = it.toList.take n := by
-  revert n
-  induction it using Iter.induct with | step it ihy ihs =>
-  intro n
-  rw [Iter.toList_of_step, Iter.toList_of_step, Iter.step_take]
+  induction it using Iter.inductSteps generalizing n with | step it ihy ihs =>
+  rw [Iter.toList_eq_match_step, Iter.toList_eq_match_step, Iter.step_take]
   cases n
   case zero => simp
   case succ k =>
@@ -55,27 +52,27 @@ theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     · simp [ihs h]
     · simp
 
-theorem Iter.getAtIdx?_take {α β}
+theorem Iter.atIdxSlow?_take {α β}
     [Iterator α Id β] [Productive α Id] {k l : Nat}
     {it : Iter (α := α) β} :
-    (it.take k).seekIdx? l = if l < k then it.seekIdx? l else none := by
+    (it.take k).atIdxSlow? l = if l < k then it.atIdxSlow? l else none := by
   revert k
-  fun_induction it.seekIdx? l
+  fun_induction it.atIdxSlow? l
   case case1 it it' out h h' =>
     intro k
-    simp [seekIdx?.eq_def (it := it.take k), seekIdx?.eq_def (it := it), step_take, h']
+    simp [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
     cases k <;> simp
   case case2 it it' out h h' l ih =>
     intro k
-    simp [seekIdx?.eq_def (it := it.take k), seekIdx?.eq_def (it := it), step_take, h']
+    simp [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
     cases k <;> cases l <;> simp [ih]
   case case3 l it it' h h' ih =>
     intro k
-    simp [seekIdx?.eq_def (it := it.take k), seekIdx?.eq_def (it := it), step_take, h']
+    simp [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
     cases k <;> cases l <;> simp [ih]
   case case4 l it h h' =>
     intro k
-    simp only [seekIdx?.eq_def (it := it.take k), seekIdx?.eq_def (it := it), step_take, h']
+    simp only [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
     cases k <;> cases l <;> simp
 
 end Std.Iterators

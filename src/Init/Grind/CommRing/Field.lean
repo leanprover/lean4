@@ -36,7 +36,8 @@ instance [IsCharP α 0] : NoNatZeroDivisors α where
       rw [Semiring.ofNat_eq_natCast] at w
       replace w := congrArg (fun x => x * b⁻¹) w
       dsimp only [] at w
-      rw [Semiring.mul_assoc, Field.mul_inv_cancel h, Semiring.mul_one, Semiring.zero_mul] at w
+      rw [Semiring.hmul_eq_ofNat_mul, Semiring.mul_assoc, Field.mul_inv_cancel h, Semiring.mul_one,
+        Semiring.natCast_zero, Semiring.zero_mul, Semiring.ofNat_eq_natCast] at w
       contradiction
 
 end Field

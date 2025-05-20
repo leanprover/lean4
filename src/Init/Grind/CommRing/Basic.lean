@@ -122,11 +122,10 @@ instance : NatModule α where
   hmul_add := by simp [left_distrib]
   mul_hmul := by simp [natCast_mul, mul_assoc]
 
-@[simp]
 theorem hmul_eq_natCast_mul {α} [Semiring α] {k : Nat} {a : α} : HMul.hMul (α := Nat) k a = (k : α) * a := rfl
 
 theorem hmul_eq_ofNat_mul {α} [Semiring α] {k : Nat} {a : α} : HMul.hMul (α := Nat) k a = OfNat.ofNat k * a := by
-  simp [ofNat_eq_natCast]
+  simp [ofNat_eq_natCast, hmul_eq_natCast_mul]
 
 end Semiring
 
@@ -279,7 +278,6 @@ instance : IntModule α where
   neg_add_cancel := by simp [neg_add_cancel]
   sub_eq_add_neg := by simp [sub_eq_add_neg]
 
-@[simp]
 theorem hmul_eq_intCast_mul {α} [Ring α] {k : Int} {a : α} : HMul.hMul (α := Int) k a = (k : α) * a := rfl
 
 end Ring

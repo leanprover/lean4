@@ -32,7 +32,7 @@ create, combine and consume iterators. Consider a simple example:
 
 An iterator that emits values in `β` is an element of the type `Iter (α := ?) β`. The implicit
 type argument `α` contains stateful information about the iterator. `IterM (α := ?) m β` represents
-iterators over a monad `m`. In both cases , implementation is provided by a typeclass
+iterators over a monad `m`. In both cases, the implementation is provided by a typeclass
 `Iterator α m β`, where `m` is a monad in which the iteration happens.
 
 The heart of an iterator `it : Iter β` is its `it.step` function, which returns `it.Step α β`.

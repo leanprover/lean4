@@ -86,24 +86,24 @@ theorem Iter.toListRev_eq_match_step {α β} [Iterator α Id β] [Finite α Id] 
   generalize it.toIterM.step = step
   cases step using PlausibleIterStep.casesOn <;> simp
 
-theorem Iter.getElem?_toList_eq_seekIdx? {α β}
+theorem Iter.getElem?_toList_eq_atIdxSlow? {α β}
     [Iterator α Id β] [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} {k : Nat} :
-    it.toList[k]? = it.seekIdx? k := by
+    it.toList[k]? = it.atIdxSlow? k := by
   induction it using Iter.inductSteps generalizing k with | step it ihy ihs =>
-  rw [toList_eq_match_step, seekIdx?]
+  rw [toList_eq_match_step, atIdxSlow?]
   obtain ⟨step, h⟩ := it.step
   cases step
   · cases k <;> simp [ihy h]
   · simp [ihs h]
   · simp
 
-theorem Iter.toList_eq_of_seekIdx?_eq {α₁ α₂ β}
+theorem Iter.toList_eq_of_atIdxSlow?_eq {α₁ α₂ β}
     [Iterator α₁ Id β] [Finite α₁ Id] [IteratorCollect α₁ Id] [LawfulIteratorCollect α₁ Id]
     [Iterator α₂ Id β] [Finite α₂ Id] [IteratorCollect α₂ Id] [LawfulIteratorCollect α₂ Id]
     {it₁ : Iter (α := α₁) β} {it₂ : Iter (α := α₂) β}
-    (h : ∀ k, it₁.seekIdx? k = it₂.seekIdx? k) :
+    (h : ∀ k, it₁.atIdxSlow? k = it₂.atIdxSlow? k) :
     it₁.toList = it₂.toList := by
-  ext; simp [getElem?_toList_eq_seekIdx?, h]
+  ext; simp [getElem?_toList_eq_atIdxSlow?, h]
 
 end Std.Iterators

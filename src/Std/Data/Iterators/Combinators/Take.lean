@@ -11,6 +11,6 @@ namespace Std.Iterators
 @[always_inline, inline]
 def Iter.take {α : Type w} {β : Type w} (n : Nat) (it : Iter (α := α) β) :
     Iter (α := Take α Id β) β :=
-  it.toIterM.take n |>.toPureIter
+  it.toIterM.take n |>.toIter
 
 end Std.Iterators

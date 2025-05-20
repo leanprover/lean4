@@ -22,6 +22,8 @@ class NatModule (M : Type u) extends Zero M, Add M, HMul Nat M M where
   hmul_add : ∀ n : Nat, ∀ a b : M, n * (a + b) = n * a + n * b
   mul_hmul : ∀ n m : Nat, ∀ a : M, (n * m) * a = n * (m * a)
 
+attribute [instance 100] NatModule.toZero NatModule.toAdd NatModule.toHMul
+
 class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M where
   add_zero : ∀ a : M, a + 0 = a
   zero_add : ∀ a : M, 0 + a = a
@@ -36,6 +38,8 @@ class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M w
   mul_hmul : ∀ n m : Int, ∀ a : M, (n * m) * a = n * (m * a)
   neg_add_cancel : ∀ a : M, -a + a = 0
   sub_eq_add_neg : ∀ a b : M, a - b = a + -b
+
+attribute [instance 100] IntModule.toZero IntModule.toAdd IntModule.toNeg IntModule.toSub IntModule.toHMul
 
 instance IntModule.toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
   { i with

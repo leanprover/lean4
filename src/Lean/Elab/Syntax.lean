@@ -98,7 +98,6 @@ def elabParserName (stx : Syntax.Ident) : TermElabM Parser.ParserResolution := d
   | some n => return n
   | none => throwErrorAt stx "unknown parser {stx}"
 
-open TSyntax.Compat in
 /--
   Given a `stx` of category `syntax`, return a `(newStx, lhsPrec?)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
@@ -154,7 +153,7 @@ where
       throwErrorAt stx[1] "unexpected precedence"
 
   processParserCategory (stx : Syntax) := do
-    let catName := stx[0].getId.eraseMacroScopes
+    let catName := stx[0].getIdOrIdWithOptDot.eraseMacroScopes
     if (← read).first && catName == (← read).catName then
       throwErrorAt stx "invalid atomic left recursive syntax"
     let prec? ← liftMacroM <| expandOptPrecedence stx[1]
@@ -194,7 +193,7 @@ where
     return (stx, stackSz)
 
   processNullaryOrCat (stx : Syntax) := do
-    let ident := stx[0]
+    let ident : TSyntax ``identWithOptDot := ⟨stx[0]⟩
     let id := ident.getId.eraseMacroScopes
     match (← elabParserName? ident) with
     | some (.parser c (isDescr := true)) =>
@@ -220,14 +219,14 @@ where
 
   processSepBy (stx : Syntax) := do
     let p ← ensureUnaryOutput <$> withNestedParser do process stx[1]
-    let sep := stx[3]
+    let sep : Term := ⟨stx[3]⟩
     let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else ensureUnaryOutput <$> withNestedParser do process stx[4][1]
     let allowTrailingSep := !stx[5].isNone
     return (← `((with_annotate_term $(stx[0]) @ParserDescr.sepBy) $p $sep $psep $(quote allowTrailingSep)), 1)
 
   processSepBy1 (stx : Syntax) := do
     let p ← ensureUnaryOutput <$> withNestedParser do process stx[1]
-    let sep := stx[3]
+    let sep : Term := ⟨stx[3]⟩
     let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else ensureUnaryOutput <$> withNestedParser do process stx[4][1]
     let allowTrailingSep := !stx[5].isNone
     return (← `((with_annotate_term $(stx[0]) @ParserDescr.sepBy1) $p $sep $psep $(quote allowTrailingSep)), 1)

@@ -1,0 +1,60 @@
+{"textDocument": {"uri": "file:///dotCompletion.lean"},
+ "position": {"line": 10, "character": 13}}
+{"items":
+ [{"label": "Inner",
+   "kind": 9,
+   "detail": "namespace",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dotCompletion.lean"},
+     "position": {"line": 10, "character": 13}},
+    "cPos": 0}},
+  {"label": "hi",
+   "kind": 21,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dotCompletion.lean"},
+     "position": {"line": 10, "character": 13}},
+    "id": {"const": {"declName": "Outer.hi"}},
+    "cPos": 0}}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file:///dotCompletion.lean"},
+ "position": {"line": 13, "character": 13}}
+{"items":
+ [{"label": "Inner",
+   "kind": 9,
+   "detail": "namespace",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dotCompletion.lean"},
+     "position": {"line": 13, "character": 13}},
+    "cPos": 0}},
+  {"label": "hi",
+   "kind": 21,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dotCompletion.lean"},
+     "position": {"line": 13, "character": 13}},
+    "id": {"const": {"declName": "Outer.hi"}},
+    "cPos": 0}}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file:///dotCompletion.lean"},
+ "position": {"line": 20, "character": 16}}
+{"items":
+ [{"label": "Inner",
+   "kind": 9,
+   "detail": "namespace",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dotCompletion.lean"},
+     "position": {"line": 20, "character": 16}},
+    "cPos": 0}},
+  {"label": "hi",
+   "kind": 21,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dotCompletion.lean"},
+     "position": {"line": 20, "character": 16}},
+    "id": {"const": {"declName": "Outer.hi"}},
+    "cPos": 0}}],
+ "isIncomplete": true}

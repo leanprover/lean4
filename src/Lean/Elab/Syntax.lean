@@ -70,7 +70,7 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   let ctx ← read
   unless ctx.first && stx.getKind == ``Lean.Parser.Syntax.cat do
     return false
-  let cat := stx[0].getId.eraseMacroScopes
+  let cat := stx[0].getIdOrIdWithOptDot.eraseMacroScopes
   unless cat == ctx.catName do
     return false
   addCategoryInfo stx cat

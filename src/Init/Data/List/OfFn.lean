@@ -169,4 +169,11 @@ theorem ofFnM_pure [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
     ofFnM (fun i => pure (f i)) = (pure (ofFn f) : m (List α)) :=
   ofFnM_pure_comp
 
+@[simp, grind =] theorem idRun_ofFnM {f : Fin n → Id α} :
+    Id.run (ofFnM f) = ofFn (fun i => Id.run (f i)) := by
+  unfold Id.run
+  induction n with
+  | zero => simp
+  | succ n ih => simp [ofFnM_succ_last, ofFn_succ_last, ih]
+
 end List

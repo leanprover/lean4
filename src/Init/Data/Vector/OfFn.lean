@@ -128,6 +128,19 @@ theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
     simpa [-toArray_ofFnM]
   simp
 
+theorem ofFnM_succ' {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
+    ofFnM f = (do
+      let a ← f 0
+      let as ← ofFnM fun i => f i.succ
+      pure ((#v[a] ++ as).cast (by omega))) := by
+  apply Vector.map_toArray_inj.mp
+  simp only [toArray_ofFnM, Array.ofFnM_succ', bind_pure_comp, map_bind, Functor.map_map,
+    toArray_cast, toArray_append]
+  congr 1
+  funext x
+  have : (fun xs : Vector α n => #[x] ++ xs.toArray) = (#[x] ++ ·) ∘ toArray := by funext xs; simp
+  simp [this, comp_map]
+
 @[simp]
 theorem ofFnM_pure_comp [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
     ofFnM (pure ∘ f) = (pure (ofFn f) : m (Vector α n)) := by
@@ -139,5 +152,12 @@ theorem ofFnM_pure_comp [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
 theorem ofFnM_pure [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
     ofFnM (fun i => pure (f i)) = (pure (ofFn f) : m (Vector α n)) :=
   ofFnM_pure_comp
+
+@[simp, grind =] theorem idRun_ofFnM {f : Fin n → Id α} :
+    Id.run (ofFnM f) = ofFn (fun i => Id.run (f i)) := by
+  unfold Id.run
+  induction n with
+  | zero => simp
+  | succ n ih => simp [ofFnM_succ', ofFn_succ', ih]
 
 end Vector

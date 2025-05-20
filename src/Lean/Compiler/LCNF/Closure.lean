@@ -86,7 +86,7 @@ mutual
 
   partial def collectLetValue (e : LetValue) : ClosureM Unit := do
     match e with
-    | .erased | .value .. => return ()
+    | .erased | .lit .. => return ()
     | .proj _ _ fvarId => collectFVar fvarId
     | .const _ _ args => args.forM collectArg
     | .fvar fvarId args => collectFVar fvarId; args.forM collectArg

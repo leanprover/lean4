@@ -97,7 +97,7 @@ def deriveInduction (name : Name) : MetaM Unit :=
   let inductName := name ++ `fixpoint_induct
   realizeConst name inductName do
   trace[Elab.definition.partialFixpoint] "Called deriveInduction for {inductName}"
-  mapError (f := (m!"Cannot derive fixpoint induction principle (please report this issue)\n{indentD ·}")) do
+  prependError m!"Cannot derive fixpoint induction principle (please report this issue)" do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
@@ -314,7 +314,7 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
   unless (← getEnv).contains fixpointInductThm do
     deriveInduction name
 
-  mapError (f := (m!"Cannot derive partial correctness theorem (please report this issue)\n{indentD ·}")) do
+  prependError m!"Cannot derive partial correctness theorem (please report this issue)" do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
 

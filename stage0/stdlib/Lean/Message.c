@@ -137,7 +137,6 @@ LEAN_EXPORT lean_object* l_Lean_inlineExpr___lambda__1___boxed(lean_object*, lea
 static lean_object* l_Lean___aux__Lean__Message______macroRules__Lean__termM_x21____1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_instToJsonBaseMessage___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_hasSyntheticSorry(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_formatAux___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedBaseMessage___rarg___closed__1;
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__19;
@@ -218,6 +217,7 @@ static lean_object* l_Lean_mkErrorStringWithPos___closed__3;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_instCoeString___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToMessageDataArray___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__24;
 static lean_object* l_Lean_MessageData_orList___closed__1;
 LEAN_EXPORT uint8_t l_Lean_MessageData_ofConstName___elambda__1(lean_object*);
@@ -370,6 +370,7 @@ static lean_object* l_Lean_MessageData_initFn____x40_Lean_Message___hyg_1533____
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Message_0__Lean_fromJsonMessageSeverity____x40_Lean_Message___hyg_164____lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_inlineExpr___lambda__2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 extern lean_object* l_instMonadBaseIO;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3307____spec__2(lean_object*, lean_object*);
@@ -597,7 +598,6 @@ static lean_object* l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x4
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_instToMessageDataString___closed__1;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_stringToMessageData___spec__3(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_MessageLog_msgs___boxed(lean_object*);
 static lean_object* l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3840____closed__20;
 LEAN_EXPORT lean_object* l_Lean_SerialMessage_toString___lambda__1___boxed(lean_object*, lean_object*);
@@ -906,7 +906,7 @@ x_1 = 0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -918,7 +918,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -926,7 +926,7 @@ x_3 = lean_unbox(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_4);
+x_5 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -935,7 +935,7 @@ static lean_object* _init_l_Lean_instBEqMessageSeverity___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107____boxed), 2, 0);
 return x_1;
 }
 }

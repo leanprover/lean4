@@ -437,5 +437,4 @@ Examples:
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
-instance (a b : USize) : Decidable (a < b) := USize.decLt a b
-instance (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
+attribute [instance] USize.decLt USize.decLe

@@ -75,7 +75,7 @@ inductive Origin where
   | stx (id : Name) (ref : Syntax)
   /-- It is local, but we don't have a local hypothesis for it. -/
   | local (id : Name)
-  deriving Inhabited, Repr, BEq
+  deriving Inhabited, Repr
 
 /-- A unique identifier corresponding to the origin. -/
 def Origin.key : Origin → Name

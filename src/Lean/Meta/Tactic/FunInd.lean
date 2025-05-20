@@ -552,6 +552,32 @@ def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
   return ys
 
 /--
+Inverse of `maskArray`:
+```
+zipMaskedArray mask (maskArray (mask.map not) xs) (maskArray mask xs) == xs
+```
+-/
+def zipMaskedArray {α} (mask : Array Bool) (xs ys : Array α) : Array α := Id.run do
+  let mut i := 0
+  let mut j := 0
+  let mut zs := #[]
+  for b in mask do
+    if b then
+      if h : j < ys.size then
+        zs := zs.push ys[j]
+        j := j + 1
+      else
+        panic! "zipMaskedArray: not enough elements in ys"
+    else
+      if h : i < xs.size then
+        zs := zs.push xs[i]
+        i := i + 1
+      else
+        panic! "zipMaskedArray: not enough elements in xs"
+  return zs
+
+
+/--
 Applies `rw` to `goal`, passes the rewritten `goal'` to `k` (which should return an expression of
 type `goal'`), and wraps that using the proof from `rw`.
 -/
@@ -1186,7 +1212,7 @@ def unpackMutualInduction (unfolding : Bool) (eqnInfo : WF.EqnInfo) : MetaM Name
   return inductName
 where doRealize inductName := do
   let unaryInductName ← deriveUnaryInduction (unfolding := unfolding) eqnInfo.declNameNonRec
-  mapError (f := (m!"Cannot unpack functional cases principle {.ofConstName unaryInductName} (please report this issue)\n{indentD ·}")) do
+  prependError m!"Cannot unpack functional cases principle {.ofConstName unaryInductName} (please report this issue)" do
   let ci ← getConstInfo unaryInductName
   let us := ci.levelParams
   let value := .const ci.name (us.map mkLevelParam)
@@ -1479,6 +1505,55 @@ where doRealize inductName := do
 
 
 /--
+Given an expression `fun x y z => body`, returns a bit mask of the functinon's arity length
+that has `true` whenver that parameter of the function appears as a scrutinee of a `match` in
+tail position. These are the parameters that are likely useful as targets of the motive
+of the functional cases theorem. All others become parameters or may be dropped.
+
+-/
+partial def refinedArguments (e : Expr) : MetaM (Array Bool) := do
+  let (_, mask) ← lambdaTelescope e fun xs body =>
+    let mask0 := Array.replicate xs.size false
+    go xs body |>.run mask0
+  let mut mask := mask
+  let revDeps ← getParamRevDeps e
+  assert! revDeps.size = mask.size
+  for i in [:mask.size] do
+    if mask[i]! then
+      for j in revDeps[i]! do
+          mask := mask.set! j true
+  pure mask
+where
+  -- NB: we process open terms here.
+  go (xs : Array Expr) (e : Expr) : StateT (Array Bool) MetaM Unit := do
+    let e := e.consumeMData
+
+    if e.isLambda then
+      -- Not strictly tail position, but simplifies the code below and should not make
+      -- a difference in practice
+      go xs e.bindingBody!
+    else if e.isLet then
+      go xs e.letBody!
+    else
+      e.withApp fun f args => do
+        if f.isConst then
+          if let some matchInfo ← getMatcherInfo? f.constName! then
+            for scrut in args[matchInfo.getFirstDiscrPos:matchInfo.getFirstAltPos] do
+              if let some i := xs.idxOf? scrut then
+                modify (·.set! i true)
+            for alt in args[matchInfo.getFirstAltPos:matchInfo.arity] do
+              go xs alt
+        if f.isConstOf ``letFun then
+          for arg in args[3:4] do
+            go xs arg
+        if f.isConstOf ``ite || f.isConstOf ``dite then
+          for arg in args[3:5] do
+            go xs arg
+        if f.isConstOf ``cond then
+          for arg in args[2:4] do
+            go xs arg
+
+/--
 For non-recursive (and recursive functions) functions we derive a “functional case splitting theorem”. This is very similar
 than the functional induction theorem. It splits the goal, but does not give you inductive hyptheses.
 
@@ -1493,7 +1568,7 @@ are not variables, to avoid having to generalize them.
 def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
   let casesName := getFunCasesName (unfolding := unfolding) name
   realizeConst name casesName do
-  mapError (f := (m!"Cannot derive functional cases principle (please report this issue)\n{indentD ·}")) do
+  prependError m!"Cannot derive functional cases principle (please report this issue)" do
     let info ← getConstInfo name
     let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := true) name
       | throwError "'{name}' does not have an unfold theorem nor a value"
@@ -1503,34 +1578,44 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
         let some (_, _, rhs) := body.eq?
           | throwError "Type of {unfoldEqnName} not an equality: {body}"
         mkLambdaFVars xs rhs
-    let motiveType ← lambdaTelescope value fun xs _body => do
-      if unfolding then
-        withLocalDeclD `r (← instantiateForall info.type xs) fun r =>
-          mkForallFVars (xs.push r) (.sort 0)
-      else
-        mkForallFVars xs (.sort 0)
-    let motiveArity ← lambdaTelescope value fun xs _body => do
-      pure xs.size
-    let e' ← withLocalDeclD `motive motiveType fun motive => do
-      lambdaTelescope value fun xs body => do
-        let (e', mvars) ← M2.run do
-          let goal := mkAppN motive xs
-          let goal ← if unfolding then
-            pure <| mkApp goal (mkAppN (← mkConstWithLevelParams name) xs)
-          else
-            pure goal
-          withRewrittenMotiveArg goal (rwFun #[name]) fun goal => do
-            -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
-            -- so `buildInductionBody` should just do the right thing
-            withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
-              let isRecCall := fun _ => none
-              buildInductionBody #[fakeIH.fvarId!] #[] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
-        let e' ← mkLambdaFVars xs e'
-        let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
-        mkLambdaFVars #[motive] e'
+    let targetMask ← refinedArguments value
+    trace[Meta.FunInd] "targetMask: {targetMask}"
 
-    unless (← isTypeCorrect e') do
-      logError m!"constructed functional cases principle is not type correct:{indentExpr e'}"
+    let (paramsMask, e') ← lambdaTelescope value fun xs _ => do
+      let params := maskArray (targetMask.map not) xs
+      let targets := maskArray targetMask xs
+      let motiveType ←
+        if unfolding then
+          withLocalDeclD `r (← instantiateForall info.type xs) fun r =>
+            mkForallFVars (targets.push r) (.sort 0)
+        else
+          mkForallFVars targets (.sort 0)
+      -- Remove targets from local context, we want to bring them into scope after the motive
+      -- so that the index passed to `abstractIndependentMVars` works.
+      withErasedFVars (targets.map (·.fvarId!)) do
+        withLocalDeclD `motive motiveType fun motive => do
+          -- Bring targets freshly into scope again
+          forallBoundedTelescope motiveType targets.size fun targets _ => do
+            let (e', mvars) ← M2.run do
+              let args := zipMaskedArray targetMask params targets
+              let body := value.beta args
+              let goal := mkAppN motive targets
+              let goal ← if unfolding then
+                pure <| mkApp goal (mkAppN (← mkConstWithLevelParams name) args)
+              else
+                pure goal
+              withRewrittenMotiveArg goal (rwFun #[name]) fun goal => do
+                -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
+                -- so `buildInductionBody` should just do the right thing
+                withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
+                  let isRecCall := fun _ => none
+                  buildInductionBody #[fakeIH.fvarId!] #[] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
+            let e' ← mkLambdaFVars targets e'
+            let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
+            let e' ← mkLambdaFVars #[motive] e'
+            mkLambdaFVarsMasked params e'
+
+    mapError (f := (m!"constructed functional cases principle is not type correct:{indentExpr e'}\n{indentD ·}")) do
       check e'
 
     let eTyp ← inferType e'
@@ -1545,18 +1630,32 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
     addDecl <| Declaration.thmDecl
       { name := casesName, levelParams := us, type := eTyp, value := e' }
 
+    -- Calculate paramsKind from targetMask (length = arity) and paramsMask (length = params)
+    let mut paramKinds := #[]
+    let mut j := 0
+    for isTarget in targetMask do
+      if isTarget then
+        paramKinds := paramKinds.push .target
+      else
+        assert! j < paramsMask.size
+        if paramsMask[j]! then
+          paramKinds := paramKinds.push .param
+        else
+          paramKinds := paramKinds.push .dropped
+        j := j + 1
+
     setFunIndInfo {
       funName := name
       funIndName := casesName
       levelMask := usMask
-      params := .replicate motiveArity .target
+      params := paramKinds
     }
 
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.
 -/
 def deriveInduction (unfolding : Bool) (name : Name) : MetaM Unit := do
-  mapError (f := (m!"Cannot derive functional induction principle (please report this issue)\n{indentD ·}")) do
+  prependError m!"Cannot derive functional induction principle (please report this issue)" do
     if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then
       let unaryInductName ← deriveUnaryInduction unfolding eqnInfo.declNameNonRec
       if eqnInfo.declNames.size > 1 then

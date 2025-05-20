@@ -262,6 +262,7 @@ LEAN_EXPORT lean_object* l_List_foldl___at_List_repr_x27___spec__2___rarg(lean_o
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprList___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instReprOption___rarg(lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_instReprId___rarg(lean_object*);
 lean_object* lean_string_of_usize(size_t);
 static lean_object* l_Decidable_repr___rarg___closed__3;
@@ -284,6 +285,7 @@ static lean_object* l_List_repr___rarg___closed__6;
 static lean_object* l_instReprIterator___closed__4;
 LEAN_EXPORT uint32_t l_Nat_subDigitChar(lean_object*);
 static lean_object* l_Char_quoteCore___closed__4;
+static lean_object* l___private_Init_Data_Repr_0__Nat_reprFast___closed__2;
 static lean_object* l_Sigma_repr___rarg___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2588____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_repr(uint8_t, lean_object*);
@@ -1883,6 +1885,15 @@ return x_4;
 static lean_object* _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__1() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Init_Data_Repr_0__Nat_reprArray;
+x_2 = lean_array_get_size(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(2u);
 x_2 = l_System_Platform_numBits;
@@ -1894,12 +1905,12 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = lean_unsigned_to_nat(128u);
+x_2 = l___private_Init_Data_Repr_0__Nat_reprFast___closed__1;
 x_3 = lean_nat_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l___private_Init_Data_Repr_0__Nat_reprFast___closed__1;
+x_4 = l___private_Init_Data_Repr_0__Nat_reprFast___closed__2;
 x_5 = lean_nat_dec_lt(x_1, x_4);
 if (x_5 == 0)
 {
@@ -4289,6 +4300,8 @@ l___private_Init_Data_Repr_0__Nat_reprArray = _init_l___private_Init_Data_Repr_0
 lean_mark_persistent(l___private_Init_Data_Repr_0__Nat_reprArray);
 l___private_Init_Data_Repr_0__Nat_reprFast___closed__1 = _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__1();
 lean_mark_persistent(l___private_Init_Data_Repr_0__Nat_reprFast___closed__1);
+l___private_Init_Data_Repr_0__Nat_reprFast___closed__2 = _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__2();
+lean_mark_persistent(l___private_Init_Data_Repr_0__Nat_reprFast___closed__2);
 l_Int_repr___closed__1 = _init_l_Int_repr___closed__1();
 lean_mark_persistent(l_Int_repr___closed__1);
 l_Int_repr___closed__2 = _init_l_Int_repr___closed__2();

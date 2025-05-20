@@ -41,9 +41,7 @@ def M.run (x : M α) : CompilerM α := do
   x.run' {}
 
 def remapFVar (fvarId : FVarId) : M FVarId := do
-  match (← get).fvarMap[fvarId]? with
-  | some newFvarId => return newFvarId
-  | none => return fvarId
+  return (← get).fvarMap[fvarId]?.getD fvarId
 
 mutual
 
@@ -107,7 +105,7 @@ partial def visitLetValue (v : LetValue) : M LetValue := do
     return v.updateArgs! (← args.mapM visitArg)
   | .fvar fvarId args =>
     return v.updateFVar! (← remapFVar fvarId) (← args.mapM visitArg)
-  | .value _ | .erased => return v
+  | .lit _ | .erased => return v
   -- Projections should be handled directly by `visitCode`.
   | .proj .. => unreachable!
 

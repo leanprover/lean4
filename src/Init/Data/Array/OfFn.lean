@@ -30,12 +30,11 @@ theorem ofFn_succ {f : Fin (n+1) → α} :
     ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by
   ext i h₁ h₂
   · simp
-  · simp [getElem_push]
-    split <;> rename_i h₃
-    · rfl
-    · congr
-      simp at h₁ h₂
-      omega
+  · simp only [getElem_ofFn, getElem_push, size_ofFn, Fin.castSucc_mk, left_eq_dite_iff,
+      Nat.not_lt]
+    simp only [size_ofFn] at h₁
+    intro h₃
+    simp only [show i = n by omega]
 
 theorem ofFn_add {n m} {f : Fin (n + m) → α} :
     ofFn f = (ofFn (fun i => f (i.castLE (Nat.le_add_right n m)))) ++ (ofFn (fun i => f (i.natAdd n))) := by

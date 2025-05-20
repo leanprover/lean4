@@ -264,7 +264,7 @@ See `normExprImp`
 -/
 private partial def normLetValueImp (s : FVarSubst) (e : LetValue) (translator : Bool) : LetValue :=
   match e with
-  | .erased | .value .. => e
+  | .erased | .lit .. => e
   | .proj _ _ fvarId => match normFVarImp s fvarId translator with
     | .fvar fvarId' => e.updateProj! fvarId'
     | .erased => .erased

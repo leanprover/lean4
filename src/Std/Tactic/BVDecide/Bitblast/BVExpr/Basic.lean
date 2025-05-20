@@ -252,7 +252,7 @@ namespace BVExpr
 instance : Hashable (BVExpr w) where
   hash expr := expr.hashCode _
 
-def decEq : DecidableEq (BVExpr w) := fun l r =>
+instance decEq : DecidableEq (BVExpr w) := fun l r =>
   withPtrEqDecEq l r fun _ =>
     if h : hash l ≠ hash r then
       .isFalse (ne_of_apply_ne hash h)
@@ -364,9 +364,6 @@ def decEq : DecidableEq (BVExpr w) := fun l r =>
             .isFalse (by simp [h1])
         | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
         | .shiftRight .. | .shiftLeft .. => .isFalse (by simp)
-
-
-instance : DecidableEq (BVExpr w) := decEq
 
 def toString : BVExpr w → String
   | .var idx => s!"var{idx}"

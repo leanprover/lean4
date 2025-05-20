@@ -33,10 +33,10 @@ theorem ListIterator.toArrayMapped_eq [LawfulMonad m]
   rw [LawfulIteratorCollect.toArrayMapped_eq]
   induction l with
   | nil =>
-    rw [IterM.DefaultConsumers.toArrayMapped_of_step]
+    rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
     simp [List.step_iterM_nil]
   | cons x xs ih =>
-    rw [IterM.DefaultConsumers.toArrayMapped_of_step]
+    rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
     simp [List.step_iterM_cons, List.mapM_cons, pure_bind, ih]
 
 theorem _root_.List.toArray_iterM [LawfulMonad m] {l : List β} :

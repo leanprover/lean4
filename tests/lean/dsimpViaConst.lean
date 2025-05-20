@@ -27,8 +27,6 @@ This behavior is ensured by the test case in the second section.
 See issue #2685.
 -/
 
--- set_option Elab.async false -- Somehow we are looking up the rfl attribute wrongly
-
 /-- A wrapper which `dsimp` will eliminate after an appropriate `@[simp]` theorem is added. -/
 def w : Bool → Bool | b => b
 

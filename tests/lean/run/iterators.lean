@@ -41,7 +41,6 @@ section WellFoundedRecursion
 def sum (l : List Nat) : Nat :=
   go l.iter 0
 where
-  @[specialize] -- The old code generator seems to need this.
   go it acc :=
     match it.step with
     | .yield it' out _ => go it' (acc + out)
@@ -71,7 +70,6 @@ section Take
 def sumTakeRec (l : List Nat) : Nat :=
   go (l.iter.take 2) 0
 where
-  @[specialize] -- The old code generator seems to need this.
   go it acc :=
     match it.step with
     | .yield it' out _ => go it' (acc + out)

@@ -1,7 +1,15 @@
 {"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 0, "character": 51}}
 {"items":
- [{"label": "getDocString",
+ [{"label": "getIdWithOptDot",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getIdWithOptDot"}},
+    "cPos": 1}},
+  {"label": "getDocString",
    "kind": 3,
    "data":
    {"params":
@@ -85,7 +93,15 @@
 {"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 2, "character": 53}}
 {"items":
- [{"label": "getDocString",
+ [{"label": "getIdWithOptDot",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getIdWithOptDot"}},
+    "cPos": 1}},
+  {"label": "getDocString",
    "kind": 3,
    "data":
    {"params":

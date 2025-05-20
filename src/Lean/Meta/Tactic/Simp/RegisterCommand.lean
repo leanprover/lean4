@@ -11,7 +11,7 @@ import Lean.Meta.Tactic.Simp.Attr
 namespace Lean.Meta.Simp
 
 macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:(docComment)?
-  "register_simp_attr" id:ident : command => do
+  "register_simp_attr " id:ident : command => do
   let str := id.getId.toString
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
   let descr := quote ((doc.map (·.getDocString) |>.getD s!"simp set for {id.getId.toString}").removeLeadingSpaces)

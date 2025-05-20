@@ -179,13 +179,23 @@ private def getOptRotation (stx : Syntax) : Nat :=
     popScope
 
 @[builtin_tactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
-  let options ← Elab.elabSetOption stx[1][0] stx[2]
-  withOptions (fun _ => options) do
-    try
-      evalTactic stx[4]
-    finally
-      if stx[1][0].getId == `diagnostics then
-        reportDiag
+  -- for bootstrapping: we use `set_option ... in` in `unhygienic`
+  if stx[1].isIdent then
+    let options ← Elab.elabSetOption stx[1] stx[3]
+    withOptions (fun _ => options) do
+      try
+        evalTactic stx[5]
+      finally
+        if stx[1].getId == `diagnostics then
+          reportDiag
+  else
+    let options ← Elab.elabSetOption stx[1][0] stx[2]
+    withOptions (fun _ => options) do
+      try
+        evalTactic stx[4]
+      finally
+        if stx[1][0].getId == `diagnostics then
+          reportDiag
 
 @[builtin_tactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let mvarIds ← getGoals

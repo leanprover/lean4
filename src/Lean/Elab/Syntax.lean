@@ -193,7 +193,8 @@ where
     return (stx, stackSz)
 
   processNullaryOrCat (stx : Syntax) := do
-    let ident : TSyntax ``identWithOptDot := ⟨stx[0]⟩
+    -- TODO after stage0 update: simplify
+    let ident : Ident := if stx[0].isIdent then ⟨stx[0]⟩ else ⟨stx[0][0]⟩
     let id := ident.getId.eraseMacroScopes
     match (← elabParserName? ident) with
     | some (.parser c (isDescr := true)) =>

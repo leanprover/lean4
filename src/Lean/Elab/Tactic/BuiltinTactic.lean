@@ -179,7 +179,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
     popScope
 
 @[builtin_tactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let options ← Elab.elabSetOption stx[1][0] stx[2]
   withOptions (fun _ => options) do
     try
       evalTactic stx[5]

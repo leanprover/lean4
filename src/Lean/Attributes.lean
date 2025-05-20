@@ -186,7 +186,7 @@ def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
   | none        =>
     if attr.ext.toEnvExtension.asyncMode matches .async then
-      (attr.ext.findStateAsync env decl).contains decl
+      (attr.ext.getState env (asyncMode := .local)).contains decl
     else
       (attr.ext.getState env).contains decl
 

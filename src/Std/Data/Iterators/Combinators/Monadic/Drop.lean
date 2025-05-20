@@ -17,6 +17,7 @@ namespace Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
+@[unbox]
 structure Drop (α : Type w) (m : Type w → Type w') (β : Type w) where
   remaining : Nat
   inner : IterM (α := α) m β

@@ -9,7 +9,7 @@ import Init.RCases
 import Std.Data.Iterators.Basic
 import Std.Data.Iterators.Consumers.Monadic.Collect
 import Std.Data.Iterators.Consumers.Monadic.Loop
-import Std.Data.Iterators.Workbench.Termination
+import Std.Data.Iterators.Internal.Termination
 
 /-!
 This module provides the iterator combinator `IterM.take`.
@@ -39,10 +39,8 @@ it.take 3   ---a--⊥
 
 **Termination properties:**
 
-* `Finite` instance: always ✓
+* `Finite` instance: only if `it` is productive
 * `Productive` instance: only if `it` is productive
-
-_TODO_: prove `Productive`
 
 **Performance:**
 
@@ -59,16 +57,16 @@ theorem IterM.take.surjective {α : Type w} {m : Type w → Type w'} {β : Type 
 
 inductive Take.PlausibleStep [Iterator α m β] (it : IterM (α := Take α m β) m β) :
     (step : IterStep (IterM (α := Take α m β) m β) β) → Prop where
-  | yield : ∀ {it' out k}, it.internalState.inner.plausible_step (.yield it' out) →
+  | yield : ∀ {it' out k}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
       it.internalState.remaining = k + 1 → PlausibleStep it (.yield (it'.take k) out)
-  | skip : ∀ {it' k}, it.internalState.inner.plausible_step (.skip it') →
+  | skip : ∀ {it' k}, it.internalState.inner.IsPlausibleStep (.skip it') →
       it.internalState.remaining = k + 1 → PlausibleStep it (.skip (it'.take (k + 1)))
-  | done : it.internalState.inner.plausible_step .done → PlausibleStep it .done
+  | done : it.internalState.inner.IsPlausibleStep .done → PlausibleStep it .done
   | depleted : it.internalState.remaining = 0 →
       PlausibleStep it .done
 
 instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m β) m β where
-  plausible_step := Take.PlausibleStep
+  IsPlausibleStep := Take.PlausibleStep
   step it :=
     match h : it.internalState.remaining with
     | 0 => pure <| .done (.depleted h)
@@ -78,26 +76,26 @@ instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m β
       | .skip it' h' => pure <| .skip (it'.take (k + 1)) (.skip h' h)
       | .done h' => pure <| .done (.done h')
 
-def Take.rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive α m] :
+def Take.Rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive α m] :
     IterM (α := Take α m β) m β → IterM (α := Take α m β) m β → Prop :=
-  InvImage (Prod.Lex Nat.lt_wfRel.rel IterM.TerminationMeasures.Productive.rel)
+  InvImage (Prod.Lex Nat.lt_wfRel.rel IterM.TerminationMeasures.Productive.Rel)
     (fun it => (it.internalState.remaining, it.internalState.inner.finitelyManySkips))
 
 theorem Take.rel_of_remaining [Monad m] [Iterator α m β] [Productive α m]
     {it it' : IterM (α := Take α m β) m β}
-    (h : it'.internalState.remaining < it.internalState.remaining) : Take.rel m it' it :=
+    (h : it'.internalState.remaining < it.internalState.remaining) : Take.Rel m it' it :=
   Prod.Lex.left _ _ h
 
 theorem Take.rel_of_inner [Monad m] [Iterator α m β] [Productive α m] {remaining : Nat}
     {it it' : IterM (α := α) m β}
-    (h : it'.finitelyManySkips.rel it.finitelyManySkips) :
-    Take.rel m (it'.take remaining) (it.take remaining) :=
+    (h : it'.finitelyManySkips.Rel it.finitelyManySkips) :
+    Take.Rel m (it'.take remaining) (it.take remaining) :=
   Prod.Lex.right _ h
 
-instance Take.instFinitenessRelation [Monad m] [Iterator α m β]
+private def Take.instFinitenessRelation [Monad m] [Iterator α m β]
     [Productive α m] :
     FinitenessRelation (Take α m β) m where
-  rel := Take.rel m
+  rel := Take.Rel m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩
@@ -121,6 +119,10 @@ instance Take.instFinitenessRelation [Monad m] [Iterator α m β]
     case depleted _ =>
       cases h
 
+instance Take.instFinite [Monad m] [Iterator α m β] [Productive α m] :
+    Finite (Take α m β) m :=
+  Finite.of_finitenessRelation instFinitenessRelation
+
 instance Take.instIteratorToArray [Monad m] [Iterator α m β] [Productive α m] :
     IteratorCollect (Take α m β) m :=
   .defaultImplementation
@@ -129,40 +131,49 @@ instance Take.instIteratorToArrayPartial [Monad m] [Iterator α m β] :
     IteratorCollectPartial (Take α m β) m :=
   .defaultImplementation
 
+private def Take.PlausibleForInStep {β : Type u} {γ : Type v}
+    (f : β → γ → ForInStep γ → Prop) :
+    β → γ × Nat → (ForInStep (γ × Nat)) → Prop
+  | out, (c, n), ForInStep.yield (c', n') => n = n' + 1 ∧ f out c (.yield c')
+  | _, _, .done _ => True
+
+private def Take.wellFounded_plausibleForInStep {α β : Type w} {m : Type w → Type w'}
+    [Monad m] [Iterator α m β] {γ : Type x}
+    {f : β → γ → ForInStep γ → Prop} (wf : IteratorLoop.WellFounded (Take α m β) m f) :
+    IteratorLoop.WellFounded α m (PlausibleForInStep f) := by
+      simp only [IteratorLoop.WellFounded] at ⊢ wf
+      letI : WellFoundedRelation _ := ⟨_, wf⟩
+      apply Subrelation.wf (r := InvImage WellFoundedRelation.rel fun p => (p.1.take (p.2.2 + 1), p.2.1))
+        (fun {p q} h => by
+          simp only [InvImage, WellFoundedRelation.rel, this, IteratorLoop.rel, IterM.IsPlausibleStep,
+            Iterator.IsPlausibleStep]
+          obtain ⟨out, h, h'⟩ | ⟨h, h'⟩ := h
+          · apply Or.inl
+            exact ⟨out, .yield h (by simp only [IterM.take, internalState_toIterM,
+              Nat.add_right_cancel_iff, this]; exact h'.1), h'.2⟩
+          · apply Or.inr
+            refine ⟨?_, by rw [h']⟩
+            rw [h']
+            apply PlausibleStep.skip
+            · exact h
+            · rfl)
+      apply InvImage.wf
+      exact WellFoundedRelation.wf
+
 instance Take.instIteratorFor [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoop α m n] [MonadLiftT m n] :
     IteratorLoop (Take α m β) m n where
   forIn lift {γ} Plausible wf it init f := by
     refine Prod.fst <$> IteratorLoop.forIn lift (γ := γ × Nat)
-        (fun
-          | out, (c, n), .yield (c', n') => n = n' + 1 ∧ Plausible out c (.yield c')
-          | out, (c, n), .done (c', n') => True)
-        (by
-          simp only [IteratorLoop.WellFounded] at ⊢ wf
-          letI : WellFoundedRelation _ := ⟨_, wf⟩
-          apply Subrelation.wf (r := InvImage WellFoundedRelation.rel fun p => (p.1.take (p.2.2 + 1), p.2.1))
-            (fun {p q} h => by
-              simp only [InvImage, WellFoundedRelation.rel, this, IteratorLoop.rel, IterM.plausible_step,
-                Iterator.plausible_step]
-              obtain ⟨out, h, h'⟩ | ⟨h, h'⟩ := h
-              · apply Or.inl
-                exact ⟨out, .yield h (by simp only [IterM.take, internalState_toIterM,
-                  Nat.add_right_cancel_iff, this]; exact h'.1), h'.2⟩
-              · apply Or.inr
-                refine ⟨?_, by rw [h']⟩
-                rw [h']
-                apply PlausibleStep.skip
-                · exact h
-                · rfl)
-          apply InvImage.wf
-          exact WellFoundedRelation.wf)
+        (PlausibleForInStep Plausible)
+        (wellFounded_plausibleForInStep wf)
         it.internalState.inner
         (init, it.internalState.remaining)
         fun out acc =>
           match h : acc.snd with
-          | 0 => pure <| ⟨.done acc, .intro⟩
+          | 0 => pure <| ⟨.done acc, True.intro⟩
           | n + 1 => (fun
-              | ⟨.yield x, hp⟩ => ⟨.yield ⟨x, n⟩, by simp [h, hp]⟩
+              | ⟨.yield x, hp⟩ => ⟨.yield ⟨x, n⟩, ⟨h, hp⟩⟩
               | ⟨.done x ,hp⟩ => ⟨.done ⟨x, n⟩, .intro⟩) <$> f out acc.fst
 
 instance Take.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
@@ -175,25 +186,5 @@ instance Take.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
           match acc.snd with
           | 0 => pure <| .done acc
           | n + 1 => (fun | .yield x => .yield ⟨x, n⟩ | .done x => .done ⟨x, n⟩) <$> f out acc.fst
-
-  -- TODO: use [IteratorFor α m n]
-    -- forIn {γ} it init successor_of stepper _ := by
-    -- refine Prod.fst <$> (IteratorFor.forIn (α := α) (m := m) (n := n) (innerIter it) (γ := γ × Nat) (init, it.inner.remaining)
-    --   (successor_of := fun b c c' => c.snd = c'.snd + 1) ?_ ?_)
-    -- · exact fun b c => do
-    --     let result ← stepper b c.fst
-    --     return match result.val with
-    --     | .yield x => .yield ⟨
-    --     | .done x => sorry
-    -- refine Subrelation.wf (r := InvImage IterM.TerminationMeasures.Finite.rel (fun p => (p.1).finitelyManySteps)) ?_ ?_
-    -- · intro p' p h
-    --   cases h
-    --   · apply IterM.plausible_successor_of_skip
-    --     rename_i h
-    --     exact h.1
-    --   · rename_i h
-    --     obtain ⟨out, h, _⟩ := h -- Interesting: Moving `obtain` after `apply` leads to failure
-    --     apply IterM.plausible_successor_of_yield
-    --     exact h
 
 end Std.Iterators

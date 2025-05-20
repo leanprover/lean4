@@ -39,7 +39,7 @@
     "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///dotCompletion.lean"},
- "position": {"line": 20, "character": 16}}
+ "position": {"line": 17, "character": 16}}
 {"items":
  [{"label": "Inner",
    "kind": 9,
@@ -47,14 +47,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///dotCompletion.lean"},
-     "position": {"line": 20, "character": 16}},
+     "position": {"line": 17, "character": 16}},
     "cPos": 0}},
   {"label": "hi",
    "kind": 21,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///dotCompletion.lean"},
-     "position": {"line": 20, "character": 16}},
+     "position": {"line": 17, "character": 16}},
     "id": {"const": {"declName": "Outer.hi"}},
     "cPos": 0}}],
  "isIncomplete": true}

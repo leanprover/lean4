@@ -14,9 +14,6 @@ end Outer
 syntax Outer. := "hi"
            --^ textDocument/completion
 
-syntax "test_me " Outer.stx : command
-
-
 -- TODO: don't suggest `hi`
 namespace Outer.
               --^ textDocument/completion

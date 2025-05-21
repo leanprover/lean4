@@ -439,14 +439,19 @@ private def doNotVisitProofs : DSimproc := fun e => do
     return .continue e
 
 /-- Helper `dsimproc` for `doNotVisitOfNat` and `doNotVisitOfScientific` -/
-private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fun e => do
+private def onlyVisit (pred : Expr → Bool) (declName : Name) (visitArgs : List Nat) : DSimproc := fun e => do
   if pred e then
     if (← readThe Simp.Context).isDeclToUnfold declName then
       return .continue e
     else
       -- Users may have added a `[simp]` rfl theorem for the literal
       match (← (← getMethods).dpost e) with
-      | .continue none => return .done e
+      | .continue none =>
+        e.withApp fun f args => do
+          let args ← visitArgs.foldlM (init := args) fun args i =>
+            -- TODO: this `dsimp` doesn't share cache with the outer `dsimp`.
+            args.modifyM i dsimp
+          return .done <| mkAppN f args
       | r => return r
   else
     return .continue e
@@ -456,17 +461,17 @@ Auxiliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
 This is the `dsimp` equivalent of the approach used at `visitApp`.
 Recall that we fold orphan raw Nat literals.
 -/
-private def doNotVisitOfNat : DSimproc := doNotVisit isOfNatNatLit ``OfNat.ofNat
+private def doNotVisitOfNat : DSimproc := onlyVisit isOfNatNatLit ``OfNat.ofNat [0, 2]
 
 /--
 Auxiliary `dsimproc` for not visiting `OfScientific.ofScientific` application subterms.
 -/
-private def doNotVisitOfScientific : DSimproc := doNotVisit isOfScientificLit ``OfScientific.ofScientific
+private def doNotVisitOfScientific : DSimproc := onlyVisit isOfScientificLit ``OfScientific.ofScientific [0, 1]
 
 /--
 Auxiliary `dsimproc` for not visiting `Char` literal subterms.
 -/
-private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
+private def doNotVisitCharLit : DSimproc := onlyVisit isCharLit ``Char.ofNat []
 
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do

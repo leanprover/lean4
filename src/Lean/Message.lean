@@ -350,14 +350,15 @@ Produces a labeled note that can be appended to an error message.
 -/
 def note (note : MessageData) : MessageData :=
   -- Note: we do not use the built-in string coercion because it can prevent proper line breaks
-  .compose (.ofFormat "\n\nNote: ") note
+  -- FIXME: doing this doesn't end the enclosing group, so line feeds in `note` may become spaces
+  "\n" ++ "\n" ++ "Note: " ++ note
 
 /--
 Produces a labeled hint without an associated code action (non-monadic variant of
 `MessageData.hint`).
 -/
 def hint' (hint : MessageData) : MessageData :=
-  .compose (.ofFormat "\n\nHint: ") hint
+  .ofFormat "\n\nHint: " ++ hint
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩

@@ -440,20 +440,14 @@ private def doNotVisitProofs : DSimproc := fun e => do
     return .continue e
 
 /-- Helper `dsimproc` for `doNotVisitOfNat` and `doNotVisitOfScientific` -/
-private def onlyVisit (pred : Expr → Bool) (declName : Name) (visitArgs : List Nat) : DSimproc := fun e => do
+private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fun e => do
   if pred e then
     if (← readThe Simp.Context).isDeclToUnfold declName then
       return .continue e
     else
       -- Users may have added a `[simp]` rfl theorem for the literal
       match (← (← getMethods).dpost e) with
-      | .continue none =>
-        e.withApp fun f args => do
-          let args ← visitArgs.foldlM (init := args) fun args i =>
-            -- TODO: this `dsimp` doesn't share cache with the outer `dsimp`.
-            -- so, we should refactor `dsimp` to allow setting `inNumLit := true` inside subterms of literals
-            args.modifyM i dsimp
-          return .done <| mkAppN f args
+      | .continue none => return .done e
       | r => return r
   else
     return .continue e
@@ -463,17 +457,17 @@ Auxiliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
 This is the `dsimp` equivalent of the approach used at `visitApp`.
 Recall that we fold orphan raw Nat literals.
 -/
-private def doNotVisitOfNat : DSimproc := onlyVisit isOfNatNatLit ``OfNat.ofNat [0, 2]
+private def doNotVisitOfNat : DSimproc := doNotVisit isOfNatNatLit ``OfNat.ofNat
 
 /--
 Auxiliary `dsimproc` for not visiting `OfScientific.ofScientific` application subterms.
 -/
-private def doNotVisitOfScientific : DSimproc := onlyVisit isOfScientificLit ``OfScientific.ofScientific [0, 1]
+private def doNotVisitOfScientific : DSimproc := doNotVisit isOfScientificLit ``OfScientific.ofScientific
 
 /--
 Auxiliary `dsimproc` for not visiting `Char` literal subterms.
 -/
-private def doNotVisitCharLit : DSimproc := onlyVisit isCharLit ``Char.ofNat []
+private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
 
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do

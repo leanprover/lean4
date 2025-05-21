@@ -27,7 +27,7 @@ where
     | _ => false
   goLetValue (l : LetValue) : Bool :=
     match l with
-    | .value .. | .erased | .proj .. | .fvar .. => false
+    | .lit .. | .erased | .proj .. | .fvar .. => false
     | .const name .. => name == constName
 
 namespace Testing

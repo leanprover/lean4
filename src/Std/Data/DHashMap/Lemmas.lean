@@ -51,7 +51,7 @@ theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
 
 -- While setting up the API, often use this in the reverse direction,
 -- but prefer this direction for users.
-@[simp, grind =]
+@[simp, grind]
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   Iff.rfl
 
@@ -3430,13 +3430,13 @@ theorem get_filterMap [LawfulBEq α]
         (isSome_apply_of_mem_filterMap h') :=
   Raw₀.get_filterMap ⟨m.1, _⟩ m.2
 
-@[grind =]
+@[simp, grind =]
 theorem get!_filterMap [LawfulBEq α]
     {f : (a : α) → β a → Option (γ a)} {k : α} [Inhabited (γ k)] :
     (m.filterMap f).get! k = ((m.get? k).bind (f k)).get! :=
   Raw₀.get!_filterMap ⟨m.1, _⟩ m.2
 
-@[grind =]
+@[simp, grind =]
 theorem getD_filterMap [LawfulBEq α]
     {f : (a : α) → β a → Option (γ a)} {k : α} {fallback : γ k} :
     (m.filterMap f).getD k fallback = ((m.get? k).bind (f k)).getD fallback :=
@@ -3502,12 +3502,19 @@ theorem size_filterMap_eq_size_iff [EquivBEq α] [LawfulHashable α]
     (m.filterMap f).size = m.size ↔ ∀ k h, (f (m.getKey k h) (Const.get m k h)).isSome :=
   Raw₀.Const.size_filterMap_eq_size_iff ⟨m.1, _⟩ m.2
 
-@[grind =]
+@[simp]
 theorem get?_filterMap [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} :
     Const.get? (m.filterMap f) k = (Const.get? m k).pbind (fun x h' =>
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x) :=
   Raw₀.Const.get?_filterMap ⟨m.1, _⟩ m.2
+
+/-- Simpler variant of `get?_filterMap` when `LawfulBEq` is available. -/
+@[grind =]
+theorem get?_filterMap' [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → Option γ} {k : α} :
+    Const.get? (m.filterMap f) k = (Const.get? m k).bind fun x => f k x := by
+  simp [get?_filterMap]
 
 theorem get?_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k k' : α} (h : m.getKey? k = some k') :
@@ -3521,7 +3528,7 @@ theorem isSome_apply_of_mem_filterMap [EquivBEq α] [LawfulHashable α]
         (Const.get m k (mem_of_mem_filterMap h))).isSome :=
   Raw₀.Const.isSome_apply_of_contains_filterMap ⟨m.1, _⟩ m.2
 
-@[simp, grind =]
+@[simp]
 theorem get_filterMap [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} {h} :
     Const.get (m.filterMap f) k h =
@@ -3530,7 +3537,14 @@ theorem get_filterMap [EquivBEq α] [LawfulHashable α]
           (isSome_apply_of_mem_filterMap h) :=
   Raw₀.Const.get_filterMap ⟨m.1, _⟩ m.2
 
+/-- Simpler variant of `get_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
+theorem get_filterMap' [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → Option γ} {k : α} {h} :
+    Const.get (m.filterMap f) k h =
+      (f k (Const.get m k (mem_of_mem_filterMap h))).get (by simpa using isSome_apply_of_mem_filterMap h) := by
+  simp [get_filterMap]
+
 theorem get!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → Option γ} {k : α} :
     Const.get! (m.filterMap f) k =
@@ -3538,18 +3552,31 @@ theorem get!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
         f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).get! :=
   Raw₀.Const.get!_filterMap ⟨m.1, _⟩ m.2
 
+/-- Simpler variant of `get!_filterMap` when `LawfulBEq` is available. -/
+@[grind =]
+theorem get!_filterMap' [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+    {f : α → β → Option γ} {k : α} :
+    Const.get! (m.filterMap f) k = ((Const.get? m k).bind (f k) ).get!:= by
+  simp [get!_filterMap]
+
 theorem get!_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → Option γ} {k k' : α} (h : m.getKey? k = some k') :
     Const.get! (m.filterMap f) k = ((Const.get? m k).bind (f k')).get! :=
   Raw₀.Const.get!_filterMap_of_getKey?_eq_some ⟨m.1, _⟩ m.2 h
 
-@[grind =]
 theorem getD_filterMap [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} {fallback : γ} :
     Const.getD (m.filterMap f) k fallback =
       ((Const.get? m k).pbind (fun x h' =>
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
   Raw₀.Const.getD_filterMap ⟨m.1, _⟩ m.2
+
+/-- Simpler variant of `getD_filterMap` when `LawfulBEq` is available. -/
+@[grind =]
+theorem getD_filterMap' [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → Option γ} {k : α} {fallback : γ} :
+    Const.getD (m.filterMap f) k fallback = ((Const.get? m k).bind (f k)).getD fallback := by
+  simp [getD_filterMap]
 
 theorem getD_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k k' : α} {fallback : γ} (h : m.getKey? k = some k') :
@@ -3805,12 +3832,18 @@ theorem filter_equiv_self_iff [EquivBEq α] [LawfulHashable α]
   ⟨fun h => (Raw₀.Const.filter_equiv_self_iff ⟨m.1, _⟩ m.2).mp h.1,
     fun h => ⟨(Raw₀.Const.filter_equiv_self_iff ⟨m.1, _⟩ m.2).mpr h⟩ ⟩
 
-@[grind =]
 theorem get?_filter [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k : α} :
     Const.get? (m.filter f) k = (Const.get? m k).pfilter (fun x h' =>
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x) :=
   Raw₀.Const.get?_filter ⟨m.1, _⟩ m.2
+
+/-- Simpler variant of `get?_filter` when `LawfulBEq` is available. -/
+@[simp, grind =]
+theorem get?_filter' [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → Bool} {k : α} :
+    Const.get? (m.filter f) k = (Const.get? m k).filter (f k) := by
+  simp [get?_filter]
 
 theorem get?_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k k' : α} :
@@ -3824,7 +3857,6 @@ theorem get_filter [EquivBEq α] [LawfulHashable α]
     Const.get (m.filter f) k h' = Const.get m k (mem_of_mem_filter h') :=
   Raw₀.Const.get_filter ⟨m.1, _⟩ m.2
 
-@[grind =]
 theorem get!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
     {f : α → β → Bool} {k : α} :
     Const.get! (m.filter f) k =
@@ -3832,18 +3864,31 @@ theorem get!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).get! :=
   Raw₀.Const.get!_filter ⟨m.1, _⟩ m.2
 
+/-- Simpler variant of `get!_filter` when `LawfulBEq` is available. -/
+@[grind =]
+theorem get!_filter' [LawfulBEq α] [LawfulHashable α] [Inhabited β]
+    {f : α → β → Bool} {k : α} :
+    Const.get! (m.filter f) k = ((Const.get? m k).filter (f k)).get! := by
+  simp [get!_filter]
+
 theorem get!_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited β]
     {f : α → β → Bool} {k k' : α} :
     m.getKey? k = some k' →
       Const.get! (m.filter f) k = ((Const.get? m k).filter (fun x => f k' x)).get! :=
   Raw₀.Const.get!_filter_of_getKey?_eq_some ⟨m.1, _⟩ m.2
 
-@[grind =]
 theorem getD_filter [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k : α} {fallback : β} :
     Const.getD (m.filter f) k fallback = ((Const.get? m k).pfilter (fun x h' =>
       f (m.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
   Raw₀.Const.getD_filter ⟨m.1, _⟩ m.2
+
+/-- Simpler variant of `getD_filter` when `LawfulBEq` is available. -/
+@[grind =]
+theorem getD_filter' [LawfulBEq α] [LawfulHashable α]
+    {f : α → β → Bool} {k : α} {fallback : β} :
+    Const.getD (m.filter f) k fallback = ((Const.get? m k).filter (f k)).getD fallback := by
+  simp [getD_filter]
 
 theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} {k k' : α} {fallback : β} :

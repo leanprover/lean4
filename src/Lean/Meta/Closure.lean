@@ -392,9 +392,9 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) 
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.
 -/
-def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (prefix? : Option Name) (cache := true) : MetaM Expr := do
+def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (kind? : Option Name := none) (cache := true) : MetaM Expr := do
   let result ← Closure.mkValueTypeClosure type value zetaDelta
-  let name ← mkAuxLemma (prefix? := prefix?) (cache := cache) result.levelParams.toList result.type result.value
+  let name ← mkAuxLemma (kind? := kind?) (cache := cache) result.levelParams.toList result.type result.value
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 end Lean.Meta

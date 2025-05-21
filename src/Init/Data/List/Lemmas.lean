@@ -9,8 +9,8 @@ module
 prelude
 import Init.Data.Bool
 import Init.Data.Option.Lemmas
-import Init.Data.List.BasicAux
-import Init.Data.List.Control
+import all Init.Data.List.BasicAux
+import all Init.Data.List.Control
 import Init.Control.Lawful.Basic
 import Init.BinderPredicates
 
@@ -1745,7 +1745,7 @@ theorem head_append_right {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) (h : l
   rw [head_append, dif_pos (by simp_all)]
 
 @[simp, grind] theorem head?_append {l : List α} : (l ++ l').head? = l.head?.or l'.head? := by
-  cases l <;> rfl
+  cases l <;> simp
 
 -- Note:
 -- `getLast_append_of_ne_nil`, `getLast_append` and `getLast?_append`
@@ -2052,7 +2052,7 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
 
 /-! ### flatMap -/
 
-theorem flatMap_def {l : List α} {f : α → List β} : l.flatMap f = flatten (map f l) := by rfl
+theorem flatMap_def {l : List α} {f : α → List β} : l.flatMap f = flatten (map f l) := rfl
 
 @[simp] theorem flatMap_id {L : List (List α)} : L.flatMap id = L.flatten := by simp [flatMap_def]
 
@@ -2576,6 +2576,11 @@ theorem foldr_eq_foldrM {f : α → β → β} {b : β} {l : List α} :
     l.foldl (fun xs y => f y :: xs) l' = (l.map f).reverse ++ l' := by
   induction l generalizing l' <;> simp [*]
 
+/-- Variant of `foldl_flip_cons_eq_append` specalized to `f = id`. -/
+@[simp, grind] theorem foldl_flip_cons_eq_append' {l l' : List α} :
+    l.foldl (fun xs y => y :: xs) l' = l.reverse ++ l' := by
+  induction l generalizing l' <;> simp [*]
+
 @[simp, grind] theorem foldr_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
     l.foldr (f · ++ ·) l' = (l.map f).flatten ++ l' := by
   induction l <;> simp [*]
@@ -2938,7 +2943,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
     l.contains a ↔ ∃ a' ∈ l, a == a' := by
   induction l <;> simp_all
 
-@[grind =]
+@[grind]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     l.contains a ↔ a ∈ l := by
   simp
@@ -3054,7 +3059,7 @@ theorem head?_dropLast {xs : List α} : xs.dropLast.head? = if 1 < xs.length the
 
 theorem getLast_dropLast {xs : List α} (h) :
    xs.dropLast.getLast h =
-     xs[xs.length - 2]'(match xs, h with | (_ :: _ :: _), _ => Nat.lt_trans (Nat.lt_add_one _) (Nat.lt_add_one _)) := by
+     xs[xs.length - 2]'(by match xs, h with | (_ :: _ :: _), _ => exact Nat.lt_trans (Nat.lt_add_one _) (Nat.lt_add_one _)) := by
   rw [getLast_eq_getElem, getElem_dropLast]
   congr 1
   simp; rfl

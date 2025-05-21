@@ -7,6 +7,8 @@ module
 
 prelude
 import Init.Data.List.Lemmas
+import all Init.Data.List.Control
+import all Init.Data.Option.Instances
 
 namespace Option
 
@@ -58,6 +60,42 @@ theorem toList_bind {o : Option α} {f : α → Option β} :
   cases o <;> simp
 
 theorem toList_join {o : Option (Option α)} : o.join.toList = o.toList.flatMap Option.toList := by
-  simp [toList_bind, join_eq_bind_id]
+  simp [toList_bind, ← bind_id_eq_join]
+
+theorem toList_map {o : Option α} {f : α → β} : (o.map f).toList = o.toList.map f := by
+  cases o <;> simp
+
+theorem toList_min [Min α] {o o' : Option α} :
+    (min o o').toList = o.toList.zipWith min o'.toList := by
+  cases o <;> cases o' <;> simp
+
+@[simp]
+theorem length_toList_le {o : Option α} : o.toList.length ≤ 1 := by
+  cases o <;> simp
+
+theorem length_toList_eq_ite {o : Option α} :
+    o.toList.length = if o.isSome then 1 else 0 := by
+  cases o <;> simp
+
+@[simp]
+theorem toList_eq_nil_iff {o : Option α} : o.toList = [] ↔ o = none := by
+  cases o <;> simp
+
+@[simp]
+theorem toList_eq_singleton_iff {o : Option α} : o.toList = [a] ↔ o = some a := by
+  cases o <;> simp
+
+@[simp]
+theorem length_toList_eq_zero_iff {o : Option α} :
+    o.toList.length = 0 ↔ o = none := by
+  cases o <;> simp
+
+@[simp]
+theorem length_toList_eq_one_iff {o : Option α} :
+    o.toList.length = 1 ↔ o.isSome := by
+  cases o <;> simp
+
+theorem length_toList_choice_eq_one [Nonempty α] : (choice α).toList.length = 1 := by
+  simp
 
 end Option

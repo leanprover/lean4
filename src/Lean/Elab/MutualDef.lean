@@ -24,16 +24,12 @@ open Language
 
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
-
-private builtin_initialize exposeAttr : TagAttribute ←
-  registerTagAttribute
-    `expose
-    "(module system) Make bodies of definitions available to importing modules."
-    (validate := fun c => do
-      if let some info := (← getEnv).setExporting false |>.findAsync? c then
-        if info.kind == .defn then
-          return
-      throwError "Invalid use of `expose` attribute, it can only be used on definitions")
+  registerBuiltinAttribute {
+    name := `expose
+    descr := "(module system) Make bodies of definitions available to importing modules."
+    add := fun _ _ _ => do
+      throwError "Invalid attribute 'expose', must be used when declaring `def`"
+  }
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
@@ -357,17 +353,17 @@ def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 
 The `Termination.suffix` is ignored here, and extracted in `declValToTerminationHint`.
 -/
-private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal do
+private def declValToTerm (declVal : Syntax) (expectedType : Expr) : TermElabM Syntax := withRef declVal do
   if declVal.isOfKind ``Parser.Command.declValSimple then
-    expandWhereDeclsOpt declVal[3] declVal[1]
+    liftMacroM <| expandWhereDeclsOpt declVal[3] declVal[1]
   else if declVal.isOfKind ``Parser.Command.declValEqns then
-    expandMatchAltsWhereDecls declVal[0]
+    expandMatchAltsWhereDecls declVal[0] expectedType
   else if declVal.isOfKind ``Parser.Command.whereStructInst then
-    expandWhereStructInst declVal
+    liftMacroM <| expandWhereStructInst declVal
   else if declVal.isMissing then
-    Macro.throwErrorAt declVal "declaration body is missing"
+    throwErrorAt declVal "declaration body is missing"
   else
-    Macro.throwErrorAt declVal "unexpected declaration body"
+    throwErrorAt declVal "unexpected declaration body"
 
 /-- Elaborates the termination hints in a `declVal` syntax. -/
 private def declValToTerminationHint (declVal : Syntax) : TermElabM TerminationHints :=
@@ -468,7 +464,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       withReuseContext header.value do
       withTraceNode `Elab.definition.value (fun _ => pure header.declName) do
       withDeclName header.declName <| withLevelNames header.levelNames do
-      let valStx ← liftMacroM <| declValToTerm header.value
+      let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
@@ -1094,8 +1090,7 @@ where
         try
           isDefEq lhs rhs
         catch _ => pure false
-    withExporting (isExporting := rflPublic) do
-      finishElab headers
+    finishElab (isExporting := rflPublic) headers
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
@@ -1134,12 +1129,15 @@ where
 
     -- now start new thread for body elaboration, then nested thread for kernel checking
     let cancelTk ← IO.CancelToken.new
-    let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
+    let act ←
+      -- NOTE: We must set the decl name before going async to ensure that the `auxDeclNGen` is
+      -- forked correctly.
+      withDeclName header.declName do
+      wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
-        withoutExporting do
-          finishElab #[header]
+        finishElab (isExporting := false) #[header]
       finally
         reportDiag
         -- must introduce node to fill `infoHole` with multiple info trees
@@ -1157,7 +1155,14 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers := withFunLocalDecls headers fun funFVars => do
+  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => withExporting
+    (isExporting := isExporting ||
+      (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
+      headers.all fun header =>
+        !header.modifiers.isPrivate &&
+        (header.kind matches .abbrev | .instance || header.modifiers.attrs.any (·.name == `expose))) do
+    let headers := headers.map fun header =>
+      { header with modifiers.attrs := header.modifiers.attrs.filter (·.name != `expose) }
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try

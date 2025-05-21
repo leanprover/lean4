@@ -121,7 +121,7 @@ def getRecArgInfos (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array
     if let .some termMeasure := termMeasure? then
       -- User explicitly asked to use a certain measure, so throw errors eagerly
       let recArgInfo ← withRef termMeasure.ref do
-        mapError (f := (m!"cannot use specified measure for structural recursion:{indentD ·}")) do
+        prependError m!"cannot use specified measure for structural recursion:" do
           let args := fixedParamPerm.buildArgs xs ys
           getRecArgInfo fnName fixedParamPerm args (← termMeasure.structuralArg)
       return (#[recArgInfo], m!"")

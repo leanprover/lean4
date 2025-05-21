@@ -22,13 +22,15 @@ private unsafe def markNestedProofImpl (e : Expr) (visit : Expr → StateRefT (P
   See `grind_mark_nested_proofs_bug.lean` for an example.
   TODO: We may have to normalize `prop` too.
   -/
-  let prop ← unfoldReducible prop
   /- We must also apply beta-reduction to improve the effectiveness of the congruence closure procedure. -/
   let prop ← Core.betaReduce prop
-  /- We must fold kernel projections like it is done in the preprocessor. -/
-  let prop ← foldProjs prop
+  let prop ← unfoldReducible prop
   /- We must mask proofs occurring in `prop` too. -/
   let prop ← visit prop
+  let prop ← eraseIrrelevantMData prop
+  /- We must fold kernel projections like it is done in the preprocessor. -/
+  let prop ← foldProjs prop
+  let prop ← normalizeLevels prop
   return mkApp2 (mkConst ``Lean.Grind.nestedProof) prop e
 
 unsafe def markNestedProofsImpl (e : Expr) : MetaM Expr := do
@@ -45,7 +47,7 @@ where
       return e'
     -- Remark: we have to process `Expr.proj` since we only
     -- fold projections later during term internalization
-    unless e.isApp || e.isForall || e.isProj do
+    unless e.isApp || e.isForall || e.isProj || e.isMData do
       return e
     -- Check whether it is cached
     if let some r := (← get).find? e then
@@ -66,6 +68,8 @@ where
           pure e
       | .proj _ _ b =>
         pure <| e.updateProj! (← visit b)
+      | .mdata _ b =>
+        pure <| e.updateMData! (← visit b)
       | .forallE _ d b _ =>
         -- Recall that we have `ForallProp.lean`.
         let d' ← visit d

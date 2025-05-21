@@ -7,6 +7,7 @@ module
 
 prelude -- Don't import Init, because we're in Init itself
 set_option linter.missingDocs true -- keep it documented
+@[expose] section  -- Expose all defs
 
 /-!
 # Init.Prelude
@@ -70,7 +71,10 @@ despite the fact it is marked `irreducible`.
 For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a `let_fun` expression
 to extract its parts as if it were a `let` expression.
 -/
-@[irreducible] def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
+def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
+-- We need to export the body of `letFun`, which is suppressed if `[irreducible]` is set directly.
+-- We can work around this rare case by applying the attribute after the fact.
+attribute [irreducible] letFun
 
 set_option checkBinderAnnotations false in
 /--
@@ -1345,6 +1349,23 @@ class HPow (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hPow : α → β → γ
 
 /--
+The notation typeclass for heterogeneous scalar multiplication.
+This enables the notation `a • b : γ` where `a : α`, `b : β`.
+
+It is assumed to represent a left action in some sense.
+The notation `a • b` is augmented with a macro (below) to have it elaborate as a left action.
+Only the `b` argument participates in the elaboration algorithm: the algorithm uses the type of `b`
+when calculating the type of the surrounding arithmetic expression
+and it tries to insert coercions into `b` to get some `b'`
+such that `a • b'` has the same type as `b'`.
+See the module documentation near the macro for more details.
+-/
+class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  /-- `a • b` computes the product of `a` and `b`.
+  The meaning of this notation is type-dependent, but it is intended to be used for left actions. -/
+  hSMul : α → β → γ
+
+/--
 The notation typeclass for heterogeneous append.
 This enables the notation `a ++ b : γ` where `a : α`, `b : β`.
 -/
@@ -1451,6 +1472,15 @@ class Div (α : Type u) where
   /-- `a / b` computes the result of dividing `a` by `b`. See `HDiv`. -/
   div : α → α → α
 
+/--
+The notation typeclass for inverses.
+This enables the notation `a⁻¹ : α` where `a : α`.
+-/
+class Inv (α : Type u) where
+  /-- `a⁻¹` computes the inverse of `a`.
+  The meaning of this notation is type-dependent. -/
+  inv : α → α
+
 /-- The homogeneous version of `HMod`: `a % b : α` where `a b : α`. -/
 class Mod (α : Type u) where
   /-- `a % b` computes the remainder upon dividing `a` by `b`. See `HMod`. -/
@@ -1496,6 +1526,12 @@ such as `(2.2 ^ 2.2 : Float)` to elaborate. -/
 class HomogeneousPow (α : Type u) where
   /-- `a ^ b` computes `a` to the power of `b` where `a` and `b` both have the same type. -/
   protected pow : α → α → α
+
+/-- Typeclass for types with a scalar multiplication operation, denoted `•` (`\bu`) -/
+class SMul (M : Type u) (α : Type v) where
+  /-- `a • b` computes the product of `a` and `b`. The meaning of this notation is type-dependent,
+  but it is intended to be used for left actions. -/
+  smul : M → α → α
 
 /-- The homogeneous version of `HAppend`: `a ++ b : α` where `a b : α`. -/
 class Append (α : Type u) where
@@ -1589,6 +1625,13 @@ instance [HomogeneousPow α] : Pow α α where
   pow a b := HomogeneousPow.pow a b
 
 @[default_instance]
+instance instHSMul {α β} [SMul α β] : HSMul α β β where
+  hSMul := SMul.smul
+
+instance (priority := 910) {α : Type u} [Mul α] : SMul α α where
+  smul x y := Mul.mul x y
+
+@[default_instance]
 instance [Append α] : HAppend α α α where
   hAppend a b := Append.append a b
 
@@ -1652,7 +1695,7 @@ instance instAddNat : Add Nat where
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
-attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg Mul.mul HMul.hMul
+attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg Mul.mul HMul.hMul Inv.inv
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2290,8 +2333,8 @@ Examples:
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
   inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
 
-instance (a b : UInt32) : Decidable (LT.lt a b) := UInt32.decLt a b
-instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b
+attribute [instance] UInt32.decLt UInt32.decLe
+
 instance : Max UInt32 := maxOfLe
 instance : Min UInt32 := minOfLe
 
@@ -2749,7 +2792,7 @@ instance : Inhabited Substring where
 /--
 The number of bytes used by the string's UTF-8 encoding.
 -/
-@[inline] def Substring.bsize : Substring → Nat
+@[inline, expose] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--
@@ -5099,7 +5142,7 @@ private opaque MethodsRefPointed : NonemptyType.{0}
 
 private def MethodsRef : Type := MethodsRefPointed.type
 
-instance : Nonempty MethodsRef := MethodsRefPointed.property
+private instance : Nonempty MethodsRef := MethodsRefPointed.property
 
 /-- The read-only context for the `MacroM` monad. -/
 structure Context where

@@ -101,22 +101,6 @@ end Mathlib.Logic.Function.Basic
 
 section Mathlib.Algebra.Group.Defs
 
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type _) (α : Type _) where
-  smul : M → α → α
-
-infixr:73 " • " => HSMul.hSMul
-
-instance instHSMul [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
-
-class Inv (α : Type u) where
-  inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
-
 class Semigroup (G : Type u) extends Mul G where
   mul_assoc : ∀ a b c : G, a * b * c = a * (b * c)
 

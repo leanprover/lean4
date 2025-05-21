@@ -70,6 +70,91 @@ def useDiagnosticMsg : MessageData :=
     else
       pure s!"\n\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
+/-- Name generator that creates user-accessible names. -/
+structure DeclNameGenerator where
+  namePrefix : Name := .anonymous
+  -- We use a non-nil list instead of changing `namePrefix` as we want to distinguish between
+  -- numeric components in the original name (e.g. from macro scopes) and ones added by `mkChild`.
+  private idx        : Nat := 1
+  private parentIdxs : List Nat := .nil
+  deriving Inhabited
+
+namespace DeclNameGenerator
+
+private def idxs (g : DeclNameGenerator) : List Nat :=
+  g.idx :: g.parentIdxs
+
+def next (g : DeclNameGenerator) : DeclNameGenerator :=
+  { g with idx := g.idx + 1 }
+
+/--
+Creates a user-accessible unique name of the following structure:
+```
+<name prefix>.<infix>_<numeric components>_...
+```
+Uniqueness is guaranteed for the current branch of elaboration. When entering parallelism and other
+branching elaboration steps, `mkChild` must be used (automatically done in `wrapAsync*`).
+-/
+partial def mkUniqueName (env : Environment) (g : DeclNameGenerator) («infix» : Name) :
+    (Name × DeclNameGenerator) := Id.run do
+  -- `Name.append` does not allow macro scopes on both operands; as the result of this function is
+  -- unlikely to be referenced in a macro; the choice doesn't really matter.
+  let «infix» := if g.namePrefix.hasMacroScopes && infix.hasMacroScopes then infix.eraseMacroScopes else «infix»
+  let base := g.namePrefix ++ «infix»
+  let mut g := g
+  -- NOTE: We only check the current branch and rely on the documented invariant instead because we
+  -- do not want to block here and because it would not solve the issue for completely separated
+  -- threads of elaboration such as in Aesop's backtracking search.
+  while env.containsOnBranch (curr g base) do
+    g := g.next
+  return (curr g base, g)
+where curr (g : DeclNameGenerator) (base : Name) : Name :=
+  g.idxs.foldr (fun i n => n.appendIndexAfter i) base
+
+def mkChild (g : DeclNameGenerator) : DeclNameGenerator × DeclNameGenerator :=
+  ({ g with parentIdxs := g.idx :: g.parentIdxs, idx := 1 },
+   { g with idx := g.idx + 1 })
+
+end DeclNameGenerator
+
+class MonadDeclNameGenerator (m : Type → Type) where
+  getDeclNGen : m DeclNameGenerator
+  setDeclNGen : DeclNameGenerator → m Unit
+
+export MonadDeclNameGenerator (getDeclNGen setDeclNGen)
+
+instance [MonadLift m n] [MonadDeclNameGenerator m] : MonadDeclNameGenerator n where
+  getDeclNGen := liftM (getDeclNGen : m _)
+  setDeclNGen := fun ngen => liftM (setDeclNGen ngen : m _)
+
+/--
+Creates a new name for use as an auxiliary declaration that can be assumed to be globally unique.
+
+Uniqueness is guaranteed for the current branch of elaboration. When entering parallelism and other
+branching elaboration steps, `mkChild` must be used (automatically done in `wrapAsync*`).
+-/
+def mkAuxDeclName [Monad m] [MonadEnv m] [MonadDeclNameGenerator m] (kind : Name := `_aux) : m Name := do
+  let ngen ← getDeclNGen
+  let (n, ngen) := ngen.mkUniqueName (← getEnv) («infix» := kind)
+  setDeclNGen ngen
+  return n
+
+/--
+Adjusts the `namePrefix` of `getDeclNGen` to the given name and resets the nested counter.
+-/
+def withDeclNameForAuxNaming [Monad m] [MonadFinally m] [MonadDeclNameGenerator m]
+    (name : Name) (x : m α) : m α := do
+  let ngen ← getDeclNGen
+  -- do not reset index if prefix unchanged
+  if ngen.namePrefix != name then
+    try
+      setDeclNGen { namePrefix := name }
+      x
+    finally
+      setDeclNGen ngen
+  else
+    x
+
 namespace Core
 
 builtin_initialize registerTraceClass `Kernel
@@ -93,6 +178,11 @@ structure State where
   nextMacroScope  : MacroScope     := firstFrontendMacroScope + 1
   /-- Name generator for producing unique `FVarId`s, `MVarId`s, and `LMVarId`s -/
   ngen            : NameGenerator  := {}
+  /--
+  Name generator for creating persistent auxiliary declarations. Separate from `ngen` to keep
+  numbers smaller and create user-accessible names.
+  -/
+  auxDeclNGen     : DeclNameGenerator := {}
   /-- Trace messages -/
   traceState      : TraceState     := {}
   /-- Cache for instantiating universe polymorphic declarations. -/
@@ -197,6 +287,10 @@ instance : MonadNameGenerator CoreM where
   getNGen := return (← get).ngen
   setNGen ngen := modify fun s => { s with ngen := ngen }
 
+instance : MonadDeclNameGenerator CoreM where
+  getDeclNGen := return (← get).auxDeclNGen
+  setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
+
 instance : MonadRecDepth CoreM where
   withRecDepth d x := withReader (fun ctx => { ctx with currRecDepth := d }) x
   getRecDepth := return (← read).currRecDepth
@@ -220,8 +314,8 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, trace, cache, messages, infoState, snaps⟩ =>
-   ⟨env, next, ngen, trace, f cache, messages, infoState, snaps⟩
+  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, messages, infoState, snaps⟩ =>
+   ⟨env, next, ngen, auxDeclNGen, trace, f cache, messages, infoState, snaps⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -435,7 +529,10 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM
 /-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
 def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelToken) :
     CoreM (α → EIO Exception β) := do
+  let (childNGen, parentNGen) := (← getDeclNGen).mkChild
+  setDeclNGen parentNGen
   let st ← get
+  let st := { st with auxDeclNGen := childNGen }
   let ctx ← read
   let ctx := { ctx with cancelTk? }
   let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats

@@ -70,20 +70,9 @@ def getCasesTypes : CoreM CasesTypes :=
 def isSplit (declName : Name) : CoreM Bool := do
   return (← getCasesTypes).isSplit declName
 
-private def getAlias? (value : Expr) : MetaM (Option Name) :=
-  lambdaTelescope value fun _ body => do
-    if let .const declName _ := body.getAppFn' then
-      return some declName
-    else
-      return none
-
 partial def isCasesAttrCandidate? (declName : Name) (eager : Bool) : CoreM (Option Name) := do
   match (← getConstInfo declName) with
   | .inductInfo info => if !info.isRec || !eager then return some declName else return none
-  | .defnInfo info =>
-    let some declName ← getAlias? info.value |>.run' {} {}
-      | return none
-    isCasesAttrCandidate? declName eager
   | _ => return none
 
 def isCasesAttrCandidate (declName : Name) (eager : Bool) : CoreM Bool := do

@@ -124,7 +124,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Deno
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("CommRing", 8, 8);
+x_1 = lean_mk_string_unchecked("Semiring", 8, 8);
 return x_1;
 }
 }
@@ -224,7 +224,7 @@ lean_dec(x_2);
 x_23 = lean_ctor_get(x_22, 1);
 lean_inc(x_23);
 lean_dec(x_22);
-x_24 = lean_ctor_get(x_3, 9);
+x_24 = lean_ctor_get(x_3, 12);
 lean_inc(x_24);
 lean_dec(x_3);
 x_25 = l_Lean_Expr_app___override(x_24, x_16);
@@ -273,7 +273,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get(x_4, 10);
+x_7 = lean_ctor_get(x_4, 13);
 lean_inc(x_7);
 lean_dec(x_4);
 x_8 = l_Lean_mkNatLit(x_2);
@@ -286,7 +286,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Power_denoteExpr___rarg___lambda_
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_6 = lean_ctor_get(x_5, 13);
+x_6 = lean_ctor_get(x_5, 16);
 lean_inc(x_6);
 lean_dec(x_5);
 x_7 = lean_ctor_get(x_1, 0);
@@ -396,7 +396,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteExpr_go___rarg___lambda
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_1, 7);
+x_7 = lean_ctor_get(x_1, 10);
 lean_inc(x_7);
 lean_dec(x_1);
 x_8 = l_Lean_mkAppB(x_7, x_2, x_6);
@@ -528,7 +528,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get(x_2, 7);
+x_7 = lean_ctor_get(x_2, 10);
 lean_inc(x_7);
 lean_dec(x_2);
 x_8 = l_Lean_mkAppB(x_7, x_3, x_4);
@@ -617,7 +617,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get(x_2, 6);
+x_7 = lean_ctor_get(x_2, 9);
 lean_inc(x_7);
 lean_dec(x_2);
 x_8 = l_Lean_mkAppB(x_7, x_3, x_4);
@@ -643,7 +643,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_denoteExpr_go___rarg___lambd
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_1, 6);
+x_7 = lean_ctor_get(x_1, 9);
 lean_inc(x_7);
 lean_dec(x_1);
 x_8 = l_Lean_mkAppB(x_7, x_2, x_6);
@@ -799,7 +799,7 @@ lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = lean_ctor_get(x_3, 13);
+x_6 = lean_ctor_get(x_3, 16);
 lean_inc(x_6);
 lean_dec(x_3);
 x_7 = lean_ctor_get(x_6, 2);
@@ -835,7 +835,7 @@ lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = lean_ctor_get(x_2, 9);
+x_6 = lean_ctor_get(x_2, 12);
 lean_inc(x_6);
 lean_dec(x_2);
 x_7 = l_Lean_Expr_app___override(x_6, x_3);
@@ -898,7 +898,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get(x_2, 8);
+x_7 = lean_ctor_get(x_2, 11);
 lean_inc(x_7);
 lean_dec(x_2);
 x_8 = l_Lean_mkAppB(x_7, x_3, x_4);
@@ -980,7 +980,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get(x_2, 10);
+x_7 = lean_ctor_get(x_2, 13);
 lean_inc(x_7);
 lean_dec(x_2);
 x_8 = l_Lean_mkNatLit(x_3);

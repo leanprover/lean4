@@ -6,7 +6,6 @@ Authors: Mario Carneiro, Leonardo de Moura
 module
 
 prelude
-import Init.Data.Fin.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Int.DivMod.Lemmas
 import Init.Ext
@@ -646,6 +645,20 @@ theorem rev_addNat (k : Fin n) (m : Nat) : rev (addNat k m) = castAdd m (rev k) 
 theorem rev_castSucc (k : Fin n) : rev (castSucc k) = succ (rev k) := k.rev_castAdd 1
 
 theorem rev_succ (k : Fin n) : rev (succ k) = castSucc (rev k) := k.rev_addNat 1
+
+@[simp, grind _=_]
+theorem castSucc_succ (i : Fin n) : i.succ.castSucc = i.castSucc.succ := rfl
+
+@[simp, grind =]
+theorem castLE_refl (h : n ≤ n) (i : Fin n) : i.castLE h = i := rfl
+
+@[simp, grind =]
+theorem castSucc_castLE (h : n ≤ m) (i : Fin n) :
+    (i.castLE h).castSucc = i.castLE (by omega) := rfl
+
+@[simp, grind =]
+theorem castSucc_natAdd (n : Nat) (i : Fin k) :
+    (i.natAdd n).castSucc = (i.castSucc).natAdd n := rfl
 
 /-! ### pred -/
 

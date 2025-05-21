@@ -123,7 +123,7 @@ def checkInvariants (expensive := false) : GoalM Unit := do
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self
-      if isSameExpr node.self node.root then
+      if node.isRoot then
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
+import all Init.Data.Zero
 import Init.Grind.CommRing.Basic
 import Init.Data.Fin.Lemmas
 
@@ -96,14 +97,18 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   mul_one := Fin.mul_one
   left_distrib := Fin.left_distrib
   zero_mul := Fin.zero_mul
-  pow_zero _ := rfl
-  pow_succ _ _ := rfl
+  pow_zero _ := by rfl
+  pow_succ _ _ := by rfl
   ofNat_succ := Fin.ofNat_succ
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
 
 instance (n : Nat) [NeZero n] : IsCharP (Fin n) n where
-  ofNat_eq_zero_iff x := by simp only [OfNat.ofNat, Fin.ofNat']; simp
+  ofNat_eq_zero_iff x := by
+    change Fin.ofNat' _ _ = Fin.ofNat' _ _ ↔ _
+    simp only [Fin.ofNat']
+    simp only [Nat.zero_mod]
+    simp only [Fin.mk.injEq]
 
 end Fin
 

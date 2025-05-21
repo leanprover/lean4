@@ -18,6 +18,13 @@ import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
 
+/--
+A lighter version of `preprocess` which produces a definitionally equal term,
+but ensures assumptions made by `grind` are satisfied.
+-/
+private def preprocessLight (e : Expr) : GoalM Expr := do
+  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedProofs (← unfoldReducible e))))))
+
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
@@ -95,10 +102,12 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       if (← isProp d) then
         addSplitCandidate (.imp e (h ▸ rfl))
     else if Arith.isRelevantPred d then
+      -- TODO: should we keep lookahead after we implement non-chronological backtracking?
       if (← getConfig).lookahead then
         addLookaheadCandidate (.imp e (h ▸ rfl))
-      else
-        addSplitCandidate (.imp e (h ▸ rfl))
+      -- We used to add the `split` only if `lookahead := false`, but it was counterintuitive
+      -- to make `grind` "stronger" by disabling a feature.
+      addSplitCandidate (.imp e (h ▸ rfl))
   | _ => pure ()
 
 /--
@@ -114,9 +123,6 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | f@Eq.recOn α a motive b h v => pushHEq e v (mkApp6 (mkConst ``Grind.eqRecOn_heq f.constLevels!) α a motive b h v)
   | _ => return ()
 
-private def preprocessGroundPattern (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← unfoldReducible e)))))
-
 private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
 
@@ -130,7 +136,7 @@ where
     if pattern.isBVar || isPatternDontCare pattern then
       return pattern
     else if let some e := groundPattern? pattern then
-      let e ← preprocessGroundPattern e
+      let e ← preprocessLight e
       internalize e generation none
       return mkGroundPattern e
     else pattern.withApp fun f args => do
@@ -200,6 +206,7 @@ by `simp` (i.e., in the `grind` preprocessor), and `grind` would never see
 these facts.
 -/
 private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
+  unless (← getConfig).etaStruct do return ()
   let aType ← whnfD (← inferType a)
   matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
     unless a.isAppOf ctorVal.name do
@@ -212,7 +219,7 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
           if (← isProof proj) then
             proj ← markProof proj
           ctorApp := mkApp ctorApp proj
-        ctorApp ← shareCommon ctorApp
+        ctorApp ← preprocessLight ctorApp
         internalize ctorApp generation
         pushEq a ctorApp <| (← mkEqRefl a)
 
@@ -278,6 +285,17 @@ private def addSplitCandidatesForFunext (arg : Expr) (generation : Nat) (parent?
   unless (← getConfig).funext do return ()
   addSplitCandidatesForExt arg generation parent?
 
+/--
+Tries to eta-reduce the given expression.
+If successful, pushes a new equality between the two terms.
+-/
+private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
+  let e' := e.eta
+  if e != e' then
+    let e' ← shareCommon e'
+    internalize e' generation
+    pushEq e e' (← mkEqRefl e)
+
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -308,6 +326,7 @@ where
     | .lam .. =>
       addSplitCandidatesForFunext e generation parent?
       mkENode' e generation
+      tryEta e generation
     | .forallE _ d b _ =>
       mkENode' e generation
       internalizeImpl d generation e

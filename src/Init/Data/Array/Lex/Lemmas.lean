@@ -6,6 +6,7 @@ Author: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Lex.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Lex
 
@@ -22,9 +23,9 @@ namespace Array
 @[simp, grind =] theorem lt_toList [LT α] {xs ys : Array α} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
 @[simp, grind =] theorem le_toList [LT α] {xs ys : Array α} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
-protected theorem not_lt_iff_ge [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : List α} :
-    ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
+protected theorem not_lt_iff_ge [LT α] {xs ys : Array α} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys : Array α} :
+    ¬ xs ≤ ys ↔ ys < xs :=
   Decidable.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by

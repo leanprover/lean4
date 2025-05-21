@@ -6,6 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Attach
 import Init.Data.Array.Monadic
@@ -34,6 +35,11 @@ open Nat
 @[simp]
 theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Vector α n} (f : α → β) :
     xs.mapM (m := m) (pure <| f ·) = pure (xs.map f) := by
+  apply map_toArray_inj.mp
+  simp
+
+@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {xs : Vector α n} :
+    (xs.map f).mapM g = xs.mapM (g ∘ f) := by
   apply map_toArray_inj.mp
   simp
 

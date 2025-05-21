@@ -71,7 +71,7 @@ def elimAsList {motive : Vector α n → Sort u}
   | ⟨⟨xs⟩, ha⟩ => mk xs ha
 
 /-- Make an empty vector with pre-allocated capacity. -/
-@[inline] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
+@[inline] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.emptyWithCapacity capacity, by simp⟩
 
 @[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
 abbrev mkEmpty := @emptyWithCapacity
@@ -306,6 +306,8 @@ abbrev zipWithIndex := @zipIdx
 /-- The vector of length `n` whose `i`-th element is `f i`. -/
 @[inline] def ofFn (f : Fin n → α) : Vector α n :=
   ⟨Array.ofFn f, by simp⟩
+
+/-! See also `Vector.ofFnM` defined in `Init.Data.Vector.OfFn`. -/
 
 /--
 Swap two elements of a vector using `Fin` indices.

@@ -12,6 +12,8 @@ import Init.Prelude
 import Init.SizeOf
 set_option linter.missingDocs true -- keep it documented
 
+@[expose] section
+
 universe u v w
 
 /--
@@ -1210,10 +1212,7 @@ abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : 
 instance : Inhabited Prop where
   default := True
 
-deriving instance Inhabited for NonScalar, PNonScalar, True, ForInStep
-
-theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
-  | ⟨w, _⟩ => ⟨w⟩
+deriving instance Inhabited for NonScalar, PNonScalar, True
 
 /-! # Subsingleton -/
 
@@ -1387,16 +1386,7 @@ instance Sum.nonemptyLeft [h : Nonempty α] : Nonempty (Sum α β) :=
 instance Sum.nonemptyRight [h : Nonempty β] : Nonempty (Sum α β) :=
   Nonempty.elim h (fun b => ⟨Sum.inr b⟩)
 
-instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
-  match a, b with
-  | Sum.inl a, Sum.inl b =>
-    if h : a = b then isTrue (h ▸ rfl)
-    else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
-  | Sum.inr a, Sum.inr b =>
-    if h : a = b then isTrue (h ▸ rfl)
-    else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
-  | Sum.inr _, Sum.inl _ => isFalse fun h => Sum.noConfusion h
-  | Sum.inl _, Sum.inr _ => isFalse fun h => Sum.noConfusion h
+deriving instance DecidableEq for Sum
 
 end
 

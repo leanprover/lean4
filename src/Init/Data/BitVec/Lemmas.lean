@@ -8,7 +8,8 @@ module
 
 prelude
 import Init.Data.Bool
-import Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Basic
+import all Init.Data.BitVec.BasicAux
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Div.Lemmas
@@ -343,7 +344,7 @@ theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
   cases b <;> rfl
 
 @[simp] theorem toInt_ofBool (b : Bool) : (ofBool b).toInt = -b.toInt := by
-  cases b <;> rfl
+  cases b <;> simp
 
 @[simp] theorem toFin_ofBool (b : Bool) : (ofBool b).toFin = Fin.ofNat' 2 (b.toNat) := by
   cases b <;> rfl
@@ -1972,7 +1973,7 @@ theorem allOnes_shiftLeft_or_shiftLeft {x : BitVec w} {n : Nat} :
 /-! ### shiftLeft reductions from BitVec to Nat -/
 
 @[simp]
-theorem shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} : x <<< y = x <<< y.toNat := by rfl
+theorem shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} : x <<< y = x <<< y.toNat := rfl
 
 theorem shiftLeft_zero' {x : BitVec w₁} : x <<< 0#w₂ = x := by simp
 
@@ -2132,7 +2133,7 @@ theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
 
 @[simp]
 theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
-    x >>> y = x >>> y.toNat := by rfl
+    x >>> y = x >>> y.toNat := rfl
 
 theorem ushiftRight_ofNat_eq {x : BitVec w} {k : Nat} : x >>> (BitVec.ofNat w k) = x >>> (k % 2^w) := rfl
 
@@ -2260,7 +2261,7 @@ theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
 theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
     x.sshiftRight (m + n) = (x.sshiftRight m).sshiftRight n := by
   ext i
-  simp [getElem_sshiftRight, getLsbD_sshiftRight, Nat.add_assoc]
+  simp only [getElem_sshiftRight, Nat.add_assoc, msb_sshiftRight, dite_eq_ite]
   by_cases h₂ : n + i < w
   · simp [h₂]
   · simp only [h₂, ↓reduceIte]
@@ -3372,7 +3373,7 @@ theorem add_eq_xor {a b : BitVec 1} : a + b = a ^^^ b := by
 
 /-! ### sub/neg -/
 
-theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := by rfl
+theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := rfl
 
 @[simp] theorem toNat_sub {n} (x y : BitVec n) :
     (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
@@ -3683,7 +3684,7 @@ theorem fill_false {w : Nat} : fill w false = 0#w := by
 
 /-! ### mul -/
 
-theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := by rfl
+theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := rfl
 
 @[simp, bitvec_to_nat] theorem toNat_mul (x y : BitVec n) : (x * y).toNat = (x.toNat * y.toNat) % 2 ^ n := rfl
 @[simp] theorem toFin_mul (x y : BitVec n) : (x * y).toFin = (x.toFin * y.toFin) := rfl
@@ -3730,6 +3731,10 @@ theorem mul_add {x y z : BitVec w} :
   simp only [toNat_mul, toNat_add, Nat.add_mod_mod, Nat.mod_add_mod]
   rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
     ← Nat.mul_mod, Nat.mul_add]
+
+theorem add_mul {x y z : BitVec w} :
+    (x + y) * z = x * z + y * z := by
+  rw [BitVec.mul_comm, mul_add, BitVec.mul_comm z, BitVec.mul_comm z]
 
 theorem mul_succ {x y : BitVec w} : x * (y + 1#w) = x * y + x := by simp [mul_add]
 theorem succ_mul {x y : BitVec w} : (x + 1#w) * y = x * y + y := by simp [BitVec.mul_comm, BitVec.mul_add]
@@ -4162,7 +4167,7 @@ theorem sdiv_eq_and (x y : BitVec 1) : x.sdiv y = x &&& y := by
   have hy : y = 0#1 ∨ y = 1#1 := by bv_omega
   rcases hx with rfl | rfl <;>
     rcases hy with rfl | rfl <;>
-      rfl
+      simp
 
 @[simp]
 theorem sdiv_self {x : BitVec w} :
@@ -5345,7 +5350,7 @@ theorem neg_ofNat_eq_ofInt_neg {w : Nat} {x : Nat} :
 
 /-! ### abs -/
 
-theorem abs_eq (x : BitVec w) : x.abs = if x.msb then -x else x := by rfl
+theorem abs_eq (x : BitVec w) : x.abs = if x.msb then -x else x := rfl
 
 @[simp, bitvec_to_nat]
 theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by

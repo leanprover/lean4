@@ -6,11 +6,14 @@ Authors: Mario Carneiro
 module
 
 prelude
+import all Init.Data.List.Control
 import Init.Data.List.Impl
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Monadic
 import Init.Data.List.Nat.InsertIdx
 import Init.Data.Array.Lex.Basic
+import all Init.Data.Array.Basic
+import all Init.Data.Array.Set
 
 /-! ### Lemmas about `List.toArray`.
 
@@ -206,12 +209,6 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 @[simp] theorem push_append_toArray {as : Array α} {a : α} {bs : List α} : as.push a ++ bs.toArray = as ++ (a :: bs).toArray := by
   cases as
   simp
-
-@[simp] theorem foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
-  induction l generalizing as <;> simp [*]
-
-@[simp] theorem foldr_push {l : List α} {as : Array α} : l.foldr (fun a bs => push bs a) as = as ++ l.reverse.toArray := by
-  rw [foldr_eq_foldl_reverse, foldl_push]
 
 @[simp, grind =] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
     l.toArray.findSomeM? f = l.findSomeM? f := by

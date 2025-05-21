@@ -6,7 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Count
+import all Init.Data.Array.Count
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
 
 /-!

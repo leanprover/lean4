@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Zip
 import Init.Data.Vector.MapIdx
@@ -78,7 +80,7 @@ theorem range'_append {s m n step : Nat} :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append (step := 1)
 
 theorem range'_concat {s n : Nat} : range' s (n + 1) step = range' s n step ++ #v[s + step * n] := by
-  simpa using range'_append.symm
+  simp [← range'_append]
 
 theorem range'_1_concat {s n : Nat} : range' s (n + 1) = range' s n ++ #v[s + n] := by
   simp [range'_concat]

@@ -6,6 +6,7 @@ def c := a
 @[irreducible] def d := a
 opaque P : Nat → Prop
 
+@[irreducible] def ac := a = c
 
 /--
 error: not a `rfl`-theorem: the left-hand side
@@ -18,9 +19,10 @@ is not definitionally equal to the right-hand side
 theorem a_eq_c : a = c := rfl
 @[rfl] theorem a_eq_c' : a = c := Eq.refl _
 theorem a_eq_c'' : a = c := Eq.refl _
+@[rfl] theorem a_eq_c''' : ac := by with_unfolding_all rfl
 @[rfl] theorem a_eq_d : a = d := by simp [d]
 
-/-- error: not a `rfl`-theorem: the conculsion should be an equality, but is True -/
+/-- error: not a `rfl`-theorem: the conclusion should be an equality, but is True -/
 #guard_msgs in
 @[rfl] def not_an_eq : True := trivial
 
@@ -47,5 +49,7 @@ theorem Tricky.a_eq_b : a = b := rfl -- to confuse the heuristics
 
 /-- error: dsimp made no progress -/
 #guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c'']; exact h
+
+#guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c''']; exact h
 
 #guard_msgs in example (h : P d) : P a := by dsimp [a_eq_d]; exact h

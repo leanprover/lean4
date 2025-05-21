@@ -82,7 +82,7 @@ theorem ofFnM_succ' {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
       let a ← f 0
       let as ← ofFnM fun i => f i.succ
       pure (#[a] ++ as)) := by
-  simp [ofFnM, Fin.foldlM_eq_finRange_foldlM, List.foldlM_push_eq_append, List.finRange_succ, Function.comp_def]
+  simp [ofFnM, Fin.foldlM_eq_foldlM_finRange, List.foldlM_push_eq_append, List.finRange_succ, Function.comp_def]
 
 theorem ofFnM_succ {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
     ofFnM f = (do

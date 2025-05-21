@@ -723,8 +723,10 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
     return { expr, proof? := proof }
 
 def simpApp (e : Expr) : SimpM Result := do
-  if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
+  if isOfNatNatLit e || isOfScientificLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
+    return { expr := ← dsimp e }
+  else if isCharLit e then
     return { expr := e }
   else if isNonDepLetFun e then
     simpNonDepLetFun e

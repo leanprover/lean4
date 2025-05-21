@@ -35,15 +35,15 @@ def setFailure (goal : Goal) : M Unit := do
   modify fun s => { s with failure? := some goal }
 
 @[inline] def stepGuard (x : Goal → M Bool) (goal : Goal) : M Bool := do
-  try
-    x goal
-  catch ex =>
-    if ex.isMaxHeartbeat || ex.isMaxRecDepth then
-      reportIssue! ex.toMessageData
-      setFailure goal
-      return true
-    else
-      throw ex
+  tryCatchRuntimeEx
+    (x goal)
+    fun ex => do
+      if ex.isMaxHeartbeat || ex.isMaxRecDepth then
+        reportIssue! ex.toMessageData
+        setFailure goal
+        return true
+      else
+        throw ex
 
 def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
   let go (goal : Goal) : M Bool := do
@@ -52,22 +52,16 @@ def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
     return true
   stepGuard go goal
 
--- TODO: it should be assertAll. It may produce multiple goals because of eager splitting.
 def tryAssertAll : Goal → M Bool := applyTac assertAll
 
--- TODO: it doesn't need to invoke assertAll
 def tryEmatch : Goal → M Bool := applyTac ematch
 
--- Can only fail or produce a new updated goal
 def tryArith : Goal → M Bool := applyTac Arith.check
 
--- Can only fail or produce a new updated goal
 def tryLookahead : Goal → M Bool := applyTac lookahead
 
--- Can only fail or produce a new updated goal
 def tryMBTC : Goal → M Bool := applyTac Arith.Cutsat.mbtcTac
 
--- May fail or produce multiple new goals
 def trySplit : Goal → M Bool := applyTac splitNext
 
 partial def main (fallback : Fallback) : M Unit := do

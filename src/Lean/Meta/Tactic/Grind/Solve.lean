@@ -35,15 +35,15 @@ def setFailure (goal : Goal) : M Unit := do
   modify fun s => { s with failure? := some goal }
 
 @[inline] def stepGuard (x : Goal → M Bool) (goal : Goal) : M Bool := do
-  try
-    x goal
-  catch ex =>
-    if ex.isMaxHeartbeat || ex.isMaxRecDepth then
-      reportIssue! ex.toMessageData
-      setFailure goal
-      return true
-    else
-      throw ex
+  tryCatchRuntimeEx
+    (x goal)
+    fun ex => do
+      if ex.isMaxHeartbeat || ex.isMaxRecDepth then
+        reportIssue! ex.toMessageData
+        setFailure goal
+        return true
+      else
+        throw ex
 
 def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
   let go (goal : Goal) : M Bool := do
@@ -52,17 +52,17 @@ def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
     return true
   stepGuard go goal
 
-def tryAssertNext : Goal → M Bool := applyTac assertNext
+def tryAssertAll : Goal → M Bool := applyTac assertAll
 
-def tryEmatch : Goal → M Bool := applyTac ematchAndAssert
-
-def trySplit : Goal → M Bool := applyTac splitNext
+def tryEmatch : Goal → M Bool := applyTac ematch
 
 def tryArith : Goal → M Bool := applyTac Arith.check
 
 def tryLookahead : Goal → M Bool := applyTac lookahead
 
 def tryMBTC : Goal → M Bool := applyTac Arith.Cutsat.mbtcTac
+
+def trySplit : Goal → M Bool := applyTac splitNext
 
 partial def main (fallback : Fallback) : M Unit := do
   repeat do
@@ -72,7 +72,7 @@ partial def main (fallback : Fallback) : M Unit := do
       return ()
     if goal.inconsistent then
       continue
-    if (← tryAssertNext goal) then
+    if (← tryAssertAll goal) then
       continue
     if (← tryArith goal) then
       continue

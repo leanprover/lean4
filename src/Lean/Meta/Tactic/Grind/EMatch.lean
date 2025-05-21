@@ -474,7 +474,7 @@ end EMatch
 open EMatch
 
 /-- Performs one round of E-matching, and returns new instances. -/
-def ematch : GoalM Unit := do
+private def ematchCore : GoalM Unit := do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms
@@ -489,12 +489,13 @@ def ematch : GoalM Unit := do
       ematch.num       := s.ematch.num + 1
     }
 
-/-- Performs one round of E-matching, and assert new instances. -/
-def ematchAndAssert : GrindTactic := fun goal => do
+/-- Performs one round of E-matching. -/
+def ematch : GrindTactic := fun goal => do
   let numInstances := goal.ematch.numInstances
-  let goal ← GoalM.run' goal ematch
+  let goal ← GoalM.run' goal ematchCore
   if goal.ematch.numInstances == numInstances then
     return none
-  assertAll goal
+  else
+    return [goal]
 
 end Lean.Meta.Grind

@@ -104,6 +104,12 @@ theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a *
 theorem natCast_mul (a b : Nat) : ((a * b : Nat) : α) = ((a : α) * (b : α)) := by
   rw [← ofNat_eq_natCast, ofNat_mul, ofNat_eq_natCast, ofNat_eq_natCast]
 
+theorem pow_one (a : α) : a ^ 1 = a := by
+  rw [pow_succ, pow_zero, one_mul]
+
+theorem pow_two (a : α) : a ^ 2 = a * a := by
+  rw [pow_succ, pow_one]
+
 theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂ := by
   induction k₂
   next => simp [pow_zero, mul_one]
@@ -274,7 +280,6 @@ instance : IntModule α where
   hmul_zero := by simp [mul_zero]
   hmul_add := by simp [left_distrib]
   mul_hmul := by simp [intCast_mul, mul_assoc]
-  neg_hmul := by simp [intCast_neg, neg_mul]
   neg_add_cancel := by simp [neg_add_cancel]
   sub_eq_add_neg := by simp [sub_eq_add_neg]
 

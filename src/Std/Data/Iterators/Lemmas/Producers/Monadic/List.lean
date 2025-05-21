@@ -19,15 +19,17 @@ namespace Std.Iterators
 
 variable {m : Type w → Type w'} [Monad m] {β : Type w}
 
+@[simp]
 theorem _root_.List.step_iterM_nil :
     (([] : List β).iterM m).step = pure ⟨.done, rfl⟩ := by
   simp only [IterM.step, Iterator.step]; rfl
 
+@[simp]
 theorem _root_.List.step_iterM_cons {x : β} {xs : List β} :
     ((x :: xs).iterM m).step = pure ⟨.yield (xs.iterM m) x, rfl⟩ := by
   simp only [List.iterM, IterM.step, Iterator.step]; rfl
 
-theorem ListIterator.toArrayMapped_eq [LawfulMonad m]
+theorem ListIterator.toArrayMapped_toIterM [LawfulMonad m]
     {β : Type w} {γ : Type w} {f : β → m γ} {l : List β} :
     IteratorCollect.toArrayMapped f (l.iterM m) = List.toArray <$> l.mapM f := by
   rw [LawfulIteratorCollect.toArrayMapped_eq]
@@ -39,15 +41,18 @@ theorem ListIterator.toArrayMapped_eq [LawfulMonad m]
     rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
     simp [List.step_iterM_cons, List.mapM_cons, pure_bind, ih]
 
+@[simp]
 theorem _root_.List.toArray_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).toArray = pure l.toArray := by
-  simp only [IterM.toArray, ListIterator.toArrayMapped_eq]
+  simp only [IterM.toArray, ListIterator.toArrayMapped_toIterM]
   rw [List.mapM_pure, map_pure, List.map_id']
 
+@[simp]
 theorem _root_.List.toList_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).toList = pure l := by
   rw [← IterM.toList_toArray, List.toArray_iterM, map_pure, List.toList_toArray]
 
+@[simp]
 theorem _root_.List.toListRev_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).toListRev = pure l.reverse := by
   simp [IterM.toListRev_eq, List.toList_iterM]

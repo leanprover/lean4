@@ -227,7 +227,7 @@ where
               let isRflOld ← withOptions (experimental.tactic.simp.useRflAttr.set · false) do
                 isRflProof thm.proof
               if isRflOld then
-                logWarning "theorem {thm.proof} is no longer rfl"
+                logWarning m!"theorem {thm.proof} is no longer rfl"
             continue
         if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
           trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"

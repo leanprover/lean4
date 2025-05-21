@@ -54,6 +54,9 @@ builtin_dsimproc [simp, seval] reduceSub ((_ - _ : Nat)) := reduceBin ``HSub.hSu
 builtin_dsimproc [simp, seval] reduceDiv ((_ / _ : Nat)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : Nat)) := reduceBin ``HMod.hMod 6 (· % ·)
 
+builtin_dsimproc [simp, seval] reduceMin ((min _ _ : Nat)) := reduceBin ``Min.min 4 (min · ·)
+builtin_dsimproc [simp, seval] reduceMax ((max _ _ : Nat)) := reduceBin ``Max.max 4 (max · ·)
+
 builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := fun e => do
   let_expr HPow.hPow _ _ _ _ n m := e | return .continue
   let some n ← fromExpr? n | return .continue

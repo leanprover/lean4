@@ -17,7 +17,7 @@ This module provides the iterator combinator `IterM.take`.
 
 namespace Std.Iterators
 
-variable {α : Type w} {m : Type w → Type w'} {β : Type w}
+variable {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {β : Type w}
 
 /--
 The internal state of the `IterM.take` iterator combinator.
@@ -130,12 +130,12 @@ instance Take.instFinite [Monad m] [Iterator α m β] [Productive α m] :
     Finite (Take α m β) m :=
   Finite.of_finitenessRelation instFinitenessRelation
 
-instance Take.instIteratorCollect [Monad m] [Iterator α m β] [Productive α m] :
-    IteratorCollect (Take α m β) m :=
+instance Take.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] :
+    IteratorCollect (Take α m β) m n :=
   .defaultImplementation
 
-instance Take.instIteratorCollectPartial [Monad m] [Iterator α m β] :
-    IteratorCollectPartial (Take α m β) m :=
+instance Take.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] :
+    IteratorCollectPartial (Take α m β) m n :=
   .defaultImplementation
 
 private def Take.PlausibleForInStep {β : Type u} {γ : Type v}

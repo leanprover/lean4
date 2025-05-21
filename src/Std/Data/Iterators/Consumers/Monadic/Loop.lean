@@ -171,7 +171,7 @@ implementations are possible and should be used instead.
 -/
 @[always_inline, inline]
 def IteratorLoopPartial.defaultImplementation {α : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
+    {n : Type w → Type w''} [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoopPartial α m n where
   forInPartial lift := IterM.DefaultConsumers.forInPartial lift _
 

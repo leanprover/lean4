@@ -4,3 +4,7 @@ has type
   ?m = ?m : Prop
 but is expected to have type
   0 + 0 = 0 : Prop
+isDefEqOffsetBug.lean:18:8-18:18: error: not a `rfl`-theorem: the left-hand side
+  0 + 0
+is not definitionally equal to the right-hand side
+  0

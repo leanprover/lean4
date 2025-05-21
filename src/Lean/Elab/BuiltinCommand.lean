@@ -80,7 +80,7 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
-  | `(namespace $n:identWithOptDot) => addNamespace n.getIdWithOptDot
+  | `(namespace $n:identWithOptDot) => addNamespace n.raw.getIdOrIdWithOptDot
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do

@@ -92,10 +92,12 @@ partial def main (fallback : Fallback) : M Unit := do
 end Solve
 
 /--
-Try to solve/close the given goals, and returns the ones that could not be solved.
+Try to solve/close the given goals.
+Returns `some goal` if this subgoal failed to be closed,
+and `none` if all subgoals were closed.
 -/
-def solve (goals : List Goal) (fallback : Fallback) : GrindM (Option Goal × List Goal) := do
+def solve (goals : List Goal) (fallback : Fallback) : GrindM (Option Goal) := do
   let (_, s) ← Solve.main fallback |>.run { todo := goals }
-  return (s.failure?, s.todo)
+  return s.failure?
 
 end Lean.Meta.Grind

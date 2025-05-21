@@ -106,7 +106,6 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) :=
 
 structure Result where
   failure? : Option Goal
-  skipped  : List Goal
   issues   : List MessageData
   config   : Grind.Config
   trace    : Trace
@@ -163,12 +162,12 @@ def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Resul
   if debug.terminalTacticsAsSorry.get (← getOptions) then
     mvarId.admit
     return {
-        failure? := none, skipped := [], issues := [], config := params.config, trace := {}, counters := {}, simp := {}
+        failure? := none, issues := [], config := params.config, trace := {}, counters := {}, simp := {}
     }
   else
     let go : GrindM Result := withReducible do
       let goals ← initCore mvarId params
-      let (failure?, skipped) ← solve goals fallback
+      let failure? ← solve goals fallback
       trace[grind.debug.final] "{← ppGoals goals}"
       let issues   := (← get).issues
       let trace    := (← get).trace
@@ -179,7 +178,7 @@ def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Resul
         if (← isDiagnosticsEnabled) then
           if let some msg ← mkGlobalDiag counters simp then
             logInfo msg
-      return { failure?, skipped, issues, config := params.config, trace, counters, simp }
+      return { failure?, issues, config := params.config, trace, counters, simp }
     go.run params fallback
 
 end Lean.Meta.Grind

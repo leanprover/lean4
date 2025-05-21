@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Match.MatchEqs
-import Lean.Meta.Tactic.Simp.RflEnvExt
+import Lean.RflAttrib
 
 namespace Lean.Elab.Eqns
 open Meta

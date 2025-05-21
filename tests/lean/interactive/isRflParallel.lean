@@ -10,10 +10,7 @@ TODO: Does't work any more with the rfl extension being .async, as that waits fo
 evaluated.
 -/
 
-set_option experimental.tactic.simp.useRflAttr true
-set_option trace.Meta.Tactic.simp.rflAttrMismatch false
-
-set_option trace.Elab.block true
+-- set_option trace.Elab.block true
 -- set_option debug.skipKernelTC true
 
 axiom testSorry : α

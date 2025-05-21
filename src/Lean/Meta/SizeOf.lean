@@ -8,7 +8,7 @@ import Init.Data.List.BasicAux
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.Instances
-import Lean.Meta.Tactic.Simp.RflEnvExt
+import Lean.RflAttrib
 
 namespace Lean.Meta
 

@@ -223,8 +223,8 @@ where
           let isRfl := thm.isRfl (← getEnv)
           if !isRfl then
             if debug.tactic.simp.checkRflAttr.get (← getOptions) &&
-               experimental.tactic.simp.useRflAttr.get (← getOptions) then
-              let isRflOld ← withOptions (experimental.tactic.simp.useRflAttr.set · false) do
+               backward.dsimp.useRflAttr.get (← getOptions) then
+              let isRflOld ← withOptions (backward.dsimp.useRflAttr.set · false) do
                 isRflProof thm.proof
               if isRflOld then
                 logWarning m!"theorem {thm.proof} is no longer rfl"

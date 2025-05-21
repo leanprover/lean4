@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.AddDecl
 import Lean.Meta.Basic
-import Lean.Meta.Tactic.Simp.RflEnvExt
+import Lean.RflAttrib
 
 namespace Lean.Meta
 

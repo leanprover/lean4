@@ -10,12 +10,11 @@ import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.AuxLemma
-import Lean.Meta.Tactic.Simp.RflEnvExt
+import Lean.RflAttrib
 import Lean.DocString
-import Lean.PrettyPrinter
 namespace Lean.Meta
 
-register_builtin_option experimental.tactic.simp.useRflAttr : Bool := {
+register_builtin_option backward.dsimp.useRflAttr : Bool := {
   defValue := true
   descr    := "use `rfl` attribute rather than theorem body to decide rfl-ness"
 }
@@ -178,7 +177,7 @@ mutual
         return false
 
   private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
-    if experimental.tactic.simp.useRflAttr.get (← getOptions) then
+    if backward.dsimp.useRflAttr.get (← getOptions) then
       return rflAttr.hasTag (← getEnv) declName
     else
       let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false

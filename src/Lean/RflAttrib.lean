@@ -5,29 +5,28 @@ Authors: Joachim Breitner
 -/
 prelude
 
--- TODO: Move this file to a better place
+import Lean.PrettyPrinter
 
-import Lean.Attributes
-import Lean.Meta.Basic
-import Lean.Meta.WHNF
-import Lean.Util.Recognizers
+namespace Lean
+open Meta
 
-namespace Lean.Meta
-
-def validateRflAttr (_declName : Name) : AttrM Unit := do
-  -- let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName |
-  --   throwError "Could not find {declName}"
-  -- let .thmInfo _info ← traceBlock "isRflTheorem theorem body" constInfo |
-    -- throwError "{declName} is not a theorem"
-  -- TODO: Do the actual check
-  pure ()
+def validateRflAttr (declName : Name) : AttrM Unit := do
+  let info ← getConstVal declName
+  MetaM.run' do
+    forallTelescope info.type fun _ type => do
+      -- NB: The warning wording should work both for explicit uses of `@[rfl]` as well as the implicit `:= rfl`.
+      let some (_, lhs, rhs) := type.eq? |
+        throwError m!"not a `rfl`-theorem: the conculsion should be an equality, but is{inlineExpr type}"
+      if !(← withTransparency .all <| isDefEq lhs rhs) then
+        let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
+          let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
+          return m!"not a `rfl`-theorem: the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
+        throwError explanation
 
 builtin_initialize rflAttr : TagAttribute ←
   registerTagAttribute `rfl "mark theorem as a `rfl`-theorem, to be used by `dsimp`"
     (validate := validateRflAttr) (applicationTime := .afterTypeChecking)
     (asyncMode := .async)
-
-
 
 private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
   match type with
@@ -51,27 +50,19 @@ private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := 
         return false
     else
       return false
+
 /--
-For
+For automatically generated theorems (equational theorems etc.), we want to set the `rfl` attribute
+if the proof is `Eq.rfl`, essentially reproducing the behavior before the introduction of the `rfl`
+attribute. This function infers the `rfl` attribute based on the declaration value.
 -/
 def inferRflAttr (declName : Name) : MetaM Unit := do
   let info ← getConstInfo declName
   let isRfl ←
-    /-
-    This did not work, it failed to recognize some proofs that definitely are refl.
-    Maybe due to different whnf settings?
-
-    withTransparency .all do -- TODO: Is this the right choice?
-      -- withOptions (smartUnfolding.set · false) do
-        forallTelescopeReducing info.type fun _ type => do
-          let some (_, lhs, rhs) := type.eq? | return false
-          let r ← isDefEq lhs rhs
-          trace[debug] "inferRflAttr {.ofConstName declName}: {r}{indentExpr type}"
-          pure r
-    -/
     if let some value := info.value? then
       isRflProofCore info.type value
     else
       pure false
   if isRfl then
+    validateRflAttr declName -- just a sanity-check
     rflAttr.setTag declName

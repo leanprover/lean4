@@ -69,3 +69,11 @@ def e3 := a
 @[simp,rfl] theorem e3_eq_a : e2 = a := id rfl -- rfl has to come before simp
 /-- error: dsimp made no progress -/
 #guard_msgs in example (h : P a) : P e3 := by dsimp; exact h
+
+-- Tests the `rfl` attibute on a realized constant: That they are set, and that they
+-- are transported out
+def f := a
+#guard_msgs in example (h : P a) : P f := by dsimp [f]; exact h
+#guard_msgs in example (h : P a) : P f := by dsimp [f.eq_1]; exact h
+#guard_msgs in example (h : P a) : P f := by dsimp [f.eq_def]; exact h
+#guard_msgs in example (h : P a) : P f := by dsimp [f.eq_unfold]; exact h

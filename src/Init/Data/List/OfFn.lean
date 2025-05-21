@@ -71,6 +71,7 @@ protected theorem getElem?_ofFn {f : Fin n → α} :
 theorem ofFn_zero {f : Fin 0 → α} : ofFn f = [] := by
   rw [ofFn, Fin.foldr_zero]
 
+@[simp]
 theorem ofFn_succ {n} {f : Fin (n + 1) → α} : ofFn f = f 0 :: ofFn fun i => f i.succ :=
   ext_get (by simp) (fun i hi₁ hi₂ => by
     cases i
@@ -91,7 +92,7 @@ theorem ofFn_add {n m} {f : Fin (n + m) → α} :
     ofFn f = (ofFn fun i => f (i.castLE (Nat.le_add_right n m))) ++ (ofFn fun i => f (i.natAdd n)) := by
   induction m with
   | zero => simp
-  | succ m ih => simp [ofFn_succ_last, ih]
+  | succ m ih => simp [-ofFn_succ, ofFn_succ_last, ih]
 
 @[simp]
 theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
@@ -175,6 +176,6 @@ theorem ofFnM_pure [Monad m] [LawfulMonad m] {n} {f : Fin n → α} :
   unfold Id.run
   induction n with
   | zero => simp
-  | succ n ih => simp [ofFnM_succ_last, ofFn_succ_last, ih]
+  | succ n ih => simp [-ofFn_succ, ofFnM_succ_last, ofFn_succ_last, ih]
 
 end List

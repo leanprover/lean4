@@ -274,7 +274,6 @@ instance : IntModule α where
   hmul_zero := by simp [mul_zero]
   hmul_add := by simp [left_distrib]
   mul_hmul := by simp [intCast_mul, mul_assoc]
-  neg_hmul := by simp [intCast_neg, neg_mul]
   neg_add_cancel := by simp [neg_add_cancel]
   sub_eq_add_neg := by simp [sub_eq_add_neg]
 

@@ -1,6 +1,6 @@
-389.lean:7:14-7:17: error: application type mismatch
+389.lean:7:14-7:17: error: Application type mismatch: In the application
   getFoo bar
-argument
+the argument
   bar
 has type
   Bar Nat : Type

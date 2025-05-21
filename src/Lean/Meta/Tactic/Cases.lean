@@ -48,12 +48,13 @@ def generalizeTargetsEq (mvarId : MVarId) (motiveType : Expr) (targets : Array E
     mvarId.checkNotAssigned `generalizeTargets
     let (typeNew, eqRefls) ←
       forallTelescopeReducing motiveType fun targetsNew _ => do
-        unless targetsNew.size == targets.size do
-          throwError "invalid number of targets #{targets.size}, motive expects #{targetsNew.size}"
-        withNewEqs targets targetsNew fun eqs eqRefls => do
-          let type    ← mvarId.getType
-          let typeNew ← mkForallFVars eqs type
-          let typeNew ← mkForallFVars targetsNew typeNew
+        unless targetsNew.size ≥ targets.size do
+          throwError "invalid number of targets #{targets.size}, motive only takes #{targetsNew.size}"
+        let targetsNewAtomic := targetsNew[:targets.size]
+        withNewEqs targets targetsNewAtomic fun eqs eqRefls => do
+          let typeNew ← mvarId.getType
+          let typeNew ← mkForallFVars eqs typeNew
+          let typeNew ← mkForallFVars targetsNewAtomic typeNew
           pure (typeNew, eqRefls)
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew (← mvarId.getTag)
     mvarId.assign (mkAppN (mkAppN mvarNew targets) eqRefls)

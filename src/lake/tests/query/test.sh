@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
@@ -9,19 +7,24 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # Test the behavior of `lake query`
 # ---
 
-# Check that logs are not written to stdout
-$LAKE query | diff - /dev/null
+echo "# COMMON TESTS"
 
 # Test failure to build a query-only target
-($LAKE build +A:imports 2>&1 && exit 1 || true) | grep --color "not a build target"
+test_err "not a build target" build +A:imports
 
 # Test querying a custom target
-test "`$LAKE query foo`" = foo
-test "`$LAKE query foo --json`" = '"foo"'
+test_eq "foo" query foo
+test_eq '"foo"' query foo --json
 
 # Test querying imports
-test "`$LAKE query +A:imports`" = B
-test "`$LAKE query +A:transImports --json`" = '["C","B"]'
+test_eq "B" query +A:imports
+test_eq '["C","B"]' query +A:transImports --json
+
+echo "# UNCOMMON TESTS"
+set -x
+
+# Check that logs are not written to stdout
+$LAKE query | diff - /dev/null
 
 # Test querying library modules
 $LAKE query lib:modules | sort | diff -u --strip-trailing-cr <(cat << 'EOF'
@@ -38,3 +41,8 @@ EOF
 # Test querying multiple targets
 test `$LAKE query foo foo | wc -l` = 2
 test `$LAKE query a b | wc -l` = 2
+
+set +x
+
+# Cleanup
+rm -f produced.out

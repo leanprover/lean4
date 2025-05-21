@@ -108,7 +108,6 @@ def handleHover (p : HoverParams)
 open Elab GoToKind in
 def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     (infoTree? : Option InfoTree := none) : RequestM (Array LocationLink) := do
-  let rc ← read
   let doc ← readDoc
   let text := doc.meta.text
 
@@ -131,11 +130,12 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return #[]
 
   let locationLinksFromImport (i : Elab.Info) := do
-    let name := i.stx[2].getId
-    if let some modUri ← documentUriFromModule? name then
+    let `(Parser.Module.import| $[private]? import $[all]? $mod) := i.stx
+      | return #[]
+    if let some modUri ← documentUriFromModule? mod.getId then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (canonicalOnly := true)
+        originSelectionRange? := (·.toLspRange text) <$> mod.raw.getRange? (canonicalOnly := true)
         targetUri := modUri
         targetRange := range
         targetSelectionRange := range
@@ -437,7 +437,7 @@ where
       | `(namespace $id)  =>
         let entry := { name := id.getId.componentsRev, stx, selection := id, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
-      | `(section $(id)?) =>
+      | `($_:sectionHeader section $(id)?) =>
         let name := id.map (·.getId.componentsRev) |>.getD [`«»]
         let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
@@ -499,7 +499,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
       match stx with
       | `(namespace $id)  =>
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
-      | `(section $(id)?) =>
+      | `($_:sectionHeader section $(id)?) =>
         addRanges text ((id.map (·.getId.getNumParts) |>.getD 1, stx.getPos?)::sections) stxs
       | `(end $(id)?) => do
         let rec popRanges n sections := do

@@ -8,6 +8,7 @@ prelude
 import Init.Control.Option
 import Init.Data.Option.Coe
 import Lean.Compiler.FFI
+import Lake.Config.Dynlib
 import Lake.Util.NativeLib
 import Lake.Config.Defaults
 
@@ -114,9 +115,15 @@ structure LakeInstall where
   srcDir := home
   binDir := home / defaultBuildDir / defaultBinDir
   libDir := home / defaultBuildDir / defaultLeanLibDir
-  sharedLib := libDir / nameToSharedLib "Lake"
+  sharedDynlib : Dynlib := {
+    name := "Lake"
+    path := libDir / nameToSharedLib "Lake"
+  }
   lake := binDir / lakeExe
   deriving Inhabited, Repr
+
+@[inline] def LakeInstall.sharedLib (self : LakeInstall) : FilePath :=
+  self.sharedDynlib.path
 
 /-- Construct a Lake installation co-located with the specified Lean installation. -/
 def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
@@ -124,9 +131,10 @@ def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
   srcDir := lean.srcDir / "lake"
   binDir := lean.binDir
   libDir := lean.leanLibDir
-  sharedLib :=
+  sharedDynlib :=
     let lib := s!"libLake_shared.{sharedLibExt}"
-    if Platform.isWindows then lean.binDir / lib else lean.leanLibDir / lib
+    let path := if Platform.isWindows then lean.binDir / lib else lean.leanLibDir / lib
+    {name := "Lake_shared", path}
   lake := lean.binDir / lakeExe
 
 /-! ## Detection Functions -/

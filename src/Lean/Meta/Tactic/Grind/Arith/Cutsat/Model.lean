@@ -92,24 +92,26 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   let mut used : Std.HashSet Int := {}
   let mut nextVal : Int := 0
   let mut model := {}
-  let nodes := goal.getENodes
   -- Assign on expressions associated with cutsat terms or interpreted terms
-  for node in nodes do
-    if isSameExpr node.root node.self then
+  for e in goal.exprs do
+    let node ← goal.getENode e
+    if node.isRoot then
     if (← isIntNatENode node) then
       if let some v ← getAssignment? goal node.self then
         if v.den == 1 then used := used.insert v.num
         model := assignEqc goal node.self v model
   -- Assign cast terms
-  for node in nodes do
+  for e in goal.exprs do
+    let node ← goal.getENode e
     let i := node.self
     let some n := natCast? i | pure ()
     if model[n]?.isNone then
       let some v := model[i]? | pure ()
       model := assignEqc goal n v model
   -- Assign the remaining ones with values not used by cutsat
-  for node in nodes do
-    if isSameExpr node.root node.self then
+  for e in goal.exprs do
+    let node ← goal.getENode e
+    if node.isRoot then
     if (← isIntNatENode node) then
     if model[node.self]?.isNone then
       let v := pickUnusedValue goal model node.self nextVal used

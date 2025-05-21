@@ -6,8 +6,8 @@ Authors: Mario Carneiro, Leonardo de Moura
 module
 
 prelude
-import Init.Data.Fin.Basic
 import Init.Data.Nat.Lemmas
+import Init.Data.Int.DivMod.Lemmas
 import Init.Ext
 import Init.ByCases
 import Init.Conv
@@ -99,6 +99,21 @@ theorem dite_val {n : Nat} {c : Prop} [Decidable c] {x y : Fin n} :
     (if c then x else y).val = if c then x.val else y.val := by
   by_cases c <;> simp [*]
 
+instance (n : Nat) [NeZero n] : NatCast (Fin n) where
+  natCast a := Fin.ofNat' n a
+
+def intCast [NeZero n] (a : Int) : Fin n :=
+  if 0 ≤ a then
+    Fin.ofNat' n a.natAbs
+  else
+    - Fin.ofNat' n a.natAbs
+
+instance (n : Nat) [NeZero n] : IntCast (Fin n) where
+  intCast := Fin.intCast
+
+theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
+    (x : Fin n) = if 0 ≤ x then Fin.ofNat' n x.natAbs else -Fin.ofNat' n x.natAbs := rfl
+
 /-! ### order -/
 
 theorem le_def {a b : Fin n} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
@@ -156,7 +171,7 @@ protected theorem eq_or_lt_of_le {a b : Fin n} : a ≤ b → a = b ∨ a < b := 
 protected theorem lt_or_eq_of_le {a b : Fin n} : a ≤ b → a < b ∨ a = b := by
   rw [Fin.ext_iff]; exact Nat.lt_or_eq_of_le
 
-theorem is_le (i : Fin (n + 1)) : i ≤ n := Nat.le_of_lt_succ i.is_lt
+theorem is_le (i : Fin (n + 1)) : i.1 ≤ n := Nat.le_of_lt_succ i.is_lt
 
 @[simp] theorem is_le' {a : Fin n} : a ≤ n := Nat.le_of_lt a.is_lt
 
@@ -174,13 +189,13 @@ theorem mk_le_of_le_val {b : Fin n} {a : Nat} (h : a ≤ b) :
 
 @[simp] theorem mk_zero : (⟨0, Nat.succ_pos n⟩ : Fin (n + 1)) = 0 := rfl
 
-@[simp] theorem zero_le (a : Fin (n + 1)) : 0 ≤ a := Nat.zero_le a.val
+@[simp] theorem zero_le [NeZero n] (a : Fin n) : 0 ≤ a := Nat.zero_le a.val
 
 theorem zero_lt_one : (0 : Fin (n + 2)) < 1 := Nat.zero_lt_one
 
-@[simp] theorem not_lt_zero (a : Fin (n + 1)) : ¬a < 0 := nofun
+@[simp] theorem not_lt_zero [NeZero n] (a : Fin n) : ¬a < 0 := nofun
 
-theorem pos_iff_ne_zero {a : Fin (n + 1)} : 0 < a ↔ a ≠ 0 := by
+theorem pos_iff_ne_zero [NeZero n] {a : Fin n} : 0 < a ↔ a ≠ 0 := by
   rw [lt_def, val_zero, Nat.pos_iff_ne_zero, ← val_ne_iff]; rfl
 
 theorem eq_zero_or_eq_succ {n : Nat} : ∀ i : Fin (n + 1), i = 0 ∨ ∃ j : Fin n, i = j.succ
@@ -219,7 +234,7 @@ theorem rev_eq {n a : Nat} (i : Fin (n + 1)) (h : n = a + i) :
 
 /-! ### last -/
 
-@[simp] theorem val_last (n : Nat) : last n = n := rfl
+@[simp] theorem val_last (n : Nat) : (last n).1 = n := rfl
 
 @[simp] theorem last_zero : (Fin.last 0 : Fin 1) = 0 := by
   ext
@@ -260,7 +275,7 @@ theorem subsingleton_iff_le_one : Subsingleton (Fin n) ↔ n ≤ 1 := by
   (match n with | 0 | 1 | n+2 => ?_) <;> try simp
   · exact ⟨nofun⟩
   · exact ⟨fun ⟨0, _⟩ ⟨0, _⟩ => rfl⟩
-  · exact iff_of_false (fun h => Fin.ne_of_lt zero_lt_one (h.elim ..)) (of_decide_eq_false rfl)
+  · exact fun h => by have := zero_lt_one (n := n); simp_all [h.elim 0 1]
 
 instance subsingleton_zero : Subsingleton (Fin 0) := subsingleton_iff_le_one.2 (by decide)
 
@@ -506,17 +521,17 @@ theorem castSucc_inj {a b : Fin n} : a.castSucc = b.castSucc ↔ a = b := by sim
 
 theorem castSucc_lt_last (a : Fin n) : a.castSucc < last n := a.is_lt
 
-@[simp] theorem castSucc_zero : castSucc (0 : Fin (n + 1)) = 0 := rfl
+@[simp] theorem castSucc_zero [NeZero n] : castSucc (0 : Fin n) = 0 := rfl
 
 @[simp] theorem castSucc_one {n : Nat} : castSucc (1 : Fin (n + 2)) = 1 := rfl
 
 /-- `castSucc i` is positive when `i` is positive -/
-theorem castSucc_pos {i : Fin (n + 1)} (h : 0 < i) : 0 < i.castSucc := by
+theorem castSucc_pos [NeZero n] {i : Fin n} (h : 0 < i) : 0 < i.castSucc := by
   simpa [lt_def] using h
 
-@[simp] theorem castSucc_eq_zero_iff {a : Fin (n + 1)} : a.castSucc = 0 ↔ a = 0 := by simp [Fin.ext_iff]
+@[simp] theorem castSucc_eq_zero_iff [NeZero n] {a : Fin n} : a.castSucc = 0 ↔ a = 0 := by simp [Fin.ext_iff]
 
-theorem castSucc_ne_zero_iff {a : Fin (n + 1)} : a.castSucc ≠ 0 ↔ a ≠ 0 :=
+theorem castSucc_ne_zero_iff [NeZero n] {a : Fin n} : a.castSucc ≠ 0 ↔ a ≠ 0 :=
   not_congr <| castSucc_eq_zero_iff
 
 theorem castSucc_fin_succ (n : Nat) (j : Fin n) :
@@ -630,6 +645,20 @@ theorem rev_addNat (k : Fin n) (m : Nat) : rev (addNat k m) = castAdd m (rev k) 
 theorem rev_castSucc (k : Fin n) : rev (castSucc k) = succ (rev k) := k.rev_castAdd 1
 
 theorem rev_succ (k : Fin n) : rev (succ k) = castSucc (rev k) := k.rev_addNat 1
+
+@[simp, grind _=_]
+theorem castSucc_succ (i : Fin n) : i.succ.castSucc = i.castSucc.succ := rfl
+
+@[simp, grind =]
+theorem castLE_refl (h : n ≤ n) (i : Fin n) : i.castLE h = i := rfl
+
+@[simp, grind =]
+theorem castSucc_castLE (h : n ≤ m) (i : Fin n) :
+    (i.castLE h).castSucc = i.castLE (by omega) := rfl
+
+@[simp, grind =]
+theorem castSucc_natAdd (n : Nat) (i : Fin k) :
+    (i.natAdd n).castSucc = (i.castSucc).natAdd n := rfl
 
 /-! ### pred -/
 
@@ -925,6 +954,15 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
   have : ¬(natAdd m i : Nat) < m := Nat.not_lt.2 (le_coe_natAdd ..)
   rw [addCases, dif_neg this]; exact eq_of_heq <| (eqRec_heq _ _).trans (by congr 1; simp)
 
+/-! ### zero -/
+
+@[simp, norm_cast]
+theorem val_eq_zero_iff [NeZero n] {a : Fin n} : a.val = 0 ↔ a = 0 := by
+  rw [Fin.ext_iff, val_zero]
+
+theorem val_ne_zero_iff [NeZero n] {a : Fin n} : a.val ≠ 0 ↔ a ≠ 0 :=
+  not_congr val_eq_zero_iff
+
 /-! ### add -/
 
 theorem ofNat'_add [NeZero n] (x : Nat) (y : Fin n) :
@@ -984,6 +1022,17 @@ theorem coe_sub_iff_lt {a b : Fin n} : (↑(a - b) : Nat) = n + a - b ↔ a < b 
     rw [Nat.mod_eq_of_lt]
     all_goals omega
 
+/-! ### neg -/
+
+theorem val_neg {n : Nat} [NeZero n] (x : Fin n) :
+    (-x).val = if x = 0 then 0 else n - x.val := by
+  change (n - ↑x) % n = _
+  split <;> rename_i h
+  · simp_all
+  · rw [Nat.mod_eq_of_lt]
+    have := Fin.val_ne_zero_iff.mpr h
+    omega
+
 /-! ### mul -/
 
 theorem ofNat'_mul [NeZero n] (x : Nat) (y : Fin n) :
@@ -1002,10 +1051,12 @@ theorem val_mul {n : Nat} : ∀ a b : Fin n, (a * b).val = a.val * b.val % n
 theorem coe_mul {n : Nat} : ∀ a b : Fin n, ((a * b : Fin n) : Nat) = a * b % n
   | ⟨_, _⟩, ⟨_, _⟩ => rfl
 
-protected theorem mul_one (k : Fin (n + 1)) : k * 1 = k := by
-  match n with
-  | 0 => exact Subsingleton.elim (α := Fin 1) ..
-  | n+1 => simp [Fin.ext_iff, mul_def, Nat.mod_eq_of_lt (is_lt k)]
+protected theorem mul_one [i : NeZero n] (k : Fin n) : k * 1 = k := by
+  match n, i with
+  | n + 1, _ =>
+    match n with
+    | 0 => exact Subsingleton.elim (α := Fin 1) ..
+    | n+1 => simp [Fin.ext_iff, mul_def, Nat.mod_eq_of_lt (is_lt k)]
 
 protected theorem mul_comm (a b : Fin n) : a * b = b * a :=
   Fin.ext <| by rw [mul_def, mul_def, Nat.mul_comm]
@@ -1018,15 +1069,17 @@ protected theorem mul_assoc (a b c : Fin n) : a * b * c = a * (b * c) := by
   simp only [← Nat.mul_mod, Nat.mul_assoc]
 instance : Std.Associative (α := Fin n) (· * ·) := ⟨Fin.mul_assoc⟩
 
-protected theorem one_mul (k : Fin (n + 1)) : (1 : Fin (n + 1)) * k = k := by
+protected theorem one_mul [NeZero n] (k : Fin n) : (1 : Fin n) * k = k := by
   rw [Fin.mul_comm, Fin.mul_one]
-instance : Std.LawfulIdentity (α := Fin (n + 1)) (· * ·) 1 where
+
+instance [NeZero n] : Std.LawfulIdentity (α := Fin n) (· * ·) 1 where
   left_id := Fin.one_mul
   right_id := Fin.mul_one
 
-protected theorem mul_zero (k : Fin (n + 1)) : k * 0 = 0 := by simp [Fin.ext_iff, mul_def]
+protected theorem mul_zero [NeZero n] (k : Fin n) : k * 0 = 0 := by
+  simp [Fin.ext_iff, mul_def]
 
-protected theorem zero_mul (k : Fin (n + 1)) : (0 : Fin (n + 1)) * k = 0 := by
+protected theorem zero_mul [NeZero n] (k : Fin n) : (0 : Fin n) * k = 0 := by
   simp [Fin.ext_iff, mul_def]
 
 end Fin

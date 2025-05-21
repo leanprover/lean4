@@ -1,4 +1,4 @@
-import Std.Data.HashMap.Lemmas
+import Std
 
 /-!
 # If normalization
@@ -22,7 +22,7 @@ inductive IfExpr
   | lit : Bool → IfExpr
   | var : Nat → IfExpr
   | ite : IfExpr → IfExpr → IfExpr → IfExpr
-deriving DecidableEq, Repr
+deriving DecidableEq
 
 namespace IfExpr
 
@@ -115,26 +115,6 @@ set_option grind.warning false
 
 namespace IfExpr
 
-attribute [grind] List.mem_cons List.not_mem_nil List.mem_append
-  Option.getD_some Option.getD_none
-
-attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars
-
--- I'd prefer to use `TreeMap` here, but its `getElem?_insert` lemma is not useful.
-attribute [grind] Std.HashMap.getElem?_insert
-
-/-!
-Lemmas for `eval`.
--/
-@[grind] theorem eval_lit : (lit b).eval f = b := rfl
-@[grind] theorem eval_var : (var i).eval f = f i := rfl
-@[grind] theorem eval_ite_lit :
-    (ite (.lit b) t e).eval f = bif b then t.eval f else e.eval f := rfl
-@[grind] theorem eval_ite_var :
-    (ite (.var i) t e).eval f = bif f i then t.eval f else e.eval f := rfl
-@[grind] theorem eval_ite_ite {a b c d e : IfExpr} :
-    (ite (ite a b c) d e).eval f = (ite a (ite b d e) (ite c d e)).eval f := by grind [eval]
-
 /--
 Custom size function for if-expressions, used for proving termination.
 It is designed so that if we decrease the size of the "if" condition by one,
@@ -149,7 +129,7 @@ we are allowed to increase the size of the branches by one, and still be smaller
 def normalize (assign : Std.HashMap Nat Bool) : IfExpr → IfExpr
   | lit b => lit b
   | var v =>
-    match assign[v]? with -- Note unused `h`: if we remove this things work again.
+    match assign[v]? with
     | none => var v
     | some b => lit b
   | ite (lit true)  t _ => normalize assign t
@@ -164,13 +144,31 @@ def normalize (assign : Std.HashMap Nat Bool) : IfExpr → IfExpr
     | some b => normalize assign (ite (lit b) t e)
   termination_by e => e.normSize
 
+-- We tell `grind` to unfold our definitions above.
+attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars eval
+
 theorem normalize_spec (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     (normalize assign e).normalized
     ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
-    ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign[v]? = none := by
-  fun_induction normalize with (unfold normalize <;> grind (gen := 8) (splits := 8))
+    ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → ¬ v ∈ assign := by
+  fun_induction normalize <;> grind (gen := 7)
 
-/-
+-- We can also prove other variations, where we spell "`v` is not in `assign`"
+-- different ways, and `grind` doesn't mind.
+
+example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
+    (normalize assign e).normalized
+    ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
+    ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign.contains v = false := by
+  fun_induction normalize <;> grind (gen := 7)
+
+example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
+    (normalize assign e).normalized
+    ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
+    ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign[v]? = none := by
+  fun_induction normalize <;> grind (gen := 8)
+
+/--
 We recall the statement of the if-normalization problem.
 
 We want a function from if-expressions to if-expressions,
@@ -178,5 +176,44 @@ that outputs normalized if-expressions and preserves meaning.
 -/
 example : IfNormalization :=
   ⟨_, fun e => ⟨(IfExpr.normalize_spec ∅ e).1, by simp [(IfExpr.normalize_spec ∅ e).2.1]⟩⟩
+
+-- Finally, just to show off, we check that we can replace `HashMap` with `TreeMap`
+-- without needing to touch any proofs:
+
+def normalize' (assign : Std.TreeMap Nat Bool) : IfExpr → IfExpr
+  | lit b => lit b
+  | var v =>
+    match assign[v]? with
+    | none => var v
+    | some b => lit b
+  | ite (lit true)  t _ => normalize' assign t
+  | ite (lit false) _ e => normalize' assign e
+  | ite (ite a b c) t e => normalize' assign (ite a (ite b t e) (ite c t e))
+  | ite (var v)     t e =>
+    match assign[v]? with
+    | none =>
+      let t' := normalize' (assign.insert v true) t
+      let e' := normalize' (assign.insert v false) e
+      if t' = e' then t' else ite (var v) t' e'
+    | some b => normalize' assign (ite (lit b) t e)
+  termination_by e => e.normSize
+
+theorem normalize'_spec (assign : Std.TreeMap Nat Bool) (e : IfExpr) :
+    (normalize' assign e).normalized
+    ∧ (∀ f, (normalize' assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
+    ∧ ∀ (v : Nat), v ∈ vars (normalize' assign e) → ¬ v ∈ assign := by
+  fun_induction normalize' <;> grind (gen := 7)
+
+example (assign : Std.TreeMap Nat Bool) (e : IfExpr) :
+    (normalize' assign e).normalized
+    ∧ (∀ f, (normalize' assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
+    ∧ ∀ (v : Nat), v ∈ vars (normalize' assign e) → assign.contains v = false := by
+  fun_induction normalize' <;> grind (gen := 7)
+
+example (assign : Std.TreeMap Nat Bool) (e : IfExpr) :
+    (normalize' assign e).normalized
+    ∧ (∀ f, (normalize' assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
+    ∧ ∀ (v : Nat), v ∈ vars (normalize' assign e) → assign[v]? = none := by
+  fun_induction normalize' <;> grind (gen := 8)
 
 end IfExpr

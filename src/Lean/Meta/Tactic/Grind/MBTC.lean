@@ -28,7 +28,7 @@ structure MBTC.Context where
   /--
   `eqAssignment x y` returns `true` it the theory variables for `x` and `y` have the same
   interpretation/assignment in the target theory. For example, suppose we have the
-  constraint `x + y ≤ 0`, and cutsat satified it by assignining both `x` and `y` to
+  constraint `x + y ≤ 0`, and cutsat satisfied it by assignining both `x` and `y` to
   `0`. Then, `eqAssignment x y` must return `true`.
   -/
   eqAssignment : Expr → Expr → GoalM Bool
@@ -55,7 +55,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   if (← checkMaxCaseSplit) then return false
   let mut map : Map := {}
   let mut candidates : Candidates := {}
-  for ({ expr := e }, _) in (← get).enodes do
+  for e in (← get).exprs do
     if e.isApp && !e.isEq && !e.isHEq then
     if (← isCongrRoot e) then
     unless (← ctx.isInterpreted e) do

@@ -13,8 +13,8 @@ import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
-import Init.Data.List.ToArrayImpl
-import Init.Data.Array.Set
+import all Init.Data.List.ToArrayImpl
+import all Init.Data.Array.Set
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -35,8 +35,6 @@ recommended_spelling "singleton" for "#[x]" in [«term#[_,]»]
 variable {α : Type u}
 
 namespace Array
-
-@[deprecated toList (since := "2024-09-10")] abbrev data := @toList
 
 /-! ### Preliminary theorems -/
 
@@ -88,11 +86,11 @@ theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
 @[simp] theorem toArrayAux_eq {as : List α} {acc : Array α} : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-@[simp] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
+@[simp, grind =] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
 
-@[simp] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
+@[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
 
-@[simp] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
+@[simp, grind =] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
   simp [getElem?_def]
 
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
@@ -107,12 +105,16 @@ instance : Membership α (Array α) where
 theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
 
-@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+@[simp, grind =] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
   simp [mem_def]
 
 @[simp, grind] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
+
+@[simp] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
+
+@[simp] theorem mkEmpty_eq {α n} : @mkEmpty α n = #[] := rfl
 
 end Array
 
@@ -127,18 +129,18 @@ theorem toList_toArray {as : List α} : as.toArray.toList = as := rfl
 @[deprecated toList_toArray (since := "2025-02-17")]
 abbrev _root_.Array.toList_toArray := @List.toList_toArray
 
-@[simp] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
+@[simp, grind] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
 
 @[deprecated size_toArray (since := "2025-02-17")]
 abbrev _root_.Array.size_toArray := @List.size_toArray
 
-@[simp] theorem getElem_toArray {xs : List α} {i : Nat} (h : i < xs.toArray.size) :
+@[simp, grind =] theorem getElem_toArray {xs : List α} {i : Nat} (h : i < xs.toArray.size) :
     xs.toArray[i] = xs[i]'(by simpa using h) := rfl
 
-@[simp] theorem getElem?_toArray {xs : List α} {i : Nat} : xs.toArray[i]? = xs[i]? := by
+@[simp, grind =] theorem getElem?_toArray {xs : List α} {i : Nat} : xs.toArray[i]? = xs[i]? := by
   simp [getElem?_def]
 
-@[simp] theorem getElem!_toArray [Inhabited α] {xs : List α} {i : Nat} :
+@[simp, grind =] theorem getElem!_toArray [Inhabited α] {xs : List α} {i : Nat} :
     xs.toArray[i]! = xs[i]! := by
   simp [getElem!_def]
 
@@ -147,8 +149,6 @@ end List
 namespace Array
 
 theorem size_eq_length_toList {xs : Array α} : xs.size = xs.toList.length := rfl
-
-@[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @List.toList_toArray
 
 /-! ### Externs -/
 
@@ -337,6 +337,8 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (emptyWithCapacity n) where
   go (i : Nat) (acc : Array α) : Array α :=
     if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
   decreasing_by simp_wf; decreasing_trivial_pre_omega
+
+-- See also `Array.ofFnM` defined in `Init.Data.Array.OfFn`.
 
 /--
 Constructs an array that contains all the numbers from `0` to `n`, exclusive.
@@ -1487,8 +1489,6 @@ The resulting arrays are appended.
 def flatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
   as.foldlM (init := empty) fun bs a => do return bs ++ (← f a)
 
-@[deprecated flatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
-
 /--
 Applies a function that returns an array to each element of an array. The resulting arrays are
 appended.
@@ -1500,8 +1500,6 @@ Examples:
 @[inline]
 def flatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
-
-@[deprecated flatMap (since := "2024-10-16")] abbrev concatMap := @flatMap
 
 /--
 Appends the contents of array of arrays into a single array. The resulting array contains the same
@@ -2158,13 +2156,15 @@ Examples:
 
 /-! ### Repr and ToString -/
 
+protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
+  let _ : Std.ToFormat α := ⟨repr⟩
+  if xs.size == 0 then
+    "#[]"
+  else
+    Std.Format.bracketFill "#[" (Std.Format.joinSep (toList xs) ("," ++ Std.Format.line)) "]"
+
 instance {α : Type u} [Repr α] : Repr (Array α) where
-  reprPrec xs _ :=
-    let _ : Std.ToFormat α := ⟨repr⟩
-    if xs.size == 0 then
-      "#[]"
-    else
-      Std.Format.bracketFill "#[" (Std.Format.joinSep (toList xs) ("," ++ Std.Format.line)) "]"
+  reprPrec xs _ := Array.repr xs
 
 instance [ToString α] : ToString (Array α) where
   toString xs := "#" ++ toString xs.toList

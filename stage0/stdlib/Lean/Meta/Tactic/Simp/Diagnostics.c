@@ -30,6 +30,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_mkDiagMessages___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_keysAsPattern(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__9___lambda__1___closed__4;
@@ -100,7 +101,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_reportDiag(lean_object*, lean_object*,
 static lean_object* l_Lean_Meta_Simp_reportDiag___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__9___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_mkSimpDiagSummary___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__5(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__9___closed__4;
@@ -787,7 +787,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 lean_inc(x_4);
-x_10 = l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(x_2, x_3, x_8, x_4, x_5, lean_box(0), lean_box(0));
+x_10 = l_Array_qpartition___rarg(x_2, x_3, x_8, x_4, x_5, lean_box(0), lean_box(0));
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
@@ -837,7 +837,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 lean_inc(x_4);
-x_10 = l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(x_2, x_3, x_8, x_4, x_5, lean_box(0), lean_box(0));
+x_10 = l_Array_qpartition___rarg(x_2, x_3, x_8, x_4, x_5, lean_box(0), lean_box(0));
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);

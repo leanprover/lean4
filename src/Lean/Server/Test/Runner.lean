@@ -95,6 +95,9 @@ partial def main (args : List String) : IO Unit := do
           }
         }
       }
+      lean? := some {
+        silentDiagnosticSupport? := some true
+      }
     }
     Ipc.writeRequest ⟨0, "initialize", { capabilities : InitializeParams }⟩
     let _ ← Ipc.readResponseAs 0 InitializeResult

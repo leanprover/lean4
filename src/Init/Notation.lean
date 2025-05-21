@@ -292,8 +292,10 @@ recommended_spelling "PProd" for "×'" in [PProd, «term_×'_»]
 @[inherit_doc] infixl:75 " >>> " => HShiftRight.hShiftRight
 @[inherit_doc] infixr:80 " ^ "   => HPow.hPow
 @[inherit_doc] infixl:65 " ++ "  => HAppend.hAppend
-@[inherit_doc] prefix:75 "-"    => Neg.neg
+@[inherit_doc] prefix:75 "-"     => Neg.neg
 @[inherit_doc] prefix:100 "~~~"  => Complement.complement
+@[inherit_doc] postfix:max "⁻¹"  => Inv.inv
+@[inherit_doc] infixr:73 " • " => HSMul.hSMul
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -311,6 +313,40 @@ macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
 macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
+/-!
+We have a macro to make `x • y` notation participate in the expression tree elaborator,
+like other arithmetic expressions such as `+`, `*`, `/`, `^`, `=`, inequalities, etc.
+The macro is using the `leftact%` elaborator introduced in
+[this RFC](https://github.com/leanprover/lean4/issues/2854).
+
+As a concrete example of the effect of this macro, consider
+```lean
+variable [Ring R] [AddCommMonoid M] [Module R M] (r : R) (N : Submodule R M) (m : M) (n : N)
+#check m + r • n
+```
+Without the macro, the expression would elaborate as `m + ↑(r • n : ↑N) : M`.
+With the macro, the expression elaborates as `m + r • (↑n : M) : M`.
+To get the first interpretation, one can write `m + (r • n :)`.
+
+Here is a quick review of the expression tree elaborator:
+1. It builds up an expression tree of all the immediately accessible operations
+   that are marked with `binop%`, `unop%`, `leftact%`, `rightact%`, `binrel%`, etc.
+2. It elaborates every leaf term of this tree
+   (without an expected type, so as if it were temporarily wrapped in `(... :)`).
+3. Using the types of each elaborated leaf, it computes a supremum type they can all be
+   coerced to, if such a supremum exists.
+4. It inserts coercions around leaf terms wherever needed.
+
+The hypothesis is that individual expression trees tend to be calculations with respect
+to a single algebraic structure.
+
+Note(kmill): If we were to remove `HSMul` and switch to using `SMul` directly,
+then the expression tree elaborator would not be able to insert coercions within the right operand;
+they would likely appear as `↑(x • y)` rather than `x • ↑y`, unlike other arithmetic operations.
+-/
+
+@[inherit_doc HSMul.hSMul]
+macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
 
 recommended_spelling "or" for "|||" in [HOr.hOr, «term_|||_»]
 recommended_spelling "xor" for "^^^" in [HXor.hXor, «term_^^^_»]
@@ -322,9 +358,11 @@ recommended_spelling "mul" for "*" in [HMul.hMul, «term_*_»]
 recommended_spelling "div" for "/" in [HDiv.hDiv, «term_/_»]
 recommended_spelling "mod" for "%" in [HMod.hMod, «term_%_»]
 recommended_spelling "pow" for "^" in [HPow.hPow, «term_^_»]
+recommended_spelling "smul" for "•" in [HSMul.hSMul, «term_•_»]
 recommended_spelling "append" for "++" in [HAppend.hAppend, «term_++_»]
 /-- when used as a unary operator -/
 recommended_spelling "neg" for "-" in [Neg.neg, «term-_»]
+recommended_spelling "inv" for "⁻¹" in [Inv.inv]
 recommended_spelling "dvd" for "∣" in [Dvd.dvd, «term_∣_»]
 recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<_»]
 recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]
@@ -621,9 +659,6 @@ This is the same as `#eval show MetaM Unit from do discard doSeq`.
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 
-set_option linter.missingDocs false in
-syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
-
 /--
 `#reduce <expression>` reduces the expression `<expression>` to its normal form. This
 involves applying reduction rules until no further reduction is possible.
@@ -640,15 +675,27 @@ of expressions.
 -/
 syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))? (atomic("(" &"types" " := " &"true" ")"))? term : command
 
+set_option linter.missingDocs false in
+syntax guardMsgsFilterAction := &"check" <|> &"drop" <|> &"pass"
+
+set_option linter.missingDocs false in
+syntax guardMsgsFilterSeverity := &"trace" <|> &"info" <|> &"warning" <|> &"error" <|> &"all"
+
 /--
 A message filter specification for `#guard_msgs`.
-- `info`, `warning`, `error`: capture messages with the given severity level.
-- `all`: capture all messages (the default).
-- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
-- `drop all`: drop every message.
-These filters are processed in left-to-right order.
+- `info`, `warning`, `error`: capture (non-trace) messages with the given severity level.
+- `trace`: captures trace messages
+- `all`: capture all messages.
+
+The filters can be prefixed with
+- `check` (the default): capture and check the message
+- `drop`: drop the message
+- `pass`: let the message pass through
+
+If no filter is specified, `check all` is assumed.  Otherwise, these filters are processed in
+left-to-right order, with an implicit `pass all` at the end.
 -/
-syntax guardMsgsFilter := &"drop"? guardMsgsFilterSeverity
+syntax guardMsgsFilter := guardMsgsFilterAction ? guardMsgsFilterSeverity
 
 set_option linter.missingDocs false in
 syntax guardMsgsWhitespaceArg := &"exact" <|> &"normalized" <|> &"lax"
@@ -719,13 +766,20 @@ In general, `#guard_msgs` accepts a comma-separated list of configuration clause
 ```
 #guard_msgs (configElt,*) in cmd
 ```
-By default, the configuration list is `(all, whitespace := normalized, ordering := exact)`.
+By default, the configuration list is `(check all, whitespace := normalized, ordering := exact)`.
 
-Message filters (processed in left-to-right order):
-- `info`, `warning`, `error`: capture messages with the given severity level.
-- `all`: capture all messages (the default).
-- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
-- `drop all`: drop every message.
+Message filters select messages by severity:
+- `info`, `warning`, `error`: (non-trace) messages with the given severity level.
+- `trace`: trace messages
+- `all`: all messages.
+
+The filters can be prefixed with the action to take:
+- `check` (the default): capture and check the message
+- `drop`: drop the message
+- `pass`: let the message pass through
+
+If no filter is specified, `check all` is assumed.  Otherwise, these filters are processed in
+left-to-right order, with an implicit `pass all` at the end.
 
 Whitespace handling (after trimming leading and trailing whitespace):
 - `whitespace := exact` requires an exact whitespace match.

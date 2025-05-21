@@ -269,7 +269,7 @@ namespace BuildTrace
 
 /--
 Clear the inputs of the build trace.
-This is used to remove unnecessary reptition of trace trees across multiple trace files.
+This is used to remove unnecessary repetition of trace trees across multiple trace files.
 -/
 @[inline] def withoutInputs (self : BuildTrace) : BuildTrace :=
   {self with inputs := #[]}

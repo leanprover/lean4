@@ -13,10 +13,10 @@ attribute [-grind] fthm'
 set_option trace.grind.assert true
 
 /--
-info: [grind.assert] ¬f (f (f a)) = f a
+trace: [grind.assert] ¬f (f (f a)) = f a
 [grind.assert] f (f a) = f a
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example : f (f (f a)) = f a := by
   grind
 
@@ -27,9 +27,9 @@ error: unsolved goals
 a : Nat
 ⊢ f (f (f a)) = f a
 ---
-info: [grind.assert] ¬f (f (f a)) = f a
+trace: [grind.assert] ¬f (f (f a)) = f a
 -/
-#guard_msgs (info, error) in
+#guard_msgs (trace, error) in
 example : f (f (f a)) = f a := by
   fail_if_success grind
 
@@ -61,11 +61,11 @@ error: unsolved goals
 a b : Nat
 ⊢ g a = b → a = 0 → b = 1
 ---
-info: [grind.assert] g a = b
+trace: [grind.assert] g a = b
 [grind.assert] a = 0
 [grind.assert] ¬b = 1
 -/
-#guard_msgs (info, error) in
+#guard_msgs (trace, error) in
 example : g a = b → a = 0 → b = 1 := by
   fail_if_success grind
 

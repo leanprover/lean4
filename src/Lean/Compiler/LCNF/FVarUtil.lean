@@ -64,14 +64,14 @@ instance : TraverseFVar Arg where
 
 def LetValue.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (e : LetValue) : m LetValue := do
   match e with
-  | .value .. | .erased => return e
+  | .lit .. | .erased => return e
   | .proj _ _ fvarId => return e.updateProj! (← f fvarId)
   | .const _ _ args => return e.updateArgs! (← args.mapM (TraverseFVar.mapFVarM f))
   | .fvar fvarId args => return e.updateFVar! (← f fvarId) (← args.mapM (TraverseFVar.mapFVarM f))
 
 def LetValue.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetValue) : m Unit := do
   match e with
-  | .value .. | .erased => return ()
+  | .lit .. | .erased => return ()
   | .proj _ _ fvarId => f fvarId
   | .const _ _ args => args.forM (TraverseFVar.forFVarM f)
   | .fvar fvarId args => f fvarId; args.forM (TraverseFVar.forFVarM f)

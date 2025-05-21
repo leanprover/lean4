@@ -11,7 +11,7 @@ set_option trace.grind.split.candidate true
 set_option trace.grind.split.resolved true
 
 /--
-info: [grind.assert] (match as, bs with
+trace: [grind.assert] (match as, bs with
       | [], x => bs
       | head :: head_1 :: tail, [] => []
       | x :: xs, ys => x :: g xs ys) =
@@ -34,7 +34,7 @@ info: [grind.assert] (match as, bs with
     | head :: head_1 :: tail, [] => []
     | x :: xs, ys => x :: g xs ys
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (f : Nat → List Nat) : g as bs = d → bs = [] → a₁ :: f 0 = as → f 0 = a₂ :: f 1 → d = [] := by
   unfold g
   grind

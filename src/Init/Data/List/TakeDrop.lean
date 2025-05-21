@@ -6,6 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
+import all Init.Data.List.Basic
 import Init.Data.List.Lemmas
 
 /-!
@@ -40,7 +41,7 @@ theorem drop_one : ∀ {l : List α}, l.drop 1 = l.tail
   | _ + 1, [] => rfl
   | _ + 1, x :: _ => congrArg (cons x) (take_append_drop ..)
 
-@[simp] theorem length_drop : ∀ {i : Nat} {l : List α}, (drop i l).length = l.length - i
+@[simp, grind =] theorem length_drop : ∀ {i : Nat} {l : List α}, (drop i l).length = l.length - i
   | 0, _ => rfl
   | succ i, [] => Eq.symm (Nat.zero_sub (succ i))
   | succ i, x :: l => calc
@@ -130,8 +131,6 @@ theorem drop_eq_nil_iff {l : List α} {i : Nat} : l.drop i = [] ↔ l.length ≤
     · simp
     · simp only [drop] at h
       simpa [Nat.succ_le_succ_iff] using hi h
-
-@[deprecated drop_eq_nil_iff (since := "2024-09-10")] abbrev drop_eq_nil_iff_le := @drop_eq_nil_iff
 
 @[simp]
 theorem take_eq_nil_iff {l : List α} {k : Nat} : l.take k = [] ↔ k = 0 ∨ l = [] := by
@@ -243,7 +242,7 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
     ∀ {l : List α} {i : Nat}, (l.take i).map f = (l.map f).take i
   | [], i => by simp
   | _, 0 => by simp
-  | _ :: tl, n + 1 => by dsimp; rw [map_take]
+  | _ :: tl, n + 1 => by simp [map_take]
 
 @[simp] theorem map_drop {f : α → β} :
     ∀ {l : List α} {i : Nat}, (l.drop i).map f = (l.map f).drop i

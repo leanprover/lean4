@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Vector.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
+import all Init.Data.Array.Lex.Basic
 import Init.Data.Array.Lex.Lemmas
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
@@ -18,8 +19,8 @@ namespace Vector
 
 /-! ### Lexicographic ordering -/
 
-@[simp] theorem lt_toArray [LT α] {xs ys : Vector α n} : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
-@[simp] theorem le_toArray [LT α] {xs ys : Vector α n} : xs.toArray ≤ ys.toArray ↔ xs ≤ ys := Iff.rfl
+@[simp, grind =] theorem lt_toArray [LT α] {xs ys : Vector α n} : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
+@[simp, grind =] theorem le_toArray [LT α] {xs ys : Vector α n} : xs.toArray ≤ ys.toArray ↔ xs ≤ ys := Iff.rfl
 
 @[simp] theorem lt_toList [LT α] {xs ys : Vector α n} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
 @[simp] theorem le_toList [LT α] {xs ys : Vector α n} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
@@ -40,7 +41,7 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
   simp [Vector.lex, Array.lex, n₁, n₂]
   rfl
 
-@[simp] theorem lex_toArray [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
+@[simp, grind =] theorem lex_toArray [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
     xs.toArray.lex ys.toArray lt = xs.lex ys lt := by
   cases xs
   cases ys

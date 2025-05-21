@@ -9,6 +9,8 @@ prelude
 import Init.Data.Fin.Basic
 import Init.Data.BitVec.BasicAux
 
+@[expose] section
+
 set_option linter.missingDocs true
 
 /-!
@@ -435,5 +437,4 @@ Examples:
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
-instance (a b : USize) : Decidable (a < b) := USize.decLt a b
-instance (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
+attribute [instance] USize.decLt USize.decLe

@@ -6,7 +6,7 @@ axiom elimEx (motive : Nat → Nat → Sort u) (x y : Nat)
   (lower : (delta a : Nat) → motive (a + delta.succ) a)
   : motive y x
 
-/-- error: invalid alternative name 'lower2', expected 'diag', 'upper' or 'lower' -/
+/-- error: Invalid alternative name 'lower2': Expected 'diag', 'upper', or 'lower' -/
 #guard_msgs in
 theorem invalidAlt (p: Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx with
@@ -14,7 +14,7 @@ theorem invalidAlt (p: Nat) : p ≤ q ∨ p > q := by
   | upper d => apply Or.inr
   | diag    => apply Or.inl; apply Nat.le_refl
 
-/-- error: invalid alternative name 'lower2', expected 'lower' -/
+/-- error: Invalid alternative name 'lower2': Expected 'lower' -/
 #guard_msgs in
 theorem oneMissingAlt (p: Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx with
@@ -22,7 +22,7 @@ theorem oneMissingAlt (p: Nat) : p ≤ q ∨ p > q := by
   | diag    => apply Or.inl; apply Nat.le_refl
   | lower2  /- error -/ => apply Or.inr
 
-/-- error: duplicate alternative name 'upper' -/
+/-- error: Duplicate alternative name 'upper' -/
 #guard_msgs in
 theorem doubleAlt (p: Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx with
@@ -30,7 +30,9 @@ theorem doubleAlt (p: Nat) : p ≤ q ∨ p > q := by
   | upper d /- error -/  => apply Or.inr
   | diag    => apply Or.inl; apply Nat.le_refl
 
-/-- error: invalid occurrence of wildcard alternative, it must be the last alternative -/
+/--
+error: Invalid occurrence of the wildcard alternative `| _ => ...`: It must be the last alternative
+-/
 #guard_msgs in
 theorem invalidWildCard (p: Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx with
@@ -39,7 +41,7 @@ theorem invalidWildCard (p: Nat) : p ≤ q ∨ p > q := by
   | diag    => apply Or.inl; apply Nat.le_refl
 
 
-/-- error: invalid alternative name 'lower2', no unhandled alternatives -/
+/-- error: Invalid alternative name 'lower2': There are no unhandled alternatives -/
 #guard_msgs in
 theorem noAlt (p: Nat) : p ≤ q ∨ p > q := by
   cases p, q using elimEx with

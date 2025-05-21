@@ -63,7 +63,7 @@ theorem toArray_eq : List.toArray as = xs ↔ as = xs.toList := by
 
 /-! ### size -/
 
-@[grind →] theorem eq_empty_of_size_eq_zero (h : xs.size = 0) : xs = #[] := by
+theorem eq_empty_of_size_eq_zero (h : xs.size = 0) : xs = #[] := by
   cases xs
   simp_all
 

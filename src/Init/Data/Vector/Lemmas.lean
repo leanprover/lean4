@@ -486,7 +486,7 @@ abbrev toArray_mkVector := @toArray_replicate
 `Vector.ext` is an extensionality theorem.
 Vectors `a` and `b` are equal to each other if their elements are equal for each valid index.
 -/
-@[ext]
+@[ext, grind ext]
 protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → xs[i] = ys[i]) : xs = ys := by
   apply Vector.toArray_inj.1
   apply Array.ext

@@ -176,8 +176,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd(obj_arg /* w */) {
     }
 
     lean_object* username = lean_mk_string(passwd.username);
-    lean_object* uid = passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box(passwd.uid)) : mk_option_none();
-    lean_object* gid = passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box(passwd.gid)) : mk_option_none();
+    lean_object* uid = passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box_uint64(passwd.uid)) : mk_option_none();
+    lean_object* gid = passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box_uint64(passwd.gid)) : mk_option_none();
     lean_object* shell = passwd.shell ? mk_option_some(lean_mk_string(passwd.shell)) : mk_option_none();
     lean_object* homedir = passwd.homedir ? mk_option_some(lean_mk_string(passwd.homedir)) : mk_option_none();
 
@@ -193,17 +193,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd(obj_arg /* w */) {
     return lean_io_result_mk_ok(passwd_info);
 }
 
-// Std.Internal.UV.System.osGetGroup : IO GroupInfo
+// Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo)
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid, obj_arg /* w */) {
     uv_group_t group;
     int result = uv_os_get_group(&group, gid);
+
+    if (result == UV_ENOENT) {
+        return lean_io_result_mk_ok(mk_option_none());
+    }
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, lean_mk_string("group")));
     }
 
     lean_object* groupname = lean_mk_string(group.groupname);
-    lean_object* group_gid = lean_box(group.gid);
 
     int count = 0;
     char** mem_ptr = group.members;
@@ -218,14 +221,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid, obj_arg /
         members = lean_array_push(members, member_name);
     }
 
-    lean_object* group_info = lean_alloc_ctor(0, 3, 0);
+    lean_object* group_info = lean_alloc_ctor(0, 2, 8);
     lean_ctor_set(group_info, 0, groupname);
-    lean_ctor_set(group_info, 1, group_gid);
-    lean_ctor_set(group_info, 2, members);
+    lean_ctor_set(group_info, 1, members);
+    lean_ctor_set_uint64(group_info, sizeof(void*)*2, group.gid);
 
     uv_os_free_group(&group);
 
-    return lean_io_result_mk_ok(group_info);
+    return lean_io_result_mk_ok(mk_option_some(group_info));
 }
 
 // Std.Internal.UV.System.osEnviron : IO (Array (String × String))
@@ -347,7 +350,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid, obj_arg
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    return lean_io_result_mk_ok(lean_box(priority));
+    return lean_io_result_mk_ok(lean_box_uint64(priority));
 }
 
 // Std.Internal.UV.System.osSetPriority : UInt64 → Int → IO Unit
@@ -444,6 +447,77 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size, obj_arg /* w *
     return lean_io_result_mk_ok(promise);
 }
 
+static inline uint64_t timeval_to_millis(uv_timeval_t t) {
+        return (uint64_t)t.tv_sec * 1000 + (uint64_t)t.tv_usec / 1000;
+}
+
+// Std.Internal.UV.System.getrusage : IO RUsage
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_getrusage(obj_arg /* w */) {
+    uv_rusage_t usage;
+    int result = uv_getrusage(&usage);
+    if (result < 0) {
+        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+    }
+
+    lean_object* r = lean_alloc_ctor(0, 0, 16 * sizeof(uint64_t));
+    lean_ctor_set_uint64(r, 0 * sizeof(uint64_t), timeval_to_millis(usage.ru_utime));
+    lean_ctor_set_uint64(r, 1 * sizeof(uint64_t), timeval_to_millis(usage.ru_stime));
+    lean_ctor_set_uint64(r, 2 * sizeof(uint64_t), usage.ru_maxrss);
+    lean_ctor_set_uint64(r, 3 * sizeof(uint64_t), usage.ru_ixrss);
+    lean_ctor_set_uint64(r, 4 * sizeof(uint64_t), usage.ru_idrss);
+    lean_ctor_set_uint64(r, 5 * sizeof(uint64_t), usage.ru_isrss);
+    lean_ctor_set_uint64(r, 6 * sizeof(uint64_t), usage.ru_minflt);
+    lean_ctor_set_uint64(r, 7 * sizeof(uint64_t), usage.ru_majflt);
+    lean_ctor_set_uint64(r, 8 * sizeof(uint64_t), usage.ru_nswap);
+    lean_ctor_set_uint64(r, 9 * sizeof(uint64_t), usage.ru_inblock);
+    lean_ctor_set_uint64(r, 10 * sizeof(uint64_t), usage.ru_oublock);
+    lean_ctor_set_uint64(r, 11 * sizeof(uint64_t), usage.ru_msgsnd);
+    lean_ctor_set_uint64(r, 12 * sizeof(uint64_t), usage.ru_msgrcv);
+    lean_ctor_set_uint64(r, 13 * sizeof(uint64_t), usage.ru_nsignals);
+    lean_ctor_set_uint64(r, 14 * sizeof(uint64_t), usage.ru_nvcsw);
+    lean_ctor_set_uint64(r, 15 * sizeof(uint64_t), usage.ru_nivcsw);
+
+    return lean_io_result_mk_ok(r);
+}
+
+// Std.Internal.UV.System.exePath : IO String
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_exepath(obj_arg /* w */) {
+    char buffer[PATH_MAX];
+    size_t size = sizeof(buffer);
+
+    int result = uv_exepath(buffer, &size);
+    if (result < 0) {
+        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+    }
+
+    lean_object* path = lean_mk_string(buffer);
+    return lean_io_result_mk_ok(path);
+}
+
+// Std.Internal.UV.System.freeMemory : IO UInt64
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_free_memory(obj_arg /* w */) {
+    uint64_t mem = uv_get_free_memory();
+    return lean_io_result_mk_ok(lean_box_uint64(mem));
+}
+
+// Std.Internal.UV.System.totalMemory : IO UInt64
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_total_memory(obj_arg /* w */) {
+    uint64_t mem = uv_get_total_memory();
+    return lean_io_result_mk_ok(lean_box_uint64(mem));
+}
+
+// Std.Internal.UV.System.constrainedMemory : IO UInt64
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_constrained_memory(obj_arg /* w */) {
+    uint64_t mem = uv_get_constrained_memory();
+    return lean_io_result_mk_ok(lean_box_uint64(mem));
+}
+
+// Std.Internal.UV.System.availableMemory : IO UInt64
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory(obj_arg /* w */) {
+    uint64_t mem = uv_get_available_memory();
+    return lean_io_result_mk_ok(lean_box_uint64(mem));
+}
+
 #else
 
 // Std.Internal.UV.System.getProcessTitle : IO String
@@ -523,7 +597,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd(obj_arg /* w */) {
     );
 }
 
-// Std.Internal.UV.System.osGetGroup : IO GroupInfo
+// Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo)
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
@@ -595,6 +669,43 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime(obj_arg /* w */) {
 
 // Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size, obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+// Std.Internal.UV.System.getrusage : IO RUsage
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_getrusage(obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+// Std.Internal.UV.System.exePath : IO String
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_exepath(obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+// Std.Internal.UV.System.freeMemory : IO UInt64
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_free_memory(obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+// Std.Internal.UV.System.totalMemory : IO UInt64
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_total_memory(obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+// Std.Internal.UV.System.constrainedMemory : IO UInt64
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_constrained_memory(obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+// Std.Internal.UV.System.availableMemory : IO UInt64
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory(obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

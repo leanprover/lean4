@@ -17,7 +17,30 @@ namespace System
 open Std.Net
 
 /--
-Represents the breakdown of CPU time usage in milliseconds.
+Represents resource usage statistics for a process or thread.
+All time values are in milliseconds.
+-/
+structure RUsage where
+  userTime : UInt64
+  systemTime : UInt64
+  maxRSS : UInt64
+  ixRSS : UInt64
+  idRSS : UInt64
+  isRSS : UInt64
+  minFlt : UInt64
+  majFlt : UInt64
+  nSwap : UInt64
+  inBlock : UInt64
+  outBlock : UInt64
+  msgSent : UInt64
+  msgRecv : UInt64
+  signals : UInt64
+  voluntaryCS : UInt64
+  involuntaryCS : UInt64
+deriving Repr, Inhabited
+
+/--
+Represents the breaskdown of CPU time usage in milliseconds.
 -/
 structure CPUTimes where
   user : UInt64
@@ -136,7 +159,7 @@ opaque osGetPasswd : IO PasswdInfo
 Gets information about the current user's group.
 -/
 @[extern "lean_uv_os_get_group"]
-opaque osGetGroup : UInt64 → IO GroupInfo
+opaque osGetGroup : UInt64 → IO (Option GroupInfo)
 
 /--
 Gets all environment variables.
@@ -197,6 +220,42 @@ Generates cryptographically secure random bytes.
 -/
 @[extern "lean_uv_random"]
 opaque random : UInt64 → IO (IO.Promise (Except IO.Error ByteArray))
+
+/--
+Retrieves resource usage statistics.
+-/
+@[extern "lean_uv_getrusage"]
+opaque getrusage : IO RUsage
+
+/--
+Returns the absolute path of the current executable.
+-/
+@[extern "lean_uv_exepath"]
+opaque exePath : IO String
+
+/--
+Returns the amount of free system memory in bytes.
+-/
+@[extern "lean_uv_get_free_memory"]
+opaque freeMemory : IO UInt64
+
+/--
+Returns the total system memory in bytes.
+-/
+@[extern "lean_uv_get_total_memory"]
+opaque totalMemory : IO UInt64
+
+/--
+Returns the constrained memory limit in bytes.
+-/
+@[extern "lean_uv_get_constrained_memory"]
+opaque constrainedMemory : IO UInt64
+
+/--
+Returns the available memory for allocation in bytes.
+-/
+@[extern "lean_uv_get_available_memory"]
+opaque availableMemory : IO UInt64
 
 end System
 end UV

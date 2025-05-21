@@ -17,30 +17,91 @@ namespace Async
 namespace Process
 
 /--
-A group identifier, typically a numeric ID like in UNIX (e.g. 1000).
+Represents resource usage statistics for a process or thread.
+All time values are in milliseconds.
 -/
-structure GroupId where
+structure ResourceUsageStats where
   /--
-  The numeric group ID.
+  CPU time spent in user mode (milliseconds)
   -/
-  toNat : Nat
-deriving Inhabited, DecidableEq, Ord
+  cpuUserTimeMs : UInt64
 
-instance : Repr GroupId where
-  reprPrec g := Repr.addAppParen ("GroupId.mk " ++ repr g.toNat)
-
-/--
-A user identifier, typically a numeric ID like in UNIX (e.g. 1001).
--/
-structure UserId where
   /--
-  The numeric user ID.
+  CPU time spent in kernel mode (milliseconds)
   -/
-  toNat : Nat
-deriving Inhabited, DecidableEq, Ord
+  cpuSystemTimeMs : UInt64
 
-instance : Repr UserId where
-  reprPrec u := Repr.addAppParen ("UserId.mk " ++ repr u.toNat)
+  /--
+  Peak resident set size (max physical memory usage) in kilobytes
+  -/
+  peakResidentSetSizeKb : UInt64
+
+  /--
+  Size of shared memory segments (kilobytes)
+  -/
+  sharedMemorySizeKb : UInt64
+
+  /--
+  Size of unshared data segment (kilobytes)
+  -/
+  unsharedDataSizeKb : UInt64
+
+  /--
+  Size of unshared stack segment (kilobytes)
+  -/
+  unsharedStackSizeKb : UInt64
+
+  /--
+  Number of minor (soft) page faults (no disk I/O)
+  -/
+  minorPageFaults : UInt64
+
+  /--
+  Number of major (hard) page faults (disk I/O required)
+  -/
+  majorPageFaults : UInt64
+
+  /--
+  Number of swap ins or swap outs
+  -/
+  swapOperations : UInt64
+
+  /--
+  Number of block input operations (disk reads)
+  -/
+  blockInputOps : UInt64
+
+  /--
+  Number of block output operations (disk writes)
+  -/
+  blockOutputOps : UInt64
+
+  /--
+  Number of IPC messages sent
+  -/
+  messagesSent : UInt64
+
+  /--
+  Number of IPC messages received
+  -/
+  messagesReceived : UInt64
+
+  /--
+  Number of signals received
+  -/
+  signalsReceived : UInt64
+
+  /--
+  Number of voluntary context switches (process yielded CPU)
+  -/
+  voluntaryContextSwitches : UInt64
+
+  /--
+  Number of involuntary context switches (process preempted)
+  -/
+  involuntaryContextSwitches : UInt64
+deriving Repr, Inhabited
+
 
 /--
 A process identifier, typically a numeric ID like in UNIX (e.g. 1001).
@@ -54,56 +115,6 @@ deriving Inhabited, DecidableEq, Ord
 
 instance : Repr PId where
   reprPrec u := Repr.addAppParen ("PId.mk " ++ repr u.toUInt64)
-
-/--
-Information about the current user.
--/
-structure SystemUser where
-  /--
-  The user's name.
-  -/
-  username : String
-
-  /--
-  The user's ID.
-  -/
-  userId : Option UserId
-
-  /--
-  The group the user belongs to.
-  -/
-  groupId : Option GroupId
-
-  /--
-  The user's login shell.
-  -/
-  shell : Option String
-
-  /--
-  The home directory of the user.
-  -/
-  homeDir : Option System.FilePath
-deriving Inhabited, DecidableEq, Repr
-
-/--
-Information about a group.
--/
-structure GroupInfo where
-  /--
-  The name of the group.
-  -/
-  groupName : String
-
-  /--
-  The ID of the group.
-  -/
-  groupId : GroupId
-
-  /--
-  The list of users in the group.
-  -/
-  members : Array String
-  deriving Repr, Inhabited
 
 /--
 Gets the title of the current process.
@@ -160,6 +171,66 @@ Sets the scheduling priority of the current process.
 @[inline]
 def setPriority (pid : PId) (priority : Int64) : IO Unit :=
   UV.System.osSetPriority pid.toUInt64 priority
+
+/--
+Retrieves resource usage statistics.
+-/
+@[inline]
+def getResourceUsage : IO ResourceUsageStats :=
+  UV.System.getrusage <&> fun rusage =>
+    {
+      cpuUserTimeMs := rusage.userTime
+      cpuSystemTimeMs := rusage.systemTime
+      peakResidentSetSizeKb := rusage.maxRSS
+      sharedMemorySizeKb := rusage.ixRSS
+      unsharedDataSizeKb := rusage.idRSS
+      unsharedStackSizeKb := rusage.isRSS
+      minorPageFaults := rusage.minFlt
+      majorPageFaults := rusage.majFlt
+      swapOperations := rusage.nSwap
+      blockInputOps := rusage.inBlock
+      blockOutputOps := rusage.outBlock
+      messagesSent := rusage.msgSent
+      messagesReceived := rusage.msgRecv
+      signalsReceived := rusage.signals
+      voluntaryContextSwitches := rusage.voluntaryCS
+      involuntaryContextSwitches := rusage.involuntaryCS
+    }
+
+/--
+Returns the absolute path of the current executable.
+-/
+@[inline]
+def getExecutablePath : IO String :=
+  UV.System.exePath
+
+/--
+Returns the amount of free system memory in bytes.
+-/
+@[inline]
+def freeMemory : IO UInt64 :=
+  UV.System.freeMemory
+
+/--
+Returns the total system memory in bytes.
+-/
+@[inline]
+def totalMemory : IO UInt64 :=
+  UV.System.totalMemory
+
+/--
+Returns the constrained memory limit in bytes.
+-/
+@[inline]
+def constrainedMemory : IO UInt64 :=
+  UV.System.constrainedMemory
+
+/--
+Returns the available memory for allocation in bytes.
+-/
+@[inline]
+def availableMemory : IO UInt64 :=
+  UV.System.availableMemory
 
 end Process
 end Async

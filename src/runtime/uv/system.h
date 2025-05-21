@@ -34,5 +34,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_uname(obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime(obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_getrusage(obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_exepath(obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_free_memory(obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_total_memory(obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_constrained_memory(obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory(obj_arg /* w */);
 
 }

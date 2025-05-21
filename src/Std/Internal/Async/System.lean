@@ -22,6 +22,82 @@ namespace Async
 namespace System
 
 /--
+A group identifier, typically a numeric ID like in UNIX (e.g. 1000).
+-/
+structure GroupId where
+  /--
+  The numeric group ID.
+  -/
+  toNat : Nat
+deriving Inhabited, DecidableEq, Ord
+
+instance : Repr GroupId where
+  reprPrec g := Repr.addAppParen ("GroupId.mk " ++ repr g.toNat)
+
+/--
+A user identifier, typically a numeric ID like in UNIX (e.g. 1001).
+-/
+structure UserId where
+  /--
+  The numeric user ID.
+  -/
+  toNat : Nat
+deriving Inhabited, DecidableEq, Ord
+
+instance : Repr UserId where
+  reprPrec u := Repr.addAppParen ("UserId.mk " ++ repr u.toNat)
+
+/--
+Information about the current user.
+-/
+structure SystemUser where
+  /--
+  The user's name.
+  -/
+  username : String
+
+  /--
+  The user's ID.
+  -/
+  userId : Option UserId
+
+  /--
+  The group the user belongs to.
+  -/
+  groupId : Option GroupId
+
+  /--
+  The user's login shell.
+  -/
+  shell : Option String
+
+  /--
+  The home directory of the user.
+  -/
+  homeDir : Option System.FilePath
+deriving Inhabited, DecidableEq, Repr
+
+/--
+Information about a group.
+-/
+structure GroupInfo where
+  /--
+  The name of the group.
+  -/
+  groupName : String
+
+  /--
+  The ID of the group.
+  -/
+  groupId : GroupId
+
+  /--
+  The list of users in the group.
+  -/
+  members : Array String
+  deriving Repr, Inhabited
+
+/--
 Represents the breakdown of CPU time usage in milliseconds.
 -/
 structure CPUTimes where
@@ -205,6 +281,31 @@ Gets the temporary directory.
 @[inline]
 def getTmpDir : IO String := do
   UV.System.osTmpdir
+
+/--
+Gets the current user by using `passwd`.
+-/
+def getCurrentUser : IO SystemUser := do
+  let passwd ← UV.System.osGetPasswd
+  return {
+    userId := (UserId.mk ∘ UInt64.toNat) <$> passwd.uid,
+    groupId := (GroupId.mk ∘ UInt64.toNat) <$> passwd.gid,
+    username := passwd.username,
+    homeDir := passwd.homedir,
+    shell := passwd.shell
+  }
+
+/--
+Gets the group by its ID.
+-/
+def getGroup (groupId : GroupId) : IO (Option GroupInfo) := do
+  let groupInfo ← UV.System.osGetGroup groupId.toNat.toUInt64
+
+  return groupInfo <&> fun group => {
+    groupName := group.groupname
+    groupId := GroupId.mk <| UInt64.toNat group.gid
+    members := group.members
+  }
 
 end System
 end Async

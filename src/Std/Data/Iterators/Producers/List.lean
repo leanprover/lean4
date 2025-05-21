@@ -17,6 +17,6 @@ namespace Std.Iterators
 @[always_inline, inline]
 def _root_.List.iter {α : Type w} (l : List α) :
     Iter (α := ListIterator α) α :=
-  ((l.iterM Id).toPureIter : Iter α)
+  ((l.iterM Id).toIter : Iter α)
 
 end Std.Iterators

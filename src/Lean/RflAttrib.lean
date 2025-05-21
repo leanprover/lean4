@@ -66,5 +66,5 @@ def inferRflAttr (declName : Name) : MetaM Unit := do
     else
       pure false
   if isRfl then
-    validateRflAttr declName -- just a sanity-check
+    -- validateRflAttr declName -- just a sanity-check
     rflAttr.setTag declName

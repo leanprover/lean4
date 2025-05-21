@@ -79,9 +79,8 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _, _ => some .anonymous -- should not happen
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
-  match stx with
-  | `(namespace $n:identWithOptDot) => addNamespace n.raw.getIdOrIdWithOptDot
-  | _               => throwUnsupportedSyntax
+  -- TODO after stage0 update: back to syntax `match`
+  addNamespace stx[1].getIdOrIdWithOptDot
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with

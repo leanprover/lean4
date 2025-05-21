@@ -309,14 +309,22 @@ theorem all_eq_finRange_all {n : Nat} (f : (i : Nat) → i < n → Bool) :
   | zero => simp
   | succ n ih => simp [ih, List.finRange_succ_last, List.all_map, Function.comp_def]
 
-theorem dfold_zero {α : (i : Nat) → (h : i ≤ 0 := by omega) → Type u} (f : (i : Nat) → (h : i < 0) → α i → α (i + 1)) (init : α 0) :
+/-! ### `dfold` -/
+
+@[simp]
+theorem dfold_zero
+    {α : (i : Nat) → (h : i ≤ 0 := by omega) → Type u}
+    (f : (i : Nat) → (h : i < 0) → α i → α (i + 1)) (init : α 0) :
     dfold 0 f init = init := by
   simp [dfold, dfold.loop]
 
-private theorem dfold_loop_succ {n : Nat} {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u}
-    (f : (i : Nat) → (h : i < n + 1) → α i → α (i + 1)) (a : α (n + 1 - (j + 1))) (w : j ≤ n):
+private theorem dfold_loop_succ
+    {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u}
+    (f : (i : Nat) → (h : i < n + 1) → α i → α (i + 1))
+    (a : α (n + 1 - (j + 1))) (w : j ≤ n):
     dfold.loop (n + 1) f (j + 1) (by omega) a =
-      f n (by omega) (dfold.loop n (α := fun i h => α i) (fun i h => f i (by omega)) j w (dfoldCast @α (by omega) a)) := by
+      f n (by omega)
+        (dfold.loop n (α := fun i h => α i) (fun i h => f i (by omega)) j w (dfoldCast @α (by omega) a)) := by
   induction j with
   | zero => simp [dfold.loop]
   | succ j ih =>
@@ -328,9 +336,12 @@ private theorem dfold_loop_succ {n : Nat} {α : (i : Nat) → (h : i ≤ n + 1 :
       erw [dfoldCast_eq_dfoldCast_iff]
       omega
 
-theorem dfold_succ {n : Nat} {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u}
+@[simp]
+theorem dfold_succ
+    {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u}
     (f : (i : Nat) → (h : i < n + 1) → α i → α (i + 1)) (init : α 0) :
-    dfold (n + 1) f init = f n (by omega) (dfold n (α := fun i h => α i) (fun i h => f i (by omega)) init) := by
+    dfold (n + 1) f init =
+      f n (by omega) (dfold n (α := fun i h => α i) (fun i h => f i (by omega)) init) := by
   simp [dfold]
   rw [dfold_loop_succ (w := Nat.le_refl _)]
   congr 2
@@ -338,13 +349,61 @@ theorem dfold_succ {n : Nat} {α : (i : Nat) → (h : i ≤ n + 1 := by omega) �
   erw [dfoldCast_eq_dfoldCast_iff]
   exact le_add_left 0 (n + 1)
 
-@[simp] theorem dfoldRev_zero {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u} (f : (i : Nat) → i < 0 → α i → α (i + 1)) (init : α) :
-    dfoldRev 0 f init = init := by simp [dfoldRev]
+-- This isn't a proper `@[congr]` lemma, but it doesn't seem possible to state one.
+theorem dfold_congr
+    {n m : Nat} (w : n = m)
+    {α : (i : Nat) → (h : i ≤ n := by omega) → Type u}
+    (f : (i : Nat) → (h : i < n) → α i → α (i + 1)) (init : α 0) :
+      dfold n f init =
+        cast (by subst w; rfl)
+          (dfold m (α := fun i h => α i) (fun i h => f i (by omega)) init) := by
+  subst w
+  rfl
 
-@[simp] theorem dfoldRev_succ {n : Nat} {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u}
-    (f : (i : Nat) → (h : i < n + 1) → α (i + 1) → α i) (init : α (n + 1)) :
-    dfoldRev (n + 1) f init = dfoldRev n (α := fun i h => α i) (fun i h => f i (by omega)) (f n (by omega) init) := by
+theorem dfold_add
+    {α : (i : Nat) → (h : i ≤ n + m := by omega) → Type u}
+    (f : (i : Nat) → (h : i < n + m) → α i → α (i + 1)) (init : α 0) :
+    dfold (n + m) f init =
+      dfold m (α := fun i h => α (n + i)) (fun i h => f (n + i) (by omega))
+        (dfold n (α := fun i h => α i) (fun i h => f i (by omega)) init) := by
+  induction m with
+  | zero => simp; rfl
+  | succ m ih =>
+    simp [dfold_congr (Nat.add_assoc n m 1).symm, ih]
+
+@[simp] theorem dfoldRev_zero
+    {α : (i : Nat) → (h : i ≤ 0 := by omega) → Type u}
+    (f : (i : Nat) → (_ : i < 0) → α (i + 1) → α i) (init : α 0) :
+    dfoldRev 0 f init = init := by
   simp [dfoldRev]
+
+@[simp] theorem dfoldRev_succ
+    {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u}
+    (f : (i : Nat) → (h : i < n + 1) → α (i + 1) → α i) (init : α (n + 1)) :
+    dfoldRev (n + 1) f init =
+      dfoldRev n (α := fun i h => α i) (fun i h => f i (by omega)) (f n (by omega) init) := by
+  simp [dfoldRev]
+
+@[congr]
+theorem dfoldRev_congr
+    {n m : Nat} (w : n = m)
+    {α : (i : Nat) → (h : i ≤ n := by omega) → Type u}
+    (f : (i : Nat) → (h : i < n) → α (i + 1) → α i) (init : α n) :
+      dfoldRev n f init =
+        dfoldRev m (α := fun i h => α i) (fun i h => f i (by omega))
+          (cast (by subst w; rfl) init) := by
+  subst w
+  rfl
+
+theorem dfoldRev_add
+    {α : (i : Nat) → (h : i ≤ n + m := by omega) → Type u}
+    (f : (i : Nat) → (h : i < n + m) → α (i + 1) → α i) (init : α (n + m)) :
+    dfoldRev (n + m) f init =
+      dfoldRev n (α := fun i h => α i) (fun i h => f i (by omega))
+        (dfoldRev m (α := fun i h => α (n + i)) (fun i h => f (n + i) (by omega)) init) := by
+  induction m with
+  | zero => simp; rfl
+  | succ m ih => simp [← Nat.add_assoc, ih]
 
 end Nat
 

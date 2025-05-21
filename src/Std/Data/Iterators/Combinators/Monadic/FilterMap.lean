@@ -7,6 +7,8 @@ prelude
 import Std.Data.Iterators.Basic
 import Std.Data.Iterators.Consumers.Collect
 import Std.Data.Iterators.Consumers.Loop
+import Std.Data.Iterators.PostConditionMonad
+import Std.Data.Iterators.Internal.Termination
 
 /-!
 This file provides iterator combinators for filtering and mapping.
@@ -21,17 +23,20 @@ Several variants of these combinators are provided:
 * `H` suffix: heterogeneous variant that allows switching the monad and the universes.
 -/
 
+namespace Std.Iterators
+
 section FilterMap
 
-universe u' v' u v
-
+/--
+Internal state of the `filterMap` combinator. Do not depend on its internals.
+-/
 @[ext, unbox]
 structure FilterMap (α : Type w) {β : Type w} {γ : Type w}
-    {m : Type w → Type w'} (f : β → HetT m (Option γ)) where
+    {m : Type w → Type w'} (f : β → PostconditionT m (Option γ)) where
   inner : IterM (α := α) m β
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w} {γ : Type w}
-    [Monad m] [Iterator α m β] {f : β → HetT m (Option γ)}
+    [Monad m] [Iterator α m β] {f : β → PostconditionT m (Option γ)}
 
 /--
 Given an iterator `it`, a monadic `Option`-valued mapping function `f` and a monad transformation `mf`,
@@ -57,62 +62,65 @@ it.filterMapWithProof     ---a'-----c'-------⊥
 This combinator incurs an additional O(1) cost with each output of `it` in addition to the cost of the monadic effects.
 -/
 @[inline]
-def IterM.filterMapWithProof [Monad m] [Iterator α m β] (f : β → HetT m (Option γ))
+def IterM.filterMapWithProof [Monad m] [Iterator α m β] (f : β → PostconditionT m (Option γ))
     (it : IterM (α := α) m β) : IterM (α := FilterMap α f) m γ :=
-  toIter ⟨it⟩ m γ
+  toIterM ⟨it⟩ m γ
 
 def Map (α : Type w) {β : Type w} {γ : Type w} {m : Type w → Type w'} [Functor m]
-    (f : β → HetT m γ) :=
-  FilterMap α (fun b => HetT.mapH some (f b))
+    (f : β → PostconditionT m γ) :=
+  FilterMap α (fun b => PostconditionT.map some (f b))
 
-inductive FilterMap.PlausibleStep (it : IterM (α := FilterMap α f) m γ) : (step : IterStep (IterM (α := FilterMap α f) m γ) γ) → Prop where
-  | yieldNone : ∀ {it' out}, it.inner.inner.plausible_step (.yield it' out) →
-      (f out).property none → PlausibleStep it (.skip (it'.filterMapWithProof f))
-  | yieldSome : ∀ {it' out out'}, it.inner.inner.plausible_step (.yield it' out) →
-      (f out).property (some out') → PlausibleStep it (.yield (it'.filterMapWithProof f) out')
-  | skip : ∀ {it'}, it.inner.inner.plausible_step (.skip it') → PlausibleStep it (.skip (it'.filterMapWithProof f))
-  | done : it.inner.inner.plausible_step .done → PlausibleStep it .done
+inductive FilterMap.PlausibleStep (it : IterM (α := FilterMap α f) m γ) :
+    IterStep (IterM (α := FilterMap α f) m γ) γ → Prop where
+  | yieldNone : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
+      (f out).Property none → PlausibleStep it (.skip (it'.filterMapWithProof f))
+  | yieldSome : ∀ {it' out out'}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
+      (f out).Property (some out') → PlausibleStep it (.yield (it'.filterMapWithProof f) out')
+  | skip : ∀ {it'}, it.internalState.inner.IsPlausibleStep (.skip it') → PlausibleStep it (.skip (it'.filterMapWithProof f))
+  | done : it.internalState.inner.IsPlausibleStep .done → PlausibleStep it .done
 
 instance FilterMap.instIterator : Iterator (FilterMap α f) m γ where
-  plausible_step := FilterMap.PlausibleStep
+  IsPlausibleStep := FilterMap.PlausibleStep
   step it := do
-    match ← it.inner.inner.step with
+    match ← it.internalState.inner.step with
     | .yield it' out h => do
-      match ← (f out).computation with
+      match ← (f out).operation with
       | ⟨none, h'⟩ => pure <| .skip (it'.filterMapWithProof f) (.yieldNone h h')
       | ⟨some out', h'⟩ => pure <| .yield (it'.filterMapWithProof f) out' (.yieldSome h h')
     | .skip it' h => pure <| .skip (it'.filterMapWithProof f) (.skip h)
     | .done h => pure <| .done (.done h)
 
-instance {f : β → HetT m γ} :
+instance {f : β → PostconditionT m γ} :
     Iterator (Map α f) m γ :=
   inferInstanceAs <| Iterator (FilterMap α _) m γ
 
-instance FilterMap.instFinitenessRelation [Finite α m] : FinitenessRelation (FilterMap α f) m where
-  rel := InvImage IterM.plausible_successor_of (FilterMap.inner ∘ IterM.inner)
+private def FilterMap.instFinitenessRelation [Finite α m] : FinitenessRelation (FilterMap α f) m where
+  rel := InvImage IterM.IsPlausibleSuccessorOf (FilterMap.inner ∘ IterM.internalState)
   wf := InvImage.wf _ Finite.wf
   subrelation {it it'} h := by
     obtain ⟨step, h, h'⟩ := h
     cases h'
     case yieldNone it' out h' h'' =>
       cases h
-      exact IterM.plausible_successor_of_yield h'
+      exact IterM.isPlausibleSuccessorOf_of_yield h'
     case yieldSome it' out h' h'' =>
       cases h
-      exact IterM.plausible_successor_of_yield h'
+      exact IterM.isPlausibleSuccessorOf_of_yield h'
     case skip it' h' =>
       cases h
-      exact IterM.plausible_successor_of_skip h'
+      exact IterM.isPlausibleSuccessorOf_of_skip h'
     case done h' =>
       cases h
 
-instance {f : β → HetT m γ} [Finite α m] :
-    Finite (Map α f) m :=
-  inferInstanceAs <| Finite (FilterMap α _) m
+instance FilterMap.instFinite [Finite α m] : Finite (FilterMap α f) m :=
+  Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
-instance {f : β → HetT m γ} [Productive α m] :
+instance {f : β → PostconditionT m γ} [Finite α m] : Finite (Map α f) m :=
+  Finite.of_finitenessRelation FilterMap.instFinitenessRelation
+
+private def Map.instProductivenessRelation {f : β → PostconditionT m γ} [Productive α m] :
     ProductivenessRelation (Map α f) m where
-  rel := InvImage IterM.plausible_skip_successor_of (FilterMap.inner ∘ IterM.inner)
+  rel := InvImage IterM.IsPlausibleSkipSuccessorOf (FilterMap.inner ∘ IterM.internalState)
   wf := InvImage.wf _ Productive.wf
   subrelation {it it'} h := by
     cases h
@@ -121,50 +129,54 @@ instance {f : β → HetT m γ} [Productive α m] :
     case skip it' h =>
       exact h
 
-instance {f : β → HetT m (Option γ)} [Finite α m] :
-    IteratorToArray (FilterMap α f) m :=
+instance Map.instProductive {f : β → PostconditionT m γ} [Productive α m] :
+    Productive (Map α f) m :=
+  Productive.of_productivenessRelation Map.instProductivenessRelation
+
+instance {f : β → PostconditionT m (Option γ)} [Finite α m] :
+    IteratorCollect (FilterMap α f) m :=
   .defaultImplementation
 
-instance {f : β → HetT m (Option γ)} :
-    IteratorToArrayPartial (FilterMap α f) m :=
+instance {f : β → PostconditionT m (Option γ)} :
+    IteratorCollectPartial (FilterMap α f) m :=
   .defaultImplementation
 
-instance FilterMap.instIteratorFor [Monad m] [Monad n]
+instance FilterMap.instIteratorLoop [Monad m] [Monad n]
     [Iterator α m β] :
-    IteratorFor (FilterMap α f) m n :=
+    IteratorLoop (FilterMap α f) m n :=
   .defaultImplementation
 
-instance FilterMap.instIteratorForPartial [Monad m] [Monad n]
+instance FilterMap.instIteratorLoopPartial [Monad m] [Monad n]
     [Iterator α m β] :
-    IteratorForPartial (FilterMap α f) m n :=
+    IteratorLoopPartial (FilterMap α f) m n :=
   .defaultImplementation
 
 /--
 `map` operations allow for a more efficient implementation of `toArray`. For example,
 `array.iter.map f |>.toArray happens in-place if possible.
 -/
-instance {f : β → HetT m γ} [IteratorToArray α m] :
-    IteratorToArray (Map α f) m where
+instance {f : β → PostconditionT m γ} [Finite α m] [IteratorCollect α m] :
+    IteratorCollect (Map α f) m where
   toArrayMapped g it :=
-    IteratorToArray.toArrayMapped
-      (fun x => do g (← (f x).computation))
-      it.inner.inner
+    IteratorCollect.toArrayMapped
+      (fun x => do g (← (f x).operation))
+      it.internalState.inner
 
-instance {f : β → HetT m γ} [IteratorToArrayPartial α m] :
-    IteratorToArrayPartial (Map α f) m where
+instance {f : β → PostconditionT m γ} [IteratorCollectPartial α m] :
+    IteratorCollectPartial (Map α f) m where
   toArrayMappedPartial g it :=
-    IteratorToArrayPartial.toArrayMappedPartial
-      (fun x => do g (← (f x).computation))
-      it.inner.inner
+    IteratorCollectPartial.toArrayMappedPartial
+      (fun x => do g (← (f x).operation))
+      it.internalState.inner
 
-instance Map.instIteratorFor {f : β → HetT m γ}
+instance Map.instIteratorLoop {f : β → PostconditionT m γ}
     [Monad m] [Monad n] [Iterator α m β] :
-    IteratorFor (Map α f) m n :=
+    IteratorLoop (Map α f) m n :=
   .defaultImplementation
 
-instance Map.instIteratorForPartial {f : β → HetT m γ}
+instance Map.instIteratorLoopPartial {f : β → PostconditionT m γ}
     [Monad m] [Monad n] [Iterator α m β] :
-    IteratorForPartial (Map α f) m n :=
+    IteratorLoopPartial (Map α f) m n :=
   .defaultImplementation
 
 /--
@@ -193,9 +205,9 @@ _TODO_: prove `Productive`. This requires us to wrap the FilterMap into a new ty
 This combinator incurs an additional O(1) cost with each output of `it` in addition to the cost of the monadic effects.
 -/
 @[inline]
-def IterM.mapWithProof [Monad m] [Iterator α m β] (f : β → HetT m γ) (it : IterM (α := α) m β) :
+def IterM.mapWithProof [Monad m] [Iterator α m β] (f : β → PostconditionT m γ) (it : IterM (α := α) m β) :
     IterM (α := Map α f) m γ :=
-  toIter ⟨it⟩ m γ
+  toIterM ⟨it⟩ m γ
 
 /--
 Given an iterator `it`, a monadic predicate `p` and a monad transformation `mf`,
@@ -221,8 +233,9 @@ it.filterMH        ---a-----c-------⊥
 This combinator incurs an additional O(1) cost with each output of `it` in addition to the cost of the monadic effects.
 -/
 @[inline]
-def IterM.filterWithProof [Monad m] [Iterator α m β] (f : β → HetT m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (it.filterMapWithProof (fun b => (f b).mapH (fun x => if x.down = true then some b else none)) : IterM m β)
+def IterM.filterWithProof [Monad m] [Iterator α m β] (f : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
+  (it.filterMapWithProof
+    (fun b => (f b).map (fun x => if x.down = true then some b else none)) : IterM m β)
 
 end FilterMap
 
@@ -259,6 +272,9 @@ def IterM.mapM [Iterator α m β] [Monad m] (f : β → m γ) (it : IterM (α :=
 
 @[inline]
 def IterM.filterM [Iterator α m β] [Monad m] (f : β → m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (it.filterMapWithProof (fun b => (HetT.lift (f b)).mapH (if ·.down = true then some b else none)) : IterM m β)
+  (it.filterMapWithProof
+    (fun b => (PostconditionT.lift (f b)).map (if ·.down = true then some b else none)) : IterM m β)
 
 end FilterMapM
+
+end Std.Iterators

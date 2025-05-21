@@ -9,6 +9,7 @@ import Std.Data.Iterators.Producers
 import Std.Data.Iterators.Consumers
 import Std.Data.Iterators.Combinators
 import Std.Data.Iterators.Lemmas
+import Std.Data.Iterators.PostConditionMonad
 import Std.Data.Iterators.Internal
 
 /-!

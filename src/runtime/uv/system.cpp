@@ -42,7 +42,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_set_process_title(b_obj_arg title, o
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-// Std.Internal.UV.System.uptime : IO Float
+// Std.Internal.UV.System.uptime : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_uptime(obj_arg /* w */) {
     double uptime;
 
@@ -52,20 +52,22 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_uptime(obj_arg /* w */) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    lean_object* lean_uptime = lean_box(uptime);
+    uint64_t uptime_int = (uint64_t)floor(uptime);
+    lean_object* lean_uptime = lean_box_uint64(uptime_int);
+
     return lean_io_result_mk_ok(lean_uptime);
 }
 
-// Std.Internal.UV.System.osGetPid : IO Nat
+// Std.Internal.UV.System.osGetPid : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpid(obj_arg /* w */) {
     uv_pid_t pid = uv_os_getpid();
-    return lean_io_result_mk_ok(lean_box(pid));
+    return lean_io_result_mk_ok(lean_box_uint64(pid));
 }
 
-// Std.Internal.UV.System.osGetPpid : IO Nat
+// Std.Internal.UV.System.osGetPpid : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getppid(obj_arg /* w */) {
     uv_pid_t ppid = uv_os_getppid();
-    return lean_io_result_mk_ok(lean_box(ppid));
+    return lean_io_result_mk_ok(lean_box_uint64(ppid));
 }
 
 // Std.Internal.UV.System.cpuInfo : IO (Array CPUInfo)
@@ -82,26 +84,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cpu_info(obj_arg /* w */) {
     lean_object* lean_cpu_infos = lean_alloc_array(count, count);
 
     for (int i = 0; i < count; i++) {
+        lean_object* times = lean_alloc_ctor(0, 0, 40);
+        lean_ctor_set_uint64(times, 0, cpu_infos[i].cpu_times.user);
+        lean_ctor_set_uint64(times, 8, cpu_infos[i].cpu_times.nice);
+        lean_ctor_set_uint64(times, 16, cpu_infos[i].cpu_times.sys);
+        lean_ctor_set_uint64(times, 24, cpu_infos[i].cpu_times.idle);
+        lean_ctor_set_uint64(times, 32, cpu_infos[i].cpu_times.irq);
+
         lean_object* model = lean_mk_string(cpu_infos[i].model);
-        lean_object* speed = lean_box(cpu_infos[i].speed);
 
-        lean_object* user = lean_box(cpu_infos[i].cpu_times.user);
-        lean_object* nice = lean_box(cpu_infos[i].cpu_times.nice);
-        lean_object* sys = lean_box(cpu_infos[i].cpu_times.sys);
-        lean_object* idle = lean_box(cpu_infos[i].cpu_times.idle);
-        lean_object* irq = lean_box(cpu_infos[i].cpu_times.irq);
-
-        lean_object* times = lean_alloc_ctor(0, 5, 0);
-        lean_ctor_set(times, 0, user);
-        lean_ctor_set(times, 1, nice);
-        lean_ctor_set(times, 2, sys);
-        lean_ctor_set(times, 3, idle);
-        lean_ctor_set(times, 4, irq);
-
-        lean_object* cpu_info = lean_alloc_ctor(0, 3, 0);
+        lean_object* cpu_info = lean_alloc_ctor(0, 2, 8);
         lean_ctor_set(cpu_info, 0, model);
-        lean_ctor_set(cpu_info, 1, speed);
-        lean_ctor_set(cpu_info, 2, times);
+        lean_ctor_set(cpu_info, 1, times);
+        lean_ctor_set_uint64(cpu_info, sizeof(void*)*2, (uint64_t)cpu_infos[i].speed);
 
         lean_array_set_core(lean_cpu_infos, i, cpu_info);
     }
@@ -181,10 +176,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd(obj_arg /* w */) {
     }
 
     lean_object* username = lean_mk_string(passwd.username);
-    lean_object* uid = lean_box(passwd.uid);
-    lean_object* gid = lean_box(passwd.gid);
-    lean_object* shell = passwd.shell ? lean_mk_string(passwd.shell) : lean_box(0);
-    lean_object* homedir = passwd.homedir ? lean_mk_string(passwd.homedir) : lean_box(0);
+    lean_object* uid = passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box(passwd.uid)) : mk_option_none();
+    lean_object* gid = passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box(passwd.gid)) : mk_option_none();
+    lean_object* shell = passwd.shell ? mk_option_some(lean_mk_string(passwd.shell)) : mk_option_none();
+    lean_object* homedir = passwd.homedir ? mk_option_some(lean_mk_string(passwd.homedir)) : mk_option_none();
 
     lean_object* passwd_info = lean_alloc_ctor(0, 5, 0);
     lean_ctor_set(passwd_info, 0, username);
@@ -342,7 +337,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_gethostname(obj_arg /* w */) {
     return lean_io_result_mk_ok(lean_hostname);
 }
 
-// Std.Internal.UV.System.osGetPriority : Nat → IO Int
+// Std.Internal.UV.System.osGetPriority : UInt64 → IO Int64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid, obj_arg /* w */) {
     int priority;
 
@@ -355,7 +350,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid, obj_arg
     return lean_io_result_mk_ok(lean_box(priority));
 }
 
-// Std.Internal.UV.System.osSetPriority : Nat → Int → IO Unit
+// Std.Internal.UV.System.osSetPriority : UInt64 → Int → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority, obj_arg /* w */) {
     int result = uv_os_setpriority(pid, priority);
 
@@ -390,13 +385,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_uname(obj_arg /* w */) {
     return lean_io_result_mk_ok(uname);
 }
 
-// Std.Internal.UV.System.hrtime : IO Nat
+// Std.Internal.UV.System.hrtime : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime(obj_arg /* w */) {
     uint64_t time = uv_hrtime();
-    return lean_io_result_mk_ok(lean_box(time));
+    return lean_io_result_mk_ok(lean_box_uint64(time));
 }
 
-// Std.Internal.UV.System.random : Nat → IO (IO.Promise (Except IO.Error (Array UInt8)))
+// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size, obj_arg /* w */) {
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
@@ -458,28 +453,28 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_process_title(obj_arg /* w */) {
     );
 }
 
-// Std.Internal.UV.System.setProcessTitle : String → IO Unit
+// Std.Internal.UV.System.setProcessTitle : @& String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_set_process_title(b_obj_arg title, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-// Std.Internal.UV.System.uptime : IO Float
+// Std.Internal.UV.System.uptime : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_uptime(obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-// Std.Internal.UV.System.osGetPid : IO Nat
+// Std.Internal.UV.System.osGetPid : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpid(obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-// Std.Internal.UV.System.osGetPpid : IO Nat
+// Std.Internal.UV.System.osGetPpid : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getppid(obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
@@ -570,14 +565,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_gethostname(obj_arg /* w */) {
     );
 }
 
-// Std.Internal.UV.System.osGetPriority : Nat → IO Int
+// Std.Internal.UV.System.osGetPriority : UInt64 → IO Int
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-// Std.Internal.UV.System.osSetPriority : Nat → Int → IO Unit
+// Std.Internal.UV.System.osSetPriority : UInt64 → Int → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
@@ -591,14 +586,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_uname(obj_arg /* w */) {
     );
 }
 
-// Std.Internal.UV.System.hrtime : IO Nat
+// Std.Internal.UV.System.hrtime : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime(obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-// Std.Internal.UV.System.random : Nat → IO (IO.Promise (Except IO.Error (Array UInt8)))
+// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

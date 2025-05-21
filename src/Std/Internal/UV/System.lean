@@ -20,51 +20,64 @@ open Std.Net
 Represents the breakdown of CPU time usage in milliseconds.
 -/
 structure CPUTimes where
-  user      : Nat
-  nice      : Nat
-  sys       : Nat
-  idle      : Nat
-  irq       : Nat
-  deriving Repr, Inhabited
+  user : UInt64
+  nice : UInt64
+  sys : UInt64
+  idle : UInt64
+  irq : UInt64
+deriving Repr, Inhabited
 
 /--
 Information about a single CPU core.
 -/
 structure CPUInfo where
-  model     : String
-  speed     : Nat
-  times     : CPUTimes
-  deriving Repr, Inhabited
+  model : String
+  speed : UInt64
+  times : CPUTimes
+deriving Repr, Inhabited
+
+def lerolero : CPUInfo :=
+  {
+    model := "imaginary",
+    speed := 100,
+    times := {
+      user := 23456789,
+      nice := 12345678,
+      sys := 98765432,
+      idle := 12345678,
+      irq := 98765432
+    }
+  }
 
 /--
 Information about the current user.
 -/
 structure PasswdInfo where
-  username  : String
-  uid       : Nat
-  gid       : Nat
-  shell     : String
-  homedir   : String
-  deriving Repr, Inhabited
+  username : String
+  uid : Option UInt64
+  gid : Option UInt64
+  shell : Option String
+  homedir : Option String
+deriving Repr, Inhabited
 
 /--
 Information about the current group,
 -/
 structure GroupInfo where
   groupname : String
-  gid       : Nat
-  members   : Array String
-  deriving Repr, Inhabited
+  gid : UInt64
+  members : Array String
+deriving Repr, Inhabited
 
 /--
 Information about the OS.
 -/
 structure UnameInfo where
-  sysname   : String
-  release   : String
-  version   : String
-  machine   : String
-  deriving Repr, Inhabited
+  sysname : String
+  release : String
+  version : String
+  machine : String
+deriving Repr, Inhabited
 
 /--
 Gets the title of the current process.
@@ -82,19 +95,19 @@ opaque setProcessTitle : @& String → IO Unit
 Gets the system uptime in seconds.
 -/
 @[extern "lean_uv_uptime"]
-opaque uptime : IO Nat
+opaque uptime : IO UInt64
 
 /--
 Gets the process ID of the current process.
 -/
 @[extern "lean_uv_os_getpid"]
-opaque osGetPid : IO Nat
+opaque osGetPid : IO UInt64
 
 /--
 Gets the parent process ID of the current process.
 -/
 @[extern "lean_uv_os_getppid"]
-opaque osGetPpid : IO Nat
+opaque osGetPpid : IO UInt64
 
 /--
 Gets information about the system's CPUs.
@@ -127,7 +140,7 @@ Gets the path to the temporary directory.
 opaque osTmpdir : IO String
 
 /--
-Gets information about the current user.
+Gets a subset of the password file entry for the current user.
 -/
 @[extern "lean_uv_os_get_passwd"]
 opaque osGetPasswd : IO PasswdInfo
@@ -172,13 +185,13 @@ opaque osGetHostname : IO String
 Gets the scheduling priority of a process.
 -/
 @[extern "lean_uv_os_getpriority"]
-opaque osGetPriority : UInt64 → IO Int
+opaque osGetPriority : UInt64 → IO Int64
 
 /--
 Sets the scheduling priority of a process.
 -/
 @[extern "lean_uv_os_setpriority"]
-opaque osSetPriority : UInt64 → Int → IO Unit
+opaque osSetPriority : UInt64 → Int64 → IO Unit
 
 /--
 Gets information about the operating system.
@@ -190,13 +203,13 @@ opaque osUname : IO UnameInfo
 Gets the current high-resolution time in nanoseconds.
 -/
 @[extern "lean_uv_hrtime"]
-opaque hrtime : IO Nat
+opaque hrtime : IO UInt64
 
 /--
 Generates cryptographically secure random bytes.
 -/
 @[extern "lean_uv_random"]
-opaque random : Nat → IO (IO.Promise (Except IO.Error ByteArray))
+opaque random : UInt64 → IO (IO.Promise (Except IO.Error ByteArray))
 
 end System
 end UV

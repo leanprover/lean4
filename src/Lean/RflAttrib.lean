@@ -15,6 +15,7 @@ def validateRflAttr (declName : Name) : AttrM Unit := do
   MetaM.run' do
     withOptions (smartUnfolding.set · false) <| withTransparency .all do
       forallTelescopeReducing info.type fun _ type => do
+        let type ← whnf type
         -- NB: The warning wording should work both for explicit uses of `@[rfl]` as well as the implicit `:= rfl`.
         let some (_, lhs, rhs) := type.eq? |
           throwError m!"not a `rfl`-theorem: the conculsion should be an equality, but is{inlineExpr type}"

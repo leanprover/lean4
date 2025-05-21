@@ -178,7 +178,39 @@ def addCustomEliminator (declName : Name) (attrKind : AttributeKind) (induction 
   let e ← mkCustomEliminator declName induction
   customEliminatorExt.add e attrKind
 
-builtin_initialize
+/--
+Registers a custom eliminator for the `induction` tactic.
+
+Whenever the types of the targets in an `induction` call matches a custom eliminator, it is used
+instead of the recursor. This can be useful for redefining the default eliminator to a more useful
+one.
+
+Example:
+```lean example
+structure Three where
+  val : Fin 3
+
+example (x : Three) (p : Three → Prop) : p x := by
+  induction x
+  -- val : Fin 3 ⊢ p ⟨val⟩
+
+@[induction_eliminator, elab_as_elim]
+def Three.myRec {motive : Three → Sort u}
+    (zero : motive ⟨0⟩) (one : motive ⟨1⟩) (two : motive ⟨2⟩) :
+    ∀ x, motive x
+  | ⟨0⟩ => zero | ⟨1⟩ => one | ⟨2⟩ => two
+
+example (x : Three) (p : Three → Prop) : p x := by
+  induction x
+  -- ⊢ p ⟨0⟩
+  -- ⊢ p ⟨1⟩
+  -- ⊢ p ⟨2⟩
+```
+
+`@[cases_eliminator]` works similarly for the `cases` tactic.
+-/
+@[builtin_init, builtin_doc]
+private def init : IO Unit :=
   registerBuiltinAttribute {
     name  := `induction_eliminator
     descr := "custom `rec`-like eliminator for the `induction` tactic"
@@ -186,7 +218,39 @@ builtin_initialize
       discard <| addCustomEliminator declName attrKind (induction := true) |>.run {} {}
   }
 
-builtin_initialize
+/--
+Registers a custom eliminator for the `cases` tactic.
+
+Whenever the types of the targets in an `cases` call matches a custom eliminator, it is used
+instead of the `casesOn` eliminator. This can be useful for redefining the default eliminator to a
+more useful one.
+
+Example:
+```lean example
+structure Three where
+  val : Fin 3
+
+example (x : Three) (p : Three → Prop) : p x := by
+  cases x
+  -- val : Fin 3 ⊢ p ⟨val⟩
+
+@[induction_eliminator, elab_as_elim]
+def Three.myRec {motive : Three → Sort u}
+    (zero : motive ⟨0⟩) (one : motive ⟨1⟩) (two : motive ⟨2⟩) :
+    ∀ x, motive x
+  | ⟨0⟩ => zero | ⟨1⟩ => one | ⟨2⟩ => two
+
+example (x : Three) (p : Three → Prop) : p x := by
+  cases x
+  -- ⊢ p ⟨0⟩
+  -- ⊢ p ⟨1⟩
+  -- ⊢ p ⟨2⟩
+```
+
+`@[induction_eliminator]` works similarly for the `induction` tactic.
+-/
+@[builtin_init, builtin_doc]
+private def init2 : IO Unit :=
   registerBuiltinAttribute {
     name  := `cases_eliminator
     descr := "custom `casesOn`-like eliminator for the `cases` tactic"

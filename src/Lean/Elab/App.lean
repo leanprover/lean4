@@ -800,7 +800,7 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
         throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.idxOf? motive) |
+    let some motivePos := xs.idxOf? motive |
       throwError "unexpected eliminator type{indentExpr elimType}"
     /-
     Compute transitive closure of fvars appearing in arguments to the motive.
@@ -830,11 +830,67 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
           majorsPos := majorsPos.push i
     trace[Elab.app.elab_as_elim] "motivePos: {motivePos}"
     trace[Elab.app.elab_as_elim] "majorsPos: {majorsPos}"
-    return { elimExpr, elimType,  motivePos, majorsPos }
+    return { elimExpr, elimType, motivePos, majorsPos }
 
 def getElabElimInfo (elimName : Name) : MetaM ElabElimInfo := do
   getElabElimExprInfo (← mkConstWithFreshMVarLevels elimName)
 
+
+/--
+Instructs the elaborator that applications of this function should be elaborated like an eliminator.
+
+An eliminator is a function that returns an application of a "motive" which is a parameter of the
+form `_ → ... → Sort _`, i.e. a function that takes in a certain amount of arguments (referred to
+as major premises) and returns a type in some universe. The `rec` and `casesOn` functions of
+inductive types are automatically treated as eliminators, for other functions this attribute needs
+to be used.
+
+Eliminator elaboration can be compared to the `induction` tactic: The expected type is used as the
+return value of the motive, with occurrences of the major premises replaced with the arguments.
+When more arguments are specified than necessary, the remaining arguments are reverted into the
+expected type.
+
+Examples:
+```lean example
+@[elab_as_elim]
+def evenOddRecOn {motive : Nat → Sort u}
+    (even : ∀ n, motive (n * 2)) (odd : ∀ n, motive (n * 2 + 1))
+    (n : Nat) : motive n := ...
+
+-- simple usage
+example (a : Nat) : (a * a) % 2 = a % 2 :=
+  evenOddRec _ _ a
+  /-
+  1. basic motive is `fun n => (a + 2) % 2 = a % 2`
+  2. major premise `a` substituted: `fun n => (n + 2) % 2 = n % 2`
+  3. now elaborate the other parameters as usual:
+    "even" (first hole): expected type `∀ n, ((n * 2) * (n * 2)) % 2 = (n * 2) % 2`,
+    "odd" (second hole): expected type `∀ n, ((n * 2 + 1) * (n * 2 + 1)) % 2 = (n * 2 + 1) % 2`
+  -/
+
+-- complex substitution
+example (a : Nat) (f : Nat → Nat) : (f a + 1) % 2 ≠ f a :=
+  evenOddRec _ _ (f a)
+  /-
+  Similar to before, except `f a` is substituted: `motive := fun n => (n + 1) % 2 ≠ n`.
+  Now the first hole has expected type `∀ n, (n * 2 + 1) % 2 ≠ n * 2`.
+  Now the second hole has expected type `∀ n, (n * 2 + 1 + 1) % 2 ≠ n * 2 + 1`.
+  -/
+
+-- more parameters
+example (a : Nat) (h : a % 2 = 1) : (a + 1) % 2 = 0 :=
+  evenOddRec _ _ a h
+  /-
+  Before substitution, `a % 2 = 1` is reverted: `motive := fun n => a % 2 = 0 → (a + 1) % 2 = 0`.
+  Substitution: `motive := fun n => n % 2 = 1 → (n + 1) % 2 = 0`
+  Now the first hole has expected type `∀ n, n * 2 % 2 = 1 → (n * 2) % 2 = 0`.
+  Now the second hole has expected type `∀ n, (n * 2 + 1) % 2 = 1 → (n * 2 + 1) % 2 = 0`.
+  -/
+```
+
+See also `@[induction_eliminator]` and `@[cases_eliminator]` for registering default eliminators.
+-/
+@[builtin_doc]
 builtin_initialize elabAsElim : TagAttribute ←
   registerTagAttribute `elab_as_elim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"

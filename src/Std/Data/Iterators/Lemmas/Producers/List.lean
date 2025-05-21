@@ -5,6 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Consumers
+import Std.Data.Iterators.Lemmas.Consumers.Collect
 import Std.Data.Iterators.Lemmas.Producers.Monadic.List
 
 /-!
@@ -30,18 +31,17 @@ theorem _root_.List.step_iter_cons {x : β} {xs : List β} :
 
 @[simp]
 theorem _root_.List.toArray_iter {m : Type w → Type w'} [Monad m] [LawfulMonad m] {l : List β} :
-    (l.iterM m).toArray = pure l.toArray := by
-  simp only [IterM.toArray, ListIterator.toArrayMapped_toIterM]
-  rw [List.mapM_pure, map_pure, List.map_id']
+    l.iter.toArray = l.toArray := by
+  simp [List.iter, List.toArray_iterM, Iter.toArray_eq_toArray_toIterM]
 
 @[simp]
 theorem _root_.List.toList_iter {m : Type w → Type w'} [Monad m] [LawfulMonad m] {l : List β} :
-    (l.iterM m).toList = pure l := by
-  rw [← IterM.toList_toArray, List.toArray_iterM, map_pure, List.toList_toArray]
+    l.iter.toList = l := by
+  simp [List.iter, List.toList_iterM]
 
 @[simp]
 theorem _root_.List.toListRev_iter {m : Type w → Type w'} [Monad m] [LawfulMonad m] {l : List β} :
-    (l.iterM m).toListRev = pure l.reverse := by
-  simp [IterM.toListRev_eq, List.toList_iterM]
+    l.iter.toListRev = l.reverse := by
+  simp [List.iter, Iter.toListRev_eq_toListRev_toIterM, List.toListRev_iterM]
 
 end Std.Iterators

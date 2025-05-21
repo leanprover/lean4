@@ -2149,12 +2149,6 @@ theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
   have : i < 2^i := by exact Nat.lt_two_pow_self
   omega
 
-/-- Heuristically, `y <<< x` is much larger than `x`,
-and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/
-theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
-    (y <<< x) + x =  (y <<< x) ||| x := by
-  rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
-
 /- ### fast circuit for unsigned overflow detection -/
 
 /-

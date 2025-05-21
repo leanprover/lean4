@@ -849,13 +849,4 @@ comparisons.
 protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
 
-/--
-Constructs an order which compares elements of an `Array` in lexicographic order.
--/
-protected def arrayOrd [a : Ord α] : Ord (Array α) where
-  compare x y :=
-    let _ : LT α := a.toLT
-    let _ : BEq α := a.toBEq
-    if List.lex x.toList y.toList then .lt else if x == y then .eq else .gt
-
 end Ord

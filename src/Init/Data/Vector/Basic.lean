@@ -307,6 +307,8 @@ abbrev zipWithIndex := @zipIdx
 @[inline] def ofFn (f : Fin n → α) : Vector α n :=
   ⟨Array.ofFn f, by simp⟩
 
+/-! See also `Vector.ofFnM` defined in `Init.Data.Vector.OfFn`. -/
+
 /--
 Swap two elements of a vector using `Fin` indices.
 

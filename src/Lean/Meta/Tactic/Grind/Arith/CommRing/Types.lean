@@ -14,8 +14,6 @@ namespace Lean.Meta.Grind.Arith.CommRing
 export Lean.Grind.CommRing (Var Power Mon Poly)
 abbrev RingExpr := Grind.CommRing.Expr
 
-deriving instance Repr for Power, Mon, Poly
-
 mutual
 
 structure EqCnstr where

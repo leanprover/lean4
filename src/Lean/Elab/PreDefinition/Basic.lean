@@ -91,7 +91,9 @@ def abstractNestedProofs (preDef : PreDefinition) (cache := true) : MetaM PreDef
   if preDef.kind.isTheorem || preDef.kind.isExample then
     pure preDef
   else do
-    let value ← Meta.abstractNestedProofs (cache := cache) preDef.declName preDef.value
+    let value ←
+      withDeclNameForAuxNaming preDef.declName do
+        Meta.abstractNestedProofs (cache := cache) preDef.value
     pure { preDef with value := value }
 
 /-- Auxiliary method for (temporarily) adding pre definition as an axiom -/

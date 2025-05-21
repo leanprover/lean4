@@ -71,7 +71,7 @@ info: let __src := c2;
 #guard_msgs in #check { c2 with x.1 := 3 }
 
 /--
-info: let_fun this :=
+info: have this :=
   let __src := c2.toB;
   { toB := __src, z := __src.g __src.x __src.y : C (Nat × Nat) };
 this : C (Nat × Nat)

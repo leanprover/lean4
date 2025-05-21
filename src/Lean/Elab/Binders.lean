@@ -9,6 +9,7 @@ import Lean.Elab.Term
 import Lean.Elab.BindersUtil
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.TerminationHint
+import Lean.Elab.Match
 
 namespace Lean.Elab.Term
 open Meta
@@ -554,6 +555,43 @@ def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM 
   withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := true) (useExplicit := false) (getMatchAltsNumPatterns matchAlts) #[] #[]
 
 /--
+Sanity-checks the number of patterns in each alternative of a definition by pattern matching.
+Specifically, verifies that all alternatives have the same number of patterns and that the number
+of patterns is upper-bounded by the number of (dependent) arrows in the expected type.
+
+Note: This function assumes that the number of patterns in the first alternative will be equal to
+`numDiscrs` (since we use the first alternative to infer the arity of the generated matcher in
+`getMatchAltsNumPatterns`).
+-/
+private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (expectedType : Expr)
+    : MetaM Unit := do
+  let sepPats (pats : List Syntax) := MessageData.joinSep (pats.map toMessageData) ", "
+  let maxDiscrs? ← forallTelescopeReducing expectedType fun xs e =>
+    if e.getAppFn.isMVar then pure none else pure (some xs.size)
+  let matchAltViews := matchAlts[0].getArgs.filterMap getMatchAlt
+  let numPatternsStr (n : Nat) := s!"{n} {if n == 1 then "pattern" else "patterns"}"
+  if h : matchAltViews.size > 0 then
+    if let some maxDiscrs := maxDiscrs? then
+      if numDiscrs > maxDiscrs then
+        if maxDiscrs == 0 then
+          throwErrorAt matchAltViews[0].lhs m!"Cannot define a value of type{indentExpr expectedType}\n\
+            by pattern matching because it is not a function type"
+        else
+          throwErrorAt matchAltViews[0].lhs m!"Too many patterns in match alternative: \
+            At most {numPatternsStr maxDiscrs} expected in a definition of type {indentExpr expectedType}\n\
+            but found {numDiscrs}:{indentD <| sepPats matchAltViews[0].patterns.toList}"
+    -- Catch inconsistencies between pattern counts here so that we can report them as "inconsistent"
+    -- rather than as "too many" or "too few" (as the `match` elaborator does)
+    for view in matchAltViews do
+      let numPats := view.patterns.size
+      if numPats != numDiscrs then
+        let origPats := sepPats matchAltViews[0].patterns.toList
+        let pats := sepPats view.patterns.toList
+        throwErrorAt view.lhs m!"Inconsistent number of patterns in match alternatives: This \
+          alternative contains {numPatternsStr numPats}:{indentD pats}\n\
+          but a preceding alternative contains {numDiscrs}:{indentD origPats}"
+
+/--
   Similar to `expandMatchAltsIntoMatch`, but supports an optional `where` clause.
 
   Expand `matchAltsWhereDecls` into `let rec` + `match`-expression.
@@ -581,19 +619,21 @@ def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM 
     | i, _    => ... f i + g i ...
   ```
 -/
-def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
+def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) (expectedType : Expr) : TermElabM Syntax :=
   let matchAlts     := matchAltsWhereDecls[0]
   -- matchAltsWhereDecls[1] is the termination hints, collected elsewhere
   let whereDeclsOpt := matchAltsWhereDecls[2]
-  let rec loop (i : Nat) (discrs : Array Syntax) : MacroM Syntax :=
+  let rec loop (i : Nat) (discrs : Array Syntax) : TermElabM Syntax :=
     match i with
     | 0   => do
+      checkMatchAltPatternCounts matchAlts discrs.size expectedType
       let matchStx ← `(match $[@$discrs:term],* with $matchAlts:matchAlts)
-      let matchStx ← clearInMatch matchStx discrs
-      if whereDeclsOpt.isNone then
-        return matchStx
-      else
-        expandWhereDeclsOpt whereDeclsOpt matchStx
+      liftMacroM do
+        let matchStx ← clearInMatch matchStx discrs
+        if whereDeclsOpt.isNone then
+          return matchStx
+        else
+          expandWhereDeclsOpt whereDeclsOpt matchStx
     | n+1 => withFreshMacroScope do
       let body ← loop n (discrs.push (← `(x)))
       `(@fun x => $body)

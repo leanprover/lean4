@@ -13,10 +13,9 @@ def myTest {α}
 /--
 error: Failed to realize constant myTest.fun_cases:
   Cannot derive functional cases principle (please report this issue)
-  ⏎
     failed to transform matcher, type error when constructing new pre-splitter motive:
-      @myTest.match_1 _fvar.27 (fun x => @_fvar.32 x _fvar.34 _fvar.35) _fvar.33
-    ⏎
+      myTest.match_1 (fun x => motive x h_1 h_2) x
+    failed with
       Application type mismatch: In the application
         motive x✝ h_1
       the argument

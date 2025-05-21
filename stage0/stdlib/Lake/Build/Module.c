@@ -100,7 +100,6 @@ static lean_object* l_Lake_Module_ileanFacetConfig___closed__2;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 static lean_object* l_Lake_Module_recBuildLeanCToONoExport___lambda__1___closed__1;
-uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lake_buildFileUnlessUpToDate_x27___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_find___at___private_Lake_Build_Common_0__Lake_mkLinkOrder_go___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_recBuildDeps___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Ord_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
@@ -321,6 +320,7 @@ LEAN_EXPORT lean_object* l_Lake_Module_ileanFacetConfig___lambda__1(lean_object*
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Build_Module_0__Lake_mkLoadOrder___spec__1(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_Module_cFacetConfig___closed__1;
 static lean_object* l_Lake_Module_recBuildDeps___lambda__8___closed__1;
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lake_buildFileUnlessUpToDate_x27___spec__5(lean_object*, lean_object*);
 lean_object* l_Lake_BuildTrace_nil(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_recBuildDeps___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Module_recBuildDynlib___lambda__1___closed__1;
@@ -37227,7 +37227,7 @@ x_10 = lean_ctor_get(x_2, 2);
 lean_inc(x_10);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
-x_12 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lake_buildFileUnlessUpToDate_x27___spec__5(x_11, x_3);
+x_12 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lake_buildFileUnlessUpToDate_x27___spec__5(x_11, x_3);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 

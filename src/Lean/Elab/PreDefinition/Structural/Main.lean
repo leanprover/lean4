@@ -175,8 +175,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
   state.addMatchers.forM liftM
   preDefsNonRec.forM fun preDefNonRec => do
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-    -- state.addMatchers.forM liftM
-    mapError (f := (m!"structural recursion failed, produced type incorrect term{indentD ·}")) do
+    prependError m!"structural recursion failed, produced type incorrect term" do
       -- We create the `_unsafe_rec` before we abstract nested proofs.
       -- Reason: the nested proofs may be referring to the _unsafe_rec.
       addNonRec preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)

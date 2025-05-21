@@ -47,7 +47,6 @@ static lean_object* l_Lean_Elab_Tactic_Omega_Justification_tidyProof___closed__5
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Justification_proof___boxed(lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Elab_Tactic_Omega_lookup___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_addInequality___closed__1;
-uint8_t l___private_Init_Omega_Constraint_0__Lean_Omega_beqConstraint____x40_Init_Omega_Constraint___hyg_73_(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_instToExprConstraint___lambda__1___boxed(lean_object*);
 static lean_object* l_List_toString___at_Lean_Elab_Tactic_Omega_Justification_toString___spec__1___closed__2;
@@ -189,6 +188,7 @@ static uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_fou
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_elimination___closed__1;
 uint8_t l_instDecidableNot___rarg(uint8_t);
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_Omega_instToExprLinearCombo___spec__1___closed__13;
+uint8_t l_Lean_Omega_beqConstraint____x40_Init_Omega_Constraint___hyg_73_(lean_object*, lean_object*);
 lean_object* l_List_findIdx_x3f_go___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_Omega_instToExprLinearCombo___spec__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Omega_initFn____x40_Lean_Elab_Tactic_Omega_Core___hyg_3____closed__22;
@@ -2291,7 +2291,7 @@ lean_inc(x_136);
 x_137 = lean_ctor_get(x_3, 2);
 lean_inc(x_137);
 lean_dec(x_3);
-x_270 = l___private_Init_Omega_Constraint_0__Lean_Omega_beqConstraint____x40_Init_Omega_Constraint___hyg_73_(x_1, x_135);
+x_270 = l_Lean_Omega_beqConstraint____x40_Init_Omega_Constraint___hyg_73_(x_1, x_135);
 if (x_270 == 0)
 {
 lean_object* x_271; 

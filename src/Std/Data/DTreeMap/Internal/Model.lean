@@ -686,29 +686,13 @@ theorem insertMax_eq_insertMax! [Ord α] {a b} {t : Impl α β} (htb) :
 
 theorem link_eq_link! [Ord α] {k v} {l r : Impl α β} (hlb hrb) :
     (link k v l r hlb hrb).impl = link! k v l r := by
-  set_option tactic.fun_induction.unfolding false in
-  fun_cases link! <;> rw [link, link!]
-  · rw [insertMin_eq_insertMin!]
-  · rw [insertMax_eq_insertMax!]
-  · split <;> simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
-  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
-      link_eq_link! hlb hrb.left, link_eq_link! hlb.right hrb]
-  · split
-    · simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
-    · simp only [Std.Internal.tree_tac]
-termination_by sizeOf l + sizeOf r
+  fun_induction link! <;>
+    simp [*, link, balanceLErase_eq_balanceL!, balanceRErase_eq_balanceR!, insertMin_eq_insertMin!, insertMax_eq_insertMax!, size]
 
 theorem link2_eq_link2! [Ord α] {l r : Impl α β} (hlb hrb) :
     (link2 l r hlb hrb).impl = link2! l r := by
-  set_option tactic.fun_induction.unfolding false in
-  fun_cases link2! <;> rw [link2!, link2]
-  · split <;> simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
-  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
-      link2_eq_link2! hlb.right hrb, link2_eq_link2! hlb hrb.left]
-  · split
-    · simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
-    · simp only [Std.Internal.tree_tac, glue_eq_glue!]
-termination_by sizeOf l + sizeOf r
+  fun_induction link2! <;>
+    simp [*, link2, balanceLErase_eq_balanceL!, balanceRErase_eq_balanceR!, glue_eq_glue!]
 
 namespace Const
 

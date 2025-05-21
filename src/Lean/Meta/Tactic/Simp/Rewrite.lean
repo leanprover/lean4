@@ -218,15 +218,20 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
       for (thm, numExtraArgs) in candidates do
-        unless inErasedSet thm || (rflOnly && !thm.isRfl (← getEnv)) do
-          if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
-            trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
-            return some result
-        if !inErasedSet thm && rflOnly && !thm.isRfl (← getEnv) then
-            let r ← withOptions (experimental.tactic.simp.useRflAttr.set · false) do
-              isRflProof thm.proof
-            if r then
-              trace[Meta.Tactic.simp.rflAttrMismatch] "theorem {thm.proof} is no longer rfl"
+        if inErasedSet thm then continue
+        if rflOnly then
+          let isRfl := thm.isRfl (← getEnv)
+          if !isRfl then
+            if debug.tactic.simp.checkRflAttr.get (← getOptions) &&
+               experimental.tactic.simp.useRflAttr.get (← getOptions) then
+              let isRflOld ← withOptions (experimental.tactic.simp.useRflAttr.set · false) do
+                isRflProof thm.proof
+              if isRflOld then
+                logWarning "theorem {thm.proof} is no longer rfl"
+            continue
+        if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
+          trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+          return some result
       return none
 
   /--

@@ -20,6 +20,13 @@ register_builtin_option experimental.tactic.simp.useRflAttr : Bool := {
   descr    := "use `rfl` attribute rather than theorem body to decide rfl-ness"
 }
 
+register_builtin_option debug.tactic.simp.checkRflAttr : Bool := {
+  defValue := false
+  descr    := "if true, whenever `dsimp` fails to apply a rewrite rule because it is not marked as \
+    `rfl`, check whether it would have been considered as a rfl theorem before the introduction of \
+    the `rfl` attribute, and warn if it was. Note that this is a costly check."
+}
+
 /--
 An `Origin` is an identifier for simp theorems which indicates roughly
 what action the user took which lead to this theorem existing in the simp set.

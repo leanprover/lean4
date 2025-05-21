@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_construct
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Linter_constructorNameAsVariable___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-uint8_t l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__11___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_x27___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__7___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -109,6 +108,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Lint
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__14___closed__3;
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__14___closed__5;
+uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_95_(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__8___closed__3;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -284,7 +284,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
-x_6 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_4, x_1);
+x_6 = l_String_beqRange____x40_Lean_Syntax___hyg_95_(x_4, x_1);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -439,7 +439,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_ctor_get(x_3, 0);
 x_7 = lean_ctor_get(x_3, 1);
 x_8 = lean_ctor_get(x_3, 2);
-x_9 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_6, x_1);
+x_9 = l_String_beqRange____x40_Lean_Syntax___hyg_95_(x_6, x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; 
@@ -466,7 +466,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_3);
-x_14 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_11, x_1);
+x_14 = l_String_beqRange____x40_Lean_Syntax___hyg_95_(x_11, x_1);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -3712,7 +3712,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = lean_ctor_get(x_11, 6);
+x_13 = lean_ctor_get(x_11, 7);
 lean_inc(x_13);
 lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 2);

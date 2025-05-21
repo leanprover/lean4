@@ -62,7 +62,6 @@ extern lean_object* l___private_Lean_Expr_0__Lean_intLEPred;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DiseqCnstr_throwUnexpected___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_modify_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Int_Linear_Poly_isUnsatLe(lean_object*);
-uint8_t l___private_Std_Internal_Rat_0__Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Expr_0__Lean_intEqPred;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_CooperSplitPred_pp___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DiseqCnstr_pp___closed__1;
@@ -113,6 +112,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_hasVar(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Int_Linear_Poly_updateOccs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_LeCnstr_satisfied(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Int_Linear_Poly_pp_go___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_LeCnstr_satisfied___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8681,7 +8681,7 @@ x_24 = lean_ctor_get(x_13, 0);
 lean_inc(x_24);
 lean_dec(x_13);
 x_25 = l_Lean_Meta_Grind_Arith_Cutsat_resize_go___closed__1;
-x_26 = l___private_Std_Internal_Rat_0__Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(x_24, x_25);
+x_26 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(x_24, x_25);
 lean_dec(x_24);
 if (x_26 == 0)
 {
@@ -8710,7 +8710,7 @@ x_32 = lean_ctor_get(x_13, 0);
 lean_inc(x_32);
 lean_dec(x_13);
 x_33 = l_Lean_Meta_Grind_Arith_Cutsat_resize_go___closed__1;
-x_34 = l___private_Std_Internal_Rat_0__Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(x_32, x_33);
+x_34 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(x_32, x_33);
 lean_dec(x_32);
 if (x_34 == 0)
 {

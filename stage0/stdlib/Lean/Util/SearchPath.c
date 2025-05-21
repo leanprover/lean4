@@ -52,7 +52,7 @@ extern lean_object* l_Lean_searchPathRef;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__10;
 LEAN_EXPORT lean_object* l_termCompile__time__search__path_x25;
-lean_object* l_Lean_logWarning___at___private_Lean_Elab_Term_0__Lean_Elab_Term_checkDeprecatedCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_logWarning___at___private_Lean_Elab_Term_0__Lean_Elab_Term_checkDeprecatedCore___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___spec__2___closed__5;
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__1;
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__3;
@@ -399,7 +399,7 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_13 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__3;
-x_14 = l_Lean_logWarning___at___private_Lean_Elab_Term_0__Lean_Elab_Term_checkDeprecatedCore___spec__2(x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_14 = l_Lean_logWarning___at___private_Lean_Elab_Term_0__Lean_Elab_Term_checkDeprecatedCore___spec__4(x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 x_15 = lean_ctor_get(x_14, 1);
 lean_inc(x_15);
 lean_dec(x_14);

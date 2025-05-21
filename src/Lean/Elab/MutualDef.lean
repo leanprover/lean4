@@ -1129,7 +1129,11 @@ where
 
     -- now start new thread for body elaboration, then nested thread for kernel checking
     let cancelTk ← IO.CancelToken.new
-    let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
+    let act ←
+      -- NOTE: We must set the decl name before going async to ensure that the `auxDeclNGen` is
+      -- forked correctly.
+      withDeclName header.declName do
+      wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try

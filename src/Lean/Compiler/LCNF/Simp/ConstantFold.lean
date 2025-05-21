@@ -64,22 +64,22 @@ def mkAuxLit [Literal α] (x : α) (prefixName := `_x) : FolderM FVarId := do
   mkAuxLetDecl lit prefixName
 
 partial def getNatLit (fvarId : FVarId) : CompilerM (Option Nat) := do
-  let some (.value (.natVal n)) ← findLetValue? fvarId | return none
+  let some (.lit (.nat n)) ← findLetValue? fvarId | return none
   return n
 
 def mkNatLit (n : Nat) : FolderM LetValue :=
-  return .value (.natVal n)
+  return .lit (.nat n)
 
 instance : Literal Nat where
   getLit := getNatLit
   mkLit := mkNatLit
 
 def getStringLit (fvarId : FVarId) : CompilerM (Option String) := do
-  let some (.value (.strVal s)) ← findLetValue? fvarId | return none
+  let some (.lit (.str s)) ← findLetValue? fvarId | return none
   return s
 
 def mkStringLit (n : String) : FolderM LetValue :=
-  return .value (.strVal n)
+  return .lit (.str n)
 
 instance : Literal String where
   getLit := getStringLit

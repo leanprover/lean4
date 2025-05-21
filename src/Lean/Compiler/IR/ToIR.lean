@@ -65,8 +65,8 @@ def addDecl (d : Decl) : M Unit :=
 
 def lowerLitValue (v : LCNF.LitValue) : LitVal :=
   match v with
-  | .natVal n => .num n
-  | .strVal s => .str s
+  | .nat n => .num n
+  | .str s => .str s
 
 -- TODO: This should be cached.
 def lowerEnumToScalarType (name : Name) : M (Option IRType) := do
@@ -224,7 +224,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       return none
 
   match decl.value with
-  | .value litValue =>
+  | .lit litValue =>
     mkExpr (.lit (lowerLitValue litValue))
   | .proj typeName i fvarId =>
     match (← get).fvars[fvarId]? with

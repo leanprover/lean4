@@ -2303,8 +2303,8 @@ Examples:
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
   inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
 
-instance (a b : UInt32) : Decidable (LT.lt a b) := UInt32.decLt a b
-instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b
+attribute [instance] UInt32.decLt UInt32.decLe
+
 instance : Max UInt32 := maxOfLe
 instance : Min UInt32 := minOfLe
 

@@ -120,6 +120,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldrM___at_Lean_Meta
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__47___closed__14;
 static lean_object* l_Lean_Diff_matchPrefix___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__3___closed__1;
 static lean_object* l_Lean_Diff_diff___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__1___closed__2;
+uint8_t l_Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_Tactic_TryThis_processSuggestions(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MessageData_hint___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__43___boxed(lean_object*, lean_object*, lean_object*);
@@ -216,7 +217,6 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__32___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__33(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffJson___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Util_Diff_0__Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(uint8_t, uint8_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__47___closed__7;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__47___closed__8;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__26___at_Lean_Meta_Hint_Suggestions_toHintMessage___spec__27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -825,7 +825,7 @@ x_30 = lean_ctor_get(x_22, 0);
 x_31 = lean_ctor_get(x_22, 1);
 x_32 = lean_unbox(x_25);
 x_33 = lean_unbox(x_30);
-x_34 = l___private_Lean_Util_Diff_0__Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(x_32, x_33);
+x_34 = l_Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(x_32, x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
@@ -873,7 +873,7 @@ lean_inc(x_41);
 lean_dec(x_22);
 x_43 = lean_unbox(x_25);
 x_44 = lean_unbox(x_41);
-x_45 = l___private_Lean_Util_Diff_0__Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(x_43, x_44);
+x_45 = l_Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(x_43, x_44);
 if (x_45 == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
@@ -936,7 +936,7 @@ if (lean_is_exclusive(x_22)) {
 }
 x_60 = lean_unbox(x_54);
 x_61 = lean_unbox(x_57);
-x_62 = l___private_Lean_Util_Diff_0__Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(x_60, x_61);
+x_62 = l_Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(x_60, x_61);
 if (x_62 == 0)
 {
 lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; 
@@ -1019,7 +1019,7 @@ if (lean_is_exclusive(x_22)) {
 }
 x_80 = lean_unbox(x_73);
 x_81 = lean_unbox(x_77);
-x_82 = l___private_Lean_Util_Diff_0__Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(x_80, x_81);
+x_82 = l_Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(x_80, x_81);
 if (x_82 == 0)
 {
 lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; 

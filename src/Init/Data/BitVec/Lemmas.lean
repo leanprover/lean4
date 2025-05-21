@@ -2261,7 +2261,7 @@ theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
 theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
     x.sshiftRight (m + n) = (x.sshiftRight m).sshiftRight n := by
   ext i
-  simp [getElem_sshiftRight, getLsbD_sshiftRight, Nat.add_assoc]
+  simp only [getElem_sshiftRight, Nat.add_assoc, msb_sshiftRight, dite_eq_ite]
   by_cases h₂ : n + i < w
   · simp [h₂]
   · simp only [h₂, ↓reduceIte]

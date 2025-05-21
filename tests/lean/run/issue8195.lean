@@ -99,8 +99,8 @@ def testMe (n : Nat) : Bool :=
   | m => false
 
 /--
-info: testMe.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : ∀ (n : Nat), n - 2 = 0 → motive n true)
-  (case2 : ∀ (n : Nat), (n - 2 = 0 → False) → motive n false) (n : Nat) : motive n (testMe n)
+info: testMe.fun_cases_unfolding (n : Nat) (motive : Bool → Prop) (case1 : n - 2 = 0 → motive true)
+  (case2 : (n - 2 = 0 → False) → motive false) : motive (testMe n)
 -/
 #guard_msgs in
 #check testMe.fun_cases_unfolding

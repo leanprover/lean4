@@ -295,6 +295,7 @@ lean_inc(x_12);
 lean_dec(x_10);
 x_13 = l_System_FilePath_join(x_11, x_1);
 x_14 = l_Lean_Elab_Tactic_BVDecide_Frontend_TacticContext_new(x_13, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_12);
+lean_dec(x_3);
 return x_14;
 }
 else

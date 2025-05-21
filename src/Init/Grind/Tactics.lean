@@ -30,6 +30,7 @@ syntax grindIntro  := &"intro "
 syntax grindExt    := &"ext "
 syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro <|> grindExt
 syntax (name := grind) "grind" (grindMod)? : attr
+syntax (name := grind?) "grind?" (grindMod)? : attr
 end Attr
 end Lean.Parser
 

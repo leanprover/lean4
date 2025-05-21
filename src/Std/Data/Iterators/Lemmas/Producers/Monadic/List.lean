@@ -17,7 +17,7 @@ collectors.
 
 namespace Std.Iterators
 
-variable {m : Type w → Type w'} [Monad m] {β : Type w}
+variable {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] {β : Type w}
 
 @[simp]
 theorem _root_.List.step_iterM_nil :
@@ -29,9 +29,9 @@ theorem _root_.List.step_iterM_cons {x : β} {xs : List β} :
     ((x :: xs).iterM m).step = pure ⟨.yield (xs.iterM m) x, rfl⟩ := by
   simp only [List.iterM, IterM.step, Iterator.step]; rfl
 
-theorem ListIterator.toArrayMapped_toIterM [LawfulMonad m]
-    {β : Type w} {γ : Type w} {f : β → m γ} {l : List β} :
-    IteratorCollect.toArrayMapped f (l.iterM m) = List.toArray <$> l.mapM f := by
+theorem ListIterator.toArrayMapped_iterM [Monad n] [LawfulMonad n]
+    {β : Type w} {γ : Type w} {lift : {δ : Type w} → m δ → n δ} {f : β → n γ} {l : List β} :
+    IteratorCollect.toArrayMapped lift f (l.iterM m) (m := m) = List.toArray <$> l.mapM f := by
   rw [LawfulIteratorCollect.toArrayMapped_eq]
   induction l with
   | nil =>

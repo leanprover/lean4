@@ -52,17 +52,23 @@ def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
     return true
   stepGuard go goal
 
-def tryAssertNext : Goal → M Bool := applyTac assertNext
+-- TODO: it should be assertAll. It may produce multiple goals because of eager splitting.
+def tryAssertAll : Goal → M Bool := applyTac assertAll
 
-def tryEmatch : Goal → M Bool := applyTac ematchAndAssert
+-- TODO: it doesn't need to invoke assertAll
+def tryEmatch : Goal → M Bool := applyTac ematch
 
-def trySplit : Goal → M Bool := applyTac splitNext
-
+-- Can only fail or produce a new updated goal
 def tryArith : Goal → M Bool := applyTac Arith.check
 
+-- Can only fail or produce a new updated goal
 def tryLookahead : Goal → M Bool := applyTac lookahead
 
+-- Can only fail or produce a new updated goal
 def tryMBTC : Goal → M Bool := applyTac Arith.Cutsat.mbtcTac
+
+-- May fail or produce multiple new goals
+def trySplit : Goal → M Bool := applyTac splitNext
 
 partial def main (fallback : Fallback) : M Unit := do
   repeat do
@@ -72,7 +78,7 @@ partial def main (fallback : Fallback) : M Unit := do
       return ()
     if goal.inconsistent then
       continue
-    if (← tryAssertNext goal) then
+    if (← tryAssertAll goal) then
       continue
     if (← tryArith goal) then
       continue

@@ -36,19 +36,6 @@ structure CPUInfo where
   times : CPUTimes
 deriving Repr, Inhabited
 
-def lerolero : CPUInfo :=
-  {
-    model := "imaginary",
-    speed := 100,
-    times := {
-      user := 23456789,
-      nice := 12345678,
-      sys := 98765432,
-      idle := 12345678,
-      irq := 98765432
-    }
-  }
-
 /--
 Information about the current user.
 -/

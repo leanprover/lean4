@@ -49,11 +49,20 @@ def getAttrKindFromOpt (stx : Syntax) : CoreM AttrKind := do
 def throwInvalidUsrModifier : CoreM α :=
   throwError "the modifier `usr` is only relevant in parameters for `grind only`"
 
-builtin_initialize
+/--
+Auxiliary function for registering `grind` and `grind?` attributes.
+The `grind?` is an alias for `grind` which displays patterns using `logInfo`.
+It is just a convenience for users.
+-/
+private def registerGrindAttr (showInfo : Bool) : IO Unit :=
   registerBuiltinAttribute {
-    name := `grind
+    name := if showInfo then `grind? else `grind
     descr :=
-      "The `[grind]` attribute is used to annotate declarations.\
+      let header := if showInfo then
+        "The `[grind?]` attribute is identical to the `[grind]` attribute, but displays inferred pattern information."
+      else
+        "The `[grind]` attribute is used to annotate declarations."
+      header ++ "\
       \
       When applied to an equational theorem, `[grind =]`, `[grind =_]`, or `[grind _=_]`\
       will mark the theorem for use in heuristic instantiations by the `grind` tactic,
@@ -73,12 +82,12 @@ builtin_initialize
     add := fun declName stx attrKind => MetaM.run' do
       match (← getAttrKindFromOpt stx) with
       | .ematch .user => throwInvalidUsrModifier
-      | .ematch k => addEMatchAttr declName attrKind k
+      | .ematch k => addEMatchAttr declName attrKind k (showInfo := showInfo)
       | .cases eager => addCasesAttr declName eager attrKind
       | .intro =>
         if let some info ← isCasesAttrPredicateCandidate? declName false then
           for ctor in info.ctors do
-            addEMatchAttr ctor attrKind .default
+            addEMatchAttr ctor attrKind .default (showInfo := showInfo)
         else
           throwError "invalid `[grind intro]`, `{declName}` is not an inductive predicate"
       | .ext => addExtAttr declName attrKind
@@ -89,10 +98,12 @@ builtin_initialize
             -- If it is an inductive predicate,
             -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
-              addEMatchAttr ctor attrKind .default
+              addEMatchAttr ctor attrKind .default (showInfo := showInfo)
         else
-          addEMatchAttr declName attrKind .default
+          addEMatchAttr declName attrKind .default (showInfo := showInfo)
     erase := fun declName => MetaM.run' do
+      if showInfo then
+        throwError "`[grind?]` is a helper attribute for displaying inferred patterns, if you want to remove the attribute, consider using `[grind]` instead"
       if (← isCasesAttrCandidate declName false) then
         eraseCasesAttr declName
       else if (← isExtTheorem declName) then
@@ -100,5 +111,9 @@ builtin_initialize
       else
         eraseEMatchAttr declName
   }
+
+builtin_initialize
+  registerGrindAttr true
+  registerGrindAttr false
 
 end Lean.Meta.Grind

@@ -155,8 +155,8 @@ private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MV
   | ApplyNewGoals.all => return mvars.toList.map Lean.Expr.mvarId!
 
 /-- Custom `isDefEq` for the `apply` tactic -/
-private def isDefEqApply (cfg : ApplyConfig) (a b : Expr) : MetaM Bool := do
-  if cfg.approx then
+private def isDefEqApply (approx : Bool) (a b : Expr) : MetaM Bool := do
+  if approx then
     approxDefEq <| isDefEqGuarded a b
   else
     isDefEqGuarded a b
@@ -201,7 +201,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
       if i < rangeNumArgs.stop then
         let s ← saveState
         let (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType i
-        if (← isDefEqApply cfg eType targetType) then
+        if (← isDefEqApply cfg.approx eType targetType) then
           return (newMVars, binderInfos)
         else
           s.restore
@@ -230,6 +230,21 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
 /-- Short-hand for applying a constant to the goal. -/
 def _root_.Lean.MVarId.applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
   mvar.apply (← mkConstWithFreshMVarLevels c) cfg (term? := m!"'{.ofConstName c}'")
+
+/-- Close the given goal using `e`, instantiated with `n` metavariables. -/
+def _root_.Lean.MVarId.applyN (mvarId : MVarId) (e : Expr) (n : Nat) (useApproxDefEq := true) : MetaM (List MVarId) :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `apply
+    let targetType ← mvarId.getType
+    let eType      ← inferType e
+    let (mvarIds, _, eType) ← forallMetaBoundedTelescope eType n
+    unless mvarIds.size == n do
+      throwError "Applied type takes fewer than {n} arguments:\n{indentExpr eType}"
+    unless (← isDefEqApply useApproxDefEq eType targetType) do
+      throwError "Type mismatch: target is\n{indentExpr targetType}\nbut applied expression has \
+        type\n{indentExpr eType}\nafter applying {n} arguments."
+    mvarId.assign (e.beta mvarIds)
+    return (mvarIds.map (·.mvarId!)).toList
 
 end Meta
 

@@ -332,11 +332,13 @@ theorem LawfulEqCmp.compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
 theorem LawfulEqCmp.compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
   beq_iff_eq.trans compare_eq_iff_eq
 
+/-- The corresponding lemma for `LawfulEqCmp` is `LawfulEqCmp.compare_eq_iff_eq` -/
 @[simp, grind]
 theorem LawfulEqOrd.compare_eq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} :
     compare a b = .eq ↔ a = b :=
   LawfulEqCmp.compare_eq_iff_eq
 
+/-- The corresponding lemma for `LawfulEqCmp` is `LawfulEqCmp.compare_beq_iff_eq` -/
 @[simp, grind]
 theorem LawfulEqOrd.compare_beq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} :
     compare a b == .eq ↔ a = b :=

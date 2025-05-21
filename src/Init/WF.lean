@@ -10,6 +10,8 @@ import Init.SizeOf
 import Init.BinderNameHint
 import Init.Data.Nat.Basic
 
+@[expose] section
+
 universe u v
 
 /--
@@ -253,8 +255,7 @@ abbrev measure {α : Sort u} (f : α → Nat) : WellFoundedRelation α :=
 abbrev sizeOfWFRel {α : Sort u} [SizeOf α] : WellFoundedRelation α :=
   measure sizeOf
 
-instance (priority := low) [SizeOf α] : WellFoundedRelation α :=
-  sizeOfWFRel
+attribute [instance low] sizeOfWFRel
 
 namespace Prod
 open WellFounded
@@ -460,5 +461,4 @@ Reverse direction of `dite_eq_ite`. Used by the well-founded definition preproce
 context of a termination proof inside `if-then-else` with the condition.
 -/
 @[wf_preprocess] theorem ite_eq_dite [Decidable P] :
-    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := by
-  rfl
+    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := rfl

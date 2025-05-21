@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 
 namespace Lean.Meta.Grind.Arith.CommRing
 /-- Returns `some ringId` if `a` and `b` are elements of the same ring. -/
@@ -38,57 +39,81 @@ private def toRingExpr? (e : Expr) : RingM (Option RingExpr) := do
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides `m`.
-If `unitOnly` is true, only equations with a unit leading coefficient are considered.
+Remark: if the current ring does not satisfy the property
+```
+∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
+```
+then the leading coefficient of the equation must also divide `k`
 -/
-def _root_.Lean.Grind.CommRing.Mon.findSimp? (m : Mon) (unitOnly : Bool := false) : RingM (Option EqCnstr) :=
-  go m
-where
-  go : Mon → RingM (Option EqCnstr)
+def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
+  let checkCoeff ← checkCoeffDvd
+  let noZeroDiv ← noZeroDivisors
+  let rec go : Mon → RingM (Option EqCnstr)
     | .unit => return none
     | .mult pw m' => do
       for c in (← getRing).varToBasis[pw.x]! do
-        if !unitOnly || c.p.lc.natAbs == 1 then
+        if !checkCoeff || noZeroDiv || (c.p.lc ∣ k) then
         if c.p.divides m then
           return some c
       go m'
+  go m
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides some
 monomial in `p`.
-If `unitOnly` is true, only equations with a unit leading coefficient are considered.
 -/
-def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) (unitOnly : Bool := false) : RingM (Option EqCnstr) := do
+def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) : RingM (Option EqCnstr) := do
   match p with
   | .num _ => return none
-  | .add _ m p =>
-    match (← m.findSimp? unitOnly) with
+  | .add k m p =>
+    match (← m.findSimp? k) with
     | some c => return some c
-    | none => p.findSimp? unitOnly
+    | none => p.findSimp?
 
-/-- Simplifies `c` using `c'`. -/
-def EqCnstr.simplify1 (c c' : EqCnstr) : RingM (Option EqCnstr) := do
-  let some r := c'.p.simp? c.p (← nonzeroChar?) | return none
-  let c := { c with
+/-- Simplifies `d.p` using `c`, and returns an extended polynomial derivation. -/
+def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyDerivation := do
+  let some r := d.p.simp? c.p (← nonzeroChar?) | return d
+  incSteps
+  trace_goal[grind.ring.simp] "{← r.p.denoteExpr}"
+  return .step r.p r.k₁ d r.k₂ r.m₂ c
+
+/-- Simplified `d.p` using the current basis, and returns the extended polynomial derivation. -/
+def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
+  let mut d := d
+  repeat
+    if (← checkMaxSteps) then return d
+    let some c ← d.p.findSimp? |
+      trace_goal[grind.debug.ring.simp] "simplified{indentD (← d.denoteExpr)}"
+      return d
+    d ← d.simplifyWith c
+  return d
+
+/-- Simplifies `c₁` using `c₂`. -/
+def EqCnstr.simplifyWithCore (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
+  let some r := c₁.p.simp? c₂.p (← nonzeroChar?) | return none
+  let c := { c₁ with
     p := r.p
-    h := .simp c' c r.k₁ r.k₂ r.m
+    h := .simp r.k₁ c₁ r.k₂ r.m₂ c₂
   }
+  incSteps
   trace_goal[grind.ring.simp] "{← c.p.denoteExpr}"
   return some c
 
-/-- Keep simplifying `c` with `c'` until it is not applicable anymore. -/
-def EqCnstr.simplifyWith (c c' : EqCnstr) : RingM EqCnstr := do
-  let mut c := c
-  repeat
-    checkSystem "ring"
-    let some r ← c.simplify1 c' | return c
-    trace_goal[grind.debug.ring.simp] "simplifying{indentD (← c.denoteExpr)}\nwith{indentD (← c'.denoteExpr)}"
-    c := r
+/-- Simplifies `c₁` using `c₂`. -/
+def EqCnstr.simplifyWith (c₁ c₂ : EqCnstr) : RingM EqCnstr := do
+  let some c ← c₁.simplifyWithCore c₂ | return c₁
   return c
+
+/-- Simplifies `c₁` using `c₂` exhaustively. -/
+partial def EqCnstr.simplifyWithExhaustively (c₁ c₂ : EqCnstr) : RingM EqCnstr := do
+  let some c ← c₁.simplifyWithCore c₂ | return c₁
+  c.simplifyWithExhaustively c₂
 
 /-- Simplify the given equation constraint using the current basis. -/
 def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
+    if (← checkMaxSteps) then return c
     let some c' ← c.p.findSimp? |
       trace_goal[grind.debug.ring.simp] "simplified{indentD (← c.denoteExpr)}"
       return c
@@ -101,7 +126,7 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
   if k == 0 then
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   else if (← hasChar) then
-    setInconsistent c
+    c.setUnsat
   else
     -- Remark: we currently don't do anything if the characteristic is not known.
     trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
@@ -119,30 +144,42 @@ def EqCnstr.simplifyAndCheck (c : EqCnstr) : RingM (Option EqCnstr) := do
   else
     return some c
 
-def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
+private def addSorted (c : EqCnstr) : List EqCnstr → List EqCnstr
+  | [] => [c]
+  | c' :: cs =>
+    if c.p.lm.grevlex c'.p.lm == .gt then
+      c :: c' :: cs
+    else
+      c' :: addSorted c cs
+
+def addToBasisCore (c : EqCnstr) : RingM Unit := do
   let .add _ m _ := c.p | return ()
   let .mult pw _ := m | return ()
-  let x := pw.x
-  let cs := (← getRing).varToBasis[x]!
-  let cs ← cs.filterMapM fun c' => do
-    let .add _ m' _ := c'.p | return none
-    if m.divides m' then
-      let c' ← c'.simplifyWith c'
-      if (← c'.checkConstant) then
-        return none
-      else
-        return some c'
-    else
-      return some c'
-  modifyRing fun s => { s with varToBasis := s.varToBasis.set x cs }
+  modifyRing fun s => { s with
+    varToBasis := s.varToBasis.modify pw.x (addSorted c)
+    recheck := true
+  }
 
 def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
+  if (← checkMaxSteps) then return ()
   trace_goal[grind.ring.assert.queue] "{← c.denoteExpr}"
   modifyRing fun s => { s with queue := s.queue.insert c }
 
 def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
-  trace[grind.ring.superpose] "{← c.denoteExpr}"
-  return ()
+  if (← checkMaxSteps) then return ()
+  let .add _ m _ := c.p | return ()
+  go m
+where
+  go : Mon → RingM Unit
+    | .unit => return ()
+    | .mult pw m => do
+      let x := pw.x
+      let cs := (← getRing).varToBasis[x]!
+      for c' in cs do
+        let r ← c.p.spolM c'.p
+        trace_goal[grind.ring.superpose] "{← c.denoteExpr}\nwith: {← c'.denoteExpr}\nresult: {← r.spol.denoteExpr} = 0"
+        addToQueue (← mkEqCnstr r.spol <| .superpose r.k₁ r.m₁ c r.k₂ r.m₂ c')
+      go m
 
 /--
 Tries to convert the leading monomial into a monic one.
@@ -152,6 +189,9 @@ if the ring has a nonzero characteristic `p` and `gcd k p = 1`, then
 `k` has an inverse.
 
 It also handles the easy case where `k` is `-1`.
+
+Remark: if the ring implements the class `NoNatZeroDivisors`, then
+the coefficients are divided by the gcd of all coefficients.
 -/
 def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
   let k := c.p.lc
@@ -163,21 +203,44 @@ def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
       -- `α*k = 1 (mod p)`
       let α := if α < 0 then α % p else α
       return { c with p := c.p.mulConstC α p, h := .mul α c }
-    else
-      return c
-  else if k == -1 then
+  if (← noZeroDivisors) then
+    let g : Int := c.p.gcdCoeffs
+    if g != 1 then
+      let g := if k < 0 then -g else g
+      return { c with p := c.p.divConst g, h := .div g c }
+  if k < 0 then
     return { c with p := c.p.mulConst (-1), h := .mul (-1) c }
-  else
-    return c
+  return c
+
+def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
+  trace[grind.debug.ring.simpBasis] "using: {← c.denoteExpr}"
+  let .add _ m _ := c.p | return ()
+  let rec go (m' : Mon) : RingM Unit := do
+    match m' with
+    | .unit => return ()
+    | .mult pw m' => goVar m pw.x; go m'
+  go m
+where
+  goVar (m : Mon) (x : Var) : RingM Unit := do
+    let cs := (← getRing).varToBasis[x]!
+    if cs.isEmpty then return ()
+    modifyRing fun s => { s with varToBasis := s.varToBasis.set x {} }
+    for c' in cs do
+      trace[grind.debug.ring.simpBasis] "target: {← c'.denoteExpr}"
+      let .add _ m' _ := c'.p | pure ()
+      if m.divides m' then
+        let c'' ← c'.simplifyWithExhaustively c
+        trace[grind.debug.ring.simpBasis] "simplified: {← c''.denoteExpr}"
+        addToQueue c''
+      else
+        addToBasisCore c'
 
 def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   let c ← c.toMonic
   c.simplifyBasis
   c.superposeWith
-  let .add _ m _ := c.p | return ()
-  let .mult pw _ := m | return ()
   trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
-  modifyRing fun s => { s with varToBasis := s.varToBasis.modify pw.x (c :: ·) }
+  addToBasisCore c
 
 def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
   let some c ← c.simplifyAndCheck | return ()
@@ -190,6 +253,30 @@ def addNewEq (c : EqCnstr) : RingM Unit := do
   else
     c.addToQueue
 
+/-- Returns `true` if `c.d.p` is the constant polynomial. -/
+def DiseqCnstr.checkConstant (c : DiseqCnstr) : RingM Bool := do
+  let .num k := c.d.p | return false
+  if k == 0 then
+    c.setUnsat
+  else
+    trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
+  return true
+
+def DiseqCnstr.simplify (c : DiseqCnstr) : RingM DiseqCnstr :=
+  withCheckCoeffDvd do
+    -- We must enable `checkCoeffDvd := true`. See comments at `PolyDerivation`.
+    return { c with d := (← c.d.simplify) }
+
+def saveDiseq (c : DiseqCnstr) : RingM Unit := do
+  trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
+  modifyRing fun s => { s with diseqs := s.diseqs.push c }
+
+def addNewDiseq (c : DiseqCnstr) : RingM Unit := do
+  let c ← c.simplify
+  if (← c.checkConstant) then
+    return ()
+  saveDiseq c
+
 @[export lean_process_ring_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
@@ -199,17 +286,6 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
-    -- TODO: delete this `if` after simplifier is fully integrated
-    if let .num k := p then
-      if k == 0 then
-        trace_goal[grind.ring.assert.trivial] "{← p.denoteExpr} = 0"
-      else if (← hasChar) then
-        trace_goal[grind.ring.assert.unsat] "{← p.denoteExpr} = 0"
-        setEqUnsat k a b ra rb
-      else
-        -- Remark: we currently don't do anything if the characteristic is not known.
-        trace_goal[grind.ring.assert.discard] "{← p.denoteExpr} = 0"
-      return ()
     addNewEq (← mkEqCnstr p (.core a b ra rb))
 
 @[export lean_process_ring_diseq]
@@ -220,16 +296,98 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
-    if let .num k := p then
-      if k == 0 then
-        trace_goal[grind.ring.assert.unsat] "{← p.denoteExpr} ≠ 0"
-        setNeUnsat a b ra rb
-      else
-        -- Remark: if the characteristic is known, it is trivial.
-        -- Otherwise, we don't do anything.
-        trace_goal[grind.ring.assert.trivial] "{← p.denoteExpr} ≠ 0"
-      return ()
-    trace_goal[grind.ring.assert.store] "{← p.denoteExpr} ≠ 0"
-    -- TODO: save disequalitys
+    addNewDiseq {
+      lhs := a, rhs := b
+      rlhs := ra, rrhs := rb
+      d := .input p
+    }
+
+/--
+Returns `true` if the todo queue is not empty or the `recheck` flag is set to `true`
+-/
+private def needCheck : RingM Bool := do
+  unless (← isQueueEmpty) do return true
+  return (← getRing).recheck
+
+private def checkDiseqs : RingM Unit := do
+  let diseqs := (← getRing).diseqs
+  modifyRing fun s => { s with diseqs := {} }
+  -- No indexing simple
+  for diseq in diseqs do
+    addNewDiseq diseq
+    if (← isInconsistent) then return
+
+abbrev PropagateEqMap := Std.HashMap (Int × Poly) (Expr × RingExpr)
+
+/--
+Propagates implied equalities.
+-/
+private def propagateEqs : RingM Unit := do
+  if (← isInconsistent) then return ()
+  /-
+  This is a very simple procedure that does not use any indexing data-structure.
+  We don't even cache the simplified polynomials.
+  TODO: optimize
+  -/
+  let mut map : PropagateEqMap := {}
+  for a in (← getRing).vars do
+    if (← checkMaxSteps) then return ()
+    let some ra ← toRingExpr? a | unreachable!
+    map ← process map a ra
+  for (a, ra) in (← getRing).denote do
+    if (← checkMaxSteps) then return ()
+    map ← process map a.expr ra
+where
+  process (map : PropagateEqMap) (a : Expr) (ra : RingExpr) : RingM PropagateEqMap := do
+    let d : PolyDerivation := .input (← ra.toPolyM)
+    let d ← d.simplify
+    let k := d.getMultiplier
+    trace_goal[grind.debug.ring.impEq] "{a}, {k}, {← d.p.denoteExpr}"
+    if let some (b, rb) := map[(k, d.p)]? then
+      -- TODO: use `isEqv` more effectively
+      unless (← isEqv a b) do
+        let p ← (ra.sub rb).toPolyM
+        let d : PolyDerivation := .input p
+        let d ← d.simplify
+        if d.getMultiplier != 1 then
+          unless (← noZeroDivisors) do
+            -- Given the multiplier `k' = d.getMultiplier`, we have that `k*(a - b) = 0`,
+            -- but we cannot eliminate the `k` because we don't have `noZeroDivisors`.
+            trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, noZeroDivisors: false"
+            return map.insert (k, d.p) (a, ra)
+        trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
+        propagateEq a b ra rb d
+      return map
+    else
+      return map.insert (k, d.p) (a, ra)
+
+def checkRing : RingM Bool := do
+  unless (← needCheck) do return false
+  trace_goal[grind.debug.ring.check] "{(← getRing).type}"
+  repeat
+    checkSystem "ring"
+    let some c ← getNext? | break
+    trace_goal[grind.debug.ring.check] "{← c.denoteExpr}"
+    c.addToBasis
+    if (← isInconsistent) then return true
+    if (← checkMaxSteps) then return true
+  checkDiseqs
+  propagateEqs
+  modifyRing fun s => { s with recheck := false }
+  return true
+
+def check : GoalM Bool := do
+  if (← checkMaxSteps) then return false
+  let mut progress := false
+  checkInvariants
+  try
+    for ringId in [:(← get').rings.size] do
+      let r ← RingM.run ringId checkRing
+      progress := progress || r
+      if (← isInconsistent) then
+        return true
+    return progress
+  finally
+    checkInvariants
 
 end Lean.Meta.Grind.Arith.CommRing

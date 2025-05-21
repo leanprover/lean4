@@ -3,6 +3,10 @@ source ../common.sh
 
 ./clean.sh
 
+# Test that precompilation works with a Lake import
+# https://github.com/leanprover/lean4/issues/7388
+test_run -v build LakeTest
+
 # Test that the link & load order of precompiled libraries is correct
 # https://github.com/leanprover/lean4/issues/7790
 test_run -v exe orderTest
@@ -21,7 +25,7 @@ test_maybe_err "-lBogus" build -KlinkArgs=-lBogus
 test_run build -R
 echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 test_err "Building Foo" build --rehash
-rm .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
+test_cmd rm .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 test_run build -R -KplatformIndependent=true
 echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 test_run build --rehash --no-build

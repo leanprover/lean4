@@ -145,7 +145,7 @@ Compares two floating point numbers for strict inequality.
 
 This function does not reduce in the kernel. It is compiled to the C inequality operator.
 -/
-@[extern "lean_float32_decLt"] opaque Float32.decLt (a b : Float32) : Decidable (a < b) :=
+@[extern "lean_float32_decLt", instance] opaque Float32.decLt (a b : Float32) : Decidable (a < b) :=
   match a, b with
   | ⟨a⟩, ⟨b⟩ => float32Spec.decLt a b
 
@@ -154,12 +154,9 @@ Compares two floating point numbers for non-strict inequality.
 
 This function does not reduce in the kernel. It is compiled to the C inequality operator.
 -/
-@[extern "lean_float32_decLe"] opaque Float32.decLe (a b : Float32) : Decidable (a ≤ b) :=
+@[extern "lean_float32_decLe", instance] opaque Float32.decLe (a b : Float32) : Decidable (a ≤ b) :=
   match a, b with
   | ⟨a⟩, ⟨b⟩ => float32Spec.decLe a b
-
-instance float32DecLt (a b : Float32) : Decidable (a < b) := Float32.decLt a b
-instance float32DecLe (a b : Float32) : Decidable (a ≤ b) := Float32.decLe a b
 
 /--
 Converts a floating-point number to a string.
@@ -292,8 +289,11 @@ implementation.
 instance : Inhabited Float32 where
   default := UInt64.toFloat32 0
 
+protected def Float32.repr (n : Float32) (prec : Nat) : Std.Format :=
+  if n < UInt64.toFloat32 0 then Repr.addAppParen (toString n) prec else toString n
+
 instance : Repr Float32 where
-  reprPrec n prec := if n < UInt64.toFloat32 0 then Repr.addAppParen (toString n) prec else toString n
+  reprPrec := Float32.repr
 
 instance : ReprAtom Float32  := ⟨⟩
 

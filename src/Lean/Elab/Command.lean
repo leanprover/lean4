@@ -74,6 +74,11 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  /--
+  Attributes that should be applied to all matching declaration in the section. Inherited from
+  parent scopes.
+  -/
+  attrs : List (TSyntax ``Parser.Term.attrInstance) := []
   deriving Inhabited
 
 structure State where
@@ -83,6 +88,7 @@ structure State where
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
+  auxDeclNGen    : DeclNameGenerator := {}
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
@@ -153,6 +159,8 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
   messages    := messages
   scopes      := [{ header := "", opts := opts }]
   maxRecDepth := maxRecDepth.get opts
+  -- Outside of declarations, fall back to a module-specific prefix
+  auxDeclNGen := { namePrefix := mkPrivateName env .anonymous }
 }
 
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the
@@ -198,6 +206,10 @@ instance : AddErrorMessageContext CommandElabM where
     let msg ← addMacroStack msg ctx.macroStack
     return (ref, msg)
 
+instance : MonadDeclNameGenerator CommandElabM where
+  getDeclNGen := return (← get).auxDeclNGen
+  setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
+
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -220,6 +232,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
   let x : EIO _ _ := x.run coreCtx {
     env
     ngen := s.ngen
+    auxDeclNGen := s.auxDeclNGen
     nextMacroScope := s.nextMacroScope
     infoState.enabled := s.infoState.enabled
     traceState := s.traceState
@@ -230,8 +243,9 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     env                      := coreS.env
     nextMacroScope           := coreS.nextMacroScope
     ngen                     := coreS.ngen
+    auxDeclNGen              := coreS.auxDeclNGen
     infoState.trees          := s.infoState.trees.append coreS.infoState.trees
-    -- we assume substitution of `assingment` has already happened, but for lazy assignments we only
+    -- we assume substitution of `assignment` has already happened, but for lazy assignments we only
     -- do it at the very end
     infoState.lazyAssignment := coreS.infoState.lazyAssignment
     traceState.traces        := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
@@ -307,7 +321,10 @@ def wrapAsync {α β : Type} (act : α → CommandElabM β) (cancelTk? : Option 
     CommandElabM (α → EIO Exception β) := do
   let ctx ← read
   let ctx := { ctx with cancelTk? }
+  let (childNGen, parentNGen) := (← getDeclNGen).mkChild
+  setDeclNGen parentNGen
   let st ← get
+  let st := { st with auxDeclNGen := childNGen }
   return (act · |>.run ctx |>.run' st)
 
 open Language in
@@ -364,15 +381,27 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
       runLinters stx
     return
 
+  -- linters should have access to the complete info tree and message log
+  let mut snaps := (← get).snapshotTasks
+  if let some elabSnap := (← read).snap? then
+    snaps := snaps.push { stx? := none, cancelTk? := none, task := elabSnap.new.result!.map (sync := true) toSnapshotTree }
+  let tree := SnapshotTree.mk { diagnostics := .empty } snaps
+  let treeTask ← tree.waitAll
+
   -- We only start one task for all linters for now as most linters are fast and we simply want
   -- to unblock elaboration of the next command
   let cancelTk ← IO.CancelToken.new
   let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun infoSt => do
+    let messages := tree.getAll.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) .empty
+    -- do not double-report
+    let messages := messages.markAllReported
+    modify fun st => { st with messages := st.messages ++ messages }
     modifyInfoState fun _ => infoSt
     runLinters stx
 
-  -- linters should have access to the complete info tree
-  let task ← BaseIO.mapTask (t := (← getInfoState).substituteLazy) lintAct
+  let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
+    BaseIO.mapTask (t := treeTask) fun _ =>
+      lintAct infoSt
   logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
@@ -579,10 +608,17 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   try
-    -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
-    -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
-    -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
-    elabCommand stx
+    try
+      -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
+      -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
+      -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
+      elabCommand stx
+    finally
+      -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
+      -- be the caller of this function and add new messages and info trees
+      if let some snap := (← read).snap? then
+        snap.new.resolve default
+
     -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
     -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
     -- rather than engineer a general solution.
@@ -590,11 +626,6 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
       withLogging do
         runLintersAsync stx
   finally
-    -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
-    -- be the caller of this function and add new messages and info trees
-    if let some snap := (← read).snap? then
-      snap.new.resolve default
-
     let msgs := (← get).messages
     modify fun st => { st with
       messages := initMsgs ++ msgs
@@ -792,6 +823,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       nextMacroScope := s.nextMacroScope
       maxRecDepth := ctx.maxRecDepth
       ngen := s.ngen
+      auxDeclNGen := s.auxDeclNGen
       scopes := [{ header := "", opts := ctx.options }]
       infoState.enabled := s.infoState.enabled
     }
@@ -799,6 +831,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
     env := commandState.env
     nextMacroScope := commandState.nextMacroScope
     ngen := commandState.ngen
+    auxDeclNGen := commandState.auxDeclNGen
     traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
   }
   if throwOnError then

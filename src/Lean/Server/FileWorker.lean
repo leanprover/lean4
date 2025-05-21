@@ -417,6 +417,8 @@ def setupImports
 
   return .ok {
     mainModuleName := meta.mod
+    isModule := Elab.HeaderSyntax.isModule stx
+    imports
     opts
     plugins := fileSetupResult.plugins
   }
@@ -678,7 +680,7 @@ section MessageHandling
     | none => ServerTask.IO.asTask do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
+      let completions := ImportCompletion.find text ⟨st.doc.initSnap.stx⟩ params availableImports
       ctx.chanOut.sync.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -688,7 +690,7 @@ section MessageHandling
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
+      let completions := ImportCompletion.find text ⟨st.doc.initSnap.stx⟩ params availableImports
       ctx.chanOut.sync.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -706,7 +708,7 @@ section MessageHandling
       | "textDocument/completion" =>
         let params ← parseParams CompletionParams params
         -- Must not wait on import processing snapshot
-        if ! ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params then
+        if ! ImportCompletion.isImportCompletionRequest st.doc.meta.text ⟨st.doc.initSnap.stx⟩ params then
           return false
         let importCachingTask ← handleImportCompletionRequest id params
         set { st with importCachingTask? := some importCachingTask }

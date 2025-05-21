@@ -9,7 +9,6 @@ prelude
 import Init.Control.Basic
 import Init.Control.Id
 import Init.Control.Lawful
-import Init.Data.List.Basic
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -238,8 +237,8 @@ def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s
     let s' ← f s a
     List.foldlM f s' as
 
-@[simp] theorem foldlM_nil [Monad m] {f : β → α → m β} {b : β} : [].foldlM f b = pure b := rfl
-@[simp] theorem foldlM_cons [Monad m] {f : β → α → m β} {b : β} {a : α} {l : List α} :
+@[simp, grind] theorem foldlM_nil [Monad m] {f : β → α → m β} {b : β} : [].foldlM f b = pure b := rfl
+@[simp, grind] theorem foldlM_cons [Monad m] {f : β → α → m β} {b : β} {a : α} {l : List α} :
     (a :: l).foldlM f b = f b a >>= l.foldlM f := by
   simp [List.foldlM]
 
@@ -262,7 +261,7 @@ example [Monad m] (f : α → β → m β) :
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s) (l : List α) : m s :=
   l.reverse.foldlM (fun s a => f a s) init
 
-@[simp] theorem foldrM_nil [Monad m] {f : α → β → m β} {b : β} : [].foldrM f b = pure b := rfl
+@[simp, grind] theorem foldrM_nil [Monad m] {f : α → β → m β} {b : β} : [].foldrM f b = pure b := rfl
 
 /--
 Maps `f` over the list and collects the results with `<|>`. The result for the end of the list is
@@ -341,9 +340,9 @@ def findM? {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : Lis
 theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (as : List α) :
     findM? (m := m) (pure <| p ·) as = pure (as.find? p) := by
   induction as with
-  | nil => rfl
+  | nil => simp [findM?, find?_nil]
   | cons a as ih =>
-    simp only [findM?, find?]
+    simp only [findM?, find?_cons]
     cases p a with
     | true  => simp
     | false => simp [ih]

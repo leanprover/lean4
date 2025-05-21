@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.List.Control
+import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Attach
 import Init.Data.List.Monadic
@@ -23,6 +25,11 @@ open Nat
 
 /-! ## Monadic operations -/
 
+@[simp] theorem map_toList_inj [Monad m] [LawfulMonad m]
+    {xs : m (Array α)} {ys : m (Array α)} :
+   toList <$> xs = toList <$> ys ↔ xs = ys :=
+  _root_.map_inj_right (by simp)
+
 /-! ### mapM -/
 
 @[simp] theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Array α} {f : α → β} :
@@ -31,6 +38,11 @@ open Nat
 
 @[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f :=
   mapM_pure
+
+@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {xs : Array α} :
+    (xs.map f).mapM g = xs.mapM (g ∘ f) := by
+  rcases xs with ⟨xs⟩
+  simp
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] {f : α → m β} {xs ys : Array α} :
     (xs ++ ys).mapM f = (return (← xs.mapM f) ++ (← ys.mapM f)) := by
@@ -264,7 +276,7 @@ end Array
 
 namespace List
 
-theorem filterM_toArray [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} :
+@[grind =] theorem filterM_toArray [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} :
     l.toArray.filterM p = toArray <$> l.filterM p := by
   simp only [Array.filterM, filterM, foldlM_toArray, bind_pure_comp, Functor.map_map]
   conv => lhs; rw [← reverse_nil]
@@ -284,7 +296,7 @@ theorem filterM_toArray [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bo
   subst w
   rw [filterM_toArray]
 
-theorem filterRevM_toArray [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} :
+@[grind =] theorem filterRevM_toArray [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} :
     l.toArray.filterRevM p = toArray <$> l.filterRevM p := by
   simp [Array.filterRevM, filterRevM]
   rw [← foldlM_reverse, ← foldlM_toArray, ← Array.filterM, filterM_toArray]
@@ -296,7 +308,7 @@ theorem filterRevM_toArray [Monad m] [LawfulMonad m] {l : List α} {p : α → m
   subst w
   rw [filterRevM_toArray]
 
-theorem filterMapM_toArray [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Option β)} :
+@[grind =] theorem filterMapM_toArray [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Option β)} :
     l.toArray.filterMapM f = toArray <$> l.filterMapM f := by
   simp [Array.filterMapM, filterMapM]
   conv => lhs; rw [← reverse_nil]
@@ -314,7 +326,7 @@ theorem filterMapM_toArray [Monad m] [LawfulMonad m] {l : List α} {f : α → m
   subst w
   rw [filterMapM_toArray]
 
-@[simp] theorem flatMapM_toArray [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Array β)} :
+@[simp, grind =] theorem flatMapM_toArray [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Array β)} :
     l.toArray.flatMapM f = toArray <$> l.flatMapM (fun a => Array.toList <$> f a) := by
   simp only [Array.flatMapM, bind_pure_comp, foldlM_toArray, flatMapM]
   conv => lhs; arg 2; change [].reverse.flatten.toArray

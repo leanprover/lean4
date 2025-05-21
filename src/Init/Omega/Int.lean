@@ -121,7 +121,7 @@ theorem ofNat_natAbs (a : Int) : (a.natAbs : Int) = if 0 ≤ a then a else -a :=
   rw [Int.natAbs.eq_def]
   split <;> rename_i n
   · simp only [Int.ofNat_eq_coe]
-    rw [if_pos (Int.ofNat_nonneg n)]
+    rw [if_pos (Int.natCast_nonneg n)]
   · simp; rfl
 
 theorem natAbs_dichotomy {a : Int} : 0 ≤ a ∧ a.natAbs = a ∨ a < 0 ∧ a.natAbs = -a := by

@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.List.Nat.Find
+import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Attach
 import Init.Data.Array.Range
@@ -23,10 +24,11 @@ open Nat
 
 /-! ### findSome? -/
 
-@[simp] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
-@[simp] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
+@[simp, grind] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
+@[simp, grind] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
   cases xs; simp [List.findSome?_append]
 
+@[grind]
 theorem findSome?_singleton {a : α} {f : α → Option β} : #[a].findSome? f = f a := by
   simp
 

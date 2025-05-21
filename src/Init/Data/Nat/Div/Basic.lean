@@ -10,6 +10,8 @@ import Init.WF
 import Init.WFTactics
 import Init.Data.Nat.Basic
 
+@[expose] section
+
 namespace Nat
 
 /--
@@ -128,6 +130,26 @@ theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
     have : (n - k) / k ≤ n - k := div_le_self (n - k) k
     have := Nat.add_le_of_le_sub hKN this
     exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
+
+/--
+Division of two divisible natural numbers. Division by `0` returns `0`.
+
+This operation uses an optimized implementation, specialized for two divisible natural numbers.
+
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `Nat.divExact 21 3 (by decide) = 7`
+ * `Nat.divExact 0 22 (by decide) = 0`
+ * `Nat.divExact 0 0 (by decide) = 0`
+-/
+@[extern "lean_nat_div_exact"]
+protected def divExact (x y : @& Nat) (h : y ∣ x) : Nat :=
+  x / y
+
+@[simp]
+theorem divExact_eq_div {x y : Nat} (h : y ∣ x) : x.divExact y h = x / y := rfl
 
 /--
 The modulo operator, which computes the remainder when dividing one natural number by another.

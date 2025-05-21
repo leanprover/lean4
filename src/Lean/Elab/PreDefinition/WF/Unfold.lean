@@ -75,7 +75,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
 def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
   let baseName := preDef.declName
   let name := Name.str baseName unfoldThmSuffix
-  mapError (f := (m!"Cannot derive {name}{indentD ·}")) do
+  prependError m!"Cannot derive {name}" do
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope preDef.value fun xs body => do
       let us := preDef.levelParams.map mkLevelParam
@@ -109,7 +109,7 @@ def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM U
   let baseName := preDef.declName
   let name := Name.str baseName unfoldThmSuffix
   let unaryEqName := Name.str unaryPreDefName unfoldThmSuffix
-  mapError (f := (m!"Cannot derive {name} from {unaryEqName}{indentD ·}")) do
+  prependError m!"Cannot derive {name} from {unaryEqName}" do
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope preDef.value fun xs body => do
       let us := preDef.levelParams.map mkLevelParam

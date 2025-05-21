@@ -555,4 +555,19 @@ def searchAssigment : GoalM Unit := do
   -- TODO: constructing a model is only worth if `grind` will **not** continue searching.
   assignElimVars
 
+/--
+Returns `true` if work/progress has been done.
+There are two kinds of progress:
+- An assignment for satisfying constraints was constructed.
+- An inconsistency was detected.
+
+The result is `false` if module already has a satisfying assignment.
+-/
+def check : GoalM Bool := do
+  if (← hasAssignment) then
+    return false
+  else
+    searchAssigment
+    return true
+
 end Lean.Meta.Grind.Arith.Cutsat

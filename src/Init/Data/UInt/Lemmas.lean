@@ -6,9 +6,12 @@ Authors: Leonardo de Moura, François G. Dorais, Mario Carneiro, Mac Malone, Mar
 module
 
 prelude
-import Init.Data.UInt.Basic
+import all Init.Data.UInt.Basic
+import all Init.Data.UInt.BasicAux
 import Init.Data.Fin.Lemmas
-import Init.Data.Fin.Bitwise
+import all Init.Data.Fin.Bitwise
+import all Init.Data.BitVec.Basic
+import all Init.Data.BitVec.BasicAux
 import Init.Data.BitVec.Lemmas
 import Init.Data.BitVec.Bitblast
 import Init.Data.Nat.Div.Lemmas
@@ -183,20 +186,6 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
     · apply Nat.lt_of_lt_of_le
       · apply toNat_lt_size
       · simpa using h2
-
-  open $typeName (toNat_mod_lt modn) in
-  set_option linter.deprecated false in
-  @[deprecated toNat_mod_lt (since := "2024-09-24")]
-  protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m := by
-    intro u
-    simp only [(· % ·)]
-    simp only [gt_iff_lt, toNat, modn, Fin.modn_val, BitVec.natCast_eq_ofNat, BitVec.toNat_ofNat,
-      Nat.reducePow]
-    rw [Nat.mod_eq_of_lt]
-    · apply Nat.mod_lt
-    · apply Nat.lt_of_le_of_lt
-      · apply Nat.mod_le
-      · apply Fin.is_lt
 
   protected theorem mod_lt (a : $typeName) {b : $typeName} : 0 < b → a % b < b := by
     simp only [lt_iff_toBitVec_lt, mod_def]
@@ -448,17 +437,17 @@ theorem USize.size_dvd_uInt64Size : USize.size ∣ UInt64.size := by cases USize
 
 @[simp] theorem UInt32.toUInt64_mod_4294967296 (n : UInt32) : n.toUInt64 % 4294967296 = n.toUInt64 := UInt64.toNat.inj (by simp)
 
-@[simp] theorem Fin.mk_uInt8ToNat (n : UInt8) : Fin.mk n.toNat n.toFin.isLt = n.toFin := rfl
-@[simp] theorem Fin.mk_uInt16ToNat (n : UInt16) : Fin.mk n.toNat n.toFin.isLt = n.toFin := rfl
-@[simp] theorem Fin.mk_uInt32ToNat (n : UInt32) : Fin.mk n.toNat n.toFin.isLt = n.toFin := rfl
-@[simp] theorem Fin.mk_uInt64ToNat (n : UInt64) : Fin.mk n.toNat n.toFin.isLt = n.toFin := rfl
-@[simp] theorem Fin.mk_uSizeToNat (n : USize) : Fin.mk n.toNat n.toFin.isLt = n.toFin := rfl
+@[simp] theorem Fin.mk_uInt8ToNat (n : UInt8) : Fin.mk n.toNat (by exact n.toFin.isLt) = n.toFin := rfl
+@[simp] theorem Fin.mk_uInt16ToNat (n : UInt16) : Fin.mk n.toNat (by exact n.toFin.isLt) = n.toFin := rfl
+@[simp] theorem Fin.mk_uInt32ToNat (n : UInt32) : Fin.mk n.toNat (by exact n.toFin.isLt) = n.toFin := rfl
+@[simp] theorem Fin.mk_uInt64ToNat (n : UInt64) : Fin.mk n.toNat (by exact n.toFin.isLt) = n.toFin := rfl
+@[simp] theorem Fin.mk_uSizeToNat (n : USize) : Fin.mk n.toNat (by exact n.toFin.isLt) = n.toFin := rfl
 
-@[simp] theorem BitVec.ofNatLT_uInt8ToNat (n : UInt8) : BitVec.ofNatLT n.toNat n.toFin.isLt = n.toBitVec := rfl
-@[simp] theorem BitVec.ofNatLT_uInt16ToNat (n : UInt16) : BitVec.ofNatLT n.toNat n.toFin.isLt = n.toBitVec := rfl
-@[simp] theorem BitVec.ofNatLT_uInt32ToNat (n : UInt32) : BitVec.ofNatLT n.toNat n.toFin.isLt = n.toBitVec := rfl
-@[simp] theorem BitVec.ofNatLT_uInt64ToNat (n : UInt64) : BitVec.ofNatLT n.toNat n.toFin.isLt = n.toBitVec := rfl
-@[simp] theorem BitVec.ofNatLT_uSizeToNat (n : USize) : BitVec.ofNatLT n.toNat n.toFin.isLt = n.toBitVec := rfl
+@[simp] theorem BitVec.ofNatLT_uInt8ToNat (n : UInt8) : BitVec.ofNatLT n.toNat (by exact n.toFin.isLt) = n.toBitVec := rfl
+@[simp] theorem BitVec.ofNatLT_uInt16ToNat (n : UInt16) : BitVec.ofNatLT n.toNat (by exact n.toFin.isLt) = n.toBitVec := rfl
+@[simp] theorem BitVec.ofNatLT_uInt32ToNat (n : UInt32) : BitVec.ofNatLT n.toNat (by exact n.toFin.isLt) = n.toBitVec := rfl
+@[simp] theorem BitVec.ofNatLT_uInt64ToNat (n : UInt64) : BitVec.ofNatLT n.toNat (by exact n.toFin.isLt) = n.toBitVec := rfl
+@[simp] theorem BitVec.ofNatLT_uSizeToNat (n : USize) : BitVec.ofNatLT n.toNat (by exact n.toFin.isLt) = n.toBitVec := rfl
 
 @[simp] theorem BitVec.ofFin_uInt8ToFin (n : UInt8) : BitVec.ofFin n.toFin = n.toBitVec := rfl
 @[simp] theorem BitVec.ofFin_uInt16ToFin (n : UInt16) : BitVec.ofFin n.toFin = n.toBitVec := rfl

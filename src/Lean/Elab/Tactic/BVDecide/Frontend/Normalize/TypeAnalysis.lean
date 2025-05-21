@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.SInt.Basic
+import Std.Tactic.BVDecide.Normalize.BitVec
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 
 /-!
@@ -38,7 +39,7 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
     -- Check that motive is `EnumInductive → Sort u`
     let motive := xs[0]!
     let motiveType ← inferType motive
-    let some (.const domTypeName [], (.sort (.param ..))) := motiveType.arrow? | return none
+    let some (.const domTypeName .., (.sort (.param ..))) := motiveType.arrow? | return none
     if domTypeName != discrTypeName then return none
 
     -- Check that resulting type is `motive discr`
@@ -78,7 +79,7 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
       let mut handledCtors := Array.mkEmpty (xs.size - 3)
       for i in [0:numConcreteCases] do
         let argType ← inferType xs[i + 2]!
-        let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
+        let some (.const ``Unit [], (.app m (.const c ..))) := argType.arrow? | return none
         if m != motive then return none
         let .ctorInfo ctorInfo ← getConstInfo c | return none
         handledCtors := handledCtors.push ctorInfo
@@ -104,7 +105,7 @@ where
     let mut handledCtors := Array.mkEmpty numCtors
     for i in [0:numCtors] do
       let argType ← inferType xs[i + 2]!
-      let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
+      let some (.const ``Unit [], (.app m (.const c ..))) := argType.arrow? | return none
       if m != motive then return none
       let .ctorInfo ctorInfo ← getConstInfo c | return none
       handledCtors := handledCtors.push ctorInfo
@@ -139,7 +140,7 @@ where
         -- remaining arguments are of the form `(h_n Unit.unit)`
         for i in [0:inductiveInfo.numCtors] do
           let .app fn (.const ``Unit.unit []) := args[i + 2]! | return false
-          let some (_, .app _ (.const relevantCtor [])) := (← inferType fn).arrow? | unreachable!
+          let some (_, .app _ (.const relevantCtor ..)) := (← inferType fn).arrow? | unreachable!
           let some ctorIdx := ctors.findIdx? (·.name == relevantCtor) | unreachable!
           if fn != params[ctorIdx + 2]! then return false
 
@@ -157,9 +158,9 @@ where
         - `(h_n InductiveEnum.ctor)` if the constructor is handled as part of the default case
         -/
         for i in [0:inductiveInfo.numCtors] do
-          let .app fn (.const argName []) := args[i + 2]! | return false
+          let .app fn (.const argName ..) := args[i + 2]! | return false
           if argName == ``Unit.unit then
-            let some (_, .app _ (.const relevantCtor [])) := (← inferType fn).arrow? | unreachable!
+            let some (_, .app _ (.const relevantCtor ..)) := (← inferType fn).arrow? | unreachable!
             let some ctorIdx := ctors.findIdx? (·.name == relevantCtor) | unreachable!
             if fn != params[ctorIdx + 2]! then return false
           else
@@ -176,6 +177,19 @@ def builtinTypes : Array Name :=
 
 @[inline]
 def isBuiltIn (n : Name) : Bool := builtinTypes.contains n
+
+def addDefaultTypeAnalysisLemmas (lemmas : SimpTheoremsArray) : PreProcessM SimpTheoremsArray := do
+  let mut lemmas := lemmas
+
+  let relevantNames := #[
+    ``ne_eq,
+    ``dif_eq_if,
+    ``Std.Tactic.BVDecide.Normalize.BitVec.getElem_eq_getLsbD,
+  ]
+  for name in relevantNames do
+    lemmas ← lemmas.addTheorem (.decl name) (mkConst name)
+
+  return lemmas
 
 partial def typeAnalysisPass : Pass where
   name := `typeAnalysis

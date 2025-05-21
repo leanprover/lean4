@@ -24,12 +24,14 @@ set_option linter.listVariables true -- Enforce naming conventions for `List`/`A
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 /-- `Vector α n` is an `Array α` with size `n`. -/
-structure Vector (α : Type u) (n : Nat) extends Array α where
+structure Vector (α : Type u) (n : Nat) where
+  /-- The underlying array. -/
+  toArray : Array α
   /-- Array size. -/
   size_toArray : toArray.size = n
 deriving Repr, DecidableEq
 
-attribute [simp] Vector.size_toArray
+attribute [simp, grind] Vector.size_toArray
 
 /--
 Converts an array to a vector. The resulting vector's size is the array's size.
@@ -37,6 +39,9 @@ Converts an array to a vector. The resulting vector's size is the array's size.
 abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
 
 namespace Vector
+
+/-- The size of a vector. -/
+abbrev size {α n} (_ : Vector α n) : Nat := n
 
 /-- Syntax for `Vector α n` -/
 syntax (name := «term#v[_,]») "#v[" withoutPosition(term,*,?) "]" : term
@@ -47,6 +52,9 @@ macro_rules
 
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
+
+/-- Convert a vector to a list. -/
+def toList (xs : Vector α n) : List α := xs.toArray.toList
 
 /-- Custom eliminator for `Vector α n` through `Array α` -/
 @[elab_as_elim]
@@ -63,7 +71,7 @@ def elimAsList {motive : Vector α n → Sort u}
   | ⟨⟨xs⟩, ha⟩ => mk xs ha
 
 /-- Make an empty vector with pre-allocated capacity. -/
-@[inline] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
+@[inline] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.emptyWithCapacity capacity, by simp⟩
 
 @[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
 abbrev mkEmpty := @emptyWithCapacity
@@ -299,6 +307,8 @@ abbrev zipWithIndex := @zipIdx
 @[inline] def ofFn (f : Fin n → α) : Vector α n :=
   ⟨Array.ofFn f, by simp⟩
 
+/-! See also `Vector.ofFnM` defined in `Init.Data.Vector.OfFn`. -/
+
 /--
 Swap two elements of a vector using `Fin` indices.
 
@@ -468,6 +478,16 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 
 @[inline] def replace [BEq α] (xs : Vector α n) (a b : α) : Vector α n :=
   ⟨xs.toArray.replace a b, by simp⟩
+
+/--
+Computes the sum of the elements of a vector.
+
+Examples:
+ * `#v[a, b, c].sum = a + (b + (c + 0))`
+ * `#v[1, 2, 5].sum = 8`
+-/
+@[inline] def sum [Add α] [Zero α] (xs : Vector α n) : α :=
+  xs.toArray.sum
 
 /--
 Pad a vector on the left with a given element.

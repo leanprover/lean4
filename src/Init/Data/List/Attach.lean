@@ -6,6 +6,7 @@ Authors: Mario Carneiro
 module
 
 prelude
+import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
 import Init.Data.List.Count
 import Init.Data.Subtype
 import Init.BinderNameHint
@@ -89,8 +90,6 @@ theorem pmap_congr_left {p q : α → Prop} {f : ∀ a, p a → β} {g : ∀ a, 
   | nil => rfl
   | cons x l ih =>
     rw [pmap, pmap, h _ mem_cons_self, ih fun a ha => h a (mem_cons_of_mem _ ha)]
-
-@[deprecated pmap_congr_left (since := "2024-09-06")] abbrev pmap_congr := @pmap_congr_left
 
 theorem map_pmap {p : α → Prop} {g : β → γ} {f : ∀ a, p a → β} {l : List α} (H) :
     map g (pmap f l H) = pmap (fun a h => g (f a h)) l H := by
@@ -237,11 +236,6 @@ theorem attachWith_ne_nil_iff {l : List α} {P : α → Prop} {H : ∀ a ∈ l, 
     l.attachWith P H ≠ [] ↔ l ≠ [] :=
   pmap_ne_nil_iff _ _
 
-@[deprecated pmap_eq_nil_iff (since := "2024-09-06")] abbrev pmap_eq_nil := @pmap_eq_nil_iff
-@[deprecated pmap_ne_nil_iff (since := "2024-09-06")] abbrev pmap_ne_nil := @pmap_ne_nil_iff
-@[deprecated attach_eq_nil_iff (since := "2024-09-06")] abbrev attach_eq_nil := @attach_eq_nil_iff
-@[deprecated attach_ne_nil_iff (since := "2024-09-06")] abbrev attach_ne_nil := @attach_ne_nil_iff
-
 @[simp]
 theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {l : List α} (h : ∀ a ∈ l, p a) (i : Nat) :
     (pmap f l h)[i]? = Option.pmap f l[i]? fun x H => h x (mem_of_getElem? H) := by
@@ -249,9 +243,8 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {l : List α} (h
   | nil => simp
   | cons hd tl hl =>
     rcases i with ⟨i⟩
-    · simp only [Option.pmap]
-      split <;> simp_all
-    · simp only [pmap, getElem?_cons_succ, hl, Option.pmap]
+    · simp
+    · simp only [pmap, getElem?_cons_succ, hl]
 
 set_option linter.deprecated false in
 @[deprecated List.getElem?_pmap (since := "2025-02-12")]
@@ -776,8 +769,6 @@ and simplifies these to the function directly taking the value.
   | nil => simp
   | cons a l ih => simp [ih, hf]
 
-@[deprecated flatMap_subtype (since := "2024-10-16")] abbrev bind_subtype := @flatMap_subtype
-
 @[simp] theorem findSome?_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.findSome? f = l.unattach.findSome? g := by
@@ -829,8 +820,6 @@ and simplifies these to the function directly taking the value.
     l.flatten.unattach = (l.map unattach).flatten := by
   unfold unattach
   induction l <;> simp_all
-
-@[deprecated unattach_flatten (since := "2024-10-14")] abbrev unattach_join := @unattach_flatten
 
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (List.replicate n x).unattach = List.replicate n x.1 := by

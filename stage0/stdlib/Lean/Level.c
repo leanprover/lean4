@@ -69,6 +69,7 @@ uint8_t l_Lean_RBNode_isRed___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_instToFormat(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLevelMax_x27(lean_object*, lean_object*);
+lean_object* l_Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_updateSucc_x21Impl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_mkData___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint32_t lean_level_depth(lean_object*);
@@ -119,6 +120,7 @@ LEAN_EXPORT lean_object* lean_level_mk_mvar(lean_object*);
 static lean_object* l_Lean_instBEqLevelMVarId___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_mkMaxAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at_Lean_Level_normalize___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_beqLevelMVarId____x40_Lean_Level___hyg_464_(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_format___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_hasParam___boxed(lean_object*);
@@ -226,6 +228,7 @@ LEAN_EXPORT lean_object* l_Lean_Level_geq___boxed(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_Level_isZero___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_depth___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_beqLevelMVarId____x40_Lean_Level___hyg_464____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_quote(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprLevelMVarId___closed__1;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
@@ -241,7 +244,6 @@ static lean_object* l_Lean_Level_PP_Result_quote___closed__1;
 static lean_object* l_Lean_Level_PP_Result_quote___closed__2;
 static lean_object* l_Lean_Level_PP_Result_quote___closed__3;
 LEAN_EXPORT lean_object* l_Lean_instReprData___lambda__2(lean_object*, uint64_t, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_beqLevelMVarId____x40_Lean_Level___hyg_464_(lean_object*, lean_object*);
 static lean_object* l_Lean_Level_PP_toResult___closed__3;
 static lean_object* l___private_Lean_Level_0__Lean_Level_updateSucc_x21Impl___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -293,7 +295,6 @@ LEAN_EXPORT lean_object* l_Lean_Level_dec(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Level_isIMax(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_format(lean_object*, uint8_t);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_beqLevelMVarId____x40_Lean_Level___hyg_464____boxed(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___closed__13;
@@ -305,7 +306,6 @@ LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_quote___boxed(lean_object*, lean
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_accMax(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_Level_updateSucc_x21Impl___closed__3;
 LEAN_EXPORT uint8_t l_Lean_Level_isMax(lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_Level_updateMax_x21Impl___closed__2;
 static lean_object* l___private_Lean_Level_0__Lean_reprLevelMVarId____x40_Lean_Level___hyg_554____closed__13;
 static lean_object* l_Lean_Level_PP_toResult___closed__4;
@@ -882,7 +882,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_beqLevelMVarId____x40_Lean_Level___hyg_464_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_beqLevelMVarId____x40_Lean_Level___hyg_464_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -890,11 +890,11 @@ x_3 = lean_name_eq(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_beqLevelMVarId____x40_Lean_Level___hyg_464____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_beqLevelMVarId____x40_Lean_Level___hyg_464____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Level_0__Lean_beqLevelMVarId____x40_Lean_Level___hyg_464_(x_1, x_2);
+x_3 = l_Lean_beqLevelMVarId____x40_Lean_Level___hyg_464_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -905,7 +905,7 @@ static lean_object* _init_l_Lean_instBEqLevelMVarId___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Level_0__Lean_beqLevelMVarId____x40_Lean_Level___hyg_464____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_beqLevelMVarId____x40_Lean_Level___hyg_464____boxed), 2, 0);
 return x_1;
 }
 }
@@ -4436,7 +4436,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_8 = l_Array_qsort_sort___at_Lean_Level_normalize___spec__3___closed__1;
 lean_inc(x_3);
-x_9 = l___private_Init_Data_Array_QSort_0__Array_qpartition___rarg(x_1, x_2, x_8, x_3, x_4, lean_box(0), lean_box(0));
+x_9 = l_Array_qpartition___rarg(x_1, x_2, x_8, x_3, x_4, lean_box(0), lean_box(0));
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);

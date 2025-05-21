@@ -176,21 +176,31 @@ def uncurry (varNames : Array Name) (e : Expr) : MetaM Expr := do
       let value ← casesOn varNames.toList x u codomain e
       mkLambdaFVars #[x] value
 
-/-- Given `(A ⊗' B ⊗' … ⊗' D) → R` (non-dependent) `R`, return `A → B → … → D → R` -/
+/--
+Given type `(x : A ⊗' B ⊗' … ⊗' D) → R[x]`
+return expression of type `(x : A) → (y : B) → … → (z : D) → R[(x,y,z)]`
+-/
 private def curryType (varNames : Array Name) (type : Expr) : MetaM Expr := do
-  let some (domain, codomain) := type.arrow? |
-    throwError "curryType: Expected arrow type, got {type}"
-  go codomain varNames.toList domain
+  unless type.isForall do
+    throwError "curryType: Expected forall type, got {type}"
+  let packedDomain := type.bindingDomain!
+  go packedDomain packedDomain #[] varNames.toList
 where
-  go  (codomain : Expr) : List Name → Expr → MetaM Expr
-  | [], _ => pure codomain
-  | [_], domain => mkArrow domain codomain
-  | n::ns, domain =>
+  go (packedDomain domain : Expr) args : List Name → MetaM Expr
+  | [] => do
+      let packedArg := Unary.pack packedDomain args
+      instantiateForall type #[packedArg]
+  | [n] => do
+    withLocalDeclD n domain fun x => do
+      let dummy := Expr.const ``Unit []
+      mkForallFVars #[x] (← go packedDomain dummy (args.push x) [])
+  | n :: ns =>
     match_expr domain with
     | PSigma a b =>
-      withLocalDecl n .default a fun x => do
-        mkForallFVars #[x] (← go codomain ns (b.beta #[x]))
+      withLocalDeclD n a fun x => do
+        mkForallFVars #[x] (← go packedDomain (b.beta #[x]) (args.push x) ns)
     | _ => throwError "curryType: Expected PSigma type, got {domain}"
+
 
 /--
 Given expression `e` of type `(x : A ⊗' B ⊗' … ⊗' D) → R[x]`
@@ -420,16 +430,19 @@ def uncurryND (es : Array Expr) : MetaM Expr := do
     mkLambdaFVars #[x] value
 
 /-
-Given type `(A ⊕' C) → R` (non-depenent), return types
+Given type `(A ⊕' C) → R` (possibly dependent), return types
 ```
 #[A → R, B → R]
 ```
 -/
 def curryType (n : Nat) (type : Expr) : MetaM (Array Expr) := do
-  let some (domain, codomain) := type.arrow? |
-    throwError "curryType: Expected arrow type, got {type}"
+  unless type.isForall do
+    throwError "curryType: Expected forall type, got {type}"
+  let domain := type.bindingDomain!
   let ds ← unpackType n domain
-  ds.toArray.mapM (fun d => mkArrow d codomain)
+  ds.toArray.mapIdxM fun i d =>
+    withLocalDeclD `x d fun x => do
+      mkForallFVars #[x] (← instantiateForall type #[← pack ds.length domain i x])
 
 end Mutual
 
@@ -528,7 +541,7 @@ def curryProj (argsPacker : ArgsPacker) (e : Expr) (i : Nat) : MetaM Expr := do
 
 
 /--
-Given type `(x : a ⊗' b ⊕' c ⊗' d) → R` (non-dependent), return types
+Given type `(x : a ⊗' b ⊕' c ⊗' d) → R` (dependent), return types
 ```
 #[(x: a) → (y : b) → R, (x : c) → (y : d) → R]
 ```
@@ -569,9 +582,9 @@ where
 /--
 Given `value : type` where `type` is
 ```
-(m : a ⊗' b ⊕' c ⊗' d → s) → r[m]
+(m : (x : a ⊗' b ⊕' c ⊗' d) → s[x]) → r[m]
 ```
-brings `m1 : a → b → s` and `m2 : c → d → s` into scope. The continuation receives
+brings `m1 : (x : a) → (y : b) → s[.inl ⟨x,y⟩]` and `m2 : (x : c) → (y : d) → s[.inr ⟨x,y⟩]` into scope. The continuation receives
 
  * FVars for `m1`…
  * `e[m]`
@@ -585,14 +598,14 @@ unless `numFuns = 1`
 def curryParam {α} (argsPacker : ArgsPacker) (value : Expr) (type : Expr)
     (k : Array Expr → Expr → Expr → MetaM α) : MetaM α := do
   unless type.isForall do
-    throwError "uncurryParam: expected forall, got {type}"
+    throwError "curryParam: expected forall, got {type}"
   let packedMotiveType := type.bindingDomain!
-  unless packedMotiveType.isArrow do
-    throwError "uncurryParam: unexpected packed motive {packedMotiveType}"
+  unless packedMotiveType.isForall do
+    throwError "curryParam: unexpected packed motive, not a forall{indentExpr packedMotiveType}"
   -- Bring unpacked motives (motive1 : a → b → Prop and motive2 : c → d → Prop) into scope
   withCurriedDecl argsPacker type.bindingName! packedMotiveType fun motives => do
     -- Combine them into a packed motive (motive : a ⊗' b ⊕' c ⊗' d → Prop), and use that
-    let motive ← argsPacker.uncurryND motives
+    let motive ← argsPacker.uncurryWithType packedMotiveType motives
     let type ← instantiateForall type #[motive]
     let value := mkApp value motive
     k motives value type

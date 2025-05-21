@@ -107,11 +107,12 @@ Lazy message data production, with access to the context as given by
 a surrounding `MessageData.withContext` (which is expected to exist).
 -/
 def lazy (f : PPContext → BaseIO MessageData)
-    (hasSyntheticSorry : MetavarContext → Bool := fun _ => false) : MessageData :=
+    (hasSyntheticSorry : MetavarContext → Bool := fun _ => false)
+    (onMissingContext : Unit → BaseIO MessageData :=
+      fun _ => pure (.ofFormat "(invalid MessageData.lazy, missing context)")) : MessageData :=
   .ofLazy (hasSyntheticSorry := hasSyntheticSorry) fun ctx? => do
     let msg ← match ctx? with
-      | .none =>
-        pure (.ofFormat "(invalid MessageData.lazy, missing context)") -- see `addMessageContext`
+      | .none => onMissingContext ()
       | .some ctx => f ctx
     return Dynamic.mk msg
 
@@ -145,6 +146,13 @@ def kind : MessageData → Name
   | withNamingContext _ msg => kind msg
   | tagged n _              => n
   | _                       => .anonymous
+
+def isTrace : MessageData → Bool
+  | withContext _ msg       => msg.isTrace
+  | withNamingContext _ msg => msg.isTrace
+  | tagged _ msg            => msg.isTrace
+  | .trace _ _ _            => true
+  | _                       => false
 
 /-- An empty message. -/
 def nil : MessageData :=
@@ -313,22 +321,45 @@ def ofList : List MessageData → MessageData
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
-/-- Puts `MessageData` into a comma-separated list with `"or"` at the back (no Oxford comma).
-Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+/--
+Puts `MessageData` into a comma-separated list with `"or"` at the back (with the serial comma).
+
+Best used on non-empty lists; returns `"– none –"` for an empty list.
+-/
 def orList (xs : List MessageData) : MessageData :=
   match xs with
   | [] => "– none –"
-  | [x] => "'" ++ x ++ "'"
-  | _ => joinSep (xs.dropLast.map (fun x => "'" ++ x ++ "'")) ", " ++ " or '" ++ xs.getLast! ++ "'"
+  | [x] => x
+  | [x₀, x₁] => x₀ ++ " or " ++ x₁
+  | _ => joinSep xs.dropLast ", " ++ ", or " ++ xs.getLast!
 
-/-- Puts `MessageData` into a comma-separated list with `"and"` at the back (no Oxford comma).
-Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+/--
+Puts `MessageData` into a comma-separated list with `"and"` at the back (with the serial comma).
+
+Best used on non-empty lists; returns `"– none –"` for an empty list.
+-/
 def andList (xs : List MessageData) : MessageData :=
   match xs with
   | [] => "– none –"
   | [x] => x
-  | _ => joinSep xs.dropLast ", " ++ " and " ++ xs.getLast!
+  | [x₀, x₁] => x₀ ++ " and " ++ x₁
+  | _ => joinSep xs.dropLast ", " ++ ", and " ++ xs.getLast!
 
+/--
+Produces a labeled note that can be appended to an error message.
+-/
+def note (note : MessageData) : MessageData :=
+  -- Note: we do not use the built-in string coercion because it can prevent proper line breaks
+  .tagged `note <| .compose (.ofFormat .line) <| .compose (.ofFormat .line) <|
+    .compose "Note: " note
+
+/--
+Produces a labeled hint without an associated code action (non-monadic variant of
+`MessageData.hint`).
+-/
+def hint' (hint : MessageData) : MessageData :=
+  .tagged `hint <| .compose (.ofFormat .line) <| .compose (.ofFormat .line) <|
+    .compose "Hint: " hint
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩
@@ -399,6 +430,9 @@ namespace Message
 
 @[inherit_doc MessageData.kind] abbrev kind (msg : Message) :=
   msg.data.kind
+
+def isTrace (msg : Message) : Bool :=
+  msg.data.isTrace
 
 /-- Serializes the message, converting its data into a string and saving its kind. -/
 @[inline] def serialize (msg : Message) : BaseIO SerialMessage := do
@@ -505,6 +539,38 @@ def indentD (msg : MessageData) : MessageData :=
 def indentExpr (e : Expr) : MessageData :=
   indentD e
 
+/--
+Returns the character length of the message when rendered.
+
+Note: this is a potentially expensive operation that is only relevant to message data that are
+actually rendered. Consider using this function in lazy message data to avoid unnecessary
+computation for messages that are not displayed.
+-/
+private def MessageData.formatLength (ctx : PPContext) (msg : MessageData) : BaseIO Nat := do
+  let { env, mctx, lctx, opts, ..} := ctx
+  let fmt ← msg.format (some { env, mctx, lctx, opts })
+  return fmt.pretty.length
+
+
+/--
+Renders an expression `e` inline in a message unless it will exceed `maxInlineLength` characters, in
+which case the expression is indented on a new line.
+
+Note that the output of this function is formatted with preceding and trailing space included. Thus,
+in `m₁ ++ inlineExpr e ++ m₂`, `m₁` should not end with a space or new line, nor should `m₂` begin
+with one.
+-/
+def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
+  .lazy
+    (fun ctx => do
+      let msg := MessageData.ofExpr e
+      if (← msg.formatLength ctx) > maxInlineLength then
+        return indentD msg ++ "\n"
+      else
+        return " " ++ msg ++ " ")
+    (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
+    (fun () => return " " ++ MessageData.ofExpr e ++ " ")
+
 /-- Atom quotes -/
 def aquote (msg : MessageData) : MessageData :=
   "「" ++ msg ++ "」"
@@ -607,4 +673,9 @@ def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   | interrupted                         => "(kernel) interrupted"
 
 end Kernel.Exception
+
+/-- Helper functions for creating a `MessageData` with the given header and elements. -/
+def toTraceElem [ToMessageData α] (e : α) (cls : Name := Name.mkSimple "_") : MessageData :=
+  .trace { cls } (toMessageData e) #[]
+
 end Lean

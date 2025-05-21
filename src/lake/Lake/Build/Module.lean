@@ -186,6 +186,13 @@ def computeModuleDeps
       plugins := plugins.push impLib
     else
       dynlibs := dynlibs.push impLib
+  /-
+  On MacOS, Lake must be loaded as a plugin for
+  `import Lake` to work with precompiled modules.
+  https://github.com/leanprover/lean4/issues/7388
+  -/
+  if Platform.isOSX && !(plugins.isEmpty && dynlibs.isEmpty) then
+    plugins := plugins.push (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}
 
 /--
@@ -210,7 +217,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let importJob := Job.mixArray importJobs "import oleans"
   /-
   Remark: It should be possible to avoid transitive imports here when the module
-  itself is precompiled, but they are currently kept to perserve the "bad import" errors.
+  itself is precompiled, but they are currently kept to preserve the "bad import" errors.
   -/
   let precompileImports ← if mod.shouldPrecompile then
     mod.transImports.fetch else mod.precompileImports.fetch
@@ -218,7 +225,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
     mod.fetchImportLibs precompileImports mod.shouldPrecompile
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
-    mod.pkg.externLibs.mapM (·.dynlib.fetch)
+    if mod.shouldPrecompile then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
@@ -291,7 +298,7 @@ def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
       /-
       Avoid recompiling unchanged Olean files.
       Olean files incorporate not only their own content, but also their
-      transitive imports. However, they are independnt of their module sources.
+      transitive imports. However, they are independent of their module sources.
       -/
       newTrace s!"{mod.name.toString}:olean"
       addTrace (← mod.deps.fetch).getTrace.withoutInputs

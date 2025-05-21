@@ -54,7 +54,7 @@ def eqvArgs (as₁ as₂ : Array Arg) : EqvM Bool := do
 
 def eqvLetValue (e₁ e₂ : LetValue) : EqvM Bool := do
   match e₁, e₂ with
-  | .value v₁, .value v₂ => return v₁ == v₂
+  | .lit v₁, .lit v₂ => return v₁ == v₂
   | .erased, .erased => return true
   | .proj s₁ i₁ x₁, .proj s₂ i₂ x₂ => pure (s₁ == s₂ && i₁ == i₂) <&&> eqvFVar x₁ x₂
   | .const n₁ us₁ as₁, .const n₂ us₂ as₂ => pure (n₁ == n₂ && us₁ == us₂) <&&> eqvArgs as₁ as₂

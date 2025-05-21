@@ -151,7 +151,7 @@ error: structure 'C' does not have a field named 'x'
 ---
 info: config is { b := { toA := { x := true } } }
 ---
-info: ⊢ True
+trace: ⊢ True
 -/
 #guard_msgs in
 example : True := by
@@ -160,7 +160,7 @@ example : True := by
   trivial
 
 -- Check that when recovery mode is false, no error is reported.
-/-- info: ⊢ True -/
+/-- trace: ⊢ True -/
 #guard_msgs in
 example : True := by
   fail_if_success ctac -x

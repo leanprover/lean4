@@ -26,7 +26,7 @@ Merges two lists, using `le` to select the first element of the resulting list i
 non-empty.
 
 If both input lists are sorted according to `le`, then the resulting list is also sorted according
-to `le`. `O(min |l| |r|)`.
+to `le`. `O(|xs| + |ys|)`.
 
 This implementation is not tail-recursive, but it is replaced at runtime by a proven-equivalent
 tail-recursive merge.

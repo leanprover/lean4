@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Int.Basic
 
+@[expose] section
+
 open Nat
 
 namespace Int
@@ -44,7 +46,7 @@ Integer division that uses the E-rounding convention. Usually accessed via the `
 Division by zero is defined to be zero, rather than an error.
 
 In the E-rounding convention (Euclidean division), `Int.emod x y` satisfies `0 ≤ Int.emod x y < Int.natAbs y`
-for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.edivx y) * y = x`
+for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.ediv x y) * y = x`
 for `y ≠ 0`.
 
 This means that `Int.ediv x y` is `⌊x / y⌋` when `y > 0` and `⌈x / y⌉` when `y < 0`.
@@ -76,7 +78,7 @@ def ediv : (@& Int) → (@& Int) → Int
 Integer modulus that uses the E-rounding convention. Usually accessed via the `%` operator.
 
 In the E-rounding convention (Euclidean division), `Int.emod x y` satisfies `0 ≤ Int.emod x y < Int.natAbs y`
-for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.edivx y) * y = x`
+for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.ediv x y) * y = x`
 for `y ≠ 0`.
 
 This function is overridden by the compiler with an efficient implementation. This definition is
@@ -124,6 +126,28 @@ theorem negSucc_ediv_negSucc {a b : Nat} : ((-[a+1]) / (-[b+1]) : Int) = ((a / (
 theorem ofNat_ediv_negSucc {a b : Nat} : (ofNat a / (-[b+1])) = -(a / (b + 1) : Nat) := rfl
 theorem negSucc_emod_ofNat {a b : Nat} : -[a+1] % (b : Int) = subNatNat b (succ (a % b)) := rfl
 theorem negSucc_emod_negSucc {a b : Nat} : -[a+1] % -[b+1] = subNatNat (b + 1) (succ (a % (b + 1))) := rfl
+
+/--
+Division of two divisible integers. Division by `0` returns `0`.
+
+This operation uses an optimized implementation, specialized for two divisible integers.
+
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `Int.divExact 21 3 (by decide) = 7`
+ * `Int.divExact 21 (-3) (by decide) = -7`
+ * `Int.divExact (-15) 5 (by decide) = -3`
+ * `Int.divExact 0 22 (by decide) = 0`
+ * `Int.divExact 0 0 (by decide) = 0`
+-/
+@[extern "lean_int_div_exact"]
+protected def divExact (x y : @& Int) (h : y ∣ x) : Int :=
+  x / y
+
+@[simp]
+theorem divExact_eq_ediv {x y : Int} (h : y ∣ x) : x.divExact y h = x / y := rfl
 
 /-! ### T-rounding division -/
 

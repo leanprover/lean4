@@ -7,9 +7,14 @@ module
 
 prelude
 import Init.Grind.CommRing.Basic
+import all Init.Data.BitVec.Basic
+import all Init.Data.SInt.Basic
 import Init.Data.SInt.Lemmas
 
 namespace Lean.Grind
+
+instance : NatCast Int8 where
+  natCast x := Int8.ofNat x
 
 instance : IntCast Int8 where
   intCast x := Int8.ofInt x
@@ -22,8 +27,11 @@ instance : CommRing Int8 where
   mul_assoc := Int8.mul_assoc
   mul_comm := Int8.mul_comm
   mul_one := Int8.mul_one
+  one_mul := Int8.one_mul
   left_distrib _ _ _ := Int8.mul_add
+  right_distrib _ _ _ := Int8.add_mul
   zero_mul _ := Int8.zero_mul
+  mul_zero _ := Int8.mul_zero
   sub_eq_add_neg := Int8.sub_eq_add_neg
   pow_zero := Int8.pow_zero
   pow_succ := Int8.pow_succ
@@ -37,6 +45,9 @@ instance : IsCharP Int8 (2 ^ 8) where
     simp [Int8.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
+instance : NatCast Int16 where
+  natCast x := Int16.ofNat x
+
 instance : IntCast Int16 where
   intCast x := Int16.ofInt x
 
@@ -48,8 +59,11 @@ instance : CommRing Int16 where
   mul_assoc := Int16.mul_assoc
   mul_comm := Int16.mul_comm
   mul_one := Int16.mul_one
+  one_mul := Int16.one_mul
   left_distrib _ _ _ := Int16.mul_add
+  right_distrib _ _ _ := Int16.add_mul
   zero_mul _ := Int16.zero_mul
+  mul_zero _ := Int16.mul_zero
   sub_eq_add_neg := Int16.sub_eq_add_neg
   pow_zero := Int16.pow_zero
   pow_succ := Int16.pow_succ
@@ -62,6 +76,9 @@ instance : IsCharP Int16 (2 ^ 16) where
     simp [Int16.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
+instance : NatCast Int32 where
+  natCast x := Int32.ofNat x
+
 instance : IntCast Int32 where
   intCast x := Int32.ofInt x
 
@@ -73,8 +90,11 @@ instance : CommRing Int32 where
   mul_assoc := Int32.mul_assoc
   mul_comm := Int32.mul_comm
   mul_one := Int32.mul_one
+  one_mul := Int32.one_mul
   left_distrib _ _ _ := Int32.mul_add
+  right_distrib _ _ _ := Int32.add_mul
   zero_mul _ := Int32.zero_mul
+  mul_zero _ := Int32.mul_zero
   sub_eq_add_neg := Int32.sub_eq_add_neg
   pow_zero := Int32.pow_zero
   pow_succ := Int32.pow_succ
@@ -87,6 +107,9 @@ instance : IsCharP Int32 (2 ^ 32) where
     simp [Int32.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
+instance : NatCast Int64 where
+  natCast x := Int64.ofNat x
+
 instance : IntCast Int64 where
   intCast x := Int64.ofInt x
 
@@ -98,8 +121,11 @@ instance : CommRing Int64 where
   mul_assoc := Int64.mul_assoc
   mul_comm := Int64.mul_comm
   mul_one := Int64.mul_one
+  one_mul := Int64.one_mul
   left_distrib _ _ _ := Int64.mul_add
+  right_distrib _ _ _ := Int64.add_mul
   zero_mul _ := Int64.zero_mul
+  mul_zero _ := Int64.mul_zero
   sub_eq_add_neg := Int64.sub_eq_add_neg
   pow_zero := Int64.pow_zero
   pow_succ := Int64.pow_succ
@@ -112,6 +138,9 @@ instance : IsCharP Int64 (2 ^ 64) where
     simp [Int64.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
+instance : NatCast ISize where
+  natCast x := ISize.ofNat x
+
 instance : IntCast ISize where
   intCast x := ISize.ofInt x
 
@@ -123,8 +152,11 @@ instance : CommRing ISize where
   mul_assoc := ISize.mul_assoc
   mul_comm := ISize.mul_comm
   mul_one := ISize.mul_one
+  one_mul := ISize.one_mul
   left_distrib _ _ _ := ISize.mul_add
+  right_distrib _ _ _ := ISize.add_mul
   zero_mul _ := ISize.zero_mul
+  mul_zero _ := ISize.mul_zero
   sub_eq_add_neg := ISize.sub_eq_add_neg
   pow_zero := ISize.pow_zero
   pow_succ := ISize.pow_succ

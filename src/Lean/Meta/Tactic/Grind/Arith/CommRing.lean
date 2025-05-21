@@ -15,6 +15,8 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
+import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 
 namespace Lean
 
@@ -25,10 +27,16 @@ builtin_initialize registerTraceClass `grind.ring.assert.unsat (inherited := tru
 builtin_initialize registerTraceClass `grind.ring.assert.trivial (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.assert.queue (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.assert.basis (inherited := true)
+builtin_initialize registerTraceClass `grind.ring.assert.store (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.assert.discard (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.simp
 builtin_initialize registerTraceClass `grind.ring.superpose
+builtin_initialize registerTraceClass `grind.ring.impEq
 
 builtin_initialize registerTraceClass `grind.debug.ring.simp
+builtin_initialize registerTraceClass `grind.debug.ring.proof
+builtin_initialize registerTraceClass `grind.debug.ring.check
+builtin_initialize registerTraceClass `grind.debug.ring.impEq
+builtin_initialize registerTraceClass `grind.debug.ring.simpBasis
 
 end Lean

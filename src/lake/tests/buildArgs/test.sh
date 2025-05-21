@@ -36,5 +36,5 @@ test_run build +Hello:dynlib -R -KweakLinkArgs=-L.lake/build/lib  --no-build
 test_run build Hello:shared -R -KweakLinkArgs=-L.lake/build/lib  --no-build
 test_run build hello -R -KweakLinkArgs=-L.lake/build/lib  --no-build
 
-# cleanup
+# Cleanup
 rm -f produced.out

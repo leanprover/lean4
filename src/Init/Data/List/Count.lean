@@ -83,8 +83,6 @@ theorem countP_le_length : countP p l ≤ l.length := by
 @[simp] theorem countP_pos_iff {p} : 0 < countP p l ↔ ∃ a ∈ l, p a := by
   simp only [countP_eq_length_filter, length_pos_iff_exists_mem, mem_filter, exists_prop]
 
-@[deprecated countP_pos_iff (since := "2024-09-09")] abbrev countP_pos := @countP_pos_iff
-
 @[simp] theorem one_le_countP_iff {p} : 1 ≤ countP p l ↔ ∃ a ∈ l, p a :=
   countP_pos_iff
 
@@ -158,14 +156,12 @@ theorem countP_filterMap {p : β → Bool} {f : α → Option β} {l : List α} 
   simp only [length_filterMap_eq_countP]
   congr
   ext a
-  simp +contextual [Option.getD_eq_iff, Option.isSome_eq_isSome]
+  cases h : f a <;> simp_all [Option.isSome_filter]
 
 @[simp] theorem countP_flatten {l : List (List α)} :
     countP p l.flatten = (l.map (countP p)).sum := by
   simp only [countP_eq_length_filter, filter_flatten]
   simp [countP_eq_length_filter']
-
-@[deprecated countP_flatten (since := "2024-10-14")] abbrev countP_join := @countP_flatten
 
 theorem countP_flatMap {p : β → Bool} {l : List α} {f : α → List β} :
     countP p (l.flatMap f) = sum (map (countP p ∘ f) l) := by
@@ -242,8 +238,6 @@ theorem count_singleton {a b : α} : count a [b] = if b == a then 1 else 0 := by
 theorem count_flatten {a : α} {l : List (List α)} : count a l.flatten = (l.map (count a)).sum := by
   simp only [count_eq_countP, countP_flatten, count_eq_countP']
 
-@[deprecated count_flatten (since := "2024-10-14")] abbrev count_join := @count_flatten
-
 @[simp] theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := by
   simp only [count_eq_countP, countP_eq_length_filter, filter_reverse, length_reverse]
 
@@ -267,8 +261,6 @@ theorem count_concat_self {a : α} {l : List α} : count a (concat l a) = count 
 @[simp]
 theorem count_pos_iff {a : α} {l : List α} : 0 < count a l ↔ a ∈ l := by
   simp only [count, countP_pos_iff, beq_iff_eq, exists_eq_right]
-
-@[deprecated count_pos_iff (since := "2024-09-09")] abbrev count_pos_iff_mem := @count_pos_iff
 
 @[simp] theorem one_le_count_iff {a : α} {l : List α} : 1 ≤ count a l ↔ a ∈ l :=
   count_pos_iff

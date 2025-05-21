@@ -7,9 +7,11 @@ module
 
 prelude
 import Init.Data.BitVec.Folds
+import all Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Mod
+import all Init.Data.Int.DivMod
 import Init.Data.Int.LemmasAux
-import Init.Data.BitVec.Lemmas
+import all Init.Data.BitVec.Lemmas
 
 /-!
 # Bit blasting of bitvectors
@@ -516,7 +518,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
   rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
   omega
 
-@[simp] theorem BitVec.setWidth_neg_of_le {x : BitVec v} (h : w ≤ v) : BitVec.setWidth w (-x) = -BitVec.setWidth w x := by
+@[simp] theorem setWidth_neg_of_le {x : BitVec v} (h : w ≤ v) : BitVec.setWidth w (-x) = -BitVec.setWidth w x := by
   simp [← BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.signExtend_neg_of_le h]
 
 /-! ### abs -/
@@ -668,11 +670,6 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
       getLsbD_zero, and_eq_false_imp, and_eq_true, decide_eq_true_eq, and_imp]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
-@[deprecated setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (since := "2024-09-18"),
-  inherit_doc setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow]
-abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow :=
-  @setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow
-
 /--
 Recurrence lemma: multiplying `x` with the first `s` bits of `y` is the
 same as truncating `y` to `s` bits, then zero extending to the original length,
@@ -698,10 +695,6 @@ theorem mulRec_eq_mul_signExtend_setWidth (x y : BitVec w) (s : Nat) :
       simp only [ofNat_eq_ofNat, and_twoPow]
       by_cases hy : y.getLsbD (s' + 1) <;> simp [hy]
     rw [heq, ← BitVec.mul_add, ← setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow]
-
-@[deprecated mulRec_eq_mul_signExtend_setWidth (since := "2024-09-18"),
-  inherit_doc mulRec_eq_mul_signExtend_setWidth]
-abbrev mulRec_eq_mul_signExtend_truncate := @mulRec_eq_mul_signExtend_setWidth
 
 theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
     (x * y).getLsbD i = (mulRec x y w).getLsbD i := by
@@ -1501,7 +1494,6 @@ theorem sdiv_intMin {x : BitVec w} :
   by_cases h : x = intMin w
   · subst h
     simp
-    omega
   · simp only [sdiv_eq, msb_intMin, show 0 < w by omega, h]
     have := Nat.two_pow_pos (w-1)
     by_cases hx : x.msb
@@ -1812,9 +1804,23 @@ theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
     (x * y).extractLsb' 0 len = (x.extractLsb' 0 len) * (y.extractLsb' 0 len) := by
   simp [← setWidth_eq_extractLsb' hlen, setWidth_mul _ _ hlen]
 
+/-- Adding bitvectors that are zero in complementary positions equals concatenation.
+We add a `no_index` annotation to `HAppend.hAppend` such that the width `v + w`
+does not act as a key in the discrimination tree.
+This is important to allow matching, when the type of the result of append
+`x : BitVec 3` and `y : BitVec 4` has been reduced to `x ++ y : BitVec 7`.
+-/
+theorem append_zero_add_zero_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
+    (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w) +
+    (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y)
+    = x ++ y := by
+  rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
+
 /-- Adding bitvectors that are zero in complementary positions equals concatenation. -/
-theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
-    (x ++ 0#w) + (0#v ++ y) = x ++ y := by
+theorem zero_append_add_append_zero {v w : Nat} {x : BitVec v} {y : BitVec w} :
+  (HAppend.hAppend (γ := BitVec (no_index _)) 0#v y) +
+  (HAppend.hAppend (γ := BitVec (no_index _)) x 0#w)
+  = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
@@ -1829,5 +1835,11 @@ theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
   have : 2^i ≤ x.toNat := two_pow_le_toNat_of_getElem_eq_true hi hxi
   have : i < 2^i := by exact Nat.lt_two_pow_self
   omega
+
+/-- Heuristically, `y <<< x` is much larger than `x`,
+and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/
+theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
+    (y <<< x) + x =  (y <<< x) ||| x := by
+  rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
 
 end BitVec

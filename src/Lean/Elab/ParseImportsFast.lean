@@ -10,10 +10,13 @@ namespace Lean
 namespace ParseImports
 
 structure State where
-  imports  : Array Import := #[]
-  pos      : String.Pos := 0
-  error?   : Option String := none
-  isModule : Bool := false
+  imports       : Array Import := #[]
+  pos           : String.Pos := 0
+  error?        : Option String := none
+  isModule      : Bool := false
+  -- per-import fields to be consumed by `moduleIdent`
+  isExported    : Bool := false
+  importAll     : Bool := false
   deriving Inhabited
 
 def Parser := String → State → State
@@ -133,8 +136,8 @@ partial def whitespace : Parser := fun input s =>
   else
     false
 
-def State.pushModule (module : Name) (s : State) : State :=
-  { s with imports := s.imports.push { module } }
+def State.pushImport (i : Import) (s : State) : State :=
+  { s with imports := s.imports.push i }
 
 @[inline] def isIdRestCold (c : Char) : Bool :=
   c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
@@ -143,6 +146,8 @@ def State.pushModule (module : Name) (s : State) : State :=
   c.isAlphanum || (c != '.' && c != '\n' && c != ' ' && isIdRestCold c)
 
 partial def moduleIdent : Parser := fun input s =>
+  let finalize (module : Name) : Parser := fun input s =>
+    whitespace input (s.pushImport { module, importAll := s.importAll, isExported := s.isExported })
   let rec parse (module : Name) (s : State) :=
     let i := s.pos
     if h : input.atEnd i then
@@ -162,7 +167,7 @@ partial def moduleIdent : Parser := fun input s =>
             let s := s.next input s.pos
             parse module s
           else
-            whitespace input (s.pushModule module)
+            finalize module input s
       else if isIdFirst curr then
         let startPart := i
         let s         := takeWhile isIdRestFast input (s.next' input i h)
@@ -172,7 +177,7 @@ partial def moduleIdent : Parser := fun input s =>
           let s := s.next input s.pos
           parse module s
         else
-          whitespace input (s.pushModule module)
+          finalize module input s
       else
         s.mkError "expected identifier"
   parse .anonymous s
@@ -185,10 +190,19 @@ partial def moduleIdent : Parser := fun input s =>
   | none => many p input s
   | some _ => { pos, error? := none, imports := s.imports.shrink size }
 
+def setIsExported (isExported : Bool) : Parser := fun _ s =>
+  { s with isExported := isExported }
+
+def setImportAll (importAll : Bool) : Parser := fun _ s =>
+  { s with importAll }
+
 def main : Parser :=
   keywordCore "module" (fun _ s => { s with isModule := true }) (fun _ s => s) >>
-  keywordCore "prelude" (fun _ s => s.pushModule `Init) (fun _ s => s) >>
-  many (keyword "import" >> moduleIdent)
+  keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
+  many (keywordCore "private" (setIsExported true) (setIsExported false) >>
+    keyword "import" >>
+    keywordCore "all" (setImportAll false) (setImportAll true) >>
+    moduleIdent)
 
 end ParseImports
 

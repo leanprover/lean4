@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Bitwise.Lemmas
-// Imports: Init.Data.Bool Init.Data.Int.Pow Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Lemmas Init.Data.Nat.Simproc Init.TacticsExtra Init.Omega
+// Imports: Init.Data.Bool Init.Data.Int.Pow Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Lemmas Init.Data.Nat.Simproc Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,23 +21,23 @@ static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____c
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__20;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__16;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__15;
-LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3313_;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__6;
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3644_;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__11;
-LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3395_;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__2;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__21;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__5;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__9;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3654_;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__7;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__1;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__12;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__4;
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1588_;
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3303_;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__19;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__13;
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3385_;
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__18;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__14;
@@ -287,7 +287,7 @@ x_1 = l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__22;
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3313_() {
+static lean_object* _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3303_() {
 _start:
 {
 lean_object* x_1; 
@@ -295,7 +295,7 @@ x_1 = l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__22;
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3395_() {
+static lean_object* _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3385_() {
 _start:
 {
 lean_object* x_1; 
@@ -303,7 +303,7 @@ x_1 = l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__22;
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3654_() {
+static lean_object* _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3644_() {
 _start:
 {
 lean_object* x_1; 
@@ -317,7 +317,6 @@ lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin, lean_object
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Bitwise_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -339,9 +338,6 @@ res = initialize_Init_Data_Nat_Simproc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Omega(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__1 = _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476____closed__1();
@@ -392,12 +388,12 @@ l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476_ = _init_l___auto____x40
 lean_mark_persistent(l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1476_);
 l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1588_ = _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1588_();
 lean_mark_persistent(l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_1588_);
-l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3313_ = _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3313_();
-lean_mark_persistent(l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3313_);
-l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3395_ = _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3395_();
-lean_mark_persistent(l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3395_);
-l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3654_ = _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3654_();
-lean_mark_persistent(l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3654_);
+l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3303_ = _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3303_();
+lean_mark_persistent(l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3303_);
+l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3385_ = _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3385_();
+lean_mark_persistent(l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3385_);
+l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3644_ = _init_l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3644_();
+lean_mark_persistent(l___auto____x40_Init_Data_Nat_Bitwise_Lemmas___hyg_3644_);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

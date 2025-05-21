@@ -265,7 +265,7 @@ instance : Inhabited (FVarIdMap α) where
 /-- Universe metavariable Id   -/
 structure MVarId where
   name : Name
-  deriving Inhabited, BEq, Hashable, Repr
+  deriving Inhabited, BEq, Hashable
 
 instance : Repr MVarId where
   reprPrec n p := reprPrec n.name p
@@ -999,6 +999,18 @@ def bindingInfo! : Expr → BinderInfo
   | forallE _ _ _ bi => bi
   | lam _ _ _ bi     => bi
   | _                => panic! "binding expected"
+
+def forallName : (a : Expr) → a.isForall → Name
+  | forallE n _ _ _, _  => n
+
+def forallDomain : (a : Expr) → a.isForall → Expr
+  | forallE _ d _ _, _  => d
+
+def forallBody : (a : Expr) → a.isForall → Expr
+  | forallE _ _ b _, _  => b
+
+def forallInfo : (a : Expr) → a.isForall → BinderInfo
+  | forallE _ _ _ i, _  => i
 
 def letName! : Expr → Name
   | letE n .. => n
@@ -2209,6 +2221,10 @@ private def natEqPred : Expr :=
 /-- Given `a b : Nat`, return `a = b` -/
 def mkNatEq (a b : Expr) : Expr :=
   mkApp2 natEqPred a b
+
+/-- Given `a b : Prop`, return `a = b` -/
+def mkPropEq (a b : Expr) : Expr :=
+  mkApp3 (mkConst ``Eq [levelOne]) (mkSort levelZero) a b
 
 /-! Constants for Int typeclasses. -/
 namespace Int

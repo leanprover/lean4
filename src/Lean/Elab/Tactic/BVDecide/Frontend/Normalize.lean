@@ -56,7 +56,8 @@ where
     let cfg ← PreProcessM.getConfig
 
     if cfg.structures || cfg.enums then
-      g := (← typeAnalysisPass.run g).get!
+      let some g' ← typeAnalysisPass.run g | return none
+      g := g'
 
     /-
     There is a tension between the structures and enums pass at play:

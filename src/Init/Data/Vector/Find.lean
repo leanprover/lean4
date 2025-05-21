@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Attach
 import Init.Data.Vector.Range
@@ -26,10 +28,11 @@ open Nat
 
 /-! ### findSome? -/
 
-@[simp] theorem findSome?_empty : (#v[] : Vector α 0).findSome? f = none := rfl
-@[simp] theorem findSome?_push {xs : Vector α n} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
+@[simp, grind] theorem findSome?_empty : (#v[] : Vector α 0).findSome? f = none := rfl
+@[simp, grind] theorem findSome?_push {xs : Vector α n} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
   cases xs; simp [List.findSome?_append]
 
+@[grind]
 theorem findSome?_singleton {a : α} {f : α → Option β} : #v[a].findSome? f = f a := by
   simp
 
@@ -195,20 +198,6 @@ theorem get_find?_mem {xs : Vector α n} (h) : (xs.find? p).get h ∈ xs := by
   cases xs
   simp [Array.get_find?_mem]
 
-@[simp] theorem find?_filter {xs : Vector α n} (p q : α → Bool) :
-    (xs.filter p).find? q = xs.find? (fun a => p a ∧ q a) := by
-  cases xs; simp
-
-@[simp] theorem getElem?_zero_filter {p : α → Bool} {xs : Vector α n} :
-    (xs.filter p)[0]? = xs.find? p := by
-  cases xs; simp [← List.head?_eq_getElem?]
-
-@[simp] theorem getElem_zero_filter {p : α → Bool} {xs : Vector α n} (h) :
-    (xs.filter p)[0] =
-      (xs.find? p).get (by cases xs; simpa [← Array.countP_eq_size_filter] using h) := by
-  cases xs
-  simp [List.getElem_zero_eq_head]
-
 @[simp] theorem find?_map {f : β → α} {xs : Vector β n} :
     find? p (xs.map f) = (xs.find? (p ∘ f)).map f := by
   cases xs; simp
@@ -322,7 +311,7 @@ theorem findFinIdx?_push {xs : Vector α n} {a : α} {p : α → Bool} :
 theorem findFinIdx?_append {xs : Vector α n₁} {ys : Vector α n₂} {p : α → Bool} :
     (xs ++ ys).findFinIdx? p =
       ((xs.findFinIdx? p).map (Fin.castLE (by simp))).or
-        ((ys.findFinIdx? p).map (Fin.natAdd xs.size) |>.map (Fin.cast (by simp))) := by
+        ((ys.findFinIdx? p).map (Fin.natAdd n₁)) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
   simp [Array.findFinIdx?_append, Option.map_or, Function.comp_def]

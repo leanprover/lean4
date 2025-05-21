@@ -15,16 +15,46 @@ def get' : GoalM State := do
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   modify fun s => { s with arith.ring := f s.arith.ring }
 
+def checkMaxSteps : GoalM Bool := do
+  return (← get').steps >= (← getConfig).ringSteps
+
+def incSteps : GoalM Unit := do
+  modify' fun s => { s with steps := s.steps + 1 }
+
+structure RingM.Context where
+  ringId : Nat
+  /--
+  If `checkCoeffDvd` is `true`, then when using a polynomial `k*m - p`
+  to simplify `.. + k'*m*m_2 + ...`, the substitution is performed IF
+  - `k` divides `k'`, OR
+  - Ring implements `NoNatZeroDivisors`.
+
+  We need this check when simplifying disequalities. In this case, if we perform
+  the simplification anyway, we may end up with a proof that `k * q = 0`, but
+  we cannot deduce `q = 0` since the ring does not implement `NoNatZeroDivisors`
+  See comment at `PolyDerivation`.
+  -/
+  checkCoeffDvd : Bool := false
+
+class MonadGetRing (m : Type → Type) where
+  getRing : m Ring
+
+export MonadGetRing (getRing)
+
+@[always_inline]
+instance (m n) [MonadLift m n] [MonadGetRing m] : MonadGetRing n where
+  getRing    := liftM (getRing : m Ring)
+
 /-- We don't want to keep carrying the `RingId` around. -/
-abbrev RingM := ReaderT Nat GoalM
+abbrev RingM := ReaderT RingM.Context GoalM
 
 abbrev RingM.run (ringId : Nat) (x : RingM α) : GoalM α :=
-  x ringId
+  x { ringId }
 
 abbrev getRingId : RingM Nat :=
-  read
+  return (← read).ringId
 
-def getRing : RingM Ring := do
+protected def RingM.getRing : RingM Ring := do
   let s ← get'
   let ringId ← getRingId
   if h : ringId < s.rings.size then
@@ -32,9 +62,18 @@ def getRing : RingM Ring := do
   else
     throwError "`grind` internal error, invalid ringId"
 
+instance : MonadGetRing RingM where
+  getRing := RingM.getRing
+
 @[inline] def modifyRing (f : Ring → Ring) : RingM Unit := do
   let ringId ← getRingId
   modify' fun s => { s with rings := s.rings.modify ringId f }
+
+abbrev withCheckCoeffDvd (x : RingM α) : RingM α :=
+  withReader (fun ctx => { ctx with checkCoeffDvd := true }) x
+
+def checkCoeffDvd : RingM Bool :=
+  return (← read).checkCoeffDvd
 
 def getTermRingId? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToRingId.find? { expr := e }
@@ -48,18 +87,30 @@ def setTermRingId (e : Expr) : RingM Unit := do
   modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
 
 /-- Returns `some c` if the current ring has a nonzero characteristic `c`. -/
-def nonzeroChar? : RingM (Option Nat) := do
+def nonzeroChar? [Monad m] [MonadGetRing m] : m (Option Nat) := do
   if let some (_, c) := (← getRing).charInst? then
     if c != 0 then
       return some c
   return none
 
 /-- Returns `some (charInst, c)` if the current ring has a nonzero characteristic `c`. -/
-def nonzeroCharInst? : RingM (Option (Expr × Nat)) := do
+def nonzeroCharInst? [Monad m] [MonadGetRing m] : m (Option (Expr × Nat)) := do
   if let some (inst, c) := (← getRing).charInst? then
     if c != 0 then
       return some (inst, c)
   return none
+
+def noZeroDivisorsInst? : RingM (Option Expr) := do
+  return (← getRing).noZeroDivInst?
+
+/--
+Returns `true` if the current ring satisfies the property
+```
+∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
+```
+-/
+def noZeroDivisors : RingM Bool := do
+  return (← getRing).noZeroDivInst?.isSome
 
 /-- Returns `true` if the current ring has a `IsCharP` instance. -/
 def hasChar  : RingM Bool := do
@@ -91,5 +142,17 @@ def _root_.Lean.Grind.CommRing.Poly.mulM (p₁ p₂ : Poly) : RingM Poly := do
 
 def _root_.Lean.Grind.CommRing.Poly.combineM (p₁ p₂ : Poly) : RingM Poly :=
   return p₁.combine' p₂ (← nonzeroChar?)
+
+def _root_.Lean.Grind.CommRing.Poly.spolM (p₁ p₂ : Poly) : RingM Grind.CommRing.SPolResult := do
+  if let some c ← nonzeroChar? then return p₁.spol p₂ c else return p₁.spol p₂
+
+def isQueueEmpty : RingM Bool :=
+  return (← getRing).queue.isEmpty
+
+def getNext? : RingM (Option EqCnstr) := do
+  let some c := (← getRing).queue.min | return none
+  modifyRing fun s => { s with queue := s.queue.erase c }
+  incSteps
+  return some c
 
 end Lean.Meta.Grind.Arith.CommRing

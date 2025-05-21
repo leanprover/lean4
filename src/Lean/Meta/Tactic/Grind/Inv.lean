@@ -94,15 +94,15 @@ private def checkParents (e : Expr) : GoalM Unit := do
     assert! (← getParents e).isEmpty
 
 private def checkPtrEqImpliesStructEq : GoalM Unit := do
-  let nodes ← getENodes
-  for h₁ : i in [: nodes.size] do
-    let n₁ := nodes[i]
-    for h₂ : j in [i+1 : nodes.size] do
-      let n₂ := nodes[j]
+  let exprs ← getExprs
+  for h₁ : i in [: exprs.size] do
+    let e₁ := exprs[i]
+    for h₂ : j in [i+1 : exprs.size] do
+      let e₂ := exprs[j]
       -- We don't have multiple nodes for the same expression
-      assert! !isSameExpr n₁.self n₂.self
+      assert! !isSameExpr e₁ e₂
       -- and the two expressions must not be structurally equal
-      assert! !Expr.equal n₁.self n₂.self
+      assert! !Expr.equal e₁ e₂
 
 private def checkProofs : GoalM Unit := do
   let eqcs ← getEqcs
@@ -120,9 +120,10 @@ Checks basic invariants if `grind.debug` is enabled.
 -/
 def checkInvariants (expensive := false) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
-    for (_, node) in (← get).enodes do
+    for e in (← getExprs) do
+      let node ← getENode e
       checkParents node.self
-      if isSameExpr node.self node.root then
+      if node.isRoot then
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq

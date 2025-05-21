@@ -6,7 +6,7 @@ A : Nat
 #guard_msgs in
 variable (A : Nat) (B : by skip)
 
-/-- error: failed to infer definition type -/
+/-- error: failed to infer type of `foo` -/
 #guard_msgs in
 def foo :=
   A = B

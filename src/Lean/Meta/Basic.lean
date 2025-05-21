@@ -317,9 +317,12 @@ structure SynthInstanceCacheKey where
 /-- Resulting type for `abstractMVars` -/
 structure AbstractMVarsResult where
   paramNames : Array Name
-  numMVars   : Nat
+  mvars      : Array Expr
   expr       : Expr
   deriving Inhabited, BEq
+
+def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
+  r.mvars.size
 
 abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
 
@@ -2045,16 +2048,23 @@ instance : Alternative MetaM where
     (mergeMsg : MessageData → MessageData → MessageData := fun m₁ m₂ => m₁ ++ Format.line ++ Format.line ++ m₂) : m α := do
   controlAt MetaM fun runInBase => orelseMergeErrorsImp (runInBase x) (runInBase y) mergeRef mergeMsg
 
-/-- Execute `x`, and apply `f` to the produced error message -/
 def mapErrorImp (x : MetaM α) (f : MessageData → MessageData) : MetaM α := do
   try
     x
   catch
-    | Exception.error ref msg => throw <| Exception.error ref <| f msg
+    | Exception.error ref msg =>
+      let msg' := f msg
+      let msg' ← addMessageContext msg'
+      throw <| Exception.error ref msg'
     | ex => throw ex
 
+/-- Execute `x`, and apply `f` to the produced error message -/
 @[inline] def mapError [MonadControlT MetaM m] [Monad m] (x : m α) (f : MessageData → MessageData) : m α :=
   controlAt MetaM fun runInBase => mapErrorImp (runInBase x) f
+
+/-- Execute `x`. If it throws an error, indent and prepend `msg` to it.  -/
+@[inline] def prependError [MonadControlT MetaM m] [Monad m] (msg : MessageData) (x : m α) : m α := do
+  mapError x fun e => m!"{msg}{indentD e}"
 
 /--
   Sort free variables using an order `x < y` iff `x` was defined before `y`.

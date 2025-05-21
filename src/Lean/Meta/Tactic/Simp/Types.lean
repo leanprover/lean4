@@ -110,6 +110,11 @@ structure Context where
   transformations that presereve definitional equality.
   -/
   inDSimp : Bool := false
+  /--
+  If `inNumLit := true`, then we don't fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`.
+  It is set to `true` when simplifying inside `OfNat.ofNat` or `OfScientific.ofScientific`.
+  -/
+  inNumLit : Bool := false
   deriving Inhabited
 
 /--
@@ -265,6 +270,9 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
   let (x, dsimpCache) ← withInDSimp (k dsimpCache)
   modify fun s => { s with dsimpCache }
   return x
+
+@[inline] def withInNumLit : SimpM α → SimpM α :=
+  withTheReader Context (fun ctx => { ctx with inNumLit := true })
 
 /--
 Executes `x` using a `MetaM` configuration for indexing terms.

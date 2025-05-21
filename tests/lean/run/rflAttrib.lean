@@ -50,6 +50,22 @@ theorem Tricky.a_eq_b : a = b := rfl -- to confuse the heuristics
 /-- error: dsimp made no progress -/
 #guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c'']; exact h
 
+-- a_eq_c''' is correctly tagged, but not used by `a_eq_c` because simp does not look through `ac`.
+/-- error: dsimp made no progress -/
 #guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c''']; exact h
 
 #guard_msgs in example (h : P d) : P a := by dsimp [a_eq_d]; exact h
+
+-- Order of simp and rfl attribute
+def e1 := a
+@[simp] theorem e1_eq_a : e1 = a := rfl
+#guard_msgs in example (h : P a) : P e1 := by dsimp; exact h
+
+def e2 := a
+@[rfl,simp] theorem e2_eq_a : e2 = a := id rfl
+#guard_msgs in example (h : P a) : P e2 := by dsimp; exact h
+
+def e3 := a
+@[simp,rfl] theorem e3_eq_a : e2 = a := id rfl -- rfl has to come before simp
+/-- error: dsimp made no progress -/
+#guard_msgs in example (h : P a) : P e3 := by dsimp; exact h

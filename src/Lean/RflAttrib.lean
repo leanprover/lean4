@@ -13,15 +13,16 @@ open Meta
 def validateRflAttr (declName : Name) : AttrM Unit := do
   let info ← getConstVal declName
   MetaM.run' do
-    forallTelescope info.type fun _ type => do
-      -- NB: The warning wording should work both for explicit uses of `@[rfl]` as well as the implicit `:= rfl`.
-      let some (_, lhs, rhs) := type.eq? |
-        throwError m!"not a `rfl`-theorem: the conculsion should be an equality, but is{inlineExpr type}"
-      if !(← withOptions (smartUnfolding.set · false) <| withTransparency .all <| isDefEq lhs rhs) then
-        let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
-          let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
-          return m!"not a `rfl`-theorem: the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
-        throwError explanation
+    withOptions (smartUnfolding.set · false) <| withTransparency .all do
+      forallTelescopeReducing info.type fun _ type => do
+        -- NB: The warning wording should work both for explicit uses of `@[rfl]` as well as the implicit `:= rfl`.
+        let some (_, lhs, rhs) := type.eq? |
+          throwError m!"not a `rfl`-theorem: the conculsion should be an equality, but is{inlineExpr type}"
+        if !(← withOptions (smartUnfolding.set · false) <| withTransparency .all <| isDefEq lhs rhs) then
+          let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
+            let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
+            return m!"not a `rfl`-theorem: the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
+          throwError explanation
 
 builtin_initialize rflAttr : TagAttribute ←
   registerTagAttribute `rfl "mark theorem as a `rfl`-theorem, to be used by `dsimp`"

@@ -608,8 +608,7 @@ where
 Given a simplified function result `r` and arguments `args`, simplify arguments using `simp` and `dsimp`.
 The resulting proof is built using `congr` and `congrFun` theorems.
 -/
-@[specialize]
-def congrArgs (r : Result) (args : Array Expr) (isExcluded : Nat → Bool := fun _ => false) : SimpM Result := do
+def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
   if args.isEmpty then
     return r
   else
@@ -618,9 +617,7 @@ def congrArgs (r : Result) (args : Array Expr) (isExcluded : Nat → Bool := fun
     let mut r := r
     let mut i := 0
     for arg in args do
-      if isExcluded i then
-        r ← mkCongrFun r arg
-      else if h : i < infos.size then
+      if h : i < infos.size then
         trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
         if cfg.ground && info.isInstImplicit then

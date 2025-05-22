@@ -27,7 +27,7 @@ theorem mapFinIdx_induction (xs : Array α) (f : (i : Nat) → α → (h : i < x
     motive xs.size ∧ ∃ eq : (Array.mapFinIdx xs f).size = xs.size,
       ∀ i h, p i ((Array.mapFinIdx xs f)[i]) h := by
   let rec go {bs i j h} (h₁ : j = bs.size) (h₂ : ∀ i h h', p i bs[i] h) (hm : motive j) :
-    let as : Array β := Array.mapFinIdxM.map (m := Id) xs f i j h bs
+    let as : Array β := Id.run <| Array.mapFinIdxM.map xs (pure <| f · · ·) i j h bs
     motive xs.size ∧ ∃ eq : as.size = xs.size, ∀ i h, p i as[i] h := by
     induction i generalizing j bs with simp [mapFinIdxM.map]
     | zero =>

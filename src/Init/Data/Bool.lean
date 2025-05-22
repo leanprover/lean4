@@ -457,9 +457,9 @@ Converts `true` to `1` and `false` to `0`.
 -/
 def toInt (b : Bool) : Int := cond b 1 0
 
-@[simp] theorem toInt_false : false.toInt = 0 := rfl
+@[simp] theorem toInt_false : false.toInt = 0 := (rfl)
 
-@[simp] theorem toInt_true : true.toInt = 1 := rfl
+@[simp] theorem toInt_true : true.toInt = 1 := (rfl)
 
 /-! ### ite -/
 

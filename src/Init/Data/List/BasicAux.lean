@@ -150,7 +150,7 @@ def tail! : List α → List α
   | []    => panic! "empty list"
   | _::as => as
 
-@[simp] theorem tail!_cons : @tail! α (a::l) = l := rfl
+@[simp] theorem tail!_cons : @tail! α (a::l) = l := (rfl)
 
 /-! ### partitionM -/
 
@@ -333,11 +333,11 @@ theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as 
 
 theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.get i) < sizeOf as := by
   match as, i with
-  | a::as, ⟨0, _⟩  => simp +arith [get]
+  | a::as, ⟨0, _⟩  => dsimp only [cons.sizeOf_spec]; simp +arith [get]
   | a::as, ⟨i+1, h⟩ =>
     have ih := sizeOf_get as ⟨i, Nat.le_of_succ_le_succ h⟩
     apply Nat.lt_trans ih
-    simp +arith
+    simp -implicitDefEqProofs +arith
 
 theorem not_lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
     (antisymm : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)

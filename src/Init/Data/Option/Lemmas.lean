@@ -55,9 +55,9 @@ theorem getD_of_ne_none {x : Option α} (hx : x ≠ none) (y : α) : some (x.get
 theorem getD_eq_iff {o : Option α} {a b} : o.getD a = b ↔ (o = some b ∨ o = none ∧ a = b) := by
   cases o <;> simp
 
-@[simp, grind] theorem get!_none [Inhabited α] : (none : Option α).get! = default := rfl
+@[simp, grind] theorem get!_none [Inhabited α] : (none : Option α).get! = default := (rfl)
 
-@[simp, grind] theorem get!_some [Inhabited α] {a : α} : (some a).get! = a := rfl
+@[simp, grind] theorem get!_some [Inhabited α] {a : α} : (some a).get! = a := (rfl)
 
 theorem get_eq_get! [Inhabited α] : (o : Option α) → {h : o.isSome} → o.get h = o.get!
   | some _, _ => rfl
@@ -68,7 +68,7 @@ theorem get_eq_getD {fallback : α} : (o : Option α) → {h : o.isSome} → o.g
 theorem some_get! [Inhabited α] : (o : Option α) → o.isSome → some (o.get!) = o
   | some _, _ => rfl
 
-theorem get!_eq_getD [Inhabited α] (o : Option α) : o.get! = o.getD default := rfl
+theorem get!_eq_getD [Inhabited α] (o : Option α) : o.get! = o.getD default := (rfl)
 
 @[deprecated get!_eq_getD (since := "2024-11-18")] abbrev get!_eq_getD_default := @get!_eq_getD
 
@@ -1161,8 +1161,8 @@ end ite
 
 /-! ### pbind -/
 
-@[simp, grind] theorem pbind_none : pbind none f = none := rfl
-@[simp, grind] theorem pbind_some : pbind (some a) f = f a rfl := rfl
+@[simp, grind] theorem pbind_none : pbind none f = none := (rfl)
+@[simp, grind] theorem pbind_some : pbind (some a) f = f a rfl := (rfl)
 
 @[simp, grind] theorem map_pbind {o : Option α} {f : (a : α) → o = some a → Option β}
     {g : β → γ} : (o.pbind f).map g = o.pbind (fun a h => (f a h).map g) := by
@@ -1226,10 +1226,10 @@ theorem get_pbind {o : Option α} {f : (a : α) → o = some a → Option β} {h
 /-! ### pmap -/
 
 @[simp, grind] theorem pmap_none {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
-    pmap f none h = none := rfl
+    pmap f none h = none := (rfl)
 
 @[simp, grind] theorem pmap_some {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
-    pmap f (some a) h = some (f a (h a rfl)) := rfl
+    pmap f (some a) h = some (f a (h a rfl)) := (rfl)
 
 @[simp] theorem pmap_eq_none_iff {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
     pmap f o h = none ↔ o = none := by
@@ -1296,7 +1296,7 @@ theorem pmap_congr {α : Type u} {β : Type v}
   cases ho
   cases o
   · rfl
-  · dsimp
+  · simp
     rw [hf]
 
 theorem pmap_guard {q : α → Bool} {p : α → Prop} (f : (x : α) → p x → β) {x : α}
@@ -1313,8 +1313,8 @@ theorem get_pmap {p : α → Bool} {f : (x : α) → p x → β} {o : Option α}
 
 /-! ### pelim -/
 
-@[simp, grind] theorem pelim_none : pelim none b f = b := rfl
-@[simp, grind] theorem pelim_some : pelim (some a) b f = f a rfl := rfl
+@[simp, grind] theorem pelim_none : pelim none b f = b := (rfl)
+@[simp, grind] theorem pelim_some : pelim (some a) b f = f a rfl := (rfl)
 
 @[simp, grind] theorem pelim_eq_elim : pelim o b (fun a _ => f a) = o.elim b f := by
   cases o <;> simp

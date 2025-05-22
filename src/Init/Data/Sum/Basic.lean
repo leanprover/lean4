@@ -76,18 +76,18 @@ def getRight? : α ⊕ β → Option β
   | inr b => some b
   | inl _ => none
 
-@[simp] theorem isLeft_inl : (inl x : α ⊕ β).isLeft = true := rfl
-@[simp] theorem isLeft_inr : (inr x : α ⊕ β).isLeft = false := rfl
-@[simp] theorem isRight_inl : (inl x : α ⊕ β).isRight = false := rfl
-@[simp] theorem isRight_inr : (inr x : α ⊕ β).isRight = true := rfl
+@[simp] theorem isLeft_inl : (inl x : α ⊕ β).isLeft = true := (rfl)
+@[simp] theorem isLeft_inr : (inr x : α ⊕ β).isLeft = false := (rfl)
+@[simp] theorem isRight_inl : (inl x : α ⊕ β).isRight = false := (rfl)
+@[simp] theorem isRight_inr : (inr x : α ⊕ β).isRight = true := (rfl)
 
-@[simp] theorem getLeft_inl (h : (inl x : α ⊕ β).isLeft) : (inl x).getLeft h = x := rfl
-@[simp] theorem getRight_inr (h : (inr x : α ⊕ β).isRight) : (inr x).getRight h = x := rfl
+@[simp] theorem getLeft_inl (h : (inl x : α ⊕ β).isLeft) : (inl x).getLeft h = x := (rfl)
+@[simp] theorem getRight_inr (h : (inr x : α ⊕ β).isRight) : (inr x).getRight h = x := (rfl)
 
-@[simp] theorem getLeft?_inl : (inl x : α ⊕ β).getLeft? = some x := rfl
-@[simp] theorem getLeft?_inr : (inr x : α ⊕ β).getLeft? = none := rfl
-@[simp] theorem getRight?_inl : (inl x : α ⊕ β).getRight? = none := rfl
-@[simp] theorem getRight?_inr : (inr x : α ⊕ β).getRight? = some x := rfl
+@[simp] theorem getLeft?_inl : (inl x : α ⊕ β).getLeft? = some x := (rfl)
+@[simp] theorem getLeft?_inr : (inr x : α ⊕ β).getLeft? = none := (rfl)
+@[simp] theorem getRight?_inl : (inl x : α ⊕ β).getRight? = none := (rfl)
+@[simp] theorem getRight?_inr : (inr x : α ⊕ β).getRight? = some x := (rfl)
 
 end get
 
@@ -99,10 +99,10 @@ protected def elim {α β γ} (f : α → γ) (g : β → γ) : α ⊕ β → γ
   fun x => Sum.casesOn x f g
 
 @[simp] theorem elim_inl (f : α → γ) (g : β → γ) (x : α) :
-    Sum.elim f g (inl x) = f x := rfl
+    Sum.elim f g (inl x) = f x := (rfl)
 
 @[simp] theorem elim_inr (f : α → γ) (g : β → γ) (x : β) :
-    Sum.elim f g (inr x) = g x := rfl
+    Sum.elim f g (inr x) = g x := (rfl)
 
 /--
 Transforms a sum according to functions on each type.
@@ -112,9 +112,9 @@ This function maps `α ⊕ β` to `α' ⊕ β'`, sending `α` to `α'` and `β` 
 protected def map (f : α → α') (g : β → β') : α ⊕ β → α' ⊕ β' :=
   Sum.elim (inl ∘ f) (inr ∘ g)
 
-@[simp] theorem map_inl (f : α → α') (g : β → β') (x : α) : (inl x).map f g = inl (f x) := rfl
+@[simp] theorem map_inl (f : α → α') (g : β → β') (x : α) : (inl x).map f g = inl (f x) := (rfl)
 
-@[simp] theorem map_inr (f : α → α') (g : β → β') (x : β) : (inr x).map f g = inr (g x) := rfl
+@[simp] theorem map_inr (f : α → α') (g : β → β') (x : β) : (inr x).map f g = inr (g x) := (rfl)
 
 /--
 Swaps the factors of a sum type.
@@ -123,9 +123,9 @@ The constructor `Sum.inl` is replaced with `Sum.inr`, and vice versa.
 -/
 def swap : α ⊕ β → β ⊕ α := Sum.elim inr inl
 
-@[simp] theorem swap_inl : swap (inl x : α ⊕ β) = inr x := rfl
+@[simp] theorem swap_inl : swap (inl x : α ⊕ β) = inr x := (rfl)
 
-@[simp] theorem swap_inr : swap (inr x : α ⊕ β) = inl x := rfl
+@[simp] theorem swap_inr : swap (inr x : α ⊕ β) = inl x := (rfl)
 
 section LiftRel
 

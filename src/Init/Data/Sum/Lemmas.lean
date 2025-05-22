@@ -100,10 +100,10 @@ theorem inr_ne_inl : inr b ≠ inl a := nofun
 /-! ### `Sum.elim` -/
 
 @[simp] theorem elim_comp_inl (f : α → γ) (g : β → γ) : Sum.elim f g ∘ inl = f :=
-  rfl
+  (rfl)
 
 @[simp] theorem elim_comp_inr (f : α → γ) (g : β → γ) : Sum.elim f g ∘ inr = g :=
-  rfl
+  (rfl)
 
 @[simp] theorem elim_inl_inr : @Sum.elim α β _ inl inr = id :=
   funext fun x => Sum.casesOn x (fun _ => rfl) fun _ => rfl

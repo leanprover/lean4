@@ -109,7 +109,18 @@ def addSimpCongrTheorem (declName : Name) (attrKind : AttributeKind) (prio : Nat
   let lemma ← mkSimpCongrTheorem declName prio
   congrExtension.add lemma attrKind
 
-builtin_initialize
+/--
+Register `simp` congruence theorems.
+
+A `simp` congruence theorems should prove the equality of two applications of the same function from
+the equality of the individual arguments. They are used by `simp` to visit subexpressions of an
+application where the default congruence algorithm fails. This is in particular important for
+functions where some parameters depend on previous parameters.
+
+TODO: example
+-/
+@[builtin_init, builtin_doc]
+private def init :=
   registerBuiltinAttribute {
     name  := `congr
     descr := "congruence theorem"

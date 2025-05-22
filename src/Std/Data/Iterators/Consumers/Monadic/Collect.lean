@@ -5,6 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Consumers.Monadic.Partial
+import Std.Data.Iterators.TempLawfulMonadLift
 
 /-!
 # Collectors
@@ -103,23 +104,26 @@ Asserts that a given `IteratorCollect` instance is equal to `IteratorCollect.def
 (Even though equal, the given instance might be vastly more efficient.)
 -/
 class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
-    {β : Type w} [Monad n] [Iterator α m β] [i : IteratorCollect α m n] where
-  lawful : i = .defaultImplementation
+    {β : Type w} [Monad m] [Monad n] [Iterator α m β] [i : IteratorCollect α m n] where
+  lawful_toArrayMapped : ∀ lift [LawfulMonadLiftFunction lift] [Finite α m],
+    i.toArrayMapped lift (α := α) (γ := γ)
+      = IteratorCollect.defaultImplementation.toArrayMapped lift
 
 theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] [Finite α m] [IteratorCollect α m n]
+    {n : Type w → Type w''} [Monad m] [Monad n] [Iterator α m β] [Finite α m] [IteratorCollect α m n]
     [hl : LawfulIteratorCollect α m n] {lift : ⦃δ : Type w⦄ → m δ → n δ}
+    [LawfulMonadLiftFunction lift]
     {f : β → n γ} {it : IterM (α := α) m β} :
     IteratorCollect.toArrayMapped lift f it (m := m) =
       IterM.DefaultConsumers.toArrayMapped lift f it (m := m) := by
-  cases hl.lawful; rfl
+  rw [lawful_toArrayMapped]; rfl
 
 instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Monad n]
     [Iterator α m β] [Monad m] [Iterator α m β] [Finite α m] :
     haveI : IteratorCollect α m n := .defaultImplementation
     LawfulIteratorCollect α m n :=
   letI : IteratorCollect α m n := .defaultImplementation
-  ⟨rfl⟩
+  ⟨fun _ => rfl⟩
 
 /--
 This is an internal function used in `IteratorCollectPartial.defaultImplementation`.

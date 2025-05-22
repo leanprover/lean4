@@ -32,7 +32,6 @@ double lean_float_div(double, double);
 extern uint8_t l_instDecidableTrue;
 LEAN_EXPORT lean_object* l_Float_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_frExp___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_floatDecLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instLEFloat;
 LEAN_EXPORT lean_object* l_Float_round___boxed(lean_object*);
 double ceil(double);
@@ -75,7 +74,6 @@ double lean_uint8_to_float(uint8_t);
 double cbrt(double);
 double lean_uint64_to_float(uint64_t);
 LEAN_EXPORT lean_object* l_Float_toUInt8___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_floatDecLt(double, double);
 LEAN_EXPORT lean_object* l_Float_isNaN___boxed(lean_object*);
 static lean_object* l_instReprFloat___closed__1;
 LEAN_EXPORT lean_object* l_Float_cos___boxed(lean_object*);
@@ -114,11 +112,9 @@ uint16_t lean_float_to_uint16(double);
 uint32_t lean_float_to_uint32(double);
 LEAN_EXPORT lean_object* l_instReprAtomFloat;
 LEAN_EXPORT lean_object* l_Float_cbrt___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_floatDecLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instNegFloat;
 double acosh(double);
 double log2(double);
-LEAN_EXPORT uint8_t l_floatDecLe(double, double);
 double cosh(double);
 LEAN_EXPORT lean_object* l_instAddFloat;
 LEAN_EXPORT lean_object* l_Float_ceil___boxed(lean_object*);
@@ -435,48 +431,6 @@ lean_dec(x_1);
 x_4 = lean_unbox_float(x_2);
 lean_dec(x_2);
 x_5 = lean_float_decLe(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_floatDecLt(double x_1, double x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_float_decLt(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_floatDecLt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-double x_3; double x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_float(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_float(x_2);
-lean_dec(x_2);
-x_5 = l_floatDecLt(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_floatDecLe(double x_1, double x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_float_decLe(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_floatDecLe___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-double x_3; double x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_float(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_float(x_2);
-lean_dec(x_2);
-x_5 = l_floatDecLe(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }

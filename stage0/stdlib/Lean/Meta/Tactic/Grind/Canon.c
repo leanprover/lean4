@@ -752,7 +752,7 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23;
 x_20 = lean_ctor_get(x_18, 0);
 x_21 = lean_ctor_get(x_18, 1);
 x_22 = l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_isDefEqBounded___lambda__2___closed__1;
-x_23 = lean_ctor_get_uint8(x_20, sizeof(void*)*7 + 11);
+x_23 = lean_ctor_get_uint8(x_20, sizeof(void*)*6 + 11);
 lean_dec(x_20);
 if (x_23 == 0)
 {
@@ -832,7 +832,7 @@ lean_inc(x_52);
 lean_inc(x_51);
 lean_dec(x_18);
 x_53 = l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_isDefEqBounded___lambda__2___closed__1;
-x_54 = lean_ctor_get_uint8(x_51, sizeof(void*)*7 + 11);
+x_54 = lean_ctor_get_uint8(x_51, sizeof(void*)*6 + 11);
 lean_dec(x_51);
 if (x_54 == 0)
 {
@@ -918,7 +918,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_G
 _start:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint64_t x_33; uint8_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
-x_14 = lean_ctor_get(x_4, 5);
+x_14 = lean_ctor_get(x_4, 4);
 lean_inc(x_14);
 lean_dec(x_4);
 x_15 = lean_ctor_get(x_11, 0);

@@ -834,7 +834,7 @@ theorem getElem_length_sub_one_eq_getLast {l : List α} (h : l.length - 1 < l.le
   rw [← getLast_eq_getElem]
 
 @[simp, grind] theorem getLast_cons_cons {a : α} {l : List α} :
-    getLast (a :: b :: l) (by simp) = getLast (b :: l) (by simp) := by
+    getLast (a :: b :: l) (by simp) = getLast (b :: l) (by simp) :=
   rfl
 
 theorem getLast_cons {a : α} {l : List α} : ∀ (h : l ≠ nil),

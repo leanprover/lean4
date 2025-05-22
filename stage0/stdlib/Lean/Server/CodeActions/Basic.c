@@ -144,7 +144,6 @@ static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_517____closed__9;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_517____closed__5;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instCodeActionProviderInhabited___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1213_(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -235,6 +234,7 @@ lean_object* l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJsonCodeActionP
 LEAN_EXPORT lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic___hyg_59____lambda__1___boxed(lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1538____spec__2(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1213____spec__1___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Server_handleCodeAction___spec__8(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1213____spec__1___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1483,7 +1483,7 @@ x_16 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_517____la
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_17, x_4, x_5, x_9);
+x_18 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_17, x_4, x_5, x_9);
 lean_dec(x_5);
 lean_dec(x_4);
 x_19 = !lean_is_exclusive(x_18);
@@ -1586,7 +1586,7 @@ x_15 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_517____la
 x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_16, x_5, x_6, x_9);
+x_17 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_16, x_5, x_6, x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_18 = !lean_is_exclusive(x_17);
@@ -1729,7 +1729,7 @@ x_16 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_517____la
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_17, x_4, x_5, x_9);
+x_18 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_17, x_4, x_5, x_9);
 x_19 = !lean_is_exclusive(x_18);
 if (x_19 == 0)
 {
@@ -1811,7 +1811,7 @@ x_15 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_517____la
 x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_16, x_5, x_6, x_9);
+x_17 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_16, x_5, x_6, x_9);
 lean_dec(x_5);
 x_18 = !lean_is_exclusive(x_17);
 if (x_18 == 0)

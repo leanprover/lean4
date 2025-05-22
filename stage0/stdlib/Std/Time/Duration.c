@@ -57,6 +57,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Duration_instHSubOffset__2;
 static lean_object* l_Std_Time_Duration_instHAddOffset__1___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_instOrdDuration___lambda__1___boxed(lean_object*);
 static lean_object* l___private_Std_Time_Duration_0__Std_Time_reprDuration____x40_Std_Time_Duration___hyg_295____closed__18;
+LEAN_EXPORT lean_object* l_Std_Time_Duration_instLT;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_addDays___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Std_Time_Duration_0__Std_Time_reprDuration____x40_Std_Time_Duration___hyg_295____closed__4;
 static lean_object* l___private_Std_Time_Duration_0__Std_Time_reprDuration____x40_Std_Time_Duration___hyg_295____closed__2;
@@ -125,6 +126,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Duration_toSeconds(lean_object*);
 static lean_object* l_Std_Time_Duration_toMilliseconds___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instHSubPlainTime(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Duration_ofMillisecond___closed__1;
+LEAN_EXPORT uint8_t l_Std_Time_Duration_instDecidableLt(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Duration_addHours___closed__1;
 LEAN_EXPORT lean_object* l___private_Std_Time_Duration_0__Std_Time_reprDuration____x40_Std_Time_Duration___hyg_295____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_toDays(lean_object*);
@@ -193,6 +195,7 @@ lean_object* lean_int_ediv(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_compareOn___at_Std_Time_instOrdDuration___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqDuration(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instHSubOffset__1;
+LEAN_EXPORT lean_object* l_Std_Time_Duration_instDecidableLt___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Duration_instHSub___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instHSubPlainTime___boxed(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
@@ -1696,6 +1699,46 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Std_Time_Duration_instLT() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+LEAN_EXPORT uint8_t l_Std_Time_Duration_instDecidableLt(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = l_Std_Time_Duration_ofNanoseconds___closed__1;
+x_5 = lean_int_mul(x_3, x_4);
+x_6 = lean_ctor_get(x_1, 1);
+x_7 = lean_int_add(x_5, x_6);
+lean_dec(x_5);
+x_8 = lean_ctor_get(x_2, 0);
+x_9 = lean_int_mul(x_8, x_4);
+x_10 = lean_ctor_get(x_2, 1);
+x_11 = lean_int_add(x_9, x_10);
+lean_dec(x_9);
+x_12 = lean_int_dec_lt(x_7, x_11);
+lean_dec(x_11);
+lean_dec(x_7);
+return x_12;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Duration_instDecidableLt___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Time_Duration_instDecidableLt(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 static lean_object* _init_l_Std_Time_Duration_toMinutes___closed__1() {
 _start:
 {
@@ -3009,6 +3052,8 @@ l_Std_Time_Duration_toMilliseconds___closed__1 = _init_l_Std_Time_Duration_toMil
 lean_mark_persistent(l_Std_Time_Duration_toMilliseconds___closed__1);
 l_Std_Time_Duration_instLE = _init_l_Std_Time_Duration_instLE();
 lean_mark_persistent(l_Std_Time_Duration_instLE);
+l_Std_Time_Duration_instLT = _init_l_Std_Time_Duration_instLT();
+lean_mark_persistent(l_Std_Time_Duration_instLT);
 l_Std_Time_Duration_toMinutes___closed__1 = _init_l_Std_Time_Duration_toMinutes___closed__1();
 lean_mark_persistent(l_Std_Time_Duration_toMinutes___closed__1);
 l_Std_Time_Duration_toDays___closed__1 = _init_l_Std_Time_Duration_toDays___closed__1();

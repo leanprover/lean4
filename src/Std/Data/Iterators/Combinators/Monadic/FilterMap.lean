@@ -141,6 +141,35 @@ instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} 
     Finite (Map α m n lift f) n :=
   Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
+def FilterMap.instFinitenessRelation_inner {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {f : β → PostconditionT n (Option γ)} [Finite (FilterMap α m n lift f) n] :
+    FinitenessRelation α m where
+  rel := InvImage IterM.IsPlausibleSuccessorOf (fun it => IterM.InternalCombinators.filterMap lift f it)
+  wf := InvImage.wf _ Finite.wf
+  subrelation {it it'} h := by
+    obtain ⟨step, h, h'⟩ := h
+    cases step
+    case yield it' out =>
+      simp [InvImage, IterM.IsPlausibleSuccessorOf]
+      refine ⟨.yield it' out, sorry⟩
+      sorry
+    -- sorry
+    -- case yield it' out h x y=>
+    --   sorry
+    -- cases h'
+    -- case yieldNone it' out h' h'' =>
+    --   cases h
+    --   exact IterM.isPlausibleSuccessorOf_of_yield h'
+    -- case yieldSome it' out h' h'' =>
+    --   cases h
+    --   exact IterM.isPlausibleSuccessorOf_of_yield h'
+    -- case skip it' h' =>
+    --   cases h
+    --   exact IterM.isPlausibleSuccessorOf_of_skip h'
+    -- case done h' =>
+    --   cases h
+
 private def Map.instProductivenessRelation {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Productive α m] :
@@ -163,7 +192,7 @@ instance Map.instProductive {α β γ : Type w} {m : Type w → Type w'}
 instance {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
     {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n (Option γ)} [Finite α m] :
+    {f : β → PostconditionT n (Option γ)} :
     IteratorCollect (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
@@ -196,7 +225,7 @@ instance FilterMap.instIteratorLoopPartial {α β γ : Type w} {m : Type w → T
 instance Map.instIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
     {lift₁ : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} [Finite α m] [IteratorCollect α m o] :
+    {f : β → PostconditionT n γ} [IteratorCollect α m o] :
     IteratorCollect (Map α m n lift₁ f) n o where
   toArrayMapped lift₂ _ g it :=
     IteratorCollect.toArrayMapped

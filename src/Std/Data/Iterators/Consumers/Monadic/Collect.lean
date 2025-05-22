@@ -94,7 +94,7 @@ used instead.
 -/
 @[always_inline, inline]
 def IteratorCollect.defaultImplementation {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] [Finite α m] :
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] :
     IteratorCollect α m n where
   toArrayMapped := IterM.DefaultConsumers.toArrayMapped
 
@@ -103,7 +103,7 @@ Asserts that a given `IteratorCollect` instance is equal to `IteratorCollect.def
 (Even though equal, the given instance might be vastly more efficient.)
 -/
 class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
-    {β : Type w} [Monad n] [Iterator α m β] [Finite α m] [i : IteratorCollect α m n] where
+    {β : Type w} [Monad n] [Iterator α m β] [i : IteratorCollect α m n] where
   lawful : i = .defaultImplementation
 
 theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w → Type w'}

@@ -48,6 +48,13 @@ def IterM.InternalCombinators.filterMap {α β γ : Type w} {m : Type w → Type
     (it : IterM (α := α) m β) : IterM (α := FilterMap α m n lift f) n γ :=
   toIterM ⟨it⟩ n γ
 
+@[always_inline, inline]
+def IterM.InternalCombinators.map {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] (lift : ⦃α : Type w⦄ → m α → n α)
+    [Iterator α m β] (f : β → PostconditionT n γ)
+    (it : IterM (α := α) m β) : IterM (α := Map α m n lift f) n γ :=
+  toIterM ⟨it⟩ n γ
+
 /--
 Given an iterator `it`, a monadic `Option`-valued mapping function `f` and a monad transformation `mf`,
 `it.filterMapWithProof f mf` is an iterator that applies `f` to each output of `it`. If `f` returns `none`,
@@ -141,35 +148,6 @@ instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} 
     Finite (Map α m n lift f) n :=
   Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
-def FilterMap.instFinitenessRelation_inner {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n (Option γ)} [Finite (FilterMap α m n lift f) n] :
-    FinitenessRelation α m where
-  rel := InvImage IterM.IsPlausibleSuccessorOf (fun it => IterM.InternalCombinators.filterMap lift f it)
-  wf := InvImage.wf _ Finite.wf
-  subrelation {it it'} h := by
-    obtain ⟨step, h, h'⟩ := h
-    cases step
-    case yield it' out =>
-      simp [InvImage, IterM.IsPlausibleSuccessorOf]
-      refine ⟨.yield it' out, sorry⟩
-      sorry
-    -- sorry
-    -- case yield it' out h x y=>
-    --   sorry
-    -- cases h'
-    -- case yieldNone it' out h' h'' =>
-    --   cases h
-    --   exact IterM.isPlausibleSuccessorOf_of_yield h'
-    -- case yieldSome it' out h' h'' =>
-    --   cases h
-    --   exact IterM.isPlausibleSuccessorOf_of_yield h'
-    -- case skip it' h' =>
-    --   cases h
-    --   exact IterM.isPlausibleSuccessorOf_of_skip h'
-    -- case done h' =>
-    --   cases h
-
 private def Map.instProductivenessRelation {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Productive α m] :
@@ -225,12 +203,14 @@ instance FilterMap.instIteratorLoopPartial {α β γ : Type w} {m : Type w → T
 instance Map.instIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
     {lift₁ : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} [IteratorCollect α m o] :
+    {f : β → PostconditionT n γ} [IteratorCollect α m o] [Finite α m] :
     IteratorCollect (Map α m n lift₁ f) n o where
   toArrayMapped lift₂ _ g it :=
+    letI : MonadLift m n := ⟨lift₁ (α := _)⟩
+    letI : MonadLift n o := ⟨lift₂ (δ := _)⟩
     IteratorCollect.toArrayMapped
-      (lift := fun ⦃_⦄ a => lift₂ (lift₁ a))
-      (fun x => do g (← lift₂ (f x).operation))
+      (lift := fun ⦃_⦄ => monadLift)
+      (fun x => do g (← (f x).operation))
       it.internalState.inner (m := m)
 
 instance Map.instIteratorCollectPartial {α β γ : Type w} {m : Type w → Type w'}
@@ -287,7 +267,7 @@ This combinator incurs an additional O(1) cost with each output of `it` in addit
 def IterM.mapWithProof {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad n] [MonadLiftT m n] [Iterator α m β] (f : β → PostconditionT n γ)
     (it : IterM (α := α) m β) : IterM (α := Map α m n (fun ⦃_⦄ => monadLift) f) n γ :=
-  toIterM ⟨it⟩ n γ
+  InternalCombinators.map (fun {_} => monadLift) f it
 
 /--
 Given an iterator `it`, a monadic predicate `p` and a monad transformation `mf`,

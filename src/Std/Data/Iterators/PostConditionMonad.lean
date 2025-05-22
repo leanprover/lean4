@@ -160,7 +160,7 @@ theorem PostconditionT.property_map {m : Type w → Type w'} [Functor m] {α : T
     exact ⟨⟨a, ha⟩, h⟩
 
 @[simp]
-theorem PostconditionT.computation_map {m : Type w → Type w'} [Functor m] {α : Type w} {β : Type w}
+theorem PostconditionT.operation_map {m : Type w → Type w'} [Functor m] {α : Type w} {β : Type w}
     {x : PostconditionT m α} {f : α → β} :
     (x.map f).operation = (fun a => ⟨_, a, rfl⟩) <$> x.operation :=
   rfl

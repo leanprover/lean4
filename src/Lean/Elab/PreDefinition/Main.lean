@@ -307,6 +307,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
         trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
       let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
       let preDefs ← betaReduceLetRecApps preDefs
+      let preDefs ← preDefs.mapM (transformLetToHave ·)
       let cliques := partitionPreDefs preDefs
       for preDefs in cliques do
         trace[Elab.definition.scc] "{preDefs.map (·.declName)}"

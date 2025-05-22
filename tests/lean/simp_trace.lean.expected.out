@@ -25,7 +25,7 @@ Try this: simp only [foo]
 [Meta.Tactic.simp.rewrite] unfold foo, foo ==> 10
 [Meta.Tactic.simp.rewrite] eq_self:1000: 10 + x = 10 + x ==> True
 Try this: simp only [g, pure]
-[Meta.Tactic.simp.rewrite] unfold g, g x ==> (let x := x;
+[Meta.Tactic.simp.rewrite] unfold g, g x ==> (have x := x;
       pure x).run
 Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modifyGet, MonadStateOf.modifyGet,
   StateT.modifyGet, pure, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, set, StateT.set]

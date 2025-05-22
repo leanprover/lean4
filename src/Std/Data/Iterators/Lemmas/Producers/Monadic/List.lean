@@ -30,7 +30,8 @@ theorem _root_.List.step_iterM_cons {x : β} {xs : List β} :
   simp only [List.iterM, IterM.step, Iterator.step]; rfl
 
 theorem ListIterator.toArrayMapped_iterM [Monad n] [LawfulMonad n]
-    {β : Type w} {γ : Type w} {lift : {δ : Type w} → m δ → n δ} {f : β → n γ} {l : List β} :
+    {β : Type w} {γ : Type w} {lift : {δ : Type w} → m δ → n δ}
+    (hlift : ∀ δ (d : δ), lift (pure d) = pure d) {f : β → n γ} {l : List β} :
     IteratorCollect.toArrayMapped lift f (l.iterM m) (m := m) = List.toArray <$> l.mapM f := by
   rw [LawfulIteratorCollect.toArrayMapped_eq]
   induction l with

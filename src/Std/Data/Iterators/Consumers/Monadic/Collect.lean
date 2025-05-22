@@ -41,7 +41,7 @@ class IteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Typ
   `Array`. This is an internal implementation detail. Consider using `it.map f |>.toArray` instead.
   -/
   toArrayMapped [Finite α m] :
-    (lift : {δ : Type w} → m δ → n δ) → {γ : Type w} → (β → n γ) → IterM (α := α) m β → n (Array γ)
+    (lift : ⦃δ : Type w⦄ → m δ → n δ) → {γ : Type w} → (β → n γ) → IterM (α := α) m β → n (Array γ)
 
 /--
 `IteratorCollectPartial α m` provides efficient implementations of collectors for `α`-based
@@ -59,7 +59,7 @@ class IteratorCollectPartial (α : Type w) (m : Type w → Type w') (n : Type w 
   Consider using `it.map f |>.allowNontermination.toArray` instead.
   -/
   toArrayMappedPartial :
-    (lift : {δ : Type w} → m δ → n δ) → {γ : Type w} → (β → n γ) → IterM (α := α) m β → n (Array γ)
+    (lift : ⦃δ : Type w⦄ → m δ → n δ) → {γ : Type w} → (β → n γ) → IterM (α := α) m β → n (Array γ)
 
 end Typeclasses
 
@@ -74,12 +74,12 @@ of `f` into an array.
 @[always_inline, inline]
 def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Iterator α m β] [Finite α m]
-    (lift : {α : Type w} → m α → n α) {γ : Type w} (f : β → n γ)
+    (lift : ⦃α : Type w⦄ → m α → n α) {γ : Type w} (f : β → n γ)
     (it : IterM (α := α) m β) : n (Array γ) :=
   go it #[]
 where
   @[specialize]
-  go [Monad n] [Finite α m] (it : IterM (α := α) m β) a := letI : MonadLift m n := ⟨lift⟩; do
+  go [Monad n] [Finite α m] (it : IterM (α := α) m β) a := letI : MonadLift m n := ⟨lift (α := _)⟩; do
     match ← it.step with
     | .yield it' b _ => go it' (a.push (← f b))
     | .skip it' _ => go it' a
@@ -108,7 +108,7 @@ class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w �
 
 theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Iterator α m β] [Finite α m] [IteratorCollect α m n]
-    [hl : LawfulIteratorCollect α m n] {lift : {δ : Type w} → m δ → n δ}
+    [hl : LawfulIteratorCollect α m n] {lift : ⦃δ : Type w⦄ → m δ → n δ}
     {f : β → n γ} {it : IterM (α := α) m β} :
     IteratorCollect.toArrayMapped lift f it (m := m) =
       IterM.DefaultConsumers.toArrayMapped lift f it (m := m) := by
@@ -165,7 +165,7 @@ verify the behavior of the partial variant.
 def IterM.toArray {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Finite α m] [IteratorCollect α m m]
     (it : IterM (α := α) m β) : m (Array β) :=
-  IteratorCollect.toArrayMapped id pure it
+  IteratorCollect.toArrayMapped (fun ⦃_⦄ => id) pure it
 
 /--
 Traverses the given iterator and stores the emitted values in an array.
@@ -176,7 +176,7 @@ its behavior. If the iterator has a `Finite` instance, consider using `IterM.toA
 @[always_inline, inline]
 def IterM.Partial.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollectPartial α m m] : m (Array β) :=
-  IteratorCollectPartial.toArrayMappedPartial id pure it.it
+  IteratorCollectPartial.toArrayMappedPartial (fun ⦃_⦄ => id) pure it.it
 
 end ToArray
 

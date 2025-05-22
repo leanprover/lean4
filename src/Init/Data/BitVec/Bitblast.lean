@@ -1750,6 +1750,136 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
         ((not_congr neg_eq_zero_iff).mpr hyz)]
       exact neg_le_intMin_of_msb_eq_true h'
 
+@[simp]
+theorem le_of_msb_true_of_msb_false {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    x ≤ y := by
+  simp only [LE.le]
+  simp
+  have := toNat_ge_of_msb_true hy
+  have := toNat_lt_of_msb_false hx
+  omega
+
+@[simp]
+theorem umod_msb_false {x y : BitVec w} (xmsb : y.msb = false) (hy_ne_zero : y ≠ 0#w) :
+    (x % y).msb = false := by
+  simp [hy_ne_zero]
+  intro h
+  exact le_of_msb_true_of_msb_false xmsb h
+
+@[simp]
+theorem intMin_umod_msb_false {y : BitVec w} (hy : y.msb = true) (hy_ne_zero : y ≠ 0#w):
+    (intMin w % (-y)).msb = false := by
+  by_cases yintmin : y = intMin w
+  · simp [yintmin]
+  · rw [umod_msb_false]
+    simp [msb_neg, hy, yintmin, hy_ne_zero]
+    simp [hy_ne_zero]
+
+theorem msb_neg_umod_neg_of_msb_true_of_msb_true
+    {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+      (-x % -y).msb = false := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · by_cases hx' : x = intMin (w + 1)
+    · simp only [hx', neg_intMin]
+      exact intMin_umod_msb_false (y := y) hy (by simp [ne_zero_of_msb_true hy])
+    · simp [show (-x).msb = false by simp [hx, hx']]
+
+theorem toInt_dvd_toInt_iff {x y : BitVec w} :
+    y.toInt ∣ x.toInt ↔ (if x.msb then -x else x) % (if y.msb then -y else y) = 0#w := by
+  constructor
+  <;> by_cases hxmsb : x.msb <;> by_cases hymsb: y.msb
+  <;> intros h
+  <;> simp only [hxmsb, hymsb, reduceIte, false_eq_true, toNat_eq, toNat_umod, toNat_ofNat,
+        zero_mod, toInt_eq_neg_toNat_neg_of_msb_true, Int.dvd_neg, Int.neg_dvd,
+        toInt_eq_toNat_of_msb] at h
+  <;> simp only [hxmsb, hymsb, toInt_eq_neg_toNat_neg_of_msb_true, toInt_eq_toNat_of_msb,
+        Int.dvd_neg, Int.neg_dvd, toNat_eq, toNat_umod, reduceIte, toNat_ofNat, zero_mod]
+  <;> norm_cast
+  <;> norm_cast at h
+  <;> simp only [dvd_of_mod_eq_zero, h, dvd_iff_mod_eq_zero.mp, reduceIte]
+
+theorem toInt_dvd_iff_of_msb_true_msb_false {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
+    y.toInt ∣ x.toInt ↔ (-x) % y = 0#w := by
+  have := toInt_dvd_toInt_iff (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
+theorem toInt_dvd_iff_of_msb_false_msb_true {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    y.toInt ∣ x.toInt ↔ x % (-y) = 0#w := by
+  have := toInt_dvd_toInt_iff (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
+@[simp]
+theorem neg_toInt_neg {x : BitVec w} (h : x.msb = false) :
+    -((-x).toInt) = x.toNat := by
+  simp [toInt_neg_eq_of_msb h, toInt_eq_toNat_of_msb, h]
+
+@[simp]
+theorem neg_toInt_neg_umod_eq_ofmsb_true_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+    -(-(-x % -y)).toInt = (-x % -y).toNat := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
+  rw [neg_toInt_neg]
+  by_cases h : -x % -y = 0#w
+  · simp [h]
+  · rw [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
+
+theorem toInt_smod {x y : BitVec w} :
+    (x.smod y).toInt = x.toInt.fmod y.toInt := by
+  rcases w with _|w ; simp [of_length_zero]
+  by_cases hxzero : x = 0#(w + 1) ; simp [hxzero]
+  by_cases hyzero : y = 0#(w + 1) ; simp [hyzero]
+  have hypos : 0 < y.toNat := by simp [toNat_eq] at hyzero; omega
+  rw [smod_eq]
+  cases hxmsb : x.msb <;> cases hymsb : y.msb
+  <;> simp only [umod_eq]
+  · have hylt := toNat_lt_of_msb_false (x := y) (by omega)
+    have hmodlt := Nat.mod_lt x.toNat (by omega)
+    rw [toInt_umod, Int.fmod_eq_emod_of_nonneg x.toInt (toInt_nonneg_of_msb_false hymsb),
+      toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb,
+      Int.bmod_eq_of_le_mul_two (by omega) (by simp at hylt; omega)]
+  · have hxnonneg := toInt_nonneg_of_msb_false (x := x) hxmsb
+    have hynonpos := toInt_neg_of_msb_true (x := y) hymsb
+    have hley := toNat_ge_of_msb_true hymsb
+    have hylt : (-y).toNat ≤  2 ^ w :=
+      by simp at hley; rw [toNat_neg, Nat.mod_eq_of_lt (by omega)]; omega
+    simp only [Int.fmod_eq_tmod, Int.tmod_eq_emod_of_nonneg hxnonneg, Int.ofNat_toNat]
+    have hmodlt := Nat.mod_lt (x := x.toNat) (y := (-y).toNat)
+          (by rw [toNat_neg, Nat.mod_eq_of_lt (by simp at hley; omega)]; omega)
+    by_cases humod : x % -y = 0#(w+1)
+    · simp only [humod, reduceIte, toInt_zero]
+      simp only [hxmsb, hymsb, ← toInt_dvd_iff_of_msb_false_msb_true] at humod
+      omega
+    · simp only [humod, reduceIte, toInt_zero]
+      simp only [hxmsb, hymsb, ← toInt_dvd_iff_of_msb_false_msb_true] at humod
+      simp only [humod, ↓reduceIte, toInt_add, hxnonneg, show ¬0 ≤ y.toInt by omega]
+      rw [toInt_umod, toInt_eq_neg_toNat_neg_of_msb_true hymsb, Int.bmod_add_bmod,
+        Int.bmod_eq_of_le (n := (x.toNat : Int) % ((-y).toNat : Int) + -((-y).toNat : Int))
+          (m := 2 ^ (w + 1)) (by omega) (by omega),
+        toInt_eq_toNat_of_msb hxmsb, Int.emod_neg]
+  · have hynonneg := toInt_nonneg_of_msb_false (x := y) hymsb
+    rw [Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) (by omega)]
+    have hylt := toNat_lt_of_msb_false (x := y) hymsb
+    have hdvd := toInt_dvd_iff_of_msb_true_msb_false hxmsb hymsb
+    by_cases humod : -x % y = 0#(w+1)
+    · simp only [humod, iff_true] at hdvd
+      simp [humod]
+      omega
+    · simp only [humod, ↓reduceIte, toInt_sub, toInt_eq_toNat_of_msb (x := y) hymsb,
+        toInt_umod, Int.sub_bmod_bmod, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
+        Int.neg_emod, Int.natAbs_natCast]
+      have hmodlt := Nat.mod_lt (x := (-x).toNat) (y := y.toNat) hypos
+      rw [Int.bmod_eq_of_le (by omega) (by simp at hylt; omega)]
+      simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
+        Int.dvd_neg, humod, iff_false] at hdvd
+      omega
+  · rw [← Int.neg_inj]
+    rw [neg_toInt_neg_umod_eq_ofmsb_true_msb_true hxmsb hymsb]
+    simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb,
+    hymsb, Int.fmod_eq_emod_of_nonneg _, show 0 ≤ ↑(-y).toNat by omega]
+
 /-! ### Lemmas that use bit blasting circuits -/
 
 theorem add_sub_comm {x y : BitVec w} : x + y - z = x - z + y := by

@@ -12,7 +12,7 @@ import Lean.Meta.Constructions.NoConfusionLinear
 
 register_builtin_option backwards.linearNoConfusionType : Bool := {
   defValue := true
-  descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type, else use for the no-confusion-tyep for inductive types"
+  descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type. Set to false to use the previous, simpler but quadratic-size construction. "
 }
 
 namespace Lean

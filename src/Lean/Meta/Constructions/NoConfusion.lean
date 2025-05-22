@@ -10,9 +10,9 @@ import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.NoConfusionLinear
 
 
-register_builtin_option linearNoConfusionType : Bool := {
+register_builtin_option backwards.linearNoConfusionType : Bool := {
   defValue := true
-  descr    := "use the linear-size construction for the no-confusion-tyep for inductive types"
+  descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type, else use for the no-confusion-tyep for inductive types"
 }
 
 namespace Lean
@@ -29,15 +29,15 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
   let useLinear ←
-    if linearNoConfusionType.get (← getOptions) then
-      linearNoConfusionDeps.allM (hasConst · (skipRealize := true))
+    if backwards.linearNoConfusionType.get (← getOptions) then
+      NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))
     else
       pure false
 
   if useLinear then
-    mkWithCtorType declName
-    mkWithCtor declName
-    mkNoConfusionTypeLinear declName
+    NoConfusionLinear.mkWithCtorType declName
+    NoConfusionLinear.mkWithCtor declName
+    NoConfusionLinear.mkNoConfusionTypeLinear declName
   else
     let name := Name.mkStr declName "noConfusionType"
     let decl ← ofExceptKernelException (mkNoConfusionTypeCoreImp (← getEnv) declName)

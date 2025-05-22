@@ -33,16 +33,15 @@ This module is written in a rather manual style, constructing the `Expr` directl
 read with the expected output to the side.
 -/
 
-namespace Lean
+namespace Lean.NoConfusionLinear
 
 open Meta
 
 /--
 List of constants that the linear `noConfusionType` construction depends on.
 -/
-def linearNoConfusionDeps : Array Lean.Name :=
-  #[ ``Nat.lt, ``cond, ``OfNat.ofNat, ``instOfNatNat, ``Nat, ``PUnit, ``Eq, ``Not, ``dite,
-     ``Nat.decEq, ``Nat.blt ]
+def deps : Array Lean.Name :=
+  #[ ``Nat.lt, ``cond, ``Nat, ``PUnit, ``Eq, ``Not, ``dite, ``Nat.decEq, ``Nat.blt ]
 
 def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let type ← inferType default
@@ -54,11 +53,20 @@ def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr 
       let mid := (start + stop) / 2
       let low ← go start mid
       let high ← go mid stop
-      return mkApp4 (mkConst ``cond [u]) type (mkApp2 (mkConst ``Nat.blt) n (mkNatLit mid)) low high
+      return mkApp4 (mkConst ``cond [u]) type (mkApp2 (mkConst ``Nat.blt) n (mkRawNatLit mid)) low high
   if h : es.size = 0 then
     pure default
   else
     go 0 es.size
+
+def mkWithCtorTypeName (indName : Name) : Name :=
+  Name.str indName "noConfusionType" |>.str "withCtorType"
+
+def mkWithCtorName (indName : Name) : Name :=
+  Name.str indName "noConfusionType" |>.str "withCtor"
+
+def mkNoConfusionTypeName (indName : Name) : Name :=
+  Name.str indName "noConfusionType"
 
 def mkWithCtorType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
@@ -81,7 +89,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
       let e ← mkNatLookupTable ctorIdx es default
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
-  let declName := Name.str indName "noConfusionType" |>.str "withCtorType"
+  let declName := mkWithCtorTypeName indName
   addAndCompile (.defnDecl (← mkDefinitionValInferrringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
@@ -95,7 +103,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
 
 def mkWithCtor (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
-  let withCtorTypeName := Name.str indName "noConfusionType" |>.str "withCtorType"
+  let withCtorTypeName := mkWithCtorTypeName indName
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
@@ -123,7 +131,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
             let ctor := mkAppN (mkConst ctorName us) xs
             let ctorType ← inferType ctor
             forallTelescope ctorType fun zs _ => do
-              let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) ctorIdx (mkNatLit i)
+              let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) ctorIdx (mkRawNatLit i)
               let «then» ← withLocalDeclD `h heq fun h => do
                 let e ← mkEqNDRec (motive := withCtorTypeNameApp) k h
                 let e := mkApp e (mkConst ``PUnit.unit [indLevel])
@@ -133,13 +141,13 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
               let «else» ← withLocalDeclD `h (mkNot heq) fun h =>
                 mkLambdaFVars #[h] k'
               let alt := mkApp5 (mkConst ``dite [v.succ])
-                  P heq (mkApp2 (mkConst ``Nat.decEq) ctorIdx (mkNatLit i))
+                  P heq (mkApp2 (mkConst ``Nat.decEq) ctorIdx (mkRawNatLit i))
                   «then» «else»
               mkLambdaFVars zs alt
           let e := mkAppN e alts
           mkLambdaFVars (xs ++ #[P, ctorIdx, k, k'] ++ ys ++ #[x]) e
 
-  let declName := Name.str indName "noConfusionType" |>.str "withCtor"
+  let declName := mkWithCtorName indName
   -- not compiled to avoid old code generator bug #1774
   addDecl (.defnDecl (← mkDefinitionValInferrringUnsafe
     (name        := declName)
@@ -153,7 +161,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   setReducibleAttribute declName
 
 def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
-  let declName := .str indName "noConfusionType"
+  let declName := mkNoConfusionTypeName indName
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstVal casesOnName
@@ -179,10 +187,10 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
             let alts' ← alts.mapIdxM fun i alt => do
               let altType ← inferType alt
               forallTelescope altType fun zs1 _ => do
-                let alt := mkConst (Name.str declName "withCtor") (v :: us)
+                let alt := mkConst (mkWithCtorName indName) (v :: us)
                 let alt := mkAppN alt xs
                 let alt := mkApp alt PType
-                let alt := mkApp alt (mkNatLit i)
+                let alt := mkApp alt (mkRawNatLit i)
                 let k ← forallTelescopeReducing (← inferType alt).bindingDomain! fun zs2 _ => do
                   let eqs ← (Array.zip zs1 zs2[1:]).filterMapM fun (z1,z2) => do
                     if (← isProof z1) then
@@ -214,3 +222,5 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
   modifyEnv fun env => addToCompletionBlackList env declName
   modifyEnv fun env => addProtected env declName
   setReducibleAttribute declName
+
+end Lean.NoConfusionLinear

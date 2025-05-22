@@ -8,7 +8,7 @@ module
 prelude
 import Init.Data.Int.Order
 import Init.Grind.Module.Basic
-import Init.Grind.Ordered.PartialOrder
+import Init.Grind.Ordered.Order
 
 namespace Lean.Grind
 

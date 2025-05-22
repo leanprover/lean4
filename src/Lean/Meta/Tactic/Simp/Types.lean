@@ -483,6 +483,14 @@ Save current cache, reset it, execute `x`, and then restore original cache.
   modify fun s => { s with cache := {} }
   try x finally modify fun s => { s with cache := cacheSaved }
 
+/--
+Save current `dsimpCache`, reset it, execute `x`, and then resotre original cache.
+-/
+@[inline] def withFreshDSimpCache (x : SimpM α) : SimpM α := do
+  let cacheSaved := (← get).dsimpCache
+  modify fun s => { s with dsimpCache := {} }
+  try x finally modify fun s => { s with dsimpCache := cacheSaved }
+
 @[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (wellBehavedDischarge : Bool) (x : SimpM α) : SimpM α :=
   withFreshCache <|
   withReader (fun r => { MethodsRef.toMethods r with discharge?, wellBehavedDischarge }.toMethodsRef) x

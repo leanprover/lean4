@@ -3,6 +3,9 @@ This test tests and also explains the noConfusionType construction.
 
 It contains copies of the definitions of the constructions, for manual experimentation with
 the code, and uses `#guard_msgs` and `rfl` to compare them to the generated ones.
+
+This also serves as documentation to the `NoConfusionLinear` module, so do not delete or remove
+from this file without updating that module's docstring.
 -/
 
 inductive Vec.{u} (α : Type) : Nat → Type u where

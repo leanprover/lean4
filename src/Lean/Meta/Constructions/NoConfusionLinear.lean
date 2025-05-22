@@ -8,6 +8,31 @@ import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
 
+/-!
+This module produces a construction for the `noConfusionType` that is linear in size in the number of
+constructors of the inductive type. This is in contrast to the previous construction (definde in
+`no_confusion.cpp`), that is quadratic in size due to nested `.brecOn` applications.
+
+We still use the old construction when processing the prelude, for the few inductives that we need
+until below (`Nat`, `Bool`, `Decidable`).
+
+The main trick is to use a `withCtor` helper that is like a match with one constructor pattern and
+one catch-all pattern, and thus linear in size. And the helper itself is a single function
+definition, rather than one for each constructor, using a `withCtorType` helper in the function.
+
+See the `linearNoConfusion.lean` test for exemplary output of this translation (checked to be
+up-to-date).
+
+The `withCtor` functions could be generally useful, but for that they should probably eliminate into
+`Sort _` rather than `Type _`, and then writing the `withCtorType` function runs into universe level
+confusion, which may be solvable if the kernel had more complete univere level normalization.
+Until then we put these helper in the `noConfusionType` namespace to indicate that they are not
+general purpose.
+
+This module is written in a rather manual style, constructing the `Expr` directly. It's best
+read with the expected output to the side.
+-/
+
 namespace Lean
 
 open Meta

@@ -507,7 +507,6 @@ inductive zicondop where | RISCV_CZERO_EQZ | RISCV_CZERO_NEZ
 inductive f_un_rm_ff_op_S where | FSQRT_S
   deriving Inhabited, BEq
 
-set_option linearNoConfusionType true
 inductive ast where
   | ILLEGAL (_ : word)
   | C_ILLEGAL (_ : half)

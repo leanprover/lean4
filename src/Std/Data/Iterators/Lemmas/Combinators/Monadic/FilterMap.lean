@@ -6,16 +6,17 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Combinators.Monadic.FilterMap
 import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Std.Data.Iterators.TempLawfulMonadLift
 
 namespace Std.Iterators
 
 section Step
 
-variable {α : Type w} {m : Type w → Type w'} {β : Type w} {β' : Type w}
-  [Iterator α m β] (it : IterM (α := α) m β) [Monad m]
-  (f : β → PostconditionT m (Option β'))
+variable {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+  [Iterator α m β] {it : IterM (α := α) m β}
 
-theorem IterM.step_filterMapWithProof [LawfulMonad m] :
+theorem IterM.step_filterMapWithProof {f : β → PostconditionT n (Option β')}
+    [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterMapWithProof f).step = (do
     match ← it.step with
     | .yield it' out h => do
@@ -39,7 +40,7 @@ theorem IterM.step_filterMapWithProof [LawfulMonad m] :
   | .skip it' h => rfl
   | .done h => rfl
 
-theorem IterM.step_filterMap [LawfulMonad m] {f : β → Option β'} :
+theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
   (it.filterMap f).step = (do
     match ← it.step with
     | .yield it' out h => do
@@ -61,7 +62,8 @@ theorem IterM.step_filterMap [LawfulMonad m] {f : β → Option β'} :
   · simp
   · simp
 
-theorem IterM.step_mapWithProof [LawfulMonad m] {f : β → PostconditionT m β'} :
+theorem IterM.step_mapWithProof [Monad n] [LawfulMonad n] [MonadLiftT m n]
+    {f : β → PostconditionT n β'} :
   (it.mapWithProof f).step = (do
     match ← it.step with
     | .yield it' out h => do
@@ -81,7 +83,7 @@ theorem IterM.step_mapWithProof [LawfulMonad m] {f : β → PostconditionT m β'
   · rfl
   · rfl
 
-theorem IterM.step_map [LawfulMonad m] {f : β → β'} :
+theorem IterM.step_map [Monad m] [LawfulMonad m] {f : β → β'} :
   (it.map f).step = (do
     match ← it.step with
     | .yield it' out h =>
@@ -98,7 +100,7 @@ theorem IterM.step_map [LawfulMonad m] {f : β → β'} :
   · rfl
   · rfl
 
-theorem IterM.step_filter [LawfulMonad m] {f : β → Bool} :
+theorem IterM.step_filter [Monad m] [LawfulMonad m] {f : β → Bool} :
   (it.filter f).step = (do
     match ← it.step with
     | .yield it' out h =>
@@ -130,28 +132,38 @@ section Lawful
 variable {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {m : Type w → Type x}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃δ : Type w⦄ -> m δ → n δ} {f : β → PostconditionT n γ}
 
-instance [LawfulMonad n] [IteratorCollect α m o]
-    [LawfulIteratorCollect α m o] :
+instance [Monad m] [LawfulMonad n] [LawfulMonad o] [IteratorCollect α m o]
+    [LawfulIteratorCollect α m o] [LawfulMonadLiftFunction lift] [Finite α m] :
     LawfulIteratorCollect (Map α m n lift f) n o where
-  finite := inferInstance
-  lawful := by
-    intro γ
-    ext f it
-    have : it = it.inner.inner.mapWithProof _ := rfl
-    generalize it.inner.inner = it at *
+  lawful_toArrayMapped := by
+    intro δ lift' _ _
+    letI : MonadLift m n := ⟨lift (δ := _)⟩
+    letI : MonadLift n o := ⟨lift' (α := _)⟩
+    ext g it
+    have : it = IterM.mapWithProof _ it.internalState.inner := by rfl
+    generalize it.internalState.inner = it at *
     cases this
+    simp only [LawfulIteratorCollect.toArrayMapped_eq]
     simp only [IteratorCollect.toArrayMapped]
-    rw [LawfulIteratorCollect.lawful]
-    induction it using IterM.induct with | step it ih_yield ih_skip =>
-    rw [IterM.DefaultConsumers.toArrayMapped_of_step]
-    rw [IterM.DefaultConsumers.toArrayMapped_of_step]
-    simp only [IterM.step_mapWithProof, bind_assoc]
+    rw [LawfulIteratorCollect.toArrayMapped_eq]
+    induction it using IterM.inductSteps with | step it ih_yield ih_skip =>
+    rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
+    rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
+    simp only [bind_assoc]
+    rw [IterM.step_mapWithProof]
+    simp only [liftM_bind (m := n) (n := o), bind_assoc]
     apply bind_congr
     intro step
     split
     · simp only [bind_pure_comp, bind_map_left, ← ih_yield ‹_›]
+      simp only [liftM_map, bind_map_left]
+      apply bind_congr
+      intro out'
+      simp [← ih_yield ‹_›]
       rfl
-    · simp only [bind_pure_comp, pure_bind, ← ih_skip ‹_›]
+    · simp only [bind_pure_comp, pure_bind] --, ← ih_skip ‹_›]
+      simp only [liftM_pure, pure_bind]
+      simp [← ih_skip ‹_›]
       rfl
     · simp
 

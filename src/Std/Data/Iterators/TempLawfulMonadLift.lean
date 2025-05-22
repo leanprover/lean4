@@ -6,6 +6,7 @@ Authors: Quang Dao
 prelude
 import Init.Control.Basic
 import Init.Control.Lawful.Basic
+import Init.NotationExtra
 
 /-!
 # LawfulMonadLift and LawfulMonadLiftT
@@ -118,6 +119,12 @@ instance {m : Type u → Type v} [Monad m] : LawfulMonadLiftFunction (fun ⦃α�
   lift_pure := by simp
   lift_bind := by simp
 
+instance {m : Type u → Type v} [Monad m] {n : Type u → Type w} [Monad n] [MonadLiftT m n]
+    [LawfulMonadLiftT m n] :
+    LawfulMonadLiftFunction (fun ⦃α⦄ => (monadLift : m α → n α)) where
+  lift_pure := monadLift_pure
+  lift_bind := monadLift_bind
+
 variable {m : Type u → Type v} {n : Type u → Type w} [Monad m] [Monad n]
     {lift : ⦃α : Type u⦄ → m α → n α}
 
@@ -142,4 +149,36 @@ theorem LawfulMonadLiftFunction.lift_seqRight [LawfulMonad m] [LawfulMonad n]
     lift (x *> y) = (lift x : n α) *> (lift y : n β) := by
   simp only [seqRight_eq, lift_map, lift_seq]
 
+def instMonadLiftOfFunction {lift : ⦃α : Type u⦄ -> m α → n α} :
+    MonadLift m n where
+  monadLift := lift (α := _)
+
+instance [LawfulMonadLiftFunction lift] :
+    letI : MonadLift m n := ⟨lift (α := _)⟩
+    LawfulMonadLift m n :=
+  letI : MonadLift m n := ⟨lift (α := _)⟩
+  { monadLift_pure := LawfulMonadLiftFunction.lift_pure
+    monadLift_bind := LawfulMonadLiftFunction.lift_bind }
+
 end MonadLiftFunction
+
+section Instances
+
+universe u v w x
+
+variable {m : Type u → Type v} {n : Type u → Type w} {o : Type u → Type x}
+
+variable (m n o) in
+instance [Monad m] [Monad n] [Monad o] [MonadLift n o] [MonadLiftT m n]
+    [LawfulMonadLift n o] [LawfulMonadLiftT m n] : LawfulMonadLiftT m o where
+  monadLift_pure := fun a => by
+    simp only [monadLift, LawfulMonadLift.monadLift_pure, liftM_pure]
+  monadLift_bind := fun ma f => by
+    simp only [monadLift, LawfulMonadLift.monadLift_bind, liftM_bind]
+
+variable (m) in
+instance [Monad m] : LawfulMonadLiftT m m where
+  monadLift_pure _ := rfl
+  monadLift_bind _ _ := rfl
+
+end Instances

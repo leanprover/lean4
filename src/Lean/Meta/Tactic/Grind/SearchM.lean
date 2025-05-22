@@ -22,11 +22,12 @@ structure Choice where
   non-chronological backtracking.
   `proof` is often a `casesOn` application containing meta-variables.
   -/
-  proof    : Expr
+  proof      : Expr
   /--
   Subgoals that still need to be processed.
   -/
-  todo     : List Goal
+  todo       : List Goal
+  generation : Nat
   deriving Inhabited
 
 structure SearchM.State where
@@ -64,7 +65,7 @@ update current goal using `s`.
 - If there are more than one `s :: ss`, we create a choice point using the current
 goal as the pending goal, and update the current goal with `s`.
 -/
-def mkChoice (proof : Expr) (subgoals : List Goal) : SearchM Unit := do
+def mkChoice (proof : Expr) (subgoals : List Goal) (generation : Nat) : SearchM Unit := do
   assert! !(← isInconsistent)
   match subgoals with
   | [] =>
@@ -76,7 +77,7 @@ def mkChoice (proof : Expr) (subgoals : List Goal) : SearchM Unit := do
     let goalPending ← getGoal
     modify fun s => { s with
       goal := subgoal
-      choiceStack := { goalPending, proof, todo := subgoals } :: s.choiceStack
+      choiceStack := { goalPending, proof, generation, todo := subgoals } :: s.choiceStack
     }
 
 /--
@@ -124,12 +125,14 @@ private def closeLastPending (falseProof : Expr) : SearchM Unit := do
 Auxliary function for implementing `nextGoal`.
 It is similar to `nextGoal`, but uses chronological backtracking.
 We use it when we cannot extract a proof of `False` from proof used to close the current goal.
+Returns `some gen` if a new goal was found for a choice point with generation `gen`,
+and returns `none` otherwise.
 -/
-private def nextChronoGoal : SearchM Bool := do
+private def nextChronoGoal? : SearchM (Option Nat) := do
   let mut choices := (← get).choiceStack
   repeat
     match choices with
-    | [] => return false
+    | [] => return none
     | choice :: choices' =>
       match choice.todo with
       | [] =>
@@ -143,7 +146,7 @@ private def nextChronoGoal : SearchM Bool := do
           goal
           choiceStack := choice :: choices'
         }
-        return true
+        return some choice.generation
   unreachable!
 
 private def isTargetFalse (mvarId : MVarId) : MetaM Bool := do
@@ -161,24 +164,24 @@ private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := do
 /--
 Select the next goal to be processed from the `choiceStack`.
 This function assumes the current goal has been closed (i.e., `inconsistent` is `true`)
-Returns `true` if a new goal was found, and returns `false` otherwise.
-When the result is `false`, the initial goal has been solved.
+Returns `some gen` if a new goal was found for a choice point with generation `gen`,
+and returns `none` otherwise.
 -/
-def nextGoal : SearchM Bool := do
+def nextGoal? : SearchM (Option Nat) := do
   let mut choices := (← get).choiceStack
   if choices.isEmpty then
-    return false -- done
+    return none -- done
   let goal := (← get).goal
   assert! goal.inconsistent
   let some falseProof ← getFalseProof? goal.mvarId
-    | nextChronoGoal
+    | nextChronoGoal?
   let mut falseProof := falseProof
   let some max ← findMaxFVarIdx? falseProof
-    | closeLastPending falseProof; return false
+    | closeLastPending falseProof; return none
   let mut maxFVarIdx := max
   repeat
     let choice :: choices' := choices
-      | resetChoiceStack; return false
+      | resetChoiceStack; return none
     let mvarDecl ← choice.goalPending.mvarId.getDecl
     let numIndices := mvarDecl.lctx.numIndices
     if maxFVarIdx < numIndices then
@@ -196,7 +199,7 @@ def nextGoal : SearchM Bool := do
           -- `proof` is a proof of `False`, we can continue using non-chronological backtracking
           falseProof := proof
           let some max ← findMaxFVarIdx? falseProof
-            | closeLastPending falseProof; return false
+            | closeLastPending falseProof; return none
           maxFVarIdx := max
           choices := choices'
         else
@@ -204,7 +207,7 @@ def nextGoal : SearchM Bool := do
           -- This case can only happen if we are using eager case-splitting with types with
           -- more than one constructor.
           modify fun s => { s with choiceStack := choices' }
-          return (← nextChronoGoal)
+          return (← nextChronoGoal?)
       | goal :: todo =>
         -- Found `next` goal to be processed.
         -- Update the current choice point, and current goal.
@@ -213,7 +216,7 @@ def nextGoal : SearchM Bool := do
           goal
           choiceStack := choice :: choices'
         }
-        return true
+        return some choice.generation
   unreachable!
 
 end Lean.Meta.Grind

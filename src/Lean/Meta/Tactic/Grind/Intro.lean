@@ -197,7 +197,7 @@ private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withConte
   else
     return { goal with mvarId := (← goal.mvarId.exfalso) }
 
-private def applyCases? (fvarId : FVarId) : SearchM Bool := withCurrGoalContext do
+private def applyCases? (fvarId : FVarId) (generation : Nat) : SearchM Bool := withCurrGoalContext do
   /-
   Remark: we used to use `whnfD`. This was a mistake, we don't want to unfold user-defined abstractions.
   Example: `a ∣ b` is defined as `∃ x, b = a * x`
@@ -213,7 +213,7 @@ private def applyCases? (fvarId : FVarId) : SearchM Bool := withCurrGoalContext 
     let mvarIds ← cases mvarId (mkFVar fvarId)
     let goal ← getGoal
     let goals := mvarIds.map fun mvarId => { goal with mvarId }
-    mkChoice (mkMVar mvarId) goals
+    mkChoice (mkMVar mvarId) goals generation
     return true
   return false
 
@@ -237,14 +237,14 @@ def intros (generation : Nat) : SearchM Unit := do
       setGoal goal
     | .newLocal fvarId goal =>
       setGoal goal
-      discard <| applyCases? fvarId
+      discard <| applyCases? fvarId generation
     | .newHyp fvarId goal =>
       if let some goal ← applyInjection? goal fvarId then
         setGoal goal
       else
         setGoal goal
         withCurrGoalContext do
-        unless (← applyCases? fvarId) do
+        unless (← applyCases? fvarId generation) do
           addHypothesis fvarId generation
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/

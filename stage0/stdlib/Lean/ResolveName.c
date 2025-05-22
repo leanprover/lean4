@@ -210,7 +210,7 @@ LEAN_EXPORT lean_object* l_Lean_ensureNonAmbiguous(lean_object*);
 LEAN_EXPORT lean_object* l_List_toString___at_Lean_ensureNoOverload___spec__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveUniqueNamespace(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwUnknownConstant___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_filterFieldList___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveLocalName___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_resolveLocalName___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal___at_Lean_unresolveNameGlobalAvoidingLocals___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -280,6 +280,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reservedNamePredicatesRef;
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_resolveLocalName___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwUnknownConstantAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_insert___at_Lean_addAliasEntry___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_getRevAliases___spec__6___rarg(lean_object*, lean_object*, lean_object*);
@@ -5212,6 +5213,15 @@ x_8 = lean_apply_2(x_6, lean_box(0), x_7);
 return x_8;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_filterFieldList___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; 
+x_7 = l_Lean_throwUnknownConstantAt___rarg(x_1, x_2, x_6, x_3);
+x_8 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_7, x_4);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_filterFieldList___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -5246,12 +5256,23 @@ return x_14;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_15 = lean_ctor_get(x_1, 1);
 lean_inc(x_15);
-x_16 = l_Lean_throwUnknownConstant___rarg(x_1, x_2, x_3);
-x_17 = lean_apply_4(x_15, lean_box(0), lean_box(0), x_16, x_7);
-return x_17;
+x_16 = lean_ctor_get(x_2, 1);
+lean_inc(x_16);
+x_17 = lean_ctor_get(x_16, 0);
+lean_inc(x_17);
+lean_dec(x_16);
+lean_inc(x_15);
+x_18 = lean_alloc_closure((void*)(l_Lean_filterFieldList___rarg___lambda__2), 6, 5);
+lean_closure_set(x_18, 0, x_1);
+lean_closure_set(x_18, 1, x_2);
+lean_closure_set(x_18, 2, x_3);
+lean_closure_set(x_18, 3, x_7);
+lean_closure_set(x_18, 4, x_15);
+x_19 = lean_apply_4(x_15, lean_box(0), lean_box(0), x_17, x_18);
+return x_19;
 }
 }
 }

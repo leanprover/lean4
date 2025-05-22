@@ -45,7 +45,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCast_x21___rarg(lean_object
 LEAN_EXPORT lean_object* l_Std_Internal_List_minKeyD___at_Std_Internal_List_maxKeyD___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__List_forIn_x27__cons_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_minEntry_x3f___at_Std_Internal_List_maxKey_x21___spec__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Option_isSome_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getKey___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCast___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_List_getValueCast_x21___rarg___closed__1;
@@ -113,7 +112,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_minKey_x3f___at_Std_Internal_List_m
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_Internal_List_minEntry_x3f___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCast_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Option_isSome_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValue_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_alterKey_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getKey_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -129,7 +127,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_minEntry_x3f___rarg(lean_object*, l
 static lean_object* l_Std_Internal_List_getValueCast_x21___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Std_Internal_List_alterKey(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minEntry_x3f__cons_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Option_isSome_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_maxKey_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_replaceEntry___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueD___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1916,43 +1913,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Std_Internal_List_Const_modifyKey___rarg), 4, 0);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Option_isSome_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_dec(x_2);
-lean_inc(x_3);
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Option_isSome_match__1_splitter(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Std_Data_Internal_List_Associative_0__Option_isSome_match__1_splitter___rarg___boxed), 3, 0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Option_isSome_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Std_Data_Internal_List_Associative_0__Option_isSome_match__1_splitter___rarg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Option_getD_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

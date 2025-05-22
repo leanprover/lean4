@@ -1957,7 +1957,7 @@ Examples:
 @[inline] protected def toString (c : Char) : String :=
   String.singleton c
 
-@[simp] theorem length_toString (c : Char) : c.toString.length = 1 := (rfl)
+@[simp] theorem length_toString (c : Char) : c.toString.length = 1 := rfl
 
 end Char
 
@@ -1970,11 +1970,11 @@ theorem ext_iff {s₁ s₂ : String} : s₁ = s₂ ↔ s₁.data = s₂.data := 
 
 @[simp] theorem default_eq : default = "" := rfl
 
-@[simp] theorem length_mk (s : List Char) : (String.mk s).length = s.length := (rfl)
+@[simp] theorem length_mk (s : List Char) : (String.mk s).length = s.length := rfl
 
-@[simp] theorem length_empty : "".length = 0 := (rfl)
+@[simp] theorem length_empty : "".length = 0 := rfl
 
-@[simp] theorem length_singleton (c : Char) : (String.singleton c).length = 1 := (rfl)
+@[simp] theorem length_singleton (c : Char) : (String.singleton c).length = 1 := rfl
 
 @[simp] theorem length_push (c : Char) : (String.push s c).length = s.length + 1 := by
   rw [push, length_mk, List.length_append, List.length_singleton, Nat.succ.injEq]
@@ -1986,9 +1986,9 @@ theorem ext_iff {s₁ s₂ : String} : s₁ = s₂ ↔ s₁.data = s₂.data := 
 @[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
   simp only [length, append, List.length_append]
 
-@[simp] theorem data_push (s : String) (c : Char) : (s.push c).data = s.data ++ [c] := (rfl)
+@[simp] theorem data_push (s : String) (c : Char) : (s.push c).data = s.data ++ [c] := rfl
 
-@[simp] theorem data_append (s t : String) : (s ++ t).data = s.data ++ t.data := (rfl)
+@[simp] theorem data_append (s t : String) : (s ++ t).data = s.data ++ t.data := rfl
 
 attribute [simp] toList -- prefer `String.data` over `String.toList` in lemmas
 
@@ -2062,27 +2062,27 @@ theorem lt_iff {i₁ i₂ : Pos} : i₁ < i₂ ↔ i₁.byteIdx < i₂.byteIdx :
 
 end Pos
 
-@[simp] theorem get!_eq_get (s : String) (p : Pos) : get! s p = get s p := (rfl)
+@[simp] theorem get!_eq_get (s : String) (p : Pos) : get! s p = get s p := rfl
 
 theorem lt_next' (s : String) (p : Pos) : p < next s p := lt_next ..
 
-@[simp] theorem prev_zero (s : String) : prev s 0 = 0 := (rfl)
+@[simp] theorem prev_zero (s : String) : prev s 0 = 0 := rfl
 
-@[simp] theorem get'_eq (s : String) (p : Pos) (h) : get' s p h = get s p := (rfl)
+@[simp] theorem get'_eq (s : String) (p : Pos) (h) : get' s p h = get s p := rfl
 
-@[simp] theorem next'_eq (s : String) (p : Pos) (h) : next' s p h = next s p := (rfl)
+@[simp] theorem next'_eq (s : String) (p : Pos) (h) : next' s p h = next s p := rfl
 
 -- `toSubstring'` is just a synonym for `toSubstring` without the `@[inline]` attribute
 -- so for proving can be unfolded.
 attribute [simp] toSubstring'
 
-theorem singleton_eq (c : Char) : singleton c = ⟨[c]⟩ := (rfl)
+theorem singleton_eq (c : Char) : singleton c = ⟨[c]⟩ := rfl
 
-@[simp] theorem data_singleton (c : Char) : (singleton c).data = [c] := (rfl)
+@[simp] theorem data_singleton (c : Char) : (singleton c).data = [c] := rfl
 
 @[simp] theorem append_empty (s : String) : s ++ "" = s := ext (List.append_nil _)
 
-@[simp] theorem empty_append (s : String) : "" ++ s = s := (rfl)
+@[simp] theorem empty_append (s : String) : "" ++ s = s := rfl
 
 theorem append_assoc (s₁ s₂ s₃ : String) : (s₁ ++ s₂) ++ s₃ = s₁ ++ (s₂ ++ s₃) :=
   ext (List.append_assoc ..)

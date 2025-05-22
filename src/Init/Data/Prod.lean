@@ -62,15 +62,15 @@ theorem swap_swap : ∀ x : α × β, swap (swap x) = x
 
 @[simp]
 theorem fst_swap {p : α × β} : (swap p).1 = p.2 :=
-  (rfl)
+  rfl
 
 @[simp]
 theorem snd_swap {p : α × β} : (swap p).2 = p.1 :=
-  (rfl)
+  rfl
 
 @[simp]
 theorem swap_prod_mk {a : α} {b : β} : swap (a, b) = (b, a) :=
-  (rfl)
+  rfl
 
 @[simp]
 theorem swap_swap_eq : swap ∘ swap = @id (α × β) :=
@@ -85,6 +85,6 @@ For two functions `f` and `g`, the composition of `Prod.map f g` with `Prod.swap
 is equal to the composition of `Prod.swap` with `Prod.map g f`.
 -/
 theorem map_comp_swap (f : α → β) (g : γ → δ) :
-    Prod.map f g ∘ Prod.swap = Prod.swap ∘ Prod.map g f := (rfl)
+    Prod.map f g ∘ Prod.swap = Prod.swap ∘ Prod.map g f := rfl
 
 end Prod

@@ -83,6 +83,11 @@ instance : EmptyCollection (DTreeMap α β cmp) where
 instance : Inhabited (DTreeMap α β cmp) where
   default := ∅
 
+@[inherit_doc Impl.Equiv]
+structure Equiv (m₁ m₂ : DTreeMap α β cmp) where
+  /-- Internal implementation detail of the hash map -/
+  inner : m₁.1.Equiv m₂.1
+
 @[simp]
 theorem empty_eq_emptyc : (empty : DTreeMap α β cmp) = ∅ :=
   rfl

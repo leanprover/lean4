@@ -153,6 +153,7 @@ macro_rules
      $[apply $(using?.toArray):term];*)
     <;> with_reducible try wf_trivial)
 
+/-
 theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
   rfl
 
@@ -6023,7 +6024,7 @@ theorem maxKeyD_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
 end Const
 
 end Max
-
+-/
 namespace Equiv
 
 variable {t₁ t₂ t₃ : Impl α β} {δ : Type w} {m : Type w → Type w}
@@ -6037,6 +6038,13 @@ theorem trans : Equiv t₁ t₂ → Equiv t₂ t₃ → Equiv t₁ t₃
   | ⟨h⟩, ⟨h'⟩ => ⟨h.trans h'⟩
 
 instance instTrans : @Trans (Impl α β) _ _ Equiv Equiv Equiv := ⟨trans⟩
+
+theorem comm : t₁ ~m t₂ ↔ t₂ ~m t₁ := ⟨symm, symm⟩
+theorem congr_left (h : t₁ ~m t₂) : t₁ ~m t₃ ↔ t₂ ~m t₃ := ⟨h.symm.trans, h.trans⟩
+theorem congr_right (h : t₁ ~m t₂) : t₃ ~m t₁ ↔ t₃ ~m t₂ :=
+  ⟨fun h' => h'.trans h, fun h' => h'.trans h.symm⟩
+
+-- congruence lemmas
 
 theorem isEmpty_eq (h : t₁ ~m t₂) : t₁.isEmpty = t₂.isEmpty := by
   simp_to_model [isEmpty] using List.Perm.isEmpty_eq h.1
@@ -6419,7 +6427,7 @@ theorem filterMap (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a :
 
 section Const
 
-variable {β : Type v} {t₁ t₂ t₃ : Impl α fun _ => β} {δ : Type w} {m : Type w → Type w}
+variable {β : Type v} {t₁ t₂ : Impl α β} {δ : Type w} {m : Type w → Type w}
 
 theorem constGet?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     Const.get? t₁ k = Const.get? t₂ k := by
@@ -6584,8 +6592,9 @@ end Const
 variable {t₄ : Impl α β}
 
 theorem mergeWith [TransOrd α] [LawfulEqOrd α]
-    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (h₃ : t₃.WF) (h₄ : t₄.WF) (h' : t₃ ~m t₄)
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     {f : (a : α) → β a → β a → β a} :
     (t₁.mergeWith f t₃ h₁.balanced).impl ~m (t₂.mergeWith f t₄ h₂.balanced).impl := by
   simp only [Impl.mergeWith, h'.foldl_eq h₃ h₄, foldl_eq_foldl]
@@ -6594,9 +6603,91 @@ theorem mergeWith [TransOrd α] [LawfulEqOrd α]
   intro a ha c c' hc
   exact ⟨hc.1.alter, hc.2.1.alter, hc.2.2.alter hc.1 hc.2.1⟩
 
+-- extensionalities
+
+theorem of_forall_get?_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (∀ k, t₁.get? k = t₂.get? k) → t₁ ~m t₂ := by
+  simp_to_model [get?, Equiv] using List.getValueCast?_ext
+
+section Const
+
+variable {β : Type v} {t₁ t₂ : Impl α β}
+
+theorem of_forall_getKey_eq_of_forall_constGet?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (∀ k hk hk', t₁.getKey k hk = t₂.getKey k hk') →
+    (∀ k, Const.get? t₁ k = Const.get? t₂ k) → t₁ ~m t₂ := by
+  simp_to_model [Const.get?, Equiv, getKey, contains] using List.getKey_getValue?_ext
+
+theorem of_forall_constGet?_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (∀ k, Const.get? t₁ k = Const.get? t₂ k) → t₁ ~m t₂ := by
+  simp_to_model [Const.get?, Equiv]
+  simpa only [getValue?_eq_getValueCast?] using
+    List.getValueCast?_ext h₁.ordered.distinctKeys h₂.ordered.distinctKeys
+
+theorem of_forall_getKey?_unit_eq [TransOrd α] {t₁ t₂ : Impl α fun _ => Unit}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) : (∀ k, t₁.getKey? k = t₂.getKey? k) → t₁ ~m t₂ := by
+  simp_to_model [getKey?, Equiv] using List.getKey?_ext
+
+theorem of_forall_contains_unit_eq [TransOrd α] [LawfulEqOrd α]
+    {t₁ t₂ : Impl α fun _ => Unit} (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (∀ k, t₁.contains k = t₂.contains k) → t₁ ~m t₂ := by
+  simp_to_model [contains, Equiv] using List.containsKey_ext
+
+theorem of_forall_mem_unit_iff [TransOrd α] [LawfulEqOrd α]
+    {t₁ t₂ : Impl α Unit} (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (∀ k, k ∈ t₁ ↔ k ∈ t₂) → t₁ ~m t₂ := by
+  simpa [mem_iff_contains] using of_forall_contains_unit_eq h₁ h₂
+
+end Const
+
 end Equiv
 
 section Equiv
+
+variable {t₁ t₂ : Impl α β}
+
+theorem equiv_empty_iff_isEmpty : t ~m empty ↔ t.isEmpty := by
+  simp [equiv_iff_toListModel_perm, isEmpty_eq_isEmpty]
+
+theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
+  Equiv.comm.trans equiv_empty_iff_isEmpty
+
+theorem equiv_iff_toList_perm : t₁ ~m t₂ ↔ t₁.toList.Perm t₂.toList := by
+  simp_to_model [toList, Equiv]
+
+theorem Equiv.of_toList_perm : t₁.toList.Perm t₂.toList → t₁ ~m t₂ :=
+  equiv_iff_toList_perm.mpr
+
+theorem equiv_iff_toList_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    t₁ ~m t₂ ↔ t₁.toList = t₂.toList :=
+  ⟨Equiv.toList_eq h₁ h₂, .of_toList_perm ∘ .of_eq⟩
+
+section Const
+
+variable {β : Type v} {t₁ t₂ : Impl α β}
+
+theorem Const.equiv_iff_toList_perm : t₁ ~m t₂ ↔ (Const.toList t₁).Perm (Const.toList t₂) := by
+  simp_to_model [Const.toList, Equiv]
+  constructor
+  · exact List.Perm.map _
+  · intro h
+    have := h.map (fun (x, y) => (⟨x, y⟩ : (_ : α) × β))
+    simpa only [List.map_map, Function.comp_def, List.map_id'] using this
+
+theorem Const.equiv_iff_keys_perm {t₁ t₂ : Impl α Unit} :
+    t₁ ~m t₂ ↔ t₁.keys.Perm t₂.keys := by
+  simp_to_model [keys, Equiv]
+  simp only [List.keys_eq_map]
+  constructor
+  · exact List.Perm.map _
+  · intro h
+    have := h.map (fun x => (⟨x, ()⟩ : (_ : α) × Unit))
+    simpa only [List.map_map, Function.comp_def, List.map_id'] using this
+
+theorem Equiv.of_constToList_perm : t₁ ~m t₂ → t₁.toList.Perm t₂.toList :=
+  equiv_iff_toList_perm.mp
+
+end Const
 
 end Equiv
 

@@ -38,6 +38,11 @@ theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Vector α n} (f : α → β) :
   apply map_toArray_inj.mp
   simp
 
+@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {xs : Vector α n} :
+    (xs.map f).mapM g = xs.mapM (g ∘ f) := by
+  apply map_toArray_inj.mp
+  simp
+
 @[congr] theorem mapM_congr [Monad m] {xs ys : Vector α n} (w : xs = ys)
     {f : α → m β} :
     xs.mapM f = ys.mapM f := by

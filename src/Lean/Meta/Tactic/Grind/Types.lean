@@ -343,6 +343,9 @@ structure ENode where
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
 
+def ENode.isRoot (n : ENode) :=
+  isSameExpr n.self n.root
+
 def ENode.isCongrRoot (n : ENode) :=
   isSameExpr n.self n.congr
 
@@ -1250,7 +1253,7 @@ def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
 def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
   for e in (← getExprs) do
     let n ← getENode e
-    if isSameExpr n.self n.root then
+    if n.isRoot then
       f n
 
 abbrev Propagator := Expr → GoalM Unit
@@ -1302,7 +1305,7 @@ partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
  let mut r : List (List Expr) := []
  for e in goal.exprs do
     let some node := goal.getENode? e | pure ()
-    if isSameExpr node.root node.self then
+    if node.isRoot then
       r := goal.getEqc node.self :: r
   return r
 

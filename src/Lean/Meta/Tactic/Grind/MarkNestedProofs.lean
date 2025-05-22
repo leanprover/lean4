@@ -47,7 +47,7 @@ where
       return e'
     -- Remark: we have to process `Expr.proj` since we only
     -- fold projections later during term internalization
-    unless e.isApp || e.isForall || e.isProj do
+    unless e.isApp || e.isForall || e.isProj || e.isMData do
       return e
     -- Check whether it is cached
     if let some r := (← get).find? e then
@@ -68,6 +68,8 @@ where
           pure e
       | .proj _ _ b =>
         pure <| e.updateProj! (← visit b)
+      | .mdata _ b =>
+        pure <| e.updateMData! (← visit b)
       | .forallE _ d b _ =>
         -- Recall that we have `ForallProp.lean`.
         let d' ← visit d

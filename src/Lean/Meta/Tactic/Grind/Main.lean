@@ -105,7 +105,7 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) :=
   return goals.filter fun goal => !goal.inconsistent
 
 structure Result where
-  failures : List Goal
+  failure? : Option Goal
   skipped  : List Goal
   issues   : List MessageData
   config   : Grind.Config
@@ -140,11 +140,11 @@ private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) : MetaM (Option Mes
   else
     return some <| .trace { cls := `grind } "Diagnostics" msgs
 
-def Result.hasFailures (r : Result) : Bool :=
-  !r.failures.isEmpty
+def Result.hasFailed (r : Result) : Bool :=
+  r.failure?.isSome
 
 def Result.toMessageData (result : Result) : MetaM MessageData := do
-  let mut msgs ← result.failures.mapM (goalToMessageData · result.config)
+  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config)
   if result.config.verbose then
     let mut issues := result.issues
     -- We did not find the following very useful in practice.
@@ -163,23 +163,23 @@ def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Resul
   if debug.terminalTacticsAsSorry.get (← getOptions) then
     mvarId.admit
     return {
-        failures := [], skipped := [], issues := [], config := params.config, trace := {}, counters := {}, simp := {}
+        failure? := none, skipped := [], issues := [], config := params.config, trace := {}, counters := {}, simp := {}
     }
   else
     let go : GrindM Result := withReducible do
       let goals ← initCore mvarId params
-      let (failures, skipped) ← solve goals fallback
+      let (failure?, skipped) ← solve goals fallback
       trace[grind.debug.final] "{← ppGoals goals}"
       let issues   := (← get).issues
       let trace    := (← get).trace
       let counters := (← get).counters
       let simp     := (← get).simpStats
-      if failures.isEmpty then
+      if failure?.isNone then
         -- If there are no failures and diagnostics are enabled, we still report the performance counters.
         if (← isDiagnosticsEnabled) then
           if let some msg ← mkGlobalDiag counters simp then
             logInfo msg
-      return { failures, skipped, issues, config := params.config, trace, counters, simp }
+      return { failure?, skipped, issues, config := params.config, trace, counters, simp }
     go.run params fallback
 
 end Lean.Meta.Grind

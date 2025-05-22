@@ -44,7 +44,6 @@ universe signature in consequence. The `Prop` version is `Or`.
 
 namespace Sum
 
-deriving instance DecidableEq for Sum
 deriving instance BEq for Sum
 
 section get

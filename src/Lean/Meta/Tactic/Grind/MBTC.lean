@@ -94,6 +94,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
     addSplitCandidate info
   return true
 
+-- TODO: delete after we move to `SearchM`
 def mbtcTac (ctx : MBTC.Context) : GrindTactic := fun goal => do
   let (r, goal) ← GoalM.run goal do mbtc ctx
   if r then

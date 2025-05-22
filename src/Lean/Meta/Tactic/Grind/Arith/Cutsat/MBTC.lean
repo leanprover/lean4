@@ -36,6 +36,14 @@ private def eqAssignment (a b : Expr) : GoalM Bool := do
   let some v₂ ← getAssignmentExt? b | return false
   return v₁ == v₂
 
+def mbtc : GoalM Bool := do
+  Grind.mbtc {
+    hasTheoryVar := hasTheoryVar
+    isInterpreted := isInterpreted
+    eqAssignment := eqAssignment
+  }
+
+-- TODO: delete after we move to `SearchM`
 def mbtcTac : GrindTactic :=
   Grind.mbtcTac {
     hasTheoryVar := hasTheoryVar

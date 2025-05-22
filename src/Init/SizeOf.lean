@@ -50,12 +50,12 @@ for every element of `α`.
 instance (priority := low) instSizeOfDefault (α : Sort u) : SizeOf α where
   sizeOf := default.sizeOf α
 
-@[simp] theorem sizeOf_default (n : α) : sizeOf n = 0 := (rfl)
+@[simp] theorem sizeOf_default (n : α) : sizeOf n = 0 := rfl
 
 instance : SizeOf Nat where
   sizeOf n := n
 
-@[simp] theorem sizeOf_nat (n : Nat) : sizeOf n = n := (rfl)
+@[simp] theorem sizeOf_nat (n : Nat) : sizeOf n = n := rfl
 
 instance [SizeOf α] : SizeOf (Unit → α) where
   sizeOf f := sizeOf (f ())
@@ -89,7 +89,7 @@ deriving instance SizeOf for Array
 deriving instance SizeOf for Except
 deriving instance SizeOf for EStateM.Result
 
-@[simp] theorem Unit.sizeOf (u : Unit) : sizeOf u = 1 := (rfl)
+@[simp] theorem Unit.sizeOf (u : Unit) : sizeOf u = 1 := rfl
 @[simp] theorem Bool.sizeOf_eq_one (b : Bool) : sizeOf b = 1 := by cases b <;> rfl
 
 namespace Lean
@@ -107,11 +107,11 @@ noncomputable instance : SizeOf Name where
   sizeOf n := n.sizeOf
 
 @[simp] theorem Name.anonymous.sizeOf_spec : sizeOf anonymous = 1 :=
-  (rfl)
+  rfl
 @[simp] theorem Name.str.sizeOf_spec (p : Name) (s : String) : sizeOf (str p s) = 1 + sizeOf p + sizeOf s :=
-  (rfl)
+  rfl
 @[simp] theorem Name.num.sizeOf_spec (p : Name) (n : Nat) : sizeOf (num p n) = 1 + sizeOf p + sizeOf n :=
-  (rfl)
+  rfl
 
 deriving instance SizeOf for SourceInfo
 deriving instance SizeOf for Syntax

@@ -105,9 +105,9 @@ theorem shiftLeft_eq (a b : Nat) : a <<< b = a * 2 ^ b :=
   | b+1 => (shiftLeft_eq _ b).trans <| by
     simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]
 
-@[simp] theorem shiftRight_zero : n >>> 0 = n := (rfl)
+@[simp] theorem shiftRight_zero : n >>> 0 = n := rfl
 
-theorem shiftRight_succ (m n) : m >>> (n + 1) = (m >>> n) / 2 := (rfl)
+theorem shiftRight_succ (m n) : m >>> (n + 1) = (m >>> n) / 2 := rfl
 
 theorem shiftRight_add (m n : Nat) : ∀ k, m >>> (n + k) = (m >>> n) >>> k
   | 0 => rfl

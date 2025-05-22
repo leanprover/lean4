@@ -1203,6 +1203,17 @@ def markAsInconsistent : GoalM Unit := do
     modify fun s => { s with inconsistent := true }
 
 /--
+Assign the `mvarId` using the given proof of `False`.
+If type of `mvarId` is not `False`, then use `False.elim`.
+-/
+def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : MetaM Unit := do
+  let target ← mvarId.getType
+  if target.isFalse then
+    mvarId.assign falseProof
+  else
+    mvarId.assign (← mkFalseElim target falseProof)
+
+/--
 Closes the current goal using the given proof of `False` and
 marks it as inconsistent if it is not already marked so.
 -/
@@ -1210,11 +1221,7 @@ def closeGoal (falseProof : Expr) : GoalM Unit := do
   markAsInconsistent
   let mvarId := (← get).mvarId
   unless (← mvarId.isAssigned) do
-    let target ← mvarId.getType
-    if target.isFalse then
-      mvarId.assign falseProof
-    else
-      mvarId.assign (← mkFalseElim target falseProof)
+    mvarId.assignFalseProof falseProof
 
 /-- Returns all enodes in the goal -/
 def getExprs : GoalM (PArray Expr) := do

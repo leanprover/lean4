@@ -15,7 +15,6 @@ structure Choice where
   /--
   Goal where the case-split was performed.
   Invariant: `goalOld.mvarId` is not assigned.
-  Invariant: `goalOld.mvarId.getType` is `False`.
   -/
   goalPending : Goal
   /--
@@ -73,8 +72,46 @@ private def closeLastPending (falseProof : Expr) : SearchM Unit := do
     return
   else
     let last := choices.getLast (ne_of_apply_ne List.isEmpty h) |>.goalPending
-    last.mvarId.assign falseProof
+    last.mvarId.assignFalseProof falseProof
     resetChoiceStack
+
+/--
+Auxliary function for implementing `nextGoal`.
+It is similar to `nextGoal`, but uses chronological backtracking.
+We use it when we cannot extract a proof of `False` from proof used to close the current goal.
+-/
+private def nextChronoGoal : SearchM Bool := do
+  let mut choices := (← get).choiceStack
+  repeat
+    match choices with
+    | [] => return false
+    | choice :: choices' =>
+      match choice.todo with
+      | [] =>
+        -- Choice point has been fully resolved.
+        -- Go to next one.
+        choice.goalPending.mvarId.assign choice.val
+        choices := choices'
+      | goal :: todo =>
+        let choice := { choice with todo }
+        modify fun s => { s with
+          goal
+          choiceStack := choice :: choices'
+        }
+        return true
+  unreachable!
+
+private def isTargetFalse (mvarId : MVarId) : MetaM Bool := do
+  return (← mvarId.getType).isFalse
+
+private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := do
+  let proof ← instantiateMVars (mkMVar mvarId)
+  if (← isTargetFalse mvarId) then
+    return some proof
+  else if proof.isAppOfArity ``False.elim 2 || proof.isAppOfArity ``False.casesOn 2 then
+    return some proof.appArg!
+  else
+    return none
 
 /--
 Select the next goal to be processed from the `choiceStack`.
@@ -88,10 +125,11 @@ def nextGoal : SearchM Bool := do
     return false -- done
   let goal := (← get).goal
   assert! goal.inconsistent
-  let mut falseProof ← instantiateMVars (mkMVar goal.mvarId)
+  let some falseProof ← getFalseProof? goal.mvarId
+    | nextChronoGoal
+  let mut falseProof := falseProof
   let some max ← findMaxFVarIdx? falseProof
     | closeLastPending falseProof; return false
-  -- proof does not have free variables, thus it can close any goal in the choiceStack
   let mut maxFVarIdx := max
   repeat
     let choice :: choices' := choices
@@ -100,19 +138,28 @@ def nextGoal : SearchM Bool := do
     let numIndices := mvarDecl.lctx.numIndices
     if maxFVarIdx < numIndices then
       -- `falseProof` can close `choice.goalOld` since all its free-variables are in scope.
-      choice.goalPending.mvarId.assign falseProof
+      choice.goalPending.mvarId.assignFalseProof falseProof
       -- keep looking at next choice point
+      -- Remark: we may be able to find other choice points using falseProof.
       choices := choices'
     else match choice.todo with
       | [] =>
         -- All subgoals have been solved. We can finally assign `choice.val` to `goalOld.mvarId`.
-        -- Actually, `choice.val` is a new proof for `False`
-        falseProof := choice.val
-        choice.goalPending.mvarId.assign falseProof
-        let some max ← findMaxFVarIdx? falseProof
-          | closeLastPending falseProof; return false
-        maxFVarIdx := max
-        choices := choices'
+        let proof ← instantiateMVars choice.val
+        choice.goalPending.mvarId.assign proof
+        if (← isTargetFalse choice.goalPending.mvarId) then
+          -- `proof` is a proof of `False`, we can continue using non-chronological backtracking
+          falseProof := proof
+          let some max ← findMaxFVarIdx? falseProof
+            | closeLastPending falseProof; return false
+          maxFVarIdx := max
+          choices := choices'
+        else
+          -- `proof` is not a proof of `False`. Thus, we switch to chronological backtracking.
+          -- This case can only happen if we are using eager case-splitting with types with
+          -- more than one constructor.
+          modify fun s => { s with choiceStack := choices' }
+          return (← nextChronoGoal)
       | goal :: todo =>
         -- Found `next` goal to be processed.
         -- Update the current choice point, and current goal.

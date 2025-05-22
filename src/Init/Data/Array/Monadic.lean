@@ -25,6 +25,11 @@ open Nat
 
 /-! ## Monadic operations -/
 
+@[simp] theorem map_toList_inj [Monad m] [LawfulMonad m]
+    {xs : m (Array α)} {ys : m (Array α)} :
+   toList <$> xs = toList <$> ys ↔ xs = ys :=
+  _root_.map_inj_right (by simp)
+
 /-! ### mapM -/
 
 @[simp] theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Array α} {f : α → β} :
@@ -37,6 +42,11 @@ open Nat
 @[deprecated idRun_mapM (since := "2025-05-21")]
 theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f :=
   mapM_pure
+
+@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {xs : Array α} :
+    (xs.map f).mapM g = xs.mapM (g ∘ f) := by
+  rcases xs with ⟨xs⟩
+  simp
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] {f : α → m β} {xs ys : Array α} :
     (xs ++ ys).mapM f = (return (← xs.mapM f) ++ (← ys.mapM f)) := by

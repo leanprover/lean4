@@ -309,6 +309,10 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 
+@[deprecated Exists.nonempty (since := "2025-05-19")]
+theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
+  | ⟨w, _⟩ => ⟨w⟩
+
 theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x, p x
   | ⟨x, hn⟩, h => hn (h x)
 

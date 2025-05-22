@@ -4,23 +4,6 @@ https://github.com/leanprover/lean4/pull/2793.
 We find that we need to either specify a named argument or use `..` in certain rewrites.
 -/
 
-section Mathlib.Algebra.Group.Defs
-
-universe u v w
-
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type u) (α : Type v) where
-  smul : M → α → α
-
-infixr:73 " • " => HSMul.hSMul
-
-instance instHSMul {α β} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
-
-end Mathlib.Algebra.Group.Defs
-
 section Mathlib.Data.FunLike.Basic
 
 class DFunLike (F : Sort _) (α : outParam (Sort _)) (β : outParam <| α → Sort _) where

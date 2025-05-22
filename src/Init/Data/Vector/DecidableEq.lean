@@ -44,12 +44,6 @@ theorem isEqv_self [DecidableEq α] (xs : Vector α n) : Vector.isEqv xs xs (· 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.isEqv_self]
 
-instance [DecidableEq α] : DecidableEq (Vector α n) :=
-  fun xs ys =>
-    match h:isEqv xs ys (fun x y => x = y) with
-    | true  => isTrue (eq_of_isEqv xs ys h)
-    | false => isFalse fun h' => by subst h'; rw [isEqv_self] at h; contradiction
-
 theorem beq_eq_decide [BEq α] (xs ys : Vector α n) :
     (xs == ys) = decide (∀ (i : Nat) (h' : i < n), xs[i] == ys[i]) := by
   simp [BEq.beq, isEqv_eq_decide]

@@ -57,7 +57,6 @@ register_builtin_option grind.warning : Bool := {
 structure Context where
   simp         : Simp.Context
   simprocs     : Array Simp.Simprocs
-  mainDeclName : Name
   config       : Grind.Config
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
@@ -119,8 +118,6 @@ private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCo
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
   scState    : ShareCommon.State.{0} ShareCommon.objectFactory := emptySC
-  /-- Next index for creating auxiliary theorems. -/
-  nextThmIdx : Nat := 1
   /--
   Congruence theorems generated so far. Recall that for constant symbols
   we rely on the reserved name feature (i.e., `mkHCongrWithArityForConst?`).
@@ -188,9 +185,6 @@ def getBoolFalseExpr : GrindM Expr := do
 def getNatZeroExpr : GrindM Expr := do
   return (← get).natZExpr
 
-def getMainDeclName : GrindM Name :=
-  return (← readThe Context).mainDeclName
-
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
 
@@ -230,11 +224,8 @@ def getMaxGeneration : GrindM Nat := do
 /--
 Abstracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
-def abstractNestedProofs (e : Expr) : GrindM Expr := do
-  let nextIdx := (← get).nextThmIdx
-  let (e, s') ← AbstractNestedProofs.visit e |>.run { cache := true, baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
-  modify fun s => { s with nextThmIdx := s'.nextIdx }
-  return e
+def abstractNestedProofs (e : Expr) : GrindM Expr :=
+  Meta.abstractNestedProofs e
 
 /--
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
@@ -351,6 +342,9 @@ structure ENode where
   -- Remark: we expect to have builtin support for offset constraints, cutsat, and comm ring.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
+
+def ENode.isRoot (n : ENode) :=
+  isSameExpr n.self n.root
 
 def ENode.isCongrRoot (n : ENode) :=
   isSameExpr n.self n.congr
@@ -1259,7 +1253,7 @@ def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
 def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
   for e in (← getExprs) do
     let n ← getENode e
-    if isSameExpr n.self n.root then
+    if n.isRoot then
       f n
 
 abbrev Propagator := Expr → GoalM Unit
@@ -1311,7 +1305,7 @@ partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
  let mut r : List (List Expr) := []
  for e in goal.exprs do
     let some node := goal.getENode? e | pure ()
-    if isSameExpr node.root node.self then
+    if node.isRoot then
       r := goal.getEqc node.self :: r
   return r
 

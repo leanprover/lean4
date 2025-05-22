@@ -2584,6 +2584,11 @@ theorem id_run_foldrM {f : α → β → Id β} {b : β} {l : List α} :
     l.foldl (fun xs y => f y :: xs) l' = (l.map f).reverse ++ l' := by
   induction l generalizing l' <;> simp [*]
 
+/-- Variant of `foldl_flip_cons_eq_append` specalized to `f = id`. -/
+@[simp, grind] theorem foldl_flip_cons_eq_append' {l l' : List α} :
+    l.foldl (fun xs y => y :: xs) l' = l.reverse ++ l' := by
+  induction l generalizing l' <;> simp [*]
+
 @[simp, grind] theorem foldr_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
     l.foldr (f · ++ ·) l' = (l.map f).flatten ++ l' := by
   induction l <;> simp [*]

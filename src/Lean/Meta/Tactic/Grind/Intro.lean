@@ -263,7 +263,10 @@ def assertNext : GrindTactic := fun goal => do
   assertAt fact.proof fact.prop fact.generation { goal with newRawFacts }
 
 /-- Asserts all facts in the `goal` fact queue. -/
-partial def assertAll : GrindTactic :=
-  assertNext.iterate
+partial def assertAll : GrindTactic := fun goal =>
+  if goal.newRawFacts.isEmpty then
+    return none
+  else
+    assertNext.iterate goal
 
 end Lean.Meta.Grind

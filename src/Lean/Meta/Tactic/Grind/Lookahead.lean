@@ -24,13 +24,13 @@ where
   loop (goal : Goal) : GrindM Bool := withIncRecDepth do
     if goal.inconsistent then
       return true
-    else if let some goals ← assertNext goal then
+    else if let some goals ← assertAll goal then
       cont goals
     else if let some goals ← Arith.check goal then
       cont goals
     else if let some goals ← splitNext goal then
       cont goals
-    else if let some goals ← ematchAndAssert goal then
+    else if let some goals ← ematch goal then
       cont goals
     else
       return false

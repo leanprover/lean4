@@ -13,7 +13,7 @@ import Lean.Meta.Tactic.Grind.EMatch
 namespace Lean.Meta.Grind
 
 private partial def solve (generation : Nat) (goal : Goal) : GrindM Bool := do
-  cont (← intros generation goal)
+  cont (← introsOld generation goal)
 where
   cont (goals : List Goal) : GrindM Bool := do
     match goals with
@@ -24,7 +24,7 @@ where
   loop (goal : Goal) : GrindM Bool := withIncRecDepth do
     if goal.inconsistent then
       return true
-    else if let some goals ← assertAll goal then
+    else if let some goals ← assertAllOld goal then
       cont goals
     else if let some goals ← Arith.checkOld goal then
       cont goals

@@ -236,7 +236,7 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
 private def introNewHyp (goals : List Goal) (acc : List Goal) (generation : Nat) : GrindM (List Goal) := do
   match goals with
   | [] => return acc.reverse
-  | goal::goals => introNewHyp goals ((← intros generation goal) ++ acc) generation
+  | goal::goals => introNewHyp goals ((← introsOld generation goal) ++ acc) generation
 
 private def casesWithTrace (major : Expr) : GoalM (List MVarId) := do
   if (← getConfig).trace then

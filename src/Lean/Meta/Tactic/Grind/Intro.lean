@@ -184,7 +184,19 @@ private def isCheapInductive (type : Expr) : CoreM Bool := do
   let .inductInfo info ← getConstInfo declName | return false
   return info.numCtors <= 1
 
-private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List Goal)) := goal.mvarId.withContext do
+private def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal) := do
+  if let some mvarId ← injection? goal.mvarId fvarId then
+    return some { goal with mvarId }
+  else
+    return none
+
+private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withContext do
+  if (← isProp (← goal.mvarId.getType)) then
+    return goal
+  else
+    return { goal with mvarId := (← goal.mvarId.exfalso) }
+
+private def applyCasesOld? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List Goal)) := goal.mvarId.withContext do
   /-
   Remark: we used to use `whnfD`. This was a mistake, we don't want to unfold user-defined abstractions.
   Example: `a ∣ b` is defined as `∃ x, b = a * x`
@@ -201,20 +213,8 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List G
   else
     return none
 
-private def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal) := do
-  if let some mvarId ← injection? goal.mvarId fvarId then
-    return some { goal with mvarId }
-  else
-    return none
-
-private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withContext do
-  if (← isProp (← goal.mvarId.getType)) then
-    return goal
-  else
-    return { goal with mvarId := (← goal.mvarId.exfalso) }
-
 /-- Introduce new hypotheses (and apply `by_contra`) until goal is of the form `... ⊢ False` -/
-partial def intros (generation : Nat) : GrindTactic' := fun goal => do
+partial def introsOld (generation : Nat) : GrindTactic' := fun goal => do
   let rec go (goal : Goal) : StateRefT (Array Goal) GrindM Unit := do
     if goal.inconsistent then
       return ()
@@ -226,7 +226,7 @@ partial def intros (generation : Nat) : GrindTactic' := fun goal => do
       else
         modify fun s => s.push goal
     | .newHyp fvarId goal =>
-      if let some goals ← applyCases? goal fvarId then
+      if let some goals ← applyCasesOld? goal fvarId then
         goals.forM go
       else if let some goal ← applyInjection? goal fvarId then
         go goal
@@ -235,7 +235,7 @@ partial def intros (generation : Nat) : GrindTactic' := fun goal => do
     | .newDepHyp goal =>
       go goal
     | .newLocal fvarId goal =>
-      if let some goals ← applyCases? goal fvarId then
+      if let some goals ← applyCasesOld? goal fvarId then
         goals.forM go
       else
         go goal
@@ -243,11 +243,11 @@ partial def intros (generation : Nat) : GrindTactic' := fun goal => do
   return goals.toList
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
-def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := fun goal => do
+def assertAtOld (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := fun goal => do
   if isEagerCasesCandidate goal prop then
     let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
     let goal := { goal with mvarId }
-    intros generation goal
+    introsOld generation goal
   else
     let goal ← GoalM.run' goal do
       let r ← preprocess prop
@@ -257,16 +257,16 @@ def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := f
     if goal.inconsistent then return [] else return [goal]
 
 /-- Asserts next fact in the `goal` fact queue. -/
-def assertNext : GrindTactic := fun goal => do
+def assertNextOld : GrindTactic := fun goal => do
   let some (fact, newRawFacts) := goal.newRawFacts.dequeue?
     | return none
-  assertAt fact.proof fact.prop fact.generation { goal with newRawFacts }
+  assertAtOld fact.proof fact.prop fact.generation { goal with newRawFacts }
 
 /-- Asserts all facts in the `goal` fact queue. -/
-partial def assertAll : GrindTactic := fun goal =>
+partial def assertAllOld : GrindTactic := fun goal =>
   if goal.newRawFacts.isEmpty then
     return none
   else
-    assertNext.iterate goal
+    assertNextOld.iterate goal
 
 end Lean.Meta.Grind

@@ -52,7 +52,7 @@ def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
     return true
   stepGuard go goal
 
-def tryAssertAll : Goal → M Bool := applyTac assertAll
+def tryAssertAll : Goal → M Bool := applyTac assertAllOld
 
 def tryEmatch : Goal → M Bool := applyTac ematchOld
 

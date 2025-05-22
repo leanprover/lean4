@@ -4,7 +4,7 @@ has type
   ?m = ?m : Prop
 but is expected to have type
   mkNat e x₁ = mkNat e.mk x₂ : Prop
-etaStructIssue.lean:17:8-17:12: error: not a `rfl`-theorem: the left-hand side
+etaStructIssue.lean:17:8-17:12: error: Not a `rfl`-theorem: the left-hand side
   mkNat e x₁
 is not definitionally equal to the right-hand side
   mkNat e.mk x₂

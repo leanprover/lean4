@@ -9,7 +9,7 @@ opaque P : Nat → Prop
 @[irreducible] def ac := a = c
 
 /--
-error: not a `rfl`-theorem: the left-hand side
+error: Not a `rfl`-theorem: the left-hand side
   a
 is not definitionally equal to the right-hand side
   b
@@ -22,14 +22,14 @@ theorem a_eq_c'' : a = c := Eq.refl _
 @[rfl] theorem a_eq_c''' : ac := by with_unfolding_all rfl
 @[rfl] theorem a_eq_d : a = d := by simp [d]
 
-/-- error: not a `rfl`-theorem: the conclusion should be an equality, but is True -/
+/-- error: Not a `rfl`-theorem: the conclusion should be an equality, but is True -/
 #guard_msgs in
 @[rfl] def not_an_eq : True := trivial
 
 
 def Tricky.rfl := a_eq_b
 /--
-error: not a `rfl`-theorem: the left-hand side
+error: Not a `rfl`-theorem: the left-hand side
   a
 is not definitionally equal to the right-hand side
   b

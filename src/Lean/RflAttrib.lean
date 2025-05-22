@@ -13,16 +13,22 @@ open Meta
 def validateRflAttr (declName : Name) : AttrM Unit := do
   let info ← getConstVal declName
   MetaM.run' do
-    withOptions (smartUnfolding.set · false) <| withTransparency .all do
+    withTransparency .all do
       forallTelescopeReducing info.type fun _ type => do
         let type ← whnf type
         -- NB: The warning wording should work both for explicit uses of `@[rfl]` as well as the implicit `:= rfl`.
         let some (_, lhs, rhs) := type.eq? |
           throwError m!"not a `rfl`-theorem: the conclusion should be an equality, but is{inlineExpr type}"
-        if !(← withOptions (smartUnfolding.set · false) <| withTransparency .all <| isDefEq lhs rhs) then
+        let ok ← withOptions (smartUnfolding.set · false) <| isDefEq lhs rhs
+        unless ok do
           let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
             let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
-            return m!"not a `rfl`-theorem: the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
+            let mut msg := m!"Not a `rfl`-theorem: the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
+            if (← getEnv).isExporting then
+              let okPrivately ← withoutExporting <| withOptions (smartUnfolding.set · false) <| isDefEq lhs rhs
+              if okPrivately then
+                msg := msg ++ .note m!"This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exported."
+            pure msg
           throwError explanation
 
 builtin_initialize rflAttr : TagAttribute ←

@@ -10,7 +10,7 @@ has type
   ?m = ?m : Prop
 but is expected to have type
   insert a ⟨0, ⋯⟩ v = cons a v : Prop
-1081.lean:22:10-22:30: error: not a `rfl`-theorem: the left-hand side
+1081.lean:22:10-22:30: error: Not a `rfl`-theorem: the left-hand side
   insert a ⟨0, ⋯⟩ v
 is not definitionally equal to the right-hand side
   cons a v

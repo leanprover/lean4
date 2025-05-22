@@ -7,7 +7,7 @@ import all Module.Basic
 
 /--
 info: theorem t : f = 1 :=
-sorry
+testSorry
 -/
 #guard_msgs in
 #print t
@@ -22,3 +22,34 @@ but is expected to have type
 -/
 #guard_msgs in
 theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
+
+/-- error: dsimp made no progress -/
+#guard_msgs in
+example : P f := by dsimp only [t]; exact hP1
+example : P f := by simp only [t]; exact hP1
+
+/-- error: dsimp made no progress -/
+#guard_msgs in
+example : P f := by dsimp only [trfl]; exact hP1
+/-- error: dsimp made no progress -/
+#guard_msgs in
+example : P f := by dsimp only [trfl']; exact hP1
+
+/--
+error: unknown identifier 'trflprivate'
+---
+error: dsimp made no progress
+-/
+#guard_msgs in
+example : P f := by dsimp only [trflprivate]; exact hP1
+/--
+error: unknown identifier 'trflprivate''
+---
+error: dsimp made no progress
+-/
+#guard_msgs in
+example : P f := by dsimp only [trflprivate']; exact hP1
+
+
+example : P fexp := by dsimp only [fexp_trfl]; exact hP1
+example : P fexp := by dsimp only [fexp_trfl']; exact hP1

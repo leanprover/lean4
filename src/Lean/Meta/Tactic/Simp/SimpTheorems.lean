@@ -144,13 +144,14 @@ structure SimpTheorem where
   deriving Inhabited
 
 /-- Checks whether the theorem holds by reflexivity in the scope given by the environment. -/
-def SimpTheorem.isRfl (s : SimpTheorem) (env : Environment) : Bool := Id.run do
-  if !s.rfl then
-    return false
-  let .decl declName _ _ := s.origin |
-    return true  -- not a global simp theorem, proof visibility must be unchanged
-  -- If we can see the proof, it must hold in the current scope.
-  env.findAsync? declName matches some ({ kind := .thm, .. })
+def SimpTheorem.isRfl (s : SimpTheorem) (_env : Environment) : Bool := Id.run do
+  return s.rfl
+  -- if !s.rfl then
+  --   return false
+  -- let .decl declName _ _ := s.origin |
+  --   return true  -- not a global simp theorem, proof visibility must be unchanged
+  -- -- If we can see the proof, it must hold in the current scope.
+  -- env.findAsync? declName matches some ({ kind := .thm, .. })
 
 mutual
   private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do

@@ -64,13 +64,6 @@ Checks whether the declaration was originally declared as a theorem; see also
 def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
   getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
 
--- HACK: remove together with MutualDef HACK when `[dsimp]` is introduced
-private def isSimpleRflProof (proof : Expr) : Bool :=
-  if let .lam _ _ proof _ := proof then
-    isSimpleRflProof proof
-  else
-    proof.isAppOfArity ``rfl 2
-
 private def looksLikeRelevantTheoremProofType (type : Expr) : Bool :=
   if let .forallE _ _ type _ := type then
     looksLikeRelevantTheoremProofType type
@@ -93,9 +86,6 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
       let exportProof := !(← getEnv).header.isModule ||
-        -- We should preserve rfl theorems but also we should not override a decision to hide by the
-        -- MutualDef elaborator via `withoutExporting`
-        (← getEnv).isExporting && isSimpleRflProof thm.value ||
         -- TODO: this is horrible...
         looksLikeRelevantTheoremProofType thm.type
       if !exportProof then

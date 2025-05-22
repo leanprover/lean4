@@ -202,7 +202,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
                   if (← Simp.isBuiltinSimproc name) then
                     simprocs := simprocs.erase name
                   else
-                    withRef id <| throwUnknownConstant name
+                    throwUnknownConstantAt id name
             else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
               let post :=
                 if arg[0].isNone then

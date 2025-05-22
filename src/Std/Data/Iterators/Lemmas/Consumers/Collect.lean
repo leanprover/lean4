@@ -13,49 +13,46 @@ namespace Std.Iterators
 
 theorem Iter.toArray_eq_toArray_toIterM {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :
-    it.toArray = it.toIterM.toArray :=
+    it.toArray = it.toIterM.toArray.run :=
   rfl
 
 theorem Iter.toList_eq_toList_toIterM {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :
-    it.toList = it.toIterM.toList :=
+    it.toList = it.toIterM.toList.run :=
   rfl
 
 theorem Iter.toListRev_eq_toListRev_toIterM {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} :
-    it.toListRev = it.toIterM.toListRev :=
+    it.toListRev = it.toIterM.toListRev.run :=
   rfl
 
 @[simp]
 theorem IterM.toList_toIter {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     {it : IterM (α := α) Id β} :
-    it.toIter.toList = it.toList :=
+    it.toIter.toList = it.toList.run :=
   rfl
 
 @[simp]
 theorem IterM.toListRev_toIter {α β} [Iterator α Id β] [Finite α Id]
     {it : IterM (α := α) Id β} :
-    it.toIter.toListRev = it.toListRev :=
+    it.toIter.toListRev = it.toListRev.run :=
   rfl
 
 theorem Iter.toList_toArray {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :
     it.toArray.toList = it.toList := by
-  simp only [toArray_eq_toArray_toIterM, toList_eq_toList_toIterM, ← IterM.toList_toArray]
-  rfl -- FIXME: defeq abuse of `Id`.
+  simp [toArray_eq_toArray_toIterM, toList_eq_toList_toIterM, ← IterM.toList_toArray]
 
 theorem Iter.toArray_toList {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :
     it.toList.toArray = it.toArray := by
-  simp only [toArray_eq_toArray_toIterM, toList_eq_toList_toIterM, ← IterM.toArray_toList]
-  rfl -- FIXME: defeq abuse of `Id`.
+  simp [toArray_eq_toArray_toIterM, toList_eq_toList_toIterM, ← IterM.toArray_toList]
+
 theorem Iter.toListRev_eq {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :
     it.toListRev = it.toList.reverse := by
   simp [Iter.toListRev_eq_toListRev_toIterM, Iter.toList_eq_toList_toIterM, IterM.toListRev_eq]
-  rfl -- FIXME: defeq abuse of
 
-set_option linter.deprecated false in -- FIXME: defeq abuse of `Id`.
 theorem Iter.toArray_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
     [LawfulIteratorCollect α Id] {it : Iter (α := α) β} :
     it.toArray = match it.step with
@@ -63,9 +60,8 @@ theorem Iter.toArray_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [I
       | .skip it' _ => it'.toArray
       | .done _ => #[] := by
   simp only [Iter.toArray_eq_toArray_toIterM, Iter.step]
-  rw [IterM.toArray_eq_match_step]
-  simp only [Id.run_map, Id.pure_eq, Id.bind_eq, Id.run]
-  generalize it.toIterM.step = step
+  rw [IterM.toArray_eq_match_step, Id.run_bind]
+  generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn <;> simp
 
 theorem Iter.toList_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id]
@@ -77,15 +73,13 @@ theorem Iter.toList_eq_match_step {α β} [Iterator α Id β] [Finite α Id] [It
   rw [← Iter.toList_toArray, Iter.toArray_eq_match_step]
   split <;> simp [Iter.toList_toArray]
 
-set_option linter.deprecated false in -- FIXME: defeq abuse of `Id`.
 theorem Iter.toListRev_eq_match_step {α β} [Iterator α Id β] [Finite α Id] {it : Iter (α := α) β} :
     it.toListRev = match it.step with
       | .yield it' out _ => it'.toListRev ++ [out]
       | .skip it' _ => it'.toListRev
       | .done _ => [] := by
-  rw [Iter.toListRev_eq_toListRev_toIterM, IterM.toListRev_eq_match_step, Iter.step]
-  simp only [Id.map_eq, Id.pure_eq, Id.bind_eq, Id.run]
-  generalize it.toIterM.step = step
+  rw [Iter.toListRev_eq_toListRev_toIterM, IterM.toListRev_eq_match_step, Iter.step, Id.run_bind]
+  generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn <;> simp
 
 theorem Iter.getElem?_toList_eq_atIdxSlow? {α β}

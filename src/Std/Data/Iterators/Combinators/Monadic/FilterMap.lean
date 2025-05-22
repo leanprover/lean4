@@ -29,7 +29,7 @@ Internal state of the `filterMap` combinator. Do not depend on its internals.
 -/
 @[ext, unbox]
 structure FilterMap (α : Type w) {β γ : Type w}
-    (m : Type w → Type w') (n : Type w → Type w'') (lift : {α : Type w} → m α → n α)
+    (m : Type w → Type w') (n : Type w → Type w'') (lift : ⦃α : Type w⦄ → m α → n α)
     (f : β → PostconditionT n (Option γ)) where
   inner : IterM (α := α) m β
 
@@ -37,13 +37,13 @@ structure FilterMap (α : Type w) {β γ : Type w}
 Internal state of the `filterMap` combinator. Do not depend on its internals.
 -/
 def Map (α : Type w) {β γ : Type w} (m : Type w → Type w') (n : Type w → Type w'')
-    (lift : {α : Type w} → m α → n α) [Functor n]
+    (lift : ⦃α : Type w⦄ → m α → n α) [Functor n]
     (f : β → PostconditionT n γ) :=
   FilterMap α m n lift (fun b => PostconditionT.map some (f b))
 
 @[always_inline, inline]
 def IterM.InternalCombinators.filterMap {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} (lift : {α : Type w} → m α → n α)
+    {n : Type w → Type w''} (lift : ⦃α : Type w⦄ → m α → n α)
     [Iterator α m β] (f : β → PostconditionT n (Option γ))
     (it : IterM (α := α) m β) : IterM (α := FilterMap α m n lift f) n γ :=
   toIterM ⟨it⟩ n γ
@@ -74,11 +74,11 @@ This combinator incurs an additional O(1) cost with each output of `it` in addit
 @[inline]
 def IterM.filterMapWithProof {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [MonadLiftT m n] [Iterator α m β] (f : β → PostconditionT n (Option γ))
-    (it : IterM (α := α) m β) : IterM (α := FilterMap α m n monadLift f) n γ :=
-  IterM.InternalCombinators.filterMap monadLift f it
+    (it : IterM (α := α) m β) : IterM (α := FilterMap α m n (fun ⦃_⦄ => monadLift) f) n γ :=
+  IterM.InternalCombinators.filterMap (fun ⦃_⦄ => monadLift) f it
 
 inductive FilterMap.PlausibleStep {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
-    {lift : {α : Type w} → m α → n α} {f : β → PostconditionT n (Option γ)} [Iterator α m β]
+    {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n (Option γ)} [Iterator α m β]
     (it : IterM (α := FilterMap α m n lift f) n γ) :
     IterStep (IterM (α := FilterMap α m n lift f) n γ) γ → Prop where
   | yieldNone : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
@@ -89,12 +89,12 @@ inductive FilterMap.PlausibleStep {α β γ : Type w} {m : Type w → Type w'} {
   | done : it.internalState.inner.IsPlausibleStep .done → PlausibleStep it .done
 
 instance FilterMap.instIterator {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
-    {lift : {α : Type w} → m α → n α} {f : β → PostconditionT n (Option γ)}
+    {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n (Option γ)}
     [Iterator α m β] [Monad n] :
     Iterator (FilterMap α m n lift f) n γ where
   IsPlausibleStep := FilterMap.PlausibleStep (m := m) (n := n)
   step it :=
-    letI : MonadLift m n := ⟨lift⟩
+    letI : MonadLift m n := ⟨lift (α := _)⟩
     do
       match ← it.internalState.inner.step with
       | .yield it' out h => do
@@ -105,13 +105,13 @@ instance FilterMap.instIterator {α β γ : Type w} {m : Type w → Type w'} {n 
       | .done h => pure <| .done (.done h)
 
 instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Monad n] [Iterator α m β]
-    {lift : {α : Type w} → m α → n α}
+    {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} :
     Iterator (Map α m n lift f) n γ :=
   inferInstanceAs <| Iterator (FilterMap α m n lift _) n γ
 
 private def FilterMap.instFinitenessRelation {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : {α : Type w} → m α → n α}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     FinitenessRelation (FilterMap α m n lift f) n where
   rel := InvImage IterM.IsPlausibleSuccessorOf (FilterMap.inner ∘ IterM.internalState)
@@ -132,17 +132,17 @@ private def FilterMap.instFinitenessRelation {α β γ : Type w} {m : Type w →
       cases h
 
 instance FilterMap.instFinite {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : {α : Type w} → m α → n α}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] : Finite (FilterMap α m n lift f) n :=
   Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
 instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Monad n] [Iterator α m β]
-    {lift : {α : Type w} → m α → n α} {f : β → PostconditionT n γ} [Finite α m] :
+    {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n γ} [Finite α m] :
     Finite (Map α m n lift f) n :=
   Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
 private def Map.instProductivenessRelation {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : {α : Type w} → m α → n α}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Productive α m] :
     ProductivenessRelation (Map α m n lift f) n where
   rel := InvImage IterM.IsPlausibleSkipSuccessorOf (FilterMap.inner ∘ IterM.internalState)
@@ -155,21 +155,21 @@ private def Map.instProductivenessRelation {α β γ : Type w} {m : Type w → T
       exact h
 
 instance Map.instProductive {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : {α : Type w} → m α → n α}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Productive α m] :
     Productive (Map α m n lift f) n :=
   Productive.of_productivenessRelation Map.instProductivenessRelation
 
 instance {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift : {α : Type w} → m α → n α}
+    {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     IteratorCollect (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
 instance {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift : {α : Type w} → m α → n α}
+    {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     IteratorCollectPartial (FilterMap α m n lift f) n o :=
   .defaultImplementation
@@ -177,14 +177,14 @@ instance {α β γ : Type w} {m : Type w → Type w'}
 -- TODO
 instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad n] [Monad o] [Iterator α m β] {lift : {α : Type w} → m α → n α}
+    [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     IteratorLoop (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
 instance FilterMap.instIteratorLoopPartial {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type w'''}
-    [Monad n] [Monad o] [Iterator α m β] {lift : {α : Type w} → m α → n α}
+    [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     IteratorLoopPartial (FilterMap α m n lift f) n o :=
   .defaultImplementation
@@ -195,36 +195,36 @@ instance FilterMap.instIteratorLoopPartial {α β γ : Type w} {m : Type w → T
 -/
 instance Map.instIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift₁ : {α : Type w} → m α → n α}
+    {lift₁ : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Finite α m] [IteratorCollect α m o] :
     IteratorCollect (Map α m n lift₁ f) n o where
   toArrayMapped lift₂ _ g it :=
     IteratorCollect.toArrayMapped
-      (lift := lift₂ ∘ lift₁)
+      (lift := fun ⦃_⦄ a => lift₂ (lift₁ a))
       (fun x => do g (← lift₂ (f x).operation))
       it.internalState.inner (m := m)
 
 instance Map.instIteratorCollectPartial {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift₁ : {α : Type w} → m α → n α}
+    {lift₁ : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [IteratorCollectPartial α m o] :
     IteratorCollectPartial (Map α m n lift₁ f) n o where
   toArrayMappedPartial lift₂ _ g it :=
     IteratorCollectPartial.toArrayMappedPartial
-      (lift := lift₂ ∘ lift₁)
+      (lift := fun ⦃_⦄ a => lift₂ (lift₁ a))
       (fun x => do g (← lift₂ (f x).operation))
       it.internalState.inner (m := m)
 
 instance Map.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift : {α : Type w} → m α → n α}
+    {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} :
     IteratorLoop (Map α m n lift f) n o :=
   .defaultImplementation
 
 instance Map.instIteratorLoopPartial {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift : {α : Type w} → m α → n α}
+    {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} :
     IteratorLoopPartial (Map α m n lift f) n o :=
   .defaultImplementation
@@ -257,7 +257,7 @@ This combinator incurs an additional O(1) cost with each output of `it` in addit
 @[inline]
 def IterM.mapWithProof {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad n] [MonadLiftT m n] [Iterator α m β] (f : β → PostconditionT n γ)
-    (it : IterM (α := α) m β) : IterM (α := Map α m n monadLift f) n γ :=
+    (it : IterM (α := α) m β) : IterM (α := Map α m n (fun ⦃_⦄ => monadLift) f) n γ :=
   toIterM ⟨it⟩ n γ
 
 /--

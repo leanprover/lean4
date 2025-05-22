@@ -7,6 +7,7 @@ prelude
 import Std.Data.Iterators.Producers.Monadic.List
 import Std.Data.Iterators.Consumers
 import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Std.Data.Iterators.TempLawfulMonadLift
 
 /-!
 # Lemmas about list iterators
@@ -30,22 +31,22 @@ theorem _root_.List.step_iterM_cons {x : β} {xs : List β} :
   simp only [List.iterM, IterM.step, Iterator.step]; rfl
 
 theorem ListIterator.toArrayMapped_iterM [Monad n] [LawfulMonad n]
-    {β : Type w} {γ : Type w} {lift : {δ : Type w} → m δ → n δ}
-    (hlift : ∀ δ (d : δ), lift (pure d) = pure d) {f : β → n γ} {l : List β} :
+    {β : Type w} {γ : Type w} {lift : ⦃δ : Type w⦄ → m δ → n δ}
+    [LawfulMonadLiftFunction lift] {f : β → n γ} {l : List β} :
     IteratorCollect.toArrayMapped lift f (l.iterM m) (m := m) = List.toArray <$> l.mapM f := by
   rw [LawfulIteratorCollect.toArrayMapped_eq]
   induction l with
   | nil =>
     rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
-    simp [List.step_iterM_nil]
+    simp [List.step_iterM_nil, LawfulMonadLiftFunction.lift_pure]
   | cons x xs ih =>
     rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
-    simp [List.step_iterM_cons, List.mapM_cons, pure_bind, ih]
+    simp [List.step_iterM_cons, List.mapM_cons, pure_bind, ih, LawfulMonadLiftFunction.lift_pure]
 
 @[simp]
 theorem _root_.List.toArray_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).toArray = pure l.toArray := by
-  simp only [IterM.toArray, ListIterator.toArrayMapped_toIterM]
+  simp only [IterM.toArray, ListIterator.toArrayMapped_iterM]
   rw [List.mapM_pure, map_pure, List.map_id']
 
 @[simp]

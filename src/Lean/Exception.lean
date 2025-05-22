@@ -98,14 +98,21 @@ See also `mkUnknownIdentifierMessage`.
 def throwUnknownIdentifierAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α :=
   Lean.throwErrorAt ref <| mkUnknownIdentifierMessage msg
 
-/-- Throw an unknown constant error message. -/
+/--
+Throw an unknown constant error message.
+The end position of the range of `ref` should point at the unknown identifier.
+See also `mkUnknownIdentifierMessage`.
+-/
 def throwUnknownConstantAt [Monad m] [MonadError m] (ref : Syntax) (constName : Name) : m α := do
   throwUnknownIdentifierAt ref m!"unknown constant '{.ofConstName constName}'"
 
-/-- Throw an unknown constant error message. -/
-@[deprecated throwUnknownConstantAt (since := "2025-05-16")]
+/--
+Throw an unknown constant error message.
+The end position of the range of the current reference should point at the unknown identifier.
+See also `mkUnknownIdentifierMessage`.
+-/
 def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α := do
-  throwUnknownIdentifierAt (← getRef) m!"unknown constant '{.ofConstName constName}'"
+  throwUnknownConstantAt (← getRef) constName
 
 /--
 Convert an `Except` into a `m` monadic action, where `m` is any monad that

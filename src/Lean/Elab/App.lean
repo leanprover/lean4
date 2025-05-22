@@ -1146,11 +1146,11 @@ inductive LValResolution where
   The `fullName` is the name of the recursive function, and `baseName` is the base name of the type to search for in the parameter list. -/
   | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
 
-private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
-  throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
-
 private def throwLValErrorAt (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
   throwErrorAt ref "{msg}{indentExpr e}\nhas type{indentExpr eType}"
+
+private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α := do
+  throwLValErrorAt (← getRef) e eType msg
 
 /--
 `findMethod? S fName` tries the for each namespace `S'` in the resolution order for `S` to resolve the name `S'.fname`.

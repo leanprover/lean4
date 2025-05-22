@@ -219,4 +219,14 @@ def nextGoal? : SearchM (Option Nat) := do
         return some choice.generation
   unreachable!
 
+/--
+Execute `x` using the current goal as the starting goal.
+The state is not updated.
+-/
+def searchUsing (x : SearchM α) : GoalM α := do
+  let goal ← get
+  let goal := { goal with newFacts := {} }
+  let (a, _) ← x.run goal
+  return a
+
 end Lean.Meta.Grind

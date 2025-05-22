@@ -57,7 +57,7 @@ private def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
   throwError "Failed to prove monotonicity of:{indentExpr f}\n{extraMsg}"
 
 private def applyConst (goal : MVarId) (name : Name) : MetaM (List MVarId) := do
-  mapError (f := (m!"Could not apply {.ofConstName name}:{indentD ·}")) do
+  prependError m!"Could not apply {.ofConstName name}:" do
     goal.applyConst name (cfg := { synthAssignedInstances := false})
 
 /--
@@ -150,7 +150,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
         failK f #[]
       let b' := f.updateLambdaE! f.bindingDomain! b
       let p  ← mkAppOptM ``monotone_letFun #[α, β, γ, inst_α, inst_β, v, b']
-      let new_goals ← mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
+      let new_goals ← prependError m!"Could not apply {p}:" do
         goal.apply p
       let [new_goal] := new_goals
           | throwError "Unexpected number of goals after {.ofConstName ``monotone_letFun}."

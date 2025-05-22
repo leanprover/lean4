@@ -255,8 +255,7 @@ abbrev measure {α : Sort u} (f : α → Nat) : WellFoundedRelation α :=
 abbrev sizeOfWFRel {α : Sort u} [SizeOf α] : WellFoundedRelation α :=
   measure sizeOf
 
-instance (priority := low) [SizeOf α] : WellFoundedRelation α :=
-  sizeOfWFRel
+attribute [instance low] sizeOfWFRel
 
 namespace Prod
 open WellFounded

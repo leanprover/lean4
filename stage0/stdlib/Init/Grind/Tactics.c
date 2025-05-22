@@ -26,7 +26,6 @@ static lean_object* l_Lean_Parser_Tactic_grindTrace___closed__5;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__15;
 LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindUsr;
 static lean_object* l_Lean_Parser_Attr_grindExt___closed__5;
-LEAN_EXPORT uint8_t l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413_(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_grindTrace___closed__2;
 static lean_object* l_Lean_Parser_Attr_grindEqBwd___closed__15;
 static lean_object* l_Lean_Parser_Attr_grindRL___closed__2;
@@ -170,6 +169,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindLR;
 static lean_object* l_Lean_Parser_Attr_grindBwd___closed__10;
 static lean_object* l_Lean_Parser_Attr_grind___closed__6;
 static lean_object* l_Lean_Parser_Attr_grindIntro___closed__3;
+LEAN_EXPORT uint8_t l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413_(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Attr_grindRL___closed__8;
 static lean_object* l_Lean_Parser_Tactic_grindTrace___closed__9;
 static lean_object* l_Lean_Parser_Attr_grindCases___closed__3;
@@ -197,7 +197,6 @@ static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__2;
 static lean_object* l_Lean_Parser_Attr_grindBwd___closed__3;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__25;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__19;
-LEAN_EXPORT lean_object* l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Attr_grindEqRhs___closed__3;
 static lean_object* l_Lean_Parser_Attr_grindCases___closed__1;
 static lean_object* l_Lean_Parser_Attr_grindEq___closed__2;
@@ -245,6 +244,7 @@ static lean_object* l_Lean_Parser_Attr_grindBwd___closed__5;
 static lean_object* l_Lean_Parser_Attr_grindFwd___closed__2;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__10;
 static lean_object* l_Lean_Parser_Attr_grindEqRhs___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Attr_grindMod___closed__3;
 static lean_object* l_Lean_Parser_Attr_grind___closed__1;
 static lean_object* l_Lean_Parser_resetGrindAttrs___closed__3;
@@ -2119,7 +2119,7 @@ x_1 = l_Lean_Grind_instInhabitedConfig___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; lean_object* x_27; uint8_t x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; uint8_t x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; uint8_t x_42; uint8_t x_43; uint8_t x_44; uint8_t x_45; uint8_t x_46; uint8_t x_47; uint8_t x_48; uint8_t x_49; uint8_t x_50; uint8_t x_51; uint8_t x_52; lean_object* x_53; uint8_t x_54; uint8_t x_55; uint8_t x_62; uint8_t x_69; uint8_t x_76; uint8_t x_83; uint8_t x_90; uint8_t x_97; uint8_t x_104; uint8_t x_111; uint8_t x_118; uint8_t x_125; uint8_t x_132; uint8_t x_139; uint8_t x_150; uint8_t x_157; uint8_t x_164; uint8_t x_171; uint8_t x_178; 
@@ -3101,11 +3101,11 @@ goto block_177;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413_(x_1, x_2);
+x_3 = l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -3116,7 +3116,7 @@ static lean_object* _init_l_Lean_Grind_instBEqConfig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_413____boxed), 2, 0);
 return x_1;
 }
 }

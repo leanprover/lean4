@@ -429,8 +429,8 @@ Examples:
 def Int8.decLe (a b : Int8) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int8) : Decidable (a < b) := Int8.decLt a b
-instance (a b : Int8) : Decidable (a ≤ b) := Int8.decLe a b
+attribute [instance] Int8.decLt Int8.decLe
+
 instance : Max Int8 := maxOfLe
 instance : Min Int8 := minOfLe
 
@@ -800,8 +800,8 @@ Examples:
 def Int16.decLe (a b : Int16) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int16) : Decidable (a < b) := Int16.decLt a b
-instance (a b : Int16) : Decidable (a ≤ b) := Int16.decLe a b
+attribute [instance] Int16.decLt Int16.decLe
+
 instance : Max Int16 := maxOfLe
 instance : Min Int16 := minOfLe
 
@@ -1187,8 +1187,8 @@ Examples:
 def Int32.decLe (a b : Int32) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int32) : Decidable (a < b) := Int32.decLt a b
-instance (a b : Int32) : Decidable (a ≤ b) := Int32.decLe a b
+attribute [instance] Int32.decLt Int32.decLe
+
 instance : Max Int32 := maxOfLe
 instance : Min Int32 := minOfLe
 
@@ -1593,8 +1593,8 @@ Examples:
 def Int64.decLe (a b : Int64) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int64) : Decidable (a < b) := Int64.decLt a b
-instance (a b : Int64) : Decidable (a ≤ b) := Int64.decLe a b
+attribute [instance] Int64.decLt Int64.decLe
+
 instance : Max Int64 := maxOfLe
 instance : Min Int64 := minOfLe
 
@@ -1986,7 +1986,7 @@ Examples:
 def ISize.decLe (a b : ISize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : ISize) : Decidable (a < b) := ISize.decLt a b
-instance (a b : ISize) : Decidable (a ≤ b) := ISize.decLe a b
+attribute [instance] ISize.decLt ISize.decLe
+
 instance : Max ISize := maxOfLe
 instance : Min ISize := minOfLe

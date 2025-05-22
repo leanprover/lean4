@@ -27,14 +27,13 @@ LEAN_EXPORT lean_object* l_Lean_DataValue_getBoolEx___boxed(lean_object*);
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_920____closed__13;
 static lean_object* l_List_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_920____spec__1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_KVMap_subset___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_KVMap_subsetAux(lean_object*, lean_object*);
 static lean_object* l_Lean_KVMap_instValueNat___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_920____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_920____closed__10;
 static lean_object* l_Lean_DataValue_str___closed__2;
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueString___lambda__1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_size___boxed(lean_object*);
 static lean_object* l_Lean_KVMap_instValueString___closed__1;
@@ -146,6 +145,7 @@ LEAN_EXPORT lean_object* l_Lean_DataValue_beqExp___boxed(lean_object*, lean_obje
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_253____closed__2;
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueSyntax;
 LEAN_EXPORT lean_object* l_Lean_KVMap_size(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_920____closed__6;
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_253____closed__15;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedKVMap;
@@ -290,7 +290,7 @@ x_1 = l_Lean_instInhabitedDataValue___closed__2;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -462,11 +462,11 @@ return x_28;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(x_1, x_2);
+x_3 = l_Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -475,7 +475,7 @@ static lean_object* _init_l_Lean_instBEqDataValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70____boxed), 2, 0);
 return x_1;
 }
 }
@@ -1255,7 +1255,7 @@ LEAN_EXPORT uint8_t lean_data_value_beq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
-x_3 = l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(x_1, x_2);
+x_3 = l_Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(x_1, x_2);
 return x_3;
 }
 }
@@ -3481,7 +3481,7 @@ lean_object* x_10; uint8_t x_11;
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(x_7, x_10);
+x_11 = l_Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70_(x_7, x_10);
 if (x_11 == 0)
 {
 uint8_t x_12; 

@@ -93,17 +93,6 @@ end algebra_hierarchy_morphisms
 
 section HSMul_stuff
 
-class HSMul (α : Type) (β : Type) (γ : outParam Type) where
-  hSMul : α → β → γ
-
-class SMul (M : Type) (α : Type) where
-  smul : M → α → α
-
-infixr:73 " • " => HSMul.hSMul
-
-instance instHSMul {α β : Type} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
-
 -- note that the function `SMulZeroClass.toSMul` is what disrupts `simp` later
 class SMulZeroClass (M A : Type) extends SMul M A where
 

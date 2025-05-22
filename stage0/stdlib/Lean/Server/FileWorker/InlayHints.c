@@ -45,6 +45,7 @@ lean_object* l_Std_Mutex_atomically___at___private_Lean_Server_Requests_0__Lean_
 static lean_object* l_panic___at_Lean_Server_FileWorker_handleInlayHints___spec__4___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_x27___at_Lean_Server_FileWorker_handleInlayHints___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+uint8_t l_Lean_Elab_beqInlayHintTextEdit____x40_Lean_Elab_InfoTree_InlayHints___hyg_104_(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Server_FileWorker_handleInlayHints___spec__1___closed__1;
@@ -62,7 +63,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleInlayHintsDidChange_upda
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonInlayHint____x40_Lean_Data_Lsp_LanguageFeatures___hyg_12835_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_InlayHintState_init___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2235____spec__3___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Elab_InfoTree_InlayHints_0__Lean_Elab_beqInlayHintTextEdit____x40_Lean_Elab_InfoTree_InlayHints___hyg_104_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleInlayHintsDidChange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_FileWorker_handleInlayHints___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Server_requestHandlers;
@@ -6867,7 +6867,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
-x_7 = l___private_Lean_Elab_InfoTree_InlayHints_0__Lean_Elab_beqInlayHintTextEdit____x40_Lean_Elab_InfoTree_InlayHints___hyg_104_(x_1, x_6);
+x_7 = l_Lean_Elab_beqInlayHintTextEdit____x40_Lean_Elab_InfoTree_InlayHints___hyg_104_(x_1, x_6);
 lean_dec(x_6);
 if (x_7 == 0)
 {

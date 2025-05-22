@@ -252,11 +252,6 @@ private theorem Option.dmap_eq_some {o : Option α} {f : (a : α) → (o = some 
 
 end
 
-theorem Option.guard_eq_map' (p : (a : α) × β a → Bool) :
-    Option.guard p = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
-  funext x
-  simp [Option.guard]
-
 theorem getValueCast?_eq_getEntry? [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α} :
     getValueCast? a l = Option.dmap (getEntry? a l)
       (fun p h => cast (congrArg β (eq_of_beq (beq_of_getEntry?_eq_some h))) p.2) := by
@@ -4632,13 +4627,14 @@ theorem Const.containsKey_filter [BEq α] [EquivBEq α] {β : Type v}
     if h : containsKey k l
     then f (getKey k l h) (getValue k l h)
     else false := by
-  simp only [← List.filterMap_eq_filter, Option.guard_eq_map',
-    containsKey_filterMap hl (f:= fun a b => (if f a b = true then some b else none))]
-  split
-  · rename_i h
-    simp only [Option.isSome]
-    cases f (getKey k l h) (getValue k l h) <;> simp
-  · rfl
+  simp only [containsKey_eq_isSome_getEntry?, hl, getEntry?_filter, getKey, getValue]
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [distinctKeys_cons_iff] at hl
+    by_cases hdk : hd.1 == k
+    · simp [getEntry?, hdk, getKey?, getValue?]
+    · simp [getEntry?, hdk, getValue?, getKey?, And.left hl, ih]
 
 theorem containsKey_map [BEq α] {f : (a : α) → β a → γ a}
     {l : List ((a : α) × β a)} {k : α} :
@@ -4690,7 +4686,7 @@ theorem getValueCast?_filter [BEq α] [LawfulBEq α]
     getValueCast? k (l.filter fun p => f p.1 p.2) =
       (getValueCast? k l).filter (f k) := by
   simp only [getValueCast?_eq_getEntry?, Option.dmap_congr (getEntry?_filter hl)]
-  simp only [Option.filter_eq_bind, Option.dmap_congr (Option.filter_eq_bind _ _)]
+  simp only [← Option.bind_guard]
   simp only [Option.dmap_bind, Option.bind_dmap_left]
   congr; funext a h
   cases eq_of_beq (beq_of_getEntry?_eq_some h)
@@ -4850,21 +4846,23 @@ theorem getKeyD_filterMap [BEq α] [LawfulBEq α]
       (f x (getValueCast x l (containsKey_of_getKey?_eq_some (Option.mem_def.mp h)))).isSome)).getD fallback := by
   simp [getKeyD_eq_getKey?, getKey?_filterMap hl]
 
+theorem getValueCast_eq_get_getValueCast? [BEq α] [LawfulBEq α] {a : α} {l : List ((a : α) × β a)}
+    {h : containsKey a l} :
+    getValueCast a l h = (getValueCast? a l).get (containsKey_eq_isSome_getValueCast? (a := a) ▸ h) := by
+  simp [getValueCast?_eq_some_getValueCast h]
+
 theorem getKey?_filter [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Bool}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
     getKey? k (l.filter fun p => f p.1 p.2) =
       (getKey? k l).pfilter (fun x h =>
       (f x (getValueCast x l (containsKey_of_getKey?_eq_some (Option.mem_def.mp h))))) := by
-  rw [← List.filterMap_eq_filter, Option.guard_eq_map', getKey?_filterMap hl (f := fun a b =>
-    if f a b = true then some b else none)]
-  congr
-  funext x h
-  split
-  · rename_i h'
-    simp [h']
-  · rename_i h'
-    simp [h']
+  simp [getKey?_eq_getEntry?, getEntry?_filter hl, getValueCast_eq_get_getValueCast?,
+    getValueCast?_eq_getEntry?]
+  obtain (h|⟨p, h⟩) := Option.eq_none_or_eq_some (getEntry? k l)
+  · simp [h]
+  · cases eq_of_beq (beq_of_getEntry?_eq_some h)
+    simp [h, Option.filter_some]
 
 theorem getKey?_filter_key [BEq α] [EquivBEq α]
     {f : α → Bool} {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
@@ -5015,7 +5013,7 @@ theorem length_filter_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) → β
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l) :
     (l.filter fun p => f p.1 p.2).length = l.length ↔
       ∀ (a : α) (h : containsKey a l), (f a (getValueCast a l h)) = true := by
-  simp [← List.filterMap_eq_filter, Option.guard_eq_map, length_filterMap_eq_length_iff,
+  simp [← List.filterMap_eq_filter, length_filterMap_eq_length_iff,
     forall_mem_iff_forall_contains_getValueCast (p := fun a b => f a b = true) distinct]
 
 theorem length_filter_key_eq_length_iff [BEq α] [EquivBEq α] {f : α → Bool}
@@ -5096,16 +5094,14 @@ theorem isEmpty_filter_eq_true [BEq α] [LawfulBEq α] {f : (a : α) → β a �
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l) :
     (l.filter fun p => f p.1 p.2).isEmpty = true ↔
       ∀ (k : α) (h : containsKey k l = true), f k (getValueCast k l h) = false := by
-  rw [← List.filterMap_eq_filter, Option.guard_eq_map',
-    isEmpty_filterMap_eq_true (f:= fun a b => if f a b then some b else none) distinct]
-  simp
+  simp only [List.isEmpty_iff, List.filter_eq_nil_iff, Bool.not_eq_true,
+    forall_mem_iff_forall_contains_getValueCast (p := fun a b => f a b = false) distinct]
 
 theorem isEmpty_filter_eq_false [BEq α] [LawfulBEq α] {f : (a : α) → β a → Bool}
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l) :
     (l.filter fun p => (f p.1 p.2)).isEmpty = false ↔
       ∃ (k : α) (h : containsKey k l = true), f k (getValueCast k l h) = true := by
-  rw [← List.filterMap_eq_filter, Option.guard_eq_map',
-    isEmpty_filterMap_eq_false (f:= fun a b => if f a b then some b else none) distinct]
+  rw [← Bool.not_eq_true, isEmpty_filter_eq_true distinct]
   simp
 
 theorem isEmpty_filter_key_iff [BEq α] [EquivBEq α] {f : α → Bool}
@@ -5210,7 +5206,7 @@ theorem getValue?_filter {β : Type v} [BEq α] [EquivBEq α]
       (getValue? k l).pfilter (fun v h =>
         f (getKey k l (containsKey_eq_isSome_getValue?.trans (Option.isSome_of_eq_some h))) v) := by
   simp only [getValue?_eq_getEntry?, distinct, getEntry?_filter, getKey?_eq_getEntry?,
-    Option.pfilter_eq_pbind_ite, Option.filter_eq_bind, Option.guard_def,
+    Option.pfilter_eq_pbind_ite, ← Option.bind_guard, Option.guard_def,
     Option.pbind_map, Option.map_bind, Function.comp_def, apply_ite,
     Option.map_some, Option.map_none]
   simp only [getKey, getKey?_eq_getEntry?, ← Option.pbind_eq_bind]
@@ -5330,20 +5326,22 @@ theorem getKeyD_filterMap [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
         (f x (getValue x l (containsKey_of_getKey?_eq_some h))).isSome)).getD fallback := by
   simp [getKeyD_eq_getKey?, getKey?_filterMap hl]
 
+theorem getValue_eq_get_getValue? [BEq α] {β : Type v} {a : α} {l : List ((_ : α) × β)}
+    {h : containsKey a l} :
+    getValue a l h = (getValue? a l).get (containsKey_eq_isSome_getValue? (a := a) ▸ h) := by
+  simp [getValue?_eq_some_getValue h]
+
 theorem getKey?_filter [BEq α] [EquivBEq α] {β : Type v}
     {f : (_ : α) → β → Bool}
     {l : List ((_ : α) × β)} {k : α} (hl : DistinctKeys l) :
     getKey? k (l.filter fun p => f p.1 p.2) =
       (getKey? k l).pfilter (fun x h =>
         f x (getValue x l (containsKey_of_getKey?_eq_some h))) := by
-  rw [← List.filterMap_eq_filter, Option.guard_eq_map', getKey?_filterMap (f:= fun a b => if f a b = true then some b else none) hl]
-  congr
-  funext x h
-  split
-  · rename_i h
-    simp [h]
-  · rename_i h
-    simp [h]
+  simp [getKey?_eq_getEntry?, getEntry?_filter hl, getValue_eq_get_getValue?,
+    getValue?_eq_getEntry?]
+  obtain (h|⟨p, h⟩) := Option.eq_none_or_eq_some (getEntry? k l)
+  · simp [h]
+  · simp [h, Option.filter_some, getEntry?_congr (beq_of_getEntry?_eq_some h)]
 
 theorem getKey!_filter [BEq α] [EquivBEq α] [Inhabited α] {β : Type v}
     {f : (_ : α) → β → Bool}
@@ -5382,14 +5380,14 @@ theorem length_filter_eq_length_iff {β : Type v} [BEq α] [EquivBEq α]
     {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
     (l.filter fun p => (f p.1 p.2)).length = l.length ↔
       ∀ (a : α) (h : containsKey a l), (f (getKey a l h) (getValue a l h)) = true := by
-  simp [← List.filterMap_eq_filter, Option.guard_eq_map, length_filterMap_eq_length_iff,
+  simp [← List.filterMap_eq_filter, Option.guard, length_filterMap_eq_length_iff,
     forall_mem_iff_forall_contains_getKey_getValue (p := fun a b => f a b = true) distinct]
 
 theorem length_filter_key_eq_length_iff {β : Type v} [BEq α] [EquivBEq α]
     {f : (_ : α) → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
     (l.filter fun p => f p.1).length = l.length ↔
       ∀ (a : α) (h : containsKey a l), f (getKey a l h)  = true := by
-  simp [← List.filterMap_eq_filter, Option.guard_eq_map, length_filterMap_eq_length_iff,
+  simp [← List.filterMap_eq_filter, length_filterMap_eq_length_iff,
     forall_mem_iff_forall_contains_getKey_getValue (p := fun a b => f a = true) distinct]
 
 theorem isEmpty_filterMap_eq_true [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}

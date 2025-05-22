@@ -877,6 +877,12 @@ instance ImplicationOrder.instCompleteLattice : CompleteLattice ImplicationOrder
     @monotone _ _ _ ImplicationOrder.instOrder (fun x => (Exists (f x))) :=
   fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
 
+@[partial_fixpoint_monotone] theorem implication_order_monotone_forall
+    {α} [PartialOrder α] {β} (f : α → β → ImplicationOrder)
+    (h : monotone f) :
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => ∀ y, f x y) :=
+  fun x y hxy h₂ y₁ => monotone_apply y₁ f h x y hxy (h₂ y₁)
+
 @[partial_fixpoint_monotone] theorem implication_order_monotone_and
     {α} [PartialOrder α] (f₁ : α → ImplicationOrder) (f₂ : α → ImplicationOrder)
     (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁)
@@ -930,6 +936,12 @@ def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplica
     (h : monotone f) :
     @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => Exists (f x)) :=
   fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
+
+@[partial_fixpoint_monotone] theorem coind_monotone_forall
+    {α} [PartialOrder α] {β} (f : α → β → ReverseImplicationOrder)
+    (h : monotone f) :
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => ∀ y, f x y) :=
+  fun x y hxy h₂ y₁ => monotone_apply y₁ f h x y hxy (h₂ y₁)
 
 @[partial_fixpoint_monotone] theorem coind_monotone_and
     {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)

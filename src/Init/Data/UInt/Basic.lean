@@ -222,8 +222,8 @@ Examples:
 def UInt8.decLe (a b : UInt8) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
-instance (a b : UInt8) : Decidable (a < b) := UInt8.decLt a b
-instance (a b : UInt8) : Decidable (a ≤ b) := UInt8.decLe a b
+attribute [instance] UInt8.decLt UInt8.decLe
+
 instance : Max UInt8 := maxOfLe
 instance : Min UInt8 := minOfLe
 
@@ -438,8 +438,8 @@ Examples:
 def UInt16.decLe (a b : UInt16) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
-instance (a b : UInt16) : Decidable (a < b) := UInt16.decLt a b
-instance (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b
+attribute [instance] UInt16.decLt UInt16.decLe
+
 instance : Max UInt16 := maxOfLe
 instance : Min UInt16 := minOfLe
 
@@ -586,8 +586,7 @@ set_option linter.deprecated false in
 instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 
 instance : Div UInt32       := ⟨UInt32.div⟩
-instance : LT UInt32        := ⟨UInt32.lt⟩
-instance : LE UInt32        := ⟨UInt32.le⟩
+-- `LT` and `LE` are already defined in `Init.Prelude`
 
 /--
 Bitwise complement, also known as bitwise negation, for 32-bit unsigned integers. Usually accessed
@@ -832,8 +831,8 @@ Examples:
 def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
-instance (a b : UInt64) : Decidable (a < b) := UInt64.decLt a b
-instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
+attribute [instance] UInt64.decLt UInt64.decLe
+
 instance : Max UInt64 := maxOfLe
 instance : Min UInt64 := minOfLe
 

@@ -210,22 +210,6 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
   cases as
   simp
 
-@[simp] theorem foldl_push {l : List α} {f : α → β} {as : Array β} :
-    l.foldl (fun as b => as.push (f b)) as = as ++ (l.map f).toArray := by
-  induction l generalizing as <;> simp [*]
-
-/-- Variant of `foldl_push` specialized to `f = id` -/
-@[simp] theorem foldl_push' {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
-  induction l generalizing as <;> simp [*]
-
-@[simp] theorem foldr_push {l : List α} {f : α → β} {as : Array β} :
-    l.foldr (fun a bs => bs.push (f a)) as = as ++ (l.map f).reverse.toArray := by
-  rw [foldr_eq_foldl_reverse, foldl_push, map_reverse]
-
-/-- Variant of `foldr_push` specialized to `f = id` -/
-@[simp] theorem foldr_push' {l : List α} {as : Array α} : l.foldr (fun a bs => push bs a) as = as ++ l.reverse.toArray := by
-  rw [foldr_eq_foldl_reverse, foldl_push']
-
 @[simp, grind =] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
     l.toArray.findSomeM? f = l.findSomeM? f := by
   rw [Array.findSomeM?]

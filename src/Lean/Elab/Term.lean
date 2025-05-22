@@ -609,9 +609,16 @@ def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx
 instance : MonadParentDecl TermElabM where
   getParentDeclName? := getDeclName?
 
-/-- Execute `withSaveParentDeclInfoContext x` with `declName? := name`. See `getDeclName?`. -/
+/--
+Executes `x` in the context of the given declaration name. Ensures that the info tree is set up
+correctly and adjusts the declaration name generator to generate names below this name, resetting
+the nested counter.
+-/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with declName? := name }) <| withSaveParentDeclInfoContext x
+  withReader (fun ctx => { ctx with declName? := name }) do
+  withSaveParentDeclInfoContext do
+  withDeclNameForAuxNaming name do
+    x
 
 /-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
@@ -1894,10 +1901,7 @@ def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → E
   else
     forallBoundedTelescope (← mkForallFVars xs type) xs.size fun xs type => k xs type
 
-def mkAuxName (suffix : Name) : TermElabM Name := do
-  match (← read).declName? <|> (← getEnv).asyncPrefix? with
-  | none          => Lean.mkAuxName (mkPrivateName (← getEnv) `aux) 1
-  | some declName => Lean.mkAuxName (declName ++ suffix) 1
+def mkAuxName (suffix : Name) : TermElabM Name := mkAuxDeclName (kind := suffix)
 
 builtin_initialize registerTraceClass `Elab.letrec
 
@@ -1975,7 +1979,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwUnknownIdentifier m!"unknown identifier '{Lean.mkConst n}'"
+        throwUnknownIdentifierAt stx m!"unknown identifier '{Lean.mkConst n}'"
     mkConsts candidates explicitLevels
 
 /--

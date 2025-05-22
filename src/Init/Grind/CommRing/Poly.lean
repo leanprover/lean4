@@ -189,7 +189,7 @@ def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Mon) (p : Poly)
-  deriving BEq, Inhabited, Hashable
+  deriving BEq, Repr, Inhabited, Hashable
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by

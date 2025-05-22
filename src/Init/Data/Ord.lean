@@ -811,7 +811,4 @@ comparisons.
 protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
 
-@[deprecated Array.instOrd (since := "2025-05-04")]
-protected abbrev arrayOrd [a : Ord α] : Ord (Array α) := Array.instOrd
-
 end Ord

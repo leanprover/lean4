@@ -58,6 +58,7 @@ lean_object* l_Lean_Json_mkObj(lean_object*);
 lean_object* l_System_FilePath_normalize(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_lake_reservoirConfig___spec__5(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_lake_checkTest___closed__2;
+lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLakeInstall____x40_Lake_Config_InstallPath___hyg_1121_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lake_evalLeanFile_mkSpawnArgs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_lake_script_list___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_lake_unpack(lean_object*, lean_object*, lean_object*);
@@ -444,7 +445,6 @@ static lean_object* l_Lake_lakeCli___closed__12;
 static lean_object* l_Lake_lakeLongOption___closed__2;
 lean_object* l_Lean_parseImports_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Script_run(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLakeInstall____x40_Lake_Config_InstallPath___hyg_1116_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_lake_script_list___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_lake_reservoirConfig___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lake_LakeOptions_getLakeInstall(lean_object*);
@@ -12038,8 +12038,10 @@ else
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
 x_5 = lean_unsigned_to_nat(1024u);
-x_6 = l___private_Lake_Config_InstallPath_0__Lake_reprLakeInstall____x40_Lake_Config_InstallPath___hyg_1116_(x_4, x_5);
+x_6 = l___private_Lake_Config_InstallPath_0__Lake_reprLakeInstall____x40_Lake_Config_InstallPath___hyg_1121_(x_4, x_5);
 x_7 = l_Option_repr___at_Lake_verifyInstall___spec__1___closed__4;
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -12123,7 +12125,6 @@ lean_dec(x_20);
 x_22 = lean_ctor_get(x_1, 5);
 lean_inc(x_22);
 x_23 = l_Option_repr___at_Lake_verifyInstall___spec__3(x_22, x_4);
-lean_dec(x_22);
 x_24 = lean_format_pretty(x_23, x_6, x_4, x_4);
 x_25 = l_Lake_verifyInstall___closed__3;
 x_26 = lean_string_append(x_25, x_24);
@@ -12382,7 +12383,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Option_repr___at_Lake_verifyInstall___spec__3(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }

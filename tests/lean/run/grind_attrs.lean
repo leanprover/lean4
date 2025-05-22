@@ -44,3 +44,18 @@ set_option trace.grind.ematch.pattern true in
 set_option trace.grind.ematch.pattern true in
 @[grind =>] theorem State.update_le_update (h : State.le σ' σ) : State.le (σ'.update x v) (σ.update x v) :=
   sorry
+
+
+namespace Foo
+
+/-- info: Rtrans: [R #4 #3, R #3 #2] -/
+#guard_msgs (info) in
+@[grind? ->]
+axiom Rtrans {x y z : Nat} : R x y → R y z → R x z
+
+/-- info: Rtrans': [R #4 #3, R #3 #2] -/
+#guard_msgs (info) in
+@[grind? →]
+axiom Rtrans' {x y z : Nat} : R x y → R y z → R x z
+
+end Foo

@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__10;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__32___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getElimInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__1;
 lean_object* l_Lean_Meta_FVarSubst_apply(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__4;
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__7;
@@ -29,6 +28,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_RCases_rca
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__48___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__23;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______macroRules__Lean__Elab__Tactic__RCases__termList_u03a3__1___closed__1;
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_RCases_rintroCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36,14 +36,13 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_
 static lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__1___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_expandRIntroPats___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_instReprRCasesPatt___closed__1;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_RCases_rintroCore___spec__2___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rintroContinue_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__51(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore(lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_finish___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__4___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -62,17 +61,16 @@ static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instInhabited___closed_
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__8;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_generalizeExceptFVar___spec__2(lean_object*, size_t, size_t, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__41(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__16(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__20___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__38(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rintro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__4___closed__1;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__7;
 static lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__1___closed__5;
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__28(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__53(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2;
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__20(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
@@ -83,6 +81,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClear
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_RCases_finish___spec__1(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__31(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_RCases_subst_x27___closed__1;
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__21;
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -90,7 +89,6 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at_Lean_Elab_Tactic_RCases_
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Elab_Tactic_RCases_RCasesPatt_parse___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_evalTactic_throwExs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Tactic_RCases___hyg_539____closed__9;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__5(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__18;
@@ -123,6 +121,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___boxed(lean
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_alts_u2081___closed__1;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__31___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_generalizeExceptFVar___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_RCases_rintroCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(lean_object*, lean_object*);
@@ -142,6 +141,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCas
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Tactic_RCases___hyg_539____closed__11;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__49___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__52___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__7;
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -153,6 +153,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tacti
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__8___closed__4;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_typed_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__2(lean_object*, lean_object*, lean_object*);
@@ -165,7 +166,9 @@ static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCas
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__9;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__8(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_expandRIntroPat___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__2;
 lean_object* l_List_head_x3f___rarg(lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__4;
 static lean_object* l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -180,9 +183,10 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_try
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_name_x3f___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__39(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4;
 static lean_object* l_Lean_Elab_Tactic_RCases_subst_x27___closed__3;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__2;
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__11;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__3;
 static lean_object* l_Lean_Elab_Tactic_RCases_instCoeTSyntaxConsSyntaxNodeKindMkStr4Nil__lean___closed__1;
 static lean_object* l_Lean_Elab_Tactic_RCases_instCoeIdentTSyntaxConsSyntaxNodeKindMkStr1Nil__lean___closed__3;
 lean_object* l_List_head_x21___rarg(lean_object*, lean_object*);
@@ -195,7 +199,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_try
 static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______macroRules__Lean__Elab__Tactic__RCases__termList_u03a3__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_expandRIntroPats___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rintroContinue___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__43(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_RCases_rintroCore___spec__1___rarg(lean_object*);
@@ -206,6 +209,7 @@ static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_RCases_rcases__
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp___spec__1(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__10___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__1;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__21___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_name_x3f___closed__1;
@@ -218,15 +222,13 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCas
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______unexpand__List__1___closed__1;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_alts_u2081(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__50___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_ElimApp_mkElimApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rintroCore___rarg___lambda__1___boxed(lean_object**);
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__15;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__37___boxed(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_expandRIntroPats(lean_object*, lean_object*, lean_object*);
@@ -241,6 +243,7 @@ LEAN_EXPORT lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__L
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__28___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__30(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Lean_Elab_Tactic_RCases_instCoeIdentTSyntaxConsSyntaxNodeKindMkStr1Nil__lean___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__24(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__1___closed__2;
@@ -272,22 +275,20 @@ lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__27(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__2;
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__9;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__3;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__7(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_ReaderT_pure___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__17___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__1;
 lean_object* l_Lean_Elab_Term_exprToSyntax(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__26___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__49___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___closed__1;
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Tactic_RCases___hyg_539____closed__12;
 lean_object* l___private_Init_Meta_0__Lean_Syntax_reprTSyntax____x40_Init_Meta___hyg_2266____rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__3(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__6;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isMVar(lean_object*);
@@ -296,9 +297,9 @@ static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases_
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__7(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__33___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__1;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______macroRules__Lean__Elab__Tactic__RCases__termList_u03a3__1___closed__3;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3;
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_instCoeTSyntaxConsSyntaxNodeKindMkStr1NilMkStr4__lean___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_RCases_rcases___spec__4(size_t, size_t, lean_object*);
@@ -308,6 +309,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_instCoeIdentTSyntaxConsSyntaxNodeKindMkStr1Nil__lean(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__34(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______macroRules__Lean__Elab__Tactic__RCases__termList_u03a3__1___closed__8;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__2;
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__9;
 static lean_object* l_Lean_Elab_Tactic_RCases_instCoeTSyntaxConsSyntaxNodeKindMkStr1NilMkStr4__lean___closed__4;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -317,13 +319,13 @@ LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_v
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___closed__4;
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__7___closed__1;
 static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___lambda__2___closed__3;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4;
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__7___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__34___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_expandRIntroPat(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______macroRules__Lean__Elab__Tactic__RCases__termList_u03a3__1___closed__7;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3;
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__48(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -369,6 +371,7 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_Tactic_RCases_RCasesPa
 static lean_object* l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__6;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__22___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore_align___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__3;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -379,17 +382,17 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tr
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__27___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__3___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___closed__1;
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__17;
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_parenAbove___closed__1;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__1;
 static lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__1___closed__4;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__12___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953_(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_RCases_RCasesPatt_parse___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___closed__5;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___spec__2(lean_object*, lean_object*);
@@ -401,7 +404,6 @@ lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__11___closed__2;
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_generalizeExceptFVar___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268_;
 static lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__1___closed__3;
@@ -409,14 +411,15 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__8
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_RCases_RCasesPatt_parse___spec__1___rarg___closed__1;
 lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_withSynthesizeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_expandRIntroPat___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______unexpand__List__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__15;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_alts_x27(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Tactic_RCases___hyg_539____closed__2;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1(lean_object*);
 lean_object* l_Lean_MVarId_assign___at_Lean_Elab_Term_exprToSyntax___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__2;
 static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______macroRules__Lean__Elab__Tactic__RCases__termList_u03a3__1___closed__5;
@@ -427,7 +430,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesContinue(lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__1___closed__9;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcases___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__37(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__4(lean_object*, lean_object*, lean_object*);
@@ -445,6 +447,7 @@ lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__23___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__11___closed__1;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3;
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rintroContinue_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -454,10 +457,10 @@ lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, ui
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__2;
 static lean_object* l_Lean_Elab_Tactic_RCases_obtainNone___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_addTermInfo_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_RCases_subst_x27___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__17(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__4___boxed(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__5___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__4;
 static lean_object* l_Lean_Elab_Tactic_RCases_instCoeIdentTSyntaxConsSyntaxNodeKindMkStr1Nil__lean___closed__5;
@@ -474,7 +477,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tr
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__18;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__3;
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__29(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__18___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_generalizeExceptFVar___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -502,9 +504,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_asTuple(lean_objec
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__4;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__32(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_RCases_RCasesPatt_parse___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__5;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__1;
@@ -515,9 +515,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesContinue___rarg___lambd
 static lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__1___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__35(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__13;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__7;
 static lean_object* l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__7;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__5;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_finish___boxed__const__1;
@@ -525,10 +526,8 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_Elab_Tactic_RC
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__11;
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__1___boxed(lean_object**);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__4;
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6_(lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__7;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__12(lean_object*, lean_object*);
@@ -553,10 +552,8 @@ static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData___clo
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_asAlts(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__9___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2;
 lean_object* l_Lean_MVarId_intro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__1___closed__7;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__1;
 lean_object* l_Lean_Meta_Cases_cases(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__52___closed__3;
 static lean_object* l_Lean_Elab_Tactic_RCases_expandRIntroPat___closed__1;
@@ -570,15 +567,14 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tacti
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__41___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__36___boxed(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__52(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Tactic_RCases___hyg_539_;
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__1;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__9;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__5;
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__13(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__35___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_tryClearMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -588,11 +584,12 @@ static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Ta
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__16;
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__8;
 size_t lean_usize_add(size_t, size_t);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__3;
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___boxed(lean_object**);
 static lean_object* l_Lean_Elab_Tactic_RCases_finish___closed__1;
 static lean_object* l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____spec__1___closed__8;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_ref(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalObtain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_Elab_Tactic_RCases_rcases___spec__2(lean_object*, lean_object*, lean_object*);
@@ -610,13 +607,13 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__40___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______unexpand__List__2(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore_align___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__13___boxed(lean_object**);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__3;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__14___boxed(lean_object**);
@@ -626,12 +623,15 @@ lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Tactic_RCases___hyg_539____closed__5;
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_Elab_Tactic_RCases_rcases___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_953____closed__7;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__7;
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_tuple_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_tryClearMany_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_replaceLocalDeclDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__4___closed__4;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_obtainNone(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -640,7 +640,6 @@ lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_obje
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Tactic_RCases___hyg_539____closed__8;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_RCases_rcasesCore___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__1;
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_RCases_rcases___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__8___closed__3;
@@ -657,10 +656,12 @@ static lean_object* l_Lean_Elab_Tactic_RCases_instCoeTSyntaxConsSyntaxNodeKindMk
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__16;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__7___closed__2;
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__7;
 lean_object* l_Lean_MessageData_bracket(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__50___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rintroCore(lean_object*);
+static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__4;
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______macroRules__Lean__Elab__Tactic__RCases__termList_u03a0__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
@@ -695,7 +696,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_typed_x3f(lean_obj
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__25___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_instCoeTSyntaxConsSyntaxNodeKindMkStr1NilMkStr4__lean(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__53___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 static lean_object* _init_l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__1() {
 _start:
 {
@@ -4540,7 +4540,7 @@ x_78 = lean_array_fget(x_2, x_4);
 x_79 = lean_ctor_get_uint8(x_78, sizeof(void*)*1);
 lean_dec(x_78);
 x_80 = 0;
-x_81 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_79, x_80);
+x_81 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_79, x_80);
 if (x_81 == 0)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; uint8_t x_85; 
@@ -33298,7 +33298,7 @@ lean_dec(x_1);
 return x_14;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -33306,7 +33306,7 @@ x_1 = lean_mk_string_unchecked("evalRCases", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -33314,12 +33314,12 @@ x_1 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6___
 x_2 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__8;
 x_3 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__9;
 x_4 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__10;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1;
+x_5 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1;
 x_6 = l_Lean_Name_mkStr5(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -33327,7 +33327,7 @@ x_1 = l_Lean_Elab_Tactic_tacticElabAttribute;
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -33335,19 +33335,19 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_RCases_evalRCases), 10, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3;
+x_2 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3;
 x_3 = l_Lean_Elab_Tactic_RCases_evalRCases___closed__2;
-x_4 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4;
+x_4 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2;
+x_5 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -33359,7 +33359,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -33371,13 +33371,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__1;
+x_1 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__1;
 x_2 = lean_unsigned_to_nat(44u);
-x_3 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__2;
+x_3 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__2;
 x_4 = lean_unsigned_to_nat(31u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -33387,7 +33387,7 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -33399,7 +33399,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -33411,13 +33411,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__4;
+x_1 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__4;
 x_2 = lean_unsigned_to_nat(48u);
-x_3 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__5;
+x_3 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__5;
 x_4 = lean_unsigned_to_nat(58u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -33427,24 +33427,24 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__3;
-x_2 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__6;
+x_1 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__3;
+x_2 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__6;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2;
-x_3 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__7;
+x_2 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2;
+x_3 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__7;
 x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
@@ -34255,7 +34255,7 @@ lean_dec(x_1);
 return x_14;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -34263,7 +34263,7 @@ x_1 = lean_mk_string_unchecked("evalObtain", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -34271,12 +34271,12 @@ x_1 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6___
 x_2 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__8;
 x_3 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__9;
 x_4 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__10;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1;
+x_5 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1;
 x_6 = l_Lean_Name_mkStr5(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -34284,19 +34284,19 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_RCases_evalObtain), 10, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3;
+x_2 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3;
 x_3 = l_Lean_Elab_Tactic_RCases_evalObtain___closed__2;
-x_4 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3;
+x_4 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2;
+x_5 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -34308,7 +34308,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -34320,13 +34320,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__1;
+x_1 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__1;
 x_2 = lean_unsigned_to_nat(44u);
-x_3 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__2;
+x_3 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__2;
 x_4 = lean_unsigned_to_nat(31u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -34336,7 +34336,7 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -34348,7 +34348,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -34360,13 +34360,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__4;
+x_1 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__4;
 x_2 = lean_unsigned_to_nat(48u);
-x_3 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__5;
+x_3 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__5;
 x_4 = lean_unsigned_to_nat(58u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -34376,24 +34376,24 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__3;
-x_2 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__6;
+x_1 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__3;
+x_2 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__6;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2;
-x_3 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__7;
+x_2 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2;
+x_3 = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__7;
 x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
@@ -34630,7 +34630,7 @@ lean_dec(x_1);
 return x_13;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -34638,7 +34638,7 @@ x_1 = lean_mk_string_unchecked("evalRIntro", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -34646,12 +34646,12 @@ x_1 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6___
 x_2 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__8;
 x_3 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__9;
 x_4 = l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tactic_RCases___hyg_6____closed__10;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1;
+x_5 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1;
 x_6 = l_Lean_Name_mkStr5(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -34659,19 +34659,19 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_RCases_evalRIntro), 10, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3;
+x_2 = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3;
 x_3 = l_Lean_Elab_Tactic_RCases_evalRIntro___closed__2;
-x_4 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3;
+x_4 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2;
+x_5 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -34683,7 +34683,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -34695,13 +34695,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__1;
+x_1 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__1;
 x_2 = lean_unsigned_to_nat(44u);
-x_3 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__2;
+x_3 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__2;
 x_4 = lean_unsigned_to_nat(31u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -34711,7 +34711,7 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -34723,7 +34723,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -34735,13 +34735,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__4;
+x_1 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__4;
 x_2 = lean_unsigned_to_nat(48u);
-x_3 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__5;
+x_3 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__5;
 x_4 = lean_unsigned_to_nat(58u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -34751,24 +34751,24 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__3;
-x_2 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__6;
+x_1 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__3;
+x_2 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__6;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2;
-x_3 = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__7;
+x_2 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2;
+x_3 = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__7;
 x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
@@ -35159,32 +35159,32 @@ l_Lean_Elab_Tactic_RCases_evalRCases___closed__1 = _init_l_Lean_Elab_Tactic_RCas
 lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___closed__1);
 l_Lean_Elab_Tactic_RCases_evalRCases___closed__2 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___closed__2();
 lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4);
-if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1(lean_io_mk_world());
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__1);
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__2);
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__3);
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1___closed__4);
+if (builtin) {res = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__1);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__2 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__3 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__3);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__4 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__4();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__4);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__5 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__5();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__5);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__6 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__6();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__6);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__7 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__7();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1___closed__7);
-if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__1(lean_io_mk_world());
+}l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__1 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__1);
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__2 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__2);
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__3 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__3);
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__4 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__4();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__4);
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__5 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__5();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__5);
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__6 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__6();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__6);
+l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__7 = _init_l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__7();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__7);
+if (builtin) {res = l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }l_Lean_Elab_Tactic_RCases_evalObtain___lambda__2___closed__1 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___lambda__2___closed__1();
@@ -35199,60 +35199,60 @@ l_Lean_Elab_Tactic_RCases_evalObtain___closed__1 = _init_l_Lean_Elab_Tactic_RCas
 lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___closed__1);
 l_Lean_Elab_Tactic_RCases_evalObtain___closed__2 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___closed__2();
 lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3);
-if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1(lean_io_mk_world());
+l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1);
+l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__2);
+l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__3);
+if (builtin) {res = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__1);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__2 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__3 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__3);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__4 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__4();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__4);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__5 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__5();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__5);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__6 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__6();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__6);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__7 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__7();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1___closed__7);
-if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__1(lean_io_mk_world());
+}l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__1 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__1);
+l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__2 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__2);
+l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__3 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__3);
+l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__4 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__4();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__4);
+l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__5 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__5();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__5);
+l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__6 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__6();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__6);
+l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__7 = _init_l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__7();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__7);
+if (builtin) {res = l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }l_Lean_Elab_Tactic_RCases_evalRIntro___closed__1 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___closed__1);
 l_Lean_Elab_Tactic_RCases_evalRIntro___closed__2 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___closed__2();
 lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3);
-if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1(lean_io_mk_world());
+l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__1);
+l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__2);
+l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1___closed__3);
+if (builtin) {res = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__1);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__2 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__3 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__3);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__4 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__4();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__4);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__5 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__5();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__5);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__6 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__6();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__6);
-l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__7 = _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__7();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__7);
-if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1(lean_io_mk_world());
+}l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__1 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__1);
+l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__2 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__2);
+l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__3 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__3);
+l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__4 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__4();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__4);
+l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__5 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__5();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__5);
+l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__6 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__6();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__6);
+l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__7 = _init_l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__7();
+lean_mark_persistent(l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3___closed__7);
+if (builtin) {res = l_Lean_Elab_Tactic_RCases_evalRIntro___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__3(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

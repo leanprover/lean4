@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Lake_instToTextModule___closed__1;
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_forEachModuleInDir___spec__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_MTime_instOrd;
 LEAN_EXPORT lean_object* l_Lake_Module_bcFile_x3f(lean_object*);
@@ -139,7 +140,6 @@ LEAN_EXPORT lean_object* l_Lake_Module_leanIncludeDir_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_dynlibSuffix;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_findModule_x3f___spec__3___closed__2;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_forEachModuleInDir___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_dynlibs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_backend___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instToTextModule___lambda__1(lean_object*);
@@ -846,7 +846,7 @@ x_29 = lean_ctor_get(x_24, 0);
 lean_dec(x_29);
 x_30 = l_System_FilePath_extension(x_23);
 x_31 = l_Array_forIn_x27Unsafe_loop___at_Lake_LeanLib_getModuleArray___spec__2___closed__2;
-x_32 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_forEachModuleInDir___spec__1(x_30, x_31);
+x_32 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_forEachModuleInDir___spec__1(x_30, x_31);
 lean_dec(x_30);
 if (x_32 == 0)
 {
@@ -940,7 +940,7 @@ lean_inc(x_52);
 lean_dec(x_24);
 x_53 = l_System_FilePath_extension(x_23);
 x_54 = l_Array_forIn_x27Unsafe_loop___at_Lake_LeanLib_getModuleArray___spec__2___closed__2;
-x_55 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_forEachModuleInDir___spec__1(x_53, x_54);
+x_55 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_forEachModuleInDir___spec__1(x_53, x_54);
 lean_dec(x_53);
 if (x_55 == 0)
 {

@@ -198,6 +198,8 @@ result is empty. If `stop` is greater than the size of the vector, the size is u
 /--
 Extract the first `i` elements of a vector. If `i` is greater than or equal to the size of the
 vector then the vector is returned unchanged.
+
+We immediately simplify this to the `extract` operation, so there is no verification API for this function.
 -/
 @[inline] def take (xs : Vector α n) (i : Nat) : Vector α (min i n) :=
   ⟨xs.toArray.take i, by simp⟩
@@ -207,16 +209,22 @@ vector then the vector is returned unchanged.
 /--
 Deletes the first `i` elements of a vector. If `i` is greater than or equal to the size of the
 vector then the empty vector is returned.
+
+We immediately simplify this to the `extract` operation, so there is no verification API for this function.
 -/
 @[inline] def drop (xs : Vector α n) (i : Nat) : Vector α (n - i) :=
   ⟨xs.toArray.drop i, by simp⟩
 
 set_option linter.indexVariables false in
 @[simp] theorem drop_eq_cast_extract (xs : Vector α n) (i : Nat) :
-    xs.drop i = (xs.extract i n).cast (by simp) := by
+    xs.drop i = (xs.extract i).cast (by simp) := by
   simp [drop, extract, Vector.cast]
 
-/-- Shrinks a vector to the first `m` elements, by repeatedly popping the last element. -/
+/--
+Shrinks a vector to the first `m` elements, by repeatedly popping the last element.
+
+We immediately simplify this to the `extract` operation, so there is no verification API for this function.
+-/
 @[inline] def shrink (xs : Vector α n) (i : Nat) : Vector α (min i n) :=
   ⟨xs.toArray.shrink i, by simp⟩
 
@@ -394,12 +402,17 @@ instance [BEq α] : BEq (Vector α n) where
     have : Inhabited (Vector α (n+1)) := ⟨xs.push x⟩
     panic! "index out of bounds"
 
-/-- Delete the first element of a vector. Returns the empty vector if the input vector is empty. -/
-@[inline] def tail (xs : Vector α n) : Vector α (n-1) :=
-  if _ : 0 < n then
-    xs.eraseIdx 0
-  else
-    xs.cast (by omega)
+/--
+Delete the first element of a vector. Returns the empty vector if the input vector is empty.
+
+We immediately simplify this to the `extract` operation, so there is no verification API for this function.
+-/
+@[inline]
+def tail (xs : Vector α n) : Vector α (n-1) :=
+  (xs.extract 1).cast (by omega)
+
+@[simp] theorem tail_eq_cast_extract (xs : Vector α n) :
+    xs.tail = (xs.extract 1).cast (by omega) := rfl
 
 /--
 Finds the first index of a given value in a vector using `==` for comparison. Returns `none` if the

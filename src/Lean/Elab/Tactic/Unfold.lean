@@ -30,14 +30,14 @@ def zetaDeltaTarget (declFVarId : FVarId) : TacticM Unit := do
     go declNameId loc
 where
   go (declNameId : Syntax) (loc : Location) : TacticM Unit := withMainContext <| withRef declNameId do
-    let e ← withoutRecover <| elabTermForApply declNameId (mayPostpone := false)
-    match e with
-    | .const declName _ =>
+    let res ← withoutRecover <| elabTermForApply declNameId (mayPostpone := false)
+    match res with
+    | (.const declName _, []) =>
       withLocation loc (unfoldLocalDecl declName) (unfoldTarget declName) (throwTacticEx `unfold · m!"did not unfold '{declName}'")
-    | .fvar declFVarId =>
+    | (.fvar declFVarId, [])  =>
       unless ← declFVarId.isLetVar do
         throwError "tactic 'unfold' failed, local variable '{Expr.fvar declFVarId}' has no definition"
-      withLocation loc (zetaDeltaLocalDecl declFVarId) (zetaDeltaTarget declFVarId) (throwTacticEx `unfold · m!"did not unfold '{e}'")
-    | _ => throwTacticEx `unfold (← getMainGoal) m!"expression {e} is not a global or local constant"
+      withLocation loc (zetaDeltaLocalDecl declFVarId) (zetaDeltaTarget declFVarId) (throwTacticEx `unfold · m!"did not unfold '{res.1}'")
+    | (e, _mvarIds) => throwTacticEx `unfold (← getMainGoal) m!"expression {e} is not a global or local constant"
 
 end Lean.Elab.Tactic

@@ -306,7 +306,8 @@ where
         let ctorInfo ← getConstInfoCtor ctorName
         let (mvars, _, _) ← forallMetaTelescope ctorInfo.type
         let ctor := mkAppN ctor mvars
-        m.apply ctor
+        let mvars' ← m.apply ctor
+        return (mvars' ++ (mvars.map (·.mvarId!)).toList)
     return mss.foldr List.append []
 
   introNPRec (m : MVarId) : MetaM MVarId := do

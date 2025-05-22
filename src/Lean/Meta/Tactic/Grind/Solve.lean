@@ -56,7 +56,7 @@ def tryAssertAll : Goal → M Bool := applyTac assertAll
 
 def tryEmatch : Goal → M Bool := applyTac ematchOld
 
-def tryArith : Goal → M Bool := applyTac Arith.check
+def tryArith : Goal → M Bool := applyTac Arith.checkOld
 
 def tryLookahead : Goal → M Bool := applyTac lookahead
 

@@ -37,15 +37,18 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
       Offset.assertFalse c (← mkEqFalseProof e)
     Cutsat.propagateIfSupportedLe e (eqTrue := false)
 
-def check : GrindTactic := fun goal => do
-  let (progress, goal) ← GoalM.run goal do
-    let c₁ ← Cutsat.check
-    let c₂ ← CommRing.check
-    if c₁ || c₂ then
-      processNewFacts
-      return true
-    else
-      return false
+def check : GoalM Bool := do
+  let c₁ ← Cutsat.check
+  let c₂ ← CommRing.check
+  if c₁ || c₂ then
+    processNewFacts
+    return true
+  else
+    return false
+
+-- TODO: delete after we move to `SearchM`
+def checkOld : GrindTactic := fun goal => do
+  let (progress, goal) ← GoalM.run goal do check
   unless progress do
     return none
   if goal.inconsistent then

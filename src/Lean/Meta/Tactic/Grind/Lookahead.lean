@@ -26,7 +26,7 @@ where
       return true
     else if let some goals ← assertAll goal then
       cont goals
-    else if let some goals ← Arith.check goal then
+    else if let some goals ← Arith.checkOld goal then
       cont goals
     else if let some goals ← splitNext goal then
       cont goals

@@ -12,7 +12,8 @@ import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
-import Lean.Meta.Tactic.Grind.Combinators
+import Lean.Meta.Tactic.Grind.SearchM
+import Lean.Meta.Tactic.Grind.Combinators -- TODO: delete
 
 namespace Lean.Meta.Grind
 
@@ -195,6 +196,96 @@ private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withConte
     return goal
   else
     return { goal with mvarId := (← goal.mvarId.exfalso) }
+
+private def applyCases? (fvarId : FVarId) : SearchM Bool := withCurrGoalContext do
+  /-
+  Remark: we used to use `whnfD`. This was a mistake, we don't want to unfold user-defined abstractions.
+  Example: `a ∣ b` is defined as `∃ x, b = a * x`
+  -/
+  let type ← whnf (← fvarId.getType)
+  if isEagerCasesCandidate (← getGoal) type then
+    if (← cheapCasesOnly) then
+      unless (← isCheapInductive type) do
+        return false
+    if let .const declName _ := type.getAppFn then
+      saveCases declName true
+    let mvarId ← mkAuxMVarForCurrGoal
+    let mvarIds ← cases mvarId (mkFVar fvarId)
+    let goal ← getGoal
+    let goals := mvarIds.map fun mvarId => { goal with mvarId }
+    mkChoice (mkMVar mvarId) goals
+    return true
+  return false
+
+/--
+Introduce new hypotheses (and apply `by_contra`) until goal is of the form `... ⊢ False`
+or is inconsistent.
+-/
+def intros (generation : Nat) : SearchM Unit := do
+  repeat
+    if (← isInconsistent) then
+      return ()
+    match (← introNext (← getGoal) generation) with
+    | .done goal =>
+      let goal ← exfalsoIfNotProp goal
+      if let some mvarId ← goal.mvarId.byContra? then
+        setGoal { goal with mvarId }
+      else
+        setGoal goal
+        return ()
+    | .newDepHyp goal =>
+      setGoal goal
+    | .newLocal fvarId goal =>
+      setGoal goal
+      discard <| applyCases? fvarId
+    | .newHyp fvarId goal =>
+      if let some goal ← applyInjection? goal fvarId then
+        setGoal goal
+      else
+        setGoal goal
+        withCurrGoalContext do
+        unless (← applyCases? fvarId) do
+          addHypothesis fvarId generation
+
+/-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
+def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : SearchM Unit := do
+  if isEagerCasesCandidate (← getGoal) prop then
+    let goal ← getGoal
+    let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
+    setGoal { goal with mvarId }
+    intros generation
+  else withCurrGoalContext do
+    let r ← preprocess prop
+    let prop' := r.expr
+    let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
+    add prop' proof' generation
+
+/--
+Asserts next fact in the `goal` fact queue.
+Returns `true` if the queue was not empty and `false` otherwise.
+-/
+def assertNext : SearchM Bool := do
+  let goal ← getGoal
+  let some (fact, newRawFacts) := goal.newRawFacts.dequeue?
+    | return false
+  setGoal { goal with newRawFacts }
+  assertAt fact.proof fact.prop fact.generation
+  return true
+
+/--
+Asserts all facts in the `goal` fact queue.
+Returns `true` if the queue was not empty and `false` otherwise.
+-/
+def assertAll : SearchM Bool := do
+  let mut progress := false
+  repeat
+    if (← assertNext) then
+      progress := true
+    else
+      return progress
+  unreachable!
+
+/-! All functions after this point will be deleted after we move to `SearchM` -/
 
 private def applyCasesOld? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List Goal)) := goal.mvarId.withContext do
   /-

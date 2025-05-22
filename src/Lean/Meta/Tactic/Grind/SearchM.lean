@@ -20,9 +20,9 @@ structure Choice where
   /--
   Expression to be assigned to `goalOld.mvarId` if it is not possible to perform
   non-chronological backtracking.
-  `val` is often a `casesOn` application.
+  `proof` is often a `casesOn` application containing meta-variables.
   -/
-  val      : Expr
+  proof    : Expr
   /--
   Subgoals that still need to be processed.
   -/
@@ -35,6 +35,15 @@ structure SearchM.State where
 
 abbrev SearchM := StateRefT SearchM.State GrindM
 
+def getGoal : SearchM Goal :=
+  return (← get).goal
+
+def setGoal (goal : Goal) : SearchM Unit :=
+  modify fun s => { s with goal }
+
+abbrev withCurrGoalContext (x : SearchM α) : SearchM α := do
+  (← getGoal).mvarId.withContext x
+
 abbrev liftGoalM (x : GoalM α) : SearchM α := do
   let (a, goal) ← x.runCore (← get).goal
   modify fun s => { s with goal }
@@ -45,6 +54,42 @@ instance : MonadLift GoalM SearchM where
 
 @[inline] def SearchM.run (goal : Goal) (x : SearchM α) : GrindM (α × SearchM.State) :=
   goal.mvarId.withContext do StateRefT'.run x { goal }
+
+/--
+Given a proof containing meta-variables corresponding to the given subgoals,
+create a choice point.
+- If there are no choice points, we just close the current goal using `proof`.
+- If there is only one subgoal `s`, we close the current goal using `proof`, and
+update current goal using `s`.
+- If there are more than one `s :: ss`, we create a choice point using the current
+goal as the pending goal, and update the current goal with `s`.
+-/
+def mkChoice (proof : Expr) (subgoals : List Goal) : SearchM Unit := do
+  assert! !(← isInconsistent)
+  match subgoals with
+  | [] =>
+    (← getGoal).mvarId.assign proof
+  | [subgoal] =>
+    (← getGoal).mvarId.assign proof
+    setGoal subgoal
+  | subgoal :: subgoals =>
+    let goalPending ← getGoal
+    modify fun s => { s with
+      goal := subgoal
+      choiceStack := { goalPending, proof, todo := subgoals } :: s.choiceStack
+    }
+
+/--
+Create an auxiliary metavariable with the same type and tag of the metavariable
+associated with the current goal.
+We use this function to perform `cases` on the current goal without eagerly assignining it.
+-/
+def mkAuxMVarForCurrGoal : SearchM MVarId := withCurrGoalContext do
+  let mvarId := (← getGoal).mvarId
+  let tag ← mvarId.getTag
+  let type ← mvarId.getType
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar type tag
+  return mvarNew.mvarId!
 
 private def findMaxFVarIdx? (e : Expr) : MetaM (Option Nat) := do
   let go (e : Expr) : StateT (Option Nat) MetaM Bool := do
@@ -90,7 +135,7 @@ private def nextChronoGoal : SearchM Bool := do
       | [] =>
         -- Choice point has been fully resolved.
         -- Go to next one.
-        choice.goalPending.mvarId.assign choice.val
+        choice.goalPending.mvarId.assign choice.proof
         choices := choices'
       | goal :: todo =>
         let choice := { choice with todo }
@@ -144,8 +189,8 @@ def nextGoal : SearchM Bool := do
       choices := choices'
     else match choice.todo with
       | [] =>
-        -- All subgoals have been solved. We can finally assign `choice.val` to `goalOld.mvarId`.
-        let proof ← instantiateMVars choice.val
+        -- All subgoals have been solved. We can finally assign `choice.proof` to `goalOld.mvarId`.
+        let proof ← instantiateMVars choice.proof
         choice.goalPending.mvarId.assign proof
         if (← isTargetFalse choice.goalPending.mvarId) then
           -- `proof` is a proof of `False`, we can continue using non-chronological backtracking

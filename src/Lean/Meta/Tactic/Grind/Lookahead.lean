@@ -30,7 +30,7 @@ where
       cont goals
     else if let some goals ← splitNext goal then
       cont goals
-    else if let some goals ← ematch goal then
+    else if let some goals ← ematchOld goal then
       cont goals
     else
       return false

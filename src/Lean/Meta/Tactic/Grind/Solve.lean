@@ -54,7 +54,7 @@ def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
 
 def tryAssertAll : Goal → M Bool := applyTac assertAll
 
-def tryEmatch : Goal → M Bool := applyTac ematch
+def tryEmatch : Goal → M Bool := applyTac ematchOld
 
 def tryArith : Goal → M Bool := applyTac Arith.check
 

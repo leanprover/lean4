@@ -489,13 +489,20 @@ private def ematchCore : GoalM Unit := do
       ematch.num       := s.ematch.num + 1
     }
 
+-- TODO: delete after we move to `SearchM`
 /-- Performs one round of E-matching. -/
-def ematch : GrindTactic := fun goal => do
+def ematchOld : GrindTactic := fun goal => do
   let numInstances := goal.ematch.numInstances
   let goal ← GoalM.run' goal ematchCore
   if goal.ematch.numInstances == numInstances then
     return none
   else
     return [goal]
+
+/-- Performs one round of E-matching, and returns `true` if new instances were generated. -/
+def ematch : GoalM Bool := do
+  let numInstances := (← get).ematch.numInstances
+  ematchCore
+  return (← get).ematch.numInstances != numInstances
 
 end Lean.Meta.Grind

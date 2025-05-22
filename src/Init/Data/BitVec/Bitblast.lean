@@ -2149,6 +2149,12 @@ theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
   have : i < 2^i := by exact Nat.lt_two_pow_self
   omega
 
+/-- Heuristically, `y <<< x` is much larger than `x`,
+and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/
+theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
+    (y <<< x) + x =  (y <<< x) ||| x := by
+  rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
+
 /- ### fast circuit for unsigned overflow detection -/
 
 /-
@@ -2559,6 +2565,28 @@ theorem le_toNat_mul_toNat_of_resRec' (x y : BitVec w) (s : Nat) (hs : s < w) (h
   have := lower_bound (k := k) (w := w) (by omega)
   omega
 
+
+
+
+theorem aandRec_iff_le {x y : BitVec w} (k : Nat) (hk : k < w) :
+  ∃ j, k ≤ j → j < w → 2 ^ j * 2 ^ (w - 1 - (j - 1)) ≤ y.toNat * x.toNat → aandRec x y k hk = true := by
+  rcases w with _|w
+  · simp
+  · exists k
+    intros hk' hkw h
+
+
+
+
+    sorry
+
+
+theorem resRec_true_iff' (x y : BitVec w) (s : Nat) (hs : s < w) (hw : 1 < w) :
+    resRec x y s hs hw = true ↔ ∃ (k : Nat), ∃ (h : k ≤ s), aandRec x y k (by omega) := by
+
+  sorry
+
+
 -- theorem getElem_true_of_le_toNat_of_toNat_lt (x : BitVec w) (s : Nat) (hs : s < w) (hle: 2 ^ s ≤ x.toNat) (hlt : x.toNat < 2 ^ (s + 1)) :
 --     x[s] = true := by
 --   rcases w with _|w
@@ -2585,6 +2613,10 @@ theorem le_toNat_mul_toNat_of_resRec' (x y : BitVec w) (s : Nat) (hs : s < w) (h
 --   have := getElem_true_of_le_toNat_of_toNat_lt (x := y) (s := s) (by omega) hyle hlty
 --   omega
 
+
+
+
+
 /--
   complete fast overflow detecnion circuit for unsigned multiplication
 -/
@@ -2601,8 +2633,24 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
       by_cases hsetWidth : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = true
       · simp [hsetWidth]
       · simp [hsetWidth]
+        simp [resRec_true_iff]
+        unfold aandRec
+        simp [uppcRec_true_iff]
+        exists 0
+        by_cases hw0 : w = 0
+        · simp_all [hw0]
 
-        sorry
+          sorry
+        · have := lower_bound (k := 0) (w := w) (by omega)
+          by_cases hy0 : y[0]
+          · simp [hy0]
+            have := Nat.mul_le_mul (n₁ := 2 ^ (w + 1)) (m₁ := 2) (n₂ := x.toNat) (m₂ := y.toNat)
+            apply Classical.byContradiction
+            intro hcontra
+            simp at hcontra
+            have := Nat.mul_le_mul
+            sorry
+          · sorry
     · intro rhs
       sorry
 

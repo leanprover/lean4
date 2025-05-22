@@ -247,6 +247,16 @@ def intros (generation : Nat) : SearchM Unit := do
         unless (← applyCases? fvarId generation) do
           addHypothesis fvarId generation
 
+/--
+Similar to `intros`, but returns `true` if new hypotheses have been added,
+and `false` otherwise.
+-/
+def intros' (generation : Nat) : SearchM Bool := do
+  let target ← (← getGoal).mvarId.getType
+  if target.isFalse then return false
+  intros generation
+  return true
+
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
 def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : SearchM Unit := do
   if isEagerCasesCandidate (← getGoal) prop then

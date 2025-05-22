@@ -9,10 +9,79 @@ import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Arith
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.SearchM
 
 namespace Lean.Meta.Grind
 
-private partial def solve (generation : Nat) (goal : Goal) : GrindM Bool := do
+private partial def solve (generation : Nat) : SearchM Bool := withIncRecDepth do
+  unless (← get).choiceStack.isEmpty do
+    return false -- `splitNext` should have been configured to not create choice points
+  if (← getGoal).inconsistent then
+    return true
+  if (← intros' generation <||> assertAll <||> Arith.check <||> splitNext <||> ematch) then
+    solve generation
+  else
+    return false
+
+private def tryLookahead (e : Expr) : GoalM Bool :=
+  withTheReader Grind.Context
+    (fun ctx => { ctx with config.qlia := true, cheapCases := true }) do
+  -- TODO: if `e` is an arithmetic expression, we can avoid creating an auxiliary goal.
+  -- We can assert it directly to the arithmetic module.
+  -- Remark: We can simplify this code because the lookahead only really worked for arithmetic.
+  trace_goal[grind.lookahead.try] "{e}"
+  let goal ← get
+  let proof? ← withoutModifyingMCtx do
+    let tag ← goal.mvarId.getTag
+    let target ← mkArrow (mkNot e) (← getFalseExpr)
+    let mvar ← mkFreshExprSyntheticOpaqueMVar target tag
+    let goalAux := { goal with mvarId := mvar.mvarId!, newFacts := {} }
+    let gen ← getGeneration e
+    let (ok, _) ← (solve gen).run goalAux
+    if ok then
+      return some (← instantiateMVars mvar)
+    else
+      return none
+  if let some proof := proof? then
+    trace[grind.lookahead.assert] "{e}"
+    pushEqTrue e <| mkApp2 (mkConst ``Grind.of_lookahead) e proof
+    processNewFacts
+    return true
+  else
+    return false
+
+def lookahead : GoalM Bool := do
+  unless (← getConfig).lookahead do
+    return false
+  if (← get).split.lookaheads.isEmpty then
+    return false
+  let mut postponed := []
+  let mut progress := false
+  let infos := (← get).split.lookaheads
+  modify fun s => { s with split.lookaheads := [] }
+  for info in infos do
+    if (← isInconsistent) then
+      return true
+    match (← checkSplitStatus info) with
+    | .resolved => progress := true
+    | .ready _ _ true
+    | .notReady => postponed := info :: postponed
+    | .ready _ _ false =>
+      if (← tryLookahead info.getExpr) then
+        progress := true
+      else
+        postponed := info :: postponed
+  if progress then
+    modify fun s => { s with
+      split.lookaheads := s.split.lookaheads ++ postponed.reverse
+    }
+    return true
+  else
+    return false
+
+/-! TODO: delete rest of the file. -/
+
+private partial def solveOld (generation : Nat) (goal : Goal) : GrindM Bool := do
   cont (← introsOld generation goal)
 where
   cont (goals : List Goal) : GrindM Bool := do
@@ -35,7 +104,7 @@ where
     else
       return false
 
-private def tryLookahead (e : Expr) : GoalM Bool := do
+private def tryLookaheadOld (e : Expr) : GoalM Bool := do
   -- TODO: if `e` is an arithmetic expression, we can avoid creating an auxiliary goal.
   -- We can assert it directly to the arithmetic module.
   -- Remark: We can simplify this code because the lookahead only really worked for arithmetic.
@@ -46,7 +115,7 @@ private def tryLookahead (e : Expr) : GoalM Bool := do
     let target ← mkArrow (mkNot e) (← getFalseExpr)
     let mvar ← mkFreshExprMVar target .syntheticOpaque tag
     let gen ← getGeneration e
-    if (← solve gen { goal with mvarId := mvar.mvarId! }) then
+    if (← solveOld gen { goal with mvarId := mvar.mvarId! }) then
       return some (← instantiateMVars mvar)
     else
       return none
@@ -63,7 +132,7 @@ private def withLookaheadConfig (x : GrindM α) : GrindM α := do
     (fun ctx => { ctx with config.qlia := true, cheapCases := true })
     x
 
-def lookahead : GrindTactic := fun goal => do
+def lookaheadOld : GrindTactic := fun goal => do
   unless (← getConfig).lookahead do
     return none
   if goal.split.lookaheads.isEmpty then
@@ -82,7 +151,7 @@ def lookahead : GrindTactic := fun goal => do
       | .ready _ _ true
       | .notReady => postponed := info :: postponed
       | .ready _ _ false =>
-        if (← tryLookahead info.getExpr) then
+        if (← tryLookaheadOld info.getExpr) then
           progress := true
         else
           postponed := info :: postponed

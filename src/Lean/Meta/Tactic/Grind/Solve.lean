@@ -58,7 +58,7 @@ def tryEmatch : Goal → M Bool := applyTac ematchOld
 
 def tryArith : Goal → M Bool := applyTac Arith.checkOld
 
-def tryLookahead : Goal → M Bool := applyTac lookahead
+def tryLookahead : Goal → M Bool := applyTac lookaheadOld
 
 def tryMBTC : Goal → M Bool := applyTac Arith.Cutsat.mbtcTac
 

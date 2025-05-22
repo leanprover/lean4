@@ -40,6 +40,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHAddOffset__3;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHSubDuration;
 LEAN_EXPORT lean_object* l_Std_Time_instOrdTimestamp;
 static lean_object* l_Std_Time_instInhabitedTimestamp___closed__1;
+LEAN_EXPORT lean_object* l_Std_Time_instDecidableLtTimestamp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instOrdTimestamp___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_compareOn___at_Std_Time_instOrdTimestamp___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_186____closed__16;
@@ -97,6 +98,7 @@ static lean_object* l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTime
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_toMillisecondsSinceUnixEpoch(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_186_(lean_object*, lean_object*);
+uint8_t l_Std_Time_Duration_instDecidableLt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_addDays___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_toSecondsSinceUnixEpoch(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHAddDuration;
@@ -122,6 +124,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHAddOffset__6;
 static lean_object* l_Std_Time_instReprTimestamp__1___closed__2;
 static lean_object* l_Std_Time_Timestamp_instHSubOffset__3___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_since___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Time_instDecidableLtTimestamp(lean_object*, lean_object*);
 static lean_object* l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_186____closed__2;
 static lean_object* l_Std_Time_Timestamp_toDays___closed__1;
 static lean_object* l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_186____closed__18;
@@ -134,6 +137,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHSubOffset;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHSubOffset__1;
 static lean_object* l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_186____closed__7;
 LEAN_EXPORT lean_object* l_Std_Time_instReprTimestamp;
+LEAN_EXPORT lean_object* l_Std_Time_instLTTimestamp;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_toDays___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_subHours___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Time_instToStringDuration_leftPad(lean_object*, lean_object*);
@@ -727,6 +731,33 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Time_instDecidableLeTimestamp(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Std_Time_instLTTimestamp() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+LEAN_EXPORT uint8_t l_Std_Time_instDecidableLtTimestamp(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = l_Std_Time_Duration_instDecidableLt(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_instDecidableLtTimestamp___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Time_instDecidableLtTimestamp(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -2283,6 +2314,8 @@ l_Std_Time_instInhabitedTimestamp = _init_l_Std_Time_instInhabitedTimestamp();
 lean_mark_persistent(l_Std_Time_instInhabitedTimestamp);
 l_Std_Time_instLETimestamp = _init_l_Std_Time_instLETimestamp();
 lean_mark_persistent(l_Std_Time_instLETimestamp);
+l_Std_Time_instLTTimestamp = _init_l_Std_Time_instLTTimestamp();
+lean_mark_persistent(l_Std_Time_instLTTimestamp);
 l_Std_Time_instReprTimestamp__1___closed__1 = _init_l_Std_Time_instReprTimestamp__1___closed__1();
 lean_mark_persistent(l_Std_Time_instReprTimestamp__1___closed__1);
 l_Std_Time_instReprTimestamp__1___closed__2 = _init_l_Std_Time_instReprTimestamp__1___closed__2();

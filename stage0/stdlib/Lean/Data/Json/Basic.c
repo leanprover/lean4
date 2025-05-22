@@ -238,7 +238,6 @@ static lean_object* l_Lean_JsonNumber_toString___closed__1;
 LEAN_EXPORT uint8_t l_Lean_instDecidableEqJsonNumber(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_instCoeString(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_JsonNumber_instLT;
 LEAN_EXPORT lean_object* l_Lean_Json_getInt_x3f(lean_object*);
 static lean_object* l_Lean_Json_getArr_x3f___closed__2;
 LEAN_EXPORT uint8_t l___private_Lean_Data_Json_Basic_0__Lean_decEqJsonNumber____x40_Lean_Data_Json_Basic___hyg_23_(lean_object* x_1, lean_object* x_2) {
@@ -1220,14 +1219,6 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_JsonNumber_instLT() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_JsonNumber_ltProp;
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_JsonNumber_instDecidableLt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2105,7 +2096,7 @@ x_6 = l_Lean_JsonNumber_toString___closed__2;
 x_7 = lean_string_append(x_5, x_6);
 x_8 = l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_fromPositiveFloat_x21___closed__2;
 x_9 = l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_fromPositiveFloat_x21___closed__3;
-x_10 = lean_unsigned_to_nat(155u);
+x_10 = lean_unsigned_to_nat(152u);
 x_11 = lean_unsigned_to_nat(12u);
 x_12 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_8, x_9, x_10, x_11, x_7);
 lean_dec(x_7);
@@ -6329,7 +6320,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_fromPositiveFloat_x21___closed__2;
 x_2 = l_Lean_Json_setObjVal_x21___closed__1;
-x_3 = lean_unsigned_to_nat(288u);
+x_3 = lean_unsigned_to_nat(285u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Json_setObjVal_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6522,8 +6513,6 @@ l_Lean_JsonNumber_lt___closed__1 = _init_l_Lean_JsonNumber_lt___closed__1();
 lean_mark_persistent(l_Lean_JsonNumber_lt___closed__1);
 l_Lean_JsonNumber_ltProp = _init_l_Lean_JsonNumber_ltProp();
 lean_mark_persistent(l_Lean_JsonNumber_ltProp);
-l_Lean_JsonNumber_instLT = _init_l_Lean_JsonNumber_instLT();
-lean_mark_persistent(l_Lean_JsonNumber_instLT);
 l_Lean_JsonNumber_toString___closed__1 = _init_l_Lean_JsonNumber_toString___closed__1();
 lean_mark_persistent(l_Lean_JsonNumber_toString___closed__1);
 l_Lean_JsonNumber_toString___closed__2 = _init_l_Lean_JsonNumber_toString___closed__2();

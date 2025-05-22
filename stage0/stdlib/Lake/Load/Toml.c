@@ -567,6 +567,7 @@ LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanConfig_instConfigT
 lean_object* l_Lake_PackageConfig_srcDir___proj___elambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanLibConfig_instConfigTomlInfo___spec__24(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Toml_0__Lake_genDecodeToml___closed__56;
+LEAN_EXPORT lean_object* l_Lake_decodeTargetDecls_unsafe__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_PatternDescr_matches___at_Lake_PathPat_path___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_PackageConfig_decodeToml___spec__49(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_InputDirConfig_decodeToml___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -995,7 +996,6 @@ LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeTo
 lean_object* l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanLibConfig_instConfigTomlInfo___spec__28(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_decodeTargetDecls_go_unsafe__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Pattern_decodeToml___rarg___lambda__2(lean_object*);
 static lean_object* l_Lake_Toml_Table_decodeConfig___at_Lake_PackageConfig_decodeToml___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_instConfigTomlInfo___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55620,7 +55620,7 @@ lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_decodeTargetDecls_go_unsafe__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lake_decodeTargetDecls_unsafe__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 

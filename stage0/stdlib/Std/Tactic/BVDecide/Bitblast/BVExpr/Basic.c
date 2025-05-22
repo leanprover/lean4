@@ -95,7 +95,6 @@ static lean_object* l_Std_Tactic_BVDecide_BVBinPred_instToString___closed__1;
 lean_object* l_BitVec_not(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_instDecidableEq___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVUnOp_eval___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_Assignment_get(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_BVBinOp_noConfusion___rarg___closed__1;
@@ -170,7 +169,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVBinOp_eval___boxed(lean_object*
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVBinPred_instToString;
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_instDecidableEqBVBit(lean_object*, lean_object*);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_BVExpr_instDecidableEq(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_0__Std_Tactic_BVDecide_hashBVBit____x40_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic___hyg_35____boxed(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_BVExpr_toString___closed__5;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_0__Std_Tactic_BVDecide_BVExpr_toString_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2526,26 +2524,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Std_Tactic_BVDecide_BVExpr_decEq(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_BVExpr_instDecidableEq(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = l_Std_Tactic_BVDecide_BVExpr_decEq(x_1, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_instDecidableEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Tactic_BVDecide_BVExpr_instDecidableEq(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);

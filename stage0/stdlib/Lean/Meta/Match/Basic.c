@@ -4735,7 +4735,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("type mismatch during dependent match-elimination at pattern variable '", 70, 70);
+x_1 = lean_mk_string_unchecked("Type mismatch during dependent match-elimination at pattern variable '", 70, 70);
 return x_1;
 }
 }
@@ -4769,7 +4769,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nexpected type", 14, 14);
+x_1 = lean_mk_string_unchecked("\nExpected type", 14, 14);
 return x_1;
 }
 }
@@ -4914,7 +4914,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown free pattern variable", 29, 29);
+x_1 = lean_mk_string_unchecked("Unknown free pattern variable", 29, 29);
 return x_1;
 }
 }
@@ -7238,7 +7238,7 @@ static lean_object* _init_l_Lean_Meta_Match_toPattern___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unexpected pattern", 18, 18);
+x_1 = lean_mk_string_unchecked("Unexpected pattern", 18, 18);
 return x_1;
 }
 }
@@ -7264,7 +7264,7 @@ static lean_object* _init_l_Lean_Meta_Match_toPattern___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unexpected occurrence of auxiliary declaration 'namedPattern'", 61, 61);
+x_1 = lean_mk_string_unchecked("Unexpected occurrence of auxiliary declaration 'namedPattern'", 61, 61);
 return x_1;
 }
 }

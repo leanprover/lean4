@@ -71,6 +71,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Deriving_DecEq_mkM
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqCmds___closed__7;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_isEnumType___at_Lean_Elab_Deriving_DecEq_mkDecEqInstance___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkInstanceCmds(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__25;
 lean_object* l_Lean_Elab_Deriving_mkDiscrs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -418,7 +419,6 @@ static lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction___lambda__1___close
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkEnumOfNatThm___closed__1;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__5___boxed(lean_object**);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_initFn____x40_Lean_Elab_Deriving_DecEq___hyg_4853____closed__13;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__22;
 static lean_object* l_Lean_Elab_Deriving_DecEq_initFn____x40_Lean_Elab_Deriving_DecEq___hyg_4853____closed__6;
@@ -11539,7 +11539,7 @@ lean_closure_set(x_15, 4, x_1);
 x_16 = l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__41;
 x_17 = 0;
 x_18 = 0;
-x_19 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_16, x_17, x_14, x_15, x_18, x_2, x_3, x_4, x_5, x_9);
+x_19 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg(x_16, x_17, x_14, x_15, x_18, x_2, x_3, x_4, x_5, x_9);
 return x_19;
 }
 else
@@ -12051,7 +12051,7 @@ lean_closure_set(x_23, 6, x_22);
 x_24 = l_Lean_Elab_Deriving_DecEq_mkEnumOfNatThm___closed__10;
 x_25 = 0;
 x_26 = 0;
-x_27 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_24, x_25, x_17, x_23, x_26, x_2, x_3, x_4, x_5, x_9);
+x_27 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg(x_24, x_25, x_17, x_23, x_26, x_2, x_3, x_4, x_5, x_9);
 return x_27;
 }
 else

@@ -384,6 +384,7 @@ LEAN_EXPORT lean_object* l_List_forM___at_Lean_Elab_Command_elabCommand_go___spe
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_Linter_name___autoParam;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadMacroAdapterCommandElabM;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(lean_object*, size_t, size_t);
 lean_object* l_liftExcept___at_Lean_Elab_liftMacroM___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_commandElabAttribute;
 static lean_object* l_Lean_Elab_elabSetOption___at_Lean_withSetOptionIn___spec__1___closed__1;
@@ -749,7 +750,6 @@ static lean_object* l_Lean_Elab_Command_instMonadLogCommandElabM___closed__5;
 static lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___at_Lean_Elab_Command_addUnivLevel___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Command_elabCommand_go___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabCommand_go___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Term_addAutoBoundImplicits_x27___spec__1(lean_object*, size_t, size_t);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Command_elabCommand_go___spec__1___closed__1;
 lean_object* l_Lean_Language_SnapshotTask_cancelRec___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabSetOption___at_Lean_withSetOptionIn___spec__1___closed__3;
@@ -25377,6 +25377,7 @@ return x_24;
 else
 {
 lean_object* x_25; 
+lean_dec(x_1);
 x_25 = lean_box(x_10);
 lean_ctor_set(x_6, 0, x_25);
 return x_6;
@@ -25426,6 +25427,7 @@ return x_37;
 else
 {
 lean_object* x_38; lean_object* x_39; 
+lean_dec(x_1);
 x_38 = lean_box(x_28);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
@@ -25525,6 +25527,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);
+lean_inc(x_21);
 x_35 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4(x_21, x_4, x_5, x_6);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
@@ -25724,7 +25727,6 @@ lean_object* x_5;
 x_5 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -40810,7 +40812,7 @@ else
 {
 size_t x_40; uint8_t x_41; 
 x_40 = lean_usize_of_nat(x_36);
-x_41 = l_Array_anyMUnsafe_any___at_Lean_Elab_Term_addAutoBoundImplicits_x27___spec__1(x_34, x_23, x_40);
+x_41 = l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(x_34, x_23, x_40);
 if (x_41 == 0)
 {
 lean_object* x_42; lean_object* x_43; 
@@ -40994,7 +40996,7 @@ else
 {
 size_t x_91; uint8_t x_92; 
 x_91 = lean_usize_of_nat(x_87);
-x_92 = l_Array_anyMUnsafe_any___at_Lean_Elab_Term_addAutoBoundImplicits_x27___spec__1(x_85, x_23, x_91);
+x_92 = l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(x_85, x_23, x_91);
 if (x_92 == 0)
 {
 lean_object* x_93; lean_object* x_94; 

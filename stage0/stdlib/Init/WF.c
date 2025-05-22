@@ -31,13 +31,11 @@ LEAN_EXPORT lean_object* l_PSigma_lex(lean_object*, lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_wfParam(lean_object*);
 LEAN_EXPORT lean_object* l_Prod_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_measure___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instWellFoundedRelationOfSizeOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelation(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_emptyWf(lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelation___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_skipLeft(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelation(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instWellFoundedRelationOfSizeOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_sizeOfWFRel___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_lex(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_emptyWf(lean_object* x_1) {
@@ -104,23 +102,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_sizeOfWFRel(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_instWellFoundedRelationOfSizeOf(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_instWellFoundedRelationOfSizeOf___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_instWellFoundedRelationOfSizeOf(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

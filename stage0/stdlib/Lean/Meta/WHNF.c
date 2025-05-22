@@ -15554,6 +15554,7 @@ x_45 = lean_ctor_get(x_44, 0);
 lean_inc(x_45);
 lean_dec(x_44);
 x_46 = l_Lean_Meta_canUnfoldAtMatcher___closed__1;
+lean_inc(x_31);
 x_47 = l_Lean_TagAttribute_hasTag(x_46, x_45, x_31);
 if (x_47 == 0)
 {
@@ -15842,6 +15843,7 @@ x_123 = lean_ctor_get(x_121, 0);
 lean_inc(x_123);
 lean_dec(x_121);
 x_124 = l_Lean_Meta_canUnfoldAtMatcher___closed__1;
+lean_inc(x_31);
 x_125 = l_Lean_TagAttribute_hasTag(x_124, x_123, x_31);
 if (x_125 == 0)
 {
@@ -16200,6 +16202,7 @@ x_228 = lean_ctor_get(x_225, 0);
 lean_inc(x_228);
 lean_dec(x_225);
 x_229 = l_Lean_Meta_canUnfoldAtMatcher___closed__1;
+lean_inc(x_31);
 x_230 = l_Lean_TagAttribute_hasTag(x_229, x_228, x_31);
 if (x_230 == 0)
 {

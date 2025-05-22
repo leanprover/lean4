@@ -95,6 +95,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Intro_0__Lean_Meta_G
 lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_instInhabitedIntroResult___closed__19;
+uint8_t l_Std_Queue_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Meta_Grind_addNewEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_intros_go___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Intro_0__Lean_Meta_Grind_isEagerCasesCandidate___boxed(lean_object*, lean_object*);
@@ -1882,7 +1883,7 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14;
 x_12 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*7 + 12);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*6 + 12);
 lean_dec(x_13);
 if (x_14 == 0)
 {
@@ -5864,7 +5865,7 @@ lean_dec(x_30);
 x_31 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_29);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
-x_33 = lean_ctor_get_uint8(x_32, sizeof(void*)*7 + 15);
+x_33 = lean_ctor_get_uint8(x_32, sizeof(void*)*6 + 15);
 lean_dec(x_32);
 if (x_33 == 0)
 {
@@ -9948,10 +9949,35 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_assertAll(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = l_Lean_Meta_Grind_assertAll___closed__1;
-x_11 = l_Lean_Meta_Grind_GrindTactic_iterate(x_10, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-return x_11;
+lean_object* x_10; uint8_t x_11; 
+x_10 = lean_ctor_get(x_1, 9);
+lean_inc(x_10);
+x_11 = l_Std_Queue_isEmpty___rarg(x_10);
+lean_dec(x_10);
+if (x_11 == 0)
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = l_Lean_Meta_Grind_assertAll___closed__1;
+x_13 = l_Lean_Meta_Grind_GrindTactic_iterate(x_12, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+return x_13;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; 
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_14 = lean_box(0);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_9);
+return x_15;
+}
 }
 }
 lean_object* initialize_Init_Grind_Lemmas(uint8_t builtin, lean_object*);

@@ -14,12 +14,12 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__List_getElem_x3f__zipWithAll_match__1_splitter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__2_splitter(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__3_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__List_getElem_x3f__zipWith_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__List_getElem_x3f__zipWithAll_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__List_getElem_x3f__zipWith_match__1_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__List_getElem_x3f__zipWithAll_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__2_splitter___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__3_splitter___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__List_getElem_x3f__zipWith_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -63,7 +63,7 @@ x_4 = lean_alloc_closure((void*)(l___private_Init_Data_List_Zip_0__List_getElem_
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__2_splitter___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__3_splitter___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -76,11 +76,11 @@ x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__2_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__3_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__2_splitter___rarg), 2, 0);
+x_4 = lean_alloc_closure((void*)(l___private_Init_Data_List_Zip_0__instDecidableEqProd_match__3_splitter___rarg), 2, 0);
 return x_4;
 }
 }

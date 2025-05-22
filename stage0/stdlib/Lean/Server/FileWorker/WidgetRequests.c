@@ -166,6 +166,7 @@ static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Wi
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_58____closed__3;
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_58____closed__11;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+extern lean_object* l_Lean_instTypeNameMessageData;
 extern lean_object* l_Lean_pp_tagAppFns;
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_394____lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonGetInteractiveDiagnosticsParams____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1658____closed__1;
@@ -212,7 +213,6 @@ static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Wi
 LEAN_EXPORT lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_394____spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1615____spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1575____spec__2___closed__1;
-extern lean_object* l_Lean_Widget_instTypeNameMessageData;
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonGetInteractiveDiagnosticsParams____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1658____closed__8;
 extern lean_object* l_Lean_Lsp_instToJsonPlainTermGoalParams;
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1795____closed__6;
@@ -858,7 +858,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-x_4 = l_Lean_Widget_instTypeNameMessageData;
+x_4 = l_Lean_instTypeNameMessageData;
 x_5 = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcEncode___rarg(x_4, x_3, x_2);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
@@ -913,7 +913,7 @@ lean_inc(x_4);
 lean_dec(x_3);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
-x_6 = l_Lean_Widget_instTypeNameMessageData;
+x_6 = l_Lean_instTypeNameMessageData;
 lean_inc(x_2);
 x_7 = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___rarg(x_6, x_5, x_2);
 if (lean_obj_tag(x_7) == 0)

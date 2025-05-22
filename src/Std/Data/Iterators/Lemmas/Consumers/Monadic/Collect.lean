@@ -14,7 +14,7 @@ namespace Std.Iterators
 section Consumers
 
 variable {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
-  {lift : {δ : Type w} → m δ → n δ} {f : β → n γ} {it : IterM (α := α) m β}
+  {lift : ⦃δ : Type w⦄ → m δ → n δ} {f : β → n γ} {it : IterM (α := α) m β}
 
 theorem IterM.DefaultConsumers.toArrayMapped.go.aux₁ [Monad n] [LawfulMonad n] [Iterator α m β]
     [Finite α m] {b : γ} {bs : Array γ} :
@@ -44,7 +44,7 @@ theorem IterM.DefaultConsumers.toArrayMapped.go.aux₂ [Monad n] [LawfulMonad n]
 
 theorem IterM.DefaultConsumers.toArrayMapped_eq_match_step [Monad n] [LawfulMonad n]
     [Iterator α m β] [Finite α m] :
-    IterM.DefaultConsumers.toArrayMapped lift f it (m := m) = letI : MonadLift m n := ⟨lift⟩; (do
+    IterM.DefaultConsumers.toArrayMapped lift f it (m := m) = letI : MonadLift m n := ⟨lift (δ := _)⟩; (do
       match ← it.step with
       | .yield it' out _ =>
         return #[← f out] ++ (← IterM.DefaultConsumers.toArrayMapped lift f it' (m := m))

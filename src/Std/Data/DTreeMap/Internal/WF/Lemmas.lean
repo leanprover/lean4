@@ -1231,7 +1231,7 @@ theorem foldr_eq_foldr {t : Impl α β} {δ} {f : (a : α) → β a → δ → �
 
 theorem toList_eq_toListModel {t : Impl α β} :
     t.toList = t.toListModel := by
-  rw [toList, foldr_eq_foldr, List.foldr_cons_eq_append, List.map_id', List.append_nil]
+  simp [toList, foldr_eq_foldr]
 
 /-!
 ### toArray
@@ -1239,7 +1239,7 @@ theorem toList_eq_toListModel {t : Impl α β} :
 
 theorem toArray_eq_toArray {t : Impl α β} :
     t.toArray = t.toListModel.toArray := by
-  rw [toArray, foldl_eq_foldl, Array.emptyWithCapacity_eq, List.foldl_push', Array.empty_append]
+  simp [toArray, foldl_eq_foldl]
 
 /-!
 ### keys
@@ -1247,7 +1247,7 @@ theorem toArray_eq_toArray {t : Impl α β} :
 
 theorem keys_eq_keys {t : Impl α β} :
     t.keys = t.toListModel.keys := by
-  rw [keys, foldr_eq_foldr, List.foldr_cons_eq_append, List.append_nil, List.keys_eq_map]
+  simp [keys, foldr_eq_foldr, List.keys_eq_map]
 
 /-!
 ### keysArray
@@ -1255,8 +1255,7 @@ theorem keys_eq_keys {t : Impl α β} :
 
 theorem keysArray_eq_toArray_keys {t : Impl α β} :
     t.keysArray = t.toListModel.keys.toArray := by
-  rw [keysArray, foldl_eq_foldl, List.keys_eq_map, List.foldl_push,
-    Array.emptyWithCapacity_eq, Array.empty_append]
+  simp [keysArray, foldl_eq_foldl, List.keys_eq_map]
 
 /-!
 ### values
@@ -1264,7 +1263,7 @@ theorem keysArray_eq_toArray_keys {t : Impl α β} :
 
 theorem values_eq_map_snd {β : Type v} {t : Impl α β} :
     t.values = t.toListModel.map (·.2) := by
-  rw [values, foldr_eq_foldr, List.foldr_cons_eq_append, List.append_nil]
+  simp [values, foldr_eq_foldr]
 
 /-!
 ### valuesArray
@@ -1272,7 +1271,7 @@ theorem values_eq_map_snd {β : Type v} {t : Impl α β} :
 
 theorem valuesArray_eq_toArray_map {β : Type v} {t : Impl α β} :
     t.valuesArray = (t.toListModel.map (·.2)).toArray := by
-  rw [valuesArray, foldl_eq_foldl, List.foldl_push, Array.emptyWithCapacity_eq, Array.empty_append]
+  simp [valuesArray, foldl_eq_foldl]
 
 /-!
 ### forM
@@ -1460,7 +1459,7 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] {t₁ t₂ : Impl α β} {f}
 
 theorem toList_eq_toListModel_map {t : Impl α β} :
     Const.toList t = t.toListModel.map fun e => (e.1, e.2) := by
-  rw [toList, foldr_eq_foldr, List.foldr_cons_eq_append, List.append_nil]
+  simp [toList, foldr_eq_foldr]
 
 /-!
 ### toArray
@@ -1468,7 +1467,7 @@ theorem toList_eq_toListModel_map {t : Impl α β} :
 
 theorem toArray_eq_toArray_map {t : Impl α β} :
     Const.toArray t = (t.toListModel.map fun e => (e.1, e.2)).toArray := by
-  rw [toArray, foldl_eq_foldl, List.foldl_push, Array.emptyWithCapacity_eq, Array.empty_append]
+  simp [toArray, foldl_eq_foldl]
 
 end Const
 

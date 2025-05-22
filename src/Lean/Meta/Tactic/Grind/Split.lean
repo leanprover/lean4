@@ -233,12 +233,12 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
       return c
 
 /-- Introduces new hypotheses in each goal. -/
-private def introNewHyp (goals : List Goal) (acc : List Goal) (generation : Nat) : GrindM (List Goal) := do
+private def introNewHypOld (goals : List Goal) (acc : List Goal) (generation : Nat) : GrindM (List Goal) := do
   match goals with
   | [] => return acc.reverse
-  | goal::goals => introNewHyp goals ((← introsOld generation goal) ++ acc) generation
+  | goal::goals => introNewHypOld goals ((← introsOld generation goal) ++ acc) generation
 
-private def casesWithTrace (major : Expr) : GoalM (List MVarId) := do
+private def casesWithTraceOld (major : Expr) : GoalM (List MVarId) := do
   if (← getConfig).trace then
     if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
       saveCases declName false
@@ -248,7 +248,7 @@ private def casesWithTrace (major : Expr) : GoalM (List MVarId) := do
 Selects a case-split from the list of candidates,
 and returns a new list of goals if successful.
 -/
-def splitNext : GrindTactic := fun goal => do
+def splitNextOld : GrindTactic := fun goal => do
   let (goals?, _) ← GoalM.run goal do
     let .some c numCases isRec _ ← selectNextSplit?
       | return none
@@ -258,15 +258,15 @@ def splitNext : GrindTactic := fun goal => do
     markCaseSplitAsResolved cExpr
     trace_goal[grind.split] "{cExpr}, generation: {gen}"
     let mvarIds ← if let .imp e h := c then
-      casesWithTrace (mkGrindEM (e.forallDomain h))
+      casesWithTraceOld (mkGrindEM (e.forallDomain h))
     else if (← isMatcherApp cExpr) then
       casesMatch (← get).mvarId cExpr
     else
-      casesWithTrace (← mkCasesMajor cExpr)
+      casesWithTraceOld (← mkCasesMajor cExpr)
     let goal ← get
     let numSubgoals := mvarIds.length
     let goals := mvarIds.mapIdx fun i mvarId => { goal with mvarId, split.trace := { expr := cExpr, i, num := numSubgoals } :: goal.split.trace }
-    let goals ← introNewHyp goals [] genNew
+    let goals ← introNewHypOld goals [] genNew
     return some goals
   return goals?
 

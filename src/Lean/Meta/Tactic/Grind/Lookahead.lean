@@ -28,7 +28,7 @@ where
       cont goals
     else if let some goals ← Arith.checkOld goal then
       cont goals
-    else if let some goals ← splitNext goal then
+    else if let some goals ← splitNextOld goal then
       cont goals
     else if let some goals ← ematchOld goal then
       cont goals

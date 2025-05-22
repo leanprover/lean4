@@ -62,7 +62,7 @@ def tryLookahead : Goal → M Bool := applyTac lookahead
 
 def tryMBTC : Goal → M Bool := applyTac Arith.Cutsat.mbtcTac
 
-def trySplit : Goal → M Bool := applyTac splitNext
+def trySplit : Goal → M Bool := applyTac splitNextOld
 
 partial def main (fallback : Fallback) : M Unit := do
   repeat do

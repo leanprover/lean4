@@ -205,9 +205,9 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
           let col := indent + col
           let children ←
             match children with
-              | .lazy children => pure <| .lazy <| ← WithRpcRef.mkReusable {
+              | .lazy children => pure <| .lazy <| ← WithRpcRef.mk {
                   indent := col+2
-                  children := ← children.mapM (WithRpcRef.mkReusable ·)
+                  children := ← children.mapM (WithRpcRef.mk ·)
                 }
               | .strict children => pure <| .strict (← children.mapM (fmtToTT · (col+2)))
           return .tag (.trace indent cls (← fmtToTT msg col) collapsed children) default

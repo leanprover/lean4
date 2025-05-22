@@ -23,9 +23,9 @@ namespace Lean.Lsp
 An object which RPC clients can refer to without marshalling.
 
 The language server may serve the same `RpcRef` multiple times and maintains a reference count
-to track how often it has served the reference.
+to track how many times it has served the reference.
 If clients want to release the object associated with an `RpcRef`,
-they must release the reference as often as they have received it from the server.
+they must release the reference as many times as they have received it from the server.
 -/
 structure RpcRef where
   /- NOTE(WN): It is important for this to be a single-field structure
@@ -42,48 +42,32 @@ namespace Lean.Server
 
 /--
 Marks values to be encoded as opaque references in RPC packets.
-Two identical `WithRpcRef`s with `id? = some id` and the same `id` will yield the same `RpcRef`.
+Two `WithRpcRef`s with the same `id` will yield the same `RpcRef`.
 
 See also the docstring for `RpcEncodable`.
 -/
 structure WithRpcRef (α : Type u) where
   private mk' ::
     val : α
-    id? : Option USize
+    id  : USize
   deriving Inhabited
-
-/--
-Creates a non-reusable `WithRpcRef`.
-Every time `val` is served to the client, it generates a new `RpcRef`.
--/
-def WithRpcRef.mkNonReusable (val : α) : WithRpcRef α where
-  val
-  id? := none
-
-/--
-Alias for `WithRpcRef.mkNonReusable`.
--/
-def WithRpcRef.mk (val : α) : WithRpcRef α := .mkNonReusable val
 
 builtin_initialize freshWithRpcRefId : IO.Ref USize ← IO.mkRef 0
 
 /--
-Creates an `WithRpcRef` instance with a unique `id?`.
-Two identical `WithRpcRef`s with `id? = some id` and the same `id` will yield the same `RpcRef`.
-Hence, storing a `WithRpcRef` produced by `mkReusable` and serving it to the client twice will also
-yield the same `RpcRef` twice, allowing clients to reuse their associated UI state across
+Creates an `WithRpcRef` instance with a unique `id`.
+Two `WithRpcRef`s with the same `id` will yield the same `RpcRef`.
+Hence, storing a `WithRpcRef` produced by `WithRpcRef.mk` and serving it to the client twice will
+also yield the same `RpcRef` twice, allowing clients to reuse their associated UI state across
 RPC requests.
 -/
-def WithRpcRef.mkReusable (val : α) : BaseIO (WithRpcRef α) := do
+def WithRpcRef.mk (val : α) : BaseIO (WithRpcRef α) := do
   let id ← freshWithRpcRefId.modifyGet fun id => (id, id + 1)
-  return {
-    val,
-    id? := some id
-  }
+  return { val, id }
 
 structure ReferencedObject where
   obj : Dynamic
-  id? : Option USize
+  id  : USize
   rc  : Nat
 
 structure RpcObjectStore : Type where
@@ -106,7 +90,7 @@ structure RpcObjectStore : Type where
 
 def rpcStoreRef [TypeName α] (obj : WithRpcRef α) : StateM RpcObjectStore Lsp.RpcRef := do
   let st ← get
-  let reusableRef? : Option Lsp.RpcRef := do st.refsById.find? (← obj.id?)
+  let reusableRef? : Option Lsp.RpcRef := st.refsById.find? obj.id
   match reusableRef? with
   | some ref =>
     -- Reuse `RpcRef` for this `obj` so that clients can reuse their UI state for it.
@@ -120,14 +104,9 @@ def rpcStoreRef [TypeName α] (obj : WithRpcRef α) : StateM RpcObjectStore Lsp.
   | none =>
     let ref : Lsp.RpcRef := ⟨st.nextRef⟩
     set { st with
-      aliveRefs :=
-        st.aliveRefs.insert ref ⟨.mk obj.val, obj.id?, 1⟩
-      refsById :=
-        match obj.id? with
-        | none => st.refsById
-        | some id => st.refsById.insert id ref
-      nextRef :=
-        st.nextRef + 1
+      aliveRefs := st.aliveRefs.insert ref ⟨.mk obj.val, obj.id, 1⟩
+      refsById := st.refsById.insert obj.id ref
+      nextRef := st.nextRef + 1
     }
     return ref
 
@@ -138,7 +117,7 @@ def rpcGetRef (α) [TypeName α] (r : Lsp.RpcRef)
   let some val := referencedObj.obj.get? α
     | throw <| s!"RPC call type mismatch in reference '{r}'\nexpected '{TypeName.typeName α}', " ++
         s!"got '{referencedObj.obj.typeName}'"
-  return { val, id? := referencedObj.id? }
+  return { val, id := referencedObj.id }
 
 def rpcReleaseRef (r : Lsp.RpcRef) : StateM RpcObjectStore Bool := do
   let st ← get
@@ -147,12 +126,8 @@ def rpcReleaseRef (r : Lsp.RpcRef) : StateM RpcObjectStore Bool := do
   let referencedObj := { referencedObj with rc := referencedObj.rc - 1 }
   if referencedObj.rc == 0 then
     set { st with
-      aliveRefs :=
-        st.aliveRefs.erase r
-      refsById :=
-        match referencedObj.id? with
-        | none => st.refsById
-        | some id => st.refsById.erase id
+      aliveRefs := st.aliveRefs.erase r
+      refsById := st.refsById.erase referencedObj.id
     }
   else
     set { st with aliveRefs := st.aliveRefs.insert r referencedObj }

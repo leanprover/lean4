@@ -19,9 +19,6 @@ concurrency:
 jobs:
   update-stage0:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: 'nix develop -c bash -euxo pipefail {0}'
     steps:
     # This action should push to an otherwise protected branch, so it
     # uses a deploy key with write permissions, as suggested at
@@ -47,14 +44,18 @@ jobs:
     - name: Open Nix shell once
       if: env.should_update_stage0 == 'yes'
       run: true
+      shell: 'nix develop -c bash -euxo pipefail {0}'
     - name: Set up NPROC
       if: env.should_update_stage0 == 'yes'
       run: |
         echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
+      shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
       run: cmake --preset release
+      shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
       run: make -j$NPROC -C build/release  update-stage0-commit
+      shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
       run: git show --stat
     - if: env.should_update_stage0 == 'yes' && github.event_name == 'push'

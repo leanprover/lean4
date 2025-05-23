@@ -52,7 +52,7 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   DHashMap.mem_iff_contains
 
-@[simp, grind]
+@[simp, grind _=_]
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   DHashMap.contains_iff_mem
 

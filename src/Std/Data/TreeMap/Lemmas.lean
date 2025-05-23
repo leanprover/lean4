@@ -14,8 +14,6 @@ This file contains lemmas about `Std.Data.TreeMap`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
 -/
 
-set_option trace.grind.ematch.pattern true
-
 set_option linter.missingDocs true
 set_option autoImplicit false
 
@@ -40,7 +38,7 @@ theorem isEmpty_insert [TransCmp cmp] {k : α} {v : β} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   DTreeMap.mem_iff_contains
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
   DTreeMap.contains_iff_mem
 

@@ -169,7 +169,6 @@ Returns `some gen` if a new goal was found for a choice point with generation `g
 and returns `none` otherwise.
 -/
 def nextGoal? : SearchM (Option Nat) := do
-  if true then nextChronoGoal? else -- TODO: FIX
   let mut choices := (← get).choiceStack
   if choices.isEmpty then
     return none -- done

@@ -305,7 +305,7 @@ theorem get_eq_get_get? [LawfulBEq α] {a : α} {h} :
     m.get a h = (m.get? a).get (mem_iff_isSome_get?.mp h) :=
   m.inductionOn (fun _ _ => DHashMap.get_eq_get_get?) h
 
-@[grind =]theorem get_get? [LawfulBEq α] {a : α} {h} :
+@[grind =] theorem get_get? [LawfulBEq α] {a : α} {h} :
     (m.get? a).get h = m.get a (mem_iff_isSome_get?.mpr h) :=
   m.inductionOn (fun _ _ => DHashMap.get_get?) h
 
@@ -405,7 +405,7 @@ variable {β : Type v} {m : ExtDHashMap α (fun _ => β)}
 theorem get!_empty [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α} : get! (∅ : ExtDHashMap α (fun _ => β)) a = default :=
   DHashMap.Const.get!_empty
 
-@[grind =]theorem get!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
+@[grind =] theorem get!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
     get! (m.insert k v) a = if k == a then v else get! m a :=
   m.inductionOn fun _ => DHashMap.Const.get!_insert
 
@@ -462,7 +462,7 @@ theorem getD_empty [LawfulBEq α] {a : α} {fallback : β a} :
     (∅ : ExtDHashMap α β).getD a fallback = fallback :=
   DHashMap.getD_empty
 
-@[grind =]theorem getD_insert [LawfulBEq α] {k a : α} {fallback : β a} {v : β k} :
+@[grind =] theorem getD_insert [LawfulBEq α] {k a : α} {fallback : β a} {v : β k} :
     (m.insert k v).getD a fallback =
       if h : k == a then cast (congrArg β (eq_of_beq h)) v else m.getD a fallback :=
   m.inductionOn fun _ => DHashMap.getD_insert

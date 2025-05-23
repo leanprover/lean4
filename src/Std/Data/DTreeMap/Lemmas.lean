@@ -3961,7 +3961,7 @@ theorem getKey?_maxKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.getKey? t.maxKey! = some t.maxKey! :=
   Impl.getKey?_maxKey! t.wf he
 
-@[grind =]theorem getKey_maxKey! [TransCmp cmp] [Inhabited α] {hc} :
+@[grind =] theorem getKey_maxKey! [TransCmp cmp] [Inhabited α] {hc} :
     t.getKey t.maxKey! hc = t.maxKey! :=
   Impl.getKey_maxKey! t.wf
 

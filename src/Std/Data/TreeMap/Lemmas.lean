@@ -2001,7 +2001,7 @@ theorem minKey?_modify_eq_minKey? [TransCmp cmp] [LawfulEqCmp cmp] {k f} :
     (t.modify k f).minKey? = t.minKey? :=
   DTreeMap.Const.minKey?_modify_eq_minKey?
 
-@[grind =]theorem isSome_minKey?_modify [TransCmp cmp] {k f} :
+@[grind =] theorem isSome_minKey?_modify [TransCmp cmp] {k f} :
     (t.modify k f).minKey?.isSome = !t.isEmpty :=
   DTreeMap.Const.isSome_minKey?_modify
 

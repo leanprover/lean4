@@ -347,7 +347,7 @@ theorem getD_of_isEmpty [TransCmp cmp] {a fallback : α} :
     t.isEmpty = true → t.getD a fallback = fallback :=
   TreeMap.getKeyD_of_isEmpty
 
-@[grind =]theorem getD_insert [TransCmp cmp] {k a fallback : α} :
+@[grind =] theorem getD_insert [TransCmp cmp] {k a fallback : α} :
     (t.insert k).getD a fallback =
       if cmp k a = .eq ∧ ¬ k ∈ t then k else t.getD a fallback :=
   TreeMap.getKeyD_insertIfNew

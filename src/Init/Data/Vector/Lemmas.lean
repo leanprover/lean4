@@ -2105,7 +2105,7 @@ abbrev forall_mem_mkVector := @forall_mem_replicate
 @[deprecated getElem_replicate (since := "2025-03-18")]
 abbrev getElem_mkVector := @getElem_replicate
 
-@[grind]theorem getElem?_replicate {a : α} {n i : Nat} : (replicate n a)[i]? = if i < n then some a else none := by
+@[grind] theorem getElem?_replicate {a : α} {n i : Nat} : (replicate n a)[i]? = if i < n then some a else none := by
   simp [getElem?_def]
 
 @[deprecated getElem?_replicate (since := "2025-03-18")]

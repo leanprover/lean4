@@ -94,6 +94,12 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def oleanFile (self : Module) : FilePath :=
   self.leanLibPath "olean"
 
+@[inline] def oleanServerFile (self : Module) : FilePath :=
+  self.leanLibPath "olean.server"
+
+@[inline] def oleanPrivateFile (self : Module) : FilePath :=
+  self.leanLibPath "olean.private"
+
 @[inline] def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
@@ -102,6 +108,9 @@ abbrev pkg (self : Module) : Package :=
 
 @[inline] def irPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.irDir ext
+
+@[inline] def setupFile (self : Module) : FilePath :=
+  self.irPath "setup.json"
 
 @[inline] def cFile (self : Module) : FilePath :=
   self.irPath "c"
@@ -117,6 +126,15 @@ abbrev pkg (self : Module) : Package :=
 
 def bcFile? (self : Module) : Option FilePath :=
   if Lean.Internal.hasLLVMBackend () then some self.bcFile else none
+
+def arts (self : Module) : ModuleArtifacts where
+  lean? := self.leanFile
+  olean? := self.oleanFile
+  oleanPrivate? := self.oleanPrivateFile
+  oleanServer? := self.oleanServerFile
+  ilean? := self.ileanFile
+  c? := self.cFile
+  bc? := self.bcFile?
 
 @[inline] def bcoFile (self : Module) : FilePath :=
   self.irPath "bc.o"
@@ -136,7 +154,7 @@ def dynlibSuffix := "-1"
 @[inline] def dynlibFile (self : Module) : FilePath :=
   self.pkg.leanLibDir / s!"{self.dynlibName}.{sharedLibExt}"
 
-@[inline] def serverOptions (self : Module) : Array LeanOption :=
+@[inline] def serverOptions (self : Module) : LeanOptions :=
   self.lib.serverOptions
 
 @[inline] def buildType (self : Module) : BuildType :=
@@ -150,6 +168,9 @@ def dynlibSuffix := "-1"
 
 @[inline] def plugins (self : Module) : TargetArray Dynlib :=
   self.lib.plugins
+
+@[inline] def leanOptions (self : Module) : LeanOptions :=
+  self.lib.leanOptions
 
 @[inline] def leanArgs (self : Module) : Array String :=
   self.lib.leanArgs

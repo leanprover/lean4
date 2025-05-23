@@ -29,16 +29,26 @@ def recBuildExternDynlibs (pkgs : Array Package)
     jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
   return (jobs, libDirs)
 
-/--
-Recursively parse the Lean files of a module and its imports
-building an `Array` product of its direct local imports.
--/
-def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := Job.async do
-  let contents ← IO.FS.readFile mod.leanFile
-  let res ← Lean.parseImports' contents mod.leanFile.toString
-  let mods ← res.imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
-    findModule? imp.module <&> fun | some mod => set.insert mod | none => set
-  return mods.toArray
+/-- The `ModuleFacetConfig` for the builtin `srcFacet`. -/
+def Module.srcFacetConfig : ModuleFacetConfig srcFacet :=
+  mkFacetJobConfig fun mod => inputFile mod.leanFile (text := true)
+
+/-- Parse the header of a Lean file from its source. -/
+def Module.recParseHeader (mod : Module) : FetchM (Job ModuleHeader) := do
+  (← mod.src.fetch).mapM fun srcFile => do
+    let contents ← IO.FS.readFile srcFile
+    Lean.parseImports' contents mod.leanFile.toString
+
+/-- The `ModuleFacetConfig` for the builtin `headerFacet`. -/
+def Module.headerFacetConfig : ModuleFacetConfig headerFacet :=
+  mkFacetJobConfig recParseHeader (buildable := false)
+
+/-- Compute an `Array` of a module's direct local imports from its header. -/
+def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := do
+  (← mod.header.fetch).mapM (sync := true) fun header => do
+    let mods ← header.imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
+      findModule? imp.module <&> fun | some mod => set.insert mod | none => set
+    return mods.toArray
 
 /-- The `ModuleFacetConfig` for the builtin `importsFacet`. -/
 def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
@@ -268,6 +278,11 @@ def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
   if Lean.Internal.hasLLVMBackend () then
     cacheFileHash mod.bcFile
 
+private def traceOptions (opts : LeanOptions) (caption := "opts") : BuildTrace :=
+  opts.values.fold (init := .nil caption) fun t n v =>
+    let opt := s!"-D{n}={v.asCliFlagValue}"
+    t.mix <| .ofHash (pureHash opt) opt
+
 /--
 Recursively build a Lean module.
 Fetch its dependencies and then elaborate the Lean source file, producing
@@ -275,16 +290,27 @@ all possible artifacts (i.e., `.olean`, `ilean`, `.c`, and `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
   withRegisterJob mod.name.toString do
+  (← mod.src.fetch).bindM fun srcFile => do
+  let srcTrace ← getTrace
+  (← mod.header.fetch).bindM fun header => do
   (← mod.deps.fetch).mapM fun {dynlibs, plugins} => do
     addLeanTrace
+    addTrace <| traceOptions mod.leanOptions "Module.leanOptions"
     addPureTrace mod.leanArgs "Module.leanArgs"
-    let srcTrace ← computeTrace (TextFilePath.mk mod.leanFile)
-    addTrace srcTrace
     setTraceCaption s!"{mod.name.toString}:leanArts"
     let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
-      compileLeanModule mod.leanFile mod.relLeanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
-        (← getLeanPath) mod.rootDir dynlibs plugins
-        (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
+      let setup : ModuleSetup := {
+        name := mod.name
+        isModule := header.isModule
+        imports := header.imports
+        modules := {} -- TODO
+        dynlibs := dynlibs.map (·.path.toString)
+        plugins := plugins.map (·.path.toString)
+        options := mod.leanOptions
+      }
+      let args := mod.weakLeanArgs ++ mod.leanArgs
+      compileLeanModule srcFile mod.relLeanFile setup mod.setupFile mod.arts args
+        (← getLeanPath) mod.rootDir (← getLean)
       mod.clearOutputHashes
     unless upToDate && (← getTrustHash) do
       mod.cacheOutputHashes
@@ -293,19 +319,31 @@ def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
 def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
   mkFacetJobConfig (·.recBuildLean)
 
-/-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
-def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
-  mkFacetJobConfig fun mod => do
-    (← mod.leanArts.fetch).mapM fun _ => do
+@[inline] private def Module.fetchOLeanCore
+  (mod : Module) (file : FilePath)
+: FetchM (Job FilePath) := do
+  (← mod.leanArts.fetch).mapM fun _ => do
       /-
-      Avoid recompiling unchanged Olean files.
+      Avoid recompiling unchanged OLean files.
       Olean files incorporate not only their own content, but also their
       transitive imports. However, they are independent of their module sources.
       -/
       newTrace s!"{mod.name.toString}:olean"
       addTrace (← mod.deps.fetch).getTrace.withoutInputs
-      addTrace (← fetchFileTrace mod.oleanFile)
-      return mod.oleanFile
+      addTrace (← fetchFileTrace file)
+      return file
+
+/-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
+def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
+  mkFacetJobConfig fun mod => mod.fetchOLeanCore mod.oleanFile
+
+/-- The `ModuleFacetConfig` for the builtin `oleanServerFacet`. -/
+def Module.oleanServerFacetConfig : ModuleFacetConfig oleanServerFacet :=
+  mkFacetJobConfig fun mod => mod.fetchOLeanCore mod.oleanServerFile
+
+/-- The `ModuleFacetConfig` for the builtin `oleanPrivateFacet`. -/
+def Module.oleanPrivateFacetConfig : ModuleFacetConfig oleanPrivateFacet :=
+  mkFacetJobConfig fun mod => mod.fetchOLeanCore mod.oleanPrivateFile
 
 /-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
@@ -452,12 +490,16 @@ Lake module facets (e.g., `imports`, `c`, `o`, `dynlib`).
 -/
 def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   DNameMap.empty
+  |>.insert srcFacet srcFacetConfig
+  |>.insert headerFacet headerFacetConfig
   |>.insert importsFacet importsFacetConfig
   |>.insert transImportsFacet transImportsFacetConfig
   |>.insert precompileImportsFacet precompileImportsFacetConfig
   |>.insert depsFacet depsFacetConfig
   |>.insert leanArtsFacet leanArtsFacetConfig
   |>.insert oleanFacet oleanFacetConfig
+  |>.insert oleanServerFacet oleanServerFacetConfig
+  |>.insert oleanPrivateFacet oleanPrivateFacetConfig
   |>.insert ileanFacet ileanFacetConfig
   |>.insert cFacet cFacetConfig
   |>.insert bcFacet bcFacetConfig

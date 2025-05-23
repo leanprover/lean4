@@ -27,7 +27,7 @@ builtin_initialize symmExt :
   }
 
 /--
-Tags symmetry lemmas to be used by `symm`.
+Tags symmetry lemmas to be used by the `symm` tactic.
 
 A symmetry lemma should be of the form `r x y → r y x` where `r` is an arbitrary relation.
 -/

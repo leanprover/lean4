@@ -25,9 +25,8 @@ theorem Iter.step_drop {α β} [Iterator α Id β] {n : Nat}
       | k + 1 => .skip (it'.drop k) (.drop h rfl)
     | .skip it' h => .skip (it'.drop n) (.skip h)
     | .done h => .done (.done h)) := by
-  simp only [Iter.step, Iter.step, Iter.drop_eq, IterM.step_drop, toIterM_toIter]
-  simp only [Id.pure_eq, Id.bind_eq, Id.run, drop_eq]
-  generalize it.toIterM.step = step
+  simp only [drop_eq, step, toIterM_toIter, IterM.step_drop, Id.run_bind]
+  generalize it.toIterM.step.run = step
   obtain ⟨step, h⟩ := step
   cases step <;> cases n <;>
     simp [PlausibleIterStep.yield, PlausibleIterStep.skip, PlausibleIterStep.done]

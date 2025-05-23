@@ -14,7 +14,7 @@ import Init.Ext
 
 namespace Option
 
-theorem default_eq_none : (default : Option α) = none := rfl
+@[grind =] theorem default_eq_none : (default : Option α) = none := rfl
 
 @[deprecated mem_def (since := "2025-04-07")]
 theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
@@ -254,11 +254,11 @@ theorem isSome_apply_of_isSome_bind {α β : Type _} {x : Option α} {f : α →
       (isSome_apply_of_isSome_bind h) := by
   cases x <;> trivial
 
-theorem any_bind {p : β → Bool} {f : α → Option β} {o : Option α} :
+@[grind =] theorem any_bind {p : β → Bool} {f : α → Option β} {o : Option α} :
     (o.bind f).any p = o.any (Option.any p ∘ f) := by
   cases o <;> simp
 
-theorem all_bind {p : β → Bool} {f : α → Option β} {o : Option α} :
+@[grind =] theorem all_bind {p : β → Bool} {f : α → Option β} {o : Option α} :
     (o.bind f).all p = o.all (Option.all p ∘ f) := by
   cases o <;> simp
 
@@ -431,7 +431,7 @@ theorem filter_eq_bind (x : Option α) (p : α → Bool) :
     x.filter p = x.bind (Option.guard p) :=
   (bind_guard x p).symm
 
-@[simp] theorem any_filter : (o : Option α) →
+@[simp, grind =] theorem any_filter : (o : Option α) →
     (Option.filter p o).any q = Option.any (fun a => p a && q a) o
   | none => rfl
   | some a =>
@@ -439,7 +439,7 @@ theorem filter_eq_bind (x : Option α) (p : α → Bool) :
     | false => by simp [filter_some_neg h, h]
     | true => by simp [filter_some_pos h, h]
 
-@[simp] theorem all_filter : (o : Option α) →
+@[simp, grind =] theorem all_filter : (o : Option α) →
     (Option.filter p o).all q = Option.all (fun a => !p a || q a) o
   | none => rfl
   | some a =>
@@ -447,7 +447,7 @@ theorem filter_eq_bind (x : Option α) (p : α → Bool) :
     | false => by simp [filter_some_neg h, h]
     | true => by simp [filter_some_pos h, h]
 
-@[simp] theorem isNone_filter :
+@[simp, grind =] theorem isNone_filter :
     Option.isNone (Option.filter p o) = Option.all (fun a => !p a) o :=
   match o with
   | none => rfl
@@ -468,7 +468,7 @@ theorem filter_eq_bind (x : Option α) (p : α → Bool) :
     Option.filter q (Option.filter p o) = Option.filter (fun x => p x && q x) o := by
   cases o <;> repeat (simp_all [filter_some]; try split)
 
-theorem filter_bind {f : α → Option β} :
+@[grind =] theorem filter_bind {f : α → Option β} :
     (Option.bind x f).filter p = (x.filter (fun a => (f a).any p)).bind f := by
   cases x with
   | none => simp
@@ -483,16 +483,16 @@ theorem filter_bind {f : α → Option β} :
 theorem eq_some_of_filter_eq_some {o : Option α} {a : α} (h : o.filter p = some a) : o = some a :=
   filter_eq_some_iff.1 h |>.1
 
-theorem filter_map {f : α → β} {p : β → Bool} :
+@[grind =] theorem filter_map {f : α → β} {p : β → Bool} :
     (Option.map f x).filter p = (x.filter (p ∘ f)).map f := by
   cases x <;> simp [filter_some]
 
-@[simp, grind] theorem all_guard (a : α) :
+@[simp] theorem all_guard (a : α) :
     Option.all q (guard p a) = (!p a || q a) := by
   simp only [guard]
   split <;> simp_all
 
-@[simp, grind] theorem any_guard (a : α) : Option.any q (guard p a) = (p a && q a) := by
+@[simp] theorem any_guard (a : α) : Option.any q (guard p a) = (p a && q a) := by
   simp only [guard]
   split <;> simp_all
 
@@ -563,21 +563,21 @@ theorem bind_map_comm {α β} {x : Option (Option α)} {f : α → β} :
 theorem mem_of_mem_join {a : α} {x : Option (Option α)} (h : a ∈ x.join) : some a ∈ x :=
   h.symm ▸ join_eq_some_iff.1 h
 
-theorem any_join {p : α → Bool} {x : Option (Option α)} :
+@[grind _=_] theorem any_join {p : α → Bool} {x : Option (Option α)} :
     x.join.any p = x.any (Option.any p) := by
   cases x <;> simp
 
-theorem all_join {p : α → Bool} {x : Option (Option α)} :
+@[grind _=_] theorem all_join {p : α → Bool} {x : Option (Option α)} :
     x.join.all p = x.all (Option.all p) := by
   cases x <;> simp
 
-theorem isNone_join {x : Option (Option α)} : x.join.isNone = x.all Option.isNone := by
+@[grind =] theorem isNone_join {x : Option (Option α)} : x.join.isNone = x.all Option.isNone := by
   cases x <;> simp
 
-theorem isSome_join {x : Option (Option α)} : x.join.isSome = x.any Option.isSome := by
+@[grind =]theorem isSome_join {x : Option (Option α)} : x.join.isSome = x.any Option.isSome := by
   cases x <;> simp
 
-theorem get_join {x : Option (Option α)} {h} : x.join.get h =
+@[grind =] theorem get_join {x : Option (Option α)} {h} : x.join.get h =
     (x.get (Option.isSome_of_any (Option.isSome_join ▸ h))).get (get_of_any_eq_true _ _ (Option.isSome_join ▸ h)) := by
   cases x with
   | none => simp at h
@@ -588,11 +588,11 @@ theorem join_eq_get {x : Option (Option α)} {h} : x.join = x.get h := by
   | none => simp at h
   | some _ => simp
 
-theorem getD_join {x : Option (Option α)} {default : α} :
+@[grind =] theorem getD_join {x : Option (Option α)} {default : α} :
     x.join.getD default = (x.getD (some default)).getD default := by
   cases x <;> simp
 
-theorem get!_join [Inhabited α] {x : Option (Option α)} :
+@[grind =] theorem get!_join [Inhabited α] {x : Option (Option α)} :
     x.join.get! = x.get!.get! := by
   cases x <;> simp [default_eq_none]
 
@@ -602,13 +602,13 @@ theorem get!_join [Inhabited α] {x : Option (Option α)} :
 @[deprecated guard_eq_some_iff (since := "2025-04-10")]
 abbrev guard_eq_some := @guard_eq_some_iff
 
-@[simp] theorem isSome_guard : (Option.guard p a).isSome = p a :=
+@[simp, grind =] theorem isSome_guard : (Option.guard p a).isSome = p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
 
 @[deprecated isSome_guard (since := "2025-03-18")]
 abbrev guard_isSome := @isSome_guard
 
-@[simp] theorem isNone_guard : (Option.guard p a).isNone = !p a := by
+@[simp, grind =] theorem isNone_guard : (Option.guard p a).isNone = !p a := by
   rw [← not_isSome, isSome_guard]
 
 @[simp] theorem guard_eq_none_iff : Option.guard p a = none ↔ p a = false :=
@@ -643,7 +643,7 @@ theorem get_none (a : α) {h} : none.get h = a := by
 theorem get_none_eq_iff_true {h} : (none : Option α).get h = a ↔ True := by
   simp at h
 
-theorem get_guard : (guard p a).get h = a := by
+@[simp, grind =] theorem get_guard : (guard p a).get h = a := by
   simp only [guard]
   split <;> simp
 
@@ -672,7 +672,7 @@ theorem map_guard {p : α → Bool} {f : α → β} {x : α} :
     (Option.guard p x).map f = if p x then some (f x) else none := by
   simp [guard_eq_ite]
 
-theorem join_filter {p : Option α → Bool} : {o : Option (Option α)} →
+@[grind =] theorem join_filter {p : Option α → Bool} : {o : Option (Option α)} →
     (o.filter p).join = o.join.filter (fun a => p (some a))
   | none => by simp
   | some none => by
@@ -682,7 +682,7 @@ theorem join_filter {p : Option α → Bool} : {o : Option (Option α)} →
     simp only [join_some, filter_some]
     split <;> simp
 
-theorem filter_join {p : α → Bool} : {o : Option (Option α)} →
+@[grind =] theorem filter_join {p : α → Bool} : {o : Option (Option α)} →
     o.join.filter p = (o.filter (Option.any p)).join
   | none => by simp
   | some none => by
@@ -754,22 +754,22 @@ theorem merge_eq_some_iff {o o' : Option α} {f : α → α → α} {a : α} :
 theorem merge_eq_none_iff {o o' : Option α} : o.merge f o' = none ↔ o = none ∧ o' = none := by
   cases o <;> cases o' <;> simp
 
-@[simp]
+@[simp, grind =]
 theorem any_merge {p : α → Bool} {f : α → α → α} (hpf : ∀ a b, p (f a b) = (p a || p b))
     {o o' : Option α} : (o.merge f o').any p = (o.any p || o'.any p) := by
   cases o <;> cases o' <;> simp [*]
 
-@[simp]
+@[simp, grind =]
 theorem all_merge {p : α → Bool} {f : α → α → α} (hpf : ∀ a b, p (f a b) = (p a && p b))
     {o o' : Option α} : (o.merge f o').all p = (o.all p && o'.all p) := by
   cases o <;> cases o' <;> simp [*]
 
-@[simp]
+@[simp, grind =]
 theorem isSome_merge {o o' : Option α} {f : α → α → α} :
     (o.merge f o').isSome = (o.isSome || o'.isSome) := by
   simp [← any_true]
 
-@[simp]
+@[simp, grind =]
 theorem isNone_merge {o o' : Option α} {f : α → α → α} :
     (o.merge f o').isNone = (o.isNone && o'.isNone) := by
   simp [← all_false]
@@ -783,7 +783,7 @@ theorem get_merge {o o' : Option α} {f : α → α → α} {i : α} [Std.Lawful
 
 @[simp, grind] theorem elim_some (x : β) (f : α → β) (a : α) : (some a).elim x f = f a := rfl
 
-theorem elim_filter {o : Option α} {b : β} :
+@[grind =] theorem elim_filter {o : Option α} {b : β} :
     Option.elim (Option.filter p o) b f = Option.elim o b (fun a => if p a then f a else b) :=
   match o with
   | none => rfl
@@ -792,7 +792,7 @@ theorem elim_filter {o : Option α} {b : β} :
     | false => by simp [filter_some_neg h, h]
     | true => by simp [filter_some_pos, h]
 
-theorem elim_join {o : Option (Option α)} {b : β} {f : α → β} :
+@[grind =] theorem elim_join {o : Option (Option α)} {b : β} {f : α → β} :
     o.join.elim b f = o.elim b (·.elim b f) := by
   cases o <;> simp
 
@@ -830,8 +830,15 @@ theorem choice_eq_default [Subsingleton α] [Inhabited α] : choice α = some de
 theorem choice_eq_none_iff_not_nonempty : choice α = none ↔ ¬Nonempty α := by
   simp [choice]
 
+theorem isNone_choice_iff_not_nonempty : (choice α).isNone ↔ ¬Nonempty α := by
+  rw [isNone_iff_eq_none, choice_eq_none_iff_not_nonempty]
+
+grind_pattern isNone_choice_iff_not_nonempty => (choice α).isNone
+
 theorem isSome_choice_iff_nonempty : (choice α).isSome ↔ Nonempty α :=
   ⟨fun h => ⟨(choice α).get h⟩, fun h => by simp only [choice, dif_pos h, isSome_some]⟩
+
+grind_pattern isSome_choice_iff_nonempty => (choice α).isSome
 
 @[simp]
 theorem isSome_choice [Nonempty α] : (choice α).isSome :=
@@ -840,19 +847,16 @@ theorem isSome_choice [Nonempty α] : (choice α).isSome :=
 @[deprecated isSome_choice_iff_nonempty (since := "2025-03-18")]
 abbrev choice_isSome_iff_nonempty := @isSome_choice_iff_nonempty
 
-theorem isNone_choice_iff_not_nonempty : (choice α).isNone ↔ ¬Nonempty α := by
-  rw [isNone_iff_eq_none, choice_eq_none_iff_not_nonempty]
-
 @[simp]
 theorem isNone_choice_eq_false [Nonempty α] : (choice α).isNone = false := by
   simp [← not_isSome]
 
-@[simp]
+@[simp, grind =]
 theorem getD_choice {a} :
     (choice α).getD a = (choice α).get (isSome_choice_iff_nonempty.2 ⟨a⟩) := by
   rw [get_eq_getD]
 
-@[simp]
+@[simp, grind =]
 theorem get!_choice [Inhabited α] : (choice α).get! = (choice α).get isSome_choice := by
   rw [get_eq_get!]
 
@@ -933,16 +937,16 @@ theorem or_of_isNone {o o' : Option α} (h : o.isNone) : o.or o' = o' := by
   match o, h with
   | none, _ => simp
 
-@[simp, grind]
+@[simp, grind =]
 theorem getD_or {o o' : Option α} {fallback : α} :
     (o.or o').getD fallback = o.getD (o'.getD fallback) := by
   cases o <;> simp
 
-@[simp]
+@[simp, grind =]
 theorem get!_or {o o' : Option α} [Inhabited α] : (o.or o').get! = o.getD o'.get! := by
   cases o <;> simp
 
-@[simp] theorem filter_or_filter {o o' : Option α} {f : α → Bool} :
+@[simp, grind =] theorem filter_or_filter {o o' : Option α} {f : α → Bool} :
     (o.or (o'.filter f)).filter f = (o.or o').filter f := by
   cases o <;> cases o' <;> simp
 
@@ -1024,18 +1028,18 @@ variable [BEq α]
   · intro h
     infer_instance
 
-@[simp] theorem beq_none {o : Option α} : (o == none) = o.isNone := by cases o <;> simp
+@[simp, grind =] theorem beq_none {o : Option α} : (o == none) = o.isNone := by cases o <;> simp
 
-@[simp]
-theorem filter_beq_self [ReflBEq α] {p : α → Bool} {o : Option α} : (o.filter p == o) = (o.all p) := by
+@[simp, grind =]
+theorem filter_beq_self [ReflBEq α] {p : α → Bool} {o : Option α} : (o.filter p == o) = o.all p := by
   cases o with
   | none => simp
   | some _ =>
     simp only [filter_some]
     split <;> simp [*]
 
-@[simp]
-theorem self_beq_filter [ReflBEq α] {p : α → Bool} {o : Option α} : (o == o.filter p) = (o.all p) := by
+@[simp, grind =]
+theorem self_beq_filter [ReflBEq α] {p : α → Bool} {o : Option α} : (o == o.filter p) = o.all p := by
   cases o with
   | none => simp
   | some _ =>
@@ -1204,7 +1208,7 @@ theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → o = some a → Optio
     o.pbind f = some b ↔ ∃ a h, f a h = some b := by
   cases o <;> simp
 
-theorem pbind_join {o : Option (Option α)} {f : (a : α) → o.join = some a → Option β} :
+@[grind =] theorem pbind_join {o : Option (Option α)} {f : (a : α) → o.join = some a → Option β} :
     o.join.pbind f = o.pbind (fun o' ho' => o'.pbind (fun a ha => f a (by simp_all))) := by
   cases o <;> simp <;> congr
 
@@ -1218,7 +1222,7 @@ theorem isSome_get_of_isSome_pbind {o : Option α} {f : (a : α) → o = some a 
   | none => simp at h
   | some a => simp [← h]
 
-@[simp]
+@[simp, grind =]
 theorem get_pbind {o : Option α} {f : (a : α) → o = some a → Option β} {h} :
     (o.pbind f).get h = (f (o.get (isSome_of_isSome_pbind h)) (by simp)).get (isSome_get_of_isSome_pbind h) := by
   cases o <;> simp
@@ -1256,7 +1260,7 @@ theorem get_pbind {o : Option α} {f : (a : α) → o = some a → Option β} {h
     · rintro ⟨h, rfl⟩
       rfl
 
-@[simp, grind]
+@[simp]
 theorem pmap_eq_map (p : α → Prop) (f : α → β) (o : Option α) (H) :
     @pmap _ _ p (fun a _ => f a) o H = Option.map f o := by
   cases o <;> simp
@@ -1305,7 +1309,7 @@ theorem pmap_guard {q : α → Bool} {p : α → Prop} (f : (x : α) → p x →
   simp only [guard_eq_ite]
   split <;> simp_all
 
-@[simp]
+@[simp, grind =]
 theorem get_pmap {p : α → Bool} {f : (x : α) → p x → β} {o : Option α}
     {h : ∀ a, o = some a → p a} {h'} :
     (o.pmap f h).get h' = f (o.get (by simpa using h')) (h _ (by simp)) := by
@@ -1316,7 +1320,7 @@ theorem get_pmap {p : α → Bool} {f : (x : α) → p x → β} {o : Option α}
 @[simp, grind] theorem pelim_none : pelim none b f = b := rfl
 @[simp, grind] theorem pelim_some : pelim (some a) b f = f a rfl := rfl
 
-@[simp, grind] theorem pelim_eq_elim : pelim o b (fun a _ => f a) = o.elim b f := by
+@[simp] theorem pelim_eq_elim : pelim o b (fun a _ => f a) = o.elim b f := by
   cases o <;> simp
 
 @[simp, grind] theorem elim_pmap {p : α → Prop} (f : (a : α) → p a → β) (o : Option α)
@@ -1329,7 +1333,7 @@ theorem pelim_congr_left {o o' : Option α } {b : β} {f : (a : α) → (a ∈ o
     pelim o b f = pelim o' b (fun a ha => f a (h ▸ ha)) := by
   cases h; rfl
 
-theorem pelim_filter {o : Option α} {b : β} {f : (a : α) → a ∈ o.filter p → β} :
+@[grind =] theorem pelim_filter {o : Option α} {b : β} {f : (a : α) → a ∈ o.filter p → β} :
     Option.pelim (Option.filter p o) b f =
       Option.pelim o b (fun a h => if hp : p a then f a (Option.mem_filter_iff.2 ⟨h, hp⟩) else b) :=
   match o with
@@ -1339,7 +1343,7 @@ theorem pelim_filter {o : Option α} {b : β} {f : (a : α) → a ∈ o.filter p
     | false => by simp [pelim_congr_left (filter_some_neg h), h]
     | true => by simp [pelim_congr_left (filter_some_pos h), h]
 
-theorem pelim_join {o : Option (Option α)} {b : β} {f : (a : α) → a ∈ o.join → β} :
+@[grind =] theorem pelim_join {o : Option (Option α)} {b : β} {f : (a : α) → a ∈ o.join → β} :
     o.join.pelim b f = o.pelim b (fun o' ho' => o'.pelim b (fun a ha => f a (by simp_all))) := by
   cases o <;> simp <;> congr
 
@@ -1417,7 +1421,7 @@ theorem eq_some_of_pfilter_eq_some {o : Option α} {p : (a : α) → o = some a 
     {a : α} (h : o.pfilter p = some a) : o = some a :=
   pfilter_eq_some_iff.1 h |>.1
 
-theorem filter_pbind {f : (a : α) → o = some a → Option β} :
+@[grind =] theorem filter_pbind {f : (a : α) → o = some a → Option β} :
     (Option.pbind o f).filter p =
       (o.pfilter (fun a h => (f a h).any p)).pbind (fun a h => f a (eq_some_of_pfilter_eq_some h)) := by
   cases o with
@@ -1429,7 +1433,7 @@ theorem filter_pbind {f : (a : α) → o = some a → Option β} :
     · simp only [h, filter_some, any_some]
       split <;> simp [h]
 
-@[simp, grind] theorem pfilter_eq_filter {α : Type _} {o : Option α} {p : α → Bool} :
+@[simp] theorem pfilter_eq_filter {α : Type _} {o : Option α} {p : α → Bool} :
     o.pfilter (fun a _ => p a) = o.filter p := by
   cases o with
   | none => rfl
@@ -1468,7 +1472,7 @@ theorem pfilter_eq_pbind_ite {α : Type _} {o : Option α}
   · rfl
   · simp only [Option.pfilter, Bool.cond_eq_ite, Option.pbind_some]
 
-theorem filter_pmap {p : α → Prop} {f : (a : α) → p a → β} {h : ∀ (a : α), o = some a → p a}
+@[grind =] theorem filter_pmap {p : α → Prop} {f : (a : α) → p a → β} {h : ∀ (a : α), o = some a → p a}
     {q : β → Bool} : (o.pmap f h).filter q = (o.pfilter (fun a h' => q (f a (h _ h')))).pmap f
       (fun _ h' => h _ (eq_some_of_pfilter_eq_some h')) := by
   cases o with
@@ -1477,7 +1481,7 @@ theorem filter_pmap {p : α → Prop} {f : (a : α) → p a → β} {h : ∀ (a 
     simp only [pmap_some, filter_some, pfilter_some]
     split <;> simp
 
-theorem pfilter_join {o : Option (Option α)} {p : (a : α) → o.join = some a → Bool} :
+@[grind =] theorem pfilter_join {o : Option (Option α)} {p : (a : α) → o.join = some a → Bool} :
     o.join.pfilter p = (o.pfilter (fun o' h => o'.pelim false (fun a ha => p a (by simp_all)))).join := by
   cases o with
   | none => simp
@@ -1488,11 +1492,11 @@ theorem pfilter_join {o : Option (Option α)} {p : (a : α) → o.join = some a 
       simp only [join_some, pfilter_some, pelim_some]
       split <;> simp
 
-theorem join_pfilter {o : Option (Option α)} {p : (o' : Option α) → o = some o' → Bool} :
+@[grind =] theorem join_pfilter {o : Option (Option α)} {p : (o' : Option α) → o = some o' → Bool} :
     (o.pfilter p).join = o.pbind (fun o' ho' => if p o' ho' then o' else none) := by
   cases o <;> simp <;> split <;> simp
 
-theorem elim_pfilter {o : Option α} {b : β} {f : α → β} {p : (a : α) → o = some a → Bool} :
+@[grind =] theorem elim_pfilter {o : Option α} {b : β} {f : α → β} {p : (a : α) → o = some a → Bool} :
     (o.pfilter p).elim b f = o.pelim b (fun a ha => if p a ha then f a else b) := by
   cases o with
   | none => simp
@@ -1500,7 +1504,7 @@ theorem elim_pfilter {o : Option α} {b : β} {f : α → β} {p : (a : α) → 
     simp only [pfilter_some, pelim_some]
     split <;> simp
 
-theorem pelim_pfilter {o : Option α} {b : β} {p : (a : α) → o = some a → Bool}
+@[grind =] theorem pelim_pfilter {o : Option α} {b : β} {p : (a : α) → o = some a → Bool}
     {f : (a : α) → o.pfilter p = some a → β} :
     (o.pfilter p).pelim b f = o.pelim b
       (fun a ha => if hp : p a ha then f a (pfilter_eq_some_iff.2 ⟨_, hp⟩) else b) := by
@@ -1789,19 +1793,19 @@ theorem min_pfilter_right [Min α] [Std.IdempotentOp (α := α) min] {o : Option
     simp only [pfilter_some]
     split <;> simp [Std.IdempotentOp.idempotent]
 
-@[simp]
+@[simp, grind =]
 theorem isSome_max [Max α] {o o' : Option α} : (max o o').isSome = (o.isSome || o'.isSome) := by
   cases o <;> cases o' <;> simp
 
-@[simp]
+@[simp, grind =]
 theorem isNone_max [Max α] {o o' : Option α} : (max o o').isNone = (o.isNone && o'.isNone) := by
   cases o <;> cases o' <;> simp
 
-@[simp]
+@[simp, grind =]
 theorem isSome_min [Min α] {o o' : Option α} : (min o o').isSome = (o.isSome && o'.isSome) := by
   cases o <;> cases o' <;> simp
 
-@[simp]
+@[simp, grind =]
 theorem isNone_min [Min α] {o o' : Option α} : (min o o').isNone = (o.isNone || o'.isNone) := by
   cases o <;> cases o' <;> simp
 
@@ -1813,7 +1817,7 @@ theorem max_join_right [Max α] {o : Option α} {o' : Option (Option α)} :
     max o o'.join = (max (some o) o').get (by simp) := by
   cases o' <;> simp
 
-theorem join_max [Max α] {o o' : Option (Option α)} :
+@[grind _=_] theorem join_max [Max α] {o o' : Option (Option α)} :
     (max o o').join = max o.join o'.join := by
   cases o <;> cases o' <;> simp
 
@@ -1825,7 +1829,7 @@ theorem min_join_right [Min α] {o : Option α} {o' : Option (Option α)} :
     min o o'.join = (min (some o) o').join := by
   cases o' <;> simp
 
-theorem join_min [Min α] {o o' : Option (Option α)} :
+@[grind _=_] theorem join_min [Min α] {o o' : Option (Option α)} :
     (min o o').join = min o.join o'.join := by
   cases o <;> cases o' <;> simp
 
@@ -1873,12 +1877,12 @@ theorem min_eq_none_iff [Min α] {o o' : Option α} :
     min o o' = none ↔ o = none ∨ o' = none := by
   cases o <;> cases o' <;> simp
 
-@[simp]
+@[simp, grind =]
 theorem any_max [Max α] {o o' : Option α} {p : α → Bool} (hp : ∀ a b, p (max a b) = (p a || p b)) :
     (max o o').any p = (o.any p || o'.any p) := by
   cases o <;> cases o' <;> simp [hp]
 
-@[simp]
+@[simp, grind =]
 theorem all_min [Min α] {o o' : Option α} {p : α → Bool} (hp : ∀ a b, p (min a b) = (p a || p b)) :
     (min o o').all p = (o.all p || o'.all p) := by
   cases o <;> cases o' <;> simp [hp]
@@ -1889,7 +1893,7 @@ theorem isSome_left_of_isSome_min [Min α] {o o' : Option α} : (min o o').isSom
 theorem isSome_right_of_isSome_min [Min α] {o o' : Option α} : (min o o').isSome → o'.isSome := by
   cases o' <;> simp
 
-@[simp]
+@[simp, grind =]
 theorem get_min [Min α] {o o' : Option α} {h} :
     (min o o').get h = min (o.get (isSome_left_of_isSome_min h)) (o'.get (isSome_right_of_isSome_min h)) := by
   cases o <;> cases o' <;> simp

@@ -39,11 +39,11 @@ namespace Option
     o.toArray.foldr f a = o.elim a (fun b => f b a) := by
   cases o <;> simp
 
-@[simp]
+@[simp, grind =]
 theorem toList_toArray {o : Option α} : o.toArray.toList = o.toList := by
   cases o <;> simp
 
-@[simp]
+@[simp, grind =]
 theorem toArray_toList {o : Option α} : o.toList.toArray = o.toArray := by
   cases o <;> simp
 
@@ -69,7 +69,8 @@ theorem toArray_min [Min α] {o o' : Option α} :
 theorem size_toArray_le {o : Option α} : o.toArray.size ≤ 1 := by
   cases o <;> simp
 
-theorem size_toArray_eq_ite {o : Option α} :
+@[grind =]
+theorem size_toArray {o : Option α} :
     o.toArray.size = if o.isSome then 1 else 0 := by
   cases o <;> simp
 

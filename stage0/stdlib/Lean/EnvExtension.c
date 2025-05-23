@@ -263,11 +263,11 @@ LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___rarg(lean_object* x
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___rarg___lambda__1), 3, 1);
-lean_closure_set(x_4, 0, x_1);
-x_5 = lean_array_get_size(x_3);
+x_4 = lean_array_get_size(x_3);
+x_5 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___rarg___lambda__1), 3, 1);
+lean_closure_set(x_5, 0, x_1);
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_nat_dec_lt(x_6, x_5);
+x_7 = lean_nat_dec_lt(x_6, x_4);
 if (x_7 == 0)
 {
 lean_dec(x_5);
@@ -278,7 +278,7 @@ return x_2;
 else
 {
 uint8_t x_8; 
-x_8 = lean_nat_dec_le(x_5, x_5);
+x_8 = lean_nat_dec_le(x_4, x_4);
 if (x_8 == 0)
 {
 lean_dec(x_5);
@@ -290,10 +290,10 @@ else
 {
 size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = 0;
-x_10 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
+x_10 = lean_usize_of_nat(x_4);
+lean_dec(x_4);
 x_11 = l_Id_instMonad;
-x_12 = l_Array_foldlMUnsafe_fold___rarg(x_11, x_4, x_3, x_9, x_10, x_2);
+x_12 = l_Array_foldlMUnsafe_fold___rarg(x_11, x_5, x_3, x_9, x_10, x_2);
 return x_12;
 }
 }

@@ -39,7 +39,7 @@ where
           intros gen
         else
           break
-      if (← withCurrGoalContext do assertAll <||> Arith.check <||> ematch <||> lookahead <||> splitNext <||> Arith.Cutsat.mbtc <||> tryFallback) then
+      if (← assertAll <||> Arith.check <||> ematch <||> lookahead <||> splitNext <||> Arith.Cutsat.mbtc <||> tryFallback) then
         continue
       return some (← getGoal) -- failed
     return none -- solved

@@ -70,7 +70,7 @@ def lowerLitValue (v : LCNF.LitValue) : LitVal :=
   | .uint8 v => .num (UInt8.toNat v)
   | .uint16 v => .num (UInt16.toNat v)
   | .uint32 v => .num (UInt32.toNat v)
-  | .uint64 v => .num (UInt64.toNat v)
+  | .uint64 v | .usize v => .num (UInt64.toNat v)
 
 -- TODO: This should be cached.
 def lowerEnumToScalarType (name : Name) : M (Option IRType) := do

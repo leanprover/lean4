@@ -12,16 +12,27 @@ import Lean.Meta.Tactic.Grind.Lookahead
 import Lean.Meta.Tactic.Grind.SearchM
 
 namespace Lean.Meta.Grind
+def tryFallback : GoalM Bool := do
+  (← getMethods).fallback
+  if (← isInconsistent)  then
+    return true
+  if (← (← get).mvarId.isAssigned) then
+    -- User-provided fallback may not have properly set `inconsistent` flag.
+    modify fun s => { s with inconsistent := true }
+    return true
+  return false
+
 /--
 Try to solve/close the given goal.
 Returns `some goal` if this subgoal failed to be closed,
 and `none` if all subgoals were closed.
 -/
-def solve (goal : Goal) (fallback : Fallback) : GrindM (Option Goal) := do
+def solve (goal : Goal) : GrindM (Option Goal) := do
   let (failed?, _) ← main.run goal
   return failed?
 where
   main : SearchM (Option Goal) := do
+    intros 0
     repeat
       if (← getGoal).inconsistent then
         if let some gen ← nextGoal? then
@@ -32,16 +43,6 @@ where
         continue
       return some (← getGoal) -- failed
     return none -- solved
-
-  tryFallback : GoalM Bool := do
-    fallback
-    if (← isInconsistent)  then
-      return true
-    if (← (← get).mvarId.isAssigned) then
-      -- User-provided fallback may not have properly set `inconsistent` flag.
-      modify fun s => { s with inconsistent := true }
-      return true
-    return false
 
 /-! TODO: delete rest of the file. -/
 

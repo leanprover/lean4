@@ -265,6 +265,7 @@ def splitNext : SearchM Bool := do
     split.trace := { expr := cExpr, i, num := numSubgoals } :: goal.split.trace
   }
   mkChoice (mkMVar mvarId) goals genNew
+  intros genNew
   return true
 
 /-! TODO: delete rest of the file. -/

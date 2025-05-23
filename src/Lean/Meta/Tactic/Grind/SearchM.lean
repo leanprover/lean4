@@ -46,7 +46,7 @@ abbrev withCurrGoalContext (x : SearchM α) : SearchM α := do
   (← getGoal).mvarId.withContext x
 
 abbrev liftGoalM (x : GoalM α) : SearchM α := do
-  let (a, goal) ← x.runCore (← get).goal
+  let (a, goal) ← withCurrGoalContext do x.runCore (← get).goal
   modify fun s => { s with goal }
   return a
 

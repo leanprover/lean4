@@ -12,28 +12,34 @@ import Lean.Elab.InfoTree
 namespace Lean.Compiler
 
 /--
-Instructs the compiler to use a different function as implementation for a function.
-Similarly to `@[extern]`, this causes the function to not be compiled and all compiler related
-attributes (e.g. `noncomputable`, `@[inline]`) to be ignored.
+Instructs the compiler to use a different function as the implementation of a function. With the
+exception of tactics that call native code such as `native_decide`, the kernel and type checking
+are unaffected. When this attribute is used on a function, the function is not compiled and all
+compiler-related attributes (e.g. `noncomputable`, `@[inline]`) are ignored. Calls to this
+function are replaced by calls to its implementation.
 
 The most common use cases of `@[implemented_by]` are to provide an efficient unsafe implementation
-and to make an unsafe function accessible through an opaque function:
+and to make an unsafe function accessible in safe code through an opaque function:
 
 ```
-unsafe def fooUnsafe (x : Bool) : UInt8 := unsafeCast x
+unsafe def testEqImpl (as bs : Array Nat) : Bool :=
+  ptrEq as bs || as == bs
 
-@[implemented_by fooUnsafe]
-def foo : Bool → UInt8 | false => 0 | true => 1
+@[implemented_by testEqImpl]
+def testEq (as bs : Array Nat) : Bool :=
+  as == bs
 
-unsafe def barUnsafe (x : Nat) : Nat := ...
+unsafe def printAddrImpl {α : Type u} (x : α) : IO Unit :=
+  IO.println s!"Address: {ptrAddrUnsafe x}"
 
-@[implemented_by barUnsafe]
-opaque bar (x : Nat) : Nat
+@[implemented_by printAddrImpl]
+opaque printAddr {α : Type u} (x : α) : IO Unit
 ```
 
-Note: the provided implementation will not be checked to be correct, thus making it possible to
-prove `False` with `native_decide` using incorrect implementations. For a safer variant of this
-attribute that however only works for providing safe implementations, see `@[csimp]`.
+The provided implementation is not checked to be equivalent to the original definition. This makes
+it possible to prove `False` with `native_decide` using incorrect implementations. For a safer
+variant of this attribute that however doesn't work for unsafe implementations, see `@[csimp]`,
+which requires a proof that the two functions are equal.
 -/
 @[builtin_doc]
 builtin_initialize implementedByAttr : ParametricAttribute Name ← registerParametricAttribute {

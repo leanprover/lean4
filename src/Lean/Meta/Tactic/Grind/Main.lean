@@ -164,21 +164,20 @@ def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Resul
     return {
         failure? := none, issues := [], config := params.config, trace := {}, counters := {}, simp := {}
     }
-  else
-    let go : GrindM Result := withReducible do
-      let goals ← initCore mvarId params
-      let failure? ← solve goals fallback
-      trace[grind.debug.final] "{← ppGoals goals}"
-      let issues   := (← get).issues
-      let trace    := (← get).trace
-      let counters := (← get).counters
-      let simp     := (← get).simpStats
-      if failure?.isNone then
-        -- If there are no failures and diagnostics are enabled, we still report the performance counters.
-        if (← isDiagnosticsEnabled) then
-          if let some msg ← mkGlobalDiag counters simp then
-            logInfo msg
-      return { failure?, issues, config := params.config, trace, counters, simp }
-    go.run params fallback
+  let go : GrindM Result := withReducible do
+    let goals ← initCore mvarId params
+    let failure? ← solveOld goals fallback
+    trace[grind.debug.final] "{← ppGoals goals}"
+    let issues   := (← get).issues
+    let trace    := (← get).trace
+    let counters := (← get).counters
+    let simp     := (← get).simpStats
+    if failure?.isNone then
+      -- If there are no failures and diagnostics are enabled, we still report the performance counters.
+      if (← isDiagnosticsEnabled) then
+        if let some msg ← mkGlobalDiag counters simp then
+          logInfo msg
+    return { failure?, issues, config := params.config, trace, counters, simp }
+  go.run params fallback
 
 end Lean.Meta.Grind

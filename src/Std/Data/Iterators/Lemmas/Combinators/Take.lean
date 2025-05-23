@@ -27,12 +27,11 @@ theorem Iter.step_take {α β} [Iterator α Id β] {n : Nat}
         | .done h => .done (.done h)) := by
   simp only [Iter.step, Iter.step, Iter.take_eq, IterM.step_take, toIterM_toIter]
   cases n
-  case zero => simp [Id.run, PlausibleIterStep.done]
+  case zero => simp [PlausibleIterStep.done]
   case succ k =>
-    simp only [Id.pure_eq, Id.bind_eq, Id.run, take_eq]
-    generalize it.toIterM.step = step
-    obtain ⟨step, h⟩ := step
-    cases step <;>
+    simp only [Id.run_bind]
+    generalize it.toIterM.step.run = step
+    cases step using PlausibleIterStep.casesOn <;>
       simp [PlausibleIterStep.yield, PlausibleIterStep.skip, PlausibleIterStep.done]
 
 theorem Iter.atIdxSlow?_take {α β}

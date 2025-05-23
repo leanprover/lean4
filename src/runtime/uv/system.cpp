@@ -52,8 +52,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_uptime(obj_arg /* w */) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    uint64_t uptime_int = (uint64_t)floor(uptime);
-    lean_object* lean_uptime = lean_box_uint64(uptime_int);
+    lean_object* lean_uptime = lean_box_uint64((uint64_t)uptime);
 
     return lean_io_result_mk_ok(lean_uptime);
 }

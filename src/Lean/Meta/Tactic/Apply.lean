@@ -241,8 +241,8 @@ def _root_.Lean.MVarId.applyN (mvarId : MVarId) (e : Expr) (n : Nat) (useApproxD
     unless mvarIds.size == n do
       throwError "Applied type takes fewer than {n} arguments:\n{indentExpr eType}"
     unless (← isDefEqApply useApproxDefEq eType targetType) do
-      throwError "Type mismatch: target is\n{indentExpr targetType}\nbut applied expression has \
-        type\n{indentExpr eType}\nafter applying {n} arguments."
+      throwError "Type mismatch: target is{indentExpr targetType}\nbut applied expression has \
+        type{indentExpr eType}\nafter applying {n} arguments."
     mvarId.assign (e.beta mvarIds)
     return (mvarIds.map (·.mvarId!)).toList
 

@@ -22,5 +22,7 @@ theorem ex3 (n : Nat) (h : n = 0) : 0 + n = 0 := by
   let m := n + 1
   let v := m + 1
   have : v = n + 2 := rfl
-  subst v -- error
-  done
+  trace_state
+  subst v -- zeta delta reduces and clears
+  trace_state
+  simp [h]

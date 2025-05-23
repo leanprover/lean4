@@ -221,7 +221,7 @@ private def applyCases? (fvarId : FVarId) (generation : Nat) : SearchM Bool := w
 Introduce new hypotheses (and apply `by_contra`) until goal is of the form `... ⊢ False`
 or is inconsistent.
 -/
-def intros (generation : Nat) : SearchM Unit := do
+def intros (generation : Nat) : SearchM Unit := withCurrGoalContext do
   repeat
     if (← isInconsistent) then
       return ()

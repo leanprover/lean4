@@ -163,6 +163,8 @@ syntax (name := clearValue) "clear_value" (ppSpace colGt (clearValueStar <|> ter
 `subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis
 of type `x = e` or `e = x`.
 If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead.
+
+If `x` is a local definition `x : α := e`, then `x` is substituted with `e`.
 -/
 syntax (name := subst) "subst" (ppSpace colGt term:max)+ : tactic
 

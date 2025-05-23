@@ -276,4 +276,40 @@ theorem Iter.toList_filter
     (it.filter f).toList = it.toList.filter f := by
   simp [filter_eq, IterM.toList_filter, Iter.toList_eq_toList_toIterM]
 
+theorem Iter.toListRev_filterMap
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+    {f : β → Option γ} :
+    (it.filterMap f).toListRev = it.toListRev.filterMap f := by
+  simp [filterMap_eq, toListRev_eq_toListRev_toIterM, IterM.toListRev_filterMap]
+
+theorem Iter.toListRev_map
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+    {f : β → γ} :
+    (it.map f).toListRev = it.toListRev.map f := by
+  simp [map_eq, IterM.toListRev_map, Iter.toListRev_eq_toListRev_toIterM]
+
+theorem Iter.toListRev_filter
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+    {f : β → Bool} :
+    (it.filter f).toListRev = it.toListRev.filter f := by
+  simp [filter_eq, IterM.toListRev_filter, Iter.toListRev_eq_toListRev_toIterM]
+
+theorem Iter.toArray_filterMap
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+    {f : β → Option γ} :
+    (it.filterMap f).toArray = it.toArray.filterMap f := by
+  simp [filterMap_eq, toArray_eq_toArray_toIterM, IterM.toArray_filterMap]
+
+theorem Iter.toArray_map
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+    {f : β → γ} :
+    (it.map f).toArray = it.toArray.map f := by
+  simp [map_eq, IterM.toArray_map, Iter.toArray_eq_toArray_toIterM]
+
+theorem Iter.toArray_filter
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+    {f : β → Bool} :
+    (it.filter f).toArray = it.toArray.filter f := by
+  simp [filter_eq, IterM.toArray_filter, Iter.toArray_eq_toArray_toIterM]
+
 end Std.Iterators

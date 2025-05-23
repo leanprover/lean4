@@ -170,8 +170,8 @@ It simply iterates through the iterator using `IterM.step`. For certain iterator
 implementations are possible and should be used instead.
 -/
 @[always_inline, inline]
-def IteratorLoopPartial.defaultImplementation {α : Type w} {m : Type w → Type w'} {n : Type w → Type w'}
-    [Monad m] [Monad n] [Iterator α m β] :
+def IteratorLoopPartial.defaultImplementation {α : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoopPartial α m n where
   forInPartial lift := IterM.DefaultConsumers.forInPartial lift _
 
@@ -181,6 +181,19 @@ instance (α : Type w) (m : Type w → Type w') (n : Type w → Type w')
     LawfulIteratorLoop α m n :=
   letI : IteratorLoop α m n := .defaultImplementation
   ⟨rfl⟩
+
+theorem IteratorLoop.wellFounded_of_finite {m : Type w → Type w'}
+    {α β γ : Type w} [Iterator α m β] [Finite α m] :
+    WellFounded α m (γ := γ) fun _ _ _ => True := by
+  apply Subrelation.wf
+    (r := InvImage IterM.TerminationMeasures.Finite.Rel (fun p => p.1.finitelyManySteps))
+  · intro p' p h
+    apply Relation.TransGen.single
+    obtain ⟨b, h, _⟩ | ⟨h, _⟩ := h
+    · exact ⟨.yield p'.fst b, rfl, h⟩
+    · exact ⟨.skip p'.fst, rfl, h⟩
+  · apply InvImage.wf
+    exact WellFoundedRelation.wf
 
 /--
 This `ForIn`-style loop construct traverses a finite iterator using an `IteratorLoop` instance.
@@ -192,16 +205,7 @@ def IteratorLoop.finiteForIn {m : Type w → Type w'} {n : Type w → Type w''}
     ForIn n (IterM (α := α) m β) β where
   forIn {γ} [Monad n] it init f :=
     IteratorLoop.forIn (α := α) (m := m) lift γ (fun _ _ _ => True)
-      (by
-        apply Subrelation.wf
-          (r := InvImage IterM.TerminationMeasures.Finite.Rel (fun p => p.1.finitelyManySteps))
-        · intro p' p h
-          apply Relation.TransGen.single
-          obtain ⟨b, h, _⟩ | ⟨h, _⟩ := h
-          · exact ⟨.yield p'.fst b, rfl, h⟩
-          · exact ⟨.skip p'.fst, rfl, h⟩
-        · apply InvImage.wf
-          exact WellFoundedRelation.wf)
+      wellFounded_of_finite
       it init ((⟨·, .intro⟩) <$> f · ·)
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
@@ -227,7 +231,7 @@ number of steps. If the iterator is not finite or such an instance is not availa
 verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
-def IterM.foldM {m : Type w → Type w'} {n : Type w → Type w'} [Monad n]
+def IterM.foldM {m : Type w → Type w'} {n : Type w → Type w''} [Monad n]
     {α : Type w} {β : Type w} {γ : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n]
     [MonadLiftT m n]
     (f : γ → β → n γ) (init : γ) (it : IterM (α := α) m β) : n γ :=
@@ -295,7 +299,7 @@ verify the behavior of the partial variant.
 def IterM.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] [Finite α m] (it : IterM (α := α) m β) [IteratorLoop α m m] :
     m PUnit :=
-  it.foldM (γ := PUnit) (fun _ _ => pure .unit) .unit
+  it.fold (γ := PUnit) (fun _ _ => .unit) .unit
 
 /--
 Iterates over the whole iterator, applying the monadic effects of each step, discarding all
@@ -308,6 +312,6 @@ its behavior. If the iterator has a `Finite` instance, consider using `IterM.dra
 def IterM.Partial.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorLoopPartial α m m] :
     m PUnit :=
-  it.foldM (γ := PUnit) (fun _ _ => pure .unit) .unit
+  it.fold (γ := PUnit) (fun _ _ => .unit) .unit
 
 end Std.Iterators

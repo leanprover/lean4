@@ -47,10 +47,10 @@ number of steps. If the iterator is not finite or such an instance is not availa
 verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
-def Iter.foldM {n : Type w → Type w} [Monad n]
+def Iter.foldM {m : Type w → Type w'} [Monad m]
     {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β] [Finite α Id]
-    [IteratorLoop α Id n] (f : γ → β → n γ)
-    (init : γ) (it : Iter (α := α) β) : n γ :=
+    [IteratorLoop α Id m] (f : γ → β → m γ)
+    (init : γ) (it : Iter (α := α) β) : m γ :=
   ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x)
 
 /--
@@ -63,10 +63,10 @@ This is a partial, potentially nonterminating, function. It is not possible to f
 its behavior. If the iterator has a `Finite` instance, consider using `IterM.foldM` instead.
 -/
 @[always_inline, inline]
-def Iter.Partial.foldM {n : Type w → Type w} [Monad n]
+def Iter.Partial.foldM {m : Type w → Type w'} [Monad m]
     {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
-    [IteratorLoopPartial α Id n] (f : γ → β → n γ)
-    (init : γ) (it : Iter.Partial (α := α) β) : n γ :=
+    [IteratorLoopPartial α Id m] (f : γ → β → m γ)
+    (init : γ) (it : Iter.Partial (α := α) β) : m γ :=
   ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x)
 
 /--

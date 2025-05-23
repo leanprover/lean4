@@ -45,9 +45,13 @@ private structure Expr' where
   type : Expr
   deriving Inhabited
 
-@[inline] def Expr'.abstract (e : Expr') (fvars : Array Expr) : Expr' where
+@[inline] private def Expr'.abstract (e : Expr') (fvars : Array Expr) : Expr' where
   val := e.val.abstract fvars
   type := e.type.abstract fvars
+
+@[inline] private def Expr'.instantiate1 (e : Expr') (subst : Expr) : Expr' where
+  val := e.val.instantiate1 subst
+  type := e.type.instantiate1 subst
 
 /--
 Creates a `have` expression.
@@ -100,6 +104,7 @@ private def findMCache? (e : Expr) : M (Option Expr') :=
 
 private def visitFVar (e : Expr) : MetaM Expr' := do
   let some decl ← e.fvarId!.findDecl? | throwError "fvar: unknown"
+  -- We did `instantiateLCtxMVars`, so no need to `instantiateMVars` the type.
   return { val := e, type := decl.type }
 
 private def visitMVar (e : Expr) : MetaM Expr' := do
@@ -212,7 +217,11 @@ where
     if !e.hasLooseBVars then
       if let some e' ← findMCache? e then
         return ← withLCtx lctx {} do finalize fvars kinds levels e'
-    let visitAndInstantiate (e : Expr) : M Expr' := withLCtx lctx {} do visit (e.instantiateRev fvars)
+    let visitAndInstantiate (e : Expr) : M Expr' := withLCtx lctx {} do
+      let e := e.instantiateRev fvars
+      -- trace[Meta.letToHave.debug] "visit{indentExpr e}"
+      visit e
+    -- trace[Meta.letToHave.debug] "visitBody{indentExpr e}"
     match e with
     | .forallE n t b bi =>
       let t     ← visitAndInstantiate t
@@ -220,7 +229,7 @@ where
       let lctx  := lctx.mkLocalDecl fvarId n t.val.cleanupAnnotations bi
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push (.forall t)
-      let levels := levels.push (← getSortLevel t.type)
+      let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
       visitBody lctx fvars kinds levels b
     | .lam n t b bi =>
       let t     ← visitAndInstantiate t
@@ -228,28 +237,31 @@ where
       let lctx  := lctx.mkLocalDecl fvarId n t.val.cleanupAnnotations bi
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push (.lambda t)
-      let levels := levels.push (← getSortLevel t.type)
+      let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
       visitBody lctx fvars kinds levels b
     | .letE n t v b _ =>
+      -- trace[Meta.letToHave.debug] "let"
       let t     ← visitAndInstantiate t
       let v     ← visitAndInstantiate v
-      unless ← isDefEq t v.type do throwError "let: value type not defeq to type"
+      -- trace[Meta.letToHave.debug] "let2"
+      unless ← withLCtx lctx {} (isDefEq t v.type) do throwError "let: value type not defeq to type"
+      -- trace[Meta.letToHave.debug] "let3"
       let fvarId ← mkFreshFVarId
       let lctx  := lctx.mkLetDecl fvarId n t v
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push .let
-      let levels := levels.push (← getSortLevel t.type)
+      let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
       visitBody lctx fvars kinds levels b
     | _ =>
       if let some (n, t, v, b) := e.letFun? then
         let t     ← visitAndInstantiate t
         let v     ← visitAndInstantiate v
-        unless ← isDefEq t v.type do throwError "have: value type not defeq to type"
+        unless ← withLCtx lctx {} (isDefEq t v.type) do throwError "have: value type not defeq to type"
         let fvarId ← mkFreshFVarId
         let lctx  := lctx.mkLocalDecl fvarId n t
         let fvars := fvars.push (mkFVar fvarId)
         let kinds := kinds.push (.have v)
-        let levels := levels.push (← getSortLevel t.type)
+        let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
         visitBody lctx fvars kinds levels b
       else
         withLCtx lctx {} do
@@ -299,6 +311,9 @@ where
         -- typeLevel remains the same
         let t := decl.type.abstractRange i fvars
         let v := decl.value.abstractRange i fvars
+        -- if v.isBVar || v.isFVar then
+        --   body := Expr'.mkLet decl.userName { val := v, type := t } body false
+        -- else
         if ← isDepLet fvar.fvarId! body.val then
           body := Expr'.mkLet decl.userName { val := v, type := t } body false
         else
@@ -341,34 +356,39 @@ private partial def visitProj (structName : Name) (idx : Nat) (struct : Expr') :
     return { val := Expr.proj structName idx struct, type := lastFieldTy }
 
 private partial def visit (e : Expr) : M Expr' := do
-  match e with
-  | .bvar .. => throwError "bvar: unexpected"
-  | .fvar .. => visitFVar e
-  | .mvar .. => visitMVar e
-  | .sort u => return { val := e, type := .sort u.succ }
-  | .const constName [] => visitConst e constName []
-  | .const constName us => checkMCache e do visitConst e constName us
-  | .app .. => checkMCache e do visitApp'' e
-  | .lam .. | .forallE .. | .letE .. => checkMCache e do visitBound e
-  | .lit v => return { val := e, type := v.type }
-  | .mdata _ e' => let e' ← visit e'; return { e' with val := e.updateMData! e' }
-  | .proj structName idx struct => checkMCache e do visitProj structName idx (← visit struct)
+  withTraceNode `Meta.letToHave.debug (fun res =>
+      return m!"{if res.isOk then checkEmoji else crossEmoji} visit{indentExpr e}") do
+    match e with
+    | .bvar .. => throwError "bvar: unexpected"
+    | .fvar .. => visitFVar e
+    | .mvar .. => visitMVar e
+    | .sort u => return { val := e, type := .sort u.succ }
+    | .const constName [] => visitConst e constName []
+    | .const constName us => checkMCache e do visitConst e constName us
+    | .app .. => checkMCache e do visitApp'' e
+    | .lam .. | .forallE .. | .letE .. => checkMCache e do visitBound e
+    | .lit v => return { val := e, type := v.type }
+    | .mdata _ e' => let e' ← visit e'; return { e' with val := e.updateMData! e' }
+    | .proj structName idx struct => checkMCache e do visitProj structName idx (← visit struct)
 
 end
 
 private def main (e : Expr) : MetaM Expr := do
-  resetZetaDeltaFVarIds
-  withTrackingZetaDelta <|
-  withTransparency TransparencyMode.all <|
-  withInferTypeConfig <|
-  withLCtx (← getLCtx) {} do
-    try
-      let (e, s) ← visit e |>.run |>.run {}
-      trace[Meta.letToHave] "transformed {s.count} `let` expressions into `have` expressions"
-      return e.val
-    catch ex =>
-      trace[Meta.letToHave] m!"{crossEmoji} {ex.toMessageData}"
-      return e
+  Prod.fst <$> withTraceNode `Meta.letToHave (fun
+      | .ok (_, msg) => pure m!"{checkEmoji} {msg}"
+      | .error ex => pure m!"{crossEmoji} {ex.toMessageData}") do
+    resetZetaDeltaFVarIds
+    withTrackingZetaDelta <|
+    withTransparency TransparencyMode.all <|
+    withInferTypeConfig do
+      let lctx ← instantiateLCtxMVars (← getLCtx)
+      withLCtx lctx {} do
+        let (e', s) ← visit e |>.run |>.run {}
+        if s.count == 0 then
+          trace[Met.letToHave] "result: (no change)"
+        else
+          trace[Meta.letToHave] "result:{indentExpr e'.val}"
+        return (e'.val, m!"transformed {s.count} `let` expressions into `have` expressions")
 
 end LetToHave
 

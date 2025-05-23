@@ -296,9 +296,9 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
       let t' ← foldAndCollect oldIH newIH isRecCall t
       let v' ← foldAndCollect oldIH newIH isRecCall v
       return ← withLocalDeclD n t' fun x => do
-        M.localMapM (mkLetFun x v' ·) do
+        M.localMapM (mkLetFun x v' · (usedLetOnly := true)) do
           let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
-          mkLetFun x v' b'
+          mkLetFun x v' b' (usedLetOnly := true)
 
     if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
       if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
@@ -879,10 +879,10 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
   if let some (n, t, v, b) := e.letFun? then
     let t' ← foldAndCollect oldIH newIH isRecCall t
     let v' ← foldAndCollect oldIH newIH isRecCall v
-    return ← withLocalDeclD n t' fun x => M2.branch do
+    return ← withLetDecl n t' v' fun x => M2.branch do
       let b' ← withRewrittenMotiveArg goal (rwHaveWith x) fun goal' =>
         buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
-      mkLetFun x v' b'
+      mkLetFVars #[x] b'
 
   -- Special case for traversing the PProd’ed bodies in our encoding of structural mutual recursion
   if let .lam n t b bi := e then

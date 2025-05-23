@@ -1114,9 +1114,6 @@ where
       -- NOTE: instantiation must happen after `levelMVarToParam`, otherwise there can be
       -- normalization differences to the corresponding code in `finishElab`
       let type ← instantiateMVars type
-      -- We need to transform the type like we do in `transformLetToHave`.
-      -- Theorems cannot be unsafe or partial; their types always get transformed.
-      let type ← letToHave type
 
       -- in the case of theorems, the decl level params are those of the header
       let mut s : CollectLevelParams.State := {}

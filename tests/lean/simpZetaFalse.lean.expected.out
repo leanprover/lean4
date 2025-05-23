@@ -5,7 +5,7 @@ h : f (f x) = x
     1
 theorem ex1 : ∀ (x : Nat),
   f (f x) = x →
-    (have y := x * x;
+    (let y := x * x;
       if f (f x) = x then 1 else y + 1) =
       1 :=
 fun x h =>
@@ -25,7 +25,7 @@ h' : z = x
 theorem ex2 : ∀ (x z : Nat),
   f (f x) = x →
     z = x →
-      (have y := f (f x);
+      (let y := f (f x);
         y) =
         z :=
 fun x z h h' =>
@@ -42,7 +42,7 @@ h : p
     fun z => p
 theorem ex4 : ∀ (p : Prop),
   p →
-    (have n := 10;
+    (let n := 10;
       fun x => x = x) =
       fun z => p :=
 fun p h =>

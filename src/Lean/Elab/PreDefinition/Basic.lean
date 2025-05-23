@@ -21,6 +21,11 @@ namespace Lean.Elab
 open Meta
 open Term
 
+register_builtin_option cleanup.letToHave : Bool := {
+  defValue := true
+  descr    := "Enables transforming `let`s to `have`s when elaborating a declaration."
+}
+
 /--
   A (potentially recursive) definition.
   The elaborator converts it into Kernel definitions using many different strategies.
@@ -89,23 +94,19 @@ def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : Attribu
     applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
 /--
-Applies `Meta.letToHave` to the type and value of defs, instances, abbrevs, and theorems.
-Does not apply the transformation to values that are proofs.
+Applies `Meta.letToHave` to the values of defs, instances, and abbrevs.
+Does not apply the transformation to values that are proofs, or to unsafe definitions.
 -/
-def transformLetToHave (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
-  if preDef.kind.isTheorem then
-    let type ← Meta.letToHave preDef.type
-    return { preDef with type }
-  else if preDef.kind.isExample || preDef.modifiers.isUnsafe || preDef.modifiers.isPartial then
+def letToHave (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if !cleanup.letToHave.get (← getOptions) || preDef.modifiers.isUnsafe then
+    return preDef
+  else if preDef.kind matches .theorem | .example | .opaque then
+    return preDef
+  else if ← Meta.isProp preDef.type then
     return preDef
   else
-    let type ← Meta.letToHave preDef.type
-    let value ←
-      if (← Meta.isProp type) || preDef.kind matches .opaque then
-        pure preDef.value
-      else
-        Meta.letToHave preDef.value
-    return { preDef with type, value }
+    let value ← Meta.letToHave preDef.value
+    return { preDef with value }
 
 def abstractNestedProofs (preDef : PreDefinition) (cache := true) : MetaM PreDefinition := withRef preDef.ref do
   if preDef.kind.isTheorem || preDef.kind.isExample then
@@ -144,6 +145,7 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
+    let preDef ← letToHave preDef
     let mkDefDecl : TermElabM Declaration :=
       return Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value

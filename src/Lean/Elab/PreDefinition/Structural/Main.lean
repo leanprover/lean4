@@ -187,6 +187,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
         preDef ← abstractNestedProofs preDef
+        preDef ← letToHave preDef
         /-
         Don't save predefinition info for equation generator
         for theorems and definitions that are propositions.

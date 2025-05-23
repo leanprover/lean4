@@ -54,6 +54,23 @@ register_builtin_option warningAsError : Bool := {
 }
 
 /--
+A suffix added to diagnostic name-containing tags to indicate that they should be used as an error
+code.
+-/
+def errorNameSuffix := "namedError"
+
+/--
+If the provided name is labeled as a diagnostic name, removes the label and returns the
+corresponding diagnostic name.
+
+Note: we use this labeling mechanism so that we can have error tags that are not intended to be
+shown to the user, without having to validate the presence of an error explanation at runtime.
+-/
+def getErrorName : Name → Option Name
+  | .str p last => if last == errorNameSuffix then some p else none
+  | _ => none
+
+/--
 Log the message `msgData` at the position provided by `ref` with the given `severity`.
 If `getRef` has position information but `ref` does not, we use `getRef`.
 We use the `fileMap` to find the line and column numbers for the error message.
@@ -66,6 +83,10 @@ def logAt (ref : Syntax) (msgData : MessageData)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
+    let errorName? := if let .tagged t _ := msgData then
+      getErrorName t
+    else
+      none
     let msgData ← addMessageContext msgData
     logMessage {
       fileName := (← getFileName)
@@ -74,6 +95,7 @@ def logAt (ref : Syntax) (msgData : MessageData)
       data := msgData
       severity
       isSilent
+      errorName?
     }
 
 /-- Log a new error message using the given message data. The position is provided by `ref`. -/
@@ -89,9 +111,10 @@ def logInfoAt (ref : Syntax) (msgData : MessageData) : m Unit :=
   logAt ref msgData MessageSeverity.information
 
 /-- Log a new error/warning/information message using the given message data and `severity`. The position is provided by `getRef`. -/
-def log (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error): m Unit := do
+def log (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error)
+    (isSilent : Bool := false) : m Unit := do
   let ref ← MonadLog.getRef
-  logAt ref msgData severity
+  logAt ref msgData severity isSilent
 
 /-- Log a new error message using the given message data. The position is provided by `getRef`. -/
 def logError (msgData : MessageData) : m Unit :=
@@ -99,7 +122,7 @@ def logError (msgData : MessageData) : m Unit :=
 
 /-- Log a new warning message using the given message data. The position is provided by `getRef`. -/
 def logWarning [MonadOptions m] (msgData : MessageData) : m Unit := do
-  log msgData (if warningAsError.get (← getOptions) then .error else .warning)
+  log msgData .warning
 
 /-- Log a new information message using the given message data. The position is provided by `getRef`. -/
 def logInfo (msgData : MessageData) : m Unit :=

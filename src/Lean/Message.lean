@@ -15,11 +15,26 @@ import Lean.Util.Sorry
 
 namespace Lean
 
-def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String) (endPos : Option Position := none) : String :=
+/--
+Creates a string describing an error message `msg` produced at `pos`, optionally ending at `endPos`,
+in `fileName`.
+
+Additional optional arguments can be used to prepend a label `kind` describing the severity of
+the error (e.g., `"warning"` or `"error"`) and a bracketed `name` label displaying the name of the
+error if it has one.
+-/
+def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String)
+    (endPos : Option Position := none) (kind : Option String := none) (name : Option Name := none)
+    : String :=
   let endPos := match endPos with
     | some endPos => s!"-{endPos.line}:{endPos.column}"
     | none        => ""
-  s!"{fileName}:{pos.line}:{pos.column}{endPos}: {msg}"
+  let label := if name.isSome || kind.isSome then
+    let name := name.map (s!"({·})")
+    s!" {kind.getD ""}{name.getD ""}:"
+  else
+    ""
+  s!"{fileName}:{pos.line}:{pos.column}{endPos}:{label} {msg}"
 
 inductive MessageSeverity where
   | information | warning | error
@@ -372,21 +387,24 @@ There are two varieties in the Lean core:
 `Message.serialize`.
 -/
 structure BaseMessage (α : Type u) where
-  fileName      : String
-  pos           : Position
-  endPos        : Option Position := none
+  fileName        : String
+  pos             : Position
+  endPos          : Option Position := none
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
-  keepFullRange : Bool := false
-  severity      : MessageSeverity := .error
+  keepFullRange   : Bool := false
+  severity        : MessageSeverity := .error
   /--
   If `true`, filter this message from non-language server output.
   In the language server, silent messages are served as silent diagnostics.
   See also `DiagnosticWith.isSilent?`.
   -/
-  isSilent      : Bool := false
-  caption       : String          := ""
+  isSilent        : Bool := false
+  caption         : String          := ""
+  -- TODO:/FIXME: reconcile this with the `kind` field on `SerialMessage`, which does much the same
+  /-- An optional user-facing name for an error (or warning) message that maps to an explanation. -/
+  errorName? : Option Name := none
   /-- The content of the message. -/
-  data          : α
+  data            : α
   deriving Inhabited, ToJson, FromJson
 
 /-- A `Message` is a richly formatted piece of information emitted by Lean.
@@ -413,8 +431,10 @@ protected def toString (msg : SerialMessage) (includeEndPos := false) : String :
     str := msg.caption ++ ":\n" ++ str
   match msg.severity with
   | .information => pure ()
-  | .warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
-  | .error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
+  -- TODO: double-check that there wasn't some good reason choosing not to let `mkErrorStringWithPos`
+  -- append the `str` in the old version
+  | .warning     => str := mkErrorStringWithPos msg.fileName msg.pos str endPos "warning" msg.errorName?
+  | .error       => str := mkErrorStringWithPos msg.fileName msg.pos str endPos "error" msg.errorName?
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str

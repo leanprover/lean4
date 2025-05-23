@@ -439,12 +439,13 @@ private def doNotVisitProofs : DSimproc := fun e => do
   else
     return .continue e
 
-/-- Helper `dsimproc` for `doNotVisitOfNat` and `doNotVisitOfScientific` -/
-private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fun e => do
+/-- Helper `dsimproc` for `visitOfNat` and `visitOfScientific` -/
+@[specialize] private def visitNum (pred : Expr → Bool) (declName : Name) : DSimproc := fun e => do
   if pred e then
     if (← readThe Simp.Context).isDeclToUnfold declName then
       return .continue e
     else
+      let e ← withFreshDSimpCache <| withInNumLit <| e.withApp fun f args => return mkAppN f (← args.mapM dsimp)
       -- Users may have added a `[simp]` rfl theorem for the literal
       match (← (← getMethods).dpost e) with
       | .continue none => return .done e
@@ -457,17 +458,17 @@ Auxiliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
 This is the `dsimp` equivalent of the approach used at `visitApp`.
 Recall that we fold orphan raw Nat literals.
 -/
-private def doNotVisitOfNat : DSimproc := doNotVisit isOfNatNatLit ``OfNat.ofNat
+private def visitOfNat : DSimproc := visitNum isOfNatNatLit ``OfNat.ofNat
 
 /--
 Auxiliary `dsimproc` for not visiting `OfScientific.ofScientific` application subterms.
 -/
-private def doNotVisitOfScientific : DSimproc := doNotVisit isOfScientificLit ``OfScientific.ofScientific
+private def visitOfScientific : DSimproc := visitNum isOfScientificLit ``OfScientific.ofScientific
 
 /--
 Auxiliary `dsimproc` for not visiting `Char` literal subterms.
 -/
-private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
+private def visitCharLit : DSimproc := visitNum isCharLit ``Char.ofNat
 
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do
@@ -475,7 +476,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   unless cfg.dsimp do
     return e
   let m ← getMethods
-  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit >> doNotVisitProofs
+  let pre := m.dpre >> visitOfNat >> visitOfScientific >> visitCharLit >> doNotVisitProofs
   let post := m.dpost >> dsimpReduce
   withInDSimpWithCache fun cache => do
     transformWithCache e cache (usedLetOnly := cfg.zeta || cfg.zetaUnused) (pre := pre) (post := post)

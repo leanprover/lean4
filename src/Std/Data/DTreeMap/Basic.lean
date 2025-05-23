@@ -88,6 +88,8 @@ structure Equiv (m₁ m₂ : DTreeMap α β cmp) where
   /-- Internal implementation detail of the hash map -/
   inner : m₁.1.Equiv m₂.1
 
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
 @[simp]
 theorem empty_eq_emptyc : (empty : DTreeMap α β cmp) = ∅ :=
   rfl

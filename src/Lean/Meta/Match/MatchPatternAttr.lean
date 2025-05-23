@@ -13,7 +13,7 @@ Instructs the pattern matcher to unfold occurrences of this definition.
 
 By default, only constructors and literals can be used for pattern matching. Using
 `@[match_pattern]` allows using other definitions, as long as they eventually reduce to
-constructors.
+constructors and literals.
 
 Example:
 ```

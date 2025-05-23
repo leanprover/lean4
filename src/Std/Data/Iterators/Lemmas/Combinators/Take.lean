@@ -54,7 +54,7 @@ theorem Iter.atIdxSlow?_take {α β}
 
 @[simp]
 theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.take n).toList = it.toList.take n := by
   induction it using Iter.inductSteps generalizing n with | step it ihy ihs =>
@@ -71,14 +71,14 @@ theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
 
 @[simp]
 theorem Iter.toListRev_take_of_finite {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.take n).toListRev = it.toListRev.drop (it.toList.length - n) := by
   rw [toListRev_eq, toList_take_of_finite, List.reverse_take, toListRev_eq]
 
 @[simp]
 theorem Iter.toArray_take_of_finite {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.take n).toArray = it.toArray.take n := by
   rw [← toArray_toList, ← toArray_toList, List.take_toArray, toList_take_of_finite]

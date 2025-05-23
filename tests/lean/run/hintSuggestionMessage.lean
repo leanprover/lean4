@@ -9,17 +9,19 @@ versions here.
 
 open Lean Meta Hint
 
+/-! ## Basic hint functionality -/
+
 elab foo:"foo" bar:"bar" "baz" : term => do
-  let sug : Suggestions := {
-    ref := foo
-    suggestions := #[
+  let suggestions := #[
       { suggestion := "hi", preInfo? := "generic: " },
       { suggestion := "cheers", postInfo? := " (at `bar`)", span? := bar }
-    ],
-    codeActionPrefix? := "Add greeting: "
-  }
-  let msg := m!"Your program is insufficiently friendly" ++
-    (← MessageData.hint m!"Consider adding a greeting to your program to make it friendlier" sug)
+    ]
+  let hint ← MessageData.hint
+    m!"Consider adding a greeting to your program to make it friendlier"
+    suggestions
+    foo
+    "Add greeting: "
+  let msg := m!"Your program is insufficiently friendly" ++ hint
   throwErrorAt foo msg
 
 /--
@@ -27,10 +29,12 @@ error: Your program is insufficiently friendly
 
 Hint: Consider adding a greeting to your program to make it friendlier
   • generic: f̵o̵o̵h̲i̲
-  • b̵a̵c̲h̲e̲e̲rs̲ (at `bar`)
+  • b̵a̵r̵c̲h̲e̲e̲r̲s̲ (at `bar`)
 -/
 #guard_msgs (whitespace := exact) in
-#eval foo bar baz
+#check foo bar baz
+
+/-! ## Well-behavedness with preceding nested environments -/
 
 /--
 info: Top level
@@ -38,44 +42,27 @@ info: Top level
   Lower
 
 Hint: Hint message
-  r̵s̲un̵_̵m̵g̲g̲es̲ta̵i̲o̲n̲
+  r̵u̵n̵_̵m̵e̵t̵a̵s̲u̲g̲g̲e̲s̲t̲i̲o̲n̲
 -/
 #guard_msgs (whitespace := exact) in
 run_meta do
-  let sug : Suggestions := {
-    ref := (← getRef)
-    suggestions := #["suggestion"]
-  }
-  let hint ← MessageData.hint m!"Hint message" sug
+  let hint ← MessageData.hint m!"Hint message" #["suggestion"]
   let msg := "Top level" ++ indentD "Upper\nLower" ++ hint
   logInfo msg
 
 /--
 info: Outer
-  Inner
-
-Hint: Hint message
-  r̵s̲un̵_̵m̵g̲g̲es̲ta̵i̲o̲n̲
--/
-#guard_msgs (whitespace := exact) in
-run_meta do
-  let nest := .group (.nest 2 "Outer\nInner")
-  let hint ← MessageData.hint m!"Hint message" { ref := (← getRef), suggestions := #["suggestion"] }
-  logInfo (nest ++ hint)
-
-/--
-info: Outer
   A
   B
     C
     D
 
 Hint: Hint message
-  r̵s̲un̵_̵m̵g̲g̲es̲ta̵i̲o̲n̲
+  r̵u̵n̵_̵m̵e̵t̵a̵s̲u̲g̲g̲e̲s̲t̲i̲o̲n̲
 -/
 #guard_msgs (whitespace := exact) in
 run_meta do
-  let hint ← MessageData.hint m!"Hint message" { ref := (← getRef), suggestions := #["suggestion"]}
+  let hint ← MessageData.hint m!"Hint message" #["suggestion"]
   let msg := MessageData.compose m!"Outer" <| (indentD <| m!"A\nB" ++ indentD "C\nD")
   logInfo (msg ++ hint)
 
@@ -87,29 +74,47 @@ info: Outer
     D
 
 Hint: Hint message
-  • r̵s̲un̵_̵m̵g̲g̲es̲ta̵i̲o̲n̲1̲
-  • r̵s̲un̵_̵m̵g̲g̲es̲ta̵i̲o̲n̲2̲
+  • r̵u̵n̵_̵m̵e̵t̵a̵s̲u̲g̲g̲e̲s̲t̲i̲o̲n̲1̲
+  • r̵u̵n̵_̵m̵e̵t̵a̵s̲u̲g̲g̲e̲s̲t̲i̲o̲n̲2̲
 -/
 #guard_msgs (whitespace := exact) in
 run_meta do
-  let hint ← MessageData.hint m!"Hint message" { ref := (← getRef), suggestions := #["suggestion1", "suggestion2"]}
+  let hint ← MessageData.hint m!"Hint message" #["suggestion1", "suggestion2"]
   let msg := MessageData.compose m!"Outer" <| (indentD <| m!"A\nB" ++ indentD "C\nD")
   logInfo (msg ++ hint)
 
+/-! ## Multi-line suggestion alignment -/
 
 /--
-info: Message
+info:
 
 Hint: Hint message
-  r̵s̲un̵_̵m̵g̲g̲es̲ta̵i̲o̲n̲1̲
-
-Note: Note message
+  r̵u̵n̵_̵m̵e̵t̵a̵A̲
+  ̲B̲
+  ̲C̲
 -/
-#guard_msgs (whitespace := exact) in
+#guard_msgs in
 run_meta do
-  let hint ← MessageData.hint m!"Hint message" { ref := (← getRef), suggestions := #["suggestion1"]}
-  let note := MessageData.note "Note message"
-  logInfo ("Message" ++ hint ++ note)
+  let hint ← MessageData.hint m!"Hint message" #["A\nB\nC"]
+  logInfo hint
+
+/--
+info:
+
+Hint: Hint message
+  • r̵u̵n̵_̵m̵e̵t̵a̵A̲
+    ̲B̲
+    ̲C̲
+  • r̵u̵n̵_̵m̵e̵t̵a̵D̲
+    ̲ ̲ ̲E̲
+    ̲ ̲ ̲F̲
+-/
+#guard_msgs in
+run_meta do
+  let hint ← MessageData.hint m!"Hint message" #["A\nB\nC", "D\n  E\n  F"]
+  logInfo hint
+
+/-! ## Well-behavedness with other message subcomponents -/
 
 set_option pp.fieldNotation.generalized false in
 /--
@@ -119,7 +124,7 @@ info: Message with expression
 Hint: Before
   Nat.succ Nat.zero
 After
-  r̵s̲un̵_̵m̵g̲g̲es̲ta̵i̲o̲n̲
+  r̵u̵n̵_̵m̵e̵t̵a̵s̲u̲g̲g̲e̲s̲t̲i̲o̲n̲
 
 Note: Before
   Nat.succ Nat.zero
@@ -128,7 +133,7 @@ After
 #guard_msgs (whitespace := exact) in
 run_meta do
   let e := Expr.app (.const `Nat.succ []) (.const `Nat.zero [])
-  let hint ← MessageData.hint m!"Before{indentExpr e}\nAfter" { ref := (← getRef), suggestions := #["suggestion"] }
+  let hint ← MessageData.hint m!"Before{indentExpr e}\nAfter" #["suggestion"]
   logInfo (m!"Message with expression{indentExpr e}" ++ hint ++ .note m!"Before{indentExpr e}\nAfter")
 
 -- Generally, we should avoid nesting hints, but we nonetheless check that it works in principle:
@@ -139,7 +144,8 @@ info: Outer error
   Hint: Inner
     test
   hint
-    r̵s̲un̵_̵m̵g̲g̲es̲ta̵i̲o̲n̲1̲
+    r̵u̵n̵_̵m̵e̵t̵a̵s̲u̲g̲g̲e̲s̲t̲i̲o̲n̲1̲a̲
+    ̲s̲u̲g̲g̲e̲s̲t̲i̲o̲n̲1̲b̲
   ⏎
   Note: internal
     test
@@ -148,109 +154,71 @@ info: Outer error
 Hint: Outer
   test
 hint
-  r̵s̲un̵_̵m̵g̲g̲es̲ta̵i̲o̲n̲2̲
+  r̵u̵n̵_̵m̵e̵t̵a̵s̲u̲g̲g̲e̲s̲t̲i̲o̲n̲2̲a̲
+  ̲s̲u̲g̲g̲e̲s̲t̲i̲o̲n̲2̲b̲
 -/
 #guard_msgs (whitespace := exact) in
 run_meta do
-  let hint₁ ← MessageData.hint m!"Inner{indentD "test"}\nhint" { ref := (← getRef), suggestions := #["suggestion1"]}
-  let hint₂ ← MessageData.hint m!"Outer{indentD "test"}\nhint" { ref := (← getRef), suggestions := #["suggestion2"]}
+  let hint₁ ← MessageData.hint m!"Inner{indentD "test"}\nhint" #["suggestion1a\nsuggestion1b"]
+  let hint₂ ← MessageData.hint m!"Outer{indentD "test"}\nhint" #["suggestion2a\nsuggestion2b"]
   let note := MessageData.note m!"internal{indentD "test"}\nnote"
   let msg := m!"Outer error" ++ (indentD ("Nested error" ++ hint₁ ++ note)) ++ hint₂
   logInfo msg
 
+/-! ## Diff behavior -/
 
-def Std.Format.repr : Format → String
-  | .line => "⏎"
-  | .tag t f => s!"tag {t} {repr f}"
-  | .nil => "[nil]"
-  | .align force => s!"align_{force}"
-  | .group f b => s!"group({if b matches .fill then "fill" else "allOrNone"})[{repr f}]"
-  | .text s => s!"{_root_.repr s}"
-  | .nest n f => s!"nest({n})[{repr f}]"
-  | .append f f' => s!"{repr f} ++ {repr f'}"
+elab "longWordWithoutAnySpaces" : term => do
+  let hint ← MessageData.hint m!"Use one of these instead"
+    #["longWordWithoutSpaces", "longWord", "paces", "ordSpaces"]
+  throwError m!"Invalid" ++ hint
 
-open Lean Meta in
-partial def _root_.Lean.MessageData.printCtors : MessageData → IO String
-  | .ofFormatWithInfos {fmt, infos} => return s!"ofwi {repr fmt.repr}"
-  | .ofGoal mvid => return s!"ofGoal {mvid.name}"
-  | .ofWidget wi fallback => return "widget"
-  | .withContext ctx md => return s!"withContext ({← md.printCtors})"
-  | .withNamingContext nc md => return s!"withNamingContext ({← md.printCtors})"
-  | .nest n md => return s!"nest {n} ({← md.printCtors})"
-  | .group md => return s!"group ({← md.printCtors})"
-  | .compose md1 md2 => return s!"{← md1.printCtors} ++ {← md2.printCtors}"
-  | .tagged nm md => return s!"tagged {nm} ({← md.printCtors})"
-  | .trace .. => return "trace"
-  | .ofLazy f _ => return s!"lazy {← ((← f none).get? MessageData).mapM (·.printCtors)}"
+/--
+error: Invalid
 
-run_meta do
-  logInfo <| m!"A{indentD "B"}" ++ Format.line ++ "C"
-
-run_meta do
-  let msg := MessageData.note m!"Before{indentD "hi"}\nAfter"
-  let msg := m!"\n\n" ++ m!"Note: Before{indentD "hi"}\nAfter"
-  let leader := "" --.nest 2 "foo\nshould nest"
-  let msg := leader ++ msg
-  logInfo (← msg.printCtors)
-  logInfo <| (← msg.format).repr
-  logInfo msg
-
-open MessageData in
-run_meta do
-  let text := toMessageData
-  let line := toMessageData Format.line
-  logInfo <| text m!"hi" ++ line ++ nest 2 (m!"hello" ++ line ++ m!"nested") ++ line ++ m!"bye"
-
-def foob : MessageData :=
-  .compose (.nest 2 m!"\nfoo") "bar"
-run_meta show MetaM Unit from do
-  IO.println (← foob.printCtors)
-  throwError foob
-run_meta do logInfo (m!"a" ++ Format.line ++ m!"b" ++ Format.line ++ .group m!"a\nb")
-
-/-
-Ideal Behavior:
-* All `Format.line`s in hint are rendered as newlines
-* Hint does not "inherit" any preceding group in a `compose`; it can only end up in a group/nest
-  if it is explicitly passed to that constructor (which it never should be)
-* Hint is preceded by two new lines that always render as such
-
-Issue:
-
-If we just use string-literal `\n`s, then any `Format.line`s within the note -- which assume they're
-at top level -- might turn into spaces
-
-If we use `Format.line`s, then sometimes it seems we get swallowed into a preceding `nest` or `group`
-and don't get line breaks preceding the secondary message
+Hint: Use one of these instead
+  • longWordWithoutA̵n̵y̵Spaces
+  • longWordW̵i̵t̵h̵o̵u̵t̵A̵n̵y̵S̵p̵a̵c̵e̵s̵
+  • l̵o̵n̵g̵W̵o̵r̵d̵W̵i̵t̵h̵o̵u̵t̵A̵n̵y̵S̵paces
+  • l̵o̵n̵g̵W̵o̵r̵d̵W̵i̵t̵h̵o̵u̵t̵A̵n̵y̵S̵p̵a̵c̵e̵s̵o̲r̲d̲S̲p̲a̲c̲e̲s̲
 -/
+#guard_msgs in
+#check longWordWithoutAnySpaces
 
-namespace Testing
+elab "first" "second" "third" "fourth" "fifth" : term => do
+  let hint ← MessageData.hint m!"Use one of these instead"
+    #["first second third", "second fourth fifth", "fisethfofi", "second"]
+  throwError m!"Invalid" ++ hint
 
-def hint (msg : MessageData) (items : List MessageData) :=
-  m!"\n\nHint: {msg}" ++
-    if _ : items.length = 1 then
-      indentD items[0]
-    else
-      items.foldl (init := m!"") fun acc item => m!"{acc}\n• {item}"
+/--
+error: Invalid
 
-run_meta do
-  let hint₁ := hint "Do this" ["suggestion"]
-  let hint₂ := hint "Do the other thing" ["other"]
-  logInfo (m!"Here is an important message{indentD "some code"}\nAnd more text" ++ hint₁ ++ hint₂)
+Hint: Use one of these instead
+  • first second third ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵
+  • f̵i̵r̵s̵t̵ ̵second t̵h̵i̵r̵d̵ ̵fourth fifth
+  • f̵i̵r̵s̵t̵ ̵s̵e̵c̵o̵n̵d̵ ̵t̵h̵i̵r̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵f̲i̲s̲e̲t̲h̲f̲o̲f̲i̲
+  • f̵i̵r̵s̵t̵ ̵s̵e̵c̵o̵n̵d̵ ̵t̵h̵i̵r̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵s̲e̲c̲o̲n̲d̲
+-/
+#guard_msgs in
+#check first second third fourth fifth
 
-run_meta do
-  let e := Expr.app (.const `Nat.succ []) (.const `Nat.zero [])
-  let hint₁ := hint m!"Before{indentExpr e}\nAfter" ["suggestion"]
-  logInfo (m!"Message with expression{indentExpr e}" ++ hint₁ ++ hint m!"Before{indentExpr e}\nAfter" [])
+elab "suggest_replacement%" t:term : term => do
+  let msg ← MessageData.hint m!"Try one of these"
+    #["let x := 31; x", "let (a, b, c) := (1, 2, 3)\n  b", "x"] t
+  throwErrorAt t m!"Invalid{msg}"
 
-run_meta do
-  let hint := hint m!"Hint message" ["sug"]
-  let msg := .group ("Top level" ++ indentD "Upper\nLower") ++ hint
-  logInfo msg
+/--
+error: Invalid
 
-run_meta do
-  let hint := m!"\nD\nD"
-  logInfo <| m!"A" ++ indentD (indentD "B\nC") ++ hint
-
-run_meta do
-  logInfo m!"A\n{.nest 2 "\nB"}\nC"
+Hint: Try one of these
+  • let x := 4̵2̵
+    ̵3̲1̲;̲  ̵2̵ ̵*̵ ̵x
+  • let x̵(̲a̲,̲ b̲,̲ ̲c̲)̲ ̲:= 4̵2̵
+    ̵(̲1̲,̲ 2̲,̲ ̲3̲)̲
+    ̲ ̲ 2̵ ̵*̵ ̵x̵b̲
+  • l̵e̵t̵ ̵x ̵:̵=̵ ̵4̵2̵
+    ̵ ̵ ̵2̵ ̵*̵ ̵x̵
+-/
+#guard_msgs in
+#check suggest_replacement%
+  let x := 42
+  2 * x

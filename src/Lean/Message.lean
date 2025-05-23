@@ -349,16 +349,14 @@ def andList (xs : List MessageData) : MessageData :=
 Produces a labeled note that can be appended to an error message.
 -/
 def note (note : MessageData) : MessageData :=
-  -- Note: we do not use the built-in string coercion because it can prevent proper line breaks
-  -- FIXME: doing this doesn't end the enclosing group, so line feeds in `note` may become spaces
-  "\n" ++ "\n" ++ "Note: " ++ note
+  Format.line ++ Format.line ++ "Note: " ++ note
 
 /--
 Produces a labeled hint without an associated code action (non-monadic variant of
 `MessageData.hint`).
 -/
 def hint' (hint : MessageData) : MessageData :=
-  .ofFormat "\n\nHint: " ++ hint
+  Format.line ++ Format.line ++ "Hint: " ++ hint
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩

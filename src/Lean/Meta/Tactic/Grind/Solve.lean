@@ -32,6 +32,15 @@ def solve (goal : Goal) : GrindM (Option Goal) := do
   return failed?
 where
   main : SearchM (Option Goal) := do
+    tryCatchRuntimeEx loop
+      fun ex => do
+        if ex.isMaxHeartbeat || ex.isMaxRecDepth then
+          reportIssue! ex.toMessageData
+          return some (← getGoal)
+        else
+          throw ex
+
+  loop : SearchM (Option Goal) := do
     intros 0
     repeat
       if (← getGoal).inconsistent then

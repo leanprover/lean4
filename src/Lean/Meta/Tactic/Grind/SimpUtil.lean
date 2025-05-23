@@ -73,7 +73,7 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
 protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
   let thms ← normExt.getTheorems
   Simp.mkContext
-    (config := { arith := true, zeta := config.zeta, zetaDelta := config.zetaDelta })
+    (config := { arith := true, zeta := config.zeta, zetaDelta := config.zetaDelta, catchRuntime := false })
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
 

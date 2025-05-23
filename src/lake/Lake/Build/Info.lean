@@ -177,6 +177,12 @@ abbrev BuildInfo.moduleFacet (module : Module) (facet : Name) : BuildInfo :=
 
 namespace Module
 
+@[inherit_doc srcFacet] abbrev src (self : Module) :=
+  self.facetCore srcFacet
+
+@[inherit_doc headerFacet] abbrev header (self : Module) :=
+  self.facetCore headerFacet
+
 @[inherit_doc importsFacet] abbrev imports (self : Module) :=
   self.facetCore importsFacet
 
@@ -189,11 +195,17 @@ namespace Module
 @[inherit_doc depsFacet] abbrev deps  (self : Module) :=
   self.facetCore depsFacet
 
-@[inherit_doc leanArtsFacet] abbrev leanArts  (self : Module) :=
+@[inherit_doc leanArtsFacet] abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet
 
 @[inherit_doc oleanFacet] abbrev olean (self : Module) :=
   self.facetCore oleanFacet
+
+@[inherit_doc oleanServerFacet] abbrev oleanServer (self : Module) :=
+  self.facetCore oleanServerFacet
+
+@[inherit_doc oleanPrivateFacet] abbrev oleanPrivate (self : Module) :=
+  self.facetCore oleanPrivateFacet
 
 @[inherit_doc ileanFacet] abbrev ilean (self : Module)  :=
   self.facetCore ileanFacet

@@ -43,6 +43,12 @@ instance (facet : ModuleFacet α) : FamilyDef FacetOut facet.name α :=
 instance [FamilyOut FacetOut facet α] : CoeDep Name facet (ModuleFacet α) :=
   ⟨facet, FamilyOut.fam_eq⟩
 
+/-- The module's (Lean) source file. -/
+builtin_facet src : Module => FilePath
+
+/-- The parsed module header of the module's source file. -/
+builtin_facet header : Module => ModuleHeader
+
 /--
 The facet which builds all of a module's dependencies
 (i.e., transitive local imports and `--load-dynlib` shared libraries).
@@ -60,6 +66,12 @@ builtin_facet leanArts : Module => Unit
 
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath
+
+/-- The `olean.server` file produced by `lean` (with the module system enabled). -/
+builtin_facet oleanServerFacet @ olean.server : Module => FilePath
+
+/-- The `olean.private` file produced by `lean` (with the module system enabled). -/
+builtin_facet oleanPrivateFacet @ olean.private : Module => FilePath
 
 /-- The `ilean` file produced by `lean`. -/
 builtin_facet ilean : Module => FilePath

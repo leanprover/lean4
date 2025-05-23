@@ -206,24 +206,17 @@ def main : Parser :=
 
 end ParseImports
 
-deriving instance ToJson for Import
-
-structure ParseImportsResult where
-  imports  : Array Import
-  isModule : Bool
-  deriving ToJson
-
 /--
 Simpler and faster version of `parseImports`. We use it to implement Lake.
 -/
-def parseImports' (input : String) (fileName : String) : IO ParseImportsResult := do
+def parseImports' (input : String) (fileName : String) : IO ModuleHeader := do
   let s := ParseImports.main input (ParseImports.whitespace input {})
   match s.error? with
   | none => return { s with }
   | some err => throw <| IO.userError s!"{fileName}: {err}"
 
 structure PrintImportResult where
-  result?  : Option ParseImportsResult := none
+  result?  : Option ModuleHeader := none
   errors   : Array String := #[]
   deriving ToJson
 

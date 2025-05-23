@@ -537,20 +537,25 @@ private def evalLeanFile
 : LoggerIO UInt32 := do
   let some path ← resolvePath? leanFile
     | error s!"file not found: {leanFile}"
-  let spawnArgs ← id do
+  let args ← id do
     if let some mod := ws.findModuleBySrc? path then
       let deps ← ws.runBuild (withRegisterJob s!"setup ({mod.name})" do mod.deps.fetch) buildConfig
-      return mkSpawnArgs ws path deps (some mod.rootDir) mod.leanArgs
+      return mkArgs path deps (some mod.rootDir) mod.leanArgs mod.leanOptions
     else
       let res ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
       let imports := res.imports.filterMap (ws.findModule? ·.module)
       let deps ← ws.runBuild (buildImportsAndDeps leanFile imports) buildConfig
-      return mkSpawnArgs ws path deps none ws.root.moreLeanArgs
+      return mkArgs path deps none ws.root.moreLeanArgs ws.root.leanOptions
+  let spawnArgs : IO.Process.SpawnArgs := {
+    args := args ++ moreArgs
+    cmd := ws.lakeEnv.lean.lean.toString
+    env := ws.augmentedEnvVars
+  }
   logVerbose (mkCmdLog spawnArgs)
   let child ← IO.Process.spawn spawnArgs
   child.wait
 where
-  mkSpawnArgs ws leanFile deps rootDir? cfgArgs := Id.run do
+  mkArgs leanFile deps rootDir? cfgArgs opts := Id.run do
     let mut args := cfgArgs.push leanFile.toString
     if let some rootDir := rootDir? then
       args := args ++ #["-R", rootDir.toString]
@@ -559,12 +564,9 @@ where
       args := args ++ #["--load-dynlib", dynlib.path.toString]
     for plugin in plugins do
       args := args ++ #["--plugin", plugin.path.toString]
-    return {
-      args := args ++ moreArgs
-      cmd := ws.lakeEnv.lean.lean.toString
-      env := ws.augmentedEnvVars
-      : IO.Process.SpawnArgs
-    }
+    for (name, val) in opts.values do
+      args := args.push s!"-D{name}={val.asCliFlagValue}"
+    return args
 
 protected def lean : CliM PUnit := do
   processOptions lakeOption

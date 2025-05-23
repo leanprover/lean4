@@ -3854,7 +3854,7 @@ end Max
 
 namespace Equiv
 
-variable {t₁ t₂ t₃ : Raw α β cmp} {δ : Type w} {m : Type w → Type w}
+variable {t₁ t₂ t₃ t₄ : Raw α β cmp} {δ : Type w} {m : Type w → Type w}
 
 @[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
 
@@ -4155,9 +4155,25 @@ theorem filter (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (f : (a : α
     t₁.filter f ~m t₂.filter f :=
   ⟨h.1.filter! h₁.1 h₂.1⟩
 
+theorem insertMany_list [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    (l : List ((a : α) × β a)) : t₁.insertMany l ~m t₂.insertMany l :=
+  ⟨h.1.insertMany!_list h₁.1 h₂.1⟩
+
+theorem eraseMany_list [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (l : List α) :
+    t₁.eraseMany l ~m t₂.eraseMany l :=
+  ⟨h.1.eraseMany!_list h₁.1 h₂.1⟩
+
+theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
+    (f : (a : α) → β a → β a → β a) :
+    t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
+  ⟨h.1.mergeWith! h'.1 h₁.1 h₂.1 h₃.1 h₄.1⟩
+
 section Const
 
-variable (β : Type v) {t₁ t₂ : Raw α β cmp} (δ : Type w) (m : Type w → Type w)
+variable (β : Type v) {t₁ t₂ t₃ t₄ : Raw α β cmp} (δ : Type w) (m : Type w → Type w)
 
 theorem constGet?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
     Const.get? t₁ k = Const.get? t₂ k :=
@@ -4283,17 +4299,19 @@ theorem constModify [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~
     (k : α) (f : β → β) : Const.modify t₁ k f ~m Const.modify t₂ k f :=
   ⟨h.1.constModify h₁.1 h₂.1⟩
 
-end Const
+theorem constInsertMany_list [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    (l : List (α × β)) : Const.insertMany t₁ l ~m Const.insertMany t₂ l :=
+  ⟨h.1.constInsertMany!_list h₁.1 h₂.1⟩
 
-variable {t₄ : Raw α β cmp}
-
-theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp]
+theorem constMergeWith [TransCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
-    (f : (a : α) → β a → β a → β a) :
-    t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
-  ⟨h.1.mergeWith! h'.1 h₁.1 h₂.1 h₃.1 h₄.1⟩
+    (f : α → β → β → β) :
+    Const.mergeWith f t₁ t₃ ~m Const.mergeWith f t₂ t₄ :=
+  ⟨h.1.constMergeWith! h'.1 h₁.1 h₂.1 h₃.1 h₄.1⟩
+
+end Const
 
 -- extensionalities
 

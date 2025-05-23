@@ -6026,7 +6026,7 @@ end Max
 
 namespace Equiv
 
-variable {t₁ t₂ t₃ : Impl α β} {δ : Type w} {m : Type w → Type w}
+variable {t₁ t₂ t₃ t₄ : Impl α β} {δ : Type w} {m : Type w → Type w}
 
 @[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
 
@@ -6449,9 +6449,62 @@ theorem filterMap! (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a 
     t₁.filterMap! f ~m t₂.filterMap! f := by
   simpa only [filterMap_eq_filterMap!] using h.filterMap h₁ h₂
 
+theorem insertMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {l : List ((a : α) × β a)} :
+    (t₁.insertMany l h₁.balanced).1 ~m (t₂.insertMany l h₂.balanced).1 := by
+  simp only [insertMany_eq_foldl]
+  refine (List.foldl_rel (r := fun a b : Impl α β => a.WF ∧ b.WF ∧ a ~m b) ⟨h₁, h₂, h⟩ ?_).2.2
+  intro a ha c c' hc
+  refine ⟨hc.1.insert!, hc.2.1.insert!, hc.2.2.insert! hc.1 hc.2.1⟩
+
+theorem insertMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {l : List ((a : α) × β a)} :
+    (t₁.insertMany! l).1 ~m (t₂.insertMany! l).1 := by
+  simpa only [insertMany_eq_insertMany!] using h.insertMany_list h₁ h₂
+
+theorem eraseMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {l : List α} :
+    (t₁.eraseMany l h₁.balanced).1 ~m (t₂.eraseMany l h₂.balanced).1 := by
+  simp only [eraseMany, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, bind_pure,
+    Id.run_pure]
+  refine (List.foldl_rel (r := fun (a : t₁.IteratedErasureFrom) (b : t₂.IteratedErasureFrom) =>
+      a.1.WF ∧ b.1.WF ∧ a.1 ~m b.1) ⟨h₁, h₂, h⟩ ?_).2.2
+  intro a ha c c' hc
+  refine ⟨hc.1.erase, hc.2.1.erase, hc.2.2.erase hc.1 hc.2.1⟩
+
+theorem eraseMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {l : List α} :
+    (t₁.eraseMany! l).1 ~m (t₂.eraseMany! l).1 := by
+  simp only [eraseMany!, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, bind_pure,
+    Id.run_pure]
+  refine (List.foldl_rel (r := fun (a : t₁.IteratedSlowErasureFrom) (b : t₂.IteratedSlowErasureFrom) =>
+      a.1.WF ∧ b.1.WF ∧ a.1 ~m b.1) ⟨h₁, h₂, h⟩ ?_).2.2
+  intro a ha c c' hc
+  refine ⟨hc.1.erase!, hc.2.1.erase!, hc.2.2.erase! hc.1 hc.2.1⟩
+
+theorem mergeWith [TransOrd α] [LawfulEqOrd α]
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    {f : (a : α) → β a → β a → β a} :
+    (t₁.mergeWith f t₃ h₁.balanced).impl ~m (t₂.mergeWith f t₄ h₂.balanced).impl := by
+  simp only [Impl.mergeWith, h'.foldl_eq h₃ h₄, foldl_eq_foldl]
+  refine (List.foldl_rel (r := fun a b : BalancedTree α β =>
+    a.impl.WF ∧ b.impl.WF ∧ a.impl ~m b.impl) ⟨h₁, h₂, h⟩ ?_).2.2
+  intro a ha c c' hc
+  exact ⟨hc.1.alter, hc.2.1.alter, hc.2.2.alter hc.1 hc.2.1⟩
+
+theorem mergeWith! [TransOrd α] [LawfulEqOrd α]
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    {f : (a : α) → β a → β a → β a} :
+    t₁.mergeWith! f t₃ ~m t₂.mergeWith! f t₄ := by
+  simpa only [mergeWith_eq_mergeWith!] using h.mergeWith h' h₁ h₂ h₃ h₄
+
 section Const
 
-variable {β : Type v} {t₁ t₂ : Impl α β} {δ : Type w} {m : Type w → Type w}
+variable {β : Type v} {t₁ t₂ t₃ t₄ : Impl α β} {δ : Type w} {m : Type w → Type w}
 
 theorem constGet?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     Const.get? t₁ k = Const.get? t₂ k := by
@@ -6616,29 +6669,40 @@ theorem constModify [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m
     {k : α} {f : β → β} : Const.modify k f t₁ ~m Const.modify k f t₂ := by
   simp_to_model [Const.modify, Equiv] using List.Const.modifyKey_of_perm _ h.1
 
-end Const
+theorem constInsertMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {l : List (α × β)} :
+    (Const.insertMany t₁ l h₁.balanced).1 ~m (Const.insertMany t₂ l h₂.balanced).1 := by
+  simp only [Const.insertMany_eq_foldl]
+  refine (List.foldl_rel (r := fun a b : Impl α β => a.WF ∧ b.WF ∧ a ~m b) ⟨h₁, h₂, h⟩ ?_).2.2
+  intro a ha c c' hc
+  refine ⟨hc.1.insert!, hc.2.1.insert!, hc.2.2.insert! hc.1 hc.2.1⟩
 
-variable {t₄ : Impl α β}
+theorem constInsertMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {l : List (α × β)} :
+    (Const.insertMany! t₁ l).1 ~m (Const.insertMany! t₂ l).1 := by
+  simpa only [Const.insertMany_eq_insertMany!] using h.constInsertMany_list h₁ h₂
 
-theorem mergeWith [TransOrd α] [LawfulEqOrd α]
+theorem constMergeWith [TransOrd α]
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
-    {f : (a : α) → β a → β a → β a} :
-    (t₁.mergeWith f t₃ h₁.balanced).impl ~m (t₂.mergeWith f t₄ h₂.balanced).impl := by
-  simp only [Impl.mergeWith, h'.foldl_eq h₃ h₄, foldl_eq_foldl]
+    {f : α → β → β → β} :
+    (Const.mergeWith f t₁ t₃ h₁.balanced).impl ~m (Const.mergeWith f t₂ t₄ h₂.balanced).impl := by
+  simp only [Impl.Const.mergeWith, h'.foldl_eq h₃ h₄, foldl_eq_foldl]
   refine (List.foldl_rel (r := fun a b : BalancedTree α β =>
     a.impl.WF ∧ b.impl.WF ∧ a.impl ~m b.impl) ⟨h₁, h₂, h⟩ ?_).2.2
   intro a ha c c' hc
-  exact ⟨hc.1.alter, hc.2.1.alter, hc.2.2.alter hc.1 hc.2.1⟩
+  exact ⟨hc.1.constAlter, hc.2.1.constAlter, hc.2.2.constAlter hc.1 hc.2.1⟩
 
-theorem mergeWith! [TransOrd α] [LawfulEqOrd α]
+theorem constMergeWith! [TransOrd α]
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
-    {f : (a : α) → β a → β a → β a} :
-    t₁.mergeWith! f t₃ ~m t₂.mergeWith! f t₄ := by
-  simpa only [mergeWith_eq_mergeWith!] using h.mergeWith h' h₁ h₂ h₃ h₄
+    {f : α → β → β → β} :
+    Const.mergeWith! f t₁ t₃ ~m Const.mergeWith! f t₂ t₄ := by
+  simpa only [Const.mergeWith_eq_mergeWith!] using h.constMergeWith h' h₁ h₂ h₃ h₄
+
+end Const
 
 -- extensionalities
 

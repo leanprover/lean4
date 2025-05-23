@@ -4136,7 +4136,7 @@ end Max
 
 namespace Equiv
 
-variable {t₁ t₂ t₃ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w}
+variable {t₁ t₂ t₃ t₄ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w}
 
 @[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
 
@@ -4452,6 +4452,19 @@ theorem modify [TransCmp cmp] [LawfulEqCmp cmp] (h : t₁ ~m t₂)
 theorem filter (h : t₁ ~m t₂) (f : (a : α) → β a → Bool) : t₁.filter f ~m t₂.filter f :=
   ⟨h.1.filter t₁.2 t₂.2⟩
 
+theorem insertMany_list [TransCmp cmp] (h : t₁ ~m t₂) (l : List ((a : α) × β a)) :
+    t₁.insertMany l ~m t₂.insertMany l :=
+  ⟨h.1.insertMany_list t₁.2 t₂.2⟩
+
+theorem eraseMany_list [TransCmp cmp] (h : t₁ ~m t₂) (l : List α) :
+    t₁.eraseMany l ~m t₂.eraseMany l :=
+  ⟨h.1.eraseMany_list t₁.2 t₂.2⟩
+
+theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp]
+    (h : t₁ ~m t₂) (f : (a : α) → β a → β a → β a) (h' : t₃ ~m t₄) :
+    t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
+  ⟨h.1.mergeWith h'.1 t₁.2 t₂.2 t₃.2 t₄.2⟩
+
 section Const
 
 variable {β : Type v} {t₁ t₂ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w}
@@ -4587,14 +4600,11 @@ theorem constModify [TransCmp cmp] (h : t₁ ~m t₂) (k : α) (f : β → β) :
     Const.modify t₁ k f ~m Const.modify t₂ k f :=
   ⟨h.1.constModify t₁.2 t₂.2⟩
 
+theorem constInsertMany_list [TransCmp cmp] [LawfulEqCmp cmp] (h : t₁ ~m t₂) (l : List (α × β)) :
+    Const.insertMany t₁ l ~m Const.insertMany t₂ l :=
+  ⟨h.1.constInsertMany_list t₁.2 t₂.2⟩
+
 end Const
-
-variable {t₄ : DTreeMap α β cmp}
-
-theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp]
-    (h : t₁ ~m t₂) (f : (a : α) → β a → β a → β a) (h' : t₃ ~m t₄) :
-    t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
-  ⟨h.1.mergeWith t₁.2 t₂.2 t₃.2 t₄.2 h'.1⟩
 
 -- extensionalities
 

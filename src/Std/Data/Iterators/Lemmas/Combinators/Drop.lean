@@ -42,7 +42,7 @@ theorem Iter.atIdxSlow?_drop {α β}
     cases it.step using PlausibleIterStep.casesOn <;> simp [*]
 
 theorem Iter.toList_drop {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.drop n).toList = it.toList.drop n := by
   ext
@@ -50,7 +50,7 @@ theorem Iter.toList_drop {α β} [Iterator α Id β] {n : Nat}
   rw [Nat.add_comm]
 
 theorem Iter.toListRev_drop {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.drop n).toListRev = (it.toList.reverse.take (it.toList.length - n)) := by
   rw [toListRev_eq, toList_drop, List.reverse_drop]
@@ -66,7 +66,7 @@ theorem _root_.List.drop_toArray {l : List α} {k : Nat} :
     | k' + 1 => simp [List.drop_succ_cons, ← ih]
 
 theorem Iter.toArray_drop {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.drop n).toArray = it.toArray.drop n := by
   rw [← toArray_toList, ← toArray_toList, List.drop_toArray, toList_drop]

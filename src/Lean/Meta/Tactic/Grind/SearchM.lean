@@ -153,7 +153,7 @@ private def nextChronoGoal? : SearchM (Option Nat) := do
 private def isTargetFalse (mvarId : MVarId) : MetaM Bool := do
   return (← mvarId.getType).isFalse
 
-private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := do
+private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
   let proof ← instantiateMVars (mkMVar mvarId)
   if (← isTargetFalse mvarId) then
     return some proof
@@ -177,7 +177,7 @@ def nextGoal? : SearchM (Option Nat) := do
   let some falseProof ← getFalseProof? goal.mvarId
     | nextChronoGoal?
   let mut falseProof := falseProof
-  let some max ← findMaxFVarIdx? falseProof
+  let some max ← goal.mvarId.withContext <| findMaxFVarIdx? falseProof
     | closeLastPending falseProof; return none
   let mut maxFVarIdx := max
   repeat

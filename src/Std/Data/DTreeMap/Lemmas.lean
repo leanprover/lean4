@@ -3061,7 +3061,7 @@ theorem minKey?_insertIfNew_le_self [TransCmp cmp] {k v kmi} :
     cmp kmi k |>.isLE :=
   Impl.minKey?_insertIfNew_le_self t.wf
 
-@[grind _=_] theorem minKey?_eq_head?_keys [TransCmp cmp] :
+@[grind =_] theorem minKey?_eq_head?_keys [TransCmp cmp] :
     t.minKey? = t.keys.head? :=
   Impl.minKey?_eq_head?_keys t.wf
 
@@ -3211,7 +3211,7 @@ theorem minKey_insertIfNew_le_self [TransCmp cmp] {k v} :
     cmp (t.insertIfNew k v |>.minKey <| isEmpty_insertIfNew) k |>.isLE :=
   Impl.minKey_insertIfNew_le_self t.wf
 
-@[grind _=_] theorem minKey_eq_head_keys [TransCmp cmp] {he} :
+@[grind =_] theorem minKey_eq_head_keys [TransCmp cmp] {he} :
     t.minKey he = t.keys.head (List.isEmpty_eq_false_iff.mp <| isEmpty_keys ▸ he) :=
   Impl.minKey_eq_head_keys t.wf
 
@@ -3319,11 +3319,11 @@ theorem getKey?_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.getKey? t.minKey! = some t.minKey! :=
   Impl.getKey?_minKey! t.wf he
 
-theorem getKey_minKey! [TransCmp cmp] [Inhabited α] {hc} :
+@[grind =] theorem getKey_minKey! [TransCmp cmp] [Inhabited α] {hc} :
     t.getKey t.minKey! hc = t.minKey! :=
   Impl.getKey_minKey! t.wf
 
-@[simp]
+@[simp, grind =]
 theorem getKey_minKey!_eq_minKey [TransCmp cmp] [Inhabited α] {hc} :
     t.getKey t.minKey! hc = t.minKey (isEmpty_eq_false_of_contains hc) :=
   Impl.getKey_minKey!_eq_minKey t.wf
@@ -3359,7 +3359,7 @@ theorem minKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] {k v} :
     cmp (t.insertIfNew k v).minKey! k |>.isLE :=
   Impl.minKey!_insertIfNew_le_self t.wf
 
-@[grind _=_] theorem minKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] :
+@[grind =_] theorem minKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] :
     t.minKey! = t.keys.head! :=
   Impl.minKey!_eq_head!_keys t.wf
 
@@ -3464,7 +3464,7 @@ theorem getKey?_minKeyD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
     t.getKey? (t.minKeyD fallback) = some (t.minKeyD fallback) :=
   Impl.getKey?_minKeyD t.wf he
 
-theorem getKey_minKeyD [TransCmp cmp] {fallback hc} :
+@[grind =] theorem getKey_minKeyD [TransCmp cmp] {fallback hc} :
     t.getKey (t.minKeyD fallback) hc = t.minKeyD fallback :=
   Impl.getKey_minKeyD t.wf
 
@@ -3702,7 +3702,7 @@ theorem self_le_maxKey?_insertIfNew [TransCmp cmp] {k v kmi} :
     cmp k kmi |>.isLE :=
   Impl.self_le_maxKey?_insertIfNew t.wf
 
-@[grind _=_] theorem maxKey?_eq_getLast?_keys [TransCmp cmp] :
+@[grind =_] theorem maxKey?_eq_getLast?_keys [TransCmp cmp] :
     t.maxKey? = t.keys.getLast? :=
   Impl.maxKey?_eq_getLast?_keys t.wf
 
@@ -3853,7 +3853,7 @@ theorem self_le_maxKey_insertIfNew [TransCmp cmp] {k v} :
     cmp k (t.insertIfNew k v |>.maxKey <| isEmpty_insertIfNew) |>.isLE :=
   Impl.self_le_maxKey_insertIfNew t.wf
 
-@[grind _=_] theorem maxKey_eq_getLast_keys [TransCmp cmp] {he} :
+@[grind =_] theorem maxKey_eq_getLast_keys [TransCmp cmp] {he} :
     t.maxKey he = t.keys.getLast (List.isEmpty_eq_false_iff.mp <| isEmpty_keys ▸ he) :=
   Impl.maxKey_eq_getLast_keys t.wf
 
@@ -3961,11 +3961,11 @@ theorem getKey?_maxKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.getKey? t.maxKey! = some t.maxKey! :=
   Impl.getKey?_maxKey! t.wf he
 
-theorem getKey_maxKey! [TransCmp cmp] [Inhabited α] {hc} :
+@[grind =]theorem getKey_maxKey! [TransCmp cmp] [Inhabited α] {hc} :
     t.getKey t.maxKey! hc = t.maxKey! :=
   Impl.getKey_maxKey! t.wf
 
-@[simp]
+@[simp, grind =]
 theorem getKey_maxKey!_eq_maxKey [TransCmp cmp] [Inhabited α] {hc} :
     t.getKey t.maxKey! hc = t.maxKey (isEmpty_eq_false_of_contains hc) :=
   Impl.getKey_maxKey!_eq_maxKey t.wf
@@ -4001,7 +4001,7 @@ theorem self_le_maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] {k v} :
     cmp k (t.insertIfNew k v).maxKey! |>.isLE :=
   Impl.self_le_maxKey!_insertIfNew t.wf
 
-@[grind _=_]
+@[grind =_]
 theorem maxKey!_eq_getLast!_keys [TransCmp cmp] [Inhabited α] :
     t.maxKey! = t.keys.getLast! :=
   Impl.maxKey!_eq_getLast!_keys t.wf
@@ -4108,7 +4108,7 @@ theorem getKey?_maxKeyD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
     t.getKey? (t.maxKeyD fallback) = some (t.maxKeyD fallback) :=
   Impl.getKey?_maxKeyD t.wf he
 
-theorem getKey_maxKeyD [TransCmp cmp] {fallback hc} :
+@[grind =] theorem getKey_maxKeyD [TransCmp cmp] {fallback hc} :
     t.getKey (t.maxKeyD fallback) hc = t.maxKeyD fallback :=
   Impl.getKey_maxKeyD t.wf
 

@@ -3100,7 +3100,7 @@ theorem minKey?_insertIfNew_le_self [TransCmp cmp] (h : t.WF) {k v kmi} :
     cmp kmi k |>.isLE :=
   Impl.minKey?_insertIfNew!_le_self h
 
-@[grind _=_]
+@[grind =_]
 theorem minKey?_eq_head?_keys [TransCmp cmp] (h : t.WF) :
     t.minKey? = t.keys.head? :=
   Impl.minKey?_eq_head?_keys h (instOrd := ⟨cmp⟩)
@@ -3211,7 +3211,7 @@ theorem getKey?_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty
     t.getKey? t.minKey! = some t.minKey! :=
   Impl.getKey?_minKey! h he
 
-theorem getKey_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {hc} :
+@[grind =] theorem getKey_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {hc} :
     t.getKey t.minKey! hc = t.minKey! :=
   Impl.getKey_minKey! h
 
@@ -3248,7 +3248,7 @@ theorem minKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k 
     cmp (t.insertIfNew k v).minKey! k |>.isLE :=
   Impl.minKey!_insertIfNew!_le_self h (instOrd := ⟨cmp⟩)
 
-@[grind _=_]
+@[grind =_]
 theorem minKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
     t.minKey! = t.keys.head! :=
   Impl.minKey!_eq_head!_keys h (instOrd := ⟨cmp⟩)
@@ -3599,7 +3599,7 @@ theorem self_le_maxKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v kmi} :
     cmp k kmi |>.isLE :=
   Impl.self_le_maxKey?_insertIfNew! h
 
-@[grind _=_]
+@[grind =_]
 theorem maxKey?_eq_getLast?_keys [TransCmp cmp] (h : t.WF) :
     t.maxKey? = t.keys.getLast? :=
   Impl.maxKey?_eq_getLast?_keys h (instOrd := ⟨cmp⟩)
@@ -3745,7 +3745,7 @@ theorem self_le_maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] (h : t.WF) {k 
     cmp k (t.insertIfNew k v).maxKey! |>.isLE :=
   Impl.self_le_maxKey!_insertIfNew! h (instOrd := ⟨cmp⟩)
 
-@[grind _=_]
+@[grind =_]
 theorem maxKey!_eq_getLast!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
     t.maxKey! = t.keys.getLast! :=
   Impl.maxKey!_eq_getLast!_keys h (instOrd := ⟨cmp⟩)
@@ -3892,7 +3892,7 @@ theorem self_le_maxKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k v fallback} :
     cmp k (t.insertIfNew k v |>.maxKeyD fallback) |>.isLE :=
   Impl.self_le_maxKeyD_insertIfNew! h (instOrd := ⟨cmp⟩)
 
-@[grind _=_]
+@[grind =_]
 theorem maxKeyD_eq_getLastD_keys [TransCmp cmp] (h : t.WF) {fallback} :
     t.maxKeyD fallback = t.keys.getLastD fallback :=
   Impl.maxKeyD_eq_getLastD_keys h (instOrd := ⟨cmp⟩)

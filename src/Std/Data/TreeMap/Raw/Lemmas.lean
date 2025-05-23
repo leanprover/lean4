@@ -2008,7 +2008,7 @@ theorem minKey?_insertIfNew_le_self [TransCmp cmp] (h : t.WF) {k v kmi} :
     cmp kmi k |>.isLE :=
   DTreeMap.Raw.minKey?_insertIfNew_le_self h
 
-@[grind _=_]
+@[grind =_]
 theorem minKey?_eq_head?_keys [TransCmp cmp] (h : t.WF) :
     t.minKey? = t.keys.head? :=
   DTreeMap.Raw.minKey?_eq_head?_keys h
@@ -2136,7 +2136,7 @@ theorem minKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k 
     cmp (t.insertIfNew k v).minKey! k |>.isLE :=
   DTreeMap.Raw.minKey!_insertIfNew_le_self h
 
-@[grind _=_] theorem minKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
+@[grind =_] theorem minKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
     t.minKey! = t.keys.head! :=
   DTreeMap.Raw.minKey!_eq_head!_keys h
 
@@ -2448,7 +2448,7 @@ theorem self_le_maxKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v kmi} :
     cmp k kmi |>.isLE :=
   DTreeMap.Raw.self_le_maxKey?_insertIfNew h
 
-@[grind _=_] theorem maxKey?_eq_getLast?_keys [TransCmp cmp] (h : t.WF) :
+@[grind =_] theorem maxKey?_eq_getLast?_keys [TransCmp cmp] (h : t.WF) :
     t.maxKey? = t.keys.getLast? :=
   DTreeMap.Raw.maxKey?_eq_getLast?_keys h
 
@@ -2575,7 +2575,7 @@ theorem self_le_maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] (h : t.WF) {k 
     cmp k (t.insertIfNew k v).maxKey! |>.isLE :=
   DTreeMap.Raw.self_le_maxKey!_insertIfNew h
 
-@[grind _=_]
+@[grind =_]
 theorem maxKey!_eq_getLast!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
     t.maxKey! = t.keys.getLast! :=
   DTreeMap.Raw.maxKey!_eq_getLast!_keys h

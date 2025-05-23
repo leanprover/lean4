@@ -142,17 +142,37 @@ private structure WorkItem where
   indent : Int
   activeTags : Nat
 
+/--
+A directive for how a given work group should be flattened.
+
+- `allow` indicates that the group is allowed to be flattened; its argument is `true` if
+  there is sufficient space for it to be flattened (and so it should be), or `false` if not.
+- `disallow` means that this group should not be flattened irrespective of space concerns.
+  This is used at levels of a `Format` outside of any flattening groups. It is necessary to track
+  this so that mechanisms like post-hard-line-break flattening can know whether to attempt to start
+  flattening.
+-/
+inductive FlattenDirective where
+  | allow (fits : Bool)
+  | disallow
+  deriving BEq
+
+/-- Whether the given directive indicates that flattening should occur. -/
+def FlattenDirective.shouldFlatten : FlattenDirective → Bool
+  | allow true => true
+  | _ => false
+
 private structure WorkGroup where
-  flatten : Bool
-  flb     : FlattenBehavior
-  items   : List WorkItem
+  fld   : FlattenDirective
+  flb   : FlattenBehavior
+  items : List WorkItem
 
 private partial def spaceUptoLine' : List WorkGroup → Nat → Nat → SpaceResult
   |   [],                         _,   _ => {}
   |   { items := [],    .. }::gs, col, w => spaceUptoLine' gs col w
   | g@{ items := i::is, .. }::gs, col, w =>
     merge w
-      (spaceUptoLine i.f g.flatten (w + col - i.indent) w)
+      (spaceUptoLine i.f g.fld.shouldFlatten (w + col - i.indent) w)
       (spaceUptoLine' ({ g with items := is }::gs) col)
 
 /-- A monad in which we can pretty-print `Format` objects. -/
@@ -169,11 +189,11 @@ open MonadPrettyFormat
 private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) [Monad m] [MonadPrettyFormat m] : m (List WorkGroup) := do
   let k  ← currColumn
   -- Flatten group if it + the remainder (gs) fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
-  let g  := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, items := items : WorkGroup }
+  let g  := { fld := .allow (flb == FlattenBehavior.allOrNone), flb := flb, items := items : WorkGroup }
   let r  := spaceUptoLine' [g] k (w-k)
   let r' := merge (w-k) r (spaceUptoLine' gs k)
   -- Prevent flattening if any item contains a hard line break, except within `fill` if it is ungrouped (=> unflattened)
-  return { g with flatten := !r.foundFlattenedHardLine && r'.space <= w-k }::gs
+  return { g with fld := .allow (!r.foundFlattenedHardLine && r'.space <= w-k) }::gs
 
 private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGroup → m Unit
   | []                           => pure ()
@@ -200,11 +220,15 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
         pushNewline i.indent.toNat
         let is := { i with f := text (s.extract (s.next p) s.endPos) }::is
         -- after a hard line break, re-evaluate whether to flatten the remaining group
-        pushGroup g.flb is gs w >>= be w
+        -- note that we shouldn't start flattening after a hard break outside a group
+        if g.fld == .disallow then
+          be w (gs' is)
+        else
+          pushGroup g.flb is gs w >>= be w
     | line =>
       match g.flb with
       | FlattenBehavior.allOrNone =>
-        if g.flatten then
+        if g.fld.shouldFlatten then
           -- flatten line = text " "
           pushOutput " "
           endTags i.activeTags
@@ -220,10 +244,10 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
           endTags i.activeTags
           pushGroup FlattenBehavior.fill is gs w >>= be w
         -- if preceding fill item fit in a single line, try to fit next one too
-        if g.flatten then
+        if g.fld.shouldFlatten then
           let gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs (w - " ".length)
             | panic "unreachable"
-          if g'.flatten then
+          if g'.fld.shouldFlatten then
             pushOutput " "
             endTags i.activeTags
             be w gs'  -- TODO: use `return`
@@ -232,7 +256,7 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
         else
           breakHere
     | align force =>
-      if g.flatten && !force then
+      if g.fld.shouldFlatten && !force then
         -- flatten (align false) = nil
         endTags i.activeTags
         be w (gs' is)
@@ -247,7 +271,7 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
           endTags i.activeTags
           be w (gs' is)
     | group f flb =>
-      if g.flatten then
+      if g.fld.shouldFlatten then
         -- flatten (group f) = flatten f
         be w (gs' ({ i with f }::is))
       else
@@ -256,7 +280,7 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
 /-- Render the given `f : Format` with a line width of `w`.
 `indent` is the starting amount to indent each line by. -/
 def prettyM (f : Format) (w : Nat) (indent : Nat := 0) [Monad m] [MonadPrettyFormat m] : m Unit :=
-  be w [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent, activeTags := 0 }]}]
+  be w [{ flb := FlattenBehavior.allOrNone, fld := .disallow, items := [{ f := f, indent, activeTags := 0 }]}]
 
 /-- Create a format `l ++ f ++ r` with a flatten group.
 FlattenBehaviour is `allOrNone`; for `fill` use `bracketFill`. -/

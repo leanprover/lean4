@@ -29,16 +29,16 @@ run_meta do
   logInfo <| m!"A{indentD "B"}" ++ Format.line ++ "C"
 
 /--
-info: hi
-hello
-  nested
-end
+info: A
+B
+  C
+D
 -/
 #guard_msgs (whitespace := exact) in
 run_meta do
   let text := toMessageData
   let line := toMessageData Format.line
-  logInfo <| text m!"hi" ++ line ++ .nest 2 (m!"hello" ++ line ++ m!"nested") ++ line ++ "end"
+  logInfo <| text m!"A" ++ line ++ .nest 2 (m!"B" ++ line ++ m!"C") ++ line ++ "D"
 
 /--
 info: a

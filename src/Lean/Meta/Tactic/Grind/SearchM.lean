@@ -169,6 +169,7 @@ Returns `some gen` if a new goal was found for a choice point with generation `g
 and returns `none` otherwise.
 -/
 def nextGoal? : SearchM (Option Nat) := do
+  if true then nextChronoGoal? else -- TODO: FIX
   let mut choices := (← get).choiceStack
   if choices.isEmpty then
     return none -- done
@@ -199,7 +200,7 @@ def nextGoal? : SearchM (Option Nat) := do
         if (← isTargetFalse choice.goalPending.mvarId) then
           -- `proof` is a proof of `False`, we can continue using non-chronological backtracking
           falseProof := proof
-          let some max ← findMaxFVarIdx? falseProof
+          let some max ← choice.goalPending.mvarId.withContext <| findMaxFVarIdx? falseProof
             | closeLastPending falseProof; return none
           maxFVarIdx := max
           choices := choices'

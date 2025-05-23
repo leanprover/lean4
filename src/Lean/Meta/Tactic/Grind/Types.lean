@@ -1206,7 +1206,7 @@ def markAsInconsistent : GoalM Unit := do
 Assign the `mvarId` using the given proof of `False`.
 If type of `mvarId` is not `False`, then use `False.elim`.
 -/
-def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : MetaM Unit := do
+def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : MetaM Unit := mvarId.withContext do
   let target ← mvarId.getType
   if target.isFalse then
     mvarId.assign falseProof

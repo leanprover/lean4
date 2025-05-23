@@ -243,7 +243,7 @@ private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId
 Selects a case-split from the list of candidates, and adds new choice point
 (aka backtracking point). Returns true if successful.
 -/
-def splitNext : SearchM Bool := do
+def splitNext : SearchM Bool := withCurrGoalContext do
   let .some c numCases isRec _ ← selectNextSplit?
     | return false
   let cExpr := c.getExpr

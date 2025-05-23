@@ -243,8 +243,9 @@ def intros (generation : Nat) : SearchM Unit := withCurrGoalContext do
         setGoal goal
       else
         setGoal goal
-        withCurrGoalContext do
-        unless (← applyCases? fvarId generation) do
+        if (← applyCases? fvarId generation) then
+          pure ()
+        else
           addHypothesis fvarId generation
 
 /--

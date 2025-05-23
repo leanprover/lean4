@@ -6673,6 +6673,12 @@ theorem Const.equiv_iff_toList_perm : t₁ ~m t₂ ↔ (Const.toList t₁).Perm 
     have := h.map (fun (x, y) => (⟨x, y⟩ : (_ : α) × β))
     simpa only [List.map_map, Function.comp_def, List.map_id'] using this
 
+theorem Const.equiv_iff_toList_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    t₁ ~m t₂ ↔ Const.toList t₁ = Const.toList t₂ := by
+  simp_to_model [Const.toList]
+  rw [List.map_inj_right fun _ _ => congrArg fun x : α × β => (⟨x.1, x.2⟩ : (_ : α) × β)]
+  exact ⟨(·.toListModel_eq h₁.ordered h₂.ordered), .mk ∘ .of_eq⟩
+
 theorem Const.equiv_iff_keys_perm {t₁ t₂ : Impl α Unit} :
     t₁ ~m t₂ ↔ t₁.keys.Perm t₂.keys := by
   simp_to_model [keys, Equiv]
@@ -6683,8 +6689,12 @@ theorem Const.equiv_iff_keys_perm {t₁ t₂ : Impl α Unit} :
     have := h.map (fun x => (⟨x, ()⟩ : (_ : α) × Unit))
     simpa only [List.map_map, Function.comp_def, List.map_id'] using this
 
-theorem Equiv.of_constToList_perm : t₁ ~m t₂ → t₁.toList.Perm t₂.toList :=
-  equiv_iff_toList_perm.mp
+theorem Const.equiv_iff_keys_eq {t₁ t₂ : Impl α Unit} [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    t₁ ~m t₂ ↔ t₁.keys = t₂.keys := by
+  simp_to_model [keys]
+  simp only [List.keys_eq_map]
+  rw [List.map_inj_right fun _ _ => congrArg fun x : α => (⟨x, ()⟩ : (_ : α) × Unit)]
+  exact ⟨(·.toListModel_eq h₁.ordered h₂.ordered), .mk ∘ .of_eq⟩
 
 end Const
 

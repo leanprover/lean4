@@ -4661,8 +4661,15 @@ variable {β : Type v} {t₁ t₂ : DTreeMap α β cmp}
 theorem Const.equiv_iff_toList_perm : t₁ ~m t₂ ↔ (Const.toList t₁).Perm (Const.toList t₂) :=
   equiv_iff_equiv.trans Impl.Const.equiv_iff_toList_perm
 
+theorem Const.equiv_iff_toList_eq [TransCmp cmp] : t₁ ~m t₂ ↔ Const.toList t₁ = Const.toList t₂ :=
+  equiv_iff_equiv.trans (Impl.Const.equiv_iff_toList_eq t₁.2 t₂.2)
+
 theorem Const.equiv_iff_keys_perm {t₁ t₂ : DTreeMap α Unit cmp} : t₁ ~m t₂ ↔ t₁.keys.Perm t₂.keys :=
   equiv_iff_equiv.trans Impl.Const.equiv_iff_keys_perm
+
+theorem Const.equiv_iff_keys_eq [TransCmp cmp] {t₁ t₂ : DTreeMap α Unit cmp} :
+    t₁ ~m t₂ ↔ t₁.keys = t₂.keys :=
+  equiv_iff_equiv.trans (Impl.Const.equiv_iff_keys_eq t₁.2 t₂.2)
 
 theorem Equiv.of_constToList_perm : t₁.toList.Perm t₂.toList → t₁ ~m t₂ :=
   equiv_iff_toList_perm.mpr

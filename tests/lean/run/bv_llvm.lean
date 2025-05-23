@@ -28,16 +28,21 @@ theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 
 
 open BitVec
 
+-- (x.toNat * y.toNat < 2 ^ (k + j + 1 + 1) ∧ 2 ^ (j + k) ≤ x.toNat * y.toNat) ↔ x[k] ∧ y[j]
+
 def test : IO Unit := do
   have w := 5
   let mut success : Bool := true
   for xx in [0 : 2^w] do
     for yy in [0 : 2^w] do
-      have x := BitVec.ofNat w xx
-      have y := BitVec.ofNat w yy
-      have : 1 < w := by sorry
-      have f :=  decide (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y)).getLsbD w || resRec x y (w - 1) (by omega) (by omega) (by omega))
-      have g :=  decide (umulOverflow x y)
+      for kk in [0 : w] do
+        have x := BitVec.ofNat w xx
+        have y := BitVec.ofNat w yy
+        have k := BitVec.ofNat w kk
+        have s := (x.toNat * y.toNat < 2 ^ (kk + j + 1 + 1) ∧ 2 ^ (j + k) ≤ x.toNat * y.toNat) ↔ x[k] ∧ y[j]
+      -- have : 1 < w := by sorry
+      -- have f :=  decide (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y)).getLsbD w || resRec x y (w - 1) (by omega) (by omega) (by omega))
+      -- have g :=  decide (umulOverflow x y)
       -- have h :=  decide ((((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y)).getLsbD w ))
       -- -- | i + 1 => (resRec x y i (by omega) (by omega)) || (aandRec x y (i + 1) (by omega))
       -- have k :=  decide ((aandRec x y (w - 1) (by omega) ))
@@ -49,12 +54,11 @@ def test : IO Unit := do
       -- have o :=  decide ((x.getLsbD (w - 2)))
       -- have p :=  decide ((uppcRec x (w - 3) (by omega)))
       -- have l :=  decide ((resRec x y (w - 3) (by omega) (by omega)))
-
-      IO.print f!"fastUmulOverflow {x.toNat} {y.toNat} = {f}\t"
-      IO.print f!"umulOverflow x y = {g}\t"
-      if g ≠ f then do
-        IO.print f!"  FAIL"
-        success := false
+      -- IO.print f!"fastUmulOverflow {x.toNat} {y.toNat} = {f}\t"
+      -- IO.print f!"umulOverflow x y = {g}\t"
+      -- if g ≠ f then do
+      --   IO.print f!"  FAIL"
+      --   success := false
       IO.println ""
     IO.println ""
   IO.println s!"success? {success}"

@@ -234,7 +234,7 @@ example (x : Three) (p : Three → Prop) : p x := by
   cases x
   -- val : Fin 3 ⊢ p ⟨val⟩
 
-@[induction_eliminator, elab_as_elim]
+@[cases_eliminator, elab_as_elim]
 def Three.myRec {motive : Three → Sort u}
     (zero : motive ⟨0⟩) (one : motive ⟨1⟩) (two : motive ⟨2⟩) :
     ∀ x, motive x

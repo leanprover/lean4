@@ -157,7 +157,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_Const_modifyKey___rarg(lean_object*
 LEAN_EXPORT lean_object* l_Std_Internal_List_getKey_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_minKey_x3f___at_Std_Internal_List_maxKey_x21___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_getEntry_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*);
-uint8_t l_Ordering_isLE(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_List_insertList___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_getValue_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__List_filterMap_match__1_splitter(lean_object*, lean_object*);
@@ -1972,7 +1971,7 @@ return x_4;
 LEAN_EXPORT uint8_t l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDecidableLESigma__std___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 lean_dec(x_2);
@@ -1982,8 +1981,20 @@ lean_dec(x_3);
 x_6 = lean_apply_2(x_1, x_4, x_5);
 x_7 = lean_unbox(x_6);
 lean_dec(x_6);
-x_8 = l_Ordering_isLE(x_7);
-return x_8;
+x_8 = lean_box(x_7);
+if (lean_obj_tag(x_8) == 2)
+{
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
+}
+else
+{
+uint8_t x_10; 
+lean_dec(x_8);
+x_10 = 1;
+return x_10;
+}
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_instDecidableLESigma__std(lean_object* x_1, lean_object* x_2) {
@@ -2006,7 +2017,7 @@ return x_5;
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minSigmaOfOrd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 0);
@@ -2014,14 +2025,15 @@ lean_inc(x_5);
 x_6 = lean_apply_2(x_1, x_4, x_5);
 x_7 = lean_unbox(x_6);
 lean_dec(x_6);
-x_8 = l_Ordering_isLE(x_7);
-if (x_8 == 0)
+x_8 = lean_box(x_7);
+if (lean_obj_tag(x_8) == 2)
 {
 lean_dec(x_2);
 return x_3;
 }
 else
 {
+lean_dec(x_8);
 lean_dec(x_3);
 return x_2;
 }
@@ -2045,7 +2057,7 @@ return x_2;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
@@ -2059,8 +2071,8 @@ lean_inc(x_1);
 x_8 = lean_apply_2(x_1, x_6, x_7);
 x_9 = lean_unbox(x_8);
 lean_dec(x_8);
-x_10 = l_Ordering_isLE(x_9);
-if (x_10 == 0)
+x_10 = lean_box(x_9);
+if (lean_obj_tag(x_10) == 2)
 {
 lean_dec(x_2);
 x_2 = x_4;
@@ -2069,6 +2081,7 @@ goto _start;
 }
 else
 {
+lean_dec(x_10);
 lean_dec(x_4);
 x_3 = x_5;
 goto _start;
@@ -2348,7 +2361,7 @@ return x_4;
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minSigmaOfOrd___at_Std_Internal_List_maxKey_x3f___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 0);
@@ -2356,14 +2369,15 @@ lean_inc(x_5);
 x_6 = lean_apply_2(x_1, x_5, x_4);
 x_7 = lean_unbox(x_6);
 lean_dec(x_6);
-x_8 = l_Ordering_isLE(x_7);
-if (x_8 == 0)
+x_8 = lean_box(x_7);
+if (lean_obj_tag(x_8) == 2)
 {
 lean_dec(x_2);
 return x_3;
 }
 else
 {
+lean_dec(x_8);
 lean_dec(x_3);
 return x_2;
 }
@@ -2463,7 +2477,7 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minSigmaOfOrd___at_Std_Internal_List_maxKey___spec__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 0);
@@ -2471,14 +2485,15 @@ lean_inc(x_5);
 x_6 = lean_apply_2(x_1, x_5, x_4);
 x_7 = lean_unbox(x_6);
 lean_dec(x_6);
-x_8 = l_Ordering_isLE(x_7);
-if (x_8 == 0)
+x_8 = lean_box(x_7);
+if (lean_obj_tag(x_8) == 2)
 {
 lean_dec(x_2);
 return x_3;
 }
 else
 {
+lean_dec(x_8);
 lean_dec(x_3);
 return x_2;
 }
@@ -2597,7 +2612,7 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minSigmaOfOrd___at_Std_Internal_List_maxKey_x21___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 0);
@@ -2605,14 +2620,15 @@ lean_inc(x_5);
 x_6 = lean_apply_2(x_1, x_5, x_4);
 x_7 = lean_unbox(x_6);
 lean_dec(x_6);
-x_8 = l_Ordering_isLE(x_7);
-if (x_8 == 0)
+x_8 = lean_box(x_7);
+if (lean_obj_tag(x_8) == 2)
 {
 lean_dec(x_2);
 return x_3;
 }
 else
 {
+lean_dec(x_8);
 lean_dec(x_3);
 return x_2;
 }
@@ -2727,7 +2743,7 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minSigmaOfOrd___at_Std_Internal_List_maxKeyD___spec__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 0);
@@ -2735,14 +2751,15 @@ lean_inc(x_5);
 x_6 = lean_apply_2(x_1, x_5, x_4);
 x_7 = lean_unbox(x_6);
 lean_dec(x_6);
-x_8 = l_Ordering_isLE(x_7);
-if (x_8 == 0)
+x_8 = lean_box(x_7);
+if (lean_obj_tag(x_8) == 2)
 {
 lean_dec(x_2);
 return x_3;
 }
 else
 {
+lean_dec(x_8);
 lean_dec(x_3);
 return x_2;
 }

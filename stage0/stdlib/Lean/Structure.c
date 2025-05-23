@@ -23,8 +23,8 @@ LEAN_EXPORT lean_object* l_Lean_getStructureParentInfo(lean_object*, lean_object
 static lean_object* l_Lean_getStructureCtor___closed__2;
 static lean_object* l_Lean_instInhabitedStructureResolutionOrderConflict___closed__1;
 static lean_object* l_Lean_registerStructure___closed__1;
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_getStructureInfo_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___closed__1;
 LEAN_EXPORT lean_object* l_Option_repr___at___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____spec__1(lean_object*, lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2988_(lean_object*, lean_object*);
@@ -81,7 +81,6 @@ lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_mergeStructureResolutionOrders___spec__13(lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_setStructureParents___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getStructureResolutionOrder___rarg___lambda__1(lean_object*);
 static lean_object* l_Lean_getProjFnInfoForField_x3f___closed__1;
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__15;
@@ -98,12 +97,14 @@ LEAN_EXPORT lean_object* l_Lean_mergeStructureResolutionOrders___rarg(lean_objec
 LEAN_EXPORT lean_object* l_Lean_computeStructureResolutionOrder___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___private_Lean_Structure_0__Lean_getStructureResolutionOrder_x3f___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_mergeStructureResolutionOrders_selectParent___spec__9(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_mergeStructureResolutionOrders___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at_Lean_registerStructure___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_mergeStructureResolutionOrders_selectParent___spec__10(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_mergeStructureResolutionOrders_selectParent___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___private_Lean_Structure_0__Lean_getStructureResolutionOrder_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprStructureFieldInfo;
 static lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_421____closed__3;
 LEAN_EXPORT lean_object* l_Lean_getPathToBaseStructure_x3f_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,7 +132,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_findField_x3f___
 LEAN_EXPORT lean_object* l_Lean_getPathToBaseStructure_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___private_Lean_Structure_0__Lean_setStructureResolutionOrder___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findField_x3f___lambda__1(lean_object*);
-LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isSubobjectField_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_mergeStructureResolutionOrders___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -172,11 +172,13 @@ LEAN_EXPORT lean_object* l_Array_erase___at_Lean_getAllParentStructures___spec__
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_mergeStructureResolutionOrders_selectParent___spec__10___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__3;
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_mergeStructureResolutionOrders___spec__14___rarg(lean_object*, lean_object*, uint8_t, lean_object*, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_mergeStructureResolutionOrders_selectParent___spec__7(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Option_repr___at___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__5___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldl___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__18;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_mergeStructureResolutionOrders___spec__13___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getStructureResolutionOrder___rarg___closed__1;
@@ -226,6 +228,7 @@ lean_object* l_Lean_MapDeclarationExtension_find_x3f___rarg(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_mergeStructureResolutionOrders___spec__1___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_computeStructureResolutionOrder(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_421____lambda__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldl___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkAutoParamFnOfProjFn___closed__1;
 LEAN_EXPORT lean_object* l_Lean_computeStructureResolutionOrder___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_StructureInfo_lt___boxed(lean_object*, lean_object*);
@@ -235,6 +238,7 @@ static lean_object* l_Lean_mkFlatCtorOfStructCtorName___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_mergeStructureResolutionOrders___spec__1___rarg___lambda__2(size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_2108____closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_computeStructureResolutionOrder___spec__1(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getDefaultFnForField_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_mergeStructureResolutionOrders_selectParent___spec__9___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mergeStructureResolutionOrders_selectParent___rarg(lean_object*, lean_object*);
@@ -278,6 +282,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x4
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_findParentProjStruct_x3f_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_mergeStructureResolutionOrders___spec__6(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_mergeStructureResolutionOrders_selectParent___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_repr___at_Lean_Environment_dbgFormatAsyncState___spec__30(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_getStructureSubobjects___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__20;
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64_(lean_object*, lean_object*);
@@ -290,7 +295,6 @@ LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_mergeStructureResoluti
 LEAN_EXPORT lean_object* l_Lean_getAllParentStructures___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getFieldInfo_x3f(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkInheritedDefaultFnOfProjFn___closed__1;
-lean_object* l_Option_repr___at_Lean_Environment_dbgFormatAsyncState___spec__29(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_eraseReps___at_Lean_mergeStructureResolutionOrders___spec__7(lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_getStructureSubobjects___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -306,7 +310,6 @@ static lean_object* l_Lean_findField_x3f___closed__3;
 LEAN_EXPORT lean_object* l_Lean_mkFlatCtorOfStructCtorName(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_getStructureLikeCtor_x3f___closed__1;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getStructureLikeCtor_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_findParentProjStruct_x3f_go___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_421_(lean_object*);
@@ -345,7 +348,6 @@ static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo___
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_mergeStructureResolutionOrders___spec__13___rarg(lean_object*, lean_object*, uint8_t, lean_object*, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getStructureCtor___closed__3;
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkInheritedDefaultFnOfProjFn___closed__2;
 LEAN_EXPORT lean_object* l_Lean_isStructure___boxed(lean_object*, lean_object*);
@@ -371,6 +373,7 @@ size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_getStructureSubobjects___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedStructureResolutionState;
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__5;
+LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_registerStructure___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Option_repr___at___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____spec__1___closed__4;
@@ -382,6 +385,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_mergeStructureResoluti
 LEAN_EXPORT lean_object* l_Lean_findParentProjStruct_x3f_go(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_mergeStructureResolutionOrders_selectParent___spec__10___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_mergeStructureResolutionOrders_selectParent___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_421____closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_getStructureResolutionOrder_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_computeStructureResolutionOrder___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -395,7 +399,6 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedStructureResolutionOrderConflict;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_setStructureParents___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_setStructureResolutionOrder___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__1;
 LEAN_EXPORT lean_object* l_Lean_structureExt;
 lean_object* lean_array_get_size(lean_object*);
@@ -434,7 +437,6 @@ LEAN_EXPORT lean_object* l_Array_eraseReps___at_Lean_mergeStructureResolutionOrd
 LEAN_EXPORT lean_object* l_Lean_setStructureParents___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_mergeStructureResolutionOrders_selectParent___spec__6(lean_object*, lean_object*, size_t, size_t);
-LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getStructureResolutionOrder___rarg___lambda__1___boxed(lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 static lean_object* _init_l_Lean_instInhabitedStructureFieldInfo___closed__1() {
@@ -818,7 +820,7 @@ lean_ctor_set(x_30, 0, x_29);
 lean_ctor_set(x_30, 1, x_18);
 x_31 = lean_ctor_get(x_1, 2);
 lean_inc(x_31);
-x_32 = l_Option_repr___at_Lean_Environment_dbgFormatAsyncState___spec__29(x_31, x_4);
+x_32 = l_Option_repr___at_Lean_Environment_dbgFormatAsyncState___spec__30(x_31, x_4);
 x_33 = l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__15;
 x_34 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
@@ -1787,11 +1789,19 @@ x_7 = l_Lean_PersistentHashMap_insertAux___at_Lean_initFn____x40_Lean_Structure_
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(x_2, x_1, x_3);
+x_4 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__3___rarg(x_2, x_1, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldl___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__3___rarg(x_2, x_1, x_3);
 return x_4;
 }
 }
@@ -1829,11 +1839,11 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__5___closed__2;
 x_3 = l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__5___closed__1;
-x_4 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(x_2, x_1, x_3);
+x_4 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__3___rarg(x_2, x_1, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1860,7 +1870,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___closed__1() {
+static lean_object* _init_l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1868,7 +1878,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_StructureInfo_lt___boxed), 2, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_7; 
@@ -1881,7 +1891,7 @@ return x_2;
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_8 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___closed__1;
+x_8 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9___closed__1;
 lean_inc(x_3);
 x_9 = l_Array_qpartition___rarg(x_1, x_2, x_8, x_3, x_4, lean_box(0), lean_box(0));
 x_10 = lean_ctor_get(x_9, 0);
@@ -1893,7 +1903,7 @@ x_12 = lean_nat_dec_le(x_4, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(x_1, x_11, x_3, x_10, lean_box(0), lean_box(0));
+x_13 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9(x_1, x_11, x_3, x_10, lean_box(0), lean_box(0));
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_add(x_10, x_14);
 lean_dec(x_10);
@@ -1966,7 +1976,7 @@ x_2 = lean_ctor_get(x_1, 1);
 x_3 = l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__5(x_2);
 x_4 = lean_array_size(x_3);
 x_5 = 0;
-x_6 = l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7(x_4, x_5, x_3);
+x_6 = l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(x_4, x_5, x_3);
 x_7 = lean_array_get_size(x_6);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
@@ -1980,7 +1990,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; 
 lean_inc(x_9);
-x_13 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(x_7, x_6, x_9, x_9, lean_box(0), lean_box(0));
+x_13 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9(x_7, x_6, x_9, x_9, lean_box(0), lean_box(0));
 lean_dec(x_9);
 lean_dec(x_7);
 return x_13;
@@ -1988,7 +1998,7 @@ return x_13;
 else
 {
 lean_object* x_14; 
-x_14 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(x_7, x_6, x_10, x_9, lean_box(0), lean_box(0));
+x_14 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9(x_7, x_6, x_10, x_9, lean_box(0), lean_box(0));
 lean_dec(x_9);
 lean_dec(x_7);
 return x_14;
@@ -2134,11 +2144,20 @@ x_8 = l_Lean_PersistentHashMap_insertAux___at_Lean_initFn____x40_Lean_Structure_
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6(x_1, x_2, x_3);
+x_4 = l_Lean_PersistentHashMap_foldlM___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldl___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_PersistentHashMap_foldl___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__6(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -2152,7 +2171,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -2160,15 +2179,15 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__7(x_4, x_5, x_3);
+x_6 = l_Array_mapMUnsafe_map___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_4);
 lean_dec(x_1);
 return x_7;
@@ -10463,8 +10482,8 @@ l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x40_Lean_Structure___hyg_42
 lean_mark_persistent(l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__5___closed__1);
 l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__5___closed__2 = _init_l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__5___closed__2();
 lean_mark_persistent(l_Lean_PersistentHashMap_toArray___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__5___closed__2);
-l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___closed__1 = _init_l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___closed__1();
-lean_mark_persistent(l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___closed__1);
+l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9___closed__1 = _init_l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9___closed__1();
+lean_mark_persistent(l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__9___closed__1);
 l_Lean_initFn____x40_Lean_Structure___hyg_421____closed__1 = _init_l_Lean_initFn____x40_Lean_Structure___hyg_421____closed__1();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Structure___hyg_421____closed__1);
 l_Lean_initFn____x40_Lean_Structure___hyg_421____closed__2 = _init_l_Lean_initFn____x40_Lean_Structure___hyg_421____closed__2();

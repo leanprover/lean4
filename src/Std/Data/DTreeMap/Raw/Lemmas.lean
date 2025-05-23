@@ -3211,7 +3211,7 @@ theorem getKey?_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty
     t.getKey? t.minKey! = some t.minKey! :=
   Impl.getKey?_minKey! h he
 
-@[grind =] theorem getKey_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {hc} :
+theorem getKey_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {hc} :
     t.getKey t.minKey! hc = t.minKey! :=
   Impl.getKey_minKey! h
 

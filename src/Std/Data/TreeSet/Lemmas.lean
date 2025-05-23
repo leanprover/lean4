@@ -988,11 +988,11 @@ theorem get?_min! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.get? t.min! = some t.min! :=
   DTreeMap.getKey?_minKey! he
 
-theorem get_min! [TransCmp cmp] [Inhabited α] {hc} :
+@[grind =] theorem get_min! [TransCmp cmp] [Inhabited α] {hc} :
     t.get t.min! hc = t.min! :=
   DTreeMap.getKey_minKey!
 
-@[simp]
+@[simp, grind =]
 theorem get_min!_eq_min [TransCmp cmp] [Inhabited α] {hc} :
     t.get t.min! hc = t.min (isEmpty_eq_false_of_contains hc) :=
   DTreeMap.getKey_minKey!_eq_minKey
@@ -1079,7 +1079,7 @@ theorem get?_minD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
     t.get? (t.minD fallback) = some (t.minD fallback) :=
   TreeMap.getKey?_minKeyD he
 
-theorem get_minD [TransCmp cmp] {fallback hc} :
+@[grind =] theorem get_minD [TransCmp cmp] {fallback hc} :
     t.get (t.minD fallback) hc = t.minD fallback :=
   TreeMap.getKey_minKeyD
 
@@ -1289,22 +1289,22 @@ theorem max_le [TransCmp cmp] {k he} :
     (cmp (t.max he) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
   TreeMap.maxKey_le
 
-@[simp]
+@[simp, grind =]
 theorem get?_max [TransCmp cmp] {he} :
     t.get? (t.max he) = some (t.max he) :=
   TreeMap.getKey?_maxKey
 
-@[simp]
+@[simp, grind =]
 theorem get_max [TransCmp cmp] {he hc} :
     t.get (t.max he) hc = t.max he :=
   TreeMap.getKey_maxKey
 
-@[simp]
+@[simp, grind =]
 theorem get!_max [TransCmp cmp] [Inhabited α] {he} :
     t.get! (t.max he) = t.max he :=
   TreeMap.getKey!_maxKey
 
-@[simp]
+@[simp, grind =]
 theorem getD_max [TransCmp cmp] {he fallback} :
     t.getD (t.max he) fallback = t.max he :=
   TreeMap.getKeyD_maxKey
@@ -1391,11 +1391,11 @@ theorem get?_max! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.get? t.max! = some t.max! :=
   DTreeMap.getKey?_maxKey! he
 
-theorem get_max! [TransCmp cmp] [Inhabited α] {hc} :
+@[grind =] theorem get_max! [TransCmp cmp] [Inhabited α] {hc} :
     t.get t.max! hc = t.max! :=
   DTreeMap.getKey_maxKey!
 
-@[simp]
+@[simp, grind =]
 theorem get_max!_eq_max [TransCmp cmp] [Inhabited α] {hc} :
     t.get t.max! hc = t.max (isEmpty_eq_false_of_contains hc) :=
   DTreeMap.getKey_maxKey!_eq_maxKey
@@ -1483,7 +1483,7 @@ theorem get?_maxD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
     t.get? (t.maxD fallback) = some (t.maxD fallback) :=
   TreeMap.getKey?_maxKeyD he
 
-theorem get_maxD [TransCmp cmp] {fallback hc} :
+@[grind =] theorem get_maxD [TransCmp cmp] {fallback hc} :
     t.get (t.maxD fallback) hc = t.maxD fallback :=
   TreeMap.getKey_maxKeyD
 

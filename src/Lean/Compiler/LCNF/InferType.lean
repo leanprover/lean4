@@ -109,6 +109,7 @@ def inferLitValueType (value : LitValue) : Expr :=
   | .uint16 .. => mkConst ``UInt16
   | .uint32 .. => mkConst ``UInt32
   | .uint64 .. => mkConst ``UInt64
+  | .usize .. => mkConst ``USize
 
 mutual
   partial def inferArgType (arg : Arg) : InferTypeM Expr :=

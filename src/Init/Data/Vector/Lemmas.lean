@@ -3,11 +3,11 @@ Copyright (c) 2024 Shreyas Srinivas. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Shreyas Srinivas, Francois Dorais, Kim Morrison
 -/
---module
+module
 
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Vector.Basic
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Array.Attach
 import Init.Data.Array.Find
 

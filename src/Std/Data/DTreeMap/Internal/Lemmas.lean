@@ -6396,18 +6396,35 @@ theorem insert [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂
     {k : α} {v : β k} : (t₁.insert k v h₁.balanced).impl ~m (t₂.insert k v h₂.balanced).impl := by
   simp_to_model [insert, Equiv] using List.insertEntry_of_perm _ h.1
 
+theorem insert! [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {v : β k} : t₁.insert! k v ~m t₂.insert! k v := by
+  simpa only [insert_eq_insert!] using h.insert h₁ h₂
+
 theorem erase [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} : (t₁.erase k h₁.balanced).impl ~m (t₂.erase k h₂.balanced).impl := by
   simp_to_model [erase, Equiv] using List.eraseKey_of_perm _ h.1
+
+theorem erase! [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} : t₁.erase! k ~m t₂.erase! k := by
+  simpa only [erase_eq_erase!] using h.erase h₁ h₂
 
 theorem insertIfNew [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {v : β k} : (t₁.insertIfNew k v h₁.balanced).impl ~m (t₂.insertIfNew k v h₂.balanced).impl := by
   simp_to_model [insertIfNew, Equiv] using List.insertEntryIfNew_of_perm _ h.1
 
+theorem insertIfNew! [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {v : β k} : t₁.insertIfNew! k v ~m t₂.insertIfNew! k v := by
+  simpa only [insertIfNew_eq_insertIfNew!] using h.insertIfNew h₁ h₂
+
 theorem alter [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : Option (β k) → Option (β k)} :
     (t₁.alter k f h₁.balanced).impl ~m (t₂.alter k f h₂.balanced).impl := by
   simp_to_model [alter, Equiv] using List.alterKey_of_perm _ h.1
+
+theorem alter! [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {f : Option (β k) → Option (β k)} :
+    t₁.alter! k f ~m t₂.alter! k f := by
+  simpa only [alter_eq_alter!] using h.alter h₁ h₂
 
 theorem modify [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : β k → β k} : t₁.modify k f ~m t₂.modify k f := by
@@ -6417,12 +6434,20 @@ theorem filter (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α
     (t₁.filter f h₁.balanced).impl ~m (t₂.filter f h₂.balanced).impl := by
   simpa only [equiv_iff_toListModel_perm, toListModel_filter] using h.impl.filter _
 
+theorem filter! (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α) → β a → Bool} :
+    t₁.filter! f ~m t₂.filter! f := by
+  simpa only [filter_eq_filter!] using h.filter h₁ h₂
+
 theorem map (h : t₁ ~m t₂) {f : (a : α) → β a → γ a} : t₁.map f ~m t₂.map f := by
   simpa only [equiv_iff_toListModel_perm, toListModel_map] using h.impl.map _
 
 theorem filterMap (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α) → β a → Option (γ a)} :
     (t₁.filterMap f h₁.balanced).impl ~m (t₂.filterMap f h₂.balanced).impl := by
   simpa only [equiv_iff_toListModel_perm, toListModel_filterMap] using h.impl.filterMap _
+
+theorem filterMap! (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a : α) → β a → Option (γ a)} :
+    t₁.filterMap! f ~m t₂.filterMap! f := by
+  simpa only [filterMap_eq_filterMap!] using h.filterMap h₁ h₂
 
 section Const
 
@@ -6582,6 +6607,11 @@ theorem constAlter [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m 
     (Const.alter k f t₁ h₁.balanced).impl ~m (Const.alter k f t₂ h₂.balanced).impl := by
   simp_to_model [Const.alter, Equiv] using List.Const.alterKey_of_perm _ h.1
 
+theorem constAlter! [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {k : α} {f : Option β → Option β} :
+    Const.alter! k f t₁ ~m Const.alter! k f t₂ := by
+  simpa only [Const.alter_eq_alter!] using h.constAlter h₁ h₂
+
 theorem constModify [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : β → β} : Const.modify k f t₁ ~m Const.modify k f t₂ := by
   simp_to_model [Const.modify, Equiv] using List.Const.modifyKey_of_perm _ h.1
@@ -6591,9 +6621,9 @@ end Const
 variable {t₄ : Impl α β}
 
 theorem mergeWith [TransOrd α] [LawfulEqOrd α]
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
-    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     {f : (a : α) → β a → β a → β a} :
     (t₁.mergeWith f t₃ h₁.balanced).impl ~m (t₂.mergeWith f t₄ h₂.balanced).impl := by
   simp only [Impl.mergeWith, h'.foldl_eq h₃ h₄, foldl_eq_foldl]
@@ -6601,6 +6631,14 @@ theorem mergeWith [TransOrd α] [LawfulEqOrd α]
     a.impl.WF ∧ b.impl.WF ∧ a.impl ~m b.impl) ⟨h₁, h₂, h⟩ ?_).2.2
   intro a ha c c' hc
   exact ⟨hc.1.alter, hc.2.1.alter, hc.2.2.alter hc.1 hc.2.1⟩
+
+theorem mergeWith! [TransOrd α] [LawfulEqOrd α]
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    {f : (a : α) → β a → β a → β a} :
+    t₁.mergeWith! f t₃ ~m t₂.mergeWith! f t₄ := by
+  simpa only [mergeWith_eq_mergeWith!] using h.mergeWith h' h₁ h₂ h₃ h₄
 
 -- extensionalities
 

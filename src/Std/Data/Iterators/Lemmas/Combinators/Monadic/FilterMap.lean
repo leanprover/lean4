@@ -40,6 +40,123 @@ theorem IterM.step_filterMapWithProof {f : β → PostconditionT n (Option β')}
   | .skip it' h => rfl
   | .done h => rfl
 
+theorem IterM.step_filterWithProof {f : β → PostconditionT n (ULift Bool)}
+    [Monad n] [LawfulMonad n] [MonadLiftT m n] :
+  (it.filterWithProof f).step = (do
+    match ← it.step with
+    | .yield it' out h => do
+      match ← (f out).operation with
+      | ⟨.up false, h'⟩ =>
+        pure <| .skip (it'.filterWithProof f) (.yieldNone (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+      | ⟨.up true, h'⟩ =>
+        pure <| .yield (it'.filterWithProof f) out (.yieldSome (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+    | .skip it' h =>
+      pure <| .skip (it'.filterWithProof f) (.skip h)
+    | .done h =>
+      pure <| .done (.done h)) := by
+  apply bind_congr
+  intro step
+  match step with
+  | .yield it' out h =>
+    simp
+    apply bind_congr
+    intro step
+    rcases step with _ | _ <;> rfl
+  | .skip it' h => rfl
+  | .done h => rfl
+
+theorem IterM.step_mapWithProof {f : β → PostconditionT n γ}
+    [Monad n] [LawfulMonad n] [MonadLiftT m n] :
+  (it.mapWithProof f).step = (do
+    match ← it.step with
+    | .yield it' out h => do
+      let out' ← (f out).operation
+      pure <| .yield (it'.mapWithProof f) out'.1 (.yieldSome h ⟨out', rfl⟩)
+    | .skip it' h =>
+      pure <| .skip (it'.mapWithProof f) (.skip h)
+    | .done h =>
+      pure <| .done (.done h)) := by
+  apply bind_congr
+  intro step
+  match step with
+  | .yield it' out h =>
+    simp only [PostconditionT.operation_map, bind_map_left, bind_pure_comp]
+    rfl
+  | .skip it' h => rfl
+  | .done h => rfl
+
+theorem IterM.step_filterMapM {f : β → n (Option β')}
+    [Monad n] [LawfulMonad n] [MonadLiftT m n] :
+  (it.filterMapM f).step = (do
+    match ← it.step with
+    | .yield it' out h => do
+      match ← f out with
+      | none =>
+        pure <| .skip (it'.filterMapM f) (.yieldNone (out := out) h h')
+      | some out' =>
+        pure <| .yield (it'.filterMapM f) out' (.yieldSome (out := out) h h')
+    | .skip it' h =>
+      pure <| .skip (it'.filterMapM f) (.skip h)
+    | .done h =>
+      pure <| .done (.done h)) := by
+  apply bind_congr
+  intro step
+  match step with
+  | .yield it' out h =>
+    simp only [monadLift, MonadLift.monadLift, monadLift_self, bind_map_left]
+    apply bind_congr
+    intro step
+    rcases step with _ | _ <;> rfl
+  | .skip it' h => rfl
+  | .done h => rfl
+
+theorem IterM.step_filterM {f : β → n (ULift Bool)}
+    [Monad n] [LawfulMonad n] [MonadLiftT m n] :
+  (it.filterM f).step = (do
+    match ← it.step with
+    | .yield it' out h => do
+      match ← f out with
+      | .up false =>
+        pure <| .skip (it'.filterM f) (.yieldNone (out := out) h ⟨⟨.up false, .intro⟩, rfl⟩)
+      | .up true =>
+        pure <| .yield (it'.filterM f) out (.yieldSome (out := out) h ⟨⟨.up true, h'⟩, rfl⟩)
+    | .skip it' h =>
+      pure <| .skip (it'.filterM f) (.skip h)
+    | .done h =>
+      pure <| .done (.done h)) := by
+  apply bind_congr
+  intro step
+  match step with
+  | .yield it' out h =>
+    simp [PostconditionT.lift, liftM, monadLift, MonadLift.monadLift]
+    apply bind_congr
+    intro step
+    rcases step with _ | _ <;> rfl
+  | .skip it' h => rfl
+  | .done h => rfl
+
+theorem IterM.step_mapM {f : β → n γ}
+    [Monad n] [LawfulMonad n] [MonadLiftT m n] :
+  (it.mapM f).step = (do
+    match ← it.step with
+    | .yield it' out h => do
+      let out' ← f out
+      pure <| .yield (it'.mapM f) out' (.yieldSome h ⟨_, rfl⟩)
+    | .skip it' h =>
+      pure <| .skip (it'.mapM f) (.skip h)
+    | .done h =>
+      pure <| .done (.done h)) := by
+  apply bind_congr
+  intro step
+  match step with
+  | .yield it' out h =>
+    simp only [PostconditionT.operation_map, bind_map_left, bind_pure_comp]
+    simp only [monadLift, MonadLift.monadLift, monadLift_self, Functor.map, Functor.map_map,
+      bind_map_left, bind_pure_comp]
+    rfl
+  | .skip it' h => rfl
+  | .done h => rfl
+
 theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
   (it.filterMap f).step = (do
     match ← it.step with
@@ -61,27 +178,6 @@ theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
     split <;> split <;> simp_all
   · simp
   · simp
-
-theorem IterM.step_mapWithProof [Monad n] [LawfulMonad n] [MonadLiftT m n]
-    {f : β → PostconditionT n β'} :
-  (it.mapWithProof f).step = (do
-    match ← it.step with
-    | .yield it' out h => do
-      let out' ← (f out).operation
-      pure <| .yield (it'.mapWithProof f) out'.1 (.yieldSome h ⟨out', rfl⟩)
-    | .skip it' h =>
-      pure <| .skip (it'.mapWithProof f) (.skip h)
-    | .done h =>
-      pure <| .done (.done h)) := by
-  change (it.filterMapWithProof _).step = _
-  rw [step_filterMapWithProof]
-  apply bind_congr
-  intro step
-  split
-  · simp only [PostconditionT.operation_map, bind_map_left, bind_pure_comp]
-    rfl
-  · rfl
-  · rfl
 
 theorem IterM.step_map [Monad m] [LawfulMonad m] {f : β → β'} :
   (it.map f).step = (do

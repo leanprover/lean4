@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.List.TakeDrop
 import Init.Data.List.Attach
+import Init.Data.List.OfFn
+import Init.Data.Array.Bootstrap
 import all Init.Data.List.Control
 
 /-!
@@ -66,16 +68,24 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} 
     l.mapM (m := m) (pure <| f ·) = pure (l.map f) := by
   induction l <;> simp_all
 
-@[simp] theorem mapM_id {l : List α} {f : α → Id β} : l.mapM f = l.map f :=
+@[simp] theorem idRun_mapM {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
   mapM_pure
+
+@[deprecated idRun_mapM (since := "2025-05-21")]
+theorem mapM_id {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
+  mapM_pure
+
+@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {l : List α} :
+    (l.map f).mapM g = l.mapM (g ∘ f) := by
+  induction l <;> simp_all
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] {f : α → m β} {l₁ l₂ : List α} :
     (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by induction l₁ <;> simp [*]
 
 /-- Auxiliary lemma for `mapM_eq_reverse_foldlM_cons`. -/
 theorem foldlM_cons_eq_append [Monad m] [LawfulMonad m] {f : α → m β} {as : List α} {b : β} {bs : List β} :
-    (as.foldlM (init := b :: bs) fun acc a => return ((← f a) :: acc)) =
-      (· ++ b :: bs) <$> as.foldlM (init := []) fun acc a => return ((← f a) :: acc) := by
+    (as.foldlM (init := b :: bs) fun acc a => (· :: acc) <$> f a) =
+      (· ++ b :: bs) <$> as.foldlM (init := []) fun acc a => (· :: acc) <$> f a := by
   induction as generalizing b bs with
   | nil => simp
   | cons a as ih =>
@@ -83,7 +93,7 @@ theorem foldlM_cons_eq_append [Monad m] [LawfulMonad m] {f : α → m β} {as : 
     simp [ih, _root_.map_bind, Functor.map_map, Function.comp_def]
 
 theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} :
-    mapM f l = reverse <$> (l.foldlM (fun acc a => return ((← f a) :: acc)) []) := by
+    mapM f l = reverse <$> (l.foldlM (fun acc a => (· :: acc) <$> f a) []) := by
   rw [← mapM'_eq_mapM]
   induction l with
   | nil => simp
@@ -339,12 +349,18 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
   simp only [forIn'_eq_foldlM]
   induction l.attach generalizing init <;> simp_all
 
-@[simp] theorem forIn'_yield_eq_foldl
+@[simp] theorem idRun_forIn'_yield_eq_foldl
+    (l : List α) (f : (a : α) → a ∈ l → β → Id β) (init : β) :
+    (forIn' l init (fun a m b => .yield <$> f a m b)).run =
+      l.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init :=
+  forIn'_pure_yield_eq_foldl _ _
+
+@[deprecated idRun_forIn'_yield_eq_foldl (since := "2025-05-21")]
+theorem forIn'_yield_eq_foldl
     {l : List α} (f : (a : α) → a ∈ l → β → β) (init : β) :
     forIn' (m := Id) l init (fun a m b => .yield (f a m b)) =
-      l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init := by
-  simp only [forIn'_eq_foldlM]
-  induction l.attach generalizing init <;> simp_all
+      l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
+  forIn'_pure_yield_eq_foldl _ _
 
 @[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
     {l : List α} (g : α → β) (f : (b : β) → b ∈ l.map g → γ → m (ForInStep γ)) :
@@ -392,12 +408,18 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
   simp only [forIn_eq_foldlM]
   induction l generalizing init <;> simp_all
 
-@[simp] theorem forIn_yield_eq_foldl
+@[simp] theorem idRun_forIn_yield_eq_foldl
+    (l : List α) (f : α → β → Id β) (init : β) :
+    (forIn l init (fun a b => .yield <$> f a b)).run =
+      l.foldl (fun b a => f a b |>.run) init :=
+  forIn_pure_yield_eq_foldl _ _
+
+@[deprecated idRun_forIn_yield_eq_foldl (since := "2025-05-21")]
+theorem forIn_yield_eq_foldl
     {l : List α} (f : α → β → β) (init : β) :
     forIn (m := Id) l init (fun a b => .yield (f a b)) =
-      l.foldl (fun b a => f a b) init := by
-  simp only [forIn_eq_foldlM]
-  induction l generalizing init <;> simp_all
+      l.foldl (fun b a => f a b) init :=
+  forIn_pure_yield_eq_foldl _ _
 
 @[simp] theorem forIn_map [Monad m] [LawfulMonad m]
     {l : List α} {g : α → β} {f : β → γ → m (ForInStep γ)} :

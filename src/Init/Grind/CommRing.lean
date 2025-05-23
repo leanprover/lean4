@@ -13,3 +13,4 @@ import Init.Grind.CommRing.SInt
 import Init.Grind.CommRing.Fin
 import Init.Grind.CommRing.BitVec
 import Init.Grind.CommRing.Poly
+import Init.Grind.CommRing.Field

@@ -33,6 +33,17 @@ example (m : HashMap Nat Nat) : ((m.insert 1 2).insert 1 4).size ≤ m.size + 1 
 
 example : (((∅ : HashMap Nat Nat).insert 3 6).erase 4)[3]? = some 6 := by grind
 
+open scoped HashMap in
+example (m : HashMap Nat Nat) :
+    (m.insert 1 2).filter (fun k _ => k > 1000) ~m m.filter fun k _ => k > 1000 := by
+  apply HashMap.Equiv.of_forall_getElem?_eq
+  grind (gen := 6)
+
+example [BEq α] [LawfulBEq α] [Hashable α] [LawfulHashable α]
+  {m : HashMap α β} {f : α → β → γ} {k : α} :
+    (m.map f)[k]? = m[k]?.map (f k) := by
+  grind
+
 example (m : Std.TreeMap Nat Bool) : (m.insert 37 true)[32]? = m[32]? := by
   grind
 

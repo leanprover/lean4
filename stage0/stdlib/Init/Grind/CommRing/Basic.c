@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.CommRing.Basic
-// Imports: Init.Data.Zero Init.Data.Int.DivMod.Lemmas Init.Data.Int.Pow Init.TacticsExtra
+// Imports: Init.Data.Zero Init.Data.Int.DivMod.Lemmas Init.Data.Int.Pow Init.TacticsExtra Init.Grind.Module.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ static lean_object* l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__4;
 static lean_object* l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__8;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__33;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__52;
+LEAN_EXPORT lean_object* l_Lean_Grind_Semiring_instNatModule___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__28;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__26;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__1;
@@ -32,6 +33,8 @@ static lean_object* l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__23;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__26;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__37;
 static lean_object* l_Lean_Grind_CommSemiring_mul__zero___autoParam___closed__12;
+LEAN_EXPORT lean_object* l_Lean_Grind_Semiring_instNatModule(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Semiring_instNatModule___rarg(lean_object*);
 static lean_object* l_Lean_Grind_CommSemiring_mul__zero___autoParam___closed__14;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__6;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__12;
@@ -68,6 +71,7 @@ static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__3;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__24;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__12;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__23;
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_instIntModule(lean_object*);
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__13;
 static lean_object* l_Lean_Grind_CommSemiring_mul__zero___autoParam___closed__2;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__6;
@@ -100,6 +104,7 @@ static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__21;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__44;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__51;
 static lean_object* l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__18;
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_instIntModule___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__27;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__50;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__41;
@@ -178,6 +183,7 @@ static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__39;
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_intCast__ofNat___autoParam;
 LEAN_EXPORT lean_object* l_Lean_Grind_Semiring_ofNat__succ___autoParam;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__47;
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_instIntModule___rarg(lean_object*);
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__65;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__14;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__25;
@@ -2188,10 +2194,103 @@ lean_dec(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Grind_Semiring_instNatModule___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 4);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_apply_1(x_5, x_2);
+x_7 = lean_apply_2(x_4, x_6, x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Semiring_instNatModule___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_2 = lean_ctor_get(x_1, 3);
+lean_inc(x_2);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_apply_1(x_2, x_3);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+x_6 = lean_alloc_closure((void*)(l_Lean_Grind_Semiring_instNatModule___rarg___lambda__1), 3, 1);
+lean_closure_set(x_6, 0, x_1);
+x_7 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_7, 0, x_4);
+lean_ctor_set(x_7, 1, x_5);
+lean_ctor_set(x_7, 2, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Semiring_instNatModule(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Grind_Semiring_instNatModule___rarg), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_instIntModule___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_2, 3);
+lean_inc(x_6);
+lean_dec(x_2);
+x_7 = lean_apply_1(x_6, x_3);
+x_8 = lean_apply_2(x_5, x_7, x_4);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_instIntModule___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+x_3 = lean_ctor_get(x_2, 3);
+lean_inc(x_3);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_apply_1(x_3, x_4);
+x_6 = lean_ctor_get(x_2, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_1, 2);
+lean_inc(x_8);
+x_9 = lean_alloc_closure((void*)(l_Lean_Grind_Ring_instIntModule___rarg___lambda__1), 4, 2);
+lean_closure_set(x_9, 0, x_2);
+lean_closure_set(x_9, 1, x_1);
+x_10 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_10, 0, x_5);
+lean_ctor_set(x_10, 1, x_6);
+lean_ctor_set(x_10, 2, x_7);
+lean_ctor_set(x_10, 3, x_8);
+lean_ctor_set(x_10, 4, x_9);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Ring_instIntModule(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Grind_Ring_instIntModule___rarg), 1, 0);
+return x_2;
+}
+}
 lean_object* initialize_Init_Data_Zero(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_CommRing_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2207,6 +2306,9 @@ res = initialize_Init_Data_Int_Pow(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Module_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__1 = _init_l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__1();

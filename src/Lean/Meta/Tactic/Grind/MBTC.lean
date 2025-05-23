@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind
@@ -93,13 +92,5 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   for info in result do
     addSplitCandidate info
   return true
-
--- TODO: delete after we move to `SearchM`
-def mbtcTac (ctx : MBTC.Context) : GrindTactic := fun goal => do
-  let (r, goal) ← GoalM.run goal do mbtc ctx
-  if r then
-    return some [goal]
-  else
-    return none
 
 end Lean.Meta.Grind

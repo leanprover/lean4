@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.MBTC
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
@@ -38,14 +37,6 @@ private def eqAssignment (a b : Expr) : GoalM Bool := do
 
 def mbtc : GoalM Bool := do
   Grind.mbtc {
-    hasTheoryVar := hasTheoryVar
-    isInterpreted := isInterpreted
-    eqAssignment := eqAssignment
-  }
-
--- TODO: delete after we move to `SearchM`
-def mbtcTac : GrindTactic :=
-  Grind.mbtcTac {
     hasTheoryVar := hasTheoryVar
     isInterpreted := isInterpreted
     eqAssignment := eqAssignment

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Arith

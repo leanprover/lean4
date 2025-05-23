@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.PropagatorAttr
-import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Arith.Offset
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
@@ -45,15 +44,5 @@ def check : GoalM Bool := do
     return true
   else
     return false
-
--- TODO: delete after we move to `SearchM`
-def checkOld : GrindTactic := fun goal => do
-  let (progress, goal) ← GoalM.run goal do check
-  unless progress do
-    return none
-  if goal.inconsistent then
-    return some []
-  else
-    return some [goal]
 
 end Lean.Meta.Grind.Arith

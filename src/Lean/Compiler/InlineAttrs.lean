@@ -35,14 +35,14 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
 /--
 Changes the inlining behavior. This attribute comes in several variants:
 - `@[inline]`: marks the definition to be inlined when it is appropriate.
-- `@[inline_if_reduce]`: marks the definition to be inlined if the term after inlining and
-  applying reduction isn't a `match` expression. This attribute can be used for inlining
-  structurally recursive functions. Note: the current/old compiler (written in C++) does not
-  support this attribute.
+- `@[inline_if_reduce]`: marks the definition to be inlined if an application of it after inlining
+  and applying reduction isn't a `match` expression. This attribute can be used for inlining
+  structurally recursive functions.
 - `@[noinline]`: marks the definition to never be inlined.
 - `@[always_inline]`: marks the definition to always be inlined.
-- `@[macro_inline]`: marks the definition to always be inlined early. This makes it possible
-  to define functions that evaluate some of their parameters lazily. Example:
+- `@[macro_inline]`: marks the definition to always be inlined at the beginning of compilation.
+  This makes it possible to define functions that evaluate some of their parameters lazily.
+  Example:
   ```
   @[macro_inline]
   def test (x y : Nat) : Nat :=
@@ -50,6 +50,7 @@ Changes the inlining behavior. This attribute comes in several variants:
 
   #eval test 42 (2^1000000000000) -- doesn't compute 2^1000000000000
   ```
+  Only non-recursive functions may be marked `@[macro_inline]`.
 -/
 @[builtin_doc]
 builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←

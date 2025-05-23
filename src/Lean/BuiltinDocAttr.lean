@@ -17,6 +17,10 @@ def declareBuiltinDocStringAndRanges (declName : Name) : AttrM Unit := do
 
 /--
 Makes the documentation and location of a declaration available as a builtin.
+
+This allows the documentation of core Lean features to be visible without importing the file they
+are defined in. This is only possible because of bootstrapping and should not be used outside of
+the Lean source code.
 -/
 @[builtin_init, builtin_doc]
 private def initFn :=

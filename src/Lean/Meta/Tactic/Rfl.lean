@@ -28,12 +28,12 @@ initialize reflExt :
   }
 
 /--
-Tags reflexivity lemmas to be used by `rfl`.
+Tags reflexivity lemmas to be used by the `rfl` tactic.
 
 A reflexivity lemma should have the conclusion `r x x` where `r` is an arbitrary relation.
 
-It is not possible to tag reflexivity lemmas for `=` using this attribute, these are handled as
-a special case in `rfl`.
+It is not possible to tag reflexivity lemmas for `=` using this attribute. These are handled as a
+special case in the `rfl` tactic.
 -/
 @[builtin_init, builtin_doc]
 private def initFn := registerBuiltinAttribute {

@@ -49,19 +49,18 @@ def add (declName : Name) (kind : AttributeKind) : CoreM Unit := do
     throwError "invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported."
 
 /--
-Tags compiler simplification theorems. A compiler simplification theorem cannot take any parameters
-and must prove a statement `@f = @g` where `f` and `g` are arbitrary constants.
+Tags compiler simplification theorems, which allow one value to be replaced by another equal value
+in compiled code. This is typically used to replace a slow function whose definition is convenient
+in proofs with a faster equivalent or to make noncomputable functions computable. In particular,
+many operations on lists and arrays are replaced by tail-recursive equivalents.
 
-In functions defined after the theorem tagged `@[csimp]`, any occurrence of `f` is replaced with
-`g` while compiling. In this sense, `@[csimp]` works as a safe alternative of `@[implemented_by]`.
+A compiler simplification theorem cannot take any parameters and must prove a statement `@f = @g`
+where `f` and `g` may be arbitrary constants. In functions defined after the theorem tagged
+`@[csimp]`, any occurrence of `f` is replaced with `g` in compiled code, but not in the type
+theory. In this sense, `@[csimp]` works as a safe alternative to `@[implemented_by]`.
 
-However, it is still possible to register unsound `@[csimp]` lemmas by using `unsafe` or unsound
-axioms (like `sorryAx`). In some cases this is unavoidable for changing the behavior of existing
-functions. As long as neither of these are the case, `@[csimp]` should be safe though.
-
-`@[csimp]` is useful for providing an efficient implementation to a function with useful
-definitional equalities or to make noncomputable functions computable.
-This is for example used for many `List` functions to provide a tail-recursive implementation.
+However it is still possible to register unsound `@[csimp]` lemmas by using `unsafe` or unsound
+axioms (like `sorryAx`).
 -/
 @[builtin_init, builtin_doc]
 private def initFn :=

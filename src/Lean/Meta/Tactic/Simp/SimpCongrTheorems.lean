@@ -110,15 +110,14 @@ def addSimpCongrTheorem (declName : Name) (attrKind : AttributeKind) (prio : Nat
   congrExtension.add lemma attrKind
 
 /--
-Register `simp` congruence theorems.
+Registers `simp` congruence theorems.
 
-A `simp` congruence theorems should prove the equality of two applications of the same function from
+A `simp` congruence theorem should prove the equality of two applications of the same function from
 the equality of the individual arguments. They are used by `simp` to visit subexpressions of an
-application where the default congruence algorithm fails. This is in particular important for
+application where the default congruence algorithm fails. This is particularly important for
 functions where some parameters depend on previous parameters.
-
-TODO: example
 -/
+-- TODO: example
 @[builtin_init, builtin_doc]
 private def init :=
   registerBuiltinAttribute {

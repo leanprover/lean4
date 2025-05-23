@@ -419,17 +419,19 @@ def withHave (n : Nat): Bool :=
 termination_by n
 decreasing_by exact testSorry
 
+-- TODO(kmill) no more 0 < n and 0 < 42 parameters
 /--
-info: withHave.induct_unfolding (motive : Nat → Bool → Prop) (case1 : 0 < 42 → motive 42 true)
-  (case2 : ∀ (x : Nat), 0 < x → ¬x = 42 → motive (x - 1) (withHave (x - 1)) → motive x (withHave (x - 1))) (n : Nat) :
+info: withHave.induct_unfolding (motive : Nat → Bool → Prop) (case1 : motive 42 true)
+  (case2 : ∀ (x : Nat), ¬x = 42 → motive (x - 1) (withHave (x - 1)) → motive x (withHave (x - 1))) (n : Nat) :
   motive n (withHave n)
 -/
 #guard_msgs(pass trace, all) in
 #check withHave.induct_unfolding
 
+-- -- TODO(kmill) no more 0 < n and 0 < 42 parameters
 /--
-info: withHave.fun_cases_unfolding (n : Nat) (motive : Bool → Prop) (case1 : 0 < n → n = 42 → motive true)
-  (case2 : 0 < n → ¬n = 42 → motive (withHave (n - 1))) : motive (withHave n)
+info: withHave.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : motive 42 true)
+  (case2 : ∀ (n : Nat), ¬n = 42 → motive n (withHave (n - 1))) (n : Nat) : motive n (withHave n)
 -/
 #guard_msgs(pass trace, all) in
 #check withHave.fun_cases_unfolding

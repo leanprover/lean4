@@ -27,13 +27,13 @@ termination_by structural fuel
 --   let some x ← Lean.Meta.getFunIndInfo? false ``Bug.divCore | return
 --   Lean.logInfo m!"{repr x}"
 
+-- TODO(kmill) `this✝ : x✝ - y < x✝` hypothesis no longer present
 /--
 error: tactic 'fail' failed
 case case1
 x y fuel x✝ fuel✝ : Nat
 hfuel✝ : x✝ < fuel✝.succ
 h✝ : 0 < y ∧ y ≤ x✝
-this✝ : x✝ - y < x✝
 ih1✝ : Bug.divCore (x✝ - y) y fuel✝ ⋯ = 42
 ⊢ Bug.divCore (x✝ - y) y fuel✝ ⋯ + 1 = 42
 
@@ -48,13 +48,13 @@ protected theorem divCore_eq_div : Bug.divCore x y fuel h = 42 := by
   fun_induction Bug.divCore
   fail
 
+-- TODO(kmill) `this✝ : x✝ - y < x✝` hypotheses no longer present
 /--
 error: tactic 'fail' failed
 case case1
 x y fuel x✝ fuel✝ : Nat
 hfuel✝ : x✝ < fuel✝.succ
 h✝ : 0 < y ∧ y ≤ x✝
-this✝ : x✝ - y < x✝
 ih1✝ : Bug.divCore (x✝ - y) y fuel✝ ⋯ = 42
 ⊢ Bug.divCore (x✝ - y) y fuel✝ ⋯ + 1 = 42
 

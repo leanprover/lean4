@@ -20,12 +20,13 @@ def go1 (ss : Int) (st0 : St) : Bool :=
       termination_by st0
       decreasing_by sorry
 
+-- TODO(kmill) lost `P st1` parameters in case1
 /--
 info: go1.induct (ss : Int) (motive : St → Prop)
   (case1 :
     ∀ (x : St),
       let st1 := { m := x.m, map := x.map.insert };
-      ∀ (val : Unit), st1.map.get? ss = some val → P st1 → P st1 → motive st1 → motive x)
+      ∀ (val : Unit), st1.map.get? ss = some val → motive st1 → motive x)
   (case2 :
     ∀ (x : St),
       let st1 := { m := x.m, map := x.map.insert };

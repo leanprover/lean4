@@ -141,6 +141,20 @@ theorem IterM.toListRev_eq [Monad m] [LawfulMonad m] [Iterator α m β] [Finite 
   rw [← IterM.reverse_toListRev]
   simp
 
+theorem LawfulIteratorCollect.toArray_eq {α β : Type w} {m : Type w → Type w'}
+    [Monad m] [Iterator α m β] [Finite α m] [IteratorCollect α m m]
+    [hl : LawfulIteratorCollect α m m]
+    {it : IterM (α := α) m β} :
+    it.toArray = (letI : IteratorCollect α m m := .defaultImplementation; it.toArray) := by
+  simp only [IterM.toArray, toArrayMapped_eq]
+
+theorem LawfulIteratorCollect.toList_eq {α β : Type w} {m : Type w → Type w'}
+    [Monad m] [Iterator α m β] [Finite α m] [IteratorCollect α m m]
+    [hl : LawfulIteratorCollect α m m]
+    {it : IterM (α := α) m β} :
+    it.toList = (letI : IteratorCollect α m m := .defaultImplementation; it.toList) := by
+  simp [IterM.toList, toArray_eq]
+
 end Consumers
 
 end Std.Iterators

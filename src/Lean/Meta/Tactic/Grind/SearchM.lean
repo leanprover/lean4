@@ -70,6 +70,7 @@ def mkChoice (proof : Expr) (subgoals : List Goal) (generation : Nat) : SearchM 
   match subgoals with
   | [] =>
     (← getGoal).mvarId.assign proof
+    modify fun s => { s with goal.inconsistent := true }
   | [subgoal] =>
     (← getGoal).mvarId.assign proof
     setGoal subgoal

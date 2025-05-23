@@ -129,13 +129,13 @@ theorem IterM.forIn_eq_foldM {α β : Type w} [Iterator α Id β]
 theorem Iter.fold_eq_forIn {α β γ : Type w} [Iterator α Id β]
     [Finite α Id] [IteratorLoop α Id Id] {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.fold (init := init) f =
-      ForIn.forIn (m := Id) it init (fun x acc => pure (ForInStep.yield (f acc x))) := by
+      (ForIn.forIn (m := Id) it init (fun x acc => pure (ForInStep.yield (f acc x)))).run := by
   rfl
 
 theorem Iter.fold_eq_foldM {α β γ : Type w} [Iterator α Id β]
     [Finite α Id] [IteratorLoop α Id Id] {f : γ → β → γ} {init : γ}
     {it : Iter (α := α) β} :
-    it.fold (init := init) f = it.foldM (m := Id) (init := init) (pure <| f · ·) := by
+    it.fold (init := init) f = (it.foldM (m := Id) (init := init) (pure <| f · ·)).run := by
   simp [foldM_eq_forIn, fold_eq_forIn]
 
 theorem Iter.forIn_yield_eq_fold {α β γ : Type w} [Iterator α Id β]
@@ -144,7 +144,8 @@ theorem Iter.forIn_yield_eq_fold {α β γ : Type w} [Iterator α Id β]
     {it : Iter (α := α) β} :
     ForIn.forIn (m := Id) it init (fun c b => .yield (f c b)) =
       it.fold (fun b c => f c b) init := by
-  simp [Iter.fold_eq_forIn]
+  simp only [fold_eq_forIn]
+  rfl
 
 theorem Iter.fold_eq_match_step {α β γ : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
@@ -163,6 +164,6 @@ theorem Iter.foldl_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.toList.foldl (init := init) f = it.fold (init := init) f := by
-  simp [Iter.fold_eq_foldM, ← Iter.foldlM_toList, List.foldl_eq_foldlM]
+  rw [fold_eq_foldM, List.foldl_eq_foldlM, ← Iter.foldlM_toList]
 
 end Std.Iterators

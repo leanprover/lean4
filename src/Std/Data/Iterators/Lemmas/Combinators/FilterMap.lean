@@ -64,7 +64,7 @@ theorem Iter.step_filterMapWithProof {f : β → PostconditionT n (Option γ)}
     | .done h =>
       pure <| .done (.done h)) := by
   simp only [filterMapWithProof_eq, IterM.step_filterMapWithProof, step]
-  simp only [liftM, monadLift, pure_bind, Id.run] -- TODO: stop defeq abuse after rebase
+  simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
@@ -90,7 +90,7 @@ theorem Iter.step_filterWithProof {f : β → PostconditionT n (ULift Bool)}
     | .done h =>
       pure <| .done (.done h)) := by
   simp only [filterWithProof_eq, IterM.step_filterWithProof, step]
-  simp only [liftM, monadLift, pure_bind, Id.run] -- TODO: stop defeq abuse after rebase
+  simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
@@ -113,7 +113,7 @@ theorem Iter.step_mapWithProof {f : β → PostconditionT n γ}
     | .done h =>
       pure <| .done (.done h)) := by
   simp only [mapWithProof_eq, IterM.step_mapWithProof, step]
-  simp only [liftM, monadLift, pure_bind, Id.run] -- TODO: stop defeq abuse after rebase
+  simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
@@ -137,7 +137,7 @@ theorem Iter.step_filterMapM {f : β → n (Option β')}
     | .done h =>
       pure <| .done (.done h)) := by
   simp only [filterMapM_eq, IterM.step_filterMapM, step]
-  simp only [liftM, monadLift, pure_bind, Id.run] -- TODO: stop defeq abuse after rebase
+  simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
@@ -163,7 +163,7 @@ theorem Iter.step_filterM {f : β → n (ULift Bool)}
     | .done h =>
       pure <| .done (.done h)) := by
   simp only [filterM_eq, IterM.step_filterM, step]
-  simp only [liftM, monadLift, pure_bind, Id.run] -- TODO: stop defeq abuse after rebase
+  simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
@@ -186,7 +186,7 @@ theorem Iter.step_mapM {f : β → n γ}
     | .done h =>
       pure <| .done (.done h)) := by
   simp only [mapM_eq, IterM.step_mapM, step]
-  simp only [liftM, monadLift, pure_bind, Id.run] -- TODO: stop defeq abuse after rebase
+  simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
@@ -206,8 +206,8 @@ theorem Iter.step_filterMap {f : β → Option γ} :
       | .skip it' h => .skip (it'.filterMap f) (.skip h)
       | .done h => .done (.done h) := by
   simp only [filterMap_eq, toIterM_toIter, IterM.step_filterMap, step]
-  simp only [liftM, monadLift, pure_bind, Id.run] -- TODO: stop defeq abuse after rebase
-  generalize it.toIterM.step = step
+  simp only [liftM, monadLift, pure_bind, Id.run_bind]
+  generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn
   · simp
     split <;> split <;> (try exfalso; simp_all; done)
@@ -216,10 +216,8 @@ theorem Iter.step_filterMap {f : β → Option γ} :
       rw [h₁] at h₂
       cases h₂
       rfl
-  · simp only [Id.pure_eq, Id.bind_eq, IterM.Step.toPure_skip, toIter_toIterM, toIterM_toIter]
-    rfl
-  · simp only [Id.pure_eq, Id.bind_eq, IterM.Step.toPure_done, toIter_toIterM]
-    rfl
+  · simp
+  · simp
 
 def Iter.step_map {f : β → γ} :
     (it.map f).step = match it.step with
@@ -229,13 +227,9 @@ def Iter.step_map {f : β → γ} :
         .skip (it'.map f) (.skip h)
       | .done h =>
         .done (.done h) := by
-  simp only [map_eq, step, toIterM_toIter, Id.run, IterM.step_map, Id.pure_eq, Id.bind_eq]
-  generalize it.toIterM.step = step
-  obtain ⟨step, h⟩ := step
-  cases step
-  · simp [PlausibleIterStep.yield]
-  · simp [PlausibleIterStep.skip]
-  · simp [PlausibleIterStep.done]
+  simp only [map_eq, step, toIterM_toIter, IterM.step_map, Id.run_bind]
+  generalize it.toIterM.step.run = step
+  cases step using PlausibleIterStep.casesOn <;> simp
 
 def Iter.step_filter {f : β → Bool} :
     (it.filter f).step = match it.step with
@@ -248,15 +242,13 @@ def Iter.step_filter {f : β → Bool} :
         .skip (it'.filter f) (.skip h)
       | .done h =>
         .done (.done h) := by
-  simp only [filter_eq, step, toIterM_toIter, Id.run, IterM.step_filter, Id.pure_eq, Id.bind_eq]
-  generalize it.toIterM.step = step
+  simp only [filter_eq, step, toIterM_toIter, IterM.step_filter, Id.run_bind]
+  generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn
-  · simp only [id_eq, toIterM_toIter]
-    split
-    · simp [PlausibleIterStep.yield, PlausibleIterStep.skip, *]
-    · simp [PlausibleIterStep.yield, PlausibleIterStep.skip, *]
-  · simp [PlausibleIterStep.skip]
-  · simp [PlausibleIterStep.done]
+  · simp only
+    split <;> simp [*]
+  · simp
+  · simp
 
 theorem Iter.toList_filterMap
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]

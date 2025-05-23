@@ -28,7 +28,7 @@ private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => �
 
 private theorem ext {t t' : DTreeMap α β cmp} : t.inner = t'.inner → t = t' := by
   cases t; cases t'; rintro rfl; rfl
-/-
+
 @[simp]
 theorem isEmpty_emptyc : (∅ : DTreeMap α β cmp).isEmpty :=
   Impl.isEmpty_empty
@@ -4133,7 +4133,7 @@ theorem maxKeyD_alter_eq_self [TransCmp cmp] {k f}
 end Const
 
 end Max
--/
+
 namespace Equiv
 
 variable {t₁ t₂ t₃ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w}

@@ -276,6 +276,7 @@ Asserts next fact in the `goal` fact queue.
 Returns `true` if the queue was not empty and `false` otherwise.
 -/
 def assertNext : SearchM Bool := do
+  if (← isInconsistent) then return false
   let goal ← getGoal
   let some (fact, newRawFacts) := goal.newRawFacts.dequeue?
     | return false

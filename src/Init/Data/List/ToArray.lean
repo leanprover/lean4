@@ -210,12 +210,6 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
   cases as
   simp
 
-@[simp] theorem foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
-  induction l generalizing as <;> simp [*]
-
-@[simp] theorem foldr_push {l : List α} {as : Array α} : l.foldr (fun a bs => push bs a) as = as ++ l.reverse.toArray := by
-  rw [foldr_eq_foldl_reverse, foldl_push]
-
 @[simp, grind =] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
     l.toArray.findSomeM? f = l.findSomeM? f := by
   rw [Array.findSomeM?]
@@ -262,16 +256,16 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 
 @[simp, grind =] theorem findSome?_toArray (f : α → Option β) (l : List α) :
     l.toArray.findSome? f = l.findSome? f := by
-  rw [Array.findSome?, ← findSomeM?_id, findSomeM?_toArray, Id.run]
+  rw [Array.findSome?, findSomeM?_toArray, findSomeM?_pure, Id.run_pure]
 
 @[simp, grind =] theorem find?_toArray (f : α → Bool) (l : List α) :
     l.toArray.find? f = l.find? f := by
   rw [Array.find?]
-  simp only [Id.run, Id, Id.pure_eq, Id.bind_eq, forIn_toArray]
+  simp only [forIn_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
-    simp only [forIn_cons, Id.pure_eq, Id.bind_eq, find?]
+    simp only [forIn_cons, find?]
     by_cases f a <;> simp_all
 
 private theorem findFinIdx?_loop_toArray (w : l' = l.drop j) :

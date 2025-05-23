@@ -93,20 +93,8 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
     for thm in params.extra do
       activateTheorem thm 0
 
-private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) := do
-  let mvarId ← mvarId.abstractMVars
-  let mvarId ← mvarId.clearAuxDecls
-  let mvarId ← mvarId.revertAll
-  let mvarId ← mvarId.unfoldReducible
-  let mvarId ← mvarId.betaReduce
-  appendTagSuffix mvarId `grind
-  let goals ← intros (← mkGoal mvarId params) (generation := 0)
-  goals.forM (·.checkInvariants (expensive := true))
-  return goals.filter fun goal => !goal.inconsistent
-
 structure Result where
-  failures : List Goal
-  skipped  : List Goal
+  failure? : Option Goal
   issues   : List MessageData
   config   : Grind.Config
   trace    : Trace
@@ -140,11 +128,11 @@ private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) : MetaM (Option Mes
   else
     return some <| .trace { cls := `grind } "Diagnostics" msgs
 
-def Result.hasFailures (r : Result) : Bool :=
-  !r.failures.isEmpty
+def Result.hasFailed (r : Result) : Bool :=
+  r.failure?.isSome
 
 def Result.toMessageData (result : Result) : MetaM MessageData := do
-  let mut msgs ← result.failures.mapM (goalToMessageData · result.config)
+  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config)
   if result.config.verbose then
     let mut issues := result.issues
     -- We did not find the following very useful in practice.
@@ -159,27 +147,34 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
       msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
+private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
+  let mvarId ← mvarId.abstractMVars
+  let mvarId ← mvarId.clearAuxDecls
+  let mvarId ← mvarId.revertAll
+  let mvarId ← mvarId.unfoldReducible
+  let mvarId ← mvarId.betaReduce
+  appendTagSuffix mvarId `grind
+  mkGoal mvarId params
+
 def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
   if debug.terminalTacticsAsSorry.get (← getOptions) then
     mvarId.admit
     return {
-        failures := [], skipped := [], issues := [], config := params.config, trace := {}, counters := {}, simp := {}
+        failure? := none, issues := [], config := params.config, trace := {}, counters := {}, simp := {}
     }
-  else
-    let go : GrindM Result := withReducible do
-      let goals ← initCore mvarId params
-      let (failures, skipped) ← solve goals fallback
-      trace[grind.debug.final] "{← ppGoals goals}"
-      let issues   := (← get).issues
-      let trace    := (← get).trace
-      let counters := (← get).counters
-      let simp     := (← get).simpStats
-      if failures.isEmpty then
-        -- If there are no failures and diagnostics are enabled, we still report the performance counters.
-        if (← isDiagnosticsEnabled) then
-          if let some msg ← mkGlobalDiag counters simp then
-            logInfo msg
-      return { failures, skipped, issues, config := params.config, trace, counters, simp }
-    go.run params fallback
+  let go : GrindM Result := withReducible do
+    let goal ← initCore mvarId params
+    let failure? ← solve goal
+    let issues   := (← get).issues
+    let trace    := (← get).trace
+    let counters := (← get).counters
+    let simp     := (← get).simpStats
+    if failure?.isNone then
+      -- If there are no failures and diagnostics are enabled, we still report the performance counters.
+      if (← isDiagnosticsEnabled) then
+        if let some msg ← mkGlobalDiag counters simp then
+          logInfo msg
+    return { failure?, issues, config := params.config, trace, counters, simp }
+  go.run params fallback
 
 end Lean.Meta.Grind

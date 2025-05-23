@@ -103,8 +103,13 @@ def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
 
 def inferLitValueType (value : LitValue) : Expr :=
   match value with
-  | .natVal .. => mkConst ``Nat
-  | .strVal .. => mkConst ``String
+  | .nat .. => mkConst ``Nat
+  | .str .. => mkConst ``String
+  | .uint8 .. => mkConst ``UInt8
+  | .uint16 .. => mkConst ``UInt16
+  | .uint32 .. => mkConst ``UInt32
+  | .uint64 .. => mkConst ``UInt64
+  | .usize .. => mkConst ``USize
 
 mutual
   partial def inferArgType (arg : Arg) : InferTypeM Expr :=
@@ -126,7 +131,7 @@ mutual
   partial def inferLetValueType (e : LetValue) : InferTypeM Expr := do
     match e with
     | .erased => return erasedExpr
-    | .value v => return inferLitValueType v
+    | .lit v => return inferLitValueType v
     | .proj structName idx fvarId => inferProjType structName idx fvarId
     | .const declName us args => inferAppTypeCore (← inferConstType declName us) args
     | .fvar fvarId args => inferAppTypeCore (← getType fvarId) args

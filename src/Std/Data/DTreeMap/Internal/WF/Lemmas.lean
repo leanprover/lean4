@@ -375,7 +375,7 @@ theorem exists_cell_of_updateCell [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd 
   · conv => lhs; rw [toListModel_updateCell hlb hlo]
     simpa using List.perm_append_comm_assoc _ _ _
   · rw [containsKey_eq_false_iff_forall_mem_keys, keys_eq_map]
-    simp only [List.map_append, List.mem_append, List.mem_map, List.mem_filter, beq_iff_eq, beq_eq,
+    simp only [List.map_append, List.mem_append, List.mem_map, List.mem_filter, beq_iff_eq,
       beq_eq_false_iff_ne, ne_eq]
     rintro a (⟨p, ⟨⟨-, hp⟩, rfl⟩⟩|⟨p, ⟨⟨-, hp⟩, rfl⟩⟩) <;>
       simp_all [← not_compare_eq_iff_beq_eq_false]
@@ -477,8 +477,7 @@ theorem containsKey_toListModel [Ord α] [OrientedOrd α] [BEq α] [LawfulBEqOrd
   simp [containsKey_eq_true_iff_exists_mem]
   induction l
   · rename_i sz k' v' l r ih₁ ih₂
-    simp only [toListModel_inner, containsKey_append, containsKey_cons, beq_eq, Bool.or_eq_true,
-      beq_iff_eq]
+    simp only [toListModel_inner]
     rw [contains'] at h
     split at h <;> rename_i hcmp
     · obtain ⟨p, hp₁, hp₂⟩ := ih₁ h
@@ -534,7 +533,7 @@ theorem applyCell_eq_apply_toListModel [Ord α] [TransOrd α] [BEq α] [LawfulBE
     simp only [List.append_assoc]; exact List.perm_append_comm_assoc ll c.inner.toList rr
   rw [hfg, hg₁ _ _ _ _ hperm, hg]
   · simp only [containsKey_append, Bool.or_eq_false_iff, containsKey_eq_false_iff_forall_mem_keys,
-      keys_eq_map, List.mem_map, beq_eq, beq_eq_false_iff_ne, ne_eq, forall_exists_index, and_imp,
+      keys_eq_map, List.mem_map, beq_eq_false_iff_ne, forall_exists_index, and_imp,
       forall_apply_eq_imp_iff₂]
     exact ⟨fun p hp => by simp [hll p hp, ← not_compare_eq_iff_beq_eq_false],
       fun p hp => by simp [hrr p hp, ← not_compare_eq_iff_beq_eq_false]⟩
@@ -597,7 +596,7 @@ theorem get?ₘ_eq_getValueCast? [Ord α] [TransOrd α] [LawfulEqOrd α] [BEq α
   rw [get?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => getValueCast? k l)]
   · rintro ⟨(_|p), hp⟩ -
     · simp [Cell.get?]
-    · simp only [Cell.get?, Option.toList_some, getValueCast?, beq_eq, ← compare_eq_iff_beq,
+    · simp only [Cell.get?, Option.toList_some, getValueCast?, ← compare_eq_iff_beq,
         compare_eq_iff_eq, Option.some_eq_dite_none_right, exists_prop, and_true]
       simp [compare_eq_iff_eq.mp (hp p rfl)]
   · exact fun l₁ l₂ h => getValueCast?_of_perm
@@ -663,7 +662,7 @@ theorem getKey?ₘ_eq_getKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
   rw [getKey?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => List.getKey? k l)]
   · rintro ⟨(_|p), hp⟩ -
     · simp [Cell.getKey?]
-    · simp only [Cell.getKey?, Option.toList_some, List.getKey?, beq_eq,
+    · simp only [Cell.getKey?, Option.toList_some, List.getKey?,
         compare_eq_iff_eq, Option.some_eq_dite_none_right, exists_prop, and_true]
       simp [BEq.symm <| compare_eq_iff_beq.mp (hp p rfl)]
   · exact fun l₁ l₂ h => List.getKey?_of_perm
@@ -733,7 +732,7 @@ theorem get?ₘ_eq_getValue? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {
   rw [get?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => getValue? k l)]
   · rintro ⟨(_|p), hp⟩ -
     · simp [Cell.Const.get?]
-    · simp only [Cell.Const.get?, Option.toList_some, getValue?, beq_eq,
+    · simp only [Cell.Const.get?, Option.toList_some, getValue?,
         compare_eq_iff_eq, Option.some_eq_dite_none_right, exists_prop, and_true]
       simp [BEq.symm <| compare_eq_iff_beq.mp (hp p rfl)]
   · exact fun l₁ l₂ h => getValue?_of_perm
@@ -1189,7 +1188,7 @@ theorem foldlM_toListModel_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMo
 
 theorem foldl_eq_foldl {t : Impl α β} {δ} {f : δ → (a : α) → β a → δ} {init} :
     t.foldl (init := init) f = t.toListModel.foldl (init := init) fun acc p => f acc p.1 p.2 := by
-  rw [foldl, foldlM_eq_foldlM_toListModel, List.foldl_eq_foldlM, Id.run]
+  rw [foldl, foldlM_eq_foldlM_toListModel, List.foldl_eq_foldlM]
 
 /-!
 ### foldrM
@@ -1210,7 +1209,7 @@ theorem foldrM_eq_foldrM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
 
 theorem foldr_eq_foldr {t : Impl α β} {δ} {f : (a : α) → β a → δ → δ} {init} :
     t.foldr (init := init) f = t.toListModel.foldr (init := init) fun p acc => f p.1 p.2 acc := by
-  rw [foldr, foldrM_eq_foldrM, List.foldr_eq_foldrM, Id.run]
+  rw [foldr, foldrM_eq_foldrM, List.foldr_eq_foldrM]
 
 /-!
 ### toList
@@ -1320,7 +1319,7 @@ theorem toListModel_alterₘ [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {
     cases f none <;> rfl
   · simp only [Cell.Const.alter, Cell.ofOption, Const.alterKey, Option.toList_some]
     have := OrientedCmp.eq_symm <| hl l rfl
-    simp only [getValue?, beq_eq, compare_eq_iff_beq.mp this, beq_self_eq_true, cond_eq_if,
+    simp only [getValue?, compare_eq_iff_beq.mp this, beq_self_eq_true, cond_eq_if,
       reduceIte]
     cases f _
     · simp [eraseKey, compare_eq_iff_beq.mp this]
@@ -1542,11 +1541,11 @@ theorem WF.eraseMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
 
 theorem insertMany!_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} :
     (t.insertMany! l).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp [insertMany!, Id.run, ← List.foldl_hom Subtype.val]
+  simp [insertMany!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
 
 theorem insertMany_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} (h : t.Balanced) :
     (t.insertMany l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp [insertMany, Id.run, insert_eq_insert!, ← List.foldl_hom Subtype.val]
+  simp [insertMany, insert_eq_insert!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
 
 theorem insertMany_eq_insertMany! {_ : Ord α} {l : List ((a : α) × β a)}
     {t : Impl α β} (h : t.Balanced) :
@@ -1592,15 +1591,14 @@ variable {β : Type v}
 
 theorem insertMany!_eq_foldl {_ : Ord α} {l : List (α × β)} {t : Impl α β} :
     (insertMany! t l).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp only [insertMany!, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  simp only [insertMany!, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   rw [← List.foldl_hom Subtype.val]
   simp only [implies_true]
 
 theorem insertMany_eq_foldl {_ : Ord α} {l : List (α × β)}
     {t : Impl α β} (h : t.Balanced) :
     (Const.insertMany t l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp only [insertMany, Id.run, Id.pure_eq, insert_eq_insert!, Id.bind_eq,
-    List.forIn_yield_eq_foldl]
+  simp only [insertMany, Id.run_pure, insert_eq_insert!, pure_bind, List.forIn_pure_yield_eq_foldl]
   rw [← List.foldl_hom Subtype.val]
   simp only [implies_true]
 
@@ -1627,13 +1625,13 @@ theorem toListModel_insertMany!_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [Tr
 
 theorem insertManyIfNewUnit_eq_foldl {_ : Ord α} {l : List α} {t : Impl α Unit} (h : t.Balanced) :
     (Const.insertManyIfNewUnit t l h).val = l.foldl (init := t) fun acc k => acc.insertIfNew! k () := by
-  simp only [insertManyIfNewUnit, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  simp only [insertManyIfNewUnit, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   rw [← List.foldl_hom Subtype.val]
   simp only [insertIfNew_eq_insertIfNew!, implies_true]
 
 theorem insertManyIfNewUnit!_eq_foldl {_ : Ord α} {l : List α} {t : Impl α Unit} :
     (Const.insertManyIfNewUnit! t l).val = l.foldl (init := t) fun acc k => acc.insertIfNew! k () := by
-  simp only [insertManyIfNewUnit!, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  simp only [insertManyIfNewUnit!, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   rw [← List.foldl_hom Subtype.val]
   simp only [implies_true]
 
@@ -1687,8 +1685,8 @@ theorem mergeWith_eq_mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t�
   induction t₂ generalizing t₁ with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
-    simp only [foldl, foldlM, Id.run, bind]
-    simp only [foldl, Id.run, bind] at ihl ihr
+    simp only [foldl, foldlM, pure_bind, Id.run_bind]
+    simp only [foldl] at ihl ihr
     rw [ihr]
     congr
     simp only [SizedBalancedTree.toBalancedTree]
@@ -1708,8 +1706,8 @@ theorem Const.mergeWith_eq_mergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁
   induction t₂ generalizing t₁ with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
-    simp only [foldl, foldlM, Id.run, bind]
-    simp only [foldl, Id.run, bind] at ihl ihr
+    simp only [foldl, foldlM, Id.run_bind, pure_bind]
+    simp only [foldl] at ihl ihr
     rw [ihr]
     congr
     simp only [SizedBalancedTree.toBalancedTree]

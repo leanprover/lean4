@@ -40,8 +40,9 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lake_instForInNameMapPro
 static lean_object* l_Lake_OrdNameMap_empty___closed__1;
 LEAN_EXPORT lean_object* l_Lake_stringToLegalOrSimpleName(lean_object*);
 lean_object* l_Lean_quoteNameMk(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__3_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__3_splitter(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeRBMapNameQuickCmpNameMap__lake(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Name_eraseHead(lean_object*);
@@ -55,12 +56,12 @@ lean_object* l_id___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkOrdNameMap(lean_object*);
 lean_object* l_String_toName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lake_instForInNameMapProdName__lake___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instForInNameMapProdName__lake___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_appendCore_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__3_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Name_quoteFrom___closed__6;
 static lean_object* l_Lake_instCoeRBMapNameQuickCmpNameMap__lake___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -68,7 +69,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_isPrefixOf_matc
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_isAnonymous_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdNameMap_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Name_quoteFrom(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_stringToLegalOrSimpleName(lean_object* x_1) {
 _start:
 {
@@ -511,7 +511,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Lake_Util_Name_0__Lean_Name_appendC
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__3_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -642,19 +642,19 @@ return x_32;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__3_splitter(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter___rarg___boxed), 9, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Lake_Util_Name_0__Lean_Name_cmp_match__3_splitter___rarg___boxed), 9, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__3_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; 
-x_10 = l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_10 = l___private_Lake_Util_Name_0__Lean_Name_cmp_match__3_splitter___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_3);
 return x_10;
 }

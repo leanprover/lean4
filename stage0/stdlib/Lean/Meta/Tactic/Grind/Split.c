@@ -56,7 +56,6 @@ static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_Grind_checkSplitInfoAr
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_mkCasesMajor___lambda__3___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_checkForallStatus(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_mkCasesMajor___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_cheapCasesOnly___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_Grind_checkSplitInfoArgStatus___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_mkGrindEM___closed__1;
@@ -65,6 +64,7 @@ lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_selectNextSplit_x3f_go___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_reprSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_158____closed__5;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_selectNextSplit_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_Grind_checkSplitInfoArgStatus___spec__1___lambda__3___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_checkSplitInfoArgStatus___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -161,6 +161,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_
 uint8_t l_List_elem___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_isCongrToPrevSplit___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44_(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_updateLastTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_checkDefaultSplitStatus___closed__6;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_checkDefaultSplitStatus___lambda__3___closed__6;
@@ -192,7 +193,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_reprSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_158____closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_checkIffStatus(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44_(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_mkEqFalseProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -206,7 +206,6 @@ LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_Grind_checkSplitI
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_selectNextSplit_x3f_go___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_selectNextSplit_x3f_go___closed__2;
-lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_updateSplitArgPosMap___spec__7(lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_mkCasesMajor___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_isCongrToPrevSplit___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -227,6 +226,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at___private_Lean_
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_mkCasesMajor___lambda__2___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_mkCasesMajor___lambda__2___closed__4;
+lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_updateSplitArgPosMap___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_isCongrToPrevSplit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_Grind_checkSplitInfoArgStatus___spec__1___lambda__3___closed__10;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_checkDefaultSplitStatus___lambda__8___closed__1;
@@ -305,7 +305,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -436,11 +436,11 @@ return x_24;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44_(x_1, x_2);
+x_3 = l_Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -451,7 +451,7 @@ static lean_object* _init_l_Lean_Meta_Grind_instBEqSplitStatus___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Split_0__Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_beqSplitStatus____x40_Lean_Meta_Tactic_Grind_Split___hyg_44____boxed), 2, 0);
 return x_1;
 }
 }
@@ -3106,7 +3106,7 @@ lean_dec(x_24);
 x_45 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_44);
 x_46 = lean_ctor_get(x_45, 0);
 lean_inc(x_46);
-x_47 = lean_ctor_get_uint8(x_46, sizeof(void*)*7 + 11);
+x_47 = lean_ctor_get_uint8(x_46, sizeof(void*)*6 + 11);
 lean_dec(x_46);
 if (x_47 == 0)
 {
@@ -3239,7 +3239,7 @@ lean_dec(x_3);
 x_75 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_21);
 x_76 = lean_ctor_get(x_75, 0);
 lean_inc(x_76);
-x_77 = lean_ctor_get_uint8(x_76, sizeof(void*)*7 + 11);
+x_77 = lean_ctor_get_uint8(x_76, sizeof(void*)*6 + 11);
 lean_dec(x_76);
 if (x_77 == 0)
 {
@@ -5880,7 +5880,7 @@ x_59 = lean_usize_sub(x_57, x_58);
 x_60 = lean_usize_land(x_56, x_59);
 x_61 = lean_array_uget(x_45, x_60);
 lean_dec(x_45);
-x_62 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_updateSplitArgPosMap___spec__7(x_14, x_61);
+x_62 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_updateSplitArgPosMap___spec__6(x_14, x_61);
 lean_dec(x_61);
 lean_dec(x_14);
 if (lean_obj_tag(x_62) == 0)
@@ -6047,7 +6047,7 @@ x_107 = lean_usize_sub(x_105, x_106);
 x_108 = lean_usize_land(x_104, x_107);
 x_109 = lean_array_uget(x_93, x_108);
 lean_dec(x_93);
-x_110 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_updateSplitArgPosMap___spec__7(x_69, x_109);
+x_110 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_updateSplitArgPosMap___spec__6(x_69, x_109);
 lean_dec(x_109);
 lean_dec(x_69);
 if (lean_obj_tag(x_110) == 0)
@@ -10329,7 +10329,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = l_Lean_Meta_Grind_getConfig___rarg(x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*7);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*6);
 lean_dec(x_12);
 if (x_13 == 0)
 {

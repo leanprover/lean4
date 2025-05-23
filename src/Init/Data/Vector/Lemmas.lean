@@ -53,9 +53,9 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
     (Vector.mk xs size).contains a = xs.contains a := by
   simp [contains]
 
-@[simp] theorem push_mk {xs : Array α} {size : xs.size = n} {x : α} :
-    (Vector.mk xs size).push x =
-      Vector.mk (xs.push x) (by simp [size, Nat.succ_eq_add_one]) := rfl
+@[simp] theorem push_mk {xs : Array α} {size : xs.size = n} :
+    (Vector.mk xs size).push =
+      fun x => Vector.mk (xs.push x) (by simp [size, Nat.succ_eq_add_one]) := rfl
 
 @[simp] theorem pop_mk {xs : Array α} {size : xs.size = n} :
     (Vector.mk xs size).pop = Vector.mk xs.pop (by simp [size]) := rfl
@@ -486,7 +486,7 @@ abbrev toArray_mkVector := @toArray_replicate
 `Vector.ext` is an extensionality theorem.
 Vectors `a` and `b` are equal to each other if their elements are equal for each valid index.
 -/
-@[ext]
+@[ext, grind ext]
 protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → xs[i] = ys[i]) : xs = ys := by
   apply Vector.toArray_inj.1
   apply Array.ext
@@ -1660,12 +1660,12 @@ theorem forall_mem_append {p : α → Prop} {xs : Vector α n} {ys : Vector α m
     (∀ (x) (_ : x ∈ xs ++ ys), p x) ↔ (∀ (x) (_ : x ∈ xs), p x) ∧ (∀ (x) (_ : x ∈ ys), p x) := by
   simp only [mem_append, or_imp, forall_and]
 
-@[grind]
+@[simp, grind]
 theorem empty_append {xs : Vector α n} : (#v[] : Vector α 0) ++ xs = xs.cast (by omega) := by
   rcases xs with ⟨as, rfl⟩
   simp
 
-@[grind]
+@[simp, grind]
 theorem append_empty {xs : Vector α n} : xs ++ (#v[] : Vector α 0) = xs := by
   rw [← toArray_inj, toArray_append, Array.append_empty]
 
@@ -2385,19 +2385,23 @@ theorem foldrM_pure [Monad m] [LawfulMonad m] {f : α → β → β} {b} {xs : V
   Array.foldrM_pure
 
 theorem foldl_eq_foldlM {f : β → α → β} {b} {xs : Vector α n} :
-    xs.foldl f b = xs.foldlM (m := Id) f b := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldl_eq_foldlM]
+    xs.foldl f b = (xs.foldlM (m := Id) (pure <| f · ·) b).run := rfl
 
 theorem foldr_eq_foldrM {f : α → β → β} {b} {xs : Vector α n} :
-    xs.foldr f b = xs.foldrM (m := Id) f b := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldr_eq_foldrM]
+    xs.foldr f b = (xs.foldrM (m := Id) (pure <| f · ·) b).run := rfl
 
-@[simp] theorem id_run_foldlM {f : β → α → Id β} {b} {xs : Vector α n} :
+@[simp] theorem idRun_foldlM {f : β → α → Id β} {b} {xs : Vector α n} :
+    Id.run (xs.foldlM f b) = xs.foldl (f · · |>.run) b := foldl_eq_foldlM.symm
+
+@[deprecated idRun_foldlM (since := "2025-05-21")]
+theorem id_run_foldlM {f : β → α → Id β} {b} {xs : Vector α n} :
     Id.run (xs.foldlM f b) = xs.foldl f b := foldl_eq_foldlM.symm
 
-@[simp] theorem id_run_foldrM {f : α → β → Id β} {b} {xs : Vector α n} :
+@[simp] theorem idRun_foldrM {f : α → β → Id β} {b} {xs : Vector α n} :
+    Id.run (xs.foldrM f b) = xs.foldr (f · · |>.run) b := foldr_eq_foldrM.symm
+
+@[deprecated idRun_foldrM (since := "2025-05-21")]
+theorem id_run_foldrM {f : α → β → Id β} {b} {xs : Vector α n} :
     Id.run (xs.foldrM f b) = xs.foldr f b := foldr_eq_foldrM.symm
 
 @[simp] theorem foldlM_reverse [Monad m] {xs : Vector α n} {f : β → α → m β} {b} :
@@ -2485,10 +2489,10 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
   simp
 
 @[simp, grind _=_] theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs : Vector α n} {ys : Vector α k} :
-    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) := by simp [foldl_eq_foldlM]
+    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) := foldlM_append
 
 @[simp, grind _=_] theorem foldr_append {f : α → β → β} {b} {xs : Vector α n} {ys : Vector α k} :
-    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) := by simp [foldr_eq_foldrM]
+    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) := foldrM_append
 
 @[simp, grind] theorem foldl_flatten {f : β → α → β} {b} {xss : Vector (Vector α m) n} :
     (flatten xss).foldl f b = xss.foldl (fun b xs => xs.foldl f b) b := by
@@ -2501,7 +2505,8 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
   simp [Array.foldr_flatten', Array.foldr_map']
 
 @[simp, grind] theorem foldl_reverse {xs : Vector α n} {f : β → α → β} {b} :
-    xs.reverse.foldl f b = xs.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
+    xs.reverse.foldl f b = xs.foldr (fun x y => f y x) b :=
+  foldlM_reverse
 
 @[simp, grind] theorem foldr_reverse {xs : Vector α n} {f : α → β → β} {b} :
     xs.reverse.foldr f b = xs.foldl (fun x y => f y x) b :=

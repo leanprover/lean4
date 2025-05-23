@@ -104,7 +104,11 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   intCast_neg := Fin.intCast_neg
 
 instance (n : Nat) [NeZero n] : IsCharP (Fin n) n where
-  ofNat_eq_zero_iff x := by simp only [OfNat.ofNat, Fin.ofNat']; simp
+  ofNat_eq_zero_iff x := by
+    change Fin.ofNat' _ _ = Fin.ofNat' _ _ ↔ _
+    simp only [Fin.ofNat']
+    simp only [Nat.zero_mod]
+    simp only [Fin.mk.injEq]
 
 end Fin
 

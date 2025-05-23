@@ -3,7 +3,6 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian, Sebastian Ullrich
 -/
-
 module
 
 prelude
@@ -21,13 +20,13 @@ The relationship between the compared items may be:
  * `Ordering.gt`: greater than
 -/
 inductive Ordering where
-  | /-- Less than. -/
-    lt
-  | /-- Equal. -/
-    eq
-  | /-- Greater than. -/
-    gt
-deriving Inhabited, DecidableEq
+  /-- Less than. -/
+  | lt
+  /-- Equal. -/
+  | eq
+  /-- Greater than. -/
+  | gt
+deriving Inhabited, DecidableEq, Repr
 
 namespace Ordering
 
@@ -39,6 +38,7 @@ Examples:
  * `Ordering.eq.swap = Ordering.eq`
  * `Ordering.gt.swap = Ordering.lt`
 -/
+@[inline]
 def swap : Ordering → Ordering
   | .lt => .gt
   | .eq => .eq
@@ -96,6 +96,7 @@ Ordering.lt
 /--
 Checks whether the ordering is `eq`.
 -/
+@[inline]
 def isEq : Ordering → Bool
   | eq => true
   | _ => false
@@ -103,6 +104,7 @@ def isEq : Ordering → Bool
 /--
 Checks whether the ordering is not `eq`.
 -/
+@[inline]
 def isNe : Ordering → Bool
   | eq => false
   | _ => true
@@ -110,6 +112,7 @@ def isNe : Ordering → Bool
 /--
 Checks whether the ordering is `lt` or `eq`.
 -/
+@[inline]
 def isLE : Ordering → Bool
   | gt => false
   | _ => true
@@ -117,6 +120,7 @@ def isLE : Ordering → Bool
 /--
 Checks whether the ordering is `lt`.
 -/
+@[inline]
 def isLT : Ordering → Bool
   | lt => true
   | _ => false
@@ -124,6 +128,7 @@ def isLT : Ordering → Bool
 /--
 Checks whether the ordering is `gt`.
 -/
+@[inline]
 def isGT : Ordering → Bool
   | gt => true
   | _ => false
@@ -131,203 +136,158 @@ def isGT : Ordering → Bool
 /--
 Checks whether the ordering is `gt` or `eq`.
 -/
+@[inline]
 def isGE : Ordering → Bool
   | lt => false
   | _ => true
 
 section Lemmas
 
-@[simp]
-theorem isLT_lt : lt.isLT := rfl
+protected theorem «forall» {p : Ordering → Prop} : (∀ o, p o) ↔ p .lt ∧ p .eq ∧ p .gt := by
+  constructor
+  · intro h
+    exact ⟨h _, h _, h _⟩
+  · rintro ⟨h₁, h₂, h₃⟩ (_ | _ | _) <;> assumption
 
-@[simp]
-theorem isLE_lt : lt.isLE := rfl
+protected theorem «exists» {p : Ordering → Prop} : (∃ o, p o) ↔ p .lt ∨ p .eq ∨ p .gt := by
+  constructor
+  · rintro ⟨(_ | _ | _), h⟩
+    · exact .inl h
+    · exact .inr (.inl h)
+    · exact .inr (.inr h)
+  · rintro (h | h | h) <;> exact ⟨_, h⟩
 
-@[simp]
-theorem isEq_lt : lt.isEq = false := rfl
+instance [DecidablePred p] : Decidable (∀ o : Ordering, p o) :=
+  decidable_of_decidable_of_iff Ordering.«forall».symm
 
-@[simp]
-theorem isNe_lt : lt.isNe = true := rfl
+instance [DecidablePred p] : Decidable (∃ o : Ordering, p o) :=
+  decidable_of_decidable_of_iff Ordering.«exists».symm
 
-@[simp]
-theorem isGE_lt : lt.isGE = false := rfl
+@[simp] theorem isLT_lt : lt.isLT := rfl
+@[simp] theorem isLE_lt : lt.isLE := rfl
+@[simp] theorem isEq_lt : lt.isEq = false := rfl
+@[simp] theorem isNe_lt : lt.isNe = true := rfl
+@[simp] theorem isGE_lt : lt.isGE = false := rfl
+@[simp] theorem isGT_lt : lt.isGT = false := rfl
 
-@[simp]
-theorem isGT_lt : lt.isGT = false := rfl
+@[simp] theorem isLT_eq : eq.isLT = false := rfl
+@[simp] theorem isLE_eq : eq.isLE := rfl
+@[simp] theorem isEq_eq : eq.isEq := rfl
+@[simp] theorem isNe_eq : eq.isNe = false := rfl
+@[simp] theorem isGE_eq : eq.isGE := rfl
+@[simp] theorem isGT_eq : eq.isGT = false := rfl
 
-@[simp]
-theorem isLT_eq : eq.isLT = false := rfl
+@[simp] theorem isLT_gt : gt.isLT = false := rfl
+@[simp] theorem isLE_gt : gt.isLE = false := rfl
+@[simp] theorem isEq_gt : gt.isEq = false := rfl
+@[simp] theorem isNe_gt : gt.isNe = true := rfl
+@[simp] theorem isGE_gt : gt.isGE := rfl
+@[simp] theorem isGT_gt : gt.isGT := rfl
 
-@[simp]
-theorem isLE_eq : eq.isLE := rfl
+@[simp] theorem lt_beq_eq : (lt == eq) = false := rfl
+@[simp] theorem lt_beq_gt : (lt == gt) = false := rfl
+@[simp] theorem eq_beq_lt : (eq == lt) = false := rfl
+@[simp] theorem eq_beq_gt : (eq == gt) = false := rfl
+@[simp] theorem gt_beq_lt : (gt == lt) = false := rfl
+@[simp] theorem gt_beq_eq : (gt == eq) = false := rfl
 
-@[simp]
-theorem isEq_eq : eq.isEq := rfl
+@[simp] theorem swap_lt : lt.swap = .gt := rfl
+@[simp] theorem swap_eq : eq.swap = .eq := rfl
+@[simp] theorem swap_gt : gt.swap = .lt := rfl
 
-@[simp]
-theorem isNe_eq : eq.isNe = false := rfl
+theorem eq_eq_of_isLE_of_isLE_swap : ∀ {o : Ordering}, o.isLE → o.swap.isLE → o = .eq := by decide
+theorem eq_eq_of_isGE_of_isGE_swap : ∀ {o : Ordering}, o.isGE → o.swap.isGE → o = .eq := by decide
+theorem eq_eq_of_isLE_of_isGE : ∀ {o : Ordering}, o.isLE → o.isGE → o = .eq := by decide
+theorem eq_swap_iff_eq_eq : ∀ {o : Ordering}, o = o.swap ↔ o = .eq := by decide
+theorem eq_eq_of_eq_swap : ∀ {o : Ordering}, o = o.swap → o = .eq := eq_swap_iff_eq_eq.mp
 
-@[simp]
-theorem isGE_eq : eq.isGE := rfl
+@[simp] theorem isLE_eq_false : ∀ {o : Ordering}, o.isLE = false ↔ o = .gt := by decide
+@[simp] theorem isGE_eq_false : ∀ {o : Ordering}, o.isGE = false ↔ o = .lt := by decide
+@[simp] theorem isNe_eq_false : ∀ {o : Ordering}, o.isNe = false ↔ o = .eq := by decide
+@[simp] theorem isEq_eq_false : ∀ {o : Ordering}, o.isEq = false ↔ ¬o = .eq := by decide
 
-@[simp]
-theorem isGT_eq : eq.isGT = false := rfl
+@[simp] theorem swap_eq_gt : ∀ {o : Ordering}, o.swap = .gt ↔ o = .lt := by decide
+@[simp] theorem swap_eq_lt : ∀ {o : Ordering}, o.swap = .lt ↔ o = .gt := by decide
+@[simp] theorem swap_eq_eq : ∀ {o : Ordering}, o.swap = .eq ↔ o = .eq := by decide
 
-@[simp]
-theorem isLT_gt : gt.isLT = false := rfl
+@[simp] theorem isLT_swap : ∀ {o : Ordering}, o.swap.isLT = o.isGT := by decide
+@[simp] theorem isLE_swap : ∀ {o : Ordering}, o.swap.isLE = o.isGE := by decide
+@[simp] theorem isEq_swap : ∀ {o : Ordering}, o.swap.isEq = o.isEq := by decide
+@[simp] theorem isNe_swap : ∀ {o : Ordering}, o.swap.isNe = o.isNe := by decide
+@[simp] theorem isGE_swap : ∀ {o : Ordering}, o.swap.isGE = o.isLE := by decide
+@[simp] theorem isGT_swap : ∀ {o : Ordering}, o.swap.isGT = o.isLT := by decide
 
-@[simp]
-theorem isLE_gt : gt.isLE = false := rfl
+theorem isLE_of_eq_lt : ∀ {o : Ordering}, o = .lt → o.isLE := by decide
+theorem isLE_of_eq_eq : ∀ {o : Ordering}, o = .eq → o.isLE := by decide
+theorem isGE_of_eq_gt : ∀ {o : Ordering}, o = .gt → o.isGE := by decide
+theorem isGE_of_eq_eq : ∀ {o : Ordering}, o = .eq → o.isGE := by decide
 
-@[simp]
-theorem isEq_gt : gt.isEq = false := rfl
+theorem ne_eq_of_eq_lt : ∀ {o : Ordering}, o = .lt → o ≠ .eq := by decide
+theorem ne_eq_of_eq_gt : ∀ {o : Ordering}, o = .gt → o ≠ .eq := by decide
 
-@[simp]
-theorem isNe_gt : gt.isNe = true := rfl
+@[simp] theorem isLT_iff_eq_lt : ∀ {o : Ordering}, o.isLT ↔ o = .lt := by decide
+@[simp] theorem isGT_iff_eq_gt : ∀ {o : Ordering}, o.isGT ↔ o = .gt := by decide
+@[simp] theorem isEq_iff_eq_eq : ∀ {o : Ordering}, o.isEq ↔ o = .eq := by decide
+@[simp] theorem isNe_iff_ne_eq : ∀ {o : Ordering}, o.isNe ↔ ¬o = .eq := by decide
 
-@[simp]
-theorem isGE_gt : gt.isGE := rfl
+theorem isLE_iff_ne_gt : ∀ {o : Ordering}, o.isLE ↔ ¬o = .gt := by decide
+theorem isGE_iff_ne_lt : ∀ {o : Ordering}, o.isGE ↔ ¬o = .lt := by decide
+theorem isLE_iff_eq_lt_or_eq_eq : ∀ {o : Ordering}, o.isLE ↔ o = .lt ∨ o = .eq := by decide
+theorem isGE_iff_eq_gt_or_eq_eq : ∀ {o : Ordering}, o.isGE ↔ o = .gt ∨ o = .eq := by decide
 
-@[simp]
-theorem isGT_gt : gt.isGT := rfl
+theorem isLT_eq_beq_lt : ∀ {o : Ordering}, o.isLT = (o == .lt) := by decide
+theorem isLE_eq_not_beq_gt : ∀ {o : Ordering}, o.isLE = (!o == .gt) := by decide
+theorem isLE_eq_isLT_or_isEq : ∀ {o : Ordering}, o.isLE = (o.isLT || o.isEq) := by decide
+theorem isGT_eq_beq_gt : ∀ {o : Ordering}, o.isGT = (o == .gt) := by decide
+theorem isGE_eq_not_beq_lt : ∀ {o : Ordering}, o.isGE = (!o == .lt) := by decide
+theorem isGE_eq_isGT_or_isEq : ∀ {o : Ordering}, o.isGE = (o.isGT || o.isEq) := by decide
+theorem isEq_eq_beq_eq : ∀ {o : Ordering}, o.isEq = (o == .eq) := by decide
+theorem isNe_eq_not_beq_eq : ∀ {o : Ordering}, o.isNe = (!o == .eq) := by decide
+theorem isNe_eq_isLT_or_isGT : ∀ {o : Ordering}, o.isNe = (o.isLT || o.isGT) := by decide
 
-@[simp]
-theorem swap_lt : lt.swap = .gt := rfl
+@[simp] theorem not_isLT_eq_isGE : ∀ {o : Ordering}, !o.isLT = o.isGE := by decide
+@[simp] theorem not_isLE_eq_isGT : ∀ {o : Ordering}, !o.isLE = o.isGT := by decide
+@[simp] theorem not_isGT_eq_isLE : ∀ {o : Ordering}, !o.isGT = o.isLE := by decide
+@[simp] theorem not_isGE_eq_isLT : ∀ {o : Ordering}, !o.isGE = o.isLT := by decide
+@[simp] theorem not_isNe_eq_isEq : ∀ {o : Ordering}, !o.isNe = o.isEq := by decide
+theorem not_isEq_eq_isNe : ∀ {o : Ordering}, !o.isEq = o.isNe := by decide
 
-@[simp]
-theorem swap_eq : eq.swap = .eq := rfl
+theorem ne_lt_iff_isGE : ∀ {o : Ordering}, ¬o = .lt ↔ o.isGE := by decide
+theorem ne_gt_iff_isLE : ∀ {o : Ordering}, ¬o = .gt ↔ o.isLE := by decide
 
-@[simp]
-theorem swap_gt : gt.swap = .lt := rfl
+@[simp] theorem swap_swap : ∀ {o : Ordering}, o.swap.swap = o := by decide
+@[simp] theorem swap_inj : ∀ {o₁ o₂ : Ordering}, o₁.swap = o₂.swap ↔ o₁ = o₂ := by decide
 
-theorem eq_eq_of_isLE_of_isLE_swap {o : Ordering} : o.isLE → o.swap.isLE → o = .eq := by
-  cases o <;> simp
+theorem swap_then : ∀ (o₁ o₂ : Ordering), (o₁.then o₂).swap = o₁.swap.then o₂.swap := by decide
 
-theorem eq_eq_of_isGE_of_isGE_swap {o : Ordering} : o.isGE → o.swap.isGE → o = .eq := by
-  cases o <;> simp
+theorem then_eq_lt : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = lt ↔ o₁ = lt ∨ o₁ = eq ∧ o₂ = lt := by decide
+theorem then_eq_gt : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = gt ↔ o₁ = gt ∨ o₁ = eq ∧ o₂ = gt := by decide
+@[simp] theorem then_eq_eq : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = eq ↔ o₁ = eq ∧ o₂ = eq := by decide
 
-theorem eq_eq_of_isLE_of_isGE {o : Ordering} : o.isLE → o.isGE → o = .eq := by
-  cases o <;> simp
+theorem isLT_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLT = (o₁.isLT || o₁.isEq && o₂.isLT) := by decide
+theorem isEq_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isEq = (o₁.isEq && o₂.isEq) := by decide
+theorem isNe_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isNe = (o₁.isNe || o₂.isNe) := by decide
+theorem isGT_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGT = (o₁.isGT || o₁.isEq && o₂.isGT) := by decide
 
-theorem eq_swap_iff_eq_eq {o : Ordering} : o = o.swap ↔ o = .eq := by
-  cases o <;> simp
+@[simp] theorem lt_then {o : Ordering} : lt.then o = lt := rfl
+@[simp] theorem gt_then {o : Ordering} : gt.then o = gt := rfl
+@[simp] theorem eq_then {o : Ordering} : eq.then o = o := rfl
 
-theorem eq_eq_of_eq_swap {o : Ordering} : o = o.swap → o = .eq :=
-  eq_swap_iff_eq_eq.mp
+@[simp] theorem then_eq : ∀ {o : Ordering}, o.then eq = o := by decide
+@[simp] theorem then_self : ∀ {o : Ordering}, o.then o = o := by decide
+theorem then_assoc : ∀ (o₁ o₂ o₃ : Ordering), (o₁.then o₂).then o₃ = o₁.then (o₂.then o₃) := by decide
 
-@[simp]
-theorem isLE_eq_false {o : Ordering} : o.isLE = false ↔ o = .gt := by
-  cases o <;> simp
+theorem isLE_then_iff_or : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE ↔ o₁ = lt ∨ (o₁ = eq ∧ o₂.isLE) := by decide
+theorem isLE_then_iff_and : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE ↔ o₁.isLE ∧ (o₁ = lt ∨ o₂.isLE) := by decide
+theorem isLE_left_of_isLE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE → o₁.isLE := by decide
+theorem isGE_left_of_isGE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGE → o₁.isGE := by decide
 
-@[simp]
-theorem isGE_eq_false {o : Ordering} : o.isGE = false ↔ o = .lt := by
-  cases o <;> simp
+instance : Std.Associative Ordering.then := ⟨then_assoc⟩
+instance : Std.IdempotentOp Ordering.then := ⟨fun _ => then_self⟩
 
-@[simp]
-theorem swap_eq_gt {o : Ordering} : o.swap = .gt ↔ o = .lt := by
-  cases o <;> simp
-
-@[simp]
-theorem swap_eq_lt {o : Ordering} : o.swap = .lt ↔ o = .gt := by
-  cases o <;> simp
-
-@[simp]
-theorem swap_eq_eq {o : Ordering} : o.swap = .eq ↔ o = .eq := by
-  cases o <;> simp
-
-@[simp]
-theorem isLT_swap {o : Ordering} : o.swap.isLT = o.isGT := by
-  cases o <;> simp
-
-@[simp]
-theorem isLE_swap {o : Ordering} : o.swap.isLE = o.isGE := by
-  cases o <;> simp
-
-@[simp]
-theorem isEq_swap {o : Ordering} : o.swap.isEq = o.isEq := by
-  cases o <;> simp
-
-@[simp]
-theorem isNe_swap {o : Ordering} : o.swap.isNe = o.isNe := by
-  cases o <;> simp
-
-@[simp]
-theorem isGE_swap {o : Ordering} : o.swap.isGE = o.isLE := by
-  cases o <;> simp
-
-@[simp]
-theorem isGT_swap {o : Ordering} : o.swap.isGT = o.isLT := by
-  cases o <;> simp
-
-theorem isLT_iff_eq_lt {o : Ordering} : o.isLT ↔ o = .lt := by
-  cases o <;> simp
-
-theorem isLE_iff_eq_lt_or_eq_eq {o : Ordering} : o.isLE ↔ o = .lt ∨ o = .eq := by
-  cases o <;> simp
-
-theorem isLE_of_eq_lt {o : Ordering} : o = .lt → o.isLE := by
-  rintro rfl; rfl
-
-theorem isLE_of_eq_eq {o : Ordering} : o = .eq → o.isLE := by
-  rintro rfl; rfl
-
-theorem isEq_iff_eq_eq {o : Ordering} : o.isEq ↔ o = .eq := by
-  cases o <;> simp
-
-theorem isNe_iff_ne_eq {o : Ordering} : o.isNe ↔ o ≠ .eq := by
-  cases o <;> simp
-
-theorem isGE_iff_eq_gt_or_eq_eq {o : Ordering} : o.isGE ↔ o = .gt ∨ o = .eq := by
-  cases o <;> simp
-
-theorem isGE_of_eq_gt {o : Ordering} : o = .gt → o.isGE := by
-  rintro rfl; rfl
-
-theorem isGE_of_eq_eq {o : Ordering} : o = .eq → o.isGE := by
-  rintro rfl; rfl
-
-theorem isGT_iff_eq_gt {o : Ordering} : o.isGT ↔ o = .gt := by
-  cases o <;> simp
-
-@[simp]
-theorem swap_swap {o : Ordering} : o.swap.swap = o := by
-  cases o <;> simp
-
-@[simp] theorem swap_inj {o₁ o₂ : Ordering} : o₁.swap = o₂.swap ↔ o₁ = o₂ :=
-  ⟨fun h => by simpa using congrArg swap h, congrArg _⟩
-
-theorem swap_then (o₁ o₂ : Ordering) : (o₁.then o₂).swap = o₁.swap.then o₂.swap := by
-  cases o₁ <;> rfl
-
-theorem then_eq_lt {o₁ o₂ : Ordering} : o₁.then o₂ = lt ↔ o₁ = lt ∨ o₁ = eq ∧ o₂ = lt := by
-  cases o₁ <;> cases o₂ <;> decide
-
-theorem then_eq_eq {o₁ o₂ : Ordering} : o₁.then o₂ = eq ↔ o₁ = eq ∧ o₂ = eq := by
-  cases o₁ <;> simp [«then»]
-
-theorem then_eq_gt {o₁ o₂ : Ordering} : o₁.then o₂ = gt ↔ o₁ = gt ∨ o₁ = eq ∧ o₂ = gt := by
-  cases o₁ <;> cases o₂ <;> decide
-
-@[simp]
-theorem lt_then {o : Ordering} : lt.then o = lt := rfl
-
-@[simp]
-theorem gt_then {o : Ordering} : gt.then o = gt := rfl
-
-@[simp]
-theorem eq_then {o : Ordering} : eq.then o = o := rfl
-
-theorem isLE_then_iff_or {o₁ o₂ : Ordering} : (o₁.then o₂).isLE ↔ o₁ = lt ∨ (o₁ = eq ∧ o₂.isLE) := by
-  cases o₁ <;> simp
-
-theorem isLE_then_iff_and {o₁ o₂ : Ordering} : (o₁.then o₂).isLE ↔ o₁.isLE ∧ (o₁ = lt ∨ o₂.isLE) := by
-  cases o₁ <;> simp
-
-theorem isLE_left_of_isLE_then {o₁ o₂ : Ordering} (h : (o₁.then o₂).isLE) : o₁.isLE := by
-  cases o₁ <;> simp_all
-
-theorem isGE_left_of_isGE_then {o₁ o₂ : Ordering} (h : (o₁.then o₂).isGE) : o₁.isGE := by
-  cases o₁ <;> simp_all
+instance : Std.LawfulIdentity Ordering.then eq where
+  left_id _ := eq_then
+  right_id _ := then_eq
 
 end Lemmas
 
@@ -375,7 +335,7 @@ section Lemmas
 @[simp]
 theorem compareLex_eq_eq {α} {cmp₁ cmp₂} {a b : α} :
     compareLex cmp₁ cmp₂ a b = .eq ↔ cmp₁ a b = .eq ∧ cmp₂ a b = .eq := by
-  simp [compareLex, Ordering.then_eq_eq]
+  simp [compareLex]
 
 theorem compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne {α : Type u} [LT α] [DecidableLT α] [DecidableEq α]
     (h : ∀ x y : α, x < y ↔ ¬ y < x ∧ x ≠ y) {x y : α} :
@@ -384,14 +344,14 @@ theorem compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne {α : Type u} [LT α]
   split
   · rename_i h'
     rw [h] at h'
-    simp only [h'.1, h'.2.symm, reduceIte, Ordering.swap_gt]
+    simp only [h'.1, h'.2.symm, ↓reduceIte, Ordering.swap_gt]
   · split
     · rename_i h'
       have : ¬ y < y := Not.imp (·.2 rfl) <| (h y y).mp
-      simp only [h', this, reduceIte, Ordering.swap_eq]
+      simp only [h', this, ↓reduceIte, Ordering.swap_eq]
     · rename_i h' h''
       replace h' := (h y x).mpr ⟨h', Ne.symm h''⟩
-      simp only [h', Ne.symm h'', reduceIte, Ordering.swap_lt]
+      simp only [h', Ne.symm h'', ↓reduceIte, Ordering.swap_lt]
 
 theorem lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
@@ -478,13 +438,13 @@ but this is not enforced by the typeclass.
 There is a derive handler, so appending `deriving Ord` to an inductive type or structure
 will attempt to create an `Ord` instance.
 -/
+@[ext]
 class Ord (α : Type u) where
   /-- Compare two elements in `α` using the comparator contained in an `[Ord α]` instance. -/
   compare : α → α → Ordering
 
 export Ord (compare)
 
-set_option linter.unusedVariables false in  -- allow specifying `ord` explicitly
 /--
 Compares two values by comparing the results of applying a function.
 
@@ -765,14 +725,22 @@ def lexOrd [Ord α] [Ord β] : Ord (α × β) where
   compare := compareLex (compareOn (·.1)) (compareOn (·.2))
 
 /--
+Constructs an `BEq` instance from an `Ord` instance that asserts that the result of `compare` is
+`Ordering.eq`.
+-/
+@[expose] def beqOfOrd [Ord α] : BEq α where
+  beq a b := (compare a b).isEq
+
+/--
 Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare` is
 `Ordering.lt`.
 -/
 @[expose] def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b = Ordering.lt
 
-instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
-  inferInstanceAs (DecidableRel (fun a b => compare a b = Ordering.lt))
+@[inline]
+instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) := fun a b =>
+  decidable_of_bool (compare a b).isLT Ordering.isLT_iff_eq_lt
 
 /--
 Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare`
@@ -781,34 +749,28 @@ satisfies `Ordering.isLE`.
 @[expose] def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
 
-instance [Ord α] : DecidableRel (@LE.le α leOfOrd) :=
-  inferInstanceAs (DecidableRel (fun a b => (compare a b).isLE))
+@[inline]
+instance [Ord α] : DecidableRel (@LE.le α leOfOrd) := fun _ _ => instDecidableEqBool ..
 
 namespace Ord
 
 /--
 Constructs a `BEq` instance from an `Ord` instance.
 -/
-protected def toBEq (ord : Ord α) : BEq α where
-  beq x y := ord.compare x y == .eq
+@[expose] protected abbrev toBEq (ord : Ord α) : BEq α :=
+  beqOfOrd
 
 /--
 Constructs an `LT` instance from an `Ord` instance.
 -/
-@[expose] protected def toLT (ord : Ord α) : LT α :=
+@[expose] protected abbrev toLT (ord : Ord α) : LT α :=
   ltOfOrd
-
-instance [i : Ord α] : DecidableRel (@LT.lt _ (Ord.toLT i)) :=
-  inferInstanceAs (DecidableRel (fun a b => compare a b = Ordering.lt))
 
 /--
 Constructs an `LE` instance from an `Ord` instance.
 -/
-@[expose] protected def toLE (ord : Ord α) : LE α :=
+@[expose] protected abbrev toLE (ord : Ord α) : LE α :=
   leOfOrd
-
-instance [i : Ord α] : DecidableRel (@LE.le _ (Ord.toLE i)) :=
-  inferInstanceAs (DecidableRel (fun a b => (compare a b).isLE))
 
 /--
 Inverts the order of an `Ord` instance.
@@ -833,7 +795,7 @@ protected def on (_ : Ord β) (f : α → β) : Ord α where
 /--
 Constructs the lexicographic order on products `α × β` from orders for `α` and `β`.
 -/
-protected def lex (_ : Ord α) (_ : Ord β) : Ord (α × β) :=
+protected abbrev lex (_ : Ord α) (_ : Ord β) : Ord (α × β) :=
   lexOrd
 
 /--
@@ -848,14 +810,5 @@ comparisons.
 -/
 protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
-
-/--
-Constructs an order which compares elements of an `Array` in lexicographic order.
--/
-protected def arrayOrd [a : Ord α] : Ord (Array α) where
-  compare x y :=
-    let _ : LT α := a.toLT
-    let _ : BEq α := a.toBEq
-    if List.lex x.toList y.toList then .lt else if x == y then .eq else .gt
 
 end Ord

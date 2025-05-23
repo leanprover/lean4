@@ -17,7 +17,6 @@ static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___close
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_CodeAction_holeCodeActionProvider___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_findInfoTree_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_CodeAction_findInfoTree_x3f___spec__2___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object*);
 static lean_object* l_Lean_CodeAction_findTactic_x3f_go___closed__4;
@@ -33,7 +32,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeAct
 lean_object* l_EStateM_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_visit___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__12;
-uint8_t l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,7 +58,6 @@ LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_merge(lean_object*, le
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__7;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1(lean_object*);
 static lean_object* l_Lean_CodeAction_findTactic_x3f_visit___closed__1;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___closed__1;
@@ -71,6 +68,7 @@ size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_Server_instInhabitedRequestError;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_findInfoTree_x3f___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1;
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__9;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -78,11 +76,9 @@ static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___close
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___closed__4;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_CodeAction_holeCodeActionProvider___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findInfoTree_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_updateContext_x3f(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__4___closed__4;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_CodeAction_findInfoTree_x3f___spec__2___lambda__1(lean_object*, lean_object*);
@@ -94,14 +90,12 @@ LEAN_EXPORT lean_object* l_Lean_CodeAction_findInfoTree_x3f___lambda__2(lean_obj
 static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___closed__2;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__4___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3;
-static lean_object* l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__4;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__4___closed__2;
-static lean_object* l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2;
+static lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2;
+static lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_findInfoTree_x3f___lambda__2___closed__2;
@@ -118,8 +112,10 @@ static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___close
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_findTactic_x3f_go___closed__7;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3;
 static lean_object* l_Lean_CodeAction_findTactic_x3f_go___closed__6;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_95_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_CodeAction_findInfoTree_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_readDoc___at_Lean_Server_RequestM_withWaitFindSnapAtPos___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__3;
@@ -131,9 +127,9 @@ static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___close
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_findInfoTree_x3f___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_findInfoTree_x3f___lambda__2___closed__1;
-static lean_object* l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_CodeAction_findInfoTree_x3f___spec__1___lambda__1(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -144,6 +140,9 @@ static lean_object* l_Lean_CodeAction_findTactic_x3f_go___closed__2;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_go___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_findInfoTree_x3f___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_mk(lean_object*);
+static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2;
+static lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3;
+LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_CodeAction_findInfoTree_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -155,6 +154,7 @@ lean_object* l_Lean_Elab_InfoTree_foldInfoTree___rarg(lean_object*, lean_object*
 static lean_object* l_Lean_CodeAction_findTactic_x3f_go___closed__5;
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___closed__1;
+static lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4;
 static lean_object* l_Lean_CodeAction_findTactic_x3f_go___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f(lean_object*, lean_object*, lean_object*);
@@ -818,7 +818,7 @@ lean_dec(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1() {
+static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -826,7 +826,7 @@ x_1 = lean_mk_string_unchecked("CodeAction", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2() {
+static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -834,18 +834,18 @@ x_1 = lean_mk_string_unchecked("holeCodeActionProvider", 22, 22);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3() {
+static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__1;
-x_2 = l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1;
-x_3 = l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2;
+x_2 = l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1;
+x_3 = l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4() {
+static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -853,12 +853,12 @@ x_1 = lean_alloc_closure((void*)(l_Lean_CodeAction_holeCodeActionProvider), 4, 0
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3;
-x_3 = l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4;
+x_2 = l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3;
+x_3 = l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4;
 x_4 = l_Lean_Server_addBuiltinCodeActionProvider(x_2, x_3, x_1);
 return x_4;
 }
@@ -3644,7 +3644,7 @@ return x_27;
 else
 {
 uint8_t x_28; 
-x_28 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_23, x_2);
+x_28 = l_String_beqRange____x40_Lean_Syntax___hyg_95_(x_23, x_2);
 lean_dec(x_23);
 if (x_28 == 0)
 {
@@ -3719,7 +3719,7 @@ return x_40;
 else
 {
 uint8_t x_41; 
-x_41 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_36, x_2);
+x_41 = l_String_beqRange____x40_Lean_Syntax___hyg_95_(x_36, x_2);
 lean_dec(x_36);
 if (x_41 == 0)
 {
@@ -4922,7 +4922,7 @@ lean_dec(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1() {
+static lean_object* _init_l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4930,18 +4930,18 @@ x_1 = lean_mk_string_unchecked("cmdCodeActionProvider", 21, 21);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2() {
+static lean_object* _init_l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__1;
-x_2 = l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1;
-x_3 = l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1;
+x_2 = l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1;
+x_3 = l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3() {
+static lean_object* _init_l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -4949,12 +4949,12 @@ x_1 = lean_alloc_closure((void*)(l_Lean_CodeAction_cmdCodeActionProvider), 4, 0)
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2;
-x_3 = l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3;
+x_2 = l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2;
+x_3 = l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3;
 x_4 = l_Lean_Server_addBuiltinCodeActionProvider(x_2, x_3, x_1);
 return x_4;
 }
@@ -5012,15 +5012,15 @@ l_Lean_CodeAction_holeCodeActionProvider___closed__3 = _init_l_Lean_CodeAction_h
 lean_mark_persistent(l_Lean_CodeAction_holeCodeActionProvider___closed__3);
 l_Lean_CodeAction_holeCodeActionProvider___closed__4 = _init_l_Lean_CodeAction_holeCodeActionProvider___closed__4();
 lean_mark_persistent(l_Lean_CodeAction_holeCodeActionProvider___closed__4);
-l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1 = _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1);
-l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2 = _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2);
-l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3 = _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3);
-l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4 = _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4();
-lean_mark_persistent(l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4);
-if (builtin) {res = l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1(lean_io_mk_world());
+l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1 = _init_l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1();
+lean_mark_persistent(l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1);
+l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2 = _init_l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2();
+lean_mark_persistent(l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2);
+l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3 = _init_l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3();
+lean_mark_persistent(l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3);
+l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4 = _init_l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4();
+lean_mark_persistent(l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__4);
+if (builtin) {res = l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }l_Lean_CodeAction_findTactic_x3f_visit___closed__1 = _init_l_Lean_CodeAction_findTactic_x3f_visit___closed__1();
@@ -5059,13 +5059,13 @@ l_Lean_CodeAction_cmdCodeActionProvider___closed__1 = _init_l_Lean_CodeAction_cm
 lean_mark_persistent(l_Lean_CodeAction_cmdCodeActionProvider___closed__1);
 l_Lean_CodeAction_cmdCodeActionProvider___closed__2 = _init_l_Lean_CodeAction_cmdCodeActionProvider___closed__2();
 lean_mark_persistent(l_Lean_CodeAction_cmdCodeActionProvider___closed__2);
-l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1 = _init_l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1);
-l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2 = _init_l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2);
-l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3 = _init_l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3);
-if (builtin) {res = l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1(lean_io_mk_world());
+l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1 = _init_l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1();
+lean_mark_persistent(l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1);
+l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2 = _init_l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2();
+lean_mark_persistent(l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__2);
+l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3 = _init_l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3();
+lean_mark_persistent(l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3);
+if (builtin) {res = l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

@@ -34,6 +34,12 @@ instance : LE Timestamp where
 instance { x y : Timestamp } : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
+instance : LT Timestamp where
+  lt x y := x.val < y.val
+
+instance { x y : Timestamp } : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
+
 instance : OfNat Timestamp n where
   ofNat := ⟨OfNat.ofNat n⟩
 

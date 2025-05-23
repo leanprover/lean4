@@ -70,20 +70,9 @@ def getCasesTypes : CoreM CasesTypes :=
 def isSplit (declName : Name) : CoreM Bool := do
   return (← getCasesTypes).isSplit declName
 
-private def getAlias? (value : Expr) : MetaM (Option Name) :=
-  lambdaTelescope value fun _ body => do
-    if let .const declName _ := body.getAppFn' then
-      return some declName
-    else
-      return none
-
 partial def isCasesAttrCandidate? (declName : Name) (eager : Bool) : CoreM (Option Name) := do
   match (← getConstInfo declName) with
   | .inductInfo info => if !info.isRec || !eager then return some declName else return none
-  | .defnInfo info =>
-    let some declName ← getAlias? info.value |>.run' {} {}
-      | return none
-    isCasesAttrCandidate? declName eager
   | _ => return none
 
 def isCasesAttrCandidate (declName : Name) (eager : Bool) : CoreM Bool := do
@@ -161,6 +150,10 @@ def cases (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withConte
   let k (mvarId : MVarId) (fvarId : FVarId) (indices : Array FVarId) : MetaM (List MVarId) := do
     let indicesExpr := indices.map mkFVar
     let recursor ← mkRecursorAppPrefix mvarId `grind.cases fvarId recursorInfo indicesExpr
+    let lctx ← getLCtx
+    let lctx := lctx.setKind fvarId .implDetail
+    let lctx := indices.foldl (init := lctx) fun lctx fvarId => lctx.setKind fvarId .implDetail
+    let localInsts ← getLocalInstances
     let mut recursor := mkApp (mkAppN recursor indicesExpr) (mkFVar fvarId)
     let mut recursorType ← inferType recursor
     let mut mvarIdsNew := #[]
@@ -170,10 +163,9 @@ def cases (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withConte
         | throwTacticEx `grind.cases mvarId "unexpected recursor type"
       recursorType := recursorTypeNew
       let tagNew := if recursorInfo.numMinors > 1 then Name.num tag idx else tag
-      let mvar ← mkFreshExprSyntheticOpaqueMVar targetNew tagNew
+      let mvar ← mkFreshExprMVarAt lctx localInsts targetNew .syntheticOpaque tagNew
       recursor := mkApp recursor mvar
-      let mvarIdNew ← mvar.mvarId!.tryClearMany (indices.push fvarId)
-      mvarIdsNew := mvarIdsNew.push mvarIdNew
+      mvarIdsNew := mvarIdsNew.push mvar.mvarId!
       idx := idx + 1
     mvarId.assign recursor
     return mvarIdsNew.toList

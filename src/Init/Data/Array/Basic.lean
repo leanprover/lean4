@@ -112,6 +112,10 @@ theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
 
+@[simp] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
+
+@[simp] theorem mkEmpty_eq {α n} : @mkEmpty α n = #[] := rfl
+
 end Array
 
 namespace List
@@ -334,6 +338,8 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (emptyWithCapacity n) where
     if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
   decreasing_by simp_wf; decreasing_trivial_pre_omega
 
+-- See also `Array.ofFnM` defined in `Init.Data.Array.OfFn`.
+
 /--
 Constructs an array that contains all the numbers from `0` to `n`, exclusive.
 
@@ -538,7 +544,7 @@ Examples:
 -/
 @[inline]
 def modify (xs : Array α) (i : Nat) (f : α → α) : Array α :=
-  Id.run <| modifyM xs i f
+  Id.run <| modifyM xs i (pure <| f ·)
 
 set_option linter.indexVariables false in -- Changing `idx` causes bootstrapping issues, haven't investigated.
 /--
@@ -1053,7 +1059,7 @@ Examples:
 -/
 @[inline]
 def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Array α) (start := 0) (stop := as.size) : β :=
-  Id.run <| as.foldlM f init start stop
+  Id.run <| as.foldlM (pure <| f · ·) init start stop
 
 /--
 Folds a function over an array from the right, accumulating a value starting with `init`. The
@@ -1070,7 +1076,7 @@ Examples:
 -/
 @[inline]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Array α) (start := as.size) (stop := 0) : β :=
-  Id.run <| as.foldrM f init start stop
+  Id.run <| as.foldrM (pure <| f · ·) init start stop
 
 /--
 Computes the sum of the elements of an array.
@@ -1118,7 +1124,7 @@ Examples:
 -/
 @[inline]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
-  Id.run <| as.mapM f
+  Id.run <| as.mapM (pure <| f ·)
 
 instance : Functor Array where
   map := map
@@ -1133,7 +1139,7 @@ valid.
 -/
 @[inline]
 def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → β) : Array β :=
-  Id.run <| as.mapFinIdxM f
+  Id.run <| as.mapFinIdxM (pure <| f · · ·)
 
 /--
 Applies a function to each element of the array along with the index at which that element is found,
@@ -1144,7 +1150,7 @@ is valid.
 -/
 @[inline]
 def mapIdx {α : Type u} {β : Type v} (f : Nat → α → β) (as : Array α) : Array β :=
-  Id.run <| as.mapIdxM f
+  Id.run <| as.mapIdxM (pure <| f · ·)
 
 /--
 Pairs each element of an array with its index, optionally starting from an index other than `0`.
@@ -1192,7 +1198,7 @@ some 10
 -/
 @[inline]
 def findSome? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
-  Id.run <| as.findSomeM? f
+  Id.run <| as.findSomeM? (pure <| f ·)
 
 /--
 Returns the first non-`none` result of applying the function `f` to each element of the
@@ -1226,7 +1232,7 @@ Examples:
 -/
 @[inline]
 def findSomeRev? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
-  Id.run <| as.findSomeRevM? f
+  Id.run <| as.findSomeRevM? (pure <| f ·)
 
 /--
 Returns the last element of the array for which the predicate `p` returns `true`, or `none` if no
@@ -1238,7 +1244,7 @@ Examples:
 -/
 @[inline]
 def findRev? {α : Type} (p : α → Bool) (as : Array α) : Option α :=
-  Id.run <| as.findRevM? p
+  Id.run <| as.findRevM? (pure <| p ·)
 
 /--
 Returns the index of the first element for which `p` returns `true`, or `none` if there is no such
@@ -1377,7 +1383,7 @@ Examples:
 -/
 @[inline]
 def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
-  Id.run <| as.anyM p start stop
+  Id.run <| as.anyM (pure <| p ·) start stop
 
 /--
 Returns `true` if `p` returns `true` for every element of `as`.
@@ -1395,7 +1401,7 @@ Examples:
 -/
 @[inline]
 def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
-  Id.run <| as.allM p start stop
+  Id.run <| as.allM (pure <| p ·) start stop
 
 /--
 Checks whether `a` is an element of `as`, using `==` to compare elements.
@@ -1664,7 +1670,7 @@ Example:
 -/
 @[inline]
 def filterMap (f : α → Option β) (as : Array α) (start := 0) (stop := as.size) : Array β :=
-  Id.run <| as.filterMapM f (start := start) (stop := stop)
+  Id.run <| as.filterMapM (pure <| f ·) (start := start) (stop := stop)
 
 /--
 Returns the largest element of the array, as determined by the comparison `lt`, or `none` if

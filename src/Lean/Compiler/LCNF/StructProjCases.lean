@@ -31,11 +31,11 @@ def mkFieldParamsForCtorType (e : Expr) (numParams : Nat): CompilerM (Array Para
     | _ => return params
   loop #[] e numParams
 
-structure StructProjState where
+structure State where
   projMap : Std.HashMap FVarId (Array FVarId) := {}
   fvarMap : Std.HashMap FVarId FVarId := {}
 
-abbrev M := StateRefT StructProjState CompilerM
+abbrev M := StateRefT State CompilerM
 
 def M.run (x : M α) : CompilerM α := do
   x.run' {}
@@ -105,7 +105,7 @@ partial def visitLetValue (v : LetValue) : M LetValue := do
     return v.updateArgs! (← args.mapM visitArg)
   | .fvar fvarId args =>
     return v.updateFVar! (← remapFVar fvarId) (← args.mapM visitArg)
-  | .value _ | .erased => return v
+  | .lit _ | .erased => return v
   -- Projections should be handled directly by `visitCode`.
   | .proj .. => unreachable!
 
@@ -127,5 +127,7 @@ end StructProjCases
 
 def structProjCases : Pass :=
   .mkPerDeclaration `structProjCases (StructProjCases.visitDecl · |>.run) .mono
+
+builtin_initialize registerTraceClass `Compiler.structProjCases (inherited := true)
 
 end Lean.Compiler.LCNF

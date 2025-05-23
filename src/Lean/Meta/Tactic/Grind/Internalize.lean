@@ -102,10 +102,12 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       if (← isProp d) then
         addSplitCandidate (.imp e (h ▸ rfl))
     else if Arith.isRelevantPred d then
+      -- TODO: should we keep lookahead after we implement non-chronological backtracking?
       if (← getConfig).lookahead then
         addLookaheadCandidate (.imp e (h ▸ rfl))
-      else
-        addSplitCandidate (.imp e (h ▸ rfl))
+      -- We used to add the `split` only if `lookahead := false`, but it was counterintuitive
+      -- to make `grind` "stronger" by disabling a feature.
+      addSplitCandidate (.imp e (h ▸ rfl))
   | _ => pure ()
 
 /--

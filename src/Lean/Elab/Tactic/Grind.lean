@@ -224,26 +224,26 @@ def mkGrindOnly
         else
           let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
           let param ← match kind with
-            | .eqLhs     => `(Parser.Tactic.grindParam| = $decl)
-            | .eqRhs     => `(Parser.Tactic.grindParam| =_ $decl)
-            | .eqBoth    => `(Parser.Tactic.grindParam| _=_ $decl)
-            | .eqBwd     => `(Parser.Tactic.grindParam| ←= $decl)
-            | .bwd       => `(Parser.Tactic.grindParam| ← $decl)
-            | .fwd       => `(Parser.Tactic.grindParam| → $decl)
-            | .leftRight => `(Parser.Tactic.grindParam| => $decl)
-            | .rightLeft => `(Parser.Tactic.grindParam| <= $decl)
-            | .user      => `(Parser.Tactic.grindParam| usr $decl)
+            | .eqLhs     => `(Parser.Tactic.grindParam| = $decl:ident)
+            | .eqRhs     => `(Parser.Tactic.grindParam| =_ $decl:ident)
+            | .eqBoth    => `(Parser.Tactic.grindParam| _=_ $decl:ident)
+            | .eqBwd     => `(Parser.Tactic.grindParam| ←= $decl:ident)
+            | .bwd       => `(Parser.Tactic.grindParam| ← $decl:ident)
+            | .fwd       => `(Parser.Tactic.grindParam| → $decl:ident)
+            | .leftRight => `(Parser.Tactic.grindParam| => $decl:ident)
+            | .rightLeft => `(Parser.Tactic.grindParam| <= $decl:ident)
+            | .user      => `(Parser.Tactic.grindParam| usr $decl:ident)
             | .default   => `(Parser.Tactic.grindParam| $decl:ident)
           params := params.push param
   for declName in trace.eagerCases.toList do
     unless Grind.isBuiltinEagerCases declName do
       let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-      let param ← `(Parser.Tactic.grindParam| cases eager $decl)
+      let param ← `(Parser.Tactic.grindParam| cases eager $decl:ident)
       params := params.push param
   for declName in trace.cases.toList do
     unless trace.eagerCases.contains declName || Grind.isBuiltinEagerCases declName do
       let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-      let param ← `(Parser.Tactic.grindParam| cases $decl)
+      let param ← `(Parser.Tactic.grindParam| cases $decl:ident)
       params := params.push param
   let result ← if let some fallback := fallback? then
     `(tactic| grind $config:optConfig only on_failure $fallback)

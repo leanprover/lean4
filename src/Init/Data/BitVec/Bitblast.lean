@@ -2449,17 +2449,6 @@ theorem aandRec_iff' {x y : BitVec w} (k : Nat) (hk : k < w) (hk' : 0 < k) :
     aandRec x y k hk hk' ↔ (y[k] = true ∧ x.toNat ≥ 2^(w - 1 - (k - 1))) := by
   simp [aandRec, show ¬ k = 0 by omega]
 
-theorem aandRec_iff_le {x y : BitVec w} (k : Nat) (hk : k < w) (hk' : 0 < k) :
-  aandRec x y k hk hk' ↔  (∃ j, k ≤ j ∧ j < w ∧  2 ^ j * 2 ^ (w - 1 - (j - 1)) ≤ y.toNat * x.toNat) := by
-  constructor
-  · intro h
-    exists 2
-    sorry
-  · intros hj
-    obtain ⟨j, hkj, hjw, hjxy⟩ := hj
-    simp [aandRec, show ¬ k = 0 by omega]
-    sorry
-
 /--
   Count the number of leading zeroes downward from the 'n'th bit to the '0'th bit.
 -/
@@ -2488,8 +2477,44 @@ theorem of_le_clzAux {w} {k : Nat} (x : BitVec w) (hn : n < w)
     simp [show n < w by omega] at ihn
     by_cases hh : k ≤ x.clzAux n
     · simp [hh, hi] at ihn
-      sorry
-    · sorry
+      specialize ihn i
+      simp [hi] at ihn
+      rw [getLsbD_eq_getElem (by omega)] at ihn
+      cases k
+      · simp_all
+      · case pos.succ k =>
+        unfold clzAux at hk
+        by_cases hlsb : x.getLsbD (n + 1)
+        · simp [hlsb] at hk
+        · simp [hlsb] at hk
+          unfold clzAux at hh hk
+          induction i
+          · case neg.zero =>
+              simp_all
+          · case neg.succ i ihi =>
+              simp_all
+              rcases n
+              · simp_all
+                have h: 1 - i = 1 ∨ 1 - i = 0 := by omega
+                rcases h with h|h
+                · rw [getLsbD_eq_getElem (by omega)]
+                  simp [h, ihn]
+                · rw [getLsbD_eq_getElem (by omega)]
+                  simp [h, ihn]
+              · case succ n =>
+                simp_all
+                by_cases h : x.getLsbD (n + 1)
+                · simp [h] at hh hk
+                · simp [h] at hh hk
+                  rw [getLsbD_eq_getElem (by omega)]
+                  simp [show i < k + 1 by omega] at ihi
+                  simp_all
+                  apply Classical.byContradiction
+                  intro hcontra
+                  simp at hcontra
+                  simp [hcontra] at ihi
+                  simp_all
+                  sorry
 
 /-- Count the number of leading zeroes. -/
 def clz {w : Nat} (x : BitVec w) : Nat :=

@@ -307,7 +307,7 @@ def elabMutual : CommandElab := fun stx => do
       try
         realizeGlobalConstWithInfos ident
       catch _ =>
-        let name := ident.getId.eraseMacroScopes
+        let name := ident.getIdOrIdWithOptDot.eraseMacroScopes
         if (← Simp.isBuiltinSimproc name) then
           pure [name]
         else

@@ -309,7 +309,6 @@ size_t lean_array_size(lean_object*);
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
@@ -357,6 +356,7 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_throwTypeExcepted___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_throwUnknownMVar___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -2709,7 +2709,7 @@ goto block_90;
 else
 {
 uint8_t x_686; 
-x_686 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_668, x_668);
+x_686 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_668, x_668);
 if (x_686 == 0)
 {
 lean_object* x_687; 
@@ -2798,7 +2798,7 @@ goto block_90;
 else
 {
 uint8_t x_709; 
-x_709 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_691, x_691);
+x_709 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_691, x_691);
 if (x_709 == 0)
 {
 lean_object* x_710; 

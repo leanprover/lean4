@@ -435,14 +435,14 @@ where
     match stxs with
     | [] => return stack.foldl (fun syms entry => entry.finish text syms none) syms
     | stx::stxs => match stx with
-      | `(namespace $id)  =>
+      | `(namespace $id:identWithOptDot)  =>
         let entry := { name := id.getId.componentsRev, stx, selection := id, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
       | `($_:sectionHeader section $(id)?) =>
         let name := id.map (·.getId.componentsRev) |>.getD [`«»]
         let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
-      | `(end $(id)?) =>
+      | `(end $[$id:identWithOptDot]?) =>
         let rec popStack n syms
           | [] => toDocumentSymbols text stxs syms []
           | entry :: stack =>
@@ -455,7 +455,7 @@ where
             else
               let syms := entry.finish text syms stx
               popStack (n - entry.name.length) syms stack
-        popStack (id.map (·.getId.getNumParts) |>.getD 1) syms stack
+        popStack (id.map (·.getIdWithOptDot.getNumParts) |>.getD 1) syms stack
       | _ => do
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
           return ← toDocumentSymbols text stxs syms stack
@@ -498,11 +498,11 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
     | stx::stxs => do
       RequestM.checkCancelled
       match stx with
-      | `(namespace $id)  =>
+      | `(namespace $id:identWithOptDot)  =>
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
       | `($_:sectionHeader section $(id)?) =>
         addRanges text ((id.map (·.getId.getNumParts) |>.getD 1, stx.getPos?)::sections) stxs
-      | `(end $(id)?) => do
+      | `(end $[$id:identWithOptDot]?) => do
         let rec popRanges n sections := do
           if let (size, start)::rest := sections then
             if size == n then

@@ -97,7 +97,7 @@ private def tryApplyDefHandler (className : Name) (declName : Name) : CommandEla
     Term.processDefDeriving className declName
 
 @[builtin_command_elab «deriving»] def elabDeriving : CommandElab
-  | `(deriving instance $[$classes],* for $[$declNames],*) => do
+  | `(deriving instance $[$classes],* for $[$declNames:identWithOptDot],*) => do
      let declNames ← liftCoreM <| declNames.mapM realizeGlobalConstNoOverloadWithInfo
      for cls in classes do
        try

@@ -180,14 +180,15 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | none => throwUnknownId id
 
 private def printId (id : Syntax) : CommandElabM Unit := do
-  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
+  let danglingDot := id matches `(identWithOptDot| $_.$_)
+  addCompletionInfo <| .id id id.getIdOrIdWithOptDot danglingDot {} none
   let cs ← liftCoreM <| realizeGlobalConstWithInfos id
   cs.forM printIdCore
 
 @[builtin_command_elab «print»] def elabPrint : CommandElab
-  | `(#print%$tk $id:ident) => withRef tk <| printId id
-  | `(#print%$tk $s:str)    => logInfoAt tk s.getString
-  | _                       => throwError "invalid #print command"
+  | `(#print%$tk $id:identWithOptDot) => withRef tk <| printId id
+  | `(#print%$tk $s:str)              => logInfoAt tk s.getString
+  | _                                 => throwError "invalid #print command"
 
 private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   let axioms ← collectAxioms constName
@@ -197,7 +198,7 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
     logInfo m!"'{constName}' depends on axioms: {axioms.qsort Name.lt |>.toList}"
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
-  | `(#print%$tk axioms $id) => withRef tk do
+  | `(#print%$tk axioms $id:identWithOptDot) => withRef tk do
     if (← getEnv).header.isModule then
       throwError "cannot use `#print axioms` in a `module`; consider temporarily removing the \
         `module` header or placing the command in a separate file"

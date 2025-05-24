@@ -113,7 +113,6 @@ lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_markNestedProofsImpl_visit___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_foldProjs___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 static lean_object* l_panic___at_Lean_Meta_Grind_markNestedProofsImpl_visit___spec__6___closed__1;
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lean_Expr_isMData(lean_object*);
@@ -130,6 +129,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_markNestedProofsImpl_visit___lambda__
 uint8_t l_Lean_Expr_isForall(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_markNestedProofsImpl_visit___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -1537,7 +1537,7 @@ return x_24;
 else
 {
 uint8_t x_25; 
-x_25 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_4, x_4);
+x_25 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_4, x_4);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; 

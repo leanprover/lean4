@@ -354,7 +354,7 @@ static lean_object* _init_l_Lean_Parser_Command_registerSimpAttr___closed__17() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("register_simp_attr", 18, 18);
+x_1 = lean_mk_string_unchecked("register_simp_attr ", 19, 19);
 return x_1;
 }
 }

@@ -579,9 +579,9 @@ private def withNamespaces (ids : Array Name) (addOpenSimple : Bool) : ParserFn 
 
 def withOpenDeclFnCore (openDeclStx : Syntax) (p : ParserFn) : ParserFn := fun c s =>
   if openDeclStx.getKind == `Lean.Parser.Command.openSimple then
-    withNamespaces (openDeclStx[0].getArgs.map fun stx => stx.getId) (addOpenSimple := true) p c s
+    withNamespaces (openDeclStx[0].getArgs.map fun stx => stx.getIdOrIdWithOptDot) (addOpenSimple := true) p c s
   else if openDeclStx.getKind == `Lean.Parser.Command.openScoped then
-    withNamespaces (openDeclStx[1].getArgs.map fun stx => stx.getId) (addOpenSimple := false) p c s
+    withNamespaces (openDeclStx[1].getArgs.map fun stx => stx.getIdOrIdWithOptDot) (addOpenSimple := false) p c s
   else if openDeclStx.getKind == `Lean.Parser.Command.openOnly then
     -- It does not activate scoped attributes, nor affects namespace resolution
     p c s

@@ -8,7 +8,7 @@ open Std
 structure IndexMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   indices : HashMap α Nat
   data : Array (α × β)
-  WF : ∀ (i : Nat), data[i]? = some (a, b) ↔ indices[a]? = some i := by grind
+  WF : ∀ (a : α) (b : β) (i : Nat), data[i]? = some (a, b) ↔ indices[a]? = some i := by grind
 
 namespace IndexMap
 

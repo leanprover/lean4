@@ -37,7 +37,7 @@ def Module.srcFacetConfig : ModuleFacetConfig srcFacet :=
 def Module.recParseHeader (mod : Module) : FetchM (Job ModuleHeader) := do
   (← mod.src.fetch).mapM fun srcFile => do
     let contents ← IO.FS.readFile srcFile
-    Lean.parseImports' contents mod.leanFile.toString
+    Lean.parseImports' contents srcFile.toString
 
 /-- The `ModuleFacetConfig` for the builtin `headerFacet`. -/
 def Module.headerFacetConfig : ModuleFacetConfig headerFacet :=
@@ -213,7 +213,7 @@ Recursively build a module's dependencies, including:
 * Shared libraries (e.g., `extern_lib` targets or precompiled modules)
 * `extraDepTargets` of its library
 -/
-def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
+def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob do
   let extraDepJob ← mod.lib.extraDep.fetch
 
   /-
@@ -221,6 +221,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   precompiled imports so that errors in the import block of transitive imports
   will not kill this job before the direct imports are built.
   -/
+  let headerJob ← mod.header.fetch
   let directImports ← (← mod.imports.fetch).await
   let importJobs ← directImports.mapM fun imp => do
     if imp.name = mod.name then
@@ -242,6 +243,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
   extraDepJob.bindM (sync := true) fun _ => do
+  headerJob.bindM (sync := true) fun header => do
   importJob.bindM (sync := true) fun _ => do
   let depTrace ← takeTrace
   impLibsJob.bindM (sync := true) fun impLibs => do
@@ -256,11 +258,24 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
     | none => addTrace depTrace; addTrace libTrace
     | some false => addTrace depTrace; addTrace libTrace; addPlatformTrace
     | some true => addTrace depTrace
-    computeModuleDeps impLibs externLibs dynlibs plugins
+    let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
+    return {
+      name := mod.name
+      isModule := header.isModule
+      imports := header.imports
+      modules := {} -- TODO
+      dynlibs := dynlibs.map (·.path.toString)
+      plugins := plugins.map (·.path.toString)
+      options := mod.leanOptions
+    }
+
+/-- The `ModuleFacetConfig` for the builtin `setupFacet`. -/
+def Module.setupFacetConfig : ModuleFacetConfig setupFacet :=
+  mkFacetJobConfig recFetchSetup
 
 /-- The `ModuleFacetConfig` for the builtin `depsFacet`. -/
 def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
-  mkFacetJobConfig recBuildDeps
+  mkFacetJobConfig fun mod => (·.toOpaque) <$> mod.setup.fetch
 
 /-- Remove cached file hashes of the module build outputs (in `.hash` files). -/
 def Module.clearOutputHashes (mod : Module) : IO PUnit := do
@@ -292,22 +307,12 @@ def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
   withRegisterJob mod.name.toString do
   (← mod.src.fetch).bindM fun srcFile => do
   let srcTrace ← getTrace
-  (← mod.header.fetch).bindM fun header => do
-  (← mod.deps.fetch).mapM fun {dynlibs, plugins} => do
+  (← mod.setup.fetch).mapM fun setup => do
     addLeanTrace
-    addTrace <| traceOptions mod.leanOptions "Module.leanOptions"
+    addTrace <| traceOptions setup.options "options"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"
     let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
-      let setup : ModuleSetup := {
-        name := mod.name
-        isModule := header.isModule
-        imports := header.imports
-        modules := {} -- TODO
-        dynlibs := dynlibs.map (·.path.toString)
-        plugins := plugins.map (·.path.toString)
-        options := mod.leanOptions
-      }
       let args := mod.weakLeanArgs ++ mod.leanArgs
       compileLeanModule srcFile mod.relLeanFile setup mod.setupFile mod.arts args
         (← getLeanPath) mod.rootDir (← getLean)
@@ -329,7 +334,7 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
       transitive imports. However, they are independent of their module sources.
       -/
       newTrace s!"{mod.name.toString}:olean"
-      addTrace (← mod.deps.fetch).getTrace.withoutInputs
+      addTrace (← mod.setup.fetch).getTrace.withoutInputs
       addTrace (← fetchFileTrace file)
       return file
 
@@ -495,6 +500,7 @@ def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert importsFacet importsFacetConfig
   |>.insert transImportsFacet transImportsFacetConfig
   |>.insert precompileImportsFacet precompileImportsFacetConfig
+  |>.insert setupFacet setupFacetConfig
   |>.insert depsFacet depsFacetConfig
   |>.insert leanArtsFacet leanArtsFacetConfig
   |>.insert oleanFacet oleanFacetConfig

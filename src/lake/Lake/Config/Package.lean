@@ -513,8 +513,8 @@ namespace Package
   self.config.moreGlobalServerArgs
 
 /-- The package's `moreServerOptions` configuration appended to its `leanOptions` configuration. -/
-@[inline] def moreServerOptions (self : Package) : Array LeanOption :=
-  self.config.leanOptions ++ self.config.moreServerOptions
+@[inline] def moreServerOptions (self : Package) : LeanOptions :=
+  LeanOptions.ofArray self.config.leanOptions ++ self.config.moreServerOptions
 
 /-- The package's `buildType` configuration. -/
 @[inline] def buildType (self : Package) : BuildType :=

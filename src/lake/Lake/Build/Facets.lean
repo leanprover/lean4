@@ -54,7 +54,14 @@ The facet which builds all of a module's dependencies
 (i.e., transitive local imports and `--load-dynlib` shared libraries).
 Returns the list of shared libraries to load along with their search path.
 -/
-builtin_facet deps : Module => ModuleDeps
+builtin_facet setup : Module => ModuleSetup
+
+/--
+The facet which builds all of a module's dependencies
+(i.e., transitive local imports and `--load-dynlib` shared libraries).
+Returns the list of shared libraries to load along with their search path.
+-/
+builtin_facet deps : Module => Opaque
 
 /--
 The core build facet of a Lean file.

@@ -19,6 +19,7 @@ import Lean.Compiler.LCNF.FloatLetIn
 import Lean.Compiler.LCNF.ReduceArity
 import Lean.Compiler.LCNF.ElimDeadBranches
 import Lean.Compiler.LCNF.StructProjCases
+import Lean.Compiler.LCNF.ExtractClosed
 
 namespace Lean.Compiler.LCNF
 

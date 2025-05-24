@@ -894,11 +894,11 @@ lean_dec(x_1);
 x_28 = lean_ctor_get(x_3, 0);
 lean_inc(x_28);
 lean_dec(x_3);
-x_29 = lean_alloc_closure((void*)(l_Lake_PatternDescr_matches___rarg___lambda__2), 2, 1);
-lean_closure_set(x_29, 0, x_2);
-x_30 = lean_array_get_size(x_28);
+x_29 = lean_array_get_size(x_28);
+x_30 = lean_alloc_closure((void*)(l_Lake_PatternDescr_matches___rarg___lambda__2), 2, 1);
+lean_closure_set(x_30, 0, x_2);
 x_31 = lean_unsigned_to_nat(0u);
-x_32 = lean_nat_dec_lt(x_31, x_30);
+x_32 = lean_nat_dec_lt(x_31, x_29);
 if (x_32 == 0)
 {
 uint8_t x_33; lean_object* x_34; 
@@ -913,10 +913,10 @@ else
 {
 size_t x_35; size_t x_36; lean_object* x_37; lean_object* x_38; 
 x_35 = 0;
-x_36 = lean_usize_of_nat(x_30);
-lean_dec(x_30);
+x_36 = lean_usize_of_nat(x_29);
+lean_dec(x_29);
 x_37 = l_Id_instMonad;
-x_38 = l_Array_anyMUnsafe_any___rarg(x_37, x_29, x_28, x_35, x_36);
+x_38 = l_Array_anyMUnsafe_any___rarg(x_37, x_30, x_28, x_35, x_36);
 return x_38;
 }
 }

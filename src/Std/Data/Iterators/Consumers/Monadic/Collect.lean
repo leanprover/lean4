@@ -35,6 +35,10 @@ They can, however, assume that consumers that require an instance will work for 
 provided by the standard library.
 -/
 class IteratorCollect (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  /--
+  Maps the emitted values of an iterator using the given function and collects the results in an
+  `Array`. This is an internal implementation detail. Consider using `it.map f |>.toArray` instead.
+  -/
   toArrayMapped [Finite α m] : ∀ {γ : Type w}, (β → m γ) → IterM (α := α) m β → m (Array γ)
 
 /--
@@ -46,8 +50,13 @@ They can, however, assume that consumers that require an instance will work for 
 provided by the standard library.
 -/
 class IteratorCollectPartial
-  (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
-    toArrayMappedPartial : ∀ {γ : Type w}, (β → m γ) → IterM (α := α) m β → m (Array γ)
+    (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  /--
+  Maps the emitted values of an iterator using the given function and collects the results in an
+  `Array`. This is an internal implementation detail.
+  Consider using `it.map f |>.allowNontermination.toArray` instead.
+  -/
+  toArrayMappedPartial : ∀ {γ : Type w}, (β → m γ) → IterM (α := α) m β → m (Array γ)
 
 end Typeclasses
 

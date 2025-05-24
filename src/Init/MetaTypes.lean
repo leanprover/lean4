@@ -244,6 +244,11 @@ structure Config where
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
   -/
   zetaUnused : Bool := true
+  /--
+  When `true` (default : `true`), then simps will catch runtime exceptions and
+  convert them into `simp` exceptions.
+  -/
+  catchRuntime : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

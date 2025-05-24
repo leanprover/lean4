@@ -73,7 +73,8 @@ theorem toList_min [Min α] {o o' : Option α} :
 theorem length_toList_le {o : Option α} : o.toList.length ≤ 1 := by
   cases o <;> simp
 
-theorem length_toList_eq_ite {o : Option α} :
+@[grind =]
+theorem length_toList {o : Option α} :
     o.toList.length = if o.isSome then 1 else 0 := by
   cases o <;> simp
 

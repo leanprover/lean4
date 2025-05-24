@@ -261,6 +261,7 @@ lean_object* lean_get_set_stderr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Language_Lean_process_parseCmd___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Language_Snapshot_Diagnostics_empty;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__16(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseHeader___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_experimental_module;
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
@@ -402,7 +403,6 @@ static lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__3___closed__
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__9___closed__4;
 lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__17(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__10___closed__5;
 static size_t l_Lean_Language_Lean_process_parseCmd___lambda__17___closed__12;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -16144,7 +16144,7 @@ _start:
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = l_Lean_Language_Lean_process_processHeader___lambda__4___closed__2;
-x_17 = l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__17(x_9, x_16);
+x_17 = l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__16(x_9, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 

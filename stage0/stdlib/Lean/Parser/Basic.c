@@ -78,6 +78,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_orelseFn(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Parser_errorAtSavedPos___elambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_withoutInfo___elambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_skip___elambda__1___rarg(lean_object*);
+lean_object* l_List_toString___at_Lean_Parser_withCacheFn___spec__6(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_LeadingIdentBehavior_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Parser_invalidLongestMatchParser___closed__1;
 static lean_object* l_Lean_Parser_strLitFnAux___closed__2;
@@ -866,7 +867,6 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 static lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_reprLeadingIdentBehavior____x40_Lean_Parser_Basic___hyg_8874____closed__13;
 static lean_object* l_Lean_Parser_pushNone___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_checkNoWsBeforeFn(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_toString___at_Lean_Parser_withCacheFn___spec__7(lean_object*);
 static lean_object* l_Lean_Parser_recover_x27___regBuiltin_Lean_Parser_recover_x27_docString__1___closed__3;
 lean_object* l_Lean_Parser_FirstTokens_seq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_checkWsBefore(lean_object*);
@@ -1198,7 +1198,7 @@ lean_dec(x_19);
 lean_dec(x_6);
 lean_dec(x_18);
 x_21 = lean_array_to_list(x_20);
-x_22 = l_List_toString___at_Lean_Parser_withCacheFn___spec__7(x_21);
+x_22 = l_List_toString___at_Lean_Parser_withCacheFn___spec__6(x_21);
 x_23 = l_Lean_Parser_dbgTraceStateFn___closed__4;
 x_24 = lean_string_append(x_23, x_22);
 lean_dec(x_22);

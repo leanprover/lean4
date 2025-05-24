@@ -52,9 +52,9 @@ This succeeds instantly using congruence closure.
 
 ## 2. What is `grind`?
 
-A proof‑automation tactic inspired by modern SMT solvers. **Picture a virtual white‑board:** every time `grind` discovers a new equality, inequality, or Boolean literal it writes that fact on the board, merges equivalent terms into buckets, and invites each engine to read from—and add back to—the same workspace. The cooperating engines are: congruence closure, constraint propagation, E‑matching, guided case analysis, and a suite of satellite theory solvers (linear integer arithmetic, commutative rings, …).Lean supports dependent types and a powerful type‑class system, and `grind` produces ordinary Lean proof terms for every fact it adds.&#x20;
+A proof‑automation tactic inspired by modern SMT solvers. **Picture a virtual white‑board:** every time `grind` discovers a new equality, inequality, or Boolean literal it writes that fact on the board, merges equivalent terms into buckets, and invites each engine to read from—and add back to—the same workspace. The cooperating engines are: congruence closure, constraint propagation, E‑matching, guided case analysis, and a suite of satellite theory solvers (linear integer arithmetic, commutative rings, …). Lean supports dependent types and a powerful type‑class system, and `grind` produces ordinary Lean proof terms for every fact it adds.
 
-## 3. What `grind` is *not*
+## 3. What `grind` is *not*.
 
 `grind` is *not* designed for goals whose search space explodes combinatorially—think large‑`n` pigeonhole instances, graph‑coloring reductions, high‑order N‑queens boards, or a 200‑variable Sudoku encoded as Boolean constraints.  Such encodings require thousands (or millions) of case‑splits that overwhelm `grind`’s branching search.
 
@@ -166,9 +166,8 @@ These snippets run instantly because the relevant propagators (`propagateBoolAnd
 > **Note**  If you toggle `set_option trace.grind.eqc true`, `grind` will print a line every time two equivalence classes merge—handy for seeing propagation in action.
 
 **Implementation tip**  `grind` is still under active development. Until the API has stabilised we recommend **refraining from custom elaborators or satellite solvers**. If you really need a project‑local propagator, use the user‑facing `grind_propagator` command rather than `builtin_grind_propagator` (the latter is reserved for Lean’s own code). When adding new propagators keep them *small and orthogonal*—they should fire in ≤1 µs and either push one fact or close the goal. This keeps the propagation phase predictable and easy to debug.
-  `grind` is still under active development. Until the API has stabilised we recommend **refraining from custom elaborators or satellite solvers**. If you really need a project‑local propagator, use the user‑facing `grind_propagator` command rather than `builtin_grind_propagator` (the latter is reserved for Lean’s own code). When adding new propagators keep them *small and orthogonal*—they should fire in ≤1 µs and either push one fact or close the goal. This keeps the propagation phase predictable and easy to debug.
 
-We continuously expand and refine the rule set—expect the **Info View** to show increasingly rich True/False buckets over time. The full equivalence classes are displayed automatically **only when `grind` fails**, and only for the first subgoal it could not close—use this output to inspect missing facts and understand why the subgoal remains open.
+We continuously expand and refine the rule set—expect the **Info View** to show increasingly rich `True`/`False` buckets over time. The full equivalence classes are displayed automatically **only when `grind` fails**, and only for the first subgoal it could not close—use this output to inspect missing facts and understand why the subgoal remains open.
 
 ## 6. Case Analysis
 
@@ -179,7 +178,7 @@ We continuously expand and refine the rule set—expect the **Info View** to s
 1. **Structural flags** — quick booleans that enable whole syntactic classes:
 
    * `splitIte`  (default **true**) → split every `if … then … else …` term.
-   * `splitMatch := true` → split on all `match` expressions (the `grind` analogue of Lean’s `split` tactic, just like `splitIte`).
+   * `splitMatch` (default **true**)→ split on all `match` expressions (the `grind` analogue of Lean’s `split` tactic, just like `splitIte`).
    * `splitImp`  (default **false**) → when `true` splits on any hypothesis `A → B` whose antecedent `A` is **propositional**.  Arithmetic antecedents are special‑cased: if `A` is an arithmetic literal (`≤`, `=`, `¬`, `Dvd`, …) `grind` will split **even when `splitImp := false`** so the integer solver can propagate facts.
 
 👉 Shorthand toggles: `by grind -splitIte +splitImp` expands to `by grind (splitIte := false) (splitImp := true)`.
@@ -236,7 +235,7 @@ example (h : y = match x with | 0 => 1 | _ => 2) : y > 0 := by
 ## 7. E‑matching
 
 TBD
-Pattern annotations (`[grind =]`, `[grind ->]`, …), anti‑patterns, local vs global attributes, debugging with the attribute `[grind?]`. Flags: `ematch`, `instances`, `matchEqs`.
+Pattern annotations (`[grind =]`, `[grind →]`, …), anti‑patterns, local vs global attributes, debugging with the attribute `[grind?]`. Flags: `ematch`, `instances`, `matchEqs`.
 
 ## 8. Linear Integer Arithmetic Solver
 TBD

@@ -80,7 +80,8 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 5) (phase := .mono),
     structProjCases,
     cse (occurrence := 2) (phase := .mono),
-    saveMono  -- End of mono phase
+    saveMono,  -- End of mono phase
+    extractClosed
   ]
 }
 

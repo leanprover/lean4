@@ -116,14 +116,11 @@ abbrev size_eq_one := @size_eq_one_iff
 
 /-! ## L[i] and L[i]? -/
 
-@[simp] theorem getElem?_eq_none_iff {xs : Array α} : xs[i]? = none ↔ xs.size ≤ i := by
-  by_cases h : i < xs.size
-  · simp [getElem?_pos, h]
-  · rw [getElem?_neg xs i h]
-    simp_all
+theorem getElem?_eq_none_iff {xs : Array α} : xs[i]? = none ↔ xs.size ≤ i := by
+  simp
 
-@[simp] theorem none_eq_getElem?_iff {xs : Array α} {i : Nat} : none = xs[i]? ↔ xs.size ≤ i := by
-  simp [eq_comm (a := none)]
+theorem none_eq_getElem?_iff {xs : Array α} {i : Nat} : none = xs[i]? ↔ xs.size ≤ i := by
+  simp
 
 theorem getElem?_eq_none {xs : Array α} (h : xs.size ≤ i) : xs[i]? = none := by
   simp [getElem?_eq_none_iff, h]
@@ -133,8 +130,8 @@ grind_pattern Array.getElem?_eq_none => xs.size ≤ i, xs[i]?
 @[simp] theorem getElem?_eq_getElem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i]? = some xs[i] :=
   getElem?_pos ..
 
-theorem getElem?_eq_some_iff {xs : Array α} : xs[i]? = some b ↔ ∃ h : i < xs.size, xs[i] = b := by
-  simp [getElem?_def]
+theorem getElem?_eq_some_iff {xs : Array α} : xs[i]? = some b ↔ ∃ h : i < xs.size, xs[i] = b :=
+  _root_.getElem?_eq_some_iff
 
 @[grind →]
 theorem getElem_of_getElem? {xs : Array α} : xs[i]? = some a → ∃ h : i < xs.size, xs[i] = a :=

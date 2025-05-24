@@ -823,6 +823,10 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (HashMap α β) α β
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
 
+theorem getElem?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+    m[k]? = some v ↔ ∃ h : k ∈ m, m[k] = v :=
+  _root_.getElem?_eq_some_iff
+
 @[simp, grind =]
 theorem length_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.length = m.size :=

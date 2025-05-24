@@ -763,6 +763,10 @@ instance [TransCmp cmp] : LawfulGetElem (TreeMap α β cmp) α β (fun m a => a 
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
 
+theorem getElem?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
+    t[k]? = some v ↔ ∃ h : k ∈ t, t[k] = v :=
+  _root_.getElem?_eq_some_iff
+
 @[simp, grind =]
 theorem length_keys [TransCmp cmp] :
     t.keys.length = t.size :=

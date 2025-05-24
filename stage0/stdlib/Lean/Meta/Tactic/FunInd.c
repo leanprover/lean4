@@ -517,6 +517,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_de
 lean_object* l_Lean_CollectLevelParams_main(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveCases___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_ofNat(lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_lambdaTelescope1___rarg___lambda__2___closed__4;
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_refinedArguments___closed__4;
@@ -552,6 +553,7 @@ LEAN_EXPORT lean_object* l_StateT_lift___at_Lean_Tactic_FunInd_buildInductionCas
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__7___closed__1;
 static lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__42___closed__2;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at_Lean_MVarId_applyN___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_Elab_Structural_IndGroupInst_brecOn(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_deriveInduction___lambda__1___closed__3;
 uint8_t l_Lean_Expr_isSemiOutParam(lean_object*);
@@ -1140,7 +1142,7 @@ static lean_object* l_Lean_Tactic_FunInd_deriveCases___lambda__9___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_inferMatchType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_rwFun___spec__3___closed__4;
-lean_object* l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateLambdaAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_abstractIndependentMVars___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1408,7 +1410,6 @@ lean_object* l_Lean_mkArrow(lean_object*, lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_mapMwith___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_lambdaTelescope1___at_Lean_Tactic_FunInd_buildInductionBody___spec__33___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_rwMatcher___lambda__4___closed__2;
-lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___spec__2(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__8___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__18(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__42___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1694,7 +1695,6 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_inProdLambdaLastArg(lean_object*, 
 uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
 lean_object* l_Lean_Expr_consumeMData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MatcherApp_withUserNames___at_Lean_Tactic_FunInd_buildInductionBody___spec__20___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_unpackMutualInduction_doRealize___lambda__6___closed__2;
 static lean_object* l_Array_mapFinIdxM_map___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__4___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_withErasedFVars___at_Lean_Tactic_FunInd_buildInductionCase___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40551,7 +40551,7 @@ lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_1
 x_12 = l_Lean_mkAppN(x_1, x_2);
 x_13 = lean_array_size(x_2);
 x_14 = 0;
-x_15 = l_Array_mapMUnsafe_map___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___spec__2(x_13, x_14, x_2);
+x_15 = l_Array_mapMUnsafe_map___at_Lean_MVarId_applyN___spec__1(x_13, x_14, x_2);
 x_16 = l_Lean_Tactic_FunInd_rwMatcher___lambda__6___closed__2;
 x_17 = lean_unsigned_to_nat(4u);
 x_18 = l_Lean_Expr_isAppOfArity(x_5, x_16, x_17);
@@ -84493,7 +84493,7 @@ if (x_29 == 0)
 {
 lean_object* x_30; 
 lean_inc(x_27);
-x_30 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_27, x_27, lean_box(0), lean_box(0));
+x_30 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_27, x_27, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_27);
 lean_dec(x_25);
 x_15 = x_30;
@@ -84502,7 +84502,7 @@ goto block_23;
 else
 {
 lean_object* x_31; 
-x_31 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_12, x_27, lean_box(0), lean_box(0));
+x_31 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_12, x_27, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_27);
 lean_dec(x_25);
 x_15 = x_31;
@@ -95479,7 +95479,7 @@ else
 {
 size_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_34 = lean_array_size(x_3);
-x_35 = l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs___spec__1(x_34, x_4, x_3);
+x_35 = l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp___spec__1(x_34, x_4, x_3);
 x_36 = lean_box(x_5);
 x_37 = lean_box_usize(x_4);
 x_38 = lean_alloc_closure((void*)(l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__11___boxed), 26, 21);
@@ -102376,7 +102376,7 @@ _start:
 size_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_14 = lean_array_size(x_1);
 lean_inc(x_1);
-x_15 = l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs___spec__1(x_14, x_2, x_1);
+x_15 = l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp___spec__1(x_14, x_2, x_1);
 x_16 = lean_box(x_7);
 lean_inc(x_8);
 x_17 = lean_alloc_closure((void*)(l_Lean_Tactic_FunInd_deriveCases___lambda__6___boxed), 13, 7);

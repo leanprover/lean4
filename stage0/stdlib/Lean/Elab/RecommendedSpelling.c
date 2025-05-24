@@ -14,8 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2;
-static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5;
+static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7;
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_allRecommendedSpellings(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getString(lean_object*);
@@ -24,19 +23,20 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__3;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
+static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2;
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__3;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__6;
+static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5;
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__5;
+static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Doc_allRecommendedSpellings___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1(lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
-static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_allRecommendedSpellings___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_Doc_addRecommendedSpelling(lean_object*, lean_object*, lean_object*);
@@ -45,7 +45,9 @@ lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__4;
+static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6;
 lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_allRecommendedSpellings___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -56,24 +58,23 @@ lean_object* l_Lean_TSyntax_getDocString(lean_object*);
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__3;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___boxed__const__1;
-static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4;
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__4;
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__1;
+static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1;
 extern lean_object* l_Lean_Parser_Term_Doc_recommendedSpellingExt;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__1;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l_Lean_Elab_Term_Doc_allRecommendedSpellings___rarg___closed__2;
-static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__2(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__6;
 lean_object* l_Lean_instInhabitedPersistentEnvExtensionState___rarg(lean_object*);
-static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__7;
+static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Elab_Term_Doc_allRecommendedSpellings___rarg___closed__1;
-static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__2;
@@ -95,17 +96,25 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ident", 5, 5);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
 static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__2() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("identWithOptDot", 15, 15);
+return x_1;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__3() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__1;
+x_2 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -127,7 +136,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t 
 x_6 = lean_array_uget(x_3, x_2);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
-x_9 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__2;
+x_9 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__3;
 lean_inc(x_6);
 x_10 = l_Lean_Syntax_isOfKind(x_6, x_9);
 if (x_10 == 0)
@@ -752,7 +761,7 @@ static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -760,7 +769,7 @@ static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Parser", 6, 6);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -768,31 +777,23 @@ static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Command", 7, 7);
+x_1 = lean_mk_string_unchecked("recommended_spelling", 20, 20);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("recommended_spelling", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__1;
-x_2 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__2;
-x_3 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__3;
-x_4 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__4;
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__1;
+x_2 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__1;
+x_3 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__2;
+x_4 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__3;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__6() {
+static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -800,14 +801,14 @@ x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__7() {
+static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__1;
-x_2 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__2;
-x_3 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__3;
-x_4 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__6;
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__1;
+x_2 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__1;
+x_3 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__2;
+x_4 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__5;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
@@ -816,7 +817,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling(lean_objec
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__5;
+x_5 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__4;
 lean_inc(x_1);
 x_6 = l_Lean_Syntax_isOfKind(x_1, x_5);
 if (x_6 == 0)
@@ -853,7 +854,7 @@ else
 lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_16 = l_Lean_Syntax_getArg(x_10, x_9);
 lean_dec(x_10);
-x_17 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__7;
+x_17 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__6;
 lean_inc(x_16);
 x_18 = l_Lean_Syntax_isOfKind(x_16, x_17);
 if (x_18 == 0)
@@ -938,7 +939,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -946,7 +947,7 @@ x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -954,7 +955,7 @@ x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -962,7 +963,7 @@ x_1 = lean_mk_string_unchecked("Doc", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4() {
+static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -970,20 +971,20 @@ x_1 = lean_mk_string_unchecked("elabRecommendedSpelling", 23, 23);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5() {
+static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__1;
-x_2 = l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1;
-x_3 = l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2;
-x_4 = l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3;
-x_5 = l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4;
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__1;
+x_2 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1;
+x_3 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2;
+x_4 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3;
+x_5 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4;
 x_6 = l_Lean_Name_mkStr5(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6() {
+static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -991,7 +992,7 @@ x_1 = l_Lean_Elab_Command_commandElabAttribute;
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7() {
+static lean_object* _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -999,14 +1000,14 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6;
-x_3 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__5;
-x_4 = l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5;
-x_5 = l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7;
+x_2 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6;
+x_3 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__4;
+x_4 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5;
+x_5 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
@@ -1258,6 +1259,8 @@ l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1
 lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__1);
 l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__2 = _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__2();
 lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__2);
+l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__3 = _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__3();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__3);
 l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__1 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__1);
 l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__2 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__2();
@@ -1284,23 +1287,21 @@ l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__5 = _init_l_Lean_Elab_Ter
 lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__5);
 l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__6 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__6();
 lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__6);
-l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__7 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__7();
-lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___closed__7);
-l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1);
-l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2 = _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2);
-l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3 = _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3);
-l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4 = _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4);
-l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5 = _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5);
-l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6 = _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6);
-l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7 = _init_l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7);
-if (builtin) {res = l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1(lean_io_mk_world());
+l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1();
+lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__1);
+l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2();
+lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2);
+l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3();
+lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3);
+l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4();
+lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__4);
+l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5();
+lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5);
+l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6();
+lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__6);
+l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7 = _init_l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7();
+lean_mark_persistent(l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__7);
+if (builtin) {res = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }l_Lean_Elab_Term_Doc_allRecommendedSpellings___rarg___closed__1 = _init_l_Lean_Elab_Term_Doc_allRecommendedSpellings___rarg___closed__1();

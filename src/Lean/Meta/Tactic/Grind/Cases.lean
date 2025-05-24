@@ -150,6 +150,10 @@ def cases (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withConte
   let k (mvarId : MVarId) (fvarId : FVarId) (indices : Array FVarId) : MetaM (List MVarId) := do
     let indicesExpr := indices.map mkFVar
     let recursor ← mkRecursorAppPrefix mvarId `grind.cases fvarId recursorInfo indicesExpr
+    let lctx ← getLCtx
+    let lctx := lctx.setKind fvarId .implDetail
+    let lctx := indices.foldl (init := lctx) fun lctx fvarId => lctx.setKind fvarId .implDetail
+    let localInsts ← getLocalInstances
     let mut recursor := mkApp (mkAppN recursor indicesExpr) (mkFVar fvarId)
     let mut recursorType ← inferType recursor
     let mut mvarIdsNew := #[]
@@ -159,10 +163,9 @@ def cases (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withConte
         | throwTacticEx `grind.cases mvarId "unexpected recursor type"
       recursorType := recursorTypeNew
       let tagNew := if recursorInfo.numMinors > 1 then Name.num tag idx else tag
-      let mvar ← mkFreshExprSyntheticOpaqueMVar targetNew tagNew
+      let mvar ← mkFreshExprMVarAt lctx localInsts targetNew .syntheticOpaque tagNew
       recursor := mkApp recursor mvar
-      let mvarIdNew ← mvar.mvarId!.tryClearMany (indices.push fvarId)
-      mvarIdsNew := mvarIdsNew.push mvarIdNew
+      mvarIdsNew := mvarIdsNew.push mvar.mvarId!
       idx := idx + 1
     mvarId.assign recursor
     return mvarIdsNew.toList

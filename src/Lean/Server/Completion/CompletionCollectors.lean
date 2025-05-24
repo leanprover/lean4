@@ -209,43 +209,43 @@ section IdCompletionUtils
             (Name.mkStr p (s.extract 0 ⟨newLen - optDot - len⟩), newLen)
     (go id).1
 
-  def matchNamespace (ns : Name) (nsFragment : Name) (danglingDot : Bool) : Bool :=
-    if danglingDot then
-      if nsFragment != ns && nsFragment.isPrefixOf ns then
-        true
-      else
-        false
-    else
-      match ns, nsFragment with
-      | .str p₁ s₁, .str p₂ s₂ =>
-        if p₁ == p₂ then s₂.charactersIn s₁ else false
-      | _, _ => false
+  def bestLabelForDecl? (ctx : ContextInfo) (declName : Name) (id : Name) (danglingDot : Bool) :
+      M (Option Name) := Prod.snd <$> StateT.run (s := none) do
+    let matchUsingNamespace (ns : Name) : StateT (Option Name) M Unit := do
+      let some label ← matchDecl? ns id danglingDot declName
+        | return
+      modify fun
+        | none =>
+          some label
+        | some bestLabel =>
+          -- for open namespaces `A` and `A.B` and a decl `A.B.c`, pick the decl `c` over `B.c`
+          if label.isSuffixOf bestLabel then
+            some label
+          else
+            some bestLabel
+    let rec visitNamespaces (ns : Name) : StateT (Option Name) M Unit := do
+      let Name.str p .. := ns
+        | return ()
+      matchUsingNamespace ns
+      visitNamespaces p
+    -- use current namespace
+    visitNamespaces ctx.currNamespace
+    -- use open decls
+    for openDecl in ctx.openDecls do
+      let OpenDecl.simple ns exs := openDecl
+        | pure ()
+      if exs.contains declName then
+        continue
+      matchUsingNamespace ns
+    matchUsingNamespace Name.anonymous
 
   def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
     let env ← getEnv
-    let add (ns : Name) (ns' : Name) : M Unit :=
-      if danglingDot then
-        addNamespaceCompletionItem (ns.replacePrefix (ns' ++ id) Name.anonymous)
-      else
-        addNamespaceCompletionItem (ns.replacePrefix ns' Name.anonymous)
     env.getNamespaceSet |>.forM fun ns => do
       unless ns.isInternal || env.contains ns do -- Ignore internal and namespaces that are also declaration names
-        for openDecl in ctx.openDecls do
-          match openDecl with
-          | OpenDecl.simple ns' _      =>
-            if matchNamespace ns (ns' ++ id) danglingDot then
-              add ns ns'
-              return ()
-          | _ => pure ()
-        -- use current namespace
-        let rec visitNamespaces (ns' : Name) : M Unit := do
-          if matchNamespace ns (ns' ++ id) danglingDot then
-            add ns ns'
-          else
-            match ns' with
-            | Name.str p .. => visitNamespaces p
-            | _ => return ()
-        visitNamespaces ctx.currNamespace
+        let label? ← bestLabelForDecl? ctx ns id danglingDot
+        if let some bestLabel := label? then
+          addNamespaceCompletionItem bestLabel
 
 end IdCompletionUtils
 
@@ -356,34 +356,7 @@ private def idCompletionCore
   -- search for matches in the environment
   let env ← getEnv
   forEligibleDeclsWithCancellationM fun declName c => do
-    let bestMatch? ← (·.2) <$> StateT.run (s := none) do
-      let matchUsingNamespace (ns : Name) : StateT (Option Name) M Unit := do
-        let some label ← matchDecl? ns id danglingDot declName
-          | return
-        modify fun
-          | none =>
-            some label
-          | some bestLabel =>
-            -- for open namespaces `A` and `A.B` and a decl `A.B.c`, pick the decl `c` over `B.c`
-            if label.isSuffixOf bestLabel then
-              some label
-            else
-              some bestLabel
-      let rec visitNamespaces (ns : Name) : StateT (Option Name) M Unit := do
-        let Name.str p .. := ns
-          | return ()
-        matchUsingNamespace ns
-        visitNamespaces p
-      -- use current namespace
-      visitNamespaces ctx.currNamespace
-      -- use open decls
-      for openDecl in ctx.openDecls do
-        let OpenDecl.simple ns exs := openDecl
-          | pure ()
-        if exs.contains declName then
-          continue
-        matchUsingNamespace ns
-      matchUsingNamespace Name.anonymous
+    let bestMatch? ← bestLabelForDecl? ctx declName id danglingDot
     if let some bestLabel := bestMatch? then
       addUnresolvedCompletionItem bestLabel (.const declName) (← getCompletionKindForDecl c)
   RequestCancellation.check

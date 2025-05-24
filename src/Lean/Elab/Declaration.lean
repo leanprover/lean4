@@ -311,7 +311,7 @@ def elabMutual : CommandElab := fun stx => do
         if (← Simp.isBuiltinSimproc name) then
           pure [name]
         else
-          throwUnknownConstant name
+          throwUnknownConstantAt ident name
     let declName ← ensureNonAmbiguous ident declNames
     Term.applyAttributes declName attrs
     for attrName in toErase do

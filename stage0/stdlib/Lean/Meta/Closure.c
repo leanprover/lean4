@@ -211,7 +211,6 @@ size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_pushFVarArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRev___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_process___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -244,6 +243,7 @@ static lean_object* l_Lean_Meta_Closure_mkNextUserName___rarg___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_mkValueTypeClosureAux(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_mkBinding___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__5;
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__7;
 lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
@@ -2653,7 +2653,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectLevelAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectLevelAux___closed__2;
-x_3 = lean_unsigned_to_nat(540u);
+x_3 = lean_unsigned_to_nat(541u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Meta_Closure_collectLevelAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2682,7 +2682,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectLevelAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectLevelAux___closed__5;
-x_3 = lean_unsigned_to_nat(551u);
+x_3 = lean_unsigned_to_nat(552u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_Meta_Closure_collectLevelAux___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2711,7 +2711,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectLevelAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectLevelAux___closed__8;
-x_3 = lean_unsigned_to_nat(562u);
+x_3 = lean_unsigned_to_nat(563u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Meta_Closure_collectLevelAux___closed__9;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10158,7 +10158,7 @@ return x_902;
 else
 {
 uint8_t x_903; 
-x_903 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_891, x_891);
+x_903 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_891, x_891);
 if (x_903 == 0)
 {
 lean_object* x_904; lean_object* x_905; 
@@ -11087,7 +11087,7 @@ return x_1170;
 else
 {
 uint8_t x_1171; 
-x_1171 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_1159, x_1159);
+x_1171 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_1159, x_1159);
 if (x_1171 == 0)
 {
 lean_object* x_1172; lean_object* x_1173; 

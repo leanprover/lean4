@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.CasesMatch
+import Lean.Meta.Tactic.Grind.SearchM
 
 namespace Lean.Meta.Grind
 
@@ -232,42 +233,39 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
     else
       return c
 
-/-- Introduces new hypotheses in each goal. -/
-private def introNewHyp (goals : List Goal) (acc : List Goal) (generation : Nat) : GrindM (List Goal) := do
-  match goals with
-  | [] => return acc.reverse
-  | goal::goals => introNewHyp goals ((← intros generation goal) ++ acc) generation
-
-private def casesWithTrace (major : Expr) : GoalM (List MVarId) := do
+private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId) := do
   if (← getConfig).trace then
     if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
       saveCases declName false
-  cases (← get).mvarId major
+  cases mvarId major
 
 /--
-Selects a case-split from the list of candidates,
-and returns a new list of goals if successful.
+Selects a case-split from the list of candidates, and adds new choice point
+(aka backtracking point). Returns true if successful.
 -/
-def splitNext : GrindTactic := fun goal => do
-  let (goals?, _) ← GoalM.run goal do
-    let .some c numCases isRec _ ← selectNextSplit?
-      | return none
-    let cExpr := c.getExpr
-    let gen ← getGeneration cExpr
-    let genNew := if numCases > 1 || isRec then gen+1 else gen
-    markCaseSplitAsResolved cExpr
-    trace_goal[grind.split] "{cExpr}, generation: {gen}"
-    let mvarIds ← if let .imp e h := c then
-      casesWithTrace (mkGrindEM (e.forallDomain h))
-    else if (← isMatcherApp cExpr) then
-      casesMatch (← get).mvarId cExpr
-    else
-      casesWithTrace (← mkCasesMajor cExpr)
-    let goal ← get
-    let numSubgoals := mvarIds.length
-    let goals := mvarIds.mapIdx fun i mvarId => { goal with mvarId, split.trace := { expr := cExpr, i, num := numSubgoals } :: goal.split.trace }
-    let goals ← introNewHyp goals [] genNew
-    return some goals
-  return goals?
+def splitNext : SearchM Bool := withCurrGoalContext do
+  let .some c numCases isRec _ ← selectNextSplit?
+    | return false
+  let cExpr := c.getExpr
+  let gen ← getGeneration cExpr
+  let genNew := if numCases > 1 || isRec then gen+1 else gen
+  markCaseSplitAsResolved cExpr
+  trace_goal[grind.split] "{cExpr}, generation: {gen}"
+  let mvarId ← mkAuxMVarForCurrGoal
+  let mvarIds ← if let .imp e h := c then
+    casesWithTrace mvarId (mkGrindEM (e.forallDomain h))
+  else if (← isMatcherApp cExpr) then
+    casesMatch mvarId cExpr
+  else
+    casesWithTrace mvarId (← mkCasesMajor cExpr)
+  let goal ← getGoal
+  let numSubgoals := mvarIds.length
+  let goals := mvarIds.mapIdx fun i mvarId => { goal with
+    mvarId
+    split.trace := { expr := cExpr, i, num := numSubgoals } :: goal.split.trace
+  }
+  mkChoice (mkMVar mvarId) goals genNew
+  intros genNew
+  return true
 
 end Lean.Meta.Grind

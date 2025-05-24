@@ -368,6 +368,7 @@ def conversionFolders : List (Name × Folder) := [
   (``UInt16.ofNat, Folder.ofNat (fun v => .uint16 (UInt16.ofNat v))),
   (``UInt32.ofNat, Folder.ofNat (fun v => .uint32 (UInt32.ofNat v))),
   (``UInt64.ofNat, Folder.ofNat (fun v => .uint64 (UInt64.ofNat v))),
+  (``USize.ofNat, Folder.ofNat (fun v => .usize (UInt64.ofNat v))),
 ]
 
 /--

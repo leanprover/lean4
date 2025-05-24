@@ -315,7 +315,6 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_materializeDeps(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lake_Workspace_materializeDeps___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_runPostUpdateHooks(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1749_(lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_updateToolchain___closed__8;
 lean_object* l_StateT_instMonad___rarg(lean_object*);
 static lean_object* l___private_Lake_Load_Resolve_0__Lake_validateDep___closed__1;
@@ -341,6 +340,7 @@ LEAN_EXPORT lean_object* l_Lake_recFetch___at_Lake_Workspace_updateAndMaterializ
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_depCycleError___at_Lake_Workspace_updateAndMaterializeCore___spec__34___boxed(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_validateManifest___spec__1___lambda__1___closed__5;
+lean_object* l_Lean_NameMap_toJson___at___private_Lake_Load_Manifest_0__Lake_toJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_472____spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_depCycleError___at_Lake_Workspace_updateAndMaterializeCore___spec__47(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__26___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore___spec__3___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -373,7 +373,6 @@ LEAN_EXPORT lean_object* l_Lake_depCycleError___at_Lake_Workspace_updateAndMater
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__17(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_instMonadErrorOfMonadLift___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__24(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_NameMap_toJson___at___private_Lake_Load_Manifest_0__Lake_toJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_456____spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_loadDepPackage(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__28(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_updateToolchain___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -450,6 +449,7 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lake_Load_Reso
 LEAN_EXPORT lean_object* l_Lake_ResolveT_run(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_loadDepPackage___lambda__1(lean_object*);
 static lean_object* l_Lake_Workspace_materializeDeps___lambda__2___closed__2;
+uint8_t l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1773_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_recFetch___at_Lake_Workspace_updateAndMaterializeCore___spec__35___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_updateToolchain___closed__5;
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
@@ -8111,14 +8111,10 @@ if (x_59 == 0)
 {
 lean_object* x_60; uint8_t x_61; 
 x_60 = lean_ctor_get(x_21, 0);
-lean_inc(x_60);
-lean_inc(x_52);
 x_61 = l_Lake_ToolchainVer_decLe(x_52, x_60);
 if (x_61 == 0)
 {
 uint8_t x_62; 
-lean_inc(x_52);
-lean_inc(x_60);
 x_62 = l_Lake_ToolchainVer_decLt(x_60, x_52);
 if (x_62 == 0)
 {
@@ -8183,14 +8179,10 @@ lean_object* x_77; uint8_t x_78;
 x_77 = lean_ctor_get(x_21, 0);
 lean_inc(x_77);
 lean_dec(x_21);
-lean_inc(x_77);
-lean_inc(x_52);
 x_78 = l_Lake_ToolchainVer_decLe(x_52, x_77);
 if (x_78 == 0)
 {
 uint8_t x_79; 
-lean_inc(x_52);
-lean_inc(x_77);
 x_79 = l_Lake_ToolchainVer_decLt(x_77, x_52);
 if (x_79 == 0)
 {
@@ -8272,14 +8264,10 @@ if (lean_is_exclusive(x_21)) {
  lean_dec_ref(x_21);
  x_99 = lean_box(0);
 }
-lean_inc(x_98);
-lean_inc(x_52);
 x_100 = l_Lake_ToolchainVer_decLe(x_52, x_98);
 if (x_100 == 0)
 {
 uint8_t x_101; 
-lean_inc(x_52);
-lean_inc(x_98);
 x_101 = l_Lake_ToolchainVer_decLt(x_98, x_52);
 if (x_101 == 0)
 {
@@ -8390,14 +8378,10 @@ if (lean_is_exclusive(x_21)) {
  lean_dec_ref(x_21);
  x_126 = lean_box(0);
 }
-lean_inc(x_125);
-lean_inc(x_52);
 x_127 = l_Lake_ToolchainVer_decLe(x_52, x_125);
 if (x_127 == 0)
 {
 uint8_t x_128; 
-lean_inc(x_52);
-lean_inc(x_125);
 x_128 = l_Lake_ToolchainVer_decLt(x_125, x_52);
 if (x_128 == 0)
 {
@@ -8539,14 +8523,10 @@ if (lean_is_exclusive(x_21)) {
  lean_dec_ref(x_21);
  x_159 = lean_box(0);
 }
-lean_inc(x_158);
-lean_inc(x_153);
 x_160 = l_Lake_ToolchainVer_decLe(x_153, x_158);
 if (x_160 == 0)
 {
 uint8_t x_161; 
-lean_inc(x_153);
-lean_inc(x_158);
 x_161 = l_Lake_ToolchainVer_decLt(x_158, x_153);
 if (x_161 == 0)
 {
@@ -10378,7 +10358,7 @@ lean_dec(x_19);
 x_34 = lean_ctor_get(x_13, 0);
 lean_inc(x_34);
 lean_dec(x_13);
-x_35 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1749_(x_34, x_33);
+x_35 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1773_(x_34, x_33);
 lean_dec(x_34);
 if (x_35 == 0)
 {
@@ -10740,7 +10720,7 @@ lean_dec(x_116);
 x_131 = lean_ctor_get(x_110, 0);
 lean_inc(x_131);
 lean_dec(x_110);
-x_132 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1749_(x_131, x_130);
+x_132 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1773_(x_131, x_130);
 lean_dec(x_131);
 if (x_132 == 0)
 {
@@ -14336,7 +14316,7 @@ x_26 = l_Array_mapMUnsafe_map___at_Lake_Workspace_updateAndMaterializeCore___spe
 x_27 = lean_string_append(x_25, x_26);
 x_28 = lean_ctor_get(x_12, 4);
 lean_inc(x_28);
-x_29 = l_Lean_NameMap_toJson___at___private_Lake_Load_Manifest_0__Lake_toJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_456____spec__1(x_28);
+x_29 = l_Lean_NameMap_toJson___at___private_Lake_Load_Manifest_0__Lake_toJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_472____spec__1(x_28);
 x_30 = lean_unsigned_to_nat(80u);
 x_31 = l_Lean_Json_pretty(x_29, x_30);
 x_32 = lean_string_append(x_27, x_31);

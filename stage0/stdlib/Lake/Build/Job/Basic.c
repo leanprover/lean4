@@ -83,7 +83,6 @@ LEAN_EXPORT lean_object* l_Lake_JobAction_verb___boxed(lean_object*, lean_object
 extern lean_object* l_Task_Priority_default;
 static lean_object* l_Lake_instInhabitedJob___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Job_instPure(lean_object*);
-uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl___rarg___boxed(lean_object*);
 static lean_object* l___private_Lake_Build_Job_Basic_0__Lake_reprJobAction____x40_Lake_Build_Job_Basic___hyg_21____closed__18;
@@ -882,17 +881,16 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lake_instMinJobAction(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_Lake_instOrdJobAction;
-x_4 = lean_box(x_1);
-x_5 = lean_box(x_2);
-x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
-if (x_6 == 0)
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lake_Build_Job_Basic_0__Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_1, x_2);
+x_4 = lean_box(x_3);
+if (lean_obj_tag(x_4) == 2)
 {
 return x_2;
 }
 else
 {
+lean_dec(x_4);
 return x_1;
 }
 }
@@ -913,17 +911,16 @@ return x_6;
 LEAN_EXPORT uint8_t l_Lake_instMaxJobAction(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_Lake_instOrdJobAction;
-x_4 = lean_box(x_1);
-x_5 = lean_box(x_2);
-x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
-if (x_6 == 0)
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lake_Build_Job_Basic_0__Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_1, x_2);
+x_4 = lean_box(x_3);
+if (lean_obj_tag(x_4) == 2)
 {
 return x_1;
 }
 else
 {
+lean_dec(x_4);
 return x_2;
 }
 }
@@ -944,17 +941,16 @@ return x_6;
 LEAN_EXPORT uint8_t l_Lake_JobAction_merge(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_Lake_instOrdJobAction;
-x_4 = lean_box(x_1);
-x_5 = lean_box(x_2);
-x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
-if (x_6 == 0)
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lake_Build_Job_Basic_0__Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_1, x_2);
+x_4 = lean_box(x_3);
+if (lean_obj_tag(x_4) == 2)
 {
 return x_1;
 }
 else
 {
+lean_dec(x_4);
 return x_2;
 }
 }

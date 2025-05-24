@@ -17870,6 +17870,7 @@ _start:
 lean_object* x_10; 
 x_10 = l_Lean_Server_FileWorker_handleDocumentHighlight___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
+lean_dec(x_6);
 lean_dec(x_3);
 return x_10;
 }

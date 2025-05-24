@@ -407,6 +407,10 @@ structure Methods where
   post       : Simproc  := fun e => return .done { expr := e }
   dpre       : DSimproc := fun _ => return .continue
   dpost      : DSimproc := fun e => return .done e
+  /--
+  `discharge? a` attempts to prove the `Prop` `a` using the discharger, returning
+  `some pf` if a proof is found and `none` otherwise.
+  -/
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   /--
   `wellBehavedDischarge` must **not** be set to `true` IF `discharge?`

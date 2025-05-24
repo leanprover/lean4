@@ -17,7 +17,7 @@ namespace DNS
 open Std.Net
 
 /--
-Asynchronously resolves a hostname and service to a list of socket addresses.
+Asynchronously resolves a hostname and service to an array of socket addresses.
 -/
 @[extern "lean_uv_dns_get_info"]
 opaque getAddrInfo (host : @& String) (service : @& String) : IO (IO.Promise (Except IO.Error (Array SocketAddress)))

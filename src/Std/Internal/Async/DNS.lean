@@ -18,7 +18,7 @@ namespace DNS
 open Std.Net
 
 /--
-Asynchronously resolves a hostname and service to a list of socket addresses.
+Asynchronously resolves a hostname and service to an array of socket addresses.Asynchronously resolves a hostname and service to a list of socket addresses.
 -/
 @[inline]
 def getAddrInfo (host : String) (service : String) : IO (AsyncTask (Array SocketAddress)) :=

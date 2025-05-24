@@ -2797,7 +2797,7 @@ theorem reverse_eq_iff {xs ys : Array α} : xs.reverse = ys ↔ xs = ys.reverse 
   cases xs
   simp
 
-@[grind _=_]theorem filterMap_reverse {f : α → Option β} {xs : Array α} : (xs.reverse.filterMap f) = (xs.filterMap f).reverse := by
+@[grind _=_] theorem filterMap_reverse {f : α → Option β} {xs : Array α} : (xs.reverse.filterMap f) = (xs.filterMap f).reverse := by
   cases xs
   simp
 
@@ -3526,7 +3526,7 @@ theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b} {xs
     (xs ++ ys).foldr f b start 0 = xs.foldr f (ys.foldr f b) :=
   foldrM_append' w
 
-@[grind _=_]theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs ys : Array α} :
+@[grind _=_] theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs ys : Array α} :
     (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) :=
   foldlM_append
 
@@ -3782,7 +3782,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Array α} {a : α} :
   rcases xs with ⟨xs⟩
   simp [List.contains_iff_exists_mem_beq]
 
-@[grind]
+@[grind _=_]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp

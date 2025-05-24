@@ -31,7 +31,7 @@ def evalExact : Tactic := fun stx => do
         | throwUnsupportedSyntax
   let moduleRef ← createModuleTreeRef
   let forbidden : NameSet :=
-    ((forbidden.getD #[]).map Syntax.getId).foldl (init := ∅) fun s n => s.insert n
+    ((forbidden.getD #[]).map Syntax.getIdOrIdWithOptDot).foldl (init := ∅) fun s n => s.insert n
   reportOutOfHeartbeats `findRewrites tk
   let goal ← getMainGoal
   withLocation (expandOptLocation (Lean.mkOptionalNode loc))

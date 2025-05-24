@@ -70,7 +70,7 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   let ctx ← read
   unless ctx.first && stx.getKind == ``Lean.Parser.Syntax.cat do
     return false
-  let cat := stx[0].getId.eraseMacroScopes
+  let cat := stx[0].getIdOrIdWithOptDot.eraseMacroScopes
   unless cat == ctx.catName do
     return false
   addCategoryInfo stx cat
@@ -98,7 +98,6 @@ def elabParserName (stx : Syntax.Ident) : TermElabM Parser.ParserResolution := d
   | some n => return n
   | none => throwErrorAt stx "unknown parser {stx}"
 
-open TSyntax.Compat in
 /--
   Given a `stx` of category `syntax`, return a `(newStx, lhsPrec?)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
@@ -120,9 +119,9 @@ where
     else if kind == ``Lean.Parser.Syntax.cat then
       processNullaryOrCat stx
     else if kind == ``Lean.Parser.Syntax.unary then
-      processAlias stx[0] #[stx[2]]
+      processAlias ⟨stx[0]⟩ #[stx[2]]
     else if kind == ``Lean.Parser.Syntax.binary then
-      processAlias stx[0] #[stx[2], stx[4]]
+      processAlias ⟨stx[0]⟩ #[stx[2], stx[4]]
     else if kind == ``Lean.Parser.Syntax.sepBy then
       processSepBy stx
     else if kind == ``Lean.Parser.Syntax.sepBy1 then
@@ -154,14 +153,14 @@ where
       throwErrorAt stx[1] "unexpected precedence"
 
   processParserCategory (stx : Syntax) := do
-    let catName := stx[0].getId.eraseMacroScopes
+    let catName := stx[0].getIdOrIdWithOptDot.eraseMacroScopes
     if (← read).first && catName == (← read).catName then
       throwErrorAt stx "invalid atomic left recursive syntax"
     let prec? ← liftMacroM <| expandOptPrecedence stx[1]
     let prec := prec?.getD 0
     return (← `(ParserDescr.cat $(quote catName) $(quote prec)), 1)
 
-  processAlias (id : Syntax) (args : Array Syntax) := do
+  processAlias (id : Ident) (args : Array Syntax) := do
     let aliasName := id.getId.eraseMacroScopes
     let info ← Parser.getParserAliasInfo aliasName
     addAliasInfo id info
@@ -194,7 +193,8 @@ where
     return (stx, stackSz)
 
   processNullaryOrCat (stx : Syntax) := do
-    let ident := stx[0]
+    -- TODO after stage0 update: simplify
+    let ident : Ident := if stx[0].isIdent then ⟨stx[0]⟩ else ⟨stx[0][0]⟩
     let id := ident.getId.eraseMacroScopes
     match (← elabParserName? ident) with
     | some (.parser c (isDescr := true)) =>
@@ -220,14 +220,14 @@ where
 
   processSepBy (stx : Syntax) := do
     let p ← ensureUnaryOutput <$> withNestedParser do process stx[1]
-    let sep := stx[3]
+    let sep : Term := ⟨stx[3]⟩
     let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else ensureUnaryOutput <$> withNestedParser do process stx[4][1]
     let allowTrailingSep := !stx[5].isNone
     return (← `((with_annotate_term $(stx[0]) @ParserDescr.sepBy) $p $sep $psep $(quote allowTrailingSep)), 1)
 
   processSepBy1 (stx : Syntax) := do
     let p ← ensureUnaryOutput <$> withNestedParser do process stx[1]
-    let sep := stx[3]
+    let sep : Term := ⟨stx[3]⟩
     let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else ensureUnaryOutput <$> withNestedParser do process stx[4][1]
     let allowTrailingSep := !stx[5].isNone
     return (← `((with_annotate_term $(stx[0]) @ParserDescr.sepBy1) $p $sep $psep $(quote allowTrailingSep)), 1)

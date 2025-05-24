@@ -29,7 +29,7 @@ instance : MonadResolveName (M (m := m)) where
   getOpenDecls       := return (← get).openDecls
 
 def resolveId (ns : Name) (idStx : Syntax) : M (m := m) Name := do
-  let declName := ns ++ idStx.getId
+  let declName := ns ++ idStx.getIdOrIdWithOptDot
   if (← getEnv).contains declName then
     return declName
   else
@@ -56,28 +56,44 @@ private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : 
   if h : result.size = 1 then
     return result[0]
   else
-    withRef idStx do throwError "ambiguous identifier '{idStx.getId}', possible interpretations: {result.map mkConst}"
+    withRef idStx do throwError "ambiguous identifier '{idStx.getIdOrIdWithOptDot}', possible interpretations: {result.map mkConst}"
 
 def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     match stx with
-    | `(Parser.Command.openDecl| $nss*) =>
+    | `(Parser.Command.openDecl| $nss:identWithOptDot*) =>
+      for ns in nss do
+        if ns.raw.isIdent then
+          -- bootstrapping hack: we use `open` in the `by_cases` macro
+          for ns in (← resolveNamespace ⟨ns.raw⟩) do
+            addOpenDecl (OpenDecl.simple ns [])
+            activateScoped ns
+        else
+          for ns in (← resolveNamespace ns) do
+            addOpenDecl (OpenDecl.simple ns [])
+            activateScoped ns
+    | `(Parser.Command.openDecl| scoped $nss:identWithOptDot*) =>
       for ns in nss do
         for ns in (← resolveNamespace ns) do
-          addOpenDecl (OpenDecl.simple ns [])
           activateScoped ns
-    | `(Parser.Command.openDecl| scoped $nss*) =>
-      for ns in nss do
-        for ns in (← resolveNamespace ns) do
-          activateScoped ns
-    | `(Parser.Command.openDecl| $ns ($ids*)) =>
+    | `(Parser.Command.openDecl| $ns:identWithOptDot ($ids:identWithOptDot*)) =>
       let nss ← resolveNamespace ns
       for idStx in ids do
         let declName ← resolveNameUsingNamespacesCore nss idStx
         if (← getInfoState).enabled then
           addConstInfo idStx declName
         addOpenDecl (OpenDecl.explicit idStx.getId declName)
-    | `(Parser.Command.openDecl| $ns hiding $ids*) =>
+    -- TODO: remove after stage0 update
+    | `(Parser.Command.openDecl| $x:openOnly) =>
+      let ns : Ident := ⟨x.raw[0]⟩
+      let ids : TSyntaxArray `ident := TSyntaxArray.mk x.raw[2].getArgs
+      let nss ← resolveNamespace ns
+      for idStx in ids do
+        let declName ← resolveNameUsingNamespacesCore nss idStx
+        if (← getInfoState).enabled then
+          addConstInfo idStx declName
+        addOpenDecl (OpenDecl.explicit idStx.getId declName)
+    | `(Parser.Command.openDecl| $ns hiding $ids:identWithOptDot*) =>
       let ns ← resolveUniqueNamespace ns
       activateScoped ns
       for id in ids do

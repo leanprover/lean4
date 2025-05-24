@@ -57,14 +57,14 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
   let mut params := params
   for p in ps do
     match p with
-    | `(Parser.Tactic.grindParam| - $id:ident) =>
+    | `(Parser.Tactic.grindParam| - $id) =>
       let declName ← realizeGlobalConstNoOverloadWithInfo id
       if let some declName ← Grind.isCasesAttrCandidate? declName false then
         Grind.ensureNotBuiltinCases declName
         params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
       else
         params := { params with ematch := (← params.ematch.eraseDecl declName) }
-    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
+    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id) =>
       let declName ← realizeGlobalConstNoOverloadWithInfo id
       let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
       match kind with

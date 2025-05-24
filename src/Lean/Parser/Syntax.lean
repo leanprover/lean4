@@ -33,7 +33,7 @@ namespace Syntax
 @[builtin_syntax_parser] def paren           := leading_parser
   "(" >> withoutPosition (many1 syntaxParser) >> ")"
 @[builtin_syntax_parser] def cat             := leading_parser
-  ident >> optPrecedence
+  identWithPartialTrailingDot >> optPrecedence
 @[builtin_syntax_parser] def unary           := leading_parser
   ident >> checkNoWsBefore >> "(" >> withoutPosition (many1 syntaxParser) >> ")"
 @[builtin_syntax_parser] def binary          := leading_parser
@@ -70,7 +70,7 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 -- thus should be ignored when we use `checkInsideQuot` to prepare the next stage for a builtin syntax change
 def identPrec  := leading_parser ident >> optPrecedence
 
-def optKind : Parser := optional (" (" >> nonReservedSymbol "kind" >> ":=" >> ident >> ")")
+def optKind : Parser := optional (" (" >> nonReservedSymbol "kind " >> ":= " >> identWithPartialTrailingDot >> ")")
 
 def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" decl_name%) (strLit <|> identPrec)
 @[builtin_command_parser] def «notation»    := leading_parser

@@ -79,9 +79,8 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _, _ => some .anonymous -- should not happen
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
-  match stx with
-  | `(namespace $n) => addNamespace n.getId
-  | _               => throwUnsupportedSyntax
+  -- TODO after stage0 update: back to syntax `match`
+  addNamespace stx[1].getIdOrIdWithOptDot
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
@@ -98,7 +97,7 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _                        => throwUnsupportedSyntax
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
-  let header? := (stx.getArg 1).getOptionalIdent?;
+  let header? := (stx.getArg 1).getOptionalIdent?
   let endSize := match header? with
     | none   => 1
     | some n => n.getNumParts
@@ -138,13 +137,13 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   liftCoreM <| addDecl Declaration.quotDecl
 
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
-  let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
+  let `(export $ns ($ids:identWithOptDot*)) := stx | throwUnsupportedSyntax
   let nss ← resolveNamespace ns
   let currNamespace ← getCurrNamespace
   if nss == [currNamespace] then throwError "invalid 'export', self export"
   let mut aliases := #[]
   for idStx in ids do
-    let id := idStx.getId
+    let id := idStx.getIdWithOptDot
     let declName ← resolveNameUsingNamespaces nss idStx
     if (← getInfoState).enabled then
       addConstInfo idStx declName
@@ -354,7 +353,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     pure ()
 
 @[builtin_command_elab «set_option»] def elabSetOption : CommandElab := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let options ← Elab.elabSetOption stx[1][0] stx[2]
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
@@ -498,7 +497,7 @@ where
       if simple.isEmpty then
         return (lines, simple)
       else
-        return (lines.push <| ← `(command| open $(simple.map mkIdent)*), #[])
+        return (lines.push <| ← `(command| open $[$(simple.map mkIdent)]*), #[])
     for d in ds do
       match d with
       | .explicit id decl =>

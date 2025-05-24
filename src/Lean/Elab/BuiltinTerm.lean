@@ -316,12 +316,12 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     popScope
 
 @[builtin_term_elab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let options ← Elab.elabSetOption stx[1][0] stx[2]
   withOptions (fun _ => options) do
     try
-      elabTerm stx[5] expectedType?
+      elabTerm stx[4] expectedType?
     finally
-      if stx[1].getId == `diagnostics then
+      if stx[1][0].getId == `diagnostics then
         reportDiag
 
 @[builtin_term_elab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do

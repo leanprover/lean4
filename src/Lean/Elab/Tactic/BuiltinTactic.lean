@@ -344,6 +344,54 @@ where
         replaceMainGoal [mvarId]
   | _ => throwUnsupportedSyntax
 
+@[builtin_tactic Lean.Parser.Tactic.clearValue] def evalClearValue : Tactic := fun stx =>
+  match stx with
+  | `(tactic| clear_value $xs* $[with $hs*]?) => withMainContext do
+    let hs := hs.getD #[]
+    if xs.size < hs.size then throwErrorAt hs[xs.size]! "Too many binders provided."
+    -- The bool means "clearing must succeed"
+    let mut fvarIds : Array FVarId := #[]
+    let mut hasStar := false
+    for i in [0:xs.size], x in xs do
+      if x.raw.isOfKind ``clearValueStar then
+        if i < hs.size then
+          throwErrorAt hs[i]! "When using `*`, no binder may be provided for it."
+        hasStar := true
+      else
+        let fvarId ← getFVarId x
+        unless (← fvarId.isLetVar) do
+          throwErrorAt x "Hypothesis `{mkFVar fvarId}` is not a local definition."
+        if fvarIds.contains fvarId then
+          throwErrorAt x "Hypothesis `{mkFVar fvarId}` appears multiple times."
+        fvarIds := fvarIds.push fvarId
+    let mut g ← popMainGoal
+    unless hs.isEmpty do
+      let mut hyps : Array Hypothesis := #[]
+      for fvarId in fvarIds, h in hs do
+        let hName ←
+          match h with
+          | `(binderIdent| $n:ident) => pure n.raw.getId
+          | _ => mkFreshBinderNameForTactic `h
+        let type ← mkEq (mkFVar fvarId) (← fvarId.getValue?).get!
+        let value ← mkEqRefl (mkFVar fvarId)
+        hyps := hyps.push { userName := hName, type, value }
+      g ← Prod.snd <$> g.assertHypotheses hyps
+    let toClear ← g.withContext do
+      if hasStar then (·.map Expr.fvarId!) <$> getLocalHyps
+      else sortFVarIds fvarIds
+    let mut succeeded := false
+    for fvarId in toClear.reverse do
+      try
+        g ← g.clearValue fvarId
+        succeeded := true
+      catch _ =>
+        if fvarIds.contains fvarId then
+          g.withContext do throwError "Tactic `clear_value` could not clear value of `{Expr.fvar fvarId}`.\n{g}"
+    unless succeeded do
+      g.withContext do throwError "Tactic `clear_value` failed to clear any values.\n{g}"
+    pushGoal g
+  | _ => throwUnsupportedSyntax
+
 def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : TacticM Unit := do
   for h in hs do
     withMainContext do

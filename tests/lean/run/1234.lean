@@ -28,7 +28,10 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩
     ==>
       ⟨v, ⋯⟩
-[Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      ⟨v, ⋯⟩ = ⟨v, ⋯⟩
+    ==>
+      True
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
@@ -65,7 +68,10 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩
     ==>
       ⟨v, ⋯⟩
-[Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      ⟨v, ⋯⟩ = ⟨v, ⋯⟩
+    ==>
+      True
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
@@ -100,7 +106,10 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩
     ==>
       ⟨v, ⋯⟩
-[Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      ⟨v, ⋯⟩ = ⟨v, ⋯⟩
+    ==>
+      True
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):

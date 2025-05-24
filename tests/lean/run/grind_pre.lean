@@ -208,7 +208,11 @@ h_2 : ¬f a = g b
     [eqc] {a, b}
     [eqc] {f, g}
 [grind] Issues
-  [issue] found congruence between g b and f a but functions have different types
+  [issue] found congruence between
+        g b
+      and
+        f a
+      but functions have different types
 -/
 #guard_msgs (error) in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by

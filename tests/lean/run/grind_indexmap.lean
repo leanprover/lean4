@@ -47,22 +47,33 @@ grind_pattern getElem_indices_lt => m.indices[a]
 
 attribute [local grind] size
 
-theorem Std.HashMap.mem_of_getElem?_eq_some {m : HashMap α β} (h : m[a]? = some b) : a ∈ m := by
-  rw [HashMap.mem_iff_contains, HashMap.contains_eq_isSome_getElem?, h, Option.isSome_some]
-
-grind_pattern Std.HashMap.mem_of_getElem?_eq_some => m[a]?, some b
-
 example (m : HashMap α β) (h : m[a]? = some b) : a ∈ m := by grind
-example (m : HashMap α β) (h : m[a]? = some b) : m[a] = b := by exact?
+example (m : HashMap α β) (h : m[a]? = some b) : m[a] = b := by grind
 example (m : HashMap α β) : m[a]? = some b ↔ ∃ h, m[a] = b := by exact?
 
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.data[m.indices[a]'h].2
-  getElem? m a := m.indices[a]?.pbind fun i h => (m.data[i]'(by grind)).2
+  getElem? m a := m.indices[a]?.pbind fun i h => (m.data[i]'(by sorry)).2
   getElem! m a := m.indices[a]?.bind (fun i => m.data[i]?) |>.map (·.2) |>.getD default
 
+@[local grind] private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) : m[a] = m.data[m.indices[a]'h].2 := rfl
+@[local grind] private theorem getElem?_def (m : IndexMap α β) (a : α) :
+    m[a]? = m.indices[a]?.pbind fun i h => (m.data[i]'(by sorry)).2 := rfl
+
+@[local grind] private theorem getElem_data_getElem_indices
+   {m : IndexMap α β} {a : α} {h : a ∈ m} :
+   m.data[m.indices[a]'h] = (a, m[a]) := sorry
+
+@[local grind] private theorem mem_indices_of_mem {m : IndexMap α β} {a : α} :
+    a ∈ m ↔ a ∈ m.indices := Iff.rfl
+
 instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
-  getElem?_def := sorry
+  getElem?_def := by
+    -- Lots of problems here!
+    -- See issues, particularly `unexpected kernel projection term during internalization`
+    -- but also several occurrences of `type error constructing proof for`
+    -- there are also a number of repetitions in the equivalence classes.
+    grind [getElem?_pos]
   getElem!_def := sorry
 
 @[inline] def findIdx? (m : IndexMap α β) (a : α) : Option Nat := m.indices[a]?

@@ -196,7 +196,7 @@ where
 end Canon
 
 /-- Canonicalizes nested types, type formers, and instances in `e`. -/
-def canon (e : Expr) : GoalM Expr := do
+def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
   trace_goal[grind.debug.canon] "{e}"
   unsafe Canon.canonImpl e
 

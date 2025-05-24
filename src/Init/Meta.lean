@@ -1387,6 +1387,9 @@ instance : Coe Ident (TSyntax `Lean.Parser.Command.declId) where
 instance : CoeOut (TSyntax ``identWithOptDot) Ident where
   coe id := ⟨id.raw[0]⟩
 
+instance : Coe Ident (TSyntax ``identWithOptDot) where
+  coe id := mkNode _ #[id, mkNullNode #[]]
+
 instance : Coe (Lean.Term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
   coe stx := ⟨stx⟩
 

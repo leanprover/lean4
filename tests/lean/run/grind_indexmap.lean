@@ -1,6 +1,9 @@
 import Std.Data.HashMap
 
 set_option grind.warning false
+
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| grind)
+
 attribute [grind] Array.emptyWithCapacity_eq
 
 open Std
@@ -42,14 +45,20 @@ private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by s
 
 grind_pattern getElem_indices_lt => m.indices[a]
 
--- attribute [-grind] Array.size_eq_zero_iff
 attribute [local grind] size
 
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| grind)
+theorem Std.HashMap.mem_of_getElem?_eq_some {m : HashMap α β} (h : m[a]? = some b) : a ∈ m := by
+  rw [HashMap.mem_iff_contains, HashMap.contains_eq_isSome_getElem?, h, Option.isSome_some]
+
+grind_pattern Std.HashMap.mem_of_getElem?_eq_some => m[a]?, some b
+
+example (m : HashMap α β) (h : m[a]? = some b) : a ∈ m := by grind
+example (m : HashMap α β) (h : m[a]? = some b) : m[a] = b := by exact?
+example (m : HashMap α β) : m[a]? = some b ↔ ∃ h, m[a] = b := by exact?
 
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.data[m.indices[a]'h].2
-  getElem? m a := m.indices[a]?.pbind fun i h => (m.data[i]'sorry).2
+  getElem? m a := m.indices[a]?.pbind fun i h => (m.data[i]'(by grind)).2
   getElem! m a := m.indices[a]?.bind (fun i => m.data[i]?) |>.map (·.2) |>.getD default
 
 instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where

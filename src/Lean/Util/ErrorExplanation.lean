@@ -16,8 +16,15 @@ structure ErrorExplanation.Metadata where
   removedVersion : Option String := none
 deriving FromJson, ToJson
 
+structure ErrorExplanation.CodeBlockSet where
+  broken : String
+  brokenOutputs : Array String
+  fixedWithOutputs : Array (String × Array String)
+  deriving Repr
+
 structure ErrorExplanation where
   doc : String
+  codeBlocks : Array ErrorExplanation.CodeBlockSet
   metadata : ErrorExplanation.Metadata
 
 -- FIXME: `addImportedFn`
@@ -26,26 +33,6 @@ initialize errorExplanationExt : SimplePersistentEnvExtension (Name × ErrorExpl
     addEntryFn := fun s (n, v) => s.insert n v
     addImportedFn := fun entries => RBMap.ofList entries.flatten.toList
   }
-open Elab Meta Term Command in
-
-/--
-Registers an error explanation.
-
-Note that the provided name is not relativized to the current namespace.
--/
-elab docStx:docComment cmd:"register_error_explanation " nm:ident t:term : command => withRef cmd do
-  let tp := mkConst ``ErrorExplanation.Metadata []
-  let metadata ← runTermElabM <| fun _ => unsafe do
-    let e ← elabTerm t tp
-    if e.hasSyntheticSorry then throwAbortTerm
-    evalExpr ErrorExplanation.Metadata tp e
-  let name := nm.getId
-  if name.isAnonymous then throwErrorAt nm "Invalid name for error explanation: '{nm}'"
-  validateDocComment docStx
-  let doc ← getDocStringText docStx
-  if errorExplanationExt.getState (← getEnv) |>.contains name then
-    throwError m!"Cannot add explanation: An error explanation already exists for '{name}'"
-  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc }))
 
 /--
 Gets an error explanation for the given name if one exists, rewriting manual links.
@@ -98,57 +85,49 @@ structure CodeInfo where
   title? : Option String
 deriving Repr
 
-namespace CodeInfo
-open Std.Internal Parsec Parsec.String
+open Std.Internal Parsec Parsec.String in
+def CodeInfo.parse (s : String) : Except String CodeInfo :=
+  infoString.run s |>.mapError (fun s => s!"Invalid code block info string: {s}")
+where
+  stringContents : Parser String := attempt do
+    let escaped := pchar '\\' *> pchar '"'
+    let cs ← many (notFollowedBy (pchar '"') *> (escaped <|> any))
+    return String.mk cs.toList
 
-namespace Parse
+  languageName : Parser String := fun it =>
+    let it' := it.find fun c => c.isWhitespace
+    .success it' (it.extract it')
 
-def word : Parser String := attempt do
-  let escaped := pchar '\\' *> pchar '"'
-  let cs ← many (notFollowedBy (pchar '"') *> (escaped <|> any))
-  return String.mk cs.toList
+  snippetKind : Parser Kind := do
+    (pstring "broken" *> pure .broken)
+    <|> (pstring "fixed" *> pure .fixed)
 
-def languageName : Parser String := fun it =>
-  let it' := it.find fun c => c.isWhitespace
-  .success it' (it.extract it')
+  title : Parser String :=
+    skipChar '(' *> optional ws *> skipString "title" *> ws *> skipString ":=" *> ws *> skipChar '"' *>
+    stringContents
+    <* skipChar '"' <* optional ws <* skipChar ')'
 
-def snippetKind : Parser Kind := do
-  (pstring "broken" *> pure .broken)
-  <|> (pstring "fixed" *> pure .fixed)
+  attr : Parser (Kind ⊕ String) :=
+    .inl <$> snippetKind <|> .inr <$> title
 
-def title : Parser String :=
-  skipChar '(' *> optional ws *> skipString "title" *> ws *> skipString ":=" *> ws *> skipChar '"' *>
-  word
-  <* skipChar '"' <* optional ws <* skipChar ')'
-
-def attr : Parser (Kind ⊕ String) :=
-  .inl <$> snippetKind <|> .inr <$> title
-
-def infoString : Parser CodeInfo := do
-  let lang ← languageName
-  let attrs ← Parsec.many (attempt <| ws *> attr)
-  let mut kind? := Option.none
-  let mut title? := Option.none
-  for attr in attrs do
-    match attr with
-    | .inl k =>
-      if kind?.isNone then
-        kind? := some k
-      else
-        Parsec.fail "redundant kind specifications"
-    | .inr n =>
-      if title?.isNone then
-        title? := some n
-      else
-        Parsec.fail "redundant name specifications"
-  return { lang, title?, kind? }
-
-end Parse
-
-def parse (s : String) : Except String CodeInfo :=
-  Parse.infoString.run s |>.mapError (fun s => s!"Invalid code block info string: {s}")
-
-end CodeInfo
+  infoString : Parser CodeInfo := do
+    let lang ← languageName
+    let attrs ← Parsec.many (attempt <| ws *> attr)
+    let mut kind? := Option.none
+    let mut title? := Option.none
+    for attr in attrs do
+      match attr with
+      | .inl k =>
+        if kind?.isNone then
+          kind? := some k
+        else
+          Parsec.fail "redundant kind specifications"
+      | .inr n =>
+        if title?.isNone then
+          title? := some n
+        else
+          Parsec.fail "redundant name specifications"
+    return { lang, title?, kind? }
 
 open Std.Internal Parsec
 
@@ -164,26 +143,26 @@ def matchHeader (level : Nat) (title? : Option String) (line : String) : Option 
   else
     none
 
-structure ValidationState where
+private structure ValidationState where
   lines : Array (String × Nat)
   idx   : Nat := 0
-deriving Repr
+deriving Repr, Inhabited
 
-def ValidationState.ofSource (input : String) : ValidationState where
+private def ValidationState.ofSource (input : String) : ValidationState where
   lines := input.splitOn "\n"
     |>.zipIdx
     |>.filter (!·.1.trim.isEmpty)
     |>.toArray
 
 -- Workaround to account for the fact that `Input` expects "EOF" to be a valid position
-def ValidationState.get (s : ValidationState) :=
+private def ValidationState.get (s : ValidationState) :=
   if _ : s.idx < s.lines.size then
     s.lines[s.idx].1
   else
     ""
 
-def ValidationState.getLineNumber (s : ValidationState) :=
-  s.lines[min s.idx (s.lines.size - 1)]!.2 + 1
+private def ValidationState.getLineNumber (s : ValidationState) :=
+  s.lines[min s.idx (s.lines.size - 1)]!.2
 
 instance : Input ValidationState String Nat where
   pos := ValidationState.idx
@@ -195,39 +174,35 @@ instance : Input ValidationState String Nat where
 
 abbrev ValidationM := Parsec ValidationState
 
-def ValidationM.run (p : ValidationM α) (input : String) : Except String α :=
+def ValidationM.run (p : ValidationM α) (input : String) : Except (Nat × String) α :=
   match p (.ofSource input) with
   | .success _ res => Except.ok res
-  | .error s err  => Except.error s!"Line {s.getLineNumber}: {err}"
+  | .error s err  => Except.error (s.getLineNumber, err)
+
+-- A hack to let us show errors other than "not EOF"
+private partial def manyThenEOF (p : ValidationM α) : ValidationM (Array α) :=
+  go #[]
+where
+  go (acc : Array α) := fun s =>
+    match p s with
+    | .success s' x => go (acc.push x) s'
+    | .error s' err =>
+      match eof s' with
+      | .success s'' _ => .success s'' acc
+      | .error _ _ => .error s' err
 
 private def manyD (p : ValidationM α) : ValidationM Unit :=
   discard (many p)
 
--- A hack to let us show errors other than "not EOF". `manyDThenEOF p` is equivalent (on accepted
--- inputs) to `manyD p *> eof`.
-private partial def manyDThenEOF (p : ValidationM α) : ValidationM Unit := fun s =>
-  match p s with
-  | .success s' _ => manyDThenEOF p s'
-  | .error s' err =>
-    match eof s' with
-    | .success s'' _ => .success s'' ()
-    | .error s'' _ => .error s'' err
-
-private def optionalD (p : ValidationM α) : ValidationM Unit :=
-  discard (optional p)
-
-private def atLeastOneD (p : ValidationM α) : ValidationM Unit :=
-  p *> manyD p
-
 private def notD (p : ValidationM α) : ValidationM Unit :=
   notFollowedBy p *> skip
 
-private def parseExplanation : ValidationM Unit := do
+private def parseExplanation : ValidationM (Array ErrorExplanation.CodeBlockSet) := do
   manyD (notD examplesHeader)
-  eof <|> optionalD do
+  (eof *> pure #[]) <|> do
     examplesHeader
-    -- This is really `manyD (...) *> eof`
-    manyDThenEOF (singleExample *> optionalD (level1Header *> manyD (notD examplesHeader)))
+    -- This is really `many (...) *> eof`
+    manyThenEOF (singleExample <* optional (level1Header *> many (notD examplesHeader)))
 where
   examplesHeader := attempt do
     let line ← any
@@ -239,10 +214,14 @@ where
   singleExample := attempt do
     let header ← exampleHeader
     labelingExampleErrors header do
-      codeBlock "lean" (some .broken)
-      atLeastOneD (codeBlock "output")
-      atLeastOneD (codeBlock "lean" (some .fixed) *> manyD (codeBlock "output"))
+      let broken ← codeBlock "lean" (some .broken)
+      let brokenOutputs ← many1 (codeBlock "output")
+      let fixedWithOutputs ← many1 do
+        let leanBlock ← codeBlock "lean" (some .fixed)
+        let outputBlocks ← many (codeBlock "output")
+        return (leanBlock, outputBlocks)
       manyD (notD exampleEndingHeader)
+      return { broken, brokenOutputs, fixedWithOutputs : ErrorExplanation.CodeBlockSet }
 
   exampleHeader := attempt do
     let line ← any
@@ -265,14 +244,14 @@ where
     unless (matchHeader 1 none line).isSome do
       fail s!"Expected a level-1 header, but found '{line}'"
 
-  codeBlock (lang : String) (kind? : Option CodeInfo.Kind := none) := attempt do
+  codeBlock (lang : String) (kind? : Option ErrorExplanation.CodeInfo.Kind := none) := attempt do
     let infoString ← fence
       <|> fail s!"Expected a(n){kind?.map (s!" {·}") |>.getD ""} `{lang}` code block"
-    manyD (notD fence)
+    let code ← many (notFollowedBy fence *> any)
     let closing ← fence
       <|> fail s!"Missing closing code fence for block with header '{infoString}'"
     -- Validate parsed code block:
-    let info ← match CodeInfo.parse infoString with
+    let info ← match ErrorExplanation.CodeInfo.parse infoString with
       | .ok i => pure i
       | .error s => fail s!"Invalid info string `{infoString}` on code block: {s}"
     let langMatches := info.lang == lang
@@ -286,6 +265,7 @@ where
       fail s!"Expected a(n){expKind} `{lang}` code block, but found a(n){actKind} `{info.lang}` one"
     unless closing.trim.isEmpty do
       fail s!"Expected a closing code fence, but found the nonempty info string `{closing}`"
+    return "\n".intercalate code.toList
 
   fence := attempt do
     let line ← any
@@ -300,9 +280,43 @@ where
     | res@(.success ..) => res
     | .error s msg => .error s s!"Example '{header}' is malformed: {msg}"
 
-def validateDoc (explanation : String) :=
+/--
+Validates that the given error explanation has the expected structure, and extracts its code blocks.
+-/
+def processDoc (explanation : String) :=
   parseExplanation.run explanation
 
 end ErrorExplanation
+
+open Elab Meta Term Command in
+/--
+Registers an error explanation.
+
+Note that the provided name is not relativized to the current namespace.
+-/
+elab docStx:docComment cmd:"register_error_explanation " nm:ident t:term : command => withRef cmd do
+  let tp := mkConst ``ErrorExplanation.Metadata []
+  let metadata ← runTermElabM <| fun _ => unsafe do
+    let e ← elabTerm t tp
+    if e.hasSyntheticSorry then throwAbortTerm
+    evalExpr ErrorExplanation.Metadata tp e
+  let name := nm.getId
+  if name.isAnonymous then throwErrorAt nm "Invalid name for error explanation: '{nm}'"
+  validateDocComment docStx
+  let doc ← getDocStringText docStx
+  if errorExplanationExt.getState (← getEnv) |>.contains name then
+    throwError m!"Cannot add explanation: An error explanation already exists for '{name}'"
+  let codeBlocks ←
+    match ErrorExplanation.processDoc doc with
+    | .ok bs => pure bs
+    | .error (lineOffset, msg) =>
+      let some range := docStx.raw[1].getRange? | throwError msg
+      let fileMap ← getFileMap
+      let ⟨startLine, _⟩ := fileMap.toPosition range.start
+      let errLine := startLine + lineOffset
+      let synth := Syntax.ofRange { start := fileMap.ofPosition ⟨errLine, 0⟩,
+                                    stop  := fileMap.ofPosition ⟨errLine + 1, 0⟩ }
+      throwErrorAt synth msg
+  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, codeBlocks }))
 
 end Lean

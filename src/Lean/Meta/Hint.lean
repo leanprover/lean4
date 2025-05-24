@@ -30,7 +30,12 @@ The props to this widget are of the following form:
     {"type": "unchanged", "text": "h"},
     {"type": "deletion", "text": "ello"},
     {"type": "insertion", "text": "i"}
-  ]
+  ],
+  "suggestion": "hi",
+  "range": {
+    "start": {"line": 100, "character": 0},
+    "end":   {"line": 100, "character": 5}
+  }
 }
 ```
 
@@ -216,3 +221,5 @@ def _root_.Lean.MessageData.hint (hint : MessageData)
   let ref := ref?.getD (← getRef)
   let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix?
   return .tagged `hint (m!"\n\nHint: " ++ hint ++ suggs)
+run_meta do
+  logInfo m!"foo\nbar"

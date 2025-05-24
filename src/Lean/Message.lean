@@ -400,9 +400,6 @@ structure BaseMessage (α : Type u) where
   -/
   isSilent        : Bool := false
   caption         : String          := ""
-  -- TODO:/FIXME: reconcile this with the `kind` field on `SerialMessage`, which does much the same
-  /-- An optional user-facing name for an error (or warning) message that maps to an explanation. -/
-  errorName? : Option Name := none
   /-- The content of the message. -/
   data            : α
   deriving Inhabited, ToJson, FromJson
@@ -419,6 +416,23 @@ structure SerialMessage extends BaseMessage String where
   kind          : Name
   deriving ToJson, FromJson
 
+/--
+A suffix added to diagnostic name-containing tags to indicate that they should be used as an error
+code.
+-/
+def errorNameSuffix := "namedError"
+
+/--
+If the provided name is labeled as a diagnostic name, removes the label and returns the
+corresponding diagnostic name.
+
+Note: we use this labeling mechanism so that we can have error kinds that are not intended to be
+shown to the user, without having to validate the presence of an error explanation at runtime.
+-/
+def errorNameOfKind? : Name → Option Name
+  | .str p last => if last == errorNameSuffix then some p else none
+  | _ => none
+
 namespace SerialMessage
 
 @[inline] def toMessage (msg : SerialMessage) : Message :=
@@ -433,8 +447,10 @@ protected def toString (msg : SerialMessage) (includeEndPos := false) : String :
   | .information => pure ()
   -- TODO: double-check that there wasn't some good reason choosing not to let `mkErrorStringWithPos`
   -- append the `str` in the old version
-  | .warning     => str := mkErrorStringWithPos msg.fileName msg.pos str endPos "warning" msg.errorName?
-  | .error       => str := mkErrorStringWithPos msg.fileName msg.pos str endPos "error" msg.errorName?
+  | .warning     =>
+    str := mkErrorStringWithPos msg.fileName msg.pos str endPos "warning" (errorNameOfKind? msg.kind)
+  | .error       =>
+    str := mkErrorStringWithPos msg.fileName msg.pos str endPos "error" (errorNameOfKind? msg.kind)
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str

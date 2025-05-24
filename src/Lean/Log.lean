@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Util.Sorry
+import Lean.Widget.Types
 import Lean.Message
 
 namespace Lean
@@ -53,22 +54,36 @@ register_builtin_option warningAsError : Bool := {
   descr    := "treat warnings as errors"
 }
 
-/--
-A suffix added to diagnostic name-containing tags to indicate that they should be used as an error
-code.
--/
-def errorNameSuffix := "namedError"
+def errorDescriptionWidget : Widget.Module where
+  javascript := "
+import * as React from 'react';
+import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+const e = React.createElement;
+export default function ({ code, explanationUrl }) {
+  const pos = React.useContext(EnvPosContext)
+  const editorConnection = React.useContext(EditorContext)
+  const insStyle = { className: 'information' }
+  const delStyle = {
+    style: { color: 'var(--vscode-errorForeground)', textDecoration: 'line-through' }
+  }
+  const defStyle = {
+    style: { color: 'var(--vscode-textLink-foreground)' }
+  }
 
-/--
-If the provided name is labeled as a diagnostic name, removes the label and returns the
-corresponding diagnostic name.
+  const codeLabel = e('span', { style: sansText }, 'Error code: ')
+  const codeSpan = e('span', {}, code)
+  const explanLink = e('a' { href: explanationUrl }, 'View explanation')
 
-Note: we use this labeling mechanism so that we can have error tags that are not intended to be
-shown to the user, without having to validate the presence of an error explanation at runtime.
--/
-def getErrorName : Name → Option Name
-  | .str p last => if last == errorNameSuffix then some p else none
-  | _ => none
+  const spans = diff.map (comp =>
+    comp.type === 'deletion' ? e('span', delStyle, comp.text) :
+    comp.type === 'insertion' ? e('span', insStyle, comp.text) :
+      e('span', defStyle, comp.text)
+  )
+  const fullDiff = e('span',
+    { onClick, title: 'Apply suggestion', className: 'link pointer dim font-code', },
+    [codeLabel, codeSpan, explanLink])
+  return fullDiff
+}"
 
 /--
 Log the message `msgData` at the position provided by `ref` with the given `severity`.
@@ -83,10 +98,6 @@ def logAt (ref : Syntax) (msgData : MessageData)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
-    let errorName? := if let .tagged t _ := msgData then
-      getErrorName t
-    else
-      none
     let msgData ← addMessageContext msgData
     logMessage {
       fileName := (← getFileName)
@@ -95,7 +106,6 @@ def logAt (ref : Syntax) (msgData : MessageData)
       data := msgData
       severity
       isSilent
-      errorName?
     }
 
 /-- Log a new error message using the given message data. The position is provided by `ref`. -/

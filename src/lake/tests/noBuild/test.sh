@@ -10,11 +10,11 @@ NO_BUILD_CODE=3
 
 # Test `--no-build` for setup-file and module builds (`buildUnlessUpToDate`)
 echo "# TEST: --no-build setup-file & modules"
-test_status $NO_BUILD_CODE setup-file bogus Test --no-build
+test_status $NO_BUILD_CODE setup-file ImportTest.lean --no-build
 test ! -f .lake/build/lib/lean/Test.olean
 test_run build Test
 test -f .lake/build/lib/lean/Test.olean
-test_run setup-file bogus Test --no-build
+test_run setup-file ImportTest.lean --no-build
 
 # Test `--no-build` for file builds (`buildFileUnlessUpToDate`)
 echo "# TEST: --no-build file"

@@ -446,8 +446,10 @@ protected def setupFile : CliM PUnit := do
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
   let filePath ← takeArg "file path"
-  let imports ← takeArgs
-  setupFile loadConfig filePath imports buildConfig
+  -- Additional arguments (imports) are ignored
+  -- TODO: Forbid them once the language server is updated
+  -- noArgsRem do
+  setupFile loadConfig filePath buildConfig
 
 protected def test : CliM PUnit := do
   processOptions lakeOption
@@ -537,15 +539,15 @@ private def evalLeanFile
 : LoggerIO UInt32 := do
   let some path ← resolvePath? leanFile
     | error s!"file not found: {leanFile}"
-  let args ← id do
+  let args ← do
     if let some mod := ws.findModuleBySrc? path then
-      let deps ← ws.runBuild (withRegisterJob s!"setup ({mod.name})" do mod.deps.fetch) buildConfig
-      return mkArgs path deps (some mod.rootDir) mod.leanArgs mod.leanOptions
+      let setup ← ws.runBuild (cfg := buildConfig) do
+        withRegisterJob s!"{mod.name}:setup" do mod.setup.fetch
+      mkArgs path setup (some mod.rootDir) mod.leanArgs
     else
-      let res ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-      let imports := res.imports.filterMap (ws.findModule? ·.module)
-      let deps ← ws.runBuild (buildImportsAndDeps leanFile imports) buildConfig
-      return mkArgs path deps none ws.root.moreLeanArgs ws.root.leanOptions
+      let setup ← mkModuleSetup
+        ws leanFile.toString (← IO.FS.readFile path) ws.leanOptions buildConfig
+      mkArgs path setup none ws.root.moreLeanArgs
   let spawnArgs : IO.Process.SpawnArgs := {
     args := args ++ moreArgs
     cmd := ws.lakeEnv.lean.lean.toString
@@ -555,17 +557,15 @@ private def evalLeanFile
   let child ← IO.Process.spawn spawnArgs
   child.wait
 where
-  mkArgs leanFile deps rootDir? cfgArgs opts := Id.run do
+  mkArgs leanFile setup rootDir? cfgArgs := do
     let mut args := cfgArgs.push leanFile.toString
     if let some rootDir := rootDir? then
       args := args ++ #["-R", rootDir.toString]
-    let {dynlibs, plugins} := deps
-    for dynlib in dynlibs do
-      args := args ++ #["--load-dynlib", dynlib.path.toString]
-    for plugin in plugins do
-      args := args ++ #["--plugin", plugin.path.toString]
-    for (name, val) in opts.values do
-      args := args.push s!"-D{name}={val.asCliFlagValue}"
+    let (h, setupFile) ← IO.FS.createTempFile
+    let contents := (toJson setup).compress
+    logVerbose s!"module setup: {contents}"
+    h.putStr contents
+    args := args ++ #["--setup", setupFile.toString]
     return args
 
 protected def lean : CliM PUnit := do

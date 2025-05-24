@@ -192,6 +192,9 @@ namespace Module
 @[inherit_doc precompileImportsFacet] abbrev precompileImports (self : Module) :=
   self.facetCore precompileImportsFacet
 
+@[inherit_doc setupFacet] abbrev setup  (self : Module) :=
+  self.facetCore setupFacet
+
 @[inherit_doc depsFacet] abbrev deps  (self : Module) :=
   self.facetCore depsFacet
 

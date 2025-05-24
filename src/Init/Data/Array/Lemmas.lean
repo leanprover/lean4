@@ -75,7 +75,6 @@ theorem ne_empty_of_size_pos (h : 0 < xs.size) : xs ≠ #[] := by
   cases xs
   simpa using List.ne_nil_of_length_pos h
 
-@[grind]
 theorem size_eq_zero_iff : xs.size = 0 ↔ xs = #[] :=
   ⟨eq_empty_of_size_eq_zero, fun h => h ▸ rfl⟩
 

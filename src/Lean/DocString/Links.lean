@@ -23,7 +23,7 @@ If the environment variable `LEAN_MANUAL_ROOT` is set, it is used as the root. I
 root is pre-configured for the current Lean executable (typically true for releases), then it is
 used. If neither are true, then `https://lean-lang.org/doc/reference/latest/` is used.
 -/
-def manualRoot : BaseIO String := do
+initialize manualRoot : String ←
   let r ←
     if let some root := (← IO.getEnv "LEAN_MANUAL_ROOT") then
       pure root
@@ -82,7 +82,7 @@ def rewriteManualLinksCore (s : String) : BaseIO (Array (String.Range × String)
         out := out.push c
         break
       | .ok path =>
-        out := out ++ (← manualRoot) ++ path
+        out := out ++ manualRoot ++ path
         out := out.push c'
         iter := iter'
         break

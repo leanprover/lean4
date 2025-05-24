@@ -283,8 +283,8 @@ where
 /--
 Validates that the given error explanation has the expected structure, and extracts its code blocks.
 -/
-def processDoc (explanation : String) :=
-  parseExplanation.run explanation
+def processDoc (doc : String) :=
+  parseExplanation.run doc
 
 end ErrorExplanation
 

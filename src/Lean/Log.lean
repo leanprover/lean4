@@ -7,6 +7,7 @@ prelude
 import Lean.Util.Sorry
 import Lean.Widget.Types
 import Lean.Message
+import Lean.DocString.Links
 
 namespace Lean
 
@@ -62,27 +63,15 @@ const e = React.createElement;
 export default function ({ code, explanationUrl }) {
   const pos = React.useContext(EnvPosContext)
   const editorConnection = React.useContext(EditorContext)
-  const insStyle = { className: 'information' }
-  const delStyle = {
-    style: { color: 'var(--vscode-errorForeground)', textDecoration: 'line-through' }
-  }
-  const defStyle = {
-    style: { color: 'var(--vscode-textLink-foreground)' }
-  }
+  const sansText = { fontFamily: 'var(--vscode-font-family)' }
 
-  const codeLabel = e('span', { style: sansText }, 'Error code: ')
-  const codeSpan = e('span', {}, code)
-  const explanLink = e('a' { href: explanationUrl }, 'View explanation')
+  const codeSpan = e('span', {}, [e('span', { style: sansText }, 'Error code: '), code])
+  const brSpan = e('span', {}, '\\n')
+  const linkSpan = e('span', { style: sansText },
+    e('a', { href: explanationUrl }, 'View explanation'))
 
-  const spans = diff.map (comp =>
-    comp.type === 'deletion' ? e('span', delStyle, comp.text) :
-    comp.type === 'insertion' ? e('span', insStyle, comp.text) :
-      e('span', defStyle, comp.text)
-  )
-  const fullDiff = e('span',
-    { onClick, title: 'Apply suggestion', className: 'link pointer dim font-code', },
-    [codeLabel, codeSpan, explanLink])
-  return fullDiff
+  const all = e('div', { style: { marginTop: '1em' } }, [codeSpan, brSpan, linkSpan])
+  return all
 }"
 
 /--
@@ -98,6 +87,21 @@ def logAt (ref : Syntax) (msgData : MessageData)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
+    let msgData := if let some errorName := errorNameOfKind? msgData.kind then
+      -- TODO: unify with manual link rewriting in docstrings
+      let url := manualRoot ++ s!"find/?domain=Manual.errorExplanation&name={errorName}"
+      let inst := {
+        id := ``errorDescriptionWidget
+        javascriptHash := errorDescriptionWidget.javascriptHash
+        props := return json% {
+          code: $(toString errorName),
+          explanationUrl: $url
+        }
+      }
+      msgData.appendPreservingKind <|
+        .ofWidget inst m!"\n\nError code: {errorName}\nView explanation: {url}"
+    else
+      msgData
     let msgData ← addMessageContext msgData
     logMessage {
       fileName := (← getFileName)

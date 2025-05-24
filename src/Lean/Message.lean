@@ -169,6 +169,16 @@ def isTrace : MessageData → Bool
   | .trace _ _ _            => true
   | _                       => false
 
+/--
+`appendPreservingKind msg msg'` appends the contents of `msg'` to the end of `msg` but ensures that
+the resulting message preserves the kind (as given by `MessageData.kind`) of `msg`.
+-/
+def appendPreservingKind : MessageData → MessageData → MessageData
+  | withContext ctx msg     , msg' => withContext ctx (appendPreservingKind msg msg')
+  | withNamingContext nc msg, msg' => withNamingContext nc (appendPreservingKind msg msg')
+  | tagged t msg            , msg' => tagged t (compose msg msg')
+  | msg                     , msg' => compose msg msg'
+
 /-- An empty message. -/
 def nil : MessageData :=
   ofFormat Format.nil

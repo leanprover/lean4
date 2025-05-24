@@ -737,13 +737,12 @@ syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
 @[inherit_doc simpa] macro "simpa?!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ?! $rest:simpaArgsRest)
 
--- TODO after stage0 update: identWithOptDot
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
 This is a low-level tactic, it will expose how recursive definitions have been
 compiled by Lean.
 -/
-syntax (name := delta) "delta" (ppSpace colGt ident)+ (location)? : tactic
+syntax (name := delta) "delta" (ppSpace colGt identWithOptDot)+ (location)? : tactic
 
 -- TODO after stage0 update: identWithOptDot
 /--
@@ -758,7 +757,7 @@ For recursive global definitions, it uses the "unfolding lemma" `id.eq_def`,
 which is generated for each recursive definition, to unfold according to the recursive definition given by the user.
 Only one level of unfolding is performed, in contrast to `simp only [id]`, which unfolds definition `id` recursively.
 -/
-syntax (name := unfold) "unfold" (ppSpace colGt ident)+ (location)? : tactic
+syntax (name := unfold) "unfold" (ppSpace colGt identWithOptDot)+ (location)? : tactic
 
 /--
 Auxiliary macro for lifting have/suffices/let/...
@@ -1486,11 +1485,10 @@ See also `norm_cast`.
 syntax (name := pushCast) "push_cast" optConfig (discharger)? (&" only")?
   (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
--- TODO after stage0 update: identWithOptDot
 /--
 `norm_cast_add_elim foo` registers `foo` as an elim-lemma in `norm_cast`.
 -/
-syntax (name := normCastAddElim) "norm_cast_add_elim " ident : command
+syntax (name := normCastAddElim) "norm_cast_add_elim " identWithOptDot : command
 
 /--
 `ac_nf` normalizes equalities up to application of an associative and commutative operator.
@@ -1651,7 +1649,7 @@ syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
 /--
 Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.
 -/
-syntax rewrites_forbidden := " [" (("-" ident),*,?) "]" -- TODO after stage0 update: identWithOptDot
+syntax rewrites_forbidden := " [" (("-" identWithOptDot),*,?) "]"
 
 /--
 `rw?` tries to find a lemma which can rewrite the goal.

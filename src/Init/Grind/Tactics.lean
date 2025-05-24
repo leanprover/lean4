@@ -19,10 +19,10 @@ syntax grindEq     := "="
 syntax grindEqBoth := atomic("_" "=" "_")
 syntax grindEqRhs  := atomic("=" "_")
 syntax grindEqBwd  := atomic("←" "=") <|> atomic("<-" "=")
-syntax grindBwd    := "← " <|> "<-" -- TODO after stage0 update: fix whitespace
-syntax grindFwd    := "→ " <|> "->"
-syntax grindRL     := "⇐ " <|> "<="
-syntax grindLR     := "⇒ " <|> "=>"
+syntax grindBwd    := "←" <|> "<-"
+syntax grindFwd    := "→" <|> "->"
+syntax grindRL     := "⇐" <|> "<="
+syntax grindLR     := "⇒" <|> "=>"
 syntax grindUsr    := &"usr"
 syntax grindCases  := &"cases"
 syntax grindCasesEager := atomic(&"cases " &"eager")
@@ -139,8 +139,8 @@ namespace Lean.Parser.Tactic
 `grind` tactic and related tactics.
 -/
 
-syntax grindErase := "-" ident -- TODO after stage0 update: identWithOptDot
-syntax grindLemma := (Attr.grindMod ppSpace)? ident -- TODO after stage0 update: identWithOptDot
+syntax grindErase := "-" identWithOptDot
+syntax grindLemma := (Attr.grindMod ppSpace)? identWithOptDot
 syntax grindParam := grindErase <|> grindLemma
 
 syntax (name := grind)

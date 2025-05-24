@@ -328,11 +328,6 @@ macro_rules
   | `(letI $x:ident $bs* := $val; $body) => `(letI $x $bs* : _ := $val; $body)
   | `(letI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
 
--- TODO after stage0 update: move these back to `Init.Notation`
-macro_rules
-  | `(seal $fs:ident*) => `(attribute [local irreducible] $[$fs]*)
-  | `(unseal $fs:ident*) => `(attribute [local semireducible] $[$fs]*)
-
 
 namespace Lean
 syntax cdotTk := patternIgnore("· " <|> ". ")

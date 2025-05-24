@@ -71,17 +71,15 @@ A builtin defeq simplification procedure declaration.
 -/
 syntax (docComment)? "builtin_dsimproc_decl " ident " (" term ")" " := " term : command
 
--- TODO after stage0 update: identWithOptDot
 /--
 Auxiliary command for associating a pattern with a simplification procedure.
 -/
-syntax (name := simprocPattern) "simproc_pattern% " term " => " ident : command
+syntax (name := simprocPattern) "simproc_pattern% " term " => " identWithOptDot : command
 
--- TODO after stage0 update: identWithOptDot
 /--
 Auxiliary command for associating a pattern with a builtin simplification procedure.
 -/
-syntax (name := simprocPatternBuiltin) "builtin_simproc_pattern% " term " => " ident : command
+syntax (name := simprocPatternBuiltin) "builtin_simproc_pattern% " term " => " identWithOptDot : command
 
 namespace Attr
 /--

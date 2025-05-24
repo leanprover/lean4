@@ -600,7 +600,6 @@ scoped syntax (name := withAnnotateTerm) "with_annotate_term " rawStx ppSpace te
 /-- Normalize casts in an expression using the same method as the `norm_cast` tactic. -/
 syntax (name := modCast) "mod_cast " term : term
 
--- TODO after stage0 update: identWithOptDot
 /--
 The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
@@ -610,7 +609,7 @@ existing code. It may be removed in a future version of the library.
 * `@[deprecated myBetterDef "use myBetterDef instead"]` allows customizing the deprecation message.
 * `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
 -/
-syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
+syntax (name := deprecated) "deprecated" (ppSpace identWithOptDot)? (ppSpace str)?
     (" (" &"since" " := " str ")")? : attr
 
 /--
@@ -620,7 +619,6 @@ applications of this function as `↑` when printing expressions.
 -/
 syntax (name := Attr.coe) "coe" : attr
 
--- TODO after stage0 update: identWithOptDot
 /--
 This attribute marks a code action, which is used to suggest new tactics or replace existing ones.
 
@@ -633,13 +631,12 @@ This attribute marks a code action, which is used to suggest new tactics or repl
 * `@[command_code_action]`: This is a command code action that applies to all commands.
   Use sparingly.
 -/
-syntax (name := command_code_action) "command_code_action" (ppSpace ident)* : attr
+syntax (name := command_code_action) "command_code_action" (ppSpace identWithOptDot)* : attr
 
--- TODO after stage0 update: identWithOptDot
 /--
 Builtin command code action. See `command_code_action`.
 -/
-syntax (name := builtin_command_code_action) "builtin_command_code_action" (ppSpace ident)* : attr
+syntax (name := builtin_command_code_action) "builtin_command_code_action" (ppSpace identWithOptDot)* : attr
 
 /--
 When `parent_dir` contains the current Lean file, `include_str "path" / "to" / "file"` becomes
@@ -836,23 +833,23 @@ namespace Parser
 on a goal with `t` and sees if the resulting expression has reduced it
 to `r`.
 -/
-syntax (name := checkTactic) "#check_tactic " term "~>" term "by" tactic : command
+syntax (name := checkTactic) "#check_tactic " term " ~> " term " by " tactic : command
 
 /--
 `#check_tactic_failure t by tac` runs the tactic `tac`
 on a goal with `t` and verifies it fails.
 -/
-syntax  (name := checkTacticFailure) "#check_tactic_failure " term "by" tactic : command
+syntax (name := checkTacticFailure) "#check_tactic_failure " term " by " tactic : command
 
 /--
 `#check_simp t ~> r` checks `simp` reduces `t` to `r`.
 -/
-syntax (name := checkSimp) "#check_simp " term "~>" term : command
+syntax (name := checkSimp) "#check_simp " term " ~> " term : command
 
 /--
 `#check_simp t !~>` checks `simp` fails on reducing `t`.
 -/
-syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command
+syntax (name := checkSimpFailure) "#check_simp " term " !~> " : command
 
 /--
 Time the elaboration of a command, and print the result (in milliseconds).
@@ -887,7 +884,6 @@ syntax (name := discrTreeKeyCmd) "#discr_tree_key " term : command
 @[inherit_doc discrTreeKeyCmd]
 syntax (name := discrTreeSimpKeyCmd) "#discr_tree_simp_key" term : command
 
--- TODO after stage0 update: identWithOptDot
 /--
 The `seal foo` command ensures that the definition of `foo` is sealed, meaning it is marked as `[irreducible]`.
 This command is particularly useful in contexts where you want to prevent the reduction of `foo` in proofs.
@@ -896,9 +892,8 @@ In terms of functionality, `seal foo` is equivalent to `attribute [local irreduc
 This attribute specifies that `foo` should be treated as irreducible only within the local scope,
 which helps in maintaining the desired abstraction level without affecting global settings.
 -/
-syntax "seal " (ppSpace ident)+ : command
+syntax "seal " (ppSpace identWithOptDot)+ : command
 
--- TODO after stage0 update: identWithOptDot
 /--
 The `unseal foo` command ensures that the definition of `foo` is unsealed, meaning it is marked as `[semireducible]`, the
 default reducibility setting. This command is useful when you need to allow some level of reduction of `foo` in proofs.
@@ -906,6 +901,10 @@ default reducibility setting. This command is useful when you need to allow some
 Functionally, `unseal foo` is equivalent to `attribute [local semireducible] foo`.
 Applying this attribute makes `foo` semireducible only within the local scope.
 -/
-syntax "unseal " (ppSpace ident)+ : command
+syntax "unseal " (ppSpace identWithOptDot)+ : command
+
+macro_rules
+  | `(seal $fs:identWithOptDot*) => `(attribute [local irreducible] $fs:identWithOptDot*)
+  | `(unseal $fs:identWithOptDot*) => `(attribute [local semireducible] $fs:identWithOptDot*)
 
 end Parser

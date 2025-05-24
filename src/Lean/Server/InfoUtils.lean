@@ -226,11 +226,6 @@ def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos) : Bool := Id.ru
     | return false
   return headPos <= hoverPos && hoverPos <= tailPos
 
-def Info.atDanglingDotPosition (i : Info) (source : String) (hoverPos : String.Pos) : Bool := Id.run do
-  let some tailPos := i.tailPos?
-    | return false
-  return hoverPos == tailPos + '.' && source.get tailPos == '.'
-
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 

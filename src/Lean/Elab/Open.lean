@@ -63,30 +63,14 @@ def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.
     match stx with
     | `(Parser.Command.openDecl| $nss:identWithOptDot*) =>
       for ns in nss do
-        if ns.raw.isIdent then
-          -- bootstrapping hack: we use `open` in the `by_cases` macro
-          for ns in (← resolveNamespace ⟨ns.raw⟩) do
-            addOpenDecl (OpenDecl.simple ns [])
-            activateScoped ns
-        else
-          for ns in (← resolveNamespace ns) do
-            addOpenDecl (OpenDecl.simple ns [])
-            activateScoped ns
+        for ns in (← resolveNamespace ns) do
+          addOpenDecl (OpenDecl.simple ns [])
+          activateScoped ns
     | `(Parser.Command.openDecl| scoped $nss:identWithOptDot*) =>
       for ns in nss do
         for ns in (← resolveNamespace ns) do
           activateScoped ns
     | `(Parser.Command.openDecl| $ns:identWithOptDot ($ids:identWithOptDot*)) =>
-      let nss ← resolveNamespace ns
-      for idStx in ids do
-        let declName ← resolveNameUsingNamespacesCore nss idStx
-        if (← getInfoState).enabled then
-          addConstInfo idStx declName
-        addOpenDecl (OpenDecl.explicit idStx.getId declName)
-    -- TODO: remove after stage0 update
-    | `(Parser.Command.openDecl| $x:openOnly) =>
-      let ns : Ident := ⟨x.raw[0]⟩
-      let ids : TSyntaxArray `ident := TSyntaxArray.mk x.raw[2].getArgs
       let nss ← resolveNamespace ns
       for idStx in ids do
         let declName ← resolveNameUsingNamespacesCore nss idStx

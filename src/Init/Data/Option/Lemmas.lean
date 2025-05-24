@@ -1028,7 +1028,7 @@ variable [BEq α]
   · intro h
     infer_instance
 
-@[simp, grind =] theorem beq_none {o : Option α} : (o == none) = o.isNone := by cases o <;> simp
+@[simp] theorem beq_none {o : Option α} : (o == none) = o.isNone := by cases o <;> simp
 
 @[simp, grind =]
 theorem filter_beq_self [ReflBEq α] {p : α → Bool} {o : Option α} : (o.filter p == o) = o.all p := by

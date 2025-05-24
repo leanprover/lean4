@@ -2420,6 +2420,10 @@ theorem lt_of_lt_of_eq {a b c : α} [LT α] (h₁ : a < b) (h₂ : b = c) : a < 
 namespace Std
 variable {α : Sort u}
 
+-- Note: the classes carrying properties are all marked `attribute [grind cases]` in `Init.Grind.Cases`,
+-- so these facts are available to `grind`.
+-- If `grind` later gains native handling of any of these, those attributes can be removed.
+
 /--
 `Associative op` indicates `op` is an associative operation,
 i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`.

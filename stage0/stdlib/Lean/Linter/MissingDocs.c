@@ -39,7 +39,6 @@ size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkClassAbbrev(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__4;
-uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(uint8_t, uint8_t);
 static lean_object* l_Lean_Options_toLinterOptions___at_Lean_Linter_MissingDocs_missingDocs___elambda__1___spec__2___closed__1;
 static lean_object* l_Lean_Linter_MissingDocs_checkElab___regBuiltin_Lean_Linter_MissingDocs_checkElab__1___closed__3;
 static lean_object* l_Lean_Linter_MissingDocs_checkRegisterOption___regBuiltin_Lean_Linter_MissingDocs_checkRegisterOption__1___closed__4;
@@ -340,6 +339,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_checkRegisterBuiltinOption___regBuiltin_Lean_Linter_MissingDocs_checkRegisterBuiltinOption__1___closed__4;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_MissingDocs___hyg_7____closed__1;
 static lean_object* l_Lean_Linter_logLint___at_Lean_Linter_MissingDocs_lint___spec__1___closed__5;
+uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_169_(uint8_t, uint8_t);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_802____closed__13;
 extern lean_object* l_Lean_Linter_instLinterSetsInhabited;
@@ -3242,7 +3242,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; 
 x_8 = 0;
-x_9 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(x_4, x_8);
+x_9 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_169_(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
@@ -3856,7 +3856,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; 
 x_8 = 0;
-x_9 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(x_4, x_8);
+x_9 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_169_(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 

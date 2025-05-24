@@ -156,6 +156,12 @@ instance : LE Duration where
 instance {x y : Duration} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.toNanoseconds ≤ y.toNanoseconds))
 
+instance : LT Duration where
+  lt d1 d2 := d1.toNanoseconds < d2.toNanoseconds
+
+instance {x y : Duration} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.toNanoseconds < y.toNanoseconds))
+
 /--
 Converts a `Duration` to a `Minute.Offset`
 -/

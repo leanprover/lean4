@@ -76,3 +76,12 @@ trace: [grind.assert] x1 = appV a_2 b
 #guard_msgs (trace) in
 example : x1 = appV a b → x2 = appV x1 c → x3 = appV b c → x4 = appV a x3 → HEq x2 x4 := by
   grind
+
+
+/--
+info: appV_assoc': [@appV #6 #5 (@HAdd.hAdd `[Nat] `[Nat] `[Nat] `[instHAdd] #4 #3) #2 (@appV _ #4 #3 #1 #0)]
+-/
+#guard_msgs (info) in
+@[grind? =]
+theorem appV_assoc' (a : Vector α n) (b : Vector α m) (c : Vector α n') :
+        HEq (appV a (appV b c)) (appV (appV a b) c) := sorry

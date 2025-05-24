@@ -8,12 +8,6 @@ class Bot (α : Type) where
 /-- The bot (`⊥`, `\bot`) element -/
 notation "⊥" => Bot.bot
 
-/-- Typeclass for types with a scalar multiplication operation, denoted `•` (`\bu`) -/
-class SMul (M α : Type) where
-  smul : M → α → α
-
-infixr:73 " • " => SMul.smul
-
 structure Submodule (R : Type) (M : Type) [Zero M] [SMul R M] where
   carrier : M → Prop
   zero_mem : carrier (0 : M)

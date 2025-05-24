@@ -439,3 +439,21 @@ example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
 
 example (p q : Prop) : (p → q) → (¬ p → q) → (p → ¬ q) → (¬p → ¬q) → False := by
   grind (splitImp := true)
+
+
+/-! Pull universal over disjunction -/
+
+opaque p : (i : Nat) → i ≠ 10 → Prop
+
+-- This example does not require pulling quantifiers
+example (h : ∀ i, i > 0 → ∀ h : i ≠ 10, p i h) : p 5 (by decide) := by
+  grind
+
+-- This one is semantically equivalent to the previous example, but can only be proved by `grind` after
+-- we pull universal over disjunctions during normalization.
+example (h : ∀ i, (¬i > 0) ∨ ∀ h : i ≠ 10, p i h) : p 5 (by decide) := by
+  grind
+
+-- Similar to previous test.
+example (h : ∀ i, (∀ h : i ≠ 10, p i h) ∨ (¬i > 0)) : p 5 (by decide) := by
+  grind

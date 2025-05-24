@@ -141,7 +141,7 @@ def grind
     let type ← mvarId.getType
     let mvar' ← mkFreshExprSyntheticOpaqueMVar type
     let result ← Grind.main mvar'.mvarId! params fallback
-    if result.hasFailures then
+    if result.hasFailed then
       throwError "`grind` failed\n{← result.toMessageData}"
     -- `grind` proofs are often big
     let e ← if (← isProp type) then

@@ -15,4 +15,6 @@ import Init.Grind.Util
 import Init.Grind.Offset
 import Init.Grind.PP
 import Init.Grind.CommRing
+import Init.Grind.Module
+import Init.Grind.Ordered
 import Init.Grind.Ext

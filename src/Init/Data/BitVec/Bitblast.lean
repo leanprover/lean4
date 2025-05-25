@@ -1767,13 +1767,13 @@ theorem umod_msb_false {x y : BitVec w} (xmsb : y.msb = false) (hy_ne_zero : y �
   exact le_of_msb_true_of_msb_false xmsb h
 
 @[simp]
-theorem intMin_umod_msb_false {y : BitVec w} (hy : y.msb = true) (hy_ne_zero : y ≠ 0#w) :
+theorem msb_umod_of_intMin_of_msb_true {y : BitVec w} (hy : y.msb = true):
     (intMin w % (-y)).msb = false := by
-  by_cases yintmin : y = intMin w
-  · simp [yintmin]
-  · rw [umod_msb_false]
-    simp [msb_neg, hy, yintmin, hy_ne_zero]
-    simp [hy_ne_zero]
+  by_cases hyintmin : y = intMin w
+  · simp [hyintmin]
+  · have hynezero := ne_zero_of_msb_true (x := y) hy
+    rw [umod_msb_false (by simp only [msb_neg, ← bool_to_prop]; simp [hynezero, hyintmin, hy])]
+    simp [hynezero]
 
 theorem msb_neg_umod_neg_of_msb_true_of_msb_true
     {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
@@ -1799,29 +1799,29 @@ theorem toInt_dvd_toInt_iff {x y : BitVec w} :
   <;> norm_cast at h
   <;> simp only [dvd_of_mod_eq_zero, h, dvd_iff_mod_eq_zero.mp, reduceIte]
 
-theorem toInt_dvd_iff_of_msb_true_msb_false {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
+theorem toInt_dvd_toInt_iff_of_msb_true_msb_false {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
     y.toInt ∣ x.toInt ↔ (-x) % y = 0#w := by
   have := toInt_dvd_toInt_iff (x := x) (y := y)
   simp [hx, hy] at this
   exact this
 
-theorem toInt_dvd_iff_of_msb_false_msb_true {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+theorem toInt_dvd_toInt_iff_of_msb_false_msb_true {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
     y.toInt ∣ x.toInt ↔ x % (-y) = 0#w := by
   have := toInt_dvd_toInt_iff (x := x) (y := y)
   simp [hx, hy] at this
   exact this
 
 @[simp]
-theorem neg_toInt_neg {x : BitVec w} (h : x.msb = false) :
+theorem neg_toInt_neg_of_msb_false {x : BitVec w} (h : x.msb = false) :
     -((-x).toInt) = x.toNat := by
   simp [toInt_neg_eq_of_msb h, toInt_eq_toNat_of_msb, h]
 
 @[simp]
-theorem neg_toInt_neg_umod_eq_ofmsb_true_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+theorem neg_toInt_neg_umod_eq_of_msb_true_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
     -(-(-x % -y)).toInt = (-x % -y).toNat := by
   by_cases hw : w = 0; subst hw; decide +revert
   have wpos : 0 < w := by omega
-  rw [neg_toInt_neg]
+  rw [neg_toInt_neg_of_msb_false]
   by_cases h : -x % -y = 0#w
   · simp [h]
   · rw [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
@@ -1876,7 +1876,7 @@ theorem toInt_smod {x y : BitVec w} :
         Int.dvd_neg, humod, iff_false] at hdvd
       omega
   · rw [← Int.neg_inj]
-    rw [neg_toInt_neg_umod_eq_ofmsb_true_msb_true hxmsb hymsb]
+    rw [neg_toInt_neg_umod_eq_of_msb_true_msb_true hxmsb hymsb]
     simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb,
     hymsb, Int.fmod_eq_emod_of_nonneg _, show 0 ≤ ↑(-y).toNat by omega]
 

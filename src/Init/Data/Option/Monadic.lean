@@ -156,26 +156,26 @@ theorem forIn_join [Monad m] [LawfulMonad m]
     forIn o.join init f = forIn o init (fun o' b => ForInStep.yield <$> forIn o' b f) := by
   cases o <;> simp
 
-@[simp] theorem elimM_pure [Monad m] [LawfulMonad m] (x : Option α) (y : m β) (z : α → m β) :
+@[simp, grind =] theorem elimM_pure [Monad m] [LawfulMonad m] (x : Option α) (y : m β) (z : α → m β) :
     Option.elimM (pure x : m (Option α)) y z = x.elim y z := by
   simp [Option.elimM]
 
-@[simp] theorem elimM_bind [Monad m] [LawfulMonad m] (x : m α) (f : α → m (Option β))
+@[simp, grind =] theorem elimM_bind [Monad m] [LawfulMonad m] (x : m α) (f : α → m (Option β))
     (y : m γ) (z : β → m γ) : Option.elimM (x >>= f) y z = (do Option.elimM (f (← x)) y z) := by
   simp [Option.elimM]
 
-@[simp] theorem elimM_map [Monad m] [LawfulMonad m] (x : m α) (f : α → Option β)
+@[simp, grind =] theorem elimM_map [Monad m] [LawfulMonad m] (x : m α) (f : α → Option β)
     (y : m γ) (z : β → m γ) : Option.elimM (f <$> x) y z = (do Option.elim (f (← x)) y z) := by
   simp [Option.elimM]
 
-@[simp] theorem tryCatch_eq_or (o : Option α) (alternative : Unit → Option α) :
+@[simp, grind =] theorem tryCatch_eq_or (o : Option α) (alternative : Unit → Option α) :
     tryCatch o alternative = o.or (alternative ()) := by cases o <;> rfl
 
-@[simp] theorem throw_eq_none : throw () = (none : Option α) := rfl
+@[simp, grind =] theorem throw_eq_none : throw () = (none : Option α) := rfl
 
-@[simp, grind] theorem filterM_none [Applicative m] (p : α → m Bool) :
+@[simp, grind =] theorem filterM_none [Applicative m] (p : α → m Bool) :
     none.filterM p = pure none := rfl
-theorem filterM_some [Applicative m] (p : α → m Bool) (a : α) :
+@[grind =] theorem filterM_some [Applicative m] (p : α → m Bool) (a : α) :
     (some a).filterM p = (fun b => if b then some a else none) <$> p a := rfl
 
 theorem sequence_join [Applicative m] [LawfulApplicative m] {o : Option (Option (m α))} :

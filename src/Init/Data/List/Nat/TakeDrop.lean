@@ -56,7 +56,7 @@ theorem getElem?_take_eq_none {l : List α} {i j : Nat} (h : i ≤ j) :
     (l.take i)[j]? = none :=
   getElem?_eq_none <| Nat.le_trans (length_take_le _ _) h
 
-@[grind =]theorem getElem?_take {l : List α} {i j : Nat} :
+@[grind =] theorem getElem?_take {l : List α} {i j : Nat} :
     (l.take i)[j]? = if j < i then l[j]? else none := by
   split
   · next h => exact getElem?_take_of_lt h

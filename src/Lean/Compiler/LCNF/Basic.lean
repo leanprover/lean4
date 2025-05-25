@@ -40,7 +40,9 @@ inductive LitValue where
   | uint16 (val : UInt16)
   | uint32 (val : UInt32)
   | uint64 (val : UInt64)
-  -- TODO: add constructors for `Int`, `Float`, `USize` ...
+  -- USize has a maximum size of 64 bits
+  | usize (val : UInt64)
+  -- TODO: add constructors for `Int`, `Float`, ...
   deriving Inhabited, BEq, Hashable
 
 def LitValue.toExpr : LitValue → Expr
@@ -50,6 +52,7 @@ def LitValue.toExpr : LitValue → Expr
   | .uint16 v => .app (.const ``UInt16.ofNat []) (.lit (.natVal (UInt16.toNat v)))
   | .uint32 v => .app (.const ``UInt32.ofNat []) (.lit (.natVal (UInt32.toNat v)))
   | .uint64 v => .app (.const ``UInt64.ofNat []) (.lit (.natVal (UInt64.toNat v)))
+  | .usize v => .app (.const ``USize.ofNat []) (.lit (.natVal (UInt64.toNat v)))
 
 inductive Arg where
   | erased

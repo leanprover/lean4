@@ -75,7 +75,6 @@ theorem ne_empty_of_size_pos (h : 0 < xs.size) : xs ≠ #[] := by
   cases xs
   simpa using List.ne_nil_of_length_pos h
 
-@[grind]
 theorem size_eq_zero_iff : xs.size = 0 ↔ xs = #[] :=
   ⟨eq_empty_of_size_eq_zero, fun h => h ▸ rfl⟩
 
@@ -117,14 +116,11 @@ abbrev size_eq_one := @size_eq_one_iff
 
 /-! ## L[i] and L[i]? -/
 
-@[simp] theorem getElem?_eq_none_iff {xs : Array α} : xs[i]? = none ↔ xs.size ≤ i := by
-  by_cases h : i < xs.size
-  · simp [getElem?_pos, h]
-  · rw [getElem?_neg xs i h]
-    simp_all
+theorem getElem?_eq_none_iff {xs : Array α} : xs[i]? = none ↔ xs.size ≤ i := by
+  simp
 
-@[simp] theorem none_eq_getElem?_iff {xs : Array α} {i : Nat} : none = xs[i]? ↔ xs.size ≤ i := by
-  simp [eq_comm (a := none)]
+theorem none_eq_getElem?_iff {xs : Array α} {i : Nat} : none = xs[i]? ↔ xs.size ≤ i := by
+  simp
 
 theorem getElem?_eq_none {xs : Array α} (h : xs.size ≤ i) : xs[i]? = none := by
   simp [getElem?_eq_none_iff, h]
@@ -134,8 +130,8 @@ grind_pattern Array.getElem?_eq_none => xs.size ≤ i, xs[i]?
 @[simp] theorem getElem?_eq_getElem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i]? = some xs[i] :=
   getElem?_pos ..
 
-theorem getElem?_eq_some_iff {xs : Array α} : xs[i]? = some b ↔ ∃ h : i < xs.size, xs[i] = b := by
-  simp [getElem?_def]
+theorem getElem?_eq_some_iff {xs : Array α} : xs[i]? = some b ↔ ∃ h : i < xs.size, xs[i] = b :=
+  _root_.getElem?_eq_some_iff
 
 @[grind →]
 theorem getElem_of_getElem? {xs : Array α} : xs[i]? = some a → ∃ h : i < xs.size, xs[i] = a :=
@@ -2798,7 +2794,7 @@ theorem reverse_eq_iff {xs ys : Array α} : xs.reverse = ys ↔ xs = ys.reverse 
   cases xs
   simp
 
-@[grind _=_]theorem filterMap_reverse {f : α → Option β} {xs : Array α} : (xs.reverse.filterMap f) = (xs.filterMap f).reverse := by
+@[grind _=_] theorem filterMap_reverse {f : α → Option β} {xs : Array α} : (xs.reverse.filterMap f) = (xs.filterMap f).reverse := by
   cases xs
   simp
 
@@ -3527,7 +3523,7 @@ theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b} {xs
     (xs ++ ys).foldr f b start 0 = xs.foldr f (ys.foldr f b) :=
   foldrM_append' w
 
-@[grind _=_]theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs ys : Array α} :
+@[grind _=_] theorem foldl_append {β : Type _} {f : β → α → β} {b} {xs ys : Array α} :
     (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) :=
   foldlM_append
 
@@ -3783,7 +3779,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Array α} {a : α} :
   rcases xs with ⟨xs⟩
   simp [List.contains_iff_exists_mem_beq]
 
-@[grind]
+@[grind _=_]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp

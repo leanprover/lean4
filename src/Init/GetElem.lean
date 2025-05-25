@@ -47,7 +47,7 @@ proof in the context using `have`, because `get_elem_tactic` tries
 
 The proof side-condition `valid xs i` is automatically dispatched by the
 `get_elem_tactic` tactic; this tactic can be extended by adding more clauses to
-`get_elem_tactic_trivial` using `macro_rules`.
+`get_elem_tactic_extensible` using `macro_rules`.
 
 `xs[i]?` and `xs[i]!` do not impose a proof obligation; the former returns
 an `Option elem`, with `none` signalling that the value isn't present, and
@@ -279,6 +279,9 @@ instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
 @[simp, grind =] theorem getElem?_fin [h : GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) : a[i]? = a[i.1]? := rfl
 
 @[simp, grind =] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) [Inhabited Elem] : a[i]! = a[i.1]! := rfl
+
+macro_rules
+  | `(tactic| get_elem_tactic_extensible) => `(tactic| (with_reducible apply Fin.val_lt_of_le); get_elem_tactic_extensible; done)
 
 macro_rules
   | `(tactic| get_elem_tactic_trivial) => `(tactic| (with_reducible apply Fin.val_lt_of_le); get_elem_tactic_trivial; done)

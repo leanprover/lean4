@@ -14,7 +14,26 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { labels } = context.payload.pull_request;
-            if (labels.some(label => label.name == "awaiting-mathlib") && !labels.some(label => label.name == "builds-mathlib")) {
-              core.setFailed('PR is marked "awaiting-mathlib" but "builds-mathlib" label has not been applied yet by the bot');
+            const { labels, number: prNumber } = context.payload.pull_request;
+            const hasAwaiting = labels.some(label => label.name == "awaiting-mathlib");
+            const hasBreaks = labels.some(label => label.name == "breaks-mathlib");
+            const hasBuilds = labels.some(label => label.name == "builds-mathlib");
+
+            if (hasAwaiting && hasBreaks) {
+              core.setFailed('PR has both "awaiting-mathlib" and "breaks-mathlib" labels.');
+            } else if (hasAwaiting && !hasBreaks && !hasBuilds) {
+              // Create a neutral check run (yellow circle)
+              const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+              await octokit.rest.checks.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: "awaiting-mathlib label check",
+                head_sha: context.payload.pull_request.head.sha,
+                status: "completed",
+                conclusion: "neutral",
+                output: {
+                  title: "Awaiting mathlib",
+                  summary: 'PR is marked "awaiting-mathlib" but neither "breaks-mathlib" nor "builds-mathlib" labels are present.'
+                }
+              });
             }

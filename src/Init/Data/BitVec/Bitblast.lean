@@ -1767,7 +1767,7 @@ theorem umod_msb_false {x y : BitVec w} (xmsb : y.msb = false) (hy_ne_zero : y �
   exact le_of_msb_true_of_msb_false xmsb h
 
 @[simp]
-theorem intMin_umod_msb_false {y : BitVec w} (hy : y.msb = true) (hy_ne_zero : y ≠ 0#w):
+theorem intMin_umod_msb_false {y : BitVec w} (hy : y.msb = true) (hy_ne_zero : y ≠ 0#w) :
     (intMin w % (-y)).msb = false := by
   by_cases yintmin : y = intMin w
   · simp [yintmin]

@@ -1852,10 +1852,9 @@ theorem toInt_smod {x y : BitVec w} :
       simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
         Int.dvd_neg, humod, iff_false] at hdvd
       omega
-  · rw [← Int.neg_inj]
-    rw [neg_toInt_neg_umod_eq_of_msb_true_msb_true hxmsb hymsb]
-    simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb,
-    hymsb, Int.fmod_eq_emod_of_nonneg _, show 0 ≤ ↑(-y).toNat by omega]
+  · rw [←Int.neg_inj, neg_toInt_neg_umod_eq_of_msb_true_msb_true hxmsb hymsb]
+    simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb, hymsb,
+      Int.fmod_eq_emod_of_nonneg _, show 0 ≤ (-y).toNat by omega]
 
 /-! ### Lemmas that use bit blasting circuits -/
 

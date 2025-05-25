@@ -51,3 +51,6 @@ import Lean.Elab.Tactic.TreeTacAttr
 import Lean.Elab.Tactic.ExposeNames
 import Lean.Elab.Tactic.SimpArith
 import Lean.Elab.Tactic.Lets
+
+elab "get_elem_tactic_trivial" : tactic => do
+  throwError "`get_elem_tactic_trivial` has been renamed to `get_elem_tactic_extensible`"

@@ -53,6 +53,12 @@ register_builtin_option warningAsError : Bool := {
   descr    := "treat warnings as errors"
 }
 
+/-- If `infoAsError` is set to `true`, then information messages are treated as errors. -/
+register_builtin_option infoAsError : Bool := {
+  defValue := false
+  descr    := "treat information messages as errors"
+}
+
 /--
 Log the message `msgData` at the position provided by `ref` with the given `severity`.
 If `getRef` has position information but `ref` does not, we use `getRef`.
@@ -61,7 +67,14 @@ We use the `fileMap` to find the line and column numbers for the error message.
 def logAt (ref : Syntax) (msgData : MessageData)
     (severity : MessageSeverity := MessageSeverity.error) (isSilent : Bool := false) : m Unit :=
   unless severity == .error && msgData.hasSyntheticSorry do
-    let severity := if severity == .warning && warningAsError.get (← getOptions) then .error else severity
+    let o ← getOptions
+    let severity :=
+      if severity == .warning && warningAsError.get o then
+        .error
+      else if severity == .information && infoAsError.get o then
+        .error
+      else
+        severity
     let ref    := replaceRef ref (← MonadLog.getRef)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
@@ -82,7 +95,7 @@ def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=
 
 /-- Log a new warning message using the given message data. The position is provided by `ref`. -/
 def logWarningAt [MonadOptions m] (ref : Syntax) (msgData : MessageData) : m Unit := do
-  logAt ref msgData .warning
+  logAt ref msgData MessageSeverity.warning
 
 /-- Log a new information message using the given message data. The position is provided by `ref`. -/
 def logInfoAt (ref : Syntax) (msgData : MessageData) : m Unit :=

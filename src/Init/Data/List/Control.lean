@@ -348,8 +348,15 @@ theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (as : List �
     | false => simp [ih]
 
 @[simp]
-theorem findM?_id (p : α → Bool) (as : List α) : findM? (m := Id) p as = as.find? p :=
+theorem idRun_findM? (p : α → Id Bool) (as : List α) :
+    (findM? p as).run = as.find? (p · |>.run) :=
   findM?_pure _ _
+
+@[deprecated idRun_findM? (since := "2025-05-21")]
+theorem findM?_id (p : α → Id Bool) (as : List α) :
+    findM? (m := Id) p as = as.find? p :=
+  findM?_pure _ _
+
 
 /--
 Returns the first non-`none` result of applying the monadic function `f` to each element of the
@@ -394,7 +401,13 @@ theorem findSomeM?_pure [Monad m] [LawfulMonad m] {f : α → Option β} {as : L
     | none   => simp [ih]
 
 @[simp]
-theorem findSomeM?_id {f : α → Option β} {as : List α} : findSomeM? (m := Id) f as = as.findSome? f :=
+theorem idRun_findSomeM? (f : α → Id (Option β)) (as : List α) :
+    (findSomeM? f as).run = as.findSome? (f · |>.run) :=
+  findSomeM?_pure
+
+@[deprecated idRun_findSomeM? (since := "2025-05-21")]
+theorem findSomeM?_id (f : α → Id (Option β)) (as : List α) :
+    findSomeM? (m := Id) f as = as.findSome? f :=
   findSomeM?_pure
 
 theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as : List α} :

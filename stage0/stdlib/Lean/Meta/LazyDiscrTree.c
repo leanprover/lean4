@@ -11967,12 +11967,12 @@ x_8 = lean_nat_sub(x_1, x_7);
 x_9 = lean_nat_sub(x_8, x_4);
 lean_dec(x_8);
 x_10 = lean_array_fget(x_2, x_9);
-x_11 = lean_alloc_closure((void*)(l_Lean_Meta_LazyDiscrTree_MatchResult_appendResultsAux___rarg___lambda__1), 4, 2);
-lean_closure_set(x_11, 0, x_3);
-lean_closure_set(x_11, 1, x_9);
-x_12 = lean_array_get_size(x_10);
+x_11 = lean_array_get_size(x_10);
+x_12 = lean_alloc_closure((void*)(l_Lean_Meta_LazyDiscrTree_MatchResult_appendResultsAux___rarg___lambda__1), 4, 2);
+lean_closure_set(x_12, 0, x_3);
+lean_closure_set(x_12, 1, x_9);
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = lean_nat_dec_lt(x_13, x_12);
+x_14 = lean_nat_dec_lt(x_13, x_11);
 if (x_14 == 0)
 {
 lean_dec(x_12);
@@ -11983,7 +11983,7 @@ return x_6;
 else
 {
 uint8_t x_15; 
-x_15 = lean_nat_dec_le(x_12, x_12);
+x_15 = lean_nat_dec_le(x_11, x_11);
 if (x_15 == 0)
 {
 lean_dec(x_12);
@@ -11995,10 +11995,10 @@ else
 {
 size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = 0;
-x_17 = lean_usize_of_nat(x_12);
-lean_dec(x_12);
+x_17 = lean_usize_of_nat(x_11);
+lean_dec(x_11);
 x_18 = l_Id_instMonad;
-x_19 = l_Array_foldlMUnsafe_fold___rarg(x_18, x_11, x_10, x_16, x_17, x_6);
+x_19 = l_Array_foldlMUnsafe_fold___rarg(x_18, x_12, x_10, x_16, x_17, x_6);
 return x_19;
 }
 }

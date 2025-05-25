@@ -34,8 +34,21 @@ theorem lt_of_le_of_lt {a b c : α} (h₁ : a ≤ b) (h₂ : b < c) : a < c := b
 theorem lt_trans {a b c : α} (h₁ : a < b) (h₂ : b < c) : a < c :=
   lt_of_lt_of_le h₁ (le_of_lt h₂)
 
-theorem lt_irrefl {a : α} (h : a < a) : False := by
+theorem lt_irrefl (a : α) : ¬ (a < a) := by
+  intro h
   simp [lt_iff_le_not_le] at h
+
+theorem ne_of_lt {a b : α} (h : a < b) : a ≠ b :=
+  fun w => lt_irrefl a (w.symm ▸ h)
+
+theorem ne_of_gt {a b : α} (h : a > b) : a ≠ b :=
+  fun w => lt_irrefl b (w.symm ▸ h)
+
+theorem not_ge_of_lt {a b : α} (h : a < b) : ¬b ≤ a :=
+  fun w => lt_irrefl a (lt_of_lt_of_le h w)
+
+theorem not_gt_of_lt {a b : α} (h : a < b) : ¬a > b :=
+  fun w => lt_irrefl a (lt_trans h w)
 
 end Preorder
 
@@ -57,5 +70,27 @@ theorem le_iff_lt_or_eq {a b : α} : a ≤ b ↔ a < b ∨ a = b := by
     | inr h => subst h; exact Preorder.le_refl a
 
 end PartialOrder
+
+class LinearOrder (α : Type u) extends PartialOrder α where
+  le_total : ∀ a b : α, a ≤ b ∨ b ≤ a
+
+namespace LinearOrder
+
+variable {α : Type u} [LinearOrder α]
+
+theorem trichotomy (a b : α) : a < b ∨ a = b ∨ b < a := by
+  cases LinearOrder.le_total a b with
+  | inl h =>
+    rw [PartialOrder.le_iff_lt_or_eq] at h
+    cases h with
+    | inl h => left; exact h
+    | inr h => right; left; exact h
+  | inr h =>
+    rw [PartialOrder.le_iff_lt_or_eq] at h
+    cases h with
+    | inl h => right; right; exact h
+    | inr h => right; left; exact h.symm
+
+end LinearOrder
 
 end Lean.Grind

@@ -31,6 +31,11 @@ theorem take_cons {l : List α} (h : 0 < i) : (a :: l).take i = a :: l.take (i -
   | zero => exact absurd h (Nat.lt_irrefl _)
   | succ i => rfl
 
+theorem drop_cons {l : List α} (h : 0 < i) : (a :: l).drop i = l.drop (i - 1) := by
+  cases i with
+  | zero => exact absurd h (Nat.lt_irrefl _)
+  | succ i => rfl
+
 @[simp]
 theorem drop_one : ∀ {l : List α}, l.drop 1 = l.tail
   | [] | _ :: _ => rfl

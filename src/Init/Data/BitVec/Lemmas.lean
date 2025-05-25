@@ -68,11 +68,11 @@ theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w :=
 @[simp] theorem getElem?_eq_getElem {l : BitVec w} {n} (h : n < w) : l[n]? = some l[n] := by
   simp only [getElem?_def, h, ↓reduceDIte]
 
-theorem getElem?_eq_some_iff {l : BitVec w} : l[n]? = some a ↔ ∃ h : n < w, l[n] = a := by
-  simp only [getElem?_def]
-  split
-  · simp_all
-  · simp; omega
+theorem getElem?_eq_some_iff {l : BitVec w} : l[n]? = some a ↔ ∃ h : n < w, l[n] = a :=
+  _root_.getElem?_eq_some_iff
+
+theorem some_eq_getElem?_iff {l : BitVec w} : some a = l[n]? ↔ ∃ h : n < w, l[n] = a :=
+  _root_.some_eq_getElem?_iff
 
 theorem getElem_of_getElem? {l : BitVec w} : l[n]? = some a → ∃ h : n < w, l[n] = a :=
   getElem?_eq_some_iff.mp
@@ -81,11 +81,11 @@ set_option linter.missingDocs false in
 @[deprecated getElem?_eq_some_iff (since := "2025-02-17")]
 abbrev getElem?_eq_some := @getElem?_eq_some_iff
 
-@[simp] theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
-  simp only [getElem?_def]
-  split
-  · simp_all
-  · simp; omega
+theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
+  simp
+
+theorem none_eq_getElem?_iff {l : BitVec w} : none = l[n]? ↔ w ≤ n := by
+  simp
 
 theorem getElem?_eq_none {l : BitVec w} (h : w ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
 

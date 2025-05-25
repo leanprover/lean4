@@ -69,9 +69,7 @@ theorem isEmpty_eq_isEmpty [BEq α] [Hashable α] {m : Raw α β} (h : Raw.WFImp
     Nat.beq_eq_true_eq]
 
 theorem fold_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
-    l.fold f init = l.buckets.foldl (fun acc l => l.foldl f acc) init := by
-  simp only [Raw.fold, Raw.foldM, ← Array.foldlM_toList, Array.foldl_toList,
-    ← List.foldl_eq_foldlM, Id.run, AssocList.foldl]
+    l.fold f init = l.buckets.foldl (fun acc l => l.foldl f acc) init := rfl
 
 theorem fold_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
     l.fold (fun acc k v => f k v :: acc) acc =
@@ -94,8 +92,7 @@ theorem fold_cons_key {l : Raw α β} {acc : List α} :
 theorem foldRev_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
     Raw.Internal.foldRev f init l =
       l.buckets.foldr (fun l acc => l.foldr (fun a b g => f g a b) acc) init := by
-  simp only [Raw.Internal.foldRev, Raw.Internal.foldRevM, ← Array.foldrM_toList, Array.foldr_toList,
-    ← List.foldr_eq_foldrM, Id.run, AssocList.foldr]
+  simp only [Raw.Internal.foldRev, Raw.Internal.foldRevM, Array.id_run_foldrM, AssocList.foldr]
 
 theorem foldRev_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
     Raw.Internal.foldRev (fun acc k v => f k v :: acc) acc l =
@@ -261,7 +258,7 @@ theorem isHashSelf_foldl_reinsertAux [BEq α] [Hashable α] [EquivBEq α] [Lawfu
     IsHashSelf target.1 →
       IsHashSelf (l.foldl (fun acc p => reinsertAux hash acc p.1 p.2) target).1 := by
   induction l generalizing target
-  · simp [Id.run]
+  · simp
   · next k v _ ih => exact fun h => ih _ (isHashSelf_reinsertAux _ _ _ h)
 
 theorem toListModel_foldl_reinsertAux [BEq α] [Hashable α] [PartialEquivBEq α]

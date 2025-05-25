@@ -47,7 +47,7 @@ instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
 
 private def ListIterator.finitenessRelation [Pure m] :
     FinitenessRelation (ListIterator α) m where
-  rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ BaseIter.internalState)
+  rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf

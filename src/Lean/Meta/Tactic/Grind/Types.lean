@@ -649,8 +649,11 @@ def Goal.admit (goal : Goal) : MetaM Unit :=
 
 abbrev GoalM := StateRefT Goal GrindM
 
+@[inline] def GoalM.runCore (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
+  StateRefT'.run x goal
+
 @[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
-  goal.mvarId.withContext do StateRefT'.run x goal
+  goal.mvarId.withContext do x.runCore goal
 
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
@@ -1200,6 +1203,17 @@ def markAsInconsistent : GoalM Unit := do
     modify fun s => { s with inconsistent := true }
 
 /--
+Assign the `mvarId` using the given proof of `False`.
+If type of `mvarId` is not `False`, then use `False.elim`.
+-/
+def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : MetaM Unit := mvarId.withContext do
+  let target ← mvarId.getType
+  if target.isFalse then
+    mvarId.assign falseProof
+  else
+    mvarId.assign (← mkFalseElim target falseProof)
+
+/--
 Closes the current goal using the given proof of `False` and
 marks it as inconsistent if it is not already marked so.
 -/
@@ -1207,11 +1221,7 @@ def closeGoal (falseProof : Expr) : GoalM Unit := do
   markAsInconsistent
   let mvarId := (← get).mvarId
   unless (← mvarId.isAssigned) do
-    let target ← mvarId.getType
-    if target.isFalse then
-      mvarId.assign falseProof
-    else
-      mvarId.assign (← mkFalseElim target falseProof)
+    mvarId.assignFalseProof falseProof
 
 /-- Returns all enodes in the goal -/
 def getExprs : GoalM (PArray Expr) := do

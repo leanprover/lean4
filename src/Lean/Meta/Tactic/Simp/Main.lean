@@ -810,6 +810,18 @@ private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM
   let used := updateUsedSimpsWithZetaDeltaCore used (← getZetaDeltaFVarIds)
   return { stats with usedTheorems := used }
 
+@[inline] def withCatchingRuntimeEx (x : SimpM α) : SimpM α := do
+  if (← getConfig).catchRuntime then
+    tryCatchRuntimeEx x
+      fun ex => do
+        reportDiag (← get).diag
+        if ex.isRuntime then
+          throwNestedTacticEx `simp ex
+        else
+          throw ex
+  else
+    x
+
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let ctx ← ctx.setLctxInitIndices
   withSimpContext ctx do
@@ -819,14 +831,7 @@ def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := 
     return (r, s)
 where
   go (e : Expr) : SimpM Result :=
-    tryCatchRuntimeEx
-      (simp e)
-      fun ex => do
-        reportDiag (← get).diag
-        if ex.isRuntime then
-          throwNestedTacticEx `simp ex
-        else
-          throw ex
+    withCatchingRuntimeEx (simp e)
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   withSimpContext ctx do
@@ -835,14 +840,7 @@ def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Method
     pure (r, s)
 where
   go (e : Expr) : SimpM Expr :=
-    tryCatchRuntimeEx
-      (dsimp e)
-      fun ex => do
-        reportDiag (← get).diag
-        if ex.isRuntime then
-          throwNestedTacticEx `simp ex
-        else
-          throw ex
+    withCatchingRuntimeEx (dsimp e)
 
 end Simp
 open Simp (SimprocsArray Stats)

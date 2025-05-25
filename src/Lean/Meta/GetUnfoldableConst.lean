@@ -37,7 +37,7 @@ This is part of the implementation of `whnf`.
 External users wanting to look up names should be using `Lean.getConstInfo`.
 -/
 def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
-  let some ainfo := (← getEnv).findAsync? constName | throwUnknownConstant constName
+  let some ainfo := (← getEnv).findAsync? constName | throwUnknownConstantAt (← getRef) constName
   match ainfo.kind with
   | .thm =>
     if (← shouldReduceAll) then

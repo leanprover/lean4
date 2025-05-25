@@ -49,7 +49,8 @@ attribute [local grind] size
 
 example (m : HashMap α β) (h : m[a]? = some b) : a ∈ m := by grind
 example (m : HashMap α β) (h : m[a]? = some b) : m[a] = b := by grind
-example (m : HashMap α β) : m[a]? = some b ↔ ∃ h, m[a] = b := by exact?
+example (m : HashMap α β) : m[a]? = some b ↔ ∃ h, m[a] = b := by exact
+  HashMap.getElem?_eq_some_iff
 
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.data[m.indices[a]'h].2
@@ -70,8 +71,7 @@ instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
 instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem?_def := by
     -- Lots of problems here!
-    -- See issues, particularly `unexpected kernel projection term during internalization`
-    -- but also several occurrences of `type error constructing proof for`
+    -- several occurrences of `type error constructing proof for`
     -- there are also a number of repetitions in the equivalence classes.
     grind [getElem?_pos]
   getElem!_def := sorry

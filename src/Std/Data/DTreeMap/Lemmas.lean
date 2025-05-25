@@ -4233,15 +4233,15 @@ theorem get?_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t₁ ~m t₂) (k : α) :
   h.1.get?_eq t₁.2 t₂.2
 
 theorem get_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t₁ ~m t₂)
-    {k : α} (hk : k ∈ t₁) : t₁.get k hk = t₂.get k (h.mem_iff.mp hk) :=
+    (k : α) (hk : k ∈ t₁) : t₁.get k hk = t₂.get k (h.mem_iff.mp hk) :=
   h.1.get_eq t₁.2 t₂.2 hk
 
 theorem get!_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t₁ ~m t₂)
-    {k : α} [Inhabited (β k)] : t₁.get! k = t₂.get! k :=
+    (k : α) [Inhabited (β k)] : t₁.get! k = t₂.get! k :=
   h.1.get!_eq t₁.2 t₂.2
 
 theorem getD_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t₁ ~m t₂)
-    {k : α} {fallback : β k} : t₁.getD k fallback = t₂.getD k fallback :=
+    (k : α) (fallback : β k) : t₁.getD k fallback = t₂.getD k fallback :=
   h.1.getD_eq t₁.2 t₂.2
 
 theorem getKey?_eq [TransCmp cmp] (h : t₁ ~m t₂) (k : α) :
@@ -4256,8 +4256,8 @@ theorem getKey!_eq [TransCmp cmp] [Inhabited α] (h : t₁ ~m t₂) (k : α) :
   t₁.getKey! k = t₂.getKey! k :=
   h.1.getKey!_eq t₁.2 t₂.2
 
-theorem getKeyD_eq [TransCmp cmp] (h : t₁ ~m t₂)
-    (k fallback : α) : t₁.getKeyD k fallback = t₂.getKeyD k fallback :=
+theorem getKeyD_eq [TransCmp cmp] (h : t₁ ~m t₂) (k fallback : α) :
+    t₁.getKeyD k fallback = t₂.getKeyD k fallback :=
   h.1.getKeyD_eq t₁.2 t₂.2
 
 theorem toList_eq [TransCmp cmp] (h : t₁ ~m t₂) : t₁.toList = t₂.toList :=
@@ -4339,8 +4339,8 @@ theorem minEntry_eq [TransCmp cmp] (h : t₁ ~m t₂) (he : t₁.isEmpty = false
     t₁.minEntry he = t₂.minEntry (h.isEmpty_eq.symm.trans he) :=
   h.1.minEntry_eq t₁.2 t₂.2
 
-theorem minEntry!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)]
-    (h : t₁ ~m t₂) : t₁.minEntry! = t₂.minEntry! :=
+theorem minEntry!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] (h : t₁ ~m t₂) :
+    t₁.minEntry! = t₂.minEntry! :=
   h.1.minEntry!_eq t₁.2 t₂.2
 
 theorem minEntryD_eq [TransCmp cmp] (h : t₁ ~m t₂) (fallback : (a : α) × β a) :

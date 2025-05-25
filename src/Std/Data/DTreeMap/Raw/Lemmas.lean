@@ -4481,6 +4481,12 @@ theorem Const.equiv_iff_keys_eq {t₁ t₂ : Raw α Unit cmp} [TransCmp cmp] (h�
     t₁ ~m t₂ ↔ t₁.keys = t₂.keys :=
   equiv_iff.trans (Impl.Const.equiv_iff_keys_eq h₁.1 h₂.1)
 
+theorem Equiv.of_constToList_perm : t₁.toList.Perm t₂.toList → t₁ ~m t₂ :=
+  equiv_iff_toList_perm.mpr
+
+theorem Equiv.of_keys_unit_perm {t₁ t₂ : Raw α Unit cmp} : t₁.keys.Perm t₂.keys → t₁ ~m t₂ :=
+  Const.equiv_iff_keys_perm.mpr
+
 end Const
 
 end Equiv

@@ -1825,11 +1825,11 @@ theorem toInt_smod {x y : BitVec w} :
       (by rw [toNat_neg, Nat.mod_eq_of_lt (by omega)]; omega)
     by_cases humod : x % -y = 0#(w+1)
     · simp only [humod, reduceIte, toInt_zero]
-      simp only [hxmsb, hymsb, ← toInt_dvd_toInt_iff_of_msb_false_msb_true] at humod
+      simp only [hxmsb, hymsb, ←toInt_dvd_toInt_iff_of_msb_false_msb_true] at humod
       omega
-    · simp only [humod, reduceIte, toInt_zero]
-      simp only [hxmsb, hymsb, ← toInt_dvd_toInt_iff_of_msb_false_msb_true] at humod
-      simp only [humod, ↓reduceIte, toInt_add, hxnonneg, show ¬0 ≤ y.toInt by omega]
+    · simp only [humod]
+      simp only [hxmsb, hymsb, ←toInt_dvd_toInt_iff_of_msb_false_msb_true] at humod
+      simp only [humod, reduceIte, toInt_add, hxnonneg, show ¬0 ≤ y.toInt by omega]
       rw [toInt_umod, toInt_eq_neg_toNat_neg_of_msb_true hymsb, Int.bmod_add_bmod,
         Int.bmod_eq_of_le (n := (x.toNat : Int) % ((-y).toNat : Int) + -((-y).toNat : Int))
           (m := 2 ^ (w + 1)) (by omega) (by omega),
@@ -1842,9 +1842,8 @@ theorem toInt_smod {x y : BitVec w} :
     · simp only [humod, iff_true] at hdvd
       simp [humod]
       omega
-    · simp only [humod, ↓reduceIte, toInt_sub, toInt_eq_toNat_of_msb (x := y) hymsb,
-        toInt_umod, Int.sub_bmod_bmod, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
-        Int.neg_emod, Int.natAbs_natCast]
+    · simp only [humod, reduceIte, toInt_sub, toInt_eq_toNat_of_msb hymsb, toInt_umod,
+        Int.sub_bmod_bmod, toInt_eq_neg_toNat_neg_of_msb_true hxmsb, Int.neg_emod]
       have hmodlt := Nat.mod_lt (x := (-x).toNat) (y := y.toNat) hypos
       rw [Int.bmod_eq_of_le (by omega) (by simp at hylt; omega)]
       simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,

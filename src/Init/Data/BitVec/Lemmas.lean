@@ -3933,6 +3933,15 @@ theorem pos_of_msb {x : BitVec w} (hx : x.msb = true) : 0#w < x := by
   rw [BitVec.not_lt, le_zero_iff] at h
   simp [h] at hx
 
+@[simp]
+theorem lt_of_msb_false_of_msb_true {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    x < y := by
+  simp only [LT.lt]
+  have := toNat_ge_of_msb_true hy
+  have := toNat_lt_of_msb_false hx
+  simp
+  omega
+
 /-! ### udiv -/
 
 theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) := by
@@ -4113,6 +4122,15 @@ theorem toInt_umod {x y : BitVec w} :
 theorem toInt_umod_of_msb {x y : BitVec w} (h : x.msb = false) :
     (x % y).toInt = x.toInt % y.toNat := by
   simp [toInt_eq_msb_cond, h]
+
+@[simp]
+theorem msb_umod_of_msb_false_of_ne_zero {x y : BitVec w} (hmsb : y.msb = false) (h_ne_zero : y ≠ 0#w) :
+    (x % y).msb = false := by
+  simp only [msb_umod, Bool.and_eq_false_imp, Bool.or_eq_false_iff, beq_eq_false_iff_ne,
+    ne_eq, h_ne_zero]
+  intro h
+  have := lt_of_msb_false_of_msb_true hmsb h
+  simp [BitVec.le_of_lt, this]
 
 /-! ### smtUDiv -/
 
@@ -5347,6 +5365,11 @@ theorem neg_ofNat_eq_ofInt_neg {w : Nat} {x : Nat} :
     - BitVec.ofNat w x = BitVec.ofInt w (- x) := by
   apply BitVec.eq_of_toInt_eq
   simp [BitVec.toInt_neg, BitVec.toInt_ofNat]
+
+@[simp]
+theorem neg_toInt_neg {x : BitVec w} (h : x.msb = false) :
+    -(-x).toInt = x.toNat := by
+  simp [toInt_neg_eq_of_msb h, toInt_eq_toNat_of_msb, h]
 
 /-! ### abs -/
 

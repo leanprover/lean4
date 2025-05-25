@@ -1812,13 +1812,13 @@ theorem toInt_smod {x y : BitVec w} :
   rw [smod_eq]
   cases hxmsb : x.msb <;> cases hymsb : y.msb
   <;> simp only [umod_eq]
-  · have hylt := toNat_lt_of_msb_false (x := y) (by omega)
+  · have hylt := toNat_lt_of_msb_false (by omega)
     have hmodlt := Nat.mod_lt x.toNat (by omega)
     rw [toInt_umod, Int.fmod_eq_emod_of_nonneg x.toInt (toInt_nonneg_of_msb_false hymsb),
       toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb,
       Int.bmod_eq_of_le_mul_two (by omega) (by simp at hylt; omega)]
-  · have hxnonneg := toInt_nonneg_of_msb_false (x := x) hxmsb
-    have hynonpos := toInt_neg_of_msb_true (x := y) hymsb
+  · have hxnonneg := toInt_nonneg_of_msb_false hxmsb
+    have hynonpos := toInt_neg_of_msb_true hymsb
     have hylt : (-y).toNat ≤ 2 ^ w := toNat_neg_lt y hymsb
     simp only [Int.fmod_eq_tmod, Int.tmod_eq_emod_of_nonneg hxnonneg, Int.ofNat_toNat]
     have hmodlt := Nat.mod_lt x.toNat (y := (-y).toNat)
@@ -1834,9 +1834,9 @@ theorem toInt_smod {x y : BitVec w} :
         Int.bmod_eq_of_le (n := (x.toNat : Int) % ((-y).toNat : Int) + -((-y).toNat : Int))
           (m := 2 ^ (w + 1)) (by omega) (by omega),
         toInt_eq_toNat_of_msb hxmsb, Int.emod_neg]
-  · have hynonneg := toInt_nonneg_of_msb_false (x := y) hymsb
-    rw [Int.fmod_eq_emod_of_nonneg (a := x.toInt) (b := y.toInt) (by omega)]
-    have hylt := toNat_lt_of_msb_false (x := y) hymsb
+  · have hynonneg := toInt_nonneg_of_msb_false hymsb
+    rw [Int.fmod_eq_emod_of_nonneg x.toInt (b := y.toInt) (by omega)]
+    have hylt := toNat_lt_of_msb_false hymsb
     have hdvd := toInt_dvd_toInt_iff_of_msb_true_msb_false hxmsb hymsb
     by_cases humod : -x % y = 0#(w+1)
     · simp only [humod, iff_true] at hdvd

@@ -334,11 +334,13 @@ abbrev zipWithAll_mkArray := @zipWithAll_replicate
 
 /-! ### unzip -/
 
-@[simp] theorem unzip_fst : (unzip l).fst = l.map Prod.fst := by
-  induction l <;> simp_all
+@[deprecated fst_unzip (since := "2025-05-26")]
+theorem unzip_fst : (unzip l).fst = l.map Prod.fst := by
+  simp
 
-@[simp] theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
-  induction l <;> simp_all
+@[deprecated snd_unzip (since := "2025-05-26")]
+theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
+  simp
 
 theorem unzip_eq_map {xs : Array (α × β)} : unzip xs = (xs.map Prod.fst, xs.map Prod.snd) := by
   cases xs

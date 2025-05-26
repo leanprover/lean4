@@ -348,7 +348,8 @@ instance : GetElem? (List α) Nat α fun as i => i < as.length where
     | zero => rfl
     | succ i => exact ih ..
 
-@[simp] theorem getElem?_eq_none_iff : l[i]? = none ↔ length l ≤ i :=
+-- This is only needed locally; after the `LawfulGetElem` instance the general `getElem?_eq_none_iff` lemma applies.
+@[local simp] theorem getElem?_eq_none_iff : l[i]? = none ↔ length l ≤ i :=
   match l with
   | [] => by simp; rfl
   | _ :: l => by
@@ -358,7 +359,7 @@ instance : GetElem? (List α) Nat α fun as i => i < as.length where
       simp only [length_cons, Nat.add_le_add_iff_right]
       exact getElem?_eq_none_iff (l := l) (i := i)
 
-@[simp] theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
+theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
   simp [eq_comm (a := none)]
 
 theorem getElem?_eq_none (h : length l ≤ i) : l[i]? = none := getElem?_eq_none_iff.mpr h

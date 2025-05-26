@@ -39,7 +39,7 @@ This combinator calls `P` on each output of `it` until the predicate evaluates t
 it terminates.
 -/
 @[always_inline, inline]
-def Iter.takeWhile {α : Type w} {β : Type w} (it : Iter (α := α) β) {P} :=
+def Iter.takeWhile {α : Type w} {β : Type w} (P : β → Bool) (it : Iter (α := α) β) :=
   (it.toIterM.takeWhile P |>.toIter : Iter β)
 
 end Std.Iterators

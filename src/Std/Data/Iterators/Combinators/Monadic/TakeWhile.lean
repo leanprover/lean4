@@ -187,7 +187,7 @@ instance TakeWhile.instFinite [Monad m] [Iterator α m β] [Finite α m] {P} :
   Finite.of_finitenessRelation instFinitenessRelation
 
 private def TakeWhile.instProductivenessRelation [Monad m] [Iterator α m β]
-    [Finite α m] {P} :
+    [Productive α m] {P} :
     ProductivenessRelation (TakeWhile α m β P) m where
   rel := InvImage WellFoundedRelation.rel (IterM.finitelyManySkips ∘ TakeWhile.inner ∘ IterM.internalState)
   wf := by
@@ -197,7 +197,7 @@ private def TakeWhile.instProductivenessRelation [Monad m] [Iterator α m β]
     cases h
     exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
 
-instance TakeWhile.instProductive [Monad m] [Iterator α m β] [Finite α m] {P} :
+instance TakeWhile.instProductive [Monad m] [Iterator α m β] [Productive α m] {P} :
     Productive (TakeWhile α m β P) m :=
   Productive.of_productivenessRelation instProductivenessRelation
 
@@ -236,7 +236,7 @@ private def TakeWhile.wellFounded_plausibleForInStep {α β : Type w} {m : Type 
       apply InvImage.wf
       exact WellFoundedRelation.wf
 
-instance TakeWhile.instIteratorFor [Monad m] [Monad n] [Iterator α m β]
+instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoop α m n] [MonadLiftT m n] :
     IteratorLoop (TakeWhile α m β P) m n where
   forIn lift {γ} Plausible wf it init f := by

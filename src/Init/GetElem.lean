@@ -283,9 +283,6 @@ instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
 macro_rules
   | `(tactic| get_elem_tactic_extensible) => `(tactic| (with_reducible apply Fin.val_lt_of_le); get_elem_tactic_extensible; done)
 
-macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| (with_reducible apply Fin.val_lt_of_le); get_elem_tactic_trivial; done)
-
 end Fin
 
 namespace List

@@ -1933,9 +1933,7 @@ syntax "get_elem_tactic_trivial" : tactic
 
 macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| omega)
 macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| simp +arith; done)
-
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp +arith; done)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| trivial)
 
 /--
 `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`

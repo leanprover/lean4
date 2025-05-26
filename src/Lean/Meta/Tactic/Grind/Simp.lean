@@ -18,7 +18,8 @@ namespace Lean.Meta.Grind
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
 private def simpCore (e : Expr) : GrindM Simp.Result := do
   let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
-  let (r, simp) ← Meta.simpCore e (← readThe Context).simp (← readThe Context).simprocs (s := { simp with numSteps := 0 })
+  let ctx := (← readThe Context).simp
+  let (r, simp) ← Simp.mainCore e ctx simp (methods := (← readThe Context).simpMethods)
   modify fun s => { s with simp }
   return r
 

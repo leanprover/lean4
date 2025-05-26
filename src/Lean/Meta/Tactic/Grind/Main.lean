@@ -54,6 +54,18 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
        prop e
   }
 
+-- A `simp` discharger that does not use assumptions.
+-- We use it to make sure we don't have to reset the `simp` cache used in `grind`.
+private def discharge? (e : Expr) : SimpM (Option Expr) := do
+  let e := e.cleanupAnnotations
+  let r ← Simp.simp e
+  if let some p ← Simp.dischargeRfl r.expr then
+    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
+  else if r.expr.isTrue then
+    return some (← mkOfEqTrue (← r.getProof))
+  else
+    return none
+
 def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM α := do
   let (falseExpr, scState)  := shareCommonAlpha (mkConst ``False) {}
   let (trueExpr, scState)   := shareCommonAlpha (mkConst ``True) scState
@@ -61,9 +73,10 @@ def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM �
   let (btrueExpr, scState)  := shareCommonAlpha (mkConst ``Bool.true) scState
   let (natZExpr, scState)   := shareCommonAlpha (mkNatLit 0) scState
   let simprocs := params.normProcs
+  let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
   let simp := params.norm
   let config := params.config
-  x (← mkMethods fallback).toMethodsRef { config, simprocs, simp }
+  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp }
     |>.run' { scState, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do

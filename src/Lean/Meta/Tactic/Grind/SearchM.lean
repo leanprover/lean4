@@ -172,7 +172,6 @@ def nextGoal? : SearchM (Option Nat) := do
   let mut choices := (← get).choiceStack
   if choices.isEmpty then
     return none -- done
-  resetSimpCache
   let goal := (← get).goal
   assert! goal.inconsistent
   let some falseProof ← getFalseProof? goal.mvarId

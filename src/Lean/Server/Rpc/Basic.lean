@@ -42,24 +42,24 @@ namespace Lean.Server
 
 /--
 Marks values to be encoded as opaque references in RPC packets.
-Two `WithRpcRef`s with the same `id` will yield the same `RpcRef`.
+Two `WithRpcRef`s with the same `id` will yield the same client-side reference.
 
 See also the docstring for `RpcEncodable`.
 -/
 structure WithRpcRef (α : Type u) where
   private mk' ::
     val : α
-    id  : USize
+    private id : USize
   deriving Inhabited
 
-builtin_initialize freshWithRpcRefId : IO.Ref USize ← IO.mkRef 0
+builtin_initialize freshWithRpcRefId : IO.Ref USize ← IO.mkRef 1
 
 /--
 Creates an `WithRpcRef` instance with a unique `id`.
-Two `WithRpcRef`s with the same `id` will yield the same `RpcRef`.
-Hence, storing a `WithRpcRef` produced by `WithRpcRef.mk` and serving it to the client twice will
-also yield the same `RpcRef` twice, allowing clients to reuse their associated UI state across
-RPC requests.
+As long as the client holds at least one reference to this `WithRpcRef`,
+serving it again will yield the same client-side reference.
+Thus, when used as React deps,
+client-side references can help preserve UI state across RPC requests.
 -/
 def WithRpcRef.mk (val : α) : BaseIO (WithRpcRef α) := do
   let id ← freshWithRpcRefId.modifyGet fun id => (id, id + 1)
@@ -83,8 +83,7 @@ structure RpcObjectStore : Type where
   -/
   refsById : PersistentHashMap USize Lsp.RpcRef := {}
   /--
-  Value to use for the next fresh `RpcRef`. It is monotonically increasing to avoid any possible
-  bugs resulting from its reuse.
+  Value to use for the next fresh `RpcRef`, monotonically increasing.
   -/
   nextRef : USize := 0
 
@@ -133,7 +132,8 @@ def rpcReleaseRef (r : Lsp.RpcRef) : StateM RpcObjectStore Bool := do
     set { st with aliveRefs := st.aliveRefs.insert r referencedObj }
   return true
 
-/-- `RpcEncodable α` means that `α` can be deserialized from and serialized into JSON
+/--
+`RpcEncodable α` means that `α` can be deserialized from and serialized into JSON
 for the purpose of receiving arguments to and sending return values from
 Remote Procedure Calls (RPCs).
 
@@ -148,13 +148,15 @@ For such data, we use the `WithRpcRef` marker.
 Note that for `WithRpcRef α` to be `RpcEncodable`,
 `α` must have a `TypeName` instance
 
-On the server side, `WithRpcRef α` is just a structure
-containing a value of type `α`.
+On the server side, `WithRpcRef α` is a structure containing a value of type `α` and an associated
+`id`.
 On the client side, it is an opaque reference of (structural) type `Lsp.RpcRef`.
 Thus, `WithRpcRef α` is cheap to transmit over the network
 but may only be accessed on the server side.
 In practice, it is used by the client to pass data
-between various RPC methods provided by the server. -/
+between various RPC methods provided by the server.
+Two `WithRpcRef`s with the same `id` will yield the same client-side reference.
+-/
 -- TODO(WN): for Lean.js, compile `WithRpcRef` to "opaque reference" on the client
 class RpcEncodable (α : Type) where
   rpcEncode : α → StateM RpcObjectStore Json

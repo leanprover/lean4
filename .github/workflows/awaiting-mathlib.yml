@@ -28,8 +28,7 @@ jobs:
                 repo: context.repo.repo,
                 name: "awaiting-mathlib label check",
                 head_sha: context.payload.pull_request.head.sha,
-                status: "completed",
-                conclusion: "neutral",
+                status: "in_progress",
                 output: {
                   title: "Awaiting mathlib",
                   summary: 'PR is marked "awaiting-mathlib" but neither "breaks-mathlib" nor "builds-mathlib" labels are present.'

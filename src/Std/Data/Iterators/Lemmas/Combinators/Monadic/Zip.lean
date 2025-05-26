@@ -11,7 +11,15 @@ namespace Std.Iterators
 
 variable {α₁ α₂ β₁ β₂ : Type w} {m : Type w → Type w'}
 
-def IterM.Intermediate.zip [Iterator α₁ m β₁] (it₁ : IterM (α := α₁) m β₁)
+/--
+Constructs intermediate states of an iterator created with the combinator `IterM.zip`.
+When `left.zip right` has already obtained a value from `left` but not yet from right,
+it remembers `left`'s value in a field of its internal state. This intermediate state
+cannot be created directly with `IterM.zip`.
+
+`Intermediate.zip` is meant to be used only for verification purposes.
+-/
+noncomputable def IterM.Intermediate.zip [Iterator α₁ m β₁] (it₁ : IterM (α := α₁) m β₁)
     (memo : (Option { out : β₁ //
         ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }))
     (it₂ : IterM (α := α₂) m β₂) :
@@ -61,5 +69,20 @@ theorem IterM.step_intermediateZip [Monad m] [Iterator α₁ m β₁] [Iterator 
     intro step
     obtain ⟨step, h⟩ := step
     cases step <;> rfl
+
+theorem IterM.step_zip [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
+    {it₁ : IterM (α := α₁) m β₁}
+    {it₂ : IterM (α := α₂) m β₂} :
+    (it₁.zip it₂).step = (do
+      match ← it₁.step with
+      | .yield it₁' out hp =>
+        pure <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
+          (.yieldLeft rfl hp)
+      | .skip it₁' hp =>
+        pure <| .skip (Intermediate.zip it₁' none it₂)
+          (.skipLeft rfl hp)
+      | .done hp =>
+        pure <| .done (.doneLeft rfl hp)) := by
+  simp [zip_eq_intermediateZip, step_intermediateZip]
 
 end Std.Iterators

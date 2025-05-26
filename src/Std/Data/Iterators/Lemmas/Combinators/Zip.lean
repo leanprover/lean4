@@ -191,7 +191,8 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
   case case1 it it' out h h' =>
     rw [atIdxSlow?]
     simp only [Option.pure_def, Option.bind_eq_bind]
-    simp [step_intermediateZip] at h'
+    simp only [step_intermediateZip, PlausibleIterStep.skip, PlausibleIterStep.done,
+      PlausibleIterStep.yield] at h'
     split at h'
     · split at h' <;> cases h'
     · split at h' <;> cases h'
@@ -218,13 +219,13 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
     obtain ⟨it₁', memo', it₂', rfl⟩ := Intermediate.zip_surj it'
     specialize ih rfl
     rw [step_intermediateZip] at h'
-    simp [PlausibleIterStep.skip] at h'
+    simp only [PlausibleIterStep.skip, PlausibleIterStep.done, PlausibleIterStep.yield] at h'
     rw [Subtype.ext_iff] at h'
     split at h'
     · split at h' <;> rename_i hs₁
       · simp only [IterStep.skip.injEq, Intermediate.zip_inj] at h'
         obtain ⟨rfl, rfl, rfl⟩ := h'
-        simp [ih, atIdxSlow?.eq_def (it := it₁), hs₁]
+        simp only [ih, Option.pure_def, Option.bind_eq_bind, atIdxSlow?.eq_def (it := it₁), hs₁]
         split <;> rfl
       · simp only [IterStep.skip.injEq, Intermediate.zip_inj] at h'
         obtain ⟨rfl, rfl, rfl⟩ := h'
@@ -240,15 +241,16 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
     simp [step_intermediateZip] at h
     cases memo
     case none =>
-      simp at h
+      simp only at h
       split at h <;> cases h
       rename_i hs₁
       simp [atIdxSlow?.eq_def (it := it₁), hs₁]
     case some =>
-      simp at h
+      simp only at h
       split at h <;> cases h
       rename_i hs₂
-      simp [atIdxSlow?.eq_def (it := it₂), hs₂]
+      simp only [atIdxSlow?.eq_def (it := it₂), hs₂, Option.pure_def, Option.bind_eq_bind,
+        Option.bind_none, Option.bind_fun_none]
       split <;> rfl
 
 theorem Iter.atIdxSlow?_zip {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
@@ -283,11 +285,11 @@ theorem Iter.toList_zip_of_finite_left {α₁ α₂ β₁ β₂} [Iterator α₁
     [LawfulIteratorCollect (Zip α₁ Id α₂ β₂) Id Id] :
     (it₁.zip it₂).toList = it₁.toList.zip (it₂.take it₁.toList.length).toList := by
   ext
-  simp [List.getElem?_zip_eq_some]
-  simp [getElem?_toList_eq_atIdxSlow?, atIdxSlow?_take, atIdxSlow?_zip]
+  simp only [List.getElem?_zip_eq_some, getElem?_toList_eq_atIdxSlow?, atIdxSlow?_zip, Option.pure_def, Option.bind_eq_bind,
+    atIdxSlow?_take, Option.ite_none_right_eq_some]
   constructor
   · intro h
-    simp [Option.bind_eq_some_iff] at h
+    simp only [Option.bind_eq_some_iff, Option.some.injEq] at h
     obtain ⟨b₁, hb₁, b₂, hb₂, rfl⟩ := h
     refine ⟨hb₁, ?_, hb₂⟩
     false_or_by_contra
@@ -305,11 +307,11 @@ theorem Iter.toList_zip_of_finite_right {α₁ α₂ β₁ β₂} [Iterator α�
     [LawfulIteratorCollect (Zip α₁ Id α₂ β₂) Id Id] :
     (it₁.zip it₂).toList = (it₁.take it₂.toList.length).toList.zip it₂.toList := by
   ext
-  simp [List.getElem?_zip_eq_some]
-  simp [getElem?_toList_eq_atIdxSlow?, atIdxSlow?_take, atIdxSlow?_zip]
+  simp only [List.getElem?_zip_eq_some, getElem?_toList_eq_atIdxSlow?, atIdxSlow?_zip, Option.pure_def, Option.bind_eq_bind,
+    atIdxSlow?_take, Option.ite_none_right_eq_some]
   constructor
   · intro h
-    simp [Option.bind_eq_some_iff] at h
+    simp only [Option.bind_eq_some_iff, Option.some.injEq] at h
     obtain ⟨b₁, hb₁, b₂, hb₂, rfl⟩ := h
     refine ⟨⟨?_, hb₁⟩, hb₂⟩
     false_or_by_contra

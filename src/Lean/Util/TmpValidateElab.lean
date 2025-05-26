@@ -4,78 +4,10 @@ import Std.Internal.Parsec
 
 open Lean Meta
 
--- inductive ErrorExplanationCodeInfo.Kind
---   | broken | fixed
--- deriving Repr, Inhabited, BEq
-
--- instance : ToString ErrorExplanationCodeInfo.Kind where
---   toString
---   | .broken => "broken"
---   | .fixed => "fixed"
-
--- structure ErrorExplanationCodeInfo where
---   lang : String
---   kind? : Option ErrorExplanationCodeInfo.Kind
---   title? : Option String
--- deriving Repr
-
--- namespace ErrorExplanationCodeInfo
--- open Std.Internal Parsec Parsec.String
-
--- namespace Parse
-
--- def word : Parser String := fun it =>
---   -- TODO: allow escaping
---   let it' := it.find fun c => c == '"'
---   .success it' (it.extract it')
-
--- def languageName : Parser String := fun it =>
---   let it' := it.find fun c => !c.isAlphanum
---   .success it' (it.extract it')
-
--- def snippetKind : Parser Kind := do
---   (pstring "broken" *> pure .broken)
---   <|> (pstring "fixed" *> pure .fixed)
-
--- def title : Parser String :=
---   skipChar '(' *> optional ws *> skipString "title" *> ws *> skipString ":=" *> ws *> skipChar '"' *>
---   word
---   <* skipChar '"' <* optional ws <* skipChar ')'
-
--- def attr : Parser (Kind ⊕ String) :=
---   .inl <$> snippetKind <|> .inr <$> title
-
--- def infoString : Parser ErrorExplanationCodeInfo := do
---   let lang ← languageName
---   let attrs ← Parsec.many (ws *> attr)
---   let mut kind? := Option.none
---   let mut title? := Option.none
---   for attr in attrs do
---     match attr with
---     | .inl k =>
---       if kind?.isNone then
---         kind? := some k
---       else
---         Parsec.fail "redundant kind specifications"
---     | .inr n =>
---       if title?.isNone then
---         title? := some n
---       else
---         Parsec.fail "redundant name specifications"
---   return { lang, title?, kind? }
-
--- end Parse
-
--- def parse (s : String) : Except String ErrorExplanationCodeInfo :=
---   Parse.infoString.run s |>.mapError (fun s => s!"Invalid code block info string: {s}")
-
--- end ErrorExplanationCodeInfo
-
-open ErrorExplanation
-
-/-- error: (9, Example 'Bar' is malformed: Expected a(n) `output` code block) -/
+/-- error: Example 'Bar' is malformed: Expected a(n) `output` code block -/
 #guard_msgs in
-#eval IO.ofExcept <| processDoc "# Examples
+/--
+# Examples
 ## Foo
 ```lean broken
 ```
@@ -87,58 +19,168 @@ open ErrorExplanation
 ## Bar
 ```lean broken
 ```
-"
-
-/-- error: (1, Expected level-2 header for an example section, but found `# End of Examples`) -/
-#guard_msgs in
-#eval IO.ofExcept <| processDoc "# Examples
-# End of Examples"
+-/
+register_error_explanation Example {
+  summary := ""
+  sinceVersion := ""
+}
 
 /--
-error: (1, Example 'Example' is malformed: Expected a(n) broken `lean` code block, but found a(n) fixed `lean` one)
+error: Example 'Foo' is malformed: Expected a(n) `output` code block, but found a(n) `lean` one
 -/
 #guard_msgs in
-#eval IO.ofExcept <| processDoc "# Examples
+/--
+Foo
+
+# Examples
+## Foo
+```lean broken
+```
+```lean fixed
+```
+-/
+register_error_explanation Example {
+  summary := "hi"
+  sinceVersion := "4.0.0"
+}
+
+/-- error: Expected level-2 header for an example section, but found `# End of Examples` -/
+#guard_msgs in
+/--
+# Examples
+
+# End of Examples
+-/
+register_error_explanation Example {
+  summary := ""
+  sinceVersion := ""
+}
+
+
+/--
+error: Example 'Example' is malformed: Expected a(n) broken `lean` code block, but found a(n) fixed `lean` one
+-/
+#guard_msgs in
+/--
+# Examples
+
 ## Example
+
 ```lean fixed
 ```
 ```output
 ```
 ```lean broken
 ```
-"
+-/
+register_error_explanation Example {
+  summary := ""
+  sinceVersion := ""
+}
 
-#eval IO.ofExcept <| processDoc "This is an explanation.
+/--
+error: Example 'Example' is malformed: Expected a(n) `output` code block, but found a(n) `lean` one
+-/
+#guard_msgs in
+/--
+# Examples
+
+## Example
+
+```lean broken
+```
+```lean broken
+```
+```output
+```
+```lean fixed
+```
+-/
+register_error_explanation Example {
+  summary := ""
+  sinceVersion := ""
+}
+
+/-- error: Example 'Example' is malformed: Expected a(n) fixed `lean` code block -/
+#guard_msgs in
+/--
+# Examples
+
+## Example
+
+```lean broken
+```
+```output
+```
+# End of Example
+```lean fixed
+```
+-/
+register_error_explanation Example {
+  summary := ""
+  sinceVersion := ""
+}
+
+/--
+error: Example 'Example' is malformed: Invalid code block info string `lean broken_or_fixed`: offset 20: invalid attribute broken_or_fixed
+-/
+#guard_msgs in
+/--
+# Examples
+
+## Example
+
+```lean broken_or_fixed
+```
+```output
+```
+```lean fixed
+```
+-/
+register_error_explanation Example {
+  summary := ""
+  sinceVersion := ""
+}
+
+
+/-- error: Expected level-2 header for an example section, but found `# Examples` -/
+#guard_msgs in
+/--
+This is an explanation.
 
 # Examples
 ## Ex
 
 ```lean broken
-thing 1
 ```
 ```output
-output
 ```
 ```lean fixed
-this is fixed
 ```
 
 # Examples
 
-Should fail"
+Should fail
+-/
+register_error_explanation Example {
+  summary := ""
+  sinceVersion := ""
+}
 
-#eval IO.ofExcept <| processDoc "\
-This is a bunch
+/-- error: Expected level-2 header for an example section, but found `# New Section` -/
+#guard_msgs in
+/--
+Pre-example
 
-of explanation.
+explanation.
 
 ```lean
-def canIncludeCode := true
+-- non-example code block
 ```
 
 # Examples
 
-## My first example
+## First example
 
 ```lean broken
 ```
@@ -149,7 +191,9 @@ def canIncludeCode := true
 ```lean fixed
 ```
 
-## My second example
+Explanation of first example.
+
+## Second example
 
 ```lean broken
 ```
@@ -158,42 +202,50 @@ def canIncludeCode := true
 ```
 
 ```lean fixed
-this should not fail
 ```
 
-# Something New
+Explanation of second example.
+
+# New Section
 
 Foo
-"
+-/
+register_error_explanation Example {
+  summary := ""
+  sinceVersion := ""
+}
 
-#eval IO.ofExcept <| processDoc "
+/--
 # Examples
-## Test Last Line
+## Test
 ```lean broken
 ```
 ```output
 ```
 ```lean fixed
 ```
-"
+-/
+register_error_explanation WorkingExample₁ {
+  summary := ""
+  sinceVersion := ""
+}
 
+/--
+General explanation
 
-#eval IO.ofExcept <| processDoc "
-This is some text
+General explanation
 
-And this is some more
+# Examples (Not)
 
-# Examples ... Not
-
-## Here's not an example
+## Not an example
 
 ```lean
 def foo := 32
 ```
 
-# Something Else
+# Also Not Examples
 
-Hi!
+Test
 
 # Examples
 
@@ -205,76 +257,15 @@ Hi!
 ```output
 ```
 
-```lean fixed (title := \"Foo\")
+```lean fixed (title := "Foo")
 ```
 
-Here's an explanation!
+Explanation of example.
 
-"
-
-  -- Structure:
-  -- 1. General description
-  -- 2. # Examples [note: 2 may not be present, in which case there should be no 3s]
-  -- 3(a). ## Example name
-  -- 3(b). ```lean broken (title := "title")? ```
-  -- 3(c). ```output ```
-  -- 3(d)(i). ```lean fixed (title := "title")? ```
-  -- 3(d)(ii). (optional) ```output ```
-  -- 3(d)*
-  -- 3(e). Example description
-  -- 3* [note: we can also legally have no 3s at all]
-  -- 4. (optional) # Any other header
-  -- 5. (optional) General description
-  -- Additional check: all code blocks that aren't `broken` should be error free
-
--- def main : IO UInt32 := do
---   unsafe withImportModules #[`Lean.Util.ErrorExplanation] {} fun env => do
---     let expls := Lean.getErrorExplanationsRaw env
---     for (_, expl) in expls do
---       try
---         IO.ofExcept <| validateErrorExplanation expl.doc
---       catch e =>
---         IO.eprintln e
---         return 1
---     return 0
-
-/--
-This is a great explanation.
-
-# Examples
-## Ex
-
-```lean broken
-thing 1
-```
-```output
-output
-```
-```lean fixed
-this works
-```
 -/
-register_error_explanation Foo {
-  summary := "Hello"
-  sinceVersion := "4.0.0"
+register_error_explanation WorkingExample₂ {
+  summary := ""
+  sinceVersion := ""
 }
 
-
-/--
-error: Example 'Hi!' is malformed: Expected a(n) `output` code block, but found a(n) `lean` one
--/
-#guard_msgs in
-/--
-Foo
-
-# Examples
-## Hi!
-```lean broken
-```
-```lean fixed
-```
--/
-register_error_explanation Foo2 {
-  summary := "hi"
-  sinceVersion := "4.0.0"
-}
+-- TODO: check extracted code blocks in working examples

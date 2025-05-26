@@ -30,10 +30,10 @@ def ErrorExplanation.CodeBlockSet.toIdentifiedExamples (explanationName : Name) 
                       code := broken
                       outputs := brokenOutputs }
     let fixedExs := fixedWithOutputs.mapIdx fun i (code, outputs) => {
-        id := { explanationName, setIndex, blockIndex := .fixed i }
-        code
-        outputs
-      }
+      id := { explanationName, setIndex, blockIndex := .fixed i }
+      code
+      outputs
+    }
     fixedExs.push brokenEx
 
 deriving instance BEq for Import

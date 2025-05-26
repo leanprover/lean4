@@ -57,20 +57,17 @@ register_builtin_option warningAsError : Bool := {
 
 def errorDescriptionWidget : Widget.Module where
   javascript := "
-import * as React from 'react';
-import { EditorContext, EnvPosContext } from '@leanprover/infoview';
-const e = React.createElement;
+import { createElement } from 'react';
 export default function ({ code, explanationUrl }) {
-  const pos = React.useContext(EnvPosContext)
-  const editorConnection = React.useContext(EditorContext)
   const sansText = { fontFamily: 'var(--vscode-font-family)' }
 
-  const codeSpan = e('span', {}, [e('span', { style: sansText }, 'Error code: '), code])
-  const brSpan = e('span', {}, '\\n')
-  const linkSpan = e('span', { style: sansText },
-    e('a', { href: explanationUrl }, 'View explanation'))
+  const codeSpan = createElement('span', {}, [
+    createElement('span', { style: sansText }, 'Error code: '), code])
+  const brSpan = createElement('span', {}, '\\n')
+  const linkSpan = createElement('span', { style: sansText },
+    createElement('a', { href: explanationUrl }, 'View explanation'))
 
-  const all = e('div', { style: { marginTop: '1em' } }, [codeSpan, brSpan, linkSpan])
+  const all = createElement('div', { style: { marginTop: '1em' } }, [codeSpan, brSpan, linkSpan])
   return all
 }"
 

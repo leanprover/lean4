@@ -6,5 +6,6 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Lemmas.Combinators.Monadic
 import Std.Data.Iterators.Lemmas.Combinators.Take
+import Std.Data.Iterators.Lemmas.Combinators.TakeWhile
 import Std.Data.Iterators.Lemmas.Combinators.FilterMap
 import Std.Data.Iterators.Lemmas.Combinators.Zip

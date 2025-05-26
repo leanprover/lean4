@@ -239,10 +239,6 @@ theorem back?_pop {xs : Array α} :
 
 @[simp] theorem push_empty : #[].push x = #[x] := rfl
 
-@[simp] theorem toList_push {xs : Array α} {x : α} : (xs.push x).toList = xs.toList ++ [x] := by
-  rcases xs with ⟨xs⟩
-  simp
-
 @[simp] theorem push_ne_empty {a : α} {xs : Array α} : xs.push a ≠ #[] := by
   cases xs
   simp

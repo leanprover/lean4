@@ -1849,17 +1849,18 @@ theorem toInt_smod {x y : BitVec w} :
   · have hynonneg := toInt_nonneg_of_msb_false hymsb
     rw [Int.fmod_eq_emod_of_nonneg x.toInt (b := y.toInt) (by omega)]
     have hdvd := toInt_dvd_toInt_iff_of_msb_true_msb_false hxmsb hymsb
-    by_cases humod : -x % y = 0#(w+1)
-    · simp only [humod, iff_true] at hdvd
-      simp [humod]
-      omega
-    · simp only [humod, reduceIte, toInt_sub, toInt_eq_toNat_of_msb hymsb, toInt_umod,
+    by_cases hx_dvd_y : y.toInt ∣ x.toInt
+    · simp [show -x % y = 0#(w + 1) by simp_all, hx_dvd_y, Int.emod_eq_zero_of_dvd]
+    · simp only [show ¬-x % y = 0#(w + 1) by simp_all, reduceIte]
+      simp only [reduceIte, toInt_sub, toInt_eq_toNat_of_msb hymsb, toInt_umod,
         Int.sub_bmod_bmod, toInt_eq_neg_toNat_neg_of_msb_true hxmsb, Int.neg_emod]
       have hmodlt := Nat.mod_lt (x := (-x).toNat) (y := y.toNat) hypos
       rw [Int.bmod_eq_of_le (by omega) (by omega)]
       simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
-        Int.dvd_neg, humod, iff_false] at hdvd
-      omega
+        Int.dvd_neg] at hx_dvd_y
+      simp only [hx_dvd_y]
+      simp
+
   · rw [←Int.neg_inj, neg_toInt_neg_umod_eq_of_msb_true_msb_true hxmsb hymsb]
     simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb, hymsb,
       Int.fmod_eq_emod_of_nonneg _, show 0 ≤ (-y).toNat by omega]

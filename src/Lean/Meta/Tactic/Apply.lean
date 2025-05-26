@@ -220,12 +220,9 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)
     let newMVars ← newMVars.filterM fun mvar => not <$> mvar.mvarId!.isAssigned
-    let otherMVarIds ← getMVarsNoDelayed e
     let newMVarIds ← reorderGoals newMVars cfg.newGoals
-    let otherMVarIds := otherMVarIds.filter fun mvarId => !newMVarIds.contains mvarId
-    let result := newMVarIds ++ otherMVarIds.toList
-    result.forM (·.headBetaType)
-    return result
+    newMVarIds.forM (·.headBetaType)
+    return newMVarIds
 
 /-- Short-hand for applying a constant to the goal. -/
 def _root_.Lean.MVarId.applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do

@@ -83,7 +83,7 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
       step_takeWhile]
     split <;> rfl
 
-theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
+private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
     (l.takeWhile P)[k]? = if ∀ k' : Nat, k' ≤ k → l[k']?.any P then l[k]? else none := by
   induction l generalizing k
   · simp

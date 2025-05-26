@@ -2433,56 +2433,58 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) (hw : 1 < w) :
 
 theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (hw : 1 < w) :
     resRec x y s hs hs' hw = true ↔ ∃ (k : Nat), ∃ (h : k ≤ s), ∃ (hk' : 0 < k), aandRec x y k (by omega) (by omega) := by
-  constructor
-  stop
-  · induction s
+  unfold resRec
+  rcases s with _|s
+  · omega
+  · simp
+    rcases s
     · case zero =>
-      unfold resRec; simp
-    · case succ s ihs =>
-      unfold resRec
-      by_cases ha : aandRec x y (s + 1) (by omega) (by omega)
-      · simp [ha]
-        intro
-        exists s + 1
-        simp [ha]
-      · simp [ha]
-        cases s
-        · case neg.zero => simp [ha]
-        · case neg.succ s =>
-          simp
-          intro h
-          simp at ihs
-          specialize ihs (by omega)
-          specialize ihs (by simp)
-          simp [h] at ihs
-          obtain ⟨k,hk,hk',hk''⟩ := ihs
-          exists k
-          exists (by omega)
-          exists hk'
-  · intro h1
-    induction s
-    · case zero => omega
-    · case succ s ihs =>
-      unfold resRec
-      obtain ⟨k,h,hk,hk'⟩ := h1
-      cases s
-      · have hk'' : k = 0 ∨ k = 1 := by omega
-        rcases hk''
-        · omega
-        · case zero.inr hk'' =>
-          simp [hk''] at hk'
-          exact hk'
-      · case succ s =>
+      simp
+      constructor
+      · intro ha
+        exists 1, by omega, by omega
+      · intro hr
+        obtain ⟨k, hk, hk', hk''⟩ := hr
+        simp [show k = 1 by omega] at hk''
+        exact hk''
+    · case succ s =>
+      simp
+      induction s
+      · case zero =>
+        unfold resRec
+        simp
+        constructor
+        · intro h
+          rcases h with h|h
+          · exists 1, by omega, by omega
+          · exists 2, by omega, by omega
+        · intro h
+          obtain ⟨k, hk, hk', hk''⟩ := h
+          have h : k = 1 ∨ k = 2 := by omega
+          rcases h with h|h
+          · simp [h] at hk''
+            simp [hk'']
+          · simp [h] at hk''
+            simp [hk'']
+      · case succ s ihs =>
         specialize ihs (by omega) (by omega)
-        simp [hk] at ihs
-        specialize ihs k
-        simp [hk']
-        by_cases hks : k ≤ s + 1
-        · simp_all
-        · simp_all
-          have := resRec_true_of_aandRec (x := x) (y := y) (s := k) (by omega) (by omega) (by omega) (by omega)
-
-          sorry
+        unfold resRec
+        simp [ihs]
+        constructor
+        · intro h
+          rcases h with h|h
+          · obtain ⟨k, hk, hk', hk''⟩ := h
+            exists k, by omega, by omega
+          · exists s + 1 + 1 + 1, by omega, by omega
+        · intro h
+          obtain ⟨k, hk, hk', hk''⟩ := h
+          by_cases h' : x.aandRec y (s + 1 + 1 + 1) (by omega) (by omega) = true
+          · simp [h']
+          · simp [h']
+            by_cases h'' : k ≤ s + 1 + 1
+            · exists k, h'', by omega
+            · have : k = s + 1 + 1 + 1 := by omega
+              simp_all
 
 theorem getElem_of_lt_of_le {x : BitVec w} (hw : 1 < w) (hk : 0 < k) (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat): -- at least one of these hypotheses can likely be relaxed
   x[k] = true := by sorry

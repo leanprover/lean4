@@ -2484,21 +2484,17 @@ theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (h
 
           sorry
 
-theorem aux1 {x : BitVec w} (hw : 1 < w) (hk : 0 < k) (hk' : k < w) : -- at least one of these hypotheses can likely be relaxed
-  x.toNat < 2 ^ (k + 1) ∧ 2 ^ k ≤ x.toNat → x[k] := by sorry
+theorem getElem_of_lt_of_le {x : BitVec w} (hw : 1 < w) (hk : 0 < k) (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat): -- at least one of these hypotheses can likely be relaxed
+  x[k] = true := by sorry
 
-theorem aux2 {x y : BitVec w} (hw : 1 < w) :
-  clz x + clz y ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) (by omega) := by sorry
+theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hclz : clz x + clz y ≤ w - 2) :
+  resRec x y (w - 1) (by omega) (by omega) (by omega) := by sorry
 
-
-theorem aux3 {x y : BitVec w} (hw : 1 < w) :
-  resRec x y (w - 1) (by sorry) (by sorry) (by sorry) → clz x + clz y ≤ w - 2 := by sorry
-
-theorem aux4 {x : BitVec w} {z : Nat} (hk : z = clz x) :
+theorem le_of_clz {x : BitVec w} {z : Nat} (hk : z = clz x) :
   2 ^ (w - z - 1) ≤ x.toNat := by sorry
 
-theorem aux5 {x : BitVec w} {z : Nat} (hk : z = clz x) :
-  x.toNat ≤ 2 ^ (w - z) - 1 := by sorry
+theorem lt_of_clz {x : BitVec w} {z : Nat} (hk : z = clz x) :
+  x.toNat < 2 ^ (w - z) - 1 := by sorry
 
 /--
   complete fast overflow detecnion circuit for unsigned multiplication
@@ -2513,7 +2509,7 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
       simp [umulOverflow] at h
       by_cases h' : x.toNat * y.toNat < 2 ^ (w + 1 + 1 + 1)
       · -- we use aux1 to show that ((zeroExtend (w + 1 + 1 + 1) x * zeroExtend (w + 1 + 1 + 1) y).getLsbD (w + 1 + 1) = true necessarily
-        have hh := aux1
+        have hh := getElem_of_lt_of_le
           (x := (zeroExtend (w + 1 + 1 + 1) x * zeroExtend (w + 1 + 1 + 1) y))
           (k := w + 1 + 1)
           (by omega)
@@ -2533,13 +2529,13 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
           let zx := clz x
           let zy := clz y
           -- reasoning about the bounds of the product given the leading zeroes
-          have h1 := aux4 (x := x) (z := zx) (by omega)
-          have h2 := aux4 (x := y) (z := zy) (by omega)
-          have h3 := aux5 (x := x) (z := zx) (by omega)
-          have h4 := aux5 (x := y) (z := zy) (by omega)
-          have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - zx) - 1) (m₂ := 2 ^ (w + 1 + 1 - zy) - 1) h3 h4
+          have h1 := le_of_clz (x := x) (z := zx) (by omega)
+          have h2 := le_of_clz (x := y) (z := zy) (by omega)
+          have h3 := lt_of_clz (x := x) (z := zx) (by omega)
+          have h4 := lt_of_clz (x := y) (z := zy) (by omega)
+          have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - zx) - 1) (m₂ := 2 ^ (w + 1 + 1 - zy) - 1) (by omega) (by omega)
           have h6 := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 + 1 - zx - 1)) (m₁ := 2 ^ (w + 1 + 1 - zy - 1)) (n₂ := x.toNat) (m₂ := y.toNat) h1 h2
-          have h7 := aux2 (x := x) (y := y) (by omega)
+          have h7 := resRec_of_clz_le (x := x) (y := y) (by omega)
           simp at h7
           apply h7
           by_cases hzxy : zx + zy ≤ w

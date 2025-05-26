@@ -74,6 +74,14 @@ instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
     -- Lots of problems here!
     -- several occurrences of `type error constructing proof for`
     -- there are also a number of repetitions in the equivalence classes.
+
+    -- We have the equivalence classes:
+    -- {c[i_1]?, cast ⋯ (fun i h => some c.data[i].snd) c.indices[i_1] ⋯,
+    --   ...snip...}
+    -- {c[i_1], c.data[c.indices[i_1]].snd,
+    --   ...snip...}
+    -- {cast ⋯ fun i h => some c.data[i].snd, fun i h => some c.data[i].snd}
+    -- but aren't managing to put these together to get `c[i_1]? = some c[i_1]` for the contradiction.
     grind [getElem?_pos]
   getElem!_def := sorry
 

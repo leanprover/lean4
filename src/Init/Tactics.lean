@@ -160,11 +160,16 @@ but adds the `hx : x = v` hypothesis first. Having a `with` binding associated t
 syntax (name := clearValue) "clear_value" (ppSpace colGt (clearValueStar <|> term:max))+ (" with" (ppSpace colGt binderIdent)+)? : tactic
 
 /--
-`subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis
-of type `x = e` or `e = x`.
-If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead.
+`subst x...` substitutes each hypothesis `x` with a definition found in the local context,
+then eliminates the hypothesis.
+- If `x` is a local definition, then its definition is used.
+- Otherwise, if there is a hypothesis of the form `x = e` or `e = x`,
+  then `e` is used for the definition of `x`.
 
-If `x` is a local definition `x : α := e`, then `x` is substituted with `e`.
+If `h : a = b`, then `subst h` may be used if either `a` or `b` unfolds to a local hypothesis.
+This is similar to the `cases h` tactic.
+
+See also: `subst_vars` for substituting all local hypotheses that have a defining equation.
 -/
 syntax (name := subst) "subst" (ppSpace colGt term:max)+ : tactic
 

@@ -1759,7 +1759,7 @@ theorem msb_intMin_umod_neg_of_msb_true {y : BitVec w} (hy : y.msb = true) :
     simp [hy]
 
 theorem msb_neg_umod_neg_of_msb_true_of_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
-      (-x % -y).msb = false := by
+     (-x % -y).msb = false := by
   rcases w with _|w
   · simp [of_length_zero]
   · by_cases hx' : x = intMin (w + 1)

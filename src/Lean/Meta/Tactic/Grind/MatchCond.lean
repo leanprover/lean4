@@ -286,6 +286,8 @@ where
       | reportIssue! "found term that has not been internalized{indentExpr lhs}\nwhile trying to construct a proof for `MatchCond`{indentExpr e}"
         return none
     let isHEq := α?.isSome
+    unless (← hasSameType root.self rhs) do
+      return none
     let h ← if isHEq then
       mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h) (check := false)
     else

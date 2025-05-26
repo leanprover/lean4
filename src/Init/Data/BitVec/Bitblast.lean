@@ -2505,14 +2505,19 @@ theorem clz_zero : clz 0#w = w := by
 @[simp]
 theorem clz_eq_length_iff {x : BitVec w} :
     clz x = w ↔ x = 0#w := by
-  constructor
-  · intro h
-    have := clz_le (x := x)
-
-
-    sorry
-  · intro h
-    simp [h, clz_zero]
+  rcases w with _|w
+  · simp [clz, of_length_zero]
+  · constructor
+    · intro h
+      simp [clz] at h
+      have := clzAux_eq_iff (x := x) (n := w)
+      simp [h] at this
+      ext i
+      simp
+      apply this
+      omega
+    · intro h
+      simp [h, clz_zero]
 
 /--
   preliminary overflow flag for fast umulOverflow circuit

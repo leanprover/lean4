@@ -240,15 +240,23 @@ structure Config where
   -/
   implicitDefEqProofs : Bool := true
   /--
-  When `true` (default : `true`), then simps will remove unused let-declarations:
+  When `true` (default : `true`), `simp` removes unused let-declarations:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
   -/
   zetaUnused : Bool := true
   /--
-  When `true` (default : `true`), then simps will catch runtime exceptions and
-  convert them into `simp` exceptions.
+  When `true` (default : `true`), `simp` catches runtime exceptions and
+  converts them into `simp` exceptions.
   -/
   catchRuntime : Bool := true
+  /--
+  When `true` (default : `true`), `simp` tries to realize constant `f.congr_simp`
+  when constructing an auxiliary congruence proof for `f`.
+  This option exists because the termination prover uses `simp` and `withoutModifyingEnv`
+  while constructing the termination proof. Thus, any constant realized by `simp`
+  is deleted.
+  -/
+  congrConsts : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

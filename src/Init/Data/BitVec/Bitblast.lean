@@ -1806,7 +1806,7 @@ theorem neg_toInt_neg_umod_eq_of_msb_true_msb_true {x y : BitVec w} (hx : x.msb 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
   rcases w with _|w ; simp [of_length_zero]
-  by_cases hyzero : y = 0#(w + 1) ; simp [hyzero]
+  by_cases hyzero : y = 0#(w + 1); simp [hyzero]
   have hypos : 0 < y.toNat := by simp [toNat_eq] at hyzero; omega
   rw [smod_eq]
   cases hxmsb : x.msb <;> cases hymsb : y.msb

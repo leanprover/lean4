@@ -2439,8 +2439,23 @@ theorem clzAux_eq_iff {x : BitVec w} {n : Nat}:
     · simp [hn1]
       exists n + 1, by omega
     · simp [hn1]
-
-      sorry
+      have h1 := clzAux_le (x := x) (n := n)
+      have h2 := clzAux_le (x := x) (n := n + 1)
+      have h3 : 1 + x.clzAux n = n + 1 + 1 ↔ x.clzAux n = n + 1 := by omega
+      simp [h3]
+      simp [ihn]
+      constructor
+      · intro h
+        intros i hin
+        by_cases hi : i ≤ n
+        · apply h
+          exact hi
+        · simp at hn1
+          simp [show i = n + 1 by omega, hn1]
+      · intro h
+        intros i hin
+        apply h
+        omega
 
 theorem clzAux_le_of_ne_zero{x : BitVec w} (h : x ≠ 0#w) : clzAux x n ≤ n:= by
   induction n generalizing x

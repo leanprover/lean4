@@ -1825,6 +1825,22 @@ theorem toInt_umod_neg_add {x y : BitVec w} (humod : ¬y.toInt ∣ x.toInt) (hym
       (m := 2 ^ (w+1)) (by omega) (by omega),
     toInt_eq_toNat_of_msb hxmsb, Int.emod_neg]
 
+theorem toInt_sub_neg_umod {x y : BitVec (w + 1)}
+    (hypos : 0 < y.toNat)
+    (hxmsb : x.msb = true)
+    (hymsb : y.msb = false)
+    (hx_dvd_y : ¬y.toInt ∣ x.toInt) :
+    (y - -x % y).toInt = x.toInt % y.toInt := by
+  have : y.toNat < 2 ^ w := toNat_lt_of_msb_false hymsb
+  simp only [reduceIte, toInt_sub, toInt_eq_toNat_of_msb hymsb, toInt_umod,
+    Int.sub_bmod_bmod, toInt_eq_neg_toNat_neg_of_msb_true hxmsb, Int.neg_emod]
+  have hmodlt := Nat.mod_lt (x := (-x).toNat) (y := y.toNat) hypos
+  rw [Int.bmod_eq_of_le (by omega) (by omega)]
+  simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
+    Int.dvd_neg] at hx_dvd_y
+  simp only [hx_dvd_y]
+  simp
+
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
   rcases w with _|w ; simp [of_length_zero]
@@ -1852,15 +1868,7 @@ theorem toInt_smod {x y : BitVec w} :
     by_cases hx_dvd_y : y.toInt ∣ x.toInt
     · simp [show -x % y = 0#(w + 1) by simp_all, hx_dvd_y, Int.emod_eq_zero_of_dvd]
     · simp only [show ¬-x % y = 0#(w + 1) by simp_all, reduceIte]
-      simp only [reduceIte, toInt_sub, toInt_eq_toNat_of_msb hymsb, toInt_umod,
-        Int.sub_bmod_bmod, toInt_eq_neg_toNat_neg_of_msb_true hxmsb, Int.neg_emod]
-      have hmodlt := Nat.mod_lt (x := (-x).toNat) (y := y.toNat) hypos
-      rw [Int.bmod_eq_of_le (by omega) (by omega)]
-      simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
-        Int.dvd_neg] at hx_dvd_y
-      simp only [hx_dvd_y]
-      simp
-
+      rw [toInt_sub_neg_umod hypos hxmsb hymsb hytoNat hx_dvd_y]
   · rw [←Int.neg_inj, neg_toInt_neg_umod_eq_of_msb_true_msb_true hxmsb hymsb]
     simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb, hymsb,
       Int.fmod_eq_emod_of_nonneg _, show 0 ≤ (-y).toNat by omega]

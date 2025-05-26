@@ -1811,7 +1811,7 @@ theorem toNat_pos_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
   omega
 
 @[simp]
-theorem toInt_umod_neg_add {x y : BitVec w} (humod : ¬y.toInt ∣ x.toInt) (hymsb : y.msb = true) (hxmsb : x.msb = false) :
+theorem toInt_umod_neg_add {x y : BitVec w} (hymsb : y.msb = true) (hxmsb : x.msb = false) (hdvd : ¬y.toInt ∣ x.toInt) :
     (x % -y + y).toInt = x.toInt % y.toInt + y.toInt := by
   rcases w with _|w ; simp [of_length_zero]
   have hypos : 0 < y.toNat := toNat_pos_of_ne_zero (by simp [hymsb])
@@ -1820,16 +1820,16 @@ theorem toInt_umod_neg_add {x y : BitVec w} (humod : ¬y.toInt ∣ x.toInt) (hym
   have hylt : (-y).toNat ≤ 2 ^ (w) := toNat_neg_lt y hymsb
   have hmodlt := Nat.mod_lt x.toNat (y := (-y).toNat)
       (by rw [toNat_neg, Nat.mod_eq_of_lt (by omega)]; omega)
-  simp only [humod, reduceIte, toInt_add, hxnonneg, show ¬0 ≤ y.toInt by omega]
+  simp only [hdvd, reduceIte, toInt_add, hxnonneg, show ¬0 ≤ y.toInt by omega]
   rw [toInt_umod, toInt_eq_neg_toNat_neg_of_msb_true hymsb, Int.bmod_add_bmod,
     Int.bmod_eq_of_le (n := (x.toNat : Int) % ((-y).toNat : Int) + -((-y).toNat : Int))
       (m := 2 ^ (w+1)) (by omega) (by omega),
     toInt_eq_toNat_of_msb hxmsb, Int.emod_neg]
 
 @[simp]
-theorem toInt_sub_neg_umod {x y : BitVec (w + 1)} (hxmsb : x.msb = true) (hymsb : y.msb = false)
-    (hx_dvd_y : ¬y.toInt ∣ x.toInt) :
+theorem toInt_sub_neg_umod {x y : BitVec w} (hxmsb : x.msb = true) (hymsb : y.msb = false) (hdvd : ¬y.toInt ∣ x.toInt) :
     (y - -x % y).toInt = x.toInt % y.toInt := by
+  rcases w with _|w ; simp [of_length_zero]
   have : y.toNat < 2 ^ w := toNat_lt_of_msb_false hymsb
   by_cases hyzero : y = 0#(w+1); subst hyzero; simp
   simp only [toNat_eq, toNat_ofNat, zero_mod] at hyzero
@@ -1839,8 +1839,8 @@ theorem toInt_sub_neg_umod {x y : BitVec (w + 1)} (hxmsb : x.msb = true) (hymsb 
   have hmodlt := Nat.mod_lt (x := (-x).toNat) (y := y.toNat) hypos
   rw [Int.bmod_eq_of_le (by omega) (by omega)]
   simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
-    Int.dvd_neg] at hx_dvd_y
-  simp only [hx_dvd_y]
+    Int.dvd_neg] at hdvd
+  simp only [hdvd]
   simp
 
 theorem toInt_smod {x y : BitVec w} :

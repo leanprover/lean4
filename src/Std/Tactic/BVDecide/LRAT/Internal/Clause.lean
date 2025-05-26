@@ -140,42 +140,8 @@ def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal
 
 theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.negate := rfl
 
-def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
-  let mapOption := ls.foldl folder (some (HashMap.emptyWithCapacity ls.size))
-  match mapOption with
-  | none => none
-  | some map =>
-   have mapnodup := map.distinct_keys
-    have nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ map.toList ∨ ¬(l, false) ∈ map.toList := by
-      intro l
-      apply Classical.byContradiction
-      simp_all
-    have nodup : map.toList.Nodup := by
-      rw [List.Nodup, List.pairwise_iff_forall_sublist]
-      simp only [ne_eq, Prod.forall, Bool.forall_bool, Prod.mk.injEq, not_and, Bool.not_eq_false,
-        Bool.not_eq_true, Bool.false_eq_true, imp_false, implies_true, and_true, Bool.true_eq_false,
-        true_and]
-      intro l1
-      constructor
-      . intros l2 h hl
-        rw [List.pairwise_iff_forall_sublist] at mapnodup
-        replace h : [l1, l2].Sublist map.keys := by
-          rw [← HashMap.map_fst_toList_eq_keys, List.sublist_map_iff]
-          apply Exists.intro [(l1, false), (l2, false)]
-          simp [h]
-        specialize mapnodup h
-        simp [hl] at mapnodup
-      . intros l2 h hl
-        rw [List.pairwise_iff_forall_sublist] at mapnodup
-        replace h : [l1, l2].Sublist map.keys := by
-          rw [← HashMap.map_fst_toList_eq_keys, List.sublist_map_iff]
-          apply Exists.intro [(l1, true), (l2, true)]
-          simp [h]
-        specialize mapnodup h
-        simp [hl] at mapnodup
-    some ⟨map.toList, nodupkey, nodup⟩
-where
-  folder (acc : Option (Std.HashMap (PosFin n) Bool)) (l : Literal (PosFin n)) :
+-- TODO: move this back to a `where` clause
+@[irreducible] def ofArray.folder (acc : Option (Std.HashMap (PosFin n) Bool)) (l : Literal (PosFin n)) :
       Option (Std.HashMap (PosFin n) Bool) :=
     match acc with
     | none => none
@@ -188,6 +154,19 @@ where
           some map
       else
         some map
+
+attribute [grind =] List.sublist_map_iff
+
+def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
+  let mapOption := ls.foldl ofArray.folder (some (HashMap.emptyWithCapacity ls.size))
+  match mapOption with
+  | none => none
+  | some map =>
+   have mapnodup := map.distinct_keys
+    have nodup : map.toList.Nodup := by
+      rw [List.Nodup, List.pairwise_iff_forall_sublist]
+      grind [_=_ HashMap.map_fst_toList_eq_keys, List.pairwise_iff_forall_sublist]
+    some ⟨map.toList, by grind, nodup⟩
 
 @[simp]
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by
@@ -206,7 +185,7 @@ theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
     rcases l with ⟨var, pol⟩
     rw [List.foldl_cons, DefaultClause.ofArray.folder.eq_def] at h
     split at h
-    · contradiction
+    · grind
     · simp only [HashMap.getThenInsertIfNew?_fst, HashMap.get?_eq_getElem?, bne_iff_ne, ne_eq,
         HashMap.getThenInsertIfNew?_snd, ite_not] at h
       split at h
@@ -219,17 +198,15 @@ theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
               apply Classical.byContradiction
               intro h2
               have := Std.HashMap.getElem?_eq_none h2
-              simp_all
-            simp [this]
-            rw [Std.HashMap.mem_toList_iff_getElem?_eq_some] at hl
-            simp_all
+              grind
+            grind
         · simp at h
       · apply ih
         · exact h
         · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some, Std.HashMap.getElem?_insertIfNew]
           simp_all
           intros
-          cases pol <;> simp_all
+          cases pol <;> grind
 
 theorem ofArray.folder_foldl_mem_of_mem
     (h : List.foldl DefaultClause.ofArray.folder acc ls = some map) :

@@ -86,6 +86,3 @@ theorem Membership.get_elem_helper {i n : Nat} {r : Std.Range} (h₁ : i ∈ r) 
 
 macro_rules
   | `(tactic| get_elem_tactic_extensible) => `(tactic| apply Membership.get_elem_helper; assumption; rfl)
-
-macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Membership.get_elem_helper; assumption; rfl)

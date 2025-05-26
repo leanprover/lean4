@@ -2429,8 +2429,6 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) (hw : 1 < w) :
     | s'' + 1 =>
       (resRec x y s' (by omega) (by omega) (by omega)) || (aandRec x y s (by omega) (by omega))
 
-
-
 theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (hw : 1 < w) :
     resRec x y s hs hs' hw = true ↔ ∃ (k : Nat), ∃ (h : k ≤ s), ∃ (hk' : 0 < k), aandRec x y k (by omega) (by omega) := by
   unfold resRec
@@ -2486,8 +2484,21 @@ theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (h
             · have : k = s + 1 + 1 + 1 := by omega
               simp_all
 
-theorem getElem_of_lt_of_le {x : BitVec w} (hw : 1 < w) (hk : 0 < k) (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat): -- at least one of these hypotheses can likely be relaxed
-  x[k] = true := by sorry
+theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat):
+    x[k] = true := by
+  have := le_toNat_iff (x := x) (i := k) hk'
+  simp [hle] at this
+  obtain ⟨k',hk'⟩ := this
+  by_cases hkk' : k + k' < w
+  · rw [getLsbD_eq_getElem (by omega)] at hk'
+    have := getElem_true_le (x := x) (i := k + k') hkk'
+    simp [hk'] at this
+    by_cases hzk' : k' = 0
+    · simp [hzk'] at hk'; exact hk'
+    · have := Nat.pow_lt_pow_of_lt (a := 2) (n := k) (m := k + k') (by omega) (by omega)
+      have := Nat.pow_le_pow_of_le (a := 2) (n := k + 1) (m := k + k') (by omega) (by omega)
+      omega
+  · simp [show w ≤ k + k' by omega] at hk'
 
 theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hclz : clz x + clz y ≤ w - 2) :
   resRec x y (w - 1) (by omega) (by omega) (by omega) := by sorry
@@ -2514,8 +2525,6 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
         have hh := getElem_of_lt_of_le
           (x := (zeroExtend (w + 1 + 1 + 1) x * zeroExtend (w + 1 + 1 + 1) y))
           (k := w + 1 + 1)
-          (by omega)
-          (by omega)
           (by omega)
         simp [toNat_mul] at hh
         rw [Nat.mod_eq_of_lt (by omega)] at hh

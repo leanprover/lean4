@@ -7,7 +7,6 @@ prelude
 import Init.Grind.Tactics
 import Init.Data.Queue
 import Std.Data.TreeSet
-import Lean.Util.ShareCommon
 import Lean.HeadIndex
 import Lean.Meta.Basic
 import Lean.Meta.CongrTheorems
@@ -16,6 +15,7 @@ import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Ext
 import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.AlphaShareCommon
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.Tactic.Grind.Cases
@@ -117,7 +117,7 @@ private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCo
 /-- State for the `GrindM` monad. -/
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
-  scState    : ShareCommon.State.{0} ShareCommon.objectFactory := emptySC
+  scState    : AlphaShareCommon.State := {}
   /--
   Congruence theorems generated so far. Recall that for constant symbols
   we rely on the reserved name feature (i.e., `mkHCongrWithArityForConst?`).
@@ -232,8 +232,8 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  let scState ← modifyGet fun s => (s.scState, { s with scState := emptySC })
-  let (e, scState) := ShareCommon.State.shareCommon scState e
+  let scState ← modifyGet fun s => (s.scState, { s with scState := {} })
+  let (e, scState) := shareCommonAlpha e scState
   modify fun s => { s with scState }
   return e
 

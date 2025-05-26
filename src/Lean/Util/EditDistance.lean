@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
 
+prelude
+import Init.Data.Range
+
 set_option linter.missingDocs true
 
 namespace Lean.EditDistance

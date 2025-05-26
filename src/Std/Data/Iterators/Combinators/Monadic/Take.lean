@@ -52,7 +52,7 @@ it.take 3   ---a--⊥
 
 This combinator incurs an additional O(1) cost with each output of `it`.
 -/
-@[inline]
+@[always_inline, inline]
 def IterM.take (n : Nat) (it : IterM (α := α) m β) :=
   toIterM (Take.mk n it) m β
 

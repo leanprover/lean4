@@ -26,17 +26,28 @@ structure TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
   inner : IterM (α := α) m β
 
 /--
-Given an iterator `it` and a predicate `P`, `it.takeWhile P` is an iterator that outputs
-the values emitted by `it` until one of those values violates `P`.
-If `P` is violated for some emitted value, the value is dropped and the iterator terminates.
+*Note: This is a very general combinator that requires an advanced understanding of monads,
+dependent types and termination proofs. The variants `takeWhile` and `takeWhileM` are easier to use
+and sufficient for most use cases.*
 
-**Marble diagram:**
+Given an iterator `it` and a monadic predicate `P`, `it.takeWhileWithProof P` is an iterator that
+emits the values emitted by `it` until one of those values is rejected by `P`.
+If some emitted value is rejected by `P`, the value is dropped and the iterator terminates.
 
-Assuming that the predicate `P` accepts `a` and `b` but violates `c`:
+`P` is expected to return `PostconditionT m (ULift Bool)`. The `PostconditionT` transformer allows
+the caller to intrinsically prove properties about `f`'s return value in the monad `m`, enabling
+termination proofs depending on the specific behavior of `f`.
+
+**Marble diagram (ignoring monadic effects):**
+
+Assuming that the predicate `P` accepts `a` and `b` but rejects `c`:
 
 ```text
-it               ---a----b---c--d-e--⊥
-it.takeWhile P   ---a----b---⊥
+it                        ---a----b---c--d-e--⊥
+it.takeWhileWithProof P   ---a----b---⊥
+
+it                        ---a----⊥
+it.takeWhileWithProof P   ---a----⊥
 ```
 
 **Termination properties:**
@@ -44,7 +55,7 @@ it.takeWhile P   ---a----b---⊥
 * `Finite` instance: only if `it` is finite
 * `Productive` instance: only if `it` is productive
 
-Depending on `P`, it is possible `it.takeWhile P` is finite (or productive) although `it` is not.
+Depending on `P`, it is possible that `it.takeWhileWithProof P` is finite (or productive) although `it` is not.
 In this case, the `Finite` (or `Productive`) instance needs to be proved manually.
 
 **Performance:**
@@ -52,9 +63,81 @@ In this case, the `Finite` (or `Productive`) instance needs to be proved manuall
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. Then
 it terminates.
 -/
-@[inline]
+@[always_inline, inline]
 def IterM.takeWhileWithProof (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
   (toIterM (TakeWhile.mk (P := P) it) m β : IterM m β)
+
+/--
+Given an iterator `it` and a monadic predicate `P`, `it.takeWhileM P` is an iterator that outputs
+the values emitted by `it` until one of those values is rejected by `P`.
+If some emitted value is rejected by `P`, the value is dropped and the iterator terminates.
+
+If `P` is pure, then the simpler variant `takeWhile` can be used instead.
+
+**Marble diagram (ignoring monadic effects):**
+
+Assuming that the predicate `P` accepts `a` and `b` but rejects `c`:
+
+```text
+it                ---a----b---c--d-e--⊥
+it.takeWhileM P   ---a----b---⊥
+
+it                ---a----⊥
+it.takeWhileM P   ---a----⊥
+```
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` is finite
+* `Productive` instance: only if `it` is productive
+
+Depending on `P`, it is possible that `it.takeWhileM P` is finite (or productive) although `it` is not.
+In this case, the `Finite` (or `Productive`) instance needs to be proved manually.
+
+**Performance:**
+
+This combinator calls `P` on each output of `it` until the predicate evaluates to false. Then
+it terminates.
+-/
+@[always_inline, inline]
+def IterM.takeWhileM [Monad m] (P : β → m (ULift Bool)) (it : IterM (α := α) m β) :=
+  (it.takeWhileWithProof (monadLift ∘ P) : IterM m β)
+
+/--
+Given an iterator `it` and a predicate `P`, `it.takeWhile P` is an iterator that outputs
+the values emitted by `it` until one of those values is rejected by `P`.
+If some emitted value is rejected by `P`, the value is dropped and the iterator terminates.
+
+In situations where `f` is monadic, use `takeWhileM` instead.
+
+**Marble diagram (ignoring monadic effects):**
+
+Assuming that the predicate `P` accepts `a` and `b` but rejects `c`:
+
+```text
+it               ---a----b---c--d-e--⊥
+it.takeWhile P   ---a----b---⊥
+
+it               ---a----⊥
+it.takeWhile P   ---a----⊥
+```
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` is finite
+* `Productive` instance: only if `it` is productive
+
+Depending on `P`, it is possible that `it.takeWhile P` is finite (or productive) although `it` is not.
+In this case, the `Finite` (or `Productive`) instance needs to be proved manually.
+
+**Performance:**
+
+This combinator calls `P` on each output of `it` until the predicate evaluates to false. Then
+it terminates.
+-/
+@[always_inline, inline]
+def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
+  (it.takeWhileM (pure ∘ ULift.up ∘ P) : IterM m β)
 
 inductive TakeWhile.PlausibleStep [Iterator α m β] {P} (it : IterM (α := TakeWhile α m β P) m β) :
     (step : IterStep (IterM (α := TakeWhile α m β P) m β) β) → Prop where

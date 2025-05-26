@@ -891,8 +891,8 @@ theorem getElem?_push {xs : Vector α n} {x : α} {i : Nat} : (xs.push x)[i]? = 
   (repeat' split) <;> first | rfl | omega
 
 set_option linter.indexVariables false in
-@[simp] theorem getElem?_push_size {xs : Vector α n} {x : α} : (xs.push x)[n]? = some x := by
-  simp [getElem?_push]
+theorem getElem?_push_size {xs : Vector α n} {x : α} : (xs.push x)[n]? = some x := by
+  simp
 
 @[simp] theorem getElem_singleton {a : α} (h : i < 1) : #v[a][i] = a :=
   match i, h with

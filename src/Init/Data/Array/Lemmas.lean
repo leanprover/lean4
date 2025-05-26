@@ -189,8 +189,8 @@ theorem getElem?_push {xs : Array α} {x} : (xs.push x)[i]? = if i = xs.size the
   simp [getElem?_def, getElem_push]
   (repeat' split) <;> first | rfl | omega
 
-@[simp] theorem getElem?_push_size {xs : Array α} {x} : (xs.push x)[xs.size]? = some x := by
-  simp [getElem?_push]
+theorem getElem?_push_size {xs : Array α} {x} : (xs.push x)[xs.size]? = some x := by
+  simp
 
 @[simp] theorem getElem_singleton {a : α} {i : Nat} (h : i < 1) : #[a][i] = a :=
   match i, h with

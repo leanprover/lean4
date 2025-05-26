@@ -4425,7 +4425,8 @@ theorem getElem!_eq_getD [Inhabited α] {xs : Array α} {i} : xs[i]! = xs.getD i
 
 /-! # mem -/
 
-@[simp, grind =] theorem mem_toList {a : α} {xs : Array α} : a ∈ xs.toList ↔ a ∈ xs := mem_def.symm
+@[deprecated mem_toList_iff (since := "2025-05-26")]
+theorem mem_toList {a : α} {xs : Array α} : a ∈ xs.toList ↔ a ∈ xs := mem_def.symm
 
 @[deprecated not_mem_empty (since := "2025-03-25")]
 theorem not_mem_nil (a : α) : ¬ a ∈ #[] := nofun
@@ -4474,7 +4475,7 @@ theorem getElem?_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size]? = some
   simp
 
 @[simp, grind =] theorem forIn'_toList [Monad m] {xs : Array α} {b : β} {f : (a : α) → a ∈ xs.toList → β → m (ForInStep β)} :
-    forIn' xs.toList b f = forIn' xs b (fun a m b => f a (mem_toList.mpr m) b) := by
+    forIn' xs.toList b f = forIn' xs b (fun a m b => f a (mem_toList_iff.mpr m) b) := by
   cases xs
   simp
 

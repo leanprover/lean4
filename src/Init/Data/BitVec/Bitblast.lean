@@ -2823,6 +2823,7 @@ theorem aux1 {x : BitVec w} (hw : 1 < w) (hk : 0 < k) (hk' : k < w) : -- at leas
 theorem aux2 {x y : BitVec w} (hw : 1 < w) :
   clz x + clz y ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) (by omega) := by sorry
 
+
 theorem aux3 {x y : BitVec w} (hw : 1 < w) :
   resRec x y (w - 1) (by sorry) (by sorry) (by sorry) → clz x + clz y ≤ w - 2 := by sorry
 

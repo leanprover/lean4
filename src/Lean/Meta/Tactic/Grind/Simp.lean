@@ -16,7 +16,7 @@ import Lean.Meta.Tactic.Grind.Canon
 namespace Lean.Meta.Grind
 
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
-private def simpCore (e : Expr) : GrindM Simp.Result := do
+private def simpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
   let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
   let ctx := (← readThe Context).simp
   let (r, simp) ← Simp.mainCore e ctx simp (methods := (← readThe Context).simpMethods)

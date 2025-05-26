@@ -3239,7 +3239,7 @@ theorem foldrM_reverse [Monad m] {xs : Array α} {f : α → β → m β} {b} :
 
 theorem foldrM_push [Monad m] {f : α → β → m β} {init : β} {xs : Array α} {a : α} :
     (xs.push a).foldrM f init = f a init >>= xs.foldrM f := by
-  simp only [foldrM_eq_reverse_foldlM_toList, push_toList, List.reverse_append, List.reverse_cons,
+  simp only [foldrM_eq_reverse_foldlM_toList, toList_push, List.reverse_append, List.reverse_cons,
     List.reverse_nil, List.nil_append, List.singleton_append, List.foldlM_cons, List.foldlM_reverse]
 
 /--
@@ -3644,7 +3644,7 @@ theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} {r : β �
 theorem back?_eq_some_iff {xs : Array α} {a : α} :
     xs.back? = some a ↔ ∃ ys : Array α, xs = ys.push a := by
   rcases xs with ⟨xs⟩
-  simp only [List.back?_toArray, List.getLast?_eq_some_iff, toArray_eq, push_toList]
+  simp only [List.back?_toArray, List.getLast?_eq_some_iff, toArray_eq, toList_push]
   constructor
   · rintro ⟨ys, rfl⟩
     exact ⟨ys.toArray, by simp⟩

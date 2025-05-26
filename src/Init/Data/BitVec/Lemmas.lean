@@ -5371,11 +5371,11 @@ theorem neg_toInt_neg {x : BitVec w} (h : x.msb = false) :
     -(-x).toInt = x.toNat := by
   simp [toInt_neg_eq_of_msb h, toInt_eq_toNat_of_msb, h]
 
-theorem toNat_neg_lt (x : BitVec w) (h_msb : x.msb = true) :
+theorem toNat_neg_lt (x : BitVec w) (hmsb : x.msb = true) :
     (-x).toNat ≤ 2^(w-1) := by
   by_cases hw : w = 0; subst hw; simp [BitVec.eq_nil x]
   by_cases hx : x = 0; subst hx; simp
-  have := BitVec.le_toNat_of_msb_true h_msb
+  have := BitVec.le_toNat_of_msb_true hmsb
   have hypos : 0 < x.toNat := by simp [toNat_eq] at hx; omega
   rw [toNat_neg, Nat.mod_eq_of_lt (by omega), ← Nat.two_pow_pred_add_two_pow_pred (by omega),
     ←Nat.two_mul]

@@ -23,8 +23,7 @@ jobs:
               core.setFailed('PR has both "awaiting-mathlib" and "breaks-mathlib" labels.');
             } else if (hasAwaiting && !hasBreaks && !hasBuilds) {
               // Create a neutral check run (yellow circle)
-              const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-              await octokit.rest.checks.create({
+              await github.rest.checks.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 name: "awaiting-mathlib label check",

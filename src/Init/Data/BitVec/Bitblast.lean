@@ -1810,6 +1810,7 @@ theorem toNat_pos_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
   simp [toNat_eq] at hx
   omega
 
+@[simp]
 theorem toInt_umod_neg_add {x y : BitVec w} (humod : ¬y.toInt ∣ x.toInt) (hymsb : y.msb = true) (hxmsb : x.msb = false) :
     (x % -y + y).toInt = x.toInt % y.toInt + y.toInt := by
   rcases w with _|w ; simp [of_length_zero]

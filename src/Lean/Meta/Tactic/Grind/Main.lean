@@ -55,12 +55,11 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
   }
 
 def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM α := do
-  let scState := ShareCommon.State.mk _
-  let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
-  let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
-  let (bfalseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``Bool.false)
-  let (btrueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``Bool.true)
-  let (natZExpr, scState)  := ShareCommon.State.shareCommon scState (mkNatLit 0)
+  let (falseExpr, scState)  := shareCommonAlpha (mkConst ``False) {}
+  let (trueExpr, scState)   := shareCommonAlpha (mkConst ``True) scState
+  let (bfalseExpr, scState) := shareCommonAlpha (mkConst ``Bool.false) scState
+  let (btrueExpr, scState)  := shareCommonAlpha (mkConst ``Bool.true) scState
+  let (natZExpr, scState)   := shareCommonAlpha (mkNatLit 0) scState
   let simprocs := params.normProcs
   let simp := params.norm
   let config := params.config

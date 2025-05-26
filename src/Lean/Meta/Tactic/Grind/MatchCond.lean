@@ -262,6 +262,8 @@ private partial def isStatisfied (e : Expr) : GoalM Bool := do
     e := b
   return false
 
+-- TODO: we don't have support for offset equalities
+
 /-- Constructs a proof for a satisfied `match`-expression condition. -/
 private partial def mkMatchCondProof? (e : Expr) : GoalM (Option Expr) := do
   let_expr Grind.MatchCond f ← e | return none

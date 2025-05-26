@@ -15,7 +15,15 @@ namespace Std.Iterators
 
 variable {α₁ α₂ β₁ β₂ : Type w} {m : Type w → Type w'}
 
-def Iter.Intermediate.zip [Iterator α₁ Id β₁]
+/--
+Constructs intermediate states of an iterator created with the combinator `Iter.zip`.
+When `left.zip right` has already obtained a value from `left` but not yet from right,
+it remembers `left`'s value in a field of its internal state. This intermediate state
+cannot be created directly with `Iter.zip`.
+
+`Intermediate.zip` is meant to be used only for verification purposes.
+-/
+noncomputable def Iter.Intermediate.zip [Iterator α₁ Id β₁]
     (it₁ : Iter (α := α₁) β₁)
     (memo : (Option { out : β₁ //
         ∃ it : Iter (α := α₁) β₁, it.toIterM.IsPlausibleOutput out }))

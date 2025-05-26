@@ -167,7 +167,7 @@ def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Resul
     let issues   := (← get).issues
     let trace    := (← get).trace
     let counters := (← get).counters
-    let simp     := (← get).simpStats
+    let simp     := { (← get).simp with }
     if failure?.isNone then
       -- If there are no failures and diagnostics are enabled, we still report the performance counters.
       if (← isDiagnosticsEnabled) then

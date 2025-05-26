@@ -124,7 +124,7 @@ structure State where
   Remark: we currently do not reuse congruence theorems
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
-  simpStats  : Simp.Stats := {}
+  simp       : Simp.State := {}
   trueExpr   : Expr
   falseExpr  : Expr
   natZExpr   : Expr
@@ -150,6 +150,19 @@ private def MethodsRef : Type := MethodsRefPointed.type
 instance : Nonempty MethodsRef := MethodsRefPointed.property
 
 abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
+
+/--
+Reset the `simp` cache maintained by `grind`.
+Recall that the default discharger used in `simp` may take assumptions into account.
+So, we use this function to reset the cache whenever we add new assumptions and
+switch to a different branch of the search tree.
+Note that we do not reset the `dsimp` cache nor the congruence cache since they
+are not affected.
+-/
+-- TODO: consider using a discharger that does not take assumptions into account,
+-- or track their use more carefully to minimize the number of resets.
+def resetSimpCache : GrindM Unit :=
+  modify fun s => { s with simp.cache := {} }
 
 @[inline] def mapGrindM [MonadControlT GrindM m] [Monad m] (f : {α : Type} → GrindM α → GrindM α) {α} (x : m α) : m α :=
   controlAt GrindM fun runInBase => f <| runInBase x

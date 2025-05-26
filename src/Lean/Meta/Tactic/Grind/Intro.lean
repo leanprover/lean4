@@ -224,6 +224,7 @@ def intros (generation : Nat) : SearchM Unit := withCurrGoalContext do
   repeat
     if (← isInconsistent) then
       return ()
+    resetSimpCache
     match (← introNext (← getGoal) generation) with
     | .done goal =>
       let goal ← exfalsoIfNotProp goal

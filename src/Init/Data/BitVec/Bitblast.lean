@@ -1839,15 +1839,12 @@ theorem toInt_smod {x y : BitVec w} :
     rw [toInt_umod, Int.fmod_eq_emod_of_nonneg x.toInt (toInt_nonneg_of_msb_false hymsb),
       toInt_eq_toNat_of_msb hxmsb, toInt_eq_toNat_of_msb hymsb,
       Int.bmod_eq_of_le_mul_two (by omega) (by omega)]
-  · by_cases hx_dvd_y : y.toInt ∣ x.toInt
-    · have := (@toInt_dvd_toInt_iff_of_msb_false_msb_true (w + 1) x y hxmsb hymsb).mp hx_dvd_y
-      simp [hx_dvd_y, Int.fmod_eq_zero_of_dvd, this]
-    · have hxnonneg := toInt_nonneg_of_msb_false hxmsb
-      have hynonpos := toInt_neg_of_msb_true hymsb
-      have := (@toInt_dvd_toInt_iff_of_msb_false_msb_true (w + 1) x y hxmsb hymsb)
-      simp only [hx_dvd_y, false_iff] at this
-      simp only [this]
-      simp only [Int.fmod_eq_emod, show ¬0 ≤ y.toInt by omega]
+  · have := toInt_dvd_toInt_iff_of_msb_false_msb_true hxmsb hymsb
+    by_cases hx_dvd_y : y.toInt ∣ x.toInt
+    · simp [show x % -y = 0#(w + 1) by simp_all, hx_dvd_y, Int.fmod_eq_zero_of_dvd]
+    · have hynonpos := toInt_neg_of_msb_true hymsb
+      simp only [show ¬x % -y = 0#(w + 1) by simp_all, show ¬0 ≤ y.toInt by omega,
+        Int.fmod_eq_emod]
       simp [hx_dvd_y, hymsb, hxmsb, toInt_umod_neg_add hx_dvd_y]
   · have hynonneg := toInt_nonneg_of_msb_false hymsb
     rw [Int.fmod_eq_emod_of_nonneg x.toInt (b := y.toInt) (by omega)]

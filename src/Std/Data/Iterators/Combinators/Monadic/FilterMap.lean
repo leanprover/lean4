@@ -19,7 +19,12 @@ This file provides iterator combinators for filtering and mapping.
 
 Several variants of these combinators are provided:
 
-* `M` suffix: monadic mapping function
+* `M` suffix: Instead of a pure function, these variants take a monadic function. Given a suitable
+  `MonadLiftT` instance, they also allow lifting the iterator to another monad first and then
+  applying the mapping function in this monad.
+* `WithProof` suffix: These variants take a monadic function where the return type in the monad
+  is a subtype. This variant is sometimes necessary for the intrinsic verification of an iterator,
+  and particularly for termination proofs.
 -/
 
 namespace Std.Iterators
@@ -56,9 +61,19 @@ def IterM.InternalCombinators.map {α β γ : Type w} {m : Type w → Type w'}
   toIterM ⟨it⟩ n γ
 
 /--
-Given an iterator `it`, a monadic `Option`-valued mapping function `f` and a monad transformation `mf`,
-`it.filterMapWithProof f mf` is an iterator that applies `f` to each output of `it`. If `f` returns `none`,
-the output is dropped. If it returns `some x`, then the iterator yields `x`.
+*Note: This is a very general combinator that requires an advanced understanding of monads, dependent types
+and termination proofs. The variants `filterMap` and `filterMapM` are easier to use and sufficient
+for most use cases.*
+
+If `it` is an iterator, then `it.filterMapWithProof f` is another iterator that applies a monadic
+function `f` to all values emitted by `it`. `f` is expected to return an `Option` inside the monad.
+If `f` returns `none`, then nothing is emitted; if it returns `some x`, then `x` is emitted.
+
+`f` is expected to return `PostconditionT n (Option _)`. The base iterator `it` being monadic in
+`m`, `n` can be different from `m`, but `it.filterMapWithProof f` expects a `MonadLiftT m n`
+instance. The `PostconditionT` transformer allows the caller to intrinsically prove properties about
+`f`'s return value in the monad `n`, enabling termination proofs depending on the specific behavior
+of `f`.
 
 **Marble diagram (without monadic effects):**
 
@@ -67,16 +82,29 @@ it                        ---a --b--c --d-e--⊥
 it.filterMapWithProof     ---a'-----c'-------⊥
 ```
 
-(given that `f a = some a'`, `f c = some c'` and `f b = f d = d e = none`)
+(given that `f a = pure (some a)'`, `f c = pure (some c')` and `f b = f d = d e = pure none`)
 
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
 * `Productive` instance: not available
 
+For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
+this combinator will preserve productiveness. If `f` is an `ExceptT` monad and will always fail,
+then `it.filterMapWithProof` will be finite even if `it` isn't. In the first case, consider
+using the `map`/`mapM`/`mapWithProof` combinators instead, which provide more instances out of
+the box.
+
+In such situations, the missing instances can be proved manually if the postcondition bundled in
+the `PostconditionT n` monad is strong enough. If `f` always returns `some _`, a suitable
+postcondition is `fun x => x.isSome`; if `f` always fails, a suitable postcondition might be
+`fun _ => False`.
+
 **Performance:**
 
-This combinator incurs an additional O(1) cost with each output of `it` in addition to the cost of the monadic effects.
+For each value emitted by the base iterator `it`, this combinator calls `f` and matches on the
+returned `Option` value.
 -/
 @[inline]
 def IterM.filterMapWithProof {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
@@ -181,7 +209,6 @@ instance {α β γ : Type w} {m : Type w → Type w'}
     IteratorCollectPartial (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
--- TODO
 instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type w'''}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
@@ -239,29 +266,44 @@ instance Map.instIteratorLoopPartial {α β γ : Type w} {m : Type w → Type w'
   .defaultImplementation
 
 /--
-Given an iterator `it`, a monadic mapping function `f` and a monad transformation `mf`,
-`it.mapMH f mf` is an iterator that applies `f` to each output of `it`. If `f` returns `none`,
-the output is dropped. If it returns `some x`, then the iterator yields `x`.
+*Note: This is a very general combinator that requires an advanced understanding of monads, dependent types
+and termination proofs. The variants `map` and `mapM` are easier to use and sufficient
+for most use cases.*
+
+If `it` is an iterator, then `it.mapWithProof f` is another iterator that applies a monadic
+function `f` to all values emitted by `it` and emits the result.
+
+`f` is expected to return `PostconditionT n _`. The base iterator `it` being monadic in
+`m`, `n` can be different from `m`, but `it.mapWithProof f` expects a `MonadLiftT m n`
+instance. The `PostconditionT` transformer allows the caller to intrinsically prove properties about
+`f`'s return value in the monad `n`, enabling termination proofs depending on the specific behavior
+of `f`.
 
 **Marble diagram (without monadic effects):**
 
 ```text
-it                 ---a --b --c --d -e --⊥
-it.mapMH           ---a'--b'--c'--d'-e'--⊥
+it                  ---a --b --c --d -e ----⊥
+it.mapWithProof     ---a'--b'--c'--d'-e'----⊥
 ```
 
-(given that `f a = a'` and so on)
+(given that `f a = pure a'`, `f b = pure b'` etc.)
 
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
 * `Productive` instance: only if `it` is productive
 
-_TODO_: prove `Productive`. This requires us to wrap the FilterMap into a new type.
+For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+will always fail, then `it.mapWithProof` will be finite even if `it` isn't.
+
+In such situations, the missing instances can be proved manually if the postcondition bundled in
+the `PostconditionT n` monad is strong enough. In the given example, a suitable postcondition might
+be `fun _ => False`.
 
 **Performance:**
 
-This combinator incurs an additional O(1) cost with each output of `it` in addition to the cost of the monadic effects.
+For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[inline]
 def IterM.mapWithProof {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
@@ -270,27 +312,44 @@ def IterM.mapWithProof {α β γ : Type w} {m : Type w → Type w'} {n : Type w 
   InternalCombinators.map (fun {_} => monadLift) f it
 
 /--
-Given an iterator `it`, a monadic predicate `p` and a monad transformation `mf`,
-`it.filterMH p mf` is an iterator that applies `p` to each output of `it`. If `p` returns `false`,
-the output is dropped. Otherwise, the iterator forwards the output of `it`.
+*Note: This is a very general combinator that requires an advanced understanding of monads,
+dependent types and termination proofs. The variants `filter` and `filterM` are easier to use and
+sufficient for most use cases.*
+
+If `it` is an iterator, then `it.filterWithProof f` is another iterator that applies a monadic
+predicate `f` to all values emitted by `it` and emits them only if they are accepted by `f`.
+
+`f` is expected to return `PostconditionT n (ULift Bool)`. The base iterator `it` being monadic in
+`m`, `n` can be different from `m`, but `it.filterWithProof f` expects a `MonadLiftT m n`
+instance. The `PostconditionT` transformer allows the caller to intrinsically prove properties about
+`f`'s return value in the monad `n`, enabling termination proofs depending on the specific behavior
+of `f`.
 
 **Marble diagram (without monadic effects):**
 
 ```text
-it                 ---a--b--c--d-e--⊥
-it.filterMH        ---a-----c-------⊥
+it                     ---a--b--c--d-e--⊥
+it.filterWithProof     ---a-----c-------⊥
 ```
 
-(given that `f a = f c = true'` and `f b = f d = d e = false`)
+(given that `f a = f c = pure true` and `f b = f d = d e = pure false`)
 
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
 * `Productive` instance: not available
 
+For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+will always fail, then `it.filterWithProof` will be finite -- and productive -- even if `it` isn't.
+
+In such situations, the missing instances can be proved manually if the postcondition bundled in
+the `PostconditionT n` monad is strong enough. In the given example, a suitable postcondition might
+be `fun _ => False`.
+
 **Performance:**
 
-This combinator incurs an additional O(1) cost with each output of `it` in addition to the cost of the monadic effects.
+For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[inline]
 def IterM.filterWithProof {α β : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
@@ -299,36 +358,228 @@ def IterM.filterWithProof {α β : Type w} {m : Type w → Type w'} {n : Type w 
   (it.filterMapWithProof
     (fun b => (f b).map (fun x => if x.down = true then some b else none)) : IterM n β)
 
-@[inline]
-def IterM.filterMap {α β γ : Type w} {m : Type w → Type w'}
-    [Iterator α m β] [Monad m] (f : β → Option γ) (it : IterM (α := α) m β) :=
-  (it.filterMapWithProof (fun b => pure (f b)) : IterM m γ)
+/--
+If `it` is an iterator, then `it.filterMapM f` is another iterator that applies a monadic
+function `f` to all values emitted by `it`. `f` is expected to return an `Option` inside the monad.
+If `f` returns `none`, then nothing is emitted; if it returns `some x`, then `x` is emitted.
 
-@[inline]
-def IterM.map {α β γ : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m] (f : β → γ)
-    (it : IterM (α := α) m β) :=
-  (it.mapWithProof (fun b => pure (f b)) : IterM m γ)
+The base iterator `it` being monadic in `m`, `f` can return values in any monad `n` for which a
+`MonadLiftT m n` instance is available.
 
-@[inline]
-def IterM.filter {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m]
-    (f : β → Bool) (it : IterM (α := α) m β) :=
-  (it.filterMap (fun b => if f b then some b else none) : IterM m β)
+If `f` is pure, then the simpler variant `it.filterMap` can be used instead.
 
+**Marble diagram (without monadic effects):**
+
+```text
+it                ---a --b--c --d-e--⊥
+it.filterMapM     ---a'-----c'-------⊥
+```
+
+(given that `f a = pure (some a)'`, `f c = pure (some c')` and `f b = f d = d e = pure none`)
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` is finite
+* `Productive` instance: not available
+
+For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
+this combinator will preserve productiveness. If `f` is an `ExceptT` monad and will always fail,
+then `it.filterMapM` will be finite even if `it` isn't. In the first case, consider
+using the `map`/`mapM`/`mapWithProof` combinators instead, which provide more instances out of
+the box.
+
+If that does not help, the more general combinator `it.filterMapWithProof f` makes it possible to
+manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+
+**Performance:**
+
+For each value emitted by the base iterator `it`, this combinator calls `f` and matches on the
+returned `Option` value.
+-/
 @[inline]
 def IterM.filterMapM {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Iterator α m β] [Monad n] [MonadLiftT m n]
     (f : β → n (Option γ)) (it : IterM (α := α) m β) :=
   (it.filterMapWithProof (fun b => monadLift (f b)) : IterM n γ)
 
+/--
+If `it` is an iterator, then `it.mapM f` is another iterator that applies a monadic
+function `f` to all values emitted by `it` and emits the result.
+
+The base iterator `it` being monadic in `m`, `f` can return values in any monad `n` for which a
+`MonadLiftT m n` instance is available.
+
+If `f` is pure, then the simpler variant `it.map` can be used instead.
+
+**Marble diagram (without monadic effects):**
+
+```text
+it          ---a --b --c --d -e ----⊥
+it.mapM     ---a'--b'--c'--d'-e'----⊥
+```
+
+(given that `f a = pure a'`, `f b = pure b'` etc.)
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` is finite
+* `Productive` instance: only if `it` is productive
+
+For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+will always fail, then `it.mapM` will be finite even if `it` isn't.
+
+If that does not help, the more general combinator `it.mapWithProof f` makes it possible to
+manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+
+**Performance:**
+
+For each value emitted by the base iterator `it`, this combinator calls `f`.
+-/
 @[inline]
 def IterM.mapM {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Iterator α m β]
     [Monad n] [MonadLiftT m n] (f : β → n γ) (it : IterM (α := α) m β) :=
   (it.filterMapWithProof (fun b => some <$> monadLift (f b)) : IterM n γ)
 
+/--
+If `it` is an iterator, then `it.filterM f` is another iterator that applies a monadic
+predicate `f` to all values emitted by `it` and emits them only if they are accepted by `f`.
+
+The base iterator `it` being monadic in `m`, `f` can return values in any monad `n` for which a
+`MonadLiftT m n` instance is available.
+
+If `f` is pure, then the simpler variant `it.filter` can be used instead.
+
+**Marble diagram (without monadic effects):**
+
+```text
+it             ---a--b--c--d-e--⊥
+it.filterM     ---a-----c-------⊥
+```
+
+(given that `f a = f c = pure true` and `f b = f d = d e = pure false`)
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` is finite
+* `Productive` instance: not available
+
+For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+will always fail, then `it.filterWithProof` will be finite -- and productive -- even if `it` isn't.
+
+In such situations, the more general combinator `it.filterWithProof f` makes it possible to
+manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+
+**Performance:**
+
+For each value emitted by the base iterator `it`, this combinator calls `f`.
+-/
 @[inline]
 def IterM.filterM {α β : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Iterator α m β]
     [Monad n] [MonadLiftT m n] (f : β → n (ULift Bool)) (it : IterM (α := α) m β) :=
   (it.filterMapWithProof
     (fun b => (PostconditionT.lift (f b)).map (if ·.down = true then some b else none)) : IterM n β)
+
+/--
+If `it` is an iterator, then `it.filterMap f` is another iterator that applies a function `f` to all
+values emitted by `it`. `f` is expected to return an `Option`. If it returns `none`, then nothing is
+emitted; if it returns `some x`, then `x` is emitted.
+
+In situations where `f` is monadic, use `filterMapM` instead.
+
+**Marble diagram:**
+
+```text
+it               ---a --b--c --d-e--⊥
+it.filterMap     ---a'-----c'-------⊥
+```
+
+(given that `f a = some a'`, `f c = c'` and `f b = f d = d e = none`)
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` is finite
+* `Productive` instance: not available
+
+For certain mapping functions `f`, the resulting iterator will be productive even though
+no `Productive` instance is provided. For example, if `f` never returns `none`, then
+this combinator will preserve productiveness. In such situations, the missing instance needs to
+be proved manually.
+
+**Performance:**
+
+For each value emitted by the base iterator `it`, this combinator calls `f` and matches on the
+returned `Option` value.
+-/
+@[inline]
+def IterM.filterMap {α β γ : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Monad m] (f : β → Option γ) (it : IterM (α := α) m β) :=
+  (it.filterMapWithProof (fun b => pure (f b)) : IterM m γ)
+
+/--
+If `it` is an iterator, then `it.map f` is another iterator that applies a
+function `f` to all values emitted by `it` and emits the result.
+
+In situations where `f` is monadic, use `mapM` instead.
+
+**Marble diagram:**
+
+```text
+it         ---a --b --c --d -e ----⊥
+it.map     ---a'--b'--c'--d'-e'----⊥
+```
+
+(given that `f a = a'`, `f b = b'` etc.)
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` is finite
+* `Productive` instance: only if `it` is productive
+
+**Performance:**
+
+For each value emitted by the base iterator `it`, this combinator calls `f`.
+-/
+@[inline]
+def IterM.map {α β γ : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m] (f : β → γ)
+    (it : IterM (α := α) m β) :=
+  (it.mapWithProof (fun b => pure (f b)) : IterM m γ)
+
+/--
+If `it` is an iterator, then `it.filter f` is another iterator that applies a
+predicate `f` to all values emitted by `it` and emits them only if they are accepted by `f`.
+
+In situations where `f` is monadic, use `filterM` instead.
+
+**Marble diagram (without monadic effects):**
+
+```text
+it            ---a--b--c--d-e--⊥
+it.filter     ---a-----c-------⊥
+```
+
+(given that `f a = f c = true` and `f b = f d = d e = false`)
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` is finite
+* `Productive` instance: not available
+
+For certain mapping functions `f`, the resulting iterator will be productive even though
+no `Productive` instance is provided. For example, if `f` always returns `True`, the resulting
+iterator will be productive as long as `it` is. In such situations, the missing instance needs to
+be proved manually.
+
+**Performance:**
+
+For each value emitted by the base iterator `it`, this combinator calls `f` and matches on the
+returned value.
+-/
+@[inline]
+def IterM.filter {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m]
+    (f : β → Bool) (it : IterM (α := α) m β) :=
+  (it.filterMap (fun b => if f b then some b else none) : IterM m β)
 
 end Std.Iterators

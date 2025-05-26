@@ -2429,7 +2429,7 @@ theorem clzAux_le {x : BitVec w} {n : Nat} :
     · simp [hn1]
     · simp [hn1]; omega
 
-theorem clzAux_eq_iff {x : BitVec w} {n : Nat}:
+theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
     clzAux x n = (n + 1) ↔ (∀ i, i ≤ n → x.getLsbD i = false) := by
   induction n
   · case zero => simp [clzAux]
@@ -2457,34 +2457,62 @@ theorem clzAux_eq_iff {x : BitVec w} {n : Nat}:
         apply h
         omega
 
-theorem clzAux_le_of_ne_zero{x : BitVec w} (h : x ≠ 0#w) : clzAux x n ≤ n:= by
-  induction n generalizing x
-  · case zero =>
-    simp
-
-    sorry
+theorem clzAux_lt_iff {x : BitVec w} {n : Nat} :
+    clzAux x n < (n + 1) ↔ (∃ i, i ≤ n ∧ x.getLsbD i = true) := by
+  induction n
+  · case zero => simp [clzAux]
   · case succ n ihn =>
-    simp [clzAux]
-    sorry
+    unfold clzAux
+    by_cases hxn: x.getLsbD (n + 1)
+    · simp [hxn]
+      exists n + 1, by omega
+    · simp [hxn]
+      have h1 : 1 + x.clzAux n < n + 1 + 1 ↔ x.clzAux n < n + 1 := by omega
+      simp [h1]
+      simp [ihn]
+      constructor
+      · intro h
+        obtain ⟨j, h2, h3⟩ := h
+        exists j, by omega
+      · intro h
+        obtain ⟨j, h2, h3⟩ := h
+        exists j
+        by_cases hjn : j = n + 1
+        · simp_all
+        · simp [show j ≤ n by omega]
+          exact h3
 
 /-- Count the number of leading zeroes. -/
-def clz {w : Nat} (x : BitVec w) : Nat := clzAux x (w - 1)
+def clz {w : Nat} (x : BitVec w) : Nat := if w = 0 then 0 else clzAux x (w - 1)
 
 -- theorems about the exclusion of x = 0#w
 -- explain the hyoitheses
 -- y.clz = w ↔ y = 0#w (simp lemma)
 
+theorem clz_le {x : BitVec w} :
+    clz x ≤ w := by
+  unfold clz
+  rcases w with _|w
+  · simp
+  · simp [clzAux_le]
+
+theorem clz_zero : clz 0#w = w := by
+  rcases w with _|w
+  · simp [clz]
+  · unfold clz
+    simp [clzAux_eq_iff]
+
 @[simp]
 theorem clz_eq_length_iff {x : BitVec w} :
-    clz x = w ↔ x = 0#w := by sorry
-  -- by_cases hx : x = 0#w
-  -- · unfold clz clzAux
-  --   simp [hx]
-  -- · simp [hx]
-  --   unfold clz
-  --   simp [hx]
+    clz x = w ↔ x = 0#w := by
+  constructor
+  · intro h
+    have := clz_le (x := x)
 
-  --   sorry
+
+    sorry
+  · intro h
+    simp [h, clz_zero]
 
 /--
   preliminary overflow flag for fast umulOverflow circuit

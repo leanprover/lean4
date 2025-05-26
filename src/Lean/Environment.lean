@@ -454,6 +454,9 @@ private partial def AsyncConsts.findRec? (aconsts : AsyncConsts) (declName : Nam
   let c ← aconsts.findPrefix? declName
   if c.constInfo.name == declName then
     return c
+  -- If privacy is the only difference between `declName` and `findPrefix?` result, we can assume
+  -- `declName` does not exist according to the `add` invariant
+  guard <| privateToUserName c.constInfo.name != privateToUserName declName
   let aconsts ← c.consts.get.get? AsyncConsts
   AsyncConsts.findRec? aconsts declName
 

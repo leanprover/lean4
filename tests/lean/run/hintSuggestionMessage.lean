@@ -93,7 +93,7 @@ Hint: Hint message
   ̲B̲
   ̲C̲
 -/
-#guard_msgs in
+#guard_msgs (whitespace := exact) in
 run_meta do
   let hint ← MessageData.hint m!"Hint message" #["A\nB\nC"]
   logInfo hint
@@ -109,7 +109,7 @@ Hint: Hint message
     ̲ ̲ ̲E̲
     ̲ ̲ ̲F̲
 -/
-#guard_msgs in
+#guard_msgs (whitespace := exact) in
 run_meta do
   let hint ← MessageData.hint m!"Hint message" #["A\nB\nC", "D\n  E\n  F"]
   logInfo hint
@@ -181,24 +181,24 @@ Hint: Use one of these instead
   • l̵o̵n̵g̵W̵o̵r̵d̵W̵i̵t̵h̵o̵u̵t̵A̵n̵y̵S̵paces
   • l̵o̵n̵g̵W̵o̵r̵d̵W̵i̵t̵h̵o̵u̵t̵A̵n̵y̵S̵p̵a̵c̵e̵s̵o̲r̲d̲S̲p̲a̲c̲e̲s̲
 -/
-#guard_msgs in
+#guard_msgs (whitespace := exact) in
 #check longWordWithoutAnySpaces
 
 elab "first" "second" "third" "fourth" "fifth" : term => do
   let hint ← MessageData.hint m!"Use one of these instead"
-    #["first second third", "second fourth fifth", "fisethfofi", "second"]
+    #["first second thi", "second fourth fifth", "fisethfofi", "second"]
   throwError m!"Invalid" ++ hint
 
 /--
 error: Invalid
 
 Hint: Use one of these instead
-  • first second third ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵
+  • first second thir̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵
   • f̵i̵r̵s̵t̵ ̵second t̵h̵i̵r̵d̵ ̵fourth fifth
   • f̵i̵r̵s̵t̵ ̵s̵e̵c̵o̵n̵d̵ ̵t̵h̵i̵r̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵f̲i̲s̲e̲t̲h̲f̲o̲f̲i̲
   • f̵i̵r̵s̵t̵ ̵s̵e̵c̵o̵n̵d̵ ̵t̵h̵i̵r̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵s̲e̲c̲o̲n̲d̲
 -/
-#guard_msgs in
+#guard_msgs (whitespace := exact) in
 #check first second third fourth fifth
 
 elab "suggest_replacement%" t:term : term => do
@@ -218,7 +218,7 @@ Hint: Try one of these
   • l̵e̵t̵ ̵x ̵:̵=̵ ̵4̵2̵
     ̵ ̵ ̵2̵ ̵*̵ ̵x̵
 -/
-#guard_msgs in
+#guard_msgs (whitespace := exact) in
 #check suggest_replacement%
   let x := 42
   2 * x

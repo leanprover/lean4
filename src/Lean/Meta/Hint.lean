@@ -105,14 +105,14 @@ Refer to `TryThis.Suggestion`; this extends that structure with a `span?` field,
 hint to suggest modifications at different locations. If `span?` is not specified, then the syntax
 reference provided to `MessageData.hint` will be used.
 -/
-structure Suggestion extends TryThis.Suggestion where
+structure Suggestion extends toTryThisSuggestion : TryThis.Suggestion where
   span? : Option Syntax := none
 
 instance : Coe TryThis.SuggestionText Suggestion where
   coe t := { suggestion := t }
 
 instance : ToMessageData Suggestion where
-  toMessageData s := toMessageData s.toSuggestion
+  toMessageData s := toMessageData s.toTryThisSuggestion
 
 /--
 Produces a diff that splits either on characters, tokens, or not at all, depending on the edit
@@ -124,12 +124,12 @@ Guarantees that all actions in the output will be maximally grouped; that is, in
 def readableDiff (s s' : String) : Array (Diff.Action × String) :=
   let minLength := min s.length s'.length
   -- Given that `Diff.diff` returns a minimal diff, any length-≤3 diff can only have edits at the
-  -- front and back, or at a single interior point. This will always be fairly readable, so we can
-  -- return it without further analysis:
+  -- front and back, or at a single interior point. This will always be fairly readable (and
+  -- splitting by a larger unit would likely only be worse), so return it without further analysis:
   if charDiff.size ≤ 3 then
     charDiff
   else
-    -- The coefficients on these two constants can be tuned:
+    -- The coefficients on these two values can be tuned:
     let charDiffDistance := minLength / 5
     let wordDiffDistance := minLength
     if let some editDistance := EditDistance.levenshtein s s' wordDiffDistance then
@@ -140,12 +140,6 @@ def readableDiff (s s' : String) : Array (Diff.Action × String) :=
     else
       maxDiff
 where
-  splitChars (s : String) :=
-    s.toList.toArray
-
-  splitWords (s : String) :=
-    s.splitOn " " |>.intersperse " " |>.toArray
-
   charDiff :=
     Diff.diff (splitChars s) (splitChars s')
       |> joinEdits
@@ -158,6 +152,12 @@ where
 
   maxDiff :=
     #[(.delete, s), (.insert, s')]
+
+  splitChars (s : String) :=
+    s.toList.toArray
+
+  splitWords (s : String) :=
+    s.splitOn " " |>.intersperse " " |>.toArray
 
   joinEdits {α} (ds : Array (Diff.Action × α)) : Array (Diff.Action × Array α) :=
     ds.foldl (init := #[]) fun acc (act, c) =>
@@ -183,8 +183,10 @@ def mkSuggestionsMessage (suggestions : Array Suggestion)
   for suggestion in suggestions do
     if let some range := (suggestion.span?.getD ref).getRange? then
       let { info, suggestions := suggestionArr, range := lspRange } ←
-        processSuggestions ref range #[suggestion.toSuggestion] codeActionPrefix?
+        processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
       pushInfoLeaf info
+      -- The following access is safe because
+      -- `suggestionsArr = #[suggestion.toTryThisSuggestion].map ...` (see `processSuggestions`)
       let suggestionText := suggestionArr[0]!.2.1
       let map ← getFileMap
       let rangeContents := Substring.mk map.source range.start range.stop |>.toString
@@ -204,9 +206,9 @@ def mkSuggestionsMessage (suggestions : Array Suggestion)
         } (suggestion.messageData?.getD (mkDiffString edits))
       let widgetMsg := m!"{preInfo}{widget}{postInfo}"
       let suggestionMsg := if suggestions.size == 1 then
-        MessageData.ofFormat "\n" ++ m!"{widgetMsg}"
+        m!"\n{widgetMsg}"
       else
-        MessageData.ofFormat "\n" ++ MessageData.nest 2 m!"• {widgetMsg}"
+        m!"\n" ++ MessageData.nest 2 m!"• {widgetMsg}"
       msg := msg ++ MessageData.nestD suggestionMsg
   return msg
 

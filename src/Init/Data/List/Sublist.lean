@@ -24,14 +24,14 @@ open Nat
 section isPrefixOf
 variable [BEq α]
 
-@[simp] theorem isPrefixOf_cons₂_self [LawfulBEq α] {a : α} :
+@[simp, grind =] theorem isPrefixOf_cons₂_self [LawfulBEq α] {a : α} :
     isPrefixOf (a::as) (a::bs) = isPrefixOf as bs := by simp [isPrefixOf_cons₂]
 
 @[simp] theorem isPrefixOf_length_pos_nil {l : List α} (h : 0 < l.length) : isPrefixOf l [] = false := by
   cases l <;> simp_all [isPrefixOf]
 
-@[simp] theorem isPrefixOf_replicate {a : α} :
-    isPrefixOf l (replicate n a) = (decide (l.length ≤ n) && l.all (· == a)) := by
+@[simp, grind =] theorem isPrefixOf_replicate {a : α} :
+    isPrefixOf l (replicate n a) = ((l.length ≤ n) && l.all (· == a)) := by
   induction l generalizing n with
   | nil => simp
   | cons _ _ ih =>
@@ -45,10 +45,10 @@ end isPrefixOf
 section isSuffixOf
 variable [BEq α]
 
-@[simp] theorem isSuffixOf_cons_nil : isSuffixOf (a::as) ([] : List α) = false := by
+@[simp, grind =] theorem isSuffixOf_cons_nil : isSuffixOf (a::as) ([] : List α) = false := by
   simp [isSuffixOf]
 
-@[simp] theorem isSuffixOf_replicate {a : α} :
+@[simp, grind =] theorem isSuffixOf_replicate {a : α} :
     isSuffixOf l (replicate n a) = (decide (l.length ≤ n) && l.all (· == a)) := by
   simp [isSuffixOf, all_eq]
 
@@ -58,7 +58,8 @@ end isSuffixOf
 
 /-! ### List subset -/
 
-theorem subset_def {l₁ l₂ : List α} : l₁ ⊆ l₂ ↔ ∀ {a : α}, a ∈ l₁ → a ∈ l₂ := .rfl
+-- For now we don't annotate lemmas about `Subset` for `grind`, but instead just unfold the definition.
+@[grind =] theorem subset_def {l₁ l₂ : List α} : l₁ ⊆ l₂ ↔ ∀ {a : α}, a ∈ l₁ → a ∈ l₂ := .rfl
 
 @[simp] theorem nil_subset (l : List α) : [] ⊆ l := nofun
 
@@ -139,15 +140,15 @@ theorem subset_replicate {n : Nat} {a : α} {l : List α} (h : n ≠ 0) : l ⊆ 
 
 /-! ### Sublist and isSublist -/
 
-@[simp] theorem nil_sublist : ∀ l : List α, [] <+ l
+@[simp, grind] theorem nil_sublist : ∀ l : List α, [] <+ l
   | [] => .slnil
   | a :: l => (nil_sublist l).cons a
 
-@[simp] theorem Sublist.refl : ∀ l : List α, l <+ l
+@[simp, grind] theorem Sublist.refl : ∀ l : List α, l <+ l
   | [] => .slnil
   | a :: l => (Sublist.refl l).cons₂ a
 
-theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l₂ <+ l₃) : l₁ <+ l₃ := by
+@[grind →] theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l₂ <+ l₃) : l₁ <+ l₃ := by
   induction h₂ generalizing l₁ with
   | slnil => exact h₁
   | cons _ _ IH => exact (IH h₁).cons _
@@ -160,14 +161,14 @@ theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l
 
 instance : Trans (@Sublist α) Sublist Sublist := ⟨Sublist.trans⟩
 
-attribute [simp] Sublist.cons
+attribute [simp, grind] Sublist.cons
 
 theorem sublist_cons_self (a : α) (l : List α) : l <+ a :: l := (Sublist.refl l).cons _
 
 theorem sublist_of_cons_sublist : a :: l₁ <+ l₂ → l₁ <+ l₂ :=
   (sublist_cons_self a l₁).trans
 
-@[simp]
+@[simp, grind =]
 theorem cons_sublist_cons : a :: l₁ <+ a :: l₂ ↔ l₁ <+ l₂ :=
   ⟨fun | .cons _ s => sublist_of_cons_sublist s | .cons₂ _ s => s, .cons₂ _⟩
 
@@ -181,7 +182,7 @@ theorem sublist_or_mem_of_sublist (h : l <+ l₁ ++ a :: l₂) : l <+ l₁ ++ l�
     | .cons _ h => exact (IH h).imp_left (Sublist.cons _)
     | .cons₂ _ h => exact (IH h).imp (Sublist.cons₂ _) (.tail _)
 
-theorem Sublist.subset : l₁ <+ l₂ → l₁ ⊆ l₂
+@[grind →] theorem Sublist.subset : l₁ <+ l₂ → l₁ ⊆ l₂
   | .slnil, _, h => h
   | .cons _ s, _, h => .tail _ (s.subset h)
   | .cons₂ .., _, .head .. => .head ..
@@ -190,10 +191,10 @@ theorem Sublist.subset : l₁ <+ l₂ → l₁ ⊆ l₂
 protected theorem Sublist.mem (hx : a ∈ l₁) (hl : l₁ <+ l₂) : a ∈ l₂ :=
   hl.subset hx
 
-theorem Sublist.head_mem (s : ys <+ xs) (h) : ys.head h ∈ xs :=
+@[grind] theorem Sublist.head_mem (s : ys <+ xs) (h) : ys.head h ∈ xs :=
   s.mem (List.head_mem h)
 
-theorem Sublist.getLast_mem (s : ys <+ xs) (h) : ys.getLast h ∈ xs :=
+@[grind] theorem Sublist.getLast_mem (s : ys <+ xs) (h) : ys.getLast h ∈ xs :=
   s.mem (List.getLast_mem h)
 
 instance : Trans (@Sublist α) Subset Subset :=
@@ -208,7 +209,7 @@ instance : Trans (fun l₁ l₂ => Sublist l₂ l₁) (Membership.mem : List α 
 theorem mem_of_cons_sublist {a : α} {l₁ l₂ : List α} (s : a :: l₁ <+ l₂) : a ∈ l₂ :=
   (cons_subset.1 s.subset).1
 
-@[simp] theorem sublist_nil {l : List α} : l <+ [] ↔ l = [] :=
+@[simp, grind =] theorem sublist_nil {l : List α} : l <+ [] ↔ l = [] :=
   ⟨fun s => subset_nil.1 s.subset, fun H => H ▸ Sublist.refl _⟩
 
 theorem eq_nil_of_sublist_nil {l : List α} (s : l <+ []) : l = [] :=
@@ -218,6 +219,9 @@ theorem Sublist.length_le : l₁ <+ l₂ → length l₁ ≤ length l₂
   | .slnil => Nat.le_refl 0
   | .cons _l s => le_succ_of_le (length_le s)
   | .cons₂ _ s => succ_le_succ (length_le s)
+
+grind_pattern Sublist.length_le => l₁ <+ l₂, length l₁
+grind_pattern Sublist.length_le => l₁ <+ l₂, length l₂
 
 theorem Sublist.eq_of_length : l₁ <+ l₂ → length l₁ = length l₂ → l₁ = l₂
   | .slnil, _ => rfl

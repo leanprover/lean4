@@ -56,7 +56,7 @@ register_builtin_option grind.warning : Bool := {
 /-- Context for `GrindM` monad. -/
 structure Context where
   simp         : Simp.Context
-  simprocs     : Array Simp.Simprocs
+  simpMethods  : Simp.Methods
   config       : Grind.Config
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
@@ -124,7 +124,7 @@ structure State where
   Remark: we currently do not reuse congruence theorems
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
-  simpStats  : Simp.Stats := {}
+  simp       : Simp.State := {}
   trueExpr   : Expr
   falseExpr  : Expr
   natZExpr   : Expr

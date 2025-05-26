@@ -243,12 +243,12 @@ grind_pattern getElem_of_getElem? => c[i]?, some e
 @[simp] theorem some_getElem_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : dom c i):
     (some c[i] = c[i]?) ↔ True := by
-  simpa [some_eq_getElem?_iff, h] using ⟨h, trivial⟩
+  simp [h]
 
 @[simp] theorem getElem?_eq_some_getElem_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : dom c i):
     (c[i]? = some c[i]) ↔ True := by
-  simpa [getElem?_eq_some_iff, h] using ⟨h, trivial⟩
+  simp [h]
 
 @[deprecated getElem?_eq_none_iff (since := "2025-02-17")]
 abbrev getElem?_eq_none := @getElem?_eq_none_iff
@@ -339,7 +339,8 @@ instance : GetElem? (List α) Nat α fun as i => i < as.length where
 @[simp] theorem get!Internal_eq_getElem! [Inhabited α] {l : List α} {i : Nat} :
     l.get!Internal i = l[i]! := rfl
 
-@[simp] theorem getElem?_eq_getElem {l : List α} {i} (h : i < l.length) :
+-- This is only needed locally; after the `LawfulGetElem` instance the general `getElem?_pos` lemma applies.
+@[local simp] theorem getElem?_eq_getElem {l : List α} {i} (h : i < l.length) :
     l[i]? = some l[i] := by
   induction l generalizing i with
   | nil => cases h

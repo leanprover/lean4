@@ -1904,4 +1904,40 @@ theorem map_min [Min α] [Min β] {o o' : Option α} {f : α → β} (hf : ∀ x
     (min o o').map f = min (o.map f) (o'.map f) := by
   cases o <;> cases o' <;> simp [*]
 
+theorem wellFounded_lt {α} {rel : α → α → Prop} (h : WellFounded rel) :
+    WellFounded (Option.lt rel) := by
+  refine ⟨fun x => ?_⟩
+  have hn : Acc (Option.lt rel) none := by
+    refine Acc.intro none ?_
+    intro y hyx
+    cases y <;> cases hyx
+  cases x
+  · exact hn
+  · rename_i x
+    induction h.apply x
+    rename_i x' h ih
+    refine Acc.intro _ ?_
+    intro y hyx'
+    cases y
+    · exact hn
+    · exact ih _ hyx'
+
+theorem SomeLtNone.wellFounded_lt {α} {r : α → α → Prop} (h : WellFounded r) :
+    WellFounded (SomeLtNone.lt r) := by
+  refine ⟨?_⟩
+  intro x
+  constructor
+  intro x' hlt
+  match x' with
+  | none => contradiction
+  | some x' =>
+    clear hlt
+    induction h.apply x'
+    rename_i ih
+    constructor
+    intro x'' hlt'
+    match x'' with
+    | none => contradiction
+    | some x'' => exact ih x'' hlt'
+
 end Option

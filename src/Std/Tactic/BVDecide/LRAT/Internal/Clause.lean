@@ -10,7 +10,9 @@ import Std.Data.HashMap
 import Std.Sat.CNF.Basic
 import Std.Tactic.BVDecide.LRAT.Internal.PosFin
 import Std.Tactic.BVDecide.LRAT.Internal.Assignment
+import Init.Grind
 
+set_option grind.warning false
 
 namespace Std.Tactic.BVDecide
 namespace LRAT
@@ -98,45 +100,25 @@ instance : ToString (DefaultClause n) where
 
 namespace DefaultClause
 
-def toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
+abbrev toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
+
+attribute [grind] Literal.negate
+attribute [grind] DefaultClause.nodupkey
 
 theorem not_tautology (c : DefaultClause n) (l : Literal (PosFin n)) :
     l ∉ toList c ∨ ¬Literal.negate l ∈ toList c := by
-  simp only [toList, Literal.negate]
-  have h := c.nodupkey l.1
-  by_cases hl : l.2
-  · simp only [hl, Bool.not_true]
-    rwa [← hl] at h
-  · simp only [Bool.not_eq_true] at hl
-    simp only [hl, Bool.not_false]
-    apply Or.symm
-    rwa [← hl] at h
+  by_cases hl : l.2 <;> grind
+
+attribute [grind] List.nodup_nil
 
 @[inline]
-def empty : DefaultClause n :=
-  let clause := []
-  have nodupkey := by
-    simp only [clause, List.find?, List.not_mem_nil, not_false_eq_true, or_self, implies_true]
-  have nodup := by
-    simp only [clause, List.nodup_nil]
-  ⟨clause, nodupkey, nodup⟩
+def empty : DefaultClause n := ⟨[], by grind, by grind⟩
 
 theorem empty_eq : toList (empty : DefaultClause n) = [] := rfl
 
 @[inline]
 def unit (l : Literal (PosFin n)) : DefaultClause n :=
-  let clause := [l]
-  have nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
-    intro l'
-    by_cases l.2
-    · apply Or.inr
-      cases l
-      simp_all [clause]
-    · apply Or.inl
-      cases l
-      simp_all [clause]
-  have nodup : List.Nodup clause:= by simp [clause]
-  ⟨clause, nodupkey, nodup⟩
+  ⟨[l], by grind, by simp [clause]⟩
 
 theorem unit_eq (l : Literal (PosFin n)) : toList (unit l) = [l] := rfl
 
@@ -148,12 +130,10 @@ def isUnit (c : DefaultClause n) : Option (Literal (PosFin n)) :=
 
 theorem isUnit_iff (c : DefaultClause n) (l : Literal (PosFin n)) :
     isUnit c = some l ↔ toList c = [l] := by
-  simp only [isUnit, toList]
+  simp only [isUnit]
   split
   · next l' heq => simp [heq]
-  · next hne =>
-    simp
-    apply hne
+  · next hne => grind
 
 @[inline]
 def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal.negate
@@ -212,10 +192,9 @@ where
 @[simp]
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by
   apply List.foldlRecOn (motive := (· = none))
-  · simp
-  · intro b hb a ha
-    unfold DefaultClause.ofArray.folder
-    simp [hb]
+  · grind
+  · unfold DefaultClause.ofArray.folder
+    grind
 
 theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
     (h : List.foldl DefaultClause.ofArray.folder (some acc) ls = some acc') :

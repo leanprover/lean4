@@ -373,7 +373,7 @@ theorem unzip_zip {as : Array α} {bs : Array β} (h : as.size = bs.size) :
 
 theorem zip_of_prod {as : Array α} {bs : Array β} {xs : Array (α × β)} (hl : xs.map Prod.fst = as)
     (hr : xs.map Prod.snd = bs) : xs = as.zip bs := by
-  rw [← hl, ← hr, ← zip_unzip xs, ← unzip_fst, ← unzip_snd, zip_unzip, zip_unzip]
+  rw [← hl, ← hr, ← zip_unzip xs, ← fst_unzip, ← snd_unzip, zip_unzip, zip_unzip]
 
 @[simp] theorem unzip_replicate {n : Nat} {a : α} {b : β} :
     unzip (replicate n (a, b)) = (replicate n a, replicate n b) := by

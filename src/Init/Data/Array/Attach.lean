@@ -69,11 +69,11 @@ well-founded recursion mechanism to prove that the function terminates.
   simp [pmap]
 
 @[simp] theorem toList_attachWith {xs : Array α} {P : α → Prop} {H : ∀ x ∈ xs, P x} :
-   (xs.attachWith P H).toList = xs.toList.attachWith P (by simpa [mem_toList] using H) := by
+   (xs.attachWith P H).toList = xs.toList.attachWith P (by simpa [mem_toList_iff] using H) := by
   simp [attachWith]
 
 @[simp] theorem toList_attach {xs : Array α} :
-    xs.attach.toList = xs.toList.attachWith (· ∈ xs) (by simp [mem_toList]) := by
+    xs.attach.toList = xs.toList.attachWith (· ∈ xs) (by simp [mem_toList_iff]) := by
   simp [attach]
 
 @[simp] theorem toList_pmap {xs : Array α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ xs, P a} :

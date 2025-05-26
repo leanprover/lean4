@@ -2413,9 +2413,63 @@ def clzAux {w : Nat} (x : BitVec w) (n : Nat) : Nat :=
     if x.getLsbD n then 0
       else 1 + clzAux x n'
 
+@[simp]
+theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
+
+theorem clzAux_le {x : BitVec w} {n : Nat} :
+    clzAux x n ≤ n + 1 := by
+  induction n
+  · case zero =>
+    simp [clzAux]
+    by_cases hx0 : x.getLsbD 0
+    <;> simp [hx0]
+  · case succ n ihn =>
+    unfold clzAux
+    by_cases hn1 : x.getLsbD (n + 1)
+    · simp [hn1]
+    · simp [hn1]; omega
+
+theorem clzAux_eq_iff {x : BitVec w} {n : Nat}:
+    clzAux x n = (n + 1) ↔ (∀ i, i ≤ n → x.getLsbD i = false) := by
+  induction n
+  · case zero => simp [clzAux]
+  · case succ n ihn =>
+    unfold clzAux
+    by_cases hn1 : x.getLsbD (n + 1)
+    · simp [hn1]
+      exists n + 1, by omega
+    · simp [hn1]
+
+      sorry
+
+theorem clzAux_le_of_ne_zero{x : BitVec w} (h : x ≠ 0#w) : clzAux x n ≤ n:= by
+  induction n generalizing x
+  · case zero =>
+    simp
+
+    sorry
+  · case succ n ihn =>
+    simp [clzAux]
+    sorry
+
 /-- Count the number of leading zeroes. -/
-def clz {w : Nat} (x : BitVec w) : Nat :=
-  clzAux x (w - 1)
+def clz {w : Nat} (x : BitVec w) : Nat := clzAux x (w - 1)
+
+-- theorems about the exclusion of x = 0#w
+-- explain the hyoitheses
+-- y.clz = w ↔ y = 0#w (simp lemma)
+
+@[simp]
+theorem clz_eq_length_iff {x : BitVec w} :
+    clz x = w ↔ x = 0#w := by sorry
+  -- by_cases hx : x = 0#w
+  -- · unfold clz clzAux
+  --   simp [hx]
+  -- · simp [hx]
+  --   unfold clz
+  --   simp [hx]
+
+  --   sorry
 
 /--
   preliminary overflow flag for fast umulOverflow circuit
@@ -2500,14 +2554,30 @@ theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k 
       omega
   · simp [show w ≤ k + k' by omega] at hk'
 
+-- passing z explici
+theorem le_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
+    2 ^ (w - (clz x) - 1) ≤ x.toNat := by
+  sorry
+    -- induction z generalizing w
+    -- · case zero =>
+    --   unfold clz clzAux at hk
+    --   simp at hk
+    --   by_cases hxw : x[w + 1]
+    --   · simp [hxw] at hk
+    --     exact le_toNat_of_msb_true hxw
+    --   · simp [hxw] at hk
+    --     omega
+    -- · case succ z ihz =>
+    --   simp at ihz
+    --   unfold clz clzAux at hk
+    --   sorry
+
+theorem lt_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
+  x.toNat < 2 ^ (w - (clz x)) - 1 := by sorry
+
 theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hclz : clz x + clz y ≤ w - 2) :
-  resRec x y (w - 1) (by omega) (by omega) (by omega) := by sorry
-
-theorem le_of_clz {x : BitVec w} {z : Nat} (hk : z = clz x) :
-  2 ^ (w - z - 1) ≤ x.toNat := by sorry
-
-theorem lt_of_clz {x : BitVec w} {z : Nat} (hk : z = clz x) :
-  x.toNat < 2 ^ (w - z) - 1 := by sorry
+    resRec x y (w - 1) (by omega) (by omega) (by omega) := by
+  sorry
 
 /--
   complete fast overflow detecnion circuit for unsigned multiplication
@@ -2540,12 +2610,12 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
           let zx := clz x
           let zy := clz y
           -- reasoning about the bounds of the product given the leading zeroes
-          have h1 := le_of_clz (x := x) (z := zx) (by omega)
-          have h2 := le_of_clz (x := y) (z := zy) (by omega)
-          have h3 := lt_of_clz (x := x) (z := zx) (by omega)
-          have h4 := lt_of_clz (x := y) (z := zy) (by omega)
-          have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - zx) - 1) (m₂ := 2 ^ (w + 1 + 1 - zy) - 1) (by omega) (by omega)
-          have h6 := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 + 1 - zx - 1)) (m₁ := 2 ^ (w + 1 + 1 - zy - 1)) (n₂ := x.toNat) (m₂ := y.toNat) h1 h2
+          have h1 := le_of_clz (x := x)
+          have h2 := le_of_clz (x := y)
+          have h3 := lt_of_clz (x := x) (by sorry)
+          have h4 := lt_of_clz (x := y) (by sorry)
+          have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - zx) - 1) (m₂ := 2 ^ (w + 1 + 1 - zy) - 1) (by sorry) (by sorry)
+          have h6 := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 + 1 - zx - 1)) (m₁ := 2 ^ (w + 1 + 1 - zy - 1)) (n₂ := x.toNat) (m₂ := y.toNat) (by sorry) (by sorry)
           have h7 := resRec_of_clz_le (x := x) (y := y) (by omega)
           simp at h7
           apply h7

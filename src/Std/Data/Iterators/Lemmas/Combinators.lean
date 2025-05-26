@@ -6,3 +6,4 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Lemmas.Combinators.Monadic
 import Std.Data.Iterators.Lemmas.Combinators.Take
+import Std.Data.Iterators.Lemmas.Combinators.Drop

@@ -17,14 +17,6 @@ import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
-
-/--
-A lighter version of `preprocess` which produces a definitionally equal term,
-but ensures assumptions made by `grind` are satisfied.
--/
-private def preprocessLight (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedProofs (← unfoldReducible e))))))
-
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then

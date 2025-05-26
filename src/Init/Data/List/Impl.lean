@@ -109,7 +109,7 @@ Example:
   let rec go : ∀ as acc, filterMapTR.go f as acc = acc.toList ++ as.filterMap f
     | [], acc => by simp [filterMapTR.go, filterMap]
     | a::as, acc => by
-      simp only [filterMapTR.go, go as, Array.push_toList, append_assoc, singleton_append,
+      simp only [filterMapTR.go, go as, Array.toList_push, append_assoc, singleton_append,
         filterMap]
       split <;> simp [*]
   exact (go l #[]).symm

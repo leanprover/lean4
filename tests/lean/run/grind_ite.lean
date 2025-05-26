@@ -126,6 +126,11 @@ we are allowed to increase the size of the branches by one, and still be smaller
   | var _ => 1
   | .ite i t e => 2 * normSize i + max (normSize t) (normSize e) + 1
 
+-- TODO: `grind` canonicalizer is spending a lot of time unfolding the following function.
+-- TODO: remove after the new module system will hide this declaration.
+seal Std.DHashMap.insert
+seal Std.TreeMap.insert
+
 def normalize (assign : Std.HashMap Nat Bool) : IfExpr → IfExpr
   | lit b => lit b
   | var v =>

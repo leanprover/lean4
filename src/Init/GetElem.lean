@@ -198,6 +198,58 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
   simp only [getElem?_def]
   split <;> simp_all
 
+@[simp] theorem none_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] : none = c[i]? ↔ ¬dom c i := by
+  simp only [getElem?_def]
+  split <;> simp_all
+
+theorem of_getElem?_eq_some [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    {c : cont} {i : idx} [Decidable (dom c i)] (h : c[i]? = some e) : dom c i := by
+  simp only [getElem?_def] at h
+  split at h <;> rename_i h'
+  case isTrue =>
+    exact h'
+  case isFalse =>
+    simp at h
+
+theorem getElem?_eq_some_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    {c : cont} {i : idx} [Decidable (dom c i)] : c[i]? = some e ↔ Exists fun h : dom c i => c[i] = e := by
+  simp only [getElem?_def]
+  split <;> rename_i h
+  case isTrue =>
+    constructor
+    case mp =>
+      intro w
+      refine ⟨h, ?_⟩
+      simpa using w
+    case mpr =>
+      intro ⟨h, w⟩
+      simpa using w
+  case isFalse =>
+    simp only [reduceCtorEq, false_iff]
+    intro ⟨w, w'⟩
+    exact h w
+
+theorem some_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    {c : cont} {i : idx} [Decidable (dom c i)] : some e = c[i]? ↔ Exists fun h : dom c i => c[i] = e := by
+  rw [eq_comm, getElem?_eq_some_iff]
+
+theorem getElem_of_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    {c : cont} {i : idx} [Decidable (dom c i)] (h : c[i]? = some e) : Exists fun h : dom c i => c[i] = e :=
+  getElem?_eq_some_iff.mp h
+
+grind_pattern getElem_of_getElem? => c[i]?, some e
+
+@[simp] theorem some_getElem_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    {c : cont} {i : idx} [Decidable (dom c i)] (h : dom c i):
+    (some c[i] = c[i]?) ↔ True := by
+  simpa [some_eq_getElem?_iff, h] using ⟨h, trivial⟩
+
+@[simp] theorem getElem?_eq_some_getElem_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    {c : cont} {i : idx} [Decidable (dom c i)] (h : dom c i):
+    (c[i]? = some c[i]) ↔ True := by
+  simpa [getElem?_eq_some_iff, h] using ⟨h, trivial⟩
+
 @[deprecated getElem?_eq_none_iff (since := "2025-02-17")]
 abbrev getElem?_eq_none := @getElem?_eq_none_iff
 
@@ -296,7 +348,8 @@ instance : GetElem? (List α) Nat α fun as i => i < as.length where
     | zero => rfl
     | succ i => exact ih ..
 
-@[simp] theorem getElem?_eq_none_iff : l[i]? = none ↔ length l ≤ i :=
+-- This is only needed locally; after the `LawfulGetElem` instance the general `getElem?_eq_none_iff` lemma applies.
+@[local simp] theorem getElem?_eq_none_iff : l[i]? = none ↔ length l ≤ i :=
   match l with
   | [] => by simp; rfl
   | _ :: l => by
@@ -306,7 +359,7 @@ instance : GetElem? (List α) Nat α fun as i => i < as.length where
       simp only [length_cons, Nat.add_le_add_iff_right]
       exact getElem?_eq_none_iff (l := l) (i := i)
 
-@[simp] theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
+theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
   simp [eq_comm (a := none)]
 
 theorem getElem?_eq_none (h : length l ≤ i) : l[i]? = none := getElem?_eq_none_iff.mpr h

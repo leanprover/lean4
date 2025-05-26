@@ -101,6 +101,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lake_OrdHashSet_empty___at_Lake_OrdModuleSet_empty___spec__1___closed__3;
 uint8_t l_Lake_LeanLibConfig_isBuildableModule___rarg(lean_object*, lean_object*);
 static lean_object* l_Lake_ModuleSet_empty___closed__2;
+uint8_t l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_findModule_x3f___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_srcPath___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_traceFile(lean_object*);
@@ -114,7 +115,6 @@ lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_nativeFacets(lean_object*, uint8_t);
 lean_object* l_Lake_BuildType_leanArgs(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Module_srcPath(lean_object*, lean_object*);
-uint8_t l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3198_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_pkg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_coNoExportFile(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_LeanLib_getModuleArray___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3135,13 +3135,13 @@ x_33 = lean_ctor_get(x_31, 0);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec(x_33);
-x_35 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3198_(x_19, x_25);
+x_35 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(x_19, x_25);
 x_36 = lean_box(x_35);
 if (lean_obj_tag(x_36) == 2)
 {
 uint8_t x_37; lean_object* x_38; 
 lean_dec(x_25);
-x_37 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3198_(x_19, x_34);
+x_37 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(x_19, x_34);
 x_38 = lean_box(x_37);
 if (lean_obj_tag(x_38) == 2)
 {
@@ -3162,7 +3162,7 @@ else
 uint8_t x_39; lean_object* x_40; 
 lean_dec(x_36);
 lean_dec(x_19);
-x_39 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3198_(x_25, x_34);
+x_39 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(x_25, x_34);
 x_40 = lean_box(x_39);
 if (lean_obj_tag(x_40) == 2)
 {
@@ -3190,13 +3190,13 @@ lean_dec(x_31);
 x_43 = lean_ctor_get(x_41, 1);
 lean_inc(x_43);
 lean_dec(x_41);
-x_44 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3198_(x_19, x_25);
+x_44 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(x_19, x_25);
 x_45 = lean_box(x_44);
 if (lean_obj_tag(x_45) == 2)
 {
 uint8_t x_46; lean_object* x_47; 
 lean_dec(x_25);
-x_46 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3198_(x_19, x_43);
+x_46 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(x_19, x_43);
 x_47 = lean_box(x_46);
 if (lean_obj_tag(x_47) == 2)
 {
@@ -3223,7 +3223,7 @@ else
 uint8_t x_50; lean_object* x_51; 
 lean_dec(x_45);
 lean_dec(x_19);
-x_50 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3198_(x_25, x_43);
+x_50 = l___private_Init_System_IO_0__IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(x_25, x_43);
 x_51 = lean_box(x_50);
 if (lean_obj_tag(x_51) == 2)
 {

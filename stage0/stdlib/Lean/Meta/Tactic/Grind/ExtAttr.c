@@ -16,6 +16,7 @@ extern "C" {
 uint8_t l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Grind_addExtAttr___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_insert___at_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_ExtAttr___hyg_9____spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_erase___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_321____spec__14(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_eraseExtAttr___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Grind_addExtAttr___spec__1___closed__1;
 lean_object* l_Lean_Meta_Ext_isExtTheorem(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -56,7 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Tactic_Grind
 static lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_ExtAttr___hyg_9____closed__1;
 static lean_object* l_Lean_Meta_Grind_eraseExtAttr___closed__1;
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_Lean_PersistentHashMap_erase___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__14(lean_object*, lean_object*);
 uint8_t l_Lean_isStructure(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addCore___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_validateExtAttr___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -637,7 +637,7 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = l_Lean_PersistentHashMap_erase___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__14(x_1, x_2);
+x_13 = l_Lean_PersistentHashMap_erase___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_321____spec__14(x_1, x_2);
 lean_dec(x_2);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);

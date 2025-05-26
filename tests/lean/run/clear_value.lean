@@ -104,7 +104,7 @@ example : let x := 22; 0 ≤ x := by
 Check that `clear_value` checks for type correctness.
 -/
 /--
-error: Tactic `clear_value` could not clear value of `x`.
+error: Tactic `clear_value` failed, the value of `x` cannot be cleared.
 x : Nat := 22
 y : Fin x := 0
 ⊢ ↑y < x
@@ -176,7 +176,7 @@ example : let x := 22; let y : Nat := x; let z : Fin (y + 1) := 0; z.1 < y + 1 :
 Dependence, `clear_value` fails.
 -/
 /--
-error: Tactic `clear_value` could not clear value of `α`.
+error: Tactic `clear_value` failed, the value of `α` cannot be cleared.
 α : Type := Nat
 x : α := 1
 ⊢ x = x
@@ -236,3 +236,27 @@ example : let α := Nat; let x : α := 1; @Eq α x 1 := by
   intro α x
   clear_value * with h
   exact h
+
+/-!
+Minimized from https://github.com/leanprover-community/mathlib4/issues/25053
+The issue is that `by exact k` under the binder creates a delayed assigned metavariable
+```
+?m : ℕ →
+  let val := 22;
+  val = 22 → ℕ → ℕ
+```
+that is applied to `val` and `val_def`. Note that this first `ℕ` corresponds to `val`,
+so, despite the fact that the local context of the metavariable delayed assigned to `?m`
+has `val` as a let binding, the value is still being passed in (the types are *not* ensuring
+that `val` is defeq to the expected `val`!)
+
+In this case, we can fix the issue by making sure to instantiate metavariables before running
+`isTypecorrect`.
+-/
+example : True := by
+  let val := 22
+  have val_def : val = 22 := rfl
+  have : Nat.zero = (fun k => by exact k) Nat.zero := by
+    clear_value val -- used to fail
+    rfl
+  trivial

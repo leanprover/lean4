@@ -349,11 +349,11 @@ where
   | `(tactic| clear_value $xs* $[with $hs*]?) => withMainContext do
     let hs := hs.getD #[]
     if xs.size < hs.size then throwErrorAt hs[xs.size]! "Too many binders provided."
-    -- The bool means "clearing must succeed"
     let mut fvarIds : Array FVarId := #[]
     let mut hasStar := false
+    let mut newHyps : Array (FVarId × Name) := #[]
     for i in [0:xs.size], x in xs do
-      if x.raw.isOfKind ``clearValueStar then
+      if x.raw.isOfKind ``Parser.Tactic.clearValueStar then
         if i < hs.size then
           throwErrorAt hs[i]! "When using `*`, no binder may be provided for it."
         hasStar := true
@@ -364,20 +364,22 @@ where
         if fvarIds.contains fvarId then
           throwErrorAt x "Hypothesis `{mkFVar fvarId}` appears multiple times."
         fvarIds := fvarIds.push fvarId
+        if let some h := hs[i]? then
+          let hName ←
+            match h with
+            | `(binderIdent| $n:ident) => pure n.raw.getId
+            | _ => mkFreshBinderNameForTactic `h
+          newHyps := newHyps.push (fvarId, hName)
     let mut g ← popMainGoal
-    unless hs.isEmpty do
+    unless newHyps.isEmpty do
       let mut hyps : Array Hypothesis := #[]
-      for fvarId in fvarIds, h in hs do
-        let hName ←
-          match h with
-          | `(binderIdent| $n:ident) => pure n.raw.getId
-          | _ => mkFreshBinderNameForTactic `h
+      for (fvarId, hName) in newHyps do
         let type ← mkEq (mkFVar fvarId) (← fvarId.getValue?).get!
         let value ← mkEqRefl (mkFVar fvarId)
         hyps := hyps.push { userName := hName, type, value }
       g ← Prod.snd <$> g.assertHypotheses hyps
     let toClear ← g.withContext do
-      if hasStar then (·.map Expr.fvarId!) <$> getLocalHyps
+      if hasStar then pure <| (← getLocalHyps).map Expr.fvarId!
       else sortFVarIds fvarIds
     let mut succeeded := false
     for fvarId in toClear.reverse do
@@ -386,7 +388,7 @@ where
         succeeded := true
       catch _ =>
         if fvarIds.contains fvarId then
-          g.withContext do throwError "Tactic `clear_value` could not clear value of `{Expr.fvar fvarId}`.\n{g}"
+          g.withContext do throwError "Tactic `clear_value` failed, the value of `{Expr.fvar fvarId}` cannot be cleared.\n{g}"
     unless succeeded do
       g.withContext do throwError "Tactic `clear_value` failed to clear any values.\n{g}"
     pushGoal g

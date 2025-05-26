@@ -46,12 +46,8 @@ namespace ReaderT
 variable [Monad m]
 
 instance {ρ : Type u} : LawfulMonadLift m (ReaderT ρ m) where
-  monadLift_pure _ := by
-    funext x
-    simp only [MonadLift.monadLift, pure, ReaderT.pure]
-  monadLift_bind _ _ := by
-    funext x
-    simp only [bind, ReaderT.bind, MonadLift.monadLift, Function.comp_apply]
+  monadLift_pure _ := rfl
+  monadLift_bind _ _ := rfl
 
 end ReaderT
 
@@ -139,12 +135,3 @@ instance {ε : Type u} [Monad m] [LawfulMonad m] : LawfulMonadLift m (ExceptCpsT
     simp only [bind_assoc]
 
 end ExceptCpsT
-
-namespace Id
-
-/-- The lifting from `Id` to a lawful monad `m` induced by `pure` is lawful. -/
-instance [Monad m] [LawfulMonad m] : LawfulMonadLift Id m where
-  monadLift_pure := fun a => by simp [MonadLift.monadLift, pure]
-  monadLift_bind := fun x f => by simp [MonadLift.monadLift, bind]
-
-end Id

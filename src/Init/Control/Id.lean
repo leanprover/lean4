@@ -59,12 +59,6 @@ This function is the identity function. Because its parameter has type `Id α`, 
 @[always_inline, inline, expose]
 protected def run (x : Id α) : α := x
 
-/--
-The `pure` operation of a monad `m` can be seen as a lifting operation from `Id` to `m`.
--/
-instance [Pure m] : MonadLift Id m where
-  monadLift := pure
-
 instance [OfNat α n] : OfNat (Id α) n :=
   inferInstanceAs (OfNat α n)
 

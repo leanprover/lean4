@@ -64,9 +64,9 @@ theorem getElem?_eq (l : BitVec w) (i : Nat) :
     l[i]? = if h : i < w then some l[i] else none := by
   split <;> simp_all
 
-@[simp] theorem some_getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
+theorem some_getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
     (some l[i] = l[i]?) ↔ True := by
-  simp [h]
+  simp
 
 @[simp] theorem getElem?_eq_some_getElem (l : BitVec w) (i : Nat) (h : i < w) :
     (l[i]? = some l[i]) ↔ True := by
@@ -4882,10 +4882,9 @@ theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :
 theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
   simp [replicate]
 
-@[simp]
 theorem replicate_one {w : Nat} {x : BitVec w} :
     (x.replicate 1) = x.cast (by rw [Nat.mul_one]) := by
-  simp [replicate]
+  simp
 
 @[simp]
 theorem replicate_succ {x : BitVec w} :

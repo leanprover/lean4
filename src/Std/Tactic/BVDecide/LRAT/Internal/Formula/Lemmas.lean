@@ -218,7 +218,7 @@ theorem insert_iff {n : Nat} (f : DefaultFormula n) (c1 : DefaultClause n) (c2 :
         simp only [insert] at h
         split at h
         all_goals
-          simp only [Array.push_toList, List.mem_append, List.mem_singleton, Option.some.injEq] at h
+          simp only [Array.toList_push, List.mem_append, List.mem_singleton, Option.some.injEq] at h
           rcases h with h | h
           · exact h
           · exact False.elim <| c2_ne_c1 h
@@ -233,7 +233,7 @@ theorem insert_iff {n : Nat} (f : DefaultFormula n) (c1 : DefaultClause n) (c2 :
         simp only [insert]
         split
         all_goals
-          simp only [Array.push_toList, List.mem_append, List.mem_singleton, Option.some.injEq]
+          simp only [Array.toList_push, List.mem_append, List.mem_singleton, Option.some.injEq]
           exact Or.inl h
       · rw [rupUnits_insert]
         exact Or.inr <| Or.inl h
@@ -265,7 +265,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
     have hf := f_readyForRupAdd.2.2 i b hb
     simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right,
       List.mem_map, Prod.exists, Bool.exists_bool] at hf
-    simp only [toList, Array.push_toList, List.append_assoc, List.mem_append, List.mem_filterMap,
+    simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
       List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map, Prod.exists, Bool.exists_bool]
     rcases hf with hf | hf
     · exact (Or.inl ∘ Or.inl) hf
@@ -280,7 +280,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
     simp only at hb
     by_cases (i, b) = (l, true)
     · next ib_eq_c =>
-      simp only [toList, Array.push_toList, List.append_assoc, List.mem_append, List.mem_filterMap,
+      simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
         List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map, Prod.exists, Bool.exists_bool]
       apply Or.inl ∘ Or.inr
       rw [isUnit_iff, DefaultClause.toList, ← ib_eq_c] at hc
@@ -305,7 +305,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
       specialize hf hb'
       simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
         exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool] at hf
-      simp only [toList, Array.push_toList, List.append_assoc, List.mem_append, List.mem_filterMap,
+      simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
         List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map, Prod.exists, Bool.exists_bool]
       rcases hf with hf | hf
       · exact Or.inl <| Or.inl hf
@@ -320,7 +320,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
     simp only at hb
     by_cases (i, b) = (l, false)
     · next ib_eq_c =>
-      simp only [toList, Array.push_toList, List.append_assoc, List.mem_append, List.mem_filterMap,
+      simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
         List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map, Prod.exists, Bool.exists_bool]
       apply Or.inl ∘ Or.inr
       rw [isUnit_iff, DefaultClause.toList, ← ib_eq_c] at hc
@@ -343,7 +343,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
       specialize hf hb'
       simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
         exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool] at hf
-      simp only [toList, Array.push_toList, List.append_assoc, List.mem_append, List.mem_filterMap,
+      simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
         List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map, Prod.exists, Bool.exists_bool]
       rcases hf with hf | hf
       · exact Or.inl <| Or.inl hf
@@ -374,7 +374,7 @@ theorem mem_of_insertRupUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
     dsimp at hl
     split at hl
     · exact ih l hl
-    · simp only [Array.push_toList, List.mem_append, List.mem_singleton] at hl
+    · simp only [Array.toList_push, List.mem_append, List.mem_singleton] at hl
       rcases hl with l_in_acc | l_eq_unit
       · exact ih l l_in_acc
       · rw [l_eq_unit]
@@ -411,7 +411,7 @@ theorem mem_of_insertRatUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
     dsimp at hl
     split at hl
     · exact ih l hl
-    · simp only [Array.push_toList, List.mem_append, List.mem_singleton] at hl
+    · simp only [Array.toList_push, List.mem_append, List.mem_singleton] at hl
       rcases hl with l_in_acc | l_eq_unit
       · exact ih l l_in_acc
       · rw [l_eq_unit]

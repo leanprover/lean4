@@ -1522,13 +1522,13 @@ theorem pfilter_guard {a : α} {p : α → Bool} {q : (a' : α) → guard p a = 
 /-! ### LT and LE -/
 
 @[simp, grind] theorem not_lt_none [LT α] {a : Option α} : ¬ a < none := by cases a <;> simp [LT.lt, Option.lt]
-@[simp, grind] theorem none_lt_some [LT α] {a : α} : none < some a := by simp [LT.lt, Option.lt]
-@[simp] theorem none_lt [LT α] {a : Option α} : none < a ↔ a.isSome := by cases a <;> simp
+@[grind] theorem none_lt_some [LT α] {a : α} : none < some a := by simp [LT.lt, Option.lt]
+@[simp] theorem none_lt [LT α] {a : Option α} : none < a ↔ a.isSome := by cases a <;> simp [none_lt_some]
 @[simp, grind] theorem some_lt_some [LT α] {a b : α} : some a < some b ↔ a < b := by simp [LT.lt, Option.lt]
 
 @[simp, grind] theorem none_le [LE α] {a : Option α} : none ≤ a := by cases a <;> simp [LE.le, Option.le]
-@[simp, grind] theorem not_some_le_none [LE α] {a : α} : ¬ some a ≤ none := by simp [LE.le, Option.le]
-@[simp] theorem le_none [LE α] {a : Option α} : a ≤ none ↔ a = none := by cases a <;> simp
+@[grind] theorem not_some_le_none [LE α] {a : α} : ¬ some a ≤ none := by simp [LE.le, Option.le]
+@[simp] theorem le_none [LE α] {a : Option α} : a ≤ none ↔ a = none := by cases a <;> simp [not_some_le_none]
 @[simp, grind] theorem some_le_some [LE α] {a b : α} : some a ≤ some b ↔ a ≤ b := by simp [LE.le, Option.le]
 
 @[simp]

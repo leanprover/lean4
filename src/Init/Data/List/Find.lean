@@ -1108,14 +1108,9 @@ theorem isSome_finIdxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     simp only [finIdxOf?_cons]
     split <;> simp_all [@eq_comm _ x a]
 
-@[simp]
 theorem isNone_finIdxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     (l.finIdxOf? a).isNone = ¬ a ∈ l := by
-  induction l with
-  | nil => simp
-  | cons x xs ih =>
-    simp only [finIdxOf?_cons]
-    split <;> simp_all [@eq_comm _ x a]
+  simp
 
 /-! ### idxOf?
 
@@ -1154,15 +1149,9 @@ theorem isSome_idxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     simp only [idxOf?_cons]
     split <;> simp_all [@eq_comm _ x a]
 
-@[simp]
 theorem isNone_idxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     (l.idxOf? a).isNone = ¬ a ∈ l := by
-  induction l with
-  | nil => simp
-  | cons x xs ih =>
-    simp only [idxOf?_cons]
-    split <;> simp_all [@eq_comm _ x a]
-
+  simp
 
 /-! ### lookup -/
 

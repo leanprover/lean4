@@ -2496,6 +2496,7 @@ theorem clz_le {x : BitVec w} :
   · simp
   · simp [clzAux_le]
 
+@[simp]
 theorem clz_zero : clz 0#w = w := by
   rcases w with _|w
   · simp [clz]
@@ -2503,7 +2504,7 @@ theorem clz_zero : clz 0#w = w := by
     simp [clzAux_eq_iff]
 
 @[simp]
-theorem clz_eq_length_iff {x : BitVec w} :
+theorem clz_eq_iff {x : BitVec w} :
     clz x = w ↔ x = 0#w := by
   rcases w with _|w
   · simp [clz, of_length_zero]
@@ -2518,6 +2519,22 @@ theorem clz_eq_length_iff {x : BitVec w} :
       omega
     · intro h
       simp [h, clz_zero]
+
+theorem clz_lt_iff {x : BitVec w} :
+    clz x < w ↔ x ≠ 0#w := by
+  have := clz_le (x := x)
+  by_cases hx : x = 0#w
+  · simp [hx]
+  · simp [hx]
+    have := clz_eq_iff (x := x)
+    simp only [hx, iff_false] at this
+    omega
+
+theorem toNat_le_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
+    2 ^ (w - clz x - 1) ≤ x.toNat := by
+  have := clzAux_lt_iff (x := x)
+  sorry
+
 
 /--
   preliminary overflow flag for fast umulOverflow circuit
@@ -2603,7 +2620,7 @@ theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k 
   · simp [show w ≤ k + k' by omega] at hk'
 
 -- passing z explici
-theorem le_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
+theorem le_of_clz {x : BitVec w} (hx : x ≠ 0#w):
     2 ^ (w - (clz x) - 1) ≤ x.toNat := by
   sorry
     -- induction z generalizing w

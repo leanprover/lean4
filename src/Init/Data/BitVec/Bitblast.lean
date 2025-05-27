@@ -1318,9 +1318,9 @@ theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
   simp [uaddOverflow, msb_add, msb_setWidth, carry]
 
 @[simp]
-theorem not_uaddOverflow_lt {w : Nat} (x y : BitVec w) :
+theorem not_uaddOverflow_iff {w : Nat} (x y : BitVec w) :
     ¬ uaddOverflow x y ↔ x.toNat + y.toNat < 2 ^ w := by
-  simp [uaddOverflow_eq, msb_add, msb_setWidth, carry]
+  simp [uaddOverflow]
 
 theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     saddOverflow x y = (x.msb == y.msb && !((x + y).msb == x.msb)) := by
@@ -1335,8 +1335,18 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [Nat.add_one_sub_one, ge_iff_le]
     omega
 
+@[simp]
+theorem not_saddOverflow_iff {w : Nat} (x y : BitVec w) :
+    ¬ saddOverflow x y ↔ x.toInt + y.toInt < 2 ^ (w - 1) ∧ - 2 ^ (w - 1) ≤ x.toInt + y.toInt := by
+  simp [saddOverflow]
+
 theorem usubOverflow_eq {w : Nat} (x y : BitVec w) :
     usubOverflow x y = decide (x < y) := rfl
+
+@[simp]
+theorem not_usubOverflow_iff {w : Nat} (x y : BitVec w) :
+    ¬ usubOverflow x y ↔ y.toNat ≤ x.toNat := by
+  simp [usubOverflow]
 
 theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
     ssubOverflow x y = ((!x.msb && y.msb && (x - y).msb) || (x.msb && !y.msb && !(x - y).msb)) := by
@@ -1350,6 +1360,11 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [bool_to_prop]
     omega
 
+@[simp]
+theorem not_ssubOverflow_iff {w : Nat} (x y : BitVec w) :
+    ¬ ssubOverflow x y ↔ x.toInt - y.toInt < 2 ^ (w - 1) ∧ -2 ^ (w - 1) ≤ x.toInt - y.toInt := by
+  simp [ssubOverflow]
+
 theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     (negOverflow x) = (decide (0 < w) && (x == intMin w)) := by
   simp only [negOverflow]
@@ -1358,6 +1373,11 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
   · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.natCast_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
+
+@[simp]
+theorem not_negOverflow_iff {w : Nat} (x : BitVec w) :
+    ¬ negOverflow x ↔ x.toInt != - 2 ^ (w - 1) := by
+  simp [negOverflow]
 
 /--
   Prove that signed division `x.toInt / y.toInt` only overflows when `x = intMin w` and `y = allOnes w` (for `0 < w`).
@@ -1391,6 +1411,11 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
                 (x := x) (y := y) (by omega) (by rw [← toInt_inj, toInt_allOnes] at hy; omega)
           simp only [Nat.add_one_sub_one] at this; simp; omega
 
+@[simp]
+theorem not_sdivOverflow_iff {w : Nat} (x y : BitVec w) :
+    ¬ sdivOverflow x y ↔ x.toInt / y.toInt < 2 ^ (w - 1) ∧ -2 ^ (w - 1) ≤ x.toInt / y.toInt := by
+  simp [sdivOverflow]
+
 theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     umulOverflow x y =
       (0 < w && BitVec.twoPow (w * 2) w ≤ x.zeroExtend (w * 2) * y.zeroExtend (w * 2)) := by
@@ -1402,6 +1427,11 @@ theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     rw [Nat.mod_eq_of_lt BitVec.toNat_mul_toNat_lt, Nat.mod_eq_of_lt]
     have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1) (m := (w + 1) * 2)
     omega
+
+@[simp]
+theorem not_smulOverflow_iff {w : Nat} (x y : BitVec w) :
+    ¬ smulOverflow x y ↔ x.toInt * y.toInt < 2 ^ (w - 1) ∧ -2 ^ (w - 1) ≤ x.toInt * y.toInt := by
+  simp [smulOverflow]
 
 theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     smulOverflow x y =
@@ -1415,6 +1445,11 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     have h₂ := BitVec.toInt_mul_toInt_lt_neg_two_pow_iff (x := x) (y := y)
     simp only [Nat.add_one_sub_one] at h₁ h₂
     simp [h₁, h₂]
+
+@[simp]
+theorem not_umulOverflow_iff {w : Nat} (x y : BitVec w) :
+    ¬ umulOverflow x y ↔ x.toNat * y.toNat < 2 ^ w  := by
+  simp [umulOverflow]
 
 /- ### umod -/
 

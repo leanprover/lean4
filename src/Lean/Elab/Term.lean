@@ -2077,6 +2077,13 @@ builtin_initialize
   registerTraceClass `Elab.debug
   registerTraceClass `Elab.reuse
 
+/--
+Marks an elaborator (tactic or command, currently) as supporting incremental elaboration.
+
+For unmarked elaborators, the corresponding snapshot bundle field in the elaboration context is
+unset so as to prevent accidental, incorrect reuse.
+-/
+@[builtin_doc]
 builtin_initialize incrementalAttr : TagAttribute ←
   registerTagAttribute `incremental "Marks an elaborator (tactic or command, currently) as \
 supporting incremental elaboration. For unmarked elaborators, the corresponding snapshot bundle \
@@ -2087,7 +2094,8 @@ builtin_initialize builtinIncrementalElabs : IO.Ref NameSet ← IO.mkRef {}
 def addBuiltinIncrementalElab (decl : Name) : IO Unit := do
   builtinIncrementalElabs.modify fun s => s.insert decl
 
-builtin_initialize
+@[builtin_init, inherit_doc incrementalAttr, builtin_doc]
+private def init :=
   registerBuiltinAttribute {
     name            := `builtin_incremental
     descr           := s!"(builtin) {incrementalAttr.attr.descr}"

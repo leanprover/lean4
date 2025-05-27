@@ -13,6 +13,10 @@ inductive SpecializeAttributeKind where
   | specialize | nospecialize
   deriving Inhabited, BEq
 
+/--
+Marks a definition to never be specialized during code generation.
+-/
+@[builtin_doc]
 builtin_initialize nospecializeAttr : TagAttribute ←
   registerTagAttribute `nospecialize "mark definition to never be specialized"
 

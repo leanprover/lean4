@@ -9,6 +9,12 @@ import Lean.Compiler.IR.Basic
 
 namespace Lean.IR.UnboxResult
 
+/--
+Tags types that the compiler should unbox if they occur in result values.
+
+This attribute currently has no effect.
+-/
+@[builtin_doc]
 builtin_initialize unboxAttr : TagAttribute ←
   registerTagAttribute `unbox "compiler tries to unbox result values if their types are tagged with `[unbox]`" fun declName => do
     let cinfo ← getConstInfo declName;
@@ -19,6 +25,6 @@ builtin_initialize unboxAttr : TagAttribute ←
     | _ => throwError "constant must be an inductive type"
 
 def hasUnboxAttr (env : Environment) (n : Name) : Bool :=
-unboxAttr.hasTag env n
+  unboxAttr.hasTag env n
 
 end Lean.IR.UnboxResult

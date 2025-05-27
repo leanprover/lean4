@@ -18,6 +18,11 @@ import Lean.Elab.RecAppSyntax
 namespace Lean.Elab.Term
 open Meta
 
+/--
+Instructs the elaborator to elaborate applications of the given declaration without an expected
+type. This may prevent the elaborator from incorrectly inferring implicit arguments.
+-/
+@[builtin_doc]
 builtin_initialize elabWithoutExpectedTypeAttr : TagAttribute ←
   registerTagAttribute `elab_without_expected_type "mark that applications of the given declaration should be elaborated without the expected type"
 

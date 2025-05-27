@@ -430,7 +430,7 @@ recommended_spelling "not" for "!" in [not, «term!_»]
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
 recommended_spelling "mem" for "∈" in [Membership.mem, «term_∈_»]
-recommended_spelling "not_mem" for "∉" in [«term_∉_»]
+recommended_spelling "notMem" for "∉" in [«term_∉_»]
 
 @[inherit_doc] infixr:67 " :: " => List.cons
 @[inherit_doc] infixr:100 " <$> " => Functor.map

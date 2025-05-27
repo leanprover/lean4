@@ -65,6 +65,31 @@ theorem IterM.forIn_eq_match_step {α β : Type w} {m : Type w → Type w'} [Ite
   · simp [IterM.forIn_eq]
   · simp
 
+theorem IterM.forM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] {it : IterM (α := α) m β}
+    {f : β → n PUnit} :
+    ForM.forM it f = ForIn.forIn it PUnit.unit (fun out _ => do f out; return .yield .unit) :=
+  rfl
+
+theorem IterM.forM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β}
+    {f : β → n PUnit} :
+    ForM.forM it f = (do
+      match ← it.step with
+      | .yield it' out _ =>
+        f out
+        ForM.forM it' f
+      | .skip it' _ => ForM.forM it' f
+      | .done _ => return) := by
+  rw [forM_eq_forIn, forIn_eq_match_step]
+  apply bind_congr
+  intro step
+  cases step using PlausibleIterStep.casesOn <;> simp [forM_eq_forIn]
+
 theorem IterM.foldM_eq_forIn {α β γ : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad n] [IteratorLoop α m n] [MonadLiftT m n] {f : γ → β → n γ}
     {init : γ} {it : IterM (α := α) m β} :

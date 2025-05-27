@@ -453,10 +453,10 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     have i_eq_range_i : i = (Array.range f.clauses.size)[i]'i_in_bounds := by
       rw [Array.getElem_range]
     rw [i_eq_range_i]
-    rw [Array.mem_toList]
+    rw [Array.mem_toList_iff]
     rw [Array.mem_filter]
     constructor
-    · rw [← Array.mem_toList]
+    · rw [← Array.mem_toList_iff]
       apply Array.getElem_mem_toList
     · rw [Array.getElem_toList] at c'_in_f
       simp only [Array.getElem_range, getElem!_def, i_lt_f_clauses_size, Array.getElem?_eq_getElem,

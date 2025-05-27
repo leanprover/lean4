@@ -12,7 +12,7 @@ macro_rules
   | `(gen! $n:num) => `(op (f $n) (gen! $(Lean.quote (n.getNat - 1))))
 
 /--
-trace: [grind.issues] (deterministic) timeout at `simp`, maximum number of heartbeats (5000) has been reached
+trace: [grind.issues] (deterministic) timeout at `grind`, maximum number of heartbeats (5000) has been reached
     Use `set_option maxHeartbeats <num>` to set the limit.
     ⏎
     Additional diagnostic information may be available using the `set_option diagnostics true` command.

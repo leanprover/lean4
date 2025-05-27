@@ -1410,8 +1410,7 @@ theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n :
   norm_cast at h
   rw [Nat.mod_mod_of_dvd _ h]
 
-@[simp] theorem tmod_tmod (a b : Int) : (a.tmod b).tmod b = a.tmod b :=
-  tmod_tmod_of_dvd a (Int.dvd_refl b)
+theorem tmod_tmod (a b : Int) : (a.tmod b).tmod b = a.tmod b := by simp
 
 theorem tmod_eq_zero_of_dvd : ∀ {a b : Int}, a ∣ b → tmod b a = 0
   | _, _, ⟨_, rfl⟩ => mul_tmod_right ..
@@ -1469,9 +1468,8 @@ protected theorem tdiv_mul_cancel {a b : Int} (H : b ∣ a) : a.tdiv b * b = a :
 protected theorem mul_tdiv_cancel' {a b : Int} (H : a ∣ b) : a * b.tdiv a = b := by
   rw [Int.mul_comm, Int.tdiv_mul_cancel H]
 
-@[simp] theorem neg_tmod_self (a : Int) : (-a).tmod a = 0 := by
-  rw [← dvd_iff_tmod_eq_zero, Int.dvd_neg]
-  exact Int.dvd_refl a
+theorem neg_tmod_self (a : Int) : (-a).tmod a = 0 := by
+  simp
 
 theorem lt_tdiv_add_one_mul_self (a : Int) {b : Int} (H : 0 < b) : a < (a.tdiv b + 1) * b := by
   rw [Int.add_mul, Int.one_mul, Int.mul_comm]
@@ -1568,13 +1566,11 @@ theorem dvd_tmod_sub_self {x m : Int} : m ∣ x.tmod m - x := by
 theorem dvd_self_sub_tmod {x m : Int} : m ∣ x - x.tmod m :=
   Int.dvd_neg.1 (by simpa only [Int.neg_sub] using dvd_tmod_sub_self)
 
-@[simp] theorem neg_mul_tmod_right (a b : Int) : (-(a * b)).tmod a = 0 := by
-  rw [← dvd_iff_tmod_eq_zero, Int.dvd_neg]
-  exact Int.dvd_mul_right a b
+theorem neg_mul_tmod_right (a b : Int) : (-(a * b)).tmod a = 0 := by
+  simp
 
-@[simp] theorem neg_mul_tmod_left (a b : Int) : (-(a * b)).tmod b = 0 := by
-  rw [← dvd_iff_tmod_eq_zero, Int.dvd_neg]
-  exact Int.dvd_mul_left a b
+theorem neg_mul_tmod_left (a b : Int) : (-(a * b)).tmod b = 0 := by
+  simp
 
 @[simp] protected theorem tdiv_one : ∀ a : Int, a.tdiv 1 = a
   | (n:Nat) => congrArg ofNat (Nat.div_one _)
@@ -2193,8 +2189,8 @@ theorem mul_fmod (a b n : Int) : (a * b).fmod n = (a.fmod n * b.fmod n).fmod n :
   match k, h with
   | _, ⟨t, rfl⟩ => rw [Int.mul_assoc, add_mul_fmod_self_left]
 
-@[simp] theorem fmod_fmod (a b : Int) : (a.fmod b).fmod b = a.fmod b :=
-  fmod_fmod_of_dvd _ (Int.dvd_refl b)
+theorem fmod_fmod (a b : Int) : (a.fmod b).fmod b = a.fmod b := by
+  simp
 
 theorem sub_fmod (a b n : Int) : (a - b).fmod n = (a.fmod n - b.fmod n).fmod n := by
   apply (fmod_add_cancel_right b).mp

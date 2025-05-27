@@ -1845,7 +1845,7 @@ theorem toInt_sub_neg_umod {x y : BitVec w} (hxmsb : x.msb = true) (hymsb : y.ms
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by
-  rcases w with _|w ; simp [of_length_zero]
+  rcases w with _|w; decide +revert
   by_cases hyzero : y = 0#(w + 1); simp [hyzero]
   rw [smod_eq]
   cases hxmsb : x.msb <;> cases hymsb : y.msb

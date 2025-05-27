@@ -2497,7 +2497,7 @@ theorem clz_le {x : BitVec w} :
   · simp [clzAux_le]
 
 @[simp]
-theorem clz_zero : clz 0#w = w := by
+theorem clz_of_zero : clz 0#w = w := by
   rcases w with _|w
   · simp [clz]
   · unfold clz
@@ -2518,7 +2518,42 @@ theorem clz_eq_iff {x : BitVec w} :
       apply this
       omega
     · intro h
-      simp [h, clz_zero]
+      simp [h]
+
+theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w):
+    clz x = 0 ↔ 2 ^ (w -1) ≤ x.toNat := by
+  rcases w with _|w
+  · omega
+  · unfold clz clzAux
+    simp
+    cases w
+    · simp
+      constructor
+      · intro h
+        exact getElem_true_le (x := x) (i := 0) (by omega) h
+      · intro h
+        have := le_toNat_iff (x := x) (i := 0) (by omega)
+        simp [h] at this
+        obtain ⟨k,hk⟩ := this
+        by_cases k < 1
+        · rw [getLsbD_eq_getElem (by omega)] at hk
+          simp [show k = 0 by omega] at hk
+          exact hk
+        · simp [show k ≥ 0 + 1 by omega] at hk
+    · case succ w =>
+      simp
+      constructor
+      · intro h
+        exact getElem_true_le (x := x) (i := w + 1) (by omega) h
+      · intro h
+        have := le_toNat_iff (x := x) (i := w + 1) (by omega)
+        simp [h] at this
+        obtain ⟨k,hk⟩ := this
+        by_cases k < 1
+        · rw [getLsbD_eq_getElem (by omega)] at hk
+          simp [show k = 0 by omega] at hk
+          exact hk
+        · simp [show k ≥ 0 + 1 by omega] at hk
 
 theorem clz_lt_iff {x : BitVec w} :
     clz x < w ↔ x ≠ 0#w := by
@@ -2530,10 +2565,23 @@ theorem clz_lt_iff {x : BitVec w} :
     simp only [hx, iff_false] at this
     omega
 
-theorem toNat_le_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
+-- todo: can we relax hypothesis?
+theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) :
     2 ^ (w - clz x - 1) ≤ x.toNat := by
-  have := clzAux_lt_iff (x := x)
-  sorry
+  rcases w with _|w
+  · omega
+  · induction (clz x)
+    · case zero =>
+      simp
+      sorry
+    · sorry
+
+    -- have := clzAux_lt_iff (x := x) (n := w)
+    -- simp [clz]
+    -- have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1 - x.clzAux w - 1) (m := w + 1) (by omega) (by omega)
+    -- by_cases hc : clz x = w + 1
+
+    -- sorry
 
 
 /--

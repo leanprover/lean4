@@ -403,7 +403,20 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
 
 @[builtin_tactic Lean.Parser.Tactic.subst] def evalSubst : Tactic := fun stx =>
   match stx with
-  | `(tactic| subst $hs*) => forEachVar hs Meta.subst
+  | `(tactic| subst $hs*) => forEachVar hs fun mvarId fvarId => do
+    let decl ← fvarId.getDecl
+    if decl.isLet then
+      -- Zeta delta reduce the let and eliminate it.
+      let (_, mvarId) ← mvarId.withReverted #[fvarId] fun mvarId' fvars => mvarId'.withContext do
+        let tgt ← mvarId'.getType
+        assert! tgt.isLet
+        let mvarId'' ← mvarId'.replaceTargetDefEq (tgt.letBody!.instantiate1 tgt.letValue!)
+        -- Dropped the let fvar
+        let aliasing := (fvars.extract 1).map some
+        return ((), aliasing, mvarId'')
+      return mvarId
+    else
+      Meta.subst mvarId fvarId
   | _                     => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>

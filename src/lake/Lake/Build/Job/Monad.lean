@@ -6,7 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Fetch
 
-open System
+open System Lean
 
 /-! # Job Monad
 
@@ -236,6 +236,10 @@ def collectList (jobs : List (Job α)) (traceCaption := "<collection>") : Job (L
 /-- Merge an `Array` of jobs into one, collecting their outputs into an `Array`. -/
 def collectArray (jobs : Array (Job α)) (traceCaption := "<collection>") : Job (Array α) :=
   jobs.foldl (zipWith Array.push) (traceRoot (Array.mkEmpty jobs.size) traceCaption)
+
+/-- Merge a `NameMap` of jobs into one, collecting their outputs into an `NameMap`. -/
+def collectNameMap (jobs : NameMap (Job α)) (traceCaption := "<collection>") : Job (NameMap α) :=
+  jobs.fold (fun s k v => s.zipWith (·.insert k) v) (traceRoot {} traceCaption)
 
 end Job
 

@@ -205,6 +205,23 @@ def computeModuleDeps
     plugins := plugins.push (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}
 
+private def Module.fetchOleanArts
+  (mod : Module) (importAll : Bool)
+: FetchM (Job ModuleArtifacts) := do
+  let eJob ← mod.olean.fetch
+  if importAll then
+    let sJob ← mod.oleanServer.fetch
+    let pJob ← mod.oleanPrivate.fetch
+    eJob.bindM (sync := true) fun oe =>
+    sJob.bindM (sync := true) fun os =>
+    pJob.mapM (sync := true) fun op => do
+      setTraceCaption mod.name.toString
+      return {olean? := oe, oleanServer? := os, oleanPrivate? := op}
+  else
+    eJob.mapM (sync := true) fun olean => do
+      setTraceCaption mod.name.toString
+      return {olean? := olean}
+
 /--
 Recursively build a module's dependencies, including:
 * Transitive local imports
@@ -220,18 +237,27 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
   will not kill this job before the direct imports are built.
   -/
   let headerJob ← mod.header.fetch
-  let directImports ← (← mod.imports.fetch).await
-  let importJobs ← directImports.mapM fun imp => do
-    if imp.name = mod.name then
-      logError s!"{mod.leanFile}: module imports itself"
-    imp.olean.fetch
-  let importJob := Job.mixArray importJobs "import oleans"
+  let impArtsJob ← headerJob.bindM fun header => do
+    let artsJobMap ← header.imports.foldlM (init := mkNameMap (Job ModuleArtifacts)) fun s imp => do
+      if imp.module = mod.name then
+        logError s!"{mod.leanFile}: module imports itself"
+      let some iMod ← findModule? imp.module
+        | return s
+      let artsJob ← iMod.fetchOleanArts imp.importAll
+      return s.insert imp.module artsJob
+    return Job.collectNameMap artsJobMap "import artifacts"
+
   /-
   Remark: It should be possible to avoid transitive imports here when the module
   itself is precompiled, but they are currently kept to preserve the "bad import" errors.
   -/
   let precompileImports ← if mod.shouldPrecompile then
     mod.transImports.fetch else mod.precompileImports.fetch
+  /-
+  let impLibsJob ← precompileImports.bindM fun imps =>
+    Job.collectArray (traceCaption := "import dynlibs") <$>
+      mod.fetchImportLibs imps mod.shouldPrecompile
+  -/
   let precompileImports ← precompileImports.await
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
     mod.fetchImportLibs precompileImports mod.shouldPrecompile
@@ -240,14 +266,14 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
-  extraDepJob.bindM fun _ => do
-  headerJob.bindM fun header => do
-  importJob.bindM (sync := true) fun _ => do
+  extraDepJob.bindM (sync := true) fun _ => do
+  headerJob.bindM (sync := true) fun header => do
+  impArtsJob.bindM (sync := true) fun modules => do
   let depTrace ← takeTrace
   impLibsJob.bindM (sync := true) fun impLibs => do
   externLibsJob.bindM (sync := true) fun externLibs => do
   dynlibsJob.bindM (sync := true) fun dynlibs => do
-  pluginsJob.mapM (sync := true) fun plugins => do
+  pluginsJob.mapM fun plugins => do
     let libTrace ← takeTrace
     setTraceCaption s!"{mod.name.toString}:deps"
     let depTrace := depTrace.withCaption "deps"
@@ -261,7 +287,7 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
       name := mod.name
       isModule := header.isModule
       imports := header.imports
-      modules := {} -- TODO
+      modules := modules
       dynlibs := dynlibs.map (·.path.toString)
       plugins := plugins.map (·.path.toString)
       options := mod.leanOptions

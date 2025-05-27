@@ -422,6 +422,17 @@ unsafe def mkCommandElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute C
 @[implemented_by mkCommandElabAttributeUnsafe]
 opaque mkCommandElabAttribute (ref : Name) : IO (KeyedDeclsAttribute CommandElab)
 
+/--
+Registers a command elaborator for the given syntax node kind.
+
+A command elaborator should have type `Lean.Elab.Command.CommandElab` (which is
+`Lean.Syntax → Lean.Elab.Term.CommandElabM Unit`), i.e. should take syntax of the given syntax
+node kind as a parameter and perform an action.
+
+The `elab_rules` and `elab` commands should usually be preferred over using this attribute
+directly.
+-/
+@[builtin_doc]
 builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute decl_name%
 
 private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArray InfoTree) : CommandElabM InfoTree := do

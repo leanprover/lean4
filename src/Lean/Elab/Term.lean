@@ -572,6 +572,17 @@ unsafe def mkTermElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Term
 @[implemented_by mkTermElabAttributeUnsafe]
 opaque mkTermElabAttribute (ref : Name) : IO (KeyedDeclsAttribute TermElab)
 
+/--
+Registers a term elaborator for the given syntax node kind.
+
+A term elaborator should have type `Lean.Elab.Term.TermElab` (which is
+`Lean.Syntax → Option Lean.Expr → Lean.Elab.Term.TermElabM Lean.Expr`), i.e. should take syntax of
+the given syntax node kind and an optional expected type as parameters and produce an expression.
+
+The `elab_rules` and `elab` commands should usually be preferred over using this attribute
+directly.
+-/
+@[builtin_doc]
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute decl_name%
 
 /--

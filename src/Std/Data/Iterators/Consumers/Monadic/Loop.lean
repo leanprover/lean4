@@ -216,7 +216,20 @@ instance {m : Type w → Type w'} {n : Type w → Type w''}
 instance {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopPartial α m n] [MonadLiftT m n] :
     ForIn n (IterM.Partial (α := α) m β) β where
-  forIn it init f := IteratorLoopPartial.forInPartial (α := α) (m := m) (fun _ => monadLift) it.it init f
+  forIn it init f :=
+    IteratorLoopPartial.forInPartial (α := α) (m := m) (fun _ => monadLift) it.it init f
+
+instance {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n]
+    [MonadLiftT m n] :
+    ForM n (IterM (α := α) m β) β where
+  forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
+
+instance {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoopPartial α m n]
+    [MonadLiftT m n] :
+    ForM n (IterM.Partial (α := α) m β) β where
+  forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
 /--
 Folds a monadic function over an iterator from the left, accumulating a value starting with `init`.

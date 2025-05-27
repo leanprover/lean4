@@ -3321,12 +3321,10 @@ Definition of bitvector addition as a nat.
 @[simp] theorem add_ofFin (x : BitVec n) (y : Fin (2^n)) :
   x + .ofFin y = .ofFin (x.toFin + y) := rfl
 
-@[simp]
 theorem not_uaddOverflow_iff {w : Nat} (x y : BitVec w) :
     uaddOverflow x y = false ↔ x.toNat + y.toNat < 2 ^ w := by
   simp [uaddOverflow]
 
-@[simp]
 theorem not_saddOverflow_iff {w : Nat} (x y : BitVec w) :
     saddOverflow x y = false ↔ x.toInt + y.toInt < 2 ^ (w - 1) ∧ - 2 ^ (w - 1) ≤ x.toInt + y.toInt := by
   simp [saddOverflow]
@@ -3408,12 +3406,10 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
     (x - y).toInt = (x.toInt - y.toInt).bmod (2 ^ w) := by
   simp [toInt_eq_toNat_bmod, @Int.ofNat_sub y.toNat (2 ^ w) (by omega), -Int.natCast_pow]
 
-@[simp]
 theorem not_usubOverflow_iff {w : Nat} (x y : BitVec w) :
     usubOverflow x y = false ↔ y.toNat ≤ x.toNat := by
   simp [usubOverflow]
 
-@[simp]
 theorem not_ssubOverflow_iff {w : Nat} (x y : BitVec w) :
     ssubOverflow x y = false ↔ x.toInt - y.toInt < 2 ^ (w - 1) ∧ -2 ^ (w - 1) ≤ x.toInt - y.toInt := by
   simp [ssubOverflow]
@@ -3502,7 +3498,6 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 @[simp, bitvec_to_nat] theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
   simp [Neg.neg, BitVec.neg]
 
-@[simp]
 theorem not_negOverflow_iff {w : Nat} (x : BitVec w) :
     negOverflow x = false ↔ x.toInt != - 2 ^ (w - 1) := by
   simp [negOverflow]
@@ -3817,12 +3812,10 @@ theorem two_mul {x : BitVec w} : 2#w * x = x + x := by rw [BitVec.mul_comm, mul_
   (x * y).toInt = (x.toInt * y.toInt).bmod (2^w) := by
   simp [toInt_eq_toNat_bmod, -Int.natCast_pow]
 
-@[simp]
 theorem not_umulOverflow_iff {w : Nat} (x y : BitVec w) :
     umulOverflow x y = false ↔ x.toNat * y.toNat < 2 ^ w  := by
   simp [umulOverflow]
 
-@[simp]
 theorem not_smulOverflow_iff {w : Nat} (x y : BitVec w) :
     smulOverflow x y = false ↔ x.toInt * y.toInt < 2 ^ (w - 1) ∧ -2 ^ (w - 1) ≤ x.toInt * y.toInt := by
   simp [smulOverflow]
@@ -4376,7 +4369,6 @@ theorem neg_two_pow_le_toInt_ediv {x y : BitVec w} :
   · have := Int.ediv_nonneg_of_nonpos_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
     omega
 
-@[simp]
 theorem not_sdivOverflow_iff {w : Nat} (x y : BitVec w) :
     sdivOverflow x y = false ↔ x.toInt / y.toInt < 2 ^ (w - 1) ∧ -2 ^ (w - 1) ≤ x.toInt / y.toInt := by
   simp [sdivOverflow]

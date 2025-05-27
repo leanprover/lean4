@@ -17,6 +17,7 @@ namespace Fin
 instance (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat' n a
 
+@[expose]
 def intCast [NeZero n] (a : Int) : Fin n :=
   if 0 ≤ a then
     Fin.ofNat' n a.natAbs
@@ -31,6 +32,7 @@ theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
 
 -- TODO: we should replace this at runtime with either repeated squaring,
 -- or a GMP accelerated function.
+@[expose]
 def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n := npowRec y x
 
 instance [NeZero n] : HPow (Fin n) Nat (Fin n) where

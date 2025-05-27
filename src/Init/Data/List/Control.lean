@@ -54,7 +54,7 @@ This implementation is tail recursive. `List.mapM'` is a a non-tail-recursive va
 more convenient to reason about. `List.forM` is the variant that discards the results and
 `List.mapA` is the variant that works with `Applicative`.
 -/
-@[inline]
+@[inline, expose]
 def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) (as : List α) : m (List β) :=
   let rec @[specialize] loop
     | [],      bs => pure bs.reverse
@@ -83,7 +83,7 @@ Applies the monadic action `f` to every element in the list, in order.
 `List.mapM` is a variant that collects results. `List.forA` is a variant that works on any
 `Applicative`.
 -/
-@[specialize]
+@[specialize, expose]
 protected def forM {m : Type u → Type v} [Monad m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=
   match as with
   | []      => pure ⟨⟩
@@ -191,7 +191,7 @@ Examining 7
 [10, 14, 14]
 ```
 -/
-@[inline]
+@[inline, expose]
 def filterMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
     | [],     bs => pure bs.reverse
@@ -205,7 +205,7 @@ def filterMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 Applies a monadic function that returns a list to each element of a list, from left to right, and
 concatenates the resulting lists.
 -/
-@[inline]
+@[inline, expose]
 def flatMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (List β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
     | [],     bs => pure bs.reverse.flatten
@@ -230,7 +230,7 @@ example [Monad m] (f : α → β → m α) :
   := by rfl
 ```
 -/
-@[specialize]
+@[specialize, expose]
 def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
   | _, s, []      => pure s
   | f, s, a :: as => do
@@ -257,7 +257,7 @@ example [Monad m] (f : α → β → m β) :
   := by rfl
 ```
 -/
-@[inline]
+@[inline, expose]
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s) (l : List α) : m s :=
   l.reverse.foldlM (fun s a => f a s) init
 
@@ -409,7 +409,7 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
     intro b
     cases b <;> simp
 
-@[inline] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
+@[inline, expose] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop : (as' : List α) → (b : β) → Exists (fun bs => bs ++ as' = as) → m β
     | [], b, _    => pure b
     | a::as', b, h => do

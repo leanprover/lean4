@@ -22,7 +22,7 @@ an array `xs : Array α`, given a proof that every element of `xs` in fact satis
 
 `Array.pmap`, named for “partial map,” is the equivalent of `Array.map` for such partial functions.
 -/
-
+@[expose]
 def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) : Array β :=
   (xs.toList.pmap f (fun a m => H a (mem_def.mpr m))).toArray
 
@@ -39,7 +39,7 @@ of elements in the corresponding subtype `{ x // P x }`.
 
 `O(1)`.
 -/
-@[implemented_by attachWithImpl] def attachWith
+@[implemented_by attachWithImpl, expose] def attachWith
     (xs : Array α) (P : α → Prop) (H : ∀ x ∈ xs, P x) : Array {x // P x} :=
   ⟨xs.toList.attachWith P fun x h => H x (Array.Mem.mk h)⟩
 
@@ -54,7 +54,7 @@ recursion](lean-manual://section/well-founded-recursion) that use higher-order f
 `Array.map`) to prove that an value taken from a list is smaller than the list. This allows the
 well-founded recursion mechanism to prove that the function terminates.
 -/
-@[inline] def attach (xs : Array α) : Array {x // x ∈ xs} := xs.attachWith _ fun _ => id
+@[inline, expose] def attach (xs : Array α) : Array {x // x ∈ xs} := xs.attachWith _ fun _ => id
 
 @[simp, grind =] theorem _root_.List.attachWith_toArray {l : List α} {P : α → Prop} {H : ∀ x ∈ l.toArray, P x} :
     l.toArray.attachWith P H = (l.attachWith P (by simpa using H)).toArray := by

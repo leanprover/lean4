@@ -159,8 +159,6 @@ theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l
     | .cons a' h₁' => cases e; apply (IH h₁').cons
     | .cons₂ a' h₁' => cases e; apply (IH h₁').cons₂
 
-grind_pattern Sublist.trans => l₁ <+ l₂, l₂ <+ l₃, l₁ <+ l₃
-
 instance : Trans (@Sublist α) Sublist Sublist := ⟨Sublist.trans⟩
 
 attribute [simp, grind] Sublist.cons
@@ -361,8 +359,7 @@ theorem Sublist.append_right : l₁ <+ l₂ → ∀ l, l₁ ++ l <+ l₂ ++ l
 theorem Sublist.append (hl : l₁ <+ l₂) (hr : r₁ <+ r₂) : l₁ ++ r₁ <+ l₂ ++ r₂ :=
   (hl.append_right _).trans ((append_sublist_append_left _).2 hr)
 
-grind_pattern Sublist.append => l₁ <+ l₂, r₁ <+ r₂, l₁ ++ r₁
-grind_pattern Sublist.append => l₁ <+ l₂, r₁ <+ r₂, l₂ ++ r₂
+grind_pattern Sublist.append => l₁ <+ l₂, r₁ <+ r₂, l₁ ++ r₁, l₂ ++ r₂
 
 @[grind =]
 theorem sublist_cons_iff {a : α} {l l'} :

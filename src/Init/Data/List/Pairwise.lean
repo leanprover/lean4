@@ -276,8 +276,11 @@ theorem nodup_nil : @Nodup α [] :=
 theorem nodup_cons {a : α} {l : List α} : Nodup (a :: l) ↔ a ∉ l ∧ Nodup l := by
   simp only [Nodup, pairwise_cons, forall_mem_ne]
 
-@[grind →] theorem Nodup.sublist : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
+theorem Nodup.sublist : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Pairwise.sublist
+
+grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₁
+grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₂
 
 theorem Sublist.nodup : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Nodup.sublist

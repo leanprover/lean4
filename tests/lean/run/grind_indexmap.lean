@@ -9,21 +9,26 @@ attribute [grind] Array.emptyWithCapacity_eq
 open Std
 
 structure IndexMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
-  indices : HashMap α Nat
-  data : Array (α × β)
-  WF : ∀ (a : α) (b : β) (i : Nat), data[i]? = some (a, b) ↔ indices[a]? = some i := by grind
+  private indices : HashMap α Nat
+  private keys : Array α
+  private values : Array β
+  private size_keys' : keys.size = values.size := by grind
+  private WF : ∀ (i : Nat) (a : α), keys[i]? = some a ↔ indices[a]? = some i := by grind
 
 namespace IndexMap
 
-variable {α : Type u} {β : Type v} [BEq α] [LawfulBEq α] [Hashable α] [LawfulHashable α]
+variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
 variable {m : IndexMap α β} {a : α} {b : β} {i : Nat}
 
 @[inline] def size (m : IndexMap α β) : Nat :=
-  m.data.size
+  m.values.size
+
+@[local grind =] private theorem size_keys : m.keys.size = m.size := m.size_keys'
 
 def emptyWithCapacity (capacity := 8) : IndexMap α β where
   indices := HashMap.emptyWithCapacity capacity
-  data := Array.emptyWithCapacity capacity
+  keys := Array.emptyWithCapacity capacity
+  values := Array.emptyWithCapacity capacity
 
 instance : EmptyCollection (IndexMap α β) where
   emptyCollection := emptyWithCapacity
@@ -47,69 +52,93 @@ grind_pattern getElem_indices_lt => m.indices[a]
 
 attribute [local grind] size
 
-example (m : HashMap α β) (h : m[a]? = some b) : a ∈ m := by grind
-example (m : HashMap α β) (h : m[a]? = some b) : m[a] = b := by grind
-example (m : HashMap α β) : m[a]? = some b ↔ ∃ h, m[a] = b := by
-  -- grind [of_getElem?_eq_some]
-  exact HashMap.getElem?_eq_some_iff
+-- variable [LawfulBEq α] [LawfulHashable α]
+
+-- example (m : HashMap α β) (h : m[a]? = some b) : a ∈ m := by grind
+-- example (m : HashMap α β) (h : m[a]? = some b) : m[a] = b := by grind
+-- example (m : HashMap α β) : m[a]? = some b ↔ ∃ h, m[a] = b := by grind [getElem?_pos]
 
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
-  getElem m a h := m.data[m.indices[a]'h].2
-  getElem? m a := m.indices[a]?.pbind fun i h => (m.data[i]'(by sorry)).2
-  getElem! m a := m.indices[a]?.bind (fun i => m.data[i]?) |>.map (·.2) |>.getD default
+  getElem m a h := m.values[m.indices[a]'h]
+  getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
+  getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
 
-@[local grind] private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) : m[a] = m.data[m.indices[a]'h].2 := rfl
+@[local grind] private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) : m[a] = m.values[m.indices[a]'h] := rfl
 @[local grind] private theorem getElem?_def (m : IndexMap α β) (a : α) :
-    m[a]? = m.indices[a]?.pbind fun i h => (m.data[i]'(by sorry)).2 := rfl
+    m[a]? = m.indices[a]?.bind (fun i => (m.values[i]?)) := rfl
+@[local grind] private theorem getElem!_def [Inhabited β] (m : IndexMap α β) (a : α) :
+    m[a]! = (m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default) := rfl
 
-@[local grind] private theorem getElem_data_getElem_indices
-   {m : IndexMap α β} {a : α} {h : a ∈ m} :
-   m.data[m.indices[a]'h] = (a, m[a]) := sorry
+@[local grind] private theorem getElem_keys_getElem_indices
+    {m : IndexMap α β} {a : α} {h : a ∈ m} :
+  m.keys[m.indices[a]'h] = a := sorry
 
 @[local grind] private theorem mem_indices_of_mem {m : IndexMap α β} {a : α} :
     a ∈ m ↔ a ∈ m.indices := Iff.rfl
 
-instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
-  getElem?_def := by
-    -- Lots of problems here!
-    -- several occurrences of `type error constructing proof for`
-    -- there are also a number of repetitions in the equivalence classes.
+variable [LawfulBEq α] [LawfulHashable α]
 
-    -- We have the equivalence classes:
-    -- {c[i_1]?, cast ⋯ (fun i h => some c.data[i].snd) c.indices[i_1] ⋯,
-    --   ...snip...}
-    -- {c[i_1], c.data[c.indices[i_1]].snd,
-    --   ...snip...}
-    -- {cast ⋯ fun i h => some c.data[i].snd, fun i h => some c.data[i].snd}
-    -- but aren't managing to put these together to get `c[i_1]? = some c[i_1]` for the contradiction.
-    grind [getElem?_pos]
-  getElem!_def := sorry
+instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
+  getElem?_def := by grind [getElem?_pos]
+  getElem!_def := by grind [getElem!_pos]
 
 @[inline] def findIdx? (m : IndexMap α β) (a : α) : Option Nat := m.indices[a]?
 
 @[inline] def findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) : Nat := m.indices[a]
 
-@[inline] def getIdx? (m : IndexMap α β) (i : Nat) : Option β := m.data[i]?.map (·.2)
+@[inline] def getIdx? (m : IndexMap α β) (i : Nat) : Option β := m.values[i]?
 
-@[inline] def getIdx (m : IndexMap α β) (i : Nat) (h : i < m.size) : β := m.data[i].2
+@[inline] def getIdx (m : IndexMap α β) (i : Nat) (h : i < m.size) : β := m.values[i]
+
+-- attribute [local grind?] IndexMap.WF -- Hmm, I'm not convinced about the pattern for this one.
+
+-- @[local grind →] private theorem size_data_lt_of_getElem_indices (h : m.indices[a]? = some i) :
+--     i < m.data.size := sorry
+-- @[local grind →] private theorem getElem_keys_of_getElem_indices (h : m.indices[a]? = some i) :
+--     m.keys[i] = a := sorry
+
+-- Equivalent to the pair below, no?
+attribute [local grind? _=_] IndexMap.WF
+
+-- @[local grind →] private theorem getElem?_indices_of_getElem?_keys (g : m.keys[i]? = some a) :
+--     m.indices[a]? = some i := sorry
+-- @[local grind →] private theorem getElem?_keys?_of_getElem?_indices (h : m.indices[a]? = some i) :
+--     m.keys[i]? = some a := sorry
+
+attribute [grind =] Array.getElem?_push
 
 @[inline] def insert (m : IndexMap α β) (a : α) (b : β) : IndexMap α β :=
   match h : m.indices[a]? with
   | some i =>
-    { m with
-      data := m.data.set i (a, b) sorry
-      WF := sorry }
+    { indices := m.indices
+      keys := m.keys.set i a (by grind)
+      values := m.values.set i b (by grind) }
   | none =>
-    { m with
-      indices := m.indices.insert a m.size
-      data := m.data.push (a, b)
-      WF := sorry }
+    { indices := m.indices.insert a m.size
+      keys := m.keys.push a
+      values := m.values.push b
+      WF := by
+        intro j b
+        rw [HashMap.getElem?_insert]
+        constructor
+        · intro w
+          fail_if_success grind (gen := 6) -- This fails, but `split <;> grind` is fine?
+          split <;> grind
+        · intro w
+          rw [Array.getElem?_push]
+          split <;> rename_i h'
+          · subst h'
+            split at w <;> grind
+          · grind
+         }
 
 instance : Singleton (α × β) (IndexMap α β) := ⟨fun ⟨a, b⟩ => (∅ : IndexMap α β).insert a b⟩
 
 instance : Insert (α × β) (IndexMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
 instance : LawfulSingleton (α × β) (IndexMap α β) := ⟨fun _ => rfl⟩
+
+#exit
 
 /--
 Erase the key-value pair with the given key, moving the last pair into its place in the order.

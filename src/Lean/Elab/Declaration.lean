@@ -335,9 +335,11 @@ def elabMutual : CommandElab := fun stx => do
         $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))
     else
-      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? ) := declModifiers
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(_)? $[unsafe%$unsafe?]?) := declModifiers
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
-      elabCommand (← `($[$doc?:docComment]? @[$attrId:ident] def initFn : IO Unit := do $doSeq))
+      let attrs := (attrs?.map (·.getElems)).getD #[]
+      let attrs := attrs.push (← `(Lean.Parser.Term.attrInstance| $attrId:ident))
+      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] def initFn : IO Unit := do $doSeq))
   | _ => throwUnsupportedSyntax
 
 builtin_initialize

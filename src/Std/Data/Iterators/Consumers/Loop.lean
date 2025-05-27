@@ -35,6 +35,16 @@ instance (α : Type w) (β : Type w) (n : Type w → Type w') [Monad n]
     letI : MonadLift Id n := ⟨pure⟩
     ForIn.forIn it.it.toIterM.allowNontermination init f
 
+instance {m : Type w → Type w'}
+    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] :
+    ForM m (Iter (α := α) β) β where
+  forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
+
+instance {m : Type w → Type w'}
+    {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoopPartial α Id m] :
+    ForM m (Iter.Partial (α := α) β) β where
+  forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
+
 /--
 Folds a monadic function over an iterator from the left, accumulating a value starting with `init`.
 The accumulated value is combined with the each element of the list in order, using `f`.

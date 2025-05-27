@@ -183,9 +183,10 @@ theorem foldrM_loop [Monad m] [LawfulMonad m] (f : Fin (n+1) → α → m α) (x
   | zero =>
     rw [foldrM_loop_zero, foldrM_loop_succ, pure_bind]
     conv => rhs; rw [←bind_pure (f 0 x)]
-    congr
-    funext
-    simp [foldrM_loop_zero]
+    rfl
+    -- congr
+    -- funext
+    -- simp [foldrM_loop_zero]
   | succ i ih =>
     rw [foldrM_loop_succ, foldrM_loop_succ, bind_assoc]
     congr; funext; exact ih ..
@@ -266,7 +267,7 @@ theorem foldl_add (f : α → Fin (n + m) → α) (x) :
   | succ m ih => simp [foldl_succ_last, ih, ← Nat.add_assoc]
 
 theorem foldl_eq_foldlM (f : α → Fin n → α) (x) :
-    foldl n f x = foldlM (m:=Id) n f x := by
+    foldl n f x = (foldlM (m := Id) n (pure <| f · ·) x).run := by
   induction n generalizing x <;> simp [foldl_succ, foldlM_succ, *]
 
 -- This is not marked `@[simp]` as it would match on every occurrence of `foldlM`.
@@ -319,7 +320,7 @@ theorem foldr_add (f : Fin (n + m) → α → α) (x) :
   | succ m ih => simp [foldr_succ_last, ih, ← Nat.add_assoc]
 
 theorem foldr_eq_foldrM (f : Fin n → α → α) (x) :
-    foldr n f x = foldrM (m:=Id) n f x := by
+    foldr n f x = (foldrM (m := Id) n (pure <| f · ·) x).run := by
   induction n <;> simp [foldr_succ, foldrM_succ, *]
 
 theorem foldl_rev (f : Fin n → α → α) (x) :

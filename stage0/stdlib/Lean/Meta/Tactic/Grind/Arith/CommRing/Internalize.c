@@ -3190,14 +3190,14 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Lean_Meta_Grind_getConfig___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_14);
-x_16 = lean_ctor_get_uint8(x_13, sizeof(void*)*7 + 17);
+x_16 = lean_ctor_get_uint8(x_13, sizeof(void*)*6 + 17);
 lean_dec(x_13);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
-x_18 = lean_ctor_get_uint8(x_17, sizeof(void*)*7 + 18);
+x_18 = lean_ctor_get_uint8(x_17, sizeof(void*)*6 + 18);
 lean_dec(x_17);
 if (x_18 == 0)
 {

@@ -14,11 +14,13 @@ import Lean.Meta.Tactic.Grind.MarkNestedProofs
 import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind
+
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
-private def simpCore (e : Expr) : GrindM Simp.Result := do
-  let simpStats := (← get).simpStats
-  let (r, simpStats) ← Meta.simp e (← readThe Context).simp (← readThe Context).simprocs (stats := simpStats)
-  modify fun s => { s with simpStats }
+private def simpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
+  let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
+  let ctx := (← readThe Context).simp
+  let (r, simp) ← Simp.mainCore e ctx simp (methods := (← readThe Context).simpMethods)
+  modify fun s => { s with simp }
   return r
 
 /--

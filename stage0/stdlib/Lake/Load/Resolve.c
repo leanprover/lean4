@@ -8111,14 +8111,10 @@ if (x_59 == 0)
 {
 lean_object* x_60; uint8_t x_61; 
 x_60 = lean_ctor_get(x_21, 0);
-lean_inc(x_60);
-lean_inc(x_52);
 x_61 = l_Lake_ToolchainVer_decLe(x_52, x_60);
 if (x_61 == 0)
 {
 uint8_t x_62; 
-lean_inc(x_52);
-lean_inc(x_60);
 x_62 = l_Lake_ToolchainVer_decLt(x_60, x_52);
 if (x_62 == 0)
 {
@@ -8183,14 +8179,10 @@ lean_object* x_77; uint8_t x_78;
 x_77 = lean_ctor_get(x_21, 0);
 lean_inc(x_77);
 lean_dec(x_21);
-lean_inc(x_77);
-lean_inc(x_52);
 x_78 = l_Lake_ToolchainVer_decLe(x_52, x_77);
 if (x_78 == 0)
 {
 uint8_t x_79; 
-lean_inc(x_52);
-lean_inc(x_77);
 x_79 = l_Lake_ToolchainVer_decLt(x_77, x_52);
 if (x_79 == 0)
 {
@@ -8272,14 +8264,10 @@ if (lean_is_exclusive(x_21)) {
  lean_dec_ref(x_21);
  x_99 = lean_box(0);
 }
-lean_inc(x_98);
-lean_inc(x_52);
 x_100 = l_Lake_ToolchainVer_decLe(x_52, x_98);
 if (x_100 == 0)
 {
 uint8_t x_101; 
-lean_inc(x_52);
-lean_inc(x_98);
 x_101 = l_Lake_ToolchainVer_decLt(x_98, x_52);
 if (x_101 == 0)
 {
@@ -8390,14 +8378,10 @@ if (lean_is_exclusive(x_21)) {
  lean_dec_ref(x_21);
  x_126 = lean_box(0);
 }
-lean_inc(x_125);
-lean_inc(x_52);
 x_127 = l_Lake_ToolchainVer_decLe(x_52, x_125);
 if (x_127 == 0)
 {
 uint8_t x_128; 
-lean_inc(x_52);
-lean_inc(x_125);
 x_128 = l_Lake_ToolchainVer_decLt(x_125, x_52);
 if (x_128 == 0)
 {
@@ -8539,14 +8523,10 @@ if (lean_is_exclusive(x_21)) {
  lean_dec_ref(x_21);
  x_159 = lean_box(0);
 }
-lean_inc(x_158);
-lean_inc(x_153);
 x_160 = l_Lake_ToolchainVer_decLe(x_153, x_158);
 if (x_160 == 0)
 {
 uint8_t x_161; 
-lean_inc(x_153);
-lean_inc(x_158);
 x_161 = l_Lake_ToolchainVer_decLt(x_158, x_153);
 if (x_161 == 0)
 {

@@ -71,11 +71,11 @@ theorem some_eq_getElem?_iff {l : List α} : some a = l[i]? ↔ ∃ h : i < l.le
 
 theorem some_getElem_eq_getElem?_iff {xs : List α} {i : Nat} (h : i < xs.length) :
     (some xs[i] = xs[i]?) ↔ True := by
-  simp [h]
+  simp
 
 theorem getElem?_eq_some_getElem_iff {xs : List α} {i : Nat} (h : i < xs.length) :
     (xs[i]? = some xs[i]) ↔ True := by
-  simp [h]
+  simp
 
 theorem getElem_eq_iff {l : List α} {i : Nat} (h : i < l.length) : l[i] = x ↔ l[i]? = some x := by
   simp only [getElem?_eq_some_iff]

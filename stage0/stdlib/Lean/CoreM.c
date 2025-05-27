@@ -202,7 +202,6 @@ lean_object* l_Lean_ConstantInfo_name(lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_traceBlock___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Core_wrapAsyncAsSnapshot___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__16;
-lean_object* l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadDeclNameGeneratorCoreM;
 static lean_object* l_Lean_Core_instMonadEnvCoreM___closed__2;
@@ -428,6 +427,7 @@ static lean_object* l_Lean_Core_instMonadRefCoreM___closed__3;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_traceBlock___spec__2___rarg___lambda__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_compileDecls_doCompile___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_async;
+lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_compileDecls_doCompile___spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_traceBlock___spec__2___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_CoreM___hyg_4620____closed__29;
@@ -574,6 +574,7 @@ LEAN_EXPORT lean_object* l_Lean_compileDecls(lean_object*, lean_object*, uint8_t
 lean_object* l_Lean_Environment_PromiseCheckedResult_commitChecked(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_useDiagnosticMsg___lambda__3___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_CoreM___hyg_40____closed__5;
+lean_object* l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__16(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_SavedState_restore(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Core_withIncRecDepth___spec__1___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_withDeclNameForAuxNaming___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -696,7 +697,6 @@ LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_compileDecls_doCompile___spec__
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_ImportM_runCoreM___rarg___closed__8;
 lean_object* l_Lean_Environment_mainModule(lean_object*);
-lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__7(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadQuotationCoreM___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_useDiagnosticMsg___lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadRuntimeExceptionStateRefT_x27(lean_object*, lean_object*, lean_object*);
@@ -743,6 +743,7 @@ uint64_t l_Lean_Name_hash___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadNameGeneratorCoreM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__4___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Core_wrapAsyncAsSnapshot___spec__1___lambda__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addTraceAsMessages___at_Lean_Core_wrapAsyncAsSnapshot___spec__6___lambda__1___closed__3;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Core_wrapAsyncAsSnapshot___spec__12___closed__2;
 uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
@@ -845,7 +846,6 @@ LEAN_EXPORT lean_object* l_Lean_Core_instantiateValueLevelParams___boxed(lean_ob
 static lean_object* l_Lean_initFn____x40_Lean_CoreM___hyg_114____closed__2;
 LEAN_EXPORT lean_object* l_Lean_mkArrowN___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadTraceCoreM___lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___at_Lean_addTraceAsMessages___spec__16(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Core_instMonadResolveNameCoreM___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadNameGeneratorCoreM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler;
@@ -921,9 +921,9 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_traceBlock___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instInhabitedCache;
 static lean_object* l___auto____x40_Lean_CoreM___hyg_4620____closed__25;
-lean_object* l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__17(lean_object*, lean_object*);
 static lean_object* l_Lean_Core_instMonadCoreM___closed__7;
 static lean_object* l_Lean_Core_instMonadQuotationCoreM___closed__2;
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_addTraceAsMessages___spec__15(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Core_wrapAsyncAsSnapshot___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Core_wrapAsyncAsSnapshot___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16532,7 +16532,7 @@ else
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; size_t x_72; 
 lean_inc(x_3);
 x_68 = lean_array_uset(x_30, x_45, x_3);
-x_69 = l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__7(x_27, x_49, x_46);
+x_69 = l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__6(x_27, x_49, x_46);
 x_70 = lean_array_uset(x_68, x_45, x_69);
 lean_ctor_set(x_17, 1, x_70);
 lean_inc(x_6);
@@ -16633,7 +16633,7 @@ else
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; size_t x_120; 
 lean_inc(x_3);
 x_115 = lean_array_uset(x_75, x_90, x_3);
-x_116 = l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__7(x_27, x_94, x_91);
+x_116 = l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__6(x_27, x_94, x_91);
 x_117 = lean_array_uset(x_115, x_90, x_116);
 x_118 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_118, 0, x_74);
@@ -16952,7 +16952,7 @@ else
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; size_t x_72; 
 lean_inc(x_3);
 x_68 = lean_array_uset(x_30, x_45, x_3);
-x_69 = l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__7(x_27, x_49, x_46);
+x_69 = l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__6(x_27, x_49, x_46);
 x_70 = lean_array_uset(x_68, x_45, x_69);
 lean_ctor_set(x_17, 1, x_70);
 lean_inc(x_6);
@@ -17053,7 +17053,7 @@ else
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; size_t x_120; 
 lean_inc(x_3);
 x_115 = lean_array_uset(x_75, x_90, x_3);
-x_116 = l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__7(x_27, x_94, x_91);
+x_116 = l_Std_DHashMap_Internal_AssocList_replace___at_Lean_addTraceAsMessages___spec__6(x_27, x_94, x_91);
 x_117 = lean_array_uset(x_115, x_90, x_116);
 x_118 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_118, 0, x_74);
@@ -17794,7 +17794,7 @@ else
 size_t x_40; lean_object* x_41; 
 x_40 = lean_usize_of_nat(x_16);
 lean_dec(x_16);
-x_41 = l_Array_foldlMUnsafe_fold___at_Lean_addTraceAsMessages___spec__16(x_15, x_20, x_40, x_14);
+x_41 = l_Array_foldlMUnsafe_fold___at_Lean_addTraceAsMessages___spec__15(x_15, x_20, x_40, x_14);
 lean_dec(x_15);
 x_30 = x_41;
 goto block_38;
@@ -17843,7 +17843,7 @@ if (x_35 == 0)
 {
 lean_object* x_36; 
 lean_inc(x_33);
-x_36 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_31, x_30, x_33, x_33, lean_box(0), lean_box(0));
+x_36 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__14(x_31, x_30, x_33, x_33, lean_box(0), lean_box(0));
 lean_dec(x_33);
 lean_dec(x_31);
 x_21 = x_36;
@@ -17852,7 +17852,7 @@ goto block_29;
 else
 {
 lean_object* x_37; 
-x_37 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__15(x_31, x_30, x_17, x_33, lean_box(0), lean_box(0));
+x_37 = l_Array_qsort_sort___at_Lean_addTraceAsMessages___spec__14(x_31, x_30, x_17, x_33, lean_box(0), lean_box(0));
 lean_dec(x_33);
 lean_dec(x_31);
 x_21 = x_37;
@@ -17955,7 +17955,7 @@ x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 x_5 = l_Lean_addTraceAsMessages___at_Lean_Core_wrapAsyncAsSnapshot___spec__6___closed__1;
 x_6 = l_Lean_addTraceAsMessages___at_Lean_Core_wrapAsyncAsSnapshot___spec__6___closed__2;
-x_7 = l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__17(x_4, x_6);
+x_7 = l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__16(x_4, x_6);
 lean_dec(x_4);
 if (lean_obj_tag(x_7) == 0)
 {

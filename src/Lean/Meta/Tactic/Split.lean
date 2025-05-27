@@ -248,9 +248,7 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     let splitter := mkAppN (mkApp splitter motive) discrsNew
     check splitter
     trace[split.debug] "after check splitter"
-    let mvarIds ← mvarId.apply splitter
-    unless mvarIds.length == matchEqns.size do
-      throwError "internal error in `split` tactic: unexpected number of goals created after applying splitter auxiliary theorem `{matchEqns.splitterName}` for `{matcherDeclName}`"
+    let mvarIds ← mvarId.applyN splitter matchEqns.size
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
       let numParams := matchEqns.splitterAltNumParams[i]!
       let (_, mvarId) ← mvarId.introN numParams

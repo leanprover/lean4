@@ -167,7 +167,7 @@ Low-level indexing operator which is as fast as a C array read.
 
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
-@[extern "lean_array_uget", simp]
+@[extern "lean_array_uget", simp, expose]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
   a[i.toNat]
 
@@ -190,7 +190,7 @@ Examples:
 * `#["orange", "yellow"].pop = #["orange"]`
 * `(#[] : Array String).pop = #[]`
 -/
-@[extern "lean_array_pop"]
+@[extern "lean_array_pop", expose]
 def pop (xs : Array α) : Array α where
   toList := xs.toList.dropLast
 
@@ -209,7 +209,7 @@ Examples:
  * `Array.replicate 3 () = #[(), (), ()]`
  * `Array.replicate 0 "anything" = #[]`
 -/
-@[extern "lean_mk_array"]
+@[extern "lean_mk_array", expose]
 def replicate {α : Type u} (n : Nat) (v : α) : Array α where
   toList := List.replicate n v
 
@@ -237,7 +237,7 @@ Examples:
 * `#["red", "green", "blue", "brown"].swap 1 2 = #["red", "blue", "green", "brown"]`
 * `#["red", "green", "blue", "brown"].swap 3 0 = #["brown", "green", "blue", "red"]`
 -/
-@[extern "lean_array_fswap"]
+@[extern "lean_array_fswap", expose]
 def swap (xs : Array α) (i j : @& Nat) (hi : i < xs.size := by get_elem_tactic) (hj : j < xs.size := by get_elem_tactic) : Array α :=
   let v₁ := xs[i]
   let v₂ := xs[j]
@@ -290,6 +290,7 @@ Examples:
  * `#[1, 2].isEmpty = false`
  * `#[()].isEmpty = false`
 -/
+@[expose]
 def isEmpty (xs : Array α) : Bool :=
   xs.size = 0
 
@@ -373,7 +374,7 @@ Examples:
  * `Array.singleton 5 = #[5]`
  * `Array.singleton "one" = #["one"]`
 -/
-@[inline] protected def singleton (v : α) : Array α := #[v]
+@[inline, expose] protected def singleton (v : α) : Array α := #[v]
 
 /--
 Returns the last element of an array, or panics if the array is empty.
@@ -402,7 +403,7 @@ that requires a proof the array is non-empty.
 def back? (xs : Array α) : Option α :=
   xs[xs.size - 1]?
 
-@[deprecated "Use `a[i]?` instead." (since := "2025-02-12")]
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), expose]
 def get? (xs : Array α) (i : Nat) : Option α :=
   if h : i < xs.size then some xs[i] else none
 
@@ -416,7 +417,7 @@ Examples:
 * `#["spinach", "broccoli", "carrot"].swapAt 1 "pepper" = ("broccoli", #["spinach", "pepper", "carrot"])`
 * `#["spinach", "broccoli", "carrot"].swapAt 2 "pepper" = ("carrot", #["spinach", "broccoli", "pepper"])`
 -/
-@[inline] def swapAt (xs : Array α) (i : Nat) (v : α) (hi : i < xs.size := by get_elem_tactic) : α × Array α :=
+@[inline, expose] def swapAt (xs : Array α) (i : Nat) (v : α) (hi : i < xs.size := by get_elem_tactic) : α × Array α :=
   let e := xs[i]
   let xs' := xs.set i v
   (e, xs')
@@ -431,7 +432,7 @@ Examples:
 * `#["spinach", "broccoli", "carrot"].swapAt! 1 "pepper" = (#["spinach", "pepper", "carrot"], "broccoli")`
 * `#["spinach", "broccoli", "carrot"].swapAt! 2 "pepper" = (#["spinach", "broccoli", "pepper"], "carrot")`
 -/
-@[inline]
+@[inline, expose]
 def swapAt! (xs : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < xs.size then
     swapAt xs i v
@@ -544,7 +545,7 @@ Examples:
 -/
 @[inline]
 def modify (xs : Array α) (i : Nat) (f : α → α) : Array α :=
-  Id.run <| modifyM xs i f
+  Id.run <| modifyM xs i (pure <| f ·)
 
 set_option linter.indexVariables false in -- Changing `idx` causes bootstrapping issues, haven't investigated.
 /--
@@ -577,7 +578,7 @@ def modifyOp (xs : Array α) (idx : Nat) (f : α → α) : Array α :=
   loop 0 b
 
 /-- Reference implementation for `forIn'` -/
-@[implemented_by Array.forIn'Unsafe]
+@[implemented_by Array.forIn'Unsafe, expose]
 protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     match i, h with
@@ -644,7 +645,7 @@ example [Monad m] (f : α → β → m α) :
 ```
 -/
 -- Reference implementation for `foldlM`
-@[implemented_by foldlMUnsafe]
+@[implemented_by foldlMUnsafe, expose]
 def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
   let fold (stop : Nat) (h : stop ≤ as.size) :=
     let rec loop (i : Nat) (j : Nat) (b : β) : m β := do
@@ -709,7 +710,7 @@ example [Monad m] (f : α → β → m β) :
 ```
 -/
 -- Reference implementation for `foldrM`
-@[implemented_by foldrMUnsafe]
+@[implemented_by foldrMUnsafe, expose]
 def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
   let rec fold (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     if i == stop then
@@ -770,7 +771,7 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
 Applies the monadic action `f` to every element in the array, along with the element's index and a
 proof that the index is in bounds, from left to right. Returns the array of results.
 -/
-@[inline]
+@[inline, expose]
 def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → m β) : m (Array β) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = as.size) (bs : Array β) : m (Array β) := do
@@ -788,7 +789,7 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
 Applies the monadic action `f` to every element in the array, along with the element's index, from
 left to right. Returns the array of results.
 -/
-@[inline]
+@[inline, expose]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β) (as : Array α) : m (Array β) :=
   as.mapFinIdxM fun i a _ => f i a
 
@@ -834,7 +835,7 @@ Almost! 5
 some 10
 ```
 -/
-@[inline]
+@[inline, expose]
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
   for a in as do
     match (← f a) with
@@ -915,7 +916,7 @@ The optional parameters `start` and `stop` control the region of the array to be
 elements with indices from `start` (inclusive) to `stop` (exclusive) are checked. By default, the
 entire array is checked.
 -/
-@[implemented_by anyMUnsafe]
+@[implemented_by anyMUnsafe, expose]
 def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
   let any (stop : Nat) (h : stop ≤ as.size) :=
     let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
@@ -1057,9 +1058,9 @@ Examples:
  * `#[1, 2, 3].foldl (· ++ toString ·) "" = "123"`
  * `#[1, 2, 3].foldl (s!"({·} {·})") "" = "((( 1) 2) 3)"`
 -/
-@[inline]
+@[inline, expose]
 def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Array α) (start := 0) (stop := as.size) : β :=
-  Id.run <| as.foldlM f init start stop
+  Id.run <| as.foldlM (pure <| f · ·) init start stop
 
 /--
 Folds a function over an array from the right, accumulating a value starting with `init`. The
@@ -1074,9 +1075,9 @@ Examples:
  * `#[1, 2, 3].foldr (toString · ++ ·) "" = "123"`
  * `#[1, 2, 3].foldr (s!"({·} {·})") "!" = "(1 (2 (3 !)))"`
 -/
-@[inline]
+@[inline, expose]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Array α) (start := as.size) (stop := 0) : β :=
-  Id.run <| as.foldrM f init start stop
+  Id.run <| as.foldrM (pure <| f · ·) init start stop
 
 /--
 Computes the sum of the elements of an array.
@@ -1085,7 +1086,7 @@ Examples:
  * `#[a, b, c].sum = a + (b + (c + 0))`
  * `#[1, 2, 5].sum = 8`
 -/
-@[inline]
+@[inline, expose]
 def sum {α} [Add α] [Zero α] : Array α → α :=
   foldr (· + ·) 0
 
@@ -1097,7 +1098,7 @@ Examples:
  * `#[1, 2, 3, 4, 5].countP (· < 5) = 4`
  * `#[1, 2, 3, 4, 5].countP (· > 5) = 0`
 -/
-@[inline]
+@[inline, expose]
 def countP {α : Type u} (p : α → Bool) (as : Array α) : Nat :=
   as.foldr (init := 0) fun a acc => bif p a then acc + 1 else acc
 
@@ -1109,7 +1110,7 @@ Examples:
  * `#[1, 1, 2, 3, 5].count 5 = 1`
  * `#[1, 1, 2, 3, 5].count 4 = 0`
 -/
-@[inline]
+@[inline, expose]
 def count {α : Type u} [BEq α] (a : α) (as : Array α) : Nat :=
   countP (· == a) as
 
@@ -1122,9 +1123,9 @@ Examples:
 * `#["one", "two", "three"].map (·.length) = #[3, 3, 5]`
 * `#["one", "two", "three"].map (·.reverse) = #["eno", "owt", "eerht"]`
 -/
-@[inline]
+@[inline, expose]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
-  Id.run <| as.mapM f
+  Id.run <| as.mapM (pure <| f ·)
 
 instance : Functor Array where
   map := map
@@ -1137,9 +1138,9 @@ that the index is valid.
 `Array.mapIdx` is a variant that does not provide the function with evidence that the index is
 valid.
 -/
-@[inline]
+@[inline, expose]
 def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → β) : Array β :=
-  Id.run <| as.mapFinIdxM f
+  Id.run <| as.mapFinIdxM (pure <| f · · ·)
 
 /--
 Applies a function to each element of the array along with the index at which that element is found,
@@ -1148,9 +1149,9 @@ returning the array of results.
 `Array.mapFinIdx` is a variant that additionally provides the function with a proof that the index
 is valid.
 -/
-@[inline]
+@[inline, expose]
 def mapIdx {α : Type u} {β : Type v} (f : Nat → α → β) (as : Array α) : Array β :=
-  Id.run <| as.mapIdxM f
+  Id.run <| as.mapIdxM (pure <| f · ·)
 
 /--
 Pairs each element of an array with its index, optionally starting from an index other than `0`.
@@ -1159,6 +1160,7 @@ Examples:
 * `#[a, b, c].zipIdx = #[(a, 0), (b, 1), (c, 2)]`
 * `#[a, b, c].zipIdx 5 = #[(a, 5), (b, 6), (c, 7)]`
 -/
+@[expose]
 def zipIdx (xs : Array α) (start := 0) : Array (α × Nat) :=
   xs.mapIdx fun i a => (a, start + i)
 
@@ -1172,7 +1174,7 @@ Examples:
 * `#[7, 6, 5, 8, 1, 2, 6].find? (· < 5) = some 1`
 * `#[7, 6, 5, 8, 1, 2, 6].find? (· < 1) = none`
 -/
-@[inline]
+@[inline, expose]
 def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=
   Id.run do
     for a in as do
@@ -1196,9 +1198,9 @@ Example:
 some 10
 ```
 -/
-@[inline]
+@[inline, expose]
 def findSome? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
-  Id.run <| as.findSomeM? f
+  Id.run <| as.findSomeM? (pure <| f ·)
 
 /--
 Returns the first non-`none` result of applying the function `f` to each element of the
@@ -1232,7 +1234,7 @@ Examples:
 -/
 @[inline]
 def findSomeRev? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
-  Id.run <| as.findSomeRevM? f
+  Id.run <| as.findSomeRevM? (pure <| f ·)
 
 /--
 Returns the last element of the array for which the predicate `p` returns `true`, or `none` if no
@@ -1244,7 +1246,7 @@ Examples:
 -/
 @[inline]
 def findRev? {α : Type} (p : α → Bool) (as : Array α) : Option α :=
-  Id.run <| as.findRevM? p
+  Id.run <| as.findRevM? (pure <| p ·)
 
 /--
 Returns the index of the first element for which `p` returns `true`, or `none` if there is no such
@@ -1254,7 +1256,7 @@ Examples:
 * `#[7, 6, 5, 8, 1, 2, 6].findIdx (· < 5) = some 4`
 * `#[7, 6, 5, 8, 1, 2, 6].findIdx (· < 1) = none`
 -/
-@[inline]
+@[inline, expose]
 def findIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option Nat :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   loop (j : Nat) :=
@@ -1308,7 +1310,7 @@ Examples:
 * `#[7, 6, 5, 8, 1, 2, 6].findIdx (· < 5) = 4`
 * `#[7, 6, 5, 8, 1, 2, 6].findIdx (· < 1) = 7`
 -/
-@[inline]
+@[inline, expose]
 def findIdx (p : α → Bool) (as : Array α) : Nat := (as.findIdx? p).getD as.size
 
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
@@ -1381,9 +1383,9 @@ Examples:
 * `#[2, 4, 5, 6].any (· % 2 = 0) = true`
 * `#[2, 4, 5, 6].any (· % 2 = 1) = true`
 -/
-@[inline]
+@[inline, expose]
 def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
-  Id.run <| as.anyM p start stop
+  Id.run <| as.anyM (pure <| p ·) start stop
 
 /--
 Returns `true` if `p` returns `true` for every element of `as`.
@@ -1401,7 +1403,7 @@ Examples:
 -/
 @[inline]
 def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
-  Id.run <| as.allM p start stop
+  Id.run <| as.allM (pure <| p ·) start stop
 
 /--
 Checks whether `a` is an element of `as`, using `==` to compare elements.
@@ -1412,6 +1414,7 @@ Examples:
 * `#[1, 4, 2, 3, 3, 7].contains 3 = true`
 * `Array.contains #[1, 4, 2, 3, 3, 7] 5 = false`
 -/
+@[expose]
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
   as.any (a == ·)
 
@@ -1460,6 +1463,7 @@ Examples:
   * `#[] ++ #[4, 5] = #[4, 5]`.
   * `#[1, 2, 3] ++ #[] = #[1, 2, 3]`.
 -/
+@[expose]
 protected def append (as : Array α) (bs : Array α) : Array α :=
   bs.foldl (init := as) fun xs v => xs.push v
 
@@ -1497,7 +1501,7 @@ Examples:
 * `#[2, 3, 2].flatMap Array.range = #[0, 1, 0, 1, 2, 0, 1]`
 * `#[['a', 'b'], ['c', 'd', 'e']].flatMap List.toArray = #['a', 'b', 'c', 'd', 'e']`
 -/
-@[inline]
+@[inline, expose]
 def flatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
 
@@ -1510,7 +1514,7 @@ Examples:
  * `#[#[0, 1], #[], #[2], #[1, 0, 1]].flatten = #[0, 1, 2, 1, 0, 1]`
  * `(#[] : Array Nat).flatten = #[]`
 -/
-@[inline] def flatten (xss : Array (Array α)) : Array α :=
+@[inline, expose] def flatten (xss : Array (Array α)) : Array α :=
   xss.foldl (init := empty) fun acc xs => acc ++ xs
 
 /--
@@ -1523,6 +1527,7 @@ Examples:
 * `#[0, 1].reverse = #[1, 0]`
 * `#[0, 1, 2].reverse = #[2, 1, 0]`
 -/
+@[expose]
 def reverse (as : Array α) : Array α :=
   if h : as.size ≤ 1 then
     as
@@ -1555,7 +1560,7 @@ Examples:
 * `#[1, 2, 5, 2, 7, 7].filter (fun _ => true) (start := 3) = #[2, 7, 7]`
 * `#[1, 2, 5, 2, 7, 7].filter (fun _ => true) (stop := 3) = #[1, 2, 5]`
 -/
-@[inline]
+@[inline, expose]
 def filter (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Array α :=
   as.foldl (init := #[]) (start := start) (stop := stop) fun acc a =>
     if p a then acc.push a else acc
@@ -1648,7 +1653,7 @@ Examining 7
 #[10, 14, 14]
 ```
 -/
-@[specialize]
+@[specialize, expose]
 def filterMapM [Monad m] (f : α → m (Option β)) (as : Array α) (start := 0) (stop := as.size) : m (Array β) :=
   as.foldlM (init := #[]) (start := start) (stop := stop) fun bs a => do
     match (← f a) with
@@ -1668,9 +1673,9 @@ Example:
 #[10, 14, 14]
 ```
 -/
-@[inline]
+@[inline, expose]
 def filterMap (f : α → Option β) (as : Array α) (start := 0) (stop := as.size) : Array β :=
-  Id.run <| as.filterMapM f (start := start) (stop := stop)
+  Id.run <| as.filterMapM (pure <| f ·) (start := start) (stop := stop)
 
 /--
 Returns the largest element of the array, as determined by the comparison `lt`, or `none` if

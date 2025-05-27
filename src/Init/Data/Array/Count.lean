@@ -52,8 +52,8 @@ theorem countP_push {a : α} {xs : Array α} : countP p (xs.push a) = countP p x
   rcases xs with ⟨xs⟩
   simp_all
 
-@[simp] theorem countP_singleton {a : α} : countP p #[a] = if p a then 1 else 0 := by
-  simp [countP_push]
+theorem countP_singleton {a : α} : countP p #[a] = if p a then 1 else 0 := by
+  simp
 
 theorem size_eq_countP_add_countP {xs : Array α} : xs.size = countP p xs + countP (fun a => ¬p a) xs := by
   rcases xs with ⟨xs⟩

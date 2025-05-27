@@ -418,7 +418,6 @@ lean_object* lean_io_prim_handle_write(lean_object*, lean_object*, lean_object*)
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Child_wait___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
-uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_setNumHeartbeats___boxed(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_System_IO___hyg_1906____closed__17;
 LEAN_EXPORT lean_object* l_instMonadBaseIO;
@@ -2916,17 +2915,16 @@ return x_1;
 LEAN_EXPORT uint8_t l_IO_instMinTaskState(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_IO_instOrdTaskState;
-x_4 = lean_box(x_1);
-x_5 = lean_box(x_2);
-x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
-if (x_6 == 0)
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Init_System_IO_0__IO_ordTaskState____x40_Init_System_IO___hyg_1650_(x_1, x_2);
+x_4 = lean_box(x_3);
+if (lean_obj_tag(x_4) == 2)
 {
 return x_2;
 }
 else
 {
+lean_dec(x_4);
 return x_1;
 }
 }
@@ -2947,17 +2945,16 @@ return x_6;
 LEAN_EXPORT uint8_t l_IO_instMaxTaskState(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_IO_instOrdTaskState;
-x_4 = lean_box(x_1);
-x_5 = lean_box(x_2);
-x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
-if (x_6 == 0)
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Init_System_IO_0__IO_ordTaskState____x40_Init_System_IO___hyg_1650_(x_1, x_2);
+x_4 = lean_box(x_3);
+if (lean_obj_tag(x_4) == 2)
 {
 return x_1;
 }
 else
 {
+lean_dec(x_4);
 return x_2;
 }
 }

@@ -40,7 +40,7 @@ Use the indexing notation `a[i]!` instead.
 
 Access an element from an array, or panic if the index is out of bounds.
 -/
-@[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17")]
+@[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17"), expose]
 def get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
@@ -89,8 +89,12 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
     xs.toList.foldr f init = xs.foldr f init :=
   List.foldr_eq_foldrM .. ▸ foldrM_toList ..
 
-@[simp, grind =] theorem push_toList {xs : Array α} {a : α} : (xs.push a).toList = xs.toList ++ [a] := by
+@[simp, grind =] theorem toList_push {xs : Array α} {x : α} : (xs.push x).toList = xs.toList ++ [x] := by
+  rcases xs with ⟨xs⟩
   simp [push, List.concat_eq_append]
+
+@[deprecated toList_push (since := "2025-05-26")]
+abbrev push_toList := @toList_push
 
 @[simp, grind =] theorem toListAppend_eq {xs : Array α} {l : List α} : xs.toListAppend l = xs.toList ++ l := by
   simp [toListAppend, ← foldr_toList]

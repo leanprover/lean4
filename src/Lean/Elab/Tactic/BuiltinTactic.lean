@@ -344,6 +344,56 @@ where
         replaceMainGoal [mvarId]
   | _ => throwUnsupportedSyntax
 
+@[builtin_tactic Lean.Parser.Tactic.clearValue] def evalClearValue : Tactic := fun stx =>
+  match stx with
+  | `(tactic| clear_value $xs* $[with $hs*]?) => withMainContext do
+    let hs := hs.getD #[]
+    if xs.size < hs.size then throwErrorAt hs[xs.size]! "Too many binders provided."
+    let mut fvarIds : Array FVarId := #[]
+    let mut hasStar := false
+    let mut newHyps : Array (FVarId × Name) := #[]
+    for i in [0:xs.size], x in xs do
+      if x.raw.isOfKind ``Parser.Tactic.clearValueStar then
+        if i < hs.size then
+          throwErrorAt hs[i]! "When using `*`, no binder may be provided for it."
+        hasStar := true
+      else
+        let fvarId ← getFVarId x
+        unless (← fvarId.isLetVar) do
+          throwErrorAt x "Hypothesis `{mkFVar fvarId}` is not a local definition."
+        if fvarIds.contains fvarId then
+          throwErrorAt x "Hypothesis `{mkFVar fvarId}` appears multiple times."
+        fvarIds := fvarIds.push fvarId
+        if let some h := hs[i]? then
+          let hName ←
+            match h with
+            | `(binderIdent| $n:ident) => pure n.raw.getId
+            | _ => mkFreshBinderNameForTactic `h
+          newHyps := newHyps.push (fvarId, hName)
+    let mut g ← popMainGoal
+    unless newHyps.isEmpty do
+      let mut hyps : Array Hypothesis := #[]
+      for (fvarId, hName) in newHyps do
+        let type ← mkEq (mkFVar fvarId) (← fvarId.getValue?).get!
+        let value ← mkEqRefl (mkFVar fvarId)
+        hyps := hyps.push { userName := hName, type, value }
+      g ← Prod.snd <$> g.assertHypotheses hyps
+    let toClear ← g.withContext do
+      if hasStar then pure <| (← getLocalHyps).map Expr.fvarId!
+      else sortFVarIds fvarIds
+    let mut succeeded := false
+    for fvarId in toClear.reverse do
+      try
+        g ← g.clearValue fvarId
+        succeeded := true
+      catch _ =>
+        if fvarIds.contains fvarId then
+          g.withContext do throwError "Tactic `clear_value` failed, the value of `{Expr.fvar fvarId}` cannot be cleared.\n{g}"
+    unless succeeded do
+      g.withContext do throwError "Tactic `clear_value` failed to clear any values.\n{g}"
+    pushGoal g
+  | _ => throwUnsupportedSyntax
+
 def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : TacticM Unit := do
   for h in hs do
     withMainContext do
@@ -353,7 +403,20 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
 
 @[builtin_tactic Lean.Parser.Tactic.subst] def evalSubst : Tactic := fun stx =>
   match stx with
-  | `(tactic| subst $hs*) => forEachVar hs Meta.subst
+  | `(tactic| subst $hs*) => forEachVar hs fun mvarId fvarId => do
+    let decl ← fvarId.getDecl
+    if decl.isLet then
+      -- Zeta delta reduce the let and eliminate it.
+      let (_, mvarId) ← mvarId.withReverted #[fvarId] fun mvarId' fvars => mvarId'.withContext do
+        let tgt ← mvarId'.getType
+        assert! tgt.isLet
+        let mvarId'' ← mvarId'.replaceTargetDefEq (tgt.letBody!.instantiate1 tgt.letValue!)
+        -- Dropped the let fvar
+        let aliasing := (fvars.extract 1).map some
+        return ((), aliasing, mvarId'')
+      return mvarId
+    else
+      Meta.subst mvarId fvarId
   | _                     => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>

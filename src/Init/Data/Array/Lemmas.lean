@@ -4285,42 +4285,44 @@ Examples:
 
 /-! ### Preliminaries about `ofFn` -/
 
-@[simp] theorem size_ofFn_go {n} {f : Fin n → α} {i acc} :
-    (ofFn.go f i acc).size = acc.size + (n - i) := by
-  if hin : i < n then
-    unfold ofFn.go
-    have : 1 + (n - (i + 1)) = n - i :=
-      Nat.sub_sub .. ▸ Nat.add_sub_cancel' (Nat.le_sub_of_add_le (Nat.add_comm .. ▸ hin))
-    rw [dif_pos hin, size_ofFn_go, size_push, Nat.add_assoc, this]
-  else
-    have : n - i = 0 := Nat.sub_eq_zero_of_le (Nat.le_of_not_lt hin)
-    unfold ofFn.go
-    simp [hin, this]
-termination_by n - i
+@[simp] theorem size_ofFn_go {n} {f : Fin n → α} {i acc h} :
+    (ofFn.go f acc i h).size = acc.size + i := by
+  induction i generalizing acc with
+  | zero => simp [ofFn.go]
+  | succ i ih =>
+    simpa [ofFn.go, ih] using Nat.succ_add_eq_add_succ acc.size i
 
 @[simp] theorem size_ofFn {n : Nat} {f : Fin n → α} : (ofFn f).size = n := by simp [ofFn]
 
-theorem getElem_ofFn_go {f : Fin n → α} {i} {acc k}
-    (hki : k < n) (hin : i ≤ n) (hi : i = acc.size)
-    (hacc : ∀ j, ∀ hj : j < acc.size, acc[j] = f ⟨j, Nat.lt_of_lt_of_le hj (hi ▸ hin)⟩) :
-    haveI : acc.size + (n - acc.size) = n := Nat.add_sub_cancel' (hi ▸ hin)
-    (ofFn.go f i acc)[k]'(by simp [*]) = f ⟨k, hki⟩ := by
-  unfold ofFn.go
-  if hin : i < n then
-    have : 1 + (n - (i + 1)) = n - i :=
-      Nat.sub_sub .. ▸ Nat.add_sub_cancel' (Nat.le_sub_of_add_le (Nat.add_comm .. ▸ hin))
-    simp only [dif_pos hin]
-    rw [getElem_ofFn_go _ hin (by simp [*]) (fun j hj => ?hacc)]
-    cases (Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ (by simpa using hj)) with
-    | inl hj => simp [getElem_push, hj, hacc j hj]
-    | inr hj => simp [getElem_push, *]
-  else
-    simp [hin, hacc k (Nat.lt_of_lt_of_le hki (Nat.le_of_not_lt (hi ▸ hin)))]
-termination_by n - i
+-- Recall `ofFn.go f acc i h = acc ++ #[f (n - i), ..., f(n - 1)]`
+theorem getElem_ofFn_go {f : Fin n → α} {acc i k} (h : i ≤ n) (w₁ : k < acc.size + i) :
+    (ofFn.go f acc i h)[k]'(by simpa using w₁) =
+      if w₂ : k < acc.size then acc[k] else f ⟨n - i + k - acc.size, by omega⟩ := by
+  induction i generalizing acc k with
+  | zero =>
+    simp at w₁
+    simp_all [ofFn.go]
+  | succ i ih =>
+    unfold ofFn.go
+    rw [ih]
+    · simp only [size_push]
+      split <;> rename_i h'
+      · rw [Array.getElem_push]
+        split
+        · rfl
+        · congr 2
+          omega
+      · split
+        · omega
+        · congr 2
+          omega
+    · simp
+      omega
 
 @[simp] theorem getElem_ofFn {f : Fin n → α} {i : Nat} (h : i < (ofFn f).size) :
-    (ofFn f)[i] = f ⟨i, size_ofFn (f := f) ▸ h⟩ :=
-  getElem_ofFn_go _ (by simp) (by simp) nofun
+    (ofFn f)[i] = f ⟨i, size_ofFn (f := f) ▸ h⟩ := by
+  unfold ofFn
+  rw [getElem_ofFn_go] <;> simp_all
 
 theorem getElem?_ofFn {f : Fin n → α} {i : Nat} :
     (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none := by

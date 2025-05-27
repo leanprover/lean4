@@ -339,7 +339,7 @@ def elabMutual : CommandElab := fun stx => do
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
       let attrs := (attrs?.map (·.getElems)).getD #[]
       let attrs := attrs.push (← `(Lean.Parser.Term.attrInstance| $attrId:ident))
-      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] def initFn : IO Unit := do $doSeq))
+      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
   | _ => throwUnsupportedSyntax
 
 builtin_initialize

@@ -99,6 +99,16 @@ instance : MonadQuotation DelabM := {
   withFreshMacroScope := fun x => x
 }
 
+/--
+Registers a delaborator.
+
+@[delab k] registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the
+`Lean.Expr` constructor `k`. Multiple delaborators for a single constructor are tried in turn until
+the first success. If the term to be delaborated is an application of a constant `c`, elaborators
+for `app.c` are tried first; this is also done for `Expr.const`s ("nullary applications") to reduce
+special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k` is tried first.
+-/
+@[builtin_doc]
 unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   KeyedDeclsAttribute.init {
     builtinName := `builtin_delab,
@@ -443,14 +453,22 @@ partial def delab : Delab := do
   else
     return stx
 
+/--
+Registers an unexpander for applications of a given constant.
+
+@[app_unexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant
+`c`. The unexpander is passed the result of pre-pretty printing the application *without*
+implicitly passed arguments. If `pp.explicit` is set to true or `pp.notation` is set to false,
+it will not be called at all.
+
+Unexpanders work as an alternative for delaborators (`@[app_delab]`) that can be used without
+special imports. This however also makes them much less capable since they can only transform
+syntax and don't have access to the expression tree.
+-/
 unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
   KeyedDeclsAttribute.init {
     name  := `app_unexpander,
-    descr := "Register an unexpander for applications of a given constant.
-
-[app_unexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is
-passed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set
-to true or `pp.notation` is set to false, it will not be called at all.",
+    descr := "Register an unexpander for applications of a given constant.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
       Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)

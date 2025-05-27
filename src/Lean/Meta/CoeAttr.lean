@@ -75,30 +75,7 @@ def registerCoercion (name : Name) (info : Option CoeFnInfo := none) : MetaM Uni
     pure { numArgs := coercee + 1, coercee, type := .coe }
   modifyEnv fun env => coeExt.addEntry env (name, info)
 
-/--
-Registers a definition as a coercion.
-
-Using this attribute mainly affects pretty-printing (coercions are pretty-printed as "↑") and does
-not affect coercion elaboration. In order to use a function as a coercion, it is necessary to
-define coercion instances (e.g. `Coe` or `CoeOut` instances).
-
-Example:
-```
-structure NatWrapper where
-  value : Nat
-
-attribute [coe] NatWrapper.value
-
-#check { value := 3 : NatWrapper }.value -- ↑{ value := 3 } : Nat
-#check ({ value := 3 : NatWrapper } : Nat) -- fails
-
-instance : CoeOut NatWrapper Nat := ⟨NatWrapper.value⟩
-
-#check ({ value := 3 : NatWrapper } : Nat) -- ↑{ value := 3 } : Nat
-```
--/
-@[builtin_init, builtin_doc]
-private def init := registerBuiltinAttribute {
+builtin_initialize registerBuiltinAttribute {
   name := `coe
   descr := "Adds a definition as a coercion"
   add := fun decl _stx kind => MetaM.run' do

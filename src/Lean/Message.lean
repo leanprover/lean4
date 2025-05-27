@@ -432,6 +432,10 @@ code.
 -/
 def errorNameSuffix := "namedError"
 
+/-- Produces a `MessageData` tag suitable for labeling an error named `name`. -/
+def tagForError (name : Name) : Name :=
+  .str name errorNameSuffix
+
 /--
 If the provided name is labeled as a diagnostic name, removes the label and returns the
 corresponding diagnostic name.

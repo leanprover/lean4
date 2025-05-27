@@ -46,6 +46,10 @@ def getErrorExplanation? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Na
   explan?.mapM fun explan =>
     return { explan with doc := (← rewriteManualLinks explan.doc) }
 
+/-- Returns true if there exists an error explanation named `name`. -/
+def hasErrorExplanation [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m Bool :=
+  return errorExplanationExt.getState (← getEnv) |>.contains name
+
 /--
 Returns all error explanations with their names as an unsorted array, *without* rewriting manual
 links.
@@ -131,7 +135,7 @@ where
           match kind? with
           | none => kind? := Kind.ofString atomicAttr
           | some kind =>
-            fail "redundant kind specifications: previously `{kind?.get!}`; now `{atomicAttr}`"
+            fail s!"redundant kind specifications: previously `{kind}`; now `{atomicAttr}`"
         | _ => fail s!"invalid attribute {atomicAttr}"
       | .inr (name, val) =>
         if name == "title" then
@@ -298,6 +302,62 @@ def processDoc (doc : String) :=
   parseExplanation.run doc
 
 end ErrorExplanation
+
+-- TODO: create a helper function `msg name ↦ .tagged (tagForError name) msg`
+protected def throwNamedError [Monad m] [MonadError m] (name : Name) (msg : MessageData) : m α := do
+  let ref ← getRef
+  let msg := .tagged (tagForError name) msg
+  let (ref, msg) ← AddErrorMessageContext.add ref msg
+  throw <| Exception.error ref msg
+
+protected def throwNamedErrorAt [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α := do
+  withRef ref <| Lean.throwNamedError name msg
+
+section
+variable [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
+/-- Log a new error message using the given message data. The position is provided by `getRef`. -/
+def logNamedError (name : Name) (msgData : MessageData) : m Unit :=
+  log (.tagged (tagForError name) msgData) MessageSeverity.error
+
+/-- Log a new error message using the given message data. The position is provided by `ref`. -/
+protected def logNamedErrorAt (ref : Syntax) (name : Name) (msgData : MessageData) : m Unit :=
+  logAt ref (.tagged (tagForError name) msgData) MessageSeverity.error
+end
+
+-- TODO: the following QoL features would be very helpful (i > ii -- probably i >> ii):
+-- (i) cmd-click on error names to jump to the explanation   <-- Could labeled sorries be a model?
+-- (ii) autocomplete with registered error explanation names
+syntax (name := throwNamedErrorStx) "throwNamedError " ident ppSpace (interpolatedStr(term) <|> term) : term
+syntax (name := throwNamedErrorAtStx) "throwNamedErrorAt " term:max ppSpace ident ppSpace (interpolatedStr(term) <|> term) : term
+syntax (name := logNamedErrorStx) "logNamedError " ident ppSpace (interpolatedStr(term) <|> term) : term
+syntax (name := logNamedErrorAtStx) "logNamedErrorAt " term:max ppSpace ident ppSpace (interpolatedStr(term) <|> term) : term
+
+def expandThrowNamedError : Macro
+  | `(throwNamedError $id $msg:interpolatedStr) => ``(Lean.throwNamedError $(quote id.getId) m! $msg)
+  | `(throwNamedError $id $msg:term) => ``(Lean.throwNamedError $(quote id.getId) $msg)
+  | `(throwNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) m! $msg)
+  | `(throwNamedErrorAt $ref $id $msg:term) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) $msg)
+  | `(logNamedError $id $msg:interpolatedStr) => ``(Lean.logError $(quote id.getId) m! $msg)
+  | `(logNamedError $id $msg:term) => ``(Lean.logNamedError $(quote id.getId) $msg)
+  | `(logNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
+  | `(logNamedErrorAt $ref $id $msg:term) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
+  | _ => Macro.throwUnsupported
+
+open Lean Elab Term in
+@[builtin_term_elab throwNamedErrorStx, builtin_term_elab throwNamedErrorAtStx,
+  builtin_term_elab logNamedErrorStx, builtin_term_elab logNamedErrorAtStx]
+def elabCheckedNamedError : TermElab
+  | stx@`(throwNamedError $id $_msg), expType?
+  | stx@`(throwNamedErrorAt $_ref $id $_msg), expType?
+  | stx@`(logNamedError $id $_msg), expType?
+  | stx@`(logNamedErrorAt $_ref $id $_msg), expType? => do
+    let name := id.getId
+    unless (← hasErrorExplanation name) do
+      throwError m!"There is no explanation associated with the name `{name}`. \
+        Add an explanation of this error to the `Lean.ErrorExplanation` module."
+    let stx' ← liftMacroM <| expandThrowNamedError stx
+    elabTerm stx' expType?
+  | _, _ => throwUnsupportedSyntax
 
 open Elab Meta Term Command in
 /--

@@ -115,7 +115,7 @@ theorem suffix_iff_eq_drop : l₁ <:+ l₂ ↔ l₁ = drop (length l₂ - length
   ⟨fun h => append_cancel_left <| (suffix_iff_eq_append.1 h).trans (take_append_drop _ _).symm,
     fun e => e.symm ▸ drop_suffix _ _⟩
 
-theorem prefix_take_le_iff {xs : List α} (hm : i < xs.length) :
+@[grind =] theorem prefix_take_le_iff {xs : List α} (hm : i < xs.length) :
     xs.take i <+: xs.take j ↔ i ≤ j := by
   simp only [prefix_iff_eq_take, length_take]
   induction i generalizing xs j with

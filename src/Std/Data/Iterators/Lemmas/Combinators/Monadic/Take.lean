@@ -27,4 +27,12 @@ theorem IterM.step_take {α m β} [Monad m] [Iterator α m β] {n : Nat}
     obtain ⟨step, h⟩ := step
     cases step <;> rfl
 
+theorem IterM.toList_take_zero {α m β} [Monad m] [LawfulMonad m] [Iterator α m β]
+    [Finite (Take α m β) m]
+    [IteratorCollect (Take α m β) m m] [LawfulIteratorCollect (Take α m β) m m]
+    {it : IterM (α := α) m β} :
+    (it.take 0).toList = pure [] := by
+  rw [toList_eq_match_step]
+  simp [step_take]
+
 end Std.Iterators

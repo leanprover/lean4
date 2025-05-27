@@ -1317,6 +1317,11 @@ theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
     uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w + 1)).msb := by
   simp [uaddOverflow, msb_add, msb_setWidth, carry]
 
+@[simp]
+theorem not_uaddOverflow_lt {w : Nat} (x y : BitVec w) :
+    ¬ uaddOverflow x y ↔ x.toNat + y.toNat < 2 ^ w := by
+  simp [uaddOverflow_eq, msb_add, msb_setWidth, carry]
+
 theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     saddOverflow x y = (x.msb == y.msb && !((x + y).msb == x.msb)) := by
   simp only [saddOverflow]

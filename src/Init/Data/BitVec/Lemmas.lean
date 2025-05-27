@@ -3328,6 +3328,14 @@ theorem ofNat_add {n} (x y : Nat) : BitVec.ofNat n (x + y) = BitVec.ofNat n x + 
 theorem ofNat_add_ofNat {n} (x y : Nat) : BitVec.ofNat n x + BitVec.ofNat n y = BitVec.ofNat n (x + y) :=
   (ofNat_add x y).symm
 
+@[simp]
+theorem toNat_add_of_not_uaddOverflow {x y : BitVec w} (h : ¬ uaddOverflow x y) :
+    (x + y).toNat = x.toNat + y.toNat := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · simp only [uaddOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h
+    rw [toNat_add, Nat.mod_eq_of_lt h]
+
 protected theorem add_assoc (x y z : BitVec n) : x + y + z = x + (y + z) := by
   apply eq_of_toNat_eq ; simp [Nat.add_assoc]
 instance : Std.Associative (α := BitVec n) (· + ·) := ⟨BitVec.add_assoc⟩

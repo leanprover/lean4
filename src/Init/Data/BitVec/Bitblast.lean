@@ -2570,11 +2570,15 @@ theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) :
     2 ^ (w - clz x - 1) ≤ x.toNat := by
   rcases w with _|w
   · omega
-  · induction (clz x)
+  · induction h : (clz x)
     · case zero =>
+      have := clz_eq_zero_iff (x := x) hw
+      simp at this
       simp
+      omega
+    · case succ cs ihc =>
+
       sorry
-    · sorry
 
     -- have := clzAux_lt_iff (x := x) (n := w)
     -- simp [clz]

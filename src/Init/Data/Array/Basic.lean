@@ -112,7 +112,7 @@ theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
 
-@[simp] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
+@[simp, grind =] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
 
 @[simp] theorem mkEmpty_eq {α n} : @mkEmpty α n = #[] := rfl
 

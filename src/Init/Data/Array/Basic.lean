@@ -331,12 +331,14 @@ Examples:
  * `Array.ofFn (n := 3) toString = #["0", "1", "2"]`
  * `Array.ofFn (fun i => #["red", "green", "blue"].get i.val i.isLt) = #["red", "green", "blue"]`
 -/
-def ofFn {n} (f : Fin n → α) : Array α := go 0 (emptyWithCapacity n) where
-  /-- Auxiliary for `ofFn`. `ofFn.go f i acc = acc ++ #[f i, ..., f(n - 1)]` -/
-  @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-  go (i : Nat) (acc : Array α) : Array α :=
-    if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
-  decreasing_by simp_wf; decreasing_trivial_pre_omega
+def ofFn {n} (f : Fin n → α) : Array α := go (emptyWithCapacity n) n (Nat.le_refl n) where
+  /-- Auxiliary for `ofFn`. `ofFn.go f acc i h = acc ++ #[f (n - i), ..., f(n - 1)]` -/
+  go (acc : Array α) : (i : Nat) → i ≤ n → Array α
+  | i + 1, h =>
+     have w : n - i - 1 < n :=
+       Nat.lt_of_lt_of_le (Nat.sub_one_lt (Nat.sub_ne_zero_iff_lt.mpr h)) (Nat.sub_le n i)
+     go (acc.push (f ⟨n - i - 1, w⟩)) i (Nat.le_of_succ_le h)
+  | 0, _ => acc
 
 -- See also `Array.ofFnM` defined in `Init.Data.Array.OfFn`.
 

@@ -1,4 +1,3 @@
-/-- -/
-@[builtin_doc]
-builtin_initialize
+@[inline]
+unsafe builtin_initialize
   pure ()

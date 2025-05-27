@@ -465,6 +465,7 @@ Unexpanders work as an alternative for delaborators (`@[app_delab]`) that can be
 special imports. This however also makes them much less capable since they can only transform
 syntax and don't have access to the expression tree.
 -/
+@[builtin_doc]
 unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
   KeyedDeclsAttribute.init {
     name  := `app_unexpander,

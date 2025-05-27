@@ -140,6 +140,26 @@ references to a hypothesis.
 syntax (name := clear) "clear" (ppSpace colGt term:max)+ : tactic
 
 /--
+Syntax for trying to clear the values of all local definitions.
+-/
+syntax clearValueStar := "*"
+/--
+* `clear_value x...` clears the values of the given local definitions.
+  A local definition `x : α := v` becomes a hypothesis `x : α`.
+
+* `clear_value x with h` adds a hypothesis `h : x = v` before clearing the value of `x`.
+  This is short for `have h : x = v := rfl; clear_value x`, with the benefit of not needing to mention `v`.
+
+* `clear_value *` clears values of all hypotheses that can be cleared.
+  Fails if none can be cleared.
+
+These syntaxes can be combined. For example, `clear_value x y *` ensures that `x` and `y` are cleared
+while trying to clear all other local definitions, and `clear_value x y * with hx` does the same,
+but adds the `hx : x = v` hypothesis first. Having a `with` binding associated to `*` is not allowed.
+-/
+syntax (name := clearValue) "clear_value" (ppSpace colGt (clearValueStar <|> term:max))+ (" with" (ppSpace colGt binderIdent)+)? : tactic
+
+/--
 `subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis
 of type `x = e` or `e = x`.
 If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead.

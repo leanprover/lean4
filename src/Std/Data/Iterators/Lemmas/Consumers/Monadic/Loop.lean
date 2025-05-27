@@ -76,7 +76,7 @@ theorem IterM.forM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator 
 theorem IterM.forM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
-    [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β}
+    [MonadLiftT m n] {it : IterM (α := α) m β}
     {f : β → n PUnit} :
     ForM.forM it f = (do
       match ← it.step with

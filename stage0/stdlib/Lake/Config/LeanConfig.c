@@ -292,7 +292,6 @@ static lean_object* l_Lake_LeanConfig_plugins___proj___closed__1;
 LEAN_EXPORT lean_object* l_Lake_LeanConfig_moreLeancArgs___proj;
 static lean_object* l_Lake_LeanConfig_moreLeancArgs___proj___closed__1;
 LEAN_EXPORT uint8_t l_Lake_LeanConfig_buildType___proj___elambda__1(lean_object*);
-uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanConfig___fields___closed__4;
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1281____spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBuildType____x40_Lake_Config_LeanConfig___hyg_19____closed__25;
@@ -1271,17 +1270,16 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lake_instMinBuildType(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_Lake_instOrdBuildType;
-x_4 = lean_box(x_1);
-x_5 = lean_box(x_2);
-x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
-if (x_6 == 0)
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lake_Config_LeanConfig_0__Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_266_(x_1, x_2);
+x_4 = lean_box(x_3);
+if (lean_obj_tag(x_4) == 2)
 {
 return x_2;
 }
 else
 {
+lean_dec(x_4);
 return x_1;
 }
 }
@@ -1302,17 +1300,16 @@ return x_6;
 LEAN_EXPORT uint8_t l_Lake_instMaxBuildType(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_Lake_instOrdBuildType;
-x_4 = lean_box(x_1);
-x_5 = lean_box(x_2);
-x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
-if (x_6 == 0)
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lake_Config_LeanConfig_0__Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_266_(x_1, x_2);
+x_4 = lean_box(x_3);
+if (lean_obj_tag(x_4) == 2)
 {
 return x_1;
 }
 else
 {
+lean_dec(x_4);
 return x_2;
 }
 }

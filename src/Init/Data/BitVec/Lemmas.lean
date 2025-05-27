@@ -68,11 +68,11 @@ theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w :=
 @[simp] theorem getElem?_eq_getElem {l : BitVec w} {n} (h : n < w) : l[n]? = some l[n] := by
   simp only [getElem?_def, h, ↓reduceDIte]
 
-theorem getElem?_eq_some_iff {l : BitVec w} : l[n]? = some a ↔ ∃ h : n < w, l[n] = a := by
-  simp only [getElem?_def]
-  split
-  · simp_all
-  · simp; omega
+theorem getElem?_eq_some_iff {l : BitVec w} : l[n]? = some a ↔ ∃ h : n < w, l[n] = a :=
+  _root_.getElem?_eq_some_iff
+
+theorem some_eq_getElem?_iff {l : BitVec w} : some a = l[n]? ↔ ∃ h : n < w, l[n] = a :=
+  _root_.some_eq_getElem?_iff
 
 theorem getElem_of_getElem? {l : BitVec w} : l[n]? = some a → ∃ h : n < w, l[n] = a :=
   getElem?_eq_some_iff.mp
@@ -81,11 +81,11 @@ set_option linter.missingDocs false in
 @[deprecated getElem?_eq_some_iff (since := "2025-02-17")]
 abbrev getElem?_eq_some := @getElem?_eq_some_iff
 
-@[simp] theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
-  simp only [getElem?_def]
-  split
-  · simp_all
-  · simp; omega
+theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
+  simp
+
+theorem none_eq_getElem?_iff {l : BitVec w} : none = l[n]? ↔ w ≤ n := by
+  simp
 
 theorem getElem?_eq_none {l : BitVec w} (h : w ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
 
@@ -93,13 +93,13 @@ theorem getElem?_eq (l : BitVec w) (i : Nat) :
     l[i]? = if h : i < w then some l[i] else none := by
   split <;> simp_all
 
-@[simp] theorem some_getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
+theorem some_getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
     (some l[i] = l[i]?) ↔ True := by
-  simp [h]
+  simp
 
-@[simp] theorem getElem?_eq_some_getElem (l : BitVec w) (i : Nat) (h : i < w) :
+theorem getElem?_eq_some_getElem (l : BitVec w) (i : Nat) (h : i < w) :
     (l[i]? = some l[i]) ↔ True := by
-  simp [h]
+  simp
 
 theorem getElem_eq_iff {l : BitVec w} {n : Nat} {h : n < w} : l[n] = x ↔ l[n]? = some x := by
   simp only [getElem?_eq_some_iff]
@@ -505,7 +505,7 @@ theorem getLsbD_ofBool (b : Bool) (i : Nat) : (ofBool b).getLsbD i = ((i = 0) &&
   · simp only [ofBool, ofNat_eq_ofNat, cond_true, getLsbD_ofNat, Bool.and_true]
     by_cases hi : i = 0 <;> simp [hi] <;> omega
 
-@[simp] theorem getElem_ofBool_zero {b : Bool} : (ofBool b)[0] = b := by simp
+theorem getElem_ofBool_zero {b : Bool} : (ofBool b)[0] = b := by simp
 
 @[simp]
 theorem getElem_ofBool {b : Bool} {h : i < 1}: (ofBool b)[i] = b := by
@@ -3179,11 +3179,11 @@ theorem getElem_concat (x : BitVec w) (b : Bool) (i : Nat) (h : i < w + 1) :
   · simp [Nat.mod_eq_of_lt b.toNat_lt]
   · simp [Nat.div_eq_of_lt b.toNat_lt, Nat.testBit_add_one]
 
-@[simp] theorem getLsbD_concat_zero : (concat x b).getLsbD 0 = b := by
-  simp [getElem_concat]
-
 @[simp] theorem getElem_concat_zero : (concat x b)[0] = b := by
   simp [getElem_concat]
+
+theorem getLsbD_concat_zero : (concat x b).getLsbD 0 = b := by
+  simp
 
 @[simp] theorem getLsbD_concat_succ : (concat x b).getLsbD (i + 1) = x.getLsbD i := by
   simp [getLsbD_concat]

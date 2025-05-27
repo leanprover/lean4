@@ -457,3 +457,13 @@ example (h : ∀ i, (¬i > 0) ∨ ∀ h : i ≠ 10, p i h) : p 5 (by decide) := 
 -- Similar to previous test.
 example (h : ∀ i, (∀ h : i ≠ 10, p i h) ∨ (¬i > 0)) : p 5 (by decide) := by
   grind
+
+-- `grind` performs hash-consing modulo alpha-equivalence
+/--
+trace: [grind.assert] (f fun x => x) = a
+[grind.assert] ¬a = f fun x => x
+-/
+#guard_msgs (trace) in
+example (f : (Nat → Nat) → Nat) : f (fun x => x) = a → a = f (fun y => y) := by
+  set_option trace.grind.assert true in
+  grind

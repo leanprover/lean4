@@ -87,7 +87,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_5____lambda__1___closed__2;
 static lean_object* l_Lean_logAt___at_Lean_Elab_ComputedFields_setComputedFields___spec__2___lambda__2___closed__3;
 static lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Elab_ComputedFields_getComputedFieldValue___spec__2___closed__3;
-lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_mkGeneralizationForbiddenSet_visit___spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_ComputedFields_validateComputedFields___spec__3___lambda__1___closed__2;
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_5____lambda__1___closed__4;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -973,7 +973,7 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; 
 x_25 = lean_ctor_get(x_3, 1);
 lean_inc(x_25);
-x_26 = l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_25, x_10);
+x_26 = l_Lean_RBNode_findCore___at_Lean_Meta_mkGeneralizationForbiddenSet_visit___spec__1(x_25, x_10);
 lean_dec(x_25);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -1039,7 +1039,7 @@ if (x_36 == 0)
 lean_object* x_37; lean_object* x_38; 
 x_37 = lean_ctor_get(x_3, 1);
 lean_inc(x_37);
-x_38 = l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_37, x_10);
+x_38 = l_Lean_RBNode_findCore___at_Lean_Meta_mkGeneralizationForbiddenSet_visit___spec__1(x_37, x_10);
 lean_dec(x_37);
 if (lean_obj_tag(x_38) == 0)
 {

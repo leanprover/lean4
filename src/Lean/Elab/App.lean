@@ -1202,8 +1202,11 @@ inductive LValResolution where
   The `fullName` is the name of the recursive function, and `baseName` is the base name of the type to search for in the parameter list. -/
   | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
 
-private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
-  throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
+private def throwLValErrorAt (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
+  throwErrorAt ref "{msg}{indentExpr e}\nhas type{indentExpr eType}"
+
+private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α := do
+  throwLValErrorAt (← getRef) e eType msg
 
 /--
 `findMethod? S fName` tries the for each namespace `S'` in the resolution order for `S` to resolve the name `S'.fname`.
@@ -1262,7 +1265,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
           return LValResolution.projIdx structName (idx - 1)
       else
         throwLValError e eType m!"invalid projection, structure has only {numFields} field(s)"
-  | some structName, LVal.fieldName _ fieldName _ _ =>
+  | some structName, LVal.fieldName _ fieldName _ fullRef =>
     let env ← getEnv
     if isStructure env structName then
       if let some baseStructName := findField? env structName (Name.mkSimple fieldName) then
@@ -1279,10 +1282,10 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
     let msg := mkUnknownIdentifierMessage m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
-    throwLValError e eType msg
-  | none, LVal.fieldName _ _ (some suffix) _ =>
+    throwLValErrorAt fullRef e eType msg
+  | none, LVal.fieldName _ _ (some suffix) fullRef =>
     if e.isConst then
-      throwUnknownConstant (e.constName! ++ suffix)
+      throwUnknownConstantAt fullRef (e.constName! ++ suffix)
     else
       throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
@@ -1567,7 +1570,7 @@ where
       else if let some (fvar, []) ← resolveLocalName idNew then
         return fvar
       else
-        throwUnknownIdentifier m!"invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+        throwUnknownIdentifierAt id m!"invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with

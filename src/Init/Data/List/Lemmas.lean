@@ -272,13 +272,13 @@ theorem getElem_of_getElem? {l : List α} : l[i]? = some a → ∃ h : i < l.len
 theorem some_eq_getElem?_iff {l : List α} : some a = l[i]? ↔ ∃ h : i < l.length, l[i] = a := by
   rw [eq_comm, getElem?_eq_some_iff]
 
-@[simp] theorem some_getElem_eq_getElem?_iff {xs : List α} {i : Nat} (h : i < xs.length) :
+theorem some_getElem_eq_getElem?_iff {xs : List α} {i : Nat} (h : i < xs.length) :
     (some xs[i] = xs[i]?) ↔ True := by
-  simp [h]
+  simp
 
-@[simp] theorem getElem?_eq_some_getElem_iff {xs : List α} {i : Nat} (h : i < xs.length) :
+theorem getElem?_eq_some_getElem_iff {xs : List α} {i : Nat} (h : i < xs.length) :
     (xs[i]? = some xs[i]) ↔ True := by
-  simp [h]
+  simp
 
 theorem getElem_eq_iff {l : List α} {i : Nat} (h : i < l.length) : l[i] = x ↔ l[i]? = some x := by
   simp only [getElem?_eq_some_iff]
@@ -296,7 +296,7 @@ theorem getD_getElem? {l : List α} {i : Nat} {d : α} :
     have p : i ≥ l.length := Nat.le_of_not_gt h
     simp [getElem?_eq_none p, h]
 
-@[simp] theorem getElem_singleton {a : α} {i : Nat} (h : i < 1) : [a][i] = a :=
+@[simp] theorem getElem_singleton {a : α} {i : Nat} (h : i < 1) : [a][i] = a := by
   match i, h with
   | 0, _ => rfl
 
@@ -434,8 +434,8 @@ theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := b
 theorem eq_of_mem_singleton : a ∈ [b] → a = b
   | .head .. => rfl
 
-@[simp] theorem mem_singleton {a b : α} : a ∈ [b] ↔ a = b :=
-  ⟨eq_of_mem_singleton, (by simp [·])⟩
+theorem mem_singleton {a b : α} : a ∈ [b] ↔ a = b := by
+  simp
 
 theorem forall_mem_cons {p : α → Prop} {a : α} {l : List α} :
     (∀ x, x ∈ a :: l → p x) ↔ p a ∧ ∀ x, x ∈ l → p x :=
@@ -1685,8 +1685,8 @@ theorem getLast_concat {a : α} : ∀ {l : List α}, getLast (l ++ [a]) (by simp
 
 @[deprecated append_eq_nil_iff (since := "2025-01-13")] abbrev append_eq_nil := @append_eq_nil_iff
 
-@[simp] theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
-  rw [eq_comm, append_eq_nil_iff]
+theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
+  simp
 
 @[grind →]
 theorem eq_nil_of_append_eq_nil {l₁ l₂ : List α} (h : l₁ ++ l₂ = []) : l₁ = [] ∧ l₂ = [] :=
@@ -1897,8 +1897,8 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ l' b, l = concat l' b
 @[simp] theorem flatten_eq_nil_iff {L : List (List α)} : L.flatten = [] ↔ ∀ l ∈ L, l = [] := by
   induction L <;> simp_all
 
-@[simp] theorem nil_eq_flatten_iff {L : List (List α)} : [] = L.flatten ↔ ∀ l ∈ L, l = [] := by
-  rw [eq_comm, flatten_eq_nil_iff]
+theorem nil_eq_flatten_iff {L : List (List α)} : [] = L.flatten ↔ ∀ l ∈ L, l = [] := by
+  simp
 
 theorem flatten_ne_nil_iff {xss : List (List α)} : xss.flatten ≠ [] ↔ ∃ xs, xs ∈ xss ∧ xs ≠ [] := by
   simp
@@ -2541,17 +2541,25 @@ theorem flatten_reverse {L : List (List α)} :
   induction l generalizing b <;> simp [*]
 
 theorem foldl_eq_foldlM {f : β → α → β} {b : β} {l : List α} :
-    l.foldl f b = l.foldlM (m := Id) f b := by
-  induction l generalizing b <;> simp [*, foldl]
+    l.foldl f b = (l.foldlM (m := Id) (pure <| f · ·) b).run := by
+  simp
 
 theorem foldr_eq_foldrM {f : α → β → β} {b : β} {l : List α} :
-    l.foldr f b = l.foldrM (m := Id) f b := by
-  induction l <;> simp [*, foldr]
+    l.foldr f b = (l.foldrM (m := Id) (pure <| f · ·) b).run := by
+  simp
 
-@[simp] theorem id_run_foldlM {f : β → α → Id β} {b : β} {l : List α} :
+theorem idRun_foldlM {f : β → α → Id β} {b : β} {l : List α} :
+    Id.run (l.foldlM f b) = l.foldl (f · · |>.run) b := foldl_eq_foldlM.symm
+
+@[deprecated idRun_foldlM (since := "2025-05-21")]
+theorem id_run_foldlM {f : β → α → Id β} {b : β} {l : List α} :
     Id.run (l.foldlM f b) = l.foldl f b := foldl_eq_foldlM.symm
 
-@[simp] theorem id_run_foldrM {f : α → β → Id β} {b : β} {l : List α} :
+theorem idRun_foldrM {f : α → β → Id β} {b : β} {l : List α} :
+    Id.run (l.foldrM f b) = l.foldr (f · · |>.run) b := foldr_eq_foldrM.symm
+
+@[deprecated idRun_foldrM (since := "2025-05-21")]
+theorem id_run_foldrM {f : α → β → Id β} {b : β} {l : List α} :
     Id.run (l.foldrM f b) = l.foldr f b := foldr_eq_foldrM.symm
 
 @[simp] theorem foldlM_reverse [Monad m] {l : List α} {f : β → α → m β} {b : β} :
@@ -2577,9 +2585,9 @@ theorem foldr_eq_foldrM {f : α → β → β} {b : β} {l : List α} :
   induction l generalizing l' <;> simp [*]
 
 /-- Variant of `foldl_flip_cons_eq_append` specalized to `f = id`. -/
-@[simp, grind] theorem foldl_flip_cons_eq_append' {l l' : List α} :
+@[grind] theorem foldl_flip_cons_eq_append' {l l' : List α} :
     l.foldl (fun xs y => y :: xs) l' = l.reverse ++ l' := by
-  induction l generalizing l' <;> simp [*]
+  simp
 
 @[simp, grind] theorem foldr_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
     l.foldr (f · ++ ·) l' = (l.map f).flatten ++ l' := by
@@ -2646,10 +2654,10 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
   induction l <;> simp [*]
 
 @[simp, grind _=_] theorem foldl_append {β : Type _} {f : β → α → β} {b : β} {l l' : List α} :
-    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM]
+    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM, -foldlM_pure]
 
 @[simp, grind _=_] theorem foldr_append {f : α → β → β} {b : β} {l l' : List α} :
-    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
+    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM, -foldrM_pure]
 
 @[grind] theorem foldl_flatten {f : β → α → β} {b : β} {L : List (List α)} :
     (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
@@ -2660,7 +2668,8 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
   induction L <;> simp_all
 
 @[simp, grind] theorem foldl_reverse {l : List α} {f : β → α → β} {b : β} :
-    l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
+    l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by
+  simp [foldl_eq_foldlM, foldr_eq_foldrM, -foldrM_pure]
 
 @[simp, grind] theorem foldr_reverse {l : List α} {f : α → β → β} {b : β} :
     l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
@@ -2943,7 +2952,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
     l.contains a ↔ ∃ a' ∈ l, a == a' := by
   induction l <;> simp_all
 
-@[grind]
+@[grind _=_]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     l.contains a ↔ a ∈ l := by
   simp
@@ -3418,8 +3427,8 @@ variable [LawfulBEq α]
     | Or.inr h' => exact h'
   else rw [insert_of_not_mem h, mem_cons]
 
-@[simp] theorem mem_insert_self {a : α} {l : List α} : a ∈ l.insert a :=
-  mem_insert_iff.2 (Or.inl rfl)
+theorem mem_insert_self {a : α} {l : List α} : a ∈ l.insert a := by
+  simp
 
 theorem mem_insert_of_mem {l : List α} (h : a ∈ l) : a ∈ l.insert b :=
   mem_insert_iff.2 (Or.inr h)

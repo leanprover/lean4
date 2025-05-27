@@ -377,6 +377,8 @@ recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 @[inherit_doc] infix:50 " > "  => GT.gt
 @[inherit_doc] infix:50 " = "  => Eq
 @[inherit_doc] infix:50 " == " => BEq.beq
+@[inherit_doc] infix:50 " ≍ "  => HEq
+
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.

@@ -140,16 +140,16 @@ case grind.1
 α : Type
 a : α
 p q r : Prop
-h₁ : HEq p a
-h₂ : HEq q a
+h₁ : p ≍ a
+h₂ : q ≍ a
 h₃ : p = r
 left : p
 right : r
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
-    [prop] HEq p a
-    [prop] HEq q a
+    [prop] p ≍ a
+    [prop] q ≍ a
     [prop] p = r
     [prop] p
     [prop] r
@@ -193,14 +193,14 @@ f : Nat → Bool
 g : Int → Bool
 a : Nat
 b : Int
-h : HEq f g
-h_1 : HEq a b
+h : f ≍ g
+h_1 : a ≍ b
 h_2 : ¬f a = g b
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
-    [prop] HEq f g
-    [prop] HEq a b
+    [prop] f ≍ g
+    [prop] a ≍ b
     [prop] ¬f a = g b
   [eqc] False propositions
     [prop] f a = g b

@@ -284,7 +284,7 @@ theorem Bool.not_eq_false' (b : Bool) : ((!b) = false) = (b = true) := by simp
   cases g <;> (rename_i gp; simp [gp])
 theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by simp
 
-@[simp] theorem heq_eq_eq (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
+@[simp] theorem heq_eq_eq (a b : α) : (a ≍ b) = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
 
 @[simp] theorem cond_true (a b : α) : cond true a b = a := rfl
 @[simp] theorem cond_false (a b : α) : cond false a b = b := rfl

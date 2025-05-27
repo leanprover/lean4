@@ -147,17 +147,17 @@ theorem dite_cond_eq_false' {α : Sort u} {c : Prop} {_ : Decidable c} {a : c �
 
 theorem eqRec_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         {motive : (x : α) → a = x → Sort u_1} (v : motive a (Eq.refl a)) {b : α} (h : a = b)
-        : HEq (@Eq.rec α a motive v b h) v := by
+        : @Eq.rec α a motive v b h ≍ v := by
  subst h; rfl
 
 theorem eqRecOn_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         {motive : (x : α) → a = x → Sort u_1} {b : α} (h : a = b) (v : motive a (Eq.refl a))
-        : HEq (@Eq.recOn α a motive b h v) v := by
+        : @Eq.recOn α a motive b h v ≍ v := by
  subst h; rfl
 
 theorem eqNDRec_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         {motive : α → Sort u_1} (v : motive a) {b : α} (h : a = b)
-        : HEq (@Eq.ndrec α a motive v b h) v := by
+        : @Eq.ndrec α a motive v b h ≍ v := by
  subst h; rfl
 
 /-! decide -/

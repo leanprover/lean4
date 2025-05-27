@@ -9,6 +9,18 @@ import Std.Data.Iterators.Combinators.Monadic.DropWhile
 namespace Std.Iterators
 
 /--
+Constructs intermediate states of an iterator created with the combinator `Iter.dropWhile`.
+When `it.dropWhile P` has stopped dropping elements, its new state cannot be created
+directly with `Iter.dropWhile` but only with `Intermediate.dropWhile`.
+
+`Intermediate.dropWhile` is meant to be used only for internally or for verification purposes.
+-/
+@[always_inline, inline]
+def Iter.Intermediate.dropWhile (P : β → Bool) (dropping : Bool)
+    (it : Iter (α := α) β) :=
+  ((IterM.Intermediate.dropWhile P dropping it.toIterM).toIter : Iter β)
+
+/--
 Given an iterator `it` and a predicate `P`, `it.dropWhile P` is an iterator that
 emits the values emitted by `it` starting from the first value that is rejected by `P`.
 The elements before are dropped.

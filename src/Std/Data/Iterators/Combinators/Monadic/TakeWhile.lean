@@ -35,8 +35,8 @@ emits the values emitted by `it` until one of those values is rejected by `P`.
 If some emitted value is rejected by `P`, the value is dropped and the iterator terminates.
 
 `P` is expected to return `PostconditionT m (ULift Bool)`. The `PostconditionT` transformer allows
-the caller to intrinsically prove properties about `f`'s return value in the monad `m`, enabling
-termination proofs depending on the specific behavior of `f`.
+the caller to intrinsically prove properties about `P`'s return value in the monad `m`, enabling
+termination proofs depending on the specific behavior of `P`.
 
 **Marble diagram (ignoring monadic effects):**
 
@@ -108,7 +108,7 @@ Given an iterator `it` and a predicate `P`, `it.takeWhile P` is an iterator that
 the values emitted by `it` until one of those values is rejected by `P`.
 If some emitted value is rejected by `P`, the value is dropped and the iterator terminates.
 
-In situations where `f` is monadic, use `takeWhileM` instead.
+In situations where `P` is monadic, use `takeWhileM` instead.
 
 **Marble diagram (ignoring monadic effects):**
 

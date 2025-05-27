@@ -3520,6 +3520,17 @@ theorem toInt_neg {x : BitVec w} :
   rw [← BitVec.zero_sub, toInt_sub]
   simp [BitVec.toInt_ofNat]
 
+@[simp]
+theorem toInt_neg_of_not_negOverflow {x : BitVec w} (h : ¬ negOverflow x):
+    (-x).toInt = -x.toInt := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · have := toInt_lt (x := x); simp only [Nat.add_one_sub_one] at this
+    have := le_toInt (x := x); simp only [Nat.add_one_sub_one] at this
+    simp only [Bool.not_eq_true, not_negOverflow_iff, Nat.add_one_sub_one, bne_iff_ne, ne_eq] at h
+    simp [toInt_neg]
+    rw [Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
+
 theorem ofInt_neg {w : Nat} {n : Int} : BitVec.ofInt w (-n) = -BitVec.ofInt w n :=
   eq_of_toInt_eq (by simp [toInt_neg])
 

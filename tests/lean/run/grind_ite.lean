@@ -66,7 +66,7 @@ def vars : IfExpr → List Nat
 /--
 A helper function to specify that two lists are disjoint.
 -/
-@[grind] def _root_.List.disjoint {α} [DecidableEq α] : List α → List α → Bool
+def _root_.List.disjoint {α} [DecidableEq α] : List α → List α → Bool
   | [], _ => true
   | x::xs, ys => x ∉ ys && xs.disjoint ys
 
@@ -126,6 +126,11 @@ we are allowed to increase the size of the branches by one, and still be smaller
   | var _ => 1
   | .ite i t e => 2 * normSize i + max (normSize t) (normSize e) + 1
 
+-- TODO: `grind` canonicalizer is spending a lot of time unfolding the following function.
+-- TODO: remove after the new module system will hide this declaration.
+seal Std.DHashMap.insert
+seal Std.TreeMap.insert
+
 def normalize (assign : Std.HashMap Nat Bool) : IfExpr → IfExpr
   | lit b => lit b
   | var v =>
@@ -145,13 +150,13 @@ def normalize (assign : Std.HashMap Nat Bool) : IfExpr → IfExpr
   termination_by e => e.normSize
 
 -- We tell `grind` to unfold our definitions above.
-attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars eval
+attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars eval List.disjoint
 
 theorem normalize_spec (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     (normalize assign e).normalized
     ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → ¬ v ∈ assign := by
-  fun_induction normalize <;> grind (gen := 7)
+  fun_induction normalize with grind (gen := 7)
 
 -- We can also prove other variations, where we spell "`v` is not in `assign`"
 -- different ways, and `grind` doesn't mind.
@@ -160,13 +165,13 @@ example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     (normalize assign e).normalized
     ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign.contains v = false := by
-  fun_induction normalize <;> grind (gen := 7)
+  fun_induction normalize with grind (gen := 7)
 
 example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     (normalize assign e).normalized
     ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign[v]? = none := by
-  fun_induction normalize <;> grind (gen := 8)
+  fun_induction normalize with grind (gen := 8)
 
 /--
 We recall the statement of the if-normalization problem.
@@ -202,18 +207,18 @@ theorem normalize'_spec (assign : Std.TreeMap Nat Bool) (e : IfExpr) :
     (normalize' assign e).normalized
     ∧ (∀ f, (normalize' assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize' assign e) → ¬ v ∈ assign := by
-  fun_induction normalize' <;> grind (gen := 7)
+  fun_induction normalize' with grind (gen := 7)
 
 example (assign : Std.TreeMap Nat Bool) (e : IfExpr) :
     (normalize' assign e).normalized
     ∧ (∀ f, (normalize' assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize' assign e) → assign.contains v = false := by
-  fun_induction normalize' <;> grind (gen := 7)
+  fun_induction normalize' with grind (gen := 7)
 
 example (assign : Std.TreeMap Nat Bool) (e : IfExpr) :
     (normalize' assign e).normalized
     ∧ (∀ f, (normalize' assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize' assign e) → assign[v]? = none := by
-  fun_induction normalize' <;> grind (gen := 8)
+  fun_induction normalize' with grind (gen := 8)
 
 end IfExpr

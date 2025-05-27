@@ -100,7 +100,7 @@ theorem mem_insertUnit_units {n : Nat} (units : Array (Literal (PosFin n))) (ass
   simp only [insertUnit] at l'_in_insertUnit_res
   split at l'_in_insertUnit_res
   · exact Or.inr l'_in_insertUnit_res
-  · simp only [Array.push_toList, List.mem_append, List.mem_singleton] at l'_in_insertUnit_res
+  · simp only [Array.toList_push, List.mem_append, List.mem_singleton] at l'_in_insertUnit_res
     exact Or.symm l'_in_insertUnit_res
 
 theorem mem_insertUnit_fold_units {n : Nat} (units : Array (Literal (PosFin n))) (assignments : Array Assignment)

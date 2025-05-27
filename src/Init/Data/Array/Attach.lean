@@ -69,11 +69,11 @@ well-founded recursion mechanism to prove that the function terminates.
   simp [pmap]
 
 @[simp] theorem toList_attachWith {xs : Array α} {P : α → Prop} {H : ∀ x ∈ xs, P x} :
-   (xs.attachWith P H).toList = xs.toList.attachWith P (by simpa [mem_toList] using H) := by
+   (xs.attachWith P H).toList = xs.toList.attachWith P (by simpa [mem_toList_iff] using H) := by
   simp [attachWith]
 
 @[simp] theorem toList_attach {xs : Array α} :
-    xs.attach.toList = xs.toList.attachWith (· ∈ xs) (by simp [mem_toList]) := by
+    xs.attach.toList = xs.toList.attachWith (· ∈ xs) (by simp [mem_toList_iff]) := by
   simp [attach]
 
 @[simp] theorem toList_pmap {xs : Array α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ xs, P a} :
@@ -574,8 +574,11 @@ state, the right approach is usually the tactic `simp [Array.unattach, -Array.ma
 -/
 def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array α := xs.map (·.val)
 
-@[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := by
+@[simp] theorem unattach_empty {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := by
   simp [unattach]
+
+@[deprecated unattach_empty (since := "2025-05-26")]
+abbrev unattach_nil := @unattach_empty
 
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Array { x // p x }} :
     (xs.push a).unattach = xs.unattach.push a.1 := by

@@ -13,7 +13,8 @@ abbrev DeclExtState := PHashMap Name Decl
 private abbrev declLt (a b : Decl) :=
   Name.quickLt a.name b.name
 
-private abbrev sortDecls (decls : Array Decl) : Array Decl :=
+private def sortedDecls (s : DeclExtState) : Array Decl :=
+  let decls := s.foldl (init := #[]) fun ps _ v => ps.push v
   decls.qsort declLt
 
 private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Decl :=
@@ -21,17 +22,28 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-abbrev DeclExt := SimplePersistentEnvExtension Decl DeclExtState
+def DeclExt := PersistentEnvExtension Decl Decl DeclExtState
 
-def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt := do
-  registerSimplePersistentEnvExtension {
-    name            := name
-    addImportedFn   := fun _ => {}
-    addEntryFn      := fun decls decl => decls.insert decl.name decl
-    toArrayFn       := (sortDecls ·.toArray)
-    asyncMode       := .sync  -- compilation is non-parallel anyway
-    replay?         := some <| SimplePersistentEnvExtension.replayOfFilter
-      (fun s d => !s.contains d.name) (fun decls decl => decls.insert decl.name decl)
+instance : Inhabited DeclExt :=
+  inferInstanceAs (Inhabited (PersistentEnvExtension Decl Decl DeclExtState))
+
+def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
+  registerPersistentEnvExtension {
+    name,
+    mkInitial := pure {},
+    addImportedFn := fun _ => pure {},
+    addEntryFn := fun s decl => s.insert decl.name decl
+    exportEntriesFn := sortedDecls
+    statsFn := fun s =>
+      let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)
+      format "number of local entries: " ++ format numEntries
+    asyncMode := .sync,
+    replay? := some <| fun oldState newState _ otherState =>
+      newState.foldl (init := otherState) fun otherState k v =>
+        if oldState.contains k then
+          otherState
+        else
+          otherState.insert k v
   }
 
 builtin_initialize baseExt : DeclExt ← mkDeclExt

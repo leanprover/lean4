@@ -37,7 +37,7 @@
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 16, "character": 16}}
 {"items":
- [{"label": "Foo.LongNamespaceExample",
+ [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
    "data":

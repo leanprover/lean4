@@ -184,6 +184,21 @@ def IterStep.mapIterator {α' : Type u'} (f : α → α') : IterStep α β → I
   | .done => .done
 
 @[simp]
+theorem IterStep.mapIterator_yield {α' : Type u'} {f : α → α'} {it : α} {out : β} :
+    (IterStep.yield it out).mapIterator f = IterStep.yield (f it) out :=
+  rfl
+
+@[simp]
+theorem IterStep.mapIterator_skip {α' : Type u'} {f : α → α'} {it : α} :
+    (IterStep.skip it (β := β)).mapIterator f = IterStep.skip (f it) :=
+  rfl
+
+@[simp]
+theorem IterStep.mapIterator_done {α' : Type u'} {f : α → α'} :
+    (IterStep.done (α := α) (β := β)).mapIterator f = IterStep.done :=
+  rfl
+
+@[simp]
 theorem IterStep.mapIterator_mapIterator {α' : Type u'} {α'' : Type u''}
     {f : α → α'} {g : α' → α''} {step : IterStep α β} :
     (step.mapIterator f).mapIterator g = step.mapIterator (g ∘ f) := by

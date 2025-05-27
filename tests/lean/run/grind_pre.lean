@@ -108,8 +108,8 @@ bs : List Point
 b₂ : Nat
 b₃ : Int
 head_eq : a₁ = b₁
-x_eq : a₂ = b₂
-y_eq : a₃ = b₃
+h_1 : a₂ = b₂
+h_2 : a₃ = b₃
 tail_eq_1 : as = bs
 ⊢ False
 [grind] Goal diagnostics

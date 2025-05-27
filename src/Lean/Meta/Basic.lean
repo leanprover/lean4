@@ -1221,7 +1221,7 @@ private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
   | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
   | some (info@(ConstantInfo.defnInfo _)) => getDefInfoTemp info
   | some info                             => pure (some info)
-  | none                                  => throwUnknownConstant constName
+  | none                                  => throwUnknownConstantAt (← getRef) constName
 
 private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
   if isClass (← getEnv) constName then

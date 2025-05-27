@@ -348,7 +348,7 @@ theorem getElem?_mapIdx_go : ∀ {l : List α} {acc : Array β} {i : Nat},
     split <;> split
     · simp only [Option.some.injEq]
       rw [← Array.getElem_toList]
-      simp only [Array.push_toList]
+      simp only [Array.toList_push]
       rw [getElem_append_left, ← Array.getElem_toList]
     · have : i = acc.size := by omega
       simp_all

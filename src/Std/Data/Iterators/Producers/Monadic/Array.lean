@@ -29,8 +29,15 @@ structure ArrayIterator (α : Type w) where
   pos : Nat
 
 /--
-Returns a finite iterator for the given array starting at the given index.
+Returns a finite monadic iterator for the given array starting at the given index.
 The iterator yields the elements of the array in order and then terminates.
+
+The pure version of this iterator is `Array.iterFromIdx`.
+
+**Termination properties:**
+
+* `Finite` instance: always
+* `Productive` instance: always
 -/
 @[always_inline, inline]
 def _root_.Array.iterFromIdxM {α : Type w} (array : Array α) (m : Type w → Type w') (pos : Nat)
@@ -39,8 +46,15 @@ def _root_.Array.iterFromIdxM {α : Type w} (array : Array α) (m : Type w → T
   toIterM { array := array, pos := pos } m α
 
 /--
-Returns a finite iterator for the given array.
+Returns a finite monadic iterator for the given array.
 The iterator yields the elements of the array in order and then terminates.
+
+The pure version of this iterator is `Array.iter`.
+
+**Termination properties:**
+
+* `Finite` instance: always
+* `Productive` instance: always
 -/
 @[always_inline, inline]
 def _root_.Array.iterM {α : Type w} (array : Array α) (m : Type w → Type w') [Pure m] :

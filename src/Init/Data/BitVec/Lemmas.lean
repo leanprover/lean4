@@ -3371,7 +3371,7 @@ theorem toInt_add_of_not_saddOverflow {x y : BitVec w} (h : ¬ saddOverflow x y)
   rcases w with _|w
   · simp [of_length_zero]
   · simp only [saddOverflow, Nat.add_one_sub_one, ge_iff_le, Bool.or_eq_true, decide_eq_true_eq,
-    _root_.not_or, Int.not_le, Int.not_lt] at h
+      _root_.not_or, Int.not_le, Int.not_lt] at h
     rw [toInt_add, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
 @[simp]
@@ -3414,7 +3414,7 @@ theorem toInt_sub_of_not_ssubOverflow {x y : BitVec w} (h : ¬ ssubOverflow x y)
   rcases w with _|w
   · simp [of_length_zero]
   · simp only [ssubOverflow, Nat.add_one_sub_one, ge_iff_le, Bool.or_eq_true, decide_eq_true_eq,
-    _root_.not_or, Int.not_le, Int.not_lt] at h
+      _root_.not_or, Int.not_le, Int.not_lt] at h
     rw [toInt_sub, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
 theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
@@ -3808,7 +3808,7 @@ theorem toInt_mul_of_not_smulOverflow {x y : BitVec w} (h : ¬ smulOverflow x y)
   rcases w with _|w
   · simp [of_length_zero]
   · simp only [smulOverflow, Nat.add_one_sub_one, ge_iff_le, Bool.or_eq_true, decide_eq_true_eq,
-    _root_.not_or, Int.not_le, Int.not_lt] at h
+      _root_.not_or, Int.not_le, Int.not_lt] at h
     rw [toInt_mul, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
 theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =

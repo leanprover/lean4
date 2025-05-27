@@ -1750,6 +1750,60 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
         ((not_congr neg_eq_zero_iff).mpr hyz)]
       exact neg_le_intMin_of_msb_eq_true h'
 
+@[simp]
+theorem msb_neg_of_msb_false {x : BitVec w} (hx : x.msb = false) :
+    (-x).msb = decide (x ≠ 0) := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
+  simp only [msb_neg, hx, bne_false]
+  simp only [bool_to_prop]
+  simp [hx, wpos]
+
+@[simp]
+theorem msb_neg_of_msb_true {x : BitVec w} (hx : x.msb = true) :
+    (-x).msb = decide (x = intMin w) := by
+  simp only [msb_neg, hx, bne_true, Bool.not_and]
+  simp only [bool_to_prop]
+  simp [hx]
+
+theorem msb_neg_umod_neg_of_msb_true_of_msb_true
+    {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+      (-x % -y).msb = (decide (x = intMin w) && decide (-x < -y)) := by
+  simp only [msb_umod, msb_neg_of_msb_true, hx]
+  simp only [bool_to_prop]
+  simp [hy]
+
+theorem msg_neg_neg_mod_neg {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+    (-(-x % -y)).msb = (-x % -y != 0#w && -x % -y != intMin w ^^ decide (x = intMin w) &&
+    decide (-x < -y)) := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  have wpos : 0 < w := by omega
+  simp only [msb_neg]
+  simp only [msb_neg_umod_neg_of_msb_true_of_msb_true hx hy]
+
+@[simp]
+theorem lt_of_msb_true_of_msb_false {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    x < y := by
+  simp only [LT.lt]
+  simp
+  have := toNat_ge_of_msb_true hy
+  have := toNat_lt_of_msb_false hx
+  omega
+
+theorem toInt_dvd_iff_of_msb_false_msb_false {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = false) :
+    y.toInt ∣ x.toInt ↔ x % y = 0#w  := by
+  have := toInt_dvd_toInt_iff (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
+
+theorem toInt_dvd_iff_of_msb_true_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
+    y.toInt ∣ x.toInt ↔ (-x) % (-y) = 0#w:= by
+  have := toInt_dvd_toInt_iff (x := x) (y := y)
+  simp [hx, hy] at this
+  exact this
+
+
 /-! ### Lemmas that use bit blasting circuits -/
 
 theorem add_sub_comm {x y : BitVec w} : x + y - z = x - z + y := by

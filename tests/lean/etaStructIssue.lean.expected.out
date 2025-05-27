@@ -1,10 +1,6 @@
-etaStructIssue.lean:20:2-20:5: error: type mismatch
+etaStructIssue.lean:20:2-20:7: error: type mismatch
   rfl
 has type
   ?m = ?m : Prop
 but is expected to have type
   mkNat e x₁ = mkNat e.mk x₂ : Prop
-etaStructIssue.lean:17:8-17:12: error: Not a `rfl`-theorem: the left-hand side
-  mkNat e x₁
-is not definitionally equal to the right-hand side
-  mkNat e.mk x₂

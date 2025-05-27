@@ -1,10 +1,6 @@
-1433.lean:11:49-11:52: error: type mismatch
+1433.lean:11:49-11:54: error: type mismatch
   rfl
 has type
   ?m = ?m : Prop
 but is expected to have type
   dividend % divisor = wrongRem : Prop
-1433.lean:11:8-11:13: error: Not a `rfl`-theorem: the left-hand side
-  dividend % divisor
-is not definitionally equal to the right-hand side
-  wrongRem

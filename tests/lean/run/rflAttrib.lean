@@ -22,7 +22,7 @@ theorem a_eq_c'' : a = c := Eq.refl _
 @[rfl] theorem a_eq_c''' : ac := by with_unfolding_all rfl
 @[rfl] theorem a_eq_d : a = d := by simp [d]
 
-/-- error: Not a `rfl`-theorem: the conclusion should be an equality, but is True -/
+/-- error: not a `rfl`-theorem: the conclusion should be an equality, but is True -/
 #guard_msgs in
 @[rfl] def not_an_eq : True := trivial
 

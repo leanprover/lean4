@@ -321,15 +321,17 @@ theorem sublist_filter_iff {l₁ : List α} {p : α → Bool} :
     l₁ <+ l₂.filter p ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.filter p := by
   simp only [← filterMap_eq_filter, sublist_filterMap_iff]
 
-@[grind]
 theorem sublist_append_left : ∀ l₁ l₂ : List α, l₁ <+ l₁ ++ l₂
   | [], _ => nil_sublist _
   | _ :: l₁, l₂ => (sublist_append_left l₁ l₂).cons₂ _
 
-@[grind]
+grind_pattern sublist_append_left => Sublist, l₁ ++ l₂
+
 theorem sublist_append_right : ∀ l₁ l₂ : List α, l₂ <+ l₁ ++ l₂
   | [], _ => Sublist.refl _
   | _ :: l₁, l₂ => (sublist_append_right l₁ l₂).cons _
+
+grind_pattern sublist_append_right => Sublist, l₁ ++ l₂
 
 @[simp, grind =] theorem singleton_sublist {a : α} {l} : [a] <+ l ↔ a ∈ l := by
   refine ⟨fun h => h.subset (mem_singleton_self _), fun h => ?_⟩

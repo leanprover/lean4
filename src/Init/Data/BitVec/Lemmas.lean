@@ -3381,8 +3381,7 @@ theorem toInt_add_of_not_saddOverflow {x y : BitVec w} (h : ¬ saddOverflow x y)
   rcases w with _|w
   · simp [of_length_zero]
   · simp only [Bool.not_eq_true, not_saddOverflow_iff, Nat.add_one_sub_one] at h
-    simp [Int.bmod_eq_of_le (n := x.toInt + y.toInt) (m := 2 ^ (w + 1)) (by push_cast; omega)
-      (by push_cast; omega)]
+    rw [toInt_add, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
 @[simp]
 theorem shiftLeft_add_distrib {x y : BitVec w} {n : Nat} :
@@ -3434,8 +3433,7 @@ theorem toInt_sub_of_not_ssubOverflow {x y : BitVec w} (h : ¬ ssubOverflow x y)
   rcases w with _|w
   · simp [of_length_zero]
   · simp only [Bool.not_eq_true, not_ssubOverflow_iff, Nat.add_one_sub_one] at h
-    simp [Int.bmod_eq_of_le (n := x.toInt - y.toInt) (m := 2 ^ (w + 1)) (by push_cast; omega)
-      (by push_cast; omega)]
+    rw [toInt_sub, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
 theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
     (x.toInt - y.toInt < - 2 ^ (w - 1))
@@ -3528,8 +3526,7 @@ theorem toInt_neg_of_not_negOverflow {x : BitVec w} (h : ¬ negOverflow x):
   · have := toInt_lt (x := x); simp only [Nat.add_one_sub_one] at this
     have := le_toInt (x := x); simp only [Nat.add_one_sub_one] at this
     simp only [Bool.not_eq_true, not_negOverflow_iff, Nat.add_one_sub_one, bne_iff_ne, ne_eq] at h
-    simp [toInt_neg]
-    rw [Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
+    rw [toInt_neg, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
 theorem ofInt_neg {w : Nat} {n : Int} : BitVec.ofInt w (-n) = -BitVec.ofInt w n :=
   eq_of_toInt_eq (by simp [toInt_neg])
@@ -3844,7 +3841,7 @@ theorem toInt_mul_of_not_smulOverflow {x y : BitVec w} (h : ¬ smulOverflow x y)
   rcases w with _|w
   · simp [of_length_zero]
   · simp only [Bool.not_eq_true, not_smulOverflow_iff, Nat.add_one_sub_one] at h
-    simp [Int.bmod_eq_of_le (n := x.toInt * y.toInt) (m := 2 ^ (w + 1)) (by push_cast; omega) (by push_cast; omega)]
+    rw [toInt_mul, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
 theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
     BitVec.ofInt n x * BitVec.ofInt n y := by

@@ -148,7 +148,7 @@ theorem subset_replicate {n : Nat} {a : α} {l : List α} (h : n ≠ 0) : l ⊆ 
   | [] => .slnil
   | a :: l => (Sublist.refl l).cons₂ a
 
-@[grind →] theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l₂ <+ l₃) : l₁ <+ l₃ := by
+theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l₂ <+ l₃) : l₁ <+ l₃ := by
   induction h₂ generalizing l₁ with
   | slnil => exact h₁
   | cons _ _ IH => exact (IH h₁).cons _
@@ -158,6 +158,8 @@ theorem subset_replicate {n : Nat} {a : α} {l : List α} (h : n ≠ 0) : l ⊆ 
     | .slnil => apply nil_sublist
     | .cons a' h₁' => cases e; apply (IH h₁').cons
     | .cons₂ a' h₁' => cases e; apply (IH h₁').cons₂
+
+grind_pattern Sublist.trans => l₁ <+ l₂, l₂ <+ l₃, l₁ <+ l₃
 
 instance : Trans (@Sublist α) Sublist Sublist := ⟨Sublist.trans⟩
 

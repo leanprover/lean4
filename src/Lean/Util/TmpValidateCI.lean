@@ -1,5 +1,5 @@
 import Lean.Meta.Basic
-import Lean.Util.ErrorExplanation
+import Lean.ErrorExplanation
 -- TODO: delete
 import Lean.Elab.Import
 

@@ -55,6 +55,12 @@ register_builtin_option warningAsError : Bool := {
   descr    := "treat warnings as errors"
 }
 
+/--
+A widget for displaying error names and explanation links.
+
+Note that we cannot tag this as a `builtin_widget_module` in this module because doing so would
+create circular imports. Instead, we add this attribute post-hoc in `Lean.ErrorExplanation`.
+-/
 def errorDescriptionWidget : Widget.Module where
   javascript := "
 import { createElement } from 'react';
@@ -71,6 +77,23 @@ export default function ({ code, explanationUrl }) {
   return all
 }"
 
+private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : MessageData :=
+  match errorNameOfKind? msg.kind with
+  | some errorName =>
+    -- TODO: unify with manual link rewriting in docstrings
+    let url := manualRoot ++ s!"find/?domain=Manual.errorExplanation&name={errorName}"
+    let inst := {
+      id := ``errorDescriptionWidget
+      javascriptHash := errorDescriptionWidget.javascriptHash
+      props := return json% {
+        code: $(toString errorName),
+        explanationUrl: $url
+      }
+    }
+    msg.appendPreservingKind <|
+      .ofWidget inst m!"\n\nError code: {errorName}\nView explanation: {url}"
+  | none => msg
+
 /--
 Log the message `msgData` at the position provided by `ref` with the given `severity`.
 If `getRef` has position information but `ref` does not, we use `getRef`.
@@ -84,22 +107,7 @@ def logAt (ref : Syntax) (msgData : MessageData)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
-    let msgData := if let some errorName := errorNameOfKind? msgData.kind then
-      -- TODO: unify with manual link rewriting in docstrings
-      let url := manualRoot ++ s!"find/?domain=Manual.errorExplanation&name={errorName}"
-      let inst := {
-        id := ``errorDescriptionWidget
-        javascriptHash := errorDescriptionWidget.javascriptHash
-        props := return json% {
-          code: $(toString errorName),
-          explanationUrl: $url
-        }
-      }
-      msgData.appendPreservingKind <|
-        .ofWidget inst m!"\n\nError code: {errorName}\nView explanation: {url}"
-    else
-      msgData
-    let msgData ← addMessageContext msgData
+    let msgData ← addMessageContext msgData.appendDescriptionWidgetIfNamed
     logMessage {
       fileName := (← getFileName)
       pos := fileMap.toPosition pos

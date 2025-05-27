@@ -1,6 +1,10 @@
-import Lean
+import Lean.ErrorExplanation
+/-!
+# Error Explanation Linting
 
-import Std.Internal.Parsec
+Ensures that error explanation structure is correctly validated by the `register_error_explanation`
+command.
+-/
 
 open Lean Meta
 

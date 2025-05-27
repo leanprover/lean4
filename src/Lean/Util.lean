@@ -36,4 +36,3 @@ import Lean.Util.NumObjs
 import Lean.Util.NumApps
 import Lean.Util.FVarSubset
 import Lean.Util.SortExprs
-import Lean.Util.ErrorExplanation

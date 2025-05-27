@@ -430,7 +430,7 @@ structure SerialMessage extends BaseMessage String where
 A suffix added to diagnostic name-containing tags to indicate that they should be used as an error
 code.
 -/
-def errorNameSuffix := "namedError"
+def errorNameSuffix := "_namedError"
 
 /-- Produces a `MessageData` tag suitable for labeling an error named `name`. -/
 def tagForError (name : Name) : Name :=

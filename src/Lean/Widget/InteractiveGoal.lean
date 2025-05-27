@@ -158,6 +158,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
   let ppImplDetailHyps := pp.implementationDetailHyps.get (← getOptions)
   withGoalCtx mvarId fun lctx mvarDecl => do
+    -- See comment in `Lean.Meta.ppGoal` about this synthetic opaque heuristic.
     let tactic := mvarDecl.kind.isSyntheticOpaque
     let pushPending (ids : Array (String × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesisBundle)
         : MetaM (Array InteractiveHypothesisBundle) :=

@@ -29,42 +29,41 @@ register_builtin_option pp.inaccessibleNames : Bool := {
 register_builtin_option pp.showLetValues : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "display let-declaration values in the info view"
+  descr    := "always display let-declaration values in the info view"
 }
 
 register_builtin_option pp.showLetValues.threshold : Nat := {
   defValue := 0
   group    := "pp"
-  descr    := "when `pp.showLetValues` is false, the size of the term allowed before it is replaced by `⋯`"
+  descr    := "when `pp.showLetValues` is false, the maximum size of a term allowed before it is replaced by `⋯`"
 }
+
 register_builtin_option pp.showLetValues.tactic.threshold : Nat := {
   defValue := 255
   group    := "pp"
-  descr    := "when `pp.showLetValues` is false, the size of the term allowed before it is replaced by `⋯`, for tactic goals"
+  descr    := "when `pp.showLetValues` is false, the maximum size of a term allowed before it is replaced by `⋯`, for tactic goals"
 }
 
 /--
 Given the current values of the options `pp.showLetValues` and `pp.showLetValues.threshold`,
 determines whether the local let declaration's value should be omitted.
 
-- `tactic` is whether the goal is synthetic opaque. In that case,
-  uses the maximum of `pp.showLetValues.tactic.threshold` and `pp.showLetValues.threshold` for the threshold.
+- `tactic` is whether the goal is for a tactic metavariable.
+  In that case, uses the maximum of `pp.showLetValues.tactic.threshold` and `pp.showLetValues.threshold` for the threshold.
   In tactics, we usually want to see let values.
+  In contrast, for the "expected type" view we usually do not.
 -/
 def ppGoal.shouldShowLetValue (tactic : Bool) (e : Expr) : MetaM Bool := do
-  -- Atomic expressions never get omitted, so we can do an early return here.
+  -- Atomic expressions never get omitted by the following logic, so we can do an early return here.
   if e.isAtomic then
     return true
-
   let options ← getOptions
-
   if pp.showLetValues.get options then
     return true
-
   let threshold := pp.showLetValues.threshold.get options
   let threshold := max threshold (if tactic then pp.showLetValues.tactic.threshold.get options else 0)
-  let threshold := min 254 threshold.toUInt32
-  return e.approxDepth ≤ threshold
+  let threshold := min 254 threshold
+  return e.approxDepth.toNat ≤ threshold
 
 private def addLine (fmt : Format) : Format :=
   if fmt.isNil then fmt else fmt ++ "\n"
@@ -83,6 +82,8 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
     let indent         := 2 -- Use option
     let ppAuxDecls     := pp.auxDecls.get (← getOptions)
     let ppImplDetailHyps := pp.implementationDetailHyps.get (← getOptions)
+    -- Heuristic: synthetic opaque metavariables are only used by tactics,
+    -- and tactics should always be creating synthetic opaque metavariables for new goals.
     let tactic         := mvarDecl.kind.isSyntheticOpaque
     let lctx           := mvarDecl.lctx
     let lctx           := lctx.sanitizeNames.run' { options := (← getOptions) }

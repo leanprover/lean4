@@ -10,7 +10,7 @@ import Std.Data.Iterators.Lemmas.Consumers.Monadic
 import Std.Data.Iterators.TempLawfulMonadLift
 
 /-!
-# Lemmas about list iterators
+# Lemmas about array iterators
 
 This module provides lemmas about the interactions of `Array.iterM` with `IterM.step` and various
 collectors.
@@ -18,7 +18,7 @@ collectors.
 
 namespace Std.Iterators
 
-variable {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] {β : Type w}
+variable {m : Type w → Type w'} [Monad m] {β : Type w}
 
 theorem _root_.Array.iterM_eq_iterFromIdxM {array : Array β} :
     array.iterM m = array.iterFromIdxM m 0 :=

@@ -44,6 +44,20 @@ private def elabSpecArgs (declName : Name) (args : Array Syntax) : MetaM (Array 
           throwErrorAt arg "invalid specialization argument name `{argName}`, `{declName}` does have an argument with this name"
     return result.qsort (·<·)
 
+/--
+Marks a definition to always be specialized during code generation.
+
+Specialization is an optimization in the code generator for generating variants of a function that
+are specialized to specific parameter values. This is in particular useful for functions that take
+other functions as parameters: Usually when passing functions as parameters, a closure needs to be
+allocated that will then be called. Using `@[specialize]` prevents both of these operations by
+using the provided function directly in the inner function.
+
+`@[specialize]` can take additional arguments for the parameter names or indices (starting at 1) of
+the parameters that should be specialized. By default, instance and function parameters are
+specialized.
+-/
+@[builtin_doc]
 builtin_initialize specializeAttr : ParametricAttribute (Array Nat) ←
   registerParametricAttribute {
     name := `specialize

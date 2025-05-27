@@ -24,6 +24,15 @@ open Language
 
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
+
+/--
+Makes the bodies of definitions available to importing modules.
+
+This only has an effect if both the module the definition is defined in and the importing module
+have the module system enabled.
+-/
+@[builtin_init, builtin_doc]
+private def init :=
   registerBuiltinAttribute {
     name := `expose
     descr := "(module system) Make bodies of definitions available to importing modules."

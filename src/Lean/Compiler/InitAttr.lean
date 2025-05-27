@@ -96,7 +96,28 @@ private opaque registerInitAttrInner (attrName : Name) (runAfterImport : Bool) (
 def registerInitAttr (attrName : Name) (runAfterImport : Bool) (ref : Name := by exact decl_name%) : IO (ParametricAttribute Name) :=
   registerInitAttrInner attrName runAfterImport ref
 
+/--
+Registers an initialization procedure. Initialization procedures are run in files that import the
+file they are defined in.
+
+This attribute comes in two kinds: Without arguments, the tagged declaration should have type
+`IO Unit` and are simply run during initialization. With a declaration name as a argument, the
+tagged declaration should be an opaque constant and the provided declaration name an action in `IO`
+that returns a value of the type of the tagged declaration. Such initialization procedures store
+the resulting value and make it accessible through the tagged declaration.
+
+The `initialize` command should usually be preferred over using this attribute directly.
+-/
+@[builtin_doc]
 builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
+
+/--
+Registers an builtin initialization procedure.
+
+This attribute is used internally to define builtin initialization procedures for bootstrapping and
+should not be used otherwise.
+-/
+@[builtin_doc]
 builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtin_init false
 
 def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Option Name :=

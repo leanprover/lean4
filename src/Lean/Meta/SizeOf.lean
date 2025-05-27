@@ -149,14 +149,15 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
           trace[Meta.sizeOf] "declName: {declName}"
           trace[Meta.sizeOf] "type: {sizeOfType}"
           trace[Meta.sizeOf] "val: {sizeOfValue}"
-          addDecl <| Declaration.defnDecl {
-            name        := declName
-            levelParams := levelParams
-            type        := sizeOfType
-            value       := sizeOfValue
-            safety      := DefinitionSafety.safe
-            hints       := ReducibilityHints.abbrev
-          }
+          withExporting do -- We expose the `sizeOf` fucntions so that the `spec` functions can be
+            addDecl <| Declaration.defnDecl {
+              name        := declName
+              levelParams := levelParams
+              type        := sizeOfType
+              value       := sizeOfValue
+              safety      := DefinitionSafety.safe
+              hints       := ReducibilityHints.abbrev
+            }
 
 /--
   Create `sizeOf` functions for all inductive datatypes in the mutual inductive declaration containing `typeName`

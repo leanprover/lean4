@@ -15,6 +15,11 @@ This module provides an iterator for arrays that is accessible via `Array.iter`.
 namespace Std.Iterators
 
 @[always_inline, inline]
+def _root_.Array.iterFromIdx {α : Type w} (l : Array α) (pos : Nat) :
+    Iter (α := ArrayIterator α) α :=
+  ((l.iterFromIdxM Id pos).toIter : Iter α)
+
+@[always_inline, inline]
 def _root_.Array.iter {α : Type w} (l : Array α) :
     Iter (α := ArrayIterator α) α :=
   ((l.iterM Id).toIter : Iter α)

@@ -19,7 +19,7 @@ using namespace std;
 
 // =======================================
 // DNS functions
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, uint8_t socktype, uint8_t protocol, obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg ip_addr, obj_arg /* w */);
 
 }

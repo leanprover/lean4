@@ -12,8 +12,8 @@ namespace lean {
 
 using namespace std;
 
-// Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) : IO (IO.Promise (Except IO.Error (Array SocketAddress)))
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, obj_arg /* w */) {
+// Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, uint8_t socktype, uint8_t protocol, obj_arg /* w */) {
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
@@ -25,12 +25,30 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = PF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
+
+    // Just to avoid changes in enum values changes between platforms.
+
+    switch (family) {
+        case 0: hints.ai_family = PF_UNSPEC; break;
+        case 1: hints.ai_family = PF_INET; break;
+        case 2: hints.ai_family = PF_INET6; break;
+        default: hints.ai_family = PF_UNSPEC; break;
+    }
+
+    switch (socktype) {
+        case 0: hints.ai_socktype = SOCK_STREAM; break;
+        case 1: hints.ai_socktype = SOCK_DGRAM; break;
+        case 2: hints.ai_socktype = SOCK_RAW; break;
+        default: hints.ai_socktype = SOCK_STREAM; break;
+    }
+
+    switch (protocol) {
+        case 0: hints.ai_protocol = IPPROTO_TCP; break;
+        case 1: hints.ai_protocol = IPPROTO_UDP; break;
+        default: hints.ai_protocol = IPPROTO_IP; break;
+    }
 
     event_loop_lock(&global_ev);
-
     lean_inc(promise);
 
     int result = uv_getaddrinfo(global_ev.loop, resolver, [](uv_getaddrinfo_t* req, int status, struct addrinfo* res) {
@@ -38,14 +56,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
         if (status != 0) {
             lean_promise_resolve_with_code(status, promise);
+            lean_dec(promise);
+            free(req);
             return;
         }
 
-        lean_object *arr = lean_alloc_array(0, 1);
+        lean_object * arr = lean_alloc_array(0, 1);
 
         for (struct addrinfo* ai = res; ai != NULL; ai = ai->ai_next) {
             const struct sockaddr* sin_addr = (const struct sockaddr*)ai->ai_addr;
-            lean_object* addr = lean_sockaddr_to_socketaddress(sin_addr);
+            in_addr_storage* s_addr =  (in_addr_storage*)sin_addr->sa_data;
+            lean_object* addr = lean_in_addr_storage_to_ip_addr((short)sin_addr->sa_family, s_addr);
             arr = lean_array_push(arr, addr);
         }
 
@@ -53,6 +74,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
         uv_freeaddrinfo(res);
         lean_dec(promise);
+
         free(req);
     }, name_cstr, service_cstr, &hints);
 
@@ -94,12 +116,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr, obj_arg
 
         if (status != 0) {
             lean_promise_resolve_with_code(status, promise);
+            lean_dec(promise);
+            free(req);
             return;
         }
 
         lean_promise_resolve(mk_except_ok(r), promise);
-
         lean_dec(promise);
+
         free(req);
     }, (const struct sockaddr*)&addr_ptr, 0);
 
@@ -120,8 +144,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr, obj_arg
 
 #else
 
-// Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) : IO (IO.Promise (Except IO.Error (Array SocketAddress)))
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, uint16_t service, obj_arg /* w */) {
+// Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, uint8_t socktype, uint8_t protocol, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

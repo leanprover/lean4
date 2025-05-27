@@ -110,14 +110,32 @@ def addSimpCongrTheorem (declName : Name) (attrKind : AttributeKind) (prio : Nat
   congrExtension.add lemma attrKind
 
 /--
-Registers `simp` congruence theorems.
+Registers `simp` congruence lemmas.
 
-A `simp` congruence theorem should prove the equality of two applications of the same function from
+A `simp` congruence lemma should prove the equality of two applications of the same function from
 the equality of the individual arguments. They are used by `simp` to visit subexpressions of an
 application where the default congruence algorithm fails. This is particularly important for
 functions where some parameters depend on previous parameters.
+
+Congruence lemmas should have an equality for every parameter, possibly bounded by foralls, with
+the right hand side being an application of a parameter on the right-hand side. When applying
+congruence theorems, `simp` will first infer parameters from the right-hand side, then try to
+simplify each left-hand side of the parameter equalities and finally infer the right-hand side
+parameters from the result.
+
+Example:
+```
+def Option.pbind (o : Option α) (f : (a : α) → o = some a → Option β) : Option β := ...
+
+@[congr]
+theorem Option.pbind_congr
+    {o o' : Option α} (ho : o = o') -- equality for first parameter
+    {f : (a : α) → o = some a → Option β} {f' : (a : α) → o' = some a → Option β}
+    (hf : ∀ (a : α) (h : o' = some a), f a (ho.trans h) = f' a h) : -- equality for second parameter
+    o.pbind f = o'.pbind f' := -- conclusion: equality of the whole application
+  ...
+```
 -/
--- TODO: example
 @[builtin_init, builtin_doc]
 private def init :=
   registerBuiltinAttribute {

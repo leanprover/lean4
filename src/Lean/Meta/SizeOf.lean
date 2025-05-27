@@ -501,14 +501,15 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
                   let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
                   let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
                   trace[Meta.sizeOf] ">> {instDeclName} : {instDeclType}"
-                  addDecl <| Declaration.defnDecl {
-                    name        := instDeclName
-                    levelParams := indInfo.levelParams
-                    type        := instDeclType
-                    value       := instDeclValue
-                    safety      := .safe
-                    hints       := .abbrev
-                  }
+                  withExporting do -- We expose the `sizeOf` fucntions so that the `spec` functions can be
+                    addDecl <| Declaration.defnDecl {
+                      name        := instDeclName
+                      levelParams := indInfo.levelParams
+                      type        := instDeclType
+                      value       := instDeclValue
+                      safety      := .safe
+                      hints       := .abbrev
+                    }
                   addInstance instDeclName AttributeKind.global (eval_prio default)
         if genSizeOfSpec.get (← getOptions) then
           mkSizeOfSpecTheorems indInfo.all.toArray fns recMap

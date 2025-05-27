@@ -341,8 +341,12 @@ grind_pattern sublist_append_right => Sublist, l₁ ++ l₂
 @[simp] theorem sublist_append_of_sublist_left (s : l <+ l₁) : l <+ l₁ ++ l₂ :=
   s.trans <| sublist_append_left ..
 
+grind_pattern sublist_append_of_sublist_left => l <+ l₁, l₁ ++ l₂
+
 @[simp] theorem sublist_append_of_sublist_right (s : l <+ l₂) : l <+ l₁ ++ l₂ :=
   s.trans <| sublist_append_right ..
+
+grind_pattern sublist_append_of_sublist_right => l <+ l₂, l₁ ++ l₂
 
 @[simp, grind =] theorem append_sublist_append_left : ∀ l, l ++ l₁ <+ l ++ l₂ ↔ l₁ <+ l₂
   | [] => Iff.rfl
@@ -616,9 +620,16 @@ theorem infix_append (l₁ l₂ l₃ : List α) : l₂ <:+: l₁ ++ l₂ ++ l₃
 @[simp, grind] theorem infix_append' (l₁ l₂ l₃ : List α) : l₂ <:+: l₁ ++ (l₂ ++ l₃) := by
   rw [← List.append_assoc]; apply infix_append
 
+theorem infix_append_left : l₁ <:+: l₁ ++ l₂ := ⟨[], l₂, rfl⟩
+theorem infix_append_right : l₂ <:+: l₁ ++ l₂ := ⟨l₁, [], by simp⟩
+
 theorem IsPrefix.isInfix : l₁ <+: l₂ → l₁ <:+: l₂ := fun ⟨t, h⟩ => ⟨[], t, h⟩
 
+grind_pattern IsPrefix.isInfix => l₁ <+: l₂, IsInfix
+
 theorem IsSuffix.isInfix : l₁ <:+ l₂ → l₁ <:+: l₂ := fun ⟨t, h⟩ => ⟨t, [], by rw [h, append_nil]⟩
+
+grind_pattern IsSuffix.isInfix => l₁ <:+ l₂, IsInfix
 
 @[simp, grind] theorem nil_prefix {l : List α} : [] <+: l := ⟨l, rfl⟩
 
@@ -656,6 +667,26 @@ theorem IsInfix.trans : ∀ {l₁ l₂ l₃ : List α}, l₁ <:+: l₂ → l₂ 
   | l, _, _, ⟨l₁, r₁, rfl⟩, ⟨l₂, r₂, rfl⟩ => ⟨l₂ ++ l₁, r₁ ++ r₂, by simp only [append_assoc]⟩
 
 grind_pattern IsInfix.trans => l₁ <:+: l₂, l₂ <:+: l₃
+
+theorem prefix_append_of_prefix (h : l₁ <+: l₂) : l₁ <+: l₂ ++ l₃ :=
+  h.trans (prefix_append l₂ l₃)
+
+grind_pattern prefix_append_of_prefix => l₁ <+: l₂, l₂ ++ l₃
+
+theorem suffix_append_of_suffix (h : l₁ <:+ l₃) : l₁ <:+ l₂ ++ l₃ :=
+  h.trans (suffix_append l₂ l₃)
+
+grind_pattern suffix_append_of_suffix => l₁ <:+ l₃, l₂ ++ l₃
+
+theorem infix_append_of_infix_left (h : l₁ <:+: l₂) : l₁ <:+: l₂ ++ l₃ :=
+  h.trans infix_append_left
+
+grind_pattern infix_append_of_infix_left => l₁ <:+: l₂, l₂ ++ l₃
+
+theorem infix_append_of_infix_right (h : l₁ <:+: l₃) : l₁ <:+: l₂ ++ l₃ :=
+  h.trans infix_append_right
+
+grind_pattern infix_append_of_infix_right => l₁ <:+: l₃, l₂ ++ l₃
 
 protected theorem IsInfix.sublist : l₁ <:+: l₂ → l₁ <+ l₂
   | ⟨_, _, h⟩ => h ▸ (sublist_append_right ..).trans (sublist_append_left ..)
@@ -735,11 +766,20 @@ theorem IsPrefix.getElem {xs ys : List α} (h : xs <+: ys) {i} (hi : i < xs.leng
 theorem IsInfix.reverse : l₁ <:+: l₂ → reverse l₁ <:+: reverse l₂ :=
   reverse_infix.2
 
+grind_pattern IsInfix.reverse => l₁ <:+: l₂, l₁.reverse
+grind_pattern IsInfix.reverse => l₁ <:+: l₂, l₂.reverse
+
 theorem IsSuffix.reverse : l₁ <:+ l₂ → reverse l₁ <+: reverse l₂ :=
   reverse_prefix.2
 
+grind_pattern IsSuffix.reverse => l₁ <:+ l₂, l₁.reverse
+grind_pattern IsSuffix.reverse => l₁ <:+ l₂, l₂.reverse
+
 theorem IsPrefix.reverse : l₁ <+: l₂ → reverse l₁ <:+ reverse l₂ :=
   reverse_suffix.2
+
+grind_pattern IsPrefix.reverse => l₁ <+: l₂, l₁.reverse
+grind_pattern IsPrefix.reverse => l₁ <+: l₂, l₂.reverse
 
 theorem IsPrefix.head {l₁ l₂ : List α} (h : l₁ <+: l₂) (hx : l₁ ≠ []) :
     l₁.head hx = l₂.head (h.ne_nil hx) := by
@@ -865,7 +905,7 @@ theorem infix_concat_iff {l₁ l₂ : List α} {a : α} :
   rw [← reverse_infix, reverse_concat, infix_cons_iff, reverse_infix,
     ← reverse_prefix, reverse_concat]
 
-theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? = some l₁[i] := by
+theorem prefix_iff_getElem? : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? = some l₁[i] := by
   induction l₁ generalizing l₂ with
   | nil => simp
   | cons a l₁ ih =>
@@ -877,7 +917,12 @@ theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? =
       rw (occs := [2]) [← Nat.and_forall_add_one]
       simp [Nat.succ_lt_succ_iff, eq_comm]
 
-theorem isPrefix_iff_getElem {l₁ l₂ : List α} :
+-- See `Init.Data.List.Nat.Sublist` for `isSuffix_iff` and `ifInfix_iff`.
+
+@[deprecated prefix_iff_getElem? (since := "2025-05-27")]
+abbrev isPrefix_iff := @prefix_iff_getElem?
+
+theorem prefix_iff_getElem {l₁ l₂ : List α} :
     l₁ <+: l₂ ↔ ∃ (h : l₁.length ≤ l₂.length), ∀ i (hx : i < l₁.length),
       l₁[i] = l₂[i]'(Nat.lt_of_lt_of_le hx h) where
   mp h := ⟨h.length_le, fun _ h' ↦ h.getElem h'⟩
@@ -895,9 +940,16 @@ theorem isPrefix_iff_getElem {l₁ l₂ : List α} :
         simp only [cons_prefix_cons]
         exact ⟨h 0 (zero_lt_succ _), tail_ih hl fun a ha ↦ h a.succ (succ_lt_succ ha)⟩
 
--- See `Init.Data.List.Nat.Sublist` for `isSuffix_iff` and `ifInfix_iff`.
+@[deprecated prefix_iff_getElem (since := "2025-05-27")]
+abbrev isPrefix_iff_getElem := @prefix_iff_getElem
 
-theorem isPrefix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
+theorem cons_prefix_iff {a : α} {l₁ l₂ : List α} :
+    a :: l₁ <+: l₂ ↔ ∃ l', l₂ = a :: l' ∧ l₁ <+: l' := by
+  match l₂ with
+  | nil => simp
+  | cons b l₂ => simp [and_assoc, eq_comm]
+
+theorem prefix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
     l₂ <+: filterMap f l₁ ↔ ∃ l, l <+: l₁ ∧ l₂ = filterMap f l := by
   simp only [IsPrefix, append_eq_filterMap_iff]
   constructor
@@ -906,7 +958,10 @@ theorem isPrefix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l�
   · rintro ⟨l₁, ⟨l₂, rfl⟩, rfl⟩
     exact ⟨_, l₁, l₂, rfl, rfl, rfl⟩
 
-theorem isSuffix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
+@[deprecated prefix_filterMap_iff (since := "2025-05-27")]
+abbrev isPrefix_filterMap_iff := @prefix_filterMap_iff
+
+theorem suffix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+ filterMap f l₁ ↔ ∃ l, l <:+ l₁ ∧ l₂ = filterMap f l := by
   simp only [IsSuffix, append_eq_filterMap_iff]
   constructor
@@ -915,7 +970,10 @@ theorem isSuffix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l�
   · rintro ⟨l₁, ⟨l₂, rfl⟩, rfl⟩
     exact ⟨_, l₂, l₁, rfl, rfl, rfl⟩
 
-theorem isInfix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
+@[deprecated suffix_filterMap_iff (since := "2025-05-27")]
+abbrev isSuffix_filterMap_iff := @suffix_filterMap_iff
+
+theorem infix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+: filterMap f l₁ ↔ ∃ l, l <:+: l₁ ∧ l₂ = filterMap f l := by
   simp only [IsInfix, append_eq_filterMap_iff, filterMap_eq_append_iff]
   constructor
@@ -924,31 +982,52 @@ theorem isInfix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂
   · rintro ⟨l₃, ⟨l₂, l₁, rfl⟩, rfl⟩
     exact ⟨_, _, _, l₁, rfl, ⟨⟨l₂, l₃, rfl, rfl, rfl⟩, rfl⟩⟩
 
-theorem isPrefix_filter_iff {p : α → Bool} {l₁ l₂ : List α} :
+@[deprecated infix_filterMap_iff (since := "2025-05-27")]
+abbrev isInfix_filterMap_iff := @infix_filterMap_iff
+
+theorem prefix_filter_iff {p : α → Bool} {l₁ l₂ : List α} :
     l₂ <+: l₁.filter p ↔ ∃ l, l <+: l₁ ∧ l₂ = l.filter p := by
-  rw [← filterMap_eq_filter, isPrefix_filterMap_iff]
+  rw [← filterMap_eq_filter, prefix_filterMap_iff]
 
-theorem isSuffix_filter_iff {p : α → Bool} {l₁ l₂ : List α} :
+@[deprecated prefix_filter_iff (since := "2025-05-27")]
+abbrev isPrefix_filter_iff := @prefix_filter_iff
+
+theorem suffix_filter_iff {p : α → Bool} {l₁ l₂ : List α} :
     l₂ <:+ l₁.filter p ↔ ∃ l, l <:+ l₁ ∧ l₂ = l.filter p := by
-  rw [← filterMap_eq_filter, isSuffix_filterMap_iff]
+  rw [← filterMap_eq_filter, suffix_filterMap_iff]
 
-theorem isInfix_filter_iff {p : α → Bool} {l₁ l₂ : List α} :
+@[deprecated suffix_filter_iff (since := "2025-05-27")]
+abbrev isSuffix_filter_iff := @suffix_filter_iff
+
+theorem infix_filter_iff {p : α → Bool} {l₁ l₂ : List α} :
     l₂ <:+: l₁.filter p ↔ ∃ l, l <:+: l₁ ∧ l₂ = l.filter p := by
-  rw [← filterMap_eq_filter, isInfix_filterMap_iff]
+  rw [← filterMap_eq_filter, infix_filterMap_iff]
 
-theorem isPrefix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
+@[deprecated infix_filter_iff (since := "2025-05-27")]
+abbrev isInfix_filter_iff := @infix_filter_iff
+
+theorem prefix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
     l₂ <+: l₁.map f ↔ ∃ l, l <+: l₁ ∧ l₂ = l.map f := by
-  rw [← filterMap_eq_map, isPrefix_filterMap_iff]
+  rw [← filterMap_eq_map, prefix_filterMap_iff]
 
-theorem isSuffix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
+@[deprecated prefix_map_iff (since := "2025-05-27")]
+abbrev isPrefix_map_iff := @prefix_map_iff
+
+theorem suffix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+ l₁.map f ↔ ∃ l, l <:+ l₁ ∧ l₂ = l.map f := by
-  rw [← filterMap_eq_map, isSuffix_filterMap_iff]
+  rw [← filterMap_eq_map, suffix_filterMap_iff]
 
-theorem isInfix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
+@[deprecated suffix_map_iff (since := "2025-05-27")]
+abbrev isSuffix_map_iff := @suffix_map_iff
+
+theorem infix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+: l₁.map f ↔ ∃ l, l <:+: l₁ ∧ l₂ = l.map f := by
-  rw [← filterMap_eq_map, isInfix_filterMap_iff]
+  rw [← filterMap_eq_map, infix_filterMap_iff]
 
-@[grind =] theorem isPrefix_replicate_iff {n} {a : α} {l : List α} :
+@[deprecated infix_map_iff (since := "2025-05-27")]
+abbrev isInfix_map_iff := @infix_map_iff
+
+@[grind =] theorem prefix_replicate_iff {n} {a : α} {l : List α} :
     l <+: List.replicate n a ↔ l.length ≤ n ∧ l = List.replicate l.length a := by
   rw [IsPrefix]
   simp only [append_eq_replicate_iff]
@@ -960,12 +1039,18 @@ theorem isInfix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
     · simpa using add_sub_of_le h
     · simpa using w
 
-@[grind =] theorem isSuffix_replicate_iff {n} {a : α} {l : List α} :
+@[deprecated prefix_replicate_iff (since := "2025-05-27")]
+abbrev isPrefix_replicate_iff := @prefix_replicate_iff
+
+@[grind =] theorem suffix_replicate_iff {n} {a : α} {l : List α} :
     l <:+ List.replicate n a ↔ l.length ≤ n ∧ l = List.replicate l.length a := by
-  rw [← reverse_prefix, reverse_replicate, isPrefix_replicate_iff]
+  rw [← reverse_prefix, reverse_replicate, prefix_replicate_iff]
   simp [reverse_eq_iff]
 
-@[grind =] theorem isInfix_replicate_iff {n} {a : α} {l : List α} :
+@[deprecated suffix_replicate_iff (since := "2025-05-27")]
+abbrev isSuffix_replicate_iff := @suffix_replicate_iff
+
+@[grind =] theorem infix_replicate_iff {n} {a : α} {l : List α} :
     l <:+: List.replicate n a ↔ l.length ≤ n ∧ l = List.replicate l.length a := by
   rw [IsInfix]
   simp only [append_eq_replicate_iff, length_append]
@@ -976,6 +1061,9 @@ theorem isInfix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
     refine ⟨replicate (n - l.length) a, [], ?_, ?_⟩
     · simpa using Nat.sub_add_cancel h
     · simpa using w
+
+@[deprecated infix_replicate_iff (since := "2025-05-27")]
+abbrev isInfix_replicate_iff := @infix_replicate_iff
 
 theorem infix_of_mem_flatten : ∀ {L : List (List α)}, l ∈ L → l <:+: flatten L
   | l' :: _, h =>

@@ -199,7 +199,7 @@ theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
         simpa using h
 
 theorem take_prefix_take_left {l : List α} {i j : Nat} (h : i ≤ j) : take i l <+: take j l := by
-  rw [isPrefix_iff]
+  rw [prefix_iff_getElem?]
   intro i w
   rw [getElem?_take_of_lt, getElem_take, getElem?_eq_getElem]
   simp only [length_take] at w

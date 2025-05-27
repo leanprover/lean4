@@ -232,7 +232,7 @@ theorem count_le_count_cons {a b : α} {l : List α} : count a l ≤ count a (b 
 theorem count_singleton {a b : α} : count a [b] = if b == a then 1 else 0 := by
   simp [count_cons]
 
-@[simp] theorem count_append {a : α} {l₁ l₂ : List α} : count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
+@[simp, grind =] theorem count_append {a : α} {l₁ l₂ : List α} : count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
   countP_append
 
 theorem count_flatten {a : α} {l : List (List α)} : count a l.flatten = (l.map (count a)).sum := by
@@ -283,7 +283,7 @@ theorem count_eq_length {l : List α} : count a l = l.length ↔ ∀ b ∈ l, a 
 @[simp] theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n :=
   (count_eq_length.2 <| fun _ h => (eq_of_mem_replicate h).symm).trans (length_replicate ..)
 
-theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
+@[grind =] theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
   split <;> (rename_i h; simp only [beq_iff_eq] at h)
   · exact ‹b = a› ▸ count_replicate_self ..
   · exact count_eq_zero.2 <| mt eq_of_mem_replicate (Ne.symm h)
@@ -295,7 +295,7 @@ theorem filter_beq {l : List α} (a : α) : l.filter (· == a) = replicate (coun
 theorem filter_eq [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = replicate (count a l) a :=
   funext (Bool.beq_eq_decide_eq · a) ▸ filter_beq a
 
-theorem replicate_sublist_iff {l : List α} : replicate n a <+ l ↔ n ≤ count a l := by
+@[grind =] theorem replicate_sublist_iff {l : List α} : replicate n a <+ l ↔ n ≤ count a l := by
   refine ⟨fun h => ?_, fun h => ?_⟩
   · simpa only [count_replicate_self] using h.count_le a
   · exact ((replicate_sublist_replicate a).2 h).trans <| filter_beq a ▸ filter_sublist

@@ -19,14 +19,22 @@ example : l₂ ++ l₃ <:+ l₁ ++ l₂ ++ l₃ := by
 example : l₂ ++ l₃ <:+: l₁ ++ l₂ ++ l₃ ++ l₄ := by
   grind
 
-example (h : zs <+ ys) (w : xs ++ ys <+ zs) (h' : ¬xs = []) : False := by
-  have : ∃ a ys, xs = a :: ys := sorry
-  grind (gen := 6)
+example (h : l₁ <:+: l₂) : l₁.filter p <:+: (l₂ ++ l₃).filter p := by
+  grind
 
-example {xs ys zs : List α} (h : zs <+ ys) :
-    xs ++ ys <+ zs ↔ xs = [] ∧ ys = zs := by
-  constructor
-  · intro w
-    grind
-  · intro w
-    grind
+example (h : l₁ <+: l₂) : l₁.map f <+: (l₂ ++ l₃).map f := by
+  grind
+
+example (h : l₁ <+: l₂) : l₁.reverse <:+ xs ++ l₂.reverse := by grind
+
+example (h : l₁ <+: l₂) : l₁.reverse <:+: xs ++ l₂.reverse := by grind
+
+example (h : l₁ <:+: l₂) : l₁.reverse <:+: xs ++ l₂.reverse ++ ys := by grind
+
+example (h : 8 ≤ xs.count 37) : replicate 7 37 <+ xs := by grind
+
+-- Can we do this without unfolding `IsSuffix`?
+example (h : replicate (n + 1) 37 <:+ xs) : n ≤ xs.count 37 := by grind [IsSuffix]
+
+-- Can we do this without unfolding `IsInfix`?
+example (h : replicate (n + 1) 37 <:+: xs) : n ≤ 2 * xs.count 37 := by grind [IsInfix]

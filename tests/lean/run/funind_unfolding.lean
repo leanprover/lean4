@@ -430,8 +430,8 @@ info: withHave.induct_unfolding (motive : Nat → Bool → Prop) (case1 : motive
 
 -- -- TODO(kmill) no more 0 < n and 0 < 42 parameters
 /--
-info: withHave.fun_cases_unfolding (motive : Nat → Bool → Prop) (case1 : motive 42 true)
-  (case2 : ∀ (n : Nat), ¬n = 42 → motive n (withHave (n - 1))) (n : Nat) : motive n (withHave n)
+info: withHave.fun_cases_unfolding (n : Nat) (motive : Bool → Prop) (case1 : n = 42 → motive true)
+  (case2 : ¬n = 42 → motive (withHave (n - 1))) : motive (withHave n)
 -/
 #guard_msgs(pass trace, all) in
 #check withHave.fun_cases_unfolding

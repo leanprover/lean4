@@ -62,7 +62,7 @@ def ItEquiv.step_mk {m : Type w → Type w'} [Monad m] [LawfulMonad m] {β : Typ
     ItEquiv.step (Quot.mk _ bit) = (CodensityT.lift bit.iterator.step').map (IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM)) :=
   rfl
 
-theorem ItEquiv.of_mk_eq_mk {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
+protected theorem ItEquiv.exact {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
     (ita itb : BundledIterM m β) : Quot.mk (ItEquiv m β) ita = Quot.mk (ItEquiv m β) itb → ItEquiv m β ita itb := by
   refine ItEquiv.fixpoint_induct m β (fun ita' itb' => Quot.mk _ ita' = Quot.mk _ itb') ?_ ita itb
   intro ita' itb' h
@@ -74,15 +74,15 @@ theorem ItEquiv.of_mk_eq_mk {m : Type w → Type w'} {β : Type w} [Monad m] [La
 
 theorem ItEquiv.refl {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
     (it) : ItEquiv m β it it :=
-  of_mk_eq_mk it it rfl
+  ItEquiv.exact it it rfl
 
 theorem ItEquiv.symm {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
     {ita itb} (h : ItEquiv m β ita itb) : ItEquiv m β itb ita :=
-  of_mk_eq_mk itb ita (Quot.sound h).symm
+  ItEquiv.exact itb ita (Quot.sound h).symm
 
 theorem ItEquiv.trans {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
     {ita itb itc} (hab : ItEquiv m β ita itb) (hbc : ItEquiv m β itb itc) : ItEquiv m β ita itc :=
-  of_mk_eq_mk ita itc (Eq.trans (Quot.sound hab) (Quot.sound hbc))
+  ItEquiv.exact ita itc (Eq.trans (Quot.sound hab) (Quot.sound hbc))
 
 def HItEquiv {m : Type w → Type w'} [Monad m] [LawfulMonad m] {β : Type w} {α₁ α₂} [Iterator α₁ m β] [Iterator α₂ m β]
     (ita : IterM (α := α₁) m β) (itb : IterM (α := α₂) m β) :=

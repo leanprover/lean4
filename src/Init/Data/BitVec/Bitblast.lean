@@ -1805,10 +1805,9 @@ theorem neg_toInt_neg_umod_eq_of_msb_true_msb_true {x y : BitVec w} (hx : x.msb 
 
 theorem toNat_pos_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     0 < x.toNat := by
-  by_cases hw : w = 0; subst hw; decide +revert
-  have wpos : 0 < w := by omega
-  simp [toNat_eq] at hx
-  omega
+  rcases w with _|w
+  · decide +revert
+  · simp [toNat_eq] at hx; omega
 
 @[simp]
 theorem toInt_umod_neg_add {x y : BitVec w} (hymsb : y.msb = true) (hxmsb : x.msb = false) (hdvd : ¬y.toInt ∣ x.toInt) :

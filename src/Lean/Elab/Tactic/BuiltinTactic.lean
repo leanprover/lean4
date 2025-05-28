@@ -328,10 +328,25 @@ where
 
 @[builtin_tactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>
   match stx with
-  | `(tactic| revert $hs*) => do
-     let (_, mvarId) ← (← getMainGoal).revert (← getFVarIds hs)
-     replaceMainGoal [mvarId]
-  | _                     => throwUnsupportedSyntax
+  | `(tactic| revert $hs*) => withMainContext do
+    let mut fvarIds := #[]
+    let mut toAssertRev := []
+    let mut newGoalsRev := []
+    for h in hs do
+      let (e, gs) ← withCollectingNewGoalsFrom (parentTag := ← getMainTag) (tagSuffix := `revert) do
+        withoutRecover <| elabTermForApply h (mayPostpone := false)
+      newGoalsRev := gs.reverse ++ newGoalsRev
+      if let .fvar fvarId := e then
+        fvarIds := fvarIds.push fvarId
+      else
+        toAssertRev := e :: toAssertRev
+    let mut mvarId ← popMainGoal
+    for e in toAssertRev do
+      mvarId ← mvarId.assert (← Term.mkFreshBinderName) (← inferType e) e
+    mvarId ← Prod.snd <$> mvarId.revert fvarIds
+    pushGoals newGoalsRev.reverse
+    pushGoal mvarId
+  | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.clear] def evalClear : Tactic := fun stx =>
   match stx with

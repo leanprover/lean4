@@ -2482,6 +2482,43 @@ theorem clzAux_lt_iff {x : BitVec w} {n : Nat} :
         · simp [show j ≤ n by omega]
           exact h3
 
+/-
+ x.getLsbD: (w - 1)  ...  (n) (n - 1) ... (n - k) ... 0
+ x.clzAux n = k ↔  ....... 0 .......... 0    1    ...
+ -- induction on n generalizing i and inside induction on i
+-/
+
+theorem getLsbD_false_of_lt_clzAux {x : BitVec w} {n : Nat} (hw : 0 < w) (hi : i < clzAux x n):
+  x.getLsbD (n - i) = false := by
+  rcases w with _|w
+  · omega
+  · induction n generalizing i
+    · case zero =>
+      simp
+      unfold clzAux at hi
+      by_cases hx0 : x[0]
+      · simp [hx0] at hi
+      · simp [hx0] at hi
+        simp [hx0]
+    · case succ n ihn =>
+      induction i
+      · case zero =>
+        simp
+        simp at ihn
+        unfold clzAux at hi
+        by_cases hx1 : x.getLsbD (n + 1)
+        · simp [hx1] at hi
+        · simp [hx1] at hi
+          simp [hx1]
+      · case succ i ihi =>
+        simp
+        unfold clzAux at hi
+        by_cases hx1 : x.getLsbD (n + 1)
+        · simp [hx1] at hi
+        · simp [hx1] at hi
+          apply ihn
+          omega
+
 theorem clzAux_eq_forall {x : BitVec w} {n : Nat} (hw : 0 < w) :
   ∀ i, i < (clzAux x n) → x.getLsbD (n - i) = false := by
   rcases w with _|w
@@ -2505,7 +2542,6 @@ theorem clzAux_eq_forall {x : BitVec w} {n : Nat} (hw : 0 < w) :
       · simp [hx] at hi
       · simp [hx] at hi
         simp at hx
-
         sorry
 
 /-- Count the number of leading zeroes. -/
@@ -2603,8 +2639,12 @@ theorem getLsbD_false_of_clz {x : BitVec w} (hi : i < clz x) :
       cases w
       · simp at hi ihc
         simp
-        sorry
-      · simp at hi
+        by_cases hx0 : x[0]
+        · simp [hx0] at hi
+        · simp [hx0] at hi
+          simp [hx0, show i = 0 by omega]
+      · case succ w =>
+        simp at hi
         sorry
 
 theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
@@ -2694,13 +2734,12 @@ theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
 
 
 
-        apply Classical.byContradiction
-        intro hcontra
-        simp at hcontra
-        have := toNat_lt_iff (x := x) (i := w + 1 + 1 - (1 + x.clzAux w) - 1) (by omega)
+        -- intro hcontra
+        -- simp at hcontra
+        -- have := toNat_lt_iff (x := x) (i := w + 1 + 1 - (1 + x.clzAux w) - 1) (by omega)
 
 
-        sorry
+          sorry
 
     -- have := clzAux_lt_iff (x := x) (n := w)
     -- simp [clz]

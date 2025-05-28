@@ -18,6 +18,12 @@ namespace EMatch
 inductive Cnstr where
   | /-- Matches pattern `pat` with term `e` -/
     «match» (pat : Expr) (e : Expr)
+  | /--
+    Matches "generalized" pattern `h : x = pat` (`h : x ≍ pat` if `heq` is `true`)
+    with term `e`.
+    See `Grind.genPattern` (`Grind.genHEqPattern`)
+    -/
+    genMatch (pat : GenPattern) (e : Expr)
   | /-- Matches offset pattern `pat+k` with term `e` -/
     offset (pat : Expr) (k : Nat) (e : Expr)
   | /-- This constraint is used to encode multi-patterns. -/
@@ -129,6 +135,14 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
     assert! Option.isNone <| isOffsetPattern? pArg
     assert! !isPatternDontCare pArg
     return { c with cnstrs := .offset pArg k eArg :: c.cnstrs }
+  else if let some genP := isGenPattern? pArg then
+    if let some pArg := groundPattern? genP.pat then
+      guard (← isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg))
+      let c ← assign? c genP.xIdx eArg
+      let c ← assign? c genP.hIdx (← if genP.heq then mkHEqProof eArg pArg else mkEqProof eArg pArg)
+      return c
+    else
+      return { c with cnstrs := .genMatch genP eArg :: c.cnstrs }
   else
     return { c with cnstrs := .match pArg eArg :: c.cnstrs }
 
@@ -160,6 +174,15 @@ private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : Option
   else
     matchArgs? c p (e.getAppPrefix pn)
 
+-- Helper function for `processMatch` and `processGenMatch`
+@[inline] private def isCandidate (n : ENode) (pFn : Expr) (pNumArgs : Nat) (maxGeneration : Nat) : Bool :=
+    -- Remark: we use `<` because the instance generation is the maximum term generation + 1
+    n.generation < maxGeneration
+    -- uses heterogeneous equality or is the root of its congruence class
+    && (n.heqProofs || n.isCongrRoot)
+    && eqvFunctions pFn n.self.getAppFn
+    && n.self.getAppNumArgs == pNumArgs
+
 /--
 Matches pattern `p` with term `e` with respect to choice `c`.
 We traverse the equivalence class of `e` looking for applications compatible with `p`.
@@ -174,11 +197,30 @@ private partial def processMatch (c : Choice) (p : Expr) (e : Expr) : M Unit := 
   repeat
     let n ← getENode curr
     -- Remark: we use `<` because the instance generation is the maximum term generation + 1
-    if n.generation < maxGeneration
-       -- uses heterogeneous equality or is the root of its congruence class
-       && (n.heqProofs || n.isCongrRoot)
-       && eqvFunctions pFn curr.getAppFn
-       && curr.getAppNumArgs == numArgs then
+    if isCandidate n pFn numArgs maxGeneration then
+      if let some c ← matchArgs? c p curr |>.run then
+        pushChoice (c.updateGen n.generation)
+    curr ← getNext curr
+    if isSameExpr curr e then break
+
+/--
+Matches a generalized pattern `genP` of the form `h : x = p` with term `e` with respect to choice `c`.
+See `Grind.genPattern`.
+This is very similar to `processMatch`, we actually match `p` but store the equivalence class
+member in `x` and the proof that `x = e` into `h`
+-/
+private partial def processGenMatch (c : Choice) (genP : GenPattern) (e : Expr) : M Unit := do
+  let maxGeneration ← getMaxGeneration
+  let p := genP.pat
+  let pFn := p.getAppFn
+  let numArgs := p.getAppNumArgs
+  let mut curr := e
+  repeat
+    let n ← getENode curr
+    if isCandidate n pFn numArgs maxGeneration then
+      if let some c ← assign? c genP.xIdx e |>.run then
+      let h ← if genP.heq then mkHEqProof e curr else mkEqProof e curr
+      if let some c ← assign? c genP.hIdx h |>.run then
       if let some c ← matchArgs? c p curr |>.run then
         pushChoice (c.updateGen n.generation)
     curr ← getNext curr
@@ -389,6 +431,7 @@ private def processChoices : M Unit := do
       match c.cnstrs with
       | [] => instantiateTheorem c
       | .match p e :: cnstrs => processMatch { c with cnstrs } p e
+      | .genMatch p e :: cnstrs => processGenMatch { c with cnstrs } p e
       | .offset p k e :: cnstrs => processOffset { c with cnstrs } p k e
       | .continue p :: cnstrs => processContinue { c with cnstrs } p
 

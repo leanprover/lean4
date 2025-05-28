@@ -63,6 +63,7 @@ structure GenPattern where
   hIdx : Nat
   xIdx : Nat
   pat  : Expr
+  deriving Repr
 
 def isGenPattern? (pat : Expr) : Option GenPattern :=
   match_expr pat with

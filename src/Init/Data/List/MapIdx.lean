@@ -320,7 +320,7 @@ theorem mapIdx_nil {f : Nat → α → β} : mapIdx f [] = [] :=
 theorem mapIdx_go_length {acc : Array β} :
     length (mapIdx.go f l acc) = length l + acc.size := by
   induction l generalizing acc with
-  | nil => simp only [mapIdx.go, length_nil, Nat.zero_add]
+  | nil => simp [mapIdx.go]
   | cons _ _ ih =>
     simp only [mapIdx.go, ih, Array.size_push, Nat.add_succ, length_cons, Nat.add_comm]
 

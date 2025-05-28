@@ -84,7 +84,7 @@ theorem toArray_eq_singleton_iff {o : Option α} : o.toArray = #[a] ↔ o = some
 
 theorem size_toArray_eq_zero_iff {o : Option α} :
     o.toArray.size = 0 ↔ o = none := by
-  simp
+  simp [Array.size]
 
 @[simp]
 theorem size_toArray_eq_one_iff {o : Option α} :

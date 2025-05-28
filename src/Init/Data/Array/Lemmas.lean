@@ -75,7 +75,7 @@ theorem ne_empty_of_size_pos (h : 0 < xs.size) : xs ≠ #[] := by
   cases xs
   simpa using List.ne_nil_of_length_pos h
 
-theorem size_eq_zero_iff : xs.size = 0 ↔ xs = #[] :=
+@[simp] theorem size_eq_zero_iff : xs.size = 0 ↔ xs = #[] :=
   ⟨eq_empty_of_size_eq_zero, fun h => h ▸ rfl⟩
 
 @[deprecated size_eq_zero_iff (since := "2025-02-24")]
@@ -169,6 +169,7 @@ theorem getD_getElem? {xs : Array α} {i : Nat} {d : α} :
 theorem getElem_push_lt {xs : Array α} {x : α} {i : Nat} (h : i < xs.size) :
     have : i < (xs.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
     (xs.push x)[i] = xs[i] := by
+  rw [Array.size] at h
   simp only [push, ← getElem_toList, List.concat_eq_append, List.getElem_append_left, h]
 
 @[simp] theorem getElem_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size] = x := by
@@ -1858,7 +1859,7 @@ theorem getElem_append_right {xs ys : Array α} {h : i < (xs ++ ys).size} (hle :
     (xs ++ ys)[i] = ys[i - xs.size]'(Nat.sub_lt_left_of_lt_add hle (size_append .. ▸ h)) := by
   simp only [← getElem_toList]
   have h' : i < (xs.toList ++ ys.toList).length := by rwa [← length_toList, toList_append] at h
-  conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
+  conv => rhs; unfold Array.size; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
   apply List.get_of_eq; rw [toList_append]
 
 theorem getElem?_append_left {xs ys : Array α} {i : Nat} (hn : i < xs.size) :
@@ -2025,7 +2026,7 @@ theorem append_eq_append_iff {ws xs ys zs : Array α} :
         xs ++ ys.set (i - xs.size) x (by simp at h; omega) := by
   rcases xs with ⟨s⟩
   rcases ys with ⟨t⟩
-  simp only [List.append_toArray, List.set_toArray, List.set_append]
+  simp only [List.append_toArray, List.set_toArray, List.set_append, Array.size]
   split <;> simp
 
 @[simp] theorem set_append_left {xs ys : Array α} {i : Nat} {x : α} (h : i < xs.size)  :
@@ -2045,7 +2046,7 @@ theorem append_eq_append_iff {ws xs ys zs : Array α} :
         xs ++ ys.setIfInBounds (i - xs.size) x := by
   rcases xs with ⟨s⟩
   rcases ys with ⟨t⟩
-  simp only [List.append_toArray, List.setIfInBounds_toArray, List.set_append]
+  simp only [List.append_toArray, List.setIfInBounds_toArray, List.set_append, Array.size]
   split <;> simp
 
 @[simp] theorem setIfInBounds_append_left {xs ys : Array α} {i : Nat} {x : α} (h : i < xs.size) :
@@ -4500,6 +4501,7 @@ abbrev contains_def [DecidableEq α] {a : α} {xs : Array α} : xs.contains a �
 @[simp] theorem size_zipWith {xs : Array α} {ys : Array β} {f : α → β → γ} :
     (zipWith f xs ys).size = min xs.size ys.size := by
   rw [size_eq_length_toList, toList_zipWith, List.length_zipWith]
+  simp only [Array.size]
 
 @[simp] theorem size_zip {xs : Array α} {ys : Array β} :
     (zip xs ys).size = min xs.size ys.size :=
@@ -4572,7 +4574,7 @@ theorem toListRev_toArray {l : List α} : l.toArray.toListRev = l.reverse := by 
   | nil => simp
   | cons a l ih =>
     simp only [foldlM_toArray] at ih
-    rw [size_toArray, mapM'_cons, foldlM_toArray]
+    rw [size_toArray, mapM'_cons]
     simp [ih]
 
 theorem uset_toArray {l : List α} {i : USize} {a : α} {h : i.toNat < l.toArray.size} :

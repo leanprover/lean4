@@ -698,7 +698,7 @@ protected theorem eq_empty {xs : Vector α 0} : xs = #v[] := by
 theorem eq_empty_of_size_eq_zero {xs : Vector α n} (h : n = 0) : xs = #v[].cast h.symm := by
   rcases xs with ⟨xs, rfl⟩
   apply toArray_inj.1
-  simp only [List.length_eq_zero_iff, Array.toList_eq_nil_iff] at h
+  simp only [Array.size_eq_zero_iff] at h
   simp [h]
 
 theorem size_eq_one {xs : Vector α 1} : ∃ a, xs = #v[a] := by

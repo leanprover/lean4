@@ -5374,7 +5374,7 @@ theorem toNat_pos_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     0 < x.toNat := by
   simp [toNat_eq] at hx; omega
 
-theorem toNat_neg_lt (x : BitVec w) (hmsb : x.msb = true) :
+theorem toNat_neg_lt_of_msb (x : BitVec w) (hmsb : x.msb = true) :
     (-x).toNat ≤ 2^(w-1) := by
   rcases w with _|w
   · simp [BitVec.eq_nil x]

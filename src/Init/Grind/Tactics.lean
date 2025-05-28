@@ -19,8 +19,8 @@ syntax grindEq     := "= "
 syntax grindEqBoth := atomic("_" "=" "_ ")
 syntax grindEqRhs  := atomic("=" "_ ")
 syntax grindEqBwd  := atomic("←" "= ") <|> atomic("<-" "= ")
-syntax grindBwd    := "← " <|> "-> "
-syntax grindFwd    := "→ " <|> "<- "
+syntax grindBwd    := "← " <|> "<- "
+syntax grindFwd    := "→ " <|> "-> "
 syntax grindRL     := "⇐ " <|> "<= "
 syntax grindLR     := "⇒ " <|> "=> "
 syntax grindUsr    := &"usr "

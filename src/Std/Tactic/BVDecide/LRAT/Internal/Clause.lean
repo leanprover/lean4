@@ -274,10 +274,8 @@ def contains (c : DefaultClause n) (l : Literal (PosFin n)) : Bool := c.clause.c
 theorem contains_iff :
     ∀ (c : DefaultClause n) (l : Literal (PosFin n)), contains c l = true ↔ l ∈ toList c := by
   intro c l
-  simp only [contains, List.contains]
-  constructor
-  · exact List.mem_of_elem_eq_true
-  · exact List.elem_eq_true_of_mem
+  simp only [contains]
+  grind
 
 def reduce_fold_fn (assignments : Array Assignment) (acc : ReduceResult (PosFin n))
     (l : Literal (PosFin n)) :

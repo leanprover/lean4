@@ -7,6 +7,9 @@ prelude
 import Init.ByCases
 import Std.Tactic.BVDecide.LRAT.Internal.Entails
 import Std.Tactic.BVDecide.LRAT.Internal.PosFin
+import Init.Grind
+
+set_option grind.warning false
 
 namespace Std.Tactic.BVDecide
 namespace LRAT
@@ -38,6 +41,8 @@ deriving Inhabited, DecidableEq, BEq
 
 namespace Assignment
 
+attribute [local grind cases] Assignment
+
 instance : ToString Assignment where
   toString := fun a =>
     match a with
@@ -61,6 +66,8 @@ def hasNegAssignment (assignment : Assignment) : Bool :=
   | neg => true
   | both => true
   | unassigned => false
+
+attribute [local grind] hasPosAssignment hasNegAssignment
 
 /--
 Updates the old assignment of `l` to reflect the fact that `(l, true)` is now part of the formula.
@@ -108,6 +115,14 @@ def removeNegAssignment (oldAssignment : Assignment) : Assignment :=
   | both => pos
   | unassigned => unassigned -- Note: This case should not occur
 
+attribute [local grind] addNegAssignment addPosAssignment
+
+example : (if false = true then hasPosAssignment else hasNegAssignment)
+      ((if (!false) = true then removePosAssignment else removeNegAssignment) pos) =
+    true →
+  (if false = true then hasPosAssignment else hasNegAssignment) pos = true := by
+  grind [removePosAssignment, removeNegAssignment, hasPosAssignment, hasNegAssignment]
+
 def addAssignment (b : Bool) : Assignment → Assignment :=
   if b then
     addPosAssignment
@@ -125,6 +140,8 @@ def hasAssignment (b : Bool) : Assignment → Bool :=
     hasPosAssignment
   else
     hasNegAssignment
+
+attribute [local grind] addAssignment hasAssignment
 
 theorem removePos_addPos_cancel {assignment : Assignment} (h : ¬(hasPosAssignment assignment)) :
   removePosAssignment (addPosAssignment assignment) = assignment := by
@@ -181,29 +198,25 @@ theorem has_remove_irrelevant (assignment : Assignment) (b : Bool) :
 
 theorem unassigned_of_has_neither (assignment : Assignment) (lacks_pos : ¬(hasPosAssignment assignment))
   (lacks_neg : ¬(hasNegAssignment assignment)) :
-  assignment = unassigned := by
-  simp only [hasPosAssignment, Bool.not_eq_true] at lacks_pos
-  split at lacks_pos <;> simp_all +decide
+  assignment = unassigned := by grind
 
+@[local grind =]
 theorem hasPos_addNeg (assignment : Assignment) :
-    hasPosAssignment (addNegAssignment assignment) = hasPosAssignment assignment := by
-  cases assignment <;> simp [hasPosAssignment, addNegAssignment]
+    hasPosAssignment (addNegAssignment assignment) = hasPosAssignment assignment := by grind
 
+@[local grind =]
 theorem hasNeg_addPos (assignment : Assignment) :
-    hasNegAssignment (addPosAssignment assignment) = hasNegAssignment assignment := by
-  cases assignment <;> simp [hasNegAssignment, addPosAssignment]
+    hasNegAssignment (addPosAssignment assignment) = hasNegAssignment assignment := by grind
 
 theorem has_iff_has_add_complement (assignment : Assignment) (b : Bool) :
     hasAssignment b assignment ↔ hasAssignment b (addAssignment (¬b) assignment) := by
   by_cases hb : b <;> simp [hb, hasAssignment, addAssignment, hasPos_addNeg, hasNeg_addPos]
 
 theorem addPos_addNeg_eq_both (assignment : Assignment) :
-    addPosAssignment (addNegAssignment assignment) = both := by
-  cases assignment <;> simp [addPosAssignment, addNegAssignment]
+    addPosAssignment (addNegAssignment assignment) = both := by grind
 
 theorem addNeg_addPos_eq_both (assignment : Assignment) :
-    addNegAssignment (addPosAssignment assignment) = both := by
-  cases assignment <;> simp [addNegAssignment, addPosAssignment]
+    addNegAssignment (addPosAssignment assignment) = both := by grind
 
 instance {n : Nat} : Entails (PosFin n) (Array Assignment) where
   eval := fun p arr => ∀ i : PosFin n, ¬(hasAssignment (¬p i) arr[i.1]!)

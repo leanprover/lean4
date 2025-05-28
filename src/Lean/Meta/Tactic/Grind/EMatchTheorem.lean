@@ -520,6 +520,8 @@ private def getPatternFn? (pattern : Expr) (inSupport : Bool) (argKind : Pattern
     | f@(.const declName _) =>
       if isForbidden declName then
         return none
+      if declName == ``Grind.genPattern || declName == ``Grind.genHEqPattern then
+        return some f
       if inSupport then
         if argKind matches .typeFormer | .relevant then
           if (← isInductive declName) then

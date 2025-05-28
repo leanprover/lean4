@@ -2,7 +2,6 @@ import Lean.Meta.Basic
 import Lean.ErrorExplanation
 -- TODO: delete
 import Lean.Elab.Import
-
 namespace Lean
 
 open Meta

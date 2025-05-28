@@ -23,7 +23,7 @@ If the environment variable `LEAN_MANUAL_ROOT` is set, it is used as the root. I
 root is pre-configured for the current Lean executable (typically true for releases), then it is
 used. If neither are true, then `https://lean-lang.org/doc/reference/latest/` is used.
 -/
-initialize manualRoot : String ←
+builtin_initialize manualRoot : String ←
   let r ←
     if let some root := (← IO.getEnv "LEAN_MANUAL_ROOT") then
       pure root

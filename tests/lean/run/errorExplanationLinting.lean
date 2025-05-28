@@ -24,7 +24,7 @@ open Lean Meta
 ```lean broken
 ```
 -/
-register_error_explanation Example {
+register_error_explanation Lean.Example {
   summary := ""
   sinceVersion := ""
 }
@@ -43,7 +43,7 @@ Foo
 ```lean fixed
 ```
 -/
-register_error_explanation Example {
+register_error_explanation Lean.Example {
   summary := "hi"
   sinceVersion := "4.0.0"
 }
@@ -55,7 +55,7 @@ register_error_explanation Example {
 
 # End of Examples
 -/
-register_error_explanation Example {
+register_error_explanation Lean.Example {
   summary := ""
   sinceVersion := ""
 }
@@ -77,7 +77,7 @@ error: Example 'Example' is malformed: Expected a(n) broken `lean` code block, b
 ```lean broken
 ```
 -/
-register_error_explanation Example {
+register_error_explanation Lean.Example {
   summary := ""
   sinceVersion := ""
 }
@@ -100,7 +100,7 @@ error: Example 'Example' is malformed: Expected a(n) `output` code block, but fo
 ```lean fixed
 ```
 -/
-register_error_explanation Example {
+register_error_explanation Lean.Example {
   summary := ""
   sinceVersion := ""
 }
@@ -120,7 +120,7 @@ register_error_explanation Example {
 ```lean fixed
 ```
 -/
-register_error_explanation Example {
+register_error_explanation Lean.Example {
   summary := ""
   sinceVersion := ""
 }
@@ -141,7 +141,7 @@ error: Example 'Example' is malformed: Invalid code block info string `lean brok
 ```lean fixed
 ```
 -/
-register_error_explanation Example {
+register_error_explanation Lean.Example {
   summary := ""
   sinceVersion := ""
 }
@@ -166,7 +166,7 @@ This is an explanation.
 
 Should fail
 -/
-register_error_explanation Example {
+register_error_explanation Lean.Example {
   summary := ""
   sinceVersion := ""
 }
@@ -214,7 +214,7 @@ Explanation of second example.
 
 Foo
 -/
-register_error_explanation Example {
+register_error_explanation Lean.Example {
   summary := ""
   sinceVersion := ""
 }
@@ -229,7 +229,7 @@ register_error_explanation Example {
 ```lean fixed
 ```
 -/
-register_error_explanation WorkingExample₁ {
+register_error_explanation Lean.WorkingExample₁ {
   summary := ""
   sinceVersion := ""
 }
@@ -267,7 +267,28 @@ Test
 Explanation of example.
 
 -/
-register_error_explanation WorkingExample₂ {
+register_error_explanation Lean.WorkingExample₂ {
+  summary := ""
+  sinceVersion := ""
+}
+
+/--
+Link: [`Lean.BinderTypeInferenceFailed`](lean-manual://errorExplanation/Lean.BinderTypeInferenceFailed)
+
+# Examples
+
+## Example 1
+```lean broken
+```
+```output
+```
+```lean fixed
+```
+
+Link: [`Lean.BinderTypeInferenceFailed`](lean-manual://errorExplanation/Lean.BinderTypeInferenceFailed)
+
+-/
+register_error_explanation Lean.WorkingExample₃ {
   summary := ""
   sinceVersion := ""
 }

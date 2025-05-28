@@ -31,6 +31,7 @@ structure ErrorExplanation where
   metadata : ErrorExplanation.Metadata
 
 -- FIXME: `addImportedFn`
+-- FIXME: should be `builtin_initialize` (stage0 will be a pain with this PR)
 initialize errorExplanationExt : SimplePersistentEnvExtension (Name × ErrorExplanation) (NameMap ErrorExplanation) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := fun s (n, v) => s.insert n v
@@ -202,12 +203,12 @@ private partial def manyThenEOF (p : ValidationM α) : ValidationM (Array α) :=
   go #[]
 where
   go (acc : Array α) := fun s =>
-    match p s with
-    | .success s' x => go (acc.push x) s'
-    | .error s' err =>
-      match eof s' with
-      | .success s'' _ => .success s'' acc
-      | .error _ _ => .error s' err
+    match eof s with
+    | .success .. => .success s acc
+    | .error .. =>
+      match p s with
+      | .success s' x => go (acc.push x) s'
+      | .error s' err => .error s' err
 
 private def manyNotD (p : ValidationM α) : ValidationM Unit :=
   discard (many (notFollowedBy p *> skip))
@@ -223,7 +224,9 @@ where
     else
       fail s!"Expected level-1 'Examples' header, but found `{line}`"
 
-  singleExample := attempt do
+  -- We needn't `attempt` examples because they never appear in a location where backtracking is
+  -- possible, and persisting the line index allows better error message placement
+  singleExample := do
     let header ← exampleHeader
     labelingExampleErrors header do
       let broken ← codeBlock "lean" (some .broken)
@@ -250,21 +253,15 @@ where
     else
       fail s!"Expected a level-1 or level-2 header, but found `{line}`"
 
-  nonExamplesL1Header : ValidationM Unit := attempt do
-    let line ← any
-    match matchHeader 1 none line with
-    | some "Examples" =>
-      fail s!"Duplicate 'Examples' header; each explanation can have at most one 'Examples' section"
-    | some _ => pure ()
-    | none => fail s!"Expected a level-1 header, but found '{line}'"
-
   codeBlock (lang : String) (kind? : Option ErrorExplanation.CodeInfo.Kind := none) := attempt do
     let infoString ← fence
       <|> fail s!"Expected a(n){kind?.map (s!" {·}") |>.getD ""} `{lang}` code block"
     let code ← many (notFollowedBy fence *> any)
     let closing ← fence
       <|> fail s!"Missing closing code fence for block with header '{infoString}'"
-    -- Validate parsed code block:
+    -- Validate code block:
+    unless closing.trim.isEmpty do
+      fail s!"Expected a closing code fence, but found the nonempty info string `{closing}`"
     let info ← match ErrorExplanation.CodeInfo.parse infoString with
       | .ok i => pure i
       | .error s =>
@@ -278,8 +275,6 @@ where
           (s!" {kind}", actualKindStr)
         | none => ("", "")
       fail s!"Expected a(n){expKind} `{lang}` code block, but found a(n){actKind} `{info.lang}` one"
-    unless closing.trim.isEmpty do
-      fail s!"Expected a closing code fence, but found the nonempty info string `{closing}`"
     return "\n".intercalate code.toList
 
   fence := attempt do
@@ -293,7 +288,7 @@ where
   labelingExampleErrors {α} (header : String) (x : ValidationM α) : ValidationM α := fun s =>
     match x s with
     | res@(.success ..) => res
-    | .error s msg => .error s s!"Example '{header}' is malformed: {msg}"
+    | .error s' msg => .error s' s!"Example '{header}' is malformed: {msg}"
 
 /--
 Validates that the given error explanation has the expected structure, and extracts its code blocks.
@@ -303,54 +298,56 @@ def processDoc (doc : String) :=
 
 end ErrorExplanation
 
--- TODO: create a helper function `msg name ↦ .tagged (tagForError name) msg`
-protected def throwNamedError [Monad m] [MonadError m] (name : Name) (msg : MessageData) : m α := do
+protected def «throwNamedError» [Monad m] [MonadError m] (name : Name) (msg : MessageData) : m α := do
   let ref ← getRef
-  let msg := .tagged (tagForError name) msg
+  let msg := msg.tagWithErrorName name
   let (ref, msg) ← AddErrorMessageContext.add ref msg
   throw <| Exception.error ref msg
 
-protected def throwNamedErrorAt [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α := do
+protected def «throwNamedErrorAt» [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α := do
   withRef ref <| Lean.throwNamedError name msg
 
 section
 variable [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
-/-- Log a new error message using the given message data. The position is provided by `getRef`. -/
-def logNamedError (name : Name) (msgData : MessageData) : m Unit :=
-  log (.tagged (tagForError name) msgData) MessageSeverity.error
 
-/-- Log a new error message using the given message data. The position is provided by `ref`. -/
-protected def logNamedErrorAt (ref : Syntax) (name : Name) (msgData : MessageData) : m Unit :=
-  logAt ref (.tagged (tagForError name) msgData) MessageSeverity.error
+/-- Log a named error message using the given message data. The position is provided by `getRef`. -/
+protected def «logNamedError» (name : Name) (msgData : MessageData) : m Unit :=
+  log (msgData.tagWithErrorName name) MessageSeverity.error
+
+/-- Log a named error message using the given message data. The position is provided by `ref`. -/
+protected def «logNamedErrorAt» (ref : Syntax) (name : Name) (msgData : MessageData) : m Unit :=
+  logAt ref (msgData.tagWithErrorName name) MessageSeverity.error
+
 end
 
 -- TODO: the following QoL features would be very helpful (i > ii -- probably i >> ii):
 -- (i) cmd-click on error names to jump to the explanation   <-- Could labeled sorries be a model?
 -- (ii) autocomplete with registered error explanation names
-syntax (name := throwNamedErrorStx) "throwNamedError " ident ppSpace (interpolatedStr(term) <|> term) : term
-syntax (name := throwNamedErrorAtStx) "throwNamedErrorAt " term:max ppSpace ident ppSpace (interpolatedStr(term) <|> term) : term
-syntax (name := logNamedErrorStx) "logNamedError " ident ppSpace (interpolatedStr(term) <|> term) : term
-syntax (name := logNamedErrorAtStx) "logNamedErrorAt " term:max ppSpace ident ppSpace (interpolatedStr(term) <|> term) : term
+-- syntax (name := throwNamedErrorStx) "throwNamedError " ident ppSpace (interpolatedStr(term) <|> term) : term
+-- syntax (name := throwNamedErrorAtStx) "throwNamedErrorAt " term:max ppSpace ident ppSpace (interpolatedStr(term) <|> term) : term
+-- syntax (name := logNamedErrorStx) "logNamedError " ident ppSpace (interpolatedStr(term) <|> term) : term
+-- syntax (name := logNamedErrorAtStx) "logNamedErrorAt " term:max ppSpace ident ppSpace (interpolatedStr(term) <|> term) : term
 
+open Lean Parser Term in
 def expandThrowNamedError : Macro
-  | `(throwNamedError $id $msg:interpolatedStr) => ``(Lean.throwNamedError $(quote id.getId) m! $msg)
-  | `(throwNamedError $id $msg:term) => ``(Lean.throwNamedError $(quote id.getId) $msg)
-  | `(throwNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) m! $msg)
-  | `(throwNamedErrorAt $ref $id $msg:term) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) $msg)
-  | `(logNamedError $id $msg:interpolatedStr) => ``(Lean.logError $(quote id.getId) m! $msg)
-  | `(logNamedError $id $msg:term) => ``(Lean.logNamedError $(quote id.getId) $msg)
-  | `(logNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
-  | `(logNamedErrorAt $ref $id $msg:term) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
+  | `(throwNamedErrorParser| throwNamedError $id $msg:interpolatedStr) => ``(Lean.throwNamedError $(quote id.getId) m! $msg)
+  | `(throwNamedErrorParser| throwNamedError $id $msg:term) => ``(Lean.throwNamedError $(quote id.getId) $msg)
+  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) m! $msg)
+  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:term) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) $msg)
+  | `(logNamedErrorParser| logNamedError $id $msg:interpolatedStr) => ``(Lean.logError $(quote id.getId) m! $msg)
+  | `(logNamedErrorParser| logNamedError $id $msg:term) => ``(Lean.logNamedError $(quote id.getId) $msg)
+  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
+  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:term) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
   | _ => Macro.throwUnsupported
 
 open Lean Elab Term in
-@[builtin_term_elab throwNamedErrorStx, builtin_term_elab throwNamedErrorAtStx,
-  builtin_term_elab logNamedErrorStx, builtin_term_elab logNamedErrorAtStx]
+@[builtin_term_elab throwNamedErrorParser, builtin_term_elab throwNamedErrorAtParser,
+  builtin_term_elab logNamedErrorParser, builtin_term_elab logNamedErrorAtParser]
 def elabCheckedNamedError : TermElab
-  | stx@`(throwNamedError $id $_msg), expType?
-  | stx@`(throwNamedErrorAt $_ref $id $_msg), expType?
-  | stx@`(logNamedError $id $_msg), expType?
-  | stx@`(logNamedErrorAt $_ref $id $_msg), expType? => do
+  | stx@`(throwNamedError $id:ident $_msg), expType?
+  | stx@`(throwNamedErrorAt $_ref $id:ident $_msg), expType?
+  | stx@`(logNamedError $id:ident $_msg), expType?
+  | stx@`(logNamedErrorAt $_ref $id:ident $_msg), expType? => do
     let name := id.getId
     unless (← hasErrorExplanation name) do
       throwError m!"There is no explanation associated with the name `{name}`. \
@@ -359,20 +356,21 @@ def elabCheckedNamedError : TermElab
     elabTerm stx' expType?
   | _, _ => throwUnsupportedSyntax
 
-open Elab Meta Term Command in
-/--
-Registers an error explanation.
-
-Note that the provided name is not relativized to the current namespace.
--/
-elab docStx:docComment cmd:"register_error_explanation " nm:ident t:term : command => withRef cmd do
+open Parser Elab Meta Term Command in
+@[builtin_command_elab registerErrorExplanationStx] def elabRegisterErrorExplanation : CommandElab
+| `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $nm:ident $t:term) => withRef cmd do
   let tp := mkConst ``ErrorExplanation.Metadata []
   let metadata ← runTermElabM <| fun _ => unsafe do
     let e ← elabTerm t tp
     if e.hasSyntheticSorry then throwAbortTerm
     evalExpr ErrorExplanation.Metadata tp e
   let name := nm.getId
-  if name.isAnonymous then throwErrorAt nm "Invalid name for error explanation: `{nm}`"
+  if name.isAnonymous then
+    throwErrorAt nm "Invalid name for error explanation: `{nm}`"
+  if name.getNumParts != 2 then
+    throwErrorAt nm m!"Invalid name `{nm}`: Error explanation names must have two components"
+      ++ .note m!"The first component of an error explanation name identifies the package from \
+        which the error originates, and the second identifies the error itself."
   validateDocComment docStx
   let doc ← getDocStringText docStx
   if errorExplanationExt.getState (← getEnv) |>.contains name then
@@ -389,5 +387,6 @@ elab docStx:docComment cmd:"register_error_explanation " nm:ident t:term : comma
                                     stop  := fileMap.ofPosition ⟨errLine + 1, 0⟩ }
       throwErrorAt synth msg
   modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, codeBlocks }))
+| _ => throwUnsupportedSyntax
 
 end Lean

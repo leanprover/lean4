@@ -432,9 +432,14 @@ code.
 -/
 def errorNameSuffix := "_namedError"
 
-/-- Produces a `MessageData` tag suitable for labeling an error named `name`. -/
-def tagForError (name : Name) : Name :=
-  .str name errorNameSuffix
+/--
+Produces a `MessageData` tagged with an identifier for error `name`.
+
+Note: this function generally should not be called directly; instead, use the macros `logNamedError`
+and `throwNamedError`.
+-/
+def MessageData.tagWithErrorName (msg : MessageData) (name : Name) : MessageData :=
+  .tagged (.str name errorNameSuffix) msg
 
 /--
 If the provided name is labeled as a diagnostic name, removes the label and returns the

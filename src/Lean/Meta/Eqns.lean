@@ -62,6 +62,9 @@ def eqnThmSuffixBasePrefix := eqnThmSuffixBase ++ "_"
 def eqn1ThmSuffix := eqnThmSuffixBasePrefix ++ "1"
 example : eqn1ThmSuffix = "eq_1" := rfl
 
+def mkEqnThmName (declName : Name) (idx : Nat) : Name :=
+  Name.str declName eqnThmSuffixBase |>.appendIndexAfter idx
+
 /-- Returns `true` if `s` is of the form `eq_<idx>` -/
 def isEqnReservedNameSuffix (s : String) : Bool :=
   eqnThmSuffixBasePrefix.isPrefixOf s && (s.drop 3).isNat
@@ -192,7 +195,7 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
   let eq1 := Name.str declName eqn1ThmSuffix
   if env.contains eq1 then
     let rec loop (idx : Nat) (eqs : Array Name) : MetaM (Array Name) := do
-      let nextEq := declName ++ (`eq).appendIndexAfter idx
+      let nextEq := mkEqnThmName declName idx
       if env.contains nextEq then
         loop (idx+1) (eqs.push nextEq)
       else

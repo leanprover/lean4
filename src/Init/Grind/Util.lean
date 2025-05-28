@@ -76,7 +76,10 @@ for the actual term to the `some`-application in `f`, and the actual term in `x`
 In the example above, `c.pbind g` also matches the pattern `(genPattern h x (some a)).pbind f`,
 and stores `c` in `x`, `b` in `a`, and the proof that `c = some b` in `h`.
 -/
-def genPattern (_h : Prop) (x : α) (_val : α) : α := x
+def genPattern {α : Sort u} (_h : Prop) (x : α) (_val : α) : α := x
+
+/-- Similar to `genPattern` but for the heterogenous case -/
+def genHEqPattern {α β : Sort u} (_h : Prop) (x : α) (_val : β) : α := x
 
 /--
 Gadget for annotating the equalities in `match`-equations conclusions.

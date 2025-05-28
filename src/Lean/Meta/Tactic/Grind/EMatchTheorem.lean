@@ -78,14 +78,14 @@ def isGenPattern? (pat : Expr) : Option GenPattern :=
   | _ => none
 
 /-- Returns `true` if `declName` is the name of a `match`-expression congruence equation. -/
-def isMatchCongrEqDeclName (declName : Name) : MetaM Bool := do
+def isMatchCongrEqDeclName (declName : Name) : CoreM Bool := do
   let declName := privateToUserName declName
   match declName with
   | .str p s => return (← isMatcher p) && Match.isCongrEqnReservedNameSuffix s
   | _ => return false
 
 /-- Returns `true` if `e` is a constant for a `match`-expression congruence equation. -/
-private def isMatchCongrEqConst (e : Expr) : MetaM Bool := do
+private def isMatchCongrEqConst (e : Expr) : CoreM Bool := do
   let .const declName _ := e | return false
   isMatchCongrEqDeclName declName
 

@@ -327,7 +327,7 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
     check proof
   let mut prop ← inferType proof
   let mut proof := proof
-  if (← isMatchCongrEqDeclName thm.origin.key) || Match.isMatchEqnTheorem (← getEnv) thm.origin.key then
+  if (← isMatchEqLikeDeclName thm.origin.key) then
     prop ← annotateMatchEqnType prop (← read).initApp
     -- We must add a hint here because `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` and
     -- `Grind.PreMatchCond` which are not reducible.

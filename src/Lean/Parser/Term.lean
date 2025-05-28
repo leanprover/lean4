@@ -895,6 +895,11 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
   "ensure_expected_type% " >> strLit >> ppSpace >> termParser maxPrec
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
+/--
+`value_of% x` elaborates to the value of `x`, which can be a definition or a local let-declaration.
+-/
+@[builtin_term_parser] def valueOf := leading_parser
+  "value_of% " >> ident
 
 /--
 `clear% x; e` elaborates `x` after clearing the free variable `x` from the local context.

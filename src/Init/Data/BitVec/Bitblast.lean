@@ -1780,15 +1780,11 @@ theorem toInt_dvd_toInt_iff {x y : BitVec w} :
 
 theorem toInt_dvd_toInt_iff_of_msb_true_msb_false {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
     y.toInt ∣ x.toInt ↔ (-x) % y = 0#w := by
-  have := toInt_dvd_toInt_iff (x := x) (y := y)
-  simp [hx, hy] at this
-  exact this
+  simpa [hx, hy] using toInt_dvd_toInt_iff (x := x) (y := y)
 
 theorem toInt_dvd_toInt_iff_of_msb_false_msb_true {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
     y.toInt ∣ x.toInt ↔ x % (-y) = 0#w := by
-  have := toInt_dvd_toInt_iff (x := x) (y := y)
-  simp [hx, hy] at this
-  exact this
+  simpa [hx, hy] using toInt_dvd_toInt_iff (x := x) (y := y)
 
 @[simp]
 theorem neg_toInt_neg_umod_eq_of_msb_true_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :

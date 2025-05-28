@@ -221,7 +221,8 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
   | .let decl k => return code.updateLet! (← decl.toMono) (← k.toMono)
   | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
   | .unreach type => return .unreach (← toMonoType type)
-  | .return .. | .jmp .. => return code
+  | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
+  | .return .. => return code
   | .cases c =>
     if h : c.typeName == ``Decidable then
       decToMono c h

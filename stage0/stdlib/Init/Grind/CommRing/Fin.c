@@ -20,7 +20,7 @@ lean_object* l_Fin_neg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instIntCastFinOfNeZeroNat(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero(lean_object*, lean_object*);
-lean_object* l_Fin_ofNat_x27___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_ofNat___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Fin_sub___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_npowRec___at_Lean_Grind_Fin_npow___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,7 +41,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instNatCastFinOfNeZeroNat(lean_object*
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Fin_ofNat_x27___boxed), 3, 2);
+x_3 = lean_alloc_closure((void*)(l_Fin_ofNat___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, lean_box(0));
 return x_3;
@@ -189,7 +189,7 @@ x_6 = lean_alloc_closure((void*)(l_Fin_instOfNat___boxed), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, lean_box(0));
 lean_inc(x_1);
-x_7 = lean_alloc_closure((void*)(l_Fin_ofNat_x27___boxed), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_Fin_ofNat___boxed), 3, 2);
 lean_closure_set(x_7, 0, x_1);
 lean_closure_set(x_7, 1, lean_box(0));
 x_8 = lean_alloc_ctor(0, 5, 0);

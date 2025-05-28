@@ -2519,31 +2519,6 @@ theorem getLsbD_false_of_lt_clzAux {x : BitVec w} {n : Nat} (hw : 0 < w) (hi : i
           apply ihn
           omega
 
-theorem clzAux_eq_forall {x : BitVec w} {n : Nat} (hw : 0 < w) :
-  ∀ i, i < (clzAux x n) → x.getLsbD (n - i) = false := by
-  rcases w with _|w
-  · omega
-  · induction n
-    · case zero =>
-      intro i hi
-      have := clzAux_le (x := x) (n := 0)
-      have := clzAux_lt_iff (x := x) (n := 0)
-      by_cases hk' : 0 < x.clzAux 0
-      · have h1 : x.clzAux 0 = 1 := by omega
-        have h2 := clzAux_eq_iff (x := x) (n := 0)
-        simp [h1] at h2
-        simp
-        exact h2
-      · simp [show x.clzAux 0 = 0 by omega] at hi
-    · case succ n ihn =>
-      unfold clzAux
-      intro i hi
-      by_cases hx : x.getLsbD (n + 1)
-      · simp [hx] at hi
-      · simp [hx] at hi
-        simp at hx
-        sorry
-
 /-- Count the number of leading zeroes. -/
 def clz {w : Nat} (x : BitVec w) : Nat := if w = 0 then 0 else clzAux x (w - 1)
 
@@ -2628,24 +2603,13 @@ theorem clz_lt_iff {x : BitVec w} :
     omega
 
 theorem getLsbD_false_of_clz {x : BitVec w} (hi : i < clz x) :
-    x.getLsbD (w - (clz x) + i) = false := by
+    x.getLsbD (w - 1 - i) = false := by
   rcases w with _|w
   · simp
-  · induction (clz x)
-    · case zero => simp
-    · case succ c ihc =>
-      simp
-      unfold clz clzAux at hi
-      cases w
-      · simp at hi ihc
-        simp
-        by_cases hx0 : x[0]
-        · simp [hx0] at hi
-        · simp [hx0] at hi
-          simp [hx0, show i = 0 by omega]
-      · case succ w =>
-        simp at hi
-        sorry
+  · unfold clz at hi
+    simp [show ¬ w + 1 = 0 by omega] at hi
+    have := getLsbD_false_of_lt_clzAux (x := x) (n := w) (by omega) hi
+    simp [this]
 
 theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by

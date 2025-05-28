@@ -4129,8 +4129,7 @@ theorem msb_umod_of_msb_false_of_ne_zero {x y : BitVec w} (hmsb : y.msb = false)
   simp only [msb_umod, Bool.and_eq_false_imp, Bool.or_eq_false_iff, beq_eq_false_iff_ne,
     ne_eq, h_ne_zero]
   intro h
-  have := lt_of_msb_false_of_msb_true hmsb h
-  simp [BitVec.le_of_lt, this]
+  simp [BitVec.le_of_lt, lt_of_msb_false_of_msb_true hmsb h]
 
 /-! ### smtUDiv -/
 

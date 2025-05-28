@@ -110,7 +110,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Co
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitAlts___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -119,6 +118,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -1755,7 +1755,7 @@ return x_73;
 else
 {
 uint8_t x_85; 
-x_85 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_69, x_69);
+x_85 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_69, x_69);
 if (x_85 == 0)
 {
 lean_object* x_86; 
@@ -1822,7 +1822,7 @@ return x_99;
 else
 {
 uint8_t x_100; 
-x_100 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_69, x_69);
+x_100 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_69, x_69);
 if (x_100 == 0)
 {
 lean_object* x_101; lean_object* x_102; 
@@ -1908,7 +1908,7 @@ return x_111;
 else
 {
 uint8_t x_123; 
-x_123 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_107, x_107);
+x_123 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_107, x_107);
 if (x_123 == 0)
 {
 lean_object* x_124; 
@@ -1975,7 +1975,7 @@ return x_137;
 else
 {
 uint8_t x_138; 
-x_138 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_107, x_107);
+x_138 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_107, x_107);
 if (x_138 == 0)
 {
 lean_object* x_139; lean_object* x_140; 

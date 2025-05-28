@@ -3061,7 +3061,6 @@ x_3 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_PartialFixp
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 x_4 = l_Array_ofFn___rarg(x_1, x_3);
-lean_dec(x_1);
 return x_4;
 }
 }

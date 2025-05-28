@@ -2212,7 +2212,6 @@ lean_closure_set(x_4, 0, x_1);
 lean_closure_set(x_4, 1, x_2);
 lean_closure_set(x_4, 2, x_3);
 x_5 = l_Array_ofFn___rarg(x_1, x_4);
-lean_dec(x_1);
 return x_5;
 }
 }

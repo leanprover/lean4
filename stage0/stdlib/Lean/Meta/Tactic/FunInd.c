@@ -1142,7 +1142,7 @@ static lean_object* l_Lean_Tactic_FunInd_deriveCases___lambda__9___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_inferMatchType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_rwFun___spec__3___closed__4;
-lean_object* l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateLambdaAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_abstractIndependentMVars___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -84493,7 +84493,7 @@ if (x_29 == 0)
 {
 lean_object* x_30; 
 lean_inc(x_27);
-x_30 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_27, x_27, lean_box(0), lean_box(0));
+x_30 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_27, x_27, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_27);
 lean_dec(x_25);
 x_15 = x_30;
@@ -84502,7 +84502,7 @@ goto block_23;
 else
 {
 lean_object* x_31; 
-x_31 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_12, x_27, lean_box(0), lean_box(0));
+x_31 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_12, x_27, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_27);
 lean_dec(x_25);
 x_15 = x_31;

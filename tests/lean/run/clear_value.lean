@@ -169,7 +169,7 @@ Error if unification does not solve all metavariables.
 /--
 error: don't know how to synthesize placeholder for argument 'e'
 context:
-x : Nat := 22
+x : Nat := ⋯
 ⊢ Nat
 ---
 error: unsolved goals

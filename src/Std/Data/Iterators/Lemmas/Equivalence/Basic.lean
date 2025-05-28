@@ -76,11 +76,11 @@ theorem ItEquiv.refl {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMon
     (it) : ItEquiv m β it it :=
   of_mk_eq_mk it it rfl
 
-theorem ItEquiv.symm {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] [Monad m] [LawfulMonad m]
+theorem ItEquiv.symm {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
     {ita itb} (h : ItEquiv m β ita itb) : ItEquiv m β itb ita :=
   of_mk_eq_mk itb ita (Quot.sound h).symm
 
-theorem ItEquiv.trans {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] [Monad m] [LawfulMonad m]
+theorem ItEquiv.trans {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
     {ita itb itc} (hab : ItEquiv m β ita itb) (hbc : ItEquiv m β itb itc) : ItEquiv m β ita itc :=
   of_mk_eq_mk ita itc (Eq.trans (Quot.sound hab) (Quot.sound hbc))
 

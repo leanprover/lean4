@@ -28,6 +28,9 @@ theorem HetT.Raw.comp_map {m : Type w → Type w'} (f : α → β) (g : β → �
 def HetT.Raw.lift {α : Type w} {m : Type w → Type w'} (x : m α) : Raw m α :=
   ⟨α, id, x⟩
 
+def HetT.Raw.run (f : α → β) (x : Raw m α) : m β :=
+  (f ∘ x.inflate) <$> x.operation
+
 def HetT.Rel (x y : HetT.Raw m α) : Prop :=
   ∀ (β) (f : α → β), (f ∘ x.inflate) <$> x.operation = (f ∘ y.inflate) <$> y.operation
 
@@ -69,5 +72,8 @@ theorem HetT.lift_map [LawfulMonad m] {α : Type w} {x : m α} {f : α → β} :
   intro γ f
   simp only [Raw.lift, Function.comp_id, Functor.map_map, Raw.map]
   rfl
+
+def HetT.run (f : α → β) : HetT m α → m β :=
+  Quot.lift (fun x => x.run f) (by intro x y h; apply h)
 
 end Std.Iterators

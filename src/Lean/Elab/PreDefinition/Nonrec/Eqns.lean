@@ -20,9 +20,10 @@ Simple, coarse-grained equation theorem for nonrecursive definitions.
 -/
 private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSuffix) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    let name := declName ++ suffix
-    -- determinism: `name` and `info` are dependent only on `declName`, not any later env
-    -- modifications
+    let mut name := declName ++ suffix
+    let isExposedDef ← withExporting do (·.hasValue) <$> getConstInfo declName
+    unless isExposedDef do
+      name := mkPrivateName (← getEnv) name
     realizeConst declName name (doRealize name info)
     return some name
   else

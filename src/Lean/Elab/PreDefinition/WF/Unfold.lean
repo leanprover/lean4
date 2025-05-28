@@ -73,8 +73,11 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
         throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
+  let isExposedDef ← withExporting do (·.hasValue) <$> getConstInfo preDef.declName
   let baseName := preDef.declName
-  let name := Name.str baseName unfoldThmSuffix
+  let mut name := Name.str baseName unfoldThmSuffix
+  unless isExposedDef do
+    name := mkPrivateName (← getEnv) name
   prependError m!"Cannot derive {name}" do
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope preDef.value fun xs body => do

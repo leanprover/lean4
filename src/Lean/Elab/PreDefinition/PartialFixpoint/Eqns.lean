@@ -72,7 +72,11 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
 
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
-  let name := Name.str declName unfoldThmSuffix
+  let isExposedDef ← withExporting do (·.hasValue) <$> getConstInfo declName
+  let baseName := declName
+  let mut name := Name.str baseName unfoldThmSuffix
+  unless isExposedDef do
+    name := mkPrivateName (← getEnv) name
   realizeConst declName name (doRealize name)
   return name
 where

@@ -78,7 +78,8 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
   have : xs = #[] ∨ 0 < xs.size :=
     match xs with | ⟨[]⟩ => .inl rfl | ⟨a::l⟩ => .inr (Nat.zero_lt_succ _)
   match xs, this with | _, .inl rfl => simp [foldrM] | xs, .inr h => ?_
-  simp [foldrM, h, ← foldrM_eq_reverse_foldlM_toList.aux, List.take_length]
+  simp only [foldrM, h, ← foldrM_eq_reverse_foldlM_toList.aux]
+  simp [Array.size]
 
 @[simp, grind =] theorem foldrM_toList [Monad m]
     {f : α → β → m β} {init : β} {xs : Array α} :

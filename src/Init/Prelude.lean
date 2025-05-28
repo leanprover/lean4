@@ -3002,7 +3002,7 @@ This is a cached value, so it is `O(1)` to access. The space allocated for an ar
 its _capacity_, is at least as large as its size, but may be larger. The capacity of an array is an
 internal detail that's not observable by Lean code.
 -/
-@[reducible, extern "lean_array_get_size"]
+@[extern "lean_array_get_size"]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 

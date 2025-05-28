@@ -192,7 +192,8 @@ theorem mapFinIdx_empty {f : (i : Nat) → α → (h : i < 0) → β} : mapFinId
 theorem mapFinIdx_eq_ofFn {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     xs.mapFinIdx f = Array.ofFn fun i : Fin xs.size => f i xs[i] i.2 := by
   cases xs
-  simp [List.mapFinIdx_eq_ofFn]
+  simp only [List.mapFinIdx_toArray, List.mapFinIdx_eq_ofFn, Fin.getElem_fin, List.getElem_toArray]
+  simp [Array.size]
 
 theorem mapFinIdx_append {xs ys : Array α} {f : (i : Nat) → α → (h : i < (xs ++ ys).size) → β} :
     (xs ++ ys).mapFinIdx f =
@@ -200,7 +201,7 @@ theorem mapFinIdx_append {xs ys : Array α} {f : (i : Nat) → α → (h : i < (
         ys.mapFinIdx (fun i a h => f (i + xs.size) a (by simp; omega)) := by
   cases xs
   cases ys
-  simp [List.mapFinIdx_append]
+  simp [List.mapFinIdx_append, Array.size]
 
 @[simp]
 theorem mapFinIdx_push {xs : Array α} {a : α} {f : (i : Nat) → α → (h : i < (xs.push a).size) → β} :
@@ -264,12 +265,12 @@ theorem mapFinIdx_eq_append_iff {xs : Array α} {f : (i : Nat) → α → (h : i
     toArray_eq_append_iff]
   constructor
   · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
-    refine ⟨l₁.toArray, l₂.toArray, by simp_all⟩
+    refine ⟨l₁.toArray, l₂.toArray, by simp_all [Array.size]⟩
   · rintro ⟨⟨l₁⟩, ⟨l₂⟩, rfl, h₁, h₂⟩
     simp [← toList_inj] at h₁ h₂
     obtain rfl := h₁
     obtain rfl := h₂
-    refine ⟨l₁, l₂, by simp_all⟩
+    refine ⟨l₁, l₂, by simp_all [Array.size]⟩
 
 theorem mapFinIdx_eq_push_iff {xs : Array α} {b : β} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     xs.mapFinIdx f = ys.push b ↔
@@ -307,7 +308,7 @@ abbrev mapFinIdx_eq_mkArray_iff := @mapFinIdx_eq_replicate_iff
 @[simp] theorem mapFinIdx_reverse {xs : Array α} {f : (i : Nat) → α → (h : i < xs.reverse.size) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (xs.size - 1 - i) a (by simp; omega))).reverse := by
   rcases xs with ⟨l⟩
-  simp [List.mapFinIdx_reverse]
+  simp [List.mapFinIdx_reverse, Array.size]
 
 /-! ### mapIdx -/
 
@@ -486,7 +487,7 @@ namespace List
     | x :: xs => simp only [mapFinIdxM.go, mapIdxM.go, go]
   unfold Array.mapIdxM
   rw [mapFinIdxM_toArray]
-  simp only [mapFinIdxM, mapIdxM]
+  simp only [mapFinIdxM, mapIdxM, Array.size]
   rw [go]
 
 end List

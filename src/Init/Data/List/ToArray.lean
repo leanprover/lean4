@@ -302,7 +302,7 @@ termination_by l.length - j
 @[simp, grind =] theorem findIdx?_toArray (p : α → Bool) (l : List α) :
     l.toArray.findIdx? p = l.findIdx? p := by
   rw [Array.findIdx?_eq_map_findFinIdx?_val, findIdx?_eq_map_findFinIdx?_val]
-  simp
+  simp [Array.size]
 
 private theorem idxAuxOf_toArray [BEq α] (a : α) (l : List α) (j : Nat) (w : l' = l.drop j) (h) :
     l.toArray.idxOfAux a j = findFinIdx?.go (fun x => x == a) l l' j h := by
@@ -339,11 +339,11 @@ termination_by l.length - j
 @[simp, grind =] theorem idxOf?_toArray [BEq α] (a : α) (l : List α) :
     l.toArray.idxOf? a = l.idxOf? a := by
   rw [Array.idxOf?, idxOf?]
-  simp [finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
+  simp [finIdxOf?, findIdx?_eq_map_findFinIdx?_val, Array.size]
 
 @[simp, grind =] theorem findIdx_toArray {as : List α} {p : α → Bool} :
     as.toArray.findIdx p = as.findIdx p := by
-  rw [Array.findIdx, findIdx?_toArray, findIdx_eq_getD_findIdx?]
+  rw [Array.findIdx, findIdx?_toArray, findIdx_eq_getD_findIdx?, Array.size]
 
 @[simp, grind =] theorem idxOf_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.idxOf a = as.idxOf a := by
@@ -670,9 +670,9 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
   split <;> rename_i i h
   · simp only [finIdxOf?_toArray, finIdxOf?_eq_none_iff] at h
     rw [replace_of_not_mem]
-    simpa
+    exact finIdxOf?_eq_none_iff.mp h
   · simp_all only [finIdxOf?_toArray, finIdxOf?_eq_some_iff, Fin.getElem_fin, set_toArray,
-      mk.injEq]
+      mk.injEq, Array.size]
     apply List.ext_getElem
     · simp
     · intro j h₁ h₂

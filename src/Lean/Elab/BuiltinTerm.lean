@@ -288,6 +288,20 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
+@[builtin_term_elab valueOf] def elabValueOf : TermElab := fun stx _ => do
+  let ident := stx[1]
+  let some e ← Term.resolveId? stx[1] (withInfo := true)
+    | throwUnknownConstantAt ident ident.getId
+  match e with
+  | .const c us => do
+    let cinfo ← getConstInfo c
+    unless cinfo.hasValue do throwErrorAt ident "Constant has no value."
+    return cinfo.instantiateValueLevelParams! us
+  | .fvar fvarId => do
+    let some val ← fvarId.getValue? | throwErrorAt ident "Local declaration has no value."
+    return val
+  | _ => panic! "resolveId? returned an unexpected expression"
+
 @[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do
   let some (.fvar fvarId) ← isLocalIdent? stx[1]
     | throwErrorAt stx[1] "not in scope"

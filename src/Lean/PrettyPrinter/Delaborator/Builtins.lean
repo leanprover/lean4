@@ -1413,7 +1413,7 @@ Pretty-prints the parameters of a `forall`. The pretty-printed parameters are pa
 `delabForall` at the end.
 -/
 partial def delabForallParamsWithSignature
-    (delabForall : (groups : TSyntaxArray ``bracketedBinder) → (type : Term) → Delab) : Delab := do
+    (delabForall : (groups : TSyntaxArray ``bracketedBinder) → (type : Term) → DelabM α) : DelabM α := do
   delabParams {} #[]
 where
   /--

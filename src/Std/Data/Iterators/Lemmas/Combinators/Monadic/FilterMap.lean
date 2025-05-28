@@ -145,7 +145,7 @@ theorem IterM.step_mapM {γ : Type w} {f : β → n γ}
     match ← it.step with
     | .yield it' out h => do
       let out' ← f out
-      pure <| .yield (it'.mapM f) out' (.yieldSome h ⟨_, rfl⟩)
+      pure <| .yield (it'.mapM f) out' (.yieldSome h ⟨⟨out', True.intro⟩, rfl⟩)
     | .skip it' h =>
       pure <| .skip (it'.mapM f) (.skip h)
     | .done h =>
@@ -157,6 +157,8 @@ theorem IterM.step_mapM {γ : Type w} {f : β → n γ}
     simp only [PostconditionT.operation_map, bind_map_left, bind_pure_comp]
     simp only [PostconditionT.lift, Functor.map, Functor.map_map,
       bind_map_left, bind_pure_comp]
+    simp only [PostconditionT.operation_map, Functor.map_map, PlausibleIterStep.skip,
+      PlausibleIterStep.yield, bind_map_left, bind_pure_comp]
     rfl
   | .skip it' h => rfl
   | .done h => rfl
@@ -178,7 +180,7 @@ theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
   apply bind_congr
   intro step
   split
-  · simp only [pure_bind]
+  · simp [pure_bind, PostconditionT.pure]
     split <;> split <;> simp_all
   · simp
   · simp

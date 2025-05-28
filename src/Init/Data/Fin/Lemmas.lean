@@ -17,9 +17,6 @@ namespace Fin
 
 @[simp] theorem ofNat'_zero (n : Nat) [NeZero n] : Fin.ofNat' n 0 = 0 := rfl
 
-@[deprecated Fin.pos (since := "2024-11-11")]
-theorem size_pos (i : Fin n) : 0 < n := i.pos
-
 theorem mod_def (a m : Fin n) : a % m = Fin.mk (a % m) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
   rfl
 
@@ -28,8 +25,6 @@ theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a * b) % n) (Nat.mod_lt _ a.pos
 theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b) + a) % n) (Nat.mod_lt _ a.pos) := rfl
 
 theorem pos' : ∀ [Nonempty (Fin n)], 0 < n | ⟨i⟩ => i.pos
-
-@[deprecated pos' (since := "2024-11-11")] abbrev size_pos' := @pos'
 
 @[simp] theorem is_lt (a : Fin n) : (a : Nat) < n := a.2
 

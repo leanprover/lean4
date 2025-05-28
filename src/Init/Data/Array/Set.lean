@@ -43,8 +43,6 @@ Examples:
 @[inline, expose] def Array.setIfInBounds (xs : Array α) (i : Nat) (v : α) : Array α :=
   dite (LT.lt i xs.size) (fun h => xs.set i v h) (fun _ => xs)
 
-@[deprecated Array.setIfInBounds (since := "2024-11-24")] abbrev Array.setD := @Array.setIfInBounds
-
 /--
 Set an element in an array, or panic if the index is out of bounds.
 

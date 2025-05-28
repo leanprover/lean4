@@ -70,8 +70,6 @@ theorem some_get! [Inhabited α] : (o : Option α) → o.isSome → some (o.get!
 
 theorem get!_eq_getD [Inhabited α] (o : Option α) : o.get! = o.getD default := rfl
 
-@[deprecated get!_eq_getD (since := "2024-11-18")] abbrev get!_eq_getD_default := @get!_eq_getD
-
 theorem get_congr {o o' : Option α} {ho : o.isSome} (h : o = o') :
     o.get ho = o'.get (h ▸ ho) := by
   cases h; rfl

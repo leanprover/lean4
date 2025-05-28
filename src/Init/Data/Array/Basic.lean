@@ -267,8 +267,6 @@ def swapIfInBounds (xs : Array α) (i j : @& Nat) : Array α :=
   else xs
   else xs
 
-@[deprecated swapIfInBounds (since := "2024-11-24")] abbrev swap! := @swapIfInBounds
-
 /-! ### GetElem instance for `USize`, backed by `uget` -/
 
 instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
@@ -766,8 +764,6 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
         pure bs
   decreasing_by simp_wf; decreasing_trivial_pre_omega
   map 0 (emptyWithCapacity as.size)
-
-@[deprecated mapM (since := "2024-11-11")] abbrev sequenceMap := @mapM
 
 /--
 Applies the monadic action `f` to every element in the array, along with the element's index and a
@@ -1366,10 +1362,6 @@ Examples:
 def idxOf? [BEq α] (xs : Array α) (v : α) : Option Nat :=
   (xs.finIdxOf? v).map (·.val)
 
-@[deprecated idxOf? (since := "2024-11-20")]
-def getIdx? [BEq α] (xs : Array α) (v : α) : Option Nat :=
-  xs.findIdx? fun a => a == v
-
 /--
 Returns `true` if `p` returns `true` for any element of `as`.
 
@@ -1888,8 +1880,6 @@ Examples:
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
 
-@[deprecated insertIdx (since := "2024-11-20")] abbrev insertAt := @insertIdx
-
 /--
 Inserts an element into an array at the specified index. Panics if the index is greater than the
 size of the array.
@@ -1909,8 +1899,6 @@ def insertIdx! (as : Array α) (i : Nat) (a : α) : Array α :=
   if h : i ≤ as.size then
     insertIdx as i a
   else panic! "invalid index"
-
-@[deprecated insertIdx! (since := "2024-11-20")] abbrev insertAt! := @insertIdx!
 
 /--
 Inserts an element into an array at the specified index. The array is returned unmodified if the
@@ -2033,11 +2021,6 @@ Examples:
 -/
 def unzip (as : Array (α × β)) : Array α × Array β :=
   as.foldl (init := (#[], #[])) fun (as, bs) (a, b) => (as.push a, bs.push b)
-
-@[deprecated partition (since := "2024-11-06")]
-def split (as : Array α) (p : α → Bool) : Array α × Array α :=
-  as.foldl (init := (#[], #[])) fun (as, bs) a =>
-    if p a then (as.push a, bs) else (as, bs.push a)
 
 /--
 Replaces the first occurrence of `a` with `b` in an array. The modification is performed in-place

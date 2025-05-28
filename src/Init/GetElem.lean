@@ -310,9 +310,6 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
   | _::_, 0   => rfl
   | _::_, i+1 => getElem_cons_drop_succ_eq_drop (i := i) (Nat.add_one_lt_add_one_iff.mp h)
 
-@[deprecated getElem_cons_drop_succ_eq_drop (since := "2024-11-05")]
-abbrev get_drop_eq_drop := @getElem_cons_drop_succ_eq_drop
-
 /-! ### getElem? -/
 
 /-- Internal implementation of `as[i]?`. Do not use directly. -/

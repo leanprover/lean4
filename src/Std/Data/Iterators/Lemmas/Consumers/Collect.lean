@@ -48,6 +48,12 @@ theorem Iter.toArray_toList {α β} [Iterator α Id β] [Finite α Id] [Iterator
     it.toList.toArray = it.toArray := by
   simp [toArray_eq_toArray_toIterM, toList_eq_toList_toIterM, ← IterM.toArray_toList]
 
+theorem Iter.reverse_toListRev [Iterator α Id β] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} :
+    it.toListRev.reverse = it.toList := by
+  simp [toListRev_eq_toListRev_toIterM, toList_eq_toList_toIterM, ← IterM.reverse_toListRev]
+
 theorem Iter.toListRev_eq {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.toListRev = it.toList.reverse := by
@@ -101,5 +107,31 @@ theorem Iter.toList_eq_of_atIdxSlow?_eq {α₁ α₂ β}
     (h : ∀ k, it₁.atIdxSlow? k = it₂.atIdxSlow? k) :
     it₁.toList = it₂.toList := by
   ext; simp [getElem?_toList_eq_atIdxSlow?, h]
+
+section Equivalence
+
+theorem HItEquiv.toListRev_eq
+    [Iterator α₁ Id β] [Iterator α₂ Id β] [Finite α₁ Id] [Finite α₂ Id]
+    {ita : Iter (α := α₁) β} {itb : Iter (α := α₂) β} (h : HItEquiv ita itb) :
+    ita.toListRev = itb.toListRev := by
+  simp [Iter.toListRev_eq_toListRev_toIterM, h.toIterM.toListRev_eq]
+
+theorem HItEquiv.toList_eq
+    [Iterator α₁ Id β] [Iterator α₂ Id β] [Finite α₁ Id] [Finite α₂ Id]
+    [IteratorCollect α₁ Id Id] [LawfulIteratorCollect α₁ Id Id]
+    [IteratorCollect α₂ Id Id] [LawfulIteratorCollect α₂ Id Id]
+    {ita : Iter (α := α₁) β} {itb : Iter (α := α₂) β} (h : HItEquiv ita itb) :
+    ita.toList = itb.toList := by
+  simp only [← Iter.reverse_toListRev, toListRev_eq h]
+
+theorem HItEquiv.toArray_eq
+    [Iterator α₁ Id β] [Iterator α₂ Id β] [Finite α₁ Id] [Finite α₂ Id]
+    [IteratorCollect α₁ Id Id] [LawfulIteratorCollect α₁ Id Id]
+    [IteratorCollect α₂ Id Id] [LawfulIteratorCollect α₂ Id Id]
+    {ita : Iter (α := α₁) β} {itb : Iter (α := α₂) β} (h : HItEquiv ita itb) :
+    ita.toArray = itb.toArray := by
+  simp only [← Iter.toArray_toList, toList_eq h]
+
+end Equivalence
 
 end Std.Iterators

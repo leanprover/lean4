@@ -209,12 +209,6 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (PostconditionT m) where
   bind_assoc x f g := PostconditionT.bind_assoc
 
 @[simp]
-theorem PostconditionT.property_bind {m : Type w → Type w'} [Monad m] {α : Type w} {β : Type w}
-    {x : PostconditionT m α} {f : α → PostconditionT m β} {b : β} :
-    (x.bind f).Property b ↔ (∃ a, (f a).Property b ∧ x.Property a) := by
-  simp only [PostconditionT.map]
-
-@[simp]
 theorem PostconditionT.property_map {m : Type w → Type w'} [Functor m] {α : Type w} {β : Type w}
     {x : PostconditionT m α} {f : α → β} {b : β} :
     (x.map f).Property b ↔ (∃ a, f a = b ∧ x.Property a) := by

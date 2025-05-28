@@ -4152,8 +4152,6 @@ theorem swap_comm {xs : Array α} {i j : Nat} (hi hj) : xs.swap i j hi hj = xs.s
 @[simp] theorem size_swapIfInBounds {xs : Array α} {i j : Nat} :
     (xs.swapIfInBounds i j).size = xs.size := by unfold swapIfInBounds; split <;> (try split) <;> simp [size_swap]
 
-@[deprecated size_swapIfInBounds (since := "2024-11-24")] abbrev size_swap! := @size_swapIfInBounds
-
 /-! ### swapAt -/
 
 @[simp] theorem swapAt_def {xs : Array α} {i : Nat} {v : α} (hi) :
@@ -4688,13 +4686,6 @@ namespace List
 end List
 
 /-! ### Deprecations -/
-
-namespace List
-
-@[deprecated setIfInBounds_toArray (since := "2024-11-24")] abbrev setD_toArray := @setIfInBounds_toArray
-
-end List
-
 namespace Array
 
 @[deprecated size_toArray (since := "2024-12-11")]
@@ -4746,17 +4737,6 @@ set_option linter.deprecated false in
 theorem get_set_eq (xs : Array α) (i : Nat) (v : α) (h : i < xs.size) :
     (xs.set i v h)[i]'(by simp [h]) = v := by
   simp only [set, ← getElem_toList, List.getElem_set_self]
-
-@[deprecated set!_is_setIfInBounds (since := "2024-11-24")] abbrev set_is_setIfInBounds := @set!_eq_setIfInBounds
-@[deprecated size_setIfInBounds (since := "2024-11-24")] abbrev size_setD := @size_setIfInBounds
-@[deprecated getElem_setIfInBounds_eq (since := "2024-11-24")] abbrev getElem_setD_eq := @getElem_setIfInBounds_self
-@[deprecated getElem?_setIfInBounds_eq (since := "2024-11-24")] abbrev get?_setD_eq := @getElem?_setIfInBounds_self
-@[deprecated getD_getElem?_setIfInBounds (since := "2025-04-04")] abbrev getD_get?_setIfInBounds := @getD_getElem?_setIfInBounds
-@[deprecated getD_getElem?_setIfInBounds (since := "2024-11-24")] abbrev getD_setD := @getD_getElem?_setIfInBounds
-@[deprecated getElem_setIfInBounds (since := "2024-11-24")] abbrev getElem_setD := @getElem_setIfInBounds
-
-@[deprecated List.getElem_toArray (since := "2024-11-29")]
-theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
 
 @[deprecated Array.getElem_toList (since := "2024-12-08")]
 theorem getElem_eq_getElem_toList {xs : Array α} (h : i < xs.size) : xs[i] = xs.toList[i] := rfl

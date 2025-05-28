@@ -1572,9 +1572,6 @@ theorem not_mem_append {a : α} {s t : List α} (h₁ : a ∉ s) (h₂ : a ∉ t
 theorem mem_append_eq {a : α} {s t : List α} : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
   propext mem_append
 
-@[deprecated mem_append_left (since := "2024-11-20")] abbrev mem_append_of_mem_left := @mem_append_left
-@[deprecated mem_append_right (since := "2024-11-20")] abbrev mem_append_of_mem_right := @mem_append_right
-
 /--
 See also `eq_append_cons_of_mem`, which proves a stronger version
 in which the initial list must not contain the element.
@@ -3705,17 +3702,6 @@ theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a :=
   simp [getElem?_eq_some_iff, Fin.exists_iff, mem_iff_get]
 
 /-! ### Deprecations -/
-
-@[deprecated get?_eq_none (since := "2024-11-29")] abbrev get?_len_le := @getElem?_eq_none
-@[deprecated getElem?_eq_some_iff (since := "2024-11-29")]
-abbrev getElem?_eq_some := @getElem?_eq_some_iff
-@[deprecated get?_eq_some_iff (since := "2024-11-29")]
-abbrev get?_eq_some := @getElem?_eq_some_iff
-@[deprecated LawfulGetElem.getElem?_def (since := "2024-11-29")]
-theorem getElem?_eq (l : List α) (i : Nat) :
-    l[i]? = if h : i < l.length then some l[i] else none :=
-  getElem?_def _ _
-@[deprecated getElem?_eq_none (since := "2024-11-29")] abbrev getElem?_len_le := @getElem?_eq_none
 
 @[deprecated _root_.isSome_getElem? (since := "2024-12-09")]
 theorem isSome_getElem? {l : List α} {i : Nat} : l[i]?.isSome ↔ i < l.length := by

@@ -29,10 +29,6 @@ namespace $typeName
 @[simp] protected theorem toNat_shiftLeft (a b : $typeName) : (a <<< b).toNat = a.toNat <<< (b.toNat % $bits) % 2 ^ $bits := by simp [toNat, -toNat_toBitVec]
 @[simp] protected theorem toNat_shiftRight (a b : $typeName) : (a >>> b).toNat = a.toNat >>> (b.toNat % $bits) := by simp [toNat, -toNat_toBitVec]
 
-open $typeName (toNat_and) in
-@[deprecated toNat_and (since := "2024-11-28")]
-protected theorem and_toNat (a b : $typeName) : (a &&& b).toNat = a.toNat &&& b.toNat := BitVec.toNat_and ..
-
 end $typeName
 )
 declare_bitwise_uint_theorems UInt8 8

@@ -336,9 +336,6 @@ theorem usize_size_eq : USize.size = 4294967296 ∨ USize.size = 184467440737095
 theorem usize_size_pos : 0 < USize.size :=
   USize.size_pos
 
-@[deprecated USize.size_pos (since := "2024-11-24")] theorem usize_size_gt_zero : USize.size > 0 :=
-  USize.size_pos
-
 /-- Converts a `USize` into the corresponding `Fin USize.size`. -/
 def USize.toFin (x : USize) : Fin USize.size := x.toBitVec.toFin
 @[deprecated USize.toFin (since := "2025-02-12"), inherit_doc USize.toFin]

@@ -204,6 +204,12 @@ theorem IterStep.mapIterator_mapIterator {α' : Type u'} {α'' : Type u''}
     (step.mapIterator f).mapIterator g = step.mapIterator (g ∘ f) := by
   cases step <;> rfl
 
+theorem IterStep.mapIterator_comp {α' : Type u'} {α'' : Type u''}
+    {f : α → α'} {g : α' → α''} :
+    IterStep.mapIterator (β := β) (g ∘ f) = mapIterator g ∘ mapIterator f := by
+  apply funext
+  exact fun _ => mapIterator_mapIterator.symm
+
 @[simp]
 theorem IterStep.mapIterator_id {step : IterStep α β} :
     step.mapIterator id = step := by

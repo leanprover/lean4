@@ -48,6 +48,10 @@ def PostconditionT.lift {α : Type w} {m : Type w → Type w'} [Functor m] (x : 
     PostconditionT m α :=
   ⟨fun _ => True, (⟨·, .intro⟩) <$> x⟩
 
+protected def PostconditionT.pure {m : Type w → Type w'} [Pure m] {α : Type w}
+    (a : α) : PostconditionT m α :=
+  ⟨fun y => a = y, pure <| ⟨a, rfl⟩⟩
+
 /--
 Lifts a monadic value from `m { a : α // P a }` to a value `PostconditionT m α`.
 -/
@@ -107,12 +111,11 @@ def PostconditionT.run {m : Type w → Type w'} [Monad m] {α : Type w} (x : Pos
   (fun a => a.val) <$> x.operation
 
 instance {m : Type w → Type w'} [Functor m] : Functor (PostconditionT m) where
-  map f x := ⟨fun b => ∃ a, f a = b, (fun b => ⟨f b.1, b.1, rfl⟩) <$> x.operation ⟩
+  map := PostconditionT.map
 
 instance {m : Type w → Type w'} [Monad m] : Monad (PostconditionT m) where
-  pure x := ⟨fun y => x = y, pure <| ⟨x, rfl⟩⟩
-  bind x f := ⟨fun b => ∃ a, (f a).Property b,
-      x.operation >>= fun a => (fun b => ⟨b.val, a, b.property⟩) <$> (f a).operation⟩
+  pure := PostconditionT.pure
+  bind := PostconditionT.bind
 
 @[simp]
 theorem PostconditionT.computation_pure {m : Type w → Type w'} [Monad m] {α : Type w}
@@ -126,9 +129,9 @@ theorem PostconditionT.property_pure {m : Type w → Type w'} [Monad m] {α : Ty
     (pure x : PostconditionT m α).Property = (x = ·) :=
   rfl
 
-private theorem congrArg₂ {α : Sort u} {β : α → Type v} {γ : (a : α) → (b : β a) → Sort w}
+private theorem congrArg₂ {α : Sort u} {β : α → Sort v} {γ : (a : α) → (b : β a) → Sort w}
     (f : (a : α) → (b : β a) → γ a b)
-    {α α' a a'} (h : α = α') (h' : HEq a a') : HEq (f α a) (f α' a') := by
+    {a a' b b'} (h : a = a') (h' : HEq b b') : HEq (f a b) (f a' b') := by
   cases h; cases h'; rfl
 
 private theorem congrArg₄ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : α) → (b : β a) → Sort w}
@@ -139,20 +142,71 @@ private theorem congrArg₄ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : 
     HEq (f a b c d) (f a' b' c' d') := by
   cases h₁; cases h₂; cases h₃; cases h₄; rfl
 
+theorem PostconditionT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {x y : PostconditionT m α}
+    (h : x.Property = y.Property) (h' : (fun p => ⟨p.1, h ▸ p.2⟩) <$> x.operation = y.operation) :
+    x = y := by
+  cases x; cases y; cases h
+  simpa using h'
+
+theorem PostconditionT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {x y : PostconditionT m α} :
+    x = y ↔ ∃ h : x.Property = y.Property, (fun p => ⟨p.1, h ▸ p.2⟩) <$> x.operation = y.operation := by
+  constructor
+  · rintro rfl
+    exact ⟨rfl, by simp⟩
+  · rintro ⟨h, h'⟩
+    exact PostconditionT.ext h h'
+
+@[simp]
+protected theorem PostconditionT.map_eq_pure_bind {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {β : Type w} {f : α → β} {x : PostconditionT m α} :
+    x.map f = x.bind (pure ∘ f) := by
+  apply PostconditionT.ext <;> simp [PostconditionT.map, PostconditionT.bind]
+
+@[simp]
+protected theorem PostconditionT.pure_bind {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {β : Type w} {f : α → PostconditionT m β} {a : α} :
+    (pure a : PostconditionT m α).bind f = f a := by
+  apply PostconditionT.ext <;> simp [pure, PostconditionT.pure, PostconditionT.bind]
+
+@[simp]
+protected theorem PostconditionT.bind_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {x : PostconditionT m α} :
+    x.bind pure = x := by
+  apply PostconditionT.ext <;> simp [pure, PostconditionT.pure, PostconditionT.bind]
+
+@[simp]
+protected theorem PostconditionT.bind_assoc {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α β γ: Type w} {x : PostconditionT m α} {f : α → PostconditionT m β} {g : β → PostconditionT m γ} :
+    (x.bind f).bind g = x.bind (fun a => (f a).bind g) := by
+  apply PostconditionT.ext
+  · simp [PostconditionT.bind]
+  · simp only [PostconditionT.bind, bind_assoc, bind_map_left, map_bind, Functor.map_map]
+    ext c
+    constructor
+    · rintro ⟨b, ⟨a, ha, hb⟩, h⟩
+      exact ⟨a, ha, b, hb, h⟩
+    · rintro ⟨a, ha, b, hb, h⟩
+      exact ⟨b, ⟨a, ha, hb⟩, h⟩
+
 @[simp]
 protected theorem PostconditionT.map_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type w} {β : Type w} {f : α → β} {a : α} :
     (pure a : PostconditionT m α).map f = pure (f a) := by
-  simp only [PostconditionT.map, pure, map_pure, mk.injEq, Subtype.exists, exists_prop,
-    exists_eq_left', true_and]
-  apply congrArg₂ (f := fun α (a : α) => (pure a : m _)) (by simp)
-  apply congrArg₂ (f := fun α (a : α) => a)
-  · simp
-  · apply congrArg₄ fun β (p : β → Prop) (x : β) (h : p x) => Subtype.mk x h
-    · rfl
-    · simp
-    · rfl
-    · simp
+  apply PostconditionT.ext <;> simp [pure, Functor.map, PostconditionT.map, PostconditionT.pure]
+
+instance [Monad m] [LawfulMonad m] : LawfulMonad (PostconditionT m) where
+  map_const {α β} := by ext a x; simp [Functor.mapConst, Function.const_apply, Functor.map]
+  id_map {α} x := by simp [Functor.map]
+  comp_map {α β γ} g h := by intro x; simp [Functor.map]; rfl
+  seqLeft_eq {α β} x y := by simp [SeqLeft.seqLeft, Functor.map, Seq.seq]; rfl
+  seqRight_eq {α β} x y := by simp [Seq.seq, SeqRight.seqRight, Functor.map]
+  pure_seq g x := by simp [Seq.seq, Functor.map]
+  bind_pure_comp f x := by simp [Functor.map, Bind.bind]; rfl
+  bind_map f x := by simp [Seq.seq, Functor.map]; rfl
+  pure_bind x f := PostconditionT.pure_bind
+  bind_assoc x f g := PostconditionT.bind_assoc
 
 @[simp]
 theorem PostconditionT.property_map {m : Type w → Type w'} [Functor m] {α : Type w} {β : Type w}

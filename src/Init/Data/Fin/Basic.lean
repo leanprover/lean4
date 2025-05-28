@@ -46,15 +46,12 @@ Returns `a` modulo `n` as a `Fin n`.
 
 The assumption `NeZero n` ensures that `Fin n` is nonempty.
 -/
-@[expose] protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
+@[expose] protected def ofNat (n : Nat) [NeZero n] (a : Nat) : Fin n :=
   ⟨a % n, Nat.mod_lt _ (pos_of_neZero n)⟩
 
-/--
-Returns `a` modulo `n + 1` as a `Fin n.succ`.
--/
-@[deprecated Fin.ofNat' (since := "2024-11-27")]
-protected def ofNat {n : Nat} (a : Nat) : Fin (n + 1) :=
-  ⟨a % (n+1), Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
+@[deprecated Fin.ofNat (since := "2025-05-28")]
+protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
+  Fin.ofNat n a
 
 -- We provide this because other similar types have a `toNat` function, but `simp` rewrites
 -- `i.toNat` to `i.val`.
@@ -230,7 +227,7 @@ instance : ShiftRight (Fin n) where
   shiftRight := Fin.shiftRight
 
 instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin n) i where
-  ofNat := Fin.ofNat' n i
+  ofNat := Fin.ofNat n i
 
 /-- If you actually have an element of `Fin n`, then the `n` is always positive -/
 protected theorem pos (i : Fin n) : 0 < n :=

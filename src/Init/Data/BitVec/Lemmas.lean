@@ -3179,7 +3179,7 @@ theorem getElem_concat (x : BitVec w) (b : Bool) (i : Nat) (h : i < w + 1) :
   · simp [Nat.mod_eq_of_lt b.toNat_lt]
   · simp [Nat.div_eq_of_lt b.toNat_lt, Nat.testBit_add_one]
 
-@[simp] theorem getElem_concat_zero : (concat x b)[0] = b := by
+@[simp] theorem getElem_concat_zero {x : BitVec w} : (concat x b)[0] = b := by
   simp [getElem_concat]
 
 theorem getLsbD_concat_zero : (concat x b).getLsbD 0 = b := by

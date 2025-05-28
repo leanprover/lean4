@@ -905,7 +905,8 @@ theorem infix_concat_iff {l₁ l₂ : List α} {a : α} :
   rw [← reverse_infix, reverse_concat, infix_cons_iff, reverse_infix,
     ← reverse_prefix, reverse_concat]
 
-theorem prefix_iff_getElem? : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? = some l₁[i] := by
+theorem prefix_iff_getElem? {l₁ l₂ : List α} :
+    l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? = some l₁[i] := by
   induction l₁ generalizing l₂ with
   | nil => simp
   | cons a l₁ ih =>

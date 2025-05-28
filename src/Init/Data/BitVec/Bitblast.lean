@@ -1796,9 +1796,7 @@ theorem neg_toInt_neg_umod_eq_of_msb_true_msb_true {x y : BitVec w} (hx : x.msb 
 
 theorem toNat_pos_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     0 < x.toNat := by
-  rcases w with _|w
-  · decide +revert
-  · simp [toNat_eq] at hx; omega
+  simp [toNat_eq] at hx; omega
 
 @[simp]
 theorem toInt_umod_neg_add {x y : BitVec w} (hymsb : y.msb = true) (hxmsb : x.msb = false) (hdvd : ¬y.toInt ∣ x.toInt) :
@@ -1812,8 +1810,7 @@ theorem toInt_umod_neg_add {x y : BitVec w} (hymsb : y.msb = true) (hxmsb : x.ms
       (by rw [toNat_neg, Nat.mod_eq_of_lt (by omega)]; omega)
   simp only [hdvd, reduceIte, toInt_add, hxnonneg, show ¬0 ≤ y.toInt by omega]
   rw [toInt_umod, toInt_eq_neg_toNat_neg_of_msb_true hymsb, Int.bmod_add_bmod,
-    Int.bmod_eq_of_le (n := (x.toNat : Int) % ((-y).toNat : Int) + -((-y).toNat : Int))
-      (m := 2 ^ (w+1)) (by omega) (by omega),
+    Int.bmod_eq_of_le (by omega) (by omega),
     toInt_eq_toNat_of_msb hxmsb, Int.emod_neg]
 
 @[simp]

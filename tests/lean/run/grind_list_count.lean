@@ -1,21 +1,9 @@
-/-
-Copyright (c) 2014 Parikshit Khanna. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
--/
-module
 
-prelude
-import Init.Data.List.Sublist
+set_option grind.warning false
 
-/-!
-# Lemmas about `List.countP` and `List.count`.
--/
+open List
 
-set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
-set_option linter.indexVariables true -- Enforce naming conventions for index variables.
-
-namespace List
+namespace List'
 
 open Nat
 
@@ -24,42 +12,21 @@ section countP
 
 variable {p q : α → Bool}
 
-@[simp, grind =] theorem countP_nil : countP p [] = 0 := rfl
+theorem countP_nil : countP p [] = 0 := by grind
 
-protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 := by
-  induction l generalizing n with
-  | nil => rfl
-  | cons hd _ ih =>
-    unfold countP.go
-    rw [ih (n := n + 1), ih (n := n), ih (n := 1)]
-    if h : p hd then simp [h, Nat.add_assoc] else simp [h]
+theorem countP_cons_of_pos {l} (pa : p a) : countP p (a :: l) = countP p l + 1 := by
+  grind
 
-@[simp] theorem countP_cons_of_pos {l} (pa : p a) : countP p (a :: l) = countP p l + 1 := by
-  have : countP.go p (a :: l) 0 = countP.go p l 1 := show cond .. = _ by rw [pa]; rfl
-  unfold countP
-  rw [this, Nat.add_comm, List.countP_go_eq_add]
+theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := by
+  grind
 
-@[simp] theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := by
-  simp [countP, countP.go, pa]
+theorem countP_cons {a : α} {l : List α} : countP p (a :: l) = countP p l + if p a then 1 else 0 := by grind
 
-@[grind =]theorem countP_cons {a : α} {l : List α} : countP p (a :: l) = countP p l + if p a then 1 else 0 := by
-  by_cases h : p a <;> simp [h]
-
-@[simp] theorem countP_singleton {a : α} : countP p [a] = if p a then 1 else 0 := by
-  simp [countP_cons]
-
+theorem countP_singleton {a : α} : countP p [a] = if p a then 1 else 0 := by grind
+#check List.size_toArray
+set_option trace.grind.ematch true
 theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l = countP p l + countP (fun a => ¬p a) l := by
-  induction l with
-  | nil => rfl
-  | cons hd _ ih =>
-    if h : p hd then
-      rw [countP_cons_of_pos h, countP_cons_of_neg _, length, ih]
-      · rw [Nat.add_assoc, Nat.add_comm _ 1, Nat.add_assoc]
-      · simp [h]
-    else
-      rw [countP_cons_of_pos (p := fun a => ¬p a), countP_cons_of_neg h, length, ih]
-      · rfl
-      · simp [h]
+  induction l with grind [-Array.toArray_toList]
 
 theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l) := by
   induction l with

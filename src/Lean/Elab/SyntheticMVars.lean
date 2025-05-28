@@ -216,7 +216,7 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
     | .typeClass extraErrorMsg? =>
       let extraErrorMsg := extraMsgToMsg extraErrorMsg?
       unless ignoreStuckTC do
-         mvarId.withContext do
+        mvarId.withContext do
           let mvarDecl ← getMVarDecl mvarId
           unless (← MonadLog.hasErrors) do
             throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
@@ -227,6 +227,11 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
         else
           throwTypeMismatchError header expectedType (← inferType e) e f?
             m!"failed to create type class instance for{indentExpr (← getMVarDecl mvarId).type}"
+    | .tactic (ctx := savedContext) (delayOnMVars := true) .. =>
+      withSavedContext savedContext do
+        mvarId.withContext do
+          let mvarDecl ← getMVarDecl mvarId
+          throwError "tactic execution is stuck, goal contains metavariables{indentExpr mvarDecl.type}"
     | _ => unreachable! -- TODO handle other cases.
 
 /--
@@ -422,9 +427,9 @@ mutual
       return false
     -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
     | .postponed savedContext => resumePostponed savedContext mvarSyntheticDecl.stx mvarId postponeOnError
-    | .tactic tacticCode savedContext kind =>
+    | .tactic tacticCode savedContext kind delayOnMVars =>
       withSavedContext savedContext do
-        if runTactics then
+        if runTactics && !(delayOnMVars && (← mvarId.getType >>= instantiateExprMVars).hasExprMVar) then
           runTactic mvarId tacticCode kind
           return true
         else

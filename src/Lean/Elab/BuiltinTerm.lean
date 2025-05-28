@@ -155,7 +155,10 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
 @[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
-    mkTacticMVar expectedType stx .term
+    -- `by` switches from an exported to a private context, so we must disallow unassigned
+    -- metavariables in the goal in this case as they could otherwise leak private data back into
+    -- the exported context.
+    mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting)
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")

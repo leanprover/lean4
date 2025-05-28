@@ -87,7 +87,7 @@ where
       name, type, value
       levelParams := info.levelParams
     }
-    inferRflAttr name
+    inferDefEqAttr name
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
@@ -121,7 +121,7 @@ where
         name, type, value
         levelParams := info.levelParams
       }
-      inferRflAttr name
+      inferDefEqAttr name
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

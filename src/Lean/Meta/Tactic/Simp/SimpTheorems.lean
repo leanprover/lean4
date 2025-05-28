@@ -10,20 +10,21 @@ import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.AuxLemma
-import Lean.RflAttrib
+import Lean.DefEqAttrib
 import Lean.DocString
 namespace Lean.Meta
 
-register_builtin_option backward.dsimp.useRflAttr : Bool := {
+register_builtin_option backward.dsimp.useDefEqAttr : Bool := {
   defValue := true
-  descr    := "use `rfl` attribute rather than theorem body to decide rfl-ness"
+  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theroem \
+    can be used in `dsimp` or with `implicitDefEqProofs`."
 }
 
-register_builtin_option debug.tactic.simp.checkRflAttr : Bool := {
+register_builtin_option debug.tactic.simp.checkDefEqAttr : Bool := {
   defValue := false
-  descr    := "if true, whenever `dsimp` fails to apply a rewrite rule because it is not marked as \
-    `rfl`, check whether it would have been considered as a rfl theorem before the introduction of \
-    the `rfl` attribute, and warn if it was. Note that this is a costly check."
+  descr    := "If true, whenever `dsimp` fails to apply a rewrite rule because it is not marked as \
+    `defeq`, check whether it would have been considered as a rfl theorem before the introduction \
+    of the `defeq` attribute, and warn if it was. Note that this is a costly check."
 }
 
 /--
@@ -178,8 +179,8 @@ mutual
         return false
 
   private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
-    if backward.dsimp.useRflAttr.get (← getOptions) then
-      return rflAttr.hasTag (← getEnv) declName
+    if backward.dsimp.useDefEqAttr.get (← getOptions) then
+      return defeqAttr.hasTag (← getEnv) declName
     else
       let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
       let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false

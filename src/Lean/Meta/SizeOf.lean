@@ -8,7 +8,7 @@ import Init.Data.List.BasicAux
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.Instances
-import Lean.RflAttrib
+import Lean.DefEqAttrib
 
 namespace Lean.Meta
 
@@ -458,7 +458,7 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         type        := thmType
         value       := thmValue
       }
-      inferRflAttr thmName
+      inferDefEqAttr thmName
       simpAttr.add thmName default AttributeKind.global
 
 private def mkSizeOfSpecTheorems (indTypeNames : Array Name) (sizeOfFns : Array Name) (recMap : NameMap Name) : MetaM Unit := do

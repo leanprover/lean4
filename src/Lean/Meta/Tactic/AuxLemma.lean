@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.AddDecl
 import Lean.Meta.Basic
-import Lean.RflAttrib
+import Lean.DefEqAttrib
 
 namespace Lean.Meta
 
@@ -50,7 +50,7 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : O
         }
     addDecl decl
     if inferRfl then
-      inferRflAttr auxName
+      inferDefEqAttr auxName
     modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨lemmas⟩ => ⟨lemmas.insert type (auxName, levelParams)⟩
     return auxName
   if cache then

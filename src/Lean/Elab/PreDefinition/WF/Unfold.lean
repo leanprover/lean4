@@ -97,7 +97,7 @@ def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessPr
         name, type, value
         levelParams := preDef.levelParams
       }
-      inferRflAttr name
+      inferDefEqAttr name
       trace[Elab.definition.wf] "mkUnfoldEq defined {.ofConstName name}"
 
 /--
@@ -130,7 +130,7 @@ def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM U
         name, type, value
         levelParams := preDef.levelParams
       }
-      inferRflAttr name
+      inferDefEqAttr name
       trace[Elab.definition.wf] "mkBinaryUnfoldEq defined {.ofConstName name}"
 
 builtin_initialize

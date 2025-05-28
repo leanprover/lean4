@@ -9,27 +9,27 @@ opaque P : Nat → Prop
 @[irreducible] def ac := a = c
 
 /--
-error: Not a `rfl`-theorem: the left-hand side
+error: Not a definitional equality: the left-hand side
   a
 is not definitionally equal to the right-hand side
   b
 -/
 #guard_msgs in
-@[rfl] theorem a_eq_b : a = b := testSorry
+@[defeq] theorem a_eq_b : a = b := testSorry
 theorem a_eq_c : a = c := rfl
-@[rfl] theorem a_eq_c' : a = c := Eq.refl _
+@[defeq] theorem a_eq_c' : a = c := Eq.refl _
 theorem a_eq_c'' : a = c := Eq.refl _
-@[rfl] theorem a_eq_c''' : ac := by with_unfolding_all rfl
-@[rfl] theorem a_eq_d : a = d := by simp [d]
+@[defeq] theorem a_eq_c''' : ac := by with_unfolding_all rfl
+@[defeq] theorem a_eq_d : a = d := by simp [d]
 
-/-- error: not a `rfl`-theorem: the conclusion should be an equality, but is True -/
+/-- error: Not a definitional equality: the conclusion should be an equality, but is True -/
 #guard_msgs in
-@[rfl] def not_an_eq : True := trivial
+@[defeq] def not_an_eq : True := trivial
 
 
 def Tricky.rfl := a_eq_b
 /--
-error: Not a `rfl`-theorem: the left-hand side
+error: Not a definitional equality: the left-hand side
   a
 is not definitionally equal to the right-hand side
   b
@@ -62,15 +62,15 @@ def e1 := a
 #guard_msgs in example (h : P a) : P e1 := by dsimp; exact h
 
 def e2 := a
-@[rfl,simp] theorem e2_eq_a : e2 = a := id rfl
+@[defeq,simp] theorem e2_eq_a : e2 = a := (rfl)
 #guard_msgs in example (h : P a) : P e2 := by dsimp; exact h
 
 def e3 := a
-@[simp,rfl] theorem e3_eq_a : e2 = a := id rfl -- rfl has to come before simp
+@[simp,defeq] theorem e3_eq_a : e2 = a := (rfl) -- defeq has to come before simp
 /-- error: dsimp made no progress -/
 #guard_msgs in example (h : P a) : P e3 := by dsimp; exact h
 
--- Tests the `rfl` attibute on a realized constant: That they are set, and that they
+-- Tests the `defeq` attibute on a realized constant: That they are set, and that they
 -- are transported out
 def f := a
 #guard_msgs in example (h : P a) : P f := by dsimp [f]; exact h

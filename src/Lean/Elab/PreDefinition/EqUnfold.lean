@@ -9,7 +9,7 @@ import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Rfl
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Apply
-import Lean.RflAttrib
+import Lean.DefEqAttrib
 
 namespace Lean.Meta
 
@@ -53,7 +53,7 @@ def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
       name, type, value
       levelParams := info.levelParams
     }
-    inferRflAttr name
+    inferDefEqAttr name
   return some name
 
 

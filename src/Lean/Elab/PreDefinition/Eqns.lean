@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Match.MatchEqs
-import Lean.RflAttrib
+import Lean.DefEqAttrib
 
 namespace Lean.Elab.Eqns
 open Meta
@@ -429,7 +429,7 @@ where
       name, type, value
       levelParams := info.levelParams
     }
-    inferRflAttr name
+    inferDefEqAttr name
 
 /--
   Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.

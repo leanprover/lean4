@@ -58,23 +58,22 @@ def mkGenHEqPattern (u : List Level) (α β : Expr) (h : Expr) (x : Expr) (val :
   mkApp5 (mkConst ``Grind.genHEqPattern u) α β h x val
 
 /-- Generalized pattern information. See `Grind.genPattern` gadget. -/
-structure GenPattern where
+structure GenPatternInfo where
   heq  : Bool
   hIdx : Nat
   xIdx : Nat
-  pat  : Expr
   deriving Repr
 
-def isGenPattern? (pat : Expr) : Option GenPattern :=
+def isGenPattern? (pat : Expr) : Option (GenPatternInfo × Expr) :=
   match_expr pat with
   | Grind.genPattern _ h x pat => Id.run do
     let .bvar hIdx := h | unreachable!
     let .bvar xIdx := x | unreachable!
-    return some { heq := false, hIdx, xIdx, pat }
+    return some ({ heq := false, hIdx, xIdx }, pat )
   | Grind.genHEqPattern _ _ h x pat => Id.run do
     let .bvar hIdx := h | unreachable!
     let .bvar xIdx := x | unreachable!
-    return some { heq := false, hIdx, xIdx, pat }
+    return some ({ heq := true, hIdx, xIdx }, pat )
   | _ => none
 
 /-- Returns `true` if `declName` is the name of a `match`-expression congruence equation. -/

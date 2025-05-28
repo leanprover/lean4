@@ -27,7 +27,7 @@ that the index is valid.
 
 `List.mapIdx` is a variant that does not provide the function with evidence that the index is valid.
 -/
-@[inline] def mapFinIdx (as : List α) (f : (i : Nat) → α → (h : i < as.length) → β) : List β :=
+@[inline, expose] def mapFinIdx (as : List α) (f : (i : Nat) → α → (h : i < as.length) → β) : List β :=
   go as #[] (by simp)
 where
   /-- Auxiliary for `mapFinIdx`:
@@ -44,7 +44,7 @@ returning the list of results.
 `List.mapFinIdx` is a variant that additionally provides the function with a proof that the index
 is valid.
 -/
-@[inline] def mapIdx (f : Nat → α → β) (as : List α) : List β := go as #[] where
+@[inline, expose] def mapIdx (f : Nat → α → β) (as : List α) : List β := go as #[] where
   /-- Auxiliary for `mapIdx`:
   `mapIdx.go [a₀, a₁, ...] acc = acc.toList ++ [f acc.size a₀, f (acc.size + 1) a₁, ...]` -/
   @[specialize] go : List α → Array β → List β

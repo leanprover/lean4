@@ -586,7 +586,7 @@ Examples:
 * `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
 * `[].reverse = []`
 -/
-def reverse (as : List α) : List α :=
+@[expose] def reverse (as : List α) : List α :=
   reverseAux as []
 
 @[simp, grind] theorem reverse_nil : reverse ([] : List α) = [] := rfl
@@ -715,7 +715,7 @@ Examples:
  * `List.singleton "green" = ["green"]`.
  * `List.singleton [1, 2, 3] = [[1, 2, 3]]`
 -/
-@[inline] protected def singleton {α : Type u} (a : α) : List α := [a]
+@[inline, expose] protected def singleton {α : Type u} (a : α) : List α := [a]
 
 /-! ### flatMap -/
 

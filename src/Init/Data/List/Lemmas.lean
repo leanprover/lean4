@@ -834,7 +834,7 @@ theorem getElem_length_sub_one_eq_getLast {l : List α} (h : l.length - 1 < l.le
   rw [← getLast_eq_getElem]
 
 @[simp, grind] theorem getLast_cons_cons {a : α} {l : List α} :
-    getLast (a :: b :: l) (by simp) = getLast (b :: l) (by simp) := by
+    getLast (a :: b :: l) (by simp) = getLast (b :: l) (by simp) :=
   rfl
 
 theorem getLast_cons {a : α} {l : List α} : ∀ (h : l ≠ nil),
@@ -2721,6 +2721,7 @@ example {xs : List Nat} : xs.foldl (· + ·) 1 > 0 := by
     intros; omega
 ```
 -/
+@[expose]
 def foldlRecOn {motive : β → Sort _} : ∀ (l : List α) (op : β → α → β) {b : β} (_ : motive b)
     (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op b a)), motive (List.foldl op b l)
   | [], _, _, hb, _ => hb
@@ -2755,6 +2756,7 @@ example {xs : List Nat} : xs.foldr (· + ·) 1 > 0 := by
     intros; omega
 ```
 -/
+@[expose]
 def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) {b : β} (_ : motive b)
     (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op a b)), motive (List.foldr op b l)
   | nil, _, _, hb, _ => hb

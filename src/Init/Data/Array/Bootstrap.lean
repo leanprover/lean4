@@ -40,7 +40,7 @@ Use the indexing notation `a[i]!` instead.
 
 Access an element from an array, or panic if the index is out of bounds.
 -/
-@[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17")]
+@[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17"), expose]
 def get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 

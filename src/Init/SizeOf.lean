@@ -40,7 +40,7 @@ From now on, the inductive compiler will automatically generate `SizeOf` instanc
 Every type `α` has a default `SizeOf` instance that just returns `0`
 for every element of `α`.
 -/
-protected def default.sizeOf (α : Sort u) : α → Nat
+@[expose] protected def default.sizeOf (α : Sort u) : α → Nat
   | _ => 0
 
 /--
@@ -89,7 +89,7 @@ deriving instance SizeOf for Array
 deriving instance SizeOf for Except
 deriving instance SizeOf for EStateM.Result
 
-@[simp] theorem Unit.sizeOf (u : Unit) : sizeOf u = 1 := rfl
+@[simp] theorem Unit.sizeOf (u : Unit) : sizeOf u = 1 := (rfl)
 @[simp] theorem Bool.sizeOf_eq_one (b : Bool) : sizeOf b = 1 := by cases b <;> rfl
 
 namespace Lean
@@ -98,7 +98,7 @@ namespace Lean
 We manually define the `Lean.Name` instance because we use
 an opaque function for computing the hashcode field.
 -/
-protected noncomputable def Name.sizeOf : Name → Nat
+@[expose] protected noncomputable def Name.sizeOf : Name → Nat
   | anonymous => 1
   | str p s   => 1 + Name.sizeOf p + sizeOf s
   | num p n   => 1 + Name.sizeOf p + sizeOf n

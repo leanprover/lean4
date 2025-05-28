@@ -15,7 +15,9 @@ import Init.Omega
 
 namespace Fin
 
-@[simp] theorem ofNat'_zero (n : Nat) [NeZero n] : Fin.ofNat' n 0 = 0 := rfl
+@[simp] theorem ofNat_zero (n : Nat) [NeZero n] : Fin.ofNat n 0 = 0 := rfl
+
+@[deprecated ofNat_zero (since := "2025-05-28")] abbrev ofNat'_zero := @ofNat_zero
 
 theorem mod_def (a m : Fin n) : a % m = Fin.mk (a % m) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
   rfl
@@ -61,18 +63,24 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
     0 = (⟨a, ha⟩ : Fin n) ↔ a = 0 := by
   simp [eq_comm]
 
-@[simp] theorem val_ofNat' (n : Nat) [NeZero n] (a : Nat) :
-  (Fin.ofNat' n a).val = a % n := rfl
+@[simp] theorem val_ofNat (n : Nat) [NeZero n] (a : Nat) :
+  (Fin.ofNat n a).val = a % n := rfl
 
-@[simp] theorem ofNat'_self {n : Nat} [NeZero n] : Fin.ofNat' n n = 0 := by
+@[deprecated val_ofNat (since := "2025-05-28")] abbrev val_ofNat' := @val_ofNat
+
+@[simp] theorem ofNat_self {n : Nat} [NeZero n] : Fin.ofNat n n = 0 := by
   ext
   simp
   congr
 
-@[simp] theorem ofNat'_val_eq_self [NeZero n] (x : Fin n) : (Fin.ofNat' n x) = x := by
+@[deprecated ofNat_self (since := "2025-05-28")] abbrev ofNat'_self := @ofNat_self
+
+@[simp] theorem ofNat_val_eq_self [NeZero n] (x : Fin n) : (Fin.ofNat n x) = x := by
   ext
-  rw [val_ofNat', Nat.mod_eq_of_lt]
+  rw [val_ofNat, Nat.mod_eq_of_lt]
   exact x.2
+
+@[deprecated ofNat_val_eq_self (since := "2025-05-28")] abbrev ofNat'_val_eq_self := @ofNat_val_eq_self
 
 @[simp] theorem mod_val (a b : Fin n) : (a % b).val = a.val % b.val :=
   rfl
@@ -95,20 +103,20 @@ theorem dite_val {n : Nat} {c : Prop} [Decidable c] {x y : Fin n} :
   by_cases c <;> simp [*]
 
 instance (n : Nat) [NeZero n] : NatCast (Fin n) where
-  natCast a := Fin.ofNat' n a
+  natCast a := Fin.ofNat n a
 
 @[expose]
 def intCast [NeZero n] (a : Int) : Fin n :=
   if 0 ≤ a then
-    Fin.ofNat' n a.natAbs
+    Fin.ofNat n a.natAbs
   else
-    - Fin.ofNat' n a.natAbs
+    - Fin.ofNat n a.natAbs
 
 instance (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
 theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
-    (x : Fin n) = if 0 ≤ x then Fin.ofNat' n x.natAbs else -Fin.ofNat' n x.natAbs := rfl
+    (x : Fin n) = if 0 ≤ x then Fin.ofNat n x.natAbs else -Fin.ofNat n x.natAbs := rfl
 
 /-! ### order -/
 
@@ -961,30 +969,38 @@ theorem val_ne_zero_iff [NeZero n] {a : Fin n} : a.val ≠ 0 ↔ a ≠ 0 :=
 
 /-! ### add -/
 
-theorem ofNat'_add [NeZero n] (x : Nat) (y : Fin n) :
-    Fin.ofNat' n x + y = Fin.ofNat' n (x + y.val) := by
+theorem ofNat_add [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat n x + y = Fin.ofNat n (x + y.val) := by
   apply Fin.eq_of_val_eq
-  simp [Fin.ofNat', Fin.add_def]
+  simp [Fin.ofNat, Fin.add_def]
 
-theorem add_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
-    x + Fin.ofNat' n y = Fin.ofNat' n (x.val + y) := by
+@[deprecated ofNat_add (since := "2025-05-28")] abbrev ofNat_add' := @ofNat_add
+
+theorem add_ofNat [NeZero n] (x : Fin n) (y : Nat) :
+    x + Fin.ofNat n y = Fin.ofNat n (x.val + y) := by
   apply Fin.eq_of_val_eq
-  simp [Fin.ofNat', Fin.add_def]
+  simp [Fin.ofNat, Fin.add_def]
+
+@[deprecated add_ofNat (since := "2025-05-28")] abbrev add_ofNat' := @add_ofNat
 
 /-! ### sub -/
 
 protected theorem coe_sub (a b : Fin n) : ((a - b : Fin n) : Nat) = ((n - b) + a) % n := by
   cases a; cases b; rfl
 
-theorem ofNat'_sub [NeZero n] (x : Nat) (y : Fin n) :
-    Fin.ofNat' n x - y = Fin.ofNat' n ((n - y.val) + x) := by
+theorem ofNat_sub [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat n x - y = Fin.ofNat n ((n - y.val) + x) := by
   apply Fin.eq_of_val_eq
-  simp [Fin.ofNat', Fin.sub_def]
+  simp [Fin.ofNat, Fin.sub_def]
 
-theorem sub_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
-    x - Fin.ofNat' n y = Fin.ofNat' n ((n - y % n) + x.val) := by
+@[deprecated ofNat_sub (since := "2025-05-28")] abbrev ofNat_sub' := @ofNat_sub
+
+theorem sub_ofNat [NeZero n] (x : Fin n) (y : Nat) :
+    x - Fin.ofNat n y = Fin.ofNat n ((n - y % n) + x.val) := by
   apply Fin.eq_of_val_eq
-  simp [Fin.ofNat', Fin.sub_def]
+  simp [Fin.ofNat, Fin.sub_def]
+
+@[deprecated sub_ofNat (since := "2025-05-28")] abbrev sub_ofNat' := @sub_ofNat
 
 @[simp] protected theorem sub_self [NeZero n] {x : Fin n} : x - x = 0 := by
   ext
@@ -1031,15 +1047,19 @@ theorem val_neg {n : Nat} [NeZero n] (x : Fin n) :
 
 /-! ### mul -/
 
-theorem ofNat'_mul [NeZero n] (x : Nat) (y : Fin n) :
-    Fin.ofNat' n x * y = Fin.ofNat' n (x * y.val) := by
+theorem ofNat_mul [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat n x * y = Fin.ofNat n (x * y.val) := by
   apply Fin.eq_of_val_eq
-  simp [Fin.ofNat', Fin.mul_def]
+  simp [Fin.ofNat, Fin.mul_def]
 
-theorem mul_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
-    x * Fin.ofNat' n y = Fin.ofNat' n (x.val * y) := by
+@[deprecated ofNat_mul (since := "2025-05-28")] abbrev ofNat_mul' := @ofNat_mul
+
+theorem mul_ofNat [NeZero n] (x : Fin n) (y : Nat) :
+    x * Fin.ofNat n y = Fin.ofNat n (x.val * y) := by
   apply Fin.eq_of_val_eq
-  simp [Fin.ofNat', Fin.mul_def]
+  simp [Fin.ofNat, Fin.mul_def]
+
+@[deprecated mul_ofNat (since := "2025-05-28")] abbrev mul_ofNat' := @mul_ofNat
 
 theorem val_mul {n : Nat} : ∀ a b : Fin n, (a * b).val = a.val * b.val % n
   | ⟨_, _⟩, ⟨_, _⟩ => rfl

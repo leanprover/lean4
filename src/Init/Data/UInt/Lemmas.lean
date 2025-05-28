@@ -278,15 +278,15 @@ theorem USize.toNat_ofNat_of_lt_32 {n : Nat} (h : n < 4294967296) : toNat (ofNat
   toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h USize.le_size)
 
 theorem UInt8.ofNat_mod_size : ofNat (x % 2 ^ 8) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+  simp [ofNat, BitVec.ofNat, Fin.ofNat]
 theorem UInt16.ofNat_mod_size : ofNat (x % 2 ^ 16) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+  simp [ofNat, BitVec.ofNat, Fin.ofNat]
 theorem UInt32.ofNat_mod_size : ofNat (x % 2 ^ 32) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+  simp [ofNat, BitVec.ofNat, Fin.ofNat]
 theorem UInt64.ofNat_mod_size : ofNat (x % 2 ^ 64) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+  simp [ofNat, BitVec.ofNat, Fin.ofNat]
 theorem USize.ofNat_mod_size : ofNat (x % 2 ^ System.Platform.numBits) = ofNat x := by
-  simp [ofNat, BitVec.ofNat, Fin.ofNat']
+  simp [ofNat, BitVec.ofNat, Fin.ofNat]
 
 theorem UInt8.lt_ofNat_iff {n : UInt8} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
   rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
@@ -928,11 +928,11 @@ theorem USize.toNat_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
 @[simp] theorem UInt64.toFin_ofNatLT {n : Nat} (hn) : (UInt64.ofNatLT n hn).toFin = ⟨n, hn⟩ := (rfl)
 @[simp] theorem USize.toFin_ofNatLT {n : Nat} (hn) : (USize.ofNatLT n hn).toFin = ⟨n, hn⟩ := (rfl)
 
-@[simp] theorem UInt8.toFin_ofNat' {n : Nat} : (UInt8.ofNat n).toFin = Fin.ofNat' _ n := (rfl)
-@[simp] theorem UInt16.toFin_ofNat' {n : Nat} : (UInt16.ofNat n).toFin = Fin.ofNat' _ n := (rfl)
-@[simp] theorem UInt32.toFin_ofNat' {n : Nat} : (UInt32.ofNat n).toFin = Fin.ofNat' _ n := (rfl)
-@[simp] theorem UInt64.toFin_ofNat' {n : Nat} : (UInt64.ofNat n).toFin = Fin.ofNat' _ n := (rfl)
-@[simp] theorem USize.toFin_ofNat' {n : Nat} : (USize.ofNat n).toFin = Fin.ofNat' _ n := (rfl)
+@[simp] theorem UInt8.toFin.ofNat {n : Nat} : (UInt8.ofNat n).toFin = Fin.ofNat _ n := (rfl)
+@[simp] theorem UInt16.toFin.ofNat {n : Nat} : (UInt16.ofNat n).toFin = Fin.ofNat _ n := (rfl)
+@[simp] theorem UInt32.toFin.ofNat {n : Nat} : (UInt32.ofNat n).toFin = Fin.ofNat _ n := (rfl)
+@[simp] theorem UInt64.toFin.ofNat {n : Nat} : (UInt64.ofNat n).toFin = Fin.ofNat _ n := (rfl)
+@[simp] theorem USize.toFin.ofNat {n : Nat} : (USize.ofNat n).toFin = Fin.ofNat _ n := (rfl)
 
 @[simp] theorem UInt8.toFin_ofBitVec {b} : (UInt8.ofBitVec b).toFin = b.toFin := (rfl)
 @[simp] theorem UInt16.toFin_ofBitVec {b} : (UInt16.ofBitVec b).toFin = b.toFin := (rfl)

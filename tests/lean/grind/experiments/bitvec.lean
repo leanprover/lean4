@@ -96,7 +96,7 @@ theorem getElem_of_getLsbD_eq_true {x : BitVec w} {i : Nat} (h : x.getLsbD i = t
 This normalized a bitvec using `ofFin` to `ofNat`.
 -/
 theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
-  simp only [BitVec.ofNat, Fin.ofNat', lt, Nat.mod_eq_of_lt]
+  simp only [BitVec.ofNat, Fin.ofNat, lt, Nat.mod_eq_of_lt]
 
 /-- Prove equality of bitvectors in terms of nat operations. -/
 theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
@@ -274,7 +274,7 @@ theorem length_pos_of_ne {x y : BitVec w} (h : x ≠ y) : 0 < w :=
 
 theorem ofFin_ofNat (n : Nat) :
     ofFin (no_index (OfNat.ofNat n : Fin (2^w))) = OfNat.ofNat n := by
-  simp only [OfNat.ofNat, Fin.ofNat', BitVec.ofNat, Nat.and_two_pow_sub_one_eq_mod]
+  simp only [OfNat.ofNat, Fin.ofNat, BitVec.ofNat, Nat.and_two_pow_sub_one_eq_mod]
 
 @[simp] theorem ofFin_neg {x : Fin (2 ^ w)} : ofFin (-x) = -(ofFin x) := by
   rfl
@@ -306,11 +306,11 @@ theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
 @[simp] theorem toInt_ofBool (b : Bool) : (ofBool b).toInt = -b.toInt := by
   cases b <;> rfl
 
-@[simp] theorem toFin_ofBool (b : Bool) : (ofBool b).toFin = Fin.ofNat' 2 (b.toNat) := by
+@[simp] theorem toFin_ofBool (b : Bool) : (ofBool b).toFin = Fin.ofNat 2 (b.toNat) := by
   cases b <;> rfl
 
 theorem ofNat_one (n : Nat) : BitVec.ofNat 1 n = BitVec.ofBool (n % 2 = 1) :=  by
-  rcases (Nat.mod_two_eq_zero_or_one n) with h | h <;> simp [h, BitVec.ofNat, Fin.ofNat']
+  rcases (Nat.mod_two_eq_zero_or_one n) with h | h <;> simp [h, BitVec.ofNat, Fin.ofNat]
 
 theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b' ↔ b = b' := by
   decide
@@ -350,12 +350,12 @@ theorem getMsbD_ofNatLt {n x i : Nat} (h : x < 2^n) :
     getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := getMsbD_ofNatLT h
 
 @[simp, bitvec_to_nat] theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
-  simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat']
+  simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat]
 
 theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
   eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
 
-@[simp] theorem toFin_ofNat (x : Nat) : toFin (BitVec.ofNat w x) = Fin.ofNat' (2^w) x := rfl
+@[simp] theorem toFin_ofNat (x : Nat) : toFin (BitVec.ofNat w x) = Fin.ofNat (2^w) x := rfl
 
 @[simp] theorem finMk_toNat (x : BitVec w) : Fin.mk x.toNat x.isLt = x.toFin := rfl
 
@@ -866,7 +866,7 @@ theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
   simp [toInt_eq_toNat_bmod, toNat_setWidth, Int.emod_bmod, -Int.natCast_pow]
 
 @[simp] theorem toFin_setWidth {x : BitVec w} :
-    (x.setWidth v).toFin = Fin.ofNat' (2^v) x.toNat := by
+    (x.setWidth v).toFin = Fin.ofNat (2^v) x.toNat := by
   ext; simp
 
 @[simp] theorem setWidth_eq (x : BitVec n) : setWidth n x = x := by
@@ -1093,11 +1093,11 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   simp [extractLsb, toInt_ofNat]
 
 @[simp] theorem toFin_extractLsb' {s m : Nat} {x : BitVec n} :
-    (extractLsb' s m x).toFin = Fin.ofNat' (2 ^ m) (x.toNat >>> s) := by
+    (extractLsb' s m x).toFin = Fin.ofNat (2 ^ m) (x.toNat >>> s) := by
   simp [extractLsb', toInt_ofNat]
 
 @[simp] theorem toFin_extractLsb {hi lo : Nat} {x : BitVec n} :
-  (extractLsb hi lo x).toFin = Fin.ofNat' (2 ^ (hi - lo + 1)) (x.toNat >>> lo) := by
+  (extractLsb hi lo x).toFin = Fin.ofNat (2 ^ (hi - lo + 1)) (x.toNat >>> lo) := by
   simp [extractLsb, toInt_ofNat]
 
 @[simp] theorem getElem_extractLsb' {start len : Nat} {x : BitVec n} {i : Nat} (h : i < len) :
@@ -1261,7 +1261,7 @@ theorem extractLsb'_eq_zero {x : BitVec w} {start : Nat} :
     simp [BitVec.toInt, -Int.natCast_pow]
     omega
 
-@[simp] theorem toFin_allOnes : (allOnes w).toFin = Fin.ofNat' (2^w) (2^w - 1) := by
+@[simp] theorem toFin_allOnes : (allOnes w).toFin = Fin.ofNat (2^w) (2^w - 1) := by
   ext
   simp
 
@@ -1792,7 +1792,7 @@ theorem not_xor_right {x y : BitVec w} : ~~~ (x ^^^ y) = x ^^^ ~~~ y := by
   simp [-Int.natCast_pow]
 
 @[simp] theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
-    (x <<< n).toFin = Fin.ofNat' (2^w) (x.toNat <<< n) := rfl
+    (x <<< n).toFin = Fin.ofNat (2^w) (x.toNat <<< n) := rfl
 
 @[simp]
 theorem shiftLeft_zero (x : BitVec w) : x <<< 0 = x := by
@@ -2029,7 +2029,7 @@ theorem toInt_ushiftRight {x : BitVec w} {n : Nat} :
 
 @[simp]
 theorem toFin_ushiftRight {x : BitVec w} {n : Nat} :
-    (x >>> n).toFin = x.toFin / (Fin.ofNat' (2^w) (2^n)) := by
+    (x >>> n).toFin = x.toFin / (Fin.ofNat (2^w) (2^n)) := by
   apply Fin.eq_of_val_eq
   by_cases hn : n < w
   · simp [Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt (Nat.pow_lt_pow_of_lt Nat.one_lt_two hn)]
@@ -2280,7 +2280,7 @@ theorem toNat_sshiftRight {x : BitVec w} {n : Nat} :
     simp [toNat_sshiftRight_of_msb_false, h]
 
 theorem toFin_sshiftRight_of_msb_true {x : BitVec w} {n : Nat} (h : x.msb = true) :
-    (x.sshiftRight n).toFin = Fin.ofNat' (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n) := by
+    (x.sshiftRight n).toFin = Fin.ofNat (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n) := by
   apply Fin.eq_of_val_eq
   simp only [val_toFin, toNat_sshiftRight, h, ↓reduceIte, Fin.val_ofNat']
   rw [Nat.mod_eq_of_lt]
@@ -2289,7 +2289,7 @@ theorem toFin_sshiftRight_of_msb_true {x : BitVec w} {n : Nat} (h : x.msb = true
   exact ineq ((2 ^ w - 1 - x.toNat) >>> n)
 
 theorem toFin_sshiftRight_of_msb_false {x : BitVec w} {n : Nat} (h : x.msb = false) :
-    (x.sshiftRight n).toFin = Fin.ofNat' (2^w) (x.toNat >>> n) := by
+    (x.sshiftRight n).toFin = Fin.ofNat (2^w) (x.toNat >>> n) := by
   apply Fin.eq_of_val_eq
   simp only [val_toFin, toNat_sshiftRight, h, Bool.false_eq_true, ↓reduceIte, Fin.val_ofNat']
   have := Nat.shiftRight_le x.toNat n
@@ -2298,8 +2298,8 @@ theorem toFin_sshiftRight_of_msb_false {x : BitVec w} {n : Nat} (h : x.msb = fal
 theorem toFin_sshiftRight {x : BitVec w} {n : Nat} :
     (x.sshiftRight n).toFin =
       if x.msb
-      then Fin.ofNat' (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n)
-      else Fin.ofNat' (2^w) (x.toNat >>> n) := by
+      then Fin.ofNat (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n)
+      else Fin.ofNat (2^w) (x.toNat >>> n) := by
   by_cases h : x.msb
   · simp [toFin_sshiftRight_of_msb_true, h]
   · simp [toFin_sshiftRight_of_msb_false, h]
@@ -2337,18 +2337,18 @@ theorem toNat_sshiftRight' {x y : BitVec w} :
   rw [sshiftRight_eq', toNat_sshiftRight]
 
 theorem toFin_sshiftRight'_of_msb_true {x y : BitVec w} (h : x.msb = true) :
-    (x.sshiftRight' y).toFin = Fin.ofNat' (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat) := by
+    (x.sshiftRight' y).toFin = Fin.ofNat (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat) := by
   rw [sshiftRight_eq', toFin_sshiftRight_of_msb_true h]
 
 theorem toFin_sshiftRight'_of_msb_false {x y : BitVec w} (h : x.msb = false) :
-    (x.sshiftRight' y).toFin = Fin.ofNat' (2^w) (x.toNat >>> y.toNat) := by
+    (x.sshiftRight' y).toFin = Fin.ofNat (2^w) (x.toNat >>> y.toNat) := by
   rw [sshiftRight_eq', toFin_sshiftRight_of_msb_false h]
 
 theorem toFin_sshiftRight' {x y : BitVec w} :
     (x.sshiftRight' y).toFin =
       if x.msb
-      then Fin.ofNat' (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat)
-      else Fin.ofNat' (2^w) (x.toNat >>> y.toNat) := by
+      then Fin.ofNat (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat)
+      else Fin.ofNat (2^w) (x.toNat >>> y.toNat) := by
   rw [sshiftRight_eq', toFin_sshiftRight]
 
 theorem toInt_sshiftRight' {x y : BitVec w} :
@@ -2554,11 +2554,11 @@ theorem toInt_signExtend_eq_toInt_bmod_of_le (x : BitVec w) (h : v ≤ w) :
   rw [BitVec.toInt_signExtend, Nat.min_eq_left h]
 
 theorem toFin_signExtend_of_le {x : BitVec w} (hv : v ≤ w):
-    (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) x.toNat := by
+    (x.signExtend v).toFin = Fin.ofNat (2 ^ v) x.toNat := by
   simp [signExtend_eq_setWidth_of_le _ hv]
 
 theorem toFin_signExtend (x : BitVec w) :
-    (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) (x.toNat + if x.msb = true then 2 ^ v - 2 ^ w else 0):= by
+    (x.signExtend v).toFin = Fin.ofNat (2 ^ v) (x.toNat + if x.msb = true then 2 ^ v - 2 ^ w else 0):= by
   by_cases hv : v ≤ w
   · simp [toFin_signExtend_of_le hv, show 2 ^ v - 2 ^ w = 0 by rw [@Nat.sub_eq_zero_iff_le]; apply Nat.pow_le_pow_of_le (by decide) (by omega)]
   · simp only [Nat.not_le] at hv
@@ -3263,7 +3263,7 @@ Definition of bitvector addition as a nat.
 
 theorem ofNat_add {n} (x y : Nat) : BitVec.ofNat n (x + y) = BitVec.ofNat n x + BitVec.ofNat n y := by
   apply eq_of_toNat_eq
-  simp [BitVec.ofNat, Fin.ofNat'_add]
+  simp [BitVec.ofNat, Fin.ofNat_add]
 
 theorem ofNat_add_ofNat {n} (x y : Nat) : BitVec.ofNat n x + BitVec.ofNat n y = BitVec.ofNat n (x + y) :=
   (ofNat_add x y).symm
@@ -3373,7 +3373,7 @@ theorem sub_ofFin (x : BitVec n) (y : Fin (2^n)) : x - .ofFin y = .ofFin (x.toFi
 -- If `x` and `n` are not literals, applying this theorem eagerly may not be a good idea.
 theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = .ofNat n ((2^n - y % 2^n) + x) := by
   apply eq_of_toNat_eq
-  simp [BitVec.ofNat, Fin.ofNat'_sub]
+  simp [BitVec.ofNat, Fin.ofNat_sub]
 
 @[simp] protected theorem sub_zero (x : BitVec n) : x - 0#n = x := by apply eq_of_toNat_eq ; simp
 
@@ -3404,7 +3404,7 @@ theorem ofInt_neg {w : Nat} {n : Int} : BitVec.ofInt w (-n) = -BitVec.ofInt w n 
   eq_of_toInt_eq (by simp [toInt_neg])
 
 @[simp] theorem toFin_neg (x : BitVec n) :
-    (-x).toFin = Fin.ofNat' (2^n) (2^n - x.toNat) :=
+    (-x).toFin = Fin.ofNat (2^n) (2^n - x.toNat) :=
   rfl
 
 theorem sub_eq_add_neg {n} (x y : BitVec n) : x - y = x + - y := by
@@ -3619,7 +3619,7 @@ theorem fill_false {w : Nat} : fill w false = 0#w := by
   by_cases h : v <;> simp [h]
 
 @[simp] theorem fill_toFin {w : Nat} {v : Bool} :
-    (fill w v).toFin = if v = true then (allOnes w).toFin else Fin.ofNat' (2 ^ w) 0 := by
+    (fill w v).toFin = if v = true then (allOnes w).toFin else Fin.ofNat (2 ^ w) 0 := by
   by_cases h : v <;> simp [h]
 
 /-! ### mul -/
@@ -3631,7 +3631,7 @@ theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := b
 
 theorem ofNat_mul {n} (x y : Nat) : BitVec.ofNat n (x * y) = BitVec.ofNat n x * BitVec.ofNat n y := by
   apply eq_of_toNat_eq
-  simp [BitVec.ofNat, Fin.ofNat'_mul]
+  simp [BitVec.ofNat, Fin.ofNat_mul]
 
 theorem ofNat_mul_ofNat {n} (x y : Nat) : BitVec.ofNat n x * BitVec.ofNat n y = BitVec.ofNat n (x * y) :=
   (ofNat_mul x y).symm
@@ -4494,7 +4494,7 @@ theorem toInt_rotateLeft {x : BitVec w} {r : Nat} :
 
 theorem toFin_rotateLeft {x : BitVec w} {r : Nat} :
   (x.rotateLeft r).toFin =
-    Fin.ofNat' (2 ^ w) (x.toNat <<< (r % w)) ||| x.toFin / Fin.ofNat' (2 ^ w) (2 ^ (w - r % w)) := by
+    Fin.ofNat (2 ^ w) (x.toNat <<< (r % w)) ||| x.toFin / Fin.ofNat (2 ^ w) (2 ^ (w - r % w)) := by
   simp [rotateLeft_def, toFin_shiftLeft, toFin_ushiftRight, toFin_or]
 
 /-! ## Rotate Right -/
@@ -4656,7 +4656,7 @@ theorem toInt_rotateRight {x : BitVec w} {r : Nat} :
   simp [rotateRight_def, toInt_shiftLeft, toInt_ushiftRight, toInt_or]
 
 theorem toFin_rotateRight {x : BitVec w} {r : Nat} :
-    (x.rotateRight r).toFin = x.toFin / Fin.ofNat' (2 ^ w) (2 ^ (r % w)) ||| Fin.ofNat' (2 ^ w) (x.toNat <<< (w - r % w)) := by
+    (x.rotateRight r).toFin = x.toFin / Fin.ofNat (2 ^ w) (2 ^ (r % w)) ||| Fin.ofNat (2 ^ w) (x.toNat <<< (w - r % w)) := by
   simp [rotateRight_def, toFin_shiftLeft, toFin_ushiftRight, toFin_or]
 
 /- ## twoPow -/
@@ -4728,7 +4728,7 @@ theorem toInt_twoPow {w i : Nat} :
       · simp [h, h', show i < w + 1 by omega, Int.natCast_pow]
 
 theorem toFin_twoPow {w i : Nat} :
-    (BitVec.twoPow w i).toFin = Fin.ofNat' (2^w) (2^i) := by
+    (BitVec.twoPow w i).toFin = Fin.ofNat (2^w) (2^i) := by
   rcases w with rfl | w
   · simp [BitVec.twoPow, BitVec.toFin, toFin_shiftLeft, Fin.fin_one_eq_zero]
   · simp [BitVec.twoPow, BitVec.toFin, toFin_shiftLeft, Nat.shiftLeft_eq]
@@ -5373,7 +5373,7 @@ theorem toInt_abs_eq_natAbs_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
   simp [toInt_abs_eq_natAbs, hx]
 
 theorem toFin_abs {x : BitVec w} :
-    x.abs.toFin = if x.msb then Fin.ofNat' (2 ^ w) (2 ^ w - x.toNat) else x.toFin := by
+    x.abs.toFin = if x.msb then Fin.ofNat (2 ^ w) (2 ^ w - x.toNat) else x.toFin := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 /-! ### Reverse -/

@@ -1761,8 +1761,7 @@ theorem msb_intMin_umod_neg_of_msb_true {y : BitVec w} (hy : y.msb = true) :
 theorem msb_neg_umod_neg_of_msb_true_of_msb_true {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = true) :
       (-x % -y).msb = false := by
   by_cases hx' : x = intMin w
-  · simp only [hx', neg_intMin]
-    exact msb_intMin_umod_neg_of_msb_true hy
+  · simp only [hx', neg_intMin, msb_intMin_umod_neg_of_msb_true hy]
   · simp [show (-x).msb = false by simp [hx, hx']]
 
 theorem toInt_dvd_toInt_iff {x y : BitVec w} :

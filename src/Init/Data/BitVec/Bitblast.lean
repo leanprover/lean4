@@ -1801,7 +1801,7 @@ theorem toInt_umod_neg_add {x y : BitVec w} (hymsb : y.msb = true) (hxmsb : x.ms
   have hypos : 0 < y.toNat := toNat_pos_of_ne_zero (by simp [hymsb])
   have hxnonneg := toInt_nonneg_of_msb_false hxmsb
   have hynonpos := toInt_neg_of_msb_true hymsb
-  have hylt : (-y).toNat ≤ 2 ^ (w) := toNat_neg_lt y hymsb
+  have hylt : (-y).toNat ≤ 2 ^ (w) := toNat_neg_lt_of_msb y hymsb
   have hmodlt := Nat.mod_lt x.toNat (y := (-y).toNat)
       (by rw [toNat_neg, Nat.mod_eq_of_lt (by omega)]; omega)
   simp only [hdvd, reduceIte, toInt_add, hxnonneg, show ¬0 ≤ y.toInt by omega]

@@ -136,7 +136,12 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
     assert! !isPatternDontCare pArg
     return { c with cnstrs := .offset pArg k eArg :: c.cnstrs }
   else if let some genP := isGenPattern? pArg then
-    if let some pArg := groundPattern? genP.pat then
+    if genP.pat.isBVar then
+      let c ← assign? c genP.pat.bvarIdx! eArg
+      let c ← assign? c genP.xIdx eArg
+      let c ← assign? c genP.hIdx (← if genP.heq then mkHEqRefl eArg else mkEqRefl eArg)
+      return c
+    else if let some pArg := groundPattern? genP.pat then
       guard (← isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg))
       let c ← assign? c genP.xIdx eArg
       let c ← assign? c genP.hIdx (← if genP.heq then mkHEqProof eArg pArg else mkEqProof eArg pArg)

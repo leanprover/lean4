@@ -1142,7 +1142,7 @@ static lean_object* l_Lean_Tactic_FunInd_deriveCases___lambda__9___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_inferMatchType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_rwFun___spec__3___closed__4;
-lean_object* l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateLambdaAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_abstractIndependentMVars___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72285,7 +72285,6 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; lean_objec
 x_10 = lean_array_get_size(x_1);
 x_11 = l_Lean_Tactic_FunInd_abstractIndependentMVars___lambda__3___closed__1;
 x_12 = l_Array_ofFn___rarg(x_10, x_11);
-lean_dec(x_10);
 x_13 = lean_array_size(x_1);
 lean_inc(x_1);
 x_14 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_abstractIndependentMVars___spec__2(x_13, x_2, x_1, x_5, x_6, x_7, x_8, x_9);
@@ -84253,7 +84252,6 @@ x_10 = lean_array_uset(x_6, x_5, x_9);
 x_11 = lean_array_get_size(x_3);
 x_12 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__7___closed__1;
 x_13 = l_Array_ofFn___rarg(x_11, x_12);
-lean_dec(x_11);
 x_14 = lean_array_get_size(x_13);
 x_15 = lean_nat_dec_lt(x_9, x_14);
 x_16 = 1;
@@ -84405,7 +84403,6 @@ x_7 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural_d
 x_8 = lean_array_get_size(x_3);
 x_9 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__7___closed__1;
 x_10 = l_Array_ofFn___rarg(x_8, x_9);
-lean_dec(x_8);
 x_11 = lean_array_get_size(x_7);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_nat_dec_lt(x_12, x_11);
@@ -84493,7 +84490,7 @@ if (x_29 == 0)
 {
 lean_object* x_30; 
 lean_inc(x_27);
-x_30 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_27, x_27, lean_box(0), lean_box(0));
+x_30 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_27, x_27, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_27);
 lean_dec(x_25);
 x_15 = x_30;
@@ -84502,7 +84499,7 @@ goto block_23;
 else
 {
 lean_object* x_31; 
-x_31 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_12, x_27, lean_box(0), lean_box(0));
+x_31 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5(x_25, x_24, x_12, x_27, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_27);
 lean_dec(x_25);
 x_15 = x_31;
@@ -95156,6 +95153,7 @@ lean_dec(x_29);
 lean_inc(x_3);
 x_32 = lean_alloc_closure((void*)(l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__2___boxed), 2, 1);
 lean_closure_set(x_32, 0, x_3);
+lean_inc(x_3);
 x_33 = l_Array_ofFn___rarg(x_3, x_32);
 lean_inc_n(x_4, 2);
 x_34 = lean_alloc_ctor(0, 2, 0);
@@ -95562,7 +95560,6 @@ lean_dec(x_25);
 x_28 = l_Lean_InductiveVal_numTypeFormers(x_7);
 x_29 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__7___closed__1;
 x_30 = l_Array_ofFn___rarg(x_28, x_29);
-lean_dec(x_28);
 x_31 = l_Lean_Elab_Structural_instInhabitedRecArgInfo;
 x_32 = l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__13___closed__1;
 x_33 = l_Lean_Elab_Structural_Positions_groupAndSort___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__5(x_31, x_32, x_26, x_30);

@@ -6764,6 +6764,7 @@ return x_133;
 else
 {
 uint8_t x_134; 
+lean_inc(x_13);
 x_134 = l_Lean_Elab_FixedParamPerms_fixedArePrefix(x_13);
 if (x_134 == 0)
 {

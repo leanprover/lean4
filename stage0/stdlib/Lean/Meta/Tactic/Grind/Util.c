@@ -261,7 +261,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_MVarId_clearAuxD
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_foldProjs___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Grind_unfoldReducible___closed__1;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_unfoldReducible(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -303,6 +302,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_foldProjs___lambda__1(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___at_Lean_Meta_Grind_unfoldReducible___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_MVarId_clearAuxDecls___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Grind_foldProjs___lambda__2___closed__4;
 static lean_object* l_Lean_Meta_Grind_unfoldReducible___closed__2;
 static lean_object* l_Lean_Meta_Grind_markAsPreMatchCond___closed__1;
@@ -2010,7 +2010,7 @@ return x_41;
 else
 {
 uint8_t x_42; 
-x_42 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_24, x_24);
+x_42 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_24, x_24);
 if (x_42 == 0)
 {
 lean_object* x_43; lean_object* x_44; 
@@ -2186,7 +2186,7 @@ return x_74;
 else
 {
 uint8_t x_75; 
-x_75 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_57, x_57);
+x_75 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_57, x_57);
 if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; 

@@ -1392,7 +1392,6 @@ lean_object* x_4;
 x_4 = l_Lean_Elab_WF_mutualName(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -2319,6 +2318,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_packMutual(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+lean_inc(x_1);
 x_9 = l_Lean_Elab_WF_mutualName(x_1, x_2, x_3);
 x_10 = l_Lean_Elab_instInhabitedPreDefinition;
 x_11 = lean_unsigned_to_nat(0u);

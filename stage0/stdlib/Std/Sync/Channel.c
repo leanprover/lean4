@@ -14766,6 +14766,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = l___private_Std_Sync_Channel_0__Std_CloseableChannel_Bounded_new___rarg___closed__1;
+lean_inc(x_1);
 x_5 = l_Array_ofFn___rarg(x_1, x_4);
 x_6 = l___private_Std_Sync_Channel_0__Std_CloseableChannel_Bounded_new___rarg___closed__3;
 x_7 = lean_unsigned_to_nat(0u);

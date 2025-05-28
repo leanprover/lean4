@@ -5149,11 +5149,13 @@ end Syntax
 namespace Macro
 
 /-- References -/
-private opaque MethodsRefPointed : NonemptyType.{0}
+-- TODO: make private again and make Nonempty instance no_expose instead after bootstrapping
+opaque MethodsRefPointed : NonemptyType.{0}
 
-private def MethodsRef : Type := MethodsRefPointed.type
+set_option linter.missingDocs false in
+@[expose] def MethodsRef : Type := MethodsRefPointed.type
 
-private instance : Nonempty MethodsRef := MethodsRefPointed.property
+instance : Nonempty MethodsRef := MethodsRefPointed.property
 
 /-- The read-only context for the `MacroM` monad. -/
 structure Context where

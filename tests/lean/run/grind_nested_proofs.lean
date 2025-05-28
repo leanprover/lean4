@@ -22,7 +22,7 @@ detect equalities between array access terms.
 -/
 
 /--
-trace: [Meta.debug] [‹i < a.toList.length›, ‹j < a.toList.length›, ‹j < b.toList.length›]
+trace: [Meta.debug] [‹i < a.size›, ‹j < a.size›, ‹j < b.size›]
 [Meta.debug] [a[i], b[j], a[j]]
 -/
 #guard_msgs (trace) in
@@ -30,7 +30,7 @@ example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i
   grind -mbtc on_failure fallback
 
 /--
-trace: [Meta.debug] [‹i < a.toList.length›, ‹j < a.toList.length›, ‹j < b.toList.length›]
+trace: [Meta.debug] [‹i < a.size›, ‹j < a.size›, ‹j < b.size›]
 [Meta.debug] [a[i], a[j]]
 -/
 #guard_msgs (trace) in

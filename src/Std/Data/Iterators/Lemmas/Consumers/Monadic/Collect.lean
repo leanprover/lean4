@@ -195,6 +195,11 @@ noncomputable def IterM.QuotStep.uniqueMap [Iterator α₁ m β] [Iterator α₂
     have hs₁' := (exists_equiv_step h s₁').choose_spec
     rw [← hs₁, ← hs₁', hs]
 
+theorem IterM.QuotStep.uniqueMap_eq_id [Iterator α m β] [Monad m] [LawfulMonad m]
+    {it : IterM (α := α) m β} :
+    uniqueMap (HItEquiv.refl it) = id := by
+  sorry
+
 open Classical in
 noncomputable def of? [Iterator α m β] [Monad m] [LawfulMonad m] (it : IterM (α := α) m β)
     (step : IterStep (Quot (ItEquiv m β)) β) : Option it.QuotStep :=
@@ -203,13 +208,45 @@ noncomputable def of? [Iterator α m β] [Monad m] [LawfulMonad m] (it : IterM (
   else
     none
 
+theorem temp {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α₁ m β] [Iterator α₂ m β]
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquiv ita itb) :
+    ((BundledIterM.ofIterM itb).iterator.step' >>=
+        (fun s => pure (of? ita s)) ∘ IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM)).run =
+      (some ∘ IterM.QuotStep.uniqueMap h.symm ∘ Quot.mk _) <$> itb.step := by
+  simp [PostconditionT.run, Bind.bind, PostconditionT.bind, IterM.step', BundledIterM.ofIterM]
+  conv =>
+    lhs; lhs; ext s;
+    rw [of?, dif_pos ⟨IterM.QuotStep.uniqueMap h.symm (Quot.mk _ s), sorry⟩]
+  congr
+  rw [funext_iff]
+  intro s
+  simp
+  have h : ∃ step' : ita.QuotStep, step'.bundle = IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM) s.val := sorry
+  have := h.choose_spec
+  sorry
+
 theorem HItEquiv.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     [Iterator α₁ m β] [Iterator α₂ m β]
     {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquiv ita itb) :
     (Quot.mk _ : _ → ita.QuotStep) <$> ita.step =
       IterM.QuotStep.uniqueMap h.symm <$> (Quot.mk _ : _ → itb.QuotStep) <$> itb.step := by
+  have he := h
   simp [HItEquiv, ItEquiv, funext_iff] at h
-  have _ := congrArg (HetT.run fun s => of? ita s) h
+  have h := congrArg (CodensityT.run fun s => pure (of? ita s)) h
+  simp [CodensityT.run_map, CodensityT.run_lift] at h
+  replace h := congrArg PostconditionT.run h
+  have := temp he (α₁ := α₁) (α₂ := α₂) (m := m) (ita := ita) (itb := itb)
+  rw [temp he, temp (HItEquiv.refl ita)] at h
+  simp only [comp_map] at h
+  replace h := congrArg ((fun x => Option.elim x sorry id) <$> ·) h
+  simp at h
+  simp [← h, IterM.QuotStep.uniqueMap_eq_id]
+
+theorem bind_comp_aux {m} [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {x : m α} :
+    x >>= (g ∘ f) = (f <$> x) >>= g := by
+  simp?
+  rfl
 
 theorem HItEquiv.step_congr {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     [Iterator α₁ m β] [Iterator α₂ m β]
@@ -227,7 +264,7 @@ theorem HItEquiv.step_congr {α₁ α₂ : Type w} {m : Type w → Type w'} [Mon
       have hfg₁ := hfg s₁ s₂ hs₁.choose_spec
       have hfg₂ := hfg s₁' s₂ (h'' ▸ hs₁.choose_spec)
       rw [hfg₁, hfg₂]
-  have : f = flift ∘ Quot.mk _ := rfl
+  have hf : f = flift ∘ Quot.mk _ := rfl
   let glift : itb.QuotStep → m γ := by
     refine Quot.lift ?_ ?_
     · exact g
@@ -239,7 +276,13 @@ theorem HItEquiv.step_congr {α₁ α₂ : Type w} {m : Type w → Type w'} [Mon
       have hfg₁ := hfg s₂ s₁ hs₁.choose_spec.symm
       have hfg₂ := hfg s₂ s₁' (h'' ▸ hs₁.choose_spec.symm)
       rw [← hfg₁, ← hfg₂]
-  have : g = glift ∘ Quot.mk _ := rfl
+  have hg : g = glift ∘ Quot.mk _ := rfl
+  rw [hf, hg, bind_comp_aux, bind_comp_aux]
+  simp only [step_eq h, map_eq_pure_bind, bind_assoc]
+  apply bind_congr
+  intro step
+  simp
+  sorry
 
 
 theorem HItEquiv.toList_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
@@ -248,8 +291,23 @@ theorem HItEquiv.toList_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Mona
     [IteratorCollect α₂ m m] [LawfulIteratorCollect α₂ m m]
     {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquiv ita itb) :
     ita.toList = itb.toList := by
-  induction ita using IterM.inductSteps with | step ita ihy ihs =>
-  rw [IterM.toList_eq_match_step]
+  induction ita using IterM.inductSteps generalizing itb with | step ita ihy ihs =>
+  rw [IterM.toList_eq_match_step, IterM.toList_eq_match_step]
+  apply h.step_congr
+  intro s₁ s₂ h
+  simp only [IterStep.bundle] at h
+  cases s₁ using PlausibleIterStep.casesOn <;> cases s₂ using PlausibleIterStep.casesOn
+  all_goals try
+    exfalso; simp_all; done
+  · simp
+    simp at h
+    simp_all
+    apply ihy ‹_›
+    sorry -- todo: need to deduce equiv of quot eq
+  · simp_all
+    apply ihs ‹_›
+    sorry
+  · simp
 
 end Equivalence
 

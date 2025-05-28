@@ -181,7 +181,7 @@ theorem Iter.step_mapM {f : β → n γ}
     match it.step with
     | .yield it' out h => do
       let out' ← f out
-      pure <| .yield (it'.mapM f) out' (.yieldSome h ⟨_, rfl⟩)
+      pure <| .yield (it'.mapM f) out' (.yieldSome h ⟨⟨out', True.intro⟩, rfl⟩)
     | .skip it' h =>
       pure <| .skip (it'.mapM f) (.skip h)
     | .done h =>

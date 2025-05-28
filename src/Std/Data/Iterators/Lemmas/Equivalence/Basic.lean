@@ -45,31 +45,31 @@ def IterM.step' {α β : Type w} {m : Type w → Type w'} [Iterator α m β] (it
 
 def ItEquiv (m : Type w → Type w') (β : Type w) [Monad m] [LawfulMonad m]
     (ita itb : BundledIterM m β) : Prop :=
-  (HetT.lift ita.iterator.step').map (IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM)) =
-    (HetT.lift itb.iterator.step').map (IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM))
+  (CodensityT.lift ita.iterator.step').map (IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM)) =
+    (CodensityT.lift itb.iterator.step').map (IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM))
 greatest_fixpoint monotonicity by
   rintro R S hRS ita itb h
-  simp only [IterStep.mapIterator_comp, HetT.comp_map, Function.comp_apply] at h
-  simp only [fprop hRS, IterStep.mapIterator_comp, HetT.comp_map, Function.comp_apply, h]
+  simp only [IterStep.mapIterator_comp, CodensityT.comp_map, Function.comp_apply] at h
+  simp only [fprop hRS, IterStep.mapIterator_comp, CodensityT.comp_map, Function.comp_apply, h]
 
  def ItEquiv.step {m : Type w → Type w'} [Monad m] [LawfulMonad m] {β : Type w}
-    [Monad m] [LawfulMonad m] : Quot (ItEquiv m β) → HetT (PostconditionT m) (IterStep (Quot (ItEquiv m β)) β) :=
-  Quot.lift (fun bit => (HetT.lift bit.iterator.step').map <| IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM))
+    [Monad m] [LawfulMonad m] : Quot (ItEquiv m β) → CodensityT (PostconditionT m) (IterStep (Quot (ItEquiv m β)) β) :=
+  Quot.lift (fun bit => (CodensityT.lift bit.iterator.step').map <| IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM))
     (by intro ita itb h; rwa [ItEquiv] at h)
 
 def ItEquiv.step_mk {m : Type w → Type w'} [Monad m] [LawfulMonad m] {β : Type w}
     [Monad m] [LawfulMonad m] {bit} :
-    ItEquiv.step (Quot.mk _ bit) = (HetT.lift bit.iterator.step').map (IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM)) :=
+    ItEquiv.step (Quot.mk _ bit) = (CodensityT.lift bit.iterator.step').map (IterStep.mapIterator (Quot.mk (ItEquiv m β) ∘ BundledIterM.ofIterM)) :=
   rfl
 
 theorem ItEquiv.of_mk_eq_mk {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
     (ita itb : BundledIterM m β) : Quot.mk (ItEquiv m β) ita = Quot.mk (ItEquiv m β) itb → ItEquiv m β ita itb := by
   refine ItEquiv.fixpoint_induct m β (fun ita' itb' => Quot.mk _ ita' = Quot.mk _ itb') ?_ ita itb
   intro ita' itb' h
-  simp [gprop, IterStep.mapIterator_comp, HetT.comp_map, comp_map]
+  simp [gprop, IterStep.mapIterator_comp, CodensityT.comp_map, comp_map]
   replace h := congrArg ItEquiv.step h
-  simp [step_mk, step_mk, HetT.comp_map, funext_iff] at h
-  simp [IterStep.mapIterator_comp, HetT.comp_map] at h
+  simp [step_mk, step_mk, CodensityT.comp_map, funext_iff] at h
+  simp [IterStep.mapIterator_comp, CodensityT.comp_map] at h
   simp only [h]
 
 theorem ItEquiv.refl {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
@@ -88,6 +88,10 @@ def HItEquiv {m : Type w → Type w'} [Monad m] [LawfulMonad m] {β : Type w} {�
     (ita : IterM (α := α₁) m β) (itb : IterM (α := α₂) m β) :=
   ItEquiv m β (BundledIterM.ofIterM ita) (BundledIterM.ofIterM itb)
 
+theorem HItEquiv.refl {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
+    {α : Type w} [Iterator α m β] (it : IterM (α := α) m β) : HItEquiv it it :=
+  ItEquiv.refl _
+
 theorem ItEquiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {β : Type w} [Iterator α₁ m β] [Iterator α₂ m β]
     (ita : IterM (α := α₁) m β)
@@ -101,9 +105,10 @@ theorem ItEquiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m] [La
     rintro _ _ ⟨it, rfl, rfl⟩
     simp [show (BundledIterM.ofIterM (f it)).iterator = f it by rfl,
       show (BundledIterM.ofIterM it).iterator = it by rfl,
-      h, HetT.lift_map]
-    simp [HetT.map_map]
+      h, CodensityT.lift_map]
+    simp [CodensityT.map_map]
     congr
+    apply congrArg (CodensityT.map · _)
     ext step
     simp [IterStep.mapIterator_mapIterator]
     congr

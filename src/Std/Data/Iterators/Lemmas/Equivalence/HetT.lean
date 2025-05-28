@@ -11,69 +11,98 @@ import Init.Classical
 
 namespace Std.Iterators
 
-variable {α : Type v} {m : Type w → Type w'} [Monad m]
+variable {α : Type v} {m : Type w → Type w'}
 
-structure HetT.Raw (m : Type w → Type w') (α : Type x) where
-  Squashed : Type w
-  inflate : Squashed → α
-  operation : m Squashed
+def CodensityT (m : Type w → Type w') (β : Type u) := ∀ α, (β → m α) → m α
 
-def HetT.Raw.map (f : α → β) (x : Raw m α) : Raw m β :=
-  ⟨x.Squashed, f ∘ x.inflate, x.operation⟩
+@[always_inline, inline]
+def CodensityT.run (f : α → m β) (x : CodensityT m α) := x _ f
 
-theorem HetT.Raw.comp_map {m : Type w → Type w'} (f : α → β) (g : β → γ) :
-    Raw.map (m := m) (g ∘ f) = Raw.map (m := m) g ∘ Raw.map (m := m) f := by
+@[always_inline, inline]
+def CodensityT.map {β : Type u} {γ : Type u'} (f : β → γ) (x : CodensityT m β) : CodensityT m γ :=
+  fun _ h => x _ (h ∘ f)
+
+theorem CodensityT.run_map {f : α → β} {g : β → m γ} {x : CodensityT m α} :
+    (x.map f).run g = x.run (g ∘ f) :=
   rfl
 
-def HetT.Raw.lift {α : Type w} {m : Type w → Type w'} (x : m α) : Raw m α :=
-  ⟨α, id, x⟩
+@[always_inline, inline]
+def CodensityT.pure {α : Type w} (x : α) : CodensityT m α :=
+  fun _ h => h x
 
-def HetT.Raw.run (f : α → β) (x : Raw m α) : m β :=
-  (f ∘ x.inflate) <$> x.operation
+theorem CodensityT.map_id {β : Type u} {x : CodensityT m β} :
+    x.map id = x := rfl
 
-def HetT.Rel (x y : HetT.Raw m α) : Prop :=
-  ∀ (β) (f : α → β), (f ∘ x.inflate) <$> x.operation = (f ∘ y.inflate) <$> y.operation
+theorem CodensityT.map_id' {β : Type u} {x : CodensityT m β} :
+    x.map (·) = x := rfl
 
-def HetT m [Monad m] α := Quot (α := HetT.Raw m α) HetT.Rel
+@[always_inline, inline]
+def CodensityT.bind {β : Type u} {γ : Type u'} (x : CodensityT m β) (f : β → CodensityT m γ) : CodensityT m γ :=
+  fun _ h => x _ (f · _ h)
 
-def HetT.pure {α : Type w} (a : α) : HetT m α :=
-  Quot.mk _ ⟨α, id, Pure.pure a⟩
+theorem CodensityT.bind_assoc {β : Type u} {γ : Type u'} {δ : Type u''} {x : CodensityT m β}
+    {f : β → CodensityT m γ} {g : γ → CodensityT m δ} :
+    (x.bind f).bind g = x.bind (f · |>.bind g) := rfl
 
-private theorem comp_assoc (f : α → β) (g : β → γ) (h : γ → δ) : (h ∘ g) ∘ f = h ∘ (g ∘ f) :=
+@[always_inline, inline]
+def CodensityT.eval [Bind m] {α : Type w} (x : m α) : CodensityT m α :=
+  fun _ h => x >>= h
+
+instance : Monad (CodensityT m) where
+  pure := CodensityT.pure
+  bind := CodensityT.bind
+
+-- protected theorem CodensityT.map_eq_mapH {β : Type u} {γ : Type u} (f : β → γ) (x : CodensityT m β) :
+--     f <$> x = x.mapH f :=
+--   rfl
+
+-- protected theorem CodensityT.mapH_eq_bindH {β : Type u} {γ : Type u'} (f : β → γ) (x : CodensityT m β) :
+--     x.mapH f = x.bindH (pure <| f ·) := rfl
+
+-- @[simp]
+-- protected theorem CodensityT.mapH_pure {β : Type u} {γ : Type u'} (f : β → γ) (x : β) :
+--     (pure x : CodensityT m β).mapH f = pure (f x) :=
+--   rfl
+
+-- @[simp]
+-- protected theorem CodensityT.bindH_pure {β : Type u} {γ : Type u'} (f : β → CodensityT m γ) (x : β) :
+--     (pure x : CodensityT m β).bindH f = f x :=
+--   rfl
+
+-- protected theorem CodensityT.mapH_bindH {β : Type u} {γ : Type u'} {x : CodensityT m β} {f : β → CodensityT m γ}
+--     {δ : Type u''} {g : γ → δ} :
+--     (x.bindH f |>.mapH g) = x.bindH (f · |>.mapH g) :=
+--   rfl
+
+-- protected theorem CodensityT.map_bindH {β : Type u} {γ : Type u'} {x : CodensityT m β} {f : β → CodensityT m γ}
+--     {δ : Type u'} {g : γ → δ} :
+--     g <$> (x.bindH f) = x.bindH (g <$> f ·) :=
+--   rfl
+
+protected theorem CodensityT.map_map {β : Type u} {γ : Type u'} {x : CodensityT m β} {f : β → γ}
+    {δ : Type u''} {g : γ → δ} :
+    (x.map f |>.map g) = x.map (g ∘ f) :=
   rfl
 
-def HetT.map (f : α → β) : HetT m α → HetT m β :=
-  Quot.lift (fun x => .mk _ (x.map f))
-    (by
-      intro x y h
-      apply Quot.sound
-      intro α' f
-      rename_i f'
-      simp only [Raw.map]
-      simp only [← comp_assoc]
-      exact h α' _)
 
-theorem HetT.comp_map (f : α → β) (g : β → γ) :
-    HetT.map (m := m) (g ∘ f) = HetT.map (m := m) g ∘ HetT.map (m := m) f := by
-  ext x
-  rcases x with ⟨x⟩
-  simp [map, Raw.comp_map]
-
-theorem HetT.map_map (f : α → β) (g : β → γ) {x} :
-    HetT.map (m := m) g (HetT.map (m := m) f x) = HetT.map (m := m) (g ∘ f) x := by
-  simp [HetT.comp_map]
-
-def HetT.lift {α : Type w} (x : m α) : HetT m α :=
-  .mk _ (Raw.lift x)
-
-theorem HetT.lift_map [LawfulMonad m] {α : Type w} {x : m α} {f : α → β} :
-    (HetT.lift (f <$> x)) = (HetT.lift x).map f := by
-  apply Quot.sound
-  intro γ f
-  simp only [Raw.lift, Function.comp_id, Functor.map_map, Raw.map]
+theorem CodensityT.comp_map (f : α → β) (g : β → γ) :
+    CodensityT.map (m := m) (g ∘ f) = CodensityT.map (m := m) g ∘ CodensityT.map (m := m) f := by
   rfl
 
-def HetT.run (f : α → β) : HetT m α → m β :=
-  Quot.lift (fun x => x.run f) (by intro x y h; apply h)
+def CodensityT.lift [Monad m] {α : Type w} (x : m α) : CodensityT m α :=
+  fun _ h => x >>= h
+
+theorem CodensityT.run_lift [Monad m] {α : Type w} {f : α → m β} {x : m α} :
+    (CodensityT.lift x).run f = x >>= f :=
+  rfl
+
+theorem CodensityT.lift_map [Monad m] [LawfulMonad m] {α : Type w} {x : m α} {f : α → β} :
+    (CodensityT.lift (f <$> x)) = (CodensityT.lift x).map f := by
+  unfold CodensityT
+  ext α h
+  simp [lift, map]; rfl
+
+instance [Monad m] : MonadLift m (CodensityT m) where
+  monadLift x _ f := x >>= f
 
 end Std.Iterators

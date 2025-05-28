@@ -42,52 +42,45 @@ private theorem v'' (x : Vector Unit fexp) (y : Vector Unit 1) : x = y := testSo
 -- Check that rfl theorems are complained about if they aren't rfl in the context of their type
 
 /--
-error: Not a `rfl`-theorem: the left-hand side
+error: Not a definitional equality: the left-hand side
   f
 is not definitionally equal to the right-hand side
   1
 
-Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exported.
+Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exposed.
 -/
 #guard_msgs in
 theorem trfl : f = 1 := rfl
-/--
-error: Not a `rfl`-theorem: the left-hand side
-  f
-is not definitionally equal to the right-hand side
-  1
-
-Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exported.
--/
+/-- error: unknown attribute [rfl] -/
 #guard_msgs in
 @[rfl] theorem trfl' : f = 1 := (rfl)
 
 -- TODO: Should these not be all allowed?
 /--
-error: Not a `rfl`-theorem: the left-hand side
+error: Not a definitional equality: the left-hand side
   f
 is not definitionally equal to the right-hand side
   1
 
-Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exported.
+Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exposed.
 -/
 #guard_msgs in
 private theorem trflprivate : f = 1 := rfl
 private def trflprivate' : f = 1 := rfl
-@[rfl] private def trflprivate''' : f = 1 := rfl
+@[defeq] private def trflprivate''' : f = 1 := rfl
 /--
-error: Not a `rfl`-theorem: the left-hand side
+error: Not a definitional equality: the left-hand side
   f
 is not definitionally equal to the right-hand side
   1
 
-Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exported.
+Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exposed.
 -/
 #guard_msgs in
-@[rfl] private theorem trflprivate'''' : f = 1 := (rfl)
+@[defeq] private theorem trflprivate'''' : f = 1 := (rfl)
 
 theorem fexp_trfl : fexp = 1 := rfl
-@[rfl] theorem fexp_trfl' : fexp = 1 := rfl
+@[defeq] theorem fexp_trfl' : fexp = 1 := rfl
 
 opaque P : Nat → Prop
 axiom hP1 : P 1
@@ -118,10 +111,10 @@ example : P fexp := by dsimp only [fexp_trfl]; exact hP1
 -- it wouldn’t be a rfl otherwise either
 
 /--
-error: Not a `rfl`-theorem: the left-hand side
+error: Not a definitional equality: the left-hand side
   f
 is not definitionally equal to the right-hand side
   2
 -/
 #guard_msgs in
-@[rfl] theorem not_rfl : f = 2 := testSorry
+@[defeq] theorem not_rfl : f = 2 := testSorry

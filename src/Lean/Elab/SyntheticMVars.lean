@@ -390,7 +390,7 @@ mutual
             let mut e ← instantiateExprMVars (.mvar mvarId')
             if !e.isFVar then
               e ← mvarId'.withContext do
-                AbstractNestedProofs.visit.mkAuxLemma e |>.run { cache := true } |>.run
+                abstractProof e
             mvarId.assign e)
       fun ex => do
         if report then

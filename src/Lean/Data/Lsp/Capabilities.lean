@@ -100,6 +100,7 @@ structure ServerCapabilities where
   semanticTokensProvider?   : Option SemanticTokensOptions   := none
   codeActionProvider?       : Option CodeActionOptions       := none
   inlayHintProvider?        : Option InlayHintOptions        := none
+  signatureHelpProvider?    : Option SignatureHelpOptions    := none
   deriving ToJson, FromJson
 
 end Lsp

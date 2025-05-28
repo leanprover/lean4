@@ -1411,18 +1411,12 @@ private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options)
 private opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
 /--
-Pretty-prints a constant `c` as `c.{<levels>} <params> : <type>`.
-
-If `universes` is `false`, then the universe level parameters are omitted.
+Pretty-prints the parameters of a `forall`. The pretty-printed parameters are passed to
+`delabForall` at the end.
 -/
-partial def delabConstWithSignature (universes : Bool := true) : Delab := do
-  let e ← getExpr
-  -- use virtual expression node of arity 2 to separate name and type info
-  let idStx ← descend e 0 <|
-    withOptions (pp.universes.set · universes |> (pp.fullNames.set · true)) <|
-      delabConst
-  descend (← inferType e) 1 <|
-    delabParams {} idStx #[]
+partial def delabForallParamsWithSignature
+    (delabForall : (groups : TSyntaxArray ``bracketedBinder) → (type : Term) → Delab) : Delab := do
+  delabParams {} #[]
 where
   /--
   For types in the signature, we want to be sure pi binder types are pretty printed.
@@ -1434,7 +1428,7 @@ where
   Once it reaches a binder with an inaccessible name, or a name that has already been used,
   the remaining binders appear in pi types after the `:` of the declaration.
   -/
-  delabParams (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) := do
+  delabParams (bindingNames : NameSet) (groups : TSyntaxArray ``bracketedBinder) := do
     let e ← getExpr
     if e.isForall && e.binderInfo.isInstImplicit && e.bindingName!.hasMacroScopes then
       -- Assumption: this instance can be found by instance search, so it does not need to be named.
@@ -1442,14 +1436,14 @@ where
       -- We could check to see whether the instance appears in the type and avoid omitting the instance name,
       -- but this would be the usual case.
       let group ← withBindingDomain do `(bracketedBinderF|[$(← delabTy)])
-      withBindingBody e.bindingName! <| delabParams bindingNames idStx (groups.push group)
+      withBindingBody e.bindingName! <| delabParams bindingNames (groups.push group)
     else if e.isForall && (!e.isArrow || !(e.bindingName!.hasMacroScopes || bindingNames.contains e.bindingName!)) then
-      delabParamsAux bindingNames idStx groups #[]
+      delabParamsAux bindingNames groups #[]
     else
       let (opts', e') ← processSpine {} (← readThe SubExpr)
       withReader (fun ctx => {ctx with optionsPerPos := opts', subExpr := { ctx.subExpr with expr := e' }}) do
         let type ← delabTy
-        `(declSigWithId| $idStx:ident $groups* : $type)
+        delabForall groups type
   /--
   Inner loop for `delabParams`, collecting binders.
   Invariants:
@@ -1457,13 +1451,13 @@ where
   - It has a name that's not inaccessible.
   - It has a name that hasn't been used yet.
   -/
-  delabParamsAux (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
+  delabParamsAux (bindingNames : NameSet) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
     let e@(.forallE n d e' i) ← getExpr | unreachable!
     let n ← if bindingNames.contains n then withFreshMacroScope <| MonadQuotation.addMacroScope n else pure n
     let bindingNames := bindingNames.insert n
     if shouldGroupWithNext bindingNames e e' then
       withBindingBody' n (mkAnnotatedIdent n) fun stxN =>
-        delabParamsAux bindingNames idStx groups (curIds.push stxN)
+        delabParamsAux bindingNames groups (curIds.push stxN)
     else
       /-
       `mkGroup` constructs binder syntax for the binder names `curIds : Array Ident`, which all have the same type and binder info.
@@ -1492,7 +1486,7 @@ where
       withBindingBody' n (mkAnnotatedIdent n) fun stxN => do
         let curIds := curIds.push stxN
         let group ← mkGroup curIds
-        delabParams bindingNames idStx (groups.push group)
+        delabParams bindingNames (groups.push group)
   /-
   Given the forall `e` with body `e'`, determines if the binder from `e'` (if it is a forall) should be grouped with `e`'s binder.
   -/
@@ -1527,5 +1521,32 @@ where
           return (opts, .forallE n' t b' bi)
     else
       return (opts, subExpr.expr)
+
+/--
+Pretty-prints a `forall` similarly to `delabForall`, but explicitly denotes all named parameters.
+-/
+partial def delabForallWithSignature : Delab := do
+  let isProp ← try isProp (← getExpr) catch _ => pure false
+  delabForallParamsWithSignature fun groups type => do
+    if groups.isEmpty then
+      return type
+    else if isProp && (← getPPOption getPPForalls) then
+      `(∀ $groups*, $type)
+    else
+      groups.foldrM (fun group acc => `(depArrow| $group → $acc)) type
+
+/--
+Pretty-prints a constant `c` as `c.{<levels>} <params> : <type>`.
+
+If `universes` is `false`, then the universe level parameters are omitted.
+-/
+partial def delabConstWithSignature (universes : Bool := true) : Delab := do
+  let e ← getExpr
+  -- use virtual expression node of arity 2 to separate name and type info
+  let idStx ← descend e 0 <|
+    withOptions (pp.universes.set · universes |> (pp.fullNames.set · true)) <|
+      delabConst
+  descend (← inferType e) 1 <|
+    delabForallParamsWithSignature fun groups type => `(declSigWithId| $idStx:ident $groups* : $type)
 
 end Lean.PrettyPrinter.Delaborator

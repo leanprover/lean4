@@ -103,4 +103,7 @@ instance : FileSource CodeActionParams where
 instance : FileSource InlayHintParams where
   fileSource p := fileSource p.textDocument
 
+instance : FileSource SignatureHelpParams where
+  fileSource p := fileSource p.textDocument
+
 end Lean.Lsp

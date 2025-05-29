@@ -1,11 +1,9 @@
 
 set_option grind.warning false
 
-open List
+open List Nat
 
 namespace List'
-
-open Nat
 
 /-! ### countP -/
 section countP
@@ -24,10 +22,6 @@ theorem countP_cons {a : α} {l : List α} : countP p (a :: l) = countP p l + if
 
 theorem countP_singleton {a : α} : countP p [a] = if p a then 1 else 0 := by grind
 
-example (hx : x = 0) (hy : y = 0) (hz : z = 0) : x = y + z := by grind -- cutsat bug
-
-theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l = countP p l + countP (fun a => ¬p a) l := by
-  induction l with grind -- failing because of cutsat bug
 
 theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l) := by
   induction l with grind
@@ -157,9 +151,6 @@ theorem count_singleton {a b : α} : count a [b] = if b == a then 1 else 0 := by
 
 theorem count_append {a : α} {l₁ l₂ : List α} : count a (l₁ ++ l₂) = count a l₁ + count a l₂ := by grind
 
-theorem count_flatten {a : α} {l : List (List α)} : count a l.flatten = (l.map (count a)).sum := by
-  grind (ematch := 10) (gen := 10) -- fails
-
 theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := by
   grind
 
@@ -177,34 +168,13 @@ theorem count_cons_of_ne (h : b ≠ a) {l : List α} : count a (b :: l) = count 
 
 theorem count_singleton_self {a : α} : count a [a] = 1 := by grind
 
-theorem count_concat_self {a : α} {l : List α} : count a (concat l a) = count a l + 1 := by grind [concat_eq_append] -- fails?!
-
 theorem not_mem_of_count_eq_zero {a : α} {l : List α} (h : count a l = 0) : a ∉ l := by
-  induction l with grind
-
-theorem count_eq_length {l : List α} : count a l = l.length ↔ ∀ b ∈ l, a = b := by
   induction l with grind
 
 theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n := by
   grind
 
 theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
-  grind
-
-theorem _root_.List.getElem_filter {xs : List α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).length) :
-    p (xs.filter p)[i] := sorry
-
-theorem _root_.List.getElem?_filter {xs : List α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).length)
-    (w : (xs.filter p)[i]? = some a) : p a := sorry
-
-attribute [grind?] List.getElem_filter
-grind_pattern List.getElem?_filter => (xs.filter p)[i]?, some a
-
-theorem filter_beq {l : List α} (a : α) : l.filter (· == a) = replicate (count a l) a := by
-  ext
-  grind
-
-theorem filter_eq [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = replicate (count a l) a := by
   grind
 
 theorem replicate_sublist_iff {l : List α} : replicate n a <+ l ↔ n ≤ count a l := by

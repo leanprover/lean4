@@ -73,6 +73,10 @@ The names of the library's root modules
 @[inline] def sharedLibFile (self : LeanLib) : FilePath :=
   self.pkg.sharedLibDir / self.sharedLibFileName
 
+/-- Whether the shared binary of this library is a valid plugin. -/
+def isPlugin (self : LeanLib) : Bool :=
+  self.roots == #[self.name] && self.libName == self.name.mangle ""
+
 /-- The library's `extraDepTargets` configuration. -/
 @[inline] def extraDepTargets (self : LeanLib) :=
   self.config.extraDepTargets

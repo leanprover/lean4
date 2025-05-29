@@ -2843,7 +2843,7 @@ theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
       (by simp [show w - 1 - x.clz = w - x.clz - 1 by omega] at h2; omega)
     exact h3
 
-theorem toNat_lt_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
+theorem lt_toNat_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     x.toNat < 2 ^ (w - clz x) := by
   have : clz x < w := by exact clz_lt_iff_ne_zero.mpr hx
   by_cases hc0 : x.clz = 0
@@ -2941,9 +2941,29 @@ theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k 
       omega
   · simp [show w ≤ k + k' by omega] at hk'
 
-theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hclz : clz x + clz y ≤ w - 2) :
-    resRec x y (w - 1) (by omega) (by omega) (by omega) := by
-  sorry
+theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y ≠ 0#w):
+    clz x + clz y ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) (by omega) := by
+  intro h
+  have h1 := resRec_true_iff (x := x) (y := y) (s := w - 1) (by omega) (by omega) (by omega)
+  have h2 := toNat_le_of_clz (x := x) (by omega) (by omega)
+  have h3 := lt_toNat_of_clz (x := x) (by omega) (by omega)
+  have h4 := toNat_le_of_clz (x := y) (by omega) (by omega)
+  have h5 := lt_toNat_of_clz (x := y) (by omega) (by omega)
+  rw [resRec_true_iff]
+  exists (w - y.clz - 1)
+  exists (by omega), (by omega)
+  unfold aandRec
+  by_cases hw0 : w - y.clz - 1 = 0
+  · have : y.clz < w := by exact clz_lt_iff_ne_zero.mpr (by omega)
+    omega
+  · simp [hw0]
+    have h6 := getLsbD_true_of_clz (x := y) (by omega) (by omega)
+    rw [getLsbD_eq_getElem (by omega)] at h6
+    simp [show w - y.clz - 1 = w - 1 - y.clz by omega, h6]
+    have : x.clz ≤ w - 2 - y.clz := by omega
+    simp [show w - 1 - (w - 1 - y.clz - 1) = y.clz + 1 by omega]
+    have := Nat.pow_le_pow_of_le (a := 2) (n := y.clz + 1) (m := w - x.clz - 1) (by omega) (by omega)
+    omega
 
 /--
   complete fast overflow detecnion circuit for unsigned multiplication

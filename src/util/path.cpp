@@ -233,3 +233,4 @@ std::vector<std::string> read_dir(std::string const &dirname) {
 #endif
     return files;
 }
+}

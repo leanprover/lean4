@@ -14,3 +14,5 @@ lean_lib FooDepDep
 lean_exe orderTest
 
 lean_lib Downstream
+
+lean_lib LakeTest

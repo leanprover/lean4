@@ -216,7 +216,7 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
         loop (idx+1) (eqs.push nextEq)
       else
         return eqs
-    let eqs ← loop 2 #[eq1]
+    let eqs ← loop 1 #[eq1]
     registerEqnThms declName eqs
     return some eqs
   else

@@ -57,12 +57,12 @@ This is a hack to fix fallout from #8519, where a non-exposed wfrec definition `
 in a module would cause `foo.eq_def` to be defined eagerly and privately,
 but it should still be visible from non-mudule files.
 
-So we create a reserved name action that creates alias declarations as needed.
+So we create a unfold equation generator that aliases an existing private `eq_def` to
+wherever the current module expects it.
 -/
 def copyPrivateUnfoldTheorem : GetUnfoldEqnFn := fun declName => do
-  trace[ReservedNameAction] m!"copyPrivateUnfoldTheorem running for {declName}"
+  withTraceNode `ReservedNameAction (pure m!"{exceptOptionEmoji ·} copyPrivateUnfoldTheorem running for {declName}") do
   let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
-  if (← getEnv).header.isModule then return none
   if let some mod ← findModuleOf? declName then
     let unfoldName' := mkPrivateNameCore mod (.str declName unfoldThmSuffix)
     if let some (.thmInfo info) := (← getEnv).find? unfoldName' then

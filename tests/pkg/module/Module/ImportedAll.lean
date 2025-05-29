@@ -58,13 +58,17 @@ info: f_struct.eq_unfold :
 #check f_struct.eq_unfold
 
 /-- info: f_wfrec.eq_1 : f_wfrec 0 = 0 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check f_wfrec.eq_1
 
--- TODO: This should work once sebastian enables
--- looking up private definitions from import all'ed modules
-/-- error: unknown identifier 'f_wfrec.eq_def' -/
-#guard_msgs in
+/--
+info: f_wfrec.eq_def (x✝ : Nat) :
+  f_wfrec x✝ =
+    match x✝ with
+    | 0 => 0
+    | n.succ => f_wfrec n
+-/
+#guard_msgs(pass trace, all) in
 #check f_wfrec.eq_def
 
 /--
@@ -74,7 +78,7 @@ info: f_wfrec.eq_unfold :
     | 0 => 0
     | n.succ => f_wfrec n
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check f_wfrec.eq_unfold
 
 /-- info: f_exp_wfrec.eq_1 : f_exp_wfrec 0 = 0 -/

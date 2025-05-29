@@ -150,8 +150,10 @@ namespace MapDeclarationExtension
 def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
-  assert! env.asyncMayContain declName
-  ext.addEntry env (declName, val)
+  if !env.asyncMayContain declName then
+    panic! s!"MapDeclarationExtension.insert: cannot insert {declName} into {ext.name}, it is not contined in {env.asyncPrefix?}"
+  else
+    ext.addEntry env (declName, val)
 
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
     (includeServer := false) : Option α :=

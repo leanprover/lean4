@@ -66,12 +66,13 @@ def copyPrivateUnfoldTheorem : GetUnfoldEqnFn := fun declName => do
   if let some mod ← findModuleOf? declName then
     let unfoldName' := mkPrivateNameCore mod (.str declName unfoldThmSuffix)
     if let some (.thmInfo info) := (← getEnv).find? unfoldName' then
-      addDecl <| Declaration.thmDecl {
-        name,
-        type := info.type,
-        value := .const unfoldName' (info.levelParams.map mkLevelParam),
-        levelParams := info.levelParams
-      }
+      realizeConst declName name do
+        addDecl <| Declaration.thmDecl {
+          name,
+          type := info.type,
+          value := .const unfoldName' (info.levelParams.map mkLevelParam),
+          levelParams := info.levelParams
+        }
       return name
   return none
 

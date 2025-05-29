@@ -229,9 +229,9 @@ def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos) : Bool := Id.ru
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 
-  let infos := ts.map fun (ci, i) =>
-    let diff := i.tailPos?.get! - i.pos?.get!
-    (diff, ci, i)
+  let infos := ts.filterMap fun (ci, i) => do
+    let diff := (← i.tailPos?) - (← i.pos?)
+    return (diff, ci, i)
 
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
@@ -240,7 +240,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
   let results := (← t.visitM (postNode := fun ctx info children results => do
     let mut results := results.flatMap (·.getD [])
     if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
-        results := results.filter (·.2.info.stx != info.stx[0])
+      results := results.filter (·.2.info.stx != info.stx[0])
     if omitIdentApps && info.stx.isIdent then
       -- if an identifier stands for an application (e.g. in the case of a typeclass projection), prefer the application
       if let .ofTermInfo ti := info then

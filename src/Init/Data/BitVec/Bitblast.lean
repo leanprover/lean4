@@ -2416,6 +2416,11 @@ def clzAux {w : Nat} (x : BitVec w) (n : Nat) : Nat :=
 @[simp]
 theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
 
+theorem clzAuz_eq_zero_iff {x : BitVec w} {n : Nat}:
+    clzAux x n = 0 ↔ x.getLsbD n = true := by
+  unfold clzAux
+  cases n <;> simp
+
 theorem clzAux_le {x : BitVec w} {n : Nat} :
     clzAux x n ≤ n + 1 := by
   induction n
@@ -2520,7 +2525,7 @@ theorem getLsbD_false_of_lt_clzAux {x : BitVec w} {n : Nat} (hw : 0 < w) (hi : i
           omega
 
 theorem getLsbD_true_of_eq_clzAux_of_ne_zero {x : BitVec w} {n : Nat} (hw : 0 < w) :
-  x.getLsbD (n - clzAux x n) = true ∨ (n + 1 = clzAux x n):= by
+  x.getLsbD (n - clzAux x n) = true ∨ (clzAux x n = n + 1):= by
   rcases w with _|w
   · omega
   · induction n
@@ -2545,7 +2550,6 @@ theorem getLsbD_true_of_eq_clzAux_of_ne_zero {x : BitVec w} {n : Nat} (hw : 0 < 
         · simp [hn']
           rw [Nat.sub_add_eq]
           simp [ihn]
-
 
 /-- Count the number of leading zeroes. -/
 def clz {w : Nat} (x : BitVec w) : Nat := if w = 0 then 0 else clzAux x (w - 1)
@@ -2620,7 +2624,7 @@ theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w):
           exact hk
         · simp [show k ≥ 0 + 1 by omega] at hk
 
-theorem clz_lt_iff {x : BitVec w} :
+theorem clz_lt_iff_ne_zero {x : BitVec w} :
     clz x < w ↔ x ≠ 0#w := by
   have := clz_le (x := x)
   by_cases hx : x = 0#w
@@ -2639,9 +2643,85 @@ theorem getLsbD_false_of_clz {x : BitVec w} (hi : i < clz x) :
     have := getLsbD_false_of_lt_clzAux (x := x) (n := w) (by omega) hi
     simp [this]
 
+theorem zero_iff_forall {x: BitVec w} :
+    x = 0#w ↔ ∀ i, i ≤ (w - 1) → x.getLsbD i = false := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · constructor
+    · intros hx i hi
+      simp [hx]
+    · intro h
+      ext j hj
+      specialize h j
+      simp [show j ≤ w by omega] at h
+      simp
+      exact h
+
+theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
+    x.getLsbD (w - 1 - clz x) = true := by
+  rcases w with _|w
+  · omega
+  · unfold clz
+    simp [show ¬ w + 1 = 0 by omega]
+    have h := getLsbD_true_of_eq_clzAux_of_ne_zero (x := x) (n := w) hw
+    rcases h with h|h
+    · exact h
+    · simp [clzAux_eq_iff] at h
+      have := zero_iff_forall (x := x)
+      simp [h] at this
+      simp [← this] at h
+      simp [h] at hx
+
+theorem clz_lt_iff {x : BitVec w} (hx : x ≠ 0#w) (hw : 0 < w):
+    x.clz = k ↔ ∀ i, i < k → x.getLsbD (w - 1 - i) = false := by
+  constructor
+  · intro h
+    intros i hi
+    refine getLsbD_false_of_clz ?_
+    omega
+  · intro h
+    simp at h
+    induction k
+    · case mpr.zero =>
+      simp at h
+      unfold clz
+      simp [show ¬ w = 0 by omega]
+      have hh := getLsbD_true_of_eq_clzAux_of_ne_zero (x := x) (n := w - 1 - x.clzAux (w - 1)) hw
+      simp [show w - 1 + 1 = w by omega] at hh
+      sorry
+      -- · simp at hh
+      --   by_cases hh' : x.getLsbD (w - 1) = true
+      --   · simp [clzAuz_eq_zero_iff]
+      --     exact hh'
+      --   · have hhh : ¬ x.clzAux (w - 1) = 0 := by
+      --       apply Classical.byContradiction
+      --       intro hcontra
+      --       simp at hcontra
+      --       simp [hcontra] at hh
+      --       simp at hh'
+      --       simp [hh] at hh'
+      --     have : 0 < x.clzAux (w - 1) := by omega
+      --     simp_all
+      --     simp [← clzAuz_eq_zero_iff] at hh
+      --     have := clzAuz_eq_zero_iff (x := x) (n := w - 1 - x.clzAux (w - 1))
+      --     sorry
+      -- · simp [← hh, show ¬ w = 0 by omega]
+      --   have hh' := clzAux_eq_iff (x := x) (n := w - 1)
+      --   simp [show w - 1 + 1 = w by omega] at hh'
+      --   simp [← hh] at hh'
+      --   have := zero_iff_forall (x := x)
+      --   simp [hx] at this
+      --   obtain ⟨k,hk,hk'⟩ := this
+      --   specialize hh' k
+      --   simp [show k ≤ w - 1 by omega] at hh'
+      --   rw [hh'] at hk'
+      --   simp at hk'
+    · case mpr.succ k ihk =>
+      sorry
+
 theorem getLsbD_true_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w):
     x.getLsbD (w - 1 - x.clz) = true := by
-  have h1 := clz_lt_iff (x := x)
+  have h1 := clz_lt_iff_ne_zero (x := x)
   simp [hx] at h1
   unfold clz
   have h2 := getLsbD_true_of_eq_clzAux_of_ne_zero (x := x) (n := w - 1) hw
@@ -2651,29 +2731,6 @@ theorem getLsbD_true_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w):
   simp [show ¬ w = 0 by omega] at h1
   simp [show ¬ w = x.clzAux (w - 1) by omega] at h2
   simp [h2]
-
-/-
- 9 8 7 6 5 4 3 2 1 0
- 0 0 0 0 1 ...       k = 4
-
--/
-theorem clz_of_getLsbD_false {x : BitVec w} (hw : 0 < w) :
-    (∀ i, i < k → x.getLsbD (w - 1 - i) = false) → x.clz = k := by
-  intro h
-  induction k
-  · case zero =>
-    simp only [clz_eq_zero_iff hw]
-
-
-
-    sorry
-  constructor
-  · intro h
-
-    have := getLsbD_false_of_clz (x := x) (i := w - 1 - k)
-    sorry
-  · intro h
-    sorry
 
 theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
@@ -2699,42 +2756,13 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
 
 theorem toNat_lt_of_clz {x : BitVec w} (hw : 0 < w) :
     x.toNat < 2 ^ (w - 1 - k) ↔ k < x.clz := by
-  rw [toNat_lt_iff]
-  constructor
-  · intro h
-    specialize h
-    have := getLsbD_false_of_clz (x := x) (i := k)
-
-    sorry
-  · intro h
-    sorry
-  rcases w with _|w
-  · omega
-  · constructor
-    · intro h
-      simp at h
-      have h1 := toNat_lt_iff (x := x) (i := w - k) (by omega)
-      simp [h] at h1
-      specialize h1 0
-      have := getLsbD_false_of_clz (x := x) (i := k)
-      simp at h1 this
-      sorry
-    · intro h
-      have := getLsbD_false_of_clz (x := x) (i := k) h
-      simp at this
-      simp
-      have h1 := toNat_lt_iff (x := x) (i := w - k) (by omega)
-      simp [h1]
-      intros i
-
-
-      sorry
+  sorry
 
 -- counterexample why we need hx:
 -- #eval 2 ^ (5 - clz (0#5) - 1) ≤ (0#5).toNat
 theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     2 ^ (w - clz x - 1) ≤ x.toNat := by
-  have : clz x < w := by exact clz_lt_iff.mpr hx
+  have : clz x < w := by exact clz_lt_iff_ne_zero.mpr hx
   rcases w with _|w
   · omega
   · unfold clz clzAux

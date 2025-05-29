@@ -173,6 +173,25 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
       for thm in (← getExtTheorems α) do
         instantiateExtTheorem thm e
 
+private def getLawfulBEqInst? (u : List Level) (α : Expr) (binst : Expr) : MetaM (Option Expr) := do
+  let lawfulBEq := mkApp2 (mkConst ``LawfulBEq u) α binst
+  let .some linst ← trySynthInstance lawfulBEq | return none
+  return some linst
+
+/-
+Note about `BEq.beq`
+Given `a b : α` in a context where we have `[BEq α] [LawfulBEq α]`
+The normalizer (aka `simp`) fails to normalize `if a == b then ... else ...` to `if a = b then ... else ...` using
+```
+theorem beq_iff_eq [BEq α] [LawfulBEq α] {a b : α} : a == b ↔ a = b :=
+  ⟨eq_of_beq, beq_of_eq⟩
+```
+The main issue is that `ite_congr` requires that the resulting proposition to be decidable,
+and we don't have `[DecidableEq α]`. Thus, the normalization step fails.
+The following propagators for `BEq.beq` ensure `grind` does not assume this normalization
+rule has been applied.
+-/
+
 builtin_grind_propagator propagateBEqUp ↑BEq.beq := fun e => do
   /-
   `grind` uses the normalization rule `Bool.beq_eq_decide_eq`, but it is only applicable if
@@ -181,16 +200,26 @@ builtin_grind_propagator propagateBEqUp ↑BEq.beq := fun e => do
   Thus, we have added this propagator as a backup.
   -/
   let_expr f@BEq.beq α binst a b := e | return ()
+  let u := f.constLevels!
   if (← isEqv a b) then
-    let u := f.constLevels!
-    let lawfulBEq := mkApp2 (mkConst ``LawfulBEq u) α binst
-    let .some linst ← trySynthInstance lawfulBEq | return ()
+    let some linst ← getLawfulBEqInst? u α binst | return ()
     pushEqBoolTrue e <| mkApp6 (mkConst ``Grind.beq_eq_true_of_eq u) α binst linst a b (← mkEqProof a b)
   else if let some h ← mkDiseqProof? a b then
-    let u := f.constLevels!
-    let lawfulBEq := mkApp2 (mkConst ``LawfulBEq u) α binst
-    let .some linst ← trySynthInstance lawfulBEq | return ()
+    let some linst ← getLawfulBEqInst? u α binst | return ()
     pushEqBoolFalse e <| mkApp6 (mkConst ``Grind.beq_eq_false_of_diseq u) α binst linst a b h
+
+builtin_grind_propagator propagateBEqDown ↓BEq.beq := fun e => do
+  /- See comment above -/
+  let_expr f@BEq.beq α binst a b := e | return ()
+  let u := f.constLevels!
+  if (← isEqBoolTrue e) then
+    let some linst ← getLawfulBEqInst? u α binst | return ()
+    pushEq a b <| mkApp6 (mkConst ``Grind.eq_of_beq_eq_true u) α binst linst a b (← mkEqProof e (← getBoolTrueExpr))
+  else if (← isEqBoolFalse e) then
+    let some linst ← getLawfulBEqInst? u α binst | return ()
+    let eq ← shareCommon (mkApp3 (mkConst ``Eq u) α a b)
+    internalize eq (← getGeneration a)
+    pushEqFalse eq <| mkApp6 (mkConst ``Grind.ne_of_beq_eq_false u) α binst linst a b (← mkEqProof e (← getBoolFalseExpr))
 
 /-- Propagates `EqMatch` downwards -/
 builtin_grind_propagator propagateEqMatchDown ↓Grind.EqMatch := fun e => do

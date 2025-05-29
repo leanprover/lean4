@@ -23,10 +23,12 @@ theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := 
 theorem countP_cons {a : α} {l : List α} : countP p (a :: l) = countP p l + if p a then 1 else 0 := by grind
 
 theorem countP_singleton {a : α} : countP p [a] = if p a then 1 else 0 := by grind
-#check List.size_toArray
+
+example (hx : x = 0) (hy : y = 0) (hz : z = 0) : x = y + z := by grind
+
 set_option trace.grind.ematch true
 theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l = countP p l + countP (fun a => ¬p a) l := by
-  induction l with grind [-Array.toArray_toList]
+  induction l with grind
 
 theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l) := by
   induction l with

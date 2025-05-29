@@ -79,16 +79,6 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
 def hasConst [Monad m] [MonadEnv m] (constName : Name) (skipRealize := true) : m Bool := do
   return (← getEnv).contains (skipRealize := skipRealize) constName
 
-private partial def mkAuxNameAux (env : Environment) (base : Name) (i : Nat) : Name :=
-  let candidate := base.appendIndexAfter i
-  if env.contains candidate then
-    mkAuxNameAux env base (i+1)
-  else
-    candidate
-
-def mkAuxName [Monad m] [MonadEnv m] (baseName : Name) (idx : Nat) : m Name := do
-  return mkAuxNameAux (← getEnv) baseName idx
-
 def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with
   | some info => pure info

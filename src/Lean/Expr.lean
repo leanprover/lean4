@@ -265,7 +265,7 @@ instance : Inhabited (FVarIdMap α) where
 /-- Universe metavariable Id   -/
 structure MVarId where
   name : Name
-  deriving Inhabited, BEq, Hashable, Repr
+  deriving Inhabited, BEq, Hashable
 
 instance : Repr MVarId where
   reprPrec n p := reprPrec n.name p

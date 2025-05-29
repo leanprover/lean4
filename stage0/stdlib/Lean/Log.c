@@ -63,6 +63,7 @@ LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__14(uint8_t, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_warningAsError;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_logErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logUnknownDecl___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getRefPos(lean_object*);
@@ -87,7 +88,6 @@ LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__1___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__2(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Log___hyg_196____closed__2;
 LEAN_EXPORT lean_object* l_Lean_getRefPosition___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__1(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
@@ -735,7 +735,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; 
 x_9 = 1;
-x_10 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_1, x_9);
+x_10 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_1, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -805,7 +805,7 @@ _start:
 {
 lean_object* x_9; uint8_t x_16; uint8_t x_17; 
 x_16 = 2;
-x_17 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_7, x_16);
+x_17 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_7, x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; 

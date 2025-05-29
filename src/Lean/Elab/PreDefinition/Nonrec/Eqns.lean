@@ -20,7 +20,8 @@ Simple, coarse-grained equation theorem for nonrecursive definitions.
 -/
 private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
+    let name := mkEqLikeNameFor (← getEnv) declName eqn1ThmSuffix
+    trace[Elab.definition.eqns] "mkSimpleEqnThm: {name}"
     realizeConst declName name (doRealize name info)
     return some name
   else

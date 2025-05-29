@@ -208,11 +208,11 @@ Equation theorems are generated on demand, check whether they were generated in 
 -/
 private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
   let env ← getEnv
-  let eq1 := Name.str declName eqn1ThmSuffix
+  let eq1 := mkEqLikeNameFor env declName eqn1ThmSuffix
   if env.contains eq1 then
     let rec loop (idx : Nat) (eqs : Array Name) : MetaM (Array Name) := do
-      let nextEq := declName ++ (`eq).appendIndexAfter idx
-      if env.contains nextEq then
+      let nextEq := mkEqLikeNameFor env declName s!"{eqnThmSuffixBasePrefix}{idx+1}"
+      if env.contains (skipRealize := false) nextEq then
         loop (idx+1) (eqs.push nextEq)
       else
         return eqs
@@ -252,6 +252,7 @@ If any equation theorem affecting option is not the default value, create the eq
 def generateEagerEqns (declName : Name) : MetaM Unit := do
   let opts ← getOptions
   if eqnAffectingOptions.any fun o => o.get opts != o.defValue then
+    trace[Elab.definition.eqns] "generating eager equations for {declName}"
     let _ ← getEqnsFor?Core declName
 
 def GetUnfoldEqnFn := Name → MetaM (Option Name)

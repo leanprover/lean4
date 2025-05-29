@@ -24,6 +24,6 @@ where
       eraseDupsBy.loop (· == ·) l seenl = fastEraseDups.go l seenl seen := by
     induction l generalizing seenl seen with
     | nil => grind [eraseDupsBy.loop, fastEraseDups.go]
-    | cons x => cases h : seenl.contains x <;> grind [eraseDupsBy.loop, fastEraseDups.go]
+    | cons x => cases h : seenl.contains x <;> grind [eraseDupsBy.loop, fastEraseDups.go, BEq.comm] -- `BEq.comm` needed here.
 
 end List

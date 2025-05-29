@@ -127,6 +127,17 @@ def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 
+/--
+Registers a tactic elaborator for the given syntax node kind.
+
+A tactic elaborator should have type `Lean.Elab.Tactic.Tactic` (which is
+`Lean.Syntax → Lean.Elab.Tactic.TacticM Unit`), i.e. should take syntax of the given syntax
+node kind as a parameter and alter the tactic state.
+
+The `elab_rules` and `elab` commands should usually be preferred over using this attribute
+directly.
+-/
+@[builtin_doc]
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
   mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic" `Lean.Elab.Tactic.tacticElabAttribute
 

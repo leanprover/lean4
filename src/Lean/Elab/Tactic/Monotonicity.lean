@@ -29,7 +29,15 @@ builtin_initialize monotoneExt :
     initial := {}
   }
 
-builtin_initialize registerBuiltinAttribute {
+/--
+Registers a monotonicity theorem for `partial_fixpoint`.
+
+Monotonicity theorems should have `Lean.Order.monotone ...` as a conclusion. They are used in the
+`monotonicity` tactic (scoped in the `Lean.Order` namespace) to automatically prove monotonicity
+for functions defined using `partial_fixpoint`.
+-/
+@[builtin_init, builtin_doc]
+private def init := registerBuiltinAttribute {
   name := `partial_fixpoint_monotone
   descr := "monotonicity theorem"
   add := fun decl _ kind => MetaM.run' do

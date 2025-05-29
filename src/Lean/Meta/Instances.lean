@@ -232,7 +232,18 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
-builtin_initialize
+/--
+Registers type class instances.
+
+The `instance` command, which expands to `@[instance] def`, is usually preferred over using this
+attribute directly. However it might sometimes still be necessary to use this attribute directly,
+in particular for `opaque` instances.
+
+To assign priorities to instances, `@[instance prio]` can be used (where `prio` is a priority).
+This corresponds to the `instance (priority := prio)` notation.
+-/
+@[builtin_init, builtin_doc]
+private def init :=
   registerBuiltinAttribute {
     name  := `instance
     descr := "type class instance"

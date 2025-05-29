@@ -10,12 +10,20 @@ import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
 
+/--
+Tags declarations to be unfolded during coercion elaboration.
+
+This is mostly used to hide coercion implementation details and show the coerced result instead of
+an application of auxiliary definitions (e.g. `CoeT.coe`, `Coe.coe`). This attribute only works on
+reducible functions and instance projections.
+-/
+@[builtin_doc]
 builtin_initialize coeDeclAttr : TagAttribute ←
   registerTagAttribute `coe_decl "auxiliary definition used to implement coercion (unfolded during elaboration)"
 
 /--
-  Return true iff `declName` is one of the auxiliary definitions/projections
-  used to implement coercions.
+Return true iff `declName` is one of the auxiliary definitions/projections used to implement
+coercions.
 -/
 def isCoeDecl (env : Environment) (declName : Name) : Bool :=
   coeDeclAttr.hasTag env declName

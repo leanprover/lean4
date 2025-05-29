@@ -14,9 +14,13 @@ This module defines attributes that influence pretty printer output.
 
 namespace Lean
 
+/-- Marks a structure to be pretty printed using the anonymous constructor notation (`⟨a, b, c⟩`). -/
+@[builtin_doc]
 builtin_initialize ppUsingAnonymousConstructorAttr : TagAttribute ←
   registerTagAttribute `pp_using_anonymous_constructor "mark structure to be pretty printed using `⟨a,b,c⟩` notation"
 
+/-- Marks a declaration to never be pretty printed using field notation. -/
+@[builtin_doc]
 builtin_initialize ppNoDotAttr : TagAttribute ←
   registerTagAttribute `pp_nodot "mark declaration to never be pretty printed using field notation"
 

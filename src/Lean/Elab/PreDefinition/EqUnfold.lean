@@ -23,6 +23,7 @@ This is not extensible, and always builds on the unfold theorem (`f.eq_def`).
 -/
 def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
   if (← getUnfoldEqnFor? (nonRec := true) declName).isNone then
+    trace[ReservedNameAction] "getConstUnfoldEqnFor? {declName} failed, no unfold theorem available"
     return none
   let name := mkEqLikeNameFor (← getEnv) declName eqUnfoldThmSuffix
   realizeConst declName name do

@@ -223,8 +223,10 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
     return none
 
 private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
-  if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
-    return some eqs
+  -- TODO: Do we need this? Now that the name of the equation can be private
+  -- sharing these across modules breaks expectations of the ReservedNameAction.
+  -- if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
+  --   return some eqs
   if !(← shouldGenerateEqnThms declName) then
     return none
   if let some eqs ← alreadyGenerated? declName then
@@ -239,7 +241,7 @@ private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := w
 Returns equation theorems for the given declaration.
 -/
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
-  -- This is the entry point for lazy equaion generation. Ignore the current value
+  -- This is the entry point for lazy equation generation. Ignore the current value
   -- of the options, and revert to the default.
   withOptions (eqnAffectingOptions.foldl fun os o => o.set os o.defValue) do
     getEqnsFor?Core declName
@@ -292,38 +294,35 @@ By default, we do not create unfold theorems for nonrecursive definitions.
 You can use `nonRec := true` to override this behavior.
 -/
 def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) := withLCtx {} {} do
-  withoutExporting do
+  let unfoldName := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
+  let r? ← withoutExporting do
     let env := (← getEnv)
-    let unfoldName := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
-
-    -- Search in the name space of the defininig module, can happen with `import all`.
-    -- TODO: Should we always use `mkPrivateName` with as if we are in that module
-    -- for realizable names?
-    if let some mod ← findModuleOf? declName then
-      let unfoldName' := mkPrivateNameCore mod (privateToUserName unfoldName)
-      if env.contains unfoldName' then
-        return some unfoldName'
 
     if env.contains unfoldName then
       return some unfoldName
     if (← shouldGenerateEqnThms declName) then
-      for f in (← getUnfoldEqnFnsRef.get) do
-        if let some r ← f declName then
-          unless r == unfoldName do
-            throwError "invalid unfold theorem name `{r}` has been generated expected `{unfoldName}`"
-          return some r
-      if nonRec then
-        return (← mkSimpleEqThm declName)
+      if (← isRecursiveDefinition declName) then
+        for f in (← getUnfoldEqnFnsRef.get) do
+          if let some r ← f declName then
+            return some r
+      else
+        if nonRec then
+          return (← mkSimpleEqThm declName)
     return none
+  if let some r := r? then
+    unless r == unfoldName do
+      throwError "invalid unfold theorem name `{r}` has been generated expected `{unfoldName}`"
+  return r?
 
 builtin_initialize
   registerReservedNameAction fun name => do
-    if let some (declName, suffix) := declFromEqLikeName (← getEnv) name then
-      if name == mkEqLikeNameFor (← getEnv) declName suffix then
-        if isEqnReservedNameSuffix suffix then
-          return (← MetaM.run' <| getEqnsFor? declName).isSome
-        if suffix == unfoldThmSuffix then
-          return (← MetaM.run' <| getUnfoldEqnFor? declName (nonRec := true)).isSome
-    return false
+    withTraceNode `ReservedNameAction (pure m!"{exceptBoolEmoji ·} Lean.Meta.Eqns reserved name action for {name}") do
+      if let some (declName, suffix) := declFromEqLikeName (← getEnv) name then
+        if name == mkEqLikeNameFor (← getEnv) declName suffix then
+          if isEqnReservedNameSuffix suffix then
+            return (← MetaM.run' <| getEqnsFor? declName).isSome
+          if suffix == unfoldThmSuffix then
+            return (← MetaM.run' <| getUnfoldEqnFor? declName (nonRec := true)).isSome
+      return false
 
 end Lean.Meta

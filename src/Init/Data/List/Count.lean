@@ -10,6 +10,9 @@ import Init.Data.List.Sublist
 
 /-!
 # Lemmas about `List.countP` and `List.count`.
+
+Because we mark `countP_eq_length_filter` and `count_eq_countP` with `@[grind _=_]`,
+we don't need many other `@[grind]` annotations here.
 -/
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
@@ -24,7 +27,7 @@ section countP
 
 variable {p q : α → Bool}
 
-@[simp, grind =] theorem countP_nil : countP p [] = 0 := rfl
+@[simp] theorem countP_nil : countP p [] = 0 := rfl
 
 protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 := by
   induction l generalizing n with
@@ -42,7 +45,7 @@ protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 :
 @[simp] theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := by
   simp [countP, countP.go, pa]
 
-@[grind =]theorem countP_cons {a : α} {l : List α} : countP p (a :: l) = countP p l + if p a then 1 else 0 := by
+theorem countP_cons {a : α} {l : List α} : countP p (a :: l) = countP p l + if p a then 1 else 0 := by
   by_cases h : p a <;> simp [h]
 
 @[simp] theorem countP_singleton {a : α} : countP p [a] = if p a then 1 else 0 := by
@@ -61,6 +64,7 @@ theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l =
       · rfl
       · simp [h]
 
+@[grind =]
 theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l) := by
   induction l with
   | nil => rfl
@@ -69,6 +73,7 @@ theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l)
     then rw [countP_cons_of_pos h, ih, filter_cons_of_pos h, length]
     else rw [countP_cons_of_neg h, ih, filter_cons_of_neg h]
 
+@[grind =]
 theorem countP_eq_length_filter' : countP p = length ∘ filter p := by
   funext l
   apply countP_eq_length_filter
@@ -202,7 +207,7 @@ theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by
   simp [count, countP_cons]
 
-theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l := rfl
+@[grind =] theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l := rfl
 theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP

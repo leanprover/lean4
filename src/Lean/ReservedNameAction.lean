@@ -49,7 +49,7 @@ def realizeGlobalName (id : Name) : CoreM (List (Name × List String)) := do
         return (← getEnv).containsOnBranch c
       catch ex =>
         -- We record the error produced by the reserved name action generator
-        logError m!"Failed to realize constant {id} (resolved to {c}):{indentD ex.toMessageData}"
+        logError m!"Failed to realize constant {id}:{indentD ex.toMessageData}"
         return false
 
 /--

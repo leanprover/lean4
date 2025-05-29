@@ -61,6 +61,8 @@ info: f_struct.eq_unfold :
 #guard_msgs in
 #check f_wfrec.eq_1
 
+-- TODO: This should work once sebastian enables
+-- looking up private definitions from import all'ed modules
 /-- error: unknown identifier 'f_wfrec.eq_def' -/
 #guard_msgs in
 #check f_wfrec.eq_def

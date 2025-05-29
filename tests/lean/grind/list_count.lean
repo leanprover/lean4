@@ -26,7 +26,4 @@ theorem count_le_count_map {β} [BEq β] [LawfulBEq β] {l : List α} {f : α �
   induction l with grind
 
 theorem count_erase {a b : α} {l : List α} : count a (l.erase b) = count a l - if b == a then 1 else 0 := by
-  induction l with grind [-List.count_erase]
-  -- fails with inconsistent equivalence clases:
-  -- [] {head == a, false}
-  -- [] {b == a, head == b, true}
+  induction l <;> grind [-List.count_erase]

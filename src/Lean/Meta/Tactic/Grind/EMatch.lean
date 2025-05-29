@@ -30,6 +30,12 @@ This is a small hack to avoid one extra level of indirection by using `Option Ex
 -/
 private def unassigned : Expr := mkConst (Name.mkSimple "[grind_unassigned]")
 
+/--
+Internal "marker" for representing equality proofs for generalized patterns.
+They must be synthesized after we have the partial assignment.
+-/
+private def delayedEqProof : Expr := mkConst (Name.mkSimple "[grind_delayed_eq_proof]")
+
 private def assignmentToMessageData (assignment : Array Expr) : Array MessageData :=
   assignment.reverse.map fun e =>
     if isSameExpr e unassigned then m!"_" else m!"{e}"
@@ -89,6 +95,22 @@ private def assign? (c : Choice) (bidx : Nat) (e : Expr) : OptionT GoalM Choice 
     -- `Choice` was not properly initialized
     unreachable!
 
+/--
+Assigns `bidx` with the marker for a delayed equality proof for generalized patterns.
+The proof is assigned after we have the complete assignment.
+-/
+private def assignDelayedEqProof? (c : Choice) (bidx : Nat) : OptionT GoalM Choice := do
+  if h : bidx < c.assignment.size then
+    let v := c.assignment[bidx]
+    if isSameExpr v unassigned then
+      return { c with assignment := c.assignment.set bidx delayedEqProof }
+    else
+      return c
+  else
+    -- `Choice` was not properly initialized
+    unreachable!
+
+
 private def unassign (c : Choice) (bidx : Nat) : Choice :=
   { c with assignment := c.assignment.set! bidx unassigned }
 
@@ -100,9 +122,9 @@ private def eqvFunctions (pFn eFn : Expr) : Bool :=
   (pFn.isFVar && pFn == eFn)
   || (pFn.isConst && eFn.isConstOf pFn.constName!)
 
-protected def _root_.Lean.Meta.Grind.GenPatternInfo.assign? (genInfo : GenPatternInfo) (c : Choice) (x : Expr) (val : Expr) : OptionT GoalM Choice := do
+protected def _root_.Lean.Meta.Grind.GenPatternInfo.assign? (genInfo : GenPatternInfo) (c : Choice) (x : Expr) : OptionT GoalM Choice := do
   let c ← assign? c genInfo.xIdx x
-  let c ← assign? c genInfo.hIdx (← if genInfo.heq then mkHEqProof x val else mkEqProof x val)
+  let c ← assignDelayedEqProof? c genInfo.hIdx
   return c
 
 /-- Matches a pattern argument. See `matchArgs?`. -/
@@ -137,10 +159,10 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
   else if let some (genInfo, pArg) := isGenPattern? pArg then
     if pArg.isBVar then
       let c ← assign? c pArg.bvarIdx! eArg
-      genInfo.assign? c eArg eArg
+      genInfo.assign? c eArg
     else if let some pArg := groundPattern? pArg then
       guard (← isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg))
-      genInfo.assign? c eArg pArg
+      genInfo.assign? c eArg
     else if let some (pArg, k) := isOffsetPattern? pArg then
       return { c with cnstrs := .offset (some genInfo) pArg k eArg :: c.cnstrs }
     else
@@ -185,9 +207,9 @@ private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : Option
     && eqvFunctions pFn n.self.getAppFn
     && n.self.getAppNumArgs == pNumArgs
 
-private def assignGenInfo? (genInfo? : Option GenPatternInfo) (c : Choice) (x : Expr) (val : Expr) : OptionT GoalM Choice := do
+private def assignGenInfo? (genInfo? : Option GenPatternInfo) (c : Choice) (x : Expr) : OptionT GoalM Choice := do
   let some genInfo := genInfo? | return c
-  genInfo.assign? c x val
+  genInfo.assign? c x
 
 /--
 Matches pattern `p` with term `e` with respect to choice `c`.
@@ -204,7 +226,7 @@ private partial def processMatch (c : Choice) (genInfo? : Option GenPatternInfo)
     let n ← getENode curr
     -- Remark: we use `<` because the instance generation is the maximum term generation + 1
     if isCandidate n pFn numArgs maxGeneration then
-      if let some c ← assignGenInfo? genInfo? c e curr |>.run then
+      if let some c ← assignGenInfo? genInfo? c e |>.run then
       if let some c ← matchArgs? c p curr |>.run then
         pushChoice (c.updateGen n.generation)
     curr ← getNext curr
@@ -220,7 +242,7 @@ private partial def processOffset (c : Choice) (genInfo? : Option GenPatternInfo
     let n ← getENode curr
     if n.generation < maxGeneration then
       if let some (eArg, k') ← isOffset? curr |>.run then
-        if let some c ← assignGenInfo? genInfo? c e curr |>.run then
+        if let some c ← assignGenInfo? genInfo? c e |>.run then
           if k' < k then
             let c := c.updateGen n.generation
             pushChoice { c with cnstrs := .offset none pArg (k - k') eArg :: c.cnstrs }
@@ -234,7 +256,7 @@ private partial def processOffset (c : Choice) (genInfo? : Option GenPatternInfo
             if let some c ← matchArg? c pArg eArg' |>.run then
               pushChoice (c.updateGen n.generation)
       else if let some k' ← evalNat curr |>.run then
-        if let some c ← assignGenInfo? genInfo? c e curr |>.run then
+        if let some c ← assignGenInfo? genInfo? c e |>.run then
           if k' >= k then
             let eArg' := mkNatLit (k' - k)
             let eArg' ← shareCommon (← canon eArg')
@@ -330,13 +352,43 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
         reportIssue! "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         failure
 
+private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) : OptionT (StateT Choice M) Expr := do
+  assert! (← alreadyInternalized lhs)
+  -- We use `dsimp` here to ensure terms such as `Nat.succ x` are normalized as `x+1`.
+  let rhs ← preprocessLight (← dsimpCore rhs)
+  internalize rhs (← getGeneration lhs)
+  processNewFacts
+  if (← isEqv lhs rhs) then
+    return rhs
+  else
+    reportIssue! "invalid generalized pattern at `{← origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
+    failure
+
+private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (origin : Origin) : OptionT (StateT Choice M) Unit := do
+  unless (← mvarId.checkedAssign eqProof) do
+    reportIssue! "invalid generalized pattern at `{← origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
+    failure
+
 private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Unit := do
   let thm := (← read).thm
   let numParams := thm.numParams
   for h : i in [:mvars.size] do
     let bidx := numParams - i - 1
     let mut v := (← get).assignment[bidx]!
-    unless isSameExpr v unassigned do
+    if isSameExpr v delayedEqProof then
+      let mvarId := mvars[i].mvarId!
+      let mvarIdType ← instantiateMVars (← mvarId.getType)
+      match_expr mvarIdType with
+      | Eq α lhs rhs =>
+        let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
+        assignGeneralizedPatternProof mvarId (← mkEqProof lhs rhs) thm.origin
+      | HEq α lhs β rhs =>
+        let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
+        assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
+      | _ =>
+        reportIssue! "invalid generalized pattern at `{← thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
+        failure
+    else if !isSameExpr v unassigned then
       let mvarId := mvars[i].mvarId!
       let mvarIdType ← mvarId.getType
       let vType ← inferType v

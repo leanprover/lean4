@@ -2641,20 +2641,16 @@ theorem getLsbD_false_of_clz {x : BitVec w} (hi : i < clz x) :
 
 theorem getLsbD_true_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w):
     x.getLsbD (w - 1 - x.clz) = true := by
-  have := clz_lt_iff (x := x)
-  simp [hx] at this
-  have := getLsbD_false_of_clz (x := x)
-  apply Classical.byContradiction
-  intro hcontra
-  simp at hcontra
-  -- then clz would be bigger
-  unfold clz at hcontra
-  rcases w
-  · omega
-  · case succ w =>
-    simp at hcontra
-    have := getLsbD_false_of_lt_clzAux
-    sorry
+  have h1 := clz_lt_iff (x := x)
+  simp [hx] at h1
+  unfold clz
+  have h2 := getLsbD_true_of_eq_clzAux_of_ne_zero (x := x) (n := w - 1) hw
+  simp [hw, show w - 1 + 1 = w by omega] at h2
+  simp [show ¬ w = 0 by omega]
+  unfold clz at h1
+  simp [show ¬ w = 0 by omega] at h1
+  simp [show ¬ w = x.clzAux (w - 1) by omega] at h2
+  simp [h2]
 
 /-
  9 8 7 6 5 4 3 2 1 0

@@ -1564,8 +1564,8 @@ protected def erase {α} [BEq α] : List α → α → List α
     | true  => as
     | false => a :: List.erase as b
 
-@[simp] theorem erase_nil [BEq α] (a : α) : [].erase a = [] := rfl
-theorem erase_cons [BEq α] {a b : α} {l : List α} :
+@[simp, grind =] theorem erase_nil [BEq α] (a : α) : [].erase a = [] := rfl
+@[grind =] theorem erase_cons [BEq α] {a b : α} {l : List α} :
     (b :: l).erase a = if b == a then l else b :: l.erase a := by
   simp only [List.erase]; split <;> simp_all
 

@@ -96,8 +96,14 @@ theorem eq_nil_of_subset_nil {l : List α} : l ⊆ [] → l = [] := subset_nil.m
 theorem map_subset {l₁ l₂ : List α} (f : α → β) (h : l₁ ⊆ l₂) : map f l₁ ⊆ map f l₂ :=
   fun x => by simp only [mem_map]; exact .imp fun a => .imp_left (@h _)
 
+grind_pattern map_subset => l₁ ⊆ l₂, map f l₁
+grind_pattern map_subset => l₁ ⊆ l₂, map f l₂
+
 theorem filter_subset {l₁ l₂ : List α} (p : α → Bool) (H : l₁ ⊆ l₂) : filter p l₁ ⊆ filter p l₂ :=
   fun x => by simp_all [mem_filter, subset_def.1 H]
+
+grind_pattern filter_subset => l₁ ⊆ l₂, filter p l₁
+grind_pattern filter_subset => l₁ ⊆ l₂, filter p l₂
 
 theorem filterMap_subset {l₁ l₂ : List α} (f : α → Option β) (H : l₁ ⊆ l₂) :
     filterMap f l₁ ⊆ filterMap f l₂ := by
@@ -105,6 +111,9 @@ theorem filterMap_subset {l₁ l₂ : List α} (f : α → Option β) (H : l₁ 
   simp only [mem_filterMap]
   rintro ⟨a, h, w⟩
   exact ⟨a, H h, w⟩
+
+grind_pattern filterMap_subset => l₁ ⊆ l₂, filterMap f l₁
+grind_pattern filterMap_subset => l₁ ⊆ l₂, filterMap f l₂
 
 theorem subset_append_left (l₁ l₂ : List α) : l₁ ⊆ l₁ ++ l₂ := fun _ => mem_append_left _
 
@@ -261,14 +270,23 @@ protected theorem Sublist.map (f : α → β) {l₁ l₂} (s : l₁ <+ l₂) : m
   | cons₂ a s ih =>
     simpa using cons₂ (f a) ih
 
+grind_pattern Sublist.map => l₁ <+ l₂, map f l₁
+grind_pattern Sublist.map => l₁ <+ l₂, map f l₂
+
 @[grind]
 protected theorem Sublist.filterMap (f : α → Option β) (s : l₁ <+ l₂) :
     filterMap f l₁ <+ filterMap f l₂ := by
   induction s <;> simp [filterMap_cons] <;> split <;> simp [*, cons, cons₂]
 
+grind_pattern Sublist.filterMap => l₁ <+ l₂, filterMap f l₁
+grind_pattern Sublist.filterMap => l₁ <+ l₂, filterMap f l₂
+
 @[grind]
 protected theorem Sublist.filter (p : α → Bool) {l₁ l₂} (s : l₁ <+ l₂) : filter p l₁ <+ filter p l₂ := by
   rw [← filterMap_eq_filter]; apply s.filterMap
+
+grind_pattern Sublist.filter => l₁ <+ l₂, l₁.filter p
+grind_pattern Sublist.filter => l₁ <+ l₂, l₂.filter p
 
 theorem head_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).head h ∈ xs :=
   filter_sublist.head_mem h
@@ -728,11 +746,20 @@ theorem IsInfix.ne_nil {xs ys : List α} (h : xs <:+: ys) (hx : xs ≠ []) : ys 
 theorem IsInfix.length_le (h : l₁ <:+: l₂) : l₁.length ≤ l₂.length :=
   h.sublist.length_le
 
+grind_pattern IsInfix.length_le => l₁ <:+: l₂, l₁.length
+grind_pattern IsInfix.length_le => l₁ <:+: l₂, l₂.length
+
 theorem IsPrefix.length_le (h : l₁ <+: l₂) : l₁.length ≤ l₂.length :=
   h.sublist.length_le
 
+grind_pattern IsPrefix.length_le => l₁ <+: l₂, l₁.length
+grind_pattern IsPrefix.length_le => l₁ <+: l₂, l₂.length
+
 theorem IsSuffix.length_le (h : l₁ <:+ l₂) : l₁.length ≤ l₂.length :=
   h.sublist.length_le
+
+grind_pattern IsSuffix.length_le => l₁ <:+ l₂, l₁.length
+grind_pattern IsSuffix.length_le => l₁ <:+ l₂, l₂.length
 
 theorem IsPrefix.getElem {xs ys : List α} (h : xs <+: ys) {i} (hi : i < xs.length) :
     xs[i] = ys[i]'(Nat.le_trans hi h.length_le) := by
@@ -1148,43 +1175,70 @@ theorem dropLast_subset (l : List α) : l.dropLast ⊆ l :=
   obtain ⟨r, rfl⟩ := h
   rw [map_append]; apply prefix_append
 
+grind_pattern IsPrefix.map => l₁ <+: l₂, l₁.map f
+grind_pattern IsPrefix.map => l₁ <+: l₂, l₂.map f
+
 @[grind] theorem IsSuffix.map {β} (f : α → β) ⦃l₁ l₂ : List α⦄ (h : l₁ <:+ l₂) : l₁.map f <:+ l₂.map f := by
   obtain ⟨r, rfl⟩ := h
   rw [map_append]; apply suffix_append
 
+grind_pattern IsSuffix.map => l₁ <:+ l₂, l₁.map f
+grind_pattern IsSuffix.map => l₁ <:+ l₂, l₂.map f
+
 @[grind] theorem IsInfix.map {β} (f : α → β) ⦃l₁ l₂ : List α⦄ (h : l₁ <:+: l₂) : l₁.map f <:+: l₂.map f := by
   obtain ⟨r₁, r₂, rfl⟩ := h
   rw [map_append, map_append]; apply infix_append
+
+grind_pattern IsInfix.map => l₁ <:+: l₂, l₁.map f
+grind_pattern IsInfix.map => l₁ <:+: l₂, l₂.map f
 
 @[grind] theorem IsPrefix.filter (p : α → Bool) ⦃l₁ l₂ : List α⦄ (h : l₁ <+: l₂) :
     l₁.filter p <+: l₂.filter p := by
   obtain ⟨xs, rfl⟩ := h
   rw [filter_append]; apply prefix_append
 
+grind_pattern IsPrefix.filter => l₁ <+: l₂, l₁.filter p
+grind_pattern IsPrefix.filter => l₁ <+: l₂, l₂.filter p
+
 @[grind] theorem IsSuffix.filter (p : α → Bool) ⦃l₁ l₂ : List α⦄ (h : l₁ <:+ l₂) :
     l₁.filter p <:+ l₂.filter p := by
   obtain ⟨xs, rfl⟩ := h
   rw [filter_append]; apply suffix_append
+
+grind_pattern IsSuffix.filter => l₁ <:+ l₂, l₁.filter p
+grind_pattern IsSuffix.filter => l₁ <:+ l₂, l₂.filter p
 
 @[grind] theorem IsInfix.filter (p : α → Bool) ⦃l₁ l₂ : List α⦄ (h : l₁ <:+: l₂) :
     l₁.filter p <:+: l₂.filter p := by
   obtain ⟨xs, ys, rfl⟩ := h
   rw [filter_append, filter_append]; apply infix_append _
 
+grind_pattern IsInfix.filter => l₁ <:+: l₂, l₁.filter p
+grind_pattern IsInfix.filter => l₁ <:+: l₂, l₂.filter p
+
 @[grind] theorem IsPrefix.filterMap {β} (f : α → Option β) ⦃l₁ l₂ : List α⦄ (h : l₁ <+: l₂) :
     filterMap f l₁ <+: filterMap f l₂ := by
   obtain ⟨xs, rfl⟩ := h
   rw [filterMap_append]; apply prefix_append
+
+grind_pattern IsPrefix.filterMap => l₁ <+: l₂, filterMap f l₁
+grind_pattern IsPrefix.filterMap => l₁ <+: l₂, filterMap f l₂
 
 @[grind] theorem IsSuffix.filterMap {β} (f : α → Option β) ⦃l₁ l₂ : List α⦄ (h : l₁ <:+ l₂) :
     filterMap f l₁ <:+ filterMap f l₂ := by
   obtain ⟨xs, rfl⟩ := h
   rw [filterMap_append]; apply suffix_append
 
+grind_pattern IsSuffix.filterMap => l₁ <:+ l₂, filterMap f l₁
+grind_pattern IsSuffix.filterMap => l₁ <:+ l₂, filterMap f l₂
+
 @[grind] theorem IsInfix.filterMap {β} (f : α → Option β) ⦃l₁ l₂ : List α⦄ (h : l₁ <:+: l₂) :
     filterMap f l₁ <:+: filterMap f l₂ := by
   obtain ⟨xs, ys, rfl⟩ := h
   rw [filterMap_append, filterMap_append]; apply infix_append
+
+grind_pattern IsInfix.filterMap => l₁ <:+: l₂, filterMap f l₁
+grind_pattern IsInfix.filterMap => l₁ <:+: l₂, filterMap f l₂
 
 @[simp, grind =] theorem isPrefixOf_iff_prefix [BEq α] [LawfulBEq α] {l₁ l₂ : List α} :
     l₁.isPrefixOf l₂ ↔ l₁ <+: l₂ := by

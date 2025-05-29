@@ -1,3 +1,6 @@
+prelude
+import Lean.ErrorExplanation
+
 /--
 This error occurs when an inductive type constructor is partially applied in the type of one of its
 constructors, such that one or more parameters of the type are omitted. The elaborator requires that

@@ -1,4 +1,8 @@
-/-- This error occurs when a parameter of an inductive type is not uniform in an inductive
+prelude
+import Lean.ErrorExplanation
+
+/--
+This error occurs when a parameter of an inductive type is not uniform in an inductive
 declaration. The parameters of an inductive type (i.e., those that appear before the colon following
 the `inductive` keyword) must be identical in all occurrences of the type being defined in its
 constructors' types. If a parameter of an inductive type must vary between constructors, make the

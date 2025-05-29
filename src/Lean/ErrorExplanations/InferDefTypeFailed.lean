@@ -1,3 +1,6 @@
+prelude
+import Lean.ErrorExplanation
+
 /--
 This error occurs when the type of a definition is not fully specified and the elaborator is unable
 to infer the type from the available information. If the definition contains parameters, this error

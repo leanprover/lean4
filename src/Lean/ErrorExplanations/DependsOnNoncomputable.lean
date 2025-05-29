@@ -1,3 +1,6 @@
+prelude
+import Lean.ErrorExplanation
+
 /--
 This error indicates that the specified definition depends on one or more definitions that do not
 contain executable code and is therefore required to be marked as `noncomputable`. Such definitions

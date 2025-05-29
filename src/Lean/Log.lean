@@ -8,6 +8,9 @@ import Lean.Util.Sorry
 import Lean.Widget.Types
 import Lean.Message
 import Lean.DocString.Links
+-- This import is necessary to ensure that any users of the `logNamedError` macros have access to
+-- all declared explanations:
+import Lean.ErrorExplanations
 
 namespace Lean
 
@@ -121,6 +124,15 @@ def logAt (ref : Syntax) (msgData : MessageData)
 def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=
   logAt ref msgData MessageSeverity.error
 
+/--
+Log a named error message using the given message data. The position is provided by `ref`.
+
+Note: Use the macro `logNamedErrorAt`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «logNamedErrorAt» (ref : Syntax) (name : Name) (msgData : MessageData) : m Unit :=
+  logAt ref (msgData.tagWithErrorName name) MessageSeverity.error
+
 /-- Log a new warning message using the given message data. The position is provided by `ref`. -/
 def logWarningAt [MonadOptions m] (ref : Syntax) (msgData : MessageData) : m Unit := do
   logAt ref msgData .warning
@@ -138,6 +150,15 @@ def log (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.e
 /-- Log a new error message using the given message data. The position is provided by `getRef`. -/
 def logError (msgData : MessageData) : m Unit :=
   log msgData MessageSeverity.error
+
+/--
+Log a named error message using the given message data. The position is provided by `getRef`.
+
+Note: Use the macro `logNamedError`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «logNamedError» (name : Name) (msgData : MessageData) : m Unit :=
+  log (msgData.tagWithErrorName name) MessageSeverity.error
 
 /-- Log a new warning message using the given message data. The position is provided by `getRef`. -/
 def logWarning [MonadOptions m] (msgData : MessageData) : m Unit := do

@@ -1,80 +1,41 @@
 prelude
 
-import Lean.Meta.Eval
-import Lean.Elab.Term
-import Lean.Elab.Command
-import Lean.Widget.UserWidget
-import Std.Internal.Parsec
+import Lean.Message
+import Lean.EnvExtension
+import Lean.DocString.Links
 
 namespace Lean
 
--- We cannot import the definitions needed for this attribute in `Lean.Log`, so we instead add it
--- here
-attribute [builtin_widget_module] Lean.errorDescriptionWidget
-
+/-- Metadata for an error explanation. -/
 structure ErrorExplanation.Metadata where
   summary : String
   sinceVersion : String
   severity : MessageSeverity     := .error
   removedVersion : Option String := none
-deriving FromJson, ToJson
+  deriving FromJson, ToJson
 
+/--
+The set of code blocks appearing in examples in an explanation.
+
+This structure should not be constructed manually; it is auto-generated during elaboration of an
+error explanation.
+-/
 structure ErrorExplanation.CodeBlockSet where
   broken : String
   brokenOutputs : Array String
   fixedWithOutputs : Array (String × Array String)
   deriving Repr
 
+/--
+An explanation of a named error message.
+
+Error explanations are rendered in the manual; a link to the resulting manual page is displayed at
+the bottom of corresponding error messages thrown using `throwNamedError` or `throwNamedErrorAt`.
+-/
 structure ErrorExplanation where
   doc : String
   codeBlocks : Array ErrorExplanation.CodeBlockSet
   metadata : ErrorExplanation.Metadata
-
--- FIXME: `addImportedFn`
--- FIXME: should be `builtin_initialize` (stage0 will be a pain with this PR)
-initialize errorExplanationExt : SimplePersistentEnvExtension (Name × ErrorExplanation) (NameMap ErrorExplanation) ←
-  registerSimplePersistentEnvExtension {
-    addEntryFn := fun s (n, v) => s.insert n v
-    addImportedFn := fun entries => RBMap.ofList entries.flatten.toList
-  }
-
-/--
-Gets an error explanation for the given name if one exists, rewriting manual links.
--/
-def getErrorExplanation? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m (Option ErrorExplanation) :=
-  do
-  let explan? := errorExplanationExt.getState (← getEnv) |>.find? name
-  explan?.mapM fun explan =>
-    return { explan with doc := (← rewriteManualLinks explan.doc) }
-
-/-- Returns true if there exists an error explanation named `name`. -/
-def hasErrorExplanation [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m Bool :=
-  return errorExplanationExt.getState (← getEnv) |>.contains name
-
-/--
-Returns all error explanations with their names as an unsorted array, *without* rewriting manual
-links.
-
-In general, one should use `Lean.getErrorExplanationsSorted` instead of this function. This function
-is primarily intended for internal use during CI.
--/
-def getErrorExplanationsRaw (env : Environment) : Array (Name × ErrorExplanation) :=
-  errorExplanationExt.getState env |>.toArray
-
-private partial def compareNamedExplanations (ne ne' : Name × ErrorExplanation) : Ordering :=
-  match ne.2.metadata.removedVersion, ne'.2.metadata.removedVersion with
-  | .none, .none | .some _, .some _ => compare ne.1.toString ne'.1.toString
-  | .none, .some _ => .lt
-  | .some _, .none => .gt
-
-/--
-Returns all error explanations with their names as a sorted array, rewriting manual links.
--/
-def getErrorExplanationsSorted [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] : m (Array (Name × ErrorExplanation)) := do
-  let entries := errorExplanationExt.getState (← getEnv) |>.toArray
-  entries
-    |>.qsort (fun e e' => (compareNamedExplanations e e').isLT)
-    |>.mapM fun (n, e) => return (n, { e with doc := (← rewriteManualLinks e.doc) })
 
 namespace ErrorExplanation
 
@@ -124,7 +85,7 @@ where
     .inr <$> namedAttr <|> .inl <$> (upToWs true)
 
   infoString : Parser CodeInfo := do
-    let lang ← (upToWs false)
+    let lang ← upToWs false
     let attrs ← many (attempt <| ws *> attr)
     let mut kind? := Option.none
     let mut title? := Option.none
@@ -137,7 +98,7 @@ where
           | none => kind? := Kind.ofString atomicAttr
           | some kind =>
             fail s!"redundant kind specifications: previously `{kind}`; now `{atomicAttr}`"
-        | _ => fail s!"invalid attribute {atomicAttr}"
+        | _ => fail s!"invalid attribute `{atomicAttr}`"
       | .inr (name, val) =>
         if name == "title" then
           if title?.isNone then
@@ -149,18 +110,6 @@ where
     return { lang, title?, kind? }
 
 open Std.Internal Parsec
-
-def matchHeader (level : Nat) (title? : Option String) (line : String) : Option String :=
-  let init := line.take (level + 1)
-  let expected := ⟨List.replicate level '#'⟩ ++ " "
-  let initMatches := init == expected
-  let actual := line.drop (level + 1)
-  let titleMatches? := title?.map fun title =>
-    actual == title
-  if initMatches && titleMatches?.getD true then
-    some actual
-  else
-    none
 
 private structure ValidationState where
   lines : Array (String × Nat)
@@ -183,7 +132,7 @@ private def ValidationState.get (s : ValidationState) :=
 private def ValidationState.getLineNumber (s : ValidationState) :=
   s.lines[min s.idx (s.lines.size - 1)]!.2
 
-instance : Input ValidationState String Nat where
+private instance : Input ValidationState String Nat where
   pos := ValidationState.idx
   next := fun s => { s with idx := min (s.idx + 1) s.lines.size }
   curr := ValidationState.get
@@ -191,9 +140,9 @@ instance : Input ValidationState String Nat where
   next' := fun s _ => { s with idx := s.idx + 1 }
   curr' := fun s _ => s.get
 
-abbrev ValidationM := Parsec ValidationState
+private abbrev ValidationM := Parsec ValidationState
 
-def ValidationM.run (p : ValidationM α) (input : String) : Except (Nat × String) α :=
+private def ValidationM.run (p : ValidationM α) (input : String) : Except (Nat × String) α :=
   match p (.ofSource input) with
   | .success _ res => Except.ok res
   | .error s err  => Except.error (s.getLineNumber, err)
@@ -290,6 +239,18 @@ where
     | res@(.success ..) => res
     | .error s' msg => .error s' s!"Example '{header}' is malformed: {msg}"
 
+  matchHeader (level : Nat) (title? : Option String) (line : String) : Option String :=
+    let init := line.take (level + 1)
+    let expected := ⟨List.replicate level '#'⟩ ++ " "
+    let initMatches := init == expected
+    let actual := line.drop (level + 1)
+    let titleMatches? := title?.map fun title =>
+      actual == title
+    if initMatches && titleMatches?.getD true then
+      some actual
+    else
+      none
+
 /--
 Validates that the given error explanation has the expected structure, and extracts its code blocks.
 -/
@@ -298,95 +259,50 @@ def processDoc (doc : String) :=
 
 end ErrorExplanation
 
-protected def «throwNamedError» [Monad m] [MonadError m] (name : Name) (msg : MessageData) : m α := do
-  let ref ← getRef
-  let msg := msg.tagWithErrorName name
-  let (ref, msg) ← AddErrorMessageContext.add ref msg
-  throw <| Exception.error ref msg
+-- FIXME: `addImportedFn`
+-- FIXME: should be `builtin_initialize`
+builtin_initialize errorExplanationExt : SimplePersistentEnvExtension (Name × ErrorExplanation) (NameMap ErrorExplanation) ←
+  registerSimplePersistentEnvExtension {
+    addEntryFn := fun s (n, v) => s.insert n v
+    addImportedFn := fun entries => RBMap.ofList entries.flatten.toList
+  }
 
-protected def «throwNamedErrorAt» [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α := do
-  withRef ref <| Lean.throwNamedError name msg
+/-- Returns an error explanation for the given name if one exists, rewriting manual links. -/
+def getErrorExplanation? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m (Option ErrorExplanation) := do
+  let explan? := errorExplanationExt.getState (← getEnv) |>.find? name
+  explan?.mapM fun explan =>
+    return { explan with doc := (← rewriteManualLinks explan.doc) }
 
-section
-variable [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
+/-- Returns true if there exists an error explanation named `name`. -/
+def hasErrorExplanation [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m Bool :=
+  return errorExplanationExt.getState (← getEnv) |>.contains name
 
-/-- Log a named error message using the given message data. The position is provided by `getRef`. -/
-protected def «logNamedError» (name : Name) (msgData : MessageData) : m Unit :=
-  log (msgData.tagWithErrorName name) MessageSeverity.error
+/--
+Returns all error explanations with their names as an unsorted array, *without* rewriting manual
+links.
 
-/-- Log a named error message using the given message data. The position is provided by `ref`. -/
-protected def «logNamedErrorAt» (ref : Syntax) (name : Name) (msgData : MessageData) : m Unit :=
-  logAt ref (msgData.tagWithErrorName name) MessageSeverity.error
+In general, one should use `Lean.getErrorExplanations` or `Lean.getErrorExplanationsSorted` instead
+of this function. This function is primarily intended for internal use.
+-/
+def getErrorExplanationsRaw (env : Environment) : Array (Name × ErrorExplanation) :=
+  errorExplanationExt.getState env |>.toArray
 
-end
+/-- Returns all error explanations with their names, rewriting manual links. -/
+def getErrorExplanations [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] : m (Array (Name × ErrorExplanation)) := do
+  let entries := errorExplanationExt.getState (← getEnv) |>.toArray
+  entries
+    |>.mapM fun (n, e) => return (n, { e with doc := (← rewriteManualLinks e.doc) })
 
--- TODO: the following QoL features would be very helpful (i > ii -- probably i >> ii):
--- (i) cmd-click on error names to jump to the explanation   <-- Could labeled sorries be a model?
--- (ii) autocomplete with registered error explanation names
--- syntax (name := throwNamedErrorStx) "throwNamedError " ident ppSpace (interpolatedStr(term) <|> term) : term
--- syntax (name := throwNamedErrorAtStx) "throwNamedErrorAt " term:max ppSpace ident ppSpace (interpolatedStr(term) <|> term) : term
--- syntax (name := logNamedErrorStx) "logNamedError " ident ppSpace (interpolatedStr(term) <|> term) : term
--- syntax (name := logNamedErrorAtStx) "logNamedErrorAt " term:max ppSpace ident ppSpace (interpolatedStr(term) <|> term) : term
+private partial def compareNamedExplanations (ne ne' : Name × ErrorExplanation) : Ordering :=
+  match ne.2.metadata.removedVersion, ne'.2.metadata.removedVersion with
+  | .none, .none | .some _, .some _ => compare ne.1.toString ne'.1.toString
+  | .none, .some _ => .lt
+  | .some _, .none => .gt
 
-open Lean Parser Term in
-def expandThrowNamedError : Macro
-  | `(throwNamedErrorParser| throwNamedError $id $msg:interpolatedStr) => ``(Lean.throwNamedError $(quote id.getId) m! $msg)
-  | `(throwNamedErrorParser| throwNamedError $id $msg:term) => ``(Lean.throwNamedError $(quote id.getId) $msg)
-  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) m! $msg)
-  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:term) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) $msg)
-  | `(logNamedErrorParser| logNamedError $id $msg:interpolatedStr) => ``(Lean.logError $(quote id.getId) m! $msg)
-  | `(logNamedErrorParser| logNamedError $id $msg:term) => ``(Lean.logNamedError $(quote id.getId) $msg)
-  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
-  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:term) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
-  | _ => Macro.throwUnsupported
-
-open Lean Elab Term in
-@[builtin_term_elab throwNamedErrorParser, builtin_term_elab throwNamedErrorAtParser,
-  builtin_term_elab logNamedErrorParser, builtin_term_elab logNamedErrorAtParser]
-def elabCheckedNamedError : TermElab
-  | stx@`(throwNamedError $id:ident $_msg), expType?
-  | stx@`(throwNamedErrorAt $_ref $id:ident $_msg), expType?
-  | stx@`(logNamedError $id:ident $_msg), expType?
-  | stx@`(logNamedErrorAt $_ref $id:ident $_msg), expType? => do
-    let name := id.getId
-    unless (← hasErrorExplanation name) do
-      throwError m!"There is no explanation associated with the name `{name}`. \
-        Add an explanation of this error to the `Lean.ErrorExplanation` module."
-    let stx' ← liftMacroM <| expandThrowNamedError stx
-    elabTerm stx' expType?
-  | _, _ => throwUnsupportedSyntax
-
-open Parser Elab Meta Term Command in
-@[builtin_command_elab registerErrorExplanationStx] def elabRegisterErrorExplanation : CommandElab
-| `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $nm:ident $t:term) => withRef cmd do
-  let tp := mkConst ``ErrorExplanation.Metadata []
-  let metadata ← runTermElabM <| fun _ => unsafe do
-    let e ← elabTerm t tp
-    if e.hasSyntheticSorry then throwAbortTerm
-    evalExpr ErrorExplanation.Metadata tp e
-  let name := nm.getId
-  if name.isAnonymous then
-    throwErrorAt nm "Invalid name for error explanation: `{nm}`"
-  if name.getNumParts != 2 then
-    throwErrorAt nm m!"Invalid name `{nm}`: Error explanation names must have two components"
-      ++ .note m!"The first component of an error explanation name identifies the package from \
-        which the error originates, and the second identifies the error itself."
-  validateDocComment docStx
-  let doc ← getDocStringText docStx
-  if errorExplanationExt.getState (← getEnv) |>.contains name then
-    throwErrorAt nm m!"Cannot add explanation: An error explanation already exists for `{name}`"
-  let codeBlocks ←
-    match ErrorExplanation.processDoc doc with
-    | .ok bs => pure bs
-    | .error (lineOffset, msg) =>
-      let some range := docStx.raw[1].getRange? | throwError msg
-      let fileMap ← getFileMap
-      let ⟨startLine, _⟩ := fileMap.toPosition range.start
-      let errLine := startLine + lineOffset
-      let synth := Syntax.ofRange { start := fileMap.ofPosition ⟨errLine, 0⟩,
-                                    stop  := fileMap.ofPosition ⟨errLine + 1, 0⟩ }
-      throwErrorAt synth msg
-  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, codeBlocks }))
-| _ => throwUnsupportedSyntax
+/--
+Returns all error explanations with their names as a sorted array, rewriting manual links.
+-/
+def getErrorExplanationsSorted [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] : m (Array (Name × ErrorExplanation)) := do
+  return (← getErrorExplanations).qsort fun e e' => (compareNamedExplanations e e').isLT
 
 end Lean

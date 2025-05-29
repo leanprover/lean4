@@ -1,3 +1,6 @@
+prelude
+import Lean.ErrorExplanation
+
 /--
 This error occurs when the type of a binder in a declaration or local binding is not fully
 specified and cannot be inferred by Lean. Generally, this can be resolved by providing more
@@ -29,6 +32,7 @@ The first three cases are demonstrated in examples below.
 # Examples
 
 ## Binder type requires new type variable
+
 ```lean broken
 def identity x :=
   x
@@ -41,9 +45,14 @@ def identity (x : α) :=
   x
 ```
 
-Unlike some other programming languages, Lean will not automatically generate fresh type variables to replace metavariables arising during type inference. Instead, the type `α` of `x` must be specified. Note that if automatic implicit parameter insertion is enabled (as it is by default), `α` itself need not be bound explicitly; Lean will insert an implicit binder for this parameter automatically.
+Unlike some other programming languages, Lean will not automatically generate fresh type variables
+to replace metavariables arising during type inference. Instead, the type `α` of `x` must be
+specified. Note that if automatic implicit parameter insertion is enabled (as it is by default), the
+binder for `α` itself need not be provided; Lean will insert an implicit binder for this parameter
+automatically.
 
 ## Uninferred binder type due to resulting type annotation
+
 ```lean broken
 def plusTwo x : Nat :=
   x + 2
@@ -56,6 +65,7 @@ when the resulting type of a declaration is explicitly provided, all holes (e.g.
 def plusTwo (x : Nat) : Nat :=
   x + 2
 ```
+
 Even though `x` is inferred to have type `Nat` in the body of `plusTwo`, this information is not
 available when elaborating the type of the definition because the resulting type `Nat` has been
 explicitly specified. Using only the information in the header, the type of `x` cannot be
@@ -81,6 +91,7 @@ named, it should be defined using a declaration form that support naming, such a
 `theorem`.
 
 ## Attempting to define multiple constants in one declaration
+
 ```lean broken
 opaque m n : Nat
 ```

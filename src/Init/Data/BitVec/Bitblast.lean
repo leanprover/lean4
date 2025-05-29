@@ -2519,51 +2519,32 @@ theorem getLsbD_false_of_lt_clzAux {x : BitVec w} {n : Nat} (hw : 0 < w) (hi : i
           apply ihn
           omega
 
-theorem getLsbD_true_of_eq_clzAux_of_ne_zero {x : BitVec w} {n : Nat} (hw : 0 < w) (hx : x ≠ 0#w):
-  x.getLsbD (n - clzAux x n) = true ∨ n = clzAux x n := by
+theorem getLsbD_true_of_eq_clzAux_of_ne_zero {x : BitVec w} {n : Nat} (hw : 0 < w) :
+  x.getLsbD (n - clzAux x n) = true ∨ (n + 1 = clzAux x n):= by
   rcases w with _|w
   · omega
   · induction n
     · case zero =>
       have := clzAux_eq_iff (n := 0) (x := x)
       have := clzAux_lt_iff (n := 0) (x := x)
-      by_cases hc :  x.clzAux 0 < 1
-      · omega
-      · simp_all
-        omega
-
-
-
-
-
-
-
-    induction n generalizing i
-    · case zero =>
-      simp
-      unfold clzAux at hi
-      by_cases hx0 : x[0]
-      · simp [hx0] at hi
-      · simp [hx0] at hi
-        simp [hx0]
+      simp_all
     · case succ n ihn =>
-      induction i
-      · case zero =>
-        simp
-        simp at ihn
-        unfold clzAux at hi
-        by_cases hx1 : x.getLsbD (n + 1)
-        · simp [hx1] at hi
-        · simp [hx1] at hi
-          simp [hx1]
-      · case succ i ihi =>
-        simp
-        unfold clzAux at hi
-        by_cases hx1 : x.getLsbD (n + 1)
-        · simp [hx1] at hi
-        · simp [hx1] at hi
-          apply ihn
-          omega
+      unfold clzAux
+      by_cases hn : x.clzAux n = n + 1
+      · simp [hn]
+        by_cases hn' : x.getLsbD (n + 1) = true
+        · simp [hn']
+        · simp [hn']; omega
+      · have h1 := clzAux_lt_iff (n := n) (x := x)
+        have h2 := clzAux_le (x := x) (n := n)
+        simp [show x.clzAux n < n + 1 by omega] at h1
+        obtain ⟨i,hi,hi'⟩ := h1
+        simp [show ¬ n + 1 = x.clzAux n by omega] at ihn
+        by_cases hn' : x.getLsbD (n + 1) = true
+        · simp [hn']
+        · simp [hn']
+          rw [Nat.sub_add_eq]
+          simp [ihn]
 
 
 /-- Count the number of leading zeroes. -/

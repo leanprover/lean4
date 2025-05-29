@@ -2805,9 +2805,6 @@ theorem getLsbD_false_forall_lt {x : BitVec w} (hx : x ≠ 0#w) :
         simp [this] at hcontra
       · simp [show w + 1 ≤ w + 1 - x.clzAux w + i by omega] at hcontra
 
-theorem getLsbD_false_forall_lt' {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
-  ∀ i, i < x.clz → x.getLsbD (w - 1 - i) = false := by sorry
-
 theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
   constructor
@@ -2851,24 +2848,15 @@ theorem toNat_lt_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
   have : clz x < w := by exact clz_lt_iff_ne_zero.mpr hx
   by_cases hc0 : x.clz = 0
   · simp [hc0]
-    simp [clz_eq_zero_iff (by omega)] at hc0
+    simp [clz_eq_zero_iff hw] at hc0
     omega
   · have : 1 ≤ x.clz := by omega
     have h1 := toNat_lt_iff (x := x)
     have h1' := h1 (w - x.clz) (by omega)
     have h2 := getLsbD_false_of_clz' (x := x)
-    simp [h1']
-    intros k
-    by_cases hw' : w - x.clz + k < w
-    · rw [← h2 (i := 1 + x.clz - k)]
-      by_cases hkw : k ≤ x.clz + 1
-      · by_cases hkw' : w - 1 ≥ 1 + x.clz - k
-        · simp [show w - 1 - (1 + x.clz - k) = w - 1 - 1 - x.clz + k by omega]
-          sorry
-        · sorry
-      · sorry
-      sorry
-    · simp [show w ≤ w - x.clz + k by omega]
+    have h3 := getLsbD_false_forall_lt (x := x) hx
+    simp [h3] at h1'
+    exact h1'
 
 /--
   preliminary overflow flag for fast umulOverflow circuit

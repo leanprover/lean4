@@ -11,6 +11,7 @@ macro_rules
   | `(gen! 0) => `(f 0)
   | `(gen! $n:num) => `(op (f $n) (gen! $(Lean.quote (n.getNat - 1))))
 
+-- This test is nondeterministic: sometimes it fails with a timeout at `whnf` rather than `isDefEq`.
 /--
 trace: [grind.issues] (deterministic) timeout at `isDefEq`, maximum number of heartbeats (5000) has been reached
     Use `set_option maxHeartbeats <num>` to set the limit.

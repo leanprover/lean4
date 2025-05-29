@@ -2554,7 +2554,7 @@ theorem getLsbD_true_of_eq_clzAux_of_ne_zero {x : BitVec w} {n : Nat} (hw : 0 < 
           · simp [ihn]
             omega
 
-theorem clzAux_eq_iff_forall_of_clzAuz_lt  {x : BitVec w} (hx : x ≠ 0#w) (hw : 0 < w) (hlt : (clzAux x n < n + 1)):
+theorem clzAux_eq_iff_forall_of_clzAuz_lt  {x : BitVec w} (hw : 0 < w) (hlt : (clzAux x n < n + 1)):
     ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) ↔ k = x.clzAux n := by
   induction n generalizing k
   · case zero =>
@@ -2590,40 +2590,34 @@ theorem clzAux_eq_iff_forall_of_clzAuz_lt  {x : BitVec w} (hx : x ≠ 0#w) (hw :
       omega
     · case succ k ihk =>
       simp [ihk, ihn]
-      constructor
-      · intro h
-        simp_all
-        sorry
-      · intro h
-        simp_all
-        sorry
-
-
-
-
-
-
-  induction n generalizing k
-  · case zero =>
-    by_cases hx0 : x.getLsbD 0
-    · simp [hx0]
-      constructor
-      · intro h
-        exact eq_zero_of_le_zero (h 0)
-      · intro h
-        omega
-    · have h1 := clzAux_eq_iff (x := x) (n := 0)
-      have h2 := clzAux_lt_iff (x := x) (n := 0)
-      constructor
-      · intro h
-        simp [hx0]
-        simp at h
-
-        sorry
-      · intro h
-        simp at h
-        simp [hx0]
-  · sorry
+      unfold clzAux at hlt
+      unfold clzAux
+      by_cases hxn : x.getLsbD (n + 1)
+      · simp [hxn] at hlt
+        simp [hxn]
+        intro i
+        specialize i 0 (by omega)
+        simp at i
+        simp [i] at hxn
+      · simp [hxn] at hlt
+        simp [show x.clzAux n < n + 1 by omega] at ihn
+        simp [hxn]
+        simp [show k + 1 = 1 + x.clzAux n ↔ k = x.clzAux n by omega]
+        specialize @ihn k
+        simp [← ihn]
+        intro h
+        constructor
+        · intro i j hj
+          simp [h] at ihn
+          specialize i (j + 1) (by omega)
+          simpa using i
+        · intro i
+          intro j hj
+          by_cases hj0 : j = 0
+          · simp_all
+          · specialize i (j - 1) (by omega)
+            simp [show n - (j - 1) = n + 1 - j by omega] at i
+            exact i
 
 theorem clzAux_eq_iff_forall  {x : BitVec w} (hx : x ≠ 0#w) (hw : 0 < w) :
     ∀ i, i < x.clzAux n → x.getLsbD (n - i) = false := by

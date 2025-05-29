@@ -113,7 +113,7 @@ protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := d
       (·.push <$> ·.dynlib.fetch) jobs
     return jobs
   buildLeanSharedLib self.libName self.sharedLibFile objJobs libJobs
-    self.weakLinkArgs self.linkArgs (plugin := self.roots.size == 1)
+    self.weakLinkArgs self.linkArgs self.isPlugin
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=

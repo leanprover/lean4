@@ -123,7 +123,7 @@ a : aexp
 h_3 : s'_1 = s_1
 h_4 : c2 = com.ASSIGN x a
 h_5 : s' = update x (aeval s_1 a) s_1
-h_6 : HEq ⋯ ⋯
+h_6 : ⋯ ≍ ⋯
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
@@ -136,7 +136,7 @@ h_6 : HEq ⋯ ⋯
     [prop] s'_1 = s_1
     [prop] c2 = com.ASSIGN x a
     [prop] s' = update x (aeval s_1 a) s_1
-    [prop] HEq ⋯ ⋯
+    [prop] ⋯ ≍ ⋯
     [prop] cexec s_1 (com.ASSIGN x a) (update x (aeval s_1 a) s_1)
   [eqc] True propositions
     [prop] cexec_bounded fuel' s c1 = some s' → cexec s c1 s'
@@ -190,26 +190,26 @@ h_4 : beval s_1 b_1 = true
 h_5 : cexec s_1 c s'_2
 h_6 : cexec s'_2 (com.WHILE b_1 c) s''
 h_7 : s'_1 = s_1
-b_eq : b = b_1
-c1_eq : c1 = c
-h_9 : s' = s''
-h_10 : HEq ⋯ ⋯
+h_9 : b = b_1
+h_10 : c1 = c
+h_11 : s' = s''
+h_12 : ⋯ ≍ ⋯
 s_2 : store
 b_2 : bexp
 c_1 : com
-h_11 : beval s_2 b_2 = false
-h_12 : s'_2 = s_2
-b_eq_1 : b_1 = b_2
-c1_eq_1 : c = c_1
-h_14 : s'' = s_2
-h_15 : HEq ⋯ ⋯
+h_13 : beval s_2 b_2 = false
+h_14 : s'_2 = s_2
+h_16 : b_1 = b_2
+h_17 : c = c_1
+h_18 : s'' = s_2
+h_19 : ⋯ ≍ ⋯
 s_3 : store
 x : ident
 a : aexp
-h_16 : s_1 = s_3
-h_17 : c = com.ASSIGN x a
-h_18 : s'_2 = update x (aeval s_3 a) s_3
-h_19 : HEq ⋯ ⋯
+h_20 : s_1 = s_3
+h_21 : c = com.ASSIGN x a
+h_22 : s'_2 = update x (aeval s_3 a) s_3
+h_23 : ⋯ ≍ ⋯
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
@@ -228,7 +228,7 @@ h_19 : HEq ⋯ ⋯
     [prop] b = b_1
     [prop] c1 = c
     [prop] s' = s''
-    [prop] HEq ⋯ ⋯
+    [prop] ⋯ ≍ ⋯
     [prop] beval s' b_1 = false → cexec s' (com.WHILE b_1 c) s'
     [prop] beval s b_1 = true → cexec s c s' → cexec s' (com.WHILE b_1 c) s' → cexec s (com.WHILE b_1 c) s'
     [prop] beval s'_1 b_1 = true → cexec s'_1 c s'_2 → cexec s'_2 (com.WHILE b_1 c) s' → cexec s'_1 (com.WHILE b_1 c) s'
@@ -239,11 +239,11 @@ h_19 : HEq ⋯ ⋯
     [prop] b_1 = b_2
     [prop] c = c_1
     [prop] s'' = s_2
-    [prop] HEq ⋯ ⋯
+    [prop] ⋯ ≍ ⋯
     [prop] s_1 = s_3
     [prop] c = com.ASSIGN x a
     [prop] s'_2 = update x (aeval s_3 a) s_3
-    [prop] HEq ⋯ ⋯
+    [prop] ⋯ ≍ ⋯
     [prop] cexec s_3 (com.ASSIGN x a) (update x (aeval s_3 a) s_3)
   [eqc] True propositions
     [prop] cexec_bounded fuel' s c1 = some s' → cexec s c1 s'

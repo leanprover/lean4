@@ -217,7 +217,7 @@ However, in case it is copied and pasted from the Infoview, `⋯` logs a warning
 -/
 @[builtin_term_parser] def omission := leading_parser
   "⋯"
-def binderIdent : Parser := ident <|> hole
+def binderIdent : Parser := identBeforeDot <|> hole
 /--
 The `sorry` term is a temporary placeholder for a missing proof or value.
 

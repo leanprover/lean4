@@ -1,5 +1,5 @@
 import Lean.Elab.ElabRules
-syntax "kdef " ident (".{" ident,+ "}")? " : " term " := " term : command
+syntax "kdef " identBeforeDot (".{" ident,+ "}")? " : " term " := " term : command
 
 open Lean Elab Command Term in
 elab_rules : command | `(kdef $name $[.{ $levelParams?,* }]? : $type := $value) => do

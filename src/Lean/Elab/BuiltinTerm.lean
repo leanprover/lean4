@@ -375,7 +375,10 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
       let name ← mkAuxDeclName `_private
       withoutExporting do
         let e ← elabTerm e expectedType?
-        mkAuxDefinitionFor name e
+        -- Inline as changing visibility should not affect run time.
+        -- Eventually we would like to be more conscious about inlining of instance fields,
+        -- irrespective of `private` use.
+        mkAuxDefinitionFor name e <* setInlineAttribute name
     else
       elabTerm e expectedType?
   | _ => throwUnsupportedSyntax

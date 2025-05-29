@@ -97,14 +97,14 @@ where
           match kind? with
           | none => kind? := Kind.ofString atomicAttr
           | some kind =>
-            fail s!"redundant kind specifications: previously `{kind}`; now `{atomicAttr}`"
-        | _ => fail s!"invalid attribute `{atomicAttr}`"
+            fail s!"Redundant kind specifications: previously `{kind}`; now `{atomicAttr}`"
+        | _ => fail s!"Invalid attribute `{atomicAttr}`"
       | .inr (name, val) =>
         if name == "title" then
           if title?.isNone then
             title? := some val
           else
-            fail "redundant name specifications"
+            fail "Redundant name specifications"
         else
           fail s!"Invalid named attribute `{name}`"
     return { lang, title?, kind? }
@@ -147,16 +147,19 @@ private def ValidationM.run (p : ValidationM α) (input : String) : Except (Nat 
   | .success _ res => Except.ok res
   | .error s err  => Except.error (s.getLineNumber, err)
 
--- A hack to let us show errors other than "not EOF"
+/--
+Matches `p` as many times as possible, followed by EOF. If `p` cannot be matched prior to the end
+of the input, rethrows the corresponding error.
+-/
 private partial def manyThenEOF (p : ValidationM α) : ValidationM (Array α) :=
-  go #[]
+  loop #[]
 where
-  go (acc : Array α) := fun s =>
+  loop (acc : Array α) := fun s =>
     match eof s with
     | .success .. => .success s acc
     | .error .. =>
       match p s with
-      | .success s' x => go (acc.push x) s'
+      | .success s' x => loop (acc.push x) s'
       | .error s' err => .error s' err
 
 private def manyNotD (p : ValidationM α) : ValidationM Unit :=
@@ -259,12 +262,13 @@ def processDoc (doc : String) :=
 
 end ErrorExplanation
 
--- FIXME: `addImportedFn`
--- FIXME: should be `builtin_initialize`
 builtin_initialize errorExplanationExt : SimplePersistentEnvExtension (Name × ErrorExplanation) (NameMap ErrorExplanation) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := fun s (n, v) => s.insert n v
-    addImportedFn := fun entries => RBMap.ofList entries.flatten.toList
+    addImportedFn := fun ess =>
+      ess.foldl (init := ∅) fun acc es =>
+        es.foldl (init := acc) fun acc (n, v) =>
+          acc.insert n v
   }
 
 /-- Returns an error explanation for the given name if one exists, rewriting manual links. -/

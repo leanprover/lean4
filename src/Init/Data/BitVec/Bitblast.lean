@@ -2519,6 +2519,53 @@ theorem getLsbD_false_of_lt_clzAux {x : BitVec w} {n : Nat} (hw : 0 < w) (hi : i
           apply ihn
           omega
 
+theorem getLsbD_true_of_eq_clzAux_of_ne_zero {x : BitVec w} {n : Nat} (hw : 0 < w) (hx : x ≠ 0#w):
+  x.getLsbD (n - clzAux x n) = true ∨ n = clzAux x n := by
+  rcases w with _|w
+  · omega
+  · induction n
+    · case zero =>
+      have := clzAux_eq_iff (n := 0) (x := x)
+      have := clzAux_lt_iff (n := 0) (x := x)
+      by_cases hc :  x.clzAux 0 < 1
+      · omega
+      · simp_all
+        omega
+
+
+
+
+
+
+
+    induction n generalizing i
+    · case zero =>
+      simp
+      unfold clzAux at hi
+      by_cases hx0 : x[0]
+      · simp [hx0] at hi
+      · simp [hx0] at hi
+        simp [hx0]
+    · case succ n ihn =>
+      induction i
+      · case zero =>
+        simp
+        simp at ihn
+        unfold clzAux at hi
+        by_cases hx1 : x.getLsbD (n + 1)
+        · simp [hx1] at hi
+        · simp [hx1] at hi
+          simp [hx1]
+      · case succ i ihi =>
+        simp
+        unfold clzAux at hi
+        by_cases hx1 : x.getLsbD (n + 1)
+        · simp [hx1] at hi
+        · simp [hx1] at hi
+          apply ihn
+          omega
+
+
 /-- Count the number of leading zeroes. -/
 def clz {w : Nat} (x : BitVec w) : Nat := if w = 0 then 0 else clzAux x (w - 1)
 
@@ -2611,6 +2658,46 @@ theorem getLsbD_false_of_clz {x : BitVec w} (hi : i < clz x) :
     have := getLsbD_false_of_lt_clzAux (x := x) (n := w) (by omega) hi
     simp [this]
 
+theorem getLsbD_true_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w):
+    x.getLsbD (w - 1 - x.clz) = true := by
+  have := clz_lt_iff (x := x)
+  simp [hx] at this
+  have := getLsbD_false_of_clz (x := x)
+  apply Classical.byContradiction
+  intro hcontra
+  simp at hcontra
+  -- then clz would be bigger
+  unfold clz at hcontra
+  rcases w
+  · omega
+  · case succ w =>
+    simp at hcontra
+    have := getLsbD_false_of_lt_clzAux
+    sorry
+
+/-
+ 9 8 7 6 5 4 3 2 1 0
+ 0 0 0 0 1 ...       k = 4
+
+-/
+theorem clz_of_getLsbD_false {x : BitVec w} (hw : 0 < w) :
+    (∀ i, i < k → x.getLsbD (w - 1 - i) = false) → x.clz = k := by
+  intro h
+  induction k
+  · case zero =>
+    simp only [clz_eq_zero_iff hw]
+
+
+
+    sorry
+  constructor
+  · intro h
+
+    have := getLsbD_false_of_clz (x := x) (i := w - 1 - k)
+    sorry
+  · intro h
+    sorry
+
 theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
   constructor
@@ -2633,38 +2720,38 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     have := le_toNat_iff (x := x) (i := i) hi
     simp [this, h] at hcontra
 
-theorem forall_getLsbD_false_of_clz {x : BitVec w} :
-    ∀ i, i < clz x → (x.getLsbD (w - (clz x) + i) = false) := by
-  rcases w with _|w
-  · simp
-  · intro i hc
-    by_cases hx : x = 0#(w + 1)
-    · simp_all
-    · have h0 := clz_lt_iff (x := x)
-      simp [hx] at h0
-      induction x.clz
-      · case neg.zero => simp
-      · case neg.succ xclz ihc =>
-        sorry
+theorem toNat_lt_of_clz {x : BitVec w} (hw : 0 < w) :
+    x.toNat < 2 ^ (w - 1 - k) ↔ k < x.clz := by
+  rw [toNat_lt_iff]
+  constructor
+  · intro h
+    specialize h
+    have := getLsbD_false_of_clz (x := x) (i := k)
 
-theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) :
-    x.toNat < 2 ^ (w - clz x) := by
+    sorry
+  · intro h
+    sorry
   rcases w with _|w
   · omega
-  · by_cases hx : 2 ^ w ≤ x.toNat
-    · sorry
-    · have h1 := clz_eq_zero_iff (x := x) hw
-      simp at h1
-      have : 0 < x.clz := by omega
-      have h2 := toNat_lt_iff (x := x) (i := w + 1 - clz x) (by omega)
-      simp [h2]
-      unfold clz
-      simp [show ¬ w + 1 = 0 by omega]
-      intro k
-      by_cases hint : w + 1 - x.clzAux w + k < w + 1
-      · have := clzAux_eq_iff (x := x) (n := w)
-        sorry
-      · simp [show w + 1 ≤ w + 1 - x.clzAux w + k by omega]
+  · constructor
+    · intro h
+      simp at h
+      have h1 := toNat_lt_iff (x := x) (i := w - k) (by omega)
+      simp [h] at h1
+      specialize h1 0
+      have := getLsbD_false_of_clz (x := x) (i := k)
+      simp at h1 this
+      sorry
+    · intro h
+      have := getLsbD_false_of_clz (x := x) (i := k) h
+      simp at this
+      simp
+      have h1 := toNat_lt_iff (x := x) (i := w - k) (by omega)
+      simp [h1]
+      intros i
+
+
+      sorry
 
 -- counterexample why we need hx:
 -- #eval 2 ^ (5 - clz (0#5) - 1) ≤ (0#5).toNat

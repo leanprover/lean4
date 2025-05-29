@@ -123,7 +123,7 @@ def optSemicolon (p : Parser) : Parser :=
 
 -- `checkPrec` necessary for the pretty printer
 @[builtin_term_parser] def ident :=
-  checkPrec maxPrec >> Parser.ident
+  checkPrec maxPrec >> Parser.identBeforeDot
 @[builtin_term_parser] def num : Parser :=
   checkPrec maxPrec >> numLit
 @[builtin_term_parser] def scientific : Parser :=
@@ -206,7 +206,7 @@ The delayed assigned metavariables themselves can be pretty printed using `set_o
 For more information, see the "Gruesome details" module docstrings in `Lean.MetavarContext`.
 -/
 @[builtin_term_parser] def syntheticHole := leading_parser
-  "?" >> (ident <|> "_")
+  "?" >> (identBeforeDot <|> "_")
 /--
 The `⋯` term denotes a term that was omitted by the pretty printer.
 The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options,
@@ -217,7 +217,7 @@ However, in case it is copied and pasted from the Infoview, `⋯` logs a warning
 -/
 @[builtin_term_parser] def omission := leading_parser
   "⋯"
-def binderIdent : Parser  := ident <|> hole
+def binderIdent : Parser := ident <|> hole
 /--
 The `sorry` term is a temporary placeholder for a missing proof or value.
 

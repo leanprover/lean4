@@ -456,6 +456,7 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Pa
 @[combinator_parenthesizer unicodeSymbolNoAntiquot] def unicodeSymbolNoAntiquot.parenthesizer (_sym _asciiSym : String) := visitToken
 
 @[combinator_parenthesizer identNoAntiquot] def identNoAntiquot.parenthesizer := do checkKind identKind; visitToken
+@[combinator_parenthesizer identBeforeDotNoAntiquot] def identBeforeDotNoAntiquot.parenthesizer := do checkKind identKind; visitToken
 @[combinator_parenthesizer rawIdentNoAntiquot] def rawIdentNoAntiquot.parenthesizer := visitToken
 @[combinator_parenthesizer identEq] def identEq.parenthesizer (_id : Name) := visitToken
 @[combinator_parenthesizer nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.parenthesizer (_sym : String) (_includeIdent : Bool) := visitToken

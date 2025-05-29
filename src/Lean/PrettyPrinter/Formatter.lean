@@ -428,7 +428,7 @@ def unicodeSymbolNoAntiquot.formatter (sym asciiSym : String) : Formatter := do
     pushToken info asciiSym false
   goLeft
 
-@[combinator_formatter identNoAntiquot]
+@[combinator_formatter identNoAntiquot, combinator_formatter identBeforeDotNoAntiquot]
 def identNoAntiquot.formatter : Formatter := do
   checkKind identKind
   let stx@(Syntax.ident info _ id _) ← getCur

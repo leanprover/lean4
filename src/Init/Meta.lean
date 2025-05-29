@@ -1095,6 +1095,10 @@ partial def findAux (p : Syntax → Bool) : Syntax → Option Syntax
 def find? (stx : Syntax) (p : Syntax → Bool) : Option Syntax :=
   findAux p stx
 
+def hasDanglingDot : Syntax → Bool
+  | .ident _ raw _ _ => raw.toString.endsWith "."
+  | _ => false
+
 end Syntax
 
 namespace TSyntax

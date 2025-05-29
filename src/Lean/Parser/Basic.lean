@@ -951,7 +951,7 @@ def mkIdResult (startPos : String.Pos) (tk : Option Token) (val : Name) : Parser
     mkTokenAndFixPos startPos tk c s
   else
     let input           := c.input
-    let rawVal          := { str := input, startPos := startPos, stopPos := stopPos  : Substring }
+    let rawVal          := { str := input, startPos := startPos, stopPos := stopPos : Substring }
     let s               := whitespace c s
     let trailingStopPos := s.pos
     let leading         := mkEmptySubstringAt input startPos
@@ -1274,7 +1274,27 @@ def nameLitNoAntiquot : Parser := {
   info := mkAtomicInfo "name"
 }
 
-def identFn : ParserFn := expectTokenFn identKind "identifier"
+def identBeforeDotFn : ParserFn := expectTokenFn identKind "identifier"
+
+def identBeforeDotNoAntiquot : Parser := {
+  fn   := identBeforeDotFn
+  info := mkAtomicInfo "ident"
+}
+
+def identFn : ParserFn := fun c s =>
+  let s := expectTokenFn identKind "identifier" c s
+  match s.stxStack.back with
+  | .ident (.original l p t p') { str, startPos, stopPos } nm pre =>
+    if c.input.get p' == '.' then
+      let endPos := stopPos + '.'
+      let s := whitespace c { s with pos := endPos }
+      let stx' : Syntax := .ident (.original l p { str, startPos := endPos, stopPos := s.pos } endPos)
+        { str, startPos, stopPos := endPos } nm pre
+      let atom : Syntax := .atom (.original t stopPos (mkEmptySubstringAt str endPos) endPos) "."
+      { s with recoveredErrors := s.recoveredErrors.push (stopPos, s.stxStack.push atom, { unexpectedTk := atom }) }.popSyntax.pushSyntax stx'
+    else
+      s
+  | _ => s
 
 def identNoAntiquot : Parser := {
   fn   := identFn
@@ -1752,7 +1772,7 @@ def pushNone : Parser := {
 
 -- We support three kinds of antiquotations: `$id`, `$_`, and `$(t)`, where `id` is a term identifier and `t` is a term.
 def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbolNoAntiquot "(" >> decQuotDepth termParser >> symbolNoAntiquot ")")
-def antiquotExpr : Parser       := identNoAntiquot <|> symbolNoAntiquot "_" <|> antiquotNestedExpr
+def antiquotExpr : Parser       := identBeforeDotNoAntiquot <|> symbolNoAntiquot "_" <|> antiquotNestedExpr
 
 def tokenAntiquotFn : ParserFn := fun c s => Id.run do
   if s.hasError then

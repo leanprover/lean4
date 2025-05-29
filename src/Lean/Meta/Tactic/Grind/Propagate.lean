@@ -217,7 +217,7 @@ builtin_grind_propagator propagateBEqDown ↓BEq.beq := fun e => do
     pushEq a b <| mkApp6 (mkConst ``Grind.eq_of_beq_eq_true u) α binst linst a b (← mkEqProof e (← getBoolTrueExpr))
   else if (← isEqBoolFalse e) then
     let some linst ← getLawfulBEqInst? u α binst | return ()
-    let eq ← shareCommon (mkApp3 (mkConst ``Eq u) α a b)
+    let eq ← shareCommon (mkApp3 (mkConst ``Eq [u.head!.succ]) α a b)
     internalize eq (← getGeneration a)
     pushEqFalse eq <| mkApp6 (mkConst ``Grind.ne_of_beq_eq_false u) α binst linst a b (← mkEqProof e (← getBoolFalseExpr))
 

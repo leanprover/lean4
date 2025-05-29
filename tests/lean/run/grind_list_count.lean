@@ -180,18 +180,6 @@ theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b ==
 theorem replicate_sublist_iff {l : List α} : replicate n a <+ l ↔ n ≤ count a l := by
   grind
 
-theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = length l) :
-    replicate (count a l) a = l := by
-  grind
-
-theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {l : List α} :
-    count b (filterMap f l) = countP (fun a => f a == some b) l := by
-  grind
-
-theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
-    count x (l.flatMap f) = sum (map (count x ∘ f) l) := by
-  grind
-
 theorem count_erase_self {a : α} {l : List α} :
     count a (List.erase l a) = count a l - 1 := by grind
 

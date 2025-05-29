@@ -32,3 +32,15 @@ theorem filter_beq {l : List α} (a : α) : l.filter (· == a) = replicate (coun
 
 theorem filter_eq [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = replicate (count a l) a := by
   grind
+
+theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = length l) :
+    replicate (count a l) a = l := by
+  grind
+
+theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {l : List α} :
+    count b (filterMap f l) = countP (fun a => f a == some b) l := by
+  grind
+
+theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
+    count x (l.flatMap f) = sum (map (count x ∘ f) l) := by
+  grind

@@ -81,7 +81,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grin
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppActiveTheoremPatterns___closed__3;
-lean_object* l_List_mapTR_loop___at_Lean_Meta_Grind_mkEMatchTheoremCore___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_CommRing_pp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___lambda__1___closed__4;
 static lean_object* l_List_forIn_x27_loop___at_Lean_Meta_Grind_Goal_ppState___spec__7___closed__4;
@@ -151,6 +150,7 @@ static lean_object* l_Lean_Meta_Grind_Goal_ppENodeRef___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_foldlM___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_Lean_Meta_Grind_Goal_ppState___spec__7___closed__8;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_List_mapTR_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_logPatternWhen___spec__3(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___lambda__5___closed__1;
 lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___spec__10(lean_object*, lean_object*, lean_object*);
@@ -173,6 +173,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Goal_
 static lean_object* l_Lean_Meta_Grind_Goal_ppState___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppCutsat___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppCommRing___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_Origin_pp___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_logPatternWhen___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppOffset___lambda__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -217,7 +218,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tact
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppCasesTrace___spec__1___closed__8;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppOffset___lambda__1___closed__4;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppCutsat___lambda__1___closed__1;
-lean_object* l_Lean_Meta_Grind_Origin_pp___at_Lean_Meta_Grind_mkEMatchTheoremCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Goal_ppState___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppEqcs___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Goal_ppState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -265,7 +265,6 @@ static lean_object* l_List_forIn_x27_loop___at_Lean_Meta_Grind_Goal_ppState___sp
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Meta_Grind_ppGoals___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_goalToMessageData___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Meta_Grind_Goal_ppState___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at_Lean_Meta_Grind_mkEMatchTheoremCore___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppEqcs___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Goal_ppState___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -283,6 +282,7 @@ lean_object* lean_array_mk(lean_object*);
 uint8_t l_Lean_Expr_isTrue(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppCutsat___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppOffset___spec__1___closed__1;
+lean_object* l_List_mapTR_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_logPatternWhen___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Goal_ppState___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_ppENodeRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -5938,7 +5938,7 @@ _start:
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_1, 5);
 lean_inc(x_7);
-x_8 = l_Lean_Meta_Grind_Origin_pp___at_Lean_Meta_Grind_mkEMatchTheoremCore___spec__3(x_7, x_2, x_3, x_4, x_5, x_6);
+x_8 = l_Lean_Meta_Grind_Origin_pp___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_logPatternWhen___spec__1(x_7, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 
@@ -5959,8 +5959,8 @@ x_15 = lean_ctor_get(x_1, 3);
 lean_inc(x_15);
 lean_dec(x_1);
 x_16 = lean_box(0);
-x_17 = l_List_mapTR_loop___at_Lean_Meta_Grind_mkEMatchTheoremCore___spec__1(x_15, x_16);
-x_18 = l_List_mapTR_loop___at_Lean_Meta_Grind_mkEMatchTheoremCore___spec__2(x_17, x_16);
+x_17 = l_List_mapTR_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_logPatternWhen___spec__2(x_15, x_16);
+x_18 = l_List_mapTR_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_logPatternWhen___spec__3(x_17, x_16);
 x_19 = l_Lean_MessageData_ofList(x_18);
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_14);
@@ -5997,8 +5997,8 @@ x_31 = lean_ctor_get(x_1, 3);
 lean_inc(x_31);
 lean_dec(x_1);
 x_32 = lean_box(0);
-x_33 = l_List_mapTR_loop___at_Lean_Meta_Grind_mkEMatchTheoremCore___spec__1(x_31, x_32);
-x_34 = l_List_mapTR_loop___at_Lean_Meta_Grind_mkEMatchTheoremCore___spec__2(x_33, x_32);
+x_33 = l_List_mapTR_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_logPatternWhen___spec__2(x_31, x_32);
+x_34 = l_List_mapTR_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_logPatternWhen___spec__3(x_33, x_32);
 x_35 = l_Lean_MessageData_ofList(x_34);
 x_36 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_36, 0, x_30);
@@ -8529,7 +8529,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_13 = l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___lambda__2___closed__1;
-x_14 = lean_ctor_get(x_1, 6);
+x_14 = lean_ctor_get(x_1, 5);
 lean_inc(x_14);
 lean_dec(x_1);
 x_15 = lean_ctor_get(x_2, 14);
@@ -9901,7 +9901,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData(lean_object* x_1, l
 _start:
 {
 uint8_t x_8; 
-x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*7 + 10);
+x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*6 + 11);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 

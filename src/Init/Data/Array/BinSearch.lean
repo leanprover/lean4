@@ -129,6 +129,6 @@ Examples:
 * `#[].binInsert (· < ·) 1 = #[1]`
 -/
 @[inline] def binInsert {α : Type u} (lt : α → α → Bool) (as : Array α) (k : α) : Array α :=
-  Id.run <| binInsertM lt (fun _ => k) (fun _ => k) as k
+  Id.run <| binInsertM lt (fun _ => pure k) (fun _ => pure k) as k
 
 end Array

@@ -751,25 +751,7 @@ universe u v w
 
 open Function
 
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type u) (α : Type v) where
-  smul : M → α → α
-
-infixr:73 " • " => HSMul.hSMul
-
-macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
-
-instance instHSMul {α β} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
-
 variable {G : Type _}
-
-class Inv (α : Type u) where
-  inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
 
 class Semigroup (G : Type u) extends Mul G where
   protected mul_assoc : ∀ a b c : G, a * b * c = a * (b * c)

@@ -417,6 +417,7 @@ def setupImports
 
   return .ok {
     mainModuleName := meta.mod
+    isModule := Elab.HeaderSyntax.isModule stx
     imports
     opts
     plugins := fileSetupResult.plugins
@@ -768,8 +769,7 @@ section MessageHandling
       if data.providerName != importAllUnknownIdentifiersProvider then
         return none
       return some <| ← RequestM.asTask do
-        let fileRange := ⟨0, st.doc.meta.text.source.endPos⟩
-        let unknownIdentifierRanges ← waitUnknownIdentifierRanges st.doc fileRange
+        let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges st.doc
         if unknownIdentifierRanges.isEmpty then
           return { response := toJson params, isComplete := true }
         let action? ← handleResolveImportAllUnknownIdentifiersCodeAction? id params unknownIdentifierRanges
@@ -789,7 +789,7 @@ section MessageHandling
         let isSourceAction := params.context.only?.any fun only =>
             only.contains "source" || only.contains "source.organizeImports"
         if isSourceAction then
-          let unknownIdentifierRanges ← waitUnknownIdentifierRanges doc ⟨0, doc.meta.text.source.endPos⟩
+          let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges doc
           if unknownIdentifierRanges.isEmpty then
             return r
           let .ok (codeActions : Array CodeAction) := fromJson? r.response
@@ -807,7 +807,7 @@ section MessageHandling
           -- we only do it when the user has stopped typing for a second.
           IO.sleep 1000
           RequestM.checkCancelled
-          let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange unknownIdentifierRanges
+          let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange
           return { r with response := toJson <| codeActions ++ unknownIdentifierCodeActions }
     | _ =>
       return task

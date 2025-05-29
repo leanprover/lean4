@@ -12,3 +12,6 @@ def h (v w : Vec α n) : Nat :=
 -- we don't have a propagation rule for given `as : Vec α (n+1)`, then `∃ b bs, as = .cons b bs`
 example (a b : Vec α 2) : h a b = 20 := by
   grind [h.eq_def, Vec]
+
+example (a b : Vec α 2) : h a b = 20 := by
+  grind (splits := 4) [h.eq_def, Vec]

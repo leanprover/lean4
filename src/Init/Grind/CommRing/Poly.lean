@@ -8,7 +8,7 @@ module
 prelude
 import Init.Data.Nat.Lemmas
 import Init.Data.Hashable
-import Init.Data.Ord
+import all Init.Data.Ord
 import Init.Data.RArray
 import Init.Grind.CommRing.Basic
 
@@ -189,7 +189,7 @@ def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Mon) (p : Poly)
-  deriving BEq, Inhabited, Hashable
+  deriving BEq, Repr, Inhabited, Hashable
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
@@ -507,6 +507,8 @@ def NullCert.toPolyC (nc : NullCert) (c : Nat) : Poly :=
 /-!
 Theorems for justifying the procedure for commutative rings in `grind`.
 -/
+
+open Semiring Ring CommSemiring
 
 theorem denoteInt_eq {α} [CommRing α] (k : Int) : denoteInt (α := α) k = k := by
   simp [denoteInt, cond_eq_if] <;> split

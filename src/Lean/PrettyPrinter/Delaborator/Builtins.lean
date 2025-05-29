@@ -368,7 +368,9 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
   let (fnStx, args) ←
     withBoundedAppFnArgs numArgs
       (do return ((← delabHead), Array.mkEmpty numArgs))
-      (fun (fnStx, args) => return (fnStx, args.push (← mkArg paramKinds[args.size]!)))
+      (fun (fnStx, args) =>
+        let isFieldIdx := (some args.size = field?.map Prod.fst)
+        return (fnStx, args.push (← mkArg isFieldIdx paramKinds[args.size]!)))
 
   -- Strip off optional arguments.
   let args := args.popWhile (· matches .optional ..)
@@ -410,7 +412,7 @@ where
   Delaborates the current argument.
   The argument `remainingArgs` is the number of arguments in the application after this one.
   -/
-  mkArg (param : ParamKind) : DelabM AppImplicitArg := do
+  mkArg (isFieldIdx : Bool) (param : ParamKind) : DelabM AppImplicitArg := do
     let arg ← getExpr
     if ← getPPOption getPPAnalysisSkip then return .skip
     else if ← getPPOption getPPAnalysisHole then return .regular (← `(_))
@@ -420,7 +422,7 @@ where
       -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument, if it is the last one.
       -- We will later remove all optional arguments from the end.
       return .optional param.name (← delab)
-    else if param.bInfo.isExplicit then
+    else if isFieldIdx || param.bInfo.isExplicit then
       return .regular (← delab)
     else if ← pure (param.name == `motive) <&&> shouldShowMotive arg (← getOptions) then
       mkNamedArg param.name
@@ -844,7 +846,7 @@ where
       x
 
 /--
-Delaborates applications of the form `letFun v (fun x => b)` as `let_fun x := v; b`.
+Delaborates applications of the form `letFun v (fun x => b)` as `have x := v; b`.
 -/
 @[builtin_delab app.letFun]
 def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
@@ -856,9 +858,9 @@ def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
   let (stxN, stxB) ← withAppArg <| withBindingBody' n (mkAnnotatedIdent n) fun stxN => return (stxN, ← delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← SubExpr.withNaryArg 0 delab
-    `(let_fun $stxN : $stxT := $stxV; $stxB)
+    `(have $stxN : $stxT := $stxV; $stxB)
   else
-    `(let_fun $stxN := $stxV; $stxB)
+    `(have $stxN := $stxV; $stxB)
 
 @[builtin_delab mdata]
 def delabMData : Delab := do

@@ -44,25 +44,22 @@ theorem isEqv_self [DecidableEq α] (xs : Vector α n) : Vector.isEqv xs xs (· 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.isEqv_self]
 
-instance [DecidableEq α] : DecidableEq (Vector α n) :=
-  fun xs ys =>
-    match h:isEqv xs ys (fun x y => x = y) with
-    | true  => isTrue (eq_of_isEqv xs ys h)
-    | false => isFalse fun h' => by subst h'; rw [isEqv_self] at h; contradiction
-
 theorem beq_eq_decide [BEq α] (xs ys : Vector α n) :
     (xs == ys) = decide (∀ (i : Nat) (h' : i < n), xs[i] == ys[i]) := by
   simp [BEq.beq, isEqv_eq_decide]
 
-@[simp] theorem beq_mk [BEq α] (xs ys : Array α) (ha : xs.size = n) (hb : ys.size = n) :
+@[deprecated mk_beq_mk (since := "2025-05-26")]
+theorem beq_mk [BEq α] (xs ys : Array α) (ha : xs.size = n) (hb : ys.size = n) :
     (mk xs ha == mk ys hb) = (xs == ys) := by
-  simp [BEq.beq]
+  simp
 
-@[simp, grind =] theorem beq_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray == ys.toArray) = (xs == ys) := by
-  simp [beq_eq_decide, Array.beq_eq_decide]
+@[deprecated toArray_beq_toArray (since := "2025-05-26")]
+theorem beq_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray == ys.toArray) = (xs == ys) := by
+  simp
 
-@[simp] theorem beq_toList [BEq α] (xs ys : Vector α n) : (xs.toList == ys.toList) = (xs == ys) := by
-  simp [beq_eq_decide, List.beq_eq_decide]
+@[deprecated toList_beq_toList (since := "2025-05-26")]
+theorem beq_toList [BEq α] (xs ys : Vector α n) : (xs.toList == ys.toList) = (xs == ys) := by
+  simp
 
 instance [BEq α] [ReflBEq α] : ReflBEq (Vector α n) where
   rfl := by simp [BEq.beq, isEqv_self_beq]

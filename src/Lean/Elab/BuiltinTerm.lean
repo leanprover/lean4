@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Closure
 import Lean.Meta.Diagnostics
 import Lean.Elab.Open
 import Lean.Elab.SetOption
@@ -287,6 +288,20 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
+@[builtin_term_elab valueOf] def elabValueOf : TermElab := fun stx _ => do
+  let ident := stx[1]
+  let some e ← Term.resolveId? stx[1] (withInfo := true)
+    | throwUnknownConstantAt ident ident.getId
+  match e with
+  | .const c us => do
+    let cinfo ← getConstInfo c
+    unless cinfo.hasValue do throwErrorAt ident "Constant has no value."
+    return cinfo.instantiateValueLevelParams! us
+  | .fvar fvarId => do
+    let some val ← fvarId.getValue? | throwErrorAt ident "Local declaration has no value."
+    return val
+  | _ => panic! "resolveId? returned an unexpected expression"
+
 @[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do
   let some (.fvar fvarId) ← isLocalIdent? stx[1]
     | throwErrorAt stx[1] "not in scope"
@@ -349,5 +364,17 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
 
 @[builtin_term_elab Lean.Parser.Term.namedPattern] def elabNamedPatternErr : TermElab := fun stx _ =>
   throwError "`<identifier>@<term>` is a named pattern and can only be used in pattern matching contexts{indentD stx}"
+
+@[builtin_term_elab «privateDecl»] def elabPrivateDecl : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(Parser.Term.privateDecl| private_decl% $e) =>
+    if (← getEnv).isExporting then
+      let name ← mkAuxDeclName `_private
+      withoutExporting do
+        let e ← elabTerm e expectedType?
+        mkAuxDefinitionFor name e
+    else
+      elabTerm e expectedType?
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

@@ -19,15 +19,12 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Param_toMono___boxed(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LetDecl_toMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesNatToMono___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__2;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__10;
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__8;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__1;
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__5;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__4;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_toMono___elambda__1___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__6;
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__7;
 static lean_object* l_Lean_Compiler_LCNF_casesStringToMono___closed__1;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__9;
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__15;
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__10;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_decToMono___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36,19 +33,20 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesInt
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__16;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesNatToMono___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LetValue_toMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__4;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__2;
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDecl_toMono___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__20;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_casesStringToMono___closed__3;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__6;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMono___spec__1___closed__10;
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__8;
 static lean_object* l_Lean_Compiler_LCNF_casesFloatArrayToMono___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesFloatArrayToMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__14;
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__21;
 extern lean_object* l_Lean_Compiler_LCNF_instInhabitedCode;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__7;
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateParamImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_casesArrayToMono___closed__2;
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -57,16 +55,17 @@ static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMon
 static lean_object* l_Lean_Compiler_LCNF_casesNatToMono___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__12;
 lean_object* l_Lean_Compiler_LCNF_Arg_toLetValue(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__7;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesNatToMono___spec__1___closed__2;
-lean_object* l_Lean_Compiler_LCNF_instInhabitedAltCore___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079_(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMono___spec__1___closed__11;
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDeclCore_toMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__10;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMono___spec__1___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__19;
+extern lean_object* l_Lean_Compiler_LCNF_instInhabitedAlt;
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesNatToMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__9;
@@ -74,7 +73,9 @@ static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesByteArrayToMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMono___spec__1___closed__9;
 static lean_object* l_Lean_Compiler_LCNF_casesUIntToMono___closed__1;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__9;
 static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__14;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__5;
 static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__2;
 lean_object* l_Lean_Compiler_LCNF_Decl_saveMono(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkLetDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -89,7 +90,6 @@ static lean_object* l_Lean_Compiler_LCNF_casesArrayToMono___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__11;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_casesByteArrayToMono___closed__4;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__2;
 static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__16;
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateLetDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesStringToMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -112,24 +112,23 @@ static lean_object* l_Lean_Compiler_LCNF_toMono___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__12;
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__11;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__1;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__16;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__5;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__15;
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__8;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_casesArrayToMono___closed__1;
-static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__15;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075_(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__4;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__10;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at_Lean_Compiler_LCNF_Decl_toMono_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesUIntToMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__19;
 uint8_t l_Lean_Compiler_LCNF_isTypeFormerType(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__3;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMono___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Code_toMono___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_addLetDecl(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__4;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__14;
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__13;
 static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__10;
 static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__15;
@@ -137,8 +136,8 @@ static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__12;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_trivialStructToMono___spec__1___closed__1;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__3;
 static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__5;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__11;
 extern lean_object* l_Lean_Compiler_LCNF_instInhabitedArg;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ctorAppToMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -163,10 +162,7 @@ static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__9;
 static lean_object* l_Lean_Compiler_LCNF_toMono___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_casesUIntToMono___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__11;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__12;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__13;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__17;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__12;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isTrivialConstructorApp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_casesStringToMono___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_casesByteArrayToMono___closed__1;
@@ -189,7 +185,6 @@ static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__6;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_ctorAppToMono___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_casesNatToMono___closed__5;
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__19;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_ctorAppToMono___spec__2(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_LCNF_instInhabitedParam;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_decToMono___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -197,6 +192,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_trivialStructToMono___s
 static lean_object* l_Lean_Compiler_LCNF_casesArrayToMono___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__6;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMono___spec__1___closed__6;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__16;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_trivialStructToMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_decToMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_hasTrivialStructure_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -209,20 +205,22 @@ static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__15;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMono___spec__1___closed__12;
 static lean_object* l_Lean_Compiler_LCNF_casesFloatArrayToMono___closed__1;
 lean_object* lean_array_mk(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__8;
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesIntToMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__8;
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__5;
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltCodeImp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 extern lean_object* l_Lean_Compiler_LCNF_anyExpr;
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltImp(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__3;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMono___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__14;
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDecl_toMono___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_casesFloatArrayToMono___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_casesStringToMono___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesUIntToMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -230,13 +228,13 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__11;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_toMono___elambda__1___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesArrayToMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__13;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isTrivialConstructorApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Param_toMono___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_casesNatToMono___closed__4;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__18;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__17;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__13;
 static lean_object* l_Lean_Compiler_LCNF_toMono___closed__1;
@@ -247,10 +245,11 @@ static lean_object* l_Lean_Compiler_LCNF_casesIntToMono___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Code_toMono___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Code_toMono___closed__4;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__15;
+static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__18;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_casesArrayToMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ctorAppToMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__6;
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_casesIntToMono___spec__1___closed__2;
@@ -2455,7 +2454,7 @@ lean_dec(x_2);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1(size_t x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDecl_toMono___spec__1(size_t x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 uint8_t x_10; 
@@ -2523,7 +2522,7 @@ return x_25;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDeclCore_toMono(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toMono(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; lean_object* x_9; 
@@ -2546,7 +2545,7 @@ x_13 = lean_array_size(x_12);
 x_14 = 0;
 lean_inc(x_6);
 lean_inc(x_5);
-x_15 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1(x_13, x_14, x_12, x_2, x_3, x_4, x_5, x_6, x_11);
+x_15 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDecl_toMono___spec__1(x_13, x_14, x_12, x_2, x_3, x_4, x_5, x_6, x_11);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -2702,7 +2701,7 @@ x_17 = lean_array_size(x_15);
 x_18 = 0;
 lean_inc(x_8);
 lean_inc(x_7);
-x_19 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1(x_17, x_18, x_15, x_4, x_5, x_6, x_7, x_8, x_9);
+x_19 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDecl_toMono___spec__1(x_17, x_18, x_15, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -3305,7 +3304,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_53);
-x_55 = l_Lean_Compiler_LCNF_FunDeclCore_toMono(x_53, x_2, x_3, x_4, x_5, x_6, x_7);
+x_55 = l_Lean_Compiler_LCNF_FunDecl_toMono(x_53, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_55) == 0)
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; 
@@ -3549,7 +3548,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_98);
-x_100 = l_Lean_Compiler_LCNF_FunDeclCore_toMono(x_98, x_2, x_3, x_4, x_5, x_6, x_7);
+x_100 = l_Lean_Compiler_LCNF_FunDecl_toMono(x_98, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_100) == 0)
 {
 lean_object* x_101; lean_object* x_102; lean_object* x_103; 
@@ -4829,31 +4828,22 @@ return x_6;
 static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_instInhabitedCode;
-x_2 = l_Lean_Compiler_LCNF_instInhabitedAltCore___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__8() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("ctorName == info.ctorName\n  ", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__9() {
+static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__1;
-x_2 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__8;
+x_2 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__7;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__10() {
+static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -4861,12 +4851,12 @@ x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__4;
 x_2 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__5;
 x_3 = lean_unsigned_to_nat(209u);
 x_4 = lean_unsigned_to_nat(2u);
-x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__9;
+x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__8;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__11() {
+static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -4874,17 +4864,17 @@ x_1 = lean_mk_string_unchecked("info.fieldIdx < ps.size\n  ", 26, 26);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__12() {
+static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__1;
-x_2 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__11;
+x_2 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__10;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__13() {
+static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -4892,12 +4882,12 @@ x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__4;
 x_2 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__5;
 x_3 = lean_unsigned_to_nat(210u);
 x_4 = lean_unsigned_to_nat(2u);
-x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__12;
+x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__11;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__14() {
+static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -4905,7 +4895,7 @@ x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__15() {
+static lean_object* _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -4913,7 +4903,7 @@ x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__4;
 x_2 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__5;
 x_3 = lean_unsigned_to_nat(208u);
 x_4 = lean_unsigned_to_nat(41u);
-x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__14;
+x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__13;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -4937,7 +4927,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__7;
+x_15 = l_Lean_Compiler_LCNF_instInhabitedAlt;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_get(x_15, x_9, x_16);
 if (lean_obj_tag(x_17) == 0)
@@ -4958,7 +4948,7 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; 
 lean_dec(x_20);
 lean_dec(x_19);
-x_23 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__10;
+x_23 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__9;
 x_24 = l_panic___at_Lean_Compiler_LCNF_trivialStructToMono___spec__1(x_23, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_24;
 }
@@ -4974,7 +4964,7 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; 
 lean_dec(x_20);
 lean_dec(x_19);
-x_28 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__13;
+x_28 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__12;
 x_29 = l_panic___at_Lean_Compiler_LCNF_trivialStructToMono___spec__1(x_28, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_29;
 }
@@ -5447,7 +5437,7 @@ else
 {
 lean_object* x_133; lean_object* x_134; 
 lean_dec(x_17);
-x_133 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__15;
+x_133 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__14;
 x_134 = l_panic___at_Lean_Compiler_LCNF_trivialStructToMono___spec__1(x_133, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_134;
 }
@@ -5501,7 +5491,7 @@ x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__4;
 x_2 = l_Lean_Compiler_LCNF_casesStringToMono___closed__1;
 x_3 = lean_unsigned_to_nat(197u);
 x_4 = lean_unsigned_to_nat(34u);
-x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__14;
+x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__13;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -5525,7 +5515,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__7;
+x_15 = l_Lean_Compiler_LCNF_instInhabitedAlt;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_get(x_15, x_9, x_16);
 if (lean_obj_tag(x_17) == 0)
@@ -6137,7 +6127,7 @@ x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__4;
 x_2 = l_Lean_Compiler_LCNF_casesFloatArrayToMono___closed__1;
 x_3 = lean_unsigned_to_nat(186u);
 x_4 = lean_unsigned_to_nat(34u);
-x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__14;
+x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__13;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -6161,7 +6151,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__7;
+x_15 = l_Lean_Compiler_LCNF_instInhabitedAlt;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_get(x_15, x_9, x_16);
 if (lean_obj_tag(x_17) == 0)
@@ -6765,7 +6755,7 @@ x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__4;
 x_2 = l_Lean_Compiler_LCNF_casesByteArrayToMono___closed__1;
 x_3 = lean_unsigned_to_nat(175u);
 x_4 = lean_unsigned_to_nat(34u);
-x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__14;
+x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__13;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -6789,7 +6779,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__7;
+x_15 = l_Lean_Compiler_LCNF_instInhabitedAlt;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_get(x_15, x_9, x_16);
 if (lean_obj_tag(x_17) == 0)
@@ -7393,7 +7383,7 @@ x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__4;
 x_2 = l_Lean_Compiler_LCNF_casesArrayToMono___closed__1;
 x_3 = lean_unsigned_to_nat(164u);
 x_4 = lean_unsigned_to_nat(34u);
-x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__14;
+x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__13;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -7417,7 +7407,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__7;
+x_15 = l_Lean_Compiler_LCNF_instInhabitedAlt;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_get(x_15, x_9, x_16);
 if (lean_obj_tag(x_17) == 0)
@@ -8031,7 +8021,7 @@ x_1 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__4;
 x_2 = l_Lean_Compiler_LCNF_casesUIntToMono___closed__1;
 x_3 = lean_unsigned_to_nat(153u);
 x_4 = lean_unsigned_to_nat(34u);
-x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__14;
+x_5 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__13;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -8056,7 +8046,7 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_16 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__7;
+x_16 = l_Lean_Compiler_LCNF_instInhabitedAlt;
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_get(x_16, x_10, x_17);
 if (lean_obj_tag(x_18) == 0)
@@ -13746,7 +13736,7 @@ return x_60;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDecl_toMono___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 size_t x_10; size_t x_11; lean_object* x_12; 
@@ -13754,7 +13744,7 @@ x_10 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_11 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_12 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1(x_10, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_12 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDecl_toMono___spec__1(x_10, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -14040,7 +14030,7 @@ x_18 = lean_array_size(x_11);
 x_19 = 0;
 lean_inc(x_6);
 lean_inc(x_5);
-x_20 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1(x_18, x_19, x_11, x_2, x_3, x_4, x_5, x_6, x_17);
+x_20 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDecl_toMono___spec__1(x_18, x_19, x_11, x_2, x_3, x_4, x_5, x_6, x_17);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
@@ -14218,7 +14208,7 @@ x_55 = lean_array_size(x_47);
 x_56 = 0;
 lean_inc(x_6);
 lean_inc(x_5);
-x_57 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1(x_55, x_56, x_47, x_2, x_3, x_4, x_5, x_6, x_54);
+x_57 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDecl_toMono___spec__1(x_55, x_56, x_47, x_2, x_3, x_4, x_5, x_6, x_54);
 if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
@@ -14590,7 +14580,7 @@ x_11 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_toMono___elambda__1___spec
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__1() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -14598,17 +14588,17 @@ x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__2() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__1;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__1;
 x_2 = l_Lean_Compiler_LCNF_toMono___closed__1;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__3() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -14616,27 +14606,27 @@ x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__4() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__3;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__5() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__4;
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__1;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__4;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__6() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -14644,17 +14634,17 @@ x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__7() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__5;
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__6;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__5;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__6;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__8() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -14662,17 +14652,17 @@ x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__9() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__7;
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__8;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__7;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__8;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__10() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -14680,47 +14670,47 @@ x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__11() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__9;
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__10;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__9;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__10;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__12() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__11;
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__3;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__11;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__13() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__12;
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__1;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__12;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__14() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__13;
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__6;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__13;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__6;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__15() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -14728,17 +14718,17 @@ x_1 = lean_mk_string_unchecked("ToMono", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__16() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__14;
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__15;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__14;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__15;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__17() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__17() {
 _start:
 {
 lean_object* x_1; 
@@ -14746,33 +14736,33 @@ x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__18() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__16;
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__17;
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__16;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__17;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__19() {
+static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__18;
-x_2 = lean_unsigned_to_nat(4075u);
+x_1 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__18;
+x_2 = lean_unsigned_to_nat(4079u);
 x_3 = l_Lean_Name_num___override(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__2;
+x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__2;
 x_3 = 1;
-x_4 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__19;
+x_4 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__19;
 x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -14894,8 +14884,6 @@ l_Lean_Compiler_LCNF_trivialStructToMono___closed__13 = _init_l_Lean_Compiler_LC
 lean_mark_persistent(l_Lean_Compiler_LCNF_trivialStructToMono___closed__13);
 l_Lean_Compiler_LCNF_trivialStructToMono___closed__14 = _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__14();
 lean_mark_persistent(l_Lean_Compiler_LCNF_trivialStructToMono___closed__14);
-l_Lean_Compiler_LCNF_trivialStructToMono___closed__15 = _init_l_Lean_Compiler_LCNF_trivialStructToMono___closed__15();
-lean_mark_persistent(l_Lean_Compiler_LCNF_trivialStructToMono___closed__15);
 l_Lean_Compiler_LCNF_casesStringToMono___closed__1 = _init_l_Lean_Compiler_LCNF_casesStringToMono___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_casesStringToMono___closed__1);
 l_Lean_Compiler_LCNF_casesStringToMono___closed__2 = _init_l_Lean_Compiler_LCNF_casesStringToMono___closed__2();
@@ -15024,45 +15012,45 @@ l_Lean_Compiler_LCNF_toMono___closed__4 = _init_l_Lean_Compiler_LCNF_toMono___cl
 lean_mark_persistent(l_Lean_Compiler_LCNF_toMono___closed__4);
 l_Lean_Compiler_LCNF_toMono = _init_l_Lean_Compiler_LCNF_toMono();
 lean_mark_persistent(l_Lean_Compiler_LCNF_toMono);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__1 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__1);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__2 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__2();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__2);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__3 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__3();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__3);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__4 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__4();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__4);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__5 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__5();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__5);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__6 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__6();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__6);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__7 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__7();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__7);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__8 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__8();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__8);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__9 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__9();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__9);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__10 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__10();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__10);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__11 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__11();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__11);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__12 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__12();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__12);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__13 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__13();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__13);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__14 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__14();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__14);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__15 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__15();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__15);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__16 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__16();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__16);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__17 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__17();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__17);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__18 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__18();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__18);
-l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__19 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__19();
-lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075____closed__19);
-if (builtin) {res = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4075_(lean_io_mk_world());
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__1 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__1();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__1);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__2 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__2();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__2);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__3 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__3();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__3);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__4 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__4();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__4);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__5 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__5();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__5);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__6 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__6();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__6);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__7 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__7();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__7);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__8 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__8();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__8);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__9 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__9();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__9);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__10 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__10();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__10);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__11 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__11();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__11);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__12 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__12();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__12);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__13 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__13();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__13);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__14 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__14();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__14);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__15 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__15();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__15);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__16 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__16();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__16);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__17 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__17();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__17);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__18 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__18();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__18);
+l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__19 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__19();
+lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079____closed__19);
+if (builtin) {res = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_4079_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

@@ -9,6 +9,7 @@ import Init.Grind.Lemmas
 import Lean.Meta.LitValues
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchEqsExt
+import Lean.Meta.Match.MatchEqs
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Canon
@@ -17,7 +18,6 @@ import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
-
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
@@ -95,10 +95,12 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       if (← isProp d) then
         addSplitCandidate (.imp e (h ▸ rfl))
     else if Arith.isRelevantPred d then
+      -- TODO: should we keep lookahead after we implement non-chronological backtracking?
       if (← getConfig).lookahead then
         addLookaheadCandidate (.imp e (h ▸ rfl))
-      else
-        addSplitCandidate (.imp e (h ▸ rfl))
+      -- We used to add the `split` only if `lookahead := false`, but it was counterintuitive
+      -- to make `grind` "stronger" by disabling a feature.
+      addSplitCandidate (.imp e (h ▸ rfl))
   | _ => pure ()
 
 /--
@@ -114,9 +116,6 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | f@Eq.recOn α a motive b h v => pushHEq e v (mkApp6 (mkConst ``Grind.eqRecOn_heq f.constLevels!) α a motive b h v)
   | _ => return ()
 
-private def preprocessGroundPattern (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← unfoldReducible e)))))
-
 private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
 
@@ -130,7 +129,7 @@ where
     if pattern.isBVar || isPatternDontCare pattern then
       return pattern
     else if let some e := groundPattern? pattern then
-      let e ← preprocessGroundPattern e
+      let e ← preprocessLight e
       internalize e generation none
       return mkGroundPattern e
     else pattern.withApp fun f args => do
@@ -165,7 +164,8 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
   if !(← isMatcher declName) then return ()
   if (← get).ematch.matchEqNames.contains declName then return ()
   modify fun s => { s with ematch.matchEqNames := s.ematch.matchEqNames.insert declName }
-  for eqn in (← Match.getEquationsFor declName).eqnNames do
+  -- for eqn in (← Match.getEquationsFor declName).eqnNames do
+  for eqn in (← Match.genMatchCongrEqns declName) do
     -- We disable pattern normalization to prevent the `match`-expression to be reduced.
     activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
@@ -195,11 +195,12 @@ Recall that the `propagateUnitLike` was added because `isDefEq` implements it,
 and consequently the simplifier reduces terms of the form `a = ctor` to `True` using `eq_self`.
 This `isDefEq` feature was negatively affecting `grind` until we added an
 equivalent one here. For example, when splitting on a `match`-expression
-using Unit-like types, equalites about these types were being reduced to `True`
+using Unit-like types, equalities about these types were being reduced to `True`
 by `simp` (i.e., in the `grind` preprocessor), and `grind` would never see
 these facts.
 -/
 private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
+  unless (← getConfig).etaStruct do return ()
   let aType ← whnfD (← inferType a)
   matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
     unless a.isAppOf ctorVal.name do
@@ -212,7 +213,7 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
           if (← isProof proj) then
             proj ← markProof proj
           ctorApp := mkApp ctorApp proj
-        ctorApp ← shareCommon ctorApp
+        ctorApp ← preprocessLight ctorApp
         internalize ctorApp generation
         pushEq a ctorApp <| (← mkEqRefl a)
 
@@ -278,6 +279,17 @@ private def addSplitCandidatesForFunext (arg : Expr) (generation : Nat) (parent?
   unless (← getConfig).funext do return ()
   addSplitCandidatesForExt arg generation parent?
 
+/--
+Tries to eta-reduce the given expression.
+If successful, pushes a new equality between the two terms.
+-/
+private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
+  let e' := e.eta
+  if e != e' then
+    let e' ← shareCommon e'
+    internalize e' generation
+    pushEq e e' (← mkEqRefl e)
+
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -308,6 +320,7 @@ where
     | .lam .. =>
       addSplitCandidatesForFunext e generation parent?
       mkENode' e generation
+      tryEta e generation
     | .forallE _ d b _ =>
       mkENode' e generation
       internalizeImpl d generation e

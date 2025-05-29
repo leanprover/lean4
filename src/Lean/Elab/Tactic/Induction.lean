@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.FunIndCollect
 import Lean.Meta.GeneralizeVars
 import Lean.Elab.App
+import Lean.Elab.Match
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Generalize
 
@@ -128,10 +129,11 @@ private def getFType : M Expr := do
   pure fType
 
 structure Result where
-  elimApp : Expr
-  motive  : MVarId
-  alts    : Array Alt
-  others  : Array MVarId
+  elimApp     : Expr
+  elimArgs    : Array Expr
+  motive      : MVarId
+  alts        : Array Alt
+  others      : Array MVarId
   complexArgs : Array Expr
 
 /--
@@ -155,7 +157,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
         let s ← get
         let ctx ← read
         unless s.targetPos < ctx.targets.size do
-          throwError "insufficient number of targets for '{elimInfo.elimExpr}'"
+          throwError "Insufficient number of targets for '{elimInfo.elimExpr}'"
         let target := ctx.targets[s.targetPos]!
         let expectedType ← getArgExpectedType
         let target ← withAssignableSyntheticOpaque <| Term.ensureHasType expectedType target
@@ -184,7 +186,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       let s ← get
       let ctx ← read
       unless s.targetPos = ctx.targets.size do
-        throwError "unexpected number of targets for '{elimInfo.elimExpr}'"
+        throwError "Unexpected number of targets for '{elimInfo.elimExpr}'"
       pure ()
   let (_, s) ← (loop).run { elimInfo := elimInfo, targets := targets }
     |>.run { f := elimInfo.elimExpr, fType := elimInfo.elimType, motive := none }
@@ -199,17 +201,21 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       others := others.push mvarId
   let alts ← s.alts.filterM fun alt => return !(← alt.mvarId.isAssigned)
   let some motive := s.motive |
-      throwError "mkElimApp: motive not found"
+      throwError "Internal error in mkElimApp: Motive not found"
   let complexArgs ← s.fType.withApp fun f motiveArgs => do
     unless f == mkMVar motive do
-      throwError "mkElimApp: Expected application of {motive}:{indentExpr s.fType}"
+      throwError "Internal error in mkElimApp: Expected application of {motive}:{indentExpr s.fType}"
     -- Sanity-checking that the motive is applied to the targets.
     -- NB: The motive can take them in a different order than the eliminator itself
     for motiveArg in motiveArgs[:targets.size] do
       unless targets.contains motiveArg do
-        throwError "mkElimApp: Expected first {targets.size} arguments of motive in conclusion to be one of the targets:{indentExpr s.fType}"
+        throwError "Internal error in mkElimApp: Expected first {targets.size} arguments of motive \
+          in conclusion to be one of the targets:{indentExpr s.fType}"
     pure motiveArgs[targets.size:]
-  return { elimApp := (← instantiateMVars s.f), alts, others, motive, complexArgs }
+  let elimApp ← instantiateMVars s.f
+  -- `elimArgs` is the argument list that the offsets in `elimInfo` work with
+  let elimArgs := elimApp.getAppArgs[elimInfo.elimExpr.getAppNumArgs:]
+  return { elimApp, elimArgs, alts, others, motive, complexArgs }
 
 /--
 Given a goal `... targets ... |- C[targets, complexArgs]` associated with `mvarId`,
@@ -246,14 +252,14 @@ def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId)
   let motive ← mkLambdaFVars (targets.map mkFVar) absType
   let motiverInferredType ← inferType motive
   unless (← isDefEqGuarded motiverInferredType motiveType) do
-    throwError "type mismatch when assigning motive{indentExpr motive}\n{← mkHasTypeButIsExpectedMsg motiverInferredType motiveType}"
+    throwError "Type mismatch when assigning motive{indentExpr motive}\n{← mkHasTypeButIsExpectedMsg motiverInferredType motiveType}"
   motiveArg.assign motive
 
 private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM Nat := do
   for altInfo in elimInfo.altsInfo do
     if altInfo.name == altName then
       return altInfo.numFields
-  throwError "unknown alternative name '{altName}'"
+  throwError "Unknown alternative name '{altName}'"
 
 private def isWildcard (altStx : Syntax) : Bool :=
   getAltName altStx == `_
@@ -263,21 +269,21 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
   for h : i in [:altsSyntax.size] do
     let altStx := altsSyntax[i]
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
-      withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
+      withRef altStx <| throwError "Invalid occurrence of the wildcard alternative `| _ => ...`: It must be the last alternative"
     let altName := getAltName altStx
     if altName != `_ then
       if seenNames.contains altName then
-        throwErrorAt altStx s!"duplicate alternative name '{altName}'"
+        throwErrorAt altStx s!"Duplicate alternative name '{altName}'"
       seenNames := seenNames.push altName
       unless alts.any (·.name == altName) do
         let unhandledAlts := alts.filter fun alt => !seenNames.contains alt.name
         let msg :=
           if unhandledAlts.isEmpty then
-            m!"invalid alternative name '{altName}', no unhandled alternatives"
+            m!"Invalid alternative name '{altName}': There are no unhandled alternatives"
           else
             let unhandledAltsMessages := unhandledAlts.map (m!"'{·.name}'")
             let unhandledAlts := MessageData.orList unhandledAltsMessages.toList
-            m!"invalid alternative name '{altName}', expected {unhandledAlts}"
+            m!"Invalid alternative name '{altName}': Expected {unhandledAlts}"
         throwErrorAt altStx msg
 
 
@@ -291,7 +297,7 @@ private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM 
     -- `forallMetaBoundTelescope` will reduce let-bindings, so we don't just count how many
     -- explicit binders are in `bis`, but how many implicit ones.
     -- If this turns out to be insufficient, then the real (and complicated) logic for which
-    -- arguments are explicit or implicit can be found in  `introNImp`,
+    -- arguments are explicit or implicit can be found in `introNImp`,
     let (_, bis, _) ← forallMetaBoundedTelescope target numFields
     let numImplicits := (bis.filter (!·.isExplicit)).size
     return numFields - numImplicits
@@ -309,7 +315,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
 
 open Language in
 def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altStxs? : Option (Array Syntax))
-    (initialInfo : Info)
+    (initialInfo : Info) (tacStx : Syntax)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[])
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let hasAlts := altStxs?.isSome
@@ -406,7 +412,7 @@ where
           applyAltStx tacSnaps altStxs altStxIdx altStx alt
         alts := #[]
       else
-        throwErrorAt altStx "unused alternative '{altName}'"
+        throwErrorAt altStx (Term.mkRedundantAlternativeMsg altName none)
 
     -- now process remaining alternatives; these might either be unreachable or we're in `induction`
     -- without `with`. In all other cases, remaining alternatives are flagged as errors.
@@ -430,7 +436,7 @@ where
         -- User did not provide alternatives using `|`
         setGoals <| (← getGoals) ++ altMVarIds
       else if !altMVarIds.isEmpty then
-        logError m!"alternative '{altName}' has not been provided"
+        logErrorAt tacStx m!"Alternative '{altName}' has not been provided"
         altMVarIds.forM fun mvarId => admitGoal mvarId
 
   /-- Applies syntactic alternative to alternative goal. -/
@@ -441,7 +447,7 @@ where
     let altVars := getAltVars altStx
     let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
     if altVars.size > numFieldsToName then
-      logError m!"too many variable names provided at alternative '{altName}', #{altVars.size} provided, but #{numFieldsToName} expected"
+      logError m!"Too many variable names provided at alternative '{altName}': {altVars.size} provided, but {numFieldsToName} expected"
     let mut (fvarIds, altMVarId) ← altMVarId.introN numFields (altVars.toList.map getNameOfIdent') (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
     -- Delay adding the infos for the pattern LHS because we want them to nest
     -- inside tacticInfo for the current alternative (in `evalAlt`)
@@ -453,7 +459,7 @@ where
     let unusedAlt := do
       addInfo
       if !isWildcard altStx then
-        throwError "alternative '{altName}' is not needed"
+        throwError "Alternative '{altName}' is not needed"
     let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
       | unusedAlt
     altMVarId ← if info.provesMotive then
@@ -527,9 +533,9 @@ private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Exp
     let mut s ← getFVarSetToGeneralize targets forbidden
     for userFVarId in userFVarIds do
       if forbidden.contains userFVarId then
-        throwError "variable cannot be generalized because target depends on it{indentExpr (mkFVar userFVarId)}"
+        throwError "Variable '{mkFVar userFVarId}' cannot be generalized because the induction target depends on it"
       if s.contains userFVarId then
-        throwError "unnecessary 'generalizing' argument, variable '{mkFVar userFVarId}' is generalized automatically"
+        throwError "Unnecessary 'generalizing' argument: Variable '{mkFVar userFVarId}' is generalized automatically"
       s := s.insert userFVarId
     let fvarIds ← sortFVarIds s.toArray
     let (fvarIds, mvarId') ← mvarId.revert fvarIds
@@ -631,7 +637,7 @@ private def inductionAltsPos (stx : Syntax) : Nat :=
   else if stx.getKind == ``Lean.Parser.Tactic.funCases then
     2
   else
-    panic! "inductionAltsSyntaxPos: Unexpected syntax kind {stx.getKind}"
+    panic! s!"inductionAltsSyntaxPos: Unexpected syntax kind {stx.getKind}"
 
 /--
 Expand
@@ -658,9 +664,9 @@ private def checkAltsOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Un
       let n := getAltName alt
       if n == `_ then
         unless (getAltVars alt).isEmpty do
-          throwErrorAt alt "wildcard alternative must not specify variable names"
+          throwErrorAt alt "The wildcard alternative `| _ => ...` must not specify variable names"
         if found then
-          throwErrorAt alt "more than one wildcard alternative '| _ => ...' used"
+          throwErrorAt alt "More than one wildcard alternative `| _ => ...` used"
         found := true
 
 def getInductiveValFromMajor (induction : Bool) (major : Expr) : TacticM InductiveVal :=
@@ -723,7 +729,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
       if let some elimName ← getCustomEliminator? targets induction then
         return ← getElimInfo elimName
     unless targets.size == 1 do
-      throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
+      throwError "Eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
     let indVal ← getInductiveValFromMajor induction targets[0]!
     if induction && indVal.all.length != 1 then
       throwError "'induction' tactic does not support mutually inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
@@ -841,9 +847,9 @@ def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
   let mut foundFVars : FVarIdSet := {}
   for target in targets do
     unless target.isFVar do
-      throwError "index in target's type is not a variable (consider using the `cases` tactic instead){indentExpr target}"
+      throwError "Invalid target: Index in target's type is not a variable (consider using the `cases` tactic instead){indentExpr target}"
     if foundFVars.contains target.fvarId! then
-      throwError "target (or one of its indices) occurs more than once{indentExpr target}"
+      throwError "Invalid target: Target (or one of its indices) occurs more than once{indentExpr target}"
     foundFVars := foundFVars.insert target.fvarId!
 
 /--
@@ -872,7 +878,7 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
       withAltsOfOptInductionAlts optInductionAlts fun alts? => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo stx[0]
           (numGeneralized := n) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
@@ -907,12 +913,12 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
     let candidates ← FunInd.collect funIndInfo (← getMainGoal)
     if candidates.isEmpty then
-      throwError "could not find suitable call of '{.ofConstName fnName}' in the goal"
+      throwError "Could not find suitable call of '{.ofConstName fnName}' in the goal"
     if candidates.size > 1 then
-      throwError "found more than one suitable call of '{.ofConstName fnName}' in the goal. \
+      throwError "Found more than one suitable call of '{.ofConstName fnName}' in the goal. \
         Please include the desired arguments."
     pure candidates[0]!
   | _ =>
@@ -926,11 +932,11 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     let funCall ← elabFunTargetCall cases stx
     funCall.withApp fun fn funArgs => do
     let .const fnName fnUs := fn |
-      throwError "expected application headed by a function constant"
+      throwError "Expected application headed by a function constant"
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
     if funArgs.size != funIndInfo.params.size then
       throwError "Expected fully applied application of '{.ofConstName fnName}' with \
         {funIndInfo.params.size} arguments, but found {funArgs.size} arguments"
@@ -955,7 +961,7 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     unless targets.size = elimInfo.targetsPos.size do
       let tacName := if cases then "fun_cases" else "fun_induction"
       throwError "{tacName} got confused trying to use \
-        {.ofConstName funIndInfo.funIndName}. Does it take {targets.size} or \
+        '{.ofConstName funIndInfo.funIndName}'. Does it take {targets.size} or \
         {elimInfo.targetsPos.size} targets?"
     return (elimInfo, targets)
 
@@ -981,7 +987,7 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
   let tag ← mvarId.getTag
   mvarId.withContext do
     let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
-    let elimArgs := result.elimApp.getAppArgs
+    let elimArgs := result.elimArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]!
     let motiveType ← inferType elimArgs[elimInfo.motivePos]!
     let mvarId ← generalizeTargetsEq mvarId motiveType targets
@@ -995,7 +1001,7 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
       Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
       withAltsOfOptInductionAlts optInductionAlts fun alts => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo stx[0]
           (numEqs := targets.size) (toClear := targetsNew) (toTag := toTag)
 
 @[builtin_tactic Lean.Parser.Tactic.cases, builtin_incremental]

@@ -7,7 +7,6 @@ prelude
 import Init.Grind.Tactics
 import Init.Data.Queue
 import Std.Data.TreeSet
-import Lean.Util.ShareCommon
 import Lean.HeadIndex
 import Lean.Meta.Basic
 import Lean.Meta.CongrTheorems
@@ -16,6 +15,7 @@ import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Ext
 import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.AlphaShareCommon
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.Tactic.Grind.Cases
@@ -56,8 +56,7 @@ register_builtin_option grind.warning : Bool := {
 /-- Context for `GrindM` monad. -/
 structure Context where
   simp         : Simp.Context
-  simprocs     : Array Simp.Simprocs
-  mainDeclName : Name
+  simpMethods  : Simp.Methods
   config       : Grind.Config
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
@@ -118,16 +117,14 @@ private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCo
 /-- State for the `GrindM` monad. -/
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
-  scState    : ShareCommon.State.{0} ShareCommon.objectFactory := emptySC
-  /-- Next index for creating auxiliary theorems. -/
-  nextThmIdx : Nat := 1
+  scState    : AlphaShareCommon.State := {}
   /--
   Congruence theorems generated so far. Recall that for constant symbols
   we rely on the reserved name feature (i.e., `mkHCongrWithArityForConst?`).
   Remark: we currently do not reuse congruence theorems
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
-  simpStats  : Simp.Stats := {}
+  simp       : Simp.State := {}
   trueExpr   : Expr
   falseExpr  : Expr
   natZExpr   : Expr
@@ -188,18 +185,22 @@ def getBoolFalseExpr : GrindM Expr := do
 def getNatZeroExpr : GrindM Expr := do
   return (← get).natZExpr
 
-def getMainDeclName : GrindM Name :=
-  return (← readThe Context).mainDeclName
-
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
 
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
 
+/--
+Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
+-/
+def isMatchEqLikeDeclName (declName : Name) : CoreM Bool := do
+  return (← isMatchCongrEqDeclName declName) || Match.isMatchEqnTheorem (← getEnv) declName
+
 def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
-    modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
+    unless (← isMatchEqLikeDeclName thm.origin.key) do
+      modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
   modify fun s => { s with
     counters.thm := if let some n := s.counters.thm.find? thm.origin then
       s.counters.thm.insert thm.origin (n+1)
@@ -230,19 +231,16 @@ def getMaxGeneration : GrindM Nat := do
 /--
 Abstracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
-def abstractNestedProofs (e : Expr) : GrindM Expr := do
-  let nextIdx := (← get).nextThmIdx
-  let (e, s') ← AbstractNestedProofs.visit e |>.run { cache := true, baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
-  modify fun s => { s with nextThmIdx := s'.nextIdx }
-  return e
+def abstractNestedProofs (e : Expr) : GrindM Expr :=
+  Meta.abstractNestedProofs e
 
 /--
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  let scState ← modifyGet fun s => (s.scState, { s with scState := emptySC })
-  let (e, scState) := ShareCommon.State.shareCommon scState e
+  let scState ← modifyGet fun s => (s.scState, { s with scState := {} })
+  let (e, scState) := shareCommonAlpha e scState
   modify fun s => { s with scState }
   return e
 
@@ -351,6 +349,9 @@ structure ENode where
   -- Remark: we expect to have builtin support for offset constraints, cutsat, and comm ring.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
+
+def ENode.isRoot (n : ENode) :=
+  isSameExpr n.self n.root
 
 def ENode.isCongrRoot (n : ENode) :=
   isSameExpr n.self n.congr
@@ -655,8 +656,11 @@ def Goal.admit (goal : Goal) : MetaM Unit :=
 
 abbrev GoalM := StateRefT Goal GrindM
 
+@[inline] def GoalM.runCore (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
+  StateRefT'.run x goal
+
 @[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
-  goal.mvarId.withContext do StateRefT'.run x goal
+  goal.mvarId.withContext do x.runCore goal
 
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
@@ -1206,6 +1210,17 @@ def markAsInconsistent : GoalM Unit := do
     modify fun s => { s with inconsistent := true }
 
 /--
+Assign the `mvarId` using the given proof of `False`.
+If type of `mvarId` is not `False`, then use `False.elim`.
+-/
+def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : MetaM Unit := mvarId.withContext do
+  let target ← mvarId.getType
+  if target.isFalse then
+    mvarId.assign falseProof
+  else
+    mvarId.assign (← mkFalseElim target falseProof)
+
+/--
 Closes the current goal using the given proof of `False` and
 marks it as inconsistent if it is not already marked so.
 -/
@@ -1213,11 +1228,7 @@ def closeGoal (falseProof : Expr) : GoalM Unit := do
   markAsInconsistent
   let mvarId := (← get).mvarId
   unless (← mvarId.isAssigned) do
-    let target ← mvarId.getType
-    if target.isFalse then
-      mvarId.assign falseProof
-    else
-      mvarId.assign (← mkFalseElim target falseProof)
+    mvarId.assignFalseProof falseProof
 
 /-- Returns all enodes in the goal -/
 def getExprs : GoalM (PArray Expr) := do
@@ -1259,7 +1270,7 @@ def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
 def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
   for e in (← getExprs) do
     let n ← getENode e
-    if isSameExpr n.self n.root then
+    if n.isRoot then
       f n
 
 abbrev Propagator := Expr → GoalM Unit
@@ -1311,7 +1322,7 @@ partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
  let mut r : List (List Expr) := []
  for e in goal.exprs do
     let some node := goal.getENode? e | pure ()
-    if isSameExpr node.root node.self then
+    if node.isRoot then
       r := goal.getEqc node.self :: r
   return r
 

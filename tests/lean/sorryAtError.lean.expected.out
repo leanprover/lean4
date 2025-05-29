@@ -1,6 +1,6 @@
 sorryAtError.lean:13:46-13:47: error: Application type mismatch: In the application
   ty.ty Γ
-the final argument
+the argument
   Γ
 has type
   x.ty.ctx : Type

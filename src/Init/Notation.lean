@@ -292,8 +292,10 @@ recommended_spelling "PProd" for "×'" in [PProd, «term_×'_»]
 @[inherit_doc] infixl:75 " >>> " => HShiftRight.hShiftRight
 @[inherit_doc] infixr:80 " ^ "   => HPow.hPow
 @[inherit_doc] infixl:65 " ++ "  => HAppend.hAppend
-@[inherit_doc] prefix:75 "-"    => Neg.neg
+@[inherit_doc] prefix:75 "-"     => Neg.neg
 @[inherit_doc] prefix:100 "~~~"  => Complement.complement
+@[inherit_doc] postfix:max "⁻¹"  => Inv.inv
+@[inherit_doc] infixr:73 " • " => HSMul.hSMul
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -311,6 +313,40 @@ macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
 macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
+/-!
+We have a macro to make `x • y` notation participate in the expression tree elaborator,
+like other arithmetic expressions such as `+`, `*`, `/`, `^`, `=`, inequalities, etc.
+The macro is using the `leftact%` elaborator introduced in
+[this RFC](https://github.com/leanprover/lean4/issues/2854).
+
+As a concrete example of the effect of this macro, consider
+```lean
+variable [Ring R] [AddCommMonoid M] [Module R M] (r : R) (N : Submodule R M) (m : M) (n : N)
+#check m + r • n
+```
+Without the macro, the expression would elaborate as `m + ↑(r • n : ↑N) : M`.
+With the macro, the expression elaborates as `m + r • (↑n : M) : M`.
+To get the first interpretation, one can write `m + (r • n :)`.
+
+Here is a quick review of the expression tree elaborator:
+1. It builds up an expression tree of all the immediately accessible operations
+   that are marked with `binop%`, `unop%`, `leftact%`, `rightact%`, `binrel%`, etc.
+2. It elaborates every leaf term of this tree
+   (without an expected type, so as if it were temporarily wrapped in `(... :)`).
+3. Using the types of each elaborated leaf, it computes a supremum type they can all be
+   coerced to, if such a supremum exists.
+4. It inserts coercions around leaf terms wherever needed.
+
+The hypothesis is that individual expression trees tend to be calculations with respect
+to a single algebraic structure.
+
+Note(kmill): If we were to remove `HSMul` and switch to using `SMul` directly,
+then the expression tree elaborator would not be able to insert coercions within the right operand;
+they would likely appear as `↑(x • y)` rather than `x • ↑y`, unlike other arithmetic operations.
+-/
+
+@[inherit_doc HSMul.hSMul]
+macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
 
 recommended_spelling "or" for "|||" in [HOr.hOr, «term_|||_»]
 recommended_spelling "xor" for "^^^" in [HXor.hXor, «term_^^^_»]
@@ -322,9 +358,11 @@ recommended_spelling "mul" for "*" in [HMul.hMul, «term_*_»]
 recommended_spelling "div" for "/" in [HDiv.hDiv, «term_/_»]
 recommended_spelling "mod" for "%" in [HMod.hMod, «term_%_»]
 recommended_spelling "pow" for "^" in [HPow.hPow, «term_^_»]
+recommended_spelling "smul" for "•" in [HSMul.hSMul, «term_•_»]
 recommended_spelling "append" for "++" in [HAppend.hAppend, «term_++_»]
 /-- when used as a unary operator -/
 recommended_spelling "neg" for "-" in [Neg.neg, «term-_»]
+recommended_spelling "inv" for "⁻¹" in [Inv.inv]
 recommended_spelling "dvd" for "∣" in [Dvd.dvd, «term_∣_»]
 recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<_»]
 recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]
@@ -339,6 +377,8 @@ recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 @[inherit_doc] infix:50 " > "  => GT.gt
 @[inherit_doc] infix:50 " = "  => Eq
 @[inherit_doc] infix:50 " == " => BEq.beq
+@[inherit_doc] infix:50 " ≍ "  => HEq
+
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.

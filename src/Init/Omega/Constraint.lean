@@ -14,6 +14,9 @@ A `Constraint` consists of an optional lower and upper bound (inclusive),
 constraining a value to a set of the form `∅`, `{x}`, `[x, y]`, `[x, ∞)`, `(-∞, y]`, or `(-∞, ∞)`.
 -/
 
+-- most defs used in proofs by reflection
+@[expose] section
+
 namespace Lean.Omega
 
 /-- An optional lower bound on a integer. -/

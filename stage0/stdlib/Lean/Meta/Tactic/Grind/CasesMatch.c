@@ -87,8 +87,8 @@ lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_markAsPreMatchCond(lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Grind_casesMatch___lambda__2___closed__3;
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isMatchCondCandidate(lean_object* x_1) {
 _start:
 {
@@ -158,7 +158,7 @@ return x_15;
 else
 {
 uint8_t x_16; 
-x_16 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_5, x_5);
+x_16 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_5, x_5);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -207,7 +207,7 @@ return x_25;
 else
 {
 uint8_t x_26; 
-x_26 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_5, x_5);
+x_26 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_5, x_5);
 if (x_26 == 0)
 {
 lean_object* x_27; 
@@ -286,7 +286,7 @@ return x_20;
 else
 {
 uint8_t x_21; 
-x_21 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_7, x_7);
+x_21 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_7, x_7);
 if (x_21 == 0)
 {
 lean_object* x_22; 

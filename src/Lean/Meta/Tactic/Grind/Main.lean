@@ -54,17 +54,29 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
        prop e
   }
 
-def GrindM.run (x : GrindM α) (mainDeclName : Name) (params : Params) (fallback : Fallback) : MetaM α := do
-  let scState := ShareCommon.State.mk _
-  let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
-  let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
-  let (bfalseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``Bool.false)
-  let (btrueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``Bool.true)
-  let (natZExpr, scState)  := ShareCommon.State.shareCommon scState (mkNatLit 0)
+-- A `simp` discharger that does not use assumptions.
+-- We use it to make sure we don't have to reset the `simp` cache used in `grind`.
+private def discharge? (e : Expr) : SimpM (Option Expr) := do
+  let e := e.cleanupAnnotations
+  let r ← Simp.simp e
+  if let some p ← Simp.dischargeRfl r.expr then
+    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
+  else if r.expr.isTrue then
+    return some (← mkOfEqTrue (← r.getProof))
+  else
+    return none
+
+def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM α := do
+  let (falseExpr, scState)  := shareCommonAlpha (mkConst ``False) {}
+  let (trueExpr, scState)   := shareCommonAlpha (mkConst ``True) scState
+  let (bfalseExpr, scState) := shareCommonAlpha (mkConst ``Bool.false) scState
+  let (btrueExpr, scState)  := shareCommonAlpha (mkConst ``Bool.true) scState
+  let (natZExpr, scState)   := shareCommonAlpha (mkNatLit 0) scState
   let simprocs := params.normProcs
+  let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
   let simp := params.norm
   let config := params.config
-  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp }
+  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp }
     |>.run' { scState, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
@@ -93,20 +105,8 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
     for thm in params.extra do
       activateTheorem thm 0
 
-private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) := do
-  let mvarId ← mvarId.abstractMVars
-  let mvarId ← mvarId.clearAuxDecls
-  let mvarId ← mvarId.revertAll
-  let mvarId ← mvarId.unfoldReducible
-  let mvarId ← mvarId.betaReduce
-  appendTagSuffix mvarId `grind
-  let goals ← intros (← mkGoal mvarId params) (generation := 0)
-  goals.forM (·.checkInvariants (expensive := true))
-  return goals.filter fun goal => !goal.inconsistent
-
 structure Result where
-  failures : List Goal
-  skipped  : List Goal
+  failure? : Option Goal
   issues   : List MessageData
   config   : Grind.Config
   trace    : Trace
@@ -140,11 +140,11 @@ private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) : MetaM (Option Mes
   else
     return some <| .trace { cls := `grind } "Diagnostics" msgs
 
-def Result.hasFailures (r : Result) : Bool :=
-  !r.failures.isEmpty
+def Result.hasFailed (r : Result) : Bool :=
+  r.failure?.isSome
 
 def Result.toMessageData (result : Result) : MetaM MessageData := do
-  let mut msgs ← result.failures.mapM (goalToMessageData · result.config)
+  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config)
   if result.config.verbose then
     let mut issues := result.issues
     -- We did not find the following very useful in practice.
@@ -159,27 +159,34 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
       msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
-def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
+private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
+  let mvarId ← mvarId.abstractMVars
+  let mvarId ← mvarId.clearAuxDecls
+  let mvarId ← mvarId.revertAll
+  let mvarId ← mvarId.unfoldReducible
+  let mvarId ← mvarId.betaReduce
+  appendTagSuffix mvarId `grind
+  mkGoal mvarId params
+
+def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
   if debug.terminalTacticsAsSorry.get (← getOptions) then
     mvarId.admit
     return {
-        failures := [], skipped := [], issues := [], config := params.config, trace := {}, counters := {}, simp := {}
+        failure? := none, issues := [], config := params.config, trace := {}, counters := {}, simp := {}
     }
-  else
-    let go : GrindM Result := withReducible do
-      let goals ← initCore mvarId params
-      let (failures, skipped) ← solve goals fallback
-      trace[grind.debug.final] "{← ppGoals goals}"
-      let issues   := (← get).issues
-      let trace    := (← get).trace
-      let counters := (← get).counters
-      let simp     := (← get).simpStats
-      if failures.isEmpty then
-        -- If there are no failures and diagnostics are enabled, we still report the performance counters.
-        if (← isDiagnosticsEnabled) then
-          if let some msg ← mkGlobalDiag counters simp then
-            logInfo msg
-      return { failures, skipped, issues, config := params.config, trace, counters, simp }
-    go.run mainDeclName params fallback
+  let go : GrindM Result := withReducible do
+    let goal ← initCore mvarId params
+    let failure? ← solve goal
+    let issues   := (← get).issues
+    let trace    := (← get).trace
+    let counters := (← get).counters
+    let simp     := { (← get).simp with }
+    if failure?.isNone then
+      -- If there are no failures and diagnostics are enabled, we still report the performance counters.
+      if (← isDiagnosticsEnabled) then
+        if let some msg ← mkGlobalDiag counters simp then
+          logInfo msg
+    return { failure?, issues, config := params.config, trace, counters, simp }
+  go.run params fallback
 
 end Lean.Meta.Grind

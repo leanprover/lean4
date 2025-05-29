@@ -174,7 +174,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           mkSorry goal (synthetic := true)
       else
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
-        mapError (f := (m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:{indentD ·}")) do
+        prependError m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:" do
           solveMono failK hmono.mvarId!
         trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
         instantiateMVars hmono

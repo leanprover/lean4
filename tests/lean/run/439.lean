@@ -44,7 +44,7 @@ variable (fn' : Fn ((p : P) -> B.fn p -> B.fn p) ({p : P} -> B.fn p -> B.fn p))
 /--
 error: Application type mismatch: In the application
   fn'.imp p
-the final argument
+the argument
   p
 has type
   P : Sort u

@@ -127,7 +127,7 @@ end Except
 /--
 Adds exceptions of type `ε` to a monad `m`.
 -/
-def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
+@[expose] def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
   m (Except ε α)
 
 /--
@@ -136,7 +136,7 @@ may throw the corresponding exception.
 
 This is the inverse of `ExceptT.run`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def ExceptT.mk {ε : Type u} {m : Type u → Type v} {α : Type u} (x : m (Except ε α)) : ExceptT ε m α := x
 
 /--
@@ -144,7 +144,7 @@ Use a monadic action that may throw an exception as an action that may return an
 
 This is the inverse of `ExceptT.mk`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def ExceptT.run {ε : Type u} {m : Type u → Type v} {α : Type u} (x : ExceptT ε m α) : m (Except ε α) := x
 
 namespace ExceptT
@@ -154,14 +154,14 @@ variable {ε : Type u} {m : Type u → Type v} [Monad m]
 /--
 Returns the value `a` without throwing exceptions or having any other effect.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def pure {α : Type u} (a : α) : ExceptT ε m α :=
   ExceptT.mk <| pure (Except.ok a)
 
 /--
 Handles exceptions thrown by an action that can have no effects _other_ than throwing exceptions.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def bindCont {α β : Type u} (f : α → ExceptT ε m β) : Except ε α → m (Except ε β)
   | Except.ok a    => f a
   | Except.error e => pure (Except.error e)
@@ -170,14 +170,14 @@ protected def bindCont {α β : Type u} (f : α → ExceptT ε m β) : Except ε
 Sequences two actions that may throw exceptions. Typically used via `do`-notation or the `>>=`
 operator.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def bind {α β : Type u} (ma : ExceptT ε m α) (f : α → ExceptT ε m β) : ExceptT ε m β :=
   ExceptT.mk <| ma >>= ExceptT.bindCont f
 
 /--
 Transforms a successful computation's value using `f`. Typically used via the `<$>` operator.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def map {α β : Type u} (f : α → β) (x : ExceptT ε m α) : ExceptT ε m β :=
   ExceptT.mk <| x >>= fun a => match a with
     | (Except.ok a)    => pure <| Except.ok (f a)
@@ -186,7 +186,7 @@ protected def map {α β : Type u} (f : α → β) (x : ExceptT ε m α) : Excep
 /--
 Runs a computation from an underlying monad in the transformed monad with exceptions.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def lift {α : Type u} (t : m α) : ExceptT ε m α :=
   ExceptT.mk <| Except.ok <$> t
 
@@ -197,7 +197,7 @@ instance : MonadLift m (ExceptT ε m) := ⟨ExceptT.lift⟩
 /--
 Handles exceptions produced in the `ExceptT ε` transformer.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def tryCatch {α : Type u} (ma : ExceptT ε m α) (handle : ε → ExceptT ε m α) : ExceptT ε m α :=
   ExceptT.mk <| ma >>= fun res => match res with
    | Except.ok a    => pure (Except.ok a)

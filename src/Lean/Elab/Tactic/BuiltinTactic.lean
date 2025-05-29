@@ -344,6 +344,71 @@ where
         replaceMainGoal [mvarId]
   | _ => throwUnsupportedSyntax
 
+@[builtin_tactic Lean.Parser.Tactic.clearValue] def evalClearValue : Tactic := fun stx => do
+  let args : TSyntaxArray ``Parser.Tactic.clearValueArg := TSyntaxArray.mk stx[1].getArgs
+  withMainContext do
+    -- Elaboration phase
+    let mvarCounterSaved := (← getMCtx).mvarCounter
+    let mut fvarIds : Array FVarId := #[]
+    let mut hasStar := false
+    let mut hypStxs : Array Syntax := #[]
+    let mut hyps : Array Hypothesis := #[]
+    let pushFVarId (fvarIds : Array FVarId) (x : Term) (fvarId : FVarId) : TacticM (Array FVarId) := do
+      unless ← fvarId.isLetVar do
+        throwErrorAt x "Hypothesis `{mkFVar fvarId}` is not a local definition."
+      if fvarIds.contains fvarId then
+        throwErrorAt x "Hypothesis `{mkFVar fvarId}` appears multiple times."
+      return fvarIds.push fvarId
+    for arg in args do
+      match arg with
+      | `(clearValueArg| *) =>
+        if hasStar then
+          throwErrorAt arg "Multiple `*` arguments provided."
+        hasStar := true
+      | `(clearValueArg| ($h : $x = $v)) =>
+        let fvarId ← getFVarId x
+        fvarIds ← pushFVarId fvarIds x fvarId
+        let e := (← fvarId.getValue?).get!
+        let e' ← Tactic.elabTermEnsuringType v (← fvarId.getType)
+        unless ← withAssignableSyntheticOpaque <| isDefEq e e' do
+          let (e, e') ← addPPExplicitToExposeDiff e e'
+          throwErrorAt v "Provided term{indentExpr e'}\n\
+            is not definitionally equal to{indentD m!"{Expr.fvar fvarId} := {e}"}"
+        let mvars ← filterOldMVars (← getMVars e') mvarCounterSaved
+        logUnassignedAndAbort mvars
+        let userName ← match h with
+          | `(binderIdent| $n:ident) => pure n.raw.getId
+          | _ => mkFreshBinderNameForTactic `h
+        let type ← mkEq (Expr.fvar fvarId) e'
+        let value := mkExpectedPropHint (← mkEqRefl (Expr.fvar fvarId)) type
+        hyps := hyps.push { userName, type, value }
+        hypStxs := hypStxs.push h
+      | `(clearValueArg| $x:term) =>
+        let fvarId ← getFVarId x
+        fvarIds ← pushFVarId fvarIds x fvarId
+      | _ => throwUnsupportedSyntax
+    -- Clearing phase
+    let mut g ← popMainGoal
+    let (hypFVarIds, g') ← g.assertHypotheses hyps
+    g := g'
+    g.withContext do
+      for hypStx in hypStxs, hypFVarId in hypFVarIds do
+        Term.addTermInfo' (isBinder := true) hypStx (Expr.fvar hypFVarId)
+    let toClear ← g.withContext do
+      if hasStar then pure <| (← getLocalHyps).map Expr.fvarId!
+      else sortFVarIds fvarIds
+    let mut succeeded := false
+    for fvarId in toClear.reverse do
+      try
+        g ← g.clearValue fvarId
+        succeeded := true
+      catch _ =>
+        if fvarIds.contains fvarId then
+          g.withContext do throwError "Tactic `clear_value` failed, the value of `{Expr.fvar fvarId}` cannot be cleared.\n{g}"
+    unless succeeded do
+      g.withContext do throwError "Tactic `clear_value` failed to clear any values.\n{g}"
+    pushGoal g
+
 def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : TacticM Unit := do
   for h in hs do
     withMainContext do
@@ -353,7 +418,20 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
 
 @[builtin_tactic Lean.Parser.Tactic.subst] def evalSubst : Tactic := fun stx =>
   match stx with
-  | `(tactic| subst $hs*) => forEachVar hs Meta.subst
+  | `(tactic| subst $hs*) => forEachVar hs fun mvarId fvarId => do
+    let decl ← fvarId.getDecl
+    if decl.isLet then
+      -- Zeta delta reduce the let and eliminate it.
+      let (_, mvarId) ← mvarId.withReverted #[fvarId] fun mvarId' fvars => mvarId'.withContext do
+        let tgt ← mvarId'.getType
+        assert! tgt.isLet
+        let mvarId'' ← mvarId'.replaceTargetDefEq (tgt.letBody!.instantiate1 tgt.letValue!)
+        -- Dropped the let fvar
+        let aliasing := (fvars.extract 1).map some
+        return ((), aliasing, mvarId'')
+      return mvarId
+    else
+      Meta.subst mvarId fvarId
   | _                     => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>

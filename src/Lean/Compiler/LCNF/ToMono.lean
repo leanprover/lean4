@@ -4,13 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Compiler.ExternAttr
 import Lean.Compiler.LCNF.MonoTypes
 import Lean.Compiler.LCNF.InferType
+import Lean.Compiler.NoncomputableAttr
 
 namespace Lean.Compiler.LCNF
 
 structure ToMonoM.State where
   typeParams : FVarIdSet := {}
+  noncomputableVars : FVarIdMap Name := {}
 
 abbrev ToMonoM := StateRefT ToMonoM.State CompilerM
 
@@ -24,6 +27,11 @@ def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Opt
   let some info ← hasTrivialStructure? ctorInfo.induct | return none
   return args[ctorInfo.numParams + info.fieldIdx]!.toLetValue
 
+def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
+  if (← get).noncomputableVars.contains fvarId then
+    let declName := (← get).noncomputableVars.find! fvarId
+    throwError f!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{declName}', which is 'noncomputable'"
+
 def argToMono (arg : Arg) : ToMonoM Arg := do
   match arg with
   | .erased | .type .. => return .erased
@@ -31,6 +39,7 @@ def argToMono (arg : Arg) : ToMonoM Arg := do
     if (← get).typeParams.contains fvarId then
       return .erased
     else
+      checkFVarUse fvarId
       return arg
 
 def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Arg) : ToMonoM LetValue := do
@@ -42,9 +51,9 @@ def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Arg) : ToMonoM LetVa
   let argsNew := argsNew ++ (← args[ctorInfo.numParams:].toArray.mapM argToMono)
   return .const ctorInfo.name [] argsNew
 
-partial def LetValue.toMono (e : LetValue) : ToMonoM LetValue := do
+partial def LetValue.toMono (e : LetValue) (fvarId : FVarId) : ToMonoM LetValue := do
   match e with
-  | .erased | .value .. => return e
+  | .erased | .lit .. => return e
   | .const declName _ args =>
     if declName == ``Decidable.isTrue then
       return .const ``Bool.true [] #[]
@@ -55,35 +64,41 @@ partial def LetValue.toMono (e : LetValue) : ToMonoM LetValue := do
       -- and Bool have the same runtime representation.
       return args[1]!.toLetValue
     else if let some e' ← isTrivialConstructorApp? declName args then
-      e'.toMono
+      e'.toMono fvarId
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
       ctorAppToMono ctorInfo args
     else
+      let env ← getEnv
+      if isNoncomputable env declName && !(isExtern env declName) then
+        modify fun s => { s with noncomputableVars := s.noncomputableVars.insert fvarId declName }
       return .const declName [] (← args.mapM argToMono)
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased
     else
+      checkFVarUse fvarId
       return .fvar fvarId (← args.mapM argToMono)
   | .proj structName fieldIdx fvarId =>
     if (← get).typeParams.contains fvarId then
       return .erased
-    else if let some info ← hasTrivialStructure? structName then
-      if info.fieldIdx == fieldIdx then
-        return .fvar fvarId #[]
-      else
-        return .erased
     else
-      return e
+      checkFVarUse fvarId
+      if let some info ← hasTrivialStructure? structName then
+        if info.fieldIdx == fieldIdx then
+          return .fvar fvarId #[]
+        else
+          return .erased
+      else
+        return e
 
 def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
   let type ← toMonoType decl.type
-  let value ← decl.value.toMono
+  let value ← decl.value.toMono decl.fvarId
   decl.update type value
 
 mutual
 
-partial def FunDeclCore.toMono (decl : FunDecl) : ToMonoM FunDecl := do
+partial def FunDecl.toMono (decl : FunDecl) : ToMonoM FunDecl := do
   let type ← toMonoType decl.type
   let params ← decl.params.mapM (·.toMono)
   let value ← decl.value.toMono
@@ -105,7 +120,7 @@ partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : ToMonoM Code
 partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code := do
   let resultType ← toMonoType c.resultType
   let natType := mkConst ``Nat
-  let zeroDecl ← mkLetDecl `zero natType (.value (.natVal 0))
+  let zeroDecl ← mkLetDecl `zero natType (.lit (.nat 0))
   let isZeroDecl ← mkLetDecl `isZero (mkConst ``Bool) (.const ``Nat.decEq [] #[.fvar c.discr, .fvar zeroDecl.fvarId])
   let alts ← c.alts.mapM fun alt => do
     match alt with
@@ -114,7 +129,7 @@ partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code :
       eraseParams ps
       if ctorName == ``Nat.succ then
         let p := ps[0]!
-        let oneDecl ← mkLetDecl `one natType (.value (.natVal 1))
+        let oneDecl ← mkLetDecl `one natType (.lit (.nat 1))
         let subOneDecl := { fvarId := p.fvarId, binderName := p.binderName, type := natType, value := .const ``Nat.sub [] #[.fvar c.discr, .fvar oneDecl.fvarId] }
         modifyLCtx fun lctx => lctx.addLetDecl subOneDecl
         return .alt ``Bool.false #[] (.let oneDecl (.let subOneDecl (← k.toMono)))
@@ -126,7 +141,7 @@ partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code :
 partial def casesIntToMono (c: Cases) (_ : c.typeName == ``Int) : ToMonoM Code := do
   let resultType ← toMonoType c.resultType
   let natType := mkConst ``Nat
-  let zeroNatDecl ← mkLetDecl `natZero natType (.value (.natVal 0))
+  let zeroNatDecl ← mkLetDecl `natZero natType (.lit (.nat 0))
   let zeroIntDecl ← mkLetDecl `intZero (mkConst ``Int) (.const ``Int.ofNat [] #[.fvar zeroNatDecl.fvarId])
   let isNegDecl ← mkLetDecl `isNeg (mkConst ``Bool) (.const ``Int.decLt [] #[.fvar c.discr, .fvar zeroIntDecl.fvarId])
   let alts ← c.alts.mapM fun alt => do
@@ -137,7 +152,7 @@ partial def casesIntToMono (c: Cases) (_ : c.typeName == ``Int) : ToMonoM Code :
       let p := ps[0]!
       if ctorName == ``Int.negSucc then
         let absDecl ← mkLetDecl `abs natType (.const ``Int.natAbs [] #[.fvar c.discr])
-        let oneDecl ← mkLetDecl `one natType (.value (.natVal 1))
+        let oneDecl ← mkLetDecl `one natType (.lit (.nat 1))
         let subOneDecl := { fvarId := p.fvarId, binderName := p.binderName, type := natType, value := .const ``Nat.sub [] #[.fvar absDecl.fvarId, .fvar oneDecl.fvarId] }
         modifyLCtx fun lctx => lctx.addLetDecl subOneDecl
         return .alt ``Bool.true #[] (.let absDecl (.let oneDecl (.let subOneDecl (← k.toMono))))
@@ -221,8 +236,12 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
   | .let decl k => return code.updateLet! (← decl.toMono) (← k.toMono)
   | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
   | .unreach type => return .unreach (← toMonoType type)
-  | .return .. | .jmp .. => return code
+  | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
+  | .return fvarId =>
+    checkFVarUse fvarId
+    return code
   | .cases c =>
+    checkFVarUse c.discr
     if h : c.typeName == ``Decidable then
       decToMono c h
     else if h : c.typeName == ``Nat then

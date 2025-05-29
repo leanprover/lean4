@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
+import all Init.Data.Zero
 import Init.Grind.CommRing.Basic
 import Init.Data.Fin.Lemmas
 
@@ -14,22 +15,24 @@ namespace Lean.Grind
 namespace Fin
 
 instance (n : Nat) [NeZero n] : NatCast (Fin n) where
-  natCast a := Fin.ofNat' n a
+  natCast a := Fin.ofNat n a
 
+@[expose]
 def intCast [NeZero n] (a : Int) : Fin n :=
   if 0 ≤ a then
-    Fin.ofNat' n a.natAbs
+    Fin.ofNat n a.natAbs
   else
-    - Fin.ofNat' n a.natAbs
+    - Fin.ofNat n a.natAbs
 
 instance (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
 theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
-    (x : Fin n) = if 0 ≤ x then Fin.ofNat' n x.natAbs else -Fin.ofNat' n x.natAbs := rfl
+    (x : Fin n) = if 0 ≤ x then Fin.ofNat n x.natAbs else -Fin.ofNat n x.natAbs := rfl
 
 -- TODO: we should replace this at runtime with either repeated squaring,
 -- or a GMP accelerated function.
+@[expose]
 def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n := npowRec y x
 
 instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
@@ -69,7 +72,7 @@ theorem left_distrib (a b c : Fin n) : a * (b + c) = a * b + a * c := by
   cases a; cases b; cases c; simp [Fin.mul_def, Fin.add_def, Nat.left_distrib]
 
 theorem ofNat_succ [NeZero n] (a : Nat) : OfNat.ofNat (α := Fin n) (a+1) = OfNat.ofNat a + 1 := by
-  simp [OfNat.ofNat, Fin.add_def, Fin.ofNat']
+  simp [OfNat.ofNat, Fin.add_def, Fin.ofNat]
 
 theorem sub_eq_add_neg [NeZero n] (a b : Fin n) : a - b = a + -b := by
   cases a; cases b; simp [Fin.neg_def, Fin.sub_def, Fin.add_def, Nat.add_comm]
@@ -96,14 +99,18 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   mul_one := Fin.mul_one
   left_distrib := Fin.left_distrib
   zero_mul := Fin.zero_mul
-  pow_zero _ := rfl
-  pow_succ _ _ := rfl
+  pow_zero _ := by rfl
+  pow_succ _ _ := by rfl
   ofNat_succ := Fin.ofNat_succ
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
 
 instance (n : Nat) [NeZero n] : IsCharP (Fin n) n where
-  ofNat_eq_zero_iff x := by simp only [OfNat.ofNat, Fin.ofNat']; simp
+  ofNat_eq_zero_iff x := by
+    change Fin.ofNat _ _ = Fin.ofNat _ _ ↔ _
+    simp only [Fin.ofNat]
+    simp only [Nat.zero_mod]
+    simp only [Fin.mk.injEq]
 
 end Fin
 

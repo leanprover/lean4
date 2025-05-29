@@ -37,7 +37,7 @@ A monad that can have side effects on the external world or throw exceptions of 
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
+@[expose] def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
 instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
 instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
@@ -48,7 +48,7 @@ instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (E
 /--
 An `IO` monad that cannot throw exceptions.
 -/
-def BaseIO := EIO Empty
+@[expose] def BaseIO := EIO Empty
 
 instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
 instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))

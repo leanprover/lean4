@@ -22,9 +22,9 @@ section Nat
 /--
 The bitvector with value `i mod 2^n`.
 -/
-@[match_pattern]
+@[expose, match_pattern]
 protected def ofNat (n : Nat) (i : Nat) : BitVec n where
-  toFin := Fin.ofNat' (2^n) i
+  toFin := Fin.ofNat (2^n) i
 
 instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 
@@ -41,6 +41,7 @@ Usually accessed via the `+` operator.
 
 SMT-LIB name: `bvadd`.
 -/
+@[expose]
 protected def add (x y : BitVec n) : BitVec n := .ofNat n (x.toNat + y.toNat)
 instance : Add (BitVec n) := ⟨BitVec.add⟩
 
@@ -49,6 +50,7 @@ Subtracts one bitvector from another. This can be interpreted as either signed o
 modulo `2^n`. Usually accessed via the `-` operator.
 
 -/
+@[expose]
 protected def sub (x y : BitVec n) : BitVec n := .ofNat n ((2^n - y.toNat) + x.toNat)
 instance : Sub (BitVec n) := ⟨BitVec.sub⟩
 

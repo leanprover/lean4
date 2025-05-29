@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sort.Impl
-// Imports: Init.Data.List.Sort.Lemmas
+// Imports: Init.Data.List.Sort.Basic Init.Data.List.Sort.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__4;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__43;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__3_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitRevAt_go___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082_run_x27(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__38;
@@ -54,16 +55,17 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__22;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__50;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__44;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__3_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__29;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitRevInTwo_x27(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__53;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__24;
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__2_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__26;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeTR_go(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__51;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__17;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__41;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082_run___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__30;
@@ -75,6 +77,7 @@ static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082_run___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__59;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__10;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__15;
@@ -91,14 +94,13 @@ LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitRevInTwo___rarg___boxed(
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeTR_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__19;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__32;
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__2_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR_run___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__3_splitter(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__48;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__57;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitRevInTwo___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_u2082_run_x27_match__1_splitter___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__2_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__1_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916_;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_916____closed__27;
@@ -1275,7 +1277,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__2_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__3_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
@@ -1320,19 +1322,19 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__2_splitter(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__3_splitter(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__2_splitter___rarg___boxed), 5, 0);
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__3_splitter___rarg___boxed), 5, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__2_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__3_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__2_splitter___rarg(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_run_match__3_splitter___rarg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_1);
 return x_6;
 }
@@ -1726,12 +1728,69 @@ x_2 = lean_alloc_closure((void*)(l_List_MergeSort_Internal_mergeSortTR_u2082___r
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_6; 
+lean_dec(x_5);
+lean_dec(x_4);
+x_6 = lean_apply_1(x_3, x_2);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+lean_dec(x_3);
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+if (lean_obj_tag(x_7) == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+lean_dec(x_5);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_apply_2(x_4, x_8, x_2);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_dec(x_4);
+x_10 = lean_ctor_get(x_1, 0);
+lean_inc(x_10);
+lean_dec(x_1);
+x_11 = lean_ctor_get(x_7, 0);
+lean_inc(x_11);
+x_12 = lean_ctor_get(x_7, 1);
+lean_inc(x_12);
+lean_dec(x_7);
+x_13 = lean_apply_4(x_5, x_10, x_11, x_12, x_2);
+return x_13;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter___rarg), 5, 0);
+return x_3;
+}
+}
+lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Impl(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_List_Sort_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_List_Sort_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

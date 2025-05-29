@@ -43,6 +43,7 @@ lean_object* l_Lean_MVarId_heqOfEq(lean_object*, lean_object*, lean_object*, lea
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 static lean_object* l_Lean_MVarId_hcongr_x3f___lambda__2___closed__1;
 static lean_object* l_Lean_MVarId_congr_x3f___closed__1;
+uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_MVarId_congrN_go___spec__1(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrN___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,7 +70,6 @@ static lean_object* l_Lean_MVarId_congrCore___closed__4;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_MVarId_congrImplies_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSomeNoEx_x3f___at_Lean_MVarId_congr_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrPre___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrPre___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_saveState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2833,7 +2833,7 @@ lean_dec(x_9);
 x_24 = 2;
 x_25 = lean_unbox(x_22);
 lean_dec(x_22);
-x_26 = l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_25, x_24);
+x_26 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_25, x_24);
 if (x_26 == 0)
 {
 lean_object* x_27; 

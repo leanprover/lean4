@@ -10,6 +10,8 @@ import Init.SimpLemmas
 import Init.Data.Nat.Basic
 import Init.Data.List.Notation
 
+@[expose] section
+
 /-!
 # Basic operations on `List`.
 
@@ -584,7 +586,7 @@ Examples:
 * `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
 * `[].reverse = []`
 -/
-def reverse (as : List α) : List α :=
+@[expose] def reverse (as : List α) : List α :=
   reverseAux as []
 
 @[simp, grind] theorem reverse_nil : reverse ([] : List α) = [] := rfl
@@ -713,7 +715,7 @@ Examples:
  * `List.singleton "green" = ["green"]`.
  * `List.singleton [1, 2, 3] = [[1, 2, 3]]`
 -/
-@[inline] protected def singleton {α : Type u} (a : α) : List α := [a]
+@[inline, expose] protected def singleton {α : Type u} (a : α) : List α := [a]
 
 /-! ### flatMap -/
 
@@ -900,13 +902,13 @@ theorem elem_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : List α} (h : a
 instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
 
-@[grind] theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
+theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
   intro h
   induction h with
   | head => apply Mem.head
   | tail => apply Mem.tail; assumption
 
-@[grind] theorem mem_append_right {b : α} (as : List α) {bs : List α} : b ∈ bs → b ∈ as ++ bs := by
+theorem mem_append_right {b : α} (as : List α) {bs : List α} : b ∈ bs → b ∈ as ++ bs := by
   intro h
   induction as with
   | nil  => simp [h]
@@ -1188,10 +1190,10 @@ def isPrefixOf [BEq α] : List α → List α → Bool
   | _,     []    => false
   | a::as, b::bs => a == b && isPrefixOf as bs
 
-@[simp] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
+@[simp, grind =] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
   simp [isPrefixOf]
-@[simp] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
-theorem isPrefixOf_cons₂ [BEq α] {a : α} :
+@[simp, grind =] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
+@[grind =] theorem isPrefixOf_cons₂ [BEq α] {a : α} :
     isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := rfl
 
 /--
@@ -1227,7 +1229,7 @@ Examples:
 def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
   isPrefixOf l₁.reverse l₂.reverse
 
-@[simp] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
+@[simp, grind =] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
   simp [isSuffixOf]
 
 /--

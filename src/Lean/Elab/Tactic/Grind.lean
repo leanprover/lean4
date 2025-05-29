@@ -135,17 +135,17 @@ def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
-    (mainDeclName : Name) (fallback : Grind.Fallback) : TacticM Grind.Trace := do
+    (fallback : Grind.Fallback) : TacticM Grind.Trace := do
   mvarId.withContext do
     let params ← mkGrindParams config only ps
     let type ← mvarId.getType
     let mvar' ← mkFreshExprSyntheticOpaqueMVar type
-    let result ← Grind.main mvar'.mvarId! params mainDeclName fallback
-    if result.hasFailures then
+    let result ← Grind.main mvar'.mvarId! params fallback
+    if result.hasFailed then
       throwError "`grind` failed\n{← result.toMessageData}"
     -- `grind` proofs are often big
     let e ← if (← isProp type) then
-      mkAuxTheorem (prefix? := mainDeclName) type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
     else
       let auxName ← Term.mkAuxName `grind
       mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
@@ -181,9 +181,8 @@ def evalGrindCore
   let params := if let some params := params then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
     logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects."
-  let declName := (← Term.getDeclName?).getD `_grind
   withMainContext do
-    let result ← grind (← getMainGoal) config only params declName fallback
+    let result ← grind (← getMainGoal) config only params fallback
     replaceMainGoal []
     return result
 
@@ -215,27 +214,26 @@ def mkGrindOnly
   let mut foundFns : NameSet := {}
   for { origin, kind } in trace.thms.toList do
     if let .decl declName := origin then
-      unless Match.isMatchEqnTheorem (← getEnv) declName do
-        if let some declName ← isEqnThm? declName then
-          unless foundFns.contains declName do
-            foundFns := foundFns.insert declName
-            let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-            let param ← `(Parser.Tactic.grindParam| $decl:ident)
-            params := params.push param
-        else
+      if let some declName ← isEqnThm? declName then
+        unless foundFns.contains declName do
+          foundFns := foundFns.insert declName
           let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-          let param ← match kind with
-            | .eqLhs     => `(Parser.Tactic.grindParam| = $decl)
-            | .eqRhs     => `(Parser.Tactic.grindParam| =_ $decl)
-            | .eqBoth    => `(Parser.Tactic.grindParam| _=_ $decl)
-            | .eqBwd     => `(Parser.Tactic.grindParam| ←= $decl)
-            | .bwd       => `(Parser.Tactic.grindParam| ← $decl)
-            | .fwd       => `(Parser.Tactic.grindParam| → $decl)
-            | .leftRight => `(Parser.Tactic.grindParam| => $decl)
-            | .rightLeft => `(Parser.Tactic.grindParam| <= $decl)
-            | .user      => `(Parser.Tactic.grindParam| usr $decl)
-            | .default   => `(Parser.Tactic.grindParam| $decl:ident)
+          let param ← `(Parser.Tactic.grindParam| $decl:ident)
           params := params.push param
+      else
+        let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+        let param ← match kind with
+          | .eqLhs     => `(Parser.Tactic.grindParam| = $decl)
+          | .eqRhs     => `(Parser.Tactic.grindParam| =_ $decl)
+          | .eqBoth    => `(Parser.Tactic.grindParam| _=_ $decl)
+          | .eqBwd     => `(Parser.Tactic.grindParam| ←= $decl)
+          | .bwd       => `(Parser.Tactic.grindParam| ← $decl)
+          | .fwd       => `(Parser.Tactic.grindParam| → $decl)
+          | .leftRight => `(Parser.Tactic.grindParam| => $decl)
+          | .rightLeft => `(Parser.Tactic.grindParam| <= $decl)
+          | .user      => `(Parser.Tactic.grindParam| usr $decl)
+          | .default   => `(Parser.Tactic.grindParam| $decl:ident)
+        params := params.push param
   for declName in trace.eagerCases.toList do
     unless Grind.isBuiltinEagerCases declName do
       let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)

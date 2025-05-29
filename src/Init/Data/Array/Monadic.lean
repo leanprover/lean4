@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.List.Control
+import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Attach
 import Init.Data.List.Monadic
@@ -23,14 +25,28 @@ open Nat
 
 /-! ## Monadic operations -/
 
+theorem map_toList_inj [Monad m] [LawfulMonad m]
+    {xs : m (Array α)} {ys : m (Array α)} :
+   toList <$> xs = toList <$> ys ↔ xs = ys := by
+  simp
+
 /-! ### mapM -/
 
 @[simp] theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Array α} {f : α → β} :
     xs.mapM (m := m) (pure <| f ·) = pure (xs.map f) := by
   induction xs; simp_all
 
-@[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f :=
+@[simp] theorem idRun_mapM {xs : Array α} {f : α → Id β} : (xs.mapM f).run = xs.map (f · |>.run) :=
   mapM_pure
+
+@[deprecated idRun_mapM (since := "2025-05-21")]
+theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f :=
+  mapM_pure
+
+@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {xs : Array α} :
+    (xs.map f).mapM g = xs.mapM (g ∘ f) := by
+  rcases xs with ⟨xs⟩
+  simp
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] {f : α → m β} {xs ys : Array α} :
     (xs ++ ys).mapM f = (return (← xs.mapM f) ++ (← ys.mapM f)) := by
@@ -179,12 +195,18 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs⟩
   simp [List.forIn'_pure_yield_eq_foldl, List.foldl_map]
 
-@[simp] theorem forIn'_yield_eq_foldl
+theorem idRun_forIn'_yield_eq_foldl
+    {xs : Array α} (f : (a : α) → a ∈ xs → β → Id β) (init : β) :
+    (forIn' xs init (fun a m b => .yield <$> f a m b)).run =
+      xs.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init := by
+  simp
+
+@[deprecated idRun_forIn'_yield_eq_foldl (since := "2025-05-21")]
+theorem forIn'_yield_eq_foldl
     {xs : Array α} (f : (a : α) → a ∈ xs → β → β) (init : β) :
     forIn' (m := Id) xs init (fun a m b => .yield (f a m b)) =
-      xs.attach.foldl (fun b ⟨a, h⟩ => f a h b) init := by
-  rcases xs with ⟨xs⟩
-  simp [List.foldl_map]
+      xs.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
+  forIn'_pure_yield_eq_foldl _ _
 
 @[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
     {xs : Array α} (g : α → β) (f : (b : β) → b ∈ xs.map g → γ → m (ForInStep γ)) :
@@ -221,12 +243,18 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs⟩
   simp [List.forIn_pure_yield_eq_foldl, List.foldl_map]
 
-@[simp] theorem forIn_yield_eq_foldl
+theorem idRun_forIn_yield_eq_foldl
+    {xs : Array α} (f : α → β → Id β) (init : β) :
+    (forIn xs init (fun a b => .yield <$> f a b)).run =
+      xs.foldl (fun b a => f a b |>.run) init := by
+  simp
+
+@[deprecated idRun_forIn_yield_eq_foldl (since := "2025-05-21")]
+theorem forIn_yield_eq_foldl
     {xs : Array α} (f : α → β → β) (init : β) :
     forIn (m := Id) xs init (fun a b => .yield (f a b)) =
-      xs.foldl (fun b a => f a b) init := by
-  rcases xs with ⟨xs⟩
-  simp [List.foldl_map]
+      xs.foldl (fun b a => f a b) init :=
+  forIn_pure_yield_eq_foldl _ _
 
 @[simp] theorem forIn_map [Monad m] [LawfulMonad m]
     {xs : Array α} {g : α → β} {f : β → γ → m (ForInStep γ)} :
@@ -282,7 +310,7 @@ namespace List
 @[simp] theorem filterM_toArray' [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} (w : stop = l.length) :
     l.toArray.filterM p 0 stop = toArray <$> l.filterM p := by
   subst w
-  rw [filterM_toArray]
+  simp [← filterM_toArray]
 
 @[grind =] theorem filterRevM_toArray [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} :
     l.toArray.filterRevM p = toArray <$> l.filterRevM p := by
@@ -294,7 +322,7 @@ namespace List
 @[simp] theorem filterRevM_toArray' [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} (w : start = l.length) :
     l.toArray.filterRevM p start 0 = toArray <$> l.filterRevM p := by
   subst w
-  rw [filterRevM_toArray]
+  simp [← filterRevM_toArray]
 
 @[grind =] theorem filterMapM_toArray [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Option β)} :
     l.toArray.filterMapM f = toArray <$> l.filterMapM f := by
@@ -312,7 +340,7 @@ namespace List
 @[simp] theorem filterMapM_toArray' [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Option β)} (w : stop = l.length) :
     l.toArray.filterMapM f 0 stop = toArray <$> l.filterMapM f := by
   subst w
-  rw [filterMapM_toArray]
+  simp [← filterMapM_toArray]
 
 @[simp, grind =] theorem flatMapM_toArray [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Array β)} :
     l.toArray.flatMapM f = toArray <$> l.flatMapM (fun a => Array.toList <$> f a) := by

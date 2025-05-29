@@ -9,6 +9,7 @@ prelude
 
 import Init.ByCases
 import Init.RCases
+import all Init.Control.Except  -- for `MonoBind` instance
 
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as
@@ -167,7 +168,7 @@ A function is monotone if it maps related elements to related elements.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
+@[expose] def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
 
 theorem monotone_const (c : β) : monotone (fun (_ : α) => c) :=
   fun _ _ _ => PartialOrder.rel_refl
@@ -707,7 +708,7 @@ set_option linter.unusedVariables false in
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def FlatOrder {α : Sort u} (b : α) := α
+@[expose] def FlatOrder {α : Sort u} (b : α) := α
 
 variable {b : α}
 
@@ -842,7 +843,7 @@ end mono_bind
 
 section implication_order
 -- Partial order on `Prop` given by implication
-def ImplicationOrder := Prop
+@[expose] def ImplicationOrder := Prop
 
 instance ImplicationOrder.instOrder : PartialOrder ImplicationOrder where
   rel x y := x → y
@@ -876,6 +877,12 @@ instance ImplicationOrder.instCompleteLattice : CompleteLattice ImplicationOrder
     @monotone _ _ _ ImplicationOrder.instOrder (fun x => (Exists (f x))) :=
   fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
 
+@[partial_fixpoint_monotone] theorem implication_order_monotone_forall
+    {α} [PartialOrder α] {β} (f : α → β → ImplicationOrder)
+    (h : monotone f) :
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => ∀ y, f x y) :=
+  fun x y hxy h₂ y₁ => monotone_apply y₁ f h x y hxy (h₂ y₁)
+
 @[partial_fixpoint_monotone] theorem implication_order_monotone_and
     {α} [PartialOrder α] (f₁ : α → ImplicationOrder) (f₂ : α → ImplicationOrder)
     (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁)
@@ -897,7 +904,7 @@ end implication_order
 
 section reverse_implication_order
 
-def ReverseImplicationOrder := Prop
+@[expose] def ReverseImplicationOrder := Prop
 
 -- Partial order on `Prop` given by reverse implication
 instance ReverseImplicationOrder.instOrder : PartialOrder ReverseImplicationOrder where
@@ -929,6 +936,12 @@ def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplica
     (h : monotone f) :
     @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => Exists (f x)) :=
   fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
+
+@[partial_fixpoint_monotone] theorem coind_monotone_forall
+    {α} [PartialOrder α] {β} (f : α → β → ReverseImplicationOrder)
+    (h : monotone f) :
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => ∀ y, f x y) :=
+  fun x y hxy h₂ y₁ => monotone_apply y₁ f h x y hxy (h₂ y₁)
 
 @[partial_fixpoint_monotone] theorem coind_monotone_and
     {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)

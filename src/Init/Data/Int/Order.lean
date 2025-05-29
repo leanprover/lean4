@@ -166,6 +166,9 @@ protected theorem lt_or_le (a b : Int) : a < b ∨ b ≤ a := by rw [← Int.not
 protected theorem le_of_not_gt {a b : Int} (h : ¬ a > b) : a ≤ b :=
   Int.not_lt.mp h
 
+protected theorem not_lt_of_ge {a b : Int} (h : b ≤ a) : ¬a < b :=
+  Int.not_lt.mpr h
+
 protected theorem lt_trichotomy (a b : Int) : a < b ∨ a = b ∨ b < a :=
   if eq : a = b then .inr <| .inl eq else
   if le : a ≤ b then .inl <| Int.lt_iff_le_and_ne.2 ⟨le, eq⟩ else
@@ -635,7 +638,7 @@ theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
 @[simp] theorem toNat_natCast (n : Nat) : toNat ↑n = n := rfl
 
 @[deprecated toNat_natCast (since := "2025-04-16")]
-theorem toNat_ofNat (n : Nat) : toNat ↑n = n := toNat_natCast n
+theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
 
 @[simp] theorem toNat_negSucc (n : Nat) : (Int.negSucc n).toNat = 0 := by
   simp [toNat]
@@ -1180,6 +1183,54 @@ protected theorem nonpos_of_mul_nonpos_left {a b : Int}
 protected theorem nonpos_of_mul_nonpos_right {a b : Int}
     (h : a * b ≤ 0) (ha : 0 < a) : b ≤ 0 :=
   Int.le_of_not_gt fun hb : b > 0 => Int.not_le_of_gt (Int.mul_pos ha hb) h
+
+protected theorem nonneg_of_mul_nonpos_left {a b : Int}
+    (h : a * b ≤ 0) (hb : b < 0) : 0 ≤ a :=
+  Int.le_of_not_gt fun ha => Int.not_le_of_gt (Int.mul_pos_of_neg_of_neg ha hb) h
+
+protected theorem nonneg_of_mul_nonpos_right {a b : Int}
+    (h : a * b ≤ 0) (ha : a < 0) : 0 ≤ b :=
+  Int.le_of_not_gt fun hb => Int.not_le_of_gt (Int.mul_pos_of_neg_of_neg ha hb) h
+
+protected theorem nonpos_of_mul_nonneg_left {a b : Int}
+    (h : 0 ≤ a * b) (hb : b < 0) : a ≤ 0 :=
+  Int.le_of_not_gt fun ha : a > 0 => Int.not_le_of_gt (Int.mul_neg_of_pos_of_neg ha hb) h
+
+protected theorem nonpos_of_mul_nonneg_right {a b : Int}
+    (h : 0 ≤ a * b) (ha : a < 0) : b ≤ 0 :=
+  Int.le_of_not_gt fun hb : b > 0 => Int.not_le_of_gt (Int.mul_neg_of_neg_of_pos ha hb) h
+
+protected theorem pos_of_mul_pos_left {a b : Int}
+    (h : 0 < a * b) (hb : 0 < b) : 0 < a :=
+  Int.lt_of_not_ge fun ha => Int.not_lt_of_ge (Int.mul_nonpos_of_nonpos_of_nonneg ha (Int.le_of_lt hb)) h
+
+protected theorem pos_of_mul_pos_right {a b : Int}
+    (h : 0 < a * b) (ha : 0 < a) : 0 < b :=
+  Int.lt_of_not_ge fun hb => Int.not_lt_of_ge (Int.mul_nonpos_of_nonneg_of_nonpos (Int.le_of_lt ha) hb) h
+
+protected theorem neg_of_mul_neg_left {a b : Int}
+    (h : a * b < 0) (hb : 0 < b) : a < 0 :=
+  Int.lt_of_not_ge fun ha => Int.not_lt_of_ge (Int.mul_nonneg ha (Int.le_of_lt hb)) h
+
+protected theorem neg_of_mul_neg_right {a b : Int}
+    (h : a * b < 0) (ha : 0 < a) : b < 0 :=
+  Int.lt_of_not_ge fun hb => Int.not_lt_of_ge (Int.mul_nonneg (Int.le_of_lt ha) hb) h
+
+protected theorem pos_of_mul_neg_left {a b : Int}
+    (h : a * b < 0) (hb : b < 0) : 0 < a :=
+  Int.lt_of_not_ge fun ha => Int.not_lt_of_ge (Int.mul_nonneg_of_nonpos_of_nonpos ha (Int.le_of_lt hb)) h
+
+protected theorem pos_of_mul_neg_right {a b : Int}
+    (h : a * b < 0) (ha : a < 0) : 0 < b :=
+  Int.lt_of_not_ge fun hb => Int.not_lt_of_ge (Int.mul_nonneg_of_nonpos_of_nonpos (Int.le_of_lt ha) hb) h
+
+protected theorem neg_of_mul_pos_left {a b : Int}
+    (h : 0 < a * b) (hb : b < 0) : a < 0 :=
+  Int.lt_of_not_ge fun ha => Int.not_lt_of_ge (Int.mul_nonpos_of_nonneg_of_nonpos ha (Int.le_of_lt hb)) h
+
+protected theorem neg_of_mul_pos_right {a b : Int}
+    (h : 0 < a * b) (ha : a < 0) : b < 0 :=
+  Int.lt_of_not_ge fun hb => Int.not_lt_of_ge (Int.mul_nonpos_of_nonpos_of_nonneg (Int.le_of_lt ha) hb) h
 
 /- ## sign -/
 

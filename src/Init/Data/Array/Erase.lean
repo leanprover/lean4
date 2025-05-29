@@ -6,6 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Nat.Basic
@@ -23,7 +24,7 @@ open Nat
 
 /-! ### eraseP -/
 
-@[simp] theorem eraseP_empty : #[].eraseP p = #[] := by simp
+theorem eraseP_empty : #[].eraseP p = #[] := by simp
 
 theorem eraseP_of_forall_mem_not {xs : Array α} (h : ∀ a, a ∈ xs → ¬p a) : xs.eraseP p = xs := by
   rcases xs with ⟨xs⟩

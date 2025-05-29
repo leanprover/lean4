@@ -68,7 +68,7 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   HashMap.Raw.mem_iff_contains
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   HashMap.Raw.contains_iff_mem
 
@@ -167,7 +167,7 @@ theorem contains_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : �
 theorem mem_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} : k ∈ m.insert k :=
   HashMap.Raw.mem_insertIfNew_self h.out
 
-@[grind =]theorem size_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+@[grind =] theorem size_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.insert k).size = if k ∈ m then m.size else m.size + 1 :=
   HashMap.Raw.size_insertIfNew h.out
 

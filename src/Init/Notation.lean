@@ -462,7 +462,7 @@ namespace Lean
 `binderIdent` matches an `ident` or a `_`. It is used for identifiers in binding
 position, where `_` means that the value should be left unnamed and inaccessible.
 -/
-syntax binderIdent := ident <|> hole
+syntax binderIdent := ident <|> hole -- TODO after stage0 update: use `identBeforeDot`
 
 namespace Parser.Tactic
 

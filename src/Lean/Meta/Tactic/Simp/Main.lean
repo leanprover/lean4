@@ -838,14 +838,19 @@ def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := 
   let (r, s) ← mainCore e ctx { stats with } methods
   return (r, { s with })
 
-def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
+def dsimpMainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Expr × State) := do
   withSimpContext ctx do
-    let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
-    let s ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let (r, s) ← go e methods.toMethodsRef ctx |>.run s
+    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems}
     pure (r, s)
 where
   go (e : Expr) : SimpM Expr :=
     withCatchingRuntimeEx (dsimp e)
+
+def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
+  let (r, s) ← dsimpMainCore e ctx { stats with } methods
+  return (r, { s with })
 
 end Simp
 open Simp (SimprocsArray Stats)

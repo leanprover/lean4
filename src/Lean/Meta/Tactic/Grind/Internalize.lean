@@ -9,6 +9,7 @@ import Init.Grind.Lemmas
 import Lean.Meta.LitValues
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchEqsExt
+import Lean.Meta.Match.MatchEqs
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Canon
@@ -163,7 +164,8 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
   if !(← isMatcher declName) then return ()
   if (← get).ematch.matchEqNames.contains declName then return ()
   modify fun s => { s with ematch.matchEqNames := s.ematch.matchEqNames.insert declName }
-  for eqn in (← Match.getEquationsFor declName).eqnNames do
+  -- for eqn in (← Match.getEquationsFor declName).eqnNames do
+  for eqn in (← Match.genMatchCongrEqns declName) do
     -- We disable pattern normalization to prevent the `match`-expression to be reduced.
     activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
@@ -193,7 +195,7 @@ Recall that the `propagateUnitLike` was added because `isDefEq` implements it,
 and consequently the simplifier reduces terms of the form `a = ctor` to `True` using `eq_self`.
 This `isDefEq` feature was negatively affecting `grind` until we added an
 equivalent one here. For example, when splitting on a `match`-expression
-using Unit-like types, equalites about these types were being reduced to `True`
+using Unit-like types, equalities about these types were being reduced to `True`
 by `simp` (i.e., in the `grind` preprocessor), and `grind` would never see
 these facts.
 -/

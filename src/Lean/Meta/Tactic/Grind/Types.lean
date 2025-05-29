@@ -191,9 +191,16 @@ def cheapCasesOnly : GrindM Bool :=
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
 
+/--
+Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
+-/
+def isMatchEqLikeDeclName (declName : Name) : CoreM Bool := do
+  return (← isMatchCongrEqDeclName declName) || Match.isMatchEqnTheorem (← getEnv) declName
+
 def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
-    modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
+    unless (← isMatchEqLikeDeclName thm.origin.key) do
+      modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
   modify fun s => { s with
     counters.thm := if let some n := s.counters.thm.find? thm.origin then
       s.counters.thm.insert thm.origin (n+1)

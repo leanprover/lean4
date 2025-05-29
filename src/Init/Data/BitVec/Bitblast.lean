@@ -2740,9 +2740,11 @@ theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0
     · exact h
     · simp [clzAux_eq_iff] at h
       have := zero_iff_forall (x := x)
-      simp [h] at this
-      simp [← this] at h
-      simp [h] at hx
+      simp [h, hx] at this
+      obtain ⟨k,hk,hk'⟩ := this
+      specialize h k
+      simp only [show k < w + 1 by omega, forall_const] at h
+      simp [h] at hk'
 
 theorem clz_lt_iff {x : BitVec w} (hx : x ≠ 0#w) (hw : 0 < w)
   (hi : i < k) (hi' : x.getLsbD (w - 1 - i) = false) (hc : x.getLsbD (w - 1 - k) = true)

@@ -402,7 +402,6 @@ but not for structural recursion.
 -/
 def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
   let info ← getConstInfoDefn declName
-  let isExposedDef ← withExporting do (·.hasValue) <$> getConstInfo declName
   let us := info.levelParams.map mkLevelParam
   withOptions (tactic.hygienic.set · false) do
   let target ← unfoldThmType declName
@@ -415,9 +414,7 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
-    let mut name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
-    unless isExposedDef do
-      name := mkPrivateName (← getEnv) name
+    let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added

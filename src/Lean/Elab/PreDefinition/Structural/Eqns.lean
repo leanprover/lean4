@@ -68,15 +68,11 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     mkEqnTypes info.declNames goal.mvarId!
-  let isExposedDef ← withExporting do (·.hasValue) <$> getConstInfo info.declName
-  let baseName := info.declName
   let mut thmNames := #[]
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
-    let mut name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
-    unless isExposedDef do
-      name := mkPrivateName (← getEnv) name
+    let name := mkEqLikeNameFor (← getEnv) info.declName s!"{eqnThmSuffixBasePrefix}{i+1}"
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added
@@ -107,10 +103,7 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
 
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
-  let mut name := Name.str declName unfoldThmSuffix
-  let isExposedDef ← withExporting do (·.hasValue) <$> getConstInfo declName
-  unless isExposedDef do
-    name := mkPrivateName (← getEnv) name
+  let name := mkEqLikeNameFor (← getEnv) info.declName unfoldThmSuffix
   realizeConst info.declNames[0]! name (doRealize name)
   return name
 where

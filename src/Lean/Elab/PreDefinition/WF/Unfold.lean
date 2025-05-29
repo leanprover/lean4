@@ -73,11 +73,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
         throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
-  let isExposedDef ← withExporting do (·.hasValue) <$> getConstInfo preDef.declName
-  let baseName := preDef.declName
-  let mut name := Name.str baseName unfoldThmSuffix
-  unless isExposedDef do
-    name := mkPrivateName (← getEnv) name
+  let name := mkEqLikeNameFor (← getEnv) preDef.declName unfoldThmSuffix
   prependError m!"Cannot derive {name}" do
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope preDef.value fun xs body => do
@@ -109,9 +105,8 @@ theorem of `foo._unary` or `foo._binary`.
 It should just be a specialization of that one, due to defeq.
 -/
 def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM Unit := do
-  let baseName := preDef.declName
-  let name := Name.str baseName unfoldThmSuffix
-  let unaryEqName := Name.str unaryPreDefName unfoldThmSuffix
+  let name := mkEqLikeNameFor (← getEnv) preDef.declName unfoldThmSuffix
+  let unaryEqName:= mkEqLikeNameFor (← getEnv) unaryPreDefName unfoldThmSuffix
   prependError m!"Cannot derive {name} from {unaryEqName}" do
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope preDef.value fun xs body => do

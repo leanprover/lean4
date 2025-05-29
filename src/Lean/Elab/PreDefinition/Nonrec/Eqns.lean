@@ -18,12 +18,9 @@ open Eqns
 /--
 Simple, coarse-grained equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSuffix) : MetaM (Option Name) := do
+private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    let mut name := declName ++ suffix
-    let isExposedDef ← withExporting do (·.hasValue) <$> getConstInfo declName
-    unless isExposedDef do
-      name := mkPrivateName (← getEnv) name
+    let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
     realizeConst declName name (doRealize name info)
     return some name
   else

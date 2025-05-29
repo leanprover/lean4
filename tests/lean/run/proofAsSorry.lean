@@ -14,7 +14,7 @@ example : 2 + 2 = 5 := rfl -- This is not a theorem
 
 /-- warning: declaration uses 'sorry' -/
 #guard_msgs in
-theorem ex : 2 + 2 = 5 := rfl
+theorem ex : 2 + 2 = 5 := id rfl -- id rfl to avoid the rfl attribute kicking in
 
 #guard_msgs in
 def data (w : Nat) : String := toString w

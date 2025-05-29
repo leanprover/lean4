@@ -20,9 +20,9 @@ lean_object* l_Lean_log___at_Lean_Elab_Term_reportUnsolvedGoals___spec__1(lean_o
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector___regBuiltin_Lean_PremiseSelection_elabSetPremiseSelector_docString__3___closed__1;
 lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326____closed__1;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_empty___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_evalSuggestPremises___regBuiltin_Lean_PremiseSelection_evalSuggestPremises__1___closed__3;
+static lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338____closed__1;
 double lean_float_div(double, double);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 static lean_object* l_Lean_PremiseSelection_registerPremiseSelector___closed__2;
@@ -51,6 +51,7 @@ extern lean_object* l_IO_stdGenRef;
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
+LEAN_EXPORT lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338_(lean_object*);
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector___closed__3;
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_PremiseSelection_elabSetPremiseSelector___spec__1___rarg___closed__1;
@@ -69,7 +70,6 @@ static lean_object* l_Lean_PremiseSelection_select___closed__1;
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Term_instAddErrorMessageContextTermElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PremiseSelection_random___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326_(lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_PremiseSelection_elabSetPremiseSelector___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_registerPremiseSelector___closed__1;
@@ -498,7 +498,7 @@ lean_dec(x_2);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326____closed__1() {
+static lean_object* _init_l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338____closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -508,12 +508,12 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_2 = lean_box(0);
-x_3 = l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326____closed__1;
+x_3 = l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338____closed__1;
 x_4 = 2;
 x_5 = l_Lean_registerEnvExtension___rarg(x_3, x_2, x_4, x_1);
 return x_5;
@@ -1883,9 +1883,9 @@ lean_mark_persistent(l_Lean_Loop_forIn_loop___at_Lean_PremiseSelection_random___
 l_Lean_Loop_forIn_loop___at_Lean_PremiseSelection_random___spec__2___closed__3 = _init_l_Lean_Loop_forIn_loop___at_Lean_PremiseSelection_random___spec__2___closed__3();
 l_Lean_PremiseSelection_random___closed__1 = _init_l_Lean_PremiseSelection_random___closed__1();
 lean_mark_persistent(l_Lean_PremiseSelection_random___closed__1);
-l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326____closed__1 = _init_l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326____closed__1();
-lean_mark_persistent(l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326____closed__1);
-res = l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326_(lean_io_mk_world());
+l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338____closed__1 = _init_l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338____closed__1();
+lean_mark_persistent(l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338____closed__1);
+res = l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_PremiseSelection_premiseSelectorExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_PremiseSelection_premiseSelectorExt);

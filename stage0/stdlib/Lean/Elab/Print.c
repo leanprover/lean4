@@ -281,7 +281,7 @@ lean_object* l_Lean_PrettyPrinter_ppTerm(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_mergeStructureResolutionOrders___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure___spec__8(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_realizeGlobalConstWithInfos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___private_Lean_Elab_Print_0__Lean_Elab_Command_levelParamsToMessageData___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4762,7 +4762,7 @@ if (x_51 == 0)
 {
 lean_object* x_52; 
 lean_inc(x_49);
-x_52 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_49, x_49, lean_box(0), lean_box(0));
+x_52 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_49, x_49, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_49);
 lean_dec(x_47);
 x_31 = x_52;
@@ -4771,7 +4771,7 @@ goto block_43;
 else
 {
 lean_object* x_53; 
-x_53 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_28, x_49, lean_box(0), lean_box(0));
+x_53 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_28, x_49, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_49);
 lean_dec(x_47);
 x_31 = x_53;
@@ -4962,7 +4962,7 @@ if (x_109 == 0)
 {
 lean_object* x_110; 
 lean_inc(x_107);
-x_110 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_107, x_107, lean_box(0), lean_box(0));
+x_110 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_107, x_107, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_107);
 lean_dec(x_105);
 x_89 = x_110;
@@ -4971,7 +4971,7 @@ goto block_101;
 else
 {
 lean_object* x_111; 
-x_111 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_86, x_107, lean_box(0), lean_box(0));
+x_111 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_86, x_107, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_107);
 lean_dec(x_105);
 x_89 = x_111;
@@ -5178,7 +5178,7 @@ if (x_170 == 0)
 {
 lean_object* x_171; 
 lean_inc(x_168);
-x_171 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_168, x_168, lean_box(0), lean_box(0));
+x_171 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_168, x_168, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_168);
 lean_dec(x_166);
 x_150 = x_171;
@@ -5187,7 +5187,7 @@ goto block_162;
 else
 {
 lean_object* x_172; 
-x_172 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_147, x_168, lean_box(0), lean_box(0));
+x_172 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_147, x_168, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_168);
 lean_dec(x_166);
 x_150 = x_172;
@@ -5398,7 +5398,7 @@ if (x_51 == 0)
 {
 lean_object* x_52; 
 lean_inc(x_49);
-x_52 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_49, x_49, lean_box(0), lean_box(0));
+x_52 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_49, x_49, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_49);
 lean_dec(x_47);
 x_31 = x_52;
@@ -5407,7 +5407,7 @@ goto block_43;
 else
 {
 lean_object* x_53; 
-x_53 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_28, x_49, lean_box(0), lean_box(0));
+x_53 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_28, x_49, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_49);
 lean_dec(x_47);
 x_31 = x_53;
@@ -5598,7 +5598,7 @@ if (x_109 == 0)
 {
 lean_object* x_110; 
 lean_inc(x_107);
-x_110 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_107, x_107, lean_box(0), lean_box(0));
+x_110 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_107, x_107, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_107);
 lean_dec(x_105);
 x_89 = x_110;
@@ -5607,7 +5607,7 @@ goto block_101;
 else
 {
 lean_object* x_111; 
-x_111 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_86, x_107, lean_box(0), lean_box(0));
+x_111 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_86, x_107, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_107);
 lean_dec(x_105);
 x_89 = x_111;
@@ -5814,7 +5814,7 @@ if (x_170 == 0)
 {
 lean_object* x_171; 
 lean_inc(x_168);
-x_171 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_168, x_168, lean_box(0), lean_box(0));
+x_171 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_168, x_168, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_168);
 lean_dec(x_166);
 x_150 = x_171;
@@ -5823,7 +5823,7 @@ goto block_162;
 else
 {
 lean_object* x_172; 
-x_172 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_147, x_168, lean_box(0), lean_box(0));
+x_172 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_147, x_168, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_168);
 lean_dec(x_166);
 x_150 = x_172;
@@ -6034,7 +6034,7 @@ if (x_51 == 0)
 {
 lean_object* x_52; 
 lean_inc(x_49);
-x_52 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_49, x_49, lean_box(0), lean_box(0));
+x_52 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_49, x_49, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_49);
 lean_dec(x_47);
 x_31 = x_52;
@@ -6043,7 +6043,7 @@ goto block_43;
 else
 {
 lean_object* x_53; 
-x_53 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_28, x_49, lean_box(0), lean_box(0));
+x_53 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_46, x_28, x_49, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_49);
 lean_dec(x_47);
 x_31 = x_53;
@@ -6234,7 +6234,7 @@ if (x_109 == 0)
 {
 lean_object* x_110; 
 lean_inc(x_107);
-x_110 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_107, x_107, lean_box(0), lean_box(0));
+x_110 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_107, x_107, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_107);
 lean_dec(x_105);
 x_89 = x_110;
@@ -6243,7 +6243,7 @@ goto block_101;
 else
 {
 lean_object* x_111; 
-x_111 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_86, x_107, lean_box(0), lean_box(0));
+x_111 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_105, x_104, x_86, x_107, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_107);
 lean_dec(x_105);
 x_89 = x_111;
@@ -6450,7 +6450,7 @@ if (x_170 == 0)
 {
 lean_object* x_171; 
 lean_inc(x_168);
-x_171 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_168, x_168, lean_box(0), lean_box(0));
+x_171 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_168, x_168, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_168);
 lean_dec(x_166);
 x_150 = x_171;
@@ -6459,7 +6459,7 @@ goto block_162;
 else
 {
 lean_object* x_172; 
-x_172 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_147, x_168, lean_box(0), lean_box(0));
+x_172 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_166, x_165, x_147, x_168, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_168);
 lean_dec(x_166);
 x_150 = x_172;
@@ -13488,7 +13488,7 @@ if (x_30 == 0)
 {
 lean_object* x_31; 
 lean_inc(x_16);
-x_31 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_14, x_7, x_16, x_16, lean_box(0), lean_box(0));
+x_31 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_14, x_7, x_16, x_16, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_16);
 lean_dec(x_14);
 x_20 = x_31;
@@ -13497,7 +13497,7 @@ goto block_29;
 else
 {
 lean_object* x_32; 
-x_32 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_14, x_7, x_17, x_16, lean_box(0), lean_box(0));
+x_32 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_14, x_7, x_17, x_16, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_16);
 lean_dec(x_14);
 x_20 = x_32;
@@ -13582,7 +13582,7 @@ if (x_63 == 0)
 {
 lean_object* x_64; 
 lean_inc(x_49);
-x_64 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_39, x_49, x_49, lean_box(0), lean_box(0));
+x_64 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_39, x_49, x_49, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_49);
 lean_dec(x_47);
 x_53 = x_64;
@@ -13591,7 +13591,7 @@ goto block_62;
 else
 {
 lean_object* x_65; 
-x_65 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_39, x_50, x_49, lean_box(0), lean_box(0));
+x_65 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_47, x_39, x_50, x_49, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_49);
 lean_dec(x_47);
 x_53 = x_65;

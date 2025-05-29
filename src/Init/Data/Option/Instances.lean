@@ -87,7 +87,7 @@ some ⟨3, ⋯⟩
 none
 ```
 -/
-@[inline]
+@[inline, expose]
 def pbind : (o : Option α) → (f : (a : α) → o = some a → Option β) → Option β
   | none, _ => none
   | some a, f => f a rfl
@@ -114,7 +114,7 @@ some ⟨3, ⋯⟩
 none
 ```
 -/
-@[inline] def pmap {p : α → Prop}
+@[inline, expose] def pmap {p : α → Prop}
     (f : ∀ a : α, p a → β) :
     (o : Option α) → (∀ a, o = some a → p a) → Option β
   | none, _ => none
@@ -147,14 +147,14 @@ some ⟨3, ⋯⟩
 none
 ```
 -/
-@[inline] def pelim (o : Option α) (b : β) (f : (a : α) → o = some a → β) : β :=
+@[inline, expose] def pelim (o : Option α) (b : β) (f : (a : α) → o = some a → β) : β :=
   match o with
   | none => b
   | some a => f a rfl
 
 /-- Partial filter. If `o : Option α`, `p : (a : α) → o = some a → Bool`, then `o.pfilter p` is
 the same as `o.filter p` but `p` is passed the proof that `o = some a`. -/
-@[inline] def pfilter (o : Option α) (p : (a : α) → o = some a → Bool) : Option α :=
+@[inline, expose] def pfilter (o : Option α) (p : (a : α) → o = some a → Bool) : Option α :=
   match o with
   | none => none
   | some a => bif p a rfl then o else none
@@ -177,7 +177,7 @@ Examples:
 ((), 0)
 ```
 -/
-@[inline] protected def forM [Pure m] : Option α → (α → m PUnit) → m PUnit
+@[inline, expose] protected def forM [Pure m] : Option α → (α → m PUnit) → m PUnit
   | none  , _ => pure ⟨⟩
   | some a, f => f a
 

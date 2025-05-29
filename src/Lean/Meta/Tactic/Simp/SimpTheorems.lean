@@ -10,9 +10,22 @@ import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.AuxLemma
+import Lean.DefEqAttrib
 import Lean.DocString
-import Lean.PrettyPrinter
 namespace Lean.Meta
+
+register_builtin_option backward.dsimp.useDefEqAttr : Bool := {
+  defValue := true
+  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theroem \
+    can be used in `dsimp` or with `implicitDefEqProofs`."
+}
+
+register_builtin_option debug.tactic.simp.checkDefEqAttr : Bool := {
+  defValue := false
+  descr    := "If true, whenever `dsimp` fails to apply a rewrite rule because it is not marked as \
+    `defeq`, check whether it would have been considered as a rfl theorem before the introduction \
+    of the `defeq` attribute, and warn if it was. Note that this is a costly check."
+}
 
 /--
 An `Origin` is an identifier for simp theorems which indicates roughly
@@ -132,13 +145,14 @@ structure SimpTheorem where
   deriving Inhabited
 
 /-- Checks whether the theorem holds by reflexivity in the scope given by the environment. -/
-def SimpTheorem.isRfl (s : SimpTheorem) (env : Environment) : Bool := Id.run do
-  if !s.rfl then
-    return false
-  let .decl declName _ _ := s.origin |
-    return true  -- not a global simp theorem, proof visibility must be unchanged
-  -- If we can see the proof, it must hold in the current scope.
-  env.findAsync? declName matches some ({ kind := .thm, .. })
+def SimpTheorem.isRfl (s : SimpTheorem) (_env : Environment) : Bool := Id.run do
+  return s.rfl
+  -- if !s.rfl then
+  --   return false
+  -- let .decl declName _ _ := s.origin |
+  --   return true  -- not a global simp theorem, proof visibility must be unchanged
+  -- -- If we can see the proof, it must hold in the current scope.
+  -- env.findAsync? declName matches some ({ kind := .thm, .. })
 
 mutual
   private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
@@ -165,9 +179,12 @@ mutual
         return false
 
   private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
-    let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
-    let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
-    isRflProofCore info.type info.value
+    if backward.dsimp.useDefEqAttr.get (← getOptions) then
+      return defeqAttr.hasTag (← getEnv) declName
+    else
+      let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
+      let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
+      isRflProofCore info.type info.value
 end
 
 def isRflTheorem (declName : Name) : CoreM Bool :=
@@ -439,7 +456,7 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
     if inv || (← shouldPreprocess type) then
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
-        let auxName ← mkAuxLemma cinfo.levelParams type val
+        let auxName ← mkAuxLemma cinfo.levelParams type val (inferRfl := true)
         r := r.push <| (← mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else

@@ -24,11 +24,10 @@ example : binderNameHint x y z = 0 := by
   simp [x, y, z]
 
 /--
-trace: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
-      binderNameHint x y z
-    ==>
-      z
+trace: [Meta.Tactic.simp.rewrite] unfold x, x ==> 0
+[Meta.Tactic.simp.rewrite] unfold y, y ==> 0
 [Meta.Tactic.simp.rewrite] unfold z, z ==> 0
+[Meta.Tactic.simp.rewrite] unfold binderNameHint, binderNameHint 0 0 0 ==> 0
 -/
 #guard_msgs in
 example : binderNameHint x y z = 0 := by

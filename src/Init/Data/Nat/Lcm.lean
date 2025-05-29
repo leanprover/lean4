@@ -26,6 +26,7 @@ Examples:
  * `Nat.lcm 0 3 = 0`
  * `Nat.lcm 3 0 = 0`
 -/
+@[expose]
 def lcm (m n : Nat) : Nat := m * n / gcd m n
 
 theorem lcm_eq_mul_div (m n : Nat) : lcm m n = m * n / gcd m n := rfl

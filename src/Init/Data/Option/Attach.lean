@@ -34,7 +34,7 @@ well-founded recursion that use iteration operators (such as `Option.map`) to pr
 value drawn from a parameter is smaller than the parameter. This allows the well-founded recursion
 mechanism to prove that the function terminates.
 -/
-@[implemented_by attachWithImpl] def attachWith
+@[implemented_by attachWithImpl, expose] def attachWith
     (xs : Option α) (P : α → Prop) (H : ∀ x, xs = some x → P x) : Option {x // P x} :=
   match xs with
   | none => none
@@ -49,7 +49,7 @@ operators (such as `Option.map`) to prove that an optional value drawn from a pa
 than the parameter. This allows the well-founded recursion mechanism to prove that the function
 terminates.
 -/
-@[inline] def attach (xs : Option α) : Option {x // xs = some x} := xs.attachWith _ fun _ => id
+@[inline, expose] def attach (xs : Option α) : Option {x // xs = some x} := xs.attachWith _ fun _ => id
 
 @[simp, grind =] theorem attach_none : (none : Option α).attach = none := rfl
 @[simp, grind =] theorem attachWith_none : (none : Option α).attachWith P H = none := rfl
@@ -325,6 +325,7 @@ If this function is encountered in a proof state, the right approach is usually 
 
 It is a synonym for `Option.map Subtype.val`.
 -/
+@[expose]
 def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map (·.val)
 
 @[simp] theorem unattach_none {p : α → Prop} : (none : Option { x // p x }).unattach = none := rfl

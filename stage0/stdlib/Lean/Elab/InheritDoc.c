@@ -20,7 +20,6 @@ lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_obj
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__1___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__10;
 uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
-uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_log___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -70,7 +69,6 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__3___closed__6;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__1___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__8;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -112,11 +110,13 @@ static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda_
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__17;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__6;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__2___closed__2;
+uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_169_(uint8_t, uint8_t);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__16;
 LEAN_EXPORT uint8_t l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__4___lambda__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logWarning___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__3___closed__1;
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__4___closed__1;
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1600,7 +1600,7 @@ x_21 = lean_string_append(x_19, x_20);
 lean_ctor_set_tag(x_10, 3);
 lean_ctor_set(x_10, 0, x_21);
 x_22 = l_Lean_MessageData_ofFormat(x_10);
-x_23 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_22, x_3, x_4, x_8);
+x_23 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_22, x_3, x_4, x_8);
 x_24 = !lean_is_exclusive(x_23);
 if (x_24 == 0)
 {
@@ -1635,7 +1635,7 @@ x_34 = lean_string_append(x_32, x_33);
 x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = l_Lean_MessageData_ofFormat(x_35);
-x_37 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_36, x_3, x_4, x_8);
+x_37 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_36, x_3, x_4, x_8);
 x_38 = lean_ctor_get(x_37, 0);
 lean_inc(x_38);
 x_39 = lean_ctor_get(x_37, 1);
@@ -2806,7 +2806,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; 
 x_8 = 0;
-x_9 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(x_4, x_8);
+x_9 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_169_(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
@@ -2814,7 +2814,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_10 = l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__4___closed__2;
-x_11 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_10, x_5, x_6, x_7);
+x_11 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_10, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 x_12 = !lean_is_exclusive(x_11);

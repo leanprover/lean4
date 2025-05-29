@@ -102,6 +102,7 @@ theorem dite_val {n : Nat} {c : Prop} [Decidable c] {x y : Fin n} :
 instance (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat' n a
 
+@[expose]
 def intCast [NeZero n] (a : Int) : Fin n :=
   if 0 ≤ a then
     Fin.ofNat' n a.natAbs
@@ -797,7 +798,7 @@ parameter, `Fin.cases` is the corresponding case analysis operator, and `Fin.rev
 version that starts at the greatest value instead of `0`.
 -/
 -- FIXME: Performance review
-@[elab_as_elim] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
+@[elab_as_elim, expose] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
     ∀ i : Fin (n + 1), motive i
   | ⟨i, hi⟩ => go i hi
@@ -839,7 +840,7 @@ The two cases are:
 
 The corresponding induction principle is `Fin.induction`.
 -/
-@[elab_as_elim] def cases {motive : Fin (n + 1) → Sort _}
+@[elab_as_elim, expose] def cases {motive : Fin (n + 1) → Sort _}
     (zero : motive 0) (succ : ∀ i : Fin n, motive i.succ) :
     ∀ i : Fin (n + 1), motive i := induction zero fun i _ => succ i
 

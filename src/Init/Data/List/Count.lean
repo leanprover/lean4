@@ -102,6 +102,7 @@ theorem countP_replicate {p : α → Bool} {a : α} {n : Nat} :
   simp only [countP_eq_length_filter, filter_replicate]
   split <;> simp
 
+@[grind]
 theorem boole_getElem_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i < l.length) :
     (if p l[i] then 1 else 0) ≤ l.countP p := by
   induction l generalizing i with
@@ -125,6 +126,7 @@ theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂
 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_countP : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁`.
 
+@[grind]
 theorem countP_tail_le (l) : countP p l.tail ≤ countP p l :=
   (tail_sublist l).countP_le
 
@@ -203,6 +205,7 @@ variable [BEq α]
 
 @[simp] theorem count_nil {a : α} : count a [] = 0 := rfl
 
+@[grind]
 theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by
   simp [count, countP_cons]
@@ -212,9 +215,11 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
 
-theorem count_tail : ∀ {l : List α} (h : l ≠ []) (a : α),
-      l.tail.count a = l.count a - if l.head h == a then 1 else 0
-  | _ :: _, a, _ => by simp [count_cons]
+@[grind]
+theorem count_tail : ∀ {l : List α} {a : α},
+      l.tail.count a = l.count a - if l.head? == some a then 1 else 0
+  | [], a => by simp
+  | _ :: _, a => by simp [count_cons]
 
 theorem count_le_length {a : α} {l : List α} : count a l ≤ l.length := countP_le_length
 
@@ -246,6 +251,7 @@ theorem count_flatten {a : α} {l : List (List α)} : count a l.flatten = (l.map
 @[simp] theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := by
   simp only [count_eq_countP, countP_eq_length_filter, filter_reverse, length_reverse]
 
+@[grind]
 theorem boole_getElem_le_count {a : α} {l : List α} {i : Nat} (h : i < l.length) :
     (if l[i] == a then 1 else 0) ≤ l.count a := by
   rw [count_eq_countP]
@@ -334,6 +340,7 @@ theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {l : List 
 theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
     count x (l.flatMap f) = sum (map (count x ∘ f) l) := countP_flatMap
 
+@[grind]
 theorem count_erase {a b : α} :
     ∀ {l : List α}, count a (l.erase b) = count a l - if b == a then 1 else 0
   | [] => by simp

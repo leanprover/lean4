@@ -59,7 +59,7 @@ theorem countP_replicate {p : α → Bool} {a : α} {n : Nat} :
 
 theorem boole_getElem_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i < l.length) :
     (if p l[i] then 1 else 0) ≤ l.countP p := by
-  induction l generalizing i with grind
+  grind
 
 theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ := by grind
 
@@ -69,7 +69,7 @@ theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂
 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_countP : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁`.
 
-theorem countP_tail_le (l) : countP p l.tail ≤ countP p l := by grind -- fails
+theorem countP_tail_le (l) : countP p l.tail ≤ countP p l := by grind
 
 -- See `Init.Data.List.Nat.Count` for `le_countP_tail : countP p l - 1 ≤ countP p l.tail`.
 
@@ -80,21 +80,23 @@ theorem countP_filter {l : List α} :
   grind [List.filter_filter]
 
 theorem countP_true : (countP fun (_ : α) => true) = length := by
-  grind -- fails
+  funext l
+  induction l with grind
 
 theorem countP_false : (countP fun (_ : α) => false) = Function.const _ 0 := by
-  grind -- fails
+  funext l
+  induction l with grind
 
 theorem countP_map {p : β → Bool} {f : α → β} {l} : countP p (map f l) = countP (p ∘ f) l := by
   grind
 
 theorem length_filterMap_eq_countP {f : α → Option β} {l : List α} :
     (filterMap f l).length = countP (fun a => (f a).isSome) l := by
-  induction l with grind
+  induction l with grind -- TODO
 
 theorem countP_filterMap {p : β → Bool} {f : α → Option β} {l : List α} :
     countP p (filterMap f l) = countP (fun a => ((f a).map p).getD false) l := by
-  induction l with grind
+  induction l with grind -- TODO
 
 theorem countP_flatten {l : List (List α)} :
     countP p l.flatten = (l.map (countP p)).sum := by
@@ -129,7 +131,8 @@ theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l 
 theorem count_eq_countP' {a : α} : count a = countP (· == a) := by grind
 
 theorem count_tail {l : List α} (h : l ≠ []) (a : α) :
-      l.tail.count a = l.count a - if l.head h == a then 1 else 0 := by grind -- fails
+      l.tail.count a = l.count a - if l.head h == a then 1 else 0 := by
+  induction l with grind
 
 theorem count_le_length {a : α} {l : List α} : count a l ≤ l.length := by grind
 
@@ -142,7 +145,7 @@ theorem IsInfix.count_le (a : α) (h : l₁ <:+: l₂) : count a l₁ ≤ count 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_count : count a l₂ - (l₂.length - l₁.length) ≤ countP a l₁`.
 
 theorem count_tail_le {a : α} {l : List α} : count a l.tail ≤ count a l := by
-  grind -- fails
+  grind
 
 -- See `Init.Data.List.Nat.Count` for `le_count_tail : count a l - 1 ≤ count a l.tail`.
 
@@ -162,7 +165,7 @@ theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := 
 
 theorem boole_getElem_le_count {a : α} {l : List α} {i : Nat} (h : i < l.length) :
     (if l[i] == a then 1 else 0) ≤ l.count a := by
-  induction l generalizing i with grind
+  grind
 
 variable [LawfulBEq α]
 
@@ -176,96 +179,53 @@ theorem count_singleton_self {a : α} : count a [a] = 1 := by grind
 
 theorem count_concat_self {a : α} {l : List α} : count a (concat l a) = count a l + 1 := by grind [concat_eq_append] -- fails?!
 
-theorem count_pos_iff {a : α} {l : List α} : 0 < count a l ↔ a ∈ l := by
-  induction l with grind -- fails
-
-theorem one_le_count_iff {a : α} {l : List α} : 1 ≤ count a l ↔ a ∈ l := by
-  induction l with grind -- fails
-
-theorem count_eq_zero_of_not_mem {a : α} {l : List α} (h : a ∉ l) : count a l = 0 := by
-  induction l with grind
-
 theorem not_mem_of_count_eq_zero {a : α} {l : List α} (h : count a l = 0) : a ∉ l := by
   induction l with grind
-
-theorem count_eq_zero {l : List α} : count a l = 0 ↔ a ∉ l := by
-  induction l with grind -- fails
 
 theorem count_eq_length {l : List α} : count a l = l.length ↔ ∀ b ∈ l, a = b := by
   induction l with grind
 
--- WIP
+theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n := by
+  grind
 
-@[simp] theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n :=
-  (count_eq_length.2 <| fun _ h => (eq_of_mem_replicate h).symm).trans (length_replicate ..)
+theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
+  grind
 
-@[grind =] theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
-  split <;> (rename_i h; simp only [beq_iff_eq] at h)
-  · exact ‹b = a› ▸ count_replicate_self ..
-  · exact count_eq_zero.2 <| mt eq_of_mem_replicate (Ne.symm h)
+theorem _root_.List.getElem_filter {xs : List α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).length) :
+    p (xs.filter p)[i] := sorry
+
+theorem _root_.List.getElem?_filter {xs : List α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).length)
+    (w : (xs.filter p)[i]? = some a) : p a := sorry
+
+attribute [grind?] List.getElem_filter
+grind_pattern List.getElem?_filter => (xs.filter p)[i]?, some a
 
 theorem filter_beq {l : List α} (a : α) : l.filter (· == a) = replicate (count a l) a := by
-  simp only [count, countP_eq_length_filter, eq_replicate_iff, mem_filter, beq_iff_eq]
-  exact ⟨trivial, fun _ h => h.2⟩
+  ext
+  grind
 
-theorem filter_eq [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = replicate (count a l) a :=
-  funext (Bool.beq_eq_decide_eq · a) ▸ filter_beq a
+theorem filter_eq [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = replicate (count a l) a := by
+  grind
 
-@[grind =] theorem replicate_sublist_iff {l : List α} : replicate n a <+ l ↔ n ≤ count a l := by
-  refine ⟨fun h => ?_, fun h => ?_⟩
-  · simpa only [count_replicate_self] using h.count_le a
-  · exact ((replicate_sublist_replicate a).2 h).trans <| filter_beq a ▸ filter_sublist
-
-@[deprecated replicate_sublist_iff (since := "2025-05-26")]
-theorem le_count_iff_replicate_sublist {l : List α} : n ≤ count a l ↔ replicate n a <+ l :=
-  replicate_sublist_iff.symm
+theorem replicate_sublist_iff {l : List α} : replicate n a <+ l ↔ n ≤ count a l := by
+  grind
 
 theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = length l) :
-    replicate (count a l) a = l :=
-  (replicate_sublist_iff.mpr (Nat.le_refl _)).eq_of_length <| length_replicate.trans h
-
-@[simp] theorem count_filter {l : List α} (h : p a) : count a (filter p l) = count a l := by
-  rw [count, countP_filter]; congr; funext b
-  simp; rintro rfl; exact h
-
-theorem count_le_count_map {β} [BEq β] [LawfulBEq β] {l : List α} {f : α → β} {x : α} :
-    count x l ≤ count (f x) (map f l) := by
-  rw [count, count, countP_map]
-  apply countP_mono_left; simp +contextual
+    replicate (count a l) a = l := by
+  grind
 
 theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {l : List α} :
     count b (filterMap f l) = countP (fun a => f a == some b) l := by
-  rw [count_eq_countP, countP_filterMap]
-  congr
-  ext a
-  obtain _ | b := f a
-  · simp
-  · simp
+  grind
 
 theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
-    count x (l.flatMap f) = sum (map (count x ∘ f) l) := countP_flatMap
+    count x (l.flatMap f) = sum (map (count x ∘ f) l) := by
+  grind
 
-theorem count_erase {a b : α} :
-    ∀ {l : List α}, count a (l.erase b) = count a l - if b == a then 1 else 0
-  | [] => by simp
-  | c :: l => by
-    rw [erase_cons]
-    if hc : c = b then
-      have hc_beq := beq_iff_eq.mpr hc
-      rw [if_pos hc_beq, hc, count_cons, Nat.add_sub_cancel]
-    else
-      have hc_beq := beq_false_of_ne hc
-      simp only [hc_beq, if_false, count_cons, count_cons, count_erase, reduceCtorEq]
-      if ha : b = a then
-        rw [ha, eq_comm] at hc
-        rw [if_pos (beq_iff_eq.2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
-      else
-        rw [if_neg (by simpa using ha), Nat.sub_zero, Nat.sub_zero]
+theorem count_erase_self {a : α} {l : List α} :
+    count a (List.erase l a) = count a l - 1 := by grind
 
-@[simp] theorem count_erase_self {a : α} {l : List α} :
-    count a (List.erase l a) = count a l - 1 := by rw [count_erase, if_pos (by simp)]
-
-@[simp] theorem count_erase_of_ne (ab : a ≠ b) {l : List α} : count a (l.erase b) = count a l := by
-  rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
+theorem count_erase_of_ne (ab : a ≠ b) {l : List α} : count a (l.erase b) = count a l := by
+  grind
 
 end count

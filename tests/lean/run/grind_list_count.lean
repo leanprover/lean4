@@ -186,4 +186,26 @@ theorem count_erase_self {a : α} {l : List α} :
 theorem count_erase_of_ne (ab : a ≠ b) {l : List α} : count a (l.erase b) = count a l := by
   grind
 
+theorem count_pos_iff {a : α} {l : List α} : 0 < count a l ↔ a ∈ l := by
+  induction l with grind
+
+theorem one_le_count_iff {a : α} {l : List α} : 1 ≤ count a l ↔ a ∈ l := by
+  induction l with grind
+
+theorem count_eq_zero_of_not_mem {a : α} {l : List α} (h : a ∉ l) : count a l = 0 := by
+  induction l with grind
+
+theorem count_eq_zero {l : List α} : count a l = 0 ↔ a ∉ l := by
+  induction l with grind
+
+theorem count_filter {l : List α} (h : p a) : count a (filter p l) = count a l := by
+  induction l with grind
+
+theorem count_le_count_map {β} [BEq β] [LawfulBEq β] {l : List α} {f : α → β} {x : α} :
+    count x l ≤ count (f x) (map f l) := by
+  induction l with grind
+
+theorem count_erase {a b : α} {l : List α} : count a (l.erase b) = count a l - if b == a then 1 else 0 := by
+  induction l <;> grind [-List.count_erase]
+
 end count

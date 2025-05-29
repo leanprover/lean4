@@ -1284,14 +1284,13 @@ def identBeforeDotNoAntiquot : Parser := {
 def identFn : ParserFn := fun c s =>
   let s := expectTokenFn identKind "identifier" c s
   match s.stxStack.back with
-  | .ident (.original l p t p') { str, startPos, stopPos } nm pre =>
+  | .ident (.original l p _ p') { str, startPos, stopPos } nm pre =>
     if c.input.get p' == '.' then
       let endPos := stopPos + '.'
       let s := whitespace c { s with pos := endPos }
       let stx' : Syntax := .ident (.original l p { str, startPos := endPos, stopPos := s.pos } endPos)
         { str, startPos, stopPos := endPos } nm pre
-      let atom : Syntax := .atom (.original t stopPos (mkEmptySubstringAt str endPos) endPos) "."
-      { s with recoveredErrors := s.recoveredErrors.push (stopPos, s.stxStack.push atom, { unexpectedTk := atom }) }.popSyntax.pushSyntax stx'
+      (s.popSyntax.pushSyntax stx').mkUnexpectedError "incomplete identifier"
     else
       s
   | _ => s

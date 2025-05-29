@@ -13,7 +13,7 @@ test_run -v exe orderTest
 
 # Test that transitively importing a precompiled module
 # from a non-precompiled module works
-test_not_out '"pluginPaths":[]' -v setup-file bogus Downstream
+test_not_out '"pluginPaths":[]' -v setup-file ImportDownstream.lean
 test_run -v build Downstream
 
 # Test that `moreLinkArgs` are included when linking precompiled modules

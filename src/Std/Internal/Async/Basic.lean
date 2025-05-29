@@ -14,94 +14,138 @@ namespace IO
 namespace Async
 
 /-!
+
 # Asynchronous Programming Primitives
 
-This module provides a set of primitives for asynchronous programming:
+This module provides a layered approach to asynchronous programming, combining monadic interfaces,
+type classes, and concrete task types that work together in a cohesive system.
+
+- **Monadic Interfaces**: These types provide a good way to to chain and manipulate context. These
+  can contain a `Task`, enabling manipulation of both asynchronous and synchronous code.
+- **Concrete Task Types**: Concrete units of work that can be executed within these contexts.
 
 ## Monadic Interfaces
 
-- `BaseAsync`: A monadic interface for infallible asynchronous computations (alias for `EAsync Empty`)
-- `EAsync`: A monadic interface for working with asynchronous computations that may fail with error type `ε`
-- `Async`: A monadic interface for IO-based asynchronous computations that may fail with `IO.Error` (alias for `EAsync IO.Error`)
+These types provide a good way to to chain and manipulate context. These can contain a `Task`,
+enabling manipulation of both asynchronous and synchronous code.
 
-## Concurrent units of work
+- `BaseAsync`: A monadic interface for infallible asynchronous computations (alias for
+  `EAsync Empty`)
+- `EAsync`: A monadic interface for asynchronous computations that may fail with an error of type
+  `ε`
+- `Async`: A monadic interface for IO-based asynchronous computations that may fail with `IO.Error`
+  (alias for `EAsync IO.Error`)
 
-- `ExceptTask`: A task that may fail with an error of type `ε`
-- `AsyncTask`: A task that may fail with an `IO.Error` (alias for `ExceptTask IO.Error`)
-- `MaybeExceptTask`: A computation that is either immediately available or an asynchronous task
+## Concurrent Units of Work
+
+These are the concrete computational units that exist within the monadic contexts. These types
+should not be created directly.
+
+- `ETask`: A task that may fail with an error of type `ε`
+- `AsyncTask`: A task that may fail with an `IO.Error` (alias for `ETask IO.Error`)
+- `EMaybeTask`: A computation that is either immediately available or an asynchronous task
+
+## Relation
+
+Concrete units of work that can be executed within these contexts.
+
+These types are related by two functions in the type classes `MonadAsync` and `MonadAwait`: `async`
+and `await`. The `async` function extracts a concrete asynchronous task from a computation inside
+the monadic context. In effect, it makes the computation run in the background and returns a
+task handle that can be awaited later. On the other side, the `await` function takes a task and
+re-inserts it into the monadic context, allowing the result to be composed using the monadic bind.
+This relation between `async` and `await` enables precise control over when a computation starts and
+when its result is actually used. You can spawn multiple asynchronous tasks using `async`, continue
+with other operations, and later rejoin the computation flow by awaiting their results.
+
+These functions should not be used directly. Instead, prefer higher-level combinators such as
+`race`, `raceAll`, `concurrently`, `background` and `concurrentlyAll`. The best way to think about
+how to write your async code, it to avoid using the concurrent units of work, and only use it when integrating
+with non async code that uses them.
+
 -/
 
 /--
-Represents monads that can suspend execution to await computations from another task type.
+Typeclass for monads that can "await" a computation of type `t α` in a monad `m` until the result is
+available.
 -/
-class MonadAwait (n : Type → Type) (m : Type → Type) where
+class MonadAwait (t : Type → Type) (m : Type → Type) extends Monad m where
   /--
-  Suspends execution until a computation from another effect completes.
+  Awaits the result of `t α` and returns it inside the `m` monad.
   -/
-  await : n α → m α
+  await : t α → m α
 
 /--
-Represents monads that can launch computations asynchronously in another task type.
+Represents monads that can launch computations asynchronously of type `t` in a monad `m`.
 -/
-class MonadAsync (n : Type → Type) (m : Type → Type) where
+class MonadAsync (t : Type → Type) (m : Type → Type) extends Monad m where
   /--
   Starts an asynchronous computation in another monad.
   -/
-  async : m α → m (n α)
+  async : m α → m (t α)
 
-instance [inst : MonadAwait t m] [Monad m] : MonadAwait t (StateT n m) where
-  await := liftM (m := m) ∘ inst.await
+instance [Monad m] [MonadAwait t m] : MonadAwait t (StateT n m) where
+  await := liftM (m := m) ∘ MonadAwait.await
 
-instance [inst : MonadAwait t m] [Monad m] : MonadAwait t (ExceptT n m) where
-  await := liftM (m := m) ∘ inst.await
+instance [Monad m] [MonadAwait t m] : MonadAwait t (ExceptT n m) where
+  await := liftM (m := m) ∘ MonadAwait.await
 
-instance [inst : MonadAwait t m] [Monad m] : MonadAwait t (ReaderT n m) where
-  await := liftM (m := m) ∘ inst.await
+instance [Monad m] [MonadAwait t m] : MonadAwait t (ReaderT n m) where
+  await := liftM (m := m) ∘ MonadAwait.await
 
-instance [inst : MonadAwait t m] [Monad m] : MonadAwait t (StateRefT' s n m) where
-  await := liftM (m := m) ∘ inst.await
+instance [MonadAwait t m] : MonadAwait t (StateRefT' s n m) where
+  await := liftM (m := m) ∘ MonadAwait.await
 
-instance [inst : MonadAsync t m] [Monad m] : MonadAsync t (ReaderT n m) where
-  async p := inst.async ∘ p
+instance [MonadAwait t m] : MonadAwait t (StateT s m) where
+  await := liftM (m := m) ∘ MonadAwait.await
 
-instance [inst : MonadAsync t m] [Monad m] : MonadAsync t (StateRefT' s n m) where
-  async p := inst.async ∘ p
+instance [MonadAsync t m] : MonadAsync t (ReaderT n m) where
+  async p := MonadAsync.async ∘ p
+
+instance [MonadAsync t m] : MonadAsync t (StateRefT' s n m) where
+  async p := MonadAsync.async ∘ p
+
+instance [Functor t] [inst : MonadAsync t m] : MonadAsync t (StateT s m) where
+  async p := fun s => do
+    let t ← inst.async (p s)
+    pure (t <&> Prod.fst, s)
+
 
 /--
 A `Task` that may resolve to either a value of type `α` or an error value of type `ε`.
 -/
-def ExceptTask (ε : Type) (α : Type u) : Type u := Task (Except ε α)
+def ETask (ε : Type) (α : Type u) : Type u := Task (Except ε α)
 
-namespace ExceptTask
+namespace ETask
 
 /--
-Construct an `ExceptTask` that is already resolved with value `x`.
+Construct an `ETask` that is already resolved with value `x`.
 -/
 @[inline]
-protected def pure (x : α) : ExceptTask ε α :=
+protected def pure (x : α) : ETask ε α :=
   Task.pure <| .ok x
 
 /--
-Create a new `ExceptTask` that will run after `x` has finished.
+Create a new `ETask` that will run after `x` has finished.
 
 If `x`:
-- errors, return an `ExceptTask` that resolves to the error.
-- succeeds, return an `ExceptTask` that resolves to `f x`.
+- errors, return an `ETask` that resolves to the error.
+- succeeds, return an `ETask` that resolves to `f x`.
 -/
 @[inline]
-protected def map (f : α → β) (x : ExceptTask ε α) : ExceptTask ε β :=
+protected def map (f : α → β) (x : ETask ε α) : ETask ε β :=
   Task.map (x := x) fun r =>
     match r with
     | .ok a => .ok (f a)
     | .error e => .error e
 
 /--
-Creates a new `ExceptTask` that will run after `x` has completed. If `x`:
-- errors, return an `ExceptTask` that resolves to the error.
-- succeeds, run `f` on the result of `x` and return the `ExceptTask` produced by `f`.
+Creates a new `ETask` that will run after `x` has completed. If `x`:
+- errors, return an `ETask` that resolves to the error.
+- succeeds, run `f` on the result of `x` and return the `ETask` produced by `f`.
 -/
 @[inline]
-protected def bind (x : ExceptTask ε α) (f : α → ExceptTask ε β) : ExceptTask ε β :=
+protected def bind (x : ETask ε α) (f : α → ETask ε β) : ETask ε β :=
   Task.bind x fun r =>
     match r with
     | .ok a => f a
@@ -109,10 +153,10 @@ protected def bind (x : ExceptTask ε α) (f : α → ExceptTask ε β) : Except
 
 /--
 Similar to `bind`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
-`ExceptTask` resolves to that error.
+`ETask` resolves to that error.
 -/
 @[inline]
-protected def bindIO (x : ExceptTask ε α) (f : α → EIO ε (ExceptTask ε β)) : EIO ε (ExceptTask ε β) :=
+protected def bindIO (x : ETask ε α) (f : α → EIO ε (ETask ε β)) : EIO ε (ETask ε β) :=
   EIO.bindTask x fun r =>
     match r with
     | .ok a => f a
@@ -120,60 +164,60 @@ protected def bindIO (x : ExceptTask ε α) (f : α → EIO ε (ExceptTask ε β
 
 /--
 Similar to `bind`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
-`ExceptTask` resolves to that error.
+`ETask` resolves to that error.
 -/
 @[inline]
-protected def mapIO (f : α → EIO ε β) (x : ExceptTask ε α) : BaseIO (ExceptTask ε β) :=
+protected def mapIO (f : α → EIO ε β) (x : ETask ε α) : BaseIO (ETask ε β) :=
   EIO.mapTask (t := x) fun r =>
     match r with
     | .ok a => f a
     | .error e => .error e
 
 /--
-Block until the `ExceptTask` in `x` finishes and returns its value. Propagates any error encountered
+Block until the `ETask` in `x` finishes and returns its value. Propagates any error encountered
 during execution.
 -/
 @[inline]
-protected def block (x : ExceptTask ε α) : EIO ε α := do
+protected def block (x : ETask ε α) : EIO ε α := do
   let res := x.get
   match res with
   | .ok a => return a
   | .error e => .error e
 
 /--
-Create an `ExceptTask` that resolves to the value of the promise `x`.
+Create an `ETask` that resolves to the value of the promise `x`.
 -/
 @[inline]
-def ofPromise (x : IO.Promise (Except ε α)) : ExceptTask ε α :=
+def ofPromise (x : IO.Promise (Except ε α)) : ETask ε α :=
   x.result!
 
 /--
-Create an `ExceptTask` that resolves to the pure value of the promise `x`.
+Create an `ETask` that resolves to the pure value of the promise `x`.
 -/
 @[inline]
-def ofPurePromise (x : IO.Promise α) : ExceptTask ε α :=
+def ofPurePromise (x : IO.Promise α) : ETask ε α :=
   x.result!.map pure
 
 /--
 Obtain the `IO.TaskState` of `x`.
 -/
 @[inline]
-def getState (x : ExceptTask ε α) : BaseIO IO.TaskState :=
+def getState (x : ETask ε α) : BaseIO IO.TaskState :=
   IO.getTaskState x
 
-instance : Functor (ExceptTask ε) where
-  map := ExceptTask.map
+instance : Functor (ETask ε) where
+  map := ETask.map
 
-instance : Monad (ExceptTask ε) where
-  pure := ExceptTask.pure
-  bind := ExceptTask.bind
+instance : Monad (ETask ε) where
+  pure := ETask.pure
+  bind := ETask.bind
 
-end ExceptTask
+end ETask
 
 /--
-A `Task` that may resolve to a value or an error value of type `IO.Error`. Alias for `ExceptTask IO.Error`.
+A `Task` that may resolve to a value or an error value of type `IO.Error`. Alias for `ETask IO.Error`.
 -/
-abbrev AsyncTask := ExceptTask IO.Error
+abbrev AsyncTask := ETask IO.Error
 
 namespace AsyncTask
 
@@ -276,39 +320,39 @@ def getState (x : AsyncTask α) : BaseIO IO.TaskState :=
 end AsyncTask
 
 /--
-A `MaybeExceptTask ε α` represents a computation that either:
+A `EMaybeTask ε α` represents a computation that either:
 
 - Is immediately available as an `α` value, or
 - Is an asynchronous computation that will eventually produce an `α` value or an error `ε`
 -/
-inductive MaybeExceptTask (ε : Type) (α : Type)
-  | pure : α → MaybeExceptTask ε α
-  | ofTask : ExceptTask ε α → MaybeExceptTask ε α
+inductive EMaybeTask (ε : Type) (α : Type)
+  | pure : α → EMaybeTask ε α
+  | ofTask : ETask ε α → EMaybeTask ε α
 
-namespace MaybeExceptTask
+namespace EMaybeTask
 
 /--
-Constructs an `ExceptTask` from a `MaybeExceptTask`.
+Constructs an `ETask` from a `EMaybeTask`.
 -/
 @[inline]
-def toTask : MaybeExceptTask ε α → ExceptTask ε α
+def toTask : EMaybeTask ε α → ETask ε α
   | .pure a => .pure a
   | .ofTask t => t
 
 /--
-Gets the value of the `MaybeExceptTask` by blocking on the possible inside `ExceptTask`.
+Gets the value of the `EMaybeTask` by blocking on the possible inside `ETask`.
 -/
 @[inline]
-def wait {α : Type} (x : MaybeExceptTask ε α) : EIO ε α :=
+def wait {α : Type} (x : EMaybeTask ε α) : EIO ε α :=
   match x with
   | .pure a => Pure.pure a
   | .ofTask t => t.block
 
 /--
-Maps a function over a `MaybeExceptTask`.
+Maps a function over a `EMaybeTask`.
 -/
 @[inline]
-def map (f : α → β) (t : MaybeExceptTask ε α) : MaybeExceptTask ε β :=
+def map (f : α → β) (t : EMaybeTask ε α) : EMaybeTask ε β :=
   match t with
   | .pure a => .pure <| f a
   | .ofTask t => .ofTask <| t.map f
@@ -317,57 +361,57 @@ def map (f : α → β) (t : MaybeExceptTask ε α) : MaybeExceptTask ε β :=
 Sequences two computations, allowing the second to depend on the value computed by the first.
 -/
 @[inline]
-protected def bind (t : MaybeExceptTask ε α) (f : α → MaybeExceptTask ε β) : MaybeExceptTask ε β :=
+protected def bind (t : EMaybeTask ε α) (f : α → EMaybeTask ε β) : EMaybeTask ε β :=
   match t with
   | .pure a => f a
   | .ofTask t => .ofTask <| t.bind (f · |>.toTask)
 
 /--
-Join the `MaybeExceptTask` to an `ExceptTask`.
+Join the `EMaybeTask` to an `ETask`.
 -/
 @[inline]
-def joinTask (t : ExceptTask ε (MaybeExceptTask ε α)) : ExceptTask ε α :=
+def joinTask (t : ETask ε (EMaybeTask ε α)) : ETask ε α :=
   t.bind fun
     | .pure a => .pure a
     | .ofTask t => t
 
-instance : Functor (MaybeExceptTask ε) where
-  map := MaybeExceptTask.map
+instance : Functor (EMaybeTask ε) where
+  map := EMaybeTask.map
 
-instance : Monad (MaybeExceptTask ε) where
-  pure := MaybeExceptTask.pure
-  bind := MaybeExceptTask.bind
+instance : Monad (EMaybeTask ε) where
+  pure := EMaybeTask.pure
+  bind := EMaybeTask.bind
 
-end MaybeExceptTask
+end EMaybeTask
 
 /--
 An asynchronous computation that may produce an error of type `ε`.
 -/
 structure EAsync (ε : Type) (α : Type) where
-  toRawEIO : EIO ε (Async.MaybeExceptTask ε α)
+  toRawEIO : EIO ε (Async.EMaybeTask ε α)
 
 namespace EAsync
 
 /--
-Converts a `EAsync` to a `ExceptTask`.
+Converts a `EAsync` to a `ETask`.
 -/
 @[inline]
-protected def toEIO (x : EAsync ε α) : EIO ε (ExceptTask ε α) :=
-  MaybeExceptTask.toTask <$> x.toRawEIO
+protected def toEIO (x : EAsync ε α) : EIO ε (ETask ε α) :=
+  EMaybeTask.toTask <$> x.toRawEIO
 
 /--
 Creates a new `EAsync` out of a `Task`.
 -/
 @[inline]
 protected def ofTask (x : Task α) : EAsync ε α :=
-  .mk (pure (MaybeExceptTask.ofTask <| x.map (.ok)))
+  .mk (pure (EMaybeTask.ofTask <| x.map (.ok)))
 
 /--
-Creates a new `EAsync` out of a `ExceptTask`.
+Creates a new `EAsync` out of a `ETask`.
 -/
 @[inline]
-protected def ofExceptTask (x : ExceptTask ε α) : EAsync ε α :=
-  .mk (pure (MaybeExceptTask.ofTask x))
+protected def ofETask (x : ETask ε α) : EAsync ε α :=
+  .mk (pure (EMaybeTask.ofTask x))
 
 /--
 Creates an `EAsync` computation that immediately returns the given value.
@@ -397,10 +441,10 @@ Sequences two computations, allowing the second to depend on the value computed 
 protected def bind (self : EAsync ε α) (f : α → EAsync ε β) : EAsync ε β :=
   mk <| self.toRawEIO >>= (bindAsyncTask · f |>.toRawEIO)
 where
-  bindAsyncTask (t : MaybeExceptTask ε α) (f : α → EAsync ε β) : EAsync ε β := .mk <|
+  bindAsyncTask (t : EMaybeTask ε α) (f : α → EAsync ε β) : EAsync ε β := .mk <|
     match t with
     | .pure a => f a |>.toRawEIO
-    | .ofTask t => .ofTask <$> t.bindIO (fun s => MaybeExceptTask.toTask <$> (f s |>.toRawEIO))
+    | .ofTask t => .ofTask <$> t.bindIO (fun s => EMaybeTask.toTask <$> (f s |>.toRawEIO))
 
 /--
 Lifts an `EIO` action into an `EAsync` computation.
@@ -414,14 +458,14 @@ Waits for the result of the `EAsync` computation, blocking if necessary.
 -/
 @[inline]
 protected def wait (self : EAsync ε α) : EIO ε α :=
-  self.toRawEIO >>= MaybeExceptTask.wait
+  self.toRawEIO >>= EMaybeTask.wait
 
 /--
-Lifts an `EAsync` computation into an `ExceptTask` that can be awaited and joined.
+Lifts an `EAsync` computation into an `ETask` that can be awaited and joined.
 -/
 @[inline]
-protected def asTask (x : EAsync ε α) : EIO ε (ExceptTask ε α) := do
-  MaybeExceptTask.joinTask <$> EIO.asTask x.toRawEIO
+protected def asTask (x : EAsync ε α) : EIO ε (ETask ε α) := do
+  EMaybeTask.joinTask <$> EIO.asTask x.toRawEIO
 
 /--
 Raises an error of type `ε` within the `EAsync` monad.
@@ -460,7 +504,7 @@ protected def tryFinally' (x : EAsync ε α) (f : Option α → EAsync ε β) : 
       | .ok (.ofTask b) s => .ok (.ofTask <| b.map (a, ·)) s
       | .error e s => .error e s
     | .ok (.ofTask a) s => .ok (.ofTask <| a.bind fun a => match f (some a) |>.toRawEIO s with
-      | .ok (.pure b) _ => ExceptTask.pure (a, b)
+      | .ok (.pure b) _ => ETask.pure (a, b)
       | .ok (.ofTask b) _ => b.map (a, ·)
       | .error e _ => Task.pure (.error e)
       ) s
@@ -472,38 +516,18 @@ protected def tryFinally' (x : EAsync ε α) (f : Option α → EAsync ε β) : 
       | .error e s => .error e s
 
 /--
-Creates an `EAsync` computation that awaits the completion of the given `ExceptTask ε α`.
+Creates an `EAsync` computation that awaits the completion of the given `ETask ε α`.
 -/
 @[inline]
-def await (x : ExceptTask ε α) : EAsync ε α :=
-  EAsync.mk (pure <| MaybeExceptTask.ofTask x)
+def await (x : ETask ε α) : EAsync ε α :=
+  EAsync.mk (pure <| EMaybeTask.ofTask x)
 
 /--
-Returns the `EAsync` computation inside an `ExceptTask ε α`, so it can be awaited.
+Returns the `EAsync` computation inside an `ETask ε α`, so it can be awaited.
 -/
 @[inline]
-def async (self : EAsync ε α) : EAsync ε (ExceptTask ε α) :=
+def async (self : EAsync ε α) : EAsync ε (ETask ε α) :=
   EAsync.lift <| self.asTask
-
-@[default_instance]
-instance : MonadAwait (ExceptTask ε) (EAsync ε) where
-  await t := mk <| pure <| .ofTask t
-
-instance : MonadAwait Task (EAsync ε) where
-  await t := mk <| pure <| .ofTask (t.map (.ok))
-
-instance : MonadAwait AsyncTask (EAsync IO.Error) where
-  await t := mk <| pure <| .ofTask t
-
-instance : MonadAwait IO.Promise (EAsync ε) where
-  await t := mk <| pure <| .ofTask (t.result!.map (.ok))
-
-@[default_instance]
-instance : MonadAsync (ExceptTask ε) (EAsync ε) where
-  async t := EAsync.lift <| t.asTask
-
-instance : MonadAsync AsyncTask (EAsync IO.Error) where
-  async t := EAsync.lift <| t.asTask
 
 instance : Functor (EAsync ε) where
   map := EAsync.map
@@ -532,6 +556,24 @@ instance : OrElse (EAsync ε α) where
 instance [Inhabited ε] : Inhabited (EAsync ε α) where
   default := ⟨.error default⟩
 
+instance : MonadAwait (ETask ε) (EAsync ε) where
+  await t := mk <| pure <| .ofTask t
+
+instance : MonadAwait Task (EAsync ε) where
+  await t := mk <| pure <| .ofTask (t.map (.ok))
+
+instance : MonadAwait AsyncTask (EAsync IO.Error) where
+  await t := mk <| pure <| .ofTask t
+
+instance : MonadAwait IO.Promise (EAsync ε) where
+  await t := mk <| pure <| .ofTask (t.result!.map (.ok))
+
+instance : MonadAsync (ETask ε) (EAsync ε) where
+  async t := EAsync.lift <| t.asTask
+
+instance : MonadAsync AsyncTask (EAsync IO.Error) where
+  async t := EAsync.lift <| t.asTask
+
 /--
 A tail recursive version of the `forIn` for while loops inside the `EAsync` Monad.
 -/
@@ -539,7 +581,7 @@ A tail recursive version of the `forIn` for while loops inside the `EAsync` Mona
 protected partial def forIn {β : Type} [i : Inhabited ε] (init : β) (f : Unit → β → EAsync ε (ForInStep β)) : EAsync ε β := do
   let promise ← IO.Promise.new
 
-  let rec @[specialize] loop (b : β) : EAsync ε (ExceptTask ε Unit) := async do
+  let rec @[specialize] loop (b : β) : EAsync ε (ETask ε Unit) := async do
     match ← f () b with
       | ForInStep.done b => promise.resolve (.ok b)
       | ForInStep.yield b => discard <| (loop b)
@@ -548,7 +590,7 @@ protected partial def forIn {β : Type} [i : Inhabited ε] (init : β) (f : Unit
 
   .mk <| pure <| .ofTask promise.result!
 
-instance [Inhabited ε] : ForIn (EAsync ε) Lean.Loop Unit where
+instance eta [Inhabited ε] : ForIn (EAsync ε) Lean.Loop Unit where
   forIn _ := EAsync.forIn
 
 end EAsync
@@ -566,21 +608,21 @@ Converts a `Async` to a `AsyncTask`.
 -/
 @[inline]
 protected def toIO (x : Async α) : IO (AsyncTask α) :=
-  MaybeExceptTask.toTask <$> x.toRawEIO
+  EMaybeTask.toTask <$> x.toRawEIO
 
 /--
 Waits for the result of the `Async` computation, blocking if necessary.
 -/
 @[inline]
 protected def wait (self : Async α) : IO α :=
-  self.toRawEIO >>= MaybeExceptTask.wait
+  self.toRawEIO >>= EMaybeTask.wait
 
 /--
 Lifts an `Async` computation into an `AsyncTask` that can be awaited and joined.
 -/
 @[inline]
 def asTask (x : Async α) : IO (AsyncTask α) := do
-  MaybeExceptTask.joinTask <$> IO.asTask x.toRawEIO
+  EMaybeTask.joinTask <$> IO.asTask x.toRawEIO
 
 /--
 Returns the `Async` computation inside an `AsyncTask`, so it can be awaited.
@@ -589,13 +631,12 @@ Returns the `Async` computation inside an `AsyncTask`, so it can be awaited.
 def async (self : Async α) : Async (AsyncTask α) :=
   EAsync.lift <| self.asTask
 
-@[default_instance]
 instance : MonadAwait AsyncTask Async :=
   inferInstanceAs (MonadAwait AsyncTask (EAsync IO.Error))
 
 @[default_instance]
 instance : MonadAsync AsyncTask Async :=
-  inferInstanceAs (MonadAsync (ExceptTask IO.Error) (EAsync IO.Error))
+  inferInstanceAs (MonadAsync (ETask IO.Error) (EAsync IO.Error))
 
 instance : MonadAwait IO.Promise Async :=
   inferInstanceAs (MonadAwait IO.Promise (EAsync IO.Error))
@@ -615,7 +656,7 @@ Converts a `Async` to a `AsyncTask`.
 -/
 @[inline]
 protected def toBaseAsync (x : BaseAsync α) : BaseIO (Task α) := do
-  let result ← MaybeExceptTask.toTask <$> x.toRawEIO
+  let result ← EMaybeTask.toTask <$> x.toRawEIO
   return Task.map (fun (.ok r) => r) result
 
 /--
@@ -623,14 +664,14 @@ Waits for the result of the `BaseAsync` computation, blocking if necessary.
 -/
 @[inline]
 protected def wait (self : BaseAsync α) : BaseIO α :=
-  self.toRawEIO >>= MaybeExceptTask.wait
+  self.toRawEIO >>= EMaybeTask.wait
 
 /--
 Lifts a `BaseAsync` computation into a `Task` that can be awaited and joined.
 -/
 @[inline]
 def asTask (x : BaseAsync α) : EIO ε (Task α) := do
-  let task ← MaybeExceptTask.joinTask <$> EIO.asTask x.toRawEIO
+  let task ← EMaybeTask.joinTask <$> EIO.asTask x.toRawEIO
   return Task.map (prio := 0) (fun (.ok r) => r) task
 
 /--
@@ -647,20 +688,21 @@ Returns the `BaseAsync` computation inside a `Task α`, so it can be awaited.
 def async (self : BaseAsync α) : BaseAsync (Task α) :=
   EAsync.lift <| self.asTask
 
-instance : MonadAwait (ExceptTask Empty) BaseAsync :=
-  inferInstanceAs (MonadAwait (ExceptTask Empty) (EAsync Empty))
+instance : MonadAwait (ETask Empty) BaseAsync :=
+  inferInstanceAs (MonadAwait (ETask Empty) (EAsync Empty))
 
-@[default_instance]
 instance : MonadAwait Task BaseAsync where
   await := BaseAsync.await
 
-@[default_instance]
 instance : MonadAsync Task BaseAsync where
   async := BaseAsync.async
 
+instance : MonadAsync (ETask ε) BaseAsync where
+  async := Functor.map (Task.map .ok) ∘ BaseAsync.async
+
 instance : MonadLiftT BaseAsync (EAsync ε) where
   monadLift {α} x :=
-    let r : EIO ε (MaybeExceptTask ε α) := do
+    let r : EIO ε (EMaybeTask ε α) := do
       let r ← BaseIO.toEIO (x.toRawEIO)
       match r with
       | .pure res => pure <| .pure res
@@ -676,11 +718,11 @@ export MonadAsync (async)
 export MonadAwait (await)
 
 /--
-Starts the given async task in the background and discards the result.
+This function transforms the operation inside the monad `m` into a task and let it run in the background.
 -/
 @[inline, specialize]
-def parallel [Monad m] [MonadAsync t m] (x : m (t α)) : m Unit :=
-  discard <| x
+def background [Monad m] [MonadAsync t m] : m α → m Unit :=
+  discard ∘ async (t := t)
 
 /--
 Runs two computations concurrently and returns both results as a pair.
@@ -695,14 +737,15 @@ def concurrently [Monad m] [MonadAwait t m] [MonadAsync t m] (x : m α) (y : m �
 
 /--
 Runs two computations concurrently and returns the result of the one that finishes first.
-The other result is discarded.
+The other result is lost and the other task is not cancelled, so the task will continue the execution
+until the end.
 -/
 @[inline, specialize]
 def race [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync t m] [MonadAwait t m] [Monad m] [Inhabited α] (x : m α) (y : m α) : m α := do
   let promise ← IO.Promise.new
 
-  discard (async (n := t) <| Bind.bind x (liftM ∘ promise.resolve))
-  discard (async (n := t) <| Bind.bind y (liftM ∘ promise.resolve))
+  discard (async (t := t) <| Bind.bind x (liftM ∘ promise.resolve))
+  discard (async (t := t) <| Bind.bind y (liftM ∘ promise.resolve))
 
   await promise.result!
 
@@ -716,14 +759,15 @@ def concurrentlyAll [Monad m] [MonadAwait t m] [MonadAsync t m] (xs : Array (m �
 
 /--
 Runs all computations concurrently and returns the result of the first one to finish.
-All other results are discarded.
+All other results are lost, and the tasks are not cancelled, so they'll continue their executing
+until the end.
 -/
 @[inline, specialize]
 def raceAll [ForM m c (m α)] [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync t m] [MonadAwait t m] [Monad m] [Inhabited α] (xs : c) : m α := do
   let promise ← IO.Promise.new
 
   ForM.forM xs fun x =>
-    discard (async (n := t) <| Bind.bind x (liftM ∘ promise.resolve))
+    discard (async (t := t) <| Bind.bind x (liftM ∘ promise.resolve))
 
   await promise.result!
 

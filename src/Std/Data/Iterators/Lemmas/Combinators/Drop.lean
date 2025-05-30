@@ -41,6 +41,7 @@ theorem Iter.atIdxSlow?_drop {α β}
     rw [atIdxSlow?.eq_def, atIdxSlow?.eq_def, step_drop]
     cases it.step using PlausibleIterStep.casesOn <;> simp [*]
 
+@[simp]
 theorem Iter.toList_drop {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} :
@@ -49,6 +50,7 @@ theorem Iter.toList_drop {α β} [Iterator α Id β] {n : Nat}
   simp only [getElem?_toList_eq_atIdxSlow?, List.getElem?_drop, atIdxSlow?_drop]
   rw [Nat.add_comm]
 
+@[simp]
 theorem Iter.toListRev_drop {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} :
@@ -57,18 +59,19 @@ theorem Iter.toListRev_drop {α β} [Iterator α Id β] {n : Nat}
 
 -- TODO: Init.Data.Array.Lemmas
 theorem _root_.List.drop_toArray {l : List α} {k : Nat} :
-    l.toArray.drop k = (l.drop k).toArray := by
+    (l.drop k).toArray = l.toArray.extract k := by
   induction l generalizing k
   case nil => simp
   case cons l' ih =>
     match k with
     | 0 => simp
-    | k' + 1 => simp [List.drop_succ_cons, ← ih]
+    | k' + 1 => simp [List.drop_succ_cons, ih]
 
+@[simp]
 theorem Iter.toArray_drop {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} :
-    (it.drop n).toArray = it.toArray.drop n := by
-  rw [← toArray_toList, ← toArray_toList, List.drop_toArray, toList_drop]
+    (it.drop n).toArray = it.toArray.extract n := by
+  rw [← toArray_toList, ← toArray_toList, ← List.drop_toArray, toList_drop]
 
 end Std.Iterators

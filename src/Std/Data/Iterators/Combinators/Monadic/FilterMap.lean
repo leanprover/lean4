@@ -39,6 +39,7 @@ Internal state of the `filterMap` combinator. Do not depend on its internals.
 structure FilterMap (α : Type w) {β γ : Type w}
     (m : Type w → Type w') (n : Type w → Type w'') (lift : ⦃α : Type w⦄ → m α → n α)
     (f : β → PostconditionT n (Option γ)) where
+  /-- Internal implementation detail of the iterator library. -/
   inner : IterM (α := α) m β
 
 /--
@@ -81,7 +82,7 @@ of `f`.
 **Marble diagram (without monadic effects):**
 
 ```text
-it                        ---a --b--c --d-e--⊥
+it                                ---a --b--c --d-e--⊥
 it.filterMapWithPostcondition     ---a'-----c'-------⊥
 ```
 
@@ -294,7 +295,7 @@ of `f`.
 **Marble diagram (without monadic effects):**
 
 ```text
-it                  ---a --b --c --d -e ----⊥
+it                          ---a --b --c --d -e ----⊥
 it.mapWithPostcondition     ---a'--b'--c'--d'-e'----⊥
 ```
 
@@ -340,7 +341,7 @@ of `f`.
 **Marble diagram (without monadic effects):**
 
 ```text
-it                     ---a--b--c--d-e--⊥
+it                             ---a--b--c--d-e--⊥
 it.filterWithPostcondition     ---a-----c-------⊥
 ```
 

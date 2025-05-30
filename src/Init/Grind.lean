@@ -18,3 +18,4 @@ import Init.Grind.CommRing
 import Init.Grind.Module
 import Init.Grind.Ordered
 import Init.Grind.Ext
+import Init.Grind.ToInt

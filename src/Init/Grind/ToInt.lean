@@ -26,8 +26,11 @@ and otherwise wraps the integers into the interval `[lo, hi)`.
 The typeclass `ToInt.Add α lo? hi?` then asserts that `toInt (x + y) = wrap lo? hi? (toInt x + toInt y)`.
 There are many variants for other operations.
 
-
 These typeclasses are used solely in the `grind` tactic to lift linear inequalities into `Int`.
+
+-- TODO: instances for `ToInt.Mod` (only exists for `Fin n` so far)
+-- TODO: typeclasses for LT, and other algebraic operations.
+-- TODO: typeclasses for `BitVec v` and `ISize`.
 -/
 
 namespace Lean.Grind
@@ -46,6 +49,9 @@ def ToInt.wrap (lo? hi? : Option Int) (x : Int) : Int :=
 
 class ToInt.Add (α : Type u) [Add α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
   toInt_add : ∀ x y : α, toInt (x + y) = wrap lo? hi? (toInt x + toInt y)
+
+class ToInt.Mod (α : Type u) [Mod α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
+  toInt_mod : ∀ x y : α, toInt (x % y) = wrap lo? hi? (toInt x % toInt y)
 
 class ToInt.LE (α : Type u) [LE α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
   le_iff : ∀ x y : α, x ≤ y ↔ toInt x ≤ toInt y
@@ -90,6 +96,14 @@ instance : ToInt (Fin n) (some 0) (some n) where
 
 instance : ToInt.Add (Fin n) (some 0) (some n) where
   toInt_add x y := by rfl
+
+instance : ToInt.Mod (Fin n) (some 0) (some n) where
+  toInt_mod x y := by
+    simp only [toInt_fin, Fin.mod_val, Int.natCast_emod, ToInt.wrap, Int.sub_zero, Int.add_zero]
+    rw [Int.emod_eq_of_lt (b := n)]
+    · omega
+    · rw [Int.ofNat_mod_ofNat, ← Fin.mod_val]
+      exact Int.ofNat_lt.mpr (x % y).isLt
 
 instance : ToInt.LE (Fin n) (some 0) (some n) where
   le_iff x y := by simpa using Fin.le_def

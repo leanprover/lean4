@@ -42,7 +42,7 @@ structure FilterMap (α : Type w) {β γ : Type w}
   inner : IterM (α := α) m β
 
 /--
-Internal state of the `filterMap` combinator. Do not depend on its internals.
+Internal state of the `map` combinator. Do not depend on its internals.
 -/
 def Map (α : Type w) {β γ : Type w} (m : Type w → Type w') (n : Type w → Type w'')
     (lift : ⦃α : Type w⦄ → m α → n α) [Functor n]
@@ -116,7 +116,7 @@ def IterM.filterMapWithPostcondition {α β γ : Type w} {m : Type w → Type w'
   IterM.InternalCombinators.filterMap (fun ⦃_⦄ => monadLift) f it
 
 /--
-The `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
+`it.PlausibleStep step` is the proposition that `step` is a possible next step from the
 `filterMap` iterator `it`. This is mostly internally relevant, except if one needs to manually
 prove termination (`Finite` or `Productive` instances, for example) of a `filterMap` iterator.
 -/

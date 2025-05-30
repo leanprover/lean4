@@ -518,7 +518,7 @@ with
     | .lam _ t b _ =>
       let d := (max t.data.approxDepth.toUInt32 b.data.approxDepth.toUInt32) + 1
       mkDataForBinder (mixHash d.toUInt64 <| mixHash t.data.hash b.data.hash)
-        (max t.data.looseBVarRange b.data.looseBVarRange)
+        (max t.data.looseBVarRange b.data.looseBVarRange.pred)
         d
         (t.data.hasFVar || b.data.hasFVar)
         (t.data.hasExprMVar || b.data.hasExprMVar)
@@ -527,7 +527,7 @@ with
     | .forallE _ t b _ =>
       let d := (max t.data.approxDepth.toUInt32 b.data.approxDepth.toUInt32) + 1
       mkDataForBinder (mixHash d.toUInt64 <| mixHash t.data.hash b.data.hash)
-        (max t.data.looseBVarRange b.data.looseBVarRange)
+        (max t.data.looseBVarRange b.data.looseBVarRange.pred)
         d
         (t.data.hasFVar || b.data.hasFVar)
         (t.data.hasExprMVar || b.data.hasExprMVar)

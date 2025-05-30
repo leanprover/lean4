@@ -229,13 +229,13 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
-  extraDepJob.bindM fun _ => do
+  extraDepJob.bindM (sync := true) fun _ => do
   importJob.bindM (sync := true) fun _ => do
   let depTrace ← takeTrace
   impLibsJob.bindM (sync := true) fun impLibs => do
   externLibsJob.bindM (sync := true) fun externLibs => do
   dynlibsJob.bindM (sync := true) fun dynlibs => do
-  pluginsJob.mapM (sync := true) fun plugins => do
+  pluginsJob.mapM fun plugins => do
     let libTrace ← takeTrace
     setTraceCaption s!"{mod.name.toString}:deps"
     let depTrace := depTrace.withCaption "deps"

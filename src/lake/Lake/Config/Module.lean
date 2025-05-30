@@ -82,6 +82,12 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def leanFile (self : Module) : FilePath :=
   self.srcPath "lean"
 
+@[inline] def relLeanFile (self : Module) : FilePath :=
+  if let some relPath := self.leanFile.toString.dropPrefix? self.pkg.dir.toString then
+    FilePath.mk (relPath.drop 1).toString -- remove leading `/`
+  else
+    self.leanFile
+
 @[inline] def leanLibPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.leanLibDir ext
 

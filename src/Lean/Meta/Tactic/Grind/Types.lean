@@ -374,7 +374,7 @@ private def hashRoot (enodes : ENodeMap) (e : Expr) : UInt64 :=
   if let some node := enodes.find? { expr := e } then
     hashPtrExpr node.root
   else
-    13
+    hashPtrExpr e
 
 private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
   if isSameExpr a b then

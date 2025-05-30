@@ -71,7 +71,6 @@ theorem Iter.step_filterMapWithPostcondition {f : β → PostconditionT n (Optio
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
-    simp
     apply bind_congr
     intro step
     rcases step with _ | _ <;> rfl
@@ -97,7 +96,6 @@ theorem Iter.step_filterWithPostcondition {f : β → PostconditionT n (ULift Bo
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
-    simp
     apply bind_congr
     intro step
     rcases step with _ | _ <;> rfl
@@ -212,7 +210,7 @@ theorem Iter.step_filterMap {f : β → Option γ} :
   simp only [liftM, monadLift, pure_bind, Id.run_bind]
   generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn
-  · simp
+  · simp only [IterM.Step.toPure_yield, toIter_toIterM, toIterM_toIter]
     split <;> split <;> (try exfalso; simp_all; done)
     · rfl
     · rename_i h₁ _ h₂

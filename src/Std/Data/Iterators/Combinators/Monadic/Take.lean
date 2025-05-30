@@ -19,9 +19,14 @@ namespace Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
+/--
+The internal state of the `IterM.take` iterator combinator.
+-/
 @[unbox]
 structure Take (α : Type w) (m : Type w → Type w') (β : Type w) where
+  /-- Internal implementation detail of the iterator library -/
   remaining : Nat
+  /-- Internal implementation detail of the iterator library -/
   inner : IterM (α := α) m β
 
 /--

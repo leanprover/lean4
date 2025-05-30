@@ -52,6 +52,7 @@ theorem Iter.atIdxSlow?_take {α β}
     simp only [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
     cases k <;> cases l <;> simp
 
+@[simp]
 theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} :
@@ -68,12 +69,14 @@ theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     · simp [ihs h]
     · simp
 
+@[simp]
 theorem Iter.toListRev_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} :
     (it.take n).toListRev = it.toListRev.drop (it.toList.length - n) := by
   rw [toListRev_eq, toList_take_of_finite, List.reverse_take, toListRev_eq]
 
+@[simp]
 theorem Iter.toArray_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
     {it : Iter (α := α) β} :

@@ -134,4 +134,13 @@ def sumTakeFold (l : List Nat) : Nat :=
 #guard_msgs in
 #eval sumTakeFold [1, 2, 3]
 
+example : ([1, 2, 3].iter.take 2).toList = [1, 2] := by
+  simp
+
+example : ([1, 2, 3].iter.take 2).toArray = #[1, 2] := by
+  simp
+
+example : ([1, 2, 3].iter.take 2).toListRev = [2, 1] := by
+  simp
+
 end Take

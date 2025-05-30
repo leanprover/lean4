@@ -9,6 +9,7 @@ import Std.Data.Iterators.Consumers.Monadic.Collect
 import Std.Data.Iterators.Consumers.Monadic.Loop
 import Std.Data.Iterators.Lemmas.Monadic.Basic
 import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Std.Data.Iterators.Lemmas.Equivalence.Advanced
 
 namespace Std.Iterators
 
@@ -232,5 +233,24 @@ theorem IterM.drain_eq_map_toArray {α β : Type w} {m : Type w → Type w'} [It
     {it : IterM (α := α) m β} :
     it.drain = (fun _ => .unit) <$> it.toList := by
   simp [IterM.drain_eq_map_toList]
+
+section Equivalence
+
+-- TODO: prove a `step_congr` variant that allows lifts by proving that mapM (which also lifts)
+--       preserves equivalences.
+-- theorem HItEquivM.forIn_eq [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
+--     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+--     [IteratorLoop α₁ m n] [LawfulIteratorLoop α₁ m n]
+--     [IteratorLoop α₂ m n] [LawfulIteratorLoop α₂ m n]
+--     [MonadLiftT m n] [LawfulMonadLiftT m n]
+--     [LawfulMonadLiftT m n]
+--     {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquivM ita itb) :
+--     ForIn.forIn (m := n) ita init f = ForIn.forIn (m := n) itb init f := by
+--   apply ita.inductSteps
+--   intro it ihy ihs
+--   rw [IterM.forIn_eq_match_step, IterM.forIn_eq_match_step]
+--   apply h.step_congr
+
+end Equivalence
 
 end Std.Iterators

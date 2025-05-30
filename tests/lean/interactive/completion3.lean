@@ -1,8 +1,3 @@
-import Lean
-
-elab "#show " c:command : command => do
-  IO.println c
-
 structure S where
   x : Nat
   y : String

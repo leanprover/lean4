@@ -7,4 +7,4 @@ prelude
 import Std.Data.Iterators.Lemmas.Producers.Monadic
 import Std.Data.Iterators.Lemmas.Producers.Array
 import Std.Data.Iterators.Lemmas.Producers.List
-import Std.Data.Iterators.Lemmas.Producers.Unfold
+import Std.Data.Iterators.Lemmas.Producers.Repeat

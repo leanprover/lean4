@@ -7,7 +7,7 @@ prelude
 import Std.Data.Iterators.Producers.Monadic.Array
 import Std.Data.Iterators.Consumers
 import Std.Data.Iterators.Lemmas.Consumers.Monadic
-import Std.Data.Iterators.TempLawfulMonadLift
+import Std.Data.Internal.LawfulMonadLiftFunction
 
 /-!
 # Lemmas about array iterators

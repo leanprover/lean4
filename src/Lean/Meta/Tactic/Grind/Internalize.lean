@@ -366,6 +366,7 @@ where
           let c := args[0]!
           internalizeImpl c generation e
           registerParent e c
+          pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
         else if f.isConstOf ``ite && args.size == 5 then
           let c := args[1]!
           internalizeImpl c generation e

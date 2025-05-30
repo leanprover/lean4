@@ -585,6 +585,16 @@ private def VisibilityMap.const (a : α) : VisibilityMap α :=
 
 namespace Environment
 
+def header (env : Environment) : EnvironmentHeader :=
+  -- can be assumed to be in sync with `env.checked`; see `setMainModule`, the only modifier of the header
+  env.base.private.header
+
+def imports (env : Environment) : Array Import :=
+  env.header.imports
+
+def allImportedModuleNames (env : Environment) : Array Name :=
+  env.header.moduleNames
+
 private def asyncConsts (env : Environment) : AsyncConsts :=
   env.asyncConstsMap.get env
 
@@ -598,9 +608,12 @@ def ofKernelEnv (env : Kernel.Environment) : Environment :=
 def toKernelEnv (env : Environment) : Kernel.Environment :=
   env.checked.get
 
-/-- Updates `Environment.isExporting`. -/
+/-- Updates `env.isExporting`. Ignored if `env.header.isModule` is false. -/
 def setExporting (env : Environment) (isExporting : Bool) : Environment :=
-  { env with isExporting }
+  if !env.header.isModule || env.isExporting == isExporting then
+    env
+  else
+    { env with isExporting }
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -1093,16 +1106,6 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
     env
   else
     env.modifyCheckedAsync fun env => { env with extraConstNames := env.extraConstNames.insert name }
-
-def header (env : Environment) : EnvironmentHeader :=
-  -- can be assumed to be in sync with `env.checked`; see `setMainModule`, the only modifier of the header
-  env.base.private.header
-
-def imports (env : Environment) : Array Import :=
-  env.header.imports
-
-def allImportedModuleNames (env : Environment) : Array Name :=
-  env.header.moduleNames
 
 def setMainModule (env : Environment) (m : Name) : Environment := Id.run do
   let env := env.modifyCheckedAsync ({ · with
@@ -2390,8 +2393,7 @@ Sets `Environment.isExporting` to the given value while executing `x`. No-op if
 def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (isExporting := true) : m α := do
   let old := (← getEnv).isExporting
-  let isModule := (← getEnv).header.isModule
-  modifyEnv (·.setExporting (isExporting && isModule))
+  modifyEnv (·.setExporting isExporting)
   try
     x
   finally

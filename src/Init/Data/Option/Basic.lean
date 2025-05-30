@@ -256,7 +256,6 @@ instance (r : α → β → Prop) [s : DecidableRel r] : DecidableRel (Option.lt
   | some _, none   => isFalse not_false
   | none,   none   => isFalse not_false
 
-
 /--
 Applies a function to a two optional values if both are present. Otherwise, if one value is present,
 it is returned and the function is not used.

@@ -413,10 +413,165 @@ end ToArray
 
 section Equivalence
 
-theorem temp [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Iterator α m β]
+theorem step'_filterMapM [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Iterator α m β]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (Option γ)} {it : IterM (α := α) m β} :
-    (it.filterMapM f).step' = ((monadLift it.step' : HetT n _)) := sorry -- can we even lift in HetT?
+    (it.filterMapM f).step' = ((it.step'.liftInner n : HetT n _)).bind (match · with
+      | .yield it' out => do match ← HetT.lift (f out) with
+        | some out' => return .yield (it'.filterMapM f) out'
+        | none => return .skip (it'.filterMapM f)
+      | .skip it' => return .skip (it'.filterMapM f)
+      | .done => return .done) := by
+  simp [HetT.ext_iff]
+  refine ⟨?_, ?_⟩
+  · ext step
+    constructor
+    · intro h
+      cases h
+      case yieldNone it' out h h' =>
+        refine ⟨_, h, ?_⟩
+        simp [Bind.bind]
+        exact ⟨none, by simp [Pure.pure]; rfl⟩
+      case yieldSome it' out out' h h' =>
+        refine ⟨_, h, ?_⟩
+        simp [Bind.bind]
+        exact ⟨some out', by simp [Pure.pure]; rfl⟩
+      case skip it' h =>
+        exact ⟨_, h, by simp [Pure.pure]; rfl⟩
+      case done h =>
+        exact ⟨_, h, by simp [Pure.pure]⟩
+    · rintro ⟨step', h, h'⟩
+      cases step'
+      case yield it' out =>
+        simp [Bind.bind] at h'
+        rcases h' with ⟨out', h'⟩
+        cases out'
+        · simp [Pure.pure] at h'
+          cases h'
+          exact .yieldNone h .intro
+        · simp [Pure.pure] at h'
+          cases h'
+          exact .yieldSome h .intro
+      case skip it' =>
+        simp [Bind.bind, Pure.pure] at h'
+        cases h'
+        exact .skip h
+      case done =>
+        simp [Bind.bind, Pure.pure] at h'
+        cases h'
+        exact .done h
+  · intro β f
+    simp [IterM.step_filterMapM]
+    apply bind_congr
+    intro step
+    cases step using PlausibleIterStep.casesOn
+    · simp [Bind.bind, HetT.prun_bind]
+      apply bind_congr
+      intro out
+      cases out <;> simp [pure]
+    · simp [pure]
+    · simp [pure]
+
+theorem HItEquivM.liftInner_step'_pbind_congr [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [Iterator α₁ m β] [Iterator α₂ m β]
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    {f : (_ : _) → _ → HetT n γ} {g : (_ : _) → _ → HetT n γ} (h : HItEquivM ita itb)
+    (hfg : ∀ sa hsa sb hsb, sa.bundle = sb.bundle → f sa hsa = g sb hsb) :
+    (ita.step'.liftInner n).pbind f = (itb.step'.liftInner n).pbind g := by
+  simp [HetT.ext_iff]
+  refine ⟨?_, ?_⟩
+  · ext c
+    constructor
+    · rintro ⟨s₁, hs₁, hf⟩
+      rcases exists_equiv_step h ⟨s₁, hs₁⟩ with ⟨s₂, h'⟩
+      exact ⟨s₂.1, s₂.2, (hfg s₁ hs₁ s₂.1 s₂.2 h') ▸ hf⟩
+    · rintro ⟨s₁, hs₁, hf⟩
+      rcases exists_equiv_step h.symm ⟨s₁, hs₁⟩ with ⟨s₂, h'⟩
+      exact ⟨s₂.1, s₂.2, (hfg s₂.1 s₂.2 s₁ hs₁ h'.symm) ▸ hf⟩
+  · intro γ l
+    apply step_congr h
+    intro s₁ s₂ h
+    simp only [hfg s₁.1 s₁.2 s₂.1 s₂.2 h]
+
+theorem HItEquivM.liftInner_step'_bind_congr [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [Iterator α₁ m β] [Iterator α₂ m β]
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    {f : (_ : _) → HetT n γ} {g : (_ : _) → HetT n γ} (h : HItEquivM ita itb)
+    (hfg : ∀ sa (_ : ita.step'.Property sa) sb (_ : itb.step'.Property sb), sa.bundle = sb.bundle → f sa = g sb) :
+    (ita.step'.liftInner n).bind f = (itb.step'.liftInner n).bind g := by
+  simp [HetT.bind_eq_pbind]
+  apply liftInner_step'_pbind_congr h
+  exact hfg
+
+theorem HItEquivM.filterMapM [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n (Option γ)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.filterMapM f) (itb.filterMapM f) := by
+  rw [HItEquivM]
+  refine ItEquiv.fixpoint_induct n γ ?R ?implies (.ofIterM _) (.ofIterM _) ?hR
+  case R =>
+    intro ita' itb'
+    exact ∃ (ita : IterM (α := α₁) m β) (itb : IterM (α := α₂) m β),
+      ita' = .ofIterM (ita.filterMapM f) ∧
+      itb' = .ofIterM (itb.filterMapM f) ∧
+      HItEquivM ita itb
+  case hR =>
+    exact ⟨_, _, rfl, rfl, h⟩
+  case implies =>
+    rintro _ _ ⟨ita, itb, rfl, rfl, h'⟩
+    replace h := h'
+    simp [BundledIterM.step']
+    rw [step'_filterMapM, step'_filterMapM]
+    simp
+    simp [HItEquivM, ItEquiv, BundledIterM.step'] at h'
+    apply liftInner_step'_bind_congr h
+    intro sa hsa sb hsb hs
+    simp [IterStep.bundle] at hs
+    cases sa <;> cases sb <;> (try exfalso; simp_all; done)
+    case yield =>
+      simp [ItEquiv.quotMk_eq_iff] at hs
+      cases hs.2
+      simp [bind_assoc, Bind.bind]
+      congr
+      ext out
+      cases out
+      all_goals
+        simp [Pure.pure]
+        congr 2
+        apply Quot.sound
+        exact ⟨_, _, rfl, rfl, hs.1⟩
+    case skip =>
+      simp [ItEquiv.quotMk_eq_iff] at hs
+      simp [Pure.pure]
+      congr 2
+      apply Quot.sound
+      exact ⟨_, _, rfl, rfl, hs⟩
+    case done =>
+      simp [Pure.pure]
+
+theorem HItEquivM.InternalCombinators.filterMap [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    {lift} [LawfulMonadLiftFunction lift]
+    {f : β → PostconditionT n (Option γ)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (IterM.InternalCombinators.filterMap lift f ita)
+      (IterM.InternalCombinators.filterMap lift f itb) := by
+  letI i : MonadLift m n := ⟨lift (α := _)⟩
+  change HItEquivM (ita.filterMapWithProof f) (itb.filterMapWithProof f)
+  rw [HItEquivM]
+  refine ItEquiv.fixpoint_induct n γ ?R ?implies (.ofIterM _) (.ofIterM _) ?hf
+  case R =>
+    intro ita' itb'
+    exact ∃ (ita : IterM (α := α₁) m β) (itb : IterM (α := α₂) m β),
+      ita' = .ofIterM (ita.filterMapWithProof f) ∧
+      itb' = .ofIterM (itb.filterMapWithProof f) ∧
+      HItEquivM ita itb
+  case implies =>
+    rintro _ _ ⟨ita, itb, rfl, rfl, h⟩
+    simp? [BundledIterM.step', test]
+
 
 theorem HItEquivM.InternalCombinators.filterMap [Monad m] [LawfulMonad m]
     [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]

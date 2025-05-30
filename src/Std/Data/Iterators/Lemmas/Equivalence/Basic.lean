@@ -23,6 +23,11 @@ def BundledIterM.ofIterM {α} [Iterator α m β] (it : IterM (α := α) m β) :
     BundledIterM m β :=
   ⟨α, inferInstance, it⟩
 
+@[simp]
+theorem BundledIterM.iterator_ofIterM {α} [Iterator α m β] (it : IterM (α := α) m β) :
+    (BundledIterM.ofIterM it).iterator = it :=
+  rfl
+
 instance (bit : BundledIterM m β) : Iterator bit.α m β :=
   bit.inst
 
@@ -41,7 +46,7 @@ def gprop (R : α → α → Prop) : Quot.mk _ = (Todo.g R) ∘ Quot.mk _ :=
 
 noncomputable def IterM.step' [Iterator α m β] [Monad m] (it : IterM (α := α) m β) :
     HetT m (IterStep (IterM (α := α) m β) β) :=
-    ⟨it.IsPlausibleStep, inferInstance, (fun step => .deflate ⟨step.1, step.2⟩) <$> it.step⟩
+    ⟨it.IsPlausibleStep, inferInstance, (fun step => .deflate step) <$> it.step⟩
 
 @[simp]
 theorem IterM.property_step' [Iterator α m β] [Monad m] [LawfulMonad m] {it : IterM (α := α) m β} :
@@ -52,7 +57,14 @@ theorem IterM.property_step' [Iterator α m β] [Monad m] [LawfulMonad m] {it : 
 theorem IterM.prun_step' [Iterator α m β] [Monad m] [LawfulMonad m] {it : IterM (α := α) m β}
     {f : (step : _) → _ → m γ} :
     it.step'.prun f = it.step >>= (fun step => f step.1 step.2) := by
-  simp [IterM.step', HetT.prun]
+  simp [IterM.step', HetT.prun, IterM.Step, PlausibleIterStep]
+
+@[simp]
+theorem IterM.prun_liftInner_step' [Iterator α m β] [Monad m] [Monad n] [MonadLiftT m n]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n] {it : IterM (α := α) m β}
+    {f : (step : _) → _ → n γ} :
+    (it.step'.liftInner n).prun f = (it.step : n _) >>= (fun step => f step.1 step.2) := by
+  simp [IterM.step', HetT.liftInner, HetT.prun, IterM.Step, PlausibleIterStep]
 
 noncomputable def BundledIterM.step' {α β : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α m β] (R : BundledIterM m β → BundledIterM m β → Prop)
     (it : IterM (α := α) m β) :
@@ -94,6 +106,12 @@ protected theorem ItEquiv.exact {m : Type w → Type w'} {β : Type w} [Monad m]
   simp only [BundledIterM.stepQ_mk, BundledIterM.step', IterStep.mapIterator_comp, HetT.comp_map] at h
   simp only [BundledIterM.step', gprop, IterStep.mapIterator_comp, HetT.comp_map]
   simp only [h]
+
+protected theorem ItEquiv.quotMk_eq_iff {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
+    (ita itb : BundledIterM m β) : Quot.mk (ItEquiv m β) ita = Quot.mk (ItEquiv m β) itb ↔ ItEquiv m β ita itb := by
+  constructor
+  · apply ItEquiv.exact
+  · exact Quot.sound
 
 theorem ItEquiv.refl {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
     (it) : ItEquiv m β it it :=
@@ -139,7 +157,7 @@ theorem ItEquiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m] [La
     simp [BundledIterM.step',
       show (BundledIterM.ofIterM (f it)).iterator = f it by rfl,
       show (BundledIterM.ofIterM it).iterator = it by rfl,
-      h, Functor.map]
+      h, Functor.map, HetT.ext_iff]
     refine ⟨?_, ?_⟩
     · unfold BundledIterM.ofIterM
       simp

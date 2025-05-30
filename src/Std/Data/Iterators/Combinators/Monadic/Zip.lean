@@ -18,7 +18,7 @@ This file provides an iterator combinator `IterM.zip` that combines two iterator
 of pairs.
 -/
 
-namespace Option
+namespace Std.Internal.Option
 
 /- TODO: move this to Init.Data.Option -/
 namespace SomeLtNone
@@ -83,9 +83,10 @@ theorem SomeLtNone.wellFounded_lt {α} {r : α → α → Prop} (h : WellFounded
     | none => contradiction
     | some x'' => exact ih x'' hlt'
 
-end Option
+end Std.Internal.Option
 
 namespace Std.Iterators
+open Std.Internal
 
 variable {m : Type w → Type w'}
   {α₁ : Type w} {β₁ : Type w} [Iterator α₁ m β₁]

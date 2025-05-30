@@ -106,3 +106,41 @@ example (l : List Nat) :
   simp
 
 end Loop
+
+section Take
+
+def sumTakeRec (l : List Nat) : Nat :=
+  go (l.iter.take 2) 0
+where
+  go it acc :=
+    match it.step with
+    | .yield it' out _ => go it' (acc + out)
+    | .skip it' _ => go it' acc
+    | .done _ => acc
+  termination_by it.finitelyManySteps
+
+def sumTakeFold (l : List Nat) : Nat :=
+  l.iter.take 2 |>.fold (init := 0) (· + ·)
+
+/-- info: [1, 2] -/
+#guard_msgs in
+#eval [1, 2, 3].iter.take 2 |>.toList
+
+/-- info: 3 -/
+#guard_msgs in
+#eval sumTakeRec [1, 2, 3]
+
+/-- info: 3 -/
+#guard_msgs in
+#eval sumTakeFold [1, 2, 3]
+
+example : ([1, 2, 3].iter.take 2).toList = [1, 2] := by
+  simp
+
+example : ([1, 2, 3].iter.take 2).toArray = #[1, 2] := by
+  simp
+
+example : ([1, 2, 3].iter.take 2).toListRev = [2, 1] := by
+  simp
+
+end Take

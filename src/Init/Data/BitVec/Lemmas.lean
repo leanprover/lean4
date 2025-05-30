@@ -5630,6 +5630,84 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
 
 /-! ### Leading zeroes -/
 
+theorem le_toNat_iff (x : BitVec w) (hi : i < w ) :
+    (2 ^ i ≤ x.toNat) ↔ (∃ k, x.getLsbD (i + k) = true) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · constructor
+    · -- (2 ^ i ≤ x.toNat) → (∃ k, x.getLsbD (i + k) = true)
+      intro hle
+      apply Classical.byContradiction
+      intros hcontra
+      -- we have a bitvec that looks like:
+      -- 0 0 ... 0 ...
+      -- w ..... i ...
+      -- we need to show that under these conditions
+      -- it is impossible that 2 ^ i ≤ x.toNat
+      -- we truncate the vector to size i + 1:
+      -- 0 ....
+      -- i ...
+      -- we show x'.toNat = x.toNat since all the bits from i to w are 0
+      let x' := setWidth (i + 1) x
+      have hx' : setWidth (i + 1) x = x' := by rfl
+      have hcast : w - i + (i + 1) = w + 1 := by omega
+      simp at hcontra
+      have hx'' : x = BitVec.cast hcast (0#(w - i) ++ x') := by
+        ext j
+        by_cases hj : j < i + 1
+        · simp [hj]
+          simp [getElem_append, hj]
+          simp [← hx']
+          rw [getLsbD_eq_getElem]
+        · simp [getElem_append, hj]
+          let j' := j - i
+          have hj' : j = i + j' := by omega
+          simp [hj']
+          apply hcontra
+      -- we show that since x'.msb = false, then it can't be 2 ^ i ≤ x.toNat
+      have h2 := BitVec.getLsbD_setWidth (x := x) (m := i + 1) (i := i)
+      simp only [hx', show i < i + 1 by omega, decide_true, Bool.true_and] at h2
+      have h3 := msb_eq_false_iff_two_mul_lt (x := x')
+      simp only [BitVec.msb, getMsbD_eq_getLsbD, Nat.zero_lt_succ, decide_true, Nat.add_one_sub_one,
+        Nat.sub_zero, Nat.lt_add_one, Bool.true_and] at h3
+      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm] at h3
+      have h6 : x'.toNat < 2 ^ i := by
+        specialize hcontra 0
+        simp_all
+      have h1 : x'.toNat = x.toNat := by
+        have h5 := BitVec.setWidth_eq_append (w := (w + 1)) (v := i + 1) (x := x')
+        specialize h5 (by omega)
+        rw [toNat_eq, toNat_setWidth, Nat.mod_eq_of_lt (by omega)] at h5
+        simp [hx'']
+      omega
+    · -- (∃ k, x.getLsbD (i + k) = true) → (2 ^ i ≤ x.toNat)
+      intro h
+      obtain ⟨k, hk⟩ := h
+      by_cases hk' : i + k < w + 1
+      · have := Nat.ge_two_pow_of_testBit hk
+        have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
+        omega
+      · simp [show w + 1 ≤ i + k by omega] at hk
+
+theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
+    x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
+  constructor
+  · intro h
+    apply Classical.byContradiction
+    intro hcontra
+    simp at hcontra
+    obtain ⟨k, hk⟩ := hcontra
+    have hle := Nat.ge_two_pow_of_testBit hk
+    by_cases hlt : i + k < w
+    · have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
+      omega
+    · simp [show w ≤ i + k by omega] at hk
+  · intro h
+    apply Classical.byContradiction
+    intro hcontra
+    have := le_toNat_iff (x := x) (i := i) hi
+    simp [this, h] at hcontra
+
 @[simp]
 theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
 
@@ -5877,7 +5955,7 @@ theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w):
     · simp
       constructor
       · intro h
-        exact ge_two_pow_of_testBit h
+        exact Nat.ge_two_pow_of_testBit h
       · intro h
         have := le_toNat_iff (x := x) (i := 0) (by omega)
         simp [h] at this
@@ -5891,7 +5969,7 @@ theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w):
       simp
       constructor
       · intro h
-        exact ge_two_pow_of_testBit h
+        exact Nat.ge_two_pow_of_testBit h
       · intro h
         have := le_toNat_iff (x := x) (i := w + 1) (by omega)
         simp [h] at this
@@ -5989,7 +6067,7 @@ theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
   · have : 0 < x.clz := by omega
     have h2 := getLsbD_true_of_clz_of_ne_zero (x := x) hw hx
     rw [getLsbD_eq_getElem (by omega)] at h2
-    have h3 := ge_two_pow_of_testBit h2
+    have h3 := Nat.ge_two_pow_of_testBit h2
     push_cast at h3
     exact h3
 
@@ -5998,7 +6076,7 @@ theorem lt_toNat_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
   have : clz x < w := by exact clz_lt_iff_ne_zero.mpr hx
   by_cases hc0 : x.clz = 0
   · simp [hc0]
-    simp [clz_eq_zero_iff (by exact zero_lt_succ w)] at hc0
+    simp [clz_eq_zero_iff (by exact Nat.zero_lt_succ w)] at hc0
     omega
   · have : 1 ≤ x.clz := by omega
     have h1 := toNat_lt_iff (x := x)

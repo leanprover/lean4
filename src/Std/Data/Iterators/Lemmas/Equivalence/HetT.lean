@@ -4,11 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.TempLawfulMonadLift
 import Init.Control.Lawful.Basic
 import Init.Data.Subtype
 import Init.PropLemmas
 import Init.Classical
+import Std.Data.Internal.LawfulMonadLiftFunction
+import Std.Data.Iterators.PostConditionMonad
 
 namespace Std.Iterators
 
@@ -142,7 +143,11 @@ structure HetT (m : Type w → Type w') (α : Type v) where
   small : Small.{w} (Subtype Property)
   operation : m (USquash (Subtype Property))
 
+-- `injEq` is the shortest path to DTT hell. We use `ext_iff` instead (see below).
 attribute [-simp] HetT.mk.injEq
+
+noncomputable def HetT.ofPostconditionT [Monad m] (x : PostconditionT m α) : HetT m α :=
+  ⟨x.Property, inferInstance, USquash.deflate <$> x.operation⟩
 
 noncomputable instance (m : Type w → Type w') [Monad m] : MonadLift m (HetT m) where
   monadLift x := ⟨fun _ => True, inferInstance, (USquash.deflate ⟨·, .intro⟩) <$> x⟩
@@ -230,6 +235,17 @@ theorem HetT.prun_lift {m : Type w → Type w'} [Monad m] [LawfulMonad m] {x : m
     (HetT.lift x).prun f = x >>= (fun a => f a .intro) := by
   simp [HetT.prun, HetT.lift, liftM, monadLift, MonadLift.monadLift, bind_map_left]
 
+@[simp]
+theorem HetT.property_ofPostconditionT [Monad m] {x : PostconditionT m α} :
+    (HetT.ofPostconditionT x).Property = x.Property :=
+  rfl
+
+@[simp]
+theorem HetT.prun_ofPostconditionT [Monad m] [LawfulMonad m] {x : PostconditionT m α}
+    {f : (_ : _) → _ → m γ} :
+    (HetT.ofPostconditionT x).prun f = x.operation >>= (fun a => f a.1 a.2) := by
+  simp [ofPostconditionT, prun]
+
 noncomputable def HetT.liftInner {m : Type w → Type w'} (n : Type w → Type w'') [MonadLiftT m n]
     (x : HetT m α) : HetT n α :=
   ⟨x.Property, x.small, x.operation⟩
@@ -244,30 +260,6 @@ theorem HetT.prun_liftInner {m : Type w → Type w'} {n : Type w → Type w''} [
     [MonadLiftT m n] [LawfulMonadLiftT m n] {x : HetT m α} {f : (a : α) → _ → m γ} :
     (x.liftInner n).prun (fun a ha => f a ha) = x.prun f := by
   simp [liftInner, prun]
-
--- TODO: Init.Core
-theorem HEq.congrArg {α : Sort u} {β : α → Type v} (f : (a : α) → β a) {a a'} (h : a = a') :
-    HEq (f a) (f a') := by
-  cases h; rfl
-
-theorem HEq.congrArg₂ {α : Sort u} {β : α → Sort v} {γ : (a : α) → (b : β a) → Sort w}
-    (f : (a : α) → (b : β a) → γ a b)
-    {a a' b b'} (h : a = a') (h' : HEq b b') : HEq (f a b) (f a' b') := by
-  cases h; cases h'; rfl
-
-theorem HEq.congrArg₃ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : α) → (b : β a) → Sort w}
-    {δ : (a : α) → (b : β a) → (c : γ a b) → Sort x}
-    (f : (a : α) → (b : β a) → (c : γ a b) → δ a b c)
-    {a a' b b' c c'} (h₁ : a = a') (h₂ : HEq b b') (h₃ : HEq c c') : HEq (f a b c) (f a' b' c') := by
-  cases h₁; cases h₂; cases h₃; rfl
-
-theorem HEq.congrArg₄ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : α) → (b : β a) → Sort w}
-    {δ : (a : α) → (b : β a) → (c : γ a b) → Sort x} {ε : (a : α) → (b : β a) → (c : γ a b) →
-      (d : δ a b c) → Sort y}
-    (f : (a : α) → (b : β a) → (c : γ a b) → (d : δ a b c) → ε a b c d)
-    {a a' b b' c c' d d'} (h₁ : a = a') (h₂ : HEq b b') (h₃ : HEq c c') (h₄ : HEq d d') :
-    HEq (f a b c d) (f a' b' c' d') := by
-  cases h₁; cases h₂; cases h₃; cases h₄; rfl
 
 theorem HetT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type v} {x y : HetT m α}

@@ -105,6 +105,7 @@ theorem IterM.fold_eq_foldM {α β γ : Type w} {m : Type w → Type w'} [Iterat
     it.fold (init := init) f = it.foldM (init := init) (pure <| f · ·) := by
   simp [foldM_eq_forIn, fold_eq_forIn]
 
+@[simp]
 theorem IterM.forIn_pure_yield_eq_fold {α β γ : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m]
     [LawfulIteratorLoop α m m] {f : β → γ → γ} {init : γ}

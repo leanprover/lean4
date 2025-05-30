@@ -11,7 +11,7 @@ import Std.Data.Iterators.Lemmas.Consumers
 
 namespace Std.Iterators
 
-theorem Iter.take_eq {α β} [Iterator α Id β] {n : Nat}
+theorem Iter.take_eq_toIter_take_toIterM {α β} [Iterator α Id β] {n : Nat}
     {it : Iter (α := α) β} :
     it.take n = (it.toIterM.take n).toIter :=
   rfl
@@ -25,7 +25,7 @@ theorem Iter.step_take {α β} [Iterator α Id β] {n : Nat}
         | .yield it' out h => .yield (it'.take k) out (.yield h rfl)
         | .skip it' h => .skip (it'.take (k + 1)) (.skip h rfl)
         | .done h => .done (.done h)) := by
-  simp only [Iter.step, Iter.step, Iter.take_eq, IterM.step_take, toIterM_toIter]
+  simp only [Iter.step, Iter.step, Iter.take_eq_toIter_take_toIterM, IterM.step_take, toIterM_toIter]
   cases n
   case zero => simp [PlausibleIterStep.done]
   case succ k =>

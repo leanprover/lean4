@@ -6,14 +6,34 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Combinators.Monadic.FilterMap
 
+/-!
+
+# `filterMap`, `filter` and `map` combinators
+
+This file provides iterator combinators for filtering and mapping.
+
+* `IterM.filterMap` either modifies or drops each value based on an option-valued mapping function.
+* `IterM.filter` drops some elements based on a predicate.
+* `IterM.map` modifies each value based on a mapping function
+
+Several variants of these combinators are provided:
+
+* `M` suffix: Instead of a pure function, these variants take a monadic function. Given a suitable
+  `MonadLiftT` instance, they also allow lifting the iterator to another monad first and then
+  applying the mapping function in this monad.
+* `WithProof` suffix: These variants take a monadic function where the return type in the monad
+  is a subtype. This variant is in rare cases necessary for the intrinsic verification of an
+  iterator, and particularly for specialized termination proofs. If possible, avoid this.
+-/
+
 namespace Std.Iterators
 
 -- We cannot use `inherit_doc` because the docstring for `IterM` states that a `MonadLiftT` instance
 -- is needed.
 /--
-*Note: This is a very general combinator that requires an advanced understanding of monads, dependent types
-and termination proofs. The variants `filterMap` and `filterMapM` are easier to use and sufficient
-for most use cases.*
+*Note: This is a very general combinator that requires an advanced understanding of monads,
+dependent types and termination proofs. The variants `filterMap` and `filterMapM` are easier to use
+and sufficient for most use cases.*
 
 If `it` is an iterator, then `it.filterMapWithProof f` is another iterator that applies a monadic
 function `f` to all values emitted by `it`. `f` is expected to return an `Option` inside the monad.
@@ -36,7 +56,7 @@ it.filterMapWithProof     ---a'-----c'-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
@@ -85,7 +105,7 @@ it.filterWithProof     ---a-----c-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
@@ -105,9 +125,9 @@ def Iter.filterWithProof {α β : Type w} [Iterator α Id β] {m : Type w → Ty
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterWithProof f : IterM m β)
 
 /--
-*Note: This is a very general combinator that requires an advanced understanding of monads, dependent types
-and termination proofs. The variants `map` and `mapM` are easier to use and sufficient
-for most use cases.*
+*Note: This is a very general combinator that requires an advanced understanding of monads,
+dependent types and termination proofs. The variants `map` and `mapM` are easier to use and
+sufficient for most use cases.*
 
 If `it` is an iterator, then `it.mapWithProof f` is another iterator that applies a monadic
 function `f` to all values emitted by `it` and emits the result.
@@ -167,7 +187,7 @@ it.filterMapM     ---a'-----c'-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
@@ -207,7 +227,7 @@ it.filterM     ---a-----c-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and

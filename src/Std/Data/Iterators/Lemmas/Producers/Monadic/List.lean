@@ -7,7 +7,7 @@ prelude
 import Std.Data.Iterators.Producers.Monadic.List
 import Std.Data.Iterators.Consumers
 import Std.Data.Iterators.Lemmas.Consumers.Monadic
-import Std.Data.Iterators.TempLawfulMonadLift
+import Std.Data.Internal.LawfulMonadLiftFunction
 
 /-!
 # Lemmas about list iterators
@@ -17,6 +17,7 @@ collectors.
 -/
 
 namespace Std.Iterators
+open Std.Internal
 
 variable {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] {β : Type w}
 

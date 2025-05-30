@@ -5,7 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Consumers.Monadic.Partial
-import Std.Data.Iterators.TempLawfulMonadLift
+import Std.Data.Internal.LawfulMonadLiftFunction
 
 /-!
 # Collectors
@@ -24,6 +24,7 @@ asserts that an `IteratorCollect` instance equals the default implementation.
 -/
 
 namespace Std.Iterators
+open Std.Internal
 
 section Typeclasses
 
@@ -34,6 +35,11 @@ iterators. Right now, it is limited to a potentially optimized `toArray` impleme
 This class is experimental and users of the iterator API should not explicitly depend on it.
 They can, however, assume that consumers that require an instance will work for all iterators
 provided by the standard library.
+
+Note: For this to be compositional enough to be useful, `toArrayMapped` would need to accept a
+termination proof for the specific mapping function used instead of the blanket `Finite α m`
+instance. Otherwise, most combinators like `map` cannot implement their own instance relying on
+the instance of their base iterators. However, fixing this is currently low priority.
 -/
 class IteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
     {β : Type w} [Iterator α m β] where

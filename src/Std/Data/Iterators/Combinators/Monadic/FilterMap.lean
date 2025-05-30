@@ -11,6 +11,9 @@ import Std.Data.Iterators.PostConditionMonad
 import Std.Data.Iterators.Internal.Termination
 
 /-!
+
+# Monadic `filterMap`, `filter` and `map` combinators
+
 This file provides iterator combinators for filtering and mapping.
 
 * `IterM.filterMap` either modifies or drops each value based on an option-valued mapping function.
@@ -23,8 +26,8 @@ Several variants of these combinators are provided:
   `MonadLiftT` instance, they also allow lifting the iterator to another monad first and then
   applying the mapping function in this monad.
 * `WithProof` suffix: These variants take a monadic function where the return type in the monad
-  is a subtype. This variant is sometimes necessary for the intrinsic verification of an iterator,
-  and particularly for termination proofs.
+  is a subtype. This variant is in rare cases necessary for the intrinsic verification of an
+  iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
 namespace Std.Iterators
@@ -61,9 +64,9 @@ def IterM.InternalCombinators.map {α β γ : Type w} {m : Type w → Type w'}
   toIterM ⟨it⟩ n γ
 
 /--
-*Note: This is a very general combinator that requires an advanced understanding of monads, dependent types
-and termination proofs. The variants `filterMap` and `filterMapM` are easier to use and sufficient
-for most use cases.*
+*Note: This is a very general combinator that requires an advanced understanding of monads,
+dependent types and termination proofs. The variants `filterMap` and `filterMapM` are easier to use
+and sufficient for most use cases.*
 
 If `it` is an iterator, then `it.filterMapWithProof f` is another iterator that applies a monadic
 function `f` to all values emitted by `it`. `f` is expected to return an `Option` inside the monad.
@@ -87,7 +90,7 @@ it.filterMapWithProof     ---a'-----c'-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
@@ -112,15 +115,24 @@ def IterM.filterMapWithProof {α β γ : Type w} {m : Type w → Type w'} {n : T
     (it : IterM (α := α) m β) : IterM (α := FilterMap α m n (fun ⦃_⦄ => monadLift) f) n γ :=
   IterM.InternalCombinators.filterMap (fun ⦃_⦄ => monadLift) f it
 
+/--
+The `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
+`filterMap` iterator `it`. This is mostly internally relevant, except if one needs to manually
+prove termination (`Finite` or `Productive` instances, for example) of a `filterMap` iterator.
+-/
 inductive FilterMap.PlausibleStep {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n (Option γ)} [Iterator α m β]
     (it : IterM (α := FilterMap α m n lift f) n γ) :
     IterStep (IterM (α := FilterMap α m n lift f) n γ) γ → Prop where
-  | yieldNone : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
-      (f out).Property none → PlausibleStep it (.skip (IterM.InternalCombinators.filterMap lift f it'))
+  | yieldNone : ∀ {it' out},
+      it.internalState.inner.IsPlausibleStep (.yield it' out) →
+      (f out).Property none →
+      PlausibleStep it (.skip (IterM.InternalCombinators.filterMap lift f it'))
   | yieldSome : ∀ {it' out out'}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
-      (f out).Property (some out') → PlausibleStep it (.yield (IterM.InternalCombinators.filterMap lift f it') out')
-  | skip : ∀ {it'}, it.internalState.inner.IsPlausibleStep (.skip it') → PlausibleStep it (.skip (IterM.InternalCombinators.filterMap lift f it'))
+      (f out).Property (some out') →
+      PlausibleStep it (.yield (IterM.InternalCombinators.filterMap lift f it') out')
+  | skip : ∀ {it'}, it.internalState.inner.IsPlausibleStep (.skip it') →
+      PlausibleStep it (.skip (IterM.InternalCombinators.filterMap lift f it'))
   | done : it.internalState.inner.IsPlausibleStep .done → PlausibleStep it .done
 
 instance FilterMap.instIterator {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
@@ -337,7 +349,7 @@ it.filterWithProof     ---a-----c-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
@@ -380,7 +392,7 @@ it.filterMapM     ---a'-----c'-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
@@ -401,7 +413,7 @@ returned `Option` value.
 def IterM.filterMapM {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Iterator α m β] [Monad n] [MonadLiftT m n]
     (f : β → n (Option γ)) (it : IterM (α := α) m β) :=
-  (it.filterMapWithProof (fun b => monadLift (f b)) : IterM n γ)
+  (it.filterMapWithProof (fun b => PostconditionT.lift (f b)) : IterM n γ)
 
 /--
 If `it` is an iterator, then `it.mapM f` is another iterator that applies a monadic
@@ -440,7 +452,7 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 @[inline]
 def IterM.mapM {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Iterator α m β]
     [Monad n] [MonadLiftT m n] (f : β → n γ) (it : IterM (α := α) m β) :=
-  (it.filterMapWithProof (fun b => some <$> monadLift (f b)) : IterM n γ)
+  (it.filterMapWithProof (fun b => some <$> PostconditionT.lift (f b)) : IterM n γ)
 
 /--
 If `it` is an iterator, then `it.filterM f` is another iterator that applies a monadic
@@ -463,7 +475,7 @@ it.filterM     ---a-----c-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
@@ -501,7 +513,7 @@ it.filterMap     ---a'-----c'-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be productive even though
 no `Productive` instance is provided. For example, if `f` never returns `none`, then
@@ -565,7 +577,7 @@ it.filter     ---a-----c-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be productive even though
 no `Productive` instance is provided. For example, if `f` always returns `True`, the resulting

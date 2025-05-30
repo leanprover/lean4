@@ -13,39 +13,41 @@ namespace Std.Iterators
 variable {α β γ : Type w} [Iterator α Id β] {it : Iter (α := α) β}
     {m : Type w → Type w'} {n : Type w → Type w''}
 
-theorem Iter.filterMapWithProof_eq [Monad m] {f : β → PostconditionT m (Option γ)} :
+theorem Iter.filterMapWithProof_eq_toIter_filterMapWithProof_toIterM [Monad m]
+    {f : β → PostconditionT m (Option γ)} :
     it.filterMapWithProof f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapWithProof f) :=
   rfl
 
-theorem Iter.filterWithProof_eq [Monad m] {f : β → PostconditionT m (ULift Bool)} :
+theorem Iter.filterWithProof_eq_toIter_filterMapWithProof_toIterM [Monad m]
+    {f : β → PostconditionT m (ULift Bool)} :
     it.filterWithProof f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterWithProof f) :=
   rfl
 
-theorem Iter.mapWithProof_eq [Monad m] {f : β → PostconditionT m γ} :
+theorem Iter.mapWithProof_eq_toIter_mapWithProof_toIterM [Monad m] {f : β → PostconditionT m γ} :
     it.mapWithProof f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapWithProof f) :=
   rfl
 
-theorem Iter.filterMapM_eq [Monad m] {f : β → m (Option γ)} :
+theorem Iter.filterMapM_eq_toIter_filterMapM_toIterM [Monad m] {f : β → m (Option γ)} :
     it.filterMapM f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapM f) :=
   rfl
 
-theorem Iter.filterM_eq [Monad m] {f : β → m (ULift Bool)} :
+theorem Iter.filterM_eq_toIter_filterM_toIterM [Monad m] {f : β → m (ULift Bool)} :
     it.filterM f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterM f) :=
   rfl
 
-theorem Iter.mapM_eq [Monad m] {f : β → m γ} :
+theorem Iter.mapM_eq_toIter_mapM_toIterM [Monad m] {f : β → m γ} :
     it.mapM f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapM f) :=
   rfl
 
-theorem Iter.filterMap_eq [Monad m] {f : β → Option γ} :
+theorem Iter.filterMap_eq_toIter_filterMap_toIterM {f : β → Option γ} :
     it.filterMap f = (it.toIterM.filterMap f).toIter :=
   rfl
 
-theorem Iter.map_eq [Monad m] {f : β → γ} :
+theorem Iter.map_eq_toIter_map_toIterM {f : β → γ} :
     it.map f = (it.toIterM.map f).toIter :=
   rfl
 
-theorem Iter.filter_eq [Monad m] {f : β → Bool} :
+theorem Iter.filter_eq_toIter_filter_toIterM [Monad m] {f : β → Bool} :
     it.filter f = (it.toIterM.filter f).toIter :=
   rfl
 
@@ -63,7 +65,8 @@ theorem Iter.step_filterMapWithProof {f : β → PostconditionT n (Option γ)}
       pure <| .skip (it'.filterMapWithProof f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [filterMapWithProof_eq, IterM.step_filterMapWithProof, step]
+  simp only [filterMapWithProof_eq_toIter_filterMapWithProof_toIterM, IterM.step_filterMapWithProof,
+    step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
@@ -89,7 +92,7 @@ theorem Iter.step_filterWithProof {f : β → PostconditionT n (ULift Bool)}
       pure <| .skip (it'.filterWithProof f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [filterWithProof_eq, IterM.step_filterWithProof, step]
+  simp only [filterWithProof_eq_toIter_filterMapWithProof_toIterM, IterM.step_filterWithProof, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
@@ -112,7 +115,7 @@ theorem Iter.step_mapWithProof {f : β → PostconditionT n γ}
       pure <| .skip (it'.mapWithProof f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [mapWithProof_eq, IterM.step_mapWithProof, step]
+  simp only [mapWithProof_eq_toIter_mapWithProof_toIterM, IterM.step_mapWithProof, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
@@ -122,21 +125,21 @@ theorem Iter.step_mapWithProof {f : β → PostconditionT n γ}
   | .skip it' h => rfl
   | .done h => rfl
 
-theorem Iter.step_filterMapM {f : β → n (Option β')}
+theorem Iter.step_filterMapM {β' : Type w} {f : β → n (Option β')}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterMapM f).step = (do
     match it.step with
     | .yield it' out h => do
       match ← f out with
       | none =>
-        pure <| .skip (it'.filterMapM f) (.yieldNone (out := out) h h')
+        pure <| .skip (it'.filterMapM f) (.yieldNone (out := out) h .intro)
       | some out' =>
-        pure <| .yield (it'.filterMapM f) out' (.yieldSome (out := out) h h')
+        pure <| .yield (it'.filterMapM f) out' (.yieldSome (out := out) h .intro)
     | .skip it' h =>
       pure <| .skip (it'.filterMapM f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [filterMapM_eq, IterM.step_filterMapM, step]
+  simp only [filterMapM_eq_toIter_filterMapM_toIterM, IterM.step_filterMapM, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
@@ -157,12 +160,12 @@ theorem Iter.step_filterM {f : β → n (ULift Bool)}
       | .up false =>
         pure <| .skip (it'.filterM f) (.yieldNone (out := out) h ⟨⟨.up false, .intro⟩, rfl⟩)
       | .up true =>
-        pure <| .yield (it'.filterM f) out (.yieldSome (out := out) h ⟨⟨.up true, h'⟩, rfl⟩)
+        pure <| .yield (it'.filterM f) out (.yieldSome (out := out) h ⟨⟨.up true, .intro⟩, rfl⟩)
     | .skip it' h =>
       pure <| .skip (it'.filterM f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [filterM_eq, IterM.step_filterM, step]
+  simp only [filterM_eq_toIter_filterM_toIterM, IterM.step_filterM, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
@@ -185,7 +188,7 @@ theorem Iter.step_mapM {f : β → n γ}
       pure <| .skip (it'.mapM f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [mapM_eq, IterM.step_mapM, step]
+  simp only [mapM_eq_toIter_mapM_toIterM, IterM.step_mapM, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
@@ -205,7 +208,7 @@ theorem Iter.step_filterMap {f : β → Option γ} :
         | some out' => .yield (it'.filterMap f) out' (.yieldSome (out := out) h h')
       | .skip it' h => .skip (it'.filterMap f) (.skip h)
       | .done h => .done (.done h) := by
-  simp only [filterMap_eq, toIterM_toIter, IterM.step_filterMap, step]
+  simp only [filterMap_eq_toIter_filterMap_toIterM, toIterM_toIter, IterM.step_filterMap, step]
   simp only [liftM, monadLift, pure_bind, Id.run_bind]
   generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn
@@ -227,7 +230,7 @@ def Iter.step_map {f : β → γ} :
         .skip (it'.map f) (.skip h)
       | .done h =>
         .done (.done h) := by
-  simp only [map_eq, step, toIterM_toIter, IterM.step_map, Id.run_bind]
+  simp only [map_eq_toIter_map_toIterM, step, toIterM_toIter, IterM.step_map, Id.run_bind]
   generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn <;> simp
 
@@ -242,7 +245,7 @@ def Iter.step_filter {f : β → Bool} :
         .skip (it'.filter f) (.skip h)
       | .done h =>
         .done (.done h) := by
-  simp only [filter_eq, step, toIterM_toIter, IterM.step_filter, Id.run_bind]
+  simp only [filter_eq_toIter_filter_toIterM, step, toIterM_toIter, IterM.step_filter, Id.run_bind]
   generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn
   · simp only
@@ -254,54 +257,54 @@ theorem Iter.toList_filterMap
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
     {f : β → Option γ} :
     (it.filterMap f).toList = it.toList.filterMap f := by
-  simp [filterMap_eq, toList_eq_toList_toIterM, IterM.toList_filterMap]
+  simp [filterMap_eq_toIter_filterMap_toIterM, toList_eq_toList_toIterM, IterM.toList_filterMap]
 
 theorem Iter.toList_map
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
     {f : β → γ} :
     (it.map f).toList = it.toList.map f := by
-  simp [map_eq, IterM.toList_map, Iter.toList_eq_toList_toIterM]
+  simp [map_eq_toIter_map_toIterM, IterM.toList_map, Iter.toList_eq_toList_toIterM]
 
 theorem Iter.toList_filter
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
     {f : β → Bool} :
     (it.filter f).toList = it.toList.filter f := by
-  simp [filter_eq, IterM.toList_filter, Iter.toList_eq_toList_toIterM]
+  simp [filter_eq_toIter_filter_toIterM, IterM.toList_filter, Iter.toList_eq_toList_toIterM]
 
 theorem Iter.toListRev_filterMap
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
     {f : β → Option γ} :
     (it.filterMap f).toListRev = it.toListRev.filterMap f := by
-  simp [filterMap_eq, toListRev_eq_toListRev_toIterM, IterM.toListRev_filterMap]
+  simp [filterMap_eq_toIter_filterMap_toIterM, toListRev_eq_toListRev_toIterM, IterM.toListRev_filterMap]
 
 theorem Iter.toListRev_map
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
     {f : β → γ} :
     (it.map f).toListRev = it.toListRev.map f := by
-  simp [map_eq, IterM.toListRev_map, Iter.toListRev_eq_toListRev_toIterM]
+  simp [map_eq_toIter_map_toIterM, IterM.toListRev_map, Iter.toListRev_eq_toListRev_toIterM]
 
 theorem Iter.toListRev_filter
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
     {f : β → Bool} :
     (it.filter f).toListRev = it.toListRev.filter f := by
-  simp [filter_eq, IterM.toListRev_filter, Iter.toListRev_eq_toListRev_toIterM]
+  simp [filter_eq_toIter_filter_toIterM, IterM.toListRev_filter, Iter.toListRev_eq_toListRev_toIterM]
 
 theorem Iter.toArray_filterMap
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
     {f : β → Option γ} :
     (it.filterMap f).toArray = it.toArray.filterMap f := by
-  simp [filterMap_eq, toArray_eq_toArray_toIterM, IterM.toArray_filterMap]
+  simp [filterMap_eq_toIter_filterMap_toIterM, toArray_eq_toArray_toIterM, IterM.toArray_filterMap]
 
 theorem Iter.toArray_map
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
     {f : β → γ} :
     (it.map f).toArray = it.toArray.map f := by
-  simp [map_eq, IterM.toArray_map, Iter.toArray_eq_toArray_toIterM]
+  simp [map_eq_toIter_map_toIterM, IterM.toArray_map, Iter.toArray_eq_toArray_toIterM]
 
 theorem Iter.toArray_filter
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
     {f : β → Bool} :
     (it.filter f).toArray = it.toArray.filter f := by
-  simp [filter_eq, IterM.toArray_filter, Iter.toArray_eq_toArray_toIterM]
+  simp [filter_eq_toIter_filter_toIterM, IterM.toArray_filter, Iter.toArray_eq_toArray_toIterM]
 
 end Std.Iterators

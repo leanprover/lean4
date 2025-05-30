@@ -11,13 +11,17 @@ import Init.PropLemmas
 namespace Std.Iterators
 
 /--
-`PostconditionT m α` consists of a predicate about `α` with an monadic operation in `m` that
-bundles its result with the given predicate. It is a helpful tool for intrinsic verification,
-notably termination proofs.
+`PostconditionT m α` represents an operation in the monad `m` together with a
+intrinsic proof that some postcondition holds for the `α` valued monadic result.
+It consists of a predicate `P` about `α` and an element of `m ({ a // P a })` and is a helpful tool
+for intrinsic verification, notably termination proofs, in the context of iterators.
 
 `PostconditionT m` is a monad if `m` is. However, note that `PostconditionT m α` is a structure,
 so that the compiler will generate inefficient code from recursive functions returning
 `PostconditionT m α`. Optimizations for `ReaderT`, `StateT` etc. aren't applicable for structures.
+
+Moreover, `PostconditionT m α` is not a well-behaved monad transformer because `PostconditionT.lift`
+neither commutes with `pure` nor with `bind`.
 -/
 @[unbox]
 structure PostconditionT (m : Type w → Type w') (α : Type w) where
@@ -32,20 +36,32 @@ structure PostconditionT (m : Type w → Type w') (α : Type w) where
   -/
   operation : m (Subtype Property)
 
-instance (m : Type w → Type w') [Functor m] : MonadLift m (PostconditionT m) where
-  monadLift x := ⟨fun _ => True, (fun x => ⟨x, True.intro⟩) <$> x⟩
-
 /--
 Lifts an operation from `m` to `PostconditionT m` without asserting any nontrivial postcondition.
+
+Caution: `lift` is not a lawful lift function.
+For example, `pure a : PostconditionT m α` is not the same as
+`PostconditionT.lift (pure a : m α)`.
 -/
 @[always_inline, inline]
 def PostconditionT.lift {α : Type w} {m : Type w → Type w'} [Functor m] (x : m α) :
     PostconditionT m α :=
-  x
+  ⟨fun _ => True, (⟨·, .intro⟩) <$> x⟩
 
 /--
-Given a function `α → β`, returns a a function `PostconditionT m α → PostconditionT m β`,
+Lifts a monadic value from `m { a : α // P a }` to a value `PostconditionT m α`.
+-/
+@[always_inline, inline]
+def PostconditionT.liftWithProperty {α : Type w} {m : Type w → Type w'} {P : α → Prop}
+    (x : m { α // P α }) : PostconditionT m α :=
+  ⟨P, x⟩
+
+/--
+Given a function `f : α → β`, returns a a function `PostconditionT m α → PostconditionT m β`,
 turning `PostconditionT m` into a functor.
+
+The postcondition of the `x.map f` states that the return value is the image under `f` of some
+`a : α` satisfying the `x.Property`.
 -/
 @[always_inline, inline]
 protected def PostconditionT.map {m : Type w → Type w'} [Functor m] {α : Type w} {β : Type w}
@@ -110,23 +126,12 @@ theorem PostconditionT.property_pure {m : Type w → Type w'} [Monad m] {α : Ty
     (pure x : PostconditionT m α).Property = (x = ·) :=
   rfl
 
--- TODO: Init.Core
-theorem HEq.congrArg {α : Sort u} {β : α → Type v} (f : (a : α) → β a) {a a'} (h : a = a') :
-    HEq (f a) (f a') := by
-  cases h; rfl
-
-theorem HEq.congrArg₂ {α : Sort u} {β : α → Type v} {γ : (a : α) → (b : β a) → Sort w}
+private theorem congrArg₂ {α : Sort u} {β : α → Type v} {γ : (a : α) → (b : β a) → Sort w}
     (f : (a : α) → (b : β a) → γ a b)
     {α α' a a'} (h : α = α') (h' : HEq a a') : HEq (f α a) (f α' a') := by
   cases h; cases h'; rfl
 
-theorem HEq.congrArg₃ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : α) → (b : β a) → Sort w}
-    {δ : (a : α) → (b : β a) → (c : γ a b) → Sort x}
-    (f : (a : α) → (b : β a) → (c : γ a b) → δ a b c)
-    {a a' b b' c c'} (h₁ : a = a') (h₂ : HEq b b') (h₃ : HEq c c') : HEq (f a b c) (f a' b' c') := by
-  cases h₁; cases h₂; cases h₃; rfl
-
-theorem HEq.congrArg₄ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : α) → (b : β a) → Sort w}
+private theorem congrArg₄ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : α) → (b : β a) → Sort w}
     {δ : (a : α) → (b : β a) → (c : γ a b) → Sort x} {ε : (a : α) → (b : β a) → (c : γ a b) →
       (d : δ a b c) → Sort y}
     (f : (a : α) → (b : β a) → (c : γ a b) → (d : δ a b c) → ε a b c d)
@@ -138,11 +143,12 @@ theorem HEq.congrArg₄ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : α) 
 protected theorem PostconditionT.map_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type w} {β : Type w} {f : α → β} {a : α} :
     (pure a : PostconditionT m α).map f = pure (f a) := by
-  simp [PostconditionT.map, pure, mk.injEq, map_pure]
-  apply HEq.congrArg₂ (f := fun α (a : α) => (pure a : m _)) (by simp)
-  apply HEq.congrArg₂ (f := fun α (a : α) => a)
+  simp only [PostconditionT.map, pure, map_pure, mk.injEq, Subtype.exists, exists_prop,
+    exists_eq_left', true_and]
+  apply congrArg₂ (f := fun α (a : α) => (pure a : m _)) (by simp)
+  apply congrArg₂ (f := fun α (a : α) => a)
   · simp
-  · apply HEq.congrArg₄ fun β (p : β → Prop) (x : β) (h : p x) => Subtype.mk x h
+  · apply congrArg₄ fun β (p : β → Prop) (x : β) (h : p x) => Subtype.mk x h
     · rfl
     · simp
     · rfl

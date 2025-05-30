@@ -240,35 +240,73 @@ builtin_grind_propagator propagateHEqUp ↑HEq := fun e => do
   if (← isEqv a b) then
     pushEqTrue e <| mkEqTrueCore e (← mkHEqProof a b)
 
+/--
+Helper function for propagating over-applied `ite` and `dite`-applications.
+`h` is a proof for the `e`'s prefix (of size `prefixSize`) that is equal to `rhs`.
+`args` contains all arguments of `e`.
+`prefixSize <= args.size`
+-/
+private def applyCongrFun (e rhs : Expr) (h : Expr) (prefixSize : Nat) (args : Array Expr) : GoalM Unit := do
+  if prefixSize == args.size then
+    internalize rhs (← getGeneration e)
+    pushEq e rhs h
+  else
+    go rhs h prefixSize
+where
+  go (rhs : Expr) (h : Expr) (i : Nat) : GoalM Unit := do
+    if _h : i < args.size then
+      let arg := args[i]
+      let rhs' := mkApp rhs arg
+      let h' ← mkCongrFun h arg
+      go rhs' h' (i+1)
+    else
+      let rhs ← preprocessLight rhs
+      internalize rhs (← getGeneration e)
+      pushEq e rhs h
+
 /-- Propagates `ite` upwards -/
 builtin_grind_propagator propagateIte ↑ite := fun e => do
-  let_expr f@ite α c h a b := e | return ()
+  let numArgs := e.getAppNumArgs
+  if numArgs < 5 then return ()
+  let c := e.getArg! 1 numArgs
   if (← isEqTrue c) then
-    internalize a (← getGeneration e)
-    pushEq e a <| mkApp6 (mkConst ``ite_cond_eq_true f.constLevels!) α c h a b (← mkEqTrueProof c)
+    let f := e.getAppFn
+    let args := e.getAppArgs
+    let rhs := args[3]!
+    let h := mkApp (mkAppRange (mkConst ``ite_cond_eq_true f.constLevels!) 0 5 args) (← mkEqTrueProof c)
+    applyCongrFun e rhs h 5 args
   else if (← isEqFalse c) then
-    internalize b (← getGeneration e)
-    pushEq e b <| mkApp6 (mkConst ``ite_cond_eq_false f.constLevels!) α c h a b (← mkEqFalseProof c)
+    let f := e.getAppFn
+    let args := e.getAppArgs
+    let rhs := args[4]!
+    let h := mkApp (mkAppRange (mkConst ``ite_cond_eq_false f.constLevels!) 0 5 args) (← mkEqFalseProof c)
+    applyCongrFun e rhs h 5 args
 
 /-- Propagates `dite` upwards -/
 builtin_grind_propagator propagateDIte ↑dite := fun e => do
-  let_expr f@dite α c h a b := e | return ()
+  let numArgs := e.getAppNumArgs
+  if numArgs < 5 then return ()
+  let c := e.getArg! 1 numArgs
   if (← isEqTrue c) then
-     let h₁ ← mkEqTrueProof c
-     let ah₁ := mkApp a (mkOfEqTrueCore c h₁)
-     let p ← preprocess ah₁
-     let r := p.expr
-     let h₂ ← p.getProof
-     internalize r (← getGeneration e)
-     pushEq e r <| mkApp8 (mkConst ``Grind.dite_cond_eq_true' f.constLevels!) α c h a b r h₁ h₂
+    let f := e.getAppFn
+    let args := e.getAppArgs
+    let h₁ ← mkEqTrueProof c
+    let ah₁ := mkApp args[3]! (mkOfEqTrueCore c h₁)
+    let p ← preprocess ah₁
+    let r := p.expr
+    let h₂ ← p.getProof
+    let h := mkApp3 (mkAppRange (mkConst ``Grind.dite_cond_eq_true' f.constLevels!) 0 5 args) r h₁ h₂
+    applyCongrFun e r h 5 args
   else if (← isEqFalse c) then
-     let h₁ ← mkEqFalseProof c
-     let bh₁ := mkApp b (mkOfEqFalseCore c h₁)
-     let p ← preprocess bh₁
-     let r := p.expr
-     let h₂ ← p.getProof
-     internalize r (← getGeneration e)
-     pushEq e r <| mkApp8 (mkConst ``Grind.dite_cond_eq_false' f.constLevels!) α c h a b r h₁ h₂
+    let f := e.getAppFn
+    let args := e.getAppArgs
+    let h₁ ← mkEqFalseProof c
+    let bh₁ := mkApp args[4]! (mkOfEqFalseCore c h₁)
+    let p ← preprocess bh₁
+    let r := p.expr
+    let h₂ ← p.getProof
+    let h := mkApp3 (mkAppRange (mkConst ``Grind.dite_cond_eq_false' f.constLevels!) 0 5 args) r h₁ h₂
+    applyCongrFun e r h 5 args
 
 builtin_grind_propagator propagateDecideDown ↓decide := fun e => do
   let root ← getRootENode e

@@ -55,6 +55,22 @@ example : ([1, 2, 3].iterM (StateM Nat)).toListRev = pure [3, 2, 1] := by
 
 end ListIteratorBasic
 
+section Array
+
+example : #[1, 2, 3].iter.toArray = #[1, 2, 3] := by
+  simp
+
+example : #[1, 2, 3].iter.toList = [1, 2, 3] := by
+  simp
+
+example : #[1, 2, 3].iter.toListRev = [3, 2, 1] := by
+  simp
+
+example : (#[1, 2, 3].iterFromIdx 2).toList = [3] := by
+  simp
+
+end Array
+
 section WellFoundedRecursion
 
 def sum (l : List Nat) : Nat :=

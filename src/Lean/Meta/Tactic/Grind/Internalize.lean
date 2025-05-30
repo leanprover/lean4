@@ -87,7 +87,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       else if (← getConfig).splitIndPred then
         addSplitCandidate (.default e)
   | .fvar .. =>
-    let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
+    let .const declName _ := (← whnf (← inferType e)).getAppFn | return ()
     if (← get).split.casesTypes.isSplit declName then
       addSplitCandidate (.default e)
   | .forallE _ d _ _ =>

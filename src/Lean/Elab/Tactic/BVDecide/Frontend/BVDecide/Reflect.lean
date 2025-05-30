@@ -40,6 +40,7 @@ instance : ToExpr BVUnOp where
     | .rotateRight n => mkApp (mkConst ``BVUnOp.rotateRight) (toExpr n)
     | .arithShiftRightConst n => mkApp (mkConst ``BVUnOp.arithShiftRightConst) (toExpr n)
     | .reverse => mkConst ``BVUnOp.reverse
+    | .clz => mkConst ``BVUnOp.clz
   toTypeExpr := mkConst ``BVUnOp
 
 instance : ToExpr (BVExpr w) where

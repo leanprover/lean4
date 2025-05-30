@@ -4,9 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
+import Std.Data.Internal.LawfulMonadLiftFunction
 import Std.Data.Iterators.Combinators.Monadic.FilterMap
 import Std.Data.Iterators.Lemmas.Consumers.Monadic
-import Std.Data.Internal.LawfulMonadLiftFunction
+import Std.Data.Iterators.Lemmas.Equivalence.Advanced
 
 namespace Std.Iterators
 open Std.Internal
@@ -409,5 +410,74 @@ theorem IterM.toArray_filter {α : Type w} {m : Type w → Type w'} [Monad m] [L
   simp [← toArray_toList, toList_filter]
 
 end ToArray
+
+section Equivalence
+
+theorem temp [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Iterator α m β]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n (Option γ)} {it : IterM (α := α) m β} :
+    (it.filterMapM f).step' = ((monadLift it.step' : HetT n _)) := sorry -- can we even lift in HetT?
+
+theorem HItEquivM.InternalCombinators.filterMap [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    {lift} [LawfulMonadLiftFunction lift]
+    {f : β → PostconditionT n (Option γ)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (IterM.InternalCombinators.filterMap lift f ita)
+      (IterM.InternalCombinators.filterMap lift f itb) := by
+  letI i : MonadLift m n := ⟨lift (α := _)⟩
+  change HItEquivM (ita.filterMapWithPostcondition f) (itb.filterMapWithPostcondition f)
+  rw [HItEquivM]
+  refine ItEquiv.fixpoint_induct n γ ?R ?implies (.ofIterM _) (.ofIterM _) ?hf
+  case R =>
+    intro ita' itb'
+    exact ∃ (ita : IterM (α := α₁) m β) (itb : IterM (α := α₂) m β),
+      ita' = .ofIterM (ita.filterMapWithPostcondition f) ∧
+      itb' = .ofIterM (itb.filterMapWithPostcondition f) ∧
+      HItEquivM ita itb
+  case implies =>
+    rintro _ _ ⟨ita, itb, rfl, rfl, h⟩
+    simp only [BundledIterM.step', BundledIterM.ofIterM, IterM.step', IterM.step_filterMapWithPostcondition]
+    simp only [HetT.ext_iff]
+    refine ⟨?_, ?_⟩
+    · simp [HetT.bind, Pure.pure, HetT.pure]
+      ext step
+      constructor
+      · rintro ⟨step', hp, rfl⟩
+        rw [HItEquivM, ItEquiv] at h
+        replace h := congrArg HetT.Property h
+        simp [BundledIterM.step', HetT.bind, Pure.pure, HetT.pure, funext_iff] at h
+        cases hp
+        case yieldNone it' out h' h'' =>
+          simp [IterM.filterMapWithPostcondition, IterM.InternalCombinators.filterMap] at h'
+          specialize h (IterStep.yield it' out).bundle
+          replace h := h.1 ⟨.yield it' out, h', rfl⟩
+          rcases h with ⟨sb, hpb, hsb⟩
+          cases sb <;> simp only [IterStep.mapIterator, Function.comp_apply, IterStep.bundle,
+            reduceCtorEq, IterStep.yield.injEq] at hsb
+          rename_i itb outb
+          cases hsb.2
+          refine ⟨.skip (itb.filterMapWithPostcondition f), .yieldNone hpb h'', ?_⟩
+          simp
+          apply Eq.symm
+          apply Quot.sound
+          refine ⟨it', itb, rfl, rfl, ?_⟩
+          have := ItEquiv.exact _ _ hsb.1
+          exact this.symm
+        case yieldSome => sorry
+        case skip => sorry
+        case done => sorry
+      · sorry -- just the same proofs again?
+    · intro γ f
+      simp [HetT.map]
+      apply h.step_congr -- d'oh, `liftM` again
+      -- btw, I'd probably need a step_congr for this special relation R
+      -- will all this become easier if I characerize step' for this iterator in terms of
+      -- the inner step'?
+  case hf =>
+    exact ⟨ita, itb, rfl, rfl, h⟩
+
+
+end Equivalence
 
 end Std.Iterators

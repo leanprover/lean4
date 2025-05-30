@@ -23,3 +23,28 @@ example : p c → False := by
 
 example : p c → False := by
   grind [p]
+
+
+def PosFin (n : Nat) := {x : Nat // 0 < x ∧ x < n}
+
+def f (_ : PosFin n) : Prop := False
+
+/--
+error: `grind` failed
+case grind
+n : Nat
+fst : PosFin n
+h : f fst
+⊢ False
+[grind] Goal diagnostics
+  [facts] Asserted facts
+    [prop] f fst
+  [eqc] True propositions
+    [prop] f fst
+-/
+#guard_msgs in
+example (n : Nat) (fst : PosFin n) (h : f fst) : False := by
+  grind
+
+example (n : Nat) (fst : PosFin n) (h : f fst) : False := by
+  grind [f]

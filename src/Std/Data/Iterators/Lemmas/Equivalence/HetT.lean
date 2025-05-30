@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
+import Std.Data.Iterators.TempLawfulMonadLift
 import Init.Control.Lawful.Basic
 import Init.Data.Subtype
 import Init.PropLemmas
@@ -120,6 +121,13 @@ instance {α : Type v} {β : α → Type w} [Small.{u} α] [∀ a, Small.{u} (β
         (fun b => ⟨⟨.deflate b.1, .deflate (USquash.inflate_deflate ▸ b.2)⟩,
           (by rcases b with ⟨b₁, b₂⟩; simp [eqRec_heq])⟩)
 
+theorem Small.pbind {α : Type v} {β : Type w} (P : α → Prop) (Q : (a : α) → P a → β → Prop)
+    (i₁ : Small.{u} { a // P a }) (i₂ : ∀ a h, Small.{u} { b // Q a h b }) :
+    Small.{u} { b // ∃ a h, Q a h b } := .of_surjective
+        ((a : { a // P a }) × { b // Q a.1 a.2 b })
+        (fun x => ⟨x.2.1, x.1, x.1.2, x.2.2⟩)
+        (fun y => ⟨⟨⟨y.2.choose, y.2.choose_spec.1⟩, y.1, y.2.choose_spec.2⟩, rfl⟩)
+
 theorem Small.bind {α : Type v} {β : Type w} (P : α → Prop) (Q : α → β → Prop)
     (i₁ : Small.{u} { a // P a }) (i₂ : ∀ a, Small.{u} { b // Q a b }) :
     Small.{u} { b // ∃ a, P a ∧ Q a b } := .of_surjective
@@ -156,6 +164,15 @@ protected noncomputable def HetT.pmap {m : Type w → Type w'} [Functor m] {α :
 protected noncomputable def HetT.map {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
     (f : α → β) (x : HetT m α) : HetT m β :=
   x.pmap (fun a _ => f a)
+
+protected noncomputable def HetT.pbind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
+    (x : HetT m α) (f : (a : α) → x.Property a → HetT m β) : HetT m β :=
+  have := x.small
+  have := fun a h => (f a h).small
+  have := Small.pbind x.Property (fun a h b => (f a h).Property b) inferInstance inferInstance
+  ⟨fun b => ∃ a h, (f a h).Property b,
+    inferInstance,
+    x.operation >>= fun a => ((fun b => .deflate ⟨b.inflate.1, a.inflate.1, a.inflate.2, b.inflate.2⟩) <$> (f a.inflate.1 a.inflate.2).operation)⟩
 
 protected noncomputable def HetT.bind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : α → HetT m β) : HetT m β :=
@@ -198,6 +215,36 @@ noncomputable instance {m : Type w → Type w'} [Monad m] : Monad (HetT m) where
   pure := HetT.pure
   bind := HetT.bind
 
+noncomputable def HetT.prun [Monad m] (x : HetT m α) (f : (a : α) → x.Property a → m β) :
+    m β :=
+  x.operation >>= (fun a => letI a' := a.inflate (small := HetT.small _); f a'.1 a'.2)
+
+@[simp]
+theorem HetT.property_lift {m : Type w → Type w'} [Monad m] {x : m α} :
+    (HetT.lift x).Property = (fun _ => True) :=
+  rfl
+
+@[simp]
+theorem HetT.prun_lift {m : Type w → Type w'} [Monad m] [LawfulMonad m] {x : m α}
+    {f : (a : α) → _ → m γ} :
+    (HetT.lift x).prun f = x >>= (fun a => f a .intro) := by
+  simp [HetT.prun, HetT.lift, liftM, monadLift, MonadLift.monadLift, bind_map_left]
+
+noncomputable def HetT.liftInner {m : Type w → Type w'} (n : Type w → Type w'') [MonadLiftT m n]
+    (x : HetT m α) : HetT n α :=
+  ⟨x.Property, x.small, x.operation⟩
+
+@[simp]
+theorem HetT.property_liftInner {m : Type w → Type w'} {n : Type w → Type w''} [MonadLiftT m n]
+    {x : HetT m α} : (x.liftInner n).Property = x.Property :=
+  rfl
+
+@[simp]
+theorem HetT.prun_liftInner {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] [Monad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] {x : HetT m α} {f : (a : α) → _ → m γ} :
+    (x.liftInner n).prun (fun a ha => f a ha) = x.prun f := by
+  simp [liftInner, prun]
+
 -- TODO: Init.Core
 theorem HEq.congrArg {α : Sort u} {β : α → Type v} (f : (a : α) → β a) {a a'} (h : a = a') :
     HEq (f a) (f a') := by
@@ -222,10 +269,6 @@ theorem HEq.congrArg₄ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : α) 
     HEq (f a b c d) (f a' b' c' d') := by
   cases h₁; cases h₂; cases h₃; cases h₄; rfl
 
-noncomputable def HetT.prun [Monad m] [LawfulMonad m] (x : HetT m α) (f : (a : α) → x.Property a → m β) :
-    m β :=
-  x.operation >>= (fun a => letI a' := a.inflate (small := HetT.small _); f a'.1 a'.2)
-
 theorem HetT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type v} {x y : HetT m α}
     (h : x.Property = y.Property)
@@ -238,7 +281,6 @@ theorem HetT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
   simp [USquash.deflate_inflate] at h''
   simp [HetT.mk.injEq, h'']
 
-@[simp]
 theorem HetT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type v} {x y : HetT m α} :
     x = y ↔ ∃ h : x.Property = y.Property, ∀ β, ∀ f : (a : α) → x.Property a → m β, x.prun f = y.prun (fun a ha => f a (h ▸ ha)) := by
@@ -294,6 +336,18 @@ theorem HetT.prun_pure [Monad m] [LawfulMonad m] {x : α} {f : (a : α) → (Het
   simp [prun, HetT.pure]
 
 @[simp]
+theorem HetT.property_pbind [Monad m] [LawfulMonad m] {x : HetT m α}
+    {f : (a : α) → x.Property a → HetT m β} :
+    (x.pbind f).Property = (fun b => ∃ a h, (f a h).Property b) := by
+  simp [HetT.pbind]
+
+@[simp]
+theorem HetT.prun_pbind [Monad m] [LawfulMonad m] {x : HetT m α}
+    {f : (a : α) → x.Property a → HetT m β} {g : (b : β) → _ → m γ} :
+    (x.pbind f).prun g = x.prun (fun a ha => (f a ha).prun (fun b hb => g b ⟨a, ha, hb⟩)) := by
+  simp [HetT.prun, HetT.pbind]
+
+@[simp]
 theorem HetT.property_bind [Monad m] [LawfulMonad m] {x : HetT m α} {f : α → HetT m β} :
     (x.bind f).Property = (fun b => ∃ a, x.Property a ∧ (f a).Property b) := by
   simp [HetT.bind]
@@ -303,6 +357,11 @@ theorem HetT.prun_bind [Monad m] [LawfulMonad m] {x : HetT m α} {f : α → Het
     {g : (b : β) → _ → m γ} :
     (x.bind f).prun g = x.prun (fun a ha => (f a).prun (fun b hb => g b ⟨a, ha, hb⟩)) := by
   simp [HetT.prun, HetT.bind]
+
+theorem HetT.bind_eq_pbind {m : Type w → Type w'} [Monad m] [LawfulMonad m] {α : Type u} {β : Type v}
+    (x : HetT m α) (f : α → HetT m β) :
+    x.bind f = x.pbind (fun a _ => f a) := by
+  simp [HetT.ext_iff]
 
 @[simp]
 theorem HetT.property_pmap [Monad m] [LawfulMonad m] {x : HetT m α} {f : (a : α) → _ → β} :
@@ -319,19 +378,19 @@ theorem HetT.prun_pmap [Monad m] [LawfulMonad m] {x : HetT m α} {f : (a : α) �
 protected theorem HetT.pure_bind {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type u} {β : Type v} {f : α → HetT m β} {a : α} :
     (HetT.pure a : HetT m α).bind f = f a := by
-  simp
+  simp [ext_iff]
 
 @[simp]
 protected theorem HetT.bind_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type u} {x : HetT m α} :
     x.bind HetT.pure = x := by
-  simp
+  simp [ext_iff]
 
 @[simp]
 protected theorem HetT.bind_assoc {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type u} {β : Type v} {γ : Type x} {x : HetT m α} {f : α → HetT m β} {g : β → HetT m γ} :
     (x.bind f).bind g = x.bind (fun a => (f a).bind g) := by
-  simp
+  simp [ext_iff]
   ext c
   constructor
   · rintro ⟨b, ⟨a, ha, hb⟩, h⟩
@@ -343,12 +402,19 @@ protected theorem HetT.bind_assoc {m : Type w → Type w'} [Monad m] [LawfulMona
 protected theorem HetT.map_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type u} {β : Type v} {f : α → β} {a : α} :
     (HetT.pure a : HetT m α).map f = HetT.pure (f a) := by
-  simp
+  simp [ext_iff]
 
 @[simp]
 protected theorem HetT.comp_map {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type u} {β : Type v} {γ : Type x} {f : α → β} {g : β → γ} {x : HetT m α} :
     x.map (g ∘ f) = (x.map f).map g := by
+  simp [ext_iff]
+
+@[congr]
+theorem HetT.prun_congr [Monad m] [LawfulMonad m] {x y : HetT m α} {f : (a : α) → _ → m β}
+    (h : x = y) :
+    x.prun f = y.prun (fun a ha => f a (h ▸ ha)) := by
+  cases h
   simp
 
 @[congr]
@@ -362,7 +428,7 @@ protected theorem HetT.pmap_map {m : Type w → Type w'} [Monad m] [LawfulMonad 
     {α : Type u} {β : Type v} {γ : Type x}
     {x : HetT m α} {f : α → β} {g : (b : β) → (x.map f).Property b → γ} :
     (x.map f).pmap g = x.pmap (fun a ha => g (f a) ⟨a, ha, rfl⟩) := by
-  simp
+  simp [ext_iff]
   ext c
   constructor
   · rintro ⟨_, ⟨a, ha, rfl⟩, rfl⟩
@@ -374,7 +440,7 @@ protected theorem HetT.map_pmap {m : Type w → Type w'} [Monad m] [LawfulMonad 
     {α : Type u} {β : Type v} {γ : Type x}
     {x : HetT m α} {f : (a : α) → (ha : x.Property a) → β} {g : β → γ} :
     (x.pmap f).map g = x.pmap (fun a ha => g (f a ha)) := by
-  simp
+  simp [ext_iff]
   ext c
   constructor
   · rintro ⟨_, ⟨a, ha, rfl⟩, rfl⟩
@@ -385,11 +451,11 @@ protected theorem HetT.map_pmap {m : Type w → Type w'} [Monad m] [LawfulMonad 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (HetT m) where
   map_const {α β} := by ext a x; simp [Functor.mapConst, Function.const_apply, Functor.map]
   id_map {α} x := by simp [Functor.map]
-  comp_map {α β γ} g h := by intro x; simp [Functor.map];
-  seqLeft_eq {α β} x y := by simp [SeqLeft.seqLeft, Functor.map, Seq.seq];
+  comp_map {α β γ} g h := by intro x; simp [Functor.map, HetT.ext_iff];
+  seqLeft_eq {α β} x y := by simp [SeqLeft.seqLeft, Functor.map, Seq.seq, HetT.ext_iff];
   seqRight_eq {α β} x y := by simp [Seq.seq, SeqRight.seqRight, Functor.map]
   pure_seq g x := by simp [Seq.seq, Functor.map, Pure.pure]
-  bind_pure_comp f x := by simp [Functor.map, Bind.bind, Pure.pure]
+  bind_pure_comp f x := by simp [Functor.map, Bind.bind, Pure.pure, HetT.ext_iff]
   bind_map f x := by simp [Seq.seq, Functor.map, Bind.bind]
   pure_bind x f := HetT.pure_bind
   bind_assoc x f g := HetT.bind_assoc
@@ -404,5 +470,13 @@ theorem HetT.property_map {m : Type w → Type w'} [Functor m] {α : Type u} {β
     exact ⟨a, rfl, ha⟩
   · rintro ⟨a, rfl, ha⟩
     exact ⟨a, ha, rfl⟩
+
+@[simp]
+theorem HetT.liftInner_bind [Monad m] [Monad n] [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [LawfulMonad m] [LawfulMonad n] {x : HetT m α} {f : α → HetT m β} :
+    (x.bind f).liftInner n = (x.liftInner n).bind (fun a => (f a).liftInner n) := by
+  simp [HetT.ext_iff]
+  intro β g
+  simp [liftInner, prun, HetT.bind]
 
 end Std.Iterators

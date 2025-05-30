@@ -116,13 +116,14 @@ theorem HItEquivM.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad
   let hex := ?hex
   exact hex.choose_spec
 
-theorem HItEquivM.step_congr {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem HItEquivM.step_congr {α₁ α₂ : Type w} [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α₁ m β] [Iterator α₂ m β]
     {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquivM ita itb)
-    {f : _ → m γ} {g : _ → m γ}
+    {f : _ → n γ} {g : _ → n γ}
     (hfg : ∀ s₁ s₂, s₁.1.bundle = s₂.1.bundle → f s₁ = g s₂) :
-    (ita.step >>= f) = (itb.step >>= g) := by
-  let flift : ita.QuotStep → m γ := by
+    ((ita.step : n _) >>= f) = ((itb.step : n _) >>= g) := by
+  let flift : ita.QuotStep → n γ := by
     refine Quot.lift ?_ ?_
     · exact f
     · intro s₁ s₁' h''
@@ -133,7 +134,7 @@ theorem HItEquivM.step_congr {α₁ α₂ : Type w} {m : Type w → Type w'} [Mo
       have hfg₂ := hfg s₁' s₂ (h'' ▸ hs₁.choose_spec)
       rw [hfg₁, hfg₂]
   have hf : f = flift ∘ Quot.mk _ := rfl
-  let glift : itb.QuotStep → m γ := by
+  let glift : itb.QuotStep → n γ := by
     refine Quot.lift ?_ ?_
     · exact g
     · intro s₁ s₁' h''
@@ -146,7 +147,10 @@ theorem HItEquivM.step_congr {α₁ α₂ : Type w} {m : Type w → Type w'} [Mo
       rw [← hfg₁, ← hfg₂]
   have hg : g = glift ∘ Quot.mk _ := rfl
   rw [hf, hg, bind_comp_aux, bind_comp_aux]
-  simp only [step_eq h, map_eq_pure_bind, bind_assoc]
+  have := congrArg (fun x => liftM (n := n) x) (step_eq h)
+  simp only [liftM_map, Functor.map_map] at this
+  simp only [this]
+  simp only [map_eq_pure_bind, bind_assoc]
   apply bind_congr
   intro step
   simp [IterM.QuotStep.uniqueMap, flift, glift, Quot.liftBeta]

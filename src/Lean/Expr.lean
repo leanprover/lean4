@@ -115,6 +115,39 @@ def BinderInfo.isStrictImplicit : BinderInfo → Bool
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
 
+namespace Expr
+
+/--
+The `looseBVarRange` field of `Data` is a 20-bit number. This type represents
+values that have been checked to be in range.
+
+Remark: this is mostly an internal datastructure used to implement `Expr`,
+most will never have to use it.
+-/
+-- TODO: use a subtype? { n : UInt32 // n.toNat < 2 ^ 20 }
+def BVarRange : Type := UInt32
+
+instance : OfNat BVarRange 0 := ⟨(0 : UInt32)⟩
+
+@[inline] def BVarRange.toUInt32 (a : BVarRange) : UInt32 := a
+
+@[inline] def BVarRange.overflow : BVarRange := (2 ^ 20 - 1).toUInt32
+
+instance : Inhabited BVarRange := ⟨.overflow⟩
+
+@[inline] def BVarRange.mk (n : Nat) : BVarRange :=
+  if n < 2 ^ 20 - 1 then n.toUInt32 else
+    panic! "bound variable index too large"
+
+instance : Max BVarRange := inferInstanceAs (Max UInt32)
+
+@[inline] def BVarRange.pred (a : BVarRange) : BVarRange :=
+  -- Note: In the event of bound variable overflow, we saturate at 2^20-1,
+  -- so looseBVarRange becomes a conservative estimate.
+  if a.toUInt32 = overflow then
+    if a.toUInt32 > 0 then a.toUInt32 - 1 else 0
+  else .overflow
+
 /--
 Cached hash code, cached results, and other data for `Expr`.
 -  hash           : 32-bits
@@ -128,50 +161,40 @@ Cached hash code, cached results, and other data for `Expr`.
 Remark: this is mostly an internal datastructure used to implement `Expr`,
 most will never have to use it.
 -/
-def Expr.Data := UInt64
+def Data := UInt64
 
-instance: Inhabited Expr.Data :=
+instance: Inhabited Data :=
   inferInstanceAs (Inhabited UInt64)
 
-def Expr.Data.hash (c : Expr.Data) : UInt64 :=
+def Data.hash (c : Data) : UInt64 :=
   c.toUInt32.toUInt64
 
-instance : BEq Expr.Data where
+instance : BEq Data where
   beq (a b : UInt64) := a == b
 
-def Expr.Data.approxDepth (c : Expr.Data) : UInt8 :=
+def Data.approxDepth (c : Data) : UInt8 :=
   ((c.shiftRight 32).land 255).toUInt8
 
-def Expr.Data.looseBVarRange (c : Expr.Data) : UInt32 :=
+def Data.looseBVarRange (c : Data) : BVarRange :=
   (c.shiftRight 44).toUInt32
 
-def Expr.Data.hasFVar (c : Expr.Data) : Bool :=
+def Data.hasFVar (c : Data) : Bool :=
   ((c.shiftRight 40).land 1) == 1
 
-def Expr.Data.hasExprMVar (c : Expr.Data) : Bool :=
+def Data.hasExprMVar (c : Data) : Bool :=
   ((c.shiftRight 41).land 1) == 1
 
-def Expr.Data.hasLevelMVar (c : Expr.Data) : Bool :=
+def Data.hasLevelMVar (c : Data) : Bool :=
   ((c.shiftRight 42).land 1) == 1
 
-def Expr.Data.hasLevelParam (c : Expr.Data) : Bool :=
+def Data.hasLevelParam (c : Data) : Bool :=
   ((c.shiftRight 43).land 1) == 1
 
--- NOTE: the `extern` clause of `BinderInfo.toUInt64` is ABI sensitive.
--- It exploits the fact that a small enum compiles to `uint8`.
-@[extern "lean_uint8_to_uint64"]
-def BinderInfo.toUInt64 : BinderInfo → UInt64
-  | .default        => 0
-  | .implicit       => 1
-  | .strictImplicit => 2
-  | .instImplicit   => 3
-
-def Expr.mkData
-    (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
+def mkData
+    (h : UInt64) (looseBVarRange : BVarRange := 0) (approxDepth : UInt32 := 0)
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false)
     : Expr.Data :=
   let approxDepth : UInt8 := if approxDepth > 255 then 255 else approxDepth.toUInt8
-  assert! (looseBVarRange ≤ Nat.pow 2 20 - 1)
   let r : UInt64 :=
       h.toUInt32.toUInt64 +
       approxDepth.toUInt64.shiftLeft 32 +
@@ -183,27 +206,28 @@ def Expr.mkData
   r
 
 /-- Optimized version of `Expr.mkData` for applications. -/
-@[inline] def Expr.mkAppData (fData : Data) (aData : Data) : Data :=
+@[inline] def mkAppData (fData : Data) (aData : Data) : Data :=
   let depth          := (max fData.approxDepth.toUInt16 aData.approxDepth.toUInt16) + 1
   let approxDepth    := if depth > 255 then 255 else depth.toUInt8
-  let looseBVarRange := max fData.looseBVarRange aData.looseBVarRange
+  let looseBVarRange := (max fData.looseBVarRange aData.looseBVarRange).toUInt32
   let hash           := mixHash fData aData
   let fData : UInt64 := fData
   let aData : UInt64 := aData
-  assert! (looseBVarRange ≤ (Nat.pow 2 20 - 1).toUInt32)
   ((fData ||| aData) &&& ((15 : UInt64) <<< (40 : UInt64))) ||| hash.toUInt32.toUInt64 ||| (approxDepth.toUInt64 <<< (32 : UInt64)) ||| (looseBVarRange.toUInt64 <<< (44 : UInt64))
 
-@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
-  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
+@[inline] def mkDataForBinder (h : UInt64) (looseBVarRange : BVarRange)
+    (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Data :=
+  mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
 
-@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
-  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
+@[inline] def mkDataForLet (h : UInt64) (looseBVarRange : BVarRange)
+    (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Data :=
+  mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
 
-instance : Repr Expr.Data where
+instance : Repr Data where
   reprPrec v prec := Id.run do
     let mut r := "Expr.mkData " ++ toString v.hash
-    if v.looseBVarRange != 0 then
-      r := r ++ " (looseBVarRange := " ++ toString v.looseBVarRange ++ ")"
+    if v.looseBVarRange.toUInt32 != 0 then
+      r := r ++ " (looseBVarRange := " ++ toString v.looseBVarRange.toUInt32 ++ ")"
     if v.approxDepth != 0 then
       r := r ++ " (approxDepth := " ++ toString v.approxDepth ++ ")"
     if v.hasFVar then
@@ -213,6 +237,17 @@ instance : Repr Expr.Data where
     if v.hasLevelMVar then
       r := r ++ " (hasLevelMVar := " ++ toString v.hasLevelMVar ++ ")"
     Repr.addAppParen r prec
+
+end Expr
+
+-- NOTE: the `extern` clause of `BinderInfo.toUInt64` is ABI sensitive.
+-- It exploits the fact that a small enum compiles to `uint8`.
+@[extern "lean_uint8_to_uint64"]
+def BinderInfo.toUInt64 : BinderInfo → UInt64
+  | .default        => 0
+  | .implicit       => 1
+  | .strictImplicit => 2
+  | .instImplicit   => 3
 
 open Expr
 
@@ -469,22 +504,22 @@ with
   @[computed_field, extern "lean_expr_data"]
   data : @& Expr → Data
     | .const n lvls => mkData (mixHash 5 <| mixHash (hash n) (hash lvls)) 0 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
-    | .bvar idx => mkData (mixHash 7 <| hash idx) (idx+1)
+    | .bvar idx => mkData (mixHash 7 <| hash idx) (.mk (idx+1))
     | .sort lvl => mkData (mixHash 11 <| hash lvl) 0 0 false false lvl.hasMVar lvl.hasParam
     | .fvar fvarId => mkData (mixHash 13 <| hash fvarId) 0 0 true
     | .mvar fvarId => mkData (mixHash 17 <| hash fvarId) 0 0 false true
     | .mdata _m e =>
       let d := e.data.approxDepth.toUInt32+1
-      mkData (mixHash d.toUInt64 <| e.data.hash) e.data.looseBVarRange.toNat d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
+      mkData (mixHash d.toUInt64 <| e.data.hash) e.data.looseBVarRange d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
     | .proj s i e =>
       let d := e.data.approxDepth.toUInt32+1
       mkData (mixHash d.toUInt64 <| mixHash (hash s) <| mixHash (hash i) e.data.hash)
-          e.data.looseBVarRange.toNat d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
+          e.data.looseBVarRange d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
     | .app f a => mkAppData f.data a.data
     | .lam _ t b _ =>
       let d := (max t.data.approxDepth.toUInt32 b.data.approxDepth.toUInt32) + 1
       mkDataForBinder (mixHash d.toUInt64 <| mixHash t.data.hash b.data.hash)
-        (max t.data.looseBVarRange.toNat (b.data.looseBVarRange.toNat - 1))
+        (max t.data.looseBVarRange b.data.looseBVarRange)
         d
         (t.data.hasFVar || b.data.hasFVar)
         (t.data.hasExprMVar || b.data.hasExprMVar)
@@ -493,7 +528,7 @@ with
     | .forallE _ t b _ =>
       let d := (max t.data.approxDepth.toUInt32 b.data.approxDepth.toUInt32) + 1
       mkDataForBinder (mixHash d.toUInt64 <| mixHash t.data.hash b.data.hash)
-        (max t.data.looseBVarRange.toNat (b.data.looseBVarRange.toNat - 1))
+        (max t.data.looseBVarRange b.data.looseBVarRange)
         d
         (t.data.hasFVar || b.data.hasFVar)
         (t.data.hasExprMVar || b.data.hasExprMVar)
@@ -502,7 +537,7 @@ with
     | .letE _ t v b _ =>
       let d := (max (max t.data.approxDepth.toUInt32 v.data.approxDepth.toUInt32) b.data.approxDepth.toUInt32) + 1
       mkDataForLet (mixHash d.toUInt64 <| mixHash t.data.hash <| mixHash v.data.hash b.data.hash)
-        (max (max t.data.looseBVarRange.toNat v.data.looseBVarRange.toNat) (b.data.looseBVarRange.toNat - 1))
+        (max (max t.data.looseBVarRange v.data.looseBVarRange) b.data.looseBVarRange.pred)
         d
         (t.data.hasFVar || v.data.hasFVar || b.data.hasFVar)
         (t.data.hasExprMVar || v.data.hasExprMVar || b.data.hasExprMVar)
@@ -588,7 +623,7 @@ For example, `bvar i` has range `i + 1` and
 an expression with no loose bvars has range `0`.
 -/
 def looseBVarRange (e : Expr) : Nat :=
-  e.data.looseBVarRange.toNat
+  e.data.looseBVarRange.toUInt32.toNat
 
 /--
 Return the binder information if `e` is a lambda or forall expression, and `.default` otherwise.
@@ -608,7 +643,7 @@ Export functions.
 @[export lean_expr_has_level_mvar] def hasLevelMVarEx : Expr → Bool := hasLevelMVar
 @[export lean_expr_has_mvar] def hasMVarEx : Expr → Bool := hasMVar
 @[export lean_expr_has_level_param] def hasLevelParamEx : Expr → Bool := hasLevelParam
-@[export lean_expr_loose_bvar_range] def looseBVarRangeEx (e : Expr) : UInt32 := e.data.looseBVarRange
+@[export lean_expr_loose_bvar_range] def looseBVarRangeEx (e : Expr) : UInt32 := e.data.looseBVarRange.toUInt32
 @[export lean_expr_binder_info] def binderInfoEx : Expr → BinderInfo := binderInfo
 
 end Expr

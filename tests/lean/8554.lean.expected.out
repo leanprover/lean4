@@ -1,1 +1,5 @@
-'contradiction' does not depend on any axioms
+8554.lean:30:0-30:8: error: (kernel) declaration type mismatch, 'magic_eq' has type
+  magic = magic
+but it is expected to have type
+  magic = isProp
+'contradiction' depends on axioms: [magic, magic_eq]

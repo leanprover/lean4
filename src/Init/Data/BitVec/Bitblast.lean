@@ -2993,33 +2993,68 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
         · simp [hsw] -- just to get rid of the branch in the proof
           -- need to show contradiction : massage the hypothesis on resRec
           -- and move reasoning to leading zeros
-          let zx := clz x
-          let zy := clz y
+          have : x ≠ 0#(w + 1 + 1) := by
+            apply Classical.byContradiction
+            intro hcontra
+            simp at hcontra
+            simp [hcontra] at h'
+          have : y ≠ 0#(w + 1 + 1) := by
+            apply Classical.byContradiction
+            intro hcontra
+            simp at hcontra
+            simp [hcontra] at h'
           -- reasoning about the bounds of the product given the leading zeroes
-          have h1 := le_of_clz (x := x)
-          have h2 := le_of_clz (x := y)
-          have h3 := lt_of_clz (x := x) (by sorry)
-          have h4 := lt_of_clz (x := y) (by sorry)
-          have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - zx) - 1) (m₂ := 2 ^ (w + 1 + 1 - zy) - 1) (by sorry) (by sorry)
-          have h6 := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 + 1 - zx - 1)) (m₁ := 2 ^ (w + 1 + 1 - zy - 1)) (n₂ := x.toNat) (m₂ := y.toNat) (by sorry) (by sorry)
-          have h7 := resRec_of_clz_le (x := x) (y := y) (by omega)
+          have h1 := toNat_le_of_clz (x := x) (by omega) (by omega)
+          have h2 := toNat_le_of_clz (x := y) (by omega) (by omega)
+          have h3 := lt_toNat_of_clz (x := x) (by omega) (by omega)
+          have h4 := lt_toNat_of_clz (x := y) (by omega) (by omega)
+          have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - x.clz) - 1) (m₂ := 2 ^ (w + 1 + 1 - y.clz) - 1)
+            (by
+              simp [le_iff_lt_add_one]
+              simp [sub_one_add_one]
+              exact h3
+              )
+            (by
+              simp [le_iff_lt_add_one]
+              simp [sub_one_add_one]
+              exact h4)
+          have h6 := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 + 1 - x.clz - 1)) (m₁ := 2 ^ (w + 1 + 1 - y.clz - 1)) (n₂ := x.toNat) (m₂ := y.toNat) h1 h2
+          have h7 := resRec_of_clz_le (x := x) (y := y) (by omega) (by omega) (by omega)
           simp at h7
           apply h7
-          by_cases hzxy : zx + zy ≤ w
+          by_cases hzxy : x.clz + y.clz ≤ w
           · omega
           · simp [← Nat.pow_add] at h6
-            by_cases h10 : w + 1 + 1 - zy - 1 = 0
+            by_cases h10 : w + 1 + 1 - y.clz - 1 = 0
             · -- show contra
-              sorry
-            · have h9 : w + 1 + 1 - zx - 1 + (w + 1 + 1 - zy - 1) = w + 1 + 1 - zx - 1 + w + 1 + 1 - zy - 1 := by
+              simp [h10] at h6
+              by_cases h11 : w + 1 + 1 - y.clz = 0
+              · simp [h11] at h5
+                omega
+              · simp_all
+                have h12 : w + 1 + 1 - y.clz = 1 := by omega
+                simp [h12] at h5
+                have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1 + 1 - x.clz) (m := w + 1 + 1 + 1) (by omega) (by omega)
+                omega
+            · have h9 : w + 1 + 1 - x.clz - 1 + (w + 1 + 1 - y.clz - 1) = w + 1 + 1 - x.clz - 1 + w + 1 + 1 - y.clz - 1 := by
                 omega
               simp [h9] at h6
-              by_cases hzyw : w + 1 < zy
-              · have h11 : w + 1 + 1 - zx - 1 + w + 1 + 1 - zy - 1 = w + 1 - (zx + zy) + w + 1 := by omega
+              by_cases hzyw : w + 1 < y.clz
+              · have h11 : w + 1 + 1 - x.clz - 1 + w + 1 + 1 - y.clz - 1 = w + 1 - (x.clz + y.clz) + w + 1 := by omega
                 simp [h11] at h6
                 omega
               · -- show contra
-                sorry
+                by_cases h12 : w + 1 + 1 - x.clz = 0
+                · simp [h12] at h5
+                  omega
+                · simp_all
+                  have : x.clz ≤ w + 1 := by omega
+                  have : x.clz < w + 1 + 1 := by omega
+                  have h13 : w + 1 + 1 - x.clz - 1 = w + 1 - x.clz := by omega
+                  have h14 : w + 1 - x.clz + w + 1 + 1 - y.clz - 1 = w + 1 - x.clz + w + 1 - y.clz := by omega
+                  simp [h13, h14] at h6
+                  have : w + 1 - x.clz + w + 1 - y.clz = w + w + 1 + 1 - x.clz - y.clz := by omega
+                  sorry
     · intro h
       simp [umulOverflow]
       simp only [bool_to_prop] at h

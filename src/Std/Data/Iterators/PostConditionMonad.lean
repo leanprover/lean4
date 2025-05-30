@@ -7,6 +7,7 @@ prelude
 import Init.Control.Lawful.Basic
 import Init.Data.Subtype
 import Init.PropLemmas
+import Std.Data.Iterators.TempLawfulMonadLift
 
 namespace Std.Iterators
 

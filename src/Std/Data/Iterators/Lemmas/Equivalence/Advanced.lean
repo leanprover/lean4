@@ -156,3 +156,36 @@ theorem HItEquivM.step_congr {α₁ α₂ : Type w} [Monad m] [LawfulMonad m]
   simp [IterM.QuotStep.uniqueMap, flift, glift, Quot.liftBeta]
   change f (Exists.choose ?hex) = _; let hex := ?hex
   exact hfg hex.choose step hex.choose_spec.symm
+
+theorem HItEquivM.liftInner_step'_pbind_congr [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [Iterator α₁ m β] [Iterator α₂ m β]
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    {f : (_ : _) → _ → HetT n γ} {g : (_ : _) → _ → HetT n γ} (h : HItEquivM ita itb)
+    (hfg : ∀ sa hsa sb hsb, sa.bundle = sb.bundle → f sa hsa = g sb hsb) :
+    (ita.step'.liftInner n).pbind f = (itb.step'.liftInner n).pbind g := by
+  simp [HetT.ext_iff]
+  refine ⟨?_, ?_⟩
+  · ext c
+    constructor
+    · rintro ⟨s₁, hs₁, hf⟩
+      rcases exists_equiv_step h ⟨s₁, hs₁⟩ with ⟨s₂, h'⟩
+      exact ⟨s₂.1, s₂.2, (hfg s₁ hs₁ s₂.1 s₂.2 h') ▸ hf⟩
+    · rintro ⟨s₁, hs₁, hf⟩
+      rcases exists_equiv_step h.symm ⟨s₁, hs₁⟩ with ⟨s₂, h'⟩
+      exact ⟨s₂.1, s₂.2, (hfg s₂.1 s₂.2 s₁ hs₁ h'.symm) ▸ hf⟩
+  · intro γ l
+    apply step_congr h
+    intro s₁ s₂ h
+    simp only [hfg s₁.1 s₁.2 s₂.1 s₂.2 h]
+
+theorem HItEquivM.liftInner_step'_bind_congr [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [Iterator α₁ m β] [Iterator α₂ m β]
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    {f : (_ : _) → HetT n γ} {g : (_ : _) → HetT n γ} (h : HItEquivM ita itb)
+    (hfg : ∀ sa (_ : ita.step'.Property sa) sb (_ : itb.step'.Property sb), sa.bundle = sb.bundle → f sa = g sb) :
+    (ita.step'.liftInner n).bind f = (itb.step'.liftInner n).bind g := by
+  simp [HetT.bind_eq_pbind]
+  apply liftInner_step'_pbind_congr h
+  exact hfg
+
+end Std.Iterators

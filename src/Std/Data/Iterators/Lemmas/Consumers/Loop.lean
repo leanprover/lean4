@@ -56,7 +56,7 @@ theorem Iter.forIn_eq_match_step {α β : Type w} [Iterator α Id β]
 theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
-    [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}
     {f : β → γ → m (ForInStep γ)} :
     ForIn.forIn it.toList init f = ForIn.forIn it init f := by
@@ -107,7 +107,7 @@ theorem Iter.foldM_eq_match_step {α β γ : Type w} [Iterator α Id β] [Finite
 
 theorem Iter.foldlM_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id] {m : Type w → Type w'}
     [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
-    [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {f : γ → β → m γ}
     {init : γ} {it : Iter (α := α) β} :
     it.toList.foldlM (init := init) f = it.foldM (init := init) f := by
@@ -117,7 +117,7 @@ theorem Iter.foldlM_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id
 theorem IterM.forIn_eq_foldM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
-    [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}
     {f : β → γ → m (ForInStep γ)} :
     forIn it init f = ForInStep.value <$>
@@ -162,7 +162,7 @@ theorem Iter.fold_eq_match_step {α β γ : Type w} [Iterator α Id β] [Finite 
 
 theorem Iter.foldl_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
-    [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.toList.foldl (init := init) f = it.fold (init := init) f := by
   rw [fold_eq_foldM, List.foldl_eq_foldlM, ← Iter.foldlM_toList]

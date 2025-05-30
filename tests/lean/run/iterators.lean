@@ -144,3 +144,25 @@ example : ([1, 2, 3].iter.take 2).toListRev = [2, 1] := by
   simp
 
 end Take
+
+section FilterMap
+
+example : ([1, 2, 3].iter.filterMap (fun x => if x % 2 = 0 then some (x / 2) else none)).toList =
+    [1] := by
+  simp
+
+example : ([1, 2, 3].iter.map (· * 2)).toList = [2, 4, 6] := by
+  simp
+
+example : ([1, 2, 3].iter.filter (· % 2 = 0)).toList = [2] := by
+  simp
+
+/--
+info: Lean
+is
+fun
+-/
+#guard_msgs in
+#eval ["Lean", "is", "fun"].iter.mapM (IO.println s!"{·}") |>.drain
+
+end FilterMap

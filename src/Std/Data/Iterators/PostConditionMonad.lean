@@ -172,8 +172,8 @@ theorem PostconditionT.operation_map {m : Type w → Type w'} [Functor m] {α : 
   rfl
 
 @[simp]
-theorem PostconditionT.operation_monadLift {m : Type w →Type w'} [Functor m] {α : Type w}
-    {x : m α} : (monadLift x : PostconditionT m α).operation = (⟨·, True.intro⟩) <$> x :=
+theorem PostconditionT.operation_lift {m : Type w →Type w'} [Functor m] {α : Type w}
+    {x : m α} : (lift x : PostconditionT m α).operation = (⟨·, True.intro⟩) <$> x :=
   rfl
 
 end Std.Iterators

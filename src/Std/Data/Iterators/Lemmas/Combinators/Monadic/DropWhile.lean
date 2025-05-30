@@ -9,10 +9,10 @@ import Std.Data.Iterators.Lemmas.Consumers.Monadic
 
 namespace Std.Iterators
 
-theorem IterM.Intermediate.dropWhileM_eq_dropWhileWithProof {α m β} [Monad m]
+theorem IterM.Intermediate.dropWhileM_eq_dropWhileWithPostcondition {α m β} [Monad m]
     [Iterator α m β] {it : IterM (α := α) m β} {P dropping} :
     Intermediate.dropWhileM P dropping it =
-      Intermediate.dropWhileWithProof (monadLift ∘ P) dropping it :=
+      Intermediate.dropWhileWithPostcondition (PostconditionT.lift ∘ P) dropping it :=
   rfl
 
 theorem IterM.Intermediate.dropWhile_eq_dropWhileM {α m β} [Monad m]
@@ -21,9 +21,9 @@ theorem IterM.Intermediate.dropWhile_eq_dropWhileM {α m β} [Monad m]
       Intermediate.dropWhileM (pure ∘ ULift.up ∘ P) dropping it :=
   rfl
 
-theorem IterM.dropWhileWithProof_eq_intermediateDropWhileWithProof {α m β}
+theorem IterM.dropWhileWithPostcondition_eq_intermediateDropWhileWithPostcondition {α m β}
     [Iterator α m β] {it : IterM (α := α) m β} {P} :
-    it.dropWhileWithProof P = Intermediate.dropWhileWithProof P true it :=
+    it.dropWhileWithPostcondition P = Intermediate.dropWhileWithPostcondition P true it :=
   rfl
 
 theorem IterM.dropWhileM_eq_intermediateDropWhileM {α m β} [Monad m]
@@ -36,44 +36,44 @@ theorem IterM.dropWhile_eq_intermediateDropWhile {α m β} [Monad m]
     it.dropWhile P = Intermediate.dropWhile P true it :=
   rfl
 
-theorem IterM.step_intermediateDropWhileWithProof {α m β} [Monad m] [Iterator α m β]
+theorem IterM.step_intermediateDropWhileWithPostcondition {α m β} [Monad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} {dropping} :
-    (IterM.Intermediate.dropWhileWithProof P dropping it).step = (do
+    (IterM.Intermediate.dropWhileWithPostcondition P dropping it).step = (do
     match ← it.step with
     | .yield it' out h =>
       if h' : dropping = true then
         match ← (P out).operation with
         | ⟨.up true, h''⟩ =>
-          return .skip (IterM.Intermediate.dropWhileWithProof P true it') (.dropped h h' h'')
+          return .skip (IterM.Intermediate.dropWhileWithPostcondition P true it') (.dropped h h' h'')
         | ⟨.up false, h''⟩ =>
-          return .yield (IterM.Intermediate.dropWhileWithProof P false it') out (.start h h' h'')
+          return .yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out (.start h h' h'')
       else
-        return .yield (IterM.Intermediate.dropWhileWithProof P false it') out
+        return .yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out
             (.yield h (Bool.not_eq_true _ ▸ h'))
     | .skip it' h =>
-      return .skip (IterM.Intermediate.dropWhileWithProof P dropping it') (.skip h)
+      return .skip (IterM.Intermediate.dropWhileWithPostcondition P dropping it') (.skip h)
     | .done h =>
       return .done (.done h)) := by
-  simp only [dropWhileWithProof, step, Iterator.step, internalState_toIterM]
+  simp only [dropWhileWithPostcondition, step, Iterator.step, internalState_toIterM]
   apply bind_congr
   intro step
   cases step using PlausibleIterStep.casesOn <;> rfl
 
-theorem IterM.step_dropWhileWithProof {α m β} [Monad m] [Iterator α m β]
+theorem IterM.step_dropWhileWithPostcondition {α m β} [Monad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} :
-    (it.dropWhileWithProof P).step = (do
+    (it.dropWhileWithPostcondition P).step = (do
     match ← it.step with
     | .yield it' out h =>
         match ← (P out).operation with
         | ⟨.up true, h''⟩ =>
-          return .skip (IterM.Intermediate.dropWhileWithProof P true it') (.dropped h rfl h'')
+          return .skip (IterM.Intermediate.dropWhileWithPostcondition P true it') (.dropped h rfl h'')
         | ⟨.up false, h''⟩ =>
-          return .yield (IterM.Intermediate.dropWhileWithProof P false it') out (.start h rfl h'')
+          return .yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out (.start h rfl h'')
     | .skip it' h =>
-      return .skip (IterM.Intermediate.dropWhileWithProof P true it') (.skip h)
+      return .skip (IterM.Intermediate.dropWhileWithPostcondition P true it') (.skip h)
     | .done h =>
       return .done (.done h)) := by
-  simp [dropWhileWithProof_eq_intermediateDropWhileWithProof, step_intermediateDropWhileWithProof]
+  simp [dropWhileWithPostcondition_eq_intermediateDropWhileWithPostcondition, step_intermediateDropWhileWithPostcondition]
 
 theorem IterM.step_intermediateDropWhileM {α m β} [Monad m] [LawfulMonad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} {dropping} :
@@ -93,11 +93,11 @@ theorem IterM.step_intermediateDropWhileM {α m β} [Monad m] [LawfulMonad m] [I
       return .skip (IterM.Intermediate.dropWhileM P dropping it') (.skip h)
     | .done h =>
       return .done (.done h)) := by
-  simp only [Intermediate.dropWhileM_eq_dropWhileWithProof, step_intermediateDropWhileWithProof]
+  simp only [Intermediate.dropWhileM_eq_dropWhileWithPostcondition, step_intermediateDropWhileWithPostcondition]
   apply bind_congr
   intro step
   cases step using PlausibleIterStep.casesOn
-  · simp only [Function.comp_apply, PostconditionT.operation_monadLift, PlausibleIterStep.skip,
+  · simp only [Function.comp_apply, PostconditionT.operation_lift, PlausibleIterStep.skip,
     PlausibleIterStep.yield, bind_map_left]
     split
     · apply bind_congr
@@ -145,7 +145,7 @@ theorem IterM.step_intermediateDropWhile {α m β} [Monad m] [LawfulMonad m] [It
   apply bind_congr
   intro step
   cases step using PlausibleIterStep.casesOn
-  · simp only [Function.comp_apply, PostconditionT.operation_monadLift, PlausibleIterStep.skip,
+  · simp only [Function.comp_apply, PostconditionT.operation_lift, PlausibleIterStep.skip,
     PlausibleIterStep.yield, bind_map_left]
     split
     · cases P _ <;> simp

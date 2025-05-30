@@ -5,8 +5,6 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Combinators.DropWhile
-import Std.Data.Iterators.Consumers.Access
-import Std.Data.Iterators.Lemmas.Combinators.Drop
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.DropWhile
 import Std.Data.Iterators.Lemmas.Consumers
 

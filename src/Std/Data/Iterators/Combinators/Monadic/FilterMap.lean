@@ -81,7 +81,7 @@ of `f`.
 **Marble diagram (without monadic effects):**
 
 ```text
-it                        ---a --b--c --d-e--⊥
+it                                ---a --b--c --d-e--⊥
 it.filterMapWithPostcondition     ---a'-----c'-------⊥
 ```
 
@@ -294,7 +294,7 @@ of `f`.
 **Marble diagram (without monadic effects):**
 
 ```text
-it                  ---a --b --c --d -e ----⊥
+it                          ---a --b --c --d -e ----⊥
 it.mapWithPostcondition     ---a'--b'--c'--d'-e'----⊥
 ```
 
@@ -340,7 +340,7 @@ of `f`.
 **Marble diagram (without monadic effects):**
 
 ```text
-it                     ---a--b--c--d-e--⊥
+it                             ---a--b--c--d-e--⊥
 it.filterWithPostcondition     ---a-----c-------⊥
 ```
 

@@ -7,6 +7,7 @@ prelude
 import Std.Data.Iterators.Combinators.Monadic.FilterMap
 import Std.Data.Iterators.Lemmas.Consumers.Monadic
 import Std.Data.Iterators.TempLawfulMonadLift
+import Std.Data.Iterators.Lemmas.Equivalence.Advanced
 
 namespace Std.Iterators
 
@@ -141,7 +142,7 @@ theorem IterM.step_mapM {f : β → n γ}
     match ← it.step with
     | .yield it' out h => do
       let out' ← f out
-      pure <| .yield (it'.mapM f) out' (.yieldSome h ⟨_, rfl⟩)
+      pure <| .yield (it'.mapM f) out' (.yieldSome h ⟨⟨out', True.intro⟩, rfl⟩)
     | .skip it' h =>
       pure <| .skip (it'.mapM f) (.skip h)
     | .done h =>
@@ -153,6 +154,8 @@ theorem IterM.step_mapM {f : β → n γ}
     simp only [PostconditionT.operation_map, bind_map_left, bind_pure_comp]
     simp only [monadLift, MonadLift.monadLift, monadLift_self, Functor.map, Functor.map_map,
       bind_map_left, bind_pure_comp]
+    simp only [PostconditionT.operation_map, Functor.map_map, PlausibleIterStep.skip,
+      PlausibleIterStep.yield, bind_map_left, bind_pure_comp]
     rfl
   | .skip it' h => rfl
   | .done h => rfl
@@ -174,7 +177,7 @@ theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
   apply bind_congr
   intro step
   split
-  · simp only [pure_bind]
+  · simp [pure_bind, PostconditionT.pure]
     split <;> split <;> simp_all
   · simp
   · simp
@@ -404,5 +407,177 @@ theorem IterM.toArray_filter {α : Type w} {m : Type w → Type w'} [Monad m] [L
   simp [← toArray_toList, toList_filter]
 
 end ToArray
+
+section Equivalence
+
+theorem step'_filterMapWithProof [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Iterator α m β]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → PostconditionT n (Option γ)} {it : IterM (α := α) m β} :
+    (it.filterMapWithProof f).step' = ((it.step'.liftInner n : HetT n _)).bind (match · with
+      | .yield it' out => do match ← HetT.ofPostconditionT (f out) with
+        | some out' => return .yield (it'.filterMapWithProof f) out'
+        | none => return .skip (it'.filterMapWithProof f)
+      | .skip it' => return .skip (it'.filterMapWithProof f)
+      | .done => return .done) := by
+  simp [HetT.ext_iff]
+  refine ⟨?_, ?_⟩
+  · ext step
+    constructor
+    · intro h
+      cases h
+      case yieldNone it' out h h' =>
+        refine ⟨_, h, ?_⟩
+        simp [Bind.bind]
+        exact ⟨none, by simp [Pure.pure]; exact ⟨h', rfl⟩⟩
+      case yieldSome it' out out' h h' =>
+        refine ⟨_, h, ?_⟩
+        simp [Bind.bind]
+        exact ⟨some out', by simp [Pure.pure]; exact ⟨h', rfl⟩⟩
+      case skip it' h =>
+        exact ⟨_, h, by simp [Pure.pure]; rfl⟩
+      case done h =>
+        exact ⟨_, h, by simp [Pure.pure]⟩
+    · rintro ⟨step', h, h'⟩
+      cases step'
+      case yield it' out =>
+        simp [Bind.bind] at h'
+        rcases h' with ⟨out', h'⟩
+        cases out'
+        · simp [Pure.pure] at h'
+          cases h'.2
+          exact .yieldNone h h'.1
+        · simp [Pure.pure] at h'
+          cases h'.2
+          exact .yieldSome h h'.1
+      case skip it' =>
+        simp [Bind.bind, Pure.pure] at h'
+        cases h'
+        exact .skip h
+      case done =>
+        simp [Bind.bind, Pure.pure] at h'
+        cases h'
+        exact .done h
+  · intro β f
+    simp [IterM.step_filterMapWithProof]
+    apply bind_congr
+    intro step
+    cases step using PlausibleIterStep.casesOn
+    · simp [Bind.bind, HetT.prun_bind]
+      apply bind_congr
+      rintro ⟨out, _⟩
+      cases out <;> simp [pure]
+    · simp [pure]
+    · simp [pure]
+
+theorem HItEquivM.filterMapWithProof [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → PostconditionT n (Option γ)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.filterMapWithProof f) (itb.filterMapWithProof f) := by
+  rw [HItEquivM]
+  refine ItEquiv.fixpoint_induct n γ ?R ?implies (.ofIterM _) (.ofIterM _) ?hR
+  case R =>
+    intro ita' itb'
+    exact ∃ (ita : IterM (α := α₁) m β) (itb : IterM (α := α₂) m β),
+      ita' = .ofIterM (ita.filterMapWithProof f) ∧
+      itb' = .ofIterM (itb.filterMapWithProof f) ∧
+      HItEquivM ita itb
+  case hR =>
+    exact ⟨_, _, rfl, rfl, h⟩
+  case implies =>
+    rintro _ _ ⟨ita, itb, rfl, rfl, h'⟩
+    replace h := h'
+    simp [BundledIterM.step']
+    rw [step'_filterMapWithProof, step'_filterMapWithProof]
+    simp
+    simp [HItEquivM, ItEquiv, BundledIterM.step'] at h'
+    apply liftInner_step'_bind_congr h
+    intro sa hsa sb hsb hs
+    simp [IterStep.bundle] at hs
+    cases sa <;> cases sb <;> (try exfalso; simp_all; done)
+    case yield =>
+      simp [ItEquiv.quotMk_eq_iff] at hs
+      cases hs.2
+      simp [bind_assoc, Bind.bind]
+      congr
+      ext out
+      cases out
+      all_goals
+        simp [Pure.pure]
+        congr 2
+        apply Quot.sound
+        exact ⟨_, _, rfl, rfl, hs.1⟩
+    case skip =>
+      simp [ItEquiv.quotMk_eq_iff] at hs
+      simp [Pure.pure]
+      congr 2
+      apply Quot.sound
+      exact ⟨_, _, rfl, rfl, hs⟩
+    case done =>
+      simp [Pure.pure]
+
+theorem HItEquivM.filterWithProof [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → PostconditionT n (ULift Bool)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.filterWithProof f) (itb.filterWithProof f) :=
+  HItEquivM.filterMapWithProof h
+
+theorem HItEquivM.mapWithProof [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → PostconditionT n γ} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.mapWithProof f) (itb.mapWithProof f) :=
+  HItEquivM.filterMapWithProof h
+
+theorem HItEquivM.filterMapM [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n (Option γ)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.filterMapM f) (itb.filterMapM f) :=
+  HItEquivM.filterMapWithProof h
+
+theorem HItEquivM.filterM [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n (ULift Bool)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.filterM f) (itb.filterM f) :=
+  HItEquivM.filterMapWithProof h
+
+theorem HItEquivM.mapM [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n γ} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.mapM f) (itb.mapM f) :=
+  HItEquivM.filterMapWithProof h
+
+theorem HItEquivM.filterMap [Monad m] [LawfulMonad m]
+    [Iterator α₁ m β] [Iterator α₂ m β]
+    {f : β → Option γ} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.filterMap f) (itb.filterMap f) :=
+  HItEquivM.filterMapWithProof h
+
+theorem HItEquivM.filter [Monad m] [LawfulMonad m]
+    [Iterator α₁ m β] [Iterator α₂ m β]
+    {f : β → Bool} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.filter f) (itb.filter f) :=
+  HItEquivM.filterMapWithProof h
+
+theorem HItEquivM.map [Monad m] [LawfulMonad m]
+    [Iterator α₁ m β] [Iterator α₂ m β]
+    {f : β → γ} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+    (h : HItEquivM ita itb) :
+    HItEquivM (ita.map f) (itb.map f) :=
+  HItEquivM.filterMapWithProof h
+
+end Equivalence
 
 end Std.Iterators

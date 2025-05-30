@@ -8,6 +8,7 @@ import Init.Data.Array.Lemmas
 import Std.Data.Iterators.Consumers.Monadic.Collect
 import Std.Data.Iterators.Lemmas.Monadic.Basic
 import Std.Data.Iterators.Producers
+import Std.Data.Iterators.Lemmas.Equivalence.Advanced
 
 namespace Std.Iterators
 
@@ -156,5 +157,46 @@ theorem LawfulIteratorCollect.toList_eq {α β : Type w} {m : Type w → Type w'
   simp [IterM.toList, toArray_eq]
 
 end Consumers
+
+section Equivalence
+
+theorem HItEquivM.toListRev_eq [Monad m] [LawfulMonad m]
+    [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquivM ita itb) :
+    ita.toListRev = itb.toListRev := by
+  induction ita using IterM.inductSteps generalizing itb with | step ita ihy ihs =>
+  rw [IterM.toListRev_eq_match_step, IterM.toListRev_eq_match_step]
+  apply h.step_congr
+  intro s₁ s₂ h
+  simp only [IterStep.bundle] at h
+  cases s₁ using PlausibleIterStep.casesOn <;> cases s₂ using PlausibleIterStep.casesOn
+  all_goals try exfalso; simp_all; done
+  · simp
+    simp at h
+    simp_all
+    apply ihy ‹_›
+    exact ItEquiv.exact _ _ h.1
+  · simp_all
+    apply ihs ‹_›
+    exact ItEquiv.exact _ _ h
+  · simp
+
+theorem HItEquivM.toList_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
+    [IteratorCollect α₁ m m] [LawfulIteratorCollect α₁ m m]
+    [IteratorCollect α₂ m m] [LawfulIteratorCollect α₂ m m]
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquivM ita itb) :
+    ita.toList = itb.toList := by
+  simp only [← IterM.reverse_toListRev, toListRev_eq h]
+
+theorem HItEquivM.toArray_eq [Monad m] [LawfulMonad m]
+    [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
+    [IteratorCollect α₁ m m] [LawfulIteratorCollect α₁ m m]
+    [IteratorCollect α₂ m m] [LawfulIteratorCollect α₂ m m]
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquivM ita itb) :
+    ita.toArray = itb.toArray := by
+  simp only [← IterM.toArray_toList, toList_eq h]
+
+end Equivalence
 
 end Std.Iterators

@@ -842,4 +842,17 @@ treating `x` and `y` as 2's complement signed bitvectors.
 def smulOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
 
+/--
+  Count the number of leading zeroes downward from the 'n'th bit to the '0'th bit.
+-/
+def clzAux {w : Nat} (x : BitVec w) (n : Nat) : Nat :=
+  match n with
+  | 0 => if x.getLsbD 0 then 0 else 1
+  | n' + 1 =>
+    if x.getLsbD n then 0
+      else 1 + clzAux x n'
+
+/-- Count the number of leading zeroes. -/
+def clz {w : Nat} (x : BitVec w) : Nat := if w = 0 then 0 else clzAux x (w - 1)
+
 end BitVec

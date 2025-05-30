@@ -26,17 +26,17 @@ def BundledIterM.ofIterM {α} [Iterator α m β] (it : IterM (α := α) m β) :
 instance (bit : BundledIterM m β) : Iterator bit.α m β :=
   bit.inst
 
-def f {R S : α → α → Prop} (h : ∀ a b, R a b → S a b) : Quot R → Quot S :=
+def Todo.f {R S : α → α → Prop} (h : ∀ a b, R a b → S a b) : Quot R → Quot S :=
   Quot.lift (Quot.mk S) (fun _ _ hR => Quot.sound (h _ _ hR))
 
 theorem fprop {R S : α → α → Prop} (h : ∀ a b, R a b → S a b) :
-    Quot.mk S = (f h) ∘ Quot.mk R :=
+    Quot.mk S = (Todo.f h) ∘ Quot.mk R :=
   rfl
 
-def g (R : α → α → Prop) : Quot R → Quot (fun a b => Quot.mk R a = Quot.mk R b) :=
+def Todo.g (R : α → α → Prop) : Quot R → Quot (fun a b => Quot.mk R a = Quot.mk R b) :=
   Quot.lift (Quot.mk _) (fun _ _ h => Quot.sound (Quot.sound h))
 
-def gprop (R : α → α → Prop) : Quot.mk _ = (g R) ∘ Quot.mk _ :=
+def gprop (R : α → α → Prop) : Quot.mk _ = (Todo.g R) ∘ Quot.mk _ :=
   rfl
 
 def IterM.step' [Iterator α m β] [Monad m] (it : IterM (α := α) m β) :

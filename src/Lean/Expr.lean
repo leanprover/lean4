@@ -144,9 +144,8 @@ instance : Max BVarRange := inferInstanceAs (Max UInt32)
 @[inline] def BVarRange.pred (a : BVarRange) : BVarRange :=
   -- Note: In the event of bound variable overflow, we saturate at 2^20-1,
   -- so looseBVarRange becomes a conservative estimate.
-  if a.toUInt32 = overflow then
-    if a.toUInt32 > 0 then a.toUInt32 - 1 else 0
-  else .overflow
+  if a.toUInt32 = overflow then .overflow else
+  if a.toUInt32 > 0 then a.toUInt32 - 1 else 0
 
 /--
 Cached hash code, cached results, and other data for `Expr`.

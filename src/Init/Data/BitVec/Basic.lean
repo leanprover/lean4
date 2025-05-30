@@ -853,6 +853,6 @@ def clzAux {w : Nat} (x : BitVec w) (n : Nat) : Nat :=
       else 1 + clzAux x n'
 
 /-- Count the number of leading zeroes. -/
-def clz {w : Nat} (x : BitVec w) : Nat := if w = 0 then 0 else clzAux x (w - 1)
+def clz {w : Nat} (x : BitVec w) : BitVec w := if w = 0 then 0 else BitVec.ofNat w (clzAux x (w - 1))
 
 end BitVec

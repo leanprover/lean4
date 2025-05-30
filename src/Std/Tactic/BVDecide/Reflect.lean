@@ -119,6 +119,10 @@ theorem reverse_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
     BitVec.reverse x' = BitVec.reverse x := by
   simp[*]
 
+theorem clz_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
+    BitVec.clz x' = BitVec.clz x := by
+  simp[*]
+
 end BitVec
 
 namespace Bool

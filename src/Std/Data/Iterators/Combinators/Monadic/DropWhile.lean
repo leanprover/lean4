@@ -39,7 +39,9 @@ Internal state of the `dropWhile` combinator. Do not depend on its internals.
 @[unbox]
 structure DropWhile (α : Type w) (m : Type w → Type w') (β : Type w)
     (P : β → PostconditionT m (ULift Bool)) where
+  /-- Internal implementation detail of the iterator library. -/
   dropping : Bool
+  /-- Internal implementation detail of the iterator library. -/
   inner : IterM (α := α) m β
 
 /--
@@ -145,7 +147,7 @@ it.dropWhileM P   --------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite
 
 Depending on `P`, it is possible that `it.dropWhileM P` is finite (or productive) although
 `it` is not. In this case, the `Finite` (or `Productive`) instance needs to be proved manually.
@@ -182,7 +184,7 @@ it.dropWhile P   --------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite
 
 Depending on `P`, it is possible that `it.dropWhileM P` is productive although
 `it` is not. In this case, the `Productive` instance needs to be proved manually.
@@ -196,6 +198,11 @@ that, the combinator incurs an addictional O(1) cost for each value emitted by `
 def IterM.dropWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
   (Intermediate.dropWhile P true it: IterM m β)
 
+/--
+`it.PlausibleStep step` is the proposition that `step` is a possible next step from the
+`dropWhile` iterator `it`. This is mostly internally relevant, except if one needs to manually
+prove termination (`Finite` or `Productive` instances, for example) of a `dropWhile` iterator.
+-/
 inductive DropWhile.PlausibleStep [Iterator α m β] {P} (it : IterM (α := DropWhile α m β P) m β) :
     (step : IterStep (IterM (α := DropWhile α m β P) m β) β) → Prop where
   | yield : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →

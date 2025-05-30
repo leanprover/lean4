@@ -39,6 +39,7 @@ Internal state of the `takeWhile` combinator. Do not depend on its internals.
 @[unbox]
 structure TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
     (P : β → PostconditionT m (ULift Bool)) where
+  /-- Internal implementation detail of the iterator library. -/
   inner : IterM (α := α) m β
 
 /--
@@ -156,6 +157,11 @@ it terminates.
 def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
   (it.takeWhileM (pure ∘ ULift.up ∘ P) : IterM m β)
 
+/--
+`it.PlausibleStep step` is the proposition that `step` is a possible next step from the
+`takeWhile` iterator `it`. This is mostly internally relevant, except if one needs to manually
+prove termination (`Finite` or `Productive` instances, for example) of a `takeWhile` iterator.
+-/
 inductive TakeWhile.PlausibleStep [Iterator α m β] {P} (it : IterM (α := TakeWhile α m β P) m β) :
     (step : IterStep (IterM (α := TakeWhile α m β P) m β) β) → Prop where
   | yield : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →

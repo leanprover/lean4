@@ -355,6 +355,9 @@ builtin_initialize
 builtin_initialize
   registerReservedNameAction fun name => do
     let .str p s := name | return false
+    unless s == enumToBitVecSuffix ||
+           s == eqIffEnumToBitVecEqSuffix ||
+           s == enumToBitVecLeSuffix do return false
     if ← isEnumType p then
       if s == enumToBitVecSuffix then
         discard <| MetaM.run' (getEnumToBitVecFor p)

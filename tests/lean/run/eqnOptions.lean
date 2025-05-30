@@ -24,7 +24,7 @@ def nonrecfun : Bool → Nat
 
 /--
 info: equations:
-theorem Test2.nonrecfun.eq_def : ∀ (x : Bool),
+theorem Test2.nonrecfun.eq_1 : ∀ (x : Bool),
   nonrecfun x =
     match x with
     | false => 0

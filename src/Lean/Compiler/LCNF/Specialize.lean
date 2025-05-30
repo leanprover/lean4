@@ -80,6 +80,13 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
   let fvarId := decl.fvarId
   withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
 
+@[inline] def withFunDecl (decl : FunDecl) (x : SpecializeM α) : SpecializeM α := do
+  let ctx ← read
+  let grd := allFVar (x := decl.value) fun fvarId =>
+    !(ctx.scope.contains fvarId) || ctx.ground.contains fvarId
+  let fvarId := decl.fvarId
+  withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
+
 namespace Collector
 /-!
 # Dependency collector for the code specialization function.
@@ -317,7 +324,11 @@ mutual
         decl ← decl.updateValue value
       let k ← withLetDecl decl <| visitCode k
       return code.updateLet! decl k
-    | .fun decl k | .jp decl k =>
+    | .fun decl k =>
+      let decl ← visitFunDecl decl
+      let k ← withFunDecl decl <| visitCode k
+      return code.updateFun! decl k
+    | .jp decl k =>
       let decl ← visitFunDecl decl
       let k ← withFVar decl.fvarId <| visitCode k
       return code.updateFun! decl k

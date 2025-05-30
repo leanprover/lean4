@@ -550,6 +550,16 @@ def optionCompletion
           }
     return items
 
+def errorNameCompletion
+    (params            : CompletionParams)
+    (completionInfoPos : Nat)
+    (ctx               : ContextInfo)
+    (stx               : Syntax)
+    (caps              : ClientCapabilities)
+    : IO (Array CompletionItem) :=
+  -- TODO: add error name completion
+  sorry
+
 def tacticCompletion
     (params            : CompletionParams)
     (completionInfoPos : Nat)

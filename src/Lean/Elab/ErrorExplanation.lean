@@ -49,6 +49,7 @@ open Parser Elab Meta Term Command in
 | `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $nm:ident $t:term) => withRef cmd do
   unless (← getEnv).contains ``Lean.ErrorExplanation do
     throwError "To use this command, add `import Lean.ErrorExplanation` to the header of this file"
+  -- TODO: push completion info here
   let tp := mkConst ``ErrorExplanation.Metadata []
   let metadata ← runTermElabM <| fun _ => unsafe do
     let e ← elabTerm t tp

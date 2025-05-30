@@ -94,6 +94,7 @@ inductive CompletionInfo where
   | fieldId (stx : Syntax) (id : Option Name) (lctx : LocalContext) (structName : Name)
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
+  | errorName (stx : Syntax)
   | endSection (stx : Syntax) (scopeNames : List String)
   | tactic (stx : Syntax)
 

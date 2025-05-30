@@ -57,6 +57,7 @@ def CompletionInfo.stx : CompletionInfo → Syntax
   | fieldId stx ..    => stx
   | namespaceId stx   => stx
   | option stx        => stx
+  | errorName stx     => stx
   | endSection stx .. => stx
   | tactic stx ..     => stx
 

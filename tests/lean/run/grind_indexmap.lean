@@ -4,8 +4,6 @@ set_option grind.warning false
 
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| grind)
 
-attribute [grind] Array.emptyWithCapacity_eq
-
 open Std
 
 structure IndexMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
@@ -52,12 +50,6 @@ grind_pattern getElem_indices_lt => m.indices[a]
 
 attribute [local grind] size
 
--- variable [LawfulBEq α] [LawfulHashable α]
-
--- example (m : HashMap α β) (h : m[a]? = some b) : a ∈ m := by grind
--- example (m : HashMap α β) (h : m[a]? = some b) : m[a] = b := by grind
--- example (m : HashMap α β) : m[a]? = some b ↔ ∃ h, m[a] = b := by grind [getElem?_pos]
-
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]
   getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
@@ -76,19 +68,18 @@ instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
 @[local grind] private theorem mem_indices_of_mem {m : IndexMap α β} {a : α} :
     a ∈ m ↔ a ∈ m.indices := Iff.rfl
 
-variable [LawfulBEq α] [LawfulHashable α]
-
-instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
-  getElem?_def := by grind [getElem?_pos]
-  getElem!_def := by grind [getElem!_pos]
-
 @[inline] def findIdx? (m : IndexMap α β) (a : α) : Option Nat := m.indices[a]?
 
 @[inline] def findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) : Nat := m.indices[a]
 
 @[inline] def getIdx? (m : IndexMap α β) (i : Nat) : Option β := m.values[i]?
 
-@[inline] def getIdx (m : IndexMap α β) (i : Nat) (h : i < m.size) : β := m.values[i]
+@[inline] def getIdx (m : IndexMap α β) (i : Nat) (h : i < m.size := by get_elem_tactic) : β :=
+  m.values[i]
+
+instance [LawfulBEq α] [LawfulHashable α] : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
+  getElem?_def := by grind [getElem?_pos]
+  getElem!_def := by grind [getElem!_pos]
 
 -- attribute [local grind?] IndexMap.WF -- Hmm, I'm not convinced about the pattern for this one.
 
@@ -97,17 +88,10 @@ instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
 -- @[local grind →] private theorem getElem_keys_of_getElem_indices (h : m.indices[a]? = some i) :
 --     m.keys[i] = a := sorry
 
--- Equivalent to the pair below, no?
-attribute [local grind? _=_] IndexMap.WF
+attribute [local grind _=_] IndexMap.WF
 
--- @[local grind →] private theorem getElem?_indices_of_getElem?_keys (g : m.keys[i]? = some a) :
---     m.indices[a]? = some i := sorry
--- @[local grind →] private theorem getElem?_keys?_of_getElem?_indices (h : m.indices[a]? = some i) :
---     m.keys[i]? = some a := sorry
-
-attribute [grind =] Array.getElem?_push
-
-@[inline] def insert (m : IndexMap α β) (a : α) (b : β) : IndexMap α β :=
+@[inline] def insert [LawfulBEq α] (m : IndexMap α β) (a : α) (b : β) :
+    IndexMap α β :=
   match h : m.indices[a]? with
   | some i =>
     { indices := m.indices
@@ -116,56 +100,59 @@ attribute [grind =] Array.getElem?_push
   | none =>
     { indices := m.indices.insert a m.size
       keys := m.keys.push a
-      values := m.values.push b
-      WF := by
-        intro j b
-        rw [HashMap.getElem?_insert]
-        constructor
-        · intro w
-          fail_if_success grind (gen := 6) -- This fails, but `split <;> grind` is fine?
-          split <;> grind
-        · intro w
-          rw [Array.getElem?_push]
-          split <;> rename_i h'
-          · subst h'
-            split at w <;> grind
-          · grind
-         }
+      values := m.values.push b }
 
-instance : Singleton (α × β) (IndexMap α β) := ⟨fun ⟨a, b⟩ => (∅ : IndexMap α β).insert a b⟩
+instance [LawfulBEq α] : Singleton (α × β) (IndexMap α β) :=
+    ⟨fun ⟨a, b⟩ => (∅ : IndexMap α β).insert a b⟩
 
-instance : Insert (α × β) (IndexMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+instance [LawfulBEq α] : Insert (α × β) (IndexMap α β) :=
+    ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
-instance : LawfulSingleton (α × β) (IndexMap α β) := ⟨fun _ => rfl⟩
-
-#exit
+instance [LawfulBEq α] : LawfulSingleton (α × β) (IndexMap α β) :=
+    ⟨fun _ => rfl⟩
 
 /--
 Erase the key-value pair with the given key, moving the last pair into its place in the order.
 If the key is not present, the map is unchanged.
 -/
-@[inline] def eraseSwap (m : IndexMap α β) (a : α) : IndexMap α β :=
+@[inline] def eraseSwap [LawfulBEq α] (m : IndexMap α β) (a : α) : IndexMap α β :=
   match h : m.indices[a]? with
   | some i =>
-    let last := m.data.back sorry
-    { m with
-      indices := (m.indices.erase a).insert last.1 i
-      data := m.data.set i last sorry
-      WF := sorry }
+    if w : i = m.size - 1 then
+      { indices := m.indices.erase a
+        keys := m.keys.pop
+        values := m.values.pop }
+    else
+      let lastKey := m.keys.back
+      let lastValue := m.values.back
+      { indices := (m.indices.erase a).insert lastKey i
+        keys := m.keys.pop.set i lastKey (by grind)
+        values := m.values.pop.set i lastValue (by grind)
+        WF := sorry }
   | none => m
 
 /-! ### Verification theorems -/
 
-theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
-    m.getIdx (m.findIdx a h) sorry = m[a] :=
-  sorry
+attribute [local grind] getIdx findIdx insert
 
-theorem getElem_insert (m : IndexMap α β) (a a' : α) (b : β) (h) :
-    (m.insert a b)[a']'h = if h' : a' == a then b else m[a']'(sorry) := by
-  sorry
+@[grind] theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
+    m.getIdx (m.findIdx a h) = m[a] := by grind
 
-theorem findIdx_insert_self (m : IndexMap α β) (a : α) (b : β) :
-    (m.insert a b).findIdx a sorry = if h : a ∈ m then m.findIdx a h else m.size := by
-  sorry
+variable [LawfulBEq α]
+
+@[grind] theorem mem_insert (m : IndexMap α β) (a a' : α) (b : β) :
+    a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by
+  grind
+
+-- TODO
+attribute [grind] Array.getElem_push
+
+@[grind] theorem getElem_insert (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
+    (m.insert a b)[a']'h = if h' : a' == a then b else m[a'] := by
+  grind
+
+@[grind] theorem findIdx_insert_self (m : IndexMap α β) (a : α) (b : β) :
+    (m.insert a b).findIdx a (by grind) = if h : a ∈ m then m.findIdx a h else m.size := by
+  grind
 
 end IndexMap

@@ -86,7 +86,7 @@ instance : BEq CongrTheoremCacheKey where
 
 -- We manually define `Hashable` because we want to use pointer equality.
 instance : Hashable CongrTheoremCacheKey where
-  hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
+  hash a := mixHash (hashPtrExpr a.f) (hash a.numArgs)
 
 structure EMatchTheoremTrace where
   origin : Origin
@@ -372,9 +372,9 @@ structure CongrKey (enodes : ENodeMap) where
 
 private def hashRoot (enodes : ENodeMap) (e : Expr) : UInt64 :=
   if let some node := enodes.find? { expr := e } then
-    unsafe (ptrAddrUnsafe node.root).toUInt64
+    hashPtrExpr node.root
   else
-    13
+    hashPtrExpr e
 
 private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
   if isSameExpr a b then
@@ -461,9 +461,9 @@ structure PreInstance where
 
 instance : Hashable PreInstance where
   hash i := Id.run do
-    let mut r := unsafe (ptrAddrUnsafe i.proof >>> 3).toUInt64
+    let mut r := hashPtrExpr i.proof
     for v in i.assignment do
-      r := mixHash r (unsafe (ptrAddrUnsafe v >>> 3).toUInt64)
+      r := mixHash r (hashPtrExpr v)
     return r
 
 instance : BEq PreInstance where

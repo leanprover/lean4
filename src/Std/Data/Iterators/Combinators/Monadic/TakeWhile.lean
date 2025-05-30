@@ -13,13 +13,29 @@ import Std.Data.Iterators.Internal.Termination
 import Std.Data.Iterators.PostConditionMonad
 
 /-!
-This module provides the iterator combinator `IterM.takeWhile`.
+# Monadic `takeWhile` iterator combinator
+
+This module provides the iterator combinator `IterM.takeWhile` that will take all values emitted
+by a given iterator until a given predicate on these values becomes false the first fime. Then
+the combinator will terminate.
+
+Several variants of this combinator are provided:
+
+* `M` suffix: Instead of a pure function, this variant takes a monadic function. Given a suitable
+  `MonadLiftT` instance, it will also allow lifting the iterator to another monad first and then
+  applying the mapping function in this monad.
+* `WithPostcondition` suffix: This variant takes a monadic function where the return type in the
+  monad is a subtype. This variant is in rare cases necessary for the intrinsic verification of an
+  iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
 namespace Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {β : Type w}
 
+/--
+Internal state of the `takeWhile` combinator. Do not depend on its internals.
+-/
 @[unbox]
 structure TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
     (P : β → PostconditionT m (ULift Bool)) where
@@ -30,8 +46,8 @@ structure TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
 dependent types and termination proofs. The variants `takeWhile` and `takeWhileM` are easier to use
 and sufficient for most use cases.*
 
-Given an iterator `it` and a monadic predicate `P`, `it.takeWhileWithProof P` is an iterator that
-emits the values emitted by `it` until one of those values is rejected by `P`.
+Given an iterator `it` and a monadic predicate `P`, `it.takeWhileWithPostcondition P` is an iterator
+that emits the values emitted by `it` until one of those values is rejected by `P`.
 If some emitted value is rejected by `P`, the value is dropped and the iterator terminates.
 
 `P` is expected to return `PostconditionT m (ULift Bool)`. The `PostconditionT` transformer allows
@@ -43,11 +59,11 @@ termination proofs depending on the specific behavior of `P`.
 Assuming that the predicate `P` accepts `a` and `b` but rejects `c`:
 
 ```text
-it                        ---a----b---c--d-e--⊥
-it.takeWhileWithProof P   ---a----b---⊥
+it                                ---a----b---c--d-e--⊥
+it.takeWhileWithPostcondition P   ---a----b---⊥
 
-it                        ---a----⊥
-it.takeWhileWithProof P   ---a----⊥
+it                                ---a----⊥
+it.takeWhileWithPostcondition P   ---a----⊥
 ```
 
 **Termination properties:**
@@ -55,8 +71,9 @@ it.takeWhileWithProof P   ---a----⊥
 * `Finite` instance: only if `it` is finite
 * `Productive` instance: only if `it` is productive
 
-Depending on `P`, it is possible that `it.takeWhileWithProof P` is finite (or productive) although `it` is not.
-In this case, the `Finite` (or `Productive`) instance needs to be proved manually.
+Depending on `P`, it is possible that `it.takeWhileWithPostcondition P` is finite (or productive)
+although `it` is not. In this case, the `Finite` (or `Productive`) instance needs to be proved
+manually.
 
 **Performance:**
 
@@ -64,7 +81,7 @@ This combinator calls `P` on each output of `it` until the predicate evaluates t
 it terminates.
 -/
 @[always_inline, inline]
-def IterM.takeWhileWithProof (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
+def IterM.takeWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
   (toIterM (TakeWhile.mk (P := P) it) m β : IterM m β)
 
 /--
@@ -101,7 +118,7 @@ it terminates.
 -/
 @[always_inline, inline]
 def IterM.takeWhileM [Monad m] (P : β → m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (it.takeWhileWithProof (monadLift ∘ P) : IterM m β)
+  (it.takeWhileWithPostcondition (PostconditionT.lift ∘ P) : IterM m β)
 
 /--
 Given an iterator `it` and a predicate `P`, `it.takeWhile P` is an iterator that outputs
@@ -142,9 +159,9 @@ def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
 inductive TakeWhile.PlausibleStep [Iterator α m β] {P} (it : IterM (α := TakeWhile α m β P) m β) :
     (step : IterStep (IterM (α := TakeWhile α m β P) m β) β) → Prop where
   | yield : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
-      (P out).Property (.up true) → PlausibleStep it (.yield (it'.takeWhileWithProof P) out)
+      (P out).Property (.up true) → PlausibleStep it (.yield (it'.takeWhileWithPostcondition P) out)
   | skip : ∀ {it'}, it.internalState.inner.IsPlausibleStep (.skip it') →
-      PlausibleStep it (.skip (it'.takeWhileWithProof P))
+      PlausibleStep it (.skip (it'.takeWhileWithPostcondition P))
   | done : it.internalState.inner.IsPlausibleStep .done → PlausibleStep it .done
   | rejected : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
       (P out).Property (.up false) → PlausibleStep it .done
@@ -156,9 +173,9 @@ instance TakeWhile.instIterator [Monad m] [Iterator α m β] {P} :
   step it := do
     match ← it.internalState.inner.step with
     | .yield it' out h => match ← (P out).operation with
-      | ⟨.up true, h'⟩ => pure <| .yield (it'.takeWhileWithProof P) out (.yield h h')
+      | ⟨.up true, h'⟩ => pure <| .yield (it'.takeWhileWithPostcondition P) out (.yield h h')
       | ⟨.up false, h'⟩ => pure <| .done (.rejected h h')
-    | .skip it' h => pure <| .skip (it'.takeWhileWithProof P) (.skip h)
+    | .skip it' h => pure <| .skip (it'.takeWhileWithPostcondition P) (.skip h)
     | .done h => pure <| .done (.done h)
 
 private def TakeWhile.instFinitenessRelation [Monad m] [Iterator α m β]
@@ -223,7 +240,7 @@ private def TakeWhile.wellFounded_plausibleForInStep {α β : Type w} {m : Type 
       simp only [IteratorLoop.WellFounded] at ⊢ wf
       letI : WellFoundedRelation _ := ⟨_, wf⟩
       apply Subrelation.wf
-        (r := InvImage WellFoundedRelation.rel fun p => (p.1.takeWhileWithProof P, p.2))
+        (r := InvImage WellFoundedRelation.rel fun p => (p.1.takeWhileWithPostcondition P, p.2))
         (fun {p q} h => by
           simp only [InvImage, WellFoundedRelation.rel, this, IteratorLoop.rel,
             IterM.IsPlausibleStep, Iterator.IsPlausibleStep]

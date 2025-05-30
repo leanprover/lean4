@@ -6,7 +6,6 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Combinators.TakeWhile
 import Std.Data.Iterators.Consumers.Access
-import Std.Data.Iterators.Lemmas.Combinators.Take
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile
 import Std.Data.Iterators.Lemmas.Consumers
 

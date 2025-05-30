@@ -13,13 +13,29 @@ import Std.Data.Iterators.Internal.Termination
 import Std.Data.Iterators.PostConditionMonad
 
 /-!
-This module provides the iterator combinator `IterM.dropWhile`.
+# Monadic `dropWhile` iterator combinator
+
+This module provides the iterator combinator `IterM.dropWhile` that will drop all values emitted
+by a given iterator until a given predicate on these values becomes false the first fime. Beginning
+with that moment, the combinator will forward all emitted values.
+
+Several variants of this combinator are provided:
+
+* `M` suffix: Instead of a pure function, this variant takes a monadic function. Given a suitable
+  `MonadLiftT` instance, it will also allow lifting the iterator to another monad first and then
+  applying the mapping function in this monad.
+* `WithPostcondition` suffix: This variant takes a monadic function where the return type in the
+  monad is a subtype. This variant is in rare cases necessary for the intrinsic verification of an
+  iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
 namespace Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
+/--
+Internal state of the `dropWhile` combinator. Do not depend on its internals.
+-/
 @[unbox]
 structure DropWhile (α : Type w) (m : Type w → Type w') (β : Type w)
     (P : β → PostconditionT m (ULift Bool)) where
@@ -28,16 +44,17 @@ structure DropWhile (α : Type w) (m : Type w → Type w') (β : Type w)
 
 /--
 Constructs intermediate states of an iterator created with the combinator
-`IterM.dropWhileWithProof`.
-When `it.dropWhileWithProof P` has stopped dropping elements, its new state cannot be created
-directly with `IterM.dropWhileWithProof` but only with `Intermediate.dropWhileWithProof`.
+`IterM.dropWhileWithPostcondition`.
+When `it.dropWhileWithPostcondition P` has stopped dropping elements, its new state cannot be
+created directly with `IterM.dropWhileWithPostcondition` but only with
+`Intermediate.dropWhileWithPostcondition`.
 
-`Intermediate.dropWhileWithProof` is meant to be used only for internally or for verification
-purposes.
+`Intermediate.dropWhileWithPostcondition` is meant to be used only for internally or for
+verification purposes.
 -/
 @[always_inline, inline]
-def IterM.Intermediate.dropWhileWithProof (P : β → PostconditionT m (ULift Bool)) (dropping : Bool)
-    (it : IterM (α := α) m β) :=
+def IterM.Intermediate.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool))
+    (dropping : Bool) (it : IterM (α := α) m β) :=
   (toIterM (DropWhile.mk (P := P) dropping it) m β : IterM m β)
 
 /--
@@ -50,7 +67,7 @@ directly with `IterM.dropWhileM` but only with `Intermediate.dropWhileM`.
 @[always_inline, inline]
 def IterM.Intermediate.dropWhileM [Monad m] (P : β → m (ULift Bool)) (dropping : Bool)
     (it : IterM (α := α) m β) :=
-  (IterM.Intermediate.dropWhileWithProof (monadLift ∘ P) dropping it : IterM m β)
+  (IterM.Intermediate.dropWhileWithPostcondition (PostconditionT.lift ∘ P) dropping it : IterM m β)
 
 /--
 Constructs intermediate states of an iterator created with the combinator `IterM.dropWhile`.
@@ -69,8 +86,8 @@ def IterM.Intermediate.dropWhile [Monad m] (P : β → Bool) (dropping : Bool)
 dependent types and termination proofs. The variants `dropWhile` and `dropWhileM` are easier to use
 and sufficient for most use cases.*
 
-Given an iterator `it` and a monadic predicate `P`, `it.dropWhileWithProof P` is an iterator that
-emits the values emitted by `it` starting from the first value that is rejected by `P`.
+Given an iterator `it` and a monadic predicate `P`, `it.dropWhileWithPostcondition P` is an iterator
+that emits the values emitted by `it` starting from the first value that is rejected by `P`.
 The elements before are dropped.
 
 `P` is expected to return `PostconditionT m (ULift Bool)`. The `PostconditionT` transformer allows
@@ -82,19 +99,19 @@ termination proofs depending on the specific behavior of `P`.
 Assuming that the predicate `P` accepts `a` and `b` but rejects `c`:
 
 ```text
-it                        ---a----b---c--d-e--⊥
-it.dropWhileWithProof P   ------------c--d-e--⊥
+it                                ---a----b---c--d-e--⊥
+it.dropWhileWithPostcondition P   ------------c--d-e--⊥
 
-it                        ---a----⊥
-it.dropWhileWithProof P   --------⊥
+it                                ---a----⊥
+it.dropWhileWithPostcondition P   --------⊥
 ```
 
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite
 
-Depending on `P`, it is possible that `it.dropWhileWithProof P` is finite (or productive) although
+Depending on `P`, it is possible that `it.dropWhileWithPostcondition P` is finite (or productive) although
 `it` is not. In this case, the `Finite` (or `Productive`) instance needs to be proved manually.
 
 **Performance:**
@@ -103,8 +120,8 @@ This combinator calls `P` on each output of `it` until the predicate evaluates t
 that, the combinator incurs an addictional O(1) cost for each value emitted by `it`.
 -/
 @[always_inline, inline]
-def IterM.dropWhileWithProof (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (Intermediate.dropWhileWithProof P true it : IterM m β)
+def IterM.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
+  (Intermediate.dropWhileWithPostcondition P true it : IterM m β)
 
 /--
 Given an iterator `it` and a monadic predicate `P`, `it.dropWhileM P` is an iterator that
@@ -132,7 +149,7 @@ it.dropWhileM P   --------⊥
 
 Depending on `P`, it is possible that `it.dropWhileM P` is finite (or productive) although
 `it` is not. In this case, the `Finite` (or `Productive`) instance needs to be proved manually.
-Use `dropWhileWithProof` if the termination behavior depends on `P`'s behavior.
+Use `dropWhileWithPostcondition` if the termination behavior depends on `P`'s behavior.
 
 **Performance:**
 
@@ -183,16 +200,16 @@ inductive DropWhile.PlausibleStep [Iterator α m β] {P} (it : IterM (α := Drop
     (step : IterStep (IterM (α := DropWhile α m β P) m β) β) → Prop where
   | yield : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
       it.internalState.dropping = false →
-      PlausibleStep it (.yield (IterM.Intermediate.dropWhileWithProof P false it') out)
+      PlausibleStep it (.yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out)
   | skip : ∀ {it'}, it.internalState.inner.IsPlausibleStep (.skip it') →
-      PlausibleStep it (.skip (IterM.Intermediate.dropWhileWithProof P it.internalState.dropping it'))
+      PlausibleStep it (.skip (IterM.Intermediate.dropWhileWithPostcondition P it.internalState.dropping it'))
   | done : it.internalState.inner.IsPlausibleStep .done → PlausibleStep it .done
   | start : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
       it.internalState.dropping = true → (P out).Property (.up false) →
-      PlausibleStep it (.yield (IterM.Intermediate.dropWhileWithProof P false it') out)
+      PlausibleStep it (.yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out)
   | dropped : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
       it.internalState.dropping = true → (P out).Property (.up true) →
-      PlausibleStep it (.skip (IterM.Intermediate.dropWhileWithProof P true it'))
+      PlausibleStep it (.skip (IterM.Intermediate.dropWhileWithPostcondition P true it'))
 
 @[always_inline, inline]
 instance DropWhile.instIterator [Monad m] [Iterator α m β] {P} :
@@ -204,14 +221,14 @@ instance DropWhile.instIterator [Monad m] [Iterator α m β] {P} :
       if h' : it.internalState.dropping = true then
         match ← (P out).operation with
         | ⟨.up true, h''⟩ =>
-          return .skip (IterM.Intermediate.dropWhileWithProof P true it') (.dropped h h' h'')
+          return .skip (IterM.Intermediate.dropWhileWithPostcondition P true it') (.dropped h h' h'')
         | ⟨.up false, h''⟩ =>
-          return .yield (IterM.Intermediate.dropWhileWithProof P false it') out (.start h h' h'')
+          return .yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out (.start h h' h'')
       else
-        return .yield (IterM.Intermediate.dropWhileWithProof P false it') out
+        return .yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out
             (.yield h (Bool.not_eq_true _ ▸ h'))
     | .skip it' h =>
-      return .skip (IterM.Intermediate.dropWhileWithProof P it.internalState.dropping it') (.skip h)
+      return .skip (IterM.Intermediate.dropWhileWithPostcondition P it.internalState.dropping it') (.skip h)
     | .done h =>
       return .done (.done h)
 

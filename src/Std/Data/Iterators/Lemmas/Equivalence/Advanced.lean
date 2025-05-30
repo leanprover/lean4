@@ -31,13 +31,11 @@ theorem exists_equiv_step [Iterator α₁ m β] [Iterator α₂ m β] [Monad m] 
     ∃ s' : itb.Step, s.1.bundle = s'.1.bundle := by
   rw [HItEquivM, ItEquiv] at h
   replace h := congrArg HetT.Property h
-  simp only [BundledIterM.ofIterM, BundledIterM.step', funext_iff] at h
-  simp only [HetT.property_map] at h
+  simp [BundledIterM.ofIterM, BundledIterM.step', funext_iff] at h
   specialize h s.1.bundle
-  rw [eq_iff_iff] at h
-  replace h := h.1 ⟨s.1, ?_, s.2⟩
+  replace h := h.1 ⟨s.1, s.2, ?_⟩
   · rcases h with ⟨s', hs'⟩
-    refine ⟨⟨s', hs'.2⟩, hs'.1.symm⟩
+    refine ⟨⟨s', hs'.1⟩, hs'.2.symm⟩
   · rfl
 
 open Classical in
@@ -108,8 +106,8 @@ theorem HItEquivM.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad
   replace h' := congrArg (·.map IterM.QuotStep.restrict) h'
   simp only [HetT.map_pmap, IterStep.restrict_bundle (α₂ := α₂),
     IterStep.restrict_bundle (α₂ := α₁)] at h'
-  replace h' := congrArg (HetT.run · (fun x _ => pure x)) h'
-  simp [HetT.pmap, IterM.step'] at h'
+  replace h' := congrArg (HetT.prun · (fun x _ => pure x)) h'
+  simp at h'
   simp [IterM.QuotStep.uniqueMap, ← h']
   congr
   ext step

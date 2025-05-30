@@ -39,11 +39,22 @@ def Todo.g (R : α → α → Prop) : Quot R → Quot (fun a b => Quot.mk R a = 
 def gprop (R : α → α → Prop) : Quot.mk _ = (Todo.g R) ∘ Quot.mk _ :=
   rfl
 
-def IterM.step' [Iterator α m β] [Monad m] (it : IterM (α := α) m β) :
+noncomputable def IterM.step' [Iterator α m β] [Monad m] (it : IterM (α := α) m β) :
     HetT m (IterStep (IterM (α := α) m β) β) :=
-    ⟨it.IsPlausibleStep, fun f => it.step >>= fun s => f s.1 s.2⟩
+    ⟨it.IsPlausibleStep, inferInstance, (fun step => .deflate ⟨step.1, step.2⟩) <$> it.step⟩
 
-def BundledIterM.step' {α β : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α m β] (R : BundledIterM m β → BundledIterM m β → Prop)
+@[simp]
+theorem IterM.property_step' [Iterator α m β] [Monad m] [LawfulMonad m] {it : IterM (α := α) m β} :
+    it.step'.Property = it.IsPlausibleStep :=
+  rfl
+
+@[simp]
+theorem IterM.prun_step' [Iterator α m β] [Monad m] [LawfulMonad m] {it : IterM (α := α) m β}
+    {f : (step : _) → _ → m γ} :
+    it.step'.prun f = it.step >>= (fun step => f step.1 step.2) := by
+  simp [IterM.step', HetT.prun]
+
+noncomputable def BundledIterM.step' {α β : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α m β] (R : BundledIterM m β → BundledIterM m β → Prop)
     (it : IterM (α := α) m β) :
     HetT m (IterStep (Quot R) β) :=
   it.step'.map (IterStep.mapIterator (Quot.mk _ ∘ BundledIterM.ofIterM))
@@ -58,7 +69,7 @@ greatest_fixpoint monotonicity by
   simp only [BundledIterM.step', IterStep.mapIterator_comp, HetT.comp_map] at ⊢ h
   simp only [fprop hRS, IterStep.mapIterator_comp, HetT.comp_map, h]
 
-def BundledIterM.stepQ {β : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] :
+noncomputable def BundledIterM.stepQ {β : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] :
     Quot (ItEquiv m β) → HetT m (IterStep (Quot (ItEquiv m β)) β) :=
   Quot.lift (fun bit => step' _ bit.iterator)
     (by
@@ -129,13 +140,29 @@ theorem ItEquiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m] [La
       show (BundledIterM.ofIterM (f it)).iterator = f it by rfl,
       show (BundledIterM.ofIterM it).iterator = it by rfl,
       h, Functor.map]
-    congr
-    ext step
-    simp
-    congr
-    ext it
-    apply Quot.sound
-    exact ⟨it, rfl, rfl⟩
+    refine ⟨?_, ?_⟩
+    · unfold BundledIterM.ofIterM
+      simp
+      ext step
+      constructor
+      all_goals
+        rintro ⟨step', hs', h⟩
+        refine ⟨step', hs', ?_⟩
+        rw [← h]
+        congr
+        ext it
+      · apply Eq.symm
+        apply Quot.sound
+        refine ⟨it, rfl, rfl⟩
+      · apply Quot.sound
+        refine ⟨it, rfl, rfl⟩
+    · intro β f
+      apply bind_congr
+      intro step
+      congr
+      ext it
+      apply Quot.sound
+      exact ⟨it, rfl, rfl⟩
   case hf =>
     exact ⟨ita, rfl, rfl⟩
 

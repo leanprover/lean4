@@ -28,7 +28,15 @@ builtin_initialize
     name := `expose
     descr := "(module system) Make bodies of definitions available to importing modules."
     add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
       throwError "Invalid attribute 'expose', must be used when declaring `def`"
+  }
+  registerBuiltinAttribute {
+    name := `no_expose
+    descr := "(module system) Negate previous `[expose]` attribute."
+    add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
+      throwError "Invalid attribute 'no_expose', must be used when declaring `def`"
   }
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do

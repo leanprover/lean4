@@ -95,6 +95,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCo
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__4;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__4___closed__2;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__2;
+uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_100_(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,7 +116,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_CodeAction_findTac
 static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3;
 static lean_object* l_Lean_CodeAction_findTactic_x3f_go___closed__6;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_95_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_CodeAction_findInfoTree_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_readDoc___at_Lean_Server_RequestM_withWaitFindSnapAtPos___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__3;
@@ -3644,7 +3644,7 @@ return x_27;
 else
 {
 uint8_t x_28; 
-x_28 = l_String_beqRange____x40_Lean_Syntax___hyg_95_(x_23, x_2);
+x_28 = l_String_beqRange____x40_Lean_Syntax___hyg_100_(x_23, x_2);
 lean_dec(x_23);
 if (x_28 == 0)
 {
@@ -3719,7 +3719,7 @@ return x_40;
 else
 {
 uint8_t x_41; 
-x_41 = l_String_beqRange____x40_Lean_Syntax___hyg_95_(x_36, x_2);
+x_41 = l_String_beqRange____x40_Lean_Syntax___hyg_100_(x_36, x_2);
 lean_dec(x_36);
 if (x_41 == 0)
 {

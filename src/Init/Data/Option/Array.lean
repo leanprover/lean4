@@ -82,10 +82,9 @@ theorem toArray_eq_empty_iff {o : Option α} : o.toArray = #[] ↔ o = none := b
 theorem toArray_eq_singleton_iff {o : Option α} : o.toArray = #[a] ↔ o = some a := by
   cases o <;> simp
 
-@[simp]
 theorem size_toArray_eq_zero_iff {o : Option α} :
     o.toArray.size = 0 ↔ o = none := by
-  cases o <;> simp
+  simp [Array.size]
 
 @[simp]
 theorem size_toArray_eq_one_iff {o : Option α} :

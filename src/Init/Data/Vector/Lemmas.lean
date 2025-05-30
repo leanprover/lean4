@@ -684,8 +684,7 @@ abbrev toList_eq_empty_iff {α n} (xs) := @toList_eq_nil_iff α n xs
 
 /-! ### empty -/
 
-@[simp] theorem empty_eq {xs : Vector α 0} : #v[] = xs ↔ xs = #v[] := by
-  cases xs
+theorem empty_eq {xs : Vector α 0} : #v[] = xs ↔ xs = #v[] := by
   simp
 
 /-- A vector of length `0` is the empty vector. -/
@@ -699,7 +698,7 @@ protected theorem eq_empty {xs : Vector α 0} : xs = #v[] := by
 theorem eq_empty_of_size_eq_zero {xs : Vector α n} (h : n = 0) : xs = #v[].cast h.symm := by
   rcases xs with ⟨xs, rfl⟩
   apply toArray_inj.1
-  simp only [List.length_eq_zero_iff, Array.toList_eq_nil_iff] at h
+  simp only [Array.size_eq_zero_iff] at h
   simp [h]
 
 theorem size_eq_one {xs : Vector α 1} : ∃ a, xs = #v[a] := by
@@ -842,13 +841,13 @@ theorem getElem_of_getElem? {xs : Vector α n} : xs[i]? = some a → ∃ h : i <
 theorem some_eq_getElem?_iff {xs : Vector α n} : some b = xs[i]? ↔ ∃ h : i < n, xs[i] = b :=
   _root_.some_eq_getElem?_iff
 
-@[simp] theorem some_getElem_eq_getElem?_iff {xs : Vector α n} {i : Nat} (h : i < n) :
+theorem some_getElem_eq_getElem?_iff {xs : Vector α n} {i : Nat} (h : i < n) :
     (some xs[i] = xs[i]?) ↔ True := by
-  simp [h]
+  simp
 
-@[simp] theorem getElem?_eq_some_getElem_iff {xs : Vector α n} {i : Nat} (h : i < n) :
+theorem getElem?_eq_some_getElem_iff {xs : Vector α n} {i : Nat} (h : i < n) :
     (xs[i]? = some xs[i]) ↔ True := by
-  simp [h]
+  simp
 
 theorem getElem_eq_iff {xs : Vector α n} {i : Nat} {h : i < n} : xs[i] = x ↔ xs[i]? = some x := by
   simp only [getElem?_eq_some_iff]
@@ -888,12 +887,11 @@ theorem getElem?_push {xs : Vector α n} {x : α} {i : Nat} : (xs.push x)[i]? = 
   (repeat' split) <;> first | rfl | omega
 
 set_option linter.indexVariables false in
-@[simp] theorem getElem?_push_size {xs : Vector α n} {x : α} : (xs.push x)[n]? = some x := by
-  simp [getElem?_push]
+theorem getElem?_push_size {xs : Vector α n} {x : α} : (xs.push x)[n]? = some x := by
+  simp
 
-@[simp] theorem getElem_singleton {a : α} (h : i < 1) : #v[a][i] = a :=
-  match i, h with
-  | 0, _ => rfl
+theorem getElem_singleton {a : α} (h : i < 1) : #v[a][i] = a := by
+  simp
 
 @[grind]
 theorem getElem?_singleton {a : α} {i : Nat} : #v[a][i]? = if i = 0 then some a else none := by
@@ -905,7 +903,7 @@ theorem getElem?_singleton {a : α} {i : Nat} : #v[a][i]? = if i = 0 then some a
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem not_mem_empty (a : α) : ¬ a ∈ #v[] := nofun
+theorem not_mem_empty (a : α) : ¬ a ∈ #v[] := nofun
 
 @[simp] theorem mem_push {xs : Vector α n} {x y : α} : x ∈ xs.push y ↔ x ∈ xs ∨ x = y := by
   rcases xs with ⟨xs, rfl⟩
@@ -954,8 +952,7 @@ theorem size_zero_iff_forall_not_mem {xs : Vector α n} : n = 0 ↔ ∀ a, a ∉
 theorem eq_of_mem_singleton (h : a ∈ #v[b]) : a = b := by
   simpa using h
 
-@[simp] theorem mem_singleton {a b : α} : a ∈ #v[b] ↔ a = b :=
-  ⟨eq_of_mem_singleton, (by simp [·])⟩
+theorem mem_singleton {a b : α} : a ∈ #v[b] ↔ a = b := by simp
 
 theorem forall_mem_push {p : α → Prop} {xs : Vector α n} {a : α} :
     (∀ x, x ∈ xs.push a → p x) ↔ p a ∧ ∀ x, x ∈ xs → p x := by
@@ -1441,10 +1438,9 @@ theorem back_eq_getElem [NeZero n] {xs : Vector α n} : xs.back = xs[n - 1]'(by 
   simp
 
 /-- The empty vector maps to the empty vector. -/
-@[simp, grind]
+@[grind]
 theorem map_empty {f : α → β} : map f #v[] = #v[] := by
-  rw [map, mk.injEq]
-  exact Array.map_empty
+  simp
 
 @[simp, grind] theorem map_push {f : α → β} {as : Vector α n} {x : α} :
     (as.push x).map f = (as.map f).push (f x) := by
@@ -1521,9 +1517,8 @@ theorem map_eq_push_iff {f : α → β} {xs : Vector α (n + 1)} {ys : Vector β
   · rintro ⟨xs', a, h₁, h₂, rfl⟩
     refine ⟨xs'.toArray, a, by simp_all⟩
 
-@[simp] theorem map_eq_singleton_iff {f : α → β} {xs : Vector α 1} {b : β} :
+theorem map_eq_singleton_iff {f : α → β} {xs : Vector α 1} {b : β} :
     map f xs = #v[b] ↔ ∃ a, xs = #v[a] ∧ f a = b := by
-  cases xs
   simp
 
 theorem map_eq_map_iff {f g : α → β} {xs : Vector α n} :
@@ -2358,13 +2353,13 @@ set_option linter.indexVariables false in
   rcases ys with ⟨ys, rfl⟩
   simp
 
-@[simp] theorem foldlM_empty [Monad m] {f : β → α → m β} {init : β} :
+theorem foldlM_empty [Monad m] {f : β → α → m β} {init : β} :
     foldlM f init #v[] = return init := by
-  simp [foldlM]
+  simp
 
-@[simp, grind] theorem foldrM_empty [Monad m] {f : α → β → m β} {init : β} :
+@[grind] theorem foldrM_empty [Monad m] {f : α → β → m β} {init : β} :
     foldrM f init #v[] = return init := by
-  simp [foldrM]
+  simp
 
 @[simp, grind] theorem foldlM_push [Monad m] [LawfulMonad m] {xs : Vector α n} {a : α} {f : β → α → m β} {b} :
     (xs.push a).foldlM f b = xs.foldlM f b >>= fun b => f b a := by
@@ -3055,8 +3050,7 @@ end replace
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
 set_option linter.indexVariables false in
-@[simp] theorem getElem_push_last {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
-  rcases xs with ⟨xs, rfl⟩
+theorem getElem_push_last {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
   simp
 
 @[simp] theorem push_pop_back (xs : Vector α (n + 1)) : xs.pop.push xs.back = xs := by
@@ -3088,8 +3082,7 @@ set_option linter.indexVariables false in
 /-! ### take -/
 
 set_option linter.indexVariables false in
-@[simp] theorem take_size {as : Vector α n} : as.take n = as.cast (by simp) := by
-  rcases as with ⟨as, rfl⟩
+theorem take_size {as : Vector α n} : as.take n = as.cast (by simp) := by
   simp
 
 /-! ### swap -/
@@ -3138,9 +3131,8 @@ theorem swap_comm {xs : Vector α n} {i j : Nat} (hi hj) :
 
 /-! ### drop -/
 
-@[simp, grind =] theorem getElem_drop {xs : Vector α n} {j : Nat} (hi : i < n - j) :
+@[grind =] theorem getElem_drop {xs : Vector α n} {j : Nat} (hi : i < n - j) :
     (xs.drop j)[i] = xs[j + i] := by
-  cases xs
   simp
 
 /-! ### Decidable quantifiers. -/

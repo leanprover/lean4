@@ -415,7 +415,7 @@ theorem succ_min_succ (x y) : min (succ x) (succ y) = succ (min x y) := by
   | inl h => rw [Nat.min_eq_left h, Nat.min_eq_left (Nat.succ_le_succ h)]
   | inr h => rw [Nat.min_eq_right h, Nat.min_eq_right (Nat.succ_le_succ h)]
 
-@[simp] protected theorem min_self (a : Nat) : min a a = a := Nat.min_eq_left (Nat.le_refl _)
+protected theorem min_self (a : Nat) : min a a = a := by simp
 instance : Std.IdempotentOp (α := Nat) min := ⟨Nat.min_self⟩
 
 @[simp] protected theorem min_assoc : ∀ (a b c : Nat), min (min a b) c = min a (min b c)
@@ -431,16 +431,14 @@ instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
 @[simp] protected theorem min_self_assoc' {m n : Nat} : min n (min m n) = min n m := by
   rw [Nat.min_comm m n, ← Nat.min_assoc, Nat.min_self]
 
-@[simp] theorem min_add_left_self {a b : Nat} : min a (b + a) = a := by
-  rw [Nat.min_def]
+theorem min_add_left_self {a b : Nat} : min a (b + a) = a := by
   simp
-@[simp] theorem min_add_right_self {a b : Nat} : min a (a + b) = a := by
-  rw [Nat.min_def]
+theorem min_add_right_self {a b : Nat} : min a (a + b) = a := by
   simp
-@[simp] theorem add_left_min_self {a b : Nat} : min (b + a) a = a := by
-  rw [Nat.min_comm, min_add_left_self]
-@[simp] theorem add_right_min_self {a b : Nat} : min (a + b) a = a := by
-  rw [Nat.min_comm, min_add_right_self]
+theorem add_left_min_self {a b : Nat} : min (b + a) a = a := by
+  simp
+theorem add_right_min_self {a b : Nat} : min (a + b) a = a := by
+  simp
 
 protected theorem sub_sub_eq_min : ∀ (a b : Nat), a - (a - b) = min a b
   | 0, _ => by rw [Nat.zero_sub, Nat.zero_min]
@@ -462,7 +460,7 @@ protected theorem succ_max_succ (x y) : max (succ x) (succ y) = succ (max x y) :
   | inl h => rw [Nat.max_eq_right h, Nat.max_eq_right (Nat.succ_le_succ h)]
   | inr h => rw [Nat.max_eq_left h, Nat.max_eq_left (Nat.succ_le_succ h)]
 
-@[simp] protected theorem max_self (a : Nat) : max a a = a := Nat.max_eq_right (Nat.le_refl _)
+protected theorem max_self (a : Nat) : max a a = a := by simp
 instance : Std.IdempotentOp (α := Nat) max := ⟨Nat.max_self⟩
 
 instance : Std.LawfulIdentity (α := Nat) max 0 where
@@ -476,16 +474,14 @@ instance : Std.LawfulIdentity (α := Nat) max 0 where
   | _+1, _+1, _+1 => by simp only [Nat.succ_max_succ]; exact congrArg succ <| Nat.max_assoc ..
 instance : Std.Associative (α := Nat) max := ⟨Nat.max_assoc⟩
 
-@[simp] theorem max_add_left_self {a b : Nat} : max a (b + a) = b + a := by
-  rw [Nat.max_def]
+theorem max_add_left_self {a b : Nat} : max a (b + a) = b + a := by
   simp
-@[simp] theorem max_add_right_self {a b : Nat} : max a (a + b) = a + b := by
-  rw [Nat.max_def]
+theorem max_add_right_self {a b : Nat} : max a (a + b) = a + b := by
   simp
-@[simp] theorem add_left_max_self {a b : Nat} : max (b + a) a = b + a := by
-  rw [Nat.max_comm, max_add_left_self]
-@[simp] theorem add_right_max_self {a b : Nat} : max (a + b) a = a + b := by
-  rw [Nat.max_comm, max_add_right_self]
+theorem add_left_max_self {a b : Nat} : max (b + a) a = b + a := by
+  simp
+theorem add_right_max_self {a b : Nat} : max (a + b) a = a + b := by
+  simp
 
 protected theorem sub_add_eq_max (a b : Nat) : a - b + b = max a b := by
   match Nat.le_total a b with
@@ -814,10 +810,8 @@ theorem sub_mul_mod {x k n : Nat} (h₁ : n*k ≤ x) : (x - n*k) % n = x % n := 
       simp [mul_succ, Nat.add_comm] at h₁; simp [h₁]
     rw [mul_succ, ← Nat.sub_sub, ← mod_eq_sub_mod h₄, sub_mul_mod h₂]
 
-@[simp] theorem mod_mod (a n : Nat) : (a % n) % n = a % n :=
-  match eq_zero_or_pos n with
-  | .inl n0 => by simp [n0, mod_zero]
-  | .inr npos => Nat.mod_eq_of_lt (mod_lt _ npos)
+theorem mod_mod (a n : Nat) : (a % n) % n = a % n := by
+  simp
 
 theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
   rw (occs := [1]) [← mod_add_div a n]

@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Vector_finRange(lean_object*);
 static lean_object* l_Vector_finRange___closed__1;
 lean_object* l_Array_ofFn___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_finRange___lambda__1___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Vector_finRange___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_finRange___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_finRange___lambda__1(lean_object* x_1) {
 _start:
@@ -48,15 +47,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Vector_finRange___lambda__1(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Vector_finRange___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Vector_finRange(x_1);
 lean_dec(x_1);
 return x_2;
 }

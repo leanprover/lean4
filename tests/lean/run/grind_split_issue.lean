@@ -11,13 +11,13 @@ c : Nat
 q : X c 0
 s : Nat
 h : 0 = s
-h_1 : HEq ⋯ ⋯
+h_1 : ⋯ ≍ ⋯
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
     [prop] X c 0
     [prop] 0 = s
-    [prop] HEq ⋯ ⋯
+    [prop] ⋯ ≍ ⋯
   [eqc] True propositions
     [prop] X c 0
     [prop] X c s

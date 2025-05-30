@@ -40,12 +40,12 @@ theorem countP_push {a : α} {xs : Vector α n} : countP p (xs.push a) = countP 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_push]
 
-@[simp] theorem countP_singleton {a : α} : countP p #v[a] = if p a then 1 else 0 := by
-  simp [countP_push]
+theorem countP_singleton {a : α} : countP p #v[a] = if p a then 1 else 0 := by
+  simp
 
 theorem size_eq_countP_add_countP {xs : Vector α n} : n = countP p xs + countP (fun a => ¬p a) xs := by
   rcases xs with ⟨xs, rfl⟩
-  simp [List.length_eq_countP_add_countP (p := p)]
+  simp [Array.size_eq_countP_add_countP (p := p)]
 
 theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   rcases xs with ⟨xs, rfl⟩

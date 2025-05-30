@@ -215,7 +215,7 @@ variable [Decidable u]
 
 -- Complement
 -- Note. We may want to revisit this.
---   Decidable excluded middle currently does not simplify.
+--   Decidable Excluded Middle currently does not simplify.
 #check_simp ( u ∨  ¬u) !~>
 #check_simp (¬u ∨   u) !~>
 #check_simp ( b || ¬b)  ~> true

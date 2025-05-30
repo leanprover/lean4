@@ -16,18 +16,18 @@ section Step
 variable {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
   [Iterator α m β] {it : IterM (α := α) m β}
 
-theorem IterM.step_filterMapWithProof {f : β → PostconditionT n (Option β')}
+theorem IterM.step_filterMapWithPostcondition {f : β → PostconditionT n (Option β')}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
-  (it.filterMapWithProof f).step = (do
+  (it.filterMapWithPostcondition f).step = (do
     match ← it.step with
     | .yield it' out h => do
       match ← (f out).operation with
       | ⟨none, h'⟩ =>
-        pure <| .skip (it'.filterMapWithProof f) (.yieldNone (out := out) h h')
+        pure <| .skip (it'.filterMapWithPostcondition f) (.yieldNone (out := out) h h')
       | ⟨some out', h'⟩ =>
-        pure <| .yield (it'.filterMapWithProof f) out' (.yieldSome (out := out) h h')
+        pure <| .yield (it'.filterMapWithPostcondition f) out' (.yieldSome (out := out) h h')
     | .skip it' h =>
-      pure <| .skip (it'.filterMapWithProof f) (.skip h)
+      pure <| .skip (it'.filterMapWithPostcondition f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
   apply bind_congr
@@ -41,18 +41,18 @@ theorem IterM.step_filterMapWithProof {f : β → PostconditionT n (Option β')}
   | .skip it' h => rfl
   | .done h => rfl
 
-theorem IterM.step_filterWithProof {f : β → PostconditionT n (ULift Bool)}
+theorem IterM.step_filterWithPostcondition {f : β → PostconditionT n (ULift Bool)}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
-  (it.filterWithProof f).step = (do
+  (it.filterWithPostcondition f).step = (do
     match ← it.step with
     | .yield it' out h => do
       match ← (f out).operation with
       | ⟨.up false, h'⟩ =>
-        pure <| .skip (it'.filterWithProof f) (.yieldNone (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+        pure <| .skip (it'.filterWithPostcondition f) (.yieldNone (out := out) h ⟨⟨_, h'⟩, rfl⟩)
       | ⟨.up true, h'⟩ =>
-        pure <| .yield (it'.filterWithProof f) out (.yieldSome (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+        pure <| .yield (it'.filterWithPostcondition f) out (.yieldSome (out := out) h ⟨⟨_, h'⟩, rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.filterWithProof f) (.skip h)
+      pure <| .skip (it'.filterWithPostcondition f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
   apply bind_congr
@@ -67,15 +67,15 @@ theorem IterM.step_filterWithProof {f : β → PostconditionT n (ULift Bool)}
   | .skip it' h => rfl
   | .done h => rfl
 
-theorem IterM.step_mapWithProof {γ : Type w} {f : β → PostconditionT n γ}
+theorem IterM.step_mapWithPostcondition {γ : Type w} {f : β → PostconditionT n γ}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
-  (it.mapWithProof f).step = (do
+  (it.mapWithPostcondition f).step = (do
     match ← it.step with
     | .yield it' out h => do
       let out' ← (f out).operation
-      pure <| .yield (it'.mapWithProof f) out'.1 (.yieldSome h ⟨out', rfl⟩)
+      pure <| .yield (it'.mapWithPostcondition f) out'.1 (.yieldSome h ⟨out', rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.mapWithProof f) (.skip h)
+      pure <| .skip (it'.mapWithPostcondition f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
   apply bind_congr
@@ -174,7 +174,7 @@ theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
       pure <| .skip (it'.filterMap f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [IterM.filterMap, step_filterMapWithProof, pure]
+  simp only [IterM.filterMap, step_filterMapWithPostcondition, pure]
   apply bind_congr
   intro step
   split
@@ -192,7 +192,7 @@ theorem IterM.step_map [Monad m] [LawfulMonad m] {f : β → β'} :
     | .skip it' h =>
       pure <| .skip (it'.map f) (.skip h)
     | .done h => pure <| .done (.done h)) := by
-  simp only [map, IterM.step_mapWithProof]
+  simp only [map, IterM.step_mapWithPostcondition]
   apply bind_congr
   intro step
   split
@@ -240,7 +240,7 @@ instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} 
     letI : MonadLift m n := ⟨lift (δ := _)⟩
     letI : MonadLift n o := ⟨lift' (α := _)⟩
     ext g it
-    have : it = IterM.mapWithProof _ it.internalState.inner := by rfl
+    have : it = IterM.mapWithPostcondition _ it.internalState.inner := by rfl
     generalize it.internalState.inner = it at *
     cases this
     simp only [LawfulIteratorCollect.toArrayMapped_eq]
@@ -250,7 +250,7 @@ instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} 
     rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
     rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
     simp only [bind_assoc]
-    rw [IterM.step_mapWithProof]
+    rw [IterM.step_mapWithPostcondition]
     simp only [liftM_bind (m := n) (n := o), bind_assoc]
     apply bind_congr
     intro step
@@ -262,7 +262,7 @@ instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} 
       simp only [← ih_yield ‹_›]
       rfl
     · simp only [bind_pure_comp, pure_bind, liftM_pure, pure_bind, ← ih_skip ‹_›]
-      simp only [IterM.mapWithProof, IterM.InternalCombinators.map, internalState_toIterM]
+      simp only [IterM.mapWithPostcondition, IterM.InternalCombinators.map, internalState_toIterM]
     · simp
 
 end Lawful
@@ -347,8 +347,8 @@ theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'} [Monad m]
   · simp only [instIteratorMap, inferInstanceAs, Function.comp_apply]
     congr
     simp
-  · simp only [map, mapWithProof, InternalCombinators.map, Function.comp_apply, filterMap,
-    filterMapWithProof, InternalCombinators.filterMap]
+  · simp only [map, mapWithPostcondition, InternalCombinators.map, Function.comp_apply, filterMap,
+    filterMapWithPostcondition, InternalCombinators.filterMap]
     congr
     · simp [Map]
     · simp

@@ -13,18 +13,18 @@ namespace Std.Iterators
 variable {α β γ : Type w} [Iterator α Id β] {it : Iter (α := α) β}
     {m : Type w → Type w'} {n : Type w → Type w''}
 
-theorem Iter.filterMapWithProof_eq_toIter_filterMapWithProof_toIterM [Monad m]
+theorem Iter.filterMapWithPostcondition_eq_toIter_filterMapWithPostcondition_toIterM [Monad m]
     {f : β → PostconditionT m (Option γ)} :
-    it.filterMapWithProof f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapWithProof f) :=
+    it.filterMapWithPostcondition f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapWithPostcondition f) :=
   rfl
 
-theorem Iter.filterWithProof_eq_toIter_filterMapWithProof_toIterM [Monad m]
+theorem Iter.filterWithPostcondition_eq_toIter_filterMapWithPostcondition_toIterM [Monad m]
     {f : β → PostconditionT m (ULift Bool)} :
-    it.filterWithProof f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterWithProof f) :=
+    it.filterWithPostcondition f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterWithPostcondition f) :=
   rfl
 
-theorem Iter.mapWithProof_eq_toIter_mapWithProof_toIterM [Monad m] {f : β → PostconditionT m γ} :
-    it.mapWithProof f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapWithProof f) :=
+theorem Iter.mapWithPostcondition_eq_toIter_mapWithPostcondition_toIterM [Monad m] {f : β → PostconditionT m γ} :
+    it.mapWithPostcondition f = (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapWithPostcondition f) :=
   rfl
 
 theorem Iter.filterMapM_eq_toIter_filterMapM_toIterM [Monad m] {f : β → m (Option γ)} :
@@ -51,21 +51,21 @@ theorem Iter.filter_eq_toIter_filter_toIterM [Monad m] {f : β → Bool} :
     it.filter f = (it.toIterM.filter f).toIter :=
   rfl
 
-theorem Iter.step_filterMapWithProof {f : β → PostconditionT n (Option γ)}
+theorem Iter.step_filterMapWithPostcondition {f : β → PostconditionT n (Option γ)}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
-  (it.filterMapWithProof f).step = (do
+  (it.filterMapWithPostcondition f).step = (do
     match it.step with
     | .yield it' out h => do
       match ← (f out).operation with
       | ⟨none, h'⟩ =>
-        pure <| .skip (it'.filterMapWithProof f) (.yieldNone (out := out) h h')
+        pure <| .skip (it'.filterMapWithPostcondition f) (.yieldNone (out := out) h h')
       | ⟨some out', h'⟩ =>
-        pure <| .yield (it'.filterMapWithProof f) out' (.yieldSome (out := out) h h')
+        pure <| .yield (it'.filterMapWithPostcondition f) out' (.yieldSome (out := out) h h')
     | .skip it' h =>
-      pure <| .skip (it'.filterMapWithProof f) (.skip h)
+      pure <| .skip (it'.filterMapWithPostcondition f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [filterMapWithProof_eq_toIter_filterMapWithProof_toIterM, IterM.step_filterMapWithProof,
+  simp only [filterMapWithPostcondition_eq_toIter_filterMapWithPostcondition_toIterM, IterM.step_filterMapWithPostcondition,
     step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
@@ -78,21 +78,21 @@ theorem Iter.step_filterMapWithProof {f : β → PostconditionT n (Option γ)}
   | .skip it' h => rfl
   | .done h => rfl
 
-theorem Iter.step_filterWithProof {f : β → PostconditionT n (ULift Bool)}
+theorem Iter.step_filterWithPostcondition {f : β → PostconditionT n (ULift Bool)}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
-  (it.filterWithProof f).step = (do
+  (it.filterWithPostcondition f).step = (do
     match it.step with
     | .yield it' out h => do
       match ← (f out).operation with
       | ⟨.up false, h'⟩ =>
-        pure <| .skip (it'.filterWithProof f) (.yieldNone (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+        pure <| .skip (it'.filterWithPostcondition f) (.yieldNone (out := out) h ⟨⟨_, h'⟩, rfl⟩)
       | ⟨.up true, h'⟩ =>
-        pure <| .yield (it'.filterWithProof f) out (.yieldSome (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+        pure <| .yield (it'.filterWithPostcondition f) out (.yieldSome (out := out) h ⟨⟨_, h'⟩, rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.filterWithProof f) (.skip h)
+      pure <| .skip (it'.filterWithPostcondition f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [filterWithProof_eq_toIter_filterMapWithProof_toIterM, IterM.step_filterWithProof, step]
+  simp only [filterWithPostcondition_eq_toIter_filterMapWithPostcondition_toIterM, IterM.step_filterWithPostcondition, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with
@@ -104,18 +104,18 @@ theorem Iter.step_filterWithProof {f : β → PostconditionT n (ULift Bool)}
   | .skip it' h => rfl
   | .done h => rfl
 
-theorem Iter.step_mapWithProof {f : β → PostconditionT n γ}
+theorem Iter.step_mapWithPostcondition {f : β → PostconditionT n γ}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
-  (it.mapWithProof f).step = (do
+  (it.mapWithPostcondition f).step = (do
     match it.step with
     | .yield it' out h => do
       let out' ← (f out).operation
-      pure <| .yield (it'.mapWithProof f) out'.1 (.yieldSome h ⟨out', rfl⟩)
+      pure <| .yield (it'.mapWithPostcondition f) out'.1 (.yieldSome h ⟨out', rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.mapWithProof f) (.skip h)
+      pure <| .skip (it'.mapWithPostcondition f) (.skip h)
     | .done h =>
       pure <| .done (.done h)) := by
-  simp only [mapWithProof_eq_toIter_mapWithProof_toIterM, IterM.step_mapWithProof, step]
+  simp only [mapWithPostcondition_eq_toIter_mapWithPostcondition_toIterM, IterM.step_mapWithPostcondition, step]
   simp only [liftM, monadLift, pure_bind]
   generalize it.toIterM.step = step
   match step with

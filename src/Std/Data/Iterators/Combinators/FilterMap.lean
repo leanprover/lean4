@@ -21,8 +21,8 @@ Several variants of these combinators are provided:
 * `M` suffix: Instead of a pure function, these variants take a monadic function. Given a suitable
   `MonadLiftT` instance, they also allow lifting the iterator to another monad first and then
   applying the mapping function in this monad.
-* `WithProof` suffix: These variants take a monadic function where the return type in the monad
-  is a subtype. This variant is in rare cases necessary for the intrinsic verification of an
+* `WithPostcondition` suffix: These variants take a monadic function where the return type in the
+  monad is a subtype. This variant is in rare cases necessary for the intrinsic verification of an
   iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
@@ -35,7 +35,7 @@ namespace Std.Iterators
 dependent types and termination proofs. The variants `filterMap` and `filterMapM` are easier to use
 and sufficient for most use cases.*
 
-If `it` is an iterator, then `it.filterMapWithProof f` is another iterator that applies a monadic
+If `it` is an iterator, then `it.filterMapWithPostcondition f` is another iterator that applies a monadic
 function `f` to all values emitted by `it`. `f` is expected to return an `Option` inside the monad.
 If `f` returns `none`, then nothing is emitted; if it returns `some x`, then `x` is emitted.
 
@@ -48,7 +48,7 @@ of `f`.
 
 ```text
 it                        ---a --b--c --d-e--⊥
-it.filterMapWithProof     ---a'-----c'-------⊥
+it.filterMapWithPostcondition     ---a'-----c'-------⊥
 ```
 
 (given that `f a = pure (some a)'`, `f c = pure (some c')` and `f b = f d = d e = pure none`)
@@ -61,8 +61,8 @@ it.filterMapWithProof     ---a'-----c'-------⊥
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
 this combinator will preserve productiveness. If `f` is an `ExceptT` monad and will always fail,
-then `it.filterMapWithProof` will be finite even if `it` isn't. In the first case, consider
-using the `map`/`mapM`/`mapWithProof` combinators instead, which provide more instances out of
+then `it.filterMapWithPostcondition` will be finite even if `it` isn't. In the first case, consider
+using the `map`/`mapM`/`mapWithPostcondition` combinators instead, which provide more instances out of
 the box.
 
 In such situations, the missing instances can be proved manually if the postcondition bundled in
@@ -76,16 +76,16 @@ For each value emitted by the base iterator `it`, this combinator calls `f` and 
 returned `Option` value.
 -/
 @[always_inline, inline]
-def Iter.filterMapWithProof {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
+def Iter.filterMapWithPostcondition {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] (f : β → PostconditionT m (Option γ)) (it : Iter (α := α) β) :=
-  (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapWithProof f : IterM m γ)
+  (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapWithPostcondition f : IterM m γ)
 
 /--
 *Note: This is a very general combinator that requires an advanced understanding of monads,
 dependent types and termination proofs. The variants `filter` and `filterM` are easier to use and
 sufficient for most use cases.*
 
-If `it` is an iterator, then `it.filterWithProof f` is another iterator that applies a monadic
+If `it` is an iterator, then `it.filterWithPostcondition f` is another iterator that applies a monadic
 predicate `f` to all values emitted by `it` and emits them only if they are accepted by `f`.
 
 `f` is expected to return `PostconditionT n (ULift Bool)`, where `n` is an arbitrary monad.
@@ -97,7 +97,7 @@ of `f`.
 
 ```text
 it                     ---a--b--c--d-e--⊥
-it.filterWithProof     ---a-----c-------⊥
+it.filterWithPostcondition     ---a-----c-------⊥
 ```
 
 (given that `f a = f c = pure true` and `f b = f d = d e = pure false`)
@@ -109,7 +109,8 @@ it.filterWithProof     ---a-----c-------⊥
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
-will always fail, then `it.filterWithProof` will be finite -- and productive -- even if `it` isn't.
+will always fail, then `it.filterWithPostcondition` will be finite -- and productive -- even if `it`
+isn't.
 
 In such situations, the missing instances can be proved manually if the postcondition bundled in
 the `PostconditionT n` monad is strong enough. In the given example, a suitable postcondition might
@@ -120,16 +121,16 @@ be `fun _ => False`.
 For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[always_inline, inline]
-def Iter.filterWithProof {α β : Type w} [Iterator α Id β] {m : Type w → Type w'}
+def Iter.filterWithPostcondition {α β : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] (f : β → PostconditionT m (ULift Bool)) (it : Iter (α := α) β) :=
-  (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterWithProof f : IterM m β)
+  (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterWithPostcondition f : IterM m β)
 
 /--
 *Note: This is a very general combinator that requires an advanced understanding of monads,
 dependent types and termination proofs. The variants `map` and `mapM` are easier to use and
 sufficient for most use cases.*
 
-If `it` is an iterator, then `it.mapWithProof f` is another iterator that applies a monadic
+If `it` is an iterator, then `it.mapWithPostcondition f` is another iterator that applies a monadic
 function `f` to all values emitted by `it` and emits the result.
 
 `f` is expected to return `PostconditionT n _`, where `n` is an arbitrary monad.
@@ -141,7 +142,7 @@ of `f`.
 
 ```text
 it                  ---a --b --c --d -e ----⊥
-it.mapWithProof     ---a'--b'--c'--d'-e'----⊥
+it.mapWithPostcondition     ---a'--b'--c'--d'-e'----⊥
 ```
 
 (given that `f a = pure a'`, `f b = pure b'` etc.)
@@ -153,7 +154,7 @@ it.mapWithProof     ---a'--b'--c'--d'-e'----⊥
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
-will always fail, then `it.mapWithProof` will be finite even if `it` isn't.
+will always fail, then `it.mapWithPostcondition` will be finite even if `it` isn't.
 
 In such situations, the missing instances can be proved manually if the postcondition bundled in
 the `PostconditionT n` monad is strong enough. In the given example, a suitable postcondition might
@@ -164,9 +165,9 @@ be `fun _ => False`.
 For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[always_inline, inline]
-def Iter.mapWithProof {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
+def Iter.mapWithPostcondition {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] (f : β → PostconditionT m γ) (it : Iter (α := α) β) :=
-  (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapWithProof f : IterM m γ)
+  (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapWithPostcondition f : IterM m γ)
 
 /--
 If `it` is an iterator, then `it.filterMapM f` is another iterator that applies a monadic
@@ -193,11 +194,11 @@ For certain mapping functions `f`, the resulting iterator will be finite (or pro
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
 this combinator will preserve productiveness. If `f` is an `ExceptT` monad and will always fail,
 then `it.filterMapM` will be finite even if `it` isn't. In the first case, consider
-using the `map`/`mapM`/`mapWithProof` combinators instead, which provide more instances out of
-the box.
+using the `map`/`mapM`/`mapWithPostcondition` combinators instead, which provide more instances out
+of the box.
 
-If that does not help, the more general combinator `it.filterMapWithProof f` makes it possible to
-manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+If that does not help, the more general combinator `it.filterMapWithPostcondition f` makes it
+possible to manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
 
 **Performance:**
 
@@ -231,9 +232,10 @@ it.filterM     ---a-----c-------⊥
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
-will always fail, then `it.filterWithProof` will be finite -- and productive -- even if `it` isn't.
+will always fail, then `it.filterWithPostcondition` will be finite -- and productive -- even if `it`
+isn't.
 
-In such situations, the more general combinator `it.filterWithProof f` makes it possible to
+In such situations, the more general combinator `it.filterWithPostcondition f` makes it possible to
 manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
 
 **Performance:**
@@ -272,7 +274,7 @@ For certain mapping functions `f`, the resulting iterator will be finite (or pro
 no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
 will always fail, then `it.mapM` will be finite even if `it` isn't.
 
-If that does not help, the more general combinator `it.mapWithProof f` makes it possible to
+If that does not help, the more general combinator `it.mapWithPostcondition f` makes it possible to
 manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
 
 **Performance:**

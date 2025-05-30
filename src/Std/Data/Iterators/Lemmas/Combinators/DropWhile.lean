@@ -100,12 +100,21 @@ theorem Iter.toList_intermediateDropWhile_of_finite {α β} [Iterator α Id β] 
     simp [ihs hp]
   · simp
 
+@[simp]
 theorem Iter.toList_dropWhile_of_finite {α β} [Iterator α Id β] {P}
     [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.dropWhile P).toList = it.toList.dropWhile P := by
   simp [dropWhile_eq_intermediateDropWhile, toList_intermediateDropWhile_of_finite]
 
+@[simp]
+theorem Iter.toArray_dropWhile_of_finite {α β} [Iterator α Id β] {P}
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} :
+    (it.dropWhile P).toArray = (it.toList.dropWhile P).toArray := by
+  simp only [← toArray_toList, toList_dropWhile_of_finite]
+
+@[simp]
 theorem Iter.toListRev_dropWhile_of_finite {α β} [Iterator α Id β] {P}
     [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :

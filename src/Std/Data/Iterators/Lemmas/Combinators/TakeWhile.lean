@@ -5,7 +5,6 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Combinators.TakeWhile
-import Std.Data.Iterators.Consumers.Access
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile
 import Std.Data.Iterators.Lemmas.Consumers
 
@@ -110,6 +109,7 @@ private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
       specialize h 0
       simp_all
 
+@[simp]
 theorem Iter.toList_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
@@ -117,12 +117,14 @@ theorem Iter.toList_takeWhile_of_finite {α β} [Iterator α Id β] {P}
   ext
   simp only [getElem?_toList_eq_atIdxSlow?, atIdxSlow?_takeWhile, List.getElem?_takeWhile]
 
+@[simp]
 theorem Iter.toListRev_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.takeWhile P).toListRev = (it.toList.takeWhile P).reverse := by
   rw [toListRev_eq, toList_takeWhile_of_finite]
 
+@[simp]
 theorem Iter.toArray_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :

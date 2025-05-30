@@ -182,3 +182,29 @@ example : ([1, 2, 3].iter.zip ["one", "two"].iter).toArray =
   simp
 
 end Zip
+
+section TakeWhile
+
+example : ([1, 2, 3, 4].iter.takeWhile (· ≠ 3)).toList = [1, 2] := by
+  simp
+
+example : ([1, 2, 3, 4].iter.takeWhile (· ≠ 3)).toArray = #[1, 2] := by
+  simp
+
+example : ([1, 2, 3, 4].iter.takeWhile (· ≠ 3)).toListRev = [2, 1] := by
+  simp
+
+end TakeWhile
+
+section DropWhile
+
+example : ([1, 2, 3, 4].iter.dropWhile (· ≠ 3)).toList = [3, 4] := by
+  simp
+
+example : ([1, 2, 3, 4].iter.dropWhile (· ≠ 3)).toArray = #[3, 4] := by
+  simp
+
+example : ([1, 2, 3, 4].iter.dropWhile (· ≠ 3)).toListRev = [4, 3] := by
+  simp
+
+end DropWhile

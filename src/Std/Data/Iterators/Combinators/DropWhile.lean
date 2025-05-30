@@ -42,7 +42,7 @@ it.dropWhile P   --------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: not available
+* `Productive` instance: only if `it` is finite
 
 Depending on `P`, it is possible that `it.dropWhileM P` is productive although
 `it` is not. In this case, the `Productive` instance needs to be proved manually.

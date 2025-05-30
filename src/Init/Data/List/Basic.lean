@@ -2096,7 +2096,7 @@ where
   | 0,   acc => acc
   | n+1, acc => loop n (n::acc)
 
-@[simp] theorem range_zero : range 0 = [] := rfl
+@[simp, grind =] theorem range_zero : range 0 = [] := rfl
 
 /-! ### range' -/
 

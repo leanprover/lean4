@@ -10,31 +10,120 @@ import Std.Data.Iterators.Consumers.Collect
 import Std.Data.Iterators.Consumers.Loop
 import Std.Data.Iterators.Internal.Termination
 
+/-!
+
+# Monadic `zip` combinator
+
+This file provides an iterator combinator `IterM.zip` that combines two iterators into an iterator
+of pairs.
+-/
+
+namespace Option
+
+/- TODO: move this to Init.Data.Option -/
+namespace SomeLtNone
+
+/--
+Lifts an ordering relation to `Option`, such that `none` is the greatest element.
+
+It can be understood as adding a distinguished greatest element, represented by `none`, to both `α`
+and `β`.
+
+Caution: Given `LT α`, `Option.SomeLtNone.lt LT.lt` differs from the `LT (Option α)` instance,
+which is implemented by `Option.lt Lt.lt`.
+
+Examples:
+ * `Option.lt (fun n k : Nat => n < k) none none = False`
+ * `Option.lt (fun n k : Nat => n < k) none (some 3) = False`
+ * `Option.lt (fun n k : Nat => n < k) (some 3) none = True`
+ * `Option.lt (fun n k : Nat => n < k) (some 4) (some 5) = True`
+ * `Option.lt (fun n k : Nat => n < k) (some 4) (some 4) = False`
+-/
+def lt {α} (r : α → α → Prop) : Option α → Option α → Prop
+  | none, _ => false
+  | some _, none => true
+  | some a', some a => r a' a
+
+end SomeLtNone
+
+/- TODO: Move these to Init.Data.Option.Lemmas in a separate PR -/
+theorem wellFounded_lt {α} {rel : α → α → Prop} (h : WellFounded rel) :
+    WellFounded (Option.lt rel) := by
+  refine ⟨fun x => ?_⟩
+  have hn : Acc (Option.lt rel) none := by
+    refine Acc.intro none ?_
+    intro y hyx
+    cases y <;> cases hyx
+  cases x
+  · exact hn
+  · rename_i x
+    induction h.apply x
+    rename_i x' h ih
+    refine Acc.intro _ ?_
+    intro y hyx'
+    cases y
+    · exact hn
+    · exact ih _ hyx'
+
+theorem SomeLtNone.wellFounded_lt {α} {r : α → α → Prop} (h : WellFounded r) :
+    WellFounded (SomeLtNone.lt r) := by
+  refine ⟨?_⟩
+  intro x
+  constructor
+  intro x' hlt
+  match x' with
+  | none => contradiction
+  | some x' =>
+    clear hlt
+    induction h.apply x'
+    rename_i ih
+    constructor
+    intro x'' hlt'
+    match x'' with
+    | none => contradiction
+    | some x'' => exact ih x'' hlt'
+
+end Option
+
 namespace Std.Iterators
 
 variable {m : Type w → Type w'}
   {α₁ : Type w} {β₁ : Type w} [Iterator α₁ m β₁]
   {α₂ : Type w} {β₂ : Type w} [Iterator α₂ m β₂]
 
+/--
+Internal state of the `zip` combinator. Do not depend on its internals.
+-/
 @[unbox]
 structure Zip (α₁ : Type w) (m : Type w → Type w') {β₁ : Type w} [Iterator α₁ m β₁] (α₂ : Type w) (β₂ : Type w) where
   left : IterM (α := α₁) m β₁
   memoizedLeft : (Option { out : β₁ // ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out })
   right : IterM (α := α₂) m β₂
 
+/--
+`it.PlausibleStep step` is the proposition that `step` is a possible next step from the
+`zip` iterator `it`. This is mostly internally relevant, except if one needs to manually
+prove termination (`Finite` or `Productive` instances, for example) of a `zip` iterator.
+-/
 inductive Zip.PlausibleStep (it : IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)) :
     IterStep (IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)) (β₁ × β₂) → Prop where
-  | yieldLeft (hm : it.internalState.memoizedLeft = none) {it' out} (hp : it.internalState.left.IsPlausibleStep (.yield it' out)) :
+  | yieldLeft (hm : it.internalState.memoizedLeft = none) {it' out}
+      (hp : it.internalState.left.IsPlausibleStep (.yield it' out)) :
       PlausibleStep it (.skip ⟨⟨it', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩)
-  | skipLeft (hm : it.internalState.memoizedLeft = none) {it'} (hp : it.internalState.left.IsPlausibleStep (.skip it')) :
+  | skipLeft (hm : it.internalState.memoizedLeft = none) {it'}
+      (hp : it.internalState.left.IsPlausibleStep (.skip it')) :
       PlausibleStep it (.skip ⟨⟨it', none, it.internalState.right⟩⟩)
-  | doneLeft (hm : it.internalState.memoizedLeft = none) (hp : it.internalState.left.IsPlausibleStep .done) :
+  | doneLeft (hm : it.internalState.memoizedLeft = none)
+      (hp : it.internalState.left.IsPlausibleStep .done) :
       PlausibleStep it .done
-  | yieldRight {out₁} (hm : it.internalState.memoizedLeft = some out₁) {it₂' out₂} (hp : it.internalState.right.IsPlausibleStep (.yield it₂' out₂)) :
+  | yieldRight {out₁} (hm : it.internalState.memoizedLeft = some out₁) {it₂' out₂}
+      (hp : it.internalState.right.IsPlausibleStep (.yield it₂' out₂)) :
       PlausibleStep it (.yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂))
-  | skipRight {out₁} (hm : it.internalState.memoizedLeft = some out₁) {it₂'} (hp : it.internalState.right.IsPlausibleStep (.skip it₂')) :
+  | skipRight {out₁} (hm : it.internalState.memoizedLeft = some out₁) {it₂'}
+      (hp : it.internalState.right.IsPlausibleStep (.skip it₂')) :
       PlausibleStep it (.skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩)
-  | doneRight {out₁} (hm : it.internalState.memoizedLeft = some out₁) (hp : it.internalState.right.IsPlausibleStep .done) :
+  | doneRight {out₁} (hm : it.internalState.memoizedLeft = some out₁)
+      (hp : it.internalState.right.IsPlausibleStep .done) :
       PlausibleStep it .done
 
 instance Zip.instIterator [Monad m] :

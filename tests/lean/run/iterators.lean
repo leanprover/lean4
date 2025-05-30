@@ -166,3 +166,11 @@ fun
 #eval ["Lean", "is", "fun"].iter.mapM (IO.println s!"{·}") |>.drain
 
 end FilterMap
+
+section Zip
+
+example : ([1, 2, 3].iter.zip ["one", "two"].iter).toList =
+    [(1, "one"), (2, "two")] := by
+  simp
+
+end Zip

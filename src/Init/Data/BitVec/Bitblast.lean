@@ -3044,17 +3044,12 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
                 simp [h11] at h6
                 omega
               · -- show contra
-                by_cases h12 : w + 1 + 1 - x.clz = 0
-                · simp [h12] at h5
-                  omega
-                · simp_all
-                  have : x.clz ≤ w + 1 := by omega
-                  have : x.clz < w + 1 + 1 := by omega
-                  have h13 : w + 1 + 1 - x.clz - 1 = w + 1 - x.clz := by omega
-                  have h14 : w + 1 - x.clz + w + 1 + 1 - y.clz - 1 = w + 1 - x.clz + w + 1 - y.clz := by omega
-                  simp [h13, h14] at h6
-                  have : w + 1 - x.clz + w + 1 - y.clz = w + w + 1 + 1 - x.clz - y.clz := by omega
-                  sorry
+                simp at h'
+                have h12 := Nat.mul_lt_mul'' (a := x.toNat) (b := y.toNat) (c := 2 ^ (w + 1 + 1 - x.clz)) (d := 2 ^ (w + 1 + 1 - y.clz)) (by omega) (by omega)
+                simp [← Nat.pow_add] at h12
+                have := Nat.pow_le_pow_of_le (a := 2) (n := w + 1 + 1 - x.clz + (w + 1 + 1 - y.clz)) (m := w + 1 + 1 + 1)
+                 (by omega) (by omega)
+                omega
     · intro h
       simp [umulOverflow]
       simp only [bool_to_prop] at h

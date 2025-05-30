@@ -16,11 +16,6 @@ inductive cexec : com → Prop where
 @[grind] inductive red : com × Nat → com × Nat → Prop where
   | red_assign: ∀ s, red (.ASSIGN, s) (.SKIP, 0)
 
-/--
-The following theorem causes assertion violation in grind.
-We obtain the following:
-_private.Lean.Meta.Tactic.Grind.Inv.0.Lean.Meta.Grind.checkEqc Lean.Meta.Tactic.Grind.Inv:29:10: assertion violation: isSameExpr e ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv._hyg.31.0 )
--/
 theorem issue3 (s s' : Nat) (c : com) :
   star red (c, s) (.SKIP, s') → cexec c := by
     intro h
@@ -31,5 +26,9 @@ theorem issue3 (s s' : Nat) (c : com) :
     case star_refl =>
       sorry
     case star_step r _ a_ih =>
-      -- this is where the assertion violation happens
-      grind
+      /-
+      The following `grind` used to trigger an assertion violation:
+      _private.Lean.Meta.Tactic.Grind.Inv.0.Lean.Meta.Grind.checkEqc Lean.Meta.Tactic.Grind.Inv:29:10: assertion violation: isSameExpr e ( __do_lift._@.Lean.Meta.Tactic.Grind.Inv._hyg.31.0 )
+      -/
+      fail_if_success grind
+      sorry

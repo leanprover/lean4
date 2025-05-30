@@ -267,7 +267,7 @@ Can also be used for creating simple functions when combined with `·`. Here are
   - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`
   - also applies to other parentheses-like notations such as `(·, 1)`
 -/
-@[builtin_term_parser] def paren := leading_parser
+@[builtin_term_parser high] def paren := leading_parser
   "(" >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the

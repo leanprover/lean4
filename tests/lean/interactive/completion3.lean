@@ -18,12 +18,9 @@ def g1 (s : S) : Nat × Nat :=
   (s. )
    --^ textDocument/completion
 
--- temporarily disabled: `binderIdent` will need to use `identBeforeDot`
-/-
 def g2 (s : S) : Nat × Nat :=
   (s.
    --^ textDocument/completion
--/
 
 def g3 (s : S) : Nat × Nat :=
   (s. , 1, 2)

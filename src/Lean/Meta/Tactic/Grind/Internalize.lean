@@ -87,7 +87,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       else if (← getConfig).splitIndPred then
         addSplitCandidate (.default e)
   | .fvar .. =>
-    let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
+    let .const declName _ := (← whnf (← inferType e)).getAppFn | return ()
     if (← get).split.casesTypes.isSplit declName then
       addSplitCandidate (.default e)
   | .forallE _ d _ _ =>
@@ -201,7 +201,7 @@ these facts.
 -/
 private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
   unless (← getConfig).etaStruct do return ()
-  let aType ← whnfD (← inferType a)
+  let aType ← whnf (← inferType a)
   matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
     unless a.isAppOf ctorVal.name do
       -- TODO: remove ctorVal.numFields after update stage0
@@ -215,7 +215,9 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
           ctorApp := mkApp ctorApp proj
         ctorApp ← preprocessLight ctorApp
         internalize ctorApp generation
-        pushEq a ctorApp <| (← mkEqRefl a)
+        let u ← getLevel aType
+        let expectedProp := mkApp3 (mkConst ``Eq [u]) aType a ctorApp
+        pushEq a ctorApp <| mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [u]) aType a) expectedProp
 
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
 private def extParentsToIgnore (declName : Name) : Bool :=

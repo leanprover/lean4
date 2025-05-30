@@ -165,6 +165,21 @@ fun
 #guard_msgs in
 #eval ["Lean", "is", "fun"].iter.mapM (IO.println s!"{·}") |>.drain
 
+-- This example demonstrates that chained `mapM` calls are executed in a different order than with `List.mapM`.
+def chainedMapM (l : List Nat) : IO Unit :=
+  l.iterM IO |>.mapM (IO.println <| s!"1st {.}") |>.mapM (IO.println <| s!"2nd {·}") |>.drain
+
+/--
+info: 1st 1
+2nd ()
+1st 2
+2nd ()
+1st 3
+2nd ()
+-/
+#guard_msgs in
+#eval! chainedMapM [1, 2, 3]
+
 end FilterMap
 
 section Zip
@@ -208,3 +223,22 @@ example : ([1, 2, 3, 4].iter.dropWhile (· ≠ 3)).toListRev = [4, 3] := by
   simp
 
 end DropWhile
+
+section Repeat
+
+@[simp]
+def positives := Std.Iterators.Iter.repeat (init := 1) (· + 1)
+
+example : (positives.take 5).toList = [1, 2, 3, 4, 5] := by
+  simp
+
+@[simp]
+def divisors (n : Nat) := (positives.take n |>.filter (n % · = 0))
+
+@[simp]
+def isPrime (n : Nat) : Bool := (divisors n).toList.length == 2
+
+example : isPrime 5 := by
+  simp
+
+end Repeat

@@ -20,12 +20,16 @@ universe u v
 
 variable {α : Type w} {m : Type w → Type w'} {f : α → α}
 
+/--
+Internal state of the `repeat` combinator. Do not depend on its internals.
+-/
 @[unbox]
-structure UnfoldIterator (α : Type u) (f : α → α) where
+structure RepeatIterator (α : Type u) (f : α → α) where
+  /-- Internal implementation detail of the iterator library. -/
   next : α
 
 @[always_inline, inline]
-instance : Iterator (UnfoldIterator α f) Id α where
+instance : Iterator (RepeatIterator α f) Id α where
   IsPlausibleStep it
     | .yield it' out => out = it.internalState.next ∧ it' = ⟨⟨f it.internalState.next⟩⟩
     | .skip _ => False
@@ -35,44 +39,45 @@ instance : Iterator (UnfoldIterator α f) Id α where
 /--
 Creates an infinite iterator from an initial value `init` and a function `f : α → α`.
 First it yields `init`, and in each successive step, the iterator applies `f` to the previous value.
-So the iterator just emitted `a`, in the next step it will yield `f a`.
+So the iterator just emitted `a`, in the next step it will yield `f a`. In other words, the
+`n`-th value is `Nat.repeat f n init`.
 
 For example, if `f := (· + 1)` and `init := 0`, then the iterator emits all natural numbers in
 order.
 
 **Termination properties:**
 
-* `Finite` instance: not available and can never be proved
+* `Finite` instance: not available and never possible
 * `Productive` instance: always
 -/
 @[always_inline, inline]
-def Iter.unfold {α : Type w} (init : α) (f : α → α) :=
-  (⟨UnfoldIterator.mk (f := f) init⟩ : Iter α)
+def Iter.repeat {α : Type w} (f : α → α) (init : α) :=
+  (⟨RepeatIterator.mk (f := f) init⟩ : Iter α)
 
-private def UnfoldIterator.instProductivenessRelation :
-    ProductivenessRelation (UnfoldIterator α f) Id where
+private def RepeatIterator.instProductivenessRelation :
+    ProductivenessRelation (RepeatIterator α f) Id where
   rel := emptyWf.rel
   wf := emptyWf.wf
   subrelation {it it'} h := by cases h
 
-instance UnfoldIterator.instProductive :
-    Productive (UnfoldIterator α f) Id :=
+instance RepeatIterator.instProductive :
+    Productive (RepeatIterator α f) Id :=
   Productive.of_productivenessRelation instProductivenessRelation
 
-instance UnfoldIterator.instIteratorLoop {α : Type w} {f : α → α} {n : Type w → Type w'} [Monad n] :
-    IteratorLoop (UnfoldIterator α f) Id n :=
+instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → α} {n : Type w → Type w'} [Monad n] :
+    IteratorLoop (RepeatIterator α f) Id n :=
   .defaultImplementation
 
-instance UnfoldIterator.instIteratorLoopPartial {α : Type w} {f : α → α} {n : Type w → Type w'}
-    [Monad n] : IteratorLoopPartial (UnfoldIterator α f) Id n :=
+instance RepeatIterator.instIteratorLoopPartial {α : Type w} {f : α → α} {n : Type w → Type w'}
+    [Monad n] : IteratorLoopPartial (RepeatIterator α f) Id n :=
   .defaultImplementation
 
-instance UnfoldIterator.instIteratorCollect {α : Type w} {f : α → α} {n : Type w → Type w'}
-    [Monad n] : IteratorCollect (UnfoldIterator α f) Id n :=
+instance RepeatIterator.instIteratorCollect {α : Type w} {f : α → α} {n : Type w → Type w'}
+    [Monad n] : IteratorCollect (RepeatIterator α f) Id n :=
   .defaultImplementation
 
-instance UnfoldIterator.instIteratorCollectPartial {α : Type w} {f : α → α} {n : Type w → Type w'}
-    [Monad n] : IteratorCollectPartial (UnfoldIterator α f) Id n :=
+instance RepeatIterator.instIteratorCollectPartial {α : Type w} {f : α → α} {n : Type w → Type w'}
+    [Monad n] : IteratorCollectPartial (RepeatIterator α f) Id n :=
   .defaultImplementation
 
 end Std.Iterators

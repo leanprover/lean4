@@ -83,6 +83,7 @@ theorem Iter.toArray_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     (it.take n).toArray = it.toArray.take n := by
   rw [← toArray_toList, ← toArray_toList, List.take_toArray, toList_take_of_finite]
 
+@[simp]
 theorem Iter.toList_take_zero {α β} [Iterator α Id β]
     [Finite (Take α Id β) Id]
     [IteratorCollect (Take α Id β) Id Id] [LawfulIteratorCollect (Take α Id β) Id Id]

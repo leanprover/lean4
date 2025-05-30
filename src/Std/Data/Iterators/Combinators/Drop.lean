@@ -27,8 +27,6 @@ it.drop 3   ------⊥
 * `Finite` instance: only if `it` is finite
 * `Productive` instance: only if `it` is productive
 
-_TODO_: prove `Productive`
-
 **Performance:**
 
 Currently, this combinator incurs an additional O(1) cost with each output of `it`, even when the iterator

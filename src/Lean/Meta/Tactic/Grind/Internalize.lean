@@ -62,7 +62,7 @@ def isMorallyIff (e : Expr) : Bool :=
 private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   match h : e with
   | .app .. =>
-    if (← getConfig).splitIte && (e.isIte || e.isDIte) then
+    if (← getConfig).splitIte && (isIte e || isDIte e) then
       addSplitCandidate (.default e)
       return ()
     if isMorallyIff e then

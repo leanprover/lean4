@@ -817,7 +817,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
-  let key := { value := result.value, compile, isPrivate := isPrivateName name }
+  let key := { value := result.value, compile, isPrivate := env.header.isModule && isPrivateName name }
   let mut nameNew? := (matcherExt.getState env).find? key
   if nameNew?.isNone && key.isPrivate then
     -- private contexts may reuse public matchers

@@ -2,6 +2,15 @@ import Std.Data.HashMap
 
 set_option grind.warning false
 
+-- TODO
+attribute [grind =] Array.getElem_push
+
+@[grind _=_] theorem Array.set_pop {xs : Array α} {x : α} {i : Nat} (h : i < xs.pop.size) :
+    xs.pop.set i x h = (xs.set i x (by simp at h; omega)).pop := by
+  ext i h₁ h₂
+  · simp
+  · simp [getElem_set]
+
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| grind)
 
 open Std
@@ -81,13 +90,6 @@ instance [LawfulBEq α] [LawfulHashable α] : LawfulGetElem (IndexMap α β) α 
   getElem?_def := by grind [getElem?_pos]
   getElem!_def := by grind [getElem!_pos]
 
--- attribute [local grind?] IndexMap.WF -- Hmm, I'm not convinced about the pattern for this one.
-
--- @[local grind →] private theorem size_data_lt_of_getElem_indices (h : m.indices[a]? = some i) :
---     i < m.data.size := sorry
--- @[local grind →] private theorem getElem_keys_of_getElem_indices (h : m.indices[a]? = some i) :
---     m.keys[i] = a := sorry
-
 attribute [local grind _=_] IndexMap.WF
 
 @[inline] def insert [LawfulBEq α] (m : IndexMap α β) (a : α) (b : β) :
@@ -111,11 +113,13 @@ instance [LawfulBEq α] : Insert (α × β) (IndexMap α β) :=
 instance [LawfulBEq α] : LawfulSingleton (α × β) (IndexMap α β) :=
     ⟨fun _ => rfl⟩
 
+-- attribute [grind] Array.back_eq_getElem
+
 /--
 Erase the key-value pair with the given key, moving the last pair into its place in the order.
 If the key is not present, the map is unchanged.
 -/
-@[inline] def eraseSwap [LawfulBEq α] (m : IndexMap α β) (a : α) : IndexMap α β :=
+@[inline] def eraseSwap [LawfulBEq α] [LawfulHashable α] (m : IndexMap α β) (a : α) : IndexMap α β :=
   match h : m.indices[a]? with
   | some i =>
     if w : i = m.size - 1 then
@@ -128,7 +132,7 @@ If the key is not present, the map is unchanged.
       { indices := (m.indices.erase a).insert lastKey i
         keys := m.keys.pop.set i lastKey (by grind)
         values := m.values.pop.set i lastValue (by grind)
-        WF := sorry }
+        WF := by grind (gen := 10) (splits := 20) }
   | none => m
 
 /-! ### Verification theorems -/
@@ -143,9 +147,6 @@ variable [LawfulBEq α]
 @[grind] theorem mem_insert (m : IndexMap α β) (a a' : α) (b : β) :
     a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by
   grind
-
--- TODO
-attribute [grind] Array.getElem_push
 
 @[grind] theorem getElem_insert (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
     (m.insert a b)[a']'h = if h' : a' == a then b else m[a'] := by

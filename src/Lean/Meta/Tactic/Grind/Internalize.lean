@@ -215,7 +215,9 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
           ctorApp := mkApp ctorApp proj
         ctorApp ← preprocessLight ctorApp
         internalize ctorApp generation
-        pushEq a ctorApp <| (← mkEqRefl a)
+        let u ← getLevel aType
+        let expectedProp := mkApp3 (mkConst ``Eq [u]) aType a ctorApp
+        pushEq a ctorApp <| mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [u]) aType a) expectedProp
 
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
 private def extParentsToIgnore (declName : Name) : Bool :=

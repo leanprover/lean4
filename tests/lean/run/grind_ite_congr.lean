@@ -7,4 +7,4 @@ example : ((if (!false) = true then id else id) false) = false := by
   decide
 
 example : ((if (!false) = true then id else id) false) = false := by
-  grind -- fails
+  grind -- must not fail

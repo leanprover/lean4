@@ -25,7 +25,9 @@ not be used by downstream users of the library.
 -/
 @[unbox]
 structure ArrayIterator (α : Type w) where
+  /-- Internal implementation detail of the iterator library. -/
   array : Array α
+  /-- Internal implementation detail of the iterator library. -/
   pos : Nat
 
 /--
@@ -47,7 +49,8 @@ def _root_.Array.iterFromIdxM {α : Type w} (array : Array α) (m : Type w → T
 
 /--
 Returns a finite monadic iterator for the given array.
-The iterator yields the elements of the array in order and then terminates.
+The iterator yields the elements of the array in order and then terminates. There are no side
+effects.
 
 The pure version of this iterator is `Array.iter`.
 

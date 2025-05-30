@@ -84,7 +84,7 @@ theorem _root_.Array.toList_iterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toList = pure array.toList := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toList_iterFromIdxM]
 
--- TODO: Init.Data.Array.Lemmas (also used this in Std.Data.Iterators.Lemmas.Combinators.Drop)
+-- TODO: move to Init.Data.Array.Lemmas in a separate PR afterwards
 private theorem _root_.List.drop_toArray' {l : List α} {k : Nat} :
     l.toArray.drop k = (l.drop k).toArray := by
   induction l generalizing k

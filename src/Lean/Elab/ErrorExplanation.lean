@@ -38,15 +38,18 @@ def elabCheckedNamedError : TermElab
   | stx@`(throwNamedErrorAt $_ref $id:ident $_msg), expType?
   | stx@`(logNamedError $id:ident $_msg), expType?
   | stx@`(logNamedErrorAt $_ref $id:ident $_msg), expType? => do
+    logInfo m!"Calling elabCheckedNamedError; adding completion info with syntax {stx.setArgs (stx.getArgs[0:stx.getNumArgs - 1])}"
+    logInfo m!"Sanity check: is the ref equal to `stx`? {(← getRef) == stx}"
     let name := id.getId
     -- The message is unnecessary for completion:
     addCompletionInfo <| CompletionInfo.errorName (stx.setArgs (stx.getArgs[0:stx.getNumArgs - 1]))
-    pushInfoLeaf <| .ofErrorNameInfo { stx, errorName := name}
+    pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name}
     let some explan := getErrorExplanationRaw? (← getEnv) name
       | throwError m!"There is no explanation associated with the name `{name}`. \
         Add an explanation of this error to the `Lean.ErrorExplanation` module."
     if let some removedVersion := explan.metadata.removedVersion then
-      logWarningAt id m!"Error `{name}` was removed in version {removedVersion} and should not be used."
+      logWarningAt id m!"The error name `{name}` was removed in Lean version {removedVersion} and \
+        should not be used."
     let stx' ← liftMacroM <| expandThrowNamedError stx
     elabTerm stx' expType?
   | _, _ => throwUnsupportedSyntax

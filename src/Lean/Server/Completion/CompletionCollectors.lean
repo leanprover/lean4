@@ -535,6 +535,9 @@ private def trailingDotCompletion [ForIn Id Coll (Name × α)]
       items := items.push (mkItem name value textEdit?)
   return items
 
+deriving instance Repr for TextDocumentIdentifier
+deriving instance Repr for TextDocumentPositionParams
+deriving instance Repr for CompletionParams
 def optionCompletion
     (params            : CompletionParams)
     (completionInfoPos : Nat)
@@ -543,6 +546,7 @@ def optionCompletion
     (caps              : ClientCapabilities)
     : IO (Array CompletionItem) :=
   ctx.runMetaM {} do
+    dbg_trace s!"Calling optionCompletion {repr params} {completionInfoPos} [ctx] {stx} {caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·))))}"
     -- HACK(WN): unfold the type so ForIn works
     let (decls : RBMap _ _ _) ← getOptionDecls
     let opts ← getOptions
@@ -569,6 +573,7 @@ def errorNameCompletion
     (caps              : ClientCapabilities)
     : IO (Array CompletionItem) :=
   ctx.runMetaM {} do
+    dbg_trace s!"Calling errorNameCompletion {repr params} {completionInfoPos} [ctx] {stx} {caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·))))}"
     dbg_trace "Got error name syntax:\n  {stx}\nwith args:{stx.getArgs.map fun a => s!"\n  {a}"}"
     let explanations := getErrorExplanationsRaw (← getEnv)
     -- Per the invariant on `errorName` completion info, we want the penultimate argument:

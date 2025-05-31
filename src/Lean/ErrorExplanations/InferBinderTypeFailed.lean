@@ -137,7 +137,7 @@ parentheses, the first is taken to be the name of the field and all subsequent o
 as binders. To prevent this behavior, either list each field on a separate line, or enclose the line
 specifying multiple field names in parentheses.
 -/
-register_error_explanation Lean.ErrorExplanation {
+register_error_explanation Lean.InferBinderTypeFailed {
   summary := "The type of a binder could not be inferred."
   sinceVersion := "4.21.0"
 }

@@ -1091,14 +1091,22 @@ def matchExprAlts (rhsParser : Parser) :=
 @[builtin_term_parser] def letExpr := leading_parser:leadPrec
   withPosition ("let_expr " >> matchExprPat >> " := " >> termParser >> checkColGt >> " | " >> termParser) >> optSemicolon termParser
 
-@[builtin_term_parser] def throwNamedErrorParser := leading_parser
-  "throwNamedError " >> ident >> ppSpace >> (interpolatedStr termParser <|> termParser)
-@[builtin_term_parser] def throwNamedErrorAtParser := leading_parser
-  "throwNamedErrorAt " >> termParser maxPrec >> ppSpace >> ident >> ppSpace >> (interpolatedStr termParser <|> termParser)
-@[builtin_term_parser] def logNamedErrorParser := leading_parser
-  "logNamedError " >> ident >> ppSpace >> (interpolatedStr termParser <|> termParser)
-@[builtin_term_parser] def logNamedErrorAtParser := leading_parser
-  "logNamedErrorAt " >> termParser maxPrec >> ppSpace >> ident >> ppSpace >> (interpolatedStr termParser <|> termParser)
+-- /--
+-- Like `identWithPartialTrailingDot`, but enforces that a space appears at the end of the partial identifier.
+
+-- This ensures that the trailing dot is not parsed as part of the subsequent term.
+-- -/
+-- def identWithPartialTrailingDotSpace :=
+--   ident >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident >> checkWsBefore)
+
+@[term_parser] def throwNamedErrorParser := leading_parser
+  "throwNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+@[term_parser] def throwNamedErrorAtParser := leading_parser
+  "throwNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+@[term_parser] def logNamedErrorParser := leading_parser
+  "logNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+@[term_parser] def logNamedErrorAtParser := leading_parser
+  "logNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
 
 end Term
 

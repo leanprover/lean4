@@ -172,6 +172,7 @@ def Info.stx : Info → Syntax
   | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.stx
   | ofOptionInfo i         => i.stx
+  | ofErrorNameInfo i      => i.stx
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx

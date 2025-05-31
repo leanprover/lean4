@@ -221,5 +221,3 @@ def _root_.Lean.MessageData.hint (hint : MessageData)
   let ref := ref?.getD (← getRef)
   let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix?
   return .tagged `hint (m!"\n\nHint: " ++ hint ++ suggs)
-run_meta do
-  logInfo m!"foo\nbar"

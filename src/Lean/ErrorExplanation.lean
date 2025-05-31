@@ -277,6 +277,14 @@ def getErrorExplanation? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Na
   explan?.mapM fun explan =>
     return { explan with doc := (← rewriteManualLinks explan.doc) }
 
+/--
+Returns an error explanation for the given name if one exists *without* rewriting manual links.
+
+In general, `getErrorExplanation?` should be used if the body of the explanation will be accessed.
+-/
+def getErrorExplanationRaw? (env : Environment) (name : Name) : Option ErrorExplanation := do
+  errorExplanationExt.getState env |>.find? name
+
 /-- Returns true if there exists an error explanation named `name`. -/
 def hasErrorExplanation [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m Bool :=
   return errorExplanationExt.getState (← getEnv) |>.contains name

@@ -133,22 +133,15 @@ private def checkOffsetEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropaga
   | some lhsOffset =>
     if let some rhsOffset := rhsRoot.offset? then
       return .eq lhsOffset rhsOffset
-    else if isNatNum rhsRoot.self then
-      return .eqLit lhsOffset rhsRoot.self
     else
       -- We have to retrieve the node because other fields have been updated
       let rhsRoot ← getENode rhsRoot.self
       setENode rhsRoot.self { rhsRoot with offset? := lhsOffset }
       return .none
-  | none =>
-    if isNatNum lhsRoot.self then
-      if let some rhsOffset := rhsRoot.offset? then
-        return .eqLit rhsOffset lhsRoot.self
-    return .none
+  | none => return .none
 
 def propagateOffset : PendingTheoryPropagation → GoalM Unit
   | .eq lhs rhs => Arith.Offset.processNewEq lhs rhs
-  | .eqLit lhs lit => Arith.Offset.processNewEqLit lhs lit
   | _ => return ()
 
 /--

@@ -18,43 +18,6 @@ namespace DNS
 open Std.Net
 
 /--
-This type specifies the desired address family for the returned addresses in `getAddrInfo`.
--/
-inductive AddressFamily
-
-  /--
-  IPv4 address family.
-  -/
-  | ipv4
-
-  /--
-  IPv6 address family.
-  -/
-  | ipv6
-deriving Repr, DecidableEq
-
-/--
-Describes the type of a socket.
--/
-inductive SocketType
-
-  /--
-  Stream socket, typically used for TCP connections.
-  -/
-  | stream
-
-  /--
-  Datagram socket (SOCK_DGRAM), typically used for UDP connections.
-  -/
-  | datagram
-
-  /--
-  Raw socket (SOCK_RAW), used for low-level network protocols.
-  -/
-  | raw
-deriving Repr, DecidableEq
-
-/--
 Specifies the transport protocol for the DNS search.
 -/
 inductive Protocol
@@ -68,11 +31,6 @@ inductive Protocol
   UDP protocol.
   -/
   | udp
-
-  /--
-  Raw IP packets.
-  -/
-  | raw
 deriving Repr, DecidableEq
 
 /--
@@ -88,15 +46,6 @@ Converts a `Protocol` to `UInt8`.
 def Protocol.toUInt8 : Protocol → UInt8
   | .tcp => 0
   | .udp => 1
-  | .raw => 2
-
-/--
-Converts a `AddressFamily` to `UInt8`.
--/
-def SocketType.toUInt8 : SocketType → UInt8
-  | .stream => 0
-  | .datagram => 1
-  | .raw => 2
 
 /--
 Asynchronously resolves a hostname and service to an array of socket addresses.Asynchronously resolves a hostname and service to a list of socket addresses.
@@ -105,13 +54,11 @@ Asynchronously resolves a hostname and service to an array of socket addresses.A
 def getAddrInfo
   (host : String)
   (service : String)
-  (socketType: SocketType)
   (protocol : Protocol)
   (addressFamily : Option AddressFamily := none)
   : IO (AsyncTask (Array IPAddr)) :=
     AsyncTask.ofPromise <$> UV.DNS.getAddrInfo host service
       (AddressFamily.toUInt8 <$> addressFamily |>.getD 0)
-      socketType.toUInt8
       protocol.toUInt8
 
 /--

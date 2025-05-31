@@ -24,7 +24,6 @@ opaque getAddrInfo
   (host : @& String)
   (service : @& String)
   (family : UInt8)
-  (sockType : UInt8)
   (protocol : UInt8)
   : IO (IO.Promise (Except IO.Error (Array IPAddr)))
 

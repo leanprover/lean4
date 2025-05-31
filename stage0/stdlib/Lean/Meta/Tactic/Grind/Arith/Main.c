@@ -53,7 +53,6 @@ lean_object* l___private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grin
 lean_object* l_Lean_Meta_Grind_mkEqTrueProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* l_Lean_Meta_Grind_isEqFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1(lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Meta_Grind_Arith_Offset_Cnstr_neg___rarg(lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,6 +65,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_propagateLE___lambda__3(lean_ob
 lean_object* lean_grind_process_new_facts(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Offset_addEdge(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
@@ -275,7 +275,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_
 _start:
 {
 uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1(x_2);
+x_3 = l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__2(x_1, x_4, x_2);
 return x_5;

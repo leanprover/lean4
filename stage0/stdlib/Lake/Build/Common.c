@@ -44721,7 +44721,7 @@ lean_closure_set(x_21, 8, x_20);
 x_22 = lean_ctor_get(x_15, 1);
 lean_inc(x_22);
 x_23 = l_Task_Priority_default;
-x_24 = 1;
+x_24 = 0;
 x_25 = l_Lake_Job_mapM___at_Lake_buildSharedLib___spec__2(x_18, x_21, x_23, x_24, x_11, x_12, x_13, x_14, x_22, x_16);
 if (lean_obj_tag(x_25) == 0)
 {
@@ -44806,7 +44806,7 @@ lean_closure_set(x_21, 6, x_19);
 lean_closure_set(x_21, 7, x_1);
 lean_closure_set(x_21, 8, x_20);
 x_22 = l_Task_Priority_default;
-x_23 = 0;
+x_23 = 1;
 x_24 = l_Lake_Job_bindM___at_Lake_buildSharedLib___spec__7(x_18, x_21, x_22, x_23, x_11, x_12, x_13, x_14, x_15, x_16);
 return x_24;
 }
@@ -45647,7 +45647,7 @@ lean_closure_set(x_19, 6, x_18);
 x_20 = lean_ctor_get(x_13, 1);
 lean_inc(x_20);
 x_21 = l_Task_Priority_default;
-x_22 = 1;
+x_22 = 0;
 x_23 = l_Lake_Job_mapM___at_Lake_buildSharedLib___spec__2(x_16, x_19, x_21, x_22, x_9, x_10, x_11, x_12, x_20, x_14);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -45722,7 +45722,7 @@ lean_closure_set(x_19, 4, x_17);
 lean_closure_set(x_19, 5, x_1);
 lean_closure_set(x_19, 6, x_18);
 x_20 = l_Task_Priority_default;
-x_21 = 0;
+x_21 = 1;
 x_22 = l_Lake_Job_bindM___at_Lake_buildSharedLib___spec__7(x_16, x_19, x_20, x_21, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_22;
 }
@@ -51325,7 +51325,7 @@ lean_closure_set(x_16, 4, x_5);
 x_17 = lean_ctor_get(x_11, 1);
 lean_inc(x_17);
 x_18 = l_Task_Priority_default;
-x_19 = 1;
+x_19 = 0;
 x_20 = l_Lake_Job_mapM___at_Lake_buildLeanExe___spec__1(x_14, x_16, x_18, x_19, x_7, x_8, x_9, x_10, x_17, x_12);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -51397,7 +51397,7 @@ lean_closure_set(x_16, 2, x_4);
 lean_closure_set(x_16, 3, x_15);
 lean_closure_set(x_16, 4, x_1);
 x_17 = l_Task_Priority_default;
-x_18 = 0;
+x_18 = 1;
 x_19 = l_Lake_Job_bindM___at_Lake_buildLeanExe___spec__2(x_14, x_16, x_17, x_18, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_19;
 }

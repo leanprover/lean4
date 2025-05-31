@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Array_Array_repr___at___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116____spec__1___closed__5;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l_List_repr___at___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116____closed__12;
 lean_object* l_Lean_Meta_inferArgumentTypesN(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_309____closed__6;
@@ -32,6 +31,7 @@ LEAN_EXPORT uint8_t l_Lean_Elab_Structural_IndGroupInst_isDefEq___lambda__4(lean
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_309____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInfo_numMotives(lean_object*);
 static lean_object* l_Array_Array_repr___at___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116____spec__1___closed__1;
+lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875_(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_IndGroupInst_isDefEq___lambda__5___closed__1;
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -71,6 +71,7 @@ static lean_object* l_Array_Array_repr___at___private_Lean_Elab_PreDefinition_St
 static lean_object* l_Lean_Elab_Structural_instInhabitedIndGroupInfo___closed__1;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116____closed__3;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_309____closed__10;
+lean_object* l_List_repr___at___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_instReprIndGroupInfo;
 static lean_object* l_Array_Array_repr___at___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116____spec__1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_isDefEq___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -140,7 +141,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_nestedTypeFormers(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_309____spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_IndGroupInst_nestedTypeFormers___spec__5___lambda__1___closed__5;
-lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055_(lean_object*, lean_object*);
 lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Structural_IndGroupInst_isDefEq___lambda__2___closed__1;
@@ -842,7 +842,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055_(x_1, x_2);
+x_3 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_1, x_2);
 return x_3;
 }
 }
@@ -868,7 +868,7 @@ lean_ctor_set_tag(x_3, 5);
 lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 0, x_2);
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055_(x_5, x_7);
+x_8 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_5, x_7);
 x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_3);
 lean_ctor_set(x_9, 1, x_8);
@@ -889,7 +889,7 @@ x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_2);
 lean_ctor_set(x_13, 1, x_1);
 x_14 = lean_unsigned_to_nat(0u);
-x_15 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055_(x_11, x_14);
+x_15 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_11, x_14);
 x_16 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_16, 0, x_13);
 lean_ctor_set(x_16, 1, x_15);
@@ -923,7 +923,7 @@ x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055_(x_5, x_6);
+x_7 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_5, x_6);
 return x_7;
 }
 else
@@ -933,7 +933,7 @@ x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 lean_dec(x_1);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055_(x_8, x_9);
+x_10 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_8, x_9);
 x_11 = l_List_foldl___at___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_309____spec__4(x_2, x_10, x_4);
 return x_11;
 }
@@ -1115,7 +1115,7 @@ lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_ctor_get(x_1, 1);
 lean_inc(x_20);
-x_21 = l_List_repr___at___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055____spec__1(x_20, x_4);
+x_21 = l_List_repr___at___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875____spec__1(x_20, x_4);
 x_22 = l___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_309____closed__8;
 x_23 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_23, 0, x_22);

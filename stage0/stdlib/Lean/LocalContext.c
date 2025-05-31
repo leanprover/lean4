@@ -21,6 +21,7 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_mkLetDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__4___rarg___lambda__1(lean_object*, uint8_t);
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at_Lean_LocalContext_erase___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_LocalContext_0__Lean_reprLocalDeclKind____x40_Lean_LocalContext___hyg_18____closed__8;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeRevM_x3f___at_Lean_LocalContext_findFromUserName_x3f___spec__1___boxed(lean_object*, lean_object*);
@@ -140,7 +141,6 @@ LEAN_EXPORT lean_object* l_Lean_LocalContext_foldlM___at_Lean_LocalContext_foldl
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_LocalContext_foldl___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_findDecl_x3f___rarg___boxed(lean_object*, lean_object*);
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1741_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_LocalContext_instForInLocalDecl___spec__3___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2398,7 +2398,7 @@ else
 lean_object* x_9; lean_object* x_10; uint64_t x_11; size_t x_12; size_t x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_9 = lean_array_fget(x_2, x_5);
 x_10 = lean_array_fget(x_3, x_5);
-x_11 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1741_(x_9);
+x_11 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_9);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = 1;
 x_14 = lean_usize_sub(x_1, x_13);
@@ -2904,7 +2904,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_LocalContext_
 _start:
 {
 uint64_t x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_4 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1741_(x_2);
+x_4 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_2);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = 1;
 x_7 = l_Lean_PersistentHashMap_insertAux___at_Lean_LocalContext_mkLocalDecl___spec__2(x_1, x_5, x_6, x_2, x_3);
@@ -3433,7 +3433,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_LocalContex
 _start:
 {
 uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1741_(x_2);
+x_3 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_findAux___at_Lean_LocalContext_find_x3f___spec__2(x_1, x_4, x_2);
 return x_5;
@@ -3676,7 +3676,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at_Lean_LocalContext_con
 _start:
 {
 uint64_t x_3; size_t x_4; uint8_t x_5; 
-x_3 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1741_(x_2);
+x_3 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_containsAux___at_Lean_LocalContext_contains___spec__2(x_1, x_4, x_2);
 return x_5;
@@ -4627,7 +4627,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at_Lean_LocalContext_e
 _start:
 {
 uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1741_(x_2);
+x_3 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_eraseAux___at_Lean_LocalContext_erase___spec__2(x_1, x_4, x_2);
 return x_5;

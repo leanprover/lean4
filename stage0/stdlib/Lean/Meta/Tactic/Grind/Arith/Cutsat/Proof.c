@@ -535,7 +535,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_LeCnstr_toExprProof___lambda_
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Meta_Grind_Arith_Cutsat_mkPolyDecl___spec__2___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Proof_0__Lean_Meta_Grind_Arith_Cutsat_getLetCtxVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Proof_0__Lean_Meta_Grind_Arith_Cutsat_withForeignContexts_go___spec__1___rarg___boxed(lean_object*);
-uint64_t l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_CooperSplit_toExprProof___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_UnsatProof_toExprProofCore___closed__1;
@@ -619,6 +618,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_LeCnstr_toExprProof___lambda_
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_EqCnstr_toExprProof___lambda__1___closed__29;
 uint8_t l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_631_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_LeCnstr_toExprProof___lambda__1___closed__58;
+uint64_t l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_UnsatProof_toExprProofCore___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Proof_0__Lean_Meta_Grind_Arith_Cutsat_withProofContext_go___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -8324,7 +8324,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_
 _start:
 {
 uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1(x_2);
+x_3 = l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Grind_Arith_Cutsat_EqCnstr_toExprProof___spec__3(x_1, x_4, x_2);
 return x_5;

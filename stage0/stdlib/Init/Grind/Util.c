@@ -15,11 +15,15 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_genHEqPattern___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_natCastUnexpander___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Grind_matchCondUnexpander(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_genHEqPattern(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_eqMatchUnexpander___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Grind_genPattern(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_nestedProofUnexpander(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_genPattern___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__8;
 static lean_object* l_Lean_Grind_natCastUnexpander___closed__2;
 static lean_object* l_Lean_Grind_natCastUnexpander___closed__3;
@@ -41,11 +45,13 @@ LEAN_EXPORT lean_object* l_Lean_Grind_offsetUnexpander___boxed(lean_object*, lea
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Grind_offset___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_genPattern___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_natCastUnexpander___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_eqMatchUnexpander___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Grind_offsetUnexpander(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__2;
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Grind_genHEqPattern___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Grind_matchCondUnexpander___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__7;
@@ -92,6 +98,56 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Grind_offset(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_genPattern___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_genPattern(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_Grind_genPattern___rarg___boxed), 2, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_genPattern___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Grind_genPattern___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_genHEqPattern___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_genHEqPattern(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Lean_Grind_genHEqPattern___rarg___boxed), 2, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_genHEqPattern___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Grind_genHEqPattern___rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

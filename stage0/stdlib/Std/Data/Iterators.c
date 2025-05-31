@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators
-// Imports: Std.Data.Iterators.Basic Std.Data.Iterators.Producers Std.Data.Iterators.Consumers Std.Data.Iterators.Internal Std.Data.Iterators.Lemmas
+// Imports: Std.Data.Iterators.Basic Std.Data.Iterators.Producers Std.Data.Iterators.Consumers Std.Data.Iterators.Combinators Std.Data.Iterators.Lemmas Std.Data.Iterators.PostConditionMonad Std.Data.Iterators.Internal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,8 +16,10 @@ extern "C" {
 lean_object* initialize_Std_Data_Iterators_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Producers(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Consumers(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Internal(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Combinators(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_PostConditionMonad(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Internal(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -32,10 +34,16 @@ lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Consumers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Internal(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Iterators_Combinators(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_PostConditionMonad(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Internal(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

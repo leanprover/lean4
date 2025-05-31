@@ -121,7 +121,7 @@ distance between the arguments.
 Guarantees that all actions in the output will be maximally grouped; that is, instead of returning
 `#[(.insert, "a"), (.insert, "b")]`, it will return `#[(.insert, "ab")]`.
 -/
-def readableDiff (s s' : String) : Array (Diff.Action × String) :=
+partial def readableDiff (s s' : String) : Array (Diff.Action × String) :=
   let minLength := min s.length s'.length
   -- Given that `Diff.diff` returns a minimal diff, any length-≤3 diff can only have edits at the
   -- front and back, or at a single interior point. This will always be fairly readable (and
@@ -145,19 +145,104 @@ where
       |> joinEdits
       |>.map fun (act, cs) => (act, String.mk cs.toList)
 
-  wordDiff :=
-    Diff.diff (splitWords s) (splitWords s')
+  /-
+  Note on whitespace insertion:
+  Because we display diffs fully inline, we must trade off between accurately rendering changes to
+  whitespace and accurately previewing what will be inserted. We err on the side of the latter.
+  Within a "run" of deletions or insertions, we maintain the whitespace from the deleted/inserted
+  text and mark it as a deletion/insertion. After an unchanged word or a substitution (i.e., a
+  deletion and insertion without an intervening unchanged word), we use the whitespace from the
+  new version but mark it as unchanged, since there was also whitespace (of some possibly different
+  form) here originally too. Within a substitution, we omit whitespace entirely. After an insertion,
+  we show the new whitespace but mark it as an insertion; after a deletion, we render the old
+  whitespace as a deletion unless it contains a newline, in which case it is omitted (as rendering a
+  deleted newline still visually suggests a line break in the new output).
+  -/
+  wordDiff := Id.run do
+    let (words, wss) := splitWords s
+    let (words', wss') := splitWords s'
+    let diff := Diff.diff words words'
+    let mut withWs := #[]
+    let mut (wssIdx, wss'Idx) := (0, 0)
+    let mut inSubst := false
+    for h : diffIdx in [:diff.size] do
+      let (a₁, s₁) := diff[diffIdx]
+      withWs := withWs.push (a₁, s₁)
+      if let some (a₂, s₂) := diff[diffIdx + 1]? then
+        match a₁, a₂ with
+        | .skip, .delete =>
+          -- Unchanged word: use new whitespace unless this is followed by a deleted terminal
+          -- substring of the old, in which case use the old whitespace
+          if let some ws := wss'[wss'Idx]? then
+            withWs := withWs.push (.skip, ws)
+          else
+            let ws := wss[wssIdx]!
+            withWs := withWs.push (.delete, ws)
+          wssIdx := wssIdx + 1
+          wss'Idx := wss'Idx + 1
+        | .skip, .skip | .skip, .insert =>
+          -- Unchanged word: new has white space here (use it); old does too so long as we haven't
+          -- reached an appended terminal new portion
+          let ws := wss'[wss'Idx]!
+          withWs := withWs.push (.skip, ws)
+          wssIdx := wssIdx + 1
+          wss'Idx := wss'Idx + 1
+        | .insert, .insert =>
+          -- Insertion separator: include, and mark it as inserted
+          let ws := wss'[wss'Idx]!
+          withWs := withWs.push (.insert, ws)
+          wss'Idx := wss'Idx + 1
+        | .insert, .skip =>
+          -- End of insertion: if this was a substitution, new and old have whitespace here, and we
+          -- take the new one; if it wasn't, only new has whitespace here
+          let ws := wss'[wss'Idx]!
+          let act := if inSubst then .skip else .insert
+          withWs := withWs.push (act, ws)
+          wss'Idx := wss'Idx + 1
+          if inSubst then wssIdx := wssIdx + 1
+          inSubst := false
+        | .delete, .delete =>
+          -- Deletion separator: include and mark as deleted
+          let ws := wss[wssIdx]!
+          withWs := withWs.push (.delete, ws)
+          wssIdx := wssIdx + 1
+        | .delete, .skip =>
+          -- End of deletion: include the deletion's whitespace as deleted iff it is not a newline
+          -- (see earlier note); in principle, we should never have a substitution ending with a
+          -- deletion (`diff` should prefer `a̵b̲` to `b̲a̵`), but we handle this in case `diff` changes
+          let ws := wss[wssIdx]!
+          unless inSubst || ws.contains '\n' do
+            withWs := withWs.push (.delete, ws)
+            wssIdx := wssIdx + 1
+          if inSubst then wss'Idx := wss'Idx + 1
+          inSubst := false
+        | .insert, .delete | .delete, .insert =>
+          -- "Substitution point": don't include any whitespace, since we're switching this word
+          inSubst := true
+    withWs
       |> joinEdits
-      |>.map fun (act, ss) =>  (act, ss.foldl (· ++ ·) "")
+      |>.map fun (act, ss) => (act, ss.foldl (· ++ ·) "")
 
   maxDiff :=
     #[(.delete, s), (.insert, s')]
 
-  splitChars (s : String) :=
+  splitChars (s : String) : Array Char :=
     s.toList.toArray
 
-  splitWords (s : String) :=
-    s.splitOn " " |>.intersperse " " |>.toArray
+  splitWords (s : String) : Array String × Array String :=
+    splitWordsAux s 0 0 #[] #[]
+
+  splitWordsAux (s : String) (b : String.Pos) (i : String.Pos) (r ws : Array String) : Array String × Array String :=
+    if h : s.atEnd i then
+      (r.push (s.extract b i), ws)
+    else
+      have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (String.lt_next s _)
+      if (s.get i).isWhitespace then
+        let skipped := (Substring.mk s i s.endPos).takeWhile (·.isWhitespace)
+        let i' := skipped.stopPos
+        splitWordsAux s i' i' (r.push (s.extract b i)) (ws.push (s.extract i i'))
+      else
+        splitWordsAux s b (s.next i) r ws
 
   joinEdits {α} (ds : Array (Diff.Action × α)) : Array (Diff.Action × Array α) :=
     ds.foldl (init := #[]) fun acc (act, c) =>

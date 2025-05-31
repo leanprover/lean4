@@ -7,6 +7,6 @@ fun x =>
     (match (motive := (x : Nat) → Nat.below x → Nat) x with
       | 0 => fun x => 1
       | n.succ => fun x =>
-        have y := 42;
+        let y := 42;
         2 * x.1)
       f

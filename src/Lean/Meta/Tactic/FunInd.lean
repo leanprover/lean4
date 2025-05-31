@@ -296,9 +296,9 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
       let t' ← foldAndCollect oldIH newIH isRecCall t
       let v' ← foldAndCollect oldIH newIH isRecCall v
       return ← withLocalDeclD n t' fun x => do
-        M.localMapM (mkLetFun x v' · (usedLetOnly := true)) do
+        M.localMapM (mkLetFun x v' ·) do
           let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
-          mkLetFun x v' b' (usedLetOnly := true)
+          mkLetFun x v' b'
 
     if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
       if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
@@ -476,6 +476,9 @@ where
       for localDecl in (← getLCtx) do
         if localDecl.index > index && (!firstPass || localDecl.userName.hasMacroScopes) then
           if localDecl.isLet then
+            if ← Meta.isProp localDecl.type then
+              if let some mvarId' ← observing? <| mvarId.clearValue localDecl.fvarId then
+                return some mvarId'
             if let some mvarId' ← observing? <| mvarId.clear localDecl.fvarId then
               return some mvarId'
           if let some mvarId' ← substVar? mvarId localDecl.fvarId then
@@ -910,10 +913,14 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
   if let some (n, t, v, b) := e.letFun? then
     let t' ← foldAndCollect oldIH newIH isRecCall t
     let v' ← foldAndCollect oldIH newIH isRecCall v
+    /-
+    Convert to a `let`, since in `FunInd.deriveCases` we use the unfolding theorem,
+    and the unfolding theorem has had `letToHave` applied.
+    -/
     return ← withLetDecl n t' v' fun x => M2.branch do
       let b' ← withRewrittenMotiveArg goal (rwHaveWith x) fun goal' =>
         buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
-      mkLetFVars #[x] b'
+      mkLetFVars #[x] b' (usedLetOnly := false)
 
   -- Special case for traversing the PProd’ed bodies in our encoding of structural mutual recursion
   if let .lam n t b bi := e then
@@ -1054,6 +1061,7 @@ where doRealize (inductName : Name) := do
 
   let eTyp ← inferType e'
   let eTyp ← elimTypeAnnotations eTyp
+  let eTyp ← letToHave eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -1477,6 +1485,7 @@ where doRealize inductName := do
 
   let eTyp ← inferType e'
   let eTyp ← elimTypeAnnotations eTyp
+  let eTyp ← letToHave eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -1620,6 +1629,7 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
 
     let eTyp ← inferType e'
     let eTyp ← elimTypeAnnotations eTyp
+    let eTyp ← letToHave eTyp
     -- logInfo m!"eTyp: {eTyp}"
     let levelParams := (collectLevelParams {} eTyp).params
     -- Prune unused level parameters, preserving the original order

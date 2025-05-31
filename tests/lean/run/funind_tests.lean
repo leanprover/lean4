@@ -76,9 +76,9 @@ def have_tailrec : Nat → Nat
     have h2 : n < n+1 := Nat.lt_succ_self n
     have_tailrec n
 termination_by n => n
--- TODO(kmill) n < n + 1 parameter is gone
+
 /--
-info: have_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ)
+info: have_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), n < n + 1 → motive n → motive n.succ)
   (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
@@ -109,8 +109,8 @@ def let_tailrec : Nat → Nat
 termination_by n => n
 
 /--
-info: let_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ) (a✝ : Nat) :
-  motive a✝
+info: let_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), n < n + 1 → motive n → motive n.succ)
+  (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
 #check let_tailrec.induct
@@ -542,7 +542,7 @@ def bar {α} (x : α) : List α → Nat
       have this := bar x ys
       this
 termination_by xs => xs
--- TODO(kmill) the `(this : Nat)` parameter is gone
+
 /--
 info: LetFun.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
   (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) (a✝ : List α) : motive a✝
@@ -733,11 +733,11 @@ def foo (n : Nat) : Nat :=
 info: Dite.foo.induct (motive : Nat → Prop)
   (case1 :
     ∀ (x : Nat),
-      let j := x - 1;
+      have j := x - 1;
       j < x → motive j → motive x)
   (case2 :
     ∀ (x : Nat),
-      let j := x - 1;
+      have j := x - 1;
       ¬j < x → motive x)
   (n : Nat) : motive n
 -/

@@ -97,16 +97,26 @@ def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : Attribu
 Applies `Meta.letToHave` to the values of defs, instances, and abbrevs.
 Does not apply the transformation to values that are proofs, or to unsafe definitions.
 -/
-def letToHave (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
-  if !cleanup.letToHave.get (← getOptions) || preDef.modifiers.isUnsafe then
-    return preDef
-  else if preDef.kind matches .theorem | .example | .opaque then
+def letToHaveValue (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if !cleanup.letToHave.get (← getOptions)
+      || preDef.modifiers.isUnsafe
+      || preDef.kind matches .theorem | .example | .opaque then
     return preDef
   else if ← Meta.isProp preDef.type then
     return preDef
   else
     let value ← Meta.letToHave preDef.value
     return { preDef with value }
+
+/--
+Applies `Meta.letToHave` to the type of the predef.
+-/
+def letToHaveType (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if !cleanup.letToHave.get (← getOptions) || preDef.kind matches .example then
+    return preDef
+  else
+    let type ← Meta.letToHave preDef.type
+    return { preDef with type }
 
 def abstractNestedProofs (preDef : PreDefinition) (cache := true) : MetaM PreDefinition := withRef preDef.ref do
   if preDef.kind.isTheorem || preDef.kind.isExample then
@@ -147,7 +157,7 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
-    let preDef ← letToHave preDef
+    let preDef ← letToHaveType preDef
     let mkDefDecl : TermElabM Declaration :=
       return Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value

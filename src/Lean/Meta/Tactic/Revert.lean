@@ -54,4 +54,11 @@ def _root_.Lean.MVarId.revertAfter (mvarId : MVarId) (fvarId : FVarId) : MetaM (
     let fvarIds := (← getLCtx).foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
     mvarId.revert fvarIds (preserveOrder := true) (clearAuxDeclsInsteadOfRevert := true)
 
+/-- Reverts all local declarations starting from `fvarId`. -/
+def _root_.Lean.MVarId.revertFrom (mvarId : MVarId) (fvarId : FVarId) : MetaM (Array FVarId × MVarId) :=
+  mvarId.withContext do
+    let localDecl ← fvarId.getDecl
+    let fvarIds := (← getLCtx).foldl (init := #[]) (start := localDecl.index) fun fvarIds decl => fvarIds.push decl.fvarId
+    mvarId.revert fvarIds (preserveOrder := true) (clearAuxDeclsInsteadOfRevert := true)
+
 end Lean.Meta

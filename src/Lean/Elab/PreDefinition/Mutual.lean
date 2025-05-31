@@ -55,7 +55,6 @@ Cleans the right-hand-sides of the predefinitions, to prepare for inclusion in t
 def cleanPreDef (preDef : PreDefinition) (cacheProofs := true) : MetaM PreDefinition := do
   let preDef ← eraseRecAppSyntax preDef
   let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
-  let preDef ← letToHave preDef
   return preDef
 
 /--

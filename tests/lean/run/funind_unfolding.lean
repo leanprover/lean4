@@ -57,11 +57,11 @@ def fib'' (n : Nat) : Nat :=
 info: fib''.fun_cases_unfolding (n : Nat) (motive : Nat → Prop) (case1 : n < 2 → motive n)
   (case2 :
     ¬n < 2 →
-      let foo := n - 2;
+      have foo := n - 2;
       foo < 100 → motive (fib'' (n - 1) + fib'' foo))
   (case3 :
     ¬n < 2 →
-      let foo := n - 2;
+      have foo := n - 2;
       ¬foo < 100 → motive 0) :
   motive (fib'' n)
 -/
@@ -381,7 +381,7 @@ info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → 
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h a)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h a) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h (siftDown a root e h)
@@ -403,7 +403,7 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h
@@ -419,19 +419,17 @@ def withHave (n : Nat): Bool :=
 termination_by n
 decreasing_by exact testSorry
 
--- TODO(kmill) no more 0 < n and 0 < 42 parameters
 /--
-info: withHave.induct_unfolding (motive : Nat → Bool → Prop) (case1 : motive 42 true)
-  (case2 : ∀ (x : Nat), ¬x = 42 → motive (x - 1) (withHave (x - 1)) → motive x (withHave (x - 1))) (n : Nat) :
+info: withHave.induct_unfolding (motive : Nat → Bool → Prop) (case1 : 0 < 42 → motive 42 true)
+  (case2 : ∀ (x : Nat), 0 < x → ¬x = 42 → motive (x - 1) (withHave (x - 1)) → motive x (withHave (x - 1))) (n : Nat) :
   motive n (withHave n)
 -/
 #guard_msgs(pass trace, all) in
 #check withHave.induct_unfolding
 
--- -- TODO(kmill) no more 0 < n and 0 < 42 parameters
 /--
-info: withHave.fun_cases_unfolding (n : Nat) (motive : Bool → Prop) (case1 : n = 42 → motive true)
-  (case2 : ¬n = 42 → motive (withHave (n - 1))) : motive (withHave n)
+info: withHave.fun_cases_unfolding (n : Nat) (motive : Bool → Prop) (case1 : 0 < n → n = 42 → motive true)
+  (case2 : 0 < n → ¬n = 42 → motive (withHave (n - 1))) : motive (withHave n)
 -/
 #guard_msgs(pass trace, all) in
 #check withHave.fun_cases_unfolding

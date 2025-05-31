@@ -65,6 +65,7 @@ partial def addSmartUnfoldingDef (preDef : PreDefinition) (recArgPos : Nat) : Te
   else
     withEnableInfoTree false do
       let preDefSUnfold ← addSmartUnfoldingDefAux preDef recArgPos
+      let preDefSUnfold ← letToHaveValue preDefSUnfold
       addNonRec preDefSUnfold
 
 end Lean.Elab.Structural

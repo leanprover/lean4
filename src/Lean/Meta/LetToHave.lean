@@ -9,13 +9,13 @@ import Lean.Meta.InferType
 /-!
 # Transforming non-dependent `let`s into `have`s
 
-A `let` expression `let x := v; b` is *dependent* if `(fun x => b) v` is not type correct;
-which is to say if `have x := v; b` is not type correct.
-This module has a procedure that transforms non-dependent `let`s into equivalent `have` expressions.
+A `let` expression `let x := v; b` is *dependent* if `fun x => b` is not type correct.
+Non-dependent `let`s are those that can be transformed into `have x := v; b`.
+This module has a procedure that detects which `let`s are non-dependent and does the transformation.
 
 Dependence checking is approximated using the `withTrackingZetaDelta` trick:
 we take `let x := v; b`, add a `x := v` declaration to the local context,
-and then type check `b` using `withTrackingZetaDelta`.
+and then type check `b` with `withTrackingZetaDelta` enabled.
 If `x` is not unfolded, then we know that `b` does not depend on `v`.
 This is a conservative check, since `isDefEq` may unfold local definitions unnecessarily.
 
@@ -23,10 +23,7 @@ We do not use `Lean.Meta.check` directly. A naive algorithm would be to do `Meta
 for each `let` body, which would involve rechecking subexpressions multiple times when there are nested `let`s.
 Instead, we re-implement a type checking algorithm here to be able to interleave checking and transformation.
 
-The trace class `trace.Meta.letToHave` reports any errors that arise.
-Given that this transformation might be applied before elaborator type checking, we take the approach that if there
-are type errors, the transformation is a no-op and errors are traced.
-That way, only `Lean.Meta.check`/`Lean.Meta.inferType` have sole responsibility for elaborator typechecking error messages.
+The trace class `trace.Meta.letToHave` reports statistics.
 
 The transformation has very limited support for metavariables.
 Any `let` that contains a metavariable remains a `let`.
@@ -41,7 +38,7 @@ An expression along with its type.
 -/
 private structure Expr' where
   val : Expr
-  /-- The type of `e`. -/
+  /-- The type of `val`. -/
   type : Expr
   deriving Inhabited
 
@@ -87,10 +84,22 @@ private def Expr'.mkLet (n : Name) (val : Expr') (b : Expr') (nonDep : Bool) : E
 
 private local instance : CoeHead Expr' Expr where coe := Expr'.val
 
+private structure Context where
+  /-- Whether to do full typechecking or not.
+  Full typechecking is necessary when under a `let`.
+  When false, the transformation can reduce to computing `inferType`. -/
+  fullCheck : Bool := false
+
 private structure State where
   count : Nat := 0
 
-private abbrev M := MonadCacheT ExprStructEq Expr' (StateRefT State MetaM)
+private abbrev M := ReaderT Context <| MonadCacheT ExprStructEq Expr' (StateRefT State MetaM)
+
+private def whenFullCheck (m : M Unit) (b : Bool := false) : M Unit := do
+  if b || (← read).fullCheck then m
+
+private def withFullCheck (b : Bool) (m : M α) : M α := do
+  withReader (fun ctx => { ctx with fullCheck := ctx.fullCheck || b }) m
 
 /-- Increments the count of the number of `let`s transformed into `have`s. -/
 private def incCount : M Unit :=
@@ -132,8 +141,9 @@ private def visitApp (f : Expr') (args : Array Expr') : M Expr' := do
       j := i
     let .forallE _ dom b _ := type | throwError "app: function expected"
     type := b
-    let dom := dom.instantiateRevRange j i argVals
-    unless ← isDefEq dom args[i]!.type do throwError "app: dom not defeq"
+    whenFullCheck do
+      let dom := dom.instantiateRevRange j i argVals
+      unless ← isDefEq dom args[i]!.type do throwError "app: dom not defeq"
   type := type.instantiateRevRange j argVals.size argVals
   return { val := mkAppN f argVals, type }
 
@@ -170,6 +180,7 @@ def isDepLet (fvarId : FVarId) (body : Expr) : M Bool := do
     We do not try to analyze whether the metavariable depends on the local definition.
     This is rather subtle, and instead we conservatively assume that the
     metavariable *does* depend on it.
+    (Delayed assignment metavariables only show the dependence inside their local contexts.)
     -/
     return true
   else if decl.userName.eraseMacroScopes == `__do_jp then
@@ -206,22 +217,19 @@ The tradeoff is that we save time instantiating bvars by doing it all at once,
 at the expense of possibly not sharing terms.
 -/
 private partial def visitBound (e : Expr) : M Expr' := do
-  visitBody (← getLCtx) #[] #[] #[] e
+  visitBody (← getLCtx) #[] #[] #[] false e
 where
   /--
   Enters a forall/lambda/let/have telescope, checking that each domain type is a type.
   For let/have, checks that each value has a type defeq to the domain type.
   Calls `finalize` once the telescope is constructed.
   -/
-  visitBody (lctx : LocalContext) (fvars : Array Expr) (kinds : Array BoundKind) (levels : Array Level) (e : Expr) : M Expr' := do
+  visitBody (lctx : LocalContext) (fvars : Array Expr) (kinds : Array BoundKind) (levels : Array Level) (seenLet : Bool) (e : Expr) : M Expr' := do
     if !e.hasLooseBVars then
       if let some e' ← findMCache? e then
         return ← withLCtx lctx {} do finalize fvars kinds levels e'
     let visitAndInstantiate (e : Expr) : M Expr' := withLCtx lctx {} do
-      let e := e.instantiateRev fvars
-      -- trace[Meta.letToHave.debug] "visit{indentExpr e}"
-      visit e
-    -- trace[Meta.letToHave.debug] "visitBody{indentExpr e}"
+      withFullCheck seenLet do visit (e.instantiateRev fvars)
     match e with
     | .forallE n t b bi =>
       let t     ← visitAndInstantiate t
@@ -230,7 +238,7 @@ where
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push (.forall t)
       let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
-      visitBody lctx fvars kinds levels b
+      visitBody lctx fvars kinds levels seenLet b
     | .lam n t b bi =>
       let t     ← visitAndInstantiate t
       let fvarId ← mkFreshFVarId
@@ -238,35 +246,35 @@ where
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push (.lambda t)
       let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
-      visitBody lctx fvars kinds levels b
+      visitBody lctx fvars kinds levels seenLet b
     | .letE n t v b _ =>
-      -- trace[Meta.letToHave.debug] "let"
       let t     ← visitAndInstantiate t
       let v     ← visitAndInstantiate v
-      -- trace[Meta.letToHave.debug] "let2"
-      unless ← withLCtx lctx {} (isDefEq t v.type) do throwError "let: value type not defeq to type"
-      -- trace[Meta.letToHave.debug] "let3"
+      whenFullCheck (b := seenLet) do
+        unless ← withLCtx lctx {} (isDefEq t v.type) do throwError "let: value type not defeq to type"
       let fvarId ← mkFreshFVarId
       let lctx  := lctx.mkLetDecl fvarId n t v
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push .let
       let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
-      visitBody lctx fvars kinds levels b
+      visitBody lctx fvars kinds levels true b
     | _ =>
       if let some (n, t, v, b) := e.letFun? then
         let t     ← visitAndInstantiate t
         let v     ← visitAndInstantiate v
-        unless ← withLCtx lctx {} (isDefEq t v.type) do throwError "have: value type not defeq to type"
+        whenFullCheck (b := seenLet) do
+          unless ← withLCtx lctx {} (isDefEq t v.type) do throwError "have: value type not defeq to type"
         let fvarId ← mkFreshFVarId
         let lctx  := lctx.mkLocalDecl fvarId n t
         let fvars := fvars.push (mkFVar fvarId)
         let kinds := kinds.push (.have v)
         let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
-        visitBody lctx fvars kinds levels b
+        visitBody lctx fvars kinds levels seenLet b
       else
-        withLCtx lctx {} do
-          let e' ← visit (e.instantiateRev fvars)
-          finalize fvars kinds levels e'
+        withFullCheck seenLet do
+          withLCtx lctx {} do
+            let e' ← visit (e.instantiateRev fvars)
+            finalize fvars kinds levels e'
   /--
   Assumption: the telescope domains and values are well-typed and the innermost body is well-typed.
   This function checks that the telescope is well-constructed (the bodies of foralls are types)
@@ -311,9 +319,6 @@ where
         -- typeLevel remains the same
         let t := decl.type.abstractRange i fvars
         let v := decl.value.abstractRange i fvars
-        -- if v.isBVar || v.isFVar then
-        --   body := Expr'.mkLet decl.userName { val := v, type := t } body false
-        -- else
         if ← isDepLet fvar.fvarId! body.val then
           body := Expr'.mkLet decl.userName { val := v, type := t } body false
         else
@@ -383,9 +388,9 @@ private def main (e : Expr) : MetaM Expr := do
     withInferTypeConfig do
       let lctx ← instantiateLCtxMVars (← getLCtx)
       withLCtx lctx {} do
-        let (e', s) ← visit e |>.run |>.run {}
+        let (e', s) ← visit e |>.run {} |>.run |>.run {}
         if s.count == 0 then
-          trace[Met.letToHave] "result: (no change)"
+          trace[Meta.letToHave] "result: (no change)"
         else
           trace[Meta.letToHave] "result:{indentExpr e'.val}"
         return (e'.val, m!"transformed {s.count} `let` expressions into `have` expressions")

@@ -105,6 +105,9 @@ def InfoState.substituteLazy (s : InfoState) : Task InfoState :=
 
 /-- Embeds a `CoreM` action in `IO` by supplying the information stored in `info`. -/
 def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
+  -- We assume that this function is used only outside elaboration, mostly in the language server,
+  -- and so we can and should provide access to information regardless whether it is exported.
+  let env := info.env.setExporting false
   /-
     We must execute `x` using the `ngen` stored in `info`. Otherwise, we may create `MVarId`s and `FVarId`s that
     have been used in `lctx` and `info.mctx`.
@@ -113,7 +116,7 @@ def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
     (withOptions (fun _ => info.options) x).toIO
       { currNamespace := info.currNamespace, openDecls := info.openDecls
         fileName := "<InfoTree>", fileMap := default }
-      { env := info.env, ngen := info.ngen }
+      { env, ngen := info.ngen }
 
 def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α) : IO α := do
   (·.1) <$> info.runCoreM (x.run { lctx := lctx } { mctx := info.mctx })

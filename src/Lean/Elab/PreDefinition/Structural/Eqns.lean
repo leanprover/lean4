@@ -73,7 +73,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
-    let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
+    let name := mkEqnThmName baseName (i+1)
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added

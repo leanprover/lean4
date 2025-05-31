@@ -2392,7 +2392,10 @@ where
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
           realize
-          if !(← getEnv).contains constName then
+          -- Meta code working on a non-exported declaration should usually do so inside
+          -- `withoutExporting` but we're lenient here in case this call is the only one that needs
+          -- the setting.
+          if !((← getEnv).setExporting false).contains constName then
             throwError "Lean.Meta.realizeConst: {constName} was not added to the environment")
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO

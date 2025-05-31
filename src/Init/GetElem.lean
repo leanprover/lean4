@@ -313,13 +313,15 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
 /-! ### getElem? -/
 
 /-- Internal implementation of `as[i]?`. Do not use directly. -/
-private def get?Internal : (as : List α) → (i : Nat) → Option α
+-- We still keep it public for reduction purposes
+def get?Internal : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get?Internal as n
   | _,     _   => none
 
 /-- Internal implementation of `as[i]!`. Do not use directly. -/
-private def get!Internal [Inhabited α] : (as : List α) → (i : Nat) → α
+-- We still keep it public for reduction purposes
+def get!Internal [Inhabited α] : (as : List α) → (i : Nat) → α
   | a::_,  0   => a
   | _::as, n+1 => get!Internal as n
   | _,     _   => panic! "invalid index"

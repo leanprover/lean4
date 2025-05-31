@@ -2965,7 +2965,7 @@ abbrev all_mkVector := @all_replicate
 section replace
 variable [BEq α]
 
-@[simp] theorem replace_cast {xs : Vector α n} {a b : α} :
+@[simp] theorem replace_cast {h : n = m} {xs : Vector α n} {a b : α} :
     (xs.cast h).replace a b = (xs.replace a b).cast (by simp [h]) := by
   rcases xs with ⟨xs, rfl⟩
   simp

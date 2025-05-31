@@ -414,7 +414,7 @@ theorem mapIdx_eq_mapIdx_iff {xs : Array α} :
   rcases xs with ⟨xs⟩
   simp [List.mapIdx_eq_mapIdx_iff]
 
-@[simp] theorem mapIdx_set {xs : Array α} {i : Nat} {h : i < xs.size} {a : α} :
+@[simp] theorem mapIdx_set {f : Nat → α → β} {xs : Array α} {i : Nat} {h : i < xs.size} {a : α} :
     (xs.set i a).mapIdx f = (xs.mapIdx f).set i (f i a) (by simpa) := by
   rcases xs with ⟨xs⟩
   simp [List.mapIdx_set]

@@ -762,7 +762,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in [:alts.size] do
       let altNumParams := matchInfo.altNumParams[i]!
-      let thmName := baseName ++ ((`eq).appendIndexAfter idx)
+      let thmName := mkEqnThmName baseName idx
       eqnNames := eqnNames.push thmName
       let (notAlt, splitterAltType, splitterAltNumParam, argMask) ←
           forallAltTelescope (← inferType alts[i]!) altNumParams numDiscrEqs

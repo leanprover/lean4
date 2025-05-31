@@ -108,15 +108,20 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← addSynchronously)
 
-  -- preserve original constant kind in extension if different from exported one
-  if exportedInfo?.isSome then
-    modifyEnv (privateConstKindsExt.insert · name kind)
+  if decl.getTopLevelNames.all isPrivateName then
+    exportedInfo? := none
+  else
+    -- preserve original constant kind in extension if different from exported one
+    if exportedInfo?.isSome then
+      modifyEnv (privateConstKindsExt.insert · name kind)
+    else
+      exportedInfo? := some info
 
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
   let env ← getEnv
   let async ← env.addConstAsync (reportExts := false) name kind
-    (exportedKind := exportedInfo?.map (.ofConstantInfo) |>.getD kind)
+    (exportedKind? := exportedInfo?.map (.ofConstantInfo))
   -- report preliminary constant info immediately
   async.commitConst async.asyncEnv (some info) (exportedInfo? <|> info)
   setEnv async.mainEnv

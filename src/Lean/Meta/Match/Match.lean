@@ -797,7 +797,15 @@ register_builtin_option bootstrap.genMatcherCode : Bool := {
   descr := "disable code generation for auxiliary matcher function"
 }
 
-builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ←
+private structure MatcherKey where
+  value     : Expr
+  compile   : Bool
+  -- When a matcher is created in a private context and thus may contain private references, we must
+  -- not reuse it in an exported context.
+  isPrivate : Bool
+deriving BEq, Hashable
+
+private builtin_initialize matcherExt : EnvExtension (PHashMap MatcherKey Name) ←
   registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
 
 /-- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
@@ -809,7 +817,12 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
-  match (matcherExt.getState env).find? (result.value, compile) with
+  let key := { value := result.value, compile, isPrivate := env.header.isModule && isPrivateName name }
+  let mut nameNew? := (matcherExt.getState env).find? key
+  if nameNew?.isNone && key.isPrivate then
+    -- private contexts may reuse public matchers
+    nameNew? := (matcherExt.getState env).find? { key with isPrivate := false }
+  match nameNew? with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
     let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
@@ -819,7 +832,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
       -- matcher bodies should always be exported, if not private anyway
       withExporting do
         addDecl decl
-      modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
+      modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
       addMatcherInfo name mi
       setInlineAttribute name
       enableRealizationsForConst name

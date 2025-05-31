@@ -149,6 +149,48 @@ private def preprocessMatchCongrEqType (type : Expr) : MetaM Expr := do
     mkForallFVars hs resultType
 
 /--
+A heuristic procedure for detecting generalized patterns.
+For example, given the theorem
+```
+theorem Option.pbind_some' {α β} {x : Option α} {a : α} {f : (a : α) → x = some a → Option β}
+  (h : x = some a) : pbind x f = f a h
+```
+In the current implementation, we support only occurrences in the resulting type.
+Thus, the following resulting type is generated for the example above:
+```
+pbind (Grind.genPattern h x (some a)) f = f a h
+```
+-/
+private def detectGeneralizedPatterns? (type : Expr) : MetaM Expr := do
+  forallTelescopeReducing type fun hs resultType => do
+    let isTarget? (lhs : Expr) (rhs : Expr) (s : FVarSubst) : Option (FVarId × Expr) := Id.run do
+      let .fvar fvarId := lhs | return none
+      if !hs.contains lhs then
+        return none -- It is a foreign free variable
+      if rhs.containsFVar fvarId then
+        return none -- It is not a generalization if `rhs` contains it
+      if s.contains fvarId then
+        return none -- Remark: may want to abort instead, it is probably not a generalization
+      let rhs := s.apply rhs
+      return some (fvarId, rhs)
+    let mut s : FVarSubst := {}
+    for h in hs do
+      match_expr (← inferType h) with
+      | f@Eq α lhs rhs =>
+        let some (fvarId, rhs) := isTarget? lhs rhs s | pure ()
+        s := s.insert fvarId <| mkGenPattern f.constLevels! α h lhs rhs
+      | f@HEq α lhs β rhs =>
+        let some (fvarId, rhs) := isTarget? lhs rhs s | pure ()
+        s := s.insert fvarId <| mkGenHEqPattern f.constLevels! α β h lhs rhs
+      | _ => pure ()
+    if s.isEmpty then
+      return type
+    let resultType' := s.apply resultType
+    if resultType' == resultType then
+      return type
+    mkForallFVars hs resultType'
+
+/--
 Given the proof for a proposition to be used as an E-matching theorem,
 infers its type, and preprocess it to identify generalized patterns.
 Recall that we infer these generalized patterns automatically for
@@ -159,8 +201,8 @@ private def inferEMatchProofType (proof : Expr) : MetaM Expr := do
   if (← isMatchCongrEqConst proof) then
     preprocessMatchCongrEqType type
   else
-    -- TODO: implement support for to be implemented annotations
-    return type
+    -- TODO: allow user to control whether this feature is used or not
+    detectGeneralizedPatterns? type
 
 -- Configuration for the `grind` normalizer. We want both `zetaDelta` and `zeta`
 private def normConfig : Grind.Config := {}

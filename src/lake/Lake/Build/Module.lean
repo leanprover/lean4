@@ -36,6 +36,7 @@ def Module.srcFacetConfig : ModuleFacetConfig srcFacet :=
 /-- Parse the header of a Lean file from its source. -/
 def Module.recParseHeader (mod : Module) : FetchM (Job ModuleHeader) := do
   (← mod.src.fetch).mapM fun srcFile => do
+    setTraceCaption s!"{mod.name}:header"
     let contents ← IO.FS.readFile srcFile
     Lean.parseImports' contents srcFile.toString
 
@@ -212,6 +213,17 @@ private def Module.fetchOleanArts
 : FetchM (Job ModuleArtifacts) := do
   let eJob ← mod.olean.fetch
   if importAll then
+    fetchAll eJob
+  else
+    (← mod.header.fetch).bindM fun header => do
+      if header.isModule then
+        fetchAll eJob
+      else
+        eJob.mapM (sync := true) fun olean => do
+          setTraceCaption mod.name.toString
+          return {olean? := olean}
+where
+  fetchAll eJob := do
     let sJob ← mod.oleanServer.fetch
     let pJob ← mod.oleanPrivate.fetch
     eJob.bindM (sync := true) fun oe =>
@@ -219,10 +231,6 @@ private def Module.fetchOleanArts
     pJob.mapM (sync := true) fun op => do
       setTraceCaption mod.name.toString
       return {olean? := oe, oleanServer? := os, oleanPrivate? := op}
-  else
-    eJob.mapM (sync := true) fun olean => do
-      setTraceCaption mod.name.toString
-      return {olean? := olean}
 
 /--
 Recursively build a module's dependencies, including:
@@ -357,7 +365,7 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
   mkFacetJobConfig (·.recBuildLean)
 
 @[inline] private def Module.fetchOLeanCore
-  (f : ModuleArtifacts → Option FilePath) (errMsg : String) (mod : Module)
+  (facet : String) (f : ModuleArtifacts → Option FilePath) (errMsg : String) (mod : Module)
 : FetchM (Job FilePath) := do
   (← mod.leanArts.fetch).mapM fun arts => do
       let some oleanFile := f arts
@@ -367,24 +375,24 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
       Olean files incorporate not only their own content, but also their
       transitive imports. However, they are independent of their module sources.
       -/
-      newTrace s!"{mod.name.toString}:olean"
+      newTrace s!"{mod.name.toString}:{facet}"
       addTrace (← mod.setup.fetch).getTrace.withoutInputs
       addTrace (← fetchFileTrace oleanFile)
       return oleanFile
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
-  mkFacetJobConfig <| fetchOLeanCore (·.olean?)
+  mkFacetJobConfig <| fetchOLeanCore "olean" (·.olean?)
     "No olean generated. This is likely an error in Lean or Lake."
 
 /-- The `ModuleFacetConfig` for the builtin `oleanServerFacet`. -/
 def Module.oleanServerFacetConfig : ModuleFacetConfig oleanServerFacet :=
-  mkFacetJobConfig <| fetchOLeanCore (·.oleanServer?)
+  mkFacetJobConfig <| fetchOLeanCore "olean.server" (·.oleanServer?)
     "No server olean generated. Ensure the module system is enabled."
 
 /-- The `ModuleFacetConfig` for the builtin `oleanPrivateFacet`. -/
 def Module.oleanPrivateFacetConfig : ModuleFacetConfig oleanPrivateFacet :=
-  mkFacetJobConfig <| fetchOLeanCore (·.oleanPrivate?)
+  mkFacetJobConfig <| fetchOLeanCore "olean.private" (·.oleanPrivate?)
     "No private olean generated. Ensure the module system is enabled."
 
 /-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/

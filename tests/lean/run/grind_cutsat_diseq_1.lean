@@ -78,10 +78,6 @@ trace: [grind.cutsat.assert] -1*e + 1 ≤ 0
 example (a b c d e : Int) : a = d → c = b → c = e → e > 0 → a + b < 0 → d ≠ c → False := by
   (fail_if_success grind); sorry
 
-#guard_msgs (trace) in -- no propagation to cutsat
-example (a b c d e : Int) : a = d → c = b → c = e → a = 1 → d ≠ c → False := by
-  (fail_if_success grind); sorry
-
 example (a b c : Int) : a + 2*b = 0 → c + b = -b → a = c := by
   grind
 

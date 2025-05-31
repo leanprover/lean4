@@ -130,6 +130,7 @@ assert that `e` is nonnegative.
 -/
 def assertDenoteAsIntNonneg (e : Expr) : GoalM Unit := withIncRecDepth do
   if e.isAppOf ``NatCast.natCast then return ()
+  if e.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
   let some rhs ← Int.OfNat.ofDenoteAsIntExpr? e |>.run | return ()
   let gen ← getGeneration e
   let ctx ← getForeignVars .nat
@@ -146,6 +147,7 @@ asserts that it is nonnegative.
 def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()
+  if a.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
   if (← get').foreignDef.contains { expr := a } then return ()
   let n ← mkForeignVar a .nat
   let p := .add (-1) x (.num 0)

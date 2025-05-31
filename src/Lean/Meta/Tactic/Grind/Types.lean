@@ -983,13 +983,6 @@ Notifies the cutsat module that `a = b` where
 opaque Arith.Cutsat.processNewEq (a b : Expr) : GoalM Unit
 
 /--
-Notifies the cutsat module that `a = k` where
-`a` is term that has been internalized by this module, and `k` is a numeral.
--/
-@[extern "lean_process_cutsat_eq_lit"] -- forward definition
-opaque Arith.Cutsat.processNewEqLit (a k : Expr) : GoalM Unit
-
-/--
 Notifies the cutsat module that `a ≠ b` where
 `a` and `b` are terms that have been internalized by this module.
 -/
@@ -1064,8 +1057,6 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.cutsat? then
     Arith.Cutsat.processNewEq e e'
-  else if isNum root.self && !isSameExpr e root.self then
-    Arith.Cutsat.processNewEqLit e root.self
   else
     setENode root.self { root with cutsat? := some e }
     propagateCutsatDiseqs (← getParents root.self)

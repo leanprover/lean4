@@ -113,14 +113,6 @@ inductive PendingTheoryPropagation where
     none
   | /-- Propagate the equality `lhs = rhs`. -/
     eq (lhs rhs : Expr)
-  |
-    /--
-    Propagate the literal equality `lhs = lit`.
-    This is needed because some solvers do not internalize literal values.
-    Remark: we may remove this optimization in the future because it adds complexity
-    for a small performance gain.
-    -/
-    eqLit (lhs lit : Expr)
   | /-- Propagate the disequalities in `ps`. -/
     diseqs (ps : ParentSet)
 
@@ -153,25 +145,19 @@ private def checkCutsatEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropaga
   | some lhsCutsat =>
     if let some rhsCutsat := rhsRoot.cutsat? then
       return .eq lhsCutsat rhsCutsat
-    else if isNum rhsRoot.self then
-      return .eqLit lhsCutsat rhsRoot.self
     else
       -- We have to retrieve the node because other fields have been updated
       let rhsRoot ← getENode rhsRoot.self
       setENode rhsRoot.self { rhsRoot with cutsat? := lhsCutsat }
       return .diseqs (← getParents rhsRoot.self)
   | none =>
-    if let some rhsCutsat := rhsRoot.cutsat? then
-      if isNum lhsRoot.self then
-        return .eqLit rhsCutsat lhsRoot.self
-      else
-        return .diseqs (← getParents lhsRoot.self)
+    if rhsRoot.cutsat?.isSome then
+      return .diseqs (← getParents lhsRoot.self)
     else
       return .none
 
 def propagateCutsat : PendingTheoryPropagation → GoalM Unit
   | .eq lhs rhs => Arith.Cutsat.processNewEq lhs rhs
-  | .eqLit lhs lit => Arith.Cutsat.processNewEqLit lhs lit
   | .diseqs ps => propagateCutsatDiseqs ps
   | .none => return ()
 

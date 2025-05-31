@@ -190,7 +190,7 @@ def cacheFileHash (file : FilePath) : IO Unit := do
   createParentDirs hashFile
   IO.FS.writeFile hashFile hash.toString
 
-/-- Remove the cached hash of a file (its `.hash` file). -/
+/-- Remove the cached hash of a file (its `.hash` file) if it exists. -/
 def clearFileHash (file : FilePath) : IO Unit := do
   try
     IO.FS.removeFile <| file.toString ++ ".hash"

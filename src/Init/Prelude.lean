@@ -3724,7 +3724,7 @@ class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) where
   During the inner action `x`, reading the value returns `f` applied to the original value. After
   control returns from `x`, the reader monad's value is restored.
   -/
-  withReader {α : Type u} : (ρ → ρ) → m α → m α
+  withReader {α : Type u} : (f : ρ → ρ) → (x : m α) → m α
 
 export MonadWithReader (withReader)
 

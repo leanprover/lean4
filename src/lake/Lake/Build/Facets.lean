@@ -69,7 +69,7 @@ Elaborates the Lean file via `lean` and produces all the Lean artifacts
 of the module (i.e., `olean`, `ilean`, `c`).
 Its trace just includes its dependencies.
 -/
-builtin_facet leanArts : Module => Unit
+builtin_facet leanArts : Module => ModuleArtifacts
 
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath

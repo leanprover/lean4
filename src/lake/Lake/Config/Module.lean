@@ -127,15 +127,6 @@ abbrev pkg (self : Module) : Package :=
 def bcFile? (self : Module) : Option FilePath :=
   if Lean.Internal.hasLLVMBackend () then some self.bcFile else none
 
-def arts (self : Module) : ModuleArtifacts where
-  lean? := self.leanFile
-  olean? := self.oleanFile
-  oleanPrivate? := self.oleanPrivateFile
-  oleanServer? := self.oleanServerFile
-  ilean? := self.ileanFile
-  c? := self.cFile
-  bc? := self.bcFile?
-
 @[inline] def bcoFile (self : Module) : FilePath :=
   self.irPath "bc.o"
 

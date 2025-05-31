@@ -351,14 +351,23 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
     addTrace <| traceOptions setup.options "options"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"
+    let arts : ModuleArtifacts := {
+      lean? := srcFile
+      olean? := mod.oleanFile
+      oleanServer? := if setup.isModule then some mod.oleanServerFile else none
+      oleanPrivate? := if setup.isModule then some mod.oleanPrivateFile else none
+      ilean? := mod.ileanFile
+      c? := mod.cFile
+      bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
+    }
     let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
       let args := mod.weakLeanArgs ++ mod.leanArgs
-      compileLeanModule srcFile mod.relLeanFile setup mod.setupFile mod.arts args
+      compileLeanModule srcFile mod.relLeanFile setup mod.setupFile arts args
         (← getLeanPath) mod.rootDir (← getLean)
       mod.clearOutputHashes
     unless upToDate && (← getTrustHash) do
       mod.cacheOutputHashes
-    return mod.arts
+    return arts
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
 def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=

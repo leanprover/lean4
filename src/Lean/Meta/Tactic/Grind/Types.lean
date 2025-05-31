@@ -957,14 +957,6 @@ Notifies the offset constraint module that `a = b` where
 @[extern "lean_process_new_offset_eq"] -- forward definition
 opaque Arith.Offset.processNewEq (a b : Expr) : GoalM Unit
 
-/--
-Notifies the offset constraint module that `a = k` where
-`a` is term that has been internalized by this module,
-and `k` is a numeral.
--/
-@[extern "lean_process_new_offset_eq_lit"] -- forward definition
-opaque Arith.Offset.processNewEqLit (a k : Expr) : GoalM Unit
-
 /-- Returns `true` if `e` is a numeral and has type `Nat`. -/
 def isNatNum (e : Expr) : Bool := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | false
@@ -980,8 +972,6 @@ def markAsOffsetTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.offset? then
     Arith.Offset.processNewEq e e'
-  else if isNatNum root.self && !isSameExpr e root.self then
-    Arith.Offset.processNewEqLit e root.self
   else
     setENode root.self { root with offset? := some e }
 

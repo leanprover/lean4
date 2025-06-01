@@ -288,7 +288,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub | natAbs | toNat
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat
   deriving BEq
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
@@ -298,6 +298,7 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | HMul.hMul α _ _ _ _ _ => some (.mul, α)
   | HDiv.hDiv α _ _ _ _ _ => some (.div, α)
   | HMod.hMod α _ _ _ _ _ => some (.mod, α)
+  | HPow.hPow α _ _ _ _ _ => some (.pow, α)
   | OfNat.ofNat α _ _ => some (.num, α)
   | Neg.neg α _ a =>
     let_expr OfNat.ofNat _ _ _ := a | none
@@ -317,7 +318,9 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   match k with
   | .add => return false
   | .mul => return declName == ``HMul.hMul
-  | .num => return declName == ``HMul.hMul
+  | .num =>
+    -- Recall that we don't want to internalize numerals occurring at terms such as `x^3`.
+    return declName == ``HMul.hMul || declName == ``HPow.hPow
   | _ => unreachable!
 
 private def internalizeInt (e : Expr) : GoalM Unit := do

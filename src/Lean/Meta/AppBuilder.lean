@@ -36,14 +36,18 @@ def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
 /--
 `mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.
 The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
+
+If `usedLetOnly` is `true`, then returns `e` if `x` is unused in `e`.
 -/
-def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
+def mkLetFun (x : Expr) (v : Expr) (e : Expr) (usedLetOnly : Bool := false) : MetaM Expr := do
   -- If `x` is an `ldecl`, then the result of `mkLambdaFVars` is a let expression.
   let ensureLambda : Expr → Expr
     | .letE n t _ b _ => .lam n t b .default
     | e@(.lam ..)     => e
     | _               => unreachable!
   let f ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] e
+  if usedLetOnly && !f.bindingBody!.hasLooseBVars then
+    return f.bindingBody!
   let ety ← inferType e
   let α ← inferType x
   let β ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] ety

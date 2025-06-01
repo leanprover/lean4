@@ -97,6 +97,7 @@ where
         catch e =>
           throwError "failed to generate unfold theorem for '{declName}':\n{e.toMessageData}"
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs goal
       addDecl <| Declaration.thmDecl {
         name, type, value

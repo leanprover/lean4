@@ -1101,6 +1101,7 @@ where
     finishElab (isExporting := rflPublic) headers
     processDeriving headers
   elabAsync header view declId := do
+    assert! view.kind.isTheorem
     let env ← getEnv
     let async ← env.addConstAsync declId.declName .thm (exportedKind := .axiom)
     setEnv async.mainEnv
@@ -1122,6 +1123,9 @@ where
       s := collectLevelParams s type
       let scopeLevelNames ← getLevelNames
       let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
+
+      let type ← if cleanup.letToHave.get (← getOptions) then Meta.letToHave type else pure type
+
       async.commitSignature { name := header.declName, levelParams, type }
 
     -- attributes should be applied on the main thread; see below

@@ -39,7 +39,7 @@ def foo : IO Unit := do
 -- specializes to 0 on error
 /--
 info: def foo : IO Unit :=
-let x := PUnit.unit.{0};
+have x := PUnit.unit.{0};
 pure.{0, 0} Unit.unit
 -/
 #guard_msgs in set_option pp.universes true in #print foo

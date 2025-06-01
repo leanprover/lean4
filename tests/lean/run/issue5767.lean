@@ -24,11 +24,11 @@ def go1 (ss : Int) (st0 : St) : Bool :=
 info: go1.induct (ss : Int) (motive : St → Prop)
   (case1 :
     ∀ (x : St),
-      let st1 := { m := x.m, map := x.map.insert };
+      have st1 := { m := x.m, map := x.map.insert };
       ∀ (val : Unit), st1.map.get? ss = some val → P st1 → P st1 → motive st1 → motive x)
   (case2 :
     ∀ (x : St),
-      let st1 := { m := x.m, map := x.map.insert };
+      have st1 := { m := x.m, map := x.map.insert };
       st1.map.get? ss = none → motive x)
   (st0 : St) : motive st0
 -/
@@ -55,7 +55,7 @@ def go2 (ss : Int) (st0 : St) : Bool :=
 /--
 info: go2.induct : ∀ (motive : St → Prop),
   (∀ (x : St),
-      let st1 := { m := x.m, map := x.map.insert };
+      have st1 := { m := x.m, map := x.map.insert };
       motive st1 → motive x) →
     ∀ (st0 : St), motive st0
 -/

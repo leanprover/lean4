@@ -12,6 +12,7 @@ import Lean.Util.NumApps
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
 import Lean.Meta.Eqns
+import Lean.Meta.LetToHave
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition.TerminationHint
@@ -19,6 +20,11 @@ import Lean.Elab.PreDefinition.TerminationHint
 namespace Lean.Elab
 open Meta
 open Term
+
+register_builtin_option cleanup.letToHave : Bool := {
+  defValue := true
+  descr    := "Enables transforming `let`s to `have`s when elaborating a declaration."
+}
 
 /--
   A (potentially recursive) definition.
@@ -87,6 +93,31 @@ def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : Attribu
   for preDef in preDefs do
     applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
+/--
+Applies `Meta.letToHave` to the values of defs, instances, and abbrevs.
+Does not apply the transformation to values that are proofs, or to unsafe definitions.
+-/
+def letToHaveValue (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if !cleanup.letToHave.get (← getOptions)
+      || preDef.modifiers.isUnsafe
+      || preDef.kind matches .theorem | .example | .opaque then
+    return preDef
+  else if ← Meta.isProp preDef.type then
+    return preDef
+  else
+    let value ← Meta.letToHave preDef.value
+    return { preDef with value }
+
+/--
+Applies `Meta.letToHave` to the type of the predef.
+-/
+def letToHaveType (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if !cleanup.letToHave.get (← getOptions) || preDef.kind matches .example then
+    return preDef
+  else
+    let type ← Meta.letToHave preDef.type
+    return { preDef with type }
+
 def abstractNestedProofs (preDef : PreDefinition) (cache := true) : MetaM PreDefinition := withRef preDef.ref do
   if preDef.kind.isTheorem || preDef.kind.isExample then
     pure preDef
@@ -126,6 +157,7 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
+    let preDef ← letToHaveType preDef
     let mkDefDecl : TermElabM Declaration :=
       return Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value

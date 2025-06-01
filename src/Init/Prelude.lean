@@ -861,7 +861,7 @@ instance : Inhabited NonemptyType.{u} where
 Lifts a type to a higher universe level.
 
 `ULift α` wraps a value of type `α`. Instead of occupying the same universe as `α`, which would be
-the minimal level, it takes a further level parameter and occupies their minimum. The resulting type
+the minimal level, it takes a further level parameter and occupies their maximum. The resulting type
 may occupy any universe that's at least as large as that of `α`.
 
 The resulting universe of the lifting operator is the first parameter, and may be written explicitly

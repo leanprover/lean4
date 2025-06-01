@@ -36,3 +36,17 @@ trace: [Meta.debug] [‹i < a.size›, ‹j < a.size›, ‹j < b.size›]
 #guard_msgs (trace) in
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → False := by
   grind -mbtc on_failure fallback
+
+namespace Test
+
+opaque p : Prop
+axiom hp : p
+opaque h : p → Prop
+
+example : h (@Lean.Grind.nestedProof p hp) → p := by
+  grind
+
+example : h hp → p := by
+  grind
+
+end Test

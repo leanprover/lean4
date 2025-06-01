@@ -228,10 +228,10 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
     { d, p, h := .ofEq x c : DvdCnstr }.assert
 
 private def exprAsPoly (a : Expr) : GoalM Poly := do
-  if let some var := (← get').varMap.find? { expr := a } then
-    return .add 1 var (.num 0)
-  else if let some k ← getIntValue? a then
+  if let some k ← getIntValue? a then
     return .num k
+  else if let some var := (← get').varMap.find? { expr := a } then
+    return .add 1 var (.num 0)
   else
     throwError "internal `grind` error, expression is not relevant to cutsat{indentExpr a}"
 
@@ -258,23 +258,6 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
   | none, none => processNewIntEq a b
   | some .nat, some .nat => processNewNatEq a b
   | _, _ => return ()
-
-private def processNewIntLitEq (a ke : Expr) : GoalM Unit := do
-  let some k ← getIntValue? ke | return ()
-  let p₁ ← exprAsPoly a
-  let c ← if k == 0 then
-    pure { p := p₁, h := .core0 a ke : EqCnstr }
-  else
-    let p₂ ← exprAsPoly ke
-    let p := p₁.combine (p₂.mul (-1))
-    pure { p, h := .core a ke p₁ p₂ : EqCnstr }
-  c.assert
-
-@[export lean_process_cutsat_eq_lit]
-def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
-  match (← foreignTerm? a) with
-  | none => processNewIntLitEq a ke
-  | some .nat => processNewNatEq a ke
 
 private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
@@ -334,7 +317,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   match k with
   | .add => return false
   | .mul => return declName == ``HMul.hMul
-  | .num => return declName == ``HMul.hMul || declName == ``Eq
+  | .num => return declName == ``HMul.hMul
   | _ => unreachable!
 
 private def internalizeInt (e : Expr) : GoalM Unit := do
@@ -413,7 +396,7 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 
 - `a + b` when `parent?` is not `+`, `≤`, or `∣`
 - `k * a` when `k` is a numeral and `parent?` is not `+`, `*`, `≤`, `∣`
-- numerals when `parent?` is not `+`, `*`, `≤`, `∣`, `=`.
+- numerals when `parent?` is not `+`, `*`, `≤`, `∣`.
   Recall that we must internalize numerals to make sure we can propagate equalities
   back to the congruence closure module. Example: we have `f 5`, `f x`, `x - y = 3`, `y = 2`.
 -/
@@ -425,7 +408,6 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     match k with
     | .div => propagateDiv e
     | .mod => propagateMod e
-    | .num => pure ()
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
     if (← hasForeignVar e) then return ()
@@ -434,7 +416,6 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | .sub => propagateNatSub e
     | .natAbs => propagateNatAbs e
     | .toNat => propagateToNat e
-    | .num => pure ()
     | _ => internalizeNat e
 
 end Lean.Meta.Grind.Arith.Cutsat

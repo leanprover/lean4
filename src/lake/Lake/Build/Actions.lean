@@ -7,6 +7,7 @@ prelude
 import Lake.Config.Dynlib
 import Lake.Util.Proc
 import Lake.Util.NativeLib
+import Lake.Util.FilePath
 import Lake.Util.IO
 
 /-! # Common Build Actions
@@ -19,7 +20,7 @@ open Lean hiding SearchPath
 namespace Lake
 
 def compileLeanModule
-  (leanFile : FilePath)
+  (leanFile relLeanFile : FilePath)
   (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
   (leanPath : SearchPath := []) (rootDir : FilePath := ".")
   (dynlibs plugins : Array Dynlib := #[])
@@ -57,6 +58,7 @@ def compileLeanModule
       if let .ok (msg : SerialMessage) := Json.parse ln >>= fromJson? then
         unless txt.isEmpty do
           logInfo s!"stdout:\n{txt}"
+        let msg := {msg with fileName := mkRelPathString relLeanFile}
         logSerialMessage msg
         return txt
       else if txt.isEmpty && ln.isEmpty then

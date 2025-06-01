@@ -15,14 +15,20 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_drain___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instForInIterMOfFiniteOfIteratorLoopOfMonadLiftT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_drain___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_foldM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_fold___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_foldM(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instForInPartialOfIteratorLoopPartialOfMonadLiftT___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_drain___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instForInIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators_IterM_fold___rarg___closed__1;
@@ -31,11 +37,13 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambd
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_foldM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_fold___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instWellFoundedRelationWFRel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IteratorLoopPartial_defaultImplementation___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_foldM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_fold___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instForInIterMOfFiniteOfIteratorLoopOfMonadLiftT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_drain___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instForInPartialOfIteratorLoopPartialOfMonadLiftT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_fold___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_fold(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -43,7 +51,9 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_foldM___rarg___boxed(lean
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_foldM___rarg___lambda__1(lean_object*);
 static lean_object* l_Std_Iterators_IterM_foldM___rarg___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_fold___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IteratorLoop_finiteForIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Consumers_Monadic_Loop_0__Std_Iterators_IteratorLoop_WFRel_mk___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_fold___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -62,16 +72,21 @@ LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Consumers_Monadic_Loop_0
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_drain(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instForInPartialOfIteratorLoopPartialOfMonadLiftT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_fold___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_drain(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Std_Iterators_IteratorLoopPartial_defaultImplementation___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_foldM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_drain___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_drain___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IteratorLoop_finiteForIn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -554,6 +569,177 @@ lean_dec(x_5);
 return x_6;
 }
 }
+static lean_object* _init_l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___closed__1;
+x_5 = lean_apply_2(x_3, lean_box(0), x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_apply_1(x_2, x_3);
+x_10 = lean_alloc_closure((void*)(l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_10, 0, x_5);
+x_11 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_9, x_10);
+x_12 = l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambda__2___closed__1;
+x_13 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_12, x_11);
+return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_alloc_closure((void*)(l_Std_Iterators_instForInIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1), 3, 1);
+lean_closure_set(x_6, 0, x_2);
+x_7 = lean_alloc_closure((void*)(l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__2___boxed), 4, 2);
+lean_closure_set(x_7, 0, x_3);
+lean_closure_set(x_7, 1, x_5);
+x_8 = lean_box(0);
+x_9 = lean_apply_7(x_1, x_6, lean_box(0), lean_box(0), lean_box(0), x_4, x_8, x_7);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_alloc_closure((void*)(l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg), 5, 0);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__2(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___closed__1;
+x_6 = lean_apply_2(x_4, lean_box(0), x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+x_6 = lean_apply_1(x_2, x_3);
+x_7 = lean_alloc_closure((void*)(l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_7, 0, x_1);
+x_8 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_alloc_closure((void*)(l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__2___boxed), 4, 2);
+lean_closure_set(x_6, 0, x_3);
+lean_closure_set(x_6, 1, x_5);
+x_7 = lean_alloc_closure((void*)(l_Std_Iterators_instForInIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1), 3, 1);
+lean_closure_set(x_7, 0, x_2);
+x_8 = lean_box(0);
+x_9 = lean_apply_5(x_1, x_7, lean_box(0), x_4, x_8, x_6);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_alloc_closure((void*)(l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg), 5, 0);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__1(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___rarg___lambda__2(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+return x_7;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_foldM___rarg___lambda__1(lean_object* x_1) {
 _start:
 {
@@ -798,7 +984,7 @@ return x_7;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_drain___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
@@ -810,14 +996,11 @@ lean_dec(x_5);
 x_7 = lean_ctor_get(x_4, 1);
 lean_inc(x_7);
 lean_dec(x_4);
-x_8 = lean_box(0);
+x_8 = l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___closed__1;
 x_9 = lean_apply_2(x_7, lean_box(0), x_8);
-x_10 = l_Std_Iterators_IterM_foldM___rarg___lambda__2___closed__1;
-lean_inc(x_6);
+x_10 = l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambda__2___closed__1;
 x_11 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_10, x_9);
-x_12 = l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambda__2___closed__1;
-x_13 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_12, x_11);
-return x_13;
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_drain___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -862,23 +1045,16 @@ return x_7;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_drain___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = lean_ctor_get(x_4, 0);
+x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec(x_5);
-x_7 = lean_ctor_get(x_4, 1);
-lean_inc(x_7);
 lean_dec(x_4);
-x_8 = lean_box(0);
-x_9 = lean_apply_2(x_7, lean_box(0), x_8);
-x_10 = l_Std_Iterators_IterM_foldM___rarg___lambda__2___closed__1;
-x_11 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_10, x_9);
-return x_11;
+x_6 = l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___closed__1;
+x_7 = lean_apply_2(x_5, lean_box(0), x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_drain___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -939,6 +1115,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambda__2___closed__1 = _init_l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambda__2___closed__1();
 lean_mark_persistent(l_Std_Iterators_IteratorLoop_finiteForIn___rarg___lambda__2___closed__1);
+l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___closed__1 = _init_l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___closed__1();
+lean_mark_persistent(l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___rarg___lambda__1___closed__1);
 l_Std_Iterators_IterM_foldM___rarg___lambda__2___closed__1 = _init_l_Std_Iterators_IterM_foldM___rarg___lambda__2___closed__1();
 lean_mark_persistent(l_Std_Iterators_IterM_foldM___rarg___lambda__2___closed__1);
 l_Std_Iterators_IterM_fold___rarg___closed__1 = _init_l_Std_Iterators_IterM_fold___rarg___closed__1();

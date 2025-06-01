@@ -118,7 +118,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let async ← env.addConstAsync (reportExts := false) name kind
     (exportedKind := exportedInfo?.map (.ofConstantInfo) |>.getD kind)
   -- report preliminary constant info immediately
-  async.commitConst async.asyncEnv (some info) exportedInfo?
+  async.commitConst async.asyncEnv (some info) (exportedInfo? <|> info)
   setEnv async.mainEnv
   let cancelTk ← IO.CancelToken.new
   let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do

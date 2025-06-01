@@ -1124,7 +1124,10 @@ where
       let scopeLevelNames ← getLevelNames
       let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
 
-      let type ← if cleanup.letToHave.get (← getOptions) then Meta.letToHave type else pure type
+      let type ← if cleanup.letToHave.get (← getOptions) then
+        withRef header.declId <| Meta.letToHave type
+      else
+        pure type
 
       async.commitSignature { name := header.declName, levelParams, type }
 

@@ -278,3 +278,50 @@ fun {α} x y => do
     else pure #[]
 -/
 #guard_msgs in #print fnDo
+
+
+section
+/-!
+Tests of cases when `letToHave` is run.
+These are verifying that either it's not run, or when there are no `let`s the transformation is skipped.
+-/
+set_option trace.Meta.letToHave true
+
+/--
+trace: [Meta.letToHave] ✅️ no `let` expressions
+[Meta.letToHave] ✅️ no `let` expressions
+-/
+#guard_msgs in
+def fnNoLet (n : Nat) := n
+
+-- Not run for `example` at all.
+#guard_msgs in
+example (n : Nat) := n
+
+/-! Two times, once for `async.commitSignature`, another for `addDecl`. -/
+/--
+trace: [Meta.letToHave] ✅️ no `let` expressions
+---
+trace: [Meta.letToHave] ✅️ no `let` expressions
+-/
+#guard_msgs in
+theorem thmNoLet : True := let x := trivial; x
+
+structure A where
+
+/--
+trace: [Meta.letToHave] ✅️ no `let` expressions
+[Meta.letToHave] ✅️ transformed 1 `let` expressions into `have` expressions
+  [Meta.letToHave] result:
+        have x := { default := { } };
+        x
+-/
+#guard_msgs in
+instance : Inhabited A := let x := ⟨{}⟩; x
+
+/-! It's a theorem instance. Only applied to the type. -/
+/-- trace: [Meta.letToHave] ✅️ no `let` expressions -/
+#guard_msgs in
+instance : Nonempty A := let x := ⟨{}⟩; x
+
+end

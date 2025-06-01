@@ -505,6 +505,10 @@ structure State where
 abbrev M := StateRefT State MetaM
 
 private def saveSymbol (h : HeadIndex) : M Unit := do
+  if let .const declName := h then
+    if declName == ``Grind.genHEqPattern || declName == ``Grind.genPattern then
+      -- We do not save gadgets in the list of symbols.
+      return ()
   unless (← get).symbolSet.contains h do
     modify fun s => { s with symbols := s.symbols.push h, symbolSet := s.symbolSet.insert h }
 

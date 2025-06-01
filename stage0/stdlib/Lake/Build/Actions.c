@@ -94,7 +94,6 @@ lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lake_untar___closed__2;
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lake_compileLeanModule___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_compileLeanModule___spec__1___closed__1;
-lean_object* l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3919_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_compileStaticLib___spec__1(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_mkArgs___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_untar(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -156,6 +155,7 @@ lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lake_compileLeanModule___lambda__4___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+lean_object* l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3895_(lean_object*);
 static lean_object* l_Lake_compileStaticLib___closed__2;
 LEAN_EXPORT lean_object* l_Lake_compileLeanModule___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_LogEntry_ofSerialMessage(lean_object*);
@@ -485,7 +485,7 @@ lean_object* x_29; lean_object* x_30;
 x_29 = lean_ctor_get(x_27, 0);
 lean_inc(x_29);
 lean_dec(x_27);
-x_30 = l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3919_(x_29);
+x_30 = l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3895_(x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; 

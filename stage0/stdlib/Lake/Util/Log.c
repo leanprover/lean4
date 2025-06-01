@@ -345,6 +345,7 @@ LEAN_EXPORT lean_object* l_Lake_MonadLogT_instMonadLogOfMonadOfMonadLiftT___rarg
 static lean_object* l_Lake_LogT_run_x27___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_ELogT_replayLog___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ELogT_takeAndRun(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3357____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_AnsiMode_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LogEntry_toString___closed__1;
 LEAN_EXPORT lean_object* l_Lake_AnsiMode_noConfusion(lean_object*);
@@ -359,7 +360,6 @@ static lean_object* l_Lake_LogLevel_ofString_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instAlternativeELogTOfMonad___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ELog_failure___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lake_EResult_toProd___rarg(lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3381____spec__1(lean_object*, lean_object*);
 lean_object* l_Lake_EResult_toExcept___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadLog_stderr___rarg(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_ELogT_replayLog_x3f___spec__1(lean_object*);
@@ -3408,7 +3408,7 @@ x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
 lean_dec(x_3);
 x_13 = l___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1415____closed__2;
-x_14 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3381____spec__1(x_1, x_13);
+x_14 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3357____spec__1(x_1, x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 

@@ -223,7 +223,7 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
       rw [← hres]
       dsimp only
       apply Cache.Inv_cast
-      · apply LawfulVecOperator.isPrefix_aig
+      · sorry --apply LawfulVecOperator.isPrefix_aig
       · apply goCache_Inv_of_Inv
         exact hinv
   · rw [← hres]

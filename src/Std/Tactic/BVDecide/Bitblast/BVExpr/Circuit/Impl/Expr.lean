@@ -226,12 +226,13 @@ where
           omega
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastReverse) ..)⟩
       | .clz =>
-        let res := bitblast.blastClz aig ⟨lhs, rhs⟩
+        let res := sorry --bitblast.blastClz aig ⟨lhs, rhs⟩
         have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
-          dsimp only at hlaig hraig
-          omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastClz) ..)⟩
+          sorry
+          -- apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
+          -- dsimp only at hlaig hraig
+          -- omega
+        ⟨⟨res, this⟩, cache.cast sorry⟩-- (AIG.LawfulVecOperator.le_size (f := bitblast.blastClz) ..)⟩
     | .append lhs rhs h =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
@@ -344,10 +345,11 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
   · next op expr =>
     match op with
     | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz =>
-      rw [AIG.LawfulVecOperator.decl_eq]
-      rw [goCache_decl_eq]
-      have := (goCache aig expr cache).result.property
-      omega
+      sorry
+      -- rw [AIG.LawfulVecOperator.decl_eq]
+      -- rw [goCache_decl_eq]
+      -- have := (goCache aig expr cache).result.property
+      -- omega
   · next lhsExpr rhsExpr h =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property

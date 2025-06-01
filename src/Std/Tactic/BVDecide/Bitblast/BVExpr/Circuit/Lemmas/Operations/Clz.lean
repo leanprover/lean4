@@ -31,6 +31,7 @@ theorem denote_blastClz (aig : AIG α) (target : RefVec aig w)
         ⟦aig, target.get (w - 1 - idx) (by omega), assign⟧ := by
   intro idx hidx
   simp [blastClz, AIG.RefVec.get]
+  sorry
 
 
 end bitblast

@@ -965,6 +965,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_realpath(obj_arg fname, obj_arg) {
         return res;
     }
     DWORD retval = GetFinalPathNameByHandle(handle, buffer, BufferSize, 0);
+    CloseHandle(handle);
     if (retval == 0 || retval > BufferSize) {
         return io_result_mk_ok(fname);
     } else {

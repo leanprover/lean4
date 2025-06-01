@@ -73,7 +73,7 @@ static lean_object* l_Int_OfNat_toExpr___closed__18;
 LEAN_EXPORT lean_object* l_Int_OfNat_ofDenoteAsIntExpr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isInstHModInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Cutsat_getForeignVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getIntValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_toIntLe_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__1___closed__1;
@@ -89,6 +89,7 @@ static lean_object* l_Int_OfNat_ofDenoteAsIntExpr_x3f___lambda__7___closed__1;
 lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
 lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l_Int_OfNat_ofDenoteAsIntExpr_x3f___lambda__7___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Int_OfNat_toIntDvd_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,6 +117,7 @@ static lean_object* l_Int_OfNat_toExpr___closed__21;
 LEAN_EXPORT lean_object* l_Int_OfNat_ofDenoteAsIntExpr_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Int_OfNat_toIntDvd_x3f___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___spec__1___closed__6;
 static lean_object* l_Int_OfNat_toIntDvd_x3f___lambda__1___closed__1;
 lean_object* l_Lean_mkIntLit(lean_object*);
@@ -124,13 +126,16 @@ static lean_object* l_Int_OfNat_toIntLe_x3f___closed__1;
 static lean_object* l_Int_OfNat_toExpr___closed__12;
 lean_object* l_Int_Linear_Expr_norm(lean_object*);
 lean_object* l_Lean_Meta_isInstHDivNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Int_OfNat_toIntLe_x3f___closed__5;
 static lean_object* l_Int_OfNat_toExpr___closed__14;
 static lean_object* l_Int_OfNat_toIntLe_x3f___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isInstHMulInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_ofDenoteAsIntExpr_x3f___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_toOfNatExpr___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Int_OfNat_toOfNatExpr___closed__12;
+static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5___closed__1;
 static lean_object* l_Int_OfNat_toExpr___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -149,10 +154,9 @@ static lean_object* l_Int_OfNat_toOfNatExpr___closed__11;
 static lean_object* l_Int_OfNat_ofDenoteAsIntExpr_x3f___closed__2;
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Expr_denoteAsIntExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___closed__1;
 static lean_object* l_Int_OfNat_toOfNatExpr___closed__7;
 lean_object* l_Int_toNat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Expr_0__Lean_intAddFn;
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isInstDvdNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -170,7 +174,7 @@ static lean_object* l_Int_OfNat_toIntLe_x3f___closed__3;
 LEAN_EXPORT lean_object* l_Int_OfNat_toIntLe_x3f___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_ofDenoteAsIntExpr_x3f___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Int_OfNat_toOfNatExpr___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Int_OfNat_ofDenoteAsIntExpr_x3f___lambda__8___closed__3;
 static lean_object* l_Int_OfNat_toOfNatExpr___closed__10;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5547,6 +5551,39 @@ return x_103;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+_start:
+{
+lean_object* x_12; uint8_t x_13; 
+x_12 = l_Int_OfNat_toOfNatExpr___closed__2;
+x_13 = l_Lean_Expr_isAppOf(x_1, x_12);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_box(0);
+x_15 = l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__1(x_1, x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+return x_15;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; 
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_1);
+x_16 = lean_box(0);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_11);
+return x_17;
+}
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -5622,7 +5659,7 @@ x_44 = lean_nat_add(x_16, x_43);
 lean_dec(x_16);
 lean_ctor_set(x_8, 3, x_44);
 x_45 = lean_box(0);
-x_46 = l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__1(x_1, x_45, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_46 = l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__2(x_1, x_45, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_46;
 }
 else
@@ -5649,7 +5686,7 @@ lean_ctor_set(x_49, 12, x_27);
 lean_ctor_set_uint8(x_49, sizeof(void*)*13, x_24);
 lean_ctor_set_uint8(x_49, sizeof(void*)*13 + 1, x_26);
 x_50 = lean_box(0);
-x_51 = l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__1(x_1, x_50, x_2, x_3, x_4, x_5, x_6, x_7, x_49, x_9, x_10);
+x_51 = l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__2(x_1, x_50, x_2, x_3, x_4, x_5, x_6, x_7, x_49, x_9, x_10);
 return x_51;
 }
 }
@@ -5752,6 +5789,15 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_2);
+return x_12;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+_start:
+{
+lean_object* x_12; 
+x_12 = l_Lean_Meta_Grind_Arith_Cutsat_assertDenoteAsIntNonneg___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_2);
 return x_12;
 }
@@ -5941,7 +5987,41 @@ return x_29;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+_start:
+{
+lean_object* x_13; uint8_t x_14; 
+x_13 = l_Int_OfNat_toOfNatExpr___closed__2;
+x_14 = l_Lean_Expr_isAppOf(x_1, x_13);
+if (x_14 == 0)
+{
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_box(0);
+x_16 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__2(x_1, x_2, x_15, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+return x_16;
+}
+else
+{
+lean_object* x_17; lean_object* x_18; 
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+x_17 = lean_box(0);
+x_18 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_12);
+return x_18;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
 lean_object* x_11; lean_object* x_12; 
@@ -5952,19 +6032,19 @@ lean_ctor_set(x_12, 1, x_10);
 return x_12;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___closed__1() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3___boxed), 10, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___boxed), 10, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___closed__1;
+x_13 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5___closed__1;
 x_14 = l_Lean_Expr_cleanupAnnotations(x_2);
 x_15 = l_Int_OfNat_ofDenoteAsIntExpr_x3f___lambda__7___closed__2;
 x_16 = l_Lean_Expr_isConstOf(x_14, x_15);
@@ -5982,7 +6062,7 @@ else
 {
 lean_object* x_19; lean_object* x_20; 
 x_19 = lean_box(0);
-x_20 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__2(x_3, x_1, x_19, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_20 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3(x_3, x_1, x_19, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_20;
 }
 }
@@ -5991,7 +6071,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast(lean_objec
 _start:
 {
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_12 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___closed__1;
+x_12 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5___closed__1;
 x_13 = l_Lean_Expr_cleanupAnnotations(x_1);
 x_14 = l_Lean_Expr_isApp(x_13);
 if (x_14 == 0)
@@ -6056,7 +6136,7 @@ return x_31;
 else
 {
 lean_object* x_32; 
-x_32 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4(x_2, x_22, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_32 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5(x_2, x_22, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_32;
 }
 }
@@ -6082,11 +6162,20 @@ lean_dec(x_3);
 return x_13;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+_start:
+{
+lean_object* x_13; 
+x_13 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+lean_dec(x_3);
+return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
 lean_object* x_11; 
-x_11 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_11 = l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -6270,8 +6359,8 @@ l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__1___closed__2 = _init_l_L
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__1___closed__2);
 l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__1___closed__3 = _init_l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__1___closed__3();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__1___closed__3);
-l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___closed__1 = _init_l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__4___closed__1);
+l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5___closed__1 = _init_l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_assertNatCast___lambda__5___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -1073,7 +1073,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
 
 extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg fname, obj_arg) {
 #ifdef LEAN_WINDOWS
-    return lean_io_metadata(st);
+    return lean_io_metadata(fname, io_mk_world());
 #else
     struct stat st;
     if (lstat(string_cstr(fname), &st) != 0) {

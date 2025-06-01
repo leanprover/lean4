@@ -610,7 +610,7 @@ private def setGrindParams (tac : TSyntax `tactic) (params : Array (TSyntax ``Pa
 /-- Given a set of declaration names, returns `grind` parameters of the form `= <declName>` -/
 private def mkGrindEqnParams (declNames : Array Name) : MetaM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
   declNames.mapM fun declName => do
-    `(Parser.Tactic.grindParam| = $(← toIdent declName))
+    `(Parser.Tactic.grindParam| = $(← toIdent declName):ident)
 
 private def mkGrindStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
   let grind ← `(tactic| grind?)

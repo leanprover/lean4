@@ -219,7 +219,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_generate___lambda__3(lean_obj
 static lean_object* l_Lean_Meta_SynthInstance_addAnswer___lambda__4___closed__3;
 static lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__3___closed__5;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Meta_SynthInstance_tryResolve___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l___private_Lean_Level_0__Lean_hashLevelMVarId____x40_Lean_Level___hyg_526_(lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_getTop(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Meta_SynthInstance_addAnswer___spec__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -264,7 +263,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at
 static lean_object* l_Lean_Meta_SynthInstance_resume___lambda__5___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_modifyTop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getLevelDepth(lean_object*, lean_object*);
-uint64_t l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1999_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_tryResolve___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SynthInstance_newSubgoal___lambda__2___closed__4;
@@ -337,6 +335,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthI
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_synthInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1819_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_SynthInstance_getInstances___spec__10___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_getEntry___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -410,6 +409,7 @@ static lean_object* l_Lean_Meta_SynthInstance_mkTableKeyFor___closed__1;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_simpLevelIMax_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_mkAnswer___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l___private_Lean_Level_0__Lean_hashLevelMVarId____x40_Lean_Level___hyg_490_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_instInhabitedSynthM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_tryResolve___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1710,7 +1710,7 @@ lean_object* x_91; lean_object* x_92; lean_object* x_93; uint64_t x_94; uint64_t
 x_91 = lean_ctor_get(x_89, 0);
 x_92 = lean_ctor_get(x_89, 1);
 x_93 = lean_array_get_size(x_92);
-x_94 = l___private_Lean_Level_0__Lean_hashLevelMVarId____x40_Lean_Level___hyg_526_(x_83);
+x_94 = l___private_Lean_Level_0__Lean_hashLevelMVarId____x40_Lean_Level___hyg_490_(x_83);
 x_95 = 32;
 x_96 = lean_uint64_shift_right(x_94, x_95);
 x_97 = lean_uint64_xor(x_94, x_96);
@@ -1840,7 +1840,7 @@ lean_inc(x_139);
 lean_inc(x_138);
 lean_dec(x_89);
 x_140 = lean_array_get_size(x_139);
-x_141 = l___private_Lean_Level_0__Lean_hashLevelMVarId____x40_Lean_Level___hyg_526_(x_83);
+x_141 = l___private_Lean_Level_0__Lean_hashLevelMVarId____x40_Lean_Level___hyg_490_(x_83);
 x_142 = 32;
 x_143 = lean_uint64_shift_right(x_141, x_142);
 x_144 = lean_uint64_xor(x_141, x_143);
@@ -2137,7 +2137,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; uint64_t x_21; uint64_t
 x_18 = lean_ctor_get(x_16, 0);
 x_19 = lean_ctor_get(x_16, 1);
 x_20 = lean_array_get_size(x_19);
-x_21 = l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1999_(x_5);
+x_21 = l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1819_(x_5);
 x_22 = 32;
 x_23 = lean_uint64_shift_right(x_21, x_22);
 x_24 = lean_uint64_xor(x_21, x_23);
@@ -2263,7 +2263,7 @@ lean_inc(x_63);
 lean_inc(x_62);
 lean_dec(x_16);
 x_64 = lean_array_get_size(x_63);
-x_65 = l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1999_(x_5);
+x_65 = l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1819_(x_5);
 x_66 = 32;
 x_67 = lean_uint64_shift_right(x_65, x_66);
 x_68 = lean_uint64_xor(x_65, x_67);
@@ -2405,7 +2405,7 @@ if (lean_is_exclusive(x_110)) {
  x_113 = lean_box(0);
 }
 x_114 = lean_array_get_size(x_112);
-x_115 = l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1999_(x_5);
+x_115 = l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1819_(x_5);
 x_116 = 32;
 x_117 = lean_uint64_shift_right(x_115, x_116);
 x_118 = lean_uint64_xor(x_115, x_117);

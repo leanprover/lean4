@@ -29,10 +29,7 @@ example (x : BitVec 8) : (x + 16)*(x - 16) = x^2 := by
   grind +ring
 
 /--
-trace: [grind.ring] new ring: Int
-[grind.ring] characteristic: 0
-[grind.ring] NoNatZeroDivisors available: true
-[grind.ring] new ring: BitVec 8
+trace: [grind.ring] new ring: BitVec 8
 [grind.ring] characteristic: 256
 [grind.ring] NoNatZeroDivisors available: false
 -/

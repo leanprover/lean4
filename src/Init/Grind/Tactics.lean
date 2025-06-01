@@ -177,7 +177,7 @@ structure Config where
   /--
   When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
   -/
-  ring := false
+  ring := true
   ringSteps := 10000
   /--
   When `true` (default: `false`), the commutative ring procedure in `grind` constructs stepwise

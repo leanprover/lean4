@@ -194,7 +194,7 @@ error: Invalid
 
 Hint: Use one of these instead
   • first second thir̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵
-  • f̵i̵r̵st̵ ̵s̵econd t̵h̵i̵r̵d̵ ̵fourth fifth
+  • f̵i̵r̵s̵t̵ ̵second t̵h̵i̵r̵d̵ ̵fourth fifth
   • f̵i̵r̵s̵t̵ ̵s̵e̵c̵o̵n̵d̵ ̵t̵h̵i̵r̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵f̲i̲ ̲s̲e̲ ̲t̲h̲ ̲f̲o̲ ̲f̲i̲
   • f̵i̵r̵s̵t̵ ̵s̵e̵c̵o̵n̵d̵ ̵t̵h̵i̵r̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵s̲e̲c̲o̲n̲d̲
 -/
@@ -211,7 +211,7 @@ error: Invalid
 
 Hint: Try one of these
   • let x := 4̵2̵
-    ̵3̲1̲;̲  ̵2̵ ̵*̵ ̵x
+    ̵ ̵ ̵2̵ ̵*̵3̲1̲;̲ x
   • l̵e̵t̵ ̵x̵ ̵:̵=̵ ̵4̵2̵
     ̵ ̵ ̵2̵ ̵*̵ ̵x̵l̲e̲t̲ ̲(̲a̲,̲ ̲b̲,̲ ̲c̲)̲ ̲:̲=̲ ̲(̲1̲,̲ ̲2̲,̲ ̲3̲)̲
     ̲ ̲ ̲b̲

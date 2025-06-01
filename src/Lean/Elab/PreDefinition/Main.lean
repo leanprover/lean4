@@ -317,12 +317,11 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
           See issue #2321
           -/
           let preDef ← eraseRecAppSyntax preDefs[0]!
-          let preDef ← letToHaveValue preDef
           ensureEqnReservedNamesAvailable preDef.declName
           if preDef.modifiers.isNoncomputable then
-            addNonRec preDef
+            addNonRec preDef (cleanupValue := true)
           else
-            addAndCompileNonRec preDef
+            addAndCompileNonRec preDef (cleanupValue := true)
           preDef.termination.ensureNone "not recursive"
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe preDefs

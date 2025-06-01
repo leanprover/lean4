@@ -154,10 +154,11 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) : TermElabM Unit :=
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
     let preDef ← letToHaveType preDef
+    let preDef ← if cleanupValue then letToHaveValue preDef else pure preDef
     let mkDefDecl : TermElabM Declaration :=
       return Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -199,11 +200,11 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
       generateEagerEqns preDef.declName
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
-def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
-  addNonRecAux preDef (compile := true) (all := all)
+def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) (cleanupValue := false) : TermElabM Unit := do
+  addNonRecAux preDef (compile := true) (all := all) (cleanupValue := cleanupValue)
 
-def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) : TermElabM Unit := do
-  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs)
+def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit := do
+  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs) (cleanupValue := cleanupValue)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module

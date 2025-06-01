@@ -378,22 +378,28 @@ private partial def visit (e : Expr) : M Expr' := do
 
 end
 
+private def hasLet (e : Expr) : Bool :=
+  Option.isSome <| e.find? Expr.isLet
+
 private def main (e : Expr) : MetaM Expr := do
   Prod.fst <$> withTraceNode `Meta.letToHave (fun
       | .ok (_, msg) => pure m!"{checkEmoji} {msg}"
       | .error ex => pure m!"{crossEmoji} {ex.toMessageData}") do
-    resetZetaDeltaFVarIds
-    withTrackingZetaDelta <|
-    withTransparency TransparencyMode.all <|
-    withInferTypeConfig do
-      let lctx ← instantiateLCtxMVars (← getLCtx)
-      withLCtx lctx {} do
-        let (e', s) ← visit e |>.run {} |>.run |>.run {}
-        if s.count == 0 then
-          trace[Meta.letToHave] "result: (no change)"
-        else
-          trace[Meta.letToHave] "result:{indentExpr e'.val}"
-        return (e'.val, m!"transformed {s.count} `let` expressions into `have` expressions")
+    if hasLet e then
+      resetZetaDeltaFVarIds
+      withTrackingZetaDelta <|
+      withTransparency TransparencyMode.all <|
+      withInferTypeConfig do
+        let lctx ← instantiateLCtxMVars (← getLCtx)
+        withLCtx lctx {} do
+          let (e', s) ← visit e |>.run {} |>.run |>.run {}
+          if s.count == 0 then
+            trace[Meta.letToHave] "result: (no change)"
+          else
+            trace[Meta.letToHave] "result:{indentExpr e'.val}"
+          return (e'.val, m!"transformed {s.count} `let` expressions into `have` expressions")
+    else
+      return (e, "no `let` expressions")
 
 end LetToHave
 

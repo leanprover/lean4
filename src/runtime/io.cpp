@@ -1409,7 +1409,7 @@ static obj_res lean_io_join_task_fn(obj_arg act, obj_arg) {
     b_obj_res t = io_result_get_value(r);
     inc_ref(t);
     dec_ref(r);
-    return lean_task_join_core(t);
+    return task_join_core(t);
 }
 
 /* joinTask {α : Type} (act : BaseIO (Task α)) (prio : Nat) : BaseIO (Task α) */

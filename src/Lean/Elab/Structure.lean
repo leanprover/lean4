@@ -840,6 +840,8 @@ where
             name := toParentName
             declName := parentFieldInfo.declName
           }
+          if parentView.name?.isSome then
+            Term.addTermInfo' parentView.projRef parentFieldInfo.fvar (isBinder := true)
           go (i + 1)
     else
       k
@@ -995,6 +997,7 @@ where
                            name := view.name, declName := view.declName, fvar := fieldFVar, default? := default?,
                            binfo := view.binderInfo, paramInfoOverrides,
                            kind := StructFieldKind.newField }
+            Term.addTermInfo' view.nameId fieldFVar (isBinder := true)
             go (i+1)
         | none, some (.optParam value) =>
           let type ← inferType value
@@ -1003,6 +1006,7 @@ where
                            name := view.name, declName := view.declName, fvar := fieldFVar, default? := default?,
                            binfo := view.binderInfo, paramInfoOverrides,
                            kind := StructFieldKind.newField }
+            Term.addTermInfo' view.nameId fieldFVar (isBinder := true)
             go (i+1)
         | none, some (.autoParam _) =>
           throwError "field '{view.name}' has an autoparam but no type"

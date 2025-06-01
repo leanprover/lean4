@@ -1113,7 +1113,7 @@ def mkEMatchEqTheoremsForDef? (declName : Name) (showInfo := false) : MetaM (Opt
 
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (useLhs := true) (showInfo := false) : MetaM Unit := do
   if wasOriginallyTheorem (← getEnv) declName then
-    ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs) (showInfo := showInfo)) attrKind
+    ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs) (gen := thmKind.gen) (showInfo := showInfo)) attrKind
   else if let some thms ← mkEMatchEqTheoremsForDef? declName (showInfo := showInfo) then
     unless useLhs do
       throwError "`{declName}` is a definition, you must only use the left-hand side for extracting patterns"

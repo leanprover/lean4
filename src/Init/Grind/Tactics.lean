@@ -15,12 +15,13 @@ Reset all `grind` attributes. This command is intended for testing purposes only
 syntax (name := resetGrindAttrs) "reset_grind_attrs%" : command
 
 namespace Attr
-syntax grindEq     := "= "
-syntax grindEqBoth := atomic("_" "=" "_ ")
-syntax grindEqRhs  := atomic("=" "_ ")
+syntax grindGen    := &"gen "
+syntax grindEq     := "= " (grindGen)?
+syntax grindEqBoth := atomic("_" "=" "_ ") (grindGen)?
+syntax grindEqRhs  := atomic("=" "_ ") (grindGen)?
 syntax grindEqBwd  := atomic("←" "= ") <|> atomic("<-" "= ")
-syntax grindBwd    := "← " <|> "-> "
-syntax grindFwd    := "→ " <|> "<- "
+syntax grindBwd    := ("← " <|> "<- ") (grindGen)?
+syntax grindFwd    := "→ " <|> "-> "
 syntax grindRL     := "⇐ " <|> "<= "
 syntax grindLR     := "⇒ " <|> "=> "
 syntax grindUsr    := &"usr "
@@ -28,7 +29,10 @@ syntax grindCases  := &"cases "
 syntax grindCasesEager := atomic(&"cases" &"eager ")
 syntax grindIntro  := &"intro "
 syntax grindExt    := &"ext "
-syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro <|> grindExt
+syntax grindMod :=
+    grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
+    <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
+    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen
 syntax (name := grind) "grind" (grindMod)? : attr
 syntax (name := grind?) "grind?" (grindMod)? : attr
 end Attr

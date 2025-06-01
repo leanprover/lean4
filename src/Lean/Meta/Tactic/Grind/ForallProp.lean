@@ -78,7 +78,7 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft then
     activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
-    if let some thm ← mkEMatchTheoremWithKind'? origin proof .default then
+    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) then
       activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
     reportIssue! "failed to create E-match local theorem for{indentExpr e}"

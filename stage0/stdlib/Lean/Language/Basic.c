@@ -75,6 +75,7 @@ LEAN_EXPORT lean_object* l_Lean_Language_withHeaderExceptions___rarg(lean_object
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__32;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_Language_reportMessages___spec__10(uint8_t, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__10;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_bindIO(lean_object*, lean_object*);
@@ -212,7 +213,6 @@ LEAN_EXPORT lean_object* l_Lean_Language_instTypeNameSnapshotTree;
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__37;
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_waitAll_go___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__2;
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
@@ -5256,9 +5256,14 @@ return x_7;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_waitAll_go___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Lean_Language_SnapshotTree_waitAll_go(x_1, x_3);
-return x_4;
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec(x_2);
+x_5 = lean_array_to_list(x_4);
+x_6 = l_List_appendTR___rarg(x_5, x_1);
+x_7 = l_Lean_Language_SnapshotTree_waitAll_go(x_6, x_3);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Language_SnapshotTree_waitAll_go___closed__1() {
@@ -5293,22 +5298,13 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_5, 3);
 lean_inc(x_7);
 lean_dec(x_5);
-x_8 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_waitAll_go___lambda__1___boxed), 3, 1);
+x_8 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_waitAll_go___lambda__1), 3, 1);
 lean_closure_set(x_8, 0, x_6);
 x_9 = l_Task_Priority_default;
-x_10 = 0;
+x_10 = 1;
 x_11 = lean_io_bind_task(x_7, x_8, x_9, x_10, x_2);
 return x_11;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_waitAll_go___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Language_SnapshotTree_waitAll_go___lambda__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_waitAll(lean_object* x_1, lean_object* x_2) {

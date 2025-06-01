@@ -102,6 +102,29 @@ bool has_univ_param(expr const & e) { return lean_expr_has_level_param(e.to_obj_
 extern "C" unsigned lean_expr_loose_bvar_range(object * e);
 unsigned get_loose_bvar_range(expr const & e) { return lean_expr_loose_bvar_range(e.to_obj_arg()); }
 
+extern "C" LEAN_EXPORT uint64_t lean_expr_mk_data(uint64_t hash, object * bvarRange, uint32_t approxDepth, uint8_t hasFVar, uint8_t hasExprMVar, uint8_t hasLevelMVar, uint8_t hasLevelParam) {
+    if (approxDepth > 255) approxDepth = 255;
+    if (!is_scalar(bvarRange)) lean_internal_panic("too many bound variables");
+    size_t range = unbox(bvarRange);
+    if (range > 1048575) lean_internal_panic("too many bound variables");
+    uint32_t r = range;
+    uint32_t h = hash;
+    return ((uint64_t) h) + (((uint64_t) approxDepth) << 32) + (((uint64_t) hasFVar) << 40)
+    + (((uint64_t) hasExprMVar) << 41) + (((uint64_t) hasLevelMVar) << 42) + (((uint64_t) hasLevelParam) << 43)
+    + (((uint64_t) r) << 44);
+}
+
+inline uint16_t get_approx_depth(uint64_t data) { return (data >> 32) & 255; }
+inline uint32_t get_bvar_range(uint64_t data) { return data >> 44; }
+
+extern "C" LEAN_EXPORT uint64_t lean_expr_mk_app_data(uint64_t fData, uint64_t aData) {
+  uint16_t depth = std::max(get_approx_depth(fData), get_approx_depth(aData)) + 1;
+  if (depth > 255) depth = 255;
+  uint32_t range = std::max(get_bvar_range(fData), get_bvar_range(aData));
+  uint32_t h = hash(fData, aData);
+  return ((fData | aData) & (((uint64_t) 15) << 40)) | ((uint64_t) h) | (((uint64_t) depth) << 32) | (((uint64_t) range) << 44);
+}
+
 // =======================================
 // Constructors
 

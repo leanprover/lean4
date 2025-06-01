@@ -11,7 +11,6 @@ import Lean.Data.Lsp.Utf16
 import Lean.Message
 import Lean.Meta.TryThis
 import Lean.Util.Diff
-import Lean.Util.EditDistance
 import Lean.Widget.Types
 import Lean.PrettyPrinter
 
@@ -124,27 +123,22 @@ Guarantees that all actions in the output will be maximally grouped; that is, in
 partial def readableDiff (s s' : String) : Array (Diff.Action × String) :=
   -- TODO: add additional diff granularities
   let minLength := min s.length s'.length
+  -- The coefficient on this value can be tuned:
+  let maxCharDiffDistance := minLength
+
+  let charDiff := Diff.diff (splitChars s) (splitChars s')
+  -- Note: this is just a rough heuristic, since the diff has no notion of substitution
+  let approxEditDistance := charDiff.filter (·.1 != .skip) |>.size
+  let preStrDiff := joinEdits charDiff
   -- Given that `Diff.diff` returns a minimal diff, any length-≤3 diff can only have edits at the
   -- front and back, or at a single interior point. This will always be fairly readable (and
-  -- splitting by a larger unit would likely only be worse), so return it without further analysis:
-  if charDiff.size ≤ 3 then
-    charDiff
+  -- splitting by a larger unit would likely only be worse). Otherwise, we should only use the
+  -- per-character diff if the edit distance isn't so large that it will be hard to read:
+  if preStrDiff.size ≤ 3 || approxEditDistance ≤ maxCharDiffDistance then
+    preStrDiff.map fun (act, cs) => (act, String.mk cs.toList)
   else
-    -- The coefficient on this value can be tuned:
-    let charDiffDistance := 2 * minLength / 3
-    if let some editDistance := EditDistance.levenshtein s s' charDiffDistance then
-      charDiff
-    else
-      maxDiff
-where
-  charDiff :=
-    Diff.diff (splitChars s) (splitChars s')
-      |> joinEdits
-      |>.map fun (act, cs) => (act, String.mk cs.toList)
-
-  maxDiff :=
     #[(.delete, s), (.insert, s')]
-
+where
   splitChars (s : String) : Array Char :=
     s.toList.toArray
 

@@ -6129,7 +6129,7 @@ theorem clz_lt_length {x : BitVec w} :
   rcases w with _|w
   · simp [of_length_zero]
   · by_cases hx : x = 0#(w + 1)
-    · simp [hx]
+    · simp only [hx, clz_of_zero, toNat_ofNat, Nat.mod_two_pow_self]
       exact Nat.lt_two_pow_self
     · have : (clz x).toNat < w + 1 := by exact clz_lt_iff_ne_zero.mpr (by omega)
       omega

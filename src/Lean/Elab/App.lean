@@ -1506,15 +1506,19 @@ where
     let resultTypeFn := resultType.cleanupAnnotations.getAppFn
     try
       tryPostponeIfMVar resultTypeFn
-      let .const declName .. := resultTypeFn.cleanupAnnotations
-        | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
-      let idNew := declName ++ id.getId.eraseMacroScopes
-      if (← getEnv).contains idNew then
-        mkConst idNew
-      else if let some (fvar, []) ← resolveLocalName idNew then
-        return fvar
-      else
-        throwUnknownIdentifierAt id m!"invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+      match resultTypeFn.cleanupAnnotations with
+      | .const declName .. =>
+        let idNew := declName ++ id.getId.eraseMacroScopes
+        if (← getEnv).contains idNew then
+          mkConst idNew
+        else if let some (fvar, []) ← resolveLocalName idNew then
+          return fvar
+        else
+          throwUnknownIdentifierAt id m!"invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+      | .sort .. =>
+        throwError "Invalid dotted identifier notation: not supported on type{indentExpr resultTypeFn}"
+      | _ =>
+        throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with

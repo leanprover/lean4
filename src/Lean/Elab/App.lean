@@ -1191,6 +1191,12 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
     | _ => pure ()
+  else if eType.getAppFn.isMVar then
+    let field :=
+      match lval with
+      |  .fieldName _ fieldName _ _ => toString fieldName
+      | .fieldIdx _ i => toString i
+    throwError "Invalid field notation: type of{indentExpr e}\nis not known; cannot resolve field '{field}'"
   match eType.getAppFn.constName?, lval with
   | some structName, LVal.fieldIdx _ idx =>
     if idx == 0 then

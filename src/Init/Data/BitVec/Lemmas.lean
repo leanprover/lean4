@@ -5908,13 +5908,17 @@ theorem clzAux_eq_iff_forall  {x : BitVec w} (hw : 0 < w) :
     ∀ i, i < BitVec.clzAux x n → x.getLsbD (n - i) = false := by
   exact fun i a => getLsbD_false_of_lt_clzAux hw a
 
+theorem ofNat_inj_iff_eq {x y w : Nat} :
+    x % 2^w = y % 2^w ↔ BitVec.ofNat w x = BitVec.ofNat w y := by
+  simp [BitVec.ofNat, Fin.ofNat]
+
 theorem clz_le {x : BitVec w} :
-    BitVec.clz x ≤ BitVec.ofNat w w := by
+    (BitVec.clz x).toNat ≤ w := by
   unfold clz
   rcases w with _|w
   · simp
   · simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, ↓reduceIte, Nat.add_one_sub_one,
-    ofNat_le_ofNat, Nat.mod_two_pow_self]
+    ofNat_le_ofNat, Nat.mod_two_pow_self, natCast_eq_ofNat, ofNat_le_ofNat, Nat.mod_two_pow_self, toNat_ofNat]
     rw [Nat.mod_eq_of_lt (by
       have := clzAux_le (x := x) (n := w)
       have := Nat.lt_two_pow_self (n := w)
@@ -5932,13 +5936,9 @@ theorem clz_of_zero : BitVec.clz 0#w = BitVec.ofNat w w := by
     congr
     simp [clzAux_eq_iff]
 
-theorem ofNat_inj_iff_eq {x y w : Nat} :
-    x % 2^w = y % 2^w ↔ BitVec.ofNat w x = BitVec.ofNat w y := by
-  simp [BitVec.ofNat, Fin.ofNat]
-
 @[simp]
 theorem clz_eq_iff {x : BitVec w} :
-    clz x = BitVec.ofNat w w ↔ x = 0#w := by
+    (clz x).toNat = w ↔ x = 0#w := by
   rcases w with _|w
   · simp [clz, of_length_zero]
   · constructor
@@ -5946,162 +5946,185 @@ theorem clz_eq_iff {x : BitVec w} :
       simp only [clz, Nat.add_eq_zero, Nat.succ_ne_self, and_false, ↓reduceIte,
         Nat.add_one_sub_one] at h
       have := clzAux_eq_iff (x := x) (n := w)
-      have : x.clzAux w = w + 1 := by
-        simp [← ofNat_inj_iff_eq] at h
+      have h1 : x.clzAux w = w + 1 := by
+        simp only [toNat_ofNat, natCast_eq_ofNat, ← ofNat_inj_iff_eq, Nat.mod_two_pow_self] at h
         have := clzAux_le (x := x) (n := w)
-        have := clzAux_le (x := y) (n := w)
+        rw [Nat.mod_eq_of_lt (by omega)] at h
         omega
-      simp [h] at this
+      simp [h1] at this
       ext i
-      simp
-
+      simp only [getElem_zero]
       apply this
       omega
     · intro h
       simp [h]
 
 theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w):
-    clz x = 0#w ↔ 2 ^ (w - 1) ≤ x.toNat := by sorry
-  -- rcases w with _|w
-  -- · omega
-  -- · unfold clz clzAux
-  --   simp
-  --   cases w
-  --   · simp
-  --     constructor
-  --     · intro h
-  --       exact Nat.ge_two_pow_of_testBit h
-  --     · intro h
-  --       have := le_toNat_iff (x := x) (i := 0) (by omega)
-  --       simp [h] at this
-  --       obtain ⟨k,hk⟩ := this
-  --       by_cases k < 1
-  --       · rw [getLsbD_eq_getElem (by omega)] at hk
-  --         simp [show k = 0 by omega] at hk
-  --         exact hk
-  --       · simp [show k ≥ 0 + 1 by omega] at hk
-  --   · case succ w =>
-  --     simp
-  --     constructor
-  --     · intro h
-  --       exact Nat.ge_two_pow_of_testBit h
-  --     · intro h
-  --       have := le_toNat_iff (x := x) (i := w + 1) (by omega)
-  --       simp [h] at this
-  --       obtain ⟨k,hk⟩ := this
-  --       by_cases k < 1
-  --       · rw [getLsbD_eq_getElem (by omega)] at hk
-  --         simp [show k = 0 by omega] at hk
-  --         exact hk
-  --       · simp [show k ≥ 0 + 1 by omega] at hk
+    (clz x).toNat = 0 ↔ 2 ^ (w - 1) ≤ x.toNat := by
+  rcases w with _|w
+  · omega
+  · unfold clz clzAux
+    simp
+    cases w
+    · simp
+      constructor
+      · intro h
+        by_cases hx0 : x[0]
+        · simp only [hx0, ↓reduceIte] at h
+          exact Nat.ge_two_pow_of_testBit hx0
+        · simp only [hx0, Bool.false_eq_true, ↓reduceIte, Nat.mod_succ, one_eq_zero_iff,
+          Nat.succ_ne_self] at h
+      · intro h
+        have := le_toNat_iff (x := x) (i := 0) (by omega)
+        simp only [Nat.pow_zero, Nat.reduceAdd, h, Nat.zero_add, true_iff] at this
+        obtain ⟨k,hk⟩ := this
+        by_cases k < 1
+        · rw [getLsbD_eq_getElem (by omega)] at hk
+          simp only [show k = 0 by omega] at hk
+          simp only [hk, ↓reduceIte]
+        · simp only [show k ≥ 0 + 1 by omega, getLsbD_of_ge, Bool.false_eq_true] at hk
+    · case succ w =>
+      constructor
+      · intro h
+        simp [← ofNat_inj_iff_eq] at h
+        have hle := clzAux_le (x := x) (n := w)
+        by_cases hxw : x[w + 1]
+        · exact Nat.ge_two_pow_of_testBit hxw
+        · simp [hxw] at h
+          have := Nat.lt_pow_self (a := 2) (n := w + 1 + 1) (by omega)
+          rw [Nat.mod_eq_of_lt (by omega)] at h
+          omega
+      · intro h
+        have := le_toNat_iff (x := x) (i := w + 1) (by omega)
+        simp [h] at this
+        obtain ⟨k,hk⟩ := this
+        by_cases k < 1
+        · rw [getLsbD_eq_getElem (by omega)] at hk
+          simp [show k = 0 by omega, ← ofNat_inj_iff_eq] at hk
+          simp [show k = 0 by omega, ← ofNat_inj_iff_eq, hk]
+        · simp [show k ≥ 0 + 1 by omega] at hk
 
 theorem clz_lt_iff_ne_zero {x : BitVec w} :
-    (clz x).toNat < w ↔ x ≠ 0#w := by sorry
-  -- have := clz_le (x := x)
-  -- by_cases hx : x = 0#w
-  -- · simp [hx]
-  -- · simp [hx]
-  --   have := clz_eq_iff (x := x)
-  --   simp only [hx, iff_false] at this
-  --   omega
+    (clz x).toNat < w ↔ x ≠ 0#w := by
+  have hle := clz_le (x := x)
+  by_cases hx : x = 0#w
+  · simp [hx]
+  · simp only [ne_eq, hx, not_false_eq_true, iff_true, gt_iff_lt]
+    have heq := clz_eq_iff (x := x)
+    simp only [hx, iff_false] at heq
+    omega
 
 theorem getLsbD_false_of_clz {x : BitVec w}:
-    ∀ i, i < (x.clz).toNat → x.getLsbD (w - 1 - i) = false := by sorry
-  -- rcases w with _|w
-  -- · simp
-  -- · intro i hi
-  --   simp
-  --   refine getLsbD_false_of_lt_clzAux (by omega) hi
+    ∀ i, i < (x.clz).toNat → x.getLsbD (w - 1 - i) = false := by
+  rcases w with _|w
+  · simp
+  · intro i hi
+    simp only [Nat.add_one_sub_one]
+    refine getLsbD_false_of_lt_clzAux (by omega)
+      (by unfold clz at hi;
+          simp at hi;
+          have := clzAux_le (x := x) (n := w)
+          have := Nat.lt_pow_self (a := 2) (n := w + 1)
+          rw [Nat.mod_eq_of_lt (by omega)] at hi;
+          omega)
 
 theorem zero_iff_forall {x: BitVec w} :
-    x = 0#w ↔ ∀ i, i ≤ (w - 1) → x.getLsbD i = false := by sorry
-  -- rcases w with _|w
-  -- · simp [of_length_zero]
-  -- · constructor
-  --   · intros hx i hi
-  --     simp [hx]
-  --   · intro h
-  --     ext j hj
-  --     specialize h j
-  --     simp [show j ≤ w by omega] at h
-  --     simp
-  --     exact h
+    x = 0#w ↔ ∀ i, i ≤ (w - 1) → x.getLsbD i = false := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · constructor
+    · intros hx i hi
+      simp [hx]
+    · intro h
+      ext j hj
+      specialize h j
+      simp [show j ≤ w by omega] at h
+      simp
+      exact h
 
 theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
-    x.getLsbD (w - 1 - (clz x).toNat) = true := by sorry
-  -- rcases w with _|w
-  -- · omega
-  -- · unfold clz
-  --   simp [show ¬ w + 1 = 0 by omega]
-  --   have h := getLsbD_true_of_eq_clzAux_of_ne_zero (x := x) (n := w) hw
-  --   rcases h with h|h
-  --   · exact h
-  --   · simp [clzAux_eq_iff] at h
-  --     have := zero_iff_forall (x := x)
-  --     simp [h, hx] at this
-  --     obtain ⟨k,hk,hk'⟩ := this
-  --     specialize h k
-  --     simp only [show k < w + 1 by omega, forall_const] at h
-  --     simp [h] at hk'
+    x.getLsbD (w - 1 - (clz x).toNat) = true := by
+  rcases w with _|w
+  · omega
+  · unfold clz
+    simp [show ¬ w + 1 = 0 by omega]
+    have h := getLsbD_true_of_eq_clzAux_of_ne_zero (x := x) (n := w) hw
+    have := clzAux_le (x := x) (n := w)
+    have := clzAux_eq_iff (x := x) (n := w)
+    rcases h with h|h
+    · rw [Nat.mod_eq_of_lt (by
+        have := clzAux_le (x := x) (n := w)
+        have := Nat.lt_pow_self (a := 2) (n := w + 1)
+        omega)]
+      exact h
+    · simp [clzAux_eq_iff] at h
+      have := zero_iff_forall (x := x)
+      simp [h, hx] at this
+      obtain ⟨k,hk,hk'⟩ := this
+      specialize h k
+      simp only [show k < w + 1 by omega, forall_const] at h
+      simp [h] at hk'
 
 theorem getLsbD_false_forall_lt {x : BitVec w} (hx : x ≠ 0#w) :
-    ∀ i, x.getLsbD (w - (x.clz).toNat + i) = false := by sorry
-  -- rcases w with _|w
-  -- · simp [of_length_zero]
-  -- · unfold clz
-  --   simp [show ¬ w + 1 = 0 by omega]
-  --   have := clzAux_eq_iff_forall (x := x) (n := w) (by omega)
-  --   intro i
-  --   apply Classical.byContradiction
-  --   intro hcontra
-  --   simp at hcontra
-  --   specialize this (x.clzAux w - i - 1)
-  --   by_cases hc0 : x.clzAux w = 0
-  --   · simp [hc0] at this hcontra
-  --   · simp [show x.clzAux w - i - 1 < x.clzAux w by omega] at this
-  --     have h2 : x.clzAux w < w + 1 := by
-  --       refine clzAux_lt_iff.mpr ?_
-  --       have := zero_iff_forall (x := x)
-  --       simp [hx] at this
-  --       exact this
-  --     by_cases hwk : w + 1 - x.clzAux w + i < w + 1
-  --     · have ho : w - (x.clzAux w - i - 1) = w + 1 - x.clzAux w + i := by omega
-  --       simp [ho] at this
-  --       simp [this] at hcontra
-  --     · simp [show w + 1 ≤ w + 1 - x.clzAux w + i by omega] at hcontra
+    ∀ i, x.getLsbD (w - (x.clz).toNat + i) = false := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · unfold clz
+    simp [show ¬ w + 1 = 0 by omega]
+    have := clzAux_eq_iff_forall (x := x) (n := w) (by omega)
+    intro i
+    apply Classical.byContradiction
+    intro hcontra
+    simp at hcontra
+    have hle := clzAux_le (x := x) (n := w)
+    have hlt := Nat.lt_pow_self (a := 2) (n := w + 1)
+    rw [Nat.mod_eq_of_lt (by omega)] at hcontra
+    specialize this (x.clzAux w - i - 1)
+    by_cases hc0 : x.clzAux w = 0
+    · simp [hc0] at this hcontra
+    · simp [show x.clzAux w - i - 1 < x.clzAux w by omega] at this
+      have h2 : x.clzAux w < w + 1 := by
+        refine clzAux_lt_iff.mpr ?_
+        have := zero_iff_forall (x := x)
+        simp [hx] at this
+        exact this
+      by_cases hwk : w + 1 - x.clzAux w + i < w + 1
+      · have ho : w - (x.clzAux w - i - 1) = w + 1 - x.clzAux w + i := by omega
+        simp [ho] at this
+        simp [this] at hcontra
+      · simp [show w + 1 ≤ w + 1 - x.clzAux w + i by omega] at hcontra
 
 -- counterexample why we need hx:
 -- #eval 2 ^ (5 - clz (0#5) - 1) ≤ (0#5).toNat
 theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
-    2 ^ (w - 1 - (clz x).toNat) ≤ x.toNat := by sorry
-  -- have : clz x < w := by exact clz_lt_iff_ne_zero.mpr hx
-  -- by_cases hc0 : x.clz = 0
-  -- · simp [hc0]
-  --   simp [clz_eq_zero_iff (by omega)] at hc0
-  --   omega
-  -- · have : 0 < x.clz := by omega
-  --   have h2 := getLsbD_true_of_clz_of_ne_zero (x := x) hw hx
-  --   rw [getLsbD_eq_getElem (by omega)] at h2
-  --   have h3 := Nat.ge_two_pow_of_testBit h2
-  --   push_cast at h3
-  --   exact h3
+    2 ^ (w - 1 - (clz x).toNat) ≤ x.toNat := by
+
+  have : (clz x).toNat < w := by exact clz_lt_iff_ne_zero.mpr hx
+  by_cases hc0 : x.clz.toNat = 0
+  · simp [hc0]
+    simp [clz_eq_zero_iff (by omega)] at hc0
+    omega
+  · have : 0 < x.clz.toNat := by omega
+    have h2 := getLsbD_true_of_clz_of_ne_zero (x := x) hw hx
+    rw [getLsbD_eq_getElem (by omega)] at h2
+    have h3 := Nat.ge_two_pow_of_testBit h2
+    push_cast at h3
+    exact h3
 
 theorem lt_toNat_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
-    x.toNat < 2 ^ (w - (clz x).toNat) := by sorry
-  -- have : clz x < w := by exact clz_lt_iff_ne_zero.mpr hx
-  -- by_cases hc0 : x.clz = 0
-  -- · simp [hc0]
-  --   simp [clz_eq_zero_iff (by exact Nat.zero_lt_succ w)] at hc0
-  --   omega
-  -- · have : 1 ≤ x.clz := by omega
-  --   have h1 := toNat_lt_iff (x := x)
-  --   have h1' := h1 (w - x.clz) (by omega)
-  --   have h2 := getLsbD_false_of_clz (x := x)
-  --   have h3 := getLsbD_false_forall_lt (x := x) hx
-  --   simp [h3] at h1'
-  --   exact h1'
-
-
+    x.toNat < 2 ^ (w - (clz x).toNat) := by
+  have : (clz x).toNat < w := by exact clz_lt_iff_ne_zero.mpr hx
+  by_cases hc0 : (x.clz).toNat = 0
+  · simp [hc0]
+    simp [clz_eq_zero_iff (by exact Nat.zero_lt_succ w)] at hc0
+    omega
+  · have : 1 ≤ x.clz.toNat := by omega
+    have h1 := toNat_lt_iff (x := x)
+    have h1' := h1 (w - x.clz.toNat) (by omega)
+    have h2 := getLsbD_false_of_clz (x := x)
+    have h3 := getLsbD_false_forall_lt (x := x) hx
+    simp [h3] at h1'
+    exact h1'
 
 /- we want to make sure that the clz value never overflows,
   in the most general version possible -/

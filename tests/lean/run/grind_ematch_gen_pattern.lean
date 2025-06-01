@@ -1,14 +1,24 @@
 set_option grind.warning false
-reset_grind_attrs%
-
-@[grind gen] theorem pbind_some' {α β} {x : Option α} {a : α} {f : (a : α) → x = some a → Option β}
-     (h : x = some a) : Option.pbind x f = f a h := by
-  subst h; rfl
 
 def f (x : Option Nat) (h : x ≠ none) : Nat :=
   match x with
   | none => by contradiction
   | some a => a
+
+-- The following should work out-of-the-box with `Option.pbind_some'
+example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by
+  grind [f]
+
+/-- info: Try this: grind only [= gen Option.pbind_some', f, cases Or] -/
+#guard_msgs (info) in
+example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by
+  grind? [f]
+
+reset_grind_attrs%
+
+@[grind gen] theorem pbind_some' {α β} {x : Option α} {a : α} {f : (a : α) → x = some a → Option β}
+     (h : x = some a) : Option.pbind x f = f a h := by
+  subst h; rfl
 
 example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by
   grind only [gen pbind_some', f]

@@ -365,7 +365,7 @@ Callback from Lean language processor after parsing imports that requests necess
 Lake for processing imports.
 -/
 def setupImports
-    (meta        : DocumentMeta)
+    (doc         : DocumentMeta)
     (cmdlineOpts : Options)
     (chanOut     : Std.Channel JsonRpc.Message)
     (stx         : TSyntax ``Parser.Module.header)
@@ -381,17 +381,17 @@ def setupImports
     return .error { diagnostics := .empty, result? := none }
 
   let imports := Elab.headerToImports stx
-  let fileSetupResult ← setupFile meta imports fun stderrLine => do
+  let fileSetupResult ← setupFile doc imports fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
-      fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.endPos⟩
       severity?  := DiagnosticSeverity.information
       message    := stderrLine
     }
-    chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
+    chanOut.sync.send <| mkPublishDiagnosticsNotification doc #[progressDiagnostic]
   -- clear progress notifications in the end
-  chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[]
+  chanOut.sync.send <| mkPublishDiagnosticsNotification doc #[]
   match fileSetupResult.kind with
   | .importsOutOfDate =>
     return .error {
@@ -416,7 +416,7 @@ def setupImports
   let opts := Elab.inServer.set opts true
 
   return .ok {
-    mainModuleName := meta.mod
+    mainModuleName := doc.mod
     isModule := Elab.HeaderSyntax.isModule stx
     imports
     opts
@@ -425,7 +425,7 @@ def setupImports
 
 /- Worker initialization sequence. -/
 section Initialization
-  def initializeWorker (meta : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
+  def initializeWorker (doc : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
     let maxDocVersionRef ← IO.mkRef 0
@@ -442,9 +442,9 @@ section Initialization
           -- Emit a refresh request after a file worker restart.
           pendingRefreshInfo? := some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
         })
-    let processor := Language.Lean.process (setupImports meta opts chanOut)
+    let processor := Language.Lean.process (setupImports doc opts chanOut)
     let processor ← Language.mkIncrementalProcessor processor
-    let initSnap ← processor meta.mkInputContext
+    let initSnap ← processor doc.mkInputContext
     let _ ← ServerTask.IO.asTask do
       let importClosure := getImportClosure? initSnap
       let importClosure ← importClosure.filterMapM (documentUriFromModule? ·)
@@ -463,7 +463,7 @@ section Initialization
       stickyDiagnosticsRef
     }
     let doc : EditableDocumentCore := {
-      meta, initSnap
+      «meta» := doc, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
     }
     let reporterCancelTk ← CancelToken.new
@@ -544,19 +544,19 @@ section Updates
     modify fun st => { st with pendingRequests := map st.pendingRequests }
 
   /-- Given the new document, updates editable doc state. -/
-  def updateDocument (meta : DocumentMeta) : WorkerM Unit := do
+  def updateDocument (doc : DocumentMeta) : WorkerM Unit := do
     (← get).reporterCancelTk.set
     let ctx ← read
-    let initSnap ← ctx.processor meta.mkInputContext
+    let initSnap ← ctx.processor doc.mkInputContext
     let doc : EditableDocumentCore := {
-      meta, initSnap
+      «meta» := doc, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
     }
     let reporterCancelTk ← CancelToken.new
     let reporter ← reportSnapshots ctx doc reporterCancelTk
     modify fun st => { st with doc := { doc with reporter }, reporterCancelTk }
     -- we assume version updates are monotonous and that we are on the main thread
-    ctx.maxDocVersionRef.set meta.version
+    ctx.maxDocVersionRef.set doc.meta.version
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state
@@ -1011,7 +1011,7 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
 
-  let meta : DocumentMeta := {
+  let doc : DocumentMeta := {
     uri := doc.uri
     mod := ← moduleFromDocumentUri doc.uri
     version := doc.version
@@ -1023,9 +1023,9 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   let (ctx, st) ← try
-    initializeWorker meta o e initParams.param opts
+    initializeWorker doc o e initParams.param opts
   catch err =>
-    writeErrorDiag meta err
+    writeErrorDiag doc err
     throw err
   StateRefT'.run' (s := st) <| ReaderT.run (r := ctx) do
     try
@@ -1038,10 +1038,10 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
       writeErrorDiag st.doc.meta err
       throw err
 where
-  writeErrorDiag (meta : DocumentMeta) (err : Error) : IO Unit := do
-    o.writeLspMessage <| mkPublishDiagnosticsNotification meta #[{
+  writeErrorDiag (doc : DocumentMeta) (err : Error) : IO Unit := do
+    o.writeLspMessage <| mkPublishDiagnosticsNotification doc #[{
       range := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩,
-      fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.endPos⟩
       severity? := DiagnosticSeverity.error
       message := err.toString }]
 

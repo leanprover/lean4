@@ -200,7 +200,7 @@ structure State where
 -/
 structure Snapshot where
   core   : Core.State
-  meta   : Meta.State
+  «meta» : Meta.State
   term   : Term.State
   tactic : Tactic.State
   stx    : Syntax

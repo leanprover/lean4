@@ -19,21 +19,26 @@ definitions.
 ## Necessarily noncomputable function not appropriately marked
 
 ```lean broken
-def getWitness {P : α → Prop} (h : ∃ x, P x) :
-    {x : α // P x} :=
-  ⟨Classical.choose h, Classical.choose_spec h⟩
+axiom transform : Nat → Nat
+
+def transformIfZero : Nat → Nat
+  | 0 => transform 0
+  | n => n
 ```
 ```output
-failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Classical.choose', which is 'noncomputable'
+failed to compile definition, consider marking it as 'noncomputable' because it depends on 'transform', and it does not have executable code
 ```
 ```lean fixed
-noncomputable def getWitness {P : α → Prop} (h : ∃ x, P x) :
-    {x : α // P x} :=
-  ⟨Classical.choose h, Classical.choose_spec h⟩
+axiom transform : Nat → Nat
+
+noncomputable def transformIfZero : Nat → Nat
+  | 0 => transform 0
+  | n => n
 ```
-In this example, `getWitness` depends on the noncomputable function `Classical.choose`. Because
-`Classical.choose` is necessarily noncomputable, the only way to define `getWitness` is to make it
-noncomputable as well.
+In this example, `transformifZero` depends on the axiom `transform`. Because `transform` is an
+axiom, it does not contain any executable code; although the value `transform 0` has type `Nat`,
+there is no way to compute its value. Thus, `transformIfZero` must be marked `noncomputable` because
+its exeuction would depend on this axiom.
 
 ## Noncomputable dependency can be made computable
 

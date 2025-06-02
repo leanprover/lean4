@@ -1704,7 +1704,7 @@ def isFunCasesName (env : Environment) (name : Name) : Bool := Id.run do
   | "fun_cases"
   | "fun_cases_unfolding" =>
     unless env.isSafeDefinition p do return false
-    return false
+    return true
   | _ => return false
 
 builtin_initialize

@@ -5383,7 +5383,7 @@ theorem toNat_neg_lt_of_msb (x : BitVec w) (hmsb : x.msb = true) :
     · have := BitVec.le_toNat_of_msb_true hmsb
       have := toNat_pos_of_ne_zero hx
       rw [toNat_neg, Nat.mod_eq_of_lt (by omega), ← Nat.two_pow_pred_add_two_pow_pred (by omega),
-        ←Nat.two_mul]
+        ← Nat.two_mul]
       omega
 
 /-! ### abs -/

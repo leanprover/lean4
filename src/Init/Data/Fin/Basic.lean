@@ -81,7 +81,7 @@ Examples:
  * `(2 : Fin 3) + (2 : Fin 3) = (1 : Fin 3)`
 -/
 protected def add : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + b) % n, by exact mlt h⟩
 
 /--
 Multiplication modulo `n`, usually invoked via the `*` operator.
@@ -92,7 +92,7 @@ Examples:
  * `(3 : Fin 10) * (7 : Fin 10) = (1 : Fin 10)`
 -/
 protected def mul : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a * b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a * b) % n, by exact mlt h⟩
 
 /--
 Subtraction modulo `n`, usually invoked via the `-` operator.
@@ -119,7 +119,7 @@ protected def sub : Fin n → Fin n → Fin n
   using recursion on the second argument.
   See issue #4413.
   -/
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨((n - b) + a) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨((n - b) + a) % n, by exact mlt h⟩
 
 /-!
 Remark: land/lor can be defined without using (% n), but
@@ -161,19 +161,19 @@ def modn : Fin n → Nat → Fin n
 Bitwise and.
 -/
 def land : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.land a b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.land a b) % n, by exact mlt h⟩
 
 /--
 Bitwise or.
 -/
 def lor : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.lor a b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.lor a b) % n, by exact mlt h⟩
 
 /--
 Bitwise xor (“exclusive or”).
 -/
 def xor : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.xor a b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.xor a b) % n, by exact mlt h⟩
 
 /--
 Bitwise left shift of bounded numbers, with wraparound on overflow.
@@ -184,7 +184,7 @@ Examples:
  * `(1 : Fin 10) <<< (4 : Fin 10) = (6 : Fin 10)`
 -/
 def shiftLeft : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a <<< b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a <<< b) % n, by exact mlt h⟩
 
 /--
 Bitwise right shift of bounded numbers.
@@ -198,7 +198,7 @@ Examples:
  * `(15 : Fin 17) >>> (2 : Fin 17) = (3 : Fin 17)`
 -/
 def shiftRight : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a >>> b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a >>> b) % n, by exact mlt h⟩
 
 instance : Add (Fin n) where
   add := Fin.add

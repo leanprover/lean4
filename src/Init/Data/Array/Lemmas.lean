@@ -3731,7 +3731,7 @@ theorem back?_replicate {a : α} {n : Nat} :
 @[deprecated back?_replicate (since := "2025-03-18")]
 abbrev back?_mkArray := @back?_replicate
 
-@[simp] theorem back_replicate (w : 0 < n) : (replicate n a).back (by simpa using w) = a := by
+@[simp] theorem back_replicate {xs : Array α} (w : 0 < n) : (replicate n xs).back (by simpa using w) = xs := by
   simp [back_eq_getElem]
 
 @[deprecated back_replicate (since := "2025-03-18")]

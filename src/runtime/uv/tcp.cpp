@@ -232,7 +232,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
     event_loop_lock(global_ev);
 
     if (tcp_socket->m_promise_read != nullptr) {
-        event_loop_unlock(&global_ev);
+        event_loop_unlock(global_ev);
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
 
@@ -303,10 +303,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket, obj_arg /* w */) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    event_loop_lock(&global_ev);
+    event_loop_lock(global_ev);
 
     if (tcp_socket->m_promise_read != nullptr) {
-        event_loop_unlock(&global_ev);
+        event_loop_unlock(global_ev);
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
 
@@ -352,7 +352,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket, 
     if (result < 0) {
         tcp_socket->m_promise_read = nullptr;
 
-        event_loop_unlock(&global_ev);
+        event_loop_unlock(global_ev);
 
         lean_dec(promise); // The structure does not own it.
         lean_dec(promise); // We are not going to return it.
@@ -361,7 +361,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket, 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    event_loop_unlock(&global_ev);
+    event_loop_unlock(global_ev);
 
     return lean_io_result_mk_ok(promise);
 }
@@ -370,10 +370,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket, 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket, obj_arg /* w */) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    event_loop_lock(&global_ev);
+    event_loop_lock(global_ev);
 
     if (tcp_socket->m_promise_read == nullptr) {
-        event_loop_unlock(&global_ev);
+        event_loop_unlock(global_ev);
         return lean_io_result_mk_ok(lean_box(0));
     }
 
@@ -391,7 +391,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket, ob
 
     lean_dec((lean_object*)tcp_socket);
 
-    event_loop_unlock(&global_ev);
+    event_loop_unlock(global_ev);
     return lean_io_result_mk_ok(lean_box(0));
 }
 

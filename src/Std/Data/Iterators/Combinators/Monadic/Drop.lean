@@ -149,12 +149,12 @@ instance Drop.instProductive [Iterator α m β] [Monad m] [Productive α m] :
     Productive (Drop α m β) m :=
   Productive.of_productivenessRelation instProductivenessRelation
 
-instance Drop.instIteratorCollect [Monad m] [Iterator α m β] [Finite α m] :
-    IteratorCollect (Drop α m β) m :=
+instance Drop.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
+    IteratorCollect (Drop α m β) m n :=
   .defaultImplementation
 
-instance Drop.instIteratorCollectPartial [Monad m] [Iterator α m β] :
-    IteratorCollectPartial (Drop α m β) m :=
+instance Drop.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] :
+    IteratorCollectPartial (Drop α m β) m n :=
   .defaultImplementation
 
 instance Drop.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :

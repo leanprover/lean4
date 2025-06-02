@@ -43,7 +43,7 @@ theorem Iter.atIdxSlow?_drop {α β}
 
 @[simp]
 theorem Iter.toList_drop {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.drop n).toList = it.toList.drop n := by
   ext
@@ -52,7 +52,7 @@ theorem Iter.toList_drop {α β} [Iterator α Id β] {n : Nat}
 
 @[simp]
 theorem Iter.toListRev_drop {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.drop n).toListRev = (it.toList.reverse.take (it.toList.length - n)) := by
   rw [toListRev_eq, toList_drop, List.reverse_drop]
@@ -70,7 +70,7 @@ theorem List.drop_eq_extract {l : List α} {k : Nat} :
 
 @[simp]
 theorem Iter.toArray_drop {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id] [LawfulIteratorCollect α Id]
+    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.drop n).toArray = it.toArray.extract n := by
   rw [← toArray_toList, ← toArray_toList, ← List.toArray_drop, toList_drop]

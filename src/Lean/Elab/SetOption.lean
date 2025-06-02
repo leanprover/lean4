@@ -12,7 +12,7 @@ variable [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT (EIO Exception) m
 
 def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   let ref ← getRef
-  logInfo m!"Calling elabSetOption; adding completion info with syntax {ref.setArgs (ref.getArgs[0:3])}"
+  -- logInfo m!"Calling elabSetOption; adding completion info with syntax {ref.setArgs (ref.getArgs[0:3])}"
   -- For completion purposes, we discard `val` and any later arguments.
   -- We include the first argument (the keyword) for position information in case `id` is `missing`.
   addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[0:3]))

@@ -512,7 +512,7 @@ private def trailingDotCompletion [ForIn Id Coll (Name × α)]
     Array CompletionItem := Id.run do
   let (partialName, trailingDot) :=
     -- `stx` is from `"set_option" >> ident`
-    match stx[1].getSubstring? (withLeading := false) (withTrailing := false) with
+    match stx.getSubstring? (withLeading := false) (withTrailing := false) with
     | none => ("", false)  -- the `ident` is `missing`, list all options
     | some ss =>
       if !ss.str.atEnd ss.stopPos && ss.str.get ss.stopPos == '.' then
@@ -546,12 +546,9 @@ def optionCompletion
     (caps              : ClientCapabilities)
     : IO (Array CompletionItem) :=
   ctx.runMetaM {} do
-    dbg_trace s!"Calling optionCompletion {repr params} {completionInfoPos} [ctx] {stx} {caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·))))}"
     -- HACK(WN): unfold the type so ForIn works
     let (decls : RBMap _ _ _) ← getOptionDecls
     let opts ← getOptions
-    dbg_trace "Got option name syntax:\n  {stx}\nwith args:{stx.getArgs.map fun a => s!"\n  {a}"}"
-    dbg_trace "Picking as ident syntax: {stx[1]}"
     return trailingDotCompletion decls stx[1] caps ctx fun name decl textEdit? => {
       label := name.toString
       detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
@@ -559,8 +556,8 @@ def optionCompletion
       kind? := CompletionItemKind.property -- TODO: investigate whether this is the best kind for options.
       textEdit?
       data? := toJson {
-        params,
-        cPos := completionInfoPos,
+        params
+        cPos := completionInfoPos
         id? := none : ResolvableCompletionItemData
       }
     }
@@ -573,20 +570,21 @@ def errorNameCompletion
     (caps              : ClientCapabilities)
     : IO (Array CompletionItem) :=
   ctx.runMetaM {} do
-    dbg_trace s!"Calling errorNameCompletion {repr params} {completionInfoPos} [ctx] {stx} {caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·))))}"
-    dbg_trace "Got error name syntax:\n  {stx}\nwith args:{stx.getArgs.map fun a => s!"\n  {a}"}"
     let explanations := getErrorExplanationsRaw (← getEnv)
-    -- Per the invariant on `errorName` completion info, we want the penultimate argument:
+    -- -- Per the invariant on `errorName` completion info, we want the penultimate argument:
     let errorNameStx := stx[stx.getNumArgs - 2]
-    dbg_trace "Picking as ident syntax: {errorNameStx}"
     return trailingDotCompletion explanations errorNameStx caps ctx fun name explan textEdit? => {
       label := name.toString,
-      detail? := "error name",
-      documentation? := some { value := explan.metadata.summary, kind := .markdown },
+      detail? := explan.metadata.summary,
       -- TODO: whatever we decide about the kind for options above is also likely relevant here
       kind? := CompletionItemKind.property
+      textEdit?
       tags? := explan.metadata.removedVersion.map fun _ => #[CompletionItemTag.deprecated]
-      data? := toJson { params, cPos := completionInfoPos, id? := none : ResolvableCompletionItemData }
+      data? := toJson {
+        params
+        cPos := completionInfoPos
+        id? := none : ResolvableCompletionItemData
+      }
     }
 
 def tacticCompletion

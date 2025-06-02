@@ -1098,7 +1098,6 @@ def matchExprAlts (rhsParser : Parser) :=
 -- -/
 -- def identWithPartialTrailingDotSpace :=
 --   ident >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident >> checkWsBefore)
-
 @[term_parser] def throwNamedErrorParser := leading_parser
   "throwNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
 @[term_parser] def throwNamedErrorAtParser := leading_parser

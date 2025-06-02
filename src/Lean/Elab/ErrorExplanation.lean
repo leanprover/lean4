@@ -33,26 +33,29 @@ open Lean Elab Term in
 --   builtin_term_elab logNamedErrorParser, builtin_term_elab logNamedErrorAtParser]
 @[term_elab throwNamedErrorParser, term_elab throwNamedErrorAtParser,
   term_elab logNamedErrorParser, term_elab logNamedErrorAtParser]
-def elabCheckedNamedError : TermElab
-  | stx@`(throwNamedError $id:ident $_msg), expType?
-  | stx@`(throwNamedErrorAt $_ref $id:ident $_msg), expType?
-  | stx@`(logNamedError $id:ident $_msg), expType?
-  | stx@`(logNamedErrorAt $_ref $id:ident $_msg), expType? => do
-    logInfo m!"Calling elabCheckedNamedError; adding completion info with syntax {stx.setArgs (stx.getArgs[0:stx.getNumArgs - 1])}"
-    logInfo m!"Sanity check: is the ref equal to `stx`? {(← getRef) == stx}"
-    let name := id.getId
-    -- The message is unnecessary for completion:
-    addCompletionInfo <| CompletionInfo.errorName (stx.setArgs (stx.getArgs[0:stx.getNumArgs - 1]))
-    pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name}
-    let some explan := getErrorExplanationRaw? (← getEnv) name
-      | throwError m!"There is no explanation associated with the name `{name}`. \
-        Add an explanation of this error to the `Lean.ErrorExplanation` module."
-    if let some removedVersion := explan.metadata.removedVersion then
-      logWarningAt id m!"The error name `{name}` was removed in Lean version {removedVersion} and \
-        should not be used."
-    let stx' ← liftMacroM <| expandThrowNamedError stx
-    elabTerm stx' expType?
-  | _, _ => throwUnsupportedSyntax
+def elabCheckedNamedError : TermElab := fun stx expType? => do
+  let (id, numArgsExpected) := if stx.isOfKind ``Parser.Term.throwNamedErrorAtParser ||
+               stx.isOfKind ``Parser.Term.logNamedErrorAtParser then
+    (stx[2], 5)
+  else
+    (stx[1], 4)
+  -- Remove the message term so the name is the penultimate argument per the `errorName` invariant.
+  -- If we have a trailing `.`, we fail to parse the message term and so leave `stx` unchanged.
+  let span := if stx.getNumArgs == numArgsExpected then
+    stx.setArgs (stx.getArgs[0:stx.getNumArgs - 1])
+  else
+    stx
+  addCompletionInfo <| CompletionInfo.errorName span
+  let name := id.getId.eraseMacroScopes
+  pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name}
+  let some explan := getErrorExplanationRaw? (← getEnv) name
+    | throwError m!"There is no explanation associated with the name `{name}`. \
+      Add an explanation of this error to the `Lean.ErrorExplanation` module."
+  if let some removedVersion := explan.metadata.removedVersion then
+    logWarningAt id m!"The error name `{name}` was removed in Lean version {removedVersion} and \
+      should not be used."
+  let stx' ← liftMacroM <| expandThrowNamedError stx
+  elabTerm stx' expType?
 
 open Parser Elab Meta Term Command in
 @[builtin_command_elab registerErrorExplanationStx] def elabRegisterErrorExplanation : CommandElab

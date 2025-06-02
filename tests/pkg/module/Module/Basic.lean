@@ -18,14 +18,14 @@ def f_struct : Nat → Nat
 | n + 1 => f_struct n
 termination_by structural n => n
 
-def f_wfrec : Nat → Nat
-| 0 => 0
-| n + 1 => f_wfrec n
+def f_wfrec : Nat → Nat → Nat
+| 0, acc => acc
+| n + 1, acc => f_wfrec n (acc + 1)
 termination_by n => n
 
-@[expose] def f_exp_wfrec : Nat → Nat
-| 0 => 0
-| n + 1 => f_exp_wfrec n
+@[expose] def f_exp_wfrec : Nat → Nat → Nat
+| 0, acc => acc
+| n + 1, acc => f_exp_wfrec n (acc + 1)
 termination_by n => n
 
 @[inline] protected def Test.Option.map (f : α → β) : Option α → Option β
@@ -81,50 +81,50 @@ info: f_struct.eq_unfold :
 #guard_msgs(pass trace, all) in
 #check f_struct.eq_unfold
 
-/-- info: f_wfrec.eq_1 : f_wfrec 0 = 0 -/
+/-- info: f_wfrec.eq_1 (x✝ : Nat) : f_wfrec 0 x✝ = x✝ -/
 #guard_msgs(pass trace, all) in
 #check f_wfrec.eq_1
 
 /--
-info: f_wfrec.eq_def (x✝ : Nat) :
-  f_wfrec x✝ =
-    match x✝ with
-    | 0 => 0
-    | n.succ => f_wfrec n
+info: f_wfrec.eq_def (x✝ x✝¹ : Nat) :
+  f_wfrec x✝ x✝¹ =
+    match x✝, x✝¹ with
+    | 0, acc => acc
+    | n.succ, acc => f_wfrec n (acc + 1)
 -/
 #guard_msgs in
 #check f_wfrec.eq_def
 
 /--
 info: f_wfrec.eq_unfold :
-  f_wfrec = fun x =>
-    match x with
-    | 0 => 0
-    | n.succ => f_wfrec n
+  f_wfrec = fun x x_1 =>
+    match x, x_1 with
+    | 0, acc => acc
+    | n.succ, acc => f_wfrec n (acc + 1)
 -/
 #guard_msgs in
 #check f_wfrec.eq_unfold
 
-/-- info: f_exp_wfrec.eq_1 : f_exp_wfrec 0 = 0 -/
+/-- info: f_exp_wfrec.eq_1 (x✝ : Nat) : f_exp_wfrec 0 x✝ = x✝ -/
 #guard_msgs in
 #check f_exp_wfrec.eq_1
 
 /--
-info: f_exp_wfrec.eq_def (x✝ : Nat) :
-  f_exp_wfrec x✝ =
-    match x✝ with
-    | 0 => 0
-    | n.succ => f_exp_wfrec n
+info: f_exp_wfrec.eq_def (x✝ x✝¹ : Nat) :
+  f_exp_wfrec x✝ x✝¹ =
+    match x✝, x✝¹ with
+    | 0, acc => acc
+    | n.succ, acc => f_exp_wfrec n (acc + 1)
 -/
 #guard_msgs in
 #check f_exp_wfrec.eq_def
 
 /--
 info: f_exp_wfrec.eq_unfold :
-  f_exp_wfrec = fun x =>
-    match x with
-    | 0 => 0
-    | n.succ => f_exp_wfrec n
+  f_exp_wfrec = fun x x_1 =>
+    match x, x_1 with
+    | 0, acc => acc
+    | n.succ, acc => f_exp_wfrec n (acc + 1)
 -/
 #guard_msgs in
 #check f_exp_wfrec.eq_unfold

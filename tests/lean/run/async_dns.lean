@@ -57,7 +57,7 @@ instance : MonadLift IO Async where
   monadLift io := Async.mk (io >>= (pure ∘ AsyncTask.pure))
 
 def runDNS : Async Unit := do
-  let infos ← await <| (timeout (← DNS.getAddrInfo "google.com" "http" .tcp) 10000)
+  let infos ← await <| (timeout (← DNS.getAddrInfo "google.com" "http") 10000)
 
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)

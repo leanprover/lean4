@@ -190,6 +190,16 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     std::string program = proc_name.to_std_string();
 
+    // Validate program name
+    if (program.size() == 0 || program[program.size() - 1] == '\\') {
+        return io_result_mk_error(lean_mk_io_error_invalid_argument_file(proc_name.to_obj_arg(), EINVAL, mk_string("invalid process name")));
+    }
+    for (size_t i = 0; i < program.size(); i++) {
+        if (program[i] == '"') {
+            return io_result_mk_error(lean_mk_io_error_invalid_argument_file(proc_name.to_obj_arg(), EINVAL, mk_string("invalid process name")));
+        }
+    }
+
     // Always escape program in cmdline, in case it contains spaces
     std::string command = "\"";
     command += program;
@@ -201,14 +211,32 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     // We must escape the arguments to preserving spacing and other characters,
     // we might need to revisit escaping here.
     for (auto arg : args) {
-        command += " \"";
+        bool should_quote = false;
         for (char const * c = arg.data(); *c != 0; c++) {
-            if (*c == '"') {
-                command += '\\';
+            // check for safe characters
+            if ((*c < 'A' || *c > 'Z') && (*c < 'a' || *c > 'z') && (*c < '0' || *c > '9')) {
+                switch (*c) {
+                    case '#': case '$': case '*': case '+': case '-': case '.': case '/': case ':':
+                    case '?': case '@': case '_':
+                        continue;
+                }
+                should_quote = true;
+                break;
             }
-            command += *c;
         }
-        command += "\"";
+        if (should_quote) {
+            command += " \"";
+            for (char const * c = arg.data(); *c != 0; c++) {
+                if (*c == '"' || *c == '\\') {
+                    command += '\\';
+                }
+                command += *c;
+            }
+            command += "\"";
+        } else {
+            command += " ";
+            command += arg.to_std_string();
+        }
     }
 
     PROCESS_INFORMATION piProcInfo;

@@ -21,6 +21,7 @@ namespace bitblast
 variable [Hashable α] [DecidableEq α]
 
 def blastClz (aig : AIG α) (s : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
+  let clz := (1 : Nat)
   let ⟨refs, hrefs⟩ := s
   ⟨aig, ⟨sorry, by sorry⟩⟩
 

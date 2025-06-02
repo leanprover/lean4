@@ -555,9 +555,13 @@ protected def saveState : MetaM SavedState :=
   return { core := (← Core.saveState), meta := (← get) }
 
 /-- Restore backtrackable parts of the state. -/
-def SavedState.restore (b : SavedState) : MetaM Unit := do
+def SavedState.restore (b : SavedState) (transCache : Bool := false) : MetaM Unit := do
   b.core.restore
-  modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
+  modify fun s => { s with
+    mctx := b.meta.mctx
+    zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds
+    postponed := b.meta.postponed
+    cache.defEqTrans := if transCache then b.meta.cache.defEqTrans else s.cache.defEqTrans }
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
 def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : MetaM α) :
@@ -2193,16 +2197,14 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
         setPostponed (postponed ++ newPostponed)
         return true
       else
-        if (← getMCtx).numAssignments != s.meta.mctx.numAssignments then
-          -- Some metavariable assigments are being reverted, so the transient cache won't be valid anymore.
-          resetDefEqTransientCache
-        s.restore
+        -- If restoring the state causes a metavariable assignment to be reverted, the transient cache also needs to be reverted
+        let revertedMCtx := (← getMCtx).numAssignments != s.meta.mctx.numAssignments
+        s.restore (transCache := revertedMCtx)
         return false
     else
-      if (← getMCtx).numAssignments != s.meta.mctx.numAssignments then
-        -- Some metavariable assigments are being reverted, so the transient cache won't be valid anymore.
-        resetDefEqTransientCache
-      s.restore
+      -- If restoring the state causes a metavariable assignment to be reverted, the transient cache also needs to be reverted
+      let revertedMCtx := (← getMCtx).numAssignments != s.meta.mctx.numAssignments
+      s.restore (transCache := revertedMCtx)
       return false
   catch ex =>
     s.restore

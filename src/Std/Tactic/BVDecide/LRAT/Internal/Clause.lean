@@ -14,6 +14,20 @@ import Init.Grind
 
 set_option grind.warning false
 
+attribute [grind] getElem?_pos getElem?_neg getElem!_pos getElem!_neg
+
+attribute [grind =] List.sublist_map_iff
+attribute [grind _=_] Std.HashMap.map_fst_toList_eq_keys
+attribute [grind =] List.pairwise_iff_forall_sublist
+attribute [grind] List.nodup_nil
+attribute [grind →] List.mem_of_mem_erase
+attribute [grind] List.Nodup.erase
+attribute [grind] List.mem_erase_of_ne
+
+grind_pattern List.Nodup.not_mem_erase => a ∈ l.erase a, l.Nodup
+
+@[grind =] theorem List.nodup_iff_pairwise_ne : List.Nodup l ↔ List.Pairwise (· ≠ ·) l := Iff.rfl
+
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal
@@ -91,8 +105,8 @@ that it was needed.
 -/
 @[ext] structure DefaultClause (numVarsSucc : Nat) where
   clause : CNF.Clause (PosFin numVarsSucc)
-  nodupkey : ∀ l : PosFin numVarsSucc, (l, true) ∉ clause ∨ (l, false) ∉ clause
-  nodup : List.Nodup clause
+  nodupkey : ∀ l : PosFin numVarsSucc, (l, true) ∉ clause ∨ (l, false) ∉ clause := by grind
+  nodup : List.Nodup clause := by grind
   deriving BEq
 
 instance : ToString (DefaultClause n) where
@@ -102,23 +116,23 @@ namespace DefaultClause
 
 abbrev toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
 
-attribute [grind] Literal.negate
-attribute [grind] DefaultClause.nodupkey
+attribute [local grind] Literal.negate
+attribute [local grind] DefaultClause.nodup
+attribute [local grind] DefaultClause.nodupkey
 
 theorem not_tautology (c : DefaultClause n) (l : Literal (PosFin n)) :
     l ∉ toList c ∨ ¬Literal.negate l ∈ toList c := by
-  by_cases hl : l.2 <;> grind
-
-attribute [grind] List.nodup_nil
+  grind [cases Bool]
 
 @[inline]
-def empty : DefaultClause n := ⟨[], by grind, by grind⟩
+def empty : DefaultClause n where
+  clause := []
 
 theorem empty_eq : toList (empty : DefaultClause n) = [] := rfl
 
 @[inline]
-def unit (l : Literal (PosFin n)) : DefaultClause n :=
-  ⟨[l], by grind, by simp [clause]⟩
+def unit (l : Literal (PosFin n)) : DefaultClause n where
+  clause := [l]
 
 theorem unit_eq (l : Literal (PosFin n)) : toList (unit l) = [l] := rfl
 
@@ -130,17 +144,13 @@ def isUnit (c : DefaultClause n) : Option (Literal (PosFin n)) :=
 
 theorem isUnit_iff (c : DefaultClause n) (l : Literal (PosFin n)) :
     isUnit c = some l ↔ toList c = [l] := by
-  simp only [isUnit]
-  split
-  · next l' heq => simp [heq]
-  · next hne => grind
+  grind [isUnit]
 
 @[inline]
 def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal.negate
 
 theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.negate := rfl
 
--- TODO: move this back to a `where` clause
 @[irreducible] def ofArray.folder (acc : Option (Std.HashMap (PosFin n) Bool)) (l : Literal (PosFin n)) :
       Option (Std.HashMap (PosFin n) Bool) :=
     match acc with
@@ -155,127 +165,58 @@ theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.nega
       else
         some map
 
-attribute [grind =] List.sublist_map_iff
+attribute [local grind] DefaultClause.ofArray.folder
 
 def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
   let mapOption := ls.foldl ofArray.folder (some (HashMap.emptyWithCapacity ls.size))
   match mapOption with
   | none => none
   | some map =>
-   have mapnodup := map.distinct_keys
-    have nodup : map.toList.Nodup := by
-      rw [List.Nodup, List.pairwise_iff_forall_sublist]
-      grind [_=_ HashMap.map_fst_toList_eq_keys, List.pairwise_iff_forall_sublist]
-    some ⟨map.toList, by grind, nodup⟩
+    -- FIXME: Commenting this out gives an unknown metavariable error in `grind`!
+    have mapnodup := map.distinct_keys
+    some ⟨map.toList, by grind, by grind⟩
 
 @[simp]
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by
-  apply List.foldlRecOn (motive := (· = none))
-  · grind
-  · unfold DefaultClause.ofArray.folder
-    grind
+  apply List.foldlRecOn (motive := (· = none)) <;> grind
+
+-- FIXME: Adding the `local grind` attribute directly on the theorem does not work!
+attribute [local grind] ofArray.foldl_folder_none_eq_none
 
 theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
-    (h : List.foldl DefaultClause.ofArray.folder (some acc) ls = some acc') :
-    ∀ l ∈ acc.toList, l ∈ acc'.toList := by
-  intro l hl
-  induction ls generalizing acc with
-  | nil => simp_all
-  | cons x xs ih =>
-    rcases l with ⟨var, pol⟩
-    rw [List.foldl_cons, DefaultClause.ofArray.folder.eq_def] at h
-    split at h
-    · grind
-    · simp only [HashMap.getThenInsertIfNew?_fst, HashMap.get?_eq_getElem?, bne_iff_ne, ne_eq,
-        HashMap.getThenInsertIfNew?_snd, ite_not] at h
-      split at h
-      · split at h
-        · apply ih
-          · exact h
-          · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some, Std.HashMap.getElem?_insertIfNew]
-            rename_i map _ _ _ _ _
-            have : x.fst ∈ map := by
-              apply Classical.byContradiction
-              intro h2
-              have := Std.HashMap.getElem?_eq_none h2
-              grind
-            grind
-        · simp at h
-      · apply ih
-        · exact h
-        · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some, Std.HashMap.getElem?_insertIfNew]
-          simp_all
-          intros
-          cases pol <;> grind
+    (h : List.foldl DefaultClause.ofArray.folder (some acc) ls = some acc') (l) (h : l ∈ acc.toList) :
+      l ∈ acc'.toList := by
+  induction ls generalizing acc with grind (gen := 7)
+
+attribute [local grind] ofArray.mem_of_mem_of_foldl_folder_eq_some
 
 theorem ofArray.folder_foldl_mem_of_mem
     (h : List.foldl DefaultClause.ofArray.folder acc ls = some map) :
     ∀ l ∈ ls, l ∈ map.toList := by
   intro l hl
   induction ls generalizing acc with
-  | nil => simp at hl
+  | nil => grind
   | cons x xs ih =>
     simp at hl h
     rcases hl with hl | hl
-    · rw [DefaultClause.ofArray.folder.eq_def] at h
-      simp at h
-      split at h
-      · simp at h
-      · split at h
-        · split at h
-          · apply mem_of_mem_of_foldl_folder_eq_some
-            · exact h
-            · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some]
-              rw [Std.HashMap.getElem?_insertIfNew]
-              simp_all
-          · simp at h
-        · apply mem_of_mem_of_foldl_folder_eq_some
-          · exact h
-          · next hfoo =>
-            rw [hl]
-            cases x
-            simp [Std.HashMap.getElem_insertIfNew]
-            intro hbar
-            exfalso
-            apply hfoo
-            rw [Std.HashMap.getElem?_eq_some_getElem! hbar]
-    · exact ih h hl
+    · rw [DefaultClause.ofArray.folder.eq_def] at h -- FIXME
+      grind (gen := 7)
+    · grind
 
-@[inline]
-def delete (c : DefaultClause n) (l : Literal (PosFin n)) : DefaultClause n :=
-  let clause := c.clause.erase l
-  let nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
-    intro l'
-    simp only [clause]
-    rcases c.nodupkey l' with ih | ih
-    · apply Or.inl
-      intro h
-      exact ih <| List.mem_of_mem_erase h
-    · apply Or.inr
-      intro h
-      exact ih <| List.mem_of_mem_erase h
-  have nodup := by
-    simp only [clause]
-    exact List.Nodup.erase l c.nodup
-  ⟨clause, nodupkey, nodup⟩
+@[inline, local grind]
+def delete (c : DefaultClause n) (l : Literal (PosFin n)) : DefaultClause n where
+  clause := c.clause.erase l
 
 theorem delete_iff (c : DefaultClause n) (l l' : Literal (PosFin n)) :
     l' ∈ toList (delete c l) ↔ l' ≠ l ∧ l' ∈ toList c := by
-  simp only [toList, delete, ne_eq]
-  by_cases hl : l' = l
-  · simp only [hl, not_true, false_and, iff_false]
-    exact List.Nodup.not_mem_erase c.nodup
-  · simp only [hl, not_false_eq_true, true_and]
-    exact List.mem_erase_of_ne hl
+  grind
 
 @[inline]
 def contains (c : DefaultClause n) (l : Literal (PosFin n)) : Bool := c.clause.contains l
 
 theorem contains_iff :
     ∀ (c : DefaultClause n) (l : Literal (PosFin n)), contains c l = true ↔ l ∈ toList c := by
-  intro c l
-  simp only [contains]
-  grind
+  grind [contains]
 
 def reduce_fold_fn (assignments : Array Assignment) (acc : ReduceResult (PosFin n))
     (l : Literal (PosFin n)) :

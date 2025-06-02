@@ -22,6 +22,8 @@ namespace bitblast
 
 variable [Hashable α] [DecidableEq α]
 
+-- prove that blastClz does the same as clzAuxRec
+
 @[simp]
 theorem denote_blastClz (aig : AIG α) (target : RefVec aig w)
     (assign : α → Bool) :

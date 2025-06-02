@@ -1847,8 +1847,9 @@ theorem toInt_smod {x y : BitVec w} :
         by_cases hx_dvd_y : y.toInt ∣ x.toInt
         · simp [show x % -y = 0#(w + 1) by simp_all, hx_dvd_y, Int.fmod_eq_zero_of_dvd]
         · have hynonpos := toInt_neg_of_msb_true hymsb
-          simp only [show ¬x % -y = 0#(w + 1) by simp_all, show ¬0 ≤ y.toInt by omega, Int.fmod_eq_emod]
-          simp [hx_dvd_y, hymsb, hxmsb, toInt_umod_neg_add hymsb hxmsb hx_dvd_y]
+          simp only [show ¬x % -y = 0#(w + 1) by simp_all, ↓reduceIte,
+            toInt_umod_neg_add hymsb hxmsb hx_dvd_y, Int.fmod_eq_emod, show ¬0 ≤ y.toInt by omega,
+            hx_dvd_y, _root_.or_self]
       · have hynonneg := toInt_nonneg_of_msb_false hymsb
         rw [Int.fmod_eq_emod_of_nonneg x.toInt (b := y.toInt) (by omega)]
         have hdvd := toInt_dvd_toInt_iff_of_msb_true_msb_false hxmsb hymsb

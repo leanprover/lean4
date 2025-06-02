@@ -2974,7 +2974,7 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
     extractLsb' start len (xhi ++ xlo) =
     if hstart : start < w
     then
-      if hlen : start + len < w
+      if hlen : start + len ≤ w
       then extractLsb' start len xlo
       else
         (((extractLsb' (start - w) (len - (w - start)) xhi) ++
@@ -2983,7 +2983,7 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
       extractLsb' (start - w) len xhi := by
   by_cases hstart : start < w
   · simp only [hstart, ↓reduceDIte]
-    by_cases hlen : start + len < w
+    by_cases hlen : start + len ≤ w
     · simp only [hlen, ↓reduceDIte]
       ext i hi
       simp only [getElem_extractLsb', getLsbD_append, ite_eq_left_iff, Nat.not_lt]
@@ -3006,11 +3006,14 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
 /-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
 the bits from `xlo` when `start + len` is within `xlo`.
 -/
-theorem extractLsb'_append_eq_of_lt {v w} {xhi : BitVec v} {xlo : BitVec w}
-    {start len : Nat} (h : start + len < w) :
+theorem extractLsb'_append_eq_of_add_le {v w} {xhi : BitVec v} {xlo : BitVec w}
+    {start len : Nat} (h : start + len ≤ w) :
     extractLsb' start len (xhi ++ xlo) = extractLsb' start len xlo := by
-  simp [extractLsb'_append_eq_ite, h]
-  omega
+  simp only [extractLsb'_append_eq_ite, h, ↓reduceDIte, dite_eq_ite, ite_eq_left_iff, Nat.not_lt]
+  intro h'
+  have : len = 0 := by omega
+  subst this
+  simp
 
 /-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
 the bits from `xhi` when `start` is outside `xlo`.

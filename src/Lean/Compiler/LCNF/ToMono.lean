@@ -12,7 +12,7 @@ import Lean.Compiler.NoncomputableAttr
 namespace Lean.Compiler.LCNF
 
 structure ToMonoM.State where
-  typeParams : FVarIdSet := {}
+  typeParams : FVarIdHashSet := {}
   noncomputableVars : FVarIdMap Name := {}
 
 abbrev ToMonoM := StateRefT ToMonoM.State CompilerM

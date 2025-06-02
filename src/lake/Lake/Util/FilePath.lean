@@ -10,6 +10,13 @@ open System Lean
 
 namespace Lake
 
+/-- Returns the portion of `path` relative to `root`. If none, returns `path` verbatim. -/
+def relPathFrom (root path : FilePath) : FilePath :=
+  if let some relPath := path.toString.dropPrefix? root.toString then
+    FilePath.mk (relPath.drop 1).toString -- remove leading `/`
+  else
+    path
+
 /--
 Convert a relative file path to a platform-independent string.
 Uses `/` as the path separator, even on Windows.

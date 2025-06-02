@@ -5,7 +5,15 @@ Authors: Luisa Cicolini
 -/
 prelude
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.LawfulVecOperator
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
+import Std.Sat.AIG
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
+import Std.Sat.AIG.If
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.clz`.
@@ -23,48 +31,68 @@ variable [Hashable α] [DecidableEq α]
 /--
   Count the number of leading zeroes downward from the 'n'th bit to the '0'th bit.
 -/
--- def clzAux {w : Nat} (x : BitVec w) (n : Nat) : Nat :=
+-- def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
 --   match n with
---   | 0 => if x.getLsbD 0 then 0 else 1
+--   | 0 => if x.getLsbD 0 then 0#w else 1#w
 --   | n' + 1 =>
---     if x.getLsbD n then 0
---       else 1 + clzAux x n'
+--     if x.getLsbD n then 0#w
+--       else 1#w + clzAuxRec x n'
+
+-- def blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig) : AIG.Entrypoint α :=
+--   if h : target.idx < target.w then
+--     ⟨aig, target.vec.get target.idx h⟩
+--   else
+--     AIG.mkConstCached aig false
 
 
 def blastClz (aig : AIG α) (target : AIG.RefVec aig w) :
-    AIG.RefVecEntry α w :=
-  let ⟨input, distance⟩ := target
-  aig (.emptyWithCapacity w)
+    AIG.RefVecEntry α w := sorry
+  -- let ⟨input, distance⟩ := target
+  -- aig (.emptyWithCapacity w)
 where
-  go (aig : AIG α) (input : AIG.RefVec aig w) (distance : Nat) (curr : Nat) (hcurr : curr ≤ w)
-      (s : AIG.RefVec aig curr) :
-      AIG.RefVecEntry α w :=
-  if hidx : curr < w then
-    if hdist : (distance + curr) < w then
-      let s := s.push (input.get (distance + curr) (by omega))
-      go aig input distance (curr + 1) (by omega) s
-    else
-      let res := aig.mkConstCached false
-      let aig := res.aig
-      let zeroRef := res.ref
-      have hfinal := AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
-      let s := s.cast hfinal
-      let input := input.cast hfinal
-      let s := s.push zeroRef
-      go aig input distance (curr + 1) (by omega) s
+  go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :
+    AIG.RefVecEntry α w :=
+  if curr = 0 then
+    let one := blastConst aig 1
+    let zero := blastConst aig 0
+    let lsb := (BVPred.blastGetLsbD (target := ⟨x, 0⟩))
+    let discr := BVPred.mkEq aig ⟨lsb, one⟩
+    let ite := AIG.RefVec.ite aig ⟨discr, zero, one⟩
+    ite
   else
-    have hcurr : curr = w := by omega
-    ⟨aig, hcurr ▸ s⟩
-termination_by w - curr
+    sorry
+
+  -- 0 => if x.getLsbD 0 then 0 else 1
+
+  --   | n' + 1 =>
+  --     if x.getLsbD n then 0
+  --       else 1 + clzAux x n'
+--   if hidx : curr < w then
+--     if hdist : (distance + curr) < w then
+--       let s := s.push (input.get (distance + curr) (by omega))
+--       go aig input distance (curr + 1) (by omega) s
+--     else
+--       let res := aig.mkConstCached false
+--       let aig := res.aig
+--       let zeroRef := res.ref
+--       have hfinal := AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
+--       let s := s.cast hfinal
+--       let input := input.cast hfinal
+--       let s := s.push zeroRef
+--       go aig input distance (curr + 1) (by omega) s
+--   else
+--     have hcurr : curr = w := by omega
+--     ⟨aig, hcurr ▸ s⟩
+-- termination_by w - curr
 
 -- def blastClz (aig : AIG α) (s : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
 --   let clz := (1 : Nat)
 --   let ⟨refs, hrefs⟩ := s
 --   ⟨aig, ⟨sorry, by sorry⟩⟩
 
-instance : AIG.LawfulVecOperator α AIG.RefVec blastClz where
-  le_size := by simp [blastClz]; sorry
-  decl_eq := by simp [blastClz]; sorry
+-- instance : AIG.LawfulVecOperator α AIG.RefVec blastClz where
+--   le_size := by simp [blastClz]; sorry
+--   decl_eq := by simp [blastClz]; sorry
 
 end bitblast
 end BVExpr

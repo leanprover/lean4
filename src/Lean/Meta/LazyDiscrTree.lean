@@ -794,9 +794,9 @@ private def ImportData.new : BaseIO ImportData := do
 structure Cache where
   ngen : NameGenerator
   core : Lean.Core.Cache
-  meta : Lean.Meta.Cache
+  «meta» : Lean.Meta.Cache
 
-def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, meta := {} }
+def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, «meta» := {} }
 
 def blacklistInsertion (env : Environment) (declName : Name) : Bool :=
   !allowCompletion env declName
@@ -816,7 +816,7 @@ private def addConstImportData
     (name : Name) (constInfo : ConstantInfo) : BaseIO (PreDiscrTree α) := do
   if constInfo.isUnsafe then return tree
   if blacklistInsertion env name then return tree
-  let { ngen, core := core_cache, meta := meta_cache } ← cacheRef.get
+  let { ngen, core := core_cache, «meta» := meta_cache } ← cacheRef.get
   let mstate : Meta.State := { cache := meta_cache }
   cacheRef.set (Cache.empty ngen)
   let ctx : Meta.Context := { config := { transparency := .reducible } }
@@ -824,7 +824,7 @@ private def addConstImportData
   let cstate : Core.State := {env, cache := core_cache, ngen}
   match ←(cm.run cctx cstate).toBaseIO with
   | .ok ((a, ms), cs) =>
-    cacheRef.set { ngen := cs.ngen, core := cs.cache, meta := ms.cache }
+    cacheRef.set { ngen := cs.ngen, core := cs.cache, «meta» := ms.cache }
     pure <| a.foldl (fun t e => t.push e.key e.entry) tree
   | .error e =>
     let i : ImportFailure := {

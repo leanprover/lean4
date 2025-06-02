@@ -22,8 +22,9 @@ def HeaderSyntax.imports : HeaderSyntax → Array Import
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
     let imports := if preludeTk.isNone then #[{ module := `Init : Import }] else #[]
     imports ++ importsStx.map fun
-      | `(Parser.Module.import| $[private%$privateTk]? import $[all%$allTk]? $n) =>
-        { module := n.getId, importAll := allTk.isSome, isExported := privateTk.isNone }
+      | `(Parser.Module.import| $[private%$privateTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
+        { module := n.getId, importAll := allTk.isSome, isExported := privateTk.isNone
+          isMeta := metaTk.isSome }
       | _ => unreachable!
   | _ => unreachable!
 

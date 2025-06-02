@@ -177,7 +177,7 @@ structure State where
   Backtrackable state for the `TermElabM` monad.
 -/
 structure SavedState where
-  meta   : Meta.SavedState
+  «meta» : Meta.SavedState
   «elab» : State
   deriving Nonempty
 
@@ -352,7 +352,7 @@ instance : Inhabited (TermElabM α) where
   default := throw default
 
 protected def saveState : TermElabM SavedState :=
-  return { meta := (← Meta.saveState), «elab» := (← get) }
+  return { «meta» := (← Meta.saveState), «elab» := (← get) }
 
 def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElabM Unit := do
   let traceState ← getTraceState -- We never backtrack trace message
@@ -387,10 +387,10 @@ def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
       snap.new.resolve old.val.get
 
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.meta))
-  let (a, meta) ← withReader ({ · with tacSnap? }) do
+  let (a, «meta») ← withReader ({ · with tacSnap? }) do
     controlAt MetaM fun runInBase => do
       Meta.withRestoreOrSaveFull reusableResult? <| runInBase act
-  return (a, { meta, «elab» := (← get) })
+  return (a, { «meta», «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState

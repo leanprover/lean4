@@ -22,18 +22,6 @@ end Set
 
 end Mathlib.Init.Set
 
-section Mathlib.Init.ZeroOne
-
-set_option autoImplicit true
-
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Init.ZeroOne
-
 section Mathlib.Init.Function
 
 universe u₁ u₂
@@ -165,22 +153,10 @@ universe u v w
 class HVAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hVAdd : α → β → γ
 
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
 class VAdd (G : Type u) (P : Type v) where
   vadd : G → P → P
 
-class SMul (M : Type u) (α : Type v) where
-  smul : M → α → α
-
 infixl:65 " +ᵥ " => HVAdd.hVAdd
-infixr:73 " • " => HSMul.hSMul
-
-macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
-
-instance instHSMul {α β} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
 
 instance instHVAdd {α β} [VAdd α β] : HVAdd α β β where
   hVAdd := VAdd.vadd

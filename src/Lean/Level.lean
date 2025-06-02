@@ -10,6 +10,7 @@ import Lean.Data.PersistentHashSet
 import Lean.Hygiene
 import Lean.Data.Name
 import Lean.Data.Format
+import Init.Data.Option.Coe
 
 def Nat.imax (n m : Nat) : Nat :=
   if m = 0 then 0 else Nat.max n m
@@ -42,11 +43,8 @@ def Level.Data.hasMVar (c : Level.Data) : Bool :=
 def Level.Data.hasParam (c : Level.Data) : Bool :=
   ((c.shiftRight 33).land 1) == 1
 
-def Level.mkData (h : UInt64) (depth : Nat := 0) (hasMVar hasParam : Bool := false) : Level.Data :=
-  if depth > Nat.pow 2 24 - 1 then panic! "universe level depth is too big"
-  else
-    let r : UInt64 := h.toUInt32.toUInt64 + hasMVar.toUInt64.shiftLeft 32 + hasParam.toUInt64.shiftLeft 33 + depth.toUInt64.shiftLeft 40
-    r
+@[extern "lean_level_mk_data"]
+opaque Level.mkData (h : UInt64) (depth : Nat := 0) (hasMVar hasParam : Bool := false) : Level.Data
 
 instance : Repr Level.Data where
   reprPrec v prec := Id.run do
@@ -294,9 +292,10 @@ private def isAlreadyNormalizedCheap : Level → Bool
 
 /- Auxiliary function used at `normalize` -/
 private def mkIMaxAux : Level → Level → Level
-  | _,    zero => zero
-  | zero, u    => u
-  | u₁,   u₂   => if u₁ == u₂ then u₁ else mkLevelIMax u₁ u₂
+  | _,    zero   => zero
+  | zero, u      => u
+  | succ zero, u => u
+  | u₁,   u₂     => if u₁ == u₂ then u₁ else mkLevelIMax u₁ u₂
 
 /- Auxiliary function used at `normalize` -/
 @[specialize] private partial def getMaxArgsAux (normalize : Level → Level) : Level → Bool → Array Level → Array Level

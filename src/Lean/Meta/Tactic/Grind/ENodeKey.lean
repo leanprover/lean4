@@ -21,8 +21,11 @@ have been hash-consed, i.e., we have applied `shareCommon`.
 structure ENodeKey where
   expr : Expr
 
+abbrev hashPtrExpr (e : Expr) : UInt64 :=
+  unsafe (ptrAddrUnsafe e >>> 3).toUInt64
+
 instance : Hashable ENodeKey where
-  hash k := unsafe (ptrAddrUnsafe k.expr).toUInt64
+  hash k := hashPtrExpr k.expr
 
 instance : BEq ENodeKey where
   beq k₁ k₂ := isSameExpr k₁.expr k₂.expr

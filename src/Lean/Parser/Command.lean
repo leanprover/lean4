@@ -244,8 +244,9 @@ def «structure»          := leading_parser
    «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
-@[builtin_command_parser] def noncomputableSection := leading_parser
-  "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
+def sectionHeader := leading_parser
+  optional ("@[" >> nonReservedSymbol "expose" >> "]") >>
+  optional ("noncomputable")
 /--
 A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
 commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
@@ -253,7 +254,7 @@ with the matching `end`. In either case, the `end` can be omitted, in which case
 closed at the end of the file.
 -/
 @[builtin_command_parser] def «section»      := leading_parser
-  "section" >> optional (ppSpace >> checkColGt >> ident)
+  sectionHeader >> "section" >> optional (ppSpace >> checkColGt >> ident)
 /--
 `namespace <id>` opens a section with label `<id>` that influences naming and name resolution inside
 the section:
@@ -516,6 +517,15 @@ and options set with `set_option`.
 /-- Shows the current Lean version. Prints `Lean.versionString`. -/
 @[builtin_command_parser] def version        := leading_parser
   "#version"
+/--
+Debugging command. Runs the following command in an exported context just like elaboration of
+declaration signatures.
+-/
+@[builtin_command_parser] def withExporting  := leading_parser
+  "#with_exporting " >> commandParser
+/-- Debugging command: Prints the result of `Environment.dumpAsyncEnvState`. -/
+@[builtin_command_parser] def dumpAsyncEnvState := leading_parser
+  "#dump_async_env_state"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
@@ -783,7 +793,7 @@ attach the recommended spelling to both `And` and `«term_∧_»`.
 
 The `syntax`, `macro`, `elab` and `notation` commands accept a `(name := parserName)` option to
 assign a name to the created parser so that you do not have to guess the automatically generated
-name. The `synax`, `macro` and `elab` commands can be hovered to see the name of the parser.
+name. The `syntax`, `macro` and `elab` commands can be hovered to see the name of the parser.
 
 For complex notations which enclose identifiers, the convention is to use example identifiers rather
 than other placeholders. This is an example following the convention:
@@ -813,7 +823,7 @@ conditionally including variables based on use in the theorem header. Other comm
 not affected. `include` is usually followed by `in theorem ...` to limit the inclusion
 to the subsequent declaration.
 -/
-@[builtin_command_parser] def «include» := leading_parser "include " >> many1 ident
+@[builtin_command_parser] def «include» := leading_parser "include" >> many1 (ppSpace >> checkColGt >> ident)
 
 /--
 `omit` instructs Lean to not include a variable previously `include`d. Apart from variable names, it
@@ -821,8 +831,8 @@ can also refer to typeclass instance variables by type using the syntax `omit [T
 which case all instance variables that unify with the given type are omitted. `omit` should usually
 only be used in conjunction with `in` in order to keep the section structure simple.
 -/
-@[builtin_command_parser] def «omit» := leading_parser "omit " >>
-  many1 (ident <|> Term.instBinder)
+@[builtin_command_parser] def «omit» := leading_parser "omit" >>
+  many1 (ppSpace >> checkColGt >> (ident <|> Term.instBinder))
 
 /-- No-op parser used as syntax kind for attaching remaining whitespace at the end of the input. -/
 @[run_builtin_parser_attribute_hooks] def eoi : Parser := leading_parser ""

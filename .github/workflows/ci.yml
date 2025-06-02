@@ -103,6 +103,13 @@ jobs:
             echo "Tag ${TAG_NAME} did not match SemVer regex."
           fi
 
+      - name: Check for custom releases (e.g., not in the main lean repository)
+        if: startsWith(github.ref, 'refs/tags/') && github.repository != 'leanprover/lean4'
+        id: set-release-custom
+        run: |
+          TAG_NAME="${GITHUB_REF##*/}"
+          echo "RELEASE_TAG=$TAG_NAME" >> "$GITHUB_OUTPUT"
+
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -111,7 +118,7 @@ jobs:
         run: |
           check_level=0
 
-          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" ]]; then
+          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=2
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1
@@ -139,20 +146,21 @@ jobs:
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
             let matrix = [
+              /* TODO: to be updated to new LLVM
               {
                 "name": "Linux LLVM",
                 "os": "ubuntu-latest",
                 "release": false,
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
                 // reverse-ffi needs to be updated to link to LLVM libraries
                 "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
                 "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
-              },
+              }, */
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
@@ -160,25 +168,23 @@ jobs:
                 "release": true,
                 "check-level": 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
                 "CTEST_OPTIONS": "-E 'foreign'"
               },
-              // deactivated due to bugs
-              /*
               {
                 "name": "Linux Lake",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
-                // just a secondary PR build job for now
-                "check-level": isPr ? 0 : 3,
+                "check-level": 0,
+                // just a secondary build job for now until false positives can be excluded
                 "secondary": true,
                 "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
-                // TODO: why does this fail?
-                "CTEST_OPTIONS": "-E 'scopedMacros'"
+                // TODO: importStructure is not compatible with .olean caching
+                // TODO: why does scopedMacros fail?
+                "CTEST_OPTIONS": "-E 'scopedMacros|importStructure'"
               },
-              */
               {
                 "name": "Linux",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
@@ -187,10 +193,10 @@ jobs:
                 "check-level": 1,
               },
               {
-                "name": "Linux Debug",
+                "name": "Linux Reldebug",
                 "os": "ubuntu-latest",
                 "check-level": 2,
-                "CMAKE_PRESET": "debug",
+                "CMAKE_PRESET": "reldebug",
                 // exclude seriously slow/stackoverflowing tests
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress|3807'"
               },
@@ -210,7 +216,7 @@ jobs:
                 "release": true,
                 "check-level": 2,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
@@ -221,7 +227,7 @@ jobs:
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
@@ -242,7 +248,7 @@ jobs:
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
                 // for reasons unknown, interactivetests are flaky on Windows
                 "CTEST_OPTIONS": "--repeat until-pass:2",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
                 "binary-check": "ldd"
               },
@@ -253,20 +259,21 @@ jobs:
                 "release": true,
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*"
               },
-              {
-                "name": "Linux 32bit",
-                "os": "ubuntu-latest",
-                // Use 32bit on stage0 and stage1 to keep oleans compatible
-                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DPKG_CONFIG_EXECUTABLE=/usr/bin/i386-linux-gnu-pkg-config",
-                "cmultilib": true,
-                "release": true,
-                "check-level": 2,
-                "cross": true,
-                "shell": "bash -euxo pipefail {0}"
-              }
+              // Started running out of memory building expensive modules, a 2GB heap is just not that much even before fragmentation
+              //{
+              //  "name": "Linux 32bit",
+              //  "os": "ubuntu-latest",
+              //  // Use 32bit on stage0 and stage1 to keep oleans compatible
+              //  "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DPKG_CONFIG_EXECUTABLE=/usr/bin/i386-linux-gnu-pkg-config",
+              //  "cmultilib": true,
+              //  "release": true,
+              //  "check-level": 2,
+              //  "cross": true,
+              //  "shell": "bash -euxo pipefail {0}"
+              //}
               // {
               //   "name": "Web Assembly",
               //   "os": "ubuntu-latest",
@@ -348,8 +355,6 @@ jobs:
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)
-  # We do not attempt to automatically construct a changelog here:
-  # unofficial releases don't need them, and official release notes will be written by a human.
   release:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest

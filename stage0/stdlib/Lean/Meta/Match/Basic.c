@@ -241,6 +241,7 @@ size_t lean_array_size(lean_object*);
 static lean_object* l_List_foldl___at_Lean_Meta_Match_Pattern_toMessageData___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_Pattern_toExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__1;
+lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__1;
@@ -278,7 +279,6 @@ static lean_object* l_List_foldl___at_Lean_Meta_Match_Pattern_toMessageData___sp
 lean_object* l_Lean_Expr_collectFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Meta_Match_counterExamplesToMessageData___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkArrayLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_instInhabitedProblem;
 static lean_object* l_Lean_Meta_Match_Pattern_toMessageData___closed__15;
@@ -4660,7 +4660,7 @@ x_9 = lean_ctor_get(x_5, 5);
 x_10 = l_Lean_replaceRef(x_1, x_9);
 lean_dec(x_9);
 lean_ctor_set(x_5, 5, x_10);
-x_11 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 return x_11;
 }
@@ -4714,7 +4714,7 @@ lean_ctor_set(x_28, 11, x_24);
 lean_ctor_set(x_28, 12, x_26);
 lean_ctor_set_uint8(x_28, sizeof(void*)*13, x_23);
 lean_ctor_set_uint8(x_28, sizeof(void*)*13 + 1, x_25);
-x_29 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_2, x_3, x_4, x_28, x_6, x_7);
+x_29 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_2, x_3, x_4, x_28, x_6, x_7);
 lean_dec(x_28);
 return x_29;
 }
@@ -4735,7 +4735,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("type mismatch during dependent match-elimination at pattern variable '", 70, 70);
+x_1 = lean_mk_string_unchecked("Type mismatch during dependent match-elimination at pattern variable '", 70, 70);
 return x_1;
 }
 }
@@ -4769,7 +4769,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nexpected type", 14, 14);
+x_1 = lean_mk_string_unchecked("\nExpected type", 14, 14);
 return x_1;
 }
 }
@@ -4914,7 +4914,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown free pattern variable", 29, 29);
+x_1 = lean_mk_string_unchecked("Unknown free pattern variable", 29, 29);
 return x_1;
 }
 }
@@ -7238,7 +7238,7 @@ static lean_object* _init_l_Lean_Meta_Match_toPattern___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unexpected pattern", 18, 18);
+x_1 = lean_mk_string_unchecked("Unexpected pattern", 18, 18);
 return x_1;
 }
 }
@@ -7264,7 +7264,7 @@ static lean_object* _init_l_Lean_Meta_Match_toPattern___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unexpected occurrence of auxiliary declaration 'namedPattern'", 61, 61);
+x_1 = lean_mk_string_unchecked("Unexpected occurrence of auxiliary declaration 'namedPattern'", 61, 61);
 return x_1;
 }
 }
@@ -7436,7 +7436,7 @@ x_53 = l_Lean_Meta_Match_Pattern_toMessageData___closed__8;
 x_54 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_54, 0, x_25);
 lean_ctor_set(x_54, 1, x_53);
-x_55 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_54, x_2, x_3, x_4, x_5, x_28);
+x_55 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_54, x_2, x_3, x_4, x_5, x_28);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -7575,7 +7575,7 @@ x_95 = l_Lean_Meta_Match_Pattern_toMessageData___closed__8;
 x_96 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_96, 0, x_94);
 lean_ctor_set(x_96, 1, x_95);
-x_97 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_96, x_2, x_3, x_4, x_5, x_68);
+x_97 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_96, x_2, x_3, x_4, x_5, x_68);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -7841,7 +7841,7 @@ x_162 = l_Lean_Meta_Match_Pattern_toMessageData___closed__8;
 x_163 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_163, 0, x_161);
 lean_ctor_set(x_163, 1, x_162);
-x_164 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_163, x_2, x_3, x_4, x_5, x_134);
+x_164 = l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(x_163, x_2, x_3, x_4, x_5, x_134);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);

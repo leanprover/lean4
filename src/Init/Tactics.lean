@@ -3,6 +3,8 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Notation
 set_option linter.missingDocs true -- keep it documented
@@ -138,9 +140,46 @@ references to a hypothesis.
 syntax (name := clear) "clear" (ppSpace colGt term:max)+ : tactic
 
 /--
-`subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis
-of type `x = e` or `e = x`.
-If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead.
+Syntax for trying to clear the values of all local definitions.
+-/
+syntax clearValueStar := "*"
+/--
+Syntax for creating a hypothesis before clearing values.
+In `(hx : x = _)`, the value of `x` is unified with `_`.
+-/
+syntax clearValueHyp := "(" binderIdent " : " term:51 " = " term:51 ")"
+/--
+Argument for the `clear_value` tactic.
+-/
+syntax clearValueArg := clearValueStar <|> clearValueHyp <|> term:max
+/--
+* `clear_value x...` clears the values of the given local definitions.
+  A local definition `x : α := v` becomes a hypothesis `x : α`.
+
+* `clear_value (h : x = _)` adds a hypothesis `h : x = v` before clearing the value of `x`.
+  This is short for `have h : x = v := rfl; clear_value x`.
+  Any value definitionally equal to `v` can be used in place of `_`.
+
+* `clear_value *` clears values of all hypotheses that can be cleared.
+  Fails if none can be cleared.
+
+These syntaxes can be combined. For example, `clear_value x y *` ensures that `x` and `y` are cleared
+while trying to clear all other local definitions,
+and `clear_value (hx : x = _) y * with hx` does the same while first adding the `hx : x = v` hypothesis.
+-/
+syntax (name := clearValue) "clear_value" (ppSpace colGt clearValueArg)+ : tactic
+
+/--
+`subst x...` substitutes each hypothesis `x` with a definition found in the local context,
+then eliminates the hypothesis.
+- If `x` is a local definition, then its definition is used.
+- Otherwise, if there is a hypothesis of the form `x = e` or `e = x`,
+  then `e` is used for the definition of `x`.
+
+If `h : a = b`, then `subst h` may be used if either `a` or `b` unfolds to a local hypothesis.
+This is similar to the `cases h` tactic.
+
+See also: `subst_vars` for substituting all local hypotheses that have a defining equation.
 -/
 syntax (name := subst) "subst" (ppSpace colGt term:max)+ : tactic
 
@@ -290,7 +329,7 @@ syntax (name := allGoals) "all_goals " tacticSeq : tactic
 
 /--
 `any_goals tac` applies the tactic `tac` to every goal,
-concating the resulting goals for successful tactic applications.
+concatenating the resulting goals for successful tactic applications.
 If the tactic fails on all of the goals, the entire `any_goals` tactic fails.
 
 This tactic is like `all_goals try tac` except that it fails if none of the applications of `tac` succeeds.
@@ -495,6 +534,38 @@ syntax (name := change) "change " term (location)? : tactic
 * `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
 -/
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
+
+/--
+Extracts `let` and `let_fun` expressions from within the target or a local hypothesis,
+introducing new local definitions.
+
+- `extract_lets` extracts all the lets from the target.
+- `extract_lets x y z` extracts all the lets from the target and uses `x`, `y`, and `z` for the first names.
+  Using `_` for a name leaves it unnamed.
+- `extract_lets x y z at h` operates on the local hypothesis `h` instead of the target.
+
+For example, given a local hypotheses if the form `h : let x := v; b x`, then `extract_lets z at h`
+introduces a new local definition `z := v` and changes `h` to be `h : b z`.
+-/
+syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
+
+/--
+Lifts `let` and `let_fun` expressions within a term as far out as possible.
+It is like `extract_lets +lift`, but the top-level lets at the end of the procedure
+are not extracted as local hypotheses.
+
+- `lift_lets` lifts let expressions in the target.
+- `lift_lets at h` lifts let expressions at the given local hypothesis.
+
+For example,
+```lean
+example : (let x := 1; x) = 1 := by
+  lift_lets
+  -- ⊢ let x := 1; x = 1
+  ...
+```
+-/
+syntax (name := liftLets) "lift_lets " optConfig (location)? : tactic
 
 /--
 If `thm` is a theorem `a = b`, then as a rewrite rule,
@@ -819,12 +890,12 @@ The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
 to the constructor.
 -/
-syntax inductionAltLHS := "| " (("@"? ident) <|> hole) (ident <|> hole)*
+syntax inductionAltLHS := withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
 /--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
-syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
 /--
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
@@ -906,8 +977,8 @@ You can use `with` to provide the variables names for each constructor.
 syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /--
-The `fun_induction` tactic is a convenience wrapper of the `induction` tactic when using a functional
-induction principle.
+The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the the
+functional induction principle.
 
 The tactic invocation
 ```
@@ -915,10 +986,10 @@ fun_induction f x₁ ... xₙ y₁ ... yₘ
 ```
 where `f` is a function defined by non-mutual structural or well-founded recursion, is equivalent to
 ```
-induction y₁, ... yₘ using f.induct x₁ ... xₙ
+induction y₁, ... yₘ using f.induct_unfolding x₁ ... xₙ
 ```
-where the arguments of `f` are used as arguments to `f.induct` or targets of the induction, as
-appropriate.
+where the arguments of `f` are used as arguments to `f.induct_unfolding` or targets of the
+induction, as appropriate.
 
 The form
 ```
@@ -930,12 +1001,16 @@ become targets are free variables.
 
 The forms `fun_induction f x y generalizing z₁ ... zₙ` and
 `fun_induction f x y with | case1 => tac₁ | case2 x' ih => tac₂` work like with `induction.`
+
+Under `set_option tactic.fun_induction.unfolding true` (the default), `fun_induction` uses the
+`f.induct_unfolding` induction principle, which will try to automatically unfold the call to `f` in
+the goal. With `set_option tactic.fun_induction.unfolding false`, it uses `f.induct` instead.
 -/
 syntax (name := funInduction) "fun_induction " term
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /--
-The `fun_cass` tactic is a convenience wrapper of the `cases` tactic when using a functional
+The `fun_cases` tactic is a convenience wrapper of the `cases` tactic when using a functional
 cases principle.
 
 The tactic invocation
@@ -944,10 +1019,10 @@ fun_cases f x ... y ...`
 ```
 is equivalent to
 ```
-cases y, ... using f.fun_cases x ...
+cases y, ... using f.fun_cases_unfolding x ...
 ```
-where the arguments of `f` are used as arguments to `f.fun_cases` or targets of the case analysis, as
-appropriate.
+where the arguments of `f` are used as arguments to `f.fun_cases_unfolding` or targets of the case
+analysis, as appropriate.
 
 The form
 ```
@@ -958,6 +1033,10 @@ these arguments. An application of `f` is eligible if it is saturated and the ar
 become targets are free variables.
 
 The form `fun_cases f x y with | case1 => tac₁ | case2 x' ih => tac₂` works like with `cases`.
+
+Under `set_option tactic.fun_induction.unfolding true` (the default), `fun_induction` uses the
+`f.fun_cases_unfolding` theorem, which will try to automatically unfold the call to `f` in
+the goal. With `set_option tactic.fun_induction.unfolding false`, it uses `f.fun_cases` instead.
 -/
 syntax (name := funCases) "fun_cases " term (inductionAlts)? : tactic
 
@@ -1621,7 +1700,8 @@ syntax (name := rewrites?) "rw?" (ppSpace location)? (rewrites_forbidden)? : tac
 
 /--
 `show_term tac` runs `tac`, then prints the generated term in the form
-"exact X Y Z" or "refine X ?_ Z" if there are remaining subgoals.
+"exact X Y Z" or "refine X ?_ Z" (prefixed by `expose_names` if necessary)
+if there are remaining subgoals.
 
 (For some tactics, the printed term will not be human readable.)
 -/
@@ -1751,7 +1831,7 @@ attribute @[simp ←] and_assoc
 ```
 
 When multiple simp theorems are applicable, the simplifier uses the one with highest priority.
-The equational theorems of function are applied at very low priority (100 and below).
+The equational theorems of functions are applied at very low priority (100 and below).
 If there are several with the same priority, it is uses the "most recent one". Example:
 ```lean
 @[simp high] theorem cond_true (a b : α) : cond true a b = a := rfl

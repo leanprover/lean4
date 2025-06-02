@@ -94,9 +94,9 @@ def ofArray {n : Nat} (clauses : Array (Option (DefaultClause n))) : DefaultForm
 def insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) : DefaultFormula n :=
   let ⟨clauses, rupUnits, ratUnits, assignments⟩ := f
   match isUnit c with
-    | none => ⟨clauses.push c, rupUnits, ratUnits, assignments⟩
-    | some (l, true) => ⟨clauses.push c, rupUnits, ratUnits, assignments.modify l addPosAssignment⟩
-    | some (l, false) => ⟨clauses.push c, rupUnits, ratUnits, assignments.modify l addNegAssignment⟩
+    | none => ⟨clauses.push (some c), rupUnits, ratUnits, assignments⟩
+    | some (l, true) => ⟨clauses.push (some c), rupUnits, ratUnits, assignments.modify l addPosAssignment⟩
+    | some (l, false) => ⟨clauses.push (some c), rupUnits, ratUnits, assignments.modify l addNegAssignment⟩
 
 def deleteOne {n : Nat} (f : DefaultFormula n) (id : Nat) : DefaultFormula n :=
   let ⟨clauses, rupUnits, ratUnits, assignments⟩ := f

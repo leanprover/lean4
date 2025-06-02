@@ -1477,7 +1477,8 @@ that the `else` is not less indented than the `if` it matches with.
 
 This parser has arity 0 - it does not capture anything. -/
 @[builtin_doc] def checkColGe (errorMsg : String := "checkColGe") : Parser where
-  fn := checkColGeFn errorMsg
+  fn   := checkColGeFn errorMsg
+  info := epsilonInfo
 
 def checkColGtFn (errorMsg : String) : ParserFn := fun c s =>
   match c.savedPos? with
@@ -1610,7 +1611,7 @@ Specifies how the parsing table lookup function behaves for identifiers.
 The function `Lean.Parser.prattParser` uses two tables: one each for leading and trailing parsers.
 These tables map tokens to parsers. Because keyword tokens are distinct from identifier tokens,
 keywords and identifiers cannot be confused, even when they are syntactically identical.
-Specifying an alternative leading identifier behavior allows greater flexiblity and makes it
+Specifying an alternative leading identifier behavior allows greater flexibility and makes it
 possible to avoid reserved keywords in some situations.
 
 When the leading token is syntactically an identifier, the current syntax category's
@@ -1975,7 +1976,7 @@ def foldArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β :=
   s.getArgs.foldlM (flip f) b
 
 def foldArgs (s : Syntax) (f : Syntax → β → β) (b : β) : β :=
-  Id.run (s.foldArgsM f b)
+  Id.run (s.foldArgsM (pure <| f · ·) b)
 
 def forArgsM (s : Syntax) (f : Syntax → m Unit) : m Unit :=
   s.foldArgsM (fun s _ => f s) ()

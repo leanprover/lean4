@@ -26,7 +26,7 @@ info: fun {α} => id (id sorry) : {α : Sort u} → α
 
 /--
 error: numerals are data in Lean, but the expected type is a proposition
-  Nat → True : Prop
+  ∀ (n : Nat), True : Prop
 -/
 #guard_msgs in
 #check (1 : ∀ (n : Nat), True)

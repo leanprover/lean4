@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.Vector.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
+import all Init.Data.Array.Lex.Basic
 import Init.Data.Array.Lex.Lemmas
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
@@ -16,8 +19,8 @@ namespace Vector
 
 /-! ### Lexicographic ordering -/
 
-@[simp] theorem lt_toArray [LT α] {xs ys : Vector α n} : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
-@[simp] theorem le_toArray [LT α] {xs ys : Vector α n} : xs.toArray ≤ ys.toArray ↔ xs ≤ ys := Iff.rfl
+@[simp, grind =] theorem lt_toArray [LT α] {xs ys : Vector α n} : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
+@[simp, grind =] theorem le_toArray [LT α] {xs ys : Vector α n} : xs.toArray ≤ ys.toArray ↔ xs ≤ ys := Iff.rfl
 
 @[simp] theorem lt_toList [LT α] {xs ys : Vector α n} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
 @[simp] theorem le_toList [LT α] {xs ys : Vector α n} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
@@ -38,7 +41,7 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
   simp [Vector.lex, Array.lex, n₁, n₂]
   rfl
 
-@[simp] theorem lex_toArray [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
+@[simp, grind =] theorem lex_toArray [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
     xs.toArray.lex ys.toArray lt = xs.lex ys lt := by
   cases xs
   cases ys
@@ -55,9 +58,8 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
   cases xs
   simp_all
 
-@[simp] theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #v[a].lex #v[b] lt = lt a b := by
-  simp only [lex, getElem_mk, List.getElem_toArray, List.getElem_singleton]
-  cases lt a b <;> cases a != b <;> simp [Id.run]
+theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #v[a].lex #v[b] lt = lt a b := by
+  simp
 
 protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] (xs : Vector α n) : ¬ xs < xs :=
   Array.lt_irrefl xs.toArray
@@ -148,13 +150,13 @@ protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
     {xs ys : Vector α n} : xs ≤ ys ↔ xs < ys ∨ xs = ys := by
   simpa using Array.le_iff_lt_or_eq (xs := xs.toArray) (ys := ys.toArray)
 
-@[simp] theorem lex_eq_true_iff_lt [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_true_iff_lt [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {xs ys : Vector α n} : lex xs ys = true ↔ xs < ys := by
   cases xs
   cases ys
   simp
 
-@[simp] theorem lex_eq_false_iff_ge [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_false_iff_ge [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {xs ys : Vector α n} : lex xs ys = false ↔ ys ≤ xs := by
   cases xs
   cases ys
@@ -191,7 +193,7 @@ This formulation requires that `==` and `lt` are compatible in the following sen
 - `==` is symmetric
   (we unnecessarily further assume it is transitive, to make use of the existing typeclasses)
 - `lt` is irreflexive with respect to `==` (i.e. if `x == y` then `lt x y = false`
-- `lt` is asymmmetric  (i.e. `lt x y = true → lt y x = false`)
+- `lt` is asymmetric  (i.e. `lt x y = true → lt y x = false`)
 - `lt` is antisymmetric with respect to `==` (i.e. `lt x y = false → lt y x = false → x == y`)
 -/
 theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)

@@ -18,6 +18,7 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec` expressions (`BVExpr`).
@@ -139,26 +140,26 @@ where
         omega
       match op with
       | .and =>
-         let res := AIG.RefVec.zip aig ⟨⟨lhs, rhs⟩, AIG.mkAndCached⟩
+         let res := AIG.RefVec.zip aig ⟨lhs, rhs⟩ AIG.mkAndCached
          have := by
-           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.zip)
+           apply AIG.RefVec.zip_le_size_of_le_aig_size
            dsimp only at hlaig hraig
            omega
-         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := AIG.RefVec.zip) ..)⟩
+         ⟨⟨res, this⟩, cache.cast (AIG.RefVec.zip_le_size ..)⟩
       | .or =>
-         let res := AIG.RefVec.zip aig ⟨⟨lhs, rhs⟩, AIG.mkOrCached⟩
+         let res := AIG.RefVec.zip aig ⟨lhs, rhs⟩ AIG.mkOrCached
          have := by
-           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.zip)
+           apply AIG.RefVec.zip_le_size_of_le_aig_size
            dsimp only at hlaig hraig
            omega
-         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := AIG.RefVec.zip) ..)⟩
+         ⟨⟨res, this⟩, cache.cast (AIG.RefVec.zip_le_size ..)⟩
       | .xor =>
-         let res := AIG.RefVec.zip aig ⟨⟨lhs, rhs⟩, AIG.mkXorCached⟩
+         let res := AIG.RefVec.zip aig ⟨lhs, rhs⟩ AIG.mkXorCached
          have := by
-           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.zip)
+           apply AIG.RefVec.zip_le_size_of_le_aig_size
            dsimp only at hlaig hraig
            omega
-         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := AIG.RefVec.zip) ..)⟩
+         ⟨⟨res, this⟩, cache.cast (AIG.RefVec.zip_le_size ..)⟩
       | .add =>
         let res := bitblast.blastAdd aig ⟨lhs, rhs⟩
         have := by
@@ -193,10 +194,10 @@ where
       | .not =>
         let res := bitblast.blastNot eaig evec
         have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.map)
+          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastNot)
           dsimp only at heaig
           omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := AIG.RefVec.map) ..)⟩
+        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastNot) ..)⟩
       | .rotateLeft distance =>
         let res := bitblast.blastRotateLeft eaig ⟨evec, distance⟩
         have := by
@@ -218,6 +219,13 @@ where
           dsimp only at heaig
           assumption
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastArithShiftRightConst) ..)⟩
+      | .reverse =>
+        let res := bitblast.blastReverse eaig evec
+        have := by
+          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastReverse)
+          dsimp only at heaig
+          omega
+        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastReverse) ..)⟩
     | .append lhs rhs h =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
@@ -310,10 +318,17 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
   · rw [AIG.LawfulVecOperator.decl_eq (f := blastVar)]
   · rw [AIG.LawfulVecOperator.decl_eq (f := blastConst)]
   · next op lhsExpr rhsExpr =>
+    have hl := (goCache aig lhsExpr cache).result.property
+    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     match op with
-    | .and | .or | .xor | .add | .mul | .udiv | .umod =>
-      have hl := (goCache aig lhsExpr cache).result.property
-      have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
+    | .and | .or | .xor =>
+      rw [AIG.RefVec.zip_decl_eq]
+      rw [goCache_decl_eq, goCache_decl_eq]
+      · omega
+      · apply Nat.lt_of_lt_of_le
+        · exact h1
+        · apply Nat.le_trans <;> assumption
+    | .add | .mul | .udiv | .umod =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq, goCache_decl_eq]
       · omega
@@ -322,7 +337,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
         · apply Nat.le_trans <;> assumption
   · next op expr =>
     match op with
-    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. =>
+    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq]
       have := (goCache aig expr cache).result.property

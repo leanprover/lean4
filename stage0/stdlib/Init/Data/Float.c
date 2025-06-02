@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Float_toUInt64___boxed(lean_object*);
 uint64_t lean_float_to_bits(double);
+LEAN_EXPORT lean_object* l_Float_repr(double, lean_object*);
 uint8_t lean_float_isinf(double);
 LEAN_EXPORT lean_object* l_instBEqFloat;
 double exp2(double);
@@ -31,7 +32,6 @@ double lean_float_div(double, double);
 extern uint8_t l_instDecidableTrue;
 LEAN_EXPORT lean_object* l_Float_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_frExp___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_floatDecLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instLEFloat;
 LEAN_EXPORT lean_object* l_Float_round___boxed(lean_object*);
 double ceil(double);
@@ -74,8 +74,8 @@ double lean_uint8_to_float(uint8_t);
 double cbrt(double);
 double lean_uint64_to_float(uint64_t);
 LEAN_EXPORT lean_object* l_Float_toUInt8___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_floatDecLt(double, double);
 LEAN_EXPORT lean_object* l_Float_isNaN___boxed(lean_object*);
+static lean_object* l_instReprFloat___closed__1;
 LEAN_EXPORT lean_object* l_Float_cos___boxed(lean_object*);
 double lean_usize_to_float(size_t);
 lean_object* lean_float_frexp(double);
@@ -91,7 +91,6 @@ double pow(double, double);
 double atan2(double, double);
 LEAN_EXPORT lean_object* l_instMinFloat___boxed(lean_object*, lean_object*);
 static lean_object* l_instToStringFloat___closed__1;
-LEAN_EXPORT lean_object* l_instReprFloat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt64_toFloat___boxed(lean_object*);
 uint8_t lean_float_isnan(double);
 LEAN_EXPORT lean_object* l_USize_toFloat___boxed(lean_object*);
@@ -113,11 +112,9 @@ uint16_t lean_float_to_uint16(double);
 uint32_t lean_float_to_uint32(double);
 LEAN_EXPORT lean_object* l_instReprAtomFloat;
 LEAN_EXPORT lean_object* l_Float_cbrt___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_floatDecLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instNegFloat;
 double acosh(double);
 double log2(double);
-LEAN_EXPORT uint8_t l_floatDecLe(double, double);
 double cosh(double);
 LEAN_EXPORT lean_object* l_instAddFloat;
 LEAN_EXPORT lean_object* l_Float_ceil___boxed(lean_object*);
@@ -139,7 +136,7 @@ LEAN_EXPORT lean_object* l_Float_mul___boxed(lean_object*, lean_object*);
 double log10(double);
 double floor(double);
 double round(double);
-LEAN_EXPORT lean_object* l_instReprFloat(double, lean_object*);
+LEAN_EXPORT lean_object* l_instReprFloat;
 LEAN_EXPORT lean_object* l_Float_asin___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_pow___boxed(lean_object*, lean_object*);
 double fabs(double);
@@ -150,6 +147,7 @@ static lean_object* l_instHomogeneousPowFloat___closed__1;
 LEAN_EXPORT lean_object* l_Float_ofBits___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_sin___boxed(lean_object*);
 uint8_t lean_float_isfinite(double);
+LEAN_EXPORT lean_object* l_Float_repr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_log10___boxed(lean_object*);
 double lean_float_sub(double, double);
 LEAN_EXPORT lean_object* l_instSubFloat;
@@ -437,48 +435,6 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT uint8_t l_floatDecLt(double x_1, double x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_float_decLt(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_floatDecLt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-double x_3; double x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_float(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_float(x_2);
-lean_dec(x_2);
-x_5 = l_floatDecLt(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_floatDecLe(double x_1, double x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_float_decLe(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_floatDecLe___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-double x_3; double x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_float(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_float(x_2);
-lean_dec(x_2);
-x_5 = l_floatDecLe(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Float_toString___boxed(lean_object* x_1) {
 _start:
 {
@@ -675,7 +631,7 @@ x_1 = l_instInhabitedFloat___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instReprFloat(double x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Float_repr(double x_1, lean_object* x_2) {
 _start:
 {
 double x_3; uint8_t x_4; 
@@ -700,15 +656,31 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_instReprFloat___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Float_repr___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 double x_3; lean_object* x_4; 
 x_3 = lean_unbox_float(x_1);
 lean_dec(x_1);
-x_4 = l_instReprFloat(x_3, x_2);
+x_4 = l_Float_repr(x_3, x_2);
 lean_dec(x_2);
 return x_4;
+}
+}
+static lean_object* _init_l_instReprFloat___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Float_repr___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instReprFloat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instReprFloat___closed__1;
+return x_1;
 }
 }
 static lean_object* _init_l_instReprAtomFloat() {
@@ -1139,6 +1111,10 @@ l_instToStringFloat = _init_l_instToStringFloat();
 lean_mark_persistent(l_instToStringFloat);
 l_instInhabitedFloat___closed__1 = _init_l_instInhabitedFloat___closed__1();
 l_instInhabitedFloat = _init_l_instInhabitedFloat();
+l_instReprFloat___closed__1 = _init_l_instReprFloat___closed__1();
+lean_mark_persistent(l_instReprFloat___closed__1);
+l_instReprFloat = _init_l_instReprFloat();
+lean_mark_persistent(l_instReprFloat);
 l_instReprAtomFloat = _init_l_instReprAtomFloat();
 lean_mark_persistent(l_instReprAtomFloat);
 l_instHomogeneousPowFloat___closed__1 = _init_l_instHomogeneousPowFloat___closed__1();

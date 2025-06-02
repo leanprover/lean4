@@ -7,6 +7,7 @@ prelude
 import Lake.Config.Package
 import Lake.DSL.Attributes
 import Lake.DSL.DeclUtil
+import Lake.DSL.Syntax
 
 open Lean Parser Elab Command
 
@@ -16,22 +17,7 @@ namespace Lake.DSL
 DSL definitions for packages and hooks.
 -/
 
-/--
-Defines the configuration of a Lake package.  Has many forms:
-
-```lean
-package «pkg-name»
-package «pkg-name» { /- config opts -/ }
-package «pkg-name» where /- config opts -/
-```
-
-There can only be one `package` declaration per Lake configuration file.
-The defined package configuration will be available for reference as `_package`.
--/
-scoped syntax (name := packageCommand)
-(docComment)? (Term.attributes)? "package " (identOrStr)? optConfig : command
-
-@[command_elab packageCommand]
+@[builtin_command_elab packageCommand]
 def elabPackageCommand : CommandElab := fun stx => do
   let `(packageCommand|$(doc?)? $(attrs?)? package%$kw $[$nameStx?]? $cfg) := stx
     | throwErrorAt stx "ill-formed package declaration"
@@ -53,34 +39,7 @@ abbrev PackageCommand := TSyntax ``packageCommand
 instance : Coe PackageCommand Command where
   coe x := ⟨x.raw⟩
 
-/--
-Declare a post-`lake update` hook for the package.
-Runs the monadic action is after a successful `lake update` execution
-in this package or one of its downstream dependents.
-
-**Example**
-
-This feature enables Mathlib to synchronize the Lean toolchain and run
-`cache get` after a `lake update`:
-
-```
-lean_exe cache
-post_update pkg do
-  let wsToolchainFile := (← getRootPackage).dir / "lean-toolchain"
-  let mathlibToolchain ← IO.FS.readFile <| pkg.dir / "lean-toolchain"
-  IO.FS.writeFile wsToolchainFile mathlibToolchain
-  let exeFile ← runBuild cache.fetch
-  let exitCode ← env exeFile.toString #["get"]
-  if exitCode ≠ 0 then
-    error s!"{pkg.name}: failed to fetch cache"
-```
--/
-scoped syntax (name := postUpdateDecl)
-optional(docComment) optional(Term.attributes)
-"post_update " (ppSpace simpleBinder)? (declValSimple <|> declValDo)
-: command
-
-@[macro postUpdateDecl]
+@[builtin_macro postUpdateDecl]
 def expandPostUpdateDecl : Macro := fun stx => do
   match stx with
   | `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? do $seq $[$wds?:whereDecls]?) =>

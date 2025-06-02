@@ -103,8 +103,13 @@ def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
 
 def inferLitValueType (value : LitValue) : Expr :=
   match value with
-  | .natVal .. => mkConst ``Nat
-  | .strVal .. => mkConst ``String
+  | .nat .. => mkConst ``Nat
+  | .str .. => mkConst ``String
+  | .uint8 .. => mkConst ``UInt8
+  | .uint16 .. => mkConst ``UInt16
+  | .uint32 .. => mkConst ``UInt32
+  | .uint64 .. => mkConst ``UInt64
+  | .usize .. => mkConst ``USize
 
 mutual
   partial def inferArgType (arg : Arg) : InferTypeM Expr :=
@@ -126,7 +131,7 @@ mutual
   partial def inferLetValueType (e : LetValue) : InferTypeM Expr := do
     match e with
     | .erased => return erasedExpr
-    | .value v => return inferLitValueType v
+    | .lit v => return inferLitValueType v
     | .proj structName idx fvarId => inferProjType structName idx fvarId
     | .const declName us args => inferAppTypeCore (← inferConstType declName us) args
     | .fvar fvarId args => inferAppTypeCore (← getType fvarId) args
@@ -142,7 +147,7 @@ mutual
         fType := instantiateRevRangeArgs fType j i args |>.headBeta
         match fType with
         | .forallE _ _ b _ => j := i; fType := b
-        | _ => return erasedExpr
+        | _ => return anyExpr
     return instantiateRevRangeArgs fType j args.size args |>.headBeta
 
   partial def inferAppType (e : Expr) : InferTypeM Expr := do
@@ -157,7 +162,7 @@ mutual
         fType := fType.instantiateRevRange j i args |>.headBeta
         match fType with
         | .forallE _ _ b _ => j := i; fType := b
-        | _ => return erasedExpr
+        | _ => return anyExpr
     return fType.instantiateRevRange j args.size args |>.headBeta
 
   partial def inferProjType (structName : Name) (idx : Nat) (s : FVarId) : InferTypeM Expr := do
@@ -167,6 +172,8 @@ mutual
     if structType.isErased then
       /- TODO: after we erase universe variables, we can just extract a better type using just `structName` and `idx`. -/
       return erasedExpr
+    else if structType.isAny then
+      return anyExpr
     else
       matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal =>
         let structTypeArgs := structType.getAppArgs
@@ -179,7 +186,7 @@ mutual
             | .forallE _ _ body _ =>
               if body.hasLooseBVars then
                 -- This can happen when one of the fields is a type or type former.
-                ctorType := body.instantiate1 erasedExpr
+                ctorType := body.instantiate1 anyExpr
               else
                 ctorType := body
             | _ =>
@@ -260,7 +267,7 @@ def Code.inferParamType (params : Array Param) (code : Code) : CompilerM Expr :=
   let xs := params.map fun p => .fvar p.fvarId
   InferType.mkForallFVars xs type |>.run {}
 
-def AltCore.inferType (alt : Alt) : CompilerM Expr :=
+def Alt.inferType (alt : Alt) : CompilerM Expr :=
   alt.getCode.inferType
 
 def mkAuxLetDecl (e : LetValue) (prefixName := `_x) : CompilerM LetDecl := do

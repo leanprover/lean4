@@ -32,6 +32,30 @@ def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
   let isRangeAtEOF := r.stop == text.source.endPos
   r.contains hoverPos (includeStop := includeStop || isRangeAtEOF)
 
+def Lean.FileMap.rangeOverlapsRequestedRange
+    (text : Lean.FileMap)
+    (documentRange : String.Range)
+    (requestedRange : String.Range)
+    (includeDocumentRangeStop := false)
+    (includeRequestedRangeStop := false)
+    : Bool :=
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  documentRange.overlaps requestedRange
+    (includeFirstStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
+    (includeSecondStop := includeRequestedRangeStop)
+
+def Lean.FileMap.rangeIncludesRequestedRange
+    (text : Lean.FileMap)
+    (documentRange : String.Range)
+    (requestedRange : String.Range)
+    (includeDocumentRangeStop := false)
+    (includeRequestedRangeStop := false)
+    : Bool :=
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  documentRange.includes requestedRange
+    (includeSuperStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
+    (includeSubStop := includeRequestedRangeStop)
+
 namespace Lean.Language
 
 open Lean.Server
@@ -76,13 +100,20 @@ that contains `hoverPos` in its whitespace, which is not necessarily the correct
 partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree)
     (hoverPos : String.Pos) (includeStop : Bool) : ServerTask (Option Elab.InfoTree) :=
   tree.foldSnaps (init := none) fun snap _ => Id.run do
-    let skipChild := .pure (none, .proceed (foldChildren := false))
     let some stx := snap.stx?
-      | return skipChild
+      -- One of the invariants of the snapshot tree is that `stx? = none` implies that
+      -- this entire subtree has no relevant `InfoTree` information, so we can safely discard it
+      -- here.
+      | return .pure (none, .proceed (foldChildren := false))
     let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
-      | return skipChild
+      -- In the worst case, the `infoTreeSnap` of the `CommandParsedSnap` will have canonical
+      -- syntax that we can use here, so ignoring snapshots with non-canonical syntax can only
+      -- at worst break incrementality in request handlers.
+      | return .pure (none, .proceed (foldChildren := true))
     if ! text.rangeContainsHoverPos range hoverPos includeStop then
-      return skipChild
+      -- Subtrees of the snapshot tree always have syntax ranges that are contained in those of
+      -- their parents, so we can terminate early here.
+      return .pure (none, .proceed (foldChildren := false))
     return snap.task.asServerTask.mapCheap fun tree => Id.run do
       let some infoTree := tree.element.infoTree?
         | return (none, .proceed (foldChildren := true))
@@ -162,15 +193,11 @@ abbrev ServerRequestEmitter := (method : String) → (param : Json)
 
 structure RequestContext where
   rpcSessions          : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
-  srcSearchPathTask    : ServerTask SearchPath
   doc                  : FileWorker.EditableDocument
   hLog                 : IO.FS.Stream
   initParams           : Lsp.InitializeParams
   cancelTk             : RequestCancellationToken
   serverRequestEmitter : ServerRequestEmitter
-
-def RequestContext.srcSearchPath (rc : RequestContext) : SearchPath :=
-  rc.srcSearchPathTask.get
 
 abbrev RequestTask α := ServerTask (Except RequestError α)
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
@@ -353,7 +380,6 @@ where
     let some startPos := cmdParsed.stx.getPos? (canonicalOnly := true)
       | return false
     return hoverPos < startPos
-
 
 open Language in
 /--

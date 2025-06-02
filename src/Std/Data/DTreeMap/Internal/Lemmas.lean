@@ -28,8 +28,6 @@ variable {α : Type u} {β : α → Type v} {instOrd : Ord α} {t : Impl α β}
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 attribute [local instance low] beqOfOrd
-attribute [local instance] equivBEq_of_transOrd
-attribute [local instance] lawfulBEq_of_lawfulEqOrd
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "wf_trivial" : tactic
@@ -55,7 +53,8 @@ theorem compare_ne_iff_beq_eq_false {a b : α} :
   simp only [ne_eq, compare_eq_iff_beq, Bool.not_eq_true]
 
 private def helperLemmaNames : Array Name :=
-  #[``compare_eq_iff_beq, ``compare_ne_iff_beq_eq_false, ``Bool.not_eq_true, ``mem_iff_contains]
+  #[``compare_eq_iff_beq, ``compare_beq_eq_beq, ``compare_ne_iff_beq_eq_false,
+    ``Bool.not_eq_true, ``mem_iff_contains]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -406,16 +405,16 @@ theorem isEmpty_insertIfNew! [TransOrd α] (h : t.WF) {k : α} {v : β k} :
   simpa only [insertIfNew_eq_insertIfNew!] using isEmpty_insertIfNew h
 
 theorem contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew k v h.balanced).impl.contains a = (k == a || t.contains a) := by
+    (t.insertIfNew k v h.balanced).impl.contains a = (compare k a == .eq || t.contains a) := by
   simp_to_model [insertIfNew, contains] using List.containsKey_insertEntryIfNew
 
 theorem contains_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew! k v).contains a = (k == a || t.contains a) := by
+    (t.insertIfNew! k v).contains a = (compare k a == .eq || t.contains a) := by
   simpa only [insertIfNew_eq_insertIfNew!] using contains_insertIfNew h
 
 theorem mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     a ∈ (t.insertIfNew k v h.balanced).impl ↔ compare k a = .eq ∨ a ∈ t := by
-  simp [mem_iff_contains, contains_insertIfNew, h, beq_eq]
+  simp [mem_iff_contains, contains_insertIfNew, h, compare_eq_iff_beq]
 
 theorem mem_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insertIfNew! k v ↔ compare k a = .eq ∨ a ∈ t := by
@@ -2332,14 +2331,33 @@ theorem get?_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [Lawfu
 theorem get?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
-    get? (insertMany t l h.balanced).1 k' = v := by
+    get? (insertMany t l h.balanced).1 k' = some v := by
   simp_to_model [Const.insertMany, Const.get?] using List.getValue?_insertListConst_of_mem
 
 theorem get?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
-    get? (insertMany! t l).1 k' = v := by
+    get? (insertMany! t l).1 k' = some v := by
   simpa only [insertMany_eq_insertMany!] using get?_insertMany_list_of_mem h
+
+theorem get?_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α} :
+    get? (insertMany t l h.balanced).1 k =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none)).or (get? t k) := by
+  induction l generalizing t with
+  | nil =>
+    rw [get?_insertMany_list_of_contains_eq_false h] <;> simp
+  | cons x l ih =>
+    rcases x with ⟨a, b⟩
+    rw [insertMany_cons h, ih (WF.insert h), get?_insert h]
+    simp
+    split <;> simp
+
+theorem get?_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α} :
+    get? (insertMany! t l).1 k =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k =.eq then some b else none)).or (get? t k) := by
+  simpa only [insertMany_eq_insertMany!] using get?_insertMany_list h
 
 theorem get_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     {l : List (α × β)} {k : α}
@@ -2369,6 +2387,36 @@ theorem get_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     get (insertMany! t l).1 k' h' = v := by
   simpa only [insertMany_eq_insertMany!] using get_insertMany_list_of_mem h
 
+/-- A variant of `contains_of_contains_insertMany_list` used in `get_insertMany_list`. -/
+theorem contains_of_contains_insertMany_list' [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α}
+    (h' : contains k (insertMany t l h.balanced).val = true)
+    (w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none) = none) :
+    contains k t = true :=
+  contains_of_contains_insertMany_list h h' (by simpa [compare_eq_iff_beq, BEq.comm] using w)
+
+theorem get_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α} (h') :
+    get (insertMany t l h.balanced).1 k h' =
+      match w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none) with
+      | some v => v
+      | none => get t k (contains_of_contains_insertMany_list' h h' w) := by
+  apply Option.some_inj.mp
+  rw [get_eq_get?, get?_insertMany_list h]
+  split <;> rename_i p
+  · rw [p]
+    simp
+  · simp only [p]
+    simp [get_eq_get?]
+
+theorem get_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α} {h'} :
+    get (insertMany! t l).1 k h' =
+      match w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k =.eq then some b else none) with
+      | some v => v
+      | none => get t k (contains_of_contains_insertMany_list' h (by simpa [insertMany_eq_insertMany!] using h') w) := by
+  simpa only [insertMany_eq_insertMany!] using get_insertMany_list h (by simpa [insertMany_eq_insertMany!] using h')
+
 theorem get!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [Inhabited β] (h : t.WF) {l : List (α × β)} {k : α}
     (h' : (l.map Prod.fst).contains k = false) :
@@ -2380,7 +2428,7 @@ theorem get!_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [Lawfu
     (h' : (l.map Prod.fst).contains k = false) :
     get! (insertMany! t l).1 k = get! t k := by
   simpa only [insertMany_eq_insertMany!] using
-    get!_insertMany_list_of_contains_eq_false h (h' := by simpa [insertMany_eq_insertMany!])
+    get!_insertMany_list_of_contains_eq_false h (h' := by simpa [insertMany_eq_insertMany!] using h')
 
 theorem get!_insertMany_list_of_mem [TransOrd α] [Inhabited β] (h : t.WF)
     {l : List (α × β)} {k k' : α} {v : β} : (k_beq : compare k k' = .eq) →
@@ -2417,6 +2465,35 @@ theorem getD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
     getD (insertMany! t l).1 k' fallback = v := by
   simpa only [insertMany_eq_insertMany!] using getD_insertMany_list_of_mem h
+
+theorem getD_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α} (fallback : β) :
+    getD (insertMany t l h.balanced).1 k fallback =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none)).getD (getD t k fallback) := by
+  rw [getD_eq_getD_get? h.constInsertMany, get?_insertMany_list h]
+  simp [getD_eq_getD_get? h]
+
+theorem getD_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α} (fallback : β) :
+    getD (insertMany! t l).1 k fallback =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none)).getD (getD t k fallback) := by
+  simpa only [insertMany_eq_insertMany!] using getD_insertMany_list h fallback
+
+-- Ideally the results about `getD` would come before those about `get!`, so we could conveniently use them;
+-- for now, these results have been slightly delayed:
+
+theorem get!_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited β] (h : t.WF)
+    {l : List (α × β)} {k : α} :
+    get! (insertMany t l h.balanced).1 k =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none)).getD (get! t k) := by
+  rw [get!_eq_getD_default h.constInsertMany, getD_insertMany_list h]
+  simp [get!_eq_getD_default h]
+
+theorem get!_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited β] (h : t.WF)
+    {l : List (α × β)} {k : α} :
+    get! (insertMany! t l).1 k =
+      (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k =.eq then some b else none)).getD (get! t k) := by
+  simpa only [insertMany_eq_insertMany!] using get!_insertMany_list h
 
 variable {t : Impl α Unit}
 
@@ -3524,6 +3601,7 @@ theorem getKey!_alter!_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t
     (t.alter! k f).getKey! k = if (f (t.get? k)).isSome then k else default := by
   simpa only [alter_eq_alter!] using getKey!_alter_self h
 
+-- Note that in many use cases `getKey_eq` gives a simpler right hand side.
 theorem getKey_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter k f h.balanced).1} :
     (t.alter k f h.balanced).1.getKey k' hc =
@@ -4432,12 +4510,12 @@ theorem minKey?_le_minKey?_erase! [TransOrd α] (h : t.WF) {k km kme} :
 
 theorem minKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.minKey? =
-      t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
+      some (t.minKey?.elim k fun k' => if compare k k' = .lt then k else k') := by
   simp_to_model [insertIfNew] using List.minKey?_insertEntryIfNew
 
 theorem minKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew! k v).minKey? =
-      t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
+      some (t.minKey?.elim k fun k' => if compare k k' = .lt then k else k') := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey?_insertIfNew h
 
 theorem isSome_minKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
@@ -5269,12 +5347,12 @@ theorem maxKey?_erase!_le_maxKey? [TransOrd α] (h : t.WF) {k km kme} :
 
 theorem maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.maxKey? =
-      t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
+      some (t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k') := by
   simp_to_model [insertIfNew] using List.maxKey?_insertEntryIfNew
 
 theorem maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew! k v).maxKey? =
-      t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
+      some (t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k') := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKey?_insertIfNew h
 
 theorem isSome_maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :

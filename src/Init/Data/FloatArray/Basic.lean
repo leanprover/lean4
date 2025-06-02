@@ -3,6 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Float
@@ -163,7 +165,7 @@ def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → Float →
 
 @[inline]
 def foldl {β : Type v} (f : β → Float → β) (init : β) (as : FloatArray) (start := 0) (stop := as.size) : β :=
-  Id.run <| as.foldlM f init start stop
+  Id.run <| as.foldlM (pure <| f · ·) init start stop
 
 end FloatArray
 

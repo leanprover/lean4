@@ -1,29 +1,6 @@
 universe u v w v₁ v₂ v₃ u₁ u₂ u₃
 
-section Mathlib.Algebra.Group.ZeroOne
-
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Algebra.Group.ZeroOne
-
 section Mathlib.Algebra.Group.Defs
-
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type u) (α : Type v) where
-  smul : M → α → α
-
-infixr:73 " • " => SMul.smul
-
-macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
-
-instance instHSMul {α β} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
 
 class AddMonoid (M : Type u) extends Add M, Zero M where
   protected add_assoc : ∀ a b c : M, a + b + c = a + (b + c)

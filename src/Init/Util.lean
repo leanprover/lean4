@@ -3,6 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.String.Basic
 import Init.Data.ToString.Basic
@@ -30,16 +32,16 @@ def dbgStackTrace {α : Type u} (f : Unit → α) : α := f ()
 @[extern "lean_dbg_sleep"]
 def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 
-@[noinline] private def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
+@[noinline] def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
   "PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
 
-@[never_extract, inline] def panicWithPos {α : Sort u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
+@[never_extract, inline, expose] def panicWithPos {α : Sort u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessage modName line col msg)
 
-@[noinline] private def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
+@[noinline, expose] def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
   "PANIC at " ++ declName ++ " " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
 
-@[never_extract, inline] def panicWithPosWithDecl {α : Sort u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
+@[never_extract, inline, expose] def panicWithPosWithDecl {α : Sort u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessageWithDecl modName declName line col msg)
 
 /--
@@ -94,8 +96,8 @@ def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () =
 @[inline] def withPtrEqDecEq {α : Type u} (a b : α) (k : Unit → Decidable (a = b)) : Decidable (a = b) :=
   let b := withPtrEq a b (fun _ => toBoolUsing (k ())) (toBoolUsing_eq_true (k ()));
   match h:b with
-  | true  => isTrue (ofBoolUsing_eq_true h)
-  | false => isFalse (ofBoolUsing_eq_false h)
+  | true  => isTrue (of_toBoolUsing_eq_true h)
+  | false => isFalse (of_toBoolUsing_eq_false h)
 
 @[implemented_by withPtrAddrUnsafe]
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β := k 0

@@ -3,7 +3,10 @@ Copyright (c) 2023 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
+import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
 import Init.Data.List.Count
 import Init.Data.Subtype
 import Init.BinderNameHint
@@ -20,6 +23,7 @@ a list `l : List α`, given a proof that every element of `l` in fact satisfies 
 `O(|l|)`. `List.pmap`, named for “partial map,” is the equivalent of `List.map` for such partial
 functions.
 -/
+@[expose]
 def pmap {P : α → Prop} (f : ∀ a, P a → β) : ∀ l : List α, (H : ∀ a ∈ l, P a) → List β
   | [], _ => []
   | a :: l, H => f a (forall_mem_cons.1 H).1 :: pmap f l (forall_mem_cons.1 H).2
@@ -37,7 +41,7 @@ elements in the corresponding subtype `{ x // P x }`.
 
 `O(1)`.
 -/
-@[implemented_by attachWithImpl] def attachWith
+@[implemented_by attachWithImpl, expose] def attachWith
     (l : List α) (P : α → Prop) (H : ∀ x ∈ l, P x) : List {x // P x} := pmap Subtype.mk l H
 
 /--
@@ -51,7 +55,7 @@ recursion](lean-manual://section/well-founded-recursion) that use higher-order f
 `List.map`) to prove that an value taken from a list is smaller than the list. This allows the
 well-founded recursion mechanism to prove that the function terminates.
 -/
-@[inline] def attach (l : List α) : List {x // x ∈ l} := attachWith l _ fun _ => id
+@[inline, expose] def attach (l : List α) : List {x // x ∈ l} := attachWith l _ fun _ => id
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
 @[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (l : List α) (H : ∀ a ∈ l, P a) :
@@ -87,8 +91,6 @@ theorem pmap_congr_left {p q : α → Prop} {f : ∀ a, p a → β} {g : ∀ a, 
   | nil => rfl
   | cons x l ih =>
     rw [pmap, pmap, h _ mem_cons_self, ih fun a ha => h a (mem_cons_of_mem _ ha)]
-
-@[deprecated pmap_congr_left (since := "2024-09-06")] abbrev pmap_congr := @pmap_congr_left
 
 theorem map_pmap {p : α → Prop} {g : β → γ} {f : ∀ a, p a → β} {l : List α} (H) :
     map g (pmap f l H) = pmap (fun a h => g (f a h)) l H := by
@@ -235,11 +237,6 @@ theorem attachWith_ne_nil_iff {l : List α} {P : α → Prop} {H : ∀ a ∈ l, 
     l.attachWith P H ≠ [] ↔ l ≠ [] :=
   pmap_ne_nil_iff _ _
 
-@[deprecated pmap_eq_nil_iff (since := "2024-09-06")] abbrev pmap_eq_nil := @pmap_eq_nil_iff
-@[deprecated pmap_ne_nil_iff (since := "2024-09-06")] abbrev pmap_ne_nil := @pmap_ne_nil_iff
-@[deprecated attach_eq_nil_iff (since := "2024-09-06")] abbrev attach_eq_nil := @attach_eq_nil_iff
-@[deprecated attach_ne_nil_iff (since := "2024-09-06")] abbrev attach_ne_nil := @attach_ne_nil_iff
-
 @[simp]
 theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {l : List α} (h : ∀ a ∈ l, p a) (i : Nat) :
     (pmap f l h)[i]? = Option.pmap f l[i]? fun x H => h x (mem_of_getElem? H) := by
@@ -247,9 +244,8 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {l : List α} (h
   | nil => simp
   | cons hd tl hl =>
     rcases i with ⟨i⟩
-    · simp only [Option.pmap]
-      split <;> simp_all
-    · simp only [pmap, getElem?_cons_succ, hl, Option.pmap]
+    · simp
+    · simp only [pmap, getElem?_cons_succ, hl]
 
 set_option linter.deprecated false in
 @[deprecated List.getElem?_pmap (since := "2025-02-12")]
@@ -334,7 +330,7 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
 
 @[simp] theorem head?_attachWith {P : α → Prop} {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) :
-    (xs.attachWith P H).head? = xs.head?.pbind (fun a h => some ⟨a, H _ (mem_of_mem_head? h)⟩) := by
+    (xs.attachWith P H).head? = xs.head?.pbind (fun a h => some ⟨a, H _ (mem_of_head? h)⟩) := by
   cases xs <;> simp_all
 
 @[simp] theorem head_attachWith {P : α → Prop} {xs : List α}
@@ -345,7 +341,7 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
   | cons x xs => simp [head_attachWith, h]
 
 @[simp] theorem head?_attach {xs : List α} :
-    xs.attach.head? = xs.head?.pbind (fun a h => some ⟨a, mem_of_mem_head? h⟩) := by
+    xs.attach.head? = xs.head?.pbind (fun a h => some ⟨a, mem_of_head? h⟩) := by
   cases xs <;> simp_all
 
 @[simp] theorem head_attach {xs : List α} (h) :
@@ -470,20 +466,19 @@ theorem attach_filterMap {l : List α} {f : α → Option β} :
   | cons x xs ih =>
     simp only [filterMap_cons, attach_cons, ih, filterMap_map]
     split <;> rename_i h
-    · simp only [Option.pbind_eq_none_iff, reduceCtorEq, Option.mem_def, exists_false,
+    · simp only [Option.pbind_eq_none_iff, reduceCtorEq, exists_false,
         or_false] at h
       rw [attach_congr]
       rotate_left
       · simp only [h]
         rfl
       rw [ih]
-      simp only [map_filterMap, Option.map_pbind, Option.map_some']
+      simp only [map_filterMap, Option.map_pbind, Option.map_some]
       rfl
     · simp only [Option.pbind_eq_some_iff] at h
       obtain ⟨a, h, w⟩ := h
       simp only [Option.some.injEq] at w
       subst w
-      simp only [Option.mem_def] at h
       rw [attach_congr]
       rotate_left
       · simp only [h]
@@ -641,12 +636,12 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {l : List α} (H :
   simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attachWith_map_subtype_val]
 
 @[simp]
-theorem count_attach [DecidableEq α] {l : List α} {a : {x // x ∈ l}} :
+theorem count_attach [BEq α] {l : List α} {a : {x // x ∈ l}} :
     l.attach.count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attach
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) {a : {x // p x}} :
+theorem count_attachWith [BEq α] {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) {a : {x // p x}} :
     (l.attachWith p H).count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _
 
@@ -681,6 +676,7 @@ the elaboration of definitions by [well-founded
 recursion](lean-manual://section/well-founded-recursion). If this function is encountered in a proof
 state, the right approach is usually the tactic `simp [List.unattach, -List.map_subtype]`.
 -/
+@[expose]
 def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) : List α := l.map (·.val)
 
 @[simp] theorem unattach_nil {p : α → Prop} : ([] : List { x // p x }).unattach = [] := rfl
@@ -775,8 +771,6 @@ and simplifies these to the function directly taking the value.
   | nil => simp
   | cons a l ih => simp [ih, hf]
 
-@[deprecated flatMap_subtype (since := "2024-10-16")] abbrev bind_subtype := @flatMap_subtype
-
 @[simp] theorem findSome?_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.findSome? f = l.unattach.findSome? g := by
@@ -828,8 +822,6 @@ and simplifies these to the function directly taking the value.
     l.flatten.unattach = (l.map unattach).flatten := by
   unfold unattach
   induction l <;> simp_all
-
-@[deprecated unattach_flatten (since := "2024-10-14")] abbrev unattach_join := @unattach_flatten
 
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (List.replicate n x).unattach = List.replicate n x.1 := by

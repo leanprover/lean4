@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 
+module
+
 prelude
 import Init.Core
 
@@ -16,7 +18,7 @@ Examples:
  * `Function.curry (fun (x, y) => x + y) 3 5 = 8`
  * `Function.curry Prod.swap 3 "five" = ("five", 3)`
 -/
-@[inline]
+@[inline, expose]
 def curry : (α × β → φ) → α → β → φ := fun f a b => f (a, b)
 
 /--
@@ -26,7 +28,7 @@ Examples:
  * `Function.uncurry List.drop (1, ["a", "b", "c"]) = ["b", "c"]`
  * `[("orange", 2), ("android", 3) ].map (Function.uncurry String.take) = ["or", "and"]`
 -/
-@[inline]
+@[inline, expose]
 def uncurry : (α → β → φ) → α × β → φ := fun f a => f a.1 a.2
 
 @[simp]

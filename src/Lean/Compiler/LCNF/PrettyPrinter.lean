@@ -56,10 +56,15 @@ def ppArg (e : Arg) : M Format := do
 def ppArgs (args : Array Arg) : M Format := do
   prefixJoin " " args ppArg
 
+def ppLitValue (lit : LitValue) : M Format := do
+  match lit with
+  | .nat v | .uint8 v | .uint16 v | .uint32 v | .uint64 v | .usize v => return format v
+  | .str v => return format (repr v)
+
 def ppLetValue (e : LetValue) : M Format := do
   match e with
   | .erased => return "◾"
-  | .value v => ppExpr v.toExpr
+  | .lit v => ppLitValue v
   | .proj _ i fvarId => return f!"{← ppFVar fvarId} # {i}"
   | .fvar fvarId args => return f!"{← ppFVar fvarId}{← ppArgs args}"
   | .const declName us args => return f!"{← ppExpr (.const declName us)}{← ppArgs args}"

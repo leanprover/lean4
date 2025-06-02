@@ -86,19 +86,21 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
       | .intro =>
         if let some info ← Grind.isCasesAttrPredicateCandidate? declName false then
           for ctor in info.ctors do
-            params ← withRef p <| addEMatchTheorem params ctor .default
+            params ← withRef p <| addEMatchTheorem params ctor (.default false)
         else
           throwError "invalid use of `intro` modifier, `{declName}` is not an inductive predicate"
+      | .ext =>
+        throwError "`[grind ext]` cannot be set using parameters"
       | .infer =>
         if let some declName ← Grind.isCasesAttrCandidate? declName false then
           params := { params with casesTypes := params.casesTypes.insert declName false }
           if let some info ← isInductivePredicate? declName then
             -- If it is an inductive predicate,
-            -- we also add the contructors (intro rules) as E-matching rules
+            -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
-              params ← withRef p <| addEMatchTheorem params ctor .default
+              params ← withRef p <| addEMatchTheorem params ctor (.default false)
         else
-          params ← withRef p <| addEMatchTheorem params declName .default
+          params ← withRef p <| addEMatchTheorem params declName (.default false)
     | _ => throwError "unexpected `grind` parameter{indentD p}"
   return params
 where
@@ -106,18 +108,19 @@ where
     let info ← getConstInfo declName
     match info with
     | .thmInfo _ | .axiomInfo _ | .ctorInfo _ =>
-      if kind == .eqBoth then
-        let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqLhs) }
-        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqRhs) }
-      else
+      match kind with
+      | .eqBoth gen =>
+        let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen)) }
+        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen)) }
+      | _ =>
         return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind) }
     | .defnInfo _ =>
       if (← isReducible declName) then
         throwError "`{declName}` is a reducible definition, `grind` automatically unfolds them"
-      if kind != .eqLhs && kind != .default then
+      if !kind.isEqLhs && !kind.isDefault then
         throwError "invalid `grind` parameter, `{declName}` is a definition, the only acceptable (and redundant) modifier is '='"
       let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
-        | throwError "failed to genereate equation theorems for `{declName}`"
+        | throwError "failed to generate equation theorems for `{declName}`"
       return { params with extra := params.extra ++ thms.toPArray' }
     | _ =>
       throwError "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
@@ -133,17 +136,17 @@ def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
-    (mainDeclName : Name) (fallback : Grind.Fallback) : TacticM Grind.Trace := do
+    (fallback : Grind.Fallback) : TacticM Grind.Trace := do
   mvarId.withContext do
     let params ← mkGrindParams config only ps
     let type ← mvarId.getType
     let mvar' ← mkFreshExprSyntheticOpaqueMVar type
-    let result ← Grind.main mvar'.mvarId! params mainDeclName fallback
-    if result.hasFailures then
+    let result ← Grind.main mvar'.mvarId! params fallback
+    if result.hasFailed then
       throwError "`grind` failed\n{← result.toMessageData}"
     -- `grind` proofs are often big
     let e ← if (← isProp type) then
-      mkAuxTheorem (prefix? := mainDeclName) type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
     else
       let auxName ← Term.mkAuxName `grind
       mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
@@ -179,9 +182,8 @@ def evalGrindCore
   let params := if let some params := params then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
     logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects."
-  let declName := (← Term.getDeclName?).getD `_grind
   withMainContext do
-    let result ← grind (← getMainGoal) config only params declName fallback
+    let result ← grind (← getMainGoal) config only params fallback
     replaceMainGoal []
     return result
 
@@ -213,27 +215,31 @@ def mkGrindOnly
   let mut foundFns : NameSet := {}
   for { origin, kind } in trace.thms.toList do
     if let .decl declName := origin then
-      unless Match.isMatchEqnTheorem (← getEnv) declName do
-        if let some declName ← isEqnThm? declName then
-          unless foundFns.contains declName do
-            foundFns := foundFns.insert declName
-            let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-            let param ← `(Parser.Tactic.grindParam| $decl:ident)
-            params := params.push param
-        else
+      if let some declName ← isEqnThm? declName then
+        unless foundFns.contains declName do
+          foundFns := foundFns.insert declName
           let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-          let param ← match kind with
-            | .eqLhs     => `(Parser.Tactic.grindParam| = $decl)
-            | .eqRhs     => `(Parser.Tactic.grindParam| =_ $decl)
-            | .eqBoth    => `(Parser.Tactic.grindParam| _=_ $decl)
-            | .eqBwd     => `(Parser.Tactic.grindParam| ←= $decl)
-            | .bwd       => `(Parser.Tactic.grindParam| ← $decl)
-            | .fwd       => `(Parser.Tactic.grindParam| → $decl)
-            | .leftRight => `(Parser.Tactic.grindParam| => $decl)
-            | .rightLeft => `(Parser.Tactic.grindParam| <= $decl)
-            | .user      => `(Parser.Tactic.grindParam| usr $decl)
-            | .default   => `(Parser.Tactic.grindParam| $decl:ident)
+          let param ← `(Parser.Tactic.grindParam| $decl:ident)
           params := params.push param
+      else
+        let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+        let param ← match kind with
+          | .eqLhs false   => `(Parser.Tactic.grindParam| = $decl:ident)
+          | .eqLhs true    => `(Parser.Tactic.grindParam| = gen $decl:ident)
+          | .eqRhs false   => `(Parser.Tactic.grindParam| =_ $decl:ident)
+          | .eqRhs true    => `(Parser.Tactic.grindParam| =_ gen $decl:ident)
+          | .eqBoth false  => `(Parser.Tactic.grindParam| _=_ $decl:ident)
+          | .eqBoth true   => `(Parser.Tactic.grindParam| _=_ gen $decl:ident)
+          | .eqBwd         => `(Parser.Tactic.grindParam| ←= $decl:ident)
+          | .bwd false     => `(Parser.Tactic.grindParam| ← $decl:ident)
+          | .bwd true      => `(Parser.Tactic.grindParam| ← gen $decl:ident)
+          | .fwd           => `(Parser.Tactic.grindParam| → $decl:ident)
+          | .leftRight     => `(Parser.Tactic.grindParam| => $decl:ident)
+          | .rightLeft     => `(Parser.Tactic.grindParam| <= $decl:ident)
+          | .user          => `(Parser.Tactic.grindParam| usr $decl:ident)
+          | .default false => `(Parser.Tactic.grindParam| $decl:ident)
+          | .default true  => `(Parser.Tactic.grindParam| gen $decl:ident)
+        params := params.push param
   for declName in trace.eagerCases.toList do
     unless Grind.isBuiltinEagerCases declName do
       let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)

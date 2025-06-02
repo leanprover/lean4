@@ -3,6 +3,8 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Array.Bootstrap
 
@@ -17,8 +19,7 @@ then at runtime you will get non-tail recursive versions of the following defini
 -/
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- TODO: restore after an update-stage0
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -108,7 +109,7 @@ Example:
   let rec go : ∀ as acc, filterMapTR.go f as acc = acc.toList ++ as.filterMap f
     | [], acc => by simp [filterMapTR.go, filterMap]
     | a::as, acc => by
-      simp only [filterMapTR.go, go as, Array.push_toList, append_assoc, singleton_append,
+      simp only [filterMapTR.go, go as, Array.toList_push, append_assoc, singleton_append,
         filterMap]
       split <;> simp [*]
   exact (go l #[]).symm
@@ -254,6 +255,62 @@ Examples:
 
 @[csimp] theorem dropLast_eq_dropLastTR : @dropLast = @dropLastTR := by
   funext α l; simp [dropLastTR]
+
+/-! ## Finding elements -/
+
+/-- Tail recursive implementation of `findRev?`. This is only used at runtime. -/
+def findRev?TR (p : α → Bool) (l : List α) : Option α := l.reverse.find? p
+
+@[simp] theorem find?_singleton {a : α} : [a].find? p = if p a then some a else none := by
+  simp only [find?]
+  split <;> simp_all
+
+@[simp] theorem find?_append {xs ys : List α} : (xs ++ ys).find? p = (xs.find? p).or (ys.find? p) := by
+  induction xs with
+  | nil => simp [find?]
+  | cons x xs ih =>
+    simp only [cons_append, find?_cons, ih]
+    split <;> simp
+
+@[csimp] theorem findRev?_eq_findRev?TR : @List.findRev? = @List.findRev?TR := by
+  apply funext; intro α; apply funext; intro p; apply funext; intro l
+  induction l with
+  | nil => simp [findRev?, findRev?TR]
+  | cons x l ih =>
+    simp only [findRev?, ih, findRev?TR, reverse_cons, find?_append, find?_singleton]
+    split <;> simp_all
+
+@[simp] theorem findRev?_eq_find?_reverse {l : List α} {p : α → Bool} :
+    l.findRev? p = l.reverse.find? p := by
+  simp [findRev?_eq_findRev?TR, findRev?TR]
+
+/-- Tail recursive implementation of `finSomedRev?`. This is only used at runtime. -/
+def findSomeRev?TR (f : α → Option β) (l : List α) : Option β := l.reverse.findSome? f
+
+@[simp] theorem findSome?_singleton {a : α} :
+    [a].findSome? f = f a := by
+  simp only [findSome?_cons, findSome?_nil]
+  split <;> simp_all
+
+@[simp] theorem findSome?_append {xs ys : List α} : (xs ++ ys).findSome? f = (xs.findSome? f).or (ys.findSome? f) := by
+  induction xs with
+  | nil => simp [findSome?]
+  | cons x xs ih =>
+    simp only [cons_append, findSome?_cons, ih]
+    split <;> simp
+
+@[csimp] theorem findSomeRev?_eq_findSomeRev?TR : @List.findSomeRev? = @List.findSomeRev?TR := by
+  apply funext; intro α; apply funext; intro β; apply funext; intro p; apply funext; intro l
+  induction l with
+  | nil => simp [findSomeRev?, findSomeRev?TR]
+  | cons x l ih =>
+    simp only [findSomeRev?, ih, findSomeRev?TR, reverse_cons, findSome?_append,
+      findSome?_singleton]
+    split <;> simp_all
+
+@[simp] theorem findSomeRev?_eq_findSome?_reverse {l : List α} {f : α → Option β} :
+    l.findSomeRev? f = l.reverse.findSome? f := by
+  simp [findSomeRev?_eq_findSomeRev?TR, findSomeRev?TR]
 
 /-! ## Manipulating elements -/
 
@@ -493,7 +550,7 @@ def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
   (as.foldr (fun a (n, acc) => (n-1, (a, n-1) :: acc)) (n + as.size, [])).2
 
 @[csimp] theorem zipIdx_eq_zipIdxTR : @zipIdx = @zipIdxTR := by
-  funext α l n; simp only [zipIdxTR, size_toArray]
+  funext α l n; simp only [zipIdxTR]
   let f := fun (a : α) (n, acc) => (n-1, (a, n-1) :: acc)
   let rec go : ∀ l i, l.foldr f (i + l.length, []) = (i, zipIdx l i)
     | [], n => rfl
@@ -514,7 +571,7 @@ def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
 set_option linter.deprecated false in
 @[deprecated zipIdx_eq_zipIdxTR (since := "2025-01-21"), csimp]
 theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
-  funext α n l; simp only [enumFromTR, size_toArray]
+  funext α n l; simp only [enumFromTR]
   let f := fun (a : α) (n, acc) => (n-1, (n-1, a) :: acc)
   let rec go : ∀ l n, l.foldr f (n + l.length, []) = (n, enumFrom n l)
     | [], n => rfl

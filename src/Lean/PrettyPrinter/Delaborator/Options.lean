@@ -79,6 +79,11 @@ register_builtin_option pp.piBinderTypes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display types of pi parameters"
 }
+register_builtin_option pp.foralls : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) display pi types that are propositions using `∀` notation rather than with dependent arrows"
+}
 register_builtin_option pp.letVarTypes : Bool := {
   defValue := false
   group    := "pp"
@@ -268,6 +273,7 @@ def getPPNatLit (o : Options) : Bool := o.get pp.natLit.name (getPPNumericTypes 
 def getPPCoercions (o : Options) : Bool := o.get pp.coercions.name (!getPPAll o)
 def getPPCoercionsTypes (o : Options) : Bool := o.get pp.coercions.types.name pp.coercions.types.defValue
 def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
+def getPPForalls (o : Options) : Bool := o.get pp.foralls.name pp.foralls.defValue
 def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
 def getPPParens (o : Options) : Bool := o.get pp.parens.name pp.parens.defValue
 def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name false

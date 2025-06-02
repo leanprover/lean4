@@ -3,6 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Nat.Linear
 
@@ -25,7 +27,7 @@ Returns the `i`-th element in the list (zero-based).
 If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
 Also see `get`, `getD` and `get!`.
 -/
-@[deprecated "Use `a[i]?` instead." (since := "2025-02-12")]
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), expose]
 def get? : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get? as n
@@ -59,7 +61,7 @@ Returns the `i`-th element in the list (zero-based).
 If the index is out of bounds (`i ≥ as.length`), this function panics when executed, and returns
 `default`. See `get?` and `getD` for safer alternatives.
 -/
-@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12"), expose]
 def get! [Inhabited α] : (as : List α) → (i : Nat) → α
   | a::_,  0   => a
   | _::as, n+1 => get! as n
@@ -90,7 +92,7 @@ Examples:
  * `["spring", "summer", "fall", "winter"].getD 0 "never" = "spring"`
  * `["spring", "summer", "fall", "winter"].getD 4 "never" = "never"`
 -/
-def getD (as : List α) (i : Nat) (fallback : α) : α :=
+@[expose] def getD (as : List α) (i : Nat) (fallback : α) : α :=
   as[i]?.getD fallback
 
 @[simp] theorem getD_nil : getD [] n d = d := rfl
@@ -109,6 +111,7 @@ Examples:
  * `["circle", "rectangle"].getLast! = "rectangle"`
  * `["circle"].getLast! = "circle"`
 -/
+@[expose]
 def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
   | a::as => getLast (a::as) (fun h => List.noConfusion h)
@@ -144,7 +147,7 @@ Examples:
  * `["apple", "banana", "grape"].tail! = ["banana", "grape"]`
  * `["banana", "grape"].tail! = ["grape"]`
 -/
-def tail! : List α → List α
+@[expose] def tail! : List α → List α
   | []    => panic! "empty list"
   | _::as => as
 
@@ -252,7 +255,7 @@ pointer-equal to its argument.
 For verification purposes, `List.mapMono = List.map`.
 -/
 def mapMono (as : List α) (f : α → α) : List α :=
-  Id.run <| as.mapMonoM f
+  Id.run <| as.mapMonoM (pure <| f ·)
 
 /-! ## Additional lemmas required for bootstrapping `Array`. -/
 

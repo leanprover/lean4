@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.TakeDrop
@@ -236,11 +238,9 @@ theorem extract_append_left {as bs : Array α} :
     (as ++ bs).extract 0 as.size = as.extract 0 as.size := by
   simp
 
-@[simp] theorem extract_append_right {as bs : Array α} :
+theorem extract_append_right {as bs : Array α} :
     (as ++ bs).extract as.size (as.size + i) = bs.extract 0 i := by
-  simp only [extract_append, extract_size_left, Nat.sub_self, empty_append]
-  congr 1
-  omega
+  simp
 
 @[simp] theorem map_extract {as : Array α} {i j : Nat} :
     (as.extract i j).map f = (as.map f).extract i j := by

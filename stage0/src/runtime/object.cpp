@@ -73,8 +73,10 @@ static void abort_on_panic() {
     }
 }
 
+FILE * g_saved_stderr = stderr;
+
 extern "C" LEAN_EXPORT void lean_internal_panic(char const * msg) {
-    std::cerr << "INTERNAL PANIC: " << msg << "\n";
+    fprintf(g_saved_stderr, "INTERNAL PANIC: %s\n", msg);
     abort_on_panic();
     std::exit(1);
 }
@@ -214,6 +216,8 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
 static inline void lean_dealloc(lean_object * o, size_t sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     dealloc(o, sz);
+#elif defined(LEAN_MIMALLOC)
+    mi_free_size(o, sz);
 #else
     free_sized(o, sz);
 #endif
@@ -294,6 +298,13 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 #endif
 #ifdef LEAN_SMALL_ALLOCATOR
     return (lean_object*)alloc(sz);
+#elif defined(LEAN_MIMALLOC)
+    void * r = mi_malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    lean_object * o = (lean_object*)r;
+    // not a small object
+    o->m_cs_sz = 0;
+    return o;
 #else
     void * r = malloc(sz);
     if (r == nullptr) lean_internal_panic_out_of_memory();
@@ -657,6 +668,7 @@ class task_manager {
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
+    condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
 
     lean_task_object * dequeue() {
@@ -753,6 +765,7 @@ class task_manager {
             unique_lock<mutex> lock(m_mutex);
             run_task(lock, t);
             m_num_dedicated_workers--;
+            m_dedicated_finished_cv.notify_all();
         });
         // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
@@ -854,6 +867,9 @@ public:
         // wait for all workers to finish
         for (auto & t : m_std_workers)
             t->join();
+
+        unique_lock<mutex> lock(m_mutex);
+        m_dedicated_finished_cv.wait(lock, [&]() { return m_num_dedicated_workers == 0; });
         // never seems to terminate under Emscripten
 #endif
     }
@@ -901,6 +917,9 @@ public:
             return;
         // see `Task.get`
         bool in_pool = g_current_task_object && g_current_task_object->m_imp->m_prio <= LEAN_MAX_PRIO;
+        if (g_current_task_object && g_current_task_object->m_imp->m_prio == LEAN_SYNC_PRIO) {
+            lean_panic("`Task.get` called from a `(sync := true)` task");
+        }
         if (in_pool) {
             m_max_std_workers++;
             if (m_idle_std_workers == 0)
@@ -947,6 +966,19 @@ public:
 
     bool shutting_down() const {
         return m_shutting_down;
+    }
+
+    uint8_t get_task_state(lean_task_object * t) {
+        unique_lock<mutex> lock(m_mutex);
+        if (t->m_imp) {
+            if (t->m_imp->m_closure) {
+                return 0; // waiting (waiting/queued)
+            } else {
+                return 1; // running (running/promised)
+            }
+        } else {
+            return 2; // finished
+        }
     }
 };
 
@@ -1102,12 +1134,19 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     lean_dec_ref(x);
     obj_res new_task = lean_apply_1(f, v);
     lean_assert(lean_is_task(new_task));
-    lean_assert(g_current_task_object->m_imp);
-    lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
-    obj_res c = mk_closure_2_1(task_bind_fn2, new_task);
-    mark_mt(c);
-    g_current_task_object->m_imp->m_closure = c;
-    return nullptr; /* notify queue that task did not finish yet. */
+    v = lean_to_task(new_task)->m_value;
+    if (v) {
+        lean_inc(v);
+        lean_dec_ref(new_task);
+        return v;
+    } else {
+        lean_assert(g_current_task_object->m_imp);
+        lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
+        obj_res c = mk_closure_2_1(task_bind_fn2, new_task);
+        mark_mt(c);
+        g_current_task_object->m_imp->m_closure = c;
+        return nullptr; /* notify queue that task did not finish yet. */
+    }
 }
 
 extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio,
@@ -1137,15 +1176,9 @@ extern "C" LEAN_EXPORT void lean_io_cancel_core(b_obj_arg t) {
 
 extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
     lean_task_object * o = lean_to_task(t);
-    if (o->m_imp) {
-        if (o->m_imp->m_closure) {
-            return 0; // waiting (waiting/queued)
-        } else {
-            return 1; // running (running/promised)
-        }
-    } else {
+    if (!o->m_imp)
         return 2; // finished
-    }
+    return g_task_manager->get_task_state(o);
 }
 
 extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
@@ -1201,7 +1234,14 @@ void deactivate_promise(lean_promise_object * promise) {
 
 object * alloc_mpz(mpz const & m) {
     void * mem = lean_alloc_small_object(sizeof(mpz_object));
+#ifdef LEAN_MIMALLOC
+    // placement new is not guaranteed to preserve this field so store and restore it
+    unsigned sz = ((lean_object *)mem)->m_cs_sz;
+#endif
     mpz_object * o = new (mem) mpz_object(m);
+#ifdef LEAN_MIMALLOC
+    o->m_header.m_cs_sz = sz;
+#endif
     lean_set_st_header((lean_object*)o, LeanMPZ, 0);
     return (lean_object*)o;
 }
@@ -1307,6 +1347,22 @@ extern "C" LEAN_EXPORT object * lean_nat_big_div(object * a1, object * a2) {
     }
 }
 
+extern "C" LEAN_EXPORT object * lean_nat_big_div_exact(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
+    if (lean_is_scalar(a1)) {
+        lean_assert(a1 == lean_box(0));
+        lean_assert(mpz_value(a2) != 0);
+        return lean_box(0);
+    } else if (lean_is_scalar(a2)) {
+        usize n2 = lean_unbox(a2);
+        lean_assert(n2 != 0);
+        return mpz_to_nat(mpz::divexact(mpz_value(a1), mpz::of_size_t(n2)));
+    } else {
+        lean_assert(mpz_value(a2) != 0);
+        return mpz_to_nat(mpz::divexact(mpz_value(a1), mpz_value(a2)));
+    }
+}
+
 extern "C" LEAN_EXPORT object * lean_nat_big_mod(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1)) {
@@ -1408,7 +1464,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_ob
     return mpz_to_nat(r);
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (!lean_is_scalar(a2)) {
         return lean_box(0); // This large of an exponent must be 0.
     }
@@ -1552,6 +1608,24 @@ extern "C" LEAN_EXPORT object * lean_int_big_div(object * a1, object * a2) {
             return mpz_to_int(mpz_value(a1) / d);
     } else {
         return mpz_to_int(mpz_value(a1) / mpz_value(a2));
+    }
+}
+
+extern "C" LEAN_EXPORT object * lean_int_big_div_exact(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
+    if (lean_is_scalar(a1)) {
+        // a1 is scalar, a2 isn't but a2 divides a1
+        // two possibilities:
+        // 1. a1 = 0 -> return 0 or
+        // 2. a1 = LEAN_MIN_SMALL_INT and a2 = LEAN_MAX_SMALL_INT + 1 = -a1 -> return -1
+        int n = lean_scalar_to_int(a1);
+        return n == 0 ? a1 : lean_box(static_cast<unsigned>(-1));
+    } else if (lean_is_scalar(a2)) {
+        int d = lean_scalar_to_int(a2);
+        lean_assert(d != 0);
+        return mpz_to_int(mpz::divexact(mpz_value(a1), mpz(d)));
+    } else {
+        return mpz_to_int(mpz::divexact(mpz_value(a1), mpz_value(a2)));
     }
 }
 
@@ -2581,6 +2655,7 @@ extern "C" LEAN_EXPORT lean_external_class * lean_register_external_class(lean_e
 }
 
 void initialize_object() {
+    g_saved_stderr = stderr;  // Save original pointer early
     g_ext_classes       = new std::vector<external_object_class*>();
     g_ext_classes_mutex = new mutex();
     g_array_empty       = lean_alloc_array(0, 0);

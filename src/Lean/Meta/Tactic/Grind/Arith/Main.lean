@@ -5,10 +5,10 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.PropagatorAttr
-import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Arith.Offset
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
+import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 
 namespace Lean.Meta.Grind.Arith
 
@@ -36,18 +36,13 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
       Offset.assertFalse c (← mkEqFalseProof e)
     Cutsat.propagateIfSupportedLe e (eqTrue := false)
 
-def check : GrindTactic := fun goal => do
-  let (progress, goal) ← GoalM.run goal do
-    if (← Cutsat.hasAssignment) then
-      return false
-    else
-      Cutsat.searchAssigment
-      return true
-  unless progress do
-    return none
-  if goal.inconsistent then
-    return some []
+def check : GoalM Bool := do
+  let c₁ ← Cutsat.check
+  let c₂ ← CommRing.check
+  if c₁ || c₂ then
+    processNewFacts
+    return true
   else
-    return some [goal]
+    return false
 
 end Lean.Meta.Grind.Arith

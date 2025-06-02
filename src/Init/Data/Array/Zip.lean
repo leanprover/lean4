@@ -3,7 +3,10 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
+import all Init.Data.Array.Basic
 import Init.Data.Array.TakeDrop
 import Init.Data.List.Zip
 
@@ -323,7 +326,7 @@ theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option �
   simp [List.map_zipWithAll]
 
 @[simp] theorem zipWithAll_replicate {a : α} {b : β} {n : Nat} :
-    zipWithAll f (replicate n a) (replicate n b) = replicate n (f a b) := by
+    zipWithAll f (replicate n a) (replicate n b) = replicate n (f (some a) (some b)) := by
   simp [← List.toArray_replicate]
 
 @[deprecated zipWithAll_replicate (since := "2025-03-18")]
@@ -331,11 +334,13 @@ abbrev zipWithAll_mkArray := @zipWithAll_replicate
 
 /-! ### unzip -/
 
-@[simp] theorem unzip_fst : (unzip l).fst = l.map Prod.fst := by
-  induction l <;> simp_all
+@[deprecated fst_unzip (since := "2025-05-26")]
+theorem unzip_fst : (unzip l).fst = l.map Prod.fst := by
+  simp
 
-@[simp] theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
-  induction l <;> simp_all
+@[deprecated snd_unzip (since := "2025-05-26")]
+theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
+  simp
 
 theorem unzip_eq_map {xs : Array (α × β)} : unzip xs = (xs.map Prod.fst, xs.map Prod.snd) := by
   cases xs
@@ -368,7 +373,7 @@ theorem unzip_zip {as : Array α} {bs : Array β} (h : as.size = bs.size) :
 
 theorem zip_of_prod {as : Array α} {bs : Array β} {xs : Array (α × β)} (hl : xs.map Prod.fst = as)
     (hr : xs.map Prod.snd = bs) : xs = as.zip bs := by
-  rw [← hl, ← hr, ← zip_unzip xs, ← unzip_fst, ← unzip_snd, zip_unzip, zip_unzip]
+  rw [← hl, ← hr, ← zip_unzip xs, ← fst_unzip, ← snd_unzip, zip_unzip, zip_unzip]
 
 @[simp] theorem unzip_replicate {n : Nat} {a : α} {b : β} :
     unzip (replicate n (a, b)) = (replicate n a, replicate n b) := by

@@ -3,6 +3,8 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Char.Lemmas
 import Init.Data.List.Lex
@@ -29,23 +31,5 @@ protected theorem lt_asymm {a b : String} (h : a < b) : ¬ b < a := List.lt_asym
 protected theorem ne_of_lt {a b : String} (h : a < b) : a ≠ b := by
   have := String.lt_irrefl a
   intro h; subst h; contradiction
-
-instance ltIrrefl : Std.Irrefl (· < · : Char → Char → Prop) where
-  irrefl := Char.lt_irrefl
-
-instance leRefl : Std.Refl (· ≤ · : Char → Char → Prop) where
-  refl := Char.le_refl
-
-instance leTrans : Trans (· ≤ · : Char → Char → Prop) (· ≤ ·) (· ≤ ·) where
-  trans := Char.le_trans
-
-instance leAntisymm : Std.Antisymm (· ≤ · : Char → Char → Prop) where
-  antisymm _ _ := Char.le_antisymm
-
-instance ltAsymm : Std.Asymm (· < · : Char → Char → Prop) where
-  asymm _ _ := Char.lt_asymm
-
-instance leTotal : Std.Total (· ≤ · : Char → Char → Prop) where
-  total := Char.le_total
 
 end String

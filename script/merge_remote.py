@@ -47,10 +47,10 @@ def run_command(command, check=True, capture_output=True):
 
 
 def clone_repo(repo, temp_dir):
-    """Clone the repository to a temporary directory using shallow clone."""
-    print(f"Shallow cloning {repo}...")
-    # Use --depth=1 for shallow clone
-    clone_result = run_command(f"gh repo clone {repo} {temp_dir} -- --depth=1", check=False)
+    """Clone the repository to a temporary directory."""
+    print(f"Cloning {repo}...")
+    # Remove shallow clone for better merge detection
+    clone_result = run_command(f"gh repo clone {repo} {temp_dir}", check=False)
     if clone_result.returncode != 0:
         print(f"Failed to clone repository {repo}.")
         print(f"Error: {clone_result.stderr}")
@@ -63,19 +63,21 @@ def check_and_merge(repo, branch, tag, temp_dir):
     # Change to the temporary directory
     os.chdir(temp_dir)
     
-    # Fetch only the specific branch and tag we need
-    print(f"Fetching branch '{branch}' and tag '{tag}'...")
-    fetch_branch = run_command(f"git fetch origin {branch}")
+    # First fetch the specific remote branch with its history
+    print(f"Fetching branch '{branch}'...")
+    fetch_branch = run_command(f"git fetch origin {branch}:refs/remotes/origin/{branch} --update-head-ok")
     if fetch_branch.returncode != 0:
         print(f"Error: Failed to fetch branch '{branch}'.")
         return False
-        
+    
+    # Then fetch the specific tag
+    print(f"Fetching tag '{tag}'...")
     fetch_tag = run_command(f"git fetch origin tag {tag}")
     if fetch_tag.returncode != 0:
         print(f"Error: Failed to fetch tag '{tag}'.")
         return False
-
-    # Check if branch exists
+    
+    # Check if branch exists now that we've fetched it
     branch_check = run_command(f"git branch -r | grep origin/{branch}")
     if branch_check.returncode != 0:
         print(f"Error: Branch '{branch}' does not exist in repository.")
@@ -93,24 +95,14 @@ def check_and_merge(repo, branch, tag, temp_dir):
     if checkout_result.returncode != 0:
         return False
 
-    # Try merging the tag in a dry-run to check if it can be merged cleanly
-    print(f"Checking if {tag} can be merged cleanly into {branch}...")
-    merge_check = run_command(f"git merge --no-commit --no-ff {tag}", check=False)
+    # Try merging the tag directly
+    print(f"Merging {tag} into {branch}...")
+    merge_result = run_command(f"git merge {tag} --no-edit", check=False)
     
-    if merge_check.returncode != 0:
+    if merge_result.returncode != 0:
         print(f"Cannot merge {tag} cleanly into {branch}.")
         print("Merge conflicts would occur. Aborting merge.")
         run_command("git merge --abort")
-        return False
-    
-    # Abort the test merge
-    run_command("git reset --hard HEAD")
-    
-    # Now perform the actual merge and push to remote
-    print(f"Merging {tag} into {branch}...")
-    merge_result = run_command(f"git merge {tag} --no-edit")
-    if merge_result.returncode != 0:
-        print(f"Failed to merge {tag} into {branch}.")
         return False
     
     print(f"Pushing changes to remote...")

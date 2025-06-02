@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Target.Basic
-// Imports: Lake.Build.Data
+// Imports: Lake.Build.Key
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_Lake_instToStringTarget___rarg(lean_object*);
 lean_object* l_Lake_PartialBuildKey_toString(lean_object*);
 static lean_object* l_Lake_Target_repr___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Target_repr(lean_object*);
-lean_object* l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_69_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_repr___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoePartialBuildKeyTarget(lean_object*);
 static lean_object* l_Lake_Target_repr___rarg___closed__1;
@@ -33,6 +32,7 @@ LEAN_EXPORT lean_object* l_Lake_instReprTarget(lean_object*);
 static lean_object* l_Lake_Target_repr___rarg___closed__5;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoePartialBuildKeyTarget___rarg___boxed(lean_object*);
+lean_object* l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_84_(lean_object*, lean_object*);
 static lean_object* _init_l_Lake_Target_repr___rarg___closed__1() {
 _start:
 {
@@ -87,7 +87,7 @@ _start:
 lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_unsigned_to_nat(1024u);
 x_4 = lean_nat_dec_le(x_3, x_2);
-x_5 = l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_69_(x_1, x_3);
+x_5 = l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_84_(x_1, x_3);
 x_6 = l_Lake_Target_repr___rarg___closed__3;
 x_7 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -195,13 +195,13 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Key(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Target_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Key(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Target_repr___rarg___closed__1 = _init_l_Lake_Target_repr___rarg___closed__1();

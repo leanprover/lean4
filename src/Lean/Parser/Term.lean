@@ -186,7 +186,7 @@ When a synthetic hole appears under a binding construct, such as for example `fu
 the system creates a *delayed assignment*. This consists of
 1. A metavariable `?m` of type `(x : α) → (y : β) → γ x y` whose local context is the local context outside the `fun`,
   where `γ x y` is the type of `?s`. Recall that `x` and `y` appear in the local context of `?s`.
-2. A delayed assigment record associating `?m` to `?s` and the variables `#[x, y]` in the local context of `?s`
+2. A delayed assignment record associating `?m` to `?s` and the variables `#[x, y]` in the local context of `?s`
 
 Then, this function elaborates as `fun (x : α) (y : β) => ?m x y`, where one should understand `x` and `y` here
 as being De Bruijn indexes, since Lean uses the locally nameless encoding of lambda calculus.
@@ -197,7 +197,7 @@ then we can make the assignment `?m := fun (x' : α) (y' : β) => e[x := x', y :
 This delayed assignment mechanism is essential to the operation of basic tactics like `intro`,
 and a good mental model is that it is a way to "apply" the metavariable `?s` by substituting values in for some of its local variables.
 While it would be easier to immediately assign `?s := ?m x y`,
-delayed assigment preserves `?s` as an unsolved-for metavariable with a local context that still contains `x` and `y`,
+delayed assignment preserves `?s` as an unsolved-for metavariable with a local context that still contains `x` and `y`,
 which is exactly what tactics like `intro` need.
 
 By default, delayed assigned metavariables pretty print with what they are delayed assigned to.
@@ -522,10 +522,10 @@ The structure type can be specified if not inferable:
 
 @[builtin_structInstFieldDecl_parser]
 def structInstFieldDef := leading_parser
-  " := " >> termParser
+  " := " >> optional "private" >> termParser
 @[builtin_structInstFieldDecl_parser]
 def structInstFieldEqns := leading_parser
-  matchAlts
+  optional "private" >> matchAlts
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
@@ -756,6 +756,40 @@ the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manuall
               checkColGt "indented monotonicity proof" >> termParser))
 
 /--
+Defines a coinductive predicate using lattice theory, based on the Knaster-Tarski fixpoint theorem.
+
+This feature constructs coinductive predicates by leveraging the lattice structure on `Prop`
+and ensures correctness through monotonicity.
+
+The coinductive predicate is defined as the greatest fixed point of a monotone function on `Prop`.
+
+By default, monotonicity is verified automatically. However, users can provide custom proofs
+of monotonicity if needed.
+-/
+def greatestFixpoint := leading_parser
+  withPosition (
+    "greatest_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
+
+/--
+Defines an inductive predicate using lattice theory, based on the Knaster-Tarski fixpoint theorem.
+
+This feature constructs inductive predicates by leveraging the lattice structure on `Prop`
+and ensures correctness through monotonicity.
+
+The inductive predicate is defined as the least fixed point of a monotone function on `Prop`.
+
+By default, monotonicity is verified automatically. However, users can provide custom proofs
+of monotonicity if needed.
+-/
+def leastFixpoint := leading_parser
+  withPosition (
+    "least_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
+
+/--
 Manually prove that the termination measure (as specified with `termination_by` or inferred)
 decreases at each recursive call.
 
@@ -771,7 +805,7 @@ Forces the use of well-founded recursion and is hence incompatible with
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 @[builtin_doc] def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint)) >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint <|> greatestFixpoint <|> leastFixpoint)) >> optional decreasingBy
 
 end Termination
 namespace Term
@@ -845,6 +879,10 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
 /-- A macro which evaluates to the name of the currently elaborating declaration. -/
 @[builtin_term_parser] def declName := leading_parser "decl_name%"
 
+/-- `private_decl% e` elaborates `e` in a private context and wraps the result in a helper `def`. -/
+@[builtin_term_parser] def «privateDecl» :=
+  leading_parser "private_decl% " >> termParser maxPrec
+
 /--
 * `with_decl_name% id e` elaborates `e` in a context while changing the effective
   declaration name to `id`.
@@ -861,6 +899,11 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
   "ensure_expected_type% " >> strLit >> ppSpace >> termParser maxPrec
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
+/--
+`value_of% x` elaborates to the value of `x`, which can be a local or global definition.
+-/
+@[builtin_term_parser] def valueOf := leading_parser
+  "value_of% " >> ident
 
 /--
 `clear% x; e` elaborates `x` after clearing the free variable `x` from the local context.

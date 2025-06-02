@@ -3,6 +3,8 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn, Leonardo de Moura, Kim Morrison
 -/
+module
+
 prelude
 import Init.Omega
 import Init.Data.List.FinRange
@@ -195,6 +197,8 @@ theorem allTR_loop_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bo
       omega
   go n 0 f
 
+/-! ### `fold` -/
+
 @[simp] theorem fold_zero {α : Type u} (f : (i : Nat) → i < 0 → α → α) (init : α) :
     fold 0 f init = init := by simp [fold]
 
@@ -207,6 +211,8 @@ theorem fold_eq_finRange_foldl {α : Type u} (n : Nat) (f : (i : Nat) → i < n 
   | zero => simp
   | succ n ih =>
     simp [ih, List.finRange_succ_last, List.foldl_map]
+
+/-! ### `foldRev` -/
 
 @[simp] theorem foldRev_zero {α : Type u} (f : (i : Nat) → i < 0 → α → α) (init : α) :
     foldRev 0 f init = init := by simp [foldRev]
@@ -221,10 +227,12 @@ theorem foldRev_eq_finRange_foldr {α : Type u} (n : Nat) (f : (i : Nat) → i <
   | zero => simp
   | succ n ih => simp [ih, List.finRange_succ_last, List.foldr_map]
 
+/-! ### `any` -/
+
 @[simp] theorem any_zero {f : (i : Nat) → i < 0 → Bool} : any 0 f = false := by simp [any]
 
 @[simp] theorem any_succ {n : Nat} (f : (i : Nat) → i < n + 1 → Bool) :
-  any (n + 1) f = (any n (fun i h => f i (by omega)) || f n (by omega)) := by simp [any]
+    any (n + 1) f = (any n (fun i h => f i (by omega)) || f n (by omega)) := by simp [any]
 
 theorem any_eq_finRange_any {n : Nat} (f : (i : Nat) → i < n → Bool) :
     any n f = (List.finRange n).any (fun ⟨i, h⟩ => f i h) := by
@@ -232,10 +240,12 @@ theorem any_eq_finRange_any {n : Nat} (f : (i : Nat) → i < n → Bool) :
   | zero => simp
   | succ n ih => simp [ih, List.finRange_succ_last, List.any_map, Function.comp_def]
 
+/-! ### `all` -/
+
 @[simp] theorem all_zero {f : (i : Nat) → i < 0 → Bool} : all 0 f = true := by simp [all]
 
 @[simp] theorem all_succ {n : Nat} (f : (i : Nat) → i < n + 1 → Bool) :
-  all (n + 1) f = (all n (fun i h => f i (by omega)) && f n (by omega)) := by simp [all]
+    all (n + 1) f = (all n (fun i h => f i (by omega)) && f n (by omega)) := by simp [all]
 
 theorem all_eq_finRange_all {n : Nat} (f : (i : Nat) → i < n → Bool) :
     all n f = (List.finRange n).all (fun ⟨i, h⟩ => f i h) := by
@@ -248,7 +258,7 @@ end Nat
 namespace Prod
 
 /--
-Combines an initial value with each natural number from in a range, in increasing order.
+Combines an initial value with each natural number from a range, in increasing order.
 
 In particular, `(start, stop).foldI f init` applies `f`on all the numbers
 from `start` (inclusive) to `stop` (exclusive) in increasing order:
@@ -258,7 +268,7 @@ Examples:
 * `(5, 8).foldI (fun j _ _ xs => xs.push j) #[] = #[5, 6, 7]`
 * `(5, 8).foldI (fun j _ _ xs => toString j :: xs) [] = ["7", "6", "5"]`
 -/
-@[inline] def foldI {α : Type u} (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → α → α) (init : α) : α :=
+@[inline, simp] def foldI {α : Type u} (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → α → α) (init : α) : α :=
   (i.2 - i.1).fold (fun j _ => f (i.1 + j) (by omega) (by omega)) init
 
 /--
@@ -272,7 +282,7 @@ Examples:
  * `(5, 8).anyI (fun j _ _ => j % 2 = 0) = true`
  * `(6, 6).anyI (fun j _ _ => j % 2 = 0) = false`
 -/
-@[inline] def anyI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
+@[inline, simp] def anyI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
   (i.2 - i.1).any (fun j _ => f (i.1 + j) (by omega) (by omega))
 
 /--
@@ -286,7 +296,7 @@ Examples:
  * `(5, 8).allI (fun j _ _ => j % 2 = 0) = false`
  * `(6, 7).allI (fun j _ _ => j % 2 = 0) = true`
 -/
-@[inline] def allI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
+@[inline, simp] def allI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
   (i.2 - i.1).all (fun j _ => f (i.1 + j) (by omega) (by omega))
 
 end Prod

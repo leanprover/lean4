@@ -3,6 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Classical
 import Init.Control.EState
@@ -13,7 +15,7 @@ A restricted version of `IO` in which mutable state and exceptions are the only 
 
 It is possible to run `EST` computations in a non-monadic context using `runEST`.
 -/
-def EST (ε : Type) (σ : Type) : Type → Type := EStateM ε σ
+@[expose] def EST (ε : Type) (σ : Type) : Type → Type := EStateM ε σ
 
 /--
 A restricted version of `IO` in which mutable state is the only side effect.

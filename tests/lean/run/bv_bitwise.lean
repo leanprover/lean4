@@ -38,3 +38,9 @@ theorem bitwise_unit_9 (x y : BitVec 32) :
 
 theorem bitwise_unit_10 (x : BitVec 2) : (x.getMsbD 0) = x.msb := by
   bv_decide
+
+theorem bitwise_unit_11 (x : BitVec 32) : x.reverse.reverse = x := by
+  bv_decide
+
+theorem bitwise_unit_12 (x : BitVec 32) : x ≠ x.reverse → x ≠ 0 := by
+  bv_decide

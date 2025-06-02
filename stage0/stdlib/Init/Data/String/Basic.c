@@ -175,7 +175,6 @@ LEAN_EXPORT uint8_t l_String_Iterator_hasNext(lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at_String_toLower___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_pos___boxed(lean_object*);
 lean_object* lean_string_mk(lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3478_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_push_match__1_splitter___rarg(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT uint8_t l_String_all(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_firstDiffPos(lean_object*, lean_object*);
@@ -262,6 +261,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Substring_nextn_m
 LEAN_EXPORT lean_object* l_String_Iterator_forward(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_findAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_replace(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3486____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_remainingBytes(lean_object*);
 LEAN_EXPORT lean_object* l_String_takeRightWhile___boxed(lean_object*, lean_object*);
@@ -327,6 +327,7 @@ LEAN_EXPORT lean_object* l_String_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_length_match__1_splitter___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_nextUntil___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_offsetOfPos___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3486_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_offsetOfPos(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Substring_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_capitalize(lean_object*);
@@ -365,7 +366,6 @@ LEAN_EXPORT lean_object* l_Substring_foldl___rarg(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_String_foldl___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_decLt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_extract_go_u2082___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3478____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_anyAux___at_Substring_all___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_extract_go_u2081___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_split(lean_object*, lean_object*);
@@ -1970,7 +1970,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3478_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3486_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -1993,11 +1993,11 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3478____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3486____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3478_(x_1, x_2);
+x_3 = l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3486_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -2008,7 +2008,7 @@ LEAN_EXPORT uint8_t l_String_instDecidableEqIterator(lean_object* x_1, lean_obje
 _start:
 {
 uint8_t x_3; 
-x_3 = l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3478_(x_1, x_2);
+x_3 = l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3486_(x_1, x_2);
 return x_3;
 }
 }
@@ -5871,7 +5871,7 @@ return x_13;
 LEAN_EXPORT uint8_t l_Substring_isNat(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
@@ -5879,20 +5879,37 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = l_String_anyAux___at_String_isNat___spec__1(x_2, x_4, x_3);
+x_5 = lean_nat_sub(x_4, x_3);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_nat_dec_eq(x_5, x_6);
+lean_dec(x_5);
+if (x_7 == 0)
+{
+uint8_t x_8; 
+x_8 = l_String_anyAux___at_String_isNat___spec__1(x_2, x_4, x_3);
 lean_dec(x_4);
 lean_dec(x_2);
-if (x_5 == 0)
+if (x_8 == 0)
 {
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
 }
 else
 {
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
+}
+}
+else
+{
+uint8_t x_11; 
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_11 = 0;
+return x_11;
 }
 }
 }
@@ -5908,7 +5925,7 @@ return x_3;
 LEAN_EXPORT lean_object* l_Substring_toNat_x3f(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
@@ -5916,27 +5933,43 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_dec(x_1);
-lean_inc(x_3);
-x_5 = l_String_anyAux___at_String_isNat___spec__1(x_2, x_4, x_3);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_nat_sub(x_4, x_3);
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_String_foldlAux___at_String_toNat_x3f___spec__1(x_2, x_4, x_3, x_6);
+x_7 = lean_nat_dec_eq(x_5, x_6);
+lean_dec(x_5);
+if (x_7 == 0)
+{
+uint8_t x_8; 
+lean_inc(x_3);
+x_8 = l_String_anyAux___at_String_isNat___spec__1(x_2, x_4, x_3);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = l_String_foldlAux___at_String_toNat_x3f___spec__1(x_2, x_4, x_3, x_6);
 lean_dec(x_4);
 lean_dec(x_2);
-x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_7);
-return x_8;
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
 }
 else
 {
-lean_object* x_9; 
+lean_object* x_11; 
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_9 = lean_box(0);
-return x_9;
+x_11 = lean_box(0);
+return x_11;
+}
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_12 = lean_box(0);
+return x_12;
 }
 }
 }

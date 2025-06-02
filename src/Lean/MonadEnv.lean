@@ -38,7 +38,7 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
 
 @[inline] def withoutModifyingEnv [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m α := do
   -- Allow `x` to define new declarations even outside the asynchronous prefix (if any) as all
-  -- results will be discarded anway.
+  -- results will be discarded anyway.
   withEnv (← getEnv).unlockAsync x
 
 /-- Similar to `withoutModifyingEnv`, but also returns the updated environment -/
@@ -78,16 +78,6 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
 
 def hasConst [Monad m] [MonadEnv m] (constName : Name) (skipRealize := true) : m Bool := do
   return (← getEnv).contains (skipRealize := skipRealize) constName
-
-private partial def mkAuxNameAux (env : Environment) (base : Name) (i : Nat) : Name :=
-  let candidate := base.appendIndexAfter i
-  if env.contains candidate then
-    mkAuxNameAux env base (i+1)
-  else
-    candidate
-
-def mkAuxName [Monad m] [MonadEnv m] (baseName : Name) (idx : Nat) : m Name := do
-  return mkAuxNameAux (← getEnv) baseName idx
 
 def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with

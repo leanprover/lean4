@@ -1,6 +1,3 @@
-class One (α : Type) where
-  one : α
-
 variable (R A : Type) [One R] [One A]
 
 class OneHom where

@@ -11,9 +11,16 @@ namespace Lean
 namespace Parser
 
 namespace Module
+def moduleTk   := leading_parser "module"
 def «prelude»  := leading_parser "prelude"
-def «import»   := leading_parser "import " >> optional "runtime" >> identWithPartialTrailingDot
-def header     := leading_parser optional («prelude» >> ppLine) >> many («import» >> ppLine) >> ppLine
+def «private»  := leading_parser (withAnonymousAntiquot := false) "private"
+def «all»      := leading_parser (withAnonymousAntiquot := false) "all"
+def «import»   := leading_parser atomic (optional «private» >> "import ") >> optional all >> identWithPartialTrailingDot
+def header     := leading_parser optional (moduleTk >> ppLine >> ppLine) >>
+  optional («prelude» >> ppLine) >>
+  many («import» >> ppLine) >>
+  ppLine
+
 /--
   Parser for a Lean module. We never actually run this parser but instead use the imperative definitions below that
   return the same syntax tree structure, but add error recovery. Still, it is helpful to have a `Parser` definition
@@ -60,11 +67,11 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos) (stk : 
 where
   -- Error recovery might lead to there being some "junk" on the stack
   lastTrailing (s : SyntaxStack) : Option Substring :=
-    s.toSubarray.findSomeRevM? (m := Id) fun stx =>
+    Id.run <| s.toSubarray.findSomeRevM? fun stx =>
       if let .original (trailing := trailing) .. := stx.getTailInfo then pure (some trailing)
         else none
 
-def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × MessageLog) := do
+def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment
   let p   := andthenFn whitespace Module.header.fn
   let tokens := Module.updateTokens (getTokenTable dummyEnv)
@@ -73,7 +80,7 @@ def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × M
   let mut messages : MessageLog := {}
   for (pos, stk, err) in s.allErrors do
     messages := messages.add <| mkErrorMessage inputCtx pos stk err
-  pure (stx, {pos := s.pos, recovering := s.hasError}, messages)
+  pure (⟨stx⟩, {pos := s.pos, recovering := s.hasError}, messages)
 
 private def mkEOI (pos : String.Pos) : Syntax :=
   let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring pos) ""

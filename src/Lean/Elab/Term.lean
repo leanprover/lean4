@@ -59,8 +59,13 @@ inductive SyntheticMVarKind where
   -/
   | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
       (mkErrorMsg? : Option (MVarId → Expr → Expr → MetaM MessageData))
-  /-- Use tactic to synthesize value for metavariable. -/
-  | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind)
+  /--
+  Use tactic to synthesize value for metavariable.
+
+  If `delayOnMVars` is true, the tactic will not be executed until the goal is free of unassigned
+  expr metavariables.
+  -/
+  | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind) (delayOnMVars := false)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
   | postponed (ctx : SavedContext)
   deriving Inhabited
@@ -609,9 +614,16 @@ def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx
 instance : MonadParentDecl TermElabM where
   getParentDeclName? := getDeclName?
 
-/-- Execute `withSaveParentDeclInfoContext x` with `declName? := name`. See `getDeclName?`. -/
+/--
+Executes `x` in the context of the given declaration name. Ensures that the info tree is set up
+correctly and adjusts the declaration name generator to generate names below this name, resetting
+the nested counter.
+-/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with declName? := name }) <| withSaveParentDeclInfoContext x
+  withReader (fun ctx => { ctx with declName? := name }) do
+  withSaveParentDeclInfoContext do
+  withDeclNameForAuxNaming name do
+    x
 
 /-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
@@ -908,8 +920,11 @@ def levelMVarToParam (e : Expr) (except : LMVarId → Bool := fun _ => false) : 
   return r.expr
 
 /--
-  Auxiliary method for creating fresh binder names.
-  Do not confuse with the method for creating fresh free/meta variable ids. -/
+Creates a fresh inaccessible binder name based on `x`.
+Equivalent to ``Lean.Core.mkFreshUserName `x``.
+
+Do not confuse with `Lean.mkFreshId`, for creating fresh free variable and metavariable ids.
+-/
 def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
   withFreshMacroScope <| MonadQuotation.addMacroScope `x
 
@@ -1253,14 +1268,15 @@ register_builtin_option debug.byAsSorry : Bool := {
 Creates a new metavariable of type `type` that will be synthesized using the tactic code.
 The `tacticCode` syntax is the full `by ..` syntax.
 -/
-def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind) : TermElabM Expr := do
+def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind)
+    (delayOnMVars := false) : TermElabM Expr := do
   if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
     withRef tacticCode <| mkLabeledSorry type false (unique := true)
   else
     let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
     let mvarId := mvar.mvarId!
     let ref ← getRef
-    registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext) kind
+    registerSyntheticMVar ref mvarId <| .tactic tacticCode (← saveContext) kind delayOnMVars
     return mvar
 
 /--
@@ -1878,22 +1894,20 @@ where
       go todo (autos.push auto)
 
 /--
-  Similar to `autoBoundImplicits`, but immediately if the resulting array of expressions contains metavariables,
-  it immediately uses `mkForallFVars` + `forallBoundedTelescope` to convert them into free variables.
+  Similar to `addAutoBoundImplicits`, but converts all metavariables into free variables.
+
+  It uses `mkForallFVars` + `forallBoundedTelescope` to convert metavariables into free variables.
   The type `type` is modified during the process if type depends on `xs`.
   We use this method to simplify the conversion of code using `autoBoundImplicitsOld` to `autoBoundImplicits`.
 -/
-def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
-  let xs ← addAutoBoundImplicits xs none
+def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) (inlayHintPos? : Option String.Pos := none) : TermElabM α := do
+  let xs ← addAutoBoundImplicits xs inlayHintPos?
   if xs.all (·.isFVar) then
     k xs type
   else
     forallBoundedTelescope (← mkForallFVars xs type) xs.size fun xs type => k xs type
 
-def mkAuxName (suffix : Name) : TermElabM Name := do
-  match (← read).declName? <|> (← getEnv).asyncPrefix? with
-  | none          => Lean.mkAuxName (mkPrivateName (← getEnv) `aux) 1
-  | some declName => Lean.mkAuxName (declName ++ suffix) 1
+def mkAuxName (suffix : Name) : TermElabM Name := mkAuxDeclName (kind := suffix)
 
 builtin_initialize registerTraceClass `Elab.letrec
 
@@ -1950,7 +1964,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
-      throwError "invalid use of explicit universe parameters, '{e}' is a local"
+      throwError "invalid use of explicit universe parameters, '{e}' is a local variable"
     return [(e, projs)]
   let preresolved := preresolved.filterMap fun
     | .decl n projs => some (n, projs)
@@ -1971,7 +1985,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwUnknownIdentifier m!"unknown identifier '{Lean.mkConst n}'"
+        throwUnknownIdentifierAt stx m!"unknown identifier '{Lean.mkConst n}'"
     mkConsts candidates explicitLevels
 
 /--

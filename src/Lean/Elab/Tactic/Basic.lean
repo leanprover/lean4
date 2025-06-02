@@ -11,10 +11,10 @@ namespace Lean.Elab
 open Meta
 
 /-- Assign `mvarId := sorry` -/
-def admitGoal (mvarId : MVarId) : MetaM Unit :=
+def admitGoal (mvarId : MVarId) (synthetic : Bool := true): MetaM Unit :=
   mvarId.withContext do
     let mvarType ← inferType (mkMVar mvarId)
-    mvarId.assign (← mkLabeledSorry mvarType (synthetic := true) (unique := true))
+    mvarId.assign (← mkLabeledSorry mvarType (synthetic := synthetic) (unique := true))
 
 def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
@@ -165,6 +165,7 @@ structure EvalTacticFailure where
   state : SavedState
 
 partial def evalTactic (stx : Syntax) : TacticM Unit := do
+  checkSystem "tactic execution"
   profileitM Exception "tactic execution" (decl := stx.getKind) (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
     | .node _ k _    =>
@@ -240,6 +241,7 @@ where
                     snap.old?.forM (·.val.cancelRec)
                   let promise ← IO.Promise.new
                   -- Store new unfolding in the snapshot tree
+                  let cancelTk? := (← readThe Core.Context).cancelTk?
                   snap.new.resolve {
                     stx := stx'
                     diagnostics := .empty
@@ -249,7 +251,7 @@ where
                       state? := (← Tactic.saveState)
                       moreSnaps := #[]
                     }
-                    next := #[{ stx? := stx', task := promise.resultD default }]
+                    next := #[{ stx? := stx', task := promise.resultD default, cancelTk? }]
                   }
                   -- Update `tacSnap?` to old unfolding
                   withTheReader Term.Context ({ · with tacSnap? := some {

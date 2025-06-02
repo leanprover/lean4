@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "runtime/array_ref.h"
 #include "runtime/object_ref.h"
+#include "runtime/option_ref.h"
 #include "runtime/utf8.h"
 #include "util/timer.h"
 #include "util/macros.h"
@@ -222,6 +223,7 @@ static void display_help(std::ostream & out) {
 #endif
     std::cout << "      --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
     std::cout << "      --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
+    std::cout << "      --setup=file       JSON file with module setup data (supersedes the file's header)\n";
     std::cout << "      --json             report Lean output (e.g., messages) as JSON (one per line)\n";
     std::cout << "  -E  --error=kind       report Lean messages of kind as errors\n";
     std::cout << "      --deps             just print dependencies of a Lean input\n";
@@ -272,6 +274,7 @@ static struct option g_long_options[] = {
 #endif
     {"plugin",       required_argument, 0, 'p'},
     {"load-dynlib",  required_argument, 0, 'l'},
+    {"setup",        required_argument, 0, 'u'},
     {"error",        required_argument, 0, 'E'},
     {"json",         no_argument,       &json_output, 1},
     {"print-prefix", no_argument,       &print_prefix, 1},
@@ -333,35 +336,40 @@ extern "C" object * lean_run_frontend(
     object * filename,
     object * main_module_name,
     uint32_t trust_level,
+    object * olean_filename,
     object * ilean_filename,
     uint8_t  json_output,
     object * error_kinds,
     object * plugins,
+    bool     print_stats,
+    object * header_file_name,
     object * w
 );
-pair_ref<elab_environment, object_ref> run_new_frontend(
+option_ref<elab_environment> run_new_frontend(
     std::string const & input,
     options const & opts, std::string const & file_name,
     name const & main_module_name,
     uint32_t trust_level,
+    optional<std::string> const & olean_file_name,
     optional<std::string> const & ilean_file_name,
     uint8_t json_output,
-    array_ref<name> const & error_kinds
+    array_ref<name> const & error_kinds,
+    bool print_stats,
+    optional<std::string> const & setup_file_name
 ) {
-    object * oilean_file_name = mk_option_none();
-    if (ilean_file_name) {
-        oilean_file_name = mk_option_some(mk_string(*ilean_file_name));
-    }
-    return get_io_result<pair_ref<elab_environment, object_ref>>(lean_run_frontend(
+    return get_io_result<option_ref<elab_environment>>(lean_run_frontend(
         mk_string(input),
         opts.to_obj_arg(),
         mk_string(file_name),
         main_module_name.to_obj_arg(),
         trust_level,
-        oilean_file_name,
+        olean_file_name ? mk_option_some(mk_string(*olean_file_name)) : mk_option_none(),
+        ilean_file_name ? mk_option_some(mk_string(*ilean_file_name)) : mk_option_none(),
         json_output,
         error_kinds.to_obj_arg(),
         mk_empty_array(),
+        print_stats,
+        setup_file_name ? mk_option_some(mk_string(*setup_file_name)) : mk_option_none(),
         io_mk_world()
     ));
 }
@@ -484,6 +492,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     bool run = false;
     optional<std::string> olean_fn;
     optional<std::string> ilean_fn;
+    optional<std::string> setup_fn;
     bool use_stdin = false;
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
     bool only_deps = false;
@@ -635,6 +644,10 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 lean::load_dynlib(optarg);
                 forwarded_args.push_back(string_ref("--load-dynlib=" + std::string(optarg)));
                 break;
+            case 'u':
+                check_optarg("u");
+                setup_fn = optarg;
+                break;
             case 'E':
                 check_optarg("E");
                 error_kinds.push_back(string_to_name(std::string(optarg)));
@@ -752,55 +765,48 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<elab_environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output, error_kinds);
-        elab_environment env = r.fst();
-        bool ok = unbox(r.snd().raw());
+        option_ref<elab_environment> opt_env = run_new_frontend(
+            contents, opts, mod_fn, *main_module_name, trust_lvl,
+            olean_fn, ilean_fn, json_output, error_kinds, stats, setup_fn
+        );
 
-        if (stats) {
-            env.display_stats();
-        }
-
-        if (run && ok) {
-            uint32 ret = ir::run_main(env, opts, argc - optind, argv + optind);
-            // environment_free_regions(std::move(env));
-            return ret;
-        }
-        if (olean_fn && ok) {
-            time_task t(".olean serialization", opts);
-            write_module(env, *olean_fn);
-        }
-
-        if (c_output && ok) {
-            std::ofstream out(*c_output, std::ios_base::binary);
-            if (out.fail()) {
-                std::cerr << "failed to create '" << *c_output << "'\n";
-                return 1;
+        if (opt_env) {
+            elab_environment env = opt_env.get_val();
+            if (run) {
+                uint32 ret = ir::run_main(env, opts, argc - optind, argv + optind);
+                return ret;
             }
-            time_task _("C code generation", opts);
-            out << lean::ir::emit_c(env, *main_module_name).data();
-            out.close();
-        }
-
-        if (llvm_output && ok) {
-            initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
-                    lean_io_mk_world());
-            time_task _("LLVM code generation", opts);
-            lean::consume_io_result(lean_ir_emit_llvm(
-                        env.to_obj_arg(), (*main_module_name).to_obj_arg(),
-                        lean::string_ref(*llvm_output).to_obj_arg(),
-                        lean_io_mk_world()));
+            if (c_output) {
+                std::ofstream out(*c_output, std::ios_base::binary);
+                if (out.fail()) {
+                    std::cerr << "failed to create '" << *c_output << "'\n";
+                    return 1;
+                }
+                time_task _("C code generation", opts);
+                out << lean::ir::emit_c(env, *main_module_name).data();
+                out.close();
+            }
+            if (llvm_output) {
+                initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
+                        lean_io_mk_world());
+                time_task _("LLVM code generation", opts);
+                lean::consume_io_result(lean_ir_emit_llvm(
+                            env.to_obj_arg(), (*main_module_name).to_obj_arg(),
+                            lean::string_ref(*llvm_output).to_obj_arg(),
+                            lean_io_mk_world()));
+            }
         }
 
         display_cumulative_profiling_times(std::cerr);
 
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
-        return ok ? 0 : 1;
+        return opt_env ? 0 : 1;
 #endif
 #endif
         // When not using the address/leak sanitizer, we interrupt execution without garbage collecting.
         // This is useful when profiling improvements to Lean startup time.
-        exit(ok ? 0 : 1);
+        exit(opt_env ? 0 : 1);
     } catch (lean::throwable & ex) {
         std::cerr << ex.what() << "\n";
     } catch (std::bad_alloc & ex) {

@@ -131,17 +131,11 @@ Will NOT cause the whole build to fail if the release cannot be fetched.
 -/
 builtin_facet optGitHubReleaseFacet @ optRelease : Package => Bool
 
-@[deprecated optGitHubReleaseFacet (since := "2024-09-27")]
-abbrev Package.optReleaseFacet := optGitHubReleaseFacet
-
 /--
 A package's build archive from a GitHub release.
 Will cause the whole build to fail if the release cannot be fetched.
 -/
 builtin_facet gitHubReleaseFacet @ release : Package => Unit
-
-@[deprecated gitHubReleaseFacet (since := "2024-09-27")]
-abbrev Package.releaseFacet := gitHubReleaseFacet
 
 /-- A package's `extraDepTargets` mixed with its transitive dependencies'. -/
 builtin_facet extraDep : Package => Unit

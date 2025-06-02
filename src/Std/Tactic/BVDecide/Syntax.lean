@@ -96,6 +96,12 @@ syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 end Tactic
 
 /--
+Theorems tagged with the `bv_normalize` attribute are used during the rewriting step of the
+`bv_decide` tactic.
+-/
+syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+
+/--
 Auxiliary attribute for builtin `bv_normalize` simprocs.
 -/
 syntax (name := bvNormalizeProcBuiltinAttr) "builtin_bv_normalize_proc" (Tactic.simpPre <|> Tactic.simpPost)? : attr

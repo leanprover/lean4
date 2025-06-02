@@ -3,7 +3,10 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
+import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Nat.Basic
@@ -21,7 +24,7 @@ open Nat
 
 /-! ### eraseP -/
 
-@[simp] theorem eraseP_empty : #[].eraseP p = #[] := by simp
+theorem eraseP_empty : #[].eraseP p = #[] := by simp
 
 theorem eraseP_of_forall_mem_not {xs : Array α} (h : ∀ a, a ∈ xs → ¬p a) : xs.eraseP p = xs := by
   rcases xs with ⟨xs⟩
@@ -59,7 +62,7 @@ theorem exists_or_eq_self_of_eraseP (p) (xs : Array α) :
 @[simp] theorem size_eraseP_of_mem {xs : Array α} (al : a ∈ xs) (pa : p a) :
     (xs.eraseP p).size = xs.size - 1 := by
   let ⟨_, ys, zs, _, _, e₁, e₂⟩ := exists_of_eraseP al pa
-  rw [e₂]; simp [size_append, e₁]; omega
+  rw [e₂]; simp [size_append, e₁]
 
 theorem size_eraseP {xs : Array α} : (xs.eraseP p).size = if xs.any p then xs.size - 1 else xs.size := by
   split <;> rename_i h

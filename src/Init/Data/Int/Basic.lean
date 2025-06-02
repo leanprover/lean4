@@ -5,9 +5,13 @@ Authors: Jeremy Avigad, Leonardo de Moura
 
 The integers, with addition, multiplication, and subtraction.
 -/
+module
+
 prelude
 import Init.Data.Cast
 import Init.Data.Nat.Div.Basic
+
+@[expose] section
 
 set_option linter.missingDocs true -- keep it documented
 open Nat
@@ -265,7 +269,7 @@ set_option bootstrap.genMatcherCode false in
 
   Implemented by efficient native code. -/
 @[extern "lean_int_dec_nonneg"]
-private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
+def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m => isTrue <| NonNeg.mk m
   | -[_ +1] => isFalse <| fun h => nomatch h
@@ -419,6 +423,8 @@ instance : IntCast Int where intCast n := n
 @[coe, reducible, match_pattern, inherit_doc IntCast]
 protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
   IntCast.intCast
+
+@[simp] theorem Int.cast_eq (x : Int) : Int.cast x = x := rfl
 
 -- see the notes about coercions into arbitrary types in the module doc-string
 instance [IntCast R] : CoeTail Int R where coe := Int.cast

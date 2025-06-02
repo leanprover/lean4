@@ -73,11 +73,11 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
-    let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
+    let name := mkEqnThmName baseName (i+1)
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added
-    realizeConst baseName name (doRealize name type)
+    realizeConst info.declNames[0]! name (doRealize name type)
   return thmNames
 where
   doRealize name type := withOptions (tactic.hygienic.set · false) do
@@ -102,9 +102,30 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   else
     return none
 
+/-- Generate the "unfold" lemma for `declName`. -/
+def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
+  let name := Name.str declName unfoldThmSuffix
+  realizeConst info.declNames[0]! name (doRealize name)
+  return name
+where
+  doRealize name := withOptions (tactic.hygienic.set · false) do
+    lambdaTelescope info.value fun xs body => do
+      let us := info.levelParams.map mkLevelParam
+      let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
+      let goal ← mkFreshExprSyntheticOpaqueMVar type
+      mkUnfoldProof declName goal.mvarId!
+      let type ← mkForallFVars xs type
+      let value ← mkLambdaFVars xs (← instantiateMVars goal)
+      addDecl <| Declaration.thmDecl {
+        name, type, value
+        levelParams := info.levelParams
+      }
+
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
-  let env ← getEnv
-  Eqns.getUnfoldFor? declName fun _ => eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore)
+  if let some info := eqnInfoExt.find? (← getEnv) declName then
+    return some (← mkUnfoldEq declName info)
+  else
+    return none
 
 @[export lean_get_structural_rec_arg_pos]
 def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do

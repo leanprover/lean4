@@ -44,9 +44,10 @@ target ffi_shared.o pkg : FilePath := do
 target libleanffi_shared pkg : Dynlib := do
   let libName := "leanffi"
   let ffiO ← ffi_shared.o.fetch
+  let weakArgs := #["-L", (← getLeanLibDir).toString]
   let leanArgs ← getLeanLinkSharedFlags
   buildSharedLib libName (pkg.sharedLibDir / nameToSharedLib libName)
-    #[ffiO] #[] #[] leanArgs "c++" getLeanTrace
+    #[ffiO] #[] weakArgs leanArgs "c++" getLeanTrace
 
 lean_lib FFI.Shared where
   moreLinkLibs := #[libleanffi_shared]

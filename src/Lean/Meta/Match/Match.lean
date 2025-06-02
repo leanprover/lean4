@@ -13,13 +13,48 @@ import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.Match.Basic
 import Lean.Meta.Match.MatcherApp.Basic
+import Lean.Meta.Match.MVarRenaming
 
 namespace Lean.Meta.Match
 
+private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
+    (discrepancyKind : String) (expected actual : Nat) (pats : List α) :=
+  let patternsMsg := MessageData.joinSep (pats.map toMessageData) ", "
+  m!"{discrepancyKind} patterns in match alternative: Expected {expected}, \
+    but found {actual}:{indentD patternsMsg}"
+
+/--
+Throws an error indicating that the alternative at `ref` contains an unexpected number of patterns.
+Remark: we allow `α` to be arbitrary because this error may be thrown before or after elaborating
+pattern syntax.
+-/
+def throwIncorrectNumberOfPatternsAt [ToMessageData α]
+    (ref : Syntax) (discrepancyKind : String) (expected actual : Nat) (pats : List α)
+    : MetaM Unit := do
+  throwErrorAt ref (mkIncorrectNumberOfPatternsMsg discrepancyKind expected actual pats)
+
+/--
+Logs an error indicating that the alternative at `ref` contains an unexpected number of patterns.
+Remark: we allow `α` to be arbitrary because this error may be thrown before or after elaborating
+pattern syntax.
+-/
+def logIncorrectNumberOfPatternsAt [ToMessageData α]
+    (ref : Syntax) (discrepancyKind : String) (expected actual : Nat) (pats : List α)
+    : MetaM Unit :=
+  logErrorAt ref (mkIncorrectNumberOfPatternsMsg discrepancyKind expected actual pats)
+
 /-- The number of patterns in each AltLHS must be equal to the number of discriminants. -/
 private def checkNumPatterns (numDiscrs : Nat) (lhss : List AltLHS) : MetaM Unit := do
-  if lhss.any fun lhs => lhs.patterns.length != numDiscrs then
-    throwError "incorrect number of patterns"
+  for lhs in lhss do
+    let doThrow (kind : String) := withExistingLocalDecls lhs.fvarDecls do
+      throwIncorrectNumberOfPatternsAt lhs.ref kind numDiscrs lhs.patterns.length
+        (lhs.patterns.map Pattern.toMessageData)
+    if lhs.patterns.length < numDiscrs then
+      doThrow "Not enough"
+    else if lhs.patterns.length > numDiscrs then
+      -- This case should be impossible, as an alternative with too many patterns will cause an
+      -- error to be thrown in `Lean.Elab.Term.elabPatterns`
+      doThrow "Too many"
 
 /--
   Execute `k hs` where `hs` contains new equalities `h : lhs[i] = rhs[i]` for each `discrInfos[i] = some h`.
@@ -265,7 +300,7 @@ where
         let targetType ← mvarId.getType
         unless (← isDefEqGuarded targetType eType) do
           trace[Meta.Match.match] "assignGoalOf failed {eType} =?= {targetType}"
-          throwError "dependent elimination failed, type mismatch when solving alternative with type{indentExpr eType}\nbut expected{indentExpr targetType}"
+          throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it {← mkHasTypeButIsExpectedMsg eType targetType}"
         mvarId.assign alt.rhs
         modify fun s => { s with used := s.used.insert alt.idx }
         return true
@@ -430,7 +465,7 @@ def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt)
           return some { alt with patterns := fields ++ ps }
         else
           return none
-      | _ => throwErrorAt alt.ref "dependent match elimination failed, inaccessible pattern found{indentD p.toMessageData}\nconstructor expected"
+      | _ => throwErrorAt alt.ref "Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern{indentD p.toMessageData}"
   | _ => unreachable!
 
 private def hasNonTrivialExample (p : Problem) : Bool :=
@@ -676,7 +711,7 @@ private def traceState (p : Problem) : MetaM Unit :=
 private def throwNonSupported (p : Problem) : MetaM Unit :=
   withGoalOf p do
     let msg ← p.toMessageData
-    throwError "failed to compile pattern matching, stuck at{indentD msg}"
+    throwError "Failed to compile pattern matching: Stuck at{indentD msg}"
 
 def isCurrVarInductive (p : Problem) : MetaM Bool := do
   match p.vars with
@@ -698,7 +733,7 @@ private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
           let xType ← inferType x
           let eType ← inferType e
           unless (← isDefEq xType eType) do
-            throwError "pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
+            throwError "Type mismatch in pattern: Pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
 
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
@@ -752,7 +787,7 @@ private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (O
   if uElim == levelZero then
     return none
   else match matcherLevels.idxOf? uElim with
-    | none => throwError "dependent match elimination failed, universe level not found"
+    | none => throwError "Dependent match elimination failed: Universe level not found"
     | some pos => return some pos
 
 /- See comment at `mkMatcher` before `mkAuxDefinition` -/
@@ -762,7 +797,15 @@ register_builtin_option bootstrap.genMatcherCode : Bool := {
   descr := "disable code generation for auxiliary matcher function"
 }
 
-builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ←
+private structure MatcherKey where
+  value     : Expr
+  compile   : Bool
+  -- When a matcher is created in a private context and thus may contain private references, we must
+  -- not reuse it in an exported context.
+  isPrivate : Bool
+deriving BEq, Hashable
+
+private builtin_initialize matcherExt : EnvExtension (PHashMap MatcherKey Name) ←
   registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
 
 /-- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
@@ -774,15 +817,22 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
-  match (matcherExt.getState env).find? (result.value, compile) with
+  let key := { value := result.value, compile, isPrivate := env.header.isModule && isPrivateName name }
+  let mut nameNew? := (matcherExt.getState env).find? key
+  if nameNew?.isNone && key.isPrivate then
+    -- private contexts may reuse public matchers
+    nameNew? := (matcherExt.getState env).find? { key with isPrivate := false }
+  match nameNew? with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
     let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
       result.type result.value .abbrev)
     trace[Meta.Match.debug] "{name} : {result.type} := {result.value}"
     let addMatcher : MatcherInfo → MetaM Unit := fun mi => do
-      addDecl decl
-      modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
+      -- matcher bodies should always be exported, if not private anyway
+      withExporting do
+        addDecl decl
+      modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
       addMatcherInfo name mi
       setInlineAttribute name
       enableRealizationsForConst name
@@ -854,7 +904,7 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
     let type ← instantiateMVars type
     if exceptionIfContainsSorry then
       if type.hasSorry || val.hasSorry then
-        throwError "failed to create auxiliary match declaration `{matcherName}`, it contains `sorry`"
+        throwError "Failed to create auxiliary match declaration '{matcherName}' because it contains `sorry`"
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
     trace[Meta.Match.debug] "minors num params: {minors.map (·.2)}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
@@ -938,7 +988,8 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
 
 def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput := do
   let matcherName := matcherApp.matcherName
-  let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"
+  let some matcherInfo ← getMatcherInfo? matcherName
+    | throwError "Internal error during match expression elaboration: Could not find a matcher named '{matcherName}'"
   let matcherConst ← getConstInfo matcherName
   let matcherType ← instantiateForall matcherConst.type <| matcherApp.params ++ #[matcherApp.motive]
   let matchType ← do
@@ -968,12 +1019,14 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
 
 /-- This function is only used for testing purposes -/
 def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
-  let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"
+  let some matcherInfo ← getMatcherInfo? matcherName
+    | throwError "Internal error during match expression elaboration: Could not find a matcher named '{matcherName}'"
   let matcherConst ← getConstInfo matcherName
   forallBoundedTelescope matcherConst.type (some matcherInfo.arity) fun xs _ => do
   let matcherApp ← mkConstWithLevelParams matcherConst.name
   let matcherApp := mkAppN matcherApp xs
-  let some matcherApp ← matchMatcherApp? matcherApp | throwError "not a matcher app: {matcherApp}"
+  let some matcherApp ← matchMatcherApp? matcherApp
+    | throwError "Internal error during match expression elaboration: Could not find a matcher app named '{matcherApp}'"
   let mkMatcherInput ← getMkMatcherInputInContext matcherApp
   k mkMatcherInput
 

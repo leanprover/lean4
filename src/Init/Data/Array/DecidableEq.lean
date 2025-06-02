@@ -3,8 +3,10 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
 import Init.Data.BEq
 import Init.Data.List.Nat.BEq
 import Init.ByCases
@@ -66,8 +68,8 @@ theorem isEqv_eq_decide (xs ys : Array α) (r) :
       Bool.not_eq_true]
     simpa [isEqv_iff_rel] using h'
 
-@[simp] theorem isEqv_toList [BEq α] (xs ys : Array α) : (xs.toList.isEqv ys.toList r) = (xs.isEqv ys r) := by
-  simp [isEqv_eq_decide, List.isEqv_eq_decide]
+@[simp, grind =] theorem isEqv_toList [BEq α] (xs ys : Array α) : (xs.toList.isEqv ys.toList r) = (xs.isEqv ys r) := by
+  simp [isEqv_eq_decide, List.isEqv_eq_decide, Array.size]
 
 theorem eq_of_isEqv [DecidableEq α] (xs ys : Array α) (h : Array.isEqv xs ys (fun x y => x = y)) : xs = ys := by
   have ⟨h, h'⟩ := rel_of_isEqv h
@@ -97,25 +99,27 @@ theorem beq_eq_decide [BEq α] (xs ys : Array α) :
       decide (∀ (i : Nat) (h' : i < xs.size), xs[i] == ys[i]'(h ▸ h')) else false := by
   simp [BEq.beq, isEqv_eq_decide]
 
-@[simp] theorem beq_toList [BEq α] (xs ys : Array α) : (xs.toList == ys.toList) = (xs == ys) := by
-  simp [beq_eq_decide, List.beq_eq_decide]
+@[simp, grind =] theorem beq_toList [BEq α] (xs ys : Array α) : (xs.toList == ys.toList) = (xs == ys) := by
+  simp [beq_eq_decide, List.beq_eq_decide, Array.size]
 
 end Array
 
 namespace List
 
-@[simp] theorem isEqv_toArray [BEq α] (as bs : List α) : (as.toArray.isEqv bs.toArray r) = (as.isEqv bs r) := by
+@[simp, grind =] theorem isEqv_toArray [BEq α] (as bs : List α) : (as.toArray.isEqv bs.toArray r) = (as.isEqv bs r) := by
   simp [isEqv_eq_decide, Array.isEqv_eq_decide]
 
-@[simp] theorem beq_toArray [BEq α] (as bs : List α) : (as.toArray == bs.toArray) = (as == bs) := by
+@[simp, grind =] theorem beq_toArray [BEq α] (as bs : List α) : (as.toArray == bs.toArray) = (as == bs) := by
   simp [beq_eq_decide, Array.beq_eq_decide]
 
 end List
 
 namespace Array
 
-instance [BEq α] [LawfulBEq α] : LawfulBEq (Array α) where
+instance [BEq α] [ReflBEq α] : ReflBEq (Array α) where
   rfl := by simp [BEq.beq, isEqv_self_beq]
+
+instance [BEq α] [LawfulBEq α] : LawfulBEq (Array α) where
   eq_of_beq := by
     rintro ⟨_⟩ ⟨_⟩ h
     simpa using h

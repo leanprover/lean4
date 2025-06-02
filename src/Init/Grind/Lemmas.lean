@@ -3,6 +3,8 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Core
 import Init.SimpLemmas
@@ -49,6 +51,8 @@ theorem eq_false_of_or_eq_false_right {a b : Prop} (h : (a ∨ b) = False) : b =
 theorem imp_eq_of_eq_false_left {a b : Prop} (h : a = False) : (a → b) = True := by simp [h]
 theorem imp_eq_of_eq_true_right {a b : Prop} (h : b = True) : (a → b) = True := by simp [h]
 theorem imp_eq_of_eq_true_left {a b : Prop} (h : a = True) : (a → b) = b := by simp [h]
+theorem eq_false_of_imp_eq_true {a b : Prop} (h₁ : (a → b) = True) (h₂ : b = False) : a = False := by
+  simp at *; intro h; exact h₂ (h₁ h)
 
 theorem eq_true_of_imp_eq_false {a b : Prop} (h : (a → b) = False) : a = True := by simp_all
 theorem eq_false_of_imp_eq_false {a b : Prop} (h : (a → b) = False) : b = False := by simp_all
@@ -84,6 +88,12 @@ theorem beq_eq_true_of_eq {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : �
 
 theorem beq_eq_false_of_diseq {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : ¬ a = b) : (a == b) = false := by
   simp[*]
+
+theorem eq_of_beq_eq_true {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : (a == b) = true) : a = b := by
+  simp [beq_iff_eq.mp h]
+
+theorem ne_of_beq_eq_false {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : (a == b) = false) : (a = b) = False := by
+  simp [beq_eq_false_iff_ne.mp h]
 
 /-! Bool.and -/
 
@@ -143,17 +153,17 @@ theorem dite_cond_eq_false' {α : Sort u} {c : Prop} {_ : Decidable c} {a : c �
 
 theorem eqRec_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         {motive : (x : α) → a = x → Sort u_1} (v : motive a (Eq.refl a)) {b : α} (h : a = b)
-        : HEq (@Eq.rec α a motive v b h) v := by
+        : @Eq.rec α a motive v b h ≍ v := by
  subst h; rfl
 
 theorem eqRecOn_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         {motive : (x : α) → a = x → Sort u_1} {b : α} (h : a = b) (v : motive a (Eq.refl a))
-        : HEq (@Eq.recOn α a motive b h v) v := by
+        : @Eq.recOn α a motive b h v ≍ v := by
  subst h; rfl
 
 theorem eqNDRec_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         {motive : α → Sort u_1} (v : motive a) {b : α} (h : a = b)
-        : HEq (@Eq.ndrec α a motive v b h) v := by
+        : @Eq.ndrec α a motive v b h ≍ v := by
  subst h; rfl
 
 /-! decide -/
@@ -162,5 +172,10 @@ theorem of_decide_eq_true {p : Prop} {_ : Decidable p} : decide p = true → p =
 theorem of_decide_eq_false {p : Prop} {_ : Decidable p} : decide p = false → p = False := by simp
 theorem decide_eq_true {p : Prop} {_ : Decidable p} : p = True → decide p = true := by simp
 theorem decide_eq_false {p : Prop} {_ : Decidable p} : p = False → decide p = false := by simp
+
+/-! Lookahead -/
+
+theorem of_lookahead (p : Prop) (h : (¬ p) → False) : p = True := by
+  simp at h; simp [h]
 
 end Lean.Grind

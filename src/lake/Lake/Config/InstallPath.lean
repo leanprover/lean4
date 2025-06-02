@@ -6,7 +6,9 @@ Authors: Mac Malone
 
 prelude
 import Init.Control.Option
+import Init.Data.Option.Coe
 import Lean.Compiler.FFI
+import Lake.Config.Dynlib
 import Lake.Util.NativeLib
 import Lake.Config.Defaults
 
@@ -77,9 +79,9 @@ structure LeanInstall where
   ar : FilePath := "ar"
   cc : FilePath := "cc"
   customCc : Bool := true
-  cFlags := getCFlags sysroot |>.push "-Wno-unused-command-line-argument"
-  linkStaticFlags := getLinkerFlags sysroot (linkStatic := true)
-  linkSharedFlags := getLinkerFlags sysroot (linkStatic := false)
+  cFlags := getCFlags'.push "-Wno-unused-command-line-argument"
+  linkStaticFlags := getLinkerFlags' (linkStatic := true)
+  linkSharedFlags := getLinkerFlags' (linkStatic := false)
   ccFlags := cFlags
   ccLinkStaticFlags := linkStaticFlags
   ccLinkSharedFlags := linkSharedFlags
@@ -113,9 +115,15 @@ structure LakeInstall where
   srcDir := home
   binDir := home / defaultBuildDir / defaultBinDir
   libDir := home / defaultBuildDir / defaultLeanLibDir
-  sharedLib := libDir / nameToSharedLib "Lake"
+  sharedDynlib : Dynlib := {
+    name := "Lake"
+    path := libDir / nameToSharedLib "Lake"
+  }
   lake := binDir / lakeExe
   deriving Inhabited, Repr
+
+@[inline] def LakeInstall.sharedLib (self : LakeInstall) : FilePath :=
+  self.sharedDynlib.path
 
 /-- Construct a Lake installation co-located with the specified Lean installation. -/
 def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
@@ -123,9 +131,10 @@ def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
   srcDir := lean.srcDir / "lake"
   binDir := lean.binDir
   libDir := lean.leanLibDir
-  sharedLib :=
+  sharedDynlib :=
     let lib := s!"libLake_shared.{sharedLibExt}"
-    if Platform.isWindows then lean.binDir / lib else lean.leanLibDir / lib
+    let path := if Platform.isWindows then lean.binDir / lib else lean.leanLibDir / lib
+    {name := "Lake_shared", path}
   lake := lean.binDir / lakeExe
 
 /-! ## Detection Functions -/

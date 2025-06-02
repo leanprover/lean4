@@ -18,12 +18,6 @@ class CommSemigroup (α : Type u) extends Semigroup α where
 instance [CommSemigroup α] : MulComm α where
   mul_comm := CommSemigroup.mul_comm
 
-class One (α : Type u) where
-  one : α
-
-instance [One α] : OfNat α (nat_lit 1) where
-  ofNat := One.one
-
 class Monoid (α : Type u) extends Semigroup α, One α where
   one_mul (a : α) : 1 * a = a
   mul_one (a : α) : a * 1 = a
@@ -58,17 +52,8 @@ def fallback : Fallback := do
 
 set_option trace.Meta.debug true
 
-/--
-info: [Meta.debug] [↑a * (↑b * ↑c),
-     ↑b * ↑c,
-     ↑d * (↑b * ↑c),
-     -1 * (↑a * (↑b * ↑c)),
-     -1 * (↑d * (↑b * ↑c)),
-     a * (b * c),
-     b * c,
-     d * (b * c)]
--/
-#guard_msgs (info) in
+/-- trace: [Meta.debug] [a * (b * c), b * c, d * (b * c)] -/
+#guard_msgs (trace) in
 example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
   rw [left_comm] -- Introduces a new (non-canonical) instance for `Mul Nat`
   grind on_failure fallback -- State should have only 3 `*`-applications
@@ -77,22 +62,14 @@ example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
 set_option pp.notation false in
 set_option pp.explicit true in
 /--
-info: [Meta.debug] [@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
+trace: [Meta.debug] [@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
        (@NatCast.natCast Int instNatCastInt a),
      @HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
        (@NatCast.natCast Int instNatCastInt d),
-     @HMul.hMul Int Int Int (@instHMul Int Int.instMul)
-       (@Neg.neg Int Int.instNegInt (@OfNat.ofNat Int 1 (@instOfNat 1)))
-       (@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
-         (@NatCast.natCast Int instNatCastInt a)),
-     @HMul.hMul Int Int Int (@instHMul Int Int.instMul)
-       (@Neg.neg Int Int.instNegInt (@OfNat.ofNat Int 1 (@instOfNat 1)))
-       (@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
-         (@NatCast.natCast Int instNatCastInt d)),
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a,
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b d]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (a b c d : Nat) : b * a = d * b → False := by
   rw [CommMonoid.mul_comm d b] -- Introduces a new (non-canonical) instance for `Mul Nat`
   -- See target here

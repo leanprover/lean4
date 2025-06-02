@@ -8,7 +8,7 @@ import Init.Data.Nat.Compare
 import Std.Data.DTreeMap.Internal.Def
 import Std.Data.DTreeMap.Internal.Balanced
 import Std.Data.DTreeMap.Internal.Ordered
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -40,6 +40,9 @@ instance [Ord α] : Membership α (Impl α β) where
   mem t a := t.contains a
 
 theorem mem_iff_contains {_ : Ord α} {t : Impl α β} {k : α} : k ∈ t ↔ t.contains k :=
+  Iff.rfl
+
+theorem contains_iff_mem {_ : Ord α} {t : Impl α β} {k : α} : t.contains k ↔ k ∈ t :=
   Iff.rfl
 
 instance [Ord α] {m : Impl α β} {a : α} : Decidable (a ∈ m) :=
@@ -197,7 +200,7 @@ def foldlM {m} [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) : I
 /-- Folds the given function over the mappings in the tree in ascending order. -/
 @[specialize]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : Impl α β) : δ :=
-  Id.run (t.foldlM f init)
+  Id.run (t.foldlM (pure <| f · · ·) init)
 
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[specialize]
@@ -211,7 +214,7 @@ def foldrM {m} [Monad m] (f : (a : α) → β a → δ → m δ) (init : δ) : I
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[inline]
 def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : Impl α β) : δ :=
-  Id.run (t.foldrM f init)
+  Id.run (t.foldrM (pure <| f · · ·) init)
 
 /-- Applies the given function to the mappings in the tree in ascending order. -/
 @[inline]
@@ -244,7 +247,7 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
 
 /-- Returns an `Array` of the keys in order. -/
 @[inline] def keysArray (t : Impl α β) : Array α :=
-  t.foldl (init := #[]) fun l k _ => l.push k
+  t.foldl (init := .emptyWithCapacity t.size) fun l k _ => l.push k
 
 /-- Returns a `List` of the values in order. -/
 @[inline] def values {β : Type v} (t : Impl α β) : List β :=
@@ -252,7 +255,7 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
 
 /-- Returns an `Array` of the values in order. -/
 @[inline] def valuesArray {β : Type v} (t : Impl α β) : Array β :=
-  t.foldl (init := #[]) fun l _ v => l.push v
+  t.foldl (init := .emptyWithCapacity t.size) fun l _ v => l.push v
 
 /-- Returns a `List` of the key/value pairs in order. -/
 @[inline] def toList (t : Impl α β) : List ((a : α) × β a) :=
@@ -260,7 +263,7 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
 
 /-- Returns an `Array` of the key/value pairs in order. -/
 @[inline] def toArray (t : Impl α β) : Array ((a : α) × β a) :=
-  t.foldl (init := #[]) fun l k v => l.push ⟨k, v⟩
+  t.foldl (init := .emptyWithCapacity t.size) fun l k v => l.push ⟨k, v⟩
 
 namespace Const
 
@@ -272,7 +275,7 @@ variable {β : Type v}
 
 /-- Returns a `List` of the key/value pairs in order. -/
 @[inline] def toArray (t : Impl α β) : Array (α × β) :=
-  t.foldl (init := #[]) fun l k v => l.push (k, v)
+  t.foldl (init := .emptyWithCapacity t.size) fun l k v => l.push (k, v)
 
 end Const
 

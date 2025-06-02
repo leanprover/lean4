@@ -10,6 +10,12 @@ Author: Leonardo de Moura
 #include <stdint.h>
 #include <limits.h>
 
+#include <lean/config.h>
+
+#ifdef LEAN_MIMALLOC
+#include <lean/mimalloc.h>
+#endif
+
 #ifdef __cplusplus
 #include <atomic>
 #include <stdlib.h>
@@ -19,7 +25,6 @@ extern "C" {
 #else
 #define  LEAN_USING_STD
 #endif
-#include <lean/config.h>
 
 #define LEAN_CLOSURE_MAX_ARGS      16
 #define LEAN_OBJECT_SIZE_DELTA     8
@@ -111,7 +116,10 @@ reference counting is not needed (== 0). We don't use reference counting for obj
 marked as persistent.
 
 For "small" objects stored in compact regions, the field `m_cs_sz` contains the object size. For "small" objects not
-stored in compact regions, we use the page information to retrieve its size.
+stored in compact regions, we use the page information to retrieve its size so that we can reuse
+`m_cs_sz` to store the deletion list inline. Using the page information is not an option with
+mimalloc, so there we always use `m_cs_sz`; reusing it for the deletion list is fine in this case as
+we do not need the size after an object has been marked for deletion (see `lean_free_small_object`).
 
 During deallocation and 64-bit machines, the fields `m_rc` and `m_cs_sz` store the next object in the deletion TODO list.
 These two fields together have 48-bits, and this is enough for modern computers.
@@ -343,10 +351,20 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
     return (lean_object*)lean_alloc_small(sz, slot_idx);
 #else
     lean_inc_heartbeat();
+#ifdef LEAN_MIMALLOC
+    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
+    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    void * mem = mi_malloc_small(sz);
+    if (mem == 0) lean_internal_panic_out_of_memory();
+    lean_object * o = (lean_object*)mem;
+    o->m_cs_sz = sz;
+    return o;
+#else
     void * mem = malloc(sizeof(size_t) + sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;
     return (lean_object*)((size_t*)mem + 1);
+#endif
 #endif
 }
 
@@ -370,6 +388,14 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
         end[-1] = 0;
     }
     return r;
+#elif defined(LEAN_MIMALLOC)
+    unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    lean_object* r = lean_alloc_small_object(sz);
+    if (sz1 > sz) {
+        size_t * end = (size_t*)(((char*)r) + sz1);
+        end[-1] = 0;
+    }
+    return r;
 #else
     return lean_alloc_small_object(sz);
 #endif
@@ -378,6 +404,8 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
 static inline unsigned lean_small_object_size(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     return lean_small_mem_size(o);
+#elif defined(LEAN_MIMALLOC)
+    return o->m_cs_sz;
 #else
     return *((size_t*)o - 1);
 #endif
@@ -394,6 +422,10 @@ void free_sized(void* ptr, size_t);
 static inline void lean_free_small_object(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     lean_free_small(o);
+#elif defined(LEAN_MIMALLOC)
+    // We must NOT use `m_cs_sz` here as it is repurposed for the deletion list; as `mi_free_size`
+    // is no different from `mi_free` at the time of writing, we don't lose anything from that.
+    mi_free((void *)o);
 #else
     size_t* ptr = (size_t*)o - 1;
     free_sized(ptr, *ptr + sizeof(size_t));
@@ -532,7 +564,10 @@ static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned ot
     o->m_rc       = 1;
     o->m_tag      = tag;
     o->m_other    = other;
-    o->m_cs_sz    = 0;
+#ifndef LEAN_MIMALLOC
+    // already initialized by `lean_alloc(_small)_object` when using mimalloc
+     o->m_cs_sz    = 0;
+#endif
 }
 
 /* Remark: we don't need a reference counter for objects that are not stored in the heap.
@@ -1207,6 +1242,7 @@ LEAN_EXPORT lean_object * lean_nat_big_sub(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_mul(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_overflow_mul(size_t a1, size_t a2);
 LEAN_EXPORT lean_object * lean_nat_big_div(lean_object * a1, lean_object * a2);
+LEAN_EXPORT lean_object * lean_nat_big_div_exact(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_nat_big_eq(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_nat_big_le(lean_object * a1, lean_object * a2);
@@ -1287,6 +1323,20 @@ static inline lean_obj_res lean_nat_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
             return lean_box(n1 / n2);
     } else {
         return lean_nat_big_div(a1, a2);
+    }
+}
+
+// assumes that a1 % a2 = 0
+static inline lean_obj_res lean_nat_div_exact(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t n1 = lean_unbox(a1);
+        size_t n2 = lean_unbox(a2);
+        if (n2 == 0)
+            return lean_box(0);
+        else
+            return lean_box(n1 / n2);
+    } else {
+        return lean_nat_big_div_exact(a1, a2);
     }
 }
 
@@ -1374,10 +1424,21 @@ static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 }
 
 LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2);
-LEAN_EXPORT lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
+
+static inline lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t s1 = lean_unbox(a1);
+        size_t s2 = lean_unbox(a2);
+        size_t r = (s2 < sizeof(size_t)*8) ? s1 >> s2 : 0;
+        return lean_box(r);
+    } else {
+        return lean_nat_big_shiftr(a1, a2);
+    }
+}
 
 /* Integers */
 
@@ -1388,6 +1449,7 @@ LEAN_EXPORT lean_object * lean_int_big_add(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_sub(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_mul(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_div(lean_object * a1, lean_object * a2);
+LEAN_EXPORT lean_object * lean_int_big_div_exact(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
@@ -1505,6 +1567,30 @@ static inline lean_obj_res lean_int_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
         }
     } else {
         return lean_int_big_div(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_int_div_exact(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        if (sizeof(void*) == 8) {
+            /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */
+            int64_t v1 = lean_scalar_to_int(a1);
+            int64_t v2 = lean_scalar_to_int(a2);
+            if (v2 == 0)
+                return lean_box(0);
+            else
+                return lean_int64_to_int(v1 / v2);
+        } else {
+            /* 32-bit version */
+            int v1 = lean_scalar_to_int(a1);
+            int v2 = lean_scalar_to_int(a2);
+            if (v2 == 0)
+                return lean_box(0);
+            else
+                return lean_int_to_int(v1 / v2);
+        }
+    } else {
+        return lean_int_big_div_exact(a1, a2);
     }
 }
 

@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
   Yury Kudryashov
 -/
+module
+
 prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Find
@@ -88,7 +90,7 @@ theorem exists_or_eq_self_of_eraseP (p) (l : List α) :
 @[simp] theorem length_eraseP_of_mem (al : a ∈ l) (pa : p a) :
     length (l.eraseP p) = length l - 1 := by
   let ⟨_, l₁, l₂, _, _, e₁, e₂⟩ := exists_of_eraseP al pa
-  rw [e₂]; simp [length_append, e₁]; rfl
+  rw [e₂]; simp [length_append, e₁]
 
 theorem length_eraseP {l : List α} : (l.eraseP p).length = if l.any p then l.length - 1 else l.length := by
   split <;> rename_i h
@@ -124,9 +126,10 @@ theorem le_length_eraseP {l : List α} : l.length - 1 ≤ (l.eraseP p).length :=
   rw [length_eraseP]
   split <;> simp
 
+@[grind →]
 theorem mem_of_mem_eraseP {l : List α} : a ∈ l.eraseP p → a ∈ l := (eraseP_subset ·)
 
-@[simp] theorem mem_eraseP_of_neg {l : List α} (pa : ¬p a) : a ∈ l.eraseP p ↔ a ∈ l := by
+@[simp, grind] theorem mem_eraseP_of_neg {l : List α} (pa : ¬p a) : a ∈ l.eraseP p ↔ a ∈ l := by
   refine ⟨mem_of_mem_eraseP, fun al => ?_⟩
   match exists_or_eq_self_of_eraseP p l with
   | .inl h => rw [h]; assumption
@@ -258,6 +261,7 @@ theorem eraseP_eq_iff {p} {l : List α} :
 theorem Pairwise.eraseP (q) : Pairwise p l → Pairwise p (l.eraseP q) :=
   Pairwise.sublist <| eraseP_sublist
 
+@[grind]
 theorem Nodup.eraseP (p) : Nodup l → Nodup (l.eraseP p) :=
   Pairwise.eraseP p
 
@@ -376,9 +380,10 @@ theorem le_length_erase [LawfulBEq α] {a : α} {l : List α} : l.length - 1 ≤
   rw [length_erase]
   split <;> simp
 
+@[grind →]
 theorem mem_of_mem_erase {a b : α} {l : List α} (h : a ∈ l.erase b) : a ∈ l := erase_subset h
 
-@[simp] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {l : List α} (ab : a ≠ b) :
+@[simp, grind] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {l : List α} (ab : a ≠ b) :
     a ∈ l.erase b ↔ a ∈ l :=
   erase_eq_eraseP b l ▸ mem_eraseP_of_neg (mt eq_of_beq ab.symm)
 
@@ -485,6 +490,10 @@ theorem Nodup.mem_erase_iff [LawfulBEq α] {a : α} (d : Nodup l) : a ∈ l.eras
 theorem Nodup.not_mem_erase [LawfulBEq α] {a : α} (h : Nodup l) : a ∉ l.erase a := fun H => by
   simpa using ((Nodup.mem_erase_iff h).mp H).left
 
+-- Only activate `not_mem_erase` when `l.Nodup` is already available.
+grind_pattern List.Nodup.not_mem_erase => a ∈ l.erase a, l.Nodup
+
+@[grind]
 theorem Nodup.erase [LawfulBEq α] (a : α) : Nodup l → Nodup (l.erase a) :=
   Pairwise.erase a
 
@@ -542,7 +551,7 @@ theorem eraseIdx_eq_take_drop_succ :
   match l, i with
   | [], _
   | a::l, 0
-  | a::l, i + 1 => simp [Nat.succ_inj']
+  | a::l, i + 1 => simp [Nat.succ_inj]
 
 @[deprecated eraseIdx_eq_nil_iff (since := "2025-01-30")]
 abbrev eraseIdx_eq_nil := @eraseIdx_eq_nil_iff
@@ -551,7 +560,7 @@ theorem eraseIdx_ne_nil_iff {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 
   match l with
   | []
   | [a]
-  | a::b::l => simp [Nat.succ_inj']
+  | a::b::l => simp [Nat.succ_inj]
 
 @[deprecated eraseIdx_ne_nil_iff (since := "2025-01-30")]
 abbrev eraseIdx_ne_nil := @eraseIdx_ne_nil_iff

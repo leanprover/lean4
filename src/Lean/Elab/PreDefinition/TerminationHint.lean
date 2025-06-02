@@ -33,10 +33,17 @@ structure DecreasingBy where
   tactic    : TSyntax ``Lean.Parser.Tactic.tacticSeq
   deriving Inhabited
 
-/-- A single `partial_fixpoint` clause -/
+inductive PartialFixpointType where
+  | partialFixpoint
+  | greatestFixpoint
+  | leastFixpoint
+  deriving Inhabited
+
+/-- A single `partial_fixpoint`, `greatest_fixpoint` or `least_fixpoint` clause -/
 structure PartialFixpoint where
-  ref       : Syntax
-  term?     : Option Term
+  ref               : Syntax
+  term?             : Option Term
+  fixpointType      : PartialFixpointType := .partialFixpoint
   deriving Inhabited
 
 /--
@@ -62,6 +69,21 @@ structure TerminationHints where
   extraParams : Nat
   deriving Inhabited
 
+def isLeast : PartialFixpointType → Bool
+  | .leastFixpoint => true
+  | _ => false
+
+def isGreatest : PartialFixpointType → Bool
+  | .greatestFixpoint => true
+  | _ => false
+
+def isPartial : PartialFixpointType → Bool
+  | .partialFixpoint => true
+  | _ => false
+
+def isLatticeTheoretic (p : PartialFixpointType ) : Bool :=
+  isLeast p ∨ isGreatest p
+
 def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, .none, 0⟩
 
 /-- Logs warnings when the `TerminationHints` are unexpectedly present.  -/
@@ -75,7 +97,10 @@ def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : C
   | .none, .some term_by, .none, .none =>
     logWarningAt term_by.ref m!"unused `termination_by`, function is {reason}"
   | .none, .none, .none, .some partialFixpoint =>
-    logWarningAt partialFixpoint.ref m!"unused `partial_fixpoint`, function is {reason}"
+    match partialFixpoint.fixpointType with
+    | .partialFixpoint => logWarningAt partialFixpoint.ref m!"unused `partial_fixpoint`, function is {reason}"
+    | .greatestFixpoint => logWarningAt partialFixpoint.ref m!"unused `greatest_fixpoint`, function is {reason}"
+    | .leastFixpoint  => logWarningAt partialFixpoint.ref m!"unused `least_fixpoint`, function is {reason}"
   | _, _, _, _=>
     logWarningAt hints.ref m!"unused termination hints, function is {reason}"
 
@@ -137,10 +162,14 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
         pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none
       | `(partialFixpoint|partial_fixpoint $[monotonicity $_]?) => pure none
+      | `(greatestFixpoint|greatest_fixpoint $[monotonicity $_]?) => pure none
+      | `(leastFixpoint|least_fixpoint $[monotonicity $_]?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
       else pure none
     let partialFixpoint? : Option PartialFixpoint ← if let some t := t? then match t with
-      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?})
+      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .partialFixpoint})
+      | `(greatestFixpoint|greatest_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .greatestFixpoint})
+      | `(leastFixpoint|least_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .leastFixpoint})
       | _ => pure none
       else pure none
     let decreasingBy? ← d?.mapM fun d => match d with

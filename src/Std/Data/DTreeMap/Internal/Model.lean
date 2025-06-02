@@ -96,13 +96,13 @@ Internal implementation detail of the tree map
 -/
 inductive ExplorationStep [Ord α] (k : α → Ordering) where
   /-- Needle was less than key at this node: return key-value pair and unexplored right subtree,
-      recusion will continue in left subtree. -/
+      recursion will continue in left subtree. -/
   | lt : (a : α) → k a = .lt → β a → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was equal to key at this node: return key-value pair and both unexplored subtrees,
       recursion will terminate. -/
   | eq : List ((a : α) × β a) → Cell α β k → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was larger than key at this node: return key-value pair and unexplored left subtree,
-      recusion will containue in right subtree. -/
+      recursion will containue in right subtree. -/
   | gt : List ((a : α) × β a) → (a : α) → k a = .gt → β a → ExplorationStep k
 
 /-- General tree-traversal function. Internal implementation detail of the tree map -/
@@ -389,7 +389,7 @@ theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l :
   · simp [get?, applyCell]
 
 theorem get_eq_get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} :
-    l.get k h = l.get? k := by
+    some (l.get k h) = l.get? k := by
   induction l
   · simp only [applyCell, get, get?]
     split <;> rename_i ihl ihr hcmp <;> simp_all
@@ -428,7 +428,7 @@ theorem getKey?_eq_getKey?ₘ [Ord α] (k : α) (l : Impl α β) :
   · simp [getKey?, applyCell]
 
 theorem getKey_eq_getKey? [Ord α] (k : α) (l : Impl α β) {h} :
-    l.getKey k h = l.getKey? k := by
+    some (l.getKey k h) = l.getKey? k := by
   induction l
   · simp only [applyCell, getKey, getKey?]
     split <;> rename_i ihl ihr hcmp <;> simp_all
@@ -674,39 +674,25 @@ theorem containsThenInsertIfNew!_snd_eq_insertIfNew! [Ord α] (t : Impl α β) (
 
 theorem insertMin_eq_insertMin! [Ord α] {a b} {t : Impl α β} (htb) :
     (t.insertMin a b htb).impl = t.insertMin! a b := by
-  cases a, b, t using insertMin!.fun_cases
+  fun_cases insertMin!
   · rfl
   · simp only [insertMin!, insertMin, balanceL_eq_balanceL!, insertMin_eq_insertMin! htb.left]
 
 theorem insertMax_eq_insertMax! [Ord α] {a b} {t : Impl α β} (htb) :
     (t.insertMax a b htb).impl = t.insertMax! a b := by
-  cases a, b, t using insertMax!.fun_cases
+  fun_cases insertMax!
   · rfl
   · simp only [insertMax!, insertMax, balanceR_eq_balanceR!, insertMax_eq_insertMax! htb.right]
 
 theorem link_eq_link! [Ord α] {k v} {l r : Impl α β} (hlb hrb) :
     (link k v l r hlb hrb).impl = link! k v l r := by
-  cases k, v, l, r using link!.fun_cases <;> rw [link, link!]
-  · rw [insertMin_eq_insertMin!]
-  · rw [insertMax_eq_insertMax!]
-  · split <;> simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
-  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
-      link_eq_link! hlb hrb.left, link_eq_link! hlb.right hrb]
-  · split
-    · simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
-    · simp only [Std.Internal.tree_tac]
-termination_by sizeOf l + sizeOf r
+  fun_induction link! <;>
+    simp [*, link, balanceLErase_eq_balanceL!, balanceRErase_eq_balanceR!, insertMin_eq_insertMin!, insertMax_eq_insertMax!, size]
 
 theorem link2_eq_link2! [Ord α] {l r : Impl α β} (hlb hrb) :
     (link2 l r hlb hrb).impl = link2! l r := by
-  cases l, r using link2!.fun_cases <;> rw [link2!, link2]
-  · split <;> simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
-  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
-      link2_eq_link2! hlb.right hrb, link2_eq_link2! hlb hrb.left]
-  · split
-    · simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
-    · simp only [Std.Internal.tree_tac, glue_eq_glue!]
-termination_by sizeOf l + sizeOf r
+  fun_induction link2! <;>
+    simp [*, link2, balanceLErase_eq_balanceL!, balanceRErase_eq_balanceR!, glue_eq_glue!]
 
 namespace Const
 
@@ -722,7 +708,7 @@ theorem get?_eq_get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) :
   · simp [Const.get?, applyCell]
 
 theorem get_eq_get? [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} :
-    get l k h = get? l k := by
+    some (get l k h) = get? l k := by
   induction l
   · simp only [applyCell, get, get?]
     split <;> rename_i ihl ihr hcmp <;> simp_all

@@ -12,7 +12,7 @@ open Lean Elab Tactic
 Tactics may assign other goals. There are three goals, but the tactic is run twice.
 -/
 /--
-info: case a
+trace: case a
 ⊢ 1 ≤ ?m
 
 case a
@@ -21,7 +21,7 @@ case a
 case m
 ⊢ Nat
 ---
-info: running tac
+trace: running tac
 running tac
 -/
 #guard_msgs in
@@ -58,7 +58,7 @@ example (b : Bool) : b = b := by
 
 
 /-!
-Even if at least one suceeds, the entire tactic fails if any fails, stopping the tactic script.
+Even if at least one succeeds, the entire tactic fails if any fails, stopping the tactic script.
 -/
 /--
 error: type mismatch
@@ -94,7 +94,7 @@ case refine_1
 b : Bool
 ⊢ Unit
 ---
-info: case refine_2.false
+trace: case refine_2.false
 v : Unit := ?_ false
 ⊢ True
 
@@ -113,7 +113,7 @@ example (b : Bool) : True := by
 
 
 /-!
-On error, all goals are admitted. There are two `sorry`s in the prof term even though the tactic succeeds in one case.
+On error, failing goals are admitted. There is one `sorry` in the proof term corresponding to the failing case.
 -/
 
 /--
@@ -124,8 +124,8 @@ has type
 but is expected to have type
   false = false : Prop
 ---
-info: Try this: Bool.casesOn (motive := fun t => b = t → b = b) b (fun h => Eq.symm h ▸ sorry) (fun h => Eq.symm h ▸ sorry)
-  (Eq.refl b)
+info: Try this: Bool.casesOn (motive := fun t => b = t → b = b) b (fun h => Eq.symm h ▸ sorry)
+  (fun h => Eq.symm h ▸ Eq.refl true) (Eq.refl b)
 -/
 #guard_msgs in
 example (b : Bool) : b = b := by?
@@ -134,22 +134,33 @@ example (b : Bool) : b = b := by?
 
 
 /-!
-Each successive goal sees the metavariable assignments of the preceding ones, even if the preceding one failed.
+If the tactic fails on a particular goal, then the state is restored, while preserving log messages.
+This allows the tactic to run on all goals, which is most useful in interactive mode.
+In this test, we see `v : Unit := ?_ true` in the `refine_2.true` case,
+even though the metavariable is assigned in the `refine_2.false` case before the "case tag 'true' not found" error.
 -/
+set_option pp.mvars false in
 /--
 error: Case tag 'true' not found.
 
 The only available case tag is 'refine_2.false'.
 ---
-info: case refine_2.false
+error: Case tag 'true' not found.
+
+The only available case tag is 'refine_1'.
+---
+trace: case refine_2.false
 v : Unit := ()
 this : () = v
 ⊢ True
 case refine_2.true
-v : Unit := ()
+v : Unit := ?_ true
 ⊢ True
+case refine_1
+b : Bool
+⊢ Unit
 ---
-info: true
+trace: in true
 -/
 #guard_msgs in
 example (b : Bool) : True := by
@@ -158,7 +169,7 @@ example (b : Bool) : True := by
   all_goals
     try case' false => have : () = v := (by refine rfl)
     trace_state
-    case true => trace "true"; trivial
+    case true => trace "in true"; trivial
   trace "should not get here"
 
 
@@ -189,7 +200,7 @@ This is the responsibility of `first`, but `all_goals` coordinates by being sure
 -/
 
 /--
-info: rfl
+trace: rfl
 rfl
 -/
 #guard_msgs in
@@ -300,7 +311,7 @@ theorem idEq (a : α) : id a = a :=
   rfl
 
 /--
-info: case sunday
+trace: case sunday
 ⊢ sunday.previous.next = id sunday
 
 case monday
@@ -321,7 +332,7 @@ case friday
 case saturday
 ⊢ saturday.previous.next = id saturday
 ---
-info: case sunday
+trace: case sunday
 ⊢ sunday.previous.next = sunday
 
 case monday
@@ -351,7 +362,7 @@ theorem Weekday.test (d : Weekday) : next (previous d) = id d := by
   all_goals rfl
 
 /--
-info: case sunday
+trace: case sunday
 ⊢ sunday.previous.next = sunday
 
 case monday
@@ -380,3 +391,24 @@ theorem Weekday.test2 (d : Weekday) : next (previous d) = id d := by
 
 def bug {a b c : Nat} (h₁ : a = b) (h₂ : b = c) : a = c := by
   apply Eq.trans <;> assumption
+
+/-!
+`all_goals` was not correctly backtracking state
+https://github.com/leanprover/lean4/issues/7883
+There was an error because the metavariable state was being restored but not the goal list.
+-/
+/-- error: dsimp made no progress -/
+#guard_msgs in
+theorem foo : ∃ f : Unit → Unit, f () = () := by
+  refine ⟨fun x => ?f_old, ?hf⟩
+  all_goals dsimp
+/-!
+Another example from the comments of https://github.com/leanprover/lean4/issues/7883
+-/
+/--
+error: tactic 'fail' failed
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  all_goals (refine ?_; fail)

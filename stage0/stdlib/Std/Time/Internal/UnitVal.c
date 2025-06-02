@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Internal.UnitVal
-// Imports: Std.Classes.Ord Std.Internal.Rat
+// Imports: Std.Classes.Ord.Basic Std.Internal.Rat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,17 +25,18 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_tdiv___rarg(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instDecidableEqUnitVal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instToString___rarg___boxed(lean_object*);
 static lean_object* l_Std_Time_Internal_UnitVal_instSub___closed__1;
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_toInt___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_mul___boxed(lean_object*);
+LEAN_EXPORT uint8_t l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210____rarg(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Internal_UnitVal_instToString___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_div___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_tdiv___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Internal_instInhabitedUnitVal___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_convert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instOfNat(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_abs(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instDecidableEqUnitVal(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_convert___boxed(lean_object*, lean_object*, lean_object*);
@@ -46,6 +47,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_mul___rarg(lean_object*, le
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instOrdUnitVal___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instNeg___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ediv___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instRepr(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_sub(lean_object*);
@@ -54,7 +56,6 @@ lean_object* l_Int_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_add___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instOrdUnitVal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_toInt___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210____rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Internal_Rat_div(lean_object*, lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instNeg(lean_object*);
@@ -110,7 +111,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ediv___rarg___boxed(lean_ob
 LEAN_EXPORT uint8_t l_Std_Time_Internal_instOrdUnitVal___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_abs___rarg(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_mul(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_div___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instNeg___rarg(lean_object*);
@@ -141,7 +141,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT uint8_t l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210____rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -149,30 +149,30 @@ x_3 = lean_int_dec_eq(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210____rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg___boxed), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210____rarg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210____rarg(x_1, x_2);
+x_3 = l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_210_(x_1);
+x_2 = l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212_(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -915,14 +915,14 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Std_Classes_Ord(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Classes_Ord_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Rat(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Internal_UnitVal(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Classes_Ord(builtin, lean_io_mk_world());
+res = initialize_Std_Classes_Ord_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Rat(builtin, lean_io_mk_world());

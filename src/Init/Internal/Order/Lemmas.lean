@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
 
-import Init.Data.List.Control
-import Init.Data.Array.Basic
+import all Init.Data.List.Control
+import all Init.Data.Option.Basic
+import all Init.Data.Array.Basic
 import Init.Internal.Order.Basic
 
 /-!
@@ -16,14 +19,14 @@ This file contains monotonicity lemmas for higher-order monadic operations (e.g.
 standard library. This allows recursive definitions using `partial_fixpoint` to use nested
 recursion.
 
-Ideally, every higher-order monadic funciton in the standard library has a lemma here. At the time
+Ideally, every higher-order monadic function in the standard library has a lemma here. At the time
 of writing, this file covers functions from
 
 * Init/Data/Option/Basic.lean
 * Init/Data/List/Control.lean
 * Init/Data/Array/Basic.lean
 
-in the order of their apperance there. No automation to check the exhaustiveness exists yet.
+in the order of their appearance there. No automation to check the exhaustiveness exists yet.
 
 The lemma statements are written manually, but follow a predictable scheme, and could be automated.
 Likewise, the proofs are written very naively. Most of them could be handled by a tactic like
@@ -79,27 +82,23 @@ theorem SeqRight.monotone_seqRight [LawfulMonad m] (f : γ → m α) (g : γ →
 
 namespace Option
 
+omit [MonoBind m] in
 @[partial_fixpoint_monotone]
 theorem monotone_bindM (f : γ → α → m (Option β)) (xs : Option α) (hmono : monotone f) :
     monotone (fun x => xs.bindM (f x)) := by
   cases xs with
   | none => apply monotone_const
-  | some x =>
-    apply monotone_bind
-    · apply monotone_apply
-      apply hmono
-    · apply monotone_const
+  | some x => apply monotone_apply _ _ hmono
 
 @[partial_fixpoint_monotone]
-theorem monotone_mapM (f : γ → α → m β) (xs : Option α) (hmono : monotone f) :
+theorem monotone_mapM [LawfulMonad m] (f : γ → α → m β) (xs : Option α) (hmono : monotone f) :
     monotone (fun x => xs.mapM (f x)) := by
   cases xs with
   | none => apply monotone_const
   | some x =>
-    apply monotone_bind
-    · apply monotone_apply
-      apply hmono
-    · apply monotone_const
+    apply Functor.monotone_map
+    apply monotone_apply
+    apply hmono
 
 @[partial_fixpoint_monotone]
 theorem monotone_elimM (a : γ → m (Option α)) (n : γ → m β) (s : γ → α → m β)

@@ -201,7 +201,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_configTargets(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = lean_ctor_get(x_2, 9);
+x_3 = lean_ctor_get(x_2, 10);
 lean_inc(x_3);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_unsigned_to_nat(0u);

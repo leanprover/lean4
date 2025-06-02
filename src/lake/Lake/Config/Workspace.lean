@@ -102,6 +102,10 @@ protected def findModule? (mod : Name) (self : Workspace) : Option Module :=
 def findTargetModule? (mod : Name) (self : Workspace) : Option Module :=
   self.packages.findSome? (·.findTargetModule? mod)
 
+/-- Returns the buildable module in the workspace whose source file is `path`.  -/
+def findModuleBySrc? (path : FilePath) (self : Workspace) : Option Module :=
+  self.packages.findSome? (·.findModuleBySrc? path)
+
 /-- Try to find a Lean library in the workspace with the given name. -/
 protected def findLeanLib? (name : Name) (self : Workspace) : Option LeanLib :=
   self.packages.findSome? fun pkg => pkg.findLeanLib? name
@@ -206,9 +210,13 @@ def augmentedLeanSrcPath (self : Workspace) : SearchPath :=
 /-
 The detected `sharedLibPathEnv` value of the environment augmented with
 the workspace's `libPath` and Lean installation's shared library directories.
+
+The order is Lean's, the workspace's, and then the enviroment's.
+Lean's comes first because Lean needs to load its own shared libraries from this path.
+Giving the workspace greater precedence can break this (e.g., when bootstrapping),
 -/
 def augmentedSharedLibPath (self : Workspace) : SearchPath :=
-  self.sharedLibPath ++ self.lakeEnv.sharedLibPath
+  self.lakeEnv.lean.sharedLibPath ++ self.sharedLibPath ++ self.lakeEnv.initSharedLibPath
 
 /--
 The detected environment augmented with Lake's and the workspace's paths.

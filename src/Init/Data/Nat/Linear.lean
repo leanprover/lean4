@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.ByCases
 import Init.Data.Prod
 import Init.Data.RArray
+
+@[expose] section
 
 namespace Nat.Linear
 
@@ -146,7 +150,7 @@ instance : LawfulBEq PolyCnstr where
   rfl {a} := by
     cases a; rename_i eq lhs rhs
     show (eq == eq && (lhs == lhs && rhs == rhs)) = true
-    simp [LawfulBEq.rfl]
+    simp
 
 structure ExprCnstr where
   eq  : Bool
@@ -253,15 +257,8 @@ theorem Poly.denote_cons (ctx : Context) (k : Nat) (v : Var) (p : Poly) : denote
 
 attribute [local simp] Poly.denote_cons
 
-theorem Poly.denote_reverseAux (ctx : Context) (p q : Poly) : denote ctx (List.reverseAux p q) = denote ctx (p ++ q) := by
-  match p with
-  | [] => simp [List.reverseAux]
-  | (k, v) :: p => simp [List.reverseAux, denote_reverseAux]
-
-attribute [local simp] Poly.denote_reverseAux
-
 theorem Poly.denote_reverse (ctx : Context) (p : Poly) : denote ctx (List.reverse p) = denote ctx p := by
-  simp [List.reverse]
+  induction p <;> simp [*]
 
 attribute [local simp] Poly.denote_reverse
 

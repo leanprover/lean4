@@ -3,10 +3,14 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.SizeOf
 import Init.BinderNameHint
 import Init.Data.Nat.Basic
+
+@[expose] section
 
 universe u v
 
@@ -38,7 +42,8 @@ noncomputable abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop
 namespace Acc
 variable {α : Sort u} {r : α → α → Prop}
 
-theorem inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
+-- `def` for `WellFounded.fix`
+def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
   h₁.recOn (fun _ ac₁ _ h₂ => ac₁ y h₂) h₂
 
 end Acc
@@ -71,7 +76,8 @@ class WellFoundedRelation (α : Sort u) where
   wf  : WellFounded rel
 
 namespace WellFounded
-theorem apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
+-- `def` for `WellFounded.fix`
+def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   wf.rec (fun p => p) a
 
 section
@@ -92,9 +98,12 @@ noncomputable def fixF (x : α) (a : Acc r x) : C x := by
   induction a with
   | intro x₁ _ ih => exact F x₁ ih
 
-theorem fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
+theorem fixF_eq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
   induction acx with
   | intro x r _ => exact rfl
+
+@[deprecated fixF_eq (since := "2025-04-04")]
+abbrev fixFEq := @fixF_eq
 
 end
 
@@ -114,7 +123,7 @@ noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) �
 -- Well-founded fixpoint satisfies fixpoint equation
 theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
     fix hwf F x = F x (fun y _ => fix hwf F y) :=
-  fixFEq F x (apply hwf x)
+  fixF_eq F x (apply hwf x)
 end WellFounded
 
 open WellFounded
@@ -148,19 +157,15 @@ end Subrelation
 namespace InvImage
 variable {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
-private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x := by
-  induction ac with
-  | intro x acx ih =>
-    intro z e
-    apply Acc.intro
-    intro y lt
-    subst x
-    apply ih (f y) lt y rfl
+def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x :=
+  Acc.recOn ac fun _ _ ih => fun _ e => Acc.intro _ (fun y lt => ih (f y) (e ▸ lt) y rfl)
 
-theorem accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
+-- `def` for `WellFounded.fix`
+def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
   accAux f ac a rfl
 
-theorem wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
+-- `def` for `WellFounded.fix`
+def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
@@ -244,8 +249,7 @@ abbrev measure {α : Sort u} (f : α → Nat) : WellFoundedRelation α :=
 abbrev sizeOfWFRel {α : Sort u} [SizeOf α] : WellFoundedRelation α :=
   measure sizeOf
 
-instance (priority := low) [SizeOf α] : WellFoundedRelation α :=
-  sizeOfWFRel
+attribute [instance low] sizeOfWFRel
 
 namespace Prod
 open WellFounded
@@ -451,5 +455,4 @@ Reverse direction of `dite_eq_ite`. Used by the well-founded definition preproce
 context of a termination proof inside `if-then-else` with the condition.
 -/
 @[wf_preprocess] theorem ite_eq_dite [Decidable P] :
-    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := by
-  rfl
+    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := rfl

@@ -28,7 +28,7 @@ namespace LeanLib
 
 /-- The package's `srcDir` joined with the library's `srcDir`. -/
 @[inline] def srcDir (self : LeanLib) : FilePath :=
-  self.pkg.srcDir / self.config.srcDir
+  self.pkg.srcDir / self.config.srcDir.normalize
 
 /-- The library's root directory for `lean` (i.e., `srcDir`). -/
 @[inline] def rootDir (self : LeanLib) : FilePath :=
@@ -72,6 +72,10 @@ The names of the library's root modules
 /-- The path to the shared library in the package's `libDir`. -/
 @[inline] def sharedLibFile (self : LeanLib) : FilePath :=
   self.pkg.sharedLibDir / self.sharedLibFileName
+
+/-- Whether the shared binary of this library is a valid plugin. -/
+def isPlugin (self : LeanLib) : Bool :=
+  self.roots == #[self.name] && self.libName == self.name.mangle ""
 
 /-- The library's `extraDepTargets` configuration. -/
 @[inline] def extraDepTargets (self : LeanLib) :=

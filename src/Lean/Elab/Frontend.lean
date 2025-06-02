@@ -139,33 +139,69 @@ def runFrontend
     (fileName : String)
     (mainModuleName : Name)
     (trustLevel : UInt32 := 0)
+    (oleanFileName? : Option String := none)
     (ileanFileName? : Option String := none)
     (jsonOutput : Bool := false)
     (errorOnKinds : Array Name := #[])
     (plugins : Array System.FilePath := #[])
-    : IO (Environment × Bool) := do
+    (printStats : Bool := false)
+    (setupFileName? : Option System.FilePath := none)
+    : IO (Option Environment) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
   let opts := Lean.internal.cmdlineSnapshots.setIfNotSet opts true
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
+  let setup stx := do
+    if let some file := setupFileName? then
+      let setup ← ModuleSetup.load file
+      liftM <| setup.dynlibs.forM Lean.loadDynlib
+      return .ok {
+        trustLevel
+        mainModuleName := setup.name
+        isModule := setup.isModule
+        imports := setup.imports
+        plugins := plugins ++ setup.plugins
+        modules := setup.modules
+        -- override cmdline options with header options
+        opts := opts.mergeBy (fun _ _ hOpt => hOpt) setup.options.toOptions
+      }
+    else
+      return .ok {
+        imports := stx.imports
+        isModule := stx.isModule
+        mainModuleName, opts, trustLevel, plugins
+      }
   let processor := Language.Lean.process
-  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
+  let snap ← processor setup none ctx
   let snaps := Language.toSnapshotTree snap
   let severityOverrides := errorOnKinds.foldl (·.insert · .error) {}
+
+  -- reporting should be done before any early exit from the function
   let hasErrors ← snaps.runAndReport opts jsonOutput severityOverrides
+
+  let some cmdState := Language.Lean.waitForFinalCmdState? snap
+    | return none
+  let env := cmdState.env
+  let finalOpts := cmdState.scopes[0]!.opts
+
+  -- stats should be displayed even if there are (non-import) errors
+  if printStats then
+    env.displayStats
+
+  if hasErrors then
+    return none
+
+  if let some oleanFileName := oleanFileName? then
+    profileitIO ".olean serialization" finalOpts do
+      writeModule env oleanFileName
 
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
     let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
-
-  -- TODO: remove default when reworking cmdline interface in Lean; currently the only case
-  -- where we use the environment despite errors in the file is `--stats`
-  let some cmdState := Language.Lean.waitForFinalCmdState? snap
-    | return (← mkEmptyEnvironment, false)
 
   if let some out := trace.profiler.output.get? opts then
     let traceStates := snaps.getAll.map (·.traces)
@@ -174,7 +210,6 @@ def runFrontend
 
   -- no point in freeing the snapshot graph and all referenced data this close to process exit
   Runtime.forget snaps
-  pure (cmdState.env, !hasErrors)
-
+  return some env
 
 end Lean.Elab

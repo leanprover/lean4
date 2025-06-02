@@ -6,6 +6,8 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn, Mario Carneiro
 This provides additional lemmas about propositional types beyond what is
 needed for Core and SimpLemmas.
 -/
+module
+
 prelude
 import Init.Core
 import Init.NotationExtra
@@ -307,6 +309,10 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 
+@[deprecated Exists.nonempty (since := "2025-05-19")]
+theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
+  | ⟨w, _⟩ => ⟨w⟩
+
 theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x, p x
   | ⟨x, hn⟩, h => hn (h x)
 
@@ -333,6 +339,13 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 @[simp] theorem exists_eq_left' : (∃ a, a' = a ∧ p a) ↔ p a' := by simp [@eq_comm _ a']
 
 @[simp] theorem exists_eq_right' : (∃ a, p a ∧ a' = a) ↔ p a' := by simp [@eq_comm _ a']
+
+@[simp] theorem exists_prop_eq {p : (a : α) → a = a' → Prop} :
+    (∃ (a : α) (h : a = a'), p a h) ↔ p a' rfl :=
+  ⟨fun ⟨_, e, h⟩ => e ▸ h, fun h => ⟨_, rfl, h⟩⟩
+
+@[simp] theorem exists_prop_eq' {p : (a : α) → a' = a → Prop} :
+    (∃ (a : α) (h : a' = a), p a h) ↔ p a' rfl := by simp [@eq_comm _ a']
 
 @[simp] theorem forall_eq_or_imp : (∀ a, a = a' ∨ q a → p a) ↔ p a' ∧ ∀ a, q a → p a := by
   simp only [or_imp, forall_and, forall_eq]
@@ -589,7 +602,7 @@ and `decide` will not work. -/
 
 /-- Transfer decidability of `b` to decidability of `a`, if the propositions are equivalent.
 This is the same as `decidable_of_iff` but the iff is flipped. -/
-@[inline] def decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
+@[inline, expose] def decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
   decidable_of_decidable_of_iff h.symm
 
 instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
@@ -683,10 +696,22 @@ attribute [local simp] Decidable.imp_iff_left_iff
 @[simp] theorem dite_eq_right_iff {p : Prop} [Decidable p] {x : p → α} {y : α} : (if h : p then x h else y) = y ↔ ∀ h : p, x h = y := by
   split <;> simp_all
 
+@[simp] theorem left_eq_dite_iff {p : Prop} [Decidable p] {x : α} {y : ¬ p → α} : x = (if h : p then x else y h) ↔ ∀ h : ¬ p, x = y h := by
+  split <;> simp_all
+
+@[simp] theorem right_eq_dite_iff {p : Prop} [Decidable p] {x : p → α} {y : α} : y = (if h : p then x h else y) ↔ ∀ h : p, y = x h := by
+  split <;> simp_all
+
 @[simp] theorem dite_iff_left_iff {p : Prop} [Decidable p] {x : Prop} {y : ¬ p → Prop} : ((if h : p then x else y h) ↔ x) ↔ ∀ h : ¬ p, y h ↔ x := by
   split <;> simp_all
 
 @[simp] theorem dite_iff_right_iff {p : Prop} [Decidable p] {x : p → Prop} {y : Prop} : ((if h : p then x h else y) ↔ y) ↔ ∀ h : p, x h ↔ y := by
+  split <;> simp_all
+
+@[simp] theorem left_iff_dite_iff {p : Prop} [Decidable p] {x : Prop} {y : ¬ p → Prop} : (x ↔ (if h : p then x else y h)) ↔ ∀ h : ¬ p, x ↔ y h := by
+  split <;> simp_all
+
+@[simp] theorem right_iff_dite_iff {p : Prop} [Decidable p] {x : p → Prop} {y : Prop} : (y ↔ (if h : p then x h else y)) ↔ ∀ h : p, y ↔ x h := by
   split <;> simp_all
 
 @[simp] theorem ite_eq_left_iff {p : Prop} [Decidable p] {x y : α} : (if p then x else y) = x ↔ ¬ p → y = x := by
@@ -695,10 +720,22 @@ attribute [local simp] Decidable.imp_iff_left_iff
 @[simp] theorem ite_eq_right_iff {p : Prop} [Decidable p] {x y : α} : (if p then x else y) = y ↔ p → x = y := by
   split <;> simp_all
 
+@[simp] theorem left_eq_ite_iff {p : Prop} [Decidable p] {x y : α} : x = (if p then x else y) ↔ ¬ p → x = y := by
+  split <;> simp_all
+
+@[simp] theorem right_eq_ite_iff {p : Prop} [Decidable p] {x y : α} : y = (if p then x else y) ↔ p → y = x := by
+  split <;> simp_all
+
 @[simp] theorem ite_iff_left_iff {p : Prop} [Decidable p] {x y : Prop} : ((if p then x else y) ↔ x) ↔ ¬ p → y = x := by
   split <;> simp_all
 
 @[simp] theorem ite_iff_right_iff {p : Prop} [Decidable p] {x y : Prop} : ((if p then x else y) ↔ y) ↔ p → x = y := by
+  split <;> simp_all
+
+@[simp] theorem left_iff_ite_iff {p : Prop} [Decidable p] {x y : Prop} : (x ↔ (if p then x else y)) ↔ ¬ p → x = y := by
+  split <;> simp_all
+
+@[simp] theorem right_iff_ite_iff {p : Prop} [Decidable p] {x y : Prop} : (y ↔ (if p then x else y)) ↔ p → y = x := by
   split <;> simp_all
 
 @[simp] theorem dite_then_false {p : Prop} [Decidable p] {x : ¬ p → Prop} : (if h : p then False else x h) ↔ ∃ h : ¬ p, x h := by

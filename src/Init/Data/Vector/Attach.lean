@@ -3,9 +3,11 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Lemmas
-import Init.Data.Array.Attach
+import all Init.Data.Array.Attach
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -20,6 +22,7 @@ to apply `f`.
 
 We replace this at runtime with a more efficient version via the `csimp` lemma `pmap_eq_pmapImpl`.
 -/
+@[expose]
 def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) : Vector β n :=
   Vector.mk (xs.toArray.pmap f (fun a m => H a (by simpa using m))) (by simp)
 
@@ -32,13 +35,13 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 
 /-- `O(1)`. "Attach" a proof `P x` that holds for all the elements of `xs` to produce a new array
   with the same elements but in the type `{x // P x}`. -/
-@[implemented_by attachWithImpl] def attachWith
+@[implemented_by attachWithImpl, expose] def attachWith
     (xs : Vector α n) (P : α → Prop) (H : ∀ x ∈ xs, P x) : Vector {x // P x} n :=
   Vector.mk (xs.toArray.attachWith P fun x h => H x (by simpa using h)) (by simp)
 
 /-- `O(1)`. "Attach" the proof that the elements of `xs` are in `xs` to produce a new vector
   with the same elements but in the type `{x // x ∈ xs}`. -/
-@[inline] def attach (xs : Vector α n) : Vector {x // x ∈ xs} n := xs.attachWith _ fun _ => id
+@[inline, expose] def attach (xs : Vector α n) : Vector {x // x ∈ xs} n := xs.attachWith _ fun _ => id
 
 @[simp] theorem attachWith_mk {xs : Array α} {h : xs.size = n} {P : α → Prop} {H : ∀ x ∈ mk xs h, P x} :
     (mk xs h).attachWith P H = mk (xs.attachWith P (by simpa using H)) (by simpa using h) := by
@@ -67,7 +70,8 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 
 @[simp] theorem toList_attachWith {xs : Vector α n} {P : α → Prop} {H : ∀ x ∈ xs, P x} :
    (xs.attachWith P H).toList = xs.toList.attachWith P (by simpa using H) := by
-  simp [attachWith]
+  rcases xs with ⟨xs, rfl⟩
+  simp
 
 @[simp] theorem toList_attach {xs : Vector α n} :
     xs.attach.toList = xs.toList.attachWith (· ∈ xs) (by simp) := by
@@ -75,7 +79,8 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 
 @[simp] theorem toList_pmap {xs : Vector α n} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ xs, P a} :
     (xs.pmap f H).toList = xs.toList.pmap f (fun a m => H a (by simpa using m)) := by
-  simp [pmap]
+  rcases xs with ⟨xs, rfl⟩
+  simp
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
 @[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) :
@@ -432,13 +437,13 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {xs : Vector α n}
   simp
 
 @[simp]
-theorem count_attach [DecidableEq α] {xs : Vector α n} {a : {x // x ∈ xs}} :
+theorem count_attach [BEq α] {xs : Vector α n} {a : {x // x ∈ xs}} :
     xs.attach.count a = xs.count ↑a := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} {xs : Vector α n} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
+theorem count_attachWith [BEq α] {p : α → Prop} {xs : Vector α n} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
     (xs.attachWith p H).count a = xs.count ↑a := by
   cases xs
   simp
@@ -470,7 +475,10 @@ If not, usually the right approach is `simp [Vector.unattach, -Vector.map_subtyp
 -/
 def unattach {α : Type _} {p : α → Prop} (xs : Vector { x // p x } n) : Vector α n := xs.map (·.val)
 
-@[simp] theorem unattach_nil {p : α → Prop} : (#v[] : Vector { x // p x } 0).unattach = #v[] := by simp
+theorem unattach_empty {p : α → Prop} : (#v[] : Vector { x // p x } 0).unattach = #v[] := by simp
+
+@[deprecated unattach_empty (since := "2025-05-26")]
+abbrev unattach_nil := @unattach_empty
 
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Vector { x // p x } n} :
     (xs.push a).unattach = xs.unattach.push a.1 := by
@@ -490,7 +498,8 @@ def unattach {α : Type _} {p : α → Prop} (xs : Vector { x // p x } n) : Vect
 
 @[simp] theorem toList_unattach {p : α → Prop} {xs : Vector { x // p x } n} :
     xs.unattach.toList = xs.toList.unattach := by
-  simp [unattach]
+  rcases xs with ⟨xs, rfl⟩
+  simp
 
 @[simp] theorem unattach_attach {xs : Vector α n} : xs.attach.unattach = xs := by
   rcases xs with ⟨xs, rfl⟩

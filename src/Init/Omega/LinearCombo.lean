@@ -3,6 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Omega.Coeffs
 import Init.Data.ToString.Macro
@@ -13,6 +15,9 @@ import Init.Data.ToString.Macro
 We use this data structure while processing hypotheses.
 
 -/
+
+-- most defs used in proofs by reflection
+@[expose] section
 
 namespace Lean.Omega
 

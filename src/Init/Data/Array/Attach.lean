@@ -3,11 +3,13 @@ Copyright (c) 2021 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.Array.Mem
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Count
-import Init.Data.List.Attach
+import all Init.Data.List.Attach
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -20,7 +22,7 @@ an array `xs : Array α`, given a proof that every element of `xs` in fact satis
 
 `Array.pmap`, named for “partial map,” is the equivalent of `Array.map` for such partial functions.
 -/
-
+@[expose]
 def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) : Array β :=
   (xs.toList.pmap f (fun a m => H a (mem_def.mpr m))).toArray
 
@@ -37,7 +39,7 @@ of elements in the corresponding subtype `{ x // P x }`.
 
 `O(1)`.
 -/
-@[implemented_by attachWithImpl] def attachWith
+@[implemented_by attachWithImpl, expose] def attachWith
     (xs : Array α) (P : α → Prop) (H : ∀ x ∈ xs, P x) : Array {x // P x} :=
   ⟨xs.toList.attachWith P fun x h => H x (Array.Mem.mk h)⟩
 
@@ -52,26 +54,26 @@ recursion](lean-manual://section/well-founded-recursion) that use higher-order f
 `Array.map`) to prove that an value taken from a list is smaller than the list. This allows the
 well-founded recursion mechanism to prove that the function terminates.
 -/
-@[inline] def attach (xs : Array α) : Array {x // x ∈ xs} := xs.attachWith _ fun _ => id
+@[inline, expose] def attach (xs : Array α) : Array {x // x ∈ xs} := xs.attachWith _ fun _ => id
 
-@[simp] theorem _root_.List.attachWith_toArray {l : List α} {P : α → Prop} {H : ∀ x ∈ l.toArray, P x} :
+@[simp, grind =] theorem _root_.List.attachWith_toArray {l : List α} {P : α → Prop} {H : ∀ x ∈ l.toArray, P x} :
     l.toArray.attachWith P H = (l.attachWith P (by simpa using H)).toArray := by
   simp [attachWith]
 
-@[simp] theorem _root_.List.attach_toArray {l : List α} :
+@[simp, grind =] theorem _root_.List.attach_toArray {l : List α} :
     l.toArray.attach = (l.attachWith (· ∈ l.toArray) (by simp)).toArray := by
   simp [attach]
 
-@[simp] theorem _root_.List.pmap_toArray {l : List α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ l.toArray, P a} :
+@[simp, grind =] theorem _root_.List.pmap_toArray {l : List α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ l.toArray, P a} :
     l.toArray.pmap f H = (l.pmap f (by simpa using H)).toArray := by
   simp [pmap]
 
 @[simp] theorem toList_attachWith {xs : Array α} {P : α → Prop} {H : ∀ x ∈ xs, P x} :
-   (xs.attachWith P H).toList = xs.toList.attachWith P (by simpa [mem_toList] using H) := by
+   (xs.attachWith P H).toList = xs.toList.attachWith P (by simpa [mem_toList_iff] using H) := by
   simp [attachWith]
 
 @[simp] theorem toList_attach {xs : Array α} :
-    xs.attach.toList = xs.toList.attachWith (· ∈ xs) (by simp [mem_toList]) := by
+    xs.attach.toList = xs.toList.attachWith (· ∈ xs) (by simp [mem_toList_iff]) := by
   simp [attach]
 
 @[simp] theorem toList_pmap {xs : Array α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ xs, P a} :
@@ -525,7 +527,7 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {xs : Array α} {H
   simp
 
 @[simp]
-theorem count_attach [DecidableEq α] {xs : Array α} {a : {x // x ∈ xs}} :
+theorem count_attach [BEq α] {xs : Array α} {a : {x // x ∈ xs}} :
     xs.attach.count a = xs.count ↑a := by
   rcases xs with ⟨xs⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.count_toArray]
@@ -534,7 +536,7 @@ theorem count_attach [DecidableEq α] {xs : Array α} {a : {x // x ∈ xs}} :
   rw [List.countP_pmap, List.countP_attach (p := (fun x => x == a.1)), List.count]
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} {xs : Array α} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
+theorem count_attachWith [BEq α] {p : α → Prop} {xs : Array α} (H : ∀ a ∈ xs, p a) {a : {x // p x}} :
     (xs.attachWith p H).count a = xs.count ↑a := by
   cases xs
   simp
@@ -572,8 +574,11 @@ state, the right approach is usually the tactic `simp [Array.unattach, -Array.ma
 -/
 def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array α := xs.map (·.val)
 
-@[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := by
+@[simp] theorem unattach_empty {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := by
   simp [unattach]
+
+@[deprecated unattach_empty (since := "2025-05-26")]
+abbrev unattach_nil := @unattach_empty
 
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Array { x // p x }} :
     (xs.push a).unattach = xs.unattach.push a.1 := by
@@ -588,7 +593,7 @@ def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array �
   unfold unattach
   simp
 
-@[simp] theorem _root_.List.unattach_toArray {p : α → Prop} {xs : List { x // p x }} :
+@[simp, grind =] theorem _root_.List.unattach_toArray {p : α → Prop} {xs : List { x // p x }} :
     xs.toArray.unattach = xs.unattach.toArray := by
   simp only [unattach, List.map_toArray, List.unattach]
 

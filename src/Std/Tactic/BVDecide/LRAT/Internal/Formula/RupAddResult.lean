@@ -1109,7 +1109,7 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
   intro li_eq_lj
   let li := derivedLits_arr[i]
   have li_in_derivedLits : li ∈ derivedLits := by
-    rw [Array.mem_toList, ← derivedLits_arr_def]
+    rw [Array.mem_toList_iff, ← derivedLits_arr_def]
     simp [li, Array.getElem_mem]
   have i_in_bounds : i.1 < derivedLits.length := by
     have i_property := i.2

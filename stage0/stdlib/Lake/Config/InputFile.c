@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFile_text___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_InputDir_text(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDir_filter(lean_object*, lean_object*);
@@ -21,6 +20,7 @@ LEAN_EXPORT uint8_t l_Lake_InputFile_text(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDir_path(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDir_text___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFile_path(lean_object*);
+lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFile_path(lean_object* x_1) {
 _start:
 {
@@ -36,7 +36,7 @@ lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = l_System_FilePath_join(x_3, x_5);
+x_6 = l_Lake_joinRelative(x_3, x_5);
 lean_dec(x_5);
 return x_6;
 }
@@ -75,7 +75,7 @@ lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = l_System_FilePath_join(x_3, x_5);
+x_6 = l_Lake_joinRelative(x_3, x_5);
 lean_dec(x_5);
 return x_6;
 }

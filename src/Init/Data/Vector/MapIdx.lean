@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Array.MapIdx
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Attach
 import Init.Data.Vector.Lemmas
 
@@ -23,7 +27,7 @@ namespace Vector
 
 @[simp] theorem getElem?_mapFinIdx {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {i : Nat} :
     (xs.mapFinIdx f)[i]? =
-      xs[i]?.pbind fun b h => f i b (getElem?_eq_some_iff.1 h).1 := by
+      xs[i]?.pbind fun b h => some <| f i b (getElem?_eq_some_iff.1 h).1 := by
   simp only [getElem?_def, getElem_mapFinIdx]
   split <;> simp_all
 
@@ -68,14 +72,14 @@ namespace Vector
   simp
 
 theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {x : α} {i : Nat} {xs : Vector α n} {k : Nat} :
-    (x, i) ∈ xs.zipIdx k ↔ k ≤ i ∧ xs[i - k]? = x := by
+    (x, i) ∈ xs.zipIdx k ↔ k ≤ i ∧ xs[i - k]? = some x := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
 /-- Variant of `mk_mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
 to avoid the inequality and the subtraction. -/
 theorem mk_mem_zipIdx_iff_getElem? {x : α} {i : Nat} {xs : Vector α n} :
-    (x, i) ∈ xs.zipIdx ↔ xs[i]? = x := by
+    (x, i) ∈ xs.zipIdx ↔ xs[i]? = some x := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
@@ -132,7 +136,7 @@ theorem mapFinIdx_append {xs : Vector α n} {ys : Vector α m} {f : (i : Nat) �
 @[simp]
 theorem mapFinIdx_push {xs : Vector α n} {a : α} {f : (i : Nat) → α → (h : i < n + 1) → β} :
     mapFinIdx (xs.push a) f =
-      (mapFinIdx xs (fun i a h => f i a (by omega))).push (f xs.size a (by simp)) := by
+      (mapFinIdx xs (fun i a h => f i a (by omega))).push (f n a (by simp)) := by
   simp [← append_singleton, mapFinIdx_append]
 
 theorem mapFinIdx_singleton {a : α} {f : (i : Nat) → α → (h : i < 1) → β} :
@@ -253,14 +257,14 @@ theorem mapIdx_eq_zipIdx_map {xs : Vector α n} {f : Nat → α → β} :
 abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
 
 theorem mapIdx_append {xs : Vector α n} {ys : Vector α m} :
-    (xs ++ ys).mapIdx f = xs.mapIdx f ++ ys.mapIdx fun i => f (i + xs.size) := by
+    (xs ++ ys).mapIdx f = xs.mapIdx f ++ ys.mapIdx fun i => f (i + n) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
   simp [Array.mapIdx_append]
 
 @[simp]
 theorem mapIdx_push {xs : Vector α n} {a : α} :
-    mapIdx f (xs.push a) = (mapIdx f xs).push (f xs.size a) := by
+    mapIdx f (xs.push a) = (mapIdx f xs).push (f n a) := by
   simp [← append_singleton, mapIdx_append]
 
 theorem mapIdx_singleton {a : α} : mapIdx f #v[a] = #v[f 0 a] := by
@@ -282,7 +286,7 @@ theorem exists_of_mem_mapIdx {b : β} {xs : Vector α n}
 
 theorem mapIdx_eq_push_iff {xs : Vector α (n + 1)} {b : β} :
     mapIdx f xs = ys.push b ↔
-      ∃ (a : α) (zs : Vector α n), xs = zs.push a ∧ mapIdx f zs = ys ∧ f zs.size a = b := by
+      ∃ (a : α) (zs : Vector α n), xs = zs.push a ∧ mapIdx f zs = ys ∧ f n a = b := by
   rw [mapIdx_eq_mapFinIdx, mapFinIdx_eq_push_iff]
   simp only [mapFinIdx_eq_mapIdx, exists_and_left, exists_prop]
   constructor
@@ -291,16 +295,15 @@ theorem mapIdx_eq_push_iff {xs : Vector α (n + 1)} {b : β} :
   · rintro ⟨a, zs, rfl, rfl, rfl⟩
     exact ⟨zs, a, rfl, by simp⟩
 
-@[simp] theorem mapIdx_eq_singleton_iff {xs : Vector α 1} {f : Nat → α → β} {b : β} :
+theorem mapIdx_eq_singleton_iff {xs : Vector α 1} {f : Nat → α → β} {b : β} :
     mapIdx f xs = #v[b] ↔ ∃ (a : α), xs = #v[a] ∧ f 0 a = b := by
-  rcases xs with ⟨xs⟩
   simp
 
 theorem mapIdx_eq_append_iff {xs : Vector α (n + m)} {f : Nat → α → β} {ys : Vector β n} {zs : Vector β m} :
     mapIdx f xs = ys ++ zs ↔
       ∃ (ys' : Vector α n) (zs' : Vector α m), xs = ys' ++ zs' ∧
         ys'.mapIdx f = ys ∧
-        zs'.mapIdx (fun i => f (i + ys'.size)) = zs := by
+        zs'.mapIdx (fun i => f (i + n)) = zs := by
   rcases xs with ⟨xs, h⟩
   rcases ys with ⟨ys, rfl⟩
   rcases zs with ⟨zs, rfl⟩
@@ -340,12 +343,12 @@ theorem mapIdx_eq_mapIdx_iff {xs : Vector α n} :
   simp
 
 @[simp] theorem back?_mapIdx {xs : Vector α n} {f : Nat → α → β} :
-    (mapIdx f xs).back? = (xs.back?).map (f (xs.size - 1)) := by
+    (mapIdx f xs).back? = (xs.back?).map (f (n - 1)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
 @[simp] theorem back_mapIdx [NeZero n] {xs : Vector α n} {f : Nat → α → β} :
-    (mapIdx f xs).back = f (xs.size - 1) (xs.back) := by
+    (mapIdx f xs).back = f (n - 1) (xs.back) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
@@ -362,7 +365,7 @@ theorem mapIdx_eq_replicate_iff {xs : Vector α n} {f : Nat → α → β} {b : 
 abbrev mapIdx_eq_mkVector_iff := @mapIdx_eq_replicate_iff
 
 @[simp] theorem mapIdx_reverse {xs : Vector α n} {f : Nat → α → β} :
-    xs.reverse.mapIdx f = (mapIdx (fun i => f (xs.size - 1 - i)) xs).reverse := by
+    xs.reverse.mapIdx f = (mapIdx (fun i => f (n - 1 - i)) xs).reverse := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mapIdx_reverse]
 

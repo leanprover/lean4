@@ -3,6 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Int.DivMod.Lemmas
@@ -127,6 +129,6 @@ Examples:
 * `#[].binInsert (· < ·) 1 = #[1]`
 -/
 @[inline] def binInsert {α : Type u} (lt : α → α → Bool) (as : Array α) (k : α) : Array α :=
-  Id.run <| binInsertM lt (fun _ => k) (fun _ => k) as k
+  Id.run <| binInsertM lt (fun _ => pure k) (fun _ => pure k) as k
 
 end Array

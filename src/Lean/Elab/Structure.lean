@@ -855,7 +855,7 @@ private def registerFailedToInferDefaultValue (fieldName : Name) (e : Expr) (ref
 Goes through all the natural mvars appearing in `e`, assigning any whose type is one of the inherited parents.
 
 Rationale 1: Structures can only extend a parent once.
-There should be no other occurences of a parent except for the parent itself.
+There should be no other occurrences of a parent except for the parent itself.
 
 Rationale 2: Consider the following code in the test `lean/run/balg.lean`:
 ```lean
@@ -1260,12 +1260,8 @@ private def addDefaults (levelParams : List Name) (params : Array Expr) (replace
   let fieldInfos := (← get).fields
   let lctx ← instantiateLCtxMVars (← getLCtx)
   /- The parameters `params` for the auxiliary "default value" definitions must be marked as implicit, and all others as explicit. -/
-  let lctx :=
-    params.foldl (init := lctx) fun (lctx : LocalContext) (p : Expr) =>
-      if p.isFVar then
-        lctx.setBinderInfo p.fvarId! BinderInfo.implicit
-      else
-        lctx
+  let lctx := params.foldl (init := lctx) fun (lctx : LocalContext) (p : Expr) =>
+    lctx.setBinderInfo p.fvarId! BinderInfo.implicit
   let parentFVarIds := fieldInfos |>.filter (·.kind.isParent) |>.map (·.fvar.fvarId!)
   let fields := fieldInfos |>.filter (!·.kind.isParent)
   withLCtx lctx (← getLocalInstances) do

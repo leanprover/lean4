@@ -23,6 +23,11 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
   toArrayFn     : List α → Array α := fun es => es.toArray
   asyncMode     : EnvExtension.AsyncMode := .mainOnly
   replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
+  /--
+  Whether entries should be imported into other modules. Entries are always accessible in the
+  language server via `getModuleEntries (includeServer := true)`.
+  -/
+  exported      : Bool := true
 
 /--
 Returns a function suitable for `SimplePersistentEnvExtensionDescr.replay?` that replays all new
@@ -42,7 +47,8 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     addImportedFn   := fun as => pure ([], descr.addImportedFn as),
     addEntryFn      := fun s e => match s with
       | (entries, s) => (e::entries, descr.addEntryFn s e),
-    exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
+    exportEntriesFn := fun s => if descr.exported then descr.toArrayFn s.1.reverse else #[],
+    saveEntriesFn := fun s => descr.toArrayFn s.1.reverse,
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
     replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>
@@ -122,13 +128,15 @@ end TagDeclarationExtension
 structure MapDeclarationExtension (α : Type) extends PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
 deriving Inhabited
 
-def mkMapDeclarationExtension (name : Name := by exact decl_name%) : IO (MapDeclarationExtension α) :=
+def mkMapDeclarationExtension (name : Name := by exact decl_name%)
+    (exportEntriesFn : NameMap α → Array (Name × α) := (·.toArray)) : IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
-    exportEntriesFn := fun s => s.toArray
+    saveEntriesFn   := fun s => s.toArray
+    exportEntriesFn
     asyncMode       := .async
     replay?         := some fun _ newState newConsts s =>
       newConsts.foldl (init := s) fun s c =>
@@ -145,10 +153,11 @@ def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Na
   assert! env.asyncMayContain declName
   ext.addEntry env (declName, val)
 
-def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
+def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
+    (includeServer := false) : Option α :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    match (ext.getModuleEntries env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
+    match (ext.getModuleEntries (includeServer := includeServer) env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
   | none => (ext.findStateAsync env declName).find? declName

@@ -3,6 +3,8 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
 import Init.System.IO
 
@@ -32,7 +34,7 @@ See `Promise.result!/resultD` for other ways to handle this case.
 def Promise (α : Type) : Type := PromiseImpl α
 
 instance [s : Nonempty α] : Nonempty (Promise α) :=
-  Nonempty.intro { prom := Classical.choice PromisePointed.property, h := s }
+  by exact Nonempty.intro { prom := Classical.choice PromisePointed.property, h := s }
 
 /-- Creates a new `Promise`. -/
 @[extern "lean_io_promise_new"]

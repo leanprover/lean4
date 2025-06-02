@@ -3,6 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Meta
 import Init.Omega
@@ -23,7 +25,7 @@ namespace Range
 universe u v
 
 /-- The number of elements in the range. -/
-@[simp] def size (r : Range) : Nat := (r.stop - r.start + r.step - 1) / r.step
+@[simp, expose] def size (r : Range) : Nat := (r.stop - r.start + r.step - 1) / r.step
 
 @[inline] protected def forIn' [Monad m] (range : Range) (init : β)
     (f : (i : Nat) → i ∈ range → β → m (ForInStep β)) : m β :=

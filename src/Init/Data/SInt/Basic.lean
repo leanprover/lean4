@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
 import Init.Data.UInt.Basic
 
@@ -239,6 +241,17 @@ Examples:
 @[extern "lean_int8_div"]
 protected def Int8.div (a b : Int8) : Int8 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 /--
+The power operation, raising an 8-bit signed integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
+-/
+protected def Int8.pow (x : Int8) (n : Nat) : Int8 :=
+  match n with
+  | 0 => 1
+  | n + 1 => Int8.mul (Int8.pow x n) x
+/--
 The modulo operator for 8-bit signed integers, which computes the remainder when dividing one
 integer by another with the T-rounding convention used by `Int8.div`. Usually accessed via the `%`
 operator.
@@ -366,6 +379,7 @@ instance : Inhabited Int8 where
 instance : Add Int8         := ⟨Int8.add⟩
 instance : Sub Int8         := ⟨Int8.sub⟩
 instance : Mul Int8         := ⟨Int8.mul⟩
+instance : Pow Int8 Nat     := ⟨Int8.pow⟩
 instance : Mod Int8         := ⟨Int8.mod⟩
 instance : Div Int8         := ⟨Int8.div⟩
 instance : LT Int8          := ⟨Int8.lt⟩
@@ -415,8 +429,8 @@ Examples:
 def Int8.decLe (a b : Int8) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int8) : Decidable (a < b) := Int8.decLt a b
-instance (a b : Int8) : Decidable (a ≤ b) := Int8.decLe a b
+attribute [instance] Int8.decLt Int8.decLe
+
 instance : Max Int8 := maxOfLe
 instance : Min Int8 := minOfLe
 
@@ -598,6 +612,17 @@ Examples:
 @[extern "lean_int16_div"]
 protected def Int16.div (a b : Int16) : Int16 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 /--
+The power operation, raising a 16-bit signed integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
+-/
+protected def Int16.pow (x : Int16) (n : Nat) : Int16 :=
+  match n with
+  | 0 => 1
+  | n + 1 => Int16.mul (Int16.pow x n) x
+/--
 The modulo operator for 16-bit signed integers, which computes the remainder when dividing one
 integer by another with the T-rounding convention used by `Int16.div`. Usually accessed via the `%`
 operator.
@@ -725,6 +750,7 @@ instance : Inhabited Int16 where
 instance : Add Int16         := ⟨Int16.add⟩
 instance : Sub Int16         := ⟨Int16.sub⟩
 instance : Mul Int16         := ⟨Int16.mul⟩
+instance : Pow Int16 Nat     := ⟨Int16.pow⟩
 instance : Mod Int16         := ⟨Int16.mod⟩
 instance : Div Int16         := ⟨Int16.div⟩
 instance : LT Int16          := ⟨Int16.lt⟩
@@ -774,8 +800,8 @@ Examples:
 def Int16.decLe (a b : Int16) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int16) : Decidable (a < b) := Int16.decLt a b
-instance (a b : Int16) : Decidable (a ≤ b) := Int16.decLe a b
+attribute [instance] Int16.decLt Int16.decLe
+
 instance : Max Int16 := maxOfLe
 instance : Min Int16 := minOfLe
 
@@ -973,6 +999,17 @@ Examples:
 @[extern "lean_int32_div"]
 protected def Int32.div (a b : Int32) : Int32 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 /--
+The power operation, raising a 32-bit signed integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
+-/
+protected def Int32.pow (x : Int32) (n : Nat) : Int32 :=
+  match n with
+  | 0 => 1
+  | n + 1 => Int32.mul (Int32.pow x n) x
+/--
 The modulo operator for 32-bit signed integers, which computes the remainder when dividing one
 integer by another with the T-rounding convention used by `Int32.div`. Usually accessed via the `%`
 operator.
@@ -1100,6 +1137,7 @@ instance : Inhabited Int32 where
 instance : Add Int32         := ⟨Int32.add⟩
 instance : Sub Int32         := ⟨Int32.sub⟩
 instance : Mul Int32         := ⟨Int32.mul⟩
+instance : Pow Int32 Nat     := ⟨Int32.pow⟩
 instance : Mod Int32         := ⟨Int32.mod⟩
 instance : Div Int32         := ⟨Int32.div⟩
 instance : LT Int32          := ⟨Int32.lt⟩
@@ -1149,8 +1187,8 @@ Examples:
 def Int32.decLe (a b : Int32) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int32) : Decidable (a < b) := Int32.decLt a b
-instance (a b : Int32) : Decidable (a ≤ b) := Int32.decLe a b
+attribute [instance] Int32.decLt Int32.decLe
+
 instance : Max Int32 := maxOfLe
 instance : Min Int32 := minOfLe
 
@@ -1368,6 +1406,17 @@ Examples:
 @[extern "lean_int64_div"]
 protected def Int64.div (a b : Int64) : Int64 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 /--
+The power operation, raising a 64-bit signed integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
+-/
+protected def Int64.pow (x : Int64) (n : Nat) : Int64 :=
+  match n with
+  | 0 => 1
+  | n + 1 => Int64.mul (Int64.pow x n) x
+/--
 The modulo operator for 64-bit signed integers, which computes the remainder when dividing one
 integer by another with the T-rounding convention used by `Int64.div`. Usually accessed via the `%`
 operator.
@@ -1495,6 +1544,7 @@ instance : Inhabited Int64 where
 instance : Add Int64         := ⟨Int64.add⟩
 instance : Sub Int64         := ⟨Int64.sub⟩
 instance : Mul Int64         := ⟨Int64.mul⟩
+instance : Pow Int64 Nat     := ⟨Int64.pow⟩
 instance : Mod Int64         := ⟨Int64.mod⟩
 instance : Div Int64         := ⟨Int64.div⟩
 instance : LT Int64          := ⟨Int64.lt⟩
@@ -1543,8 +1593,8 @@ Examples:
 def Int64.decLe (a b : Int64) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int64) : Decidable (a < b) := Int64.decLt a b
-instance (a b : Int64) : Decidable (a ≤ b) := Int64.decLe a b
+attribute [instance] Int64.decLt Int64.decLe
+
 instance : Max Int64 := maxOfLe
 instance : Min Int64 := minOfLe
 
@@ -1746,6 +1796,17 @@ Examples:
 @[extern "lean_isize_div"]
 protected def ISize.div (a b : ISize) : ISize := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 /--
+The power operation, raising a word-sized signed integer to a natural number power,
+wrapping around on overflow. Usually accessed via the `^` operator.
+
+This function is currently *not* overridden at runtime with an efficient implementation,
+and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
+-/
+protected def ISize.pow (x : ISize) (n : Nat) : ISize :=
+  match n with
+  | 0 => 1
+  | n + 1 => ISize.mul (ISize.pow x n) x
+/--
 The modulo operator for word-sized signed integers, which computes the remainder when dividing one
 integer by another with the T-rounding convention used by `ISize.div`. Usually accessed via the `%`
 operator.
@@ -1875,6 +1936,7 @@ instance : Inhabited ISize where
 instance : Add ISize         := ⟨ISize.add⟩
 instance : Sub ISize         := ⟨ISize.sub⟩
 instance : Mul ISize         := ⟨ISize.mul⟩
+instance : Pow ISize Nat     := ⟨ISize.pow⟩
 instance : Mod ISize         := ⟨ISize.mod⟩
 instance : Div ISize         := ⟨ISize.div⟩
 instance : LT ISize          := ⟨ISize.lt⟩
@@ -1924,7 +1986,7 @@ Examples:
 def ISize.decLe (a b : ISize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : ISize) : Decidable (a < b) := ISize.decLt a b
-instance (a b : ISize) : Decidable (a ≤ b) := ISize.decLe a b
+attribute [instance] ISize.decLt ISize.decLe
+
 instance : Max ISize := maxOfLe
 instance : Min ISize := minOfLe

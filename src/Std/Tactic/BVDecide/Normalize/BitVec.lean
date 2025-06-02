@@ -58,7 +58,7 @@ attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 
 @[bv_normalize]
 theorem BitVec.ofNatLT_reduce (n : Nat) (h) : BitVec.ofNatLT n h = BitVec.ofNat w n := by
-  simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat', Nat.mod_eq_of_lt h]
+  simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat, Nat.mod_eq_of_lt h]
 
 @[bv_normalize]
 theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := by
@@ -166,15 +166,18 @@ end Constant
 attribute [bv_normalize] BitVec.zero_and
 attribute [bv_normalize] BitVec.and_zero
 
+attribute [bv_normalize] BitVec.intMax
+attribute [bv_normalize] BitVec.intMin
+
 -- Used in simproc because of - normalization
 theorem BitVec.ones_and (a : BitVec w) : (-1#w) &&& a = a := by
   ext
-  simp [BitVec.negOne_eq_allOnes]
+  simp [BitVec.neg_one_eq_allOnes]
 
 -- Used in simproc because of - normalization
 theorem BitVec.and_ones (a : BitVec w) : a &&& (-1#w) = a := by
   ext
-  simp [BitVec.negOne_eq_allOnes]
+  simp [BitVec.neg_one_eq_allOnes]
 
 -- Normalize (1#w + ~~~x) to (~~~x + 1#w) to limit the number of symmetries we need for theorems
 -- related to negative BitVecs.
@@ -182,45 +185,37 @@ theorem BitVec.and_ones (a : BitVec w) : a &&& (-1#w) = a := by
 theorem BitVec.one_plus_not_eq_not_plus_one (x : BitVec w) : (1#w + ~~~x) = (~~~x + 1#w) := by
   rw [BitVec.add_comm]
 
-attribute [bv_normalize] BitVec.and_self
-
-@[bv_normalize]
 theorem BitVec.and_contra (a : BitVec w) : a &&& ~~~a = 0#w := by
   ext i h
   simp [h]
 
-@[bv_normalize]
 theorem BitVec.and_contra' (a : BitVec w) : ~~~a &&& a = 0#w := by
   ext i h
   simp [h]
 
-@[bv_normalize]
 theorem BitVec.add_not (a : BitVec w) : a + ~~~a = (-1#w) := by
   ext
-  simp [BitVec.negOne_eq_allOnes]
+  simp [BitVec.neg_one_eq_allOnes]
 
-@[bv_normalize]
 theorem BitVec.not_add (a : BitVec w) : ~~~a + a = (-1#w) := by
   rw [BitVec.add_comm]
   rw [BitVec.add_not]
 
-@[bv_normalize]
 theorem BitVec.add_neg (a : BitVec w) : a + (~~~a + 1#w) = 0#w := by
   rw [← BitVec.neg_eq_not_add]
-  rw [← BitVec.sub_toAdd]
+  rw [← BitVec.sub_eq_add_neg]
   rw [BitVec.sub_self]
 
-@[bv_normalize]
 theorem BitVec.neg_add (a : BitVec w) : (~~~a + 1#w) + a = 0#w := by
   rw [← BitVec.neg_eq_not_add]
   rw [BitVec.add_comm]
-  rw [← BitVec.sub_toAdd]
+  rw [← BitVec.sub_eq_add_neg]
   rw [BitVec.sub_self]
 
 @[bv_normalize]
 theorem BitVec.not_neg (x : BitVec w) : ~~~(~~~x + 1#w) = x + -1#w := by
   rw [← BitVec.neg_eq_not_add x]
-  rw [_root_.BitVec.not_neg, _root_.BitVec.sub_toAdd]
+  rw [_root_.BitVec.not_neg, BitVec.sub_eq_add_neg]
 
 @[bv_normalize]
 theorem BitVec.not_neg' (x : BitVec w) : ~~~(x + 1#w) = ~~~x + -1#w := by
@@ -233,7 +228,6 @@ theorem BitVec.not_neg'' (x : BitVec w) : ~~~(1#w + x) = ~~~x + -1#w := by
   rw [BitVec.add_comm 1#w x]
   rw [BitVec.not_neg']
 
-@[bv_normalize]
 theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
   rw [BitVec.mul_two]
 
@@ -299,7 +293,6 @@ theorem BitVec.ushiftRight_zero' (n : BitVec w) : n >>> 0#w' = n := by
   simp only [(· >>> ·)]
   simp
 
-@[bv_normalize]
 theorem BitVec.ushiftRight_self (n : BitVec w) : n >>> n = 0#w := by
   simp
 
@@ -331,12 +324,12 @@ theorem BitVec.lt_one_iff (a : BitVec n) (h : 0 < n) : (BitVec.ult a 1#n) = (a =
 
 -- used in simproc because of -1#w normalisation
 theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
-  rw [BitVec.negOne_eq_allOnes, ← Bool.not_eq_true, ← @lt_ult]
+  rw [BitVec.neg_one_eq_allOnes, ← Bool.not_eq_true, ← @lt_ult]
   exact BitVec.not_allOnes_lt
 
 theorem BitVec.ult_max' (a : BitVec w) : (BitVec.ult a (-1#w)) = (!(a == -1#w)) := by
   have := BitVec.lt_allOnes_iff (x := a)
-  rw [lt_ult, ← BitVec.negOne_eq_allOnes] at this
+  rw [lt_ult, ← BitVec.neg_one_eq_allOnes] at this
   by_cases (a.ult (-1#w)) <;> simp_all
 
 attribute [bv_normalize] BitVec.replicate_zero_eq
@@ -355,8 +348,15 @@ attribute [bv_normalize] BitVec.umod_eq_and
 attribute [bv_normalize] BitVec.saddOverflow_eq
 attribute [bv_normalize] BitVec.uaddOverflow_eq
 attribute [bv_normalize] BitVec.negOverflow_eq
+attribute [bv_normalize] BitVec.umulOverflow_eq
+attribute [bv_normalize] BitVec.smulOverflow_eq
 attribute [bv_normalize] BitVec.usubOverflow_eq
 attribute [bv_normalize] BitVec.ssubOverflow_eq
+attribute [bv_normalize] BitVec.sdivOverflow_eq
+
+
+attribute [bv_normalize] BitVec.append_zero_add_zero_append
+attribute [bv_normalize] BitVec.zero_append_add_append_zero
 
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :
@@ -371,8 +371,6 @@ attribute [bv_normalize] BitVec.extractLsb'_xor
 theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
-
-attribute [bv_normalize] BitVec.extractLsb'_eq_self
 
 -- Used in simproc because of - normalization
 theorem BitVec.ones_mul (a : BitVec w) : -1#w * a = -a := by
@@ -450,26 +448,22 @@ theorem BitVec.append_const_right {a : BitVec w1} :
 theorem BitVec.signExtend_elim {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
     BitVec.signExtend w x = ((bif x.msb then -1#(w - v) else 0#(w - v)) ++ x).cast (by omega) := by
   rw [BitVec.signExtend_eq_append_of_le]
-  simp [BitVec.negOne_eq_allOnes, cond_eq_if]
+  simp [BitVec.neg_one_eq_allOnes, cond_eq_if]
   assumption
 
 theorem BitVec.signExtend_elim' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :
     BitVec.signExtend w x = BitVec.extractLsb' 0 w x := by
   rw [BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.setWidth_eq_extractLsb' h]
 
-@[bv_normalize]
 theorem BitVec.add_neg_mul {x y : BitVec w} : ~~~(x + x * y) + 1#w = x * ~~~y := by
   rw [← BitVec.neg_eq_not_add, BitVec.neg_add_mul_eq_mul_not]
 
-@[bv_normalize]
 theorem BitVec.add_neg_mul' {x y : BitVec w} : ~~~(x + y * x) + 1#w = ~~~y * x := by
   rw [BitVec.mul_comm y x, BitVec.mul_comm (~~~y) x, BitVec.add_neg_mul]
 
-@[bv_normalize]
 theorem BitVec.add_neg_mul'' {x y : BitVec w} : ~~~(x * y + x) + 1#w = x * ~~~y := by
   rw [BitVec.add_comm (x * y) x, BitVec.add_neg_mul]
 
-@[bv_normalize]
 theorem BitVec.add_neg_mul''' {x y : BitVec w} : ~~~(y * x + x) + 1#w = ~~~y * x := by
   rw [BitVec.mul_comm y x, BitVec.mul_comm (~~~y) x,BitVec.add_neg_mul'']
 
@@ -483,13 +477,13 @@ theorem BitVec.norm_bv_add_mul' {x y : BitVec w} : ~~~(~~~y * x) + 1#w = x + (y 
 
 theorem BitVec.mul_beq_mul_short_circuit_left {x₁ x₂ y : BitVec w} :
     (x₁ * y == x₂ * y) = !(!x₁ == x₂ && !x₁ * y == x₂ * y) := by
-  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  simp only [Bool.not_and, Bool.not_not, Bool.eq_or_self, beq_iff_eq]
   intros
   congr
 
 theorem BitVec.mul_beq_mul_short_circuit_right {x y₁ y₂ : BitVec w} :
     (x * y₁ == x * y₂) = !(!y₁ == y₂ && !x * y₁ == x * y₂) := by
-  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  simp only [Bool.not_and, Bool.not_not, Bool.eq_or_self, beq_iff_eq]
   intros
   congr
 

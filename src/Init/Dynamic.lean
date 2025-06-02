@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
 import Init.Core
 
@@ -65,7 +67,7 @@ value from `Dynamic` if it has some expected type.
 -/
 def Dynamic : Type := DynamicPointed.type
 
-instance : Nonempty Dynamic := DynamicPointed.property
+instance : Nonempty Dynamic := by exact DynamicPointed.property
 
 private unsafe def Dynamic.typeNameImpl (any : Dynamic) : Name :=
   (unsafeCast any : Name × NonScalar).1

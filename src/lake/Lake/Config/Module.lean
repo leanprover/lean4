@@ -44,7 +44,13 @@ Locate the named, buildable module in the library
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
   if self.isBuildableModule mod then some {lib := self, name := mod} else none
 
-/--  Locate the named, buildable, importable, local module in the package.  -/
+/-- Returns the buildable module in the library whose source file is `path`.  -/
+def LeanLib.findModuleBySrc? (path : FilePath) (self : LeanLib) : Option Module := do
+  let modPath ← path.toString.dropPrefix? self.srcDir.toString
+  let modPath := (modPath.drop 1).toString -- remove leading `/`
+  self.findModule? (modOfFilePath modPath)
+
+/-- Locate the named, buildable, importable, local module in the package.  -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=
   self.leanLibs.findSomeRev? (·.findModule? mod)
 
@@ -75,6 +81,12 @@ abbrev pkg (self : Module) : Package :=
 
 @[inline] def leanFile (self : Module) : FilePath :=
   self.srcPath "lean"
+
+@[inline] def relLeanFile (self : Module) : FilePath :=
+  if let some relPath := self.leanFile.toString.dropPrefix? self.pkg.dir.toString then
+    FilePath.mk (relPath.drop 1).toString -- remove leading `/`
+  else
+    self.leanFile
 
 @[inline] def leanLibPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.leanLibDir ext
@@ -156,6 +168,9 @@ def dynlibSuffix := "-1"
 
 @[inline] def weakLinkArgs (self : Module) : Array String :=
   self.lib.weakLinkArgs
+
+@[inline] def leanIncludeDir? (self : Module) : Option FilePath :=
+  if self.pkg.bootstrap then some <| self.pkg.buildDir / "include" else none
 
 @[inline] def platformIndependent (self : Module) : Option Bool :=
   self.lib.platformIndependent

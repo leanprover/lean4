@@ -8,6 +8,8 @@ import Lean.PrettyPrinter.Delaborator.Attributes
 import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+import Lean.Parser.Do
+import Lean.Parser.Command
 import Lean.Meta.CoeAttr
 import Lean.Meta.Structure
 
@@ -20,10 +22,10 @@ open TSyntax.Compat
 /--
 If `cond` is true, wraps the syntax produced by `d` in a type ascription.
 -/
-def withTypeAscription (d : Delab) (cond : Bool := true) : DelabM Term := do
+def withTypeAscription (d : Delab) (cond : Bool := true) : Delab := do
   let stx ← d
   if cond then
-    let stx ← annotateCurPos stx
+    let stx ← annotateTermInfoUnlessAnnotated stx
     let typeStx ← withType delab
     `(($stx : $typeStx))
   else
@@ -123,6 +125,18 @@ def delabConst : Delab := do
     annotateTermInfo stx
   else
     return stx
+
+/--
+If `pp.tagAppFns` is set, and if the current expression is a constant application,
+then `d` is evaluated with the head constant delaborated with `delabConst` as the ref.
+-/
+def withFnRefWhenTagAppFns (d : Delab) : Delab := do
+  if (← getExpr).getAppFn.isConst && (← getPPOption getPPTagAppFns) then
+    -- delabConst in `pp.tagAppFns` mode annotates the term.
+    let head ← withNaryFn delabConst
+    withRef head <| d
+  else
+    d
 
 def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
   match ← getExpr with
@@ -354,7 +368,9 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
   let (fnStx, args) ←
     withBoundedAppFnArgs numArgs
       (do return ((← delabHead), Array.mkEmpty numArgs))
-      (fun (fnStx, args) => return (fnStx, args.push (← mkArg paramKinds[args.size]!)))
+      (fun (fnStx, args) =>
+        let isFieldIdx := (some args.size = field?.map Prod.fst)
+        return (fnStx, args.push (← mkArg isFieldIdx paramKinds[args.size]!)))
 
   -- Strip off optional arguments.
   let args := args.popWhile (· matches .optional ..)
@@ -396,7 +412,7 @@ where
   Delaborates the current argument.
   The argument `remainingArgs` is the number of arguments in the application after this one.
   -/
-  mkArg (param : ParamKind) : DelabM AppImplicitArg := do
+  mkArg (isFieldIdx : Bool) (param : ParamKind) : DelabM AppImplicitArg := do
     let arg ← getExpr
     if ← getPPOption getPPAnalysisSkip then return .skip
     else if ← getPPOption getPPAnalysisHole then return .regular (← `(_))
@@ -406,7 +422,7 @@ where
       -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument, if it is the last one.
       -- We will later remove all optional arguments from the end.
       return .optional param.name (← delab)
-    else if param.bInfo.isExplicit then
+    else if isFieldIdx || param.bInfo.isExplicit then
       return .regular (← delab)
     else if ← pure (param.name == `motive) <&&> shouldShowMotive arg (← getOptions) then
       mkNamedArg param.name
@@ -637,7 +653,7 @@ def delabStructureInstance : Delab := do
         else
           return (i + 1, args))
     withTypeAscription (cond := (← withType <| getPPOption getPPStructureInstanceType)) do
-      `(⟨$[$args],*⟩)
+      withFnRefWhenTagAppFns `(⟨$[$args],*⟩)
   else
     /-
     Otherwise, we use structure instance notation.
@@ -650,7 +666,7 @@ def delabStructureInstance : Delab := do
     let (_, fields) ← collectStructFields s.induct levels params #[] {} s
     let tyStx? : Option Term ← withType do
       if ← getPPOption getPPStructureInstanceType then delab else pure none
-    `({ $fields,* $[: $tyStx?]? })
+    withFnRefWhenTagAppFns `({ $fields,* $[: $tyStx?]? })
 
 
 /-- State for `delabAppMatch` and helpers. -/
@@ -830,7 +846,7 @@ where
       x
 
 /--
-Delaborates applications of the form `letFun v (fun x => b)` as `let_fun x := v; b`.
+Delaborates applications of the form `letFun v (fun x => b)` as `have x := v; b`.
 -/
 @[builtin_delab app.letFun]
 def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
@@ -842,9 +858,9 @@ def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
   let (stxN, stxB) ← withAppArg <| withBindingBody' n (mkAnnotatedIdent n) fun stxN => return (stxN, ← delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← SubExpr.withNaryArg 0 delab
-    `(let_fun $stxN : $stxT := $stxV; $stxB)
+    `(have $stxN : $stxT := $stxV; $stxB)
   else
-    `(let_fun $stxN := $stxV; $stxB)
+    `(have $stxN := $stxV; $stxB)
 
 @[builtin_delab mdata]
 def delabMData : Delab := do
@@ -964,9 +980,15 @@ Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
 
 See issue #1571
 -/
-private partial def delabForallBinders (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
+private partial def delabForallBinders (prop : Bool) (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
   -- Logic note: wanting to print with binder names is equivalent to pretending the forall is dependent.
-  let dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
+  let mut dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
+  if !dep && prop && (← getExpr).binderInfo.isExplicit then
+    -- RFC #1834: If `∀` notation is enabled, avoid using `→` for propositions if the domain is not a proposition.
+    -- We can pretend the type is dependent in this case.
+    if (← getPPOption getPPForalls) then
+      let domProp ← try isProp (← getExpr).bindingDomain! catch _ => pure false
+      dep := !domProp
   if !curNames.isEmpty && dep != curDep then
     -- don't group
     delabGroup curNames curDep (← delab)
@@ -975,7 +997,7 @@ private partial def delabForallBinders (delabGroup : Array Syntax → Bool → S
     let curDep := dep
     if ← shouldGroupWithNext then
       -- group with nested binder => recurse immediately
-      withBindingBodyUnusedName (preserveName := preserve) fun stxN => delabForallBinders delabGroup (curNames.push stxN) curDep
+      withBindingBodyUnusedName (preserveName := preserve) fun stxN => delabForallBinders prop delabGroup (curNames.push stxN) curDep
     else
       -- don't group => delab body and prepend current binder group
       let (stx, stxN) ← withBindingBodyUnusedName (preserveName := preserve) fun stxN => return (← delab, stxN)
@@ -983,25 +1005,30 @@ private partial def delabForallBinders (delabGroup : Array Syntax → Bool → S
 
 @[builtin_delab forallE]
 def delabForall : Delab := do
-  delabForallBinders fun curNames dependent stxBody => do
+  let prop ← try isProp (← getExpr) catch _ => pure false
+  delabForallBinders prop fun curNames dependent stxBody => do
     let e ← getExpr
-    let prop ← try isProp e catch _ => pure false
     let stxT ← withBindingDomain delab
     let group ← match e.binderInfo with
     | BinderInfo.implicit       => `(bracketedBinderF|{$curNames* : $stxT})
     | BinderInfo.strictImplicit => `(bracketedBinderF|⦃$curNames* : $stxT⦄)
-    -- here `curNames.size == 1`
-    | BinderInfo.instImplicit   => `(bracketedBinderF|[$curNames.back! : $stxT])
+    | BinderInfo.instImplicit   =>
+      -- here `curNames.size == 1`
+      if dependent || !e.bindingName!.hasMacroScopes then
+        `(bracketedBinderF|[$curNames.back! : $stxT])
+      else
+        -- omit the binder name if it's not used and not accessible
+        `(bracketedBinderF|[$stxT])
     | _                         =>
       -- NOTE: non-dependent arrows are available only for the default binder info
       if dependent then
-        if prop && !(← getPPOption getPPPiBinderTypes) then
+        if prop && !(← getPPOption getPPPiBinderTypes) && (← getPPOption getPPForalls) then
           return ← `(∀ $curNames:ident*, $stxBody)
         else
           `(bracketedBinderF|($curNames* : $stxT))
       else
         return ← curNames.foldrM (fun _ stxBody => `($stxT → $stxBody)) stxBody
-    if prop then
+    if prop && (← getPPOption getPPForalls) then
       match stxBody with
       | `(∀ $groups*, $stxBody) => `(∀ $group $groups*, $stxBody)
       | _                       => `(∀ $group, $stxBody)
@@ -1033,7 +1060,7 @@ def delabLit : Delab := do
   let Expr.lit l ← getExpr | unreachable!
   match l with
   | Literal.natVal n =>
-    if ← getPPOption getPPNatLit then
+    if (← getPPOption getPPNatLit) || (← getPPOption getPPExplicit) then
       `(nat_lit $(quote n))
     else
       return quote n

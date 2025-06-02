@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.InsertIdx
@@ -42,6 +44,7 @@ theorem insertIdx_zero {xs : Array α} {x : α} : xs.insertIdx 0 x = #[x] ++ xs 
 
 @[simp] theorem size_insertIdx {xs : Array α} (h : i ≤ xs.size) : (xs.insertIdx i a).size = xs.size + 1 := by
   rcases xs with ⟨xs⟩
+  simp at h
   simp [List.length_insertIdx, h]
 
 theorem eraseIdx_insertIdx {i : Nat} {xs : Array α} (h : i ≤ xs.size) :

@@ -3,6 +3,8 @@ Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.List.Zip
 import Init.Data.List.Sublist
@@ -25,7 +27,7 @@ open Nat
 
 /-! ### take -/
 
-@[simp] theorem length_take : ∀ {i : Nat} {l : List α}, (take i l).length = min i l.length
+@[simp, grind =] theorem length_take : ∀ {i : Nat} {l : List α}, (take i l).length = min i l.length
   | 0, l => by simp [Nat.zero_min]
   | succ n, [] => by simp [Nat.min_zero]
   | succ n, _ :: l => by simp [Nat.succ_min_succ, length_take]
@@ -45,7 +47,7 @@ theorem getElem_take' {xs : List α} {i j : Nat} (hi : i < xs.length) (hj : i < 
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
-@[simp] theorem getElem_take {xs : List α} {j i : Nat} {h : i < (xs.take j).length} :
+@[simp, grind =] theorem getElem_take {xs : List α} {j i : Nat} {h : i < (xs.take j).length} :
     (xs.take j)[i] =
     xs[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
   rw [length_take, Nat.lt_min] at h; rw [getElem_take' (xs := xs) _ h.1]
@@ -54,7 +56,7 @@ theorem getElem?_take_eq_none {l : List α} {i j : Nat} (h : i ≤ j) :
     (l.take i)[j]? = none :=
   getElem?_eq_none <| Nat.le_trans (length_take_le _ _) h
 
-theorem getElem?_take {l : List α} {i j : Nat} :
+@[grind =] theorem getElem?_take {l : List α} {i j : Nat} :
     (l.take i)[j]? = if j < i then l[j]? else none := by
   split
   · next h => exact getElem?_take_of_lt h
@@ -182,8 +184,6 @@ theorem dropLast_take {i : Nat} {l : List α} (h : i < l.length) :
     (l.take i).dropLast = l.take (i - 1) := by
   simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
 
-@[deprecated map_eq_append_iff (since := "2024-09-05")] abbrev map_eq_append_split := @map_eq_append_iff
-
 theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     l.take i = l.dropLast := by
   induction l generalizing i with
@@ -199,7 +199,7 @@ theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
         simpa using h
 
 theorem take_prefix_take_left {l : List α} {i j : Nat} (h : i ≤ j) : take i l <+: take j l := by
-  rw [isPrefix_iff]
+  rw [prefix_iff_getElem?]
   intro i w
   rw [getElem?_take_of_lt, getElem_take, getElem?_eq_getElem]
   simp only [length_take] at w
@@ -230,7 +230,7 @@ theorem getElem_drop' {xs : List α} {i j : Nat} (h : i + j < xs.length) :
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the small list to the big list. -/
-@[simp] theorem getElem_drop {xs : List α} {i : Nat} {j : Nat} {h : j < (xs.drop i).length} :
+@[simp, grind =] theorem getElem_drop {xs : List α} {i : Nat} {j : Nat} {h : j < (xs.drop i).length} :
     (xs.drop i)[j] = xs[i + j]'(by
       rw [Nat.add_comm]
       exact Nat.add_lt_of_lt_sub (length_drop ▸ h)) := by
@@ -239,7 +239,7 @@ dropping the first `i` elements. Version designed to rewrite from the small list
 @[simp]
 theorem getElem?_drop {xs : List α} {i j : Nat} : (xs.drop i)[j]? = xs[i + j]? := by
   ext
-  simp only [getElem?_eq_some_iff, getElem_drop, Option.mem_def]
+  simp only [getElem?_eq_some_iff, getElem_drop]
   constructor <;> intro ⟨h, ha⟩
   · exact ⟨_, ha⟩
   · refine ⟨?_, ha⟩
@@ -363,8 +363,6 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
   | _, _, [] => by simp
   | i+1, j+1, h :: t => by
     simp [take_succ_cons, drop_succ_cons, drop_take]
-    congr 1
-    omega
 
 @[simp] theorem drop_take_self : drop i (take i l) = [] := by
   rw [drop_take]
@@ -532,7 +530,7 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
   | zero => simp
   | succ n =>
     suffices 1 < m → m - (m - (n + 1) % m) + min (m - (n + 1) % m) m = m by
-      simpa [rotateRight]
+      simp [rotateRight]
     intro h
     have : (n + 1) % m < m := Nat.mod_lt _ (by omega)
     rw [Nat.min_eq_left (by omega)]

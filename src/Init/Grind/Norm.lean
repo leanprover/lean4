@@ -3,6 +3,8 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.SimpLemmas
 import Init.PropLemmas
@@ -28,6 +30,11 @@ theorem not_eq_prop (p q : Prop) : (¬(p = q)) = (p = ¬q) := by
 -- Implication as a clause
 theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
   by_cases p <;> by_cases q <;> simp [*]
+
+-- Unless `+splitImp` is used, `grind` will not be able to do much with this kind of implication.
+-- Thus, this normalization step is enabled by default.
+theorem forall_imp_eq_or {α} (p : α → Prop) (q : Prop) : ((∀ a, p a) → q) = ((∃ a, ¬ p a) ∨ q) := by
+  rw [imp_eq]; simp
 
 theorem true_imp_eq (p : Prop) : (True → p) = p := by simp
 theorem false_imp_eq (p : Prop) : (False → p) = True := by simp
@@ -71,17 +78,51 @@ theorem beq_eq_decide_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α)
 theorem bne_eq_decide_not_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a != b) = (decide (¬ a = b)) := by
   by_cases a = b <;> simp [*]
 
-theorem natCast_div (a b : Nat) : (↑(a / b) : Int) = ↑a / ↑b := by
+theorem xor_eq (a b : Bool) : (a ^^ b) = (a != b) := by
   rfl
 
-theorem natCast_mod (a b : Nat) : (↑(a % b) : Int) = ↑a % ↑b := by
-  rfl
+theorem natCast_eq [NatCast α] (a : Nat) : (Nat.cast a : α) = (NatCast.natCast a : α) := rfl
+theorem natCast_div (a b : Nat) : (NatCast.natCast (a / b) : Int) = (NatCast.natCast a) / (NatCast.natCast b) := rfl
+theorem natCast_mod (a b : Nat) : (NatCast.natCast (a % b) : Int) = (NatCast.natCast a) % (NatCast.natCast b) := rfl
+theorem natCast_add (a b : Nat) : (NatCast.natCast (a + b : Nat) : Int) = (NatCast.natCast a : Int) + (NatCast.natCast b : Int) := rfl
+theorem natCast_mul (a b : Nat) : (NatCast.natCast (a * b : Nat) : Int) = (NatCast.natCast a : Int) * (NatCast.natCast b : Int) := rfl
 
 theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
   simp
 
 theorem Int.pow_one (a : Int) : a ^ 1 = a := by
   simp [Int.pow_succ]
+
+theorem forall_true (p : True → Prop) : (∀ h : True, p h) = p True.intro :=
+  propext <| Iff.intro (fun h => h True.intro) (fun h _ => h)
+
+-- Helper theorem used by the simproc `simpBoolEq`
+theorem flip_bool_eq (a b : Bool) : (a = b) = (b = a) := by
+  rw [@Eq.comm _ a b]
+
+-- Helper theorem used by the simproc `simpBoolEq`
+theorem bool_eq_to_prop (a b : Bool) : (a = b) = ((a = true) = (b = true)) := by
+  simp
+
+theorem forall_or_forall {α : Sort u} {β : α → Sort v} (p : α → Prop) (q : (a : α) → β a → Prop)
+    : (∀ a : α, p a ∨ ∀ b : β a, q a b) =
+      (∀ (a : α) (b : β a), p a ∨ q a b) := by
+  apply propext; constructor
+  · intro h a b; cases h a <;> simp [*]
+  · intro h a
+    apply Classical.byContradiction
+    intro h'; simp at h'; have ⟨h₁, b, h₂⟩ := h'
+    replace h := h a b; simp [h₁, h₂] at h
+
+theorem forall_forall_or {α : Sort u} {β : α → Sort v} (p : α → Prop) (q : (a : α) → β a → Prop)
+    : (∀ a : α, (∀ b : β a, q a b) ∨ p a) =
+      (∀ (a : α) (b : β a), q a b ∨ p a) := by
+  apply propext; constructor
+  · intro h a b; cases h a <;> simp [*]
+  · intro h a
+    apply Classical.byContradiction
+    intro h'; simp at h'; have ⟨⟨b, h₁⟩, h₂⟩ := h'
+    replace h := h a b; simp [h₁, h₂] at h
 
 init_grind_norm
   /- Pre theorems -/
@@ -92,6 +133,7 @@ init_grind_norm
   /- Post theorems -/
   Classical.not_not
   ne_eq iff_eq eq_self heq_eq_eq
+  forall_or_forall forall_forall_or
   -- Prop equality
   eq_true_eq eq_false_eq not_eq_prop
   -- True
@@ -108,7 +150,8 @@ init_grind_norm
   ite_true ite_false ite_true_false ite_false_true
   dite_eq_ite
   -- Forall
-  forall_and
+  forall_and forall_false forall_true
+  forall_imp_eq_or
   -- Exists
   exists_const exists_or exists_prop exists_and_left exists_and_right
   -- Bool cond
@@ -119,6 +162,8 @@ init_grind_norm
   Bool.and_false Bool.and_true Bool.false_and Bool.true_and Bool.and_eq_true Bool.and_assoc
   -- Bool not
   Bool.not_not
+  -- Bool xor
+  xor_eq
   -- beq
   beq_iff_eq beq_eq_decide_eq beq_self_eq_true
   -- bne
@@ -131,14 +176,16 @@ init_grind_norm
   Nat.le_zero_eq Nat.lt_eq Nat.succ_eq_add_one
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
-  Nat.sub_sub Nat.pow_zero Nat.pow_one
+  Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
-  Int.natCast_add Int.natCast_mul Int.natCast_pow
-  Int.natCast_zero natCast_div natCast_mod
+
+  natCast_eq natCast_div natCast_mod
+  natCast_add natCast_mul
+
   Int.pow_zero Int.pow_one
   -- GT GE
   ge_eq gt_eq
@@ -147,5 +194,8 @@ init_grind_norm
   Int.Linear.sub_fold Int.Linear.neg_fold
   -- Int divides
   Int.one_dvd Int.zero_dvd
+  -- Function composition
+  Function.const_apply Function.comp_apply Function.const_comp
+  Function.comp_const Function.true_comp Function.false_comp
 
 end Lean.Grind

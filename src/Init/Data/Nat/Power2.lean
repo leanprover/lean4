@@ -3,6 +3,8 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Nat.Linear
 
@@ -43,11 +45,14 @@ theorem isPowerOfTwo_one : isPowerOfTwo 1 :=
   ⟨0, by decide⟩
 
 @[deprecated isPowerOfTwo_one (since := "2025-03-18")]
-abbrev one_isPowerOfTwo := @isPowerOfTwo_one
+abbrev one_isPowerOfTwo := isPowerOfTwo_one
 
-theorem mul2_isPowerOfTwo_of_isPowerOfTwo (h : isPowerOfTwo n) : isPowerOfTwo (n * 2) :=
+theorem isPowerOfTwo_mul_two_of_isPowerOfTwo (h : isPowerOfTwo n) : isPowerOfTwo (n * 2) :=
   have ⟨k, h⟩ := h
   ⟨k+1, by simp [h, Nat.pow_succ]⟩
+
+@[deprecated isPowerOfTwo_mul_two_of_isPowerOfTwo (since := "2025-04-04")]
+abbrev mul2_isPowerOfTwo_of_isPowerOfTwo := @isPowerOfTwo_mul_two_of_isPowerOfTwo
 
 theorem pos_of_isPowerOfTwo (h : isPowerOfTwo n) : n > 0 := by
   have ⟨k, h⟩ := h
@@ -62,7 +67,7 @@ where
   isPowerOfTwo_go (power : Nat) (h₁ : power > 0) (h₂ : power.isPowerOfTwo) : (nextPowerOfTwo.go n power h₁).isPowerOfTwo := by
     unfold nextPowerOfTwo.go
     split
-    . exact isPowerOfTwo_go (power*2) (Nat.mul_pos h₁ (by decide)) (Nat.mul2_isPowerOfTwo_of_isPowerOfTwo h₂)
+    . exact isPowerOfTwo_go (power*2) (Nat.mul_pos h₁ (by decide)) (Nat.isPowerOfTwo_mul_two_of_isPowerOfTwo h₂)
     . assumption
   termination_by n - power
   decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption

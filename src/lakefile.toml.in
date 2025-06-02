@@ -6,8 +6,9 @@
 # them, please consult the instructions in doc/dev/index.md.
 
 name = "lean4"
+bootstrap = true
 
-defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain"]
+defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "Leanc"]
 
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"
@@ -23,11 +24,6 @@ leanLibDir = "lib/lean"
 
 # Destination for static libraries
 nativeLibDir = "lib/lean"
-
-# Toolchain CLI options derived from the CMake configuration
-moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
-moreLeancArgs = [${LEANC_OPTS_TOML}]
-moreLinkArgs = [${LINK_OPTS_TOML}]
 
 [[lean_lib]]
 name = "Init"
@@ -69,3 +65,9 @@ name = "LakeMain"
 srcDir = "lake"
 libName = "${LAKE_LIB_PREFIX}LakeMain"
 defaultFacets = ["static.export"]
+
+[[lean_lib]]
+name = "Leanc"
+srcDir = "${CMAKE_BINARY_DIR}/leanc"
+libName = "${LAKE_LIB_PREFIX}Leanc"
+defaultFacets = ["static"]

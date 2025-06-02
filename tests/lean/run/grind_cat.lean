@@ -1,3 +1,5 @@
+set_option grind.warning false
+
 universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
 namespace CategoryTheory
@@ -67,6 +69,11 @@ structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Fu
   /-- The naturality square for a given morphism. -/
   naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by grind
 
+-- In the following examples `[grind ext] NatTrans.ext` is more effective than
+-- `[grind ext] NatTrans` which only applies eta-extension because it will allows
+-- chaining with function extensionality
+attribute [grind ext] NatTrans.ext
+
 attribute [simp, grind =] NatTrans.naturality
 
 namespace NatTrans
@@ -102,6 +109,8 @@ namespace NatTrans
 
 @[ext]
 theorem ext' {α β : F ⟶ G} (w : α.app = β.app) : α = β := NatTrans.ext w
+
+attribute [grind ext] ext'
 
 @[simp, grind =]
 theorem id_app (F : Functor C D) (X : C) : (𝟙 F : F ⟶ F).app X = 𝟙 (F.obj X) := rfl
@@ -168,7 +177,7 @@ variable {C : Type u} [Category.{v} C] {X Y Z : C}
 
 namespace Iso
 
-@[ext]
+@[ext, grind ext]
 theorem ext ⦃α β : X ≅ Y⦄ (w : α.hom = β.hom) : α = β :=
   suffices α.inv = β.inv by grind [Iso]
   calc

@@ -96,29 +96,24 @@ protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := d
   let objJobs ← self.moreLinkObjs.foldlM (init := objJobs)
     (·.push <$> ·.fetchIn self.pkg)
   let libJobs ← id do
-    -- Fetch dependnecy dynlibs
-    -- for platforms that must link to them (e.g., Windows)
-    if Platform.isWindows then
-      let imps ← mods.foldlM (init := OrdModuleSet.empty) fun imps mod => do
-        return imps.appendArray (← (← mod.transImports.fetch).await)
-      let s := (NameSet.empty.insert self.name, #[])
-      let (_, jobs) ← imps.foldlM (init := s) fun (libs, jobs) imp => do
-        if libs.contains imp.lib.name then
-          return (libs, jobs)
-        else
-          let job ← imp.lib.shared.fetch
-          let moreJobs ← imp.lib.moreLinkLibs.mapM (·.fetchIn self.pkg)
-          let jobs := jobs.push job ++ moreJobs
-          return (libs.insert imp.lib.name, jobs)
-      let jobs ← self.moreLinkLibs.foldlM
-        (·.push <$> ·.fetchIn self.pkg) jobs
-      let jobs ← self.pkg.externLibs.foldlM
-        (·.push <$> ·.dynlib.fetch) jobs
-      return jobs
-    else
-      return #[]
+    -- Fetch dependency dynlibs
+    -- for situations that need them (see `Dynlib.deps`)
+    let imps ← mods.foldlM (init := OrdModuleSet.empty) fun imps mod => do
+      return imps.appendArray (← (← mod.transImports.fetch).await)
+    let s := (NameSet.empty.insert self.name, #[])
+    let (_, jobs) ← imps.foldlM (init := s) fun (libs, jobs) imp => do
+      if libs.contains imp.lib.name then
+        return (libs, jobs)
+      else
+        let jobs ← jobs.push <$> imp.lib.shared.fetch
+        return (libs.insert imp.lib.name, jobs)
+    let jobs ← self.moreLinkLibs.foldlM
+      (·.push <$> ·.fetchIn self.pkg) jobs
+    let jobs ← self.pkg.externLibs.foldlM
+      (·.push <$> ·.dynlib.fetch) jobs
+    return jobs
   buildLeanSharedLib self.libName self.sharedLibFile objJobs libJobs
-    self.weakLinkArgs self.linkArgs (plugin := self.roots.size == 1)
+    self.weakLinkArgs self.linkArgs self.isPlugin
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
@@ -129,10 +124,12 @@ def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 /--
 Build extra target dependencies of the library (e.g., `extraDepTargets`, `needs`). -/
 def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
-  let job ← self.extraDepTargets.foldlM (init := ← self.pkg.extraDep.fetch) fun job target => do
-    return job.mix <| ← self.pkg.fetchTargetJob target
-  let job ← self.config.needs.foldlM (init := job) fun job key => do
-    return job.mix <| ← key.fetchIn self.pkg
+  let mut job := Job.nil s!"{self.pkg.name}/{self.name}:extraDep"
+  job := job.mix (← self.pkg.extraDep.fetch)
+  for target in self.extraDepTargets do
+    job := job.mix (← self.pkg.fetchTargetJob target)
+  for key in self.config.needs do
+    job := job.mix (← key.fetchIn self.pkg)
   return job
 
 /-- The `LibraryFacetConfig` for the builtin `extraDepFacet`. -/

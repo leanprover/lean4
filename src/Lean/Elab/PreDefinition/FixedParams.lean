@@ -20,7 +20,7 @@ The main components of this module are
    (effectively a mask and a permutation)
  * The `FixedParamPerms` data type, with the data for a whole recursive group.
  * The `getFixedParamPerms` function that calculates the fixed parameters
- * Various `MetaM` functions for bringing into scope fixed and varying paramters, assembling
+ * Various `MetaM` functions for bringing into scope fixed and varying parameters, assembling
    argument lists etc.
 
 -/
@@ -172,20 +172,19 @@ end FixedParams
 
 open Lean Meta FixedParams
 
-def getParamRevDeps (preDefs : Array PreDefinition) : MetaM (Array (Array (Array Nat))) := do
-  preDefs.mapM fun preDef =>
-    lambdaTelescope preDef.value (cleanupAnnotations := true) fun xs _ => do
-      let mut revDeps := #[]
-      for h : i in [:xs.size] do
-        let mut deps := #[]
-        for h : j in [i+1:xs.size] do
-          if (← dependsOn (← inferType xs[j]) xs[i].fvarId!) then
-            deps := deps.push j
-        revDeps := revDeps.push deps
-      pure revDeps
+def getParamRevDeps (value : Expr) : MetaM (Array (Array Nat)) := do
+  lambdaTelescope value (cleanupAnnotations := true) fun xs _ => do
+    let mut revDeps := #[]
+    for h : i in [:xs.size] do
+      let mut deps := #[]
+      for h : j in [i+1:xs.size] do
+        if (← dependsOn (← inferType xs[j]) xs[i].fvarId!) then
+          deps := deps.push j
+      revDeps := revDeps.push deps
+    pure revDeps
 
 def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM FixedParams.Info := do
-  let revDeps ← getParamRevDeps preDefs
+  let revDeps ← preDefs.mapM (getParamRevDeps ·.value)
   let arities := revDeps.map (·.size)
   let ref ← IO.mkRef (Info.init revDeps)
 
@@ -333,7 +332,7 @@ def FixedParamPerm.forallTelescope [MonadControlT MetaM n] [Monad n]
 
 
 /--
-If `type` is the type of the `funIdx`'s function, instantiate the fixed paramters.
+If `type` is the type of the `funIdx`'s function, instantiate the fixed parameters.
 -/
 def FixedParamPerm.instantiateForall (perm: FixedParamPerm) (type₀ : Expr) (xs : Array Expr) : MetaM Expr := do
   assert! xs.size = perm.numFixed
@@ -350,7 +349,7 @@ where
           mkForallFVars ys (← go mask type)
 
 /--
-If `value` is the body of the `funIdx`'s function, instantiate the fixed paramters.
+If `value` is the body of the `funIdx`'s function, instantiate the fixed parameters.
 Expects enough manifest lambdas to instantiate all fixed parameters, but can handle
 eta-contracted definitions beyond that.
 -/
@@ -406,7 +405,7 @@ def FixedParamPerm.pickVarying (perm : FixedParamPerm) (xs : Array α) : Array �
 Intersperses the fixed and varying parameters to be in the original parameter order.
 Can handle over- or und-application (extra or missing varying args), as long
 as there are all varying parameters that go before fixed parameters.
-(We expect to always find all fixed parameters, else they woudn't be fixed parameters.)
+(We expect to always find all fixed parameters, else they wouldn't be fixed parameters.)
 -/
 partial def FixedParamPerm.buildArgs (perm : FixedParamPerm) (fixedArgs varyingArgs : Array α) : Array α :=
   assert! fixedArgs.size = perm.numFixed

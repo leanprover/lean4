@@ -68,7 +68,7 @@ def generate_script(repo, version, config):
     ]
 
     # Special cases for specific repositories
-    if repo_name == "REPL":
+    if repo_name == "repl":
         script_lines.extend([
             "lake update",
             "cd test/Mathlib",
@@ -79,39 +79,41 @@ def generate_script(repo, version, config):
             "./test.sh"
         ])
     elif dependencies:
-        script_lines.append('echo "Please update the dependencies in lakefile.{lean,toml}"')
+        script_lines.append('perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*')
         script_lines.append("lake update")
 
     script_lines.append("")
 
-    if re.search(r'rc\d+$', version) and repo_name in ["Batteries", "Mathlib"]:
+    script_lines.extend([
+        f'git commit -am "chore: bump toolchain to {version}"',
+        ""
+    ])
+
+    if re.search(r'rc\d+$', version) and repo_name in ["batteries", "mathlib4"]:
         script_lines.extend([
             "echo 'This repo has nightly-testing infrastructure'",
-            f"git merge bump/{version}",
+            f"git merge origin/bump/{version.split('-rc')[0]}",
             "echo 'Please resolve any conflicts.'",
+            ""
+        ])
+    if re.search(r'rc\d+$', version) and repo_name in ["verso", "reference-manual"]:
+        script_lines.extend([
+            "echo 'This repo does development on nightly-testing: remember to rebase merge the PR.'",
+            f"git merge origin/nightly-testing",
+            "echo 'Please resolve any conflicts.'",
+            ""
+        ])
+    if repo_name != "Mathlib":
+        script_lines.extend([
+            "lake build && if lake check-test; then lake test; fi",
             ""
         ])
 
     script_lines.extend([
-        f'git commit -am "chore: bump toolchain to {version}"',
-        "gh pr create",
-        "echo 'Please review the PR and merge it.'",
+        'gh pr create --title "chore: bump toolchain to ' + version + '" --body ""',
+        "echo 'Please review the PR and merge or rebase it.'",
         ""
     ])
-
-    # Special cases for specific repositories
-    if repo_name == "ProofWidgets4":
-        script_lines.append(f"echo 'Note: Follow the version convention of the repository for tagging.'")
-    elif requires_tagging:
-        script_lines.append(f"git checkout {default_branch} && git pull")
-        script_lines.append(f'[ "$(cat lean-toolchain)" = "leanprover/lean4:{version}" ] && git tag -a {version} -m \'Release {version}\' && git push origin --tags || echo "Error: lean-toolchain does not contain expected version {version}"')
-
-    if has_stable_branch:
-        script_lines.extend([
-            "git checkout stable && git pull",
-            f"git merge {version} --no-edit",
-            "git push origin stable"
-        ])
 
     return "\n".join(script_lines)
 
@@ -128,8 +130,10 @@ The script will generate shell commands to:
 1. Update the lean-toolchain file
 2. Create appropriate branches and commits
 3. Create pull requests
-4. Create version tags
-5. Update stable branches where applicable"""
+
+(Note that the steps of creating toolchain version tags, and merging these into `stable` branches,
+are handled by `script/release_checklist.py`.)
+"""
     )
     parser.add_argument("version", help="The version to set in the lean-toolchain file (e.g., v4.6.0)")
     parser.add_argument("repo", help="A substring of the repository name as specified in release_repos.yml")

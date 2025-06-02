@@ -295,7 +295,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         simp [hmod]
       · simp only [BitVec.ushiftRight_eq', BitVec.toNat_twoPow, BitVec.getLsbD_ushiftRight,
         Bool.false_eq]
-        apply BitVec.getLsbD_ge
+        apply BitVec.getLsbD_of_ge
         omega
     · next hif1 =>
       simp only [Bool.not_eq_true] at hif1
@@ -309,7 +309,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [hleft]
       simp
   · have : rhs.getLsbD pow = false := by
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       dsimp only
       omega
     simp only [this, Bool.false_eq_true, ↓reduceIte]
@@ -442,7 +442,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [hleft]
       simp
   · have : rhs.getLsbD pow = false := by
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       dsimp only
       omega
     simp only [this, Bool.false_eq_true, ↓reduceIte]

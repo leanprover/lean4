@@ -37,9 +37,9 @@ def OrdSet.isEmpty {_ : Hashable α} {_ : BEq α} (s : OrdSet α) : Bool :=
 structure Result where
   /-- All constant symbols occurring in the gal. -/
   allConsts : OrdSet Name  := {}
-  /-- Unfolding candiates. -/
+  /-- Unfolding candidates. -/
   unfoldCandidates : OrdSet Name  := {}
-  /-- Equation function candiates. -/
+  /-- Equation function candidates. -/
   eqnCandidates : OrdSet Name  := {}
   /-- Function induction candidates -/
   funIndCandidates : FunInd.SeenCalls := {}
@@ -100,9 +100,10 @@ def visitConst (declName : Name) : M Unit := do
 
 def saveFunInd (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   if (← isEligible declName) then
-    let sc := (← get).funIndCandidates
-    let sc' ← sc.push e declName args
-    modify fun s => { s with funIndCandidates := sc' }
+    if let some funIndInfo ← getFunIndInfo? (cases := false) (unfolding := true) declName then
+      let sc := (← get).funIndCandidates
+      let sc' ← sc.push e funIndInfo args
+      modify fun s => { s with funIndCandidates := sc' }
 
 open LibrarySearch in
 def saveLibSearchCandidates (e : Expr) : M Unit := do
@@ -110,7 +111,7 @@ def saveLibSearchCandidates (e : Expr) : M Unit := do
     for (declName, declMod) in (← libSearchFindDecls e) do
       unless (← Grind.isEMatchTheorem declName) do
         let kind := match declMod with
-          | .none => .default
+          | .none => (.default false)
           | .mp => .leftRight
           | .mpr => .rightLeft
         modify fun s => { s with libSearchResults := s.libSearchResults.insert (declName, kind) }

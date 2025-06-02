@@ -19,6 +19,7 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 
 /-!
@@ -196,11 +197,20 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     apply Cache.Inv_cast
     · apply LawfulVecOperator.isPrefix_aig (f := blastConst)
     · exact hinv
-  · dsimp only at hres
-    split at hres
-    all_goals
+  · next op lhsExpr rhsExpr =>
+    dsimp only at hres
+    match op with
+    | .and | .or | .xor =>
+      dsimp only at hres
       rw [← hres]
-      dsimp only
+      apply Cache.Inv_cast
+      · apply RefVec.IsPrefix_zip
+      · apply goCache_Inv_of_Inv
+        apply goCache_Inv_of_Inv
+        exact hinv
+    | .add | .mul | .udiv | .umod =>
+      dsimp only at hres
+      rw [← hres]
       apply Cache.Inv_cast
       · apply LawfulVecOperator.isPrefix_aig
       · apply goCache_Inv_of_Inv
@@ -410,6 +420,11 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       · rw [goCache_denote_eq]
         · simp [BitVec.msb_eq_getLsbD_last]
         · exact hinv
+    · rw [← hres]
+      simp only [denote_blastReverse, eval_un, BVUnOp.eval_reverse, hidx, BitVec.getLsbD_eq_getElem,
+        BitVec.getElem_reverse, BitVec.getMsbD_eq_getLsbD, decide_true, Bool.true_and]
+      rw [goCache_denote_eq]
+      exact hinv
   · next h =>
     subst h
     rw [← hres]
@@ -439,7 +454,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · rw [goCache_denote_eq]
       exact hinv
     · symm
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       omega
   · rw [eval_shiftLeft, ← hres, denote_blastShiftLeft]
     · intro idx hidx

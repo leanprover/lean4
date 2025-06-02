@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Array.InsertIdx
@@ -102,7 +104,7 @@ theorem getElem?_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (h : i ≤ n)
         xs[k]?
       else
         if k = i then
-          if k ≤ xs.size then some x else none
+          if k ≤ n then some x else none
         else
           xs[k-1]? := by
   rcases xs with ⟨xs, rfl⟩

@@ -3,6 +3,8 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.ByCases
 import Init.Data.Prod
@@ -10,9 +12,9 @@ import Init.Data.Int.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.Cooper
-import Init.Data.Int.Gcd
+import all Init.Data.Int.Gcd
 import Init.Data.RArray
-import Init.Data.AC
+import all Init.Data.AC
 
 namespace Int.Linear
 
@@ -191,9 +193,9 @@ theorem cmod_nonpos (a : Int) {b : Int} (h : b ≠ 0) : cmod a b ≤ 0 := by
 
 theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := by
   unfold cmod
-  have := @Int.emod_eq_emod_iff_emod_sub_eq_zero  b b a
-  simp at this
-  simp [Int.neg_emod_eq_sub_emod, ← this, Eq.comm]
+  have := @Int.emod_eq_emod_iff_emod_sub_eq_zero b b a
+  simp only [emod_self, sub_emod_left] at this
+  rw [Int.neg_eq_zero, ← this, Eq.comm]
 
 private abbrev div_mul_cancel_of_mod_zero :=
   @Int.ediv_mul_cancel_of_emod_eq_zero
@@ -280,7 +282,6 @@ attribute [local simp] Poly.denote_addConst
 theorem Poly.denote_insert (ctx : Context) (k : Int) (v : Var) (p : Poly) :
     (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
   fun_induction p.insert k v <;>
-    simp only [insert, cond_true, cond_false, ↓reduceIte, *] <;>
     simp_all [← Int.add_mul]
 
 attribute [local simp] Poly.denote_insert
@@ -297,7 +298,6 @@ attribute [local simp] Poly.denote_append
 
 theorem Poly.denote_combine' (ctx : Context) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combine' fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   fun_induction p₁.combine' fuel p₂ <;>
-    simp +zetaDelta only [combine', cond_true, cond_false, *] <;>
     simp_all +zetaDelta [denote, ← Int.add_mul]
 
 theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
@@ -435,7 +435,7 @@ def norm_eq_coeff_cert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
 theorem norm_eq_coeff (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
     : norm_eq_coeff_cert lhs rhs p k → (lhs.denote ctx = rhs.denote ctx) = (p.denote' ctx = 0) := by
   simp [norm_eq_coeff_cert]
-  rw [norm_eq ctx lhs rhs (lhs.sub rhs).norm BEq.refl, Poly.denote'_eq_denote]
+  rw [norm_eq ctx lhs rhs (lhs.sub rhs).norm BEq.rfl, Poly.denote'_eq_denote]
   apply norm_eq_coeff'
 
 private theorem mul_le_zero_iff (a k : Int) (h₁ : k > 0) : k * a ≤ 0 ↔ a ≤ 0 := by
@@ -454,7 +454,7 @@ private theorem norm_le_coeff' (ctx : Context) (p p' : Poly) (k : Int) : p = p'.
 theorem norm_le_coeff (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
     : norm_eq_coeff_cert lhs rhs p k → (lhs.denote ctx ≤ rhs.denote ctx) = (p.denote' ctx ≤ 0) := by
   simp [norm_eq_coeff_cert]
-  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm BEq.refl, Poly.denote'_eq_denote]
+  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm BEq.rfl, Poly.denote'_eq_denote]
   apply norm_le_coeff'
 
 private theorem mul_add_cmod_le_iff {a k b : Int} (h : k > 0) : a*k + cmod b k ≤ 0 ↔ a ≤ 0 := by
@@ -499,7 +499,7 @@ def norm_le_coeff_tight_cert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
 theorem norm_le_coeff_tight (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
     : norm_le_coeff_tight_cert lhs rhs p k → (lhs.denote ctx ≤ rhs.denote ctx) = (p.denote' ctx ≤ 0) := by
   simp [norm_le_coeff_tight_cert]
-  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm BEq.refl, Poly.denote'_eq_denote]
+  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm BEq.rfl, Poly.denote'_eq_denote]
   apply eq_of_norm_eq_of_divCoeffs
 
 def Poly.isUnsatEq (p : Poly) : Bool :=
@@ -665,7 +665,7 @@ theorem norm_dvd (ctx : Context) (k : Int) (e : Expr) (p : Poly) : e.norm == p �
   simp; intro h; simp [← h]
 
 theorem dvd_eq_false (ctx : Context) (k : Int) (e : Expr) (h : e.norm.isUnsatDvd k) : (k ∣ e.denote ctx) = False := by
-  rw [norm_dvd ctx k e e.norm BEq.refl]
+  rw [norm_dvd ctx k e e.norm BEq.rfl]
   apply dvd_eq_false' ctx k e.norm h
 
 def dvd_coeff_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ : Poly) (k : Int) : Bool :=
@@ -1173,7 +1173,7 @@ private theorem cooper_dvd_left_core
   have ⟨k, h₁, h₂, h₃, h₄, h₅⟩ := Int.cooper_resolution_dvd_left a_pos' b_pos d_pos |>.mp ⟨x, h₁', h₂', h₃⟩
   rw [Int.neg_mul] at h₂
   simp only [Int.neg_mul, neg_gcd, lcm_neg_left, Int.mul_neg, Int.neg_neg, Int.neg_dvd] at *
-  rw [Int.neg_ediv_of_dvd Int.gcd_dvd_left] at h₂
+  rw [Int.neg_ediv_of_dvd (Int.gcd_dvd_left ..)] at h₂
   simp only [lcm_neg_right] at h₂
   have : c * k + c * p + -(a * s) = c * p + -(a * s) + c * k := by ac_rfl
   rw [this] at h₅; clear this
@@ -1818,6 +1818,22 @@ theorem not_le_of_le (ctx : Context) (p q : Poly) (k : Nat)
   simp [Int.neg_add, Int.neg_sub]
   rw [← Int.add_assoc, ← Int.add_assoc, Int.add_neg_cancel_right, Lean.Omega.Int.add_le_zero_iff_le_neg']
   simp; exact Int.le_trans h (Int.ofNat_zero_le _)
+
+def eq_def_cert (x : Var) (xPoly : Poly) (p : Poly) : Bool :=
+  p == .add (-1) x xPoly
+
+theorem eq_def (ctx : Context) (x : Var) (xPoly : Poly) (p : Poly)
+    : eq_def_cert x xPoly p → x.denote ctx = xPoly.denote' ctx → p.denote' ctx = 0 := by
+  simp [eq_def_cert]; intro _ h; subst p; simp [h]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
+def eq_def'_cert (x : Var) (e : Expr) (p : Poly) : Bool :=
+  p == .add (-1) x e.norm
+
+theorem eq_def' (ctx : Context) (x : Var) (e : Expr) (p : Poly)
+    : eq_def'_cert x e p → x.denote ctx = e.denote ctx → p.denote' ctx = 0 := by
+  simp [eq_def'_cert]; intro _ h; subst p; simp [h]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
 
 end Int.Linear
 

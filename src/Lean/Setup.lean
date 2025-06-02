@@ -16,11 +16,13 @@ Data types used by Lean module headers and the `--setup` CLI.
 namespace Lean
 
 structure Import where
-  module        : Name
+  module     : Name
   /-- `import all`; whether to import and expose all data saved by the module. -/
-  importAll : Bool := false
+  importAll  : Bool := false
   /-- Whether to activate this import when the current module itself is imported. -/
-  isExported    : Bool := true
+  isExported : Bool := true
+  /-- Whether all definitions (transitively) reachable through the -/
+  isMeta     : Bool := false
   deriving Repr, Inhabited, ToJson, FromJson
 
 instance : Coe Name Import := ⟨({module := ·})⟩

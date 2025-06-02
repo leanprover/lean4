@@ -150,7 +150,7 @@ structure Thread where
 deriving FromJson, ToJson
 
 structure Profile where
-  meta : ProfileMeta
+  «meta» : ProfileMeta
   libs : Array Json := #[]
   threads : Array Thread
 deriving FromJson, ToJson
@@ -308,7 +308,7 @@ def Profile.export (name : String) (startTime : Float) (traceStates : Array Trac
       thread ← addTrace (Lean.trace.profiler.output.pp.get opts) thread trace
     return thread
   return {
-    meta := { startTime, categories }
+    «meta» := { startTime, categories }
     threads := threads.map (·.toThread)
   }
 

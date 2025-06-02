@@ -27,7 +27,7 @@ that the index is valid.
 
 `List.mapIdx` is a variant that does not provide the function with evidence that the index is valid.
 -/
-@[inline] def mapFinIdx (as : List α) (f : (i : Nat) → α → (h : i < as.length) → β) : List β :=
+@[inline, expose] def mapFinIdx (as : List α) (f : (i : Nat) → α → (h : i < as.length) → β) : List β :=
   go as #[] (by simp)
 where
   /-- Auxiliary for `mapFinIdx`:
@@ -44,7 +44,7 @@ returning the list of results.
 `List.mapFinIdx` is a variant that additionally provides the function with a proof that the index
 is valid.
 -/
-@[inline] def mapIdx (f : Nat → α → β) (as : List α) : List β := go as #[] where
+@[inline, expose] def mapIdx (f : Nat → α → β) (as : List α) : List β := go as #[] where
   /-- Auxiliary for `mapIdx`:
   `mapIdx.go [a₀, a₁, ...] acc = acc.toList ++ [f acc.size a₀, f (acc.size + 1) a₁, ...]` -/
   @[specialize] go : List α → Array β → List β
@@ -320,7 +320,7 @@ theorem mapIdx_nil {f : Nat → α → β} : mapIdx f [] = [] :=
 theorem mapIdx_go_length {acc : Array β} :
     length (mapIdx.go f l acc) = length l + acc.size := by
   induction l generalizing acc with
-  | nil => simp only [mapIdx.go, length_nil, Nat.zero_add]
+  | nil => simp [mapIdx.go]
   | cons _ _ ih =>
     simp only [mapIdx.go, ih, Array.size_push, Nat.add_succ, length_cons, Nat.add_comm]
 
@@ -348,7 +348,7 @@ theorem getElem?_mapIdx_go : ∀ {l : List α} {acc : Array β} {i : Nat},
     split <;> split
     · simp only [Option.some.injEq]
       rw [← Array.getElem_toList]
-      simp only [Array.push_toList]
+      simp only [Array.toList_push]
       rw [getElem_append_left, ← Array.getElem_toList]
     · have : i = acc.size := by omega
       simp_all

@@ -76,6 +76,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Diff_lcs___spec__6___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____x40_Lean_Util_Diff___hyg_9____closed__2;
 lean_object* l_Subarray_take___rarg(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Diff_instInhabitedAction;
 static lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____x40_Lean_Util_Diff___hyg_9____closed__5;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Diff_lcs___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Diff_diff___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -664,6 +665,14 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Diff_instHashableAction___closed__1;
+return x_1;
+}
+}
+static uint8_t _init_l_Lean_Diff_instInhabitedAction() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 0;
 return x_1;
 }
 }
@@ -4534,6 +4543,7 @@ l_Lean_Diff_instHashableAction___closed__1 = _init_l_Lean_Diff_instHashableActio
 lean_mark_persistent(l_Lean_Diff_instHashableAction___closed__1);
 l_Lean_Diff_instHashableAction = _init_l_Lean_Diff_instHashableAction();
 lean_mark_persistent(l_Lean_Diff_instHashableAction);
+l_Lean_Diff_instInhabitedAction = _init_l_Lean_Diff_instInhabitedAction();
 l_Lean_Diff_instToStringAction___closed__1 = _init_l_Lean_Diff_instToStringAction___closed__1();
 lean_mark_persistent(l_Lean_Diff_instToStringAction___closed__1);
 l_Lean_Diff_instToStringAction___closed__2 = _init_l_Lean_Diff_instToStringAction___closed__2();

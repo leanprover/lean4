@@ -13,7 +13,7 @@ private def hashChild (e : Expr) : UInt64 :=
   | .bvar .. | .mvar .. | .const .. | .fvar .. | .sort .. | .lit .. =>
     hash e
   | .app .. | .letE .. | .forallE .. | .lam .. | .mdata .. | .proj .. =>
-    (unsafe ptrAddrUnsafe e).toUInt64
+    hashPtrExpr e
 
 private def alphaHash (e : Expr) : UInt64 :=
   match e with

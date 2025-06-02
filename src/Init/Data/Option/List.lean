@@ -86,10 +86,9 @@ theorem toList_eq_nil_iff {o : Option α} : o.toList = [] ↔ o = none := by
 theorem toList_eq_singleton_iff {o : Option α} : o.toList = [a] ↔ o = some a := by
   cases o <;> simp
 
-@[simp]
 theorem length_toList_eq_zero_iff {o : Option α} :
     o.toList.length = 0 ↔ o = none := by
-  cases o <;> simp
+  simp
 
 @[simp]
 theorem length_toList_eq_one_iff {o : Option α} :

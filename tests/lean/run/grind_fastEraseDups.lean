@@ -24,6 +24,10 @@ where
       eraseDupsBy.loop (· == ·) l seenl = fastEraseDups.go l seenl seen := by
     induction l generalizing seenl seen with
     | nil => grind [eraseDupsBy.loop, fastEraseDups.go]
-    | cons x => cases h : seenl.contains x <;> grind [eraseDupsBy.loop, fastEraseDups.go]
+    | cons x =>
+      -- In the following example `BEq` is not lawful. To complete the proof we need to add `BEq.comm`
+      -- TODO: add support for arbitrary partial equivalence and equivalence relations.
+      -- Remark: `BEq.comm` is noise when `BEq` is lawful.
+      cases h : seenl.contains x <;> grind [eraseDupsBy.loop, fastEraseDups.go, BEq.comm]
 
 end List

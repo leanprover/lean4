@@ -586,7 +586,7 @@ Examples:
 * `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
 * `[].reverse = []`
 -/
-def reverse (as : List α) : List α :=
+@[expose] def reverse (as : List α) : List α :=
   reverseAux as []
 
 @[simp, grind] theorem reverse_nil : reverse ([] : List α) = [] := rfl
@@ -715,7 +715,7 @@ Examples:
  * `List.singleton "green" = ["green"]`.
  * `List.singleton [1, 2, 3] = [[1, 2, 3]]`
 -/
-@[inline] protected def singleton {α : Type u} (a : α) : List α := [a]
+@[inline, expose] protected def singleton {α : Type u} (a : α) : List α := [a]
 
 /-! ### flatMap -/
 
@@ -1190,10 +1190,10 @@ def isPrefixOf [BEq α] : List α → List α → Bool
   | _,     []    => false
   | a::as, b::bs => a == b && isPrefixOf as bs
 
-@[simp] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
+@[simp, grind =] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
   simp [isPrefixOf]
-@[simp] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
-theorem isPrefixOf_cons₂ [BEq α] {a : α} :
+@[simp, grind =] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
+@[grind =] theorem isPrefixOf_cons₂ [BEq α] {a : α} :
     isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := rfl
 
 /--
@@ -1229,7 +1229,7 @@ Examples:
 def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
   isPrefixOf l₁.reverse l₂.reverse
 
-@[simp] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
+@[simp, grind =] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
   simp [isSuffixOf]
 
 /--
@@ -1564,8 +1564,8 @@ protected def erase {α} [BEq α] : List α → α → List α
     | true  => as
     | false => a :: List.erase as b
 
-@[simp] theorem erase_nil [BEq α] (a : α) : [].erase a = [] := rfl
-theorem erase_cons [BEq α] {a b : α} {l : List α} :
+@[simp, grind =] theorem erase_nil [BEq α] (a : α) : [].erase a = [] := rfl
+@[grind =] theorem erase_cons [BEq α] {a b : α} {l : List α} :
     (b :: l).erase a = if b == a then l else b :: l.erase a := by
   simp only [List.erase]; split <;> simp_all
 
@@ -2096,7 +2096,7 @@ where
   | 0,   acc => acc
   | n+1, acc => loop n (n::acc)
 
-@[simp] theorem range_zero : range 0 = [] := rfl
+@[simp, grind =] theorem range_zero : range 0 = [] := rfl
 
 /-! ### range' -/
 

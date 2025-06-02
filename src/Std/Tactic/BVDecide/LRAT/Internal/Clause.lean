@@ -234,7 +234,7 @@ theorem ofArray.folder_foldl_mem_of_mem
           · next hfoo =>
             rw [hl]
             cases x
-            simp [Std.HashMap.getElem?_insertIfNew]
+            simp [Std.HashMap.getElem_insertIfNew]
             intro hbar
             exfalso
             apply hfoo

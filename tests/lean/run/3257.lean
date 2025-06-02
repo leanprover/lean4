@@ -20,7 +20,10 @@ trace: [Meta.Tactic.simp.discharge] bar discharge ✅️
         T
       ==>
         True
-[Meta.Tactic.simp.rewrite] bar:1000: U ==> True
+[Meta.Tactic.simp.rewrite] bar:1000:
+      U
+    ==>
+      True
 -/
 #guard_msgs in
 example : U := by

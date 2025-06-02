@@ -52,7 +52,7 @@ instance : Friend Nat where
 def _root_.Bool.f (b : Friend.friend Nat) := !b
 
 variable (a : Bool)
-/-- info: Bool.f a : Bool -/
+/-- info: a.f : Bool -/
 #guard_msgs in #check a.f
 
 -- Semireducible definitions are not unfolded however.

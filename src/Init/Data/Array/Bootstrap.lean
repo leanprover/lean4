@@ -40,7 +40,7 @@ Use the indexing notation `a[i]!` instead.
 
 Access an element from an array, or panic if the index is out of bounds.
 -/
-@[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17")]
+@[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17"), expose]
 def get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
@@ -78,7 +78,8 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
   have : xs = #[] ∨ 0 < xs.size :=
     match xs with | ⟨[]⟩ => .inl rfl | ⟨a::l⟩ => .inr (Nat.zero_lt_succ _)
   match xs, this with | _, .inl rfl => simp [foldrM] | xs, .inr h => ?_
-  simp [foldrM, h, ← foldrM_eq_reverse_foldlM_toList.aux, List.take_length]
+  simp only [foldrM, h, ← foldrM_eq_reverse_foldlM_toList.aux]
+  simp [Array.size]
 
 @[simp, grind =] theorem foldrM_toList [Monad m]
     {f : α → β → m β} {init : β} {xs : Array α} :
@@ -89,8 +90,12 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
     xs.toList.foldr f init = xs.foldr f init :=
   List.foldr_eq_foldrM .. ▸ foldrM_toList ..
 
-@[simp, grind =] theorem push_toList {xs : Array α} {a : α} : (xs.push a).toList = xs.toList ++ [a] := by
+@[simp, grind =] theorem toList_push {xs : Array α} {x : α} : (xs.push x).toList = xs.toList ++ [x] := by
+  rcases xs with ⟨xs⟩
   simp [push, List.concat_eq_append]
+
+@[deprecated toList_push (since := "2025-05-26")]
+abbrev push_toList := @toList_push
 
 @[simp, grind =] theorem toListAppend_eq {xs : Array α} {l : List α} : xs.toListAppend l = xs.toList ++ l := by
   simp [toListAppend, ← foldr_toList]
@@ -137,27 +142,5 @@ abbrev nil_append := @empty_append
 
 @[deprecated toList_appendList (since := "2024-12-11")]
 abbrev appendList_toList := @toList_appendList
-
-@[deprecated "Use the reverse direction of `foldrM_toList`." (since := "2024-11-13")]
-theorem foldrM_eq_foldrM_toList [Monad m]
-    {f : α → β → m β} {init : β} {xs : Array α} :
-    xs.foldrM f init = xs.toList.foldrM f init := by
-  simp
-
-@[deprecated "Use the reverse direction of `foldlM_toList`." (since := "2024-11-13")]
-theorem foldlM_eq_foldlM_toList [Monad m]
-    {f : β → α → m β} {init : β} {xs : Array α} :
-    xs.foldlM f init = xs.toList.foldlM f init:= by
-  simp
-
-@[deprecated "Use the reverse direction of `foldr_toList`." (since := "2024-11-13")]
-theorem foldr_eq_foldr_toList {f : α → β → β} {init : β} {xs : Array α} :
-    xs.foldr f init = xs.toList.foldr f init := by
-  simp
-
-@[deprecated "Use the reverse direction of `foldl_toList`." (since := "2024-11-13")]
-theorem foldl_eq_foldl_toList {f : β → α → β} {init : β} {xs : Array α} :
-    xs.foldl f init = xs.toList.foldl f init:= by
-  simp
 
 end Array

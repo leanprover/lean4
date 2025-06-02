@@ -279,6 +279,9 @@ theorem nodup_cons {a : α} {l : List α} : Nodup (a :: l) ↔ a ∉ l ∧ Nodup
 @[grind →] theorem Nodup.sublist : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Pairwise.sublist
 
+grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₁
+grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₂
+
 theorem Sublist.nodup : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Nodup.sublist
 

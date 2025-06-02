@@ -362,7 +362,8 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
     }
     let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
       let args := mod.weakLeanArgs ++ mod.leanArgs
-      compileLeanModule srcFile mod.relLeanFile setup mod.setupFile arts args
+      let relSrcFile := relPathFrom mod.pkg.dir srcFile
+      compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
         (← getLeanPath) mod.rootDir (← getLean)
       mod.clearOutputHashes
     unless upToDate && (← getTrustHash) do

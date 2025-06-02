@@ -1826,8 +1826,7 @@ theorem toInt_sub_neg_umod {x y : BitVec w} (hxmsb : x.msb = true) (hymsb : y.ms
       rw [Int.bmod_eq_of_le (by omega) (by omega)]
       simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
         Int.dvd_neg] at hdvd
-      simp only [hdvd]
-      simp
+      simp only [hdvd, ↓reduceIte, Int.natAbs_cast]
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by

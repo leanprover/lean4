@@ -220,7 +220,7 @@ theorem Iter.step_filterMap {f : β → Option γ} :
   · simp
   · simp
 
-def Iter.step_map {f : β → γ} :
+theorem Iter.step_map {f : β → γ} :
     (it.map f).step = match it.step with
       | .yield it' out h =>
         .yield (it'.map f) (f out) (.yieldSome (out := out) h ⟨⟨f out, rfl⟩, rfl⟩)

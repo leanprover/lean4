@@ -160,9 +160,9 @@ end Consumers
 
 section Equivalence
 
-theorem HItEquivM.toListRev_eq [Monad m] [LawfulMonad m]
+theorem IterM.Equiv.toListRev_eq [Monad m] [LawfulMonad m]
     [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
-    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquivM ita itb) :
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : IterM.Equiv ita itb) :
     ita.toListRev = itb.toListRev := by
   induction ita using IterM.inductSteps generalizing itb with | step ita ihy ihs =>
   rw [IterM.toListRev_eq_match_step, IterM.toListRev_eq_match_step]
@@ -175,25 +175,25 @@ theorem HItEquivM.toListRev_eq [Monad m] [LawfulMonad m]
     simp at h
     simp_all
     apply ihy ‹_›
-    exact ItEquiv.exact _ _ h.1
+    exact BundledIterM.Equiv.exact _ _ h.1
   · simp_all
     apply ihs ‹_›
-    exact ItEquiv.exact _ _ h
+    exact BundledIterM.Equiv.exact _ _ h
   · simp
 
-theorem HItEquivM.toList_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem IterM.Equiv.toList_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
     [IteratorCollect α₁ m m] [LawfulIteratorCollect α₁ m m]
     [IteratorCollect α₂ m m] [LawfulIteratorCollect α₂ m m]
-    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquivM ita itb) :
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : IterM.Equiv ita itb) :
     ita.toList = itb.toList := by
   simp only [← IterM.reverse_toListRev, toListRev_eq h]
 
-theorem HItEquivM.toArray_eq [Monad m] [LawfulMonad m]
+theorem IterM.Equiv.toArray_eq [Monad m] [LawfulMonad m]
     [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
     [IteratorCollect α₁ m m] [LawfulIteratorCollect α₁ m m]
     [IteratorCollect α₂ m m] [LawfulIteratorCollect α₂ m m]
-    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : HItEquivM ita itb) :
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : IterM.Equiv ita itb) :
     ita.toArray = itb.toArray := by
   simp only [← IterM.toArray_toList, toList_eq h]
 

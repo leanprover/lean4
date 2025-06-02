@@ -10,7 +10,7 @@ import Init.NotationExtra
 import Init.Control.Lawful.MonadLift
 
 /-!
-# Typeclass for lawfule monad lifting functions
+# Typeclass for lawful monad lifting functions
 
 This module provides a typeclass `LawfulMonadLiftFunction f` that asserts that a function `f`
 mapping values from one monad to another monad commutes with `pure` and `bind`. This equivalent to
@@ -59,10 +59,6 @@ theorem LawfulMonadLiftFunction.lift_seqRight [LawfulMonad m] [LawfulMonad n]
     [LawfulMonadLiftFunction lift] (x : m α) (y : m β) :
     lift (x *> y) = (lift x : n α) *> (lift y : n β) := by
   simp only [seqRight_eq, lift_map, lift_seq]
-
-def instMonadLiftOfFunction {lift : ⦃α : Type u⦄ -> m α → n α} :
-    MonadLift m n where
-  monadLift := lift (α := _)
 
 instance [LawfulMonadLiftFunction lift] :
     letI : MonadLift m n := ⟨lift (α := _)⟩

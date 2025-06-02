@@ -13,7 +13,7 @@ namespace Lean.Compiler.LCNF
 
 structure ToMonoM.State where
   typeParams : FVarIdHashSet := {}
-  noncomputableVars : FVarIdMap Name := {}
+  noncomputableVars : Std.HashMap FVarId Name := {}
 
 abbrev ToMonoM := StateRefT ToMonoM.State CompilerM
 
@@ -28,8 +28,7 @@ def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Opt
   return args[ctorInfo.numParams + info.fieldIdx]!.toLetValue
 
 def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
-  if (← get).noncomputableVars.contains fvarId then
-    let declName := (← get).noncomputableVars.find! fvarId
+  if let some declName := (← get).noncomputableVars.get? fvarId then
     throwError f!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{declName}', which is 'noncomputable'"
 
 def argToMono (arg : Arg) : ToMonoM Arg := do

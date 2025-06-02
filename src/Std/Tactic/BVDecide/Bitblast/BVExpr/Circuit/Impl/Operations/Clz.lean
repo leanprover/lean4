@@ -53,11 +53,22 @@ where
   go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
   if curr = 0 then
-    let one := blastConst aig 1
-    let zero := blastConst aig 0
-    let lsb := (BVPred.blastGetLsbD (target := ⟨x, 0⟩))
-    let discr := BVPred.mkEq aig ⟨lsb, one⟩
-    let ite := AIG.RefVec.ite aig ⟨discr, zero, one⟩
+    let res := (BVPred.blastGetLsbD aig ⟨x, 0⟩)
+    let aig := res.aig
+    let lsb := res.ref
+
+
+    let res := blastConst aig 0
+    let zero := res.vec
+    let aig := res.aig
+    let lsb := lsb.cast <| AIG.LawfulVecOperator.le_size (f := blastConst) ..
+
+    let res := blastConst aig 1
+    let aig := res.aig
+    let one := res.vec
+    let lsb := lsb.cast <| AIG.LawfulVecOperator.le_size (f := blastConst) ..
+    let zero := zero.cast <| AIG.LawfulVecOperator.le_size (f := blastConst) ..
+    let ite := AIG.RefVec.ite aig ⟨lsb, zero, one⟩
     ite
   else
     sorry

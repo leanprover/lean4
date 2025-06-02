@@ -1288,3 +1288,5 @@ end Hidden
 
 example {xs : List α} {i : Nat} (h : i < xs.length) : xs.take i ++ xs[i] :: xs.drop (i + 1) = xs := by
   apply List.ext_getElem <;> grind (splits := 10)
+
+example : (List.range 1).sum = 0 := by grind

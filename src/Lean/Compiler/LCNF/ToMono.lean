@@ -12,14 +12,14 @@ import Lean.Compiler.NoncomputableAttr
 namespace Lean.Compiler.LCNF
 
 structure ToMonoM.State where
-  typeParams : FVarIdSet := {}
+  typeParams : FVarIdHashSet := {}
   noncomputableVars : FVarIdMap Name := {}
 
 abbrev ToMonoM := StateRefT ToMonoM.State CompilerM
 
 def Param.toMono (param : Param) : ToMonoM Param := do
   if isTypeFormerType param.type then
-    modify fun { typeParams, .. } => { typeParams := typeParams.insert param.fvarId }
+    modify fun s => { s with typeParams := s.typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
 def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Option LetValue) := do

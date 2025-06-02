@@ -211,13 +211,15 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     // We must escape the arguments to preserving spacing and other characters,
     // we might need to revisit escaping here.
     for (auto arg : args) {
-        bool should_quote = false;
+        // Adapted from https://github.com/rust-lang/rust/blob/2398bd6/library/std/src/sys/args/windows.rs
+        bool should_quote = *arg.data() == 0; // always escape empty strings
         for (char const * c = arg.data(); *c != 0; c++) {
-            // check for safe characters
+            // check for safe characters (safe variant for .bat arguments)
             if ((*c < 'A' || *c > 'Z') && (*c < 'a' || *c > 'z') && (*c < '0' || *c > '9')) {
                 switch (*c) {
-                    case '#': case '$': case '*': case '+': case '-': case '.': case '/': case ':':
-                    case '?': case '@': case '_':
+                    case '#': case '$': case '*': case '+':
+                    case '-': case '.': case '/': case ':':
+                    case '?': case '@': case '_': case '\\':
                         continue;
                 }
                 should_quote = true;
@@ -226,16 +228,27 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         }
         if (should_quote) {
             command += " \"";
-            for (char const * c = arg.data(); *c != 0; c++) {
-                if (*c == '"' || *c == '\\') {
-                    command += '\\';
-                }
-                command += *c;
-            }
-            command += "\"";
         } else {
             command += " ";
-            command += arg.to_std_string();
+        }
+        // Note: Backslashes should only be escaped if they precede the closing quote or an escaped quote
+        size_t backslashes = 0;
+        for (char const * c = arg.data(); *c != 0; c++) {
+            if (*c == '\\') {
+                backslashes++;
+            } else {
+                if (*c == '"' || *c == '\\') {
+                    // append n+1 backslashes for a total of 2n+1 backslashes
+                    command.append(backslashes + 1, '\\');
+                }
+                backslashes = 0;
+            }
+            command += *c;
+        }
+        if (should_quote) {
+            // append n backslashes for a total of 2n backslashes
+            command.append(backslashes, '\\');
+            command += "\"";
         }
     }
 

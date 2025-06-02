@@ -12,8 +12,8 @@ namespace lean {
 
 using namespace std;
 
-// Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family protocol : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, uint8_t protocol, obj_arg /* w */) {
+// Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, obj_arg /* w */) {
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
@@ -33,21 +33,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         case 1: hints.ai_family = PF_INET; break;
         case 2: hints.ai_family = PF_INET6; break;
         default: hints.ai_family = PF_UNSPEC; break;
-    }
-
-    switch (protocol) {
-        case 0:
-            hints.ai_protocol = IPPROTO_TCP;
-            hints.ai_socktype = SOCK_STREAM;
-            break;
-        case 1:
-            hints.ai_protocol = IPPROTO_UDP;
-            hints.ai_socktype = SOCK_DGRAM;
-            break;
-        default: 
-            hints.ai_protocol = IPPROTO_IP;
-            hints.ai_socktype = SOCK_STREAM;
-            break;
     }
 
     event_loop_lock(&global_ev);
@@ -146,7 +131,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr, obj_arg
 
 #else
 
-// Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family protocol : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
+// Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, int8_t protocol, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

@@ -116,16 +116,9 @@ instance [LawfulBEq α] : LawfulSingleton (α × β) (IndexMap α β) :=
 @[local grind] theorem WF' [LawfulBEq α] [LawfulHashable α] (i : Nat) (a : α) (h₁ : i < m.keys.size) (h₂ : a ∈ m) :
     m.keys[i] = a ↔ m.indices[a] = i := by
   have := m.WF i a
+  rw [Array.getElem_eq_getElem?_get]
   grind
 
-variable [LawfulBEq α] --[LawfulHashable α]
-
-#synth LawfulGetElem (HashMap α Nat) α Nat (fun m a => a ∈ m)
--- grind_pattern WF' => m.keys[i], m.indices[a]
-
-attribute [grind] Array.back_eq_getElem
-#check Array.getElem_pop
-#check Array.size_pop
 /--
 Erase the key-value pair with the given key, moving the last pair into its place in the order.
 If the key is not present, the map is unchanged.
@@ -141,9 +134,8 @@ If the key is not present, the map is unchanged.
       let lastKey := m.keys.back
       let lastValue := m.values.back
       { indices := (m.indices.erase a).insert lastKey i
-        keys := m.keys.pop.set i lastKey (by grind)
-        values := m.values.pop.set i lastValue (by grind)
-        WF := by grind (gen := 10) (splits := 10) }
+        keys := m.keys.pop.set i lastKey
+        values := m.values.pop.set i lastValue }
   | none => m
 
 /-! ### Verification theorems -/

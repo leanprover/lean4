@@ -24,6 +24,7 @@ attribute [grind →] List.mem_of_mem_erase
 attribute [grind] List.Nodup.erase
 attribute [grind] List.mem_erase_of_ne
 
+-- Only activate `not_mem_erase` when `l.Nodup` is already available.
 grind_pattern List.Nodup.not_mem_erase => a ∈ l.erase a, l.Nodup
 
 @[grind =] theorem List.nodup_iff_pairwise_ne : List.Nodup l ↔ List.Pairwise (· ≠ ·) l := Iff.rfl

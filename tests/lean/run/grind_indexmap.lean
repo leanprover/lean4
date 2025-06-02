@@ -97,8 +97,8 @@ attribute [local grind _=_] IndexMap.WF
   match h : m.indices[a]? with
   | some i =>
     { indices := m.indices
-      keys := m.keys.set i a (by grind)
-      values := m.values.set i b (by grind) }
+      keys := m.keys.set i a
+      values := m.values.set i b }
   | none =>
     { indices := m.indices.insert a m.size
       keys := m.keys.push a
